@@ -1,1 +1,175 @@
-<!doctype html><html><head><meta charset="UTF-8"><title>Xcalar-List</title><link href="cat_photoshop.css" rel="stylesheet" type="text/css"><style type="text/css">body,td,th {	font-family: "Arial Century Schoolbook L", "Times New Roman", serif;}body {	background-color: #f5f5f5;}</style><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script><script src="script.js"></script></head><body topmargin="0" leftmargin="0"><table width="100%" border="0" cellspacing="0" cellpadding="0">  <tr>    <td width="100%" align="left" valign="top" class="bg_r-r"><table width="1365" border="0" cellpadding="0" cellspacing="0" height="900" class="tbg">      <tr>        <td width="64" height="26" bgcolor="#3c4651" ><div style="position: absolute; left: 33px; top: 7px;" id="logo"><img src="images/logo-t.png" width="64" height="28" alt=""/></div></td>      </tr>      <tr>        <td height="40" bgcolor="#e77e23" >          <table width="100%" border="0" height="40" cellspacing="0" cellpadding="0"             id="menuItems">          <tr>            <td width="74" height="40" align="center" class="helvertica_grey"             onMouseOver="this.bgColor='#d55401'"             onMouseOut="this.bgColor='#e77e23'"             bgcolor="#e77e23">             <a class="menuItems" onClick="loadMainContent('list_table')">             View</a></td>            <td width="74" align="center" class="helvertica_grey"             onMouseOver="this.bgColor='#d55401'"             onMouseOut="this.bgColor='#e77e23'"             bgcolor="#e77e23">             <a class="menuItems" onClick="loadMainContent('filter_table')">             Filter</a></td>            <td width="74" align="center" class="helvertica_grey"             onMouseOver="this.bgColor='#d55401'"             onMouseOut="this.bgColor='#e77e23'"             bgcolor="#e77e23">             <a class="menuItems" onClick="loadMainContent('sort_table')">             Sort</a></td>            <td width="74" align="center" class="helvertica_grey"             onMouseOver="this.bgColor='#d55401'"             onMouseOut="this.bgColor='#e77e23'"             bgcolor="#e77e23">             <a class="menuItems" onClick="loadMainContent('join_table')">             Join</a></td>            <td width="118" align="center" class="helvertica_grey"             onMouseOver="this.bgColor='#d55401'"             onMouseOut="this.bgColor='#e77e23'"             bgcolor="#e77e23">             <a class="menuItems" onClick="loadMainContent('cat_table')">             Aggregate</a></td>            <td width="751">&nbsp;</td>            <td width="200" class="helvertica_white_big" ></td>          </tr>        </table></td>      </tr>      <tr>        <td height="43" ><table height="43" width="100%" border="0" cellpadding="0" cellspacing="0">          <tr>            <td width="52" >&nbsp;</td>            <td width="1313" class="helvertica_black_big" >List Tables</td>          </tr>        </table></td>      </tr>      <tr >        <td height="35"><table width="100%" height="35"  border="0" cellspacing="0" cellpadding="0">          <tr >            <td width="21" >&nbsp;</td>            <td width="1196" class="monacotype" >&nbsp;&nbsp;&nbsp;tablename = "tempTable-0"</td>            <td width="148" class="helvertica_black" >&nbsp;&nbsp;All tables</td>          </tr>        </table></td>      </tr>      <tr>        <td height="42" ><table width="100%"  border="0" cellspacing="0" cellpadding="0">          <tr>            <td width="21" height="40" >&nbsp;</td>            <td width="1241" class="helvertica_black" >List Tables in 500M</td>            <td width="103" >&nbsp;</td>          </tr>        </table></td>      </tr>      <tr>        <td height="25"  ><table width="100%" height="25"  border="0" cellspacing="0" cellpadding="0">          <tr>            <td width="9%" align="center" class="helvertica_black" >1-200</td>            <td width="7%" align="center" class="helvertica_black" >201-400</td>            <td width="9%" align="center" class="helvertica_black" >401-600</td>            <td width="75%" >&nbsp;</td>          </tr>        </table></td>      </tr>      <tr>        <td height="24">&nbsp;</td>      </tr>      <tr>        <td height="70">&nbsp;</td>      </tr>      <tr>        <td height="35">&nbsp;</td>      </tr>      <tr>        <td height="549"><table width="1365" border="0" cellspacing="10" cellpadding="0">          <tr>            <td width="239" height="549" valign="top" id="leftFrame">&nbsp;</td>            <td width="1126"  height="549" valign="top" id="mainFrame">            </td>          </tr>        </table></td>      </tr>      <tr height="233" bgcolor="f5f5f5">        <td height="29" valign="top"><br>          <table width="1365" border="0" cellspacing="0" cellpadding="0">            <tr>              <td width="56" align="center" class="helvertica_black">About</td>              <td width="63" align="center" class="helvertica_black">Support</td>              <td width="66" align="center" class="helvertica_black">File a bug</td>              <td width="98" align="center" class="helvertica_black">Documentation</td>              <td width="826" class="helvertica_black">Privacy Policy</td>              <td width="256" class="helvertica_black"><p>© 2013-2014 Xcalar Inc. All rights reserved</p></td>            </tr>          </table></td>      </tr>      <tr height="234">        <td valign="top">&nbsp;</td>      </tr>    </table></td>  </tr></table> </body></html>
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Xcalar-List</title>
+<link href="cat_photoshop.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+body,td,th {
+	font-family: "Arial Century Schoolbook L", "Times New Roman", serif;
+}
+body {
+	background-color: #f5f5f5;
+}
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="script.js"></script>
+</head>
+
+<body topmargin="0" leftmargin="0">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="100%" align="left" valign="top" class="bg_r-r"><table width="1365" border="0" cellpadding="0" cellspacing="0" height="900" class="tbg">
+      <tr>
+        <td width="64" height="26" bgcolor="#3c4651" >
+          <div style="position: absolute; left: 33px; top: 7px;" id="logo">
+            <img src="images/logo-t.png" width="64" height="28" alt=""/>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td height="40" bgcolor="#e77e23" >
+          <table width="100%" border="0" height="40" cellspacing="0" cellpadding="0" 
+            id="menuItems">
+          <tr>
+            <td width="74" height="40" align="center" class="helvertica_grey"
+             onMouseOver="this.bgColor='#d55401'"
+             onMouseOut="this.bgColor='#e77e23'"
+             bgcolor="#e77e23">
+             <a class="menuItems" onClick="loadMainContent('list_table')">
+             View</a></td>
+            <td width="74" align="center" class="helvertica_grey"
+             onMouseOver="this.bgColor='#d55401'"
+             onMouseOut="this.bgColor='#e77e23'"
+             bgcolor="#e77e23">
+             <a class="menuItems" onClick="loadMainContent('filter_table')">
+             Filter</a></td>
+            <td width="74" align="center" class="helvertica_grey"
+             onMouseOver="this.bgColor='#d55401'"
+             onMouseOut="this.bgColor='#e77e23'"
+             bgcolor="#e77e23">
+             <a class="menuItems" onClick="loadMainContent('sort_table')">
+             Sort</a></td>
+            <td width="74" align="center" class="helvertica_grey"
+             onMouseOver="this.bgColor='#d55401'"
+             onMouseOut="this.bgColor='#e77e23'"
+             bgcolor="#e77e23">
+             <a class="menuItems" onClick="loadMainContent('join_table')">
+             Join</a></td>
+            <td width="118" align="center" class="helvertica_grey"
+             onMouseOver="this.bgColor='#d55401'"
+             onMouseOut="this.bgColor='#e77e23'"
+             bgcolor="#e77e23">
+             <a class="menuItems" onClick="loadMainContent('cat_table')">
+             Aggregate</a></td>
+            <td width="751">&nbsp;</td>
+            <td width="200" class="helvertica_white_big" ></td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <td height="43" ><table height="43" width="100%" border="0" cellpadding="0" cellspacing="0">
+          <tr>
+            <td width="52" >&nbsp;</td>
+            <td width="1313" class="helvertica_black_big" >List Tables</td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr >
+        <td height="35"><table width="100%" height="35"  border="0" cellspacing="0" cellpadding="0">
+          <tr >
+            <td width="21" >&nbsp;</td>
+            <td width="1196" class="monacotype" >&nbsp;&nbsp;&nbsp;tablename = "tempTable-0"</td>
+            <td width="148" class="helvertica_black" >&nbsp;&nbsp;All tables</td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <td height="42" ><table width="100%"  border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="21" height="40" >&nbsp;</td>
+            <td width="1241" class="helvertica_black" >List Tables in 500M</td>
+            <td width="103" >&nbsp;</td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <td height="25">
+          <table height="25"  border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td class="dataSourceMenu" id="tab1c"
+                onMouseOver="dataSourceMouseOver(1);"
+                onMouseOut="dataSourceMouseOut(1);"
+                onClick="dataSourceClick(1);">
+                &nbsp;&nbsp;&nbsp;&nbsp;DataSource-0&nbsp;&nbsp;
+              </td>
+              <td class="dataSourceMenu">
+                  <img src="images/dark_l.png" height="25px" id="tab2l">
+              </td>
+              <td class="dataSourceMenu">
+                  <img src="images/dark_r.png" height="25px" id="tab1r">
+              </td>
+              <td class="dataSourceMenu" id="tab2c"
+                onMouseOver="dataSourceMouseOver(2);"
+                onMouseOut="dataSourceMouseOut(2);"
+                onClick="dataSourceClick(2);">
+                &nbsp;&nbsp;DataSource-1&nbsp;&nbsp;
+              </td>
+              <td class="dataSourceMenu">
+                  <img src="images/dark_l.png" height="25px" id="tab3l">
+              </td>
+              <td class="dataSourceMenu">
+                  <img src="images/dark_r.png" height="25px" id="tab2r">
+              </td>
+              <td class="dataSourceMenu" id="tab3c"
+                onMouseOver="dataSourceMouseOver(3);"
+                onMouseOut="dataSourceMouseOut(3);"
+                onClick="dataSourceClick(3);">
+                &nbsp;&nbsp;DataSource-2&nbsp;&nbsp;
+              </td>
+              <td class="dataSourceMenu">
+                  <img src="images/dark_r.png" height="25px" id="tab3r">
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td height="24">&nbsp;</td>
+      </tr>
+      <tr>
+        <td height="70">&nbsp;</td>
+      </tr>
+      <tr>
+        <td height="35">&nbsp;</td>
+      </tr>
+      <tr>
+        <td height="549"><table width="1365" border="0" cellspacing="10" cellpadding="0">
+          <tr>
+            <td width="239" height="549" valign="top" id="leftFrame">&nbsp;</td>
+            <td width="1126"  height="549" valign="top" id="mainFrame">
+            </td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr height="233" bgcolor="f5f5f5">
+        <td height="29" valign="top"><br>
+          <table width="1365" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td width="56" align="center" class="helvertica_black">About</td>
+              <td width="63" align="center" class="helvertica_black">Support</td>
+              <td width="66" align="center" class="helvertica_black">File a bug</td>
+              <td width="98" align="center" class="helvertica_black">Documentation</td>
+              <td width="826" class="helvertica_black">Privacy Policy</td>
+              <td width="256" class="helvertica_black"><p>© 2013-2014 Xcalar Inc. All rights reserved</p></td>
+            </tr>
+          </table></td>
+      </tr>
+      <tr height="234">
+        <td valign="top">&nbsp;</td>
+      </tr>
+    </table></td>
+  </tr>
+</table> 
+</body>
+</html>
