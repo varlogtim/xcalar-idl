@@ -16,10 +16,11 @@ body {
 <script src="script.js"></script>
 </head>
 
-<body topmargin="0" leftmargin="0">
+<body topmargin="0" leftmargin="0" onload="setTabs()">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td width="100%" align="left" valign="top" class="bg_r-r"><table width="1365" border="0" cellpadding="0" cellspacing="0" height="900" class="tbg">
+    <td width="100%" align="left" valign="top" class="bg_r-r">
+    <table width="1365" border="0" cellpadding="0" cellspacing="0" height="900" class="tbg">
       <tr>
         <td width="64" height="26" bgcolor="#3c4651" >
           <div style="position: absolute; left: 33px; top: 7px;" id="logo">
@@ -32,36 +33,13 @@ body {
           <table width="100%" border="0" height="40" cellspacing="0" cellpadding="0" 
             id="menuItems">
           <tr>
-            <td width="74" height="40" align="center" class="helvertica_grey"
-             onMouseOver="this.bgColor='#d55401'"
-             onMouseOut="this.bgColor='#e77e23'"
-             bgcolor="#e77e23">
-             <a class="menuItems" onClick="loadMainContent('list_table')">
-             View</a></td>
-            <td width="74" align="center" class="helvertica_grey"
-             onMouseOver="this.bgColor='#d55401'"
-             onMouseOut="this.bgColor='#e77e23'"
-             bgcolor="#e77e23">
-             <a class="menuItems" onClick="loadMainContent('filter_table')">
-             Filter</a></td>
-            <td width="74" align="center" class="helvertica_grey"
-             onMouseOver="this.bgColor='#d55401'"
-             onMouseOut="this.bgColor='#e77e23'"
-             bgcolor="#e77e23">
-             <a class="menuItems" onClick="loadMainContent('sort_table')">
-             Sort</a></td>
-            <td width="74" align="center" class="helvertica_grey"
-             onMouseOver="this.bgColor='#d55401'"
-             onMouseOut="this.bgColor='#e77e23'"
-             bgcolor="#e77e23">
-             <a class="menuItems" onClick="loadMainContent('join_table')">
-             Join</a></td>
-            <td width="118" align="center" class="helvertica_grey"
-             onMouseOver="this.bgColor='#d55401'"
-             onMouseOut="this.bgColor='#e77e23'"
-             bgcolor="#e77e23">
-             <a class="menuItems" onClick="loadMainContent('cat_table')">
-             Aggregate</a></td>
+            <script>
+               generateBar(74, "View", "list_table");
+               generateBar(74, "Filter", "filter_table");
+               generateBar(74, "Sort", "sort_table");
+               generateBar(74, "Join", "join_table");
+               generateBar(118, "Aggregate", "cat_table");
+			  </script>
             <td width="751">&nbsp;</td>
             <td width="200" class="helvertica_white_big" ></td>
           </tr>
@@ -94,43 +72,11 @@ body {
         </table></td>
       </tr>
       <tr>
-        <td height="25">
+        <td height="25" class="dataSourceBar">
           <table height="25"  border="0" cellspacing="0" cellpadding="0">
-            <tr>
-              <td class="dataSourceMenu" id="tab1c"
-                onMouseOver="dataSourceMouseOver(1);"
-                onMouseOut="dataSourceMouseOut(1);"
-                onClick="dataSourceClick(1);">
-                &nbsp;&nbsp;&nbsp;&nbsp;DataSource-0&nbsp;&nbsp;
-              </td>
-              <td class="dataSourceMenu">
-                  <img src="images/dark_l.png" height="25px" id="tab2l">
-              </td>
-              <td class="dataSourceMenu">
-                  <img src="images/dark_r.png" height="25px" id="tab1r">
-              </td>
-              <td class="dataSourceMenu" id="tab2c"
-                onMouseOver="dataSourceMouseOver(2);"
-                onMouseOut="dataSourceMouseOut(2);"
-                onClick="dataSourceClick(2);">
-                &nbsp;&nbsp;DataSource-1&nbsp;&nbsp;
-              </td>
-              <td class="dataSourceMenu">
-                  <img src="images/dark_l.png" height="25px" id="tab3l">
-              </td>
-              <td class="dataSourceMenu">
-                  <img src="images/dark_r.png" height="25px" id="tab2r">
-              </td>
-              <td class="dataSourceMenu" id="tab3c"
-                onMouseOver="dataSourceMouseOver(3);"
-                onMouseOut="dataSourceMouseOut(3);"
-                onClick="dataSourceClick(3);">
-                &nbsp;&nbsp;DataSource-2&nbsp;&nbsp;
-              </td>
-              <td class="dataSourceMenu">
-                  <img src="images/dark_r.png" height="25px" id="tab3r">
-              </td>
-            </tr>
+			  <script>
+			    generateTabs();
+			  </script>
           </table>
         </td>
       </tr>

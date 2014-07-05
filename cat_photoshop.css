@@ -3,6 +3,9 @@
 .table_title_bg {	
 	background-image:url(images/bgbgbg.png);
 	background-repeat:repeat-x;
+	font: 12px  "Helvetica Neue Light", arial, sans-serif;
+    color: #000000;
+	text-indent: 8px;
 }
 
 .bg_r-r {
@@ -58,6 +61,12 @@ a.menuItems:hover {
 }
 
 /* DataSource Items */
+.dataSourceBar{
+	 background-image:url(images/dark_m.png);
+	 background-repeat:repeat-x;
+	 background-size:auto 25px;
+}
+
 .dataSourceMenu, .dataSourceMenuText {
     font: 11px  Monaco, arial, sans-serif;
     color: #000000;
@@ -69,12 +78,17 @@ a.menuItems:hover {
 
 td.dataSourceMenu, .dataSourceMenuText {
 	position: relative;
+	background-image:url(images/dark_m.png);
+	background-repeat:repeat-x;
+	background-size: auto 25px;
 }
 
 
 #tab2c:hover + #tab1r{
 	opacity: 0;
 }
+
+/* Tables */
 
 /*they are text type*/
 
@@ -83,9 +97,8 @@ td.dataSourceMenu, .dataSourceMenuText {
 	background-repeat: no-repeat;
 }
 
-.stbg{
+.stbg {
 	background-color:#d5d5d5;
-
 }
 
 .b4{
