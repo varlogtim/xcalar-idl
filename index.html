@@ -39,7 +39,7 @@ body {
                generateBar(74, "Sort", "sort_table");
                generateBar(74, "Join", "join_table");
                generateBar(118, "Aggregate", "cat_table");
-			  </script>
+			</script>
             <td width="751">&nbsp;</td>
             <td width="200" class="helvertica_white_big" ></td>
           </tr>
@@ -73,10 +73,13 @@ body {
       </tr>
       <tr>
         <td height="25" class="dataSourceBar">
-          <table height="25"  border="0" cellspacing="0" cellpadding="0">
+          <table height="25"  border="0" cellspacing="0" cellpadding="0"
+                 id="tabsArea">
+            <tr>
 			  <script>
 			    generateTabs();
 			  </script>
+            </tr>
           </table>
         </td>
       </tr>

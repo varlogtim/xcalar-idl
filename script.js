@@ -1,7 +1,7 @@
 // JavaScript Document
 // Menu Bar JS
 var selectedTab = 1;
-var numTabs = 7;
+var numTabs = 3;
 var tableRowIndex = 1;
 
 function setTabs() {
@@ -140,14 +140,60 @@ function generateTabs() {
           </td>');
 		  if (i < numTabs) {
            document.write('<td class="dataSourceMenu">\
-                            <img src="images/dark_l.png" height="25px" id="tab'+(i+1)+'l">\
+                            <img src="images/dark_l.png" height="25px"\
+                            id="tab'+(i+1)+'l">\
                            </td>');
 		  } else {
 			  document.write('<td class="dataSourceMenu">\
-                  		     <img src="images/dark_r.png" height="25px" id="tab'+i+'r">\
-              					</td>');
+                  		         <img src="images/dark_r.png" height="25px"\
+                                     id="tab'+i+'r">\
+                             </td>');
 		  }
 	}
+    document.write('<td id="addTabButton">\
+                        <a href="javascript:addTab();">\
+                            <img src="images/add-data-grey.png"\
+                                 alt="Add Data Source" width="33" height="16"\
+                                 id="Image7">\
+                        </a>\
+                    </td>\
+                   ');
+}
+
+function addTab() {
+    var lastTabR = document.getElementById("tab"+numTabs+"r");
+    lastTabR.setAttribute("src","images/dark_l.png");
+    numTabs++;
+    lastTabR.setAttribute("id", ("tab"+numTabs+"l"));
+    $("#addTabButton").remove();
+    $("#tabsArea tr").append('\
+        <td class="dataSourceMenu">\
+            <img src="images/dark_r.png" height="25px" id="tab'+(numTabs-1)+'r">\
+        </td>\
+        <td class="dataSourceMenu" id="tab'+numTabs+'c"\
+            onMouseOver="dataSourceMouseOver('+numTabs+');"\
+            onMouseOut="dataSourceMouseOut('+numTabs+');"\
+            onClick="dataSourceClick('+numTabs+');">\
+            &nbsp;&nbsp;DataSource-'+numTabs+'&nbsp;&nbsp;\
+        </td>\
+        <td class="dataSourceMenu">\
+            <img src="images/dark_r.png" height="25px" id="tab'+numTabs+'r">\
+        </td>\
+    ');
+    for (var i = 1; i<=numTabs; i++) {
+        if (i != selectedTab) {
+            dataSourceMouseOver(i);
+            dataSourceMouseOut(i);
+        }
+    }
+    $("#tabsArea tr").append('\
+        <td id="addTabButton">\
+            <a href="javascript:addTab();">\
+                <img src="images/add-data-grey.png"\
+                    alt="Add Data Source" width="33" height="16" id="Image7">\
+            </a>\
+        </td>\
+    ');
 }
 
 function generateBar(width, text, page) {
