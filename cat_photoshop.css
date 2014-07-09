@@ -89,6 +89,11 @@ td.dataSourceMenu, .dataSourceMenuText {
 }
 
 /* Tables */
+.colClose {
+    background-image:url(images/closeButton.png);
+    background-size: 15px 15px;
+    float: right;
+}
 
 /*they are text type*/
 

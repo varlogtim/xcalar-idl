@@ -210,15 +210,60 @@ function resetAutoIndex() {
 }
 
 function generateRowWithAutoIndex(text) {
-	$("#autoGenTable tr:last").after('<tr><td height="17" align="center" bgcolor="#FFFFFF" class="monacotype">'
-                    +tableRowIndex+'</td><td height="17" bgcolor="#FFFFFF" class="monacotype">'
-                    +text+'</td></tr>');
+	$("#autoGenTable tr:last").after('<tr><td height="17" align="center"'+
+        'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
+        tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+tableRowIndex+'</td>'+
+        '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
+        tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)">'+text+'</td></tr>');
 	tableRowIndex++;
 }
 
-function tgenerateRowWithAutoIndex(text) {
-	$("#tautoGenTable tr:last").after('<tr><td height="17" align="center" bgcolor="#FFFFFF" class="monacotype">'
-                    +tableRowIndex+'</td><td height="17" bgcolor="#FFFFFF" class="monacotype">'
-                    +text+'</td></tr>');
-	tableRowIndex++;
+function delCol(id) {
+    var numCol = $("#autoGenTable").find("tr:first td").length;
+    var colid = parseInt(id.substring(11));
+    $("#headCol"+colid).remove();
+    for (var i = colid+1; i<=numCol; i++) {
+        $("#headCol"+i).attr("id", "headCol"+(i-1));
+        $("#closeButton"+i).attr("id", "closeButton"+(i-1));
+    }
+ 
+    var numRow = $("#autoGenTable tr").length;
+    for (var i = 1; i<numRow; i++) {
+        $("#bodyr"+i+"c"+colid).remove();
+        for (var j = colid+1; j<=numCol; j++) {
+            $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j-1));
+        }
+    }
 }
+
+function addCol(id) {
+    var numCol = $("#autoGenTable").find("tr:first td").length;
+    var colid = parseInt(id.substring(7));
+    for (var i = numCol; i>=colid+1; i--) {
+        $("#headCol"+i).attr("id", "headCol"+(i+1));
+        $("#closeButton"+i).attr("id", "closeButton"+(i+1));
+    }
+    $("#"+id).after('<td contentEditable height="17" class="table_title_bg" id="headCol'+
+        (colid+1)+
+        '" onmouseover="javascript: console.log(this.id)"'+
+        '><strong>New Heading</strong><img src="images/closeButton.png" '+
+        'style="background-size: 15px 15px; float:right;"'+
+        'onclick="javascript: delCol(this.id);" id="closeButton'+
+        (colid+1)+'">'+
+        '</td>');
+ 
+    var numRow = $("#autoGenTable tr").length;
+    for (var i = 1; i<numRow; i++) {
+        for (var j = numCol; j>=colid+1; j--) {
+            $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j+1));
+
+        }
+        $("#bodyr"+i+"c"+colid).after('<td height="17" bgcolor="#FFFFFF"'+
+            'class="monacotype" id="bodyr'+i+"c"+(colid+1)+'" onmouseover="javascript: console.log(this.id)">&nbsp;</td>');
+    }
+}
+
+function changeText(id) {
+    alert(id);
+}
+
