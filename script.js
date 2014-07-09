@@ -1,6 +1,6 @@
 // JavaScript Document
 // Menu Bar JS
-var selectedTab = 0;
+var selectedTab = 1;
 var numTabs = 7;
 var tableRowIndex = 1;
 
