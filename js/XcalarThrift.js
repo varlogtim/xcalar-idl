@@ -1,0 +1,300 @@
+$(document).ready(function(){
+   $('table.XcalarApiService').attr('width', 500);
+});
+
+function XcalarLoad() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.loadInput = new XcalarApiBulkLoadInputT();
+    workItem.input.loadInput.srcTable = new XcalarApiTableT();
+    workItem.input.loadInput.dstTable = new XcalarApiTableT();
+
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiBulkLoad;
+    workItem.input.loadInput.loadFromPath = true;
+    workItem.input.loadInput.path = $('#LoadUrl').val();
+    workItem.input.loadInput.maxSize = 0;
+    workItem.input.loadInput.dfType = DfFormatTypeT.DfTypeJSON;
+    workItem.input.loadInput.keyName = $('#LoadKey').val();
+    workItem.input.loadInput.srcTable.tableName = "";
+    workItem.input.loadInput.srcTable.handle = 0;
+    workItem.input.loadInput.dstTable.tableName = $('#LoadTableName').val();
+    workItem.input.loadInput.dstTable.handle = 0;
+
+    try {
+        result = client.queueWork(workItem);
+        $('#LoadStatus').val(result.output.statusOutput);
+        $('#LoadStatus').css('color', 'black');
+    } catch(ouch) {
+        $('#LoadStatus').val('fail');
+        $('#LoadStatus').css('color', 'red');
+    }
+}
+
+function XcalarGetCount() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiCountUnique;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.tableInput = new XcalarApiTableT();
+    workItem.input.tableInput.tableName = $('#GetCountTableName').val();
+    workItem.input.tableInput.handle = 0;
+
+    try {
+        result = client.queueWork(workItem);
+        $('#GetCountStatus').val(result.output.countOutput.status);
+        $('#GetCountNum').val(result.output.countOutput.numCounts);
+        $('#GetCount0').val(result.output.countOutput.counts[0]);
+
+        $('#GetCountStatus').css('color', 'black');
+        $('#GetCountNum').css('color', 'black');
+        $('#GetCount0').css('color', 'black');
+    } catch(ouch) {
+      $('#GetCountStatus').val(ouch.status);
+      $('#GetCountStatus').css('color', 'red');
+    }
+}
+
+function XcalarGetTableNames() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiListTables;
+
+    try {
+        result = client.queueWork(workItem);
+        return (result.output.listTalesOutput);
+    } catch(ouch) {
+        console.log("Couldn't get table names");
+        return (0);
+    }
+}
+
+function XcalarGetNumTables() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiListTables;
+
+    try {
+        result = client.queueWork(workItem);
+        console.log("NumTables"+result.output.listTablesOutput.numTables);
+        return (result.output.listTablesOutput.numTables);
+    } catch(ouch) {
+        console.log("Couldn't get numtables");
+        return (0);
+    }
+}
+
+function XcalarGetStats() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.statInput = new XcalarApiGetStatInputT();
+
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiGetStat;
+    workItem.input.statInput.nodeId = 0;
+    workItem.input.statInput.threadNamePattern = $('#GetStatThreadPattern').val();
+    workItem.input.statInput.statNamePattern = $('#GetStatNamePattern').val();
+
+    try {
+        result = client.queueWork(workItem);
+        $('#GetStatStatus').val(result.output.statOutput.status);
+        $('#GetStat0Thread').val(result.output.statOutput.stats[0].threadName);
+        $('#GetStat0Name').val(result.output.statOutput.stats[0].statName);
+        $('#GetStat0Val').val(result.output.statOutput.stats[0].statValue);
+
+        $('#GetStatStatus').css('color', 'black');
+        $('#GetStat0Thread').css('color', 'black');
+        $('#GetStat0Name').css('color', 'black');
+        $('#GetStat0Val').css('color', 'black');
+    } catch(ouch) {
+        $('#GetStatStatus').val('fail');
+        $('#GetStatStatus').css('color', 'red');
+    }
+}
+
+function XcalarShutdown() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiShutdown;
+
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+    }
+}
+
+function XcalarCatTable() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiMakeResultSet;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.tableInput = new XcalarApiTableT();
+    workItem.input.tableInput.tableName = $('#CatTableName').val();
+    workItem.input.tableInput.handle = 0;
+
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+      $('#CatTableStatus').val('fail');
+      $('#CatTableStatus').css('color', 'red');
+      return;
+    }
+
+    if (result.jobStatus != StatusT.StatusOk) {
+      $('#CatTableStatus').val('fail');
+      $('#CatTableStatus').css('color', 'red');
+      return;
+    }
+
+    if (result.output.makeResultSetOutput.status != StatusT.StatusOk) {
+      $('#CatTableStatus').val('fail');
+      $('#CatTableStatus').css('color', 'red');
+      return;
+    }
+    workItem.api = XcalarApisT.XcalarApiResultSetNext;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.resultSetNextInput = new XcalarApiResultSetNextInputT();
+    workItem.input.resultSetNextInput.resultSet =
+        result.output.makeResultSetOutput.resultSet;
+    workItem.input.resultSetNextInput.numRecords = 5;
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+      $('#CatTableStatus').val('fail');
+      $('#CatTableStatus').css('color', 'red');
+      return;
+    }
+
+    if (result.jobStatus != StatusT.StatusOk) {
+      $('#CatTableStatus').val('fail');
+      $('#CatTableStatus').css('color', 'red');
+      return;
+    }
+
+    $('#CatTableStatus').val(0);
+    $('#CatTableNum').val(result.output.resultSetNextOutput.numRecords);
+    $('#CatTableKey0').val(result.output.resultSetNextOutput.records[0].key);
+    $('#CatTableVal0').val(result.output.resultSetNextOutput.records[0].value);
+    $('#CatTableNum').css('color', 'black');
+    $('#CatTableKey0').css('color', 'black');
+    $('#CatTableVal0').css('color', 'black');
+}
+
+function XcalarFilter() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.filterInput = new XcalarApiFilterInputT();
+    workItem.input.filterInput.table = new XcalarApiTableT();
+    workItem.input.filterInput.filterTable = new XcalarApiTableT();
+
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiFilter;
+    workItem.input.filterInput.table.tableName = $('#FilterSrcTableName').val();
+    workItem.input.filterInput.table.handle = 0;
+    workItem.input.filterInput.filterTable.tableName = $('#FilterDstTableName').val();
+    workItem.input.filterInput.filterTable.handle = 0;
+    workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsLessEqual;
+    workItem.input.filterInput.compValue = 3255348558481219398;
+
+    try {
+        result = client.queueWork(workItem);
+        $('#FilterTableStatus').val(result.output.statusOutput);
+        $('#FilterTableStatus').css('color', 'black');
+    } catch(ouch) {
+        $('#FilterTableStatus').val('fail');
+        $('#FilterTableStatus').css('color', 'red');
+    }
+}
+
+function XcalarJoin() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.joinInput = new XcalarApiJoinInputT();
+    workItem.input.joinInput.leftTable = new XcalarApiTableT();
+    workItem.input.joinInput.rightTable = new XcalarApiTableT();
+    workItem.input.joinInput.joinTable = new XcalarApiTableT();
+
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiJoin;
+    workItem.input.joinInput.leftTable.tableName = $('#JoinLeftTableName').val();
+    workItem.input.joinInput.leftTable.handle = 0;
+    workItem.input.joinInput.rightTable.tableName = $('#JoinLeftTableName').val();
+    workItem.input.joinInput.rightTable.handle = 0;
+    workItem.input.joinInput.joinTable.tableName = $('#JoinDstTableName').val();
+    workItem.input.joinInput.joinTable.handle = 0;
+    workItem.input.joinInput.joinType = OperatorsOpT.OperatorsInnerJoin;
+
+    try {
+        result = client.queueWork(workItem);
+        $('#JoinStatus').val(result.output.statusOutput);
+        $('#JoinStatus').css('color', 'black');
+    } catch(ouch) {
+        $('#JoinStatus').val('fail');
+        $('#JoinStatus').css('color', 'red');
+    }
+}
+
+function XcalarGroupBy() {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.groupByInput = new XcalarApiGroupByInputT();
+    workItem.input.groupByInput.table = new XcalarApiTableT();
+    workItem.input.groupByInput.groupByTable = new XcalarApiTableT();
+
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiGroupBy;
+    workItem.input.groupByInput.table.tableName = $('#GroupSrcTableName').val();
+    workItem.input.groupByInput.table.handle = 0;
+    workItem.input.groupByInput.groupByTable.tableName = $('#GroupDstTableName').val();
+    workItem.input.groupByInput.groupByTable.handle = 0;
+    workItem.input.groupByInput.groupByOp = OperatorsOpT.OperatorsAverage;
+
+    try {
+        result = client.queueWork(workItem);
+        $('#GroupStatus').val(result.output.statusOutput);
+        $('#GroupStatus').css('color', 'black');
+    } catch(ouch) {
+        $('#GroupStatus').val('fail');
+        $('#GroupStatus').css('color', 'red');
+    }
+}
