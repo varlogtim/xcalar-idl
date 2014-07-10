@@ -247,7 +247,8 @@ function addCol(id) {
         (colid+1)+
         '" onmouseover="javascript: console.log(this.id)"'+
         '><strong>New Heading</strong><img src="images/closeButton.png" '+
-        'style="background-size: 15px 15px; float:right;"'+
+        'style="background-size: 15px 15px; float:right; cursor: pointer;'+
+        'z-index: 2;"'+
         'onclick="javascript: delCol(this.id);" id="closeButton'+
         (colid+1)+'">'+
         '</td>');
