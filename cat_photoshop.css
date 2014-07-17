@@ -8,12 +8,6 @@
 	text-indent: 8px;
 }
 
-.bg_r-r {
-	background-image:url(images/bg_right.jpg);
-	background-repeat:repeat-x;
-}
-
-
 .monacotype {
     font: 11px  Monaco, arial, sans-serif;
 
@@ -56,8 +50,12 @@
 }
 
 /* Menu Items */
+a.menuItems {
+    color: #FFFFFF;
+}
 a.menuItems:hover {
-	cursor:pointer
+	cursor: pointer;
+    text-decoration: none;
 }
 
 /* DataSource Items */
@@ -83,6 +81,11 @@ td.dataSourceMenu, .dataSourceMenuText {
 	background-size: auto 25px;
 }
 
+.addTabBg {
+    background-image:url(images/dark_m.png);
+    background-repeat:repeat-x;
+    background-size: auto 25px;
+}
 
 #tab2c:hover + #tab1r{
 	opacity: 0;
@@ -95,24 +98,47 @@ td.dataSourceMenu, .dataSourceMenuText {
     float: right;
 }
 
-/*they are text type*/
-
 .tbg{
 	background-image: url(images/cat-page-table-bg.png);
 	background-repeat: no-repeat;
+    border-spacing: 0px 0px;
+    padding: 0px;
+    border: 0px;
+}
+
+.noBorderTable {
+    border-collapse: collapse;
+    border: 0px;
+    margin: 0px;
+    /* For testing only 
+    box-shadow: 0 0 0 2px blue inset; */
+}
+
+.noBorderTable td {
+    padding: 0px;
 }
 
 .stbg {
 	background-color:#d5d5d5;
+    border-spacing: 0px 0px;
+    padding: 0px;
+    border: 0px;
+
 }
 
-.b4{
-	
+.spaceFiller {
+    width: calc(100%-1365px);
+}
+
+.tabsAreaBg {
+    background-image: url(images/dark_m.png);
+    background-repeat: repeat-x;
+    background-size:auto 25px;
+}
+
+.b4{	
 	border:1px solid BLACK;
-	}
-@charset "UTF-8";
-/* CSS Document */
-some of the selfid font mudule
+}
 
 body {
     font: 12px  helvetica, arial, sans-serif;

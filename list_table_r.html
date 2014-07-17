@@ -21,16 +21,14 @@ body {
 </head>
 
 <body topmargin="0" leftmargin="0">
-<table width="100%" border="0" class="stbg"
-    id="autoGenTable" cellspacing="1px" cellpadding="2px">
+<table width="100%" border="0" class="stbg" id="autoGenTable">
   <tr>
     <td width="3%" height="17" class="table_title_bg" id="headCol1"><strong>ID</strong></td>
     <td height="17" class="table_title_bg" id="headCol2"><strong>Value</strong></td>
   </tr>
     <script>
-        alert("HELLO");
-        var numTables = XcalarGetNumTables();
-        var tables = XcalarGetTableNames();
+        var tables = XcalarGetTables();
+        var numTables = tables.numTables;
         var i;
         for (i = 0; i<numTables; i++) {
             var t = tables.tables[i];
@@ -39,6 +37,7 @@ body {
         $(document).on('dblclick', '.table_title_bg', function(event) {
             addCol($(this).attr("id"));
         });
+
     </script>
 </table>
 </body>

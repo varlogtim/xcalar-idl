@@ -63,7 +63,7 @@ function XcalarGetCount() {
     }
 }
 
-function XcalarGetTableNames() {
+function XcalarGetTables() {
     var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -74,28 +74,9 @@ function XcalarGetTableNames() {
 
     try {
         result = client.queueWork(workItem);
-        return (result.output.listTalesOutput);
+        return (result.output.listTablesOutput);
     } catch(ouch) {
         console.log("Couldn't get table names");
-        return (0);
-    }
-}
-
-function XcalarGetNumTables() {
-    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
-    var protocol  = new Thrift.Protocol(transport);
-    var client    = new XcalarApiServiceClient(protocol);
-
-    var workItem = new XcalarApiWorkItemT();
-    workItem.apiVersion = 0;
-    workItem.api = XcalarApisT.XcalarApiListTables;
-
-    try {
-        result = client.queueWork(workItem);
-        console.log("NumTables"+result.output.listTablesOutput.numTables);
-        return (result.output.listTablesOutput.numTables);
-    } catch(ouch) {
-        console.log("Couldn't get numtables");
         return (0);
     }
 }
@@ -147,7 +128,7 @@ function XcalarShutdown() {
     }
 }
 
-function XcalarCatTable() {
+function XcalarGetNumEntries(tableName) {
     var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -157,26 +138,23 @@ function XcalarCatTable() {
     workItem.api = XcalarApisT.XcalarApiMakeResultSet;
     workItem.input = new XcalarApiInputT();
     workItem.input.tableInput = new XcalarApiTableT();
-    workItem.input.tableInput.tableName = $('#CatTableName').val();
+    workItem.input.tableInput.tableName = tableName;
     workItem.input.tableInput.handle = 0;
 
     try {
         result = client.queueWork(workItem);
     } catch(ouch) {
-      $('#CatTableStatus').val('fail');
-      $('#CatTableStatus').css('color', 'red');
-      return;
+        console.log("Failed to cat table");
+        return;
     }
 
     if (result.jobStatus != StatusT.StatusOk) {
-      $('#CatTableStatus').val('fail');
-      $('#CatTableStatus').css('color', 'red');
+      console.log("Failed to cat table2");
       return;
     }
 
     if (result.output.makeResultSetOutput.status != StatusT.StatusOk) {
-      $('#CatTableStatus').val('fail');
-      $('#CatTableStatus').css('color', 'red');
+      console.log("Failed to cat table3");
       return;
     }
     workItem.api = XcalarApisT.XcalarApiResultSetNext;
@@ -188,25 +166,69 @@ function XcalarCatTable() {
     try {
         result = client.queueWork(workItem);
     } catch(ouch) {
-      $('#CatTableStatus').val('fail');
-      $('#CatTableStatus').css('color', 'red');
+      console.log("Failed to cat table4");
       return;
     }
 
     if (result.jobStatus != StatusT.StatusOk) {
-      $('#CatTableStatus').val('fail');
-      $('#CatTableStatus').css('color', 'red');
+      console.log("Failed to cat table5");
       return;
     }
 
-    $('#CatTableStatus').val(0);
-    $('#CatTableNum').val(result.output.resultSetNextOutput.numRecords);
-    $('#CatTableKey0').val(result.output.resultSetNextOutput.records[0].key);
-    $('#CatTableVal0').val(result.output.resultSetNextOutput.records[0].value);
-    $('#CatTableNum').css('color', 'black');
-    $('#CatTableKey0').css('color', 'black');
-    $('#CatTableVal0').css('color', 'black');
+    return (result.output.resultSetNextOutput.numRecords);
 }
+
+function XcalarGetTable(tableName) {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiMakeResultSet;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.tableInput = new XcalarApiTableT();
+    workItem.input.tableInput.tableName = tableName;
+    workItem.input.tableInput.handle = 0;
+
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+        console.log("Failed to cat table");
+        return;
+    }
+
+    if (result.jobStatus != StatusT.StatusOk) {
+      console.log("Failed to cat table2");
+      return;
+    }
+
+    if (result.output.makeResultSetOutput.status != StatusT.StatusOk) {
+      console.log("Failed to cat table3");
+      return;
+    }
+    workItem.api = XcalarApisT.XcalarApiResultSetNext;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.resultSetNextInput = new XcalarApiResultSetNextInputT();
+    workItem.input.resultSetNextInput.resultSet =
+        result.output.makeResultSetOutput.resultSet;
+    workItem.input.resultSetNextInput.numRecords = 5;
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+      console.log("Failed to cat table4");
+      return;
+    }
+
+    if (result.jobStatus != StatusT.StatusOk) {
+      console.log("Failed to cat table5");
+      return;
+    }
+
+    return (result.output.resultSetNextOutput);
+    //$('#CatTableKey0').val(result.output.resultSetNextOutput.records[0].key);
+  }
+
 
 function XcalarFilter() {
     var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");

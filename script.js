@@ -151,7 +151,7 @@ function generateTabs() {
 		  }
 	}
     document.write('<td id="addTabButton">\
-                        <a href="javascript:addTab();">\
+                        <a href="javascript:addTab();" class="addTabBg">\
                             <img src="images/add-data-grey.png"\
                                  alt="Add Data Source" width="33" height="16"\
                                  id="Image7">\
@@ -200,7 +200,7 @@ function generateBar(width, text, page) {
 	document.write('<td width="'+width+'" height="40" align="center" class="helvertica_grey"\
                     onMouseOver="this.bgColor=\'#d55401\'"\
                     onMouseOut="this.bgColor=\'#e77e23\'"\
-                    bgcolor="#e77e23">\
+                    bgcolor="#e77e23" onClick="loadMainContent(\'' + page +'\');">\
                     <a class="menuItems" onClick="loadMainContent(\'' + page + '\')">'+
 					  text + '</a></td>');
 }
@@ -209,12 +209,37 @@ function resetAutoIndex() {
 	tableRowIndex = 1;
 }
 
-function generateRowWithAutoIndex(text) {
+function generateRowWithAutoIndex(text, charLimit) {
+    if (charLimit > -1) {
+        text = text.substring(0, charLimit);
+    }
 	$("#autoGenTable tr:last").after('<tr><td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+tableRowIndex+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)">'+text+'</td></tr>');
+	tableRowIndex++;
+}
+
+function generateRowWithAutoIndex2(text1, text2, charLimit2) {
+    // text1 is an int since it's the key
+    var trunc = "";
+    if (charLimit2 > -1) {
+        text2 = text2.substring(0, charLimit2);
+        trunc = "...";
+    }
+	$("#autoGenTable tr:last").after('<tr>'+
+        '<td height="17" align="center"'+
+        'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
+        tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'
+        +tableRowIndex+'</td>'+
+        '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
+        tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)">'+
+        text1+'</td>'+
+        '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
+        tableRowIndex+"c3"+'" onmouseover="javascript: console.log(this.id)">'+
+        text2+trunc+'</td>'+
+        '</tr>');
 	tableRowIndex++;
 }
 
@@ -262,9 +287,5 @@ function addCol(id) {
         $("#bodyr"+i+"c"+colid).after('<td height="17" bgcolor="#FFFFFF"'+
             'class="monacotype" id="bodyr'+i+"c"+(colid+1)+'" onmouseover="javascript: console.log(this.id)">&nbsp;</td>');
     }
-}
-
-function changeText(id) {
-    alert(id);
 }
 
