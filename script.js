@@ -3,6 +3,7 @@
 var selectedTab = 1;
 var numTabs = 3;
 var tableRowIndex = 1;
+var currentPageNumber = 0;
 
 function setTabs() {
 	var i;
@@ -205,14 +206,116 @@ function generateBar(width, text, page) {
 					  text + '</a></td>');
 }
 
+function deselectPage(pageNumber) {
+    $("a.pageTurnerPageNumber").filter(function() {
+        return $(this).text() == pageNumber.toString();
+    }).parent().removeClass("pageTurnerPageSelected");
+} 
+
+function selectPage(pageNumber) {
+    $("a.pageTurnerPageNumber").filter(function() {
+        return $(this).text() == pageNumber.toString();
+    }).parent().addClass("pageTurnerPageSelected");
+} 
+
+function goToPrevPage() {
+    if (currentPageNumber == 0) {
+        return;
+    }
+    var currentPage = currentPageNumber+1;
+    var prevPage = currentPage-1;
+    var prevPageElement = $("a.pageTurnerPageNumber").filter(function() {
+        return $(this).text() == prevPage.toString();
+    });
+    if (prevPageElement.length) {
+        selectPage(prevPage);
+        deselectPage(currentPage);
+        currentPageNumber--;
+    } else {
+        goToPage(prevPage-1);
+    }
+}
+
+function goToNextPage() {
+    // XXX: TODO: Check whether we are already at the max
+    var currentPage = currentPageNumber+1;
+    var nextPage = currentPage+1;
+
+    var nextPageElement = $("a.pageTurnerPageNumber").filter(function() {
+        return $(this).text() == nextPage.toString();
+    });
+    if (nextPageElement.length) {
+        selectPage(nextPage);
+        deselectPage(currentPage);
+        currentPageNumber++;
+    } else {
+        goToPage(nextPage-1);
+    }
+}
+
+function generatePages(number, startNumber, rightDots) {
+    var htmlString = '\
+          <table height="35" width="1365" class="noBorderTable"\
+          id="pageTurnerNumberBar">\
+            <tr>\
+              <td height="35" width="956" bgcolor="#FFFFFF"></td>\
+              <td height="35" width="409" bgcolor="#FFFFFF" align="right">\
+              <table class="noBorderTable" style="height: 35; max-width: 389;">\
+              <tr>\
+              <td width="45" height="35" align="right" bgcolor="#FFFFFF"\
+              class="pageTurner" id="pageTurnerLeft">\
+                  <a href="javascript:goToPrevPage();" class="pageTurner">< Prev</a>\
+              </td>';
+    if (startNumber > 0) {
+        // There are previous pages
+        htmlString += '\
+              <td height="35" width="20" align="right" class="pageTurner">\
+                <a href="javascript:goToPage(';
+        htmlString += (startNumber-5);
+        htmlString += ');" class="pageTurner">...</a></td>';
+    }
+    var i;
+    for (i = 0; i<number; i++) {
+        htmlString += '\
+              <td height="35" width= "35" class="pageTurnerPage">\
+                <center>\
+                  <a href="javascript:goToPage(';
+        htmlString += (i+startNumber);
+        htmlString += ');" class="pageTurnerPageNumber">';
+        htmlString += (i+1+startNumber);
+        htmlString += '</a>\
+                </center>\
+              </td>';
+    }
+    
+    if (rightDots) {
+        // There are previous pages
+        htmlString += '\
+              <td height="35" width="20" align="left" class="pageTurner">\
+                <a href="javascript:goToPage(';
+        htmlString += (startNumber+number+5);
+        htmlString += ');" class="pageTurner">...</a></td>';
+    }
+
+    htmlString += '\
+              <td height="35" width="44" id="pageTurnerRight"\
+              bgcolor="#FFFFFF">\
+              <a href="javascript:goToNextPage();" class="pageTurner">Next ></a>\
+              </td>\
+              </tr>\
+              </table>\
+              </td>\
+              <td height="35" bgcolor="#FFFFFF" class="spaceFiller"></td>\
+            </tr>\
+          </table>\
+          ';
+    $("#pageTurnerNumberBar").html(htmlString);
+}
 function resetAutoIndex() {
 	tableRowIndex = 1;
 }
 
-function generateRowWithAutoIndex(text, charLimit) {
-    if (charLimit > -1) {
-        text = text.substring(0, charLimit);
-    }
+function generateRowWithAutoIndex(text) {
 	$("#autoGenTable tr:last").after('<tr><td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+tableRowIndex+'</td>'+
@@ -221,13 +324,8 @@ function generateRowWithAutoIndex(text, charLimit) {
 	tableRowIndex++;
 }
 
-function generateRowWithAutoIndex2(text1, text2, charLimit2) {
+function generateRowWithAutoIndex2(text1, text2) {
     // text1 is an int since it's the key
-    var trunc = "";
-    if (charLimit2 > -1) {
-        text2 = text2.substring(0, charLimit2);
-        trunc = "...";
-    }
 	$("#autoGenTable tr:last").after('<tr>'+
         '<td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
@@ -238,7 +336,8 @@ function generateRowWithAutoIndex2(text1, text2, charLimit2) {
         text1+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c3"+'" onmouseover="javascript: console.log(this.id)">'+
-        text2+trunc+'</td>'+
+        '<div class="elementText">'+
+        text2+'</div></td>'+
         '</tr>');
 	tableRowIndex++;
 }
@@ -289,3 +388,23 @@ function addCol(id) {
     }
 }
 
+function goToPage(pageNumber) {
+    deselectPage(currentPageNumber+1);
+    currentPageNumber = pageNumber;
+    var startNumber = pageNumber-5;
+    if (startNumber < 0) {
+        startNumber = 0;
+    }
+    generatePages(10, startNumber, true); 
+    selectPage(pageNumber+1);
+}
+
+function prelimFunctions() {
+    setTabs();
+    selectPage(1);
+}
+
+function getSearchBarText() {
+    var tName = $("#searchBar").text();
+    alert(tName);
+}

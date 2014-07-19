@@ -5,57 +5,6 @@
 //
 
 
-DfFormatTypeT = {
-'DfTypeUnknown' : 0,
-'DfTypeJSON' : 1,
-'DfTypeWikiLog' : 2,
-'DfTypeRandom' : 3
-};
-DfColumnTypeT = {
-'DfString' : 0,
-'DfInt32' : 1,
-'DfUInt32' : 2,
-'DfInt64' : 3,
-'DfUInt64' : 4,
-'DfFloat32' : 5,
-'DfFloat64' : 6,
-'DfBoolean' : 7,
-'DfTimespec' : 8,
-'DfBlob' : 9,
-'DfNull' : 10
-};
-OperatorsOpT = {
-'OperatorsMax' : 0,
-'OperatorsMin' : 1,
-'OperatorsSumKeys' : 2,
-'OperatorsCountKeys' : 3,
-'OperatorsAverage' : 4,
-'OperatorsEqual' : 5,
-'OperatorsLess' : 6,
-'OperatorsMore' : 7,
-'OperatorsLessEqual' : 8,
-'OperatorsMoreEqual' : 9,
-'OperatorsNotEqual' : 10,
-'OperatorsUnique' : 11,
-'OperatorsNotUnique' : 12,
-'OperatorsLeftOuterJoin' : 13,
-'OperatorsInnerJoin' : 14
-};
-XcalarApisT = {
-'XcalarApiUnknown' : 0,
-'XcalarApiBulkLoad' : 1,
-'XcalarApiCountUnique' : 2,
-'XcalarApiShutdown' : 3,
-'XcalarApiLargestHitCount' : 4,
-'XcalarApiGetStat' : 5,
-'XcalarApiListTables' : 6,
-'XcalarApiShutdownLocal' : 7,
-'XcalarApiMakeResultSet' : 8,
-'XcalarApiResultSetNext' : 9,
-'XcalarApiJoin' : 10,
-'XcalarApiFilter' : 11,
-'XcalarApiGroupBy' : 12
-};
 XcalarApiException = function(args) {
   this.status = null;
   if (args) {
@@ -110,7 +59,7 @@ XcalarApiException.prototype.write = function(output) {
   return;
 };
 
-DfColumnSchemaT = function(args) {
+DfFieldAttrT = function(args) {
   this.name = null;
   this.type = null;
   this.len = null;
@@ -126,8 +75,8 @@ DfColumnSchemaT = function(args) {
     }
   }
 };
-DfColumnSchemaT.prototype = {};
-DfColumnSchemaT.prototype.read = function(input) {
+DfFieldAttrT.prototype = {};
+DfFieldAttrT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -170,8 +119,8 @@ DfColumnSchemaT.prototype.read = function(input) {
   return;
 };
 
-DfColumnSchemaT.prototype.write = function(output) {
-  output.writeStructBegin('DfColumnSchemaT');
+DfFieldAttrT.prototype.write = function(output) {
+  output.writeStructBegin('DfFieldAttrT');
   if (this.name !== null && this.name !== undefined) {
     output.writeFieldBegin('name', Thrift.Type.STRING, 1);
     output.writeString(this.name);
@@ -193,16 +142,16 @@ DfColumnSchemaT.prototype.write = function(output) {
 };
 
 OperatorsMetaT = function(args) {
-  this.keySchema = null;
-  this.keySchemaValid = null;
+  this.fieldAttr = null;
+  this.fieldAttrValid = null;
   this.entryType = null;
   this.valuesType = null;
   if (args) {
-    if (args.keySchema !== undefined) {
-      this.keySchema = args.keySchema;
+    if (args.fieldAttr !== undefined) {
+      this.fieldAttr = args.fieldAttr;
     }
-    if (args.keySchemaValid !== undefined) {
-      this.keySchemaValid = args.keySchemaValid;
+    if (args.fieldAttrValid !== undefined) {
+      this.fieldAttrValid = args.fieldAttrValid;
     }
     if (args.entryType !== undefined) {
       this.entryType = args.entryType;
@@ -228,15 +177,15 @@ OperatorsMetaT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.keySchema = new DfColumnSchemaT();
-        this.keySchema.read(input);
+        this.fieldAttr = new DfFieldAttrT();
+        this.fieldAttr.read(input);
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
       if (ftype == Thrift.Type.BOOL) {
-        this.keySchemaValid = input.readBool().value;
+        this.fieldAttrValid = input.readBool().value;
       } else {
         input.skip(ftype);
       }
@@ -266,14 +215,14 @@ OperatorsMetaT.prototype.read = function(input) {
 
 OperatorsMetaT.prototype.write = function(output) {
   output.writeStructBegin('OperatorsMetaT');
-  if (this.keySchema !== null && this.keySchema !== undefined) {
-    output.writeFieldBegin('keySchema', Thrift.Type.STRUCT, 1);
-    this.keySchema.write(output);
+  if (this.fieldAttr !== null && this.fieldAttr !== undefined) {
+    output.writeFieldBegin('fieldAttr', Thrift.Type.STRUCT, 1);
+    this.fieldAttr.write(output);
     output.writeFieldEnd();
   }
-  if (this.keySchemaValid !== null && this.keySchemaValid !== undefined) {
-    output.writeFieldBegin('keySchemaValid', Thrift.Type.BOOL, 2);
-    output.writeBool(this.keySchemaValid);
+  if (this.fieldAttrValid !== null && this.fieldAttrValid !== undefined) {
+    output.writeFieldBegin('fieldAttrValid', Thrift.Type.BOOL, 2);
+    output.writeBool(this.fieldAttrValid);
     output.writeFieldEnd();
   }
   if (this.entryType !== null && this.entryType !== undefined) {
@@ -882,8 +831,8 @@ XcalarApiResultSetT.prototype.read = function(input) {
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.I32) {
-        this.twoPcHandle = input.readI32().value;
+      if (ftype == Thrift.Type.I64) {
+        this.twoPcHandle = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -910,8 +859,8 @@ XcalarApiResultSetT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.twoPcHandle !== null && this.twoPcHandle !== undefined) {
-    output.writeFieldBegin('twoPcHandle', Thrift.Type.I32, 3);
-    output.writeI32(this.twoPcHandle);
+    output.writeFieldBegin('twoPcHandle', Thrift.Type.I64, 3);
+    output.writeI64(this.twoPcHandle);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

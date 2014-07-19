@@ -128,7 +128,7 @@ function XcalarShutdown() {
     }
 }
 
-function XcalarGetNumEntries(tableName) {
+function XcalarGetNumEntries(tableName, numEntries) {
     var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -162,7 +162,7 @@ function XcalarGetNumEntries(tableName) {
     workItem.input.resultSetNextInput = new XcalarApiResultSetNextInputT();
     workItem.input.resultSetNextInput.resultSet =
         result.output.makeResultSetOutput.resultSet;
-    workItem.input.resultSetNextInput.numRecords = 5;
+    workItem.input.resultSetNextInput.numRecords = numEntries;
     try {
         result = client.queueWork(workItem);
     } catch(ouch) {
@@ -178,7 +178,7 @@ function XcalarGetNumEntries(tableName) {
     return (result.output.resultSetNextOutput.numRecords);
 }
 
-function XcalarGetTable(tableName) {
+function XcalarGetTableStartPointer(tableName) {
     var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -198,21 +198,20 @@ function XcalarGetTable(tableName) {
         return;
     }
 
-    if (result.jobStatus != StatusT.StatusOk) {
-      console.log("Failed to cat table2");
-      return;
-    }
+    return result.output.makeResultSetOutput.resultSet;
+}
 
-    if (result.output.makeResultSetOutput.status != StatusT.StatusOk) {
-      console.log("Failed to cat table3");
-      return;
-    }
+function XcalarGetNextPage(resultSet, numEntries) {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
     workItem.api = XcalarApisT.XcalarApiResultSetNext;
     workItem.input = new XcalarApiInputT();
     workItem.input.resultSetNextInput = new XcalarApiResultSetNextInputT();
-    workItem.input.resultSetNextInput.resultSet =
-        result.output.makeResultSetOutput.resultSet;
-    workItem.input.resultSetNextInput.numRecords = 5;
+    workItem.input.resultSetNextInput.resultSet = resultSet;
+    workItem.input.resultSetNextInput.numRecords = numEntries;
     try {
         result = client.queueWork(workItem);
     } catch(ouch) {
@@ -226,10 +225,7 @@ function XcalarGetTable(tableName) {
     }
 
     return (result.output.resultSetNextOutput);
-    //$('#CatTableKey0').val(result.output.resultSetNextOutput.records[0].key);
-  }
-
-
+}
 function XcalarFilter() {
     var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
     var protocol  = new Thrift.Protocol(transport);

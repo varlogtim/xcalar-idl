@@ -18,10 +18,38 @@ body {
 <script src="js/libapis_common_types.js" type="text/javascript"></script>
 <script src="js/XcalarApiService.js" type="text/javascript"></script>
 <script src="js/XcalarThrift.js" type="text/javascript"></script>
+<script>
+    var tableName = XcalarGetTables().tables[0].tableName;
+    var numEntries = 12;
+    var resultSetPtr = XcalarGetTableStartPointer(tableName);
+    
+    function getNextPage() {
+        console.log("Hello");
+        if (resultSetPtr == null) {
+            return;
+            // Reached the end
+        }
+
+        $("#autoGenTable").find("tr:gt(0)").remove();
+        var tableOfEntries = XcalarGetNextPage(resultSetPtr, numEntries);
+
+        if (tableOfEntries.numRecords < numEntries) {
+            // This is the last iteration
+            // Time to free the handle
+            // XXX: Function call to free handle?
+            resultSetPtr = null;
+        }
+        for (var i = 0; i<Math.min(numEntries, tableOfEntries.numRecords); i++) {
+            var key = tableOfEntries.records[i].key;
+            var value = tableOfEntries.records[i].value;
+            generateRowWithAutoIndex2(key, value);
+        }
+    }
+</script>
 </head>
 
 <body topmargin="0" leftmargin="0">
-<table width="100%" border="0" class="stbg" id="autoGenTable" cellspacing="1px" cellpadding="2px">
+<table width="90%" border="0" class="stbg" id="autoGenTable" cellspacing="1px" cellpadding="2px">
   <tr>
     <td width="3%" height="17" class="table_title_bg" id="headCol1">
         <strong>ID</strong>
@@ -34,34 +62,12 @@ body {
     </td>
   </tr>
   <script>
-    var tableName = XcalarGetTables().tables[0].tableName;
-    var numEntries = XcalarGetNumEntries(tableName);
-    var tableOfEntries = XcalarGetTable(tableName);
-
-    for (var i = 0; i<numEntries; i++) {
-        var key = tableOfEntries.records[i].key;
-        var value = tableOfEntries.records[i].value;
-        generateRowWithAutoIndex2(key, value, 200);
-    }
-
-    $(document).on('dblclick', '.table_title_bg', function(event) {
-            addCol($(this).attr("id"));
-    });
-
-    var htmlContent = "<div style='width:300px; height: 50px; overflow-y: scroll'>";
-     htmlContent += "Testing 1 2 3 4 5 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0";
-     htmlContent += "Testing 1 2 3 4 5 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0";    
-     htmlContent += "Testing 1 2 3 4 5 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0";    
-     htmlContent += "Testing 1 2 3 4 5 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0";    
-     htmlContent += "Testing 1 2 3 4 5 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0";   
-     htmlContent += "Testing 1 2 3 4 5 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0";
-    htmlContent += "</div>";
-    $("#boo").popover({title: "Hello World!",
-        content: htmlContent,
-        html: true});
+    getNextPage();
   </script>
-
 </table>
-<button id="boo"> Hello </button>
+<div style="position: absolute; left: 1253px; top: 355px;">
+<input type="button" class="tempButton bigButton" value="Next Page"
+  onclick="getNextPage();"/>
+</div>
 </body>
 </html>

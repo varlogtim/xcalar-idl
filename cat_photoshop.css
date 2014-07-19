@@ -1,52 +1,31 @@
 @charset "UTF-8";/* CSS Document */
-
-.table_title_bg {	
-	background-image:url(images/bgbgbg.png);
-	background-repeat:repeat-x;
-	font: 12px  "Helvetica Neue Light", arial, sans-serif;
-    color: #000000;
-	text-indent: 8px;
-}
-
 .monacotype {
     font: 11px  Monaco, arial, sans-serif;
-
     color: #000000;
- 
 }
 .helvertica_black {
     font: 12px  "Helvetica Neue Light", arial, sans-serif;
-
     color: #000000;
- 
 }
 
 .helvertica_black_big {
     font: 24px  "Helvetica Neue Light", arial, sans-serif;
-
     color: #000000;
- 
 }
 
 .helvertica_white_big {
     font: 24px  "Helvetica Neue Light", arial, sans-serif;
-
     color: #FFFFFF;
- 
 }
 
 .helvertica_grey {
     font: 12px  "Helvetica Neue Light", arial, sans-serif;
-
     color: #f5f5f5;
- 
 }
 
 .helvertica_blue{
-    font: 12px  "Helvetica Neue Light", arial, sans-serif;
-
-    color: #5379b9;
- 
+    font: 12px Helvetica, arial, sans-serif;
+    color: #003a76;
 }
 
 /* Menu Items */
@@ -87,8 +66,53 @@ td.dataSourceMenu, .dataSourceMenuText {
     background-size: auto 25px;
 }
 
+#addTabButton {
+	position: relative;
+	top: 2px;
+}
+
 #tab2c:hover + #tab1r{
 	opacity: 0;
+}
+
+/* Pages */
+.pageTurner,
+.pageTurnerPage {
+    font: 12px Helvetica, arial, sans-serif;
+    color: #003a76;
+}
+
+a.pageTurner,
+a.pageTurnerPage,
+a.pageTurnerPageNumber {
+    color: #003a76;
+	text-decoration: none;
+}
+
+a.pageTurner:hover,
+a.pageTurnerPage:hover {
+	color: #002246;
+}
+
+#pageTurnerNumberBar td.pageTurnerPage:hover {
+    color: #000000;
+}
+
+a.pageTurnerPageNumber:hover {
+	color: #00CC00;
+    border-top-left-radius: 2;
+    border-bottom-left-radius: 2;
+    border-top-right-radius: 2;
+    border-bottom-right-radius: 2;
+    border: 3px #EEEEEE;
+}
+
+.pageTurnerPageSelected {
+    background-image: url("images/shadedSquare.png");
+    background-size: 35px 35px;
+    background-repeat: no-repeat;
+    background-position: center;
+    font-color: #CCCCCC;
 }
 
 /* Tables */
@@ -96,14 +120,6 @@ td.dataSourceMenu, .dataSourceMenuText {
     background-image:url(images/closeButton.png);
     background-size: 15px 15px;
     float: right;
-}
-
-.tbg{
-	background-image: url(images/cat-page-table-bg.png);
-	background-repeat: no-repeat;
-    border-spacing: 0px 0px;
-    padding: 0px;
-    border: 0px;
 }
 
 .noBorderTable {
@@ -116,15 +132,34 @@ td.dataSourceMenu, .dataSourceMenuText {
 
 .noBorderTable td {
     padding: 0px;
+    border: 0px;
 }
 
 .stbg {
-	background-color:#d5d5d5;
-    border-spacing: 0px 0px;
+	background-color: #d5d5d5;
+    border-spacing: 1px 1px;
+    border-collapse: separate;
     padding: 0px;
     border: 0px;
-
+    position: relative;
+    top: -1px;
+    left: -1px;
 }
+
+.elementText{
+    width: 100%;
+    max-height: 45px;
+    overflow-y: auto;
+}
+
+.table_title_bg {	
+	background-image: url(images/bgbgbg.png);
+	background-repeat:repeat-x;
+	font: 12px  "Helvetica Neue Light", arial, sans-serif;
+    color: #000000;
+	text-indent: 8px;
+}
+
 
 .spaceFiller {
     width: calc(100%-1365px);
@@ -140,6 +175,134 @@ td.dataSourceMenu, .dataSourceMenuText {
 	border:1px solid BLACK;
 }
 
+#searchBar {
+	width: 1196px;
+}
+
+#dropDownMenu {
+    width: 100px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+	box-shadow: none;
+	outline: 0;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	padding: 0;
+}
+
+.tempButton {
+    width: 100px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+	box-shadow: none;
+	outline: 0;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	padding: 0;
+}
+
+#magnifyingGlass {
+    width: 40px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+	box-shadow: none;
+	outline: 0;
+	padding: 0;
+	float: left;
+	border-left-width: 0;
+}
+
+table input[type=text],
+table input[type=password] {
+    font-family: Monaco, Arial, sans-serif;
+    font-size: 12px;
+    padding: 0 6px;
+    box-sizing: border-box;
+    margin: 0;
+    height: 40px;
+    resize: none;
+    width: 400px;
+    border: 1px solid #BFBFBF;
+    border-right-width: 0;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.bigButton {
+	line-height: 38px;
+    height: 40px;
+    border-top-left-radius: 4;
+    border-bottom-left-radius: 4;
+    padding: 0 15px;
+    text-align: center;
+    margin: 0;
+    min-width: 20px;
+    cursor: pointer;
+    border-left-color: #AEAEAE;
+    white-space: nowrap;   
+}
+
+.normalButton,
+.bigButton
+{
+    display: inline-block;
+    padding: 4px 12px;
+    margin-bottom: 0px;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #BFBFBF;
+   
+   	background-image: -moz-linear-gradient(top, #f8f8f8, #eeeeee);
+   	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#F8F8F8), to(#EEE));
+   	background-image: -webkit-linear-gradient(top, #F8F8F8, #EEE);
+   	background-image: -o-linear-gradient(top, #f8f8f8, #eeeeee);
+   	background-image: linear-gradient(to bottom, #F8F8F8, #EEE);
+   	background-color: #EEE;
+   	background-repeat: repeat-x;
+   	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff8f8f8', endColorstr='#ffeeeeee', GradientType=0);
+    color: #333;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+a.bigButton:hover,
+.bigButton:hover {
+	background-image: -moz-linear-gradient(top, #f8f8f8, #f8f8f8);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#F8F8F8), to(#F8F8F8));
+    background-image: -webkit-linear-gradient(top, #F8F8F8, #F8F8F8);
+    background-image: -o-linear-gradient(top, #f8f8f8, #f8f8f8);
+    background-image: linear-gradient(to bottom, #F8F8F8, #F8F8F8);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff8f8f8', endColorstr='#fff8f8f8', GradientType=0);
+    border-color: #C7C7C7;
+    outline: none;
+}
+
+button.bigButton,
+button.normalButton {
+    *padding:0px;
+}
+a.bigButton,
+a.normalButton,
+a.bigButton span,
+a.normalButton span {
+    text-decoration: none;
+    float: left;
+}
+.bigButton span,
+.normalButton span {
+    min-width: 110px;
+    *min-width: 80px;
+    _width: 80px;
+    *white-space: nowrap;
+    display: block;
+}
+
+/* Ripped this from Splunk. We need to remove this 
 body {
     font: 12px  helvetica, arial, sans-serif;
     line-height: 20px;
@@ -162,9 +325,7 @@ a {
 a:hover {
     color: white;
 }
-button::-moz-focus-inner {
-    border: none;
-}
+*/
 label {
     color: #999;
 }
@@ -193,89 +354,10 @@ label.license_label {
     margin-top: -15px;
 }
 
-/* Brand */
-#brand {
-    font-family: "Arial";
-    font-weight: normal;
-    color: white;
-    text-shadow: none;
-    text-decoration: none;
-    font-size: 48px;
-    line-height: 100%;
-    cursor: default;
-    padding-bottom: 20px;
-}
-#brand > span.prompt {
-    color: #65A637;
-    font-weight: normal;
-}
-
-/* Errors */
-p.error {
-    color: #F06363;
-    padding:0px;
-    margin: 5px 0;
-}
-.licenseError {
-    font-weight: bold;
-    display: block;
-}
-.licenseErrorText {
-}
-p.licensePageError {
-	top:30px;
-}
-
-#userMessaging {
-    min-height: 20px;
-    margin-bottom: 10px;
-}
-
 .subContainer {
     display: none;
     min-height: 20px;
     margin-bottom: 10px;
-}
-
-/* password hint popup */
-#passwordHint {
-   position: relative;
-   border-radius: 4px;
-}
-#passwordHintContent {
-    margin-bottom: 0px;
-}
-#passwordHintContent p {
-    line-height:130%;
-    margin-top: 0px;
-    margin-bottom: 7px;
-    color: #999;
-}
-#passwordHintContent p:last-child {
-    margin-bottom: 0;
-}
-#passwordHintContent p span {
-    padding-left: 10px;
-}
-#passwordHint #passwordHintClose {
-    height: 10px;
-    width: 10px;
-    _font-size: 0px;
-    _line-height: 0px;
-    cursor: pointer;
-    display: block;
-    background: transparent;
-    position: absolute;
-    top:8px;
-    right:10px;
-    z-index: 110;
-    opacity:0.5;
-    filter:alpha(opacity=50); /* For IE8 and earlier */
-}
-#passwordHint #passwordHintClose:hover {
-    background-position: -20px 0px;
-    opacity:1;
-    filter:alpha(opacity=100); /* For IE8 and earlier */
 }
 
 /* tips */
@@ -314,7 +396,7 @@ p.licensePageError {
 #freeMessageContainer .freeMessageUpdate {
     margin:10px 0px 20px;
 }
-#freeMessageContainer .freeMessageUpdate .splButton-primary {
+#freeMessageContainer .freeMessageUpdate .bigButton {
 	margin-right:10px;
 }
 #freeMessageContainer .skipUpdate {
@@ -346,43 +428,6 @@ iframe {
     width: 100%; overflow: hidden;
 }
 
-/* update checker container (banner container) */
-#updateCheckerContainer iframe {
-    max-height:300px;
-}
-
-#freeUpdateCheckerContainer {
-    display: none;
-    height:150px;
-}
-#freeUpdateCheckerContainer iframe {
-    height:100%;
-    width:100%;
-}
-
-.licensingPage #mainPanel {
-    top:82px;
-}
-.licensingPage #mainPanel a {
-    font-size: 12px;
-}
-.licenseExpiredForm {
-    margin-bottom: 10px;
-}
-.licenseExpiredForm p {
-    margin: 0 0 10px 0;
-}
-.licenseOptionDiv {
-    margin-bottom: 7px;
-}
-.licenseOptionDiv label {
-    color: #333;
-}
-.licenseExpiredForm p.licenseButtonRow {
-    margin-top: 15px;
-    margin-bottom:15px;
-}
-
 /* borrowing styles form search bar */
 form {
     margin-bottom: 40px;
@@ -398,7 +443,6 @@ form table .input-wrapper {
     border-right: none;
 }
 .lt-ie9 form table .input-wrapper {
-    /* this breaks IE rounded corners so we only apply to IE < 9 */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fbfbfb', endColorstr='#D0D0D0', GradientType=0);
 }
 form table td:first-child .input-wrapper {
@@ -418,141 +462,11 @@ form table td+td .input-wrapper {
 .loginForm table {
     margin-bottom: 5px;
 }
-table input[type=text],
-table input[type=password] {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    padding: 0 6px;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    margin: 0;
-    height: 40px;
-    resize: none;
 
-    width: 200px;
-    
-    border: 1px solid #BFBFBF;
-    border-right-width: 0;
-
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    /*IE7 fixes*/
-    *padding: 4px;
-    *height: 20px;
-}
-.lt-ie9 table input[type=text],
-.lt-ie9 table input[type=password] {
-    padding-top: 11px;
-}
-table input[type=text], #newpassword {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-}
-table input[type=password] {
-    border-radius: 0;
-}
-table input[type=text]:focus,
-table input[type=password]:focus {
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    border-color: #bbb;
-    outline: none;
-}
 table .placeholder {
     color: #aaa;
 }
-table tr .splButton-primary  {
-    line-height: 38px;
-    height: 40px;
-    border-top-left-radius: 4;
-    border-bottom-left-radius: 4;
-    padding: 0 15px;
-    text-align: center;
-    /*width: auto;*/
-    margin: 0;
-    min-width: 60px;
-    cursor: pointer;
-    border-left-color: #AEAEAE;
-    white-space: nowrap;
-    /*IE7 fixes*/
-    *min-width: 70px;
-}
-/* copied button classes from view and default css.  careful for delta in changes here */
-.splButton-primary,
-.splButton-secondary {
-    display: inline-block;
-    /*IE7 inline block fix*/
-    *display:inline;
-    *zoom:1;
-    padding: 4px 12px;
-    margin-bottom: 0px;
-    font-size: 12px;
-    line-height: 16px;
-    text-align: center;
-    vertical-align: middle;
-     border: 1px solid #BFBFBF;
-   
-   	background-image: -moz-linear-gradient(top, #f8f8f8, #eeeeee);
-   	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#F8F8F8), to(#EEE));
-   	background-image: -webkit-linear-gradient(top, #F8F8F8, #EEE);
-   	background-image: -o-linear-gradient(top, #f8f8f8, #eeeeee);
-   	background-image: linear-gradient(to bottom, #F8F8F8, #EEE);
-   	background-color: #EEE;
-   	background-repeat: repeat-x;
-   	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff8f8f8', endColorstr='#ffeeeeee', GradientType=0);
-       
-	-webkit-box-shadow: inset 0px 1px 0 #FDFDFD;
-	-moz-box-shadow: inset 0px 1px 0 #fdfdfd;
-	box-shadow: inset 0px 1px 0 #FDFDFD;
-   
 
-    color: #333;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-a.splButton-primary:hover,
-.splButton-primary:hover {
-	background-image: -moz-linear-gradient(top, #f8f8f8, #f8f8f8);
-    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#F8F8F8), to(#F8F8F8));
-    background-image: -webkit-linear-gradient(top, #F8F8F8, #F8F8F8);
-    background-image: -o-linear-gradient(top, #f8f8f8, #f8f8f8);
-    background-image: linear-gradient(to bottom, #F8F8F8, #F8F8F8);
-    background-repeat: repeat-x;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff8f8f8', endColorstr='#fff8f8f8', GradientType=0);
-
-    border-color: #C7C7C7;
-    
-    outline: none;
-    
-    -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.08);
-    -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.08);
-    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.08);
-
-}
-button.splButton-primary,
-button.splButton-secondary {
-    *padding:0px;
-}
-a.splButton-primary,
-a.splButton-secondary,
-a.splButton-primary span,
-a.splButton-secondary span {
-    text-decoration: none;
-    float: left;
-}
-.splButton-primary span,
-.splButton-secondary span {
-    min-width: 110px;
-    *min-width: 80px;
-    _width: 80px;
-    *white-space: nowrap;
-    display: block;
-}
 p.loginButtonRow {
     margin-top:15px;
 }
@@ -653,7 +567,7 @@ table, tbody, tr,body{
         border-right-width: 1px;
         border-radius: 4px;
     }
-    table tr .splButton-primary {
+    table tr .bigButton {
         margin-top: 5px;
         border: 1px solid #bbb;
         border-radius: 4px;
