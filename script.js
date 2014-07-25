@@ -253,6 +253,19 @@ function goToNextPage() {
     }
 }
 
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
 function generatePages(number, startNumber, rightDots) {
     var htmlString = '\
           <table height="35" width="1365" class="noBorderTable"\
@@ -315,12 +328,37 @@ function resetAutoIndex() {
 	tableRowIndex = 1;
 }
 
+function generateNewTableHeading() {
+    $("#autoGenTable").append('\
+      <tr>\
+        <td width="3%" height="17" class="table_title_bg" id="headCol1">\
+          <strong>ID</strong>\
+        </td>\
+        <td width="auto" height="17" class="table_title_bg" id="headCol2">\
+          <strong>Key</strong>\
+        </td>\
+        <td width="auto" height="17" class="table_title_bg" id="headCol3">\
+          <strong>JSON</strong>\
+        </td>\
+      </tr>\
+    ');
+    $(document).on('dblclick', '.table_title_bg', function(event) {
+       addCol($(this).attr("id"));
+    });
+}
+
 function generateRowWithAutoIndex(text) {
+    var URIEncoded = encodeURIComponent(text);
+    console.log(URIEncoded);
 	$("#autoGenTable tr:last").after('<tr><td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+tableRowIndex+'</td>'+
+        tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+
+        tableRowIndex+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)">'+text+'</td></tr>');
+        tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)"'+
+        ' ondblclick="javascript: window.location.href=\'cat_table.html?tablename='+
+        URIEncoded+'\'">'+
+        text+'</td></tr>');
 	tableRowIndex++;
 }
 
@@ -352,7 +390,12 @@ function delCol(id) {
     }
  
     var numRow = $("#autoGenTable tr").length;
-    for (var i = 1; i<numRow; i++) {
+    var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
+                       substring(5);
+    idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
+    var startingIndex = parseInt(idOfFirstRow);
+
+    for (var i = startingIndex; i<startingIndex+numRow-1; i++) {
         $("#bodyr"+i+"c"+colid).remove();
         for (var j = colid+1; j<=numCol; j++) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j-1));
@@ -360,32 +403,81 @@ function delCol(id) {
     }
 }
 
-function addCol(id) {
+function pullCol(key, newColid) {
+    var colid = $("#autoGenTable tr:first-child td:contains('JSON')").filter(
+        function() {
+            return $(this).text().indexOf("JSON") != -1;
+    }).attr("id");
+    colid = colid.substring(7);
+    var numRow = $("#autoGenTable tr").length;
+    var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
+                       substring(5);
+    idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
+    var startingIndex = parseInt(idOfFirstRow);
+ 
+    for (var i =  startingIndex; i<numRow+startingIndex-1; i++) {
+        var jsonStr = $("#bodyr"+i+"c"+colid).text();
+        var value = jQuery.parseJSON(jsonStr);
+
+        var nested = key.split(".");
+        for (var j = 0; j<nested.length; j++) {
+            value = value[nested[j]];
+            console.log(value)
+        }    
+
+        value = '<div class="addedBarText">'+value+"</div>"
+        $("#bodyr"+i+"c"+newColid).html(value);
+    }    
+}
+
+function addCol(id, name) {
     var numCol = $("#autoGenTable").find("tr:first td").length;
     var colid = parseInt(id.substring(7));
     for (var i = numCol; i>=colid+1; i--) {
         $("#headCol"+i).attr("id", "headCol"+(i+1));
         $("#closeButton"+i).attr("id", "closeButton"+(i+1));
     }
-    $("#"+id).after('<td contentEditable height="17" class="table_title_bg" id="headCol'+
+    if (name == null) {
+        name = "New Heading";
+    }
+    $("#"+id).after('<td contentEditable height="17" width="150" class="table_title_bg'+
+        '" id="headCol'+
         (colid+1)+
         '" onmouseover="javascript: console.log(this.id)"'+
-        '><strong>New Heading</strong><img src="images/closeButton.png" '+
+        '><strong>'+name+
+        '</strong><img src="images/closeButton.png" '+
         'style="background-size: 15px 15px; float:right; cursor: pointer;'+
-        'z-index: 2;"'+
+        'z-index: 3;"'+
         'onclick="javascript: delCol(this.id);" id="closeButton'+
         (colid+1)+'">'+
         '</td>');
  
     var numRow = $("#autoGenTable tr").length;
-    for (var i = 1; i<numRow; i++) {
+    var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
+                       substring(5);
+    idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
+    var startingIndex = parseInt(idOfFirstRow);
+    for (var i = startingIndex; i<startingIndex+numRow-1; i++) {
         for (var j = numCol; j>=colid+1; j--) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j+1));
 
         }
         $("#bodyr"+i+"c"+colid).after('<td height="17" bgcolor="#FFFFFF"'+
-            'class="monacotype" id="bodyr'+i+"c"+(colid+1)+'" onmouseover="javascript: console.log(this.id)">&nbsp;</td>');
+            'class="monacotype" id="bodyr'+i+"c"+(colid+1)+
+            '" onmouseover="javascript: console.log(this.id)"'+
+            '>&nbsp;</td>');
     }
+     
+    $("#headCol"+(colid+1)).click(function() {
+        $(this).select();
+    });
+
+    $("#headCol"+(colid+1)).keypress(function(e) {
+      if (e.which==13) {
+        pullCol($(this).text(), (colid+1));
+        $(this).blur();
+      }
+    });
 }
 
 function goToPage(pageNumber) {
@@ -408,3 +500,22 @@ function getSearchBarText() {
     var tName = $("#searchBar").text();
     alert(tName);
 }
+
+function convertColNamesToArray() {
+    var head = $("#autoGenTable tr:first-child td");
+    var numCol = head.length;
+    var headings = [];
+    for (var i = 0; i<numCol; i++) {
+        headings.push($.trim(head.eq(i).text()));
+    }
+    return headings;
+}
+
+
+
+// Auto run
+$(document).on('dblclick', '.table_title_bg', function(event) {
+  addCol($(this).attr("id"));
+});
+
+

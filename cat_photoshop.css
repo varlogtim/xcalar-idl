@@ -146,6 +146,13 @@ a.pageTurnerPageNumber:hover {
     left: -1px;
 }
 
+.addedBarText {
+    width: 150px;
+    word-break:break-all;
+    max-height: 45px;
+    overflow-y: auto;
+}
+
 .elementText{
     width: 100%;
     max-height: 45px;
@@ -159,7 +166,6 @@ a.pageTurnerPageNumber:hover {
     color: #000000;
 	text-indent: 8px;
 }
-
 
 .spaceFiller {
     width: calc(100%-1365px);
