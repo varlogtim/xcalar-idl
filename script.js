@@ -222,7 +222,9 @@ function selectPage(pageNumber) {
 } 
 
 function goToPrevPage() {
-    if (currentPageNumber == 0) {
+    console.log(currentPageNumber);
+    if (currentPageNumber == 1) {
+        console.log("First page, cannot move");
         return;
     }
     var currentPage = currentPageNumber;
