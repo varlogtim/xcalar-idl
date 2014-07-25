@@ -4,6 +4,9 @@ var selectedTab = 1;
 var numTabs = 3;
 var tableRowIndex = 1;
 var currentPageNumber = 0;
+var numEntriesPerPage = 12;
+var tableName = "";
+var resultSetId = 0;
 
 function setTabs() {
 	var i;
@@ -143,7 +146,7 @@ function generateTabs() {
            document.write('<td class="dataSourceMenu">\
                             <img src="images/dark_l.png" height="25px"\
                             id="tab'+(i+1)+'l">\
-                           </td>');
+                            </td>');
 		  } else {
 			  document.write('<td class="dataSourceMenu">\
                   		         <img src="images/dark_r.png" height="25px"\
@@ -222,7 +225,7 @@ function goToPrevPage() {
     if (currentPageNumber == 0) {
         return;
     }
-    var currentPage = currentPageNumber+1;
+    var currentPage = currentPageNumber;
     var prevPage = currentPage-1;
     var prevPageElement = $("a.pageTurnerPageNumber").filter(function() {
         return $(this).text() == prevPage.toString();
@@ -230,7 +233,7 @@ function goToPrevPage() {
     if (prevPageElement.length) {
         selectPage(prevPage);
         deselectPage(currentPage);
-        currentPageNumber--;
+        getPrevPage(resultSetId);
     } else {
         goToPage(prevPage-1);
     }
@@ -238,7 +241,7 @@ function goToPrevPage() {
 
 function goToNextPage() {
     // XXX: TODO: Check whether we are already at the max
-    var currentPage = currentPageNumber+1;
+    var currentPage = currentPageNumber;
     var nextPage = currentPage+1;
 
     var nextPageElement = $("a.pageTurnerPageNumber").filter(function() {
@@ -247,10 +250,23 @@ function goToNextPage() {
     if (nextPageElement.length) {
         selectPage(nextPage);
         deselectPage(currentPage);
-        currentPageNumber++;
+        getNextPage(resultSetId);
     } else {
         goToPage(nextPage-1);
     }
+}
+
+function goToPage(pageNumber) {
+    deselectPage(currentPageNumber);
+    currentPageNumber = pageNumber+1;
+    var startNumber = pageNumber-5;
+    if (startNumber < 0) {
+        startNumber = 0;
+    }
+    generatePages(10, startNumber, true); 
+    selectPage(pageNumber+1);
+    XcalarSetAbsolute(resultSetId, (currentPageNumber-1)*numEntriesPerPage);
+    getPage(resultSetId);
 }
 
 function getUrlVars()
@@ -324,8 +340,77 @@ function generatePages(number, startNumber, rightDots) {
           ';
     $("#pageTurnerNumberBar").html(htmlString);
 }
+
 function resetAutoIndex() {
 	tableRowIndex = 1;
+}
+
+function getNextPage(resultSetId) {
+    if (resultSetId == 0) {
+        return;
+    }
+    currentPageNumber++;
+    getPage(resultSetId);
+}
+
+function getPrevPage(resultSetId) {
+    if (resultSetId == 0) {
+        return;
+        // Reached the end
+    }
+                  
+    if (currentPageNumber == 1) {
+        console.log("At first page already");
+    } else {
+        currentPageNumber--;
+        XcalarSetAbsolute(resultSetId,
+                          (currentPageNumber-1)*numEntriesPerPage);
+    }
+    getPage(resultSetId);
+}
+
+function getPage(resultSetId) {
+    if (resultSetId == 0) {
+        return;
+        // Reached the end
+    }
+    var indices = [];
+    var headingsArray = convertColNamesToArray();
+
+    if (headingsArray != null && headingsArray.length > 3) {
+        var numRemoved = 0;
+        for (var i = 1; i<headingsArray.length; i++) {
+            if (headingsArray[i] !== "JSON" &&
+                headingsArray[i] !== "Key") {
+                console.log("deleted: "+headingsArray[i]);
+                delCol("closeButton"+(i+1-numRemoved));
+                numRemoved++;
+                var indName = {index: i,
+                               name: headingsArray[i]};
+                indices.push(indName);
+            }
+        }
+    }
+    $("#autoGenTable").find("tr:gt(0)").remove();
+    var tableOfEntries = XcalarGetNextPage(resultSetId,
+                                           numEntriesPerPage);
+    if (tableOfEntries.numRecords < numEntriesPerPage) {
+        // This is the last iteration
+        // Time to free the handle
+        // XXX: Function call to free handle?
+        resultSetId = 0;
+    }
+    var indexNumber = (currentPageNumber-1) * numEntriesPerPage;
+    for (var i = 0; i<Math.min(numEntriesPerPage, 
+          tableOfEntries.numRecords); i++) {
+        var key = tableOfEntries.records[i].key;
+        var value = tableOfEntries.records[i].value;
+        generateRowWithAutoIndex2(key, value, indexNumber+i+1);
+    }
+    for (var i = 0; i<indices.length; i++) {
+        addCol("headCol"+(indices[i].index), indices[i].name);
+        pullCol(indices[i].name, 1+indices[i].index);
+    }
 }
 
 function generateNewTableHeading() {
@@ -362,22 +447,21 @@ function generateRowWithAutoIndex(text) {
 	tableRowIndex++;
 }
 
-function generateRowWithAutoIndex2(text1, text2) {
+function generateRowWithAutoIndex2(text1, text2, idNo) {
     // text1 is an int since it's the key
 	$("#autoGenTable tr:last").after('<tr>'+
         '<td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'
-        +tableRowIndex+'</td>'+
+        idNo+"c1"+'" onmouseover="javascript: console.log(this.id)">'
+        +idNo+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)">'+
+        idNo+"c2"+'" onmouseover="javascript: console.log(this.id)">'+
         text1+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        tableRowIndex+"c3"+'" onmouseover="javascript: console.log(this.id)">'+
+        idNo+"c3"+'" onmouseover="javascript: console.log(this.id)">'+
         '<div class="elementText">'+
         text2+'</div></td>'+
         '</tr>');
-	tableRowIndex++;
 }
 
 function delCol(id) {
@@ -480,17 +564,6 @@ function addCol(id, name) {
     });
 }
 
-function goToPage(pageNumber) {
-    deselectPage(currentPageNumber+1);
-    currentPageNumber = pageNumber;
-    var startNumber = pageNumber-5;
-    if (startNumber < 0) {
-        startNumber = 0;
-    }
-    generatePages(10, startNumber, true); 
-    selectPage(pageNumber+1);
-}
-
 function prelimFunctions() {
     setTabs();
     selectPage(1);
@@ -511,11 +584,11 @@ function convertColNamesToArray() {
     return headings;
 }
 
-
-
 // Auto run
 $(document).on('dblclick', '.table_title_bg', function(event) {
   addCol($(this).attr("id"));
 });
-
-
+var tName = getUrlVars()["tablename"];
+$("#searchBar").val('tablename = "'+tName+'"');
+var tableName = tName;
+var resultSetId = XcalarGetTableId(tableName);

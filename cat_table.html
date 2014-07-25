@@ -14,7 +14,6 @@ body {
 </style>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="js/jquery-ui.js"></script>
-<script src="script.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/thrift.js" type="text/javascript"></script>
 <script src="js/libapis_enums_types.js" type="text/javascript"></script>
@@ -22,6 +21,7 @@ body {
 <script src="js/libapis_common_types.js" type="text/javascript"></script>
 <script src="js/XcalarApiService.js" type="text/javascript"></script>
 <script src="js/XcalarThrift.js" type="text/javascript"></script>
+<script src="script.js"></script>
 </head>
 
 <body topmargin="0" leftmargin="0" onload="prelimFunctions()">
@@ -86,6 +86,7 @@ body {
             <td width="50">
               <button class="bigButton" id="magnifyingGlass">
                 <img src="images/magnifyingGlass.png" width="20" height="20"
+
                   style="position: relative; top: 1px;">
               </button>
             </td>
@@ -161,57 +162,6 @@ body {
             <td width="1" height="544" bgcolor="#CCCCCC"></td>
             <td width="1126"  height="544" valign="top" id="mainFrame"
               bgcolor="#FFFFFF">
-              <script>
-                var tName = getUrlVars()["tablename"];
-                $("#searchBar").val('tablename = "'+tName+'"');
-                var tableName = tName;
-                var numEntries = 12;
-                var resultSetPtr = XcalarGetTableStartPointer(tableName);
-                function getNextPage(headingsArray) {
-                  if (resultSetPtr == null) {
-                    return;
-                    // Reached the end
-                  }
-                  
-                  var indices = [];
-
-                  if (headingsArray != null && headingsArray.length > 3) {
-                    var numRemoved = 0;
-                    for (var i = 1; i<headingsArray.length; i++) {
-                      console.log(headingsArray[i]);
-                      if (headingsArray[i] !== "JSON" &&
-                          headingsArray[i] !== "Key") {
-                        console.log("deleted: "+headingsArray[i]);
-                        delCol("closeButton"+(i+1-numRemoved));
-                        numRemoved++;
-                        var indName = {index: i,
-                                       name: headingsArray[i]};
-                        indices.push(indName);
-                      }
-                    }
-                  }
-                  $("#autoGenTable").find("tr:gt(0)").remove();
-                  var tableOfEntries = XcalarGetNextPage(resultSetPtr, numEntries);
-
-                  if (tableOfEntries.numRecords < numEntries) {
-                    // This is the last iteration
-                    // Time to free the handle
-                    // XXX: Function call to free handle?
-                    resultSetPtr = null;
-                  }
-                  for (var i = 0; i<Math.min(numEntries, tableOfEntries.numRecords); i++) {
-                    var key = tableOfEntries.records[i].key;
-                    var value = tableOfEntries.records[i].value;
-                    // var jsonObj = jQuery.parseJSON(value);
-                    // console.log(jsonObj.type);
-                    generateRowWithAutoIndex2(key, value);
-                  }
-                  for (var i = 0; i<indices.length; i++) {
-                      addCol("headCol"+(indices[i].index), indices[i].name);
-                      pullCol(indices[i].name, 1+indices[i].index);
-                  }
-                }
-              </script>
               <table width="90%" border="0" class="stbg" id="autoGenTable" cellspacing="1px" cellpadding="2px">
                 <tr>
                   <td width="3%" height="17" class="table_title_bg" id="headCol1">
@@ -226,13 +176,9 @@ body {
                 </tr>
                 <script>
                   convertColNamesToArray();
-                  getNextPage();
+                  getNextPage(resultSetId);
                 </script>
               </table>
-              <div style="position: absolute; left: 1253px; top: 355px;">
-                <input type="button" class="tempButton bigButton" value="Next Page"
-                 onclick="getNextPage(convertColNamesToArray())"/>
-              </div>
             </td>
           </tr>
         </table>

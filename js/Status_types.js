@@ -192,7 +192,10 @@ StatusT = {
 'StatusRangePartError' : 183,
 'StatusNewFieldNameIsBlank' : 184,
 'StatusNoDataDictForFormatType' : 185,
-'StatusBTreeNotFound' : 186
+'StatusBTreeNotFound' : 186,
+'StatusCmdNotComplete' : 187,
+'StatusInvalidResultSetId' : 188,
+'StatusPositionExceedResultSetSize' : 189
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -380,5 +383,8 @@ StatusTStr = {0 : 'Success',
 183 : 'Failed to compute the range partition hash function',
 184 : 'Field name cannot be blank',
 185 : 'No data dictionary defined for format type',
-186 : 'Could not find BTree associated with table handle'
+186 : 'Could not find BTree associated with table handle',
+187 : 'Command is still running',
+188 : 'Invalid result set ID',
+189 : 'Cannot set position to beyond result set size'
 };

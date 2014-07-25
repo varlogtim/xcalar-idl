@@ -20,7 +20,9 @@ XcalarApisT = {
 'XcalarApiFilter' : 11,
 'XcalarApiGroupBy' : 12,
 'XcalarApiGetDataDict' : 13,
-'XcalarApiEditColumn' : 14
+'XcalarApiEditColumn' : 14,
+'XcalarApiIsCmdComplete' : 15,
+'XcalarApiResultSetAbsolute' : 16
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiBulkLoad',
@@ -36,5 +38,7 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 11 : 'XcalarApiFilter',
 12 : 'XcalarApiGroupBy',
 13 : 'XcalarApiGetDataDict',
-14 : 'XcalarApiEditColumn'
+14 : 'XcalarApiEditColumn',
+15 : 'XcalarApiIsCmdComplete',
+16 : 'XcalarApiResultSetAbsolute'
 };

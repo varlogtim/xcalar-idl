@@ -178,7 +178,7 @@ function XcalarGetNumEntries(tableName, numEntries) {
     return (result.output.resultSetNextOutput.numRecords);
 }
 
-function XcalarGetTableStartPointer(tableName) {
+function XcalarGetTableId(tableName) {
     var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -197,11 +197,36 @@ function XcalarGetTableStartPointer(tableName) {
         console.log("Failed to cat table");
         return;
     }
-
-    return result.output.makeResultSetOutput.resultSet;
+    return result.output.makeResultSetOutput.resultSetId;
 }
 
-function XcalarGetNextPage(resultSet, numEntries) {
+function XcalarSetAbsolute(resultSetId, position) {
+    var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.api = XcalarApisT.XcalarApiResultSetAbsolute;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.resultSetAbsoluteInput = new XcalarApiResultSetAbsoluteInputT();
+    workItem.input.resultSetAbsoluteInput.resultSetId = resultSetId;
+    workItem.input.resultSetAbsoluteInput.position = position;
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+      console.log("Failed to cat table4");
+      return false;
+    }
+
+    if (result.jobStatus != StatusT.StatusOk) {
+      console.log("Failed to cat table5");
+      return false;
+    }
+
+    return true;
+}
+
+function XcalarGetNextPage(resultSetId, numEntries) {
     var transport = new Thrift.Transport("http://192.168.1.34:9090/thrift/service/XcalarApiService/");
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -210,7 +235,7 @@ function XcalarGetNextPage(resultSet, numEntries) {
     workItem.api = XcalarApisT.XcalarApiResultSetNext;
     workItem.input = new XcalarApiInputT();
     workItem.input.resultSetNextInput = new XcalarApiResultSetNextInputT();
-    workItem.input.resultSetNextInput.resultSet = resultSet;
+    workItem.input.resultSetNextInput.resultSetId = resultSetId;
     workItem.input.resultSetNextInput.numRecords = numEntries;
     try {
         result = client.queueWork(workItem);
