@@ -1,9 +1,19 @@
+var hostname = "heisenberg";
+var portNumber = 9090;
+
 $(document).ready(function(){
    $('table.XcalarApiService').attr('width', 500);
 });
 
+function transportLocation() {
+    var str = "http://" + hostname + ":";
+    str += portNumber.toString();
+    str += "/thrift/service/XcalarApiService/";
+    return (str);
+}
+
 function XcalarLoad() {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -36,7 +46,7 @@ function XcalarLoad() {
 }
 
 function XcalarGetCount() {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -64,7 +74,7 @@ function XcalarGetCount() {
 }
 
 function XcalarGetTables() {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -82,7 +92,7 @@ function XcalarGetTables() {
 }
 
 function XcalarGetStats() {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -114,7 +124,7 @@ function XcalarGetStats() {
 }
 
 function XcalarShutdown() {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -129,7 +139,7 @@ function XcalarShutdown() {
 }
 
 function XcalarGetNumEntries(tableName, numEntries) {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -179,7 +189,7 @@ function XcalarGetNumEntries(tableName, numEntries) {
 }
 
 function XcalarGetTableId(tableName) {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -201,7 +211,7 @@ function XcalarGetTableId(tableName) {
 }
 
 function XcalarSetAbsolute(resultSetId, position) {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -227,7 +237,7 @@ function XcalarSetAbsolute(resultSetId, position) {
 }
 
 function XcalarGetNextPage(resultSetId, numEntries) {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -252,7 +262,7 @@ function XcalarGetNextPage(resultSetId, numEntries) {
     return (result.output.resultSetNextOutput);
 }
 function XcalarFilter() {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -282,7 +292,7 @@ function XcalarFilter() {
 }
 
 function XcalarJoin() {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
@@ -314,7 +324,7 @@ function XcalarJoin() {
 }
 
 function XcalarGroupBy() {
-    var transport = new Thrift.Transport("http://heisenberg:9090/thrift/service/XcalarApiService/");
+    var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
