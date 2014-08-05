@@ -39,7 +39,7 @@ a.menuItems:hover {
 
 /* DataSource Items */
 .dataSourceBar{
-	 background-image:url(images/dark_m.png);
+	 background-image:url(/images/dark_m.png);
 	 background-repeat:repeat-x;
 	 background-size:auto 25px;
 }
@@ -48,20 +48,20 @@ a.menuItems:hover {
     font: 11px  Monaco, arial, sans-serif;
     color: #000000;
     width: auto;
-	background-image:url(images/dark_m.png);
+	background-image:url(/images/dark_m.png);
 	background-repeat:repeat-x;
 	background-size: auto 25px;
 }
 
 td.dataSourceMenu, .dataSourceMenuText {
 	position: relative;
-	background-image:url(images/dark_m.png);
+	background-image:url(/images/dark_m.png);
 	background-repeat:repeat-x;
 	background-size: auto 25px;
 }
 
 .addTabBg {
-    background-image:url(images/dark_m.png);
+    background-image:url(/images/dark_m.png);
     background-repeat:repeat-x;
     background-size: auto 25px;
 }
@@ -108,7 +108,7 @@ a.pageTurnerPageNumber:hover {
 }
 
 .pageTurnerPageSelected {
-    background-image: url("images/shadedSquare.png");
+    background-image: url("/images/shadedSquare.png");
     background-size: 35px 35px;
     background-repeat: no-repeat;
     background-position: center;
@@ -117,7 +117,7 @@ a.pageTurnerPageNumber:hover {
 
 /* Tables */
 .colClose {
-    background-image:url(images/closeButton.png);
+    background-image:url(/images/closeButton.png);
     background-size: 15px 15px;
     float: right;
 }
@@ -160,7 +160,7 @@ a.pageTurnerPageNumber:hover {
 }
 
 .table_title_bg {	
-	background-image: url(images/bgbgbg.png);
+	background-image: url(/images/bgbgbg.png);
 	background-repeat:repeat-x;
 	font: 12px  "Helvetica Neue Light", arial, sans-serif;
     color: #000000;
@@ -172,7 +172,7 @@ a.pageTurnerPageNumber:hover {
 }
 
 .tabsAreaBg {
-    background-image: url(images/dark_m.png);
+    background-image: url(/images/dark_m.png);
     background-repeat: repeat-x;
     background-size:auto 25px;
 }
@@ -581,6 +581,6 @@ table, tbody, tr,body{
     }
 
 .bg_r-r {
-	background-image:url(images/bg_right.jpg);
+	background-image:url(/images/bg_right.jpg);
 	background-repeat:repeat-x;
 	}
