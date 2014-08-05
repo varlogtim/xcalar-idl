@@ -28,6 +28,13 @@
     color: #003a76;
 }
 
+/* body */
+body {
+    background-color: #F5F5F5;
+    margin-left: 0px;
+    margin-top: 0px;
+}
+
 /* Menu Items */
 a.menuItems {
     color: #FFFFFF;
