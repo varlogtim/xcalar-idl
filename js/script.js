@@ -451,8 +451,8 @@ function generateRowWithAutoIndex(text) {
         tableRowIndex+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)"'+
-        ' ondblclick="javascript: window.location.href=\'cat_table.html?\
-        tablename='+
+        ' ondblclick="javascript: window.location.href=\'cat_table.html?'+
+        'tablename='+
         URIEncoded+'\'">'+
         text+'</td></tr>');
     tableRowIndex++;
