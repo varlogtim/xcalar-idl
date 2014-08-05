@@ -9,120 +9,122 @@ var tableName = "";
 var resultSetId = 0;
 
 function setTabs() {
-	var i;
-	for (i = 1; i<=numTabs; i++) {
-		dataSourceMouseOver(i);
-	}
-	dataSourceClick(1);
+    var i;
+    for (i = 1; i<=numTabs; i++) {
+        dataSourceMouseOver(i);
+    }
+    dataSourceClick(1);
 }
 
 function loadMainContent(op) {
-  $("#leftFrame").load(op.concat('_l.html'));
-  $("#mainFrame").load(op.concat('_r.html'));
+    $("#leftFrame").load(op.concat('_l.html'));
+    $("#mainFrame").load(op.concat('_r.html'));
 }
 
 function dataSourceMouseOver(tabNumber) {
-  var left = "tab" + tabNumber + "l";
-  var center = "tab" + tabNumber + "c";
-  var right = "tab" + tabNumber + "r";
+    var left = "tab" + tabNumber + "l";
+    var center = "tab" + tabNumber + "c";
+    var right = "tab" + tabNumber + "r";
   
-  var vanishRight = "tab" + (tabNumber+1) + "l";
-  var vanishLeft = "tab" + (tabNumber-1) + "r";
+    var vanishRight = "tab" + (tabNumber+1) + "l";
+    var vanishLeft = "tab" + (tabNumber-1) + "r";
   
-  if (tabNumber != 1) {
-	  if (tabNumber-1 == selectedTab) {
-		  document.getElementById(left).src = "images/white_m.png";
-	  } else {
-		  document.getElementById(vanishLeft).src = "images/light_m.png";
-		  document.getElementById(left).src = "images/light_l.png";
-	  }
-  }
-  document.getElementById(center).style.backgroundImage = "url('images/light_m.png')";
-  if (tabNumber != numTabs) {
-    if (tabNumber+1 == selectedTab) {
-	   document.getElementById(right).src = "images/white_m.png";
-    } else {
-		document.getElementById(vanishRight).src = "images/light_m.png";
-       document.getElementById(right).src = "images/light_r.png";
+    if (tabNumber != 1) {
+        if (tabNumber-1 == selectedTab) {
+            document.getElementById(left).src = "images/white_m.png";
+        } else {
+            document.getElementById(vanishLeft).src = "images/light_m.png";
+            document.getElementById(left).src = "images/light_l.png";
+        }
     }
-  } else {
-	  document.getElementById(right).src = "images/light_r.png";
-  }
+    document.getElementById(center).style.backgroundImage =
+        "url('images/light_m.png')";
+    if (tabNumber != numTabs) {
+        if (tabNumber+1 == selectedTab) {
+            document.getElementById(right).src = "images/white_m.png";
+        } else {
+            document.getElementById(vanishRight).src = "images/light_m.png";
+            document.getElementById(right).src = "images/light_r.png";
+        }
+    } else {
+        document.getElementById(right).src = "images/light_r.png";
+    }
 }
 
 function dataSourceMouseOut(tabNumber) {
-  var left = "tab" + tabNumber + "l";
-  var center = "tab" + tabNumber + "c";
-  var right = "tab" + tabNumber + "r";
+    var left = "tab" + tabNumber + "l";
+    var center = "tab" + tabNumber + "c";
+    var right = "tab" + tabNumber + "r";
   
-  var vanishRight = "tab" + (tabNumber+1) + "l";
-  var vanishLeft = "tab" + (tabNumber-1) + "r";
+    var vanishRight = "tab" + (tabNumber+1) + "l";
+    var vanishLeft = "tab" + (tabNumber-1) + "r";
   
-  if (tabNumber != 1) {
-	  document.getElementById(left).src = "images/dark_m.png";
-	  if (tabNumber-1 != selectedTab) {
+    if (tabNumber != 1) {
         document.getElementById(left).src = "images/dark_m.png";
-        document.getElementById(vanishLeft).src = "images/dark_r.png";
-	  } else {
-        document.getElementById(left).src = "images/white_m.png";
-        document.getElementById(vanishLeft).src = "images/white_r.png";
-	  }
-  }
-  document.getElementById(center).style.backgroundImage = "url('images/dark_m.png')";
-  document.getElementById(right).src = "images/dark_r.png";
-  if (tabNumber != numTabs) {
-	 if (tabNumber+1 != selectedTab) {
-        document.getElementById(right).src = "images/dark_m.png";
-	    document.getElementById(vanishRight).src = "images/dark_r.png";
-	 } else {
-        document.getElementById(right).src = "images/white_m.png";
-	    document.getElementById(vanishRight).src = "images/white_l.png";
-	 }
-
-  }
+        if (tabNumber-1 != selectedTab) {
+            document.getElementById(left).src = "images/dark_m.png";
+            document.getElementById(vanishLeft).src = "images/dark_r.png";
+        } else {
+            document.getElementById(left).src = "images/white_m.png";
+            document.getElementById(vanishLeft).src = "images/white_r.png";
+        }
+    }
+    document.getElementById(center).style.backgroundImage =
+        "url('images/dark_m.png')";
+    document.getElementById(right).src = "images/dark_r.png";
+    if (tabNumber != numTabs) {
+        if (tabNumber+1 != selectedTab) {
+            document.getElementById(right).src = "images/dark_m.png";
+            document.getElementById(vanishRight).src = "images/dark_r.png";
+        } else {
+            document.getElementById(right).src = "images/white_m.png";
+            document.getElementById(vanishRight).src = "images/white_l.png";
+        }
+    }
 }
 
 function dataSourceClick(tabNumber) {
-  selectedTab = tabNumber;
-  var left = "tab" + tabNumber + "l";
-  var center = "tab" + tabNumber + "c";
-  var right = "tab" + tabNumber + "r";
+    selectedTab = tabNumber;
+    var left = "tab" + tabNumber + "l";
+    var center = "tab" + tabNumber + "c";
+    var right = "tab" + tabNumber + "r";
   
-  var vanishRight = "tab" + (tabNumber+1) + "l";
-  var vanishLeft = "tab" + (tabNumber-1) + "r";
+    var vanishRight = "tab" + (tabNumber+1) + "l";
+    var vanishLeft = "tab" + (tabNumber-1) + "r";
   
-  if (tabNumber != 1) {
-	  document.getElementById(left).src = "images/white_l.png";
-	  document.getElementById(vanishLeft).src = "images/white_m.png";
-  }
+    if (tabNumber != 1) {
+        document.getElementById(left).src = "images/white_l.png";
+        document.getElementById(vanishLeft).src = "images/white_m.png";
+    }
   
-  document.getElementById(center).style.backgroundImage = "url('images/white_m.png')";
-  document.getElementById(right).src = "images/white_r.png";
-  if (tabNumber != numTabs) {
-    document.getElementById(vanishRight).src = "images/white_m.png";
-  }
+    document.getElementById(center).style.backgroundImage =
+        "url('images/white_m.png')";
+    document.getElementById(right).src = "images/white_r.png";
+    if (tabNumber != numTabs) {
+        document.getElementById(vanishRight).src = "images/white_m.png";
+    }
   
-  // Disable onmouseout
-  document.getElementById(center).onmouseout = function() {null};
-  document.getElementById(center).onmouseover = function() {null};
+    // Disable onmouseout
+    document.getElementById(center).onmouseout = function() {null};
+    document.getElementById(center).onmouseover = function() {null};
   
-  // Enable mouseover and mouseout for other elements
-  var index;
-  for (index = 1; index <= numTabs; index++) {
-	  if (index != tabNumber) {
-		  var tabName = "tab" + index + "c";
-		  var func1 = "dataSourceMouseOver(" + index + ");";
-		  var func2 = "dataSourceMouseOut(" + index + ");";
-		  document.getElementById(tabName).onmouseover = new Function(func1);
-		  document.getElementById(tabName).onmouseout = new Function(func2);
-		  document.getElementById(tabName).onmouseout();
-	  }
-  }
+    // Enable mouseover and mouseout for other elements
+    var index;
+    for (index = 1; index <= numTabs; index++) {
+        if (index != tabNumber) {
+            var tabName = "tab" + index + "c";
+            var func1 = "dataSourceMouseOver(" + index + ");";
+            var func2 = "dataSourceMouseOut(" + index + ");";
+            document.getElementById(tabName).onmouseover = new Function(func1);
+            document.getElementById(tabName).onmouseout = new Function(func2);
+            document.getElementById(tabName).onmouseout();
+        }
+    }
 }
 
 function generateTabs() {
-	var i;
-	document.write('<td class="dataSourceMenu" id="tab1c"\
+    var i;
+    document.write('<td class="dataSourceMenu" id="tab1c"\
     onMouseOver="dataSourceMouseOver(1);"\
     onMouseOut="dataSourceMouseOut(1);"\
     onClick="dataSourceClick(1);">\
@@ -131,9 +133,9 @@ function generateTabs() {
     <td class="dataSourceMenu">\
       <img src="images/dark_l.png" height="25px" id="tab2l">\
     </td>');
-	for (i = 2; i<=numTabs; i++) {
-		document.write('\
-	      <td class="dataSourceMenu">\
+    for (i = 2; i<=numTabs; i++) {
+        document.write('\
+          <td class="dataSourceMenu">\
             <img src="images/dark_r.png" height="25px" id="tab'+(i-1)+'r">\
           </td>\
           <td class="dataSourceMenu" id="tab'+i+'c"\
@@ -142,18 +144,18 @@ function generateTabs() {
             onClick="dataSourceClick('+i+');">\
             &nbsp;&nbsp;DataSource-'+i+'&nbsp;&nbsp;\
           </td>');
-		  if (i < numTabs) {
+          if (i < numTabs) {
            document.write('<td class="dataSourceMenu">\
                             <img src="images/dark_l.png" height="25px"\
                             id="tab'+(i+1)+'l">\
                             </td>');
-		  } else {
-			  document.write('<td class="dataSourceMenu">\
-                  		         <img src="images/dark_r.png" height="25px"\
+          } else {
+              document.write('<td class="dataSourceMenu">\
+                                   <img src="images/dark_r.png" height="25px"\
                                      id="tab'+i+'r">\
                              </td>');
-		  }
-	}
+          }
+    }
     document.write('<td id="addTabButton">\
                         <a href="javascript:addTab();" class="addTabBg">\
                             <img src="images/add-data-grey.png"\
@@ -172,7 +174,8 @@ function addTab() {
     $("#addTabButton").remove();
     $("#tabsArea tr").append('\
         <td class="dataSourceMenu">\
-            <img src="images/dark_r.png" height="25px" id="tab'+(numTabs-1)+'r">\
+            <img src="images/dark_r.png" height="25px"\
+                 id="tab'+(numTabs-1)+'r">\
         </td>\
         <td class="dataSourceMenu" id="tab'+numTabs+'c"\
             onMouseOver="dataSourceMouseOver('+numTabs+');"\
@@ -201,12 +204,14 @@ function addTab() {
 }
 
 function generateBar(width, text, page) {
-	document.write('<td width="'+width+'" height="40" align="center" class="helvertica_grey"\
+    document.write('<td width="' + width + 
+                    '" height="40" align="center" class="helvertica_grey"\
                     onMouseOver="this.bgColor=\'#d55401\'"\
                     onMouseOut="this.bgColor=\'#e77e23\'"\
-                    bgcolor="#e77e23" onClick="loadMainContent(\'' + page +'\');">\
-                    <a class="menuItems" onClick="loadMainContent(\'' + page + '\')">'+
-					  text + '</a></td>');
+                    bgcolor="#e77e23" onClick="loadMainContent(\'' + page +
+                    '\');">\
+                    <a class="menuItems" onClick="loadMainContent(\'' + page +
+                    '\')">'+ text + '</a></td>');
 }
 
 function deselectPage(pageNumber) {
@@ -274,7 +279,8 @@ function goToPage(pageNumber) {
 function getUrlVars()
 {
     var vars = [], hash;
-    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    var hashes = window.location.href.slice(window.location.href.indexOf('?')
+                 + 1).split('&');
     for(var i = 0; i < hashes.length; i++)
     {
         hash = hashes[i].split('=');
@@ -291,11 +297,12 @@ function generatePages(number, startNumber, rightDots) {
             <tr>\
               <td height="35" width="956" bgcolor="#FFFFFF"></td>\
               <td height="35" width="409" bgcolor="#FFFFFF" align="right">\
-              <table class="noBorderTable" style="height: 35; max-width: 389;">\
+              <table class="noBorderTable" style="height: 35;max-width: 389;">\
               <tr>\
               <td width="45" height="35" align="right" bgcolor="#FFFFFF"\
               class="pageTurner" id="pageTurnerLeft">\
-                  <a href="javascript:goToPrevPage();" class="pageTurner">< Prev</a>\
+                  <a href="javascript:goToPrevPage();" class="pageTurner">\
+                  < Prev</a>\
               </td>';
     if (startNumber > 0) {
         // There are previous pages
@@ -331,7 +338,8 @@ function generatePages(number, startNumber, rightDots) {
     htmlString += '\
               <td height="35" width="44" id="pageTurnerRight"\
               bgcolor="#FFFFFF">\
-              <a href="javascript:goToNextPage();" class="pageTurner">Next ></a>\
+              <a href="javascript:goToNextPage();" class="pageTurner">\
+              Next ></a>\
               </td>\
               </tr>\
               </table>\
@@ -344,7 +352,7 @@ function generatePages(number, startNumber, rightDots) {
 }
 
 function resetAutoIndex() {
-	tableRowIndex = 1;
+    tableRowIndex = 1;
 }
 
 function getNextPage(resultSetId) {
@@ -437,21 +445,22 @@ function generateNewTableHeading() {
 function generateRowWithAutoIndex(text) {
     var URIEncoded = encodeURIComponent(text);
     console.log(URIEncoded);
-	$("#autoGenTable tr:last").after('<tr><td height="17" align="center"'+
+    $("#autoGenTable tr:last").after('<tr><td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+
         tableRowIndex+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)"'+
-        ' ondblclick="javascript: window.location.href=\'cat_table.html?tablename='+
+        ' ondblclick="javascript: window.location.href=\'cat_table.html?\
+        tablename='+
         URIEncoded+'\'">'+
         text+'</td></tr>');
-	tableRowIndex++;
+    tableRowIndex++;
 }
 
 function generateRowWithAutoIndex2(text1, text2, idNo) {
     // text1 is an int since it's the key
-	$("#autoGenTable tr:last").after('<tr>'+
+    $("#autoGenTable tr:last").after('<tr>'+
         '<td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         idNo+"c1"+'" onmouseover="javascript: console.log(this.id)">'
@@ -526,7 +535,8 @@ function addCol(id, name) {
     if (name == null) {
         name = "New Heading";
     }
-    $("#"+id).after('<td contentEditable height="17" width="150" class="table_title_bg'+
+    $("#"+id).after(
+        '<td contentEditable height="17" width="150" class="table_title_bg'+
         '" id="headCol'+
         (colid+1)+
         '" onmouseover="javascript: console.log(this.id)"'+

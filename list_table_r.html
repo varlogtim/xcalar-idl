@@ -4,35 +4,31 @@
 <meta charset="UTF-8">
 <title>Xcalar-List</title>
 <link href="/css/style.css" rel="stylesheet" type="text/css">
-<style type="text/css">
-body,td,th {
-	font-family: "Arial Century Schoolbook L", "Times New Roman", serif;
-}
-body {
-	background-color: #f5f5f5;
-}
-</style>
 <script src="/js/script.js"></script>
 </head>
 
 <body topmargin="0" leftmargin="0">
 <table width="100%" border="0" class="stbg" id="autoGenTable">
   <tr>
-    <td width="3%" height="17" class="table_title_bg" id="headCol1"><strong>ID</strong></td>
-    <td height="17" class="table_title_bg" id="headCol2"><strong>Value</strong></td>
+    <td width="3%" height="17" class="table_title_bg" id="headCol1">
+      <strong>ID</strong>
+    </td>
+    <td height="17" class="table_title_bg" id="headCol2">
+      <strong>Value</strong>
+    </td>
   </tr>
-    <script>
-        var tables = XcalarGetTables();
-        var numTables = tables.numTables;
-        var i;
-        for (i = 0; i<numTables; i++) {
-            var t = tables.tables[i];
-            generateRowWithAutoIndex(t.tableName);
-	    }
-        $(document).on('dblclick', '.table_title_bg', function(event) {
-            addCol($(this).attr("id"));
-        });
-    </script>
 </table>
+<script>
+    var tables = XcalarGetTables();
+    var numTables = tables.numTables;
+    var i;
+    for (i = 0; i<numTables; i++) {
+        var t = tables.tables[i];
+        generateRowWithAutoIndex(t.tableName);
+    }
+    $(document).on('dblclick', '.table_title_bg', function(event) {
+        addCol($(this).attr("id"));
+    });
+</script>
 </body>
 </html>
