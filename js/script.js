@@ -590,7 +590,3 @@ function convertColNamesToArray() {
 $(document).on('dblclick', '.table_title_bg', function(event) {
   addCol($(this).attr("id"));
 });
-var tName = getUrlVars()["tablename"];
-$("#searchBar").val('tablename = "'+tName+'"');
-var tableName = tName;
-var resultSetId = XcalarGetTableId(tableName);

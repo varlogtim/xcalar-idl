@@ -132,9 +132,6 @@
       </tr>
       <tr>
         <td height="35" width="1365" bgcolor="#FFFFFF" id="pageTurnerNumberBar">
-          <script>
-            generatePages(9, 0, true);
-          </script>
         </td>
         <td height="35" bgcolor="#FFFFFF" class="spaceFiller"></td>
       </tr>
@@ -147,32 +144,10 @@
         <table width="1365" border="0" class="noBorderTable">
           <tr>
             <td width="238" height="544" valign="top" id="leftFrame"
-              bgcolor="#FFFFFF">&nbsp;</td>
+              bgcolor="#FFFFFF"></td>
             <td width="1" height="544" bgcolor="#CCCCCC"></td>
             <td width="1126"  height="544" valign="top" id="mainFrame"
               bgcolor="#FFFFFF">
-              <table width="100%" border="0" class="stbg" id="autoGenTable">
-                <tr>
-                  <td width="3%" height="17" class="table_title_bg" id="headCol1">
-                    <strong>ID</strong>
-                  </td>
-                  <td height="17" class="table_title_bg" id="headCol2">
-                    <strong>Table Name</strong>
-                  </td>
-                </tr>
-                <script>
-                  var tables = XcalarGetTables();
-                  var numTables = tables.numTables;
-                  var i;
-                  for (i = 0; i<numTables; i++) {
-                    var t = tables.tables[i];
-                    generateRowWithAutoIndex(t.tableName);
-	              }
-                  $(document).on('dblclick', '.table_title_bg', function(event) {
-                    addCol($(this).attr("id"));
-                  });
-                </script>
-              </table>
             </td>
           </tr>
         </table>
@@ -204,5 +179,9 @@
     </table>
     </td>
 </table> 
+<script>
+    generatePages(9, 0, true);
+    loadMainContent("list_table");
+</script>
 </body>
 </html>
