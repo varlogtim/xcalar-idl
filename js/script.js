@@ -314,13 +314,11 @@ function generatePages(number, startNumber, rightDots) {
     for (i = 0; i<number; i++) {
         htmlString += '\
               <td height="35" width= "35" class="pageTurnerPage">\
-                <center>\
                   <a href="javascript:goToPage(';
         htmlString += (i+startNumber);
         htmlString += ');" class="pageTurnerPageNumber">';
         htmlString += (i+1+startNumber);
         htmlString += '</a>\
-                </center>\
               </td>';
     }
     
