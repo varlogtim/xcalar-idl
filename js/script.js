@@ -205,9 +205,7 @@ function addTab() {
 
 function generateBar(width, text, page) {
     document.write('<td width="' + width + 
-                    '" height="40" align="center" class="helvertica_grey"\
-                    onMouseOver="this.bgColor=\'#d55401\'"\
-                    onMouseOut="this.bgColor=\'#e77e23\'"\
+                    '" height="40" align="center" class="menu helvertica_grey"\
                     bgcolor="#e77e23" onClick="loadMainContent(\'' + page +
                     '\');">\
                     <a class="menuItems" onClick="loadMainContent(\'' + page +

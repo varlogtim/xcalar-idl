@@ -35,7 +35,12 @@ body {
     margin-top: 0px;
 }
 
-/* Menu Items */
+/* Menu */
+td.menu:hover {
+    cursor: pointer;
+    background-color: #D55401;
+}
+
 a.menuItems {
     color: #FFFFFF;
 }
