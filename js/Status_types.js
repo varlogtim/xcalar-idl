@@ -195,7 +195,8 @@ StatusT = {
 'StatusBTreeNotFound' : 186,
 'StatusCmdNotComplete' : 187,
 'StatusInvalidResultSetId' : 188,
-'StatusPositionExceedResultSetSize' : 189
+'StatusPositionExceedResultSetSize' : 189,
+'StatusHandleInUse' : 190
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -386,5 +387,6 @@ StatusTStr = {0 : 'Success',
 186 : 'Could not find BTree associated with table handle',
 187 : 'Command is still running',
 188 : 'Invalid result set ID',
-189 : 'Cannot set position to beyond result set size'
+189 : 'Cannot set position to beyond result set size',
+190 : 'Table is in use right now and cannot be deleted'
 };

@@ -309,12 +309,16 @@ KeyValuePairT.prototype.write = function(output) {
 XcalarApiTableT = function(args) {
   this.tableName = null;
   this.handle = null;
+  this.backingRdaId = null;
   if (args) {
     if (args.tableName !== undefined) {
       this.tableName = args.tableName;
     }
     if (args.handle !== undefined) {
       this.handle = args.handle;
+    }
+    if (args.backingRdaId !== undefined) {
+      this.backingRdaId = args.backingRdaId;
     }
   }
 };
@@ -346,6 +350,13 @@ XcalarApiTableT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.I64) {
+        this.backingRdaId = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -365,6 +376,11 @@ XcalarApiTableT.prototype.write = function(output) {
   if (this.handle !== null && this.handle !== undefined) {
     output.writeFieldBegin('handle', Thrift.Type.I64, 2);
     output.writeI64(this.handle);
+    output.writeFieldEnd();
+  }
+  if (this.backingRdaId !== null && this.backingRdaId !== undefined) {
+    output.writeFieldBegin('backingRdaId', Thrift.Type.I64, 3);
+    output.writeI64(this.backingRdaId);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -944,6 +960,59 @@ XcalarApiResultSetNextInputT.prototype.write = function(output) {
   if (this.numRecords !== null && this.numRecords !== undefined) {
     output.writeFieldBegin('numRecords', Thrift.Type.I64, 2);
     output.writeI64(this.numRecords);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiFreeResultSetInputT = function(args) {
+  this.resultSetId = null;
+  if (args) {
+    if (args.resultSetId !== undefined) {
+      this.resultSetId = args.resultSetId;
+    }
+  }
+};
+XcalarApiFreeResultSetInputT.prototype = {};
+XcalarApiFreeResultSetInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.resultSetId = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiFreeResultSetInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiFreeResultSetInputT');
+  if (this.resultSetId !== null && this.resultSetId !== undefined) {
+    output.writeFieldBegin('resultSetId', Thrift.Type.I64, 1);
+    output.writeI64(this.resultSetId);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -2077,12 +2146,16 @@ XcalarApiCmdHandleT.prototype.write = function(output) {
 XcalarApiBulkLoadOutputT = function(args) {
   this.status = null;
   this.cmdHandle = null;
+  this.tableName = null;
   if (args) {
     if (args.status !== undefined) {
       this.status = args.status;
     }
     if (args.cmdHandle !== undefined) {
       this.cmdHandle = args.cmdHandle;
+    }
+    if (args.tableName !== undefined) {
+      this.tableName = args.tableName;
     }
   }
 };
@@ -2115,6 +2188,13 @@ XcalarApiBulkLoadOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.tableName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -2136,6 +2216,11 @@ XcalarApiBulkLoadOutputT.prototype.write = function(output) {
     this.cmdHandle.write(output);
     output.writeFieldEnd();
   }
+  if (this.tableName !== null && this.tableName !== undefined) {
+    output.writeFieldBegin('tableName', Thrift.Type.STRING, 3);
+    output.writeString(this.tableName);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -2153,6 +2238,8 @@ XcalarApiInputT = function(args) {
   this.editColInput = null;
   this.isCmdCompleteInput = null;
   this.resultSetAbsoluteInput = null;
+  this.freeResultSetInput = null;
+  this.deleteTableInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -2186,6 +2273,12 @@ XcalarApiInputT = function(args) {
     }
     if (args.resultSetAbsoluteInput !== undefined) {
       this.resultSetAbsoluteInput = args.resultSetAbsoluteInput;
+    }
+    if (args.freeResultSetInput !== undefined) {
+      this.freeResultSetInput = args.freeResultSetInput;
+    }
+    if (args.deleteTableInput !== undefined) {
+      this.deleteTableInput = args.deleteTableInput;
     }
   }
 };
@@ -2291,6 +2384,22 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 12:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.freeResultSetInput = new XcalarApiFreeResultSetInputT();
+        this.freeResultSetInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 13:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.deleteTableInput = new XcalarApiTableT();
+        this.deleteTableInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -2355,6 +2464,16 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.resultSetAbsoluteInput !== null && this.resultSetAbsoluteInput !== undefined) {
     output.writeFieldBegin('resultSetAbsoluteInput', Thrift.Type.STRUCT, 11);
     this.resultSetAbsoluteInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.freeResultSetInput !== null && this.freeResultSetInput !== undefined) {
+    output.writeFieldBegin('freeResultSetInput', Thrift.Type.STRUCT, 12);
+    this.freeResultSetInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.deleteTableInput !== null && this.deleteTableInput !== undefined) {
+    output.writeFieldBegin('deleteTableInput', Thrift.Type.STRUCT, 13);
+    this.deleteTableInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
