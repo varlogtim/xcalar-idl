@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Xcalar-List</title>
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+<script src="/js/load.js"></script>
+<style>
+</style>
+</head>
+
+<body>
+  <h2 style="padding-left: 10px;">Add A New Datasource </h2>
+  <div id="dataTypeBox" class="shadeBox"></div>
+  <div id="dataTypeSelector">
+    <h3>Select datasource type</h3>
+    <input type="radio" name="dsType" value="JSON">
+      JSON
+    </input>
+    </br>
+    <input type="radio" name="dsType" value="wiki">
+      Wiki
+    </input>
+    </br>
+    <input type="radio" name="dsType" value="CSV">
+      CSV
+    </input>
+    </br>
+    <input type="radio" name="dsType" value="rand">
+      Random
+    </input>
+    </br>
+    </br>
+    <input type="button" name="selectDs" value="Next"
+           onclick="dataFormatSubmit()">
+  </div>
+  <div id="filePathBox" class="shadeBox"></div>
+  <div id="filePathSelector">
+    <h3> Enter URL </h3>
+    <input type="text" id="fileBrowser"></input>
+    </br>
+    </br>
+    <input type="button" value="Next" onclick="dsSubmit()">
+  </div>
+  <div id="keySelectorBox" class="shadeBox"></div>
+  <div id="keySelector">
+    <h3> Enter Key and Tablename </h3>
+    <table class="regularTable">
+      <tr>
+        <td>Key</td>
+        <td><input type="text" id="keyName"></td>
+      </tr>
+      <tr>
+        <td>Table Name</td>
+        <td><input type="text" id="tableName"></td>
+      </tr>
+    </table>
+    </br>
+    </br>
+    <input type="button" value="Next" onclick="detailsSubmit()">
+  </div>
+  <div id="uploadProgressBox" class="shadeBox"></div>
+  <div id="uploadProgress">
+    <h3> Upload Progress </h3>
+    Progress Bar Goes Here! </br>
+    You will be redirected after 20s.
+  </div>
+
+
+</body>
+
+</html>

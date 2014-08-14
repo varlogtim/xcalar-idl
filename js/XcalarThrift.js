@@ -12,7 +12,8 @@ function transportLocation() {
     return (str);
 }
 
-function XcalarLoad() {
+function XcalarLoad(url, key, tablename, format) {
+    console.log(format);
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -26,13 +27,25 @@ function XcalarLoad() {
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiBulkLoad;
     workItem.input.loadInput.loadFromPath = true;
-    workItem.input.loadInput.path = $('#LoadUrl').val();
+    workItem.input.loadInput.path = url;
     workItem.input.loadInput.maxSize = 0;
-    workItem.input.loadInput.dfType = DfFormatTypeT.DfTypeJSON;
-    workItem.input.loadInput.keyName = $('#LoadKey').val();
+    switch (format) {
+    case ("JSON"):
+        workItem.input.loadInput.dfType = DfFormatTypeT.DfTypeJSON;
+        break;
+    case ("rand"):
+        workItem.input.loadInput.dfType = DfFormatTypeT.DfTypeRandom;
+        break;
+    case ("CSV"):
+        workItem.input.loadInput.dfType = DfFormatTypeT.DfTypeCSV;
+        break;
+    default:
+        workItem.input.loadInput.dfType = DfFormatTypeT.DfTypeUnknown;
+    }  
+    workItem.input.loadInput.keyName = key;
     workItem.input.loadInput.srcTable.tableName = "";
     workItem.input.loadInput.srcTable.handle = 0;
-    workItem.input.loadInput.dstTable.tableName = $('#LoadTableName').val();
+    workItem.input.loadInput.dstTable.tableName = tablename;
     workItem.input.loadInput.dstTable.handle = 0;
 
     try {
@@ -82,10 +95,11 @@ function XcalarGetTables() {
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiListTables;
 
+    console.log(workItem.api);
     try {
         result = client.queueWork(workItem);
         return (result.output.listTablesOutput);
-    } catch(ouch) {
+    } catch (ouch) {
         console.log("Couldn't get table names");
         return (0);
     }
@@ -204,6 +218,7 @@ function XcalarGetTableId(tableName) {
     try {
         result = client.queueWork(workItem);
     } catch(ouch) {
+        console.log(result.output.makeResultSetOutput.resultSetId);
         console.log("Failed to cat table");
         return;
     }
