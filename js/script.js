@@ -17,12 +17,8 @@ function setTabs() {
 }
 
 function loadMainContent(op) {
-    console.log(window.location.pathname);
     if (window.location.pathname.search("cat_table.html") > -1) {
-        console.log("Freeing");
         freeAllResultSets();
-    } else {
-        console.log("Not freeing");
     }
     $("#leftFrame").load(op.concat('_l.html'));
     $("#mainFrame").load(op.concat('_r.html'));
