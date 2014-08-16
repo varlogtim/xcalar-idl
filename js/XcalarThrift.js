@@ -276,6 +276,32 @@ function XcalarGetNextPage(resultSetId, numEntries) {
 
     return (result.output.resultSetNextOutput);
 }
+
+function XcalarSetFree(resultSetId) {
+    var transport = new Thrift.Transport(transportLocation());
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.api = XcalarApisT.XcalarApiFreeResultSet;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.freeResultSetInput = new XcalarApiFreeResultSetInputT();
+    workItem.input.freeResultSetInput.resultSetId = resultSetId;
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+      console.log("Failed to free1");
+      return false;
+    }
+
+    if (result.jobStatus != StatusT.StatusOk) {
+      console.log("Failed to free2");
+      return false;
+    }
+
+    return true;
+}
+
 function XcalarFilter() {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
