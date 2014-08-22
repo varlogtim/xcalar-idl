@@ -160,9 +160,10 @@ function generateTabs() {
           }
     }
     document.write('<td id="addTabButton">\
-                        <a href="javascript:addTab();" class="addTabBg">\
+                        <a href="javascript:addTab();">\
                             <img src="images/add-data-grey.png"\
                                  alt="Add Data Source" width="33" height="16"\
+                                 style="position: relative; top: -2px;"\
                                  id="Image7">\
                         </a>\
                     </td>\
