@@ -20,8 +20,8 @@ function loadMainContent(op) {
     if (window.location.pathname.search("cat_table.html") > -1) {
         freeAllResultSets();
     }
-    $("#leftFrame").load(op.concat('_l.html'));
-    $("#mainFrame").load(op.concat('_r.html'));
+    $("#leftFrame").load('/'+op.concat('_l.html'));
+    $("#mainFrame").load('/'+op.concat('_r.html'));
 }
 
 function dataSourceMouseOver(tabNumber) {
@@ -34,23 +34,23 @@ function dataSourceMouseOver(tabNumber) {
   
     if (tabNumber != 1) {
         if (tabNumber-1 == selectedTab) {
-            document.getElementById(left).src = "images/white_m.png";
+            document.getElementById(left).src = "/images/white_m.png";
         } else {
-            document.getElementById(vanishLeft).src = "images/light_m.png";
-            document.getElementById(left).src = "images/light_l.png";
+            document.getElementById(vanishLeft).src = "/images/light_m.png";
+            document.getElementById(left).src = "/images/light_l.png";
         }
     }
     document.getElementById(center).style.backgroundImage =
-        "url('images/light_m.png')";
+        "url('/images/light_m.png')";
     if (tabNumber != numTabs) {
         if (tabNumber+1 == selectedTab) {
-            document.getElementById(right).src = "images/white_m.png";
+            document.getElementById(right).src = "/images/white_m.png";
         } else {
-            document.getElementById(vanishRight).src = "images/light_m.png";
-            document.getElementById(right).src = "images/light_r.png";
+            document.getElementById(vanishRight).src = "/images/light_m.png";
+            document.getElementById(right).src = "/images/light_r.png";
         }
     } else {
-        document.getElementById(right).src = "images/light_r.png";
+        document.getElementById(right).src = "/images/light_r.png";
     }
 }
 
@@ -63,25 +63,25 @@ function dataSourceMouseOut(tabNumber) {
     var vanishLeft = "tab" + (tabNumber-1) + "r";
   
     if (tabNumber != 1) {
-        document.getElementById(left).src = "images/dark_m.png";
+        document.getElementById(left).src = "/images/dark_m.png";
         if (tabNumber-1 != selectedTab) {
-            document.getElementById(left).src = "images/dark_m.png";
-            document.getElementById(vanishLeft).src = "images/dark_r.png";
+            document.getElementById(left).src = "/images/dark_m.png";
+            document.getElementById(vanishLeft).src = "/images/dark_r.png";
         } else {
-            document.getElementById(left).src = "images/white_m.png";
-            document.getElementById(vanishLeft).src = "images/white_r.png";
+            document.getElementById(left).src = "/images/white_m.png";
+            document.getElementById(vanishLeft).src = "/images/white_r.png";
         }
     }
     document.getElementById(center).style.backgroundImage =
-        "url('images/dark_m.png')";
-    document.getElementById(right).src = "images/dark_r.png";
+        "url('/images/dark_m.png')";
+    document.getElementById(right).src = "/images/dark_r.png";
     if (tabNumber != numTabs) {
         if (tabNumber+1 != selectedTab) {
-            document.getElementById(right).src = "images/dark_m.png";
-            document.getElementById(vanishRight).src = "images/dark_r.png";
+            document.getElementById(right).src = "/images/dark_m.png";
+            document.getElementById(vanishRight).src = "/images/dark_r.png";
         } else {
-            document.getElementById(right).src = "images/white_m.png";
-            document.getElementById(vanishRight).src = "images/white_l.png";
+            document.getElementById(right).src = "/images/white_m.png";
+            document.getElementById(vanishRight).src = "/images/white_l.png";
         }
     }
 }
@@ -96,15 +96,15 @@ function dataSourceClick(tabNumber) {
     var vanishLeft = "tab" + (tabNumber-1) + "r";
   
     if (tabNumber != 1) {
-        document.getElementById(left).src = "images/white_l.png";
-        document.getElementById(vanishLeft).src = "images/white_m.png";
+        document.getElementById(left).src = "/images/white_l.png";
+        document.getElementById(vanishLeft).src = "/images/white_m.png";
     }
   
     document.getElementById(center).style.backgroundImage =
-        "url('images/white_m.png')";
-    document.getElementById(right).src = "images/white_r.png";
+        "url('/images/white_m.png')";
+    document.getElementById(right).src = "/images/white_r.png";
     if (tabNumber != numTabs) {
-        document.getElementById(vanishRight).src = "images/white_m.png";
+        document.getElementById(vanishRight).src = "/images/white_m.png";
     }
   
     // Disable onmouseout
@@ -134,12 +134,12 @@ function generateTabs() {
     &nbsp;&nbsp;DataSource-1&nbsp;&nbsp;\
     </td>\
     <td class="dataSourceMenu">\
-      <img src="images/dark_l.png" height="25px" id="tab2l">\
+      <img src="/images/dark_l.png" height="25px" id="tab2l">\
     </td>');
     for (i = 2; i<=numTabs; i++) {
         document.write('\
           <td class="dataSourceMenu">\
-            <img src="images/dark_r.png" height="25px" id="tab'+(i-1)+'r">\
+            <img src="/images/dark_r.png" height="25px" id="tab'+(i-1)+'r">\
           </td>\
           <td class="dataSourceMenu" id="tab'+i+'c"\
             onMouseOver="dataSourceMouseOver('+i+');"\
@@ -149,19 +149,19 @@ function generateTabs() {
           </td>');
           if (i < numTabs) {
            document.write('<td class="dataSourceMenu">\
-                            <img src="images/dark_l.png" height="25px"\
+                            <img src="/images/dark_l.png" height="25px"\
                             id="tab'+(i+1)+'l">\
                             </td>');
           } else {
               document.write('<td class="dataSourceMenu">\
-                                   <img src="images/dark_r.png" height="25px"\
+                                   <img src="/images/dark_r.png" height="25px"\
                                      id="tab'+i+'r">\
                              </td>');
           }
     }
     document.write('<td id="addTabButton">\
                         <a href="javascript:addTab();">\
-                            <img src="images/add-data-grey.png"\
+                            <img src="/images/add-data-grey.png"\
                                  alt="Add Data Source" width="33" height="16"\
                                  style="position: relative; top: -2px;"\
                                  id="Image7">\
@@ -172,13 +172,13 @@ function generateTabs() {
 
 function addTab() {
     var lastTabR = document.getElementById("tab"+numTabs+"r");
-    lastTabR.setAttribute("src","images/dark_l.png");
+    lastTabR.setAttribute("src","/images/dark_l.png");
     numTabs++;
     lastTabR.setAttribute("id", ("tab"+numTabs+"l"));
     $("#addTabButton").remove();
     $("#tabsArea tr").append('\
         <td class="dataSourceMenu">\
-            <img src="images/dark_r.png" height="25px"\
+            <img src="/images/dark_r.png" height="25px"\
                  id="tab'+(numTabs-1)+'r">\
         </td>\
         <td class="dataSourceMenu" id="tab'+numTabs+'c"\
@@ -188,7 +188,7 @@ function addTab() {
             &nbsp;&nbsp;DataSource-'+numTabs+'&nbsp;&nbsp;\
         </td>\
         <td class="dataSourceMenu">\
-            <img src="images/dark_r.png" height="25px" id="tab'+numTabs+'r">\
+            <img src="/images/dark_r.png" height="25px" id="tab'+numTabs+'r">\
         </td>\
     ');
     for (var i = 1; i<=numTabs; i++) {
@@ -200,7 +200,7 @@ function addTab() {
     $("#tabsArea tr").append('\
         <td id="addTabButton">\
             <a href="javascript:addTab();">\
-                <img src="images/add-data-grey.png"\
+                <img src="/images/add-data-grey.png"\
                     alt="Add Data Source" width="33" height="16" id="Image7">\
             </a>\
         </td>\
@@ -541,7 +541,7 @@ function addCol(id, name) {
         (colid+1)+
         '" onmouseover="javascript: console.log(this.id)"'+
         '><strong>'+name+
-        '</strong><img src="images/closeButton.png" '+
+        '</strong><img src="/images/closeButton.png" '+
         'style="background-size: 15px 15px; float:right; cursor: pointer;'+
         'z-index: 3;"'+
         'onclick="javascript: delCol(this.id);" id="closeButton'+
