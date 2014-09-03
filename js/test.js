@@ -2,6 +2,10 @@
 var shortCircuit = true;
 // Enter in the names of all the test functions that you want to run. If
 // the name of the function is not here, it will not be run.
+
+// XXX: If the test results in the window loading into a new page, the remaining
+// functions cannot be run. So right now we are avoiding this by getting the
+// caller to call the next function in line. See load for more details.
 var testFns = [testMainScreen, testLoad];
 
 
@@ -80,6 +84,7 @@ function testMainScreen() {
             succeed = false;
         }
     }
+
     if (!succeed && shortCircuit) {
         return (false);
     }
@@ -87,9 +92,8 @@ function testMainScreen() {
     return (true);
     
 }
-function testLoad() {
-    $(".menuItems:contains('Load')").click();
-    setTimeout(function() { 
+
+function testLoadHelper() {
     if ($("#dataTypeSelector").height() <= 0 ||
         $("#dataTypeSelector").width() <= 0) {
         var string = "dataTypeSelector does not exist!";
@@ -99,16 +103,100 @@ function testLoad() {
             return (false);
         }
     }
-    }, 2000);
+
+    $("#dsTypeJSON").prop("checked", true);
+    $("#selectDs").click();
+
+    if ($("#dataTypeBox").width() <= $("#dataTypeSelector").width() ||
+        $("#dataTypeBox").height() <= $("#dataTypeSelector").height()) {
+        var string = "greyBox must be bigger than dataTypeBox";
+        alert(string);
+        console.log(string);
+        if (shortCircuit) {
+            return (false);
+        }
+    }
+
+    if ($("#filePathSelector").height() <= 0 ||
+        $("#filePathSelector").width() <= 0) {
+        var string = "dataTypeSelector does not exist!";
+        alert(string);
+        console.log(string);
+        if (shortCircuit) {
+            return (false);
+        }
+    }
+
+    $("#fileBrowser").val("file:///var/tmp/yelp/user");
+    $("#selectFile").click();
+
+    if ($("#filePathBox").width() <= $("#filePathSelector").width() ||
+        $("#filePathBox").height() <= $("#filePathSelector").height()) {
+        var string = "greyBox must be bigger than filePathBox";
+        alert(string);
+        console.log(string);
+        if (shortCircuit) {
+            return (false);
+        }
+    }
+
+    if ($("#keySelector").height() <= 0 ||
+        $("#keySelector").width() <= 0) {
+        var string = "keySelector does not exist!";
+        alert(string);
+        console.log(string);
+        if (shortCircuit) {
+            return (false);
+        }
+    }
+
+    $("#keyName").val("user_id");
+    // Generate a random tablename so that it doesn't clash with existing ones
+    var rand = Math.floor(Math.random() * 10000);
+    var genTableName = "testTableUser"+rand;
+    $("#tableName").val(genTableName);
+    $("#selectName").click();
+
+    if ($("#keySelectorBox").width() <= $("#keySelector").width() ||
+        $("#keySelectorBox").height() <= $("#keySelector").height()) {
+        var string = "greyBox must be bigger than keySelector";
+        alert(string);
+        console.log(string);
+        if (shortCircuit) {
+            return (false);
+        }
+    }
+
+    if ($("#uploadProgress").height() <= 0 ||
+        $("#uploadProgress").width() <= 0) {
+        var string = "uploadProgress does not exist!";
+        alert(string);
+        console.log(string);
+        if (shortCircuit) {
+            return (false);
+        }
+    }
+}
+
+function testLoad() {
+    $(".menuItems:contains('Load')").click();
+    setTimeout(testLoadHelper, 2000);
     return (true);
-     
+}
+
+function testCat() {
+    console.log("Starting cat test");
 }
 
 $(document).ready(
+    setTimeout(
     function() {
-        console.log("Starting test in 2 Sec");
-        setTimeout(function() {
-            testStart();
-        }, 2000);
-    }
+        var redirect = $("td:contains('testTableUser')");
+        if (redirect.length > 0) {
+            console.log("Done with load test");
+        } else {
+            console.log("Starting test in 2 Sec");
+            setTimeout(testStart, 2000);
+        }
+    }, 2000)
 );

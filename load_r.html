@@ -14,24 +14,24 @@
   <div id="dataTypeBox" class="shadeBox"></div>
   <div id="dataTypeSelector">
     <h3>Select datasource type</h3>
-    <input type="radio" name="dsType" value="JSON">
+    <input type="radio" name="dsType" id="dsTypeJSON" value="JSON">
       JSON
     </input>
     </br>
-    <input type="radio" name="dsType" value="wiki">
+    <input type="radio" name="dsType" id="dsTypeWiki" value="wiki">
       Wiki
     </input>
     </br>
-    <input type="radio" name="dsType" value="CSV">
+    <input type="radio" name="dsType" id="dsTypeCSV" value="CSV">
       CSV
     </input>
     </br>
-    <input type="radio" name="dsType" value="rand">
+    <input type="radio" name="dsType" id="dsTypeRand" value="rand">
       Random
     </input>
     </br>
     </br>
-    <input type="button" name="selectDs" value="Next"
+    <input type="button" id="selectDs" value="Next"
            onclick="dataFormatSubmit()">
   </div>
   <div id="filePathBox" class="shadeBox"></div>
@@ -40,7 +40,7 @@
     <input type="text" id="fileBrowser"></input>
     </br>
     </br>
-    <input type="button" value="Next" onclick="dsSubmit()">
+    <input type="button" id="selectFile" value="Next" onclick="dsSubmit()">
   </div>
   <div id="keySelectorBox" class="shadeBox"></div>
   <div id="keySelector">
@@ -57,7 +57,7 @@
     </table>
     </br>
     </br>
-    <input type="button" value="Next" onclick="detailsSubmit()">
+    <input type="button" id="selectName" value="Next" onclick="detailsSubmit()">
   </div>
   <div id="uploadProgressBox" class="shadeBox"></div>
   <div id="uploadProgress">
