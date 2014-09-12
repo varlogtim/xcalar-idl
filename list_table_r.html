@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <title>Xcalar-List</title>
-<link href="/css/style.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
-<table width="100%" class="stbg" id="autoGenTable">
+<table class="stbg resizable" id="autoGenTable">
   <tr>
-    <td width="3%" height="17" class="table_title_bg" id="headCol1">
+    <td width="3%" style="width:3%;" class="table_title_bg staticCol" id="headCol1">
       <strong>ID</strong>
     </td>
-    <td height="17" class="table_title_bg" id="headCol2">
+    <td class="table_title_bg staticCol" id="headCol2">
       <strong>Value</strong>
     </td>
   </tr>
@@ -23,11 +22,9 @@
     var i;
     for (i = 0; i<numTables; i++) {
         var t = tables.tables[i];
-        generateRowWithAutoIndex(t.tableName);
+        generateRowWithAutoIndex(t.tableName, true);
     }
-    $(document).on('dblclick', '.table_title_bg', function(event) {
-        addCol($(this).attr("id"));
-    });
+    resizableColumns();
 </script>
 </body>
 </html>

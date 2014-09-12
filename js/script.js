@@ -199,7 +199,7 @@ function addTab() {
     }
     $("#tabsArea tr").append('\
         <td id="addTabButton">\
-            <a href="javascript:addTab();">\
+            <a href="javascript:addTab();" class="addTabBg">\
                 <img src="/images/add-data-grey.png"\
                     alt="Add Data Source" width="33" height="16" id="Image7">\
             </a>\
@@ -209,7 +209,7 @@ function addTab() {
 
 function generateBar(width, text, page) {
     document.write('<td width="' + width + 
-                    '" height="40" align="center" class="menu helvertica_grey"\
+                    '" height="40" align="center" class="menu helvetica_grey"\
                     bgcolor="#e77e23" onClick="loadMainContent(\'' + page +
                     '\');">\
                     <a class="menuItems" onClick="loadMainContent(\'' + page +
@@ -294,30 +294,28 @@ function getUrlVars()
 
 function generatePages(number, startNumber, rightDots) {
     var htmlString = '\
-          <table height="35" width="1365" class="noBorderTable"\
-          id="pageTurnerNumberBar">\
+          <table class="noBorderTable" id="pageTurnerNumberBarInner">\
             <tr>\
-              <td height="35" width="956" bgcolor="#FFFFFF"></td>\
-              <td height="35" width="409" bgcolor="#FFFFFF" align="right">\
-              <table class="noBorderTable" style="height: 35;max-width: 389;">\
+              <td class="pageTurnerLeftSpacer"></td>\
+              <td class="pageTurnerWrap">\
+              <table class="pageTurnerWrap noBorderTable">\
               <tr>\
-              <td width="45" height="35" align="right" bgcolor="#FFFFFF"\
-              class="pageTurner" id="pageTurnerLeft">\
+              <td class="pageTurner" id="pageTurnerLeft">\
                   <a href="javascript:goToPrevPage();" class="pageTurner">\
                   < Prev</a>\
               </td>';
     if (startNumber > 0) {
         // There are previous pages
         htmlString += '\
-              <td height="35" width="20" align="right" class="pageTurner">\
-                <a href="javascript:goToPage(';
+              <td class="pageTurner"\
+               id="leftDots"><a href="javascript:goToPage(';
         htmlString += (startNumber-5);
         htmlString += ');" class="pageTurner">...</a></td>';
     }
     var i;
     for (i = 0; i<number; i++) {
         htmlString += '\
-              <td height="35" width= "35" class="pageTurnerPage">\
+              <td class="pageTurnerPage">\
                   <a href="javascript:goToPage(';
         htmlString += (i+startNumber);
         htmlString += ');" class="pageTurnerPageNumber">';
@@ -329,22 +327,21 @@ function generatePages(number, startNumber, rightDots) {
     if (rightDots) {
         // There are previous pages
         htmlString += '\
-              <td height="35" width="20" align="left" class="pageTurner">\
+              <td id="rightDots" class="pageTurner">\
                 <a href="javascript:goToPage(';
         htmlString += (startNumber+number+5);
         htmlString += ');" class="pageTurner">...</a></td>';
     }
 
     htmlString += '\
-              <td height="35" width="44" id="pageTurnerRight"\
-              bgcolor="#FFFFFF">\
+              <td id="pageTurnerRight">\
               <a href="javascript:goToNextPage();" class="pageTurner">\
               Next ></a>\
               </td>\
               </tr>\
               </table>\
               </td>\
-              <td height="35" bgcolor="#FFFFFF" class="spaceFiller"></td>\
+              <td class="spaceFiller pageTurnerRightSpacer"></td>\
             </tr>\
           </table>\
           ';
@@ -393,10 +390,11 @@ function getPage(resultSetId) {
             if (headingsArray[i] !== "JSON" &&
                 headingsArray[i] !== "Key") {
                 console.log("deleted: "+headingsArray[i]);
-                delCol("closeButton"+(i+1-numRemoved));
-                numRemoved++;
                 var indName = {index: i,
-                               name: headingsArray[i]};
+                               name: headingsArray[i],
+                               width: $("#headCol"+(i+1-numRemoved)).width()};
+                delCol("closeButton"+(i+1-numRemoved), false);
+                numRemoved++;
                 indices.push(indName);
             }
         }
@@ -417,13 +415,16 @@ function getPage(resultSetId) {
         var value = tableOfEntries.records[i].value;
         generateRowWithAutoIndex2(key, value, indexNumber+i+1);
     }
+
     for (var i = 0; i<indices.length; i++) {
-        addCol("headCol"+(indices[i].index), indices[i].name);
+        addCol("headCol"+(indices[i].index), indices[i].name, null, indices[i].width);
         pullCol(indices[i].name, 1+indices[i].index);
     }
 }
 
 function generateNewTableHeading() {
+    // this function doesn't appear to be used anywhere
+    console.log('generateNewTableHeading()');
     $("#autoGenTable").append('\
       <tr>\
         <td width="3%" height="17" class="table_title_bg" id="headCol1">\
@@ -437,24 +438,29 @@ function generateNewTableHeading() {
         </td>\
       </tr>\
     ');
-    $(document).on('dblclick', '.table_title_bg', function(event) {
-       addCol($(this).attr("id"));
-    });
 }
 
-function generateRowWithAutoIndex(text) {
+function generateRowWithAutoIndex(text, hoverable) {
     var URIEncoded = encodeURIComponent(text);
     console.log(URIEncoded);
+    if (hoverable) {
+        var clickable = 'class="mousePointer"';
+    } 
+    else { 
+        var clickable = "";
+    }
     $("#autoGenTable tr:last").after('<tr><td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+
         tableRowIndex+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)"'+
-        ' ondblclick="javascript: window.location.href=\'cat_table.html?'+
+        ' onclick="javascript: window.location.href=\'cat_table.html?'+
         'tablename='+
         URIEncoded+'\'">'+
-        text+'</td></tr>');
+        '<div class="cellRelative"><span '+clickable+'>'+text+'</span>'+
+        '<div class="dropdownContainer"></div>'+
+        '</div></td></tr>');
     tableRowIndex++;
 }
 
@@ -463,25 +469,33 @@ function generateRowWithAutoIndex2(text1, text2, idNo) {
     $("#autoGenTable tr:last").after('<tr>'+
         '<td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        idNo+"c1"+'" onmouseover="javascript: console.log(this.id)">'
+        idNo+"c1"+'">'
         +idNo+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        idNo+"c2"+'" onmouseover="javascript: console.log(this.id)">'+
+        idNo+"c2"+'">'+
         text1+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        idNo+"c3"+'" onmouseover="javascript: console.log(this.id)">'+
+        idNo+"c3"+'">'+
         '<div class="elementText">'+
         text2+'</div></td>'+
         '</tr>');
 }
 
-function delCol(id) {
+function delCol(id, resize) {
+
+    // console.log('delCol()');
+    rescolDelWidth(id, resize);
     var numCol = $("#autoGenTable").find("tr:first td").length;
     var colid = parseInt(id.substring(11));
     $("#headCol"+colid).remove();
+    console.log($("#headCol"+colid).html());
     for (var i = colid+1; i<=numCol; i++) {
         $("#headCol"+i).attr("id", "headCol"+(i-1));
         $("#closeButton"+i).attr("id", "closeButton"+(i-1));
+        $("#addLCol"+i).attr("id", "addLCol"+(i-1));
+        $("#addRCol"+i).attr("id", "addRCol"+(i-1));
+        $("#rename"+i).attr("id", "rename"+(i-1));
+        $("label[for='rename"+i+"']").attr("for", "rename"+(i-1));
     }
  
     var numRow = $("#autoGenTable tr").length;
@@ -517,7 +531,7 @@ function pullCol(key, newColid) {
         var nested = key.split(".");
         for (var j = 0; j<nested.length; j++) {
             value = value[nested[j]];
-            console.log(value)
+            // console.log(value);
         }    
 
         value = '<div class="addedBarText">'+value+"</div>"
@@ -525,55 +539,137 @@ function pullCol(key, newColid) {
     }    
 }
 
-function addCol(id, name) {
+function addCol(id, name, direction, width) {
+    // console.log('addCol()');
     var numCol = $("#autoGenTable").find("tr:first td").length;
     var colid = parseInt(id.substring(7));
-    for (var i = numCol; i>=colid+1; i--) {
-        $("#headCol"+i).attr("id", "headCol"+(i+1));
-        $("#closeButton"+i).attr("id", "closeButton"+(i+1));
+    var resize = false;
+    if (direction == "L") {
+        var newColid = colid;
+    } else {
+        var newColid = colid+1;
     }
     if (name == null) {
-        name = "New Heading";
+        var name = "New Heading";
+        var width = 144;
+        var resize = true;
     }
-    $("#"+id).after(
-        '<td contentEditable height="17" width="150" class="table_title_bg'+
+
+    for (var i = numCol; i>=newColid; i--) {
+        $("#headCol"+i).attr("id", "headCol"+(i+1));
+        $("#closeButton"+i).attr("id", "closeButton"+(i+1));
+        $("#addRCol"+i).attr("id", "addRCol"+(i+1));
+        $("#addLCol"+i).attr("id", "addLCol"+(i+1));
+        $("#rename"+i).attr("id", "rename"+(i+1));
+        $("label[for='rename"+i+"']").attr("for", "rename"+(i+1));
+    }        
+    
+    var columnHeadTd = '<td class="table_title_bg editableCol'+
         '" id="headCol'+
-        (colid+1)+
-        '" onmouseover="javascript: console.log(this.id)"'+
-        '><strong>'+name+
-        '</strong><img src="/images/closeButton.png" '+
-        'style="background-size: 15px 15px; float:right; cursor: pointer;'+
-        'z-index: 3;"'+
-        'onclick="javascript: delCol(this.id);" id="closeButton'+
-        (colid+1)+'">'+
-        '</td>');
- 
+        newColid+
+        '" style="height:17px; width:'+(width+6)+'px;">'+
+        '<div class="dropdownContainer"></div>'+
+        '<strong><input type="text" id="rename'+newColid+'" '+
+        'class="editableHead" '+
+        'value="'+name+'"/></strong>'+
+        '</td>';
+    if (newColid > 1) {
+        $("#headCol"+(newColid-1)).after(columnHeadTd); 
+    } else {
+        $("#headCol"+(newColid+1)).before(columnHeadTd);
+    }
+
+    var dropDownHTML = '<ul class="colMenu">'+
+            '<li class="addCol">'+
+                'Add a column'+
+                '<div class="rightArrow"></div>'+
+                '<ul class="subColMenu">'+
+                    '<li class="addColumns" id="addLCol'+
+                    newColid+'">On the left</li>'+
+                    '<li class="addColumns" id="addRCol'+
+                    newColid+'">On the right</li>'+
+                '</ul>'+ 
+            '</li>'+
+            '<li class="deleteColumn" onclick="delCol(this.id);" '+
+            'id="closeButton'+newColid+'">Delete the column</li>'+
+            '<li>Duplicate the column</li>'+
+            '<label for="rename'+newColid+'">'+
+            '<li>Rename the column</li>'+
+            '</label>'+
+        '</ul>';
+
+    $('#headCol'+newColid).append(dropDownHTML);
+
+    $('#headCol'+newColid+' .editableHead').mousedown(function(event){
+        event.stopPropagation();
+    });
+    
+    $('#headCol'+newColid+' .addColumns').click(function(){
+        console.log('addColumns clicked');
+        var id = $(this).attr('id');
+        var direction = id.substring(3,4);
+        $(this).closest('.colMenu').hide();
+        addCol(id, null, direction);
+    });
+
+    $('#headCol'+newColid+' .dropdownContainer').click(function(){
+        $('.colMenu').hide();
+        $(this).siblings('.colMenu').show();
+    });
+
+    $('#headCol'+newColid+' .subColMenu li').mouseenter(function(){
+        $('.subColMenu li').addClass('subColUnselected');
+        $(this).addClass('subColSelected');
+        $(this).parent().parent().addClass('subSelected');
+    }).mouseleave(function(){
+        $('.subColMenu li').removeClass('subColUnselected');
+        $(this).removeClass('subColSelected');
+        $(this).parent().parent().removeClass('subSelected');
+    });
+
+    if (resize) {
+        $('#rename'+newColid).select();
+    }
+    
+    $('label[for="rename'+newColid+'"]').click(
+        function(){
+            $('#rename'+newColid).select();
+        }
+    );
+
     var numRow = $("#autoGenTable tr").length;
+
     var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
                        substring(5);
     idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
     var startingIndex = parseInt(idOfFirstRow);
     for (var i = startingIndex; i<startingIndex+numRow-1; i++) {
-        for (var j = numCol; j>=colid+1; j--) {
+        for (var j = numCol; j>=newColid; j--) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j+1));
-
+            // every column after the new column gets id shifted +1;
         }
-        $("#bodyr"+i+"c"+colid).after('<td height="17" bgcolor="#FFFFFF"'+
-            'class="monacotype" id="bodyr'+i+"c"+(colid+1)+
-            '" onmouseover="javascript: console.log(this.id)"'+
-            '>&nbsp;</td>');
+        var newCellHTML = '<td height="17" bgcolor="#FFFFFF"'+
+            'class="monacotype" id="bodyr'+i+"c"+(newColid)+
+            '"'+
+            '>&nbsp;</td>';
+        if (newColid > 1) {
+            $("#bodyr"+i+"c"+(newColid-1)).after(newCellHTML);
+        } else {
+            $("#bodyr"+i+"c"+(newColid+1)).before(newCellHTML);
+        }
     }
-     
-    $("#headCol"+(colid+1)).click(function() {
+    $("#headCol"+newColid).click(function() {
         $(this).select();
     });
-
-    $("#headCol"+(colid+1)).keypress(function(e) {
+    $("#headCol"+newColid+" .editableHead").keypress(function(e) {
       if (e.which==13) {
-        pullCol($(this).text(), (colid+1));
+        var thisId = parseInt($(this).closest('.table_title_bg').
+                     attr('id').substring(7));
+        pullCol($(this).val(), thisId);
         $(this).blur();
       }
     });
+    resizableColumns(resize);
 }
 
 function prelimFunctions() {
@@ -592,11 +688,183 @@ function convertColNamesToArray() {
     var headings = [];
     for (var i = 0; i<numCol; i++) {
         headings.push($.trim(head.eq(i).text()));
+        if (headings[i] == "") {
+            headings.pop();
+            headings.push($.trim(head.eq(i).children('input').val()));
+        }
     }
     return headings;
 }
 
-// Auto run
-$(document).on('dblclick', '.table_title_bg', function(event) {
-  addCol($(this).attr("id"));
+// rescol is used to store resizableColumns() variables across function calls
+var rescol = {
+    first: true,
+    grabbed: false,
+    mouseStart: 0,     
+    cellMinWidth: 40,
+    newCellWidth: 150,
+    padding: function(){return (parseInt($('.resizable td:first').css('padding-left')) * 2)}
+};
+
+function rescolMouseDown(el, event){
+    event.preventDefault();
+    rescol.grabbed = true;
+    rescol.mouseStart = event.clientX;
+    rescol.grabbedCell = el.parent();  // the td 
+    rescol.startWidth = rescol.grabbedCell.width(); 
+    rescol.nextCell = rescol.grabbedCell.next();  // the next td
+    rescol.nextCellWidth = rescol.nextCell.width();
+
+    if (rescol.startWidth < rescol.cellMinWidth) {
+        rescol.tempCellMinWidth = rescol.startWidth;
+    } else {
+        rescol.tempCellMinWidth = rescol.cellMinWidth;
+    }
+    rescol.rightDragMax = rescol.nextCellWidth - rescol.tempCellMinWidth;
+    rescol.leftDragMax =  rescol.tempCellMinWidth - rescol.startWidth;
+
+    disableTextSelection();
+    var style = '<style id="e-resizeCursor" type="text/css">*'+ 
+        '{cursor: e-resize !important;}</style>';
+    $(document.head).append(style);
+}
+
+function resizableColumns(resize) {
+    console.log('resizableColumns');
+    $('.resizable tr:first td').css('position','relative');
+
+    $('.resizable tr:first td').each(
+        function() {
+            if (!$(this).children().hasClass('resizeCursor') && !$(this).is(':last-child')
+                 &&!$(this).is(':first-child')) {
+                $(this).prepend('<div class="resizeCursor"></div>');
+                var tdId = $(this).attr('id');
+
+                $('#'+tdId+' .resizeCursor').mousedown(
+                    function(event) {
+                        rescolMouseDown($(this), event);
+                    }
+                );
+            }
+        }
+    );
+
+    $('.resizeCursor').height($('.resizable').height());
+
+    if (rescol.first) {
+        $('.resizable tr:first td').each(
+            function() {
+                    var initialWidth = $(this).width();
+                    $(this).width(initialWidth);
+                    $(this).removeAttr('width');
+            } 
+        );
+        $('.resizable').css('table-layout','fixed');
+        rescol.first = false;
+    } 
+
+    if (resize) {
+        var largestCell;
+        var largestCellWidth = 0;
+        $('.resizable tr:first td').each(
+            function(){
+                if ($(this).width() > largestCellWidth) {
+                    largestCell = $(this);
+                    largestCellWidth = $(this).width();
+                }
+            }
+        );
+        var newLargeWidth = largestCellWidth - rescol.newCellWidth;
+        largestCell.width(newLargeWidth);
+    } 
+}
+
+$(document).ready(function(){
+    $(document).mouseup(function(event){
+        if (rescol.grabbed) {
+            rescol.grabbed = false;
+            $('#e-resizeCursor').remove();
+            reenableTextSelection() 
+        }
+    });
+
+    $(document).mousemove(function(event){
+        if (rescol.grabbed) {
+            var dragDist = (event.clientX - rescol.mouseStart);
+            if ( dragDist > rescol.leftDragMax && dragDist < rescol.rightDragMax ) {
+                rescol.grabbedCell.width(rescol.startWidth + dragDist);
+                rescol.nextCell.width(rescol.nextCellWidth - dragDist);
+            } else if ( dragDist < rescol.leftDragMax ) {
+                // set grabbed cell to min width if mouse quickly moves to the left
+                rescol.grabbedCell.width(rescol.tempCellMinWidth);
+                rescol.nextCell.width(rescol.nextCellWidth + (rescol.startWidth 
+                - rescol.tempCellMinWidth));
+            } 
+        }
+    });
+
+    $('.addColumns').click(function() {
+        var id = $(this).attr('id');
+        var direction = id.substring(3,4);
+        $(this).closest('.colMenu').hide();
+        addCol(id, null, direction);
+    });
+
+    $('.dropdownContainer').click(function() {
+        $('.colMenu').hide();
+        $(this).siblings('.colMenu').show();
+
+    });
+
+    $('.subColMenu li').mouseenter(function(){
+        $('.subColMenu li').addClass('subColUnselected');
+        $(this).addClass('subColSelected');
+        $(this).parent().parent().addClass('subSelected');
+    }).mouseleave(function(){
+        $('.subColMenu li').removeClass('subColUnselected');
+        $(this).removeClass('subColSelected');
+        $(this).parent().parent().removeClass('subSelected');
+    });
 });
+
+$(document).click(function(event) {
+    if (!$(event.target).is('.dropdownContainer, .addCol')) {
+            $('.colMenu').hide();
+    } 
+});
+
+
+function rescolDelWidth(id, resize) {
+    // console.log('rescolDelWidth()');
+    var id = parseInt(id.substring(11));
+    var delTd = $('.resizable tr:first td').eq(id-1)
+    var delTdWidth = delTd.width();
+    var padding = parseInt(delTd.css('padding-left')) * 2;
+    if (resize == false) {
+        var tableWidth = $('.resizable').width();
+        $('.resizable').width(tableWidth - delTdWidth - padding - 2);
+    }
+    else {
+        var adjustedTd = $('.resizable tr:first td').eq(id);
+        if (adjustedTd.length < 1) {
+            adjustedTd = $('.resizable tr:first td').eq(id-2);
+            adjustedTd.children('.resizeCursor').remove();
+        }
+        var adjustedTdWidth = adjustedTd.width();
+        adjustedTd.width(adjustedTdWidth+delTdWidth+padding+2);
+    }
+}
+
+
+function disableTextSelection() {
+    var style = '<style id="disableSelection" type="text/css">*'+ 
+        '{ -ms-user-select:none;-moz-user-select:-moz-none;-khtml-user-select:none;'+
+        '-webkit-user-select:none;user-select:none; }</style>';
+    $(document.head).append(style);
+    $('input').prop('disabled', true);
+}
+
+function reenableTextSelection() {
+  $('#disableSelection').remove();
+  $('input').prop('disabled', false);
+}

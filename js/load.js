@@ -21,8 +21,8 @@ function dataFormatSubmit() {
         alert("Please select your data format");
     } else {
         loadFormat = dataType;
-        $("#dataTypeBox").css({"left": $("#mainFrame").position().left,
-                               "top": $("#mainFrame").position().top,
+        $("#dataTypeBox").css({"left": 0,
+                               "top": 0,
                                "width": $("#dataTypeSelector").width() + 15,
                                "height": $("#mainFrame").height()
                               });
@@ -38,7 +38,7 @@ function dsSubmit() {
     } else {
         loadURL = url;
         $("#filePathBox").css({"left": $("#filePathSelector").position().left+5,
-                               "top": $("#mainFrame").position().top,
+                               "top": 0,
                                "width": $("#filePathSelector").width() + 30,
                                "height": $("#mainFrame").height()});
         $("#keySelector").show();
@@ -55,7 +55,7 @@ function detailsSubmit() {
         loadKey = key;
         loadTable = tablename;
         $("#keySelectorBox").css({"left": $("#keySelector").position().left+5,
-                                  "top": $("#mainFrame").position().top,
+                                  "top": 0,
                                   "width": $("#keySelector").width() + 45,
                                   "height": $("#mainFrame").height()});
         $("#uploadProgress").show();
