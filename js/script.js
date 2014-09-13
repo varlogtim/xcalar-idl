@@ -482,7 +482,6 @@ function generateRowWithAutoIndex2(text1, text2, idNo) {
 }
 
 function delCol(id, resize) {
-
     // console.log('delCol()');
     rescolDelWidth(id, resize);
     var numCol = $("#autoGenTable").find("tr:first td").length;
@@ -683,7 +682,7 @@ function getSearchBarText() {
 }
 
 function convertColNamesToArray() {
-    var head = $("#autoGenTable tr:first-child td");
+    var head = $("#autoGenTable tr:first-child td strong");
     var numCol = head.length;
     var headings = [];
     for (var i = 0; i<numCol; i++) {
