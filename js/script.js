@@ -325,7 +325,7 @@ function generatePages(number, startNumber, rightDots) {
     }
     
     if (rightDots) {
-        // There are previous pages
+        // There are next pages
         htmlString += '\
               <td id="rightDots" class="pageTurner">\
                 <a href="javascript:goToPage(';

@@ -59,7 +59,7 @@ function XcalarLoad(url, key, tablename, format) {
     }
 }
 
-function XcalarGetCount() {
+function XcalarGetCount(tableName) {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -69,22 +69,21 @@ function XcalarGetCount() {
     workItem.api = XcalarApisT.XcalarApiCountUnique;
     workItem.input = new XcalarApiInputT();
     workItem.input.tableInput = new XcalarApiTableT();
-    workItem.input.tableInput.tableName = $('#GetCountTableName').val();
+    workItem.input.tableInput.tableName = tableName;
     workItem.input.tableInput.handle = 0;
 
+    var totEntries = 0;
     try {
         result = client.queueWork(workItem);
-        $('#GetCountStatus').val(result.output.countOutput.status);
-        $('#GetCountNum').val(result.output.countOutput.numCounts);
-        $('#GetCount0').val(result.output.countOutput.counts[0]);
-
-        $('#GetCountStatus').css('color', 'black');
-        $('#GetCountNum').css('color', 'black');
-        $('#GetCount0').css('color', 'black');
+        var numNodes = result.output.countOutput.numCounts;
+        for (var i = 0; i<numNodes; i++) {
+            totEntries += result.output.countOutput.counts[i];
+        }
     } catch(ouch) {
-      $('#GetCountStatus').val(ouch.status);
-      $('#GetCountStatus').css('color', 'red');
+        console.log("Failed to get count");
+        console.log(ouch.status);
     }
+    return (totEntries);
 }
 
 function XcalarGetTables() {
