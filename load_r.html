@@ -12,7 +12,7 @@
 
 <body>
   <div id="load_r">
-    <h2 style="padding-left: 10px;">Add A New Datasource</h2>
+    <h2 style="padding-left: 10px;">Add New Datasource</h2>
     <div id="dataTypeBox" class="shadeBox"></div>
     <div id="dataTypeSelector">
       <h3>Select datasource type</h3>
@@ -37,7 +37,7 @@
       </label>
       </br>
       </br>
-      <input type="button" name="selectDs" value="Next"
+      <input type="button" id="selectDs" value="Next"
              onclick="dataFormatSubmit()">
     </div>
     <div id="filePathBox" class="shadeBox"></div>
@@ -46,7 +46,7 @@
       <input type="text" id="fileBrowser" autocomplete="on"></input>
       </br>
       </br>
-      <input type="button" value="Next" onclick="dsSubmit()">
+      <input type="button" value="Next" id="selectFile" onclick="dsSubmit()">
     </div>
     <div id="keySelectorBox" class="shadeBox"></div>
     <div id="keySelector">
@@ -63,7 +63,8 @@
       </table>
       </br>
       </br>
-      <input type="button" value="Next" onclick="detailsSubmit()">
+      <input type="button" value="Next" id="selectName"
+             onclick="detailsSubmit()">
     </div>
     <div id="uploadProgressBox" class="shadeBox"></div>
     <div id="uploadProgress">

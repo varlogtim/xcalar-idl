@@ -779,12 +779,10 @@ div input[type=text] {
     background-image: repeating-linear-gradient(45deg, transparent, transparent
     15px, rgba(255,255,255,.5) 15px, rgba(255,255,255,.5) 30px);
     */
+    box-sizing: content-box;
     background-color: #BFBFBF;
     position: absolute;
     border: 0px solid #000000;
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
     border-right: 1px solid #7F7F7F;
 
 }
