@@ -92,14 +92,17 @@ function XcalarGetTables() {
     var client    = new XcalarApiServiceClient(protocol);
 
     var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiListTables;
+    workItem.input.listTablesInput = "*";
 
     console.log(workItem.api);
     try {
         result = client.queueWork(workItem);
         return (result.output.listTablesOutput);
     } catch (ouch) {
+        console.log(ouch);
         console.log("Couldn't get table names");
         return (0);
     }

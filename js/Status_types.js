@@ -196,7 +196,11 @@ StatusT = {
 'StatusCmdNotComplete' : 187,
 'StatusInvalidResultSetId' : 188,
 'StatusPositionExceedResultSetSize' : 189,
-'StatusHandleInUse' : 190
+'StatusHandleInUse' : 190,
+'StatusCliLineTooLong' : 191,
+'StatusCliErrorReadFromFile' : 192,
+'StatusInvalidTableName' : 193,
+'StatusTableNameTooLong' : 194
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -353,7 +357,7 @@ StatusTStr = {0 : 'Success',
 152 : 'IDN encoding failed',
 153 : 'Last page',
 154 : 'More data to follow. Not end of stream',
-155 : 'Bad command or file name',
+155 : 'Command not found',
 156 : 'Error parsing command',
 157 : 'Success',
 158 : 'Fail',
@@ -388,5 +392,9 @@ StatusTStr = {0 : 'Success',
 187 : 'Command is still running',
 188 : 'Invalid result set ID',
 189 : 'Cannot set position to beyond result set size',
-190 : 'Table is in use right now and cannot be deleted'
+190 : 'Table is in use right now and cannot be deleted',
+191 : 'One of the lines in the CLI is too long',
+192 : 'Encountered an error reading from file',
+193 : 'Invalid table name',
+194 : 'Table name is too long'
 };
