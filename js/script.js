@@ -352,12 +352,12 @@ function resetAutoIndex() {
     tableRowIndex = 1;
 }
 
-function getNextPage(resultSetId) {
+function getNextPage(resultSetId, firstTime) {
     if (resultSetId == 0) {
         return;
     }
     currentPageNumber++;
-    getPage(resultSetId);
+    getPage(resultSetId, firstTime);
 }
 
 function getPrevPage(resultSetId) {
@@ -376,19 +376,18 @@ function getPrevPage(resultSetId) {
     getPage(resultSetId);
 }
 
-function getPage(resultSetId) {
+function getPage(resultSetId, firstTime) {
     if (resultSetId == 0) {
         return;
         // Reached the end
     }
+
     var indices = [];
     var headingsArray = convertColNamesToArray();
-
-    if (headingsArray != null && headingsArray.length > 3) {
+    if (headingsArray != null && headingsArray.length > 2) {
         var numRemoved = 0;
         for (var i = 1; i<headingsArray.length; i++) {
-            if (headingsArray[i] !== "JSON" &&
-                headingsArray[i] !== "Key") {
+            if (headingsArray[i] !== "JSON") {
                 console.log("deleted: "+headingsArray[i]);
                 var indName = {index: i,
                                name: headingsArray[i],
@@ -402,6 +401,7 @@ function getPage(resultSetId) {
     $("#autoGenTable").find("tr:gt(0)").remove();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            numEntriesPerPage);
+    console.log(tableOfEntries.meta.fieldAttr.name);
     if (tableOfEntries.numRecords < numEntriesPerPage) {
         // This is the last iteration
         // Time to free the handle
@@ -411,33 +411,24 @@ function getPage(resultSetId) {
     var indexNumber = (currentPageNumber-1) * numEntriesPerPage;
     for (var i = 0; i<Math.min(numEntriesPerPage, 
           tableOfEntries.numRecords); i++) {
-        var key = tableOfEntries.records[i].key;
         var value = tableOfEntries.records[i].value;
-        generateRowWithAutoIndex2(key, value, indexNumber+i+1);
+        generateRowWithAutoIndex2(value, indexNumber+i+1);
     }
-
+    if (firstTime) {
+        if (headingsArray.length != 2) {
+            console.log("BUG BUG BUG");
+            alert("Possible bug");
+        }
+        var indName = {index: 1,
+                       name: tableOfEntries.meta.fieldAttr.name,
+                       width: 144}; // XXX macro
+        indices.push(indName);
+    }
+ 
     for (var i = 0; i<indices.length; i++) {
         addCol("headCol"+(indices[i].index), indices[i].name, null, indices[i].width);
         pullCol(indices[i].name, 1+indices[i].index);
     }
-}
-
-function generateNewTableHeading() {
-    // this function doesn't appear to be used anywhere
-    console.log('generateNewTableHeading()');
-    $("#autoGenTable").append('\
-      <tr>\
-        <td width="3%" height="17" class="table_title_bg" id="headCol1">\
-          <strong>ID</strong>\
-        </td>\
-        <td width="auto" height="17" class="table_title_bg" id="headCol2">\
-          <strong>Key</strong>\
-        </td>\
-        <td width="auto" height="17" class="table_title_bg" id="headCol3">\
-          <strong>JSON</strong>\
-        </td>\
-      </tr>\
-    ');
 }
 
 function generateRowWithAutoIndex(text, hoverable) {
@@ -464,7 +455,7 @@ function generateRowWithAutoIndex(text, hoverable) {
     tableRowIndex++;
 }
 
-function generateRowWithAutoIndex2(text1, text2, idNo) {
+function generateRowWithAutoIndex2(text2, idNo) {
     // text1 is an int since it's the key
     $("#autoGenTable tr:last").after('<tr>'+
         '<td height="17" align="center"'+
@@ -473,9 +464,6 @@ function generateRowWithAutoIndex2(text1, text2, idNo) {
         +idNo+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         idNo+"c2"+'">'+
-        text1+'</td>'+
-        '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        idNo+"c3"+'">'+
         '<div class="elementText">'+
         text2+'</div></td>'+
         '</tr>');
@@ -551,7 +539,7 @@ function addCol(id, name, direction, width) {
     }
     if (name == null) {
         var name = "New Heading";
-        var width = 144;
+        var width = 144; // Please set as variable on top
         var resize = true;
     }
 
@@ -786,7 +774,42 @@ function resizableColumns(resize) {
     } 
 }
 
-$(document).ready(function(){
+function rescolDelWidth(id, resize) {
+    // console.log('rescolDelWidth()');
+    var id = parseInt(id.substring(11));
+    var delTd = $('.resizable tr:first td').eq(id-1)
+    var delTdWidth = delTd.width();
+    var padding = parseInt(delTd.css('padding-left')) * 2;
+    if (resize == false) {
+        var tableWidth = $('.resizable').width();
+        $('.resizable').width(tableWidth - delTdWidth - padding - 2);
+    }
+    else {
+        var adjustedTd = $('.resizable tr:first td').eq(id);
+        if (adjustedTd.length < 1) {
+            adjustedTd = $('.resizable tr:first td').eq(id-2);
+            adjustedTd.children('.resizeCursor').remove();
+        }
+        var adjustedTdWidth = adjustedTd.width();
+        adjustedTd.width(adjustedTdWidth+delTdWidth+padding+2);
+    }
+}
+
+
+function disableTextSelection() {
+    var style = '<style id="disableSelection" type="text/css">*'+ 
+        '{ -ms-user-select:none;-moz-user-select:-moz-none;-khtml-user-select:none;'+
+        '-webkit-user-select:none;user-select:none; }</style>';
+    $(document.head).append(style);
+    $('input').prop('disabled', true);
+}
+
+function reenableTextSelection() {
+  $('#disableSelection').remove();
+  $('input').prop('disabled', false);
+}
+
+function documentReadyCommonFunction() {
     $(document).mouseup(function(event){
         if (rescol.grabbed) {
             rescol.grabbed = false;
@@ -832,13 +855,27 @@ $(document).ready(function(){
         $(this).removeClass('subColSelected');
         $(this).parent().parent().removeClass('subSelected');
     });
-
+    
     $('.sort').click(function(){
         var id = $(this).parent().attr('id');
         sortRows(id);
     });
-});
+}
 
+function documentReadyCatFunction() {
+    documentReadyCommonFunction();
+    convertColNamesToArray();
+    getNextPage(resultSetId, true);
+    resizableColumns();
+}
+
+function documentReadyIndexFunction() {
+    documentReadyCommonFunction();
+    generatePages(9, 0, true);
+    loadMainContent("list_table");
+}
+
+// XXX: Can this function go into documentReadyFunction?
 $(document).click(function(event) {
     if (!$(event.target).is('.dropdownContainer, .addCol')) {
             $('.colMenu').hide();
@@ -850,37 +887,3 @@ function sortRows(id) {
 }
 
 
-function rescolDelWidth(id, resize) {
-    // console.log('rescolDelWidth()');
-    var id = parseInt(id.substring(11));
-    var delTd = $('.resizable tr:first td').eq(id-1)
-    var delTdWidth = delTd.width();
-    var padding = parseInt(delTd.css('padding-left')) * 2;
-    if (resize == false) {
-        var tableWidth = $('.resizable').width();
-        $('.resizable').width(tableWidth - delTdWidth - padding - 2);
-    }
-    else {
-        var adjustedTd = $('.resizable tr:first td').eq(id);
-        if (adjustedTd.length < 1) {
-            adjustedTd = $('.resizable tr:first td').eq(id-2);
-            adjustedTd.children('.resizeCursor').remove();
-        }
-        var adjustedTdWidth = adjustedTd.width();
-        adjustedTd.width(adjustedTdWidth+delTdWidth+padding+2);
-    }
-}
-
-
-function disableTextSelection() {
-    var style = '<style id="disableSelection" type="text/css">*'+ 
-        '{ -ms-user-select:none;-moz-user-select:-moz-none;-khtml-user-select:none;'+
-        '-webkit-user-select:none;user-select:none; }</style>';
-    $(document.head).append(style);
-    $('input').prop('disabled', true);
-}
-
-function reenableTextSelection() {
-  $('#disableSelection').remove();
-  $('input').prop('disabled', false);
-}
