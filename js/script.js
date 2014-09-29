@@ -495,6 +495,7 @@ function delCol(id, resize) {
         $("#addRCol"+i).attr("id", "addRCol"+(i-1));
         $("#rename"+i).attr("id", "rename"+(i-1));
         $("label[for='rename"+i+"']").attr("for", "rename"+(i-1));
+        $('#sort'+i).attr("id", "sort"+(i+1));
     }
  
     var numRow = $("#autoGenTable tr").length;
@@ -561,6 +562,7 @@ function addCol(id, name, direction, width) {
         $("#addLCol"+i).attr("id", "addLCol"+(i+1));
         $("#rename"+i).attr("id", "rename"+(i+1));
         $("label[for='rename"+i+"']").attr("for", "rename"+(i+1));
+        $("#sort"+i).attr("id", "sort"+(i+1));
     }        
     
     var columnHeadTd = '<td class="table_title_bg editableCol'+
@@ -595,12 +597,18 @@ function addCol(id, name, direction, width) {
             '<label for="rename'+newColid+'">'+
             '<li>Rename the column</li>'+
             '</label>'+
+            '<li class="sort" id="sort'+newColid+'">Sort</li>'+
         '</ul>';
 
     $('#headCol'+newColid).append(dropDownHTML);
 
     $('#headCol'+newColid+' .editableHead').mousedown(function(event){
         event.stopPropagation();
+    });
+
+    $('#sort'+newColid).click(function(){
+        var id = $(this).parent().attr('id');
+        sortRows(id);
     });
     
     $('#headCol'+newColid+' .addColumns').click(function(){
@@ -824,6 +832,11 @@ $(document).ready(function(){
         $(this).removeClass('subColSelected');
         $(this).parent().parent().removeClass('subSelected');
     });
+
+    $('.sort').click(function(){
+        var id = $(this).parent().attr('id');
+        sortRows(id);
+    });
 });
 
 $(document).click(function(event) {
@@ -831,6 +844,10 @@ $(document).click(function(event) {
             $('.colMenu').hide();
     } 
 });
+
+function sortRows(id) {
+
+}
 
 
 function rescolDelWidth(id, resize) {
