@@ -205,6 +205,41 @@ function XcalarGetNumEntries(tableName, numEntries) {
     return (result.output.resultSetNextOutput.numRecords);
 }
 
+function XcalarGetTableRefCount(tableName) {
+    var transport = new Thrift.Transport(transportLocation());
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiGetTableRefCount;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.getTableRefCountInput = new XcalarApiTableT();
+    workItem.input.getTableRefCountInput.tableName = tableName;
+
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+        console.log("Failed to getRefCount");
+        return;
+    }
+
+    if (result.jobStatus != StatusT.StatusOk) {
+      console.log("Failed to getRefCount2");
+      return;
+    }
+
+    if (result.output.getTableRefCountOutput.status != StatusT.StatusOk) {
+        console.log(result.output.getTableRefCountOutput.status);
+        console.log(StatusT.StatusNoSuchTable);
+        console.log(result.output);
+        console.log("Failed to getRefCount3");
+        return;
+    }
+
+    return (result.output.getTableRefCountOutput.refCount);
+}
+
 function XcalarGetTableId(tableName) {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);

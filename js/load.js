@@ -60,11 +60,19 @@ function detailsSubmit() {
                                   "height": $("#mainFrame").height()});
         $("#uploadProgress").show();
         XcalarLoad(loadURL, loadKey, loadTable, loadFormat);
-        setTimeout(
-           function() {
-                window.location.href="index.html";
-           },
-           20000);
+        checkLoad();
+    }
+}
+
+function checkLoad() {
+    var refCount = XcalarGetTableRefCount(loadTable);
+    console.log(refCount);
+    if (refCount == 1) {
+        console.log("Done loading");
+        window.location.href="index.html";
+    } else {
+        // Check twice per second
+        setTimeout(checkLoad, 500);
     }
 }
 
