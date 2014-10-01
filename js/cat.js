@@ -1,10 +1,10 @@
 // Auto run
-var tName = getUrlVars()["tablename"];
-$("#searchBar").val('tablename = "'+tName+'"');
-var tableName = tName;
+var urlTableName = getUrlVars()["tablename"];
+var tableName = urlTableName;
 var resultSetId = XcalarGetTableId(tableName);
 
 var resultSetCount = XcalarGetCount(tableName);
+var numPages = Math.ceil(resultSetCount / numEntriesPerPage);
 console.log(resultSetCount);
 
 function freeAllResultSets() {

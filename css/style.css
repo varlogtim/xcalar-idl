@@ -35,10 +35,8 @@
 
 /* body */
 body {
+    margin: 0;
     background-color: #F5F5F5;
-    margin-left: 0px;
-    margin-top: 0px;
-    margin-right: 0px;
 }
 
 div {
@@ -60,6 +58,8 @@ table.outerWrapper {
     display: table;
     width: 100%;
     overflow: hidden;
+    background-color: #FFFFFF;
+    
 }
 
 /* logo */
@@ -196,23 +196,59 @@ img#placeHolder {
 }
 
 /* Pages */
+#pageTurnerWrap {
+   width: 100%;
+   border-bottom: 1px solid #CCCCCC; 
+}
+
+#pageTurnerInner {
+    width: 1356px;
+}
+
+#pageForm {
+    display: inline-block;
+    float: right;
+}
+
+input#pageInput {
+   /*margin-left: 1280px;*/
+    font-family: Monaco, Arial, sans-serif;
+    font-size: 12px;
+    border: 1px solid #BFBFBF;
+    margin-top: 6px;
+    padding: 2px;
+}
+
+input#pageInput::-webkit-outer-spin-button,
+input#pageInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input#pageInput {
+    -moz-appearance:textfield;
+}
+
 .pageTurner {
     font: 12px Helvetica, arial, sans-serif;
     color: #003a76;
 }
 
 #pageTurnerNumberBarInner {
-    width: 1365px;
+    /*width: 1365px;*/
+    width: 1265px;
     height: 35px;
 }
 
 #pageTurnerNumberBar {
-    border-bottom: 1px solid #CCCCCC; 
+    /*border-bottom: 1px solid #CCCCCC; */
     background-color: #FFFFFF;
+    display: inline-block;
+    float: right;
 }
 
 .pageTurnerLeftSpacer {
-    width: 956px;
+    width: 856px;
     height: 35px;
     background-color: #FFFFFF;
 }
@@ -886,17 +922,21 @@ a.normalButton span {
 }
 
 .xFooter {
-    width: 1365px;
-    /*height: 29px;*/
+    width: 100%;
     background-color: #F5F5F5;
 }
 
 ul.footerList {
+    width: 1365px;
     list-style: none;
     padding: 0 0 0 5px;
     display:inline-block;
-    width: 100%;
     margin-top: 35px;
+}
+
+ul.footerList li {
+    display: inline-block;
+    padding: 10px;
 }
 
 ul.footerList li {
@@ -969,9 +1009,9 @@ iframe {
 }
 
 /* borrowing styles form search bar */
-form {
+/*form {
     margin-bottom: 40px;
-}
+}*/
 form table {
     box-shadow: 0 0 5px black;
     border-collapse: collapse;
@@ -1165,14 +1205,19 @@ input:disabled {
     z-index: 1;
 }
 
+.dropTarget {
+    position: absolute;
+    top: -1000px;
+    height: 3000px !important;
+    z-index: 99;
+}
+
 /* LOAD BAR STYLING  */
 
 #loadBarContainer{
     position: relative;
     width: 230px;
     height: 20px;
- /*   width: 800px;
-    height: 50px;*/
     margin-top: 10px;
     margin-bottom: 16px;
 }
@@ -1257,3 +1302,4 @@ input:disabled {
     text-align: center;
     width: 100%;
 }
+

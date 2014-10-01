@@ -5,9 +5,13 @@ var numTabs = 3;
 var tableRowIndex = 1;
 var currentPageNumber = 0;
 var numEntriesPerPage = 12;
-var tableName = "";
+var numPageTurners = 10;
 var resultSetId = 0;
 var newCellWidth = 144;
+var columnBorderWidth = -1;
+var numPages = 1;
+var tName = "view tables";
+
 
 function setTabs() {
     var i;
@@ -217,6 +221,10 @@ function generateBar(width, text, page) {
                     '\')">'+ text + '</a></td>');
 }
 
+function generatePageInput() {
+    $('#pageInput').attr('max', numPages);
+}
+
 function deselectPage(pageNumber) {
     $("a.pageTurnerPageNumber").filter(function() {
         return $(this).text() == pageNumber.toString();
@@ -230,15 +238,18 @@ function selectPage(pageNumber) {
 } 
 
 function goToPrevPage() {
-    console.log(currentPageNumber);
-    if (currentPageNumber == 1) {
+    if (currentPageNumber <=1) {
         console.log("First page, cannot move");
         return;
+    } else if (currentPageNumber == numPages) {
+       $('#pageTurnerRight').css('visibility', 'visible')
+            .html('<a href="javascript:goToNextPage();"\
+                class="pageTurner">Next ></a>'); 
     }
     var currentPage = currentPageNumber;
     var prevPage = currentPage-1;
     var prevPageElement = $("a.pageTurnerPageNumber").filter(function() {
-        return $(this).text() == prevPage.toString();
+        return ($(this).text() == prevPage.toString());
     });
     if (prevPageElement.length) {
         selectPage(prevPage);
@@ -247,36 +258,49 @@ function goToPrevPage() {
     } else {
         goToPage(prevPage-1);
     }
+    showHidePageTurners();
+    $('#pageInput').val(currentPageNumber);
 }
 
 function goToNextPage() {
-    // XXX: TODO: Check whether we are already at the max
+    if (currentPageNumber >= numPages) {
+        return;
+    }
     var currentPage = currentPageNumber;
     var nextPage = currentPage+1;
-
     var nextPageElement = $("a.pageTurnerPageNumber").filter(function() {
-        return $(this).text() == nextPage.toString();
+        return ($(this).text() == nextPage.toString());
     });
     if (nextPageElement.length) {
         selectPage(nextPage);
         deselectPage(currentPage);
         getNextPage(resultSetId);
+        if (currentPageNumber == numPages) {
+            $('#pageTurnerRight').css('visibility', 'hidden');
+        }
     } else {
         goToPage(nextPage-1);
     }
+    showHidePageTurners();
+    $('#pageInput').val(currentPageNumber);
 }
 
 function goToPage(pageNumber) {
     deselectPage(currentPageNumber);
     currentPageNumber = pageNumber+1;
-    var startNumber = pageNumber-5;
-    if (startNumber < 0) {
-        startNumber = 0;
-    }
-    generatePages(10, startNumber, true); 
+    generatePages(); 
     selectPage(pageNumber+1);
-    XcalarSetAbsolute(resultSetId, (currentPageNumber-1)*numEntriesPerPage);
+    XcalarSetAbsolute(resultSetId, pageNumber*numEntriesPerPage);
     getPage(resultSetId);
+}
+
+function showHidePageTurners() {
+    $('#pageTurnerLeft a, #pageTurnerRight a').css('visibility', 'visible');
+    if (currentPageNumber < 2) {
+        $('#pageTurnerLeft a').css('visibility', 'hidden');
+    } else if (currentPageNumber >= numPages) {
+        $('#pageTurnerRight a').css('visibility', 'hidden');
+    }
 }
 
 function getUrlVars()
@@ -293,26 +317,44 @@ function getUrlVars()
     return vars;
 }
 
-function generatePages(number, startNumber, rightDots) {
-    var htmlString = '\
-          <table class="noBorderTable" id="pageTurnerNumberBarInner">\
-            <tr>\
-              <td class="pageTurnerLeftSpacer"></td>\
-              <td class="pageTurnerWrap">\
-              <table class="pageTurnerWrap noBorderTable">\
-              <tr>\
-              <td class="pageTurner" id="pageTurnerLeft">\
-                  <a href="javascript:goToPrevPage();" class="pageTurner">\
-                  < Prev</a>\
-              </td>';
+function generatePages() {    console.log('generatePages()');
+    var rightDots = false;
+    var leftDots = false;
+    var startNumber = Math.max(currentPageNumber-6, 0); // number furthest on left side
+    var number = numPages;
+    if (numPages > numPageTurners) {
+        number = numPageTurners; 
+        if ((numPages-startNumber) > numPageTurners) {
+            rightDots = true;
+        } else {
+           startNumber = numPages - numPageTurners;
+        }
+    } 
+    var htmlString = '<table class="noBorderTable" id="pageTurnerNumberBarInner">\
+                        <tr>\
+                          <td class="pageTurnerLeftSpacer"></td>\
+                          <td class="pageTurnerWrap">\
+                            <table class="pageTurnerWrap noBorderTable">\
+                            <tr>\
+                            <td class="pageTurner" id="pageTurnerLeft">';
+    htmlString += '<a href="javascript:goToPrevPage();" class="pageTurner">\
+                    < Prev</a>\
+                </td>';
     if (startNumber > 0) {
         // There are previous pages
-        htmlString += '\
-              <td class="pageTurner"\
+        var leftDotsNumber = (startNumber - 5); // left dots direct to this page#
+        if (leftDotsNumber < 0) {
+            leftDotsNumber = 0;
+        }
+
+        htmlString += '<td class="pageTurner"\
                id="leftDots"><a href="javascript:goToPage(';
-        htmlString += (startNumber-5);
+        htmlString += leftDotsNumber;
         htmlString += ');" class="pageTurner">...</a></td>';
+    } else {
+        htmlString += '</td>';
     }
+    
     var i;
     for (i = 0; i<number; i++) {
         htmlString += '\
@@ -324,21 +366,23 @@ function generatePages(number, startNumber, rightDots) {
         htmlString += '</a>\
               </td>';
     }
-    
+
     if (rightDots) {
         // There are next pages
-        htmlString += '\
-              <td id="rightDots" class="pageTurner">\
+        var rightDotsNumber = (startNumber + number + 5);
+        if (rightDotsNumber >= numPages) {
+            rightDotsNumber = numPages-1;
+        }
+        htmlString += '<td id="rightDots" class="pageTurner">\
                 <a href="javascript:goToPage(';
-        htmlString += (startNumber+number+5);
+        htmlString += rightDotsNumber;
         htmlString += ');" class="pageTurner">...</a></td>';
-    }
+    } 
 
-    htmlString += '\
-              <td id="pageTurnerRight">\
-              <a href="javascript:goToNextPage();" class="pageTurner">\
-              Next ></a>\
-              </td>\
+    htmlString += '<td id="pageTurnerRight">\
+                <a href="javascript:goToNextPage();"\
+                class="pageTurner">Next ></a>\
+                </td>\
               </tr>\
               </table>\
               </td>\
@@ -347,6 +391,8 @@ function generatePages(number, startNumber, rightDots) {
           </table>\
           ';
     $("#pageTurnerNumberBar").html(htmlString);
+    $('#pageInput').val(currentPageNumber);
+    showHidePageTurners();
 }
 
 function resetAutoIndex() {
@@ -554,6 +600,7 @@ function addCol(id, name, direction, width) {
     var numCol = $("#autoGenTable").find("tr:first td").length;
     var colid = parseInt(id.substring(7));
     var resize = false;
+    var padding = 4;
     if (direction == "L") {
         var newColid = colid;
     } else {
@@ -578,7 +625,7 @@ function addCol(id, name, direction, width) {
     var columnHeadTd = '<td class="table_title_bg editableCol'+
         '" id="headCol'+
         newColid+
-        '" style="height:17px; width:'+(width+6)+'px;">'+
+        '" style="height:17px; width:'+(width+padding+columnBorderWidth)+'px;">'+
         '<div class="dropdownContainer"></div>'+
         '<strong><input type="text" id="rename'+newColid+'" '+
         'class="editableHead" '+
@@ -694,11 +741,6 @@ function prelimFunctions() {
     selectPage(1);
 }
 
-function getSearchBarText() {
-    var tName = $("#searchBar").text();
-    alert(tName);
-}
-
 function convertColNamesToArray() {
     var head = $("#autoGenTable tr:first-child td strong");
     var numCol = head.length;
@@ -747,7 +789,7 @@ function rescolMouseDown(el, event){
 }
 
 function resizableColumns(resize) {
-    console.log('resizableColumns');
+    console.log('resizableColumns()');
     $('.resizable tr:first td').css('position','relative');
 
     $('.resizable tr:first td').each(
@@ -796,27 +838,6 @@ function resizableColumns(resize) {
     } 
 }
 
-function rescolDelWidth(id, resize) {
-    // console.log('rescolDelWidth()');
-    var id = parseInt(id.substring(11));
-    var delTd = $('.resizable tr:first td').eq(id-1)
-    var delTdWidth = delTd.width();
-    var padding = parseInt(delTd.css('padding-left')) * 2;
-    if (resize == false) {
-        var tableWidth = $('.resizable').width();
-        $('.resizable').width(tableWidth - delTdWidth - padding - 2);
-    }
-    else {
-        var adjustedTd = $('.resizable tr:first td').eq(id);
-        if (adjustedTd.length < 1) {
-            adjustedTd = $('.resizable tr:first td').eq(id-2);
-            adjustedTd.children('.resizeCursor').remove();
-        }
-        var adjustedTdWidth = adjustedTd.width();
-        adjustedTd.width(adjustedTdWidth+delTdWidth+padding+2);
-    }
-}
-
 
 function disableTextSelection() {
     var style = '<style id="disableSelection" type="text/css">*'+ 
@@ -832,6 +853,9 @@ function reenableTextSelection() {
 }
 
 function documentReadyCommonFunction() {
+    columnBorderWidth = parseInt($('#headCol1').css('border-left-width'))+
+                        parseInt($('#headCol1').css('border-right-width'));
+
     $(document).mouseup(function(event){
         if (rescol.grabbed) {
             rescol.grabbed = false;
@@ -859,6 +883,29 @@ function documentReadyCommonFunction() {
         if (!$(event.target).is('.dropdownContainer, .addCol')) {
                 $('.colMenu').hide();
         } 
+    });
+
+    $("#searchBar").val('tablename = "'+tName+'"');
+    $('#pageInput').width((""+numPages).length*6+8);
+
+    $('#pageInput').keypress(function(e){
+        if (e.which === 13) {
+            $('#pageForm').submit(); 
+            $(this).blur();
+        }
+    });
+
+    $('#pageForm').submit(function(e){
+        e.preventDefault();
+        val = $('#pageInput').val();
+        if (val == "") {
+            return;
+        } else if (val < 1) {
+            $('#pageInput').val('1');
+        } else if (val > numPages) {
+            $('#pageInput').val(numPages);
+        }
+        goToPage(parseInt($('#pageInput').val())-1);
     });
 
     $('.addColumns').click(function() {
@@ -899,12 +946,35 @@ function documentReadyCatFunction() {
 
 function documentReadyIndexFunction() {
     documentReadyCommonFunction();
-    generatePages(9, 0, true);
+    generatePages();
     loadMainContent("list_table");
 }
 
 function sortRows(id) {
 
 }
+
+function rescolDelWidth(id, resize) {
+    var id = parseInt(id.substring(11));
+    var delTd = $('.resizable tr:first td').eq(id-1)
+    var delTdWidth = delTd.width();
+    var padding = parseInt(delTd.css('padding-left')) * 2;
+    if (resize == false) {
+        var tableWidth = $('.resizable').width();
+        $('.resizable').width(tableWidth - delTdWidth - padding - columnBorderWidth);
+    }
+    else {
+        var adjustedTd = $('.resizable tr:first td').eq(id);
+        if (adjustedTd.length < 1) {
+            adjustedTd = $('.resizable tr:first td').eq(id-2);
+            adjustedTd.children('.resizeCursor').remove();
+        }
+        var adjustedTdWidth = adjustedTd.width();
+        adjustedTd.width(adjustedTdWidth+delTdWidth+padding+columnBorderWidth);
+    }
+}
+// end drop down menu script 
+
+
 
 

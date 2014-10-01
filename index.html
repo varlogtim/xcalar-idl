@@ -64,7 +64,20 @@
     <img id="placeHolder" src="/images/chartPlaceholder.png"
           width="1284" height="36" >
   </div>
-  <div id="pageTurnerNumberBar">
+  <div id="pageTurnerWrap">
+    <div id="pageTurnerInner">
+      <form id="pageForm">
+        <script>
+          generatePageInput();
+        </script>
+      </form>
+      <div id="pageTurnerNumberBar">
+        <script>
+            generatePages(9, 0, true);
+        </script>
+      </div>
+      <div class="clear"></div>
+    </div>
   </div>
   <div class="mainFrameWrap">
     <div id="leftFrame">&nbsp;</div>
