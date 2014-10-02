@@ -501,6 +501,9 @@ function delCol(id, resize) {
 }
 
 function pullCol(key, newColid) {
+    if (/\.([0-9])/.test(key)) {//check for dot followed by number (invalid)
+        return;
+    }
     var colid = $("#autoGenTable tr:first-child td:contains('JSON')").filter(
         function() {
             return $(this).text().indexOf("JSON") != -1;
@@ -511,17 +514,35 @@ function pullCol(key, newColid) {
                        substring(5);
     idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
     var startingIndex = parseInt(idOfFirstRow);
- 
+    var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
+
     for (var i =  startingIndex; i<numRow+startingIndex-1; i++) {
-        var jsonStr = $("#bodyr"+i+"c"+colid).text();
+        var jsonStr = $("#bodyr"+i+"c"+colid+ " .elementText").text();
         var value = jQuery.parseJSON(jsonStr);
-
-        var nested = key.split(".");
         for (var j = 0; j<nested.length; j++) {
+            if (value[nested[j]] == undefined || $.isEmptyObject(value)) {
+                value = "";
+                break;
+            }
             value = value[nested[j]];
-            // console.log(value);
         }    
-
+        if (value == undefined) {
+            value = '<span class="undefined">'+value+'</span>';
+        } else {
+            switch (value.constructor) {
+                case (Object):
+                    if ($.isEmptyObject(value)) {
+                        value = "";
+                    } else {
+                        value = JSON.stringify(value).replace(/,/g, ", ");
+                    }
+                    break;
+                case (Array):
+                    value = value.join(', ');
+                    break;
+                default: // leave value as is;
+            }
+        }
         value = '<div class="addedBarText">'+value+"</div>"
         $("#bodyr"+i+"c"+newColid).html(value);
     }    
