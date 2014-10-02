@@ -1165,3 +1165,95 @@ input:disabled {
     z-index: 1;
 }
 
+/* LOAD BAR STYLING  */
+
+#loadBarContainer{
+    position: relative;
+    width: 230px;
+    height: 20px;
+ /*   width: 800px;
+    height: 50px;*/
+    margin-top: 10px;
+    margin-bottom: 16px;
+}
+
+#backLoadBar{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: transparent url("/images/loadBarBack.png") repeat-x center/100% 100%;
+    float: left;
+}
+
+#frontLoadBarWrap{
+    position: absolute;
+    top: 7%;
+    left: 0.25%;
+    height: 86%;
+    width: 99.5%; 
+    border-radius: 100px;
+    overflow:hidden;
+}
+
+#lbFrontLeft {
+    width: 3.5%;
+    height: 100%;
+    background: transparent url("/images/loadBarLeft.png") no-repeat center/100% 100%;
+    float: left;
+    z-index: 3;
+    position:relative;
+}
+
+#lbFrontRight{
+    width: 96.5%;
+    height: 100%;
+    float: left;
+    position: relative;
+    overflow: hidden;
+}
+
+#lbMoving {
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    right: 96%;
+    -o-transition: all 1.2s;
+    -moz-transition: all 1.2s;
+    -webkit-transition: all 1.2s;
+    transition: all 1.2s;
+    -webkit-transition-timing-function: linear; /* Safari and Chrome */
+    transition-timing-function: linear;
+}
+
+.lbBobble {
+    -moz-transition-timing-function: ease-out !important;
+    -webkit-transition-timing-function: ease-out !important; /* Safari and Chrome */
+    transition-timing-function: ease-out !important;
+}
+
+#lbInnerMain {
+    width: 96%;
+    height: 100%;
+    background: transparent url("/images/loadBarMid.png") repeat-x center/auto 100%;
+    float: left;
+    z-index: 2;
+}
+
+#lbInnerRight {
+    width:4%;
+    height:100%;
+    background: transparent url("/images/loadBarRight.png") no-repeat center/100% 100%;
+    float: left;
+    z-index: 2;
+}
+
+#lbText {
+    position:absolute;
+    color: #ffffff;
+    z-index: 5;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+}

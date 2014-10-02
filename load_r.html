@@ -43,7 +43,7 @@
     <div id="filePathBox" class="shadeBox"></div>
     <div id="filePathSelector">
       <h3> Enter URL </h3>
-      <input type="text" id="fileBrowser" autocomplete="on"></input>
+      <input type="text" id="fileBrowser" autocomplete="on" onkeypress="preDsSubmit(event)"></input>
       </br>
       </br>
       <input type="button" value="Next" id="selectFile" onclick="dsSubmit()">
@@ -58,7 +58,7 @@
         </tr>
         <tr>
           <td>Table Name</td>
-          <td><input type="text" id="tableName" autocomplete="on"></td>
+          <td><input type="text" id="tableName" autocomplete="on" onkeypress="preDetailsSubmit(event)"></td>
         </tr>
       </table>
       </br>
@@ -69,7 +69,20 @@
     <div id="uploadProgressBox" class="shadeBox"></div>
     <div id="uploadProgress">
       <h3> Upload Progress </h3>
-      Progress Bar Goes Here! </br>
+      <div id="loadBarContainer">
+        <div id="backLoadBar" >
+        </div>
+        <div id="frontLoadBarWrap">
+          <div id="lbFrontLeft">
+          </div>
+          <div id="lbFrontRight">
+            <div id="lbMoving">
+              <div id="lbInnerMain"></div>
+              <div id="lbInnerRight"></div>
+            </div>
+          </div>
+        </div>
+      </div>
       You will be redirected after load is done.
     </div>
   </div>

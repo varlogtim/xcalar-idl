@@ -7,6 +7,7 @@ var currentPageNumber = 0;
 var numEntriesPerPage = 12;
 var tableName = "";
 var resultSetId = 0;
+var newCellWidth = 144;
 
 function setTabs() {
     var i;
@@ -421,7 +422,7 @@ function getPage(resultSetId, firstTime) {
         }
         var indName = {index: 1,
                        name: tableOfEntries.meta.fieldAttr.name,
-                       width: 144}; // XXX macro
+                       width: newCellWidth};
         indices.push(indName);
     }
  
@@ -560,7 +561,7 @@ function addCol(id, name, direction, width) {
     }
     if (name == null) {
         var name = "New Heading";
-        var width = 144; // Please set as variable on top
+        var width = newCellWidth;
         var resize = true;
     }
 
@@ -854,6 +855,12 @@ function documentReadyCommonFunction() {
         }
     });
 
+    $(document).click(function(event) {
+        if (!$(event.target).is('.dropdownContainer, .addCol')) {
+                $('.colMenu').hide();
+        } 
+    });
+
     $('.addColumns').click(function() {
         var id = $(this).attr('id');
         var direction = id.substring(3,4);
@@ -895,13 +902,6 @@ function documentReadyIndexFunction() {
     generatePages(9, 0, true);
     loadMainContent("list_table");
 }
-
-// XXX: Can this function go into documentReadyFunction?
-$(document).click(function(event) {
-    if (!$(event.target).is('.dropdownContainer, .addCol')) {
-            $('.colMenu').hide();
-    } 
-});
 
 function sortRows(id) {
 
