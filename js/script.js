@@ -530,7 +530,8 @@ function delCol(id, resize) {
         $("#addRCol"+i).attr("id", "addRCol"+(i-1));
         $("#rename"+i).attr("id", "rename"+(i-1));
         $("label[for='rename"+i+"']").attr("for", "rename"+(i-1));
-        $('#sort'+i).attr("id", "sort"+(i+1));
+        $('#sort'+i).attr("id", "sort"+(i-1));
+
     }
  
     var numRow = $("#autoGenTable tr").length;
