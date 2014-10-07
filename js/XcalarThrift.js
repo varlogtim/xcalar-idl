@@ -51,11 +51,38 @@ function XcalarLoad(url, key, tablename, format) {
 
     try {
         result = client.queueWork(workItem);
-        $('#LoadStatus').val(result.output.statusOutput);
-        $('#LoadStatus').css('color', 'black');
     } catch(ouch) {
-        $('#LoadStatus').val('fail');
-        $('#LoadStatus').css('color', 'red');
+        console.log(ouch);
+        console.log("Load Failed");
+    }
+}
+
+function XcalarLoadFromIndex(srcTable, key, tablename) {
+    console.log(srcTable);
+    console.log(key);
+    console.log(tablename);
+    var transport = new Thrift.Transport(transportLocation());
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.loadInput = new XcalarApiBulkLoadInputT();
+    workItem.input.loadInput.srcTable = new XcalarApiTableT();
+    workItem.input.loadInput.dstTable = new XcalarApiTableT();
+
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiBulkLoad;
+    workItem.input.loadInput.loadFromPath = false;
+    workItem.input.loadInput.keyName = key;
+    workItem.input.loadInput.srcTable.tableName = srcTable;
+    workItem.input.loadInput.dstTable.tableName = tablename;
+
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+        console.log(ouch);
+        console.log("Load from index failed");
     }
 }
 

@@ -663,9 +663,9 @@ function addCol(id, name, direction, width) {
         event.stopPropagation();
     });
 
-    $('#sort'+newColid).click(function(){
-        var id = $(this).parent().attr('id');
-        sortRows(id);
+    $('#sort'+newColid).click(function() {
+        var index = $(this).attr("id").substring(4);
+        sortRows($('#rename'+index).val());
     });
     
     $('#headCol'+newColid+' .addColumns').click(function(){
@@ -752,6 +752,23 @@ function convertColNamesToArray() {
             headings.push($.trim(head.eq(i).children('input').val()));
         }
     }
+    return headings;
+}
+
+// XXX: FIXME: This does not preserve undefined columns!!!
+function convertColNamesToIndexArray() {
+    var head = $("#autoGenTable tr:first-child td");
+    var numCol = head.length;
+    var headings = [];
+    for (var i = 2; i<numCol; i++) {
+        var indexObj = {
+            index: i-1,
+            name: $("#headCol"+i).children("strong").children("input").val(),
+            width: $("#headCol"+i).width()
+        };
+        headings.push(indexObj);
+    }
+    console.log(headings);
     return headings;
 }
 
@@ -930,28 +947,34 @@ function documentReadyCommonFunction() {
         $(this).removeClass('subColSelected');
         $(this).parent().parent().removeClass('subSelected');
     });
-    
-    $('.sort').click(function(){
-        var id = $(this).parent().attr('id');
-        sortRows(id);
-    });
 }
 
 function documentReadyCatFunction() {
+    readFromStorage();
     documentReadyCommonFunction();
     convertColNamesToArray();
-    getNextPage(resultSetId, true);
+    // XXX: Should this be called here or at the end? I think it should be here
+    // or I may end up attaching 2 listeners?
     resizableColumns();
+    var index = getIndex(tableName);
+    if (index) {
+        console.log("Stored "+tableName);
+        getNextPage(resultSetId, false);
+        for (var i = 0; i<index.length; i++) {
+            addCol("headCol"+(index[i].index), index[i].name, null,
+                   index[i].width);
+            pullCol(index[i].name, 1+index[i].index);
+        }
+    } else {
+        console.log("Not stored "+tableName);
+        getNextPage(resultSetId, true);
+    }
 }
 
 function documentReadyIndexFunction() {
     documentReadyCommonFunction();
     generatePages();
     loadMainContent("list_table");
-}
-
-function sortRows(id) {
-
 }
 
 function rescolDelWidth(id, resize) {
@@ -973,8 +996,39 @@ function rescolDelWidth(id, resize) {
         adjustedTd.width(adjustedTdWidth+delTdWidth+padding+columnBorderWidth);
     }
 }
-// end drop down menu script 
 
+// XXX: Can this function go into documentReadyFunction?
+$(document).click(function(event) {
+    if (!$(event.target).is('.dropdownContainer, .addCol')) {
+            $('.colMenu').hide();
+    } 
+});
 
+// XXX: Dedupe with checkLoad!!!!
+function checkIndex(newTableName) {
+    var refCount = XcalarGetTableRefCount(newTableName);
+    console.log(refCount);
+    if (refCount == 1) {
+        $("body").css({"cursor": "default"});
+        console.log("Done loading");
+        window.location.href="cat_table.html?tablename="+newTableName;
+    } else {
+        // Check twice per second
+        setTimeout(function() {
+            checkIndex(newTableName);
+        }, 500);
+    }
+}
 
-
+function sortRows(fieldName) {
+    console.log(fieldName);
+    console.log(tableName);
+    var rand = Math.floor((Math.random() * 100000) + 1);
+    var newTableName = "tempSortTable"+rand;
+    var convertedIndex = convertColNamesToIndexArray();
+    setIndex(newTableName, convertedIndex);
+    commitToStorage(); 
+    $("body").css({"cursor": "wait"}); 
+    XcalarLoadFromIndex(tableName, fieldName, newTableName);
+    checkIndex(newTableName);
+}
