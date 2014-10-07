@@ -476,7 +476,7 @@ a.pageTurnerPageNumber:hover {
 
 /* dropdown styling */
 
-.dropdownContainer {
+.dropdownBox {
     width: 15px;
     height: 15px;
     position: absolute;
@@ -491,7 +491,7 @@ a.pageTurnerPageNumber:hover {
     opacity: 0.4;
 }
 
-.cellRelative .dropdownContainer {
+.cellRelative .dropdownBox {
     top: -1px;
 }
 
@@ -500,11 +500,11 @@ a.pageTurnerPageNumber:hover {
     overflow: hidden;
 }
 
-.dropdownContainer:hover {
+.dropdownBox:hover {
     opacity: 1.0;
 }
 
-ul.colMenu, ul.subColMenu {
+.table_title_bg ul{
     position: absolute;
     list-style: none;
     padding: 0px;
@@ -522,10 +522,6 @@ ul.colMenu {
     display:none;
     top: 5px;
     right: -144px;
-}
-
-.table_title_bg:last-of-type ul.colMenu{
-    right: 1px;
 }
 
 ul.colMenu li {
@@ -558,7 +554,7 @@ ul.colMenu li {
     background-size: 8px 9px;
 }
 
-ul.colMenu li:hover {
+ul.colMenu > li:hover {
     cursor: pointer;
     border: 1px solid #D86C12;
     border-bottom: none;
@@ -580,14 +576,13 @@ ul.colMenu > li.subSelected {
     background:-ms-linear-gradient( #FE8624, #AA5711);
     background:linear-gradient( #FE8624, #AA5711);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#AA5711', endColorstr='#FE8624',GradientType=0);
-    
 }
 
 ul.colMenu li:hover .rightArrow {
     display:inline-block;
 }
 
-li.addCol:hover ul.subColMenu {
+ul.colMenu li:hover > ul {
     visibility: visible;
     -webkit-transition-delay: .25s;
     -moz-transition-delay: .25s;
@@ -595,7 +590,7 @@ li.addCol:hover ul.subColMenu {
     transition-delay: .25s;
 }
 
-ul.subColMenu {
+ul.colMenu ul {
     visibility: hidden;
     z-index: 6;
     top: 8px;
@@ -607,13 +602,10 @@ ul.subColMenu {
     transition-delay: .2s;
 }
 
-.table_title_bg:last-of-type ul.subColMenu{
-    left: -160px;
-    border-left: 1px solid #9d9d9d;
-}
-
-.table_title_bg:last-of-type ul.subColMenu li{
-    border-right:none;
+.colMenu input[type=text] {
+    width: 152px;
+    height: 24px;
+    margin: -4px -6px;
 }
 
 ul.subColMenu li {
@@ -655,6 +647,20 @@ ul.subColMenu li.subColSelected {
     background:linear-gradient( #FF9744, #D86C12);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#D86C12', endColorstr='#FF9744',GradientType=0);
 }
+
+ul.leftColMenu {
+    right: 1px;
+}
+
+ul.subColMenu.leftColMenu {
+    left: -160px;
+    border-left: 1px solid #9d9d9d;
+}
+
+ul.subColMenu.leftColMenu li {
+    border-right: none;
+}
+
 /* end dropdown styling */
 
 .mousePointer {

@@ -11,6 +11,7 @@ var newCellWidth = 144;
 var columnBorderWidth = -1;
 var numPages = 0;
 var tName = "view tables";
+var keyName = "";
 
 
 function setTabs() {
@@ -415,12 +416,10 @@ function getPrevPage(resultSetId) {
 }
 
 function getPage(resultSetId, firstTime) {
-    console.log('getpage()');
     if (resultSetId == 0) {
         return;
         // Reached the end
     }
-    console.log('getpage2');
     var indices = [];
     var headingsArray = convertColNamesToArray();
     if (headingsArray != null && headingsArray.length > 2) {
@@ -458,13 +457,17 @@ function getPage(resultSetId, firstTime) {
             console.log("BUG BUG BUG");
             alert("Possible bug");
         }
+        keyName = tableOfEntries.meta.fieldAttr.name;
         var indName = {index: 1,
-                       name: tableOfEntries.meta.fieldAttr.name,
+                       name: keyName,
                        width: newCellWidth};
-        indices.push(indName);
+        indices.push(indName); 
     }
  
     for (var i = 0; i<indices.length; i++) {
+        if (indices[i].name == tableOfEntries.meta.fieldAttr.name) {
+            var isKey = true;
+        }
         addCol("headCol"+(indices[i].index), indices[i].name, null, indices[i].width);
         pullCol(indices[i].name, 1+indices[i].index);
     }
@@ -491,7 +494,7 @@ function generateRowWithAutoIndex(text, hoverable) {
         'tablename='+
         URIEncoded+'\'">'+
         '<div class="cellRelative"><span '+clickable+'>'+text+'</span>'+
-        '<div class="dropdownContainer"></div>'+
+        '<div class="dropdownBox"></div>'+
         '</div></td></tr>');
     tableRowIndex++;
 }
@@ -523,9 +526,9 @@ function delCol(id, resize) {
         $("#addLCol"+i).attr("id", "addLCol"+(i-1));
         $("#addRCol"+i).attr("id", "addRCol"+(i-1));
         $("#rename"+i).attr("id", "rename"+(i-1));
-        $("label[for='rename"+i+"']").attr("for", "rename"+(i-1));
+        $("#renameCol"+i).attr("id", "renameCol"+(i-1));
         $('#sort'+i).attr("id", "sort"+(i-1));
-
+        $('#filter'+i).attr("id", "filter"+(i-1));
     }
  
     var numRow = $("#autoGenTable tr").length;
@@ -591,11 +594,12 @@ function pullCol(key, newColid) {
 }
 
 function addCol(id, name, direction, width) {
-    // console.log('addCol()');
+    console.log('addCol()', name);
     var numCol = $("#autoGenTable").find("tr:first td").length;
     var colid = parseInt(id.substring(7));
     var resize = false;
     var padding = 4;
+    var isKey = true;
     if (direction == "L") {
         var newColid = colid;
     } else {
@@ -613,15 +617,16 @@ function addCol(id, name, direction, width) {
         $("#addRCol"+i).attr("id", "addRCol"+(i+1));
         $("#addLCol"+i).attr("id", "addLCol"+(i+1));
         $("#rename"+i).attr("id", "rename"+(i+1));
-        $("label[for='rename"+i+"']").attr("for", "rename"+(i+1));
+        $("#renameCol"+i).attr("id", "renameCol"+(i+1));
         $("#sort"+i).attr("id", "sort"+(i+1));
+        $("#filter"+i).attr("id", "filter"+(i+1));
     }        
     
     var columnHeadTd = '<td class="table_title_bg editableCol'+
         '" id="headCol'+
         newColid+
         '" style="height:17px; width:'+(width+padding+columnBorderWidth)+'px;">'+
-        '<div class="dropdownContainer"></div>'+
+        '<div class="dropdownBox"></div>'+
         '<strong><input type="text" id="rename'+newColid+'" '+
         'class="editableHead" '+
         'value="'+name+'"/></strong>'+
@@ -633,7 +638,7 @@ function addCol(id, name, direction, width) {
     }
 
     var dropDownHTML = '<ul class="colMenu">'+
-            '<li class="addCol">'+
+            '<li class="menuClickable">'+
                 'Add a column'+
                 '<div class="rightArrow"></div>'+
                 '<ul class="subColMenu">'+
@@ -646,58 +651,49 @@ function addCol(id, name, direction, width) {
             '<li class="deleteColumn" onclick="delCol(this.id);" '+
             'id="closeButton'+newColid+'">Delete the column</li>'+
             '<li>Duplicate the column</li>'+
-            '<label for="rename'+newColid+'">'+
-            '<li>Rename the column</li>'+
-            '</label>'+
-            '<li class="sort" id="sort'+newColid+'">Sort</li>'+
-        '</ul>';
-
+            '<li id="renameCol'+newColid+'">Rename the column</li>'+
+            '<li class="sort" id="sort'+newColid+'">Sort</li>';
+    if (name == keyName) {
+        dropDownHTML += '<li class="filterWrap menuClickable" id="filter'+newColid+'">Filter'+
+                            '<div class="rightArrow"></div>'+
+                            '<ul class="subColMenu">'+
+                                '<li class="filter">Greater Than'+
+                                    '<ul class="subColMenu">'+
+                                        '<li><input type="text" value="0"/></li>'+
+                                    '</ul>'+
+                                '</li>'+
+                                '<li class="filter">Greater Than Equal To'+
+                                    '<ul class="subColMenu">'+
+                                        '<li><input type="text" value="0"/></li>'+
+                                    '</ul>'+
+                                '</li>'+
+                                '<li class="filter">Equals'+
+                                    '<ul class="subColMenu">'+
+                                        '<li><input type="text" value="0"/></li>'+
+                                    '</ul>'+
+                                '</li>'+
+                                '<li class="filter">Less Than'+
+                                    '<ul class="subColMenu">'+
+                                        '<li><input type="text" value="0"/></li>'+
+                                    '</ul>'+
+                                '</li>'+
+                                '<li class="filter">Less Than Equal To'+
+                                    '<ul class="subColMenu">'+
+                                        '<li><input type="text" value="0"/></li>'+
+                                    '</ul>'+
+                                '</li>'+
+                            '</ul>'+
+                        '</li>';
+    }
+    dropDownHTML += '</ul>';
     $('#headCol'+newColid).append(dropDownHTML);
 
-    $('#headCol'+newColid+' .editableHead').mousedown(function(event){
-        event.stopPropagation();
-    });
-
-    $('#sort'+newColid).click(function() {
-        var index = $(this).attr("id").substring(4);
-        sortRows($('#rename'+index).val());
-    });
-    
-    $('#headCol'+newColid+' .addColumns').click(function(){
-        console.log('addColumns clicked');
-        var id = $(this).attr('id');
-        var direction = id.substring(3,4);
-        $(this).closest('.colMenu').hide();
-        addCol(id, null, direction);
-    });
-
-    $('#headCol'+newColid+' .dropdownContainer').click(function(){
-        $('.colMenu').hide();
-        $(this).siblings('.colMenu').show();
-    });
-
-    $('#headCol'+newColid+' .subColMenu li').mouseenter(function(){
-        $('.subColMenu li').addClass('subColUnselected');
-        $(this).addClass('subColSelected');
-        $(this).parent().parent().addClass('subSelected');
-    }).mouseleave(function(){
-        $('.subColMenu li').removeClass('subColUnselected');
-        $(this).removeClass('subColSelected');
-        $(this).parent().parent().removeClass('subSelected');
-    });
+    dropdownAttachListeners(newColid);
 
     if (resize) {
         $('#rename'+newColid).select();
     }
-    
-    $('label[for="rename'+newColid+'"]').click(
-        function(){
-            $('#rename'+newColid).select();
-        }
-    );
-
     var numRow = $("#autoGenTable tr").length;
-
     var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
                        substring(5);
     idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
@@ -730,6 +726,61 @@ function addCol(id, name, direction, width) {
     });
     resizableColumns(resize);
 }
+
+function dropdownAttachListeners(colId) {
+    $('#headCol'+colId+' .dropdownBox').click(function(){
+        $('.colMenu').hide().removeClass('leftColMenu')
+                    .find('.subColMenu').removeClass('leftColMenu');
+        $(this).siblings('.colMenu').show();
+        var colMenu = $(this).siblings('.colMenu');
+        if (colMenu[0].getBoundingClientRect().right > $(window).width()) {
+            colMenu.addClass('leftColMenu');
+        }
+        if (colMenu.find('.subColMenu').length > 0){
+            if (colMenu.find('.subColMenu')[0].getBoundingClientRect().right > 
+                $(window).width()) {
+                    colMenu.find('.subColMenu').addClass('leftColMenu');
+            }
+        }
+    });
+
+    $('#headCol'+colId+' .subColMenu li').mouseenter(function(){
+        subColMenuMouseEnter($(this));
+    }).mouseleave(function(){
+        subColMenuMouseLeave($(this));
+    });
+
+    $('#headCol'+colId+' .addColumns').click(function(){
+        var id = $(this).attr('id');
+        var direction = id.substring(3,4);
+        $('.colMenu').hide();
+        addCol(id, null, direction);
+    });
+
+    $('#renameCol'+colId).click(function(){
+        var index = $(this).attr('id').substring(9);
+        $('#rename'+index).select();
+    });
+
+    $('#sort'+colId).click(function() {
+        var index = $(this).attr("id").substring(4);
+        sortRows($('#rename'+index).val());
+    }); 
+
+    $('#headCol'+colId+' .editableHead').mousedown(function(event){
+        event.stopPropagation();
+    });
+
+    $('#filter'+colId+' input').keyup(function(e) {
+        var value = $(this).val();
+        $(this).closest('.filterWrap').find('input').val(value);
+        if (e.which === 13) {
+            var operator = $(this).closest('.filter').text(); 
+            filterCol(operator, value);
+        }
+    });
+}
+
 
 function prelimFunctions() {
     setTabs();
@@ -850,6 +901,17 @@ function resizableColumns(resize) {
     } 
 }
 
+function subColMenuMouseEnter(el) {
+    el.siblings().addClass('subColUnselected');
+    el.addClass('subColSelected');
+    el.parent().parent().addClass('subSelected');
+}
+
+function subColMenuMouseLeave(el) {
+    el.siblings().removeClass('subColUnselected');
+    el.removeClass('subColSelected');
+    el.parent().parent().removeClass('subSelected');
+}
 
 function disableTextSelection() {
     var style = '<style id="disableSelection" type="text/css">*'+ 
@@ -860,13 +922,35 @@ function disableTextSelection() {
 }
 
 function reenableTextSelection() {
-  $('#disableSelection').remove();
-  $('input').prop('disabled', false);
+    $('#disableSelection').remove();
+    $('input').prop('disabled', false);
 }
 
 function documentReadyCommonFunction() {
     columnBorderWidth = parseInt($('#headCol1').css('border-left-width'))+
                         parseInt($('#headCol1').css('border-right-width'));
+    dropdownAttachListeners(2); // set up listeners for json column
+
+    $("#searchBar").val('tablename = "'+tName+'"');
+    $('#pageInput').width((""+numPages).length*6+8);
+    $('#pageInput').keypress(function(e){
+        if (e.which === 13) {
+            val = $('#pageInput').val();
+            if (val == "") {
+                return;
+            } else if (val < 1) {
+                $('#pageInput').val('1');
+            } else if (val > numPages) {
+                $('#pageInput').val(numPages);
+            }
+            $(this).blur(); 
+        }
+    });
+
+    $('#pageForm').submit(function(e){
+        e.preventDefault();
+        goToPage(parseInt($('#pageInput').val())-1);
+    });
 
     $(document).mouseup(function(event){
         if (rescol.grabbed) {
@@ -892,53 +976,10 @@ function documentReadyCommonFunction() {
     });
 
     $(document).click(function(event) {
-        if (!$(event.target).is('.dropdownContainer, .addCol')) {
+        var clickable = $(event.target).closest('.menuClickable').length > 0;
+        if (!clickable && !$(event.target).is('.dropdownBox')) {
                 $('.colMenu').hide();
         } 
-    });
-
-    $("#searchBar").val('tablename = "'+tName+'"');
-    $('#pageInput').width((""+numPages).length*6+8);
-    $('#pageInput').keypress(function(e){
-        if (e.which === 13) {
-            val = $('#pageInput').val();
-            if (val == "") {
-                return;
-            } else if (val < 1) {
-                $('#pageInput').val('1');
-            } else if (val > numPages) {
-                $('#pageInput').val(numPages);
-            }
-            $(this).blur(); 
-        }
-    });
-
-    $('#pageForm').submit(function(e){
-        e.preventDefault();
-        goToPage(parseInt($('#pageInput').val())-1);
-    });
-
-    $('.addColumns').click(function() {
-        var id = $(this).attr('id');
-        var direction = id.substring(3,4);
-        $(this).closest('.colMenu').hide();
-        addCol(id, null, direction);
-    });
-
-    $('.dropdownContainer').click(function() {
-        $('.colMenu').hide();
-        $(this).siblings('.colMenu').show();
-
-    });
-
-    $('.subColMenu li').mouseenter(function(){
-        $('.subColMenu li').addClass('subColUnselected');
-        $(this).addClass('subColSelected');
-        $(this).parent().parent().addClass('subSelected');
-    }).mouseleave(function(){
-        $('.subColMenu li').removeClass('subColUnselected');
-        $(this).removeClass('subColSelected');
-        $(this).parent().parent().removeClass('subSelected');
     });
 }
 
@@ -953,6 +994,10 @@ function documentReadyCatFunction() {
     if (index) {
         console.log("Stored "+tableName);
         getNextPage(resultSetId, false);
+        // XXX API: 0105
+        var tableOfEntries = XcalarGetNextPage(resultSetId,
+                                           numEntriesPerPage);
+        keyName = tableOfEntries.meta.fieldAttr.name;
         for (var i = 0; i<index.length; i++) {
             addCol("headCol"+(index[i].index), index[i].name, null,
                    index[i].width);
@@ -992,7 +1037,7 @@ function rescolDelWidth(id, resize) {
 }
 
 // XXX: Dedupe with checkLoad!!!!
-function checkIndex(newTableName) {
+function checkStatus(newTableName) {
     var refCount = XcalarGetTableRefCount(newTableName);
     console.log(refCount);
     if (refCount == 1) {
@@ -1002,7 +1047,7 @@ function checkIndex(newTableName) {
     } else {
         // Check twice per second
         setTimeout(function() {
-            checkIndex(newTableName);
+            checkStatus(newTableName);
         }, 500);
     }
 }
@@ -1017,5 +1062,17 @@ function sortRows(fieldName) {
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     XcalarLoadFromIndex(tableName, fieldName, newTableName);
-    checkIndex(newTableName);
+    checkStatus(newTableName);
 }
+
+function filterCol(operator, value) {
+    console.log(tableName);
+    var rand = Math.floor((Math.random() * 100000) + 1);
+    var newTableName = "tempFilterTable"+rand;
+    var convertedIndex = convertColNamesToIndexArray();
+    setIndex(newTableName, convertedIndex);
+    commitToStorage(); 
+    $("body").css({"cursor": "wait"}); 
+    XcalarFilter(operator, value, tableName, newTableName);
+    checkStatus(newTableName);
+} 

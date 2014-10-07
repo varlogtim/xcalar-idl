@@ -367,7 +367,7 @@ function XcalarSetFree(resultSetId) {
     return true;
 }
 
-function XcalarFilter() {
+function XcalarFilter(operator, value, srcTablename, dstTablename) {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -380,20 +380,37 @@ function XcalarFilter() {
 
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiFilter;
-    workItem.input.filterInput.table.tableName = $('#FilterSrcTableName').val();
+    workItem.input.filterInput.table.tableName = srcTablename;
     workItem.input.filterInput.table.handle = 0;
-    workItem.input.filterInput.filterTable.tableName = $('#FilterDstTableName').val();
+    workItem.input.filterInput.filterTable.tableName = dstTablename;
     workItem.input.filterInput.filterTable.handle = 0;
-    workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsLessEqual;
-    workItem.input.filterInput.compValue = 3255348558481219398;
+    switch (operator) {
+    case ("Greater Than"):
+        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsMoreEqual;
+        break;
+    case ("Greater Than Equal To"):
+        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsMore;
+        break;
+    case ("Equals"):
+        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsEqual;
+        break;
+    case ("Less Than"):
+        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsLessEqual;
+        break;
+    case ("Less Than Equal To"):
+        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsLess;
+        break;
+    default:
+        console.log("Unknown op "+operator);
+    }
+    
+    workItem.input.filterInput.compValue = value;
 
     try {
         result = client.queueWork(workItem);
-        $('#FilterTableStatus').val(result.output.statusOutput);
-        $('#FilterTableStatus').css('color', 'black');
     } catch(ouch) {
-        $('#FilterTableStatus').val('fail');
-        $('#FilterTableStatus').css('color', 'red');
+        console.log(ouch);
+        console.log("Filter bug");
     }
 }
 
