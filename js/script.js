@@ -9,7 +9,7 @@ var numPageTurners = 10;
 var resultSetId = 0;
 var newCellWidth = 144;
 var columnBorderWidth = -1;
-var numPages = 1;
+var numPages = 0;
 var tName = "view tables";
 
 
@@ -241,11 +241,7 @@ function goToPrevPage() {
     if (currentPageNumber <=1) {
         console.log("First page, cannot move");
         return;
-    } else if (currentPageNumber == numPages) {
-       $('#pageTurnerRight').css('visibility', 'visible')
-            .html('<a href="javascript:goToNextPage();"\
-                class="pageTurner">Next ></a>'); 
-    }
+    } 
     var currentPage = currentPageNumber;
     var prevPage = currentPage-1;
     var prevPageElement = $("a.pageTurnerPageNumber").filter(function() {
@@ -258,8 +254,6 @@ function goToPrevPage() {
     } else {
         goToPage(prevPage-1);
     }
-    showHidePageTurners();
-    $('#pageInput').val(currentPageNumber);
 }
 
 function goToNextPage() {
@@ -281,8 +275,6 @@ function goToNextPage() {
     } else {
         goToPage(nextPage-1);
     }
-    showHidePageTurners();
-    $('#pageInput').val(currentPageNumber);
 }
 
 function goToPage(pageNumber) {
@@ -298,7 +290,8 @@ function showHidePageTurners() {
     $('#pageTurnerLeft a, #pageTurnerRight a').css('visibility', 'visible');
     if (currentPageNumber < 2) {
         $('#pageTurnerLeft a').css('visibility', 'hidden');
-    } else if (currentPageNumber >= numPages) {
+    } 
+    if (currentPageNumber >= numPages) {
         $('#pageTurnerRight a').css('visibility', 'hidden');
     }
 }
@@ -317,7 +310,7 @@ function getUrlVars()
     return vars;
 }
 
-function generatePages() {    console.log('generatePages()');
+function generatePages() { 
     var rightDots = false;
     var leftDots = false;
     var startNumber = Math.max(currentPageNumber-6, 0); // number furthest on left side
@@ -391,8 +384,6 @@ function generatePages() {    console.log('generatePages()');
           </table>\
           ';
     $("#pageTurnerNumberBar").html(htmlString);
-    $('#pageInput').val(currentPageNumber);
-    showHidePageTurners();
 }
 
 function resetAutoIndex() {
@@ -424,18 +415,19 @@ function getPrevPage(resultSetId) {
 }
 
 function getPage(resultSetId, firstTime) {
+    console.log('getpage()');
     if (resultSetId == 0) {
         return;
         // Reached the end
     }
-
+    console.log('getpage2');
     var indices = [];
     var headingsArray = convertColNamesToArray();
     if (headingsArray != null && headingsArray.length > 2) {
         var numRemoved = 0;
         for (var i = 1; i<headingsArray.length; i++) {
             if (headingsArray[i] !== "JSON") {
-                console.log("deleted: "+headingsArray[i]);
+                // console.log("deleted: "+headingsArray[i]);
                 var indName = {index: i,
                                name: headingsArray[i],
                                width: $("#headCol"+(i+1-numRemoved)).width()};
@@ -448,7 +440,7 @@ function getPage(resultSetId, firstTime) {
     $("#autoGenTable").find("tr:gt(0)").remove();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            numEntriesPerPage);
-    console.log(tableOfEntries.meta.fieldAttr.name);
+    // console.log(tableOfEntries.meta.fieldAttr.name);
     if (tableOfEntries.numRecords < numEntriesPerPage) {
         // This is the last iteration
         // Time to free the handle
@@ -476,6 +468,8 @@ function getPage(resultSetId, firstTime) {
         addCol("headCol"+(indices[i].index), indices[i].name, null, indices[i].width);
         pullCol(indices[i].name, 1+indices[i].index);
     }
+    showHidePageTurners();
+    $('#pageInput').val(currentPageNumber);
 }
 
 function generateRowWithAutoIndex(text, hoverable) {
@@ -905,24 +899,22 @@ function documentReadyCommonFunction() {
 
     $("#searchBar").val('tablename = "'+tName+'"');
     $('#pageInput').width((""+numPages).length*6+8);
-
     $('#pageInput').keypress(function(e){
         if (e.which === 13) {
-            $('#pageForm').submit(); 
-            $(this).blur();
+            val = $('#pageInput').val();
+            if (val == "") {
+                return;
+            } else if (val < 1) {
+                $('#pageInput').val('1');
+            } else if (val > numPages) {
+                $('#pageInput').val(numPages);
+            }
+            $(this).blur(); 
         }
     });
 
     $('#pageForm').submit(function(e){
         e.preventDefault();
-        val = $('#pageInput').val();
-        if (val == "") {
-            return;
-        } else if (val < 1) {
-            $('#pageInput').val('1');
-        } else if (val > numPages) {
-            $('#pageInput').val(numPages);
-        }
         goToPage(parseInt($('#pageInput').val())-1);
     });
 
@@ -975,6 +967,7 @@ function documentReadyCatFunction() {
 function documentReadyIndexFunction() {
     documentReadyCommonFunction();
     generatePages();
+    showHidePageTurners();
     loadMainContent("list_table");
 }
 
@@ -997,13 +990,6 @@ function rescolDelWidth(id, resize) {
         adjustedTd.width(adjustedTdWidth+delTdWidth+padding+columnBorderWidth);
     }
 }
-
-// XXX: Can this function go into documentReadyFunction?
-$(document).click(function(event) {
-    if (!$(event.target).is('.dropdownContainer, .addCol')) {
-            $('.colMenu').hide();
-    } 
-});
 
 // XXX: Dedupe with checkLoad!!!!
 function checkIndex(newTableName) {
