@@ -683,6 +683,17 @@ function addCol(id, name, direction, width) {
                                     '</ul>'+
                                 '</li>'+
                             '</ul>'+
+                        '</li>'+
+                        '<li class="menuClickable" id="join">'+'Join'+
+                            '<div class="rightArrow"></div>'+
+                            '<ul class="subColMenu">';
+        var tables = XcalarGetTables();
+        var numTables = tables.numTables;
+        for (var i = 0; i<numTables; i++) {
+            var t = tables.tables[i];
+            dropDownHTML += '<li class="join">'+t.tableName+'</li>';
+        }
+        dropDownHTML +=     '</ul>'+ 
                         '</li>';
     }
     dropDownHTML += '</ul>';
@@ -778,6 +789,9 @@ function dropdownAttachListeners(colId) {
             var operator = $(this).closest('.filter').text(); 
             filterCol(operator, value);
         }
+    });
+    $('#join .subColMenu li').click(function() {
+        joinTables($(this).text());
     });
 }
 
@@ -1075,4 +1089,16 @@ function filterCol(operator, value) {
     $("body").css({"cursor": "wait"}); 
     XcalarFilter(operator, value, tableName, newTableName);
     checkStatus(newTableName);
-} 
+}
+
+function joinTables(rightTable) {
+    console.log("Joining "+tableName+" and "+rightTable);
+    var rand = Math.floor((Math.random() * 100000) + 1);
+    var newTableName = "tempJoinTable"+rand;
+    var convertedIndex = convertColNamesToIndexArray();
+    setIndex(newTableName, convertedIndex);
+    commitToStorage(); 
+    $("body").css({"cursor": "wait"}); 
+    XcalarJoin(tableName, rightTable, newTableName);
+    checkStatus(newTableName);
+}

@@ -414,7 +414,7 @@ function XcalarFilter(operator, value, srcTablename, dstTablename) {
     }
 }
 
-function XcalarJoin() {
+function XcalarJoin(left, right, dst) {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -428,21 +428,19 @@ function XcalarJoin() {
 
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiJoin;
-    workItem.input.joinInput.leftTable.tableName = $('#JoinLeftTableName').val();
+    workItem.input.joinInput.leftTable.tableName = left;
     workItem.input.joinInput.leftTable.handle = 0;
-    workItem.input.joinInput.rightTable.tableName = $('#JoinLeftTableName').val();
+    workItem.input.joinInput.rightTable.tableName = right;
     workItem.input.joinInput.rightTable.handle = 0;
-    workItem.input.joinInput.joinTable.tableName = $('#JoinDstTableName').val();
+    workItem.input.joinInput.joinTable.tableName = dst;
     workItem.input.joinInput.joinTable.handle = 0;
     workItem.input.joinInput.joinType = OperatorsOpT.OperatorsInnerJoin;
 
     try {
         result = client.queueWork(workItem);
-        $('#JoinStatus').val(result.output.statusOutput);
-        $('#JoinStatus').css('color', 'black');
     } catch(ouch) {
-        $('#JoinStatus').val('fail');
-        $('#JoinStatus').css('color', 'red');
+        console.log(ouch);
+        console.log("Join failed");
     }
 }
 
