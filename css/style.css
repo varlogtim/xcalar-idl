@@ -691,6 +691,10 @@ ul.subColMenu.leftColMenu li {
     -webkit-box-sizing:border-box;
 }
 
+.firstRow td {
+    position: relative;
+}
+
 .resizeCursor {
     display: inline-block;
     height: 100%;
@@ -1225,10 +1229,9 @@ input:disabled {
 }
 
 .dropTarget {
-    position: absolute;
-    top: -1000px;
-    height: 3000px !important;
-    z-index: 99;
+    position: fixed;
+    top: 0;
+    z-index: 22;
 }
 
 /* LOAD BAR STYLING  */
@@ -1321,4 +1324,3 @@ input:disabled {
     text-align: center;
     width: 100%;
 }
-
