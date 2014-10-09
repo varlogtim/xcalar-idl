@@ -91,7 +91,7 @@ function checkLoad() {
     adjustProgressBar(refCount);
     if (refCount == 1) {
         console.log("Done loading");
-        setTimeout(function() {window.location.href="index.html"}, 1500);
+        setTimeout(function() {window.location.href="index.html"}, 1400);
     } else {
         // Check twice per second
         setTimeout(checkLoad, 500);

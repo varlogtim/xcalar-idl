@@ -9,10 +9,9 @@ var numPageTurners = 10;
 var resultSetId = 0;
 var newCellWidth = 144;
 var columnBorderWidth = -1;
+var colPadding = 4;
 var numPages = 0;
-var tName = "view tables";
 var keyName = "";
-
 
 function setTabs() {
     var i;
@@ -403,8 +402,7 @@ function getPrevPage(resultSetId) {
     if (resultSetId == 0) {
         return;
         // Reached the end
-    }
-                  
+    }       
     if (currentPageNumber == 1) {
         console.log("At first page already");
     } else {
@@ -421,6 +419,7 @@ function getPage(resultSetId, firstTime) {
         // Reached the end
     }
     var indices = [];
+    var resize = false;
     var headingsArray = convertColNamesToArray();
     if (headingsArray != null && headingsArray.length > 2) {
         var numRemoved = 0;
@@ -462,13 +461,12 @@ function getPage(resultSetId, firstTime) {
                        name: keyName,
                        width: newCellWidth};
         indices.push(indName); 
+        resize = true;
     }
  
     for (var i = 0; i<indices.length; i++) {
-        if (indices[i].name == tableOfEntries.meta.fieldAttr.name) {
-            var isKey = true;
-        }
-        addCol("headCol"+(indices[i].index), indices[i].name, null, indices[i].width);
+        addCol("headCol"+(indices[i].index), indices[i].name,
+                {width: indices[i].width, resize: resize});
         pullCol(indices[i].name, 1+indices[i].index);
     }
     showHidePageTurners();
@@ -514,7 +512,6 @@ function generateRowWithAutoIndex2(text2, idNo) {
 }
 
 function delCol(id, resize) {
-    // console.log('delCol()');
     rescolDelWidth(id, resize);
     var numCol = $("#autoGenTable").find("tr:first td").length;
     var colid = parseInt(id.substring(11));
@@ -593,21 +590,21 @@ function pullCol(key, newColid) {
     }    
 }
 
-function addCol(id, name, direction, width) {
+function addCol(id, name, options) {
     console.log('addCol()', name);
     var numCol = $("#autoGenTable").find("tr:first td").length;
     var colid = parseInt(id.substring(7));
-    var resize = false;
-    var padding = 4;
-    var isKey = true;
-    if (direction == "L") {
-        var newColid = colid;
-    } else {
-        var newColid = colid+1;
+    var select = false;
+    var newColid = colid;
+    var options = options || {};
+    var width = options.width || newCellWidth + (2-columnBorderWidth);
+    var resize = options.resize || false;
+    if (options.direction != "L") {
+        newColid += 1;
     }
     if (name == null) {
         var name = "New Heading";
-        var width = newCellWidth;
+        var select = true;
         var resize = true;
     }
 
@@ -625,7 +622,7 @@ function addCol(id, name, direction, width) {
     var columnHeadTd = '<td class="table_title_bg editableCol'+
         '" id="headCol'+
         newColid+
-        '" style="height:17px; width:'+(width+padding+columnBorderWidth)+'px;">'+
+        '" style="height:17px; width:'+(width+colPadding+columnBorderWidth)+'px;">'+
         '<div class="dropdownBox"></div>'+
         '<strong><input type="text" id="rename'+newColid+'" '+
         'class="editableHead" '+
@@ -701,7 +698,7 @@ function addCol(id, name, direction, width) {
 
     dropdownAttachListeners(newColid);
 
-    if (resize) {
+    if (select) {
         $('#rename'+newColid).select();
     }
     var numRow = $("#autoGenTable tr").length;
@@ -735,11 +732,11 @@ function addCol(id, name, direction, width) {
         $(this).blur();
       }
     });
-    resizableColumns(resize);
+    resizableColumns(resize, width);
 }
 
 function dropdownAttachListeners(colId) {
-    $('#headCol'+colId+' .dropdownBox').click(function(){
+    $('#headCol'+colId+' .dropdownBox').click(function() {
         $('.colMenu').hide().removeClass('leftColMenu')
                     .find('.subColMenu').removeClass('leftColMenu');
         $(this).siblings('.colMenu').show();
@@ -747,7 +744,7 @@ function dropdownAttachListeners(colId) {
         if (colMenu[0].getBoundingClientRect().right > $(window).width()) {
             colMenu.addClass('leftColMenu');
         }
-        if (colMenu.find('.subColMenu').length > 0){
+        if (colMenu.find('.subColMenu').length > 0) {
             if (colMenu.find('.subColMenu')[0].getBoundingClientRect().right > 
                 $(window).width()) {
                     colMenu.find('.subColMenu').addClass('leftColMenu');
@@ -755,20 +752,20 @@ function dropdownAttachListeners(colId) {
         }
     });
 
-    $('#headCol'+colId+' .subColMenu li').mouseenter(function(){
+    $('#headCol'+colId+' .subColMenu li').mouseenter(function() {
         subColMenuMouseEnter($(this));
-    }).mouseleave(function(){
+    }).mouseleave(function() {
         subColMenuMouseLeave($(this));
     });
 
-    $('#headCol'+colId+' .addColumns').click(function(){
+    $('#headCol'+colId+' .addColumns').click(function() {
         var id = $(this).attr('id');
         var direction = id.substring(3,4);
         $('.colMenu').hide();
-        addCol(id, null, direction);
+        addCol(id, null, {direction: direction});
     });
 
-    $('#renameCol'+colId).click(function(){
+    $('#renameCol'+colId).click(function() {
         var index = $(this).attr('id').substring(9);
         $('#rename'+index).select();
     });
@@ -778,7 +775,7 @@ function dropdownAttachListeners(colId) {
         sortRows($('#rename'+index).val());
     }); 
 
-    $('#headCol'+colId+' .editableHead').mousedown(function(event){
+    $('#headCol'+colId+' .editableHead').mousedown(function(event) {
         event.stopPropagation();
     });
 
@@ -794,7 +791,6 @@ function dropdownAttachListeners(colId) {
         joinTables($(this).text());
     });
 }
-
 
 function prelimFunctions() {
     setTabs();
@@ -839,10 +835,10 @@ var rescol = {
     mouseStart: 0,     
     cellMinWidth: 40,
     newCellWidth: 150,
-    padding: function(){return (parseInt($('.resizable td:first').css('padding-left')) * 2)}
+    padding: function() {return (parseInt($('.resizable td:first').css('padding-left')) * 2)}
 };
 
-function rescolMouseDown(el, event){
+function rescolMouseDown(el, event) {
     event.preventDefault();
     rescol.grabbed = true;
     rescol.mouseStart = event.clientX;
@@ -865,10 +861,9 @@ function rescolMouseDown(el, event){
     $(document.head).append(style);
 }
 
-function resizableColumns(resize) {
+function resizableColumns(resize, newWidth) {
     console.log('resizableColumns()');
     $('.resizable tr:first td').css('position','relative');
-
     $('.resizable tr:first td').each(
         function() {
             if (!$(this).children().hasClass('resizeCursor') && !$(this).is(':last-child')
@@ -884,9 +879,7 @@ function resizableColumns(resize) {
             }
         }
     );
-
     $('.resizeCursor').height($('.resizable').height());
-
     if (rescol.first) {
         $('.resizable tr:first td').each(
             function() {
@@ -898,21 +891,24 @@ function resizableColumns(resize) {
         $('.resizable').css('table-layout','fixed');
         rescol.first = false;
     } 
-
     if (resize) {
-        var largestCell;
-        var largestCellWidth = 0;
-        $('.resizable tr:first td').each(
-            function(){
-                if ($(this).width() > largestCellWidth) {
-                    largestCell = $(this);
-                    largestCellWidth = $(this).width();
-                }
-            }
-        );
-        var newLargeWidth = largestCellWidth - rescol.newCellWidth;
-        largestCell.width(newLargeWidth);
+        shrinkLargestCell(newWidth);
     } 
+}
+
+function shrinkLargestCell(newWidth) {
+    var largestCell;
+    var largestCellWidth = 0;
+    $('.resizable tr:first td').each(
+        function() {
+            if ($(this).width() > largestCellWidth) {
+                largestCell = $(this);
+                largestCellWidth = $(this).width();
+            }
+        }
+    );
+    var newLargeWidth = largestCellWidth - (newWidth + colPadding + columnBorderWidth);
+    largestCell.width(newLargeWidth);
 }
 
 function subColMenuMouseEnter(el) {
@@ -943,11 +939,17 @@ function reenableTextSelection() {
 function documentReadyCommonFunction() {
     columnBorderWidth = parseInt($('#headCol1').css('border-left-width'))+
                         parseInt($('#headCol1').css('border-right-width'));
+    colPadding = parseInt($('#autoGenTable td:first').css('padding-left')) * 2;
     dropdownAttachListeners(2); // set up listeners for json column
 
-    $("#searchBar").val('tablename = "'+tName+'"');
+    if (typeof tableName === 'undefined') {
+        var searchText = "View Tables";
+    } else {
+        var searchText = tableName;
+    }
+    $("#searchBar").val('tablename = "'+searchText+'"');
     $('#pageInput').width((""+numPages).length*6+8);
-    $('#pageInput').keypress(function(e){
+    $('#pageInput').keypress(function(e) {
         if (e.which === 13) {
             val = $('#pageInput').val();
             if (val == "") {
@@ -961,12 +963,12 @@ function documentReadyCommonFunction() {
         }
     });
 
-    $('#pageForm').submit(function(e){
+    $('#pageForm').submit(function(e) {
         e.preventDefault();
         goToPage(parseInt($('#pageInput').val())-1);
     });
 
-    $(document).mouseup(function(event){
+    $(document).mouseup(function(event) {
         if (rescol.grabbed) {
             rescol.grabbed = false;
             $('#e-resizeCursor').remove();
@@ -974,7 +976,7 @@ function documentReadyCommonFunction() {
         }
     });
 
-    $(document).mousemove(function(event){
+    $(document).mousemove(function(event) {
         if (rescol.grabbed) {
             var dragDist = (event.clientX - rescol.mouseStart);
             if ( dragDist > rescol.leftDragMax && dragDist < rescol.rightDragMax ) {
@@ -1013,8 +1015,8 @@ function documentReadyCatFunction() {
                                            numEntriesPerPage);
         keyName = tableOfEntries.meta.fieldAttr.name;
         for (var i = 0; i<index.length; i++) {
-            addCol("headCol"+(index[i].index), index[i].name, null,
-                   index[i].width);
+            addCol("headCol"+(index[i].index), index[i].name,
+                  {width: index[i].width, resize: true});
             pullCol(index[i].name, 1+index[i].index);
         }
     } else {
