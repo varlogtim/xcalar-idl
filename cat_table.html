@@ -89,7 +89,7 @@
           <td class="table_title_bg staticCol" id="headCol1">
             <strong>ID</strong>
           </td>
-          <td width="auto" class="table_title_bg staticCol"
+          <td width="auto" class="table_title_bg staticCol jsonColHead"
               id="headCol2">
             <div class="dropdownBox"></div>
             <strong>JSON</strong>
@@ -107,11 +107,19 @@
           </td>
         </tr>
         <script>
-          $(document).ready(documentReadyCatFunction());
+          $(document).ready(documentReadyCatFunction);
         </script>
       </table>
     </div>
     <div class="clear"></div>
+  </div>
+  <div id="jsonModalBackground"></div>
+  <div id="jsonModal">
+    <div class="closeJsonModal"><img src="/images/closeButton.png"></div>
+    <div class="prettyJson">
+      {<div class="jObject">
+      </div>}
+    </div>
   </div>
   <div class="xFooter">
     <ul class="footerList">

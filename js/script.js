@@ -320,15 +320,16 @@ function generatePages() {
     var rightDots = false;
     var leftDots = false;
     var startNumber = Math.max(currentPageNumber-6, 0); // number furthest on left side
-    var number = numPages;
     if (numPages > numPageTurners) {
-        number = numPageTurners; 
+        var number = numPageTurners; 
         if ((numPages-startNumber) > numPageTurners) {
             rightDots = true;
         } else {
            startNumber = numPages - numPageTurners;
         }
-    } 
+    } else {
+        var number = numPages;
+    }
     var htmlString = '<table class="noBorderTable" id="pageTurnerNumberBarInner">\
                         <tr>\
                           <td class="pageTurnerLeftSpacer"></td>\
@@ -341,11 +342,8 @@ function generatePages() {
                 </td>';
     if (startNumber > 0) {
         // There are previous pages
-        var leftDotsNumber = (startNumber - 5); // left dots direct to this page#
-        if (leftDotsNumber < 0) {
-            leftDotsNumber = 0;
-        }
-
+        var leftDotsNumber = Math.max((startNumber-5), 0); 
+        // left dots direct to this page#
         htmlString += '<td class="pageTurner"\
                id="leftDots"><a href="javascript:goToPage(';
         htmlString += leftDotsNumber;
@@ -477,6 +475,9 @@ function getPage(resultSetId, firstTime) {
     }
     showHidePageTurners();
     $('#pageInput').val(currentPageNumber);
+    $('.jsonElement').dblclick(function(){
+        showJsonPopup($(this));
+    });
 }
 
 function generateRowWithAutoIndex(text, hoverable) {
@@ -504,13 +505,12 @@ function generateRowWithAutoIndex(text, hoverable) {
 }
 
 function generateRowWithAutoIndex2(text2, idNo) {
-    // text1 is an int since it's the key
     $("#autoGenTable tr:last").after('<tr>'+
         '<td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         idNo+"c1"+'">'
         +idNo+'</td>'+
-        '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
+        '<td height="17" bgcolor="#FFFFFF" class="jsonElement monacotype" id="bodyr'+
         idNo+"c2"+'">'+
         '<div class="elementText">'+
         text2+'</div></td>'+
@@ -600,7 +600,6 @@ function addCol(id, name, options) {
     console.log('addCol()', name);
     var numCol = $("#autoGenTable").find("tr:first td").length;
     var colid = parseInt(id.substring(7));
-    var select = false;
     var newColid = colid;
     var options = options || {};
     var width = options.width || newCellWidth + (2-columnBorderWidth);
@@ -612,6 +611,8 @@ function addCol(id, name, options) {
         var name = "New Heading";
         var select = true;
         var resize = true;
+    } else {
+        var select = false;
     }
 
     for (var i = numCol; i>=newColid; i--) {
@@ -899,6 +900,7 @@ function subColMenuMouseLeave(el) {
 }
 
 function disableTextSelection() {
+    window.getSelection().removeAllRanges();
     var style = '<style id="disableSelection" type="text/css">*'+ 
         '{ -ms-user-select:none;-moz-user-select:-moz-none;-khtml-user-select:none;'+
         '-webkit-user-select:none;user-select:none; }</style>';
@@ -943,6 +945,11 @@ function documentReadyCommonFunction() {
         goToPage(parseInt($('#pageInput').val())-1);
     });
 
+    $('.closeJsonModal, #jsonModalBackground').click(function(){
+        $('#jsonModal, #jsonModalBackground').hide();
+        $('body').removeClass('hideScroll');
+    });
+
     $(document).click(function(event) {
         var clickable = $(event.target).closest('.menuClickable').length > 0;
         if (!clickable && !$(event.target).is('.dropdownBox')) {
@@ -979,6 +986,7 @@ function documentReadyCommonFunction() {
                     break;
                 default: // do nothing
             }
+
         }
     });
 }
@@ -1250,4 +1258,104 @@ function joinTables(rightTable) {
     $("body").css({"cursor": "wait"}); 
     XcalarJoin(tableName, rightTable, newTableName);
     checkStatus(newTableName);
+}
+
+
+function prettifyJson(obj, indent, options) {
+    if (typeof obj != 'object') {
+        return (JSON.stringify(obj));
+    }
+    var result = "";
+    var indent = indent || "";
+    var options = options || {};
+    options['inarray'] = options['inarray'] || 0;
+    for (var key in obj) {
+        var value = obj[key];
+        switch (typeof value) {
+        case ('string'):
+            value = '"<span class="jString">'+value+'</span>"';
+            if (options.inarray) {
+                value = '<span class="jArray jInfo" data-key="'+key+'">'+value+'</span>, ';
+            }
+            break;
+        case ('number'):
+            value = '<span class="jNum">'+value+'</span>';
+            if (options.inarray) {
+                value = '<span class="jArray jInfo" data-key="'+key+'">'+value+'</span>,';
+            } 
+            break;
+        case ('boolean'):
+            value = '<span class="jBool">'+value+'</span>';
+            if (options.inarray) {
+                value += ',';
+            }
+            break;
+        case ('object'):
+            if (value.constructor == Array) {
+                options.inarray++;
+                value = '[<span class="jArray jInfo" data-key="'+key+'">'+prettifyJson(value, indent, options)+'</span>],';
+            } else {
+                var object = prettifyJson(value, indent+'&nbsp;&nbsp;&nbsp;&nbsp;');
+                value = '{\n'+object +indent+'}'
+                if (options.inarray) {
+                    value = '<span class="jArray jInfo" data-key="'+key+'">'+value+'</span>,';
+                } 
+            }
+            break;
+        default:
+            value = '<span class="jUndf">'+value+'</span>';
+            if (options.inarray) {
+                value += ',';
+            }
+            break;
+        }
+
+        if (options.inarray) {
+            result += value;
+        } else {
+            value = value.replace(/,$/, "");
+            result += '<div class="jsonBlock jInfo" data-key="'+key+'">'+indent
+            +'"<span class="jKey">'+key+'</span>": '+value+',</div>';
+        }
+    }
+   
+    options.inarray--;
+    return (result.replace(/\,<\/div>$/, "</div>").replace(/\, $/, "").replace(/\,$/, "")); 
+    // .replace used to remove comma if last value in object
+}
+
+function createJsonNestedField(el) {
+    var obj = "";
+    el.parents('.jInfo').each(function(){
+        var key = "";
+        if ($(this).parent().hasClass('jArray') && !$(this).hasClass('jsonBlock')) {
+            key = '['+$(this).data('key')+']'; 
+        } else if (!$(this).hasClass('jArray')) {
+            key = '.'+$(this).data('key'); 
+        }
+        obj = key+obj;
+    });
+    if (obj.charAt(0) == '.') {
+        obj = obj.substr(1);
+    }
+    return (obj);
+}
+
+function showJsonPopup(el) {
+    var jsonString = $.parseJSON(el.children('.elementText').text());
+    var newString = prettifyJson(jsonString);
+    $('.jObject').html(newString);
+    $('#jsonModal, #jsonModalBackground').show();
+    $('body').addClass('hideScroll');
+    window.getSelection().removeAllRanges();
+    
+    $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
+        var name = createJsonNestedField($(this));
+        var id = $('.jsonColHead').attr('id');
+        var colIndex = parseInt(id.substring(7));
+        addCol(id, name, {direction: "L", resize: true, select: false});
+        pullCol(name, colIndex);
+        $('#jsonModal, #jsonModalBackground').hide();
+        $('body').removeClass('hideScroll');
+    });
 }
