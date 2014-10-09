@@ -398,8 +398,21 @@ a.pageTurnerPageNumber:hover {
     overflow: hidden;
 }
 
+#autoGenTable tr:first td {
+    height: 17px;
+}
+
 #autoGenTable td {
     height: 17px;
+}
+
+#headCol1 {
+    text-align: center;
+    width: 3.5%;
+}
+#headCol1 strong{
+    margin: 0;
+    padding: 0;
 }
 
 /* Tables */
