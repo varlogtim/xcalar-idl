@@ -10,11 +10,16 @@
 @color-monitor-blue: #A6C5D2;
 /* Table */
 @color-table-red: #F46D73;
-@color-table-lightGrey: #F5F5F5;
-@color-table-midGrey: #EDEDED;
-@color-table-darkGrey: #E6E6E6;
-@color-table-blankGreyLight: #CCCCCC;
-@color-table-blankGreyDark: #C2C2C2;
+@color-table-lightGray: #F5F5F5;
+@color-table-midGray: #EDEDED;
+@color-table-darkGray: #E6E6E6;
+@color-table-blankGrayLight: #CCCCCC;
+@color-table-blankGrayDark: #C2C2C2;
+@colorOpaque-lightGray: rgba(158, 158, 158, 0.1);
+@colorOpaque-darkGray: rgba(80, 80, 80, 0.1);
+@colorOpaque-pink: rgba(237, 28, 36, 0.1);
+@colorOpaque-blankGrayDark: rgba(0, 0, 0, 0.2);
+
 /* Text */
 @color-text-black: #0F0F0F; 
 /* Fonts */
@@ -41,6 +46,12 @@ div {
 
 ul, li {
     .nomargin-padding;
+}
+
+table, tr, td, th {
+    .nomargin-padding;
+    .box-sizing;
+    border: none;
 }
 /* ========== Main ========== */
 body {
@@ -186,3 +197,81 @@ body {
 	background: transparent;
 }
 
+#autoGenTable {
+    border-collapse: separate;
+    border-spacing: 0px;
+    margin-left: 10px;
+    table-layout: fixed;
+
+    th {
+        height: 33px;
+        border-right: 5px solid @color-white;
+        border-bottom: 5px solid @color-white;
+        font-weight: normal;
+    }
+
+    td {
+        font-family: @font-code;
+        font-size: 12px;
+        height: 18px;
+    }
+
+    td, th {
+        width: 125px;
+        vertical-align: middle;
+        text-align: center;
+        padding: 2px;
+
+        &:nth-child(odd) {
+            background-color: @colorOpaque-darkGray;
+        }
+        &:nth-child(even) {
+            background-color: @colorOpaque-lightGray;
+        }
+        &:last-child {
+            border-right: none !important;
+        }
+    }
+
+    tbody tr {
+        &:nth-child(odd) {
+            background-color: @color-table-lightGray;
+            td {
+                border-right: 5px solid @color-table-lightGray;
+            }
+        }
+        &:nth-child(even) {
+            background-color: @color-white;
+            td {
+                border-right: 5px solid @color-white; 
+            }
+        }
+    }
+
+    tfoot td {
+        border-right: 5px solid @color-white;
+        border-top: 5px solid @color-white;
+    }
+
+    tbody .pinkCell {
+        &:nth-child(odd) {
+            background-color: @colorOpaque-pink;
+        }
+        &:nth-child(even) {
+            background-color: @colorOpaque-pink; 
+        }
+    }
+
+    th.pinkCell {
+        color: @color-table-red;
+    }
+
+    tbody .darkCell {
+        &:nth-child(odd) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+        &:nth-child(even) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+    }
+}
