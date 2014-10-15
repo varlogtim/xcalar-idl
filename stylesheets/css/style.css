@@ -78,7 +78,7 @@ body {
   color: #fdb03c;
   cursor: pointer;
 }
-#menuArea {
+#monitorPanel {
   background-color: #FFFFFF;
   margin: 0px;
   margin-top: 5px;
@@ -87,10 +87,27 @@ body {
   width: 100%;
   display: table;
 }
-#menuArea div {
+#monitorPanel div {
   display: inline-block;
   width: 135px;
   margin: 0px 50px 0px 0px;
+  font: "Century Gothic", "Trebuchet MS", Arial, sans-serif;
+  font-size: 58px;
+  vertical-align: middle;
+}
+#datastorePanel {
+  background-color: #FFFFFF;
+  margin: 0px;
+  margin-top: 5px;
+  padding: 0px;
+  height: 68px;
+  width: 100%;
+  display: table;
+}
+#datastorePanel div {
+  display: inline-block;
+  width: 100px;
+  margin: 0px 0px 0px 0px;
   font: "Century Gothic", "Trebuchet MS", Arial, sans-serif;
   font-size: 58px;
   vertical-align: middle;

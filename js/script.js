@@ -27,36 +27,54 @@ function setTabs() {
     dataSourceClick(1);
 }
 
+// XXX: This function should disappear. But I need to be able to free the
+// result sets
 function loadMainContent(op) {
     if (window.location.pathname.search("cat_table.html") > -1) {
         freeAllResultSets();
     }
-    $("#leftFrame").load('/'+op.concat('_l.html'));
-    $("#mainFrame").load('/'+op.concat('_r.html'));
 }
 
 function menuAreaClose() {
     $("#menuArea").hide();
-    // $("#menuArea").height(0);
-    // $("#menuArea").css("margin-top", 0);
 }
 
 function menuBarArt() {
     $("#menuBar div").on("click", function() {
         $("#menuBar div").removeClass("menuSelected");
         $(this).addClass("menuSelected");
-        $("#menuArea").show();
+        switch($(this).text()) {
+        case ("datastore"):
+            $("#menuArea").show();
+            $("#datastorePanel").show();
+            $("#datastorePanel").siblings().each(function() {
+                $(this).hide();
+            }); 
+            break;
+        case ("monitor"):
+            $("#menuArea").show();
+            $("#monitorPanel").show();
+            $("#monitorPanel").siblings().each(function() {
+                $(this).hide();
+            }); 
+            break;
+        default:
+            console.log($(this.text()+" is not implemented!"));
+            break;
+        }
     });
 }
 
 function monitorOverlayPercent() {
     $(".monitor").each(function() {
+        console.log("Changing");
         var widthOfText = $(this).find("span").width();
         console.log(widthOfText);
         var amountToMove = -($(this).width()-widthOfText)/2-widthOfText/2-25;
         $(this).css("margin-right", amountToMove);
     });
     $(".datasetName").each(function() {
+        console.log("Changing");
         var widthOfText = $(this).find("span").width();
         console.log(widthOfText);
         var amountToMove = -($(this).width()-widthOfText)/2-widthOfText/2-35;
@@ -85,6 +103,25 @@ function displayTable() {
         $(this).children().eq(2).after('<td class="darkCell">1</td>');
     });
     $('#autoGenTable tfoot td:eq(2)').after('<td class="darkCell"></td>');
+}
+
+function getTables() {
+    var tables = XcalarGetTables();
+    var numTables = tables.numTables;
+    var i;
+    for (i = 0; i<numTables; i++) {
+        console.log(tables.tables[i].tableName);
+        var datasetDisplay = '<div class="dataset datasetName">'+
+                                 '<span>DATA<br>SET</span>'+
+                             '</div>'+
+                             '<div class="monitorSubDiv">'+
+                                  tables.tables[i].tableName+
+                             '</div>';
+        $("#datastorePanel div:last").after(datasetDisplay);
+    }
+    monitorOverlayPercent();
+    // XXX: UNCOMMENT!
+    // resizableColumns();
 }
 
 function generatePageInput() {
@@ -1048,11 +1085,11 @@ function documentReadyIndexFunction() {
         monitorOverlayPercent();
         menuAreaClose();
         displayTable();
+        getTables();
     });
     // documentReadyCommonFunction();
     // generatePages();
     // showHidePageTurners();
-    // loadMainContent("list_table");
 }
 
 function rescolDelWidth(id, resize) {
