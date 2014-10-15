@@ -1,0 +1,188 @@
+/* ========== Constants ========== */
+/* Standard */
+@color-white: #FFFFFF;
+/* Bar */
+@color-bar-orange: #FDB03C;
+@color-bar-grey: #999999;
+/* Monitor */
+@color-monitor-red: #F8A7AB;
+@color-monitor-green: #95DCBC;
+@color-monitor-blue: #A6C5D2;
+/* Table */
+@color-table-red: #F46D73;
+@color-table-lightGrey: #F5F5F5;
+@color-table-midGrey: #EDEDED;
+@color-table-darkGrey: #E6E6E6;
+@color-table-blankGreyLight: #CCCCCC;
+@color-table-blankGreyDark: #C2C2C2;
+/* Text */
+@color-text-black: #0F0F0F; 
+/* Fonts */
+@font-base: "Century Gothic", "Trebuchet MS", Arial, sans-serif;
+@font-baseHeavy: "Century Gothic";
+@font-code: "Source Code Pro";
+
+/* ========== Elements ========== */
+.box-sizing (@type: border-box) {
+    -webkit-box-sizing: @type;
+    -moz-box-sizing:    @type;
+    box-sizing:         @type;
+}
+
+.nomargin-padding {
+    margin: 0;
+    padding: 0;
+}
+
+div {
+    .box-sizing;
+    /* border: 1px solid red; */
+}
+
+ul, li {
+    .nomargin-padding;
+}
+/* ========== Main ========== */
+body {
+    -webkit-font-smoothing: antialiased;
+    .nomargin-padding;
+    font-family: @font-base;
+    font-size: 0; /* Need to use this to get rid of stupid white space */
+}
+
+#logo {
+    position: absolute;
+    top: 2px;
+    left: 20px;
+    height: 38px;
+    width: 87px;
+    background-image: url("/images/logo-white-L.png");
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 10;
+    -webkit-filter: brightness(0);
+}
+
+.menuSelected {
+    color: @color-bar-orange;
+}
+
+#menuBar {
+    margin-top: 5px;
+    height: 34px;
+    background-color: @color-bar-grey;
+    color: @color-white;
+    width: 100%;
+    display: table;
+    div {
+        display: inline-block;
+        margin:  0px 150px 0px 0px;
+        font: @font-base;
+        font-size: 26px;
+        vertical-align: middle;
+        &:hover {
+            color: @color-bar-orange;
+            cursor: pointer
+        }
+    }
+}
+
+#menuArea {
+	background-color: #FFFFFF;
+    margin: 0px;
+	margin-top: 5px;
+	padding: 0px;
+	height: 68px;
+	width: 100%;
+    display: table;
+    div {
+        display: inline-block;
+        width: 135px;
+        margin:  0px 50px 0px 0px;
+        font: @font-base;
+        font-size: 58px;
+        vertical-align: middle;
+    }
+}
+
+.monitorSubDiv {
+    font-size: 20px !important;
+    font-weight: bold;
+    margin: 0px !important;
+    z-index: 3;
+}
+.monitorRed {
+    color: @color-monitor-red;
+}
+
+.monitorBlue {
+    color: @color-monitor-blue;
+}
+
+.monitorGreen {
+    color: @color-monitor-green;
+}
+
+.datasetName {
+    padding-top: 5px !important;
+    color: #CCCCCC;
+    line-height: 23px;
+    font-size: 28px !important;
+    width: 200px !important;
+    text-align: center;
+}
+
+#functionBar {
+	background-color: #999999;
+	margin-top: 5px;
+	padding: 0px;
+	height: 34px;
+	width: 100%;
+    display: table;
+    div {
+        display: inline-block;
+        font: @font-base;
+        padding: 5px 0px 0px 0px;
+        margin: 0px 0px 0px 20px;
+        font-size: 18px;
+        color: #FFFFFF;
+        vertical-align: middle;
+    }
+}
+
+.functionField {
+    margin: 0px 200px 0px 0px !important;
+    font-size: 16px !important;
+    font-family: @font-code; 
+    color: #000000 !important;
+    vertical-align: middle;
+}
+
+#mainFrame {
+	background-color: #FFFFFF;
+	margin-top: 5px;
+	padding: 0px;
+	height: 848px;
+	width: 100%;
+	float: top;
+	overflow-x: scroll;
+	overflow-y: scroll;
+    display: inline-block;
+    font-size: 11px;
+}
+
+#mainFrame::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: transparent;
+}
+
+#mainFrame::-webkit-scrollbar-thumb {
+    background: rgba(237,28,36, 0.5) !important;
+}
+
+#mainFrame::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
