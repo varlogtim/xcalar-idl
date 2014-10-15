@@ -7,7 +7,7 @@ var currentPageNumber = 0;
 var numEntriesPerPage = 12;
 var numPageTurners = 10;
 var resultSetId = 0;
-var newCellWidth = 144;
+var newCellWidth = 116;
 var columnBorderWidth = -1;
 var colPadding = 4;
 var numPages = 0;
@@ -81,10 +81,12 @@ function monitorOverlayPercent() {
 function displayTable() {
     var numRowsToAdd = 20;
     var numCols = $('#autoGenTable th').length;
-    for (var i = 0; i < numRowsToAdd; i++) {
-        $('#autoGenTable tbody tr:last').after('<tr></tr>');
-        for (var j = 0; j < numCols; j++) {
-            $('#autoGenTable tbody tr:last').append('<td></td>');
+    for (var i = 1; i < numRowsToAdd; i++) {
+        $('#autoGenTable tbody').append('<tr></tr>');
+        for (var j = 1; j < numCols+1; j++) {
+            $('#autoGenTable tbody tr:last').append('<td id="bodyr'+i+'c'+j+'"><div class="addedBarTextWrap"'+
+                'style="max-height:'+14+'px;">'+
+                '<div class="addedBarText">'+'text djk'+'</div></div></td>');
         }
     }
     
@@ -319,11 +321,12 @@ function getPage(resultSetId, firstTime) {
     var indices = [];
     var resize = false;
     var headingsArray = convertColNamesToArray();
+    console.log(headingsArray);
     if (headingsArray != null && headingsArray.length > 2) {
         var numRemoved = 0;
         for (var i = 1; i<headingsArray.length; i++) {
             if (headingsArray[i] !== "JSON") {
-                // console.log("deleted: "+headingsArray[i]);
+                console.log("deleted: "+headingsArray[i]);
                 var indName = {index: i,
                                name: headingsArray[i],
                                width: $("#headCol"+(i+1-numRemoved)).width()};
@@ -333,7 +336,7 @@ function getPage(resultSetId, firstTime) {
             }
         }
     }
-    $("#autoGenTable").find("tr:gt(0)").remove();
+    $("#autoGenTable tbody").find("tr:gt(0)").remove();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            numEntriesPerPage);
     // console.log(tableOfEntries.meta.fieldAttr.name);
@@ -353,6 +356,7 @@ function getPage(resultSetId, firstTime) {
         if (headingsArray.length != 2) {
             console.log("BUG BUG BUG");
             alert("Possible bug");
+            console.log(headingsArray)
         }
         keyName = tableOfEntries.meta.fieldAttr.name;
         var indName = {index: 1,
@@ -382,7 +386,7 @@ function generateRowWithAutoIndex(text, hoverable) {
     else { 
         var clickable = "";
     }
-    $("#autoGenTable tr:last").after('<tr><td height="17" align="center"'+
+    $("#autoGenTable tr:last").after('<tr><td height="18" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+
         tableRowIndex+'</td>'+
@@ -398,21 +402,24 @@ function generateRowWithAutoIndex(text, hoverable) {
 }
 
 function generateRowWithAutoIndex2(text2, idNo) {
-    $("#autoGenTable tr:last").after('<tr>'+
+    $("#autoGenTable tbody").append('<tr>'+
         '<td height="17" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         idNo+"c1"+'">'
         +idNo+'</td>'+
         '<td height="17" bgcolor="#FFFFFF" class="jsonElement monacotype" id="bodyr'+
         idNo+"c2"+'">'+
+        '<div class="elementTextWrap">'+
         '<div class="elementText">'+
-        text2+'</div></td>'+
+        text2+'</div>'+
+        '</div>'+
+        '</td>'+
         '</tr>');
 }
 
 function delCol(id, resize) {
     rescolDelWidth(id, resize);
-    var numCol = $("#autoGenTable").find("tr:first td").length;
+    var numCol = $("#autoGenTable th").length;
     var colid = parseInt(id.substring(11));
     $("#headCol"+colid).remove();
     console.log($("#headCol"+colid).html());
@@ -427,13 +434,13 @@ function delCol(id, resize) {
         $('#filter'+i).attr("id", "filter"+(i-1));
     }
  
-    var numRow = $("#autoGenTable tr").length;
-    var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
+    var numRow = $("#autoGenTable tbody tr").length;
+    var idOfFirstRow = $("#autoGenTable tbody tr:eq(0) td:first").attr("id").
                        substring(5);
     idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
     var startingIndex = parseInt(idOfFirstRow);
 
-    for (var i = startingIndex; i<startingIndex+numRow-1; i++) {
+    for (var i = startingIndex; i<startingIndex+numRow; i++) {
         $("#bodyr"+i+"c"+colid).remove();
         for (var j = colid+1; j<=numCol; j++) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j-1));
@@ -442,22 +449,24 @@ function delCol(id, resize) {
 }
 
 function pullCol(key, newColid) {
+    console.log(arguments)
     if (/\.([0-9])/.test(key)) {//check for dot followed by number (invalid)
         return;
     }
-    var colid = $("#autoGenTable tr:first-child td:contains('JSON')").filter(
+    var colid = $("#autoGenTable th:contains('JSON')").filter(
         function() {
             return $(this).text().indexOf("JSON") != -1;
     }).attr("id");
+
     colid = colid.substring(7);
-    var numRow = $("#autoGenTable tr").length;
+    var numRow = $("#autoGenTable tbody tr").length;
     var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
                        substring(5);
     idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
     var startingIndex = parseInt(idOfFirstRow);
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
 
-    for (var i =  startingIndex; i<numRow+startingIndex-1; i++) {
+    for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = $("#bodyr"+i+"c"+colid+ " .elementText").text();
         var value = jQuery.parseJSON(jsonStr);
         for (var j = 0; j<nested.length; j++) {
@@ -484,18 +493,20 @@ function pullCol(key, newColid) {
                 default: // leave value as is;
             }
         }
-        value = '<div class="addedBarText">'+value+"</div>"
-        $("#bodyr"+i+"c"+newColid).html(value);
+ 
+        value = '<div class="addedBarTextWrap"><div class="addedBarText">'+value+"</div></div>";
+        $("#bodyr"+i+"c"+newColid).html(value); 
+
     }    
 }
 
 function addCol(id, name, options) {
-    console.log('addCol()', name);
-    var numCol = $("#autoGenTable").find("tr:first td").length;
+    console.log('addCol()', arguments);
+    var numCol = $("#autoGenTable th").length;
     var colid = parseInt(id.substring(7));
     var newColid = colid;
     var options = options || {};
-    var width = options.width || newCellWidth + (2-columnBorderWidth);
+    var width = options.width || newCellWidth;
     var resize = options.resize || false;
     if (options.direction != "L") {
         newColid += 1;
@@ -519,18 +530,19 @@ function addCol(id, name, options) {
         $("#filter"+i).attr("id", "filter"+(i+1));
     }        
     
-    var columnHeadTd = '<td class="table_title_bg editableCol'+
+    var columnHeadTd = '<th class="table_title_bg editableCol'+
         '" id="headCol'+
         newColid+
         '" style="height:17px; width:'+(width+colPadding+columnBorderWidth)+'px;">'+
+        '<div class="header">'+
         '<div class="dragArea"></div>'+
         '<div class="dropdownBox"></div>'+
-        '<strong><input type="text" id="rename'+newColid+'" '+
+        '<span><input type="text" id="rename'+newColid+'" '+
         'class="editableHead" '+
-        'value="'+name+'"/></strong>'+
-        '</td>';
+        'value="'+name+'"/></span>'+
+        '</div>'+
+        '</th>';
     $("#headCol"+(newColid-1)).after(columnHeadTd); 
-
 
     var dropDownHTML = '<ul class="colMenu">'+
             '<li class="menuClickable">'+
@@ -592,22 +604,23 @@ function addCol(id, name, options) {
                         '</li>';
     }
     dropDownHTML += '</ul>';
-    $('#headCol'+newColid).append(dropDownHTML);
+    // $('#headCol'+newColid).append(dropDownHTML);
 
     dropdownAttachListeners(newColid);
 
     if (select) {
         $('#rename'+newColid).select();
     }
-    var numRow = $("#autoGenTable tr").length;
+    var numRow = $("#autoGenTable tbody tr").length;
     var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
                        substring(5);
     idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
     var startingIndex = parseInt(idOfFirstRow);
-    for (var i = startingIndex; i<startingIndex+numRow-1; i++) {
+    for (var i = startingIndex; i<startingIndex+numRow; i++) {
         for (var j = numCol; j>=newColid; j--) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j+1));
             // every column after the new column gets id shifted +1;
+
         }
         var newCellHTML = '<td height="17" bgcolor="#FFFFFF"'+
             'class="monacotype" id="bodyr'+i+"c"+(newColid)+
@@ -619,6 +632,8 @@ function addCol(id, name, options) {
             $("#bodyr"+i+"c"+(newColid+1)).before(newCellHTML);
         }
     }
+    $('#autoGenTable tfoot tr').append('<td>SumFn</td>');
+
     $("#headCol"+newColid).click(function() {
         $(this).select();
     });
@@ -651,7 +666,7 @@ function dropdownAttachListeners(colId) {
     });
 
     $('#headCol'+colId+' .dragArea').mousedown(function(event){
-        dragdropMouseDown($(this).parent(), event);
+        dragdropMouseDown($(this).parent().parent(), event);
     });
 
     $('#headCol'+colId+' .subColMenu li').mouseenter(function() {
@@ -700,7 +715,7 @@ function prelimFunctions() {
 }
 
 function convertColNamesToArray() {
-    var head = $("#autoGenTable tr:first-child td strong");
+    var head = $("#autoGenTable th span");
     var numCol = head.length;
     var headings = [];
     for (var i = 0; i<numCol; i++) {
@@ -715,13 +730,13 @@ function convertColNamesToArray() {
 
 // XXX: FIXME: This does not preserve undefined columns!!!
 function convertColNamesToIndexArray() {
-    var head = $("#autoGenTable tr:first-child td");
+    var head = $("#autoGenTable th");
     var numCol = head.length;
     var headings = [];
     for (var i = 2; i<numCol; i++) {
         var indexObj = {
             index: i-1,
-            name: $("#headCol"+i).children("strong").children("input").val(),
+            name: $("#headCol"+i).children("span").children("input").val(),
             width: $("#headCol"+i).width()
         };
         headings.push(indexObj);
@@ -732,13 +747,14 @@ function convertColNamesToIndexArray() {
 
 function resizableColumns(resize, newWidth) {
     console.log('resizableColumns()');
-    $('.firstRow td:not(:last-child)').each(
+
+    $('#autoGenTable th:not(:last-child) .header').each(
         function() {
-            if (!$(this).children().hasClass('resizeCursor') 
-                &&!$(this).is(':first-child')) {
-                $(this).prepend('<div class="resizeCursor"></div>');
-                var tdId = $(this).attr('id');
-                $('#'+tdId+' .resizeCursor').mousedown(
+            if (!$(this).children().hasClass('colGrab') 
+                &&!$(this).parent().is(':first-child')) {
+                $(this).prepend('<div class="colGrab"></div>');
+                var tdId = $(this).parent().attr('id');
+                $('#'+tdId+' .colGrab').mousedown(
                     function(event) {
                         if (event.which === 1) {
                             rescolMouseDown($(this), event);
@@ -748,16 +764,15 @@ function resizableColumns(resize, newWidth) {
             }
         }
     );
-    $('.resizeCursor').height($('.resizable').height());
+    $('.colGrab').height($('#autoGenTable').height());
     if (rescol.first) {
-        $('.firstRow td').each(
+        $('#autoGenTable th').each(
             function() {
                     var initialWidth = $(this).width();
                     $(this).width(initialWidth);
                     $(this).removeAttr('width');
             } 
         );
-        $('.resizable').css('table-layout','fixed');
         rescol.first = false;
     } 
     if (resize) {
@@ -768,7 +783,7 @@ function resizableColumns(resize, newWidth) {
 function shrinkLargestCell(newWidth) {
     var largestCell;
     var largestCellWidth = 0;
-    $('.firstRow td').each(
+    $('#autoGenTable th').each(
         function() {
             if ($(this).width() > largestCellWidth) {
                 largestCell = $(this);
@@ -778,6 +793,7 @@ function shrinkLargestCell(newWidth) {
     );
     var newLargeWidth = largestCellWidth - (newWidth + colPadding + columnBorderWidth);
     largestCell.width(newLargeWidth);
+    console.log(newLargeWidth, 'new large')
 }
 
 function subColMenuMouseEnter(el) {
@@ -807,8 +823,8 @@ function reenableTextSelection() {
 }
 
 function documentReadyCommonFunction() {
-    /* columnBorderWidth = parseInt($('#headCol1').css('border-left-width'))+
-                        parseInt($('#headCol1').css('border-right-width'));
+    columnBorderWidth = parseInt($('#autoGenTable th:first').css('border-left-width'))+
+                        parseInt($('#autoGenTable th:first').css('border-right-width'));
     colPadding = parseInt($('#autoGenTable td:first').css('padding-left')) * 2;
     dropdownAttachListeners(2); // set up listeners for json column
 
@@ -817,7 +833,7 @@ function documentReadyCommonFunction() {
     } else {
         var searchText = tableName;
     }
-    $("#searchBar").val('tablename = "'+searchText+'"'); */
+    $("#searchBar").val('tablename = "'+searchText+'"');
     $('#pageInput').width((""+resultSetCount).length*6+8);
     $('#pageInput').keypress(function(e) {
         if (e.which === 13) {
@@ -838,7 +854,7 @@ function documentReadyCommonFunction() {
         goToPage(Math.ceil(parseInt($('#pageInput').val())/numEntriesPerPage)-1);
     });
 
-    /*
+    
     $('.closeJsonModal, #jsonModalBackground').click(function(){
         $('#jsonModal, #jsonModalBackground').hide();
         $('body').removeClass('hideScroll');
@@ -880,17 +896,16 @@ function documentReadyCommonFunction() {
                     break;
                 default: // do nothing
             }
-
         }
     });
-    */
+    
 }
 
-function rescolMouseDown(el, event){
+function rescolMouseDown(el, event) {
     mouseStatus = "resizingCol";
     event.preventDefault();
     rescol.mouseStart = event.pageX;
-    rescol.grabbedCell = el.parent();  // the td 
+    rescol.grabbedCell = el.parent().parent();  // the td 
     rescol.startWidth = rescol.grabbedCell.width(); 
     rescol.nextCell = rescol.grabbedCell.next();  // the next td
     rescol.nextCellWidth = rescol.nextCell.width();
@@ -940,8 +955,9 @@ function dragdropMouseDown(el, event) {
     dragObj.colIndex = parseInt(el.index());
     dragObj.colOffLeft = el.offset().left;
     dragObj.colOffTop = el.offset().top;
-    dragObj.borderHeight = parseInt(el.css('border-top-width'))+ 
-                        parseInt(el.css('border-bottom-width'));
+    // dragObj.borderHeight = parseInt(el.css('border-top-width'))+ 
+    //                     parseInt(el.css('border-bottom-width'));
+    dragObj.borderHeight = 0;
     dragObj.docHeight = $(document).height();
     var tableHeight = el.closest('table').height();
 
@@ -951,8 +967,8 @@ function dragdropMouseDown(el, event) {
     var startYPos = el.position().top;
 
     //create a replica shadow with same column width, height, and starting position
-    $('#mainFrame').prepend('<div class="shadowDiv" style="width:'+(dragObj.colWidth+2)+
-                        'px;height:'+(tableHeight-1)+'px;left:'+(dragObj.startXPos)+
+    $('#mainFrame').prepend('<div class="shadowDiv" style="width:'+(dragObj.colWidth+5)+
+                        'px;height:'+(tableHeight)+'px;left:'+(dragObj.startXPos)+
                         'px;top:'+(startYPos)+'px;"></div>');
 
     // create a fake transparent column by cloning 
@@ -974,7 +990,7 @@ function dragdropMouseMove(event) {
 function dragdropMouseUp() {
     mouseStatus = null;
     $('.shadowDiv, .fauxCol, .dropTarget, #moveCursor').remove();
-    var head = $(".firstRow td strong");
+    var head = $("#autoGenTable th span");
     var name = $.trim(head.eq(dragObj.colIndex).text());
     if (name == "") {
         name = $.trim(head.eq(dragObj.colIndex).children('input').val());
@@ -982,6 +998,7 @@ function dragdropMouseUp() {
     // only pull col if column is dropped in new location
     if ((dragObj.colIndex+1) != dragObj.colId) { 
         var width = dragObj.colWidth-colPadding;
+        console.log(dragObj.colId, dragObj.colIndex);
         delCol("closeButton"+(dragObj.colId), false);
         addCol(("headCol"+dragObj.colIndex), name, 
             {width : (dragObj.colWidth-colPadding)});
@@ -991,16 +1008,21 @@ function dragdropMouseUp() {
 }
 
 function createTransparentDragDropCol(startYPos) {
-    $('#mainFrame').prepend('<table class="fauxCol" style="left:'+
-                        (dragObj.startXPos-1)+'px;top:'+(startYPos-1)+'px;width:'+
+    $('#mainFrame').append('<table id="autoGenTable" class="fauxCol" style="left:'+
+                        (dragObj.startXPos)+'px;top:'+(startYPos)+'px;width:'+
                         (dragObj.colWidth)+'px"></table>');
 
-    $('.resizable tr').each(function(){
+    $('#autoGenTable tr').each(function(){
         var td = $(this).children();
         var row = $("<tr></tr>");
-        var cloneHeight = td.eq(dragObj.colIndex).height();
+        var rowColor = $(this).css('background-color');
         var clone = td.eq(dragObj.colIndex).clone();
-        clone.height(cloneHeight+colPadding+dragObj.borderHeight);
+        var cloneHeight = parseInt(td.eq(dragObj.colIndex).outerHeight());
+        var cloneColor = td.eq(dragObj.colIndex).css('background-color');
+        row.css('background-color', rowColor);
+        clone.outerHeight(cloneHeight);
+        clone.width(dragObj.colWidth);
+        clone.css('background-color', cloneColor);
         row.append(clone).appendTo($(".fauxCol"));
     });
 }
@@ -1013,7 +1035,7 @@ function createDropTargets() {
     var dragMargin = 30; // targets extend this many pixels to left of each column
     $('.dropTarget').remove(); 
     var i = 0;
-    $('.firstRow td:not(:last)').each(function(){
+    $('#autoGenTable th:not(:last)').each(function(){
         var colLeft = $(this).offset().left;
         if ((dragObj.colWidth-dragMargin) < Math.round(0.5*$(this).width())) {
             var targetWidth = dragObj.colWidth;
@@ -1034,17 +1056,17 @@ function createDropTargets() {
         if (dropTargetId != dragObj.colIndex && dropTargetId != 0) {
             var nextCol = Math.abs(dropTargetId-dragObj.colIndex);
             if (dropTargetId>dragObj.colIndex) {
-                $('.resizable tr').each(function() { 
+                $('#autoGenTable tr').each(function() { 
                     $(this).children(':eq('+(dropTargetId)+')').after(
                         $(this).children(':eq('+(dropTargetId-nextCol)+')'));
                 });
             } else {
-                $('.resizable tr').each(function() { 
+                $('#autoGenTable tr').each(function() { 
                     $(this).children(':eq('+(dropTargetId)+')').before(
                         $(this).children(':eq('+(dropTargetId+nextCol)+')'));
                 });
             }
-            $('.shadowDiv').css('left', $('.resizable #'+dragObj.id).position().left); 
+            $('.shadowDiv').css('left', $('#autoGenTable #'+dragObj.id).position().left); 
             dragObj.colIndex = dropTargetId;
             createDropTargets(dragObj);
         }
@@ -1082,26 +1104,38 @@ function documentReadyIndexFunction() {
         menuBarArt();
         monitorOverlayPercent();
         menuAreaClose();
-        displayTable();
+        // displayTable();
         getTables();
-        documentReadyCommonFunction();
+
+        // documentReadyCommonFunction();
+        // XXX uncomment above?
+
+
+
+        documentReadyCatFunction();
+
+        for (var i = 0; i<5; i++) {
+            addCol("headCol2", 5-i, {resize: true});
+        }
     });
+
+    // documentReadyCommonFunction();
     // generatePages();
     // showHidePageTurners();
 }
 
 function rescolDelWidth(id, resize) {
     var id = parseInt(id.substring(11));
-    var delTd = $('.resizable tr:first td').eq(id-1)
+    var delTd = $('#autoGenTable tr:first td').eq(id-1)
     var delTdWidth = delTd.width();
     if (resize == false) {
-        var tableWidth = $('.resizable').width();
-        $('.resizable').width(tableWidth - delTdWidth - colPadding - columnBorderWidth);
+        var tableWidth = $('#autoGenTable').width();
+        $('#autoGenTable').width(tableWidth - delTdWidth - colPadding - columnBorderWidth);
     } else {
-        var adjustedTd = $('.resizable tr:first td').eq(id);
+        var adjustedTd = $('#autoGenTable tr:first td').eq(id);
         if (adjustedTd.length < 1) {
-            adjustedTd = $('.resizable tr:first td').eq(id-2);
-            adjustedTd.children('.resizeCursor').remove();
+            adjustedTd = $('#autoGenTable tr:first td').eq(id-2);
+            adjustedTd.children('.colGrab').remove();
         }
         var adjustedTdWidth = adjustedTd.width();
         adjustedTd.width(adjustedTdWidth+delTdWidth+colPadding+columnBorderWidth);

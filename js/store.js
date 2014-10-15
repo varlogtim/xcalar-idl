@@ -29,5 +29,5 @@ function readFromStorage() {
     if (localStorage["TILookup"]) {
         tableIndicesLookup = JSON.parse(localStorage["TILookup"]);
     }
-    console.log(tableIndicesLookup);
+    // console.log(tableIndicesLookup);
 }
