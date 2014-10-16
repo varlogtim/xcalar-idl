@@ -439,6 +439,7 @@ function delCol(id, resize) {
     var numCol = $("#autoGenTable th").length;
     var colid = parseInt(id.substring(11));
     $("#headCol"+colid).remove();
+    $("#sumFn"+colid).remove();
     console.log($("#headCol"+colid).html());
     for (var i = colid+1; i<=numCol; i++) {
         $("#headCol"+i).attr("id", "headCol"+(i-1));
@@ -464,7 +465,6 @@ function delCol(id, resize) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j-1));
         }
     }
-    $("#sumFn"+colid).remove();
 }
 
 function pullCol(key, newColid) {
@@ -654,6 +654,7 @@ function addCol(id, name, options) {
     }
     // XXX: This has an issue assigning id because of the testing that's going
     // on. Should be fixed the moment we are done.
+    // Rudy: I think the issue was in delcol() and I fixed it
     $("#sumFn"+(newColid-1)).after('<td id="sumFn'+newColid+'">SumFn</td>'); 
 
     $("#headCol"+newColid).click(function() {
@@ -665,6 +666,8 @@ function addCol(id, name, options) {
                      attr('id').substring(7));
         pullCol($(this).val(), thisId);
         $(this).blur();
+        $(this).closest('th').removeClass('darkCell');
+        $('#autoGenTable td:nth-child('+thisId+')').removeClass('darkCell');
       }
     });
     resizableColumns(resize, width);
@@ -1025,7 +1028,7 @@ function dragdropMouseUp() {
             {width : (dragObj.colWidth-colPadding)});
         pullCol(name, (dragObj.colIndex+1));
         console.log(dragObj.colIndex+1);
-        $("#sumFn"+(dragObj.colIndex+1)).removeClass("darkCell");
+        // $("#sumFn"+(dragObj.colIndex+1)).removeClass("darkCell");
     }
     reenableTextSelection(); 
 }
@@ -1130,9 +1133,9 @@ function documentReadyIndexFunction() {
         // displayTable();
         getTables();
         documentReadyCatFunction();
-        for (var i = 0; i<5; i++) {
-            addCol("headCol2", 5-i, {resize: true});
-        }
+        // for (var i = 0; i<5; i++) {
+        //     addCol("headCol2", 5-i, {resize: true});
+        // }
         fillPageWithBlankCol();     
     });
 
@@ -1143,19 +1146,20 @@ function documentReadyIndexFunction() {
 
 function rescolDelWidth(id, resize) {
     var id = parseInt(id.substring(11));
-    var delTd = $('#autoGenTable tr:first td').eq(id-1)
-    var delTdWidth = delTd.width();
+    var delTd = $('#autoGenTable th').eq(id-1)
+    var delTdWidth = delTd.outerWidth();
     if (resize == false) {
+        console.log('here', delTdWidth, tableWidth)
         var tableWidth = $('#autoGenTable').width();
-        $('#autoGenTable').width(tableWidth - delTdWidth - colPadding - columnBorderWidth);
+        $('#autoGenTable').width(tableWidth - delTdWidth);
     } else {
-        var adjustedTd = $('#autoGenTable tr:first td').eq(id);
+        var adjustedTd = $('#autoGenTable th').eq(id);
         if (adjustedTd.length < 1) {
-            adjustedTd = $('#autoGenTable tr:first td').eq(id-2);
+            adjustedTd = $('#autoGenTable th').eq(id-2);
             adjustedTd.children('.colGrab').remove();
         }
         var adjustedTdWidth = adjustedTd.width();
-        adjustedTd.width(adjustedTdWidth+delTdWidth+colPadding+columnBorderWidth);
+        adjustedTd.width(adjustedTdWidth+delTdWidth);
     }
 }
 
