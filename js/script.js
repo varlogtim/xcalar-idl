@@ -122,6 +122,23 @@ function getTables() {
     // resizableColumns();
 }
 
+function fillPageWithBlankCol() {
+    var tableWidth = $("#autoGenTable").width();
+    var windowWidth = $(window).width();
+    // Ensures that empty cols will stretch the page to more than window width
+    var numColsToFill = Math.ceil((windowWidth - tableWidth)/newCellWidth) + 1;
+    var startColId = $("#autoGenTable th").size();
+    for (var i = 0; i<numColsToFill; i++) {
+        addCol("headCol"+(startColId+i), "+");
+        $("#headCol"+(startColId+i+1)).addClass("darkCell");
+        for (var j = 0; j<$("#autoGenTable tr").size()-2; j++) {
+             $("#bodyr"+(j+1)+"c"+(startColId+i+1)).addClass("darkCell");
+        }
+        $("#sumFn"+(startColId+i+1)).addClass("darkCell"); 
+    }
+     
+}
+
 function generatePageInput() {
     $('#pageInput').attr('max', resultSetCount);
 }
@@ -539,7 +556,7 @@ function addCol(id, name, options) {
         '<div class="dropdownBox"></div>'+
         '<span><input type="text" id="rename'+newColid+'" '+
         'class="editableHead" '+
-        'value="'+name+'"/></span>'+
+        'value="'+name+'" size="15"/></span>'+
         '</div>'+
         '</th>';
     $("#headCol"+(newColid-1)).after(columnHeadTd); 
@@ -632,7 +649,9 @@ function addCol(id, name, options) {
             $("#bodyr"+i+"c"+(newColid+1)).before(newCellHTML);
         }
     }
-    $('#autoGenTable tfoot tr').append('<td>SumFn</td>');
+    // XXX: This has an issue assigning id because of the testing that's going
+    // on. Should be fixed the moment we are done.
+    $('#autoGenTable tfoot tr').append('<td id="sumFn'+newColid+'">SumFn</td>');
 
     $("#headCol"+newColid).click(function() {
         $(this).select();
@@ -1105,17 +1124,11 @@ function documentReadyIndexFunction() {
         menuAreaClose();
         // displayTable();
         getTables();
-
-        // documentReadyCommonFunction();
-        // XXX uncomment above?
-
-
-
         documentReadyCatFunction();
-
         for (var i = 0; i<5; i++) {
             addCol("headCol2", 5-i, {resize: true});
         }
+        fillPageWithBlankCol();     
     });
 
     // documentReadyCommonFunction();

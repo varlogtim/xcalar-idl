@@ -156,7 +156,6 @@ body {
 }
 
 .datasetName {
-    padding-top: 15px !important;
     color: #CCCCCC;
     line-height: 23px;
     font-size: 28px !important;
@@ -295,6 +294,11 @@ body {
     th.pinkCell {
         color: @color-table-red;
     }
+    
+    tfoot .darkCell,
+    th.darkCell {
+        background-color: @colorOpaque-blankGrayDark;
+    }
 
     tbody .darkCell {
         &:nth-child(odd) {
@@ -346,7 +350,7 @@ body {
 }
 
 .fauxCol .editableHead {
-    width: 100%;
+    width: 50%;
     height: 17px; 
     background-color: transparent; 
     border: none;
