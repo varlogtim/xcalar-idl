@@ -83,7 +83,7 @@ body {
   margin: 0px;
   margin-top: 5px;
   padding: 0px;
-  height: 68px;
+  height: 72px;
   width: 100%;
   display: table;
 }
@@ -100,13 +100,14 @@ body {
   margin: 0px;
   margin-top: 5px;
   padding: 0px;
-  height: 68px;
+  height: 72px;
   width: 100%;
   display: table;
 }
 #datastorePanel div {
   display: inline-block;
   width: 100px;
+  padding-top: 10px;
   margin: 0px 0px 0px 0px;
   font: "Century Gothic", "Trebuchet MS", Arial, sans-serif;
   font-size: 58px;
@@ -128,7 +129,7 @@ body {
   color: #95dcbc;
 }
 .datasetName {
-  padding-top: 5px !important;
+  padding-top: 15px !important;
   color: #CCCCCC;
   line-height: 23px;
   font-size: 28px !important;
@@ -151,6 +152,14 @@ body {
   font-size: 18px;
   color: #FFFFFF;
   vertical-align: middle;
+}
+#functionBar div input {
+  border: 0px;
+  text-align: center;
+  font-color: black;
+  margin-bottom: 5px;
+  background-color: #ededed;
+  height: 20px;
 }
 .functionField {
   margin: 0px 200px 0px 0px !important;

@@ -53,6 +53,7 @@ table, tr, td, th {
     .box-sizing;
     border: none;
 }
+
 /* ========== Main ========== */
 body {
     -webkit-font-smoothing: antialiased;
@@ -99,18 +100,37 @@ body {
     }
 }
 
-#menuArea {
+#monitorPanel {
 	background-color: #FFFFFF;
     margin: 0px;
 	margin-top: 5px;
 	padding: 0px;
-	height: 68px;
+	height: 72px;
 	width: 100%;
     display: table;
     div {
         display: inline-block;
         width: 135px;
         margin:  0px 50px 0px 0px;
+        font: @font-base;
+        font-size: 58px;
+        vertical-align: middle;
+    }
+}
+
+#datastorePanel {
+	background-color: #FFFFFF;
+    margin: 0px;
+	margin-top: 5px;
+	padding: 0px;
+	height: 72px;
+	width: 100%;
+    display: table;
+    div {
+        display: inline-block;
+        width: 100px;
+        padding-top: 10px;
+        margin:  0px 0px 0px 0px;
         font: @font-base;
         font-size: 58px;
         vertical-align: middle;
@@ -136,7 +156,7 @@ body {
 }
 
 .datasetName {
-    padding-top: 5px !important;
+    padding-top: 15px !important;
     color: #CCCCCC;
     line-height: 23px;
     font-size: 28px !important;
@@ -159,6 +179,14 @@ body {
         font-size: 18px;
         color: #FFFFFF;
         vertical-align: middle;
+        input {
+            border: 0px;
+            text-align: center;
+            font-color: black;
+            margin-bottom: 5px;
+            background-color: @color-table-midGray;
+            height: 20px;
+        }
     }
 }
 
