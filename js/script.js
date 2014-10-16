@@ -854,7 +854,6 @@ function documentReadyCommonFunction() {
         goToPage(Math.ceil(parseInt($('#pageInput').val())/numEntriesPerPage)-1);
     });
 
-    
     $('.closeJsonModal, #jsonModalBackground').click(function(){
         $('#jsonModal, #jsonModalBackground').hide();
         $('body').removeClass('hideScroll');
