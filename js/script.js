@@ -449,6 +449,7 @@ function delCol(id, resize) {
         $("#renameCol"+i).attr("id", "renameCol"+(i-1));
         $('#sort'+i).attr("id", "sort"+(i-1));
         $('#filter'+i).attr("id", "filter"+(i-1));
+        $('#sumFn'+i).attr("id", "sumFn"+(i-1));
     }
  
     var numRow = $("#autoGenTable tbody tr").length;
@@ -463,6 +464,7 @@ function delCol(id, resize) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j-1));
         }
     }
+    $("#sumFn"+colid).remove();
 }
 
 function pullCol(key, newColid) {
@@ -545,6 +547,7 @@ function addCol(id, name, options) {
         $("#renameCol"+i).attr("id", "renameCol"+(i+1));
         $("#sort"+i).attr("id", "sort"+(i+1));
         $("#filter"+i).attr("id", "filter"+(i+1));
+        $("#sumFn"+i).attr("id", "sumFn"+(i+1));
     }        
     
     var columnHeadTd = '<th class="table_title_bg editableCol'+
@@ -651,7 +654,7 @@ function addCol(id, name, options) {
     }
     // XXX: This has an issue assigning id because of the testing that's going
     // on. Should be fixed the moment we are done.
-    $('#autoGenTable tfoot tr').append('<td id="sumFn'+newColid+'">SumFn</td>');
+    $("#sumFn"+(newColid-1)).after('<td id="sumFn'+newColid+'">SumFn</td>'); 
 
     $("#headCol"+newColid).click(function() {
         $(this).select();
@@ -1021,6 +1024,8 @@ function dragdropMouseUp() {
         addCol(("headCol"+dragObj.colIndex), name, 
             {width : (dragObj.colWidth-colPadding)});
         pullCol(name, (dragObj.colIndex+1));
+        console.log(dragObj.colIndex+1);
+        $("#sumFn"+(dragObj.colIndex+1)).removeClass("darkCell");
     }
     reenableTextSelection(); 
 }
