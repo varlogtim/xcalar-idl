@@ -4,7 +4,8 @@ var selectedTab = 1;
 var numTabs = 3;
 var tableRowIndex = 1;
 var currentPageNumber = 0;
-var numEntriesPerPage = 12;
+// var numEntriesPerPage = 12;
+var numEntriesPerPage = 24;
 var numPageTurners = 10;
 var resultSetId = 0;
 var newCellWidth = 116;
@@ -40,19 +41,28 @@ function menuAreaClose() {
 }
 
 function menuBarArt() {
+    var clickTarget = "";
     $("#menuBar div").on("click", function() {
+        if (clickTarget == $(event.target).text()) {
+            //if clicking on an already open menu, close it
+            $("#menuBar div").removeClass("menuSelected");
+            $("#menuArea").height(0);
+            clickTarget = "";
+            return;
+        }
+        clickTarget = $(event.target).text();
         $("#menuBar div").removeClass("menuSelected");
         $(this).addClass("menuSelected");
         switch ($(this).text()) {
         case ("datastore"):
-            $("#menuArea").show();
+            $("#menuArea").show().height(76);
             $("#datastorePanel").show();
             $("#datastorePanel").siblings().each(function() {
                 $(this).hide();
             }); 
             break;
         case ("monitor"):
-            $("#menuArea").show();
+            $("#menuArea").show().height(76);;
             $("#monitorPanel").show();
             $("#monitorPanel").siblings().each(function() {
                 $(this).hide();
@@ -90,17 +100,17 @@ function displayTable() {
         }
     }
     
-    $('#autoGenTable th:eq(2)').after('<th class="pinkCell">Header</th>');
+    $('#autoGenTable th:eq(2)').after('<th class="selectedCell">Header</th>');
     $('#autoGenTable tbody tr').each(function(){
-        $(this).children().eq(2).after('<td class="pinkCell">1</td>');
+        $(this).children().eq(2).after('<td class="selectedCell">1</td>');
     });
-    $('#autoGenTable tfoot td:eq(2)').after('<td class="pinkCell"></td>');
+    $('#autoGenTable tfoot td:eq(2)').after('<td class="selectedCell"></td>');
 
-    $('#autoGenTable th:eq(2)').after('<th class="darkCell"></th>');
+    $('#autoGenTable th:eq(2)').after('<th class="unusedCell"></th>');
     $('#autoGenTable tbody tr').each(function(){
-        $(this).children().eq(2).after('<td class="darkCell">1</td>');
+        $(this).children().eq(2).after('<td class="unusedCell">1</td>');
     });
-    $('#autoGenTable tfoot td:eq(2)').after('<td class="darkCell"></td>');
+    $('#autoGenTable tfoot td:eq(2)').after('<td class="unusedCell"></td>');
 }
 
 function getTables() {
@@ -130,11 +140,11 @@ function fillPageWithBlankCol() {
     var startColId = $("#autoGenTable th").size();
     for (var i = 0; i<numColsToFill; i++) {
         addCol("headCol"+(startColId+i), "+");
-        $("#headCol"+(startColId+i+1)).addClass("darkCell");
+        $("#headCol"+(startColId+i+1)).addClass("unusedCell");
         for (var j = 0; j<$("#autoGenTable tr").size()-2; j++) {
-             $("#bodyr"+(j+1)+"c"+(startColId+i+1)).addClass("darkCell");
+             $("#bodyr"+(j+1)+"c"+(startColId+i+1)).addClass("unusedCell");
         }
-        $("#sumFn"+(startColId+i+1)).addClass("darkCell"); 
+        $("#sumFn"+(startColId+i+1)).addClass("unusedCell"); 
     }
      
 }
@@ -346,14 +356,15 @@ function getPage(resultSetId, firstTime) {
                 console.log("deleted: "+headingsArray[i]);
                 var indName = {index: i,
                                name: headingsArray[i],
-                               width: $("#headCol"+(i+1-numRemoved)).width()};
+                               width: $("#headCol"+(i+1-numRemoved)).width(),
+                               isDark: $("#headCol"+(i+1-numRemoved)).hasClass('unusedCell')};
                 delCol("closeButton"+(i+1-numRemoved), false);
                 numRemoved++;
                 indices.push(indName);
             }
         }
     }
-    $("#autoGenTable tbody").find("tr:gt(0)").remove();
+    $("#autoGenTable tbody tr").remove();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            numEntriesPerPage);
     // console.log(tableOfEntries.meta.fieldAttr.name);
@@ -382,10 +393,10 @@ function getPage(resultSetId, firstTime) {
         indices.push(indName); 
         resize = true;
     }
- 
+    indices2 = indices;
     for (var i = 0; i<indices.length; i++) {
         addCol("headCol"+(indices[i].index), indices[i].name,
-                {width: indices[i].width, resize: resize});
+                {width: indices[i].width, resize: resize, isDark: indices[i].isDark});
         pullCol(indices[i].name, 1+indices[i].index);
     }
     showHidePageTurners();
@@ -407,11 +418,11 @@ function generateRowWithAutoIndex(text, hoverable) {
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+
         tableRowIndex+'</td>'+
-        '<td height="17" bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
+        '<td bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)"'+
         ' onclick="javascript: window.location.href=\'cat_table.html?'+
         'tablename='+
-        URIEncoded+'\'">'+
+        URIEncoded+'\'" style="height:18px;">'+
         '<div class="cellRelative"><span '+clickable+'>'+text+'</span>'+
         '<div class="dropdownBox"></div>'+
         '</div></td></tr>');
@@ -420,12 +431,12 @@ function generateRowWithAutoIndex(text, hoverable) {
 
 function generateRowWithAutoIndex2(text2, idNo) {
     $("#autoGenTable tbody").append('<tr>'+
-        '<td height="17" align="center"'+
+        '<td align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        idNo+"c1"+'">'
+        idNo+"c1"+'" style="height:18px;">'
         +idNo+'</td>'+
-        '<td height="17" bgcolor="#FFFFFF" class="jsonElement monacotype" id="bodyr'+
-        idNo+"c2"+'">'+
+        '<td bgcolor="#FFFFFF" class="jsonElement monacotype" id="bodyr'+
+        idNo+"c2"+'" style="height:18px;">'+
         '<div class="elementTextWrap">'+
         '<div class="elementText">'+
         text2+'</div>'+
@@ -450,6 +461,7 @@ function delCol(id, resize) {
         $("#renameCol"+i).attr("id", "renameCol"+(i-1));
         $('#sort'+i).attr("id", "sort"+(i-1));
         $('#filter'+i).attr("id", "filter"+(i-1));
+        $("#duplicate"+i).attr("id", "duplicate"+(i-1));
         $('#sumFn'+i).attr("id", "sumFn"+(i-1));
     }
  
@@ -487,6 +499,7 @@ function pullCol(key, newColid) {
 
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = $("#bodyr"+i+"c"+colid+ " .elementText").text();
+        // console.log('we good', jsonStr) 
         var value = jQuery.parseJSON(jsonStr);
         for (var j = 0; j<nested.length; j++) {
             if (value[nested[j]] == undefined || $.isEmptyObject(value)) {
@@ -515,8 +528,8 @@ function pullCol(key, newColid) {
  
         value = '<div class="addedBarTextWrap"><div class="addedBarText">'+value+"</div></div>";
         $("#bodyr"+i+"c"+newColid).html(value); 
+    } 
 
-    }    
 }
 
 function addCol(id, name, options) {
@@ -527,15 +540,21 @@ function addCol(id, name, options) {
     var options = options || {};
     var width = options.width || newCellWidth;
     var resize = options.resize || false;
+    var isDark = options.isDark || false;
     if (options.direction != "L") {
         newColid += 1;
     }
     if (name == null) {
-        var name = "New Heading";
+        name = "New Heading";
+        // resize = true;
         var select = true;
-        var resize = true;
     } else {
         var select = false;
+    }
+    if (isDark) {
+        var color = "unusedCell";
+    } else {
+        var color = "";
     }
 
     for (var i = numCol; i>=newColid; i--) {
@@ -547,10 +566,11 @@ function addCol(id, name, options) {
         $("#renameCol"+i).attr("id", "renameCol"+(i+1));
         $("#sort"+i).attr("id", "sort"+(i+1));
         $("#filter"+i).attr("id", "filter"+(i+1));
+        $("#duplicate"+i).attr("id", "duplicate"+(i+1));
         $("#sumFn"+i).attr("id", "sumFn"+(i+1));
     }        
     
-    var columnHeadTd = '<th class="table_title_bg editableCol'+
+    var columnHeadTd = '<th class="table_title_bg '+color+' editableCol'+
         '" id="headCol'+
         newColid+
         '" style="height:17px; width:'+(width+colPadding+columnBorderWidth)+'px;">'+
@@ -559,7 +579,7 @@ function addCol(id, name, options) {
         '<div class="dropdownBox"></div>'+
         '<span><input type="text" id="rename'+newColid+'" '+
         'class="editableHead" '+
-        'value="'+name+'" size="15"/></span>'+
+        'value="'+name+'" size="15" placeholder="+"/></span>'+
         '</div>'+
         '</th>';
     $("#headCol"+(newColid-1)).after(columnHeadTd); 
@@ -577,7 +597,7 @@ function addCol(id, name, options) {
             '</li>'+
             '<li class="deleteColumn" onclick="delCol(this.id);" '+
             'id="closeButton'+newColid+'">Delete the column</li>'+
-            '<li>Duplicate the column</li>'+
+            '<li id="duplicate'+newColid+'">Duplicate the column</li>'+
             '<li id="renameCol'+newColid+'">Rename the column</li>'+
             '<li class="sort" id="sort'+newColid+'">Sort</li>';
     if (name == keyName) {
@@ -624,7 +644,7 @@ function addCol(id, name, options) {
                         '</li>';
     }
     dropDownHTML += '</ul>';
-    // $('#headCol'+newColid).append(dropDownHTML);
+    $('#headCol'+newColid+' .header').append(dropDownHTML);
 
     dropdownAttachListeners(newColid);
 
@@ -642,10 +662,10 @@ function addCol(id, name, options) {
             // every column after the new column gets id shifted +1;
 
         }
-        var newCellHTML = '<td height="17" bgcolor="#FFFFFF"'+
-            'class="monacotype" id="bodyr'+i+"c"+(newColid)+
+        var newCellHTML = '<td bgcolor="#FFFFFF"'+
+            'class="monacotype '+color+'" id="bodyr'+i+"c"+(newColid)+
             '"'+
-            '>&nbsp;</td>';
+            ' style="height:18px;">&nbsp;</td>';
         if (newColid > 1) {
             $("#bodyr"+i+"c"+(newColid-1)).after(newCellHTML);
         } else {
@@ -655,7 +675,10 @@ function addCol(id, name, options) {
     // XXX: This has an issue assigning id because of the testing that's going
     // on. Should be fixed the moment we are done.
     // Rudy: I think the issue was in delcol() and I fixed it
-    $("#sumFn"+(newColid-1)).after('<td id="sumFn'+newColid+'">SumFn</td>'); 
+    // $("#sumFn"+(newColid-1)).after('<td id="sumFn'+newColid+'">SumFn</td>'); 
+    var sumFn = '<td id="sumFn'+newColid+'" class="'+color+'">'+
+                '<input class="editableHead" value="sumFn"/></td>';
+    $("#sumFn"+(newColid-1)).after(sumFn); 
 
     $("#headCol"+newColid).click(function() {
         $(this).select();
@@ -666,8 +689,8 @@ function addCol(id, name, options) {
                      attr('id').substring(7));
         pullCol($(this).val(), thisId);
         $(this).blur();
-        $(this).closest('th').removeClass('darkCell');
-        $('#autoGenTable td:nth-child('+thisId+')').removeClass('darkCell');
+        $(this).closest('th').removeClass('unusedCell');
+        $('#autoGenTable td:nth-child('+thisId+')').removeClass('unusedCell');
       }
     });
     resizableColumns(resize, width);
@@ -705,11 +728,22 @@ function dropdownAttachListeners(colId) {
         var direction = id.substring(3,4);
         $('.colMenu').hide();
         addCol(id, null, {direction: direction});
+        // addCol(id, null, {direction: direction, resize:false});
     });
 
     $('#renameCol'+colId).click(function() {
         var index = $(this).attr('id').substring(9);
         $('#rename'+index).select();
+    });
+
+    $('#duplicate'+colId).click(function() {
+        var id = $(this).attr('id').substring(2);
+        var index = parseInt(id.substring(7));
+        var name = $('#rename'+index).val();
+        var width = $('#headCol'+index).width();
+
+        addCol(id, name, {resize: true, width: width});
+        pullCol(name, (index+1));
     });
 
     $('#sort'+colId).click(function() {
@@ -859,25 +893,23 @@ function documentReadyCommonFunction() {
         var searchText = tableName;
     }
     $("#searchBar").val('tablename = "'+searchText+'"');
-    $('#pageInput').width((""+resultSetCount).length*6+8);
+    $('#pageInput').width((""+resultSetCount).length*7+8);
+    $('#pageInput').attr('maxLength', (""+resultSetCount).length);
     $('#pageInput').keypress(function(e) {
         if (e.which === 13) {
             val = $('#pageInput').val();
-            if (val == "") {
+            if (val == "" || val%1 != 0) {
                 return;
             } else if (val < 1) {
                 $('#pageInput').val('1');
             } else if (val > resultSetCount) {
                 $('#pageInput').val(resultSetCount);
             }
-            $(this).blur(); 
+             goToPage(Math.ceil(parseInt($('#pageInput').val())/numEntriesPerPage)-1);
+            // $(this).blur(); 
         }
     });
 
-    $('#pageForm').submit(function(e) {
-        e.preventDefault();
-        goToPage(Math.ceil(parseInt($('#pageInput').val())/numEntriesPerPage)-1);
-    });
 
     $('.closeJsonModal, #jsonModalBackground').click(function(){
         $('#jsonModal, #jsonModalBackground').hide();
@@ -1028,7 +1060,7 @@ function dragdropMouseUp() {
             {width : (dragObj.colWidth-colPadding)});
         pullCol(name, (dragObj.colIndex+1));
         console.log(dragObj.colIndex+1);
-        // $("#sumFn"+(dragObj.colIndex+1)).removeClass("darkCell");
+        // $("#sumFn"+(dragObj.colIndex+1)).removeClass("unusedCell");
     }
     reenableTextSelection(); 
 }
@@ -1297,19 +1329,20 @@ function createJsonNestedField(el) {
     return (obj);
 }
 
-function showJsonPopup(el) {
-    var jsonString = $.parseJSON(el.children('.elementText').text());
+function showJsonPopup(el) {console.log('here')
+    var jsonString = $.parseJSON(el.children().children('.elementText').text());
     var newString = prettifyJson(jsonString);
     $('.jObject').html(newString);
     $('#jsonModal, #jsonModalBackground').show();
     $('body').addClass('hideScroll');
     window.getSelection().removeAllRanges();
+
     
     $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
         var name = createJsonNestedField($(this));
         var id = $('.jsonColHead').attr('id');
         var colIndex = parseInt(id.substring(7));
-        addCol(id, name, {direction: "L", resize: true, select: false});
+        addCol(id, name, {direction: "L", resize: false, select: false});
         pullCol(name, colIndex);
         $('#jsonModal, #jsonModalBackground').hide();
         $('body').removeClass('hideScroll');

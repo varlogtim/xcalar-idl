@@ -63,12 +63,10 @@
     </div>
     <div class="functionName">skip to row:&nbsp;</div>
     <div class="functionField">
-        <form id="pageForm">
-            <input id="pageInput">
-            <script>
-                generatePageInput();
-            </script>
-        </form>
+      <input id="pageInput">
+      <script>
+          generatePageInput();
+      </script>
     </div>
 </div>
 <div id="mainFrame">
@@ -80,7 +78,7 @@
           <span>ID</span>
         </div>
       </th>
-      <th id="headCol2" style="width:auto;">
+      <th id="headCol2" class="jsonColHead" style="width:auto;">
         <div class="header">
           <span>JSON</span>
         </div>
@@ -91,11 +89,20 @@
     </tbody>
     <tfoot>
     <tr>
-      <td id="sumFn1">SumFn</td>  
-      <td id="sumFn2">SumFn</td>  
+      <td id="sumFn1"><input class="editableHead" value="sumFn"/></td>  
+      <td id="sumFn2"><input class="editableHead" value="sumFn"/></td>  
     </tr>
     </tfoot>
   </table>
+</div>
+<div class="worksheetBar"></div>
+<div id="jsonModalBackground"></div>
+<div id="jsonModal">
+  <div class="closeJsonModal"><img src="/images/closeButton.png"></div>
+  <div class="prettyJson">
+    {<div class="jObject">
+    </div>}
+  </div>
 </div>
 </body>
 </html>
