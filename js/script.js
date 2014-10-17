@@ -68,6 +68,14 @@ function menuBarArt() {
                 $(this).hide();
             }); 
             break;
+        case ("tablestore"):
+            $("#menuArea").show().height(76);
+            $("#tablestorePanel").show();
+            $("#tablestorePanel").siblings().each(function() {
+                $(this).hide();
+            }); 
+            break;
+
         default:
             console.log($(this.text()+" is not implemented!"));
             break;
@@ -367,7 +375,6 @@ function getPage(resultSetId, firstTime) {
     $("#autoGenTable tbody tr").remove();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            numEntriesPerPage);
-    // console.log(tableOfEntries.meta.fieldAttr.name);
     if (tableOfEntries.numRecords < numEntriesPerPage) {
         // This is the last iteration
         // Time to free the handle
@@ -386,7 +393,7 @@ function getPage(resultSetId, firstTime) {
             alert("Possible bug");
             console.log(headingsArray)
         }
-        keyName = tableOfEntries.meta.fieldAttr.name;
+        keyName = tableOfEntries.meta.keysAttrHeader.name;
         var indName = {index: 1,
                        name: keyName,
                        width: newCellWidth};
@@ -533,7 +540,6 @@ function pullCol(key, newColid) {
 }
 
 function addCol(id, name, options) {
-    console.log('addCol()', arguments);
     var numCol = $("#autoGenTable th").length;
     var colid = parseInt(id.substring(7));
     var newColid = colid;
@@ -805,8 +811,6 @@ function convertColNamesToIndexArray() {
 }
 
 function resizableColumns(resize, newWidth) {
-    console.log('resizableColumns()');
-
     $('#autoGenTable th:not(:last-child) .header').each(
         function() {
             if (!$(this).children().hasClass('colGrab') 
@@ -1220,7 +1224,7 @@ function sortRows(fieldName) {
     setIndex(newTableName, convertedIndex);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
-    XcalarLoadFromIndex(tableName, fieldName, newTableName);
+    XcalarIndexFromDataset(tableName, fieldName, newTableName);
     checkStatus(newTableName);
 }
 

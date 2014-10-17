@@ -6,38 +6,42 @@
 
 
 DfFieldTypeT = {
-'DfString' : 0,
-'DfInt32' : 1,
-'DfUInt32' : 2,
-'DfInt64' : 3,
-'DfUInt64' : 4,
-'DfFloat32' : 5,
-'DfFloat64' : 6,
-'DfBoolean' : 7,
-'DfTimespec' : 8,
-'DfBlob' : 9,
-'DfNull' : 10
+'DfUnknown' : 0,
+'DfString' : 1,
+'DfInt32' : 2,
+'DfUInt32' : 3,
+'DfInt64' : 4,
+'DfUInt64' : 5,
+'DfFloat32' : 6,
+'DfFloat64' : 7,
+'DfBoolean' : 8,
+'DfTimespec' : 9,
+'DfBlob' : 10,
+'DfNull' : 11,
+'DfMixed' : 12
 };
 DfFormatTypeT = {
 'DfTypeUnknown' : 0,
-'DfTypeJSON' : 1,
+'DfTypeJson' : 1,
 'DfTypeRandom' : 2,
-'DfTypeCSV' : 3
+'DfTypeCsv' : 3
 };
-DfFieldTypeTStr = {0 : 'DfString',
-1 : 'DfInt32',
-2 : 'DfUInt32',
-3 : 'DfInt64',
-4 : 'DfUInt64',
-5 : 'DfFloat32',
-6 : 'DfFloat64',
-7 : 'DfBoolean',
-8 : 'DfTimespec',
-9 : 'DfBlob',
-10 : 'DfNull'
+DfFieldTypeTStr = {0 : 'DfUnknown',
+1 : 'DfString',
+2 : 'DfInt32',
+3 : 'DfUInt32',
+4 : 'DfInt64',
+5 : 'DfUInt64',
+6 : 'DfFloat32',
+7 : 'DfFloat64',
+8 : 'DfBoolean',
+9 : 'DfTimespec',
+10 : 'DfBlob',
+11 : 'DfNull',
+12 : 'DfMixed'
 };
 DfFormatTypeTStr = {0 : 'DfTypeUnknown',
-1 : 'DfTypeJSON',
+1 : 'DfTypeJson',
 2 : 'DfTypeRandom',
-3 : 'DfTypeCSV'
+3 : 'DfTypeCsv'
 };
