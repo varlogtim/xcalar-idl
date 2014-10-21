@@ -234,9 +234,10 @@ body {
     // font-family: @font-code; 
     // color: #000000 !important;
     vertical-align: middle;
+    &:last-child {
+        margin-right: 10px !important;
+    }
 }
-
-
 
 /* LOAD AREA STYLING */
 #loadArea {
@@ -280,11 +281,15 @@ body {
     }
 
     input {
-        font-size: 20px;
+        // font-size: 20px;
+        font-size: 16px;
         font-weight: bold;
         padding: 0px 8px;
         &[type=radio] {
             display: none;
+        }
+        &:focus {
+            outline: 1px solid @color-monitor-green;
         }
     }
 
@@ -436,7 +441,8 @@ body {
 }
 
 #mainFrame::-webkit-scrollbar {
-    width: 8px;
+    // width: 8px;
+    width: 0px;
     height: 8px;
     background: transparent;
 }
@@ -643,13 +649,19 @@ body {
     z-index: 11;
     opacity: 0.7;
     pointer-events: none;
+    overflow: hidden;
+}
+
+.fauxTable {
+    background-color: @color-white;
+    z-index: 11;
     margin-left: 0 !important;
     tr:last-child td {
          border-top: 5px solid @color-white;
     }
 }
 
-#autoGenTable.fauxCol {
+#autoGenTable.fauxTable {
     td,th {
         border-right: none !important;
     }
@@ -954,9 +966,6 @@ ul.leftColMenu + .rightArrow {
     left: 0;
     max-width: 500px;
     min-width: 300px;
-    // top: 20%;
-    // left: 40%;
-    // right: 20%;
     background-color: #FFFFFF;
     opacity: 1;
     padding: 25px 3px 15px 3px;
@@ -966,13 +975,18 @@ ul.leftColMenu + .rightArrow {
 }
 
 .closeJsonModal {
-    padding:2px;
-    position: absolute;
+    position: fixed;
     top: 0px;
     right: 1px;
-    background-color: #FFFFFF;
+    color: @color-text-black;
     cursor: pointer;
     z-index: 32;
+    width: 20px;
+    height: 20px;
+    transform: rotate(45deg);
+    font-size: 33px;
+    font-family: @font-base;
+    font-weight: bold;
 }
 
 .prettyJson {
@@ -1036,4 +1050,5 @@ ul.leftColMenu + .rightArrow {
 .hideScroll {
     overflow: hidden;
 }
+
 /* END PRETTIFY JSON STYLING */

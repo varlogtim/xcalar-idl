@@ -107,7 +107,7 @@ function moveElementLeft(movingEl, target) {
     clone.appendTo('#load_r');
     movingEl.val(" ").blur();
     clone.css({'background-color':'transparent', 'padding':0}).prop('disabled', true);
-    clone.addClass('shiftLeft').css({'left':(textMidPoint-(movingElWidth/2))});
+    clone.addClass('shiftLeft').css({'left':(textMidPoint-(movingElWidth/2)), 'font-size':20});
     target.addClass('transitionGreen');
 }
 
@@ -159,17 +159,17 @@ function startProgressBar() {
             clearInterval(getPercentage);
             setTimeout(function() {
                 getTablesAndDatasets();
-                
                 $('.datasetWrap').show();
                 $('#datastorePanel').css({'background-color': 'white'});
                 $('#loadArea').css('background-color', '#E6E6E6');
-                $('#datastorePanel').width('100%');
+                $('#datastorePanel').width('200%');
                 $('#progressBar').css('left', 10000);
             },100);
             setTimeout(function(){
                 $('#loadArea').html("").css({'background-color': 'transparent', 'z-index':'initial'});
                 $('#datastorePanel').removeClass('slideRight');
                 $('#datastorePanel').css({'background-color': 'transparent'});
+                $('#datastorePanel').width('100%');
             },1300);
         }
     }, 500);
