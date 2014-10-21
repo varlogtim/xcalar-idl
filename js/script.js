@@ -28,6 +28,23 @@ function setTabs() {
     dataSourceClick(1);
 }
 
+function infScrolling() {
+    // Feature: As we're scrolling we can update the skip to row box.
+    // However, all solutions that I've seen so far are shitty in terms of
+    // performance. So unless there's a nice quick method, I don't think this
+    // feature is necessary.
+
+    $("#mainFrame").scroll(function() {
+        
+        if ($(this)[0].scrollHeight - $(this).scrollTop()+8 ==
+            $(this).outerHeight()) {// XXX: Figure out why it's 8 lol 
+            // Should be because of the scrollbar
+            console.log("Reached end!");
+            goToPage(currentPageNumber); 
+        }
+    });
+}
+
 // XXX: This function should disappear. But I need to be able to free the
 // result sets
 function loadMainContent(op) {
@@ -361,18 +378,16 @@ function getPage(resultSetId, firstTime) {
         var numRemoved = 0;
         for (var i = 1; i<headingsArray.length; i++) {
             if (headingsArray[i] !== "JSON") {
-                console.log("deleted: "+headingsArray[i]);
                 var indName = {index: i,
                                name: headingsArray[i],
                                width: $("#headCol"+(i+1-numRemoved)).width(),
                                isDark: $("#headCol"+(i+1-numRemoved)).hasClass('unusedCell')};
-                delCol("closeButton"+(i+1-numRemoved), false);
                 numRemoved++;
                 indices.push(indName);
             }
         }
     }
-    $("#autoGenTable tbody tr").remove();
+    // $("#autoGenTable tbody tr").remove();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            numEntriesPerPage);
     if (tableOfEntries.numRecords < numEntriesPerPage) {
@@ -385,7 +400,11 @@ function getPage(resultSetId, firstTime) {
     for (var i = 0; i<Math.min(numEntriesPerPage, 
           tableOfEntries.numRecords); i++) {
         var value = tableOfEntries.records[i].value;
-        generateRowWithAutoIndex2(value, indexNumber+i+1);
+        if (firstTime) {
+            generateRowWithAutoIndex2(value, indexNumber+i+1);
+        } else {
+            generateRowWithCurrentTemplate(value, indexNumber+i+1);
+        }
     }
     if (firstTime) {
         if (headingsArray.length != 2) {
@@ -402,13 +421,46 @@ function getPage(resultSetId, firstTime) {
     }
     indices2 = indices;
     for (var i = 0; i<indices.length; i++) {
-        addCol("headCol"+(indices[i].index), indices[i].name,
-                {width: indices[i].width, resize: resize, isDark: indices[i].isDark});
-        pullCol(indices[i].name, 1+indices[i].index);
+        if (firstTime) {
+            addCol("headCol"+(indices[i].index), indices[i].name,
+                  {width: indices[i].width, resize: resize,
+                  isDark: indices[i].isDark}); 
+            pullCol(indices[i].name, 1+indices[i].index);
+        } else {
+            pullCol(indices[i].name, 1+indices[i].index, indexNumber+1);
+        }
     }
     showHidePageTurners();
     $('.jsonElement').dblclick(function(){
         showJsonPopup($(this));
+    });
+}
+
+function generateRowWithCurrentTemplate(json, id) {
+    // Replace JSON
+    var startString = '<div class="elementText">';
+    var endString="</div>";
+    var originalString = $("#autoGenTable tbody tr:nth-last-child(1)").html();
+    var index = originalString.indexOf(startString);
+    var firstPart = originalString.substring(0, index+startString.length);
+    var secondPart = originalString.substring(index+startString.length+1);
+    var secondIndex = secondPart.indexOf(endString);
+    secondPart = secondPart.substring(secondIndex);
+    var finalString = firstPart+json+secondPart;
+
+    // Replace id
+    firstIndex = finalString.indexOf(">");
+    secondIndex = finalString.indexOf("</td>");
+    firstPart = finalString.substring(0, firstIndex+1);
+    secondPart = finalString.substring(secondIndex);
+    finalString = "<tr>"+firstPart + id + secondPart+"</tr>";
+    $("#autoGenTable tbody tr:nth-last-child(1)").after(finalString);
+
+    // Replace element id
+    $("#autoGenTable tbody tr:nth-last-child(1)").find("[id]").each(function() {
+        var colNoInd = (this.id).indexOf("c");
+        var colNo = (this.id).substring(colNoInd+1);
+        this.id = "bodyr"+id+"c"+colNo;
     });
 }
 
@@ -486,7 +538,7 @@ function delCol(id, resize) {
     }
 }
 
-function pullCol(key, newColid) {
+function pullCol(key, newColid, startIndex) {
     console.log(arguments)
     if (/\.([0-9])/.test(key)) {//check for dot followed by number (invalid)
         return;
@@ -497,11 +549,18 @@ function pullCol(key, newColid) {
     }).attr("id");
 
     colid = colid.substring(7);
-    var numRow = $("#autoGenTable tbody tr").length;
-    var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
+    var numRow = -1;
+    var startindIndex = -1;
+    if (!startIndex) {
+        var idOfFirstRow = $("#autoGenTable tr:eq(1) td:first").attr("id").
                        substring(5);
-    idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
-    var startingIndex = parseInt(idOfFirstRow);
+        idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
+        startingIndex = parseInt(idOfFirstRow);
+        numRow = $("#autoGenTable tbody tr").length;
+    } else {
+        startingIndex = startIndex;
+        numRow = numEntriesPerPage;
+    } 
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
 
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
@@ -1069,23 +1128,64 @@ function dragdropMouseUp() {
     reenableTextSelection(); 
 }
 
+function cloneCellHelper(obj) {
+    var td = $(obj).children();
+    var row = $("<tr></tr>");
+    var rowColor = $(obj).css('background-color');
+    var clone = td.eq(dragObj.colIndex).clone();
+    var cloneHeight = parseInt(td.eq(dragObj.colIndex).outerHeight());
+    var cloneColor = td.eq(dragObj.colIndex).css('background-color');
+    row.css('background-color', rowColor);
+    clone.outerHeight(cloneHeight);
+    clone.width(dragObj.colWidth);
+    clone.css('background-color', cloneColor);
+    row.append(clone).appendTo($(".fauxCol"));
+}
+
 function createTransparentDragDropCol(startYPos) {
     $('#mainFrame').append('<table id="autoGenTable" class="fauxCol" style="left:'+
                         (dragObj.startXPos)+'px;top:'+(startYPos)+'px;width:'+
                         (dragObj.colWidth)+'px"></table>');
 
-    $('#autoGenTable tr').each(function(){
-        var td = $(this).children();
-        var row = $("<tr></tr>");
-        var rowColor = $(this).css('background-color');
-        var clone = td.eq(dragObj.colIndex).clone();
-        var cloneHeight = parseInt(td.eq(dragObj.colIndex).outerHeight());
-        var cloneColor = td.eq(dragObj.colIndex).css('background-color');
-        row.css('background-color', rowColor);
-        clone.outerHeight(cloneHeight);
-        clone.width(dragObj.colWidth);
-        clone.css('background-color', cloneColor);
-        row.append(clone).appendTo($(".fauxCol"));
+    // We cannot just copy the entire column because columns may now be too
+    // big. So we binary search to the first visible and backtrack a few, find
+    // the last visible and add a few. Then we create the fake shadow column
+    // Find first visible body tr
+    var topPx = $(window).scrollTop();
+    var topRowId = -1;
+    $('#autoGenTable tbody tr').each(function() {
+        if ($(this).offset().top > topPx) {
+            topRowId = $(this).find("td:first").text();
+            return (false);
+        }
+    });
+    if (topRowId == -1) {
+        console.log("BUG! Cannot find first visible row??");
+        // Clone entire shit and be done.
+        $('#autoGenTable tr').each(function(i, ele) {
+            cloneCellHelper(ele);
+        });
+        return;
+    }
+
+    // Clone head
+    $('#autoGenTable thead tr').each(function(i, ele) {
+            cloneCellHelper(ele);
+    });
+
+    // Just do 50 cols for fun now.
+    var count = 0;
+    $('#autoGenTable tbody tr').each(function(i, ele) {
+            cloneCellHelper(ele);
+            count++;
+            if (count >= 50) {
+                return (false);
+            }
+    });
+
+    // Clone tail
+    $('#autoGenTable tfoot tr').each(function(i, ele) {
+        cloneCellHelper(ele);
     });
 }
 
@@ -1172,7 +1272,9 @@ function documentReadyIndexFunction() {
         // for (var i = 0; i<5; i++) {
         //     addCol("headCol2", 5-i, {resize: true});
         // }
-        fillPageWithBlankCol();     
+        fillPageWithBlankCol();
+        goToPage(currentPageNumber);
+        infScrolling();     
     });
 
     // documentReadyCommonFunction();
