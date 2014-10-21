@@ -539,7 +539,6 @@ function delCol(id, resize) {
 }
 
 function pullCol(key, newColid, startIndex) {
-    console.log(arguments)
     if (/\.([0-9])/.test(key)) {//check for dot followed by number (invalid)
         return;
     }
