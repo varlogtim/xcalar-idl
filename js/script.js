@@ -35,11 +35,9 @@ function infScrolling() {
     // feature is necessary.
 
     $("#mainFrame").scroll(function() {
-        
         if ($(this)[0].scrollHeight - $(this).scrollTop()+8 ==
             $(this).outerHeight()) {// XXX: Figure out why it's 8 lol 
             // Should be because of the scrollbar
-            console.log("Reached end!");
             goToPage(currentPageNumber); 
         }
     });
@@ -138,20 +136,30 @@ function displayTable() {
     $('#autoGenTable tfoot td:eq(2)').after('<td class="unusedCell"></td>');
 }
 
-function getTables() {
+function getTablesAndDatasets() {
     var tables = XcalarGetTables();
     var numTables = tables.numTables;
     var i;
     for (i = 0; i<numTables; i++) {
-        console.log(tables.tables[i].tableName);
-        var datasetDisplay = '<div class="dataset datasetName">'+
+        var tableDisplay = '<div class="dataset datasetName">'+
                                  '<span>DATA<br>SET</span>'+
                              '</div>'+
                              '<div class="monitorSubDiv">'+
                                   tables.tables[i].tableName+
                              '</div>';
-        $("#datastorePanel div:last").after(datasetDisplay);
+        $("#tablestorePanel div:last").after(tableDisplay);
     }
+    var datasets = XcalarGetDatasets();
+    var numDatasets = datasets.numDatasets;
+    for (i = 0; i<numDatasets; i++) {
+         var tableDisplay = '<div class="dataset datasetName">'+
+                                 '<span>DATA<br>SET</span>'+
+                             '</div>'+
+                             '<div class="monitorSubDiv">'+
+                                  datasets.datasets[i].datasetId+
+                             '</div>';
+        $("#datastorePanel div:last").after(tableDisplay);
+    };
     monitorOverlayPercent();
     // XXX: UNCOMMENT!
     // resizableColumns();
@@ -231,7 +239,6 @@ function goToNextPage() {
 }
 
 function goToPage(pageNumber) {
-    console.log(pageNumber+1);
     deselectPage(currentPageNumber);
     currentPageNumber = pageNumber+1;
     generatePages(); 
@@ -373,21 +380,15 @@ function getPage(resultSetId, firstTime) {
     var indices = [];
     var resize = false;
     var headingsArray = convertColNamesToArray();
-    console.log(headingsArray);
-    if (headingsArray != null && headingsArray.length > 2) {
-        var numRemoved = 0;
+    if (headingsArray != null) {
         for (var i = 1; i<headingsArray.length; i++) {
-            if (headingsArray[i] !== "JSON") {
-                var indName = {index: i,
-                               name: headingsArray[i],
-                               width: $("#headCol"+(i+1-numRemoved)).width(),
-                               isDark: $("#headCol"+(i+1-numRemoved)).hasClass('unusedCell')};
-                numRemoved++;
-                indices.push(indName);
-            }
+            var indName = {index: i,
+                           name: headingsArray[i],
+                           width: $("#headCol"+(i+1)).width(),
+                           isDark: $("#headCol"+(i+1)).hasClass('unusedCell')};
+            indices.push(indName);
         }
     }
-    // $("#autoGenTable tbody tr").remove();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            numEntriesPerPage);
     if (tableOfEntries.numRecords < numEntriesPerPage) {
@@ -406,7 +407,7 @@ function getPage(resultSetId, firstTime) {
             generateRowWithCurrentTemplate(value, indexNumber+i+1);
         }
     }
-    if (firstTime) {
+    if (firstTime && !getIndex(tableName)) {
         if (headingsArray.length != 2) {
             console.log("BUG BUG BUG");
             alert("Possible bug");
@@ -419,15 +420,19 @@ function getPage(resultSetId, firstTime) {
         indices.push(indName); 
         resize = true;
     }
-    indices2 = indices;
     for (var i = 0; i<indices.length; i++) {
-        if (firstTime) {
-            addCol("headCol"+(indices[i].index), indices[i].name,
-                  {width: indices[i].width, resize: resize,
-                  isDark: indices[i].isDark}); 
-            pullCol(indices[i].name, 1+indices[i].index);
+        if (indices[i].name == "JSON") {
+            // Just resize the column
+            // TODO: actually do this!!
         } else {
-            pullCol(indices[i].name, 1+indices[i].index, indexNumber+1);
+            if (firstTime && !getIndex(tableName)) {
+                addCol("headCol"+(indices[i].index), indices[i].name,
+                    {width: indices[i].width, resize: resize,
+                    isDark: indices[i].isDark}); 
+                pullCol(indices[i].name, 1+indices[i].index);
+            } else {
+                pullCol(indices[i].name, 1+indices[i].index, indexNumber+1);
+            }
         }
     }
     showHidePageTurners();
@@ -842,29 +847,41 @@ function convertColNamesToArray() {
     var numCol = head.length;
     var headings = [];
     for (var i = 0; i<numCol; i++) {
-        headings.push($.trim(head.eq(i).text()));
-        if (headings[i] == "") {
-            headings.pop();
-            headings.push($.trim(head.eq(i).children('input').val()));
+        if (!head.eq(i).parent().parent().hasClass("unusedCell")) {
+            headings.push($.trim(head.eq(i).text()));
+            if (headings[i] == "") {
+                headings.pop();
+                headings.push($.trim(head.eq(i).children('input').val()));
+            }
         }
     }
     return headings;
 }
 
-// XXX: FIXME: This does not preserve undefined columns!!!
+// XXX: FIXME: This should not preserve undefined columns!!!
 function convertColNamesToIndexArray() {
-    var head = $("#autoGenTable th");
+    var head = $("#autoGenTable th span");
     var numCol = head.length;
     var headings = [];
     for (var i = 2; i<numCol; i++) {
-        var indexObj = {
-            index: i-1,
-            name: $("#headCol"+i).children("span").children("input").val(),
-            width: $("#headCol"+i).width()
-        };
-        headings.push(indexObj);
+        if (!$("#headCol"+i).hasClass("unusedCell")) {
+            if ($("#headCol"+i+" span").text() == "JSON") {
+                var indexObj = {
+                    index: i-1,
+                    name: $("#headCol"+i+" span").text(),
+                    width: $("#headCol"+i).width()
+                };
+            } else {
+                var indexObj = {
+                    index: i-1,
+                    name: $("#headCol"+i+" span"+" input").val(),
+                    width: $("#headCol"+i).width()
+                };
+            }
+            console.log(indexObj.name);
+            headings.push(indexObj);
+        }
     }
-    console.log(headings);
     return headings;
 }
 
@@ -1244,15 +1261,19 @@ function documentReadyCatFunction() {
     var index = getIndex(tableName);
     if (index) {
         console.log("Stored "+tableName);
-        getNextPage(resultSetId, false);
+        getNextPage(resultSetId, true);
         // XXX API: 0105
         var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            numEntriesPerPage);
-        keyName = tableOfEntries.meta.fieldAttr.name;
+        keyName = tableOfEntries.meta.keysAttrHeader.name;
         for (var i = 0; i<index.length; i++) {
-            addCol("headCol"+(index[i].index), index[i].name,
-                  {width: index[i].width, resize: true});
-            pullCol(index[i].name, 1+index[i].index);
+            if (index[i].name != "JSON") {
+                addCol("headCol"+(index[i].index), index[i].name,
+                      {width: index[i].width, resize: true});
+                pullCol(index[i].name, 1+index[i].index);
+            } else {
+                // XXX: TODO: Resize the json col
+            }
         }
     } else {
         console.log("Not stored "+tableName);
@@ -1266,7 +1287,7 @@ function documentReadyIndexFunction() {
         monitorOverlayPercent();
         menuAreaClose();
         // displayTable();
-        getTables();
+        getTablesAndDatasets();
         documentReadyCatFunction();
         // for (var i = 0; i<5; i++) {
         //     addCol("headCol2", 5-i, {resize: true});
@@ -1300,15 +1321,22 @@ function rescolDelWidth(id, resize) {
     }
 }
 
+var tempCountShit = 0;
 // XXX: Dedupe with checkLoad!!!!
 function checkStatus(newTableName) {
+    tempCountShit++;
     var refCount = XcalarGetTableRefCount(newTableName);
     console.log(refCount);
     if (refCount == 1) {
         $("body").css({"cursor": "default"});
         console.log("Done loading");
-        window.location.href="cat_table.html?tablename="+newTableName;
+        window.location.href="?tablename="+newTableName;
     } else {
+        console.log(refCount);
+        if (tempCountShit > 400) {
+            console.log("WTF");
+            return;
+        }
         // Check twice per second
         setTimeout(function() {
             checkStatus(newTableName);
@@ -1317,16 +1345,20 @@ function checkStatus(newTableName) {
 }
 
 function sortRows(fieldName) {
-    console.log(fieldName);
-    console.log(tableName);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempSortTable"+rand;
     var convertedIndex = convertColNamesToIndexArray();
     setIndex(newTableName, convertedIndex);
+    console.log(convertedIndex);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
-    XcalarIndexFromDataset(tableName, fieldName, newTableName);
+    var datasetId = $("#datastorePanel .monitorSubDiv")[1].innerHTML;
+    console.log(datasetId);
+    XcalarIndexFromDataset(datasetId, fieldName, newTableName);
     checkStatus(newTableName);
+    // XXX: IndexFromTable is not implemented yet. So we're hacking the shit out
+    // of this right now
+    // XcalarIndexFromTable(tableName, fieldName, newTableName);
 }
 
 function filterCol(operator, value) {

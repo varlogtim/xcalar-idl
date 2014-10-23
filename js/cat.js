@@ -1,7 +1,6 @@
 // Auto run
 var urlTableName = getUrlVars()["tablename"];
-// var tableName = urlTableName;
-var tableName = 'userId';
+var tableName = urlTableName || "userId";
 var resultSetId = XcalarGetTableId(tableName);
 
 var resultSetCount = XcalarGetCount(tableName);

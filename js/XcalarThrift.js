@@ -53,17 +53,14 @@ function XcalarLoad(url, format) {
 }
 
 function XcalarIndexFromDataset(varDatasetId, key, tablename) {
-    console.log(srcTable);
-    console.log(key);
-    console.log(tablename);
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
+    var workItem = new XcalarApiWorkItemT();
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiIndex;
     
-    var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
     workItem.input.indexInput.dstTable = new XcalarApiTableT();
@@ -81,17 +78,14 @@ function XcalarIndexFromDataset(varDatasetId, key, tablename) {
 }
 
 function XcalarIndexFromTable(srcTablename, key, tablename) {
-    console.log(srcTable);
-    console.log(key);
-    console.log(tablename);
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
 
+    var workItem = new XcalarApiWorkItemT();
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiIndex;
     
-    var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
     workItem.input.indexInput.srcTable = new XcalarApiTableT();
@@ -136,6 +130,26 @@ function XcalarGetCount(tableName) {
     return (totEntries);
 }
 
+function XcalarGetDatasets() {
+    var transport = new Thrift.Transport(transportLocation());
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiListDatasets;
+
+    console.log(workItem.api);
+    try {
+        result = client.queueWork(workItem);
+        return (result.output.listDatasetsOutput);
+    } catch (ouch) {
+        console.log(ouch);
+        console.log("Couldn't get table names");
+        return (0);
+    }
+}
+
 function XcalarGetTables() {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
@@ -154,26 +168,6 @@ function XcalarGetTables() {
     } catch (ouch) {
         console.log(ouch);
         console.log("Couldn't get table names");
-        return (0);
-    }
-}
-
-function XcalarGetDatasets() {
-    var transport = new Thrift.Transport(transportLocation());
-    var protocol  = new Thrift.Protocol(transport);
-    var client    = new XcalarApiServiceClient(protocol);
-
-    var workItem = new XcalarApiWorkItemT();
-    workItem.apiVersion = 0;
-    workItem.api = XcalarApisT.XcalarApiListDatasets;
-
-    try {
-        result = client.queueWork(workItem);
-        console.log(result);
-        return (result.output.listTablesOutput);
-    } catch (ouch) {
-        console.log(ouch);
-        console.log("Couldn't get datasets");
         return (0);
     }
 }
