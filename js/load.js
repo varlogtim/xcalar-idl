@@ -24,66 +24,150 @@ var loadbar = {
      user must be able to click the next button (psychological effect).
 */
 
-function dataFormatSubmit() {
+
+
+$('.dataOptionsRow input').click(function(){
     var dataType = $("input[name=dsType]:checked").val();
+    var dataElement = $("input[name=dsType]:checked").siblings('span');
     if (dataType == null) {
         alert("Please select your data format");
     } else {
         loadFormat = dataType;
-        $("#dataTypeBox").css({"left": 0,
-                               "top": 0,
-                               "width": $("#dataTypeSelector").width() + 15,
-                               "height": $("#mainFrame").height()
-                              });
-        $("#filePathSelector").show(); 
-        $("#fileBrowser").focus();
+        moveInputLeft(dataElement);
+        $('.dataStep').addClass('transitionGreen');
+        $("#filePathSelector").css('left',415); 
+        $("#fileBrowser").focus().css('left',550).css('z-index', 6);
+        $('.dataOptions').addClass('shiftRight');
+        $("#progressBar").css('left', -855);
+        
     }
+});
+
+function moveInputLeft(movingEl) {
+    // var movign = $('.dsTypeLabel[value='+val+']');
+    // var input = $('.dsTypeLabel:contains("'+val+'")');
+    var loadROffsetLeft = $('#load_r').offset().left;
+    var loadROffsetTop = $('#load_r').offset().top;
+    var targetLeft = parseFloat($('.dataStep').css('left'));
+    var targetMidPoint = ($('.dataStep').width()/2)+targetLeft;
+    var movingElOffsetLeft = movingEl.offset().left;
+    var movingElOffsetTop = movingEl.offset().top;
+    var movingElFontSize = movingEl.css('font-size');
+    var movingElFontWeight= movingEl.css('font-weight');
+    var movingElWidth = movingEl.width();
+    clone = movingEl.clone();
+    clone.appendTo($('#load_r'));
+    clone.css({'position':'absolute', 'left':(movingElOffsetLeft - loadROffsetLeft),
+                'top':(movingElOffsetTop-loadROffsetTop), 'z-index':6, 
+                'font-size':movingElFontSize, 'font-weight':movingElFontWeight});
+    clone.addClass('shiftLeft');
+    setTimeout(function(){
+        movingEl.hide();
+        clone.css({'left':(targetMidPoint-(movingElWidth/2)), 'top':'23px'});
+    },1);
+
 }
 
-function preDsSubmit(e) {
-    if (e.which == 13) {
-       dsSubmit();
+function dsSubmit(e) {
+    if (e.which != 13) {
+       return;
     }
-}
-
-function dsSubmit() {
     var url = $("#fileBrowser").val();
     if (url == null || url == "") {
         alert("Please enter a valid URL");
     } else {
         loadURL = url;
-        $("#filePathBox").css({"left": $("#filePathSelector").position().left+5,
-                               "top": 0,
-                               "width": $("#filePathSelector").width() + 30,
-                               "height": $("#mainFrame").height()});
-        $("#keySelector").show();
-        $("#keyName").focus();
+        moveElementLeft('#fileBrowser', '#filePathSelector');
+        $("#keySelector").show().css('left',620);
+        $("#tableName").focus().css('left',830).css('z-index', 6);
+        setTimeout(
+            function() {
+                $("#progressBar").css('left', -575);
+            }, 200
+        );
+        setTimeout(
+            function() {
+                $('#load_r').css({'z-index': 2});
+                $('#loadArea').css({'z-index': 2});
+                $('#datastorePanel').width(0).addClass('slideRight');
+            }, 1200
+        );
+        $('#fileBrowser').addClass('shiftRight');
     }
 }
 
-function preDetailsSubmit(e) {
-    if (e.which == 13) {
-       detailsSubmit();
-    }
+function moveElementLeft(movingEl, target) {
+    var movingEl = $(movingEl);
+    var target = $(target);
+    var clone = movingEl.clone();
+    var loadROffsetLeft = $('#load_r').offset().left;
+    var targetLeft = parseFloat(target.css('left'));
+    var textMidPoint = (target.width()/2)+targetLeft;
+    var movingElWidth = getTextWidth(movingEl);
+    clone.appendTo('#load_r');
+    movingEl.val(" ").blur();
+    clone.css({'background-color':'transparent', 'padding':0}).prop('disabled', true);
+    clone.addClass('shiftLeft').css({'left':(textMidPoint-(movingElWidth/2))});
+    target.addClass('transitionGreen');
 }
 
-function detailsSubmit() {
-    var key = $("#keyName").val();
+function detailsSubmit(e) {
+    if (e.which != 13) {
+       return
+    }
+    var key = "user_id";
     var tablename = $("#tableName").val();
-    if (key == null || tablename == null || key == "" || tablename == "") {
-        alert("Please enter valid key and table name");
+    if (tablename == null || tablename == "") {
+        alert("Please enter valid table name");
     } else {
+        moveElementLeft('#tableName','#keySelector');
+        $('#tableName').addClass('shiftRight').blur();
         loadKey = key;
         loadTable = tablename;
-        $("#keySelectorBox").css({"left": $("#keySelector").position().left+5,
-                                  "top": 0,
-                                  "width": $("#keySelector").width() + 45,
-                                  "height": $("#mainFrame").height()});
-        $("#uploadProgress").show();
-        XcalarLoad(loadURL, loadKey, loadTable, loadFormat);
-        loadbar.moveRange = $('#lbMoving').width() * 0.97;
-        checkLoad();
+        // XcalarLoad(loadURL, loadKey, loadTable, loadFormat);
+        startProgressBar();
+       
+        $('.datasetWrap').removeClass('shiftRight').hide();
+        
+        // checkLoad();
     }
+}
+
+function startProgressBar() { 
+    setTimeout(
+        function() {
+            $('#progressBar').addClass('slowProgressTransition').css('left', 0);
+        }, 100
+    );
+    var startPos= parseInt($('#progressBar').css('left'));
+    var goalPos = 0;
+    var posRange = goalPos - startPos;
+    var startPercentage = 50;
+    var currentPos = startPos;
+    var currentPercentage = startPercentage;
+    var getPercentage = setInterval(function(){
+        currentPos = parseInt($('#progressBar').css('left'));
+        currentPercentage = startPercentage +  50*((currentPos - startPos) / posRange);
+        $('#loadPercentage').text(Math.ceil(currentPercentage)+"%");
+        if (currentPercentage > 55) {
+            $('#loadPercentage').fadeIn();
+        }
+        if (currentPos >= goalPos) {
+            clearInterval(getPercentage);
+            setTimeout(function(){
+                $('.datasetWrap').show();
+                $('#datastorePanel').css({'background-color': 'white'});
+                $('#loadArea').css('background-color', '#E6E6E6');
+                $('#datastorePanel').width('100%');
+                $('#progressBar').css('left', 10000);
+            },100);
+            setTimeout(function(){
+                $('#loadArea').html("").css({'background-color': 'transparent', 'z-index':'initial'});
+                $('#datastorePanel').removeClass('slideRight');
+                $('#datastorePanel').css({'background-color': 'transparent'});
+            },1300);
+        }
+    }, 500);
 }
 
 function checkLoad() {
@@ -103,8 +187,31 @@ $(document).ready(
         $("#filePathSelector").hide();
         $("#keySelector").hide();
         $("#uploadProgress").hide();
+        monitorOverlayPercent();
     }
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function adjustProgressBar(refCount) {
     var intervalLength = 500; // twice a second

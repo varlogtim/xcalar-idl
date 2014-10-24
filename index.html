@@ -25,9 +25,9 @@
 <div id="logo"></div>
 <div id="menuBar">
     <div></div><div></div>
-    <div>datastore</div>
-    <div>tablestore</div>
-    <div>monitor</div>
+    <div>Datastore</div>
+    <div>Tablestore</div>
+    <div>Monitor</div>
 </div>
 <div id="menuArea">
     <span id="monitorPanel">
@@ -50,12 +50,16 @@
         <div class="datasetName"><span class="monitorGreen">DATA<br>SET</span></div>
         <div class="monitorSubDiv">&nbsp;&nbsp;ADD</div>
         <div></div>
+        <div class="datasetWrap"></div>
     </span>
     <span id="tablestorePanel">
         <div class="datasetName"><span class="monitorGreen">NEW<br>TABLE</span></div>
         <div class="monitorSubDiv">&nbsp;&nbsp;ADD</div>
         <div></div>
     </span>
+    <div id="loadArea">
+    </div>
+    
 </div>
 <div id="functionBar">
     <div style="width: 0px;"></div>
@@ -63,11 +67,11 @@
     <div class="functionField">
         <input id="fnBar" value="votes.funny + votes.cute" size="30">
     </div>
-    <div class="functionName">search:&nbsp;</div>
+    <div class="functionName">Search:&nbsp;</div>
     <div class="functionField">
         <input id="searchBar" value="votes.funny" size="30">
     </div>
-    <div class="functionName">skip to row:&nbsp;</div>
+    <div class="functionName">Skip to row:&nbsp;</div>
     <div class="functionField">
       <input id="pageInput">
       <script>
@@ -79,14 +83,26 @@
   <table id="autoGenTable">
     <thead>
     <tr>
-      <th id="headCol1" style="width:40px;">
+      <th id="headCol1" style="width:40px;" class="table_title_bg">
         <div class="header">
           <span>ID</span>
         </div>
       </th>
-      <th id="headCol2" class="jsonColHead" style="width:auto;">
+      <th id="headCol2" class="table_title_bg staticCol jsonColHead" style="width:auto;">
         <div class="header">
+          <div class="dropdownBox" style="opacity: 0;"></div>
           <span>JSON</span>
+          <ul class="colMenu" style="display: none;">
+            <li class="menuClickable">Add a column
+              <ul class="subColMenu">
+                <li class="addColumns" id="addLCol3">On the left</li>
+                <li class="addColumns" id="addRCol3">On the right</li>
+              </ul>
+              <div class="rightArrow"></div>
+            </li>
+            <li id="duplicate3">Duplicate column</li>
+            <li class="sort" id="sort3">Sort</li>
+          </ul>
         </div>
       </th>
     </tr>
