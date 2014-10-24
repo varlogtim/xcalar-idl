@@ -137,8 +137,8 @@ function displayTable() {
     for (var i = 1; i < numRowsToAdd; i++) {
         $('#autoGenTable tbody').append('<tr></tr>');
         for (var j = 1; j < numCols+1; j++) {
-            $('#autoGenTable tbody tr:last').append('<td id="bodyr'+i+'c'+j+'">
-                <div class="addedBarTextWrap" style="max-height:'+14+'px;">'+
+            $('#autoGenTable tbody tr:last').append('<td id="bodyr'+i+'c'+j+'">'+
+                '<div class="addedBarTextWrap" style="max-height:'+14+'px;">'+
                 '<div class="addedBarText">'+'text djk'+'</div></div></td>');
         }
     }
@@ -567,13 +567,6 @@ function delCol(id, resize) {
         $('#sumFn'+i).attr("id", "sumFn"+(i-1));
 
         $("#autoGenTable tr:eq(1) #headCol"+i).attr("id", "headCol"+(i-1));
-        // $("#autoGenTable tr:eq(1) #closeButton"+i).attr("id", "closeButton"+(i-1));
-        // $("#autoGenTable tr:eq(1) #addLCol"+i).attr("id", "addLCol"+(i-1));
-        // $("#autoGenTable tr:eq(1) #addRCol"+i).attr("id", "addRCol"+(i-1));
-        // $("#autoGenTable tr:eq(1) #rename"+i).attr("id", "rename"+(i-1));
-        // $("#autoGenTable tr:eq(1) #renameCol"+i).attr("id", "renameCol"+(i-1));
-        // $('#autoGenTable tr:eq(1) #sort'+i).attr("id", "sort"+(i-1));
-        // $('#autoGenTable tr:eq(1) #filter'+i).attr("id", "filter"+(i-1));
     }
  
     var numRow = $("#autoGenTable tbody tr").length;
@@ -684,14 +677,6 @@ function addCol(id, name, options) {
         $("#sumFn"+i).attr("id", "sumFn"+(i+1));
 
         $("#autoGenTable tr:eq(1) #headCol"+i).attr("id", "headCol"+(i+1));
-        // $("#autoGenTable tr:eq(1) #closeButton"+i).attr("id", "closeButton"+(i+1));
-        // $("#autoGenTable tr:eq(1) #addRCol"+i).attr("id", "addRCol"+(i+1));
-        // $("#autoGenTable tr:eq(1) #addLCol"+i).attr("id", "addLCol"+(i+1));
-        // $("#autoGenTable tr:eq(1) #rename"+i).attr("id", "rename"+(i+1));
-        // $("#autoGenTable tr:eq(1) #renameCol"+i).attr("id", "renameCol"+(i+1));
-        // $("#autoGenTable tr:eq(1)#sort"+i).attr("id", "sort"+(i+1));
-        // $("#autoGenTable tr:eq(1) #filter"+i).attr("id", "filter"+(i+1));
-        // $("#autoGenTable tr:eq(1) #duplicate"+i).attr("id", "duplicate"+(i+1));
     }        
     
     var columnHeadTd = '<th class="table_title_bg '+color+' editableCol'+
