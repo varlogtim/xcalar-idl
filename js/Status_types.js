@@ -213,7 +213,11 @@ StatusT = {
 'StatusStatsInvalidGroupId' : 204,
 'StatusStatsInvalidGroupName' : 205,
 'StatusInvalidHandle' : 206,
-'StatusThriftProtocolError' : 207
+'StatusThriftProtocolError' : 207,
+'StatusEmptyTree' : 208,
+'StatusBTreeHasNoRoot' : 209,
+'StatusBTreeKeyNotFound' : 210,
+'StatusQaKeyValuePairNotFound' : 211
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -422,5 +426,9 @@ StatusTStr = {0 : 'Success',
 204 : 'stats group ID is invalid',
 205 : 'stats group name is invalid',
 206 : 'Invalid handle',
-207 : 'Error communicating across thrift connection'
+207 : 'Error communicating across thrift connection',
+208 : 'BTree is empty',
+209 : 'Malformed BTree. BTree has no root',
+210 : 'Could not find key in BTree',
+211 : 'Could not find key-value pair'
 };
