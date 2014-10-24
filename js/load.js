@@ -118,15 +118,18 @@ function detailsSubmit(e) {
     var key = "user_id";
     var tablename = $("#tableName").val();
     if (tablename == null || tablename == "") {
-        alert("Please enter valid table name");
+        alert("Please enter valid dataset name");
     } else {
         moveElementLeft('#tableName','#keySelector');
         $('#tableName').addClass('shiftRight').blur();
         loadKey = key;
         loadTable = tablename;
-        // XcalarLoad(loadURL, loadKey, loadTable, loadFormat);
-        startProgressBar();
-       
+        var dsId = XcalarLoad(loadURL, loadFormat);
+        if (dsId != null) {
+            setDsToName(tablename, dsId);
+            commitToStorage();
+            startProgressBar();
+        }
         $('.datasetWrap').removeClass('shiftRight').hide();
         
         // checkLoad();
@@ -154,7 +157,9 @@ function startProgressBar() {
         }
         if (currentPos >= goalPos) {
             clearInterval(getPercentage);
-            setTimeout(function(){
+            setTimeout(function() {
+                getTablesAndDatasets();
+                
                 $('.datasetWrap').show();
                 $('#datastorePanel').css({'background-color': 'white'});
                 $('#loadArea').css('background-color', '#E6E6E6');

@@ -45,11 +45,16 @@ function XcalarLoad(url, format) {
 
     try {
         result = client.queueWork(workItem);
-        console.log(result.output);
+        console.log(result);
+        if (result.output.loadOutput.status != StatusT.StatusOk) {
+            return (null);
+        }
+        return (result.output.loadOutput.datasetId);
     } catch(ouch) {
         console.log(ouch);
         console.log("Load Failed");
     }
+    return (null);
 }
 
 function XcalarIndexFromDataset(varDatasetId, key, tablename) {
@@ -228,9 +233,10 @@ function XcalarGetNumEntries(tableName, numEntries) {
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiMakeResultSet;
     workItem.input = new XcalarApiInputT();
-    workItem.input.tableInput = new XcalarApiTableT();
-    workItem.input.tableInput.tableName = tableName;
-    workItem.input.tableInput.handle = 0;
+    workItem.input.makeResultSetInput = new XcalarApiMakeResultSetInputT();
+    workItem.input.makeResultSetInput.fromTable = true;
+    workItem.input.makeResultSetInput.table = new XcalarApiTableT();
+    workItem.input.makeResultSetInput.table.tableName = tableName;
 
     try {
         result = client.queueWork(workItem);
@@ -313,9 +319,10 @@ function XcalarGetTableId(tableName) {
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiMakeResultSet;
     workItem.input = new XcalarApiInputT();
-    workItem.input.tableInput = new XcalarApiTableT();
-    workItem.input.tableInput.tableName = tableName;
-    workItem.input.tableInput.handle = 0;
+    workItem.input.makeResultSetInput = new XcalarApiMakeResultSetInputT();
+    workItem.input.makeResultSetInput.fromTable = true;
+    workItem.input.makeResultSetInput.table = new XcalarApiTableT();
+    workItem.input.makeResultSetInput.table.tableName = tableName;
 
     try {
         result = client.queueWork(workItem);

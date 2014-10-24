@@ -4,7 +4,7 @@ var selectedTab = 1;
 var numTabs = 3;
 var tableRowIndex = 1;
 var currentPageNumber = 0;
-var numEntriesPerPage = 12;
+var numEntriesPerPage = 20;
 var numPageTurners = 10;
 var resultSetId = 0;
 var newCellWidth = 116;
@@ -22,6 +22,8 @@ var rescol = {
     timer: null
 };
 var scrollbarHeight = 8;
+var gTempStyle = "";
+
 
 function setTabs() {
     var i;
@@ -160,6 +162,8 @@ function getTablesAndDatasets() {
     var tables = XcalarGetTables();
     var numTables = tables.numTables;
     var i;
+    $(".datasetWrap").empty(); // Otherwise multiple calls will append the
+    // same DS over and over again.
     for (i = 0; i<numTables; i++) {
         var tableDisplay = '<div class="dataset datasetName">'+
                                  '<span>DATA<br>SET</span>'+
@@ -172,12 +176,14 @@ function getTablesAndDatasets() {
     }
     var datasets = XcalarGetDatasets();
     var numDatasets = datasets.numDatasets;
+    console.log(datasets);
     for (i = 0; i<numDatasets; i++) {
-         var tableDisplay = '<div class="dataset datasetName">'+
+        var dsName = getDsName(datasets.datasets[i].datasetId);
+        var tableDisplay = '<div class="dataset datasetName">'+
                                  '<span>DATA<br>SET</span>'+
                              '</div>'+
                              '<div class="monitorSubDiv">'+
-                                  datasets.datasets[i].datasetId+
+                                  dsName+
                              '</div>';
         $(".datasetWrap").append(tableDisplay);
     };
@@ -401,7 +407,7 @@ function getPage(resultSetId, firstTime) {
     }
     var indices = [];
     var resize = false;
-    var headingsArray = convertColNamesToArray();
+    var headingsArray = convertColNamesToArray(firstTime);
     if (headingsArray != null) {
         for (var i = 1; i<headingsArray.length; i++) {
             var indName = {index: i,
@@ -472,7 +478,8 @@ function generateRowWithCurrentTemplate(json, id) {
     // Replace JSON
     var startString = '<div class="elementText">';
     var endString="</div>";
-    var originalString = $("#autoGenTable tbody tr:nth-last-child(1)").html();
+    var originalString = $("#autoGenTable tbody tr:nth-last-child(1)").html() ||
+                         gTempStyle;
     var index = originalString.indexOf(startString);
     var firstPart = originalString.substring(0, index+startString.length);
     var secondPart = originalString.substring(index+startString.length+1);
@@ -486,8 +493,11 @@ function generateRowWithCurrentTemplate(json, id) {
     firstPart = finalString.substring(0, firstIndex+1);
     secondPart = finalString.substring(secondIndex);
     finalString = "<tr>"+firstPart + id + secondPart+"</tr>";
-    $("#autoGenTable tbody tr:nth-last-child(1)").after(finalString);
-
+    if ($("#autoGenTable tbody tr").length == 0) {
+        $("#autoGenTable tbody").append(finalString);
+    } else { 
+        $("#autoGenTable tbody tr:nth-last-child(1)").after(finalString);
+    }
     // Replace element id
     $("#autoGenTable tbody tr:nth-last-child(1)").find("[id]").each(function() {
         var colNoInd = (this.id).indexOf("c");
@@ -908,9 +918,13 @@ function prelimFunctions() {
     selectPage(1);
 }
 
-function convertColNamesToArray() {
+function convertColNamesToArray(firstTime) {
     var head = $("#autoGenTable th span");
-    var numCol = head.length;
+    if (firstTime) {
+        var numCol = head.length;
+    } else {
+        var numCol = head.length/2;
+    }
     var headings = [];
     for (var i = 0; i<numCol; i++) {
         if (!head.eq(i).parent().parent().hasClass("unusedCell")) {
@@ -927,14 +941,15 @@ function convertColNamesToArray() {
 // XXX: FIXME: This should not preserve undefined columns!!!
 function convertColNamesToIndexArray() {
     var head = $("#autoGenTable th span");
-    var numCol = head.length;
+    var numCol = head.length/2;
     var headings = [];
     for (var i = 2; i<numCol; i++) {
         if (!$("#headCol"+i).hasClass("unusedCell")) {
-            if ($("#headCol"+i+" span").text() == "JSON") {
+            // XXX: THIS IS BECAUSE OF THE SHADOW STICKY HEADER
+            if ($("#headCol"+i+" span")[0].innerHTML == "JSON") {
                 var indexObj = {
                     index: i-1,
-                    name: $("#headCol"+i+" span").text(),
+                    name: "JSON",
                     width: $("#headCol"+i).width()
                 };
             } else {
@@ -1072,7 +1087,11 @@ function documentReadyCommonFunction() {
             } else if (val > resultSetCount) {
                 $('#pageInput').val(resultSetCount);
             }
-             goToPage(Math.ceil(parseInt($('#pageInput').val())/numEntriesPerPage)-1);
+            // XXX: HACK
+            gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
+            $("#autoGenTable tbody").empty();
+            goToPage(Math.ceil(parseInt($('#pageInput').val())/numEntriesPerPage)-1);
+            goToPage(Math.ceil(parseInt($('#pageInput').val())/numEntriesPerPage));
             // $(this).blur(); 
         }
     });
@@ -1481,9 +1500,8 @@ function dblClickResize(el) {
 }
 
 function documentReadyCatFunction() {
-    readFromStorage();
     documentReadyCommonFunction();
-    convertColNamesToArray();
+    convertColNamesToArray(true);
     // XXX: Should this be called here or at the end? I think it should be here
     // or I may end up attaching 2 listeners?
     resizableColumns();
@@ -1515,6 +1533,7 @@ function documentReadyCatFunction() {
 
 function documentReadyIndexFunction() {
     $(document).ready(function() {
+        readFromStorage();
         menuBarArt();
         monitorOverlayPercent();
         menuAreaClose();
@@ -1567,7 +1586,8 @@ function sortRows(fieldName) {
     $("body").css({"cursor": "wait"}); 
     var datasetId = $("#datastorePanel .monitorSubDiv")[1].innerHTML;
     console.log(datasetId);
-    XcalarIndexFromDataset(datasetId, fieldName, newTableName);
+    // XXX: HACK!!!
+    XcalarIndexFromDataset(4, fieldName, newTableName);
     checkStatus(newTableName);
     // XXX: IndexFromTable is not implemented yet. So we're hacking the shit out
     // of this right now
