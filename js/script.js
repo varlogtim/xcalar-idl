@@ -172,7 +172,7 @@ function fillPageWithBlankCol() {
     var numColsToFill = Math.ceil((windowWidth - tableWidth)/newCellWidth) + 1;
     var startColId = $("#autoGenTable th").size();
     for (var i = 0; i<numColsToFill; i++) {
-        addCol("headCol"+(startColId+i), "+");
+        addCol("headCol"+(startColId+i), "");
         $("#headCol"+(startColId+i+1)).addClass("unusedCell");
         for (var j = 0; j<$("#autoGenTable tr").size()-2; j++) {
              $("#bodyr"+(j+1)+"c"+(startColId+i+1)).addClass("unusedCell");
@@ -422,8 +422,10 @@ function getPage(resultSetId, firstTime) {
     }
     for (var i = 0; i<indices.length; i++) {
         if (indices[i].name == "JSON") {
-            // Just resize the column
-            // TODO: actually do this!!
+            // We don't need to do anything here because if it's the first time
+            // they won't have anything stored. If it's not the first time, the
+            // column would've been sized already. If it's indexed, we
+            // would've sized it in CatFunction
         } else {
             if (firstTime && !getIndex(tableName)) {
                 addCol("headCol"+(indices[i].index), indices[i].name,
@@ -648,7 +650,7 @@ function addCol(id, name, options) {
         '<div class="dropdownBox"></div>'+
         '<span><input type="text" id="rename'+newColid+'" '+
         'class="editableHead" '+
-        'value="'+name+'" size="15" placeholder="+"/></span>'+
+        'value="'+name+'" size="15" placeholder=""/></span>'+
         '</div>'+
         '</th>';
     $("#headCol"+(newColid-1)).after(columnHeadTd); 
@@ -919,6 +921,7 @@ function resizableColumns(resize, newWidth) {
 }
 
 function shrinkLargestCell(newWidth) {
+    /* 
     var largestCell;
     var largestCellWidth = 0;
     $('#autoGenTable th').each(
@@ -932,6 +935,7 @@ function shrinkLargestCell(newWidth) {
     var newLargeWidth = largestCellWidth - (newWidth + colPadding + columnBorderWidth);
     largestCell.width(newLargeWidth);
     console.log(newLargeWidth, 'new large')
+    */
 }
 
 function subColMenuMouseEnter(el) {
@@ -1262,17 +1266,20 @@ function documentReadyCatFunction() {
     if (index) {
         console.log("Stored "+tableName);
         getNextPage(resultSetId, true);
+        // XXX Move this into getPage
         // XXX API: 0105
         var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            numEntriesPerPage);
         keyName = tableOfEntries.meta.keysAttrHeader.name;
+        console.log(index);
         for (var i = 0; i<index.length; i++) {
             if (index[i].name != "JSON") {
                 addCol("headCol"+(index[i].index), index[i].name,
                       {width: index[i].width, resize: true});
                 pullCol(index[i].name, 1+index[i].index);
             } else {
-                // XXX: TODO: Resize the json col
+                $("#headCol"+(index[i].index+1)).css("width", 
+                    index[i].width+colPadding+columnBorderWidth);
             }
         }
     } else {
