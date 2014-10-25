@@ -1,16 +1,14 @@
 // Auto run
 var urlTableName = getUrlVars()["tablename"];
 var tableName = urlTableName || "userId";
-var resultSetId = XcalarGetTableId(tableName);
-// var resultSetId = 2342;
+var gResultSetId = XcalarGetTableId(tableName);
 
 var resultSetCount = XcalarGetCount(tableName);
-// var resultSetCount = 30;
-var numPages = Math.ceil(resultSetCount / numEntriesPerPage);
+var numPages = Math.ceil(resultSetCount / gNumEntriesPerPage);
 console.log(resultSetCount);
 
 function freeAllResultSets() {
-    XcalarSetFree(resultSetId);    
+    XcalarSetFree(gResultSetId);    
 }
 
 $(window).unload(

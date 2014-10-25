@@ -1,12 +1,10 @@
 // JavaScript Document
 // Menu Bar JS
-var selectedTab = 1;
-var numTabs = 3;
-var tableRowIndex = 1;
-var currentPageNumber = 0;
-var numEntriesPerPage = 20;
-var numPageTurners = 10;
-var resultSetId = 0;
+var gTableRowIndex = 1;
+var gCurrentPageNumber = 0;
+var gNumEntriesPerPage = 20;
+var gNumPageTurners = 10;
+var gResultSetId = 0;
 var newCellWidth = 116;
 var columnBorderWidth = -1;
 var colPadding = 4;
@@ -26,14 +24,6 @@ var scrollbarHeight = 8;
 var gTempStyle = "";
 var tableWidth = 1200;
 
-function setTabs() {
-    var i;
-    for (i = 1; i<=numTabs; i++) {
-        dataSourceMouseOver(i);
-    }
-    dataSourceClick(1);
-}
-
 function infScrolling() {
     // Feature: As we're scrolling we can update the skip to row box.
     // However, all solutions that I've seen so far are shitty in terms of
@@ -45,7 +35,7 @@ function infScrolling() {
             $(this).outerHeight()) {// XXX: Figure out why it's 8 lol 
             // Should be because of the scrollbar
             // Rudy: Yes, it seems like its the 8px scrollbar
-            goToPage(currentPageNumber); 
+            goToPage(gCurrentPageNumber); 
         }
     });
 }
@@ -227,11 +217,11 @@ function selectPage(pageNumber) {
 } 
 
 function goToPrevPage() {
-    if (currentPageNumber <=1) {
+    if (gCurrentPageNumber <=1) {
         console.log("First page, cannot move");
         return;
     } 
-    var currentPage = currentPageNumber;
+    var currentPage = gCurrentPageNumber;
     var prevPage = currentPage-1;
     var prevPageElement = $("a.pageTurnerPageNumber").filter(function() {
         return ($(this).text() == prevPage.toString());
@@ -239,17 +229,17 @@ function goToPrevPage() {
     if (prevPageElement.length) {
         selectPage(prevPage);
         deselectPage(currentPage);
-        getPrevPage(resultSetId);
+        getPrevPage(gResultSetId);
     } else {
         goToPage(prevPage-1);
     }
 }
 
 function goToNextPage() {
-    if (currentPageNumber >= numPages) {
+    if (gCurrentPageNumber >= numPages) {
         return;
     }
-    var currentPage = currentPageNumber;
+    var currentPage = gCurrentPageNumber;
     var nextPage = currentPage+1;
     var nextPageElement = $("a.pageTurnerPageNumber").filter(function() {
         return ($(this).text() == nextPage.toString());
@@ -257,8 +247,8 @@ function goToNextPage() {
     if (nextPageElement.length) {
         selectPage(nextPage);
         deselectPage(currentPage);
-        getNextPage(resultSetId);
-        if (currentPageNumber == numPages) {
+        getNextPage(gResultSetId);
+        if (gCurrentPageNumber == numPages) {
             $('#pageTurnerRight').css('visibility', 'hidden');
         }
     } else {
@@ -267,20 +257,20 @@ function goToNextPage() {
 }
 
 function goToPage(pageNumber) {
-    deselectPage(currentPageNumber);
-    currentPageNumber = pageNumber+1;
+    deselectPage(gCurrentPageNumber);
+    gCurrentPageNumber = pageNumber+1;
     generatePages(); 
     selectPage(pageNumber+1);
-    XcalarSetAbsolute(resultSetId, pageNumber*numEntriesPerPage);
-    getPage(resultSetId);
+    XcalarSetAbsolute(gResultSetId, pageNumber*gNumEntriesPerPage);
+    getPage(gResultSetId);
 }
 
 function showHidePageTurners() {
     $('#pageTurnerLeft a, #pageTurnerRight a').css('visibility', 'visible');
-    if (currentPageNumber < 2) {
+    if (gCurrentPageNumber < 2) {
         $('#pageTurnerLeft a').css('visibility', 'hidden');
     } 
-    if (currentPageNumber >= numPages) {
+    if (gCurrentPageNumber >= numPages) {
         $('#pageTurnerRight a').css('visibility', 'hidden');
     }
 }
@@ -302,13 +292,13 @@ function getUrlVars()
 function generatePages() { 
     var rightDots = false;
     var leftDots = false;
-    var startNumber = Math.max(currentPageNumber-6, 0); // number furthest on left side
-    if (numPages > numPageTurners) {
-        var number = numPageTurners; 
-        if ((numPages-startNumber) > numPageTurners) {
+    var startNumber = Math.max(gCurrentPageNumber-6, 0); // number furthest on left side
+    if (numPages > gNumPageTurners) {
+        var number = gNumPageTurners; 
+        if ((numPages-startNumber) > gNumPageTurners) {
             rightDots = true;
         } else {
-           startNumber = numPages - numPageTurners;
+           startNumber = numPages - gNumPageTurners;
         }
     } else {
         var number = numPages;
@@ -374,14 +364,14 @@ function generatePages() {
 }
 
 function resetAutoIndex() {
-    tableRowIndex = 1;
+    gTableRowIndex = 1;
 }
 
 function getNextPage(resultSetId, firstTime) {
     if (resultSetId == 0) {
         return;
     }
-    currentPageNumber++;
+    gCurrentPageNumber++;
     getPage(resultSetId, firstTime);
 }
 
@@ -390,12 +380,12 @@ function getPrevPage(resultSetId) {
         return;
         // Reached the end
     }       
-    if (currentPageNumber == 1) {
+    if (gCurrentPageNumber == 1) {
         console.log("At first page already");
     } else {
-        currentPageNumber--;
+        gCurrentPageNumber--;
         XcalarSetAbsolute(resultSetId,
-                          (currentPageNumber-1)*numEntriesPerPage);
+                          (gCurrentPageNumber-1)*gNumEntriesPerPage);
     }
     getPage(resultSetId);
 }
@@ -419,16 +409,16 @@ function getPage(resultSetId, firstTime) {
         }
     }
     var tableOfEntries = XcalarGetNextPage(resultSetId,
-                                           numEntriesPerPage);
-    if (tableOfEntries.numRecords < numEntriesPerPage) {
+                                           gNumEntriesPerPage);
+    if (tableOfEntries.numRecords < gNumEntriesPerPage) {
         // This is the last iteration
         // Time to free the handle
         // XXX: Function call to free handle?
         resultSetId = 0;
     }
 
-    var indexNumber = (currentPageNumber-1) * numEntriesPerPage;
-    for (var i = 0; i<Math.min(numEntriesPerPage, 
+    var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
+    for (var i = 0; i<Math.min(gNumEntriesPerPage, 
           tableOfEntries.numRecords); i++) {
         var value = tableOfEntries.records[i].value;
         if (firstTime) {
@@ -523,17 +513,17 @@ function generateRowWithAutoIndex(text, hoverable) {
     }
     $("#autoGenTable tr:last").after('<tr><td height="18" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        tableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+
-        tableRowIndex+'</td>'+
+        gTableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+
+        gTableRowIndex+'</td>'+
         '<td bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        tableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)"'+
+        gTableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)"'+
         ' onclick="javascript: window.location.href=\'cat_table.html?'+
         'tablename='+
         URIEncoded+'\'">'+
         '<div class="cellRelative"><span '+clickable+'>'+text+'</span>'+
         '<div class="dropdownBox"></div>'+
         '</div></td></tr>');
-    tableRowIndex++;
+    gTableRowIndex++;
 }
 
 function generateRowWithAutoIndex2(text2, idNo) {
@@ -620,7 +610,7 @@ function pullCol(key, newColid, startIndex) {
         numRow = $("#autoGenTable tbody tr").length;
     } else {
         startingIndex = startIndex;
-        numRow = numEntriesPerPage;
+        numRow = gNumEntriesPerPage;
     } 
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
 
@@ -1091,8 +1081,8 @@ function documentReadyCommonFunction() {
             // XXX: HACK
             gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
             $("#autoGenTable tbody").empty();
-            goToPage(Math.ceil(parseInt($('#pageInput').val())/numEntriesPerPage)-1);
-            goToPage(Math.ceil(parseInt($('#pageInput').val())/numEntriesPerPage));
+            goToPage(Math.ceil(parseInt($('#pageInput').val())/gNumEntriesPerPage)-1);
+            goToPage(Math.ceil(parseInt($('#pageInput').val())/gNumEntriesPerPage));
             // $(this).blur(); 
         }
     });
@@ -1540,11 +1530,11 @@ function documentReadyCatFunction() {
     var index = getIndex(tableName);
     if (index) {
         console.log("Stored "+tableName);
-        getNextPage(resultSetId, true);
+        getNextPage(gResultSetId, true);
         // XXX Move this into getPage
         // XXX API: 0105
-        var tableOfEntries = XcalarGetNextPage(resultSetId,
-                                           numEntriesPerPage);
+        var tableOfEntries = XcalarGetNextPage(gResultSetId,
+                                           gNumEntriesPerPage);
         keyName = tableOfEntries.meta.keysAttrHeader.name;
         console.log(index);
         for (var i = 0; i<index.length; i++) {
@@ -1559,7 +1549,7 @@ function documentReadyCatFunction() {
         }
     } else {
         console.log("Not stored "+tableName);
-        getNextPage(resultSetId, true);
+        getNextPage(gResultSetId, true);
     }
 }
 
@@ -1574,7 +1564,7 @@ function documentReadyIndexFunction() {
         documentReadyCatFunction();
 
         fillPageWithBlankCol();
-        goToPage(currentPageNumber);
+        goToPage(gCurrentPageNumber);
         cloneTableHeader();   
         infScrolling();
         
