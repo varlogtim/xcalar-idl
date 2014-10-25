@@ -38,17 +38,15 @@ $('.dataOptionsRow input').click(function(){
         $("#filePathSelector").css('left',415); 
         $("#fileBrowser").focus().css('left',550).css('z-index', 6);
         $('.dataOptions').addClass('shiftRight');
-        $("#progressBar").css('left', -855);
+        $("#progressBar").css('transform', 'translateX(545px)');
         
     }
 });
 
 function moveInputLeft(movingEl) {
-    // var movign = $('.dsTypeLabel[value='+val+']');
-    // var input = $('.dsTypeLabel:contains("'+val+'")');
     var loadROffsetLeft = $('#load_r').offset().left;
     var loadROffsetTop = $('#load_r').offset().top;
-    var targetLeft = parseFloat($('.dataStep').css('left'));
+    var targetLeft = $('.dataStep').offset().left;
     var targetMidPoint = ($('.dataStep').width()/2)+targetLeft;
     var movingElOffsetLeft = movingEl.offset().left;
     var movingElOffsetTop = movingEl.offset().top;
@@ -80,11 +78,7 @@ function dsSubmit(e) {
         moveElementLeft('#fileBrowser', '#filePathSelector');
         $("#keySelector").show().css('left',620);
         $("#tableName").focus().css('left',830).css('z-index', 6);
-        setTimeout(
-            function() {
-                $("#progressBar").css('left', -575);
-            }, 200
-        );
+        $('#progressBar').css({'transform': 'translateX(825px)', 'transition-delay': '.1s'});
         setTimeout(
             function() {
                 $('#load_r').css({'z-index': 2});
@@ -137,19 +131,15 @@ function detailsSubmit(e) {
 }
 
 function startProgressBar() { 
-    setTimeout(
-        function() {
-            $('#progressBar').addClass('slowProgressTransition').css('left', 0);
-        }, 100
-    );
-    var startPos= parseInt($('#progressBar').css('left'));
+    $('#progressBar').css({'transform': 'translateX(1400px)', 'transition': 'transform 5s linear .1s'});
+    var startPos = $('#progressBar').offset().left;
     var goalPos = 0;
     var posRange = goalPos - startPos;
     var startPercentage = 50;
     var currentPos = startPos;
     var currentPercentage = startPercentage;
     var getPercentage = setInterval(function(){
-        currentPos = parseInt($('#progressBar').css('left'));
+        currentPos = $('#progressBar').offset().left;
         currentPercentage = startPercentage +  50*((currentPos - startPos) / posRange);
         $('#loadPercentage').text(Math.ceil(currentPercentage)+"%");
         if (currentPercentage > 55) {
@@ -163,7 +153,7 @@ function startProgressBar() {
                 $('#datastorePanel').css({'background-color': 'white'});
                 $('#loadArea').css('background-color', '#E6E6E6');
                 $('#datastorePanel').width('200%');
-                $('#progressBar').css('left', 10000);
+                 $('#progressBar').css({'transform': 'translateX(10000px)'});
             },100);
             setTimeout(function(){
                 $('#loadArea').html("").css({'background-color': 'transparent', 'z-index':'initial'});

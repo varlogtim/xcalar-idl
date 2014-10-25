@@ -25,9 +25,9 @@
 <div id="logo"></div>
 <div id="menuBar">
     <div></div><div></div>
-    <div>Datastore</div>
-    <div>Tablestore</div>
-    <div>Monitor</div>
+    <div>datastore</div>
+    <div>tablestore</div>
+    <div>monitor</div>
 </div>
 <div id="menuArea">
     <span id="monitorPanel">
@@ -67,11 +67,11 @@
     <div class="functionField">
         <input id="fnBar" value="votes.funny + votes.cute" size="30">
     </div>
-    <div class="functionName">Search:&nbsp;</div>
+    <div class="functionName">search:&nbsp;</div>
     <div class="functionField">
         <input id="searchBar" value="votes.funny" size="30">
     </div>
-    <div class="functionName">Skip to row:&nbsp;</div>
+    <div class="functionName">skip to row:&nbsp;</div>
     <div class="functionField">
       <input id="pageInput">
       <script>
@@ -85,13 +85,13 @@
     <tr>
       <th id="headCol1" style="width:40px;" class="table_title_bg">
         <div class="header">
-          <span>ID</span>
+          <span><input value="ID" readonly></span>
         </div>
       </th>
       <th id="headCol2" class="table_title_bg staticCol jsonColHead" style="width:auto;">
         <div class="header">
           <div class="dropdownBox" style="opacity: 0;"></div>
-          <span>JSON</span>
+          <span><input value="JSON" readonly></span>
           <ul class="colMenu" style="display: none;">
             <li class="menuClickable">Add a column
               <ul class="subColMenu">
@@ -117,7 +117,13 @@
     </tfoot>
   </table>
 </div>
-<div class="worksheetBar"></div>
+<div id="worksheetBar">
+  <div id="newWorksheet">new worksheet</div>
+  <div class="worksheetTab">facebook</div>
+  <div class="worksheetTab tabSelected">yelp</div>
+  <div class="worksheetTab">worksheet 1</div>
+  <div class="worksheetTab">worksheet 2</div>
+</div>
 <div id="jsonModalBackground"></div>
 <div id="jsonModal">
   <div class="closeJsonModal">+</div>

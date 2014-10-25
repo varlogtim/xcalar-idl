@@ -5,24 +5,27 @@ var gCurrentPageNumber = 0;
 var gNumEntriesPerPage = 20;
 var gNumPageTurners = 10;
 var gResultSetId = 0;
-var gNewCellWidth = 116;
+var gNewCellWidth = 125;
 var gColumnBorderWidth = -1;
 var gColPadding = 4;
 var gKeyName = "";
 var gMouseStatus = null;
 var gDragObj = {};
 var gRescol = {
+    minCellHeight: 20,
+    cellMinWidth: 30,
     first: true,
-    cellMinWidth: 40,
     clicks: 0,
     delay: 500,
     timer: null,
     lastCellGrabbed: false
 };
+var resrow = {};
 var gScrollbarHeight = 8;
 var gTempStyle = "";
-var tableWidth = 1200;// XXX You redeclared this variable online 187. Can you
+var gMinTableWidth = 1200;// XXX You redeclared this variable online 187. Can you
 // determine if you really need this variable?
+// I was using this variable elsewhere, I still need it so I renamed it gMinTableWidth;
 
 function infScrolling() {
     // Feature: As we're scrolling we can update the skip to row box.
@@ -31,7 +34,7 @@ function infScrolling() {
     // feature is necessary.
 
     $("#mainFrame").scroll(function() {
-        if ($(this)[0].scrollHeight - $(this).scrollTop()+8 ==
+        if ($(this)[0].scrollHeight - $(this).scrollTop()+gScrollbarHeight ==
             $(this).outerHeight()) {// XXX: Figure out why it's 8 lol 
             // Should be because of the scrollbar
             // Rudy: Yes, it seems like its the 8px scrollbar
@@ -64,7 +67,7 @@ function menuBarArt() {
             $("#menuBar div").removeClass("menuSelected");
             $("#menuArea").height(0);
             clickTarget = null;
-            $('.trueTHead').addClass('moveTop').css('top','-=76');
+            $('.trueTHead').addClass('moveTop').css('top','-=71');
             setTimeout(function() {
                 $('.trueTHead').removeClass('moveTop');
             },280);
@@ -72,7 +75,7 @@ function menuBarArt() {
         }
         clickTarget = $(event.target).text();
 
-        $('.trueTHead').addClass('moveTop').css('top',154);
+        $('.trueTHead').addClass('moveTop').css('top',145);
 
         setTimeout(function() {
             $('.trueTHead').removeClass('moveTop');
@@ -80,26 +83,24 @@ function menuBarArt() {
 
         $("#menuBar div").removeClass("menuSelected");
         $(this).addClass("menuSelected");
-        $("#menuArea").show().height(76);
+        $("#menuArea").show().height(71);
 
         switch ($(this).text()) {
-        case ("Datastore"):
+        case ("datastore"):
             $("#datastorePanel").show();
             $("#datastorePanel").siblings().each(function() {
                 $(this).hide();
             }); 
             break;
-        case ("Monitor"):
-            $('#loadArea').html("");
-            $('.datasetWrap').removeClass('shiftRight');
+        case ("monitor"):
+            resetLoadArea();
             $("#monitorPanel").show();
             $("#monitorPanel").siblings().each(function() {
                 $(this).hide();
             }); 
             break;
-        case ("Tablestore"):
-            $('#loadArea').html("");
-            $('.datasetWrap').removeClass('shiftRight');
+        case ("tablestore"):
+            resetLoadArea();
             $("#tablestorePanel").show();
             $("#tablestorePanel").siblings().each(function() {
                 $(this).hide();
@@ -110,6 +111,12 @@ function menuBarArt() {
             break;
         }
     });
+}
+
+function resetLoadArea() {
+    $('#loadArea').html("").css('z-index', 'auto');
+    $('#datastorePanel').width('100%');
+    $('.datasetWrap').removeClass('shiftRight');
 }
 
 function monitorOverlayPercent() {
@@ -186,9 +193,9 @@ function getTablesAndDatasets() {
 
 function fillPageWithBlankCol() {
     var tableWidth = $("#autoGenTable").width();
-    var windowWidth = $(window).width();
-    // Ensures that empty cols will stretch the page to more than window width
-    var numColsToFill = Math.ceil((windowWidth - tableWidth)/gNewCellWidth+1) ;
+    var screenWidth = window.screen.availWidth;
+    var numColsToFill = Math.ceil((screenWidth - tableWidth)/gNewCellWidth) ;
+    console.log(numColsToFill, 'numtofill', screenWidth - tableWidth);
     var startColId = $("#autoGenTable tr:first th").length;
     for (var i = 0; i<numColsToFill; i++) {
         addCol("headCol"+(startColId+i), "");
@@ -399,15 +406,17 @@ function getPage(resultSetId, firstTime) {
     var indices = [];
     var resize = false;
     var headingsArray = convertColNamesToArray();
+    //XXX store JSON column width?
     if (headingsArray != null) {
         for (var i = 1; i<headingsArray.length; i++) {
             var indName = {index: i,
                            name: headingsArray[i],
-                           width: $("#headCol"+(i+1)).width(),
+                           width: $("#headCol"+(i+1)).outerWidth(),
                            isDark: $("#headCol"+(i+1)).hasClass('unusedCell')};
             indices.push(indName);
         }
     }
+    var tdHeights = getTdHeights();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            gNumEntriesPerPage);
     if (tableOfEntries.numRecords < gNumEntriesPerPage) {
@@ -416,13 +425,12 @@ function getPage(resultSetId, firstTime) {
         // XXX: Function call to free handle?
         resultSetId = 0;
     }
-
     var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
     for (var i = 0; i<Math.min(gNumEntriesPerPage, 
           tableOfEntries.numRecords); i++) {
         var value = tableOfEntries.records[i].value;
         if (firstTime) {
-            generateRowWithAutoIndex2(value, indexNumber+i+1);
+            generateRowWithAutoIndex2(value, indexNumber+i+1, tdHeights[i]);
         } else {
             generateRowWithCurrentTemplate(value, indexNumber+i+1);
         }
@@ -479,9 +487,9 @@ function generateRowWithCurrentTemplate(json, id) {
     var finalString = firstPart+json+secondPart;
 
     // Replace id
-    firstIndex = finalString.indexOf(">");
-    secondIndex = finalString.indexOf("</td>");
-    firstPart = finalString.substring(0, firstIndex+1);
+    firstIndex = finalString.indexOf('idSpan">')+('idSpan">').length;
+    secondIndex = finalString.indexOf("<", firstIndex);
+    firstPart = finalString.substring(0, firstIndex);
     secondPart = finalString.substring(secondIndex);
     finalString = "<tr>"+firstPart + id + secondPart+"</tr>";
     if ($("#autoGenTable tbody tr").length == 0) {
@@ -497,8 +505,12 @@ function generateRowWithCurrentTemplate(json, id) {
 
     });
 
-    $('#autoGenTable  tr:eq('+(id)+') .jsonElement').dblclick(function(){
+    $('#autoGenTable  tr:eq('+(id)+') .jsonElement').dblclick(function() {
         showJsonPopup($(this));
+    });
+    $('#autoGenTable  tr:eq('+(id)+') .rowGrab').mousedown(function(event) {
+        console.log('grabbing row');
+        resrowMouseDown($(this), event);
     });
 }
 
@@ -526,15 +538,21 @@ function generateRowWithAutoIndex(text, hoverable) {
     gTableRowIndex++;
 }
 
-function generateRowWithAutoIndex2(text2, idNo) {
+function generateRowWithAutoIndex2(text2, idNo, height) {
+    if (height == undefined) {
+        var cellHeight = gRescol.minCellHeight;
+    } else {
+        var cellHeight = height;
+    }
     $("#autoGenTable tbody").append('<tr>'+
-        '<td align="center"'+
-        'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        idNo+"c1"+'">'
-        +idNo+'</td>'+
-        '<td bgcolor="#FFFFFF" class="jsonElement monacotype" id="bodyr'+
-        idNo+"c2"+'">'+
-        '<div class="elementTextWrap">'+
+        '<td align="center" id="bodyr'+
+        idNo+'c1"'+
+        'style="height:'+cellHeight+'px;">'+
+        '<div class="idWrap"><span class="idSpan">'+
+        idNo+'</span><div class="rowGrab"></div></div></td>'+
+        '<td class="jsonElement" id="bodyr'+
+        idNo+'c2">'+
+        '<div class="elementTextWrap" style="max-height:'+(cellHeight-4)+'px;">'+
         '<div class="elementText">'+
         text2+'</div>'+
         '</div>'+
@@ -546,6 +564,11 @@ function generateRowWithAutoIndex2(text2, idNo) {
             showJsonPopup($(this));
         }
     );
+    $('#bodyr'+idNo+'c1 .rowGrab').mousedown(function(event) {
+        console.log('grabbing row');
+        resrowMouseDown($(this), event);
+    });
+
 }
 
 function delCol(id, resize) {
@@ -590,13 +613,12 @@ function delCol(id, resize) {
 }
 
 function pullCol(key, newColid, startIndex) {
-    console.log('pulling col');
     if (/\.([0-9])/.test(key)) {//check for dot followed by number (invalid)
         return;
     }
-    var colid = $("#autoGenTable th:contains('JSON')").filter(
+    var colid = $("#autoGenTable th").filter(
         function() {
-            return $(this).text().indexOf("JSON") != -1;
+            return $(this).find("input").val() == "JSON";
     }).attr("id");
 
     colid = colid.substring(7);
@@ -647,7 +669,6 @@ function pullCol(key, newColid, startIndex) {
 }
 
 function addCol(id, name, options) {
-    console.log('adding col');
     var numCol = $("#autoGenTable tr:first th").length;
     var colid = parseInt(id.substring(7));
     var newColid = colid;
@@ -688,7 +709,7 @@ function addCol(id, name, options) {
     var columnHeadTd = '<th class="table_title_bg '+color+' editableCol'+
         '" id="headCol'+
         newColid+
-        '" style="width:'+(width+gColPadding+gColumnBorderWidth)+'px;">'+
+        '" style="width:'+width+'px;">'+
         '<div class="header">'+
         '<div class="dragArea"></div>'+
         '<div class="dropdownBox"></div>'+
@@ -701,7 +722,7 @@ function addCol(id, name, options) {
     $("#autoGenTable tr:eq(1) #headCol"+(newColid-1)).after(columnHeadTd); 
 
     var dropDownHTML = '<ul class="colMenu">'+
-            '<li class="menuClickable">'+
+            '<li>'+
                 'Add a column'+
                 '<ul class="subColMenu">'+
                     '<li class="addColumns" id="addLCol'+
@@ -717,7 +738,7 @@ function addCol(id, name, options) {
             '<li id="renameCol'+newColid+'">Rename column</li>'+
             '<li class="sort" id="sort'+newColid+'">Sort</li>';
     if (name == gKeyName) {
-        dropDownHTML += '<li class="filterWrap menuClickable" id="filter'+newColid+'">Filter'+
+        dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
                             '<ul class="subColMenu">'+
                                 '<li class="filter">Greater Than'+
                                     '<ul class="subColMenu">'+
@@ -752,7 +773,7 @@ function addCol(id, name, options) {
                             '</ul>'+
                             '<div class="rightArrow"></div>'+
                         '</li>'+
-                        '<li class="menuClickable" id="join">'+'Join'+
+                        '<li id="join">'+'Join'+
                             '<div class="rightArrow"></div>'+
                             '<ul class="subColMenu">';
         var tables = XcalarGetTables();
@@ -772,6 +793,10 @@ function addCol(id, name, options) {
     if (select) {
         $('#rename'+newColid).select();
     }
+    $('#rename'+newColid).click(function() {
+        $(this).select();
+        $('.colMenu').hide();
+    });
     var numRow = $("#autoGenTable tbody tr").length;
     var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id").
                        substring(5);
@@ -782,8 +807,8 @@ function addCol(id, name, options) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j+1));
             // every column after the new column gets id shifted +1;
         }
-        var newCellHTML = '<td bgcolor="#FFFFFF"'+
-            'class="monacotype '+color+'" id="bodyr'+i+"c"+(newColid)+
+        var newCellHTML = '<td '+
+            'class="'+color+'" id="bodyr'+i+"c"+(newColid)+
             '">&nbsp;</td>';
         if (newColid > 1) {
             $("#bodyr"+i+"c"+(newColid-1)).after(newCellHTML);
@@ -795,9 +820,6 @@ function addCol(id, name, options) {
                 '<input class="editableHead" value="sumFn"/></td>';
     $("#sumFn"+(newColid-1)).after(sumFn); 
 
-    $("#headCol"+newColid).click(function() {
-        $(this).select();
-    });
     $("#headCol"+newColid+" .editableHead").keypress(function(e) {
       if (e.which==13) {
         var thisId = parseInt($(this).closest('.table_title_bg').
@@ -809,6 +831,14 @@ function addCol(id, name, options) {
         $('#autoGenTable td:nth-child('+thisId+')').removeClass('unusedCell');
       }
     });
+    $("#headCol"+newColid).mouseover(function(event) {
+        if (!$(event.target).hasClass('colGrab')) {
+            $(this).find('.dropdownBox').css('opacity', 1);
+        }
+    }).mouseleave(function() {
+        $(this).find('.dropdownBox').css('opacity', 0.5);
+    });
+
     resizableColumns(resize, width);
     matchHeaderSizes();
 }
@@ -863,7 +893,6 @@ function dropdownAttachListeners(colId) {
     });
 
     $('#renameCol'+colId).click(function() {
-        console.log('rename')
         var index = $(this).attr('id').substring(9);
         $('#rename'+index).select();
     });
@@ -873,8 +902,9 @@ function dropdownAttachListeners(colId) {
         var index = parseInt(id.substring(7));
         var name = $('#rename'+index).val();
         var width = $('#headCol'+index).width();
+        var isDark = $('#headCol'+index).hasClass('unusedCell');
 
-        addCol(id, name, {resize: true, width: width});
+        addCol(id, name, {resize: true, width: width, isDark: isDark});
         pullCol(name, (index+1));
     });
 
@@ -895,6 +925,11 @@ function dropdownAttachListeners(colId) {
             filterCol(operator, value);
         }
     });
+
+    $('#filter'+colId+' input').click(function(){
+        $(this).select();
+    });
+
     $('#join .subColMenu li').click(function() {
         joinTables($(this).text());
     });
@@ -903,7 +938,6 @@ function dropdownAttachListeners(colId) {
         if ($(this).children('.subColMenu, input').length === 0) {
             // hide li if doesnt have a submenu or an input field
             $(this).closest('.colMenu').hide();
-            $('.dropdownBox').removeClass('fullOpacity');
             $('.colGrab').css('z-index', 4);
         }
     });
@@ -920,11 +954,7 @@ function convertColNamesToArray() {
     var headings = [];
     for (var i = 0; i<numCol; i++) {
         if (!head.eq(i).parent().parent().hasClass("unusedCell")) {
-            headings.push($.trim(head.eq(i).text()));
-            if (headings[i] == "") {
-                headings.pop();
-                headings.push($.trim(head.eq(i).children('input').val()));
-            }
+            headings.push($.trim(head.eq(i).children('input').val()));
         }
     }
     return headings;
@@ -938,19 +968,11 @@ function convertColNamesToIndexArray() {
     for (var i = 2; i<numCol; i++) {
         if (!$("#headCol"+i).hasClass("unusedCell")) {
             // XXX: THIS IS BECAUSE OF THE SHADOW STICKY HEADER
-            if ($("#headCol"+i+" span")[0].innerHTML == "JSON") {
-                var indexObj = {
-                    index: i-1,
-                    name: "JSON",
-                    width: $("#headCol"+i).width()
-                };
-            } else {
-                var indexObj = {
-                    index: i-1,
-                    name: $("#headCol"+i+" span"+" input").val(),
-                    width: $("#headCol"+i).width()
-                };
-            }
+            var indexObj = {
+                index: i-1,
+                name: $("#headCol"+i+" span"+" input").val(),
+                width: $("#headCol"+i).width()
+            };
             console.log(indexObj.name);
             headings.push(indexObj);
         }
@@ -959,7 +981,6 @@ function convertColNamesToIndexArray() {
 }
 
 function resizableColumns(resize, newWidth) {
-    console.log('resizableColumns');
     $('#autoGenTable tr:first .header').each(
         function() {
             if (!$(this).children().hasClass('colGrab') 
@@ -1013,7 +1034,7 @@ function shrinkLargestCell(newWidth) {
     console.log(newLargeWidth, 'new large')
     */
 }
-
+//XXX consider using mouseover
 // el is #headCol2 .subColMenu li
 function subColMenuMouseEnter(el) {
     el.siblings().addClass('subColUnselected');
@@ -1066,8 +1087,8 @@ function documentReadyCommonFunction() {
         var searchText = gTableName;
     }
     $("#searchBar").val('tablename = "'+searchText+'"');
-    $('#pageInput').width((""+resultSetCount).length*7+10);
-    $('#pageInput').attr('maxLength', (""+resultSetCount).length);
+    var resultTextLength = (""+resultSetCount).length
+    $('#pageInput').attr({'maxLength': resultTextLength, 'size': resultTextLength});
     $('#pageInput').keypress(function(e) {
         if (e.which === 13) {
             val = $('#pageInput').val();
@@ -1096,25 +1117,42 @@ function documentReadyCommonFunction() {
 
     $('#datastorePanel .monitorSubDiv:first').click(function(){
         $("#loadArea").load('load_r.html', function(){
-            $('#progressBar').css('left', -1070);
-            $('.dataStep').css('left',240);
+            $('#progressBar').css('transform', 'translateX(330px)');
+            $('.dataStep').css('transform', 'translateX(320px)');
             $('.dataOptions').css('left',330).css('z-index', 6);
         });
         $('.datasetWrap').addClass('shiftRight');
     });
 
-    $('#autoGenTable thead').mouseover(function(event) {
+    $('#autoGenTable thead').mouseenter(function(event) {
         if (!$(event.target).hasClass('colGrab')) {
-            $('.dropdownBox').css('opacity', 0.8);
+            $('.dropdownBox').css('opacity', 0.5);
             $('.editableHead').addClass('resizeEditableHead');
         }
-    }).mouseout(function() {
+    })
+    .mouseleave(function() {
         $('.dropdownBox').css('opacity', 0);
         $('.editableHead').removeClass('resizeEditableHead');
     });
 
-    $(document).click(function(event) {
-        var clickable = $(event.target).closest('.menuClickable').length > 0;
+    $('#newWorksheet').click(function(){
+        var tabCount = $('.worksheetTab').length;
+        $('#worksheetBar').append('<div class="worksheetTab">Worksheet '+
+                                    (tabCount-1)+'</div>');
+        $('.worksheetTab:last').click(function(){
+            $('.worksheetTab').removeClass('tabSelected');
+            $(this).addClass('tabSelected');
+        });
+        $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');   
+    });
+
+    $('.worksheetTab').click(function() {
+        $('.worksheetTab').removeClass('tabSelected');
+        $(this).addClass('tabSelected');
+    });
+
+    $(document).mousedown(function(event) {
+        var clickable = $(event.target).closest('.colMenu').length > 0;
         if (!clickable && !$(event.target).is('.dropdownBox')) {
                 $('.colMenu').hide();
                 $('.colGrab').css('z-index', 4);
@@ -1131,7 +1169,7 @@ function documentReadyCommonFunction() {
                     }
                     break;
                 case ("resizingRow"):
-                    //XXX resrowMouseMove(event) to go here
+                    resrowMouseMove(event);
                     break;
                 case ("movingCol"):
                     dragdropMouseMove(event);
@@ -1147,7 +1185,7 @@ function documentReadyCommonFunction() {
                     gRescolMouseUp();
                     break;
                 case ("resizingRow"):
-                    //XXX resrowMouseUp() to go here
+                    resrowMouseUp();
                     break;
                 case ("movingCol"):
                     dragdropMouseUp();
@@ -1163,25 +1201,25 @@ function gRescolMouseDown(el, event) {
     event.preventDefault();
     gRescol.mouseStart = event.pageX;
     gRescol.grabbedCell = el.parent().parent();  // the td 
-    gRescol.startWidth = rescol.grabbedCell.outerWidth(); 
-    gRescol.nextCell = rescol.grabbedCell.next();  // the next td
-    gRescol.nextCellWidth = rescol.nextCell.outerWidth();
-    gRescol.id = rescol.grabbedCell.attr('id');
-    gRescol.nextId = rescol.nextCell.attr('id');
+    gRescol.startWidth = gRescol.grabbedCell.outerWidth(); 
+    gRescol.nextCell = gRescol.grabbedCell.next();  // the next td
+    gRescol.nextCellWidth = gRescol.nextCell.outerWidth();
+    gRescol.id = gRescol.grabbedCell.attr('id');
+    gRescol.nextId = gRescol.nextCell.attr('id');
     gRescol.lastCellWidth = $('#autoGenTable thead:last th:last').outerWidth();
     gRescol.tableWidth = $('#autoGenTable').outerWidth();
-    gRescol.tableExcessWidth = rescol.tableWidth - tableWidth;
+    gRescol.tableExcessWidth = gRescol.tableWidth - gMinTableWidth;
 
     if (gRescol.grabbedCell.is(':last-child')) {
         gRescol.lastCellGrabbed = true;
     }
-    if (gRescol.startWidth < rescol.cellMinWidth) {
-        gRescol.tempCellMinWidth = rescol.startWidth;
+    if (gRescol.startWidth < gRescol.cellMinWidth) {
+        gRescol.tempCellMinWidth = gRescol.startWidth;
     } else {
-        gRescol.tempCellMinWidth = rescol.cellMinWidth;
+        gRescol.tempCellMinWidth = gRescol.cellMinWidth;
     }
-    gRescol.rightDragMax = rescol.nextCellWidth - rescol.tempCellMinWidth;
-    gRescol.leftDragMax =  rescol.tempCellMinWidth - rescol.startWidth;
+    gRescol.rightDragMax = gRescol.nextCellWidth - gRescol.tempCellMinWidth;
+    gRescol.leftDragMax =  gRescol.tempCellMinWidth - gRescol.startWidth;
     disableTextSelection();
     $(document.head).append('<style id="ew-resizeCursor" type="text/css">*'+ 
         '{cursor: ew-resize !important;}</style>');
@@ -1190,8 +1228,8 @@ function gRescolMouseDown(el, event) {
 function gRescolMouseMove(event) {
     var dragDist = (event.pageX - gRescol.mouseStart);
     if (dragDist > gRescol.leftDragMax) {
-        $('#'+gRescol.id).outerWidth(rescol.startWidth + dragDist);
-        $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(rescol.startWidth +
+        $('#'+gRescol.id).outerWidth(gRescol.startWidth + dragDist);
+        $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(gRescol.startWidth +
             dragDist);
         $('#autoGenTable thead:first').outerWidth($('#autoGenTable').width());
 
@@ -1201,14 +1239,15 @@ function gRescolMouseMove(event) {
             $('#autoGenTable thead:first').outerWidth($('#autoGenTable').width());
         }     
     } else if ( dragDist < gRescol.leftDragMax ) {
+        $('#'+gRescol.id).outerWidth(gRescol.tempCellMinWidth);
+        $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(gRescol.tempCellMinWidth);
         if (dragDist < -gRescol.tableExcessWidth) {
-            $('#autoGenTable thead:first').outerWidth(tableWidth);
-            $('#autoGenTable thead:eq(1)').outerWidth(tableWidth);
+            $('#autoGenTable thead:first').outerWidth(gMinTableWidth);
+            var addWidth = gMinTableWidth - $('#autoGenTable').width();
+            $('#autoGenTable thead th:last-child').outerWidth('+='+addWidth+'px');
         } 
         else {
-            $('#'+gRescol.id).outerWidth(rescol.tempCellMinWidth);
-            $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(rescol.tempCellMinWidth);
-            $('#autoGenTable thead:first').owidth($('#autoGenTable').outerWidth());
+            $('#autoGenTable thead:first').outerWidth($('#autoGenTable').outerWidth());
         }
     }
 }
@@ -1217,15 +1256,15 @@ function gRescolMouseMoveLast(event) {
     var dragDist = (event.pageX - gRescol.mouseStart);
     if (dragDist >= -gRescol.tableExcessWidth) {
         if (dragDist > gRescol.leftDragMax) {
-            $('#'+gRescol.id).outerWidth(rescol.startWidth + dragDist);
-            $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(rescol.startWidth +
+            $('#'+gRescol.id).outerWidth(gRescol.startWidth + dragDist);
+            $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(gRescol.startWidth +
             dragDist);
             $('#autoGenTable thead:first').width(gRescol.tableWidth + dragDist);
         } 
     } else {
-        $('#'+gRescol.id).outerWidth(rescol.startWidth - rescol.tableExcessWidth);
-        $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(rescol.startWidth - rescol.tableExcessWidth);
-        $('#autoGenTable thead:first').width(tableWidth);
+        $('#'+gRescol.id).outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
+        $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
+        $('#autoGenTable thead:first').width(gMinTableWidth);
     } 
 }
 
@@ -1234,14 +1273,61 @@ function gRescolMouseUp() {
     gRescol.lastCellGrabbed = false;
     $('#ew-resizeCursor').remove();
     reenableTextSelection();
+    $('.rowGrab').width($('#autoGenTable').width());
 }
+
+
+
+function resrowMouseDown(el, event) {
+    gMouseStatus = "resizingRow";
+    resrow.mouseStart = event.pageY;
+    resrow.targetTd = el.closest('td');
+    resrow.startHeight = resrow.targetTd.outerHeight();
+    resrow.rowIndex = resrow.targetTd.closest('tr').index();
+    disableTextSelection();
+    var style = '<style id="ns-resizeCursor" type="text/css">*'+ 
+        '{cursor: ns-resize !important;}</style>';
+    $(document.head).append(style);
+    $('body').addClass('hideScroll');
+}
+
+function resrowMouseMove(event) {
+    var mouseDistance = event.pageY - resrow.mouseStart;
+    var newHeight = resrow.startHeight + mouseDistance;
+    var row = resrow.rowIndex;
+    if (newHeight < gRescol.minCellHeight) {
+        resrow.targetTd.outerHeight(gRescol.minCellHeight);
+        $('#autoGenTable tbody tr:eq('+row+') td > div').css('max-height', gRescol.minCellHeight-4);
+    } else {
+        resrow.targetTd.outerHeight(newHeight);
+        $('#autoGenTable tbody tr:eq('+row+') td > div').css('max-height', newHeight-4);
+    }
+}
+
+function resrowMouseUp() {
+    gMouseStatus = null;
+    reenableTextSelection();
+    $('#ns-resizeCursor').remove();
+    $('body').removeClass('hideScroll'); 
+    $('.colGrab').height($('#autoGenTable').height());
+}
+
+
+
+
+
+
+
+
+
+
 
 // start drag n drop column script
 function dragdropMouseDown(el, event) {
     gMouseStatus = "movingCol";
     gDragObj.mouseStart = event.pageX;
     gDragObj.id = el.attr('id');
-    gDragObj.colId = parseInt(dragObj.id.substring(7));
+    gDragObj.colId = parseInt(gDragObj.id.substring(7));
     gDragObj.colIndex = parseInt(el.index());
     gDragObj.colOffLeft = el.offset().left;
     gDragObj.colOffTop = el.offset().top;
@@ -1254,12 +1340,12 @@ function dragdropMouseDown(el, event) {
     var shadowDivHeight = Math.min(tableHeight,mainFrameHeight);
 
     // get dimensions and position of column that was clicked
-    gDragObj.colWidth = el.width() + gColPadding;
+    gDragObj.colWidth = el.outerWidth();
     gDragObj.startXPos = el.position().left;
     gDragObj.startXPos = firstTd.position().left;
     var startYPos = el.position().top;
     //create a replica shadow with same column width, height, and starting position
-    $('#mainFrame').prepend('<div class="shadowDiv" style="width:'+(gDragObj.colWidth+5)+
+    $('#mainFrame').prepend('<div class="shadowDiv" style="width:'+(gDragObj.colWidth)+
                         'px;height:'+(shadowDivHeight)+'px;left:'+(gDragObj.startXPos)+
                         'px;top:'+(gDragObj.colOffTop)+'px;"></div>');
 
@@ -1275,7 +1361,7 @@ function dragdropMouseDown(el, event) {
 }
 
 function dragdropMouseMove(event) {
-    var newXPos = gDragObj.startXPos + (event.pageX - dragObj.mouseStart);
+    var newXPos = gDragObj.startXPos + (event.pageX - gDragObj.mouseStart);
     $('.fauxCol').css('left', newXPos);
 }
 
@@ -1283,16 +1369,14 @@ function dragdropMouseUp() {
     gMouseStatus = null;
     $('.shadowDiv, .fauxCol, .dropTarget, #moveCursor').remove();
     var head = $("#autoGenTable tr:first th span");
-    var name = $.trim(head.eq(gDragObj.colIndex).text());
-    if (name == "") {
-        name = $.trim(head.eq(gDragObj.colIndex).children('input').val());
-    }
+    var name = $.trim(head.eq(gDragObj.colIndex).children('input').val());
     // only pull col if column is dropped in new location
-    if ((gDragObj.colIndex+1) != dragObj.colId) { 
-        var width = gDragObj.colWidth-gColPadding;
-        delCol("closeButton"+(gDragObj.colId), false);
+    if ((gDragObj.colIndex+1) != gDragObj.colId) { 
+        var width = gDragObj.colWidth;
+        var isDark = $('#'+gDragObj.id).hasClass('unusedCell');
+        delCol("closeButton"+(gDragObj.colId), true);
         addCol(("headCol"+gDragObj.colIndex), name, 
-            {width : (gDragObj.colWidth-gColPadding)});
+            {width : width, isDark: isDark});
         pullCol(name, (gDragObj.colIndex+1));
     }
     reenableTextSelection(); 
@@ -1303,21 +1387,21 @@ function cloneCellHelper(obj) {
     var row = $("<tr></tr>");
     var rowColor = $(obj).css('background-color');
     var clone = td.eq(gDragObj.colIndex).clone();
-    var cloneHeight = parseInt(td.eq(gDragObj.colIndex).outerHeight());
+    var cloneHeight = td.eq(gDragObj.colIndex).outerHeight();
     var cloneColor = td.eq(gDragObj.colIndex).css('background-color');
     row.css('background-color', rowColor);
     clone.outerHeight(cloneHeight);
-    clone.width(gDragObj.colWidth);
+    clone.outerWidth(gDragObj.colWidth-5);
     clone.css('background-color', cloneColor);
     row.append(clone).appendTo($(".fauxTable"));
 }
 
 function createTransparentDragDropCol(startYPos) {
     $('#mainFrame').append('<div class="fauxCol" style="left:'+
-                        (gDragObj.startXPos)+'px;top:'+(dragObj.colOffTop)+'px;width:'+
-                        (gDragObj.colWidth)+'px"></div>');
+                        (gDragObj.startXPos)+'px;top:'+(gDragObj.colOffTop)+'px;width:'+
+                        (gDragObj.colWidth-5)+'px"></div>');
     $('.fauxCol').append('<table id="autoGenTable" class="fauxTable" style="width:'+
-                        (gDragObj.colWidth)+'px"></table>');
+                        (gDragObj.colWidth-5)+'px"></table>');
 
     // We cannot just copy the entire column because columns may now be too
     // big. So we binary search to the first visible and backtrack a few, find
@@ -1368,16 +1452,20 @@ function createTransparentDragDropCol(startYPos) {
 function createDropTargets() {
     // var offset = distance from the left side of dragged column
     // to the point that was grabbed
-    var offset = gDragObj.mouseStart - dragObj.colOffLeft;
+    var offset = gDragObj.mouseStart - gDragObj.colOffLeft;
     var dragMargin = 30; // targets extend this many pixels to left of each column
     $('.dropTarget').remove(); 
     var i = 0;
     $('#autoGenTable tr:first th:not(:last)').each(function(){
-        var colLeft = $(this).offset().left;
+        if (i == 0 || i == gDragObj.colIndex) {
+            i++;
+            return true;  
+        }
+        var colLeft = $(this)[0].getBoundingClientRect().left;
         if ((gDragObj.colWidth-dragMargin) < Math.round(0.5*$(this).width())) {
             var targetWidth = gDragObj.colWidth;
         } else {
-            var targetWidth = Math.round(0.5*$(this).width())+dragMargin;
+            var targetWidth = Math.round(0.5*$(this).outerWidth())+dragMargin;
         }
         var dropTarget = '<div id="dropTarget'+i+'" class="dropTarget"'+
                         'style="left:'+(colLeft-dragMargin+offset)+'px;'+
@@ -1390,42 +1478,32 @@ function createDropTargets() {
 
     $('.dropTarget').mouseenter(function(){
         var dropTargetId = parseInt(($(this).attr('id')).substring(10));
-        if (dropTargetId != gDragObj.colIndex && dropTargetId != 0) {
-            var nextCol = Math.abs(dropTargetId-gDragObj.colIndex);
-            if (dropTargetId>gDragObj.colIndex) {
-                $('#autoGenTable tr').each(function() { 
-                    $(this).children(':eq('+(dropTargetId)+')').after(
-                        $(this).children(':eq('+(dropTargetId-nextCol)+')'));
-                });
-            } else {
-                $('#autoGenTable tr').each(function() { 
-                    $(this).children(':eq('+(dropTargetId)+')').before(
-                        $(this).children(':eq('+(dropTargetId+nextCol)+')'));
-                });
-            }
-            $('.shadowDiv').css('left', $('#autoGenTable #'+gDragObj.id).offset().left); 
-            gDragObj.colIndex = dropTargetId;
-            createDropTargets(gDragObj);
+        var nextCol = Math.abs(dropTargetId-gDragObj.colIndex);
+        if (dropTargetId>gDragObj.colIndex) {
+            $('#autoGenTable tr').each(function() { 
+                $(this).children(':eq('+(dropTargetId)+')').after(
+                    $(this).children(':eq('+(dropTargetId-nextCol)+')'));
+            });
+        } else {
+            $('#autoGenTable tr').each(function() { 
+                $(this).children(':eq('+(dropTargetId)+')').before(
+                    $(this).children(':eq('+(dropTargetId+nextCol)+')'));
+            });
         }
+        $('.shadowDiv').css('left', $('#autoGenTable #'+gDragObj.id).offset().left); 
+        gDragObj.colIndex = dropTargetId;
+        createDropTargets(gDragObj);
     });
 }
 
 function gRescolDelWidth(id, resize, delTdWidth) {
     matchHeaderSizes();
     var id = parseInt(id.substring(11));
-    var padding = 4;
-    var tempTableWidth = $('#autoGenTable').width();
-    // console.log(tempTableWidth, delTdWidth, 'a');
-    // $('#autoGenTable').width(tempTableWidth - delTdWidth - padding - gColumnBorderWidth);
-
-    console.log( $('#autoGenTable').width(), delTdWidth, 'b');
-    if (!resize && ($('#autoGenTable').width() < tableWidth)) {
-        console.log('small')
+    var oldTableWidth = $('#autoGenTable').width();
+    if (!resize && (oldTableWidth < gMinTableWidth)) {
         var lastTd = $('#autoGenTable tr:first th').length;
         var lastTdWidth = $('#headCol'+lastTd).width();
-        console.log(lastTdWidth,  (tableWidth - $('#autoGenTable').width()) );
-        // $('')
-        $('#autoGenTable thead:last #headCol'+lastTd).width(lastTdWidth + (tableWidth - $('#autoGenTable').width()));
+        $('#autoGenTable thead:last #headCol'+lastTd).width(lastTdWidth + (gMinTableWidth - oldTableWidth));
     }
     matchHeaderSizes();
 }
@@ -1450,25 +1528,24 @@ function autosizeCol(el, options) {
     var index = parseInt(el.attr('id').substring(7));
     var options = options || {};
     var includeHeader = options.includeHeader || false;
+    var resizeFirstRow = options.resizeFirstRow || false;
+    var oldTableWidth = $('#autoGenTable').width();
     var maxWidth = 500;
-    var oldWidth = el.width();
-    var nextWidth = el.next().width();    
+    var oldWidth = el.width();  
     var newWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
-    if (newWidth > maxWidth) {
-        newWidth = maxWidth;
-    }  
-    var newNextWidth = nextWidth + (oldWidth - newWidth);
-    if (newNextWidth < gRescol.cellMinWidth) {
-        if (nextWidth > gRescol.cellMinWidth) {
-            el.width(oldWidth + (nextWidth - gRescol.cellMinWidth));
-            el.next().width(gRescol.cellMinWidth);
-        } 
-        //else no room to resize
+    newWidth = Math.min(newWidth, maxWidth);
+    var widthDiff = newWidth - oldWidth; 
+    if (widthDiff > 0) {
+        $('#autoGenTable thead').width('+='+(newWidth-oldWidth));
+        el.width(newWidth);
+    } else if (oldTableWidth + widthDiff < gMinTableWidth) {
+        el.width(newWidth);
+        $('#autoGenTable tr:first th:last').outerWidth('+='+
+            (gMinTableWidth-(oldTableWidth+widthDiff)));
     } else {
         el.width(newWidth);
-        el.next().width(newNextWidth);
     }
-    matchHeaderSizes(true);
+    matchHeaderSizes(resizeFirstRow);
 }
 
 function getWidestTdWidth(el, options) {
@@ -1483,7 +1560,7 @@ function getWidestTdWidth(el, options) {
     } else {
         var selector = ':gt(1)';
     }
-    var rightMargin = 4;
+    var rightMargin = 6;
 
     $('#autoGenTable tr'+selector).each(function(){
         var td = $(this).children(':eq('+(id-1)+')');
@@ -1500,8 +1577,15 @@ function getWidestTdWidth(el, options) {
             largestWidth = width; 
         }
     });
-    console.log(largestWidth)
     return (largestWidth);
+}
+
+function getTdHeights() {
+    var tdHeights = [];
+    $("#autoGenTable tbody tr").each(function(){
+        tdHeights.push($(this).children().eq(0).outerHeight());
+    });
+    return (tdHeights);  
 }
 
 function dblClickResize(el) {
@@ -1514,7 +1598,7 @@ function dblClickResize(el) {
     } else {
         gMouseStatus = null;
         reenableTextSelection();
-        autosizeCol(el.parent().parent());
+        autosizeCol(el.parent().parent(), {resizeFirstRow: true});
         $('#ew-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
@@ -1544,7 +1628,7 @@ function documentReadyCatFunction() {
                 pullCol(index[i].name, 1+index[i].index);
             } else {
                 $("#headCol"+(index[i].index+1)).css("width", 
-                    index[i].width+gColPadding+gColumnBorderWidth);
+                    index[i].width);
             }
         }
     } else {
@@ -1734,7 +1818,7 @@ function showJsonPopup(jsonTd) {
     var modalHeight = $('#jsonModal').outerHeight();
     var modalWidth = $('#jsonModal').outerWidth();
     var closeHeight = $('.closeJsonModal').height();
-    var closeTop = jsonTdPos.top - closeHeight/2;
+    var closeTop = jsonTdPos.top - closeHeight/2 + 2;
     var closeLeft = jsonTdPos.left+(jsonTdWidth/2);
 
     if (jsonTdPos.top < winHeight/2) {
@@ -1763,11 +1847,14 @@ function showJsonPopup(jsonTd) {
 
     $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
         var name = createJsonNestedField($(this));
-        var id = $('.jsonColHead').attr('id');
+        var id = $("#autoGenTable th").filter(function() {
+                        return $(this).find("input").val() == "JSON";
+                    }).attr("id");
         var colIndex = parseInt(id.substring(7)); 
-        addCol(id, name, {direction: "L", resize: false, select: false});
-        pullCol(name, colIndex);
-        autosizeCol($('#'+id), {includeHeader: true});
+        addCol(id, name, {resize: false, select: false});
+        pullCol(name, colIndex+1);
+        autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
+                resizeFirstRow: true});
         $('#jsonModal, #jsonModalBackground').hide();
         $('#jsonModal').css('left',0);
         $('body').removeClass('hideScroll');
@@ -1801,7 +1888,7 @@ function cloneTableHeader() {
             }
         );
     });
-    $('#autoGenTable').width(0);
+    $('#autoGenTable').width(0); 
     $('.fauxTHead .colGrab').height($('#autoGenTable').height());
     $('#mainFrame').scroll(function() {
         var leftPos = $('#autoGenTable').position().left - $(window).scrollLeft();
@@ -1827,5 +1914,16 @@ function matchHeaderSizes(reverse) {
         var width = $(fauxTHead+' th').eq(i).outerWidth();
         $(trueTHead+' th').eq(i).outerWidth(width);
     }
-    $(trueTHead).width($('#autoGenTable').width())
+    $('#autoGenTable thead').width($('#autoGenTable').width());
+    $('.rowGrab').width($('#autoGenTable').width());
+}
+
+function widths() {
+    console.log("thead1: "+$('#autoGenTable thead:first').width()+",",
+                "thead2: "+$('#autoGenTable thead:eq(1)').width()+",",
+                "table: "+$('#autoGenTable').width());
+    console.log("head2top: "+$('#headCol2').outerWidth()+",",
+                "thead2bottom: "+$('#autoGenTable thead:eq(1) #headCol2').outerWidth()+",",
+                "head3top: "+$('#headCol3').outerWidth()+",",
+                "thead3bottom: "+$('#autoGenTable thead:eq(1) #headCol3').outerWidth());
 }

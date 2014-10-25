@@ -4,6 +4,7 @@
 /* Bar */
 @color-bar-orange: #FDB03C;
 @color-bar-grey: #999999;
+@color-bar-midGray: #ADADAD;
 /* Monitor */
 @color-monitor-red: #F8A7AB;
 @color-monitor-green: #95DCBC;
@@ -20,6 +21,7 @@
 @colorOpaque-darkGray: rgba(80, 80, 80, 0.1);
 @colorOpaque-pink: rgba(237, 28, 36, 0.1);
 @colorOpaque-blankGrayDark: rgba(0, 0, 0, 0.2);
+@colorShadow-black: rgba(0, 0, 0, 0.15);
 
 /* Text */
 @color-text-black: #0F0F0F; 
@@ -71,7 +73,7 @@ body {
     .nomargin-padding;
     font-family: @font-base;
     font-size: 0; /* Need to use this to get rid of stupid white space */
-    min-width: 1500px;
+    min-width: 1400px;
 }
 
 #logo {
@@ -95,14 +97,14 @@ body {
 
 #menuArea {
     height: 0;
-    transition: 0.3s;
+    transition: 0.3s ease-out;
     overflow: hidden;
     position: relative;
 }
 
 #menuBar {
     margin-top: 5px;
-    height: 34px;
+    height: 32px;
     background-color: @color-bar-grey;
     color: @color-white;
     width: 100%;
@@ -110,8 +112,9 @@ body {
     div {
         display: inline-block;
         margin:  0px 150px 0px 0px;
+        padding-top: 3px;
         font: @font-base;
-        font-size: 26px;
+        font-size: 20px;
         vertical-align: middle;
         .noSelection;
         &:hover {
@@ -126,7 +129,7 @@ body {
     margin: 0px;
 	margin-top: 5px;
 	padding: 0px;
-	height: 72px;
+	height: 67px;
 	width: 100%;
     display: table;
     div {
@@ -206,7 +209,7 @@ body {
 	background-color: #999999;
 	margin-top: 5px;
 	padding: 0px;
-	height: 34px;
+	height: 32px;
 	width: 100%;
     display: table;
     div {
@@ -214,7 +217,7 @@ body {
         font: @font-base;
         padding: 5px 0px 0px 0px;
         margin: 0px 0px 0px 20px;
-        font-size: 18px;
+        font-size: 16px;
         color: #FFFFFF;
         vertical-align: middle;
         input {
@@ -222,8 +225,9 @@ body {
             text-align: center;
             font-color: black;
             // margin-bottom: 5px;
-            background-color: @color-table-midGray;
+            background-color: @color-table-lightGray;
             height: 20px;
+            padding: 0px 2px;
         }
     }
 }
@@ -276,7 +280,8 @@ body {
         color: @color-white;
         position: absolute;
         left: -80px;
-        .slowPositionTransition;
+        transition: left 0.7s ease-out 0s, transform 0.7s ease-out, color 1s;
+        // .slowPositionTransition;
         z-index:2;
     }
 
@@ -303,7 +308,7 @@ body {
     }
 
     .dataOptionsRow {
-        height: 38px;
+        height: 35px;
         display: block;
         float: none;
     }
@@ -312,8 +317,8 @@ body {
         display: inline-block;
         vertical-align: middle;
         width: 115px;
-        height: 33px;
-        line-height: 33px;
+        height: 30px;
+        line-height: 30px;
         font-size: 20px;
         font-weight: bold;
         float: left;
@@ -345,7 +350,8 @@ body {
     z-index: 2;
     opacity: 1;
     font-size: 58px;
-    .slowPositionTransition;
+    // .slowPositionTransition;
+    transition: left 0.7s ease-out 0s, transform 0.7s ease-out;
     div {
         color: @color-white;
         font-size: 58px;
@@ -430,19 +436,20 @@ body {
 #mainFrame {
 	background-color: #FFFFFF;
     padding: 5px 0 0 0;
-	height: 848px;
+    height: 848px;
 	width: 100%;
 	float: top;
     overflow-x: scroll;
 	overflow-y: scroll;
     display: inline-block;
     font-size: 11px;
+    margin-bottom: 5px;
     // position: relative;
 }
 
 #mainFrame::-webkit-scrollbar {
     // width: 8px;
-    width: 0px;
+    width: 8px;
     height: 8px;
     background: transparent;
 }
@@ -458,16 +465,17 @@ body {
 #autoGenTable {
     border-collapse: separate;
     border-spacing: 0px;
-    margin-left: 5px;
+    margin-left: 10px;
     table-layout: fixed;
-    width: 1000px;
+    width: 900px;
 
     th {
-        height: 33px;
+        height: 30px;
         border-right: 5px solid @color-white;
         border-bottom: 5px solid @color-white;
         font-weight: normal;
-        font-size: 14px;
+        font-size: 13px;
+        padding: 0px;
     }
 
     td {
@@ -475,12 +483,12 @@ body {
         font-size: 11px;
         height: 20px;
         overflow: hidden;
+        padding: 2px;
     }
 
     td, th {
         vertical-align: middle;
         text-align: center;
-        padding: 2px;
 
         &:nth-child(odd) {
             background-color: @colorOpaque-darkGray;
@@ -494,7 +502,9 @@ body {
     }
 
     thead {
-        background-color: @color-white
+        background-color: @color-white;
+        box-shadow: 0px 3px @colorShadow-black;
+        // box-shadow: 2px 0px 1px 1px @colorShadow-black;
     }
 
     tbody tr {
@@ -556,24 +566,28 @@ body {
     }
 
     input {
-        font: 14px @font-base;
-    }
-    input:disabled {
-        background-color: transparent;
-        color: @color-text-black;
+        font: 13px @font-base;
+        &:disabled {
+            background-color: transparent;
+            color: @color-text-black;
+        }
+        &[readonly] {
+            background-color: transparent;
+            width: 100%;
+            height: 25px;
+            text-align: center;
+        }
     }
 
     .editableHead {
         width: 100%;
-        height: 21px; 
+        height: 25px; 
         background-color: transparent; 
         border: none;
         display: block;
         text-align: center;
         overflow: hidden;
         font: 14px @font-base;
-        transition: width 0s;
-        transition-delay: 0.08s;
     }
 
     .addedBarTextTd {
@@ -584,6 +598,10 @@ body {
         overflow-y: auto !important;
     }
 
+    .addedBarText {
+        cursor: context-menu;
+    }
+
     .elementText{ 
         cursor: pointer;
         text-align: left;
@@ -592,7 +610,7 @@ body {
     .elementTextWrap, .addedBarTextWrap {
         // overflow-y: auto;
         // overflow-x: none;
-        max-height: 14px;
+        max-height: 16px;
         overflow: hidden;
     }
 
@@ -606,23 +624,26 @@ body {
 
 .fauxTHead {
     opacity: 0;
+    .colGrab {
+        display: none;
+    }
 }
 
 .trueTHead {
     z-index: 1;
-    margin-left: 5px;
-    .colGrab {
-        height: 37px !important;
-    }
+    margin-left: 10px;
+    // .colGrab {
+    //     height: 37px !important;
+    // }
 }
 
 .moveTop {
-    transition: top 0.3s;
+    transition: top 0.3s ease-out;
 }
 
 .colGrab {
     display: inline-block;
-    height: 100%;
+    height: 448px !important; //fix code so we dont need important
     position: absolute;
     width: 8px;
     cursor: ew-resize;
@@ -647,15 +668,19 @@ body {
     position: absolute;
     background-color: @color-white;
     z-index: 11;
-    opacity: 0.7;
+    opacity: 0.8;
     pointer-events: none;
     overflow: hidden;
+    box-shadow: 1px 0px 1px 1px rgba(100,100,100,.05);
 }
 
 .fauxTable {
     background-color: @color-white;
     z-index: 11;
     margin-left: 0 !important;
+    th {
+        outline: 3px solid rgba(0,0,0,.1);
+    }
     tr:last-child td {
          border-top: 5px solid @color-white;
     }
@@ -669,9 +694,9 @@ body {
 
 .dragArea {
     position: absolute;
-    height: 40px;
+    height: 45px;
     width: 100%;
-    top: -12px;
+    top: -10px;
     left: 0;
     cursor: move;
     cursor: -webkit-grab;
@@ -683,6 +708,7 @@ body {
     position: fixed;
     top: 0;
     z-index: 22;
+    // background-color: rgba(0,0,50,0.1);
 }
 /* END DRAG AND DROP STYLING */
 
@@ -694,8 +720,8 @@ body {
     height: 10px;
     position: absolute;
     vertical-align: middle;
-    right: -2px;
-    bottom: -3px;
+    right: 0px;
+    bottom: 0px;
     cursor: pointer;
     z-index: 6;
     opacity: 0;
@@ -706,13 +732,13 @@ body {
 }
 
 .staticCol .dropdownBox {
-    bottom: -5px;
+    // bottom: -5px;
 }
 
 .dropdownBox:hover {
     opacity: 1.0 !important;
     transition: opacity 0.02s linear;
-    transition-delay: 0.08s;
+    // transition-delay: 0.08s;
 }
 
 .fullOpacity {
@@ -732,18 +758,19 @@ body {
     width: 170px;
     .box-sizing;
     z-index: 7;
-    box-shadow: 1px 1px 1px #cccccc;
+    // box-shadow: 1px 1px 1px #cccccc;
+    box-shadow: 1px 1px rgba(0,0,0,0.1);
 }
 
 .staticCol ul.colMenu {
-    top: 22px;
+    top: 25px;
 }
 
 ul.colMenu {
     display:none;
     background-color: @color-monitor-green;
-    top: 24px;
-    right: -161px;
+    top: 25px;
+    right: -160px;
 
     li {
         padding: 6px;
@@ -835,13 +862,18 @@ ul.colMenu {
 
     input[type=text] {
         width: 90px;
-        height: 18px;
+        height: 20px;
         position: relative;
-        top: 0px;
+        top: -1px;
         right: 0px;
         margin-left: -3px;
         padding: 2px;
         text-align: center;
+        box-shadow: 0px 0px 0px 1px @color-monitor-green;
+
+        &:focus {
+            outline: none;
+        }
     }
 
     .filter ul {
@@ -885,7 +917,7 @@ ul.colMenu li:hover > ul {
 
 ul.subColMenu li {
     &:first-child {
-        background-color: @color-monitor-green;
+        // background-color: @color-monitor-green;
     }
     &.subColUnselected {
         background-color: @color-white;
@@ -897,7 +929,7 @@ ul.subColMenu li {
 
 ul.leftColMenu {
     right: 1px;
-    box-shadow: -1px 1px 1px #cccccc;
+    box-shadow: -1px 1px rgba(0,0,0,0.1);
 }
 
 .filter ul.subColMenu.leftColMenu {
@@ -908,7 +940,8 @@ ul.leftColMenu {
 
 ul.subColMenu.leftColMenu {
     left: -170px;
-    box-shadow: -1px 1px 1px #cccccc;
+    // box-shadow: -1px 1px 1px #cccccc;
+    box-shadow: -1px 1px rgba(0,0,0,0.1);
 }
 
 ul.colMenu > li:first-child{
@@ -937,15 +970,131 @@ ul.leftColMenu + .rightArrow {
 }
 /* END DROPDOWN STYLING */
 
+/* VERTICAL RESIZING */
+.rowGrab {
+    position: absolute;
+    width: 1000px;
+    height: 7px;
+    bottom: -6px;
+    left: -2px;
+    // background-color: rgba(0,0,0,0.5);
+    z-index: 0;
+    cursor: ns-resize;
+}
 
-.worksheetBar {
-    margin-top: 5px;
-    height: 34px;
+#autoGenTable tbody td {
+    height: 20px;
+}
+
+#autoGenTable tbody td:first-child {
+    overflow: visible;
+}
+
+.idWrap {
+    display: table;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.idSpan {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    width: 100%;
+}
+/* END VERTICAL RESIZING */
+
+
+
+
+
+
+
+
+
+/* START WORKSHEET BAR */
+
+#worksheetBar {
+    // margin-top: 5px;
+    height: 32px;
     background-color: @color-bar-grey;
     color: @color-white;
     width: 100%;
-    display: table;
+    overflow: hidden;
+    box-shadow: inset 0px 3px rgba(0,0,0,.15);
+    // display: table;
+
+    div {
+        display: inline-block;
+        height: 100%;
+        color: @color-white;
+        font-size: 16px;
+        vertical-align: middle;
+        text-align: center;
+        padding-top: 4px
+    }
+
+    #newWorksheet {
+        width: 200px;
+        color: @color-monitor-green;
+        cursor: pointer;
+        .noSelection;
+    }
+
+    .worksheetTab {
+        width: 220px;
+        // height: 25px;
+        height: 26px;
+        cursor: pointer;
+        background-color: @color-bar-midGray;
+        vertical-align: top;
+        padding-top: 1px;
+        box-shadow: 1px 1px rgba(0,0,0,.15), inset 0px 2px rgba(0,0,0,.15);
+        margin-right: 15px;
+        overflow: hidden;
+        .noSelection;
+
+        &.tabSelected {
+            background-color: @color-white;
+            color: @color-bar-orange;
+            box-shadow: 2px 3px rgba(0,0,0,.15), inset 0px 0px  @color-white;
+        }
+        &:not(.tablSelected):hover {
+            box-shadow: 2px 3px rgba(0,0,0,.15), inset 0px 0px  @color-white;
+        }
+    }
 }
+
+/* END WORKSHEET BAR */
+
+
+/* one item */
+// li:first-child:nth-last-child(1) {
+//     width: 100%;
+// }
+
+// /* two items */
+// li:first-child:nth-last-child(2),
+// li:first-child:nth-last-child(2) ~ li {
+//     width: 50%;
+// }
+
+// /* three items */
+// li:first-child:nth-last-child(3),
+// li:first-child:nth-last-child(3) ~ li {
+//     width: 33.3333%;
+// }
+
+// /* four items */
+// li:first-child:nth-last-child(4),
+// li:first-child:nth-last-child(4) ~ li {
+//     width: 25%;
+// }
+
+
+
+
 
 
 /* PRETTIFY JSON STYLING */
@@ -968,7 +1117,7 @@ ul.leftColMenu + .rightArrow {
     min-width: 300px;
     background-color: #FFFFFF;
     opacity: 1;
-    padding: 25px 3px 15px 3px;
+    padding: 20px 0px 10px 10px;
     display: none;
     z-index: 31;
     overflow: auto;
@@ -1017,6 +1166,7 @@ ul.leftColMenu + .rightArrow {
 .jObject {
     height: 100%;
     padding-left: 25px;
+    padding-right: 5px;
     position:relative;
     overflow: hidden;
 }
