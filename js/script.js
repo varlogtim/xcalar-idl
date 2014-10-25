@@ -5,10 +5,9 @@ var gCurrentPageNumber = 0;
 var gNumEntriesPerPage = 20;
 var gNumPageTurners = 10;
 var gResultSetId = 0;
-var newCellWidth = 116;
-var columnBorderWidth = -1;
-var colPadding = 4;
-var numPages = 30;
+var gNewCellWidth = 116;
+var gColumnBorderWidth = -1;
+var gColPadding = 4;
 var keyName = "";
 var mouseStatus = null;
 var dragObj = {};
@@ -188,7 +187,7 @@ function fillPageWithBlankCol() {
     var tableWidth = $("#autoGenTable").width();
     var windowWidth = $(window).width();
     // Ensures that empty cols will stretch the page to more than window width
-    var numColsToFill = Math.ceil((windowWidth - tableWidth)/newCellWidth+1) ;
+    var numColsToFill = Math.ceil((windowWidth - tableWidth)/gNewCellWidth+1) ;
     var startColId = $("#autoGenTable tr:first th").length;
     for (var i = 0; i<numColsToFill; i++) {
         addCol("headCol"+(startColId+i), "");
@@ -236,7 +235,7 @@ function goToPrevPage() {
 }
 
 function goToNextPage() {
-    if (gCurrentPageNumber >= numPages) {
+    if (gCurrentPageNumber >= gNumPages) {
         return;
     }
     var currentPage = gCurrentPageNumber;
@@ -248,7 +247,7 @@ function goToNextPage() {
         selectPage(nextPage);
         deselectPage(currentPage);
         getNextPage(gResultSetId);
-        if (gCurrentPageNumber == numPages) {
+        if (gCurrentPageNumber == gNumPages) {
             $('#pageTurnerRight').css('visibility', 'hidden');
         }
     } else {
@@ -270,7 +269,7 @@ function showHidePageTurners() {
     if (gCurrentPageNumber < 2) {
         $('#pageTurnerLeft a').css('visibility', 'hidden');
     } 
-    if (gCurrentPageNumber >= numPages) {
+    if (gCurrentPageNumber >= gNumPages) {
         $('#pageTurnerRight a').css('visibility', 'hidden');
     }
 }
@@ -293,15 +292,15 @@ function generatePages() {
     var rightDots = false;
     var leftDots = false;
     var startNumber = Math.max(gCurrentPageNumber-6, 0); // number furthest on left side
-    if (numPages > gNumPageTurners) {
+    if (gNumPages > gNumPageTurners) {
         var number = gNumPageTurners; 
-        if ((numPages-startNumber) > gNumPageTurners) {
+        if ((gNumPages-startNumber) > gNumPageTurners) {
             rightDots = true;
         } else {
-           startNumber = numPages - gNumPageTurners;
+           startNumber = gNumPages - gNumPageTurners;
         }
     } else {
-        var number = numPages;
+        var number = gNumPages;
     }
     var htmlString = '<table class="noBorderTable" id="pageTurnerNumberBarInner">\
                         <tr>\
@@ -340,8 +339,8 @@ function generatePages() {
     if (rightDots) {
         // There are next pages
         var rightDotsNumber = (startNumber + number + 5);
-        if (rightDotsNumber >= numPages) {
-            rightDotsNumber = numPages-1;
+        if (rightDotsNumber >= gNumPages) {
+            rightDotsNumber = gNumPages-1;
         }
         htmlString += '<td id="rightDots" class="pageTurner">\
                 <a href="javascript:goToPage(';
@@ -436,7 +435,7 @@ function getPage(resultSetId, firstTime) {
         keyName = tableOfEntries.meta.keysAttrHeader.name;
         var indName = {index: 1,
                        name: keyName,
-                       width: newCellWidth};
+                       width: gNewCellWidth};
         indices.push(indName); 
         resize = true;
     }
@@ -652,7 +651,7 @@ function addCol(id, name, options) {
     var colid = parseInt(id.substring(7));
     var newColid = colid;
     var options = options || {};
-    var width = options.width || newCellWidth;
+    var width = options.width || gNewCellWidth;
     var resize = options.resize || false;
     var isDark = options.isDark || false;
     if (options.direction != "L") {
@@ -688,7 +687,7 @@ function addCol(id, name, options) {
     var columnHeadTd = '<th class="table_title_bg '+color+' editableCol'+
         '" id="headCol'+
         newColid+
-        '" style="width:'+(width+colPadding+columnBorderWidth)+'px;">'+
+        '" style="width:'+(width+gColPadding+gColumnBorderWidth)+'px;">'+
         '<div class="header">'+
         '<div class="dragArea"></div>'+
         '<div class="dropdownBox"></div>'+
@@ -1008,7 +1007,7 @@ function shrinkLargestCell(newWidth) {
             }
         }
     );
-    var newLargeWidth = largestCellWidth - (newWidth + colPadding + columnBorderWidth);
+    var newLargeWidth = largestCellWidth - (newWidth + gColPadding + gColumnBorderWidth);
     largestCell.width(newLargeWidth);
     console.log(newLargeWidth, 'new large')
     */
@@ -1055,9 +1054,9 @@ function reenableTextSelection() {
 }
 
 function documentReadyCommonFunction() {
-    columnBorderWidth = parseInt($('#autoGenTable th:first').css('border-left-width'))+
+    gColumnBorderWidth = parseInt($('#autoGenTable th:first').css('border-left-width'))+
                         parseInt($('#autoGenTable th:first').css('border-right-width'));
-    colPadding = parseInt($('#autoGenTable td:first').css('padding-left')) * 2;
+    gColPadding = parseInt($('#autoGenTable td:first').css('padding-left')) * 2;
     dropdownAttachListeners(2); // set up listeners for json column
 
     if (typeof tableName === 'undefined') {
@@ -1254,7 +1253,7 @@ function dragdropMouseDown(el, event) {
     var shadowDivHeight = Math.min(tableHeight,mainFrameHeight);
 
     // get dimensions and position of column that was clicked
-    dragObj.colWidth = el.width() + colPadding;
+    dragObj.colWidth = el.width() + gColPadding;
     dragObj.startXPos = el.position().left;
     dragObj.startXPos = firstTd.position().left;
     var startYPos = el.position().top;
@@ -1289,10 +1288,10 @@ function dragdropMouseUp() {
     }
     // only pull col if column is dropped in new location
     if ((dragObj.colIndex+1) != dragObj.colId) { 
-        var width = dragObj.colWidth-colPadding;
+        var width = dragObj.colWidth-gColPadding;
         delCol("closeButton"+(dragObj.colId), false);
         addCol(("headCol"+dragObj.colIndex), name, 
-            {width : (dragObj.colWidth-colPadding)});
+            {width : (dragObj.colWidth-gColPadding)});
         pullCol(name, (dragObj.colIndex+1));
     }
     reenableTextSelection(); 
@@ -1416,7 +1415,7 @@ function rescolDelWidth(id, resize, delTdWidth) {
     var padding = 4;
     var tempTableWidth = $('#autoGenTable').width();
     // console.log(tempTableWidth, delTdWidth, 'a');
-    // $('#autoGenTable').width(tempTableWidth - delTdWidth - padding - columnBorderWidth);
+    // $('#autoGenTable').width(tempTableWidth - delTdWidth - padding - gColumnBorderWidth);
 
     console.log( $('#autoGenTable').width(), delTdWidth, 'b');
     if (!resize && ($('#autoGenTable').width() < tableWidth)) {
@@ -1544,7 +1543,7 @@ function documentReadyCatFunction() {
                 pullCol(index[i].name, 1+index[i].index);
             } else {
                 $("#headCol"+(index[i].index+1)).css("width", 
-                    index[i].width+colPadding+columnBorderWidth);
+                    index[i].width+gColPadding+gColumnBorderWidth);
             }
         }
     } else {
