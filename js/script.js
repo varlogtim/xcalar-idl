@@ -427,7 +427,7 @@ function getPage(resultSetId, firstTime) {
             generateRowWithCurrentTemplate(value, indexNumber+i+1);
         }
     }
-    if (firstTime && !getIndex(tableName)) {
+    if (firstTime && !getIndex(gTableName)) {
         if (headingsArray.length != 2) {
             console.log("BUG BUG BUG");
             alert("Possible bug");
@@ -447,7 +447,7 @@ function getPage(resultSetId, firstTime) {
             // column would've been sized already. If it's indexed, we
             // would've sized it in CatFunction
         } else {
-            if (firstTime && !getIndex(tableName)) {
+            if (firstTime && !getIndex(gTableName)) {
                 addCol("headCol"+(indices[i].index), indices[i].name,
                     {width: indices[i].width, resize: resize,
                     isDark: indices[i].isDark}); 
@@ -1060,10 +1060,10 @@ function documentReadyCommonFunction() {
     gColPadding = parseInt($('#autoGenTable td:first').css('padding-left')) * 2;
     dropdownAttachListeners(2); // set up listeners for json column
 
-    if (typeof tableName === 'undefined') {
+    if (typeof gTableName === 'undefined') {
         var searchText = "View Tables";
     } else {
-        var searchText = tableName;
+        var searchText = gTableName;
     }
     $("#searchBar").val('tablename = "'+searchText+'"');
     $('#pageInput').width((""+resultSetCount).length*7+10);
@@ -1527,9 +1527,9 @@ function documentReadyCatFunction() {
     // XXX: Should this be called here or at the end? I think it should be here
     // or I may end up attaching 2 listeners?
     resizableColumns();
-    var index = getIndex(tableName);
+    var index = getIndex(gTableName);
     if (index) {
-        console.log("Stored "+tableName);
+        console.log("Stored "+gTableName);
         getNextPage(gResultSetId, true);
         // XXX Move this into getPage
         // XXX API: 0105
@@ -1548,7 +1548,7 @@ function documentReadyCatFunction() {
             }
         }
     } else {
-        console.log("Not stored "+tableName);
+        console.log("Not stored "+gTableName);
         getNextPage(gResultSetId, true);
     }
 }
@@ -1613,30 +1613,30 @@ function sortRows(fieldName) {
     checkStatus(newTableName);
     // XXX: IndexFromTable is not implemented yet. So we're hacking the shit out
     // of this right now
-    // XcalarIndexFromTable(tableName, fieldName, newTableName);
+    // XcalarIndexFromTable(gTableName, fieldName, newTableName);
 }
 
 function filterCol(operator, value) {
-    console.log(tableName);
+    console.log(gTableName);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
     var convertedIndex = convertColNamesToIndexArray();
     setIndex(newTableName, convertedIndex);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
-    XcalarFilter(operator, value, tableName, newTableName);
+    XcalarFilter(operator, value, gTableName, newTableName);
     checkStatus(newTableName);
 }
 
 function joinTables(rightTable) {
-    console.log("Joining "+tableName+" and "+rightTable);
+    console.log("Joining "+gTableName+" and "+rightTable);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempJoinTable"+rand;
     var convertedIndex = convertColNamesToIndexArray();
     setIndex(newTableName, convertedIndex);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
-    XcalarJoin(tableName, rightTable, newTableName);
+    XcalarJoin(gTableName, rightTable, newTableName);
     checkStatus(newTableName);
 }
 
