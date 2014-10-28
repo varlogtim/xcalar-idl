@@ -1,16 +1,16 @@
 // Lookup table that translates between tablename and the indices that it should
 // be holding
 
-var tableIndicesLookup = {};
-var dsToNameTrans = {};
+var gTableIndicesLookup = {};
+var gDsToNameTrans = {};
 
 function getIndex(tName) {
-    if (!tableIndicesLookup) {
+    if (!gTableIndicesLookup) {
         console.log("Nothing has ever been stored ever!");
-        tableIndicesLookup = {};
+        gTableIndicesLookup = {};
     }
-    if (tName in tableIndicesLookup) {
-        return (tableIndicesLookup[tName]);
+    if (tName in gTableIndicesLookup) {
+        return (gTableIndicesLookup[tName]);
     } else {
         console.log("No such table has been saved before");
         return (null);
@@ -19,12 +19,12 @@ function getIndex(tName) {
 }
 
 function getDsName(datasetId) {
-    if (!dsToNameTrans) {
+    if (!gDsToNameTrans) {
         console.log("Nothing has ever been stored ever!");
-        dsToNameTrans = {};
+        gDsToNameTrans = {};
     }
-    if (datasetId in dsToNameTrans) {
-        return (dsToNameTrans[datasetId]);
+    if (datasetId in gDsToNameTrans) {
+        return (gDsToNameTrans[datasetId]);
     } else {
         console.log("No such datasetId has been saved before");
         return (null);
@@ -33,26 +33,26 @@ function getDsName(datasetId) {
 }
 
 function setIndex(tName, index) {
-    tableIndicesLookup[tName] = index;
+    gTableIndicesLookup[tName] = index;
 }
 
 function setDsToName(name, datasetId) {
-    dsToNameTrans[datasetId] = name;
+    gDsToNameTrans[datasetId] = name;
 }
 
 function commitToStorage() {
-    var stringed = JSON.stringify(tableIndicesLookup);
-    var stringed2 = JSON.stringify(dsToNameTrans);
+    var stringed = JSON.stringify(gTableIndicesLookup);
+    var stringed2 = JSON.stringify(gDsToNameTrans);
     localStorage["TILookup"] = stringed;
     localStorage["DSName"] = stringed2;
 }
 
 function readFromStorage() {
     if (localStorage["TILookup"]) {
-        tableIndicesLookup = JSON.parse(localStorage["TILookup"]);
+        gTableIndicesLookup = JSON.parse(localStorage["TILookup"]);
     }
     if (localStorage["DSName"]) {
-        dsToNameTrans = JSON.parse(localStorage["DSName"]);
+        gDsToNameTrans = JSON.parse(localStorage["DSName"]);
     }
-    // console.log(tableIndicesLookup);
+    // console.log(gTableIndicesLookup);
 }
