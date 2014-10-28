@@ -38,7 +38,7 @@ function infScrolling() {
             $(this).outerHeight()) {// XXX: Figure out why it's 8 lol 
             // Should be because of the scrollbar
             // Rudy: Yes, it seems like its the 8px scrollbar
-            goToPage(gCurrentPageNumber); 
+            goToPage(gCurrentPageNumber+1); 
         }
     });
 }
@@ -207,16 +207,19 @@ function fillPageWithBlankCol() {
     }
 }
 
+// XXX: Prototype only function. Remove?
 function generatePageInput() {
     $('#pageInput').attr('max', resultSetCount);
 }
 
+// XXX: Prototyep only function. Remove?
 function deselectPage(pageNumber) {
     $("a.pageTurnerPageNumber").filter(function() {
         return $(this).text() == pageNumber.toString();
     }).parent().removeClass("pageTurnerPageSelected");
 } 
 
+// XXX; Prototype only function. Remove?
 function selectPage(pageNumber) {
     $("a.pageTurnerPageNumber").filter(function() {
         return $(this).text() == pageNumber.toString();
@@ -238,7 +241,7 @@ function goToPrevPage() {
         deselectPage(currentPage);
         getPrevPage(gResultSetId);
     } else {
-        goToPage(prevPage-1);
+        goToPage(prevPage);
     }
 }
 
@@ -259,19 +262,29 @@ function goToNextPage() {
             $('#pageTurnerRight').css('visibility', 'hidden');
         }
     } else {
-        goToPage(nextPage-1);
+        goToPage(nextPage);
     }
 }
 
 function goToPage(pageNumber) {
-    deselectPage(gCurrentPageNumber);
-    gCurrentPageNumber = pageNumber+1;
-    generatePages(); 
-    selectPage(pageNumber+1);
-    XcalarSetAbsolute(gResultSetId, pageNumber*gNumEntriesPerPage);
+    // deselectPage(gCurrentPageNumber);
+    if (pageNumber > gNumPages) {
+        console.log("Already at last page!");
+        return;
+    }
+    if (pageNumber < 1) {
+        console.log("Cannot go below one!");
+        return;
+    }
+    gCurrentPageNumber = pageNumber;
+    // generatePages(); 
+    selectPage(pageNumber);
+    // Page number starts at 1, but we start at offset 0.
+    XcalarSetAbsolute(gResultSetId, (pageNumber-1)*gNumEntriesPerPage);
     getPage(gResultSetId);
 }
 
+// XXX: Prototype only function. Remove?
 function showHidePageTurners() {
     $('#pageTurnerLeft a, #pageTurnerRight a').css('visibility', 'visible');
     if (gCurrentPageNumber < 2) {
@@ -326,7 +339,7 @@ function generatePages() {
         // left dots direct to this page#
         htmlString += '<td class="pageTurner"\
                id="leftDots"><a href="javascript:goToPage(';
-        htmlString += leftDotsNumber;
+        htmlString += (leftDotsNumber+1);
         htmlString += ');" class="pageTurner">...</a></td>';
     } else {
         htmlString += '</td>';
@@ -337,7 +350,7 @@ function generatePages() {
         htmlString += '\
               <td class="pageTurnerPage">\
                   <a href="javascript:goToPage(';
-        htmlString += (i+startNumber);
+        htmlString += (i+startNumber+1);
         htmlString += ');" class="pageTurnerPageNumber">';
         htmlString += (i+1+startNumber);
         htmlString += '</a>\
@@ -352,7 +365,7 @@ function generatePages() {
         }
         htmlString += '<td id="rightDots" class="pageTurner">\
                 <a href="javascript:goToPage(';
-        htmlString += rightDotsNumber;
+        htmlString += rightDotsNumber+1;
         htmlString += ');" class="pageTurner">...</a></td>';
     } 
 
@@ -420,14 +433,15 @@ function getPage(resultSetId, firstTime) {
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            gNumEntriesPerPage);
     if (tableOfEntries.numRecords < gNumEntriesPerPage) {
+        console.log("Last Page!");
         // This is the last iteration
         // Time to free the handle
         // XXX: Function call to free handle?
         resultSetId = 0;
     }
     var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
-    for (var i = 0; i<Math.min(gNumEntriesPerPage, 
-          tableOfEntries.numRecords); i++) {
+    var numRows = Math.min(gNumEntriesPerPage, tableOfEntries.numRecords);
+    for (var i = 0; i<numRows; i++) {
         var value = tableOfEntries.records[i].value;
         if (firstTime) {
             generateRowWithAutoIndex2(value, indexNumber+i+1, tdHeights[i]);
@@ -461,7 +475,8 @@ function getPage(resultSetId, firstTime) {
                     isDark: indices[i].isDark}); 
                 pullCol(indices[i].name, 1+indices[i].index);
             } else {
-                pullCol(indices[i].name, 1+indices[i].index, indexNumber+1);
+                pullCol(indices[i].name, 1+indices[i].index, indexNumber+1,
+                        numRows);
                 if (indices[i].name == gKeyName) {
                     console.log(gKeyName);
                     autosizeCol($('#headCol'+(1+indices[i].index)));
@@ -505,7 +520,7 @@ function generateRowWithCurrentTemplate(json, id) {
 
     });
 
-    $('#autoGenTable  tr:eq('+(id)+') .jsonElement').dblclick(function() {
+    $('#autoGenTable tr:eq('+(id)+') .jsonElement').dblclick(function() {
         showJsonPopup($(this));
     });
     $('#autoGenTable  tr:eq('+(id)+') .rowGrab').mousedown(function(event) {
@@ -589,6 +604,7 @@ function delCol(id, resize) {
         $("#rename"+i).attr("id", "rename"+(i-1));
         $("#renameCol"+i).attr("id", "renameCol"+(i-1));
         $('#sort'+i).attr("id", "sort"+(i-1));
+        $('#revSort'+i).attr("id", "revSort"+(i-1));
         $('#filter'+i).attr("id", "filter"+(i-1));
         $("#duplicate"+i).attr("id", "duplicate"+(i-1));
         $('#sumFn'+i).attr("id", "sumFn"+(i-1));
@@ -612,7 +628,7 @@ function delCol(id, resize) {
     gRescolDelWidth(id, resize, delTdWidth);
 }
 
-function pullCol(key, newColid, startIndex) {
+function pullCol(key, newColid, startIndex, numberOfRows) {
     if (/\.([0-9])/.test(key)) {//check for dot followed by number (invalid)
         return;
     }
@@ -632,7 +648,7 @@ function pullCol(key, newColid, startIndex) {
         numRow = $("#autoGenTable tbody tr").length;
     } else {
         startingIndex = startIndex;
-        numRow = gNumEntriesPerPage;
+        numRow = numberOfRows||gNumEntriesPerPage;
     } 
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
 
@@ -699,6 +715,7 @@ function addCol(id, name, options) {
         $("#rename"+i).attr("id", "rename"+(i+1));
         $("#renameCol"+i).attr("id", "renameCol"+(i+1));
         $("#sort"+i).attr("id", "sort"+(i+1));
+        $("#revSort"+i).attr("id", "revSort"+(i+1));
         $("#filter"+i).attr("id", "filter"+(i+1));
         $("#duplicate"+i).attr("id", "duplicate"+(i+1));
         $("#sumFn"+i).attr("id", "sumFn"+(i+1));
@@ -736,7 +753,13 @@ function addCol(id, name, options) {
             'id="closeButton'+newColid+'">Delete column</li>'+
             '<li id="duplicate'+newColid+'">Duplicate column</li>'+
             '<li id="renameCol'+newColid+'">Rename column</li>'+
-            '<li class="sort" id="sort'+newColid+'">Sort</li>';
+            '<li class="sort">Sort'+
+                '<ul class="subColMenu">'+
+                    '<li id="sort'+newColid+'">A-Z</li>'+
+                    '<li id="revSort'+newColid+'">Z-A</li>'+
+                '</ul>'+ 
+                '<div class="rightArrow"></div>'+
+            '</li>';
     if (name == gKeyName) {
         dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
                             '<ul class="subColMenu">'+
@@ -910,7 +933,12 @@ function dropdownAttachListeners(colId) {
 
     $('#sort'+colId).click(function() {
         var index = $(this).attr("id").substring(4);
-        sortRows($('#rename'+index).val());
+        sortRows($('#rename'+index).val(), SortDirection.Forward);
+    }); 
+    
+    $('#revSort'+colId).click(function() {
+        var index = $(this).attr("id").substring(7);
+        sortRows($('#rename'+index).val(), SortDirection.Backward);
     }); 
 
     $('#headCol'+colId+' .editableHead').mousedown(function(event) {
@@ -1102,8 +1130,8 @@ function documentReadyCommonFunction() {
             // XXX: HACK
             gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
             $("#autoGenTable tbody").empty();
-            goToPage(Math.ceil(parseInt($('#pageInput').val())/gNumEntriesPerPage)-1);
             goToPage(Math.ceil(parseInt($('#pageInput').val())/gNumEntriesPerPage));
+            goToPage(Math.ceil(parseInt($('#pageInput').val())/gNumEntriesPerPage)+1);
             // $(this).blur(); 
         }
     });
@@ -1648,7 +1676,7 @@ function documentReadyIndexFunction() {
         documentReadyCatFunction();
 
         fillPageWithBlankCol();
-        goToPage(gCurrentPageNumber);
+        goToPage(gCurrentPageNumber+1);
         cloneTableHeader();   
         infScrolling();
         
@@ -1682,10 +1710,11 @@ function checkStatus(newTableName) {
     }
 }
 
-function sortRows(fieldName) {
+function sortRows(fieldName, order) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempSortTable"+rand;
     var convertedIndex = convertColNamesToIndexArray();
+    setOrder(newTableName, order);
     setIndex(newTableName, convertedIndex);
     console.log(convertedIndex);
     commitToStorage(); 

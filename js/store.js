@@ -3,6 +3,7 @@
 
 var gTableIndicesLookup = {};
 var gDsToNameTrans = {};
+var gTableOrderLookup = {};
 
 function getIndex(tName) {
     if (!gTableIndicesLookup) {
@@ -32,6 +33,20 @@ function getDsName(datasetId) {
     return (null);
 }
 
+function getOrder(tName) {
+    if (!gTableOrderLookup) {
+        console.log("Nothing has ever been stored ever!");
+        gTableOrderLookup = {};
+    }
+    if (tName in gTableOrderLookup) {
+        return (gTableOrderLookup[tName]);
+    } else {
+        console.log("No such datasetId has been saved before");
+        return (null);
+    }
+    return (null);
+}
+
 function setIndex(tName, index) {
     gTableIndicesLookup[tName] = index;
 }
@@ -40,11 +55,17 @@ function setDsToName(name, datasetId) {
     gDsToNameTrans[datasetId] = name;
 }
 
+function setOrder(tName, order) {
+    gTableOrderLookup[tName] = order;
+}
+
 function commitToStorage() {
     var stringed = JSON.stringify(gTableIndicesLookup);
     var stringed2 = JSON.stringify(gDsToNameTrans);
+    var stringed3 = JSON.stringify(gTableOrderLookup);
     localStorage["TILookup"] = stringed;
     localStorage["DSName"] = stringed2;
+    localStorage["TOLookup"] = stringed3;
 }
 
 function readFromStorage() {
@@ -54,5 +75,7 @@ function readFromStorage() {
     if (localStorage["DSName"]) {
         gDsToNameTrans = JSON.parse(localStorage["DSName"]);
     }
-    // console.log(gTableIndicesLookup);
+    if (localStorage["TOLookup"]) {
+        gTableOrderLookup = JSON.parse(localStorage["TOLookup"]);
+    }
 }
