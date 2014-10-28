@@ -25,7 +25,7 @@
     documentReadyIndexFunction();
 </script>
 <div id="logo"></div>
-<div id="menuBar">
+<div id="menuBar" class="mainBar">
     <div></div><div></div>
     <div>datastore</div>
     <div>tablestore</div>
@@ -63,7 +63,7 @@
     </div>
     
 </div>
-<div id="functionBar">
+<div id="functionBar" class="mainBar">
     <div style="width: 0px;"></div>
     <div class="functionName">f(x)=&nbsp;</div>
     <div class="functionField">
@@ -73,13 +73,26 @@
     <div class="functionField">
         <input id="searchBar" value="votes.funny" size="30">
     </div>
-    <div class="functionName">skip to row:&nbsp;</div>
+   <!--  <div class="functionName">skip to row:&nbsp;</div>
     <div class="functionField">
       <input id="pageInput">
       <script>
           generatePageInput();
       </script>
-    </div>
+    </div> -->
+</div>
+<div id="pageBar" class="mainBar">
+  <div class="functionName">Viewing Rows:&nbsp;</div>
+  <span class="rowNum">1</span>
+  through
+  <span class="rowNum">40</span>
+  <div class="functionName">skip to row:&nbsp;</div>
+  <div class="functionField">
+    <input id="pageInput">
+    <script>
+        generatePageInput();
+    </script>
+  </div>
 </div>
 <div id="mainFrame">
   <table id="autoGenTable">
@@ -111,16 +124,10 @@
     </thead>
     <tbody>
     </tbody>
-    <tfoot>
-    <tr>
-      <td id="sumFn1"><input class="editableHead" value="sumFn"/></td>  
-      <td id="sumFn2"><input class="editableHead" value="sumFn"/></td>  
-    </tr>
-    </tfoot>
   </table>
 </div>
-<div id="worksheetBar">
-  <div id="newWorksheet">new worksheet</div>
+<div id="worksheetBar" class="mainBar">
+  <div id="newWorksheet"><span>new worksheet</span></div>
   <div class="worksheetTab">facebook</div>
   <div class="worksheetTab tabSelected">yelp</div>
   <div class="worksheetTab">worksheet 1</div>

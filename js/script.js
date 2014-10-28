@@ -23,9 +23,7 @@ var gRescol = {
 var resrow = {};
 var gScrollbarHeight = 8;
 var gTempStyle = "";
-var gMinTableWidth = 1200;// XXX You redeclared this variable online 187. Can you
-// determine if you really need this variable?
-// I was using this variable elsewhere, I still need it so I renamed it gMinTableWidth;
+var gMinTableWidth = 1200;
 
 function infScrolling() {
     // Feature: As we're scrolling we can update the skip to row box.
@@ -35,12 +33,42 @@ function infScrolling() {
 
     $("#mainFrame").scroll(function() {
         if ($(this)[0].scrollHeight - $(this).scrollTop()+gScrollbarHeight ==
-            $(this).outerHeight()) {// XXX: Figure out why it's 8 lol 
-            // Should be because of the scrollbar
-            // Rudy: Yes, it seems like its the 8px scrollbar
+            $(this).outerHeight()) {
             goToPage(gCurrentPageNumber+1); 
         }
+        getFirstVisibleRowNum();
     });
+    // var counter = 0;
+    // $("#mainFrame").scroll(function() {
+    //     if ($(this).scrollTop() == 0) {
+    //         console.log('the top!');
+    //         goToPage(gCurrentPageNumber-4); 
+    //         goToPage(gCurrentPageNumber-1);
+
+    //         // gCurrentPageNumber - 4 if showing 80 rows
+    //     }
+    //     if ($(this)[0].scrollHeight - $(this).scrollTop()+gScrollbarHeight - $(this).outerHeight() == 0) {
+
+    //         gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
+
+    //         if ($('#autoGenTable tbody tr').length < 61) {
+    //             $("#autoGenTable tbody tr:lt(20)").remove();
+    //         } else {
+    //             $("#autoGenTable tbody tr:lt(40)").remove();
+    //         }
+            
+    //         goToPage(gCurrentPageNumber+1); 
+    //         goToPage(gCurrentPageNumber+1);
+
+    //         // console.log('addedpage', counter)
+    //         // if ($('#autoGenTable tbody tr').length < 101) {
+    //         //     $("#autoGenTable tbody tr:lt(20)").remove();
+    //         // } else {
+    //         //     $("#autoGenTable tbody tr:lt(40)").remove();
+    //         // }
+    //         counter++;
+    //     }
+    // });
 }
 
 // XXX: This function should disappear. But I need to be able to free the
@@ -61,29 +89,35 @@ function menuAreaClose() {
 
 function menuBarArt() {
     var clickTarget = null;
+    var clickTooFast = false;
     $("#menuBar div").on("click", function() {
+        if (clickTooFast) {
+            return;
+        }
+        clickTooFast = true;
+        setTimeout(function() {clickTooFast = false}, 300);
         if (clickTarget == $(event.target).text()) {
             //if clicking on an already open menu, close it
             $("#menuBar div").removeClass("menuSelected");
             $("#menuArea").height(0);
             clickTarget = null;
-            $('.trueTHead').addClass('moveTop').css('top','-=71');
+            $('.trueTHead').css('top',111).addClass('moveTop');
             setTimeout(function() {
                 $('.trueTHead').removeClass('moveTop');
-            },280);
+            },300);
             return;
         }
         clickTarget = $(event.target).text();
 
-        $('.trueTHead').addClass('moveTop').css('top',145);
+        $('.trueTHead').css('top',177).addClass('moveTop');
 
         setTimeout(function() {
             $('.trueTHead').removeClass('moveTop');
-        },280);
+        },300);
 
         $("#menuBar div").removeClass("menuSelected");
         $(this).addClass("menuSelected");
-        $("#menuArea").show().height(71);
+        $("#menuArea").show().height(66);
 
         switch ($(this).text()) {
         case ("datastore"):
@@ -132,31 +166,6 @@ function monitorOverlayPercent() {
     });
 }
 
-function displayTable() {
-    var numRowsToAdd = 20;
-    var numCols = $('#autoGenTable th').length;
-    for (var i = 1; i < numRowsToAdd; i++) {
-        $('#autoGenTable tbody').append('<tr></tr>');
-        for (var j = 1; j < numCols+1; j++) {
-            $('#autoGenTable tbody tr:last').append('<td id="bodyr'+i+'c'+j+'">'+
-                '<div class="addedBarTextWrap" style="max-height:'+14+'px;">'+
-                '<div class="addedBarText">'+'text djk'+'</div></div></td>');
-        }
-    }
-    
-    $('#autoGenTable th:eq(2)').after('<th class="selectedCell">Header</th>');
-    $('#autoGenTable tbody tr').each(function(){
-        $(this).children().eq(2).after('<td class="selectedCell">1</td>');
-    });
-    $('#autoGenTable tfoot td:eq(2)').after('<td class="selectedCell"></td>');
-
-    $('#autoGenTable th:eq(2)').after('<th class="unusedCell"></th>');
-    $('#autoGenTable tbody tr').each(function(){
-        $(this).children().eq(2).after('<td class="unusedCell">1</td>');
-    });
-    $('#autoGenTable tfoot td:eq(2)').after('<td class="unusedCell"></td>');
-}
-
 function getTablesAndDatasets() {
     var tables = XcalarGetTables();
     var numTables = tables.numTables;
@@ -195,15 +204,9 @@ function fillPageWithBlankCol() {
     var tableWidth = $("#autoGenTable").width();
     var screenWidth = window.screen.availWidth;
     var numColsToFill = Math.ceil((screenWidth - tableWidth)/gNewCellWidth) ;
-    console.log(numColsToFill, 'numtofill', screenWidth - tableWidth);
     var startColId = $("#autoGenTable tr:first th").length;
     for (var i = 0; i<numColsToFill; i++) {
-        addCol("headCol"+(startColId+i), "");
-        $("#headCol"+(startColId+i+1)).addClass("unusedCell");
-        for (var j = 0; j<$("#autoGenTable tr").size()-2; j++) {
-             $("#bodyr"+(j+1)+"c"+(startColId+i+1)).addClass("unusedCell");
-        }
-        $("#sumFn"+(startColId+i+1)).addClass("unusedCell"); 
+        addCol("headCol"+(startColId+i), "", {'isDark': true});
     }
 }
 
@@ -278,7 +281,7 @@ function goToPage(pageNumber) {
     }
     gCurrentPageNumber = pageNumber;
     // generatePages(); 
-    selectPage(pageNumber);
+    // selectPage(pageNumber);
     // Page number starts at 1, but we start at offset 0.
     XcalarSetAbsolute(gResultSetId, (pageNumber-1)*gNumEntriesPerPage);
     getPage(gResultSetId);
@@ -411,7 +414,7 @@ function getPrevPage(resultSetId) {
 }
 
 function getPage(resultSetId, firstTime) {
-    console.log('made it ot getpage')
+    // console.log('made it ot getpage')
     if (resultSetId == 0) {
         return;
         // Reached the end
@@ -433,12 +436,12 @@ function getPage(resultSetId, firstTime) {
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            gNumEntriesPerPage);
     if (tableOfEntries.kvPairs.numRecords < gNumEntriesPerPage) {
-        console.log("Last Page!");
         // This is the last iteration
-        // Time to free the handle
-        // XXX: Function call to free handle?
-        resultSetId = 0;
+            // Time to free the handle
+            // XXX: Function call to free handle?
+            resultSetId = 0;
     }
+
     var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
     var numRows = Math.min(gNumEntriesPerPage, tableOfEntries.kvPairs.numRecords);
     for (var i = 0; i<numRows; i++) {
@@ -483,7 +486,7 @@ function getPage(resultSetId, firstTime) {
                 pullCol(indices[i].name, 1+indices[i].index, indexNumber+1,
                         numRows);
                 if (indices[i].name == gKeyName) {
-                    console.log(gKeyName);
+                    // console.log(gKeyName);
                     autosizeCol($('#headCol'+(1+indices[i].index)));
                 }
             }
@@ -491,6 +494,18 @@ function getPage(resultSetId, firstTime) {
     }
     showHidePageTurners();
     $('.colGrab').height($('#autoGenTable').height());
+    getFirstVisibleRowNum();
+}
+
+function getFirstVisibleRowNum() {
+     var mainFramePos = $('#mainFrame')[0].getBoundingClientRect();
+    var mfPosTop = mainFramePos.top;
+    var mfPosLeft = mainFramePos.left;
+    var tdXCoor = 30;
+    var tdYCoor = 45;
+    var el = document.elementFromPoint(tdXCoor+mfPosLeft, tdYCoor+mfPosTop);
+    var rowNum = parseInt($(el).closest('td').attr('id').substring(5));
+    console.log('row: '+rowNum);
 }
 
 function generateRowWithCurrentTemplate(json, id) {
@@ -522,14 +537,12 @@ function generateRowWithCurrentTemplate(json, id) {
         var colNoInd = (this.id).indexOf("c");
         var colNo = (this.id).substring(colNoInd+1);
         this.id = "bodyr"+id+"c"+colNo;
-
     });
 
-    $('#autoGenTable tr:eq('+(id)+') .jsonElement').dblclick(function() {
+    $('#autoGenTable tr:nth-last-child(1) .jsonElement').dblclick(function() {
         showJsonPopup($(this));
     });
-    $('#autoGenTable  tr:eq('+(id)+') .rowGrab').mousedown(function(event) {
-        console.log('grabbing row');
+    $('#autoGenTable  tr:nth-last-child(1) .rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
 }
@@ -585,7 +598,6 @@ function generateRowWithAutoIndex2(text2, idNo, height) {
         }
     );
     $('#bodyr'+idNo+'c1 .rowGrab').mousedown(function(event) {
-        console.log('grabbing row');
         resrowMouseDown($(this), event);
     });
 
@@ -595,12 +607,10 @@ function delCol(id, resize) {
     var colid = parseInt(id.substring(11));
     var delTd = $('#autoGenTable tr:first th').eq(colid-1);
     var delTdWidth = delTd.width();
-    
     var numCol = $("#autoGenTable tr:first th").length;
     
     $("#headCol"+colid).remove();
     $("#autoGenTable tr:eq(1) #headCol"+colid).remove();
-    $("#sumFn"+colid).remove();
     for (var i = colid+1; i<=numCol; i++) {
         $("#headCol"+i).attr("id", "headCol"+(i-1));
         $("#closeButton"+i).attr("id", "closeButton"+(i-1));
@@ -612,8 +622,6 @@ function delCol(id, resize) {
         $('#revSort'+i).attr("id", "revSort"+(i-1));
         $('#filter'+i).attr("id", "filter"+(i-1));
         $("#duplicate"+i).attr("id", "duplicate"+(i-1));
-        $('#sumFn'+i).attr("id", "sumFn"+(i-1));
-
         $("#autoGenTable tr:eq(1) #headCol"+i).attr("id", "headCol"+(i-1));
     }
  
@@ -629,7 +637,6 @@ function delCol(id, resize) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j-1));
         }
     }
-    console.log($('#autoGenTable').width(),$('#autoGenTable .fauxTHead').width(), $('#autoGenTable .trueTHead').width(),delTdWidth, 'what')
     gRescolDelWidth(id, resize, delTdWidth);
 }
 
@@ -723,8 +730,6 @@ function addCol(id, name, options) {
         $("#revSort"+i).attr("id", "revSort"+(i+1));
         $("#filter"+i).attr("id", "filter"+(i+1));
         $("#duplicate"+i).attr("id", "duplicate"+(i+1));
-        $("#sumFn"+i).attr("id", "sumFn"+(i+1));
-
         $("#autoGenTable tr:eq(1) #headCol"+i).attr("id", "headCol"+(i+1));
     }        
     
@@ -844,9 +849,6 @@ function addCol(id, name, options) {
             $("#bodyr"+i+"c"+(newColid+1)).before(newCellHTML);
         }
     }
-    var sumFn = '<td id="sumFn'+newColid+'" class="'+color+'">'+
-                '<input class="editableHead" value="sumFn"/></td>';
-    $("#sumFn"+(newColid-1)).after(sumFn); 
 
     $("#headCol"+newColid+" .editableHead").keypress(function(e) {
       if (e.which==13) {
@@ -1013,7 +1015,7 @@ function convertColNamesToIndexArray() {
     return headings;
 }
 
-function resizableColumns(resize, newWidth) {
+function resizableColumns() {
     $('#autoGenTable tr:first .header').each(
         function() {
             if (!$(this).children().hasClass('colGrab') 
@@ -1045,28 +1047,8 @@ function resizableColumns(resize, newWidth) {
         );
         gRescol.first = false;
     } 
-    if (resize) {
-        shrinkLargestCell(newWidth);
-    } 
 }
 
-function shrinkLargestCell(newWidth) {
-    /* 
-    var largestCell;
-    var largestCellWidth = 0;
-    $('#autoGenTable thead:first th').each(
-        function() {
-            if ($(this).width() > largestCellWidth) {
-                largestCell = $(this);
-                largestCellWidth = $(this).width();
-            }
-        }
-    );
-    var newLargeWidth = largestCellWidth - (newWidth + gColPadding + gColumnBorderWidth);
-    largestCell.width(newLargeWidth);
-    console.log(newLargeWidth, 'new large')
-    */
-}
 //XXX consider using mouseover
 // el is #headCol2 .subColMenu li
 function subColMenuMouseEnter(el) {
@@ -1168,15 +1150,16 @@ function documentReadyCommonFunction() {
         $('.editableHead').removeClass('resizeEditableHead');
     });
 
-    $('#newWorksheet').click(function(){
+    $('#newWorksheet span').click(function(){
         var tabCount = $('.worksheetTab').length;
-        $('#worksheetBar').append('<div class="worksheetTab">Worksheet '+
+        $('#newWorksheet').after('<div class="worksheetTab">Worksheet '+
                                     (tabCount-1)+'</div>');
-        $('.worksheetTab:last').click(function(){
+        $('.worksheetTab:first').click(function(){
             $('.worksheetTab').removeClass('tabSelected');
             $(this).addClass('tabSelected');
         });
-        $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');   
+        $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');
+        $('.worksheetTab:first').click();   
     });
 
     $('.worksheetTab').click(function() {
@@ -1297,7 +1280,7 @@ function gRescolMouseMoveLast(event) {
     } else {
         $('#'+gRescol.id).outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
         $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
-        $('#autoGenTable thead:first').width(gMinTableWidth);
+        $('#autoGenTable thead').width(gMinTableWidth);
     } 
 }
 
@@ -1451,7 +1434,7 @@ function createTransparentDragDropCol(startYPos) {
     if (topRowId == -1) {
         console.log("BUG! Cannot find first visible row??");
         // Clone entire shit and be done.
-        $('#autoGenTable tr:not(:last)').each(function(i, ele) {
+        $('#autoGenTable tr').each(function(i, ele) {
             cloneCellHelper(ele);
         });
         return;
@@ -1473,9 +1456,9 @@ function createTransparentDragDropCol(startYPos) {
     });
 
     // Clone tail
-    $('#autoGenTable tfoot tr').each(function(i, ele) {
-        cloneCellHelper(ele);
-    });
+    // $('#autoGenTable tfoot tr').each(function(i, ele) {
+    //     cloneCellHelper(ele);
+    // });
 
     var fauxColHeight = Math.min($('.fauxTable').height(), $('#mainFrame').height()- gScrollbarHeight);
     $('.fauxCol').height(fauxColHeight);
@@ -1624,9 +1607,8 @@ function getTdHeights() {
 function dblClickResize(el) {
     gRescol.clicks++;  //count clicks
     if (gRescol.clicks === 1) {
-        gRescol.timer = setTimeout(function() {
-            console.log("single");  //perform single-click action    
-            gRescol.clicks = 0;      //after action performed, reset counter
+        gRescol.timer = setTimeout(function() {   
+            gRescol.clicks = 0; //after action performed, reset counter
         }, gRescol.delay);
     } else {
         gMouseStatus = null;
@@ -1961,3 +1943,4 @@ function widths() {
                 "head3top: "+$('#headCol3').outerWidth()+",",
                 "thead3bottom: "+$('#autoGenTable thead:eq(1) #headCol3').outerWidth());
 }
+
