@@ -432,7 +432,7 @@ function getPage(resultSetId, firstTime) {
     var tdHeights = getTdHeights();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            gNumEntriesPerPage);
-    if (tableOfEntries.numRecords < gNumEntriesPerPage) {
+    if (tableOfEntries.kvPairs.numRecords < gNumEntriesPerPage) {
         console.log("Last Page!");
         // This is the last iteration
         // Time to free the handle
@@ -440,9 +440,14 @@ function getPage(resultSetId, firstTime) {
         resultSetId = 0;
     }
     var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
-    var numRows = Math.min(gNumEntriesPerPage, tableOfEntries.numRecords);
+    var numRows = Math.min(gNumEntriesPerPage, tableOfEntries.kvPairs.numRecords);
     for (var i = 0; i<numRows; i++) {
-        var value = tableOfEntries.records[i].value;
+        if (tableOfEntries.keysAttrHeader.type ==
+            GenericTypesRecordTypeT.GenericTypesVariableSize) { 
+            var value = tableOfEntries.kvPairs.records[i].kvPairVariable.value;
+        } else {
+            var value = tableOfEntries.kvPairs.records[i].kvPairFixed.value;
+        }
         if (firstTime) {
             generateRowWithAutoIndex2(value, indexNumber+i+1, tdHeights[i]);
         } else {
@@ -455,7 +460,7 @@ function getPage(resultSetId, firstTime) {
             alert("Possible bug");
             console.log(headingsArray)
         }
-        gKeyName = tableOfEntries.meta.keysAttrHeader.name;
+        gKeyName = tableOfEntries.keysAttrHeader.name;
         var indName = {index: 1,
                        name: gKeyName,
                        width: gNewCellWidth};
@@ -1647,7 +1652,7 @@ function documentReadyCatFunction() {
         // XXX API: 0105
         var tableOfEntries = XcalarGetNextPage(gResultSetId,
                                            gNumEntriesPerPage);
-        gKeyName = tableOfEntries.meta.keysAttrHeader.name;
+        gKeyName = tableOfEntries.keysAttrHeader.name;
         console.log(index);
         for (var i = 0; i<index.length; i++) {
             if (index[i].name != "JSON") {

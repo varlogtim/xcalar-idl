@@ -322,13 +322,16 @@ function XcalarGetTableId(tableName) {
     workItem.input.makeResultSetInput = new XcalarApiMakeResultSetInputT();
     workItem.input.makeResultSetInput.fromTable = true;
     workItem.input.makeResultSetInput.table = new XcalarApiTableT();
+    console.log(tableName);
     workItem.input.makeResultSetInput.table.tableName = tableName;
+    workItem.input.makeResultSetInput.table.handle = 0;
+    workItem.input.makeResultSetInput.datasetId = 0;
 
     try {
         result = client.queueWork(workItem);
     } catch(ouch) {
         console.log(result.output.makeResultSetOutput.resultSetId);
-        console.log("Failed to cat table");
+        console.log("Failed to make result set");
         return;
     }
     return result.output.makeResultSetOutput.resultSetId;
