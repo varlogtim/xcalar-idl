@@ -61,7 +61,7 @@ function moveInputLeft(movingEl) {
     clone.addClass('shiftLeft');
     setTimeout(function(){
         movingEl.hide();
-        clone.css({'left':(targetMidPoint-(movingElWidth/2)), 'top':'23px'});
+        clone.css({'left':(targetMidPoint-(movingElWidth/2)), 'top':'20px'});
     },1);
 
 }

@@ -24,121 +24,121 @@
 <script>
     documentReadyIndexFunction();
 </script>
-<div id="logo"></div>
-<div id="menuBar" class="mainBar">
-    <div></div><div></div>
-    <div>datastore</div>
-    <div>tablestore</div>
-    <div>monitor</div>
-</div>
-<div id="menuArea">
-    <span id="monitorPanel">
-        <div style="width: 10px;"></div>
-        <div class="monitor monitorRed"><span>CPU</span></div>
-        <div class="monitorSubDiv">20%</div> 
-        <div class="monitor monitorBlue"><span>RAM</span></div>
-        <div class="monitorSubDiv">5%</div>
-        <div class="monitor monitorGreen"><span>DISK</span></div>
-        <div class="monitorSubDiv">80%</div>
-        <div style="width: 10px;"></div>
-        <div class="datasetName"><span>TOTAL<br>DATA SIZE</span></div>
-        <div class="monitorSubDiv">12,345</div>
-        <div class="datasetName"><span>NUMBER OF<br>DATA SETS</span></div>
-        <div class="monitorSubDiv">12,345</div>
-        <div class="datasetName"><span>NUMBER OF<br>ACTIVE USERS</span></div>
-        <div class="monitorSubDiv">12,345</div>
-    </span>
-    <span id="datastorePanel">
-        <div class="datasetName"><span class="monitorGreen">DATA<br>SET</span></div>
-        <div class="monitorSubDiv">&nbsp;&nbsp;ADD</div>
-        <div></div>
-        <div class="datasetWrap"></div>
-    </span>
-    <span id="tablestorePanel">
-        <div class="datasetName"><span class="monitorGreen">NEW<br>TABLE</span></div>
-        <div class="monitorSubDiv">&nbsp;&nbsp;ADD</div>
-        <div></div>
-    </span>
-    <div id="loadArea">
+<div id="container">
+  <div id="logo"></div>
+  <div id="menuBar" class="mainBar">
+      <div></div><div></div>
+      <div>datastore</div>
+      <div>tablestore</div>
+      <div>monitor</div>
+  </div>
+  <div id="menuArea">
+      <span id="monitorPanel">
+          <div style="width: 10px;"></div>
+          <div class="monitor monitorRed"><span>CPU</span></div>
+          <div class="monitorSubDiv">20%</div> 
+          <div class="monitor monitorBlue"><span>RAM</span></div>
+          <div class="monitorSubDiv">5%</div>
+          <div class="monitor monitorGreen"><span>DISK</span></div>
+          <div class="monitorSubDiv">80%</div>
+          <div style="width: 10px;"></div>
+          <div class="datasetName"><span>TOTAL<br>DATA SIZE</span></div>
+          <div class="monitorSubDiv">12,345</div>
+          <div class="datasetName"><span>NUMBER OF<br>DATA SETS</span></div>
+          <div class="monitorSubDiv">12,345</div>
+          <div class="datasetName"><span>NUMBER OF<br>ACTIVE USERS</span></div>
+          <div class="monitorSubDiv">12,345</div>
+      </span>
+      <span id="datastorePanel">
+          <div class="datasetName"><span class="monitorGreen">DATA<br>SET</span></div>
+          <div class="monitorSubDiv">&nbsp;&nbsp;ADD</div>
+          <div></div>
+          <div class="datasetWrap"></div>
+      </span>
+      <span id="tablestorePanel">
+          <div class="datasetName"><span class="monitorGreen">NEW<br>TABLE</span></div>
+          <div class="monitorSubDiv">&nbsp;&nbsp;ADD</div>
+          <div></div>
+      </span>
+      <div id="loadArea">
+      </div>
+      
+  </div>
+  <div id="functionBar" class="mainBar">
+      <div style="width: 0px;"></div>
+      <div class="functionName">f(x)=&nbsp;</div>
+      <div class="functionField">
+          <input id="fnBar" value="votes.funny + votes.cute" size="30">
+      </div>
+      <div class="functionName">search:&nbsp;</div>
+      <div class="functionField">
+          <input id="searchBar" value="votes.funny" size="30">
+      </div>
+  </div>
+  <div id="pageBar" class="mainBar">
+    <div> Viewing Rows:
+      <span class="rowNum">1</span>
+      through
+      <span class="rowNum">40</span>
     </div>
-    
-</div>
-<div id="functionBar" class="mainBar">
-    <div style="width: 0px;"></div>
-    <div class="functionName">f(x)=&nbsp;</div>
-    <div class="functionField">
-        <input id="fnBar" value="votes.funny + votes.cute" size="30">
+    <div id="pageScroll">
+      <div id="pageMarker">
+      </div>
     </div>
-    <div class="functionName">search:&nbsp;</div>
-    <div class="functionField">
-        <input id="searchBar" value="votes.funny" size="30">
-    </div>
-   <!--  <div class="functionName">skip to row:&nbsp;</div>
-    <div class="functionField">
+    <div>
+      skip to row:&nbsp;
       <input id="pageInput">
       <script>
           generatePageInput();
       </script>
-    </div> -->
-</div>
-<div id="pageBar" class="mainBar">
-  <div class="functionName">Viewing Rows:&nbsp;</div>
-  <span class="rowNum">1</span>
-  through
-  <span class="rowNum">40</span>
-  <div class="functionName">skip to row:&nbsp;</div>
-  <div class="functionField">
-    <input id="pageInput">
-    <script>
-        generatePageInput();
-    </script>
+    </div>
   </div>
-</div>
-<div id="mainFrame">
-  <table id="autoGenTable">
-    <thead>
-    <tr>
-      <th id="headCol1" style="width:40px;" class="table_title_bg">
-        <div class="header">
-          <span><input value="ID" readonly></span>
-        </div>
-      </th>
-      <th id="headCol2" class="table_title_bg staticCol jsonColHead" style="width:auto;">
-        <div class="header">
-          <div class="dropdownBox" style="opacity: 0;"></div>
-          <span><input value="JSON" readonly></span>
-          <ul class="colMenu" style="display: none;">
-            <li class="menuClickable">Add a column
-              <ul class="subColMenu">
-                <li class="addColumns" id="addLCol3">On the left</li>
-                <li class="addColumns" id="addRCol3">On the right</li>
-              </ul>
-              <div class="rightArrow"></div>
-            </li>
-            <li id="duplicate3">Duplicate column</li>
-            <li class="sort" id="sort3">Sort</li>
-          </ul>
-        </div>
-      </th>
-    </tr>
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
-</div>
-<div id="worksheetBar" class="mainBar">
-  <div id="newWorksheet"><span>new worksheet</span></div>
-  <div class="worksheetTab">facebook</div>
-  <div class="worksheetTab tabSelected">yelp</div>
-  <div class="worksheetTab">worksheet 1</div>
-  <div class="worksheetTab">worksheet 2</div>
-</div>
-<div id="jsonModalBackground"></div>
-<div id="jsonModal">
-  <div class="closeJsonModal">+</div>
-  <div class="prettyJson">
-    {<div class="jObject">
-    </div>}
+  <div id="mainFrame">
+    <table id="autoGenTable">
+      <thead>
+      <tr>
+        <th id="headCol1" style="width:40px;" class="table_title_bg">
+          <div class="header">
+            <span><input value="ID" readonly></span>
+          </div>
+        </th>
+        <th id="headCol2" class="table_title_bg staticCol jsonColHead" style="width:auto;">
+          <div class="header">
+            <div class="dropdownBox" style="opacity: 0;"></div>
+            <span><input value="JSON" readonly></span>
+            <ul class="colMenu" style="display: none;">
+              <li class="menuClickable">Add a column
+                <ul class="subColMenu">
+                  <li class="addColumns" id="addLCol3">On the left</li>
+                  <li class="addColumns" id="addRCol3">On the right</li>
+                </ul>
+                <div class="rightArrow"></div>
+              </li>
+              <li id="duplicate3">Duplicate column</li>
+              <li class="sort" id="sort3">Sort</li>
+            </ul>
+          </div>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  <div id="worksheetBar" class="mainBar">
+    <div id="newWorksheet"><span>new worksheet</span></div>
+    <div class="worksheetTab">facebook</div>
+    <div class="worksheetTab tabSelected">yelp</div>
+    <div class="worksheetTab">worksheet 1</div>
+    <div class="worksheetTab">worksheet 2</div>
+  </div>
+  <div id="jsonModalBackground"></div>
+  <div id="jsonModal">
+    <div class="closeJsonModal">+</div>
+    <div class="prettyJson">
+      {<div class="jObject">
+      </div>}
+    </div>
   </div>
 </div>
 </body>

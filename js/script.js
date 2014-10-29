@@ -36,7 +36,7 @@ function infScrolling() {
             $(this).outerHeight()) {
             goToPage(gCurrentPageNumber+1); 
         }
-        getFirstVisibleRowNum();
+        generateFirstLastVisibleRowNum();
     });
     // var counter = 0;
     // $("#mainFrame").scroll(function() {
@@ -281,7 +281,7 @@ function goToPage(pageNumber) {
     }
     gCurrentPageNumber = pageNumber;
     // generatePages(); 
-    // selectPage(pageNumber);
+    selectPage(pageNumber);
     // Page number starts at 1, but we start at offset 0.
     XcalarSetAbsolute(gResultSetId, (pageNumber-1)*gNumEntriesPerPage);
     getPage(gResultSetId);
@@ -436,12 +436,12 @@ function getPage(resultSetId, firstTime) {
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            gNumEntriesPerPage);
     if (tableOfEntries.kvPairs.numRecords < gNumEntriesPerPage) {
+        console.log("Last Page!");
         // This is the last iteration
-            // Time to free the handle
-            // XXX: Function call to free handle?
-            resultSetId = 0;
+        // Time to free the handle
+        // XXX: Function call to free handle?
+        resultSetId = 0;
     }
-
     var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
     var numRows = Math.min(gNumEntriesPerPage, tableOfEntries.kvPairs.numRecords);
     for (var i = 0; i<numRows; i++) {
@@ -494,18 +494,38 @@ function getPage(resultSetId, firstTime) {
     }
     showHidePageTurners();
     $('.colGrab').height($('#autoGenTable').height());
-    getFirstVisibleRowNum();
 }
 
-function getFirstVisibleRowNum() {
-     var mainFramePos = $('#mainFrame')[0].getBoundingClientRect();
+function generateFirstLastVisibleRowNum() {
+    var mainFramePos = $('#mainFrame')[0].getBoundingClientRect();
     var mfPosTop = mainFramePos.top;
     var mfPosLeft = mainFramePos.left;
+    var mfPosBot = mainFramePos.bottom;
     var tdXCoor = 30;
     var tdYCoor = 45;
-    var el = document.elementFromPoint(tdXCoor+mfPosLeft, tdYCoor+mfPosTop);
-    var rowNum = parseInt($(el).closest('td').attr('id').substring(5));
-    console.log('row: '+rowNum);
+    var tdBotYCoor = -15;
+    var firstRowNum;
+    var lastRowNum;
+    var firstEl = document.elementFromPoint(tdXCoor+mfPosLeft, tdYCoor+mfPosTop);
+    var firstId = $(firstEl).closest('td').attr('id');
+    if (firstId && firstId.length > 0) {
+        var firstRowNum = parseInt(firstId.substring(5));
+    }
+
+    var lastEl = document.elementFromPoint(tdXCoor+mfPosLeft, tdBotYCoor+mfPosBot);
+    var lastId = $(lastEl).closest('td').attr('id');
+    if (lastId && lastId.length > 0) {
+        var lastRowNum = parseInt(lastId.substring(5));
+    }
+
+    console.log('row: '+firstRowNum, '2ndrow: '+lastRowNum);
+    if (parseInt(firstRowNum) != NaN) {
+        $('#pageBar span:first-of-type').html(firstRowNum);
+        movePageScroll(firstRowNum);
+    }
+    if (parseInt(lastRowNum) != NaN) {
+        $('#pageBar span:last-of-type').html(lastRowNum);
+    } 
 }
 
 function generateRowWithCurrentTemplate(json, id) {
@@ -1119,6 +1139,8 @@ function documentReadyCommonFunction() {
             $("#autoGenTable tbody").empty();
             goToPage(Math.ceil(parseInt($('#pageInput').val())/gNumEntriesPerPage));
             goToPage(Math.ceil(parseInt($('#pageInput').val())/gNumEntriesPerPage)+1);
+            generateFirstLastVisibleRowNum();
+            movePageScroll($('#pageInput').val());
             // $(this).blur(); 
         }
     });
@@ -1166,6 +1188,20 @@ function documentReadyCommonFunction() {
         $('.worksheetTab').removeClass('tabSelected');
         $(this).addClass('tabSelected');
     });
+
+    $('#pageScroll').mousedown(function(event) {
+        var mouseX = event.pageX - $(this).offset().left;
+        var scrollWidth = $(this).outerWidth();
+        var pageNum = Math.ceil((mouseX / scrollWidth) * resultSetCount);
+        var pageInputNum = $("#pageInput").val();
+        var e = $.Event("keypress");
+        e.which = 13; //choose the one you want
+        e.keyCode = 13;
+        $("#pageInput").val(pageNum).trigger(e);
+        $("#pageInput").val(pageInputNum);
+        $('#pageMarker').css('transform', 'translateX('+mouseX+'px)');
+    });
+
 
     $(document).mousedown(function(event) {
         var clickable = $(event.target).closest('.colMenu').length > 0;
@@ -1292,8 +1328,6 @@ function gRescolMouseUp() {
     $('.rowGrab').width($('#autoGenTable').width());
 }
 
-
-
 function resrowMouseDown(el, event) {
     gMouseStatus = "resizingRow";
     resrow.mouseStart = event.pageY;
@@ -1326,17 +1360,8 @@ function resrowMouseUp() {
     $('#ns-resizeCursor').remove();
     $('body').removeClass('hideScroll'); 
     $('.colGrab').height($('#autoGenTable').height());
+    generateFirstLastVisibleRowNum()
 }
-
-
-
-
-
-
-
-
-
-
 
 // start drag n drop column script
 function dragdropMouseDown(el, event) {
@@ -1664,6 +1689,7 @@ function documentReadyIndexFunction() {
 
         fillPageWithBlankCol();
         goToPage(gCurrentPageNumber+1);
+        generateFirstLastVisibleRowNum();
         cloneTableHeader();   
         infScrolling();
         
@@ -1934,13 +1960,10 @@ function matchHeaderSizes(reverse) {
     $('.rowGrab').width($('#autoGenTable').width());
 }
 
-function widths() {
-    console.log("thead1: "+$('#autoGenTable thead:first').width()+",",
-                "thead2: "+$('#autoGenTable thead:eq(1)').width()+",",
-                "table: "+$('#autoGenTable').width());
-    console.log("head2top: "+$('#headCol2').outerWidth()+",",
-                "thead2bottom: "+$('#autoGenTable thead:eq(1) #headCol2').outerWidth()+",",
-                "head3top: "+$('#headCol3').outerWidth()+",",
-                "thead3bottom: "+$('#autoGenTable thead:eq(1) #headCol3').outerWidth());
+function movePageScroll(pageNum) {
+    var pct = (pageNum/resultSetCount) * 100;
+    var dist = pct*$('#pageMarker').width();
+    console.log(dist)
+    $('#pageMarker').css('transform', 'translateX('+dist+'px)');
 }
 

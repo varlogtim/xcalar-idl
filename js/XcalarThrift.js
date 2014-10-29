@@ -1,5 +1,5 @@
-var hostname = "heisenberg";
-// var hostname = "10.1.1.158";
+// var hostname = "heisenberg";
+var hostname = "10.1.1.158";
 var portNumber = 9090;
 
 $(document).ready(function(){

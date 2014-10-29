@@ -76,6 +76,11 @@ body {
     min-width: 1400px;
 }
 
+#container {
+    background-color: @color-white;
+    padding-top: 5px;
+}
+
 #logo {
     position: absolute;
     top: 2px;
@@ -103,11 +108,7 @@ body {
 }
 
 #menuBar {
-    margin-top: 5px;
-    // height: 32px;
-    // background-color: @color-bar-gray;
     color: @color-white;
-    // width: 100%;
     // display: table;
     div {
         display: inline-block;
@@ -442,13 +443,16 @@ body {
 #pageBar {
     background-color: @color-table-blankGrayLight;
     margin-top: 5px;
+    padding-left: 38px;
     color: @color-text-black;
     font-size: 16px;
+    display: block;
+
     div {
+        width: 300px;
         display: inline-block;
         font: @font-base;
-        padding: 5px 0px 0px 0px;
-        margin: 0px 0px 0px 20px;
+        margin: 0px 87px 0px 0px;
         vertical-align: middle;
         input {
             border: 0px;
@@ -462,12 +466,31 @@ body {
     }
 
     span {
-        width: 100px;
+        display: inline-block;
     }
-    span:last-child {
-        margin-left: 10px;
-        margin-right:200px;
+    span:last-of-type {
+        margin-left: 5px;
     }
+
+    #pageScroll {
+        margin-top: 7px;
+        margin-bottom: 3px;
+        outline: 2px solid @color-bar-gray;
+        outline-offset: 2px;
+        position: relative;
+        height: 18px;
+    }
+
+    #pageMarker {
+        height: 100%;
+        width: 2px;
+        position: absolute;
+        left: 0%;
+        background-color: @color-bar-orange;
+        transition: all 0.2s ease-out;
+        transition-delay: 0s;
+    }
+
 }
 
 
