@@ -38,37 +38,6 @@ function infScrolling() {
         }
         generateFirstLastVisibleRowNum();
     });
-    // var counter = 0;
-    // $("#mainFrame").scroll(function() {
-    //     if ($(this).scrollTop() == 0) {
-    //         console.log('the top!');
-    //         goToPage(gCurrentPageNumber-4); 
-    //         goToPage(gCurrentPageNumber-1);
-
-    //         // gCurrentPageNumber - 4 if showing 80 rows
-    //     }
-    //     if ($(this)[0].scrollHeight - $(this).scrollTop()+gScrollbarHeight - $(this).outerHeight() == 0) {
-
-    //         gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
-
-    //         if ($('#autoGenTable tbody tr').length < 61) {
-    //             $("#autoGenTable tbody tr:lt(20)").remove();
-    //         } else {
-    //             $("#autoGenTable tbody tr:lt(40)").remove();
-    //         }
-            
-    //         goToPage(gCurrentPageNumber+1); 
-    //         goToPage(gCurrentPageNumber+1);
-
-    //         // console.log('addedpage', counter)
-    //         // if ($('#autoGenTable tbody tr').length < 101) {
-    //         //     $("#autoGenTable tbody tr:lt(20)").remove();
-    //         // } else {
-    //         //     $("#autoGenTable tbody tr:lt(40)").remove();
-    //         // }
-    //         counter++;
-    //     }
-    // });
 }
 
 // XXX: This function should disappear. But I need to be able to free the
@@ -414,7 +383,7 @@ function getPrevPage(resultSetId) {
 }
 
 function getPage(resultSetId, firstTime) {
-    // console.log('made it ot getpage')
+    console.log('made it ot getpage')
     if (resultSetId == 0) {
         return;
         // Reached the end
@@ -1966,4 +1935,3 @@ function movePageScroll(pageNum) {
     console.log(dist)
     $('#pageMarker').css('transform', 'translateX('+dist+'px)');
 }
-
