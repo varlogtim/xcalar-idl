@@ -2,7 +2,7 @@
 var gUrlTableName = getUrlVars()["tablename"];
 var gTableName = gUrlTableName || "userId";
 // XXX: Hack for faster testing
-autoLoad();
+// autoLoad();
 var gResultSetId = XcalarGetTableId(gTableName);
 var resultSetCount = XcalarGetCount(gTableName);
 var gNumPages = Math.ceil(resultSetCount / gNumEntriesPerPage);

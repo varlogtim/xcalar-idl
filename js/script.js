@@ -31,6 +31,8 @@ var ProgCol = function() {
     this.name = "New heading";
     this.func = {};
     this.width = 0;
+    this.isDark = true;
+    this.resize = false;
 };
 
 var gTableCols = []; // This is what we call setIndex on
@@ -376,6 +378,7 @@ function getNextPage(resultSetId, firstTime) {
         return;
     }
     gCurrentPageNumber++;
+    console.log("HERE!");
     getPage(resultSetId, firstTime);
 }
 
@@ -400,19 +403,7 @@ function getPage(resultSetId, firstTime) {
         return;
         // Reached the end
     }
-    var indices = [];
     var resize = false;
-    var headingsArray = convertColNamesToArray();
-    //XXX store JSON column width?
-    if (headingsArray != null) {
-        for (var i = 1; i<headingsArray.length; i++) {
-            var indName = {index: i,
-                           name: headingsArray[i],
-                           width: $("#headCol"+(i+1)).outerWidth(),
-                           isDark: $("#headCol"+(i+1)).hasClass('unusedCell')};
-            indices.push(indName);
-        }
-    }
     var tdHeights = getTdHeights();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            gNumEntriesPerPage);
@@ -427,50 +418,50 @@ function getPage(resultSetId, firstTime) {
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
     for (var i = 0; i<numRows; i++) {
-        if (tableOfEntries.keysAttrHeader.type ==
+        if (tableOfEntries.kvPairs.recordType ==
             GenericTypesRecordTypeT.GenericTypesVariableSize) { 
             var value = tableOfEntries.kvPairs.records[i].kvPairVariable.value;
         } else {
             var value = tableOfEntries.kvPairs.records[i].kvPairFixed.value;
         }
         if (firstTime) {
-            generateRowWithAutoIndex2(value, indexNumber+i+1, tdHeights[i]);
+            generateFirstScreen(value, indexNumber+i+1, tdHeights[i]);
         } else {
             generateRowWithCurrentTemplate(value, indexNumber+i+1);
         }
     }
     if (firstTime && !getIndex(gTableName)) {
-        if (headingsArray.length != 2) {
-            console.log("BUG BUG BUG");
-            alert("Possible bug");
-            console.log(headingsArray)
-        }
         gKeyName = tableOfEntries.keysAttrHeader.name;
-        var indName = {index: 1,
-                       name: gKeyName,
-                       width: gNewCellWidth};
-        indices.push(indName); 
-        resize = true;
+        addCol("headCol1", gKeyName,
+                    {resize: true,
+                    isDark: false}); 
+        gTableCols[0].func.func = "pull";
+        gTableCols[0].func.args = [gKeyName];
+        var newProgCol = new ProgCol();
+        newProgCol.index = 3;
+        newProgCol.name = "JSON";
+        newProgCol.width = gNewCellWidth; // XXX FIXME Grab from CSS
+        newProgCol.func.func = "raw";
+        newProgCol.func.args = [];
+        newProgCol.isDark = false;
+        insertColAtIndex(1, newProgCol);
     }
-    for (var i = 0; i<indices.length; i++) {
-        if (indices[i].name == "JSON") {
+    console.log("gTableCols.length: "+gTableCols.length);
+    for (var i = 0; i<gTableCols.length; i++) {
+        if (gTableCols[i].name == "JSON") {
             // We don't need to do anything here because if it's the first time
             // they won't have anything stored. If it's not the first time, the
             // column would've been sized already. If it's indexed, we
             // would've sized it in CatFunction
         } else {
             if (firstTime && !getIndex(gTableName)) {
-                addCol("headCol"+(indices[i].index), indices[i].name,
-                    {width: indices[i].width, resize: resize,
-                    isDark: indices[i].isDark}); 
-                
-                pullCol(indices[i].name, 1+indices[i].index);
+                execCol(gTableCols[i]);
             } else {
-                pullCol(indices[i].name, 1+indices[i].index, indexNumber+1,
-                        numRows);
-                if (indices[i].name == gKeyName) {
-                    // console.log(gKeyName);
-                    autosizeCol($('#headCol'+(1+indices[i].index)));
+                execCol(gTableCols[i]);
+                if (gTableCols[i].name == gKeyName) {
+                    console.log(gKeyName);
+                    /// XXX: +1?
+                    autosizeCol($('#headCol'+(gTableCols[i].index)));
                 }
             }
         }
@@ -576,7 +567,7 @@ function generateRowWithAutoIndex(text, hoverable) {
     gTableRowIndex++;
 }
 
-function generateRowWithAutoIndex2(text2, idNo, height) {
+function generateFirstScreen(value, idNo, height) {
     if (height == undefined) {
         var cellHeight = gRescol.minCellHeight;
     } else {
@@ -593,7 +584,7 @@ function generateRowWithAutoIndex2(text2, idNo, height) {
         '<div class="elementTextWrap" style="max-height:'+
         (cellHeight-4)+'px;">'+
         '<div class="elementText">'+
-        text2+'</div>'+
+        value+'</div>'+
         '</div>'+
         '</td>'+
         '</tr>');
@@ -609,31 +600,90 @@ function generateRowWithAutoIndex2(text2, idNo, height) {
 
 }
 
-function execCol(funcString) {
-    var progCol = parseCol(funcString);
-    switch(progCol.func) {
-    case ("pull"):
-        parsePullColArgs(progCol);
-        break;
-    default:
-        console.log("No such function yet!"+progCol.func);
-        return;
+function insertColAtIndex(index, obj) {
+    for (var i = gTableCols.length-1; i>=index; i--) {
+        gTableCols[i].index += 1;
+        gTableCols[i+1] = gTableCols[i];
     }
-    return (progCol);
+    gTableCols[index] = obj;
 }
 
-function parseCol(funcString) {
+function removeColAtIndex(index) {
+    var removed = gTableCols[index];
+    for (var i = index+1; i<gTableCols.length; i++) {
+        gTableCols[i].index -= 1;
+    }
+    gTableCols.splice(index, 1);
+    return (removed);
+}
+
+function parsePullColArgs(progCol) {
+    if (progCol.func.func != "pull") {
+        console.log("Wrong function!");
+        return (false);
+    }
+    if (progCol.func.args.length != 1) {
+        console.log("Wrong number of arguments!");
+        return (false);
+    }
+    return (true);
+}
+
+function execCol(progCol, args) {
+    switch(progCol.func.func) {
+    case ("pull"):
+        if (!parsePullColArgs(progCol)) {
+            console.log("Arg parsing failed");
+        }
+        var startIndex;
+        var numberOfRows;
+        if (args) {
+            if (args.index) {
+                progCol.index = args.index;
+            }
+            if (args.startIndex) {
+                startIndex = args.startIndex;
+            }
+            if (args.numberOfRows) {
+                numberOfRows = args.numberOfRows;
+            }
+        }
+        if (progCol.isDark) {
+            progCol.isDark = false;
+        }
+        pullCol(progCol.func.args[0], progCol.index,
+                startIndex, numberOfRows);
+        break;
+    case ("raw"):
+        console.log("Raw data");
+        break;
+    case (undefined):
+        console.log("Blank col?");
+        break;
+    default:
+        console.log(progCol);
+        console.log("No such function yet!"+progCol.func.func
+                    + progCol.func.args);
+        return;
+    }
+}
+
+function parseCol(funcString, colId, modifyCol) {
     // Everything must be in a "name" = function(args) format
     var open = funcString.indexOf("\"");
     var close = (funcString.substring(open+1)).indexOf("\"")+open+1;
     var name = funcString.substring(open+1, close);
-    console.log(name);
     var funcSt = funcString.substring(funcString.indexOf("=")+1);
-    console.log(funcSt);
-    var newProgCol = new ProgCol();
-    newProgCol.name = name;
-    newProgCol.func = cleanseFunc(funcSt);
-    return (newProgCol);
+    var progCol;
+    if (modifyCol) {
+        progCol = gTableCols[colId-2];
+    } else {
+        progCol = new ProgCol();
+    }
+    progCol.name = name;
+    progCol.func = cleanseFunc(funcSt);
+    progCol.index = colId;
+    return (progCol);
 }
 
 function removeSpaces(str) {
@@ -672,9 +722,6 @@ function cleanseFunc(funcString) {
     return ({func: funcName, args: args});
 }
 
-function runColFunction(progCol) {
-    progCol.func
-}
 function delCol(id, resize) {
     var colid = parseInt(id.substring(11));
     var delTd = $('#autoGenTable tr:first th').eq(colid-1);
@@ -682,6 +729,7 @@ function delCol(id, resize) {
     var numCol = $("#autoGenTable tr:first th").length;
     
     $("#headCol"+colid).remove();
+    removeColAtIndex(colid-2);
     $("#autoGenTable tr:eq(1) #headCol"+colid).remove();
     for (var i = colid+1; i<=numCol; i++) {
         $("#headCol"+i).attr("id", "headCol"+(i-1));
@@ -723,7 +771,7 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
 
     colid = colid.substring(7);
     var numRow = -1;
-    var startindIndex = -1;
+    var startingIndex = -1;
     if (!startIndex) {
         var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id").
                        substring(5);
@@ -777,9 +825,11 @@ function addCol(id, name, options) {
     var width = options.width || gNewCellWidth;
     var resize = options.resize || false;
     var isDark = options.isDark || false;
+    var newProgCol = options.progCol || new ProgCol();
     if (options.direction != "L") {
         newColid += 1;
     }
+
     if (name == null) {
         name = "";
         var select = true;
@@ -792,6 +842,14 @@ function addCol(id, name, options) {
         var color = "";
     }
 
+    if (!options.progCol) {
+        newProgCol.name = name;
+        newProgCol.index = newColid;
+        newProgCol.width = width;
+        newProgCol.resize = resize;
+        newProgCol.isDark = isDark;
+        insertColAtIndex(newColid-2, newProgCol);
+    }
     for (var i = numCol; i>=newColid; i--) {
         $("#headCol"+i).attr("id", "headCol"+(i+1));
         $("#closeButton"+i).attr("id", "closeButton"+(i+1));
@@ -843,7 +901,8 @@ function addCol(id, name, options) {
                 '</ul>'+ 
                 '<div class="rightArrow"></div>'+
             '</li>';
-    if (name == gKeyName) {
+    if (gTableCols[newColid-2].func.func == "pull" &&
+        gTableCols[newColid-2].func.args[0] == gKeyName) {
         dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
                         '<ul class="subColMenu">'+
                             '<li class="filter">Greater Than'+
@@ -927,7 +986,9 @@ function addCol(id, name, options) {
       if (e.which==13) {
         var thisId = parseInt($(this).closest('.table_title_bg').
                      attr('id').substring(7));
-        pullCol($(this).val(), thisId);
+        var progCol = parseCol($(this).val(), newColid, true);
+        execCol(progCol);
+        $(this).val(progCol.name);
         // autosizeCol($('#headCol'+thisId), {includeHeader: true});
         $(this).blur();
         $(this).closest('th').removeClass('unusedCell');
@@ -1008,17 +1069,21 @@ function dropdownAttachListeners(colId) {
         var isDark = $('#headCol'+index).hasClass('unusedCell');
 
         addCol(id, name, {resize: true, width: width, isDark: isDark});
-        pullCol(name, (index+1));
+        // Deep copy
+        // XXX: TEST THIS FEATURE!
+        gTableCols[index-1].func.func = gTableCols[index-2].func.func;
+        gTableCols[index-1].func.args = gTableCols[index-2].func.args;
+        execCol(gTableCols[index-1], null); 
     });
 
     $('#sort'+colId).click(function() {
         var index = $(this).attr("id").substring(4);
-        sortRows($('#rename'+index).val(), SortDirection.Forward);
+        sortRows(index, SortDirection.Forward);
     }); 
     
     $('#revSort'+colId).click(function() {
         var index = $(this).attr("id").substring(7);
-        sortRows($('#rename'+index).val(), SortDirection.Backward);
+        sortRows(index, SortDirection.Backward);
     }); 
 
     $('#headCol'+colId+' .editableHead').mousedown(function(event) {
@@ -1054,38 +1119,6 @@ function dropdownAttachListeners(colId) {
 function prelimFunctions() {
     setTabs();
     selectPage(1);
-}
-
-function convertColNamesToArray() {
-    var head = $("#autoGenTable tr:first th span");
-    var numCol = head.length;
-    var headings = [];
-    for (var i = 0; i<numCol; i++) {
-        if (!head.eq(i).parent().parent().hasClass("unusedCell")) {
-            headings.push($.trim(head.eq(i).children('input').val()));
-        }
-    }
-    return headings;
-}
-
-// XXX: FIXME: This should not preserve undefined columns!!!
-function convertColNamesToIndexArray() {
-    var head = $("#autoGenTable tr:first th span");
-    var numCol = head.length;
-    var headings = [];
-    for (var i = 2; i<numCol; i++) {
-        if (!$("#headCol"+i).hasClass("unusedCell")) {
-            // XXX: THIS IS BECAUSE OF THE SHADOW STICKY HEADER
-            var indexObj = {
-                index: i-1,
-                name: $("#headCol"+i+" span"+" input").val(),
-                width: $("#headCol"+i).width()
-            };
-            console.log(indexObj.name);
-            headings.push(indexObj);
-        }
-    }
-    return headings;
 }
 
 function resizableColumns() {
@@ -1219,6 +1252,8 @@ function documentReadyCommonFunction() {
             $('.dataStep').css('transform', 'translateX(320px)');
             $('.dataOptions').css('left',330).css('z-index', 6);
         });
+        // load_r.html contains load.js where this function is defined
+        loadReadyFunction();
         $('.datasetWrap').addClass('shiftRight');
     });
 
@@ -1484,15 +1519,16 @@ function dragdropMouseUp() {
     gMouseStatus = null;
     $('.shadowDiv, .fauxCol, .dropTarget, #moveCursor').remove();
     var head = $("#autoGenTable tr:first th span");
-    var name = $.trim(head.eq(gDragObj.colIndex).children('input').val());
+    var progCol = gTableCols[gDragObj.colId-2];
+    
     // only pull col if column is dropped in new location
     if ((gDragObj.colIndex+1) != gDragObj.colId) { 
-        var width = gDragObj.colWidth;
-        var isDark = $('#'+gDragObj.id).hasClass('unusedCell');
-        delCol("closeButton"+(gDragObj.colId), true);
-        addCol(("headCol"+gDragObj.colIndex), name, 
-            {width : width, isDark: isDark});
-        pullCol(name, (gDragObj.colIndex+1));
+        delCol("closeButton"+gDragObj.colId, false);
+        progCol.index = gDragObj.colIndex+1;
+        insertColAtIndex(gDragObj.colIndex-1, progCol);
+        addCol("headCol"+gDragObj.colIndex, progCol.name, {width: progCol.width,
+               resize: progCol.resize, isDark: false, progCol: progCol});
+        execCol(progCol);
     }
     reenableTextSelection(); 
 }
@@ -1700,6 +1736,7 @@ function getWidestTdWidth(el, options) {
     return (largestWidth);
 }
 
+// XXX: Td heights are not persisted
 function getTdHeights() {
     var tdHeights = [];
     $("#autoGenTable tbody tr").each(function(){
@@ -1726,14 +1763,15 @@ function dblClickResize(el) {
 
 function documentReadyCatFunction() {
     documentReadyCommonFunction();
-    convertColNamesToArray();
     // XXX: Should this be called here or at the end? I think it should be here
     // or I may end up attaching 2 listeners?
     resizableColumns();
     var index = getIndex(gTableName);
+    getNextPage(gResultSetId, true);
+    
     if (index) {
+        gTableCols = index;
         console.log("Stored "+gTableName);
-        getNextPage(gResultSetId, true);
         // XXX Move this into getPage
         // XXX API: 0105
         var tableOfEntries = XcalarGetNextPage(gResultSetId,
@@ -1742,9 +1780,10 @@ function documentReadyCatFunction() {
         console.log(index);
         for (var i = 0; i<index.length; i++) {
             if (index[i].name != "JSON") {
-                addCol("headCol"+(index[i].index), index[i].name,
-                      {width: index[i].width, resize: true});
-                pullCol(index[i].name, 1+index[i].index);
+                addCol("headCol"+(index[i].index-1), index[i].name,
+                      {width: index[i].width, resize: true,
+                       isDark: index[i].isDark,
+                       progCol:index[i]});
             } else {
                 $("#headCol"+(index[i].index+1)).css("width", 
                     index[i].width);
@@ -1752,8 +1791,7 @@ function documentReadyCatFunction() {
         }
     } else {
         console.log("Not stored "+gTableName);
-        getNextPage(gResultSetId, true);
-    }
+    }    
 }
 
 function documentReadyIndexFunction() {
@@ -1773,10 +1811,6 @@ function documentReadyIndexFunction() {
         infScrolling();
         
     });
-
-    // documentReadyCommonFunction();
-    // generatePages();
-    // showHidePageTurners();
 }
 
 var tempCountShit = 0;
@@ -1802,27 +1836,35 @@ function checkStatus(newTableName) {
     }
 }
 
-function sortRows(fieldName, order) {
+function sortRows(index, order) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempSortTable"+rand;
-    var convertedIndex = convertColNamesToIndexArray();
+    // XXX: Update widths here
     setOrder(newTableName, order);
-    setIndex(newTableName, convertedIndex);
-    console.log(convertedIndex);
+    setIndex(newTableName, gTableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     var datasetId = $("#datastorePanel .monitorSubDiv")[1].innerHTML;
     console.log(datasetId);
+    var fieldName;
+    switch(gTableCols[index-2].func.func) {
+    case ("pull"):
+        // Pulled directly, so just sort by this
+        fieldName = gTableCols[index-2].func.args[0];
+        break;
+    default:
+        console.log("Cannot sort a col derived from unsupported func");
+        return;
+    }
     XcalarIndexFromTable(gTableName, fieldName, newTableName);
-    // checkStatus(newTableName);
+    checkStatus(newTableName);
 }
 
 function filterCol(operator, value) {
     console.log(gTableName);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
-    var convertedIndex = convertColNamesToIndexArray();
-    setIndex(newTableName, convertedIndex);
+    setIndex(newTableName, gTableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     XcalarFilter(operator, value, gTableName, newTableName);
@@ -1833,8 +1875,7 @@ function joinTables(rightTable) {
     console.log("Joining "+gTableName+" and "+rightTable);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempJoinTable"+rand;
-    var convertedIndex = convertColNamesToIndexArray();
-    setIndex(newTableName, convertedIndex);
+    setIndex(newTableName, gTableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     XcalarJoin(gTableName, rightTable, newTableName);
@@ -1977,7 +2018,9 @@ function showJsonPopup(jsonTd) {
                     }).attr("id");
         var colIndex = parseInt(id.substring(7)); 
         addCol(id, name, {resize: false, select: false});
-        pullCol(name, colIndex+1);
+        gTableCols[colIndex-1].func.func = "pull";        
+        gTableCols[colIndex-1].func.args = [name];
+        execCol(gTableCols[colIndex-1]);
         autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
                 resizeFirstRow: true});
         $('#jsonModal, #jsonModalBackground').hide();

@@ -78,7 +78,8 @@ function dsSubmit(e) {
         moveElementLeft('#fileBrowser', '#filePathSelector');
         $("#keySelector").show().css('left',620);
         $("#tableName").focus().css('left',830).css('z-index', 6);
-        $('#progressBar').css({'transform': 'translateX(825px)', 'transition-delay': '.1s'});
+        $('#progressBar').css({'transform': 'translateX(825px)',
+                               'transition-delay': '.1s'});
         setTimeout(
             function() {
                 $('#load_r').css({'z-index': 2});
@@ -100,8 +101,10 @@ function moveElementLeft(movingEl, target) {
     var movingElWidth = getTextWidth(movingEl);
     clone.appendTo('#load_r');
     movingEl.val(" ").blur();
-    clone.css({'background-color':'transparent', 'padding':0}).prop('disabled', true);
-    clone.addClass('shiftLeft').css({'left':(textMidPoint-(movingElWidth/2)), 'font-size':20});
+    clone.css({'background-color':'transparent', 'padding':0}).
+              prop('disabled', true);
+    clone.addClass('shiftLeft').css({'left':(textMidPoint-(movingElWidth/2)),
+                   'font-size':20});
     target.addClass('transitionGreen');
 }
 
@@ -131,7 +134,8 @@ function detailsSubmit(e) {
 }
 
 function startProgressBar() { 
-    $('#progressBar').css({'transform': 'translateX(1400px)', 'transition': 'transform 5s linear .1s'});
+    $('#progressBar').css({'transform': 'translateX(1400px)',
+                           'transition': 'transform 5s linear .1s'});
     var startPos = $('#progressBar').offset().left;
     var goalPos = 0;
     var posRange = goalPos - startPos;
@@ -140,7 +144,8 @@ function startProgressBar() {
     var currentPercentage = startPercentage;
     var getPercentage = setInterval(function(){
         currentPos = $('#progressBar').offset().left;
-        currentPercentage = startPercentage +  50*((currentPos - startPos) / posRange);
+        currentPercentage = startPercentage +  50*((currentPos - startPos) /
+                            posRange);
         $('#loadPercentage').text(Math.ceil(currentPercentage)+"%");
         if (currentPercentage > 55) {
             $('#loadPercentage').fadeIn();
@@ -156,7 +161,8 @@ function startProgressBar() {
                  $('#progressBar').css({'transform': 'translateX(10000px)'});
             },100);
             setTimeout(function(){
-                $('#loadArea').html("").css({'background-color': 'transparent', 'z-index':'initial'});
+                $('#loadArea').html("").css({'background-color': 'transparent',
+                                             'z-index':'initial'});
                 $('#datastorePanel').removeClass('slideRight');
                 $('#datastorePanel').css({'background-color': 'transparent'});
                 $('#datastorePanel').width('100%');
@@ -177,16 +183,12 @@ function checkLoad() {
     }
 }
 
-$(document).ready(
-    function() {
-        $("#filePathSelector").hide();
-        $("#keySelector").hide();
-        $("#uploadProgress").hide();
-        monitorOverlayPercent();
-    }
-);
-
-
+function loadReadyFunction() {
+    $("#filePathSelector").hide();
+    $("#keySelector").hide();
+    $("#uploadProgress").hide();
+    monitorOverlayPercent();
+}
 
 
 
