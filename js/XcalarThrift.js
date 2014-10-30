@@ -1,5 +1,5 @@
-// var hostname = "heisenberg";
-var hostname = "10.1.1.158";
+var hostname = "heisenberg";
+// var hostname = "10.1.1.158";
 var portNumber = 9090;
 
 $(document).ready(function(){
@@ -99,6 +99,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename) {
     workItem.input.indexInput.dstTable.tableName = tablename;
     workItem.input.indexInput.keyName = key;
     workItem.input.indexInput.isTableBacked = true;
+    workItem.input.indexInput.datasetId = 0;
 
     try {
         result = client.queueWork(workItem);
@@ -106,6 +107,29 @@ function XcalarIndexFromTable(srcTablename, key, tablename) {
         console.log(ouch);
         console.log("Load from index failed");
     }
+}
+
+function XcalarSample(datasetId, numEntries) {
+    var transport = new Thrift.Transport(transportLocation());
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.api = XcalarApisT.XcalarApiMakeResultSet;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.makeResultSetInput = new XcalarApiMakeResultSetInputT();
+    workItem.input.makeResultSetInput.fromTable = false;
+    workItem.input.makeResultSetInput.datasetId = 4;
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+        console.log(result.output.makeResultSetOutput.resultSetId);
+        console.log("Failed to make sample set");
+        return;
+    }
+    
+    var resultSetId = result.output.makeResultSetOutput.resultSetId;
+    return (XcalarGetNextPage(resultSetId, numEntries));
 }
 
 function XcalarGetCount(tableName) {

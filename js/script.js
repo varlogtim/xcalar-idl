@@ -25,6 +25,16 @@ var gScrollbarHeight = 8;
 var gTempStyle = "";
 var gMinTableWidth = 1200;
 
+// Classes
+var ProgCol = function() {
+    this.index = -1;
+    this.name = "New heading";
+    this.func = {};
+    this.width = 0;
+};
+
+var gTableCols = []; // This is what we call setIndex on
+
 function infScrolling() {
     // Feature: As we're scrolling we can update the skip to row box.
     // However, all solutions that I've seen so far are shitty in terms of
@@ -284,7 +294,8 @@ function getUrlVars()
 function generatePages() { 
     var rightDots = false;
     var leftDots = false;
-    var startNumber = Math.max(gCurrentPageNumber-6, 0); // number furthest on left side
+    var startNumber = Math.max(gCurrentPageNumber-6, 0); 
+    // number furthest on left side
     if (gNumPages > gNumPageTurners) {
         var number = gNumPageTurners; 
         if ((gNumPages-startNumber) > gNumPageTurners) {
@@ -295,7 +306,8 @@ function generatePages() {
     } else {
         var number = gNumPages;
     }
-    var htmlString = '<table class="noBorderTable" id="pageTurnerNumberBarInner">\
+    var htmlString =
+                   '<table class="noBorderTable" id="pageTurnerNumberBarInner">\
                         <tr>\
                           <td class="pageTurnerLeftSpacer"></td>\
                           <td class="pageTurnerWrap">\
@@ -412,7 +424,8 @@ function getPage(resultSetId, firstTime) {
         resultSetId = 0;
     }
     var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
-    var numRows = Math.min(gNumEntriesPerPage, tableOfEntries.kvPairs.numRecords);
+    var numRows = Math.min(gNumEntriesPerPage,
+                           tableOfEntries.kvPairs.numRecords);
     for (var i = 0; i<numRows; i++) {
         if (tableOfEntries.keysAttrHeader.type ==
             GenericTypesRecordTypeT.GenericTypesVariableSize) { 
@@ -450,6 +463,7 @@ function getPage(resultSetId, firstTime) {
                 addCol("headCol"+(indices[i].index), indices[i].name,
                     {width: indices[i].width, resize: resize,
                     isDark: indices[i].isDark}); 
+                
                 pullCol(indices[i].name, 1+indices[i].index);
             } else {
                 pullCol(indices[i].name, 1+indices[i].index, indexNumber+1,
@@ -475,13 +489,15 @@ function generateFirstLastVisibleRowNum() {
     var tdBotYCoor = -15;
     var firstRowNum;
     var lastRowNum;
-    var firstEl = document.elementFromPoint(tdXCoor+mfPosLeft, tdYCoor+mfPosTop);
+    var firstEl = document.elementFromPoint(tdXCoor+mfPosLeft,
+                                            tdYCoor+mfPosTop);
     var firstId = $(firstEl).closest('td').attr('id');
     if (firstId && firstId.length > 0) {
         var firstRowNum = parseInt(firstId.substring(5));
     }
 
-    var lastEl = document.elementFromPoint(tdXCoor+mfPosLeft, tdBotYCoor+mfPosBot);
+    var lastEl = document.elementFromPoint(tdXCoor+mfPosLeft,
+                                           tdBotYCoor+mfPosBot);
     var lastId = $(lastEl).closest('td').attr('id');
     if (lastId && lastId.length > 0) {
         var lastRowNum = parseInt(lastId.substring(5));
@@ -531,7 +547,7 @@ function generateRowWithCurrentTemplate(json, id) {
     $('#autoGenTable tr:nth-last-child(1) .jsonElement').dblclick(function() {
         showJsonPopup($(this));
     });
-    $('#autoGenTable  tr:nth-last-child(1) .rowGrab').mousedown(function(event) {
+    $('#autoGenTable tr:nth-last-child(1) .rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
 }
@@ -574,7 +590,8 @@ function generateRowWithAutoIndex2(text2, idNo, height) {
         idNo+'</span><div class="rowGrab"></div></div></td>'+
         '<td class="jsonElement" id="bodyr'+
         idNo+'c2">'+
-        '<div class="elementTextWrap" style="max-height:'+(cellHeight-4)+'px;">'+
+        '<div class="elementTextWrap" style="max-height:'+
+        (cellHeight-4)+'px;">'+
         '<div class="elementText">'+
         text2+'</div>'+
         '</div>'+
@@ -592,6 +609,72 @@ function generateRowWithAutoIndex2(text2, idNo, height) {
 
 }
 
+function execCol(funcString) {
+    var progCol = parseCol(funcString);
+    switch(progCol.func) {
+    case ("pull"):
+        parsePullColArgs(progCol);
+        break;
+    default:
+        console.log("No such function yet!"+progCol.func);
+        return;
+    }
+    return (progCol);
+}
+
+function parseCol(funcString) {
+    // Everything must be in a "name" = function(args) format
+    var open = funcString.indexOf("\"");
+    var close = (funcString.substring(open+1)).indexOf("\"")+open+1;
+    var name = funcString.substring(open+1, close);
+    console.log(name);
+    var funcSt = funcString.substring(funcString.indexOf("=")+1);
+    console.log(funcSt);
+    var newProgCol = new ProgCol();
+    newProgCol.name = name;
+    newProgCol.func = cleanseFunc(funcSt);
+    return (newProgCol);
+}
+
+function removeSpaces(str) {
+    var start = -1;
+    var end = -1;
+    for (var i = 0; i<str.length; i++) {
+        if (str[i] != " ") {
+            start = i;
+            break;
+        }
+    }
+    for (var i = str.length-1; i>=0; i--) {
+        if (str[i] != " ") {
+            end = i;
+            break;
+        }
+    }
+    return (str.substring(start, end+1));
+}
+
+function cleanseFunc(funcString) {
+    var open = funcString.indexOf("(");
+    var close = -1;
+    for (var i = funcString.length-1; i>open; i--) {
+       if (funcString[i] == ")") {
+           close = i;
+           break;
+       }
+    }
+    var funcName = funcString.substring(0, open);
+    funcName = removeSpaces(funcName);
+    var args = (funcString.substring(open+1, close)).split(",");
+    for (var i = 0; i<args.length; i++) {
+        args[i] = removeSpaces(args[i]);
+    }
+    return ({func: funcName, args: args});
+}
+
+function runColFunction(progCol) {
+    progCol.func
+}
 function delCol(id, resize) {
     var colid = parseInt(id.substring(11));
     var delTd = $('#autoGenTable tr:first th').eq(colid-1);
@@ -680,7 +763,8 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
                 default: // leave value as is;
             }
         }
-        value = '<div class="addedBarTextWrap"><div class="addedBarText">'+value+"</div></div>";
+        value = '<div class="addedBarTextWrap"><div class="addedBarText">'+
+                value+"</div></div>";
         $("#bodyr"+i+"c"+newColid).html(value); 
     } 
 }
@@ -761,39 +845,39 @@ function addCol(id, name, options) {
             '</li>';
     if (name == gKeyName) {
         dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
-                            '<ul class="subColMenu">'+
-                                '<li class="filter">Greater Than'+
-                                    '<ul class="subColMenu">'+
-                                        '<li><input type="text" value="0"/></li>'+
-                                    '</ul>'+
-                                    '<div class="rightArrow"></div>'+
-                                '</li>'+
-                                '<li class="filter">Greater Than Equal To'+
-                                    '<ul class="subColMenu">'+
-                                        '<li><input type="text" value="0"/></li>'+
-                                    '</ul>'+
-                                    '<div class="rightArrow"></div>'+
-                                '</li>'+
-                                '<li class="filter">Equals'+
-                                    '<ul class="subColMenu">'+
-                                        '<li><input type="text" value="0"/></li>'+
-                                    '</ul>'+
-                                    '<div class="rightArrow"></div>'+
-                                '</li>'+
-                                '<li class="filter">Less Than'+
-                                    '<ul class="subColMenu">'+
-                                        '<li><input type="text" value="0"/></li>'+
-                                    '</ul>'+
-                                    '<div class="rightArrow"></div>'+
-                                '</li>'+
-                                '<li class="filter">Less Than Equal To'+
-                                    '<ul class="subColMenu">'+
-                                        '<li><input type="text" value="0"/></li>'+
-                                    '</ul>'+
-                                    '<div class="rightArrow"></div>'+
-                                '</li>'+
-                            '</ul>'+
-                            '<div class="rightArrow"></div>'+
+                        '<ul class="subColMenu">'+
+                            '<li class="filter">Greater Than'+
+                                '<ul class="subColMenu">'+
+                                    '<li><input type="text" value="0"/></li>'+
+                                '</ul>'+
+                                '<div class="rightArrow"></div>'+
+                            '</li>'+
+                            '<li class="filter">Greater Than Equal To'+
+                                '<ul class="subColMenu">'+
+                                    '<li><input type="text" value="0"/></li>'+
+                                '</ul>'+
+                                '<div class="rightArrow"></div>'+
+                            '</li>'+
+                            '<li class="filter">Equals'+
+                                '<ul class="subColMenu">'+
+                                    '<li><input type="text" value="0"/></li>'+
+                                '</ul>'+
+                                '<div class="rightArrow"></div>'+
+                            '</li>'+
+                            '<li class="filter">Less Than'+
+                                '<ul class="subColMenu">'+
+                                    '<li><input type="text" value="0"/></li>'+
+                                '</ul>'+
+                                '<div class="rightArrow"></div>'+
+                            '</li>'+
+                            '<li class="filter">Less Than Equal To'+
+                                '<ul class="subColMenu">'+
+                                    '<li><input type="text" value="0"/></li>'+
+                                '</ul>'+
+                                '<div class="rightArrow"></div>'+
+                            '</li>'+
+                        '</ul>'+
+                        '<div class="rightArrow"></div>'+
                         '</li>'+
                         '<li id="join">'+'Join'+
                             '<div class="rightArrow"></div>'+
@@ -1011,7 +1095,8 @@ function resizableColumns() {
                 &&!$(this).parent().is(':first-child')) {
                     var tdId = $(this).parent().attr('id');
                     $(this).prepend('<div class="colGrab"></div>');
-                    $('#autoGenTable tr:eq(1) #'+tdId+' .header').prepend('<div class="colGrab"></div>');
+                    $('#autoGenTable tr:eq(1) #'+tdId+' .header').prepend(
+                        '<div class="colGrab"></div>');
                     var firstEl = '#'+tdId+' .colGrab';
                     var secondEl = '#autoGenTable tr:eq(1) #'+tdId+' .colGrab';
                     $(firstEl+','+secondEl).mousedown(
@@ -1061,14 +1146,16 @@ function subColMenuMouseLeave(el) {
     el.siblings().removeClass('subColUnselected');
     el.removeClass('subColSelected');
     el.parent().parent().removeClass('subSelected');
-    el.parent().siblings('.rightArrow').removeClass('arrowExtended').removeClass('dimmed');
+    el.parent().siblings('.rightArrow').removeClass('arrowExtended').
+        removeClass('dimmed');
     el.closest('.colMenu').removeClass('dimmed');
 }
 
 function disableTextSelection() {
     window.getSelection().removeAllRanges();
     var style = '<style id="disableSelection" type="text/css">*'+ 
-        '{ -ms-user-select:none;-moz-user-select:-moz-none;-khtml-user-select:none;'+
+        '{ -ms-user-select:none;-moz-user-select:-moz-none;'+
+        '-khtml-user-select:none;'+
         '-webkit-user-select:none;user-select:none; }</style>';
     $(document.head).append(style);
     $('input').prop('disabled', true);
@@ -1080,8 +1167,10 @@ function reenableTextSelection() {
 }
 
 function documentReadyCommonFunction() {
-    gColumnBorderWidth = parseInt($('#autoGenTable th:first').css('border-left-width'))+
-                        parseInt($('#autoGenTable th:first').css('border-right-width'));
+    gColumnBorderWidth = parseInt($('#autoGenTable th:first').
+                            css('border-left-width'))+
+                        parseInt($('#autoGenTable th:first').
+                            css('border-right-width'));
     gColPadding = parseInt($('#autoGenTable td:first').css('padding-left')) * 2;
     dropdownAttachListeners(2); // set up listeners for json column
 
@@ -1092,7 +1181,8 @@ function documentReadyCommonFunction() {
     }
     $("#searchBar").val('tablename = "'+searchText+'"');
     var resultTextLength = (""+resultSetCount).length
-    $('#pageInput').attr({'maxLength': resultTextLength, 'size': resultTextLength});
+    $('#pageInput').attr({'maxLength': resultTextLength,
+                          'size': resultTextLength});
     $('#pageInput').keypress(function(e) {
         if (e.which === 13) {
             val = $('#pageInput').val();
@@ -1106,8 +1196,10 @@ function documentReadyCommonFunction() {
             // XXX: HACK
             gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
             $("#autoGenTable tbody").empty();
-            goToPage(Math.ceil(parseInt($('#pageInput').val())/gNumEntriesPerPage));
-            goToPage(Math.ceil(parseInt($('#pageInput').val())/gNumEntriesPerPage)+1);
+            goToPage(Math.ceil(
+                     parseInt($('#pageInput').val())/gNumEntriesPerPage));
+            goToPage(Math.ceil(
+                     parseInt($('#pageInput').val())/gNumEntriesPerPage)+1);
             generateFirstLastVisibleRowNum();
             movePageScroll($('#pageInput').val());
             // $(this).blur(); 
@@ -1255,20 +1347,25 @@ function gRescolMouseMove(event) {
         $('#autoGenTable thead:first').outerWidth($('#autoGenTable').width());
 
         if (dragDist <= -gRescol.tableExcessWidth) {
-            $('#autoGenTable thead th:last-child').outerWidth(gRescol.lastCellWidth - 
+            $('#autoGenTable thead th:last-child').outerWidth(
+                gRescol.lastCellWidth - 
                 (dragDist + gRescol.tableExcessWidth));
-            $('#autoGenTable thead:first').outerWidth($('#autoGenTable').width());
+            $('#autoGenTable thead:first').outerWidth(
+                $('#autoGenTable').width());
         }     
     } else if ( dragDist < gRescol.leftDragMax ) {
         $('#'+gRescol.id).outerWidth(gRescol.tempCellMinWidth);
-        $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(gRescol.tempCellMinWidth);
+        $('#autoGenTable tr:eq(1) #'+gRescol.id).
+            outerWidth(gRescol.tempCellMinWidth);
         if (dragDist < -gRescol.tableExcessWidth) {
             $('#autoGenTable thead:first').outerWidth(gMinTableWidth);
             var addWidth = gMinTableWidth - $('#autoGenTable').width();
-            $('#autoGenTable thead th:last-child').outerWidth('+='+addWidth+'px');
+            $('#autoGenTable thead th:last-child').
+                outerWidth('+='+addWidth+'px');
         } 
         else {
-            $('#autoGenTable thead:first').outerWidth($('#autoGenTable').outerWidth());
+            $('#autoGenTable thead:first').
+                outerWidth($('#autoGenTable').outerWidth());
         }
     }
 }
@@ -1278,13 +1375,16 @@ function gRescolMouseMoveLast(event) {
     if (dragDist >= -gRescol.tableExcessWidth) {
         if (dragDist > gRescol.leftDragMax) {
             $('#'+gRescol.id).outerWidth(gRescol.startWidth + dragDist);
-            $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(gRescol.startWidth +
+            $('#autoGenTable tr:eq(1) #'+gRescol.id).
+                outerWidth(gRescol.startWidth +
             dragDist);
             $('#autoGenTable thead:first').width(gRescol.tableWidth + dragDist);
         } 
     } else {
-        $('#'+gRescol.id).outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
-        $('#autoGenTable tr:eq(1) #'+gRescol.id).outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
+        $('#'+gRescol.id).
+            outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
+        $('#autoGenTable tr:eq(1) #'+gRescol.id).
+            outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
         $('#autoGenTable thead').width(gMinTableWidth);
     } 
 }
@@ -1316,10 +1416,12 @@ function resrowMouseMove(event) {
     var row = resrow.rowIndex;
     if (newHeight < gRescol.minCellHeight) {
         resrow.targetTd.outerHeight(gRescol.minCellHeight);
-        $('#autoGenTable tbody tr:eq('+row+') td > div').css('max-height', gRescol.minCellHeight-4);
+        $('#autoGenTable tbody tr:eq('+row+') td > div').
+            css('max-height', gRescol.minCellHeight-4);
     } else {
         resrow.targetTd.outerHeight(newHeight);
-        $('#autoGenTable tbody tr:eq('+row+') td > div').css('max-height', newHeight-4);
+        $('#autoGenTable tbody tr:eq('+row+') td > div').
+            css('max-height', newHeight-4);
     }
 }
 
@@ -1354,10 +1456,13 @@ function dragdropMouseDown(el, event) {
     gDragObj.startXPos = el.position().left;
     gDragObj.startXPos = firstTd.position().left;
     var startYPos = el.position().top;
-    //create a replica shadow with same column width, height, and starting position
-    $('#mainFrame').prepend('<div class="shadowDiv" style="width:'+(gDragObj.colWidth)+
-                        'px;height:'+(shadowDivHeight)+'px;left:'+(gDragObj.startXPos)+
-                        'px;top:'+(gDragObj.colOffTop)+'px;"></div>');
+    // create a replica shadow with same column width, height,
+    // and starting position
+    $('#mainFrame').prepend('<div class="shadowDiv" style="width:'+
+                            (gDragObj.colWidth)+
+                            'px;height:'+(shadowDivHeight)+'px;left:'+
+                            (gDragObj.startXPos)+
+                            'px;top:'+(gDragObj.colOffTop)+'px;"></div>');
 
     // create a fake transparent column by cloning 
     createTransparentDragDropCol(startYPos); 
@@ -1408,10 +1513,11 @@ function cloneCellHelper(obj) {
 
 function createTransparentDragDropCol(startYPos) {
     $('#mainFrame').append('<div class="fauxCol" style="left:'+
-                        (gDragObj.startXPos)+'px;top:'+(gDragObj.colOffTop)+'px;width:'+
+                        (gDragObj.startXPos)+'px;top:'+
+                        (gDragObj.colOffTop)+'px;width:'+
                         (gDragObj.colWidth-5)+'px"></div>');
-    $('.fauxCol').append('<table id="autoGenTable" class="fauxTable" style="width:'+
-                        (gDragObj.colWidth-5)+'px"></table>');
+    $('.fauxCol').append('<table id="autoGenTable" class="fauxTable" '+
+                         'style="width:'+(gDragObj.colWidth-5)+'px"></table>');
 
     // We cannot just copy the entire column because columns may now be too
     // big. So we binary search to the first visible and backtrack a few, find
@@ -1454,7 +1560,8 @@ function createTransparentDragDropCol(startYPos) {
     //     cloneCellHelper(ele);
     // });
 
-    var fauxColHeight = Math.min($('.fauxTable').height(), $('#mainFrame').height()- gScrollbarHeight);
+    var fauxColHeight = Math.min($('.fauxTable').height(), $('#mainFrame').
+                             height()- gScrollbarHeight);
     $('.fauxCol').height(fauxColHeight);
 }
 
@@ -1463,7 +1570,8 @@ function createDropTargets() {
     // var offset = distance from the left side of dragged column
     // to the point that was grabbed
     var offset = gDragObj.mouseStart - gDragObj.colOffLeft;
-    var dragMargin = 30; // targets extend this many pixels to left of each column
+    var dragMargin = 30; 
+    // targets extend this many pixels to left of each column
     $('.dropTarget').remove(); 
     var i = 0;
     $('#autoGenTable tr:first th:not(:last)').each(function(){
@@ -1500,7 +1608,8 @@ function createDropTargets() {
                     $(this).children(':eq('+(dropTargetId+nextCol)+')'));
             });
         }
-        $('.shadowDiv').css('left', $('#autoGenTable #'+gDragObj.id).offset().left); 
+        $('.shadowDiv').css('left',
+                            $('#autoGenTable #'+gDragObj.id).offset().left); 
         gDragObj.colIndex = dropTargetId;
         createDropTargets(gDragObj);
     });
@@ -1513,7 +1622,8 @@ function gRescolDelWidth(id, resize, delTdWidth) {
     if (!resize && (oldTableWidth < gMinTableWidth)) {
         var lastTd = $('#autoGenTable tr:first th').length;
         var lastTdWidth = $('#headCol'+lastTd).width();
-        $('#autoGenTable thead:last #headCol'+lastTd).width(lastTdWidth + (gMinTableWidth - oldTableWidth));
+        $('#autoGenTable thead:last #headCol'+lastTd).
+            width(lastTdWidth + (gMinTableWidth - oldTableWidth));
     }
     matchHeaderSizes();
 }
@@ -1703,12 +1813,8 @@ function sortRows(fieldName, order) {
     $("body").css({"cursor": "wait"}); 
     var datasetId = $("#datastorePanel .monitorSubDiv")[1].innerHTML;
     console.log(datasetId);
-    // XXX: HACK!!!
-    XcalarIndexFromDataset(4, fieldName, newTableName);
-    checkStatus(newTableName);
-    // XXX: IndexFromTable is not implemented yet. So we're hacking the shit out
-    // of this right now
-    // XcalarIndexFromTable(gTableName, fieldName, newTableName);
+    XcalarIndexFromTable(gTableName, fieldName, newTableName);
+    // checkStatus(newTableName);
 }
 
 function filterCol(operator, value) {
@@ -1750,13 +1856,15 @@ function prettifyJson(obj, indent, options) {
         case ('string'):
             value = '"<span class="jString">'+value+'</span>"';
             if (options.inarray) {
-                value = '<span class="jArray jInfo" data-key="'+key+'">'+value+'</span>, ';
+                value = '<span class="jArray jInfo" data-key="'+
+                        key+'">'+value+'</span>, ';
             }
             break;
         case ('number'):
             value = '<span class="jNum">'+value+'</span>';
             if (options.inarray) {
-                value = '<span class="jArray jInfo" data-key="'+key+'">'+value+'</span>,';
+                value = '<span class="jArray jInfo" data-key="'+
+                        key+'">'+value+'</span>,';
             } 
             break;
         case ('boolean'):
@@ -1768,12 +1876,16 @@ function prettifyJson(obj, indent, options) {
         case ('object'):
             if (value.constructor == Array) {
                 options.inarray++;
-                value = '[<span class="jArray jInfo" data-key="'+key+'">'+prettifyJson(value, indent, options)+'</span>],';
+                value = '[<span class="jArray jInfo" data-key="'+
+                        key+'">'+prettifyJson(value, indent, options)+
+                        '</span>],';
             } else {
-                var object = prettifyJson(value, indent+'&nbsp;&nbsp;&nbsp;&nbsp;');
+                var object = prettifyJson(value,
+                                          indent+'&nbsp;&nbsp;&nbsp;&nbsp;');
                 value = '{\n'+object +indent+'}'
                 if (options.inarray) {
-                    value = '<span class="jArray jInfo" data-key="'+key+'">'+value+'</span>,';
+                    value = '<span class="jArray jInfo" data-key="'+
+                            key+'">'+value+'</span>,';
                 } 
             }
             break;
@@ -1795,7 +1907,8 @@ function prettifyJson(obj, indent, options) {
     }
    
     options.inarray--;
-    return (result.replace(/\,<\/div>$/, "</div>").replace(/\, $/, "").replace(/\,$/, "")); 
+    return (result.replace(/\,<\/div>$/, "</div>").replace(/\, $/, "")
+                                                  .replace(/\,$/, "")); 
     // .replace used to remove comma if last value in object
 }
 
@@ -1803,7 +1916,8 @@ function createJsonNestedField(el) {
     var obj = "";
     el.parents('.jInfo').each(function(){
         var key = "";
-        if ($(this).parent().hasClass('jArray') && !$(this).hasClass('jsonBlock')) {
+        if ($(this).parent().hasClass('jArray') &&
+            !$(this).hasClass('jsonBlock')) {
             key = '['+$(this).data('key')+']'; 
         } else if (!$(this).hasClass('jArray')) {
             key = '.'+$(this).data('key'); 
@@ -1902,12 +2016,14 @@ function cloneTableHeader() {
     $('#autoGenTable').width(0); 
     $('.fauxTHead .colGrab').height($('#autoGenTable').height());
     $('#mainFrame').scroll(function() {
-        var leftPos = $('#autoGenTable').position().left - $(window).scrollLeft();
+        var leftPos = $('#autoGenTable').position().left -
+                      $(window).scrollLeft();
         tHead.css('left', leftPos);
     });
     $(window).scroll(function(){
         var tHeadTop = $('#mainFrame').offset().top - $(window).scrollTop();
-        var tHeadLeft = $('#autoGenTable').position().left - $(window).scrollLeft();
+        var tHeadLeft = $('#autoGenTable').position().left -
+                        $(window).scrollLeft();
         tHead.css({'top': tHeadTop, 'left':tHeadLeft});
     });
 }
