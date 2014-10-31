@@ -33,7 +33,6 @@ var ProgCol = function() {
     this.width = 0;
     this.userStr = "";
     this.isDark = true;
-    this.resize = false;
 };
 
 var gTableCols = []; // This is what we call setIndex on
@@ -445,8 +444,7 @@ function getPage(resultSetId, firstTime, direction) {
     if (firstTime && !getIndex(gTableName)) {
         gKeyName = tableOfEntries.keysAttrHeader.name;
         addCol("headCol1", gKeyName,
-                    {resize: true,
-                    isDark: false}); 
+                    {isDark: false}); 
         gTableCols[0].func.func = "pull";
         gTableCols[0].func.args = [gKeyName];
         gTableCols[0].userStr = '"' + gKeyName + '" = pull('+gKeyName+')';
@@ -473,7 +471,8 @@ function getPage(resultSetId, firstTime, direction) {
             } else {
                 execCol(gTableCols[i]);
                 /** XXX: Rudy, in this case you had this code which has 2 same
-                 cases?
+                 cases? 
+                 // Yup I noticed that afterwards, oops
                  if (direction == 1) {
                     pullCol(indices[i].name, 1+indices[i].index, indexNumber+1,
                         numRows);
@@ -680,6 +679,8 @@ function parsePullColArgs(progCol) {
 }
 
 function execCol(progCol, args) {
+    //XXX Not sure when to update function bar yet
+    updateFunctionBar(progCol.userStr);
     switch(progCol.func.func) {
     case ("pull"):
         if (!parsePullColArgs(progCol)) {
@@ -730,6 +731,7 @@ function parseCol(funcString, colId, modifyCol) {
     } else {
         progCol = new ProgCol();
     }
+    console.log(progCol)
     progCol.userStr = funcString;
     progCol.name = name;
     progCol.func = cleanseFunc(funcSt);
@@ -773,10 +775,12 @@ function cleanseFunc(funcString) {
     return ({func: funcName, args: args});
 }
 
+function updateFunctionBar(text) {
+    $('#fnBar').val(text);
+}
+
 function delCol(id, resize) {
     var colid = parseInt(id.substring(11));
-    var delTd = $('#autoGenTable tr:first th').eq(colid-1);
-    var delTdWidth = delTd.width();
     var numCol = $("#autoGenTable tr:first th").length;
     
     $("#headCol"+colid).remove();
@@ -808,7 +812,7 @@ function delCol(id, resize) {
             $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j-1));
         }
     }
-    gRescolDelWidth(id, resize, delTdWidth);
+    gRescolDelWidth(id, resize);
 }
 
 function pullCol(key, newColid, startIndex, numberOfRows) {
@@ -896,7 +900,6 @@ function addCol(id, name, options) {
         newProgCol.name = name;
         newProgCol.index = newColid;
         newProgCol.width = width;
-        newProgCol.resize = resize;
         newProgCol.isDark = isDark;
         insertColAtIndex(newColid-2, newProgCol);
     }
@@ -921,7 +924,7 @@ function addCol(id, name, options) {
         '<div class="header">'+
         '<div class="dragArea"></div>'+
         '<div class="dropdownBox"></div>'+
-        '<span><input type="text" id="rename'+newColid+'" '+
+        '<span><input autocomplete="on" type="text" id="rename'+newColid+'" '+
         'class="editableHead" '+
         'value="'+name+'" size="15" placeholder=""/></span>'+
         '</div>'+
@@ -1011,6 +1014,8 @@ function addCol(id, name, options) {
     $('#rename'+newColid).click(function() {
         $(this).select();
         $('.colMenu').hide();
+        var index = parseInt($(this).attr('id').substring(6));
+        updateFunctionBar(gTableCols[index-2].userStr);
     });
     var numRow = $("#autoGenTable tbody tr").length;
     var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id").
@@ -1034,15 +1039,16 @@ function addCol(id, name, options) {
 
     $("#headCol"+newColid+" .editableHead").keypress(function(e) {
       if (e.which==13) {
-        var thisId = parseInt($(this).closest('.table_title_bg').
+        var index = parseInt($(this).closest('.table_title_bg').
                      attr('id').substring(7));
-        var progCol = parseCol($(this).val(), newColid, true);
+        //XXX We can't refer to this element by newColid, as the element's
+        // id can change but newColid will refer to the same, unchanged integer
+        var progCol = parseCol($(this).val(), index, true);
         execCol(progCol);
         $(this).val(progCol.name);
-        // autosizeCol($('#headCol'+thisId), {includeHeader: true});
         $(this).blur();
         $(this).closest('th').removeClass('unusedCell');
-        $('#autoGenTable td:nth-child('+thisId+')').removeClass('unusedCell');
+        $('#autoGenTable td:nth-child('+index+')').removeClass('unusedCell');
       }
     });
     $("#headCol"+newColid).mouseover(function(event) {
@@ -1050,10 +1056,10 @@ function addCol(id, name, options) {
             $(this).find('.dropdownBox').css('opacity', 1);
         }
     }).mouseleave(function() {
-        $(this).find('.dropdownBox').css('opacity', 0.5);
+        $(this).find('.dropdownBox').css('opacity', 0.4);
     });
 
-    resizableColumns(resize, width);
+    resizableColumns();
     matchHeaderSizes();
 }
 
@@ -1118,7 +1124,7 @@ function dropdownAttachListeners(colId) {
         var width = $('#headCol'+index).width();
         var isDark = $('#headCol'+index).hasClass('unusedCell');
 
-        addCol(id, name, {resize: true, width: width, isDark: isDark});
+        addCol(id, name, {width: width, isDark: isDark});
         // Deep copy
         // XXX: TEST THIS FEATURE!
         gTableCols[index-1].func.func = gTableCols[index-2].func.func;
@@ -1299,18 +1305,18 @@ function documentReadyCommonFunction() {
 
     $('#datastorePanel .monitorSubDiv:first').click(function(){
         $("#loadArea").load('load_r.html', function(){
+            // load_r.html contains load.js where this function is defined
+            loadReadyFunction();
             $('#progressBar').css('transform', 'translateX(330px)');
             $('.dataStep').css('transform', 'translateX(320px)');
             $('.dataOptions').css('left',330).css('z-index', 6);
         });
-        // load_r.html contains load.js where this function is defined
-        loadReadyFunction();
         $('.datasetWrap').addClass('shiftRight');
     });
 
     $('#autoGenTable thead').mouseenter(function(event) {
         if (!$(event.target).hasClass('colGrab')) {
-            $('.dropdownBox').css('opacity', 0.5);
+            $('.dropdownBox').css('opacity', 0.4);
             $('.editableHead').addClass('resizeEditableHead');
         }
     })
@@ -1342,8 +1348,7 @@ function documentReadyCommonFunction() {
         var pageNum = Math.ceil((mouseX / scrollWidth) * resultSetCount);
         var pageInputNum = $("#pageInput").val();
         var e = $.Event("keypress");
-        e.which = 13; //choose the one you want
-        e.keyCode = 13;
+        e.which = 13;
         $("#pageInput").val(pageNum).trigger(e);
         $("#pageInput").val(pageInputNum);
         $('#pageMarker').css('transform', 'translateX('+mouseX+'px)');
@@ -1400,11 +1405,9 @@ function gRescolMouseDown(el, event) {
     event.preventDefault();
     gRescol.mouseStart = event.pageX;
     gRescol.grabbedCell = el.parent().parent();  // the td 
+    gRescol.index = gRescol.grabbedCell.index();
     gRescol.startWidth = gRescol.grabbedCell.outerWidth(); 
-    gRescol.nextCell = gRescol.grabbedCell.next();  // the next td
-    gRescol.nextCellWidth = gRescol.nextCell.outerWidth();
     gRescol.id = gRescol.grabbedCell.attr('id');
-    gRescol.nextId = gRescol.nextCell.attr('id');
     gRescol.lastCellWidth = $('#autoGenTable thead:last th:last').outerWidth();
     gRescol.tableWidth = $('#autoGenTable').outerWidth();
     gRescol.tableExcessWidth = gRescol.tableWidth - gMinTableWidth;
@@ -1417,7 +1420,7 @@ function gRescolMouseDown(el, event) {
     } else {
         gRescol.tempCellMinWidth = gRescol.cellMinWidth;
     }
-    gRescol.rightDragMax = gRescol.nextCellWidth - gRescol.tempCellMinWidth;
+
     gRescol.leftDragMax =  gRescol.tempCellMinWidth - gRescol.startWidth;
     disableTextSelection();
     $(document.head).append('<style id="ew-resizeCursor" type="text/css">*'+ 
@@ -1481,6 +1484,8 @@ function gRescolMouseUp() {
     $('#ew-resizeCursor').remove();
     reenableTextSelection();
     $('.rowGrab').width($('#autoGenTable').width());
+    var progCol = gTableCols[gRescol.index-1];
+    progCol.width = gRescol.grabbedCell.outerWidth();
 }
 
 function resrowMouseDown(el, event) {
@@ -1520,7 +1525,6 @@ function resrowMouseUp() {
     generateFirstLastVisibleRowNum()
 }
 
-// start drag n drop column script
 function dragdropMouseDown(el, event) {
     gMouseStatus = "movingCol";
     gDragObj.mouseStart = event.pageX;
@@ -1551,7 +1555,7 @@ function dragdropMouseDown(el, event) {
                             'px;top:'+(gDragObj.colOffTop)+'px;"></div>');
 
     // create a fake transparent column by cloning 
-    createTransparentDragDropCol(startYPos); 
+    createTransparentDragDropCol(startYPos);
 
     var cursorStyle = '<style id="moveCursor" type="text/css">*'+ 
         '{cursor:move !important; cursor: -webkit-grabbing !important;'+
@@ -1574,11 +1578,11 @@ function dragdropMouseUp() {
     
     // only pull col if column is dropped in new location
     if ((gDragObj.colIndex+1) != gDragObj.colId) { 
-        delCol("closeButton"+gDragObj.colId, false);
+        delCol("closeButton"+gDragObj.colId, true);
         progCol.index = gDragObj.colIndex+1;
         insertColAtIndex(gDragObj.colIndex-1, progCol);
         addCol("headCol"+gDragObj.colIndex, progCol.name, {width: progCol.width,
-               resize: progCol.resize, isDark: false, progCol: progCol});
+                isDark: false, progCol: progCol});
         execCol(progCol);
     }
     reenableTextSelection(); 
@@ -1702,8 +1706,8 @@ function createDropTargets() {
     });
 }
 
-function gRescolDelWidth(id, resize, delTdWidth) {
-    matchHeaderSizes();
+function gRescolDelWidth(id, resize) {
+    matchHeaderSizes(true);
     var id = parseInt(id.substring(11));
     var oldTableWidth = $('#autoGenTable').width();
     if (!resize && (oldTableWidth < gMinTableWidth)) {
@@ -1752,6 +1756,7 @@ function autosizeCol(el, options) {
     } else {
         el.width(newWidth);
     }
+    gTableCols[index-2].width = el.outerWidth();
     matchHeaderSizes(resizeFirstRow);
 }
 
@@ -1832,7 +1837,7 @@ function documentReadyCatFunction() {
         for (var i = 0; i<index.length; i++) {
             if (index[i].name != "JSON") {
                 addCol("headCol"+(index[i].index-1), index[i].name,
-                      {width: index[i].width, resize: true,
+                      {width: index[i].width,
                        isDark: index[i].isDark,
                        progCol:index[i]});
             } else {
@@ -1851,7 +1856,6 @@ function documentReadyIndexFunction() {
         menuBarArt();
         monitorOverlayPercent();
         menuAreaClose();
-        // displayTable();
         getTablesAndDatasets();
         documentReadyCatFunction();
 
@@ -2072,7 +2076,7 @@ function showJsonPopup(jsonTd) {
                         return $(this).find("input").val() == "JSON";
                     }).attr("id");
         var colIndex = parseInt(id.substring(7)); 
-        addCol(id, name, {resize: false, select: false});
+        addCol(id, name, {select: false});
         gTableCols[colIndex-1].func.func = "pull";        
         gTableCols[colIndex-1].func.args = [name];
         gTableCols[colIndex-1].userStr = '"'+name+'" = pull('+name+')';
