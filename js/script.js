@@ -31,6 +31,7 @@ var ProgCol = function() {
     this.name = "New heading";
     this.func = {};
     this.width = 0;
+    this.userStr = "";
     this.isDark = true;
     this.resize = false;
 };
@@ -448,12 +449,14 @@ function getPage(resultSetId, firstTime, direction) {
                     isDark: false}); 
         gTableCols[0].func.func = "pull";
         gTableCols[0].func.args = [gKeyName];
+        gTableCols[0].userStr = '"' + gKeyName + '" = pull('+gKeyName+')';
         var newProgCol = new ProgCol();
         newProgCol.index = 3;
         newProgCol.name = "JSON";
         newProgCol.width = gNewCellWidth; // XXX FIXME Grab from CSS
         newProgCol.func.func = "raw";
         newProgCol.func.args = [];
+        newProgCol.userStr = "JSON = raw()";
         newProgCol.isDark = false;
         insertColAtIndex(1, newProgCol);
     }
@@ -727,6 +730,7 @@ function parseCol(funcString, colId, modifyCol) {
     } else {
         progCol = new ProgCol();
     }
+    progCol.userStr = funcString;
     progCol.name = name;
     progCol.func = cleanseFunc(funcSt);
     progCol.index = colId;
@@ -1119,6 +1123,7 @@ function dropdownAttachListeners(colId) {
         // XXX: TEST THIS FEATURE!
         gTableCols[index-1].func.func = gTableCols[index-2].func.func;
         gTableCols[index-1].func.args = gTableCols[index-2].func.args;
+        gTableCols[index-1].userStr = gTableCols[index-2].userStr;
         execCol(gTableCols[index-1], null); 
     });
 
@@ -2070,6 +2075,7 @@ function showJsonPopup(jsonTd) {
         addCol(id, name, {resize: false, select: false});
         gTableCols[colIndex-1].func.func = "pull";        
         gTableCols[colIndex-1].func.args = [name];
+        gTableCols[colIndex-1].userStr = '"'+name+'" = pull('+name+')';
         execCol(gTableCols[colIndex-1]);
         autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
                 resizeFirstRow: true});
