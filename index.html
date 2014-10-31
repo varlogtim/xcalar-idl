@@ -76,7 +76,7 @@
       </div>
   </div>
   <div id="pageBar" class="mainBar">
-    <div> Viewing Rows:
+    <div> viewing rows:
       <span class="rowNum">1</span>
       through
       <span class="rowNum">40</span>
@@ -88,9 +88,6 @@
     <div>
       skip to row:&nbsp;
       <input id="pageInput">
-      <script>
-          generatePageInput();
-      </script>
     </div>
   </div>
   <div id="mainFrame">
@@ -134,7 +131,10 @@
   </div>
   <div id="jsonModalBackground"></div>
   <div id="jsonModal">
-    <div class="closeJsonModal">+</div>
+    <div class="closeJsonModal">
+      <span>+</span>
+      <div id="closeArrow"></div>
+    </div>
     <div class="prettyJson">
       {<div class="jObject">
       </div>}

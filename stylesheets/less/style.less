@@ -73,7 +73,8 @@ body {
     .nomargin-padding;
     font-family: @font-base;
     font-size: 0; /* Need to use this to get rid of stupid white space */
-    min-width: 1400px;
+    min-width: 1300px;
+    background-color: @color-bar-gray;
 }
 
 #container {
@@ -490,7 +491,6 @@ body {
         transition: all 0.2s ease-out;
         transition-delay: 0s;
     }
-
 }
 
 
@@ -499,6 +499,7 @@ body {
     padding: 5px 0 0 0;
     height: 848px;
     height: 844px;
+    height: 78vh;
 	// height: 648px;
 	width: 100%;
 	float: top;
@@ -704,6 +705,7 @@ body {
 .colGrab {
     display: inline-block;
     height: 840px !important; //fix code so we dont need important
+    height: 77vh !important;
     position: absolute;
     width: 8px;
     cursor: ew-resize;
@@ -938,6 +940,7 @@ ul.colMenu {
 
     .filter ul {
         width: 100px;
+        cursor: text;
     }
 }
 
@@ -1103,6 +1106,9 @@ ul.leftColMenu + .rightArrow {
 
         span {
             cursor: pointer;
+            &:hover {
+               color: #a6edcd; //new brighter green color
+            }
         }
     }
 
@@ -1198,10 +1204,35 @@ ul.leftColMenu + .rightArrow {
     z-index: 32;
     width: 20px;
     height: 20px;
-    transform: rotate(45deg);
-    font-size: 33px;
-    font-family: @font-base;
-    font-weight: bold;
+    
+    span {
+        display: inline-block;
+        font-family: @font-base;
+        font-weight: bold;
+        font-size: 33px;
+        opacity: 0.6;
+        transform: rotate(45deg);
+        position: absolute;
+        z-index: 33;
+        top: -2px;
+        left: 3px;
+    }
+
+    #closeArrow {
+        position: absolute;
+        z-index: 32;
+        border-right: 10px solid white;
+        border-bottom: 10px solid transparent;
+        border-top: 10px solid transparent;
+        top: 8px;
+        left: 15px;
+
+        &.jsonRight {
+            border-left: 10px solid white;
+            border-right: none;
+            left: 0px;
+        }
+    }
 }
 
 .prettyJson {

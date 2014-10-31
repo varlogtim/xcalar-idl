@@ -36,17 +36,38 @@ var ProgCol = function() {
 };
 
 var gTableCols = []; // This is what we call setIndex on
-
+var RowDirection = {
+    Top: 1,
+    Bottom: 2
+}
 function infScrolling() {
     // Feature: As we're scrolling we can update the skip to row box.
     // However, all solutions that I've seen so far are shitty in terms of
     // performance. So unless there's a nice quick method, I don't think this
     // feature is necessary.
 
-    $("#mainFrame").scroll(function() {
-        if ($(this)[0].scrollHeight - $(this).scrollTop()+gScrollbarHeight ==
-            $(this).outerHeight()) {
-            goToPage(gCurrentPageNumber+1); 
+    // $("#mainFrame").scroll(function() {
+    //     if ($(this)[0].scrollHeight - $(this).scrollTop()+gScrollbarHeight ==
+    //         $(this).outerHeight()) {
+    //         goToPage(gCurrentPageNumber+1); 
+    //     }
+    //     generateFirstLastVisibleRowNum();
+    // });
+  $("#mainFrame").scroll(function() {
+        if ($(this).scrollTop() == 0 && $('#autoGenTable tbody td:first').attr('id') != 'bodyr1c1') {
+            console.log('the top!');
+            var firstRow = $('#autoGenTable tbody tr:first');
+            var initialTop = firstRow.offset().top;
+            goToPage(gCurrentPageNumber-1, RowDirection.Top);
+            $('#mainFrame').scrollTop(firstRow.offset().top - initialTop + 10);
+            $("#autoGenTable tbody tr:gt(79)").remove();
+        } else if($(this)[0].scrollHeight - $(this).scrollTop()+gScrollbarHeight - $(this).outerHeight() <= 1) {
+            console.log('the bottom!');
+            gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
+            if ($('#autoGenTable tbody tr').length > 79) {
+                $("#autoGenTable tbody tr:lt(20)").remove();
+            }
+            goToPage(gCurrentPageNumber+1, RowDirection.Bottom); 
         }
         generateFirstLastVisibleRowNum();
     });
@@ -191,25 +212,6 @@ function fillPageWithBlankCol() {
     }
 }
 
-// XXX: Prototype only function. Remove?
-function generatePageInput() {
-    $('#pageInput').attr('max', resultSetCount);
-}
-
-// XXX: Prototyep only function. Remove?
-function deselectPage(pageNumber) {
-    $("a.pageTurnerPageNumber").filter(function() {
-        return $(this).text() == pageNumber.toString();
-    }).parent().removeClass("pageTurnerPageSelected");
-} 
-
-// XXX; Prototype only function. Remove?
-function selectPage(pageNumber) {
-    $("a.pageTurnerPageNumber").filter(function() {
-        return $(this).text() == pageNumber.toString();
-    }).parent().addClass("pageTurnerPageSelected");
-} 
-
 function goToPrevPage() {
     if (gCurrentPageNumber <=1) {
         console.log("First page, cannot move");
@@ -250,7 +252,7 @@ function goToNextPage() {
     }
 }
 
-function goToPage(pageNumber) {
+function goToPage(pageNumber, direction) {
     // deselectPage(gCurrentPageNumber);
     if (pageNumber > gNumPages) {
         console.log("Already at last page!");
@@ -261,22 +263,13 @@ function goToPage(pageNumber) {
         return;
     }
     gCurrentPageNumber = pageNumber;
-    // generatePages(); 
-    selectPage(pageNumber);
-    // Page number starts at 1, but we start at offset 0.
-    XcalarSetAbsolute(gResultSetId, (pageNumber-1)*gNumEntriesPerPage);
-    getPage(gResultSetId);
-}
-
-// XXX: Prototype only function. Remove?
-function showHidePageTurners() {
-    $('#pageTurnerLeft a, #pageTurnerRight a').css('visibility', 'visible');
-    if (gCurrentPageNumber < 2) {
-        $('#pageTurnerLeft a').css('visibility', 'hidden');
-    } 
-    if (gCurrentPageNumber >= gNumPages) {
-        $('#pageTurnerRight a').css('visibility', 'hidden');
+    if (direction == 1) {
+        var shift = 4;
+    } else {
+        var shift = 1;
     }
+    XcalarSetAbsolute(gResultSetId, (pageNumber-shift)*gNumEntriesPerPage);
+    getPage(gResultSetId, null, direction);
 }
 
 function getUrlVars()
@@ -397,8 +390,8 @@ function getPrevPage(resultSetId) {
     getPage(resultSetId);
 }
 
-function getPage(resultSetId, firstTime) {
-    console.log('made it ot getpage')
+function getPage(resultSetId, firstTime, direction) {
+    // console.log('made it ot getpage')
     if (resultSetId == 0) {
         return;
         // Reached the end
@@ -408,28 +401,46 @@ function getPage(resultSetId, firstTime) {
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            gNumEntriesPerPage);
     if (tableOfEntries.kvPairs.numRecords < gNumEntriesPerPage) {
-        console.log("Last Page!");
         // This is the last iteration
         // Time to free the handle
         // XXX: Function call to free handle?
         resultSetId = 0;
     }
-    var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
+    if (direction == 1) {
+        var indexNumber = (gCurrentPageNumber-4) * gNumEntriesPerPage;
+    } else {
+        var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
+    }
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
     for (var i = 0; i<numRows; i++) {
-        if (tableOfEntries.kvPairs.recordType ==
-            GenericTypesRecordTypeT.GenericTypesVariableSize) { 
-            var value = tableOfEntries.kvPairs.records[i].kvPairVariable.value;
+        if (direction == 1) {
+            if (tableOfEntries.kvPairs.recordType ==
+                GenericTypesRecordTypeT.GenericTypesVariableSize) { 
+                var value = tableOfEntries.kvPairs.records[numRows-1-i].kvPairVariable.value;
+            } else {
+                var value = tableOfEntries.kvPairs.records[numRows-1-i].kvPairFixed.value;
+            }
         } else {
-            var value = tableOfEntries.kvPairs.records[i].kvPairFixed.value;
+            if (tableOfEntries.kvPairs.recordType ==
+                GenericTypesRecordTypeT.GenericTypesVariableSize) { 
+                var value = tableOfEntries.kvPairs.records[i].kvPairVariable.value;
+            } else {
+                var value = tableOfEntries.kvPairs.records[i].kvPairFixed.value;
+            }
+
         }
         if (firstTime) {
             generateFirstScreen(value, indexNumber+i+1, tdHeights[i]);
         } else {
-            generateRowWithCurrentTemplate(value, indexNumber+i+1);
+            if (direction ==1) {
+                generateRowWithCurrentTemplate(value, indexNumber+(numRows-i), direction);
+            } else {
+                generateRowWithCurrentTemplate(value, indexNumber+i+1, direction);
+            }         
         }
     }
+
     if (firstTime && !getIndex(gTableName)) {
         gKeyName = tableOfEntries.keysAttrHeader.name;
         addCol("headCol1", gKeyName,
@@ -458,16 +469,35 @@ function getPage(resultSetId, firstTime) {
                 execCol(gTableCols[i]);
             } else {
                 execCol(gTableCols[i]);
+                /** XXX: Rudy, in this case you had this code which has 2 same
+                 cases?
+                 if (direction == 1) {
+                    pullCol(indices[i].name, 1+indices[i].index, indexNumber+1,
+                        numRows);
+                } else {
+                    pullCol(indices[i].name, 1+indices[i].index, indexNumber+1,
+                        numRows);
+                }
+                */
                 if (gTableCols[i].name == gKeyName) {
                     console.log(gKeyName);
-                    /// XXX: +1?
                     autosizeCol($('#headCol'+(gTableCols[i].index)));
                 }
             }
         }
     }
-    showHidePageTurners();
     $('.colGrab').height($('#autoGenTable').height());
+    getFirstVisibleRowNum();
+}
+
+function getFirstVisibleRowNum() {
+     var mainFramePos = $('#mainFrame')[0].getBoundingClientRect();
+    var mfPosTop = mainFramePos.top;
+    var mfPosLeft = mainFramePos.left;
+    var tdXCoor = 30;
+    var tdYCoor = 45;
+    var el = document.elementFromPoint(tdXCoor+mfPosLeft, tdYCoor+mfPosTop);
+    var rowNum = parseInt($(el).closest('td').attr('id').substring(5));
 }
 
 function generateFirstLastVisibleRowNum() {
@@ -476,8 +506,8 @@ function generateFirstLastVisibleRowNum() {
     var mfPosLeft = mainFramePos.left;
     var mfPosBot = mainFramePos.bottom;
     var tdXCoor = 30;
-    var tdYCoor = 45;
-    var tdBotYCoor = -15;
+    var tdYCoor = 50;
+    var tdBotYCoor = -20;
     var firstRowNum;
     var lastRowNum;
     var firstEl = document.elementFromPoint(tdXCoor+mfPosLeft,
@@ -487,14 +517,18 @@ function generateFirstLastVisibleRowNum() {
         var firstRowNum = parseInt(firstId.substring(5));
     }
 
+    if (tdBotYCoor + mfPosBot >= $(window).height()) {
+        var tdBottom = $(window).height()-10;
+    } else {
+        var tdBottom = tdBotYCoor + mfPosBot;
+    }
     var lastEl = document.elementFromPoint(tdXCoor+mfPosLeft,
-                                           tdBotYCoor+mfPosBot);
+                                           tdBottom);
     var lastId = $(lastEl).closest('td').attr('id');
     if (lastId && lastId.length > 0) {
         var lastRowNum = parseInt(lastId.substring(5));
     }
 
-    console.log('row: '+firstRowNum, '2ndrow: '+lastRowNum);
     if (parseInt(firstRowNum) != NaN) {
         $('#pageBar span:first-of-type').html(firstRowNum);
         movePageScroll(firstRowNum);
@@ -504,7 +538,7 @@ function generateFirstLastVisibleRowNum() {
     } 
 }
 
-function generateRowWithCurrentTemplate(json, id) {
+function generateRowWithCurrentTemplate(json, id, direction) {
     // Replace JSON
     var startString = '<div class="elementText">';
     var endString="</div>";
@@ -523,22 +557,35 @@ function generateRowWithCurrentTemplate(json, id) {
     firstPart = finalString.substring(0, firstIndex);
     secondPart = finalString.substring(secondIndex);
     finalString = "<tr>"+firstPart + id + secondPart+"</tr>";
+
+    if (direction == 1) {
+        var row = "tr:first-child";
+    } else {
+        var row = "tr:last-child";
+    }
+
     if ($("#autoGenTable tbody tr").length == 0) {
         $("#autoGenTable tbody").append(finalString);
     } else { 
-        $("#autoGenTable tbody tr:nth-last-child(1)").after(finalString);
+        if (direction == 1) {
+            $("#autoGenTable tbody tr:first-child").before(finalString);
+        } else {
+            $("#autoGenTable tbody tr:nth-last-child(1)").after(finalString);
+        }    
     }
+
     // Replace element id
-    $("#autoGenTable tbody tr:nth-last-child(1)").find("[id]").each(function() {
+    $("#autoGenTable tbody "+row).find("[id]").each(function() {
         var colNoInd = (this.id).indexOf("c");
         var colNo = (this.id).substring(colNoInd+1);
         this.id = "bodyr"+id+"c"+colNo;
     });
 
-    $('#autoGenTable tr:nth-last-child(1) .jsonElement').dblclick(function() {
+    $('#autoGenTable tbody '+row+' .jsonElement').dblclick(function() {
         showJsonPopup($(this));
     });
-    $('#autoGenTable tr:nth-last-child(1) .rowGrab').mousedown(function(event) {
+
+    $('#autoGenTable  tbody '+row+' .rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
 }
@@ -761,14 +808,14 @@ function delCol(id, resize) {
 }
 
 function pullCol(key, newColid, startIndex, numberOfRows) {
-    if (/\.([0-9])/.test(key)) {//check for dot followed by number (invalid)
+    if (key == "" || /\.([0-9])/.test(key)) {
+        //check for dot followed by number (invalid)
         return;
     }
     var colid = $("#autoGenTable th").filter(
         function() {
             return $(this).find("input").val() == "JSON";
     }).attr("id");
-
     colid = colid.substring(7);
     var numRow = -1;
     var startingIndex = -1;
@@ -783,17 +830,16 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
         numRow = numberOfRows||gNumEntriesPerPage;
     } 
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
-
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
-        var jsonStr = $("#bodyr"+i+"c"+colid+ " .elementText").text();
-        var value = jQuery.parseJSON(jsonStr);
+        var jsonStr = $("#bodyr"+i+"c"+colid+ " .elementText").text(); 
+        var value = jQuery.parseJSON(jsonStr); 
         for (var j = 0; j<nested.length; j++) {
             if (value[nested[j]] == undefined || $.isEmptyObject(value)) {
                 value = "";
                 break;
             }
             value = value[nested[j]];
-        }    
+        }  
         if (value == undefined) {
             value = '<span class="undefined">'+value+'</span>';
         } else {
@@ -1238,7 +1284,7 @@ function documentReadyCommonFunction() {
             // $(this).blur(); 
         }
     });
-    $('.functionField:last-child').append('of '+resultSetCount);
+    $('#pageBar > div:last-child').append('of '+resultSetCount);
 
 
     $('.closeJsonModal, #jsonModalBackground').click(function(){
@@ -1686,7 +1732,7 @@ function autosizeCol(el, options) {
     var includeHeader = options.includeHeader || false;
     var resizeFirstRow = options.resizeFirstRow || false;
     var oldTableWidth = $('#autoGenTable').width();
-    var maxWidth = 500;
+    var maxWidth = 600;
     var oldWidth = el.width();  
     var newWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
     newWidth = Math.min(newWidth, maxWidth);
@@ -1805,6 +1851,7 @@ function documentReadyIndexFunction() {
         documentReadyCatFunction();
 
         fillPageWithBlankCol();
+        goToPage(gCurrentPageNumber+1);
         goToPage(gCurrentPageNumber+1);
         generateFirstLastVisibleRowNum();
         cloneTableHeader();   
@@ -1986,6 +2033,7 @@ function showJsonPopup(jsonTd) {
     var closeHeight = $('.closeJsonModal').height();
     var closeTop = jsonTdPos.top - closeHeight/2 + 2;
     var closeLeft = jsonTdPos.left+(jsonTdWidth/2);
+    $('#closeArrow').removeClass('jsonRight');
 
     if (jsonTdPos.top < winHeight/2) {
         var modalTop = jsonTdPos.top; 
@@ -1997,15 +2045,17 @@ function showJsonPopup(jsonTd) {
         modalTop = 5;
     } else if (modalTop+modalHeight > winHeight) {
         modalTop = Math.max(winHeight - modalHeight - 5, 5);
+        closeTop -= 8;
     }
 
     if (jsonTdPos.left+(jsonTdWidth/2) > (winWidth/2)) {
         var modalLeft = Math.min((jsonTdPos.left+(jsonTdWidth/2)) - modalWidth, 
             winWidth - modalWidth - 20);
-        closeLeft += 5;
+        // closeLeft += 5;
+        $('#closeArrow').addClass('jsonRight');
     } else {
         var modalLeft = Math.max(jsonTdPos.left+(jsonTdWidth/2) , 20);
-        closeLeft -= 15;
+        closeLeft -= 25;
     }
     
     $('#jsonModal').css({'left': modalLeft, 'top': modalTop});
@@ -2089,8 +2139,7 @@ function matchHeaderSizes(reverse) {
 }
 
 function movePageScroll(pageNum) {
-    var pct = (pageNum/resultSetCount) * 100;
-    var dist = pct*$('#pageMarker').width();
-    console.log(dist)
+    var pct = (pageNum/resultSetCount);
+    var dist = Math.floor(pct*$('#pageScroll').width());
     $('#pageMarker').css('transform', 'translateX('+dist+'px)');
 }

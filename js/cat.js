@@ -5,6 +5,7 @@ var gTableName = gUrlTableName || "userId";
 // autoLoad();
 var gResultSetId = XcalarGetTableId(gTableName);
 var resultSetCount = XcalarGetCount(gTableName);
+
 var gNumPages = Math.ceil(resultSetCount / gNumEntriesPerPage);
 
 function freeAllResultSets() {
