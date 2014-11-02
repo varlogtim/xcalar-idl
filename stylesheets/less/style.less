@@ -50,9 +50,40 @@
     user-select: none;
 }
 
+.transition (@argument) {
+    -webkit-transition: @argument;
+    -moz-transition: @argument;
+    -ms-transition: @argument;
+    -o-transition: @argument;
+    transition: @argument;
+}
+
+.transition-duration (@argument) {
+    -webkit-transition-duration: @argument;
+    -moz-transition-duration: @argument;
+    -ms-transition-duration: @argument;
+    -o-transition-duration: @argument;
+    transition-duration: @argument;
+}
+
+.transition-delay (@argument) {
+    -webkit-transition-delay: @argument;
+    -moz-transition-delay: @argument;
+    -ms-transition-delay: @argument;
+    -o-transition-delay: @argument;
+    transition-delay: @argument;
+}
+
+.transform (@argument) {
+    -webkit-transform: @argument;
+    -moz-transform: @argument;
+    -ms-transform: @argument;
+    -o-transform: @argument;
+    transform: @argument;
+}
+
 div {
     .box-sizing;
-    /* border: 1px solid red; */
 }
 
 ul, li {
@@ -80,6 +111,14 @@ body {
 #container {
     background-color: @color-white;
     padding-top: 5px;
+    height: 100vh;
+    position: relative;
+    min-height: 260px;
+}
+
+input:focus {
+    outline: 1px solid @color-monitor-green;
+    outline-offset: 0px;
 }
 
 #logo {
@@ -103,14 +142,13 @@ body {
 
 #menuArea {
     height: 0;
-    transition: 0.3s ease-out;
+    .transition (0.3s ease-out);
     overflow: hidden;
     position: relative;
 }
 
 #menuBar {
     color: @color-white;
-    // display: table;
     div {
         display: inline-block;
         margin:  0px 150px 0px 0px;
@@ -128,9 +166,7 @@ body {
 
 #monitorPanel {
 	background-color: #FFFFFF;
-    margin: 0px;
-	margin-top: 5px;
-	padding: 0px;
+    .nomargin-padding;
 	height: 62px;
 	width: 100%;
     display: table;
@@ -146,7 +182,6 @@ body {
 
 #tablestorePanel,
 #datastorePanel {
-	// background-color: #FFFFFF;
     margin: 0px;
 	margin-top: 5px;
 	padding: 0px;
@@ -154,35 +189,33 @@ body {
 	width: 100%;
     display: table;
     position: relative;
-    /* below is for loadbar */
     overflow: hidden;
     white-space: nowrap;
     table-layout: fixed;
-    /* above is for loadbar */
     div:not(.datasetWrap) {
         display: inline-block;
         width: 100px;
         padding-top: 8px;
-        margin:  0px 0px 0px 0px;
+        margin:  0px;
         font: @font-base;
         font-size: 58px;
         vertical-align: middle;
     }
     z-index: 5;
-    // transition: width 1s;
 }
 
 .datasetWrap {
     display: inline-block;
     position: relative;
     left: 0px;
-    transition: 2s ease-in;
+    .transition (2s ease-in);
 }
 
 .monitorSubDiv {
     font-size: 20px !important;
     font-weight: bold;
     margin: 0px !important;
+    padding-top: 2px;
     z-index: 3;
     cursor: pointer;
     line-height:46px; //for larger clickable area
@@ -215,12 +248,8 @@ body {
 }
 
 #functionBar {
-	// background-color: #999999;
 	margin-top: 5px;
 	padding: 0px;
-	// height: 32px;
-	// width: 100%;
- //    display: table;
     div {
         display: inline-block;
         font: @font-base;
@@ -231,21 +260,18 @@ body {
         vertical-align: middle;
         input {
             border: 0px;
-            text-align: center;
+            text-align: left;
             font-color: black;
-            // margin-bottom: 5px;
             background-color: @color-table-lightGray;
-            height: 20px;
-            padding: 0px 2px;
+            height: 22px;
+            width: 360px;
+            padding: 0px 4px;
         }
     }
 }
 
 .functionField {
-    margin: 0px 200px 0px 0px !important;
-    // font-size: 16px !important;
-    // font-family: @font-code; 
-    // color: #000000 !important;
+    margin: 0px 100px 0px 0px !important;
     vertical-align: middle;
     &:last-child {
         margin-right: 10px !important;
@@ -257,7 +283,7 @@ body {
     display: block !important;
     position: absolute;
     top: 5px;
-    transition: opacity 0.2s linear;
+    .transition (opacity 0.2s linear);
     font-size: 12px;
     width: 1400px;
 }
@@ -289,8 +315,7 @@ body {
         color: @color-white;
         position: absolute;
         left: -80px;
-        transition: left 0.7s ease-out 0s, transform 0.7s ease-out, color 1s;
-        // .slowPositionTransition;
+        .transition (~"left 0.7s ease-out 0s, transform 0.7s ease-out, color 1s");
         z-index:2;
     }
 
@@ -312,12 +337,12 @@ body {
         overflow: hidden;
         position: absolute;
         left: -240px;
-        transition: left 0.9s ease-out, z-index 0s linear 1s;
+        .transition (~"left 0.9s ease-out, z-index 0s linear 1s");
         z-index: 0;
     }
 
     .dataOptionsRow {
-        height: 32px;
+        height: 31px;
         display: block;
         float: none;
     }
@@ -353,14 +378,13 @@ body {
     width: 1400px;
     position: absolute;
     display: block !important;
-    height: 66px;
+    height: 62px;
     top: 0px;
     left: -1400px;
     z-index: 2;
     opacity: 1;
     font-size: 58px;
-    // .slowPositionTransition;
-    transition: left 0.7s ease-out 0s, transform 0.7s ease-out;
+    .transition (~"left 0.7s ease-out 0s, transform 0.7s ease-out");
     div {
         color: @color-white;
         font-size: 58px;
@@ -374,6 +398,7 @@ body {
     display: inline-block;
     width: 100px;
     padding-top: 8px;
+    // padding-top: 2px;
     margin: 0px 0px 0px 0px;
     font: "Century Gothic", "Trebuchet MS", Arial, sans-serif;
     font-size: 58px;
@@ -387,7 +412,7 @@ body {
 
 #filePathSelector, #keySelector {
     color: @color-white;
-    padding: 8px 0px;
+    padding: 6px 0px;
     position: absolute;
     left: -180px;
     .slowPositionTransition;
@@ -399,7 +424,7 @@ body {
 
 #keySelector {
     left: -280px;
-    transition-duration: 1s;
+    .transition-duration (1s);
 }
 
 #fileBrowser, #tableName {
@@ -409,35 +434,35 @@ body {
     height: 30px;
     width: 300px;
     margin-top: 16px;
-    z-index: 0; 
-    transition: left 0.9s ease-out 0.3s, z-index 0s linear 1.2s;  
+    z-index: 0;  
+    .transition (~"left 0.9s ease-out 0.1s, z-index 0s linear 1.0s");  
 }
 
 .shiftRight {
     left: 10000px !important;
-    transition: all 2.0s ease-in !important;
+    .transition (~"all 2.0s ease-in !important");
 }
 
 .slowPositionTransition {
-    transition: left 0.7s ease-out 0s, color 1s;
+    .transition (~"left 0.7s ease-out 0s, color 1s");
 }
 
 #load_r .shiftLeft {
-    transition: top 0.5s ease-out, left 0.5s ease-out;
-    transition-delay: 0 !important;
+    .transition (~"top 0.5s ease-out, left 0.5s ease-out");
+    .transition-delay (~"0 !important");
 }
 
 .slowProgressTransition {
-    transition: left 5s linear !important;
+    .transition (~"left 5s linear !important");
 }
 
 .slideRight {
-    transition: width 1.0s ease-in !important;
+    .transition (~"width 1.0s ease-in !important");
 }
 
 .transitionGreen {
     color: @color-monitor-green !important;
-    transition: color 1.0s ;
+    .transition (color 1.0s);
 }
 /* END LOAD AREA STYLING */
 
@@ -488,8 +513,8 @@ body {
         position: absolute;
         left: 0%;
         background-color: @color-bar-orange;
-        transition: all 0.2s ease-out;
-        transition-delay: 0s;
+        .transition (all 0.2s ease-out);
+        .transition-delay (0s);
     }
 }
 
@@ -500,7 +525,7 @@ body {
     height: 848px;
     height: 844px;
     height: 78vh;
-	// height: 648px;
+    height: ~"calc(100% - 148px)";
 	width: 100%;
 	float: top;
     overflow-x: scroll;
@@ -508,12 +533,12 @@ body {
     display: inline-block;
     font-size: 11px;
     margin-bottom: 5px;
-    // position: relative;
+    .transition (height 0.3s ease-out); 
 }
 
 #mainFrame::-webkit-scrollbar {
     // width: 8px;
-    width: 8px;
+    width: 0px;
     height: 8px;
     background: transparent;
 }
@@ -568,7 +593,6 @@ body {
     thead {
         background-color: @color-white;
         box-shadow: 0px 3px @colorShadow-black;
-        // box-shadow: 2px 0px 1px 1px @colorShadow-black;
     }
 
     tbody tr {
@@ -585,12 +609,6 @@ body {
             }
         }
     }
-
-    // tfoot td {
-    //     border-right: 5px solid @color-white;
-    //     border-top: 5px solid @color-white;
-    //     height: 33px;
-    // }
 
     tbody .selectedCell {
         &:nth-child(odd) {
@@ -640,6 +658,9 @@ body {
             width: 100%;
             height: 25px;
             text-align: center;
+        }
+        &:focus {
+            outline-offset: -1px;
         }
     }
 
@@ -699,13 +720,11 @@ body {
 }
 
 .moveTop {
-    transition: top 0.3s ease-out;
+    .transition (top 0.3s ease-out);
 }
 
 .colGrab {
     display: inline-block;
-    height: 840px !important; //fix code so we dont need important
-    height: 77vh !important;
     position: absolute;
     width: 8px;
     cursor: ew-resize;
@@ -743,9 +762,10 @@ body {
     th {
         outline: 3px solid rgba(0,0,0,.1);
     }
-    // tr:last-child td {
-    //      border-top: 5px solid @color-white;
-    // }
+    tr:first-child {
+        position: absolute;
+        background-color: white !important;
+    }
 }
 
 #autoGenTable.fauxTable {
@@ -756,9 +776,9 @@ body {
 
 .dragArea {
     position: absolute;
-    height: 45px;
+    height: 40px;
     width: 100%;
-    top: -10px;
+    top: -6px;
     left: 0;
     cursor: move;
     cursor: -webkit-grab;
@@ -778,8 +798,8 @@ body {
 /* DROP DOWN COLUMN STYLING */
 
 .dropdownBox {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     position: absolute;
     vertical-align: middle;
     right: 0px;
@@ -787,10 +807,13 @@ body {
     cursor: pointer;
     z-index: 6;
     opacity: 0;
-    transition: opacity 0.02s linear;
-    transition-delay: 0.08s;
-    border-top: 10px solid transparent;
-    border-right: 10px solid @color-monitor-green;
+    .transition (opacity 0.02s linear);
+    .transition-delay (0.08s);
+    border-top: 11px solid transparent;
+    border-right: 11px solid @color-monitor-green;
+    &:hover {
+        opacity: 1 !important;
+    }
 }
 
 .staticCol .dropdownBox {
@@ -799,8 +822,7 @@ body {
 
 .dropdownBox:hover {
     opacity: 1.0 !important;
-    transition: opacity 0.02s linear;
-    // transition-delay: 0.08s;
+    .transition (opacity 0.02s linear);
 }
 
 .fullOpacity {
@@ -824,15 +846,11 @@ body {
     box-shadow: 1px 1px rgba(0,0,0,0.1);
 }
 
-.staticCol ul.colMenu {
-    top: 25px;
-}
-
 ul.colMenu {
     display:none;
     background-color: @color-monitor-green;
-    top: 25px;
-    right: -160px;
+    top: 24px;
+    right: -159px;
 
     li {
         padding: 6px;
@@ -863,10 +881,7 @@ ul.colMenu {
         z-index: 6;
         top: 0px;
         left: 170px;
-        -webkit-transition-delay: .2s;
-        -moz-transition-delay: .2s;
-        -o-transition-delay: .2s;
-        transition-delay: .2s;
+        .transition-delay (.2s);
     }
 
     &::before {
@@ -972,10 +987,7 @@ ul.colMenu.leftColMenu::before {
 
 ul.colMenu li:hover > ul {
     visibility: visible;
-    -webkit-transition-delay: .25s;
-    -moz-transition-delay: .25s;
-    -o-transition-delay: .25s;
-    transition-delay: .25s;
+    .transition-delay (.25s);
 }
 
 ul.subColMenu li {
@@ -991,19 +1003,17 @@ ul.subColMenu li {
 }
 
 ul.leftColMenu {
-    right: 1px;
+    right: 0px;
     box-shadow: -1px 1px rgba(0,0,0,0.1);
 }
 
 .filter ul.subColMenu.leftColMenu {
     left: -100px;
-    // box-shadow: -1px 1px 1px #cccccc;
 }
 
 
 ul.subColMenu.leftColMenu {
     left: -170px;
-    // box-shadow: -1px 1px 1px #cccccc;
     box-shadow: -1px 1px rgba(0,0,0,0.1);
 }
 
@@ -1068,26 +1078,17 @@ ul.leftColMenu + .rightArrow {
 }
 /* END VERTICAL RESIZING */
 
-
-
-
-
-
-
-
-
 /* START WORKSHEET BAR */
 
 #worksheetBar {
-    // margin-top: 5px;
-    // height: 32px;
-    // background-color: @color-bar-gray;
     color: @color-white;
     width: 100%;
     overflow: hidden;
     box-shadow: inset 0px 3px rgba(0,0,0,.15);
     display: block;
-    // display: table;
+    position: absolute;
+    bottom: 0px;
+    margin-bottom: 5px;
 
     div {
         display: inline-block;
@@ -1107,14 +1108,13 @@ ul.leftColMenu + .rightArrow {
         span {
             cursor: pointer;
             &:hover {
-               color: #a6edcd; //new brighter green color
+               color: #a6edcd; //new brighter green color?
             }
         }
     }
 
     .worksheetTab {
         width: 220px;
-        // height: 25px;
         height: 26px;
         cursor: pointer;
         background-color: @color-bar-midGray;
@@ -1131,43 +1131,12 @@ ul.leftColMenu + .rightArrow {
             box-shadow: 2px 3px rgba(0,0,0,.15), inset 0px 0px  @color-white;
         }
         &:not(.tabSelected):hover {
-            box-shadow: 2px 3px rgba(0,0,0,.15), inset 0px 0px  @color-white;
-            background-color: #BBBBBB;
+            box-shadow: 2px 2px rgba(0,0,0,.15), inset 0px 0px  @color-white;
+            background-color: #B4B4B4;
         }
-
     }
 }
-
 /* END WORKSHEET BAR */
-
-
-/* one item */
-// li:first-child:nth-last-child(1) {
-//     width: 100%;
-// }
-
-// /* two items */
-// li:first-child:nth-last-child(2),
-// li:first-child:nth-last-child(2) ~ li {
-//     width: 50%;
-// }
-
-// /* three items */
-// li:first-child:nth-last-child(3),
-// li:first-child:nth-last-child(3) ~ li {
-//     width: 33.3333%;
-// }
-
-// /* four items */
-// li:first-child:nth-last-child(4),
-// li:first-child:nth-last-child(4) ~ li {
-//     width: 25%;
-// }
-
-
-
-
-
 
 /* PRETTIFY JSON STYLING */
 #jsonModalBackground {
@@ -1211,7 +1180,7 @@ ul.leftColMenu + .rightArrow {
         font-weight: bold;
         font-size: 33px;
         opacity: 0.6;
-        transform: rotate(45deg);
+        .transform (rotate(45deg));
         position: absolute;
         z-index: 33;
         top: -2px;
@@ -1236,9 +1205,9 @@ ul.leftColMenu + .rightArrow {
 }
 
 .prettyJson {
-    font-family:  Monaco, courier, sans-serif;
+    font-family: "Source Code Pro", courier, sans-serif;
     font-size: 16px;
-    color: #FFA633;
+    color: @color-bar-orange;
     overflow: auto;
     min-width: 100px;
     min-height: 100px;
@@ -1274,7 +1243,7 @@ ul.leftColMenu + .rightArrow {
 }
 
 .jKey {
-    color: #002D41;
+    color: @color-text-black;
 }
 
 .jKey:hover {
@@ -1283,15 +1252,15 @@ ul.leftColMenu + .rightArrow {
 }
 
 .jString {
-    color: #9b8920;
+    color: @color-monitor-green;
 }
 
 .jNum, .jBool, .jNull , .jUndf {
-    color: #e74a5f;
+    color: @color-monitor-red;
 }
 
 .jArray > .jString {
-    color: #2B594F;
+    color: @color-monitor-green;
 }
 
 .hideScroll {

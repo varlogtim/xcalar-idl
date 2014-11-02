@@ -134,8 +134,9 @@ function detailsSubmit(e) {
 }
 
 function startProgressBar() { 
+    var loadTime = 10; // seconds
     $('#progressBar').css({'transform': 'translateX(1400px)',
-                           'transition': 'transform 5s linear .1s'});
+                           'transition': 'transform '+loadTime+'s linear .1s'});
     var startPos = $('#progressBar').offset().left;
     var goalPos = 0;
     var posRange = goalPos - startPos;

@@ -6,8 +6,6 @@ var gNumEntriesPerPage = 20;
 var gNumPageTurners = 10;
 var gResultSetId = 0;
 var gNewCellWidth = 125;
-var gColumnBorderWidth = -1;
-var gColPadding = 4;
 var gKeyName = "";
 var gMouseStatus = null;
 var gDragObj = {};
@@ -41,30 +39,21 @@ var RowDirection = {
     Bottom: 2
 }
 function infScrolling() {
-    // Feature: As we're scrolling we can update the skip to row box.
-    // However, all solutions that I've seen so far are shitty in terms of
-    // performance. So unless there's a nice quick method, I don't think this
-    // feature is necessary.
-
-    // $("#mainFrame").scroll(function() {
-    //     if ($(this)[0].scrollHeight - $(this).scrollTop()+gScrollbarHeight ==
-    //         $(this).outerHeight()) {
-    //         goToPage(gCurrentPageNumber+1); 
-    //     }
-    //     generateFirstLastVisibleRowNum();
-    // });
   $("#mainFrame").scroll(function() {
-        if ($(this).scrollTop() == 0 && $('#autoGenTable tbody td:first').attr('id') != 'bodyr1c1') {
+        if ($(this).scrollTop() == 0 && 
+            $('#autoGenTable tbody td:first').attr('id') != 'bodyr1c1') {
             console.log('the top!');
             var firstRow = $('#autoGenTable tbody tr:first');
             var initialTop = firstRow.offset().top;
             goToPage(gCurrentPageNumber-1, RowDirection.Top);
             $('#mainFrame').scrollTop(firstRow.offset().top - initialTop + 10);
             $("#autoGenTable tbody tr:gt(79)").remove();
-        } else if($(this)[0].scrollHeight - $(this).scrollTop()+gScrollbarHeight - $(this).outerHeight() <= 1) {
+        } else if ($(this)[0].scrollHeight - $(this).scrollTop()+
+                    gScrollbarHeight - $(this).outerHeight() <= 1) {
             console.log('the bottom!');
             gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
             if ($('#autoGenTable tbody tr').length > 79) {
+                // keep row length at 80
                 $("#autoGenTable tbody tr:lt(20)").remove();
             }
             goToPage(gCurrentPageNumber+1, RowDirection.Bottom); 
@@ -101,11 +90,14 @@ function menuBarArt() {
         if (clickTarget == $(event.target).text()) {
             //if clicking on an already open menu, close it
             $("#menuBar div").removeClass("menuSelected");
+            $('#mainFrame').height('calc(100% - 148px)');
+
             $("#menuArea").height(0);
             clickTarget = null;
             $('.trueTHead').css('top',111).addClass('moveTop');
             setTimeout(function() {
                 $('.trueTHead').removeClass('moveTop');
+                $('.colGrab').height($('#mainFrame').height());
             },300);
             return;
         }
@@ -115,11 +107,14 @@ function menuBarArt() {
 
         setTimeout(function() {
             $('.trueTHead').removeClass('moveTop');
+            $('.colGrab').height($('#mainFrame').height());
         },300);
 
         $("#menuBar div").removeClass("menuSelected");
         $(this).addClass("menuSelected");
         $("#menuArea").show().height(66);
+        $('#mainFrame').height('calc(100% - 214px)');
+        
 
         switch ($(this).text()) {
         case ("datastore"):
@@ -212,46 +207,6 @@ function fillPageWithBlankCol() {
     }
 }
 
-function goToPrevPage() {
-    if (gCurrentPageNumber <=1) {
-        console.log("First page, cannot move");
-        return;
-    } 
-    var currentPage = gCurrentPageNumber;
-    var prevPage = currentPage-1;
-    var prevPageElement = $("a.pageTurnerPageNumber").filter(function() {
-        return ($(this).text() == prevPage.toString());
-    });
-    if (prevPageElement.length) {
-        selectPage(prevPage);
-        deselectPage(currentPage);
-        getPrevPage(gResultSetId);
-    } else {
-        goToPage(prevPage);
-    }
-}
-
-function goToNextPage() {
-    if (gCurrentPageNumber >= gNumPages) {
-        return;
-    }
-    var currentPage = gCurrentPageNumber;
-    var nextPage = currentPage+1;
-    var nextPageElement = $("a.pageTurnerPageNumber").filter(function() {
-        return ($(this).text() == nextPage.toString());
-    });
-    if (nextPageElement.length) {
-        selectPage(nextPage);
-        deselectPage(currentPage);
-        getNextPage(gResultSetId);
-        if (gCurrentPageNumber == gNumPages) {
-            $('#pageTurnerRight').css('visibility', 'hidden');
-        }
-    } else {
-        goToPage(nextPage);
-    }
-}
-
 function goToPage(pageNumber, direction) {
     // deselectPage(gCurrentPageNumber);
     if (pageNumber > gNumPages) {
@@ -264,10 +219,12 @@ function goToPage(pageNumber, direction) {
     }
     gCurrentPageNumber = pageNumber;
     if (direction == 1) {
-        var shift = 4;
+        var shift = Math.floor($('#autoGenTable tbody tr').length /
+                                    gNumEntriesPerPage);
     } else {
         var shift = 1;
     }
+    console.log(shift)
     XcalarSetAbsolute(gResultSetId, (pageNumber-shift)*gNumEntriesPerPage);
     getPage(gResultSetId, null, direction);
 }
@@ -286,82 +243,6 @@ function getUrlVars()
     return vars;
 }
 
-function generatePages() { 
-    var rightDots = false;
-    var leftDots = false;
-    var startNumber = Math.max(gCurrentPageNumber-6, 0); 
-    // number furthest on left side
-    if (gNumPages > gNumPageTurners) {
-        var number = gNumPageTurners; 
-        if ((gNumPages-startNumber) > gNumPageTurners) {
-            rightDots = true;
-        } else {
-           startNumber = gNumPages - gNumPageTurners;
-        }
-    } else {
-        var number = gNumPages;
-    }
-    var htmlString =
-                   '<table class="noBorderTable" id="pageTurnerNumberBarInner">\
-                        <tr>\
-                          <td class="pageTurnerLeftSpacer"></td>\
-                          <td class="pageTurnerWrap">\
-                            <table class="pageTurnerWrap noBorderTable">\
-                            <tr>\
-                            <td class="pageTurner" id="pageTurnerLeft">';
-    htmlString += '<a href="javascript:goToPrevPage();" class="pageTurner">\
-                    < Prev</a>\
-                </td>';
-    if (startNumber > 0) {
-        // There are previous pages
-        var leftDotsNumber = Math.max((startNumber-5), 0); 
-        // left dots direct to this page#
-        htmlString += '<td class="pageTurner"\
-               id="leftDots"><a href="javascript:goToPage(';
-        htmlString += (leftDotsNumber+1);
-        htmlString += ');" class="pageTurner">...</a></td>';
-    } else {
-        htmlString += '</td>';
-    }
-    
-    var i;
-    for (i = 0; i<number; i++) {
-        htmlString += '\
-              <td class="pageTurnerPage">\
-                  <a href="javascript:goToPage(';
-        htmlString += (i+startNumber+1);
-        htmlString += ');" class="pageTurnerPageNumber">';
-        htmlString += (i+1+startNumber);
-        htmlString += '</a>\
-              </td>';
-    }
-
-    if (rightDots) {
-        // There are next pages
-        var rightDotsNumber = (startNumber + number + 5);
-        if (rightDotsNumber >= gNumPages) {
-            rightDotsNumber = gNumPages-1;
-        }
-        htmlString += '<td id="rightDots" class="pageTurner">\
-                <a href="javascript:goToPage(';
-        htmlString += rightDotsNumber+1;
-        htmlString += ');" class="pageTurner">...</a></td>';
-    } 
-
-    htmlString += '<td id="pageTurnerRight">\
-                <a href="javascript:goToNextPage();"\
-                class="pageTurner">Next ></a>\
-                </td>\
-              </tr>\
-              </table>\
-              </td>\
-              <td class="spaceFiller pageTurnerRightSpacer"></td>\
-            </tr>\
-          </table>\
-          ';
-    $("#pageTurnerNumberBar").html(htmlString);
-}
-
 function resetAutoIndex() {
     gTableRowIndex = 1;
 }
@@ -373,21 +254,6 @@ function getNextPage(resultSetId, firstTime) {
     gCurrentPageNumber++;
     console.log("HERE!");
     getPage(resultSetId, firstTime);
-}
-
-function getPrevPage(resultSetId) {
-    if (resultSetId == 0) {
-        return;
-        // Reached the end
-    }       
-    if (gCurrentPageNumber == 1) {
-        console.log("At first page already");
-    } else {
-        gCurrentPageNumber--;
-        XcalarSetAbsolute(resultSetId,
-                          (gCurrentPageNumber-1)*gNumEntriesPerPage);
-    }
-    getPage(resultSetId);
 }
 
 function getPage(resultSetId, firstTime, direction) {
@@ -407,7 +273,8 @@ function getPage(resultSetId, firstTime, direction) {
         resultSetId = 0;
     }
     if (direction == 1) {
-        var indexNumber = (gCurrentPageNumber-4) * gNumEntriesPerPage;
+        var shift = Math.floor($('#autoGenTable tbody tr').length / gNumEntriesPerPage);
+        var indexNumber = (gCurrentPageNumber-shift) * gNumEntriesPerPage;
     } else {
         var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
     }
@@ -477,17 +344,6 @@ function getPage(resultSetId, firstTime, direction) {
                 execCol(gTableCols[i]);
             } else {
                 execCol(gTableCols[i]);
-                /** XXX: Rudy, in this case you had this code which has 2 same
-                 cases? 
-                 // Yup I noticed that afterwards, oops
-                 if (direction == 1) {
-                    pullCol(indices[i].name, 1+indices[i].index, indexNumber+1,
-                        numRows);
-                } else {
-                    pullCol(indices[i].name, 1+indices[i].index, indexNumber+1,
-                        numRows);
-                }
-                */
                 if (gTableCols[i].name == gKeyName) {
                     console.log(gKeyName);
                     autosizeCol($('#headCol'+(gTableCols[i].index)));
@@ -495,7 +351,9 @@ function getPage(resultSetId, firstTime, direction) {
             }
         }
     }
-    $('.colGrab').height($('#autoGenTable').height());
+    $('.colGrab').height($('#mainFrame').height());
+    var idColWidth = getTextWidth($('#autoGenTable tr:last td:first'));
+    $('#autoGenTable th:first-child').width(idColWidth+12);
     getFirstVisibleRowNum();
 }
 
@@ -559,7 +417,7 @@ function generateRowWithCurrentTemplate(json, id, direction) {
     var secondIndex = secondPart.indexOf(endString);
     secondPart = secondPart.substring(secondIndex);
     var finalString = firstPart+json+secondPart;
-
+    // console.log(finalString,1)
     // Replace id
     firstIndex = finalString.indexOf('idSpan">')+('idSpan">').length;
     secondIndex = finalString.indexOf("<", firstIndex);
@@ -653,7 +511,6 @@ function generateFirstScreen(value, idNo, height) {
     $('#bodyr'+idNo+'c1 .rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
-
 }
 
 function insertColAtIndex(index, obj) {
@@ -827,6 +684,7 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
         //check for dot followed by number (invalid)
         return;
     }
+    console.log('pullcol', arguments)
     var colid = $("#autoGenTable th").filter(
         function() {
             return $(this).find("input").val() == "JSON";
@@ -844,6 +702,7 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
         startingIndex = startIndex;
         numRow = numberOfRows||gNumEntriesPerPage;
     } 
+    // console.log(startingIndex, numRow);
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = $("#bodyr"+i+"c"+colid+ " .elementText").text(); 
@@ -1038,11 +897,7 @@ function addCol(id, name, options) {
         var newCellHTML = '<td '+
             'class="'+color+'" id="bodyr'+i+"c"+(newColid)+
             '">&nbsp;</td>';
-        if (newColid > 1) {
             $("#bodyr"+i+"c"+(newColid-1)).after(newCellHTML);
-        } else {
-            $("#bodyr"+i+"c"+(newColid+1)).before(newCellHTML);
-        }
     }
 
     $("#headCol"+newColid+" .editableHead").keypress(function(e) {
@@ -1059,14 +914,6 @@ function addCol(id, name, options) {
         $('#autoGenTable td:nth-child('+index+')').removeClass('unusedCell');
       }
     });
-    $("#headCol"+newColid).mouseover(function(event) {
-        if (!$(event.target).hasClass('colGrab')) {
-            $(this).find('.dropdownBox').css('opacity', 1);
-        }
-    }).mouseleave(function() {
-        $(this).find('.dropdownBox').css('opacity', 0.4);
-    });
-
     resizableColumns();
     matchHeaderSizes();
 }
@@ -1086,7 +933,6 @@ function dropdownAttachListeners(colId) {
                     colMenu.find('.subColMenu').addClass('leftColMenu');
             }
         }
-        $('.colGrab').css('z-index', -1);
     });
 
     $('#headCol'+colId+' ul.colMenu > li:first-child').mouseenter(function(){
@@ -1108,7 +954,6 @@ function dropdownAttachListeners(colId) {
         } 
     });
 
-
     $('#headCol'+colId+' .dragArea').mousedown(function(event){
         dragdropMouseDown($(this).parent().parent(), event);
     });
@@ -1125,11 +970,25 @@ function dropdownAttachListeners(colId) {
         $('#rename'+index).select();
     });
 
+    $('#rename'+colId).focus(function() {
+        $(this).parent().siblings('.dropdownBox')
+            .css('opacity','0');
+    });
+
+    $("#headCol"+colId).mouseover(function(event) {
+        if (!$(event.target).hasClass('colGrab')) {
+            $(this).find('.dropdownBox').css('opacity', 1);
+        }
+    }).mouseleave(function() {
+        $(this).find('.dropdownBox').css('opacity', 0.4);
+    });
+
+
     $('#duplicate'+colId).click(function() {
         var id = $(this).attr('id').substring(2);
         var index = parseInt(id.substring(7));
         var name = $('#rename'+index).val();
-        var width = $('#headCol'+index).width();
+        var width = $('#headCol'+index).outerWidth();
         var isDark = $('#headCol'+index).hasClass('unusedCell');
 
         addCol(id, name, {width: width, isDark: isDark});
@@ -1176,7 +1035,6 @@ function dropdownAttachListeners(colId) {
         if ($(this).children('.subColMenu, input').length === 0) {
             // hide li if doesnt have a submenu or an input field
             $(this).closest('.colMenu').hide();
-            $('.colGrab').css('z-index', 4);
         }
     });
 }
@@ -1208,7 +1066,8 @@ function resizableColumns() {
             }
         }
     );
-    $('.colGrab').height($('#autoGenTable').height());
+    // $('.colGrab').height($('#autoGenTable').height());
+    $('.colGrab').height($('#mainFrame').height());
     if (gRescol.first) {
         $('#autoGenTable tr:first th').each(
             function() {
@@ -1265,11 +1124,6 @@ function reenableTextSelection() {
 }
 
 function documentReadyCommonFunction() {
-    gColumnBorderWidth = parseInt($('#autoGenTable th:first').
-                            css('border-left-width'))+
-                        parseInt($('#autoGenTable th:first').
-                            css('border-right-width'));
-    gColPadding = parseInt($('#autoGenTable td:first').css('padding-left')) * 2;
     dropdownAttachListeners(2); // set up listeners for json column
 
     if (typeof gTableName === 'undefined') {
@@ -1298,13 +1152,20 @@ function documentReadyCommonFunction() {
                      parseInt($('#pageInput').val())/gNumEntriesPerPage));
             goToPage(Math.ceil(
                      parseInt($('#pageInput').val())/gNumEntriesPerPage)+1);
+            goToPage(Math.ceil(
+                     parseInt($('#pageInput').val())/gNumEntriesPerPage)+2);
             generateFirstLastVisibleRowNum();
             movePageScroll($('#pageInput').val());
+            $('#mainFrame').scrollTop('0.1');
+            // should be 0 but can't because would activate scrolltop pages
             // $(this).blur(); 
         }
     });
     $('#pageBar > div:last-child').append('of '+resultSetCount);
 
+    $(window).resize(function() {
+        $('.colGrab').height($('#mainFrame').height());
+    });
 
     $('.closeJsonModal, #jsonModalBackground').click(function(){
         $('#jsonModal, #jsonModalBackground').hide();
@@ -1367,7 +1228,7 @@ function documentReadyCommonFunction() {
         var clickable = $(event.target).closest('.colMenu').length > 0;
         if (!clickable && !$(event.target).is('.dropdownBox')) {
                 $('.colMenu').hide();
-                $('.colGrab').css('z-index', 4);
+                // $('.colGrab').css('z-index', 4);
         } 
     });
     $(document).mousemove(function(event){
@@ -1529,7 +1390,8 @@ function resrowMouseUp() {
     reenableTextSelection();
     $('#ns-resizeCursor').remove();
     $('body').removeClass('hideScroll'); 
-    $('.colGrab').height($('#autoGenTable').height());
+    // $('.colGrab').height($('#autoGenTable').height());
+    $('.colGrab').height($('#mainFrame').height());
     generateFirstLastVisibleRowNum()
 }
 
@@ -1543,7 +1405,6 @@ function dragdropMouseDown(el, event) {
     gDragObj.colOffTop = el.offset().top;
     var firstTd = $('#autoGenTable td:eq('+(gDragObj.colId-1)+')');
     gDragObj.colOffLeft = firstTd.offset().left;
-    gDragObj.borderHeight = 0;
     gDragObj.docHeight = $(document).height();
     var tableHeight = el.closest('table').height();
     var mainFrameHeight = $('#mainFrame').height()-gScrollbarHeight;
@@ -1583,6 +1444,7 @@ function dragdropMouseUp() {
     $('.shadowDiv, .fauxCol, .dropTarget, #moveCursor').remove();
     var head = $("#autoGenTable tr:first th span");
     var progCol = gTableCols[gDragObj.colId-2];
+    var isDark = $('#headCol'+gDragObj.colId).hasClass('unusedCell');
     
     // only pull col if column is dropped in new location
     if ((gDragObj.colIndex+1) != gDragObj.colId) { 
@@ -1590,7 +1452,7 @@ function dragdropMouseUp() {
         progCol.index = gDragObj.colIndex+1;
         insertColAtIndex(gDragObj.colIndex-1, progCol);
         addCol("headCol"+gDragObj.colIndex, progCol.name, {width: progCol.width,
-                isDark: false, progCol: progCol});
+                isDark: isDark, progCol: progCol});
         execCol(progCol);
     }
     reenableTextSelection(); 
@@ -1617,20 +1479,24 @@ function createTransparentDragDropCol(startYPos) {
                         (gDragObj.colWidth-5)+'px"></div>');
     $('.fauxCol').append('<table id="autoGenTable" class="fauxTable" '+
                          'style="width:'+(gDragObj.colWidth-5)+'px"></table>');
-
-    // We cannot just copy the entire column because columns may now be too
-    // big. So we binary search to the first visible and backtrack a few, find
-    // the last visible and add a few. Then we create the fake shadow column
-    // Find first visible body tr
-    var topPx = $(window).scrollTop();
-    var topRowId = -1;
+    
+    var rowHeight = 20;
+    // turn this into binary search later
+    var topPx = $('#autoGenTable thead').offset().top + 
+                $('#autoGenTable thead').outerHeight() -
+                rowHeight;
+    var topRowIndex = -1;
+    var topRowTd = null;
     $('#autoGenTable tbody tr').each(function() {
         if ($(this).offset().top > topPx) {
-            topRowId = $(this).find("td:first").text();
+            topRowIndex = $(this).index();
+            topRowEl = $(this).find('td');
             return (false);
         }
     });
-    if (topRowId == -1) {
+
+    //XXX check to see if topRowEl was found;
+    if (topRowIndex == -1) {
         console.log("BUG! Cannot find first visible row??");
         // Clone entire shit and be done.
         $('#autoGenTable tr').each(function(i, ele) {
@@ -1644,24 +1510,29 @@ function createTransparentDragDropCol(startYPos) {
             cloneCellHelper(ele);
     });
 
-    // Just do 40 cols for fun now.
+    var totalRowHeight = $('#mainFrame').height()-
+            $('#autoGenTable th:first').outerHeight() - gScrollbarHeight;
+    var numRows = Math.ceil(totalRowHeight/rowHeight);
     var count = 0;
-    $('#autoGenTable tbody tr').each(function(i, ele) {
+    $('#autoGenTable tr:gt('+(topRowIndex+1)+')').each(function(i, ele) {
             cloneCellHelper(ele);
             count++;
-            if (count >= 40) {
+            if (count >= numRows+topRowIndex) {
                 return (false);
             }
     });
 
-    // Clone tail
-    // $('#autoGenTable tfoot tr').each(function(i, ele) {
-    //     cloneCellHelper(ele);
-    // });
-
-    var fauxColHeight = Math.min($('.fauxTable').height(), $('#mainFrame').
-                             height()- gScrollbarHeight);
+    // Ensure rows are offset correctly
+    var fauxTableHeight = $('.fauxTable').height()+
+                        $('.fauxTable tr:first').outerHeight();
+    var mainFrameHeight = $('#mainFrame').height()- gScrollbarHeight;
+    var fauxColHeight = Math.min(fauxTableHeight, mainFrameHeight);
     $('.fauxCol').height(fauxColHeight);
+    var firstRowOffset = $(topRowEl).offset().top - topPx-rowHeight;
+    $('.fauxTable').css('margin-top', $('.fauxTable tr:first').outerHeight()+
+                        firstRowOffset);
+    $('.fauxTable tr:first-child').css({'margin-top': 
+            -($('.fauxTable tr:first').outerHeight()+firstRowOffset)});
 }
 
 
@@ -1743,15 +1614,16 @@ function getTextWidth(el) {
 }
 
 function autosizeCol(el, options) {
-    var el = $('#'+el.attr('id'));
     var index = parseInt(el.attr('id').substring(7));
     var options = options || {};
     var includeHeader = options.includeHeader || false;
     var resizeFirstRow = options.resizeFirstRow || false;
+    var minWidth = options.minWidth || gRescol.cellMinWidth-10;
     var oldTableWidth = $('#autoGenTable').width();
     var maxWidth = 600;
     var oldWidth = el.width();  
-    var newWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
+    var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
+    var newWidth = Math.max(widestTdWidth, minWidth);
     newWidth = Math.min(newWidth, maxWidth);
     var widthDiff = newWidth - oldWidth; 
     if (widthDiff > 0) {
@@ -1764,7 +1636,9 @@ function autosizeCol(el, options) {
     } else {
         el.width(newWidth);
     }
-    gTableCols[index-2].width = el.outerWidth();
+    if (index != 1) { // don't store id column
+        gTableCols[index-2].width = el.outerWidth();
+    }
     matchHeaderSizes(resizeFirstRow);
 }
 
@@ -1772,7 +1646,7 @@ function getWidestTdWidth(el, options) {
     var options = options || {};
     var includeHeader = options.includeHeader || false;
     var id = (el.attr('id')).substr(7);
-    var largestWidth = gRescol.cellMinWidth - 10; // default minimum width
+    var largestWidth = 0;
     var firstRow = true;
     var width;
     if (includeHeader) {
@@ -1908,6 +1782,10 @@ function sortRows(index, order) {
     setIndex(newTableName, gTableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
+    //XXX Use this instead or else other elements' cursors will take precedence,
+    // but you must remove #waitCursor once you're done.
+    // $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
+    //    '{cursor: wait !important;}</style>');
     var datasetId = $("#datastorePanel .monitorSubDiv")[1].innerHTML;
     console.log(datasetId);
     var fieldName;
@@ -2060,6 +1938,7 @@ function showJsonPopup(jsonTd) {
 
     if (modalTop < 5) {
         modalTop = 5;
+        console.log('here')
     } else if (modalTop+modalHeight > winHeight) {
         modalTop = Math.max(winHeight - modalHeight - 5, 5);
         closeTop -= 8;
@@ -2125,7 +2004,6 @@ function cloneTableHeader() {
         );
     });
     $('#autoGenTable').width(0); 
-    $('.fauxTHead .colGrab').height($('#autoGenTable').height());
     $('#mainFrame').scroll(function() {
         var leftPos = $('#autoGenTable').position().left -
                       $(window).scrollLeft();
