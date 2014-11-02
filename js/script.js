@@ -443,12 +443,19 @@ function getPage(resultSetId, firstTime, direction) {
 
     if (firstTime && !getIndex(gTableName)) {
         gKeyName = tableOfEntries.keysAttrHeader.name;
-        addCol("headCol1", gKeyName,
-                    {isDark: false}); 
-        gTableCols[0].func.func = "pull";
-        gTableCols[0].func.args = [gKeyName];
-        gTableCols[0].userStr = '"' + gKeyName + '" = pull('+gKeyName+')';
+        // We cannot rely on addCol to create a new progCol object because
+        // add col relies on gTableCol entry to determine whether or not to add
+        // the menus specific to the main key
         var newProgCol = new ProgCol();
+        newProgCol.index = 2;
+        newProgCol.isDark = false;
+        newProgCol.name = gKeyName;
+        newProgCol.func.func = "pull";
+        newProgCol.func.args = [gKeyName];
+        newProgCol.userStr = '"' + gKeyName + '" = pull('+gKeyName+')';
+        insertColAtIndex(0, newProgCol);
+        addCol("headCol1", gKeyName, {progCol: newProgCol}); 
+        newProgCol = new ProgCol();
         newProgCol.index = 3;
         newProgCol.name = "JSON";
         newProgCol.width = gNewCellWidth; // XXX FIXME Grab from CSS
@@ -954,6 +961,7 @@ function addCol(id, name, options) {
                 '</ul>'+ 
                 '<div class="rightArrow"></div>'+
             '</li>';
+    console.log(gTableCols[newColid-2]);
     if (gTableCols[newColid-2].func.func == "pull" &&
         gTableCols[newColid-2].func.args[0] == gKeyName) {
         dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
