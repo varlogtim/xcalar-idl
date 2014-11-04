@@ -94,7 +94,7 @@
     <table id="autoGenTable">
       <thead>
       <tr>
-        <th id="headCol1" class="table_title_bg">
+        <th id="headCol1" style="width:40px;" class="table_title_bg">
           <div class="header">
             <span><input value="ID" readonly></span>
           </div>
@@ -108,6 +108,7 @@
                 <ul class="subColMenu">
                   <li class="addColumns" id="addLCol3">On the left</li>
                   <li class="addColumns" id="addRCol3">On the right</li>
+                  <div class="subColMenuArea"></div>
                 </ul>
                 <div class="rightArrow"></div>
               </li>
@@ -124,12 +125,12 @@
   </div>
   <div id="worksheetBar" class="mainBar">
     <div id="newWorksheet"><span>+ new worksheet</span></div>
-    <div class="worksheetTab">facebook</div>
-    <div class="worksheetTab tabSelected">yelp</div>
-    <div class="worksheetTab">worksheet 1</div>
-    <div class="worksheetTab">worksheet 2</div>
+    <div class="worksheetTab"><input type="text" value="facebook"></div>
+    <div class="worksheetTab tabSelected"><input type="text" value="yelp"></div>
+    <div class="worksheetTab"><input type="text" value="worksheet 1" ></div>
+    <div class="worksheetTab"><input type="text" value="worksheet 2"></div>
   </div>
-  <div id="jsonModalBackground"></div>
+  <div id="modalBackground"></div>
   <div id="jsonModal">
     <div class="closeJsonModal">
       <span>+</span>

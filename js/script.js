@@ -35,10 +35,7 @@ var ProgCol = function() {
 };
 
 var gTableCols = []; // This is what we call setIndex on
-var RowDirection = {
-    Top: 1,
-    Bottom: 2
-}
+
 function infScrolling() {
   $("#mainFrame").scroll(function() {
         if ($(this).scrollTop() == 0 && 
@@ -683,7 +680,6 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
         //check for dot followed by number (invalid)
         return;
     }
-    console.log('pullcol', arguments)
     var colid = $("#autoGenTable th").filter(
         function() {
             return $(this).find("input").val() == "JSON";
@@ -765,7 +761,9 @@ function addCol(id, name, options) {
         name = "";
         var select = true;
     } 
-    if (isDark) {
+    if (select) {
+        var color = "selectedCell";
+    } else if (isDark) {
         var color = "unusedCell";
     } else {
         var color = "";
@@ -815,6 +813,7 @@ function addCol(id, name, options) {
                     newColid+'">On the left</li>'+
                     '<li class="addColumns" id="addRCol'+
                     newColid+'">On the right</li>'+
+                    '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="rightArrow"></div>'+
             '</li>'+
@@ -826,10 +825,11 @@ function addCol(id, name, options) {
                 '<ul class="subColMenu">'+
                     '<li id="sort'+newColid+'">A-Z</li>'+
                     '<li id="revSort'+newColid+'">Z-A</li>'+
+                    '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="rightArrow"></div>'+
             '</li>';
-    console.log(gTableCols[newColid-2]);
+    // console.log(gTableCols[newColid-2]);
     if (gTableCols[newColid-2].func.func == "pull" &&
         gTableCols[newColid-2].func.args[0] == gKeyName) {
         // XXX FIXME TODO
@@ -840,33 +840,39 @@ function addCol(id, name, options) {
                             '<li class="filter">Greater Than'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
+                                    '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
                                 '<div class="rightArrow"></div>'+
                             '</li>'+
                             '<li class="filter">Greater Than Equal To'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
+                                    '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
                                 '<div class="rightArrow"></div>'+
                             '</li>'+
                             '<li class="filter">Equals'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
+                                    '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
                                 '<div class="rightArrow"></div>'+
                             '</li>'+
                             '<li class="filter">Less Than'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
+                                    '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
                                 '<div class="rightArrow"></div>'+
                             '</li>'+
                             '<li class="filter">Less Than Equal To'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
+                                    '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
                                 '<div class="rightArrow"></div>'+
                             '</li>'+
+                            '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="rightArrow"></div>'+
                         '</li>'+
@@ -895,42 +901,14 @@ function addCol(id, name, options) {
             var t = tables.tables[i];
             dropDownHTML += '<li class="join">'+t.tableName+'</li>';
         }
-        dropDownHTML +=     '</ul>'+ 
+        dropDownHTML +=     '<div class="subColMenuArea"></div>'+
+                            '</ul>'+ 
                         '</li>';
     }
     dropDownHTML += '</ul>';
     $('#headCol'+newColid+' .header').append(dropDownHTML);
 
-    dropdownAttachListeners(newColid);
-
-    $('#rename'+newColid).focus(function() {
-        console.log('focused')
-        $(this).select();
-        $('.colMenu').hide();
-        var index = parseInt($(this).attr('id').substring(6));
-        if (gTableCols[index-2].userStr.length > 0) {
-            $(this).val(gTableCols[index-2].userStr);
-        }
-        
-        updateFunctionBar(gTableCols[index-2].userStr);
-
-        var selectedTh = $('#autoGenTable thead:first').find('.selectedCell');
-        if (selectedTh.length != 0) {
-            var selectedIndex = selectedTh.index() + 1;
-            selectedTh.removeClass('selectedCell');
-            $('#autoGenTable td:nth-child('+selectedIndex+')')
-                .removeClass('selectedCell');
-        }
-        $(this).closest('.table_title_bg').addClass('selectedCell');
-        $('#autoGenTable td:nth-child('+index+')')
-                .addClass('selectedCell');
-    }).blur(function() {
-        var index = parseInt($(this).attr('id').substring(6));
-        if (gTableCols[index-2].userStr.length > 0) {
-            $(this).val(gTableCols[index-2].name);
-        }
-    });
-
+    addColListeners(newColid);
 
     var numRow = $("#autoGenTable tbody tr").length;
     var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id").
@@ -948,15 +926,18 @@ function addCol(id, name, options) {
             $("#bodyr"+i+"c"+(newColid-1)).after(newCellHTML);
     }
 
-    $("#headCol"+newColid+" .editableHead").keyup(function(e) {
+    $("#rename"+newColid).on('input', function(e) {
         updateFunctionBar($(this).val());
         if (e.which==13) {
             var index = parseInt($(this).attr('id').substring(6));
-            //XXX We can't refer to this element by newColid, as the element's
-            // id can change but newColid will refer to the same, unchanged integer
             var progCol = parseCol($(this).val(), index, true);
             execCol(progCol);
-            $(this).val(progCol.name);
+            if (progCol.name.length > 0) {
+                console.log(progCol.name, 'name')
+                $(this).val(progCol.name);
+            } else {
+                console.log($(this).val(), 'else');
+            }
             $(this).blur();
             $(this).closest('th').removeClass('unusedCell');
             $('#autoGenTable td:nth-child('+index+')').removeClass('unusedCell');
@@ -965,12 +946,44 @@ function addCol(id, name, options) {
 
     if (select) {
         $('#rename'+newColid).select().focus();
+        // $('#rename'+newColid).focus();
     }
     resizableColumns();
     matchHeaderSizes();
 }
 
-function dropdownAttachListeners(colId) {
+function addColListeners(colId) {
+    $('#rename'+colId).focus(function() {  
+        $('.colMenu').hide();
+        var index = parseInt($(this).attr('id').substring(6));
+        if (gTableCols[index-2].userStr.length > 0) {
+            $(this).val(gTableCols[index-2].userStr);
+        }
+        
+        updateFunctionBar($(this).val());
+
+        var selectedTh = $('#autoGenTable thead:first').find('.selectedCell');
+        if (selectedTh.length != 0) {
+            var selectedIndex = selectedTh.index() + 1;
+            selectedTh.removeClass('selectedCell');
+            $('#autoGenTable td:nth-child('+selectedIndex+')')
+                .removeClass('selectedCell');
+        }
+        $(this).closest('.table_title_bg').addClass('selectedCell');
+        $('#autoGenTable td:nth-child('+index+')')
+                .addClass('selectedCell');
+        $(this).parent().siblings('.dropdownBox')
+            .addClass('hidden');
+        // $(this).select();
+    }).blur(function() {
+        var index = parseInt($(this).attr('id').substring(6));
+        if (gTableCols[index-2].name.length > 0) {
+            $(this).val(gTableCols[index-2].name);
+        } 
+        $(this).parent().siblings('.dropdownBox')
+            .removeClass('hidden');
+    });
+
     $('#headCol'+colId+' .dropdownBox').click(function() {
         $('.colMenu').hide().removeClass('leftColMenu')
                     .find('.subColMenu').removeClass('leftColMenu');
@@ -985,6 +998,19 @@ function dropdownAttachListeners(colId) {
                     colMenu.find('.subColMenu').addClass('leftColMenu');
             }
         }
+    });
+
+    $('#headCol'+colId+' .dropdownBox').mouseenter(function() {
+        $(this).removeClass('hidden');
+    }).mouseout(function() {
+        var input = $(this).siblings('span').children('.editableHead');
+        if (input.is(':focus')) {
+            $(this).addClass('hidden');
+        }
+    });
+
+    $('#headCol'+colId+' .subColMenuArea').mousedown(function() {
+        $('.colMenu').hide();
     });
 
     $('#headCol'+colId+' ul.colMenu > li:first-child').mouseenter(function(){
@@ -1007,7 +1033,9 @@ function dropdownAttachListeners(colId) {
     });
 
     $('#headCol'+colId+' .dragArea').mousedown(function(event){
-        dragdropMouseDown($(this).parent().parent(), event);
+        var headCol = $(this).parent().parent();
+        headCol.find('.editableHead').focus();
+        dragdropMouseDown(headCol, event);
     });
 
     $('#headCol'+colId+' .addColumns').click(function() {
@@ -1019,13 +1047,7 @@ function dropdownAttachListeners(colId) {
 
     $('#renameCol'+colId).click(function() {
         var index = $(this).attr('id').substring(9);
-        $('#rename'+index).select();
-    });
-
-    $('#rename'+colId).focus(function() {
-        $(this).parent().siblings('.dropdownBox')
-            .css('opacity','0');
-        var index = $(this).attr("id").substring(5);
+        $('#rename'+index).focus().select();
     });
 
     $("#headCol"+colId).mouseover(function(event) {
@@ -1044,6 +1066,7 @@ function dropdownAttachListeners(colId) {
         var width = $('#headCol'+index).outerWidth();
         var isDark = $('#headCol'+index).hasClass('unusedCell');
 
+        console.log(name, 'name')
         addCol(id, name, {width: width, isDark: isDark});
         // Deep copy
         // XXX: TEST THIS FEATURE!
@@ -1069,7 +1092,7 @@ function dropdownAttachListeners(colId) {
 
     $('#filter'+colId+' input').keyup(function(e) {
         var value = $(this).val();
-        $(this).closest('.filterWrap').find('input').val(value);
+        $(this).closest('.filter').siblings().find('input').val(value);
         if (e.which === 13) {
             var operator = $(this).closest('.filter').text(); 
             filterCol(operator, value);
@@ -1177,7 +1200,7 @@ function reenableTextSelection() {
 }
 
 function documentReadyCommonFunction() {
-    dropdownAttachListeners(2); // set up listeners for json column
+    addColListeners(2); // set up listeners for json column
 
     if (typeof gTableName === 'undefined') {
         var searchText = "View Tables";
@@ -1185,7 +1208,7 @@ function documentReadyCommonFunction() {
         var searchText = gTableName;
     }
 
-    $('#fnBar').keyup(function(e) {
+    $('#fnBar').on('input', function(e) {
         var selectedCell = $('th.selectedCell .editableHead');
         if (selectedCell.length !=0) {
             selectedCell.val($(this).val());
@@ -1193,7 +1216,29 @@ function documentReadyCommonFunction() {
                 selectedCell.trigger(e);
             }
         }
+    });
+
+    $('#fnBar').mousedown(function() {
+        var fnBar = $(this);
+        // must activate mousedown after header's blur, hence delay
+        setTimeout(selectCell, 1);
+        function selectCell() {
+            var selectedCell = $('th.selectedCell .editableHead');
+            if (selectedCell.length !=0) {
+                selectedCell.val(fnBar.val());
+            }
+        }
         
+    });
+
+    $('#fnBar').blur(function() {
+        var selectedCell = $('th.selectedCell .editableHead');
+        var index = $('th.selectedCell').index();
+        if (selectedCell.length !=0) {
+            if (gTableCols[index-1].name.length > 0) {
+                selectedCell.val(gTableCols[index-1].name);
+            } 
+        }
     });
 
     $("#searchBar").val('tablename = "'+searchText+'"');
@@ -1230,10 +1275,11 @@ function documentReadyCommonFunction() {
 
     $(window).resize(function() {
         $('.colGrab').height($('#mainFrame').height());
+        checkForScrollBar();
     });
 
-    $('.closeJsonModal, #jsonModalBackground').click(function(){
-        $('#jsonModal, #jsonModalBackground').hide();
+    $('.closeJsonModal, #modalBackground').click(function(){
+        $('#jsonModal, #modalBackground').hide();
         $('body').removeClass('hideScroll');
     });
 
@@ -1261,19 +1307,51 @@ function documentReadyCommonFunction() {
 
     $('#newWorksheet span').click(function(){
         var tabCount = $('.worksheetTab').length;
-        $('#newWorksheet').after('<div class="worksheetTab">Worksheet '+
-                                    (tabCount-1)+'</div>');
-        $('.worksheetTab:first').click(function(){
+        var text = "worksheet "+(tabCount-1);
+        if (tabCount > 4) {
+            var width = ((1/(tabCount+1)))*70+'%';
+            $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');
+
+        } else {
+            var width = $('.worksheetTab').width();
+        }
+        
+        $('#worksheetBar').append('<div class="worksheetTab" '+
+                            'style="width:'+width+';margin-top:-26px;">'+
+                            '<input type="text" '+
+                            'value="'+text+'" '+
+                            'size="'+text.length+'"></div>');
+
+        $('.worksheetTab:last').click(function(){
             $('.worksheetTab').removeClass('tabSelected');
             $(this).addClass('tabSelected');
         });
-        $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');
-        $('.worksheetTab:first').click();   
+
+        $('.worksheetTab:last input').on('input', function() {
+            var size = $(this).val().length;
+            $(this).attr('size', size);
+        });
+        $('.worksheetTab:last').click();
+        setTimeout(function() { 
+            $('.worksheetTab:last').css('margin-top', 0);
+        }, 1);
+        //XXX show modal background and pop up
+        // $('#modalBackground').show();
     });
 
-    $('.worksheetTab').click(function() {
+    $('.worksheetTab').mousedown(function() {
         $('.worksheetTab').removeClass('tabSelected');
         $(this).addClass('tabSelected');
+    });
+
+    $('.worksheetTab input').each(function() {
+        var size = $(this).val().length;
+        $(this).attr('size', size);
+    });
+
+    $('.worksheetTab input').on('input', function() {
+        var size = $(this).val().length;
+        $(this).attr('size', size);
     });
 
     $('#pageScroll').mousedown(function(event) {
@@ -1293,7 +1371,6 @@ function documentReadyCommonFunction() {
         var clickable = $(event.target).closest('.colMenu').length > 0;
         if (!clickable && !$(event.target).is('.dropdownBox')) {
                 $('.colMenu').hide();
-                // $('.colGrab').css('z-index', 4);
         } 
     });
     $(document).mousemove(function(event){
@@ -1420,6 +1497,8 @@ function gRescolMouseUp() {
     $('.rowGrab').width($('#autoGenTable').width());
     var progCol = gTableCols[gRescol.index-1];
     progCol.width = gRescol.grabbedCell.outerWidth();
+    matchHeaderSizes();
+    checkForScrollBar();
 }
 
 function resrowMouseDown(el, event) {
@@ -1506,10 +1585,12 @@ function dragdropMouseMove(event) {
 
 function dragdropMouseUp() {
     gMouseStatus = null;
+    // var name = $('.fauxCol .editableHead').val();
     $('.shadowDiv, .fauxCol, .dropTarget, #moveCursor').remove();
     var head = $("#autoGenTable tr:first th span");
     var progCol = gTableCols[gDragObj.colId-2];
     var isDark = $('#headCol'+gDragObj.colId).hasClass('unusedCell');
+    var selected = $('#headCol'+gDragObj.colId).hasClass('selectedCell');
     
     // only pull col if column is dropped in new location
     if ((gDragObj.colIndex+1) != gDragObj.colId) { 
@@ -1517,7 +1598,7 @@ function dragdropMouseUp() {
         progCol.index = gDragObj.colIndex+1;
         insertColAtIndex(gDragObj.colIndex-1, progCol);
         addCol("headCol"+gDragObj.colIndex, progCol.name, {width: progCol.width,
-                isDark: isDark, progCol: progCol});
+                isDark: isDark, select: selected, progCol: progCol});
         execCol(progCol);
     }
     reenableTextSelection(); 
@@ -1714,28 +1795,25 @@ function getWidestTdWidth(el, options) {
     var largestWidth = 0;
     var firstRow = true;
     var width;
-    if (includeHeader) {
-        var selector = ':gt(0)';
-    } else {
-        var selector = ':gt(1)';
-    }
     var rightMargin = 6;
 
-    $('#autoGenTable tr'+selector).each(function(){
+    if (includeHeader) {
+        var th = $('#autoGenTable th:eq('+(id-1)+') .editableHead');
+        width = getTextWidth(th);
+        largestWidth = width;
+    }
+    $('#autoGenTable tbody tr').each(function(){
         var td = $(this).children(':eq('+(id-1)+')');
-        if (firstRow && includeHeader) {
-            width = getTextWidth(td.find('.editableHead'));
-            firstRow = false;
-        } else if (td.children('.addedBarText').length) {
+        if (td.children('.addedBarText').length) {
             width = getTextWidth(td.children('.addedBarText'));
         } else {
             width = getTextWidth(td);
         }
-        width += rightMargin;
         if (width > largestWidth) {
             largestWidth = width; 
         }
     });
+    largestWidth += rightMargin;
     return (largestWidth);
 }
 
@@ -1987,7 +2065,7 @@ function showJsonPopup(jsonTd) {
     var jsonString = $.parseJSON(jsonTd.find('.elementText').text());
     var newString = prettifyJson(jsonString);
     $('.jObject').html(newString);
-    $('#jsonModal, #jsonModalBackground').show();
+    $('#jsonModal, #modalBackground').show();
     var modalHeight = $('#jsonModal').outerHeight();
     var modalWidth = $('#jsonModal').outerWidth();
     var closeHeight = $('.closeJsonModal').height();
@@ -2033,10 +2111,12 @@ function showJsonPopup(jsonTd) {
         gTableCols[colIndex-1].func.args = [name];
         gTableCols[colIndex-1].userStr = '"'+name+'" = pull('+name+')';
         execCol(gTableCols[colIndex-1]);
+        $('thead:first #headCol'+(colIndex+1)+' .editableHead').focus();
+        // call autosizeCol before focus if you don't want to include the 
+        // expanded header
         autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
                 resizeFirstRow: true});
-        $('thead:first #headCol'+(colIndex+1)+' .editableHead').focus();
-        $('#jsonModal, #jsonModalBackground').hide();
+        $('#jsonModal, #modalBackground').hide();
         $('#jsonModal').css('left',0);
         $('body').removeClass('hideScroll');
     });
@@ -2104,4 +2184,14 @@ function movePageScroll(pageNum) {
     var pct = (pageNum/resultSetCount);
     var dist = Math.floor(pct*$('#pageScroll').width());
     $('#pageMarker').css('transform', 'translateX('+dist+'px)');
+}
+
+function checkForScrollBar() {
+    var tableWidth = $('#autoGenTable').width()+
+        parseInt($('#autoGenTable').css('margin-left'));
+    if (tableWidth > $(window).width()) {
+        gScrollbarHeight = 8;
+    } else {
+        gScrollbarHeight = 0;
+    }
 }
