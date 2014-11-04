@@ -27,6 +27,7 @@ var gMinTableWidth = 1200;
 var ProgCol = function() {
     this.index = -1;
     this.name = "New heading";
+    this.type = "Object";
     this.func = {};
     this.width = 0;
     this.userStr = "";
@@ -700,8 +701,20 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
         startingIndex = startIndex;
         numRow = numberOfRows||gNumEntriesPerPage;
     } 
-    // console.log(startingIndex, numRow);
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
+    
+    // store the variable type
+    var jsonStr = $("#bodyr"+startingIndex+"c"+colid+ " .elementText").text(); 
+    var value = jQuery.parseJSON(jsonStr);
+    for (var j = 0; j<nested.length; j++) {
+        if (value[nested[j]] == undefined || $.isEmptyObject(value)) {
+            value = "";
+            break;
+        }
+        value = value[nested[j]];
+    }
+    gTableCols[newColid-2].type = (typeof value);
+    
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = $("#bodyr"+i+"c"+colid+ " .elementText").text(); 
         var value = jQuery.parseJSON(jsonStr); 
@@ -819,6 +832,9 @@ function addCol(id, name, options) {
     console.log(gTableCols[newColid-2]);
     if (gTableCols[newColid-2].func.func == "pull" &&
         gTableCols[newColid-2].func.args[0] == gKeyName) {
+        // XXX FIXME TODO
+        // if (gTableCols[newColid-2].type == "number") { 
+        if (true) {
         dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
                         '<ul class="subColMenu">'+
                             '<li class="filter">Greater Than'+
@@ -857,6 +873,22 @@ function addCol(id, name, options) {
                         '<li id="join">'+'Join'+
                             '<div class="rightArrow"></div>'+
                             '<ul class="subColMenu">';
+        } else {
+        dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
+                        '<ul class="subColMenu">'+
+                            '<li class="filter">Regex'+
+                                '<ul class="subColMenu">'+
+                                    '<li><input type="text" value="*"/></li>'+
+                                '</ul>'+
+                                '<div class="rightArrow"></div>'+
+                            '</li>'+
+                        '</ul>'+
+                        '<div class="rightArrow"></div>'+
+                        '</li>'+
+                        '<li id="join">'+'Join'+
+                            '<div class="rightArrow"></div>'+
+                            '<ul class="subColMenu">';
+        }
         var tables = XcalarGetTables();
         var numTables = tables.numTables;
         for (var i = 0; i<numTables; i++) {

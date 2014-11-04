@@ -30,7 +30,6 @@ function XcalarLoad(url, format) {
     
     switch (format) {
     case ("JSON"):
-        workItem.input.loadInput.dataset.url = url;
         workItem.input.loadInput.dataset.formatType = DfFormatTypeT.DfTypeJson;
         break;
     case ("rand"):
@@ -471,11 +470,18 @@ function XcalarFilter(operator, value, srcTablename, dstTablename) {
     case ("Less Than Equal To"):
         workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsLess;
         break;
+    case ("Regex"):
+        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsRegex;
+        break;
     default:
         console.log("Unknown op "+operator);
     }
     
-    workItem.input.filterInput.compValue = value;
+    if (workItem.input.filterInput.filterOp != OperatorsOpT.OperatorsRegex) {
+        workItem.input.filterInput.compValue = value;
+    } else {
+        workItem.input.filterInput.regexPattern = value;
+    }
 
     try {
         result = client.queueWork(workItem);

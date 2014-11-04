@@ -217,7 +217,10 @@ StatusT = {
 'StatusEmptyTree' : 208,
 'StatusBTreeHasNoRoot' : 209,
 'StatusBTreeKeyNotFound' : 210,
-'StatusQaKeyValuePairNotFound' : 211
+'StatusQaKeyValuePairNotFound' : 211,
+'StatusAstMalformedEvalString' : 212,
+'StatusAstNoSuchFunction' : 213,
+'StatusFieldNameTooLong' : 214
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -430,5 +433,8 @@ StatusTStr = {0 : 'Success',
 208 : 'BTree is empty',
 209 : 'Malformed BTree. BTree has no root',
 210 : 'Could not find key in BTree',
-211 : 'Could not find key-value pair'
+211 : 'Could not find key-value pair',
+212 : 'Malformed eval string',
+213 : 'Could not find function',
+214 : 'The new field name is too long'
 };
