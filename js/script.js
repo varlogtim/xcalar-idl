@@ -876,7 +876,10 @@ function addCol(id, name, options) {
         $(this).select();
         $('.colMenu').hide();
         var index = parseInt($(this).attr('id').substring(6));
-        $(this).val(gTableCols[index-2].userStr);
+        if (gTableCols[index-2].userStr.length > 0) {
+            $(this).val(gTableCols[index-2].userStr);
+        }
+        
         updateFunctionBar(gTableCols[index-2].userStr);
 
         var selectedTh = $('#autoGenTable thead:first').find('.selectedCell');
@@ -891,7 +894,9 @@ function addCol(id, name, options) {
                 .addClass('selectedCell');
     }).blur(function() {
         var index = parseInt($(this).attr('id').substring(6));
-        $(this).val(gTableCols[index-2].name);
+        if (gTableCols[index-2].userStr.length > 0) {
+            $(this).val(gTableCols[index-2].name);
+        }
     });
 
 
