@@ -543,8 +543,6 @@ function parsePullColArgs(progCol) {
 }
 
 function execCol(progCol, args) {
-    //XXX Not sure when to update function bar yet
-    updateFunctionBar(progCol.userStr);
     switch(progCol.func.func) {
     case ("pull"):
         if (!parsePullColArgs(progCol)) {
@@ -745,17 +743,15 @@ function addCol(id, name, options) {
     var width = options.width || gNewCellWidth;
     var resize = options.resize || false;
     var isDark = options.isDark || false;
+    var select = options.select || false;
     var newProgCol = options.progCol || new ProgCol();
     if (options.direction != "L") {
         newColid += 1;
     }
-
     if (name == null) {
         name = "";
         var select = true;
-    } else {
-        var select = false;
-    }
+    } 
     if (isDark) {
         var color = "unusedCell";
     } else {
@@ -875,15 +871,30 @@ function addCol(id, name, options) {
 
     dropdownAttachListeners(newColid);
 
-    if (select) {
-        $('#rename'+newColid).select();
-    }
-    $('#rename'+newColid).click(function() {
+    $('#rename'+newColid).focus(function() {
+        console.log('focused')
         $(this).select();
         $('.colMenu').hide();
         var index = parseInt($(this).attr('id').substring(6));
+        $(this).val(gTableCols[index-2].userStr);
         updateFunctionBar(gTableCols[index-2].userStr);
+
+        var selectedTh = $('#autoGenTable thead:first').find('.selectedCell');
+        if (selectedTh.length != 0) {
+            var selectedIndex = selectedTh.index() + 1;
+            selectedTh.removeClass('selectedCell');
+            $('#autoGenTable td:nth-child('+selectedIndex+')')
+                .removeClass('selectedCell');
+        }
+        $(this).closest('.table_title_bg').addClass('selectedCell');
+        $('#autoGenTable td:nth-child('+index+')')
+                .addClass('selectedCell');
+    }).blur(function() {
+        var index = parseInt($(this).attr('id').substring(6));
+        $(this).val(gTableCols[index-2].name);
     });
+
+
     var numRow = $("#autoGenTable tbody tr").length;
     var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id").
                        substring(5);
@@ -900,20 +911,24 @@ function addCol(id, name, options) {
             $("#bodyr"+i+"c"+(newColid-1)).after(newCellHTML);
     }
 
-    $("#headCol"+newColid+" .editableHead").keypress(function(e) {
-      if (e.which==13) {
-        var index = parseInt($(this).closest('.table_title_bg').
-                     attr('id').substring(7));
-        //XXX We can't refer to this element by newColid, as the element's
-        // id can change but newColid will refer to the same, unchanged integer
-        var progCol = parseCol($(this).val(), index, true);
-        execCol(progCol);
-        $(this).val(progCol.name);
-        $(this).blur();
-        $(this).closest('th').removeClass('unusedCell');
-        $('#autoGenTable td:nth-child('+index+')').removeClass('unusedCell');
-      }
+    $("#headCol"+newColid+" .editableHead").keyup(function(e) {
+        updateFunctionBar($(this).val());
+        if (e.which==13) {
+            var index = parseInt($(this).attr('id').substring(6));
+            //XXX We can't refer to this element by newColid, as the element's
+            // id can change but newColid will refer to the same, unchanged integer
+            var progCol = parseCol($(this).val(), index, true);
+            execCol(progCol);
+            $(this).val(progCol.name);
+            $(this).blur();
+            $(this).closest('th').removeClass('unusedCell');
+            $('#autoGenTable td:nth-child('+index+')').removeClass('unusedCell');
+        }
     });
+
+    if (select) {
+        $('#rename'+newColid).select().focus();
+    }
     resizableColumns();
     matchHeaderSizes();
 }
@@ -973,6 +988,7 @@ function dropdownAttachListeners(colId) {
     $('#rename'+colId).focus(function() {
         $(this).parent().siblings('.dropdownBox')
             .css('opacity','0');
+        var index = $(this).attr("id").substring(5);
     });
 
     $("#headCol"+colId).mouseover(function(event) {
@@ -1131,6 +1147,18 @@ function documentReadyCommonFunction() {
     } else {
         var searchText = gTableName;
     }
+
+    $('#fnBar').keyup(function(e) {
+        var selectedCell = $('th.selectedCell .editableHead');
+        if (selectedCell.length !=0) {
+            selectedCell.val($(this).val());
+            if (e.which == 13) {
+                selectedCell.trigger(e);
+            }
+        }
+        
+    });
+
     $("#searchBar").val('tablename = "'+searchText+'"');
     var resultTextLength = (""+resultSetCount).length
     $('#pageInput').attr({'maxLength': resultTextLength,
@@ -1963,13 +1991,14 @@ function showJsonPopup(jsonTd) {
                         return $(this).find("input").val() == "JSON";
                     }).attr("id");
         var colIndex = parseInt(id.substring(7)); 
-        addCol(id, name, {select: false});
+        addCol(id, name);
         gTableCols[colIndex-1].func.func = "pull";        
         gTableCols[colIndex-1].func.args = [name];
         gTableCols[colIndex-1].userStr = '"'+name+'" = pull('+name+')';
         execCol(gTableCols[colIndex-1]);
         autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
                 resizeFirstRow: true});
+        $('thead:first #headCol'+(colIndex+1)+' .editableHead').focus();
         $('#jsonModal, #jsonModalBackground').hide();
         $('#jsonModal').css('left',0);
         $('body').removeClass('hideScroll');

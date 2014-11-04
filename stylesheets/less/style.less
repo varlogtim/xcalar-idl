@@ -609,6 +609,22 @@ input:focus {
             }
         }
     }
+    
+    th.unusedCell {
+        background-color: @colorOpaque-blankGrayDark;
+        .editableHead {
+            color: @color-text-black;
+        }
+    }
+
+    tbody .unusedCell {
+        &:nth-child(odd) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+        &:nth-child(even) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+    }
 
     tbody .selectedCell {
         &:nth-child(odd) {
@@ -619,22 +635,8 @@ input:focus {
         }
     }
 
-    th.selectedCell {
+    th.selectedCell .editableHead {
         color: @color-table-red;
-    }
-    
-    // tfoot .unusedCell,
-    th.unusedCell {
-        background-color: @colorOpaque-blankGrayDark;
-    }
-
-    tbody .unusedCell {
-        &:nth-child(odd) {
-            background-color: @colorOpaque-blankGrayDark;
-        }
-        &:nth-child(even) {
-            background-color: @colorOpaque-blankGrayDark;
-        }
     }
 
     .header {
