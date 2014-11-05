@@ -1913,7 +1913,7 @@ function getDatasetSamples() {
         // Commit your change by running the command commitToStorage()
         // Alternatively you can just randomly pick a static placeholder name
         var datasetName = getDsName(datasets.datasets[i].datasetId);
-        // Gets the first 20 entries
+        // Gets the first 20 entries and stores it.
         samples[datasetName] = XcalarSample(datasets.datasets[i].datasetId, 20);
     }
 

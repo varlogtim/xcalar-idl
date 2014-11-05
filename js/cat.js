@@ -1,6 +1,6 @@
 // Auto run
 var gUrlTableName = getUrlVars()["tablename"];
-var gTableName = gUrlTableName || "userId";
+var gTableName = gUrlTableName || "gdelt";
 // XXX: Hack for faster testing
 // autoLoad();
 var gResultSetId = XcalarGetTableId(gTableName);
