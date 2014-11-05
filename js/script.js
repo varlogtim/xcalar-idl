@@ -872,6 +872,12 @@ function addCol(id, name, options) {
                                 '</ul>'+
                                 '<div class="rightArrow"></div>'+
                             '</li>'+
+                            '<li class="filter">Regex'+
+                                '<ul class="subColMenu">'+
+                                    '<li><input type="text" value="*"/></li>'+
+                                '</ul>'+
+                                '<div class="rightArrow"></div>'+
+                            '</li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="rightArrow"></div>'+
