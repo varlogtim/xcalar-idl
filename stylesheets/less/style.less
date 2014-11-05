@@ -30,6 +30,9 @@
 @font-baseHeavy: "Century Gothic", Arial;
 @font-code: "Source Code Pro", courier;
 
+/* Heights */
+@default-bar-height: 25px;
+
 /* ========== Elements ========== */
 .box-sizing (@type: border-box) {
     -webkit-box-sizing: @type;
@@ -1184,6 +1187,82 @@ ul.leftColMenu + .rightArrow {
     }
 }
 /* END WORKSHEET BAR */
+
+/* SHOPPING CART STYLING */
+.centered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    .transform (translate(-50%, -50%));
+}
+
+.lightGrayBar {
+    height: 32px;
+    width: inherit;
+    background-color: @color-table-blankGrayLight;
+    display: table;
+    z-index: 33;
+    font: @font-base;
+    font-size: 20px;
+    line-height: 30px;
+    padding-left: 5px;
+    color: @color-text-black;
+}
+
+#builderBar {
+    .lightGrayBar;
+    position: absolute;
+    top: 5px;
+}
+
+#selectedBar {
+    .lightGrayBar;
+    position: absolute;
+    top: 325px;
+}
+
+#createButton {
+    top: 360px;
+    position: absolute;
+}  
+
+#cancelButton {
+    top: 360px+5px+@default-bar-height;
+    position: absolute;
+} 
+
+.rectangle {
+    top: 0px;
+    width: 72px;
+    height: @default-bar-height;
+    background: @color-monitor-green;
+    position: absolute;
+    color: @color-text-black;
+    font: @font-base;
+    font-size: 16px; 
+    line-height: 24px;
+    text-align: center;
+}
+
+.arrow {
+    top: 0px;
+    left: 72px;
+    width: 0;
+    height: 0;
+    border: @default-bar-height/2 solid transparent;
+    border-bottom-color: @color-monitor-green;
+    position: absolute;
+    .transform (rotate(90deg));
+}
+
+#shoppingCart {
+    .centered;
+    height: 570px;
+    width: 816px;
+    background-color: @color-white;
+    z-index: 31;
+}
+/* END SHOPPING CART */
 
 /* PRETTIFY JSON STYLING */
 #modalBackground {

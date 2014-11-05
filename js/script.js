@@ -1342,7 +1342,8 @@ function documentReadyCommonFunction() {
             $('.worksheetTab:last').css('margin-top', 0);
         }, 1);
         //XXX show modal background and pop up
-        // $('#modalBackground').show();
+        $('#modalBackground').show();
+        shoppingCart();
     });
 
     $('.worksheetTab').mousedown(function() {
@@ -1359,6 +1360,8 @@ function documentReadyCommonFunction() {
         var size = $(this).val().length;
         $(this).attr('size', size);
     });
+
+    $("#shoppingCart").hide();
 
     $('#pageScroll').mousedown(function(event) {
         var mouseX = event.pageX - $(this).offset().left;
@@ -1898,6 +1901,60 @@ function documentReadyIndexFunction() {
         infScrolling();
         
     });
+}
+
+function getDatasetSamples() {
+    // Get datasets and names
+    var datasets = XcalarGetDatasets();
+    var samples = {};
+    for (var i = 0; i<datasets.numDatasets; i++) {
+        // This variable should have been stored when the table is loaded.
+        // Otherwise, just run this command setDsToName("gdelt", 4)
+        // Commit your change by running the command commitToStorage()
+        // Alternatively you can just randomly pick a static placeholder name
+        var datasetName = getDsName(datasets.datasets[i].datasetId);
+        // Gets the first 20 entries
+        samples[datasetName] = XcalarSample(datasets.datasets[i].datasetId, 20);
+    }
+
+    // Example how to loop through each dataset's sample
+    var records = samples["gdelt"].kvPairs;
+    for (var i = 0; i<records.numRecords; i++) {
+        if (records.recordType ==
+            GenericTypesRecordTypeT.GenericTypesVariableSize) {
+            var key = records.records[i].kvPairVariable.key;
+            var value = records.records[i].kvPairVariable.value;
+        } else {
+            var key = records.records[i].kvPairFixed.key;
+            var value = records.records[i].kvPairFixed.value;
+        }
+        console.log(key);
+        console.log(value);
+    }
+}
+
+function shoppingCart() {
+    // Cleanup current table
+    $("#autoGenTable td, th").each(function() {
+        $(this).empty();
+    });
+
+    // Display the shopping cart tabs
+    $("#shoppingCart").show();
+    $("#shoppingCart").append('\
+        <div id="builderBar">worksheet builder</div>\
+        <div id="datasetBrowser"></div>\
+        <div id="selectedBar">selected columns</div>\
+        <div id="selectedDataset"></div>\
+        <div id="createButton">\
+            <div class="rectangle">Create</div>\
+            <div class="arrow"></div>\
+        </div>\
+        <div id="cancelButton">\
+            <div class="rectangle">Cancel</div>\
+            <div class="arrow"></div>\
+        </div>'); 
+    getDatasetSamples();
 }
 
 var tempCountShit = 0;
