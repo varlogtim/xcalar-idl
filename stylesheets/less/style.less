@@ -522,7 +522,7 @@ input:focus {
 }
 
 
-#mainFrame {
+.tableWrap {
 	background-color: @color-white;
     padding: 5px 0 0 0;
     height: 848px;
@@ -539,22 +539,22 @@ input:focus {
     .transition (height 0.3s ease-out); 
 }
 
-#mainFrame::-webkit-scrollbar {
-    // width: 8px;
-    width: 0px;
+.tableWrap::-webkit-scrollbar {
+    width: 8px;
+    // width: 0px;
     height: 8px;
     background: transparent;
 }
 
-#mainFrame::-webkit-scrollbar-thumb {
+.tableWrap::-webkit-scrollbar-thumb {
     background: rgba(237,28,36, 0.5) !important;
 }
 
-#mainFrame::-webkit-scrollbar-corner {
+.tableWrap::-webkit-scrollbar-corner {
 	background: transparent;
 }
 
-#autoGenTable {
+.dataTable {
     border-collapse: separate;
     border-spacing: 0px;
     margin-left: 10px;
@@ -654,15 +654,17 @@ input:focus {
 
     input {
         font: 13px @font-base;
+        background-color: transparent;
         &:disabled {
-            background-color: transparent;
+            // background-color: transparent;
             color: @color-text-black;
         }
         &[readonly] {
-            background-color: transparent;
+            // background-color: transparent;
             width: 100%;
             height: 25px;
             text-align: center;
+            outline: none;
         }
         &:focus {
             outline-offset: -1px;
@@ -821,10 +823,6 @@ input:focus {
     }
 }
 
-.staticCol .dropdownBox {
-    // bottom: -5px;
-}
-
 .dropdownBox:hover {
     opacity: 1.0 !important;
     .transition (opacity 0.02s linear);
@@ -837,11 +835,6 @@ input:focus {
 
 .fullOpacity {
     opacity: 1.0 !important;
-}
-
-.table_title_bg.staticCol strong{
-    /*margin-right: 16px;*/
-    overflow: hidden;
 }
 
 .table_title_bg ul {
@@ -1105,7 +1098,7 @@ ul.leftColMenu + .rightArrow {
 
 /* START WORKSHEET BAR */
 
-#worksheetBar {
+.worksheetBar {
     color: @color-white;
     width: 100%;
     overflow: hidden;
@@ -1162,6 +1155,7 @@ ul.leftColMenu + .rightArrow {
             cursor: default;
             .noSelection;
             width: ~"calc(100%-10px)";
+            box-shadow: inset 0px 1px rgba(0, 0, 0, 0.15);
         }
 
         // span {
@@ -1169,12 +1163,13 @@ ul.leftColMenu + .rightArrow {
         // }
 
         &.tabSelected,  {
-            background-color: @color-white;
-            color: @color-bar-orange;
+            background-color: @color-white !important;
+            color: @color-bar-orange  !important;
             box-shadow: 2px 3px rgba(0,0,0,.15), inset 0px 0px  @color-white;
             input {
-                background-color: @color-white;
-                color: @color-bar-orange;
+                background-color: @color-white  !important;
+                color: @color-bar-orange  !important;
+                box-shadow: none;
             }
         }
         &:not(.tabSelected):hover {
@@ -1182,6 +1177,7 @@ ul.leftColMenu + .rightArrow {
             background-color: #B4B4B4;
             input {
                 background-color: #B4B4B4;
+                box-shadow: none;
             }
         }
     }
@@ -1215,20 +1211,92 @@ ul.leftColMenu + .rightArrow {
     top: 5px;
 }
 
+#builderTabBar {
+    .lightGrayBar;
+    position: absolute;
+    top: 32px + 10px;
+    box-shadow: none;
+
+    .worksheetTab {
+        vertical-align: bottom;
+        background-color: @color-table-darkGray;
+        width: 25%;
+        box-shadow: none;
+        margin-bottom: -2px;
+        // why is there 2px padding unless i do margin -2px?
+    }
+    input {
+        box-shadow: none;
+        background-color: @color-table-darkGray;
+        color: @color-text-black;
+        vertical-align: top;
+        padding-top: 1px;
+    }
+}
+
+#datasetBrowser {
+    position: absolute;
+    top: 64px + 10px;
+    width: 100%;
+    height: 246px;
+}
+
+.worksheetTable {
+    margin-left: 5px;
+    width: 800px;
+
+    th {
+        width: 125px;
+    }
+}
+
+.orangeText {
+    color: @color-bar-orange  !important;
+}
+
 #selectedBar {
     .lightGrayBar;
     position: absolute;
     top: 325px;
 }
 
-#createButton {
+#selectedDataset {
     top: 360px;
     position: absolute;
+
+    .dataTable {
+        width: 130px;
+        margin-left: 5px;
+        float: left;
+        .transition (width 0.5s);
+
+        &:nth-child(odd) {
+            th, td {
+                background-color: @color-table-lightGray !important;
+            }
+        }  
+        &:nth-child(even) {
+            th, td {
+                background-color: @color-table-midGray !important;
+            }
+        }
+    }
+}
+
+#datasetButtons {
+  display: inline-block;
+}
+
+#createButton {
+    // top: 360px;
+    // position: absolute;
+    position: relative;
 }  
 
 #cancelButton {
-    top: 360px+5px+@default-bar-height;
-    position: absolute;
+    // top: 360px+5px+@default-bar-height;
+    // position: absolute;
+    position: relative;
 } 
 
 .rectangle {
@@ -1236,12 +1304,23 @@ ul.leftColMenu + .rightArrow {
     width: 72px;
     height: @default-bar-height;
     background: @color-monitor-green;
-    position: absolute;
+    position: relative;
     color: @color-text-black;
     font: @font-base;
     font-size: 16px; 
     line-height: 24px;
     text-align: center;
+    margin-bottom: 5px;
+}
+
+#cancelButton {
+    .rectangle {
+        background: @color-monitor-red;
+    }
+
+    .arrow {
+        border-bottom-color: @color-monitor-red;
+    }
 }
 
 .arrow {
@@ -1360,12 +1439,12 @@ ul.leftColMenu + .rightArrow {
     padding-left: 25px;
     padding-right: 5px;
     position:relative;
-    overflow: hidden;
+    // overflow: hidden;
 }
 
 .jsonBlock {
     display:block;
-    overflow-x: auto;
+    // overflow-x: auto;
 }
 
 .jKey {

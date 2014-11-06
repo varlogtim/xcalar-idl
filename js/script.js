@@ -352,6 +352,7 @@ function getPage(resultSetId, firstTime, direction) {
     $('.colGrab').height($('#mainFrame').height());
     var idColWidth = getTextWidth($('#autoGenTable tr:last td:first'));
     $('#autoGenTable th:first-child').width(idColWidth+12);
+    matchHeaderSizes();
     getFirstVisibleRowNum();
 }
 
@@ -763,6 +764,7 @@ function addCol(id, name, options) {
     } 
     if (select) {
         var color = "selectedCell";
+        $('.selectedCell').removeClass('selectedCell');
     } else if (isDark) {
         var color = "unusedCell";
     } else {
@@ -932,8 +934,8 @@ function addCol(id, name, options) {
             $("#bodyr"+i+"c"+(newColid-1)).after(newCellHTML);
     }
 
-    $("#rename"+newColid).on('input', function(e) {
-        updateFunctionBar($(this).val());
+    $("#rename"+newColid).keyup(function(e) {
+         updateFunctionBar($(this).val());
         if (e.which==13) {
             var index = parseInt($(this).attr('id').substring(6));
             var progCol = parseCol($(this).val(), index, true);
@@ -950,15 +952,23 @@ function addCol(id, name, options) {
         }
     });
 
+    // XXX on.input updates fnbar faster than keyup or keypress
+    // keypress/keyup doesn't detect if you're holding down backspace
+    // but on.input doesn't detect e.which
+    $("#rename"+newColid).on('input', function(e) {
+        updateFunctionBar($(this).val());
+    });
+
     if (select) {
-        $('#rename'+newColid).select().focus();
-        // $('#rename'+newColid).focus();
+        // $('#rename'+newColid).select().focus();
+        $('#rename'+newColid).focus();
     }
     resizableColumns();
     matchHeaderSizes();
 }
 
 function addColListeners(colId) {
+    console.log(colId, 'this id')
     $('#rename'+colId).focus(function() {  
         $('.colMenu').hide();
         var index = parseInt($(this).attr('id').substring(6));
@@ -967,15 +977,8 @@ function addColListeners(colId) {
         }
         
         updateFunctionBar($(this).val());
-
-        var selectedTh = $('#autoGenTable thead:first').find('.selectedCell');
-        if (selectedTh.length != 0) {
-            var selectedIndex = selectedTh.index() + 1;
-            selectedTh.removeClass('selectedCell');
-            $('#autoGenTable td:nth-child('+selectedIndex+')')
-                .removeClass('selectedCell');
-        }
-        $(this).closest('.table_title_bg').addClass('selectedCell');
+        $('.selectedCell').removeClass('selectedCell');
+        $(this).closest('th').addClass('selectedCell');
         $('#autoGenTable td:nth-child('+index+')')
                 .addClass('selectedCell');
         $(this).parent().siblings('.dropdownBox')
@@ -1216,11 +1219,13 @@ function documentReadyCommonFunction() {
 
     $('#fnBar').on('input', function(e) {
         var selectedCell = $('th.selectedCell .editableHead');
-        if (selectedCell.length !=0) {
-            selectedCell.val($(this).val());
-            if (e.which == 13) {
-                selectedCell.trigger(e);
-            }
+        selectedCell.val($(this).val());
+    });
+
+    $('#fnBar').keyup(function(e) {
+        var selectedCell = $('th.selectedCell .editableHead');
+        if (e.which == 13) {
+            selectedCell.trigger(e);
         }
     });
 
@@ -1230,9 +1235,7 @@ function documentReadyCommonFunction() {
         setTimeout(selectCell, 1);
         function selectCell() {
             var selectedCell = $('th.selectedCell .editableHead');
-            if (selectedCell.length !=0) {
-                selectedCell.val(fnBar.val());
-            }
+            selectedCell.val(fnBar.val());
         }
         
     });
@@ -1285,9 +1288,13 @@ function documentReadyCommonFunction() {
     });
 
     $('.closeJsonModal, #modalBackground').click(function(){
-        $('#jsonModal, #modalBackground').hide();
+        if ($('#jsonModal').css('display') == 'block') {
+            $('#modalBackground').hide();
+        }
+        $('#jsonModal').hide();
         $('body').removeClass('hideScroll');
     });
+
 
     $('#datastorePanel .monitorSubDiv:first').click(function(){
         $("#loadArea").load('load_r.html', function(){
@@ -1312,7 +1319,7 @@ function documentReadyCommonFunction() {
     });
 
     $('#newWorksheet span').click(function(){
-        var tabCount = $('.worksheetTab').length;
+        var tabCount = $('#worksheetBar .worksheetTab').length;
         var text = "worksheet "+(tabCount-1);
         if (tabCount > 4) {
             var width = ((1/(tabCount+1)))*70+'%';
@@ -1339,7 +1346,7 @@ function documentReadyCommonFunction() {
         });
         $('.worksheetTab:last').click();
         setTimeout(function() { 
-            $('.worksheetTab:last').css('margin-top', 0);
+            $('#worksheetBar .worksheetTab:last').css('margin-top', 0);
         }, 1);
         //XXX show modal background and pop up
         $('#modalBackground').show();
@@ -1632,7 +1639,7 @@ function createTransparentDragDropCol(startYPos) {
                         (gDragObj.startXPos)+'px;top:'+
                         (gDragObj.colOffTop)+'px;width:'+
                         (gDragObj.colWidth-5)+'px"></div>');
-    $('.fauxCol').append('<table id="autoGenTable" class="fauxTable" '+
+    $('.fauxCol').append('<table id="autoGenTable" class="dataTable fauxTable" '+
                          'style="width:'+(gDragObj.colWidth-5)+'px"></table>');
     
     var rowHeight = 20;
@@ -1689,7 +1696,6 @@ function createTransparentDragDropCol(startYPos) {
     $('.fauxTable tr:first-child').css({'margin-top': 
             -($('.fauxTable tr:first').outerHeight()+firstRowOffset)});
 }
-
 
 function createDropTargets() {
     // var offset = distance from the left side of dragged column
@@ -1915,46 +1921,160 @@ function getDatasetSamples() {
         var datasetName = getDsName(datasets.datasets[i].datasetId);
         // Gets the first 20 entries and stores it.
         samples[datasetName] = XcalarSample(datasets.datasets[i].datasetId, 20);
-    }
 
-    // Example how to loop through each dataset's sample
-    var records = samples["gdelt"].kvPairs;
+        // add the tab and the table for this dataset to shoppingcart div
+        addDatasetTable(datasetName, i);
+        var records = samples[datasetName].kvPairs;
+
+        if (records.recordType ==
+            GenericTypesRecordTypeT.GenericTypesVariableSize) {
+            var json = $.parseJSON(records.records[0].kvPairVariable.value);
+            
+        } else {
+            var json = $.parseJSON(records.records[0].kvPairFixed.value);
+        }
+
+        // build the table headers
+        for (key in json) {
+            $('#worksheetTable'+(i+1)+' tr:first').append('\
+                <th class="table_title_bg">\
+                <input spellcheck="false" class="editableHead" value="'+key+'">\
+                </th>');
+
+            $('#worksheetTable'+(i+1)+' th:last input').focus(function() {  
+                var index = $(this).closest('th').index()+1;
+                $('.selectedCell').removeClass('selectedCell');
+                $(this).closest('.table_title_bg').addClass('selectedCell');
+                $(this).closest('table').find('td:nth-child('+index+')').
+                    addClass('selectedCell');
+            });
+
+            $('#worksheetTable'+(i+1)+' th:last input').dblclick(function() {
+                $(this).prop('disabled', true);
+                var colHead = $('#selectedDataset \
+                            th:contains('+datasetName+')');
+                if (colHead.length == 0) {
+                    //add new selectedTable
+                    $('#selectedDataset').prepend('\
+                    <table class="dataTable selectedTable" \
+                    style="width:0px">\
+                        <thead><tr>\
+                        <th>'+datasetName+'</th>\
+                        </tr></thead>\
+                        <tbody></tbody>\
+                    </table>');
+                    colHead = $('#selectedDataset \
+                            th:contains('+datasetName+')');
+                    $('.selectedTable th').removeClass('orangeText');
+                    colHead.addClass('orangeText');
+                    colHead.closest('table').width(130);
+
+                }
+                colHead.closest('table').find('tbody').append('\
+                    <tr><td>'+$(this).val()+'\
+                    </td></tr>');
+            });
+        }
+        addDataSetRows(records, i);
+    }
+}
+
+function addDatasetTable(datasetTitle, tableNumber) {
+    //append the tab
+    $('#builderTabBar').append('\
+            <div class="worksheetTab">\
+                <input type="text" value="'+datasetTitle+'"\
+                readonly size="5">\
+            </div>\
+            ')
+
+    //append the table to datasetbrowser div
+    $('#datasetBrowser').append('<table id="worksheetTable'+(tableNumber+1)+'"\
+        class="worksheetTable dataTable">\
+            <thead>\
+              <tr>\
+                <th style="width:40px;" class="table_title_bg">\
+                  <div class="header">\
+                    <span><input value="ID" readonly></span>\
+                  </div>\
+                </th>\
+                <th class="table_title_bg" style="width:0px;">\
+                  <div class="header">\
+                    <span><input value="JSON" readonly></span>\
+                  </div>\
+                </th>\
+              <tr/>\
+            </thead>\
+            <tbody></tbody>\
+        </table>');
+}
+
+// add row by row
+function addDataSetRows(records, tableNumber) {
     for (var i = 0; i<records.numRecords; i++) {
         if (records.recordType ==
             GenericTypesRecordTypeT.GenericTypesVariableSize) {
             var key = records.records[i].kvPairVariable.key;
             var value = records.records[i].kvPairVariable.value;
+            var json = $.parseJSON(value);
         } else {
             var key = records.records[i].kvPairFixed.key;
             var value = records.records[i].kvPairFixed.value;
+            var json = $.parseJSON(value);
         }
-        console.log(key);
-        console.log(value);
+
+        //append the id and json cells to last row
+        $('#worksheetTable'+(tableNumber+1)+' tbody').append('\
+            <tr>\
+                <td>'+(key+1)+'</td>\
+                <td>\
+                <div class="elementTextWrap" \
+                style="max-height:16px;">\
+                    <div class="elementText">'+value+'<div>\
+                <div>\
+                </td>\
+            </tr>');
+
+        //append the rest of the columns to the last row
+        for (key in json) {
+            $('#worksheetTable'+(tableNumber+1)+' tr:last').append('\
+                <td>\
+                    <div class="addedBarTextWrap">\
+                        <div class="addedBarText">'
+                        +json[key]+
+                        '</div>\
+                    </div>\
+                </td>');
+        }
     }
 }
 
 function shoppingCart() {
     // Cleanup current table
     $("#autoGenTable td, th").each(function() {
-        $(this).empty();
+        $(this).empty().removeClass('selectedCell');
     });
 
     // Display the shopping cart tabs
     $("#shoppingCart").show();
-    $("#shoppingCart").append('\
-        <div id="builderBar">worksheet builder</div>\
-        <div id="datasetBrowser"></div>\
-        <div id="selectedBar">selected columns</div>\
-        <div id="selectedDataset"></div>\
-        <div id="createButton">\
-            <div class="rectangle">Create</div>\
-            <div class="arrow"></div>\
-        </div>\
-        <div id="cancelButton">\
-            <div class="rectangle">Cancel</div>\
-            <div class="arrow"></div>\
-        </div>'); 
     getDatasetSamples();
+    addTabFunctionality();
+    $('.worksheetTable').hide();
+    $('.worksheetTable:last').show();
+}
+
+function addTabFunctionality() {
+    $('#builderTabBar .worksheetTab').click(function() {
+        var index = $(this).index();
+        var text = $(this).find('input').val();
+            $('#builderTabBar .worksheetTab')
+                .removeClass('tabSelected');
+            $(this).addClass('tabSelected');
+        $('.selectedTable th').removeClass('orangeText');
+        $('.selectedTable th:contains('+text+')').addClass('orangeText');
+        $('.worksheetTable').hide();
+        $('.worksheetTable:nth-child('+(index+1)+')').show();
+    });
 }
 
 var tempCountShit = 0;

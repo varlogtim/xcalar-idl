@@ -90,8 +90,8 @@
       <input id="pageInput">
     </div>
   </div>
-  <div id="mainFrame">
-    <table id="autoGenTable">
+  <div id="mainFrame" class="tableWrap">
+    <table id="autoGenTable" class="dataTable">
       <thead>
       <tr>
         <th id="headCol1" style="width:40px;" class="table_title_bg">
@@ -99,7 +99,7 @@
             <span><input value="ID" readonly></span>
           </div>
         </th>
-        <th id="headCol2" class="table_title_bg staticCol jsonColHead" style="width:auto;">
+        <th id="headCol2" class="table_title_bg" style="width:auto;">
           <div class="header">
             <div class="dropdownBox" style="opacity: 0;"></div>
             <span><input value="JSON" readonly></span>
@@ -123,7 +123,7 @@
       </tbody>
     </table>
   </div>
-  <div id="worksheetBar" class="mainBar">
+  <div id="worksheetBar" class="worksheetBar mainBar">
     <div id="newWorksheet"><span>+ new worksheet</span></div>
     <div class="worksheetTab"><input type="text" value="facebook"></div>
     <div class="worksheetTab tabSelected"><input type="text" value="yelp"></div>
@@ -131,7 +131,31 @@
     <div class="worksheetTab"><input type="text" value="worksheet 2"></div>
   </div>
   <div id="modalBackground"></div>
-  <div id="shoppingCart"></div>
+  <div id="shoppingCart">
+    <div id="builderBar">worksheet builder</div>
+        <div id="builderTabBar" class="worksheetBar">
+          <div class="worksheetTab">
+            <input type="text" value="SP500" readonly>
+          </div>
+        </div>
+        <div id="datasetBrowser" class="tableWrap">
+         <!-- tables goes here -->
+        </div>
+        <div id="selectedBar">selected columns</div>
+        <div id="selectedDataset">
+          <div id="datasetButtons">
+            <div id="createButton">
+              <div class="rectangle">create</div>
+              <div class="arrow"></div>
+            </div>
+            <div id="cancelButton">
+                <div class="rectangle">cancel</div>
+                <div class="arrow"></div>
+            </div>
+          </div>
+        </div>
+        
+  </div>
   <div id="jsonModal">
     <div class="closeJsonModal">
       <span>+</span>
