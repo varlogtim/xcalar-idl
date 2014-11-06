@@ -1,12 +1,23 @@
 // Auto run
-var gUrlTableName = getUrlVars()["tablename"];
-var gTableName = gUrlTableName || "gdelt";
+var gUrlTableName;
+var gTableName;
 // XXX: Hack for faster testing
 // autoLoad();
-var gResultSetId = XcalarGetTableId(gTableName);
-var resultSetCount = XcalarGetCount(gTableName);
+var gResultSetId;
+var resultSetCount;
+var gNumPages;
 
-var gNumPages = Math.ceil(resultSetCount / gNumEntriesPerPage);
+function setCatGlobals(table) {
+    gUrlTableName = getUrlVars()["tablename"];
+    gTableName = gUrlTableName || table;
+    // XXX: Hack for faster testing
+    // autoLoad();
+    gResultSetId = XcalarGetTableId(gTableName);
+    resultSetCount = XcalarGetCount(gTableName);
+
+    gNumPages = Math.ceil(resultSetCount / gNumEntriesPerPage);
+}
+
 
 function freeAllResultSets() {
     XcalarSetFree(gResultSetId);    

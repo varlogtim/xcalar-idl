@@ -326,7 +326,7 @@ function getPage(resultSetId, firstTime, direction) {
         newProgCol.width = gNewCellWidth; // XXX FIXME Grab from CSS
         newProgCol.func.func = "raw";
         newProgCol.func.args = [];
-        newProgCol.userStr = "JSON = raw()";
+        newProgCol.userStr = '"JSON" = raw()';
         newProgCol.isDark = false;
         insertColAtIndex(1, newProgCol);
     }
@@ -968,7 +968,6 @@ function addCol(id, name, options) {
 }
 
 function addColListeners(colId) {
-    console.log(colId, 'this id')
     $('#rename'+colId).focus(function() {  
         $('.colMenu').hide();
         var index = parseInt($(this).attr('id').substring(6));
@@ -1324,7 +1323,6 @@ function documentReadyCommonFunction() {
         if (tabCount > 4) {
             var width = ((1/(tabCount+1)))*70+'%';
             $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');
-
         } else {
             var width = $('.worksheetTab').width();
         }
@@ -1890,22 +1888,34 @@ function documentReadyCatFunction() {
     }    
 }
 
+// XXX: REMOVE!
+function hackyShit() {
+    if (gTableName === "joined") {
+        // XXX TODO: Create a new worksheet tab here and make it selected
+    }
+}
+
+function startupFunctions(table) {
+    readFromStorage();
+    setCatGlobals(table);
+    menuBarArt();
+    monitorOverlayPercent();
+    menuAreaClose();
+    getTablesAndDatasets();
+    documentReadyCatFunction();
+
+    fillPageWithBlankCol();
+    goToPage(gCurrentPageNumber+1);
+    goToPage(gCurrentPageNumber+1);
+    generateFirstLastVisibleRowNum();
+    cloneTableHeader();   
+    infScrolling();
+    hackyShit();
+}        
+
 function documentReadyIndexFunction() {
     $(document).ready(function() {
-        readFromStorage();
-        menuBarArt();
-        monitorOverlayPercent();
-        menuAreaClose();
-        getTablesAndDatasets();
-        documentReadyCatFunction();
-
-        fillPageWithBlankCol();
-        goToPage(gCurrentPageNumber+1);
-        goToPage(gCurrentPageNumber+1);
-        generateFirstLastVisibleRowNum();
-        cloneTableHeader();   
-        infScrolling();
-        
+       startupFunctions("gdelt"); 
     });
 }
 
@@ -1935,10 +1945,13 @@ function getDatasetSamples() {
         }
 
         // build the table headers
+        var count = 0;
         for (key in json) {
             $('#worksheetTable'+(i+1)+' tr:first').append('\
                 <th class="table_title_bg">\
-                <input spellcheck="false" class="editableHead" value="'+key+'">\
+                <input spellcheck="false" class="editableHead shoppingCartCol"\
+                 value="'+key+'"\
+                 id ="ds'+datasets.datasets[i].datasetId+'cn'+key+'">\
                 </th>');
 
             $('#worksheetTable'+(i+1)+' th:last input').focus(function() {  
@@ -1950,6 +1963,7 @@ function getDatasetSamples() {
             });
 
             $('#worksheetTable'+(i+1)+' th:last input').dblclick(function() {
+                var datasetName = $("#builderTabBar .tabSelected input").val()
                 $(this).prop('disabled', true);
                 var colHead = $('#selectedDataset \
                             th:contains('+datasetName+')');
@@ -1982,7 +1996,7 @@ function getDatasetSamples() {
 function addDatasetTable(datasetTitle, tableNumber) {
     //append the tab
     $('#builderTabBar').append('\
-            <div class="worksheetTab">\
+            <div class="worksheetTab" style="width:100px">\
                 <input type="text" value="'+datasetTitle+'"\
                 readonly size="5">\
             </div>\
@@ -2049,6 +2063,62 @@ function addDataSetRows(records, tableNumber) {
     }
 }
 
+function createWorksheet() {
+    var newTableCols = [];
+    var startIndex = 2;
+    $("#selectedDataset table tbody tr td").each(function() {
+        var colname = $.trim($(this).text());
+        var progCol = new ProgCol();
+        progCol.index = startIndex;
+        progCol.type = "string";
+        progCol.name = colname;
+        progCol.width = gNewCellWidth;
+        progCol.userStr = '"'+colname+'" = pull('+colname+')';
+        progCol.func.func = "pull";
+        progCol.func.args = [colname];
+        progCol.isDark = false;
+        newTableCols[startIndex-2] = progCol;
+        startIndex++;
+    });
+    var progCol = new ProgCol();
+    progCol.index = startIndex;
+    progCol.type = "object";
+    progCol.name = "JSON";
+    progCol.width = 700;
+    progCol.userStr = "JSON = raw()";
+    progCol.func.func = "raw";
+    progCol.func.args = [];
+    progCol.isDark = false;
+    newTableCols[startIndex-2] = progCol;
+    setIndex("joined", newTableCols); 
+    commitToStorage();
+    window.location.href="?tablename=joined";
+}
+
+function attachShoppingCartListeners() {
+    $(".shoppingCartCol").keypress(function(e) {
+        if (e.which === 13) {
+            var oldid = $(this).attr("id");
+            var oldColName = oldid.substring(oldid.indexOf("cn")+2);
+            var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
+            XcalarEditColumn(dsnumber, oldColName, $(this).val(),
+                             DfFieldTypeT.DfString);
+            $(this).blur();
+        }
+    });
+    $("#createButton").css("cursor", "pointer");
+    $("#createButton").click(function() {
+        createWorksheet();
+    });
+    $("#cancelButton").css("cursor", "pointer");
+    $("#cancelButton").click(function() {
+        // $("#modalBackground").hide();
+        // $("#shoppingCart").hide();
+        window.location.href=""; 
+    });
+        
+}
+
 function shoppingCart() {
     // Cleanup current table
     $("#autoGenTable td, th").each(function() {
@@ -2060,7 +2130,9 @@ function shoppingCart() {
     getDatasetSamples();
     addTabFunctionality();
     $('.worksheetTable').hide();
-    $('.worksheetTable:last').show();
+    $('.worksheetTable:first').show();
+    $('#builderTabBar .worksheetTab')[0].click();
+    attachShoppingCartListeners();
 }
 
 function addTabFunctionality() {

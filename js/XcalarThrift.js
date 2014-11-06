@@ -108,6 +108,32 @@ function XcalarIndexFromTable(srcTablename, key, tablename) {
     }
 }
 
+function XcalarEditColumn(datasetId, currFieldName, newFieldName, newFieldType)
+{
+    var transport = new Thrift.Transport(transportLocation());
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiEditColumn;
+    
+    workItem.input = new XcalarApiInputT();
+    workItem.input.editColInput = new XcalarApiEditColInputT();
+    workItem.input.editColInput.isDataset = true;
+    workItem.input.editColInput.datasetId = datasetId;
+    workItem.input.editColInput.currFieldName = currFieldName;
+    workItem.input.editColInput.newFieldName = newFieldName;
+    workItem.input.editColInput.newFieldType = newFieldType;
+
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+        console.log(ouch);
+        console.log("Load from index failed");
+    }
+}
+
 function XcalarSample(datasetId, numEntries) {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
@@ -118,7 +144,7 @@ function XcalarSample(datasetId, numEntries) {
     workItem.input = new XcalarApiInputT();
     workItem.input.makeResultSetInput = new XcalarApiMakeResultSetInputT();
     workItem.input.makeResultSetInput.fromTable = false;
-    workItem.input.makeResultSetInput.datasetId = 4;
+    workItem.input.makeResultSetInput.datasetId = datasetId;
     try {
         result = client.queueWork(workItem);
     } catch(ouch) {
