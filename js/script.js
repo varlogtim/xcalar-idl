@@ -1963,30 +1963,44 @@ function getDatasetSamples() {
             });
 
             $('#worksheetTable'+(i+1)+' th:last input').dblclick(function() {
-                var datasetName = $("#builderTabBar .tabSelected input").val()
-                $(this).prop('disabled', true);
-                var colHead = $('#selectedDataset \
-                            th:contains('+datasetName+')');
-                if (colHead.length == 0) {
+                // $(this).prop('disabled', true);
+                window.getSelection().removeAllRanges();
+                if ($(this).hasClass('keyAdded')) {
+                    return;
+                } else {
+                    $(this).addClass('keyAdded');
+                }
+                
+
+                var index = $(this).closest('table').index()+1;
+                var tabName = $('#worksheetTab'+index+' input').val();
+                var selectedTable = $('#selectedTable'+index);
+                if (selectedTable.length == 0) {
                     //add new selectedTable
                     $('#selectedDataset').prepend('\
-                    <table class="dataTable selectedTable" \
-                    style="width:0px">\
-                        <thead><tr>\
-                        <th>'+datasetName+'</th>\
-                        </tr></thead>\
-                        <tbody></tbody>\
-                    </table>');
-                    colHead = $('#selectedDataset \
-                            th:contains('+datasetName+')');
+                        <div class="selectedTableWrap" \
+                        style="width:0px">\
+                            <table class="dataTable selectedTable" \
+                            id="selectedTable'+index+'">\
+                                <thead><tr>\
+                                <th>'+tabName+'</th>\
+                                </tr></thead>\
+                                <tbody></tbody>\
+                            </table>\
+                        </div>');
+                    selectedTable = $('#selectedTable'+index);
                     $('.selectedTable th').removeClass('orangeText');
-                    colHead.addClass('orangeText');
-                    colHead.closest('table').width(130);
-
+                    selectedTable.find('th').addClass('orangeText');
+                    selectedTable.parent().width(130);
                 }
-                colHead.closest('table').find('tbody').append('\
-                    <tr><td>'+$(this).val()+'\
-                    </td></tr>');
+                selectedTable.find('tbody').append('\
+                    <tr><td><div class="keyWrap">'
+                        +$(this).val()+
+                        '<div class="removeKey">+</div>\
+                    </div></td></tr>');
+                selectedTable.find('.removeKey:last').click(function() {
+                    $(this).closest('tr').remove();
+                });
             });
         }
         addDataSetRows(records, i);
@@ -1996,14 +2010,16 @@ function getDatasetSamples() {
 function addDatasetTable(datasetTitle, tableNumber) {
     //append the tab
     $('#builderTabBar').append('\
-            <div class="worksheetTab" style="width:100px">\
+            <div class="worksheetTab" \
+            id="worksheetTab'+(tableNumber+1)+'">\
                 <input type="text" value="'+datasetTitle+'"\
-                readonly size="5">\
+                readonly>\
             </div>\
-            ')
+            ');
 
     //append the table to datasetbrowser div
-    $('#datasetBrowser').append('<table id="worksheetTable'+(tableNumber+1)+'"\
+    $('#datasetBrowser').append('\
+        <table id="worksheetTable'+(tableNumber+1)+'"\
         class="worksheetTable dataTable">\
             <thead>\
               <tr>\
@@ -2131,21 +2147,38 @@ function shoppingCart() {
     addTabFunctionality();
     $('.worksheetTable').hide();
     $('.worksheetTable:first').show();
-    $('#builderTabBar .worksheetTab')[0].click();
     attachShoppingCartListeners();
+    $('#builderTabBar .worksheetTab:first').mousedown();
 }
 
 function addTabFunctionality() {
-    $('#builderTabBar .worksheetTab').click(function() {
-        var index = $(this).index();
+    $('#builderTabBar .worksheetTab').mousedown(function() {
+        var index = $(this).index()+1;
         var text = $(this).find('input').val();
-            $('#builderTabBar .worksheetTab')
-                .removeClass('tabSelected');
-            $(this).addClass('tabSelected');
+        $('.selectedCell').removeClass('selectedCell');
+        $('#builderTabBar .worksheetTab').removeClass('tabSelected');
+        $(this).addClass('tabSelected');
         $('.selectedTable th').removeClass('orangeText');
-        $('.selectedTable th:contains('+text+')').addClass('orangeText');
+        $('#selectedTable'+index+' th').addClass('orangeText');
+
         $('.worksheetTable').hide();
-        $('.worksheetTable:nth-child('+(index+1)+')').show();
+        $('.worksheetTable:nth-child('+index+')').show();
+    });
+
+     $('#builderTabBar input').click(function() { 
+        $(this).removeAttr('readonly');
+    });
+
+    $('#builderTabBar input').dblclick(function() {
+        $(this).removeAttr('readonly');
+        $(this).focus();
+    }).blur(function() {
+        $(this).attr('readonly', 'true');
+    });
+
+    $('#builderTabBar input').on('input', function() {
+        var index = $(this).closest('.worksheetTab').index()+1;
+        $('#selectedTable'+index+' th').text($(this).val());
     });
 }
 
