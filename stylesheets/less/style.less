@@ -101,6 +101,10 @@ table, tr, td, th, input {
     font: 14px @font-base;
 }
 
+::selection {
+    background-color: @color-monitor-green;
+}
+
 /* ========== Main ========== */
 body {
     -webkit-font-smoothing: antialiased;
@@ -674,6 +678,7 @@ input:focus {
     .editableHead {
         width: 100%;
         height: 25px; 
+        padding: 0px 4px;
         background-color: transparent; 
         border: none;
         display: block;
@@ -950,6 +955,7 @@ ul.colMenu {
         padding: 2px;
         text-align: center;
         box-shadow: 0px 0px 0px 1px @color-monitor-green;
+        background-color: @color-white;
 
         &:focus {
             outline: none;
@@ -1171,6 +1177,11 @@ ul.leftColMenu + .rightArrow {
                 background-color: @color-white  !important;
                 color: @color-bar-orange  !important;
                 box-shadow: none;
+
+                &:focus {
+                    // outline: 1px solid @color-monitor-green;
+                    border-bottom: 1px solid @color-monitor-green;
+                }
             }
         }
         &:not(.tabSelected):hover {
@@ -1214,18 +1225,34 @@ ul.leftColMenu + .rightArrow {
 
 #builderTabBar {
     .lightGrayBar;
+    line-height: 32px;
     position: absolute;
     top: 32px + 10px;
     box-shadow: none;
 
+    div {
+        padding: 0;
+        margin: 0;
+    }
+
+    #builderTabWrap {
+        display: table;
+        width: 100%;
+    }
+       
+    .tabWrap {
+        display: table-cell;
+        padding-top: 0px;
+        text-align: left;
+        border-right: 15px solid transparent;
+    }
+
     .worksheetTab {
         vertical-align: bottom;
         background-color: @color-table-darkGray;
-        width: 100px;
+        width: 100%;
         box-shadow: 1px 1px rgba(0, 0, 0, 0.15);
-        margin-bottom: -2px;
-
-        // why is there 2px padding unless i do margin -2px?
+        margin-bottom: 0px;
         cursor: pointer;
 
         &.tabSelected {
@@ -1244,24 +1271,81 @@ ul.leftColMenu + .rightArrow {
         background-color: @color-table-darkGray;
         color: @color-text-black;
         vertical-align: top;
-        padding-top: 1px;
-        width: 100%;
+        padding-top: 2px;
+        // width: 100%;
+
+        &::selection {
+            // background: white;
+        }
     }
 }
 
 #datasetBrowser {
     position: absolute;
-    top: 64px + 10px;
-    width: 100%;
-    height: 246px;
+    top: 64px + 15px;
+    width: ~"calc(100% - 5px)";
+    height: 241px;
+    padding-top: 0px;
+    margin-left: 5px;
 }
 
 .worksheetTable {
-    margin-left: 5px;
+    margin-left: 0px;
     width: 800px;
 
     th {
         width: 125px;
+    }
+
+    th:nth-child(odd) .keyCheckmarkWrap {
+        background-color: @color-table-midGray;
+    }
+    th:nth-child(even) .keyCheckmarkWrap {
+        background-color: @color-table-lightGray;
+    }
+    
+    .keyAdded .keyCheckmark {
+        position: absolute;
+        display: block;
+        top: 4px;
+        right: 0px;
+        color: @color-monitor-green;
+    }
+
+    .keyCheckmark {
+        display: none;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+
+        .keyCheckmarkWrap {
+            height: 20px;
+            width: 14px;
+            margin-left: 6px;
+        }
+
+        span {
+            position: absolute;
+            right: 2px;
+        }
+        span:last-child {
+            .transform (rotate(45deg));
+            display: none;
+            font-size: 20px;
+            font-weight: bold;
+            color: @color-monitor-red;
+            top: -3px;
+        }
+
+        &:hover {
+            span:first-child {
+                display: none;
+            }
+
+            span:last-child {
+                display: block;
+            }
+        }
     }
 }
 
@@ -1275,33 +1359,44 @@ ul.leftColMenu + .rightArrow {
     top: 325px;
 }
 
-#selectedDataset {
+#selectedSection {
     top: 360px;
     position: absolute;
+    width: 100%;
+}
+
+#selectedDataset {
+    top: 0px;
+    position: relative;
 
     .selectedTableWrap {
         display: inline-block;
         float: left;
-        width: 130px;
         height: 205px;
-        margin-left: 5px;
+        margin-left: 0px;
         overflow-y: auto;
         overflow-x: hidden;
-        .transition (width 0.5s);
-
+        .transition (margin 0.5s);
+        
         &:nth-child(odd) {
             background-color: @color-table-lightGray !important;
+            .removeCover {
+               background-color: @color-table-lightGray; 
+            }
         }  
         &:nth-child(even) {
             background-color: @color-table-midGray !important;
+            .removeCover {
+               background-color: @color-table-midGray; 
+            }
         }
     }
 
     .dataTable {
-        width: 130px;
-        margin-left: 0px;
-        
+        width: 145px;
+        margin-left: -8px;
         margin-right: -8px;
+        .transition (width 0.5s);
 
         thead, tr, td,th {
             border-right: none !important;
@@ -1314,14 +1409,25 @@ ul.leftColMenu + .rightArrow {
 
         td {
             font: 13px @font-base;
+
+            &:hover {
+                .removeKey {
+                    opacity: 0.7; 
+                }
+                .removeCover {
+                    display: block;
+                }
+            }
         }
     }
 
     .keyWrap {
         position: relative;
+        height: 16px;
+        .transition (all 1s);
 
-        &:hover .removeKey {
-            opacity: 0.7; 
+        &.keySelected {
+            color: @color-table-red;
         }
 
         .removeKey {
@@ -1333,12 +1439,36 @@ ul.leftColMenu + .rightArrow {
             font-size: 16px;
             width: 16px;
             opacity: 0;
+            z-index: 1;
             cursor: pointer;
-
+            color: @color-text-black;
         }
-    }
 
-    
+        .removeCover {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top: 0px;
+            right: 6px;
+            z-index: 0;
+            pointer-events: none;
+            display: none;
+        }
+    } 
+}
+
+.selectedTableWrap::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: transparent;
+}
+
+.selectedTableWrap::-webkit-scrollbar-thumb {
+    background: rgba(237,28,36, 0.5) !important;
+}
+
+.selectedTableWrap::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
 #datasetButtons {
