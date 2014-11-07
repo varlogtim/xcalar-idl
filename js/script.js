@@ -2019,7 +2019,7 @@ function getDatasetSamples() {
                 }
                 selectedTable.find('tbody').append('\
                     <tr><td><div style="font-size:15px;" class="keyWrap">'
-                        +$(this).val()+
+                        +"<span>"+$(this).val()+"</span>"+
                         '<div class="removeKey">+</div>\
                         <div class="removeCover"></div>\
                     </div></td></tr>');
@@ -2127,7 +2127,7 @@ function addDataSetRows(records, tableNumber) {
 function createWorksheet() {
     var newTableCols = [];
     var startIndex = 2;
-    $("#selectedDataset table tbody tr td").each(function() {
+    $("#selectedDataset table tbody tr td div span").each(function() {
         var colname = $.trim($(this).text());
         var progCol = new ProgCol();
         progCol.index = startIndex;
