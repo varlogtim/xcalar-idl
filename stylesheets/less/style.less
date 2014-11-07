@@ -245,46 +245,87 @@ input:focus {
 
 
 
-
-
-.datastorePanel {
-    display: table;
-    width: 100%;
-}
 .menuAreaItem {
     position: relative;
     display: inline-block;
     width: 200px;
-    height: 60px;
+    height: 100%;
     margin-left: 50px;
 }
 
-.menuText {
+.menuAreaItem span {
     position: absolute;
-    height: 60px;
-    line-height: 60px;
-    text-align: center;
-    min-width: 200px;
-}
-
-.datasetDiv span {
     display: inline-block;
-    vertical-align: middle;
+    top: 50%;
+    .transform (translateY(-50%));
+    text-align: center;
+    width: 100%;
 }
 
-.menuAreaLabel span {
+.menuAreaLabel {
     font-size: 58px;
-    line-height: 50px;
-}
-.menuAreaValue span {
-    font-size: 28px;
-    line-height: 28px;
-    white-space: nowrap;
+    line-height: 58px;
 }
 
-.monitorSmall span{
-    font-size: 20px !important;
+.monitorSmall {
+    font-size: 28px;
+    line-height: 23px;
+    color: @color-table-blankGrayLight;
 }
+
+.menuAreaValue {
+    font-size: 20px;
+    line-height: 20px;
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+// .datastorePanel {
+//     display: table;
+//     width: 100%;
+// }
+// .menuAreaItem {
+//     position: relative;
+//     display: inline-block;
+//     width: 200px;
+//     height: 60px;
+//     margin-left: 50px;
+// }
+
+// .menuText {
+//     position: absolute;
+//     height: 60px;
+//     line-height: 60px;
+//     text-align: center;
+//     min-width: 200px;
+//     span {
+//         display: inline-block;
+//     }
+// }
+
+// .datasetDiv span {
+//     display: inline-block;
+//     vertical-align: middle;
+// }
+
+// .menuAreaLabel span {
+//     font-size: 58px;
+//     line-height: 58px;
+// }
+
+// .menuAreaValue {
+//     padding-top: 4px;
+//     span {
+//         font-size: 28px;
+//         line-height: 28px;
+//         white-space: nowrap;
+//     }
+// }
+
+// .monitorSmall span{
+//     font-size: 20px !important;
+//     line-height: 20px;
+// }
 
 
 
