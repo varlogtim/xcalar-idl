@@ -1900,7 +1900,7 @@ function hackyShit() {
 
 function startupFunctions(table) {
     readFromStorage();
-    setCatGlobals(table);
+    // setCatGlobals(table);
     menuBarArt();
     monitorOverlayPercent();
     menuAreaClose();

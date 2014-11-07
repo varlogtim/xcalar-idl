@@ -152,6 +152,8 @@ input:focus {
     .transition (0.3s ease-out);
     overflow: hidden;
     position: relative;
+    font-size: 14px;
+    // rudy new
 }
 
 #menuBar {
@@ -174,17 +176,18 @@ input:focus {
 #monitorPanel {
 	background-color: #FFFFFF;
     .nomargin-padding;
+    margin-top: 5px;
 	height: 62px;
 	width: 100%;
     display: table;
-    div {
-        display: inline-block;
-        width: 135px;
-        margin:  0px 50px 0px 0px;
-        font: @font-base;
-        font-size: 58px;
-        vertical-align: middle;
-    }
+    // div {
+    //     display: inline-block;
+    //     width: 135px;
+    //     margin:  0px 50px 0px 0px;
+    //     font: @font-base;
+    //     font-size: 58px;
+    //     vertical-align: middle;
+    // }
 }
 
 #tablestorePanel,
@@ -238,6 +241,69 @@ input:focus {
 .monitorGreen {
     color: @color-monitor-green;
 }
+
+
+
+
+
+
+.datastorePanel {
+    display: table;
+    width: 100%;
+}
+.menuAreaItem {
+    position: relative;
+    display: inline-block;
+    width: 200px;
+    height: 60px;
+    margin-left: 50px;
+}
+
+.menuText {
+    position: absolute;
+    height: 60px;
+    line-height: 60px;
+    text-align: center;
+    min-width: 200px;
+}
+
+.datasetDiv span {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.menuAreaLabel span {
+    font-size: 58px;
+    line-height: 50px;
+}
+.menuAreaValue span {
+    font-size: 28px;
+    line-height: 28px;
+    white-space: nowrap;
+}
+
+.monitorSmall span{
+    font-size: 20px !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .datasetName {
     color: #CCCCCC;
