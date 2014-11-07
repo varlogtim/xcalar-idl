@@ -2151,9 +2151,23 @@ function createWorksheet() {
     progCol.func.args = [];
     progCol.isDark = false;
     newTableCols[startIndex-2] = progCol;
-    setIndex("joined", newTableCols); 
+    var datasets = "csv";
+    $("#selectedDataset div table thead tr th").each(function() {
+        if ($(this).text().indexOf("yelp") >= 0) {
+            datasets = "json";
+        }
+    });
+    if (datasets == "csv") {
+        setIndex("joined", newTableCols); 
+    } else {
+        setIndex("joined2", newTableCols);
+    }
     commitToStorage();
-    window.location.href="?tablename=joined";
+    if (datasets == "csv") {
+        window.location.href="?tablename=joined";
+    } else {
+        window.location.href="?tablename=joined2";
+    }
 }
 
 function attachShoppingCartListeners() {
