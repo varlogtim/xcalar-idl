@@ -178,15 +178,16 @@ function getTablesAndDatasets() {
         $("#tablestorePanel div:last").after(tableDisplay);
     }
     var datasets = XcalarGetDatasets();
-    var numDatasets = datasets.numDatasets;
-    console.log(datasets);
+    // var numDatasets = datasets.numDatasets;
+    var numDatasets  = 2;
     for (i = 0; i<numDatasets; i++) {
-        var dsName = getDsName(datasets.datasets[i].datasetId);
+        // var dsName = getDsName(datasets.datasets[i].datasetId);
         var tableDisplay = '<div class="dataset datasetName">'+
                                  '<span>DATA<br>SET</span>'+
                              '</div>'+
                              '<div class="monitorSubDiv">'+
-                                  dsName+
+                                  // dsName+
+                                  'null'+
                              '</div>';
         $(".datasetWrap").append(tableDisplay);
     };
@@ -255,7 +256,7 @@ function getNextPage(resultSetId, firstTime) {
 }
 
 function getPage(resultSetId, firstTime, direction) {
-    // console.log('made it ot getpage')
+    console.log('made it to getpage')
     if (resultSetId == 0) {
         return;
         // Reached the end
@@ -2030,7 +2031,6 @@ function getDatasetSamples() {
                     selectedTable.find('.keyWrap:last').css('font-size', '13px');
                 }, 1);
                 
-
                 selectedTable.find('.removeKey:last').click(function() {
                     var removeBox = $(this);
                     input.parent().removeClass('keyAdded').prop;
@@ -2091,27 +2091,45 @@ function addDataSetRows(records, tableNumber) {
         if (records.recordType ==
             GenericTypesRecordTypeT.GenericTypesVariableSize) {
             var key = records.records[i].kvPairVariable.key;
-            var value = records.records[i].kvPairVariable.value;
-            var json = $.parseJSON(value);
+            var jsonValue = records.records[i].kvPairVariable.value;
         } else {
             var key = records.records[i].kvPairFixed.key;
-            var value = records.records[i].kvPairFixed.value;
-            var json = $.parseJSON(value);
+            var jsonValue = records.records[i].kvPairFixed.value;
         }
+
+        var json = $.parseJSON(jsonValue);
 
         html += '<tr>\
                     <td>'+(key+1)+'</td>\
                     <td>\
                     <div class="elementTextWrap" \
                     style="max-height:16px;">\
-                        <div class="elementText">'+value+'<div>\
+                        <div class="elementText">'+jsonValue+'<div>\
                     <div>\
                     </td>';
         for (key in json) {
+            var value = json[key];
+            if (value == undefined) {
+                value = '<span class="undefined">'+value+'</span>';
+            } else {
+                switch (value.constructor) {
+                    case (Object):
+                        if ($.isEmptyObject(value)) {
+                            value = "";
+                        } else {
+                            value = JSON.stringify(value).replace(/,/g, ", ");
+                        }
+                        break;
+                    case (Array):
+                        value = value.join(', ');
+                        break;
+                    default: // leave value as is;
+                }
+            }
             html += '<td>\
                         <div class="addedBarTextWrap">\
                             <div class="addedBarText">'
-                            +json[key]+
+                            +value+
                             '</div>\
                         </div>\
                     </td>';
