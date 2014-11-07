@@ -2086,6 +2086,7 @@ function addDatasetTable(datasetTitle, tableNumber) {
 
 // add row by row
 function addDataSetRows(records, tableNumber) {
+    var html = '<tbody>';
     for (var i = 0; i<records.numRecords; i++) {
         if (records.recordType ==
             GenericTypesRecordTypeT.GenericTypesVariableSize) {
@@ -2098,30 +2099,51 @@ function addDataSetRows(records, tableNumber) {
             var json = $.parseJSON(value);
         }
 
-        //append the id and json cells to last row
-        $('#worksheetTable'+tableNumber+' tbody').append('\
-            <tr>\
-                <td>'+(key+1)+'</td>\
-                <td>\
-                <div class="elementTextWrap" \
-                style="max-height:16px;">\
-                    <div class="elementText">'+value+'<div>\
-                <div>\
-                </td>\
-            </tr>');
-
-        //append the rest of the columns to the last row
+        html += '<tr>\
+                    <td>'+(key+1)+'</td>\
+                    <td>\
+                    <div class="elementTextWrap" \
+                    style="max-height:16px;">\
+                        <div class="elementText">'+value+'<div>\
+                    <div>\
+                    </td>';
         for (key in json) {
-            $('#worksheetTable'+tableNumber+' tr:last').append('\
-                <td>\
-                    <div class="addedBarTextWrap">\
-                        <div class="addedBarText">'
-                        +json[key]+
-                        '</div>\
-                    </div>\
-                </td>');
+            html += '<td>\
+                        <div class="addedBarTextWrap">\
+                            <div class="addedBarText">'
+                            +json[key]+
+                            '</div>\
+                        </div>\
+                    </td>';
         }
+        html += '</tr>';
+
+        //append the id and json cells to last row
+        // $('#worksheetTable'+tableNumber+' tbody').append('\
+        //     <tr>\
+        //         <td>'+(key+1)+'</td>\
+        //         <td>\
+        //         <div class="elementTextWrap" \
+        //         style="max-height:16px;">\
+        //             <div class="elementText">'+value+'<div>\
+        //         <div>\
+        //         </td>\
+        //     </tr>');
+
+        // //append the rest of the columns to the last row
+        // for (key in json) {
+        //     $('#worksheetTable'+tableNumber+' tr:last').append('\
+        //         <td>\
+        //             <div class="addedBarTextWrap">\
+        //                 <div class="addedBarText">'
+        //                 +json[key]+
+        //                 '</div>\
+        //             </div>\
+        //         </td>');
+        // }
     }
+    html += '</tbody>';
+    $('#worksheetTable'+tableNumber+' tbody').append(html);
 }
 
 function createWorksheet() {
