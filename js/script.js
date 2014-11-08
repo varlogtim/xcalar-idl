@@ -168,33 +168,37 @@ function getTablesAndDatasets() {
     $(".datasetWrap").empty(); // Otherwise multiple calls will append the
     // same DS over and over again.
     for (i = 0; i<numTables; i++) {
-        var tableDisplay = '<div class="dataset datasetName">'+
-                                 '<span>DATA<br>SET</span>'+
-                             '</div>'+
-                             '<div class="monitorSubDiv">'+
+
+        var tableDisplay = '<div class="menuAreaItem">'+
+                               '<span class="menuAreaLabel monitorSmall">'+
+                               'DATA<br>SET</span>'+
+                               '<span class="menuAreaValue">'+
                                     tables.tables[i].tableName+
-                             '</div>';
+                               '</span>'+
+                            '</div>';
 
         $("#tablestorePanel div:last").after(tableDisplay);
     }
+
     var datasets = XcalarGetDatasets();
-    // var numDatasets = datasets.numDatasets;
-    var numDatasets  = 2;
+    var numDatasets = datasets.numDatasets;
     for (i = 0; i<numDatasets; i++) {
-        // var dsName = getDsName(datasets.datasets[i].datasetId);
-        var tableDisplay = '<div class="dataset datasetName">'+
-                                 '<span>DATA<br>SET</span>'+
-                             '</div>'+
-                             '<div class="monitorSubDiv">'+
-                                  // dsName+
-                                  'null'+
-                             '</div>';
+        var dsName = getDsName(datasets.datasets[i].datasetId);
+        var tableDisplay = '<div class="menuAreaItem">'+
+                                '<span class="menuAreaLabel monitorSmall">'+
+                                    'DATA<br>SET</span>'+
+                                '<span class="menuAreaValue">'+
+                                    dsName+
+                                '</span>'+
+                            '</div>';
         $(".datasetWrap").append(tableDisplay);
     };
     monitorOverlayPercent();
     // XXX: UNCOMMENT!
     // resizableColumns();
 }
+
+
 
 function fillPageWithBlankCol() {
     var tableWidth = $("#autoGenTable").width();
@@ -1297,7 +1301,7 @@ function documentReadyCommonFunction() {
     });
 
 
-    $('#datastorePanel .monitorSubDiv:first').click(function(){
+    $('#datastorePanel .menuAreaItem:first').click(function(){
         $("#loadArea").load('load_r.html', function(){
             // load_r.html contains load.js where this function is defined
             loadReadyFunction();
@@ -1900,7 +1904,7 @@ function hackyShit() {
 
 function startupFunctions(table) {
     readFromStorage();
-    // setCatGlobals(table);
+    setCatGlobals(table);
     menuBarArt();
     monitorOverlayPercent();
     menuAreaClose();
@@ -2048,7 +2052,7 @@ function getDatasetSamples() {
                 });
             });
         }
-        addDataSetRows(records, i+1);
+        // addDataSetRows(records, i+1);
     }
 }
 
@@ -2073,11 +2077,6 @@ function addDatasetTable(datasetTitle, tableNumber) {
                     <span><input value="ID" readonly></span>\
                   </div>\
                 </th>\
-                <th class="table_title_bg" style="width:0px;">\
-                  <div class="header">\
-                    <span><input value="JSON" readonly></span>\
-                  </div>\
-                </th>\
               <tr/>\
             </thead>\
             <tbody></tbody>\
@@ -2086,7 +2085,7 @@ function addDatasetTable(datasetTitle, tableNumber) {
 
 // add row by row
 function addDataSetRows(records, tableNumber) {
-    var html = '<tbody>';
+    var html = "";
     for (var i = 0; i<records.numRecords; i++) {
         if (records.recordType ==
             GenericTypesRecordTypeT.GenericTypesVariableSize) {
@@ -2098,15 +2097,7 @@ function addDataSetRows(records, tableNumber) {
         }
 
         var json = $.parseJSON(jsonValue);
-
-        html += '<tr>\
-                    <td>'+(key+1)+'</td>\
-                    <td>\
-                    <div class="elementTextWrap" \
-                    style="max-height:16px;">\
-                        <div class="elementText">'+jsonValue+'<div>\
-                    <div>\
-                    </td>';
+        html += '<tr>';
         for (key in json) {
             var value = json[key];
             if (value == undefined) {
@@ -2135,32 +2126,7 @@ function addDataSetRows(records, tableNumber) {
                     </td>';
         }
         html += '</tr>';
-
-        //append the id and json cells to last row
-        // $('#worksheetTable'+tableNumber+' tbody').append('\
-        //     <tr>\
-        //         <td>'+(key+1)+'</td>\
-        //         <td>\
-        //         <div class="elementTextWrap" \
-        //         style="max-height:16px;">\
-        //             <div class="elementText">'+value+'<div>\
-        //         <div>\
-        //         </td>\
-        //     </tr>');
-
-        // //append the rest of the columns to the last row
-        // for (key in json) {
-        //     $('#worksheetTable'+tableNumber+' tr:last').append('\
-        //         <td>\
-        //             <div class="addedBarTextWrap">\
-        //                 <div class="addedBarText">'
-        //                 +json[key]+
-        //                 '</div>\
-        //             </div>\
-        //         </td>');
-        // }
     }
-    html += '</tbody>';
     $('#worksheetTable'+tableNumber+' tbody').append(html);
 }
 
@@ -2598,3 +2564,9 @@ function checkForScrollBar() {
         gScrollbarHeight = 0;
     }
 }
+
+//XXX remove this for production
+$.ajaxSetup ({
+    // Disable caching of AJAX responses
+    cache: false
+});

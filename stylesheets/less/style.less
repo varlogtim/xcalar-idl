@@ -101,7 +101,7 @@ table, tr, td, th, input {
     font: 14px @font-base;
 }
 
-::selection {
+input::selection {
     background-color: @color-monitor-green;
 }
 
@@ -180,14 +180,6 @@ input:focus {
 	height: 62px;
 	width: 100%;
     display: table;
-    // div {
-    //     display: inline-block;
-    //     width: 135px;
-    //     margin:  0px 50px 0px 0px;
-    //     font: @font-base;
-    //     font-size: 58px;
-    //     vertical-align: middle;
-    // }
 }
 
 #tablestorePanel,
@@ -202,22 +194,18 @@ input:focus {
     overflow: hidden;
     white-space: nowrap;
     table-layout: fixed;
-    div:not(.datasetWrap) {
-        display: inline-block;
-        width: 100px;
-        padding-top: 8px;
-        margin:  0px;
-        font: @font-base;
-        font-size: 58px;
-        vertical-align: middle;
-    }
     z-index: 5;
+
+    > .menuAreaItem:first-child {
+        margin-right: 60px;
+    }
 }
 
 .datasetWrap {
     display: inline-block;
     position: relative;
     left: 0px;
+    height: 100%;
     .transition (2s ease-in);
 }
 
@@ -231,26 +219,36 @@ input:focus {
     line-height:46px; //for larger clickable area
 }
 .monitorRed {
-    color: @color-monitor-red;
+    color: @color-monitor-red !important;
 }
 
 .monitorBlue {
-    color: @color-monitor-blue;
+    color: @color-monitor-blue !important;
 }
 
 .monitorGreen {
-    color: @color-monitor-green;
+    color: @color-monitor-green !important;
 }
 
 
+#graphics {
+    display: inline-block;
+    height: 100%;
+    margin-right: 70px;
+    margin-left: 10px;
 
+    .menuAreaItem {
+        width: 180px;
+    }
+}
 
 .menuAreaItem {
     position: relative;
     display: inline-block;
     width: 200px;
     height: 100%;
-    margin-left: 50px;
+    margin-left: 10px;
+    cursor: pointer;
 }
 
 .menuAreaItem span {
@@ -279,68 +277,6 @@ input:focus {
     white-space: nowrap;
     font-weight: bold;
 }
-
-// .datastorePanel {
-//     display: table;
-//     width: 100%;
-// }
-// .menuAreaItem {
-//     position: relative;
-//     display: inline-block;
-//     width: 200px;
-//     height: 60px;
-//     margin-left: 50px;
-// }
-
-// .menuText {
-//     position: absolute;
-//     height: 60px;
-//     line-height: 60px;
-//     text-align: center;
-//     min-width: 200px;
-//     span {
-//         display: inline-block;
-//     }
-// }
-
-// .datasetDiv span {
-//     display: inline-block;
-//     vertical-align: middle;
-// }
-
-// .menuAreaLabel span {
-//     font-size: 58px;
-//     line-height: 58px;
-// }
-
-// .menuAreaValue {
-//     padding-top: 4px;
-//     span {
-//         font-size: 28px;
-//         line-height: 28px;
-//         white-space: nowrap;
-//     }
-// }
-
-// .monitorSmall span{
-//     font-size: 20px !important;
-//     line-height: 20px;
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -417,6 +353,10 @@ input:focus {
         float: left;
         .box-sizing;
         text-align: center;
+    }
+
+    .menuAreaItem {
+        text-align: left;
     }
 
     .monitorSubDiv {
@@ -504,6 +444,7 @@ input:focus {
         font-size: 58px;
         float: right;
         margin-right: 10px;
+        margin-top: -5px;
         display: none;
     }
 }

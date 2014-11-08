@@ -159,7 +159,7 @@ function startProgressBar() {
                 $('#datastorePanel').css({'background-color': 'white'});
                 $('#loadArea').css('background-color', '#E6E6E6');
                 $('#datastorePanel').width('200%');
-                 $('#progressBar').css({'transform': 'translateX(10000px)'});
+                 $('#progressBar').css({'transform': 'translateX(20000px)'});
             },100);
             setTimeout(function(){
                 $('#loadArea').html("").css({'background-color': 'transparent',
