@@ -327,17 +327,17 @@ function getPage(resultSetId, firstTime, direction) {
         addCol("headCol1", gKeyName, {progCol: newProgCol}); 
         newProgCol = new ProgCol();
         newProgCol.index = 3;
-        newProgCol.name = "JSON";
+        newProgCol.name = "DATA";
         newProgCol.width = gNewCellWidth; // XXX FIXME Grab from CSS
         newProgCol.func.func = "raw";
         newProgCol.func.args = [];
-        newProgCol.userStr = '"JSON" = raw()';
+        newProgCol.userStr = '"DATA" = raw()';
         newProgCol.isDark = false;
         insertColAtIndex(1, newProgCol);
     }
     console.log("gTableCols.length: "+gTableCols.length);
     for (var i = 0; i<gTableCols.length; i++) {
-        if (gTableCols[i].name == "JSON") {
+        if (gTableCols[i].name == "DATA") {
             // We don't need to do anything here because if it's the first time
             // they won't have anything stored. If it's not the first time, the
             // column would've been sized already. If it's indexed, we
@@ -356,7 +356,9 @@ function getPage(resultSetId, firstTime, direction) {
     }
     $('.colGrab').height($('#mainFrame').height());
     var idColWidth = getTextWidth($('#autoGenTable tr:last td:first'));
-    $('#autoGenTable th:first-child').width(idColWidth+12);
+    var newWidth = Math.max(idColWidth, 24);
+    console.log(newWidth, 'newwidth')
+    $('#autoGenTable th:first-child').width(newWidth+14);
     matchHeaderSizes();
     getFirstVisibleRowNum();
 }
@@ -401,11 +403,11 @@ function generateFirstLastVisibleRowNum() {
     }
 
     if (parseInt(firstRowNum) != NaN) {
-        $('#pageBar span:first-of-type').html(firstRowNum);
+        $('#pageBar .rowNum:first-of-type').html(firstRowNum);
         movePageScroll(firstRowNum);
     }
     if (parseInt(lastRowNum) != NaN) {
-        $('#pageBar span:last-of-type').html(lastRowNum);
+        $('#pageBar .rowNum:last-of-type').html(lastRowNum);
     } 
 }
 
@@ -688,7 +690,7 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
     }
     var colid = $("#autoGenTable th").filter(
         function() {
-            return $(this).find("input").val() == "JSON";
+            return $(this).find("input").val() == "DATA";
     }).attr("id");
     colid = colid.substring(7);
     var numRow = -1;
@@ -1284,7 +1286,7 @@ function documentReadyCommonFunction() {
             // $(this).blur(); 
         }
     });
-    $('#pageBar > div:last-child').append('of '+resultSetCount);
+    $('#pageBar > div:last-child').append('<span>of '+resultSetCount+'</span>');
 
     $(window).resize(function() {
         $('.colGrab').height($('#mainFrame').height());
@@ -1880,7 +1882,7 @@ function documentReadyCatFunction() {
         gKeyName = tableOfEntries.keysAttrHeader.name;
         console.log(index);
         for (var i = 0; i<index.length; i++) {
-            if (index[i].name != "JSON") {
+            if (index[i].name != "DATA") {
                 addCol("headCol"+(index[i].index-1), index[i].name,
                       {width: index[i].width,
                        isDark: index[i].isDark,
@@ -1918,6 +1920,12 @@ function startupFunctions(table) {
     cloneTableHeader();   
     infScrolling();
     hackyShit();
+    if (!getIndex(gTableName)) {
+        $('#autoGenTable th, #autoGenTable td').empty();
+        $('.rowNum').text('-');
+        $('#pageInput').next().remove();
+        $('#searchBar').val('');
+    }
 }        
 
 function documentReadyIndexFunction() {
@@ -2020,7 +2028,7 @@ function getDatasetSamples() {
                     selectedTable = $('#selectedTable'+index);
                     $('.selectedTable th').removeClass('orangeText');
                     selectedTable.find('th').addClass('orangeText');
-                    selectedTable.width(145);
+                    selectedTable.width(175);
                 }
                 selectedTable.find('tbody').append('\
                     <tr><td><div style="font-size:15px;" class="keyWrap">'
@@ -2052,7 +2060,7 @@ function getDatasetSamples() {
                 });
             });
         }
-        // addDataSetRows(records, i+1);
+        addDataSetRows(records, i+1);
     }
 }
 
@@ -2086,6 +2094,7 @@ function addDatasetTable(datasetTitle, tableNumber) {
 // add row by row
 function addDataSetRows(records, tableNumber) {
     var html = "";
+    // loop through each row
     for (var i = 0; i<records.numRecords; i++) {
         if (records.recordType ==
             GenericTypesRecordTypeT.GenericTypesVariableSize) {
@@ -2097,7 +2106,11 @@ function addDataSetRows(records, tableNumber) {
         }
 
         var json = $.parseJSON(jsonValue);
-        html += '<tr>';
+
+        //append the id cell
+        html += '<tr><td>'+(key+1)+'</td>';
+
+        // loop through each td, parse object, and add cell content
         for (key in json) {
             var value = json[key];
             if (value == undefined) {
@@ -2150,9 +2163,9 @@ function createWorksheet() {
     var progCol = new ProgCol();
     progCol.index = startIndex;
     progCol.type = "object";
-    progCol.name = "JSON";
+    progCol.name = "DATA";
     progCol.width = 700;
-    progCol.userStr = "JSON = raw()";
+    progCol.userStr = "DATA = raw()";
     progCol.func.func = "raw";
     progCol.func.args = [];
     progCol.isDark = false;
@@ -2472,7 +2485,7 @@ function showJsonPopup(jsonTd) {
     $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
         var name = createJsonNestedField($(this));
         var id = $("#autoGenTable th").filter(function() {
-                        return $(this).find("input").val() == "JSON";
+                        return $(this).find("input").val() == "DATA";
                     }).attr("id");
         var colIndex = parseInt(id.substring(7)); 
         addCol(id, name);
@@ -2480,11 +2493,13 @@ function showJsonPopup(jsonTd) {
         gTableCols[colIndex-1].func.args = [name];
         gTableCols[colIndex-1].userStr = '"'+name+'" = pull('+name+')';
         execCol(gTableCols[colIndex-1]);
-        $('thead:first #headCol'+(colIndex+1)+' .editableHead').focus();
-        // call autosizeCol before focus if you don't want to include the 
-        // expanded header
         autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
                 resizeFirstRow: true});
+        $('thead:first #headCol'+(colIndex+1)+' .editableHead').focus();
+        // XXX call autosizeCol after focus if you want to make column wide enough
+        // to show the entire function in the header
+        // autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
+        //         resizeFirstRow: true});
         $('#jsonModal, #modalBackground').hide();
         $('#jsonModal').css('left',0);
         $('body').removeClass('hideScroll');
@@ -2565,7 +2580,9 @@ function checkForScrollBar() {
     }
 }
 
-//XXX remove this for production
+//XXX remove this for production. I updated load_r.html
+// but the jquery load function loads the old load_r.html 
+// unless I use ajaxSetup cache: false;
 $.ajaxSetup ({
     // Disable caching of AJAX responses
     cache: false

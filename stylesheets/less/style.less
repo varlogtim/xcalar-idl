@@ -592,8 +592,8 @@ input:focus {
 }
 
 .tableWrap::-webkit-scrollbar {
-    width: 8px;
-    // width: 0px;
+    // width: 8px;
+    width: 0px;
     height: 8px;
     background: transparent;
 }
@@ -744,7 +744,7 @@ input:focus {
     }
 
     .addedBarText {
-        cursor: context-menu;
+        cursor: default;
     }
 
     .elementText{ 
@@ -1285,7 +1285,6 @@ ul.leftColMenu + .rightArrow {
 
     #builderTabWrap {
         display: table;
-        width: 100%;
     }
        
     .tabWrap {
@@ -1293,6 +1292,7 @@ ul.leftColMenu + .rightArrow {
         padding-top: 0px;
         text-align: left;
         border-right: 15px solid transparent;
+        width: 200px;
     }
 
     .worksheetTab {
@@ -1331,18 +1331,18 @@ ul.leftColMenu + .rightArrow {
 #datasetBrowser {
     position: absolute;
     top: 64px + 15px;
-    width: ~"calc(100% - 5px)";
-    height: 241px;
+    width: ~"calc(100% - 10px)";
+    height: 438px;
     padding-top: 0px;
     margin-left: 5px;
 }
 
 .worksheetTable {
     margin-left: 0px;
-    width: 800px;
+    width: 600px;
 
     th {
-        width: 125px;
+        width: 130px;
     }
 
     th:nth-child(odd) .keyCheckmarkWrap {
@@ -1404,11 +1404,11 @@ ul.leftColMenu + .rightArrow {
 #selectedBar {
     .lightGrayBar;
     position: absolute;
-    top: 325px;
+    top: 522px;
 }
 
 #selectedSection {
-    top: 360px;
+    top: 559px;
     position: absolute;
     width: 100%;
 }
@@ -1420,7 +1420,7 @@ ul.leftColMenu + .rightArrow {
     .selectedTableWrap {
         display: inline-block;
         float: left;
-        height: 205px;
+        height: 286px;
         margin-left: 0px;
         overflow-y: auto;
         overflow-x: hidden;
@@ -1441,7 +1441,7 @@ ul.leftColMenu + .rightArrow {
     }
 
     .dataTable {
-        width: 145px;
+        width: 175px;
         margin-left: -8px;
         margin-right: -8px;
         .transition (width 0.5s);
@@ -1574,8 +1574,10 @@ ul.leftColMenu + .rightArrow {
 
 #shoppingCart {
     .centered;
-    height: 570px;
-    width: 816px;
+    // height: 570px;
+    // width: 816px;
+    height: 850px;
+    width: 1200px;
     background-color: @color-white;
     z-index: 31;
 }
