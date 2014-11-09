@@ -32,6 +32,7 @@ var ProgCol = function() {
     this.width = 0;
     this.userStr = "";
     this.isDark = true;
+    this.datasetId = 0;
 };
 
 var gTableCols = []; // This is what we call setIndex on
@@ -237,6 +238,9 @@ function getUrlVars()
     var vars = [], hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?')
                  + 1).split('&');
+    if (window.location.href.indexOf("?") < 0) {
+        return [];
+    }
     for(var i = 0; i < hashes.length; i++)
     {
         hash = hashes[i].split('=');
@@ -797,7 +801,7 @@ function addCol(id, name, options) {
         $("#filter"+i).attr("id", "filter"+(i+1));
         $("#duplicate"+i).attr("id", "duplicate"+(i+1));
         $("#autoGenTable tr:eq(1) #headCol"+i).attr("id", "headCol"+(i+1));
-    }        
+    } 
     
     var columnHeadTd = '<th class="table_title_bg '+color+' editableCol'+
         '" id="headCol'+
@@ -838,12 +842,9 @@ function addCol(id, name, options) {
                 '</ul>'+ 
                 '<div class="rightArrow"></div>'+
             '</li>';
-    // console.log(gTableCols[newColid-2]);
-    if (gTableCols[newColid-2].func.func == "pull" &&
-        gTableCols[newColid-2].func.args[0] == gKeyName) {
-        // XXX FIXME TODO
-        // if (gTableCols[newColid-2].type == "number") { 
-        if (true) {
+    // XXX: HACK: I removed the check for the main col. Also, I should check for
+    // whether the type is a string or a int
+    if (true) {
         dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
                         '<ul class="subColMenu">'+
                             '<li class="filter">Greater Than'+
@@ -919,7 +920,6 @@ function addCol(id, name, options) {
         dropDownHTML +=     '<div class="subColMenuArea"></div>'+
                             '</ul>'+ 
                         '</li>';
-    }
     dropDownHTML += '</ul>';
     $('#headCol'+newColid+' .header').append(dropDownHTML);
 
@@ -1110,7 +1110,7 @@ function addColListeners(colId) {
         $(this).closest('.filter').siblings().find('input').val(value);
         if (e.which === 13) {
             var operator = $(this).closest('.filter').text(); 
-            filterCol(operator, value);
+            filterCol(operator, value, colId);
         }
     });
 
@@ -1256,7 +1256,7 @@ function documentReadyCommonFunction() {
         }
     });
 
-    $("#searchBar").val('tablename = "'+searchText+'"');
+    // $("#searchBar").val('tablename = "'+searchText+'"');
     var resultTextLength = (""+resultSetCount).length
     $('#pageInput').attr({'maxLength': resultTextLength,
                           'size': resultTextLength});
@@ -1920,7 +1920,7 @@ function startupFunctions(table) {
     cloneTableHeader();   
     infScrolling();
     hackyShit();
-    if (!getIndex(gTableName)) {
+    if (getUrlVars().length == 0) {
         $('#autoGenTable th, #autoGenTable td').empty();
         $('.rowNum').text('-');
         $('#pageInput').next().remove();
@@ -2157,6 +2157,10 @@ function createWorksheet() {
         progCol.func.func = "pull";
         progCol.func.args = [colname];
         progCol.isDark = false;
+        var datasetName = $(this).parent().parent().parent().parent().parent()
+                          .children("thead").children("tr").children("th")
+                          .text();
+        progCol.datasetId = parseInt(getDsId(datasetName));                  
         newTableCols[startIndex-2] = progCol;
         startIndex++;
     });
@@ -2171,20 +2175,39 @@ function createWorksheet() {
     progCol.isDark = false;
     newTableCols[startIndex-2] = progCol;
     var datasets = "csv";
+    var hasGdelt = false;
+    var hasSP = false;
+    var hasYelp = false;
     $("#selectedDataset div table thead tr th").each(function() {
+        if ($(this).text().indexOf("gdelt") >= 0) {
+            hasGdelt = true;
+        }
+        if ($(this).text().indexOf("sp500") >= 0) {
+            hasSP = true;
+        }
+        if ($(this).text().indexOf("yelp") >= 0) {
+            hasYelp = true;
+        }
         if ($(this).text().indexOf("yelp") >= 0) {
             datasets = "json";
         }
     });
-    if (datasets == "csv") {
-        setIndex("joined", newTableCols); 
-    } else {
-        setIndex("joined2", newTableCols);
-    }
-    commitToStorage();
-    if (datasets == "csv") {
+    console.log("hasYelp:" +hasYelp+"hasSP"+hasSP+"hasGDelt"+hasGdelt);
+    if (hasGdelt && !hasSP && !hasYelp) {
+        setIndex("gdelt", newTableCols);
+        commitToStorage();
+        window.location.href="?tablename=gdelt";
+    } else if (hasSP && !hasGdelt && !hasYelp) {
+        setIndex("sp500", newTableCols);
+        commitToStorage();
+        window.location.href="?tablename=sp500";
+    } else if (hasSP && hasGdelt && !hasYelp) {
+        setIndex("joined", newTableCols);
+        commitToStorage();
         window.location.href="?tablename=joined";
-    } else {
+    } else if (!hasSP && !hasGdelt && hasYelp) {
+        setIndex("joined2", newTableCols);
+        commitToStorage();
         window.location.href="?tablename=joined2";
     }
 }
@@ -2195,6 +2218,18 @@ function attachShoppingCartListeners() {
             var oldid = $(this).attr("id");
             var oldColName = oldid.substring(oldid.indexOf("cn")+2);
             var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
+            console.log("Renaming "+oldColName+" to "+$(this).val());
+            XcalarEditColumn(dsnumber, oldColName, $(this).val(),
+                             DfFieldTypeT.DfString);
+            $(this).blur();
+        }
+    });
+    $(".shoppingCartCol").blur(function(e) {
+        if (e.which === 13) {
+            var oldid = $(this).attr("id");
+            var oldColName = oldid.substring(oldid.indexOf("cn")+2);
+            var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
+            console.log("Renaming "+oldColName+" to "+$(this).val());
             XcalarEditColumn(dsnumber, oldColName, $(this).val(),
                              DfFieldTypeT.DfString);
             $(this).blur();
@@ -2288,10 +2323,6 @@ function checkStatus(newTableName) {
         window.location.href="?tablename="+newTableName;
     } else {
         console.log(refCount);
-        if (tempCountShit > 400) {
-            console.log("WTF");
-            return;
-        }
         // Check twice per second
         setTimeout(function() {
             checkStatus(newTableName);
@@ -2311,8 +2342,6 @@ function sortRows(index, order) {
     // but you must remove #waitCursor once you're done.
     // $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
     //    '{cursor: wait !important;}</style>');
-    var datasetId = $("#datastorePanel .monitorSubDiv")[1].innerHTML;
-    console.log(datasetId);
     var fieldName;
     switch(gTableCols[index-2].func.func) {
     case ("pull"):
@@ -2327,8 +2356,88 @@ function sortRows(index, order) {
     checkStatus(newTableName);
 }
 
-function filterCol(operator, value) {
+function cont1(newIndexTable, operator, value, datasetId, key, otherTable) {
+    var refCount = XcalarGetTableRefCount(newIndexTable);
+    console.log(refCount);
+    if (refCount == 1) {
+        var rand = Math.floor((Math.random() * 100000) + 1);
+        var newFilterTable = "tempFilter"+rand;
+        XcalarFilter(operator, value, newIndexTable, newFilterTable);
+        // Wait for this filter to be done
+        cont2(newFilterTable, operator, value, datasetId, key, otherTable);
+    } else {
+        // Check twice per second
+        setTimeout(function() {
+            cont1(newIndexTable, operator, value, datasetId, key, otherTable);
+        }, 500);
+    }
+}
+
+function cont2(newFilterTable, operator, value, datasetId, key, otherTable) {
+    var refCount = XcalarGetTableRefCount(newFilterTable);
+    console.log(refCount);
+    if (refCount == 1) {
+        var rand = Math.floor((Math.random() * 100000) + 1);
+        var newIndexTable = "tempIndex"+rand;
+        if (otherTable == "sp500") {
+            XcalarIndexFromTable(newFilterTable, "gdeltDate", newIndexTable);
+        } else {
+            XcalarIndexFromTable(newFilterTable, "sp500", newIndexTable);
+        }
+        // Wait for this filter to be done
+        cont3(newIndexTable, operator, value, datasetId, key, otherTable);
+    } else {
+        console.log(refCount);
+        // Check twice per second
+        setTimeout(function() {
+            cont2(newFilterTable, operator, value, datasetId, key, otherTable);
+        }, 500);
+    }
+}
+
+function cont3(newIndexTable, operator, value, datasetId, key, otherTable) {
+    var refCount = XcalarGetTableRefCount(newIndexTable);
+    console.log(refCount);
+    if (refCount == 1) {
+        var rand = Math.floor((Math.random() * 100000) + 1);
+        var newJoinTable = "joined"+rand;
+        XcalarJoin(newIndexTable, otherTable, newJoinTable);
+        setIndex(newJoinTable, gTableCols);
+        commitToStorage();
+        checkStatus(newJoinTable);
+    } else {
+        console.log(refCount);
+        // Check twice per second
+        setTimeout(function() {
+            cont3(newIndexTable, operator, value, datasetId, key, otherTable);
+        }, 500);
+    }
+}
+
+// Fucking javascript is so fucking fucked up. So we'll have to do continuation
+// passing. Joy!
+function filterNonMainCol(operator, value, datasetId, key, otherTable) {
+    var rand = Math.floor((Math.random() * 100000) + 1);
+    var newIndexTable = "tempIndex"+rand;
+    console.log(newIndexTable);
+    XcalarIndexFromDataset(datasetId, key, newIndexTable);
+    // Wait for this index to be done
+    cont1(newIndexTable, operator, value, datasetId, key, otherTable);
+}
+
+function filterCol(operator, value, colid) {
     console.log(gTableName);
+    if (gTableName.indexOf("joined") > -1) {
+        var dsId = gTableCols[colid-2].datasetId;
+        var key = gTableCols[colid-2].func.args[0];
+        if (getDsId("gdelt") == dsId) {
+            var otherTable = "sp500";
+        } else {
+            var otherTable = "gdelt";
+        }
+        filterNonMainCol(operator, value, dsId, key, otherTable);
+        return;
+    }
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
     setIndex(newTableName, gTableCols);

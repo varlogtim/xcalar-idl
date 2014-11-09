@@ -33,6 +33,21 @@ function getDsName(datasetId) {
     return (null);
 }
 
+function getDsId(datasetName) {
+    if (!gDsToNameTrans) {
+        console.log("Nothing has ever been stored ever!");
+        gDsToNameTrans = {};
+    }
+    for (var key in gDsToNameTrans) {
+        if (gDsToNameTrans[key] == datasetName) {
+            return (key);
+        }
+    }
+
+    console.log("No such datasetId has been saved before");
+    return (0);
+}
+
 function getOrder(tName) {
     if (!gTableOrderLookup) {
         console.log("Nothing has ever been stored ever!");
