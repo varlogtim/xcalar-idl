@@ -39,67 +39,66 @@
       <div>monitor</div>
   </div>
   <div id="menuArea">
-      <span id="monitorPanel">
-        <div id="graphics">
-          <div class="menuAreaItem">
-              <span class="menuAreaLabel monitorRed">CPU</span>
-              <span class="menuAreaValue">20%</span>
-          </div>
-          <div class="menuAreaItem">
-              <span class="menuAreaLabel monitorBlue">RAM</span>
-              <span class="menuAreaValue">50%</span>
-          </div>
-
-          <div class="menuAreaItem">
-              <span class="menuAreaLabel monitorGreen">DISK</span>
-              <span class="menuAreaValue">8%</span>
-          </div>
-        </div>
-        <div class="menuAreaItem">
-            <span class="menuAreaLabel monitorSmall">TOTAL<br>DATA SIZE</span>
-            <span class="menuAreaValue">12TB</span>
-        </div>
-        <div class="menuAreaItem">
-            <span class="menuAreaLabel monitorSmall">NUMBER OF<br>DATA SETS</span>
-            <span class="menuAreaValue">123</span>
-        </div>
-        <div class="menuAreaItem">
-            <span class="menuAreaLabel monitorSmall">NUMBER OF<br>ACTIVE USERS</span>
-            <span class="menuAreaValue">12</span>
-        </div>
-      </span>
-      <span id="datastorePanel">
-          <div class="menuAreaItem">
-              <span class="menuAreaLabel monitorSmall monitorGreen">DATA<br>SET</span>
-              <span class="menuAreaValue">ADD</span>
-          </div>
-          <div class="datasetWrap"></div>
-      </span>
-      <span id="tablestorePanel">
-          <div class="menuAreaItem">
-              <span class="menuAreaLabel monitorSmall monitorGreen">NEW<br>TABLE</span>
-              <span class="menuAreaValue">ADD</span>
-          </div>
-      </span>
-      <div id="loadArea">
+    <span id="datastorePanel">
+      <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorSmall monitorGreen">DATA<br>SET</span>
+          <span class="menuAreaValue">ADD</span>
       </div>
+      <div class="datasetWrap"></div>
+    </span>
+    <span id="monitorPanel">
+      <div id="graphics">
+        <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorRed">CPU</span>
+          <span class="menuAreaValue">20%</span>
+        </div>
+        <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorBlue">RAM</span>
+          <span class="menuAreaValue">50%</span>
+        </div>
+        <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorGreen">DISK</span>
+          <span class="menuAreaValue">8%</span>
+        </div>
+      </div>
+      <div class="menuAreaItem">
+        <span class="menuAreaLabel monitorSmall">TOTAL<br>DATA SIZE</span>
+        <span class="menuAreaValue">12TB</span>
+      </div>
+      <div class="menuAreaItem">
+        <span class="menuAreaLabel monitorSmall">NUMBER OF<br>DATA SETS</span>
+        <span class="menuAreaValue">123</span>
+      </div>
+      <div class="menuAreaItem">
+        <span class="menuAreaLabel monitorSmall">NUMBER OF<br>ACTIVE USERS</span>
+        <span class="menuAreaValue">12</span>
+      </div>
+    </span>
+<!--     <span id="tablestorePanel">
+      <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorSmall monitorGreen">NEW<br>TABLE</span>
+          <span class="menuAreaValue">ADD</span>
+      </div>
+    </span> -->
+    <div id="loadArea">
+    </div>
   </div>
   <div id="functionBar" class="mainBar">
     <div style="width: 0px;"></div>
     <div class="functionName">f(x)=&nbsp;</div>
     <div class="functionField">
-        <input id="fnBar" value="" size="30">
+        <input id="fnBar" value="" size="30" spellcheck="false">
     </div>
     <div class="functionName">search:&nbsp;</div>
     <div class="functionField">
-        <input id="searchBar" value="" size="30">
+        <input id="searchBar" value="" size="30" spellcheck="false">
     </div>
   </div>
   <div id="pageBar" class="mainBar">
     <div> viewing rows:
-      <span class="rowNum">1</span>
+      <span class="rowNum">-</span>
       through
-      <span class="rowNum">40</span>
+      <span class="rowNum">-</span>
     </div>
     <div id="pageScroll">
       <div id="pageMarker">
@@ -116,13 +115,13 @@
       <tr>
         <th id="headCol1" style="width:50px;" class="table_title_bg">
           <div class="header">
-            <span><input value="ROW" readonly></span>
+            <span><input value="ROW" readonly tabIndex="-1"></span>
           </div>
         </th>
         <th id="headCol2" class="table_title_bg" style="width:auto;">
           <div class="header">
             <div class="dropdownBox" style="opacity: 0;"></div>
-            <span><input value="DATA" readonly></span>
+            <span><input value="DATA" readonly tabIndex="-1"></span>
             <ul class="colMenu" style="display: none;">
               <li class="menuClickable">Add a column
                 <ul class="subColMenu">
@@ -150,38 +149,41 @@
   <div id="modalBackground"></div>
   <div id="shoppingCart">
     <div id="builderBar">worksheet builder</div>
-        <div id="builderTabBar" class="worksheetBar">
-          <div id="builderTabWrap">
+      <div id="builderTabBar" class="worksheetBar">
+        <div id="builderTabWrap">
+        </div>
+      </div>
+      <div id="datasetBrowser" class="tableWrap">
+       <!-- tables goes here -->
+      </div>
+      <div id="selectedBar">selected columns</div>
+      <div id="selectedSection">
+        <div id="selectedDataset">
+          <!-- selected tables go here -->
+        </div>
+        <div id="datasetButtons">
+          <div id="createButton">
+            <div class="rectangle">create</div>
+            <div class="arrow"></div>
+          </div>
+          <div id="cancelButton">
+            <div class="rectangle">cancel</div>
+            <div class="arrow"></div>
           </div>
         </div>
-        <div id="datasetBrowser" class="tableWrap">
-         <!-- tables goes here -->
-        </div>
-        <div id="selectedBar">selected columns</div>
-        <div id="selectedSection">
-          <div id="selectedDataset">
-            <!-- selected tables go here -->
-          </div>
-          <div id="datasetButtons">
-            <div id="createButton">
-              <div class="rectangle">create</div>
-              <div class="arrow"></div>
-            </div>
-            <div id="cancelButton">
-                <div class="rectangle">cancel</div>
-                <div class="arrow"></div>
-            </div>
-          </div>
-        </div>    
+      </div>    
   </div>
   <div id="jsonModal">
+    <div class="jsonDragArea"></div>
     <div class="closeJsonModal">
       <span>+</span>
       <div id="closeArrow"></div>
     </div>
-    <div class="prettyJson">
-      {<div class="jObject">
-      </div>}
+    <div id="jsonWrap">
+      <div class="prettyJson">
+        {<div class="jObject">
+        </div>}
+      </div>
     </div>
   </div>
 </div>

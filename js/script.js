@@ -305,8 +305,6 @@ function documentReadyCommonFunction() {
         var size = $(this).val().length;
         $(this).attr('size', size);
     }
-
-    return (finalString);
 }
 
 function documentReadyCommonFunction() {
@@ -554,14 +552,13 @@ function documentReadyCatFunction() {
 
 function startupFunctions(table) {
     readFromStorage();
-    // setCatGlobals(table);
+    setCatGlobals(table);
     menuBarArt();
     menuAreaClose();
     getTablesAndDatasets();
     documentReadyCatFunction();
 
-
-    // fillPageWithBlankCol();
+    fillPageWithBlankCol();
     goToPage(gCurrentPageNumber+1);
     goToPage(gCurrentPageNumber+1);
     generateFirstLastVisibleRowNum();

@@ -155,7 +155,7 @@ function startProgressBar() {
         if (currentPos >= goalPos) {
             clearInterval(getPercentage);
             setTimeout(function() {
-                // getTablesAndDatasets();
+                getTablesAndDatasets();
                 $('.datasetWrap').show();
                 $('#datastorePanel').css({'background-color': 'white'})
                     .width('200%');

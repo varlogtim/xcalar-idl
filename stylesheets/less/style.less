@@ -391,7 +391,7 @@ input:focus {
         overflow: hidden;
         position: absolute;
         left: -240px;
-        .transition (~"left 0.9s ease-out, z-index 0s linear 1s");
+        .transition (~"z-index 0s linear .9s, transform 0.9s ease-out");
         z-index: 0;
     }
 
@@ -1268,6 +1268,7 @@ ul.leftColMenu + .rightArrow {
 
 #builderBar {
     .lightGrayBar;
+    width: 100%;
     position: absolute;
     top: 5px;
 }
@@ -1530,12 +1531,14 @@ ul.leftColMenu + .rightArrow {
     // top: 360px;
     // position: absolute;
     position: relative;
+    cursor: pointer;
 }  
 
 #cancelButton {
     // top: 360px+5px+@default-bar-height;
     // position: absolute;
     position: relative;
+    cursor: pointer;
 } 
 
 .rectangle {
@@ -1598,22 +1601,54 @@ ul.leftColMenu + .rightArrow {
 }
 
 #jsonModal {
+    display: inline-block;
+    position: fixed;
+    z-index: 20;
     position: fixed;
     left: 0;
-    max-width: 500px;
+    opacity: 1;
+    // padding: 20px 0px 10px 10px;
+    z-index: 31;
+    // overflow: auto;
+    overflow: visible;
+    display: none;
+}
+
+
+#jsonWrap {
+    // position: fixed;
+    left: 0;
+    // max-width: 500px;
     min-width: 300px;
     background-color: #FFFFFF;
     opacity: 1;
-    padding: 20px 0px 10px 10px;
-    display: none;
+    // padding: 20px 0px 10px 10px;
+    // display: none;
     z-index: 31;
-    overflow: auto;
+    // overflow: auto;
+    overflow: hidden;
+    resize: both;
+    // width: 300px;
+    // height: 400px;
+    padding: 10px 0px 10px 10px;
+    width: 400px;
+    height: 400px;
+}
+
+.jsonDragArea {
+    position: absolute;
+    width: 100%;
+    height: 15px;
+    top: 0px;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
 }
 
 .closeJsonModal {
-    position: fixed;
+    // position: fixed;
+    position: absolute;
     top: 0px;
-    right: 1px;
+    right: -20px;
     color: @color-text-black;
     cursor: pointer;
     z-index: 32;
@@ -1657,8 +1692,11 @@ ul.leftColMenu + .rightArrow {
     overflow: auto;
     min-width: 100px;
     min-height: 100px;
-    max-width: 500px;
-    max-height: 400px;
+    // max-width: 500px;
+    // max-height: 400px;
+    resize: none;
+    height: 100%;
+    overflow-y: auto;
 }
 
 .prettyJson::-webkit-scrollbar {
@@ -1676,11 +1714,16 @@ ul.leftColMenu + .rightArrow {
 }
 
 .jObject {
-    height: 100%;
+    // height: 100%;
     padding-left: 25px;
     padding-right: 5px;
     position:relative;
     // overflow: hidden;
+    // overflow-y: auto;
+    // overflow-x: hidden;
+    width: 100%;
+    overflow:visible;
+    height: auto;
 }
 
 .jsonBlock {
