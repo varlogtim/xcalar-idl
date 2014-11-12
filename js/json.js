@@ -68,7 +68,7 @@ function prettifyJson(obj, indent, options) {
     // .replace used to remove comma if last value in object
 }
 
-function createJsonNestedField(el) {
+function createJsonSelectionExpression(el) {
     var obj = "";
     el.parents('.jInfo').each(function(){
         var key = "";
@@ -86,7 +86,7 @@ function createJsonNestedField(el) {
     return (obj);
 }
 
-function showJsonPopup(jsonTd) {
+function showJsonModal(jsonTd) {
     var winHeight = $(window).height();
     var winWidth = $(window).width();
     var jsonTdHeight = jsonTd.outerHeight(); 
@@ -96,25 +96,26 @@ function showJsonPopup(jsonTd) {
     var newString = prettifyJson(jsonString);
     $('.jObject').html(newString);
     $('#jsonModal, #modalBackground').show();
+    $('#jsonWrap').height(400).width(400);
     var modalHeight = $('#jsonModal').outerHeight();
     var modalWidth = $('#jsonModal').outerWidth();
-    var closeHeight = $('.closeJsonModal').height();
-    var closeTop = jsonTdPos.top - closeHeight/2 + 2;
-    var closeLeft = jsonTdPos.left+(jsonTdWidth/2);
+    var closeHeight = 28;
+    var closeWidth = 25;
+    var closeTop = -8;
+    var closeLeft = -closeWidth;
     $('#closeArrow').removeClass('jsonRight');
 
     if (jsonTdPos.top < winHeight/2) {
         var modalTop = jsonTdPos.top; 
     } else {
         var modalTop = jsonTdPos.top - modalHeight + jsonTdHeight;
+        closeTop = modalHeight - closeHeight;
     }
 
     if (modalTop < 5) {
         modalTop = 5;
-        console.log('here')
     } else if (modalTop+modalHeight > winHeight) {
         modalTop = Math.max(winHeight - modalHeight - 5, 5);
-        closeTop -= 8;
     }
 
     if (jsonTdPos.left+(jsonTdWidth/2) > (winWidth/2)) {
@@ -124,14 +125,13 @@ function showJsonPopup(jsonTd) {
         $('#closeArrow').addClass('jsonRight');
     } else {
         var modalLeft = Math.max(jsonTdPos.left+(jsonTdWidth/2) , 20);
-        closeLeft -= 25;
     }
     
     $('#jsonModal').css({'left': modalLeft, 'top': modalTop});
     $('.closeJsonModal').css({'left': closeLeft, 'top': closeTop});
 
     $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
-        var name = createJsonNestedField($(this));
+        var name = createJsonSelectionExpression($(this));
         var id = $("#autoGenTable th").filter(function() {
                         return $(this).find("input").val() == "DATA";
                     }).attr("id");
@@ -154,5 +154,35 @@ function showJsonPopup(jsonTd) {
     });
     window.getSelection().removeAllRanges();
     $('body').addClass('hideScroll');
+}
+
+function jsonModalMouseDown(e) {
+    gMouseStatus = "movingJson"
+    gDragObj.mouseX = e.pageX;
+    gDragObj.mouseY = e.pageY;
+    gDragObj.left = parseInt($('#jsonModal').css('left'));
+    gDragObj.top = parseInt($('#jsonModal').css('top'));
+
+    var cursorStyle = '<style id="moveCursor" type="text/css">*'+ 
+    '{cursor:move !important; cursor: -webkit-grabbing !important;'+
+    'cursor: -moz-grabbing !important;}</style>';
+    $(document.head).append(cursorStyle);
+    disableTextSelection();
+    console.log(gDragObj.left);
+}
+        
+function jsonModalMouseMove(e) {
+    var newX = e.pageX;
+    var newY = e.pageY;
+    var distX = newX - gDragObj.mouseX;
+    var distY = newY - gDragObj.mouseY;
+    $('#jsonModal').css('left',(gDragObj.left+distX)+'px');
+    $('#jsonModal').css('top',(gDragObj.top+distY)+'px');
+}
+
+function jsonModalMouseUp() {
+    gMouseStatus = null;
+    reenableTextSelection();
+    $('#moveCursor').remove();
 }
 

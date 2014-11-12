@@ -9,10 +9,7 @@ function getFirstVisibleRowNum() {
 }
 
 function generateFirstLastVisibleRowNum() {
-    var mainFramePos = $('#mainFrame')[0].getBoundingClientRect();
-    var mfPosTop = mainFramePos.top;
-    var mfPosLeft = mainFramePos.left;
-    var mfPosBot = mainFramePos.bottom;
+    var mfPos = $('#mainFrame')[0].getBoundingClientRect();
     var tdXCoor = 30;
     var tdYCoor = 50;
     var tdBotYCoor = -20;
@@ -25,12 +22,12 @@ function generateFirstLastVisibleRowNum() {
         var firstRowNum = parseInt(firstId.substring(5));
     }
 
-    if (tdBotYCoor + mfPosBot >= $(window).height()) {
+    if (tdBotYCoor + mfPos.bottom >= $(window).height()) {
         var tdBottom = $(window).height()-10;
     } else {
-        var tdBottom = tdBotYCoor + mfPosBot;
+        var tdBottom = tdBotYCoor + mfPos.bottom;
     }
-    var lastEl = document.elementFromPoint(tdXCoor+mfPosLeft,
+    var lastEl = document.elementFromPoint(tdXCoor+mfPos.left,
                                            tdBottom);
     var lastId = $(lastEl).closest('td').attr('id');
     if (lastId && lastId.length > 0) {
@@ -140,12 +137,8 @@ function gRescolMouseDown(el, event) {
     if (gRescol.grabbedCell.is(':last-child')) {
         gRescol.lastCellGrabbed = true;
     }
-    if (gRescol.startWidth < gRescol.cellMinWidth) {
-        gRescol.tempCellMinWidth = gRescol.startWidth;
-    } else {
-        gRescol.tempCellMinWidth = gRescol.cellMinWidth;
-    }
 
+    gRescol.tempCellMinWidth = gRescol.cellMinWidth-5;
     gRescol.leftDragMax =  gRescol.tempCellMinWidth - gRescol.startWidth;
     disableTextSelection();
     $(document.head).append('<style id="ew-resizeCursor" type="text/css">*'+ 
@@ -248,7 +241,6 @@ function resrowMouseUp() {
     reenableTextSelection();
     $('#ns-resizeCursor').remove();
     $('body').removeClass('hideScroll'); 
-    // $('.colGrab').height($('#autoGenTable').height());
     $('.colGrab').height($('#mainFrame').height());
     generateFirstLastVisibleRowNum()
 }
@@ -267,19 +259,18 @@ function dragdropMouseDown(el, event) {
     var tableHeight = el.closest('table').height();
     var mainFrameHeight = $('#mainFrame').height()-gScrollbarHeight;
     var shadowDivHeight = Math.min(tableHeight,mainFrameHeight);
+    gDragObj.inFocus =  $('#headCol'+gDragObj.colId+' .editableHead').is(':focus');
 
     // get dimensions and position of column that was clicked
     gDragObj.colWidth = el.outerWidth();
-    gDragObj.startXPos = el.position().left;
-    gDragObj.startXPos = firstTd.position().left;
-    var startYPos = el.position().top;
+    var startY = el.position().top;
     // create a replica shadow with same column width, height,
     // and starting position
     $('#mainFrame').prepend('<div class="shadowDiv" style="width:'+
                             (gDragObj.colWidth)+
                             'px;height:'+(shadowDivHeight)+'px;left:'+
-                            (gDragObj.startXPos)+
-                            'px;top:'+(gDragObj.colOffTop)+'px;"></div>');
+                            (gDragObj.left)+
+                            'px;top:'+(gDragObj.top)+'px;"></div>');
 
     // create a fake transparent column by cloning 
     createTransparentDragDropCol(startYPos);
@@ -293,13 +284,13 @@ function dragdropMouseDown(el, event) {
 }
 
 function dragdropMouseMove(event) {
-    var newXPos = gDragObj.startXPos + (event.pageX - gDragObj.mouseStart);
-    $('.fauxCol').css('left', newXPos);
+    var newX = gDragObj.left + (event.pageX - gDragObj.mouseX);
+    $('.fauxCol').css('left', newX);
 }
 
 function dragdropMouseUp() {
     gMouseStatus = null;
-    // var name = $('.fauxCol .editableHead').val();
+    var name = $('.fauxCol .editableHead').val();
     $('.shadowDiv, .fauxCol, .dropTarget, #moveCursor').remove();
     var head = $("#autoGenTable tr:first th span");
     var progCol = gTableCols[gDragObj.colId-2];
@@ -311,8 +302,11 @@ function dragdropMouseUp() {
         delCol("closeButton"+gDragObj.colId, true);
         progCol.index = gDragObj.colIndex+1;
         insertColAtIndex(gDragObj.colIndex-1, progCol);
-        addCol("headCol"+gDragObj.colIndex, progCol.name, {width: progCol.width,
-                isDark: isDark, select: selected, progCol: progCol});
+        // addCol("headCol"+gDragObj.colIndex, progCol.name, {width: progCol.width,
+        //         isDark: isDark, select: selected, progCol: progCol});
+        addCol("headCol"+gDragObj.colIndex, name, {width: progCol.width,
+                isDark: isDark, select: selected, inFocus: gDragObj.inFocus,
+                progCol: progCol});
         execCol(progCol);
     }
     reenableTextSelection(); 
@@ -334,11 +328,13 @@ function cloneCellHelper(obj) {
 
 function createTransparentDragDropCol(startYPos) {
     $('#mainFrame').append('<div class="fauxCol" style="left:'+
-                        (gDragObj.startXPos)+'px;top:'+
-                        (gDragObj.colOffTop)+'px;width:'+
-                        (gDragObj.colWidth-5)+'px"></div>');
-    $('.fauxCol').append('<table id="autoGenTable" class="dataTable fauxTable" '+
-                         'style="width:'+(gDragObj.colWidth-5)+'px"></table>');
+                        (gDragObj.left)+'px;top:'+
+                        (gDragObj.top)+'px;width:'+
+                        (gDragObj.colWidth-5)+'px">'+
+                            '<table id="autoGenTable" class="dataTable fauxTable" '+
+                            'style="width:'+(gDragObj.colWidth-5)+'px">'+
+                            '</table>'+
+                        '</div>');
     
     var rowHeight = 20;
     // turn this into binary search later
@@ -395,53 +391,72 @@ function createTransparentDragDropCol(startYPos) {
             -($('.fauxTable tr:first').outerHeight()+firstRowOffset)});
 }
 
-function createDropTargets() {
+function createDropTargets(dropTargetIndex, swappedColIndex) {
     // var offset = distance from the left side of dragged column
     // to the point that was grabbed
-    var offset = gDragObj.mouseStart - gDragObj.colOffLeft;
+    var offset = gDragObj.mouseX - gDragObj.left;
     var dragMargin = 30; 
     // targets extend this many pixels to left of each column
-    $('.dropTarget').remove(); 
-    var i = 0;
-    $('#autoGenTable tr:first th:not(:last)').each(function(){
-        if (i == 0 || i == gDragObj.colIndex) {
+   
+    if (!dropTargetIndex) {
+        // create targets that will trigger swapping of columns on hover
+        var dropTargets = "";
+        var i = 0;
+        $('#autoGenTable tr:first th:not(:last)').each(function(){
+            if (i == 0 || i == gDragObj.colIndex) {
+                i++;
+                return true;  
+            }
+            var colLeft = $(this)[0].getBoundingClientRect().left;
+            if ((gDragObj.colWidth-dragMargin) < Math.round(0.5*$(this).width())) {
+                var targetWidth = gDragObj.colWidth;
+            } else {
+                var targetWidth = Math.round(0.5*$(this).outerWidth())+dragMargin;
+            }
+            dropTargets += '<div id="dropTarget'+i+'" class="dropTarget"'+
+                            'style="left:'+(colLeft-dragMargin+offset)+'px;'+
+                            'width:'+targetWidth+'px;height:'
+                            +(gDragObj.docHeight)+'px;">'+
+                            '</div>';
             i++;
-            return true;  
-        }
-        var colLeft = $(this)[0].getBoundingClientRect().left;
-        if ((gDragObj.colWidth-dragMargin) < Math.round(0.5*$(this).width())) {
-            var targetWidth = gDragObj.colWidth;
-        } else {
-            var targetWidth = Math.round(0.5*$(this).outerWidth())+dragMargin;
-        }
-        var dropTarget = '<div id="dropTarget'+i+'" class="dropTarget"'+
-                        'style="left:'+(colLeft-dragMargin+offset)+'px;'+
-                        'width:'+targetWidth+'px;height:'
-                        +(gDragObj.docHeight)+'px;">'+
-                        '</div>';
-        $('body').append(dropTarget);
-        i++;
-    });
+        });
+        $('body').append(dropTargets);
+        $('.dropTarget').mouseenter(function() {
+            dragdropSwapColumns($(this));
+        });
+    } else {
+        // targets have already been created, so just adjust the one corresponding
+        // to the column that was swapped
+        var swappedCol = $('#autoGenTable th:eq('+swappedColIndex+')');
+        var colLeft = swappedCol[0].getBoundingClientRect().left;
+        $('#dropTarget'+dropTargetIndex).attr('id', 'dropTarget'+swappedColIndex);
+        var dropTarget = $('#dropTarget'+swappedColIndex);
+        dropTarget.css({'left': (colLeft-dragMargin+offset)+'px'});
+    }
+}
 
-    $('.dropTarget').mouseenter(function(){
-        var dropTargetId = parseInt(($(this).attr('id')).substring(10));
-        var nextCol = Math.abs(dropTargetId-gDragObj.colIndex);
-        if (dropTargetId>gDragObj.colIndex) {
-            $('#autoGenTable tr').each(function() { 
-                $(this).children(':eq('+(dropTargetId)+')').after(
-                    $(this).children(':eq('+(dropTargetId-nextCol)+')'));
-            });
-        } else {
-            $('#autoGenTable tr').each(function() { 
-                $(this).children(':eq('+(dropTargetId)+')').before(
-                    $(this).children(':eq('+(dropTargetId+nextCol)+')'));
-            });
-        }
-        $('.shadowDiv').css('left',
-                            $('#autoGenTable #'+gDragObj.id).offset().left); 
-        gDragObj.colIndex = dropTargetId;
-        createDropTargets(gDragObj);
-    });
+function dragdropSwapColumns(el) {
+    var dropTargetId = parseInt((el.attr('id')).substring(10));
+    var nextCol = dropTargetId - Math.abs(dropTargetId-gDragObj.colIndex);
+    var prevCol = dropTargetId + Math.abs(dropTargetId-gDragObj.colIndex);
+    var movedCol;
+    if (dropTargetId>gDragObj.colIndex) {
+        $('#autoGenTable tr').each(function() { 
+            $(this).children(':eq('+dropTargetId+')').after(
+                $(this).children(':eq('+nextCol+')'));
+        });
+        movedCol = nextCol;
+    } else {
+        $('#autoGenTable tr').each(function() { 
+            $(this).children(':eq('+dropTargetId+')').before(
+                $(this).children(':eq('+prevCol+')'));
+        });
+        movedCol = prevCol;
+    }
+    $('.shadowDiv').css('left',
+                        $('#autoGenTable #'+gDragObj.id).offset().left); 
+    gDragObj.colIndex = dropTargetId;
+    createDropTargets(dropTargetId, movedCol);
 }
 
 function gRescolDelWidth(id, resize) {
@@ -506,27 +521,33 @@ function getWidestTdWidth(el, options) {
     var includeHeader = options.includeHeader || false;
     var id = (el.attr('id')).substr(7);
     var largestWidth = 0;
-    var firstRow = true;
-    var width;
-    var rightMargin = 6;
+    var longestText = 0;
+    var textLength;
+    var padding = 6;
+    var largestTd = $('#autoGenTable tbody tr:first td:eq('+(id-1)+')');
+    var headerWidth = 0;
+
+    $('#autoGenTable tbody tr').each(function(){
+        // we're going to take advantage of monospaced font
+        //and assume text length has an exact correlation to text width
+        var td = $(this).children(':eq('+(id-1)+')');
+        textLength = td.text().length;
+        if (textLength > longestText) {
+            longestText = textLength; 
+            largestTd = td;
+        }
+    });
+
+    largestWidth = getTextWidth(largestTd);
 
     if (includeHeader) {
         var th = $('#autoGenTable th:eq('+(id-1)+') .editableHead');
-        width = getTextWidth(th);
-        largestWidth = width;
+        headerWidth = getTextWidth(th);
+        if (headerWidth > largestWidth) {
+            largestWidth = headerWidth;
+        }
     }
-    $('#autoGenTable tbody tr').each(function(){
-        var td = $(this).children(':eq('+(id-1)+')');
-        if (td.children('.addedBarText').length) {
-            width = getTextWidth(td.children('.addedBarText'));
-        } else {
-            width = getTextWidth(td);
-        }
-        if (width > largestWidth) {
-            largestWidth = width; 
-        }
-    });
-    largestWidth += rightMargin;
+    largestWidth += padding;
     return (largestWidth);
 }
 
@@ -634,6 +655,27 @@ function addColListeners(colId) {
         } 
         $(this).parent().siblings('.dropdownBox')
             .removeClass('hidden');
+    });
+
+    $("#rename"+colId).keyup(function(e) {
+        updateFunctionBar($(this).val());
+        if (e.which == 13) {
+            var index = parseInt($(this).attr('id').substring(6));
+            var progCol = parseCol($(this).val(), index, true);
+            execCol(progCol);
+            if (progCol.name.length > 0) {
+                $(this).val(progCol.name);
+            } else {
+                // keep value that user entered
+            }
+            $(this).blur();
+            $(this).closest('th').removeClass('unusedCell');
+            $('#autoGenTable td:nth-child('+index+')').removeClass('unusedCell');
+        }
+    });
+
+    $("#rename"+colId).on('input', function(e) {
+        updateFunctionBar($(this).val());
     });
 
     $('#headCol'+colId+' .dropdownBox').click(function() {

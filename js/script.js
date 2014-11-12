@@ -9,7 +9,6 @@
 var gTableRowIndex = 1;
 var gCurrentPageNumber = 0;
 var gNumEntriesPerPage = 20;
-var gNumPageTurners = 10;
 var gResultSetId = 0;
 var gNewCellWidth = 125;
 var gKeyName = "";
@@ -55,7 +54,12 @@ function infScrolling() {
             console.log('the top!');
             var firstRow = $('#autoGenTable tbody tr:first');
             var initialTop = firstRow.offset().top;
-            goToPage(gCurrentPageNumber-1, RowDirection.Top);
+            if ($("#autoGenTable tbody tr").length > 60) {
+                var pageNumber = gCurrentPageNumber-1;
+            } else {
+                var pageNumber = gCurrentPageNumber;
+            }
+            goToPage(pageNumber, RowDirection.Top);
             $('#mainFrame').scrollTop(firstRow.offset().top - initialTop + 10);
             $("#autoGenTable tbody tr:gt(79)").remove();
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()+
@@ -208,11 +212,12 @@ function documentReadyCommonFunction() {
                      parseInt($('#pageInput').val())/gNumEntriesPerPage)+2);
             generateFirstLastVisibleRowNum();
             movePageScroll($('#pageInput').val());
-            $('#mainFrame').scrollTop('0.1');
+            $('#mainFrame').scrollTop('1');
             // should be 0 but can't because would activate scrolltop pages
             // $(this).blur(); 
         }
     });
+
     $('#pageBar > div:last-child').append('<span>of '+resultSetCount+'</span>');
 
     $(window).resize(function() {
@@ -299,6 +304,84 @@ function documentReadyCommonFunction() {
     $('.worksheetTab input').on('input', function() {
         var size = $(this).val().length;
         $(this).attr('size', size);
+    }
+
+    return (finalString);
+}
+
+function documentReadyCommonFunction() {
+
+    // $("#searchBar").val('tablename = "'+searchText+'"');
+    var resultTextLength = (""+resultSetCount).length
+    $('#pageInput').attr({'maxLength': resultTextLength,
+                          'size': resultTextLength});
+    $('#pageInput').keypress(function(e) {
+        if (e.which === 13) {
+            val = $('#pageInput').val();
+            if (val == "" || val%1 != 0) {
+                return;
+            } else if (val < 1) {
+                $('#pageInput').val('1');
+            } else if (val > resultSetCount) {
+                $('#pageInput').val(resultSetCount);
+            }
+            // XXX: HACK
+            gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
+            $("#autoGenTable tbody").empty();
+            goToPage(Math.ceil(
+                     parseInt($('#pageInput').val())/gNumEntriesPerPage));
+            goToPage(Math.ceil(
+                     parseInt($('#pageInput').val())/gNumEntriesPerPage)+1);
+            goToPage(Math.ceil(
+                     parseInt($('#pageInput').val())/gNumEntriesPerPage)+2);
+            generateFirstLastVisibleRowNum();
+            movePageScroll($('#pageInput').val());
+            $('#mainFrame').scrollTop('1');
+            // should be 0 but can't because would activate scrolltop pages
+            // $(this).blur(); 
+        }
+    });
+    $('#pageBar > div:last-child').append('<span>of '+resultSetCount+'</span>');
+
+    $(window).resize(function() {
+        $('.colGrab').height($('#mainFrame').height());
+        checkForScrollBar();
+        generateFirstLastVisibleRowNum();
+    });
+
+    $('.closeJsonModal, #modalBackground').click(function(){
+        if ($('#jsonModal').css('display') != 'none') {
+            $('#modalBackground').hide(); 
+            $('body').removeClass('hideScroll');
+        }
+        $('#jsonModal').hide();
+    });
+
+
+    $('#datastorePanel .menuAreaItem:first').click(function(){
+        $("#loadArea").load('load_r.html', function(){
+            // load_r.html contains load.js where this function is defined
+            loadReadyFunction();
+            $('#progressBar').css('transform', 'translateX(330px)');
+            $('.dataStep').css('transform', 'translateX(320px)');
+            $('.dataOptions').css('transform','translateX(570px)').css('z-index', 6);
+        });
+        $('.datasetWrap').addClass('shiftRight');
+    });
+
+    $('#autoGenTable thead').mouseenter(function(event) {
+        if (!$(event.target).hasClass('colGrab')) {
+            $('.dropdownBox').css('opacity', 0.4);
+            $('.editableHead').addClass('resizeEditableHead');
+        }
+    })
+    .mouseleave(function() {
+        $('.dropdownBox').css('opacity', 0);
+        $('.editableHead').removeClass('resizeEditableHead');
+    });
+
+    $('#newWorksheet span').click(function() {
+        addWorksheetTab();
     });
 
     $("#shoppingCart").hide();
@@ -315,12 +398,20 @@ function documentReadyCommonFunction() {
         $('#pageMarker').css('transform', 'translateX('+mouseX+'px)');
     });
 
+    $('.jsonDragArea').mousedown(function(event){
+        jsonModalMouseDown(event);
+    });
 
     $(document).mousedown(function(event) {
-        var clickable = $(event.target).closest('.colMenu').length > 0;
-        if (!clickable && !$(event.target).is('.dropdownBox')) {
+        var target = $(event.target);
+        var clickable = target.closest('.colMenu').length > 0;
+        if (!clickable && !target.is('.dropdownBox')) {
                 $('.colMenu').hide();
-        } 
+        }
+        if (target.closest('.selectedCell').length == 0 && !target.is('#fnBar')) {
+            $('.selectedCell').removeClass('selectedCell');
+            $('#fnBar').val("");
+        }
     });
     $(document).mousemove(function(event){
         if (gMouseStatus != null) {
@@ -338,6 +429,9 @@ function documentReadyCommonFunction() {
                 case ("movingCol"):
                     dragdropMouseMove(event);
                     break;
+                case ("movingJson"):
+                    jsonModalMouseMove(event);
+                    break;
                 default:  // do nothing
             }
         }
@@ -354,20 +448,84 @@ function documentReadyCommonFunction() {
                 case ("movingCol"):
                     dragdropMouseUp();
                     break;
+                case ("movingJson"):
+                    jsonModalMouseUp();
+                    break;
                 default: // do nothing
             }
         }
-    });   
+    }); 
+}
+
+function addWorksheetTab(value) {
+    var tabCount = $('#worksheetBar .worksheetTab').length;
+    var text = value || "worksheet "+(tabCount+1);
+    if (tabCount > 4) {
+        var width = ((1/(tabCount+1)))*70+'%';
+        $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');
+    } else {
+        var width = $('.worksheetTab').width();
+    }
+    if (value) {
+        var marginTop = '0px';
+    } else {
+        var marginTop = '-26px';
+    }
+    
+    $('#worksheetBar').append('<div class="worksheetTab" '+
+                        'style="width:'+width+';'+
+                        'margin-top:'+marginTop+';">'+
+                        '<input spellcheck="false" type="text" '+
+                        'value="'+text+'" '+
+                        'size="'+(text.length+1)+'"></div>');
+
+    var newTab = $('#worksheetBar .worksheetTab:last');
+    var newInput = newTab.find('input');
+    var size = getTextWidth(newTab.find('input'));
+
+    newInput.width(size);
+
+    newTab.css('margin-top','0px')
+   
+    newTab.click(function() {
+        $('.worksheetTab').removeClass('tabSelected');
+        $(this).addClass('tabSelected');
+    });
+
+    newInput.on('input', function() {
+        var width = getTextWidth($(this));
+        $(this).width(width);
+    });
+
+    newTab.click();
+   
+    newInput.change(function() {
+        var index = $('#worksheetBar .worksheetTab input').index($(this));
+        // cool I didn't know you could use .index() like that
+        setWorksheetName(index, $(this).val());
+        console.log("Changing stored worksheet name");
+        commitToStorage();
+    });
+
+    newInput.keypress(function(e) {
+        if (e.which == 13) {
+            $(this).blur();
+        }
+    });
+
+    // $('#modalBackground').show();
+    $('body').addClass('hideScroll');
+    // shoppingCart();
 }
 
 function documentReadyCatFunction() {
     documentReadyCommonFunction();
+    // getTablesAndDatasets();  //XXX this is being called before documentreadycatfunction gets called
     // XXX: Should this be called here or at the end? I think it should be here
     // or I may end up attaching 2 listeners?
     resizableColumns();
     var index = getIndex(gTableName);
     getNextPage(gResultSetId, true);
-    
     if (index) {
         gTableCols = index;
         console.log("Stored "+gTableName);
@@ -391,18 +549,19 @@ function documentReadyCatFunction() {
     } else {
         console.log("Not stored "+gTableName);
     }    
+
 }
 
 function startupFunctions(table) {
     readFromStorage();
-    setCatGlobals(table);
+    // setCatGlobals(table);
     menuBarArt();
-    monitorOverlayPercent();
     menuAreaClose();
     getTablesAndDatasets();
     documentReadyCatFunction();
 
-    fillPageWithBlankCol();
+
+    // fillPageWithBlankCol();
     goToPage(gCurrentPageNumber+1);
     goToPage(gCurrentPageNumber+1);
     generateFirstLastVisibleRowNum();
@@ -421,6 +580,27 @@ function documentReadyIndexFunction() {
     $(document).ready(function() {
        startupFunctions("gdelt"); 
     });
+}
+
+function parseJsonValue(value) {
+    if (value == undefined) {
+        value = '<span class="undefined">'+value+'</span>';
+    } else {
+        switch (value.constructor) {
+        case (Object):
+            if ($.isEmptyObject(value)) {
+                value = "";
+            } else {
+                value = JSON.stringify(value).replace(/,/g, ", ");
+            }
+            break;
+        case (Array):
+            value = value.join(', ');
+            break;
+        default: // leave value as is;
+        }
+    }
+    return (value);
 }
 
 //XXX remove this for production. I updated load_r.html

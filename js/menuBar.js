@@ -39,27 +39,16 @@ function menuBarArt() {
         $("#menuArea").show().height(66);
         $('#mainFrame').height('calc(100% - 214px)');
         
-
         switch ($(this).text()) {
         case ("datastore"):
             $("#datastorePanel").show();
-            $("#datastorePanel").siblings().each(function() {
-                $(this).hide();
-            }); 
+            $("#datastorePanel").siblings().hide();
+         
             break;
         case ("monitor"):
             resetLoadArea();
             $("#monitorPanel").show();
-            $("#monitorPanel").siblings().each(function() {
-                $(this).hide();
-            }); 
-            break;
-        case ("tablestore"):
-            resetLoadArea();
-            $("#tablestorePanel").show();
-            $("#tablestorePanel").siblings().each(function() {
-                $(this).hide();
-            }); 
+            $("#monitorPanel").siblings().hide();
             break;
         default:
             console.log($(this.text()+" is not implemented!"));
@@ -72,19 +61,6 @@ function resetLoadArea() {
     $('#loadArea').html("").css('z-index', 'auto');
     $('#datastorePanel').width('100%');
     $('.datasetWrap').removeClass('shiftRight');
-}
-
-function monitorOverlayPercent() {
-    $(".monitor").each(function() {
-        var widthOfText = $(this).find("span").width();
-        var amountToMove = -($(this).width()-widthOfText)/2-widthOfText/2-25;
-        $(this).css("margin-right", amountToMove);
-    });
-    $(".datasetName").each(function() {
-        var widthOfText = $(this).find("span").width();
-        var amountToMove = -($(this).width()-widthOfText)/2-widthOfText/2-35;
-        $(this).css("margin-right", amountToMove);
-    });
 }
 
 function getTablesAndDatasets() {
@@ -119,5 +95,4 @@ function getTablesAndDatasets() {
                             '</div>';
         $(".datasetWrap").append(tableDisplay);
     };
-    monitorOverlayPercent();
 }

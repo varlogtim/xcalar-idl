@@ -52,7 +52,7 @@ function generateRowWithCurrentTemplate(json, id, direction) {
     });
 
     $('#autoGenTable tbody '+row+' .jsonElement').dblclick(function() {
-        showJsonPopup($(this));
+        showJsonModal($(this));
     });
 
     $('#autoGenTable  tbody '+row+' .rowGrab').mousedown(function(event) {
@@ -108,7 +108,7 @@ function generateFirstScreen(value, idNo, height) {
 
     $('#autoGenTable tbody tr:eq('+(idNo-1)+') .jsonElement').dblclick(
         function(){
-            showJsonPopup($(this));
+            showJsonModal($(this));
         }
     );
     $('#bodyr'+idNo+'c1 .rowGrab').mousedown(function(event) {

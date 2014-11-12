@@ -116,6 +116,8 @@ function cleanseFunc(funcString) {
     }
     var funcName = funcString.substring(0, open);
     funcName = removeSpaces(funcName);
+    //XXX $.trim() does the same as removeSpaces, can we use 
+    // it in place of removeSpaces?
     var args = (funcString.substring(open+1, close)).split(",");
     for (var i = 0; i<args.length; i++) {
         args[i] = removeSpaces(args[i]);
@@ -209,23 +211,7 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
             }
             value = value[nested[j]];
         }  
-        if (value == undefined) {
-            value = '<span class="undefined">'+value+'</span>';
-        } else {
-            switch (value.constructor) {
-                case (Object):
-                    if ($.isEmptyObject(value)) {
-                        value = "";
-                    } else {
-                        value = JSON.stringify(value).replace(/,/g, ", ");
-                    }
-                    break;
-                case (Array):
-                    value = value.join(', ');
-                    break;
-                default: // leave value as is;
-            }
-        }
+        value = parseJsonValue(value);
         value = '<div class="addedBarTextWrap"><div class="addedBarText">'+
                 value+"</div></div>";
         $("#bodyr"+i+"c"+newColid).html(value); 
@@ -241,6 +227,7 @@ function addCol(id, name, options) {
     var resize = options.resize || false;
     var isDark = options.isDark || false;
     var select = options.select || false;
+    var inFocus = options.inFocus || false;
     var newProgCol = options.progCol || new ProgCol();
     if (options.direction != "L") {
         newColid += 1;
@@ -417,32 +404,7 @@ function addCol(id, name, options) {
             $("#bodyr"+i+"c"+(newColid-1)).after(newCellHTML);
     }
 
-    $("#rename"+newColid).keyup(function(e) {
-         updateFunctionBar($(this).val());
-        if (e.which==13) {
-            var index = parseInt($(this).attr('id').substring(6));
-            var progCol = parseCol($(this).val(), index, true);
-            execCol(progCol);
-            if (progCol.name.length > 0) {
-                console.log(progCol.name, 'name')
-                $(this).val(progCol.name);
-            } else {
-                console.log($(this).val(), 'else');
-            }
-            $(this).blur();
-            $(this).closest('th').removeClass('unusedCell');
-            $('#autoGenTable td:nth-child('+index+')').removeClass('unusedCell');
-        }
-    });
-
-    // XXX on.input updates fnbar faster than keyup or keypress
-    // keypress/keyup doesn't detect if you're holding down backspace
-    // but on.input doesn't detect e.which
-    $("#rename"+newColid).on('input', function(e) {
-        updateFunctionBar($(this).val());
-    });
-
-    if (select) {
+    if (inFocus) {
         // $('#rename'+newColid).select().focus();
         $('#rename'+newColid).focus();
     }

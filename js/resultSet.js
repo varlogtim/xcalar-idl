@@ -13,15 +13,19 @@ function goToPage(pageNumber, direction) {
         return;
     }
     gCurrentPageNumber = pageNumber;
-    if (direction == 1) {
-        var shift = Math.floor($('#autoGenTable tbody tr').length /
-                                    gNumEntriesPerPage);
-    } else {
-        var shift = 1;
-    }
-    console.log(shift)
+    var shift = numPagesToShift(direction);
     XcalarSetAbsolute(gResultSetId, (pageNumber-shift)*gNumEntriesPerPage);
     getPage(gResultSetId, null, direction);
+}
+
+function numPagesToShift(direction) {
+    var shift;
+    if (direction == 1) {
+        shift = 4;
+    } else {
+        shift = 1;
+    }
+    return (shift);
 }
 
 function resetAutoIndex() {
@@ -33,7 +37,6 @@ function getNextPage(resultSetId, firstTime) {
         return;
     }
     gCurrentPageNumber++;
-    console.log("HERE!");
     getPage(resultSetId, firstTime);
 }
 
@@ -43,7 +46,6 @@ function getPage(resultSetId, firstTime, direction) {
         return;
         // Reached the end
     }
-    var resize = false;
     var tdHeights = getTdHeights();
     var tableOfEntries = XcalarGetNextPage(resultSetId,
                                            gNumEntriesPerPage);
@@ -53,13 +55,8 @@ function getPage(resultSetId, firstTime, direction) {
         // XXX: Function call to free handle?
         resultSetId = 0;
     }
-    if (direction == 1) {
-        var shift = Math.floor($('#autoGenTable tbody tr').length /
-                    gNumEntriesPerPage);
-        var indexNumber = (gCurrentPageNumber-shift) * gNumEntriesPerPage;
-    } else {
-        var indexNumber = (gCurrentPageNumber-1) * gNumEntriesPerPage;
-    }
+    var shift = numPagesToShift(direction);
+    var indexNumber = (gCurrentPageNumber-shift) * gNumEntriesPerPage;
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
     for (var i = 0; i<numRows; i++) {
@@ -80,7 +77,6 @@ function getPage(resultSetId, firstTime, direction) {
             } else {
                 var value = tableOfEntries.kvPairs.records[i].kvPairFixed.value;
             }
-
         }
         if (firstTime) {
             generateFirstScreen(value, indexNumber+i+1, tdHeights[i]);
@@ -141,9 +137,7 @@ function getPage(resultSetId, firstTime, direction) {
     $('.colGrab').height($('#mainFrame').height());
     var idColWidth = getTextWidth($('#autoGenTable tr:last td:first'));
     var newWidth = Math.max(idColWidth, 24);
-    console.log(newWidth, 'newwidth')
     $('#autoGenTable th:first-child').width(newWidth+14);
     matchHeaderSizes();
-    getFirstVisibleRowNum();
 }
 

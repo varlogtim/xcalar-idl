@@ -1,3 +1,10 @@
+function setWorksheetNames() {
+    for (var i = 0; i<gWorksheetName.length; i++) {
+        addWorksheetTab(gWorksheetName[i]);
+    }
+    $("#worksheetBar .worksheetTab:first").click();
+}
+
 function getDatasetSamples() {
     // Get datasets and names
     var datasets = XcalarGetDatasets();
@@ -177,24 +184,7 @@ function addDataSetRows(records, tableNumber) {
 
         // loop through each td, parse object, and add cell content
         for (key in json) {
-            var value = json[key];
-            if (value == undefined) {
-                value = '<span class="undefined">'+value+'</span>';
-            } else {
-                switch (value.constructor) {
-                    case (Object):
-                        if ($.isEmptyObject(value)) {
-                            value = "";
-                        } else {
-                            value = JSON.stringify(value).replace(/,/g, ", ");
-                        }
-                        break;
-                    case (Array):
-                        value = value.join(', ');
-                        break;
-                    default: // leave value as is;
-                }
-            }
+            var value = parseJsonValue(json[key]);
             html += '<td>\
                         <div class="addedBarTextWrap">\
                             <div class="addedBarText">'

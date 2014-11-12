@@ -135,7 +135,7 @@ function detailsSubmit(e) {
 }
 
 function startProgressBar() { 
-    var loadTime = 10; // seconds
+    var loadTime = 5; // seconds
     $('#progressBar').css({'transform': 'translateX(1400px)',
                            'transition': 'transform '+loadTime+'s linear .1s'});
     var startPos = $('#progressBar').offset().left;
@@ -155,12 +155,12 @@ function startProgressBar() {
         if (currentPos >= goalPos) {
             clearInterval(getPercentage);
             setTimeout(function() {
-                getTablesAndDatasets();
+                // getTablesAndDatasets();
                 $('.datasetWrap').show();
-                $('#datastorePanel').css({'background-color': 'white'});
+                $('#datastorePanel').css({'background-color': 'white'})
+                    .width('200%');
                 $('#loadArea').css('background-color', '#E6E6E6');
-                $('#datastorePanel').width('200%');
-                 $('#progressBar').css({'transform': 'translateX(20000px)'});
+                $('#progressBar').css({'transform': 'translateX(20000px)'});
             },100);
             setTimeout(function(){
                 $('#loadArea').html("").css({'background-color': 'transparent',
@@ -189,7 +189,6 @@ function loadReadyFunction() {
     $("#filePathSelector").hide();
     $("#keySelector").hide();
     $("#uploadProgress").hide();
-    monitorOverlayPercent();
 }
 
 
