@@ -1351,13 +1351,30 @@ function documentReadyCommonFunction() {
             $(this).attr('size', size);
         });
         $('.worksheetTab:last').click();
+        $('#worksheetBar .worksheetTab:last').css('margin-top', 0);
+        // XXX Please take a look at this. When I enable the following code,
+        // somehow the css doesn't get run during setWorksheetNames function
+/**
         setTimeout(function() { 
             $('#worksheetBar .worksheetTab:last').css('margin-top', 0);
         }, 1);
+*/        
+        $('.worksheetTab:last input').blur(function() {
+            var index = $('#worksheetBar .worksheetTab input').index($(this));
+            setWorksheetName(index, $(this).val());
+            console.log("Changing stored worksheet name");
+            commitToStorage();
+        });
+    
+        $('.worksheetTab:last input').keypress(function(e) {
+            if (e.which == 13) {
+                $(this).blur();
+            }
+        });
 
-        $('#modalBackground').show();
+        // $('#modalBackground').show();
         $('body').addClass('hideScroll');
-        shoppingCart();
+        // shoppingCart();
     });
 
     $('.worksheetTab').mousedown(function() {
@@ -1897,11 +1914,17 @@ function documentReadyCatFunction() {
     }    
 }
 
-// XXX: REMOVE!
-function hackyShit() {
-    if (gTableName === "joined") {
-        // XXX TODO: Create a new worksheet tab here and make it selected
+function setWorksheetNames() {
+    for (var i = 0; i<gWorksheetName.length; i++) {
+        $("#newWorksheet span").click();
     }
+
+    var index = 0;
+    $("#worksheetBar .worksheetTab input").each(function() {
+        $(this).val(gWorksheetName[index]);
+        index++;
+    });
+    $("#worksheetBar .worksheetTab:first").click();
 }
 
 function startupFunctions(table) {
@@ -1919,13 +1942,7 @@ function startupFunctions(table) {
     generateFirstLastVisibleRowNum();
     cloneTableHeader();   
     infScrolling();
-    hackyShit();
-    if (getUrlVars().length == 0) {
-        $('#autoGenTable th, #autoGenTable td').empty();
-        $('.rowNum').text('-');
-        $('#pageInput').next().remove();
-        $('#searchBar').val('');
-    }
+    setWorksheetNames();
 }        
 
 function documentReadyIndexFunction() {
@@ -1945,7 +1962,7 @@ function getDatasetSamples() {
         // Alternatively you can just randomly pick a static placeholder name
         var datasetName = getDsName(datasets.datasets[i].datasetId);
         // Gets the first 20 entries and stores it.
-        samples[datasetName] = XcalarSample(datasets.datasets[i].datasetId, 20);
+        samples[datasetName] = XcalarSample(datasets.datasets[i].datasetId, 80);
 
         // add the tab and the table for this dataset to shoppingcart div
         addDatasetTable(datasetName, i+1);
