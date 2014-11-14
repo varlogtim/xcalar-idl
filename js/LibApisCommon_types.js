@@ -547,13 +547,13 @@ KeyValuePairsT.prototype.write = function(output) {
 
 XcalarApiTableT = function(args) {
   this.tableName = null;
-  this.handle = null;
+  this.tableId = null;
   if (args) {
     if (args.tableName !== undefined) {
       this.tableName = args.tableName;
     }
-    if (args.handle !== undefined) {
-      this.handle = args.handle;
+    if (args.tableId !== undefined) {
+      this.tableId = args.tableId;
     }
   }
 };
@@ -580,7 +580,7 @@ XcalarApiTableT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.I64) {
-        this.handle = input.readI64().value;
+        this.tableId = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -601,9 +601,9 @@ XcalarApiTableT.prototype.write = function(output) {
     output.writeString(this.tableName);
     output.writeFieldEnd();
   }
-  if (this.handle !== null && this.handle !== undefined) {
-    output.writeFieldBegin('handle', Thrift.Type.I64, 2);
-    output.writeI64(this.handle);
+  if (this.tableId !== null && this.tableId !== undefined) {
+    output.writeFieldBegin('tableId', Thrift.Type.I64, 2);
+    output.writeI64(this.tableId);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -3902,3 +3902,4 @@ XcalarApiWorkItemResult.prototype.write = function(output) {
   return;
 };
 
+XcalarApiTableIdInvalidT = 0;

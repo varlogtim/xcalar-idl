@@ -1,6 +1,6 @@
 var hostname = "heisenberg";
 // var hostname = "10.1.1.158";
-var portNumber = 9090;
+var portNumber = 9091;
 
 $(document).ready(function(){
    $('table.XcalarApiService').attr('width', 500);
@@ -168,7 +168,6 @@ function XcalarGetCount(tableName) {
     workItem.input = new XcalarApiInputT();
     workItem.input.tableInput = new XcalarApiTableT();
     workItem.input.tableInput.tableName = tableName;
-    workItem.input.tableInput.handle = 0;
 
     var totEntries = 0;
     try {
@@ -373,7 +372,6 @@ function XcalarGetTableId(tableName) {
     workItem.input.makeResultSetInput.table = new XcalarApiTableT();
     console.log(tableName);
     workItem.input.makeResultSetInput.table.tableName = tableName;
-    workItem.input.makeResultSetInput.table.handle = 0;
     workItem.input.makeResultSetInput.datasetId = 0;
 
     try {
@@ -477,9 +475,7 @@ function XcalarFilter(operator, value, srcTablename, dstTablename) {
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiFilter;
     workItem.input.filterInput.table.tableName = srcTablename;
-    workItem.input.filterInput.table.handle = 0;
     workItem.input.filterInput.filterTable.tableName = dstTablename;
-    workItem.input.filterInput.filterTable.handle = 0;
     switch (operator) {
     case ("Greater Than"):
         workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsMoreEqual;
@@ -532,11 +528,8 @@ function XcalarJoin(left, right, dst) {
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiJoin;
     workItem.input.joinInput.leftTable.tableName = left;
-    workItem.input.joinInput.leftTable.handle = 0;
     workItem.input.joinInput.rightTable.tableName = right;
-    workItem.input.joinInput.rightTable.handle = 0;
     workItem.input.joinInput.joinTable.tableName = dst;
-    workItem.input.joinInput.joinTable.handle = 0;
     workItem.input.joinInput.joinType = OperatorsOpT.OperatorsInnerJoin;
 
     try {
@@ -561,9 +554,7 @@ function XcalarGroupBy() {
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiGroupBy;
     workItem.input.groupByInput.table.tableName = $('#GroupSrcTableName').val();
-    workItem.input.groupByInput.table.handle = 0;
     workItem.input.groupByInput.groupByTable.tableName = $('#GroupDstTableName').val();
-    workItem.input.groupByInput.groupByTable.handle = 0;
     workItem.input.groupByInput.groupByOp = OperatorsOpT.OperatorsAverage;
 
     try {
