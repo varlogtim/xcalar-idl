@@ -59,24 +59,21 @@ function getPage(resultSetId, firstTime, direction) {
     var indexNumber = (gCurrentPageNumber-shift) * gNumEntriesPerPage;
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
+    var rowTemplate = createRowTemplate();
+
     for (var i = 0; i<numRows; i++) {
         if (direction == 1) {
-            if (tableOfEntries.kvPairs.recordType ==
-                GenericTypesRecordTypeT.GenericTypesVariableSize) { 
-                var value = tableOfEntries.kvPairs
-                            .records[numRows-1-i].kvPairVariable.value;
-            } else {
-                var value = tableOfEntries.kvPairs
-                            .records[numRows-1-i].kvPairFixed.value;
-            }
+            var index = numRows-1-i;
         } else {
-            if (tableOfEntries.kvPairs.recordType ==
-                GenericTypesRecordTypeT.GenericTypesVariableSize) { 
-                var value = tableOfEntries.kvPairs.records[i]
-                            .kvPairVariable.value;
-            } else {
-                var value = tableOfEntries.kvPairs.records[i].kvPairFixed.value;
-            }
+            var index = i;
+        }
+        if (tableOfEntries.kvPairs.recordType ==
+            GenericTypesRecordTypeT.GenericTypesVariableSize) { 
+            var value = tableOfEntries.kvPairs
+                        .records[index].kvPairVariable.value;
+        } else {
+            var value = tableOfEntries.kvPairs.records[index]
+                        .kvPairFixed.value;
         }
         if (firstTime) {
             generateFirstScreen(value, indexNumber+i+1, tdHeights[i]);
@@ -85,8 +82,8 @@ function getPage(resultSetId, firstTime, direction) {
                 generateRowWithCurrentTemplate(value,
                     indexNumber+(numRows-i), direction);
             } else {
-                generateRowWithCurrentTemplate(value, indexNumber+i+1,
-                                               direction);
+                generateRowWithCurrentTemplate(value, indexNumber+index+1, 
+                                            rowTemplate, direction);
             }         
         }
     }
@@ -124,11 +121,32 @@ function getPage(resultSetId, firstTime, direction) {
             // would've sized it in CatFunction
         } else {
             if (firstTime && !getIndex(gTableName)) {
+                // console.log('first time')
                 execCol(gTableCols[i]);
             } else {
-                execCol(gTableCols[i]);
+                if (direction) {
+                    var execColArgs; 
+                    var startingIndex;
+                    var numberofRows;
+                    if (direction == 1) {
+                        startingIndex = parseInt(($('#autoGenTable tbody td:first')
+                                            .attr('id')).substring(5));
+                        execColArgs = {};
+                        execColArgs.startIndex = startingIndex;
+                        execColArgs.numberofRows = numRows;
+                    } else {
+                        var td = $('#autoGenTable tr:nth-last-child('+gNumEntriesPerPage+') td:first');
+                        startingIndex = parseInt(td.attr('id').substring(5));
+                        execColArgs = {};
+                        execColArgs.startIndex = startingIndex;
+                        execColArgs.numberofRows = numRows;
+                    }
+                    execCol(gTableCols[i], execColArgs);
+                } else {
+                    execCol(gTableCols[i]);
+                }
                 if (gTableCols[i].name == gKeyName) {
-                    console.log(gKeyName);
+                    // console.log(gKeyName);
                     autosizeCol($('#headCol'+(gTableCols[i].index)));
                 }
             }
@@ -140,4 +158,3 @@ function getPage(resultSetId, firstTime, direction) {
     $('#autoGenTable th:first-child').width(newWidth+14);
     matchHeaderSizes();
 }
-

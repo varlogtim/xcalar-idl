@@ -395,4 +395,64 @@ function addTabFunctionality() {
     });
 }
 
+function addWorksheetTab(value) {
+    var tabCount = $('#worksheetBar .worksheetTab').length;
+    var text = value || "worksheet "+(tabCount+1);
+    if (tabCount > 4) {
+        var width = ((1/(tabCount+1)))*70+'%';
+        $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');
+    } else {
+        var width = $('.worksheetTab').width();
+    }
+    if (value) {
+        var marginTop = '0px';
+    } else {
+        var marginTop = '-26px';
+    }
+    
+    $('#worksheetBar').append('<div class="worksheetTab" '+
+                        'style="width:'+width+';'+
+                        'margin-top:'+marginTop+';">'+
+                        '<input spellcheck="false" type="text" '+
+                        'value="'+text+'" '+
+                        'size="'+(text.length+1)+'"></div>');
+
+    var newTab = $('#worksheetBar .worksheetTab:last');
+    var newInput = newTab.find('input');
+    var size = getTextWidth(newTab.find('input'));
+
+    newInput.width(size);
+
+    newTab.css('margin-top','0px')
+   
+    newTab.click(function() {
+        $('.worksheetTab').removeClass('tabSelected');
+        $(this).addClass('tabSelected');
+    });
+
+    newInput.on('input', function() {
+        var width = getTextWidth($(this));
+        $(this).width(width);
+    });
+
+    newTab.click();
+   
+    newInput.change(function() {
+        var index = $('#worksheetBar .worksheetTab input').index($(this));
+        // cool I didn't know you could use .index() like that
+        setWorksheetName(index, $(this).val());
+        console.log("Changing stored worksheet name");
+        commitToStorage();
+    });
+
+    newInput.keypress(function(e) {
+        if (e.which == 13) {
+            $(this).blur();
+        }
+    });
+
+    // $('#modalBackground').show();
+    $('body').addClass('hideScroll');
+    // shoppingCart();
+}
 

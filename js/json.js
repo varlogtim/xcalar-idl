@@ -168,7 +168,6 @@ function jsonModalMouseDown(e) {
     'cursor: -moz-grabbing !important;}</style>';
     $(document.head).append(cursorStyle);
     disableTextSelection();
-    console.log(gDragObj.left);
 }
         
 function jsonModalMouseMove(e) {

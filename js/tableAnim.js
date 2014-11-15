@@ -247,14 +247,13 @@ function resrowMouseUp() {
 
 function dragdropMouseDown(el, event) {
     gMouseStatus = "movingCol";
-    gDragObj.mouseStart = event.pageX;
+    gDragObj.mouseX = event.pageX;
     gDragObj.id = el.attr('id');
     gDragObj.colId = parseInt(gDragObj.id.substring(7));
     gDragObj.colIndex = parseInt(el.index());
-    gDragObj.colOffLeft = el.offset().left;
-    gDragObj.colOffTop = el.offset().top;
+    gDragObj.top = el.offset().top;
     var firstTd = $('#autoGenTable td:eq('+(gDragObj.colId-1)+')');
-    gDragObj.colOffLeft = firstTd.offset().left;
+    gDragObj.left = firstTd.offset().left;
     gDragObj.docHeight = $(document).height();
     var tableHeight = el.closest('table').height();
     var mainFrameHeight = $('#mainFrame').height()-gScrollbarHeight;
@@ -273,7 +272,7 @@ function dragdropMouseDown(el, event) {
                             'px;top:'+(gDragObj.top)+'px;"></div>');
 
     // create a fake transparent column by cloning 
-    createTransparentDragDropCol(startYPos);
+    createTransparentDragDropCol(startY);
 
     var cursorStyle = '<style id="moveCursor" type="text/css">*'+ 
         '{cursor:move !important; cursor: -webkit-grabbing !important;'+
@@ -633,6 +632,7 @@ function matchHeaderSizes(reverse) {
 }
 
 function addColListeners(colId) {
+    resizableColumns();
     $('#rename'+colId).focus(function() {  
         $('.colMenu').hide();
         var index = parseInt($(this).attr('id').substring(6));
@@ -728,7 +728,7 @@ function addColListeners(colId) {
 
     $('#headCol'+colId+' .dragArea').mousedown(function(event){
         var headCol = $(this).parent().parent();
-        headCol.find('.editableHead').focus();
+        // headCol.find('.editableHead').focus();
         dragdropMouseDown(headCol, event);
     });
 

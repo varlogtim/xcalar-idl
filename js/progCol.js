@@ -408,6 +408,5 @@ function addCol(id, name, options) {
         // $('#rename'+newColid).select().focus();
         $('#rename'+newColid).focus();
     }
-    resizableColumns();
     matchHeaderSizes();
 }

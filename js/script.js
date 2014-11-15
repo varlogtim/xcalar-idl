@@ -188,32 +188,47 @@ function documentReadyCommonFunction() {
     });
 
     // $("#searchBar").val('tablename = "'+searchText+'"');
-    var resultTextLength = (""+resultSetCount).length
-    $('#pageInput').attr({'maxLength': resultTextLength,
+    var resultTextLength = (""+resultSetCount).length;
+    $('#rowInput').attr({'maxLength': resultTextLength,
                           'size': resultTextLength});
-    $('#pageInput').keypress(function(e) {
+    $('#rowInput').keypress(function(e) {
         if (e.which === 13) {
-            val = $('#pageInput').val();
-            if (val == "" || val%1 != 0) {
+            var row = $('#rowInput').val();
+            if (row == "" || row%1 != 0) {
                 return;
-            } else if (val < 1) {
-                $('#pageInput').val('1');
-            } else if (val > resultSetCount) {
-                $('#pageInput').val(resultSetCount);
+            } else if (row < 1) {
+                $('#rowInput').val('1');
+            } else if (row > resultSetCount) {
+                $('#rowInput').val(resultSetCount);
             }
+            row = $('#rowInput').val();
             // XXX: HACK
             gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
             $("#autoGenTable tbody").empty();
-            goToPage(Math.ceil(
-                     parseInt($('#pageInput').val())/gNumEntriesPerPage));
-            goToPage(Math.ceil(
-                     parseInt($('#pageInput').val())/gNumEntriesPerPage)+1);
-            goToPage(Math.ceil(
-                     parseInt($('#pageInput').val())/gNumEntriesPerPage)+2);
+
+            if (((row)/gNumEntriesPerPage) >= 
+                    Math.floor((resultSetCount/gNumEntriesPerPage))) {
+                // going past last page
+                goToPage(Math.ceil(
+                        parseInt(row/gNumEntriesPerPage))-1);
+                goToPage(Math.ceil(
+                        parseInt(row/gNumEntriesPerPage)));
+                goToPage(Math.ceil(
+                        parseInt(row/gNumEntriesPerPage))+1);
+                var tableHeight = $('#autoGenTable').outerHeight();
+                $('#mainFrame').scrollTop(tableHeight);
+            } else {
+                goToPage(Math.ceil(
+                        parseInt(row/gNumEntriesPerPage)));
+                goToPage(Math.ceil(
+                        parseInt(row/gNumEntriesPerPage))+1);
+                goToPage(Math.ceil(
+                        parseInt(row/gNumEntriesPerPage))+2);
+                $('#mainFrame').scrollTop('1');
+                // should be 0 but can't because would activate scrolltop pages
+            }
             generateFirstLastVisibleRowNum();
-            movePageScroll($('#pageInput').val());
-            $('#mainFrame').scrollTop('1');
-            // should be 0 but can't because would activate scrolltop pages
+            movePageScroll(row);
             // $(this).blur(); 
         }
     });
@@ -223,6 +238,7 @@ function documentReadyCommonFunction() {
     $(window).resize(function() {
         $('.colGrab').height($('#mainFrame').height());
         checkForScrollBar();
+        generateFirstLastVisibleRowNum();
     });
 
     $('.closeJsonModal, #modalBackground').click(function(){
@@ -256,41 +272,6 @@ function documentReadyCommonFunction() {
         $('.editableHead').removeClass('resizeEditableHead');
     });
 
-    $('#newWorksheet span').click(function(){
-        var tabCount = $('#worksheetBar .worksheetTab').length;
-        var text = "worksheet"+(tabCount-1);
-        if (tabCount > 4) {
-            var width = ((1/(tabCount+1)))*70+'%';
-            $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');
-        } else {
-            var width = $('.worksheetTab').width();
-        }
-        
-        $('#worksheetBar').append('<div class="worksheetTab" '+
-                            'style="width:'+width+';margin-top:-26px;">'+
-                            '<input type="text" '+
-                            'value="'+text+'" '+
-                            'size="'+text.length+'"></div>');
-
-        $('.worksheetTab:last').click(function(){
-            $('.worksheetTab').removeClass('tabSelected');
-            $(this).addClass('tabSelected');
-        });
-
-        $('.worksheetTab:last input').on('input', function() {
-            var size = $(this).val().length;
-            $(this).attr('size', size);
-        });
-        $('.worksheetTab:last').click();
-        setTimeout(function() { 
-            $('#worksheetBar .worksheetTab:last').css('margin-top', 0);
-        }, 1);
-
-        $('#modalBackground').show();
-        $('body').addClass('hideScroll');
-        shoppingCart();
-    });
-
     $('.worksheetTab').mousedown(function() {
         $('.worksheetTab').removeClass('tabSelected');
         $(this).addClass('tabSelected');
@@ -305,80 +286,8 @@ function documentReadyCommonFunction() {
         var size = $(this).val().length;
         $(this).attr('size', size);
     }
-}
 
-function documentReadyCommonFunction() {
-
-    // $("#searchBar").val('tablename = "'+searchText+'"');
-    var resultTextLength = (""+resultSetCount).length
-    $('#pageInput').attr({'maxLength': resultTextLength,
-                          'size': resultTextLength});
-    $('#pageInput').keypress(function(e) {
-        if (e.which === 13) {
-            val = $('#pageInput').val();
-            if (val == "" || val%1 != 0) {
-                return;
-            } else if (val < 1) {
-                $('#pageInput').val('1');
-            } else if (val > resultSetCount) {
-                $('#pageInput').val(resultSetCount);
-            }
-            // XXX: HACK
-            gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
-            $("#autoGenTable tbody").empty();
-            goToPage(Math.ceil(
-                     parseInt($('#pageInput').val())/gNumEntriesPerPage));
-            goToPage(Math.ceil(
-                     parseInt($('#pageInput').val())/gNumEntriesPerPage)+1);
-            goToPage(Math.ceil(
-                     parseInt($('#pageInput').val())/gNumEntriesPerPage)+2);
-            generateFirstLastVisibleRowNum();
-            movePageScroll($('#pageInput').val());
-            $('#mainFrame').scrollTop('1');
-            // should be 0 but can't because would activate scrolltop pages
-            // $(this).blur(); 
-        }
-    });
-    $('#pageBar > div:last-child').append('<span>of '+resultSetCount+'</span>');
-
-    $(window).resize(function() {
-        $('.colGrab').height($('#mainFrame').height());
-        checkForScrollBar();
-        generateFirstLastVisibleRowNum();
-    });
-
-    $('.closeJsonModal, #modalBackground').click(function(){
-        if ($('#jsonModal').css('display') != 'none') {
-            $('#modalBackground').hide(); 
-            $('body').removeClass('hideScroll');
-        }
-        $('#jsonModal').hide();
-    });
-
-
-    $('#datastorePanel .menuAreaItem:first').click(function(){
-        $("#loadArea").load('load_r.html', function(){
-            // load_r.html contains load.js where this function is defined
-            loadReadyFunction();
-            $('#progressBar').css('transform', 'translateX(330px)');
-            $('.dataStep').css('transform', 'translateX(320px)');
-            $('.dataOptions').css('transform','translateX(570px)').css('z-index', 6);
-        });
-        $('.datasetWrap').addClass('shiftRight');
-    });
-
-    $('#autoGenTable thead').mouseenter(function(event) {
-        if (!$(event.target).hasClass('colGrab')) {
-            $('.dropdownBox').css('opacity', 0.4);
-            $('.editableHead').addClass('resizeEditableHead');
-        }
-    })
-    .mouseleave(function() {
-        $('.dropdownBox').css('opacity', 0);
-        $('.editableHead').removeClass('resizeEditableHead');
-    });
-
-    $('#newWorksheet span').click(function() {
+     $('#newWorksheet span').click(function() {
         addWorksheetTab();
     });
 
@@ -388,11 +297,11 @@ function documentReadyCommonFunction() {
         var mouseX = event.pageX - $(this).offset().left;
         var scrollWidth = $(this).outerWidth();
         var pageNum = Math.ceil((mouseX / scrollWidth) * resultSetCount);
-        var pageInputNum = $("#pageInput").val();
+        var rowInputNum = $("#rowInput").val();
         var e = $.Event("keypress");
         e.which = 13;
-        $("#pageInput").val(pageNum).trigger(e);
-        $("#pageInput").val(pageInputNum);
+        $("#rowInput").val(pageNum).trigger(e);
+        $("#rowInput").val(rowInputNum);
         $('#pageMarker').css('transform', 'translateX('+mouseX+'px)');
     });
 
@@ -455,73 +364,10 @@ function documentReadyCommonFunction() {
     }); 
 }
 
-function addWorksheetTab(value) {
-    var tabCount = $('#worksheetBar .worksheetTab').length;
-    var text = value || "worksheet "+(tabCount+1);
-    if (tabCount > 4) {
-        var width = ((1/(tabCount+1)))*70+'%';
-        $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');
-    } else {
-        var width = $('.worksheetTab').width();
-    }
-    if (value) {
-        var marginTop = '0px';
-    } else {
-        var marginTop = '-26px';
-    }
-    
-    $('#worksheetBar').append('<div class="worksheetTab" '+
-                        'style="width:'+width+';'+
-                        'margin-top:'+marginTop+';">'+
-                        '<input spellcheck="false" type="text" '+
-                        'value="'+text+'" '+
-                        'size="'+(text.length+1)+'"></div>');
-
-    var newTab = $('#worksheetBar .worksheetTab:last');
-    var newInput = newTab.find('input');
-    var size = getTextWidth(newTab.find('input'));
-
-    newInput.width(size);
-
-    newTab.css('margin-top','0px')
-   
-    newTab.click(function() {
-        $('.worksheetTab').removeClass('tabSelected');
-        $(this).addClass('tabSelected');
-    });
-
-    newInput.on('input', function() {
-        var width = getTextWidth($(this));
-        $(this).width(width);
-    });
-
-    newTab.click();
-   
-    newInput.change(function() {
-        var index = $('#worksheetBar .worksheetTab input').index($(this));
-        // cool I didn't know you could use .index() like that
-        setWorksheetName(index, $(this).val());
-        console.log("Changing stored worksheet name");
-        commitToStorage();
-    });
-
-    newInput.keypress(function(e) {
-        if (e.which == 13) {
-            $(this).blur();
-        }
-    });
-
-    // $('#modalBackground').show();
-    $('body').addClass('hideScroll');
-    // shoppingCart();
-}
-
 function documentReadyCatFunction() {
     documentReadyCommonFunction();
     // getTablesAndDatasets();  //XXX this is being called before documentreadycatfunction gets called
-    // XXX: Should this be called here or at the end? I think it should be here
-    // or I may end up attaching 2 listeners?
-    resizableColumns();
+
     var index = getIndex(gTableName);
     getNextPage(gResultSetId, true);
     if (index) {
@@ -600,6 +446,21 @@ function parseJsonValue(value) {
     return (value);
 }
 
+function movePageScroll(pageNum) {
+    var pct = (pageNum/resultSetCount);
+    var dist = Math.floor(pct*$('#pageScroll').width());
+    $('#pageMarker').css('transform', 'translateX('+dist+'px)');
+}
+
+function checkForScrollBar() {
+    var tableWidth = $('#autoGenTable').width()+
+        parseInt($('#autoGenTable').css('margin-left'));
+    if (tableWidth > $(window).width()) {
+        gScrollbarHeight = 8;
+    } else {
+        gScrollbarHeight = 0;
+    }
+}
 //XXX remove this for production. I updated load_r.html
 // but the jquery load function loads the old load_r.html 
 // unless I use ajaxSetup cache: false;

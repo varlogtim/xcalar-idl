@@ -8,19 +8,11 @@ function fillPageWithBlankCol() {
     }
 }
 
-function generateRowWithCurrentTemplate(json, id, direction) {
+function generateRowWithCurrentTemplate(json, id, rowTemplate, direction) {
     // Replace JSON
-    var startString = '<div class="elementText">';
-    var endString="</div>";
-    var originalString = $("#autoGenTable tbody tr:nth-last-child(1)").html() ||
-                         gTempStyle;
-    var index = originalString.indexOf(startString);
-    var firstPart = originalString.substring(0, index+startString.length);
-    var secondPart = originalString.substring(index+startString.length+1);
-    var secondIndex = secondPart.indexOf(endString);
-    secondPart = secondPart.substring(secondIndex);
+    var firstPart = rowTemplate.firstPart;
+    var secondPart = rowTemplate.secondPart;
     var finalString = firstPart+json+secondPart;
-    // console.log(finalString,1)
     // Replace id
     firstIndex = finalString.indexOf('idSpan">')+('idSpan">').length;
     secondIndex = finalString.indexOf("<", firstIndex);
@@ -38,9 +30,9 @@ function generateRowWithCurrentTemplate(json, id, direction) {
         $("#autoGenTable tbody").append(finalString);
     } else { 
         if (direction == 1) {
-            $("#autoGenTable tbody tr:first-child").before(finalString);
+            $("#autoGenTable tbody").prepend(finalString);
         } else {
-            $("#autoGenTable tbody tr:nth-last-child(1)").after(finalString);
+            $("#autoGenTable tbody").append(finalString);
         }    
     }
 
@@ -114,4 +106,20 @@ function generateFirstScreen(value, idNo, height) {
     $('#bodyr'+idNo+'c1 .rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
+}
+
+function createRowTemplate() {
+    var startString = '<div class="elementText">';
+    var endString="</div>";
+    var originalString = $("#autoGenTable tbody tr:nth-last-child(1)").html() ||
+                         gTempStyle;
+    var index = originalString.indexOf(startString);
+    var firstPart = originalString.substring(0, index+startString.length);
+    var secondPart = originalString.substring(index+startString.length+1);
+    var secondIndex = secondPart.indexOf(endString);
+    secondPart = secondPart.substring(secondIndex);
+    var parts = {};
+    parts.firstPart = firstPart;
+    parts.secondPart = secondPart;
+    return (parts);
 }
