@@ -87,6 +87,34 @@ function createJsonSelectionExpression(el) {
 }
 
 function showJsonModal(jsonTd) {
+    positionJsonModal(jsonTd);
+
+    $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
+        var name = createJsonSelectionExpression($(this));
+        var id = $("#autoGenTable th").filter(function() {
+                        return $(this).find("input").val() == "DATA";
+                    }).attr("id");
+        var colIndex = parseInt(id.substring(7)); 
+        addCol(id, name);
+        gTableCols[colIndex-1].func.func = "pull";        
+        gTableCols[colIndex-1].func.args = [name];
+        gTableCols[colIndex-1].userStr = '"'+name+'" = pull('+name+')';
+        execCol(gTableCols[colIndex-1]);
+        autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
+                resizeFirstRow: true});
+        $('thead:first #headCol'+(colIndex+1)+' .editableHead').focus();
+        // XXX call autosizeCol after focus if you want to make column wide enough
+        // to show the entire function in the header
+        // autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
+        //         resizeFirstRow: true});
+        $('#jsonModal, #modalBackground').hide();
+        $('body').removeClass('hideScroll');
+    });
+    window.getSelection().removeAllRanges();
+    $('body').addClass('hideScroll');
+}
+
+function positionJsonModal(jsonTd) {
     var winHeight = $(window).height();
     var winWidth = $(window).width();
     var jsonTdHeight = jsonTd.outerHeight(); 
@@ -119,9 +147,9 @@ function showJsonModal(jsonTd) {
     }
 
     if (jsonTdPos.left+(jsonTdWidth/2) > (winWidth/2)) {
-        var modalLeft = Math.min((jsonTdPos.left+(jsonTdWidth/2)) - modalWidth, 
-            winWidth - modalWidth - 20);
-        // closeLeft += 5;
+        var modalLeft = Math.min((jsonTdPos.left+(jsonTdWidth/2)) 
+            - modalWidth, winWidth - modalWidth - 20);
+        closeLeft = "auto";
         $('#closeArrow').addClass('jsonRight');
     } else {
         var modalLeft = Math.max(jsonTdPos.left+(jsonTdWidth/2) , 20);
@@ -129,31 +157,6 @@ function showJsonModal(jsonTd) {
     
     $('#jsonModal').css({'left': modalLeft, 'top': modalTop});
     $('.closeJsonModal').css({'left': closeLeft, 'top': closeTop});
-
-    $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
-        var name = createJsonSelectionExpression($(this));
-        var id = $("#autoGenTable th").filter(function() {
-                        return $(this).find("input").val() == "DATA";
-                    }).attr("id");
-        var colIndex = parseInt(id.substring(7)); 
-        addCol(id, name);
-        gTableCols[colIndex-1].func.func = "pull";        
-        gTableCols[colIndex-1].func.args = [name];
-        gTableCols[colIndex-1].userStr = '"'+name+'" = pull('+name+')';
-        execCol(gTableCols[colIndex-1]);
-        autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
-                resizeFirstRow: true});
-        $('thead:first #headCol'+(colIndex+1)+' .editableHead').focus();
-        // XXX call autosizeCol after focus if you want to make column wide enough
-        // to show the entire function in the header
-        // autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
-        //         resizeFirstRow: true});
-        $('#jsonModal, #modalBackground').hide();
-        $('#jsonModal').css('left',0);
-        $('body').removeClass('hideScroll');
-    });
-    window.getSelection().removeAllRanges();
-    $('body').addClass('hideScroll');
 }
 
 function jsonModalMouseDown(e) {

@@ -679,8 +679,8 @@ function addColListeners(colId) {
     });
 
     $('#headCol'+colId+' .dropdownBox').click(function() {
-        $('.colMenu').hide().removeClass('leftColMenu')
-                    .find('.subColMenu').removeClass('leftColMenu');
+        $('.colMenu').hide();
+        $('.leftColMenu').removeClass('leftColMenu');
         $(this).siblings('.colMenu').show();
         var colMenu = $(this).siblings('.colMenu');
         if (colMenu[0].getBoundingClientRect().right > $(window).width()) {

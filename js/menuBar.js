@@ -13,7 +13,7 @@ function menuBarArt() {
         setTimeout(function() {clickTooFast = false}, 300);
         if (clickTarget == $(event.target).text()) {
             //if clicking on an already open menu, close it
-            $("#menuBar div").removeClass("menuSelected");
+            $(".menuSelected").removeClass("menuSelected");
             $('#mainFrame').height('calc(100% - 148px)');
 
             $("#menuArea").height(0);
@@ -22,6 +22,7 @@ function menuBarArt() {
             setTimeout(function() {
                 $('.trueTHead').removeClass('moveTop');
                 $('.colGrab').height($('#mainFrame').height());
+                generateFirstLastVisibleRowNum();
             },300);
             return;
         }
@@ -32,9 +33,10 @@ function menuBarArt() {
         setTimeout(function() {
             $('.trueTHead').removeClass('moveTop');
             $('.colGrab').height($('#mainFrame').height());
+            generateFirstLastVisibleRowNum();
         },300);
 
-        $("#menuBar div").removeClass("menuSelected");
+        $(".menuSelected").removeClass("menuSelected");
         $(this).addClass("menuSelected");
         $("#menuArea").show().height(66);
         $('#mainFrame').height('calc(100% - 214px)');
@@ -43,7 +45,6 @@ function menuBarArt() {
         case ("datastore"):
             $("#datastorePanel").show();
             $("#datastorePanel").siblings().hide();
-         
             break;
         case ("monitor"):
             resetLoadArea();

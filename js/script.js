@@ -76,22 +76,6 @@ function infScrolling() {
     });
 }
 
-function movePageScroll(pageNum) {
-    var pct = (pageNum/resultSetCount);
-    var dist = Math.floor(pct*$('#pageScroll').width());
-    $('#pageMarker').css('transform', 'translateX('+dist+'px)');
-}
-
-function checkForScrollBar() {
-    var tableWidth = $('#autoGenTable').width()+
-        parseInt($('#autoGenTable').css('margin-left'));
-    if (tableWidth > $(window).width()) {
-        gScrollbarHeight = 8;
-    } else {
-        gScrollbarHeight = 0;
-    }
-}
-
 // XXX: This function should disappear. But I need to be able to free the
 // result sets
 function loadMainContent(op) {
@@ -143,6 +127,7 @@ $(window).unload(
 );
 
 // ========================== Document Ready ==================================
+
 function documentReadyCommonFunction() {
     // XXX: TODO: FIXME: Break this function up into its various components,
     // and stick them into separate files.
@@ -187,7 +172,6 @@ function documentReadyCommonFunction() {
         }
     });
 
-    // $("#searchBar").val('tablename = "'+searchText+'"');
     var resultTextLength = (""+resultSetCount).length;
     $('#rowInput').attr({'maxLength': resultTextLength,
                           'size': resultTextLength});
@@ -201,32 +185,24 @@ function documentReadyCommonFunction() {
             } else if (row > resultSetCount) {
                 $('#rowInput').val(resultSetCount);
             }
-            row = $('#rowInput').val();
+            row = parseInt($('#rowInput').val());
             // XXX: HACK
             gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
             $("#autoGenTable tbody").empty();
 
-            if (((row)/gNumEntriesPerPage) >= 
-                    Math.floor((resultSetCount/gNumEntriesPerPage))) {
-                // going past last page
-                goToPage(Math.ceil(
-                        parseInt(row/gNumEntriesPerPage))-1);
-                goToPage(Math.ceil(
-                        parseInt(row/gNumEntriesPerPage)));
-                goToPage(Math.ceil(
-                        parseInt(row/gNumEntriesPerPage))+1);
-                var tableHeight = $('#autoGenTable').outerHeight();
-                $('#mainFrame').scrollTop(tableHeight);
+            if (((row)/gNumEntriesPerPage) >
+                    Math.floor((resultSetCount/gNumEntriesPerPage)-2)) {
+                //if row lives inside last 3 pages, prepare to display last 3 pages
+                var pageNum = (resultSetCount-1)/gNumEntriesPerPage - 2;
             } else {
-                goToPage(Math.ceil(
-                        parseInt(row/gNumEntriesPerPage)));
-                goToPage(Math.ceil(
-                        parseInt(row/gNumEntriesPerPage))+1);
-                goToPage(Math.ceil(
-                        parseInt(row/gNumEntriesPerPage))+2);
-                $('#mainFrame').scrollTop('1');
-                // should be 0 but can't because would activate scrolltop pages
+                var pageNum = row/gNumEntriesPerPage;
             }
+            var numPagesToAdd = 3;
+            for (var i = 0; i < numPagesToAdd; i++) {
+                goToPage(Math.ceil(pageNum)+i);
+            }
+
+            positionScroll(row);
             generateFirstLastVisibleRowNum();
             movePageScroll(row);
             // $(this).blur(); 
@@ -461,6 +437,30 @@ function checkForScrollBar() {
         gScrollbarHeight = 0;
     }
 }
+
+function positionScroll(row) {
+    var canScroll = true;
+    var theadHeight = $('#autoGenTable thead').height();
+    function positionScrollToRow() {
+        var tdTop = $('#bodyr'+row+'c1')[0].offsetTop;
+        var scrollPos = Math.max((tdTop-theadHeight), 1);
+        if (canScroll && scrollPos > 
+                ($('#autoGenTable').height() - $('#mainFrame').height())) {
+            canScroll = false;
+        }
+        $('#mainFrame').scrollTop(scrollPos);
+    }
+    
+    positionScrollToRow();
+    if (!canScroll) {
+        // this means we can't scroll to page without moving scrollbar all the
+        // way to the bottom, which triggers another getpage and thus we must
+        // try to position the scrollbar to the proper row again
+        setTimeout(positionScrollToRow, 1);
+    }
+}
+
+
 //XXX remove this for production. I updated load_r.html
 // but the jquery load function loads the old load_r.html 
 // unless I use ajaxSetup cache: false;

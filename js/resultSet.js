@@ -78,13 +78,8 @@ function getPage(resultSetId, firstTime, direction) {
         if (firstTime) {
             generateFirstScreen(value, indexNumber+i+1, tdHeights[i]);
         } else {
-            if (direction ==1) {
-                generateRowWithCurrentTemplate(value,
-                    indexNumber+(numRows-i), direction);
-            } else {
-                generateRowWithCurrentTemplate(value, indexNumber+index+1, 
-                                            rowTemplate, direction);
-            }         
+            generateRowWithCurrentTemplate(value, indexNumber+index+1, 
+                                            rowTemplate, direction);        
         }
     }
 
