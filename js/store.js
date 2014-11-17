@@ -4,19 +4,6 @@
 var gTableIndicesLookup = {};
 var gDsToNameTrans = {};
 var gTableOrderLookup = {};
-var gWorksheetName = [];
-
-function getWorksheet(index) {
-    if (!gWorksheetName) {
-        console.log("Nothing has ever been stored ever!");
-        gWorksheetName = [];
-    }
-    if (gWorksheetName.length <= index) {
-        console.log("No such index");
-        return (null);
-    }
-    return (gWorksheetName[index]);
-}
 
 function getIndex(tName) {
     if (!gTableIndicesLookup) {
@@ -87,19 +74,13 @@ function setOrder(tName, order) {
     gTableOrderLookup[tName] = order;
 }
 
-function setWorksheetName(index, name) {
-    gWorksheetName[index] = name;
-}
-
 function commitToStorage() {
     var stringed = JSON.stringify(gTableIndicesLookup);
     var stringed2 = JSON.stringify(gDsToNameTrans);
     var stringed3 = JSON.stringify(gTableOrderLookup);
-    var stringed4 = JSON.stringify(gWorksheetName);
     localStorage["TILookup"] = stringed;
     localStorage["DSName"] = stringed2;
     localStorage["TOLookup"] = stringed3;
-    localStorage["WSName"] = stringed4;
 }
 
 function readFromStorage() {
@@ -111,8 +92,5 @@ function readFromStorage() {
     }
     if (localStorage["TOLookup"]) {
         gTableOrderLookup = JSON.parse(localStorage["TOLookup"]);
-    }
-    if (localStorage["WSName"]) {
-        gWorksheetName = JSON.parse(localStorage["WSName"]);
     }
 }
