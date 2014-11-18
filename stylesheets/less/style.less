@@ -9,6 +9,7 @@
 @color-monitor-red: #F8A7AB;
 @color-monitor-green: #95DCBC;
 @color-monitor-lightGreen: #D5F1E4;
+@color-monitor-midGreen: #A6EDCD;
 @color-monitor-blue: #A6C5D2;
 /* Table */
 @color-table-red: #F46D73;
@@ -22,6 +23,9 @@
 @colorOpaque-pink: rgba(237, 28, 36, 0.1);
 @colorOpaque-blankGrayDark: rgba(0, 0, 0, 0.2);
 @colorShadow-black: rgba(0, 0, 0, 0.15);
+
+/*Tabs*/
+@color-tab-lightGray: #B4B4B4;
 
 /* Text */
 @color-text-black: #0F0F0F; 
@@ -149,11 +153,10 @@ input:focus {
 
 #menuArea {
     height: 0;
-    .transition (0.3s ease-out);
+    .transition (height 0.3s ease-out);
     overflow: hidden;
     position: relative;
     font-size: 14px;
-    // rudy new
 }
 
 #menuBar {
@@ -174,7 +177,7 @@ input:focus {
 }
 
 #monitorPanel {
-	background-color: #FFFFFF;
+	background-color: @color-white;
     .nomargin-padding;
     margin-top: 5px;
 	height: 62px;
@@ -206,7 +209,6 @@ input:focus {
     position: relative;
     left: 0px;
     height: 100%;
-    .transition (2s ease-in);
 }
 
 .monitorSubDiv {
@@ -283,7 +285,7 @@ input:focus {
 
 
 .datasetName {
-    color: #CCCCCC;
+    color: @color-table-blankGrayLight;
     line-height: 23px;
     font-size: 28px !important;
     width: 200px !important;
@@ -306,7 +308,7 @@ input:focus {
         padding: 5px 0px 0px 0px;
         margin: 0px 0px 0px 20px;
         font-size: 16px;
-        color: #FFFFFF;
+        color: @color-white;
         vertical-align: middle;
         input {
             border: 0px;
@@ -495,7 +497,8 @@ input:focus {
 
 .shiftRight {
     left: 10000px !important;
-    .transition (~"all 2.0s ease-in !important");
+    transform: translateX(5000px);
+    .transition (~"left 2.0s ease-in, transform 2.0s ease-in !important");
 }
 
 .slowPositionTransition {
@@ -503,7 +506,7 @@ input:focus {
 }
 
 #load_r .shiftLeft {
-    .transition (~"top 0.5s ease-out, left 0.5s ease-out");
+    .transition (~"top 0.5s ease-out, left 0.5s ease-out, transform 0.5s ease-out");
     .transition-delay (~"0 !important");
 }
 
@@ -550,6 +553,7 @@ input:focus {
     span {
         display: inline-block;
     }
+
     span:last-of-type {
         margin-left: 5px;
     }
@@ -569,7 +573,7 @@ input:focus {
         position: absolute;
         left: 0%;
         background-color: @color-bar-orange;
-        .transition (all 0.2s ease-out);
+        .transition (transform 0.2s ease-out);
         .transition-delay (0s);
     }
 }
@@ -709,11 +713,9 @@ input:focus {
         font: 13px @font-base;
         background-color: transparent;
         &:disabled {
-            // background-color: transparent;
             color: @color-text-black;
         }
         &[readonly] {
-            // background-color: transparent;
             width: 100%;
             height: 25px;
             text-align: center;
@@ -859,7 +861,7 @@ input:focus {
 /* DROP DOWN COLUMN STYLING */
 
 .dropdownBox {
-    width: 12px;
+    width: 16px;
     height: 12px;
     position: absolute;
     vertical-align: middle;
@@ -1181,7 +1183,7 @@ ul.leftColMenu + .rightArrow {
         span {
             cursor: pointer;
             &:hover {
-               color: #a6edcd; //new brighter green color?
+               color: @color-monitor-midGreen;
             }
         }
     }
@@ -1202,7 +1204,8 @@ ul.leftColMenu + .rightArrow {
         direction: rtl;
 
         input {
-            background-color: @color-bar-midGray;
+            // background-color: @color-bar-midGray;
+            background-color: transparent;
             font-size: 16px;
             color: @color-white;
             text-align: center;
@@ -1223,8 +1226,8 @@ ul.leftColMenu + .rightArrow {
             color: @color-bar-orange  !important;
             box-shadow: 2px 3px rgba(0,0,0,.15), inset 0px 0px  @color-white;
             input {
-                background-color: @color-white  !important;
-                color: @color-bar-orange  !important;
+                background-color: transparent  !important;
+                color: inherit  !important;
                 box-shadow: none;
 
                 &:focus {
@@ -1235,9 +1238,9 @@ ul.leftColMenu + .rightArrow {
         }
         &:not(.tabSelected):hover {
             box-shadow: 2px 2px rgba(0,0,0,.15), inset 0px 0px  @color-white;
-            background-color: #B4B4B4;
+            background-color: @color-tab-lightGray;
             input {
-                background-color: #B4B4B4;
+                background-color: @color-tab-lightGray;
                 box-shadow: none;
             }
         }
@@ -1400,7 +1403,7 @@ ul.leftColMenu + .rightArrow {
 }
 
 .orangeText {
-    color: @color-bar-orange  !important;
+    color: @color-bar-orange !important;
 }
 
 #selectedBar {
@@ -1616,7 +1619,7 @@ ul.leftColMenu + .rightArrow {
 #jsonWrap {
     left: 0;
     min-width: 300px;
-    background-color: #FFFFFF;
+    background-color: @color-white;
     opacity: 1;
     z-index: 31;
     overflow: hidden;
