@@ -35,7 +35,7 @@
 @font-code: "Source Code Pro", courier;
 
 /* Heights */
-@default-bar-height: 25px;
+@default-bar-height: 26px;
 
 /* ========== Elements ========== */
 .box-sizing (@type: border-box) {
@@ -95,6 +95,7 @@ div {
 
 ul, li {
     .nomargin-padding;
+    .box-sizing;
 }
 
 table, tr, td, th, input {
@@ -106,7 +107,8 @@ table, tr, td, th, input {
 }
 
 input::selection {
-    background-color: @color-monitor-green;
+    background: @color-monitor-green;
+    color: @color-text-black;
 }
 
 /* ========== Main ========== */
@@ -161,6 +163,7 @@ input:focus {
 
 #menuBar {
     color: @color-white;
+    padding-left: 300px;
     div {
         display: inline-block;
         margin:  0px 150px 0px 0px;
@@ -199,16 +202,14 @@ input:focus {
     table-layout: fixed;
     z-index: 5;
 
-    > .menuAreaItem:first-child {
-        margin-right: 60px;
-    }
 }
 
 .datasetWrap {
     display: inline-block;
     position: relative;
     left: 0px;
-    height: 100%;
+    height: inherit;
+    margin-left: 60px;
 }
 
 .monitorSubDiv {
@@ -235,7 +236,7 @@ input:focus {
 
 #graphics {
     display: inline-block;
-    height: 100%;
+    height: inherit;
     margin-right: 70px;
     margin-left: 10px;
 
@@ -248,7 +249,7 @@ input:focus {
     position: relative;
     display: inline-block;
     width: 200px;
-    height: 100%;
+    height: inherit;
     margin-left: 10px;
     cursor: pointer;
 }
@@ -279,10 +280,6 @@ input:focus {
     white-space: nowrap;
     font-weight: bold;
 }
-
-
-
-
 
 .datasetName {
     color: @color-table-blankGrayLight;
@@ -376,7 +373,6 @@ input:focus {
     }
 
     input {
-        // font-size: 20px;
         font-size: 16px;
         font-weight: bold;
         padding: 0px 8px;
@@ -398,26 +394,28 @@ input:focus {
     }
 
     .dataOptionsRow {
-        height: 31px;
+        height: 29px;
         display: block;
         float: none;
+        &:last-child{
+            margin-top:4px;
+        }
     }
 
     label {
         display: inline-block;
         vertical-align: middle;
         width: 115px;
-        height: 28px;
-        line-height: 28px;
+        height: inherit;
+        line-height: 29px;
         font-size: 20px;
         font-weight: bold;
         float: left;
         text-align: center;
         background-color: @color-table-lightGray;
-        margin-bottom: 5px;
         margin-left: 5px;
         cursor: pointer;
-        position: relative; // for label movement
+        position: relative;
         .box-sizing;
 
         &:hover {
@@ -495,7 +493,7 @@ input:focus {
     .transition (~"left 0.9s ease-out 0.1s, z-index 0s linear 1.0s");  
 }
 
-.shiftRight {
+.slideAway {
     left: 10000px !important;
     transform: translateX(5000px);
     .transition (~"left 2.0s ease-in, transform 2.0s ease-in !important");
@@ -582,18 +580,16 @@ input:focus {
 .tableWrap {
 	background-color: @color-white;
     padding: 5px 0 0 0;
-    height: 848px;
-    height: 844px;
-    height: 78vh;
+    height: ~"-webkit-calc(100% - 148px)";
+    height: ~"-moz-calc(100% - 148px)";
     height: ~"calc(100% - 148px)";
 	width: 100%;
-	float: top;
     overflow-x: auto;
 	overflow-y: scroll;
     display: inline-block;
     font-size: 11px;
     margin-bottom: 5px;
-    .transition (height 0.3s ease-out); 
+    .transition (~"height 0.3s ease-out"); 
 }
 
 .tableWrap::-webkit-scrollbar {
@@ -630,6 +626,7 @@ input:focus {
     td {
         font-family: @font-code;
         font-size: 11px;
+        line-height: 15px;
         height: 20px;
         overflow: hidden;
         padding: 2px;
@@ -652,7 +649,7 @@ input:focus {
 
     thead {
         background-color: @color-white;
-        box-shadow: 0px 3px @colorShadow-black;
+        // box-shadow: 0px 3px @colorShadow-black;
     }
 
     tbody tr {
@@ -701,12 +698,6 @@ input:focus {
 
     .header {
         position: relative;
-        span {
-            z-index: 2;
-            display: block;
-            position: relative;
-            overflow: hidden;
-        }
     }
 
     input {
@@ -736,6 +727,8 @@ input:focus {
         text-align: center;
         overflow: hidden;
         font: 13px @font-base;
+        z-index: 2;
+        position: relative;
     }
 
     .addedBarTextTd {
@@ -768,6 +761,10 @@ input:focus {
     span.undefined {
         color: #c51d23;
     }
+}
+
+#autoGenTable thead {
+    box-shadow: 0px 3px @colorShadow-black;
 }
 
 .fauxTHead {
@@ -899,9 +896,7 @@ input:focus {
     padding: 0px;
     display: inline-block;
     width: 170px;
-    .box-sizing;
     z-index: 7;
-    // box-shadow: 1px 1px 1px #cccccc;
     box-shadow: 1px 1px rgba(0,0,0,0.1);
 }
 
@@ -915,7 +910,6 @@ ul.colMenu {
         padding: 6px;
         padding-left: 8px;
         height: 30px;
-        .box-sizing;
         position:relative;
         color: @color-text-black;
         background-color: @color-white;
@@ -1204,7 +1198,6 @@ ul.leftColMenu + .rightArrow {
         direction: rtl;
 
         input {
-            // background-color: @color-bar-midGray;
             background-color: transparent;
             font-size: 16px;
             color: @color-white;
@@ -1217,10 +1210,6 @@ ul.leftColMenu + .rightArrow {
             direction: ltr;
         }
 
-        // span {
-        //     display: inline-block;
-        // }
-
         &.tabSelected,  {
             background-color: @color-white !important;
             color: @color-bar-orange  !important;
@@ -1231,7 +1220,6 @@ ul.leftColMenu + .rightArrow {
                 box-shadow: none;
 
                 &:focus {
-                    // outline: 1px solid @color-monitor-green;
                     border-bottom: 1px solid @color-monitor-green;
                 }
             }
@@ -1258,7 +1246,7 @@ ul.leftColMenu + .rightArrow {
 
 .lightGrayBar {
     height: 32px;
-    width: inherit;
+    width: 100%;
     background-color: @color-table-blankGrayLight;
     display: table;
     z-index: 33;
@@ -1267,20 +1255,20 @@ ul.leftColMenu + .rightArrow {
     line-height: 30px;
     padding-left: 5px;
     color: @color-text-black;
+    resize: none;
 }
 
 #builderBar {
     .lightGrayBar;
     width: 100%;
-    position: absolute;
-    top: 5px;
+    margin-top: 5px;
 }
 
 #builderTabBar {
     .lightGrayBar;
     line-height: 32px;
-    position: absolute;
-    top: 32px + 10px;
+    position: relative;
+    margin-top: 5px;
     box-shadow: none;
 
     div {
@@ -1326,20 +1314,17 @@ ul.leftColMenu + .rightArrow {
         vertical-align: top;
         padding-top: 2px;
         // width: 100%;
-
-        &::selection {
-            // background: white;
-        }
     }
 }
 
 #datasetBrowser {
-    position: absolute;
-    top: 64px + 15px;
-    width: ~"calc(100% - 10px)";
+    position: relative;
+    width: ~"calc(100% - 5px)";
     height: 438px;
+    height: ~"calc(59% - 60px)";
     padding-top: 0px;
     margin-left: 5px;
+    resize: none;
 }
 
 .worksheetTable {
@@ -1363,6 +1348,7 @@ ul.leftColMenu + .rightArrow {
         top: 4px;
         right: 0px;
         color: @color-monitor-green;
+        z-index: 2;
     }
 
     .keyCheckmark {
@@ -1373,14 +1359,17 @@ ul.leftColMenu + .rightArrow {
 
         .keyCheckmarkWrap {
             height: 20px;
-            width: 14px;
+            width: 13px;
             margin-left: 6px;
         }
 
         span {
             position: absolute;
-            right: 2px;
+            right: -1px;
+            z-index: 2;
+            position: relative;
         }
+
         span:last-child {
             .transform (rotate(45deg));
             display: none;
@@ -1408,24 +1397,30 @@ ul.leftColMenu + .rightArrow {
 
 #selectedBar {
     .lightGrayBar;
-    position: absolute;
-    top: 522px;
+    position: relative;
+    margin-bottom: 5px;
 }
 
 #selectedSection {
-    top: 559px;
-    position: absolute;
+    position: relative;
     width: 100%;
+    overflow: auto;
+    // height: ~"calc(41% - 61px)";
+    height: ~"calc(41% - 66px)";
+    resize: none;
 }
 
 #selectedDataset {
     top: 0px;
     position: relative;
+    display: inline;
 
     .selectedTableWrap {
         display: inline-block;
         float: left;
-        height: 286px;
+        // height: 286px;
+        // height: ~"calc(100% - 5px)";
+        height: 100%;
         margin-left: 0px;
         overflow-y: auto;
         overflow-x: hidden;
@@ -1477,7 +1472,7 @@ ul.leftColMenu + .rightArrow {
     .keyWrap {
         position: relative;
         height: 16px;
-        .transition (all 1s);
+        .transition (~"font-size 1s, color .5s");
 
         &.keySelected {
             color: @color-table-red;
@@ -1530,63 +1525,55 @@ ul.leftColMenu + .rightArrow {
   margin-left: 5px;
 }
 
-#createButton {
-    // top: 360px;
-    // position: absolute;
+#createButton, #cancelButton {
     position: relative;
     cursor: pointer;
+    width: 85px;
+    margin-bottom: 5px;
 }  
 
+#createButton {
+    background-color: @color-monitor-green;
+}
+
 #cancelButton {
-    // top: 360px+5px+@default-bar-height;
-    // position: absolute;
-    position: relative;
-    cursor: pointer;
+    background-color: @color-monitor-red;
 } 
 
 .rectangle {
     top: 0px;
-    width: 72px;
+    width: 100%;
     height: @default-bar-height;
-    background: @color-monitor-green;
     position: relative;
     color: @color-text-black;
     font: @font-base;
     font-size: 16px; 
     line-height: 24px;
     text-align: center;
-    margin-bottom: 5px;
-}
-
-#cancelButton {
-    .rectangle {
-        background: @color-monitor-red;
-    }
-
-    .arrow {
-        border-bottom-color: @color-monitor-red;
-    }
+    display: inline-block;
 }
 
 .arrow {
-    top: 0px;
-    left: 72px;
     width: 0;
     height: 0;
-    border: @default-bar-height/2 solid transparent;
-    border-bottom-color: @color-monitor-green;
+    right: 0;
+    border-left: 13px solid transparent;
+    border-top: 13px solid white;
+    border-bottom: 13px solid white;
+    display: inline-block;
     position: absolute;
-    .transform (rotate(90deg));
 }
 
 #shoppingCart {
     .centered;
-    // height: 570px;
-    // width: 816px;
-    height: 850px;
-    width: 1200px;
+    height: 70%;
+    width: 60%;
     background-color: @color-white;
     z-index: 31;
+    resize: both;
+    overflow: auto;
+    max-width: 99%;
+    max-height: 99%;
 }
 /* END SHOPPING CART */
 
@@ -1634,6 +1621,7 @@ ul.leftColMenu + .rightArrow {
     width: 100%;
     height: 15px;
     top: 0px;
+    cursor: move;
     cursor: -webkit-grab;
     cursor: -moz-grab;
 }
@@ -1688,6 +1676,7 @@ ul.leftColMenu + .rightArrow {
     resize: none;
     height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .prettyJson::-webkit-scrollbar {
