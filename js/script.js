@@ -386,13 +386,14 @@ function startupFunctions(table) {
     generateFirstLastVisibleRowNum();
     cloneTableHeader();   
     infScrolling();
-    hackyShit();
-    if (getUrlVars().length == 0) {
-        $('#autoGenTable th, #autoGenTable td').empty();
-        $('.rowNum').text('-');
-        $('#pageInput').next().remove();
-        $('#searchBar').val('');
-    }
+    // if (getUrlVars().length == 0) {
+    //     $('#autoGenTable th, #autoGenTable td').empty();
+    //     $('.rowNum').text('-');
+    //     $('#pageInput').next().remove();
+    //     $('#searchBar').val('');
+    // }
+    checkForScrollBar();
+    setWorksheetNames();
 }        
 
 function documentReadyIndexFunction() {
