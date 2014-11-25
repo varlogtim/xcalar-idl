@@ -255,7 +255,7 @@ function dragdropMouseDown(el, event) {
     var firstTd = $('#autoGenTable td:eq('+(gDragObj.colId-1)+')');
     gDragObj.left = firstTd.offset().left;
     gDragObj.docHeight = $(document).height();
-    var tableHeight = el.closest('table').height();
+    var tableHeight = $('#autoGenTable').height();
     var mainFrameHeight = $('#mainFrame').height()-gScrollbarHeight;
     var shadowDivHeight = Math.min(tableHeight,mainFrameHeight);
     gDragObj.inFocus =  $('#headCol'+gDragObj.colId+' .editableHead').is(':focus');
@@ -319,7 +319,7 @@ function cloneCellHelper(obj) {
     var cloneHeight = td.eq(gDragObj.colIndex).outerHeight();
     var cloneColor = td.eq(gDragObj.colIndex).css('background-color');
     row.css('background-color', rowColor);
-    clone.outerHeight(cloneHeight);
+    clone.css('height', cloneHeight+'px');
     clone.outerWidth(gDragObj.colWidth-5);
     clone.css('background-color', cloneColor);
     row.append(clone).appendTo($(".fauxTable"));

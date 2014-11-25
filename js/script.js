@@ -297,45 +297,47 @@ function documentReadyCommonFunction() {
         }
     });
     $(document).mousemove(function(event){
-        if (gMouseStatus != null) {
-            switch (gMouseStatus) {
-                case ("resizingCol"):
-                    if (gRescol.lastCellGrabbed) {
-                        gRescolMouseMoveLast(event);
-                    } else {
-                        gRescolMouseMove(event);
-                    }
-                    break;
-                case ("resizingRow"):
-                    resrowMouseMove(event);
-                    break;
-                case ("movingCol"):
-                    dragdropMouseMove(event);
-                    break;
-                case ("movingJson"):
-                    jsonModalMouseMove(event);
-                    break;
-                default:  // do nothing
-            }
+        if (gMouseStatus == null) {
+            return;
+        }
+        switch (gMouseStatus) {
+            case ("resizingCol"):
+                if (gRescol.lastCellGrabbed) {
+                    gRescolMouseMoveLast(event);
+                } else {
+                    gRescolMouseMove(event);
+                }
+                break;
+            case ("resizingRow"):
+                resrowMouseMove(event);
+                break;
+            case ("movingCol"):
+                dragdropMouseMove(event);
+                break;
+            case ("movingJson"):
+                jsonModalMouseMove(event);
+                break;
+            default:  // do nothing
         }
     });
     $(document).mouseup(function(event){
-        if (gMouseStatus != null) {
-            switch (gMouseStatus) {
-                case ("resizingCol"):
-                    gRescolMouseUp();
-                    break;
-                case ("resizingRow"):
-                    resrowMouseUp();
-                    break;
-                case ("movingCol"):
-                    dragdropMouseUp();
-                    break;
-                case ("movingJson"):
-                    jsonModalMouseUp();
-                    break;
-                default: // do nothing
-            }
+        if (gMouseStatus == null) {
+            return;
+        }
+        switch (gMouseStatus) {
+            case ("resizingCol"):
+                gRescolMouseUp();
+                break;
+            case ("resizingRow"):
+                resrowMouseUp();
+                break;
+            case ("movingCol"):
+                dragdropMouseUp();
+                break;
+            case ("movingJson"):
+                jsonModalMouseUp();
+                break;
+            default: // do nothing
         }
     }); 
 }

@@ -451,6 +451,12 @@ function addWorksheetTab(value) {
         }
     });
 
+    //XX remove corresponding worksheet
+    newTab.find('.deleteWorksheet').click(function() {
+        $(this).closest('.worksheetTab').remove();
+        //XX remove corresponding worksheet
+    });
+
     // $('#modalBackground').show();
     $('body').addClass('hideScroll');
     // shoppingCart();
