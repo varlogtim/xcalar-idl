@@ -5,6 +5,7 @@ function menuAreaClose() {
 function menuBarArt() {
     var clickTarget = null;
     var clickTooFast = false;
+    menuAreaClose();
     $("#menuBar div").on("click", function() {
         if (clickTooFast) {
             return;
@@ -15,7 +16,6 @@ function menuBarArt() {
             //if clicking on an already open menu, close it
             $(".menuSelected").removeClass("menuSelected");
             $('#mainFrame').height('calc(100% - 148px)');
-
             $("#menuArea").height(0);
             clickTarget = null;
             $('.trueTHead').css('top',111).addClass('moveTop');
@@ -61,7 +61,7 @@ function menuBarArt() {
 function resetLoadArea() {
     $('#loadArea').html("").css('z-index', 'auto');
     $('#datastorePanel').width('100%');
-    $('.datasetWrap').removeClass('shiftRight');
+    $('.slideAway').removeClass('slideAway');
 }
 
 function getTablesAndDatasets() {

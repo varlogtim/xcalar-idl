@@ -126,5 +126,11 @@ function getWorksheet(index) {
 }
   
 function setWorksheetName(index, name) {
+    console.log(arguments, 'setWorksheetName');
     gWorksheetName[index] = name;
+}
+
+function removeWorksheetName(index) {
+    console.log(index, '')
+    gWorksheetName.splice(index, 1);
 }

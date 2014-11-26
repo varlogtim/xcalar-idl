@@ -21,7 +21,9 @@ var gRescol = {
     clicks: 0,
     delay: 500,
     timer: null,
-    lastCellGrabbed: false
+    lastCellGrabbed: false,
+    minNumRows: 60,
+    maxNumRows: 80
 };
 var resrow = {};
 var gScrollbarHeight = 8;
@@ -66,7 +68,7 @@ function infScrolling() {
                     gScrollbarHeight - $(this).outerHeight() <= 1) {
             console.log('the bottom!');
             gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
-            if ($('#autoGenTable tbody tr').length > 79) {
+            if ($('#autoGenTable tbody tr').length >= 80) {
                 // keep row length at 80
                 $("#autoGenTable tbody tr:lt(20)").remove();
             }
@@ -88,8 +90,8 @@ function loadLoad(op) {
     $("#loadArea").load('/'+op.concat('_r.html'));
 }
 
-function getUrlVars()
-{
+
+function getUrlVars() {
     var vars = [], hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?')
                  + 1).split('&');
@@ -128,16 +130,75 @@ $(window).unload(
 
 // ========================== Document Ready ==================================
 
-function documentReadyCommonFunction() {
-    // XXX: TODO: FIXME: Break this function up into its various components,
-    // and stick them into separate files.
-    addColListeners(2); // set up listeners for json column
+function documentReadyAutoGenTableFunction() {
+    addColListeners(2); // set up listeners for data column
+    var resultTextLength = (""+resultSetCount).length;
+    $('#rowInput').attr({'maxLength': resultTextLength,
+                          'size': resultTextLength});
 
-    if (typeof gTableName === 'undefined') {
-        var searchText = "View Tables";
-    } else {
-        var searchText = gTableName;
-    }
+    $('#rowInput').keypress(function(e) {
+        if (e.which !== 13) {
+            return;
+        }
+        var row = $('#rowInput').val();
+        if (row == "" || row%1 != 0) {
+            return;
+        } else if (row < 1) {
+            $('#rowInput').val('1');
+        } else if (row > resultSetCount) {
+            $('#rowInput').val(resultSetCount);
+        }
+        row = parseInt($('#rowInput').val());
+        // XXX: HACK
+        gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
+        $("#autoGenTable tbody").empty();
+
+        if (((row)/gNumEntriesPerPage) >
+                Math.floor((resultSetCount/gNumEntriesPerPage)-2)) {
+            //if row lives inside last 3 pages, prepare to display last 3 pages
+            var pageNum = (resultSetCount-1)/gNumEntriesPerPage - 2;
+        } else {
+            var pageNum = row/gNumEntriesPerPage;
+        }
+        var numPagesToAdd = 3;
+        for (var i = 0; i < numPagesToAdd; i++) {
+            goToPage(Math.ceil(pageNum)+i);
+        }
+
+        positionScrollbar(row);
+        generateFirstLastVisibleRowNum();
+        movePageScroll(row);
+        // $(this).blur(); 
+    });
+
+    $('#pageBar > div:last-child').append('<span>of '+resultSetCount+'</span>');
+
+    $('#autoGenTable thead').mouseenter(function(event) {
+        if (!$(event.target).hasClass('colGrab')) {
+            $('.dropdownBox').css('opacity', 0.4);
+        }
+    })
+    .mouseleave(function() {
+        $('.dropdownBox').css('opacity', 0);
+    });
+
+    $('#pageScroll').mousedown(function(event) {
+        var mouseX = event.pageX - $(this).offset().left;
+        $('#pageMarker').css('transform', 'translateX('+mouseX+'px)');
+        var scrollWidth = $(this).outerWidth();
+        var pageNum = Math.ceil((mouseX / scrollWidth) * resultSetCount);
+        var rowInputNum = $("#rowInput").val();
+        var e = $.Event("keypress");
+        e.which = 13;
+        $("#rowInput").val(pageNum).trigger(e);
+        // $("#rowInput").val(rowInputNum);
+    });
+}
+
+function documentReadyGeneralFunction() {
+    $(window).on('beforeunload', function() {
+        commitToStorage();
+    });
 
     $('#fnBar').on('input', function(e) {
         var selectedCell = $('th.selectedCell .editableHead');
@@ -148,6 +209,7 @@ function documentReadyCommonFunction() {
         var selectedCell = $('th.selectedCell .editableHead');
         if (e.which == 13) {
             selectedCell.trigger(e);
+            $(this).blur();
         }
     });
 
@@ -172,45 +234,6 @@ function documentReadyCommonFunction() {
         }
     });
 
-    var resultTextLength = (""+resultSetCount).length;
-    $('#rowInput').attr({'maxLength': resultTextLength,
-                          'size': resultTextLength});
-    $('#rowInput').keypress(function(e) {
-        if (e.which === 13) {
-            var row = $('#rowInput').val();
-            if (row == "" || row%1 != 0) {
-                return;
-            } else if (row < 1) {
-                $('#rowInput').val('1');
-            } else if (row > resultSetCount) {
-                $('#rowInput').val(resultSetCount);
-            }
-            row = parseInt($('#rowInput').val());
-            // XXX: HACK
-            gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
-            $("#autoGenTable tbody").empty();
-
-            if (((row)/gNumEntriesPerPage) >
-                    Math.floor((resultSetCount/gNumEntriesPerPage)-2)) {
-                //if row lives inside last 3 pages, prepare to display last 3 pages
-                var pageNum = (resultSetCount-1)/gNumEntriesPerPage - 2;
-            } else {
-                var pageNum = row/gNumEntriesPerPage;
-            }
-            var numPagesToAdd = 3;
-            for (var i = 0; i < numPagesToAdd; i++) {
-                goToPage(Math.ceil(pageNum)+i);
-            }
-
-            positionScroll(row);
-            generateFirstLastVisibleRowNum();
-            movePageScroll(row);
-            // $(this).blur(); 
-        }
-    });
-
-    $('#pageBar > div:last-child').append('<span>of '+resultSetCount+'</span>');
-
     $(window).resize(function() {
         $('.colGrab').height($('#mainFrame').height());
         checkForScrollBar();
@@ -226,6 +249,10 @@ function documentReadyCommonFunction() {
        
     });
 
+    $('.jsonDragArea').mousedown(function(event){
+        jsonModalMouseDown(event);
+    });
+
     $('#datastorePanel .menuAreaItem:first').click(function(){
         $("#loadArea").load('load_r.html', function(){
             // load_r.html contains load.js where this function is defined
@@ -235,17 +262,6 @@ function documentReadyCommonFunction() {
             $('.dataOptions').css('left',330).css('z-index', 6);
         });
         $('.datasetWrap').addClass('shiftRight');
-    });
-
-    $('#autoGenTable thead').mouseenter(function(event) {
-        if (!$(event.target).hasClass('colGrab')) {
-            $('.dropdownBox').css('opacity', 0.4);
-            $('.editableHead').addClass('resizeEditableHead');
-        }
-    })
-    .mouseleave(function() {
-        $('.dropdownBox').css('opacity', 0);
-        $('.editableHead').removeClass('resizeEditableHead');
     });
 
     $('.worksheetTab').mousedown(function() {
@@ -268,22 +284,6 @@ function documentReadyCommonFunction() {
     });
 
     $("#shoppingCart").hide();
-
-    $('#pageScroll').mousedown(function(event) {
-        var mouseX = event.pageX - $(this).offset().left;
-        var scrollWidth = $(this).outerWidth();
-        var pageNum = Math.ceil((mouseX / scrollWidth) * resultSetCount);
-        var rowInputNum = $("#rowInput").val();
-        var e = $.Event("keypress");
-        e.which = 13;
-        $("#rowInput").val(pageNum).trigger(e);
-        $("#rowInput").val(rowInputNum);
-        $('#pageMarker').css('transform', 'translateX('+mouseX+'px)');
-    });
-
-    $('.jsonDragArea').mousedown(function(event){
-        jsonModalMouseDown(event);
-    });
 
     $(document).mousedown(function(event) {
         var target = $(event.target);
@@ -339,12 +339,10 @@ function documentReadyCommonFunction() {
                 break;
             default: // do nothing
         }
-    }); 
+    });
 }
 
 function documentReadyCatFunction() {
-    documentReadyCommonFunction();
-    // getTablesAndDatasets();  //XXX this is being called before documentreadycatfunction gets called
 
     var index = getIndex(gTableName);
     getNextPage(gResultSetId, true);
@@ -374,33 +372,42 @@ function documentReadyCatFunction() {
 
 }
 
+function getWorksheetNames() {
+    for (var i = 0; i<gWorksheetName.length; i++) {
+        addWorksheetTab(gWorksheetName[i]);
+    }
+    $("#worksheetBar .worksheetTab:first").click();
+}
+
 function startupFunctions(table) {
     readFromStorage();
     setCatGlobals(table);
     menuBarArt();
     menuAreaClose();
     getTablesAndDatasets();
-    documentReadyCatFunction();
-
-    fillPageWithBlankCol();
-    goToPage(gCurrentPageNumber+1);
-    goToPage(gCurrentPageNumber+1);
+    documentReadyGeneralFunction();
+    //XX change the way we detect if its a new page
+    if (!$.isEmptyObject(gDsToNameTrans)) {
+        documentReadyAutoGenTableFunction();
+        documentReadyCatFunction();
+        fillPageWithBlankCol();
+        goToPage(gCurrentPageNumber+1);
+        goToPage(gCurrentPageNumber+1);
+    } else {
+        generateBlankTable();
+    }
     generateFirstLastVisibleRowNum();
-    cloneTableHeader();   
-    infScrolling();
-    // if (getUrlVars().length == 0) {
-    //     $('#autoGenTable th, #autoGenTable td').empty();
-    //     $('.rowNum').text('-');
-    //     $('#pageInput').next().remove();
-    //     $('#searchBar').val('');
-    // }
+    cloneTableHeader();
+    if (!$.isEmptyObject(gDsToNameTrans)) {
+        infScrolling();
+    }   
     checkForScrollBar();
-    setWorksheetNames();
+    getWorksheetNames();
 }        
 
 function documentReadyIndexFunction() {
     $(document).ready(function() {
-       startupFunctions("gdelt"); 
+        startupFunctions("gdelt"); 
     });
 }
 
@@ -441,7 +448,7 @@ function checkForScrollBar() {
     }
 }
 
-function positionScroll(row) {
+function positionScrollbar(row) {
     var canScroll = true;
     var theadHeight = $('#autoGenTable thead').height();
     function positionScrollToRow() {
@@ -462,7 +469,6 @@ function positionScroll(row) {
         setTimeout(positionScrollToRow, 1);
     }
 }
-
 
 //XXX remove this for production. I updated load_r.html
 // but the jquery load function loads the old load_r.html 

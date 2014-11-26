@@ -8,6 +8,45 @@ function fillPageWithBlankCol() {
     }
 }
 
+function generateBlankTable() {
+    var screenWidth = window.screen.availWidth;
+    var numColsToFill = Math.ceil(screenWidth/gNewCellWidth);
+    var html = "";
+    // XX may not need to empty if we just start out empty, but
+    // we need to adjust the other functions that depend on the id and
+    // data column
+    $('#autoGenTable thead, #autoGenTable tbody').empty();
+    html += '<tr>';
+    html += '<th style="width:'+(gRescol.cellMinWidth+10)+'px;"></th>';
+    for (var i = 0; i < numColsToFill; i++) {
+            html += '<th style="width:'+gNewCellWidth+'px;"></th>';
+    }
+    html += '</tr>';
+    $('#autoGenTable thead').append(html);
+    html = "";
+    for (var i = 1; i <= 60;  i++) {
+    // XXX make a variable for 60 || num rows
+        html += '<tr>';
+        html += '<td align="center" id="bodyr'+
+                    i+'c1"'+
+                    'style="height:'+gRescol.minCellHeight+'px;">'+
+                    '<div class="idWrap"><span class="idSpan">'+
+                    i+'</span>'+
+                    '<div class="rowGrab"></div>'+
+                    '</div>'+
+                '</td>';
+        for (var j = 0; j<numColsToFill; j++) {
+            html += '<td></td>';
+        }
+        html += '</tr>';
+    }
+    $('#autoGenTable tbody').html(html);
+    $('#autoGenTable').width(screenWidth);
+    $('#autoGenTable .rowGrab').mousedown(function(event) {
+        resrowMouseDown($(this), event);
+    });
+}
+
 function generateRowWithCurrentTemplate(json, id, rowTemplate, direction) {
     // Replace JSON
     var firstPart = rowTemplate.firstPart;
@@ -30,9 +69,9 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction) {
         $("#autoGenTable tbody").append(finalString);
     } else { 
         if (direction == 1) {
-            $("#autoGenTable tbody").prepend(finalString);
+            $("#autoGenTable").prepend(finalString);
         } else {
-            $("#autoGenTable tbody").append(finalString);
+            $("#autoGenTable").append(finalString);
         }    
     }
 

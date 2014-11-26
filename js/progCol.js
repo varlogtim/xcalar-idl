@@ -265,21 +265,21 @@ function addCol(id, name, options) {
         $("#duplicate"+i).attr("id", "duplicate"+(i+1));
         $("#autoGenTable tr:eq(1) #headCol"+i).attr("id", "headCol"+(i+1));
     } 
-    
-    var columnHeadTd = '<th class="table_title_bg '+color+' editableCol'+
+    var columnHeadTd = '<th class="table_title_bg '+color+
         '" id="headCol'+
         newColid+
-        '" style="width:'+width+'px;">'+
+        '" style="width:'+width+'px;" label="click to edit">'+
         '<div class="header">'+
         '<div class="dragArea"></div>'+
-        '<div class="dropdownBox"></div>'+
-        '<span><input autocomplete="on" type="text" id="rename'+newColid+'" '+
-        'class="editableHead" '+
-        'value="'+name+'" size="15" placeholder=""/></span>'+
+        '<div class="dropdownBox" title="view column options"></div>'+
+        '<input autocomplete="on" input spellcheck="false"'+
+        'type="text" id="rename'+newColid+'" '+
+        'class="editableHead" title="click to edit" '+
+        'value="'+name+'" size="15" placeholder=""/>'+
         '</div>'+
         '</th>';
     $("#headCol"+(newColid-1)).after(columnHeadTd); 
-    $("#autoGenTable tr:eq(1) #headCol"+(newColid-1)).after(columnHeadTd); 
+    $("#autoGenTable tr:eq(1) #headCol"+(newColid-1)).after(columnHeadTd);  
 
     var dropDownHTML = '<ul class="colMenu">'+
             '<li>'+
@@ -382,6 +382,7 @@ function addCol(id, name, options) {
         }
         dropDownHTML +=     '<div class="subColMenuArea"></div>'+
                             '</ul>'+ 
+                            '<div class="rightArrow"></div>'+ 
                         '</li>';
     dropDownHTML += '</ul>';
     $('#headCol'+newColid+' .header').append(dropDownHTML);
@@ -389,8 +390,12 @@ function addCol(id, name, options) {
     addColListeners(newColid);
 
     var numRow = $("#autoGenTable tbody tr").length;
-    var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id").
-                       substring(5);
+     var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id");
+    if (idOfFirstRow) {
+        idOfFirstRow = idOfFirstRow.substring(5);
+    } else {
+        idOfFirstRow = "c1";
+    }
     idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
     var startingIndex = parseInt(idOfFirstRow);
     for (var i = startingIndex; i<startingIndex+numRow; i++) {
@@ -405,8 +410,8 @@ function addCol(id, name, options) {
     }
 
     if (inFocus) {
-        // $('#rename'+newColid).select().focus();
         $('#rename'+newColid).focus();
     }
     matchHeaderSizes();
+    checkForScrollBar();
 }

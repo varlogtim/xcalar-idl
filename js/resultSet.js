@@ -21,7 +21,7 @@ function goToPage(pageNumber, direction) {
 function numPagesToShift(direction) {
     var shift;
     if (direction == 1) {
-        shift = 4;
+        shift = 4;// shift 4 if we show 3 pages at once
     } else {
         shift = 1;
     }
@@ -119,23 +119,18 @@ function getPage(resultSetId, firstTime, direction) {
                 // console.log('first time')
                 execCol(gTableCols[i]);
             } else {
-                if (direction) {
-                    var execColArgs; 
+                if (direction) { 
                     var startingIndex;
-                    var numberofRows;
                     if (direction == 1) {
                         startingIndex = parseInt(($('#autoGenTable tbody td:first')
                                             .attr('id')).substring(5));
-                        execColArgs = {};
-                        execColArgs.startIndex = startingIndex;
-                        execColArgs.numberofRows = numRows;
                     } else {
                         var td = $('#autoGenTable tr:nth-last-child('+gNumEntriesPerPage+') td:first');
                         startingIndex = parseInt(td.attr('id').substring(5));
-                        execColArgs = {};
-                        execColArgs.startIndex = startingIndex;
-                        execColArgs.numberofRows = numRows;
                     }
+                    var execColArgs = {};
+                    execColArgs.startIndex = startingIndex;
+                    execColArgs.numberofRows = numRows;
                     execCol(gTableCols[i], execColArgs);
                 } else {
                     execCol(gTableCols[i]);
