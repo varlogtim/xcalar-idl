@@ -1327,7 +1327,7 @@ function documentReadyCommonFunction() {
 
     $('#newWorksheet span').click(function(){
         var tabCount = $('#worksheetBar .worksheetTab').length;
-        var text = "worksheet "+(tabCount-1);
+        var text = "worksheet"+(tabCount-1);
         if (tabCount > 4) {
             var width = ((1/(tabCount+1)))*70+'%';
             $('.worksheetTab').width(((1/(tabCount+1)))*70+'%');
@@ -2174,6 +2174,28 @@ function createWorksheet() {
     progCol.func.args = [];
     progCol.isDark = false;
     newTableCols[startIndex-2] = progCol;
+    $("#selectedDataset div table thead tr th").each(function() {
+        // XXX: Since the backend has no way of telling me whether or not a
+        // particular dataset has been indexed before, I am just going to
+        // re-index it. For me to do that, I have to get the datasetid and
+        // index it by the first column in the list
+        var datasetId = parseInt(getDsId($(this).text()));
+        console.log(datasetId);
+        var columnToIndex = $(this).parent().parent().parent()
+                            .children("tbody").children("tr").children("td")
+                            .children("div").children("span")[0].innerHTML;
+        console.log(columnToIndex);
+        var rand = Math.floor(Math.random() * 100000) + 1;
+        var newIndexTable = $(this).text()+rand;
+        console.log(newIndexTable);
+        XcalarIndexFromDataset(datasetId, columnToIndex, newIndexTable);
+    });
+    var worksheetName = $("#worksheetBar .tabSelected input").val();
+    setIndex(worksheetName, newTableCols);
+    commitToStorage();
+    // window.location.href="?worksheet="+worksheetName;
+    /*
+    // XXX: For demo. All hacked up
     var datasets = "csv";
     var hasGdelt = false;
     var hasSP = false;
@@ -2210,6 +2232,7 @@ function createWorksheet() {
         commitToStorage();
         window.location.href="?tablename=joined2";
     }
+    */
 }
 
 function attachShoppingCartListeners() {

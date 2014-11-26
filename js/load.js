@@ -122,6 +122,7 @@ function detailsSubmit(e) {
         loadKey = key;
         loadTable = tablename;
         var dsId = XcalarLoad(loadURL, loadFormat);
+        console.log("This is the returned dsId "+dsId);
         if (dsId != null) {
             setDsToName(tablename, dsId);
             commitToStorage();

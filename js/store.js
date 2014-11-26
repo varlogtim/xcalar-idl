@@ -5,6 +5,12 @@ var gTableIndicesLookup = {};
 var gDsToNameTrans = {};
 var gTableOrderLookup = {};
 
+function emptyAllStorage() {
+    localStorage.removeItem("TILookup");
+    localStorage.removeItem("DSName");
+    localStorage.removeItem("TOLookup");
+}
+
 function getIndex(tName) {
     if (!gTableIndicesLookup) {
         console.log("Nothing has ever been stored ever!");
@@ -67,6 +73,11 @@ function setIndex(tName, index) {
 }
 
 function setDsToName(name, datasetId) {
+    if (getDsId(name) != 0) {
+        console.log("Dataset name already exists!");
+        console.log("XXX ERROR");
+        // XXX TODO FIXME We have to handle this
+    }
     gDsToNameTrans[datasetId] = name;
 }
 
