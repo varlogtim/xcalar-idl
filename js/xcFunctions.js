@@ -25,10 +25,8 @@ function sortRows(index, order) {
     setIndex(newTableName, gTableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
-    //XXX Use this instead or else other elements' cursors will take precedence,
-    // but you must remove #waitCursor once you're done.
-    // $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-    //    '{cursor: wait !important;}</style>');
+    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
+       '{cursor: wait !important;}</style>');
     var fieldName;
     switch(gTableCols[index-2].func.func) {
     case ("pull"):

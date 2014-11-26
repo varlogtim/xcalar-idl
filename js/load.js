@@ -37,34 +37,11 @@ $('.dataOptionsRow input').click(function(){
         $('.dataStep').addClass('transitionGreen');
         $("#filePathSelector").css('left',415); 
         $("#fileBrowser").focus().css('left',550).css('z-index', 6);
-        $('.dataOptions').addClass('shiftRight');
+        $('.dataOptions').addClass('slideAway');
         $("#progressBar").css('transform', 'translateX(545px)');
         
     }
 });
-
-function moveInputLeft(movingEl) {
-    var loadROffsetLeft = $('#load_r').offset().left;
-    var loadROffsetTop = $('#load_r').offset().top;
-    var targetLeft = $('.dataStep').offset().left;
-    var targetMidPoint = ($('.dataStep').width()/2)+targetLeft;
-    var movingElOffsetLeft = movingEl.offset().left;
-    var movingElOffsetTop = movingEl.offset().top;
-    var movingElFontSize = movingEl.css('font-size');
-    var movingElFontWeight= movingEl.css('font-weight');
-    var movingElWidth = movingEl.width();
-    clone = movingEl.clone();
-    clone.appendTo($('#load_r'));
-    clone.css({'position':'absolute', 'left':(movingElOffsetLeft - loadROffsetLeft),
-                'top':(movingElOffsetTop-loadROffsetTop), 'z-index':6, 
-                'font-size':movingElFontSize, 'font-weight':movingElFontWeight});
-    clone.addClass('shiftLeft');
-    setTimeout(function(){
-        movingEl.hide();
-        clone.css({'left':(targetMidPoint-(movingElWidth/2)), 'top':'20px'});
-    },1);
-
-}
 
 function dsSubmit(e) {
     if (e.which != 13) {
@@ -87,25 +64,8 @@ function dsSubmit(e) {
                 $('#datastorePanel').width(0).addClass('slideRight');
             }, 1200
         );
-        $('#fileBrowser').addClass('shiftRight');
+        $('#fileBrowser').addClass('slideAway');
     }
-}
-
-function moveElementLeft(movingEl, target) {
-    var movingEl = $(movingEl);
-    var target = $(target);
-    var clone = movingEl.clone();
-    var loadROffsetLeft = $('#load_r').offset().left;
-    var targetLeft = parseFloat(target.css('left'));
-    var textMidPoint = (target.width()/2)+targetLeft;
-    var movingElWidth = getTextWidth(movingEl);
-    clone.appendTo('#load_r');
-    movingEl.val(" ").blur();
-    clone.css({'background-color':'transparent', 'padding':0}).
-              prop('disabled', true);
-    clone.addClass('shiftLeft').css({'left':(textMidPoint-(movingElWidth/2)),
-                   'font-size':20});
-    target.addClass('transitionGreen');
 }
 
 function detailsSubmit(e) {
@@ -118,7 +78,7 @@ function detailsSubmit(e) {
         alert("Please enter valid dataset name");
     } else {
         moveElementLeft('#tableName','#keySelector');
-        $('#tableName').addClass('shiftRight').blur();
+        $('#tableName').addClass('slideAway').blur();
         loadKey = key;
         loadTable = tablename;
         var dsId = XcalarLoad(loadURL, loadFormat);
@@ -128,7 +88,7 @@ function detailsSubmit(e) {
             commitToStorage();
             startProgressBar();
         }
-        $('.datasetWrap').removeClass('shiftRight').hide();
+        $('.datasetWrap').removeClass('slideAway').hide();
         
         // checkLoad();
     }
@@ -191,6 +151,53 @@ function loadReadyFunction() {
     $("#uploadProgress").hide();
 }
 
+function moveInputLeft(movingEl) {
+    var loadROffsetLeft = $('#load_r').offset().left;
+    var loadROffsetTop = $('#load_r').offset().top;
+    var targetLeft = $('.dataStep').offset().left;
+    var targetTop = $('.dataStep').offset().top;
+    var targetMidPoint = ($('.dataStep').width()/2)+targetLeft;
+    var targetVertMidPoint = ($('.dataStep').height()/2)+targetTop;
+    var movingElOffsetLeft = movingEl.offset().left;
+    var movingElOffsetTop = movingEl.offset().top;
+    var movingElFontSize = movingEl.css('font-size');
+    var movingElFontWeight= movingEl.css('font-weight');
+    var movingElWidth = movingEl.width();
+    var movingElHeight = movingEl.height();
+    clone = movingEl.clone();
+    clone.appendTo($('#load_r'));
+
+    var translateX = movingElOffsetLeft - (targetMidPoint - (movingElWidth/2));
+    var translateY = movingElOffsetTop - (targetVertMidPoint - (movingElHeight/2));
+    clone.css({'position':'absolute', 'left':(movingElOffsetLeft - loadROffsetLeft),
+                'top':(movingElOffsetTop-loadROffsetTop), 'z-index':6, 
+                'font-size':movingElFontSize, 'font-weight':movingElFontWeight});
+    clone.addClass('shiftLeft');
+    movingEl.hide();
+    clone.show(function() {
+        $(this).addClass('shiftLeft').css('transform',
+            'translate('+(-translateX)+'px,'+(-translateY+7)+'px)');
+    });
+}
+
+function moveElementLeft(movingEl, target) {
+    var movingEl = $(movingEl);
+    var target = $(target);
+    var clone = movingEl.clone();
+    var targetLeft = parseFloat(target.css('left'));
+    var textMidPoint = (target.width()/2)+targetLeft;
+    var movingElWidth = getTextWidth(movingEl);
+    clone.appendTo('#load_r');
+    movingEl.val(" ").blur();
+    clone.css({'background-color':'transparent', 'padding':0}).
+              prop('disabled', true);
+
+    var translate = movingEl.offset().left - (textMidPoint - (movingElWidth/2));
+    clone.addClass('shiftLeft').css({
+                    'transform':'translateX('+(-translate)+'px)', 
+                    'font-size':20});
+    target.addClass('transitionGreen');
+}
 
 
 

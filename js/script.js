@@ -50,27 +50,26 @@ var ProgCol = function() {
 
 // ================================ Misc ======================================
 function infScrolling() {
-  $("#mainFrame").scroll(function() {
-        if ($(this).scrollTop() == 0 && 
-            $('#autoGenTable tbody td:first').attr('id') != 'bodyr1c1') {
+    $(".mainFrame").scroll(function() {
+        if ($(this).scrollTop() === 0 && 
+            $('.autoGenTable tbody tr:first').attr('class') != 'row1') {
             console.log('the top!');
-            var firstRow = $('#autoGenTable tbody tr:first');
+            var firstRow = $('.autoGenTable tbody tr:first');
             var initialTop = firstRow.offset().top;
-            if ($("#autoGenTable tbody tr").length > 60) {
+            if ($(".autoGenTable tbody tr").length > 60) {
                 var pageNumber = gCurrentPageNumber-1;
             } else {
                 var pageNumber = gCurrentPageNumber;
             }
             goToPage(pageNumber, RowDirection.Top);
-            $('#mainFrame').scrollTop(firstRow.offset().top - initialTop + 10);
-            $("#autoGenTable tbody tr:gt(79)").remove();
+            $('.mainFrame').scrollTop(firstRow.offset().top - initialTop + 10);
+            $(".autoGenTable tbody tr:gt(79)").remove();
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()+
                     gScrollbarHeight - $(this).outerHeight() <= 1) {
-            console.log('the bottom!');
-            gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
-            if ($('#autoGenTable tbody tr').length >= 80) {
+            gTempStyle = $(".autoGenTable tbody tr:nth-last-child(1)").html();
+            if ($('.autoGenTable tbody tr').length >= 80) {
                 // keep row length at 80
-                $("#autoGenTable tbody tr:lt(20)").remove();
+                $(".autoGenTable tbody tr:lt(20)").remove();
             }
             goToPage(gCurrentPageNumber+1, RowDirection.Bottom); 
         }
@@ -89,7 +88,6 @@ function loadMainContent(op) {
 function loadLoad(op) {
     $("#loadArea").load('/'+op.concat('_r.html'));
 }
-
 
 function getUrlVars() {
     var vars = [], hash;
@@ -131,7 +129,7 @@ $(window).unload(
 // ========================== Document Ready ==================================
 
 function documentReadyAutoGenTableFunction() {
-    addColListeners(2); // set up listeners for data column
+    addColListeners(2, "autoGenTable1"); // set up listeners for data column
     var resultTextLength = (""+resultSetCount).length;
     $('#rowInput').attr({'maxLength': resultTextLength,
                           'size': resultTextLength});
@@ -150,8 +148,8 @@ function documentReadyAutoGenTableFunction() {
         }
         row = parseInt($('#rowInput').val());
         // XXX: HACK
-        gTempStyle = $("#autoGenTable tbody tr:nth-last-child(1)").html();
-        $("#autoGenTable tbody").empty();
+        gTempStyle = $(".autoGenTable tbody tr:nth-last-child(1)").html();
+        $(".autoGenTable tbody").empty();
 
         if (((row)/gNumEntriesPerPage) >
                 Math.floor((resultSetCount/gNumEntriesPerPage)-2)) {
@@ -173,7 +171,7 @@ function documentReadyAutoGenTableFunction() {
 
     $('#pageBar > div:last-child').append('<span>of '+resultSetCount+'</span>');
 
-    $('#autoGenTable thead').mouseenter(function(event) {
+    $('.autoGenTable thead').mouseenter(function(event) {
         if (!$(event.target).hasClass('colGrab')) {
             $('.dropdownBox').css('opacity', 0.4);
         }
@@ -198,6 +196,12 @@ function documentReadyAutoGenTableFunction() {
 function documentReadyGeneralFunction() {
     $(window).on('beforeunload', function() {
         commitToStorage();
+    }); 
+
+    $(window).resize(function() {
+        $('.colGrab').height($('.mainFrame').height());
+        checkForScrollBar();
+        generateFirstLastVisibleRowNum();
     });
 
     $('#fnBar').on('input', function(e) {
@@ -234,12 +238,6 @@ function documentReadyGeneralFunction() {
         }
     });
 
-    $(window).resize(function() {
-        $('.colGrab').height($('#mainFrame').height());
-        checkForScrollBar();
-        generateFirstLastVisibleRowNum();
-    });
-
     $('.closeJsonModal, #modalBackground').click(function(){
         if ($('#jsonModal').css('display') == 'block') {
             $('#modalBackground').hide(); 
@@ -257,11 +255,14 @@ function documentReadyGeneralFunction() {
         $("#loadArea").load('load_r.html', function(){
             // load_r.html contains load.js where this function is defined
             loadReadyFunction();
-            $('#progressBar').css('transform', 'translateX(330px)');
-            $('.dataStep').css('transform', 'translateX(320px)');
-            $('.dataOptions').css('left',330).css('z-index', 6);
+            setTimeout(function() {
+                $('#progressBar').css('transform', 'translateX(330px)');
+                $('.dataStep').css('transform', 'translateX(320px)');
+                $('.dataOptions').css({'transform':'translateX(570px)', 
+                    'z-index': 6});
+            }, 1);
         });
-        $('.datasetWrap').addClass('shiftRight');
+        $('.datasetWrap').addClass('slideAway');
     });
 
     $('.worksheetTab').mousedown(function() {
@@ -277,10 +278,12 @@ function documentReadyGeneralFunction() {
     $('.worksheetTab input').on('input', function() {
         var size = $(this).val().length;
         $(this).attr('size', size);
-    }
+    });
 
      $('#newWorksheet span').click(function() {
         addWorksheetTab();
+        shoppingCart();
+        $('#modalBackground').show();
     });
 
     $("#shoppingCart").hide();
@@ -355,15 +358,16 @@ function documentReadyCatFunction() {
                                            gNumEntriesPerPage);
         gKeyName = tableOfEntries.keysAttrHeader.name;
         console.log(index);
+        var tableId = "autoGenTable1";
         for (var i = 0; i<index.length; i++) {
             if (index[i].name != "DATA") {
-                addCol("headCol"+(index[i].index-1), index[i].name,
+                addCol("col"+(index[i].index-1), tableId, index[i].name,
                       {width: index[i].width,
                        isDark: index[i].isDark,
                        progCol:index[i]});
             } else {
-                $("#headCol"+(index[i].index+1)).css("width", 
-                    index[i].width);
+                $("#autoGenTable1 .table_title_bg.col"+(index[i].index))
+                .css("width",index[i].width);
             }
         }
     } else {
@@ -372,21 +376,18 @@ function documentReadyCatFunction() {
 
 }
 
-function getWorksheetNames() {
-    for (var i = 0; i<gWorksheetName.length; i++) {
-        addWorksheetTab(gWorksheetName[i]);
-    }
-    $("#worksheetBar .worksheetTab:first").click();
-}
-
 function startupFunctions(table) {
+    // var mainFrameClone = $('.mainFrame').clone();
+    // $('.mainFrame:first').after(mainFrameClone);
+    // $('.mainFrame').width('50%');
+
     readFromStorage();
     setCatGlobals(table);
     menuBarArt();
     menuAreaClose();
     getTablesAndDatasets();
     documentReadyGeneralFunction();
-    //XX change the way we detect if its a new page
+    //XX TODO: change the way we detect if its a new page
     if (!$.isEmptyObject(gDsToNameTrans)) {
         documentReadyAutoGenTableFunction();
         documentReadyCatFunction();
@@ -439,8 +440,8 @@ function movePageScroll(pageNum) {
 }
 
 function checkForScrollBar() {
-    var tableWidth = $('#autoGenTable').width()+
-        parseInt($('#autoGenTable').css('margin-left'));
+    var tableWidth = $('.autoGenTable').width()+
+        parseInt($('.autoGenTable').css('margin-left'));
     if (tableWidth > $(window).width()) {
         gScrollbarHeight = 8;
     } else {
@@ -450,15 +451,15 @@ function checkForScrollBar() {
 
 function positionScrollbar(row) {
     var canScroll = true;
-    var theadHeight = $('#autoGenTable thead').height();
+    var theadHeight = $('#autoGenTable1 thead').height();
     function positionScrollToRow() {
-        var tdTop = $('#bodyr'+row+'c1')[0].offsetTop;
+        var tdTop = $('#autoGenTable1 .row'+row)[0].offsetTop;
         var scrollPos = Math.max((tdTop-theadHeight), 1);
         if (canScroll && scrollPos > 
-                ($('#autoGenTable').height() - $('#mainFrame').height())) {
+                ($('.autoGenTable').height() - $('.mainFrame').height())) {
             canScroll = false;
         }
-        $('#mainFrame').scrollTop(scrollPos);
+        $('.mainFrame').scrollTop(scrollPos);
     }
     
     positionScrollToRow();

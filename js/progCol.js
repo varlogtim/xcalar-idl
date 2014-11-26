@@ -129,40 +129,16 @@ function updateFunctionBar(text) {
     $('#fnBar').val(text);
 }
 
-function delCol(id, resize) {
-    var colid = parseInt(id.substring(11));
-    var numCol = $("#autoGenTable tr:first th").length;
-    
-    $("#headCol"+colid).remove();
-    removeColAtIndex(colid-2);
-    $("#autoGenTable tr:eq(1) #headCol"+colid).remove();
+function delCol(colNum, tableNum, resize) {
+    var colid = colNum;
+    var numCol = $("#autoGenTable"+tableNum+" tr:first th").length;
+    var table = $("#autoGenTable"+tableNum);
+    table.find('th.col'+colNum+' ,td.col'+colNum).remove();
+    removeColAtIndex(colNum-2);
     for (var i = colid+1; i<=numCol; i++) {
-        $("#headCol"+i).attr("id", "headCol"+(i-1));
-        $("#closeButton"+i).attr("id", "closeButton"+(i-1));
-        $("#addLCol"+i).attr("id", "addLCol"+(i-1));
-        $("#addRCol"+i).attr("id", "addRCol"+(i-1));
-        $("#rename"+i).attr("id", "rename"+(i-1));
-        $("#renameCol"+i).attr("id", "renameCol"+(i-1));
-        $('#sort'+i).attr("id", "sort"+(i-1));
-        $('#revSort'+i).attr("id", "revSort"+(i-1));
-        $('#filter'+i).attr("id", "filter"+(i-1));
-        $("#duplicate"+i).attr("id", "duplicate"+(i-1));
-        $("#autoGenTable tr:eq(1) #headCol"+i).attr("id", "headCol"+(i-1));
+        table.find('.col'+i).removeClass('col'+i).addClass('col'+(i-1));
     }
- 
-    var numRow = $("#autoGenTable tbody tr").length;
-    var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id").
-                       substring(5);
-    idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
-    var startingIndex = parseInt(idOfFirstRow);
-
-    for (var i = startingIndex; i<startingIndex+numRow; i++) {
-        $("#bodyr"+i+"c"+colid).remove();
-        for (var j = colid+1; j<=numCol; j++) {
-            $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j-1));
-        }
-    }
-    gRescolDelWidth(id, resize);
+    gRescolDelWidth(colNum, tableNum, resize);
 }
 
 function pullCol(key, newColid, startIndex, numberOfRows) {
@@ -170,19 +146,17 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
         //check for dot followed by number (invalid)
         return;
     }
-    var colid = $("#autoGenTable th").filter(
+    var dataCol = $("#autoGenTable1 tr:first th").filter(
         function() {
             return $(this).find("input").val() == "DATA";
-    }).attr("id");
-    colid = colid.substring(7);
+    });
+    colid = parseColNum(dataCol);
     var numRow = -1;
     var startingIndex = -1;
+
     if (!startIndex) {
-        var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id").
-                       substring(5);
-        idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
-        startingIndex = parseInt(idOfFirstRow);
-        numRow = $("#autoGenTable tbody tr").length;
+        startingIndex = parseInt($("#autoGenTable1 tbody tr:first").attr('class').substring(3)); 
+        numRow = $("#autoGenTable1 tbody tr").length;
     } else {
         startingIndex = startIndex;
         numRow = numberOfRows||gNumEntriesPerPage;
@@ -190,7 +164,11 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
     
     // store the variable type
-    var jsonStr = $("#bodyr"+startingIndex+"c"+colid+ " .elementText").text(); 
+    var jsonStr = $('#autoGenTable1 .row'+startingIndex+' .col'+colid+' .elementText')
+                  .text();
+    if (jsonStr == "") {
+        console.log("Error: pullCol() jsonStr is empty");
+    }
     var value = jQuery.parseJSON(jsonStr);
     for (var j = 0; j<nested.length; j++) {
         if (value[nested[j]] == undefined || $.isEmptyObject(value)) {
@@ -200,10 +178,12 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
         value = value[nested[j]];
     }
     gTableCols[newColid-2].type = (typeof value);
-    
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
-        var jsonStr = $("#bodyr"+i+"c"+colid+ " .elementText").text(); 
-        var value = jQuery.parseJSON(jsonStr); 
+        var jsonStr = $('#autoGenTable1 .row'+i+' .col'+colid+' .elementText').text();
+        if (jsonStr == "") {
+            console.log("Error: pullCol() jsonStr is empty");
+        }
+        var value = jQuery.parseJSON(jsonStr);
         for (var j = 0; j<nested.length; j++) {
             if (value[nested[j]] == undefined || $.isEmptyObject(value)) {
                 value = "";
@@ -211,17 +191,20 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
             }
             value = value[nested[j]];
         }  
+
         value = parseJsonValue(value);
         value = '<div class="addedBarTextWrap"><div class="addedBarText">'+
                 value+"</div></div>";
-        $("#bodyr"+i+"c"+newColid).html(value); 
+        $('#autoGenTable1 .row'+i+' .col'+newColid).html(value);
     } 
 }
 
-function addCol(id, name, options) {
-    var numCol = $("#autoGenTable tr:first th").length;
-    var colid = parseInt(id.substring(7));
-    var newColid = colid;
+function addCol(colId, tableId, name, options) {
+    //id will be the column class ex. col3
+    //tableId will be the table name  ex. autoGenTable1
+    var numCol = $("#"+tableId+" tr:first th").length;
+    var colIndex = parseInt(colId.substring(3));
+    var newColid = colIndex;
     var options = options || {};
     var width = options.width || gNewCellWidth;
     var resize = options.resize || false;
@@ -253,54 +236,37 @@ function addCol(id, name, options) {
         insertColAtIndex(newColid-2, newProgCol);
     }
     for (var i = numCol; i>=newColid; i--) {
-        $("#headCol"+i).attr("id", "headCol"+(i+1));
-        $("#closeButton"+i).attr("id", "closeButton"+(i+1));
-        $("#addRCol"+i).attr("id", "addRCol"+(i+1));
-        $("#addLCol"+i).attr("id", "addLCol"+(i+1));
-        $("#rename"+i).attr("id", "rename"+(i+1));
-        $("#renameCol"+i).attr("id", "renameCol"+(i+1));
-        $("#sort"+i).attr("id", "sort"+(i+1));
-        $("#revSort"+i).attr("id", "revSort"+(i+1));
-        $("#filter"+i).attr("id", "filter"+(i+1));
-        $("#duplicate"+i).attr("id", "duplicate"+(i+1));
-        $("#autoGenTable tr:eq(1) #headCol"+i).attr("id", "headCol"+(i+1));
-    } 
-    var columnHeadTd = '<th class="table_title_bg '+color+
-        '" id="headCol'+
-        newColid+
-        '" style="width:'+width+'px;" label="click to edit">'+
+        $('#'+tableId+' .col'+i).removeClass('col'+i).addClass('col'+(i+1));
+    }  
+     var columnHeadTd = '<th class="table_title_bg '+color+
+        ' col'+newColid+'" style="width:'+width+'px;" label="click to edit">'+
         '<div class="header">'+
         '<div class="dragArea"></div>'+
         '<div class="dropdownBox" title="view column options"></div>'+
         '<input autocomplete="on" input spellcheck="false"'+
-        'type="text" id="rename'+newColid+'" '+
-        'class="editableHead" title="click to edit" '+
+        'type="text" class="editableHead col'+newColid+'" title="click to edit" '+
         'value="'+name+'" size="15" placeholder=""/>'+
         '</div>'+
         '</th>';
-    $("#headCol"+(newColid-1)).after(columnHeadTd); 
-    $("#autoGenTable tr:eq(1) #headCol"+(newColid-1)).after(columnHeadTd);  
+    $('#'+tableId+' .table_title_bg.col'+(newColid-1)).after(columnHeadTd); 
 
     var dropDownHTML = '<ul class="colMenu">'+
             '<li>'+
                 'Add a column'+
                 '<ul class="subColMenu">'+
-                    '<li class="addColumns" id="addLCol'+
-                    newColid+'">On the left</li>'+
-                    '<li class="addColumns" id="addRCol'+
-                    newColid+'">On the right</li>'+
+                    '<li class="addColumns addColLeft col'+newColid+'">On the left</li>'+
+                    '<li class="addColumns col'+newColid+'">On the right</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="rightArrow"></div>'+
             '</li>'+
-            '<li class="deleteColumn" onclick="delCol(this.id);" '+
-            'id="closeButton'+newColid+'">Delete column</li>'+
-            '<li id="duplicate'+newColid+'">Duplicate column</li>'+
-            '<li id="renameCol'+newColid+'">Rename column</li>'+
+            '<li class="deleteColumn col'+newColid+'">Delete column</li>'+
+            '<li class="duplicate col'+newColid+'">Duplicate column</li>'+
+            '<li class="renameCol col'+newColid+'">Rename column</li>'+
             '<li class="sort">Sort'+
                 '<ul class="subColMenu">'+
-                    '<li id="sort'+newColid+'">A-Z</li>'+
-                    '<li id="revSort'+newColid+'">Z-A</li>'+
+                    '<li class="sort col'+newColid+'">A-Z</li>'+
+                    '<li class="revSort col'+newColid+'">Z-A</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="rightArrow"></div>'+
@@ -308,7 +274,7 @@ function addCol(id, name, options) {
     // XXX: HACK: I removed the check for the main col. Also, I should check for
     // whether the type is a string or a int
     if (true) {
-        dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
+        dropDownHTML += '<li class="filterWrap col'+newColid+'">Filter'+
                         '<ul class="subColMenu">'+
                             '<li class="filter">Greater Than'+
                                 '<ul class="subColMenu">'+
@@ -359,7 +325,7 @@ function addCol(id, name, options) {
                             '<div class="rightArrow"></div>'+
                             '<ul class="subColMenu">';
         } else {
-        dropDownHTML += '<li class="filterWrap" id="filter'+newColid+'">Filter'+
+        dropDownHTML += '<li class="filterWrap col'+newColid+'">Filter'+
                         '<ul class="subColMenu">'+
                             '<li class="filter">Regex'+
                                 '<ul class="subColMenu">'+
@@ -385,33 +351,34 @@ function addCol(id, name, options) {
                             '<div class="rightArrow"></div>'+ 
                         '</li>';
     dropDownHTML += '</ul>';
-    $('#headCol'+newColid+' .header').append(dropDownHTML);
+    $('#'+tableId+' .table_title_bg.col'+newColid+' .header').append(dropDownHTML);
 
-    addColListeners(newColid);
+    addColListeners(newColid, tableId);
 
-    var numRow = $("#autoGenTable tbody tr").length;
-     var idOfFirstRow = $("#autoGenTable tbody td:first").attr("id");
+    var numRow = $("#"+tableId+" tbody tr").length;
+    var idOfFirstRow = $("#"+tableId+" tbody tr:first").attr("class");
     if (idOfFirstRow) {
-        idOfFirstRow = idOfFirstRow.substring(5);
+        var startingIndex = parseInt(idOfFirstRow.substring(3));
     } else {
-        idOfFirstRow = "c1";
+        var startingIndex = 1;
     }
-    idOfFirstRow = idOfFirstRow.substring(0, idOfFirstRow.indexOf("c"));
-    var startingIndex = parseInt(idOfFirstRow);
+
     for (var i = startingIndex; i<startingIndex+numRow; i++) {
-        for (var j = numCol; j>=newColid; j--) {
-            $("#bodyr"+i+"c"+j).attr("id", "bodyr"+i+"c"+(j+1));
-            // every column after the new column gets id shifted +1;
-        }
         var newCellHTML = '<td '+
-            'class="'+color+'" id="bodyr'+i+"c"+(newColid)+
-            '">&nbsp;</td>';
-            $("#bodyr"+i+"c"+(newColid-1)).after(newCellHTML);
+            'class="'+color+' col'+newColid+'">&nbsp;</td>';
+            $("#"+tableId+" .row"+i+" .col"+(newColid-1)).after(newCellHTML);
     }
 
     if (inFocus) {
-        $('#rename'+newColid).focus();
+        $('#'+tableId+' tr:first .editableHead.col'+newColid).focus();
     }
     matchHeaderSizes();
     checkForScrollBar();
+}
+
+function parseColNum(el) {
+    var classNames = el.attr('class');
+    var index = classNames.indexOf('col');
+    var substring = classNames.substring(index+'col'.length);
+    return (parseInt(substring));
 }

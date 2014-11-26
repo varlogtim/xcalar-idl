@@ -1,10 +1,11 @@
 function fillPageWithBlankCol() {
-    var tableWidth = $("#autoGenTable").width();
+    var tableWidth = $(".autoGenTable").width();
     var screenWidth = window.screen.availWidth;
     var numColsToFill = Math.ceil((screenWidth - tableWidth)/gNewCellWidth) ;
-    var startColId = $("#autoGenTable tr:first th").length;
+    var startColId = $(".autoGenTable tr:first th").length;
+    var tableId = "autoGenTable1";
     for (var i = 0; i<numColsToFill; i++) {
-        addCol("headCol"+(startColId+i), "", {'isDark': true});
+        addCol("col"+(startColId+i), tableId, "", {'isDark': true});
     }
 }
 
@@ -15,20 +16,20 @@ function generateBlankTable() {
     // XX may not need to empty if we just start out empty, but
     // we need to adjust the other functions that depend on the id and
     // data column
-    $('#autoGenTable thead, #autoGenTable tbody').empty();
+    $('#autoGenTable1 thead, #autoGenTable1 tbody').empty();
     html += '<tr>';
     html += '<th style="width:'+(gRescol.cellMinWidth+10)+'px;"></th>';
     for (var i = 0; i < numColsToFill; i++) {
             html += '<th style="width:'+gNewCellWidth+'px;"></th>';
     }
     html += '</tr>';
-    $('#autoGenTable thead').append(html);
+    $('#autoGenTable1 thead').append(html);
     html = "";
     for (var i = 1; i <= 60;  i++) {
     // XXX make a variable for 60 || num rows
+        // html += '<tr class="row'+i+'">';
         html += '<tr>';
-        html += '<td align="center" id="bodyr'+
-                    i+'c1"'+
+        html += '<td align="center" '+
                     'style="height:'+gRescol.minCellHeight+'px;">'+
                     '<div class="idWrap"><span class="idSpan">'+
                     i+'</span>'+
@@ -40,14 +41,14 @@ function generateBlankTable() {
         }
         html += '</tr>';
     }
-    $('#autoGenTable tbody').html(html);
-    $('#autoGenTable').width(screenWidth);
-    $('#autoGenTable .rowGrab').mousedown(function(event) {
+    $('#autoGenTable1 tbody').html(html);
+    $('#autoGenTable1').width(screenWidth);
+    $('#autoGenTable1 .rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
 }
 
-function generateRowWithCurrentTemplate(json, id, rowTemplate, direction) {
+function generateRowWithCurrentTemplate(json, id, rowTemplate, direction, tableNum) {
     // Replace JSON
     var firstPart = rowTemplate.firstPart;
     var secondPart = rowTemplate.secondPart;
@@ -57,7 +58,7 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction) {
     secondIndex = finalString.indexOf("<", firstIndex);
     firstPart = finalString.substring(0, firstIndex);
     secondPart = finalString.substring(secondIndex);
-    finalString = "<tr>"+firstPart + id + secondPart+"</tr>";
+    finalString = "<tr class='row"+id+"'>"+firstPart + id + secondPart+"</tr>";
 
     if (direction == 1) {
         var row = "tr:first-child";
@@ -65,28 +66,23 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction) {
         var row = "tr:last-child";
     }
 
-    if ($("#autoGenTable tbody tr").length == 0) {
-        $("#autoGenTable tbody").append(finalString);
+    if ($("#autoGenTable"+tableNum+" tbody tr").length == 0) {
+        $("#autoGenTable"+tableNum+" tbody").append(finalString);
     } else { 
         if (direction == 1) {
-            $("#autoGenTable").prepend(finalString);
+            $("#autoGenTable"+tableNum).prepend(finalString);
         } else {
-            $("#autoGenTable").append(finalString);
+            $("#autoGenTable"+tableNum).append(finalString);
         }    
     }
 
     // Replace element id
-    $("#autoGenTable tbody "+row).find("[id]").each(function() {
-        var colNoInd = (this.id).indexOf("c");
-        var colNo = (this.id).substring(colNoInd+1);
-        this.id = "bodyr"+id+"c"+colNo;
-    });
 
-    $('#autoGenTable tbody '+row+' .jsonElement').dblclick(function() {
+    $('#autoGenTable'+tableNum+' tbody '+row+' .jsonElement').dblclick(function() {
         showJsonModal($(this));
     });
 
-    $('#autoGenTable  tbody '+row+' .rowGrab').mousedown(function(event) {
+    $('#autoGenTable'+tableNum+' tbody '+row+' .rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
 }
@@ -100,7 +96,7 @@ function generateRowWithAutoIndex(text, hoverable) {
     else { 
         var clickable = "";
     }
-    $("#autoGenTable tr:last").after('<tr><td height="18" align="center"'+
+    $(".autoGenTable tr:last").after('<tr><td height="18" align="center"'+
         'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
         gTableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+
         gTableRowIndex+'</td>'+
@@ -121,15 +117,12 @@ function generateFirstScreen(value, idNo, height) {
     } else {
         var cellHeight = height;
     }
-    $("#autoGenTable tbody").append('<tr>'+
-        '<td align="center" id="bodyr'+
-        idNo+'c1"'+
-        'style="height:'+cellHeight+'px;">'+
+    $("#autoGenTable1").append('<tr class="row'+idNo+'">'+
+        '<td align="center" class="col1" style="height:'+cellHeight+'px;">'+
         '<div class="idWrap"><span class="idSpan">'+
         idNo+'</span><div class="rowGrab"></div></div></td>'+
-        '<td class="jsonElement" id="bodyr'+
-        idNo+'c2">'+
-        '<div class="elementTextWrap" style="max-height:'+
+        '<td class="jsonElement col2">'+
+        '<div title="double-click to view" class="elementTextWrap" style="max-height:'+
         (cellHeight-4)+'px;">'+
         '<div class="elementText">'+
         value+'</div>'+
@@ -137,12 +130,12 @@ function generateFirstScreen(value, idNo, height) {
         '</td>'+
         '</tr>');
 
-    $('#autoGenTable tbody tr:eq('+(idNo-1)+') .jsonElement').dblclick(
+    $('.autoGenTable tbody tr:eq('+(idNo-1)+') .jsonElement').dblclick(
         function(){
             showJsonModal($(this));
         }
     );
-    $('#bodyr'+idNo+'c1 .rowGrab').mousedown(function(event) {
+    $('.row'+idNo+' .rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
 }
@@ -150,7 +143,7 @@ function generateFirstScreen(value, idNo, height) {
 function createRowTemplate() {
     var startString = '<div class="elementText">';
     var endString="</div>";
-    var originalString = $("#autoGenTable tbody tr:nth-last-child(1)").html() ||
+    var originalString = $(".autoGenTable tbody tr:nth-last-child(1)").html() ||
                          gTempStyle;
     var index = originalString.indexOf(startString);
     var firstPart = originalString.substring(0, index+startString.length);

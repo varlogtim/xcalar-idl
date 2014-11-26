@@ -60,7 +60,6 @@ function getPage(resultSetId, firstTime, direction) {
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
     var rowTemplate = createRowTemplate();
-
     for (var i = 0; i<numRows; i++) {
         if (direction == 1) {
             var index = numRows-1-i;
@@ -79,7 +78,7 @@ function getPage(resultSetId, firstTime, direction) {
             generateFirstScreen(value, indexNumber+i+1, tdHeights[i]);
         } else {
             generateRowWithCurrentTemplate(value, indexNumber+index+1, 
-                                            rowTemplate, direction);        
+                                            rowTemplate, direction, 1);        
         }
     }
 
@@ -96,7 +95,7 @@ function getPage(resultSetId, firstTime, direction) {
         newProgCol.func.args = [gKeyName];
         newProgCol.userStr = '"' + gKeyName + '" = pull('+gKeyName+')';
         insertColAtIndex(0, newProgCol);
-        addCol("headCol1", gKeyName, {progCol: newProgCol}); 
+        addCol("col1", "autoGenTable1", gKeyName, {progCol: newProgCol}); 
         newProgCol = new ProgCol();
         newProgCol.index = 3;
         newProgCol.name = "DATA";
@@ -107,7 +106,6 @@ function getPage(resultSetId, firstTime, direction) {
         newProgCol.isDark = false;
         insertColAtIndex(1, newProgCol);
     }
-    console.log("gTableCols.length: "+gTableCols.length);
     for (var i = 0; i<gTableCols.length; i++) {
         if (gTableCols[i].name == "DATA") {
             // We don't need to do anything here because if it's the first time
@@ -116,17 +114,17 @@ function getPage(resultSetId, firstTime, direction) {
             // would've sized it in CatFunction
         } else {
             if (firstTime && !getIndex(gTableName)) {
-                // console.log('first time')
                 execCol(gTableCols[i]);
-            } else {
+            } else { 
+
                 if (direction) { 
                     var startingIndex;
                     if (direction == 1) {
-                        startingIndex = parseInt(($('#autoGenTable tbody td:first')
-                                            .attr('id')).substring(5));
+                        startingIndex = parseInt($('#autoGenTable1 tbody tr:first')
+                                        .attr('class').substring(3));
                     } else {
-                        var td = $('#autoGenTable tr:nth-last-child('+gNumEntriesPerPage+') td:first');
-                        startingIndex = parseInt(td.attr('id').substring(5));
+                        var tr = $('.autoGenTable tr:nth-last-child('+gNumEntriesPerPage+')');
+                        startingIndex = parseInt(tr.attr('class').substring(3));
                     }
                     var execColArgs = {};
                     execColArgs.startIndex = startingIndex;
@@ -136,15 +134,14 @@ function getPage(resultSetId, firstTime, direction) {
                     execCol(gTableCols[i]);
                 }
                 if (gTableCols[i].name == gKeyName) {
-                    // console.log(gKeyName);
-                    autosizeCol($('#headCol'+(gTableCols[i].index)));
+                    // autosizeCol($('#autoGenTable1 th.col'+(gTableCols[i].index)));
                 }
             }
         }
     }
     $('.colGrab').height($('#mainFrame').height());
-    var idColWidth = getTextWidth($('#autoGenTable tr:last td:first'));
+    var idColWidth = getTextWidth($('.autoGenTable tr:last td:first'));
     var newWidth = Math.max(idColWidth, 24);
-    $('#autoGenTable th:first-child').width(newWidth+14);
+    $('.autoGenTable th:first-child').width(newWidth+14);
     matchHeaderSizes();
 }

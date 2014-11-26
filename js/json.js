@@ -88,24 +88,24 @@ function createJsonSelectionExpression(el) {
 
 function showJsonModal(jsonTd) {
     positionJsonModal(jsonTd);
-
+    var tableNum = parseInt(jsonTd.closest('table').attr('id').substring(12));
     $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
         var name = createJsonSelectionExpression($(this));
-        var id = $("#autoGenTable th").filter(function() {
+        var id = $("#autoGenTable"+tableNum+" th").filter(function() {
                         return $(this).find("input").val() == "DATA";
-                    }).attr("id");
-        var colIndex = parseInt(id.substring(7)); 
-        addCol(id, name);
-        gTableCols[colIndex-1].func.func = "pull";        
-        gTableCols[colIndex-1].func.args = [name];
-        gTableCols[colIndex-1].userStr = '"'+name+'" = pull('+name+')';
-        execCol(gTableCols[colIndex-1]);
-        autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
+                    });
+        var colNum = parseColNum(id);
+        addCol('col3', 'autoGenTable'+tableNum, name);
+        gTableCols[colNum-1].func.func = "pull";        
+        gTableCols[colNum-1].func.args = [name];
+        gTableCols[colNum-1].userStr = '"'+name+'" = pull('+name+')';
+        execCol(gTableCols[colNum-1]);
+        autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum+1)), {includeHeader: true, 
                 resizeFirstRow: true});
-        $('thead:first #headCol'+(colIndex+1)+' .editableHead').focus();
+        $('#autoGenTable'+tableNum+' tr:first th.col'+(colNum+1)+' .editableHead').focus();
         // XXX call autosizeCol after focus if you want to make column wide enough
         // to show the entire function in the header
-        // autosizeCol($('#headCol'+(colIndex+1)), {includeHeader: true, 
+        // autosizeCol($('#headCol'+(colNum+1)), {includeHeader: true, 
         //         resizeFirstRow: true});
         $('#jsonModal, #modalBackground').hide();
         $('body').removeClass('hideScroll');
@@ -123,7 +123,8 @@ function positionJsonModal(jsonTd) {
     var jsonString = $.parseJSON(jsonTd.find('.elementText').text());
     var newString = prettifyJson(jsonString);
     $('.jObject').html(newString);
-    $('#jsonModal, #modalBackground').show();
+    $('#jsonModal').show();
+    $('#modalBackground').fadeIn(100);
     $('#jsonWrap').height(400).width(400);
     var modalHeight = $('#jsonModal').outerHeight();
     var modalWidth = $('#jsonModal').outerWidth();

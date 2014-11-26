@@ -1,3 +1,10 @@
+function getWorksheetNames() {
+    for (var i = 0; i<gWorksheetName.length; i++) {
+        addWorksheetTab(gWorksheetName[i]);
+    }
+    $("#worksheetBar .worksheetTab:first").click();
+}
+
 function setWorksheetNames() {
     for (var i = 0; i<gWorksheetName.length; i++) {
         addWorksheetTab(gWorksheetName[i]);
@@ -341,7 +348,7 @@ function addSelectedTableHolder(tableNumber) {
 
 function shoppingCart() {
     // Cleanup current table
-    $("#autoGenTable td, th").each(function() {
+    $(".autoGenTable td, th").each(function() {
         $(this).empty().removeClass('selectedCell');
     });
 
@@ -414,9 +421,11 @@ function addWorksheetTab(value) {
     $('#worksheetBar').append('<div class="worksheetTab" '+
                         'style="width:'+width+';'+
                         'margin-top:'+marginTop+';">'+
-                        '<input spellcheck="false" type="text" '+
-                        'value="'+text+'" '+
-                        'size="'+(text.length+1)+'"></div>');
+                            '<input spellcheck="false" type="text" '+
+                            'value="'+text+'" '+
+                            'size="'+(text.length+1)+'">'+
+                            '<div class="deleteWorksheet">+</div>'+
+                        '</div>');
 
     var newTab = $('#worksheetBar .worksheetTab:last');
     var newInput = newTab.find('input');

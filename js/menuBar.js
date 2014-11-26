@@ -15,31 +15,31 @@ function menuBarArt() {
         if (clickTarget == $(event.target).text()) {
             //if clicking on an already open menu, close it
             $(".menuSelected").removeClass("menuSelected");
-            $('#mainFrame').height('calc(100% - 148px)');
+            $('.mainFrame').height('calc(100% - 148px)');
             $("#menuArea").height(0);
             clickTarget = null;
-            $('.trueTHead').css('top',111).addClass('moveTop');
+            $('.theadWrap').css('top',111).addClass('moveTop');
             setTimeout(function() {
-                $('.trueTHead').removeClass('moveTop');
-                $('.colGrab').height($('#mainFrame').height());
+                $('.theadWrap').removeClass('moveTop');
+                $('.colGrab').height($('.mainFrame').height());
                 generateFirstLastVisibleRowNum();
             },300);
             return;
         }
         clickTarget = $(event.target).text();
 
-        $('.trueTHead').css('top',177).addClass('moveTop');
+         $('.theadWrap').css('top',177).addClass('moveTop');
 
         setTimeout(function() {
-            $('.trueTHead').removeClass('moveTop');
-            $('.colGrab').height($('#mainFrame').height());
+            $('.theadWrap').removeClass('moveTop');
+            $('.colGrab').height($('.mainFrame').height());
             generateFirstLastVisibleRowNum();
         },300);
 
         $(".menuSelected").removeClass("menuSelected");
         $(this).addClass("menuSelected");
         $("#menuArea").show().height(66);
-        $('#mainFrame').height('calc(100% - 214px)');
+        $('.mainFrame').height('calc(100% - 214px)');
         
         switch ($(this).text()) {
         case ("datastore"):

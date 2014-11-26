@@ -34,15 +34,14 @@
 <div id="container">
   <div id="logo"></div>
   <div id="menuBar" class="mainBar">
-      <div></div><div></div>
-      <div>datastore</div>
-      <div>monitor</div>
+      <div title="view data sets">datastore</div>
+      <div title="view statistics">monitor</div>
   </div>
   <div id="menuArea">
     <span id="datastorePanel">
       <div class="menuAreaItem">
           <span class="menuAreaLabel monitorSmall monitorGreen">DATA<br>SET</span>
-          <span class="menuAreaValue">ADD</span>
+          <span class="menuAreaValue" title="add new data set">ADD</span>
       </div>
       <div class="datasetWrap"></div>
     </span>
@@ -97,9 +96,9 @@
   <div id="pageBar" class="mainBar">
     <div> viewing rows:
       <span class="rowNum">-</span>
-      through<span class="rowNum">-</span>
+      through <span class="rowNum">-</span>
     </div>
-    <div id="pageScroll">
+    <div id="pageScroll" title="scroll to a row">
       <div id="pageMarker">
       </div>
     </div>
@@ -108,30 +107,30 @@
       <input id="rowInput" size="2">
     </div>
   </div>
-  <div id="mainFrame" class="tableWrap">
-    <table id="autoGenTable" class="dataTable">
+  <div id="mainFrame" class="mainFrame tableWrap">
+    <table id="autoGenTable1" class="autoGenTable dataTable">
       <thead>
       <tr>
-        <th id="headCol1" style="width:50px;" class="table_title_bg">
+        <th style="width:50px;" class="col1 table_title_bg">
           <div class="header">
             <span><input value="ROW" readonly tabIndex="-1"></span>
           </div>
         </th>
-        <th id="headCol2" class="table_title_bg" style="width:auto;">
+        <th class="col2 table_title_bg" style="width:auto;">
           <div class="header">
             <div class="dropdownBox" style="opacity: 0;"></div>
-            <span><input value="DATA" readonly tabIndex="-1"></span>
+            <span><input value="DATA" readonly tabIndex="-1" title="raw data"></span>
             <ul class="colMenu" style="display: none;">
               <li class="menuClickable">Add a column
                 <ul class="subColMenu">
-                  <li class="addColumns" id="addLCol3">On the left</li>
-                  <li class="addColumns" id="addRCol3">On the right</li>
+                  <li class="addColumns addColLeft col2" id="addLCol3">On the left</li>
+                  <li class="addColumns addColRight col2" id="addRCol3">On the right</li>
                   <div class="subColMenuArea"></div>
                 </ul>
                 <div class="rightArrow"></div>
               </li>
-              <li id="duplicate3">Duplicate column</li>
-              <li class="sort" id="sort3">Sort</li>
+              <li id="duplicate3" class="duplicate col2">Duplicate column</li>
+              <li class="sort col2">Sort</li>
             </ul>
           </div>
         </th>
@@ -142,8 +141,7 @@
     </table>
   </div>
   <div id="worksheetBar" class="worksheetBar mainBar">
-    <div id="newWorksheet"><span>+ new worksheet</span></div>
-    <div class="worksheetTab tabSelected"><input type="text" value="worksheet"></div>
+    <div id="newWorksheet"><span title="add a new worksheet">+ new worksheet</span></div>
   </div>
   <div id="modalBackground"></div>
   <div id="shoppingCart">
