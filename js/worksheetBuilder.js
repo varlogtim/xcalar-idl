@@ -1,0 +1,408 @@
+function getDatasetSamples() {
+    // Get datasets and names
+    var datasets = XcalarGetDatasets();
+    var samples = {};
+    for (var i = 0; i<datasets.numDatasets; i++) {
+        // This variable should have been stored when the table is loaded.
+        // Otherwise, just run this command setDsToName("gdelt", 4)
+        // Commit your change by running the command commitToStorage()
+        // Alternatively you can just randomly pick a static placeholder name
+        var datasetName = getDsName(datasets.datasets[i].datasetId);
+        // Gets the first 20 entries and stores it.
+        samples[datasetName] = XcalarSample(datasets.datasets[i].datasetId, 20);
+
+        // add the tab and the table for this dataset to shoppingcart div
+        addDatasetTable(datasetName, i+1);
+        addSelectedTables(i+1);
+        var records = samples[datasetName].kvPairs;
+
+        if (records.recordType ==
+            GenericTypesRecordTypeT.GenericTypesVariableSize) {
+            console.log(records.records[0]);
+            var json = $.parseJSON(records.records[0].kvPairVariable.value);
+        } else {
+            var json = $.parseJSON(records.records[0].kvPairFixed.value);
+        }
+
+        // build the table headers
+        var count = 0;
+        for (key in json) {
+            $('#worksheetTable'+(i+1)+' tr:first').append('\
+                <th class="table_title_bg">\
+                    <div class="header">\
+                        <input spellcheck="false" \
+                        class="editableHead shoppingCartCol" value="'+key+'"\
+                        id ="ds'+datasets.datasets[i].datasetId+'cn'+key+'">\
+                        <div class="keyCheckmark">\
+                            <div class="keyCheckmarkWrap">\
+                                <span>&#x2713;</span>\
+                                <span>+</span>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </th>');
+
+            $('.keyCheckmark:last').click(function() {
+                var inputText = $(this).siblings('input').val();
+                var index = $(this).closest('.worksheetTable').index()+1;
+                console.log(index, 'index');
+                var selectedKey = $('#selectedTable'+index).
+                    find('td:contains('+inputText+')');
+                selectedKey.find('.removeKey').click();
+            });
+
+            $('#worksheetTable'+(i+1)+' th:last input').focus(function() {  
+                var index = $(this).closest('th').index()+1;
+                var tableIndex = $(this).closest('table').index()+1;
+                var value = $(this).val();
+                $('.selectedCell').removeClass('selectedCell');
+                $(this).closest('.table_title_bg').addClass('selectedCell');
+                $(this).closest('table').find('td:nth-child('+index+')').
+                    addClass('selectedCell');
+                $('.keySelected').removeClass('keySelected');
+                $('#selectedTable'+tableIndex)
+                    .find('.keyWrap:contains('+value+')')
+                    .addClass('keySelected');
+            });
+
+            $('#worksheetTable'+(i+1)+' th:last input').dblclick(function() {
+                // $(this).prop('disabled', true);
+                var input = $(this);
+                window.getSelection().removeAllRanges();
+                if ($(this).parent().hasClass('keyAdded')) {
+                    return;
+                } else {
+                    $(this).parent().addClass('keyAdded');
+                    $(this).attr('readonly', 'true');
+                }
+                
+                var index = $(this).closest('table').index()+1;
+                var tabName = $('#worksheetTab'+index+' input').val();
+                var selectedTable = $('#selectedTable'+index);
+                if (selectedTable.length == 0) {
+                    //add new selectedTable
+                    $('#selectedTableWrap'+index).append('\
+                            <table class="dataTable selectedTable" \
+                            id="selectedTable'+index+'" \
+                            style="width:0px;">\
+                                <thead><tr>\
+                                <th>'+tabName+'</th>\
+                                </tr></thead>\
+                                <tbody></tbody>\
+                            </table>').css('margin-left', '5px');
+                    selectedTable = $('#selectedTable'+index);
+                    $('.selectedTable th').removeClass('orangeText');
+                    selectedTable.find('th').addClass('orangeText');
+                    selectedTable.width(175);
+                }
+                selectedTable.find('tbody').append('\
+                    <tr><td><div style="font-size:15px;" class="keyWrap">'
+                        +"<span>"+$(this).val()+"</span>"+
+                        '<div class="removeKey">+</div>\
+                        <div class="removeCover"></div>\
+                    </div></td></tr>');
+
+                $('.keySelected').removeClass('keySelected');
+                selectedTable.find('.keyWrap:last').addClass('keySelected');
+                setTimeout(function() {
+                    selectedTable.find('.keyWrap:last').css('font-size', '13px');
+                }, 1);
+                
+                selectedTable.find('.removeKey:last').click(function() {
+                    var removeBox = $(this);
+                    input.parent().removeClass('keyAdded').prop;
+                    input.removeAttr('readonly');
+                    if ($(this).closest('tr').siblings().length == 0) {
+                        $(this).closest('.selectedTableWrap')
+                            .css('margin-left', '0px');
+                        $(this).closest('table').width(0);
+                        setTimeout(function() {
+                            removeBox.closest('table').remove();
+                        }, 500);
+                    } else {
+                        $(this).closest('tr').remove();
+                    }
+                });
+            });
+        }
+        addDataSetRows(records, i+1);
+    }
+}
+
+function addDatasetTable(datasetTitle, tableNumber) { 
+    $('#builderTabWrap').append('\
+            <div class="tabWrap">\
+                <div class="worksheetTab" \
+                id="worksheetTab'+tableNumber+'">\
+                    <input size="10" type="text" value="'+datasetTitle+'"\
+                    readonly>\
+                </div>\
+            </div>');
+
+    //append the table to datasetbrowser div
+    $('#datasetBrowser').append('\
+        <table id="worksheetTable'+tableNumber+'"\
+        class="worksheetTable dataTable">\
+            <thead>\
+              <tr>\
+                <th style="width:40px;" class="table_title_bg">\
+                  <div class="header">\
+                    <span><input value="ID" readonly></span>\
+                  </div>\
+                </th>\
+              <tr/>\
+            </thead>\
+            <tbody></tbody>\
+        </table>');
+}
+
+// add row by row
+function addDataSetRows(records, tableNumber) {
+    var html = "";
+    // loop through each row
+    for (var i = 0; i<records.numRecords; i++) {
+        if (records.recordType ==
+            GenericTypesRecordTypeT.GenericTypesVariableSize) {
+            var key = records.records[i].kvPairVariable.key;
+            var jsonValue = records.records[i].kvPairVariable.value;
+        } else {
+            var key = records.records[i].kvPairFixed.key;
+            var jsonValue = records.records[i].kvPairFixed.value;
+        }
+
+        var json = $.parseJSON(jsonValue);
+
+        //append the id cell
+        html += '<tr><td>'+(key+1)+'</td>';
+
+        // loop through each td, parse object, and add cell content
+        for (key in json) {
+            var value = json[key];
+            if (value == undefined) {
+                value = '<span class="undefined">'+value+'</span>';
+            } else {
+                switch (value.constructor) {
+                    case (Object):
+                        if ($.isEmptyObject(value)) {
+                            value = "";
+                        } else {
+                            value = JSON.stringify(value).replace(/,/g, ", ");
+                        }
+                        break;
+                    case (Array):
+                        value = value.join(', ');
+                        break;
+                    default: // leave value as is;
+                }
+            }
+            html += '<td>\
+                        <div class="addedBarTextWrap">\
+                            <div class="addedBarText">'
+                            +value+
+                            '</div>\
+                        </div>\
+                    </td>';
+        }
+        html += '</tr>';
+    }
+    $('#worksheetTable'+tableNumber+' tbody').append(html);
+}
+
+function createWorksheet() {
+    var newTableCols = [];
+    var startIndex = 2;
+    $("#selectedDataset table tbody tr td div span").each(function() {
+        var colname = $.trim($(this).text());
+        var progCol = new ProgCol();
+        progCol.index = startIndex;
+        progCol.type = "string";
+        progCol.name = colname;
+        progCol.width = gNewCellWidth;
+        progCol.userStr = '"'+colname+'" = pull('+colname+')';
+        progCol.func.func = "pull";
+        progCol.func.args = [colname];
+        progCol.isDark = false;
+        var datasetName = $(this).parent().parent().parent().parent().parent()
+                          .children("thead").children("tr").children("th")
+                          .text();
+        progCol.datasetId = parseInt(getDsId(datasetName));                  
+        newTableCols[startIndex-2] = progCol;
+        startIndex++;
+    });
+    var progCol = new ProgCol();
+    progCol.index = startIndex;
+    progCol.type = "object";
+    progCol.name = "DATA";
+    progCol.width = 700;
+    progCol.userStr = "DATA = raw()";
+    progCol.func.func = "raw";
+    progCol.func.args = [];
+    progCol.isDark = false;
+    newTableCols[startIndex-2] = progCol;
+    $("#selectedDataset div table thead tr th").each(function() {
+        // XXX: Since the backend has no way of telling me whether or not a
+        // particular dataset has been indexed before, I am just going to
+        // re-index it. For me to do that, I have to get the datasetid and
+        // index it by the first column in the list
+        var datasetId = parseInt(getDsId($(this).text()));
+        console.log(datasetId);
+        var columnToIndex = $(this).parent().parent().parent()
+                            .children("tbody").children("tr").children("td")
+                            .children("div").children("span")[0].innerHTML;
+        console.log(columnToIndex);
+        var rand = Math.floor(Math.random() * 100000) + 1;
+        var newIndexTable = $(this).text()+rand;
+        console.log(newIndexTable);
+        XcalarIndexFromDataset(datasetId, columnToIndex, newIndexTable);
+    });
+    var worksheetName = $("#worksheetBar .tabSelected input").val();
+    setIndex(worksheetName, newTableCols);
+    commitToStorage();
+    // window.location.href="?worksheet="+worksheetName;
+    /*
+    // XXX: For demo. All hacked up
+    var datasets = "csv";
+    var hasGdelt = false;
+    var hasSP = false;
+    var hasYelp = false;
+    $("#selectedDataset div table thead tr th").each(function() {
+        if ($(this).text().indexOf("gdelt") >= 0) {
+            hasGdelt = true;
+        }
+        if ($(this).text().indexOf("sp500") >= 0) {
+            hasSP = true;
+        }
+        if ($(this).text().indexOf("yelp") >= 0) {
+            hasYelp = true;
+        }
+        if ($(this).text().indexOf("yelp") >= 0) {
+            datasets = "json";
+        }
+    });
+    console.log("hasYelp:" +hasYelp+"hasSP"+hasSP+"hasGDelt"+hasGdelt);
+    if (hasGdelt && !hasSP && !hasYelp) {
+        setIndex("gdelt", newTableCols);
+        commitToStorage();
+        window.location.href="?tablename=gdelt";
+    } else if (hasSP && !hasGdelt && !hasYelp) {
+        setIndex("sp500", newTableCols);
+        commitToStorage();
+        window.location.href="?tablename=sp500";
+    } else if (hasSP && hasGdelt && !hasYelp) {
+        setIndex("joined", newTableCols);
+        commitToStorage();
+        window.location.href="?tablename=joined";
+    } else if (!hasSP && !hasGdelt && hasYelp) {
+        setIndex("joined2", newTableCols);
+        commitToStorage();
+        window.location.href="?tablename=joined2";
+    }
+    */
+}
+
+function attachShoppingCartListeners() {
+    $(".shoppingCartCol").keypress(function(e) {
+        if (e.which === 13) {
+            var oldid = $(this).attr("id");
+            var oldColName = oldid.substring(oldid.indexOf("cn")+2);
+            var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
+            console.log("Renaming "+oldColName+" to "+$(this).val());
+            XcalarEditColumn(dsnumber, oldColName, $(this).val(),
+                             DfFieldTypeT.DfString);
+            var newId = "ds"+dsnumber+"cn"+$(this).val();
+            console.log(newId);
+            $(this).attr("id", newId); 
+            $(this).blur();
+        }
+    });
+    $(".shoppingCartCol").blur(function(e) {
+        if (e.which === 13) {
+            var oldid = $(this).attr("id");
+            var oldColName = oldid.substring(oldid.indexOf("cn")+2);
+            var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
+            console.log("Renaming "+oldColName+" to "+$(this).val());
+            XcalarEditColumn(dsnumber, oldColName, $(this).val(),
+                             DfFieldTypeT.DfString);
+            var newId = "ds"+dsnumber+"cn"+$(this).val();
+            console.log(newId);
+            $(this).attr("id", newId); 
+            $(this).blur();
+        }
+    });
+    $("#createButton").css("cursor", "pointer");
+    $("#createButton").click(function() {
+        createWorksheet();
+    });
+    $("#cancelButton").css("cursor", "pointer");
+    $("#cancelButton").click(function() {
+        // $("#modalBackground").hide();
+        // $("#shoppingCart").hide();
+        window.location.href=""; 
+    });
+}
+
+function addSelectedTables(tableNumber) {
+    $('#selectedDataset').append('\
+        <div class="selectedTableWrap" \
+        id="selectedTableWrap'+tableNumber+'">\
+        </div>');
+}
+
+function shoppingCart() {
+    // Cleanup current table
+    $("#autoGenTable td, th").each(function() {
+        $(this).empty().removeClass('selectedCell');
+    });
+
+    // Display the shopping cart tabs
+    $("#shoppingCart").show();
+    getDatasetSamples();
+    addTabFunctionality();
+    $('.worksheetTable').hide();
+    $('.worksheetTable:first').show();
+    attachShoppingCartListeners();
+    $('#builderTabBar .worksheetTab:first').mousedown();
+}
+
+function addTabFunctionality() {
+    $('#builderTabBar .worksheetTab').mousedown(function() {
+        var index = $(this).parent().index()+1;
+        var text = $(this).find('input').val();
+        $('.selectedCell').removeClass('selectedCell');
+        $('#builderTabBar .worksheetTab').removeClass('tabSelected');
+        $(this).addClass('tabSelected');
+        $('.selectedTable th').removeClass('orangeText');
+        $('#selectedTable'+index+' th').addClass('orangeText');
+
+        $('.worksheetTable').hide();
+        $('.worksheetTable:nth-child('+index+')').show();
+    });
+
+    $('#builderTabBar .worksheetTab input').each(function() {
+        var size = $(this).val().length;
+        $(this).attr('size', size);
+    });
+
+    $('#builderTabBar .worksheetTab input').on('input', function() {
+        var size = $(this).val().length;
+        $(this).attr('size', size);
+    });
+
+     $('#builderTabBar input').click(function() { 
+        $(this).removeAttr('readonly');
+    });
+
+    $('#builderTabBar input').dblclick(function() {
+        $(this).removeAttr('readonly');
+        $(this).focus();
+    }).blur(function() {
+        $(this).attr('readonly', 'true');
+    });
+
+    $('#builderTabBar input').on('input', function() {
+        var index = $(this).closest('.tabWrap').index()+1;
+        $('#selectedTable'+index+' th').text($(this).val());
+    });
+}
+
+
