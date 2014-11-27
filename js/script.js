@@ -2244,6 +2244,9 @@ function attachShoppingCartListeners() {
             console.log("Renaming "+oldColName+" to "+$(this).val());
             XcalarEditColumn(dsnumber, oldColName, $(this).val(),
                              DfFieldTypeT.DfString);
+            var newId = "ds"+dsnumber+"cn"+$(this).val();
+            console.log(newId);
+            $(this).attr("id", newId); 
             $(this).blur();
         }
     });
@@ -2255,6 +2258,9 @@ function attachShoppingCartListeners() {
             console.log("Renaming "+oldColName+" to "+$(this).val());
             XcalarEditColumn(dsnumber, oldColName, $(this).val(),
                              DfFieldTypeT.DfString);
+            var newId = "ds"+dsnumber+"cn"+$(this).val();
+            console.log(newId);
+            $(this).attr("id", newId); 
             $(this).blur();
         }
     });
