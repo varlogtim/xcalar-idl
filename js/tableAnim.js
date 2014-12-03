@@ -196,7 +196,7 @@ function resrowMouseDown(el, event) {
     gMouseStatus = "resizingRow";
     resrow.mouseStart = event.pageY;
     resrow.targetTd = el.closest('td');
-    resrow.tableNum = parseInt(el.cloest('table').attr('id').substring(12));
+    resrow.tableNum = parseInt(el.closest('table').attr('id').substring(12));
     resrow.startHeight = resrow.targetTd.outerHeight();
     resrow.rowIndex = resrow.targetTd.closest('tr').index();
     disableTextSelection();
