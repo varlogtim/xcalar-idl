@@ -444,44 +444,6 @@ function parseJsonValue(value) {
     return (value);
 }
 
-function movePageScroll(pageNum) {
-    var pct = (pageNum/resultSetCount);
-    var dist = Math.floor(pct*$('#pageScroll').width());
-    $('#pageMarker').css('transform', 'translateX('+dist+'px)');
-}
-
-function checkForScrollBar() {
-    var tableWidth = $('.autoGenTable').width()+
-        parseInt($('.autoGenTable').css('margin-left'));
-    if (tableWidth > $(window).width()) {
-        gScrollbarHeight = 8;
-    } else {
-        gScrollbarHeight = 0;
-    }
-}
-
-function positionScrollbar(row) {
-    var canScroll = true;
-    var theadHeight = $('#autoGenTable1 thead').height();
-    function positionScrollToRow() {
-        var tdTop = $('#autoGenTable1 .row'+row)[0].offsetTop;
-        var scrollPos = Math.max((tdTop-theadHeight), 1);
-        if (canScroll && scrollPos > 
-                ($('.autoGenTable').height() - $('.mainFrame').height())) {
-            canScroll = false;
-        }
-        $('.mainFrame').scrollTop(scrollPos);
-    }
-    
-    positionScrollToRow();
-    if (!canScroll) {
-        // this means we can't scroll to page without moving scrollbar all the
-        // way to the bottom, which triggers another getpage and thus we must
-        // try to position the scrollbar to the proper row again
-        setTimeout(positionScrollToRow, 1);
-    }
-}
-
 //XXX remove this for production. I updated load_r.html
 // but the jquery load function loads the old load_r.html 
 // unless I use ajaxSetup cache: false;

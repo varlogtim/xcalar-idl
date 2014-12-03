@@ -809,3 +809,58 @@ function highlightColumn(el) {
     el.closest('.dataTable').find('td:nth-child('+index+')')
         .addClass('selectedCell');
 }
+
+function movePageScroll(pageNum) {
+    var pct = (pageNum/resultSetCount);
+    var dist = Math.floor(pct*$('#pageScroll').width());
+    $('#pageMarker').css('transform', 'translateX('+dist+'px)');
+}
+
+function checkForScrollBar() {
+    var tableWidth = $('.autoGenTable').width()+
+        parseInt($('.autoGenTable').css('margin-left'));
+    if (tableWidth > $(window).width()) {
+        gScrollbarHeight = getScrollBarHeight();
+    } else {
+        gScrollbarHeight = 0;
+    }
+}
+
+function positionScrollbar(row) {
+    var canScroll = true;
+    var theadHeight = $('#autoGenTable1 thead').height();
+    function positionScrollToRow() {
+        var tdTop = $('#autoGenTable1 .row'+row)[0].offsetTop;
+        var scrollPos = Math.max((tdTop-theadHeight), 1);
+        if (canScroll && scrollPos > 
+                ($('.autoGenTable').height() - $('.mainFrame').height())) {
+            canScroll = false;
+        }
+        $('.mainFrame').scrollTop(scrollPos);
+    }
+    
+    positionScrollToRow();
+    if (!canScroll) {
+        // this means we can't scroll to page without moving scrollbar all the
+        // way to the bottom, which triggers another getpage and thus we must
+        // try to position the scrollbar to the proper row again
+        setTimeout(positionScrollToRow, 1);
+    }
+}
+
+function getScrollBarHeight() {
+    var inner = $('<div style="width:100%;height:200px;"></div>');
+    var outer = $('<div class="tableWrap" style="position:absolute;'+
+                    'top:0;left:0;visibility:hidden;width:200px;'+
+                    'height:150px;overflow:hidden;"></div>');
+    outer.append(inner);
+    $('body').append(outer);
+    var width1 = inner.outerWidth();
+    outer.css('overflow', 'scroll');
+    var width2 = inner.outerWidth();
+    if (width1 == width2) {
+        width2 = outer[0].clientWidth;
+    }
+    outer.remove();
+    return (width1 - width2);
+}
