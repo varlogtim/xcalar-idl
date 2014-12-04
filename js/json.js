@@ -96,13 +96,14 @@ function showJsonModal(jsonTd) {
                     });
         var colNum = parseColNum(id);
         addCol('col3', 'autoGenTable'+tableNum, name);
-        gTableCols[colNum-1].func.func = "pull";        
-        gTableCols[colNum-1].func.args = [name];
-        gTableCols[colNum-1].userStr = '"'+name+'" = pull('+name+')';
-        execCol(gTableCols[colNum-1]);
-        autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum+1)), {includeHeader: true, 
-                resizeFirstRow: true});
-        $('#autoGenTable'+tableNum+' tr:first th.col'+(colNum+1)+' .editableHead').focus();
+        gTableCols[tableNum][colNum-1].func.func = "pull";        
+        gTableCols[tableNum][colNum-1].func.args = [name];
+        gTableCols[tableNum][colNum-1].userStr = '"'+name+'" = pull('+name+')';
+        execCol(gTableCols[tableNum][colNum-1]);
+        autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum+1)), 
+                    {includeHeader: true, resizeFirstRow: true});
+        $('#autoGenTable'+tableNum+' tr:first th.col'+(colNum+1)+
+                ' .editableHead').focus();
         // XXX call autosizeCol after focus if you want to make column wide enough
         // to show the entire function in the header
         // autosizeCol($('#headCol'+(colNum+1)), {includeHeader: true, 

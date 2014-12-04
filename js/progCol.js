@@ -1,18 +1,18 @@
 
-function insertColAtIndex(index, obj) {
-    for (var i = gTableCols.length-1; i>=index; i--) {
-        gTableCols[i].index += 1;
-        gTableCols[i+1] = gTableCols[i];
+function insertColAtIndex(index, tableNum, obj) {
+    for (var i = gTableCols[tableNum].length-1; i>=index; i--) {
+        gTableCols[tableNum][i].index += 1;
+        gTableCols[tableNum][i+1] = gTableCols[tableNum][i];
     }
-    gTableCols[index] = obj;
+    gTableCols[tableNum][index] = obj;
 }
 
-function removeColAtIndex(index) {
-    var removed = gTableCols[index];
-    for (var i = index+1; i<gTableCols.length; i++) {
-        gTableCols[i].index -= 1;
+function removeColAtIndex(index, tableNum) {
+    var removed = gTableCols[tableNum][index];
+    for (var i = index+1; i<gTableCols[tableNum].length; i++) {
+        gTableCols[tableNum][i].index -= 1;
     }
-    gTableCols.splice(index, 1);
+    gTableCols[tableNum].splice(index, 1);
     return (removed);
 }
 
@@ -67,7 +67,7 @@ function execCol(progCol, args) {
     }
 }
 
-function parseCol(funcString, colId, modifyCol) {
+function parseCol(funcString, colId, tableNum, modifyCol) {
     // Everything must be in a "name" = function(args) format
     var open = funcString.indexOf("\"");
     var close = (funcString.substring(open+1)).indexOf("\"")+open+1;
@@ -75,7 +75,7 @@ function parseCol(funcString, colId, modifyCol) {
     var funcSt = funcString.substring(funcString.indexOf("=")+1);
     var progCol;
     if (modifyCol) {
-        progCol = gTableCols[colId-2];
+        progCol = gTableCols[tableNum][colId-2];
     } else {
         progCol = new ProgCol();
     }
@@ -141,12 +141,12 @@ function delCol(colNum, tableNum, resize) {
     gRescolDelWidth(colNum, tableNum, resize);
 }
 
-function pullCol(key, newColid, startIndex, numberOfRows) {
+function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
     if (key == "" || /\.([0-9])/.test(key)) {
         //check for dot followed by number (invalid)
         return;
     }
-    var dataCol = $("#autoGenTable1 tr:first th").filter(
+    var dataCol = $("#autoGenTable"+tableNum+" tr:first th").filter(
         function() {
             return $(this).find("input").val() == "DATA";
     });
@@ -155,8 +155,9 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
     var startingIndex = -1;
 
     if (!startIndex) {
-        startingIndex = parseInt($("#autoGenTable1 tbody tr:first").attr('class').substring(3)); 
-        numRow = $("#autoGenTable1 tbody tr").length;
+        startingIndex = parseInt($("#autoGenTable"+tableNum+" tbody tr:first")
+            .attr('class').substring(3)); 
+        numRow = $("#autoGenTable"+tableNum+" tbody tr").length;
     } else {
         startingIndex = startIndex;
         numRow = numberOfRows||gNumEntriesPerPage;
@@ -164,7 +165,8 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
     
     // store the variable type
-    var jsonStr = $('#autoGenTable1 .row'+startingIndex+' .col'+colid+' .elementText')
+    var jsonStr = $('#autoGenTable'+tableNum+' .row'+startingIndex+
+                    ' .col'+colid+' .elementText')
                   .text();
     if (jsonStr == "") {
         console.log("Error: pullCol() jsonStr is empty");
@@ -177,9 +179,10 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
         }
         value = value[nested[j]];
     }
-    gTableCols[newColid-2].type = (typeof value);
+    gTableCols[tableNum][newColid-2].type = (typeof value);
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
-        var jsonStr = $('#autoGenTable1 .row'+i+' .col'+colid+' .elementText').text();
+        var jsonStr = $('#autoGenTable'+tableNum+' .row'+i+' .col'+colid+
+            ' .elementText').text();
         if (jsonStr == "") {
             console.log("Error: pullCol() jsonStr is empty");
         }
@@ -195,13 +198,13 @@ function pullCol(key, newColid, startIndex, numberOfRows) {
         value = parseJsonValue(value);
         value = '<div class="addedBarTextWrap"><div class="addedBarText">'+
                 value+"</div></div>";
-        $('#autoGenTable1 .row'+i+' .col'+newColid).html(value);
+        $('#autoGenTable'+tableNum+' .row'+i+' .col'+newColid).html(value);
     } 
 }
 
 function addCol(colId, tableId, name, options) {
     //id will be the column class ex. col3
-    //tableId will be the table name  ex. autoGenTable1
+    //tableId will be the table name  ex. autoGenTable0
     var numCol = $("#"+tableId+" tr:first th").length;
     var colIndex = parseInt(colId.substring(3));
     var newColid = colIndex;
@@ -243,9 +246,9 @@ function addCol(colId, tableId, name, options) {
         '<div class="header">'+
         '<div class="dragArea"></div>'+
         '<div class="dropdownBox" title="view column options"></div>'+
-        '<input autocomplete="on" input spellcheck="false"'+
-        'type="text" class="editableHead col'+newColid+'" title="click to edit" '+
-        'value="'+name+'" size="15" placeholder=""/>'+
+            '<input autocomplete="on" input spellcheck="false"'+
+            'type="text" class="editableHead col'+newColid+'" '+
+            'title="click to edit" value="'+name+'" size="15" placeholder=""/>'+
         '</div>'+
         '</th>';
     $('#'+tableId+' .table_title_bg.col'+(newColid-1)).after(columnHeadTd); 
@@ -254,7 +257,8 @@ function addCol(colId, tableId, name, options) {
             '<li>'+
                 'Add a column'+
                 '<ul class="subColMenu">'+
-                    '<li class="addColumns addColLeft col'+newColid+'">On the left</li>'+
+                    '<li class="addColumns addColLeft col'+newColid+'">'+
+                    'On the left</li>'+
                     '<li class="addColumns col'+newColid+'">On the right</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
@@ -351,7 +355,8 @@ function addCol(colId, tableId, name, options) {
                             '<div class="rightArrow"></div>'+ 
                         '</li>';
     dropDownHTML += '</ul>';
-    $('#'+tableId+' .table_title_bg.col'+newColid+' .header').append(dropDownHTML);
+    $('#'+tableId+' .table_title_bg.col'+newColid+' .header')
+        .append(dropDownHTML);
 
     addColListeners(newColid, tableId);
 

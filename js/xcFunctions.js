@@ -17,7 +17,7 @@ function checkStatus(newTableName) {
     }
 }
 
-function sortRows(index, order) {
+function sortRows(index, tableNum, order) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempSortTable"+rand;
     // XXX: Update widths here
@@ -28,10 +28,10 @@ function sortRows(index, order) {
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
        '{cursor: wait !important;}</style>');
     var fieldName;
-    switch(gTableCols[index-2].func.func) {
+    switch(gTableCols[tableNum][index-2].func.func) {
     case ("pull"):
         // Pulled directly, so just sort by this
-        fieldName = gTableCols[index-2].func.args[0];
+        fieldName = gTableCols[tableNum][index-2].func.args[0];
         break;
     default:
         console.log("Cannot sort a col derived from unsupported func");
@@ -110,11 +110,11 @@ function filterNonMainCol(operator, value, datasetId, key, otherTable) {
     cont1(newIndexTable, operator, value, datasetId, key, otherTable);
 }
 
-function filterCol(operator, value, colid) {
+function filterCol(operator, value, colid, tableNum) {
     console.log(gTableName);
     if (gTableName.indexOf("joined") > -1) {
-        var dsId = gTableCols[colid-2].datasetId;
-        var key = gTableCols[colid-2].func.args[0];
+        var dsId = gTableCols[tableNum][colid-2].datasetId;
+        var key = gTableCols[tableNum][colid-2].func.args[0];
         if (getDsId("gdelt") == dsId) {
             var otherTable = "sp500";
         } else {

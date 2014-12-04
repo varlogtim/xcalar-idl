@@ -15,13 +15,13 @@ function menuBarArt() {
         if (clickTarget == $(event.target).text()) {
             //if clicking on an already open menu, close it
             $(".menuSelected").removeClass("menuSelected");
-            $('.mainFrame').height('calc(100% - 148px)');
+            $('#mainFrame').height('calc(100% - 148px)');
             $("#menuArea").height(0);
             clickTarget = null;
             $('.theadWrap').css('top',111).addClass('moveTop');
             setTimeout(function() {
                 $('.theadWrap').removeClass('moveTop');
-                $('.colGrab').height($('.mainFrame').height());
+                $('.colGrab').height($('.autoGenTableWrap').height());
                 generateFirstLastVisibleRowNum();
             },300);
             return;
@@ -32,14 +32,14 @@ function menuBarArt() {
 
         setTimeout(function() {
             $('.theadWrap').removeClass('moveTop');
-            $('.colGrab').height($('.mainFrame').height());
+            $('.colGrab').height($('.autoGenTableWrap').height());
             generateFirstLastVisibleRowNum();
         },300);
 
         $(".menuSelected").removeClass("menuSelected");
         $(this).addClass("menuSelected");
         $("#menuArea").show().height(66);
-        $('.mainFrame').height('calc(100% - 214px)');
+        $('#mainFrame').height('calc(100% - 214px)');
         
         switch ($(this).text()) {
         case ("datastore"):
