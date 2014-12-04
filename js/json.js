@@ -91,23 +91,23 @@ function showJsonModal(jsonTd) {
     var tableNum = parseInt(jsonTd.closest('table').attr('id').substring(12));
     $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
         var name = createJsonSelectionExpression($(this));
-        var id = $("#autoGenTable"+tableNum+" th").filter(function() {
+        var id = $("#autoGenTable"+tableNum+" tr:first th").filter(function() {
                         return $(this).find("input").val() == "DATA";
                     });
         var colNum = parseColNum(id);
-        addCol('col3', 'autoGenTable'+tableNum, name);
-        gTableCols[tableNum][colNum-1].func.func = "pull";        
-        gTableCols[tableNum][colNum-1].func.args = [name];
-        gTableCols[tableNum][colNum-1].userStr = '"'+name+'" = pull('+name+')';
-        execCol(gTableCols[tableNum][colNum-1]);
+        addCol('col'+colNum, 'autoGenTable'+tableNum, name);
+        gTableCols[tableNum][colNum].func.func = "pull";        
+        gTableCols[tableNum][colNum].func.args = [name];
+        gTableCols[tableNum][colNum].userStr = '"'+name+'" = pull('+name+')';
+        execCol(gTableCols[tableNum][colNum], tableNum);
         autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum+1)), 
                     {includeHeader: true, resizeFirstRow: true});
         $('#autoGenTable'+tableNum+' tr:first th.col'+(colNum+1)+
                 ' .editableHead').focus();
         // XXX call autosizeCol after focus if you want to make column wide enough
         // to show the entire function in the header
-        // autosizeCol($('#headCol'+(colNum+1)), {includeHeader: true, 
-        //         resizeFirstRow: true});
+        // autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum+1)), 
+        //             {includeHeader: true, resizeFirstRow: true});
         $('#jsonModal, #modalBackground').hide();
         $('body').removeClass('hideScroll');
     });

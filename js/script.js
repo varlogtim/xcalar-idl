@@ -30,6 +30,7 @@ var gScrollbarHeight = 8;
 var gTempStyle = "";
 var gMinTableWidth = 1200;
 var gTableCols = []; // This is what we call setIndex on
+gTableCols[0] = []; //XXX find the location where to change this
 var gUrlTableName;
 var gTableName;
 var gResultSetId;
@@ -63,13 +64,13 @@ function infScrolling(tableNum) {
                 } else {
                     var pageNumber = gCurrentPageNumber;
                 }
-                goToPage(pageNumber, RowDirection.Top);
+                goToPage(pageNumber, RowDirection.Top, tableNum);
                 $('#autoGenTableWrap'+tableNum).scrollTop(firstRow.offset().top - 
                     initialTop + 10);
                 $("#autoGenTable"+tableNum+" tbody tr:gt(79)").remove();
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()+
                     gScrollbarHeight - $(this).outerHeight() <= 1) {
-            gTempStyle = $("#autoGenTable"+tableNum+" tbody tr:last)").html();
+            gTempStyle = $("#autoGenTable"+tableNum+" tbody tr:last").html();
             if ($('#autoGenTable'+tableNum+' tbody tr').length >= 80) {
                 // keep row length at 80
                 $('#autoGenTable'+tableNum+' tbody tr:lt(20)').remove();
@@ -132,7 +133,7 @@ $(window).unload(
 // ========================== Document Ready ==================================
 
 function documentReadyAutoGenTableFunction() {
-    addColListeners(2, "autoGenTable0"); // set up listeners for data column
+    addColListeners(1, "autoGenTable0"); // set up listeners for data column
     var resultTextLength = (""+resultSetCount).length;
     $('#rowInput').attr({'maxLength': resultTextLength,
                           'size': resultTextLength});
@@ -153,8 +154,8 @@ function documentReadyAutoGenTableFunction() {
         }
         row = parseInt($('#rowInput').val());
         // XXX: HACK
-        gTempStyle = $("autoGenTable0 tbody tr:nth-last-child(1)").html();
-        $("#autoGenTable0 tbody").empty();
+        gTempStyle = $("#autoGenTable"+tableNum+" tbody tr:nth-last-child(1)").html();
+        $("#autoGenTable"+tableNum+" tbody").empty();
 
         if (((row)/gNumEntriesPerPage) >
                 Math.floor((resultSetCount/gNumEntriesPerPage)-2)) {
@@ -165,7 +166,7 @@ function documentReadyAutoGenTableFunction() {
         }
         var numPagesToAdd = 3;
         for (var i = 0; i < numPagesToAdd; i++) {
-            goToPage(Math.ceil(pageNum)+i);
+            goToPage(Math.ceil(pageNum)+i, null, tableNum);
         }
 
         positionScrollbar(row, tableNum);
@@ -412,9 +413,9 @@ function startupFunctions(table) {
     if (!$.isEmptyObject(gDsToNameTrans)) {
         documentReadyAutoGenTableFunction();
         documentReadyCatFunction(tableNum);
-        fillPageWithBlankCol();
-        goToPage(gCurrentPageNumber+1);
-        goToPage(gCurrentPageNumber+1);
+        // fillPageWithBlankCol(tableNum);
+        goToPage(gCurrentPageNumber+1, null, tableNum);
+        goToPage(gCurrentPageNumber+1, null, tableNum);
     } else {
         generateBlankTable();
     }

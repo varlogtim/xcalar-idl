@@ -1,4 +1,3 @@
-
 function insertColAtIndex(index, tableNum, obj) {
     for (var i = gTableCols[tableNum].length-1; i>=index; i--) {
         gTableCols[tableNum][i].index += 1;
@@ -28,7 +27,7 @@ function parsePullColArgs(progCol) {
     return (true);
 }
 
-function execCol(progCol, args) {
+function execCol(progCol, tableNum, args) {
     switch(progCol.func.func) {
     case ("pull"):
         if (!parsePullColArgs(progCol)) {
@@ -51,7 +50,7 @@ function execCol(progCol, args) {
             progCol.isDark = false;
         }
         pullCol(progCol.func.args[0], progCol.index,
-                startIndex, numberOfRows);
+                tableNum, startIndex, numberOfRows);
         break;
     case ("raw"):
         console.log("Raw data");
@@ -75,7 +74,7 @@ function parseCol(funcString, colId, tableNum, modifyCol) {
     var funcSt = funcString.substring(funcString.indexOf("=")+1);
     var progCol;
     if (modifyCol) {
-        progCol = gTableCols[tableNum][colId-2];
+        progCol = gTableCols[tableNum][colId-1];
     } else {
         progCol = new ProgCol();
     }
@@ -130,12 +129,11 @@ function updateFunctionBar(text) {
 }
 
 function delCol(colNum, tableNum, resize) {
-    var colid = colNum;
     var numCol = $("#autoGenTable"+tableNum+" tr:first th").length;
     var table = $("#autoGenTable"+tableNum);
     table.find('th.col'+colNum+' ,td.col'+colNum).remove();
-    removeColAtIndex(colNum-2);
-    for (var i = colid+1; i<=numCol; i++) {
+    removeColAtIndex(colNum-1, tableNum);
+    for (var i = colNum+1; i<=numCol; i++) {
         table.find('.col'+i).removeClass('col'+i).addClass('col'+(i-1));
     }
     gRescolDelWidth(colNum, tableNum, resize);
@@ -179,7 +177,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         }
         value = value[nested[j]];
     }
-    gTableCols[tableNum][newColid-2].type = (typeof value);
+    gTableCols[tableNum][newColid-1].type = (typeof value);
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = $('#autoGenTable'+tableNum+' .row'+i+' .col'+colid+
             ' .elementText').text();
@@ -203,8 +201,9 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
 }
 
 function addCol(colId, tableId, name, options) {
-    //id will be the column class ex. col3
+    //id will be the column class ex. col2
     //tableId will be the table name  ex. autoGenTable0
+    var tableNum = parseInt(tableId.substring(12));
     var numCol = $("#"+tableId+" tr:first th").length;
     var colIndex = parseInt(colId.substring(3));
     var newColid = colIndex;
@@ -236,7 +235,7 @@ function addCol(colId, tableId, name, options) {
         newProgCol.index = newColid;
         newProgCol.width = width;
         newProgCol.isDark = isDark;
-        insertColAtIndex(newColid-2, newProgCol);
+        insertColAtIndex(newColid-1, tableNum, newProgCol);
     }
     for (var i = numCol; i>=newColid; i--) {
         $('#'+tableId+' .col'+i).removeClass('col'+i).addClass('col'+(i+1));

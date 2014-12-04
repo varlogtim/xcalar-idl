@@ -226,7 +226,7 @@ function createWorksheet() {
         progCol.isDark = false;
         var datasetName = $(this).closest('table').find('th').text();
         progCol.datasetId = parseInt(getDsId(datasetName));                  
-        newTableCols[startIndex-2] = progCol;
+        newTableCols[startIndex-1] = progCol;
         startIndex++;
     });
     var progCol = new ProgCol();
@@ -238,7 +238,7 @@ function createWorksheet() {
     progCol.func.func = "raw";
     progCol.func.args = [];
     progCol.isDark = false;
-    newTableCols[startIndex-2] = progCol;
+    newTableCols[startIndex-1] = progCol;
     $("#selectedDataset div table thead tr th").each(function() {
         // XXX: Since the backend has no way of telling me whether or not a
         // particular dataset has been indexed before, I am just going to

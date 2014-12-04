@@ -4,7 +4,7 @@ function fillPageWithBlankCol(tableNum) {
     var numColsToFill = Math.ceil((screenWidth - tableWidth)/gNewCellWidth) ;
     var startColId = $("#autoGenTable"+tableNum+" tr:first th").length;
     for (var i = 0; i<numColsToFill; i++) {
-        addCol("col"+(startColId+i), "autoGenTable"+tableNum, "", 
+        addCol("col"+(startColId-1), "autoGenTable"+tableNum, "", 
             {'isDark': true});
     }
 }
@@ -101,26 +101,26 @@ function generateFirstScreen(value, idNo, tableNum, height) {
         var newTable = '<table id="autoGenTable'+tableNum+'" class="autoGenTable dataTable">'+
                           '<thead>'+
                           '<tr>'+
-                            '<th style="width: 50px;" class="col1 table_title_bg">'+
+                            '<th style="width: 50px;" class="col0 table_title_bg">'+
                               '<div class="header">'+
                                 '<span><input value="ROW" readonly="" tabindex="-1"></span>'+
                               '</div>'+
                             '</th>'+
-                            '<th class="col2 table_title_bg" style="width: 850px;">'+
+                            '<th class="col1 table_title_bg" style="width: 850px;">'+
                               '<div class="header"><div class="colGrab" style="height: 734px;"></div>'+
                                 '<div class="dropdownBox" style="opacity: 0;"></div>'+
                                 '<span><input value="DATA" readonly="" tabindex="-1" title="raw data"></span>'+
                                 '<ul class="colMenu" style="display: none;">'+
                                   '<li class="menuClickable">Add a column'+
                                     '<ul class="subColMenu">'+
-                                      '<li class="addColumns addColLeft col2" id="addLCol3">On the left</li>'+
-                                      '<li class="addColumns addColRight col2" id="addRCol3">On the right</li>'+
+                                      '<li class="addColumns addColLeft col1">On the left</li>'+
+                                      '<li class="addColumns addColRight col1">On the right</li>'+
                                       '<div class="subColMenuArea"></div>'+
                                     '</ul>'+
                                     '<div class="rightArrow"></div>'+
                                   '</li>'+
-                                  '<li id="duplicate3" class="duplicate col2">Duplicate column</li>'+
-                                  '<li class="sort col2">Sort</li>'+
+                                  '<li id="duplicate3" class="duplicate col1">Duplicate column</li>'+
+                                  '<li class="sort col1">Sort</li>'+
                                 '</ul>'+
                               '</div>'+
                             '</th>'+
@@ -132,10 +132,10 @@ function generateFirstScreen(value, idNo, tableNum, height) {
         $('.autoGenTableWrap:last').append(newTable);
     }
     $("#autoGenTable"+tableNum).append('<tr class="row'+idNo+'">'+
-        '<td align="center" class="col1" style="height:'+cellHeight+'px;">'+
+        '<td align="center" class="col0" style="height:'+cellHeight+'px;">'+
         '<div class="idWrap"><span class="idSpan">'+
         (idNo+1)+'</span><div class="rowGrab"></div></div></td>'+
-        '<td class="jsonElement col2">'+
+        '<td class="jsonElement col1">'+
         '<div title="double-click to view" '+
         'class="elementTextWrap" style="max-height:'+
         (cellHeight-4)+'px;">'+
@@ -145,7 +145,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
         '</td>'+
         '</tr>');
 
-    $('#autoGenTable'+tableNum+' tbody tr:eq('+idNo+') .jsonElement')
+    $('#autoGenTable'+tableNum+' .row'+idNo+' .jsonElement')
     .dblclick(function(){
             showJsonModal($(this));
         }

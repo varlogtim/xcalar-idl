@@ -42,10 +42,10 @@ function testMainScreen() {
         }
 
     }
-    if ($("#headCol1").text().indexOf("ID") < 0) { 
+    if ($("#headcol0").text().indexOf("ID") < 0) { 
         var string = "Your first col heading should be ID.";
         string += "Your value is";
-        string += $("#headCol1").text();
+        string += $("#headcol0").text();
         alert(string);
         console.log(string); 
         if (shortCircuit) {
@@ -53,10 +53,10 @@ function testMainScreen() {
         }
     }
 
-    if ($("#headCol2").text().indexOf("Value") < 0) { 
+    if ($("#headcol1").text().indexOf("Value") < 0) { 
         var string = "Your second col heading should be Value.";
         string += "Your value is";
-        string += $("#headCol2").text();
+        string += $("#headcol1").text();
         alert(string);
         console.log(string); 
         if (shortCircuit) {

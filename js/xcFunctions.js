@@ -28,10 +28,10 @@ function sortRows(index, tableNum, order) {
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
        '{cursor: wait !important;}</style>');
     var fieldName;
-    switch(gTableCols[tableNum][index-2].func.func) {
+    switch(gTableCols[tableNum][index-1].func.func) {
     case ("pull"):
         // Pulled directly, so just sort by this
-        fieldName = gTableCols[tableNum][index-2].func.args[0];
+        fieldName = gTableCols[tableNum][index-1].func.args[0];
         break;
     default:
         console.log("Cannot sort a col derived from unsupported func");
@@ -113,8 +113,8 @@ function filterNonMainCol(operator, value, datasetId, key, otherTable) {
 function filterCol(operator, value, colid, tableNum) {
     console.log(gTableName);
     if (gTableName.indexOf("joined") > -1) {
-        var dsId = gTableCols[tableNum][colid-2].datasetId;
-        var key = gTableCols[tableNum][colid-2].func.args[0];
+        var dsId = gTableCols[tableNum][colid-1].datasetId;
+        var key = gTableCols[tableNum][colid-1].func.args[0];
         if (getDsId("gdelt") == dsId) {
             var otherTable = "sp500";
         } else {

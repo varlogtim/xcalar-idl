@@ -281,23 +281,23 @@ function dragdropMouseMove(event) {
 function dragdropMouseUp() {
     gMouseStatus = null;
     $('#shadowDiv, #fauxCol, .dropTarget, #moveCursor').remove();
-    var progCol = gTableCols[gDragObj.tableNum][gDragObj.colNum-2];
+    var progCol = gTableCols[gDragObj.tableNum][gDragObj.colNum-1];
     var isDark = gDragObj.element.hasClass('unusedCell');
     var selected = gDragObj.element.hasClass('selectedCell');
     
     // only pull col if column is dropped in new location
-    if ((gDragObj.colIndex+1) != gDragObj.colNum) { 
+    if ((gDragObj.colIndex) != gDragObj.colNum) { 
         console.log('deleting')
         delCol(gDragObj.colNum, gDragObj.tableNum, true);
-        progCol.index = gDragObj.colIndex+1;
-        insertColAtIndex(gDragObj.colIndex-1, progCol);
-        addCol("col"+gDragObj.colIndex, "autoGenTable"+gDragObj.tableNum, 
+        progCol.index = gDragObj.colIndex;
+        insertColAtIndex(gDragObj.colIndex-1, gDragObj.tableNum, progCol);
+        addCol("col"+(gDragObj.colIndex-1), "autoGenTable"+gDragObj.tableNum, 
                 progCol.name, {width: progCol.width,
                 isDark: isDark, 
                 select: selected, 
                 inFocus: gDragObj.inFocus,
                 progCol: progCol});
-        execCol(progCol);
+        execCol(progCol, gDragObj.tableNum);
     }
     reenableTextSelection(); 
 }
@@ -519,7 +519,7 @@ function autosizeCol(el, options) {
         el.width(newWidth);
     }
     if (index != 1) { // don't store id column
-        gTableCols[tableNum][index-2].width = el.outerWidth();
+        gTableCols[tableNum][index-1].width = el.outerWidth();
     }
     matchHeaderSizes(resizeFirstRow);
 }
@@ -534,13 +534,13 @@ function getWidestTdWidth(el, options) {
     var textLength;
     var padding = 4;
     var largestTd = $('#autoGenTable'+tableNum+' tbody'+
-                    ' tr:first td:eq('+(id-1)+')');
+                    ' tr:first td:eq('+(id)+')');
     var headerWidth = 0;
 
     $('#autoGenTable'+tableNum+' tbody tr').each(function(){
         // we're going to take advantage of monospaced font
         //and assume text length has an exact correlation to text width
-        var td = $(this).children(':eq('+(id-1)+')');
+        var td = $(this).children(':eq('+(id)+')');
         textLength = td.text().length;
         if (textLength > longestText) {
             longestText = textLength; 
@@ -642,13 +642,13 @@ function matchHeaderSizes(reverse) {
 
 function addColListeners(colId, tableId) {
     var table = $('#'+tableId);
-    var tableNum = parseInt(tableId.subString(12));
+    var tableNum = parseInt(tableId.substring(12));
     resizableColumns(tableNum);
     table.find('.editableHead.col'+colId).focus(function() {  
         $('.colMenu').hide();
         var index = parseColNum($(this));
-        if (gTableCols[tableNum][index-2].userStr.length > 0) {
-            $(this).val(gTableCols[tableNum][index-2].userStr);
+        if (gTableCols[tableNum][index-1].userStr.length > 0) {
+            $(this).val(gTableCols[tableNum][index-1].userStr);
         }
         updateFunctionBar($(this).val());
         gFnBarOrigin = $(this);
@@ -657,8 +657,8 @@ function addColListeners(colId, tableId) {
             .addClass('hidden');
     }).blur(function() {
         var index = parseColNum($(this));
-        if (gTableCols[tableNum][index-2].name.length > 0) {
-            $(this).val(gTableCols[tableNum][index-2].name);
+        if (gTableCols[tableNum][index-1].name.length > 0) {
+            $(this).val(gTableCols[tableNum][index-1].name);
         } 
         $(this).parent().siblings('.dropdownBox')
             .removeClass('hidden');
@@ -670,7 +670,9 @@ function addColListeners(colId, tableId) {
         if (e.which == keyCode.Enter) {
             var index = parseColNum($(this));
             var progCol = parseCol($(this).val(), index, true);
-            execCol(progCol);
+            var tableNum = parseInt($(this).closest('table')
+                        .attr('id').substring(12));
+            execCol(progCol, tableNum);
             if (progCol.name.length > 0) {
                 $(this).val(progCol.name);
             } else {
@@ -759,11 +761,11 @@ function addColListeners(colId, tableId) {
         event.stopPropagation();
     });
 
-    addColMenuActions(colId, tableNum);
+    addColMenuActions(colId, tableId);
 }
 
-function addColMenuActions(colId, tableNum) {
-    var tableNum = parseInt(tableId.subString(12));
+function addColMenuActions(colId, tableId) {
+    var tableNum = parseInt(tableId.substring(12));
     var table = $('#'+tableId);
 
     table.find('.table_title_bg.col'+colId+' .colMenu li').click(function() {
@@ -812,13 +814,13 @@ function addColMenuActions(colId, tableNum) {
             {width: width, isDark: isDark});
         // Deep copy
         // XXX: TEST THIS FEATURE!
-        gTableCols[tableNum][index-1].func.func = 
-            gTableCols[index-2].func.func;
-        gTableCols[tableNum][index-1].func.args = 
-            gTableCols[index-2].func.args;
-        gTableCols[tableNum][index-1].userStr = 
-            gTableCols[index-2].userStr;
-        execCol(gTableCols[tableNum][index-1], null); 
+        gTableCols[tableNum][index].func.func = 
+            gTableCols[tableNum][index-1].func.func;
+        gTableCols[tableNum][index].func.args = 
+            gTableCols[tableNum][index-1].func.args;
+        gTableCols[tableNum][index].userStr = 
+            gTableCols[tableNum][index-1].userStr;
+        execCol(gTableCols[tableNum][index], tableNum); 
     });
 
     table.find('.sort.col'+colId).click(function() {

@@ -78,7 +78,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
             generateFirstScreen(value, indexNumber+i, tableNum, tdHeights[i]);
         } else {
             generateRowWithCurrentTemplate(value, indexNumber+index, 
-                                            rowTemplate, direction, 1);        
+                                            rowTemplate, direction, tableNum);        
         }
     }
     console.log(firstTime, 'firstTime');
@@ -89,23 +89,23 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         // add col relies on gTableCol entry to determine whether or not to add
         // the menus specific to the main key
         var newProgCol = new ProgCol();
-        newProgCol.index = 2;
+        newProgCol.index = 1;
         newProgCol.isDark = false;
         newProgCol.name = gKeyName;
         newProgCol.func.func = "pull";
         newProgCol.func.args = [gKeyName];
         newProgCol.userStr = '"' + gKeyName + '" = pull('+gKeyName+')';
-        insertColAtIndex(0, newProgCol);
-        addCol("col1", "autoGenTable"+tableNum, gKeyName, {progCol: newProgCol}); 
+        insertColAtIndex(0, tableNum, newProgCol);
+        addCol("col0", "autoGenTable"+tableNum, gKeyName, {progCol: newProgCol}); 
         newProgCol = new ProgCol();
-        newProgCol.index = 3;
+        newProgCol.index = 2;
         newProgCol.name = "DATA";
         newProgCol.width = gNewCellWidth; // XXX FIXME Grab from CSS
         newProgCol.func.func = "raw";
         newProgCol.func.args = [];
         newProgCol.userStr = '"DATA" = raw()';
         newProgCol.isDark = false;
-        insertColAtIndex(1, newProgCol);
+        insertColAtIndex(1, tableNum, newProgCol);
     }
     for (var i = 0; i<gTableCols[tableNum].length; i++) {
         if (gTableCols[tableNum][i].name == "DATA") {
@@ -115,7 +115,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
             // would've sized it in CatFunction
         } else {
             if (firstTime && !getIndex(gTableName)) {
-                execCol(gTableCols[tableNum][i]);
+                execCol(gTableCols[tableNum][i], tableNum);
             } else { 
 
                 if (direction) { 
@@ -132,9 +132,9 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                     var execColArgs = {};
                     execColArgs.startIndex = startingIndex;
                     execColArgs.numberofRows = numRows;
-                    execCol(gTableCols[tableNum][i], execColArgs);
+                    execCol(gTableCols[tableNum][i], tableNum, execColArgs);
                 } else {
-                    execCol(gTableCols[tableNum][i]);
+                    execCol(gTableCols[tableNum][i], tableNum);
                 }
                 if (gTableCols[tableNum][i].name == gKeyName) {
                     // autosizeCol($('#autoGenTable0 th.col'+(gTableCols[i].index)));
