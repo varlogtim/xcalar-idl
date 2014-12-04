@@ -281,7 +281,7 @@ function dragdropMouseMove(event) {
 function dragdropMouseUp() {
     gMouseStatus = null;
     $('#shadowDiv, #fauxCol, .dropTarget, #moveCursor').remove();
-    var progCol = gTableCols[gDragObj.tableNum - 1][gDragObj.colNum-2];
+    var progCol = gTableCols[gDragObj.tableNum][gDragObj.colNum-2];
     var isDark = gDragObj.element.hasClass('unusedCell');
     var selected = gDragObj.element.hasClass('selectedCell');
     
@@ -519,7 +519,7 @@ function autosizeCol(el, options) {
         el.width(newWidth);
     }
     if (index != 1) { // don't store id column
-        gTableCols[tableNum - 1][index-2].width = el.outerWidth();
+        gTableCols[tableNum][index-2].width = el.outerWidth();
     }
     matchHeaderSizes(resizeFirstRow);
 }

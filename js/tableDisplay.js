@@ -25,13 +25,13 @@ function generateBlankTable() {
     html += '</tr>';
     $('#autoGenTable0 thead').append(html);
     html = "";
-    for (var i = 1; i <= 60;  i++) {
+    for (var i = 0; i < 60;  i++) {
     // XXX make a variable for 60 || num rows
         html += '<tr>';
         html += '<td align="center" '+
                     'style="height:'+gRescol.minCellHeight+'px;">'+
                     '<div class="idWrap"><span class="idSpan">'+
-                    i+'</span>'+
+                    (i+1)+'</span>'+
                     '<div class="rowGrab"></div>'+
                     '</div>'+
                 '</td>';
@@ -58,7 +58,7 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
     secondIndex = finalString.indexOf("<", firstIndex);
     firstPart = finalString.substring(0, firstIndex);
     secondPart = finalString.substring(secondIndex);
-    finalString = "<tr class='row"+id+"'>"+firstPart + id + secondPart+"</tr>";
+    finalString = "<tr class='row"+id+"'>"+firstPart +(id+1)+ secondPart+"</tr>";
 
     if (direction == 1) {
         var row = "tr:first-child";
@@ -87,30 +87,6 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
         .mousedown(function(event) {
             resrowMouseDown($(this), event);
     });
-}
-
-function generateRowWithAutoIndex(text, hoverable) {
-    var URIEncoded = encodeURIComponent(text);
-    console.log(URIEncoded);
-    if (hoverable) {
-        var clickable = 'class="mousePointer"';
-    } 
-    else { 
-        var clickable = "";
-    }
-    $(".autoGenTable tr:last").after('<tr><td height="18" align="center"'+
-        'bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        gTableRowIndex+"c1"+'" onmouseover="javascript: console.log(this.id)">'+
-        gTableRowIndex+'</td>'+
-        '<td bgcolor="#FFFFFF" class="monacotype" id="bodyr'+
-        gTableRowIndex+"c2"+'" onmouseover="javascript: console.log(this.id)"'+
-        ' onclick="javascript: window.location.href=\'cat_table.html?'+
-        'tablename='+
-        URIEncoded+'\'">'+
-        '<div class="cellRelative"><span '+clickable+'>'+text+'</span>'+
-        '<div class="dropdownBox"></div>'+
-        '</div></td></tr>');
-    gTableRowIndex++;
 }
 
 function generateFirstScreen(value, idNo, tableNum, height) {
@@ -158,7 +134,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
     $("#autoGenTable"+tableNum).append('<tr class="row'+idNo+'">'+
         '<td align="center" class="col1" style="height:'+cellHeight+'px;">'+
         '<div class="idWrap"><span class="idSpan">'+
-        idNo+'</span><div class="rowGrab"></div></div></td>'+
+        (idNo+1)+'</span><div class="rowGrab"></div></div></td>'+
         '<td class="jsonElement col2">'+
         '<div title="double-click to view" '+
         'class="elementTextWrap" style="max-height:'+
@@ -169,7 +145,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
         '</td>'+
         '</tr>');
 
-    $('#autoGenTable'+tableNum+' tbody tr:eq('+(idNo-1)+') .jsonElement')
+    $('#autoGenTable'+tableNum+' tbody tr:eq('+idNo+') .jsonElement')
     .dblclick(function(){
             showJsonModal($(this));
         }

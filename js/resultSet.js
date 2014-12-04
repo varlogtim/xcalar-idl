@@ -75,9 +75,9 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                         .kvPairFixed.value;
         }
         if (firstTime) {
-            generateFirstScreen(value, indexNumber+i+1, tableNum, tdHeights[i]);
+            generateFirstScreen(value, indexNumber+i, tableNum, tdHeights[i]);
         } else {
-            generateRowWithCurrentTemplate(value, indexNumber+index+1, 
+            generateRowWithCurrentTemplate(value, indexNumber+index, 
                                             rowTemplate, direction, 1);        
         }
     }

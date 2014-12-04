@@ -38,7 +38,7 @@ function getDatasetSamples() {
             var json = $.parseJSON(records.records[0].kvPairFixed.value);
         }
         addDataSetHeaders(json, datasets.datasets[i].datasetId, i+1);
-        addDataSetRows(records, i+1);
+        addDataSetRows(records, i);
     }
     addWorksheetListeners();
 }
@@ -107,7 +107,7 @@ function addDataSetHeaders(json, datasetId, index) {
     $('#worksheetTable'+index+' tr:first').append(th);
 }
 
-function addDataSetRows(records, tableNumber) {
+function addDataSetRows(records, tableNum) {
     var html = "";
     // loop through each row
     for (var i = 0; i<records.numRecords; i++) {
@@ -137,7 +137,7 @@ function addDataSetRows(records, tableNumber) {
         }
         html += '</tr>';
     }
-    $('#worksheetTable'+tableNumber).append(html);
+    $('#worksheetTable'+tableNum).append(html);
 }
 
 function addWorksheetListeners() {

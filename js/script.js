@@ -54,7 +54,7 @@ function infScrolling(tableNum) {
     $("#autoGenTableWrap"+tableNum).scroll(function() {
         if ($(this).scrollTop() === 0 && 
             $('#autoGenTable'+tableNum+' tbody tr:first').attr('class') != 
-            'row1') {
+            'row0') {
                 console.log('the top!');
                 var firstRow = $('#autoGenTable'+tableNum+' tbody tr:first');
                 var initialTop = firstRow.offset().top;
