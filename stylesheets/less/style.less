@@ -31,6 +31,7 @@
 @color-scratchpad-light-odd: #F1F6F8;
 @color-scratchpad-light-even: #FFFFFF;
 @color-scratchpad-border: #ADC5D2;
+@color-scratchpad-selected: rgba(28, 237, 36, 0.1);
 /* Text */
 @color-text-black: #0F0F0F; 
 /* Fonts */
@@ -1162,12 +1163,18 @@ ul.leftColMenu + .rightArrow {
 /* END VERTICAL RESIZING */
 
 /* START SCRATCHPAD STYLING */
+#scratchpadArea {
+    position: absolute;
+    bottom: 50px;
+    right: 10px;
+    z-index: 34;
+}
 .scratchpad {
     border-collapse: separate;
     border-spacing: 0px;
     margin-left: 10px;
     table-layout: fixed;
-    width: 900px;
+    width: 800px;
     border: 5px solid @color-scratchpad-border;
 
     th {
@@ -1230,16 +1237,15 @@ ul.leftColMenu + .rightArrow {
         }
     }
     
-    tbody .selectedCell {
-        &:nth-child(odd) {
-            background-color: @colorOpaque-pink;
-        }
-        &:nth-child(even) {
-            background-color: @colorOpaque-pink; 
-        }
+    tbody .selected {
+        background-color: @color-scratchpad-selected;
+    }
+    
+    tbody .error {
+        background-color: @colorOpaque-pink !important;
     }
 
-    th.selectedCell .editableHead {
+    th.error .editableHead {
         color: @color-table-red;
     }
 
@@ -1311,6 +1317,14 @@ ul.leftColMenu + .rightArrow {
     span.undefined {
         color: #c51d23;
     }
+}
+
+#scratchpadTab {
+    .worksheetTab;
+    position: relative;
+    float: right;
+    width: 150px;
+    cursor: pointer;
 }
 /* END SCRATCHPAD STYLING */
 

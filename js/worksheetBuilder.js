@@ -302,7 +302,7 @@ function createWorksheet() {
 
 function attachShoppingCartListeners() {
     $(".shoppingCartCol").keypress(function(e) {
-        if (e.which === 13) {
+        if (e.which === keyCode.Enter) {
             var oldid = $(this).attr("id");
             var oldColName = oldid.substring(oldid.indexOf("cn")+2);
             var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
@@ -316,7 +316,7 @@ function attachShoppingCartListeners() {
         }
     });
     $(".shoppingCartCol").blur(function(e) {
-        if (e.which === 13) {
+        if (e.which === keyCode.Enter) {
             var oldid = $(this).attr("id");
             var oldColName = oldid.substring(oldid.indexOf("cn")+2);
             var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
@@ -456,7 +456,7 @@ function addWorksheetTab(value) {
     });
 
     newInput.keypress(function(e) {
-        if (e.which == 13) {
+        if (e.which == keyCode.Enter) {
             $(this).blur();
         }
     });

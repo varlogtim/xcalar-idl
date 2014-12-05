@@ -623,6 +623,7 @@ function addColListeners(colId, tableId) {
             $(this).val(gTableCols[index-2].userStr);
         }
         updateFunctionBar($(this).val());
+        gFnBarOrigin = $(this);
         highlightColumn($(this));
         $(this).parent().siblings('.dropdownBox')
             .addClass('hidden');
@@ -637,7 +638,8 @@ function addColListeners(colId, tableId) {
 
     table.find('.editableHead.col'+colId).keyup(function(e) {
         updateFunctionBar($(this).val());
-        if (e.which == 13) {
+        gFnBarOrigin = $(this);
+        if (e.which == keyCode.Enter) {
             var index = parseColNum($(this));
             var progCol = parseCol($(this).val(), index, true);
             execCol(progCol);
@@ -654,6 +656,7 @@ function addColListeners(colId, tableId) {
 
     table.find('.editableHead.col'+colId).on('input', function(e) {
         updateFunctionBar($(this).val());
+        gFnBarOrigin = $(this);
     });
 
     table.find('.table_title_bg.col'+colId+' .dropdownBox').click(function() {
@@ -775,7 +778,7 @@ function addColListeners(colId, tableId) {
     table.find('.filterWrap.col'+colId+' input').keyup(function(e) {
         var value = $(this).val();
         $(this).closest('.filter').siblings().find('input').val(value);
-        if (e.which === 13) {
+        if (e.which === keyCode.Enter) {
             var index = parseColNum($(this).closest('.filterWrap'));
             var operator = $(this).closest('.filter').text(); 
             console.log(operator, 'operator')

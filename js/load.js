@@ -44,7 +44,7 @@ $('.dataOptionsRow input').click(function(){
 });
 
 function dsSubmit(e) {
-    if (e.which != 13) {
+    if (e.which != (keyCode.Enter)) {
        return;
     }
     var url = $("#fileBrowser").val();
@@ -69,7 +69,7 @@ function dsSubmit(e) {
 }
 
 function detailsSubmit(e) {
-    if (e.which != 13) {
+    if (e.which != keyCode.Enter) {
        return
     }
     var key = "user_id";

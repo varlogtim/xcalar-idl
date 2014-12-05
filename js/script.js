@@ -35,6 +35,7 @@ var gTableName;
 var gResultSetId;
 var resultSetCount;
 var gNumPages;
+var gFnBarOrigin;
 
 // ================================= Classes ==================================
 var ProgCol = function() {
@@ -135,7 +136,7 @@ function documentReadyAutoGenTableFunction() {
                           'size': resultTextLength});
 
     $('#rowInput').keypress(function(e) {
-        if (e.which !== 13) {
+        if (e.which !== keyCode.Enter) {
             return;
         }
         var row = $('#rowInput').val();
@@ -187,7 +188,7 @@ function documentReadyAutoGenTableFunction() {
         var pageNum = Math.ceil((mouseX / scrollWidth) * resultSetCount);
         var rowInputNum = $("#rowInput").val();
         var e = $.Event("keypress");
-        e.which = 13;
+        e.which = keyCode.Enter;
         $("#rowInput").val(pageNum).trigger(e);
         // $("#rowInput").val(rowInputNum);
     });
@@ -205,14 +206,18 @@ function documentReadyGeneralFunction() {
     });
 
     $('#fnBar').on('input', function(e) {
-        var selectedCell = $('th.selectedCell .editableHead');
-        selectedCell.val($(this).val());
+        if ($(".scratchpad").has(gFnBarOrigin) &&
+            $(this).val().indexOf("=") == 0) {
+            enterEquationMode();
+        }
+        gFnBarOrigin.val($(this).val());
     });
 
     $('#fnBar').keyup(function(e) {
-        var selectedCell = $('th.selectedCell .editableHead');
-        if (e.which == 13) {
-            selectedCell.trigger(e);
+        gFnBarOrigin.val($(this).val());
+        gFnBarOrigin.trigger(e);
+            
+        if (e.which == keyCode.Enter) {
             $(this).blur();
         }
     });
@@ -222,19 +227,23 @@ function documentReadyGeneralFunction() {
         // must activate mousedown after header's blur, hence delay
         setTimeout(selectCell, 1);
         function selectCell() {
-            var selectedCell = $('th.selectedCell .editableHead');
-            selectedCell.val(fnBar.val());
+            if (!$(".scratchpad").has(gFnBarOrigin)) {
+                gFnBarOrigin.val(fnBar.val());
+            }
         }
         
     });
 
     $('#fnBar').blur(function() {
-        var selectedCell = $('th.selectedCell .editableHead');
-        var index = $('th.selectedCell').index();
-        if (selectedCell.length !=0) {
-            if (gTableCols[index-1].name.length > 0) {
-                selectedCell.val(gTableCols[index-1].name);
-            } 
+        console.log("Here");
+        if ($(".scratchpad").has(gFnBarOrigin)) {
+        } else {
+            var index = $('th.selectedCell').index();
+            if (gFnBarOrigin.length !=0) {
+                if (gTableCols[index-1].name.length > 0) {
+                    gFnBarOrigin.val(gTableCols[index-1].name);
+                } 
+            }
         }
     });
 
@@ -287,6 +296,7 @@ function documentReadyGeneralFunction() {
     });
 
     $("#shoppingCart").hide();
+    scratchpadStartup(); 
 
     $(document).mousedown(function(event) {
         var target = $(event.target);
@@ -294,7 +304,8 @@ function documentReadyGeneralFunction() {
         if (!clickable && !target.is('.dropdownBox')) {
                 $('.colMenu').hide();
         }
-        if (target.closest('.selectedCell').length == 0 && !target.is('#fnBar')) {
+        if (target.closest('.selectedCell').length == 0 && !target.is('#fnBar')
+            && (!equationCellRow)) {
             $('.selectedCell').removeClass('selectedCell');
             $('#fnBar').val("");
         }
