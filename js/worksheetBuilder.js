@@ -26,8 +26,8 @@ function getDatasetSamples() {
         samples[datasetName] = XcalarSample(datasets.datasets[i].datasetId, 20);
 
         // add the tab and the table for this dataset to shoppingcart div
-        addDatasetTable(datasetName, i+1);
-        addSelectedTableHolder(i+1);
+        addDatasetTable(datasetName, i);
+        addSelectedTableHolder(i);
         var records = samples[datasetName].kvPairs;
 
         if (records.recordType ==
@@ -37,7 +37,7 @@ function getDatasetSamples() {
         } else {
             var json = $.parseJSON(records.records[0].kvPairFixed.value);
         }
-        addDataSetHeaders(json, datasets.datasets[i].datasetId, i+1);
+        addDataSetHeaders(json, datasets.datasets[i].datasetId, i);
         addDataSetRows(records, i);
     }
     addWorksheetListeners();
@@ -143,15 +143,15 @@ function addDataSetRows(records, tableNum) {
 function addWorksheetListeners() {
     $('.worksheetTable .keyCheckmark').click(function() {
         var inputText = $(this).siblings('input').val();
-        var index = $(this).closest('.worksheetTable').index()+1;
+        var index = $(this).closest('.worksheetTable').index();
         var selectedKey = $('#selectedTable'+index).
             find('td:contains('+inputText+')');
         selectedKey.find('.removeKey').click();
     });
 
     $('.worksheetTable th input').focus(function() {  
-        var index = $(this).closest('th').index()+1;
-        var tableIndex = $(this).closest('table').index()+1;
+        var index = $(this).closest('th').index();
+        var tableIndex = $(this).closest('table').index();
         var value = $(this).val();
         highlightColumn($(this));
         $('.keySelected').removeClass('keySelected');
@@ -169,7 +169,7 @@ function addWorksheetListeners() {
             $(this).attr('readonly', 'true');
         }
         
-        var index = $(this).closest('table').index()+1;
+        var index = $(this).closest('table').index();
         var tabName = $('#worksheetTab'+index+' input').val();
         var selectedTable = $('#selectedTable'+index);
         if (selectedTable.length == 0) {
@@ -364,7 +364,7 @@ function shoppingCart() {
 
 function addTabFunctionality() {
     $('#builderTabBar .worksheetTab').mousedown(function() {
-        var index = $(this).parent().index()+1;
+        var index = $(this).parent().index();
         var text = $(this).find('input').val();
         $('.selectedCell').removeClass('selectedCell');
         $('#builderTabBar .worksheetTab').removeClass('tabSelected');
@@ -373,7 +373,7 @@ function addTabFunctionality() {
         $('#selectedTable'+index+' th').addClass('orangeText');
 
         $('.worksheetTable').hide();
-        $('.worksheetTable:nth-child('+index+')').show();
+        $('.worksheetTable:nth-child('+(index+1)+')').show();
     });
 
     $('#builderTabBar .worksheetTab input').each(function() {
@@ -398,7 +398,7 @@ function addTabFunctionality() {
     });
 
     $('#builderTabBar input').on('input', function() {
-        var index = $(this).closest('.tabWrap').index()+1;
+        var index = $(this).closest('.tabWrap').index();
         $('#selectedTable'+index+' th').text($(this).val());
     });
 }
@@ -463,7 +463,7 @@ function addWorksheetTab(value) {
 
     newTab.find('.deleteWorksheet').click(function() {
         var tab = $(this).closest('.worksheetTab');
-        removeWorksheetName(tab.index()-1);
+        removeWorksheetName(tab.index());
         tab.remove();
         //XX need to remove all data corresponding to this worksheet
     });

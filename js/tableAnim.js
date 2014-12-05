@@ -1,7 +1,7 @@
 function generateFirstLastVisibleRowNum() {
     //XXX table will need to be passed in
     var tableNum = 0;
-    var mfPos = $('#autoGenTable'+tableNum)[0].getBoundingClientRect();
+    var mfPos = $('#autoGenTableWrap'+tableNum)[0].getBoundingClientRect();
     var tdXCoor = 30;
     var tdYCoor = 50;
     var tdBotYCoor = -18;
@@ -11,7 +11,7 @@ function generateFirstLastVisibleRowNum() {
                                             tdYCoor+mfPos.top);
     var firstId = $(firstEl).closest('tr').attr('class');
     if (firstId && firstId.length > 0) {
-        var firstRowNum = parseInt(firstId.substring(3));
+        var firstRowNum = parseInt(firstId.substring(3))+1;
     }
 
     var tdBottom = tdBotYCoor + mfPos.bottom;
@@ -19,12 +19,12 @@ function generateFirstLastVisibleRowNum() {
                                            tdBottom);
     var lastId = $(lastEl).closest('tr').attr('class');
     if (lastId && lastId.length > 0) {
-        var lastRowNum = parseInt(lastId.substring(3));
+        var lastRowNum = parseInt(lastId.substring(3))+1;
     }
 
     if (parseInt(firstRowNum) != NaN) {
         $('#pageBar .rowNum:first-of-type').html(firstRowNum);
-        // moverowScroller(firstRowNum);
+        moverowScroller(firstRowNum);
     }
     if (parseInt(lastRowNum) != NaN) {
         $('#pageBar .rowNum:last-of-type').html(lastRowNum);
@@ -587,8 +587,9 @@ function dblClickResize(el) {
 }
 
 function cloneTableHeader(tableNum) {
-    var autoGenTableWrap0Top = $('#autoGenTableWrap'+tableNum).offset().top;
+    var autoGenTableWrapTop = $('#autoGenTableWrap'+tableNum).offset().top;
     var tHead = $('#autoGenTable'+tableNum+' thead');
+    
     var tHeadXPos = tHead.offset().left;
     var tHeadYPos = tHead.offset().top;
     var tHeadClone = $('#autoGenTable'+tableNum+' thead').clone();
@@ -599,26 +600,37 @@ function cloneTableHeader(tableNum) {
     $('#autoGenTable'+tableNum+' thead').after(tHeadClone);
     tHead.css({'position':'absolute', 'top':0,
                     'left':leftPos, 'padding-top':5});
-    tHead.wrap('<div class="theadWrap"></div>');
+    tHead.wrap('<div id="theadWrap'+tableNum+'" class="theadWrap"></div>');
+    var tHeadWrap = $('#theadWrap'+tableNum);
     matchHeaderSizes();
 
     $('#autoGenTable'+tableNum).width(0); 
+
     $('#autoGenTableWrap'+tableNum).scroll(function() {
-        var leftPos = $('#autoGenTable'+tableNum).position().left -
-                      $(window).scrollLeft();
+        // var leftPos = $('#autoGenTable'+tableNum).position().left -
+        //               $(window).scrollLeft()+ $('#mainFrame').scrollLeft();
+        // var leftPos = $('#autoGenTable'+tableNum).position().left - tHeadWrap.position().left + $('#mainFrame').scrollLeft();
+        var leftPos = -$('#autoGenTableWrap'+tableNum).scrollLeft();
         tHead.css('left', leftPos);
     });
-    $(window).scroll(function(){
-        var tHeadTop = $('#autoGenTableWrap'+tableNum).offset().top - 
-                        $(window).scrollTop();
-        var tHeadLeft = $('#autoGenTable'+tableNum).position().left -
-                        $(window).scrollLeft();
-        tHead.css({'top': tHeadTop, 'left':tHeadLeft});
-    });
+    // $(window).scroll(function(){
+    //     var tHeadTop = $('#autoGenTableWrap'+tableNum).offset().top - 
+    //                     $(window).scrollTop();
+    //     var tHeadLeft = $('#autoGenTable'+tableNum).position().left -
+    //                     $(window).scrollLeft();
+    //     tHead.css({'top': tHeadTop, 'left':tHeadLeft});
+
+    // });
     $('#mainFrame').scroll(function(){
-        var tHeadLeft = $('#autoGenTable'+tableNum).position().left -
-                        $(window).scrollLeft();
-        tHead.css({'left':tHeadLeft});
+        // var tHeadLeft = $('#autoGenTable'+tableNum).position().left -
+        //                 $(window).scrollLeft();
+
+        // tHeadWrap.css({'left':tHeadLeft});
+        // tHead.css({'left':tHeadLeft});
+
+        var tHeadLeft = - $('#mainFrame').scrollLeft()+(tableNum*1000);
+        // var tHeadLeft = $('#autoGenTable'+tableNum).position().left;
+        tHeadWrap.css('left', tHeadLeft);
     });
 
 }
@@ -669,9 +681,9 @@ function addColListeners(colId, tableId) {
         gFnBarOrigin = $(this);
         if (e.which == keyCode.Enter) {
             var index = parseColNum($(this));
-            var progCol = parseCol($(this).val(), index, true);
             var tableNum = parseInt($(this).closest('table')
                         .attr('id').substring(12));
+            var progCol = parseCol($(this).val(), index, tableNum, true);
             execCol(progCol, tableNum);
             if (progCol.name.length > 0) {
                 $(this).val(progCol.name);
@@ -884,17 +896,18 @@ function checkForScrollBar() {
 }
 
 function positionScrollbar(row, tableNum) {
+    console.log('here')
     var canScroll = true;
     var theadHeight = $('#autoGenTable'+tableNum+' thead').height();
     function positionScrollToRow() {
-        var tdTop = $('#autoGenTable'+tableNum+' .row'+row)[0].offsetTop;
+        var tdTop = $('#autoGenTable'+tableNum+' .row'+(row-1))[0].offsetTop;
         var scrollPos = Math.max((tdTop-theadHeight), 1);
         if (canScroll && scrollPos > 
                 ($('#autoGenTable'+tableNum).height() - 
-                $('.autoGenTableWrap'+tableNum).height())) {
+                $('#autoGenTableWrap'+tableNum).height())) {
             canScroll = false;
         }
-        $('.autoGenTableWrap'+tableNum).scrollTop(scrollPos);
+        $('#autoGenTableWrap'+tableNum).scrollTop(scrollPos);
     }
     
     positionScrollToRow();

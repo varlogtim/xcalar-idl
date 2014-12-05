@@ -6,7 +6,7 @@ function menuBarArt() {
     var clickTarget = null;
     var clickTooFast = false;
     menuAreaClose();
-    $("#menuBar div").on("click", function() {
+    $("#menuBar div").on("click", function(event) {
         if (clickTooFast) {
             return;
         }

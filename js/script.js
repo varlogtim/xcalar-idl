@@ -398,40 +398,43 @@ function documentReadyCatFunction(tableNum) {
 
 }
 
-function startupFunctions(table) {
-    // var autoGenTableWrap0Clone = $('.autoGenTableWrap0').clone();
-    // $('.autoGenTableWrap0:first').after(autoGenTableWrap0Clone);
-    // $('.autoGenTableWrap0').width('50%');
-    var tableNum = 0;
+function startupFunctions() {
     readFromStorage();
     menuBarArt();
     menuAreaClose();
     getTablesAndDatasets();
     documentReadyGeneralFunction();
+    getWorksheetNames();
+}  
+
+function tableStartupFunctions(table, tableNum) {
+    gTableCols[tableNum] = [];
     setCatGlobals(table);
-    //XX TODO: change the way we detect if its a new page
     if (!$.isEmptyObject(gDsToNameTrans)) {
         documentReadyAutoGenTableFunction();
         documentReadyCatFunction(tableNum);
-        // fillPageWithBlankCol(tableNum);
+        fillPageWithBlankCol(tableNum);
         goToPage(gCurrentPageNumber+1, null, tableNum);
         goToPage(gCurrentPageNumber+1, null, tableNum);
     } else {
         generateBlankTable();
     }
     generateFirstLastVisibleRowNum();
+    resizeForMultipleTables(tableNum);
     cloneTableHeader(tableNum);
     if (!$.isEmptyObject(gDsToNameTrans)) {
         infScrolling(tableNum);
     }   
     checkForScrollBar();
-    getWorksheetNames();
-}        
+
+}      
 
 function documentReadyIndexFunction() {
     $(document).ready(function() {
-        startupFunctions("gdelt"); 
-        // startupFunctions("sp500"); 
+        startupFunctions(); 
+        //XXX loop through datasets and call tableStartUpFunctions
+        tableStartupFunctions("gdelt", 0);
+        // tableStartupFunctions("sp500", 1); 
     });
 }
 

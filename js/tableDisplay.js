@@ -171,3 +171,14 @@ function createRowTemplate() {
     parts.secondPart = secondPart;
     return (parts);
 }
+
+function resizeForMultipleTables(tableNum) {
+    if (tableNum == 0) {
+        return;
+    }
+
+    var newTableWidth = 1000;
+    $('.autoGenTableWrap').width(1000);
+    $('.theadWrap').width(1000);
+     
+}
