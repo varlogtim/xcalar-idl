@@ -677,6 +677,7 @@ function addColListeners(colId, tableId) {
     });
 
     table.find('.editableHead.col'+colId).keyup(function(e) {
+        console.log('head key up')
         updateFunctionBar($(this).val());
         gFnBarOrigin = $(this);
         if (e.which == keyCode.Enter) {

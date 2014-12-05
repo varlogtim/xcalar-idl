@@ -20,7 +20,7 @@ function attachScratchpadTabListener() {
         $("#scratchpadArea").toggle();
         $("#scratchpadTab").toggleClass("tabSelected");        
     });
-    if ($(".scratchpad").has(gFnBarOrigin)) {
+    if ($(".scratchpad").has(gFnBarOrigin).length != 0) {
         gFnBarOrigin = undefined;
     }
 }

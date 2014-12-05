@@ -1427,41 +1427,24 @@ ul.leftColMenu + .rightArrow {
         color: @color-bar-orange  !important;
         box-shadow: 2px 3px rgba(0,0,0,.15), inset 0px 0px  @color-white;
         input {
-            background-color: transparent;
-            font-size: 16px;
-            color: @color-white;
-            text-align: center;
-            outline: none;
-            cursor: default;
-            .noSelection;
-            width: ~"calc(100%-10px)";
-            box-shadow: inset 0px 1px rgba(0, 0, 0, 0.15);
-            direction: ltr;
-        }
+            background-color: transparent  !important;
+            color: inherit  !important;
+            box-shadow: none;
 
-        &.tabSelected,  {
-            background-color: @color-white !important;
-            color: @color-bar-orange  !important;
-            box-shadow: 2px 3px rgba(0,0,0,.15), inset 0px 0px  @color-white;
-            input {
-                background-color: transparent  !important;
-                color: inherit  !important;
-                box-shadow: none;
-
-                &:focus {
-                    border-bottom: 1px solid @color-monitor-green;
-                }
-            }
-        }
-        &:not(.tabSelected):hover {
-            box-shadow: 2px 2px rgba(0,0,0,.15), inset 0px 0px  @color-white;
-            background-color: @color-tab-lightGray;
-            input {
-                background-color: @color-tab-lightGray;
-                box-shadow: none;
+            &:focus {
+                border-bottom: 1px solid @color-monitor-green;
             }
         }
     }
+    &:not(.tabSelected):hover {
+        box-shadow: 2px 2px rgba(0,0,0,.15), inset 0px 0px  @color-white;
+        background-color: @color-tab-lightGray;
+        input {
+            background-color: @color-tab-lightGray;
+            box-shadow: none;
+        }
+    }
+    
 }
 
 .deleteWorksheet {
@@ -1767,9 +1750,9 @@ ul.leftColMenu + .rightArrow {
 }
 
 #datasetButtons {
-  display: inline-block;
-  float: left;
-  margin-left: 5px;
+    display: inline-block;
+    float: left;
+    margin-left: 5px;
 }
 
 #createButton, #cancelButton {
