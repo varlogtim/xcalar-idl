@@ -140,6 +140,8 @@ function gRescolMouseMove(event) {
 
         $('#autoGenTable'+gRescol.tableNum+' thead:first')
             .outerWidth($('#autoGenTable'+gRescol.tableNum).width());
+        $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
+            .outerWidth($('#autoGenTable'+gRescol.tableNum).width()+10);
 
         if (dragDist <= -gRescol.tableExcessWidth) {
             $('#autoGenTable'+gRescol.tableNum+' thead th:last-child')
@@ -147,6 +149,8 @@ function gRescolMouseMove(event) {
                 (dragDist + gRescol.tableExcessWidth));
             $('#autoGenTable'+gRescol.tableNum+' thead:first')
                 .outerWidth($('#autoGenTable'+gRescol.tableNum).width());
+            $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
+                .outerWidth($('#autoGenTable'+gRescol.tableNum).width()+10);
         }     
     } else if ( dragDist < gRescol.leftDragMax ) {
         gRescol.grabbedCell.outerWidth(gRescol.tempCellMinWidth);
@@ -159,9 +163,13 @@ function gRescolMouseMove(event) {
                                             .width();
             $('#autoGenTable'+gRescol.tableNum+' thead th:last-child').
                 outerWidth('+='+addWidth+'px');
+            $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
+                .outerWidth(gMinTableWidth+10);
         } else {
             $('#autoGenTable'+gRescol.tableNum+' thead:first').
                 outerWidth($('#autoGenTable'+gRescol.tableNum).outerWidth());
+                $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
+                .outerWidth($('#autoGenTable'+gRescol.tableNum).width()+10);
         }
     }
 }
@@ -175,6 +183,8 @@ function gRescolMouseMoveLast(event) {
                 gRescol.colNum).outerWidth(gRescol.startWidth + dragDist);
             $('#autoGenTable'+gRescol.tableNum+' thead:first')
                 .width(gRescol.tableWidth + dragDist);
+            $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
+                .outerWidth($('#autoGenTable'+gRescol.tableNum).width()+10);
         } 
     } else {
         gRescol.grabbedCell.
@@ -182,6 +192,8 @@ function gRescolMouseMoveLast(event) {
         $('#autoGenTable'+gRescol.tableNum+' tr:eq(1) th.col'+gRescol.colNum).
             outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
         $('#autoGenTable'+gRescol.tableNum+' thead').width(gMinTableWidth);
+        $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
+                .outerWidth(gMinTableWidth+10);
     } 
 }
 
@@ -194,7 +206,7 @@ function gRescolMouseUp() {
             .width($('#autoGenTable'+gRescol.tableNum).width());
     var progCol = gTableCols[gRescol.tableNum][gRescol.index-1];
     progCol.width = gRescol.grabbedCell.outerWidth();
-    matchHeaderSizes();
+    matchHeaderSizes(gRescol.tableNum);
     checkForScrollBar();
 }
 
@@ -461,7 +473,7 @@ function dragdropSwapColumns(el) {
 }
 
 function gRescolDelWidth(colNum, tableNum, resize) {
-    matchHeaderSizes(true);
+    matchHeaderSizes(tableNum, true);
     var id = colNum;
     var table = $('#autoGenTable'+tableNum);
     var oldTableWidth = table.width();
@@ -471,7 +483,7 @@ function gRescolDelWidth(colNum, tableNum, resize) {
         table.find('thead:last .table_title_bg.col'+lastTd).
             width(lastTdWidth + (gMinTableWidth - oldTableWidth)); 
     }
-    matchHeaderSizes();
+    matchHeaderSizes(tableNum);
 }
 
 function getTextWidth(el) {
@@ -521,7 +533,7 @@ function autosizeCol(el, options) {
     if (index != 1) { // don't store id column
         gTableCols[tableNum][index-1].width = el.outerWidth();
     }
-    matchHeaderSizes(resizeFirstRow);
+    matchHeaderSizes(tableNum, resizeFirstRow);
 }
 
 function getWidestTdWidth(el, options) {
@@ -602,40 +614,23 @@ function cloneTableHeader(tableNum) {
                     'left':leftPos, 'padding-top':5});
     tHead.wrap('<div id="theadWrap'+tableNum+'" class="theadWrap"></div>');
     var tHeadWrap = $('#theadWrap'+tableNum);
-    matchHeaderSizes();
+    matchHeaderSizes(tableNum);
 
     $('#autoGenTable'+tableNum).width(0); 
 
     $('#autoGenTableWrap'+tableNum).scroll(function() {
-        // var leftPos = $('#autoGenTable'+tableNum).position().left -
-        //               $(window).scrollLeft()+ $('#mainFrame').scrollLeft();
-        // var leftPos = $('#autoGenTable'+tableNum).position().left - tHeadWrap.position().left + $('#mainFrame').scrollLeft();
         var leftPos = -$('#autoGenTableWrap'+tableNum).scrollLeft();
         tHead.css('left', leftPos);
     });
-    // $(window).scroll(function(){
-    //     var tHeadTop = $('#autoGenTableWrap'+tableNum).offset().top - 
-    //                     $(window).scrollTop();
-    //     var tHeadLeft = $('#autoGenTable'+tableNum).position().left -
-    //                     $(window).scrollLeft();
-    //     tHead.css({'top': tHeadTop, 'left':tHeadLeft});
 
-    // });
     $('#mainFrame').scroll(function(){
-        // var tHeadLeft = $('#autoGenTable'+tableNum).position().left -
-        //                 $(window).scrollLeft();
-
-        // tHeadWrap.css({'left':tHeadLeft});
-        // tHead.css({'left':tHeadLeft});
-
-        var tHeadLeft = - $('#mainFrame').scrollLeft()+(tableNum*1000);
-        // var tHeadLeft = $('#autoGenTable'+tableNum).position().left;
+        var tHeadLeft = $('#autoGenTable'+tableNum).position().left;
         tHeadWrap.css('left', tHeadLeft);
     });
 
 }
 
-function matchHeaderSizes(reverse) {
+function matchHeaderSizes(tableNum, reverse) {
     var tHeadLength = $('.fauxTHead th').length;
     if (reverse) {
         var trueTHead = '.fauxTHead';
@@ -645,11 +640,12 @@ function matchHeaderSizes(reverse) {
         var fauxTHead = '.fauxTHead';
     }
     for (var i = 0; i < tHeadLength; i++) {
-        var width = $(fauxTHead+' th').eq(i).outerWidth();
-        $(trueTHead+' th').eq(i).outerWidth(width);
+        var width = $('#autoGenTable'+tableNum+' '+fauxTHead+' th').eq(i).outerWidth();
+        $('#autoGenTable'+tableNum+' '+trueTHead+' th').eq(i).outerWidth(width);
     }
-    $('.autoGenTable thead').width($('.autoGenTable').width());
-    $('.rowGrab').width($('.autoGenTable').width());
+    $('#autoGenTable'+tableNum+' thead').width($('#autoGenTable'+tableNum).width());
+    $('#autoGenTable'+tableNum+' .rowGrab').width($('#autoGenTable'+tableNum).width());
+    $('#autoGenTable'+tableNum+' .theadWrap').width($('#autoGenTable'+tableNum).width()+10);
 }
 
 function addColListeners(colId, tableId) {

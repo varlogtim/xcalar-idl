@@ -107,7 +107,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
                               '</div>'+
                             '</th>'+
                             '<th class="col1 table_title_bg" style="width: 850px;">'+
-                              '<div class="header"><div class="colGrab" style="height: 734px;"></div>'+
+                              '<div class="header">'+
                                 '<div class="dropdownBox" style="opacity: 0;"></div>'+
                                 '<span><input value="DATA" readonly="" tabindex="-1" title="raw data"></span>'+
                                 '<ul class="colMenu" style="display: none;">'+
@@ -173,12 +173,20 @@ function createRowTemplate() {
 }
 
 function resizeForMultipleTables(tableNum) {
+    //XX This function is hacky, need to modifiy where it's called
+    // and then how it's executed
     if (tableNum == 0) {
         return;
     }
+    if (tableNum == 1) {
+        var tableWidth = $('#autoGenTable0').width();
+        $('#theadWrap0').width(tableWidth+5);
+    }
 
-    var newTableWidth = 1000;
-    $('.autoGenTableWrap').width(1000);
-    $('.theadWrap').width(1000);
-     
+    $('.trueTHead').css('left', 0);
+    $('.autoGenTableWrap').width('auto');
+    var tableWidth = $('#autoGenTable'+tableNum).width();
+    var tableOffsetLeft = $('#autoGenTable'+tableNum).position().left;
+    $('#theadWrap'+tableNum).width(tableWidth+5);
+    $('#theadWrap'+tableNum).css('left', tableOffsetLeft);   
 }

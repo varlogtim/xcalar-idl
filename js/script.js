@@ -28,7 +28,8 @@ var gRescol = {
 var resrow = {};
 var gScrollbarHeight = 8;
 var gTempStyle = "";
-var gMinTableWidth = 1200;
+//XX we will no longer have a minimum table width
+var gMinTableWidth = 500;
 var gTableCols = []; // This is what we call setIndex on
 gTableCols[0] = []; //XXX find the location where to change this
 var gUrlTableName;
@@ -442,8 +443,8 @@ function tableStartupFunctions(table, tableNum) {
         generateBlankTable();
     }
     generateFirstLastVisibleRowNum();
-    resizeForMultipleTables(tableNum);
     cloneTableHeader(tableNum);
+    resizeForMultipleTables(tableNum);
     if (!$.isEmptyObject(gDsToNameTrans)) {
         infScrolling(tableNum);
     }   
@@ -455,7 +456,7 @@ function documentReadyIndexFunction() {
     $(document).ready(function() {
         startupFunctions(); 
         //XXX loop through datasets and call tableStartUpFunctions
-        // tableStartupFunctions("gdelt", 0);
+        tableStartupFunctions("gdelt", 0);
         // tableStartupFunctions("sp500", 1); 
     });
 }

@@ -376,7 +376,7 @@ function addCol(colId, tableId, name, options) {
     if (inFocus) {
         $('#'+tableId+' tr:first .editableHead.col'+newColid).focus();
     }
-    matchHeaderSizes();
+    matchHeaderSizes(tableNum);
     checkForScrollBar();
 }
 
