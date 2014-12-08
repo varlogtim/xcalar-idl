@@ -325,7 +325,6 @@ function addCol(colId, tableId, name, options) {
                         '<div class="rightArrow"></div>'+
                         '</li>'+
                         '<li id="join">'+'Join'+
-                            '<div class="rightArrow"></div>'+
                             '<ul class="subColMenu">';
         } else {
         dropDownHTML += '<li class="filterWrap col'+newColid+'">Filter'+
@@ -340,7 +339,6 @@ function addCol(colId, tableId, name, options) {
                         '<div class="rightArrow"></div>'+
                         '</li>'+
                         '<li id="join">'+'Join'+
-                            '<div class="rightArrow"></div>'+
                             '<ul class="subColMenu">';
         }
         var tables = XcalarGetTables();
@@ -377,7 +375,7 @@ function addCol(colId, tableId, name, options) {
         $('#'+tableId+' tr:first .editableHead.col'+newColid).focus();
     }
     matchHeaderSizes(tableNum);
-    checkForScrollBar();
+    checkForScrollBar(tableNum);
 }
 
 function parseColNum(el) {

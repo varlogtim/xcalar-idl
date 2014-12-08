@@ -111,12 +111,20 @@ function gRescolMouseDown(el, event) {
     gRescol.grabbedCell = el.parent().parent();  // the th 
     gRescol.index = gRescol.grabbedCell.index();
     gRescol.startWidth = gRescol.grabbedCell.outerWidth();
-    gRescol.tableNum = parseInt(el.closest('table').attr('id').substring(12));
+    var tableNum = parseInt(el.closest('table').attr('id').substring(12));
+    gRescol.tableNum = tableNum;
     gRescol.colNum = parseColNum(gRescol.grabbedCell);
-    gRescol.lastCellWidth = $('#autoGenTable'+gRescol.tableNum+
-        ' thead:last th:last').outerWidth();
-    gRescol.tableWidth = $('#autoGenTable'+gRescol.tableNum).outerWidth();
+    gRescol.secondCell = $('#autoGenTable'+tableNum+' tr:eq(1) th.col'+
+                            gRescol.colNum);
+    gRescol.lastCellWidth = $('#autoGenTable'+tableNum+' thead:last th:last')
+                            .outerWidth();
+    gRescol.tableWidth = $('#autoGenTable'+tableNum).outerWidth();
     gRescol.tableExcessWidth = gRescol.tableWidth - gMinTableWidth;
+    gRescol.thead = $('#autoGenTable'+tableNum+' thead:first');
+    gRescol.theadWrap = $('#theadWrap'+tableNum);
+    var minTableWidth = gRescol.tableWidth - 
+                            (gRescol.startWidth-gRescol.cellMinWidth);
+    gRescol.tempMinTableWidth = Math.max(minTableWidth, gMinTableWidth);
 
     if (gRescol.grabbedCell.is(':last-child')) {
         gRescol.lastCellGrabbed = true;
@@ -132,45 +140,23 @@ function gRescolMouseDown(el, event) {
 function gRescolMouseMove(event) {
     var dragDist = (event.pageX - gRescol.mouseStart);
     if (dragDist > gRescol.leftDragMax) {
-
         gRescol.grabbedCell.outerWidth(gRescol.startWidth + dragDist);
-        //XXX TODO: cache this cell so we don't have to search for it
-        $('#autoGenTable'+gRescol.tableNum+' tr:eq(1) th.col'+gRescol.colNum)
-            .outerWidth(gRescol.startWidth + dragDist);
-
-        $('#autoGenTable'+gRescol.tableNum+' thead:first')
-            .outerWidth($('#autoGenTable'+gRescol.tableNum).width());
-        $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
-            .outerWidth($('#autoGenTable'+gRescol.tableNum).width()+10);
-
+        gRescol.secondCell.outerWidth(gRescol.startWidth + dragDist);
         if (dragDist <= -gRescol.tableExcessWidth) {
+            console.log(dragDist,-gRescol.tableExcessWidth)
             $('#autoGenTable'+gRescol.tableNum+' thead th:last-child')
                 .outerWidth(gRescol.lastCellWidth - 
                 (dragDist + gRescol.tableExcessWidth));
-            $('#autoGenTable'+gRescol.tableNum+' thead:first')
-                .outerWidth($('#autoGenTable'+gRescol.tableNum).width());
-            $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
-                .outerWidth($('#autoGenTable'+gRescol.tableNum).width()+10);
         }     
-    } else if ( dragDist < gRescol.leftDragMax ) {
+    } else if (dragDist < gRescol.leftDragMax ) {
         gRescol.grabbedCell.outerWidth(gRescol.tempCellMinWidth);
-        $('#autoGenTable'+gRescol.tableNum+' tr:eq(1) th.col'+gRescol.colNum)
-            .outerWidth(gRescol.tempCellMinWidth);
-        if (dragDist < -gRescol.tableExcessWidth) {
-            $('#autoGenTable'+gRescol.tableNum+' thead:first')
-                .outerWidth(gMinTableWidth);
-            var addWidth = gMinTableWidth - $('#autoGenTable'+gRescol.tableNum)
-                                            .width();
-            $('#autoGenTable'+gRescol.tableNum+' thead th:last-child').
-                outerWidth('+='+addWidth+'px');
-            $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
-                .outerWidth(gMinTableWidth+10);
-        } else {
-            $('#autoGenTable'+gRescol.tableNum+' thead:first').
-                outerWidth($('#autoGenTable'+gRescol.tableNum).outerWidth());
-                $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
-                .outerWidth($('#autoGenTable'+gRescol.tableNum).width()+10);
-        }
+        gRescol.secondCell.outerWidth(gRescol.tempCellMinWidth);
+    }
+    var tableWidth = $('#autoGenTable'+gRescol.tableNum).width();
+    gRescol.thead.outerWidth(tableWidth);
+    gRescol.theadWrap.outerWidth(tableWidth+10);
+    if ($('.autoGenTable').length > 1) {
+        alignMultipleTableHeaders();
     }
 }
 
@@ -179,22 +165,30 @@ function gRescolMouseMoveLast(event) {
     if (dragDist >= -gRescol.tableExcessWidth) {
         if (dragDist > gRescol.leftDragMax) {
             gRescol.grabbedCell.outerWidth(gRescol.startWidth + dragDist);
-            $('#autoGenTable'+gRescol.tableNum+' tr:eq(1) th.col'+
-                gRescol.colNum).outerWidth(gRescol.startWidth + dragDist);
-            $('#autoGenTable'+gRescol.tableNum+' thead:first')
-                .width(gRescol.tableWidth + dragDist);
-            $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
-                .outerWidth($('#autoGenTable'+gRescol.tableNum).width()+10);
+            gRescol.secondCell.outerWidth(gRescol.startWidth + dragDist);
+        } else {
+            gRescol.grabbedCell.outerWidth(gRescol.tempCellMinWidth);
+            gRescol.secondCell.outerWidth(gRescol.tempCellMinWidth);
         } 
     } else {
-        gRescol.grabbedCell.
-            outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
-        $('#autoGenTable'+gRescol.tableNum+' tr:eq(1) th.col'+gRescol.colNum).
-            outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
-        $('#autoGenTable'+gRescol.tableNum+' thead').width(gMinTableWidth);
-        $('#autoGenTable'+gRescol.tableNum+' .theadWrap')
-                .outerWidth(gMinTableWidth+10);
+        if (dragDist < gRescol.leftDragMax) {
+            gRescol.grabbedCell.outerWidth(gRescol.tempCellMinWidth);
+            gRescol.secondCell.outerWidth(gRescol.tempCellMinWidth);
+        } else {
+            gRescol.grabbedCell.
+                outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
+            gRescol.secondCell.
+                outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
+        }
+        $('#autoGenTable'+gRescol.tableNum+' thead')
+            .width(gRescol.tempMinTableWidth);
     } 
+    var tableWidth = $('#autoGenTable'+gRescol.tableNum).width();
+    gRescol.thead.outerWidth(tableWidth);
+    gRescol.theadWrap.outerWidth(tableWidth+10);
+    if ($('.autoGenTable').length > 1) {
+        alignMultipleTableHeaders();
+    }
 }
 
 function gRescolMouseUp() {
@@ -207,7 +201,7 @@ function gRescolMouseUp() {
     var progCol = gTableCols[gRescol.tableNum][gRescol.index-1];
     progCol.width = gRescol.grabbedCell.outerWidth();
     matchHeaderSizes(gRescol.tableNum);
-    checkForScrollBar();
+    checkForScrollBar(gRescol.tableNum);
 }
 
 function resrowMouseDown(el, event) {
@@ -474,11 +468,10 @@ function dragdropSwapColumns(el) {
 
 function gRescolDelWidth(colNum, tableNum, resize) {
     matchHeaderSizes(tableNum, true);
-    var id = colNum;
     var table = $('#autoGenTable'+tableNum);
     var oldTableWidth = table.width();
     if (!resize && (oldTableWidth < gMinTableWidth)) {
-        var lastTd = table.find('tr:first th').length;
+        var lastTd = table.find('tr:first th').length-1;
         var lastTdWidth = table.find('.table_title_bg.col'+lastTd).width();
         table.find('thead:last .table_title_bg.col'+lastTd).
             width(lastTdWidth + (gMinTableWidth - oldTableWidth)); 
@@ -534,6 +527,7 @@ function autosizeCol(el, options) {
         gTableCols[tableNum][index-1].width = el.outerWidth();
     }
     matchHeaderSizes(tableNum, resizeFirstRow);
+    alignMultipleTableHeaders();
 }
 
 function getWidestTdWidth(el, options) {
@@ -612,7 +606,10 @@ function cloneTableHeader(tableNum) {
     $('#autoGenTable'+tableNum+' thead').after(tHeadClone);
     tHead.css({'position':'absolute', 'top':0,
                     'left':leftPos, 'padding-top':5});
-    tHead.wrap('<div id="theadWrap'+tableNum+'" class="theadWrap"></div>');
+    //XXX z-index of theadwrap decreases per every theadwrap
+    tHead.wrap('<div id="theadWrap'+tableNum+'" class="theadWrap"'+
+                'style="z-index:'+(10-tableNum)+';'+
+                'top:'+(tHeadYPos-5)+'px;"></div>');
     var tHeadWrap = $('#theadWrap'+tableNum);
     matchHeaderSizes(tableNum);
 
@@ -627,7 +624,6 @@ function cloneTableHeader(tableNum) {
         var tHeadLeft = $('#autoGenTable'+tableNum).position().left;
         tHeadWrap.css('left', tHeadLeft);
     });
-
 }
 
 function matchHeaderSizes(tableNum, reverse) {
@@ -863,8 +859,10 @@ function addColMenuActions(colId, tableId) {
         $(this).select();
     });
 
-    table.find('.join .subColMenu li').click(function() {
-        joinTables($(this).text());
+    table.find('.join').click(function() {
+        var tableNum = parseInt($(this).closest('table')
+                        .attr('id').substring(12));
+        joinTables($(this).text(), tableNum);
     });
 }
 
@@ -882,10 +880,12 @@ function moverowScroller(pageNum) {
     $('#rowMarker').css('transform', 'translateX('+dist+'px)');
 }
 
-function checkForScrollBar() {
-    var tableWidth = $('.autoGenTable').width()+
-        parseInt($('.autoGenTable').css('margin-left'));
-    if (tableWidth > $(window).width()) {
+function checkForScrollBar(tableNum) {
+    var tableWidth = $('#autoGenTable'+tableNum).width()+
+        parseInt($('#autoGenTable'+tableNum).css('margin-left'));
+    if ($('.autoGenTable').length > 1) {
+        gScrollbarHeight = 0;
+    }else if (tableWidth > $(window).width()) {
         gScrollbarHeight = getScrollBarHeight();
     } else {
         gScrollbarHeight = 0;
@@ -931,4 +931,11 @@ function getScrollBarHeight() {
     }
     outer.remove();
     return (width1 - width2);
+}
+
+function alignMultipleTableHeaders() {
+    $('.autoGenTable').each(function() {
+        var left = $(this).position().left;
+        $(this).find('.theadWrap').css('left', left);
+    });
 }

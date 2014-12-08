@@ -22,7 +22,7 @@ function sortRows(index, tableNum, order) {
     var newTableName = "tempSortTable"+rand;
     // XXX: Update widths here
     setOrder(newTableName, order);
-    setIndex(newTableName, gTableCols);
+    setIndex(newTableName, gTableCols[tableNum]);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
@@ -132,14 +132,13 @@ function filterCol(operator, value, colid, tableNum) {
     checkStatus(newTableName);
 }
 
-function joinTables(rightTable) {
+function joinTables(rightTable, tableNum) {
     console.log("Joining "+gTableName+" and "+rightTable);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempJoinTable"+rand;
-    setIndex(newTableName, gTableCols);
+    setIndex(newTableName, gTableCols[tableNum]);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     XcalarJoin(gTableName, rightTable, newTableName);
     checkStatus(newTableName);
 }
-

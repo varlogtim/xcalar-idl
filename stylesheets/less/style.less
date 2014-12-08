@@ -797,6 +797,10 @@ input:focus {
     box-shadow: 0px 3px @colorShadow-black;
 }
 
+.autoGenTableWrap {
+    margin-bottom: 0px;
+}
+
 .fauxTHead {
     opacity: 0;
     .colGrab {
@@ -841,7 +845,7 @@ input:focus {
 #shadowDiv {
     position: absolute;
     background-color: @color-table-midGray;
-    z-index: 10;
+    z-index: 11;
     opacity: 1;
     .box-sizing;
     border-right:5px solid @color-white;
@@ -850,7 +854,7 @@ input:focus {
 #fauxCol{
     position: absolute;
     background-color: @color-white;
-    z-index: 11;
+    z-index: 12;
     opacity: 0.8;
     pointer-events: none;
     overflow: hidden;
@@ -859,7 +863,7 @@ input:focus {
 
 #fauxTable {
     background-color: @color-white;
-    z-index: 11;
+    z-index: 12;
     margin-left: 0 !important;
     th {
         outline: 3px solid rgba(0,0,0,.1);

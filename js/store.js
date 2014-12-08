@@ -10,6 +10,7 @@ function emptyAllStorage() {
     localStorage.removeItem("TILookup");
     localStorage.removeItem("DSName");
     localStorage.removeItem("TOLookup");
+    localStorage.removeItem("WSName"); 
 }
 
 function getIndex(tName) {

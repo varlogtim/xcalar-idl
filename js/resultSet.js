@@ -147,4 +147,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     var newWidth = Math.max(idColWidth, 24);
     $('#autoGenTable'+tableNum+' th:first-child').width(newWidth+14);
     matchHeaderSizes(tableNum);
+    if (tableNum != 0) {
+        alignMultipleTableHeaders();
+    } 
 }

@@ -209,15 +209,6 @@ function moveElementLeft(movingEl, target) {
 
 
 
-
-
-
-
-
-
-
-
-
 function adjustProgressBar(refCount) {
     var intervalLength = 500; // twice a second
     var transitionSpeed = 1200;

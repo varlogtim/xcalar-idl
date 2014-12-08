@@ -31,7 +31,6 @@ var gTempStyle = "";
 //XX we will no longer have a minimum table width
 var gMinTableWidth = 500;
 var gTableCols = []; // This is what we call setIndex on
-gTableCols[0] = []; //XXX find the location where to change this
 var gUrlTableName;
 var gTableName;
 var gResultSetId;
@@ -133,8 +132,15 @@ $(window).unload(
 
 // ========================== Document Ready ==================================
 
-function documentReadyAutoGenTableFunction() {
-    addColListeners(1, "autoGenTable0"); // set up listeners for data column
+function documentReadyAutoGenTableFunction(tableNum) {
+    if (tableNum != 0) {
+        return;
+    }
+
+    var dataTh = $('#autoGenTable'+tableNum).find('.dataCol').closest('th');
+    var dataIndex = parseColNum(dataTh);
+    addColListeners(dataIndex, "autoGenTable"+tableNum); // set up listeners for data column
+
     var resultTextLength = (""+resultSetCount).length;
     $('#rowInput').attr({'maxLength': resultTextLength,
                           'size': resultTextLength});
@@ -207,7 +213,7 @@ function documentReadyGeneralFunction() {
 
     $(window).resize(function() {
         $('.colGrab').height($('.autoGenTableWrap0').height());
-        checkForScrollBar();
+        checkForScrollBar(0);
         generateFirstLastVisibleRowNum();
     });
 
@@ -399,8 +405,6 @@ function documentReadyCatFunction(tableNum) {
         var tableOfEntries = XcalarGetNextPage(gResultSetId,
                                            gNumEntriesPerPage);
         gKeyName = tableOfEntries.keysAttrHeader.name;
-        console.log(index);
-        var tableId = "autoGenTable0";
         for (var i = 0; i<index.length; i++) {
             if (index[i].name != "DATA") {
                 addCol("col"+(index[i].index-1), 
@@ -433,31 +437,30 @@ function startupFunctions() {
 function tableStartupFunctions(table, tableNum) {
     gTableCols[tableNum] = [];
     setCatGlobals(table);
-    if (!$.isEmptyObject(gDsToNameTrans)) {
-        documentReadyAutoGenTableFunction();
-        documentReadyCatFunction(tableNum);
-        fillPageWithBlankCol(tableNum);
-        goToPage(gCurrentPageNumber+1, null, tableNum);
-        goToPage(gCurrentPageNumber+1, null, tableNum);
-    } else {
-        generateBlankTable();
-    }
+    documentReadyAutoGenTableFunction(tableNum);
+    documentReadyCatFunction(tableNum);
+    fillPageWithBlankCol(tableNum);
+    goToPage(gCurrentPageNumber+1, null, tableNum);
+    goToPage(gCurrentPageNumber+1, null, tableNum);
     generateFirstLastVisibleRowNum();
     cloneTableHeader(tableNum);
     resizeForMultipleTables(tableNum);
-    if (!$.isEmptyObject(gDsToNameTrans)) {
-        infScrolling(tableNum);
-    }   
-    checkForScrollBar();
-
+    infScrolling(tableNum);
+    checkForScrollBar(tableNum);
 }      
 
 function documentReadyIndexFunction() {
     $(document).ready(function() {
         startupFunctions(); 
-        //XXX loop through datasets and call tableStartUpFunctions
-        tableStartupFunctions("gdelt", 0);
-        // tableStartupFunctions("sp500", 1); 
+        if (XcalarGetTables().numTables == 0) {
+            generateBlankTable();
+        } else {
+            //XXX loop through datasets and call tableStartUpFunctions
+            tableStartupFunctions("gdelt", 0);
+            // tableStartupFunctions("sp500", 1); 
+            // tableStartupFunctions("sp500", 2); 
+        }
+        
     });
 }
 

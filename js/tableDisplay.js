@@ -45,6 +45,8 @@ function generateBlankTable() {
     $('#autoGenTable0 .rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
+
+    cloneTableHeader(0);
 }
 
 function generateRowWithCurrentTemplate(json, id, rowTemplate, direction, 
@@ -109,7 +111,8 @@ function generateFirstScreen(value, idNo, tableNum, height) {
                             '<th class="col1 table_title_bg" style="width: 850px;">'+
                               '<div class="header">'+
                                 '<div class="dropdownBox" style="opacity: 0;"></div>'+
-                                '<span><input value="DATA" readonly="" tabindex="-1" title="raw data"></span>'+
+                                '<span><input value="DATA" '+
+                                'readonly="" tabindex="-1" class="dataCol" title="raw data"></span>'+
                                 '<ul class="colMenu" style="display: none;">'+
                                   '<li class="menuClickable">Add a column'+
                                     '<ul class="subColMenu">'+
@@ -181,12 +184,13 @@ function resizeForMultipleTables(tableNum) {
     if (tableNum == 1) {
         var tableWidth = $('#autoGenTable0').width();
         $('#theadWrap0').width(tableWidth+5);
+        // $('#autoGenTableWrap0').css('overflow-x', 'hidden');
     }
 
     $('.trueTHead').css('left', 0);
-    $('.autoGenTableWrap').width('auto');
+    $('.autoGenTableWrap').width('auto').css('overflow-x', 'hidden');
     var tableWidth = $('#autoGenTable'+tableNum).width();
     var tableOffsetLeft = $('#autoGenTable'+tableNum).position().left;
     $('#theadWrap'+tableNum).width(tableWidth+5);
-    $('#theadWrap'+tableNum).css('left', tableOffsetLeft);   
+    $('#theadWrap'+tableNum).css('left', tableOffsetLeft);
 }
