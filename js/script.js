@@ -37,6 +37,7 @@ var gResultSetId;
 var resultSetCount;
 var gNumPages;
 var gFnBarOrigin;
+var gActiveTableNum; // The table that is currently in focus
 
 // ================================= Classes ==================================
 var ProgCol = function() {
