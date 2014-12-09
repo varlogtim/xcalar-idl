@@ -21,7 +21,7 @@ function goToPage(pageNumber, direction, tableNum) {
 function numPagesToShift(direction) {
     var shift;
     if (direction == 1) {
-        shift = 4;// shift 4 if we show 3 pages at once
+        shift = 4;// shift 4 if we show 3 'pages' at once
     } else {
         shift = 1;
     }
@@ -59,7 +59,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     var indexNumber = (gCurrentPageNumber-shift) * gNumEntriesPerPage;
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
-    var rowTemplate = createRowTemplate();
+    var rowTemplate = createRowTemplate(tableNum);
     for (var i = 0; i<numRows; i++) {
         if (direction == 1) {
             var index = numRows-1-i;
@@ -147,7 +147,5 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     var newWidth = Math.max(idColWidth, 24);
     $('#autoGenTable'+tableNum+' th:first-child').width(newWidth+14);
     matchHeaderSizes(tableNum);
-    if (tableNum != 0) {
-        alignMultipleTableHeaders();
-    } 
+    alignMultipleTableHeaders();
 }

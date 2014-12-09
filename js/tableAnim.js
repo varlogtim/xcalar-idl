@@ -155,9 +155,7 @@ function gRescolMouseMove(event) {
     var tableWidth = $('#autoGenTable'+gRescol.tableNum).width();
     gRescol.thead.outerWidth(tableWidth);
     gRescol.theadWrap.outerWidth(tableWidth+10);
-    if ($('.autoGenTable').length > 1) {
-        alignMultipleTableHeaders();
-    }
+    alignMultipleTableHeaders();
 }
 
 function gRescolMouseMoveLast(event) {
@@ -186,9 +184,7 @@ function gRescolMouseMoveLast(event) {
     var tableWidth = $('#autoGenTable'+gRescol.tableNum).width();
     gRescol.thead.outerWidth(tableWidth);
     gRescol.theadWrap.outerWidth(tableWidth+10);
-    if ($('.autoGenTable').length > 1) {
-        alignMultipleTableHeaders();
-    }
+    alignMultipleTableHeaders();
 }
 
 function gRescolMouseUp() {
@@ -244,6 +240,7 @@ function resrowMouseUp() {
 
 function dragdropMouseDown(el, event) {
     gMouseStatus = "movingCol";
+    $('#mainFrame').addClass('hideScroll');
     gDragObj.mouseX = event.pageX;
     gDragObj.colNum = parseColNum(el);
     gDragObj.tableNum = parseInt(el.closest('table').attr('id').substring(12));
@@ -259,6 +256,7 @@ function dragdropMouseDown(el, event) {
     var shadowDivHeight = Math.min(tableHeight,autoGenTableWrapHeight);
     gDragObj.inFocus =  el.find('.editableHead').is(':focus');
     gDragObj.colWidth = el.outerWidth();
+
     // create a replica shadow with same column width, height,
     // and starting position
     el.closest('#autoGenTableWrap'+gDragObj.tableNum)
@@ -286,7 +284,10 @@ function dragdropMouseMove(event) {
 
 function dragdropMouseUp() {
     gMouseStatus = null;
-    $('#shadowDiv, #fauxCol, .dropTarget, #moveCursor').remove();
+    // $('#shadowDiv, #fauxCol, .dropTarget, #moveCursor').remove();
+    $('#shadowDiv, #fauxCol, #dropTargets, #moveCursor').remove();
+    // $('#shadowDiv, #fauxCol, #moveCursor').remove();
+    $('#mainFrame').removeClass('hideScroll');
     var progCol = gTableCols[gDragObj.tableNum][gDragObj.colNum-1];
     var isDark = gDragObj.element.hasClass('unusedCell');
     var selected = gDragObj.element.hasClass('selectedCell');
@@ -404,13 +405,13 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
         // create targets that will trigger swapping of columns on hover
         var dropTargets = "";
         var i = 0;
-        $('#autoGenTable'+gDragObj.tableNum+' tr:first th:not(:last)')
-            .each(function(){
+        $('#autoGenTable'+gDragObj.tableNum+' tr:first th').each(function() {
             if (i == 0 || i == gDragObj.colIndex) {
                 i++;
                 return true;  
             }
-            var colLeft = $(this)[0].getBoundingClientRect().left;
+            // var colLeft = $(this)[0].getBoundingClientRect().left;
+            var colLeft = $(this).position().left;
             if ((gDragObj.colWidth-dragMargin) < 
                 Math.round(0.5*$(this).width())) {
                 var targetWidth = gDragObj.colWidth;
@@ -425,16 +426,26 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
                             '</div>';
             i++;
         });
-        $('body').append(dropTargets);
+        var tableLeft = $('#autoGenTable'+gDragObj.tableNum).position().left;
+        $('body').append('<div id="dropTargets" style="left:'+tableLeft+'px;"></div>');
+        $('#dropTargets').append(dropTargets);
         $('.dropTarget').mouseenter(function() {
             dragdropSwapColumns($(this));
         });
+
+        $('#autoGenTableWrap').off('scroll', scrollDropTargets);
+        $('#autoGenTableWrap'+gDragObj.tableNum).scroll(scrollDropTargets);
+        function scrollDropTargets(event) {
+            var left = -$(event.target).scrollLeft();
+            $('#dropTargets').css('left',left);
+        }
+
     } else {
         // targets have already been created, so just adjust the one corresponding
         // to the column that was swapped
         var swappedCol = $('#autoGenTable'+gDragObj.tableNum +
             ' th:eq('+swappedColIndex+')');
-        var colLeft = swappedCol[0].getBoundingClientRect().left;
+        var colLeft = swappedCol.position().left;
         $('#dropTarget'+dropTargetIndex)
             .attr('id', 'dropTarget'+swappedColIndex);
         var dropTarget = $('#dropTarget'+swappedColIndex);
@@ -461,7 +472,7 @@ function dragdropSwapColumns(el) {
         movedCol = prevCol;
     }
     $('#shadowDiv').css('left',
-                        gDragObj.element.offset().left); 
+                         gDragObj.element.offset().left); 
     gDragObj.colIndex = dropTargetId;
     createDropTargets(dropTargetId, movedCol);
 }
@@ -477,6 +488,7 @@ function gRescolDelWidth(colNum, tableNum, resize) {
             width(lastTdWidth + (gMinTableWidth - oldTableWidth)); 
     }
     matchHeaderSizes(tableNum);
+    alignMultipleTableHeaders();
 }
 
 function getTextWidth(el) {
@@ -934,6 +946,9 @@ function getScrollBarHeight() {
 }
 
 function alignMultipleTableHeaders() {
+    if ($('.autoGenTable').length == 1) {
+        return;
+    }
     $('.autoGenTable').each(function() {
         var left = $(this).position().left;
         $(this).find('.theadWrap').css('left', left);

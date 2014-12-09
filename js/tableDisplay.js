@@ -1,7 +1,7 @@
 function fillPageWithBlankCol(tableNum) {
     var tableWidth = $("#autoGenTable"+tableNum).width();
     var screenWidth = window.screen.availWidth;
-    var numColsToFill = Math.ceil((screenWidth - tableWidth)/gNewCellWidth) ;
+    var numColsToFill = Math.ceil((screenWidth - tableWidth)/gNewCellWidth);
     var startColId = $("#autoGenTable"+tableNum+" tr:first th").length;
     for (var i = 0; i<numColsToFill; i++) {
         addCol("col"+(startColId-1), "autoGenTable"+tableNum, "", 
@@ -159,10 +159,10 @@ function generateFirstScreen(value, idNo, tableNum, height) {
     });
 }
 
-function createRowTemplate() {
+function createRowTemplate(tableNum) {
     var startString = '<div class="elementText">';
     var endString="</div>";
-    var originalString = $(".autoGenTable tbody tr:nth-last-child(1)").html() ||
+    var originalString = $("#autoGenTable"+tableNum+" tbody tr:last").html() ||
                          gTempStyle;
     var index = originalString.indexOf(startString);
     var firstPart = originalString.substring(0, index+startString.length);

@@ -375,6 +375,7 @@ function addCol(colId, tableId, name, options) {
         $('#'+tableId+' tr:first .editableHead.col'+newColid).focus();
     }
     matchHeaderSizes(tableNum);
+    alignMultipleTableHeaders();
     checkForScrollBar(tableNum);
 }
 

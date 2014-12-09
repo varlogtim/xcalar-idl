@@ -892,11 +892,17 @@ input:focus {
     z-index: 1;
 }
 
+#dropTargets {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .dropTarget {
-    position: fixed;
+    position: absolute;
     top: 0;
     z-index: 22;
-    // background-color: rgba(0,0,50,0.1);
+    // background-color: rgba(0,0,50,0.2);
 }
 /* END DRAG AND DROP STYLING */
 
@@ -1963,7 +1969,7 @@ ul.leftColMenu + .rightArrow {
 }
 
 .hideScroll {
-    overflow: hidden;
+    overflow: hidden !important;
 }
 
 /* END PRETTIFY JSON STYLING */

@@ -440,7 +440,9 @@ function tableStartupFunctions(table, tableNum) {
     setCatGlobals(table);
     documentReadyAutoGenTableFunction(tableNum);
     documentReadyCatFunction(tableNum);
-    fillPageWithBlankCol(tableNum);
+    if(tableNum == 0) {
+        fillPageWithBlankCol(tableNum);
+    }
     goToPage(gCurrentPageNumber+1, null, tableNum);
     goToPage(gCurrentPageNumber+1, null, tableNum);
     generateFirstLastVisibleRowNum();
