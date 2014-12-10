@@ -67,10 +67,17 @@ function infScrolling(tableNum) {
                 } else {
                     var pageNumber = gTables[dynTableNum].currentPageNumber;
                 }
+
+                $('#autoGenTable'+dynTableNum+' .colGrab').hide();
                 goToPage(pageNumber, RowDirection.Top, dynTableNum);
-                $('#autoGenTableWrap'+dynTableNum).scrollTop(firstRow.offset().top - 
-                    initialTop + 10);
+                
+                $('#autoGenTableWrap'+dynTableNum)
+                    .scrollTop(firstRow.offset().top - initialTop + 10);
                 $("#autoGenTable"+dynTableNum+" tbody tr:gt(79)").remove();
+                
+                $('#autoGenTable'+dynTableNum+' .colGrab')
+                    .height($('#autoGenTable'+dynTableNum).height()-10);
+                $('#autoGenTable'+dynTableNum+' .colGrab').show();
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()+
                     gScrollbarHeight - $(this).outerHeight() <= 1) {
             gTempStyle = $("#autoGenTable"+dynTableNum+" tbody tr:last").html();
@@ -78,10 +85,19 @@ function infScrolling(tableNum) {
                 // keep row length at 80
                 $('#autoGenTable'+dynTableNum+' tbody tr:lt(20)').remove();
             }
+            $('#autoGenTable'+dynTableNum+' .colGrab').hide();
             goToPage(gTables[dynTableNum].currentPageNumber+1,
                      RowDirection.Bottom, dynTableNum); 
+            
+            $('#autoGenTable'+dynTableNum+' .colGrab')
+                .height($('#autoGenTable'+dynTableNum).height()-10);
+            $('#autoGenTable'+dynTableNum+' .colGrab').show();
         }
         generateFirstLastVisibleRowNum();
+        var top = $(this).scrollTop();
+        $('#theadWrap'+dynTableNum).css('top',top);
+        gActiveTableNum = dynTableNum;
+        showRowScroller(dynTableNum);
     });
 }
 
@@ -215,7 +231,8 @@ function documentReadyGeneralFunction() {
     }); 
 
     $(window).resize(function() {
-        $('.colGrab').height($('.autoGenTableWrap0').height());
+        // $('.colGrab').height($('#autoGenTableWrap0').height());
+        $('.colGrab').height($('#autoGenTable0').height()-10);
         //XXX TODO: call checkForScrollBar only when needed, remove from here
         checkForScrollBar(0);
         generateFirstLastVisibleRowNum();

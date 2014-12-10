@@ -18,21 +18,18 @@ function menuBarArt() {
             $('#mainFrame').height('calc(100% - 148px)');
             $("#menuArea").height(0);
             clickTarget = null;
-            $('.theadWrap').css('top',111).addClass('moveTop');
             setTimeout(function() {
-                $('.theadWrap').removeClass('moveTop');
-                $('.colGrab').height($('.autoGenTableWrap').height());
+                $('#autoGenTable'+gActiveTableNum+' .colGrab')
+                    .height($('#autoGenTable'+gActiveTableNum).height());
                 generateFirstLastVisibleRowNum();
             },300);
             return;
         }
         clickTarget = $(event.target).text();
 
-         $('.theadWrap').css('top',177).addClass('moveTop');
-
         setTimeout(function() {
-            $('.theadWrap').removeClass('moveTop');
-            $('.colGrab').height($('.autoGenTableWrap').height());
+            $('#autoGenTable'+gActiveTableNum+' .colGrab')
+                    .height($('#autoGenTable'+gActiveTableNum).height());
             generateFirstLastVisibleRowNum();
         },300);
 
