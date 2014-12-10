@@ -37,7 +37,7 @@ function sortRows(index, tableNum, order) {
         console.log("Cannot sort a col derived from unsupported func");
         return;
     }
-    XcalarIndexFromTable(gTableName, fieldName, newTableName);
+    XcalarIndexFromTable(gTables[tableNum].tableName, fieldName, newTableName);
     checkStatus(newTableName);
 }
 
@@ -111,8 +111,7 @@ function filterNonMainCol(operator, value, datasetId, key, otherTable) {
 }
 
 function filterCol(operator, value, colid, tableNum) {
-    console.log(gTableName);
-    if (gTableName.indexOf("joined") > -1) {
+    if (gTables[tableNum].tableName.indexOf("joined") > -1) {
         var dsId = gTableCols[tableNum][colid-1].datasetId;
         var key = gTableCols[tableNum][colid-1].func.args[0];
         if (getDsId("gdelt") == dsId) {
@@ -128,17 +127,17 @@ function filterCol(operator, value, colid, tableNum) {
     setIndex(newTableName, gTableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
-    XcalarFilter(operator, value, gTableName, newTableName);
+    XcalarFilter(operator, value, gTables[tableNum].tableName, newTableName);
     checkStatus(newTableName);
 }
 
 function joinTables(rightTable, tableNum) {
-    console.log("Joining "+gTableName+" and "+rightTable);
+    console.log("Joining "+gTables[tableNum].tableName+" and "+rightTable);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempJoinTable"+rand;
     setIndex(newTableName, gTableCols[tableNum]);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
-    XcalarJoin(gTableName, rightTable, newTableName);
+    XcalarJoin(gTables[tableNum].tableName, rightTable, newTableName);
     checkStatus(newTableName);
 }

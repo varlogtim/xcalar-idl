@@ -6,12 +6,10 @@
 */
 
 // =================================== Globals =================================
-var gTableRowIndex = 1;
-var gCurrentPageNumber = 0;
+var gCurrentPageNumber = 0; // XXX
 var gNumEntriesPerPage = 20;
-var gResultSetId = 0;
 var gNewCellWidth = 125;
-var gKeyName = "";
+var gKeyName = ""; // XXX
 var gMouseStatus = null;
 var gDragObj = {};
 var gRescol = {
@@ -28,14 +26,12 @@ var gRescol = {
 var resrow = {};
 var gScrollbarHeight = 8;
 var gTempStyle = "";
-//XX we will no longer have a minimum table width
 var gMinTableWidth = 500;
+var gTables = []; // This is the main global array containing structures
+// Stores TableMeta structs
 var gTableCols = []; // This is what we call setIndex on
-var gUrlTableName;
-var gTableName;
-var gResultSetId;
-var resultSetCount;
-var gNumPages;
+var resultSetCount; // XXX
+var gNumPages; // XXX
 var gFnBarOrigin;
 var gActiveTableNum; // The table that is currently in focus
 // ================================= Classes ==================================
@@ -50,6 +46,16 @@ var ProgCol = function() {
     this.datasetId = 0;
 };
 
+var TableMeta = function() {
+    this.tableCols = undefined;
+    this.currentPageNumber = -1;
+    this.resultSetId = -1;
+    this.keyName = "";
+    this.backTableName = "";
+    this.frontTableName = "";
+    this.resultSetCount = -1;
+    this.numPages = -1;
+}
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
     $("#autoGenTableWrap"+tableNum).scroll(function() {
@@ -114,14 +120,19 @@ function prelimFunctions() {
     selectPage(1);
 }
 
-function setCatGlobals(table) {
-    gUrlTableName = getUrlVars()["tablename"];
-    gTableName = gUrlTableName || table;
-    // XXX: Hack for faster testing
-    // autoLoad();
-    gResultSetId = XcalarGetTableId(gTableName);
-    resultSetCount = XcalarGetCount(gTableName);
-    gNumPages = Math.ceil(resultSetCount / gNumEntriesPerPage);
+function setTableMeta(table) {
+    var urlTableName = getUrlVars()["tablename"];
+    var tableName = urlTableName || table;
+    var newTable = new TableMeta();
+    newTable.tableCols = [];
+    newTable.currentPageNumber = 0;
+    newTable.resultSetId = XcalarGetTableId(tableName);
+    newTable.resultSetCount = XcalarGetCount(tableName);
+    newTable.numPages = Math.ceil(newTable.resultSetCount /
+                                  newTable.numEntriesPerPage);
+    newTable.backTableName = tableName;
+    newTable.frontTableName = tableName;
+    return (newTable);
 }
 
 $(window).unload(
@@ -142,7 +153,7 @@ function documentReadyAutoGenTableFunction(tableNum) {
     var dataIndex = parseColNum(dataTh);
     addColListeners(dataIndex, "autoGenTable"+tableNum); // set up listeners for data column
 
-    var resultTextLength = (""+resultSetCount).length;
+    var resultTextLength = (""+gTables[tableNum].resultSetCount).length;
     $('#rowInput').attr({'maxLength': resultTextLength,
                           'size': resultTextLength});
 
@@ -157,8 +168,8 @@ function documentReadyAutoGenTableFunction(tableNum) {
             return;
         } else if (row < 1) {
             $('#rowInput').val('1');
-        } else if (row > resultSetCount) {
-            $('#rowInput').val(resultSetCount);
+        } else if (row > gTables[tableNum].resultSetCount) {
+            $('#rowInput').val(gTables[tableNum].resultSetCount);
         }
         row = parseInt($('#rowInput').val());
         // XXX: HACK
@@ -166,9 +177,11 @@ function documentReadyAutoGenTableFunction(tableNum) {
         $("#autoGenTable"+gActiveTableNum+" tbody").empty();
 
         if (((row)/gNumEntriesPerPage) >
-                Math.floor((resultSetCount/gNumEntriesPerPage)-2)) {
+                Math.floor((gTables[tableNum].resultSetCount/
+                            gNumEntriesPerPage)-2)) {
             //if row lives inside last 3 pages, prepare to display last 3 pages
-            var pageNum = (resultSetCount-1)/gNumEntriesPerPage - 2;
+            var pageNum = (gTables[tableNum].resultSetCount-1)/
+                           gNumEntriesPerPage - 2;
         } else {
             var pageNum = row/gNumEntriesPerPage;
         }
@@ -179,11 +192,13 @@ function documentReadyAutoGenTableFunction(tableNum) {
 
         positionScrollbar(row, gActiveTableNum);
         generateFirstLastVisibleRowNum();
-        moverowScroller(row);
+        moverowScroller(row, gTables[tableNum].resultSetCount);
         // $(this).blur(); 
     });
 
-    $('#pageBar > div:last-child').append('<span>of '+resultSetCount+'</span>');
+    $('#pageBar > div:last-child').append('<span>of '+
+                                           gTables[tableNum].resultSetCount+
+                                           '</span>');
 
     $('.autoGenTable thead').mouseenter(function(event) {
         if (!$(event.target).hasClass('colGrab')) {
@@ -385,15 +400,15 @@ function documentReadyGeneralFunction() {
 
 function documentReadyCatFunction(tableNum) {
 
-    var index = getIndex(gTableName);
-    getNextPage(gResultSetId, true, tableNum);
+    var index = getIndex(gTables[tableNum].tableName);
+    getNextPage(gTables[tableNum].resultSetId, true, tableNum);
     if (index) {
         gTableCols[tableNum] = index;
-        console.log("Stored "+gTableName);
+        console.log("Stored "+gTables[tableNum].tableName);
         // XXX Move this into getPage
         // XXX API: 0105
-        var tableOfEntries = XcalarGetNextPage(gResultSetId,
-                                           gNumEntriesPerPage);
+        var tableOfEntries = XcalarGetNextPage(gTables[tableNum].resultSetId,
+                                               gNumEntriesPerPage);
         gKeyName = tableOfEntries.keysAttrHeader.name;
         for (var i = 0; i<index.length; i++) {
             if (index[i].name != "DATA") {
@@ -410,7 +425,7 @@ function documentReadyCatFunction(tableNum) {
             }
         }
     } else {
-        console.log("Not stored "+gTableName);
+        console.log("Not stored "+gTables[tableNum].tableName);
     }    
 
 }
@@ -426,7 +441,8 @@ function startupFunctions() {
 
 function tableStartupFunctions(table, tableNum) {
     gTableCols[tableNum] = [];
-    setCatGlobals(table);
+    var newTableMeta = setTableMeta(table);
+    gTables[tableNum] = newTableMeta;
     documentReadyAutoGenTableFunction(tableNum);
     documentReadyCatFunction(tableNum);
     if(tableNum == 0) {
@@ -449,10 +465,8 @@ function documentReadyIndexFunction() {
         } else {
             //XXX loop through datasets and call tableStartUpFunctions
             tableStartupFunctions("gdelt", 0);
-            tableStartupFunctions("gdelt", 1);
-            tableStartupFunctions("gdelt", 2);
-            // tableStartupFunctions("sp500", 1); 
-            // tableStartupFunctions("sp500", 2); 
+            tableStartupFunctions("gdelt", 1); 
+            tableStartupFunctions("gdelt", 2); 
         }
         
     });

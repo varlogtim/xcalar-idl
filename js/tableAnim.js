@@ -1,4 +1,4 @@
-function generateFirstLastVisibleRowNum() {
+function generateFirstLastVisibleRowNum(resultSetCount) {
     //XXX table will need to be passed in
     var mfPos = $('#autoGenTableWrap'+gActiveTableNum)[0].getBoundingClientRect();
     var tdXCoor = 30;
@@ -23,7 +23,7 @@ function generateFirstLastVisibleRowNum() {
 
     if (parseInt(firstRowNum) != NaN) {
         $('#pageBar .rowNum:first-of-type').html(firstRowNum);
-        moverowScroller(firstRowNum);
+        moverowScroller(firstRowNum, resultSetCount);
     }
     if (parseInt(lastRowNum) != NaN) {
         $('#pageBar .rowNum:last-of-type').html(lastRowNum);

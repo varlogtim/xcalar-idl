@@ -1,5 +1,7 @@
 function freeAllResultSets() {
-    XcalarSetFree(gResultSetId);    
+    for (var i = 0; i<gTables.length; i++) {
+        XcalarSetFree(gTables[i].resultSetId);
+    }
 }
 
 function goToPage(pageNumber, direction, tableNum) {
@@ -14,8 +16,9 @@ function goToPage(pageNumber, direction, tableNum) {
     }
     gCurrentPageNumber = pageNumber;
     var shift = numPagesToShift(direction);
-    XcalarSetAbsolute(gResultSetId, (pageNumber-shift)*gNumEntriesPerPage);
-    getPage(gResultSetId, null, direction, tableNum);
+    XcalarSetAbsolute(gTables[tableNum].resultSetId,
+                      (pageNumber-shift)*gNumEntriesPerPage);
+    getPage(gTables[tableNum].resultSetId, null, direction, tableNum);
 }
 
 function numPagesToShift(direction) {
@@ -87,7 +90,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         addTableListeners(tableNum);
     }
 
-    if (firstTime && !getIndex(gTableName)) {
+    if (firstTime && !getIndex(gTables[tableNum].tableName)) {
         gKeyName = tableOfEntries.keysAttrHeader.name;
         // We cannot rely on addCol to create a new progCol object because
         // add col relies on gTableCol entry to determine whether or not to add
@@ -118,7 +121,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
             // column would've been sized already. If it's indexed, we
             // would've sized it in CatFunction
         } else {
-            if (firstTime && !getIndex(gTableName)) {
+            if (firstTime && !getIndex(gTables[tableNum].tableName)) {
                 execCol(gTableCols[tableNum][i], tableNum);
             } else { 
 
