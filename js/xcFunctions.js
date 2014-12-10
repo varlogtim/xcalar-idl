@@ -1,13 +1,14 @@
 var tempCountShit = 0;
 // XXX: Dedupe with checkLoad!!!!
-function checkStatus(newTableName) {
+function checkStatus(newTableName, tableNum) {
     tempCountShit++;
     var refCount = XcalarGetTableRefCount(newTableName);
     console.log(refCount);
     if (refCount == 1) {
         $("body").css({"cursor": "default"});
         console.log("Done loading");
-        window.location.href="?tablename="+newTableName;
+        // XXX: TODO: FIXME Delete old table replace with new one 
+        // window.location.href="?tablename="+newTableName;
     } else {
         console.log(refCount);
         // Check twice per second
@@ -38,9 +39,9 @@ function sortRows(index, tableNum, order) {
         return;
     }
     XcalarIndexFromTable(gTables[tableNum].tableName, fieldName, newTableName);
-    checkStatus(newTableName);
+    checkStatus(newTableName, tableNum);
 }
-
+/*
 function cont1(newIndexTable, operator, value, datasetId, key, otherTable) {
     var refCount = XcalarGetTableRefCount(newIndexTable);
     console.log(refCount);
@@ -89,7 +90,7 @@ function cont3(newIndexTable, operator, value, datasetId, key, otherTable) {
         XcalarJoin(newIndexTable, otherTable, newJoinTable);
         setIndex(newJoinTable, gTables.tableCols);
         commitToStorage();
-        checkStatus(newJoinTable);
+        checkStatus(newJoinTable, );
     } else {
         console.log(refCount);
         // Check twice per second
@@ -98,16 +99,17 @@ function cont3(newIndexTable, operator, value, datasetId, key, otherTable) {
         }, 500);
     }
 }
+*/
 
 // Fucking javascript is so fucking fucked up. So we'll have to do continuation
 // passing. Joy!
 function filterNonMainCol(operator, value, datasetId, key, otherTable) {
-    var rand = Math.floor((Math.random() * 100000) + 1);
+/*    var rand = Math.floor((Math.random() * 100000) + 1);
     var newIndexTable = "tempIndex"+rand;
     console.log(newIndexTable);
     XcalarIndexFromDataset(datasetId, key, newIndexTable);
     // Wait for this index to be done
-    cont1(newIndexTable, operator, value, datasetId, key, otherTable);
+    cont1(newIndexTable, operator, value, datasetId, key, otherTable); */
 }
 
 function filterCol(operator, value, colid, tableNum) {
@@ -128,7 +130,7 @@ function filterCol(operator, value, colid, tableNum) {
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     XcalarFilter(operator, value, gTables[tableNum].tableName, newTableName);
-    checkStatus(newTableName);
+    checkStatus(newTableName, tableNum);
 }
 
 function joinTables(rightTable, tableNum) {
@@ -139,5 +141,8 @@ function joinTables(rightTable, tableNum) {
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     XcalarJoin(gTables[tableNum].tableName, rightTable, newTableName);
-    checkStatus(newTableName);
+    checkStatus(newTableName, tableNum);
+    // TODO: Make decision as to whether we should remove the table that is
+    // being joined on
+    
 }

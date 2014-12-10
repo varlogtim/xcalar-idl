@@ -104,7 +104,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
     }
     if ($('#autoGenTable'+tableNum).length != 1) {
         $('#mainFrame').append('<div id="autoGenTableWrap'+tableNum+'"'+
-                                        ' class="autoGenTableWrap tableWrap"></div>');
+                               ' class="autoGenTableWrap tableWrap"></div>');
         var newTable = 
         '<table id="autoGenTable'+tableNum+'" class="autoGenTable dataTable">'+
           '<thead>'+
@@ -118,17 +118,20 @@ function generateFirstScreen(value, idNo, tableNum, height) {
               '<div class="header">'+
                 '<div class="dropdownBox" style="opacity: 0;"></div>'+
                 '<span><input value="DATA" '+
-                'readonly="" tabindex="-1" class="dataCol" title="raw data"></span>'+
+                'readonly="" tabindex="-1" class="dataCol" title="raw data">'+
+                '</span>'+
                 '<ul class="colMenu" style="display: none;">'+
                   '<li class="menuClickable">Add a column'+
                     '<ul class="subColMenu">'+
                       '<li class="addColumns addColLeft col1">On the left</li>'+
-                      '<li class="addColumns addColRight col1">On the right</li>'+
+                      '<li class="addColumns addColRight col1">'+
+                      'On the right</li>'+
                       '<div class="subColMenuArea"></div>'+
                     '</ul>'+
                     '<div class="rightArrow"></div>'+
                   '</li>'+
-                  '<li id="duplicate3" class="duplicate col1">Duplicate column</li>'+
+                  '<li id="duplicate3" class="duplicate col1">'+
+                  'Duplicate column</li>'+
                   '<li class="sort col1">Sort</li>'+
                 '</ul>'+
               '</div>'+
@@ -204,4 +207,31 @@ function resizeForMultipleTables(tableNum) {
     var tableOffsetLeft = $('#autoGenTable'+tableNum).position().left;
     $('#theadWrap'+tableNum).width(tableWidth+5);
     $('#theadWrap'+tableNum).css('left', tableOffsetLeft);
+}
+
+// Adds a table to the display
+// Shifts all the ids and everything
+function addTable(tableName, tableNum) {
+    for (var i = gTables.length-1; i>=tableNum; i--) {
+        $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i+1));
+        $("#autoGenTable"+i).attr("id", "autoGenTable"+(i+1));
+        $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
+        gTables[i+1] = gTables[i];
+    }
+    tableStartupFunctions(tableName, tableNum);
+    // XXX: Think about gActiveTableNum
+}
+
+// Removes a table from the display
+// Shifts all the ids
+// Does not delete the table from backend!
+function delTable(tableNum) {
+    for (var i = tableNum+1; i<gTables.length; i++) {
+        $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i+1));
+        $("#autoGenTable"+i).attr("id", "autoGenTable"+(i+1));
+        $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
+        gTables[i-1] = gTables[i];
+    }
+    gTables.splice(tableNum, 1);
+    // XXX: Think about gActiveTableNum
 }

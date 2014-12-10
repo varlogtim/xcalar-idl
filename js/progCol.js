@@ -11,7 +11,7 @@ function removeColAtIndex(index, tableNum) {
     for (var i = index+1; i<gTables[tableNum].tableCols.length; i++) {
         gTables[tableNum].tableCols[i].index -= 1;
     }
-    gTables[tableNum].splice(index, 1);
+    gTables[tableNum].tableCols.splice(index, 1);
     return (removed);
 }
 

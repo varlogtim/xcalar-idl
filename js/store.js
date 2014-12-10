@@ -113,7 +113,6 @@ function readFromStorage() {
     }
 }
 
-
 function getWorksheet(index) {
     if (!gWorksheetName) {
         console.log("Nothing has ever been stored ever!");

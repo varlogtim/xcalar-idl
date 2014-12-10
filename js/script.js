@@ -23,12 +23,12 @@ var gRescol = {
 };
 var resrow = {};
 var gScrollbarHeight = 8;
-var gTempStyle = "";
+var gTempStyle = ""; // XXX
 var gMinTableWidth = 500;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
 var gFnBarOrigin;
-var gActiveTableNum; // The table that is currently in focus
+var gActiveTableNum = 0; // The table that is currently in focus
 // ================================= Classes ==================================
 var ProgCol = function() {
     this.index = -1;
@@ -147,7 +147,8 @@ function documentReadyAutoGenTableFunction(tableNum) {
 
     var dataTh = $('#autoGenTable'+tableNum).find('.dataCol').closest('th');
     var dataIndex = parseColNum(dataTh);
-    addColListeners(dataIndex, "autoGenTable"+tableNum); // set up listeners for data column
+    addColListeners(dataIndex, "autoGenTable"+tableNum);
+    // set up listeners for data column
 
     var resultTextLength = (""+gTables[tableNum].resultSetCount).length;
     $('#rowInput').attr({'maxLength': resultTextLength,
@@ -441,9 +442,6 @@ function tableStartupFunctions(table, tableNum) {
     gTables[tableNum] = newTableMeta;
     documentReadyAutoGenTableFunction(tableNum);
     documentReadyCatFunction(tableNum);
-    if(tableNum == 0) {
-        fillPageWithBlankCol(tableNum);
-    }
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     generateFirstLastVisibleRowNum();
@@ -459,12 +457,10 @@ function documentReadyIndexFunction() {
         if (XcalarGetTables().numTables == 0) {
             generateBlankTable();
         } else {
-            //XXX loop through datasets and call tableStartUpFunctions
-            tableStartupFunctions("gdelt", 0);
-            tableStartupFunctions("gdelt", 1); 
-            tableStartupFunctions("gdelt", 2); 
+            addTable("gdelt", 0);
+            addTable("gdelt", 1);
+            addTable("gdelt", 2);
         }
-        
     });
 }
 
