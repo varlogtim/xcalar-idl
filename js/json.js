@@ -96,10 +96,10 @@ function showJsonModal(jsonTd) {
                     });
         var colNum = parseColNum(id);
         addCol('col'+colNum, 'autoGenTable'+tableNum, name);
-        gTableCols[tableNum][colNum].func.func = "pull";        
-        gTableCols[tableNum][colNum].func.args = [name];
-        gTableCols[tableNum][colNum].userStr = '"'+name+'" = pull('+name+')';
-        execCol(gTableCols[tableNum][colNum], tableNum);
+        gTables[tableNum].tableCols[colNum].func.func = "pull";        
+        gTables[tableNum].tableCols[colNum].func.args = [name];
+        gTables[tableNum].tableCols[colNum].userStr = '"'+name+'" = pull('+name+')';
+        execCol(gTables[tableNum].tableCols[colNum], tableNum);
         autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum+1)), 
                     {includeHeader: true, resizeFirstRow: true});
         $('#autoGenTable'+tableNum+' tr:first th.col'+(colNum+1)+

@@ -1,6 +1,7 @@
-function generateFirstLastVisibleRowNum(resultSetCount) {
+function generateFirstLastVisibleRowNum() {
     //XXX table will need to be passed in
-    var mfPos = $('#autoGenTableWrap'+gActiveTableNum)[0].getBoundingClientRect();
+    var mfPos = $('#autoGenTableWrap'+gActiveTableNum)[0]
+                .getBoundingClientRect();
     var tdXCoor = 30;
     var tdYCoor = 50;
     var tdBotYCoor = -18;
@@ -23,7 +24,7 @@ function generateFirstLastVisibleRowNum(resultSetCount) {
 
     if (parseInt(firstRowNum) != NaN) {
         $('#pageBar .rowNum:first-of-type').html(firstRowNum);
-        moverowScroller(firstRowNum, resultSetCount);
+        moverowScroller(firstRowNum, gTables[gActiveTableNum].resultSetCount);
     }
     if (parseInt(lastRowNum) != NaN) {
         $('#pageBar .rowNum:last-of-type').html(lastRowNum);
@@ -193,7 +194,7 @@ function gRescolMouseUp() {
     reenableTextSelection();
     $('#autoGenTable'+gRescol.tableNum+' .rowGrab')
             .width($('#autoGenTable'+gRescol.tableNum).width());
-    var progCol = gTableCols[gRescol.tableNum][gRescol.index-1];
+    var progCol = gTables[gRescol.tableNum].tableCols[gRescol.index-1];
     progCol.width = gRescol.grabbedCell.outerWidth();
     matchHeaderSizes(gRescol.tableNum);
     checkForScrollBar(gRescol.tableNum);
@@ -287,7 +288,7 @@ function dragdropMouseUp() {
     $('#shadowDiv, #fauxCol, #dropTargets, #moveCursor').remove();
     // $('#shadowDiv, #fauxCol, #moveCursor').remove();
     $('#mainFrame').removeClass('hideScroll');
-    var progCol = gTableCols[gDragObj.tableNum][gDragObj.colNum-1];
+    var progCol = gTables[gDragObj.tableNum].tableCols[gDragObj.colNum-1];
     var isDark = gDragObj.element.hasClass('unusedCell');
     var selected = gDragObj.element.hasClass('selectedCell');
     
@@ -535,7 +536,7 @@ function autosizeCol(el, options) {
         el.width(newWidth);
     }
     if (index != 1) { // don't store id column
-        gTableCols[tableNum][index-1].width = el.outerWidth();
+        gTables[tableNum].tableCols[index-1].width = el.outerWidth();
     }
     matchHeaderSizes(tableNum, resizeFirstRow);
     alignMultipleTableHeaders();
@@ -665,8 +666,8 @@ function addColListeners(colId, tableId) {
     table.find('.editableHead.col'+colId).focus(function() {  
         $('.colMenu').hide();
         var index = parseColNum($(this));
-        if (gTableCols[tableNum][index-1].userStr.length > 0) {
-            $(this).val(gTableCols[tableNum][index-1].userStr);
+        if (gTables[tableNum].tableCols[index-1].userStr.length > 0) {
+            $(this).val(gTables[tableNum].tableCols[index-1].userStr);
         }
         updateFunctionBar($(this).val());
         gFnBarOrigin = $(this);
@@ -675,8 +676,8 @@ function addColListeners(colId, tableId) {
             .addClass('hidden');
     }).blur(function() {
         var index = parseColNum($(this));
-        if (gTableCols[tableNum][index-1].name.length > 0) {
-            $(this).val(gTableCols[tableNum][index-1].name);
+        if (gTables[tableNum].tableCols[index-1].name.length > 0) {
+            $(this).val(gTables[tableNum].tableCols[index-1].name);
         } 
         $(this).parent().siblings('.dropdownBox')
             .removeClass('hidden');
@@ -833,13 +834,13 @@ function addColMenuActions(colId, tableId) {
             {width: width, isDark: isDark});
         // Deep copy
         // XXX: TEST THIS FEATURE!
-        gTableCols[tableNum][index].func.func = 
-            gTableCols[tableNum][index-1].func.func;
-        gTableCols[tableNum][index].func.args = 
-            gTableCols[tableNum][index-1].func.args;
-        gTableCols[tableNum][index].userStr = 
-            gTableCols[tableNum][index-1].userStr;
-        execCol(gTableCols[tableNum][index], tableNum); 
+        gTables[tableNum].tableCols[index].func.func = 
+            gTables[tableNum].tableCols[index-1].func.func;
+        gTables[tableNum].tableCols[index].func.args = 
+            gTables[tableNum].tableCols[index-1].func.args;
+        gTables[tableNum].tableCols[index].userStr = 
+            gTables[tableNum].tableCols[index-1].userStr;
+        execCol(gTables[tableNum].tableCols[index], tableNum); 
     });
 
     table.find('.sort.col'+colId).click(function() {

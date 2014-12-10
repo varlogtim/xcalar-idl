@@ -6,10 +6,8 @@
 */
 
 // =================================== Globals =================================
-var gCurrentPageNumber = 0; // XXX
 var gNumEntriesPerPage = 20;
 var gNewCellWidth = 125;
-var gKeyName = ""; // XXX
 var gMouseStatus = null;
 var gDragObj = {};
 var gRescol = {
@@ -28,10 +26,7 @@ var gScrollbarHeight = 8;
 var gTempStyle = "";
 var gMinTableWidth = 500;
 var gTables = []; // This is the main global array containing structures
-// Stores TableMeta structs
-var gTableCols = []; // This is what we call setIndex on
-var resultSetCount; // XXX
-var gNumPages; // XXX
+                  // Stores TableMeta structs
 var gFnBarOrigin;
 var gActiveTableNum; // The table that is currently in focus
 // ================================= Classes ==================================
@@ -66,9 +61,9 @@ function infScrolling(tableNum) {
                 var firstRow = $('#autoGenTable'+tableNum+' tbody tr:first');
                 var initialTop = firstRow.offset().top;
                 if ($("#autoGenTable"+tableNum+" tbody tr").length > 60) {
-                    var pageNumber = gCurrentPageNumber-1;
+                    var pageNumber = gTables[tableNum].currentPageNumber-1;
                 } else {
-                    var pageNumber = gCurrentPageNumber;
+                    var pageNumber = gTables[tableNum].currentPageNumber;
                 }
                 goToPage(pageNumber, RowDirection.Top, tableNum);
                 $('#autoGenTableWrap'+tableNum).scrollTop(firstRow.offset().top - 
@@ -81,7 +76,8 @@ function infScrolling(tableNum) {
                 // keep row length at 80
                 $('#autoGenTable'+tableNum+' tbody tr:lt(20)').remove();
             }
-            goToPage(gCurrentPageNumber+1, RowDirection.Bottom, tableNum); 
+            goToPage(gTables[tableNum].currentPageNumber+1,
+                     RowDirection.Bottom, tableNum); 
         }
         generateFirstLastVisibleRowNum();
     });
@@ -258,8 +254,9 @@ function documentReadyGeneralFunction() {
                     var index = parseColNum(gFnBarOrigin);
                     var tableNum = parseInt(gFnBarOrigin.closest('table')
                         .attr('id').substring(12)); 
-                    if (gTableCols[tableNum][index-1].userStr.length > 0) {
-                        gFnBarOrigin.val(gTableCols[tableNum][index-1].userStr);
+                    if (gTables[tableNum].tableCols[index-1].userStr.length > 0) {
+                        gFnBarOrigin.val(gTables[tableNum].tableCols[index-1]
+                                         .userStr);
                     }
                     
                 }
@@ -278,8 +275,8 @@ function documentReadyGeneralFunction() {
             if (!gFnBarOrigin && selectedCell.length !=0) {
                 var tableNum = parseInt($('.selectedCell').closest('table')
                 .attr('id').substring(12));
-                if (gTableCols[tableNum][index-1].name.length > 0) {
-                    gFnBarOrigin.val(gTableCols[tableNum][index-1].name);
+                if (gTables[tableNum].tableCols[index-1].name.length > 0) {
+                    gFnBarOrigin.val(gTables[tableNum].tableCols[index-1].name);
                 } 
             }
         }
@@ -403,13 +400,13 @@ function documentReadyCatFunction(tableNum) {
     var index = getIndex(gTables[tableNum].tableName);
     getNextPage(gTables[tableNum].resultSetId, true, tableNum);
     if (index) {
-        gTableCols[tableNum] = index;
+        gTables[tableNum].tableCols = index;
         console.log("Stored "+gTables[tableNum].tableName);
         // XXX Move this into getPage
         // XXX API: 0105
         var tableOfEntries = XcalarGetNextPage(gTables[tableNum].resultSetId,
                                                gNumEntriesPerPage);
-        gKeyName = tableOfEntries.keysAttrHeader.name;
+        gTables[tableNum].keyName = tableOfEntries.keysAttrHeader.name;
         for (var i = 0; i<index.length; i++) {
             if (index[i].name != "DATA") {
                 addCol("col"+(index[i].index-1), 
@@ -440,7 +437,6 @@ function startupFunctions() {
 }  
 
 function tableStartupFunctions(table, tableNum) {
-    gTableCols[tableNum] = [];
     var newTableMeta = setTableMeta(table);
     gTables[tableNum] = newTableMeta;
     documentReadyAutoGenTableFunction(tableNum);
@@ -448,8 +444,8 @@ function tableStartupFunctions(table, tableNum) {
     if(tableNum == 0) {
         fillPageWithBlankCol(tableNum);
     }
-    goToPage(gCurrentPageNumber+1, null, tableNum);
-    goToPage(gCurrentPageNumber+1, null, tableNum);
+    goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
+    goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     generateFirstLastVisibleRowNum();
     cloneTableHeader(tableNum);
     resizeForMultipleTables(tableNum);

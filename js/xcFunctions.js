@@ -22,16 +22,16 @@ function sortRows(index, tableNum, order) {
     var newTableName = "tempSortTable"+rand;
     // XXX: Update widths here
     setOrder(newTableName, order);
-    setIndex(newTableName, gTableCols[tableNum]);
+    setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
        '{cursor: wait !important;}</style>');
     var fieldName;
-    switch(gTableCols[tableNum][index-1].func.func) {
+    switch(gTables[tableNum].tableCols[index-1].func.func) {
     case ("pull"):
         // Pulled directly, so just sort by this
-        fieldName = gTableCols[tableNum][index-1].func.args[0];
+        fieldName = gTables[tableNum].tableCols[index-1].func.args[0];
         break;
     default:
         console.log("Cannot sort a col derived from unsupported func");
@@ -87,7 +87,7 @@ function cont3(newIndexTable, operator, value, datasetId, key, otherTable) {
         var rand = Math.floor((Math.random() * 100000) + 1);
         var newJoinTable = "joined"+rand;
         XcalarJoin(newIndexTable, otherTable, newJoinTable);
-        setIndex(newJoinTable, gTableCols);
+        setIndex(newJoinTable, gTables.tableCols);
         commitToStorage();
         checkStatus(newJoinTable);
     } else {
@@ -112,8 +112,8 @@ function filterNonMainCol(operator, value, datasetId, key, otherTable) {
 
 function filterCol(operator, value, colid, tableNum) {
     if (gTables[tableNum].tableName.indexOf("joined") > -1) {
-        var dsId = gTableCols[tableNum][colid-1].datasetId;
-        var key = gTableCols[tableNum][colid-1].func.args[0];
+        var dsId = gTables[tableNum].tableCols[colid-1].datasetId;
+        var key = gTables[tableNum].tableCols[colid-1].func.args[0];
         if (getDsId("gdelt") == dsId) {
             var otherTable = "sp500";
         } else {
@@ -124,7 +124,7 @@ function filterCol(operator, value, colid, tableNum) {
     }
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
-    setIndex(newTableName, gTableCols);
+    setIndex(newTableName, gTables.tableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     XcalarFilter(operator, value, gTables[tableNum].tableName, newTableName);
@@ -135,7 +135,7 @@ function joinTables(rightTable, tableNum) {
     console.log("Joining "+gTables[tableNum].tableName+" and "+rightTable);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempJoinTable"+rand;
-    setIndex(newTableName, gTableCols[tableNum]);
+    setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     XcalarJoin(gTables[tableNum].tableName, rightTable, newTableName);

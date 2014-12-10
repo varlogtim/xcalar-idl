@@ -5,8 +5,7 @@ function freeAllResultSets() {
 }
 
 function goToPage(pageNumber, direction, tableNum) {
-    // deselectPage(gCurrentPageNumber);
-    if (pageNumber > gNumPages) {
+    if (pageNumber > gTables[tableNum].numPages) {
         console.log("Already at last page!");
         return;
     }
@@ -14,7 +13,7 @@ function goToPage(pageNumber, direction, tableNum) {
         console.log("Cannot go below one!");
         return;
     }
-    gCurrentPageNumber = pageNumber;
+    gTables[tableNum].currentPageNumber = pageNumber;
     var shift = numPagesToShift(direction);
     XcalarSetAbsolute(gTables[tableNum].resultSetId,
                       (pageNumber-shift)*gNumEntriesPerPage);
@@ -39,7 +38,7 @@ function getNextPage(resultSetId, firstTime, tableNum) {
     if (resultSetId == 0) {
         return;
     }
-    gCurrentPageNumber++;
+    gTables[tableNum].currentPageNumber++;
     getPage(resultSetId, firstTime, null, tableNum);
 }
 
@@ -59,7 +58,8 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         resultSetId = 0;
     }
     var shift = numPagesToShift(direction);
-    var indexNumber = (gCurrentPageNumber-shift) * gNumEntriesPerPage;
+    var indexNumber = (gTables[tableNum].currentPageNumber-shift) *
+                      gNumEntriesPerPage;
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
     var rowTemplate = createRowTemplate(tableNum);
@@ -91,19 +91,21 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     }
 
     if (firstTime && !getIndex(gTables[tableNum].tableName)) {
-        gKeyName = tableOfEntries.keysAttrHeader.name;
+        gTables[tableNum].keyName = tableOfEntries.keysAttrHeader.name;
         // We cannot rely on addCol to create a new progCol object because
         // add col relies on gTableCol entry to determine whether or not to add
         // the menus specific to the main key
         var newProgCol = new ProgCol();
         newProgCol.index = 1;
         newProgCol.isDark = false;
-        newProgCol.name = gKeyName;
+        newProgCol.name = gTables[tableNum].keyName;
         newProgCol.func.func = "pull";
-        newProgCol.func.args = [gKeyName];
-        newProgCol.userStr = '"' + gKeyName + '" = pull('+gKeyName+')';
+        newProgCol.func.args = [gTables[tableNum].keyName];
+        newProgCol.userStr = '"' + gTables[tableNum].keyName +
+                             '" = pull('+gTables[tableNum].keyName+')';
         insertColAtIndex(0, tableNum, newProgCol);
-        addCol("col0", "autoGenTable"+tableNum, gKeyName, {progCol: newProgCol}); 
+        addCol("col0", "autoGenTable"+tableNum, gTables[tableNum].keyName,
+               {progCol: newProgCol}); 
         newProgCol = new ProgCol();
         newProgCol.index = 2;
         newProgCol.name = "DATA";
@@ -114,15 +116,15 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         newProgCol.isDark = false;
         insertColAtIndex(1, tableNum, newProgCol);
     }
-    for (var i = 0; i<gTableCols[tableNum].length; i++) {
-        if (gTableCols[tableNum][i].name == "DATA") {
+    for (var i = 0; i<gTables[tableNum].tableCols.length; i++) {
+        if (gTables[tableNum].tableCols[i].name == "DATA") {
             // We don't need to do anything here because if it's the first time
             // they won't have anything stored. If it's not the first time, the
             // column would've been sized already. If it's indexed, we
             // would've sized it in CatFunction
         } else {
             if (firstTime && !getIndex(gTables[tableNum].tableName)) {
-                execCol(gTableCols[tableNum][i], tableNum);
+                execCol(gTables[tableNum].tableCols[i], tableNum);
             } else { 
 
                 if (direction) { 
@@ -139,12 +141,14 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                     var execColArgs = {};
                     execColArgs.startIndex = startingIndex;
                     execColArgs.numberofRows = numRows;
-                    execCol(gTableCols[tableNum][i], tableNum, execColArgs);
+                    execCol(gTables[tableNum].tableCols[i], tableNum, execColArgs);
                 } else {
-                    execCol(gTableCols[tableNum][i], tableNum);
+                    execCol(gTables[tableNum].tableCols[i], tableNum);
                 }
-                if (gTableCols[tableNum][i].name == gKeyName) {
-                    // autosizeCol($('#autoGenTable0 th.col'+(gTableCols[i].index)));
+                if (gTables[tableNum].tableCols[i].name ==
+                    gTables[tableNum].keyName) {
+                    // autosizeCol($('#autoGenTable0
+                    // th.col'+(gTables[tableNum.tableCols[i].index)));
                 }
             }
         }

@@ -1,17 +1,17 @@
 function insertColAtIndex(index, tableNum, obj) {
-    for (var i = gTableCols[tableNum].length-1; i>=index; i--) {
-        gTableCols[tableNum][i].index += 1;
-        gTableCols[tableNum][i+1] = gTableCols[tableNum][i];
+    for (var i = gTables[tableNum].tableCols.length-1; i>=index; i--) {
+        gTables[tableNum].tableCols[i].index += 1;
+        gTables[tableNum].tableCols[i+1] = gTables[tableNum].tableCols[i];
     }
-    gTableCols[tableNum][index] = obj;
+    gTables[tableNum].tableCols[index] = obj;
 }
 
 function removeColAtIndex(index, tableNum) {
-    var removed = gTableCols[tableNum][index];
-    for (var i = index+1; i<gTableCols[tableNum].length; i++) {
-        gTableCols[tableNum][i].index -= 1;
+    var removed = gTables[tableNum].tableCols[index];
+    for (var i = index+1; i<gTables[tableNum].tableCols.length; i++) {
+        gTables[tableNum].tableCols[i].index -= 1;
     }
-    gTableCols[tableNum].splice(index, 1);
+    gTables[tableNum].splice(index, 1);
     return (removed);
 }
 
@@ -74,7 +74,7 @@ function parseCol(funcString, colId, tableNum, modifyCol) {
     var funcSt = funcString.substring(funcString.indexOf("=")+1);
     var progCol;
     if (modifyCol) {
-        progCol = gTableCols[tableNum][colId-1];
+        progCol = gTables[tableNum].tableCols[colId-1];
     } else {
         progCol = new ProgCol();
     }
@@ -177,7 +177,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         }
         value = value[nested[j]];
     }
-    gTableCols[tableNum][newColid-1].type = (typeof value);
+    gTables[tableNum].tableCols[newColid-1].type = (typeof value);
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = $('#autoGenTable'+tableNum+' .row'+i+' .col'+colid+
             ' .elementText').text();
