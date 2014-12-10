@@ -56,7 +56,7 @@ function execCol(progCol, tableNum, args) {
         console.log("Raw data");
         break;
     case (undefined):
-        console.log("Blank col?");
+        // console.log("Blank col?");
         break;
     default:
         console.log(progCol);

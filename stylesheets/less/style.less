@@ -22,7 +22,9 @@
 @colorOpaque-darkGray: rgba(80, 80, 80, 0.1);
 @colorOpaque-pink: rgba(237, 28, 36, 0.1);
 @colorOpaque-blankGrayDark: rgba(0, 0, 0, 0.2);
+@colorOpaque-midGray: rgba(120,120,120,0.2); //XXX todo: get new color for first column
 @colorShadow-black: rgba(0, 0, 0, 0.15);
+
 
 /*Tabs*/
 @color-tab-lightGray: #B4B4B4;
@@ -562,24 +564,41 @@ input:focus {
         display: inline-block;
     }
 
-    #rowScroller {
-        margin-top: 7px;
-        margin-bottom: 3px;
-        outline: 2px solid @color-bar-gray;
-        outline-offset: 2px;
+    #rowScrollerArea {
+        margin-top: 2px;
+        margin-bottom: 4px;
         position: relative;
-        height: 18px;
+        height: 24px;
     }
 
-    #rowMarker {
+    .rowScroller {
+        outline: 2px solid @color-bar-gray;
+        outline-offset: -1px;
+        position: absolute;
+        height: 24px;
+        top: 0;
+        left: 0;
+    }
+
+    .rowMarker {
         height: 100%;
         width: 2px;
         margin-top: 0px;
         position: absolute;
+        top: 0;
         left: 0%;
         background-color: @color-bar-orange;
         .transition (transform 0.2s ease-out);
         .transition-delay (0s);
+    }
+
+    .bookmark {
+        height: 10px;
+        width: 2px;
+        background-color: @color-table-red;
+        position: absolute;
+        left: 0%;
+        bottom: 1px;
     }
 }
 
@@ -722,6 +741,15 @@ input:focus {
         }
     }
 
+    tbody td:first-child {
+        .noSelection;
+        cursor: pointer;
+        overflow: visible;
+        .noSelection;
+        cursor: pointer;
+        background-color: @colorOpaque-midGray; 
+    }
+
     th.selectedCell .editableHead {
         color: @color-table-red;
     }
@@ -790,6 +818,10 @@ input:focus {
     // }
     span.undefined {
         color: #c51d23;
+    }
+
+    .rowBookmarked {
+        background-color: @color-table-red !important;
     }
 }
 
@@ -1178,10 +1210,6 @@ ul.leftColMenu + .rightArrow {
 
 .autoGenTable tbody td {
     height: 20px;
-}
-
-.autoGenTable tbody td:first-child {
-    overflow: visible;
 }
 
 .idWrap {

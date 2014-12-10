@@ -1,7 +1,6 @@
 function generateFirstLastVisibleRowNum() {
     //XXX table will need to be passed in
-    var tableNum = 0;
-    var mfPos = $('#autoGenTableWrap'+tableNum)[0].getBoundingClientRect();
+    var mfPos = $('#autoGenTableWrap'+gActiveTableNum)[0].getBoundingClientRect();
     var tdXCoor = 30;
     var tdYCoor = 50;
     var tdBotYCoor = -18;
@@ -630,6 +629,9 @@ function cloneTableHeader(tableNum) {
     $('#autoGenTableWrap'+tableNum).scroll(function() {
         var leftPos = -$('#autoGenTableWrap'+tableNum).scrollLeft();
         tHead.css('left', leftPos);
+        gActiveTableNum = tableNum;
+        showRowScroller(tableNum);
+
     });
 
     $('#mainFrame').scroll(function(){
@@ -886,12 +888,6 @@ function highlightColumn(el) {
         .addClass('selectedCell');
 }
 
-function moverowScroller(pageNum) {
-    var pct = (pageNum/resultSetCount);
-    var dist = Math.floor(pct*$('#rowScroller').width());
-    $('#rowMarker').css('transform', 'translateX('+dist+'px)');
-}
-
 function checkForScrollBar(tableNum) {
     var tableWidth = $('#autoGenTable'+tableNum).width()+
         parseInt($('#autoGenTable'+tableNum).css('margin-left'));
@@ -905,7 +901,6 @@ function checkForScrollBar(tableNum) {
 }
 
 function positionScrollbar(row, tableNum) {
-    console.log('here')
     var canScroll = true;
     var theadHeight = $('#autoGenTable'+tableNum+' thead').height();
     function positionScrollToRow() {
@@ -952,5 +947,77 @@ function alignMultipleTableHeaders() {
     $('.autoGenTable').each(function() {
         var left = $(this).position().left;
         $(this).find('.theadWrap').css('left', left);
+    });
+}
+
+function addTableListeners(tableNum) {
+    $('#autoGenTable'+tableNum).mousedown(function() {
+        var tableNum = parseInt($(this).closest('table').attr('id').substring(12));
+        gActiveTableNum = tableNum;
+        showRowScroller(tableNum);
+    });
+}
+
+function moverowScroller(pageNum) {
+    var pct = (pageNum/resultSetCount);
+    var dist = Math.floor(pct*$('#rowScroller'+gActiveTableNum).width());
+    $('#rowMarker'+gActiveTableNum).css('transform', 'translateX('+dist+'px)');
+}
+
+function addRowScroll(tableNum) {
+    if (tableNum != 0) {
+       $('#rowScrollerArea').append('<div id="rowScroller'+tableNum+
+        '" class="rowScroller" title="scroll to a row">'+
+            '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
+            '</div>'+
+        '</div>');
+       $('#rowScroller'+tableNum).hide();
+    }
+    
+    $('#rowScroller'+tableNum).mousedown(function(event) {
+        if (event.which != 1) {
+            return;
+        }
+
+        var mouseX = event.pageX - $(this).offset().left;
+        $('#rowMarker'+tableNum).css('transform', 'translateX('+mouseX+'px)');
+        var scrollWidth = $(this).outerWidth();
+        var pageNum = Math.ceil((mouseX / scrollWidth) * resultSetCount);
+        if ($(this).find('.bookmark').length > 0) {
+            // check 10 pixels around for bookmark?
+            var yCoor = $(this).offset().top+$(this).height()-5;
+            for (var x = (event.pageX-5); x < (event.pageX+5); x++) {
+                if ($(document.elementFromPoint(x, yCoor)).hasClass('bookmark')) {
+                    console.log('bookmark found');
+                    //XXX add snap to bookmark if nearby
+                }
+            }
+        }
+        var rowInputNum = $("#rowInput").val();
+        var e = $.Event("keypress");
+        e.which = keyCode.Enter;
+        $("#rowInput").val(pageNum).trigger(e);
+    });
+}
+
+function showRowScroller(tableNum) {
+    $('.rowScroller').hide();
+    $('#rowScroller'+tableNum).show();
+}
+
+function bookmarkRow(rowNum, tableNum) {
+    //XXX allow user to select color in future? 
+    var td = $('#autoGenTable'+tableNum+' .row'+rowNum+ ' .col0');
+    td.addClass('rowBookmarked');
+    td.find('.idSpan').attr('title', 'bookmarked');
+    var leftPos = 100*(rowNum/resultSetCount);
+    var bookmark = $('<div class="bookmark bkmkRow'+rowNum+'"'+
+        ' style="left:'+leftPos+'%;" title="row '+(rowNum+1)+'"></div>');
+    $('#rowScroller'+tableNum).append(bookmark);
+    //XXX store bookmark
+
+
+    bookmark.click(function() {
+        console.log('clicked on bookmark');
     });
 }

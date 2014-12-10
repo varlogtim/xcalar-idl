@@ -25,8 +25,7 @@ function generateBlankTable() {
     html += '</tr>';
     $('#autoGenTable0 thead').append(html);
     html = "";
-    for (var i = 0; i < 60;  i++) {
-    // XXX make a variable for 60 || num rows
+    for (var i = 0; i < gResCol.minNumRows;  i++) {
         html += '<tr>';
         html += '<td align="center" '+
                     'style="height:'+gRescol.minCellHeight+'px;">'+
@@ -56,7 +55,7 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
     var secondPart = rowTemplate.secondPart;
     var finalString = firstPart+json+secondPart;
     // Replace id
-    firstIndex = finalString.indexOf('idSpan">')+('idSpan">').length;
+    firstIndex = finalString.indexOf('bookmark">')+('bookmark">').length;
     secondIndex = finalString.indexOf("<", firstIndex);
     firstPart = finalString.substring(0, firstIndex);
     secondPart = finalString.substring(secondIndex);
@@ -78,7 +77,7 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
         }    
     }
 
-    // Replace element id
+    //XXX Todo: This code is duplicated in generateFirstScreen function, refactor
 
     $('#autoGenTable'+tableNum+' tbody '+row+' .jsonElement')
         .dblclick(function() {
@@ -88,6 +87,12 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
     $('#autoGenTable'+tableNum+' tbody '+row+' .rowGrab')
         .mousedown(function(event) {
             resrowMouseDown($(this), event);
+    });
+
+    $('#autoGenTable'+tableNum+' tbody '+row+' .idSpan').dblclick(function() {
+        var tableNum = parseInt($(this).closest('table').attr('id').substring(12));
+        var rowNum = parseInt($(this).text())-1;
+        bookmarkRow(rowNum, tableNum);
     });
 }
 
@@ -100,43 +105,44 @@ function generateFirstScreen(value, idNo, tableNum, height) {
     if ($('#autoGenTable'+tableNum).length != 1) {
         $('#mainFrame').append('<div id="autoGenTableWrap'+tableNum+'"'+
                                         ' class="autoGenTableWrap tableWrap"></div>');
-        var newTable = '<table id="autoGenTable'+tableNum+'" class="autoGenTable dataTable">'+
-                          '<thead>'+
-                          '<tr>'+
-                            '<th style="width: 50px;" class="col0 table_title_bg">'+
-                              '<div class="header">'+
-                                '<span><input value="ROW" readonly="" tabindex="-1"></span>'+
-                              '</div>'+
-                            '</th>'+
-                            '<th class="col1 table_title_bg" style="width: 850px;">'+
-                              '<div class="header">'+
-                                '<div class="dropdownBox" style="opacity: 0;"></div>'+
-                                '<span><input value="DATA" '+
-                                'readonly="" tabindex="-1" class="dataCol" title="raw data"></span>'+
-                                '<ul class="colMenu" style="display: none;">'+
-                                  '<li class="menuClickable">Add a column'+
-                                    '<ul class="subColMenu">'+
-                                      '<li class="addColumns addColLeft col1">On the left</li>'+
-                                      '<li class="addColumns addColRight col1">On the right</li>'+
-                                      '<div class="subColMenuArea"></div>'+
-                                    '</ul>'+
-                                    '<div class="rightArrow"></div>'+
-                                  '</li>'+
-                                  '<li id="duplicate3" class="duplicate col1">Duplicate column</li>'+
-                                  '<li class="sort col1">Sort</li>'+
-                                '</ul>'+
-                              '</div>'+
-                            '</th>'+
-                          '</tr>'+
-                          '</thead>'+
-                          '<tbody>'+
-                          '</tbody>'+
-                        '</table>';
+        var newTable = 
+        '<table id="autoGenTable'+tableNum+'" class="autoGenTable dataTable">'+
+          '<thead>'+
+          '<tr>'+
+            '<th style="width: 50px;" class="col0 table_title_bg">'+
+              '<div class="header">'+
+                '<span><input value="ROW" readonly="" tabindex="-1"></span>'+
+              '</div>'+
+            '</th>'+
+            '<th class="col1 table_title_bg" style="width: 850px;">'+
+              '<div class="header">'+
+                '<div class="dropdownBox" style="opacity: 0;"></div>'+
+                '<span><input value="DATA" '+
+                'readonly="" tabindex="-1" class="dataCol" title="raw data"></span>'+
+                '<ul class="colMenu" style="display: none;">'+
+                  '<li class="menuClickable">Add a column'+
+                    '<ul class="subColMenu">'+
+                      '<li class="addColumns addColLeft col1">On the left</li>'+
+                      '<li class="addColumns addColRight col1">On the right</li>'+
+                      '<div class="subColMenuArea"></div>'+
+                    '</ul>'+
+                    '<div class="rightArrow"></div>'+
+                  '</li>'+
+                  '<li id="duplicate3" class="duplicate col1">Duplicate column</li>'+
+                  '<li class="sort col1">Sort</li>'+
+                '</ul>'+
+              '</div>'+
+            '</th>'+
+          '</tr>'+
+          '</thead>'+
+          '<tbody>'+
+          '</tbody>'+
+        '</table>';
         $('.autoGenTableWrap:last').append(newTable);
     }
     $("#autoGenTable"+tableNum).append('<tr class="row'+idNo+'">'+
         '<td align="center" class="col0" style="height:'+cellHeight+'px;">'+
-        '<div class="idWrap"><span class="idSpan">'+
+        '<div class="idWrap"><span class="idSpan" title="double-click to bookmark">'+
         (idNo+1)+'</span><div class="rowGrab"></div></div></td>'+
         '<td class="jsonElement col1">'+
         '<div title="double-click to view" '+
@@ -156,6 +162,11 @@ function generateFirstScreen(value, idNo, tableNum, height) {
     $('#autoGenTable'+tableNum+' .row'+idNo+' .rowGrab')
         .mousedown(function(event) {
             resrowMouseDown($(this), event);
+    });
+
+    $('#autoGenTable'+tableNum+' .row'+idNo+' .idSpan').dblclick(function() {
+        var tableNum = parseInt($(this).closest('table').attr('id').substring(12));
+        bookmarkRow(idNo, tableNum);
     });
 }
 

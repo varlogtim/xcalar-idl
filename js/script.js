@@ -38,7 +38,6 @@ var resultSetCount;
 var gNumPages;
 var gFnBarOrigin;
 var gActiveTableNum; // The table that is currently in focus
-
 // ================================= Classes ==================================
 var ProgCol = function() {
     this.index = -1;
@@ -134,6 +133,7 @@ $(window).unload(
 // ========================== Document Ready ==================================
 
 function documentReadyAutoGenTableFunction(tableNum) {
+    gActiveTableNum = 0;
     if (tableNum != 0) {
         return;
     }
@@ -162,8 +162,8 @@ function documentReadyAutoGenTableFunction(tableNum) {
         }
         row = parseInt($('#rowInput').val());
         // XXX: HACK
-        gTempStyle = $("#autoGenTable"+tableNum+" tbody tr:nth-last-child(1)").html();
-        $("#autoGenTable"+tableNum+" tbody").empty();
+        gTempStyle = $("#autoGenTable"+gActiveTableNum+" tbody tr:nth-last-child(1)").html();
+        $("#autoGenTable"+gActiveTableNum+" tbody").empty();
 
         if (((row)/gNumEntriesPerPage) >
                 Math.floor((resultSetCount/gNumEntriesPerPage)-2)) {
@@ -174,10 +174,10 @@ function documentReadyAutoGenTableFunction(tableNum) {
         }
         var numPagesToAdd = 3;
         for (var i = 0; i < numPagesToAdd; i++) {
-            goToPage(Math.ceil(pageNum)+i, null, tableNum);
+            goToPage(Math.ceil(pageNum)+i, null, gActiveTableNum);
         }
 
-        positionScrollbar(row, tableNum);
+        positionScrollbar(row, gActiveTableNum);
         generateFirstLastVisibleRowNum();
         moverowScroller(row);
         // $(this).blur(); 
@@ -193,18 +193,6 @@ function documentReadyAutoGenTableFunction(tableNum) {
     .mouseleave(function() {
         $('.dropdownBox').css('opacity', 0);
     });
-
-    $('#rowScroller').mousedown(function(event) {
-        var mouseX = event.pageX - $(this).offset().left;
-        $('#rowMarker').css('transform', 'translateX('+mouseX+'px)');
-        var scrollWidth = $(this).outerWidth();
-        var pageNum = Math.ceil((mouseX / scrollWidth) * resultSetCount);
-        var rowInputNum = $("#rowInput").val();
-        var e = $.Event("keypress");
-        e.which = keyCode.Enter;
-        $("#rowInput").val(pageNum).trigger(e);
-        // $("#rowInput").val(rowInputNum);
-    });
 }
 
 function documentReadyGeneralFunction() {
@@ -214,6 +202,7 @@ function documentReadyGeneralFunction() {
 
     $(window).resize(function() {
         $('.colGrab').height($('.autoGenTableWrap0').height());
+        //XXX TODO: call checkForScrollBar only when needed, remove from here
         checkForScrollBar(0);
         generateFirstLastVisibleRowNum();
     });
@@ -460,6 +449,8 @@ function documentReadyIndexFunction() {
         } else {
             //XXX loop through datasets and call tableStartUpFunctions
             tableStartupFunctions("gdelt", 0);
+            tableStartupFunctions("gdelt", 1);
+            tableStartupFunctions("gdelt", 2);
             // tableStartupFunctions("sp500", 1); 
             // tableStartupFunctions("sp500", 2); 
         }

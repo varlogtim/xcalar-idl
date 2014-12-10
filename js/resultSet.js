@@ -81,7 +81,11 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                                             rowTemplate, direction, tableNum);        
         }
     }
-    console.log(firstTime, 'firstTime');
+
+    if (firstTime) {
+        addRowScroll(tableNum);
+        addTableListeners(tableNum);
+    }
 
     if (firstTime && !getIndex(gTableName)) {
         gKeyName = tableOfEntries.keysAttrHeader.name;
