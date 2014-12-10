@@ -226,10 +226,11 @@ function addTable(tableName, tableNum) {
 // Shifts all the ids
 // Does not delete the table from backend!
 function delTable(tableNum) {
+    $("#autoGenTableWrap"+tableNum).remove();
     for (var i = tableNum+1; i<gTables.length; i++) {
-        $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i+1));
-        $("#autoGenTable"+i).attr("id", "autoGenTable"+(i+1));
-        $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
+        $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i-1));
+        $("#autoGenTable"+i).attr("id", "autoGenTable"+(i-1));
+        $("#theadWrap"+i).attr("id", "theadWrap"+(i-1));
         gTables[i-1] = gTables[i];
     }
     gTables.splice(tableNum, 1);

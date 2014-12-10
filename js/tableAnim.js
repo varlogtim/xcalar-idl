@@ -953,13 +953,14 @@ function alignMultipleTableHeaders() {
 
 function addTableListeners(tableNum) {
     $('#autoGenTable'+tableNum).mousedown(function() {
-        var tableNum = parseInt($(this).closest('table').attr('id').substring(12));
+        var tableNum = parseInt($(this).closest('table').attr('id')
+                       .substring(12));
         gActiveTableNum = tableNum;
         showRowScroller(tableNum);
     });
 }
 
-function moverowScroller(pageNum) {
+function moverowScroller(pageNum, resultSetCount) {
     var pct = (pageNum/resultSetCount);
     var dist = Math.floor(pct*$('#rowScroller'+gActiveTableNum).width());
     $('#rowMarker'+gActiveTableNum).css('transform', 'translateX('+dist+'px)');
