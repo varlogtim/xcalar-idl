@@ -628,15 +628,18 @@ function cloneTableHeader(tableNum) {
     $('#autoGenTable'+tableNum).width(0); 
 
     $('#autoGenTableWrap'+tableNum).scroll(function() {
-        var leftPos = -$('#autoGenTableWrap'+tableNum).scrollLeft();
+        var dynTableNum = parseInt($(this).attr("id")
+                           .substring("autoGenTableWrap".length));
+        var leftPos = -$('#autoGenTableWrap'+dynTableNum).scrollLeft();
         tHead.css('left', leftPos);
-        gActiveTableNum = tableNum;
-        showRowScroller(tableNum);
-
+        gActiveTableNum = dynTableNum;
+        showRowScroller(dynTableNum);
     });
 
-    $('#mainFrame').scroll(function(){
-        var tHeadLeft = $('#autoGenTable'+tableNum).position().left;
+    $('#mainFrame').scroll(function() {
+        var dynTableNum = parseInt($(this).closest('table').attr('id')
+                          .substring(12));
+        var tHeadLeft = $('#autoGenTable'+dynTableNum).position().left;
         tHeadWrap.css('left', tHeadLeft);
     });
 }
@@ -651,23 +654,28 @@ function matchHeaderSizes(tableNum, reverse) {
         var fauxTHead = '.fauxTHead';
     }
     for (var i = 0; i < tHeadLength; i++) {
-        var width = $('#autoGenTable'+tableNum+' '+fauxTHead+' th').eq(i).outerWidth();
+        var width = $('#autoGenTable'+tableNum+' '+fauxTHead+' th').eq(i)
+                    .outerWidth();
         $('#autoGenTable'+tableNum+' '+trueTHead+' th').eq(i).outerWidth(width);
     }
     $('#autoGenTable'+tableNum+' thead').width($('#autoGenTable'+tableNum).width());
-    $('#autoGenTable'+tableNum+' .rowGrab').width($('#autoGenTable'+tableNum).width());
-    $('#autoGenTable'+tableNum+' .theadWrap').width($('#autoGenTable'+tableNum).width()+10);
+    $('#autoGenTable'+tableNum+' .rowGrab').width($('#autoGenTable'+tableNum)
+                                           .width());
+    $('#autoGenTable'+tableNum+' .theadWrap').width($('#autoGenTable'+tableNum)
+                                             .width()+10);
 }
 
 function addColListeners(colId, tableId) {
     var table = $('#'+tableId);
     var tableNum = parseInt(tableId.substring(12));
     resizableColumns(tableNum);
-    table.find('.editableHead.col'+colId).focus(function() {  
+    table.find('.editableHead.col'+colId).focus(function() {
+        var dynTableNum = parseInt($(this).closest('table').attr('id')
+                          .substring(12));
         $('.colMenu').hide();
         var index = parseColNum($(this));
-        if (gTables[tableNum].tableCols[index-1].userStr.length > 0) {
-            $(this).val(gTables[tableNum].tableCols[index-1].userStr);
+        if (gTables[dynTableNum].tableCols[index-1].userStr.length > 0) {
+            $(this).val(gTables[dynTableNum].tableCols[index-1].userStr);
         }
         updateFunctionBar($(this).val());
         gFnBarOrigin = $(this);
@@ -675,9 +683,11 @@ function addColListeners(colId, tableId) {
         $(this).parent().siblings('.dropdownBox')
             .addClass('hidden');
     }).blur(function() {
+        var dynTableNum = parseInt($(this).closest('table').attr('id')
+                          .substring(12));
         var index = parseColNum($(this));
-        if (gTables[tableNum].tableCols[index-1].name.length > 0) {
-            $(this).val(gTables[tableNum].tableCols[index-1].name);
+        if (gTables[dynTableNum].tableCols[index-1].name.length > 0) {
+            $(this).val(gTables[dynTableNum].tableCols[index-1].name);
         } 
         $(this).parent().siblings('.dropdownBox')
             .removeClass('hidden');
@@ -952,11 +962,11 @@ function alignMultipleTableHeaders() {
 }
 
 function addTableListeners(tableNum) {
-    $('#autoGenTable'+tableNum).mousedown(function() {
-        var tableNum = parseInt($(this).closest('table').attr('id')
+    $('#autoGenTable'+tableNum).mousedown(function() {     
+        var dynTableNum = parseInt($(this).closest('table').attr('id')
                        .substring(12));
-        gActiveTableNum = tableNum;
-        showRowScroller(tableNum);
+        gActiveTableNum = dynTableNum;
+        showRowScroller(dynTableNum);
     });
 }
 

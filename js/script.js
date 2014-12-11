@@ -54,30 +54,32 @@ var TableMeta = function() {
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
     $("#autoGenTableWrap"+tableNum).scroll(function() {
+        var dynTableNum = parseInt($(this).attr("id")
+                           .substring("autoGenTableWrap".length));
         if ($(this).scrollTop() === 0 && 
-            $('#autoGenTable'+tableNum+' tbody tr:first').attr('class') != 
+            $('#autoGenTable'+dynTableNum+' tbody tr:first').attr('class') != 
             'row0') {
                 console.log('the top!');
-                var firstRow = $('#autoGenTable'+tableNum+' tbody tr:first');
+                var firstRow = $('#autoGenTable'+dynTableNum+' tbody tr:first');
                 var initialTop = firstRow.offset().top;
-                if ($("#autoGenTable"+tableNum+" tbody tr").length > 60) {
-                    var pageNumber = gTables[tableNum].currentPageNumber-1;
+                if ($("#autoGenTable"+dynTableNum+" tbody tr").length > 60) {
+                    var pageNumber = gTables[dynTableNum].currentPageNumber-1;
                 } else {
-                    var pageNumber = gTables[tableNum].currentPageNumber;
+                    var pageNumber = gTables[dynTableNum].currentPageNumber;
                 }
-                goToPage(pageNumber, RowDirection.Top, tableNum);
-                $('#autoGenTableWrap'+tableNum).scrollTop(firstRow.offset().top - 
+                goToPage(pageNumber, RowDirection.Top, dynTableNum);
+                $('#autoGenTableWrap'+dynTableNum).scrollTop(firstRow.offset().top - 
                     initialTop + 10);
-                $("#autoGenTable"+tableNum+" tbody tr:gt(79)").remove();
+                $("#autoGenTable"+dynTableNum+" tbody tr:gt(79)").remove();
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()+
                     gScrollbarHeight - $(this).outerHeight() <= 1) {
-            gTempStyle = $("#autoGenTable"+tableNum+" tbody tr:last").html();
-            if ($('#autoGenTable'+tableNum+' tbody tr').length >= 80) {
+            gTempStyle = $("#autoGenTable"+dynTableNum+" tbody tr:last").html();
+            if ($('#autoGenTable'+dynTableNum+' tbody tr').length >= 80) {
                 // keep row length at 80
-                $('#autoGenTable'+tableNum+' tbody tr:lt(20)').remove();
+                $('#autoGenTable'+dynTableNum+' tbody tr:lt(20)').remove();
             }
-            goToPage(gTables[tableNum].currentPageNumber+1,
-                     RowDirection.Bottom, tableNum); 
+            goToPage(gTables[dynTableNum].currentPageNumber+1,
+                     RowDirection.Bottom, dynTableNum); 
         }
         generateFirstLastVisibleRowNum();
     });
@@ -458,8 +460,8 @@ function documentReadyIndexFunction() {
             generateBlankTable();
         } else {
             addTable("gdelt", 0);
-            addTable("gdelt", 1);
-            addTable("gdelt", 2);
+            addTable("sp500", 1);
+            addTable("sp500", 2);
         }
     });
 }

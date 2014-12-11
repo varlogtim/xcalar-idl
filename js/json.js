@@ -88,8 +88,9 @@ function createJsonSelectionExpression(el) {
 
 function showJsonModal(jsonTd) {
     positionJsonModal(jsonTd);
-    var tableNum = parseInt(jsonTd.closest('table').attr('id').substring(12));
-    $('.jKey, .jArray>.jString, .jArray>.jNum').click(function(){
+    $('.jKey, .jArray>.jString, .jArray>.jNum').click(function() {
+        var tableNum = parseInt(jsonTd.closest('table').attr('id')
+                                .substring(12));
         var name = createJsonSelectionExpression($(this));
         var id = $("#autoGenTable"+tableNum+" tr:first th").filter(function() {
                         return $(this).find("input").val() == "DATA";
