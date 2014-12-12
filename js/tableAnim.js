@@ -968,7 +968,7 @@ function positionScrollbar(row, tableNum) {
                 $('#autoGenTableWrap'+tableNum).height())) {
             canScroll = false;
         }
-        $('#autoGenTableWrap'+tableNum).scrollTop(scrollPos);
+        $('#autoGenTableWrap'+tableNum).scrollTop(scrollPos-30);
     }
     
     positionScrollToRow();

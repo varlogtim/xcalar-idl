@@ -464,6 +464,7 @@ function tableStartupFunctions(table, tableNum) {
     generateFirstLastVisibleRowNum();
     var dataCol = $('#autoGenTable'+tableNum+' tr:eq(1) th.dataCol');
     autosizeCol(dataCol);
+    addColListeners(parseColNum(dataCol), "autoGenTable"+tableNum);
     resizeForMultipleTables(tableNum);
     infScrolling(tableNum);
     checkForScrollBar(tableNum);
