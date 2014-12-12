@@ -327,20 +327,6 @@ function addCol(colId, tableId, name, options) {
                         '</li>'+
                         '<li class="joinList col'+newColid+'">'+'Join'+
                             '<ul class="subColMenu">';
-        } else {
-        dropDownHTML += '<li class="filterWrap col'+newColid+'">Filter'+
-                        '<ul class="subColMenu">'+
-                            '<li class="filter">Regex'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="*"/></li>'+
-                                '</ul>'+
-                                '<div class="rightArrow"></div>'+
-                            '</li>'+
-                        '</ul>'+
-                        '<div class="rightArrow"></div>'+
-                        '</li>'+
-                        '<li id="join">'+'Join'+
-                            '<ul class="subColMenu">';
         }
         var tables = XcalarGetTables();
         var numTables = tables.numTables;

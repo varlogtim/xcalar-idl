@@ -8,6 +8,11 @@ var RowDirection = {
     Bottom: 2
 }
 
+var KeepOriginalTables = {
+    Keep: true,
+    DontKeep: false
+}
+
 var keyCode = {
     Backspace: 8,
     Tab: 9,

@@ -696,6 +696,7 @@ function matchHeaderSizes(tableNum, reverse) {
 }
 
 function addColListeners(colId, tableId) {
+    console.log("Adding col listeners for "+tableId+":"+colId);
     var table = $('#'+tableId);
     var tableNum = parseInt(tableId.substring(12));
     resizableColumns(tableNum);

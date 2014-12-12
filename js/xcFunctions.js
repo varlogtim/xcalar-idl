@@ -1,6 +1,7 @@
 var tempCountShit = 0;
 // XXX: Dedupe with checkLoad!!!!
-function checkStatus(newTableName, tableNum) {
+function checkStatus(newTableName, tableNum, keepOriginal,
+                     additionalTableNum) {
     tempCountShit++;
     var refCount = XcalarGetTableRefCount(newTableName);
     console.log(refCount);
@@ -8,8 +9,17 @@ function checkStatus(newTableName, tableNum) {
         $("body").css({"cursor": "default"});
         $('#waitCursor').remove();
         console.log("Done loading");
-        // XXX: TODO: FIXME Delete old table replace with new one 
-        // window.location.href="?tablename="+newTableName;
+        if (keepOriginal === KeepOriginalTables.Keep) {
+            // append newly created table to the back
+            addTable(newTableName, gTables.length);
+        } else {
+            // default
+            delTable(tableNum);
+            if (additionalTableNum) {
+                delTable(additionalTableNum);
+            }
+            addTable(newTableName, tableNum);
+        }
     } else {
         console.log(refCount);
         // Check twice per second
@@ -133,19 +143,76 @@ function filterCol(operator, value, colid, tableNum) {
     checkStatus(newTableName, tableNum);
 }
 
+function createJoinIndex(rightTableNum, tableNum) {
+    // Combine the columns from the 2 current tables
+    // Note that we have to create deep copies!!
+    var newTableCols = jQuery.extend(true, [],
+                                     gTables[tableNum].tableCols);
+    for (var i = 0; i<newTableCols.length; i++) {
+        newTableCols[i] = jQuery.extend(true, {},
+                                        gTables[tableNum].tableCols[i]);
+    }
+    var removed = false;
+    var dataCol;
+
+    for (var i = 0; i<newTableCols.length; i++) {
+        if (!removed) {
+            if (newTableCols[i].name == "DATA") {
+                dataCol = newTableCols.splice(i, 1);
+                removed = true;
+            }
+        } else {
+            newTableCols[i].index--;
+        }
+    }
+    removed = false;
+    var newRightTableCols = jQuery.extend(true, [], 
+                                          gTables[rightTableNum].tableCols);
+    for (var i = 0; i<newRightTableCols.length; i++) {
+        newRightTableCols[i] = jQuery.extend(true, {},
+                                           gTables[rightTableNum].tableCols[i]);
+    }
+    for (var i = 0; i<newRightTableCols.length; i++) {
+        newRightTableCols[i].index+=(newTableCols.length);
+        if (!removed) {
+            if (newRightTableCols[i].name == "DATA") {
+                newRightTableCols.splice(i, 1);
+                removed = true;
+            }
+        } else {
+            newRightTableCols[i].index--;
+
+        }
+    }
+    newTableCols = newTableCols.concat(newRightTableCols);
+    dataCol[0].index = newTableCols.length+1;
+    newTableCols = newTableCols.concat(dataCol);
+    return (newTableCols);
+}
+
 function joinTables(rightTable, tableNum) {
     console.log("Joining "+gTables[tableNum].frontTableName+" and "+rightTable);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempJoinTable"+rand;
-    setIndex(newTableName, gTables[tableNum].tableCols);
+    var rightTableNum = -1;
+    for (var i = 0; i<gTables.length; i++) {
+        if (gTables[i].frontTableName == rightTable) {
+            rightTableNum = i;
+            break;
+        }
+    }
+    if (rightTableNum == -1) {
+        console.log("XXX Cannot find meta data for right table!");
+    }
+
+    var newTableCols = createJoinIndex(rightTableNum, tableNum);
+    setIndex(newTableName, newTableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-       '{cursor: wait !important;}</style>');
+        '{cursor: wait !important;}</style>');
     XcalarJoin(gTables[tableNum].frontTableName, rightTable, newTableName);
-    checkStatus(newTableName, tableNum);
+    checkStatus(newTableName, tableNum, KeepOriginalTables.DontKeep,
+                rightTableNum);
     $('#waitCursor').remove();
-    // TODO: Make decision as to whether we should remove the table that is
-    // being joined on
-    
 }
