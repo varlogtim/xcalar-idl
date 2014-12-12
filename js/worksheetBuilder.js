@@ -89,11 +89,12 @@ function addDatasetTable(datasetTitle, tableNumber) {
 
 function addDataSetHeaders(json, datasetId, index) {
     var th = "";
+    var i = 0;
     for (key in json) {
-        th +=  '<th class="table_title_bg">\
+        th +=  '<th class="table_title_bg col'+i+'">\
                 <div class="header">\
                     <input spellcheck="false" \
-                    class="editableHead shoppingCartCol" value="'+key+'"\
+                    class="editableHead shoppingCartCol col'+i+'" value="'+key+'"\
                     id ="ds'+datasetId+'cn'+key+'">\
                     <div class="keyCheckmark">\
                         <div class="keyCheckmarkWrap">\
@@ -103,6 +104,7 @@ function addDataSetHeaders(json, datasetId, index) {
                     </div>\
                 </div>\
             </th>';
+        i++;
     }
     $('#worksheetTable'+index+' tr:first').append(th);
 }
@@ -125,15 +127,17 @@ function addDataSetRows(records, tableNum) {
         html += '<tr><td>'+(key+1)+'</td>';
 
         // loop through each td, parse object, and add cell content
+        var j = 0;
         for (key in json) {
             var value = parseJsonValue(json[key]);
-            html += '<td>\
+            html += '<td class="col'+j+'">\
                         <div class="addedBarTextWrap">\
                             <div class="addedBarText">'
                             +value+
                             '</div>\
                         </div>\
                     </td>';
+            j++;
         }
         html += '</tr>';
     }

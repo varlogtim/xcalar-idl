@@ -6,6 +6,7 @@ function checkStatus(newTableName, tableNum) {
     console.log(refCount);
     if (refCount == 1) {
         $("body").css({"cursor": "default"});
+        $('#waitCursor').remove();
         console.log("Done loading");
         // XXX: TODO: FIXME Delete old table replace with new one 
         // window.location.href="?tablename="+newTableName;
@@ -25,7 +26,6 @@ function sortRows(index, tableNum, order) {
     setOrder(newTableName, order);
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
-    $("body").css({"cursor": "wait"}); 
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
        '{cursor: wait !important;}</style>');
     var fieldName;
@@ -38,7 +38,7 @@ function sortRows(index, tableNum, order) {
         console.log("Cannot sort a col derived from unsupported func");
         return;
     }
-    XcalarIndexFromTable(gTables[tableNum].tableName, fieldName, newTableName);
+    XcalarIndexFromTable(gTables[tableNum].frontTableName, fieldName, newTableName);
     checkStatus(newTableName, tableNum);
 }
 /*
@@ -113,7 +113,7 @@ function filterNonMainCol(operator, value, datasetId, key, otherTable) {
 }
 
 function filterCol(operator, value, colid, tableNum) {
-    if (gTables[tableNum].tableName.indexOf("joined") > -1) {
+    if (gTables[tableNum].frontTableName.indexOf("joined") > -1) {
         var dsId = gTables[tableNum].tableCols[colid-1].datasetId;
         var key = gTables[tableNum].tableCols[colid-1].func.args[0];
         if (getDsId("gdelt") == dsId) {
@@ -129,19 +129,22 @@ function filterCol(operator, value, colid, tableNum) {
     setIndex(newTableName, gTables.tableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
-    XcalarFilter(operator, value, gTables[tableNum].tableName, newTableName);
+    XcalarFilter(operator, value, gTables[tableNum].frontTableName, newTableName);
     checkStatus(newTableName, tableNum);
 }
 
 function joinTables(rightTable, tableNum) {
-    console.log("Joining "+gTables[tableNum].tableName+" and "+rightTable);
+    console.log("Joining "+gTables[tableNum].frontTableName+" and "+rightTable);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempJoinTable"+rand;
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
-    XcalarJoin(gTables[tableNum].tableName, rightTable, newTableName);
+    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
+       '{cursor: wait !important;}</style>');
+    XcalarJoin(gTables[tableNum].frontTableName, rightTable, newTableName);
     checkStatus(newTableName, tableNum);
+    $('#waitCursor').remove();
     // TODO: Make decision as to whether we should remove the table that is
     // being joined on
     

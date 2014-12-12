@@ -62,6 +62,9 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                       gNumEntriesPerPage;
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
+    if (numRows == 0) {
+        console.log('no rows found');
+    }
     var rowTemplate = createRowTemplate(tableNum);
     for (var i = 0; i<numRows; i++) {
         if (direction == 1) {
@@ -78,6 +81,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                         .kvPairFixed.value;
         }
         if (firstTime) {
+            console.log('first time, generating fresh table')
             generateFirstScreen(value, indexNumber+i, tableNum, tdHeights[i]);
         } else {
             generateRowWithCurrentTemplate(value, indexNumber+index, 
@@ -90,7 +94,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         addTableListeners(tableNum);
     }
 
-    if (firstTime && !getIndex(gTables[tableNum].tableName)) {
+    if (firstTime && !getIndex(gTables[tableNum].frontTableName)) {
         gTables[tableNum].keyName = tableOfEntries.keysAttrHeader.name;
         // We cannot rely on addCol to create a new progCol object because
         // add col relies on gTableCol entry to determine whether or not to add
@@ -123,7 +127,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
             // column would've been sized already. If it's indexed, we
             // would've sized it in CatFunction
         } else {
-            if (firstTime && !getIndex(gTables[tableNum].tableName)) {
+            if (firstTime && !getIndex(gTables[tableNum].frontTableName)) {
                 execCol(gTables[tableNum].tableCols[i], tableNum);
             } else { 
 

@@ -10,6 +10,7 @@ function fillPageWithBlankCol(tableNum) {
 }
 
 function generateBlankTable() {
+    generateFirstScreen("", 1, 0);
     var screenWidth = window.screen.availWidth;
     var numColsToFill = Math.ceil(screenWidth/gNewCellWidth);
     var html = "";
@@ -25,7 +26,7 @@ function generateBlankTable() {
     html += '</tr>';
     $('#autoGenTable0 thead').append(html);
     html = "";
-    for (var i = 0; i < gResCol.minNumRows;  i++) {
+    for (var i = 0; i < gRescol.minNumRows;  i++) {
         html += '<tr>';
         html += '<td align="center" '+
                     'style="height:'+gRescol.minCellHeight+'px;">'+
@@ -46,6 +47,13 @@ function generateBlankTable() {
     });
 
     cloneTableHeader(0);
+    $("#autoGenTableWrap0").scroll(function() {
+        var dynTableNum = parseInt($(this).attr("id")
+                           .substring("autoGenTableWrap".length));
+        var top = $(this).scrollTop();
+        $('#theadWrap'+dynTableNum).css('top',top);
+    });
+    checkForScrollBar(0);
 }
 
 function generateRowWithCurrentTemplate(json, id, rowTemplate, direction, 
@@ -103,8 +111,15 @@ function generateFirstScreen(value, idNo, tableNum, height) {
         var cellHeight = height;
     }
     if ($('#autoGenTable'+tableNum).length != 1) {
-        $('#mainFrame').append('<div id="autoGenTableWrap'+tableNum+'"'+
-                               ' class="autoGenTableWrap tableWrap"></div>');
+        if (tableNum == 0) {
+            $('#mainFrame').prepend('<div id="autoGenTableWrap'+tableNum+'"'+
+                    ' class="autoGenTableWrap tableWrap"></div>');
+        } else {
+            $('#autoGenTableWrap'+(tableNum-1))
+            .after('<div id="autoGenTableWrap'+tableNum+'"'+
+                    ' class="autoGenTableWrap tableWrap"></div>');
+        }
+
         var newTable = 
         '<table id="autoGenTable'+tableNum+'" class="autoGenTable dataTable">'+
           '<thead>'+
@@ -114,7 +129,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
                 '<span><input value="ROW" readonly="" tabindex="-1"></span>'+
               '</div>'+
             '</th>'+
-            '<th class="col1 table_title_bg" style="width: 850px;">'+
+            '<th class="col1 table_title_bg dataCol" style="width: 850px;">'+
               '<div class="header">'+
                 '<div class="dropdownBox" style="opacity: 0;"></div>'+
                 '<span><input value="DATA" '+
@@ -141,7 +156,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
           '<tbody>'+
           '</tbody>'+
         '</table>';
-        $('.autoGenTableWrap:last').append(newTable);
+        $('#autoGenTableWrap'+tableNum).append(newTable);
     }
     $("#autoGenTable"+tableNum).append('<tr class="row'+idNo+'">'+
         '<td align="center" class="col0" style="height:'+cellHeight+'px;">'+
@@ -192,10 +207,10 @@ function createRowTemplate(tableNum) {
 function resizeForMultipleTables(tableNum) {
     //XX This function is hacky, need to modifiy where it's called
     // and then how it's executed
-    if (tableNum == 0) {
+    if ($('.autoGenTable').length == 1) {
         return;
     }
-    if (tableNum == 1) {
+    if ($('.autoGenTable').length == 2) {
         var tableWidth = $('#autoGenTable0').width();
         $('#theadWrap0').width(tableWidth+5);
         // $('#autoGenTableWrap0').css('overflow-x', 'hidden');
@@ -216,6 +231,9 @@ function addTable(tableName, tableNum) {
         $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i+1));
         $("#autoGenTable"+i).attr("id", "autoGenTable"+(i+1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
+        $("#theadWrap"+(i+1)).css("z-index", 10-(i+1));
+        $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
+
         gTables[i+1] = gTables[i];
     }
     tableStartupFunctions(tableName, tableNum);
@@ -227,12 +245,18 @@ function addTable(tableName, tableNum) {
 // Does not delete the table from backend!
 function delTable(tableNum) {
     $("#autoGenTableWrap"+tableNum).remove();
+    $("#rowScroller"+tableNum).remove();
     for (var i = tableNum+1; i<gTables.length; i++) {
         $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i-1));
         $("#autoGenTable"+i).attr("id", "autoGenTable"+(i-1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i-1));
+        $("#theadWrap"+(i-1)).css("z-index", 10-(i-1));
+        $("#rowScroller"+i).attr("id", "rowScroller"+(i-1));
         gTables[i-1] = gTables[i];
     }
     gTables.splice(tableNum, 1);
     // XXX: Think about gActiveTableNum
+    if ($('.autoGenTable').length == 1) {
+        $('.autoGenTableWrap').width('100%').css('overflow-x', 'auto');
+    }
 }

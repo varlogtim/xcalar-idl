@@ -73,7 +73,7 @@ function getTablesAndDatasets() {
                                '<span class="menuAreaLabel monitorSmall">'+
                                'DATA<br>SET</span>'+
                                '<span class="menuAreaValue">'+
-                                    tables.tables[i].tableName+
+                                    tables.tables[i].frontTableName+
                                '</span>'+
                             '</div>';
 

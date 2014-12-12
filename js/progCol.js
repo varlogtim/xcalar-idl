@@ -140,7 +140,7 @@ function delCol(colNum, tableNum, resize) {
 }
 
 function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
-    if (key == "" || /\.([0-9])/.test(key)) {
+    if (key == "" || key == undefined || /\.([0-9])/.test(key)) {
         //check for dot followed by number (invalid)
         return;
     }

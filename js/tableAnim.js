@@ -544,7 +544,7 @@ function getTextWidth(el) {
 }
 
 function autosizeCol(el, options) {
-    console.log(arguments)
+    console.log(el.attr('class'))
     var index = parseColNum(el);
     var tableNum = parseInt(el.closest('table').attr('id').substring(12));
     var options = options || {};
@@ -552,7 +552,7 @@ function autosizeCol(el, options) {
     var resizeFirstRow = options.resizeFirstRow || false;
     var minWidth = options.minWidth || gRescol.cellMinWidth-10;
     var oldTableWidth = $('#autoGenTable'+tableNum).width();
-    var maxWidth = 600;
+    var maxWidth = 700;
     var oldWidth = el.width();  
     var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
     var newWidth = Math.max(widestTdWidth, minWidth);
@@ -696,6 +696,7 @@ function addColListeners(colId, tableId) {
         var dynTableNum = parseInt($(this).closest('table').attr('id')
                           .substring(12));
         $('.colMenu').hide();
+        $(this).closest('.theadWrap').css('z-index', '9');
         var index = parseColNum($(this));
         if (gTables[dynTableNum].tableCols[index-1].userStr.length > 0) {
             $(this).val(gTables[dynTableNum].tableCols[index-1].userStr);
@@ -743,14 +744,18 @@ function addColListeners(colId, tableId) {
     });
 
     table.find('.table_title_bg.col'+colId+' .dropdownBox').click(function() {
+        console.log('dropdownclicked');
         $('.colMenu').hide();
         $('.leftColMenu').removeClass('leftColMenu');
         //position colMenu
         var top = $(this)[0].getBoundingClientRect().bottom;
         var left = $(this)[0].getBoundingClientRect().left+3;
         var colMenu = $(this).siblings('.colMenu');
-        colMenu.css({'top':top, 'left':left})
-        $(this).siblings('.colMenu').show();
+        colMenu.css({'top':top, 'left':left});
+        colMenu.show();
+        colMenu.closest('.theadWrap').css('z-index', '10');
+
+        //positioning if dropdown menu is on the right side of screen
         if (colMenu[0].getBoundingClientRect().right > $(window).width()) {
             console.log('a');
             left = $(this)[0].getBoundingClientRect().right - colMenu.width();
@@ -833,9 +838,10 @@ function addColMenuActions(colId, tableId) {
         if ($(this).children('.subColMenu, input').length === 0) {
             // hide li if doesnt have a submenu or an input field
             $(this).closest('.colMenu').hide();
+            $(this).closest('.theadWrap').css('z-index', '9');
         }
     });
-
+    console.log(colId, tableId)
     table.find('.table_title_bg.col'+colId+' .addColumns').click(function() {
         var index = 'col'+parseColNum($(this));
         var tableId = $(this).closest('table').attr('id');
@@ -844,6 +850,7 @@ function addColMenuActions(colId, tableId) {
             direction = "L";
         }
         $('.colMenu').hide();
+        $(this).closest('.theadWrap').css('z-index', '9');
         addCol(index, tableId, null, 
             {direction: direction, isDark: true, inFocus: true});
     });
@@ -923,11 +930,11 @@ function addColMenuActions(colId, tableId) {
 }
 
 function highlightColumn(el) {
-    var index = el.closest('th').index()+1;
+    var index = parseColNum(el);
+    var table = el.closest('table');
     $('.selectedCell').removeClass('selectedCell');
-    el.closest('th').addClass('selectedCell');
-    el.closest('.dataTable').find('td:nth-child('+index+')')
-        .addClass('selectedCell');
+    table.find('th.col'+index).addClass('selectedCell');
+    table.find('td.col'+index).addClass('selectedCell');
 }
 
 function checkForScrollBar(tableNum) {
@@ -988,6 +995,7 @@ function addTableListeners(tableNum) {
                        .substring(12));
         gActiveTableNum = dynTableNum;
         showRowScroller(dynTableNum);
+        generateFirstLastVisibleRowNum();
     });
 }
 
@@ -999,7 +1007,7 @@ function moverowScroller(pageNum, resultSetCount) {
 
 function addRowScroller(tableNum) {
     if (tableNum != 0) {
-       $('#rowScrollerArea').append('<div id="rowScroller'+tableNum+
+       $('#rowScroller'+(tableNum-1)).after('<div id="rowScroller'+tableNum+
         '" class="rowScroller" title="scroll to a row">'+
             '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
             '</div>'+
@@ -1015,21 +1023,25 @@ function addRowScroller(tableNum) {
         var mouseX = event.pageX - $(this).offset().left;
         $('#rowMarker'+tableNum).css('transform', 'translateX('+mouseX+'px)');
         var scrollWidth = $(this).outerWidth();
-        var pageNum = Math.ceil((mouseX / scrollWidth) * resultSetCount);
+        var rowNum = Math.ceil((mouseX / scrollWidth) * 
+                gTables[tableNum].resultSetCount);
         if ($(this).find('.bookmark').length > 0) {
             // check 10 pixels around for bookmark?
             var yCoor = $(this).offset().top+$(this).height()-5;
             for (var x = (event.pageX-5); x < (event.pageX+5); x++) {
-                if ($(document.elementFromPoint(x, yCoor)).hasClass('bookmark')) {
-                    console.log('bookmark found');
-                    //XXX add snap to bookmark if nearby
+                var element = $(document.elementFromPoint(x, yCoor));
+                if (element.hasClass('bookmark')) {
+                    console.log('bookmark found',element);
+                    console.log(rowNum)
+                    rowNum = parseBookmarkNum(element);
+                    break;
                 }
             }
         }
         var rowInputNum = $("#rowInput").val();
         var e = $.Event("keypress");
         e.which = keyCode.Enter;
-        $("#rowInput").val(pageNum).trigger(e);
+        $("#rowInput").val(rowNum).trigger(e);
     });
 }
 
@@ -1043,14 +1055,19 @@ function bookmarkRow(rowNum, tableNum) {
     var td = $('#autoGenTable'+tableNum+' .row'+rowNum+ ' .col0');
     td.addClass('rowBookmarked');
     td.find('.idSpan').attr('title', 'bookmarked');
-    var leftPos = 100*(rowNum/resultSetCount);
+    var leftPos = 100*(rowNum/gTables[tableNum].resultSetCount);
     var bookmark = $('<div class="bookmark bkmkRow'+rowNum+'"'+
         ' style="left:'+leftPos+'%;" title="row '+(rowNum+1)+'"></div>');
     $('#rowScroller'+tableNum).append(bookmark);
-    //XXX store bookmark
+    if (gTables[tableNum].bookmarks.indexOf(rowNum) > -1) {
+        gTables[tableNum].bookmarks.push(rowNum);
+    }
+    
+    //XXX bookmark not persisted
+}
 
-
-    bookmark.click(function() {
-        console.log('clicked on bookmark');
-    });
+function parseBookmarkNum(el) {
+    var classNames = el.attr('class');
+    var index = classNames.indexOf('bkmkRow')+'bkmkRow'.length;
+    return parseInt(classNames.substring(index))+1;
 }

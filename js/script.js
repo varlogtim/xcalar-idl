@@ -24,7 +24,7 @@ var gRescol = {
 var resrow = {};
 var gScrollbarHeight = 8;
 var gTempStyle = ""; // XXX
-var gMinTableWidth = 500;
+var gMinTableWidth = 200;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
 var gFnBarOrigin;
@@ -50,12 +50,14 @@ var TableMeta = function() {
     this.frontTableName = "";
     this.resultSetCount = -1;
     this.numPages = -1;
+    this.bookmarks = [];
 }
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
     $("#autoGenTableWrap"+tableNum).scroll(function() {
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("autoGenTableWrap".length));
+        gActiveTableNum = dynTableNum;
         if ($(this).scrollTop() === 0 && 
             $('#autoGenTable'+dynTableNum+' tbody tr:first').attr('class') != 
             'row0') {
@@ -96,7 +98,6 @@ function infScrolling(tableNum) {
         generateFirstLastVisibleRowNum();
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
-        gActiveTableNum = dynTableNum;
         showRowScroller(dynTableNum);
     });
 }
@@ -143,7 +144,7 @@ function setTableMeta(table) {
     newTable.resultSetId = XcalarGetTableId(tableName);
     newTable.resultSetCount = XcalarGetCount(tableName);
     newTable.numPages = Math.ceil(newTable.resultSetCount /
-                                  newTable.numEntriesPerPage);
+                                  gNumEntriesPerPage);
     newTable.backTableName = tableName;
     newTable.frontTableName = tableName;
     return (newTable);
@@ -163,9 +164,9 @@ function documentReadyAutoGenTableFunction(tableNum) {
         return;
     }
 
-    var dataTh = $('#autoGenTable'+tableNum).find('.dataCol').closest('th');
-    var dataIndex = parseColNum(dataTh);
-    addColListeners(dataIndex, "autoGenTable"+tableNum);
+    // var dataTh = $('#autoGenTable'+tableNum).find('.dataCol').closest('th');
+    // var dataIndex = parseColNum(dataTh);
+    // addColListeners(dataIndex, "autoGenTable"+tableNum);
     // set up listeners for data column
 
     var resultTextLength = (""+gTables[tableNum].resultSetCount).length;
@@ -361,6 +362,7 @@ function documentReadyGeneralFunction() {
         var clickable = target.closest('.colMenu').length > 0;
         if (!clickable && !target.is('.dropdownBox')) {
                 $('.colMenu').hide();
+                $('.theadWrap').css('z-index', '9');
         }
         if (target.closest('.selectedCell').length == 0 && !target.is('#fnBar')
             && (!equationCellRow)) {
@@ -416,12 +418,12 @@ function documentReadyGeneralFunction() {
 }
 
 function documentReadyCatFunction(tableNum) {
-
-    var index = getIndex(gTables[tableNum].tableName);
+    var index = getIndex(gTables[tableNum].frontTableName);
+    console.log(index)
     getNextPage(gTables[tableNum].resultSetId, true, tableNum);
     if (index) {
         gTables[tableNum].tableCols = index;
-        console.log("Stored "+gTables[tableNum].tableName);
+        console.log("Stored "+gTables[tableNum].frontTableName);
         // XXX Move this into getPage
         // XXX API: 0105
         var tableOfEntries = XcalarGetNextPage(gTables[tableNum].resultSetId,
@@ -442,7 +444,7 @@ function documentReadyCatFunction(tableNum) {
             }
         }
     } else {
-        console.log("Not stored "+gTables[tableNum].tableName);
+        console.log("Not stored "+gTables[tableNum].frontTableName);
     }    
 
 }
@@ -465,6 +467,9 @@ function tableStartupFunctions(table, tableNum) {
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     generateFirstLastVisibleRowNum();
     cloneTableHeader(tableNum);
+    var dataCol = $('#autoGenTable'+tableNum+' tr:eq(1) th.dataCol');
+    autosizeCol(dataCol);
+    addColListeners(parseColNum(dataCol), "autoGenTable"+tableNum);
     resizeForMultipleTables(tableNum);
     infScrolling(tableNum);
     checkForScrollBar(tableNum);
@@ -473,7 +478,8 @@ function tableStartupFunctions(table, tableNum) {
 function documentReadyIndexFunction() {
     $(document).ready(function() {
         startupFunctions(); 
-        if (XcalarGetTables().numTables == 0) {
+        if (XcalarGetTables().numTables == 0 || 
+            XcalarGetTables().numTables == undefined) {
             generateBlankTable();
         } else {
             addTable("gdelt", 0);
