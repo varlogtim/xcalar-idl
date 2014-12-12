@@ -478,7 +478,7 @@ function documentReadyIndexFunction() {
         } else {
             addTable("gdelt", 0);
             addTable("sp500", 1);
-            addTable("sp500", 2);
+            addTable("yelpUser", 2);
             documentReadyAutoGenTableFunction();
         }
     });

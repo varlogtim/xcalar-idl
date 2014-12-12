@@ -30,6 +30,7 @@ function checkStatus(newTableName, tableNum, keepOriginal,
 }
 
 function sortRows(index, tableNum, order) {
+    console.log(arguments);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempSortTable"+rand;
     // XXX: Update widths here

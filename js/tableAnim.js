@@ -910,7 +910,7 @@ function addColMenuActions(colId, tableId) {
         var index = parseColNum($(this));
         var tableNum = parseInt($(this).closest('table')
                         .attr('id').substring(12));
-        sortRows(index, SortDirection.Backward);
+        sortRows(index, tableNum, SortDirection.Backward);
     }); 
 
     table.find('.filterWrap.col'+colId+' input').keyup(function(e) {
