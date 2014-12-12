@@ -3,7 +3,7 @@ function generateFirstLastVisibleRowNum() {
     var mfPos = $('#autoGenTableWrap'+gActiveTableNum)[0]
                 .getBoundingClientRect();
     var tdXCoor = 30;
-    var tdYCoor = 50;
+    var tdYCoor = 80;
     var tdBotYCoor = -18;
     var firstRowNum;
     var lastRowNum;
@@ -246,14 +246,11 @@ function resrowMouseUp() {
 
 function dragdropMouseDown(el, event) {
     gMouseStatus = "movingCol";
-    // $('#mainFrame').addClass('hideScroll');
-    // $('#autoGenTableWrap0').addClass('hideScroll');
     gDragObj.mouseX = event.pageX;
     gDragObj.colNum = parseColNum(el);
     gDragObj.tableNum = parseInt(el.closest('table').attr('id').substring(12));
     gDragObj.element = el;
     gDragObj.colIndex = parseInt(el.index());
-    // gDragObj.top = el.offset().top;
     gDragObj.scrollLeft = $('#autoGenTable'+gDragObj.tableNum).position().left;
     gDragObj.top = parseInt($('#theadWrap'+gDragObj.tableNum).css('top')) + 5;
     gDragObj.offsetTop = el.offset().top;
@@ -274,9 +271,9 @@ function dragdropMouseDown(el, event) {
     el.closest('#autoGenTableWrap'+gDragObj.tableNum)
                     .append('<div id="shadowDiv" style="width:'+
                             (gDragObj.colWidth)+
-                            'px;height:'+(shadowDivHeight)+'px;left:'+
+                            'px;height:'+(shadowDivHeight-30)+'px;left:'+
                             (gDragObj.left+$('#mainFrame').scrollLeft())+
-                            'px;top:'+gDragObj.top+'px;"></div>');
+                            'px;top:'+(gDragObj.top+30)+'px;"></div>');
 
     // create a fake transparent column by cloning 
     createTransparentDragDropCol();
@@ -402,7 +399,7 @@ function createTransparentDragDropCol() {
     var autoGenTableWrap0Height = $('#autoGenTableWrap0').height()- 
         gScrollbarHeight;
     var fauxColHeight = Math.min(fauxTableHeight, autoGenTableWrap0Height);
-    $('#fauxCol').height(fauxColHeight);
+    $('#fauxCol').height(fauxColHeight-30);
     var firstRowOffset = $(topRowEl).offset().top - topPx-rowHeight;
     $('#fauxTable').css('margin-top', $('#fauxTable tr:first').outerHeight()+
                         firstRowOffset);
@@ -653,13 +650,23 @@ function cloneTableHeader(tableNum) {
     tHeadClone.addClass('fauxTHead');
     tHead.addClass('trueTHead');
     $('#autoGenTable'+tableNum+' thead').after(tHeadClone);
-    tHead.css({'position':'absolute', 'top':0,
+    tHead.css({'position':'absolute', 'top':30,
                     'left':leftPos, 'padding-top':5});
     //XXX z-index of theadwrap decreases per every theadwrap
     tHead.wrap('<div id="theadWrap'+tableNum+'" class="theadWrap"'+
                 'style="z-index:'+(10-tableNum)+';'+
                 'top:'+(tHeadYPos)+'px;"></div>');
     var tHeadWrap = $('#theadWrap'+tableNum);
+    //XX build this table title somewhere else
+    tHeadWrap.prepend('<div class="tableTitle"><input type="text" value="'+
+        gTables[tableNum].frontTableName+'">'+
+        '</div>');
+    tHeadWrap.find('.tableTitle input').keyup(function(event) {
+        if (event.which ==keyCode.Enter) {
+            $(this).blur();
+        }
+    });
+
     matchHeaderSizes(tableNum);
 
     $('#autoGenTable'+tableNum).width(0); 

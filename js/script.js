@@ -465,8 +465,8 @@ function tableStartupFunctions(table, tableNum) {
     documentReadyCatFunction(tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
-    generateFirstLastVisibleRowNum();
     cloneTableHeader(tableNum);
+    generateFirstLastVisibleRowNum();
     var dataCol = $('#autoGenTable'+tableNum+' tr:eq(1) th.dataCol');
     autosizeCol(dataCol);
     addColListeners(parseColNum(dataCol), "autoGenTable"+tableNum);

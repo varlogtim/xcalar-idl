@@ -96,12 +96,12 @@ function showJsonModal(jsonTd) {
                         return $(this).find("input").val() == "DATA";
                     });
         var colNum = parseColNum(id);
-        addCol('col'+colNum, 'autoGenTable'+tableNum, name);
-        gTables[tableNum].tableCols[colNum].func.func = "pull";        
-        gTables[tableNum].tableCols[colNum].func.args = [name];
-        gTables[tableNum].tableCols[colNum].userStr = '"'+name+'" = pull('+name+')';
-        execCol(gTables[tableNum].tableCols[colNum], tableNum);
-        autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum+1)), 
+        addCol('col'+(colNum), 'autoGenTable'+tableNum, name, {direction: 'L'});
+        gTables[tableNum].tableCols[colNum-1].func.func = "pull";        
+        gTables[tableNum].tableCols[colNum-1].func.args = [name];
+        gTables[tableNum].tableCols[colNum-1].userStr = '"'+name+'" = pull('+name+')';
+        execCol(gTables[tableNum].tableCols[colNum-1], tableNum);
+        autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum)), 
                     {includeHeader: true, resizeFirstRow: true});
         $('#autoGenTable'+tableNum+' tr:first th.col'+(colNum+1)+
                 ' .editableHead').focus();

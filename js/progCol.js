@@ -201,6 +201,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
 }
 
 function addCol(colId, tableId, name, options) {
+    console.log(arguments)
     //id will be the column class ex. col2
     //tableId will be the table name  ex. autoGenTable0
     var tableNum = parseInt(tableId.substring(12));
