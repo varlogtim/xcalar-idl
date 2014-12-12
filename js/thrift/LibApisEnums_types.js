@@ -32,7 +32,8 @@ XcalarApisT = {
 'XcalarApiGetTableRefCount' : 23,
 'XcalarApiBulkDeleteTables' : 24,
 'XcalarApiDestroyDataset' : 25,
-'XcalarApiMap' : 26
+'XcalarApiMap' : 26,
+'XcalarApiAggregate' : 27
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -60,5 +61,6 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 23 : 'XcalarApiGetTableRefCount',
 24 : 'XcalarApiBulkDeleteTables',
 25 : 'XcalarApiDestroyDataset',
-26 : 'XcalarApiMap'
+26 : 'XcalarApiMap',
+27 : 'XcalarApiAggregate'
 };

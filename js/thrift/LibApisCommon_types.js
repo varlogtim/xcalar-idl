@@ -1049,6 +1049,7 @@ XcalarApiGroupByInputT = function(args) {
   this.table = null;
   this.groupByTable = null;
   this.groupByOp = null;
+  this.fieldName = null;
   if (args) {
     if (args.table !== undefined) {
       this.table = args.table;
@@ -1058,6 +1059,9 @@ XcalarApiGroupByInputT = function(args) {
     }
     if (args.groupByOp !== undefined) {
       this.groupByOp = args.groupByOp;
+    }
+    if (args.fieldName !== undefined) {
+      this.fieldName = args.fieldName;
     }
   }
 };
@@ -1098,6 +1102,13 @@ XcalarApiGroupByInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.fieldName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1122,6 +1133,94 @@ XcalarApiGroupByInputT.prototype.write = function(output) {
   if (this.groupByOp !== null && this.groupByOp !== undefined) {
     output.writeFieldBegin('groupByOp', Thrift.Type.I32, 3);
     output.writeI32(this.groupByOp);
+    output.writeFieldEnd();
+  }
+  if (this.fieldName !== null && this.fieldName !== undefined) {
+    output.writeFieldBegin('fieldName', Thrift.Type.STRING, 4);
+    output.writeString(this.fieldName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiAggregateInputT = function(args) {
+  this.table = null;
+  this.aggregateOp = null;
+  this.fieldName = null;
+  if (args) {
+    if (args.table !== undefined) {
+      this.table = args.table;
+    }
+    if (args.aggregateOp !== undefined) {
+      this.aggregateOp = args.aggregateOp;
+    }
+    if (args.fieldName !== undefined) {
+      this.fieldName = args.fieldName;
+    }
+  }
+};
+XcalarApiAggregateInputT.prototype = {};
+XcalarApiAggregateInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.table = new XcalarApiTableT();
+        this.table.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I32) {
+        this.aggregateOp = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.fieldName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiAggregateInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiAggregateInputT');
+  if (this.table !== null && this.table !== undefined) {
+    output.writeFieldBegin('table', Thrift.Type.STRUCT, 1);
+    this.table.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.aggregateOp !== null && this.aggregateOp !== undefined) {
+    output.writeFieldBegin('aggregateOp', Thrift.Type.I32, 2);
+    output.writeI32(this.aggregateOp);
+    output.writeFieldEnd();
+  }
+  if (this.fieldName !== null && this.fieldName !== undefined) {
+    output.writeFieldBegin('fieldName', Thrift.Type.STRING, 3);
+    output.writeString(this.fieldName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -3109,6 +3208,72 @@ XcalarApiGetVersionOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiAggregateOutputT = function(args) {
+  this.status = null;
+  this.jsonAnswer = null;
+  if (args) {
+    if (args.status !== undefined) {
+      this.status = args.status;
+    }
+    if (args.jsonAnswer !== undefined) {
+      this.jsonAnswer = args.jsonAnswer;
+    }
+  }
+};
+XcalarApiAggregateOutputT.prototype = {};
+XcalarApiAggregateOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I32) {
+        this.status = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.jsonAnswer = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiAggregateOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiAggregateOutputT');
+  if (this.status !== null && this.status !== undefined) {
+    output.writeFieldBegin('status', Thrift.Type.I32, 1);
+    output.writeI32(this.status);
+    output.writeFieldEnd();
+  }
+  if (this.jsonAnswer !== null && this.jsonAnswer !== undefined) {
+    output.writeFieldBegin('jsonAnswer', Thrift.Type.STRING, 2);
+    output.writeString(this.jsonAnswer);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiInputT = function(args) {
   this.loadInput = null;
   this.indexInput = null;
@@ -3129,6 +3294,7 @@ XcalarApiInputT = function(args) {
   this.statByGroupIdInput = null;
   this.makeResultSetInput = null;
   this.mapInput = null;
+  this.aggregateInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -3186,6 +3352,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.mapInput !== undefined) {
       this.mapInput = args.mapInput;
+    }
+    if (args.aggregateInput !== undefined) {
+      this.aggregateInput = args.aggregateInput;
     }
   }
 };
@@ -3353,6 +3522,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 21:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.aggregateInput = new XcalarApiAggregateInputT();
+        this.aggregateInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -3459,6 +3636,11 @@ XcalarApiInputT.prototype.write = function(output) {
     this.mapInput.write(output);
     output.writeFieldEnd();
   }
+  if (this.aggregateInput !== null && this.aggregateInput !== undefined) {
+    output.writeFieldBegin('aggregateInput', Thrift.Type.STRUCT, 21);
+    this.aggregateInput.write(output);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -3480,6 +3662,7 @@ XcalarApiOutputT = function(args) {
   this.statGroupIdMapOutput = null;
   this.listDatasetsOutput = null;
   this.mapOutput = null;
+  this.aggregateOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -3525,6 +3708,9 @@ XcalarApiOutputT = function(args) {
     }
     if (args.mapOutput !== undefined) {
       this.mapOutput = args.mapOutput;
+    }
+    if (args.aggregateOutput !== undefined) {
+      this.aggregateOutput = args.aggregateOutput;
     }
   }
 };
@@ -3661,6 +3847,14 @@ XcalarApiOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 16:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.aggregateOutput = new XcalarApiAggregateOutputT();
+        this.aggregateOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -3745,6 +3939,11 @@ XcalarApiOutputT.prototype.write = function(output) {
   if (this.mapOutput !== null && this.mapOutput !== undefined) {
     output.writeFieldBegin('mapOutput', Thrift.Type.STRUCT, 15);
     this.mapOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.aggregateOutput !== null && this.aggregateOutput !== undefined) {
+    output.writeFieldBegin('aggregateOutput', Thrift.Type.STRUCT, 16);
+    this.aggregateOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

@@ -18,7 +18,8 @@ DfFieldTypeT = {
 'DfTimespec' : 9,
 'DfBlob' : 10,
 'DfNull' : 11,
-'DfMixed' : 12
+'DfMixed' : 12,
+'DfFatptr' : 13
 };
 DfFormatTypeT = {
 'DfTypeUnknown' : 0,
@@ -38,7 +39,8 @@ DfFieldTypeTStr = {0 : 'DfUnknown',
 9 : 'DfTimespec',
 10 : 'DfBlob',
 11 : 'DfNull',
-12 : 'DfMixed'
+12 : 'DfMixed',
+13 : 'DfFatptr'
 };
 DfFormatTypeTStr = {0 : 'DfTypeUnknown',
 1 : 'DfTypeJson',
