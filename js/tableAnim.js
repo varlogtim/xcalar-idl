@@ -753,6 +753,7 @@ function addColListeners(colId, tableId) {
         var colMenu = $(this).siblings('.colMenu');
         colMenu.css({'top':top, 'left':left});
         colMenu.show();
+        $('.theadWrap').css('z-index', '9');
         colMenu.closest('.theadWrap').css('z-index', '10');
 
         //positioning if dropdown menu is on the right side of screen
