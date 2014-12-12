@@ -325,7 +325,7 @@ function addCol(colId, tableId, name, options) {
                         '</ul>'+
                         '<div class="rightArrow"></div>'+
                         '</li>'+
-                        '<li id="join">'+'Join'+
+                        '<li class="joinList col'+newColid+'">'+'Join'+
                             '<ul class="subColMenu">';
         } else {
         dropDownHTML += '<li class="filterWrap col'+newColid+'">Filter'+

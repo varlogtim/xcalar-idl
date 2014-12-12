@@ -158,18 +158,9 @@ $(window).unload(
 
 // ========================== Document Ready ==================================
 
-function documentReadyAutoGenTableFunction(tableNum) {
+function documentReadyAutoGenTableFunction() {
     gActiveTableNum = 0;
-    if (tableNum != 0) {
-        return;
-    }
-
-    // var dataTh = $('#autoGenTable'+tableNum).find('.dataCol').closest('th');
-    // var dataIndex = parseColNum(dataTh);
-    // addColListeners(dataIndex, "autoGenTable"+tableNum);
-    // set up listeners for data column
-
-    var resultTextLength = (""+gTables[tableNum].resultSetCount).length;
+    var resultTextLength = (""+gTables[gActiveTableNum].resultSetCount).length;
     $('#rowInput').attr({'maxLength': resultTextLength,
                           'size': resultTextLength});
 
@@ -184,8 +175,8 @@ function documentReadyAutoGenTableFunction(tableNum) {
             return;
         } else if (row < 1) {
             $('#rowInput').val('1');
-        } else if (row > gTables[tableNum].resultSetCount) {
-            $('#rowInput').val(gTables[tableNum].resultSetCount);
+        } else if (row > gTables[gActiveTableNum].resultSetCount) {
+            $('#rowInput').val(gTables[gActiveTableNum].resultSetCount);
         }
         row = parseInt($('#rowInput').val());
         // XXX: HACK
@@ -193,10 +184,10 @@ function documentReadyAutoGenTableFunction(tableNum) {
         $("#autoGenTable"+gActiveTableNum+" tbody").empty();
 
         if (((row)/gNumEntriesPerPage) >
-                Math.floor((gTables[tableNum].resultSetCount/
+                Math.floor((gTables[gActiveTableNum].resultSetCount/
                             gNumEntriesPerPage)-2)) {
             //if row lives inside last 3 pages, prepare to display last 3 pages
-            var pageNum = (gTables[tableNum].resultSetCount-1)/
+            var pageNum = (gTables[gActiveTableNum].resultSetCount-1)/
                            gNumEntriesPerPage - 2;
         } else {
             var pageNum = row/gNumEntriesPerPage;
@@ -208,12 +199,12 @@ function documentReadyAutoGenTableFunction(tableNum) {
 
         positionScrollbar(row, gActiveTableNum);
         generateFirstLastVisibleRowNum();
-        moverowScroller(row, gTables[tableNum].resultSetCount);
+        moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
         // $(this).blur(); 
     });
 
     $('#pageBar > div:last-child').append('<span>of '+
-                                           gTables[tableNum].resultSetCount+
+                                           gTables[gActiveTableNum].resultSetCount+
                                            '</span>');
 
     $('.autoGenTable thead').mouseenter(function(event) {
@@ -252,7 +243,9 @@ function documentReadyGeneralFunction() {
     $('#fnBar').keyup(function(e) {
         if (gFnBarOrigin) {
             gFnBarOrigin.val($(this).val());
-            gFnBarOrigin.trigger(e);
+            if (e.which == keyCode.Enter) {
+                gFnBarOrigin.trigger(e);
+            } 
         }
         if (e.which == keyCode.Enter) {
             $(this).blur();
@@ -461,7 +454,7 @@ function startupFunctions() {
 function tableStartupFunctions(table, tableNum) {
     var newTableMeta = setTableMeta(table);
     gTables[tableNum] = newTableMeta;
-    documentReadyAutoGenTableFunction(tableNum);
+    // documentReadyAutoGenTableFunction(tableNum);
     documentReadyCatFunction(tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
@@ -483,8 +476,9 @@ function documentReadyIndexFunction() {
             generateBlankTable();
         } else {
             addTable("gdelt", 0);
-            addTable("sp500", 1);
-            addTable("sp500", 2);
+            // addTable("sp500", 1);
+            // addTable("sp500", 2);
+            documentReadyAutoGenTableFunction();
         }
     });
 }

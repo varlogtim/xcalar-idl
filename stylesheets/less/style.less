@@ -809,6 +809,7 @@ input:focus {
     .elementText{ 
         cursor: pointer;
         text-align: left;
+        white-space: normal;
     }
 
     .elementTextWrap, .addedBarTextWrap {
@@ -878,17 +879,20 @@ input:focus {
     display: table;
     position: absolute;
     background-color: @color-white;
-    text-align: center;
 
     input {
-        width: ~"calc(100% - 3px)";
+        width: ~"calc(100% - 5px)";
         height: 100%;
         text-align: center;
         background-color: @color-table-lightGray;
         font: 15px @font-base;
         padding: 0 4px;
-        margin-right: 5px;
+        // margin-right: 5px;
+        &.tblTitleSelected {
+            background-color: #DEE8E8;
+        }
     }
+
 }
 
 .trueTHead {
