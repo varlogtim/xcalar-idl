@@ -68,7 +68,6 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
     firstPart = finalString.substring(0, firstIndex);
     secondPart = finalString.substring(secondIndex);
     finalString = "<tr class='row"+id+"'>"+firstPart +(id+1)+ secondPart+"</tr>";
-
     if (direction == 1) {
         var row = "tr:first-child";
     } else {
@@ -85,6 +84,13 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
         }    
     }
 
+    // check if this row is bookmarked
+    if (gTables[tableNum].bookmarks.indexOf(id) > -1) {
+        var td = $('#autoGenTable'+tableNum+' .row'+id+ ' .col0');
+        td.addClass('rowBookmarked');
+        td.find('.idSpan').attr('title', 'bookmarked');
+    }
+    
     //XXX Todo: This code is duplicated in generateFirstScreen function, refactor
 
     $('#autoGenTable'+tableNum+' tbody '+row+' .jsonElement')

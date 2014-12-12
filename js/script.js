@@ -247,9 +247,7 @@ function documentReadyGeneralFunction() {
     $('#fnBar').keyup(function(e) {
         if (gFnBarOrigin) {
             gFnBarOrigin.val($(this).val());
-            if (e.which == keyCode.Enter) {
-                gFnBarOrigin.trigger(e);
-            } 
+            gFnBarOrigin.trigger(e);
         }
         if (e.which == keyCode.Enter) {
             $(this).blur();

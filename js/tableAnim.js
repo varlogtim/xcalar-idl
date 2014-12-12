@@ -725,8 +725,7 @@ function addColListeners(colId, tableId) {
     });
 
     table.find('.editableHead.col'+colId).keyup(function(e) {
-        console.log('head key up')
-        updateFunctionBar($(this).val());
+        console.log('head key up');
         gFnBarOrigin = $(this);
         if (e.which == keyCode.Enter) {
             var index = parseColNum($(this));
@@ -1071,7 +1070,7 @@ function bookmarkRow(rowNum, tableNum) {
     var bookmark = $('<div class="bookmark bkmkRow'+rowNum+'"'+
         ' style="left:'+leftPos+'%;" title="row '+(rowNum+1)+'"></div>');
     $('#rowScroller'+tableNum).append(bookmark);
-    if (gTables[tableNum].bookmarks.indexOf(rowNum) > -1) {
+    if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
         gTables[tableNum].bookmarks.push(rowNum);
     }
     
