@@ -57,6 +57,10 @@ function infScrolling(tableNum) {
     $("#autoGenTableWrap"+tableNum).scroll(function() {
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("autoGenTableWrap".length));
+        $('#theadWrap'+gActiveTableNum+' .tableTitle input')
+            .removeClass('tblTitleSelected');
+        $('#theadWrap'+dynTableNum+' .tableTitle input')
+            .addClass('tblTitleSelected');
         gActiveTableNum = dynTableNum;
         if ($(this).scrollTop() === 0 && 
             $('#autoGenTable'+dynTableNum+' tbody tr:first').attr('class') != 
@@ -98,7 +102,7 @@ function infScrolling(tableNum) {
         generateFirstLastVisibleRowNum();
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
-        showRowScroller(dynTableNum);
+        updatePageBar(dynTableNum);
     });
 }
 
@@ -476,8 +480,8 @@ function documentReadyIndexFunction() {
             generateBlankTable();
         } else {
             addTable("gdelt", 0);
-            // addTable("sp500", 1);
-            // addTable("sp500", 2);
+            addTable("sp500", 1);
+            addTable("sp500", 2);
             documentReadyAutoGenTableFunction();
         }
     });

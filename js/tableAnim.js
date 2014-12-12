@@ -122,11 +122,6 @@ function gRescolMouseDown(el, event) {
     } else {
         var rowNum = 1;
     }
-    // if (rowNum == 1) {
-    //     rowNum = 2;
-    // } else {
-    //     rowNum = 1;
-    // }
     gRescol.secondCell = $('#autoGenTable'+tableNum+' tr:eq('+rowNum+') th.col'+
                             gRescol.colNum);
     gRescol.lastCellWidth = $('#autoGenTable'+tableNum+' thead:last th:last')
@@ -277,7 +272,7 @@ function dragdropMouseDown(el, event) {
                     .append('<div id="shadowDiv" style="width:'+
                             (gDragObj.colWidth)+
                             'px;height:'+(shadowDivHeight-30)+'px;left:'+
-                            (gDragObj.left+$('#mainFrame').scrollLeft())+
+                            (gDragObj.element.position().left+10)+
                             'px;top:'+(gDragObj.top+30)+'px;"></div>');
 
     // create a fake transparent column by cloning 
@@ -935,7 +930,7 @@ function addColMenuActions(colId, tableId) {
         $(this).select();
     });
 
-    table.find('.joinList'+colId+ ' .join').click(function() {
+    table.find('.joinList.col'+colId+ ' .join').click(function() {
         var tableNum = parseInt($(this).closest('table')
                         .attr('id').substring(12));
         joinTables($(this).text(), tableNum);
