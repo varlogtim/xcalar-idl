@@ -210,15 +210,6 @@ function documentReadyAutoGenTableFunction() {
     $('#pageBar > div:last-child').append('<span>of '+
                                            gTables[gActiveTableNum].resultSetCount+
                                            '</span>');
-
-    $('.autoGenTable thead').mouseenter(function(event) {
-        if (!$(event.target).hasClass('colGrab')) {
-            $('.dropdownBox').css('opacity', 0.4);
-        }
-    })
-    .mouseleave(function() {
-        $('.dropdownBox').css('opacity', 0);
-    });
 }
 
 function documentReadyGeneralFunction() {

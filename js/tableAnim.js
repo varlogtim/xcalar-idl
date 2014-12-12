@@ -1009,6 +1009,15 @@ function addTableListeners(tableNum) {
         updatePageBar(dynTableNum);
         generateFirstLastVisibleRowNum();
     });
+
+    $('#autoGenTable'+tableNum+' thead').mouseenter(function(event) {
+        if (!$(event.target).hasClass('colGrab')) {
+            $('#autoGenTable'+tableNum+' .dropdownBox').css('opacity', 0.4);
+        }
+    })
+    .mouseleave(function() {
+        $('#autoGenTable'+tableNum+' .dropdownBox').css('opacity', 0);
+    });
 }
 
 function moverowScroller(pageNum, resultSetCount) {
@@ -1018,7 +1027,14 @@ function moverowScroller(pageNum, resultSetCount) {
 }
 
 function addRowScroller(tableNum) {
-    if (tableNum != 0) {
+    console.log('adding scroller -------------------------------------------------------------------------')
+    if ($('.autoGenTable').length == 1) {
+        $('#rowScrollerArea').append('<div id="rowScroller'+tableNum+
+        '" class="rowScroller" title="scroll to a row">'+
+            '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
+            '</div>'+
+        '</div>');
+    } else {
        $('#rowScroller'+(tableNum-1)).after('<div id="rowScroller'+tableNum+
         '" class="rowScroller" title="scroll to a row">'+
             '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
@@ -1031,6 +1047,8 @@ function addRowScroller(tableNum) {
         if (event.which != 1) {
             return;
         }
+        console.log(gActiveTableNum)
+        var tableNum = gActiveTableNum;
 
         var mouseX = event.pageX - $(this).offset().left;
         $('#rowMarker'+tableNum).css('transform', 'translateX('+mouseX+'px)');

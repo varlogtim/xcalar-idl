@@ -235,6 +235,7 @@ function addTable(tableName, tableNum) {
         $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
         $("#theadWrap"+(i+1)).css("z-index", 10-(i+1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
+        $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
 
         gTables[i+1] = gTables[i];
     }
@@ -254,10 +255,19 @@ function delTable(tableNum) {
         $("#theadWrap"+i).attr("id", "theadWrap"+(i-1));
         $("#theadWrap"+(i-1)).css("z-index", 10-(i-1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i-1));
+        $("#rowMarker"+i).attr("id", "rowMarker"+(i-1));
         gTables[i-1] = gTables[i];
     }
     gTables.splice(tableNum, 1);
     // XXX: Think about gActiveTableNum
+    console.log($('.autoGenTable').length , gActiveTableNum, tableNum)
+    if ($('#autoGenTable'+gActiveTableNum).length == 0) {
+       gActiveTableNum = 0; 
+       $('#rowScroller0').show();
+    } else {
+        $('#rowScroller'+gActiveTableNum).show();
+    }
+    
     if ($('.autoGenTable').length == 1) {
         $('.autoGenTableWrap').width('100%').css('overflow-x', 'auto');
     }
