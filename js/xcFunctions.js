@@ -15,13 +15,17 @@ function checkStatus(newTableName, tableNum, keepOriginal,
         } else {
             // default
             var newTableNum = tableNum;
-            delTable(tableNum);
             if (additionalTableNum) {
-                delTable(additionalTableNum);
+                var largerTableNum = Math.max(additionalTableNum, tableNum);
+                var smallerTableNum = Math.min(additionalTableNum, tableNum);
+                delTable(largerTableNum);
+                delTable(smallerTableNum);
                 if (newTableNum > gTables.length) {
                     // edge case
                     newTableNum = gTables.length;
                 }
+            } else {
+                delTable(tableNum);
             }
             addTable(newTableName, newTableNum);
         }
