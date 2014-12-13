@@ -14,17 +14,23 @@ function checkStatus(newTableName, tableNum, keepOriginal,
             addTable(newTableName, gTables.length);
         } else {
             // default
+            var newTableNum = tableNum;
             delTable(tableNum);
             if (additionalTableNum) {
                 delTable(additionalTableNum);
+                if (newTableNum > gTables.length) {
+                    // edge case
+                    newTableNum = gTables.length;
+                }
             }
-            addTable(newTableName, tableNum);
+            addTable(newTableName, newTableNum);
         }
     } else {
         console.log(refCount);
         // Check twice per second
         setTimeout(function() {
-            checkStatus(newTableName);
+            checkStatus(newTableName, tableNum, keepOriginal,
+                        additionalTableNum);
         }, 500);
     }
 }
@@ -50,7 +56,8 @@ function sortRows(index, tableNum, order) {
         return;
     }
     XcalarIndexFromTable(gTables[tableNum].frontTableName, fieldName, newTableName);
-    checkStatus(newTableName, tableNum);
+    checkStatus(newTableName, tableNum, KeepOriginalTables.DontKeep,
+                undefined);
 }
 /*
 function cont1(newIndexTable, operator, value, datasetId, key, otherTable) {
@@ -124,20 +131,9 @@ function filterNonMainCol(operator, value, datasetId, key, otherTable) {
 }
 
 function filterCol(operator, value, colid, tableNum) {
-    if (gTables[tableNum].frontTableName.indexOf("joined") > -1) {
-        var dsId = gTables[tableNum].tableCols[colid-1].datasetId;
-        var key = gTables[tableNum].tableCols[colid-1].func.args[0];
-        if (getDsId("gdelt") == dsId) {
-            var otherTable = "sp500";
-        } else {
-            var otherTable = "gdelt";
-        }
-        filterNonMainCol(operator, value, dsId, key, otherTable);
-        return;
-    }
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
-    setIndex(newTableName, gTables.tableCols);
+    setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
     XcalarFilter(operator, value, gTables[tableNum].frontTableName, newTableName);
