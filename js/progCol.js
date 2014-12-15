@@ -144,7 +144,8 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         //check for dot followed by number (invalid)
         return;
     }
-    var dataCol = $("#autoGenTable"+tableNum+" tr:first th").filter(
+    var table = $("#autoGenTable"+tableNum);
+    var dataCol = table.find("tr:first th").filter(
         function() {
             return $(this).find("input").val() == "DATA";
     });
@@ -153,9 +154,9 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
     var startingIndex = -1;
 
     if (!startIndex) {
-        startingIndex = parseInt($("#autoGenTable"+tableNum+" tbody tr:first")
+        startingIndex = parseInt(table.find("tbody tr:first")
             .attr('class').substring(3)); 
-        numRow = $("#autoGenTable"+tableNum+" tbody tr").length;
+        numRow = table.find("tbody tr").length;
     } else {
         startingIndex = startIndex;
         numRow = numberOfRows||gNumEntriesPerPage;
@@ -163,8 +164,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
     
     // store the variable type
-    var jsonStr = $('#autoGenTable'+tableNum+' .row'+startingIndex+
-                    ' .col'+colid+' .elementText')
+    var jsonStr = table.find('.row'+startingIndex+' .col'+colid+' .elementText')
                   .text();
     if (jsonStr == "") {
         console.log("Error: pullCol() jsonStr is empty");
@@ -179,8 +179,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
     }
     gTables[tableNum].tableCols[newColid-1].type = (typeof value);
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
-        var jsonStr = $('#autoGenTable'+tableNum+' .row'+i+' .col'+colid+
-            ' .elementText').text();
+        var jsonStr = table.find('.row'+i+' .col'+colid+' .elementText').text();
         if (jsonStr == "") {
             console.log("Error: pullCol() jsonStr is empty");
         }
@@ -196,12 +195,11 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         value = parseJsonValue(value);
         value = '<div class="addedBarTextWrap"><div class="addedBarText">'+
                 value+"</div></div>";
-        $('#autoGenTable'+tableNum+' .row'+i+' .col'+newColid).html(value);
+        table.find('.row'+i+' .col'+newColid).html(value);
     } 
 }
 
 function addCol(colId, tableId, name, options) {
-    console.log(arguments)
     //id will be the column class ex. col2
     //tableId will be the table name  ex. autoGenTable0
     var tableNum = parseInt(tableId.substring(12));

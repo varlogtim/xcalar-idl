@@ -582,12 +582,12 @@ input:focus {
     }
 
     .rowMarker {
-        height: 100%;
+        height: 22px;
         width: 2px;
-        margin-top: 0px;
+        margin-top: 1px;
         position: absolute;
         top: 0;
-        left: 0%;
+        left: 1px;
         background-color: @color-bar-orange;
         .transition (transform 0.2s ease-out);
         .transition-delay (0s);
@@ -624,8 +624,8 @@ input:focus {
 }
 
 .tableWrap::-webkit-scrollbar-thumb {
-    // background: rgba(237,28,36, 0.5) !important;
-    background: rgba(255, 255, 255, 1) !important;
+    background: rgba(237,28,36, 0.5) !important;
+    // background: rgba(255, 255, 255, 1) !important;
 }
 
 .tableWrap::-webkit-scrollbar-corner {
@@ -920,7 +920,8 @@ input:focus {
 
 .trueTHead .colGrab {
     // display: none !important;
-    height: 38px !important;
+    height: 66px !important;
+    top: -35px;
 }
 
 
@@ -1616,6 +1617,7 @@ ul.leftColMenu + .rightArrow {
         width: 100%;
         box-shadow: 1px 1px rgba(0, 0, 0, 0.15);
         margin-bottom: -1px;
+        top: 3px;
         cursor: pointer;
 
         &.tabSelected {

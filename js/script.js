@@ -62,42 +62,38 @@ function infScrolling(tableNum) {
         $('#theadWrap'+dynTableNum+' .tableTitle input')
             .addClass('tblTitleSelected');
         gActiveTableNum = dynTableNum;
+        var table = $('#autoGenTable'+dynTableNum);
         if ($(this).scrollTop() === 0 && 
-            $('#autoGenTable'+dynTableNum+' tbody tr:first').attr('class') != 
-            'row0') {
+            table.find('tbody tr:first').attr('class') != 'row0') {
                 console.log('the top!');
-                var firstRow = $('#autoGenTable'+dynTableNum+' tbody tr:first');
+                var firstRow = table.find('tbody tr:first');
                 var initialTop = firstRow.offset().top;
-                if ($("#autoGenTable"+dynTableNum+" tbody tr").length > 60) {
+                if (table.find("tbody tr").length > 60) {
                     var pageNumber = gTables[dynTableNum].currentPageNumber-1;
                 } else {
                     var pageNumber = gTables[dynTableNum].currentPageNumber;
                 }
 
-                $('#autoGenTable'+dynTableNum+' .colGrab').hide();
+                table.find('.colGrab').hide();
                 goToPage(pageNumber, RowDirection.Top, dynTableNum);
                 
-                $('#autoGenTableWrap'+dynTableNum)
-                    .scrollTop(firstRow.offset().top - initialTop + 10);
-                $("#autoGenTable"+dynTableNum+" tbody tr:gt(79)").remove();
+                table.scrollTop(firstRow.offset().top - initialTop + 10);
+                table.find("tbody tr:gt(79)").remove();
                 
-                $('#autoGenTable'+dynTableNum+' .colGrab')
-                    .height($('#autoGenTable'+dynTableNum).height()-10);
-                $('#autoGenTable'+dynTableNum+' .colGrab').show();
+                table.find('.colGrab').height(table.height()-10);
+                table.find('.colGrab').show();
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()+
                     gScrollbarHeight - $(this).outerHeight() <= 1) {
-            gTempStyle = $("#autoGenTable"+dynTableNum+" tbody tr:last").html();
-            if ($('#autoGenTable'+dynTableNum+' tbody tr').length >= 80) {
+            gTempStyle = table.find("tbody tr:last").html();
+            if (table.find('tbody tr').length >= 80) {
                 // keep row length at 80
-                $('#autoGenTable'+dynTableNum+' tbody tr:lt(20)').remove();
+                table.find('tbody tr:lt(20)').remove();
             }
-            $('#autoGenTable'+dynTableNum+' .colGrab').hide();
+            table.find('.colGrab').hide();
             goToPage(gTables[dynTableNum].currentPageNumber+1,
                      RowDirection.Bottom, dynTableNum); 
-            
-            $('#autoGenTable'+dynTableNum+' .colGrab')
-                .height($('#autoGenTable'+dynTableNum).height()-10);
-            $('#autoGenTable'+dynTableNum+' .colGrab').show();
+            table.find('.colGrab').height(table.height()-10);
+            table.find('.colGrab').show();
         }
         generateFirstLastVisibleRowNum();
         var top = $(this).scrollTop();
@@ -218,14 +214,15 @@ function documentReadyGeneralFunction() {
     }); 
 
     $(window).resize(function() {
-        // $('.colGrab').height($('#autoGenTableWrap0').height());
         $('.colGrab').height($('#autoGenTable0').height()-10);
         //XXX TODO: call checkForScrollBar only when needed, remove from here
         checkForScrollBar(0);
         generateFirstLastVisibleRowNum();
     });
 
-    $('#fnBar').on('input', function(e) {
+    var functionbar = $('#fnBar');
+
+    functionbar.on('input', function(e) {
         if ($(".scratchpad").has(gFnBarOrigin).length != 0 &&
             $(this).val().indexOf("=") == 0) {
             enterEquationMode();
@@ -235,7 +232,7 @@ function documentReadyGeneralFunction() {
         }
     });
 
-    $('#fnBar').keyup(function(e) {
+    functionbar.keyup(function(e) {
         if (gFnBarOrigin) {
             gFnBarOrigin.val($(this).val());
             gFnBarOrigin.trigger(e);
@@ -245,34 +242,30 @@ function documentReadyGeneralFunction() {
         }
     });
 
-    $('#fnBar').mousedown(function() {
+    functionbar.mousedown(function() {
         var fnBar = $(this);
         // must activate mousedown after header's blur, hence delay
         setTimeout(selectCell, 1);
         function selectCell() {
-            // console.log($(".scratchpad").has(gFnBarOrigin))
-            if ($(".scratchpad").has(gFnBarOrigin).length == 0) {
-                if (gFnBarOrigin) {
-                    console.log(fnBar.val());
-                    // gFnBarOrigin.val(fnBar.val());
+            if ($(".scratchpad").has(gFnBarOrigin).length == 0 
+                && gFnBarOrigin) {
+                console.log(fnBar.val());
+                // gFnBarOrigin.val(fnBar.val());
 
 
 
-                    var index = parseColNum(gFnBarOrigin);
-                    var tableNum = parseInt(gFnBarOrigin.closest('table')
-                        .attr('id').substring(12)); 
-                    if (gTables[tableNum].tableCols[index-1].userStr.length > 0) {
-                        gFnBarOrigin.val(gTables[tableNum].tableCols[index-1]
-                                         .userStr);
-                    }
-                    
-                }
+                var index = parseColNum(gFnBarOrigin);
+                var tableNum = parseInt(gFnBarOrigin.closest('table')
+                    .attr('id').substring(12)); 
+                if (gTables[tableNum].tableCols[index-1].userStr.length > 0) {
+                    gFnBarOrigin.val(gTables[tableNum].tableCols[index-1]
+                                     .userStr);
+                } 
             }
         }
     });
 
-    $('#fnBar').blur(function() {
-        console.log("Here");
+    functionbar.blur(function() {
         if ($(".scratchpad").has(gFnBarOrigin).length != 0) {
         } else {
             console.log('blurring')
@@ -350,10 +343,12 @@ function documentReadyGeneralFunction() {
                 $('.colMenu').hide();
                 $('.theadWrap').css('z-index', '9');
         }
-        if (target.closest('.selectedCell').length == 0 && !target.is('#fnBar')
+        if (target.closest('.selectedCell').length == 0 
+            // && target.closest('#scratchpadArea').length == 0
+            && !target.is('#fnBar')
             && (!equationCellRow)) {
             $('.selectedCell').removeClass('selectedCell');
-            gFnBarOrigin = undefined;    
+            gFnBarOrigin = undefined;
             $('#fnBar').val("");
         }
     });

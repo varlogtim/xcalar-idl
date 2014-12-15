@@ -32,8 +32,8 @@ function generateFirstLastVisibleRowNum() {
 }
 
 function resizableColumns(tableNum) {
-    // $('#autoGenTable'+tableNum+' tr:first .header').each(
-    $('#autoGenTable'+tableNum+' .header').each(
+    var table = $('#autoGenTable'+tableNum);
+    table.find('.header').each(
         function() {
             if (!$(this).children().hasClass('colGrab') 
                 &&!$(this).parent().is(':first-child')) {
@@ -50,10 +50,10 @@ function resizableColumns(tableNum) {
             }
         }
     );
-    $('#autoGenTable'+tableNum+' .colGrab')
+   table.find('.colGrab')
             .height($('#autoGenTable'+tableNum).height());
     if (gRescol.first) {
-        $('#autoGenTable'+tableNum+' tr:first th').each(
+        table.find('tr:first th').each(
             function() {
                     var initialWidth = $(this).width();
                     $(this).width(initialWidth);
@@ -106,15 +106,17 @@ function reenableTextSelection() {
 }
 
 function gRescolMouseDown(el, event) {
-    console.log('resizingcol', el.closest('thead'))
     gMouseStatus = "resizingCol";
-    event.preventDefault();
+    // event.preventDefault();
+    var table = el.closest('table');
+    var tableNum = parseInt(table.attr('id').substring(12));
+    var tableWidth = table.outerWidth();
     gRescol.mouseStart = event.pageX;
     gRescol.grabbedCell = el.parent().parent();  // the th 
     gRescol.index = gRescol.grabbedCell.index();
     gRescol.startWidth = gRescol.grabbedCell.outerWidth();
-    var tableNum = parseInt(el.closest('table').attr('id').substring(12));
     gRescol.tableNum = tableNum;
+    gRescol.table = table;
     gRescol.colNum = parseColNum(gRescol.grabbedCell);
     // var rowNum = gRescol.grabbedCell.closest('thead').index();
     if (gRescol.grabbedCell.closest('thead').hasClass('fauxTHead')) {
@@ -122,17 +124,19 @@ function gRescolMouseDown(el, event) {
     } else {
         var rowNum = 1;
     }
-    gRescol.secondCell = $('#autoGenTable'+tableNum+' tr:eq('+rowNum+') th.col'+
+    gRescol.secondCell = table.find('tr:eq('+rowNum+') th.col'+
                             gRescol.colNum);
-    gRescol.lastCellWidth = $('#autoGenTable'+tableNum+' thead:last th:last')
+    gRescol.lastCellWidth = table.find('thead:last th:last')
                             .outerWidth();
-    gRescol.tableWidth = $('#autoGenTable'+tableNum).outerWidth();
-    gRescol.tableExcessWidth = gRescol.tableWidth - gMinTableWidth;
-    gRescol.thead = $('#autoGenTable'+tableNum+' thead:first');
+    
+    gRescol.tableExcessWidth = tableWidth - gMinTableWidth;
+    gRescol.thead = table.find('thead:first');
     gRescol.theadWrap = $('#theadWrap'+tableNum);
-    var minTableWidth = gRescol.tableWidth - 
+    var minTableWidth = tableWidth - 
                             (gRescol.startWidth-gRescol.cellMinWidth);
     gRescol.tempMinTableWidth = Math.max(minTableWidth, gMinTableWidth);
+    gRescol.minLastCellWidth = Math.max(gMinTableWidth - 
+        (tableWidth - gRescol.startWidth), gRescol.cellMinWidth-5);
 
     if (gRescol.grabbedCell.is(':last-child')) {
         gRescol.lastCellGrabbed = true;
@@ -140,6 +144,16 @@ function gRescolMouseDown(el, event) {
 
     gRescol.tempCellMinWidth = gRescol.cellMinWidth-5;
     gRescol.leftDragMax =  gRescol.tempCellMinWidth - gRescol.startWidth;
+
+    // what the last cell width will be if current column is resized to minimum
+    if ((tableWidth - (gRescol.startWidth - gRescol.cellMinWidth)) > 
+            gMinTableWidth) {
+        gRescol.setLastCellWidth = gRescol.lastCellWidth;
+    } else {
+        gRescol.setLastCellWidth = gRescol.lastCellWidth + (gMinTableWidth-
+            (tableWidth + gRescol.leftDragMax));
+    }
+
     disableTextSelection();
     $(document.head).append('<style id="ew-resizeCursor" type="text/css">*'+ 
         '{cursor: ew-resize !important;}</style>');
@@ -151,16 +165,17 @@ function gRescolMouseMove(event) {
         gRescol.grabbedCell.outerWidth(gRescol.startWidth + dragDist);
         gRescol.secondCell.outerWidth(gRescol.startWidth + dragDist);
         if (dragDist <= -gRescol.tableExcessWidth) {
-            console.log(dragDist,-gRescol.tableExcessWidth)
-            $('#autoGenTable'+gRescol.tableNum+' thead th:last-child')
+            gRescol.table.find('thead th:last-child')
                 .outerWidth(gRescol.lastCellWidth - 
                 (dragDist + gRescol.tableExcessWidth));
         }     
     } else if (dragDist < gRescol.leftDragMax ) {
         gRescol.grabbedCell.outerWidth(gRescol.tempCellMinWidth);
         gRescol.secondCell.outerWidth(gRescol.tempCellMinWidth);
+        gRescol.table.find('thead th:last-child')
+                .outerWidth(gRescol.setLastCellWidth);
     }
-    var tableWidth = $('#autoGenTable'+gRescol.tableNum).width();
+    var tableWidth = gRescol.table.width();
     gRescol.thead.outerWidth(tableWidth);
     gRescol.theadWrap.outerWidth(tableWidth+10);
 }
@@ -176,19 +191,11 @@ function gRescolMouseMoveLast(event) {
             gRescol.secondCell.outerWidth(gRescol.tempCellMinWidth);
         } 
     } else {
-        if (dragDist < gRescol.leftDragMax) {
-            gRescol.grabbedCell.outerWidth(gRescol.tempCellMinWidth);
-            gRescol.secondCell.outerWidth(gRescol.tempCellMinWidth);
-        } else {
-            gRescol.grabbedCell.
-                outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
-            gRescol.secondCell.
-                outerWidth(gRescol.startWidth - gRescol.tableExcessWidth);
-        }
-        $('#autoGenTable'+gRescol.tableNum+' thead')
-            .width(gRescol.tempMinTableWidth);
+        gRescol.grabbedCell.outerWidth(gRescol.minLastCellWidth);
+        gRescol.secondCell.outerWidth(gRescol.minLastCellWidth);
+        gRescol.table.find('thead').width(gRescol.tempMinTableWidth);
     } 
-    var tableWidth = $('#autoGenTable'+gRescol.tableNum).width();
+    var tableWidth = gRescol.table.width();
     gRescol.thead.outerWidth(tableWidth);
     gRescol.theadWrap.outerWidth(tableWidth+10);
 }
@@ -198,8 +205,7 @@ function gRescolMouseUp() {
     gRescol.lastCellGrabbed = false;
     $('#ew-resizeCursor').remove();
     reenableTextSelection();
-    $('#autoGenTable'+gRescol.tableNum+' .rowGrab')
-            .width($('#autoGenTable'+gRescol.tableNum).width());
+    gRescol.table.find('.rowGrab').width(gRescol.table.width());
     var progCol = gTables[gRescol.tableNum].tableCols[gRescol.index-1];
     progCol.width = gRescol.grabbedCell.outerWidth();
     matchHeaderSizes(gRescol.tableNum);
@@ -248,10 +254,12 @@ function dragdropMouseDown(el, event) {
     gMouseStatus = "movingCol";
     gDragObj.mouseX = event.pageX;
     gDragObj.colNum = parseColNum(el);
-    gDragObj.tableNum = parseInt(el.closest('table').attr('id').substring(12));
+    var table = el.closest('table');
+    gDragObj.table = table;
+    gDragObj.tableNum = parseInt(table.attr('id').substring(12));
     gDragObj.element = el;
     gDragObj.colIndex = parseInt(el.index());
-    gDragObj.scrollLeft = $('#autoGenTable'+gDragObj.tableNum).position().left;
+    gDragObj.scrollLeft = table.position().left;
     gDragObj.top = parseInt($('#theadWrap'+gDragObj.tableNum).css('top')) + 5;
     gDragObj.offsetTop = el.offset().top;
     gDragObj.left = el.offset().left - 
@@ -295,9 +303,10 @@ function dragdropMouseMove(event) {
 function dragdropMouseUp() {
     gMouseStatus = null;
     $('#shadowDiv, #fauxCol, #dropTargets, #moveCursor').remove();
-    $('#autoGenTableWrap'+gDragObj.tableNum).off('scroll', tableScrollDropTargets); 
-    $('#mainFrame').off('scroll', mainFramecrollDropTargets);
-    $('#mainFrame').removeClass('hideScroll');
+    $('#autoGenTableWrap'+gDragObj.tableNum)
+        .off('scroll', tableScrollDropTargets); 
+    $('#mainFrame').removeClass('hideScroll')
+        .off('scroll', mainFramecrollDropTargets);
     var progCol = gTables[gDragObj.tableNum].tableCols[gDragObj.colNum-1];
     var isDark = gDragObj.element.hasClass('unusedCell');
     var selected = gDragObj.element.hasClass('selectedCell');
@@ -350,12 +359,11 @@ function createTransparentDragDropCol() {
     
     var rowHeight = 20;
     // turn this into binary search later
-    var topPx = $('#autoGenTable'+gDragObj.tableNum+' thead').offset().top + 
-                $('#autoGenTable'+gDragObj.tableNum+' thead').outerHeight() -
-                rowHeight;
+    var topPx = gDragObj.table.find('thead').offset().top + 
+                gDragObj.table.find('thead').outerHeight() - rowHeight;
     var topRowIndex = -1;
     var topRowTd = null;
-    $('#autoGenTable'+gDragObj.tableNum+' tbody tr').each(function() {
+    gDragObj.table.find('tbody tr').each(function() {
         if ($(this).offset().top > topPx) {
             topRowIndex = $(this).index();
             topRowEl = $(this).find('td');
@@ -367,24 +375,24 @@ function createTransparentDragDropCol() {
     if (topRowIndex == -1) {
         console.log("BUG! Cannot find first visible row??");
         // Clone entire shit and be done.
-        $('#autoGenTable'+gDragObj.tableNum+' tr').each(function(i, ele) {
+        gDragObj.table.find('tr').each(function(i, ele) {
             cloneCellHelper(ele);
         });
         return;
     }
 
     // Clone head
-    $('#autoGenTable'+gDragObj.tableNum+' tr:first').each(function(i, ele) {
+    gDragObj.table.find('tr:first').each(function(i, ele) {
         cloneCellHelper(ele);
     });
 
     var totalRowHeight = gDragObj.element
             .closest('#autoGenTableWrap'+gDragObj.tableNum).height()-
-            $('#autoGenTable'+gDragObj.tableNum+' th:first').outerHeight() -
+            gDragObj.table.find('th:first').outerHeight() -
             gScrollbarHeight;
     var numRows = Math.ceil(totalRowHeight/rowHeight);
     var count = 0;
-    $('#autoGenTable'+gDragObj.tableNum+' tr:gt('+(topRowIndex+1)+')')
+    gDragObj.table.find('tr:gt('+(topRowIndex+1)+')')
         .each(function(i, ele) {
             cloneCellHelper(ele);
             count++;
@@ -418,7 +426,7 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
         // create targets that will trigger swapping of columns on hover
         var dropTargets = "";
         var i = 0;
-        $('#autoGenTable'+gDragObj.tableNum+' tr:first th').each(function() {
+        gDragObj.table.find('tr:first th').each(function() {
             if (i == 0 || i == gDragObj.colIndex) {
                 i++;
                 return true;  
@@ -440,10 +448,10 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
             i++;
         });
 
-        var tableLeft = $('#autoGenTable'+gDragObj.tableNum)[0]
-            .getBoundingClientRect().left + 
+        var tableLeft = gDragObj.table[0].getBoundingClientRect().left + 
             $('#autoGenTableWrap'+gDragObj.tableNum).scrollLeft();
-        $('body').append('<div id="dropTargets" style="left:'+tableLeft+'px;"></div>');
+        $('body').append('<div id="dropTargets" style="left:'+
+                tableLeft+'px;"></div>');
         $('#dropTargets').append(dropTargets);
         $('.dropTarget').mouseenter(function() {
             dragdropSwapColumns($(this));
@@ -457,8 +465,7 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
     } else {
         // targets have already been created, so just adjust the one corresponding
         // to the column that was swapped
-        var swappedCol = $('#autoGenTable'+gDragObj.tableNum +
-            ' th:eq('+swappedColIndex+')');
+        var swappedCol = gDragObj.table.find('th:eq('+swappedColIndex+')');
         var colLeft = swappedCol.position().left;
         $('#dropTarget'+dropTargetIndex)
             .attr('id', 'dropTarget'+swappedColIndex);
@@ -483,20 +490,19 @@ function dragdropSwapColumns(el) {
     var prevCol = dropTargetId + Math.abs(dropTargetId-gDragObj.colIndex);
     var movedCol;
     if (dropTargetId>gDragObj.colIndex) {
-        $('#autoGenTable'+gDragObj.tableNum+' tr').each(function() { 
+        gDragObj.table.find('tr').each(function() { 
             $(this).children(':eq('+dropTargetId+')').after(
                 $(this).children(':eq('+nextCol+')'));
         });
         movedCol = nextCol;
     } else {
-        $('#autoGenTable'+gDragObj.tableNum+' tr').each(function() { 
+        gDragObj.table.find('tr').each(function() { 
             $(this).children(':eq('+dropTargetId+')').before(
                 $(this).children(':eq('+prevCol+')'));
         });
         movedCol = prevCol;
     }
     var left = gDragObj.element.position().left+10;
-        // console.log(gDragObj.element.offset().left,gDragObj.element.position().left , $('#autoGenTable'+gDragObj.tableNum).position().left, $('#mainFrame').scrollLeft());
     $('#shadowDiv').css('left', left); 
     gDragObj.colIndex = dropTargetId;
     createDropTargets(dropTargetId, movedCol);
@@ -536,7 +542,6 @@ function getTextWidth(el) {
 }
 
 function autosizeCol(el, options) {
-    console.log(el.attr('class'))
     var index = parseColNum(el);
     var tableNum = parseInt(el.closest('table').attr('id').substring(12));
     var options = options || {};
@@ -570,16 +575,16 @@ function getWidestTdWidth(el, options) {
     var options = options || {};
     var includeHeader = options.includeHeader || false;
     var id = parseColNum(el);
-    var tableNum = parseInt(el.closest('table').attr('id').substring(12));
+    var table = el.closest('table');
+    var tableNum = parseInt(table.attr('id').substring(12));
     var largestWidth = 0;
     var longestText = 0;
     var textLength;
     var padding = 4;
-    var largestTd = $('#autoGenTable'+tableNum+' tbody'+
-                    ' tr:first td:eq('+(id)+')');
+    var largestTd = table.find('tbody tr:first td:eq('+(id)+')');
     var headerWidth = 0;
 
-    $('#autoGenTable'+tableNum+' tbody tr').each(function(){
+    table.find('tbody tr').each(function(){
         // we're going to take advantage of monospaced font
         //and assume text length has an exact correlation to text width
         var td = $(this).children(':eq('+(id)+')');
@@ -593,7 +598,7 @@ function getWidestTdWidth(el, options) {
     largestWidth = getTextWidth(largestTd);
 
     if (includeHeader) {
-        var th = $('#autoGenTable'+tableNum+' .col'+id+' .editableHead');
+        var th = table.find('.col'+id+' .editableHead');
         headerWidth = getTextWidth(th);
         if (headerWidth > largestWidth) {
             largestWidth = headerWidth;
@@ -639,12 +644,12 @@ function cloneTableHeader(tableNum) {
     
     var tHeadXPos = 0;
     var tHeadYPos = 0;
-    var tHeadClone = $('#autoGenTable'+tableNum+' thead').clone();
+    var tHeadClone = tHead.clone();
     var leftPos = $('#autoGenTable'+tableNum).position().left;
 
     tHeadClone.addClass('fauxTHead');
     tHead.addClass('trueTHead');
-    $('#autoGenTable'+tableNum+' thead').after(tHeadClone);
+    tHead.after(tHeadClone);
     tHead.css({'position':'absolute', 'top':30,
                     'left':leftPos, 'padding-top':5});
     //XXX z-index of theadwrap decreases per every theadwrap
@@ -676,6 +681,7 @@ function cloneTableHeader(tableNum) {
 
 function matchHeaderSizes(tableNum, reverse) {
     var tHeadLength = $('.fauxTHead th').length;
+    var table = $('#autoGenTable'+tableNum);
     if (reverse) {
         var trueTHead = '.fauxTHead';
         var fauxTHead = '.trueTHead';
@@ -684,15 +690,14 @@ function matchHeaderSizes(tableNum, reverse) {
         var fauxTHead = '.fauxTHead';
     }
     for (var i = 0; i < tHeadLength; i++) {
-        var width = $('#autoGenTable'+tableNum+' '+fauxTHead+' th').eq(i)
+        var width = table.find(fauxTHead+' th').eq(i)
                     .outerWidth();
-        $('#autoGenTable'+tableNum+' '+trueTHead+' th').eq(i).outerWidth(width);
+       table.find(trueTHead+' th').eq(i).outerWidth(width);
     }
-    $('#autoGenTable'+tableNum+' thead').width($('#autoGenTable'+tableNum).width());
-    $('#autoGenTable'+tableNum+' .rowGrab').width($('#autoGenTable'+tableNum)
-                                           .width());
-    $('#autoGenTable'+tableNum+' .theadWrap').width($('#autoGenTable'+tableNum)
-                                             .width()+10);
+    var tableWidth = table.width();
+    table.find('thead').width(tableWidth);
+    table.find('.rowGrab').width(tableWidth);
+    table.find('.theadWrap').width(tableWidth+10);
 }
 
 function addColListeners(colId, tableId) {
@@ -751,7 +756,6 @@ function addColListeners(colId, tableId) {
     });
 
     table.find('.table_title_bg.col'+colId+' .dropdownBox').click(function() {
-        console.log('dropdownclicked');
         $('.colMenu').hide();
         $('.leftColMenu').removeClass('leftColMenu');
         //position colMenu
@@ -765,10 +769,8 @@ function addColListeners(colId, tableId) {
 
         //positioning if dropdown menu is on the right side of screen
         if (colMenu[0].getBoundingClientRect().right > $(window).width()) {
-            console.log('a');
             left = $(this)[0].getBoundingClientRect().right - colMenu.width();
-            colMenu.css('left', left);
-            colMenu.addClass('leftColMenu');
+            colMenu.css('left', left).addClass('leftColMenu');
         }
         if (colMenu.find('.subColMenu').length) {
             if (colMenu.find('.subColMenu')[0].getBoundingClientRect().right > 
@@ -849,7 +851,7 @@ function addColMenuActions(colId, tableId) {
             $(this).closest('.theadWrap').css('z-index', '9');
         }
     });
-    console.log(colId, tableId)
+
     table.find('.table_title_bg.col'+colId+' .addColumns').click(function() {
         var index = 'col'+parseColNum($(this));
         var tableId = $(this).closest('table').attr('id');
@@ -959,13 +961,13 @@ function checkForScrollBar(tableNum) {
 
 function positionScrollbar(row, tableNum) {
     var canScroll = true;
-    var theadHeight = $('#autoGenTable'+tableNum+' thead').height();
+    var table = $('#autoGenTable'+tableNum);
+    var theadHeight = table.find('thead').height();
     function positionScrollToRow() {
-        var tdTop = $('#autoGenTable'+tableNum+' .row'+(row-1))[0].offsetTop;
+        var tdTop = table.find('.row'+(row-1))[0].offsetTop;
         var scrollPos = Math.max((tdTop-theadHeight), 1);
         if (canScroll && scrollPos > 
-                ($('#autoGenTable'+tableNum).height() - 
-                $('#autoGenTableWrap'+tableNum).height())) {
+                (table.height() - $('#autoGenTableWrap'+tableNum).height())) {
             canScroll = false;
         }
         $('#autoGenTableWrap'+tableNum).scrollTop(scrollPos-30);
@@ -1012,11 +1014,13 @@ function addTableListeners(tableNum) {
 
     $('#autoGenTable'+tableNum+' thead').mouseenter(function(event) {
         if (!$(event.target).hasClass('colGrab')) {
-            $('#autoGenTable'+tableNum+' .dropdownBox').css('opacity', 0.4);
+            var table= $(this).closest('table');
+            table.find('.dropdownBox').css('opacity', 0.4);
         }
     })
     .mouseleave(function() {
-        $('#autoGenTable'+tableNum+' .dropdownBox').css('opacity', 0);
+        var table= $(this).closest('table');
+        table.find('.dropdownBox').css('opacity', 0);
     });
 }
 
@@ -1027,7 +1031,6 @@ function moverowScroller(pageNum, resultSetCount) {
 }
 
 function addRowScroller(tableNum) {
-    console.log('adding scroller -------------------------------------------------------------------------')
     if ($('.autoGenTable').length == 1) {
         $('#rowScrollerArea').append('<div id="rowScroller'+tableNum+
         '" class="rowScroller" title="scroll to a row">'+

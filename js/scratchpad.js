@@ -98,7 +98,7 @@ function attachEqualsListener() {
         });
     });
     $(".scratchpad .editableHead").each(function() {
-        $(this).click(function() {
+        $(this).mousedown(function() {
             if (equationCellRow == undefined &&
                 equationCellCol == undefined) {
                 $(".scratchpad .editableHead").each(function() {

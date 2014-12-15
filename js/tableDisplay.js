@@ -14,17 +14,15 @@ function generateBlankTable() {
     var screenWidth = window.screen.availWidth;
     var numColsToFill = Math.ceil(screenWidth/gNewCellWidth);
     var html = "";
-    // XX may not need to empty if we just start out empty, but
-    // we need to adjust the other functions that depend on the id and
-    // data column
-    $('#autoGenTable0 thead, #autoGenTable0 tbody').empty();
+    var table = $('#autoGenTable0');
+    table.find('thead, tbody').empty();
     html += '<tr>';
     html += '<th style="width:'+(gRescol.cellMinWidth+10)+'px;"></th>';
     for (var i = 0; i < numColsToFill; i++) {
             html += '<th style="width:'+gNewCellWidth+'px;"></th>';
     }
     html += '</tr>';
-    $('#autoGenTable0 thead').append(html);
+    table.find('thead').append(html);
     html = "";
     for (var i = 0; i < gRescol.minNumRows;  i++) {
         html += '<tr>';
@@ -40,14 +38,14 @@ function generateBlankTable() {
         }
         html += '</tr>';
     }
-    $('#autoGenTable0 tbody').html(html);
-    $('#autoGenTable0').width(screenWidth);
-    $('#autoGenTable0 .rowGrab').mousedown(function(event) {
+    table.find('tbody').html(html);
+    table.width(screenWidth);
+    table.find('.rowGrab').mousedown(function(event) {
         resrowMouseDown($(this), event);
     });
 
     cloneTableHeader(0);
-    $("#autoGenTableWrap0").scroll(function() {
+    table.scroll(function() {
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("autoGenTableWrap".length));
         var top = $(this).scrollTop();
@@ -58,6 +56,7 @@ function generateBlankTable() {
 
 function generateRowWithCurrentTemplate(json, id, rowTemplate, direction, 
                                         tableNum) {
+    var table = $("#autoGenTable"+tableNum);
     // Replace JSON
     var firstPart = rowTemplate.firstPart;
     var secondPart = rowTemplate.secondPart;
@@ -74,36 +73,36 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
         var row = "tr:last-child";
     }
 
-    if ($("#autoGenTable"+tableNum+" tbody tr").length == 0) {
-        $("#autoGenTable"+tableNum+" tbody").append(finalString);
+    if (table.find("tbody tr").length == 0) {
+        table.find("tbody").append(finalString);
     } else { 
         if (direction == 1) {
-            $("#autoGenTable"+tableNum).prepend(finalString);
+            table.prepend(finalString);
         } else {
-            $("#autoGenTable"+tableNum).append(finalString);
+            table.append(finalString);
         }    
     }
 
     // check if this row is bookmarked
     if (gTables[tableNum].bookmarks.indexOf(id) > -1) {
-        var td = $('#autoGenTable'+tableNum+' .row'+id+ ' .col0');
+        var td = table.find('.row'+id+ ' .col0');
         td.addClass('rowBookmarked');
         td.find('.idSpan').attr('title', 'bookmarked');
     }
     
     //XXX Todo: This code is duplicated in generateFirstScreen function, refactor
 
-    $('#autoGenTable'+tableNum+' tbody '+row+' .jsonElement')
+    table.find('tbody '+row+' .jsonElement')
         .dblclick(function() {
             showJsonModal($(this));
     });
 
-    $('#autoGenTable'+tableNum+' tbody '+row+' .rowGrab')
+   table.find('tbody '+row+' .rowGrab')
         .mousedown(function(event) {
             resrowMouseDown($(this), event);
     });
 
-    $('#autoGenTable'+tableNum+' tbody '+row+' .idSpan').dblclick(function() {
+    table.find('tbody '+row+' .idSpan').dblclick(function() {
         var tableNum = parseInt($(this).closest('table').attr('id').substring(12));
         var rowNum = parseInt($(this).text())-1;
         bookmarkRow(rowNum, tableNum);
@@ -164,7 +163,8 @@ function generateFirstScreen(value, idNo, tableNum, height) {
         '</table>';
         $('#autoGenTableWrap'+tableNum).append(newTable);
     }
-    $("#autoGenTable"+tableNum).append('<tr class="row'+idNo+'">'+
+    var table = $("#autoGenTable"+tableNum);
+    table.append('<tr class="row'+idNo+'">'+
         '<td align="center" class="col0" style="height:'+cellHeight+'px;">'+
         '<div class="idWrap"><span class="idSpan" title="double-click to bookmark">'+
         (idNo+1)+'</span><div class="rowGrab"></div></div></td>'+
@@ -178,18 +178,19 @@ function generateFirstScreen(value, idNo, tableNum, height) {
         '</td>'+
         '</tr>');
 
-    $('#autoGenTable'+tableNum+' .row'+idNo+' .jsonElement')
-    .dblclick(function(){
+    table.find('.row'+idNo+' .jsonElement')
+    .dblclick(function() {
             showJsonModal($(this));
         }
     );
-    $('#autoGenTable'+tableNum+' .row'+idNo+' .rowGrab')
+    table.find('.row'+idNo+' .rowGrab')
         .mousedown(function(event) {
             resrowMouseDown($(this), event);
     });
 
-    $('#autoGenTable'+tableNum+' .row'+idNo+' .idSpan').dblclick(function() {
-        var tableNum = parseInt($(this).closest('table').attr('id').substring(12));
+    table.find('.row'+idNo+' .idSpan').dblclick(function() {
+        var tableNum = parseInt($(this).closest('table').attr('id')
+                .substring(12));
         bookmarkRow(idNo, tableNum);
     });
 }
