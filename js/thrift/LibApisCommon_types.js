@@ -930,26 +930,18 @@ XcalarApiStatInputT.prototype.write = function(output) {
 };
 
 XcalarApiFilterInputT = function(args) {
-  this.table = null;
-  this.filterTable = null;
-  this.filterOp = null;
-  this.compValue = null;
-  this.regexPattern = null;
+  this.filterStr = null;
+  this.srcTable = null;
+  this.dstTable = null;
   if (args) {
-    if (args.table !== undefined) {
-      this.table = args.table;
+    if (args.filterStr !== undefined) {
+      this.filterStr = args.filterStr;
     }
-    if (args.filterTable !== undefined) {
-      this.filterTable = args.filterTable;
+    if (args.srcTable !== undefined) {
+      this.srcTable = args.srcTable;
     }
-    if (args.filterOp !== undefined) {
-      this.filterOp = args.filterOp;
-    }
-    if (args.compValue !== undefined) {
-      this.compValue = args.compValue;
-    }
-    if (args.regexPattern !== undefined) {
-      this.regexPattern = args.regexPattern;
+    if (args.dstTable !== undefined) {
+      this.dstTable = args.dstTable;
     }
   }
 };
@@ -968,38 +960,24 @@ XcalarApiFilterInputT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.table = new XcalarApiTableT();
-        this.table.read(input);
+      if (ftype == Thrift.Type.STRING) {
+        this.filterStr = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
       if (ftype == Thrift.Type.STRUCT) {
-        this.filterTable = new XcalarApiTableT();
-        this.filterTable.read(input);
+        this.srcTable = new XcalarApiTableT();
+        this.srcTable.read(input);
       } else {
         input.skip(ftype);
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.I32) {
-        this.filterOp = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 4:
-      if (ftype == Thrift.Type.I64) {
-        this.compValue = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 5:
-      if (ftype == Thrift.Type.STRING) {
-        this.regexPattern = input.readString().value;
+      if (ftype == Thrift.Type.STRUCT) {
+        this.dstTable = new XcalarApiTableT();
+        this.dstTable.read(input);
       } else {
         input.skip(ftype);
       }
@@ -1015,29 +993,19 @@ XcalarApiFilterInputT.prototype.read = function(input) {
 
 XcalarApiFilterInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiFilterInputT');
-  if (this.table !== null && this.table !== undefined) {
-    output.writeFieldBegin('table', Thrift.Type.STRUCT, 1);
-    this.table.write(output);
+  if (this.filterStr !== null && this.filterStr !== undefined) {
+    output.writeFieldBegin('filterStr', Thrift.Type.STRING, 1);
+    output.writeString(this.filterStr);
     output.writeFieldEnd();
   }
-  if (this.filterTable !== null && this.filterTable !== undefined) {
-    output.writeFieldBegin('filterTable', Thrift.Type.STRUCT, 2);
-    this.filterTable.write(output);
+  if (this.srcTable !== null && this.srcTable !== undefined) {
+    output.writeFieldBegin('srcTable', Thrift.Type.STRUCT, 2);
+    this.srcTable.write(output);
     output.writeFieldEnd();
   }
-  if (this.filterOp !== null && this.filterOp !== undefined) {
-    output.writeFieldBegin('filterOp', Thrift.Type.I32, 3);
-    output.writeI32(this.filterOp);
-    output.writeFieldEnd();
-  }
-  if (this.compValue !== null && this.compValue !== undefined) {
-    output.writeFieldBegin('compValue', Thrift.Type.I64, 4);
-    output.writeI64(this.compValue);
-    output.writeFieldEnd();
-  }
-  if (this.regexPattern !== null && this.regexPattern !== undefined) {
-    output.writeFieldBegin('regexPattern', Thrift.Type.STRING, 5);
-    output.writeString(this.regexPattern);
+  if (this.dstTable !== null && this.dstTable !== undefined) {
+    output.writeFieldBegin('dstTable', Thrift.Type.STRUCT, 3);
+    this.dstTable.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -3663,6 +3631,7 @@ XcalarApiOutputT = function(args) {
   this.listDatasetsOutput = null;
   this.mapOutput = null;
   this.aggregateOutput = null;
+  this.filterOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -3711,6 +3680,9 @@ XcalarApiOutputT = function(args) {
     }
     if (args.aggregateOutput !== undefined) {
       this.aggregateOutput = args.aggregateOutput;
+    }
+    if (args.filterOutput !== undefined) {
+      this.filterOutput = args.filterOutput;
     }
   }
 };
@@ -3855,6 +3827,14 @@ XcalarApiOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 17:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.filterOutput = new XcalarApiNewTableOutputT();
+        this.filterOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -3944,6 +3924,11 @@ XcalarApiOutputT.prototype.write = function(output) {
   if (this.aggregateOutput !== null && this.aggregateOutput !== undefined) {
     output.writeFieldBegin('aggregateOutput', Thrift.Type.STRUCT, 16);
     this.aggregateOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.filterOutput !== null && this.filterOutput !== undefined) {
+    output.writeFieldBegin('filterOutput', Thrift.Type.STRUCT, 17);
+    this.filterOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
