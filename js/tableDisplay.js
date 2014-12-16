@@ -105,7 +105,12 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
     table.find('tbody '+row+' .idSpan').dblclick(function() {
         var tableNum = parseInt($(this).closest('table').attr('id').substring(12));
         var rowNum = parseInt($(this).text())-1;
-        bookmarkRow(rowNum, tableNum);
+        if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
+            bookmarkRow(rowNum, tableNum);
+        } else {
+            unbookmarkRow(rowNum, tableNum);
+        }
+        
     });
 }
 
@@ -191,7 +196,11 @@ function generateFirstScreen(value, idNo, tableNum, height) {
     table.find('.row'+idNo+' .idSpan').dblclick(function() {
         var tableNum = parseInt($(this).closest('table').attr('id')
                 .substring(12));
-        bookmarkRow(idNo, tableNum);
+        if (gTables[tableNum].bookmarks.indexOf(idNo) < 0) {
+            bookmarkRow(idNo, tableNum);
+        } else {
+            unbookmarkRow(idNo, tableNum);
+        }
     });
 }
 

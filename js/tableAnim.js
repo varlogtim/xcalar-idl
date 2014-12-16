@@ -1101,6 +1101,17 @@ function bookmarkRow(rowNum, tableNum) {
     //XXX bookmark not persisted
 }
 
+function unbookmarkRow(rowNum, tableNum) {
+    console.log('unbookmark')
+    var td = $('#autoGenTable'+tableNum+' .row'+rowNum+ ' .col0');
+    td.removeClass('rowBookmarked');
+    td.find('.idSpan').attr('title', '');
+    console.log('#bkmkRow'+rowNum);
+    $('#rowScroller'+tableNum).find('.bkmkRow'+rowNum).remove();
+    var index = gTables[tableNum].bookmarks.indexOf(rowNum);
+    gTables[tableNum].bookmarks.splice(index,1);
+}
+
 function parseBookmarkNum(el) {
     var classNames = el.attr('class');
     var index = classNames.indexOf('bkmkRow')+'bkmkRow'.length;
