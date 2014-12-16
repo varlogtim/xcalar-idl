@@ -77,7 +77,8 @@ function infScrolling(tableNum) {
                 table.find('.colGrab').hide();
                 goToPage(pageNumber, RowDirection.Top, dynTableNum);
                 
-                table.scrollTop(firstRow.offset().top - initialTop + 10);
+                $('#autoGenTableWrap'+dynTableNum)
+                   .scrollTop(firstRow.offset().top - initialTop + 10);
                 table.find("tbody tr:gt(79)").remove();
                 
                 table.find('.colGrab').height(table.height()-10);
@@ -344,7 +345,7 @@ function documentReadyGeneralFunction() {
                 $('.theadWrap').css('z-index', '9');
         }
         if (target.closest('.selectedCell').length == 0 
-            // && target.closest('#scratchpadArea').length == 0
+            && target.closest('#scratchpadArea').length == 0
             && !target.is('#fnBar')
             && (!equationCellRow)) {
             $('.selectedCell').removeClass('selectedCell');
@@ -465,7 +466,9 @@ function documentReadyIndexFunction() {
         } else {
             addTable("gdelt", 0);
             addTable("sp500", 1);
-            addTable("yelpUser", 2);
+            addTable("sp500", 2);
+            // addTable("sp500", 2);
+            // addTable("yelpUser", 2);
             documentReadyAutoGenTableFunction();
         }
     });

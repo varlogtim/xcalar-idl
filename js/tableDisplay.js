@@ -262,12 +262,18 @@ function delTable(tableNum) {
     gTables.splice(tableNum, 1);
     // XXX: Think about gActiveTableNum
     console.log($('.autoGenTable').length , gActiveTableNum, tableNum)
+    gActiveTableNum--;
     if ($('#autoGenTable'+gActiveTableNum).length == 0) {
        gActiveTableNum = 0; 
        $('#rowScroller0').show();
     } else {
         $('#rowScroller'+gActiveTableNum).show();
     }
+    generateFirstLastVisibleRowNum();
+    // $('.tableTitle input')
+    //         .removeClass('tblTitleSelected');
+    // $('#theadWrap'+gActiveTableNum+' .tableTitle input')
+    //         .addClass('tblTitleSelected');
     
     if ($('.autoGenTable').length == 1) {
         $('.autoGenTableWrap').width('100%').css('overflow-x', 'auto');

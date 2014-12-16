@@ -1003,7 +1003,7 @@ function addTableListeners(tableNum) {
     $('#autoGenTable'+tableNum).mousedown(function() {     
         var dynTableNum = parseInt($(this).closest('table').attr('id')
                        .substring(12));
-        $('#theadWrap'+gActiveTableNum+' .tableTitle input')
+        $('.tableTitle input')
             .removeClass('tblTitleSelected');
         $('#theadWrap'+dynTableNum+' .tableTitle input')
             .addClass('tblTitleSelected');
@@ -1031,7 +1031,7 @@ function moverowScroller(pageNum, resultSetCount) {
 }
 
 function addRowScroller(tableNum) {
-    if ($('.autoGenTable').length == 1) {
+    if (tableNum == 0) {
         $('#rowScrollerArea').append('<div id="rowScroller'+tableNum+
         '" class="rowScroller" title="scroll to a row">'+
             '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
@@ -1043,8 +1043,10 @@ function addRowScroller(tableNum) {
             '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
             '</div>'+
         '</div>');
-       $('#rowScroller'+tableNum).hide();
     }
+    if ($('.autoGenTable').length > 1) {
+        $('#rowScroller'+tableNum).hide();
+    }  
     
     $('#rowScroller'+tableNum).mousedown(function(event) {
         if (event.which != 1) {

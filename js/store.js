@@ -8,7 +8,7 @@ var gWorksheetName = [];
 
 function emptyAllStorage() {
     localStorage.removeItem("TILookup");
-    localStorage.removeItem("DSName");
+    localStorage.removeItem("DSName");JSON
     localStorage.removeItem("TOLookup");
     localStorage.removeItem("WSName"); 
 }
