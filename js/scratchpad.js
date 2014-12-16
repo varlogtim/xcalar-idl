@@ -98,21 +98,26 @@ function attachEqualsListener() {
         });
     });
     $(".scratchpad .editableHead").each(function() {
-        $(this).mousedown(function() {
+        $(this).click(function() {
             if (equationCellRow == undefined &&
                 equationCellCol == undefined) {
                 $(".scratchpad .editableHead").each(function() {
                     $(this).removeClass("selected");
                     $(this).removeClass("connected");
                 });
+
                 $(this).addClass("selected");
                 var cellRow = $(this).parent().parent().attr("class");
                 var cellCol = $(this).parent().attr("class");
                 var affected = affectedCells[parseInt(cellRow.substring(3))]
                                             [parseInt(cellCol.substring(3))];
-                jQuery.each(affected, function() {
-                    console.log($(this));
-                });
+                for (var i = 0; i<affected.length; i++) {
+                    var temp1 = affected[i].indexOf("col");
+                    var affectedRow = parseInt(affected[i].substring(3, temp1));
+                    var affectedCol = parseInt(affected[i].substring(temp1+3));
+                    $(".scratchpad .row"+affectedRow+" .col"+affectedCol+
+                      " .editableHead").addClass("connected");
+                }
                 var value = equations[parseInt(cellRow.substring(3))]
                                      [parseInt(cellCol.substring(3))];
                 if ($(this).parent().hasClass("error")) {
@@ -121,11 +126,15 @@ function attachEqualsListener() {
                     $(this).val(value);
                     $(this).focus();
                 }
+                console.log(value);
                 $("#fnBar").val(value);
                 gFnBarOrigin = $(this);
                 if (value && value.indexOf("=") == 0) {
                 }
             }
+        });
+        $(this).change(function() {
+            console.log("Value changed");
         });
     });
     $(".scratchpad .editableHead").on("input", function() {
@@ -201,7 +210,7 @@ function executeFunction() {
         var row = parseInt(equationCellRow.substring(3));
         var col = parseInt(equationCellCol.substring(3));
         equations[row][col] = selector.val();
-        var evalString = replaceValuesInEvalString(selector.val().substring(1),
+   clickevalString = replaceValuesInEvalString(selector.val().substring(1),
                                                    row, col);
         var value = eval(evalString);
         selector.val(value);

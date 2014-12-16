@@ -37,6 +37,7 @@
 @color-scratchpad-light-even: #FFFFFF;
 @color-scratchpad-border: #ADC5D2;
 @color-scratchpad-selected: rgba(28, 237, 36, 0.1);
+@color-scratchpad-purple: rgba(190, 100, 190, 0.1);
 
 /* Text */
 @color-text-black: #0F0F0F; 
@@ -1408,10 +1409,10 @@ ul.leftColMenu + .rightArrow {
         }
     }
     
-    tbody .selected {
-        background-color: @color-scratchpad-selected;
+    tbody .connected {
+        background-color: @color-scratchpad-purple !important;
     }
-    
+
     tbody .error {
         background-color: @colorOpaque-pink !important;
     }
@@ -1443,6 +1444,7 @@ ul.leftColMenu + .rightArrow {
             outline: none;
         }
         &:focus {
+            background-color: @color-scratchpad-selected;
             outline-offset: -1px;
         }
     }

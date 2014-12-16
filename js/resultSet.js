@@ -43,7 +43,7 @@ function getNextPage(resultSetId, firstTime, tableNum) {
 }
 
 function getPage(resultSetId, firstTime, direction, tableNum) {
-    console.log('made it to getpage')
+    console.log('made it to getpage');
     if (resultSetId == 0) {
         return;
         // Reached the end
