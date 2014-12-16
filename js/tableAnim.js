@@ -1066,8 +1066,6 @@ function addRowScroller(tableNum) {
             for (var x = (event.pageX-5); x < (event.pageX+5); x++) {
                 var element = $(document.elementFromPoint(x, yCoor));
                 if (element.hasClass('bookmark')) {
-                    console.log('bookmark found',element);
-                    console.log(rowNum)
                     rowNum = parseBookmarkNum(element);
                     break;
                 }
@@ -1097,8 +1095,6 @@ function bookmarkRow(rowNum, tableNum) {
     if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
         gTables[tableNum].bookmarks.push(rowNum);
     }
-    
-    //XXX bookmark not persisted
 }
 
 function unbookmarkRow(rowNum, tableNum) {

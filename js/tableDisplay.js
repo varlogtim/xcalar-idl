@@ -15,6 +15,7 @@ function generateBlankTable() {
     var numColsToFill = Math.ceil(screenWidth/gNewCellWidth);
     var html = "";
     var table = $('#autoGenTable0');
+    table.parent().addClass('blankTable');
     table.find('thead, tbody').empty();
     html += '<tr>';
     html += '<th style="width:'+(gRescol.cellMinWidth+10)+'px;"></th>';
@@ -171,7 +172,8 @@ function generateFirstScreen(value, idNo, tableNum, height) {
     var table = $("#autoGenTable"+tableNum);
     table.append('<tr class="row'+idNo+'">'+
         '<td align="center" class="col0" style="height:'+cellHeight+'px;">'+
-        '<div class="idWrap"><span class="idSpan" title="double-click to bookmark">'+
+        '<div class="idWrap">'+
+        '<span class="idSpan" title="double-click to bookmark">'+
         (idNo+1)+'</span><div class="rowGrab"></div></div></td>'+
         '<td class="jsonElement col1">'+
         '<div title="double-click to view" '+

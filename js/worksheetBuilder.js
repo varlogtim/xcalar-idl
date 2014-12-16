@@ -214,94 +214,114 @@ function removeSelectedKey(closeBox, input) {
     }
 }
 
+// function createWorksheet() {
+//     var newTableCols = [];
+//     var startIndex = 2;
+//     $("#selectedDataset table tbody tr td div span").each(function() {
+//         var colname = $.trim($(this).text());
+//         var progCol = new ProgCol();
+//         progCol.index = startIndex;
+//         progCol.type = "string";
+//         progCol.name = colname;
+//         progCol.width = gNewCellWidth;
+//         progCol.userStr = '"'+colname+'" = pull('+colname+')';
+//         progCol.func.func = "pull";
+//         progCol.func.args = [colname];
+//         progCol.isDark = false;
+//         var datasetName = $(this).closest('table').find('th').text();
+//         progCol.datasetId = parseInt(getDsId(datasetName));                  
+//         newTableCols[startIndex-1] = progCol;
+//         startIndex++;
+//     });
+//     var progCol = new ProgCol();
+//     progCol.index = startIndex;
+//     progCol.type = "object";
+//     progCol.name = "DATA";
+//     progCol.width = 700;
+//     progCol.userStr = "DATA = raw()";
+//     progCol.func.func = "raw";
+//     progCol.func.args = [];
+//     progCol.isDark = false;
+//     newTableCols[startIndex-1] = progCol;
+//     $("#selectedDataset .selectedTable th").each(function() {
+//         // XXX: Since the backend has no way of telling me whether or not a
+//         // particular dataset has been indexed before, I am just going to
+//         // re-index it. For me to do that, I have to get the datasetid and
+//         // index it by the first column in the list
+//         var datasetId = parseInt(getDsId($(this).text()));
+//         console.log(datasetId);
+//         var columnToIndex = $(this).closest('table').find('tbody')
+//                             .find('span')[0].innerHTML;
+//         console.log(columnToIndex);
+//         var rand = Math.floor(Math.random() * 100000) + 1;
+//         var newIndexTable = $(this).text()+rand;
+//         console.log(newIndexTable);
+//         // XcalarIndexFromDataset(datasetId, columnToIndex, newIndexTable);
+//     });
+//     var worksheetName = $("#worksheetBar .tabSelected input").val();
+//     setIndex(worksheetName, newTableCols);
+//     commitToStorage();
+//     // window.location.href="?worksheet="+worksheetName;
+// }
+
 function createWorksheet() {
-    var newTableCols = [];
-    var startIndex = 2;
-    $("#selectedDataset table tbody tr td div span").each(function() {
-        var colname = $.trim($(this).text());
-        var progCol = new ProgCol();
-        progCol.index = startIndex;
-        progCol.type = "string";
-        progCol.name = colname;
-        progCol.width = gNewCellWidth;
-        progCol.userStr = '"'+colname+'" = pull('+colname+')';
-        progCol.func.func = "pull";
-        progCol.func.args = [colname];
-        progCol.isDark = false;
-        var datasetName = $(this).closest('table').find('th').text();
-        progCol.datasetId = parseInt(getDsId(datasetName));                  
-        newTableCols[startIndex-1] = progCol;
-        startIndex++;
-    });
-    var progCol = new ProgCol();
-    progCol.index = startIndex;
-    progCol.type = "object";
-    progCol.name = "DATA";
-    progCol.width = 700;
-    progCol.userStr = "DATA = raw()";
-    progCol.func.func = "raw";
-    progCol.func.args = [];
-    progCol.isDark = false;
-    newTableCols[startIndex-1] = progCol;
-    $("#selectedDataset div table thead tr th").each(function() {
-        // XXX: Since the backend has no way of telling me whether or not a
-        // particular dataset has been indexed before, I am just going to
-        // re-index it. For me to do that, I have to get the datasetid and
-        // index it by the first column in the list
-        var datasetId = parseInt(getDsId($(this).text()));
-        console.log(datasetId);
-        var columnToIndex = $(this).parent().parent().parent()
-                            .children("tbody").children("tr").children("td")
-                            .children("div").children("span")[0].innerHTML;
-        console.log(columnToIndex);
-        var rand = Math.floor(Math.random() * 100000) + 1;
-        var newIndexTable = $(this).text()+rand;
-        console.log(newIndexTable);
-        XcalarIndexFromDataset(datasetId, columnToIndex, newIndexTable);
-    });
-    var worksheetName = $("#worksheetBar .tabSelected input").val();
-    setIndex(worksheetName, newTableCols);
-    commitToStorage();
-    // window.location.href="?worksheet="+worksheetName;
-    /*
-    // XXX: For demo. All hacked up
-    var datasets = "csv";
-    var hasGdelt = false;
-    var hasSP = false;
-    var hasYelp = false;
-    $("#selectedDataset div table thead tr th").each(function() {
-        if ($(this).text().indexOf("gdelt") >= 0) {
-            hasGdelt = true;
-        }
-        if ($(this).text().indexOf("sp500") >= 0) {
-            hasSP = true;
-        }
-        if ($(this).text().indexOf("yelp") >= 0) {
-            hasYelp = true;
-        }
-        if ($(this).text().indexOf("yelp") >= 0) {
-            datasets = "json";
-        }
-    });
-    console.log("hasYelp:" +hasYelp+"hasSP"+hasSP+"hasGDelt"+hasGdelt);
-    if (hasGdelt && !hasSP && !hasYelp) {
-        setIndex("gdelt", newTableCols);
-        commitToStorage();
-        window.location.href="?tablename=gdelt";
-    } else if (hasSP && !hasGdelt && !hasYelp) {
-        setIndex("sp500", newTableCols);
-        commitToStorage();
-        window.location.href="?tablename=sp500";
-    } else if (hasSP && hasGdelt && !hasYelp) {
-        setIndex("joined", newTableCols);
-        commitToStorage();
-        window.location.href="?tablename=joined";
-    } else if (!hasSP && !hasGdelt && hasYelp) {
-        setIndex("joined2", newTableCols);
-        commitToStorage();
-        window.location.href="?tablename=joined2";
+    
+    var firstTime;
+    if ($('.blankTable').length == 1) {
+        $('.blankTable').remove();
+        firstTime = true;
     }
-    */
+    $("#selectedDataset .selectedTable").each(function() {
+        // store columns in localstorage using setIndex()
+        var newTableCols = [];
+        var startIndex = 0;
+        var datasetName = $(this).find('th').text();
+
+        $(this).find('tbody span').each(function() {
+            var colname = $.trim($(this).text());
+            var progCol = new ProgCol();
+            progCol.index = startIndex+1;
+            progCol.type = "string";
+            progCol.name = colname;
+            progCol.width = gNewCellWidth;
+            progCol.userStr = '"'+colname+'" = pull('+colname+')';
+            progCol.func.func = "pull";
+            progCol.func.args = [colname];
+            progCol.isDark = false;
+            progCol.datasetId = parseInt(getDsId(datasetName));                  
+            newTableCols[startIndex] = progCol;
+            startIndex++;
+        });
+
+        var progCol = new ProgCol();
+        progCol.index = startIndex+1;
+        progCol.type = "object";
+        progCol.name = "DATA";
+        progCol.width = 700;
+        progCol.userStr = "DATA = raw()";
+        progCol.func.func = "raw";
+        progCol.func.args = [];
+        progCol.isDark = false;
+        newTableCols[startIndex] = progCol;
+
+        setIndex(datasetName, newTableCols);
+
+
+        // call addTable() and this will set up a gTable
+        // use this gtable to setindex and committostorage
+        // setIndex("gdelt", gTables[0].tableCols);
+        commitToStorage();
+
+        var datasetId = parseInt(getDsId(datasetName));
+        var columnToIndex = $(this).closest('table').find('tbody')
+                            .find('span')[0].innerHTML;
+        XcalarIndexFromDataset(datasetId, columnToIndex, datasetName);
+        setTimeout(function() {addTable(datasetName, gTables.length)}, 1000)
+        // addTable(datasetName, gTables.length);
+    });
+    if (firstTime) {
+        documentReadyAutoGenTableFunction(); 
+    }
 }
 
 function attachShoppingCartListeners() {
@@ -337,9 +357,9 @@ function attachShoppingCartListeners() {
         createWorksheet();
     });
     $("#cancelButton").click(function() {
-        // $("#modalBackground").hide();
-        // $("#shoppingCart").hide();
-        window.location.href=""; 
+        $("#modalBackground").hide();
+        $("#shoppingCart").hide();
+        // window.location.href=""; 
     });
 }
 
@@ -352,9 +372,9 @@ function addSelectedTableHolder(tableNumber) {
 
 function shoppingCart() {
     // Cleanup current table
-    $(".autoGenTable td, th").each(function() {
-        $(this).empty().removeClass('selectedCell');
-    });
+    // $(".autoGenTable td, th").each(function() {
+    //     $(this).empty().removeClass('selectedCell');
+    // });
 
     // Display the shopping cart tabs
     $("#shoppingCart").show();

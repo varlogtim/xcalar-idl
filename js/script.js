@@ -420,6 +420,7 @@ function documentReadyCatFunction(tableNum) {
                        isDark: index[i].isDark,
                        progCol:index[i]});
             } else {
+                console.log('dataaaa')
                 $("#autoGenTable"+tableNum+" .table_title_bg.col"+
                     (index[i].index))
                     .css("width",index[i].width);
@@ -443,14 +444,13 @@ function startupFunctions() {
 function tableStartupFunctions(table, tableNum) {
     var newTableMeta = setTableMeta(table);
     gTables[tableNum] = newTableMeta;
-    // documentReadyAutoGenTableFunction(tableNum);
     documentReadyCatFunction(tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     cloneTableHeader(tableNum);
     generateFirstLastVisibleRowNum();
     var dataCol = $('#autoGenTable'+tableNum+' tr:eq(1) th.dataCol');
-    autosizeCol(dataCol);
+    // autosizeCol(dataCol);
     addColListeners(parseColNum(dataCol), "autoGenTable"+tableNum);
     resizeForMultipleTables(tableNum);
     infScrolling(tableNum);
@@ -460,13 +460,22 @@ function tableStartupFunctions(table, tableNum) {
 function documentReadyIndexFunction() {
     $(document).ready(function() {
         startupFunctions(); 
-        if (XcalarGetTables().numTables == 0 || 
-            XcalarGetTables().numTables == undefined) {
+        // if (XcalarGetTables().numTables == 0 || 
+        //     XcalarGetTables().numTables == undefined) {
+        //     generateBlankTable();
+        // } else { 
+        if ($.isEmptyObject(gTableIndicesLookup)) {
             generateBlankTable();
         } else {
-            addTable("gdelt", 0);
-            addTable("sp500", 1);
-            addTable("sp500", 2);
+             var i = 0;
+             for (table in gTableIndicesLookup) {
+                addTable(table, i);
+                i++;
+             }
+            // loop through the tables stored in local storage
+            // addTable("gdelt", 0);
+            // addTable("sp500", 1);
+            // addTable("sp500", 2);
             // addTable("sp500", 2);
             // addTable("yelpUser", 2);
             documentReadyAutoGenTableFunction();
