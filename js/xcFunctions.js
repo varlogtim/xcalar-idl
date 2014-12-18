@@ -11,6 +11,7 @@ function checkStatus(newTableName, tableNum, keepOriginal,
         console.log("Done loading");
         if (keepOriginal === KeepOriginalTables.Keep) {
             // append newly created table to the back
+            console.log('hereeee')
             addTable(newTableName, gTables.length);
         } else {
             // default

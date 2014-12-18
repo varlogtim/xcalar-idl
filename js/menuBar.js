@@ -62,11 +62,28 @@ function resetLoadArea() {
 }
 
 function getTablesAndDatasets() {
-    var tables = XcalarGetTables();
-    var numTables = tables.numTables;
-    var i;
     $(".datasetWrap").empty(); // Otherwise multiple calls will append the
     // same DS over and over again.
+    var datasets = XcalarGetDatasets();
+    var numDatasets = datasets.numDatasets;
+    var i;
+
+    for (i = 0; i<numDatasets; i++) {
+        var datasetId = datasets.datasets[i].datasetId;
+        var dsName = getDsName(datasetId);
+        var tableDisplay = '<div class="menuAreaItem">'+
+                                '<span class="menuAreaLabel monitorSmall">'+
+                                    'DATA<br>SET</span>'+
+                                '<span class="menuAreaValue">'+
+                                    dsName+
+                                '</span>'+
+                            '</div>';
+        $(".datasetWrap").append(tableDisplay);
+    };
+
+    var tables = XcalarGetTables();
+    var numTables = tables.numTables;
+    
     for (i = 0; i<numTables; i++) {
 
         var tableDisplay = '<div class="menuAreaItem">'+
@@ -79,18 +96,4 @@ function getTablesAndDatasets() {
 
         $("#tablestorePanel div:last").after(tableDisplay);
     }
-
-    var datasets = XcalarGetDatasets();
-    var numDatasets = datasets.numDatasets;
-    for (i = 0; i<numDatasets; i++) {
-        var dsName = getDsName(datasets.datasets[i].datasetId);
-        var tableDisplay = '<div class="menuAreaItem">'+
-                                '<span class="menuAreaLabel monitorSmall">'+
-                                    'DATA<br>SET</span>'+
-                                '<span class="menuAreaValue">'+
-                                    dsName+
-                                '</span>'+
-                            '</div>';
-        $(".datasetWrap").append(tableDisplay);
-    };
 }

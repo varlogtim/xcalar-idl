@@ -1617,7 +1617,7 @@ ul.leftColMenu + .rightArrow {
         width: 100%;
         box-shadow: 1px 1px rgba(0, 0, 0, 0.15);
         margin-bottom: -1px;
-        top: 3px;
+        top: 4px;
         cursor: pointer;
 
         &.tabSelected {
@@ -1643,11 +1643,11 @@ ul.leftColMenu + .rightArrow {
 
 #datasetBrowser {
     position: relative;
-    width: ~"calc(100% - 5px)";
+    width: ~"calc(100% - 10px)";
     height: 438px;
     height: ~"calc(59% - 60px)";
     padding-top: 0px;
-    margin-left: 5px;
+    margin: 0 5px;
     resize: none;
 }
 
@@ -1659,14 +1659,14 @@ ul.leftColMenu + .rightArrow {
         width: 130px;
     }
 
-    th:nth-child(odd) .keyCheckmarkWrap {
+    th:nth-child(odd) .colCheckmarkWrap {
         background-color: @color-table-midGray;
     }
-    th:nth-child(even) .keyCheckmarkWrap {
+    th:nth-child(even) .colCheckmarkWrap {
         background-color: @color-table-lightGray;
     }
     
-    .keyAdded .keyCheckmark {
+    .colAdded .colCheckmark {
         position: absolute;
         display: block;
         top: 4px;
@@ -1675,13 +1675,13 @@ ul.leftColMenu + .rightArrow {
         z-index: 2;
     }
 
-    .keyCheckmark {
+    .colCheckmark {
         display: none;
         width: 20px;
         height: 20px;
         cursor: pointer;
 
-        .keyCheckmarkWrap {
+        .colCheckmarkWrap {
             height: 20px;
             width: 13px;
             margin-left: 6px;
@@ -1762,7 +1762,17 @@ ul.leftColMenu + .rightArrow {
                background-color: @color-table-midGray; 
             }
         }
+        &.deselectedTable {
+            opacity: 0.4;
+            overflow-y: hidden;
+            cursor: not-allowed;
+            // pointer-events: none;
+            table {
+                pointer-events: none;
+            }
+        }
     }
+
 
     .dataTable {
         width: 175px;
@@ -1783,7 +1793,7 @@ ul.leftColMenu + .rightArrow {
             font: 13px @font-base;
 
             &:hover {
-                .removeKey {
+                .removeCol {
                     opacity: 0.7; 
                 }
                 .removeCover {
@@ -1793,16 +1803,21 @@ ul.leftColMenu + .rightArrow {
         }
     }
 
-    .keyWrap {
+    .colWrap {
         position: relative;
         height: 16px;
         .transition (~"font-size 1s, color .5s");
 
-        &.keySelected {
+        &.colSelected {
             color: @color-table-red;
         }
 
-        .removeKey {
+        &.keySelected {
+            color: @color-bar-orange;
+            background-color: @color-monitor-green;
+        }
+
+        .removeCol {
             position: absolute;
             top: -1px;
             right: 10px;
@@ -1826,7 +1841,8 @@ ul.leftColMenu + .rightArrow {
             pointer-events: none;
             display: none;
         }
-    } 
+    }
+
 }
 
 .selectedTableWrap::-webkit-scrollbar {
@@ -1854,14 +1870,27 @@ ul.leftColMenu + .rightArrow {
     cursor: pointer;
     width: 85px;
     margin-bottom: 5px;
+    overflow: hidden;
 }  
 
 #createButton {
     background-color: @color-monitor-green;
+    .rectangle {
+        background-color: @color-monitor-green;
+    }
+    .arrow {
+        border-left: 13px solid @color-monitor-green;
+    }
 }
 
 #cancelButton {
     background-color: @color-monitor-red;
+    .rectangle {
+        background-color: @color-monitor-red;
+    }
+    .arrow {
+        border-left: 13px solid @color-monitor-red;;
+    }
 } 
 
 .rectangle {

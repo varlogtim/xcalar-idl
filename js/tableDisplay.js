@@ -46,7 +46,7 @@ function generateBlankTable() {
     });
 
     cloneTableHeader(0);
-    table.scroll(function() {
+    table.parent().scroll(function() {
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("autoGenTableWrap".length));
         var top = $(this).scrollTop();
@@ -91,28 +91,7 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
         td.find('.idSpan').attr('title', 'bookmarked');
     }
     
-    //XXX Todo: This code is duplicated in generateFirstScreen function, refactor
-
-    table.find('tbody '+row+' .jsonElement')
-        .dblclick(function() {
-            showJsonModal($(this));
-    });
-
-   table.find('tbody '+row+' .rowGrab')
-        .mousedown(function(event) {
-            resrowMouseDown($(this), event);
-    });
-
-    table.find('tbody '+row+' .idSpan').dblclick(function() {
-        var tableNum = parseInt($(this).closest('table').attr('id').substring(12));
-        var rowNum = parseInt($(this).text())-1;
-        if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
-            bookmarkRow(rowNum, tableNum);
-        } else {
-            unbookmarkRow(rowNum, tableNum);
-        }
-        
-    });
+    addRowListeners(id, tableNum);
 }
 
 function generateFirstScreen(value, idNo, tableNum, height) {
@@ -185,25 +164,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
         '</td>'+
         '</tr>');
 
-    table.find('.row'+idNo+' .jsonElement')
-    .dblclick(function() {
-            showJsonModal($(this));
-        }
-    );
-    table.find('.row'+idNo+' .rowGrab')
-        .mousedown(function(event) {
-            resrowMouseDown($(this), event);
-    });
-
-    table.find('.row'+idNo+' .idSpan').dblclick(function() {
-        var tableNum = parseInt($(this).closest('table').attr('id')
-                .substring(12));
-        if (gTables[tableNum].bookmarks.indexOf(idNo) < 0) {
-            bookmarkRow(idNo, tableNum);
-        } else {
-            unbookmarkRow(idNo, tableNum);
-        }
-    });
+    addRowListeners(idNo, tableNum);
 }
 
 function createRowTemplate(tableNum) {
@@ -251,7 +212,15 @@ function addTable(tableName, tableNum) {
 
         gTables[i+1] = gTables[i];
     }
+    var firstTime;
+    if ($('.blankTable').length == 1) {
+        $('.blankTable').remove();
+        firstTime = true;
+    }
     tableStartupFunctions(tableName, tableNum);
+    if (firstTime) {
+        documentReadyAutoGenTableFunction(); 
+    }
     // XXX: Think about gActiveTableNum
 }
 

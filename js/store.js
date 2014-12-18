@@ -111,6 +111,32 @@ function readFromStorage() {
     if (localStorage["WSName"]) {
         gWorksheetName = JSON.parse(localStorage["WSName"]);
     }
+
+    // var datasets = XcalarGetDatasets();
+    // var numDatasets = datasets.numDatasets;
+    // // clear localStorage is no datasets are loaded
+    // if (numDatasets == 0) {
+    //     emptyAllStorage();
+    // } else {
+    //     for (i = 0; i<numDatasets; i++) {
+    //         var datasetId = datasets.datasets[i].datasetId;
+    //         if (!gDsToNameTrans[datasetId]) {
+    //             setDsToName("dataset"+i, datasetId);
+    //         }
+    //     }
+
+    //     var tables = XcalarGetTables();
+    //     var numTables = tables.numTables;
+    //     for (i = 0; i<numTables; i++) {
+    //         var tableName = tables.tables[i].tableName;
+    //         if (!gTableIndicesLookup[tableName]) {
+    //             //XXX user may not want all the tables to display
+    //             // so we will need to fix this
+    //             setIndex(tableName, []);
+    //         }
+    //     }
+    //     commitToStorage();
+    // }    
 }
 
 function getWorksheet(index) {
@@ -132,5 +158,5 @@ function setWorksheetName(index, name) {
 
 function removeWorksheetName(index) {
     console.log(index, '')
-    gWorksheetName.splice(index, 1);
+    gWorksheetName.splice(index-2, 1);
 }

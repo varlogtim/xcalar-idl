@@ -95,7 +95,8 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         addTableListeners(tableNum);
     }
 
-    if (firstTime && !getIndex(gTables[tableNum].frontTableName)) {
+    if (firstTime && (!getIndex(gTables[tableNum].frontTableName) || 
+        getIndex(gTables[tableNum].frontTableName).length == 0)) {
         gTables[tableNum].keyName = tableOfEntries.keysAttrHeader.name;
         // We cannot rely on addCol to create a new progCol object because
         // add col relies on gTableCol entry to determine whether or not to add

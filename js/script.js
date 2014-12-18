@@ -157,71 +157,8 @@ $(window).unload(
     }
 );
 
-// ========================== Document Ready ==================================
-
-function documentReadyAutoGenTableFunction() {
-    gActiveTableNum = 0;
-    var resultTextLength = (""+gTables[gActiveTableNum].resultSetCount).length;
-    $('#rowInput').attr({'maxLength': resultTextLength,
-                          'size': resultTextLength});
-
-    $('#rowInput').keypress(function(e) {
-        if (e.which !== keyCode.Enter) {
-            return;
-        }
-        var row = $('#rowInput').val();
-        var tableNum = 0;
-        //XXX detect which table the user means to target
-        if (row == "" || row%1 != 0) {
-            return;
-        } else if (row < 1) {
-            $('#rowInput').val('1');
-        } else if (row > gTables[gActiveTableNum].resultSetCount) {
-            $('#rowInput').val(gTables[gActiveTableNum].resultSetCount);
-        }
-        row = parseInt($('#rowInput').val());
-        // XXX: HACK
-        gTempStyle = $("#autoGenTable"+gActiveTableNum+" tbody tr:nth-last-child(1)").html();
-        $("#autoGenTable"+gActiveTableNum+" tbody").empty();
-
-        if (((row)/gNumEntriesPerPage) >
-                Math.floor((gTables[gActiveTableNum].resultSetCount/
-                            gNumEntriesPerPage)-2)) {
-            //if row lives inside last 3 pages, prepare to display last 3 pages
-            var pageNum = (gTables[gActiveTableNum].resultSetCount-1)/
-                           gNumEntriesPerPage - 2;
-        } else {
-            var pageNum = row/gNumEntriesPerPage;
-        }
-        var numPagesToAdd = 3;
-        for (var i = 0; i < numPagesToAdd; i++) {
-            goToPage(Math.ceil(pageNum)+i, null, gActiveTableNum);
-        }
-
-        positionScrollbar(row, gActiveTableNum);
-        generateFirstLastVisibleRowNum();
-        moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
-        // $(this).blur(); 
-    });
-
-    $('#pageBar > div:last-child').append('<span>of '+
-                                           gTables[gActiveTableNum].resultSetCount+
-                                           '</span>');
-}
-
-function documentReadyGeneralFunction() {
-    $(window).on('beforeunload', function() {
-        commitToStorage();
-    }); 
-
-    $(window).resize(function() {
-        $('.colGrab').height($('#autoGenTable0').height()-10);
-        //XXX TODO: call checkForScrollBar only when needed, remove from here
-        checkForScrollBar(0);
-        generateFirstLastVisibleRowNum();
-    });
-
-    var functionbar = $('#fnBar');
+function setupFunctionBar() {
+     var functionbar = $('#fnBar');
 
     functionbar.on('input', function(e) {
         if ($(".scratchpad").has(gFnBarOrigin).length != 0 &&
@@ -285,34 +222,9 @@ function documentReadyGeneralFunction() {
          // setTimeout(function(){gFnBarOrigin = undefined;},1);
          
     });
+}
 
-    $('.closeJsonModal, #modalBackground').click(function(){
-        if ($('#jsonModal').css('display') == 'block') {
-            $('#modalBackground').hide(); 
-            $('body').removeClass('hideScroll');
-        }
-        $('#jsonModal').hide();
-       
-    });
-
-    $('.jsonDragArea').mousedown(function(event){
-        jsonModalMouseDown(event);
-    });
-
-    $('#datastorePanel .menuAreaItem:first').click(function(){
-        $("#loadArea").load('load_r.html', function(){
-            // load_r.html contains load.js where this function is defined
-            loadReadyFunction();
-            setTimeout(function() {
-                $('#progressBar').css('transform', 'translateX(330px)');
-                $('.dataStep').css('transform', 'translateX(320px)');
-                $('.dataOptions').css({'transform':'translateX(570px)', 
-                    'z-index': 6});
-            }, 1);
-        });
-        $('.datasetWrap').addClass('slideAway');
-    });
-
+function setupWorksheetAndShoppingCart() {
     $('.worksheetTab').mousedown(function() {
         $('.worksheetTab').removeClass('tabSelected');
         $(this).addClass('tabSelected');
@@ -334,7 +246,126 @@ function documentReadyGeneralFunction() {
         $('#modalBackground').show();
     });
 
+    $("#createButton").click(function() {
+        var keysPresent = true;
+        $('#selectedDataset .selectedTable').not('.deSelectedTable').each(
+            function() {
+                if ($(this).find('.keySelected').length == 0) {
+                   keysPresent = false;
+                   return false;
+                }
+            }
+        );
+        if (keysPresent) {
+            createWorksheet();
+        } else {
+            alert('Select a key for each selected table');
+        } 
+    });
+
+    $("#cancelButton").click(function() {
+        $("#modalBackground").hide();
+        $("#shoppingCart").hide();
+        resetWorksheet();
+    });
+
     $("#shoppingCart").hide();
+}
+
+
+// ========================== Document Ready ==================================
+
+function documentReadyAutoGenTableFunction() {
+    gActiveTableNum = 0;
+    var resultTextLength = (""+gTables[gActiveTableNum].resultSetCount).length;
+    $('#rowInput').attr({'maxLength': resultTextLength,
+                          'size': resultTextLength});
+
+    $('#rowInput').keypress(function(e) {
+        if (e.which !== keyCode.Enter) {
+            return;
+        }
+        var row = $('#rowInput').val();
+        var tableNum = 0;
+        //XXX detect which table the user means to target
+        if (row == "" || row%1 != 0) {
+            return;
+        } else if (row < 1) {
+            $('#rowInput').val('1');
+        } else if (row > gTables[gActiveTableNum].resultSetCount) {
+            $('#rowInput').val(gTables[gActiveTableNum].resultSetCount);
+        }
+        row = parseInt($('#rowInput').val());
+        // XXX: HACK
+        gTempStyle = $("#autoGenTable"+gActiveTableNum+" tbody tr:nth-last-child(1)").html();
+        $("#autoGenTable"+gActiveTableNum+" tbody").empty();
+
+        if (((row)/gNumEntriesPerPage) >
+                Math.floor((gTables[gActiveTableNum].resultSetCount/
+                            gNumEntriesPerPage)-2)) {
+            //if row lives inside last 3 pages, prepare to display last 3 pages
+            var pageNum = (gTables[gActiveTableNum].resultSetCount-1)/
+                           gNumEntriesPerPage - 2;
+        } else {
+            var pageNum = row/gNumEntriesPerPage;
+        }
+        var numPagesToAdd = 3;
+        for (var i = 0; i < numPagesToAdd; i++) {
+            goToPage(Math.ceil(pageNum)+i, null, gActiveTableNum);
+        }
+
+        positionScrollbar(row, gActiveTableNum);
+        generateFirstLastVisibleRowNum();
+        // moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
+        // $(this).blur(); 
+    });
+
+    $('#pageBar > div:last-child').append('<span>of '+
+                                           gTables[gActiveTableNum].resultSetCount+
+                                           '</span>');
+}
+
+function documentReadyGeneralFunction() {
+    $(window).on('beforeunload', function() {
+        commitToStorage();
+    }); 
+
+    $(window).resize(function() {
+        $('.colGrab').height($('#autoGenTable0').height()-10);
+        checkForScrollBar(0);
+        generateFirstLastVisibleRowNum();
+    });
+
+    
+
+    $('.closeJsonModal, #modalBackground').click(function(){
+        if ($('#jsonModal').css('display') == 'block') {
+            $('#modalBackground').hide(); 
+            $('body').removeClass('hideScroll');
+        }
+        $('#jsonModal').hide();
+    });
+
+    $('.jsonDragArea').mousedown(function(event){
+        jsonModalMouseDown(event);
+    });
+
+    $('#datastorePanel .menuAreaItem:first').click(function(){
+        $("#loadArea").load('load_r.html', function(){
+            // load_r.html contains load.js where this function is defined
+            loadReadyFunction();
+            setTimeout(function() {
+                $('#progressBar').css('transform', 'translateX(330px)');
+                $('.dataStep').css('transform', 'translateX(320px)');
+                $('.dataOptions').css({'transform':'translateX(570px)', 
+                    'z-index': 6});
+            }, 1);
+        });
+        $('.datasetWrap').addClass('slideAway');
+    });
+    
+    setupFunctionBar();
+    setupWorksheetAndShoppingCart();
     scratchpadStartup(); 
 
     $(document).mousedown(function(event) {
@@ -403,7 +434,7 @@ function documentReadyCatFunction(tableNum) {
     var index = getIndex(gTables[tableNum].frontTableName);
     console.log(index)
     getNextPage(gTables[tableNum].resultSetId, true, tableNum);
-    if (index) {
+    if (index && index.length > 0) {
         gTables[tableNum].tableCols = index;
         console.log("Stored "+gTables[tableNum].frontTableName);
         // XXX Move this into getPage
@@ -420,7 +451,6 @@ function documentReadyCatFunction(tableNum) {
                        isDark: index[i].isDark,
                        progCol:index[i]});
             } else {
-                console.log('dataaaa')
                 $("#autoGenTable"+tableNum+" .table_title_bg.col"+
                     (index[i].index))
                     .css("width",index[i].width);
@@ -450,7 +480,7 @@ function tableStartupFunctions(table, tableNum) {
     cloneTableHeader(tableNum);
     generateFirstLastVisibleRowNum();
     var dataCol = $('#autoGenTable'+tableNum+' tr:eq(1) th.dataCol');
-    // autosizeCol(dataCol);
+    autosizeCol(dataCol);
     addColListeners(parseColNum(dataCol), "autoGenTable"+tableNum);
     resizeForMultipleTables(tableNum);
     infScrolling(tableNum);
@@ -461,7 +491,7 @@ function documentReadyIndexFunction() {
     $(document).ready(function() {
         startupFunctions(); 
         // if (XcalarGetTables().numTables == 0 || 
-        //     XcalarGetTables().numTables == undefined) {
+        //     localXcalarGetTables().numTables == undefined) {
         //     generateBlankTable();
         // } else { 
         if ($.isEmptyObject(gTableIndicesLookup)) {
