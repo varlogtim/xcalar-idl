@@ -1,17 +1,35 @@
 var SortDirection = {
     Forward: 1,
     Backward: 2
-}
+};
 
 var RowDirection = {
     Top: 1,
     Bottom: 2
-}
+};
 
 var KeepOriginalTables = {
     Keep: true,
     DontKeep: false
-}
+};
+
+var SPMode = {
+    Normal: 1,
+    Selected: 2,
+    Equation: 3,
+    Type: 4
+};
+
+var ExecuteAction = {
+    Update: 1,
+    Eval: 2,
+};
+
+var AffectedEntryAction = {
+    AddConnected: 1,
+    DelConnected: 2,
+    DelConnectedRemoveEntry: 3,
+};
 
 var keyCode = {
     Backspace: 8,
@@ -51,5 +69,5 @@ var keyCode = {
     Dash: 189,
     Period: 190,
     SingleQuote: 222,
-}
+};
  
