@@ -207,6 +207,7 @@ function addTable(tableName, tableNum) {
         $("#autoGenTable"+i).attr("id", "autoGenTable"+(i+1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
         $("#theadWrap"+(i+1)).css("z-index", 10-(i+1));
+        $("#delTable"+i).attr("id", "delTable"+(i+1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
 
@@ -230,16 +231,19 @@ function addTable(tableName, tableNum) {
 function delTable(tableNum) {
     $("#autoGenTableWrap"+tableNum).remove();
     $("#rowScroller"+tableNum).remove();
+    var tableName = gTables[tableNum].frontTableName;
+    gTables.splice(tableNum, 1);
+    delete gTableIndicesLookup[tableName];
     for (var i = tableNum+1; i<gTables.length; i++) {
         $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i-1));
         $("#autoGenTable"+i).attr("id", "autoGenTable"+(i-1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i-1));
         $("#theadWrap"+(i-1)).css("z-index", 10-(i-1));
+        $("#delTable"+i).attr("id", "delTable"+(i-1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i-1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i-1));
-        gTables[i-1] = gTables[i];
     }
-    gTables.splice(tableNum, 1);
+    
     // XXX: Think about gActiveTableNum
     console.log($('.autoGenTable').length , gActiveTableNum, tableNum)
     gActiveTableNum--;

@@ -248,7 +248,7 @@ function setupWorksheetAndShoppingCart() {
 
     $("#createButton").click(function() {
         var keysPresent = true;
-        $('#selectedDataset .selectedTable').not('.deSelectedTable').each(
+        $('#selectedDataset .selectedTable').not('.deselectedTable').each(
             function() {
                 if ($(this).find('.keySelected').length == 0) {
                    keysPresent = false;
@@ -267,6 +267,7 @@ function setupWorksheetAndShoppingCart() {
         $("#modalBackground").hide();
         $("#shoppingCart").hide();
         resetWorksheet();
+        $('#worksheetBar').find('.tabSelected .deleteWorksheet').click();
     });
 
     $("#shoppingCart").hide();
@@ -490,10 +491,6 @@ function tableStartupFunctions(table, tableNum) {
 function documentReadyIndexFunction() {
     $(document).ready(function() {
         startupFunctions(); 
-        // if (XcalarGetTables().numTables == 0 || 
-        //     localXcalarGetTables().numTables == undefined) {
-        //     generateBlankTable();
-        // } else { 
         if ($.isEmptyObject(gTableIndicesLookup)) {
             generateBlankTable();
         } else {
@@ -502,12 +499,6 @@ function documentReadyIndexFunction() {
                 addTable(table, i);
                 i++;
              }
-            // loop through the tables stored in local storage
-            // addTable("gdelt", 0);
-            // addTable("sp500", 1);
-            // addTable("sp500", 2);
-            // addTable("sp500", 2);
-            // addTable("yelpUser", 2);
             documentReadyAutoGenTableFunction();
         }
     });

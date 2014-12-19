@@ -77,6 +77,7 @@ function setIndex(tName, index) {
 function setDsToName(name, datasetId) {
     if (getDsId(name) != 0) {
         console.log("Dataset name already exists!");
+        console.log("Dataset name already exists!");
         console.log("XXX ERROR");
         // XXX TODO FIXME We have to handle this
     }
@@ -112,31 +113,35 @@ function readFromStorage() {
         gWorksheetName = JSON.parse(localStorage["WSName"]);
     }
 
-    // var datasets = XcalarGetDatasets();
-    // var numDatasets = datasets.numDatasets;
-    // // clear localStorage is no datasets are loaded
-    // if (numDatasets == 0) {
-    //     emptyAllStorage();
-    // } else {
-    //     for (i = 0; i<numDatasets; i++) {
-    //         var datasetId = datasets.datasets[i].datasetId;
-    //         if (!gDsToNameTrans[datasetId]) {
-    //             setDsToName("dataset"+i, datasetId);
-    //         }
-    //     }
+    var datasets = XcalarGetDatasets();
+    var numDatasets = datasets.numDatasets;
+    // clear localStorage is no datasets are loaded
+    if (numDatasets == 0 || numDatasets == null) {
+        emptyAllStorage();
+        gTableIndicesLookup = {};
+        gDsToNameTrans = {};
+        gTableOrderLookup = {};
+        gWorksheetName = [];
+    } else {
+        for (i = 0; i<numDatasets; i++) {
+            var datasetId = datasets.datasets[i].datasetId;
+            if (!gDsToNameTrans[datasetId]) {
+                setDsToName(datasets.datasets[i].name, datasetId);
+            }
+        }
 
-    //     var tables = XcalarGetTables();
-    //     var numTables = tables.numTables;
-    //     for (i = 0; i<numTables; i++) {
-    //         var tableName = tables.tables[i].tableName;
-    //         if (!gTableIndicesLookup[tableName]) {
-    //             //XXX user may not want all the tables to display
-    //             // so we will need to fix this
-    //             setIndex(tableName, []);
-    //         }
-    //     }
-    //     commitToStorage();
-    // }    
+        var tables = XcalarGetTables();
+        var numTables = tables.numTables;
+        for (i = 0; i<numTables; i++) {
+            var tableName = tables.tables[i].tableName;
+            if (!gTableIndicesLookup[tableName]) {
+                //XXX user may not want all the tables to display
+                // so we will need to fix this
+                // setIndex(tableName, []);
+            }
+        }
+    }   
+    commitToStorage(); 
 }
 
 function getWorksheet(index) {

@@ -894,6 +894,28 @@ input:focus {
         }
     }
 
+    .delTable {
+        height: 100%;
+        width: 20px;
+        position: absolute;
+        font-size: 22px;
+        top: 6px;
+        right: 6px;
+        .transform (rotate(45deg));
+        opacity: 0;
+        cursor: pointer;
+        .transition (opacity 0.1s linear 0.3s);
+        &:hover {
+            opacity: 1 !important;
+            .transition (opacity 0s linear 0s) !important;
+        }
+    }
+    &:hover {
+        .delTable {
+            opacity: 0.5;
+        }
+    }
+
 }
 
 .trueTHead {
@@ -920,8 +942,11 @@ input:focus {
 
 .trueTHead .colGrab {
     // display: none !important;
-    height: 66px !important;
-    top: -35px;
+    height: 36px !important;
+    &:last-of-type {
+        top: -35px;
+        height: 66px !important;
+    }
 }
 
 
@@ -1754,15 +1779,17 @@ ul.leftColMenu + .rightArrow {
             background-color: @color-table-lightGray !important;
             .removeCover {
                background-color: @color-table-lightGray; 
+               background-color: inherit; 
             }
         }  
         &:nth-child(even) {
             background-color: @color-table-midGray !important;
             .removeCover {
                background-color: @color-table-midGray; 
+               background-color: inherit; 
             }
         }
-        &.deselectedTable {
+        &.deselectedTableWrap {
             opacity: 0.4;
             overflow-y: hidden;
             cursor: not-allowed;
@@ -1791,6 +1818,7 @@ ul.leftColMenu + .rightArrow {
 
         td {
             font: 13px @font-base;
+            padding: 0;
 
             &:hover {
                 .removeCol {
@@ -1805,7 +1833,7 @@ ul.leftColMenu + .rightArrow {
 
     .colWrap {
         position: relative;
-        height: 16px;
+        height: 100%;
         .transition (~"font-size 1s, color .5s");
 
         &.colSelected {
@@ -1813,8 +1841,8 @@ ul.leftColMenu + .rightArrow {
         }
 
         &.keySelected {
-            color: @color-bar-orange;
-            background-color: @color-monitor-green;
+            // color: @color-bar-orange;
+            background-color: @color-bar-orange;
         }
 
         .removeCol {
@@ -1833,9 +1861,9 @@ ul.leftColMenu + .rightArrow {
 
         .removeCover {
             width: 20px;
-            height: 20px;
+            height: 18px;
             position: absolute;
-            top: 0px;
+            top: 1px;
             right: 6px;
             z-index: 0;
             pointer-events: none;

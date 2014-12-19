@@ -57,13 +57,13 @@ function getDatasetSamples() {
     } 
 }
 
-function addSelectedTable(index, tabName) {
+function addSelectedTable(index, tabName, dsName) {
     $('#selectedTableWrap'+index).append('\
             <table class="dataTable selectedTable" \
             id="selectedTable'+index+'" \
             style="width:0px;">\
                 <thead><tr>\
-                <th>'+tabName+'</th>\
+                <th data-dsname="'+dsName+'">'+tabName+'</th>\
                 </tr></thead>\
                 <tbody></tbody>\
             </table>').css('margin-left', '5px');
@@ -80,7 +80,8 @@ function addDatasetTable(datasetTitle, tableNumber) {
             <div class="tabWrap">\
                 <div class="worksheetTab" \
                 id="worksheetTab'+tableNumber+'">\
-                    <input size="10" type="text" value="'+datasetTitle+'"\
+                    <input size="10" data-dsname="'+datasetTitle+'"\
+                    type="text" value="'+datasetTitle+'"\
                     readonly>\
                 </div>\
             </div>');
@@ -93,7 +94,7 @@ function addDatasetTable(datasetTitle, tableNumber) {
               <tr>\
                 <th style="width:40px;" class="table_title_bg">\
                   <div class="header">\
-                    <input value="ID" readonly>\
+                    <input class="idField" value="ID" readonly>\
                   </div>\
                 </th>\
               </tr>\
@@ -166,7 +167,7 @@ function addWorksheetListeners(tableNum) {
         var inputText = $(this).siblings('input').val();
         var selectedCol = $('#selectedTable'+index).
             find('td:contains('+inputText+')');
-        selectedKey.find('.removeCol').click();
+        selectedCol.find('.removeCol').click();
     });
 
     table.find('th input').focus(function() {  
@@ -195,6 +196,7 @@ function addWorksheetListeners(tableNum) {
         var selectedTable = $('#selectedTable'+index);
         if (selectedTable.length == 0) {
             var tabName = $('#worksheetTab'+index+' input').val();
+            var dsName = $('#worksheetTab'+index+' input').data('dsname');
 
             if ($('.selectedTable th:contains('+tabName+')').length > 0) {
                 tabName += "1";
@@ -202,7 +204,7 @@ function addWorksheetListeners(tableNum) {
                 // recursive?
             }
             
-            selectedTable = addSelectedTable(index, tabName);
+            selectedTable = addSelectedTable(index, tabName, dsName);
         }
         selectedTable.find('tbody').append('\
             <tr><td><div style="font-size:14px;" class="colWrap">'
@@ -217,8 +219,11 @@ function addWorksheetListeners(tableNum) {
             $(this).css('font-size', '13px');
         });
         selectedTable.find('.colWrap:last span').click(function() {
+            
             $(this).closest('.selectedTable').find('.keySelected')
                 .removeClass('.keySelected');
+                $(this).closest('.selectedTable').find('.colSelected')
+                .removeClass('. colSelected');
             $(this).parent().addClass('keySelected');
         });
         selectedTable.find('.removeCol:last').click(function() {
@@ -246,12 +251,13 @@ function removeSelectedKey(closeBox, input) {
 }
 
 function createWorksheet() {
-    $("#selectedDataset .selectedTable").not('.deSelectedTable').each(
+    $("#selectedDataset .selectedTable").not('.deselectedTable').each(
     function() {
         // store columns in localstorage using setIndex()
         var newTableCols = [];
         var startIndex = 0;
-        var datasetName = $(this).find('th').text();
+        var datasetName = $(this).find('th').data('dsname');
+        var tableName = $(this).find('th').text();
 
         $(this).find('tbody span').each(function() {
             var colname = $.trim($(this).text());
@@ -280,12 +286,12 @@ function createWorksheet() {
         progCol.isDark = false;
         newTableCols[startIndex] = progCol;
 
-        setIndex(datasetName, newTableCols);
+        setIndex(tableName, newTableCols);
         commitToStorage();
 
         var datasetId = parseInt(getDsId(datasetName));
         var columnToIndex = $(this).find('.keySelected span').html();
-        XcalarIndexFromDataset(datasetId, columnToIndex, datasetName);
+        XcalarIndexFromDataset(datasetId, columnToIndex, tableName);
         $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
        '{cursor: wait !important;}</style>');
         var keepLastTable = true;
@@ -354,13 +360,14 @@ function shoppingCart() {
 }
 
 function updateSelectedTables() {
+    //XX can we loop through the datasets someother way??
     for (var i = 0; i < gTables.length; i++) {
-        var tableName = gTables.frontTableName;
+        var tableName = gTables[i].frontTableName;
         addSelectedTableHolder(i);
-        var selectedTable = addSelectedTable(i, tableName);
+        var selectedTable = addSelectedTable(i, tableName, null);
         selectedTable.find('th').removeClass('orangeText');
-        selectedTable.removeAttr('id');
-        selectedTable.parent().removeAttr('id').addClass('deselectedTable');
+        selectedTable.removeAttr('id').addClass('deselectedTable');;
+        selectedTable.parent().removeAttr('id').addClass('deselectedTableWrap');
         for (var j = 0; j < gTables[i].tableCols.length; j++) {
             if (gTables[i].tableCols[j].name == "DATA") {
                 continue;
@@ -395,11 +402,17 @@ function addTabFunctionality(tableNum) {
     });
 
     tab.find('input').on('input', function() {
-        console.log('hi')
         var size = $(this).val().length;
         var index = parseInt($(this).parent().attr('id').substring(12));
-        $(this).attr('size', size);
+        $(this).attr('size', size+2);
+        //XXX this size isnt reliable
         $('#selectedTable'+index+' th').text($(this).val());
+    });
+
+    tab.find('input').keypress(function(e) {
+        if (e.which == keyCode.Enter) {
+            $(this).blur();
+        }
     });
 
     tab.find('input').click(function() { 
@@ -416,18 +429,20 @@ function addTabFunctionality(tableNum) {
 
 function addWorksheetTab(value) {
     var tabCount = $('#worksheetBar .worksheetTab').length;
+    console.log(tabCount)
     var text = value || "worksheet "+(tabCount+1);
     if (tabCount > 3) {
         var width = ((1/(tabCount+1)))*65+'%';
-        $('.worksheetTab').width(((1/(tabCount+1)))*65+'%');
+        $('#worksheetBar .worksheetTab').width(((1/(tabCount+1)))*65+'%');
     } else {
-        var width = $('.worksheetTab').width();
+        var width = $('#worksheetBar .worksheetTab').width();
     }
     if (value) {
         var marginTop = '0px';
     } else {
         var marginTop = '-26px';
     }
+    console.log(width)
     
     $('#worksheetBar').append('<div class="worksheetTab" '+
                         'style="width:'+width+';'+
@@ -485,22 +500,23 @@ function addWorksheetTab(value) {
 }
 
 function resetWorksheet() {
-    var selectedSets = $('#selectedDataset');
-    selectedSets.find('.selectedTable th').removeClass('orangeText');
-    selectedSets.find('.selectedTable').each(function() {
-        $(this).removeAttr('id');
-        $(this).parent().removeAttr('id').addClass('deselectedTable');
-        $(this).find('.keySelected').removeClass('.keySelected');
-    });
-    selectedSets.find('.selectedTableWrap').each(function() {
-        if ($(this).children().length == 0) {
-            $(this).remove();
-        }
-    });
+    // var selectedSets = $('#selectedDataset');
+    // selectedSets.find('.selectedTable th').removeClass('orangeText');
+    // selectedSets.find('.selectedTable').each(function() {
+    //     $(this).removeAttr('id');
+    //     $(this).parent().removeAttr('id').addClass('deselectedTable');
+    //     $(this).find('.keySelected').removeClass('.keySelected');
+    // });
+    // selectedSets.find('.selectedTableWrap').each(function() {
+    //     if ($(this).children().length == 0) {
+    //         $(this).remove();
+    //     }
+    // });
 
     //consider just removing all the elements from above ^ ^ ^ 
+    $('.selectedTableWrap').remove();
 
-    $('.worksheetTable input').attr('readonly', false);
+    $('.worksheetTable input').not('.idField').attr('readonly', false);
     $('.colAdded').removeClass('colAdded');
 }
 

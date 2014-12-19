@@ -1,5 +1,9 @@
 function generateFirstLastVisibleRowNum() {
     //XXX table will need to be passed in
+    if ($('#autoGenTableWrap'+gActiveTableNum).length == 0 ||
+        $('.blankTable').length > 0) {
+        return;
+    }
     var mfPos = $('#autoGenTableWrap'+gActiveTableNum)[0]
                 .getBoundingClientRect();
     var tdXCoor = 30;
@@ -24,7 +28,7 @@ function generateFirstLastVisibleRowNum() {
 
     if (parseInt(firstRowNum) != NaN) {
         $('#pageBar .rowNum:first-of-type').html(firstRowNum);
-        // moverowScroller(firstRowNum, gTables[gActiveTableNum].resultSetCount);
+        moverowScroller(firstRowNum, gTables[gActiveTableNum].resultSetCount);
     }
     if (parseInt(lastRowNum) != NaN) {
         $('#pageBar .rowNum:last-of-type').html(lastRowNum);
@@ -664,12 +668,20 @@ function cloneTableHeader(tableNum) {
         var tableName = "";
     }
     tHeadWrap.prepend('<div class="tableTitle"><input type="text" value="'+
-        tableName+'">'+
+        tableName+'"><div class="delTable" id="delTable'+tableNum+'">+</div>'+
         '</div>');
     tHeadWrap.find('.tableTitle input').keyup(function(event) {
         if (event.which ==keyCode.Enter) {
             $(this).blur();
         }
+    });
+    tHeadWrap.find('.tableTitle .delTable').click(function() {
+        var tableNum = parseInt($(this).attr('id').substring(8));
+        var confirmed = confirm("Are you sure you want to delete this table?");
+        if (confirmed) {
+            delTable(tableNum);
+        }
+        
     });
 
     matchHeaderSizes(tableNum);
