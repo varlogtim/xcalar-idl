@@ -9,7 +9,7 @@ function transportLocation() {
     return (str);
 }
 
-function XcalarLoad(url, format) {
+function XcalarLoad(url, format, datasetName) {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -23,6 +23,7 @@ function XcalarLoad(url, format) {
     workItem.api = XcalarApisT.XcalarApiBulkLoad;
     workItem.input.loadInput.maxSize = 0; // Load everything
     workItem.input.loadInput.dataset.url = url;
+    workItem.input.loadInput.dataset.name = datasetName;
     
     switch (format) {
     case ("JSON"):

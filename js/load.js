@@ -81,7 +81,7 @@ function detailsSubmit(e) {
         $('#tableName').addClass('slideAway').blur();
         loadKey = key;
         loadTable = tablename;
-        var dsId = XcalarLoad(loadURL, loadFormat);
+        var dsId = XcalarLoad(loadURL, loadFormat, tablename);
         console.log("This is the returned dsId "+dsId);
         if (dsId != null) {
             setDsToName(tablename, dsId);
