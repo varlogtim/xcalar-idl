@@ -162,6 +162,5 @@ function setWorksheetName(index, name) {
 }
 
 function removeWorksheetName(index) {
-    console.log(index, '')
     gWorksheetName.splice(index-2, 1);
 }

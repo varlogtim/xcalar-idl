@@ -5,7 +5,8 @@ function checkStatus(newTableName, tableNum, keepOriginal,
     tempCountShit++;
     var refCount = XcalarGetTableRefCount(newTableName);
     console.log(refCount);
-    if (refCount == 1) {
+    if (refCount == 1 || tempCountShit > 20) {
+        tempCountShit = 0;
         $("body").css({"cursor": "default"});
         $('#waitCursor').remove();
         console.log("Done loading");

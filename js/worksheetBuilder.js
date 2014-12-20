@@ -17,12 +17,8 @@ function getDatasetSamples() {
     var datasets = XcalarGetDatasets();
     var samples = {};
     var openedTabs = [];
-    var selectedTables = [];
     $('#builderTabBar').find('input').each(function() {
-        openedTabs.push($(this).val());
-    });
-    $('#selectedDataset').find('th').each(function() {
-        selectedTables.push($(this).text());
+        openedTabs.push($(this).data('dsname'));
     });
     for (var i = 0; i<datasets.numDatasets; i++) {
         var datasetName = getDsName(datasets.datasets[i].datasetId);
@@ -63,7 +59,9 @@ function addSelectedTable(index, tabName, dsName) {
             id="selectedTable'+index+'" \
             style="width:0px;">\
                 <thead><tr>\
-                <th data-dsname="'+dsName+'">'+tabName+'</th>\
+                <th data-dsname="'+dsName+'">\
+                <input type="text" value="'+tabName+'">\
+                </th>\
                 </tr></thead>\
                 <tbody></tbody>\
             </table>').css('margin-left', '5px');
@@ -205,6 +203,15 @@ function addWorksheetListeners(tableNum) {
             }
             
             selectedTable = addSelectedTable(index, tabName, dsName);
+            setTimeout(function() {
+                var scrollWidth = $('#selectedDataset')[0].scrollWidth;
+                var divWidth = $('#selectedDataset').width();
+                var scrollLeft = scrollWidth - divWidth + 165;
+                $('#selectedDataset').animate({
+                    scrollLeft: scrollLeft
+                }, 500);
+            }, 100);
+           
         }
         selectedTable.find('tbody').append('\
             <tr><td><div style="font-size:14px;" class="colWrap">'
@@ -218,19 +225,16 @@ function addWorksheetListeners(tableNum) {
         selectedTable.find('.colWrap:last').show(function() {
             $(this).css('font-size', '13px');
         });
-        selectedTable.find('.colWrap:last span').click(function() {
-            
+        selectedTable.find('.colWrap:last span').click(function() {         
             $(this).closest('.selectedTable').find('.keySelected')
-                .removeClass('.keySelected');
-                $(this).closest('.selectedTable').find('.colSelected')
-                .removeClass('. colSelected');
+                .removeClass('keySelected');
+            $(this).closest('.selectedTable').find('.colSelected')
+                .removeClass('colSelected');
             $(this).parent().addClass('keySelected');
         });
         selectedTable.find('.removeCol:last').click(function() {
             removeSelectedKey($(this), input);
         });
-
-
     });
 }
 
@@ -257,7 +261,7 @@ function createWorksheet() {
         var newTableCols = [];
         var startIndex = 0;
         var datasetName = $(this).find('th').data('dsname');
-        var tableName = $(this).find('th').text();
+        var tableName = $(this).find('th input').val();
 
         $(this).find('tbody span').each(function() {
             var colname = $.trim($(this).text());
@@ -296,44 +300,35 @@ function createWorksheet() {
        '{cursor: wait !important;}</style>');
         var keepLastTable = true;
         var additionalTableNum = false;
-        checkStatus(datasetName, gTables.length, keepLastTable, 
+        checkStatus(tableName, gTables.length, keepLastTable, 
                     additionalTableNum);
     });
     
-    $("#modalBackground").hide();
-    $("#shoppingCart").hide();
-    resetWorksheet();
+    if (gWorksheetName.length == 0) {
+        // addWorksheetTab
+        var name = $('#worksheetBar .worksheetTab input').val();
+        setWorksheetName(0, name);
+    }
 }
 
 function attachShoppingCartListeners(tableNum) {
     var table = $('#worksheetTable'+tableNum);
     table.find(".shoppingCartCol").keypress(function(e) {
         if (e.which === keyCode.Enter) {
-            var oldid = $(this).attr("id");
-            var oldColName = oldid.substring(oldid.indexOf("cn")+2);
-            var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
-            console.log("Renaming "+oldColName+" to "+$(this).val());
-            XcalarEditColumn(dsnumber, oldColName, $(this).val(),
-                             DfFieldTypeT.DfString);
-            var newId = "ds"+dsnumber+"cn"+$(this).val();
-            console.log(newId);
-            $(this).attr("id", newId); 
             $(this).blur();
         }
     });
-    table.find(".shoppingCartCol").blur(function(e) {
-        if (e.which === keyCode.Enter) {
-            var oldid = $(this).attr("id");
-            var oldColName = oldid.substring(oldid.indexOf("cn")+2);
-            var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
-            console.log("Renaming "+oldColName+" to "+$(this).val());
-            XcalarEditColumn(dsnumber, oldColName, $(this).val(),
-                             DfFieldTypeT.DfString);
-            var newId = "ds"+dsnumber+"cn"+$(this).val();
-            console.log(newId);
-            $(this).attr("id", newId); 
-            $(this).blur();
-        }
+
+    table.find(".shoppingCartCol").change(function() {
+        var oldid = $(this).attr("id");
+        var oldColName = oldid.substring(oldid.indexOf("cn")+2);
+        var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
+        console.log("Renaming "+oldColName+" to "+$(this).val());
+        XcalarEditColumn(dsnumber, oldColName, $(this).val(),
+                         DfFieldTypeT.DfString);
+        var newId = "ds"+dsnumber+"cn"+$(this).val();
+        console.log(newId);
+        $(this).attr("id", newId); 
     });
 }
 
@@ -346,6 +341,7 @@ function addSelectedTableHolder(tableNumber) {
 
 function shoppingCart() {
     // Cleanup current table
+    //XX Do we still want to clear up the current table?
     // $(".autoGenTable td, th").each(function() {
     //     $(this).empty().removeClass('selectedCell');
     // });
@@ -406,7 +402,7 @@ function addTabFunctionality(tableNum) {
         var index = parseInt($(this).parent().attr('id').substring(12));
         $(this).attr('size', size+2);
         //XXX this size isnt reliable
-        $('#selectedTable'+index+' th').text($(this).val());
+        $('#selectedTable'+index+' th input').val($(this).val());
     });
 
     tab.find('input').keypress(function(e) {
@@ -475,10 +471,8 @@ function addWorksheetTab(value) {
    
     newInput.change(function() {
         var index = $('#worksheetBar .worksheetTab input').index($(this));
-        // cool I didn't know you could use .index() like that
         setWorksheetName(index, $(this).val());
         console.log("Changing stored worksheet name");
-        commitToStorage();
     });
 
     newInput.keypress(function(e) {
@@ -494,29 +488,52 @@ function addWorksheetTab(value) {
         //XX need to remove all data corresponding to this worksheet
     });
 
-    // $('#modalBackground').show();
     $('body').addClass('hideScroll');
-    // shoppingCart();
 }
 
-function resetWorksheet() {
-    // var selectedSets = $('#selectedDataset');
-    // selectedSets.find('.selectedTable th').removeClass('orangeText');
-    // selectedSets.find('.selectedTable').each(function() {
-    //     $(this).removeAttr('id');
-    //     $(this).parent().removeAttr('id').addClass('deselectedTable');
-    //     $(this).find('.keySelected').removeClass('.keySelected');
-    // });
-    // selectedSets.find('.selectedTableWrap').each(function() {
-    //     if ($(this).children().length == 0) {
-    //         $(this).remove();
-    //     }
-    // });
-
-    //consider just removing all the elements from above ^ ^ ^ 
+function resetShoppingCart() {
     $('.selectedTableWrap').remove();
-
     $('.worksheetTable input').not('.idField').attr('readonly', false);
     $('.colAdded').removeClass('colAdded');
+    if ($('#worksheetBar .worksheetTab').length != 1) {
+        $('#worksheetBar').find('.tabSelected .deleteWorksheet').click();
+        $('#worksheetBar .worksheetTab:last').click();
+    }
+
+    $("#modalBackground").hide();
+    $('#worksheetBar').find('.tabSelected').removeClass('modalActive');
+    $("#shoppingCart").hide();
 }
 
+function setupWorksheetAndShoppingCart() {
+     $('#newWorksheet span').click(function() {
+        addWorksheetTab();
+        shoppingCart();
+        $('#modalBackground').show();
+        $('#worksheetBar').find('.tabSelected').addClass('modalActive');
+    });
+
+    $("#createButton").click(function() {
+        var keysPresent = true;
+        $('#selectedDataset .selectedTable').not('.deselectedTable').each(
+            function() {
+                if ($(this).find('.keySelected').length == 0) {
+                   keysPresent = false;
+                   return false;
+                }
+            }
+        );
+        if (keysPresent) {
+            createWorksheet();
+            resetShoppingCart();
+        } else {
+            alert('Select a key for each selected table');
+        } 
+    });
+
+    $("#cancelButton").click(function() {
+        resetShoppingCart();
+    });
+
+    $("#shoppingCart").hide();
+}

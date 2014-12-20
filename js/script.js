@@ -224,55 +224,6 @@ function setupFunctionBar() {
     });
 }
 
-function setupWorksheetAndShoppingCart() {
-    $('.worksheetTab').mousedown(function() {
-        $('.worksheetTab').removeClass('tabSelected');
-        $(this).addClass('tabSelected');
-    });
-
-    $('.worksheetTab input').each(function() {
-        var size = $(this).val().length;
-        $(this).attr('size', size);
-    });
-
-    $('.worksheetTab input').on('input', function() {
-        var size = $(this).val().length;
-        $(this).attr('size', size);
-    });
-
-     $('#newWorksheet span').click(function() {
-        addWorksheetTab();
-        shoppingCart();
-        $('#modalBackground').show();
-    });
-
-    $("#createButton").click(function() {
-        var keysPresent = true;
-        $('#selectedDataset .selectedTable').not('.deselectedTable').each(
-            function() {
-                if ($(this).find('.keySelected').length == 0) {
-                   keysPresent = false;
-                   return false;
-                }
-            }
-        );
-        if (keysPresent) {
-            createWorksheet();
-        } else {
-            alert('Select a key for each selected table');
-        } 
-    });
-
-    $("#cancelButton").click(function() {
-        $("#modalBackground").hide();
-        $("#shoppingCart").hide();
-        resetWorksheet();
-        $('#worksheetBar').find('.tabSelected .deleteWorksheet').click();
-    });
-
-    $("#shoppingCart").hide();
-}
-
 
 // ========================== Document Ready ==================================
 
@@ -317,7 +268,7 @@ function documentReadyAutoGenTableFunction() {
 
         positionScrollbar(row, gActiveTableNum);
         generateFirstLastVisibleRowNum();
-        // moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
+        moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
         // $(this).blur(); 
     });
 
@@ -400,6 +351,9 @@ function documentReadyGeneralFunction() {
             case ("resizingRow"):
                 resrowMouseMove(event);
                 break;
+            case ("movingTable"):
+                dragTableMouseMove(event);
+                break;
             case ("movingCol"):
                 dragdropMouseMove(event);
                 break;
@@ -420,6 +374,9 @@ function documentReadyGeneralFunction() {
             case ("resizingRow"):
                 resrowMouseUp();
                 break;
+            case ("movingTable"):
+                    dragTableMouseUp(event);
+                    break;
             case ("movingCol"):
                 dragdropMouseUp();
                 break;
@@ -481,7 +438,6 @@ function tableStartupFunctions(table, tableNum) {
     cloneTableHeader(tableNum);
     generateFirstLastVisibleRowNum();
     var dataCol = $('#autoGenTable'+tableNum+' tr:eq(1) th.dataCol');
-    autosizeCol(dataCol);
     addColListeners(parseColNum(dataCol), "autoGenTable"+tableNum);
     resizeForMultipleTables(tableNum);
     infScrolling(tableNum);
@@ -494,10 +450,10 @@ function documentReadyIndexFunction() {
         if ($.isEmptyObject(gTableIndicesLookup)) {
             generateBlankTable();
         } else {
-             var i = 0;
+             var tableNum = 0;
              for (table in gTableIndicesLookup) {
-                addTable(table, i);
-                i++;
+                addTable(table, tableNum);
+                tableNum++;
              }
             documentReadyAutoGenTableFunction();
         }

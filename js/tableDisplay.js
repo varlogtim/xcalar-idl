@@ -234,7 +234,7 @@ function delTable(tableNum) {
     var tableName = gTables[tableNum].frontTableName;
     gTables.splice(tableNum, 1);
     delete gTableIndicesLookup[tableName];
-    for (var i = tableNum+1; i<gTables.length; i++) {
+    for (var i = tableNum+1; i<=gTables.length; i++) {
         $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i-1));
         $("#autoGenTable"+i).attr("id", "autoGenTable"+(i-1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i-1));
