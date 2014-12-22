@@ -19,8 +19,7 @@ function attachScratchpadEmptySpaceListeners() {
                 focusedCell = undefined;
             break;
             case (SPMode.Equation):
-                // XXX FIXME BUG I need to disbale the blur function
-                console.log("Here");
+                focusedCell.focus();
                 break;
             default:
                 break;
@@ -56,6 +55,12 @@ function attachCellListeners() {
          $(this).mousedown(function(e) {
              cellMouseDownListener($(this), e);
          });
+    });
+    $("#functionBar").keyup(function(e) {
+        barKeyUpListener(e);
+    });
+    $("#functionBar").mousedown(function(e) {
+        barKeyUpListener(e);
     });
 }
 
@@ -326,7 +331,31 @@ function cellMouseDownListener(cell, e) {
 }
 
 function barKeyUpListener(e) {
+    if (!focusedCell) {
+        console.log("No selected Cell");
+        $("#functionBar").blur();
+        return;
+    }
+    switch(mode) {
+    case (SPMode.Normal):
+        console.log("XXX FocusedCell non null but mode is normal");
+        return;
+    case (SPMode.Selected):
+    case (SPMode.Equation):
+    case (SPMode.Type):
+        focusedCell.trigger("keyup", {keyCode: e.which});
+        focusedCell.val(focusedCell.val()+String.fromCharCode(e.which)); 
+        break;
+    default:
+        console.log("XXX Illegal mode."+mode);
+    }
 }
 
-function barMouseUpListner() {
+function barMouseUpListener() {
+    if (!focusedCell) {
+        // XXX: Add style. Gray out perhaps. Don't allow clicking. Maybe RO
+        console.log("No selected cell");
+        $("#functionBar").blur();
+        return;
+    }
 }
