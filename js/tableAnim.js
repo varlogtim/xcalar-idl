@@ -111,7 +111,7 @@ function reenableTextSelection() {
 
 function gRescolMouseDown(el, event) {
     gMouseStatus = "resizingCol";
-    // event.preventDefault();
+    event.preventDefault();
     var table = el.closest('table');
     var tableNum = parseInt(table.attr('id').substring(12));
     var tableWidth = table.outerWidth();
@@ -122,7 +122,7 @@ function gRescolMouseDown(el, event) {
     gRescol.tableNum = tableNum;
     gRescol.table = table;
     gRescol.colNum = parseColNum(gRescol.grabbedCell);
-    // var rowNum = gRescol.grabbedCell.closest('thead').index();
+
     if (gRescol.grabbedCell.closest('thead').hasClass('fauxTHead')) {
         var rowNum = 0;
     } else {
@@ -277,6 +277,8 @@ function dragdropMouseDown(el, event) {
     var shadowDivHeight = Math.min(tableHeight,autoGenTableWrapHeight);
     gDragObj.inFocus =  el.find('.editableHead').is(':focus');
     gDragObj.colWidth = el.outerWidth();
+    gDragObj.windowWidth = $(window).width();
+    gDragObj.pageX = gDragObj.pageX;
 
     // create a replica shadow with same column width, height,
     // and starting position
@@ -296,12 +298,33 @@ function dragdropMouseDown(el, event) {
     $(document.head).append(cursorStyle);
     disableTextSelection();
     createDropTargets();
+    dragdropMoveMainFrame();
 }
 
 function dragdropMouseMove(event) {
     var newX = gDragObj.left + (event.pageX - gDragObj.mouseX) - 
         $('#autoGenTableWrap'+gDragObj.tableNum).scrollLeft();
+    gDragObj.pageX = event.pageX;
     $('#fauxCol').css('left', newX);
+}
+
+function dragdropMoveMainFrame() {
+    if (gMouseStatus == 'movingCol' || gMouseStatus == 'movingTable') {
+        if (gDragObj.pageX > gDragObj.windowWidth-2) {
+            console.log('moving fast')
+            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft()+50));
+        } else if (gDragObj.pageX > gDragObj.windowWidth-20) {
+            console.log('moving')
+            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft()+20));
+        } else if (gDragObj.pageX < 2) {
+            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft()-50));
+        } else if (gDragObj.pageX < 20) {
+            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft()-20));
+        }
+        setTimeout(function() {
+            dragdropMoveMainFrame();
+        }, 40);
+    }
 }
 
 function dragdropMouseUp() {
@@ -309,8 +332,7 @@ function dragdropMouseUp() {
     $('#shadowDiv, #fauxCol, #dropTargets, #moveCursor').remove();
     $('#autoGenTableWrap'+gDragObj.tableNum)
         .off('scroll', tableScrollDropTargets); 
-    $('#mainFrame').removeClass('hideScroll')
-        .off('scroll', mainFramecrollDropTargets);
+    $('#mainFrame').off('scroll', mainFrameScrollDropTargets);
     var progCol = gTables[gDragObj.tableNum].tableCols[gDragObj.colNum-1];
     var isDark = gDragObj.element.hasClass('unusedCell');
     var selected = gDragObj.element.hasClass('selectedCell');
@@ -464,7 +486,7 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
             $('#autoGenTableWrap'+gDragObj.tableNum)
                 .scroll(tableScrollDropTargets);
         } 
-        $('#mainFrame').scroll(mainFramecrollDropTargets);
+        $('#mainFrame').scroll(mainFrameScrollDropTargets);
        
     } else {
         // targets have already been created, so just adjust the one corresponding
@@ -483,7 +505,7 @@ function tableScrollDropTargets(event) {
     $('#dropTargets').css('left',left);
 }
 
-function mainFramecrollDropTargets(event) {
+function mainFrameScrollDropTargets(event) {
     var left = $('#autoGenTable'+gDragObj.tableNum)[0].getBoundingClientRect().left;
     $('#dropTargets').css('left', left);
 }
@@ -658,8 +680,7 @@ function cloneTableHeader(tableNum) {
                     'left':leftPos, 'padding-top':5});
     //XXX z-index of theadwrap decreases per every theadwrap
     tHead.wrap('<div id="theadWrap'+tableNum+'" class="theadWrap"'+
-                'style="z-index:'+(10-tableNum)+';'+
-                'top:'+(tHeadYPos)+'px;"></div>');
+                'style="top:'+(tHeadYPos)+'px;"></div>');
     var tHeadWrap = $('#theadWrap'+tableNum);
     //XX build this table title somewhere else
     if (gTables[tableNum] != undefined) {
@@ -667,8 +688,9 @@ function cloneTableHeader(tableNum) {
     } else {
         var tableName = "";
     }
-    tHeadWrap.prepend('<div class="tableTitle"><input type="text" value="'+
-        tableName+'"><div class="delTable" id="delTable'+tableNum+'">+</div>'+
+    tHeadWrap.prepend('<div class="tableTitle"><div class="tableGrab"></div>'+
+        '<input type="text" value="'+tableName+'">'+
+        '<div class="delTable" id="delTable'+tableNum+'">+</div>'+
         '</div>');
     tHeadWrap.find('.tableTitle input').keyup(function(event) {
         if (event.which ==keyCode.Enter) {
@@ -681,7 +703,9 @@ function cloneTableHeader(tableNum) {
         if (confirmed) {
             delTable(tableNum);
         }
-        
+    });
+    tHeadWrap.find('.tableGrab').mousedown(function(event) {
+        dragTableMouseDown($(this).parent(), event);
     });
 
     if ($('.blankTable').length > 0) {
@@ -974,6 +998,15 @@ function checkForScrollBar(tableNum) {
     }
 }
 
+function checkForMainFrameScrollBar() {
+    if ($('#mainFrame')[0].scrollWidth > $('#mainFrame').width()) {
+        var forMainFrame = true;
+        gScrollbarHeight = getScrollBarHeight(forMainFrame);
+    } else {
+        gScrollbarHeight = 0;
+    }  
+}
+
 function positionScrollbar(row, tableNum) {
     var canScroll = true;
     var table = $('#autoGenTable'+tableNum);
@@ -997,11 +1030,19 @@ function positionScrollbar(row, tableNum) {
     }
 }
 
-function getScrollBarHeight() {
+function getScrollBarHeight(outerDiv) {
+
     var inner = $('<div style="width:100%;height:200px;"></div>');
-    var outer = $('<div class="tableWrap" style="position:absolute;'+
+    if (outerDiv) {
+        var outer = $('<div id="mainFrame" style="position:absolute;'+
                     'top:0;left:0;visibility:hidden;width:200px;'+
                     'height:150px;overflow:hidden;"></div>');
+    } else {
+        var outer = $('<div class="tableWrap" style="position:absolute;'+
+                    'top:0;left:0;visibility:hidden;width:200px;'+
+                    'height:150px;overflow:hidden;"></div>');
+    }
+    
     outer.append(inner);
     $('body').append(outer);
     var width1 = inner.outerWidth();
@@ -1159,4 +1200,189 @@ function updatePageBar(tableNum) {
         .text('of '+gTables[gActiveTableNum].resultSetCount);
     }
     
+}
+    
+function dragTableMouseDown(el, e) {
+    if ($('.autoGenTable').length == 1) {
+        return;
+    }
+    gMouseStatus = "movingTable"
+    gDragObj.mouseX = e.pageX;
+    gDragObj.table = el.closest('.autoGenTableWrap');
+    gDragObj.tableIndex = parseInt(gDragObj.table.attr('id').substring(16));
+    gDragObj.originalIndex = gDragObj.tableIndex;
+    var rect = gDragObj.table[0].getBoundingClientRect();
+
+    // gDragObj.rectLeft = rect.left - gDragObj.mouseX;
+    // gDragObj.maxScroll = $('#mainFrame')[0].scrollWidth - $('#mainFrame').width();
+
+    gDragObj.offsetLeft = gDragObj.table.offset().left;
+    gDragObj.left = rect.left + $('#mainFrame').scrollLeft()-5;
+    gDragObj.prevTable = gDragObj.table.prev();
+    gDragObj.mouseOffset = gDragObj.mouseX - rect.left;
+    gDragObj.docHeight = $(document).height();
+    gDragObj.tableScrollTop = gDragObj.table.scrollTop();
+
+    var cursorStyle = '<style id="moveCursor" type="text/css">*'+ 
+    '{cursor:move !important; cursor: -webkit-grabbing !important;'+
+    'cursor: -moz-grabbing !important;}</style>';
+    $(document.head).append(cursorStyle);
+    createShadowTable();
+    gDragObj.table.addClass('tableDragging');
+    // gDragObj.table.css('left', gDragObj.left+'px');
+    gDragObj.table.css('left', gDragObj.offsetLeft+'px');
+    
+    gDragObj.windowWidth = $(window).width();
+    gDragObj.pageX = gDragObj.pageX;
+    checkForMainFrameScrollBar();
+    sizeTableForDragging();
+    createTableDropTargets();
+    dragdropMoveMainFrame();
+    disableTextSelection();
+}
+    
+function dragTableMouseMove(e) {
+    var left = gDragObj.offsetLeft + (e.pageX - gDragObj.mouseX);
+    gDragObj.table.css('left',left+'px');
+    gDragObj.pageX = event.pageX;
+}
+
+function dragTableMouseUp(e) {
+    gMouseStatus = null;
+    gDragObj.table.removeClass('tableDragging')
+                    .css({'left':'0px', 'height':'100%'});
+    $('#shadowTable, #moveCursor, #dropTargets').remove();
+    $('#mainFrame').off('scroll', mainFrameScrollTableTargets);
+    gDragObj.table.scrollTop(gDragObj.tableScrollTop);
+    gActiveTableNum = gDragObj.tableIndex;
+    checkForScrollBar();
+    reenableTextSelection(); 
+
+    // reorder gTables
+    var tempTable = gTables.splice(gDragObj.originalIndex, 1)[0];
+    gTables.splice(gDragObj.tableIndex, 0, tempTable);
+    
+    //reorder rowScrollers
+    var rowScrollers = $('.rowScroller');
+    var rowScroller = rowScrollers[gDragObj.originalIndex];
+    if (gDragObj.tableIndex == 0) {
+        $('#rowScrollerArea').prepend(rowScroller);
+    } else if (gDragObj.originalIndex < gDragObj.tableIndex){
+        $('#rowScroller'+gDragObj.tableIndex).after(rowScroller);
+    } else if (gDragObj.originalIndex > gDragObj.tableIndex) {
+        $('#rowScroller'+gDragObj.tableIndex).before(rowScroller);
+    }
+
+    //correct table and rowscroller id numbers
+    rowScrollers = $('.rowScroller');
+    var start = Math.min(gDragObj.originalIndex, gDragObj.tableIndex);
+    var end = Math.max(gDragObj.originalIndex, gDragObj.tableIndex);
+    for (var i = start; i <= end; i++) {
+        //tablewrap and theadwrap IDs were already changed during table swapping
+        var table = $('#autoGenTableWrap'+i).find('.autoGenTable');
+        var oldIndex = parseInt(table.attr('id').substring(12));
+        table.attr('id', 'autoGenTable'+i);
+        table.find('.delTable').attr('id', 'delTable'+i);
+        $(rowScrollers[i]).attr('id', 'rowScroller'+i);
+        $(rowScrollers[i]).find('.rowMarker').attr('id','rowMarker'+i);
+    }
+}
+
+function createShadowTable() {
+    var rect = gDragObj.table[0].getBoundingClientRect();
+    var width = rect.width - 13;
+    var height = rect.height;
+    var shadowTable = '<div id="shadowTable" class="table" '+
+                'style="width:'+width+'px;height:'+height+'px;">'+
+            '</div>';
+
+    if (gDragObj.prevTable.length > 0) {
+        gDragObj.prevTable.after(shadowTable );
+    } else {
+        $('#mainFrame').prepend(shadowTable);
+    }
+}
+
+function createTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
+    var offset = gDragObj.mouseX - gDragObj.offsetLeft;
+    var dragMargin = 100;
+    
+    if (!swappedTable) {
+        var dropTargets = "";
+        var i = 0;
+        var tableWidth = gDragObj.table.width();
+        $('#mainFrame').find('.autoGenTableWrap').each(function() {
+            if (i == gDragObj.tableIndex) {
+                i++;
+                return true;  
+            }
+
+            if ((tableWidth-dragMargin) < 
+                    Math.round(0.5*$(this).outerWidth())) {
+                var targetWidth = tableWidth;
+            } else {
+                var targetWidth = Math.round(0.5*$(this).outerWidth())+
+                                  dragMargin;
+            }
+            var tableLeft = $(this).position().left + 
+                            $('#mainFrame').scrollLeft();
+            dropTargets += '<div id="dropTarget'+i+'" class="dropTarget"'+
+                            'style="left:'+(tableLeft-dragMargin+offset)+'px;'+
+                            'width:'+targetWidth+'px;height:'
+                            +(gDragObj.docHeight)+'px;">'+i+
+                            '</div>';
+            i++;
+        });
+
+        var tableLeft = -$('#mainFrame').scrollLeft();
+        $('body').append('<div id="dropTargets" style="left:'+
+                tableLeft+'px;"></div>');
+        $('#dropTargets').append(dropTargets);
+        $('.dropTarget').mouseenter(function() {
+            dragdropSwapTables($(this));
+        });
+        $('#mainFrame').scroll(mainFrameScrollTableTargets);
+    } else {
+        var tableLeft = swappedTable.position().left + 
+                        $('#mainFrame').scrollLeft();
+        $('#dropTarget'+dropTargetIndex).attr('id', 'dropTarget'+oldIndex);
+        $('#dropTarget'+oldIndex)
+            .css({'left': (tableLeft-dragMargin+offset)+'px'});
+    }
+
+}
+
+function mainFrameScrollTableTargets() {
+    var left = $('#mainFrame').scrollLeft();
+    $("#dropTargets").css('left', '-'+left+'px');
+    console.log('scrolling')
+}
+
+function dragdropSwapTables(el) {
+    var dropTargetIndex = parseInt((el.attr('id')).substring(10));
+    var table = $('#autoGenTableWrap'+dropTargetIndex);
+    var tableScrollTop = table.scrollTop();
+    if (dropTargetIndex >gDragObj.tableIndex) {
+        table.after($('#shadowTable'));
+        table.after(gDragObj.table);
+    } else {
+        table.before($('#shadowTable'));
+        table.before(gDragObj.table);
+    }
+
+    gDragObj.table.scrollTop(gDragObj.tableScrollTop);
+
+    gDragObj.table.attr('id', 'autoGenTableWrap'+dropTargetIndex);
+    gDragObj.table.find('.theadWrap').attr('id', 'theadWrap'+dropTargetIndex);
+     
+    table.attr('id',  'autoGenTableWrap'+gDragObj.tableIndex);
+    table.find('.theadWrap').attr('id', 'theadWrap'+gDragObj.tableIndex);
+    
+    var oldIndex = gDragObj.tableIndex;
+    gDragObj.tableIndex = dropTargetIndex;
+    createTableDropTargets(dropTargetIndex, oldIndex, table);
+}
+
+function sizeTableForDragging() {
+    gDragObj.table.height($('#mainFrame').height()-gScrollbarHeight-5);
 }

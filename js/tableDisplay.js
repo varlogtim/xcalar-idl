@@ -206,7 +206,6 @@ function addTable(tableName, tableNum) {
         $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i+1));
         $("#autoGenTable"+i).attr("id", "autoGenTable"+(i+1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
-        $("#theadWrap"+(i+1)).css("z-index", 10-(i+1));
         $("#delTable"+i).attr("id", "delTable"+(i+1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
@@ -238,14 +237,12 @@ function delTable(tableNum) {
         $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i-1));
         $("#autoGenTable"+i).attr("id", "autoGenTable"+(i-1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i-1));
-        $("#theadWrap"+(i-1)).css("z-index", 10-(i-1));
         $("#delTable"+i).attr("id", "delTable"+(i-1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i-1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i-1));
     }
     
     // XXX: Think about gActiveTableNum
-    console.log($('.autoGenTable').length , gActiveTableNum, tableNum)
     gActiveTableNum--;
     if ($('#autoGenTable'+gActiveTableNum).length == 0) {
        gActiveTableNum = 0; 

@@ -772,6 +772,7 @@ input:focus {
             height: 25px;
             text-align: center;
             outline: none;
+            cursor: default;
         }
         &:focus {
             outline-offset: -1px;
@@ -849,9 +850,8 @@ input:focus {
 
 .fauxTHead {
     opacity: 1;
-    .colGrab {
-        // display: none;
-        // display: block !important;
+    .colMenu {
+        display: none !important;
     }
     background-color: transparent !important;
     box-shadow: none !important;
@@ -867,6 +867,7 @@ input:focus {
     width: 100%;
     height: 0px;
     pointer-events: none;
+    z-index: 9;
 }
 
 .tableTitle {
@@ -874,9 +875,21 @@ input:focus {
     padding: 5px 0px 0px 10px;
     pointer-events: auto;
     width: 100%;
-    display: table;
+    // display: table;
+    display: block;
     position: absolute;
     background-color: @color-white;
+
+    .tableGrab {
+        position: absolute;
+        height: 125%;
+        width: ~"calc(100% - 15px)";
+        top: 0;
+        z-index: 2;
+        cursor: move;
+        cursor: -webkit-grab;
+        cursor: -moz-grab;
+    }
 
     input {
         width: ~"calc(100% - 5px)";
@@ -885,7 +898,8 @@ input:focus {
         background-color: @color-table-lightGray;
         font: 15px @font-base;
         padding: 0 4px;
-        // margin-right: 5px;
+        position: relative;
+        z-index: 2;
         &.tblTitleSelected {
             background-color: #DEE8E8;
         }
@@ -899,9 +913,10 @@ input:focus {
         top: 6px;
         right: 6px;
         .transform (rotate(45deg));
+        .transition (opacity 0.1s linear 0.3s);
         opacity: 0;
         cursor: pointer;
-        .transition (opacity 0.1s linear 0.3s);
+        z-index: 10;
         &:hover {
             opacity: 1 !important;
             .transition (opacity 0s linear 0s) !important;
@@ -910,9 +925,9 @@ input:focus {
     &:hover {
         .delTable {
             opacity: 0.5;
+            .transition (opacity 0.1s linear 0.3s);
         }
     }
-
 }
 
 .trueTHead {
@@ -920,6 +935,14 @@ input:focus {
     margin-left: 10px;
     pointer-events: auto;
     top: 30px;
+
+    .colGrab {
+        height: 36px !important;
+    }
+    th:last-child .colGrab{
+        top: -35px;
+        height: 66px !important;
+    }
 }
 
 .moveTop {
@@ -933,18 +956,9 @@ input:focus {
     cursor: ew-resize;
     z-index: 4;
     right: -8px;
-    top: -7px;
+    top: -6px;
     .noSelection;
     // background-color: rgba(50,50,0,0.5);
-}
-
-.trueTHead .colGrab {
-    // display: none !important;
-    height: 36px !important;
-    &:last-of-type {
-        top: -35px;
-        height: 66px !important;
-    }
 }
 
 /*DRAG AND DROP TABLES */
@@ -964,18 +978,16 @@ input:focus {
     // top: 0;
 }
 
-.table {
-    width: 600px;
-    height:500px;
-    background-color: lightgray;
-    border: 2px solid gray;
+#shadowTable{
+    background-color: @color-table-midGray;
     display: inline-block;
-    margin-bottom: 0;
+    margin: 0px 5px 0px 8px;
     position: relative;
     overflow: hidden;
     white-space: normal;
     left: 0;
-    margin-left: 5px;
+    top: 5px;
+    z-index: 0;
 }
 
 /* DRAG AND DROP COLUMNS styling */
@@ -1095,6 +1107,7 @@ ul.colMenu {
     display:none;
     background-color: @color-monitor-green;
     position: fixed;
+    z-index: 10;
 
     li {
         padding: 6px;
@@ -1561,6 +1574,7 @@ ul.leftColMenu + .rightArrow {
         .noSelection;
         width: ~"calc(100%-10px)";
         direction: ltr;
+        cursor: text;
     }
 
     &.tabSelected,  {
@@ -1689,6 +1703,10 @@ ul.leftColMenu + .rightArrow {
         vertical-align: top;
         padding-top: 2px;
         // width: 100%;
+
+        &[readonly] {
+            cursor: default;
+        }
     }
 }
 
@@ -1741,6 +1759,7 @@ ul.leftColMenu + .rightArrow {
         span {
             position: absolute;
             right: -1px;
+            top: -1px;
             z-index: 2;
             position: relative;
         }
@@ -1813,8 +1832,8 @@ ul.leftColMenu + .rightArrow {
         &:nth-child(even) {
             background-color: @color-table-midGray !important;
             .removeCover {
-               background-color: @color-table-midGray; 
-               background-color: inherit; 
+                background-color: @color-table-midGray; 
+                background-color: inherit; 
             }
         }
         &:first-child {

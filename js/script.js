@@ -288,7 +288,10 @@ function documentReadyGeneralFunction() {
         generateFirstLastVisibleRowNum();
     });
 
-    
+    //XXX using this to keep window from scrolling on dragdrop
+    $(window).scroll(function() {
+        $(this).scrollLeft(0);
+    })
 
     $('.closeJsonModal, #modalBackground').click(function(){
         if ($('#jsonModal').css('display') == 'block') {
@@ -390,7 +393,6 @@ function documentReadyGeneralFunction() {
 
 function documentReadyCatFunction(tableNum) {
     var index = getIndex(gTables[tableNum].frontTableName);
-    console.log(index)
     getNextPage(gTables[tableNum].resultSetId, true, tableNum);
     if (index && index.length > 0) {
         gTables[tableNum].tableCols = index;
@@ -450,11 +452,11 @@ function documentReadyIndexFunction() {
         if ($.isEmptyObject(gTableIndicesLookup)) {
             generateBlankTable();
         } else {
-             var tableNum = 0;
-             for (table in gTableIndicesLookup) {
+            var tableNum = 0;
+            for (table in gTableIndicesLookup) {
                 addTable(table, tableNum);
                 tableNum++;
-             }
+            }
             documentReadyAutoGenTableFunction();
         }
     });
