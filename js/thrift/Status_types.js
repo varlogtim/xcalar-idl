@@ -226,7 +226,10 @@ StatusT = {
 'StatusAstMalformedEvalString' : 217,
 'StatusAstNoSuchFunction' : 218,
 'StatusFieldNameTooLong' : 219,
-'StatusFieldNameAlreadyExists' : 220
+'StatusFieldNameAlreadyExists' : 220,
+'StatusXdfBinaryOperandsExpected' : 221,
+'StatusXdfUnaryOperandExpected' : 222,
+'StatusXdfTypeUnsupported' : 223
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -448,5 +451,8 @@ StatusTStr = {0 : 'Success',
 217 : 'Malformed eval string',
 218 : 'Could not find function',
 219 : 'The new field name is too long',
-220 : 'The field name you entered already exists'
+220 : 'The field name you entered already exists',
+221 : 'Operation requires 2 operands',
+222 : 'Operation requires 1 operand',
+223 : 'Operation is not supported on input type'
 };
