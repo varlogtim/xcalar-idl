@@ -181,7 +181,7 @@ function gRescolMouseMove(event) {
     }
     var tableWidth = gRescol.table.width();
     gRescol.thead.outerWidth(tableWidth);
-    gRescol.theadWrap.outerWidth(tableWidth+10);
+    gRescol.theadWrap.outerWidth(tableWidth+8);
 }
 
 function gRescolMouseMoveLast(event) {
@@ -201,7 +201,7 @@ function gRescolMouseMoveLast(event) {
     } 
     var tableWidth = gRescol.table.width();
     gRescol.thead.outerWidth(tableWidth);
-    gRescol.theadWrap.outerWidth(tableWidth+10);
+    gRescol.theadWrap.outerWidth(tableWidth+8);
 }
 
 function gRescolMouseUp() {
@@ -736,7 +736,7 @@ function matchHeaderSizes(tableNum, reverse) {
     var tableWidth = table.width();
     table.find('thead').width(tableWidth);
     table.find('.rowGrab').width(tableWidth);
-    table.find('.theadWrap').width(tableWidth+10);
+    table.find('.theadWrap').width(tableWidth+8);
 }
 
 function addColListeners(colId, tableId) {

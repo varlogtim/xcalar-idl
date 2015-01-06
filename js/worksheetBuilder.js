@@ -268,7 +268,7 @@ function createWorksheet() {
             var tName = tables.tables[i].tableName;
             if (tName == tableName) {
                 var rand = Math.floor((Math.random() * 100000) + 1);
-                tableName += rand;
+                tableName += "-"+rand;
             }
         }
 

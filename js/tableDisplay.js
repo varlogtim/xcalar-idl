@@ -191,12 +191,12 @@ function resizeForMultipleTables(tableNum) {
     }
     if ($('.autoGenTable').length == 2) {
         var tableWidth = $('#autoGenTable0').width();
-        $('#theadWrap0').width(tableWidth+10);
+        $('#theadWrap0').width(tableWidth+8);
     }
 
     $('.autoGenTableWrap').width('auto').css('overflow-x', 'hidden');
     var tableWidth = $('#autoGenTable'+tableNum).width();
-    $('#theadWrap'+tableNum).width(tableWidth+10);
+    $('#theadWrap'+tableNum).width(tableWidth+8);
 }
 
 // Adds a table to the display
