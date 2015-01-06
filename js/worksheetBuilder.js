@@ -262,6 +262,15 @@ function createWorksheet() {
         var startIndex = 0;
         var datasetName = $(this).find('th').data('dsname');
         var tableName = $(this).find('th input').val();
+        var tables = XcalarGetTables();
+        var numTables = tables.numTables;
+        for (var i = 0; i<numTables; i++) {
+            var tName = tables.tables[i].tableName;
+            if (tName == tableName) {
+                var rand = Math.floor((Math.random() * 100000) + 1);
+                tableName += rand;
+            }
+        }
 
         $(this).find('tbody span').each(function() {
             var colname = $.trim($(this).text());
