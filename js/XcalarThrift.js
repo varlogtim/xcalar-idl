@@ -458,7 +458,7 @@ function XcalarSetFree(resultSetId) {
     return true;
 }
 
-function XcalarFilter(operator, value, srcTablename, dstTablename) {
+function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -466,42 +466,37 @@ function XcalarFilter(operator, value, srcTablename, dstTablename) {
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
     workItem.input.filterInput = new XcalarApiFilterInputT();
-    workItem.input.filterInput.table = new XcalarApiTableT();
-    workItem.input.filterInput.filterTable = new XcalarApiTableT();
+    workItem.input.filterInput.srcTable = new XcalarApiTableT();
+    workItem.input.filterInput.dstTable = new XcalarApiTableT();
 
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiFilter;
-    workItem.input.filterInput.table.tableName = srcTablename;
-    workItem.input.filterInput.filterTable.tableName = dstTablename;
+    workItem.input.filterInput.srcTable.tableName = srcTablename;
+    workItem.input.filterInput.dstTable.tableName = dstTablename;
     switch (operator) {
     case ("Greater Than"):
-        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsMoreEqual;
+        workItem.input.filterInput.filterStr = "gt("+columnName+", "+value+")";
         break;
     case ("Greater Than Equal To"):
-        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsMore;
+        workItem.input.filterInput.filterStr = "ge("+columnName+", "+value+")";
         break;
     case ("Equals"):
-        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsEqual;
-        break;
+        workItem.input.filterInput.filterStr = "eq("+columnName+", "+value+")";
+         break;
     case ("Less Than"):
-        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsLessEqual;
+        workItem.input.filterInput.filterStr = "lt("+columnName+", "+value+")";
         break;
     case ("Less Than Equal To"):
-        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsLess;
+        workItem.input.filterInput.filterStr = "le("+columnName+", "+value+")";
         break;
     case ("Regex"):
-        workItem.input.filterInput.filterOp = OperatorsOpT.OperatorsRegex;
+        workItem.input.filterInput.filterStr = "regex("+columnName+", "+value+
+                                               ")";
         break;
     default:
         console.log("Unknown op "+operator);
     }
     
-    if (workItem.input.filterInput.filterOp != OperatorsOpT.OperatorsRegex) {
-        workItem.input.filterInput.compValue = value;
-    } else {
-        workItem.input.filterInput.regexPattern = value;
-    }
-
     try {
         result = client.queueWork(workItem);
     } catch(ouch) {

@@ -140,8 +140,10 @@ function filterCol(operator, value, colid, tableNum) {
     var newTableName = "tempFilterTable"+rand;
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
-    $("body").css({"cursor": "wait"}); 
-    XcalarFilter(operator, value, gTables[tableNum].frontTableName, newTableName);
+    $("body").css({"cursor": "wait"});
+    console.log(colid); 
+    XcalarFilter(operator, value, gTables[tableNum].tableCols[colid-1].name,
+                 gTables[tableNum].frontTableName, newTableName);
     checkStatus(newTableName, tableNum);
 }
 
