@@ -34,8 +34,7 @@ XcalarApisT = {
 'XcalarApiDestroyDataset' : 25,
 'XcalarApiMap' : 26,
 'XcalarApiAggregate' : 27,
-'XcalarApiQuery' : 28,
-'XcalarApiIndexSync' : 29
+'XcalarApiQuery' : 28
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -65,6 +64,5 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 25 : 'XcalarApiDestroyDataset',
 26 : 'XcalarApiMap',
 27 : 'XcalarApiAggregate',
-28 : 'XcalarApiQuery',
-29 : 'XcalarApiIndexSync'
+28 : 'XcalarApiQuery'
 };

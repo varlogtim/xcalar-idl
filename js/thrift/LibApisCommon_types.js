@@ -777,12 +777,16 @@ XcalarApiBulkLoadInputT.prototype.write = function(output) {
 };
 
 XcalarApiIndexInputT = function(args) {
+  this.sync = null;
   this.isTableBacked = null;
   this.srcTable = null;
   this.datasetId = null;
   this.keyName = null;
   this.dstTable = null;
   if (args) {
+    if (args.sync !== undefined) {
+      this.sync = args.sync;
+    }
     if (args.isTableBacked !== undefined) {
       this.isTableBacked = args.isTableBacked;
     }
@@ -816,12 +820,19 @@ XcalarApiIndexInputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.BOOL) {
-        this.isTableBacked = input.readBool().value;
+        this.sync = input.readBool().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.isTableBacked = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
       if (ftype == Thrift.Type.STRUCT) {
         this.srcTable = new XcalarApiTableT();
         this.srcTable.read(input);
@@ -829,21 +840,21 @@ XcalarApiIndexInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 3:
+      case 4:
       if (ftype == Thrift.Type.I64) {
         this.datasetId = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 4:
+      case 5:
       if (ftype == Thrift.Type.STRING) {
         this.keyName = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 5:
+      case 6:
       if (ftype == Thrift.Type.STRUCT) {
         this.dstTable = new XcalarApiTableT();
         this.dstTable.read(input);
@@ -862,28 +873,33 @@ XcalarApiIndexInputT.prototype.read = function(input) {
 
 XcalarApiIndexInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiIndexInputT');
+  if (this.sync !== null && this.sync !== undefined) {
+    output.writeFieldBegin('sync', Thrift.Type.BOOL, 1);
+    output.writeBool(this.sync);
+    output.writeFieldEnd();
+  }
   if (this.isTableBacked !== null && this.isTableBacked !== undefined) {
-    output.writeFieldBegin('isTableBacked', Thrift.Type.BOOL, 1);
+    output.writeFieldBegin('isTableBacked', Thrift.Type.BOOL, 2);
     output.writeBool(this.isTableBacked);
     output.writeFieldEnd();
   }
   if (this.srcTable !== null && this.srcTable !== undefined) {
-    output.writeFieldBegin('srcTable', Thrift.Type.STRUCT, 2);
+    output.writeFieldBegin('srcTable', Thrift.Type.STRUCT, 3);
     this.srcTable.write(output);
     output.writeFieldEnd();
   }
   if (this.datasetId !== null && this.datasetId !== undefined) {
-    output.writeFieldBegin('datasetId', Thrift.Type.I64, 3);
+    output.writeFieldBegin('datasetId', Thrift.Type.I64, 4);
     output.writeI64(this.datasetId);
     output.writeFieldEnd();
   }
   if (this.keyName !== null && this.keyName !== undefined) {
-    output.writeFieldBegin('keyName', Thrift.Type.STRING, 4);
+    output.writeFieldBegin('keyName', Thrift.Type.STRING, 5);
     output.writeString(this.keyName);
     output.writeFieldEnd();
   }
   if (this.dstTable !== null && this.dstTable !== undefined) {
-    output.writeFieldBegin('dstTable', Thrift.Type.STRUCT, 5);
+    output.writeFieldBegin('dstTable', Thrift.Type.STRUCT, 6);
     this.dstTable.write(output);
     output.writeFieldEnd();
   }
