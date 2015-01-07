@@ -18,12 +18,14 @@
 @color-table-darkGray: #E6E6E6;
 @color-table-blankGrayLight: #CCCCCC;
 @color-table-blankGrayDark: #C2C2C2;
+@color-table-blue: #DEE8E8;
 @colorOpaque-lightGray: rgba(158, 158, 158, 0.1);
 @colorOpaque-darkGray: rgba(80, 80, 80, 0.1);
 @colorOpaque-pink: rgba(237, 28, 36, 0.1);
 @colorOpaque-blankGrayDark: rgba(0, 0, 0, 0.2);
 @colorOpaque-midGray: rgba(110,110,110,0.2); //XXX todo: get new color for first column
-@colorOpaque-dataCol: rgba(157, 200, 181, 0.1);
+@colorOpaque-dataCol: rgba(135, 200, 171, 0.1);
+@colorOpaque-blue: rgba(150,180,205, 0.2);
 @colorShadow-black: rgba(0, 0, 0, 0.15);
 
 
@@ -589,6 +591,7 @@ input:focus {
         top: 0;
         left: 1px;
         background-color: @color-bar-orange;
+        // .transition (transform 0.2s ease-out);
         .transition (transform 0.2s ease-out);
         .transition-delay (0s);
     }
@@ -736,10 +739,10 @@ input:focus {
 
     tbody .selectedCell {
         &:nth-child(odd) {
-            background-color: @colorOpaque-pink;
+            background-color: @colorOpaque-pink !important;
         }
         &:nth-child(even) {
-            background-color: @colorOpaque-pink; 
+            background-color: @colorOpaque-pink !important; 
         }
     }
 
@@ -817,6 +820,10 @@ input:focus {
         max-height: 16px;
         overflow: hidden;
     }
+
+    .indexedColumn {
+       background-color: @colorOpaque-blue !important;
+    }
     // XXX if we have scrollbars on individual tds
     // .elementTextWrap:hover, .addedBarTextWrap:hover {
     //     overflow-y: auto;
@@ -831,6 +838,7 @@ input:focus {
 }
 
 .autoGenTable {
+    height: 0px;
     thead {
         box-shadow: 0px 3px @colorShadow-black;
     }
@@ -901,7 +909,7 @@ input:focus {
         position: relative;
         z-index: 2;
         &.tblTitleSelected {
-            background-color: #DEE8E8;
+            background-color: @color-table-blue;
         }
     }
 
@@ -992,6 +1000,7 @@ th:last-child .colGrab{
     left: 0;
     top: 5px;
     z-index: 0;
+    vertical-align: top;
 }
 
 /* DRAG AND DROP COLUMNS styling */

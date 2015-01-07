@@ -54,10 +54,15 @@ function getDatasetSamples() {
 }
 
 function addSelectedTable(index, tabName, dsName) {
+    if (dsName) {
+        var startingWidth = 0;
+    } else {
+        var startingWidth = 175;
+    }
     $('#selectedTableWrap'+index).append('\
             <table class="dataTable selectedTable" \
             id="selectedTable'+index+'" \
-            style="width:0px;">\
+            style="width:'+startingWidth+'px;">\
                 <thead><tr>\
                 <th data-dsname="'+dsName+'">\
                 <input type="text" value="'+tabName+'">\
@@ -536,7 +541,7 @@ function setupWorksheetAndShoppingCart() {
             createWorksheet();
             resetShoppingCart();
         } else {
-            alert('Select a key for each selected table');
+            alert('Choose a key by clicking on a selected column name');
         } 
     });
 

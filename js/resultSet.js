@@ -63,7 +63,9 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
     if (numRows == 0) {
-        console.log('no rows found');
+        console.log('no rows found, ERROR???');
+        generateFirstScreen("", -1, tableNum);
+        return;
     }
     var rowTemplate = createRowTemplate(tableNum);
     for (var i = 0; i<numRows; i++) {
@@ -86,7 +88,6 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         } else {
             generateRowWithCurrentTemplate(value, indexNumber+index, 
                                            rowTemplate, direction, tableNum);      
-    
         }
     }
 
@@ -110,6 +111,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         newProgCol.userStr = '"' + gTables[tableNum].keyName +
                              '" = pull('+gTables[tableNum].keyName+')';
         insertColAtIndex(0, tableNum, newProgCol);
+        //is this where we add the indexed column??
         addCol("col0", "autoGenTable"+tableNum, gTables[tableNum].keyName,
                {progCol: newProgCol}); 
         newProgCol = new ProgCol();

@@ -63,6 +63,10 @@ function infScrolling(tableNum) {
             .addClass('tblTitleSelected');
         gActiveTableNum = dynTableNum;
         var table = $('#autoGenTable'+dynTableNum);
+        if (table.height() < $('#mainFrame').height()) {
+            // prevent scrolling on a short table
+           $(this).scrollTop(0);
+        }
         if ($(this).scrollTop() === 0 && 
             table.find('tbody tr:first').attr('class') != 'row0') {
                 console.log('the top!');
@@ -76,13 +80,10 @@ function infScrolling(tableNum) {
 
                 table.find('.colGrab').hide();
                 goToPage(pageNumber, RowDirection.Top, dynTableNum);
-                
                 $('#autoGenTableWrap'+dynTableNum)
                    .scrollTop(firstRow.offset().top - initialTop + 10);
                 table.find("tbody tr:gt(79)").remove();
-                
-                table.find('.colGrab').height(table.height()-10);
-                table.find('.colGrab').show();
+                table.find('.colGrab').height(table.height()-10).show(); 
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()+
                     gScrollbarHeight - $(this).outerHeight() <= 1) {
             gTempStyle = table.find("tbody tr:last").html();
@@ -92,13 +93,14 @@ function infScrolling(tableNum) {
             }
             table.find('.colGrab').hide();
             goToPage(gTables[dynTableNum].currentPageNumber+1,
-                     RowDirection.Bottom, dynTableNum); 
-            table.find('.colGrab').height(table.height()-10);
-            table.find('.colGrab').show();
+                     RowDirection.Bottom, dynTableNum);
+            table.find('.colGrab').height(table.height()-10).show(); 
         }
-        generateFirstLastVisibleRowNum();
+        console.log('scrolling')
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
+        var rowScrollerMove = true;
+        generateFirstLastVisibleRowNum(rowScrollerMove);
         updatePageBar(dynTableNum);
     });
 }
@@ -252,7 +254,7 @@ function documentReadyAutoGenTableFunction() {
         gTempStyle = $("#autoGenTable"+gActiveTableNum+" tbody tr:nth-last-child(1)").html();
         $("#autoGenTable"+gActiveTableNum+" tbody").empty();
 
-        if (((row)/gNumEntriesPerPage) >
+        if ((row/gNumEntriesPerPage) >
                 Math.floor((gTables[gActiveTableNum].resultSetCount/
                             gNumEntriesPerPage)-2)) {
             //if row lives inside last 3 pages, prepare to display last 3 pages
@@ -265,13 +267,17 @@ function documentReadyAutoGenTableFunction() {
         for (var i = 0; i < numPagesToAdd; i++) {
             goToPage(Math.ceil(pageNum)+i, null, gActiveTableNum);
         }
-
+       
         positionScrollbar(row, gActiveTableNum);
         generateFirstLastVisibleRowNum();
-        moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
+        if (!e.rowScrollerMousedown) {
+            console.log('moooving')
+            moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
+        }
+        
         // $(this).blur(); 
     });
-
+    generateFirstLastVisibleRowNum();
     $('#pageBar > div:last-child').append('<span>of '+
                                            gTables[gActiveTableNum].resultSetCount+
                                            '</span>');
@@ -378,7 +384,7 @@ function documentReadyGeneralFunction() {
                 resrowMouseUp();
                 break;
             case ("movingTable"):
-                    dragTableMouseUp(event);
+                    dragTableMouseUp();
                     break;
             case ("movingCol"):
                 dragdropMouseUp();
@@ -420,6 +426,16 @@ function documentReadyCatFunction(tableNum) {
         console.log("Not stored "+gTables[tableNum].frontTableName);
     }    
 
+    for (var i = 0; i<gTables[tableNum].tableCols.length; i++) {
+        if (gTables[tableNum].tableCols[i].name == "DATA") {
+            // We don't need to do anything here because if it's the first time
+            // they won't have anything stored. If it's not the first time, the
+            // column would've been sized already. If it's indexed, we
+            // would've sized it in CatFunction
+        } else { 
+            execCol(gTables[tableNum].tableCols[i], tableNum);
+        }
+    }
 }
 
 function startupFunctions() {
@@ -437,6 +453,9 @@ function tableStartupFunctions(table, tableNum) {
     documentReadyCatFunction(tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
+    if ($('#autoGenTableWrap'+tableNum).length == 0) {
+        return;
+    }
     cloneTableHeader(tableNum);
     generateFirstLastVisibleRowNum();
     var dataCol = $('#autoGenTable'+tableNum+' tr:eq(1) th.dataCol');

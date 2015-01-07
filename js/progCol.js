@@ -213,6 +213,7 @@ function addCol(colId, tableId, name, options) {
     var select = options.select || false;
     var inFocus = options.inFocus || false;
     var newProgCol = options.progCol || new ProgCol();
+    var indexedColumnClass = "";
     if (options.direction != "L") {
         newColid += 1;
     }
@@ -220,6 +221,9 @@ function addCol(colId, tableId, name, options) {
         name = "";
         var select = true;
     } 
+    else if (name == gTables[tableNum].keyName) {
+        indexedColumnClass = "indexedColumn";
+    }
     if (select) {
         var color = "selectedCell";
         $('.selectedCell').removeClass('selectedCell');
@@ -239,7 +243,7 @@ function addCol(colId, tableId, name, options) {
     for (var i = numCol; i>=newColid; i--) {
         $('#'+tableId+' .col'+i).removeClass('col'+i).addClass('col'+(i+1));
     }  
-     var columnHeadTd = '<th class="table_title_bg '+color+
+     var columnHeadTd = '<th class="table_title_bg '+color+' '+indexedColumnClass+
         ' col'+newColid+'" style="width:'+width+'px;" label="click to edit">'+
         '<div class="header">'+
         '<div class="dragArea"></div>'+
@@ -352,7 +356,7 @@ function addCol(colId, tableId, name, options) {
 
     for (var i = startingIndex; i<startingIndex+numRow; i++) {
         var newCellHTML = '<td '+
-            'class="'+color+' col'+newColid+'">&nbsp;</td>';
+            'class="'+color+' '+indexedColumnClass+' col'+newColid+'">&nbsp;</td>';
             $("#"+tableId+" .row"+i+" .col"+(newColid-1)).after(newCellHTML);
     }
 

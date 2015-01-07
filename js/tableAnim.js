@@ -1,9 +1,10 @@
-function generateFirstLastVisibleRowNum() {
+function generateFirstLastVisibleRowNum(rowScrollerMove) {
     //XXX table will need to be passed in
     if ($('#autoGenTableWrap'+gActiveTableNum).length == 0 ||
         $('.blankTable').length > 0) {
         return;
     }
+    var table = $('#autoGenTable'+gActiveTableNum);
     var mfPos = $('#autoGenTableWrap'+gActiveTableNum)[0]
                 .getBoundingClientRect();
     var tdXCoor = 30;
@@ -14,21 +15,29 @@ function generateFirstLastVisibleRowNum() {
     var firstEl = document.elementFromPoint(tdXCoor+mfPos.left,
                                             tdYCoor+mfPos.top);
     var firstId = $(firstEl).closest('tr').attr('class');
+
     if (firstId && firstId.length > 0) {
         var firstRowNum = parseInt(firstId.substring(3))+1;
     }
 
-    var tdBottom = tdBotYCoor + mfPos.bottom;
-    var lastEl = document.elementFromPoint(tdXCoor+mfPos.left,
-                                           tdBottom);
-    var lastId = $(lastEl).closest('tr').attr('class');
-    if (lastId && lastId.length > 0) {
-        var lastRowNum = parseInt(lastId.substring(3))+1;
+    var tdBottom = tdBotYCoor + mfPos.bottom; 
+    
+    if ($('#mainFrame').height() > table.height()) {
+        var lastRowNum = table.find('tr:last td:first').text();
+    } else {
+        var lastEl = document.elementFromPoint(tdXCoor+mfPos.left, tdBottom);
+        var lastId = $(lastEl).closest('tr').attr('class');
+        if (lastId && lastId.length > 0) {
+            var lastRowNum = parseInt(lastId.substring(3))+1;
+        }
     }
-
+    
     if (parseInt(firstRowNum) != NaN) {
         $('#pageBar .rowNum:first-of-type').html(firstRowNum);
-        moverowScroller(firstRowNum, gTables[gActiveTableNum].resultSetCount);
+        if (rowScrollerMove) {
+            // moverowScroller(firstRowNum, 
+            //     gTables[gActiveTableNum].resultSetCount);
+        }
     }
     if (parseInt(lastRowNum) != NaN) {
         $('#pageBar .rowNum:last-of-type').html(lastRowNum);
@@ -432,8 +441,8 @@ function createTransparentDragDropCol() {
                         $('#fauxTable tr:first').outerHeight();
     var autoGenTableWrap0Height = $('#autoGenTableWrap0').height()- 
         gScrollbarHeight;
-    var fauxColHeight = Math.min(fauxTableHeight, autoGenTableWrap0Height);
-    $('#fauxCol').height(fauxColHeight-30);
+    var fauxColHeight = Math.min(fauxTableHeight, autoGenTableWrap0Height-30);
+    $('#fauxCol').height(fauxColHeight);
     var firstRowOffset = $(topRowEl).offset().top - topPx-rowHeight;
     $('#fauxTable').css('margin-top', $('#fauxTable tr:first').outerHeight()+
                         firstRowOffset);
@@ -591,9 +600,7 @@ function autosizeCol(el, options) {
     } else {
         el.width(newWidth);
     }
-    if (index != 1) { // don't store id column
-        gTables[tableNum].tableCols[index-1].width = el.outerWidth();
-    }
+    gTables[tableNum].tableCols[index-1].width = el.outerWidth();
     matchHeaderSizes(tableNum, resizeFirstRow);
 }
 
@@ -1105,6 +1112,7 @@ function moverowScroller(pageNum, resultSetCount) {
     var pct = (pageNum/resultSetCount);
     var dist = Math.floor(pct*$('#rowScroller'+gActiveTableNum).width());
     $('#rowMarker'+gActiveTableNum).css('transform', 'translateX('+dist+'px)');
+    console.log('moooved', dist)
 }
 
 function addRowScroller(tableNum) {
@@ -1129,9 +1137,7 @@ function addRowScroller(tableNum) {
         if (event.which != 1) {
             return;
         }
-        console.log(gActiveTableNum)
         var tableNum = gActiveTableNum;
-
         var mouseX = event.pageX - $(this).offset().left;
         $('#rowMarker'+tableNum).css('transform', 'translateX('+mouseX+'px)');
         var scrollWidth = $(this).outerWidth();
@@ -1151,7 +1157,11 @@ function addRowScroller(tableNum) {
         var rowInputNum = $("#rowInput").val();
         var e = $.Event("keypress");
         e.which = keyCode.Enter;
-        $("#rowInput").val(rowNum).trigger(e)
+        e['rowScrollerMousedown'] = true;
+        setTimeout( function() {
+            $("#rowInput").val(rowNum).trigger(e);
+        }, 1)
+        // $("#rowInput").val(rowNum).trigger(e);
     });
 }
 
@@ -1229,9 +1239,7 @@ function dragTableMouseDown(el, e) {
     $(document.head).append(cursorStyle);
     createShadowTable();
     gDragObj.table.addClass('tableDragging');
-    // gDragObj.table.css('left', gDragObj.left+'px');
     gDragObj.table.css('left', gDragObj.offsetLeft+'px');
-    
     gDragObj.windowWidth = $(window).width();
     gDragObj.pageX = gDragObj.pageX;
     checkForMainFrameScrollBar();
@@ -1247,7 +1255,7 @@ function dragTableMouseMove(e) {
     gDragObj.pageX = event.pageX;
 }
 
-function dragTableMouseUp(e) {
+function dragTableMouseUp() {
     gMouseStatus = null;
     gDragObj.table.removeClass('tableDragging')
                     .css({'left':'0px', 'height':'100%'});
@@ -1291,8 +1299,9 @@ function dragTableMouseUp(e) {
 function createShadowTable() {
     var rect = gDragObj.table[0].getBoundingClientRect();
     var width = rect.width - 13;
-    var height = rect.height;
-    var shadowTable = '<div id="shadowTable" class="table" '+
+    var height = Math.min($('#mainFrame').height()-gScrollbarHeight-5, 
+        gDragObj.table.children().height());
+    var shadowTable = '<div id="shadowTable" '+
                 'style="width:'+width+'px;height:'+height+'px;">'+
             '</div>';
 
@@ -1384,5 +1393,7 @@ function dragdropSwapTables(el) {
 }
 
 function sizeTableForDragging() {
-    gDragObj.table.height($('#mainFrame').height()-gScrollbarHeight-5);
+    var height = Math.min($('#mainFrame').height()-gScrollbarHeight-5, 
+        gDragObj.table.children().height());
+    gDragObj.table.height(height);
 }

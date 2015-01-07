@@ -222,6 +222,12 @@ function addTable(tableName, tableNum) {
         documentReadyAutoGenTableFunction(); 
     }
     // XXX: Think about gActiveTableNum
+    $('#theadWrap'+gActiveTableNum+' .tableTitle input')
+            .removeClass('tblTitleSelected');
+    gActiveTableNum = tableNum;
+    $('#theadWrap'+gActiveTableNum+' .tableTitle input')
+            .addClass('tblTitleSelected');
+    updatePageBar(gActiveTableNum);
 }
 
 // Removes a table from the display
