@@ -55,6 +55,38 @@ function execCol(progCol, tableNum, args) {
     case ("raw"):
         console.log("Raw data");
         break;
+    case ("map"):
+        var mapString = progCol.userStr.substring(progCol.userStr.indexOf("map")
+                                                  +4, progCol.userStr.length-1);
+        mapString = jQuery.trim(mapString);
+        progCol.func.func = "pull";
+
+        var largestX = 0;
+        // Find out what is the biggest current ValueX
+        var firstRow = $("#pageBar .rowNum:first-of-type").html();
+        var lastRow = $("#pageBar .rowNum:last-of-type").html();
+        var midRow = Math.ceil(parseInt(firstRow) +
+                     (parseInt(firstRow) + parseInt(lastRow))/2);
+
+        var jsonStr = $("#autoGenTable"+tableNum+" .row"+midRow+" .elementText")
+                      .html();
+        console.log(jsonStr);
+        var jsonObj = jQuery.parseJSON(jsonStr);
+        console.log(jsonObj);
+        // Incrementally find until undefined
+        while (true) {
+            if (jsonObj["Value"+largestX] != undefined) {
+                largestX++;
+            } else {
+                break;
+            }
+        }
+        console.log("largestX "+largestX);
+        progCol.func.args[0] = "Value"+largestX;
+        progCol.isDark = false;
+        progCol.userStr = progCol.name+" = pull(Value"+largestX+")";
+        mapColumn(mapString, tableNum);
+        break;
     case (undefined):
         // console.log("Blank col?");
         break;
@@ -320,6 +352,12 @@ function addCol(colId, tableId, name, options) {
                             '<li class="filter">Regex'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="*"/></li>'+
+                                '</ul>'+
+                                '<div class="rightArrow"></div>'+
+                            '</li>'+
+                            '<li class="filter">Others'+
+                                '<ul class="subColMenu">'+
+                                    '<li><input type="text" value=""/></li>'+
                                 '</ul>'+
                                 '<div class="rightArrow"></div>'+
                             '</li>'+

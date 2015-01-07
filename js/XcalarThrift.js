@@ -493,6 +493,9 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
         workItem.input.filterInput.filterStr = "regex("+columnName+", "+value+
                                                ")";
         break;
+    case ("Others"):
+        workItem.input.filterInput.filterStr = value;
+        break;
     default:
         console.log("Unknown op "+operator);
     }
@@ -504,6 +507,31 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
         console.log("Filter bug");
     }
 }
+
+function XcalarMap(evalStr, srcTablename, dstTablename) {
+    var transport = new Thrift.Transport(transportLocation());
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.mapInput = new XcalarApiMapInputT();
+    workItem.input.mapInput.srcTable = new XcalarApiTableT();
+    workItem.input.mapInput.dstTable = new XcalarApiTableT();
+
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiMap;
+    workItem.input.mapInput.srcTable.tableName = srcTablename;
+    workItem.input.mapInput.dstTable.tableName = dstTablename;
+    workItem.input.mapInput.evalStr = evalStr;
+
+    try {
+        result = client.queueWork(workItem);
+    } catch(ouch) {
+        console.log(ouch);
+        console.log("Map bug");
+    }
+}   
 
 function XcalarJoin(left, right, dst) {
     var transport = new Thrift.Transport(transportLocation());

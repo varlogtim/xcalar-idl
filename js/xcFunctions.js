@@ -64,6 +64,16 @@ function sortRows(index, tableNum, order) {
     checkStatus(newTableName, tableNum, KeepOriginalTables.DontKeep,
                 undefined);
 }
+
+function mapColumn(mapString, tableNum) {
+
+    var rand = Math.floor((Math.random() * 100000) + 1);
+    var newTableName = "tempMapTable"+rand;
+    setIndex(newTableName, gTables[tableNum].tableCols);
+    commitToStorage(); 
+    XcalarMap(mapString, gTables[tableNum].frontTableName, newTableName);
+    checkStatus(newTableName, tableNum);
+}
 /*
 function cont1(newIndexTable, operator, value, datasetId, key, otherTable) {
     var refCount = XcalarGetTableRefCount(newIndexTable);
