@@ -581,6 +581,9 @@ input:focus {
         height: 24px;
         top: 0;
         left: 0;
+        &.hidden {
+            display: none !important;
+        }
     }
 
     .rowMarker {
@@ -1089,17 +1092,12 @@ th:last-child .colGrab{
     border-right: 11px solid @color-monitor-green;
     &:hover {
         opacity: 1 !important;
+        .transition (opacity 0.02s linear);
     }
-}
-
-.dropdownBox:hover {
-    opacity: 1.0 !important;
-    .transition (opacity 0.02s linear);
-}
-
-.dropdownBox.hidden {
-    opacity: 0 !important;
-    .transition (opacity 0.02s linear);
+    &.hidden {
+        opacity: 0 !important;
+        .transition (opacity 0.02s linear);
+    }
 }
 
 .fullOpacity {

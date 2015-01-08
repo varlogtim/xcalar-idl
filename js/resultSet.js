@@ -65,6 +65,9 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     if (numRows == 0) {
         console.log('no rows found, ERROR???');
         generateFirstScreen("", -1, tableNum);
+        addRowScroller(tableNum);
+        $('#rowScroller'+tableNum).addClass('hidden');
+        addTableListeners(tableNum);
         return;
     }
     var rowTemplate = createRowTemplate(tableNum);
@@ -162,7 +165,6 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         }
     }
 
-    // $('.colGrab').height($('#autoGenTableWrap0').height());
     $('#autoGenTable'+tableNum+' .colGrab')
         .height($('#autoGenTable'+tableNum).height()-10);
     var idColWidth = getTextWidth($('#autoGenTable'+tableNum+' tr:last td:first'));

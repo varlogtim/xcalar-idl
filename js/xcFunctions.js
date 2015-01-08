@@ -16,6 +16,7 @@ function checkStatus(newTableName, tableNum, keepOriginal,
         } else {
             // default
             var newTableNum = tableNum;
+            var savedScrollLeft;
             if (additionalTableNum) {
                 var largerTableNum = Math.max(additionalTableNum, tableNum);
                 var smallerTableNum = Math.min(additionalTableNum, tableNum);
@@ -26,9 +27,14 @@ function checkStatus(newTableName, tableNum, keepOriginal,
                     newTableNum = gTables.length;
                 }
             } else {
+                savedScrollLeft = $('#mainFrame').scrollLeft();
                 delTable(tableNum);
             }
+            
             addTable(newTableName, newTableNum);
+            if (savedScrollLeft) {
+                $('#mainFrame').scrollLeft(savedScrollLeft);
+            }
         }
     } else {
         console.log(refCount);

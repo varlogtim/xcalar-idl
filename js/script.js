@@ -57,11 +57,7 @@ function infScrolling(tableNum) {
     $("#autoGenTableWrap"+tableNum).scroll(function() {
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("autoGenTableWrap".length));
-        $('#theadWrap'+gActiveTableNum+' .tableTitle input')
-            .removeClass('tblTitleSelected');
-        $('#theadWrap'+dynTableNum+' .tableTitle input')
-            .addClass('tblTitleSelected');
-        gActiveTableNum = dynTableNum;
+        focusTable(dynTableNum);
         var table = $('#autoGenTable'+dynTableNum);
         if (table.height() < $('#mainFrame').height()) {
             // prevent scrolling on a short table
@@ -230,10 +226,8 @@ function setupFunctionBar() {
 // ========================== Document Ready ==================================
 
 function documentReadyAutoGenTableFunction() {
-    gActiveTableNum = 0;
-    var resultTextLength = (""+gTables[gActiveTableNum].resultSetCount).length;
-    $('#rowInput').attr({'maxLength': resultTextLength,
-                          'size': resultTextLength});
+    focusTable(0);
+    resizeRowInput();
 
     $('#rowInput').keypress(function(e) {
         if (e.which !== keyCode.Enter) {
@@ -271,7 +265,6 @@ function documentReadyAutoGenTableFunction() {
         positionScrollbar(row, gActiveTableNum);
         generateFirstLastVisibleRowNum();
         if (!e.rowScrollerMousedown) {
-            console.log('moooving')
             moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
         }
         
@@ -299,7 +292,7 @@ function documentReadyGeneralFunction() {
         $(this).scrollLeft(0);
     })
 
-    $('.closeJsonModal, #modalBackground').click(function(){
+    $('.closeJsonModal, #modalBackground').click(function() {
         if ($('#jsonModal').css('display') == 'block') {
             $('#modalBackground').hide(); 
             $('body').removeClass('hideScroll');
@@ -307,11 +300,11 @@ function documentReadyGeneralFunction() {
         $('#jsonModal').hide();
     });
 
-    $('.jsonDragArea').mousedown(function(event){
+    $('.jsonDragArea').mousedown(function(event) {
         jsonModalMouseDown(event);
     });
 
-    $('#datastorePanel .menuAreaItem:first').click(function(){
+    $('#datastorePanel .menuAreaItem:first').click(function() {
         $("#loadArea").load('load_r.html', function(){
             // load_r.html contains load.js where this function is defined
             loadReadyFunction();
@@ -345,7 +338,7 @@ function documentReadyGeneralFunction() {
             $('#fnBar').val("");
         }
     });
-    $(document).mousemove(function(event){
+    $(document).mousemove(function(event) {
         if (gMouseStatus == null) {
             return;
         }
@@ -372,7 +365,7 @@ function documentReadyGeneralFunction() {
             default:  // do nothing
         }
     });
-    $(document).mouseup(function(event){
+    $(document).mouseup(function(event) {
         if (gMouseStatus == null) {
             return;
         }
@@ -453,16 +446,15 @@ function tableStartupFunctions(table, tableNum) {
     documentReadyCatFunction(tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
-    if ($('#autoGenTableWrap'+tableNum).length == 0) {
-        return;
-    }
     cloneTableHeader(tableNum);
-    generateFirstLastVisibleRowNum();
+    focusTable(tableNum);
     var dataCol = $('#autoGenTable'+tableNum+' tr:eq(1) th.dataCol');
     addColListeners(parseColNum(dataCol), "autoGenTable"+tableNum);
     resizeForMultipleTables(tableNum);
+    generateFirstLastVisibleRowNum();
     infScrolling(tableNum);
     checkForScrollBar(tableNum);
+    resizeRowInput();
 }      
 
 function documentReadyIndexFunction() {

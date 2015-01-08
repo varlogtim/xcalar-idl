@@ -19,8 +19,9 @@ function menuBarArt() {
             $("#menuArea").height(0);
             clickTarget = null;
             setTimeout(function() {
-                $('#autoGenTable'+gActiveTableNum+' .colGrab')
-                    .height($('#autoGenTable'+gActiveTableNum).height());
+                //XXX not sure if I need to adjust height of colGrab
+                // $('#autoGenTable'+gActiveTableNum+' .colGrab')
+                //     .height($('#autoGenTable'+gActiveTableNum).height());
                 generateFirstLastVisibleRowNum();
             },300);
             return;
@@ -28,8 +29,8 @@ function menuBarArt() {
         clickTarget = $(event.target).text();
 
         setTimeout(function() {
-            $('#autoGenTable'+gActiveTableNum+' .colGrab')
-                    .height($('#autoGenTable'+gActiveTableNum).height());
+            // $('#autoGenTable'+gActiveTableNum+' .colGrab')
+            //         .height($('#autoGenTable'+gActiveTableNum).height());
             generateFirstLastVisibleRowNum();
         },300);
 

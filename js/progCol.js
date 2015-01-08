@@ -200,6 +200,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
                   .text();
     if (jsonStr == "") {
         console.log("Error: pullCol() jsonStr is empty");
+        return;
     }
     var value = jQuery.parseJSON(jsonStr);
     for (var j = 0; j<nested.length; j++) {
@@ -232,10 +233,11 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
 }
 
 function addCol(colId, tableId, name, options) {
-    //id will be the column class ex. col2
+    //colId will be the column class ex. col2
     //tableId will be the table name  ex. autoGenTable0
+    var table = $('#'+tableId);
     var tableNum = parseInt(tableId.substring(12));
-    var numCol = $("#"+tableId+" tr:first th").length;
+    var numCol = table.find("tr:first th").length;
     var colIndex = parseInt(colId.substring(3));
     var newColid = colIndex;
     var options = options || {};
@@ -273,7 +275,7 @@ function addCol(colId, tableId, name, options) {
         insertColAtIndex(newColid-1, tableNum, newProgCol);
     }
     for (var i = numCol; i>=newColid; i--) {
-        $('#'+tableId+' .col'+i).removeClass('col'+i).addClass('col'+(i+1));
+        table.find('.col'+i).removeClass('col'+i).addClass('col'+(i+1));
     }  
      var columnHeadTd = '<th class="table_title_bg '+color+' '+indexedColumnClass+
         ' col'+newColid+'" style="width:'+width+'px;" label="click to edit">'+
@@ -285,7 +287,7 @@ function addCol(colId, tableId, name, options) {
             'title="click to edit" value="'+name+'" size="15" placeholder=""/>'+
         '</div>'+
         '</th>';
-    $('#'+tableId+' .table_title_bg.col'+(newColid-1)).after(columnHeadTd); 
+    table.find('.table_title_bg.col'+(newColid-1)).after(columnHeadTd); 
 
     var dropDownHTML = '<ul class="colMenu">'+
             '<li>'+
@@ -368,24 +370,26 @@ function addCol(colId, tableId, name, options) {
                         '<li class="joinList col'+newColid+'">'+'Join'+
                             '<ul class="subColMenu">';
         }
-        var tables = XcalarGetTables();
-        var numTables = tables.numTables;
+        // var tables = XcalarGetTables();
+        // var numTables = tables.numTables;
+        var numTables = gTables.length;
         for (var i = 0; i<numTables; i++) {
-            var t = tables.tables[i];
-            dropDownHTML += '<li class="join">'+t.tableName+'</li>';
+            // var t = tables.tables[i];
+            var t = gTables[i];
+            // dropDownHTML += '<li class="join">'+t.tableName+'</li>';
+            dropDownHTML += '<li class="join">'+t.backTableName+'</li>';
         }
         dropDownHTML +=     '<div class="subColMenuArea"></div>'+
                             '</ul>'+ 
                             '<div class="rightArrow"></div>'+ 
                         '</li>';
     dropDownHTML += '</ul>';
-    $('#'+tableId+' .table_title_bg.col'+newColid+' .header')
-        .append(dropDownHTML);
+    table.find('.table_title_bg.col'+newColid+' .header').append(dropDownHTML);
 
     addColListeners(newColid, tableId);
 
-    var numRow = $("#"+tableId+" tbody tr").length;
-    var idOfFirstRow = $("#"+tableId+" tbody tr:first").attr("class");
+    var numRow = table.find("tbody tr").length;
+    var idOfFirstRow = table.find("tbody tr:first").attr("class");
     if (idOfFirstRow) {
         var startingIndex = parseInt(idOfFirstRow.substring(3));
     } else {
@@ -395,11 +399,11 @@ function addCol(colId, tableId, name, options) {
     for (var i = startingIndex; i<startingIndex+numRow; i++) {
         var newCellHTML = '<td '+
             'class="'+color+' '+indexedColumnClass+' col'+newColid+'">&nbsp;</td>';
-            $("#"+tableId+" .row"+i+" .col"+(newColid-1)).after(newCellHTML);
+            table.find(".row"+i+" .col"+(newColid-1)).after(newCellHTML);
     }
 
     if (inFocus) {
-        $('#'+tableId+' tr:first .editableHead.col'+newColid).focus();
+        table.find('tr:first .editableHead.col'+newColid).focus();
     }
     matchHeaderSizes(tableNum);
     checkForScrollBar(tableNum);

@@ -209,7 +209,6 @@ function addTable(tableName, tableNum) {
         $("#delTable"+i).attr("id", "delTable"+(i+1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
-
         gTables[i+1] = gTables[i];
     }
     var firstTime;
@@ -221,13 +220,7 @@ function addTable(tableName, tableNum) {
     if (firstTime) {
         documentReadyAutoGenTableFunction(); 
     }
-    // XXX: Think about gActiveTableNum
-    $('#theadWrap'+gActiveTableNum+' .tableTitle input')
-            .removeClass('tblTitleSelected');
-    gActiveTableNum = tableNum;
-    $('#theadWrap'+gActiveTableNum+' .tableTitle input')
-            .addClass('tblTitleSelected');
-    updatePageBar(gActiveTableNum);
+    // focusTable(tableNum);
 }
 
 // Removes a table from the display
@@ -257,10 +250,7 @@ function delTable(tableNum) {
         $('#rowScroller'+gActiveTableNum).show();
     }
     generateFirstLastVisibleRowNum();
-    // $('.tableTitle input')
-    //         .removeClass('tblTitleSelected');
-    // $('#theadWrap'+gActiveTableNum+' .tableTitle input')
-    //         .addClass('tblTitleSelected');
+    focusTable(gActiveTableNum);
     
     if ($('.autoGenTable').length == 1) {
         $('.autoGenTableWrap').width('100%').css('overflow-x', 'auto');

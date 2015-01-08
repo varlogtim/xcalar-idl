@@ -259,7 +259,9 @@ function resrowMouseUp() {
     reenableTextSelection();
     $('#ns-resizeCursor').remove();
     $('body').removeClass('hideScroll'); 
-    $('.colGrab').height($('#autoGenTable0').height()-10);
+    // $('#autoGenT').find('.colGrab').height($('#autoGenTable0').height()-10);
+    $('#autoGenTable'+gActiveTableNum).find(' .colGrab')
+        .height($('#autoGenTable'+gActiveTableNum).height()-10);
     generateFirstLastVisibleRowNum()
 }
 
@@ -617,7 +619,7 @@ function getWidestTdWidth(el, options) {
     var largestTd = table.find('tbody tr:first td:eq('+(id)+')');
     var headerWidth = 0;
 
-    table.find('tbody tr').each(function(){
+    table.find('tbody tr').each(function() {
         // we're going to take advantage of monospaced font
         //and assume text length has an exact correlation to text width
         var td = $(this).children(':eq('+(id)+')');
@@ -644,7 +646,7 @@ function getWidestTdWidth(el, options) {
 // XXX: Td heights are not persisted
 function getTdHeights() {
     var tdHeights = [];
-    $(".autoGenTable tbody tr").each(function(){
+    $(".autoGenTable tbody tr").each(function() {
         tdHeights.push($(this).children().eq(0).outerHeight());
     });
     return (tdHeights);  
@@ -814,17 +816,17 @@ function addColListeners(colId, tableId) {
         colMenu.closest('.theadWrap').css('z-index', '10');
 
         //positioning if dropdown menu is on the right side of screen
-        if (colMenu[0].getBoundingClientRect().right > $(window).width()) {
+        var windowWidth = $(window).width();
+        if (colMenu[0].getBoundingClientRect().right > windowWidth) {
             left = $(this)[0].getBoundingClientRect().right - colMenu.width();
             colMenu.css('left', left).addClass('leftColMenu');
         }
-        if (colMenu.find('.subColMenu').length) {
-            if (colMenu.find('.subColMenu')[0].getBoundingClientRect().right > 
-                $(window).width()) {
-                    colMenu.find('.subColMenu').addClass('leftColMenu');
+        colMenu.find('.subColMenu').each(function() {
+            if ($(this)[0].getBoundingClientRect().right > windowWidth) {
+                colMenu.find('.subColMenu').addClass('leftColMenu');
+                // return false;
             }
-        }
-
+        });
     });
 
     table.find('.table_title_bg.col'+colId+' .dropdownBox')
@@ -843,9 +845,9 @@ function addColListeners(colId, tableId) {
     });
 
     table.find('.table_title_bg.col'+colId+' ul.colMenu > li:first-child')
-        .mouseenter(function(){
+        .mouseenter(function() {
             $(this).parent().removeClass('white');
-    }).mouseleave(function(){
+    }).mouseleave(function() {
         $(this).parent().addClass('white');
     });
 
@@ -857,7 +859,7 @@ function addColListeners(colId, tableId) {
     });
 
     table.find('.table_title_bg.col'+colId+' .colMenu ul')
-        .mouseleave(function(){
+        .mouseleave(function() {
             if ($(this).parent().is(':first-child')) {
                 $(this).parent().parent().siblings('.rightArrow').
                 removeClass('dimmed').addClass('arrowExtended');
@@ -865,7 +867,7 @@ function addColListeners(colId, tableId) {
     });
 
     table.find('.table_title_bg.col'+colId+' .dragArea')
-        .mousedown(function(event){
+        .mousedown(function(event) {
         var headCol = $(this).parent().parent();
         dragdropMouseDown(headCol, event);
     }); 
@@ -974,7 +976,7 @@ function addColMenuActions(colId, tableId) {
         }
     });
 
-    table.find('.filter.col'+colId+' input').click(function(){
+    table.find('.filter.col'+colId+' input').click(function() {
         $(this).select();
     });
 
@@ -1084,11 +1086,13 @@ function addRowListeners(rowNum, tableNum) {
 }
 
 function addTableListeners(tableNum) {
-    $('#autoGenTable'+tableNum).mousedown(function() {     
+    $('#autoGenTable'+tableNum).mousedown(function() { 
+    console.log('mousedown')    
         var dynTableNum = parseInt($(this).closest('table').attr('id')
                        .substring(12));
-        $('.tableTitle input')
-            .removeClass('tblTitleSelected');
+        $('.tableTitle input').removeClass('tblTitleSelected');
+        // $('#theadWrap'+gActiveTableNum+' .tableTitle input')
+        //     .removeClass('tblTitleSelected');
         $('#theadWrap'+dynTableNum+' .tableTitle input')
             .addClass('tblTitleSelected');
         gActiveTableNum = dynTableNum;
@@ -1108,26 +1112,32 @@ function addTableListeners(tableNum) {
     });
 }
 
+function focusTable(tableNum) {
+    $('#theadWrap'+gActiveTableNum).find('.tableTitle input')
+        .removeClass('tblTitleSelected');
+    $('#theadWrap'+tableNum).find('.tableTitle input')
+        .addClass('tblTitleSelected');
+    gActiveTableNum = tableNum;
+    updatePageBar(tableNum);
+}
+
 function moverowScroller(pageNum, resultSetCount) {
     var pct = (pageNum/resultSetCount);
     var dist = Math.floor(pct*$('#rowScroller'+gActiveTableNum).width());
     $('#rowMarker'+gActiveTableNum).css('transform', 'translateX('+dist+'px)');
-    console.log('moooved', dist)
 }
 
 function addRowScroller(tableNum) {
-    if (tableNum == 0) {
-        $('#rowScrollerArea').append('<div id="rowScroller'+tableNum+
+    var rowScrollerHTML = '<div id="rowScroller'+tableNum+
         '" class="rowScroller" title="scroll to a row">'+
             '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
             '</div>'+
-        '</div>');
+        '</div>';
+
+    if ($('.rowScroller').length == 0) {
+        $('#rowScrollerArea').append(rowScrollerHTML);
     } else {
-       $('#rowScroller'+(tableNum-1)).after('<div id="rowScroller'+tableNum+
-        '" class="rowScroller" title="scroll to a row">'+
-            '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
-            '</div>'+
-        '</div>');
+        $('#rowScroller'+(tableNum-1)).after(rowScrollerHTML);
     }
     if ($('.autoGenTable').length > 1) {
         $('#rowScroller'+tableNum).hide();
@@ -1211,6 +1221,14 @@ function updatePageBar(tableNum) {
     }
     
 }
+
+function resizeRowInput() {
+    var resultTextLength = (""+gTables[gActiveTableNum].resultSetCount).length;
+    if (resultTextLength > $('#rowInput').attr('size')) {
+        $('#rowInput').attr({'maxLength': resultTextLength,
+                          'size': resultTextLength});
+    }  
+}
     
 function dragTableMouseDown(el, e) {
     if ($('.autoGenTable').length == 1) {
@@ -1256,6 +1274,7 @@ function dragTableMouseMove(e) {
 }
 
 function dragTableMouseUp() {
+    console.log('dragTableMouseup')
     gMouseStatus = null;
     gDragObj.table.removeClass('tableDragging')
                     .css({'left':'0px', 'height':'100%'});
@@ -1266,33 +1285,11 @@ function dragTableMouseUp() {
     checkForScrollBar();
     reenableTextSelection(); 
 
-    // reorder gTables
-    var tempTable = gTables.splice(gDragObj.originalIndex, 1)[0];
-    gTables.splice(gDragObj.tableIndex, 0, tempTable);
-    
-    //reorder rowScrollers
-    var rowScrollers = $('.rowScroller');
-    var rowScroller = rowScrollers[gDragObj.originalIndex];
-    if (gDragObj.tableIndex == 0) {
-        $('#rowScrollerArea').prepend(rowScroller);
-    } else if (gDragObj.originalIndex < gDragObj.tableIndex){
-        $('#rowScroller'+gDragObj.tableIndex).after(rowScroller);
-    } else if (gDragObj.originalIndex > gDragObj.tableIndex) {
-        $('#rowScroller'+gDragObj.tableIndex).before(rowScroller);
-    }
-
-    //correct table and rowscroller id numbers
-    rowScrollers = $('.rowScroller');
-    var start = Math.min(gDragObj.originalIndex, gDragObj.tableIndex);
-    var end = Math.max(gDragObj.originalIndex, gDragObj.tableIndex);
-    for (var i = start; i <= end; i++) {
-        //tablewrap and theadwrap IDs were already changed during table swapping
-        var table = $('#autoGenTableWrap'+i).find('.autoGenTable');
-        var oldIndex = parseInt(table.attr('id').substring(12));
-        table.attr('id', 'autoGenTable'+i);
-        table.find('.delTable').attr('id', 'delTable'+i);
-        $(rowScrollers[i]).attr('id', 'rowScroller'+i);
-        $(rowScrollers[i]).find('.rowMarker').attr('id','rowMarker'+i);
+    if (gDragObj.tableIndex == gDragObj.originalIndex) {
+        // order did not change, so no need to reorder
+        return;
+    } else {
+        reorderAfterTableDrop();
     }
 }
 
@@ -1396,4 +1393,34 @@ function sizeTableForDragging() {
     var height = Math.min($('#mainFrame').height()-gScrollbarHeight-5, 
         gDragObj.table.children().height());
     gDragObj.table.height(height);
+}
+
+function  reorderAfterTableDrop() {
+
+    var tempTable = gTables.splice(gDragObj.originalIndex, 1)[0];
+    gTables.splice(gDragObj.tableIndex, 0, tempTable);
+    
+    //reorder rowScrollers
+    var rowScroller = $('#rowScroller'+gDragObj.originalIndex);
+    if (gDragObj.tableIndex == 0) {
+        $('#rowScrollerArea').prepend(rowScroller);
+    } else if (gDragObj.originalIndex < gDragObj.tableIndex) {
+        $('#rowScroller'+gDragObj.tableIndex).after(rowScroller);
+    } else if (gDragObj.originalIndex > gDragObj.tableIndex) {
+        $('#rowScroller'+gDragObj.tableIndex).before(rowScroller);
+    }
+
+    //correct table and rowscroller id numbers
+    var rowScrollers = $('.rowScroller');
+    var start = Math.min(gDragObj.originalIndex, gDragObj.tableIndex);
+    var end = Math.max(gDragObj.originalIndex, gDragObj.tableIndex);
+    for (var i = start; i <= end; i++) {
+        //tablewrap and theadwrap IDs were already changed during table swapping
+        var table = $('#autoGenTableWrap'+i).find('.autoGenTable');
+        var oldIndex = parseInt(table.attr('id').substring(12));
+        table.attr('id', 'autoGenTable'+i);
+        table.find('.delTable').attr('id', 'delTable'+i);
+        $(rowScrollers[i]).attr('id', 'rowScroller'+i);
+        $(rowScrollers[i]).find('.rowMarker').attr('id','rowMarker'+i);
+    }
 }
