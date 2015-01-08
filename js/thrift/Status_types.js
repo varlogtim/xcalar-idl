@@ -231,7 +231,12 @@ StatusT = {
 'StatusXdfBinaryOperandsExpected' : 222,
 'StatusXdfUnaryOperandExpected' : 223,
 'StatusXdfTypeUnsupported' : 224,
-'StatusXdfNoOperandsExpected' : 225
+'StatusXdfNoOperandsExpected' : 225,
+'StatusXdbKvNotFound' : 226,
+'StatusQrTaskFailed' : 227,
+'StatusQrIdNonExist' : 228,
+'StatusQrJobNonExist' : 229,
+'StatusApiTaskFailed' : 230
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -458,5 +463,10 @@ StatusTStr = {0 : 'Success',
 222 : 'Operation requires 2 operands',
 223 : 'Operation requires 1 operand',
 224 : 'Operation is not supported on input type',
-225 : 'No operands expected'
+225 : 'No operands expected',
+226 : 'KV not fround in Xdb',
+227 : 'Task(s) failed',
+228 : 'The query ID is not existed',
+229 : 'There is no query job associate with this ID',
+230 : 'API Task Failed'
 };

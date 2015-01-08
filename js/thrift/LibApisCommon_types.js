@@ -2204,6 +2204,59 @@ XcalarApiMapInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiQueryStateInputT = function(args) {
+  this.queryId = null;
+  if (args) {
+    if (args.queryId !== undefined) {
+      this.queryId = args.queryId;
+    }
+  }
+};
+XcalarApiQueryStateInputT.prototype = {};
+XcalarApiQueryStateInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.queryId = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiQueryStateInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiQueryStateInputT');
+  if (this.queryId !== null && this.queryId !== undefined) {
+    output.writeFieldBegin('queryId', Thrift.Type.I64, 1);
+    output.writeI64(this.queryId);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiGetStatGroupIdMapOutputT = function(args) {
   this.status = null;
   this.numGroupNames = null;
@@ -3356,6 +3409,257 @@ XcalarApiAggregateOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiSingleQueryT = function(args) {
+  this.singleQuery = null;
+  this.status = null;
+  if (args) {
+    if (args.singleQuery !== undefined) {
+      this.singleQuery = args.singleQuery;
+    }
+    if (args.status !== undefined) {
+      this.status = args.status;
+    }
+  }
+};
+XcalarApiSingleQueryT.prototype = {};
+XcalarApiSingleQueryT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.singleQuery = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I32) {
+        this.status = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiSingleQueryT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiSingleQueryT');
+  if (this.singleQuery !== null && this.singleQuery !== undefined) {
+    output.writeFieldBegin('singleQuery', Thrift.Type.STRING, 1);
+    output.writeString(this.singleQuery);
+    output.writeFieldEnd();
+  }
+  if (this.status !== null && this.status !== undefined) {
+    output.writeFieldBegin('status', Thrift.Type.I32, 2);
+    output.writeI32(this.status);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiQueryStateOutputT = function(args) {
+  this.queryState = null;
+  this.queryStatus = null;
+  this.query = null;
+  this.numQueuedWorkItem = null;
+  this.numRunningWorkItem = null;
+  this.numCompletedWorkItem = null;
+  this.numFailedWorkItem = null;
+  this.failedSingleQueryArray = null;
+  if (args) {
+    if (args.queryState !== undefined) {
+      this.queryState = args.queryState;
+    }
+    if (args.queryStatus !== undefined) {
+      this.queryStatus = args.queryStatus;
+    }
+    if (args.query !== undefined) {
+      this.query = args.query;
+    }
+    if (args.numQueuedWorkItem !== undefined) {
+      this.numQueuedWorkItem = args.numQueuedWorkItem;
+    }
+    if (args.numRunningWorkItem !== undefined) {
+      this.numRunningWorkItem = args.numRunningWorkItem;
+    }
+    if (args.numCompletedWorkItem !== undefined) {
+      this.numCompletedWorkItem = args.numCompletedWorkItem;
+    }
+    if (args.numFailedWorkItem !== undefined) {
+      this.numFailedWorkItem = args.numFailedWorkItem;
+    }
+    if (args.failedSingleQueryArray !== undefined) {
+      this.failedSingleQueryArray = args.failedSingleQueryArray;
+    }
+  }
+};
+XcalarApiQueryStateOutputT.prototype = {};
+XcalarApiQueryStateOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I32) {
+        this.queryState = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I32) {
+        this.queryStatus = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.query = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.I64) {
+        this.numQueuedWorkItem = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.I64) {
+        this.numRunningWorkItem = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 6:
+      if (ftype == Thrift.Type.I64) {
+        this.numCompletedWorkItem = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 7:
+      if (ftype == Thrift.Type.I64) {
+        this.numFailedWorkItem = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 8:
+      if (ftype == Thrift.Type.LIST) {
+        var _size64 = 0;
+        var _rtmp368;
+        this.failedSingleQueryArray = [];
+        var _etype67 = 0;
+        _rtmp368 = input.readListBegin();
+        _etype67 = _rtmp368.etype;
+        _size64 = _rtmp368.size;
+        for (var _i69 = 0; _i69 < _size64; ++_i69)
+        {
+          var elem70 = null;
+          elem70 = new XcalarApiSingleQueryT();
+          elem70.read(input);
+          this.failedSingleQueryArray.push(elem70);
+        }
+        input.readListEnd();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiQueryStateOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiQueryStateOutputT');
+  if (this.queryState !== null && this.queryState !== undefined) {
+    output.writeFieldBegin('queryState', Thrift.Type.I32, 1);
+    output.writeI32(this.queryState);
+    output.writeFieldEnd();
+  }
+  if (this.queryStatus !== null && this.queryStatus !== undefined) {
+    output.writeFieldBegin('queryStatus', Thrift.Type.I32, 2);
+    output.writeI32(this.queryStatus);
+    output.writeFieldEnd();
+  }
+  if (this.query !== null && this.query !== undefined) {
+    output.writeFieldBegin('query', Thrift.Type.STRING, 3);
+    output.writeString(this.query);
+    output.writeFieldEnd();
+  }
+  if (this.numQueuedWorkItem !== null && this.numQueuedWorkItem !== undefined) {
+    output.writeFieldBegin('numQueuedWorkItem', Thrift.Type.I64, 4);
+    output.writeI64(this.numQueuedWorkItem);
+    output.writeFieldEnd();
+  }
+  if (this.numRunningWorkItem !== null && this.numRunningWorkItem !== undefined) {
+    output.writeFieldBegin('numRunningWorkItem', Thrift.Type.I64, 5);
+    output.writeI64(this.numRunningWorkItem);
+    output.writeFieldEnd();
+  }
+  if (this.numCompletedWorkItem !== null && this.numCompletedWorkItem !== undefined) {
+    output.writeFieldBegin('numCompletedWorkItem', Thrift.Type.I64, 6);
+    output.writeI64(this.numCompletedWorkItem);
+    output.writeFieldEnd();
+  }
+  if (this.numFailedWorkItem !== null && this.numFailedWorkItem !== undefined) {
+    output.writeFieldBegin('numFailedWorkItem', Thrift.Type.I64, 7);
+    output.writeI64(this.numFailedWorkItem);
+    output.writeFieldEnd();
+  }
+  if (this.failedSingleQueryArray !== null && this.failedSingleQueryArray !== undefined) {
+    output.writeFieldBegin('failedSingleQueryArray', Thrift.Type.LIST, 8);
+    output.writeListBegin(Thrift.Type.STRUCT, this.failedSingleQueryArray.length);
+    for (var iter71 in this.failedSingleQueryArray)
+    {
+      if (this.failedSingleQueryArray.hasOwnProperty(iter71))
+      {
+        iter71 = this.failedSingleQueryArray[iter71];
+        iter71.write(output);
+      }
+    }
+    output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiInputT = function(args) {
   this.loadInput = null;
   this.indexInput = null;
@@ -3378,6 +3682,7 @@ XcalarApiInputT = function(args) {
   this.makeResultSetInput = null;
   this.mapInput = null;
   this.aggregateInput = null;
+  this.queryStateInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -3441,6 +3746,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.aggregateInput !== undefined) {
       this.aggregateInput = args.aggregateInput;
+    }
+    if (args.queryStateInput !== undefined) {
+      this.queryStateInput = args.queryStateInput;
     }
   }
 };
@@ -3623,6 +3931,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 23:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.queryStateInput = new XcalarApiQueryStateInputT();
+        this.queryStateInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -3739,6 +4055,11 @@ XcalarApiInputT.prototype.write = function(output) {
     this.aggregateInput.write(output);
     output.writeFieldEnd();
   }
+  if (this.queryStateInput !== null && this.queryStateInput !== undefined) {
+    output.writeFieldBegin('queryStateInput', Thrift.Type.STRUCT, 23);
+    this.queryStateInput.write(output);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -3763,6 +4084,7 @@ XcalarApiOutputT = function(args) {
   this.aggregateOutput = null;
   this.filterOutput = null;
   this.queryOutput = null;
+  this.queryStateOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -3817,6 +4139,9 @@ XcalarApiOutputT = function(args) {
     }
     if (args.queryOutput !== undefined) {
       this.queryOutput = args.queryOutput;
+    }
+    if (args.queryStateOutput !== undefined) {
+      this.queryStateOutput = args.queryStateOutput;
     }
   }
 };
@@ -3977,6 +4302,14 @@ XcalarApiOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 19:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.queryStateOutput = new XcalarApiQueryStateOutputT();
+        this.queryStateOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -4076,6 +4409,11 @@ XcalarApiOutputT.prototype.write = function(output) {
   if (this.queryOutput !== null && this.queryOutput !== undefined) {
     output.writeFieldBegin('queryOutput', Thrift.Type.STRUCT, 18);
     this.queryOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.queryStateOutput !== null && this.queryStateOutput !== undefined) {
+    output.writeFieldBegin('queryStateOutput', Thrift.Type.STRUCT, 19);
+    this.queryStateOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
