@@ -83,6 +83,7 @@ function execCol(progCol, tableNum, args) {
         }
         console.log("largestX "+largestX);
         progCol.func.args[0] = "Value"+largestX;
+        progCol.func.args.splice(1, progCol.func.args.length-1);
         progCol.isDark = false;
         progCol.userStr = progCol.name+" = pull(Value"+largestX+")";
         mapColumn(mapString, tableNum);
