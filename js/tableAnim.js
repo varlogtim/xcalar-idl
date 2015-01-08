@@ -1089,7 +1089,9 @@ function addRowListeners(rowNum, tableNum) {
         }
     );
     table.find('.row'+rowNum+' .rowGrab').mousedown(function(event) {
+         if (event.which === 1) {
             resrowMouseDown($(this), event);
+        }     
     });
 
     table.find('.row'+rowNum+' .idSpan').dblclick(function() {
@@ -1104,8 +1106,7 @@ function addRowListeners(rowNum, tableNum) {
 }
 
 function addTableListeners(tableNum) {
-    $('#autoGenTable'+tableNum).mousedown(function() { 
-    console.log('mousedown')    
+    $('#autoGenTable'+tableNum).mousedown(function() {   
         var dynTableNum = parseInt($(this).closest('table').attr('id')
                        .substring(12));
         $('.tableTitle input').removeClass('tblTitleSelected');
