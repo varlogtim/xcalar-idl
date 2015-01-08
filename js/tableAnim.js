@@ -962,6 +962,24 @@ function addColMenuActions(colId, tableId) {
                         .attr('id').substring(12));
         sortRows(index, tableNum, SortDirection.Backward);
     }); 
+    
+    table.find('.aggrOp.col'+colId).click(function() {
+        var index = parseColNum($(this));
+        var tableNum = parseInt($(this).closest('table')
+                        .attr('id').substring(12));
+        var pCol = gTables[tableNum].tableCols[index-1];
+        if (pCol.func.func != "pull") {
+            console.log(pCol);
+            alert("Cannot aggregate on column that does not exist in DATA.");
+            return;
+        }
+        var colName = pCol.func.args[0];
+        var aggrOp = $(this).closest('.aggrOp').text();
+        console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
+        var value = XcalarAggregate(colName, gTables[tableNum].backTableName,
+                                    aggrOp);
+        alert(value);
+    });
 
     table.find('.filterWrap.col'+colId+' input').keyup(function(e) {
         var value = $(this).val();

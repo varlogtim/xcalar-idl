@@ -533,6 +533,56 @@ function XcalarMap(evalStr, srcTablename, dstTablename) {
     }
 }   
 
+function XcalarAggregate(fieldName, srcTablename, op) {
+    var transport = new Thrift.Transport(transportLocation());
+    var protocol  = new Thrift.Protocol(transport);
+    var client    = new XcalarApiServiceClient(protocol);
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.aggregateInput = new XcalarApiAggregateInputT();
+    workItem.input.aggregateInput.table = new XcalarApiTableT();
+
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiAggregate;
+    workItem.input.aggregateInput.table.tableName = srcTablename;
+    workItem.input.aggregateInput.fieldName = fieldName;
+
+    switch (op) {
+    case ("Max"):
+        workItem.input.aggregateInput.aggregateOp =
+            OperatorsOpT.OperatorsMax;
+        break;
+    case ("Min"):
+        workItem.input.aggregateInput.aggregateOp = 
+            OperatorsOpT.OperatorsMin;
+        break;
+    case ("Avg"):
+        workItem.input.aggregateInput.aggregateOp = 
+            OperatorsOpT.OperatorsAverage;
+        break;
+    case ("Count"):
+        workItem.input.aggregateInput.aggregateOp = 
+            OperatorsOpT.OperatorsCountKeys;
+        break;
+    case ("Sum"):
+        workItem.input.aggregateInput.aggregateOp = 
+            OperatorsOpT.OperatorsSumKeys;
+        break;
+    default:
+        console.log("bug!:"+op);
+    }
+
+    try {
+        result = client.queueWork(workItem);
+        console.log(result);
+        return (result.output.aggregateOutput.jsonAnswer);
+    } catch(ouch) {
+        console.log(ouch);
+        console.log("Aggregate bug");
+    }
+}
+
 function XcalarJoin(left, right, dst) {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);

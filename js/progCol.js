@@ -311,6 +311,17 @@ function addCol(colId, tableId, name, options) {
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="rightArrow"></div>'+
+            '</li>'+
+            '<li class="aggregate">Aggregate'+
+                '<ul class="subColMenu">'+
+                    '<li class="aggrOp col'+newColid+'">Max</li>'+
+                    '<li class="aggrOp col'+newColid+'">Min</li>'+
+                    '<li class="aggrOp col'+newColid+'">Avg</li>'+
+                    '<li class="aggrOp col'+newColid+'">Count</li>'+
+                    '<li class="aggrOp col'+newColid+'">Sum</li>'+
+                    '<div class="subColMenuArea"></div>'+
+                '</ul>'+ 
+                '<div class="rightArrow"></div>'+
             '</li>';
     // XXX: HACK: I removed the check for the main col. Also, I should check for
     // whether the type is a string or a int

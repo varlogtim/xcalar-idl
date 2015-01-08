@@ -230,7 +230,8 @@ StatusT = {
 'StatusFieldNameAlreadyExists' : 221,
 'StatusXdfBinaryOperandsExpected' : 222,
 'StatusXdfUnaryOperandExpected' : 223,
-'StatusXdfTypeUnsupported' : 224
+'StatusXdfTypeUnsupported' : 224,
+'StatusXdfNoOperandsExpected' : 225
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -456,5 +457,6 @@ StatusTStr = {0 : 'Success',
 221 : 'The field name you entered already exists',
 222 : 'Operation requires 2 operands',
 223 : 'Operation requires 1 operand',
-224 : 'Operation is not supported on input type'
+224 : 'Operation is not supported on input type',
+225 : 'No operands expected'
 };
