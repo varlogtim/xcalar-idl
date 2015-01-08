@@ -256,10 +256,10 @@ function resrowMouseMove(event) {
 
 function resrowMouseUp() {
     gMouseStatus = null;
-    reenableTextSelection();
+     console.log('mouseup')
     $('#ns-resizeCursor').remove();
+    reenableTextSelection();
     $('body').removeClass('hideScroll'); 
-    // $('#autoGenT').find('.colGrab').height($('#autoGenTable0').height()-10);
     $('#autoGenTable'+gActiveTableNum).find(' .colGrab')
         .height($('#autoGenTable'+gActiveTableNum).height()-10);
     generateFirstLastVisibleRowNum()
@@ -277,8 +277,10 @@ function dragdropMouseDown(el, event) {
     gDragObj.scrollLeft = table.position().left;
     gDragObj.top = parseInt($('#theadWrap'+gDragObj.tableNum).css('top')) + 5;
     gDragObj.offsetTop = el.offset().top;
-    gDragObj.left = el.offset().left - 
-            gDragObj.scrollLeft;
+    gDragObj.left = el.offset().left - gDragObj.scrollLeft;
+    gDragObj.grabOffset = gDragObj.mouseX - gDragObj.left;
+      // gDragObj.grabOffset = distance from the left side of dragged column
+    // to the point that was grabbed
 
     gDragObj.docHeight = $(document).height();
     gDragObj.val = el.find('.editableHead').val();
@@ -313,10 +315,9 @@ function dragdropMouseDown(el, event) {
 }
 
 function dragdropMouseMove(event) {
-    var newX = gDragObj.left + (event.pageX - gDragObj.mouseX) - 
-        $('#autoGenTableWrap'+gDragObj.tableNum).scrollLeft();
-    gDragObj.pageX = event.pageX;
-    $('#fauxCol').css('left', newX);
+    var pageX = event.pageX;
+    gDragObj.pageX = pageX;
+    gDragObj.fauxCol.css('left', pageX);
 }
 
 function dragdropMoveMainFrame() {
@@ -351,6 +352,7 @@ function dragdropMouseUp() {
     // only pull col if column is dropped in new location
     if ((gDragObj.colIndex) != gDragObj.colNum) { 
         console.log('deleting')
+        var storedScrollLeft =  $('#mainFrame').scrollLeft();
         delCol(gDragObj.colNum, gDragObj.tableNum, true);
         progCol.index = gDragObj.colIndex;
         insertColAtIndex(gDragObj.colIndex-1, gDragObj.tableNum, progCol);
@@ -361,6 +363,8 @@ function dragdropMouseUp() {
                 inFocus: gDragObj.inFocus,
                 progCol: progCol});
         execCol(progCol, gDragObj.tableNum);
+        //prevent scroll position from changing when you delete and add column
+        $('#mainFrame').scrollLeft(storedScrollLeft);
     }
     reenableTextSelection(); 
 }
@@ -380,19 +384,18 @@ function cloneCellHelper(obj) {
 }
 
 function createTransparentDragDropCol() {
-    // $('#autoGenTableWrap'+gDragObj.tableNum)
-    var leftPos = gDragObj.left - 
-        $('#autoGenTableWrap'+gDragObj.tableNum).scrollLeft();
-    $('#mainFrame')
-                .append('<div id="fauxCol" style="left:'+
-                        leftPos+'px;top:'+
-                        (gDragObj.offsetTop)+'px;width:'+
-                        (gDragObj.colWidth-5)+'px">'+
-                            '<table id="fauxTable" '+
-                            'class="dataTable autoGenTable" '+
-                            'style="width:'+(gDragObj.colWidth-5)+'px">'+
-                            '</table>'+
-                        '</div>');
+    var leftPos = gDragObj.left;
+    $('#mainFrame').append('<div id="fauxCol" style="left:'+
+                    gDragObj.mouseX+'px;top:'+
+                    (gDragObj.offsetTop)+'px;width:'+
+                    (gDragObj.colWidth-5)+'px;'+
+                    'margin-left:'+(-gDragObj.grabOffset)+'px;">'+
+                        '<table id="fauxTable" '+
+                        'class="dataTable autoGenTable" '+
+                        'style="width:'+(gDragObj.colWidth-5)+'px">'+
+                        '</table>'+
+                    '</div>');
+    gDragObj.fauxCol = $('#fauxCol');
     
     var rowHeight = 20;
     // turn this into binary search later
@@ -444,7 +447,7 @@ function createTransparentDragDropCol() {
     var autoGenTableWrap0Height = $('#autoGenTableWrap0').height()- 
         gScrollbarHeight;
     var fauxColHeight = Math.min(fauxTableHeight, autoGenTableWrap0Height-30);
-    $('#fauxCol').height(fauxColHeight);
+    gDragObj.fauxCol.height(fauxColHeight);
     var firstRowOffset = $(topRowEl).offset().top - topPx-rowHeight;
     $('#fauxTable').css('margin-top', $('#fauxTable tr:first').outerHeight()+
                         firstRowOffset);
@@ -453,9 +456,6 @@ function createTransparentDragDropCol() {
 }
 
 function createDropTargets(dropTargetIndex, swappedColIndex) {
-    // var offset = distance from the left side of dragged column
-    // to the point that was grabbed
-    var offset = gDragObj.mouseX - gDragObj.left;
     var dragMargin = 30; 
     // targets extend this many pixels to left of each column
    
@@ -478,7 +478,8 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
                                   dragMargin;
             }
             dropTargets += '<div id="dropTarget'+i+'" class="dropTarget"'+
-                            'style="left:'+(colLeft-dragMargin+offset)+'px;'+
+                            'style="left:'+
+                            (colLeft-dragMargin+gDragObj.grabOffset)+'px;'+
                             'width:'+targetWidth+'px;height:'
                             +(gDragObj.docHeight)+'px;">'+i+
                             '</div>';
@@ -507,7 +508,7 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
         $('#dropTarget'+dropTargetIndex)
             .attr('id', 'dropTarget'+swappedColIndex);
         var dropTarget = $('#dropTarget'+swappedColIndex);
-        dropTarget.css({'left': (colLeft-dragMargin+offset)+'px'});
+        dropTarget.css({'left': (colLeft-dragMargin+gDragObj.grabOffset)+'px'});
     }
 }
 
@@ -738,9 +739,10 @@ function matchHeaderSizes(tableNum, reverse) {
         var fauxTHead = '.fauxTHead';
     }
     for (var i = 0; i < tHeadLength; i++) {
-        var width = table.find(fauxTHead+' th').eq(i)
-                    .outerWidth();
-       table.find(trueTHead+' th').eq(i).outerWidth(width);
+        var width = table.find(fauxTHead+' th').eq(i).outerWidth();
+
+        table.find(trueTHead+' th').eq(i).outerWidth(width);
+        console.log(width,table.find(trueTHead+' th').eq(i).outerWidth())
     }
     var tableWidth = table.width();
     table.find('thead').width(tableWidth);
@@ -807,8 +809,8 @@ function addColListeners(colId, tableId) {
         $('.colMenu').hide();
         $('.leftColMenu').removeClass('leftColMenu');
         //position colMenu
-        var top = $(this)[0].getBoundingClientRect().bottom;
-        var left = $(this)[0].getBoundingClientRect().left+3;
+        var top = $(this)[0].getBoundingClientRect().bottom-2;
+        var left = $(this)[0].getBoundingClientRect().left+4;
         var colMenu = $(this).siblings('.colMenu');
         colMenu.css({'top':top, 'left':left});
         colMenu.show();
@@ -1153,8 +1155,8 @@ function addRowScroller(tableNum) {
             '</div>'+
         '</div>';
 
-    if ($('.rowScroller').length == 0) {
-        $('#rowScrollerArea').append(rowScrollerHTML);
+    if (tableNum == 0) {
+        $('#rowScrollerArea').prepend(rowScrollerHTML);
     } else {
         $('#rowScroller'+(tableNum-1)).after(rowScrollerHTML);
     }

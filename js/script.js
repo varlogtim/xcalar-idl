@@ -339,9 +339,11 @@ function documentReadyGeneralFunction() {
         }
     });
     $(document).mousemove(function(event) {
+        console.log(event.which)
         if (gMouseStatus == null) {
             return;
         }
+
         switch (gMouseStatus) {
             case ("resizingCol"):
                 if (gRescol.lastCellGrabbed) {
