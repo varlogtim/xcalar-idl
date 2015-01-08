@@ -450,7 +450,6 @@ function tableStartupFunctions(table, tableNum) {
     focusTable(tableNum);
     var dataCol = $('#autoGenTable'+tableNum+' tr:eq(1) th.dataCol');
     addColListeners(parseColNum(dataCol), "autoGenTable"+tableNum);
-    resizeForMultipleTables(tableNum);
     generateFirstLastVisibleRowNum();
     infScrolling(tableNum);
     checkForScrollBar(tableNum);

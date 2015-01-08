@@ -183,22 +183,6 @@ function createRowTemplate(tableNum) {
     return (parts);
 }
 
-function resizeForMultipleTables(tableNum) {
-    //XX This function is hacky, need to modifiy where it's called
-    // and then how it's executed
-    if ($('.autoGenTable').length == 1) {
-        return;
-    }
-    if ($('.autoGenTable').length == 2) {
-        var tableWidth = $('#autoGenTable0').width();
-        $('#theadWrap0').width(tableWidth+8);
-    }
-
-    $('.autoGenTableWrap').width('auto').css('overflow-x', 'hidden');
-    var tableWidth = $('#autoGenTable'+tableNum).width();
-    $('#theadWrap'+tableNum).width(tableWidth+8);
-}
-
 // Adds a table to the display
 // Shifts all the ids and everything
 function addTable(tableName, tableNum) {
@@ -251,8 +235,4 @@ function delTable(tableNum) {
     }
     generateFirstLastVisibleRowNum();
     focusTable(gActiveTableNum);
-    
-    if ($('.autoGenTable').length == 1) {
-        $('.autoGenTableWrap').width('100%').css('overflow-x', 'auto');
-    }
 }

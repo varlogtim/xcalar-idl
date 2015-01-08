@@ -541,7 +541,7 @@ function setupWorksheetAndShoppingCart() {
             createWorksheet();
             resetShoppingCart();
         } else {
-            alert('Choose a key by clicking on a selected column name');
+            alert('Choose a key by clicking on a selected column in your list');
         } 
     });
 
