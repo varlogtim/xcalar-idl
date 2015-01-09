@@ -521,7 +521,7 @@ function resetShoppingCart() {
 
 function setupWorksheetAndShoppingCart() {
      $('#newWorksheet span').click(function() {
-        addWorksheetTab();
+        // addWorksheetTab();
         shoppingCart();
         $('#modalBackground').show();
         $('#worksheetBar').find('.tabSelected').addClass('modalActive');
