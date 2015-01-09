@@ -55,6 +55,9 @@ var TableMeta = function() {
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
     $("#autoGenTableWrap"+tableNum).scroll(function() {
+        if (gMouseStatus == "movingTable") {
+            return;
+        }
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("autoGenTableWrap".length));
         focusTable(dynTableNum);
@@ -79,7 +82,7 @@ function infScrolling(tableNum) {
                 $('#autoGenTableWrap'+dynTableNum)
                    .scrollTop(firstRow.offset().top - initialTop + 10);
                 table.find("tbody tr:gt(79)").remove();
-                table.find('.colGrab').height(table.height()-10).show(); 
+                table.find('.colGrab').height(table.height()).show(); 
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()-
                     $(this).outerHeight() <= 1) {
             console.log('the bottom!');
@@ -92,7 +95,7 @@ function infScrolling(tableNum) {
             goToPage(gTables[dynTableNum].currentPageNumber+1,
                      RowDirection.Bottom, dynTableNum);
 
-            table.find('.colGrab').height(table.height()-10).show(); 
+            table.find('.colGrab').height(table.height()).show(); 
         }
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
@@ -283,7 +286,8 @@ function documentReadyGeneralFunction() {
     }); 
 
     $(window).resize(function() {
-        $('.colGrab').height($('#autoGenTable0').height()-10);
+        $('.colGrab').height($('#autoGenTable0').height());
+        //XXX each tables colGrab height will need to be adjusted
         checkForScrollBar(0);
         generateFirstLastVisibleRowNum();
     });

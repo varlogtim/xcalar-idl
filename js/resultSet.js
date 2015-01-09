@@ -166,7 +166,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     }
 
     $('#autoGenTable'+tableNum+' .colGrab')
-        .height($('#autoGenTable'+tableNum).height()-10);
+        .height($('#autoGenTable'+tableNum).height());
     var idColWidth = getTextWidth($('#autoGenTable'+tableNum+' tr:last td:first'));
     var newWidth = Math.max(idColWidth, 24);
     $('#autoGenTable'+tableNum+' th:first-child').width(newWidth+14);

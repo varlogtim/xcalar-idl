@@ -5,27 +5,27 @@ function generateFirstLastVisibleRowNum(rowScrollerMove) {
         return;
     }
     var table = $('#autoGenTable'+gActiveTableNum);
-    var mfPos = $('#autoGenTableWrap'+gActiveTableNum)[0]
+    var tablePos = $('#autoGenTableWrap'+gActiveTableNum)[0]
                 .getBoundingClientRect();
-    var tdXCoor = 30;
-    var tdYCoor = 80;
-    var tdBotYCoor = -18;
+    var tdXCoor = 30; //top cell's distance from left side of tablewrap
+    var tdYCoor = 80; //top cell's distance from top of tablewrap
+    var tdBotYCoor = 18; //bottom cell's distance from bottom of tablewrap
     var firstRowNum;
     var lastRowNum;
-    var firstEl = document.elementFromPoint(tdXCoor+mfPos.left,
-                                            tdYCoor+mfPos.top);
+    var firstEl = document.elementFromPoint(tdXCoor+tablePos.left,
+                                            tdYCoor+tablePos.top);
     var firstId = $(firstEl).closest('tr').attr('class');
 
     if (firstId && firstId.length > 0) {
         var firstRowNum = parseInt(firstId.substring(3))+1;
     }
 
-    var tdBottom = tdBotYCoor + mfPos.bottom; 
+    var tdBottom = tablePos.bottom - tdBotYCoor; 
     
     if ($('#mainFrame').height() > table.height()) {
         var lastRowNum = table.find('tr:last td:first').text();
     } else {
-        var lastEl = document.elementFromPoint(tdXCoor+mfPos.left, tdBottom);
+        var lastEl = document.elementFromPoint(tdXCoor+tablePos.left, tdBottom);
         var lastId = $(lastEl).closest('tr').attr('class');
         if (lastId && lastId.length > 0) {
             var lastRowNum = parseInt(lastId.substring(3))+1;
@@ -137,10 +137,11 @@ function gRescolMouseDown(el, event) {
     } else {
         var rowNum = 1;
     }
+    // since the headers come in pairs, this is the second header
     gRescol.secondCell = table.find('tr:eq('+rowNum+') th.col'+
                             gRescol.colNum);
-    gRescol.lastCellWidth = table.find('thead:last th:last')
-                            .outerWidth();
+    gRescol.lastCell = table.find('thead:last th:last');
+    gRescol.lastCellWidth = gRescol.lastCell.outerWidth();
     
     gRescol.tableExcessWidth = tableWidth - gMinTableWidth;
     gRescol.thead = table.find('thead:first');
@@ -178,15 +179,13 @@ function gRescolMouseMove(event) {
         gRescol.grabbedCell.outerWidth(gRescol.startWidth + dragDist);
         gRescol.secondCell.outerWidth(gRescol.startWidth + dragDist);
         if (dragDist <= -gRescol.tableExcessWidth) {
-            gRescol.table.find('thead th:last-child')
-                .outerWidth(gRescol.lastCellWidth - 
+            gRescol.lastCell.outerWidth(gRescol.lastCellWidth - 
                 (dragDist + gRescol.tableExcessWidth));
         }     
     } else if (dragDist < gRescol.leftDragMax ) {
         gRescol.grabbedCell.outerWidth(gRescol.tempCellMinWidth);
         gRescol.secondCell.outerWidth(gRescol.tempCellMinWidth);
-        gRescol.table.find('thead th:last-child')
-                .outerWidth(gRescol.setLastCellWidth);
+        gRescol.lastCell.outerWidth(gRescol.setLastCellWidth);
     }
     var tableWidth = gRescol.table.width();
     gRescol.thead.outerWidth(tableWidth);
@@ -243,14 +242,15 @@ function resrowMouseMove(event) {
     var mouseDistance = event.pageY - resrow.mouseStart;
     var newHeight = resrow.startHeight + mouseDistance;
     var row = resrow.rowIndex;
+    var padding = 4; // top + bottom padding in td
     if (newHeight < gRescol.minCellHeight) {
         resrow.targetTd.outerHeight(gRescol.minCellHeight);
         $('#autoGenTable'+resrow.tableNum+' tbody tr:eq('+row+') td > div').
-            css('max-height', gRescol.minCellHeight-4);
+            css('max-height', gRescol.minCellHeight-padding);
     } else {
         resrow.targetTd.outerHeight(newHeight);
         $('#autoGenTable'+resrow.tableNum+' tbody tr:eq('+row+') td > div').
-            css('max-height', newHeight-4);
+            css('max-height', newHeight-padding);
     }
 }
 
@@ -261,7 +261,7 @@ function resrowMouseUp() {
     reenableTextSelection();
     $('body').removeClass('hideScroll'); 
     $('#autoGenTable'+gActiveTableNum).find(' .colGrab')
-        .height($('#autoGenTable'+gActiveTableNum).height()-10);
+        .height($('#autoGenTable'+gActiveTableNum).height());
     generateFirstLastVisibleRowNum()
 }
 
@@ -275,7 +275,6 @@ function dragdropMouseDown(el, event) {
     gDragObj.element = el;
     gDragObj.colIndex = parseInt(el.index());
     gDragObj.scrollLeft = table.position().left;
-    gDragObj.top = parseInt($('#theadWrap'+gDragObj.tableNum).css('top')) + 5;
     gDragObj.offsetTop = el.offset().top;
     gDragObj.left = el.offset().left - gDragObj.scrollLeft;
     gDragObj.grabOffset = gDragObj.mouseX - gDragObj.left;
@@ -287,20 +286,24 @@ function dragdropMouseDown(el, event) {
     var tableHeight = $('#autoGenTable'+gDragObj.tableNum).height();
     var autoGenTableWrapHeight = el.closest('#autoGenTableWrap'+
                                 gDragObj.tableNum).height()-gScrollbarHeight;
-    var shadowDivHeight = Math.min(tableHeight,autoGenTableWrapHeight);
+    var shadowDivHeight = Math.min(tableHeight,autoGenTableWrapHeight) -
+        table.find('.tableTitle').height();
+    var headerTop = parseInt($('#theadWrap'+gDragObj.tableNum).css('top')) + 
+        table.find('.trueTHead').position().top;
     gDragObj.inFocus =  el.find('.editableHead').is(':focus');
     gDragObj.colWidth = el.outerWidth();
     gDragObj.windowWidth = $(window).width();
     gDragObj.pageX = gDragObj.pageX;
+    
 
     // create a replica shadow with same column width, height,
     // and starting position
     el.closest('#autoGenTableWrap'+gDragObj.tableNum)
                     .append('<div id="shadowDiv" style="width:'+
-                            (gDragObj.colWidth)+
-                            'px;height:'+(shadowDivHeight-30)+'px;left:'+
+                            gDragObj.colWidth+
+                            'px;height:'+(shadowDivHeight)+'px;left:'+
                             (gDragObj.element.position().left+10)+
-                            'px;top:'+(gDragObj.top+30)+'px;"></div>');
+                            'px;top:'+headerTop+'px;"></div>');
 
     // create a fake transparent column by cloning 
     createTransparentDragDropCol();
@@ -321,12 +324,12 @@ function dragdropMouseMove(event) {
 }
 
 function dragdropMoveMainFrame() {
+    // essentially moving the horizontal mainframe scrollbar if the mouse is 
+    // near the edge of the viewport
     if (gMouseStatus == 'movingCol' || gMouseStatus == 'movingTable') {
         if (gDragObj.pageX > gDragObj.windowWidth-2) {
-            console.log('moving fast')
             $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft()+50));
         } else if (gDragObj.pageX > gDragObj.windowWidth-20) {
-            console.log('moving')
             $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft()+20));
         } else if (gDragObj.pageX < 2) {
             $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft()-50));
@@ -440,7 +443,7 @@ function createTransparentDragDropCol() {
                 return (false);
             }
     });
-        console.log(gScrollbarHeight)
+
     // Ensure rows are offset correctly
     var fauxTableHeight = $('#fauxTable').height()+
                         $('#fauxTable tr:first').outerHeight();
@@ -604,6 +607,9 @@ function autosizeCol(el, options) {
         el.width(newWidth);
     }
     gTables[tableNum].tableCols[index-1].width = el.outerWidth();
+    if (el.closest('thead').hasClass('trueTHead')) {
+        resizeFirstRow = true;
+    }
     matchHeaderSizes(tableNum, resizeFirstRow);
 }
 
@@ -724,7 +730,7 @@ function cloneTableHeader(tableNum) {
 
     $('#autoGenTable'+tableNum).width(0); 
     tHeadClone.find('.colGrab').remove();
-    resizableColumns(tableNum);
+    // resizableColumns(tableNum);
     matchHeaderSizes(tableNum);
 }
 
@@ -1194,7 +1200,7 @@ function addRowScroller(tableNum) {
         e['rowScrollerMousedown'] = true;
         setTimeout( function() {
             $("#rowInput").val(rowNum).trigger(e);
-        }, 1)
+        }, 1);
         // $("#rowInput").val(rowNum).trigger(e);
     });
 }
@@ -1402,7 +1408,7 @@ function dragdropSwapTables(el) {
     gDragObj.table.attr('id', 'autoGenTableWrap'+dropTargetIndex);
     gDragObj.table.find('.theadWrap').attr('id', 'theadWrap'+dropTargetIndex);
      
-    table.attr('id',  'autoGenTableWrap'+gDragObj.tableIndex);
+    table.attr('id', 'autoGenTableWrap'+gDragObj.tableIndex);
     table.find('.theadWrap').attr('id', 'theadWrap'+gDragObj.tableIndex);
     
     var oldIndex = gDragObj.tableIndex;
@@ -1416,7 +1422,7 @@ function sizeTableForDragging() {
     gDragObj.table.height(height);
 }
 
-function  reorderAfterTableDrop() {
+function reorderAfterTableDrop() {
 
     var tempTable = gTables.splice(gDragObj.originalIndex, 1)[0];
     gTables.splice(gDragObj.tableIndex, 0, tempTable);
