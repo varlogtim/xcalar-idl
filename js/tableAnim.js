@@ -440,7 +440,7 @@ function createTransparentDragDropCol() {
                 return (false);
             }
     });
-
+        console.log(gScrollbarHeight)
     // Ensure rows are offset correctly
     var fauxTableHeight = $('#fauxTable').height()+
                         $('#fauxTable tr:first').outerHeight();
@@ -729,8 +729,8 @@ function cloneTableHeader(tableNum) {
 }
 
 function matchHeaderSizes(tableNum, reverse) {
-    var tHeadLength = $('.fauxTHead th').length;
     var table = $('#autoGenTable'+tableNum);
+    var tHeadLength = table.find('.fauxTHead th').length;
     if (reverse) {
         var trueTHead = '.fauxTHead';
         var fauxTHead = '.trueTHead';
@@ -740,9 +740,7 @@ function matchHeaderSizes(tableNum, reverse) {
     }
     for (var i = 0; i < tHeadLength; i++) {
         var width = table.find(fauxTHead+' th').eq(i).outerWidth();
-
         table.find(trueTHead+' th').eq(i).outerWidth(width);
-        console.log(width,table.find(trueTHead+' th').eq(i).outerWidth())
     }
     var tableWidth = table.width();
     table.find('thead').width(tableWidth);
@@ -751,7 +749,6 @@ function matchHeaderSizes(tableNum, reverse) {
 }
 
 function addColListeners(colId, tableId) {
-    console.log("Adding col listeners for "+tableId+":"+colId);
     var table = $('#'+tableId);
     var tableNum = parseInt(tableId.substring(12));
     resizableColumns(tableNum);
@@ -1016,15 +1013,19 @@ function highlightColumn(el) {
 }
 
 function checkForScrollBar(tableNum) {
-    var tableWidth = $('#autoGenTable'+tableNum).width()+
-        parseInt($('#autoGenTable'+tableNum).css('margin-left'));
-    if ($('.autoGenTable').length > 1) {
-        gScrollbarHeight = 0;
-    }else if (tableWidth > $(window).width()) {
-        gScrollbarHeight = getScrollBarHeight();
-    } else {
-        gScrollbarHeight = 0;
-    }
+    // var tableWidth = $('#autoGenTable'+tableNum).width()+
+    //     parseInt($('#autoGenTable'+tableNum).css('margin-left'));
+    // if ($('.autoGenTable').length > 1) {
+    //     gScrollbarHeight = 0;
+    // }else if (tableWidth > $(window).width()) {
+    //     console.log('yes', $('.autoGenTable').length > 1)
+    //     gScrollBarHeight = 0;
+    //     // gScrollbarHeight = getScrollBarHeight();
+    // } else {
+    //     gScrollbarHeight = 0;
+    // }
+    //XXX this entire function may not be needed
+    gScrollbarHeight = 0;
 }
 
 function checkForMainFrameScrollBar() {
@@ -1033,10 +1034,12 @@ function checkForMainFrameScrollBar() {
         gScrollbarHeight = getScrollBarHeight(forMainFrame);
     } else {
         gScrollbarHeight = 0;
-    }  
+    } 
+    console.log('mainframescrollheight', gScrollbarHeight) 
 }
 
 function positionScrollbar(row, tableNum) {
+    console.log('positioning scrollbar')
     var canScroll = true;
     var table = $('#autoGenTable'+tableNum);
     var theadHeight = table.find('thead').height();
@@ -1060,7 +1063,7 @@ function positionScrollbar(row, tableNum) {
 }
 
 function getScrollBarHeight(outerDiv) {
-
+    console.log('gettingScrollBarHeight')
     var inner = $('<div style="width:100%;height:200px;"></div>');
     if (outerDiv) {
         var outer = $('<div id="mainFrame" style="position:absolute;'+
@@ -1291,11 +1294,10 @@ function dragTableMouseDown(el, e) {
 function dragTableMouseMove(e) {
     var left = gDragObj.offsetLeft + (e.pageX - gDragObj.mouseX);
     gDragObj.table.css('left',left+'px');
-    gDragObj.pageX = event.pageX;
+    gDragObj.pageX = e.pageX;
 }
 
 function dragTableMouseUp() {
-    console.log('dragTableMouseup')
     gMouseStatus = null;
     gDragObj.table.removeClass('tableDragging')
                     .css({'left':'0px', 'height':'100%'});
@@ -1306,10 +1308,8 @@ function dragTableMouseUp() {
     checkForScrollBar();
     reenableTextSelection(); 
 
-    if (gDragObj.tableIndex == gDragObj.originalIndex) {
-        // order did not change, so no need to reorder
-        return;
-    } else {
+    if (gDragObj.tableIndex != gDragObj.originalIndex) {
+        // reorder only if order changed
         reorderAfterTableDrop();
     }
 }

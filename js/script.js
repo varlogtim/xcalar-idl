@@ -80,8 +80,9 @@ function infScrolling(tableNum) {
                    .scrollTop(firstRow.offset().top - initialTop + 10);
                 table.find("tbody tr:gt(79)").remove();
                 table.find('.colGrab').height(table.height()-10).show(); 
-        } else if ($(this)[0].scrollHeight - $(this).scrollTop()+
-                    gScrollbarHeight - $(this).outerHeight() <= 1) {
+        } else if ($(this)[0].scrollHeight - $(this).scrollTop()-
+                    $(this).outerHeight() <= 1) {
+            console.log('the bottom!');
             gTempStyle = table.find("tbody tr:last").html();
             if (table.find('tbody tr').length >= 80) {
                 // keep row length at 80
@@ -90,9 +91,9 @@ function infScrolling(tableNum) {
             table.find('.colGrab').hide();
             goToPage(gTables[dynTableNum].currentPageNumber+1,
                      RowDirection.Bottom, dynTableNum);
+
             table.find('.colGrab').height(table.height()-10).show(); 
         }
-        console.log('scrolling')
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
         var rowScrollerMove = true;
@@ -339,7 +340,6 @@ function documentReadyGeneralFunction() {
         }
     });
     $(document).mousemove(function(event) {
-        console.log(event.which)
         if (gMouseStatus == null) {
             return;
         }
