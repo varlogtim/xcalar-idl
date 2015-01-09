@@ -46,13 +46,13 @@ function generateFirstLastVisibleRowNum(rowScrollerMove) {
 
 function resizableColumns(tableNum) {
     var table = $('#autoGenTable'+tableNum);
-    table.find('.header').each(
+    table.find('thead').not('.fauxTHead').find('.header').each(
         function() {
             if (!$(this).children().hasClass('colGrab') 
                 &&!$(this).parent().is(':first-child')) {
-                    var grabArea = $('<div class="colGrab"></div>');
-                    $(this).prepend(grabArea);
-                    grabArea.mousedown(
+                    var colGrab = $('<div class="colGrab"></div>');
+                    $(this).prepend(colGrab);
+                    colGrab.mousedown(
                         function(event) {
                             if (event.which === 1) {
                                 gRescolMouseDown($(this), event);
@@ -131,15 +131,8 @@ function gRescolMouseDown(el, event) {
     gRescol.tableNum = tableNum;
     gRescol.table = table;
     gRescol.colNum = parseColNum(gRescol.grabbedCell);
-
-    if (gRescol.grabbedCell.closest('thead').hasClass('fauxTHead')) {
-        var rowNum = 0;
-    } else {
-        var rowNum = 1;
-    }
     // since the headers come in pairs, this is the second header
-    gRescol.secondCell = table.find('tr:eq('+rowNum+') th.col'+
-                            gRescol.colNum);
+    gRescol.secondCell = table.find('tr:eq(1) th.col'+gRescol.colNum);
     gRescol.lastCell = table.find('thead:last th:last');
     gRescol.lastCellWidth = gRescol.lastCell.outerWidth();
     
@@ -256,7 +249,6 @@ function resrowMouseMove(event) {
 
 function resrowMouseUp() {
     gMouseStatus = null;
-     console.log('mouseup')
     $('#ns-resizeCursor').remove();
     reenableTextSelection();
     $('body').removeClass('hideScroll'); 
@@ -607,10 +599,8 @@ function autosizeCol(el, options) {
         el.width(newWidth);
     }
     gTables[tableNum].tableCols[index-1].width = el.outerWidth();
-    if (el.closest('thead').hasClass('trueTHead')) {
-        resizeFirstRow = true;
-    }
-    matchHeaderSizes(tableNum, resizeFirstRow);
+    var reverse = true;
+    matchHeaderSizes(tableNum, reverse);
 }
 
 function getWidestTdWidth(el, options) {
@@ -683,9 +673,6 @@ function dblClickResize(el) {
 function cloneTableHeader(tableNum) {
     var autoGenTableWrapTop = $('#autoGenTableWrap'+tableNum).offset().top;
     var tHead = $('#autoGenTable'+tableNum+' thead');
-    
-    var tHeadXPos = 0;
-    var tHeadYPos = 0;
     var tHeadClone = tHead.clone();
     var leftPos = $('#autoGenTable'+tableNum).position().left;
 
@@ -696,7 +683,7 @@ function cloneTableHeader(tableNum) {
                     'left':leftPos, 'padding-top':5});
     //XXX z-index of theadwrap decreases per every theadwrap
     tHead.wrap('<div id="theadWrap'+tableNum+'" class="theadWrap"'+
-                'style="top:'+(tHeadYPos)+'px;"></div>');
+                'style="top:0px;"></div>');
     var tHeadWrap = $('#theadWrap'+tableNum);
     //XX build this table title somewhere else
     if (gTables[tableNum] != undefined) {
@@ -732,6 +719,7 @@ function cloneTableHeader(tableNum) {
     tHeadClone.find('.colGrab').remove();
     // resizableColumns(tableNum);
     matchHeaderSizes(tableNum);
+    console.log('hey')
 }
 
 function matchHeaderSizes(tableNum, reverse) {
