@@ -58,6 +58,7 @@ function infScrolling(tableNum) {
         if (gMouseStatus == "movingTable") {
             return;
         }
+        console.log('scrolling')
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("autoGenTableWrap".length));
         focusTable(dynTableNum);
@@ -82,7 +83,8 @@ function infScrolling(tableNum) {
                 $('#autoGenTableWrap'+dynTableNum)
                    .scrollTop(firstRow.offset().top - initialTop + 10);
                 table.find("tbody tr:gt(79)").remove();
-                table.find('.colGrab').height(table.height()).show(); 
+                adjustColGrabHeight(dynTableNum);
+                table.find('.colGrab').show(); 
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()-
                     $(this).outerHeight() <= 1) {
             console.log('the bottom!');
@@ -95,13 +97,15 @@ function infScrolling(tableNum) {
             goToPage(gTables[dynTableNum].currentPageNumber+1,
                      RowDirection.Bottom, dynTableNum);
 
-            table.find('.colGrab').height(table.height()).show(); 
+            adjustColGrabHeight(dynTableNum);
+            table.find('.colGrab').show(); 
         }
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
         var rowScrollerMove = true;
         generateFirstLastVisibleRowNum(rowScrollerMove);
         updatePageBar(dynTableNum);
+        // adjustColGrabHeight(dynTableNum);
     });
 }
 
@@ -286,11 +290,29 @@ function documentReadyGeneralFunction() {
     }); 
 
     $(window).resize(function() {
-        $('.colGrab').height($('#autoGenTable0').height());
+        // $('.colGrab').height($('#autoGenTable0').height());
+        $('.colGrab').height(30);
+        delay(function(){
+        var i = 0;
+            $('.autoGenTable').each(function() {
+                adjustColGrabHeight(i);
+                i++;
+            });
+          //...
+        }, 100);
         //XXX each tables colGrab height will need to be adjusted
         checkForScrollBar(0);
         generateFirstLastVisibleRowNum();
     });
+
+    var delay = (function(){
+        var timer = 0;
+        return function(callback, ms) {
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+      };
+    })();
+
 
     //XXX using this to keep window from scrolling on dragdrop
     $(window).scroll(function() {

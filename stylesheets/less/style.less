@@ -951,14 +951,7 @@ input:focus {
     margin-left: 10px;
     pointer-events: auto;
     top: 30px;
-
-    .colGrab {
-        // height: 44px !important;
-    }
-    th:last-child .colGrab{
-        // top: -35px;
-        // height: 66px !important;
-    }
+    
 }
 
 .moveTop {
@@ -972,7 +965,7 @@ input:focus {
     cursor: ew-resize;
     z-index: 4;
     right: -8px;
-    top: -14px;
+    top: 0px;
     .noSelection;
     // background-color: rgba(0,50,0,0.5);
 }
@@ -1098,11 +1091,9 @@ th:last-child .colGrab{
     border-right: 11px solid @color-monitor-green;
     &:hover {
         opacity: 1 !important;
-        .transition (opacity 0.02s linear);
     }
     &.hidden {
         opacity: 0 !important;
-        .transition (opacity 0.02s linear);
     }
 }
 

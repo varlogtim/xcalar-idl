@@ -98,21 +98,27 @@ function startProgressBar() {
     var loadTime = 5; // seconds
     $('#progressBar').css({'transform': 'translateX(1400px)',
                            'transition': 'transform '+loadTime+'s linear .1s'});
-    var startPos = $('#progressBar').offset().left;
-    var goalPos = 0;
+    var style = window.getComputedStyle($('#progressBar').get(0));
+    var matrix = new WebKitCSSMatrix(style.webkitTransform);
+    var startPos = matrix.m41;
+    var goalPos = 1400;
     var posRange = goalPos - startPos;
     var startPercentage = 50;
     var currentPos = startPos;
     var currentPercentage = startPercentage;
+    
     var getPercentage = setInterval(function(){
-        currentPos = $('#progressBar').offset().left;
+        matrix = new WebKitCSSMatrix(style.webkitTransform);
+        currentPos = matrix.m41;
         currentPercentage = startPercentage +  50*((currentPos - startPos) /
                             posRange);
         $('#loadPercentage').text(Math.ceil(currentPercentage)+"%");
+        
         if (currentPercentage > 55) {
             $('#loadPercentage').fadeIn();
         }
         if (currentPos >= goalPos) {
+    
             clearInterval(getPercentage);
             setTimeout(function() {
                 getTablesAndDatasets();

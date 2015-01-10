@@ -46,7 +46,7 @@ function generateFirstLastVisibleRowNum(rowScrollerMove) {
 
 function resizableColumns(tableNum) {
     var table = $('#autoGenTable'+tableNum);
-    table.find('thead').not('.fauxTHead').find('.header').each(
+    table.find('thead:not(.fauxTHead)').find('.header').each(
         function() {
             if (!$(this).children().hasClass('colGrab') 
                 &&!$(this).parent().is(':first-child')) {
@@ -63,8 +63,7 @@ function resizableColumns(tableNum) {
             }
         }
     );
-   table.find('.colGrab')
-            .height($('#autoGenTable'+tableNum).height());
+    adjustColGrabHeight(tableNum);
     if (gRescol.first) {
         table.find('tr:first th').each(
             function() {
@@ -77,8 +76,8 @@ function resizableColumns(tableNum) {
     } 
 }
 
-// el is th .subColMenu li
 function subColMenuMouseEnter(el) {
+    // el is th .subColMenu li
     el.siblings().addClass('subColUnselected');
     el.addClass('subColSelected');
     el.parent().parent().addClass('subSelected');
@@ -252,9 +251,8 @@ function resrowMouseUp() {
     $('#ns-resizeCursor').remove();
     reenableTextSelection();
     $('body').removeClass('hideScroll'); 
-    $('#autoGenTable'+gActiveTableNum).find(' .colGrab')
-        .height($('#autoGenTable'+gActiveTableNum).height());
-    generateFirstLastVisibleRowNum()
+    adjustColGrabHeight(resrow.tableNum);
+    generateFirstLastVisibleRowNum();
 }
 
 function dragdropMouseDown(el, event) {
@@ -674,14 +672,12 @@ function cloneTableHeader(tableNum) {
     var autoGenTableWrapTop = $('#autoGenTableWrap'+tableNum).offset().top;
     var tHead = $('#autoGenTable'+tableNum+' thead');
     var tHeadClone = tHead.clone();
-    var leftPos = $('#autoGenTable'+tableNum).position().left;
 
     tHeadClone.addClass('fauxTHead');
-    tHead.addClass('trueTHead');
-    tHead.after(tHeadClone);
+    tHead.addClass('trueTHead').after(tHeadClone);
+    // tHead.css({'position':'absolute', 'padding-top':5, 'left':0});
     tHead.css({'position':'absolute', 'top':30,
-                    'left':leftPos, 'padding-top':5});
-    //XXX z-index of theadwrap decreases per every theadwrap
+                    'left':0, 'padding-top':5});
     tHead.wrap('<div id="theadWrap'+tableNum+'" class="theadWrap"'+
                 'style="top:0px;"></div>');
     var tHeadWrap = $('#theadWrap'+tableNum);
@@ -696,7 +692,7 @@ function cloneTableHeader(tableNum) {
         '<div class="delTable" id="delTable'+tableNum+'">+</div>'+
         '</div>');
     tHeadWrap.find('.tableTitle input').keyup(function(event) {
-        if (event.which ==keyCode.Enter) {
+        if (event.which == keyCode.Enter) {
             $(this).blur();
         }
     });
@@ -717,9 +713,7 @@ function cloneTableHeader(tableNum) {
 
     $('#autoGenTable'+tableNum).width(0); 
     tHeadClone.find('.colGrab').remove();
-    // resizableColumns(tableNum);
     matchHeaderSizes(tableNum);
-    console.log('hey')
 }
 
 function matchHeaderSizes(tableNum, reverse) {
@@ -733,8 +727,8 @@ function matchHeaderSizes(tableNum, reverse) {
         var fauxTHead = '.fauxTHead';
     }
     for (var i = 0; i < tHeadLength; i++) {
-        var width = table.find(fauxTHead+' th').eq(i).outerWidth();
-        table.find(trueTHead+' th').eq(i).outerWidth(width);
+        var width = table.find(fauxTHead+' th.col'+i).outerWidth();
+        table.find(trueTHead+' th.col'+i).outerWidth(width);
     }
     var tableWidth = table.width();
     table.find('thead').width(tableWidth);
@@ -1280,6 +1274,7 @@ function dragTableMouseDown(el, e) {
     gDragObj.pageX = gDragObj.pageX;
     checkForMainFrameScrollBar();
     sizeTableForDragging();
+     gDragObj.table.scrollTop(gDragObj.tableScrollTop);
     createTableDropTargets();
     dragdropMoveMainFrame();
     disableTextSelection();
@@ -1438,4 +1433,18 @@ function reorderAfterTableDrop() {
         $(rowScrollers[i]).attr('id', 'rowScroller'+i);
         $(rowScrollers[i]).find('.rowMarker').attr('id','rowMarker'+i);
     }
+}
+
+function adjustColGrabHeight(tableNum) {
+    var table = $('#autoGenTable'+tableNum);
+    var tableTitleHeight = table.find('.tableTitle').outerHeight();
+    var tableHeight = table.height() - tableTitleHeight;
+    var mainFrameHeight = $('#mainFrame').height() - tableTitleHeight - 15;
+    var visibleTableHeight = table[0].getBoundingClientRect().bottom - 
+        $('#mainFrame')[0].getBoundingClientRect().top -
+        tableTitleHeight - 5;
+
+    var colGrabHeight = Math.min(tableHeight, mainFrameHeight, visibleTableHeight);
+    console.log(tableHeight, mainFrameHeight, visibleTableHeight);
+    table.find('.colGrab').height(colGrabHeight);
 }
