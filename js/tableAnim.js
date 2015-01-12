@@ -1445,6 +1445,5 @@ function adjustColGrabHeight(tableNum) {
         tableTitleHeight - 5;
 
     var colGrabHeight = Math.min(tableHeight, mainFrameHeight, visibleTableHeight);
-    console.log(tableHeight, mainFrameHeight, visibleTableHeight);
     table.find('.colGrab').height(colGrabHeight);
 }
