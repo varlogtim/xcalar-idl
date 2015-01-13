@@ -490,8 +490,8 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
         workItem.input.filterInput.filterStr = "le("+columnName+", "+value+")";
         break;
     case ("Regex"):
-        workItem.input.filterInput.filterStr = "regex("+columnName+", "+value+
-                                               ")";
+        workItem.input.filterInput.filterStr = "regex("+columnName+', "'+value+
+                                               '")';
         break;
     case ("Others"):
         workItem.input.filterInput.filterStr = value;
