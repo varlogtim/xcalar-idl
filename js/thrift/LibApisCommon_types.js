@@ -1050,6 +1050,7 @@ XcalarApiGroupByInputT = function(args) {
   this.groupByTable = null;
   this.groupByOp = null;
   this.fieldName = null;
+  this.newFieldName = null;
   if (args) {
     if (args.table !== undefined) {
       this.table = args.table;
@@ -1062,6 +1063,9 @@ XcalarApiGroupByInputT = function(args) {
     }
     if (args.fieldName !== undefined) {
       this.fieldName = args.fieldName;
+    }
+    if (args.newFieldName !== undefined) {
+      this.newFieldName = args.newFieldName;
     }
   }
 };
@@ -1109,6 +1113,13 @@ XcalarApiGroupByInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.STRING) {
+        this.newFieldName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1138,6 +1149,11 @@ XcalarApiGroupByInputT.prototype.write = function(output) {
   if (this.fieldName !== null && this.fieldName !== undefined) {
     output.writeFieldBegin('fieldName', Thrift.Type.STRING, 4);
     output.writeString(this.fieldName);
+    output.writeFieldEnd();
+  }
+  if (this.newFieldName !== null && this.newFieldName !== undefined) {
+    output.writeFieldBegin('newFieldName', Thrift.Type.STRING, 5);
+    output.writeString(this.newFieldName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -2124,6 +2140,7 @@ XcalarApiMapInputT = function(args) {
   this.evalStr = null;
   this.srcTable = null;
   this.dstTable = null;
+  this.newFieldName = null;
   if (args) {
     if (args.evalStr !== undefined) {
       this.evalStr = args.evalStr;
@@ -2133,6 +2150,9 @@ XcalarApiMapInputT = function(args) {
     }
     if (args.dstTable !== undefined) {
       this.dstTable = args.dstTable;
+    }
+    if (args.newFieldName !== undefined) {
+      this.newFieldName = args.newFieldName;
     }
   }
 };
@@ -2173,6 +2193,13 @@ XcalarApiMapInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.newFieldName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -2197,6 +2224,11 @@ XcalarApiMapInputT.prototype.write = function(output) {
   if (this.dstTable !== null && this.dstTable !== undefined) {
     output.writeFieldBegin('dstTable', Thrift.Type.STRUCT, 3);
     this.dstTable.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.newFieldName !== null && this.newFieldName !== undefined) {
+    output.writeFieldBegin('newFieldName', Thrift.Type.STRING, 4);
+    output.writeString(this.newFieldName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
