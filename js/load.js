@@ -109,14 +109,14 @@ function startProgressBar() {
     
     var getPercentage = setInterval(function(){
         matrix = new WebKitCSSMatrix(style.webkitTransform);
-        currentPos = matrix.m41;
+        currentPos =  Math.ceil(matrix.m41);
         currentPercentage = startPercentage +  50*((currentPos - startPos) /
                             posRange);
         $('#loadPercentage').text(Math.ceil(currentPercentage)+"%");
         
         if (currentPercentage > 55) {
             $('#loadPercentage').fadeIn();
-        }
+        }   
         if (currentPos >= goalPos) {
     
             clearInterval(getPercentage);
@@ -127,6 +127,7 @@ function startProgressBar() {
                     .width('200%');
                 $('#loadArea').css('background-color', '#E6E6E6');
                 $('#progressBar').css({'transform': 'translateX(20000px)'});
+                console.log('move progressBar')
             },100);
             setTimeout(function(){
                 $('#loadArea').html("").css({'background-color': 'transparent',
@@ -134,6 +135,7 @@ function startProgressBar() {
                 $('#datastorePanel').removeClass('slideRight');
                 $('#datastorePanel').css({'background-color': 'transparent'});
                 $('#datastorePanel').width('100%');
+                console.log('move progressBar two')
             },1300);
         }
     }, 500);

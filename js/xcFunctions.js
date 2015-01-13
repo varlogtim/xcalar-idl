@@ -17,7 +17,7 @@ function checkStatus(newTableName, tableNum, keepOriginal,
             // default
             var newTableNum = tableNum;
             var savedScrollLeft;
-            if (additionalTableNum) {
+            if (additionalTableNum > -1) {
                 var largerTableNum = Math.max(additionalTableNum, tableNum);
                 var smallerTableNum = Math.min(additionalTableNum, tableNum);
                 delTable(largerTableNum);

@@ -297,7 +297,7 @@ function createWorksheet() {
         progCol.index = startIndex+1;
         progCol.type = "object";
         progCol.name = "DATA";
-        progCol.width = 700;
+        progCol.width = 500;
         progCol.userStr = "DATA = raw()";
         progCol.func.func = "raw";
         progCol.func.args = [];
