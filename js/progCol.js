@@ -58,7 +58,14 @@ function execCol(progCol, tableNum, args) {
     case ("map"):
         var mapString = progCol.userStr.substring(progCol.userStr.indexOf("map")
                                                   +4, progCol.userStr.length-1);
+        var fieldName = progCol.userStr.substring(0,
+                                                 progCol.userStr.indexOf("="));
         mapString = jQuery.trim(mapString);
+        fieldName = jQuery.trim(fieldName);
+        fieldName = fieldName.replace(/\"/g, "");
+        fieldName = jQuery.trim(fieldName);
+        console.log(fieldName);
+
         progCol.func.func = "pull";
 
         var largestX = 0;
@@ -73,20 +80,19 @@ function execCol(progCol, tableNum, args) {
         console.log(jsonStr);
         var jsonObj = jQuery.parseJSON(jsonStr);
         console.log(jsonObj);
-        // Incrementally find until undefined
-        while (true) {
-            if (jsonObj["Value"+largestX] != undefined) {
-                largestX++;
-            } else {
-                break;
-            }
+
+        // Make sure that the field name is not already used. This is not a 100%
+        // check, just sanity
+        if (jsonObj[fieldName] != undefined) {
+            alert("FieldName already exists! Please select another name.");
+            return;
         }
-        console.log("largestX "+largestX);
-        progCol.func.args[0] = "Value"+largestX;
+        
+        progCol.func.args[0] = fieldName;
         progCol.func.args.splice(1, progCol.func.args.length-1);
         progCol.isDark = false;
-        progCol.userStr = progCol.name+" = pull(Value"+largestX+")";
-        mapColumn(mapString, tableNum);
+        progCol.userStr = progCol.name+" = pull("+fieldName+")";
+        mapColumn(fieldName, mapString, tableNum);
         break;
     case (undefined):
         // console.log("Blank col?");

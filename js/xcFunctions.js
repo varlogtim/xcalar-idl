@@ -71,14 +71,15 @@ function sortRows(index, tableNum, order) {
                 undefined);
 }
 
-function mapColumn(mapString, tableNum) {
+function mapColumn(fieldName, mapString, tableNum) {
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
         '{cursor: wait !important;}</style>');
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempMapTable"+rand;
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
-    XcalarMap(mapString, gTables[tableNum].frontTableName, newTableName);
+    XcalarMap(fieldName, mapString, gTables[tableNum].frontTableName,
+              newTableName);
     checkStatus(newTableName, tableNum);
 }
 /*

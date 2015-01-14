@@ -516,7 +516,7 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
     }
 }
 
-function XcalarMap(evalStr, srcTablename, dstTablename) {
+function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename) {
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -532,7 +532,8 @@ function XcalarMap(evalStr, srcTablename, dstTablename) {
     workItem.input.mapInput.srcTable.tableName = srcTablename;
     workItem.input.mapInput.dstTable.tableName = dstTablename;
     workItem.input.mapInput.evalStr = evalStr;
-
+    workItem.input.mapInput.newFieldName = newFieldName;
+    console.log(workItem.input.mapInput);
     try {
         result = client.queueWork(workItem);
     } catch(ouch) {
