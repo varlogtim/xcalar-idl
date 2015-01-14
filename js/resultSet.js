@@ -115,7 +115,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                              '" = pull('+gTables[tableNum].keyName+')';
         insertColAtIndex(0, tableNum, newProgCol);
         //is this where we add the indexed column??
-        addCol("col0", "autoGenTable"+tableNum, gTables[tableNum].keyName,
+        addCol("col0", "xcTable"+tableNum, gTables[tableNum].keyName,
                {progCol: newProgCol}); 
         newProgCol = new ProgCol();
         newProgCol.index = 2;
@@ -141,11 +141,11 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                 if (direction) { 
                     var startingIndex;
                     if (direction == 1) {
-                        startingIndex = parseInt($('#autoGenTable'+tableNum+
+                        startingIndex = parseInt($('#xcTable'+tableNum+
                                         ' tbody tr:first')
                                         .attr('class').substring(3));
                     } else {
-                        var tr = $('#autoGenTable'+tableNum+
+                        var tr = $('#xcTable'+tableNum+
                                 ' tr:nth-last-child('+gNumEntriesPerPage+')');
                         startingIndex = parseInt(tr.attr('class').substring(3));
                     }
@@ -158,7 +158,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                 }
                 if (gTables[tableNum].tableCols[i].name ==
                     gTables[tableNum].keyName) {
-                    // autosizeCol($('#autoGenTable0
+                    // autosizeCol($('#xcTable0
                     // th.col'+(gTables[tableNum.tableCols[i].index)));
                 }
             }
@@ -166,8 +166,8 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     }
 
     adjustColGrabHeight(tableNum);
-    var idColWidth = getTextWidth($('#autoGenTable'+tableNum+' tr:last td:first'));
+    var idColWidth = getTextWidth($('#xcTable'+tableNum+' tr:last td:first'));
     var newWidth = Math.max(idColWidth, 24);
-    $('#autoGenTable'+tableNum+' th:first-child').width(newWidth+14);
+    $('#xcTable'+tableNum+' th:first-child').width(newWidth+14);
     matchHeaderSizes(tableNum);
 }

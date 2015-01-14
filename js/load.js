@@ -24,6 +24,11 @@ var loadbar = {
      user must be able to click the next button (psychological effect).
 */
 
+$(document).ready(function() {
+
+$('#dataStoresTab').click(function(){
+    $('#form').toggle();
+})
 
 
 $('.dataOptionsRow input').click(function(){
@@ -41,6 +46,8 @@ $('.dataOptionsRow input').click(function(){
         $("#progressBar").css('transform', 'translateX(545px)');
         
     }
+});
+
 });
 
 function dsSubmit(e) {
@@ -127,7 +134,6 @@ function startProgressBar() {
                     .width('200%');
                 $('#loadArea').css('background-color', '#E6E6E6');
                 $('#progressBar').css({'transform': 'translateX(20000px)'});
-                console.log('move progressBar')
             },100);
             setTimeout(function(){
                 $('#loadArea').html("").css({'background-color': 'transparent',
@@ -135,7 +141,6 @@ function startProgressBar() {
                 $('#datastorePanel').removeClass('slideRight');
                 $('#datastorePanel').css({'background-color': 'transparent'});
                 $('#datastorePanel').width('100%');
-                console.log('move progressBar two')
             },1300);
         }
     }, 500);
@@ -206,12 +211,6 @@ function moveElementLeft(movingEl, target) {
                     'font-size':20});
     target.addClass('transitionGreen');
 }
-
-
-
-
-
-
 
 
 

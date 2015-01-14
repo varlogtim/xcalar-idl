@@ -1,10 +1,10 @@
 function fillPageWithBlankCol(tableNum) {
-    var tableWidth = $("#autoGenTable"+tableNum).width();
+    var tableWidth = $("#xcTable"+tableNum).width();
     var screenWidth = window.screen.availWidth;
     var numColsToFill = Math.ceil((screenWidth - tableWidth)/gNewCellWidth);
-    var startColId = $("#autoGenTable"+tableNum+" tr:first th").length;
+    var startColId = $("#xcTable"+tableNum+" tr:first th").length;
     for (var i = 0; i<numColsToFill; i++) {
-        addCol("col"+(startColId-1), "autoGenTable"+tableNum, "", 
+        addCol("col"+(startColId-1), "xcTable"+tableNum, "", 
             {'isDark': true});
     }
 }
@@ -14,7 +14,7 @@ function generateBlankTable() {
     var screenWidth = window.screen.availWidth;
     var numColsToFill = Math.ceil(screenWidth/gNewCellWidth);
     var html = "";
-    var table = $('#autoGenTable0');
+    var table = $('#xcTable0');
     table.parent().addClass('blankTable');
     table.find('thead, tbody').empty();
     html += '<tr>';
@@ -47,8 +47,7 @@ function generateBlankTable() {
 
     cloneTableHeader(0);
     table.parent().scroll(function() {
-        var dynTableNum = parseInt($(this).attr("id")
-                           .substring("autoGenTableWrap".length));
+        var dynTableNum = parseInt($(this).attr("id").substring(11));
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
     });
@@ -57,7 +56,7 @@ function generateBlankTable() {
 
 function generateRowWithCurrentTemplate(json, id, rowTemplate, direction, 
                                         tableNum) {
-    var table = $("#autoGenTable"+tableNum);
+    var table = $("#xcTable"+tableNum);
     // Replace JSON
     var firstPart = rowTemplate.firstPart;
     var secondPart = rowTemplate.secondPart;
@@ -100,31 +99,30 @@ function generateFirstScreen(value, idNo, tableNum, height) {
     } else {
         var cellHeight = height;
     }
-    if ($('#autoGenTable'+tableNum).length != 1) {
+    if ($('#xcTable'+tableNum).length != 1) {
         if (tableNum == 0) {
-            $('#mainFrame').prepend('<div id="autoGenTableWrap'+tableNum+'"'+
-                    ' class="autoGenTableWrap tableWrap"></div>');
+            $('#mainFrame').prepend('<div id="xcTableWrap'+tableNum+'"'+
+                    ' class="xcTableWrap tableWrap"></div>');
         } else {
-            $('#autoGenTableWrap'+(tableNum-1))
-            .after('<div id="autoGenTableWrap'+tableNum+'"'+
-                    ' class="autoGenTableWrap tableWrap"></div>');
+            $('#xcTableWrap'+(tableNum-1))
+            .after('<div id="xcTableWrap'+tableNum+'"'+
+                    ' class="xcTableWrap tableWrap"></div>');
         }
 
         var newTable = 
-        '<table id="autoGenTable'+tableNum+'" class="autoGenTable dataTable">'+
+        '<table id="xcTable'+tableNum+'" class="xcTable dataTable">'+
           '<thead>'+
           '<tr>'+
             '<th style="width: 50px;" class="col0 table_title_bg">'+
               '<div class="header">'+
-                '<span><input value="ROW" readonly="" tabindex="-1"></span>'+
+                '<input value="ROW" readonly="" tabindex="-1">'+
               '</div>'+
             '</th>'+
             '<th class="col1 table_title_bg dataCol" style="width: 850px;">'+
               '<div class="header">'+
                 '<div class="dropdownBox" style="opacity: 0;"></div>'+
-                '<span><input value="DATA" '+
+                '<input value="DATA" '+
                 'readonly="" tabindex="-1" class="dataCol" title="raw data">'+
-                '</span>'+
                 '<ul class="colMenu" style="display: none;">'+
                   '<li class="menuClickable">Add a column'+
                     '<ul class="subColMenu">'+
@@ -146,9 +144,9 @@ function generateFirstScreen(value, idNo, tableNum, height) {
           '<tbody>'+
           '</tbody>'+
         '</table>';
-        $('#autoGenTableWrap'+tableNum).append(newTable);
+        $('#xcTableWrap'+tableNum).append(newTable);
     }
-    var table = $("#autoGenTable"+tableNum);
+    var table = $("#xcTable"+tableNum);
     table.append('<tr class="row'+idNo+'">'+
         '<td align="center" class="col0" style="height:'+cellHeight+'px;">'+
         '<div class="idWrap">'+
@@ -170,7 +168,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
 function createRowTemplate(tableNum) {
     var startString = '<div class="elementText">';
     var endString="</div>";
-    var originalString = $("#autoGenTable"+tableNum+" tbody tr:last").html() ||
+    var originalString = $("#xcTable"+tableNum+" tbody tr:last").html() ||
                          gTempStyle;
     var index = originalString.indexOf(startString);
     var firstPart = originalString.substring(0, index+startString.length);
@@ -187,8 +185,8 @@ function createRowTemplate(tableNum) {
 // Shifts all the ids and everything
 function addTable(tableName, tableNum) {
     for (var i = gTables.length-1; i>=tableNum; i--) {
-        $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i+1));
-        $("#autoGenTable"+i).attr("id", "autoGenTable"+(i+1));
+        $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i+1));
+        $("#xcTable"+i).attr("id", "xcTable"+(i+1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
         $("#delTable"+i).attr("id", "delTable"+(i+1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
@@ -202,7 +200,7 @@ function addTable(tableName, tableNum) {
     }
     tableStartupFunctions(tableName, tableNum);
     if (firstTime) {
-        documentReadyAutoGenTableFunction(); 
+        documentReadyxcTableFunction(); 
     }
     // focusTable(tableNum);
 }
@@ -211,14 +209,14 @@ function addTable(tableName, tableNum) {
 // Shifts all the ids
 // Does not delete the table from backend!
 function delTable(tableNum) {
-    $("#autoGenTableWrap"+tableNum).remove();
+    $("#xcTableWrap"+tableNum).remove();
     $("#rowScroller"+tableNum).remove();
     var tableName = gTables[tableNum].frontTableName;
     gTables.splice(tableNum, 1);
     delete gTableIndicesLookup[tableName];
     for (var i = tableNum+1; i<=gTables.length; i++) {
-        $("#autoGenTableWrap"+i).attr("id", "autoGenTableWrap"+(i-1));
-        $("#autoGenTable"+i).attr("id", "autoGenTable"+(i-1));
+        $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i-1));
+        $("#xcTable"+i).attr("id", "xcTable"+(i-1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i-1));
         $("#delTable"+i).attr("id", "delTable"+(i-1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i-1));
@@ -227,7 +225,7 @@ function delTable(tableNum) {
     
     // XXX: Think about gActiveTableNum
     gActiveTableNum--;
-    if ($('#autoGenTable'+gActiveTableNum).length == 0) {
+    if ($('#xcTable'+gActiveTableNum).length == 0) {
        gActiveTableNum = 0; 
        $('#rowScroller0').show();
     } else {

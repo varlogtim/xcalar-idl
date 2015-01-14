@@ -68,7 +68,7 @@ function execCol(progCol, tableNum, args) {
         var midRow = Math.ceil(parseInt(firstRow) +
                      (parseInt(firstRow) + parseInt(lastRow))/2);
 
-        var jsonStr = $("#autoGenTable"+tableNum+" .row"+midRow+" .elementText")
+        var jsonStr = $("#xcTable"+tableNum+" .row"+midRow+" .elementText")
                       .html();
         console.log(jsonStr);
         var jsonObj = jQuery.parseJSON(jsonStr);
@@ -162,8 +162,8 @@ function updateFunctionBar(text) {
 }
 
 function delCol(colNum, tableNum, resize) {
-    var numCol = $("#autoGenTable"+tableNum+" tr:first th").length;
-    var table = $("#autoGenTable"+tableNum);
+    var numCol = $("#xcTable"+tableNum+" tr:first th").length;
+    var table = $("#xcTable"+tableNum);
     table.find('th.col'+colNum+' ,td.col'+colNum).remove();
     removeColAtIndex(colNum-1, tableNum);
     for (var i = colNum+1; i<=numCol; i++) {
@@ -177,7 +177,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         //check for dot followed by number (invalid)
         return;
     }
-    var table = $("#autoGenTable"+tableNum);
+    var table = $("#xcTable"+tableNum);
     var dataCol = table.find("tr:first th").filter(
         function() {
             return $(this).find("input").val() == "DATA";
@@ -235,9 +235,9 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
 
 function addCol(colId, tableId, name, options) {
     //colId will be the column class ex. col2
-    //tableId will be the table name  ex. autoGenTable0
+    //tableId will be the table name  ex. xcTable0
     var table = $('#'+tableId);
-    var tableNum = parseInt(tableId.substring(12));
+    var tableNum = parseInt(tableId.substring(7));
     var numCol = table.find("tr:first th").length;
     var colIndex = parseInt(colId.substring(3));
     var newColid = colIndex;

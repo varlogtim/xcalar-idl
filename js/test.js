@@ -24,17 +24,17 @@ function testStart() {
 
 function testMainScreen() {
     // Make sure that we have a table with id and value on the main screen
-    if ($("#autoGenTable tr").length < 1) {
+    if ($("#xcTable tr").length < 1) {
         alert("Main did not load properly");
         console.log("Main did not load properly");
         if (shortCircuit) {
             return (false);
         }
     }
-    if ($("#autoGenTable tr:first td").length != 2) {
+    if ($("#xcTable tr:first td").length != 2) {
         var string = "Main table has wrong number of columns. Should be 2";
         string += "Your value is";
-        string += $("#autoGenTable tr:first td").length;
+        string += $("#xcTable tr:first td").length;
         alert(string);
         console.log(string);
         if (shortCircuit) {
@@ -65,8 +65,8 @@ function testMainScreen() {
     }
 
     var succeed = true;
-    for (var i = 0; i < $("#autoGenTable tr:gt(0)").length; i++) {
-        var row = $("#autoGenTable tr:gt(0)")[i];
+    for (var i = 0; i < $("#xcTable tr:gt(0)").length; i++) {
+        var row = $("#xcTable tr:gt(0)")[i];
         if ($(row).find("td").length != 2) {
             var string = "You should have 2 entries per row.";
             string += "You have";

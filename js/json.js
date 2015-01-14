@@ -90,24 +90,24 @@ function showJsonModal(jsonTd) {
     positionJsonModal(jsonTd);
     $('.jKey, .jArray>.jString, .jArray>.jNum').click(function() {
         var tableNum = parseInt(jsonTd.closest('table').attr('id')
-                                .substring(12));
+                                .substring(7));
         var name = createJsonSelectionExpression($(this));
-        var id = $("#autoGenTable"+tableNum+" tr:first th").filter(function() {
+        var id = $("#xcTable"+tableNum+" tr:first th").filter(function() {
                         return $(this).find("input").val() == "DATA";
                     });
         var colNum = parseColNum(id);
-        addCol('col'+(colNum), 'autoGenTable'+tableNum, name, {direction: 'L'});
+        addCol('col'+(colNum), 'xcTable'+tableNum, name, {direction: 'L'});
         gTables[tableNum].tableCols[colNum-1].func.func = "pull";        
         gTables[tableNum].tableCols[colNum-1].func.args = [name];
         gTables[tableNum].tableCols[colNum-1].userStr = '"'+name+'" = pull('+name+')';
         execCol(gTables[tableNum].tableCols[colNum-1], tableNum);
-        autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum)), 
+        autosizeCol($('#xcTable'+tableNum+' th.col'+(colNum)), 
                     {includeHeader: true, resizeFirstRow: true});
-        $('#autoGenTable'+tableNum+' tr:first th.col'+(colNum+1)+
+        $('#xcTable'+tableNum+' tr:first th.col'+(colNum+1)+
                 ' .editableHead').focus();
         // XXX call autosizeCol after focus if you want to make column wide enough
         // to show the entire function in the header
-        // autosizeCol($('#autoGenTable'+tableNum+' th.col'+(colNum+1)), 
+        // autosizeCol($('#xcTable'+tableNum+' th.col'+(colNum+1)), 
         //             {includeHeader: true, resizeFirstRow: true});
         $('#jsonModal, #modalBackground').hide();
         $('body').removeClass('hideScroll');

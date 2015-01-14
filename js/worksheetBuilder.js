@@ -356,7 +356,7 @@ function addSelectedTableHolder(tableNumber) {
 function shoppingCart() {
     // Cleanup current table
     //XX Do we still want to clear up the current table?
-    // $(".autoGenTable td, th").each(function() {
+    // $(".xcTable td, th").each(function() {
     //     $(this).empty().removeClass('selectedCell');
     // });
 
