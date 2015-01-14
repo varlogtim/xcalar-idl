@@ -91,7 +91,8 @@ function execCol(progCol, tableNum, args) {
         progCol.func.args[0] = fieldName;
         progCol.func.args.splice(1, progCol.func.args.length-1);
         progCol.isDark = false;
-        progCol.userStr = progCol.name+" = pull("+fieldName+")";
+        progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
+                          fieldName + ")";
         mapColumn(fieldName, mapString, tableNum);
         break;
     case (undefined):
