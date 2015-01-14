@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+<title>Xcalar</title>
+<link href="/stylesheets/css/style.css" rel="stylesheet" type="text/css">
+<script src="/3rd/jquery.min.js" type="text/javascript"></script>
+<script src="/js/thrift/thrift.js" type="text/javascript"></script>
+<script src="/js/thrift/GenericTypesEnums_types.js" type="text/javascript"></script>
+<script src="/js/thrift/DataFormatEnums_types.js" type="text/javascript"></script>
+<script src="/js/thrift/LibApisEnums_types.js" type="text/javascript"></script>
+<script src="/js/thrift/OperatorsEnums_types.js" type="text/javascript"></script>
+<script src="/js/thrift/Status_types.js" type="text/javascript"></script>
+<script src="/js/thrift/LibApisCommon_types.js" type="text/javascript"></script>
+<script src="/js/thrift/XcalarApiService.js" type="text/javascript"></script>
+<script src="/js/config.js" type="text/javascript"></script>
+<script src="/js/XcalarThrift.js" type="text/javascript"></script>
+<script src="/js/enums.js" type="text/javascript"></script>
+<script src="/js/json.js" type="text/javascript"></script>
+<script src="/js/menuBar.js" type="text/javascript"></script>
+<script src="/js/progCol.js" type="text/javascript"></script>
+<script src="/js/resultSet.js" type="text/javascript"></script>
+<script src="/js/script.js" type="text/javascript"></script>
+<script src="/js/store.js" type="text/javascript"></script>
+<script src="/js/tableAnim.js" type="text/javascript"></script>
+<script src="/js/tableDisplay.js" type="text/javascript"></script>
+<script src="/js/worksheetBuilder.js" type="text/javascript"></script>
+<script src="/js/xcFunctions.js" type="text/javascript"></script>
+<script src="/js/scratchpad.js" type="text/javascript"></script>
+</head>
+
+<body>
+<div id="container">
+  <div id="logo"></div>
+  <div id="menuBar" class="mainBar">
+      <div title="view data sets">datastore</div>
+      <div title="view statistics">monitor</div>
+  </div>
+  <div id="menuArea">
+    <span id="datastorePanel">
+      <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorSmall monitorGreen">DATA<br>SET</span>
+          <span class="menuAreaValue" title="add new data set">ADD</span>
+      </div>
+      <div class="datasetWrap"></div>
+    </span>
+    <span id="monitorPanel">
+      <div id="graphics">
+        <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorRed">CPU</span>
+          <span class="menuAreaValue">20%</span>
+        </div>
+        <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorBlue">RAM</span>
+          <span class="menuAreaValue">50%</span>
+        </div>
+        <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorGreen">DISK</span>
+          <span class="menuAreaValue">8%</span>
+        </div>
+      </div>
+      <div class="menuAreaItem">
+        <span class="menuAreaLabel monitorSmall">TOTAL<br>DATA SIZE</span>
+        <span class="menuAreaValue">12TB</span>
+      </div>
+      <div class="menuAreaItem">
+        <span class="menuAreaLabel monitorSmall">NUMBER OF<br>DATA SETS</span>
+        <span class="menuAreaValue">123</span>
+      </div>
+      <div class="menuAreaItem">
+        <span class="menuAreaLabel monitorSmall">NUMBER OF<br>ACTIVE USERS</span>
+        <span class="menuAreaValue">12</span>
+      </div>
+    </span>
+<!--     <span id="tablestorePanel">
+      <div class="menuAreaItem">
+          <span class="menuAreaLabel monitorSmall monitorGreen">NEW<br>TABLE</span>
+          <span class="menuAreaValue">ADD</span>
+      </div>
+    </span> -->
+    <div id="loadArea">
+    </div>
+  </div>
+  <div id="functionBar" class="mainBar">
+    <div style="width: 0px;"></div>
+    <div class="functionName">f(x)=&nbsp;</div>
+    <div class="functionField">
+        <input id="fnBar" value="" size="30" spellcheck="false">
+    </div>
+    <div class="functionName">search:&nbsp;</div>
+    <div class="functionField">
+        <input id="searchBar" value="" size="30" spellcheck="false">
+    </div>
+  </div>
+  <div id="pageBar" class="mainBar">
+    <div> viewing rows:
+      <span class="rowNum">-</span>
+      through <span class="rowNum">-</span>
+    </div>
+    <div id="rowScrollerArea">
+    </div>
+    <div>
+      skip to row:&nbsp;
+      <input id="rowInput" size="2">
+    </div>
+  </div>
+  <div id="mainFrame">
+  <!-- main tables go here -->
+  </div>
+  <div id="worksheetBar" class="worksheetBar mainBar">
+    <div id="newWorksheet"><span title="add a new worksheet">+ new table</span></div>
+    <div id="scratchpadTab">scratchpad</div>
+  </div>
+  <div id="modalBackground"></div>
+  <div id="shoppingCart">
+    <div id="builderBar">worksheet builder</div>
+    <div id="builderTabBar" class="worksheetBar">
+      <div id="builderTabWrap">
+      </div>
+    </div>
+    <div id="datasetBrowser" class="tableWrap">
+     <!-- tables goes here -->
+    </div>
+    <div id="selectedBar">selected columns</div>
+    <div id="selectedSection">
+      <div id="selectedDataset">
+        <!-- selected tables go here -->
+      </div>
+      <div id="datasetButtons">
+        <div id="createButton">
+          <div class="rectangle">create</div>
+          <div class="arrow"></div>
+        </div>
+        <div id="cancelButton">
+            <div class="rectangle">cancel</div>
+            <div class="arrow"></div>
+        </div>
+      </div>
+    </div>    
+  </div>
+  <div id="jsonModal">
+    <div class="jsonDragArea"></div>
+    <div class="closeJsonModal">
+      <span>+</span>
+      <div id="closeArrow"></div>
+    </div>
+    <div id="jsonWrap">
+      <div class="prettyJson">
+        {<div class="jObject">
+        </div>}
+      </div>
+    </div>
+  </div>
+  <div id="scratchpadArea">
+    <table class="scratchpad">
+      <thead>
+        <tr>
+          <td id="scratchpadTitle">Xcalar Scratchpad</td>
+        </tr>
+      <thead>
+      <tbody>
+      </body>
+    </table>
+  </div>
+</div>
+<script>
+    documentReadyIndexFunction();
+</script>
+</body>
+</html>

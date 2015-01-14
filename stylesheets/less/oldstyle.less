@@ -1,39 +1,51 @@
  /*========== Constants ========== */
-
-
-@color-input: #909090;
-@color-input-active: #E6E6E6;
-@color-bar-border: #242C31;
-@color-bookmark: #009EFF;
+/* Standard */
+@color-white: #FFFFFF;
+/* Bar */
+@color-bar-orange: #FDB03C;
+@color-bar-gray: #999999;
+@color-bar-midGray: #ADADAD;
+/* Monitor */
+@color-monitor-red: #F8A7AB;
+@color-monitor-green: #95DCBC;
+@color-monitor-lightGreen: #D5F1E4;
+@color-monitor-midGreen: #A6EDCD;
+@color-monitor-blue: #A6C5D2;
+/* Table */
+@color-table-red: #F46D73;
+@color-table-lightGray: #F5F5F5;
+@color-table-midGray: #EDEDED;
+@color-table-darkGray: #E6E6E6;
+@color-table-blankGrayLight: #CCCCCC;
+@color-table-blankGrayDark: #C2C2C2;
+@color-table-blue: #DEE8E8;
+@colorOpaque-lightGray: rgba(158, 158, 158, 0.1);
+@colorOpaque-darkGray: rgba(80, 80, 80, 0.1);
+@colorOpaque-pink: rgba(237, 28, 36, 0.1);
+@colorOpaque-blankGrayDark: rgba(0, 0, 0, 0.2);
+@colorOpaque-midGray: rgba(110,110,110,0.2); //XXX todo: get new color for first column
+@colorOpaque-dataCol: rgba(135, 200, 171, 0.1);
+@colorOpaque-blue: rgba(150,180,205, 0.2);
+@colorShadow-black: rgba(0, 0, 0, 0.15);
 
 
 /*Tabs*/
-@color-tab-border: #4A5D6A;
-@color-tab-divider: #838383;
+@color-tab-lightGray: #B4B4B4;
 
-/* Backgrounds */
-@color-background-topAction: #5CB2E8;
-@color-background-bottomAction: #378CB3;
-@color-background-lightGray: #9C9C9C;
-@color-background-darkGray: #E6E6E6;
-@color-background-topGrayMed: #CCCCCC;
-@color-background-midGrayMed: #BEBEBE;
-@color-background-bottomGrayMed: #AEAEAE;
-@color-arrow-background: #929292;
-
-@color-background-sidebar: #BBBBBB;
-@color-background-tableBorders: #E6E6E6;
-@color-table-borderGray: #838384;
-@color-table-borderBlue: #266481;
+/* Scratchpad */
+@color-scratchpad-dark-odd: rgba(120, 162, 189, 0.1);
+@color-scratchpad-dark-even: rgba(164, 183, 210, 0.1);
+@color-scratchpad-light-odd: #F1F6F8;
+@color-scratchpad-light-even: #FFFFFF;
+@color-scratchpad-border: #ADC5D2;
+@color-scratchpad-selected: rgba(28, 237, 36, 0.1);
+@color-scratchpad-purple: rgba(190, 100, 190, 0.1);
 
 /* Text */
 @color-text-black: #0F0F0F; 
-@color-text-white: #FFFFFF; 
-@color-text-brightBlue: #5CB2E8;
-@color-text-tab: #70828C;
-@color-text-darkGray: #4D4D4D;
 /* Fonts */
-@font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
+@font-base: "Century Gothic", "Trebuchet MS", Arial, sans-serif;
+@font-baseHeavy: "Century Gothic", Arial;
 @font-code: "Source Code Pro", courier;
 
 /* Heights */
@@ -93,7 +105,6 @@
 
 div {
     .box-sizing;
-    .nomargin-padding;
 }
 
 ul, li {
@@ -105,487 +116,506 @@ table, tr, td, th, input {
     .nomargin-padding;
     .box-sizing;
     border: none;
+    color: @color-text-black;
     font: 14px @font-base;
-    font-weight: 600;
-    color: @color-text-darkGray;
 }
 
+input::selection {
+    background: @color-monitor-green;
+    color: @color-text-black;
+}
 
 /* ========== Main ========== */
 body {
     -webkit-font-smoothing: antialiased;
     .nomargin-padding;
     font-family: @font-base;
-    font-weight: 600;
     font-size: 0; /* Need to use this to get rid of stupid white space */
-    overflow-y: hidden;
-    background: #36444d url("/images/bg_page.png") repeat right top;
+    min-width: 1300px;
+    background-color: @color-bar-gray;
+    overflow: hidden;
 }
 
 #container {
+    background-color: @color-white;
+    padding-top: 5px;
     height: 100vh;
     position: relative;
     min-height: 260px;
-    min-width: 1024px;
-    font-size: 14px;
     overflow: hidden;
 }
 
-.clearfix:after { 
-   content: "."; 
-   visibility: hidden; 
-   display: block; 
-   height: 0; 
-   clear: both;
-}
-
-#menuBar {
-    height: 40px;
-    width: 100%;
-    background: #36444d url("/images/bg_page.png") repeat right top;
-}
-
-#mainMenu {
-    float: left;
-    margin-left: 34px;
-    display: inline-block;
-}
-
-.mainMenuTab {
-    height: 32px;
-    margin: 4px 9px 0px 0px;
-    padding: 6px 20px 0px 35px;
-    border: 1px solid @color-tab-border;
-    border-radius: 3px;
-    display: inline-block;
-    color: @color-text-tab;
-    background-color: rgba(0,0,0, .15);
-    font-size: 14px;
-    font-family: @font-base;
-    // position: relative;
-    float: left;
-
-    &:last-child {
-        padding: 1px 2px;
-    }
-
-    &.active {
-        margin-top: 6px;
-        height: 35px;
-        color: @color-text-darkGray;
-        background: linear-gradient(@color-background-topGrayMed, @color-background-midGrayMed);
-        border: 1px solid @color-bar-border;
-        border-bottom: none;
-        border-bottom-left-radius: 0px;
-        border-bottom-right-radius: 0px;
-        z-index: 12;
-        position: relative;
-    }
-
-    .icon {
-        width: 24px;
-        height: 24px;
-        margin-left: -27px;
-        margin-top: 1px; 
-        display: inline-block;
-        position: absolute;
-    }
-}
-
-#workspaceTab {
-    .icon {
-        background: url(/images/mountain.png) 0 0 no-repeat;
-    }
-}
-
-#worksheetsTab {
-    .icon {
-        background: url(/images/page.png) 0 0 no-repeat;
-    }
-}
-
-#dataStoresTab {
-    .icon {
-        background: url(/images/db-icon.png) 0 0 no-repeat;
-    }
-}
-
-#collabTab {
-    .icon {
-        background: url(/images/user-icon.png) 0 0 no-repeat;
-    }
-}
-
-#stats {
-    .icon {
-        background: url(/images/stats-icon.png) 0 0 no-repeat; 
-        position: static;
-        margin: 0;
-        width: 19px;
-        height: 28px;
-    }
-}
-
-#userNameArea {
-    color: @color-text-white;
-    float: right;
-    margin-top: 10px;
-    margin-right: 25px;
-    display: inline-block;
-    font-weight: 400;
-    span {
-        color: @color-text-brightBlue;
-    }
+input:focus {
+    outline: 1px solid @color-monitor-green;
+    outline-offset: 0px;
 }
 
 #logo {
-    height: 34px;
-    width: 74px;
-    margin-right: 10px;
-    margin-top: 5px;
-    background-image: url("/images/xcalar-logo-white.png");
+    position: absolute;
+    top: 2px;
+    left: 20px;
+    height: 38px;
+    width: 87px;
+    background-image: url("/images/logo-white-L.png");
+    background-size: 100%;
     background-repeat: no-repeat;
-    float: right;
-    display: inline-block;
-}
-
-.workspaceBar {
-    height: 37px;
-    color: @color-text-darkGray;
-    border-top: 1px solid @color-bar-border;
-    border-bottom: 1px solid @color-bar-border;
-    background: linear-gradient(@color-background-midGrayMed, @color-background-bottomGrayMed);
-    box-shadow: 0px 5px 11px 0px rgba(0,0,0, .5);
-    display: block;
-    width: 100%;
-    position: relative;
-    z-index: 11;
-}
-
-#workspaceBar {
-    min-width: 1150px; // temporary in order to keep row scroller from dropping
-}
-
-.workspaceArea {
-    display: inline-block;
-    height: 25px;
-    padding: 0px 14px;
-    margin-top: 5px;
-    border-right: 1px solid @color-tab-divider;
-    float: left;
-    line-height: 25px;
-
-    input {
-        height: 25px;
-        padding: 0 4px;
-        border-radius: 3px;
-        background-color: @color-input;
-        font-weight: bold;
-
-        &:focus {
-            background-color: @color-input-active;
-            box-shadow: 0px 2px 2px 0 #888888 inset;
-            outline: none;
-            color: @color-text-brightBlue;
-            font-size: 12px;
-        }
-    }
-
-    &:first-child, &:last-child {
-        border-right: none;
-    }
-}
-
-#leftMenu {
-    width: 35px;
-    padding: 0;
-    margin: 0;
-    position: relative;
-
-    .icon {
-        background: url(/images/menu-closed.png) 0 0 no-repeat; 
-        margin-top: 0;
-        margin-left: 0;
-        width: 34px;
-        height: 35px;
-        border-right: 1px solid @color-bar-border;
-        display: inline-block;
-    }
-}
-
-.navArrow {
-    border: 6px solid transparent;
-    border-bottom-width: 0;
-    border-top: 6px solid rgba(0,0,0,.2);
-    width: 0;
-    height: 0;
-    font-size: 0;
-    line-height: 0;
-    position: absolute;
-    bottom: -16px;
-    left: 12px;
-    z-index: 11;
-
-    .navArrowInner {
-        border: 6px solid transparent;
-        border-bottom-width: 0;
-        border-top: 6px solid @color-arrow-background;
-        width: 0;
-        height: 0;
-        font-size: 0;
-        line-height: 0;
-        position: absolute;
-        bottom: 1px;
-        left: -6px;
-    }  
-}
-
-#titleArea {
-    font-weight: bold;
-    font-size: 16px;
-    padding-left: 35px;
-    .icon {
-        background: url(/images/page-white.png) 0 0 no-repeat;
-        width: 24px;
-        height: 24px;
-        margin-left: -27px;
-        margin-top: 1px; 
-        display: inline-block;
-        position: absolute;
-    }
-}
-
-#fnBar, #searchBar {
-    width: 180px;
-}
-
-#rowInput {
-    width: 40px;
-}
-
-#rowScrollerArea {
-    float: right;
-}
-
-.rowScroller {
-    width: 200px;
-    height: 5px;
-    margin-top: 20px;
-    background-color: @color-bar-border;
-    border-bottom: 1px solid #d5d5d5;
-    position: relative;
-
-    .bookmark {
-        width: 2px;
-        height: 2px;
-        background-color: @color-bookmark;
-        position: absolute;
-        bottom: 0;
-    }
-}
-
-
-
-#rightSideBar {
-    position: absolute;
-    bottom: 74px;
-    right: 0px;
-    width: 10px;
-    border-left: 1px solid @color-bar-border;
-    height: ~"calc(100% - 152px)";
-    background-color: @color-background-sidebar;
-    z-index: 11;
-    box-shadow: -1px 0px 1px rgba(0,0,0,0.3), inset 0px 4px 4px rgba(0,0,0,0.3);
-}
-
-#pulloutTab {
-    left: -19px;
-    bottom: 0;
-    height: 60px;
-    width: 28px;
-    border-left: 1px solid @color-bar-border;
-    border-top-left-radius: 3px;
-    background-color: inherit;
-    position: absolute;
-    box-shadow: -1px 0px 0px rgba(0,0,0,0.3);
-    background-image: url(/images/pullout.png); 
-    background-repeat: no-repeat;
-    background-position: 5px 9px;
-}
-
-
-/* BOTTOM SECTION */
-
-#bottomArea {
-    position: absolute;
-    bottom: 0px;
-    width: 100%;
-}
-
-#worksheetBar {
-    height: 34px;
-    box-shadow: 0px 1px 1px 0px rgba(0,0,0, .5);
-    overflow: hidden;
-
-    .workspaceArea {
-        height: 13px;
-        font-size: 13px;
-        line-height: 13px;
-        margin-top: 8px;
-    }
-}
-
-#worksheetInfo {
-    height: 100%;
-    float: left;
-    display: inline-block;
-}
-
-.iconBtn {
-    width: 22px;
-    height: 22px;
-    border-radius: 2px;
-    display: inline-block;
-    background-color: @color-background-topAction;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
-}
-
-.bottomButtonsArea {
-    float: right;
-    .iconBtn {
-        margin: 5px;
-    }
-}
-
-#cliBtn {
-    background-image: url(/images/cli-icon.png); 
-}
-
-#scratchpadBtn {
-    background-image: url(/images/pencil.png); 
-}
-
-#infoBtn {
-    background-image: url(/images/info-icon.png); 
-}
-
-#bottomTabArea {
-    height: 39px;
-}
-
-#addWorksheet {
-    background-image: url(/images/plus-sign.png); 
-    background-position: 55% 45%;
-    margin-top: 8px;
-    margin-left: 8px;
+    background-position: center;
+    z-index: 10;
+    -webkit-filter: brightness(0);
     cursor: pointer;
 }
 
+.menuSelected {
+    color: @color-bar-orange;
+}
 
-/* temporary form for adding data sets */
-#form {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    z-index: 100;
-    background-color: white;
-    padding: 20px;
-    display: none;
+#menuArea {
+    height: 0;
+    .transition (height 0.3s ease-out);
+    overflow: hidden;
+    position: relative;
+    font-size: 14px;
+}
+
+#menuBar {
+    color: @color-white;
+    padding-left: 300px;
+    div {
+        display: inline-block;
+        margin:  0px 150px 0px 0px;
+        padding-top: 3px;
+        font: @font-base;
+        font-size: 20px;
+        vertical-align: middle;
+        .noSelection;
+        &:hover {
+            color: @color-bar-orange;
+            cursor: pointer
+        }
+    }
+}
+
+#monitorPanel {
+	background-color: @color-white;
+    .nomargin-padding;
+    margin-top: 5px;
+	height: 62px;
+	width: 100%;
+    display: table;
+}
+
+#tablestorePanel,
+#datastorePanel {
+    margin: 0px;
+	margin-top: 5px;
+	padding: 0px;
+	height: 62px;
+	width: 100%;
+    display: table;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    table-layout: fixed;
+    z-index: 5;
+
+}
+
+.datasetWrap {
+    display: inline-block;
+    position: relative;
+    left: 0px;
+    height: inherit;
+    margin-left: 60px;
+}
+
+.monitorSubDiv {
+    font-size: 20px !important;
+    font-weight: bold;
+    margin: 0px !important;
+    padding-top: 2px;
+    z-index: 3;
+    cursor: pointer;
+    line-height:46px; //for larger clickable area
+}
+.monitorRed {
+    color: @color-monitor-red !important;
+}
+
+.monitorBlue {
+    color: @color-monitor-blue !important;
+}
+
+.monitorGreen {
+    color: @color-monitor-green !important;
 }
 
 
+#graphics {
+    display: inline-block;
+    height: inherit;
+    margin-right: 70px;
+    margin-left: 10px;
 
+    .menuAreaItem {
+        width: 180px;
+    }
+}
 
+.menuAreaItem {
+    position: relative;
+    display: inline-block;
+    width: 200px;
+    height: inherit;
+    margin-left: 10px;
+    cursor: pointer;
+}
 
+.menuAreaItem span {
+    position: absolute;
+    display: inline-block;
+    top: 50%;
+    .transform (translateY(-50%));
+    text-align: center;
+    width: 100%;
+}
 
+.menuAreaLabel {
+    font-size: 58px;
+    line-height: 58px;
+}
 
+.monitorSmall {
+    font-size: 28px;
+    line-height: 23px;
+    color: @color-table-blankGrayLight;
+}
 
+.menuAreaValue {
+    font-size: 20px;
+    line-height: 20px;
+    white-space: nowrap;
+    font-weight: bold;
+}
 
-/* ===========================================================
+.datasetName {
+    color: @color-table-blankGrayLight;
+    line-height: 23px;
+    font-size: 28px !important;
+    width: 200px !important;
+    text-align: center;
+}
 
+.mainBar {
+    height: 32px;
+    width: 100%;
+    background-color: @color-bar-gray;
+    display: table;
+}
 
+#functionBar {
+	margin-top: 5px;
+	padding: 0px;
+    div {
+        display: inline-block;
+        font: @font-base;
+        padding: 5px 0px 0px 0px;
+        margin: 0px 0px 0px 20px;
+        font-size: 16px;
+        color: @color-white;
+        vertical-align: middle;
+        input {
+            border: 0px;
+            text-align: left;
+            font-color: black;
+            background-color: @color-table-lightGray;
+            height: 22px;
+            width: 360px;
+            padding: 0px 4px;
+        }
+    }
+}
 
+.functionField {
+    margin: 0px 100px 0px 0px !important;
+    vertical-align: middle;
+    &:last-child {
+        margin-right: 10px !important;
+    }
+}
 
+/* LOAD AREA STYLING */
+#loadArea {
+    display: block !important;
+    position: absolute;
+    top: 5px;
+    .transition (opacity 0.2s linear);
+    font-size: 12px;
+    width: 1400px;
+}
 
-The following styles below were taken from the old UI and slightly tweaked
-in order to work for the new ui. I will clean this up at some point. 
--Rudy
+#load_r {
+    font-family: @font-base;
+    font-size: 28px;
+    margin: 0px;
+    padding: 0px;
+    height: 62px;
+    width: 100%;
+    display: table;
+    position: relative;
 
+    div {
+        display: inline-block;
+        float: left;
+        .box-sizing;
+        text-align: center;
+    }
 
+    .menuAreaItem {
+        text-align: left;
+    }
 
-      ====
-      ====
-      ====
-      ====
-    ========
-     ======
-      ====
-       ==
+    .monitorSubDiv {
+        text-align: left;
+    }
 
+    .dataStep {
+        padding: 8px 0px;
+        line-height: 24px;
+        color: @color-white;
+        position: absolute;
+        left: -80px;
+        .transition (~"left 0.7s ease-out 0s, transform 0.7s ease-out, color 1s");
+        z-index:2;
+    }
 
+    input {
+        font-size: 16px;
+        font-weight: bold;
+        padding: 0px 8px;
+        &[type=radio] {
+            display: none;
+        }
+        &:focus {
+            outline: 1px solid @color-monitor-green;
+        }
+    }
 
-================================================================ */
+    .dataOptions {
+        background-color: @color-white;
+        overflow: hidden;
+        position: absolute;
+        left: -240px;
+        .transition (~"z-index 0s linear .9s, transform 0.9s ease-out");
+        z-index: 0;
+    }
 
+    .dataOptionsRow {
+        height: 29px;
+        display: block;
+        float: none;
+        &:last-child{
+            margin-top:4px;
+        }
+    }
 
- /*========== Constants ========== */
-/* Standard */
-@color-white: #FFFFFF;
-/* Bar */
-@color-bar-orange: #FDB03C;
-@color-bar-gray: #999999;
-@color-bar-midGray: #ADADAD;
-/* Monitor */
-@color-monitor-red: #F8A7AB;
-@color-monitor-green: #95DCBC;
-@color-monitor-lightGreen: #D5F1E4;
-@color-monitor-midGreen: #A6EDCD;
-@color-monitor-blue: #A6C5D2;
-/* Table */
-@color-table-red: #F46D73;
-@color-table-lightGray: #F5F5F5;
-@color-table-midGray: #EDEDED;
-@color-table-darkGray: #E6E6E6;
-@color-table-blankGrayLight: #CCCCCC;
-@color-table-blankGrayDark: #C2C2C2;
-@color-table-blue: #DEE8E8;
-@colorOpaque-lightGray: rgba(158, 158, 158, 0.1);
-@colorOpaque-darkGray: rgba(80, 80, 80, 0.1);
-@colorOpaque-pink: rgba(237, 28, 36, 0.1);
-@colorOpaque-blankGrayDark: rgba(0, 0, 0, 0.2);
-@colorOpaque-midGray: rgba(110,110,110,0.2); //XXX todo: get new color for first column
-@colorOpaque-dataCol: rgba(135, 200, 171, 0.1);
-@colorOpaque-blue: rgba(150,180,205, 0.2);
-@colorShadow-black: rgba(0, 0, 0, 0.15);
+    label {
+        display: inline-block;
+        vertical-align: middle;
+        width: 115px;
+        height: inherit;
+        line-height: 29px;
+        font-size: 20px;
+        font-weight: bold;
+        float: left;
+        text-align: center;
+        background-color: @color-table-lightGray;
+        margin-left: 5px;
+        cursor: pointer;
+        position: relative;
+        .box-sizing;
 
+        &:hover {
+            color: @color-bar-orange;
+            background-color: @color-table-darkGray
 
-/*Tabs*/
-@color-tab-lightGray: #B4B4B4;
+        }
+    }
 
-/* Scratchpad */
-@color-scratchpad-dark-odd: rgba(120, 162, 189, 0.1);
-@color-scratchpad-dark-even: rgba(164, 183, 210, 0.1);
-@color-scratchpad-light-odd: #F1F6F8;
-@color-scratchpad-light-even: #FFFFFF;
-@color-scratchpad-border: #ADC5D2;
-@color-scratchpad-selected: rgba(28, 237, 36, 0.1);
-@color-scratchpad-purple: rgba(190, 100, 190, 0.1);
+}
 
-/* Text */
-@color-text-black: #0F0F0F; 
+ #progressBar {
+    background-color: @color-table-darkGray;
+    width: 1400px;
+    position: absolute;
+    display: block !important;
+    height: 62px;
+    top: 0px;
+    left: -1400px;
+    z-index: 2;
+    opacity: 1;
+    font-size: 58px;
+    .transition (~"left 0.7s ease-out 0s, transform 0.7s ease-out");
+    div {
+        color: @color-white;
+        font-size: 58px;
+        float: right;
+        margin-right: 10px;
+        margin-top: -5px;
+        display: none;
+    }
+}
 
+.datasetName, .monitorSubDiv {
+    display: inline-block;
+    width: 100px;
+    padding-top: 8px;
+    margin: 0px 0px 0px 0px;
+    font: "Century Gothic", "Trebuchet MS", Arial, sans-serif;
+    font-size: 58px;
+    vertical-align: middle;
+}
 
+#dataTypeSelector {
+    padding-left: 10px;
+    float: left;
+}
 
+#filePathSelector, #keySelector {
+    color: @color-white;
+    padding: 6px 0px;
+    position: absolute;
+    left: -180px;
+    .slowPositionTransition;
+    z-index: 2;
+    font-size: 58px;
+    line-height: 50px !important;
+    display: block !important;
+}
+
+#keySelector {
+    left: -280px;
+    .transition-duration (1s);
+}
+
+#fileBrowser, #tableName {
+    position: absolute;
+    left: -280px;
+    background-color: @color-table-lightGray;
+    height: 30px;
+    width: 300px;
+    margin-top: 16px;
+    z-index: 0;  
+    .transition (~"left 0.9s ease-out 0.1s, z-index 0s linear 1.0s");  
+}
+
+.slideAway {
+    left: 10000px !important;
+    transform: translateX(5000px);
+    .transition (~"left 2.0s ease-in, transform 2.0s ease-in !important");
+}
+
+.slowPositionTransition {
+    .transition (~"left 0.7s ease-out 0s, color 1s");
+}
+
+#load_r .shiftLeft {
+    .transition (~"top 0.5s ease-out, left 0.5s ease-out, transform 0.5s ease-out");
+    .transition-delay (~"0 !important");
+}
+
+.slowProgressTransition {
+    .transition (~"left 5s linear !important");
+}
+
+.slideRight {
+    // .transition (~"width 1.0s ease-in !important");
+    .transition (~"width 1.0s linear !important");
+}
+
+.transitionGreen {
+    color: @color-monitor-green !important;
+    .transition (color 1.0s);
+}
+/* END LOAD AREA STYLING */
+
+#pageBar {
+    background-color: @color-table-blankGrayLight;
+    margin-top: 5px;
+    padding-left: 38px;
+    color: @color-text-black;
+    font-size: 16px;
+    display: block;
+
+    div {
+        width: 300px;
+        display: inline-block;
+        font: @font-base;
+        margin: 2px 87px 0px 0px;
+        vertical-align: middle;
+        input {
+            border: 0px;
+            text-align: center;
+            font-color: black;
+            // margin-bottom: 5px;
+            background-color: @color-table-lightGray;
+            height: 20px;
+            padding: 0px 2px;
+        }
+    }
+
+    span {
+        display: inline-block;
+    }
+
+    #rowScrollerArea {
+        margin-top: 2px;
+        margin-bottom: 4px;
+        position: relative;
+        height: 24px;
+    }
+
+    .rowScroller {
+        outline: 2px solid @color-bar-gray;
+        outline-offset: -1px;
+        position: absolute;
+        height: 24px;
+        top: 0;
+        left: 0;
+        &.hidden {
+            display: none !important;
+        }
+    }
+
+    .rowMarker {
+        height: 22px;
+        width: 2px;
+        margin-top: 1px;
+        position: absolute;
+        top: 0;
+        left: 1px;
+        background-color: @color-bar-orange;
+        .transition (transform 0.2s ease-out);
+        .transition-delay (0s);
+    }
+
+    .bookmark {
+        height: 7px;
+        width: 5px;
+        background-color: @color-table-red;
+        position: absolute;
+        left: 0%;
+        bottom: 1px;
+    }
+}
 
 
 .tableWrap {
-    // background-color: @color-white;
+	background-color: @color-white;
     padding: 5px 0 0 0;
     height: 100%;
-    width: 100%;
+	width: 100%;
     overflow-x: auto;
-    overflow-y: scroll;
+	overflow-y: scroll;
     display: inline-block;
     font-size: 11px;
     margin-bottom: 5px;
@@ -604,52 +634,46 @@ in order to work for the new ui. I will clean this up at some point.
 }
 
 .tableWrap::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    // width: 0px;
+    height: 8px;
     background: transparent;
 }
 
-// ::-webkit-scrollbar {
-//     width: 8px;
-//     // width: 0px;
-//     height: 8px;
-//     background: transparent;
-// }
+::-webkit-scrollbar-thumb {
+    background: rgba(237,28,36, 0.5) !important;
+}
 
-// ::-webkit-scrollbar-thumb {
-//     background: rgba(237,28,36, 0.5) !important;
-// }
-
-// ::-webkit-scrollbar-corner {
-//     background: transparent;
-// }
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
 
 #mainFrame{
     width: 100%;
     height: ~"-webkit-calc(100% - 148px)";
     height: ~"-moz-calc(100% - 148px)";
     height: ~"calc(100% - 148px)";
+    .transition (~"height 0.3s ease-out"); 
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
 }
 
-.xcTableWrap:first-child {
-    .dataTable{
-        margin-left: 0px;
-    }
-}
-    
 .dataTable {
     border-collapse: separate;
     border-spacing: 0px;
-    margin-right: 10px;
+    margin-left: 10px;
     table-layout: fixed;
     width: 900px;
 
     th {
-        height: 35px;
-        background-color: @color-background-tableBorders;
-        border: 5px solid @color-background-tableBorders;
-        border-left: none;
+        height: 30px;
+        border-right: 5px solid @color-white;
+        border-bottom: 5px solid @color-white;
         font-weight: normal;
         font-size: 13px;
         padding: 0px;
@@ -659,12 +683,12 @@ in order to work for the new ui. I will clean this up at some point.
         font-family: @font-code;
         font-size: 11px;
         line-height: 15px;
-        height: 30px;
+        height: 20px;
         overflow: hidden;
         padding: 2px;
     }
 
-    td/*, th */{
+    td, th {
         vertical-align: middle;
         text-align: center;
 
@@ -728,12 +752,10 @@ in order to work for the new ui. I will clean this up at some point.
         .noSelection;
         overflow: visible;
         background-color: @colorOpaque-midGray; 
-        border-left: 5px solid @color-white;
     }
 
     thead th:first-child {
-        background-color: @color-background-darkGray;
-        border-left: 5px solid @color-background-darkGray 
+        background-color: @colorOpaque-midGray; 
     }
 
     th.selectedCell .editableHead {
@@ -742,15 +764,13 @@ in order to work for the new ui. I will clean this up at some point.
 
     .header {
         position: relative;
-        border-radius: 3px;
-        background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
     }
 
     input {
         font: 13px @font-base;
         background-color: transparent;
         &:disabled {
-            color: @color-text-darkGray;
+            color: @color-text-black;
         }
         &[readonly] {
             width: 100%;
@@ -758,7 +778,6 @@ in order to work for the new ui. I will clean this up at some point.
             text-align: center;
             outline: none;
             cursor: default;
-            font-weight: 600;
         }
         &:focus {
             outline-offset: -1px;
@@ -775,7 +794,6 @@ in order to work for the new ui. I will clean this up at some point.
         text-align: center;
         overflow: hidden;
         font: 13px @font-base;
-        font-weight: 600;
         z-index: 2;
         position: relative;
     }
@@ -824,7 +842,7 @@ in order to work for the new ui. I will clean this up at some point.
 .xcTable {
     height: 0px;
     thead {
-        box-shadow: 0px 1px  1px @colorShadow-black;
+        box-shadow: 0px 3px @colorShadow-black;
     }
     .jsonElement, .dataCol {
         background-color: @colorOpaque-dataCol !important;
@@ -850,7 +868,7 @@ in order to work for the new ui. I will clean this up at some point.
     background-color: transparent !important;
     box-shadow: none !important;
     th {
-        height: 65px;
+        height: 60px;
     }
 
     .colGrab {
@@ -869,14 +887,14 @@ in order to work for the new ui. I will clean this up at some point.
 }
 
 .tableTitle {
-    height: 35px;
-    // margin-left: 10px;
+    height: 30px;
+    padding: 5px 0px 0px 10px;
     pointer-events: auto;
     width: 100%;
     // display: table;
     display: block;
     position: absolute;
-    background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+    background-color: @color-white;
 
     .tableGrab {
         position: absolute;
@@ -890,20 +908,16 @@ in order to work for the new ui. I will clean this up at some point.
     }
 
     input {
-        width: 100%;
+        width: ~"calc(100% - 3px)";
         height: 100%;
         text-align: center;
-        background-color: transparent;
+        background-color: @color-table-lightGray;
         font: 15px @font-base;
-        font-weight: 600;
         padding: 0 4px;
         position: relative;
-        border-bottom: 1px solid @color-table-borderGray;
         z-index: 2;
         &.tblTitleSelected {
-            background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
-            color: @color-white; 
-            border-bottom: 1px solid @color-table-borderBlue;
+            background-color: @color-table-blue;
         }
     }
 
@@ -934,11 +948,10 @@ in order to work for the new ui. I will clean this up at some point.
 
 .trueTHead {
     z-index: 1;
-    // margin-left: 10px;
+    margin-left: 10px;
     pointer-events: auto;
     top: 30px;
-    margin-top: 5px;
-    
+    padding-top: 5px;
 }
 
 .moveTop {
@@ -962,22 +975,31 @@ th:last-child .colGrab{
 }
 
 /*DRAG AND DROP TABLES */
+ #shadowTable {
+    // position: absolute;
+    position: relative;
+    background-color: @color-table-midGray;
+    z-index: 11;
+    opacity: 1;
+    .box-sizing;
+}
+
 .tableDragging {
     position: absolute;
     opacity: 0.7;
     z-index: 10;
+    // top: 0;
 }
 
 #shadowTable{
     background-color: @color-table-midGray;
     display: inline-block;
-    opacity: 1;
-    margin-right: 10px;
+    margin: 0px 5px 0px 8px;
     position: relative;
     overflow: hidden;
     white-space: normal;
     left: 0;
-    top: 0;
+    top: 5px;
     z-index: 0;
     vertical-align: top;
 }
@@ -988,15 +1010,16 @@ th:last-child .colGrab{
     background-color: @color-table-midGray;
     z-index: 11;
     opacity: 1;
-    margin-top: 5px;
-    padding-top: 3px;
+    .box-sizing;
+    border-right:5px solid @color-white;
+    border-top: 5px solid @color-white;
 }
 
 #fauxCol{
     position: absolute;
     background-color: @color-white;
     z-index: 12;
-    opacity: 0.7;
+    opacity: 0.8;
     pointer-events: none;
     overflow: hidden;
     box-shadow: 1px 0px 1px 1px rgba(100,100,100,.05);
@@ -1007,7 +1030,7 @@ th:last-child .colGrab{
     z-index: 12;
     margin-left: 0 !important;
     th {
-        outline: 1px solid rgba(0,0,0,.1);
+        outline: 3px solid rgba(0,0,0,.1);
     }
     tr:first-child {
         position: absolute;
@@ -1018,7 +1041,6 @@ th:last-child .colGrab{
 .xcTable#fauxTable {
     td,th {
         border-right: none !important;
-        border-left: none;
     }
 }
 
@@ -1313,7 +1335,7 @@ ul.leftColMenu + .rightArrow {
 }
 
 .xcTable tbody td {
-    height: 30px;
+    height: 20px;
 }
 
 .idWrap {
@@ -1331,7 +1353,173 @@ ul.leftColMenu + .rightArrow {
 }
 /* END VERTICAL RESIZING */
 
+/* START SCRATCHPAD STYLING */
 
+#scratchpadArea {
+    position: absolute;
+    bottom: 50px;
+    right: 10px;
+    z-index: 34;
+}
+
+.scratchpad {
+    border-collapse: separate;
+    border-spacing: 0px;
+    margin-left: 10px;
+    table-layout: fixed;
+    width: 800px;
+    border: 5px solid @color-scratchpad-border;
+
+    th {
+        height: 30px;
+        border-right: 5px solid @color-white;
+        border-bottom: 5px solid @color-white;
+        font-weight: normal;
+        font-size: 15px;
+        padding: 0px;
+    }
+
+    tbody td {
+        font-family: @font-code;
+        font-size: 11px;
+        height: 20px;
+        overflow: hidden;
+        padding: 2px;
+        vertical-align: middle;
+        text-align: center;
+
+        &:first-child {
+            border-left: 5px solid @color-white !important;
+        }
+        &:nth-child(odd) {
+            background-color: @color-scratchpad-dark-odd;
+        }
+        &:nth-child(even) {
+            background-color: @color-scratchpad-dark-even;
+        }
+        &:last-child {
+            border-right: 5px solid @color-white !important;
+        }
+    }
+
+    thead td {
+        font-family: @font-code;
+        font-size: 15px;
+        height: 20px;
+        overflow: hidden;
+        padding: 2px;
+        vertical-align: middle;
+        text-align: center;
+        background-color: @color-scratchpad-light-odd;
+        box-shadow: 0px 3px @colorShadow-black;
+        border: 5px solid @color-white;
+    }
+
+    tbody tr {
+        &:nth-child(odd) {
+            background-color: @color-scratchpad-light-odd;
+            td {
+                border-right: 5px solid @color-scratchpad-light-odd;
+            }
+        }
+        &:nth-child(even) {
+            background-color: @color-scratchpad-light-even;
+            td {
+                border-right: 5px solid @color-scratchpad-light-even; 
+            }
+        }
+    }
+    
+    tbody .connected {
+        background-color: @color-scratchpad-purple !important;
+    }
+
+    tbody .error {
+        background-color: @colorOpaque-pink !important;
+    }
+
+    th.error .editableHead {
+        color: @color-table-red;
+    }
+
+    .header {
+        position: relative;
+        span {
+            z-index: 2;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+    }
+
+    input {
+        font: 13px @font-base;
+        background-color: transparent;
+        &:disabled {
+            color: @color-text-black;
+        }
+        &[readonly] {
+            width: 100%;
+            height: 25px;
+            text-align: center;
+            outline: none;
+        }
+        &:focus {
+            background-color: @color-scratchpad-selected;
+            outline-offset: -1px;
+        }
+    }
+
+    .editableHead {
+        width: 100%;
+        height: 25px; 
+        padding: 0px 4px;
+        background-color: transparent; 
+        border: none;
+        display: block;
+        text-align: center;
+        overflow: hidden;
+        font: 13px @font-base;
+    }
+
+    .addedBarTextTd {
+       overflow: hidden !important;
+    }
+
+    .addedBarTextTd:hover {
+        overflow-y: auto !important;
+    }
+
+    .addedBarText {
+        cursor: default;
+    }
+
+    .elementText{ 
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .elementTextWrap, .addedBarTextWrap {
+        // overflow-y: auto;
+        // overflow-x: none;
+        max-height: 16px;
+        overflow: hidden;
+    }
+    
+    span.undefined {
+        color: #c51d23;
+    }
+}
+
+#scratchpadTab {
+    .worksheetTab;
+    position: relative;
+    float: right;
+    width: 150px;
+    cursor: pointer;
+}
+
+/* END SCRATCHPAD STYLING */
 
 /* START WORKSHEET BAR */
 .worksheetBar {
@@ -1368,12 +1556,6 @@ ul.leftColMenu + .rightArrow {
     }
 }
 
-#worksheetBar {
-    .worksheetTab {
-        display: none;
-        // hiding this tab temporarily
-    }
-}
 .worksheetTab {
     // width: 230px;
     width: 15%;
@@ -1905,7 +2087,7 @@ ul.leftColMenu + .rightArrow {
         opacity: 0.6;
         .transform (rotate(45deg));
         position: absolute;
-        z-index: 39;
+        z-index: 33;
         top: -2px;
         left: 3px;
     }

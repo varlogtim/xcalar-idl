@@ -520,7 +520,7 @@ function resetShoppingCart() {
 }
 
 function setupWorksheetAndShoppingCart() {
-     $('#newWorksheet span').click(function() {
+     $('#addWorksheet').click(function() {
         // addWorksheetTab();
         shoppingCart();
         $('#modalBackground').show();

@@ -11,7 +11,7 @@ var gNewCellWidth = 125;
 var gMouseStatus = null;
 var gDragObj = {};
 var gRescol = {
-    minCellHeight: 20,
+    minCellHeight: 30,
     cellMinWidth: 30,
     first: true,
     clicks: 0,
@@ -58,11 +58,11 @@ function infScrolling(tableNum) {
         if (gMouseStatus == "movingTable") {
             return;
         }
-        console.log('scrolling')
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("xcTableWrap".length));
         focusTable(dynTableNum);
         var table = $('#xcTable'+dynTableNum);
+        table.find('.colGrab').hide().height(0);
         if (table.height() < $('#mainFrame').height()) {
             // prevent scrolling on a short table
            $(this).scrollTop(0);
@@ -78,13 +78,10 @@ function infScrolling(tableNum) {
                     var pageNumber = gTables[dynTableNum].currentPageNumber;
                 }
 
-                table.find('.colGrab').hide();
                 goToPage(pageNumber, RowDirection.Top, dynTableNum);
                 $('#xcTableWrap'+dynTableNum)
                    .scrollTop(firstRow.offset().top - initialTop + 10);
                 table.find("tbody tr:gt(79)").remove();
-                adjustColGrabHeight(dynTableNum);
-                table.find('.colGrab').show(); 
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()-
                     $(this).outerHeight() <= 1) {
             console.log('the bottom!');
@@ -93,20 +90,28 @@ function infScrolling(tableNum) {
                 // keep row length at 80
                 table.find('tbody tr:lt(20)').remove();
             }
-            table.find('.colGrab').hide();
             goToPage(gTables[dynTableNum].currentPageNumber+1,
                      RowDirection.Bottom, dynTableNum);
-
-            adjustColGrabHeight(dynTableNum);
-            table.find('.colGrab').show(); 
         }
+
+         delay(function(){
+            adjustColGrabHeight(dynTableNum); 
+        }, 200);
+
+        table.find('.colGrab').show();
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
         var rowScrollerMove = true;
         generateFirstLastVisibleRowNum(rowScrollerMove);
         updatePageBar(dynTableNum);
-        // adjustColGrabHeight(dynTableNum);
     });
+    var delay = (function(){
+        var timer = 0;
+        return function(callback, ms) {
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+        };
+    })();
 }
 
 // XXX: This function should disappear. But I need to be able to free the
@@ -279,9 +284,7 @@ function documentReadyxcTableFunction() {
         // $(this).blur(); 
     });
     generateFirstLastVisibleRowNum();
-    $('#pageBar > div:last-child').append('<span>of '+
-                                           gTables[gActiveTableNum].resultSetCount+
-                                           '</span>');
+    $('#numPages').text('of '+gTables[gActiveTableNum].resultSetCount);
 }
 
 function documentReadyGeneralFunction() {
@@ -464,7 +467,6 @@ function documentReadyCatFunction(tableNum) {
 
 function startupFunctions() {
     readFromStorage();
-    menuBarArt();
     menuAreaClose();
     getTablesAndDatasets();
     documentReadyGeneralFunction();
