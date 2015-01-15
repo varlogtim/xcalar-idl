@@ -90,11 +90,7 @@ function detailsSubmit(e) {
         loadTable = tablename;
         var dsId = XcalarLoad(loadURL, loadFormat, tablename);
         console.log("This is the returned dsId "+dsId);
-        if (dsId != null) {
-            setDsToName(tablename, dsId);
-            commitToStorage();
-            startProgressBar();
-        }
+        startProgressBar();
         $('.datasetWrap').removeClass('slideAway').hide();
         
         // checkLoad();
