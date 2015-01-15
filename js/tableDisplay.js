@@ -202,6 +202,10 @@ function addTable(tableName, tableNum) {
     if (firstTime) {
         documentReadyxcTableFunction(); 
     }
+    if (!getIndex(tableName)) {
+        console.log("This table has never been stored before. Storing it now");
+        setIndex(tableName, gTables[tableNum].tableCols);
+    }
     // focusTable(tableNum);
 }
 

@@ -322,10 +322,44 @@ function addCol(colId, tableId, name, options) {
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="rightArrow"></div>'+
+            '</li>'+
+            '<li class="groupBy col'+newColid+'">Group By'+
+                '<ul class="subColMenu">'+
+                    '<li class="gb col'+newColid+'">Count'+
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center">New Column Name</li>'+
+                            '<li><input type="text" width="100px" '+
+                                'value="groupBy"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="rightArrow"></div>'+
+                    '</li>'+
+                    '<li class="gb col'+newColid+'">Average'+
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center">New Column Name</li>'+
+                            '<li><input type="text" width="100px" '+
+                                'value="groupBy"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="rightArrow"></div>'+
+                    '</li>'+
+                    '<li class="gb col'+newColid+'">Sum'+
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center">New Column Name</li>'+
+                            '<li><input type="text" width="100px" '+
+                                'value="groupBy"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="rightArrow"></div>'+
+                    '</li>'+
+                '</ul>'+
+                '<div class="rightArrow"></div>'+
             '</li>';
+
     // XXX: HACK: I removed the check for the main col. Also, I should check for
     // whether the type is a string or a int
-    if (true) {
+    if (true) { // This check is here so that you don't have to indent in the
+                // in the future. O:D
         dropDownHTML += '<li class="filterWrap col'+newColid+'">Filter'+
                         '<ul class="subColMenu">'+
                             '<li class="filter">Greater Than'+

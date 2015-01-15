@@ -970,12 +970,28 @@ function addColMenuActions(colId, tableId) {
         var value = $(this).val();
         var tableNum = parseInt($(this).closest('table')
                         .attr('id').substring(7));
+        // XXX Why is this line necessary?
         $(this).closest('.filter').siblings().find('input').val(value);
         if (e.which === keyCode.Enter) {
             var index = parseColNum($(this).closest('.filterWrap'));
             var operator = $(this).closest('.filter').text(); 
             console.log(operator, 'operator')
             filterCol(operator, value, index, tableNum);
+        }
+    });
+
+    table.find('.groupBy.col'+colId+' input').keyup(function(e) {
+        var value = $(this).val();
+        var tableNum = parseInt($(this).closest('table')
+                        .attr('id').substring(12));
+        if (e.which === keyCode.Enter) {
+            var index = parseColNum($(this).closest('.groupBy'));
+            var operator = $(this).closest('.gb').text(); 
+            operator = operator.substring(0, operator.indexOf(
+                                          "New Column Name"));
+            console.log('operator: '+operator+"value: "+value+"index: "+
+                        index+"tableNum: "+tableNum);
+            groupByCol(operator, value, index, tableNum);
         }
     });
 

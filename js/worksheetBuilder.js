@@ -40,7 +40,6 @@ function getDatasetSamples() {
 
         if (records.recordType ==
             GenericTypesRecordTypeT.GenericTypesVariableSize) {
-            console.log(records.records[0]);
             var json = $.parseJSON(records.records[0].kvPairVariable.value);
         } else {
             var json = $.parseJSON(records.records[0].kvPairFixed.value);

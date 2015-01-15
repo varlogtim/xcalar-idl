@@ -152,6 +152,18 @@ function filterNonMainCol(operator, value, datasetId, key, otherTable) {
     cont1(newIndexTable, operator, value, datasetId, key, otherTable); */
 }
 
+function groupByCol(operator, newColName, colid, tableNum) {
+    var rand = Math.floor((Math.random() * 100000) + 1);
+    var newTableName = "tempGroupByTable"+rand;
+    // TODO Create new gTables entry
+    // setIndex(newTableName, newTableCols);
+    // commitToStorage();
+    $("body").css({"cursor": "wait"});
+    XcalarGroupBy(operator, newColName, gTables[tableNum].tableCols[colid-1].name,
+                 gTables[tableNum].frontTableName, newTableName);
+    checkStatus(newTableName, tableNum, KeepOriginalTables.Keep);
+}
+
 function filterCol(operator, value, colid, tableNum) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;

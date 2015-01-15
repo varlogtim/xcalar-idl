@@ -1,7 +1,3 @@
-$(document).ready(function(){
-   $('table.XcalarApiService').attr('width', 500);
-});
-
 function transportLocation() {
     var str = "http://" + hostname + ":";
     str += portNumber.toString();
@@ -611,29 +607,24 @@ function XcalarJoin(left, right, dst) {
     }
 }
 
-function XcalarGroupBy() {
-    var transport = new Thrift.Transport(transportLocation());
-    var protocol  = new Thrift.Protocol(transport);
-    var client    = new XcalarApiServiceClient(protocol);
+// THIS FUNCTION CALLES XcalarApi.js!!
 
-    var workItem = new XcalarApiWorkItemT();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.groupByInput = new XcalarApiGroupByInputT();
-    workItem.input.groupByInput.table = new XcalarApiTableT();
-    workItem.input.groupByInput.groupByTable = new XcalarApiTableT();
-
-    workItem.apiVersion = 0;
-    workItem.api = XcalarApisT.XcalarApiGroupBy;
-    workItem.input.groupByInput.table.tableName = $('#GroupSrcTableName').val();
-    workItem.input.groupByInput.groupByTable.tableName = $('#GroupDstTableName').val();
-    workItem.input.groupByInput.groupByOp = OperatorsOpT.OperatorsAverage;
-
-    try {
-        result = client.queueWork(workItem);
-        $('#GroupStatus').val(result.output.statusOutput);
-        $('#GroupStatus').css('color', 'black');
-    } catch(ouch) {
-        $('#GroupStatus').val('fail');
-        $('#GroupStatus').css('color', 'red');
+function XcalarGroupBy(operator, newColName, oldColName, tableName,
+                       newTableName) {
+    var handle = xcalarConnectThrift(hostname, portNumber);
+    var op;
+    switch (operator) {
+    case ("Average"):
+        op = OperatorsOpT.OperatorsAverage;
+        break;
+    case ("Count"):
+        op = OperatorsOpT.OperatorsCountKeys;
+        break;
+    case ("Sum"):
+        op = OperatorsOpT.OperatorsSumKeys;
+        break;
+    default:
+        console.log("Wrong operator! "+operator);
     }
+    xcalarGroupBy(handle, tableName, newTableName, op, oldColName, newColName);
 }
