@@ -71,6 +71,7 @@ function XcalarIndexFromDataset(varDatasetId, key, tablename) {
     workItem.input.indexInput.isTableBacked = false;
 
     try {
+        console.log(workItem);
         result = client.queueWork(workItem);
     } catch(ouch) {
         console.log(ouch);

@@ -2,7 +2,6 @@
 // be holding
 
 var gTableIndicesLookup = {};
-var gDsToNameTrans = {};
 var gTableOrderLookup = {};
 var gWorksheetName = [];
 
@@ -27,35 +26,6 @@ function getIndex(tName) {
     return (null);
 }
 
-function getDsName(datasetId) {
-    if (!gDsToNameTrans) {
-        console.log("Nothing has ever been stored ever!");
-        gDsToNameTrans = {};
-    }
-    if (datasetId in gDsToNameTrans) {
-        return (gDsToNameTrans[datasetId]);
-    } else {
-        console.log("No such datasetId has been saved before");
-        return (null);
-    }
-    return (null);
-}
-
-function getDsId(datasetName) {
-    if (!gDsToNameTrans) {
-        console.log("Nothing has ever been stored ever!");
-        gDsToNameTrans = {};
-    }
-    for (var key in gDsToNameTrans) {
-        if (gDsToNameTrans[key] == datasetName) {
-            return (key);
-        }
-    }
-
-    console.log("No such datasetId has been saved before");
-    return (0);
-}
-
 function getOrder(tName) {
     if (!gTableOrderLookup) {
         console.log("Nothing has ever been stored ever!");
@@ -70,18 +40,34 @@ function getOrder(tName) {
     return (null);
 }
 
-function setIndex(tName, index) {
-    gTableIndicesLookup[tName] = index;
+// XXX Move these 2 functions away from here?
+function getDsId(datasetName) {
+    var datasetObj = XcalarGetDatasets();
+    var numDatasets = datasetObj.numDatasets;
+    for (var i = 0; i<datasetObj.numDatasets; i++) {
+        if (datasetObj.datasets[i].name == datasetName) {
+            return (datasetObj.datasets[i].datasetId);
+        }
+    }
+    console.log("Couldn't find a dataset with name: "+datasetName);
+    return (0);
 }
 
-function setDsToName(name, datasetId) {
-    if (getDsId(name) != 0) {
-        console.log("Dataset name already exists!");
-        console.log("Dataset name already exists!");
-        console.log("XXX ERROR");
-        // XXX TODO FIXME We have to handle this
+function getDsName(datasetId) {
+    var datasetObj = XcalarGetDatasets();
+    var numDatasets = datasetObj.numDatasets;
+    for (var i = 0; i<datasetObj.numDatasets; i++) {
+        if (datasetObj.datasets[i].datasetId == datasetId) {
+            return (datasetObj.datasets[i].name);
+        }
     }
-    gDsToNameTrans[datasetId] = name;
+    console.log("Couldn't find a dataset with id: "+datasetId);
+    return (0);
+}
+
+
+function setIndex(tName, index) {
+    gTableIndicesLookup[tName] = index;
 }
 
 function setOrder(tName, order) {
@@ -90,11 +76,9 @@ function setOrder(tName, order) {
 
 function commitToStorage() {
     var stringed = JSON.stringify(gTableIndicesLookup);
-    var stringed2 = JSON.stringify(gDsToNameTrans);
     var stringed3 = JSON.stringify(gTableOrderLookup);
     var stringed4 = JSON.stringify(gWorksheetName);
     localStorage["TILookup"] = stringed;
-    localStorage["DSName"] = stringed2;
     localStorage["TOLookup"] = stringed3;
     localStorage["WSName"] = stringed4;
 }
@@ -102,9 +86,6 @@ function commitToStorage() {
 function readFromStorage() {
     if (localStorage["TILookup"]) {
         gTableIndicesLookup = JSON.parse(localStorage["TILookup"]);
-    }
-    if (localStorage["DSName"]) {
-        gDsToNameTrans = JSON.parse(localStorage["DSName"]);
     }
     if (localStorage["TOLookup"]) {
         gTableOrderLookup = JSON.parse(localStorage["TOLookup"]);
@@ -119,17 +100,9 @@ function readFromStorage() {
     if (numDatasets == 0 || numDatasets == null) {
         emptyAllStorage();
         gTableIndicesLookup = {};
-        gDsToNameTrans = {};
         gTableOrderLookup = {};
         gWorksheetName = [];
     } else {
-        for (i = 0; i<numDatasets; i++) {
-            var datasetId = datasets.datasets[i].datasetId;
-            if (!gDsToNameTrans[datasetId]) {
-                setDsToName(datasets.datasets[i].name, datasetId);
-            }
-        }
-
         var tables = XcalarGetTables();
         var numTables = tables.numTables;
         for (i = 0; i<numTables; i++) {
