@@ -382,14 +382,11 @@ function addCol(colId, tableId, name, options) {
                         '<li class="joinList col'+newColid+'">'+'Join'+
                             '<ul class="subColMenu">';
         }
-        // var tables = XcalarGetTables();
-        // var numTables = tables.numTables;
-        var numTables = gTables.length;
+        var tables = XcalarGetTables();
+        var numTables = tables.numTables;
         for (var i = 0; i<numTables; i++) {
-            // var t = tables.tables[i];
-            var t = gTables[i];
-            // dropDownHTML += '<li class="join">'+t.tableName+'</li>';
-            dropDownHTML += '<li class="join">'+t.backTableName+'</li>';
+            var t = tables.tables[i];
+            dropDownHTML += '<li class="join">'+t.tableName+'</li>';
         }
         dropDownHTML +=     '<div class="subColMenuArea"></div>'+
                             '</ul>'+ 
