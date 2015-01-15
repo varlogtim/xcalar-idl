@@ -870,7 +870,7 @@ function addColListeners(colId, tableId) {
         event.stopPropagation();
     });
 
-    addColMenuActions(colId, tableId);
+   addColMenuActions(colId, tableId);
 }
 
 function addColMenuActions(colId, tableId) {
@@ -998,6 +998,14 @@ function addColMenuActions(colId, tableId) {
     table.find('.filter.col'+colId+' input').click(function() {
         $(this).select();
     });
+
+    table.find('.joinList.col'+colId).mouseenter(function(event) {
+        var index = parseColNum($(this));
+        var tableNum = parseInt($(this).closest('table')
+                        .attr('id').substring(12));
+        dynGetTables(tableNum, index);
+    });
+ 
 
     table.find('.joinList.col'+colId+ ' .join').click(function() {
         var tableNum = parseInt($(this).closest('table')

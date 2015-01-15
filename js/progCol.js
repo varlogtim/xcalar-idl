@@ -414,19 +414,9 @@ function addCol(colId, tableId, name, options) {
                         '<div class="rightArrow"></div>'+
                         '</li>'+
                         '<li class="joinList col'+newColid+'">'+'Join'+
-                            '<ul class="subColMenu">';
-        }
-        var tables = XcalarGetTables();
-        var numTables = tables.numTables;
-        for (var i = 0; i<numTables; i++) {
-            var t = tables.tables[i];
-            dropDownHTML += '<li class="join">'+t.tableName+'</li>';
-        }
-        dropDownHTML +=     '<div class="subColMenuArea"></div>'+
-                            '</ul>'+ 
-                            '<div class="rightArrow"></div>'+ 
-                        '</li>';
-    dropDownHTML += '</ul>';
+                            '<ul class="subColMenu" id="joinTables">';
+    }
+    dropDownHTML += '</ul><div class="rightArrow"></div></li>';
     table.find('.table_title_bg.col'+newColid+' .header').append(dropDownHTML);
 
     addColListeners(newColid, tableId);
@@ -457,4 +447,18 @@ function parseColNum(el) {
     var index = classNames.indexOf('col');
     var substring = classNames.substring(index+'col'.length);
     return (parseInt(substring));
+}
+
+function dynGetTables(tableNum, colid) {
+    var tables = XcalarGetTables();
+    var numTables = tables.numTables;
+    var dropDownHTML = "";
+    for (var i = 0; i<numTables; i++) {
+        var t = tables.tables[i];
+        dropDownHTML += '<li class="join">'+t.tableName+'</li>';
+    }
+    dropDownHTML +=     '<div class="subColMenuArea"></div>';
+    $("#autoGenTable"+tableNum+" #joinTables").empty();
+    $("#autoGenTable"+tableNum+" .joinList.col"+colid+" .subColMenu").
+        append(dropDownHTML);
 }
