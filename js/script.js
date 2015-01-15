@@ -97,7 +97,7 @@ function infScrolling(tableNum) {
          delay(function(){
             adjustColGrabHeight(dynTableNum); 
         }, 200);
-
+            
         table.find('.colGrab').show();
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
@@ -274,7 +274,7 @@ function documentReadyxcTableFunction() {
         for (var i = 0; i < numPagesToAdd; i++) {
             goToPage(Math.ceil(pageNum)+i, null, gActiveTableNum);
         }
-       
+        adjustColGrabHeight(tableNum);
         positionScrollbar(row, gActiveTableNum);
         generateFirstLastVisibleRowNum();
         if (!e.rowScrollerMousedown) {
@@ -284,7 +284,9 @@ function documentReadyxcTableFunction() {
         // $(this).blur(); 
     });
     generateFirstLastVisibleRowNum();
-    $('#numPages').text('of '+gTables[gActiveTableNum].resultSetCount);
+    var num = Number(gTables[gActiveTableNum].resultSetCount).
+                    toLocaleString('en');
+    $('#numPages').text('of '+num);
 }
 
 function documentReadyGeneralFunction() {

@@ -131,7 +131,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
                       'On the right</li>'+
                       '<div class="subColMenuArea"></div>'+
                     '</ul>'+
-                    '<div class="rightArrow"></div>'+
+                    '<div class="dropdownBox"></div>'+
                   '</li>'+
                   '<li id="duplicate3" class="duplicate col1">'+
                   'Duplicate column</li>'+

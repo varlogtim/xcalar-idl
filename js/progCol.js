@@ -285,7 +285,7 @@ function addCol(colId, tableId, name, options) {
                     '<li class="addColumns col'+newColid+'">On the right</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
-                '<div class="rightArrow"></div>'+
+                '<div class="dropdownBox"></div>'+
             '</li>'+
             '<li class="deleteColumn col'+newColid+'">Delete column</li>'+
             '<li class="duplicate col'+newColid+'">Duplicate column</li>'+
@@ -296,7 +296,7 @@ function addCol(colId, tableId, name, options) {
                     '<li class="revSort col'+newColid+'">Z-A</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
-                '<div class="rightArrow"></div>'+
+                '<div class="dropdownBox"></div>'+
             '</li>'+
             '<li class="aggregate">Aggregate'+
                 '<ul class="subColMenu">'+
@@ -307,7 +307,7 @@ function addCol(colId, tableId, name, options) {
                     '<li class="aggrOp col'+newColid+'">Sum</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
-                '<div class="rightArrow"></div>'+
+                '<div class="dropdownBox"></div>'+
             '</li>'+
             '<li class="groupBy col'+newColid+'">Group By'+
                 '<ul class="subColMenu">'+
@@ -318,7 +318,7 @@ function addCol(colId, tableId, name, options) {
                                 'value="groupBy"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
-                        '<div class="rightArrow"></div>'+
+                        '<div class="dropdownBox"></div>'+
                     '</li>'+
                     '<li class="gb col'+newColid+'">Average'+
                         '<ul class="subColMenu">'+
@@ -327,7 +327,7 @@ function addCol(colId, tableId, name, options) {
                                 'value="groupBy"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
-                        '<div class="rightArrow"></div>'+
+                        '<div class="dropdownBox"></div>'+
                     '</li>'+
                     '<li class="gb col'+newColid+'">Sum'+
                         '<ul class="subColMenu">'+
@@ -336,10 +336,10 @@ function addCol(colId, tableId, name, options) {
                                 'value="groupBy"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
-                        '<div class="rightArrow"></div>'+
+                        '<div class="dropdownBox"></div>'+
                     '</li>'+
                 '</ul>'+
-                '<div class="rightArrow"></div>'+
+                '<div class="dropdownBox"></div>'+
             '</li>';
 
     // XXX: HACK: I removed the check for the main col. Also, I should check for
@@ -353,56 +353,56 @@ function addCol(colId, tableId, name, options) {
                                     '<li><input type="text" value="0"/></li>'+
                                     '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
-                                '<div class="rightArrow"></div>'+
+                                '<div class="dropdownBox"></div>'+
                             '</li>'+
                             '<li class="filter">Greater Than Equal To'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
                                     '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
-                                '<div class="rightArrow"></div>'+
+                                '<div class="dropdownBox"></div>'+
                             '</li>'+
                             '<li class="filter">Equals'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
                                     '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
-                                '<div class="rightArrow"></div>'+
+                                '<div class="dropdownBox"></div>'+
                             '</li>'+
                             '<li class="filter">Less Than'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
                                     '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
-                                '<div class="rightArrow"></div>'+
+                                '<div class="dropdownBox"></div>'+
                             '</li>'+
                             '<li class="filter">Less Than Equal To'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
                                     '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
-                                '<div class="rightArrow"></div>'+
+                                '<div class="dropdownBox"></div>'+
                             '</li>'+
                             '<li class="filter">Regex'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="*"/></li>'+
                                 '</ul>'+
-                                '<div class="rightArrow"></div>'+
+                                '<div class="dropdownBox"></div>'+
                             '</li>'+
                             '<li class="filter">Others'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value=""/></li>'+
                                 '</ul>'+
-                                '<div class="rightArrow"></div>'+
+                                '<div class="dropdownBox"></div>'+
                             '</li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
-                        '<div class="rightArrow"></div>'+
+                        '<div class="dropdownBox"></div>'+
                         '</li>'+
                         '<li class="joinList col'+newColid+'">'+'Join'+
                             '<ul class="subColMenu" id="joinTables">';
     }
-    dropDownHTML += '</ul><div class="rightArrow"></div></li>';
+    dropDownHTML += '</ul><div class="dropdownBox"></div></li>';
     table.find('.table_title_bg.col'+newColid+' .header').append(dropDownHTML);
 
     addColListeners(newColid, tableId);
@@ -459,12 +459,5 @@ function dynGetTables(tableNum, colid) {
         ' .joinList .subColMenuArea')
         .mousedown(function() {
             $('.colMenu').hide();
-    });
-
-    $("#autoGenTable"+tableNum).find('.table_title_bg.col'+colid+' li.joinList li')
-        .mouseenter(function() {
-            subColMenuMouseEnter($(this));
-    }).mouseleave(function() {
-            subColMenuMouseLeave($(this));
     });
 }

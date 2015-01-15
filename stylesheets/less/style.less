@@ -26,12 +26,20 @@
 @color-table-borderGray: #838384;
 @color-table-borderBlue: #266481;
 
+/* Dropdown menu colors */
+@color-selectedCell-dark: #D1DEE6;
+@color-selectedCell-light: #DDEAF2;
+@color-selectedCell-green: #D3E2E4;
+@color-dropBox: #216E93;
+@color-dropBox-secondary: #A1B8C7;
+
 /* Text */
 @color-text-black: #0F0F0F; 
 @color-text-white: #FFFFFF; 
 @color-text-brightBlue: #5CB2E8;
 @color-text-tab: #70828C;
 @color-text-darkGray: #4D4D4D;
+@color-text-dropMenu: #838384;
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
 @font-code: "Source Code Pro", courier;
@@ -169,6 +177,13 @@ body {
         padding: 1px 2px;
     }
 
+    &:hover {
+        // hover vs regular color scheme needs to be adjusted
+        background-color: rgba(255,255,255,.15);
+        color: @color-white;
+        border: 1px solid @color-table-borderGray;
+    }
+
     &.active {
         margin-top: 6px;
         height: 35px;
@@ -213,6 +228,7 @@ body {
 #collabTab {
     .icon {
         background: url(/images/user-icon.png) 0 0 no-repeat;
+        // background: url(/images/user-icon-white4.png) 0 0 no-repeat;
     }
 }
 
@@ -648,17 +664,11 @@ in order to work for the new ui. I will clean this up at some point.
     overflow-x: auto;
     overflow-y: hidden;
 }
-
-.xcTableWrap:first-child {
-    .dataTable{
-        margin-left: 0px;
-    }
-}
     
 .dataTable {
     border-collapse: separate;
     border-spacing: 0px;
-    margin-right: 10px;
+    margin-right: 5px;
     table-layout: fixed;
     width: 900px;
 
@@ -732,14 +742,36 @@ in order to work for the new ui. I will clean this up at some point.
         }
     }
 
-    tbody .selectedCell {
+    // tbody .selectedCell {
+    //     &:nth-child(odd) {
+    //         background-color: @colorOpaque-pink !important;
+    //     }
+    //     &:nth-child(even) {
+    //         background-color: @colorOpaque-pink !important; 
+    //     }
+    // }
+
+    tbody tr {
         &:nth-child(odd) {
-            background-color: @colorOpaque-pink !important;
+            td.selectedCell {
+                background-color: @color-selectedCell-dark;
+            }
         }
         &:nth-child(even) {
-            background-color: @colorOpaque-pink !important; 
+            td.selectedCell {
+                background-color: @color-selectedCell-light;
+            }
         }
+
     }
+    // .selectedCell {
+    //     &:nth-child(odd) {
+    //         background-color: @colorOpaque-pink !important;
+    //     }
+    //     &:nth-child(even) {
+    //         background-color: @colorOpaque-pink !important; 
+    //     }
+    // }
 
     tbody td:first-child {
         .noSelection;
@@ -753,8 +785,11 @@ in order to work for the new ui. I will clean this up at some point.
         border-left: 5px solid @color-background-darkGray 
     }
 
-    th.selectedCell .editableHead {
-        color: @color-table-red;
+    th.selectedCell {
+        .editableHead {
+            background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+            color: @color-white;
+        }
     }
 
     .header {
@@ -771,7 +806,7 @@ in order to work for the new ui. I will clean this up at some point.
         }
         &[readonly] {
             width: 100%;
-            height: 25px;
+            height: 30px;
             text-align: center;
             outline: none;
             cursor: default;
@@ -784,7 +819,7 @@ in order to work for the new ui. I will clean this up at some point.
 
     .editableHead {
         width: 100%;
-        height: 25px; 
+        height: 30px; 
         padding: 0px 4px;
         background-color: transparent; 
         border: none;
@@ -867,7 +902,7 @@ in order to work for the new ui. I will clean this up at some point.
     background-color: transparent !important;
     box-shadow: none !important;
     th {
-        height: 65px;
+        height: 70px;
     }
 
     .colGrab {
@@ -891,10 +926,11 @@ in order to work for the new ui. I will clean this up at some point.
     pointer-events: auto;
     width: 100%;
     // display: table;
+    text-align: center;
     display: block;
     position: absolute;
     background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
-
+    border-bottom: 1px solid @color-table-borderGray;
     .tableGrab {
         position: absolute;
         height: 125%;
@@ -906,21 +942,33 @@ in order to work for the new ui. I will clean this up at some point.
         cursor: -moz-grab;
     }
 
+    &.tblTitleSelected {
+        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+        color: @color-white; 
+        border-bottom: 1px solid @color-table-borderBlue;
+
+        input {
+            color: @color-white; 
+            
+        }
+    }
+
     input {
         width: 100%;
-        height: 100%;
+        height: 25px;
         text-align: center;
         background-color: transparent;
         font: 15px @font-base;
         font-weight: 600;
-        padding: 0 4px;
+        padding: 0 2px;
+        margin-top: 5px;
         position: relative;
-        border-bottom: 1px solid @color-table-borderGray;
         z-index: 2;
-        &.tblTitleSelected {
-            background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
-            color: @color-white; 
-            border-bottom: 1px solid @color-table-borderBlue;
+        &:focus {
+            background-color: white;
+            color: @color-text-darkGray;
+            width: auto;
+            max-width: 90%;
         }
     }
 
@@ -975,7 +1023,8 @@ in order to work for the new ui. I will clean this up at some point.
 }
 
 th:last-child .colGrab{
-    right: -5px;
+    right: -10px;
+    width: 12px;
 }
 
 /*DRAG AND DROP TABLES */
@@ -989,7 +1038,7 @@ th:last-child .colGrab{
     background-color: @color-table-midGray;
     display: inline-block;
     opacity: 1;
-    margin-right: 10px;
+    margin-right: 5px;
     position: relative;
     overflow: hidden;
     white-space: normal;
@@ -1075,15 +1124,15 @@ th:last-child .colGrab{
     height: 12px;
     position: absolute;
     vertical-align: middle;
-    right: 0px;
-    bottom: 0px;
+    right: 3px;
+    bottom: 3px;
     cursor: pointer;
     z-index: 6;
     opacity: 0;
     .transition (opacity 0.02s linear);
     .transition-delay (0.08s);
     border-top: 11px solid transparent;
-    border-right: 11px solid @color-monitor-green;
+    border-right: 11px solid @color-dropBox;
     &:hover {
         opacity: 1 !important;
     }
@@ -1108,7 +1157,8 @@ th:last-child .colGrab{
 
 ul.colMenu {
     display:none;
-    background-color: @color-monitor-green;
+    // background-color: @color-monitor-green;
+    background-color: @color-selectedCell-dark;
     position: fixed;
     z-index: 10;
 
@@ -1117,17 +1167,26 @@ ul.colMenu {
         padding-left: 8px;
         height: 30px;
         position:relative;
-        color: @color-text-black;
+        color: @color-text-dropMenu;
         background-color: @color-white;
+        font-size: 12px;
+        font-weight: 700;
         .noSelection;
         text-align: left;
 
         &:hover {
             cursor: pointer;
-            background-color: @color-monitor-green; 
-            > .rightArrow {
-                display:inline-block;
+            background-color: @color-selectedCell-dark;
+            > .dropdownBox {
+                opacity: 1;
             }
+        }
+
+        .dropdownBox {
+            opacity: 0;
+            z-index: 0;
+            border-right-color: @color-dropBox-secondary;
+            .transition-delay (.0s);
         }
 
         &.subSelected {
@@ -1139,31 +1198,9 @@ ul.colMenu {
         visibility: hidden;
         z-index: 6;
         top: 0px;
-        left: 170px;
-        .transition-delay (.2s);
-    }
-
-    &::before {
-        content: "";
-        position: absolute;
-        top: -10px;
-        left: 0;
-        border-width: 0 0 10px 10px;
-        border-style: solid;
-        border-color: @color-monitor-green transparent;
-        z-index: -1;
-    }
-
-    &::after {
-        content: "";
-        position: absolute;
-        top: -10px;
-        left: 10px;
-        right: 0em;
-        border-width: 10px;
-        border-style: solid;
-        border-color: @color-monitor-green;
-        z-index: -1;
+        left: 155px;
+        .transition-delay (.15s);
+        margin-top: 30px;
     }
 
     &.white {
@@ -1181,21 +1218,6 @@ ul.colMenu {
         }
     }
 
-    &.dimmed {
-        background-color: @color-monitor-lightGreen;
-        &::before {
-            border-color: @color-monitor-lightGreen transparent;
-        }
-        &::after {
-            border-color: @color-monitor-lightGreen;
-        }
-        &.leftColMenu {
-            &::before {
-                border-color: @color-monitor-lightGreen;
-            }
-        }
-    }
-
     input[type=text] {
         width: 160px;
         height: 20px;
@@ -1205,7 +1227,7 @@ ul.colMenu {
         margin-left: -3px;
         padding: 2px;
         text-align: center;
-        box-shadow: 0px 0px 0px 1px @color-monitor-green;
+        box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
         background-color: @color-white;
 
         &:focus {
@@ -1218,38 +1240,19 @@ ul.colMenu {
         cursor: text;
     }
 
+    .subColMenu li:hover {
+        background-color: @color-selectedCell-green;
+    }
 
 }
 
 ul.colMenu.leftColMenu::before {
-    border-color: @color-monitor-green @color-monitor-green;
-}
-
-.rightArrow {
-    height: 30px;
-    display: none;
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    background-color: transparent;
-    background-size: 8px 9px;
-    border-left: 15px solid transparent;
-    border-top: 15px solid white;
-    border-bottom: 15px solid white;
-
-    &.arrowExtended {
-        border-top: 15px solid @color-monitor-green;
-        border-bottom: 15px solid @color-monitor-green; 
-    }
-    &.dimmed {
-        border-top: 15px solid @color-monitor-lightGreen;
-        border-bottom: 15px solid @color-monitor-lightGreen; 
-    }
+    border-color: @color-selectedCell-dark @color-selectedCell-dark;
 }
 
 ul.colMenu li:hover > ul {
     visibility: visible;
-    .transition-delay (.25s);
+    .transition-delay (.15s);
 }
 
 ul.subColMenu li {
@@ -1257,7 +1260,7 @@ ul.subColMenu li {
         background-color: @color-white;
     }
     &.subColSelected {
-        background-color: @color-monitor-green;
+        background-color: @color-selectedCell-dark;
     }
 }
 
@@ -1269,6 +1272,7 @@ ul.subColMenu li {
     height: ~"calc(100% + 60px)";
     z-index: -1;
     cursor: default;
+    // background-color: pink;
 }
 
 .leftColMenu .subColMenuArea {
@@ -1279,36 +1283,19 @@ ul.subColMenu li {
 ul.leftColMenu {
     right: 0px;
     box-shadow: -1px 1px rgba(0,0,0,0.1);
+
+    .dropdownBox {
+        display: none !important;
+    }
 }
 
 ul.subColMenu.leftColMenu {
-    left: -170px;
+    left: -155px;
     box-shadow: -1px 1px rgba(0,0,0,0.1);
 }
 
 ul.colMenu > li:first-child{
-    margin-top: -10px;
     background-color: transparent !important;
-}
-
-ul.leftColMenu + .rightArrow {
-    left: 0px;
-    right: auto;
-    background-color: transparent;
-    background-size: 8px 9px;
-    border-right: 15px solid transparent;
-    border-left: none;
-    border-top: 15px solid white;
-    border-bottom: 15px solid white;
-
-    &.arrowExtended {
-        border-top: 15px solid @color-monitor-green;
-        border-bottom: 15px solid @color-monitor-green; 
-    }
-    &.dimmed {
-        border-top: 15px solid @color-monitor-lightGreen;
-        border-bottom: 15px solid @color-monitor-lightGreen; 
-    }
 }
 /* END DROPDOWN STYLING */
 

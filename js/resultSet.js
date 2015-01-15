@@ -165,7 +165,6 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         }
     }
 
-    adjustColGrabHeight(tableNum);
     var idColWidth = getTextWidth($('#xcTable'+tableNum+' tr:last td:first'));
     var newWidth = Math.max(idColWidth, 24);
     $('#xcTable'+tableNum+' th:first-child').width(newWidth+14);
