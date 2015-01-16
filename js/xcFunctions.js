@@ -234,11 +234,14 @@ function joinTables(rightTable, tableNum) {
             break;
         }
     }
+    var newTableCols = [];
     if (rightTableNum == -1) {
-        console.log("XXX Cannot find meta data for right table!");
+        console.log("XXX Right table is not being displayed!");
+        newTableCols = jQuery.extend(true, [],
+                                     gTables[tableNum].tableCols);
+    } else {
+        newTableCols = createJoinIndex(rightTableNum, tableNum);
     }
-
-    var newTableCols = createJoinIndex(rightTableNum, tableNum);
     setIndex(newTableName, newTableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"}); 
