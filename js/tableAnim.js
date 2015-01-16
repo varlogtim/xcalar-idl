@@ -1000,6 +1000,9 @@ function addColMenuActions(colId, tableId) {
     });
 
     table.find('.joinList.col'+colId).mouseenter(function(event) {
+        if (!$(event.target).hasClass('joinList')) {
+            return;
+        }
         var index = parseColNum($(this));
         var tableNum = parseInt($(this).closest('table')
                         .attr('id').substring(12));
