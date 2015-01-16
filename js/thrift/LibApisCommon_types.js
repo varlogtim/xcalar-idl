@@ -709,15 +709,139 @@ XcalarApiDatasetT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiDfCsvLoadArgsT = function(args) {
+  this.recordDelim = null;
+  this.fieldDelim = null;
+  if (args) {
+    if (args.recordDelim !== undefined) {
+      this.recordDelim = args.recordDelim;
+    }
+    if (args.fieldDelim !== undefined) {
+      this.fieldDelim = args.fieldDelim;
+    }
+  }
+};
+XcalarApiDfCsvLoadArgsT.prototype = {};
+XcalarApiDfCsvLoadArgsT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.recordDelim = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.fieldDelim = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiDfCsvLoadArgsT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiDfCsvLoadArgsT');
+  if (this.recordDelim !== null && this.recordDelim !== undefined) {
+    output.writeFieldBegin('recordDelim', Thrift.Type.STRING, 1);
+    output.writeString(this.recordDelim);
+    output.writeFieldEnd();
+  }
+  if (this.fieldDelim !== null && this.fieldDelim !== undefined) {
+    output.writeFieldBegin('fieldDelim', Thrift.Type.STRING, 2);
+    output.writeString(this.fieldDelim);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiDfLoadArgsT = function(args) {
+  this.csv = null;
+  if (args) {
+    if (args.csv !== undefined) {
+      this.csv = args.csv;
+    }
+  }
+};
+XcalarApiDfLoadArgsT.prototype = {};
+XcalarApiDfLoadArgsT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.csv = new XcalarApiDfCsvLoadArgsT();
+        this.csv.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiDfLoadArgsT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiDfLoadArgsT');
+  if (this.csv !== null && this.csv !== undefined) {
+    output.writeFieldBegin('csv', Thrift.Type.STRUCT, 1);
+    this.csv.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiBulkLoadInputT = function(args) {
   this.dataset = null;
   this.maxSize = null;
+  this.loadArgs = null;
   if (args) {
     if (args.dataset !== undefined) {
       this.dataset = args.dataset;
     }
     if (args.maxSize !== undefined) {
       this.maxSize = args.maxSize;
+    }
+    if (args.loadArgs !== undefined) {
+      this.loadArgs = args.loadArgs;
     }
   }
 };
@@ -750,6 +874,14 @@ XcalarApiBulkLoadInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.loadArgs = new XcalarApiDfLoadArgsT();
+        this.loadArgs.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -769,6 +901,11 @@ XcalarApiBulkLoadInputT.prototype.write = function(output) {
   if (this.maxSize !== null && this.maxSize !== undefined) {
     output.writeFieldBegin('maxSize', Thrift.Type.I64, 2);
     output.writeI64(this.maxSize);
+    output.writeFieldEnd();
+  }
+  if (this.loadArgs !== null && this.loadArgs !== undefined) {
+    output.writeFieldBegin('loadArgs', Thrift.Type.STRUCT, 3);
+    this.loadArgs.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

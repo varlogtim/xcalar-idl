@@ -12,6 +12,14 @@ then
     if [ "$ret" != "0" ]
     then
         echo "*** WARNING: thrift interfaces may be incompatible"
+        echo "XcalarApiVersionSignature_types.js differs"
+    fi
+    diff -q "../xcalar/src/lib/libapis/XcalarApi.js" ./js/thrift/XcalarApi.js > /dev/null 2>&1
+    ret=$?
+    if [ "$ret" != "0" ]
+    then
+        echo "*** WARNING: thrift interfaces may be incompatible"
+        echo "XcalarApi.js differs"
     fi
 fi
 

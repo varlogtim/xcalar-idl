@@ -5,7 +5,14 @@ function transportLocation() {
     return (str);
 }
 
-function XcalarLoad(url, format, datasetName) {
+function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
+    console.log("url "+url+" fieldD "+fieldDelim+" recD "+recordDelim);
+    if (fieldDelim == undefined) {
+        fieldDelim = "";
+    }
+    if (recordDelim == undefined) {
+        recordDelim = "";
+    }
     var transport = new Thrift.Transport(transportLocation());
     var protocol  = new Thrift.Protocol(transport);
     var client    = new XcalarApiServiceClient(protocol);
@@ -14,6 +21,10 @@ function XcalarLoad(url, format, datasetName) {
     workItem.input = new XcalarApiInputT();
     workItem.input.loadInput = new XcalarApiBulkLoadInputT();
     workItem.input.loadInput.dataset = new XcalarApiDatasetT();
+    workItem.input.loadInput.loadArgs = new XcalarApiDfLoadArgsT();
+    workItem.input.loadInput.loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+    workItem.input.loadInput.loadArgs.csv.recordDelim = recordDelim;
+    workItem.input.loadInput.loadArgs.csv.fieldDelim = fieldDelim;
 
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiBulkLoad;

@@ -88,7 +88,9 @@ function detailsSubmit(e) {
         $('#tableName').addClass('slideAway').blur();
         loadKey = key;
         loadTable = tablename;
-        var dsId = XcalarLoad(loadURL, loadFormat, tablename);
+        var loadArgs = loadURL.split("|");
+        var dsId = XcalarLoad(loadArgs[0], loadFormat, tablename,
+                              loadArgs[1], loadArgs[2]);
         console.log("This is the returned dsId "+dsId);
         startProgressBar();
         $('.datasetWrap').removeClass('slideAway').hide();

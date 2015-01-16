@@ -45,7 +45,7 @@ function xcalarGetVersion(thriftHandle) {
     return verOutput;
 }
 
-function xcalarLoad(thriftHandle, url, name, format, maxSampleSize) {
+function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
     console.log("xcalarLoad(url = " + url + ", name = " + name + ", format = " +
                 DfFormatTypeTStr[format] + ", maxSampleSize = " +
                 maxSampleSize.toString() + ")");
@@ -62,6 +62,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize) {
     workItem.input.loadInput.dataset.name = name;
     workItem.input.loadInput.dataset.formatType = format;
     workItem.input.loadInput.maxSize = maxSampleSize;
+    workItem.input.loadInput.loadArgs = loadArgs
 
     try {
         var result = thriftHandle.client.queueWork(workItem);
@@ -76,7 +77,6 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize) {
         loadOutput.status = StatusT.StatusThriftProtocolError;
     }
 
-    w
     return loadOutput;
 }
 
