@@ -1005,13 +1005,7 @@ function addColMenuActions(colId, tableId) {
                         .attr('id').substring(12));
         dynGetTables(tableNum, index);
     });
- 
 
-    table.find('.joinList.col'+colId+ ' .join').click(function() {
-        var tableNum = parseInt($(this).closest('table')
-                        .attr('id').substring(7));
-        joinTables($(this).text(), tableNum);
-    });
 }
 
 function highlightColumn(el) {

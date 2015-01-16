@@ -461,4 +461,11 @@ function dynGetTables(tableNum, colid) {
     $("#autoGenTable"+tableNum+" #joinTables").empty();
     $("#autoGenTable"+tableNum+" .joinList.col"+colid+" .subColMenu").
         append(dropDownHTML);
+
+    $("#autoGenTable"+tableNum).find('.joinList.col'+colid+ ' .join').
+        click(function() {
+        var tableNum = parseInt($(this).closest('table')
+                        .attr('id').substring(12));
+        joinTables($(this).text(), tableNum);
+    });
 }
