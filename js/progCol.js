@@ -468,4 +468,17 @@ function dynGetTables(tableNum, colid) {
                         .attr('id').substring(12));
         joinTables($(this).text(), tableNum);
     });
+
+    $("#autoGenTable"+tableNum).find('.table_title_bg.col'+colid+
+        ' .joinList .subColMenuArea')
+        .mousedown(function() {
+            $('.colMenu').hide();
+    });
+
+    $("#autoGenTable"+tableNum).find('.table_title_bg.col'+colid+' li.joinList li')
+        .mouseenter(function() {
+            subColMenuMouseEnter($(this));
+    }).mouseleave(function() {
+            subColMenuMouseLeave($(this));
+    });
 }
