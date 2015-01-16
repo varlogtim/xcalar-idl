@@ -76,6 +76,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize) {
         loadOutput.status = StatusT.StatusThriftProtocolError;
     }
 
+    w
     return loadOutput;
 }
 
@@ -626,7 +627,7 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
                        fieldName, newFieldName) {
     console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                 ", dstTableName = " + dstTableName + ", groupByOp = " +
-                OperatorsOpTStr[groupByOp] + ", fieldName = " + fieldName + 
+                OperatorsOpTStr[groupByOp] + ", fieldName = " + fieldName +
                 ", newFieldName = " + newFieldName + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -828,8 +829,10 @@ function xcalarDestroyDataset(thriftHandle, datasetId) {
     return status;
 }
 
-function xcalarApiMap(thriftHandle, evalStr, srcTableName, dstTableName) {
-    console.log("xcalarApiMap(evalStr = " + evalStr + ", srcTableName = " +
+function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
+                      dstTableName) {
+    console.log("xcalarApiMap(newFieldName = " + newFieldName + ", evalStr = "
+                + evalStr + ", srcTableName = " +
                 srcTableName + ", dstTableName = " + dstTableName + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -845,6 +848,7 @@ function xcalarApiMap(thriftHandle, evalStr, srcTableName, dstTableName) {
     workItem.input.mapInput.srcTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.mapInput.dstTable.tableName = dstTableName;
     workItem.input.mapInput.dstTable.tableId = XcalarApiTableIdInvalidT;
+    workItem.input.mapInput.newFieldName = newFieldName;
 
     try {
         var result = thriftHandle.client.queueWork(workItem);
