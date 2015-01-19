@@ -249,12 +249,13 @@ function dragdropMouseDown(el, event) {
     gDragObj.grabOffset = gDragObj.mouseX - gDragObj.left;
       // gDragObj.grabOffset = distance from the left side of dragged column
     // to the point that was grabbed
+    checkForMainFrameScrollBar();
 
     gDragObj.docHeight = $(document).height();
     gDragObj.val = el.find('.editableHead').val();
     var tableHeight = $('#xcTable'+gDragObj.tableNum).height();
     var xcTableWrapHeight = el.closest('#xcTableWrap'+
-                                gDragObj.tableNum).height()-gScrollbarHeight;
+                                gDragObj.tableNum).height()+gScrollbarHeight;
     var shadowDivHeight = Math.min(tableHeight,xcTableWrapHeight) -
         table.find('.tableTitle').height();
     var headerTop = parseInt($('#theadWrap'+gDragObj.tableNum).css('top')) + 
@@ -351,7 +352,6 @@ function cloneCellHelper(obj) {
 }
 
 function createTransparentDragDropCol() {
-    var leftPos = gDragObj.left;
     $('#mainFrame').append('<div id="fauxCol" style="left:'+
                     gDragObj.mouseX+'px;top:'+
                     (gDragObj.offsetTop)+'px;width:'+
@@ -411,8 +411,9 @@ function createTransparentDragDropCol() {
     // Ensure rows are offset correctly
     var fauxTableHeight = $('#fauxTable').height()+
                         $('#fauxTable tr:first').outerHeight();
-    var xcTableWrap0Height = $('#xcTableWrap0').height()- 
-        gScrollbarHeight;
+    // var xcTableWrap0Height = $('#xcTableWrap0').height()+ 
+    //     gScrollbarHeight;
+    var xcTableWrap0Height = $('#xcTableWrap0').height();
     var fauxColHeight = Math.min(fauxTableHeight, xcTableWrap0Height-32);
     gDragObj.fauxCol.height(fauxColHeight);
     var firstRowOffset = $(topRowEl).offset().top - topPx-rowHeight;
@@ -824,7 +825,6 @@ function addColListeners(colId, tableId) {
     table.find('.table_title_bg.col'+colId).mouseover(function(event) {
         if (!$(event.target).hasClass('colGrab')) {
             $(this).children().children('.dropdownBox').css('opacity', 1);
-            console.log($(this).children().children('.dropdownBox'))
         }
     }).mouseleave(function() {
          $(this).children().children('.dropdownBox').css('opacity', 0.4);

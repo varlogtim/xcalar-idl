@@ -9,6 +9,7 @@
 
 /*Tabs*/
 @color-tab-border: #4A5D6A;
+@color-tab-borderBlue: #27717C;
 @color-tab-divider: #838383;
 
 /* Backgrounds */
@@ -266,7 +267,7 @@ body {
 }
 
 .workspaceBar {
-    height: 37px;
+    height: 38px;
     color: @color-text-darkGray;
     border-top: 1px solid @color-bar-border;
     border-bottom: 1px solid @color-bar-border;
@@ -280,6 +281,7 @@ body {
 
 #workspaceBar {
     min-width: 1150px; // temporary in order to keep row scroller from dropping
+    border-bottom-width: 2px;
 }
 
 .workspaceArea {
@@ -326,34 +328,37 @@ body {
         height: 35px;
         border-right: 1px solid @color-bar-border;
         display: inline-block;
+        position: relative;
+        z-index: 1;
     }
-}
 
-.navArrow {
-    border: 6px solid transparent;
-    border-bottom-width: 0;
-    border-top: 6px solid rgba(0,0,0,.2);
-    width: 0;
-    height: 0;
-    font-size: 0;
-    line-height: 0;
+    .navArrow {
+    background: url(/images/menuArrow.png) 0 0 no-repeat; 
+    margin-top: 0;
+    margin-left: 0;
+    width: 25px;
+    height: 18px;
+    display: inline-block;
     position: absolute;
-    bottom: -16px;
-    left: 12px;
-    z-index: 11;
+    bottom: -23px;
+    left: 5px;
+    }
 
-    .navArrowInner {
-        border: 6px solid transparent;
-        border-bottom-width: 0;
-        border-top: 6px solid @color-arrow-background;
-        width: 0;
-        height: 0;
-        font-size: 0;
-        line-height: 0;
-        position: absolute;
-        bottom: 1px;
-        left: -6px;
-    }  
+    &:hover {
+        .icon {
+            background-image: url(/images/menu-mouseover.png);
+            //XX this flickers, loading as sprite will fix it
+        }
+    }
+
+    &.open {
+        .icon {
+            background-image: url(/images/menu-open.png);
+        }
+        .navArrow {
+            background-image: url(/images/menuArrow-open.png);
+        }
+    }
 }
 
 #titleArea {
@@ -416,7 +421,53 @@ body {
     }
 }
 
+#leftSideBar {
+    position: relative;
+    float: left;
+    width: 255px;
+    height: ~"-webkit-calc(100% - 148px)";
+    height: ~"-moz-calc(100% - 148px)";
+    height: ~"calc(100% - 148px)";
+    margin-left: -255px;
+    background-color: @color-background-darkGray;
+    box-shadow: inset -3px 0 10px 0px rgba(0,0,0,.3);
+    .transition (transform 0.5s linear 0.05s);
+    
+    &.open {
+        transform: (translate3d(255px,0,0));
+        .transition (transform 0.5s linear 0s);
+    }
+}
 
+#leftSideBarTabs {
+    height: 35px;
+}
+
+.leftSideBarTab {
+    width: 85px;
+    height: 100%;
+    float: left;
+    display: inline-block;
+    font-weight: 700;
+    line-height: 35px;
+    text-align: center;
+    color: @color-text-darkGray;
+    border-right: 1px solid @color-table-borderGray;
+    border-bottom: 1px solid @color-table-borderGray;
+    background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+
+    &.active {
+        border-bottom: 1px solid @color-tab-borderBlue;
+        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+        color: @color-white;
+        text-shadow: 2px 2px rgba(0,0,0,.3);
+    }
+
+    &:hover {
+        background: linear-gradient(@color-background-bottomGrayMed, @color-background-topGrayMed);
+        cursor: pointer;
+    }
+}
 
 
 #rightSideBar {
@@ -622,6 +673,7 @@ in order to work for the new ui. I will clean this up at some point.
     display: inline-block;
     font-size: 11px;
     margin-bottom: 5px;
+    position: relative;
 }
 
 .tableWrap::-webkit-scrollbar {
@@ -663,6 +715,26 @@ in order to work for the new ui. I will clean this up at some point.
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+
+    &.staticMainFrame {
+        transform: none;
+        transition: none;
+        margin-left: 255px;
+        width: ~"calc(100% - 255px)";
+    }
+
+    &.shiftedRight {
+        .transition (transform 0.5s linear 0s);
+        .transform (translate3d(255px, 0px, 0px));
+    }
+
+    &.shiftedLeft {
+        width: 100%;
+        .transition (~"transform 0.5s linear .05s");
+        .transform (translate3d(-255px, 0px, 0px));
+    }
+
+    
 }
     
 .dataTable {
@@ -1112,7 +1184,7 @@ th:last-child .colGrab{
     z-index: 22;
     background-color: rgba(0,0,50,0.2);
     font-size: 50px;
-    opacity: 0;
+    opacity: 1;
 }
 /* END DRAG AND DROP STYLING */
 

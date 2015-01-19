@@ -44,3 +44,33 @@ function getTablesAndDatasets() {
         $("#tablestorePanel div:last").after(tableDisplay);
     }
 }
+
+function addMenuBarListeners() {
+    var clickable = true;
+    $('#leftMenu').click(function() {
+        if (!clickable) {
+            return;
+        }
+        clickable = false;
+        var mainFrame = $('#mainFrame');
+        $(this).toggleClass('open');
+        $('#leftSideBar').toggleClass('open');
+        
+        //XX dumb adjustment to make dragdrop work normally
+        if ($(this).hasClass('open')) {
+            mainFrame.addClass('shiftedRight');
+            setTimeout(function() {
+                mainFrame.addClass('staticMainFrame');
+                mainFrame.removeClass('shiftedRight');
+                clickable = true;
+            }, 500);
+        } else { 
+            mainFrame.addClass('shiftedLeft');
+            setTimeout(function() {
+                mainFrame.removeClass('shiftedLeft');
+                mainFrame.removeClass('staticMainFrame');
+                clickable = true;
+            }, 550);
+        }
+    });
+}

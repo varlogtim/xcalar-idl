@@ -469,7 +469,7 @@ function documentReadyCatFunction(tableNum) {
 
 function startupFunctions() {
     readFromStorage();
-    menuAreaClose();
+    addMenuBarListeners();
     getTablesAndDatasets();
     documentReadyGeneralFunction();
     getWorksheetNames();
