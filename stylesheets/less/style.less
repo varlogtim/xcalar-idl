@@ -21,6 +21,7 @@
 @color-background-midGrayMed: #BEBEBE;
 @color-background-bottomGrayMed: #AEAEAE;
 @color-arrow-background: #929292;
+@colorColumnListBackground: #CDCDCD;
 
 @color-background-sidebar: #BBBBBB;
 @color-background-tableBorders: #E6E6E6;
@@ -41,6 +42,7 @@
 @color-text-tab: #70828C;
 @color-text-darkGray: #4D4D4D;
 @color-text-dropMenu: #838384;
+@colorTextColumnList: #646464;
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
 @font-code: "Source Code Pro", courier;
@@ -319,6 +321,7 @@ body {
     padding: 0;
     margin: 0;
     position: relative;
+    cursor: pointer;
 
     .icon {
         background: url(/images/menu-closed.png) 0 0 no-repeat; 
@@ -421,7 +424,7 @@ body {
     }
 }
 
-#leftSideBar {
+#leftMenuBar {
     position: relative;
     float: left;
     width: 255px;
@@ -430,12 +433,141 @@ body {
     height: ~"calc(100% - 148px)";
     margin-left: -255px;
     background-color: @color-background-darkGray;
-    box-shadow: inset -3px 0 10px 0px rgba(0,0,0,.3);
+    box-shadow: inset -2px 0 4px 0px rgba(0,0,0,.3);
     .transition (transform 0.5s linear 0.05s);
     
     &.open {
         transform: (translate3d(255px,0,0));
         .transition (transform 0.5s linear 0s);
+    }
+}
+
+#leftMenuBarSections {
+    height: ~"calc(100% - 35px)";
+    overflow: hidden;
+
+}
+
+#leftMenuBarTabs {
+    height: 35px;
+}
+
+.leftMenuBarTab {
+    width: 85px;
+    height: 100%;
+    float: left;
+    display: inline-block;
+    font-weight: 700;
+    line-height: 35px;
+    text-align: center;
+    color: @color-text-darkGray;
+    border-right: 1px solid @color-table-borderGray;
+    border-bottom: 1px solid @color-table-borderGray;
+    background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+
+    &:hover {
+        background: linear-gradient(@color-background-bottomGrayMed,
+         @color-background-topGrayMed);
+        cursor: pointer;
+    }
+
+    &.active {
+        border-bottom: 1px solid @color-tab-borderBlue;
+        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+        color: @color-white;
+        text-shadow: 2px 2px rgba(0,0,0,.3);
+    }
+}
+
+.leftMenuBarSection {
+    display: none;
+}
+
+#tableList {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+    ul {
+        list-style: none;
+        padding-right: 11px;
+        padding-left: 14px;
+        width: 255px;
+    }
+    li {
+        width: 100%;
+        margin-top: 8px;
+        color: @color-text-darkGray;
+        font-size: 13px;
+        line-height: 25px;
+        position: relative;
+
+        &:hover {
+            .iconWrap {
+                background: linear-gradient(@color-background-topGrayMed, 
+                    @color-background-midGrayMed);
+            }
+        }
+
+        .active {
+            .iconWrap {
+                background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+            }
+        }
+    }
+
+    .tableListBox {
+        height: 25px;
+        width: 100%;
+        border-radius: 4px;
+        background-color: @color-white;
+        display: inline-block;
+        box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+        cursor: pointer;
+    }
+
+    .iconWrap {
+        display: inline-block;
+        background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+        height: 100%;
+        float: left;
+        padding-top: 1px;
+        margin-right: 10px;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+    }
+
+    .icon {
+        margin: 2px;
+        display: inline-block;
+        width: 19px;
+        height: 19px;
+        background: url(/images/db-icon-white.png) 0 0 no-repeat;
+    }
+
+    .numCols {
+        float: right;
+        color: @color-text-brightBlue;
+        margin-right: 10px;
+    }
+
+    ol {
+        display: none;
+        .nomargin-padding;
+        // margin-top: 7px;
+        padding-top: 2px;
+        margin-left: 22px;
+        position: relative;
+        li {
+            list-style-position: inside;
+            margin-top: 5px;
+            padding-left: 10px;
+            height: 20px;
+            border-radius: 3px;
+            line-height: 20px;
+            background-color: @colorColumnListBackground;
+            font-size: 11px;
+            color: @colorTextColumnList;
+        }
     }
 }
 
