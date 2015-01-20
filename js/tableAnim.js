@@ -312,6 +312,7 @@ function dragdropMouseUp() {
                 inFocus: gDragObj.inFocus,
                 progCol: progCol});
         execCol(progCol, gDragObj.tableNum);
+        updateMenuBarTable(gTables[gDragObj.tableNum], gDragObj.tableNum);
         //prevent scroll position from changing when you delete and add column
         $('#mainFrame').scrollLeft(storedScrollLeft);
     }
@@ -675,6 +676,7 @@ function cloneTableHeader(tableNum) {
             $(this).blur();
         }
     });
+
     tHeadWrap.find('.tableTitle .dropdownBox').click(function() {
         dropdownClick($(this));
     });
@@ -759,6 +761,7 @@ function addColListeners(colId, tableId) {
                         .attr('id').substring(7));
             var progCol = parseCol($(this).val(), index, tableNum, true);
             execCol(progCol, tableNum);
+            updateMenuBarTable(gTables[tableNum], tableNum);
             if (progCol.name.length > 0) {
                 $(this).val(progCol.name);
             } else {
@@ -887,6 +890,7 @@ function addColMenuActions(colId, tableId) {
         gTables[tableNum].tableCols[index].userStr = 
             gTables[tableNum].tableCols[index-1].userStr;
         execCol(gTables[tableNum].tableCols[index], tableNum); 
+        updateMenuBarTable(gTables[tableNum], tableNum);
     });
 
     table.find('.sort.col'+colId).click(function() {

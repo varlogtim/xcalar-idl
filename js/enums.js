@@ -13,6 +13,16 @@ var KeepOriginalTables = {
     DontKeep: false
 };
 
+var IsActive = {
+    active: true,
+    inactive: false
+}
+
+var afterStartup = {
+    after: true,
+    before: false
+}
+
 var SPMode = {
     Normal: 1,
     Selected: 2,

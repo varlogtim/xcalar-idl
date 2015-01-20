@@ -83,11 +83,26 @@
       </div> -->
     </div>
   </div>
-  <div id="leftSideBar">
-    <div id="leftSideBarTabs">
-      <div class="leftSideBarTab">Data Sets</div>
-      <div class="leftSideBarTab">Tables</div>
-      <div class="leftSideBarTab">Users</div>
+  <div id="leftMenuBar">
+    <div id="leftMenuBarTabs">
+      <div class="leftMenuBarTab active">Summary</div>
+      <div class="leftMenuBarTab">Archive</div>
+      <div class="leftMenuBarTab">Users</div>
+    </div>
+    <div id="leftMenuBarSections">
+      <div class="leftMenuBarSection" id="tableList">
+        <ul id="activeTablesList">
+        </ul>
+      </div>
+      <div class="leftMenuBarSection" id="archivedTableList">
+        <div class="btnLarge btnInactive" id="submitTablesBtn">
+          <span class="icon"></span>
+          SEND TO ACTIVE WORKSHEET
+        </div>
+        <ul id="inactiveTablesList">  
+        </ul>
+      </div>
+      <div class="leftMenuBarSection"></div>
     </div>
   </div>
   <div id="mainFrame">

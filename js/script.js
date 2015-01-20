@@ -27,6 +27,7 @@ var gTempStyle = ""; // XXX
 var gMinTableWidth = 200;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
+var gHiddenTables = [];
 var gFnBarOrigin;
 var gActiveTableNum = 0; // The table that is currently in focus
 // ================================= Classes ==================================
@@ -235,6 +236,17 @@ function setupFunctionBar() {
     });
 }
 
+function setupHiddenTable() {
+    var newTableMeta = setTableMeta(table);
+    gHiddenTables.push(newTableMeta); 
+    var lastIndex = gHiddenTables.length - 1;
+    var index = getIndex(gHiddenTables[lastIndex].frontTableName);
+    if (index && index.length > 0) {
+        gHiddenTables[lastIndex].tableCols = index;
+    } else {
+        console.log("Not stored "+gHiddenTables[lastIndex].frontTableName);
+    }  
+}
 
 // ========================== Document Ready ==================================
 
@@ -469,7 +481,7 @@ function documentReadyCatFunction(tableNum) {
 
 function startupFunctions() {
     readFromStorage();
-    addMenuBarListeners();
+    // setupLeftMenuBar();
     getTablesAndDatasets();
     documentReadyGeneralFunction();
     getWorksheetNames();
@@ -499,11 +511,17 @@ function documentReadyIndexFunction() {
         } else {
             var tableNum = 0;
             for (table in gTableIndicesLookup) {
-                addTable(table, tableNum);
-                tableNum++;
+                if (gTableIndicesLookup[table].active) {
+                    addTable(table, tableNum);
+                    tableNum++;
+                } else {
+                    setupHiddenTable(table);
+                }
             }
             documentReadyxcTableFunction();
+            
         }
+        setupLeftMenuBar();
     });
 }
 

@@ -51,6 +51,7 @@ function execCol(progCol, tableNum, args) {
         }
         pullCol(progCol.func.args[0], progCol.index,
                 tableNum, startIndex, numberOfRows);
+        // addMenuBarTables([gTables[tableNum]], IsActive.active);
         break;
     case ("raw"):
         console.log("Raw data");
@@ -152,6 +153,7 @@ function delCol(colNum, tableNum, resize) {
     var table = $("#xcTable"+tableNum);
     table.find('th.col'+colNum+' ,td.col'+colNum).remove();
     removeColAtIndex(colNum-1, tableNum);
+    updateMenuBarTable(gTables[tableNum], tableNum);
     for (var i = colNum+1; i<=numCol; i++) {
         table.find('.col'+i).removeClass('col'+i).addClass('col'+(i-1));
     }

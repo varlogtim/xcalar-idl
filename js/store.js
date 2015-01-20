@@ -18,7 +18,7 @@ function getIndex(tName) {
         gTableIndicesLookup = {};
     }
     if (tName in gTableIndicesLookup) {
-        return (gTableIndicesLookup[tName]);
+        return (gTableIndicesLookup[tName]['columns']);
     } else {
         console.log("No such table has been saved before");
         return (null);
@@ -67,7 +67,10 @@ function getDsName(datasetId) {
 
 
 function setIndex(tName, index) {
-    gTableIndicesLookup[tName] = index;
+    gTableIndicesLookup[tName] = {};
+    gTableIndicesLookup[tName]['columns'] = index;
+    gTableIndicesLookup[tName]['active'] = true;
+
 }
 
 function setOrder(tName, order) {

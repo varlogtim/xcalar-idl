@@ -12,7 +12,8 @@ function checkStatus(newTableName, tableNum, keepOriginal,
         console.log("Done loading");
         if (keepOriginal === KeepOriginalTables.Keep) {
             // append newly created table to the back
-            addTable(newTableName, gTables.length);
+            console.log(gTables);
+            addTable(newTableName, gTables.length, afterStartup.after);
         } else {
             // default
             var newTableNum = tableNum;
@@ -30,8 +31,8 @@ function checkStatus(newTableName, tableNum, keepOriginal,
                 savedScrollLeft = $('#mainFrame').scrollLeft();
                 archiveTable(tableNum);
             }
-            
-            addTable(newTableName, newTableNum);
+            console.log(gTables);
+            addTable(newTableName, newTableNum, duringStartup.after);
             if (savedScrollLeft) {
                 $('#mainFrame').scrollLeft(savedScrollLeft);
             }

@@ -34,10 +34,12 @@
 @color-selectedCell-green: #D3E2E4;
 @color-dropBox: #216E93;
 @color-dropBox-secondary: #A1B8C7;
+@color-dropBox-tertiary: #679FA7;
 
 /* Text */
 @color-text-black: #0F0F0F; 
 @color-text-white: #FFFFFF; 
+@color-text-transparentWhite: rgba(255,255,255,0.95); 
 @color-text-brightBlue: #5CB2E8;
 @color-text-tab: #70828C;
 @color-text-darkGray: #4D4D4D;
@@ -336,15 +338,15 @@ body {
     }
 
     .navArrow {
-    background: url(/images/menuArrow.png) 0 0 no-repeat; 
-    margin-top: 0;
-    margin-left: 0;
-    width: 25px;
-    height: 18px;
-    display: inline-block;
-    position: absolute;
-    bottom: -23px;
-    left: 5px;
+        // background: url(/images/menuArrow.png) 0 0 no-repeat; 
+        margin-top: 0;
+        margin-left: 0;
+        width: 25px;
+        height: 18px;
+        display: inline-block;
+        position: absolute;
+        bottom: -23px;
+        left: 5px;
     }
 
     &:hover {
@@ -460,6 +462,7 @@ body {
     font-weight: 700;
     line-height: 35px;
     text-align: center;
+    font-size: 13px;
     color: @color-text-darkGray;
     border-right: 1px solid @color-table-borderGray;
     border-bottom: 1px solid @color-table-borderGray;
@@ -476,22 +479,28 @@ body {
         background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
         color: @color-white;
         text-shadow: 2px 2px rgba(0,0,0,.3);
+        font-size: 14px;
     }
 }
 
 .leftMenuBarSection {
     display: none;
+    &:first-child {
+        display: block;
+    }
 }
 
-#tableList {
+#leftMenuBarSections {
     overflow-x: hidden;
     overflow-y: auto;
     height: 100%;
+
     ul {
         list-style: none;
-        padding-right: 11px;
-        padding-left: 14px;
+        padding-right: 14px;
+        padding-left: 11px;
         width: 255px;
+
     }
     li {
         width: 100%;
@@ -510,7 +519,8 @@ body {
 
         .active {
             .iconWrap {
-                background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+                background: linear-gradient(@color-background-topAction, 
+                            @color-background-bottomAction);
             }
         }
     }
@@ -518,7 +528,7 @@ body {
     .tableListBox {
         height: 25px;
         width: 100%;
-        border-radius: 4px;
+        border-radius: 3px;
         background-color: @color-white;
         display: inline-block;
         box-shadow: 1px 2px 1px rgba(0,0,0,.2);
@@ -527,13 +537,14 @@ body {
 
     .iconWrap {
         display: inline-block;
-        background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+        background: linear-gradient(@color-background-topGrayMed, 
+                    @color-background-bottomGrayMed);
         height: 100%;
         float: left;
         padding-top: 1px;
         margin-right: 10px;
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
     }
 
     .icon {
@@ -569,38 +580,77 @@ body {
             color: @colorTextColumnList;
         }
     }
+
+    .addArchivedBtn {
+        display: none;
+    }
+    
 }
 
-#leftSideBarTabs {
-    height: 35px;
-}
+#archivedTableList {
 
-.leftSideBarTab {
-    width: 85px;
-    height: 100%;
-    float: left;
-    display: inline-block;
-    font-weight: 700;
-    line-height: 35px;
-    text-align: center;
-    color: @color-text-darkGray;
-    border-right: 1px solid @color-table-borderGray;
-    border-bottom: 1px solid @color-table-borderGray;
-    background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+    .addArchivedBtn {
+        display: inline-block;
+        float: right;
+        width: 24px;
+        height: 100%;
+        border-left: 1px solid @color-background-bottomGrayMed;
+        border-radius-top-right: 3px;
+        border-radius-bottom-right: 3px;
+        background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
+                    linear-gradient(@color-background-topGrayMed, 
+                    @color-background-bottomGrayMed);
+        &:hover {
+            background: url(/images/checkmark-inactive.png) 50% 50% no-repeat,
+                        linear-gradient(@color-background-topGrayMed, 
+                        @color-background-midGrayMed);
+        }
+        &.selected {
+            background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
+                        linear-gradient(@color-background-topAction, 
+                        @color-background-bottomAction);
+        }
 
-    &.active {
-        border-bottom: 1px solid @color-tab-borderBlue;
-        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
-        color: @color-white;
-        text-shadow: 2px 2px rgba(0,0,0,.3);
+        
+
     }
 
-    &:hover {
-        background: linear-gradient(@color-background-bottomGrayMed, @color-background-topGrayMed);
-        cursor: pointer;
-    }
 }
 
+#submitTablesBtn {
+    margin: 10px 0px 20px 11px;
+    display: none;
+
+    .icon {
+        background: url(/images/send-single.png) 0 0 no-repeat;
+        width: 27px;
+        height: 21px;
+        margin: 4px;
+        float: left;
+    }
+
+}
+
+.btnLarge {
+    width: 230px;
+    height: 30px;
+    border-radius: 3px;
+    color: @color-text-transparentWhite;
+    text-shadow: 1px 1px rgba(0,0,0,.3);
+    box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+    line-height: 30px;
+    font-size: 12px;
+    background: linear-gradient(@color-background-topAction, 
+                @color-background-bottomAction);
+    cursor: pointer;
+}
+
+.btnInactive {
+    // background: linear-gradient(@color-background-topGrayMed, 
+    //                 @color-background-bottomGrayMed);
+    opacity: 0.3;
+    pointer-events: none;
+}
 
 #rightSideBar {
     position: absolute;
@@ -636,6 +686,7 @@ body {
     position: absolute;
     bottom: 0px;
     width: 100%;
+    // box-shadow: 0px 1px @color-bar-border;
 }
 
 #worksheetBar {
@@ -1366,7 +1417,7 @@ th:last-child .colGrab{
     padding: 0px;
     display: inline-block;
     width: 170px;
-    z-index: 7;
+    z-index: 20;
     box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
 }
 

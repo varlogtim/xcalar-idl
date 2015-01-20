@@ -183,7 +183,7 @@ function createRowTemplate(tableNum) {
 
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(tableName, tableNum) {
+function addTable(tableName, tableNum, afterStartup) {
     for (var i = gTables.length-1; i>=tableNum; i--) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i+1));
         $("#xcTable"+i).attr("id", "xcTable"+(i+1));
@@ -206,6 +206,9 @@ function addTable(tableName, tableNum) {
         console.log("This table has never been stored before. Storing it now");
         setIndex(tableName, gTables[tableNum].tableCols);
     }
+    if (afterStartup) {
+        addMenuBarTables([gTables[tableNum]], IsActive.active);
+    }
     // focusTable(tableNum);
 }
 
@@ -216,8 +219,11 @@ function archiveTable(tableNum) {
     $("#xcTableWrap"+tableNum).remove();
     $("#rowScroller"+tableNum).remove();
     var tableName = gTables[tableNum].frontTableName;
-    gTables.splice(tableNum, 1);
-    delete gTableIndicesLookup[tableName];
+    var deletedTable = gTables.splice(tableNum, 1);
+    gHiddenTables.push(deletedTable[0]);
+    gTableIndicesLookup[tableName].active = false;
+    removeMenuBarTable(deletedTable[0]);
+    // delete gTableIndicesLookup[tableName];
     for (var i = tableNum+1; i<=gTables.length; i++) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i-1));
         $("#xcTable"+i).attr("id", "xcTable"+(i-1));
