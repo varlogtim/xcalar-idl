@@ -355,34 +355,51 @@ body {
     }
 }
 
-#fnBar, #searchBar {
+#fnBar {
+    width: 380px;
+} 
+
+#searchBar {
     width: 180px;
 }
 
 #rowInput {
-    width: 40px;
+    width: 60px;
 }
 
 #rowScrollerArea {
-    float: right;
+    position: absolute;
+    right: 0;
 }
 
 .rowScroller {
-    width: 200px;
-    height: 5px;
-    margin-top: 20px;
+    width: 250px;
+    height: 10px;
+    margin-top: 15px;
     background-color: @color-bar-border;
     border-bottom: 1px solid #d5d5d5;
     position: relative;
 
     .bookmark {
         width: 2px;
-        height: 2px;
+        height: 5px;
         background-color: @color-bookmark;
         position: absolute;
         bottom: 0;
     }
+
+    .rowMarker {
+        display: inline-block;
+        width: 15px;
+        height: 18px;
+        top: -18px;
+        left: -7px;
+        position: absolute;
+        background: url(/images/rowScroll-icon.png) 0 0 no-repeat;
+        .transition (transform 0.2s);
+    }
 }
+
 
 
 
@@ -817,7 +834,7 @@ in order to work for the new ui. I will clean this up at some point.
     }
 
     .rowBookmarked {
-        background-color: @color-table-red !important;
+        background-color:@color-background-topAction !important;
     }
 }
 
