@@ -948,7 +948,7 @@ function addColMenuActions(colId, tableId) {
     table.find('.groupBy.col'+colId+' input').keyup(function(e) {
         var value = $(this).val();
         var tableNum = parseInt($(this).closest('table')
-                        .attr('id').substring(12));
+                        .attr('id').substring(7));
         if (e.which === keyCode.Enter) {
             var index = parseColNum($(this).closest('.groupBy'));
             var operator = $(this).closest('.gb').text(); 
@@ -970,7 +970,7 @@ function addColMenuActions(colId, tableId) {
         }
         var index = parseColNum($(this));
         var tableNum = parseInt($(this).closest('table')
-                        .attr('id').substring(12));
+                        .attr('id').substring(7));
         dynGetTables(tableNum, index);
     });
 
