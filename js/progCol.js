@@ -56,7 +56,8 @@ function execCol(progCol, tableNum, args) {
         console.log("Raw data");
         break;
     case ("map"):
-        var mapString = progCol.userStr.substring(progCol.userStr.indexOf("map")
+        var mapString = progCol.userStr.substring(progCol.userStr.indexOf("map",
+                                                  progCol.userStr.indexOf("="))
                                                   +4, progCol.userStr.length-1);
         var fieldName = progCol.userStr.substring(0,
                                                  progCol.userStr.indexOf("="));
@@ -67,27 +68,6 @@ function execCol(progCol, tableNum, args) {
         console.log(fieldName);
 
         progCol.func.func = "pull";
-
-        var largestX = 0;
-        // Find out what is the biggest current ValueX
-        var firstRow = $("#pageBar .rowNum:first-of-type").html();
-        var lastRow = $("#pageBar .rowNum:last-of-type").html();
-        var midRow = Math.ceil(parseInt(firstRow) +
-                     (parseInt(firstRow) + parseInt(lastRow))/2);
-
-        var jsonStr = $("#xcTable"+tableNum+" .row"+midRow+" .elementText")
-                      .html();
-        console.log(jsonStr);
-        var jsonObj = jQuery.parseJSON(jsonStr);
-        console.log(jsonObj);
-
-        // Make sure that the field name is not already used. This is not a 100%
-        // check, just sanity
-        if (jsonObj[fieldName] != undefined) {
-            alert("FieldName already exists! Please select another name.");
-            return;
-        }
-        
         progCol.func.args[0] = fieldName;
         progCol.func.args.splice(1, progCol.func.args.length-1);
         progCol.isDark = false;
