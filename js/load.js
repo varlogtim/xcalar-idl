@@ -38,13 +38,10 @@ $('.dataOptionsRow input').click(function(){
         alert("Please select your data format");
     } else {
         loadFormat = dataType;
-        moveInputLeft(dataElement);
-        $('.dataStep').addClass('transitionGreen');
         $("#filePathSelector").css('left',415); 
         $("#fileBrowser").focus().css('left',550).css('z-index', 6);
         $('.dataOptions').addClass('slideAway');
         $("#progressBar").css('transform', 'translateX(545px)');
-        
     }
 });
 
@@ -59,7 +56,6 @@ function dsSubmit(e) {
         alert("Please enter a valid URL");
     } else {
         loadURL = url;
-        moveElementLeft('#fileBrowser', '#filePathSelector');
         $("#keySelector").show().css('left',620);
         $("#tableName").focus().css('left',830).css('z-index', 6);
         $('#progressBar').css({'transform': 'translateX(825px)',
@@ -79,21 +75,15 @@ function detailsSubmit(e) {
     if (e.which != keyCode.Enter) {
        return
     }
-    var key = "user_id";
     var tablename = $("#tableName").val();
     if (tablename == null || tablename == "") {
         alert("Please enter valid dataset name");
     } else {
-        moveElementLeft('#tableName','#keySelector');
-        $('#tableName').addClass('slideAway').blur();
-        loadKey = key;
         loadTable = tablename;
-        var loadArgs = loadURL.split("|");
+        var loadArgs = $("#fileBrowser").val().split("|");
         var dsId = XcalarLoad(loadArgs[0], loadFormat, tablename,
                               loadArgs[1], loadArgs[2]);
         console.log("This is the returned dsId "+dsId);
-        startProgressBar();
-        $('.datasetWrap').removeClass('slideAway').hide();
         
         // checkLoad();
     }
