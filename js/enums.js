@@ -31,6 +31,11 @@ var AffectedEntryAction = {
     DelConnectedRemoveEntry: 3,
 };
 
+var SyncOrAsync = {
+    Sync: true,
+    Async: false
+}
+
 var keyCode = {
     Backspace: 8,
     Tab: 9,
