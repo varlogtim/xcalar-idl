@@ -338,6 +338,7 @@ function addCol(colId, tableId, name, options) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
+                    '<div class="subColMenuArea"></div>'+
                 '</ul>'+
                 '<div class="dropdownBox"></div>'+
             '</li>';
@@ -402,7 +403,8 @@ function addCol(colId, tableId, name, options) {
                         '<li class="joinList col'+newColid+'">'+'Join'+
                             '<ul class="subColMenu" id="joinTables">';
     }
-    dropDownHTML += '</ul><div class="dropdownBox"></div></li>';
+    dropDownHTML += '</ul><div class="dropdownBox"></div>'+
+                    '<div class="subColMenuArea"></div></li>';
     table.find('.table_title_bg.col'+newColid+' .header').append(dropDownHTML);
 
     addColListeners(newColid, tableId);
@@ -444,7 +446,7 @@ function dynGetTables(tableNum, colid) {
         dropDownHTML += '<li class="join">'+t.tableName+'</li>';
     }
     dropDownHTML +=     '<div class="subColMenuArea"></div>';
-    $("#xcGenTable"+tableNum+" #joinTables").empty();
+    $("#xcTable"+tableNum+" #joinTables").empty();
     $("#xcTable"+tableNum+" .joinList.col"+colid+" .subColMenu").
         append(dropDownHTML);
 

@@ -808,27 +808,11 @@ function addColListeners(colId, tableId) {
             $('.colMenu').hide();
     });
 
-    table.find('.table_title_bg.col'+colId+' ul.colMenu > li:first-child')
-        .mouseenter(function() {
-            $(this).parent().removeClass('white');
-    }).mouseleave(function() {
-        $(this).parent().addClass('white');
-    });
-
-
     table.find('.table_title_bg.col'+colId+' .dragArea')
         .mousedown(function(event) {
         var headCol = $(this).parent().parent();
         dragdropMouseDown(headCol, event);
     }); 
-
-    table.find('.table_title_bg.col'+colId).mouseover(function(event) {
-        if (!$(event.target).hasClass('colGrab')) {
-            $(this).children().children('.dropdownBox').css('opacity', 1);
-        }
-    }).mouseleave(function() {
-         $(this).children().children('.dropdownBox').css('opacity', 0.4);
-    });
 
     table.find('.editableHead.col'+colId).mousedown(function(event) {
         //XXX Test to see if we even need this anymore
@@ -1092,17 +1076,6 @@ function addTableListeners(tableNum) {
         gActiveTableNum = dynTableNum;
         updatePageBar(dynTableNum);
         generateFirstLastVisibleRowNum();
-    });
-
-    $('#xcTable'+tableNum+' thead').mouseenter(function(event) {
-        if (!$(event.target).hasClass('colGrab')) {
-            var table= $(this).closest('table');
-            table.find('.header').children('.dropdownBox').css('opacity', 0.4);
-        }
-    })
-    .mouseleave(function() {
-        var table= $(this).closest('table');
-         table.find('.header').children('.dropdownBox').css('opacity', 0);
     });
 }
 
