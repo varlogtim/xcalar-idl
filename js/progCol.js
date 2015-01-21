@@ -444,18 +444,18 @@ function dynGetTables(tableNum, colid) {
         dropDownHTML += '<li class="join">'+t.tableName+'</li>';
     }
     dropDownHTML +=     '<div class="subColMenuArea"></div>';
-    $("#autoGenTable"+tableNum+" #joinTables").empty();
-    $("#autoGenTable"+tableNum+" .joinList.col"+colid+" .subColMenu").
+    $("#xcGenTable"+tableNum+" #joinTables").empty();
+    $("#xcTable"+tableNum+" .joinList.col"+colid+" .subColMenu").
         append(dropDownHTML);
 
-    $("#autoGenTable"+tableNum).find('.joinList.col'+colid+ ' .join').
+    $("#xcTable"+tableNum).find('.joinList.col'+colid+ ' .join').
         click(function() {
         var tableNum = parseInt($(this).closest('table')
-                        .attr('id').substring(12));
+                        .attr('id').substring(7));
         joinTables($(this).text(), tableNum);
     });
 
-    $("#autoGenTable"+tableNum).find('.table_title_bg.col'+colid+
+    $("#xcTable"+tableNum).find('.table_title_bg.col'+colid+
         ' .joinList .subColMenuArea')
         .mousedown(function() {
             $('.colMenu').hide();

@@ -510,6 +510,7 @@ body {
     height: 34px;
     box-shadow: 0px 1px 1px 0px rgba(0,0,0, .5);
     overflow: hidden;
+    z-index: 0;
 
     .workspaceArea {
         height: 13px;
@@ -1232,7 +1233,7 @@ ul.colMenu {
     // background-color: @color-monitor-green;
     background-color: @color-selectedCell-dark;
     position: fixed;
-    z-index: 10;
+    z-index: 20;
 
     li {
         padding: 6px;
@@ -1268,7 +1269,7 @@ ul.colMenu {
 
     ul {
         visibility: hidden;
-        z-index: 6;
+        z-index: 20;
         top: 0px;
         left: 155px;
         .transition-delay (.15s);
