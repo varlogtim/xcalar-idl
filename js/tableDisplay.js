@@ -183,7 +183,7 @@ function createRowTemplate(tableNum) {
 
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(tableName, tableNum, afterStartup) {
+function addTable(tableName, tableNum, AfterStartup) {
     for (var i = gTables.length-1; i>=tableNum; i--) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i+1));
         $("#xcTable"+i).attr("id", "xcTable"+(i+1));
@@ -206,8 +206,8 @@ function addTable(tableName, tableNum, afterStartup) {
         console.log("This table has never been stored before. Storing it now");
         setIndex(tableName, gTables[tableNum].tableCols);
     }
-    if (afterStartup) {
-        addMenuBarTables([gTables[tableNum]], IsActive.active);
+    if (AfterStartup) {
+        addMenuBarTables([gTables[tableNum]], IsActive.Active);
     }
     // focusTable(tableNum);
 }

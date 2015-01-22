@@ -14,13 +14,13 @@ var KeepOriginalTables = {
 };
 
 var IsActive = {
-    active: true,
-    inactive: false
+    Active: true,
+    Inactive: false
 }
 
-var afterStartup = {
-    after: true,
-    before: false
+var AfterStartup = {
+    After: true,
+    Before: false
 }
 
 var SPMode = {

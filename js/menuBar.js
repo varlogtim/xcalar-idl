@@ -69,8 +69,8 @@ function setupLeftMenuBar() {
         $('.leftMenuBarSection').eq(index).show();
     });
 
-    addMenuBarTables(gTables, IsActive.active);
-    addMenuBarTables(gHiddenTables, IsActive.inactive);
+    addMenuBarTables(gTables, IsActive.Active);
+    addMenuBarTables(gHiddenTables, IsActive.Inactive);
 
     $('#leftMenuBarSections').on('click','.tableListBox', function(event) {
         var ol = $(this).next();
@@ -117,7 +117,7 @@ function setupLeftMenuBar() {
                              gHiddenTables.length-index-1), 1)[0];
             gTableIndicesLookup[activeTable.frontTableName].active = true;
             addTable(activeTable.frontTableName, gTables.length, 
-            afterStartup.after);
+            AfterStartup.After);
             $(this).closest('li').remove();
         });
 
@@ -200,5 +200,5 @@ function updateMenuBarTable(table, tableNum) {
             return $(this).text() == table.frontTableName;
         }
     ).closest('li').remove();
-    addMenuBarTables([table], IsActive.active, tableNum);
+    addMenuBarTables([table], IsActive.Active, tableNum);
 }

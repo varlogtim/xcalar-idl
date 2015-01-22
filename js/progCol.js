@@ -51,7 +51,7 @@ function execCol(progCol, tableNum, args) {
         }
         pullCol(progCol.func.args[0], progCol.index,
                 tableNum, startIndex, numberOfRows);
-        // addMenuBarTables([gTables[tableNum]], IsActive.active);
+        // addMenuBarTables([gTables[tableNum]], IsActive.Active);
         break;
     case ("raw"):
         console.log("Raw data");
