@@ -311,7 +311,7 @@ function addCol(colId, tableId, name, options) {
             '</li>'+
             '<li class="groupBy col'+newColid+'">Group By'+
                 '<ul class="subColMenu">'+
-                    '<li class="gb col'+newColid+'">Count'+
+                    '<li class="gb col'+newColid+'"><span>Count</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center">New Column Name</li>'+
                             '<li><input type="text" width="100px" '+
@@ -320,7 +320,7 @@ function addCol(colId, tableId, name, options) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb col'+newColid+'">Average'+
+                    '<li class="gb col'+newColid+'"><span>Average</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center">New Column Name</li>'+
                             '<li><input type="text" width="100px" '+
@@ -329,7 +329,7 @@ function addCol(colId, tableId, name, options) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb col'+newColid+'">Sum'+
+                    '<li class="gb col'+newColid+'"><span>Sum</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center">New Column Name</li>'+
                             '<li><input type="text" width="100px" '+
@@ -348,52 +348,33 @@ function addCol(colId, tableId, name, options) {
     if (true) { // This check is here so that you don't have to indent in the
                 // in the future. O:D
         dropDownHTML += '<li class="filterWrap col'+newColid+'">Filter'+
-                        '<ul class="subColMenu">'+
-                            '<li class="filter">Greater Than'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
+                        '<ul class="subColMenu inputMenu">'+
+                            '<li class="filter"><span>Greater Than</span>'+
+                                '<input type="text" value="0"/>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Greater Than Equal To'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
+                            '<li class="filter"><span>Greater Than Equal To</span>'+
+                                '<input type="text" value="0"/>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Equals'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
+                            '<li class="filter"><span>Equals</span>'+
+                                '<input type="text" value="0"/>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Less Than'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
+                            '<li class="filter"><span>Less Than</span>'+
+                                '<input type="text" value="0"/>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Less Than Equal To'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
+                            '<li class="filter"><span>Less Than Equal To</span>'+
+                                '<input type="text" value="0"/>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Regex'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="*"/></li>'+
-                                '</ul>'+
+                            '<li class="filter"><span>Regex</span>'+
+                                '<input type="text" value="0"/>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Others'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value=""/></li>'+
-                                '</ul>'+
+                            '<li class="filter"><span>Others</span>'+
+                                '<input type="text" value="0"/>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
                             '<div class="subColMenuArea"></div>'+

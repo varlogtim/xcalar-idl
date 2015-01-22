@@ -1235,7 +1235,7 @@ th:last-child .colGrab{
     display: inline-block;
     width: 170px;
     z-index: 7;
-    box-shadow: 1px 1px rgba(0,0,0,0.1);
+    box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
 }
 
 ul.colMenu {
@@ -1283,6 +1283,7 @@ ul.colMenu {
         left: 155px;
         .transition-delay (.15s);
         margin-top: 30px;
+        background-color: @color-white;
     }
 
     input[type=text] {
@@ -1360,6 +1361,62 @@ ul.subColMenu.leftColMenu {
     left: -170px;
     margin-top: 0px;
     box-shadow: -1px 1px rgba(0,0,0,0.1);
+}
+
+
+ul.inputMenu {
+
+    > li {
+        height: auto;
+        min-height: 30px;
+        overflow: hidden;
+        padding: 0px;
+        margin: 0px;
+
+        span {
+            .box-sizing;
+            display: block;
+            height: 30px;
+            padding: 6px;
+            padding-top: 8px;
+            position: relative;
+            background-color: @color-white;
+            z-index: 1;
+            .transition (margin-bottom .3s);
+
+            &.openMenuInput {
+                margin-bottom: 30px;
+            }
+        }
+
+        &:hover span {
+            background-color: @color-selectedCell-green;
+        }
+
+        .dropdownBox {
+            top: 15px;
+            z-index: 1;
+        }
+
+    }
+
+    &:hover ul {
+        visibility: visible;
+    }
+
+    input[type=text] {
+        position: absolute;
+        left: 0px;
+        top: 31px;
+        width: 160px;
+        margin: 0px 5px;
+        height: 24px;
+        z-index: 0;
+
+        &:focus {
+            outline: none;
+        }
+    }
 }
 /* END DROPDOWN STYLING */
 

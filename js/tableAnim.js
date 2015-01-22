@@ -805,6 +805,26 @@ function addColListeners(colId, tableId) {
         event.stopPropagation();
     });
 
+    table.find('.table_title_bg.col'+colId+' .inputMenu span')
+        .mousedown(function(){
+            if ($(this).hasClass('openMenuInput')) {
+                $(this).removeClass('openMenuInput');
+            } else {
+                $(this).addClass('openMenuInput');
+            }
+    });
+
+    table.find('.filterWrap.col'+colId).mouseenter(function() {
+        clearTimeout($(this).data('timeout'));
+    }).mouseleave(function(){
+        var timeout = setTimeout(function() {
+                            $('.openMenuInput').siblings('input').val(0);
+                            $('.openMenuInput').removeClass('openMenuInput');
+                        }, 200);
+        $(this).data('timeout', timeout); 
+    });
+
+
    addColMenuActions(colId, tableId);
 }
 
@@ -905,8 +925,6 @@ function addColMenuActions(colId, tableId) {
         var value = $(this).val();
         var tableNum = parseInt($(this).closest('table')
                         .attr('id').substring(7));
-        // XXX Why is this line necessary?
-        $(this).closest('.filter').siblings().find('input').val(value);
         if (e.which === keyCode.Enter) {
             var index = parseColNum($(this).closest('.filterWrap'));
             var operator = $(this).closest('.filter').text(); 
