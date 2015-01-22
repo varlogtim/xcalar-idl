@@ -256,7 +256,7 @@ function dragdropMouseDown(el, event) {
     var tableHeight = $('#xcTable'+gDragObj.tableNum).height();
     var xcTableWrapHeight = el.closest('#xcTableWrap'+
                                 gDragObj.tableNum).height()+gScrollbarHeight;
-    var shadowDivHeight = Math.min(tableHeight,xcTableWrapHeight) -
+    var shadowDivHeight = Math.min(tableHeight-1,xcTableWrapHeight) -
         table.find('.tableTitle').height();
     var headerTop = parseInt($('#theadWrap'+gDragObj.tableNum).css('top')) + 
         table.find('.trueTHead').position().top;
@@ -415,7 +415,7 @@ function createTransparentDragDropCol() {
     // var xcTableWrap0Height = $('#xcTableWrap0').height()+ 
     //     gScrollbarHeight;
     var xcTableWrap0Height = $('#xcTableWrap0').height();
-    var fauxColHeight = Math.min(fauxTableHeight, xcTableWrap0Height-32);
+    var fauxColHeight = Math.min(fauxTableHeight-1, xcTableWrap0Height-35);
     gDragObj.fauxCol.height(fauxColHeight);
     var firstRowOffset = $(topRowEl).offset().top - topPx-rowHeight;
     $('#fauxTable').css('margin-top', $('#fauxTable tr:first').outerHeight()+
@@ -1261,7 +1261,7 @@ function dragTableMouseDown(el, e) {
     gDragObj.table.addClass('tableDragging');
     gDragObj.table.css('left', gDragObj.offsetLeft+'px');
     gDragObj.windowWidth = $(window).width();
-    gDragObj.pageX = gDragObj.pageX;
+    gDragObj.pageX = e.pageX;
     checkForMainFrameScrollBar();
     sizeTableForDragging();
      gDragObj.table.scrollTop(gDragObj.tableScrollTop);
@@ -1390,7 +1390,7 @@ function dragdropSwapTables(el) {
 }
 
 function sizeTableForDragging() {
-    var height = Math.min($('#mainFrame').height()-gScrollbarHeight-5, 
+    var height = Math.min($('#mainFrame').height()-gScrollbarHeight, 
         gDragObj.table.children().height());
     gDragObj.table.height(height);
 }

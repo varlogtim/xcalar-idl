@@ -23,7 +23,7 @@
 @color-arrow-background: #929292;
 @colorColumnListBackground: #CDCDCD;
 
-@color-background-sidebar: #BBBBBB;
+@color-background-sidebar: #999999;
 @color-background-tableBorders: #E6E6E6;
 @color-table-borderGray: #838384;
 @color-table-borderBlue: #266481;
@@ -45,6 +45,7 @@
 @color-text-darkGray: #4D4D4D;
 @color-text-dropMenu: #838384;
 @colorTextColumnList: #646464;
+@color-text-lightGray: #B6B6B6;
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
 @font-code: "Source Code Pro", courier;
@@ -63,6 +64,13 @@
     margin: 0;
     padding: 0;
 }
+
+.vertical-align {
+    .transform (translateY(50%));
+    position: relative;
+    top: 50%;
+}
+
 
 .noSelection{
     -webkit-touch-callout: none;
@@ -114,7 +122,11 @@ ul, li {
     .box-sizing;
 }
 
-table, tr, td, th, input {
+ul > li {
+    list-style-type: none;
+}
+
+table, tr, td, th, input, textarea {
     .nomargin-padding;
     .box-sizing;
     border: none;
@@ -123,6 +135,14 @@ table, tr, td, th, input {
     color: @color-text-darkGray;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    .nomargin-padding;
+    display: inline;
+}
+
+h2 {
+    font-size: 16px;
+}
 
 /* ========== Main ========== */
 body {
@@ -270,13 +290,18 @@ body {
     display: inline-block;
 }
 
+//XX Style the class .mainPane instead of this id
+#workspacePane {
+    height: ~"calc(100% - 114px)";
+}
+
 .workspaceBar {
     height: 38px;
     color: @color-text-darkGray;
     border-top: 1px solid @color-bar-border;
     border-bottom: 1px solid @color-bar-border;
     background: linear-gradient(@color-background-midGrayMed, @color-background-bottomGrayMed);
-    box-shadow: 0px 5px 11px 0px rgba(0,0,0, .5);
+    box-shadow: 0px 3px 3px 0px rgba(0,0,0, .4);
     display: block;
     width: 100%;
     position: relative;
@@ -430,9 +455,9 @@ body {
     position: relative;
     float: left;
     width: 255px;
-    height: ~"-webkit-calc(100% - 148px)";
-    height: ~"-moz-calc(100% - 148px)";
-    height: ~"calc(100% - 148px)";
+    height: ~"-webkit-calc(100% - 38px)";
+    height: ~"-moz-calc(100% - 38px)";
+    height: ~"calc(100% - 38px)";
     margin-left: -255px;
     background-color: @color-background-darkGray;
     box-shadow: inset -2px 0 4px 0px rgba(0,0,0,.3);
@@ -533,6 +558,15 @@ body {
         display: inline-block;
         box-shadow: 1px 2px 1px rgba(0,0,0,.2);
         cursor: pointer;
+        white-space: nowrap;
+
+        .tableName {
+            display: inline-block;
+            overflow: hidden;
+            max-width: 170px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     }
 
     .iconWrap {
@@ -578,6 +612,9 @@ body {
             background-color: @colorColumnListBackground;
             font-size: 11px;
             color: @colorTextColumnList;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            whitespace: nowrap;
         }
     }
 
@@ -609,12 +646,12 @@ body {
             background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
                         linear-gradient(@color-background-topAction, 
                         @color-background-bottomAction);
-        }
-
-        
-
+        } 
     }
 
+    .tableName {
+        max-width: 150px !important;
+    }
 }
 
 #submitTablesBtn {
@@ -655,15 +692,194 @@ body {
 #rightSideBar {
     position: absolute;
     bottom: 74px;
-    right: 0px;
-    width: 10px;
+    right: -230px;
+    width: 240px;
     border-left: 1px solid @color-bar-border;
     height: ~"calc(100% - 152px)";
     background-color: @color-background-sidebar;
     z-index: 11;
     box-shadow: -1px 0px 1px rgba(0,0,0,0.3), inset 0px 4px 4px rgba(0,0,0,0.3);
+    // .transition (right 0.3s);
+    .transition (all 0.3s);
+    &.open {
+        // right: 0px;
+        .transform (translate3d(-230px, 0px, 0px));
+    }
+
+    .heading {
+        height: 35px;
+        width: 100%;
+        text-align: center;
+        padding-top: 2px;
+        h2 {
+            margin-left: 55px;
+            line-height: 35px;
+            color: @color-text-darkGray;
+        }
+
+        .icon {
+            width: 19px;
+            height: 19px;
+            float: right;
+            margin-right: 6px;
+            margin-top: 7px;
+            background-color: @color-background-bottomGrayMed;
+            border-radius: 1px;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            cursor: pointer;
+            &:first-of-type {
+                margin-right: 10px;
+            }
+        }
+    }
+
+    .rightBarContent {
+        width: 230px;
+        height: ~"calc(100% - 35px)";
+        margin-left: 10px;
+        background-color: @color-table-darkGray;
+    }
 }
 
+.rightBarSection {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+
+    &.active {
+        display: block;
+    }
+
+    .iconArrowDiag {
+        background: url(/images/arrow-diag.png) 50% 50% no-repeat;
+    }
+    .iconClose {
+        background: url(/images/close-icon.png) 50% 50% no-repeat;
+    }
+}
+
+#cliSection {
+    height: ~"calc(100% - 10px)";
+    textarea {
+        height: 100%;
+        width: 100%;
+        padding: 2px;
+        font-family: @font-code;
+        font-size: 12px;
+        outline: none;
+        resize: none;
+    }
+}
+
+#scratchPadSection {
+
+}
+
+#helpSection {
+    // .iconArrowDiag {
+    //     background: url(/images/arrow-diag.png) 50% 50% no-repeat;
+    // }
+    // .iconClose {
+    //     background: url(/images/close-icon.png) 50% 50% no-repeat;
+    // }
+}
+
+#helpSearchArea {
+    padding: 6px 5px 5px 7px;
+    border-bottom: 1px solid @color-background-midGrayMed;
+    input {
+        width: 150px;
+        height: 30px;
+        padding: 2px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: bold;
+        background-color: @color-background-sidebar;
+        color: @color-text-darkGray;
+        float: left;
+        &:focus {
+            background-color: @color-white;
+            // box-shadow: 0px 2px 2px 0 #888888 inset;
+            outline: none;
+            // color: @color-text-brightBlue;
+            &::-webkit-input-placeholder {
+                color: @color-text-lightGray;
+            } 
+        }
+    }
+
+    ::-webkit-input-placeholder {
+        color: @color-text-darkGray;
+    } 
+}
+
+#helpSubmit {
+    width: 60px;
+    height: 30px;
+    background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+    color: @color-text-white;
+    float: left;
+    line-height: 30px;
+    font-size: 12px;
+    border-radius: 3px;
+    margin-left: 5px;
+
+    .iconSearch {
+        background-image: url(/images/search-icon.png);
+        width: 18px;
+        height: 18px;
+        margin: 5px;
+        display: inline-block;
+        float: left;
+    }
+}
+
+.helpBox {
+    margin-left: 7px;
+    height: 148px;
+    width: 220px;
+    padding: 5px;
+    background-color: @color-white;
+}
+
+#helpResults {
+    
+    text-align: center;
+    span {
+        .vertical-align;
+        top: 40%;
+        color: @color-text-lightGray;
+    }
+}
+
+#helpTopics {
+    margin-top: 20px;
+    color: @color-text-dropMenu;
+    span {
+        font-weight: 700;
+    }
+
+    ul {
+        > span {
+            font-size: 14px;
+        }
+        li {
+            font-size: 12px;
+            margin: 6px 0px 0px 4px;
+            font-weight: 400;
+        }
+    }
+}
+
+#helpOnOff {
+    width: 218px;
+    height: 65px;
+    background-image: url(/images/help-on.png);
+    margin-left: 7px;
+}
 #pulloutTab {
     left: -19px;
     bottom: 0;
@@ -680,6 +896,7 @@ body {
 }
 
 
+
 /* BOTTOM SECTION */
 
 #bottomArea {
@@ -690,7 +907,8 @@ body {
 }
 
 #worksheetBar {
-    height: 34px;
+    height: 35px;
+    border-top: 2px solid @color-bar-border;
     box-shadow: 0px 1px 1px 0px rgba(0,0,0, .5);
     overflow: hidden;
     z-index: 0;
@@ -714,10 +932,18 @@ body {
     height: 22px;
     border-radius: 2px;
     display: inline-block;
-    background-color: @color-background-topAction;
+    background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+    box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
     background-repeat: no-repeat;
     background-position: 50% 50%;
-    box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
+    cursor: pointer;
+    span {
+        height: 100%;
+        width: 100%;
+        display: inline-block;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+    }
 }
 
 .bottomButtonsArea {
@@ -744,11 +970,17 @@ body {
 }
 
 #addWorksheet {
-    background-image: url(/images/plus-sign.png); 
-    background-position: 55% 45%;
+    
     margin-top: 8px;
     margin-left: 8px;
     cursor: pointer;
+    span {
+        background-image: url(/images/plus-sign.png); 
+        background-position: 55% 45%;
+        display: block;
+        height: 100%;
+        width: 100%;
+    }
 }
 
 
@@ -849,7 +1081,7 @@ in order to work for the new ui. I will clean this up at some point.
 
 .tableWrap {
     // background-color: @color-white;
-    padding: 5px 0 0 0;
+    padding: 0px;
     height: 100%;
     width: 100%;
     overflow-x: auto;
@@ -893,9 +1125,9 @@ in order to work for the new ui. I will clean this up at some point.
 
 #mainFrame{
     width: 100%;
-    height: ~"-webkit-calc(100% - 148px)";
-    height: ~"-moz-calc(100% - 148px)";
-    height: ~"calc(100% - 148px)";
+    height: ~"-webkit-calc(100% - 38px)";
+    height: ~"-moz-calc(100% - 38px)";
+    height: ~"calc(100% - 38px)";
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -1167,7 +1399,7 @@ in order to work for the new ui. I will clean this up at some point.
     background-color: transparent !important;
     box-shadow: none !important;
     th {
-        height: 70px;
+        height: 74px;
     }
 
     .colGrab {
@@ -1321,7 +1553,6 @@ th:last-child .colGrab{
     z-index: 11;
     opacity: 1;
     margin-top: 5px;
-    padding-top: 3px;
 }
 
 #fauxCol{
@@ -1701,7 +1932,7 @@ ul.inputMenu {
         outline: none;
         cursor: default;
         .noSelection;
-        width: ~"calc(100%-10px)";
+        width: ~"calc(100% - 10px)";
         direction: ltr;
         cursor: text;
     }
@@ -2178,6 +2409,7 @@ ul.inputMenu {
     padding: 10px 0px 10px 10px;
     width: 400px;
     height: 400px;
+    font-weight: 400;
 }
 
 .jsonDragArea {

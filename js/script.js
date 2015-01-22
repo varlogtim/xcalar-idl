@@ -484,7 +484,8 @@ function startupFunctions() {
     // setupLeftMenuBar();
     getTablesAndDatasets();
     documentReadyGeneralFunction();
-    getWorksheetNames();
+    getWorksheetNames(); 
+    setupRightSideBar();
 }  
 
 function tableStartupFunctions(table, tableNum) {
@@ -519,7 +520,6 @@ function documentReadyIndexFunction() {
                 }
             }
             documentReadyxcTableFunction();
-            
         }
         setupLeftMenuBar();
     });
