@@ -20,15 +20,15 @@ function checkStatus(newTableName, tableNum, keepOriginal,
             if (additionalTableNum > -1) {
                 var largerTableNum = Math.max(additionalTableNum, tableNum);
                 var smallerTableNum = Math.min(additionalTableNum, tableNum);
-                delTable(largerTableNum);
-                delTable(smallerTableNum);
+                archiveTable(largerTableNum);
+                archiveTable(smallerTableNum);
                 if (newTableNum > gTables.length) {
                     // edge case
                     newTableNum = gTables.length;
                 }
             } else {
                 savedScrollLeft = $('#mainFrame').scrollLeft();
-                delTable(tableNum);
+                archiveTable(tableNum);
             }
             
             addTable(newTableName, newTableNum);

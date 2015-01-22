@@ -1031,8 +1031,27 @@ in order to work for the new ui. I will clean this up at some point.
 
         input {
             color: @color-white; 
-            
         }
+
+        .dropdownBox {
+            opacity: 1;
+            background-image: url(/images/table-corner.png) !important;
+        }
+    }
+
+    &:hover {
+        .dropdownBox {
+            opacity: 1;
+            background-image: url(/images/table-corner-inactive.png);
+        }
+    }
+
+    .dropdownBox {
+        opacity: 0; 
+        background-image: url(/images/table-corner-inactive.png); 
+        border: none;
+        height: 16px;
+        width: 16px;
     }
 
     input {
@@ -1054,31 +1073,13 @@ in order to work for the new ui. I will clean this up at some point.
         }
     }
 
-    .delTable {
-        height: 100%;
-        width: 20px;
-        position: absolute;
-        font-size: 22px;
-        top: 6px;
-        right: 6px;
-        .transform (rotate(45deg));
-        .transition (opacity 0.1s linear 0.3s);
-        opacity: 0;
-        cursor: pointer;
-        z-index: 10;
-        &:hover {
-            opacity: 1 !important;
-            .transition (opacity 0s linear 0s) !important;
-        }
-    }
-    &:hover {
-        .delTable {
-            opacity: 0.5;
-            .transition (opacity 0.1s linear 0.3s);
-        }
-    }
+
 }
 
+.unavailable {
+    //XX for features that haven't been implemented yet
+    opacity: 0.4;
+}
 .trueTHead {
     z-index: 1;
     // margin-left: 10px;
@@ -1227,7 +1228,7 @@ th:last-child .colGrab{
     opacity: 1.0 !important;
 }
 
-.table_title_bg ul {
+.xcTable ul {
     position: absolute;
     list-style: none;
     padding: 0px;
@@ -1282,21 +1283,6 @@ ul.colMenu {
         left: 155px;
         .transition-delay (.15s);
         margin-top: 30px;
-    }
-
-    &.white {
-        background-color: @color-white;
-        &::before {
-            border-color: @color-white transparent;
-        }
-        &::after {
-            border-color: @color-white;
-        }
-        &.leftColMenu {
-            &::before {
-                border-color: @color-white @color-white;
-            }
-        }
     }
 
     input[type=text] {

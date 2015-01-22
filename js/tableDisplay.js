@@ -188,7 +188,7 @@ function addTable(tableName, tableNum) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i+1));
         $("#xcTable"+i).attr("id", "xcTable"+(i+1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
-        $("#delTable"+i).attr("id", "delTable"+(i+1));
+        $("#tableMenu"+i).attr("id", "tableMenu"+(i+1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
         gTables[i+1] = gTables[i];
@@ -212,7 +212,7 @@ function addTable(tableName, tableNum) {
 // Removes a table from the display
 // Shifts all the ids
 // Does not delete the table from backend!
-function delTable(tableNum) {
+function archiveTable(tableNum) {
     $("#xcTableWrap"+tableNum).remove();
     $("#rowScroller"+tableNum).remove();
     var tableName = gTables[tableNum].frontTableName;
@@ -222,7 +222,7 @@ function delTable(tableNum) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i-1));
         $("#xcTable"+i).attr("id", "xcTable"+(i-1));
         $("#theadWrap"+i).attr("id", "theadWrap"+(i-1));
-        $("#delTable"+i).attr("id", "delTable"+(i-1));
+        $("#tableMenu"+i).attr("id", "tableMenu"+(i-1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i-1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i-1));
     }

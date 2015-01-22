@@ -663,23 +663,33 @@ function cloneTableHeader(tableNum) {
     }
     tHeadWrap.prepend('<div class="tableTitle"><div class="tableGrab"></div>'+
         '<input type="text" value="'+tableName+'">'+
-        '<div class="delTable" id="delTable'+tableNum+'">+</div>'+
         '<div class="dropdownBox"></div>'+
+        '<ul class="colMenu tableMenu" id="tableMenu'+tableNum+'">'+
+        '<li class="archiveTable">Archive Table</li>'+
+        '<li class="unavailable">Hide Table</li>'+
+        '<li class="unavailable">Delete Table</li>'+
+        '</ul>'+
         '</div>');
     tHeadWrap.find('.tableTitle input').keyup(function(event) {
         if (event.which == keyCode.Enter) {
             $(this).blur();
         }
     });
-    tHeadWrap.find('.tableTitle .delTable').click(function() {
-        var tableNum = parseInt($(this).attr('id').substring(8));
-        var confirmed = confirm("Are you sure you want to delete this table?");
-        if (confirmed) {
-            delTable(tableNum);
-        }
+    tHeadWrap.find('.tableTitle .dropdownBox').click(function() {
+        dropdownClick($(this));
     });
+
     tHeadWrap.find('.tableGrab').mousedown(function(event) {
         dragTableMouseDown($(this).parent(), event);
+    });
+
+    var tableMenu = $('#tableMenu'+tableNum);
+
+    tableMenu.find('.archiveTable').mousedown(function() {
+        var tableNum = parseInt($(this).closest('.tableMenu').
+                       attr('id').substring(9));
+        $(this).closest('.tableMenu').hide();
+        archiveTable(tableNum)
     });
 
     if ($('.blankTable').length > 0) {
@@ -766,31 +776,7 @@ function addColListeners(colId, tableId) {
     });
 
     table.find('.table_title_bg.col'+colId+' .dropdownBox').click(function() {
-        $('.colMenu').hide();
-        $('.leftColMenu').removeClass('leftColMenu');
-        //position colMenu
-        var topMargin = 3;
-        var leftMargin = 5;
-        var top = $(this)[0].getBoundingClientRect().bottom + topMargin;
-        var left = $(this)[0].getBoundingClientRect().left + leftMargin;
-        var colMenu = $(this).siblings('.colMenu');
-        colMenu.css({'top':top, 'left':left});
-        colMenu.show();
-        $('.theadWrap').css('z-index', '9');
-        colMenu.closest('.theadWrap').css('z-index', '10');
-
-        //positioning if dropdown menu is on the right side of screen
-        var windowWidth = $(window).width();
-        if (colMenu[0].getBoundingClientRect().right > windowWidth) {
-            left = $(this)[0].getBoundingClientRect().right - colMenu.width();
-            colMenu.css('left', left).addClass('leftColMenu');
-        }
-        colMenu.find('.subColMenu').each(function() {
-            if ($(this)[0].getBoundingClientRect().right > windowWidth) {
-                colMenu.find('.subColMenu').addClass('leftColMenu');
-                // return false;
-            }
-        });
+        dropdownClick($(this));
     });
 
     table.find('.table_title_bg.col'+colId+' .dropdownBox')
@@ -957,7 +943,34 @@ function addColMenuActions(colId, tableId) {
                         .attr('id').substring(7));
         dynGetTables(tableNum, index);
     });
+}
 
+function dropdownClick(el) {
+    $('.colMenu').hide();
+    $('.leftColMenu').removeClass('leftColMenu');
+    //position colMenu
+    var topMargin = 3;
+    var leftMargin = 5;
+    var top = el[0].getBoundingClientRect().bottom + topMargin;
+    var left = el[0].getBoundingClientRect().left + leftMargin;
+    var menu = el.siblings('.colMenu');
+    menu.css({'top':top, 'left':left});
+    menu.show();
+    $('.theadWrap').css('z-index', '9');
+    menu.closest('.theadWrap').css('z-index', '10');
+
+    //positioning if dropdown menu is on the right side of screen
+    var windowWidth = $(window).width();
+    if (menu[0].getBoundingClientRect().right > windowWidth) {
+        left = el[0].getBoundingClientRect().right - menu.width();
+        menu.css('left', left).addClass('leftColMenu');
+    }
+    menu.find('.subColMenu').each(function() {
+        if ($(this)[0].getBoundingClientRect().right > windowWidth) {
+            menu.find('.subColMenu').addClass('leftColMenu');
+            // return false;
+        }
+    });
 }
 
 function highlightColumn(el) {
@@ -1385,7 +1398,7 @@ function reorderAfterTableDrop() {
         var table = $('#xcTableWrap'+i).find('.xcTable');
         var oldIndex = parseInt(table.attr('id').substring(7));
         table.attr('id', 'xcTable'+i);
-        table.find('.delTable').attr('id', 'delTable'+i);
+        table.find('.tableMenu').attr('id', 'tableMenu'+i);
         $(rowScrollers[i]).attr('id', 'rowScroller'+i);
         $(rowScrollers[i]).find('.rowMarker').attr('id','rowMarker'+i);
     }
