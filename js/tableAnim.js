@@ -960,15 +960,14 @@ function dropdownClick(el) {
     menu.closest('.theadWrap').css('z-index', '10');
 
     //positioning if dropdown menu is on the right side of screen
-    var windowWidth = $(window).width();
-    if (menu[0].getBoundingClientRect().right > windowWidth) {
+    var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect().left;
+    if (menu[0].getBoundingClientRect().right > leftBoundary) {
         left = el[0].getBoundingClientRect().right - menu.width();
         menu.css('left', left).addClass('leftColMenu');
     }
     menu.find('.subColMenu').each(function() {
-        if ($(this)[0].getBoundingClientRect().right > windowWidth) {
+        if ($(this)[0].getBoundingClientRect().right > leftBoundary) {
             menu.find('.subColMenu').addClass('leftColMenu');
-            // return false;
         }
     });
 }
