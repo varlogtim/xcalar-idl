@@ -218,7 +218,6 @@ function XcalarAggregate(fieldName, srcTablename, op) {
                             .jsonAnswer);
 }
 
-// XXX DROP DOWN DOESN'T WORK
 function XcalarJoin(left, right, dst) {
     if (tHandle == null) {
         return (null);
@@ -226,7 +225,6 @@ function XcalarJoin(left, right, dst) {
     xcalarJoin(tHandle, left, right, dst, OperatorsOpT.OperatorsInnerJoin);
 }
 
-// XXX DOESN'T WORK
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
                        newTableName) {
     var handle = xcalarConnectThrift(hostname, portNumber);
@@ -240,6 +238,12 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         break;
     case ("Sum"):
         op = OperatorsOpT.OperatorsSumKeys;
+        break;
+    case ("Max"):
+        op = OperatorsOpT.OperatorsMax;
+        break;
+    case ("Min"):
+        op = OperatorsOpT.OperatorsMin;
         break;
     default:
         console.log("Wrong operator! "+operator);

@@ -342,6 +342,25 @@ function addCol(colId, tableId, name, options) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
+                    '<li class="gb col'+newColid+'"><span>Max</span>'+
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center">New Column Name</li>'+
+                            '<li><input type="text" width="100px" '+
+                                'value="groupBy"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
+                    '<li class="gb col'+newColid+'"><span>Min</span>'+
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center">New Column Name</li>'+
+                            '<li><input type="text" width="100px" '+
+                                'value="groupBy"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+
                 '<div class="dropdownBox"></div>'+
