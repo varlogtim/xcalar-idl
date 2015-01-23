@@ -492,6 +492,7 @@ body {
     border-right: 1px solid @color-table-borderGray;
     border-bottom: 1px solid @color-table-borderGray;
     background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+    .noSelection;
 
     &:hover {
         background: linear-gradient(@color-background-bottomGrayMed,
@@ -693,17 +694,20 @@ body {
     position: absolute;
     bottom: 74px;
     right: -230px;
-    width: 240px;
+    right: -25%;
+    // width: 240px;
+    // width: 25%;
+    width: ~"calc(25% + 10px)";
     border-left: 1px solid @color-bar-border;
     height: ~"calc(100% - 152px)";
     background-color: @color-background-sidebar;
     z-index: 11;
     box-shadow: -1px 0px 1px rgba(0,0,0,0.3), inset 0px 4px 4px rgba(0,0,0,0.3);
-    // .transition (right 0.3s);
-    .transition (all 0.3s);
+    .transition (right 0.3s);
+
     &.open {
-        // right: 0px;
-        .transform (translate3d(-230px, 0px, 0px));
+        right: 0px;
+        // .transform (translate3d(-230px, 0px, 0px));
     }
 
     .heading {
@@ -734,7 +738,7 @@ body {
     }
 
     .rightBarContent {
-        width: 230px;
+        width: auto;
         height: ~"calc(100% - 35px)";
         margin-left: 10px;
         background-color: @color-table-darkGray;
@@ -748,6 +752,7 @@ body {
     top: 0;
     left: 0;
     display: none;
+    overflow: hidden;
 
     &.active {
         display: block;
@@ -788,12 +793,13 @@ body {
 }
 
 #helpSearchArea {
-    padding: 6px 5px 5px 7px;
+    padding: 6px 3% 5px 3%;
     border-bottom: 1px solid @color-background-midGrayMed;
     input {
-        width: 150px;
+        width: 70%;
         height: 30px;
         padding: 2px;
+        padding-left: 4px;
         border-radius: 3px;
         font-size: 12px;
         font-weight: bold;
@@ -817,15 +823,17 @@ body {
 }
 
 #helpSubmit {
-    width: 60px;
+    width: 25%;
     height: 30px;
     background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
     color: @color-text-white;
-    float: left;
+    float: right;
     line-height: 30px;
     font-size: 12px;
     border-radius: 3px;
     margin-left: 5px;
+    text-align: center;
+    padding-right: 10px;
 
     .iconSearch {
         background-image: url(/images/search-icon.png);
@@ -838,9 +846,10 @@ body {
 }
 
 .helpBox {
-    margin-left: 7px;
+    margin-left: 3%;
+    margin-right: 3%;
     height: 148px;
-    width: 220px;
+    width: auto;
     padding: 5px;
     background-color: @color-white;
 }
@@ -878,7 +887,7 @@ body {
     width: 218px;
     height: 65px;
     background-image: url(/images/help-on.png);
-    margin-left: 7px;
+    margin: auto;
 }
 #pulloutTab {
     left: -19px;
@@ -937,6 +946,7 @@ body {
     background-repeat: no-repeat;
     background-position: 50% 50%;
     cursor: pointer;
+    .noSelection;
     span {
         height: 100%;
         width: 100%;

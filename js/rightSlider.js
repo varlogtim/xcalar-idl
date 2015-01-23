@@ -56,12 +56,4 @@ function setupRightSideBar() {
     $('#rightSideBar').find('.iconClose').click(function() {
         $('#rightSideBar').removeClass('open');
     });
-
-    //xx just for fun
-    $('#cliSection').find('textarea').keydown(function() {
-        letter = String.fromCharCode(97 + Math.floor(Math.random() * 26));
-        if (Math.round(Math.random())) {
-            $(this).val($(this).val()+letter);
-        }
-    });
 }
