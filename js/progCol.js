@@ -292,6 +292,8 @@ function addCol(colId, tableId, name, options) {
             '<li class="deleteColumn col'+newColid+'">Delete column</li>'+
             '<li class="duplicate col'+newColid+'">Duplicate column</li>'+
             '<li class="renameCol col'+newColid+'">Rename column</li>'+
+            '<li class="hide col'+newColid+'">Hide column</li>'+
+            '<li class="unhide col'+newColid+'">Unhide column</li>'+
             '<li class="sort">Sort'+
                 '<ul class="subColMenu">'+
                     '<li class="sort col'+newColid+'">A-Z</li>'+
@@ -411,6 +413,28 @@ function addCol(colId, tableId, name, options) {
     }
     matchHeaderSizes(tableNum);
     checkForScrollBar(tableNum);
+}
+
+function hideCol(colid, tableid) {
+    $("#xcTable"+tableid+" .table_title_bg.col"+colid).width(10);
+    $("#xcTable"+tableid+" input.col"+colid).css("padding-left", "6px");
+    $("#xcTable"+tableid+" td .col"+colid).width(10);
+    $("#xcTable"+tableid+" .col"+colid+" .addedBarText").css("padding-left",
+    "10px");
+    $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "0px");
+}
+
+function unhideCol(colid, tableid, options) {
+    if (options && options.autoResize) {
+        autosizeCol($("#xcTable"+tableid+" th.col"+colid),
+                    {resizeFirstRow: true, includeHeader: true});
+    }
+
+    $("#xcTable"+tableid+" .col"+colid+" .addedBarText").css("padding-left",
+    "0px");
+    $("#xcTable"+tableid+" input.col"+colid).css("padding-left", "4px");
+    $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "3px");
+
 }
 
 function parseColNum(el) {

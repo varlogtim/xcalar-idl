@@ -93,10 +93,15 @@ function reenableTextSelection() {
 }
 
 function gRescolMouseDown(el, event) {
-    gMouseStatus = "resizingCol";
-    event.preventDefault();
     var table = el.closest('table');
     var tableNum = parseInt(table.attr('id').substring(7));
+    var colNum = parseColNum(el.parent().parent());
+    if (el.parent().width() === 10) {
+        // This is a hidden column! we need to unhide it
+        unhideCol(colNum, tableNum, {autoResize: false});
+    }
+    gMouseStatus = "resizingCol";
+    event.preventDefault();
     var tableWidth = table.outerWidth();
     gRescol.mouseStart = event.pageX;
     gRescol.grabbedCell = el.parent().parent();  // the th 
@@ -104,7 +109,7 @@ function gRescolMouseDown(el, event) {
     gRescol.startWidth = gRescol.grabbedCell.outerWidth();
     gRescol.tableNum = tableNum;
     gRescol.table = table;
-    gRescol.colNum = parseColNum(gRescol.grabbedCell);
+    gRescol.colNum = colNum;
     // since the headers come in pairs, this is the second header
     gRescol.secondCell = table.find('tr:eq(1) th.col'+gRescol.colNum);
     gRescol.lastCell = table.find('thead:last th:last');
@@ -891,6 +896,20 @@ function addColMenuActions(colId, tableId) {
             gTables[tableNum].tableCols[index-1].userStr;
         execCol(gTables[tableNum].tableCols[index], tableNum); 
         updateMenuBarTable(gTables[tableNum], tableNum);
+    });
+
+    table.find('.hide.col'+colId).click(function() {
+        var index = parseColNum($(this));
+        var tableNum = parseInt($(this).closest('table').attr('id')
+                       .substring(7));
+        hideCol(index, tableNum);
+    });
+
+    table.find('.unhide.col'+colId).click(function() {
+        var index = parseColNum($(this));
+        var tableNum = parseInt($(this).closest('table').attr('id')
+                       .substring(7));
+        unhideCol(index, tableNum, {autoResize: true});
     });
 
     table.find('.sort.col'+colId).click(function() {
