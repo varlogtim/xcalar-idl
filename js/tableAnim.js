@@ -1013,12 +1013,26 @@ function dropdownClick(el) {
     });
 }
 
-function highlightColumn(el) {
+function highlightColumn(el, keepHighlighted) {
     var index = parseColNum(el);
     var table = el.closest('table');
     $('.selectedCell').removeClass('selectedCell');
     table.find('th.col'+index).addClass('selectedCell');
     table.find('td.col'+index).addClass('selectedCell');
+
+}
+
+function highlightDatasetColumn(el, active) {
+    var index = parseColNum(el);
+    var table = el.closest('table');
+    if (active) {
+        table.find('th.col'+index).removeClass('selectedCol');
+        table.find('td.col'+index).removeClass('selectedCol');
+    } else {
+        table.find('th.col'+index).addClass('selectedCol');
+        table.find('td.col'+index).addClass('selectedCol');
+    }
+    
 }
 
 function checkForScrollBar(tableNum) {

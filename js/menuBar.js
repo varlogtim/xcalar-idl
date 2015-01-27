@@ -8,27 +8,6 @@ function resetLoadArea() {
     $('.slideAway').removeClass('slideAway');
 }
 
-function getTablesAndDatasets() {
-    $(".datasetWrap").empty(); // Otherwise multiple calls will append the
-    // same DS over and over again.
-    var datasets = XcalarGetDatasets();
-    var numDatasets = datasets.numDatasets;
-    var i;
-
-    for (i = 0; i<numDatasets; i++) {
-        var datasetId = datasets.datasets[i].datasetId;
-        var dsName = getDsName(datasetId);
-        var tableDisplay = '<div class="menuAreaItem">'+
-                                '<span class="menuAreaLabel monitorSmall">'+
-                                    'DATA<br>SET</span>'+
-                                '<span class="menuAreaValue">'+
-                                    dsName+
-                                '</span>'+
-                            '</div>';
-        $(".datasetWrap").append(tableDisplay);
-    };
-}
-
 function setupLeftMenuBar() {
     var clickable = true;
     $('#leftMenu').click(function() {

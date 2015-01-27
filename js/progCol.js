@@ -441,6 +441,7 @@ function hideCol(colid, tableid) {
     $("#xcTable"+tableid+" .col"+colid+" .addedBarText").css("padding-left",
     "10px");
     $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "0px");
+    matchHeaderSizes(tableid);
 }
 
 function unhideCol(colid, tableid, options) {

@@ -13,6 +13,7 @@
 @color-tab-divider: #838383;
 
 /* Backgrounds */
+@color-white: #FFFFFF;
 @color-background-topAction: #5CB2E8;
 @color-background-bottomAction: #378CB3;
 @color-background-lightGray: #9C9C9C;
@@ -22,6 +23,7 @@
 @color-background-bottomGrayMed: #AEAEAE;
 @color-arrow-background: #929292;
 @colorColumnListBackground: #CDCDCD;
+@color-background-topForm: #F0F0F0;
 
 @color-background-sidebar: #999999;
 @color-background-tableBorders: #E6E6E6;
@@ -41,6 +43,7 @@
 @color-text-white: #FFFFFF; 
 @color-text-transparentWhite: rgba(255,255,255,0.95); 
 @color-text-brightBlue: #5CB2E8;
+@color-text-blue: #398EB6;
 @color-text-tab: #70828C;
 @color-text-darkGray: #4D4D4D;
 @color-text-dropMenu: #838384;
@@ -52,6 +55,8 @@
 
 /* Heights */
 @default-bar-height: 26px;
+
+@import "datastore.less";
 
 /* ========== Elements ========== */
 .box-sizing (@type: border-box) {
@@ -78,6 +83,22 @@
     -moz-user-select: none; 
     -ms-user-select: none; 
     user-select: none;
+}
+
+.action-gradient {
+    .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
+}
+
+.gray-gradient {
+    .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
+}
+
+.light-gradient {
+    .linear-gradient(top, @color-background-darkGray, #C6C6C6);
+}
+
+.red-gradient {
+    .linear-gradient(top, #F28481, #DC4135);
 }
 
 .transition (@argument) {
@@ -112,21 +133,16 @@
     transform: @argument;
 }
 
-div {
+div, ul, li, span {
     .box-sizing;
     .nomargin-padding;
-}
-
-ul, li {
-    .nomargin-padding;
-    .box-sizing;
 }
 
 ul > li {
     list-style-type: none;
 }
 
-table, tr, td, th, input, textarea {
+table, tr, td, th, input, textarea, p {
     .nomargin-padding;
     .box-sizing;
     border: none;
@@ -135,7 +151,7 @@ table, tr, td, th, input, textarea {
     color: @color-text-darkGray;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6{
     .nomargin-padding;
     display: inline;
 }
@@ -148,6 +164,7 @@ h2 {
 body {
     -webkit-font-smoothing: antialiased;
     .nomargin-padding;
+    color: @color-text-darkGray;
     font-family: @font-base;
     font-weight: 600;
     font-size: 0; /* Need to use this to get rid of stupid white space */
@@ -182,6 +199,7 @@ body {
     float: left;
     margin-left: 34px;
     display: inline-block;
+    height: 41px;
 }
 
 .mainMenuTab {
@@ -197,6 +215,7 @@ body {
     font-family: @font-base;
     // position: relative;
     float: left;
+    cursor: default;
 
     &:last-child {
         padding: 1px 2px;
@@ -229,6 +248,14 @@ body {
         margin-top: 1px; 
         display: inline-block;
         position: absolute;
+    }
+
+    &.active:last-child {
+        height: 32px;
+        margin: 4px 9px 0px 0px;
+        border: 1px solid @color-tab-border;
+        color: @color-text-tab;
+        background-color: rgba(0,0,0, .15);
     }
 }
 
@@ -291,7 +318,7 @@ body {
 }
 
 //XX Style the class .mainPane instead of this id
-#workspacePane {
+#workspacePanel {
     height: ~"calc(100% - 114px)";
 }
 
@@ -702,7 +729,7 @@ body {
     height: ~"calc(100% - 152px)";
     background-color: @color-background-sidebar;
     z-index: 11;
-    box-shadow: -1px 0px 1px rgba(0,0,0,0.3), inset 0px 4px 4px rgba(0,0,0,0.3);
+    box-shadow: -2px 0px 2px 3px rgba(0,0,0,0.1), inset 0px 4px 4px rgba(0,0,0,0.3);
     .transition (right 0.3s);
 
     &.open {
@@ -1254,9 +1281,15 @@ in order to work for the new ui. I will clean this up at some point.
             td.selectedCell {
                 background-color: @color-selectedCell-dark;
             }
+            td.selectedCol {
+                background-color: @color-selectedCell-dark;
+            }
         }
         &:nth-child(even) {
             td.selectedCell {
+                background-color: @color-selectedCell-light;
+            }
+            td.selectedCol {
                 background-color: @color-selectedCell-light;
             }
         }
@@ -1877,6 +1910,207 @@ ul.inputMenu {
 
 
 
+
+/* START DATASET TABLE */
+#contentViewTable {
+    // overflow: auto;
+    position: relative;
+}
+
+.datasetTitleWrap {
+    margin-left: 15px;
+}
+
+#datasetWrap {
+    width: ~"calc(100% - 20px)";
+    overflow: auto;
+    margin: 20px 10px 0px;
+    position: absolute;
+    height: ~"calc(100% - 80px)";
+    border: 1px solid @color-background-lightGray;
+}
+
+.datasetTable {
+    width: 0px;
+    thead {
+        box-shadow: 0px 1px  1px @colorShadow-black;
+        outline: 2px solid rgba(100, 100, 100, .3);
+    }
+
+    th {
+        width: 130px;
+    }
+
+    .selectedCell {
+        .editableHead {
+            background: none !important;
+            // background-color: #CDE6F6 !important;
+            background-color: @color-white !important;
+            color: @color-text-darkGray !important;
+        }
+        td {
+
+        }
+    }
+    .selectedCol {
+        .editableHead {
+            background: none !important;
+            background-color: #CDE6F6 !important;
+            color: #0090E8 !important;
+        }
+    }
+
+    .header {
+        height: 30px;
+        
+        .editableHead {
+            width: ~"calc(100% - 30px)";
+            background-color: @color-white;
+            font-weight: 700;
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+            outline: none;
+            float: left;
+            border: 1px solid @color-background-topGrayMed;
+            z-index: 0;
+        }
+
+        &.colAdded {
+            .checkBox {
+                .action-gradient;
+                border-left: 1px solid @color-background-topAction;
+            }
+        }
+    }
+
+    .checkBox {
+        display: inline-block;
+        float: right;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        width: 30px;
+        height: 100%;
+        border: 1px solid @color-background-topGrayMed;
+        .linear-gradient(top, @color-background-darkGray, #C6C6C6);
+        cursor: pointer;
+        .icon {
+            width: 100%;
+            height: 100%;
+            display: inline-block;
+            background: url(/images/checkmark-inactive.png) 50% 50% no-repeat;
+        }
+    }
+}
+
+
+#dataCart {
+    margin-left: 12px;
+    background-color: @color-background-darkGray;
+    .selectedTable {
+        margin-top: 12px;
+        margin-bottom: 18px;
+        width: 225px;
+
+        h3 {
+            display: inline-block;
+            text-indent: 4px;
+        }
+
+        li {
+            height: 28px;
+            line-height: 28px;
+            background-color: @color-white;
+            border-radius: 3px;
+            box-shadow: -1px 1px 1px rgba(0,0,0,.2);
+            overflow: hidden;
+            margin-top: 8px;
+            font-weight: 700;
+
+            &.colSelected {
+                box-shadow: 0px 0px 0px 2px @color-background-bottomAction;
+                color: @color-background-bottomAction;
+            }
+
+            &.keySelected {
+                background-color: @color-selectedCell-light; 
+            }
+
+            .colName {
+                width: 200px;
+                height: 100%;
+                padding-left: 12px;
+                float: left;
+                display: inline-block;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                cursor: default;
+                
+            }
+            .removeCol {
+                width: 25px;
+                height: 100%;
+                float: left;
+                display: inline-block;
+                .gray-gradient;
+                cursor: pointer;
+
+                &:hover {
+                    .red-gradient;
+                }
+
+                .closeIcon {
+                    display: inline-block;
+                    width: 100%;
+                    height: 100%;
+                    background: url(/images/ds-close.png) 50% 50% no-repeat,
+                }
+            }
+        }
+    }
+
+    .buttonArea {
+        margin-top: 25px;
+    }
+
+    .btnLarge {
+        margin-top: 10px;
+        width: 225px;
+        font-size: 11px;
+
+        .icon {
+            margin: 4px;
+            float: left;
+            display: inline-block;
+        }
+
+        &#submitDSTablesBtn {
+            .icon {
+                background: url(/images/send-single.png) 0 0 no-repeat;
+                width: 27px;
+                height: 21px;
+            }
+        }
+        &#submitMultipleDBTablesBtn {
+            .icon {
+                background: url(/images/send-multiple.png) 0 0 no-repeat;
+                width: 27px;
+                height: 23px;
+            }
+        }
+        &#clearDataChart {
+            .icon {
+                background: url(/images/garbage.png) 0 0 no-repeat;
+                width: 22px;
+                height: 24px;
+                margin-right: 8px;
+            }
+        }
+        
+    }
+}
+
+
+
 /* START WORKSHEET BAR */
 .worksheetBar {
     color: @color-white;
@@ -2028,6 +2262,7 @@ ul.inputMenu {
     position: relative;
     margin-top: 5px;
     box-shadow: none;
+    z-index: 0;
 
     div {
         padding: 0;
@@ -2369,16 +2604,12 @@ ul.inputMenu {
 }
 
 #shoppingCart {
-    .centered;
+    // .centered;
     height: 70%;
     width: 60%;
     background-color: @color-white;
-    z-index: 36;
-    resize: both;
     overflow: auto;
-    max-width: 99%;
-    max-height: 99%;
-    display: none;
+    // display: none;
 }
 /* END SHOPPING CART */
 

@@ -55,6 +55,7 @@ var TableMeta = function() {
 }
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
+    var timer;
     $("#xcTableWrap"+tableNum).scroll(function() {
         if (gMouseStatus == "movingTable") {
             return;
@@ -95,10 +96,11 @@ function infScrolling(tableNum) {
                      RowDirection.Bottom, dynTableNum);
         }
 
-         delay(function(){
-            adjustColGrabHeight(dynTableNum); 
-        }, 200);
-            
+        clearTimeout(timer);
+        timer = setTimeout(function () { 
+            adjustColGrabHeight(dynTableNum);  
+        } , 300 );
+
         table.find('.colGrab').show();
         var top = $(this).scrollTop();
         $('#theadWrap'+dynTableNum).css('top',top);
@@ -106,13 +108,6 @@ function infScrolling(tableNum) {
         generateFirstLastVisibleRowNum(rowScrollerMove);
         updatePageBar(dynTableNum);
     });
-    var delay = (function(){
-        var timer = 0;
-        return function(callback, ms) {
-        clearTimeout (timer);
-        timer = setTimeout(callback, ms);
-        };
-    })();
 }
 
 // XXX: This function should disappear. But I need to be able to free the
@@ -248,6 +243,28 @@ function setupHiddenTable() {
     }  
 }
 
+function  mainPanelsTabing() {
+    $('.mainMenuTab').click(function() {
+        $('.mainMenuTab').removeClass('active');
+        $(this).addClass('active');
+        if ($(this).attr('id') == "workspaceTab") {
+            $('#datastoreView').hide();
+            if ($('#workspacePanel').css('display') == "none") {
+                $('#workspacePanel').show();
+                for (var i = 0; i < gTables.length; i++) {
+                    matchHeaderSizes(i);
+                    adjustColGrabHeight(i);
+                }
+            } 
+            
+        } else if ($(this).attr('id') == "dataStoresTab") {
+            $('#workspacePanel').hide();
+            $('#datastoreView').show();
+        }
+        
+    });
+}
+
 // ========================== Document Ready ==================================
 
 function documentReadyxcTableFunction() {
@@ -306,30 +323,20 @@ function documentReadyGeneralFunction() {
         commitToStorage();
     }); 
 
+    var timer;
     $(window).resize(function() {
-        // $('.colGrab').height($('#xcTable0').height());
         $('.colGrab').height(30);
-        delay(function(){
-        var i = 0;
+        clearTimeout(timer);
+        timer = setTimeout(function () { 
+            var i = 0;
             $('.xcTable').each(function() {
                 adjustColGrabHeight(i);
                 i++;
             });
-          //...
-        }, 100);
-        //XXX each tables colGrab height will need to be adjusted
+        }, 100 );
         checkForScrollBar(0);
         generateFirstLastVisibleRowNum();
     });
-
-    var delay = (function(){
-        var timer = 0;
-        return function(callback, ms) {
-        clearTimeout (timer);
-        timer = setTimeout(callback, ms);
-      };
-    })();
-
 
     //XXX using this to keep window from scrolling on dragdrop
     $(window).scroll(function() {
@@ -347,27 +354,6 @@ function documentReadyGeneralFunction() {
     $('.jsonDragArea').mousedown(function(event) {
         jsonModalMouseDown(event);
     });
-
-    $('#datastorePanel .menuAreaItem:first').click(function() {
-        $("#loadArea").load('load_r.html', function(){
-            // load_r.html contains load.js where this function is defined
-            loadReadyFunction();
-            setTimeout(function() {
-                $('#progressBar').css('transform', 'translateX(330px)');
-                $('.dataStep').css('transform', 'translateX(320px)');
-                $('.dataOptions').css({'transform':'translateX(570px)', 
-                    'z-index': 6});
-            }, 1);
-        });
-        $('.datasetWrap').addClass('slideAway');
-
-        /* temporary add data store while transitioning to new ui */
-        
-    });
-    
-    setupFunctionBar();
-    setupWorksheetAndShoppingCart();
-    scratchpadStartup(); 
 
     $(document).mousedown(function(event) {
         var target = $(event.target);
@@ -482,10 +468,15 @@ function documentReadyCatFunction(tableNum) {
 function startupFunctions() {
     readFromStorage();
     // setupLeftMenuBar();
-    getTablesAndDatasets();
     documentReadyGeneralFunction();
     getWorksheetNames(); 
     setupRightSideBar();
+    setupDatasetList();
+    mainPanelsTabing();
+    setupFunctionBar();
+    scratchpadStartup(); 
+    setupDSCartButtons();
+    setupImportDSForm();
 }  
 
 function tableStartupFunctions(table, tableNum) {

@@ -322,6 +322,7 @@ function createWorksheet() {
         var name = $('#worksheetBar .worksheetTab input').val();
         setWorksheetName(0, name);
     }
+
 }
 
 function attachShoppingCartListeners(tableNum) {
@@ -547,6 +548,5 @@ function setupWorksheetAndShoppingCart() {
     $("#cancelButton").click(function() {
         resetShoppingCart();
     });
-
-    $("#shoppingCart").hide();
+    // $("#shoppingCart").hide();
 }

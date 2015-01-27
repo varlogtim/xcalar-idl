@@ -4,33 +4,8 @@
 <title>Xcalar</title>
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:700,600,400' rel='stylesheet' type='text/css'>
 <link href="/stylesheets/css/style.css" rel="stylesheet" type="text/css">
-<script src="/3rd/jquery.min.js" type="text/javascript"></script>
-<script src="/js/thrift/thrift.js" type="text/javascript"></script>
-<script src="/js/thrift/GenericTypesEnums_types.js" type="text/javascript"></script>
-<script src="/js/thrift/DataFormatEnums_types.js" type="text/javascript"></script>
-<script src="/js/thrift/LibApisEnums_types.js" type="text/javascript"></script>
-<script src="/js/thrift/OperatorsEnums_types.js" type="text/javascript"></script>
-<script src="/js/thrift/Status_types.js" type="text/javascript"></script>
-<script src="/js/thrift/LibApisCommon_types.js" type="text/javascript"></script>
-<script src="/js/thrift/XcalarApiService.js" type="text/javascript"></script>
-<script src="/js/config.js" type="text/javascript"></script>
-<script src="/js/thrift/XcalarApiVersionSignature_types.js"
-        type="text/javascript"></script>
-<script src="/js/thrift/XcalarApi.js" type="text/javascript"></script>
-<script src="/js/XcalarThrift.js" type="text/javascript"></script>
-<script src="/js/enums.js" type="text/javascript"></script>
-<script src="/js/json.js" type="text/javascript"></script>
-<script src="/js/menuBar.js" type="text/javascript"></script>
-<script src="/js/progCol.js" type="text/javascript"></script>
-<script src="/js/resultSet.js" type="text/javascript"></script>
-<script src="/js/script.js" type="text/javascript"></script>
-<script src="/js/store.js" type="text/javascript"></script>
-<script src="/js/tableAnim.js" type="text/javascript"></script>
-<script src="/js/tableDisplay.js" type="text/javascript"></script>
-<script src="/js/worksheetBuilder.js" type="text/javascript"></script>
-<script src="/js/xcFunctions.js" type="text/javascript"></script>
-<script src="/js/scratchpad.js" type="text/javascript"></script>
-<script src="/js/rightSlider.js" type="text/javascript"></script>
+<link rel="stylesheet" href="bower_components/fontawesome/css/font-awesome.min.css">
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
 </head>
 
 <body>
@@ -56,7 +31,7 @@
     <div id="logo"></div>
     <div id="userNameArea">Welcome: <span id="userName">Professor X</span></div>
   </div>
-  <div id="workspacePane" class="mainPane">
+  <div id="workspacePanel" class="mainPanel">
     <div id="workspaceBar" class="workspaceBar topBar">
       <div id="leftMenu" class="workspaceArea">
         <span class="icon"></span>
@@ -106,6 +81,154 @@
       <!-- auto generated tables go here -->
     </div>
   </div><!-- end workspacePane -->
+  <div id="datastoreView" class="mainPanel">
+    <div id="contentHeader">
+      <div id="contentHeaderLeft">
+        <div class="buttonArea" active>
+          <div id="exploreButton"></div>
+        </div>
+        <div class="buttonArea">
+          <div id="searchButton"></div>
+        </div>
+      </div>
+      <div id="contentHeaderMid"></div>
+      <div id="contentHeaderRight"></div>
+    </div>
+    <div id="importDataView">
+          <div id="importHelp">
+            <div class="contentViewMidWrap">
+              <h2>Import New Data Set</h2>
+              <span class="icon"></span>
+              <p>INPUT FILE PATH AND FILE NAME TO IMPORT DATA SET. THEN SELECT FILE FORMAT. IMPORTED DATA WILL BE LISTED ON THE LEFT.</p>
+            </div>
+          </div>
+          <form target="_blank" id="importDataForm">
+            <div id="importDataTopForm">
+              <div class="contentViewMidWrap">
+                <div id="filePathSelector" class="importFormRow">
+                  <label>File Path:</label>
+                  <input type="text" name="filePath" id="filePath" autocomplete="on" placeholder="Enter File Directory" required> 
+                </div>
+                <div id="fileNameSelector" class="importFormRow">
+                  <label>File Name:</label>
+                  <input type="text" name="fileName" id="fileName" autocomplete="on" placeholder="Enter Dataset Name" required>
+                </div>
+              </div>
+            </div>
+            <div id="importDataBottomForm">
+              <div class="contentViewMidWrap">
+                <div id="fileFormat">
+                  <span>File Format:</span>
+                  <label>
+                    <input type="radio" name="dsType" id="dsTypeJSON" value="JSON" required>
+                    <div class="dsRadio"></div>
+                    <span class="dsTypeLabel">JSON</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="dsType" id="dsTypeCSV" value="CSV" required>
+                    <div class="dsRadio"></div>
+                    <span class="dsTypeLabel">CSV</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="dsType" id="dsTypeRand" value="rand" required>
+                    <div class="dsRadio"></div>
+                    <span class="dsTypeLabel">Random</span>
+                  </label>
+                </div>
+                <button type="reset">CANCEL</button>
+                <button type="submit">IMPORT DATA</button>
+              </div>
+            </div>
+          </form>
+          <div id="importDataOverlay"></div>
+        </div>
+    <div id="mainContent">
+      <div id="searchView">
+        <div id="contentView">
+          <div id="contentViewLeft">
+            <div id="importDataArea">
+              <!-- <div id="importDataButton"></div> -->
+            </div>
+            <div id="datasetSearch"></div>
+            <div id="listView">
+              
+            </div>
+          </div>
+          <div id="contentViewMid">
+            <div id="searchHeader"></div>
+            <div id="searchResult"></div>
+          </div>
+          <div id="contentViewRight">
+          </div>
+        </div>
+      </div>
+      <div id="exploreView">
+        <div id="contentView">
+          <div id="contentViewLeft">
+            <div id="datasetExplore"></div>
+            <div id="importDataArea">
+              <div id="importDataButton"></div>
+            </div>
+            <div id="gridView">
+           <!--    <grid-unit>
+                <div class='icon'></div><div class='label'>Population v Postcode UK DB</div>
+              </grid-unit>
+              <grid-unit>
+                <div class='icon'></div><div class='label'>Population v Postcode UK DB</div>
+              </grid-unit>
+              <grid-unit>
+                <div class='icon'></div><div class='label'>Population v Postcode UK DB</div>
+              </grid-unit> -->
+            </div>
+          </div>
+          <div id="contentViewMid">
+            <div id="contentViewHeader">   
+              <div class="contentViewMidWrap">
+                <div class="dbText">
+                  <h2>Population v Postcode UK DB</h2>
+                  <p>Created by: Aerrie Seo | Date Created: 14-12-2015 | Last Updated 31-12-2014</p>
+                  <p>Records 12,435 | Size: 21 GB</p>
+                </div>
+                <div class="modifyDBButtons">
+                  <div class="edit modifyDBButton">Edit<span class="icon"></span></div>
+                  <div class="update modifyDBButton">Update<span class="icon"></span></div>
+                  <div class="delete modifyDBButton">Delete<span class="icon"></span></div>
+                </div>
+              </div>
+            </div>
+            <div id="contentViewTable">
+              <div class="datasetTitleWrap">
+                <div class="dsInfo">
+                  <h2>JSON Schema</h2>
+                  <p><b>Schema Title:</b> <span id="schemaTitle">N/A</span></p>
+                </div>
+              </div> <!-- end contentviewmidwrap -->
+              <div id="datasetWrap">
+              </div>
+            </div><!--- end contentviewtable -->
+          </div><!-- end contentviewmid -->
+          <div id="contentViewRight">
+            <div id="dataCart">
+              <div class="buttonArea">
+                <div class="btnLarge" id="submitDSTablesBtn" style="display: block;">
+                  <span class="icon"></span>
+                  SEND TO ACTIVE WORKSHEET
+                </div>
+                <div class="btnLarge" id="submitMultipleDBTablesBtn" style="display: block;">
+                  <span class="icon"></span>
+                  SEND TO MULTIPLE WORKSHEETS
+                </div>
+                <div class="btnLarge" id="clearDataChart" style="display: block;">
+                  <span class="icon"></span>
+                  CLEAR DATA CART
+                </div>
+              </div>
+            </div><!-- END DATA CART-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="rightSideBar">
     <div id="cliSection" class="rightBarSection">
       <div class="heading">
@@ -150,13 +273,13 @@
       </div>
     </div>
     <div id="pulloutTab"></div>
-  </div><!-- end rightsidebar -->
+  </div><!-- end rightsidebar  -->
   <div id="bottomArea">
     <div id="worksheetBar" class="workspaceBar clearfix">
       <div id="worksheetInfo" class="clearfix">
         <div class="workspaceArea">Xcalar Level Worksheet</div>
         <div class="workspaceArea">Created on 02-14-15 </div>
-        <div class="workspaceArea">3 Data Stores</div>
+        <div class="workspaceArea"><span class="numDataStores">3</span> Data Stores</div>
         <div class="workspaceArea">5 Columns</div>
         <div class="workspaceArea">Brief Description of worksheet brief description of worksheet</div>
       </div>
@@ -206,33 +329,7 @@
 
 <!-- START OF TEMPORARY STUFF-->
 
-  <div id="modalBackground"></div>
-    <div id="shoppingCart">
-      <div id="builderBar">worksheet builder</div>
-      <div id="builderTabBar" class="worksheetBar">
-        <div id="builderTabWrap">
-        </div>
-      </div>
-      <div id="datasetBrowser" class="tableWrap">
-       <!-- tables goes here -->
-      </div>
-      <div id="selectedBar">selected columns</div>
-      <div id="selectedSection">
-        <div id="selectedDataset">
-          <!-- selected tables go here -->
-        </div>
-        <div id="datasetButtons">
-          <div id="createButton">
-            <div class="rectangle">create</div>
-            <div class="arrow"></div>
-          </div>
-          <div id="cancelButton">
-              <div class="rectangle">cancel</div>
-              <div class="arrow"></div>
-          </div>
-        </div>
-      </div>    
-    </div>
+  <!-- <div id="modalBackground"></div> -->
 
   <div id="jsonModal">
       <div class="jsonDragArea"></div>
@@ -260,6 +357,37 @@
     </div>
   <!-- END OF TEMPORARY STUFF -->
 </div> <!-- END CONTAINER -->
+
+<script src="bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js"></script>
+
+<script src="/js/thrift/thrift.js" type="text/javascript"></script>
+<script src="/js/thrift/GenericTypesEnums_types.js" type="text/javascript"></script>
+<script src="/js/thrift/DataFormatEnums_types.js" type="text/javascript"></script>
+<script src="/js/thrift/LibApisEnums_types.js" type="text/javascript"></script>
+<script src="/js/thrift/OperatorsEnums_types.js" type="text/javascript"></script>
+<script src="/js/thrift/Status_types.js" type="text/javascript"></script>
+<script src="/js/thrift/LibApisCommon_types.js" type="text/javascript"></script>
+<script src="/js/thrift/XcalarApiService.js" type="text/javascript"></script>
+<script src="/js/config.js" type="text/javascript"></script>
+<script src="/js/thrift/XcalarApiVersionSignature_types.js"
+        type="text/javascript"></script>
+<script src="/js/thrift/XcalarApi.js" type="text/javascript"></script>
+<script src="/js/XcalarThrift.js" type="text/javascript"></script>
+<script src="/js/enums.js" type="text/javascript"></script>
+<script src="/js/json.js" type="text/javascript"></script>
+<script src="/js/menuBar.js" type="text/javascript"></script>
+<script src="/js/progCol.js" type="text/javascript"></script>
+<script src="/js/resultSet.js" type="text/javascript"></script>
+<script src="/js/script.js" type="text/javascript"></script>
+<script src="/js/store.js" type="text/javascript"></script>
+<script src="/js/tableAnim.js" type="text/javascript"></script>
+<script src="/js/tableDisplay.js" type="text/javascript"></script>
+<script src="/js/worksheetBuilder.js" type="text/javascript"></script>
+<script src="/js/xcFunctions.js" type="text/javascript"></script>
+<script src="/js/scratchpad.js" type="text/javascript"></script>
+<script src="/js/rightSlider.js" type="text/javascript"></script>
+<script src="/js/datasetSelector.js" type="text/javascript"></script>
+<script src="js/partials/datastore.js"></script>
 <script>
     documentReadyIndexFunction();
 </script>

@@ -56,15 +56,16 @@ function checkLoadStatus(name) {
         if (dsList.datasets[i].name == name) {
             if (dsList.datasets[i].loadIsComplete) {
                 console.log("Load of "+name+" is done!");
-                // TODO: Add the icon here :)
+                displayNewDataset();
             } else {
                 setTimeout(function() {
                     checkLoadStatus(name);
-                }, 500);
+                }, 1000);
             }
         }
     }
 }
+
 
 function sortRows(index, tableNum, order) {
     console.log(arguments);

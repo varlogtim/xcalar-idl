@@ -24,6 +24,7 @@ function setupRightSideBar() {
                 // close current section, open new section
                 sidebar.find('.active').removeClass('active');
                 sidebarSection.addClass('active');
+                $('#cliSection').find('textarea').focus();
             }
         }
 
@@ -49,7 +50,7 @@ function setupRightSideBar() {
 
         clickable = false;
         setTimeout(function() {
-            clickable = true
+            clickable = true;
         }, 300);
     });
 
