@@ -4,7 +4,6 @@ ThriftHandle = function(args) {
     this.client = null;
 };
 
-// DONE TESTED
 function xcalarConnectThrift(hostname, port) {
     var thriftUrl = "http://" + hostname + ":" + port.toString() +
         "/thrift/service/XcalarApiService/";
@@ -23,7 +22,6 @@ function xcalarConnectThrift(hostname, port) {
     return thriftHandle;
 }
 
-// DONE TESTED
 function xcalarGetVersion(thriftHandle) {
     console.log("xcalarGetVersion()");
 
@@ -47,7 +45,6 @@ function xcalarGetVersion(thriftHandle) {
     return verOutput;
 }
 
-// DONE DOES NOT WORK
 function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
     console.log("xcalarLoad(url = " + url + ", name = " + name + ", format = " +
                 DfFormatTypeTStr[format] + ", maxSampleSize = " +
@@ -83,7 +80,6 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
     return loadOutput;
 }
 
-// DONE TESTED
 function xcalarIndexDataset(thriftHandle, sync, datasetId, keyName,
                             dstTableName) {
     console.log("xcalarIndexDataset(datasetId = " + datasetId.toString() +
@@ -123,7 +119,6 @@ function xcalarIndexDataset(thriftHandle, sync, datasetId, keyName,
     return indexOutput;
 }
 
-// DONE TESTED
 function xcalarIndexTable(thriftHandle, sync, srcTableName, keyName,
                           dstTableName) {
     console.log("xcalarIndexTable(srcTableName = " + srcTableName +
@@ -163,7 +158,6 @@ function xcalarIndexTable(thriftHandle, sync, srcTableName, keyName,
     return indexOutput;
 }
 
-// DONE TESTED
 function xcalarGetCount(thriftHandle, tableName) {
     console.log("xcalarGetCount(tableName = " + tableName + ")");
 
@@ -192,7 +186,6 @@ function xcalarGetCount(thriftHandle, tableName) {
     return countOutput;
 }
 
-// DONE NO TESTS
 function xcalarShutdown(thriftHandle) {
     console.log("xcalarShutdown()");
 
@@ -215,7 +208,6 @@ function xcalarShutdown(thriftHandle) {
     return status;
 }
 
-// Front end has no use for this information yet
 function xcalarGetStats(thriftHandle, nodeId) {
     console.log("xcalarGetStats(nodeId = " + nodeId.toString() + ")");
 
@@ -244,7 +236,6 @@ function xcalarGetStats(thriftHandle, nodeId) {
     return statOutput;
 }
 
-// DONE TESTED
 function xcalarEditColumn(thriftHandle, datasetId, tableName, isDataset,
                           currFieldName, newFieldName, newFieldType) {
     console.log("xcalarEditColumn(datasetId = " + datasetId.toString() +
@@ -413,7 +404,6 @@ function xcalarQueryState(thriftHandle, queryId) {
     return queryStateOutput;
 }
 
-// DONE TEST
 function xcalarListTables(thriftHandle, patternMatch) {
     console.log("xcalarListTables(patternMatch = " + patternMatch + ")");
 
@@ -440,7 +430,6 @@ function xcalarListTables(thriftHandle, patternMatch) {
     return listTablesOutput;
 }
 
-// DONE TEST
 function xcalarListDatasets(thriftHandle) {
     console.log("xcalarListDatasets()");
 
@@ -466,7 +455,6 @@ function xcalarListDatasets(thriftHandle) {
     return listDatasetsOutput;
 }
 
-// DONE TEST
 function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
     console.log("xcalarMakeResultSetFromTable(tableName = " + tableName + ")");
 
@@ -498,7 +486,6 @@ function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
     return makeResultSetOutput;
 }
 
-// DONE TESTED
 function xcalarMakeResultSetFromDataset(thriftHandle, datasetId) {
     console.log("xcalarMakeResultSetFromDataset(datasetId = " +
                 datasetId.toString() + ")");
@@ -532,7 +519,6 @@ function xcalarMakeResultSetFromDataset(thriftHandle, datasetId) {
     return makeResultSetOutput;
 }
 
-// DONE TEST
 function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
     console.log("xcalarResultSetNext(resultSetId = " + resultSetId.toString() +
                 ", numRecords = " + numRecords.toString() + ")");
@@ -563,7 +549,6 @@ function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
     return resultSetNextOutput;
 }
 
-// DONE
 function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
                     joinType) {
     console.log("xcalarJoin(leftTableName = " + leftTableName +
@@ -604,7 +589,6 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
     return joinOutput;
 }
 
-// DONE TESTED
 function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
     console.log("xcalarFilter(srcTableName = " + srcTableName +
                 ", dstTableName = " + dstTableName + ", filterStr = " +
@@ -639,7 +623,6 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
     return filterOutput;
 }
 
-// DONE
 function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
                        fieldName, newFieldName) {
     console.log("xcalarGroupBy(srcTableName = " + srcTableName +
@@ -678,7 +661,6 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
     return status;
 }
 
-// DONE TEST
 function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
     console.log("xcalarResultSetAbsolute(resultSetId = " +
                 resultSetId.toString() + ", position = " +
@@ -710,7 +692,6 @@ function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
     return status;
 }
 
-// DONE
 function xcalarFreeResultSet(thriftHandle, resultSetId) {
     console.log("xcalarResultSetAbsolute(resultSetId = " +
                 resultSetId.toString() + ")");
@@ -740,7 +721,6 @@ function xcalarFreeResultSet(thriftHandle, resultSetId) {
     return status;
 }
 
-
 function xcalarDeleteTable(thriftHandle, tableName) {
     console.log("xcalarDeleteTable(tableName = " + tableName + ")");
 
@@ -768,7 +748,6 @@ function xcalarDeleteTable(thriftHandle, tableName) {
     return status;
 }
 
-// DONE TESTED
 function xcalarGetTableRefCount(thriftHandle, tableName) {
     console.log("xcalarGetTableRefCount(tableName = " + tableName + ")");
 
@@ -850,7 +829,6 @@ function xcalarDestroyDataset(thriftHandle, datasetId) {
     return status;
 }
 
-// DONE
 function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
                       dstTableName) {
     console.log("xcalarApiMap(newFieldName = " + newFieldName + ", evalStr = "
@@ -888,7 +866,6 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
     return mapOutput;
 }
 
-// DONE TESTED
 function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
     console.log("xcalarAggregate(srcTableName = " + srcTableName +
                 ", aggregateOp = " + OperatorsOpTStr[aggregateOp] +

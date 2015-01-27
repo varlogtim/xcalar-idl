@@ -8,7 +8,6 @@ function XcalarGetVersion() {
     }
 }
 
-// XXX UNTESTED
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     if (tHandle == null) {
         return (null);
@@ -250,3 +249,5 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     }
     xcalarGroupBy(handle, tableName, newTableName, op, oldColName, newColName);
 }
+
+

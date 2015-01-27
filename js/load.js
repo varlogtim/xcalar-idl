@@ -84,7 +84,7 @@ function detailsSubmit(e) {
         var dsId = XcalarLoad(loadArgs[0], loadFormat, tablename,
                               loadArgs[1], loadArgs[2]);
         console.log("This is the returned dsId "+dsId);
-        
+        checkLoadStatus(tablename);
         // checkLoad();
     }
 }

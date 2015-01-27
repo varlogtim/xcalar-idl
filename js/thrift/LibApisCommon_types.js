@@ -616,6 +616,7 @@ XcalarApiDatasetT = function(args) {
   this.datasetId = null;
   this.formatType = null;
   this.name = null;
+  this.loadIsComplete = null;
   if (args) {
     if (args.url !== undefined) {
       this.url = args.url;
@@ -628,6 +629,9 @@ XcalarApiDatasetT = function(args) {
     }
     if (args.name !== undefined) {
       this.name = args.name;
+    }
+    if (args.loadIsComplete !== undefined) {
+      this.loadIsComplete = args.loadIsComplete;
     }
   }
 };
@@ -673,6 +677,13 @@ XcalarApiDatasetT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.BOOL) {
+        this.loadIsComplete = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -702,6 +713,11 @@ XcalarApiDatasetT.prototype.write = function(output) {
   if (this.name !== null && this.name !== undefined) {
     output.writeFieldBegin('name', Thrift.Type.STRING, 4);
     output.writeString(this.name);
+    output.writeFieldEnd();
+  }
+  if (this.loadIsComplete !== null && this.loadIsComplete !== undefined) {
+    output.writeFieldBegin('loadIsComplete', Thrift.Type.BOOL, 5);
+    output.writeBool(this.loadIsComplete);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
