@@ -4,7 +4,7 @@ function setupDSCartButtons() {
         $(this).addClass('active');
         var datasetName = $(this).find('.label').text();
         var displaying = false;
-        $('#datasetWrap').find('.datasetTable').each(function() {
+        $('#datasetWrap').find('.datasetTableWrap').each(function() {
             if (datasetName == $(this).data().dsname) {
                 displaying = $(this);
                 return;
@@ -14,12 +14,10 @@ function setupDSCartButtons() {
         if (!displaying) {
             getDatasetSample(datasetName);
         } else {
-            $('.datasetTable').hide();
+            $('.datasetTableWrap').hide();
             displaying.show();
             updateDatasetInfoFields(datasetName);
-
         }
-        
     });
 
     $("#submitDSTablesBtn").click(function() {
@@ -103,19 +101,21 @@ function addSelectedTable(index, tableName, dsName) {
 function addDatasetTable(datasetTitle, tableNumber) { 
     //append the table tabs
 
-
     //append the table to datasetbrowser div
-    // $('#datasetWrap').empty();
-    $('.datasetTable').hide();
+    $('.datasetTableWrap').hide();
     $('#datasetWrap').prepend('\
-        <table id="worksheetTable'+tableNumber+'"\
+        <div id="dataSetTableWrap'+tableNumber+'" \
+        class="datasetTableWrap" \
+        data-dsname="'+datasetTitle+'">\
+        <table id="worksheetTable'+tableNumber+'" \
         class="datasetTable dataTable" \
-        data-dsname="'+datasetTitle+'"> \
+        data-dsname="'+datasetTitle+'">\
             <thead>\
               <tr>\
               </tr>\
             </thead>\
-        </table>');
+        </table>\
+        </div>');
 }
 
 function addDataSetHeaders(json, datasetId, index) {
@@ -373,5 +373,6 @@ function updateDatasetInfoFields(dsName, active) {
     if (active) {
         var numDatasets = XcalarGetDatasets().numDatasets;
         $('#worksheetInfo').find('.numDataStores').text(numDatasets);
+        $('#datasetExplore').find('.numDataStores').text(numDatasets);
     }
 }

@@ -477,6 +477,7 @@ function startupFunctions() {
     scratchpadStartup(); 
     setupDSCartButtons();
     setupImportDSForm();
+    updateDatasetInfoFields("Datasets", IsActive.Active);
 }  
 
 function tableStartupFunctions(table, tableNum) {

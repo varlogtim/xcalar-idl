@@ -77,7 +77,7 @@
 }
 
 
-.noSelection{
+.noSelection {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none; 
@@ -205,7 +205,7 @@ body {
 .mainMenuTab {
     height: 32px;
     margin: 4px 9px 0px 0px;
-    padding: 6px 20px 0px 35px;
+    padding: 5px 20px 0px 35px;
     border: 1px solid @color-tab-border;
     border-radius: 3px;
     display: inline-block;
@@ -213,9 +213,9 @@ body {
     background-color: rgba(0,0,0, .15);
     font-size: 14px;
     font-family: @font-base;
-    // position: relative;
     float: left;
     cursor: default;
+    .noSelection;
 
     &:last-child {
         padding: 1px 2px;
@@ -226,6 +226,22 @@ body {
         background-color: rgba(255,255,255,.15);
         color: @color-white;
         border: 1px solid @color-table-borderGray;
+
+        .mountain-icon {
+            background: url(/images/mountain-active.png) 0 0 no-repeat;
+        }
+
+        .page-icon {
+            background: url(/images/page-active.png) 0 0 no-repeat;
+        }
+
+        .db-icon {
+            background: url(/images/db-icon-active.png) 0 0 no-repeat;
+        }
+
+        .user-icon {
+            background: url(/images/user-active.png) 0 0 no-repeat;
+        }
     }
 
     &.active {
@@ -239,6 +255,22 @@ body {
         border-bottom-right-radius: 0px;
         z-index: 12;
         position: relative;
+
+        .mountain-icon {
+            background: url(/images/mountain-active.png) 0 0 no-repeat;
+        }
+
+        .page-icon {
+            background: url(/images/page-active.png) 0 0 no-repeat;
+        }
+
+        .db-icon {
+            background: url(/images/db-icon-active.png) 0 0 no-repeat;
+        }
+
+        .user-icon {
+            background: url(/images/user-active.png) 0 0 no-repeat;
+        }
     }
 
     .icon {
@@ -257,32 +289,26 @@ body {
         color: @color-text-tab;
         background-color: rgba(0,0,0, .15);
     }
-}
 
-#workspaceTab {
-    .icon {
+    .mountain-icon {
         background: url(/images/mountain.png) 0 0 no-repeat;
     }
-}
 
-#worksheetsTab {
-    .icon {
+    .page-icon {
         background: url(/images/page.png) 0 0 no-repeat;
+        margin-top: 0px;
     }
-}
 
-#dataStoresTab {
-    .icon {
+    .db-icon {
         background: url(/images/db-icon.png) 0 0 no-repeat;
     }
-}
 
-#collabTab {
-    .icon {
+    .user-icon {
         background: url(/images/user-icon.png) 0 0 no-repeat;
-        // background: url(/images/user-icon-white4.png) 0 0 no-repeat;
     }
 }
+
+    
 
 #stats {
     .icon {
@@ -696,6 +722,28 @@ body {
 
 }
 
+.btn {
+    .noSelection;
+    cursor: pointer;
+    display: inline-block;
+    border: 0;
+    outline: 0;
+    border-radius: 2px;
+    color: @color-text-transparentWhite;
+    background: linear-gradient(@color-background-topAction, 
+                @color-background-bottomAction);
+
+    &:hover {
+       box-shadow: inset 0px 0px 1px 1px rgba(0,0,0,0.1), 1px 2px 1px rgba(0,0,0,.35); 
+    }
+}
+
+.btnSmall {
+    height: 22px;
+    width: 22px;
+    border-radius: 2px;
+}
+
 .btnLarge {
     width: 230px;
     height: 30px;
@@ -705,16 +753,23 @@ body {
     box-shadow: 1px 2px 1px rgba(0,0,0,.2);
     line-height: 30px;
     font-size: 12px;
-    background: linear-gradient(@color-background-topAction, 
-                @color-background-bottomAction);
-    cursor: pointer;
+    cursor: pointer;   
 }
 
 .btnInactive {
     // background: linear-gradient(@color-background-topGrayMed, 
     //                 @color-background-bottomGrayMed);
     opacity: 0.3;
+    box-shadow: none;
     pointer-events: none;
+}
+
+.btnDeselected {
+    .gray-gradient;
+}
+
+.icon {
+    display: inline-block;
 }
 
 #rightSideBar {
@@ -722,11 +777,9 @@ body {
     bottom: 74px;
     right: -230px;
     right: -25%;
-    // width: 240px;
-    // width: 25%;
     width: ~"calc(25% + 10px)";
-    border-left: 1px solid @color-bar-border;
     height: ~"calc(100% - 152px)";
+    border-left: 1px solid @color-bar-border;
     background-color: @color-background-sidebar;
     z-index: 11;
     box-shadow: -2px 0px 2px 3px rgba(0,0,0,0.1), inset 0px 4px 4px rgba(0,0,0,0.3);
@@ -967,13 +1020,8 @@ body {
     width: 22px;
     height: 22px;
     border-radius: 2px;
-    display: inline-block;
-    background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
     box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    cursor: pointer;
-    .noSelection;
+
     span {
         height: 100%;
         width: 100%;
@@ -1909,9 +1957,8 @@ ul.inputMenu {
 /* END VERTICAL RESIZING */
 
 
-
-
 /* START DATASET TABLE */
+
 #contentViewTable {
     // overflow: auto;
     position: relative;
@@ -1922,6 +1969,10 @@ ul.inputMenu {
 }
 
 #datasetWrap {
+    
+}
+
+.datasetTableWrap {
     width: ~"calc(100% - 20px)";
     overflow: auto;
     margin: 20px 10px 0px;
@@ -2086,7 +2137,7 @@ ul.inputMenu {
         &#submitDSTablesBtn {
             .icon {
                 background: url(/images/send-single.png) 0 0 no-repeat;
-                               width: 27px;
+                width: 27px;
                 height: 21px;
             }
 
@@ -2098,9 +2149,10 @@ ul.inputMenu {
                 background: url(/images/send-multiple.png) 0 0 no-repeat;
                 width: 27px;
                 height: 23px;
+                
             }
-            background: linear-gradient(@color-background-topGrayMed,
-                                        @color-background-bottomGrayMed);
+            // background: linear-gradient(@color-background-topGrayMed,
+            //                             @color-background-bottomGrayMed);
         }
         &#clearDataChart {
             .icon {
@@ -2110,7 +2162,6 @@ ul.inputMenu {
                 margin-right: 8px;
             }
         }
-        
     }
 }
 

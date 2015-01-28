@@ -2,13 +2,13 @@
     "use strict";
 
     $(document).ready(function() {
-        $("#searchButton").parent().on("click", function() {
-            $("#exploreButton").parent().removeAttr("active");
-            $("#searchButton").parent().attr("active", "active");
+        // $("#searchButton").parent().on("click", function() {
+        //     $("#exploreButton").parent().removeAttr("active");
+        //     $("#searchButton").parent().attr("active", "active");
 
-            $("#searchView").show();
-            $("#exploreView").hide();
-        });
+        //     $("#searchView").show();
+        //     $("#exploreView").hide();
+        // });
         $("#exploreButton").parent().on("click", function() {
             $("#searchButton").parent().removeAttr("active");
             $("#exploreButton").parent().attr("active", "active");

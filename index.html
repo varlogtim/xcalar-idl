@@ -13,16 +13,16 @@
   <div id="menuBar" class="clearfix">
     <div id="mainMenu" class="clearfix">
       <div id="workspaceTab" class="mainMenuTab active">
-        <span class="icon"></span>Work Space
+        <span class="icon mountain-icon"></span>Work Space
       </div>
       <div id="worksheetsTab" class="mainMenuTab">
-        <span class="icon"></span>Worksheets
+        <span class="icon page-icon"></span>Worksheets
       </div>
       <div id="dataStoresTab" class="mainMenuTab">
-        <span class="icon"></span>Data Stores
+        <span class="icon db-icon"></span>Data Stores
       </div>
       <div id="collabTab" class="mainMenuTab">
-        <span class="icon"></span>Collab
+        <span class="icon user-icon"></span>Collab
       </div>
       <div id="stats" class="mainMenuTab">
         <span class="icon"></span>
@@ -67,7 +67,7 @@
           </ul>
         </div>
         <div class="leftMenuBarSection" id="archivedTableList">
-          <div class="btnLarge btnInactive" id="submitTablesBtn">
+          <div class="btn btnLarge btnInactive" id="submitTablesBtn">
             <span class="icon"></span>
             SEND TO ACTIVE WORKSHEET
           </div>
@@ -135,8 +135,8 @@
                     <span class="dsTypeLabel">Random</span>
                   </label>
                 </div>
-                <button type="reset">CANCEL</button>
-                <button type="submit">IMPORT DATA</button>
+                <button class="btn" type="reset">CANCEL</button>
+                <button class="btn" type="submit">IMPORT DATA</button>
               </div>
             </div>
           </form>
@@ -165,7 +165,13 @@
       <div id="exploreView">
         <div id="contentView">
           <div id="contentViewLeft">
-            <div id="datasetExplore"></div>
+            <div id="datasetExplore">
+              <span>Data Sets (<span class="numDataStores">0</span>)</span>
+              <div class="buttonGroup">
+                <div id="dataListView" class="btn btnDeselected"><span class="icon"></span></div>
+                <div id="dataGridView" class="btn"><span class="icon"></span></div>
+              </div>
+            </div>
             <div id="importDataArea">
               <div id="importDataButton"></div>
             </div>
@@ -210,15 +216,15 @@
           <div id="contentViewRight">
             <div id="dataCart">
               <div class="buttonArea">
-                <div class="btnLarge" id="submitDSTablesBtn" style="display: block;">
+                <div class="btn btnLarge" id="submitDSTablesBtn" style="display: block;">
                   <span class="icon"></span>
                   SEND TO ACTIVE WORKSHEET
                 </div>
-                <div class="btnLarge" id="submitMultipleDBTablesBtn" style="display: block;">
+                <div class="btn btnLarge btnInactive" id="submitMultipleDBTablesBtn" style="display: block;">
                   <span class="icon"></span>
                   SEND TO MULTIPLE WORKSHEETS
                 </div>
-                <div class="btnLarge" id="clearDataChart" style="display: block;">
+                <div class="btn btnLarge" id="clearDataChart" style="display: block;">
                   <span class="icon"></span>
                   CLEAR DATA CART
                 </div>
@@ -284,13 +290,13 @@
         <div class="workspaceArea">Brief Description of worksheet brief description of worksheet</div>
       </div>
       <div class="bottomButtonsArea">
-        <div class="sliderBtn iconBtn"><span id="cliBtn" ></span></div>
-        <div class="sliderBtn iconBtn"><span id="scratchpadBtn"></span></div>
-        <div class="sliderBtn iconBtn"><span id="infoBtn"></span></div>
+        <div class="btn btnSmall sliderBtn iconBtn"><span id="cliBtn" ></span></div>
+        <div class="btn btnSmall sliderBtn iconBtn"><span id="scratchpadBtn"></span></div>
+        <div class="btn btnSmall sliderBtn iconBtn"><span id="infoBtn"></span></div>
       </div>
     </div>
     <div id="bottomTabArea">
-      <div class="iconBtn" id="addWorksheet"><span></span></div>
+      <div class="btn iconBtn" id="addWorksheet"><span></span></div>
     </div>
   </div>
   

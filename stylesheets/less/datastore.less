@@ -77,6 +77,22 @@
     clear: both;
 }
 
+.action-gradient {
+    .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
+}
+
+.gray-gradient {
+    .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
+}
+
+.light-gradient {
+    .linear-gradient(top, @color-background-darkGray, #C6C6C6);
+}
+
+.red-gradient {
+    .linear-gradient(top, #F28481, #DC4135);
+}
+
 #datastoreView {
     display: none;
 
@@ -182,13 +198,13 @@
         display: none;
         width: 774px;
         height: 652px;
-        width: ~"calc(100% - 511px)";
+        width: ~"calc(100% - 510px)";
         height: ~"calc(100% - 152px)";
         min-width: 513px;
         position: fixed;
         z-index: 2;
-        left: 256px;
-        top: 77px;
+        left: 255px;
+        top: 78px;
         background-color: @color-white;
         font-size: 13px;
         overflow: hidden;
@@ -202,6 +218,8 @@
             box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
             position: relative;
             text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
 
             h2 {
                 font-size: 18px;
@@ -214,6 +232,8 @@
                 font-size: 12px;
                 font-weight: 700;
                 width: ~"calc(100% - 50px)";
+                height: 30px;
+                overflow: hidden;
                 display: inline-block;
                 white-space: normal;
                 float: left;
@@ -303,14 +323,9 @@
             border-radius: 3px;
             float: right;
             box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.8);
-            .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
-            outline: none;
-            border: none;
             text-shadow: 1px 1px rgba(0,0,0,.2);
-            color: @color-text-transparentWhite;
             font-weight: 600;
             font-size: 12px;
-            cursor: pointer;
             &[type=reset] {
                 .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
             }
@@ -358,17 +373,55 @@
 
                 .flex-display();
                 .flex-flow(column-reverse);
+                box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
 
                 #datasetExplore {
                     .flex(0 0 35px);
                     .flex-order(4);
                     background: url(/images/datastore/dataset-explore.png) 0 0 no-repeat;
+                    .gray-gradient;
+                    text-align: center;
+                    padding-top: 6px;
+                    position: relative;
+                    color: #666666;
+                    font-weight: 700;
+                    font-size: 15px;
+                    span {
+                        line-height: 22px;
+                    }
+                    .buttonGroup {
+                        position: absolute;
+                        right: 7px;
+                        display: inline-block;
+                        .btn {
+                            width: 23px;
+                            height: 23px;
+                            margin-left: 2px;
+                            box-shadow: 0px 1px 1px 1px rgba(0,0,0,.3);
+                            .icon {
+                                width: 100%;
+                                height: 100%;
+                            }
+                        }
+
+                        #dataListView {
+                            .icon {
+                                background: url(/images/ds-listView.png) 50% 50% no-repeat;
+                            }
+                        }
+                        #dataGridView{
+                            .icon {
+                                background: url(/images/ds-iconView.png) 50% 50% no-repeat;
+                            }
+                        }
+                    }
                 }
                 #importDataArea {
                     .flex(0 0 58px);
                     .flex-order(3);
                     background-color: rgb(230, 230, 230);
-                    box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
+                    // box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
+                    border-right: 1px solid @color-background-lightGray;
                     z-index: 2;
 
                     #importDataButton {
@@ -392,7 +445,10 @@
                     padding: 9px;
                     background-color: rgb(230, 230, 230);
                     z-index: 1;
-                    box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
+                    // box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
+                    box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
+                    border-top: 1px solid rgba(0,0,0,0.25);
+                    border-right: 1px solid rgba(0, 0, 0, 0.25);
 
                     // .flex-display();
                     // .flex-flow(row);
@@ -433,7 +489,7 @@
                             .transition (opacity 0.6s);
                             // background-color: green;
                             font-size: 9px;
-                            font-weight: 400;
+                            font-weight: 600;
                             // word-wrap: break-word;
                             // white-space: normal;
                             // overflow: hidden;
@@ -451,7 +507,8 @@
                         &.active {
                             outline: 2px solid @color-background-topAction;
                             .label {
-                                font-weight: 600;
+                                font-weight: 700;
+                                color: #333333;
                             }
                         }
                     }
@@ -467,9 +524,10 @@
                 #datasetSearch {
                     .flex(0 0 35px);
                     .flex-order(2);
-                    background: url(/images/datastore/dataset-search.png) 0 0 no-repeat;
+                    // background: url(/images/datastore/dataset-search.png) 0 0 no-repeat;
                      z-index: 1;
-                    box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
+                    // box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
+                    background-color: @color-background-darkGray;
                 }
                 #listView {
                     .flex(1 1 auto);
@@ -479,7 +537,7 @@
                     // background-position: 0% 90%;
                     background-color: rgb(230, 230, 230);
                     z-index: 1;
-                    box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
+                    // box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
                 }
             }
             #contentViewMid {
@@ -488,11 +546,11 @@
 
                 .flex-display();
                 .flex-flow(column);
-                box-shadow: 2px 0px 11px 0px rgba(0,0,0,.5);
+                // box-shadow: 2px 0px 11px 0px rgba(0,0,0,.5);
                 z-index: 1;
 
                 #contentViewHeader {
-                    .flex(0 0 92px);
+                    .flex(0 0 93px);
                     .flex-order(1);
 
                     // background: url(/images/datastore/explore-view-header.png);
@@ -525,7 +583,7 @@
                         .icon {
                             display: inline-block;
                             float: right;
-                            margin-left: 10px;
+                            margin-left: 8px;
                             width: 16px;
                             height: 17px;
 
@@ -535,19 +593,19 @@
                         color: @color-text-red;
                         .icon {
                             background: url(/images/ds-deleteDS.png) 50% 50% no-repeat;
-                            margin-top: 3px;
+                            margin-top: 2px;
                         }
                     }
                     .update {
                         .icon {
                             background: url(/images/ds-refreshDS.png) 50% 50% no-repeat;
-                            margin-top: 1px;
+                            margin-top: 0px;
                         }
                     }
                     .edit {
                         .icon {
                             background: url(/images/ds-editDS.png) 50% 50% no-repeat;
-                            margin-top: 2px;
+                            margin-top: 1px;
                         }
                     }
 
@@ -581,7 +639,7 @@
                     .flex(0 0 91px);
                     .flex-order(1);
 
-                    background: url(/images/datastore/search-view-header.png);
+                    // background: url(/images/datastore/search-view-header.png);
                     background-repeat: no-repeat;
                     background-position: center;
                 }
@@ -589,7 +647,7 @@
                     .flex(1 1 auto);
                     .flex-order(2);
 
-                    background: url(/images/datastore/search-view-table.png);
+                    // background: url(/images/datastore/search-view-table.png);
                     background-repeat: no-repeat;
                     background-position: center;
                 }
@@ -600,7 +658,9 @@
 
                 // background: url(/images/datastore/data-cart.png);    
                 background-color: @color-background-darkGray;  
-                overflow: auto;      
+                overflow: auto; 
+                box-shadow: inset 2px 2px 6px 0 rgba(0,0,0,.3);
+                border-left: 1px solid rgba(0, 0, 0, 0.25);     
             }
         }
     }
