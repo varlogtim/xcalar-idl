@@ -349,6 +349,7 @@ function resetDataCart() {
     $('.selectedTable').remove();
     $('.worksheetTable input').not('.idField').attr('readonly', false);
     $('.colAdded').removeClass('colAdded');
+    $('.selectedCol').removeClass('selectedCol');
 }
 
 function setupDatasetList() {
