@@ -243,8 +243,7 @@ function addCol(colId, tableId, name, options) {
     if (name == null) {
         name = "";
         var select = true;
-    } 
-    else if (name == gTables[tableNum].keyName) {
+    } else if (name == gTables[tableNum].keyName) {
         indexedColumnClass = "indexedColumn";
     }
     if (select) {
@@ -404,11 +403,12 @@ function addCol(colId, tableId, name, options) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                         '</li>'+
-                        '<li class="joinList col'+newColid+'">'+'Join'+
-                            '<ul class="subColMenu" id="joinTables">';
+                        '<li class="joinList col'+newColid+'">'+'Join';
+                            // '<ul class="subColMenu" id="joinTables">';
     }
-    dropDownHTML += '</ul><div class="dropdownBox"></div>'+
-                    '<div class="subColMenuArea"></div></li>';
+    // dropDownHTML += '</ul><div class="dropdownBox"></div>'+
+    //                 '<div class="subColMenuArea"></div></li>';
+    dropDownHTML += '</li>';
     table.find('.table_title_bg.col'+newColid+' .header').append(dropDownHTML);
 
     addColListeners(newColid, tableId);
@@ -462,31 +462,4 @@ function parseColNum(el) {
     var index = classNames.indexOf('col');
     var substring = classNames.substring(index+'col'.length);
     return (parseInt(substring));
-}
-
-function dynGetTables(tableNum, colid) {
-    var tables = XcalarGetTables();
-    var numTables = tables.numTables;
-    var dropDownHTML = "";
-    for (var i = 0; i<numTables; i++) {
-        var t = tables.tables[i];
-        dropDownHTML += '<li class="join">'+t.tableName+'</li>';
-    }
-    dropDownHTML +=     '<div class="subColMenuArea"></div>';
-    $("#xcTable"+tableNum+" #joinTables").empty();
-    $("#xcTable"+tableNum+" .joinList.col"+colid+" .subColMenu").
-        append(dropDownHTML);
-
-    $("#xcTable"+tableNum).find('.joinList.col'+colid+ ' .join').
-        click(function() {
-        var tableNum = parseInt($(this).closest('table')
-                        .attr('id').substring(7));
-        joinTables($(this).text(), tableNum);
-    });
-
-    $("#xcTable"+tableNum).find('.table_title_bg.col'+colid+
-        ' .joinList .subColMenuArea')
-        .mousedown(function() {
-            $('.colMenu').hide();
-    });
 }

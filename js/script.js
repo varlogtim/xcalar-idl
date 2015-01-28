@@ -429,7 +429,7 @@ function documentReadyCatFunction(tableNum) {
     getNextPage(gTables[tableNum].resultSetId, true, tableNum);
     if (index && index.length > 0) {
         gTables[tableNum].tableCols = index;
-        console.log("Stored "+gTables[tableNum].frontTableName);
+        // console.log("Stored "+gTables[tableNum].frontTableName);
         // XXX Move this into getPage
         // XXX API: 0105
         var tableOfEntries = XcalarGetNextPage(gTables[tableNum].resultSetId,
@@ -514,6 +514,7 @@ function documentReadyIndexFunction() {
             documentReadyxcTableFunction();
         }
         setupLeftMenuBar();
+        initializeJoinModal();
     });
 }
 

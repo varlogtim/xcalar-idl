@@ -47,6 +47,22 @@ function checkStatus(newTableName, tableNum, keepOriginal,
     }
 }
 
+function checkStatusLite(name, funcPtr, args) {
+    tempCountShit++;
+    if (tHandle == null) {
+        return (null);
+    }
+    var refCount = XcalarGetTableRefCount(name);
+    if (refCount == 1 || tempCountShit > 20) {
+        tempCountShit = 0;
+        funcPtr(args);
+    } else {
+        setTimeout(function() {
+            checkStatusLite(name, funcPtr, args);
+        }, 500);
+    }
+}
+
 function checkLoadStatus(name) {
     if (tHandle == null) {
         return (null);
@@ -65,7 +81,6 @@ function checkLoadStatus(name) {
         }
     }
 }
-
 
 function sortRows(index, tableNum, order) {
     console.log(arguments);
@@ -244,7 +259,7 @@ function createJoinIndex(rightTableNum, tableNum) {
     newTableCols = newTableCols.concat(dataCol);
     return (newTableCols);
 }
-
+/**
 function joinTables(rightTable, tableNum) {
     console.log("Joining "+gTables[tableNum].frontTableName+" and "+rightTable);
     var rand = Math.floor((Math.random() * 100000) + 1);
@@ -271,6 +286,92 @@ function joinTables(rightTable, tableNum) {
         '{cursor: wait !important;}</style>');
     XcalarJoin(gTables[tableNum].frontTableName, rightTable, newTableName);
     checkStatus(newTableName, tableNum, KeepOriginalTables.DontKeep,
+                rightTableNum);
+    $('#waitCursor').remove();
+}
+*/
+
+function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
+                    rightTableNum, rightColumnNum) {
+   
+    switch (joinTypeStr) {
+    case ("Inner Join"):
+        joinType = OperatorsOpT.OperatorsInnerJoin;
+        break;
+    default:
+        console.log("Incorrect join type!");
+        break;
+    }
+
+    var leftName = gTables[leftTableNum].backTableName;
+    var joinType = "";
+    var leftColName =
+                    gTables[leftTableNum].tableCols[leftColumnNum].func.args[0];
+    var leftIndexColName = XcalarGetNextPage(gTables[leftTableNum].resultSetId,
+                           1).keysAttrHeader.name;
+    if (leftColName != leftIndexColName) {
+        console.log("left not indexed correctly");
+        // XXX In the future, we can check if there are other tables that are
+        // indexed on this key. But for now, we reindex a new table
+        var rand = Math.floor((Math.random() * 100000) + 1);
+        var newTableName1 = leftName+rand;
+        XcalarIndexFromTable(gTables[leftTableNum].backTableName, leftColName,
+                             newTableName1);
+        leftName = newTableName1;
+        checkStatusLite(newTableName1, joinTables2, [newTableName, joinTypeStr,
+                       leftTableNum, leftName, rightTableNum, rightColumnNum]);
+    } else {
+        console.log("left indexed correctly");
+        joinTables2([newTableName, joinTypeStr, leftTableNum, leftName,
+                     rightTableNum, rightColumnNum]);
+    }
+}
+
+function joinTables2(args) {
+    var newTableName = args[0];
+    var joinTypeStr = args[1];
+    var leftTableNum = args[2];
+    var leftName = args[3];
+    var rightTableNum = args[4];
+    var rightColumnNum = args[5];
+    
+    var rightColName =
+                  gTables[rightTableNum].tableCols[rightColumnNum].func.args[0];
+    var rightIndexColName = XcalarGetNextPage(gTables[rightTableNum]
+                           .resultSetId, 1).keysAttrHeader.name;
+    var rightName = gTables[rightTableNum].backTableName;   
+    if (rightColName != rightIndexColName) {
+        console.log("right not indexed correctly");
+        var rand = Math.floor((Math.random() * 100000) + 1);
+        var newTableName2 = gTables[rightTableNum].backTableName+rand;
+        XcalarIndexFromTable(gTables[rightTableNum].backTableName,
+                             rightColName, newTableName2);
+        rightName = newTableName2;
+        checkStatusLite(newTableName2, joinTables3, [newTableName, joinTypeStr,
+                       leftTableNum, leftName, rightTableNum, rightName]);
+    } else {
+        console.log("right correctly indexed");
+        joinTables3([newTableName, joinTypeStr, leftTableNum, leftName,
+                     rightTableNum, rightName]);
+    }
+}
+
+function joinTables3(args) {
+    var newTableName = args[0];
+    var joinTypeStr = args[1];
+    var leftTableNum = args[2];
+    var leftName = args[3];
+    var rightTableNum = args[4];
+    var rightName = args[5];
+    
+    var newTableCols = createJoinIndex(rightTableNum, leftTableNum);
+    setIndex(newTableName, newTableCols);
+    commitToStorage(); 
+    $("body").css({"cursor": "wait"}); 
+    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
+        '{cursor: wait !important;}</style>');
+    XcalarJoin(leftName, rightName, newTableName);
+    checkStatus(newTableName, leftTableNum, KeepOriginalTables.DontKeep,
                 rightTableNum);
     $('#waitCursor').remove();
 }

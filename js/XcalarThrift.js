@@ -221,6 +221,9 @@ function XcalarJoin(left, right, dst) {
     if (tHandle == null) {
         return (null);
     }
+    
+
+
     xcalarJoin(tHandle, left, right, dst, OperatorsOpT.OperatorsInnerJoin);
 }
 
@@ -249,5 +252,3 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     }
     xcalarGroupBy(handle, tableName, newTableName, op, oldColName, newColName);
 }
-
-

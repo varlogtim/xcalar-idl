@@ -43,7 +43,7 @@ function getNextPage(resultSetId, firstTime, tableNum) {
 }
 
 function getPage(resultSetId, firstTime, direction, tableNum) {
-    console.log('made it to getpage');
+    // console.log('made it to getpage');
     if (resultSetId == 0) {
         return;
         // Reached the end
@@ -86,7 +86,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                         .kvPairFixed.value;
         }
         if (firstTime) {
-            console.log('first time, generating fresh table')
+            // console.log('first time, generating fresh table')
             generateFirstScreen(value, indexNumber+i, tableNum, tdHeights[i]);
         } else {
             generateRowWithCurrentTemplate(value, indexNumber+index, 
