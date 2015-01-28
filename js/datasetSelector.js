@@ -35,6 +35,7 @@ function setupDSCartButtons() {
         if (keysPresent) {
             createWorksheet();
             resetDataCart();
+            $("#workspaceTab").click();
         } else {
             alert('Choose a key by clicking on a selected column in your list');
         } 
