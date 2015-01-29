@@ -2962,6 +2962,10 @@ ul.inputMenu {
                     width: 125px !important;
                 }
             }
+
+            .addedBarText {
+                word-break: break-all;
+            }
         }
 
         .columnTab {
@@ -2972,7 +2976,7 @@ ul.inputMenu {
             font-weight: bold;
             text-align: center;
             line-height: 22px;
-            width: 115px;
+            width: 100%;
             height: 22px;
             margin-right: 1px;
             float: left;
@@ -3023,7 +3027,7 @@ ul.inputMenu {
         #leftJoin {
             float: left;
             height: 100%;
-            width: 49%;
+            width: ~"calc(50% - 2px)";
             .noSelection;
         }
         .divider {
@@ -3042,7 +3046,7 @@ ul.inputMenu {
             }
             .mainTable {
                 margin-left:10px;
-                width: ~"calc(100% - 15px)";
+                width: ~"calc(100% - 25px)";
             }
         }
 
