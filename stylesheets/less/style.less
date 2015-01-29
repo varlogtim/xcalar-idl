@@ -2710,7 +2710,6 @@ ul.inputMenu {
     width: 920px;
     height: 600px;
     border-radius: 3px;
-    background: @color-join-background;
     z-index: 40;
     position: absolute;
     top: 0;
@@ -2719,6 +2718,12 @@ ul.inputMenu {
     right: 0;
     box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
     display: none;
+    resize: both;
+    overflow: hidden;
+    background-color: white;
+    max-height: 99%;
+    max-width: 99%;
+
     #joinHeader {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
@@ -2781,6 +2786,7 @@ ul.inputMenu {
         font-size: 14px;
         font-weight: bold;
         color: @color-text-darkGray;
+        background: @color-join-background;
         .text {
             float: left;
             margin-right: 10px;
@@ -2870,7 +2876,7 @@ ul.inputMenu {
     }
     #mainJoin {
         padding-top: 16px;
-        height: 404px;
+        height: ~"calc(100% - 195px)";
         background-color: white;
         .tabArea {
             // width: 10000px;
@@ -2887,7 +2893,7 @@ ul.inputMenu {
             .active {
                 background: @color-selectedCell-light;
                 color: @color-text-blue;
-                width: 119px;
+                width: 115px;
                 height: 32px;
                 padding-top: 2px;
                 border-radius: 0px;
@@ -2940,7 +2946,7 @@ ul.inputMenu {
         }
 
         .joinTable {
-            width: auto;
+            width: 0px;
             margin-left: 1px;
             display: none;
             position: relative;
@@ -2951,6 +2957,10 @@ ul.inputMenu {
             th {
                 background-color: #ddeaf2;
                 border-color: #ddeaf2;
+                width: 120px;
+                &:first-child {
+                    width: 125px !important;
+                }
             }
         }
 
@@ -2981,7 +2991,6 @@ ul.inputMenu {
             text-align: center;
             line-height: 22px;
             width: 115px;
-            width: 119px;
             height: 22px;
             margin-right: 5px;
             float: left;
@@ -3003,8 +3012,8 @@ ul.inputMenu {
             padding-left: 25px;
         }
         .mainTable {
-            height: 337px;
-            width: 434px;
+            height: ~"calc(100% - 55px)";
+            width: ~"calc(100% - 25px)";
             margin-left: 15px;
             border-radius: 3px;
             background: @color-join-background;
@@ -3014,7 +3023,7 @@ ul.inputMenu {
         #leftJoin {
             float: left;
             height: 100%;
-            width: 459px;
+            width: 49%;
             .noSelection;
         }
         .divider {
@@ -3026,13 +3035,14 @@ ul.inputMenu {
         #rightJoin {
             float: left;
             height: 100%;
-            width: 460px;
+            width: 50%;
             .noSelection;
             .tableText {
                 padding-left: 20px;
             }
             .mainTable {
                 margin-left:10px;
+                width: ~"calc(100% - 15px)";
             }
         }
 
@@ -3071,7 +3081,7 @@ ul.inputMenu {
     }
        
     #joinActions {
-        height: 45px;
+        height: 35px;
         border-radius: 0px 0px 3px 3px;
         background-color: white;
         .button {

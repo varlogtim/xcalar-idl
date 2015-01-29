@@ -28,7 +28,7 @@ function joinModalTabs(modal) {
         // colHtml += '</div>';
         colHtml += '</tr></thead>';
         tbody = $('#xcTable'+i).find('tbody').clone(true);
-        tbody.find('tr:gt(9)').remove();
+        tbody.find('tr:gt(14)').remove();
         tbody.find('.col0').remove();
         tbody.find('.jsonElement').remove();
         tbody.find('.indexedColumn').removeClass('indexedColumn');
@@ -53,13 +53,15 @@ function setupJoinModalTables() {
 
 function initializeJoinModal() {
     $('#closeJoin').click(function() {
-            $('#joinDialog').hide();
-            $('#joinModal').hide();
+        resetJoinTables();
     });
 
     $('#cancelJoin').click(function() {
-        $('#joinDialog').hide();
-        $('#joinModal').hide();
+        // $('#joinDialog').hide();
+        // $('#joinModal').hide();
+        // $('#joinDialog').find('.tableLabel').remove();
+        // $('#joinDialog').find('.joinTable').remove();
+        resetJoinTables();
     });
 
     $('#joinType').mousedown(function() {
@@ -151,5 +153,9 @@ function hideJoinTypeSelect(event) {
 function resetJoinTables() {
     $('#inputSection input').val("");
     $('#joinType').find('.text').text("Select Join Type:");
-    $('#closeJoin').trigger('click');
+    $('#joinDialog').hide();
+    $('#joinModal').hide();
+    $('#joinDialog').find('.tableLabel').remove();
+    $('#joinDialog').find('.joinTable').remove();
+    $('#joinDialog').width(920).height(620);
 }
