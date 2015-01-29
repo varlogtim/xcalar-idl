@@ -18,26 +18,11 @@ function setupLeftMenuBar() {
         var mainFrame = $('#mainFrame');
         $(this).toggleClass('open');
         $('#leftMenuBar').toggleClass('open');
-        
-        //XX dumb adjustment to make dragdrop work normally
-        if ($(this).hasClass('open')) {
-            mainFrame.addClass('shiftedRight');
+     
             setTimeout(function() {
-                mainFrame.addClass('staticMainFrame');
-                mainFrame.removeClass('shiftedRight');
                 clickable = true;
-            }, 500);
-        } else { 
-            mainFrame.addClass('shiftedLeft');
-            
-            setTimeout(function() {
-                $('#leftMenuBar').find('ol').hide();
-                $('#tableList').find('.active').removeClass('active');
-                mainFrame.removeClass('shiftedLeft');
-                mainFrame.removeClass('staticMainFrame');
-                clickable = true;
-            }, 550);
-        }
+            }, 300);
+
     });
 
     $('.leftMenuBarTab').click(function() {
