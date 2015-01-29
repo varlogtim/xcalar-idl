@@ -364,6 +364,10 @@ body {
 #workspaceBar {
     min-width: 1150px; // temporary in order to keep row scroller from dropping
     border-bottom-width: 2px;
+    .flex-display;
+    .workspaceArea {
+        .flex-shrink(0);
+    }
 }
 
 .workspaceArea {
@@ -374,6 +378,7 @@ body {
     border-right: 1px solid @color-tab-divider;
     float: left;
     line-height: 25px;
+    
 
     input {
         height: 25px;
@@ -388,6 +393,15 @@ body {
             outline: none;
             color: @color-text-brightBlue;
             font-size: 12px;
+        }
+    }
+
+    &#functionArea {
+        width: 380px;
+        .flex-grow(1);
+        .flex-shrink(1);
+        #fnBar {
+            width: ~"calc(100% - 28px)";
         }
     }
 
@@ -472,7 +486,7 @@ body {
 }
 
 #rowScrollerArea {
-    position: absolute;
+    // position: absolute;
     right: 0;
 }
 
