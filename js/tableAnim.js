@@ -1152,9 +1152,10 @@ function focusTable(tableNum) {
 }
 
 function moverowScroller(pageNum, resultSetCount) {
-    var pct = (pageNum/resultSetCount);
-    var dist = Math.floor(pct*$('#rowScroller'+gActiveTableNum).width());
-    $('#rowMarker'+gActiveTableNum).css('transform', 'translateX('+dist+'px)');
+    var pct = 100* (pageNum/resultSetCount);
+    // var dist = Math.floor(pct*$('#rowScroller'+gActiveTableNum).width());
+    // $('#rowMarker'+gActiveTableNum).css('transform', 'translateX('+dist+'px)');
+    $('#rowMarker'+gActiveTableNum).css('transform', 'translate3d('+pct+'%, 0px, 0px)');
 }
 
 function addRowScroller(tableNum) {
@@ -1179,14 +1180,16 @@ function addRowScroller(tableNum) {
         }
         var tableNum = gActiveTableNum;
         var mouseX = event.pageX - $(this).offset().left;
-        $('#rowMarker'+tableNum).css('transform', 'translateX('+mouseX+'px)');
-        var scrollWidth = $(this).outerWidth();
-        var rowNum = Math.ceil((mouseX / scrollWidth) * 
-                gTables[tableNum].resultSetCount);
+        var rowPercent = mouseX/$(this).width();;
+        var translate = rowPercent * 100;
+        $('#rowMarker'+tableNum).css('transform', 'translate3d('+translate+'%, 0px, 0px)'); 
+
+        
+        var rowNum = Math.ceil(rowPercent*gTables[tableNum].resultSetCount);
         if ($(this).find('.bookmark').length > 0) {
-            // check 10 pixels around for bookmark?
+            // check 8 pixels around for bookmark?
             var yCoor = $(this).offset().top+$(this).height()-5;
-            for (var x = (event.pageX-5); x < (event.pageX+5); x++) {
+            for (var x = (event.pageX-4); x < (event.pageX+4); x++) {
                 var element = $(document.elementFromPoint(x, yCoor));
                 if (element.hasClass('bookmark')) {
                     rowNum = parseBookmarkNum(element);
@@ -1194,14 +1197,13 @@ function addRowScroller(tableNum) {
                 }
             }
         }
-        var rowInputNum = $("#rowInput").val();
+        // var rowInputNum = $("#rowInput").val();
         var e = $.Event("keypress");
         e.which = keyCode.Enter;
         e['rowScrollerMousedown'] = true;
         setTimeout( function() {
             $("#rowInput").val(rowNum).trigger(e);
-        }, 1);
-        // $("#rowInput").val(rowNum).trigger(e);
+        }, 145);
     });
 }
 

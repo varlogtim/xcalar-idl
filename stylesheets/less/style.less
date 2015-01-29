@@ -197,7 +197,7 @@ body {
 }
 
 #menuBar {
-    height: 40px;
+    height: 41px;
     width: 100%;
     background: #36444d url("/images/bg_page.png") repeat right top;
 }
@@ -223,6 +223,7 @@ body {
     float: left;
     cursor: default;
     .noSelection;
+    position: relative;
 
     &:last-child {
         padding: 1px 2px;
@@ -373,7 +374,7 @@ body {
     border-bottom-width: 2px;
     position: relative;
     top: -1px;
-    .flex-display;
+    .flex-display();
     .workspaceArea {
         .flex-shrink(0);
     }
@@ -407,7 +408,7 @@ body {
 
     &#functionArea {
         width: 380px;
-        .flex-grow(1);
+        .flex-grow(2);
         .flex-shrink(1);
         #fnBar {
             width: ~"calc(100% - 28px)";
@@ -495,35 +496,42 @@ body {
 }
 
 #rowScrollerArea {
-    // position: absolute;
-    right: 0;
+    margin-top: 0px;
+    .flex-grow(1);
+    width: 200px;
+    cursor: default;
+    .noSelection;
 }
 
 .rowScroller {
     width: 250px;
-    height: 10px;
-    margin-top: 15px;
+    width: 100%;
+    height: 12px;
+    margin-top: 12px;
     background-color: @color-bar-border;
-    border-bottom: 1px solid #d5d5d5;
+    box-shadow: inset 0px 1px #1A1C1D, 0px 1px #d5d5d5;
     position: relative;
 
     .bookmark {
         width: 2px;
-        height: 5px;
+        height: 11px;
         background-color: @color-bookmark;
         position: absolute;
         bottom: 0;
+        margin-left: -1px;
     }
 
     .rowMarker {
         display: inline-block;
         width: 15px;
-        height: 18px;
-        top: -18px;
+        width: ~"calc(100% - 1px)";
+        height: 35px;
+        top: -11px;
         left: -7px;
         position: absolute;
-        background: url(/images/rowScroll-icon.png) 0 0 no-repeat;
-        .transition (transform 0.2s);
+        background: url(/images/locator.png) 0 0 no-repeat;
+        // .transition (transform 0.2s);
+        .transition (transform 0.13s);
     }
 }
 
@@ -2891,7 +2899,7 @@ ul.inputMenu {
             height: 38px;
             position: absolute;
             width: 100%;
-            display: flex;
+            .flex-display();
             .active {
                 background: @color-selectedCell-light;
                 color: @color-text-blue;
@@ -2906,7 +2914,7 @@ ul.inputMenu {
                 box-shadow: none;
                 border-top-left-radius: 3px;
                 border-top-right-radius: 3px;
-                flex-shrink: 0;
+                .flex-shrink(0);
             }
         }
         .joinTableArea {
@@ -3007,7 +3015,7 @@ ul.inputMenu {
             padding: 0 2px;
             text-overflow: ellipsis;
             overflow: hidden;
-            flex-shrink: 1;
+            .flex-shrink(1);
             white-space: nowrap;
         }
         .tableText {
