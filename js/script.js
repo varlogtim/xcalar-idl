@@ -276,7 +276,6 @@ function documentReadyxcTableFunction() {
             return;
         }
         var row = $('#rowInput').val();
-        var tableNum = 0;
         //XXX detect which table the user means to target
         if (row == "" || row%1 != 0) {
             return;
@@ -299,11 +298,14 @@ function documentReadyxcTableFunction() {
         } else {
             var pageNum = row/gNumEntriesPerPage;
         }
+        if (pageNum < 0) {
+            pageNum = 0;
+        }
         var numPagesToAdd = 3;
         for (var i = 0; i < numPagesToAdd; i++) {
             goToPage(Math.ceil(pageNum)+i, null, gActiveTableNum);
         }
-        adjustColGrabHeight(tableNum);
+        adjustColGrabHeight(gActiveTableNum);
         positionScrollbar(row, gActiveTableNum);
         generateFirstLastVisibleRowNum();
         if (!e.rowScrollerMousedown) {
