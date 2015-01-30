@@ -239,7 +239,7 @@ function addWorksheetListeners(tableNum) {
                 .removeClass('keySelected');
             $(this).closest('.selectedTable').find('.colSelected')
                 .removeClass('colSelected');
-            $(this).addClass('keySelected');
+            $(this).addClass('keySelected').addClass('colSelected');
         });
         selectedTable.find('.removeCol:last').click(function() {
             removeSelectedKey($(this), input);
