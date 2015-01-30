@@ -1158,37 +1158,25 @@ function moverowScroller(pageNum, resultSetCount) {
     $('#rowMarker'+gActiveTableNum).css('transform', 'translate3d('+pct+'%, 0px, 0px)');
 }
 
-function addRowScroller(tableNum) {
-    var rowScrollerHTML = '<div id="rowScroller'+tableNum+
-        '" class="rowScroller" title="scroll to a row">'+
-            '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
-            '</div>'+
-        '</div>';
-
-    if (tableNum == 0) {
-        $('#rowScrollerArea').prepend(rowScrollerHTML);
-    } else {
-        $('#rowScroller'+(tableNum-1)).after(rowScrollerHTML);
-    }
-    if ($('.xcTable').length > 1) {
-        $('#rowScroller'+tableNum).hide();
-    }  
-    
-    $('#rowScroller'+tableNum).mousedown(function(event) {
+function setupBookmarkArea() {
+    $('#rowScrollerArea').mousedown(function(event) {
+    // $('#rowScroller'+tableNum).mousedown(function(event) {
         if (event.which != 1) {
             return;
         }
+        
         var tableNum = gActiveTableNum;
-        var mouseX = event.pageX - $(this).offset().left;
+        var rowScroller = $('#rowScroller'+tableNum)
+        var mouseX = event.pageX - rowScroller.offset().left;
         var rowPercent = mouseX/$(this).width();;
-        var translate = rowPercent * 100;
+        var translate = Math.min(99.9, Math.max(0,rowPercent * 100));
         $('#rowMarker'+tableNum).css('transform', 'translate3d('+translate+'%, 0px, 0px)'); 
 
         
         var rowNum = Math.ceil(rowPercent*gTables[tableNum].resultSetCount);
-        if ($(this).find('.bookmark').length > 0) {
+        if (rowScroller.find('.bookmark').length > 0) {
             // check 8 pixels around for bookmark?
-            var yCoor = $(this).offset().top+$(this).height()-5;
+            var yCoor = rowScroller.offset().top+rowScroller.height()-5;
             for (var x = (event.pageX-4); x < (event.pageX+4); x++) {
                 var element = $(document.elementFromPoint(x, yCoor));
                 if (element.hasClass('bookmark')) {
@@ -1205,6 +1193,23 @@ function addRowScroller(tableNum) {
             $("#rowInput").val(rowNum).trigger(e);
         }, 145);
     });
+}
+
+function addRowScroller(tableNum) {
+    var rowScrollerHTML = '<div id="rowScroller'+tableNum+
+        '" class="rowScroller" title="scroll to a row">'+
+            '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
+            '</div>'+
+        '</div>';
+
+    if (tableNum == 0) {
+        $('#rowScrollerArea').prepend(rowScrollerHTML);
+    } else {
+        $('#rowScroller'+(tableNum-1)).after(rowScrollerHTML);
+    }
+    if ($('.xcTable').length > 1) {
+        $('#rowScroller'+tableNum).hide();
+    }  
 }
 
 function showRowScroller(tableNum) {
