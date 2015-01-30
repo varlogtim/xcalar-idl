@@ -682,7 +682,7 @@ function cloneTableHeader(tableNum) {
         }
     });
 
-    tHeadWrap.find('.tableTitle .dropdownBox').click(function() {
+    tHeadWrap.find('.tableTitle > .dropdownBox').click(function() {
         dropdownClick($(this));
     });
 
@@ -840,8 +840,11 @@ function addColMenuActions(colId, tableId) {
     var tableNum = parseInt(tableId.substring(7));
     var table = $('#'+tableId);
 
-    table.find('.table_title_bg.col'+colId+' .colMenu li').click(function() {
+    table.find('.table_title_bg.col'+colId+' .colMenu li').click(function(event) {
         if ($(this).children('.subColMenu, input').length === 0) {
+            if ($(this).hasClass('clickable')) {
+                return;
+            }
             // hide li if doesnt have a submenu or an input field
             $(this).closest('.colMenu').hide();
             $(this).closest('.theadWrap').css('z-index', '9');

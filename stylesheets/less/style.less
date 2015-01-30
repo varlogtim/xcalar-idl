@@ -1816,6 +1816,7 @@ ul.colMenu {
             z-index: 0;
             border-right-color: @color-dropBox-secondary;
             .transition-delay (.0s);
+            pointer-events: none;
         }
 
         &.subSelected {
@@ -1859,6 +1860,79 @@ ul.colMenu {
         background-color: @color-selectedCell-green;
     }
 
+    .sort {
+        span {
+            height: 16px;
+            width: 24px;
+            float: left;
+            display: inline-block;
+        }
+        .sortUp {
+            background: url(/images/arrowUp.png) 0 50% no-repeat;
+        }
+        .sortDown {
+            background: url(/images/arrowDown.png) 0 50% no-repeat;
+        }
+    }
+
+    .aggregate, .groupBy {
+        span {
+            height: 16px;
+            width: 24px;
+            // position: absolute;
+            float: left;
+            display: inline-block;
+        }
+        .maxIcon {
+            background: url(/images/max.png) 0 50% no-repeat;
+        }
+        .minIcon {
+            background: url(/images/min.png) 0 50% no-repeat;
+        }
+        .avgIcon {
+            background: url(/images/average.png) 0 50% no-repeat;
+        }
+        .countIcon {
+            background: url(/images/count.png) 0 50% no-repeat;
+        }
+        .sumIcon {
+            background: url(/images/sum.png) 0 50% no-repeat;
+        }
+    }
+
+    .filter {
+
+        span {
+            height: 16px;
+            width: 24px;
+            float: left;
+            display: inline-block;
+        }
+        .greaterThan{
+            background: url(/images/greaterThan.png) 0 50% no-repeat;
+        }
+        .greaterEqual {
+            background: url(/images/greaterEqual.png) 0 50% no-repeat;
+        }
+        .equal {
+            background: url(/images/equal.png) 0 50% no-repeat;
+        }
+        .lessEqual {
+            background: url(/images/lessEqual.png) 0 50% no-repeat;
+        }
+        .lessThan {
+            background: url(/images/lessThan.png) 0 50% no-repeat;
+        }
+        .regex {
+            background: url(/images/regex.png) 0 50% no-repeat;
+        }
+    }
+
+    .gb ul:hover, .filter ul:hover {
+        li {
+            background-color: @color-selectedCell-green;
+        }
+    }
 }
 
 ul.colMenu.leftColMenu::before {
@@ -1882,7 +1956,7 @@ ul.subColMenu li {
 .subColMenuArea {
     position: absolute;
     top: -30px;
-    left: 0;
+    left: 14px;
     width: ~"calc(100% + 30px)";
     height: ~"calc(100% + 60px)";
     z-index: -1;

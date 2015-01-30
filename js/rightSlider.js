@@ -56,5 +56,8 @@ function setupRightSideBar() {
 
     $('#rightSideBar').find('.iconClose').click(function() {
         $('#rightSideBar').removeClass('open');
+        setTimeout(function() {
+            $('#rightSideBar').find('.rightBarSection').removeClass('active');
+        }, 300);
     });
 }
