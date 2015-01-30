@@ -57,10 +57,6 @@ function initializeJoinModal() {
     });
 
     $('#cancelJoin').click(function() {
-        // $('#joinDialog').hide();
-        // $('#joinModal').hide();
-        // $('#joinDialog').find('.tableLabel').remove();
-        // $('#joinDialog').find('.joinTable').remove();
         resetJoinTables();
     });
 
@@ -157,7 +153,10 @@ function hideJoinTypeSelect(event) {
 
 function resetJoinTables() {
     $('#inputSection input').val("");
-    $('#joinType').find('.text').text("Select Join Type:");
+    // Fill in a default join name
+    var joinTableName = "tempJoinTable" +
+                        Math.floor((Math.random() * 100000) + 1);
+    $("#inputSection input").val(joinTableName);
     $('#joinDialog').hide();
     $('#joinModal').hide();
     $('#joinDialog').find('.tableLabel').remove();
