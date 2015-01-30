@@ -88,6 +88,9 @@ function createJsonSelectionExpression(el) {
 
 function showJsonModal(jsonTd) {
     positionJsonModal(jsonTd);
+    var tableTitle = jsonTd.closest('table').find('.tableTitle input').val();
+    $('#jsonModal').find('.jsonDragArea').text(tableTitle);
+
     $('.jKey, .jArray>.jString, .jArray>.jNum').click(function() {
         var tableNum = parseInt(jsonTd.closest('table').attr('id')
                                 .substring(7));
@@ -135,7 +138,6 @@ function positionJsonModal(jsonTd) {
     var closeWidth = 25;
     var closeTop = -8;
     var closeLeft = -closeWidth;
-    $('#closeArrow').removeClass('jsonRight');
 
     if (jsonTdPos.top < winHeight/2) {
         var modalTop = jsonTdPos.top; 
@@ -154,13 +156,11 @@ function positionJsonModal(jsonTd) {
         var modalLeft = Math.min((jsonTdPos.left+(jsonTdWidth/2)) 
             - modalWidth, winWidth - modalWidth - 20);
         closeLeft = "auto";
-        $('#closeArrow').addClass('jsonRight');
     } else {
         var modalLeft = Math.max(jsonTdPos.left+(jsonTdWidth/2) , 20);
     }
     
     $('#jsonModal').css({'left': modalLeft, 'top': modalTop});
-    $('.closeJsonModal').css({'left': closeLeft, 'top': closeTop});
 }
 
 function jsonModalMouseDown(e) {
