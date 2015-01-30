@@ -88,6 +88,11 @@ function initializeJoinModal() {
     $('#joinModal').mousedown(hideJoinTypeSelect);
     $('#joinDialog').mousedown(hideJoinTypeSelect);
 
+    // Fill in a default join name
+    var joinTableName = "tempJoinTable" +
+                        Math.floor((Math.random() * 100000) + 1);
+    $("#inputSection input").val(joinTableName);
+
  // ==================
  // This submits the joined tables
     $('#joinTables').click(function() {
