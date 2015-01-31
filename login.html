@@ -14,20 +14,22 @@
     LOGIN
   </div>
   <br><br>
+  <form method="POST" action="dologin.html">
   <div id="loginName">
     <div class="text">
       Username: 
     </div>
-    <input id="loginNameBox">
+    <input id="loginNameBox" name="httpd_username">
   </div>
   <br><br>
   <div id="loginPassword">
     <div class="text">
       Password: 
     </div>
-    <input id="loginPasswordBox">
+    <input id="loginPasswordBox" name="httpd_password">
   </div>
-  <div id="loginButton">LOG IN</div>
+  <input id="loginButton" type="submit" name="login" value="LOG IN">
+  </form>
 </div>
 </body>
 </html>
