@@ -108,6 +108,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         var newProgCol = new ProgCol();
         newProgCol.index = 1;
         newProgCol.isDark = false;
+        newProgCol.width = gNewCellWidth;
         newProgCol.name = gTables[tableNum].keyName;
         newProgCol.func.func = "pull";
         newProgCol.func.args = [gTables[tableNum].keyName];
@@ -120,7 +121,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         newProgCol = new ProgCol();
         newProgCol.index = 2;
         newProgCol.name = "DATA";
-        newProgCol.width = gNewCellWidth; // XXX FIXME Grab from CSS
+        newProgCol.width = 500; // XXX FIXME Grab from CSS
         newProgCol.func.func = "raw";
         newProgCol.func.args = [];
         newProgCol.userStr = '"DATA" = raw()';

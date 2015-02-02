@@ -118,7 +118,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
                 '<input value="" readonly="" tabindex="-1">'+
               '</div>'+
             '</th>'+
-            '<th class="col1 table_title_bg dataCol" style="width: 850px;">'+
+            '<th class="col1 table_title_bg dataCol" style="width: 500px;">'+
               '<div class="header">'+
                 '<div class="dropdownBox"></div>'+
                 '<input value="DATA" '+

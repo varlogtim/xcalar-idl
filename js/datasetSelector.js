@@ -61,6 +61,10 @@ function setupDSCartButtons() {
             return $(this).css('display') == 'block';
         }).find('table');
 
+        if (table.length == 0) {
+            return;
+        }
+
         var tableNum = table.attr('id').substring(14);
         $('#selectedTable'+tableNum).remove();
         table.find('.colAdded').removeClass('colAdded');

@@ -1072,6 +1072,7 @@ body {
     overflow: hidden;
     z-index: 0;
 
+
     .workspaceArea {
         height: 13px;
         font-size: 13px;
@@ -1135,6 +1136,16 @@ body {
         display: block;
         height: 100%;
         width: 100%;
+    }
+}
+
+.worksheetTab {
+    width: 33px;
+    height: 35px;
+    border: 1px solid @color-tab-border;
+    border-top: none;
+    .icon {
+        background: url(/images/page.png) 50% 50% no-repeat;
     }
 }
 
@@ -1313,7 +1324,7 @@ in order to work for the new ui. I will clean this up at some point.
     border-spacing: 0px;
     margin-right: 5px;
     table-layout: fixed;
-    width: 900px;
+    width: 520px;
 
     th {
         height: 35px;
@@ -1524,6 +1535,7 @@ in order to work for the new ui. I will clean this up at some point.
 
 .xcTable {
     height: 0px;
+    width: 520px;
     thead {
         box-shadow: 0px 1px  1px @colorShadow-black;
         &:hover {
@@ -1543,6 +1555,8 @@ in order to work for the new ui. I will clean this up at some point.
     td:first-child {
         cursor: pointer;
     }
+
+    
 }
 
 .xcTableWrap {
@@ -1550,6 +1564,10 @@ in order to work for the new ui. I will clean this up at some point.
     position: relative;
     width: auto;
     overflow-x: hidden;
+
+    &:last-child {
+        margin-right: 5px;
+    }
 }
 
 .fauxTHead {
@@ -1818,6 +1836,7 @@ ul.colMenu {
     background-color: @color-white;
     position: fixed;
     z-index: 20;
+    cursor: pointer;
 
     li {
         padding: 6px;
@@ -1831,7 +1850,7 @@ ul.colMenu {
         .noSelection;
         text-align: left;
 
-        &:hover {
+        &.selected {
             cursor: pointer;
             background-color: @color-selectedCell-dark;
             > .dropdownBox {
@@ -1884,7 +1903,7 @@ ul.colMenu {
         cursor: text;
     }
 
-    .subColMenu li:hover {
+    .subColMenu li.selected {
         background-color: @color-selectedCell-green;
     }
 
@@ -1968,8 +1987,18 @@ ul.colMenu.leftColMenu::before {
 }
 
 ul.colMenu li:hover > ul {
-    visibility: visible;
+    // visibility: visible;
     .transition-delay (.15s);
+}
+
+ul.colMenu li > ul {
+    // visibility: visible;
+    .transition-delay (.15s);
+}
+
+
+.visible {
+    visibility: visible !important;
 }
 
 ul.subColMenu li {
@@ -1989,7 +2018,6 @@ ul.subColMenu li {
     height: ~"calc(100% + 60px)";
     z-index: -1;
     cursor: default;
-    // background-color: pink;
 }
 
 .leftColMenu .subColMenuArea {
@@ -2142,6 +2170,8 @@ ul.inputMenu {
         // hiding this tab temporarily
     }
 }
+
+/*
 .worksheetTab {
     // width: 230px;
     width: 15%;
@@ -2199,6 +2229,8 @@ ul.inputMenu {
     
 }
 
+
+
 .deleteWorksheet {
     color: inherit !important;
     position: absolute;
@@ -2211,11 +2243,14 @@ ul.inputMenu {
     .transition (opacity 0.2s 0.2s);
 }
 
+
 .worksheetTab:hover {
     .deleteWorksheet {
         opacity: 1;
     }
 }
+
+*/
 /* END WORKSHEET BAR */
 
 /* SHOPPING CART STYLING */

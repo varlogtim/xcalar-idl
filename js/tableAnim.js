@@ -797,6 +797,14 @@ function addColListeners(colId, tableId) {
         }
     });
 
+    table.find('.colMenu li').mouseenter(function() {
+        $(this).children('ul').addClass('visible');
+        $(this).addClass('selected');
+    }).mouseleave(function() {
+        $(this).children('ul').removeClass('visible');
+        $(this).removeClass('selected');
+    });
+
     table.find('.table_title_bg.col'+colId+' .subColMenuArea')
         .mousedown(function() {
             $('.colMenu').hide();
@@ -971,6 +979,7 @@ function addColMenuActions(colId, tableId) {
             console.log('operator: '+operator+"value: "+value+"index: "+
                         index+"tableNum: "+tableNum);
             groupByCol(operator, value, index, tableNum);
+            $('.colMenu').hide();
         }
     });
 

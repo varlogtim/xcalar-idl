@@ -320,7 +320,12 @@
       </div>
     </div>
     <div id="bottomTabArea">
-      <div class="btn btnSmall" id="addWorksheet"><span></span></div>
+      <div class="btn btnSmall" id="addWorksheet"><span class="icon"></span></div>
+     <!--  <div id="worksheetTabs">
+        <div class="worksheetTab">
+          <span class="icon"></span>
+        </div>
+      </div> -->
     </div>
   </div>
   <!-- Start join modal -->
@@ -400,29 +405,29 @@
   <div id="modalBackground"></div>
 
   <div id="jsonModal">
-      <div class="jsonDragArea"></div>
-      <div class="closeJsonModal">
-        <span></span>
-        <div id="closeArrow"></div>
-      </div>
-      <div id="jsonWrap">
-        <div class="prettyJson">
-          {<div class="jObject">
-          </div>}
-        </div>
+    <div class="jsonDragArea"></div>
+    <div class="closeJsonModal">
+      <span></span>
+      <div id="closeArrow"></div>
+    </div>
+    <div id="jsonWrap">
+      <div class="prettyJson">
+        {<div class="jObject">
+        </div>}
       </div>
     </div>
-    <div id="scratchpadArea">
-      <table class="scratchpad">
-        <thead>
-          <tr>
-            <td id="scratchpadTitle">Xcalar Scratchpad</td>
-          </tr>
-        <thead>
-        <tbody>
-        </body>
-      </table>
-    </div>
+  </div>
+  <div id="scratchpadArea">
+    <table class="scratchpad">
+      <thead>
+        <tr>
+          <td id="scratchpadTitle">Xcalar Scratchpad</td>
+        </tr>
+      <thead>
+      <tbody>
+      </body>
+    </table>
+  </div>
 </div> <!-- END CONTAINER -->
 
 <script src="bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js"></script>
