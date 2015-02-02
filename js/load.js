@@ -7,7 +7,6 @@ function setupImportDSForm() {
 
     $('#importDataBottomForm').find('button[type=reset]').click(function() {
         $('.radio').removeClass('checked');
-        console.log('hey')
     });
 
     $('#importDataForm').submit(function() {

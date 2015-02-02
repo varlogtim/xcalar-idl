@@ -95,56 +95,56 @@
       <div id="contentHeaderRight"></div>
     </div>
     <div id="importDataView">
-          <div id="importHelp">
-            <div class="contentViewMidWrap">
-              <h2>Import New Data Set</h2>
-              <span class="icon"></span>
-              <p>INPUT FILE PATH AND FILE NAME TO IMPORT DATA SET. THEN SELECT FILE FORMAT. IMPORTED DATA WILL BE LISTED ON THE LEFT.</p>
+      <div id="importHelp">
+        <div class="contentViewMidWrap">
+          <h2>Import New Data Set</h2>
+          <span class="icon"></span>
+          <p>INPUT FILE PATH AND FILE NAME TO IMPORT DATA SET. THEN SELECT FILE FORMAT. IMPORTED DATA WILL BE LISTED ON THE LEFT.</p>
+        </div>
+      </div>
+      <form target="_blank" id="importDataForm">
+        <div id="importDataTopForm">
+          <div class="contentViewMidWrap">
+            <div id="filePathSelector" class="importFormRow">
+              <label>File Path:</label>
+              <input type="text" name="filePath" id="filePath" autocomplete="on" placeholder="Enter File Directory" required> 
+            </div>
+            <div id="fileNameSelector" class="importFormRow">
+              <label>File Name:</label>
+              <input type="text" name="fileName" id="fileName" autocomplete="on" placeholder="Enter Dataset Name" required>
             </div>
           </div>
-          <form target="_blank" id="importDataForm">
-            <div id="importDataTopForm">
-              <div class="contentViewMidWrap">
-                <div id="filePathSelector" class="importFormRow">
-                  <label>File Path:</label>
-                  <input type="text" name="filePath" id="filePath" autocomplete="on" placeholder="Enter File Directory" required> 
-                </div>
-                <div id="fileNameSelector" class="importFormRow">
-                  <label>File Name:</label>
-                  <input type="text" name="fileName" id="fileName" autocomplete="on" placeholder="Enter Dataset Name" required>
-                </div>
-              </div>
-            </div>
-            <div id="importDataBottomForm">
-              <div class="contentViewMidWrap">
-                <div id="fileFormat">
-                  <span>File Format:</span>
-                  <label>
-                    <input type="radio" name="dsType" id="dsTypeJSON" value="JSON" required>
-                    <div class="radio"><div class="dot"></div></div>
-                    <div class="dsRadio"></div>
-                    <span class="dsTypeLabel">JSON</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="dsType" id="dsTypeCSV" value="CSV" required>
-                    <div class="radio"><div class="dot"></div></div>
-                    <div class="dsRadio"></div>
-                    <span class="dsTypeLabel">CSV</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="dsType" id="dsTypeRand" value="rand" required>
-                    <div class="radio"><div class="dot"></div></div>
-                    <div class="dsRadio"></div>
-                    <span class="dsTypeLabel">Random</span>
-                  </label>
-                </div>
-                <button class="btn" type="reset">CANCEL</button>
-                <button class="btn" type="submit">IMPORT DATA</button>
-              </div>
-            </div>
-          </form>
-          <div id="importDataOverlay"></div>
         </div>
+        <div id="importDataBottomForm">
+          <div class="contentViewMidWrap">
+            <div id="fileFormat">
+              <span>File Format:</span>
+              <label>
+                <input type="radio" name="dsType" id="dsTypeJSON" value="JSON" required>
+                <div class="radio"><div class="dot"></div></div>
+                <div class="dsRadio"></div>
+                <span class="dsTypeLabel">JSON</span>
+              </label>
+              <label>
+                <input type="radio" name="dsType" id="dsTypeCSV" value="CSV" required>
+                <div class="radio"><div class="dot"></div></div>
+                <div class="dsRadio"></div>
+                <span class="dsTypeLabel">CSV</span>
+              </label>
+              <label>
+                <input type="radio" name="dsType" id="dsTypeRand" value="rand" required>
+                <div class="radio"><div class="dot"></div></div>
+                <div class="dsRadio"></div>
+                <span class="dsTypeLabel">Random</span>
+              </label>
+            </div>
+            <button class="btn" type="reset">CANCEL</button>
+            <button class="btn" type="submit">IMPORT DATA</button>
+          </div>
+        </div>
+      </form> 
+      <div id="importDataOverlay"></div>
+    </div>
     <div id="mainContent">
       <div id="searchView">
         <div id="contentView">
@@ -154,7 +154,6 @@
             </div>
             <div id="datasetSearch"></div>
             <div id="listView">
-              
             </div>
           </div>
           <div id="contentViewMid">
@@ -176,7 +175,9 @@
               </div>
             </div>
             <div id="importDataArea">
-              <div id="importDataButton"></div>
+              <div id="importDataButton" class="btn btnLarge">
+                <span class="icon"></span>IMPORT NEW DATA SET
+              </div>
             </div>
             <div id="gridView">
            <!--    <grid-unit>
@@ -246,7 +247,12 @@
     <div id="cliSection" class="rightBarSection">
       <div class="heading">
         <h2>CLI</h2>
-        <span class="icon iconClose"></span><span class="icon iconArrowDiag"></span>
+        <div class="btn btnDeselected">
+          <span class="icon iconClose"></span>
+        </div>
+        <div class="btn btnDeselected">
+          <span class="icon iconArrowDiag"></span>
+        </div>
       </div>
       <div class="rightBarContent">
         <textarea></textarea>
@@ -255,14 +261,24 @@
     <div id="scratchPadSection" class="rightBarSection">
       <div class="heading">
         <h2>ScratchPad</h2>
-        <span class="icon iconClose"></span><span class="icon iconArrowDiag"></span>
+        <div class="btn btnDeselected">
+          <span class="icon iconClose"></span>
+        </div>
+        <div class="btn btnDeselected">
+          <span class="icon iconArrowDiag"></span>
+        </div>
       </div>
       <div class="rightBarContent"></div>
     </div>
     <div id="helpSection" class="rightBarSection">
       <div class="heading">
         <h2>Help</h2>
-        <span class="icon iconClose"></span><span class="icon iconArrowDiag"></span>
+        <div class="btn btnDeselected">
+          <span class="icon iconClose"></span>
+        </div>
+        <div class="btn btnDeselected">
+          <span class="icon iconArrowDiag"></span>
+        </div>
       </div>
       <div class="rightBarContent">
         <div id="helpSearchArea" class="clearfix">
@@ -298,13 +314,13 @@
         <div class="workspaceArea">Brief Description of worksheet brief description of worksheet</div>
       </div>
       <div class="bottomButtonsArea">
-        <div class="btn btnSmall sliderBtn iconBtn"><span id="cliBtn" ></span></div>
-        <div class="btn btnSmall sliderBtn iconBtn"><span id="scratchpadBtn"></span></div>
-        <div class="btn btnSmall sliderBtn iconBtn"><span id="infoBtn"></span></div>
+        <div class="btn btnSmall sliderBtn"><span id="cliBtn" ></span></div>
+        <div class="btn btnSmall sliderBtn"><span id="scratchpadBtn"></span></div>
+        <div class="btn btnSmall sliderBtn"><span id="infoBtn"></span></div>
       </div>
     </div>
     <div id="bottomTabArea">
-      <div class="btn iconBtn" id="addWorksheet"><span></span></div>
+      <div class="btn btnSmall" id="addWorksheet"><span></span></div>
     </div>
   </div>
   <!-- Start join modal -->

@@ -96,6 +96,10 @@
     .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
 }
 
+.action-inverse-gradient {
+    .linear-gradient(top, @color-background-bottomAction, @color-background-topAction);
+}
+
 .gray-gradient {
     .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
 }
@@ -586,7 +590,7 @@ body {
 
     &.active {
         border-bottom: 1px solid @color-tab-borderBlue;
-        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+        .action-gradient;
         color: @color-white;
         text-shadow: 2px 2px rgba(0,0,0,.3);
         font-size: 14px;
@@ -629,8 +633,7 @@ body {
 
         .active {
             .iconWrap {
-                background: linear-gradient(@color-background-topAction, 
-                            @color-background-bottomAction);
+                .action-gradient;
             }
         }
     }
@@ -644,6 +647,7 @@ body {
         box-shadow: 1px 2px 1px rgba(0,0,0,.2);
         cursor: pointer;
         white-space: nowrap;
+        overflow: hidden;
 
         .tableName {
             display: inline-block;
@@ -761,11 +765,24 @@ body {
     outline: 0;
     border-radius: 2px;
     color: @color-text-transparentWhite;
-    background: linear-gradient(@color-background-topAction, 
-                @color-background-bottomAction);
+    .action-gradient;
+    box-shadow: 0px 1px 1px 0 rgba(0, 0, 0, 0.7);
 
     &:hover {
-       box-shadow: inset 0px 0px 1px 1px rgba(0,0,0,0.1), 1px 2px 1px rgba(0,0,0,.35); 
+       .action-inverse-gradient;
+    }
+
+    &:active {
+        // .action-gradient;
+        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    span {
+        height: 100%;
+        width: 100%;
+        display: inline-block;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
     }
 }
 
@@ -781,7 +798,7 @@ body {
     border-radius: 3px;
     color: @color-text-transparentWhite;
     text-shadow: 1px 1px rgba(0,0,0,.3);
-    box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+    // box-shadow: 1px 2px 1px rgba(0,0,0,.2);
     line-height: 30px;
     font-size: 12px;
     cursor: pointer;   
@@ -797,6 +814,9 @@ body {
 
 .btnDeselected {
     .gray-gradient;
+    &:hover, &:active {
+        .gray-gradient;
+    }
 }
 
 .icon {
@@ -843,21 +863,6 @@ body {
             line-height: 35px;
             color: @color-text-darkGray;
         }
-
-        .icon {
-            width: 19px;
-            height: 19px;
-            float: right;
-            margin-right: 6px;
-            margin-top: 7px;
-            background-color: @color-background-bottomGrayMed;
-            border-radius: 1px;
-            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-            cursor: pointer;
-            &:first-of-type {
-                margin-right: 10px;
-            }
-        }
     }
 
     .rightBarContent {
@@ -892,11 +897,22 @@ body {
         display: block;
     }
 
+    .btn {
+        width: 19px;
+        height: 19px;
+        float: right;
+        margin-right: 6px;
+        margin-top: 7px;
+        &:first-of-type {
+            margin-right: 10px;
+        }
+    }
+
     .iconArrowDiag {
-        background: url(/images/arrow-diag.png) 50% 50% no-repeat;
+        background-image: url(/images/arrow-diag.png);
     }
     .iconClose {
-        background: url(/images/close-icon.png) 50% 50% no-repeat;
+        background-image: url(/images/close-icon.png);
     }
 }
 
@@ -959,7 +975,7 @@ body {
 #helpSubmit {
     width: 25%;
     height: 30px;
-    background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+    .action-gradient;
     color: @color-text-white;
     float: right;
     line-height: 30px;
@@ -1074,7 +1090,7 @@ body {
     width: 22px;
     height: 22px;
     border-radius: 2px;
-    box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
+    // box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
 
     span {
         height: 100%;
@@ -1087,7 +1103,7 @@ body {
 
 .bottomButtonsArea {
     float: right;
-    .iconBtn {
+    .btn {
         margin: 5px;
     }
 }
@@ -1420,7 +1436,7 @@ in order to work for the new ui. I will clean this up at some point.
 
     th.selectedCell {
         .editableHead {
-            background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+            .action-gradient;
             color: @color-white;
         }
     }
@@ -1585,7 +1601,7 @@ in order to work for the new ui. I will clean this up at some point.
     }
 
     &.tblTitleSelected {
-        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+        .action-gradient;
         color: @color-white; 
         border-bottom: 1px solid @color-table-borderBlue;
 
@@ -2606,7 +2622,7 @@ ul.inputMenu {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
         height: 35px;
-        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+        .action-gradient;
         color: @color-white;
         font-color: white;
         text-align: center;
@@ -2644,7 +2660,7 @@ ul.inputMenu {
         }
     }
     #loginButton {
-        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+        .action-gradient;
         color: @color-text-cyan;
         font-size: 12px;
         font-weight: bold;
@@ -2687,7 +2703,7 @@ ul.inputMenu {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
         height: 35px;
-        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+        .action-gradient;
         color: @color-white;
         font-color: white;
         text-align: center;
@@ -2788,7 +2804,7 @@ ul.inputMenu {
                 padding-left: 10px;
             }
             .icon {
-                background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+                .action-gradient;
                 width: 25px;
                 height: 25px;
                 float: right;
@@ -3039,7 +3055,7 @@ ul.inputMenu {
         cursor: pointer;
     }
     .active {
-        background: linear-gradient(@color-background-topAction, @color-background-bottomAction);
+        .action-gradient;
         color: @color-text-cyan;
     }
        
