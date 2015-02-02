@@ -23,6 +23,11 @@ var AfterStartup = {
     Before: false
 }
 
+var SelectUnit = {
+    All: true,
+    Single: false
+}
+
 var SPMode = {
     Normal: 1,
     Selected: 2,

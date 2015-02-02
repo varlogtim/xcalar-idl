@@ -1,5 +1,15 @@
 
 function setupImportDSForm() {
+    $('#fileFormat').find('label').click(function() {
+        $('.radio').removeClass('checked');
+        $(this).find('.radio').addClass('checked');
+    });
+
+    $('#importDataBottomForm').find('button[type=reset]').click(function() {
+        $('.radio').removeClass('checked');
+        console.log('hey')
+    });
+
     $('#importDataForm').submit(function() {
         var loadURL = $.trim($('#filePath').val());
         var tableName = $.trim($('#fileName').val());

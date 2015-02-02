@@ -501,6 +501,7 @@ body {
     cursor: default;
     .noSelection;
     margin: 0 14px;
+    height: 35px;
 }
 
 .rowScroller {
@@ -864,6 +865,17 @@ body {
         height: ~"calc(100% - 35px)";
         margin-left: 10px;
         background-color: @color-table-darkGray;
+    }
+
+    .topBorder {
+        left: -17px;
+        bottom: 60px;
+        height: 1px;
+        width: 17px;
+        background-color: #242c31;
+        z-index: 20;
+        position: absolute;
+        box-shadow: -1px -2px 5px rgba(0,0,0,.3);
     }
 }
 
@@ -2071,217 +2083,6 @@ ul.inputMenu {
     width: 100%;
 }
 /* END VERTICAL RESIZING */
-
-
-/* START DATASET TABLE */
-
-#contentViewTable {
-    // overflow: auto;
-    position: relative;
-}
-
-.datasetTitleWrap {
-    margin-left: 15px;
-}
-
-#datasetWrap {
-    
-}
-
-.datasetTableWrap {
-    width: ~"calc(100% - 20px)";
-    overflow: auto;
-    margin: 20px 10px 0px;
-    position: absolute;
-    height: ~"calc(100% - 80px)";
-    border: 1px solid @color-background-lightGray;
-}
-
-.datasetTable {
-    width: 0px;
-    thead {
-        box-shadow: 0px 1px  1px @colorShadow-black;
-        outline: 2px solid rgba(100, 100, 100, .3);
-    }
-
-    th {
-        width: 130px;
-    }
-
-    .selectedCell {
-        .editableHead {
-            background: none !important;
-            // background-color: #CDE6F6 !important;
-            background-color: @color-white !important;
-            color: @color-text-darkGray !important;
-        }
-        td {
-
-        }
-    }
-    .selectedCol {
-        .editableHead {
-            background: none !important;
-            background-color: #CDE6F6 !important;
-            color: #0090E8 !important;
-        }
-    }
-
-    .header {
-        height: 30px;
-        
-        .editableHead {
-            width: ~"calc(100% - 30px)";
-            background-color: @color-white;
-            font-weight: 700;
-            border-top-left-radius: 3px;
-            border-bottom-left-radius: 3px;
-            outline: none;
-            float: left;
-            border: 1px solid @color-background-topGrayMed;
-            z-index: 0;
-        }
-
-        &.colAdded {
-            .checkBox {
-                .action-gradient;
-                border-left: 1px solid @color-background-topAction;
-            }
-        }
-    }
-
-    .checkBox {
-        display: inline-block;
-        float: right;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
-        width: 30px;
-        height: 100%;
-        border: 1px solid @color-background-topGrayMed;
-        .linear-gradient(top, @color-background-darkGray, #C6C6C6);
-        cursor: pointer;
-        .icon {
-            width: 100%;
-            height: 100%;
-            display: inline-block;
-            background: url(/images/checkmark-inactive.png) 50% 50% no-repeat;
-        }
-    }
-}
-
-
-#dataCart {
-    margin-left: 12px;
-    background-color: @color-background-darkGray;
-    .selectedTable {
-        margin-top: 12px;
-        margin-bottom: 18px;
-        width: 225px;
-
-        h3 {
-            display: inline-block;
-            text-indent: 4px;
-        }
-
-        li {
-            height: 28px;
-            line-height: 28px;
-            background-color: @color-white;
-            border-radius: 3px;
-            box-shadow: -1px 1px 1px rgba(0,0,0,.2);
-            overflow: hidden;
-            margin-top: 8px;
-            font-weight: 700;
-
-            &.colSelected {
-                background-color: @color-selectedCell-light;
-                // color: @color-background-bottomAction;
-            }
-
-            &.keySelected {
-                // background-color: @color-selectedCell-light; 
-                box-shadow: 0px 0px 0px 2px @color-background-bottomAction;
-            }
-
-            .colName {
-                width: 200px;
-                height: 100%;
-                padding-left: 12px;
-                float: left;
-                display: inline-block;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                cursor: default;
-                
-            }
-            .removeCol {
-                width: 25px;
-                height: 100%;
-                float: left;
-                display: inline-block;
-                .gray-gradient;
-                cursor: pointer;
-
-                &:hover {
-                    .red-gradient;
-                }
-
-                .closeIcon {
-                    display: inline-block;
-                    width: 100%;
-                    height: 100%;
-                    background: url(/images/ds-close.png) 50% 50% no-repeat,
-                }
-            }
-        }
-    }
-
-    .buttonArea {
-        margin-top: 25px;
-    }
-
-    .btnLarge {
-        margin-top: 10px;
-        width: 225px;
-        font-size: 11px;
-
-        .icon {
-            margin: 4px;
-            float: left;
-            display: inline-block;
-        }
-
-        &#submitDSTablesBtn {
-            .icon {
-                background: url(/images/send-single.png) 0 0 no-repeat;
-                width: 27px;
-                height: 21px;
-            }
-
- 
-
-        }
-        &#submitMultipleDBTablesBtn {
-            .icon {
-                background: url(/images/send-multiple.png) 0 0 no-repeat;
-                width: 27px;
-                height: 23px;
-                
-            }
-            // background: linear-gradient(@color-background-topGrayMed,
-            //                             @color-background-bottomGrayMed);
-        }
-        &#clearDataChart {
-            .icon {
-                background: url(/images/garbage.png) 0 0 no-repeat;
-                width: 22px;
-                height: 24px;
-                margin-right: 8px;
-            }
-        }
-    }
-}
-
 
 
 /* START WORKSHEET BAR */

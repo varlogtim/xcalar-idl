@@ -22,7 +22,10 @@ function setupDSCartButtons() {
 
     $("#submitDSTablesBtn").click(function() {
         var keysPresent = true;
-        $('#dataCart .selectedTable').not('.deselectedTable').each(
+        if ($('#dataCart').find('.selectedTable').length == 0) {
+            return false;
+        }
+        $('#dataCart .selectedTable').each(
             function() {
                 if ($(this).find('.keySelected').length == 0) {
                    keysPresent = false;
@@ -42,6 +45,28 @@ function setupDSCartButtons() {
     $('#clearDataChart').click(function() {
         resetDataCart();
     });
+
+    $('#selectDSCols').click(function() {
+        var table = $('.datasetTableWrap').filter(function() {
+            return $(this).css('display') == 'block';
+        }).find('table');
+        table.find('.checkBox').each(function() {
+            if (!$(this).parent().hasClass('colAdded')) {
+                checkColumn($(this), SelectUnit.All);
+            }
+        });
+    });
+    $('#clearDsCols').click(function() {        
+        var table = $('.datasetTableWrap').filter(function() {
+            return $(this).css('display') == 'block';
+        }).find('table');
+
+        var tableNum = table.attr('id').substring(14);
+        $('#selectedTable'+tableNum).remove();
+        table.find('.colAdded').removeClass('colAdded');
+        table.find('.selectedCol').removeClass('selectedCol');
+        dataCartOverflowShadow();
+    });
 }
 
 function getDatasetSample(datasetName) {
@@ -54,10 +79,6 @@ function getDatasetSample(datasetName) {
             console.log( datasetName,datasets.datasets[i].name)
             continue;
         }
-
-        // var datasetName = getDsName(datasets.datasets[i].datasetId);
-       // addSelectedTableHolder(i);
-
 
         // Gets the first 20 entries and stores it.
         samples[datasetName] = 
@@ -77,8 +98,7 @@ function getDatasetSample(datasetName) {
         }
         addDataSetHeaders(json, datasets.datasets[i].datasetId, i);
         addDataSetRows(records, i);
-        addWorksheetListeners(i);
-        // addTabFunctionality(i);   
+        addWorksheetListeners(i);  
         attachShoppingCartListeners(i);
         updateDatasetInfoFields(datasetName, IsActive.Active);
     } 
@@ -184,67 +204,70 @@ function addWorksheetListeners(tableNum) {
     });
 
     table.find('.checkBox').click(function() { 
-        var input = $(this).prev();
+        checkColumn($(this), SelectUnit.Single);
+    });
+}
 
-        if ($(this).parent().hasClass('colAdded')) {
-            console.log('already added')
-            var index = parseInt($(this).closest('.datasetTable')
-                .attr('id').substring(14));
-            var inputText = input.val();
-            var selectedCol = $('#selectedTable'+index).
-                find('.colName:contains('+inputText+')');
-            selectedCol.next().trigger('click');
-            highlightDatasetColumn(input, IsActive.Active);
-            return;
-        } else {
-            $(this).parent().addClass('colAdded');
-            input.attr('readonly', 'true');
-            highlightDatasetColumn(input);
+function checkColumn(column, selectAll) {
+    var input = column.prev();
+
+    if (column.parent().hasClass('colAdded') && !selectAll) {
+        console.log('already added')
+        var index = parseInt(column.closest('.datasetTable')
+            .attr('id').substring(14));
+        var inputText = input.val();
+        var selectedCol = $('#selectedTable'+index).
+            find('.colName:contains('+inputText+')');
+        selectedCol.next().trigger('click');
+        highlightDatasetColumn(input, IsActive.Active);
+        return;
+    } else {
+        column.parent().addClass('colAdded');
+        input.attr('readonly', 'true');
+        highlightDatasetColumn(input);
+    }
+    
+    var index = parseInt(column.closest('.datasetTable')
+            .attr('id').substring(14));
+    var selectedTable = $('#selectedTable'+index);
+    if (selectedTable.length == 0) {
+        var tabName = $('#worksheetTable'+index+' ').data('dsname');
+        var dsName = $('#worksheetTable'+index+' ').data('dsname');
+
+        if ($('.selectedTable h3:contains('+tabName+')').length > 0) {
+            tabName += "1";
+            //XXX add possibility of multiple similar names
+            // recursive?
         }
         
-        var index = parseInt($(this).closest('.datasetTable')
-                .attr('id').substring(14));
-        var selectedTable = $('#selectedTable'+index);
-        if (selectedTable.length == 0) {
-            var tabName = $('#worksheetTable'+index+' ').data('dsname');
-            var dsName = $('#worksheetTable'+index+' ').data('dsname');
+        selectedTable = addSelectedTable(index, tabName, dsName);
+    }
 
-            if ($('.selectedTable h3:contains('+tabName+')').length > 0) {
-                tabName += "1";
-                //XXX add possibility of multiple similar names
-                // recursive?
-            }
-            
-            selectedTable = addSelectedTable(index, tabName, dsName);
-        }
+    var li = '<li style="font-size:14px;" class="colWrap">'+
+            '<span class="colName">'+input.val()+'</span>'+
+            '<div class="removeCol">'+
+                '<span class="closeIcon"></span>'+
+            '</div>'+
+            '</li>';
+    selectedTable.find('ul').append(li);
 
-       
-
-        var li = '<li style="font-size:14px;" class="colWrap">'+
-                '<span class="colName">'+input.val()+'</span>'+
-                '<div class="removeCol">'+
-                    '<span class="closeIcon"></span>'+
-                '</div>'+
-                '</li>';
-        selectedTable.find('ul').append(li);
-
-        $('.colSelected').removeClass('colSelected');
-        selectedTable.find('.colWrap:last').addClass('colSelected');
-        selectedTable.find('.colWrap:last').show(function() {
-            $(this).css('font-size', '13px');
-        });
-
-        selectedTable.find('.colWrap:last').click(function() {     
-            $(this).closest('.selectedTable').find('.keySelected')
-                .removeClass('keySelected');
-            $(this).closest('.selectedTable').find('.colSelected')
-                .removeClass('colSelected');
-            $(this).addClass('keySelected').addClass('colSelected');
-        });
-        selectedTable.find('.removeCol:last').click(function() {
-            removeSelectedKey($(this), input);
-        });
+    $('.colSelected').removeClass('colSelected');
+    selectedTable.find('.colWrap:last').addClass('colSelected');
+    selectedTable.find('.colWrap:last').show(function() {
+        $(this).css('font-size', '13px');
     });
+
+    selectedTable.find('.colWrap:last').click(function() {     
+        $(this).closest('.selectedTable').find('.keySelected')
+            .removeClass('keySelected');
+        $(this).closest('.selectedTable').find('.colSelected')
+            .removeClass('colSelected');
+        $(this).addClass('keySelected').addClass('colSelected');
+    });
+    selectedTable.find('.removeCol:last').click(function() {
+        removeSelectedKey($(this), input);
+    });
+    dataCartOverflowShadow();
 }
 
 function attachShoppingCartListeners(tableNum) {
@@ -269,7 +292,9 @@ function attachShoppingCartListeners(tableNum) {
 }
 
 function removeSelectedKey(closeBox, input) {
-    input.parent().removeClass('colAdded');
+    input.parent().removeClass('colAdded').parent().removeClass('selectedCol');
+    var index = parseColNum(input);
+    input.closest('table').find('.col'+index).removeClass('selectedCol');
     input.removeAttr('readonly');
     if (closeBox.closest('li').siblings().length == 0) {
         closeBox.closest('.selectedTable').remove();
@@ -277,6 +302,7 @@ function removeSelectedKey(closeBox, input) {
     } else {
         closeBox.closest('li').remove();
     }
+    dataCartOverflowShadow();
 }
 
 function createWorksheet() {
@@ -351,6 +377,7 @@ function resetDataCart() {
     $('.worksheetTable input').not('.idField').attr('readonly', false);
     $('.colAdded').removeClass('colAdded');
     $('.selectedCol').removeClass('selectedCol');
+    dataCartOverflowShadow();
 }
 
 function setupDatasetList() {
@@ -374,5 +401,13 @@ function updateDatasetInfoFields(dsName, active) {
         var numDatasets = XcalarGetDatasets().numDatasets;
         $('#worksheetInfo').find('.numDataStores').text(numDatasets);
         $('#datasetExplore').find('.numDataStores').text(numDatasets);
+    }
+}
+
+function dataCartOverflowShadow() {
+    if ($('#dataCart').height() > $('#dataCartWrap').height()) {
+        $('#contentViewRight').find('.buttonArea').addClass('cartOverflow');
+    } else {
+        $('#contentViewRight').find('.buttonArea').removeClass('cartOverflow');
     }
 }
