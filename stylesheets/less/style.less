@@ -21,6 +21,7 @@
 @color-background-topGrayMed: #CCCCCC;
 @color-background-midGrayMed: #BEBEBE;
 @color-background-bottomGrayMed: #AEAEAE;
+@color-background-darkdarkGray: #666666;
 @color-arrow-background: #929292;
 @colorColumnListBackground: #CDCDCD;
 @color-background-topForm: #F0F0F0;
@@ -102,6 +103,14 @@
 
 .gray-gradient {
     .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
+}
+
+.lightGray-gradient {
+    .linear-gradient(top, @color-background-topGrayMed, @color-background-midGrayMed);
+}
+
+.darkGray-gradient {
+    .linear-gradient(top, @color-background-midGrayMed, @color-background-bottomGrayMed);
 }
 
 .light-gradient {
@@ -816,6 +825,7 @@ body {
 
 .icon {
     display: inline-block;
+    .noSelection;
 }
 
 .roundedIcon {
@@ -1066,7 +1076,7 @@ body {
     box-shadow: 0px 1px 1px 0px rgba(0,0,0, .5);
     overflow: hidden;
     z-index: 0;
-
+    .lightGray-gradient;
 
     .workspaceArea {
         height: 13px;
@@ -1121,10 +1131,10 @@ body {
 }
 
 #addWorksheet {
-    
-    margin-top: 8px;
-    margin-left: 8px;
+    display: inline-block;
+    margin: 8px 8px 0px 9px;
     cursor: pointer;
+    float: left;
     span {
         background-image: url(/images/plus-sign.png); 
         background-position: 55% 45%;
@@ -1134,13 +1144,49 @@ body {
     }
 }
 
+#worksheetTabs {
+    display: inline-block;
+    float: left;
+    position: relative;
+    height: 36px;
+    top: -1px;
+
+}
+
 .worksheetTab {
-    width: 33px;
+    width: 121px;
     height: 35px;
-    border: 1px solid @color-tab-border;
+    line-height: 35px;
+    text-align: left;
+    border: 1px solid @color-bar-border;
     border-top: none;
+    border-bottom-left-radius: 3px;
+    font-weight: 700;
+    .darkGray-gradient;
+    float: left;
     .icon {
-        background: url(/images/page.png) 50% 50% no-repeat;
+        background: url(/images/page-white.png) 50% 50% no-repeat;
+        width: 28px;
+        height: 100%;
+        float: left;
+    }
+}
+
+#compSwitch {
+    float: left;
+    width: 30px;
+    height: 34px;
+    display: inline-block;
+    margin-top: 1px;
+    cursor: pointer;
+    border-bottom: 1px solid @color-bar-border;
+    border-right: 1px solid @color-bar-border;
+    border-bottom-right-radius: 3px;
+    .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
+    .icon {
+        background: url(/images/comp-icon.png) 50% 50% no-repeat;
+        height: 100%;
+        width: 100%;
     }
 }
 
