@@ -77,8 +77,8 @@ function getDatasetSample(datasetName) {
     // Get datasets and names
     var datasets = XcalarGetDatasets();
     var samples = {};
-
-    for (var i = 0; i<datasets.numDatasets; i++) {
+    
+    for (var i = 0; i < datasets.numDatasets; i++) {
         if (datasetName != datasets.datasets[i].name) {
             console.log( datasetName,datasets.datasets[i].name)
             continue;
@@ -94,18 +94,39 @@ function getDatasetSample(datasetName) {
        
         var records = samples[datasetName].kvPairs;
 
+        var uniqueJsonKey = {}; // store unique Json key
+        var jsonKeys = [];
+        var jsons = [];  // store all jsons
+        var recordsSize = records.records.length;
+        
         if (records.recordType ==
             GenericTypesRecordTypeT.GenericTypesVariableSize) {
-            var json = $.parseJSON(records.records[0].kvPairVariable.value);
+            for (var j = 0; j < recordsSize; j++) {
+                jsons[j] = jQuery.parseJSON(records.records[j].kvPairVariable.value);
+                for (var key in jsons[j]) {
+                    uniqueJsonKey[key] = "";
+                }
+            }
         } else {
-            var json = $.parseJSON(records.records[0].kvPairFixed.value);
+            for (var j = 0; j < recordsSize; j++) {
+                jsons[j] = jQuery.parseJSON(records.records[j].kvPairFixed.value);
+                for (var key in jsons[j]) {
+                    uniqueJsonKey[key] = "";
+                }
+            }
         }
-        addDataSetHeaders(json, datasets.datasets[i].datasetId, i);
-        addDataSetRows(records, i);
+
+        for (var key in uniqueJsonKey) {
+            jsonKeys.push(key);
+        }
+        
+        addDataSetHeaders(jsonKeys, datasets.datasets[i].datasetId, i);
+        addDataSetRows(jsonKeys,jsons, i);
         addWorksheetListeners(i);  
         attachShoppingCartListeners(i);
         updateDatasetInfoFields(datasetName, IsActive.Active);
     } 
+
 }
 
 function addSelectedTable(index, tableName, dsName) {
@@ -142,52 +163,49 @@ function addDatasetTable(datasetTitle, tableNumber) {
         </div>');
 }
 
-function addDataSetHeaders(json, datasetId, index) {
+function addDataSetHeaders(jsonKeys, datasetId, index) {
     var th = "";
-    var i = 0;
-    for (key in json) {
-        th +=  '<th class="table_title_bg col'+i+'">\
+    var key;
+    for (var i = 0; i < jsonKeys.length; i++) {
+        key = jsonKeys[i];
+        th +=  '<th class="table_title_bg col'+ i +'">\
                 <div class="header">\
                 <input spellcheck="false" \
-                class="editableHead shoppingCartCol col'+i+'" value="'+key+'"\
-                id ="ds'+datasetId+'cn'+key+'">\
+                class="editableHead shoppingCartCol col'+ i +'" value="'+ key +'"\
+                id ="ds'+ datasetId +'cn'+ key +'">\
                 <div class="checkBox"><span class="icon"></span></div>\
                 </div>\
             </th>';
-        i++;
     }
-    $('#worksheetTable'+index+' tr:first').append(th);
+    $('#worksheetTable'+ index +' tr:first').append(th);
 }
 
-function addDataSetRows(records, tableNum) {
+function addDataSetRows(jsonKeys,jsons, tableNum) {
     var html = "";
+    var key;
+    var value;
     // loop through each row
-    for (var i = 0; i<records.numRecords; i++) {
-        if (records.recordType ==
-            GenericTypesRecordTypeT.GenericTypesVariableSize) {
-            var key = records.records[i].kvPairVariable.key;
-            var jsonValue = records.records[i].kvPairVariable.value;
-        } else {
-            var key = records.records[i].kvPairFixed.key;
-            var jsonValue = records.records[i].kvPairFixed.value;
-        }
-
-        var json = $.parseJSON(jsonValue);
+    for (var i = 0; i < jsons.length; i++) {
+        var json = jsons[i];
         //append the row 
         html += '<tr>';
 
         // loop through each td, parse object, and add cell content
-        var j = 0;
-        for (key in json) {
-            var value = parseJsonValue(json[key]);
-            html += '<td class="col'+j+'">\
+        for (var j = 0; j < jsonKeys.length; j++) {
+            key = jsonKeys[j];
+            if (json[key] != undefined) {
+                value = parseJsonValue(json[key]);
+            } else {
+                value = "";
+            }
+
+            html += '<td class="col'+ j +'">\
                         <div class="addedBarTextWrap">\
                             <div class="addedBarText">'
-                            +value+
+                            + value +
                             '</div>\
                         </div>\
                     </td>';
-            j++;
         }
         html += '</tr>';
     }
