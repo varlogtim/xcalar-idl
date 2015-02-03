@@ -1155,8 +1155,7 @@ function addTableListeners(tableNum) {
 }
 
 function focusTable(tableNum) {
-    $('#theadWrap'+gActiveTableNum).find('.tableTitle')
-        .removeClass('tblTitleSelected');
+    $('#mainFrame').find('.tableTitle').removeClass('tblTitleSelected');
     $('#theadWrap'+tableNum).find('.tableTitle')
         .addClass('tblTitleSelected');
     gActiveTableNum = tableNum;
@@ -1165,9 +1164,8 @@ function focusTable(tableNum) {
 
 function moverowScroller(pageNum, resultSetCount) {
     var pct = 100* (pageNum/resultSetCount);
-    // var dist = Math.floor(pct*$('#rowScroller'+gActiveTableNum).width());
-    // $('#rowMarker'+gActiveTableNum).css('transform', 'translateX('+dist+'px)');
-    $('#rowMarker'+gActiveTableNum).css('transform', 'translate3d('+pct+'%, 0px, 0px)');
+    $('#rowMarker'+gActiveTableNum)
+        .css('transform', 'translate3d('+pct+'%, 0px, 0px)');
 }
 
 function setupBookmarkArea() {

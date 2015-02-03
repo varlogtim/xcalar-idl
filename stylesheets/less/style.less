@@ -550,17 +550,12 @@ body {
     box-shadow: inset -2px 0 4px 0px rgba(0,0,0,.3);
     .transition (transform 0.3s linear 0s);
     z-index: 12;
+    overflow: hidden;
     
     &.open {
         transform: (translate3d(255px,0,0));
         .transition (transform 0.3s linear 0s);
     }
-}
-
-#leftMenuBarSections {
-    height: ~"calc(100% - 35px)";
-    overflow: hidden;
-
 }
 
 #leftMenuBarTabs {
@@ -607,7 +602,7 @@ body {
 #leftMenuBarSections {
     overflow-x: hidden;
     overflow-y: auto;
-    height: 100%;
+    height: ~"calc(100% - 35px)";
 
     ul {
         list-style: none;

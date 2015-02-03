@@ -10,13 +10,17 @@ function checkStatus(newTableName, tableNum, keepOriginal,
         $("body").css({"cursor": "default"});
         $('#waitCursor').remove();
         console.log("Done loading");
+        var newTableNum;
         if (keepOriginal === KeepOriginalTables.Keep) {
             // append newly created table to the back
-            console.log(gTables);
-            addTable(newTableName, gTables.length, AfterStartup.After);
+            newTableNum = gTables.length;
+            addTable(newTableName, newTableNum, AfterStartup.After);
+            var leftPos = $('#xcTableWrap'+newTableNum).position().left +
+                            $('#mainFrame').scrollLeft();
+            $('#mainFrame').animate({scrollLeft: leftPos});
         } else {
             // default
-            var newTableNum = tableNum;
+            newTableNum = tableNum;
             var savedScrollLeft;
             if (additionalTableNum > -1) {
                 var largerTableNum = Math.max(additionalTableNum, tableNum);
@@ -31,11 +35,10 @@ function checkStatus(newTableName, tableNum, keepOriginal,
                 savedScrollLeft = $('#mainFrame').scrollLeft();
                 archiveTable(tableNum);
             }
-            console.log(gTables);
             addTable(newTableName, newTableNum, AfterStartup.After);
             if (savedScrollLeft) {
                 $('#mainFrame').scrollLeft(savedScrollLeft);
-            }
+            } 
         }
     } else {
         console.log(refCount);
