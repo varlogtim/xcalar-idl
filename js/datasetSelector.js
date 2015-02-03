@@ -368,12 +368,6 @@ function createWorksheet() {
         checkStatus(tableName, gTables.length, keepLastTable, 
                     additionalTableNum);
     });
-    
-    if (gWorksheetName.length == 0) {
-        // addWorksheetTab
-        var name = $('#worksheetBar .worksheetTab input').val();
-        setWorksheetName(0, name);
-    }
 }
 
 function resetDataCart() {

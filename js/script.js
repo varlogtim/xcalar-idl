@@ -469,9 +469,7 @@ function documentReadyCatFunction(tableNum) {
 
 function startupFunctions() {
     readFromStorage();
-    // setupLeftMenuBar();
     documentReadyGeneralFunction();
-    getWorksheetNames(); 
     setupRightSideBar();
     setupDatasetList();
     mainPanelsTabing();
