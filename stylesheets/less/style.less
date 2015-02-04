@@ -108,6 +108,10 @@
     .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
 }
 
+.gray-inverse-gradient {
+    .linear-gradient(top, @color-background-bottomGrayMed, @color-background-topGrayMed);
+}
+
 .lightGray-gradient {
     .linear-gradient(top, @color-background-topGrayMed, @color-background-midGrayMed);
 }
@@ -615,7 +619,7 @@ body {
     color: @color-text-darkGray;
     border-right: 1px solid @color-table-borderGray;
     border-bottom: 1px solid @color-table-borderGray;
-    background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+    .gray-gradient;
     .noSelection;
 
     &:hover {
@@ -1528,7 +1532,7 @@ in order to work for the new ui. I will clean this up at some point.
     .header {
         position: relative;
         border-radius: 3px;
-        background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+        .gray-gradient;
     }
 
     input {
@@ -1678,7 +1682,7 @@ in order to work for the new ui. I will clean this up at some point.
     text-align: center;
     display: block;
     position: absolute;
-    background: linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
+    .gray-gradient;
     border-bottom: 1px solid @color-table-borderGray;
     .tableGrab {
         position: absolute;

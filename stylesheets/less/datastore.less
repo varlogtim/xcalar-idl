@@ -87,8 +87,16 @@
     .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
 }
 
+.gray-inverse-gradient {
+    .linear-gradient(top, @color-background-bottomGrayMed, @color-background-topGrayMed);
+}
+
 .light-gradient {
     .linear-gradient(top, @color-background-darkGray, #C6C6C6);
+}
+
+.lightGray-gradient {
+    .linear-gradient(top, @color-background-topGrayMed, @color-background-midGrayMed);
 }
 
 .red-gradient {
@@ -483,20 +491,19 @@
                         height: 65px;
                         width: 45px;
                         // .flex(0 0 45px);
-
                         margin: 7px;
                         text-align: center;
                         cursor: pointer;
                         position: relative;
-                        
-
                         // .flex-display();
                         // .flex-flow(column);
 
                         float: left;
                         display: inline-block;
 
-                        .icon {
+
+
+                        .gridIcon {
                             // .flex(1 1 40px);
                             // .flex-order(1);
                             // .transition (opacity 0.6s);
@@ -506,6 +513,10 @@
                             display: inline-block;
                             width: 50px;
                             height: 40px;
+                        }
+
+                        .listIcon {
+                            display: none;
                         }
 
                         .label {
@@ -530,7 +541,7 @@
                         }
 
                         &.active {
-                            outline: 2px solid @color-background-topAction;
+                            box-shadow: 0px 0px 0px 2px @color-background-topAction;
                             .label {
                                 font-weight: 700;
                                 color: #333333;
@@ -538,11 +549,72 @@
                         }
                     }
 
+                    &.listView {
+                        padding-top: 4px;
+                        grid-unit {
+                            display: block;
+                            float: none;
+                            height: 25px;
+                            width: 230px;
+                            text-align: left;
+                            margin: 0;
+                            margin-top: 10px;
+                            border-radius: 3px;
+                            background-color: @color-white;
+                            box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+                        }
+
+                        .label {
+                            font-size: 11px;
+                            line-height: 24px;
+                        }
+
+                        .gridIcon {
+                            display: none;
+                        }
+
+                        .listIcon {
+                            display: inline-block;
+                            .gray-gradient;
+                            height: 100%;
+                            float: left;
+                            padding-top: 1px;
+                            margin-right: 10px;
+                            border-top-left-radius: 3px;
+                            border-bottom-left-radius: 3px;
+                        }
+
+                        .icon {
+                            margin: 2px;
+                            display: inline-block;
+                            width: 19px;
+                            height: 19px;
+                            background: url(/images/db-icon-white.png) 0 0 no-repeat;
+                        }
+
+                        grid-unit:hover {
+                            .listIcon {
+                                // .gray-inverse-gradient;
+                            }
+                        }
+
+                        .active {
+                            box-shadow: 0px 0px 0px 2px @color-background-topAction;
+                            .listIcon {
+                                .action-gradient !important;
+                            }  
+                        }
+
+                        .iconWaiting {
+                            left: 98px;
+                            top: -6px;
+                        }
+                        
+                    }
+
                     #billy {
                         height: 40px;
                         width: 20px;
-
-
                     }
                 }
 

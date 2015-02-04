@@ -415,7 +415,8 @@ function setupDatasetList() {
     for (i = 0; i<numDatasets; i++) {
         var datasetId = datasets.datasets[i].datasetId;
         var dsName = getDsName(datasetId);
-        var dsDisplay = '<grid-unit><div class="icon"></div>'+
+        var dsDisplay = '<grid-unit><div class="gridIcon"></div>'+
+        '<div class="listIcon"><span class="icon"></span></div>'+
         '<div class="label">'+dsName+'</div></grid-unit>';
         $("#gridView").append(dsDisplay);
     };

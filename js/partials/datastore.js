@@ -22,9 +22,21 @@
             $('#importDataBottomForm').find('button[type=reset]').trigger('click');
             $('#filePath').focus();
         });
+
         $("grid-unit .label").each(function() {
             $(this).dotdotdot({ellipsis: "..."});
         });
+
+        $('.dataViewBtn').click(function() {
+            $('.dataViewBtn').removeClass('selected').addClass('btnDeselected');
+            $(this).addClass('selected').removeClass('btnDeselected');
+            if ($(this).attr('id') == "dataListView") {
+                $('#gridView').addClass('listView');
+            } else {
+                $('#gridView').removeClass('listView');
+            }
+        });
+
     });
 
 })(window, document, jQuery);
