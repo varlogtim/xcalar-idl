@@ -50,7 +50,7 @@ function setupDSCartButtons() {
         var table = $('.datasetTableWrap').filter(function() {
             return $(this).css('display') == 'block';
         }).find('table');
-        table.find('.checkBox').each(function() {
+        table.find('thead:first .checkBox').each(function() {
             if (!$(this).parent().hasClass('colAdded')) {
                 checkColumn($(this), SelectUnit.All);
             }
@@ -177,7 +177,19 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
                 </div>\
             </th>';
     }
-    $('#worksheetTable'+ index +' tr:first').append(th);
+    var table = $('#worksheetTable'+index); 
+    var tableWidth = table.width();
+    table.find('tr:first').append(th);
+    table.find('thead').addClass('fixedThead');
+    var cloneThead = '<thead class="clonedThead" style="width:'+
+                     tableWidth+'px;">' +th+'</thead>';
+    table.find('thead').after(cloneThead);
+
+    $('#dataSetTableWrap'+index).scroll(function() {
+        var scrollTop = $(this).scrollTop();
+        table.find('.fixedThead').css({'top': scrollTop});
+    });
+
 }
 
 function addDataSetRows(jsonKeys,jsons, tableNum) {
@@ -234,7 +246,6 @@ function checkColumn(column, selectAll) {
     var input = column.prev();
 
     if (column.parent().hasClass('colAdded') && !selectAll) {
-        console.log('already added')
         var index = parseInt(column.closest('.datasetTable')
             .attr('id').substring(14));
         var inputText = input.val();

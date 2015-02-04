@@ -660,7 +660,6 @@
                     .flex(1 1 auto);
                     .flex-order(2);
 
-                    // background: url(/images/datastore/explore-view-table.png);
                     background-repeat: no-repeat;
                     background-position: center;
                 }
@@ -669,7 +668,6 @@
                     .flex(0 0 91px);
                     .flex-order(1);
 
-                    // background: url(/images/datastore/search-view-header.png);
                     background-repeat: no-repeat;
                     background-position: center;
                 }
@@ -677,7 +675,6 @@
                     .flex(1 1 auto);
                     .flex-order(2);
 
-                    // background: url(/images/datastore/search-view-table.png);
                     background-repeat: no-repeat;
                     background-position: center;
                 }
@@ -786,10 +783,26 @@
 }
 
 .datasetTable {
-    width: 0px;
+    width: 0px !important;
     thead {
         box-shadow: 0px 1px  1px @colorShadow-black;
         outline: 2px solid rgba(100, 100, 100, .3);
+    }
+
+    .fixedThead {
+        position: absolute;
+        top: 0;
+        z-index: 1;
+
+        th {
+            display: inline-block;
+            height: 40px;
+        }
+    }
+
+    .clonedThead {
+        box-shadow: none;
+        opacity: 0;
     }
 
     th {
