@@ -122,7 +122,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
               '<div class="header">'+
                 '<div class="dropdownBox"></div>'+
                 '<input value="DATA" '+
-                'readonly="" tabindex="-1" class="dataCol" title="raw data">'+
+                'readonly="" tabindex="-1" class="dataCol col1" title="raw data">'+
                 '<ul class="colMenu" style="display: none;">'+
                   '<li class="menuClickable">Add a column'+
                     '<ul class="subColMenu">'+
@@ -136,6 +136,8 @@ function generateFirstScreen(value, idNo, tableNum, height) {
                   '<li id="duplicate3" class="duplicate col1">'+
                   'Duplicate column</li>'+
                   '<li class="sort col1">Sort</li>'+
+                  '<li class="hide col1">Hide column</li>'+
+                  '<li class="unhide col1">Unhide column</li>'+
                 '</ul>'+
               '</div>'+
             '</th>'+
