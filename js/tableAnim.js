@@ -564,7 +564,13 @@ function autosizeCol(el, options) {
     var maxWidth = 700;
     var oldWidth = el.width();  
     var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
+    var originalWidth = gTables[tableNum].tableCols[index-1].width;
     var newWidth = Math.max(widestTdWidth, minWidth);
+    var dbClick = options && options.dbClick;
+    // dbClick is autoSized to a fixed width
+    if (!dbClick) {
+        newWidth = Math.max(newWidth, originalWidth);
+    }
     newWidth = Math.min(newWidth, maxWidth);
     var widthDiff = newWidth - oldWidth; 
     if (widthDiff > 0) {
@@ -577,7 +583,7 @@ function autosizeCol(el, options) {
     } else {
         el.width(newWidth);
     }
-    gTables[tableNum].tableCols[index-1].width = el.outerWidth();
+    gTables[tableNum].tableCols[index-1].width = el.width();
     var reverse = true;
     matchHeaderSizes(tableNum, reverse);
 }
@@ -642,7 +648,8 @@ function dblClickResize(el) {
         } else {
             var resize = false;
         }
-        autosizeCol(el.parent().parent(), {resizeFirstRow: resize});
+        autosizeCol(el.parent().parent(), {resizeFirstRow: resize,
+                                            dbClick: true});
         $('#ew-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
