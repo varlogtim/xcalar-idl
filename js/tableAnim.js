@@ -35,8 +35,8 @@ function generateFirstLastVisibleRowNum(rowScrollerMove) {
     if (parseInt(firstRowNum) != NaN) {
         $('#pageBar .rowNum:first-of-type').html(firstRowNum);
         if (rowScrollerMove) {
-            // moverowScroller(firstRowNum, 
-            //     gTables[gActiveTableNum].resultSetCount);
+            moverowScroller(firstRowNum, 
+                gTables[gActiveTableNum].resultSetCount);
         }
     }
     if (parseInt(lastRowNum) != NaN) {
@@ -98,6 +98,7 @@ function gRescolMouseDown(el, event) {
     var colNum = parseColNum(el.parent().parent());
     if (el.parent().width() === 10) {
         // This is a hidden column! we need to unhide it
+        // return;
         unhideCol(colNum, tableNum, {autoResize: false});
     }
     gMouseStatus = "resizingCol";

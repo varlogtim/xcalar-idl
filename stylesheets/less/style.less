@@ -3133,7 +3133,7 @@ ul.inputMenu {
     z-index: 36;
     overflow: hidden;
     resize: both;
-    padding: 30px 0px 10px 10px;
+    padding: 32px 0px 10px 10px;
     width: 400px;
     height: 400px;
     font-weight: 400;
@@ -3142,14 +3142,14 @@ ul.inputMenu {
 .jsonDragArea {
     position: absolute;
     width: 100%;
-    height: 28px;
+    height: 30px;
     top: 0px;
     cursor: move;
     cursor: -webkit-grab;
     cursor: -moz-grab;
     .action-gradient;
-    box-shadow: 0px 2px 2px rgba(0,0,0,.3);
-    border-bottom: 1px solid #44555F;
+    // box-shadow: 0px 2px 2px rgba(0,0,0,.3);
+    //border-bottom: 1px solid #44555F;
     text-align: center;
     color: @color-text-transparentWhite;
     text-shadow: 1px 1px rgba(0,0,0,0.2);
@@ -3162,44 +3162,39 @@ ul.inputMenu {
     position: absolute;
     top: 0px;
     right: -20px;
-    color: @color-text-black;
     cursor: pointer;
     z-index: 37;
-    width: 20px;
-    height: 20px;
-    top: 0px !important;
-    right: 2px !important;
+    width: 22px;
+    height: 22px;
+    top: 3px !important;
+    right: 4px !important;
+    border-radius: 2px;
+    box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
+    .linear-gradient(top, #ACD7F1, #9FCADF);
     
-    span {
+    .icon {
         display: inline-block;
         position: absolute;
         z-index: 39;
-        height: 25px;
-        width: 23px;
+        height: 22px;
+        width: 22px;
         background: url(/images/ds-close.png) 50% 50% no-repeat;
     }
 
-    #closeArrow {
-        // position: absolute;
-        // z-index: 37;
-        // border-right: 10px solid white;
-        // border-bottom: 10px solid transparent;
-        // border-top: 10px solid transparent;
-        // top: 8px;
-        // left: 15px;
+    &:hover {
+        .linear-gradient(top, #9FCADF, #ACD7F1);
+    }
 
-        &.jsonRight {
-            // border-left: 10px solid white;
-            // border-right: none;
-            // left: 0px;
-        }
+    &:active {
+        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+                    0px 1px 1px 0 rgba(255, 255, 255, 0.3);
     }
 }
 
 .prettyJson {
     font-family: "Source Code Pro", courier, sans-serif;
     font-size: 16px;
-    color: @color-bar-orange;
+    color: #FFA633;
     overflow: auto;
     min-width: 100px;
     min-height: 100px;
@@ -3237,24 +3232,30 @@ ul.inputMenu {
 }
 
 .jKey {
-    color: @color-text-black;
+    color: #002D41;
+    padding: 0px 1px;
+    margin: 0px -1px;
+    display: inline-block;
+    border-radius: 3px;
+    cursor: pointer;
 }
 
 .jKey:hover {
-    cursor: pointer;
-    background-color: #F8D9A1;
+    background-color: #EEEEEE;
+    box-shadow: 0px 0px 1px #266481;
 }
 
 .jString {
-    color: @color-monitor-green;
+    color: #2B594F;
 }
 
 .jNum, .jBool, .jNull , .jUndf {
-    color: @color-monitor-red;
+    color: #E74A5F;
 }
 
 .jArray > .jString {
-    color: @color-monitor-green;
+    color: #9B8920;
+    white-space: nowrap;
 }
 
 .hideScroll {

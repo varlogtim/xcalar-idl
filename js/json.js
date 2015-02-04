@@ -99,7 +99,8 @@ function showJsonModal(jsonTd) {
                         return $(this).find("input").val() == "DATA";
                     });
         var colNum = parseColNum(id);
-        addCol('col'+(colNum), 'xcTable'+tableNum, name, {direction: 'L'});
+        addCol('col'+(colNum), 'xcTable'+tableNum, name, {direction: 'L', 
+                select: true});
         gTables[tableNum].tableCols[colNum-1].func.func = "pull";        
         gTables[tableNum].tableCols[colNum-1].func.args = [name];
         gTables[tableNum].tableCols[colNum-1].userStr = '"'+name+'" = pull('+name+')';

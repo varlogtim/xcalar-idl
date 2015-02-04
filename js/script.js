@@ -12,7 +12,8 @@ var gMouseStatus = null;
 var gDragObj = {};
 var gRescol = {
     minCellHeight: 30,
-    cellMinWidth: 30,
+    // cellMinWidth: 30,
+    cellMinWidth: 20,
     first: true,
     clicks: 0,
     delay: 500,
