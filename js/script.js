@@ -243,7 +243,7 @@ function setupHiddenTable() {
     }  
 }
 
-function  mainPanelsTabing() {
+function mainPanelsTabing() {
     $('.mainMenuTab').click(function() {
         $('.mainMenuTab').removeClass('active');
         $(this).addClass('active');
@@ -262,6 +262,21 @@ function  mainPanelsTabing() {
             $('#datastoreView').show();
         }
         
+    });
+}
+
+function setupLogout() {
+    $("#userNamePopout").css("top", $("#userName").position().top+
+                                           $("#userName").height());
+    $("#userNamePopout").css("left",
+        $("#userName").position().left + $("#userName").width()/2 -
+        $("#userNamePopout").width()/2);
+    $("#userNamePopout").hide();
+    $("#userName").click(function() {
+        $("#userNamePopout").toggle();
+    });
+    $("#signout").click(function() {
+        window.location = "dologout.html";
     });
 }
 
@@ -471,6 +486,7 @@ function startupFunctions() {
     readFromStorage();
     documentReadyGeneralFunction();
     setupRightSideBar();
+    setupLogout();
     setupDatasetList();
     mainPanelsTabing();
     setupFunctionBar();

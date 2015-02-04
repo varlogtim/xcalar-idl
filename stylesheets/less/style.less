@@ -57,6 +57,9 @@
 @color-text-midGray: #6E6E6E;
 @color-text-instructions: #AAAAAA;
 @color-text-cyan: #CDF1F6;
+@color-text-signout-lightGray: #7F7F7F;
+@color-text-signout-blue: #5BB1E7;
+@color-text-signout-darkGray: #444444;
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
 @font-code: "Source Code Pro", courier;
@@ -350,6 +353,35 @@ body {
     font-weight: 400;
     span {
         color: @color-text-brightBlue;
+        cursor: pointer;
+    }
+}
+
+#userNamePopout {
+    background: url(/images/signout.png) 0 0 no-repeat;
+    width: 168px;
+    height: 46px; 
+    z-index: 42;
+    position: absolute;
+    font-size: 10px;
+    line-height: 5px;
+    #peri {
+        padding-top: 13px;
+        padding-left: 10px;
+        color: @color-text-signout-lightGray;
+    }
+    #name {
+        padding-top: 5px;
+        padding-left: 10px;
+        color: @color-text-signout-darkGray;
+        float: left;
+    }
+    #signout {
+        padding-top: 5px;
+        padding-left: 5px;
+        color: @color-text-signout-blue;
+        float: left;
+        cursor: pointer;
     }
 }
 
