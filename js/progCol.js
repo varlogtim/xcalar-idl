@@ -479,6 +479,7 @@ function addCol(colId, tableId, name, options) {
 
 function hideCol(colid, tableid) {
     $("#xcTable"+tableid+" .table_title_bg.col"+colid).width(10);
+    $("#xcTable"+tableid+" .table_title_bg.col"+colid).addClass('hidedCol');
     // data column should have more padding and class for tbody is different
     if($("#xcTable"+tableid+" input.col"+colid).hasClass("dataCol")) {
         // the padding pixel may be chosen again
@@ -490,7 +491,6 @@ function hideCol(colid, tableid) {
         $("#xcTable"+tableid+" .col"+colid+" .addedBarText").css("padding-left",
     "10px");
     }
-
     $("#xcTable"+tableid+" td .col"+colid).width(10);
     $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "0px");
     matchHeaderSizes(tableid);
@@ -501,7 +501,7 @@ function unhideCol(colid, tableid, options) {
         autosizeCol($("#xcTable"+tableid+" th.col"+colid),
                     {resizeFirstRow: true, includeHeader: true});
     }
-
+    $("#xcTable"+tableid+" .table_title_bg.col"+colid).removeClass('hidedCol'); 
     if($("#xcTable"+tableid+" input.col"+colid).hasClass("dataCol"))  {
         $("#xcTable"+tableid+" .col"+colid+" .elementText").css("padding-left",
     "0px");
