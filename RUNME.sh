@@ -3,7 +3,7 @@
 # Get rid of abs paths 
 sed -i '/^<script src="bower/! s@/js/@js/@' *.html
 sed -i 's@/stylesheets/@stylesheets/@' *.html
-lessc stylesheets/less/style.less > stylesheets/css/styles/css
+lessc stylesheets/less/style.less > stylesheets/css/style.css
 sed -i 's@/images/@\.\./\.\./images/@' stylesheets/css/style.css
 
 
