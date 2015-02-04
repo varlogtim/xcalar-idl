@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # Get rid of abs paths 
-sed -i 's@/js/@js/@' index.html
-sed -i 's@/stylesheets/@stylesheets/@' index.html
+sed -i '/^<script src="bower/! s@/js/@js/@' *.html
+sed -i 's@/stylesheets/@stylesheets/@' *.html
+lessc stylesheets/less/style.less > stylesheets/css/styles/css
 sed -i 's@/images/@\.\./\.\./images/@' stylesheets/css/style.css
+
 
 if [ -e "../xcalar/src/bin/tests/XcalarApiVersionSignature_types.js" ]
 then
