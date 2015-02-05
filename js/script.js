@@ -249,20 +249,18 @@ function mainPanelsTabing() {
         $('.mainMenuTab').removeClass('active');
         $(this).addClass('active');
         if ($(this).attr('id') == "workspaceTab") {
-            $('#datastoreView').hide();
+            $('#datastoreView').hide().removeClass('active');
             if ($('#workspacePanel').css('display') == "none") {
-                $('#workspacePanel').show();
+                $('#workspacePanel').show().addClass('active');
                 for (var i = 0; i < gTables.length; i++) {
                     matchHeaderSizes(i);
                     adjustColGrabHeight(i);
                 }
             } 
-            
         } else if ($(this).attr('id') == "dataStoresTab") {
-            $('#workspacePanel').hide();
-            $('#datastoreView').show();
+            $('.mainPanel').hide().removeClass('active');
+            $('#datastoreView').show().addClass('active');
         }
-        
     });
 }
 
@@ -496,6 +494,7 @@ function startupFunctions() {
     setupImportDSForm();
     setupBookmarkArea();
     updateDatasetInfoFields("Datasets", IsActive.Active);
+    setupDag();
 }  
 
 function tableStartupFunctions(table, tableNum) {

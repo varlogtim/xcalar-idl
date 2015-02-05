@@ -35,12 +35,11 @@
       <div id="name">Professor X |</div><div id="signout">Sign out</div>
     </div>
   </div>
-  <div id="workspacePanel" class="mainPanel">
+  <div id="workspacePanel" class="mainPanel active">
     <div id="workspaceBar" class="workspaceBar topBar">
       <div id="leftMenu" class="workspaceArea">
         <span class="icon"></span>
         <div class="navArrow">
-          <!-- <div class="navArrowInner"></div> -->
         </div>
       </div>
       <div id="functionArea" class="workspaceArea">
@@ -83,6 +82,14 @@
     </div>
     <div id="mainFrame">
       <!-- auto generated tables go here -->
+    </div>
+    <div id="dagWrap" class="hidden">
+      <div class="topBorder">
+        <div class="pulloutTabWrap">
+          <div id="dagPulloutTab"></div>
+        </div>
+        <div class="tabShadow"></div>
+      </div>
     </div>
   </div><!-- end workspacePane -->
   <div id="datastoreView" class="mainPanel">
@@ -469,6 +476,7 @@
 <script src="js/partials/datastore.js" type="text/javascript"></script>
 <script src="js/joinModal.js" type="text/javascript"></script>
 <script src="js/load.js" type="text/javascript"></script>
+<script src="js/dag.js" type="text/javascript"></script>
 <script>
     documentReadyIndexFunction();
 </script>
