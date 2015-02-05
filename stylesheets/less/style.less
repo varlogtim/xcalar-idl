@@ -69,6 +69,19 @@
 /* Heights */
 @default-bar-height: 26px;
 
+/* Table Color Theme */
+@color-table-normal-lightGray: #CCCCCC;
+@color-table-normal-darkGray: #AEAEAE;
+@color-table-inactive-lightGray: #D6D6D6;
+@color-table-inactive-darkGray: #C3C3C3;
+@color-table-selected-lightBlue: #5BB1E7;
+@color-table-selected-darkBlue: #388CB4;
+@color-table-error-lightRed: #F2A9A9;
+@color-table-error-darkRed: #D97171;
+@color-table-go-lightGreen: #9ED39D;
+@color-table-go-darkGreen: #7AAA7A;
+@color-table-option-lightBrown: #D9CEAE;
+@color-table-option-darkBrown: #C3B89B;
 @import "datastore.less";
 
 /* ========== Elements ========== */
@@ -1709,8 +1722,8 @@ in order to work for the new ui. I will clean this up at some point.
         }
     }
 
-    .jsonElement, .dataCol {
-        background-color: @colorOpaque-dataCol !important;
+    td.jsonElement, td.dataCol {
+        .go-column-solid(20%);
     }
 
     td:first-child {
@@ -3389,3 +3402,60 @@ ul.inputMenu {
 }
 
 /* END PRETTIFY JSON STYLING */
+
+
+/* START NEW TABLE COLOR THEME */
+
+//gradient color theme for furture th use
+.columnColorTheme-gradient(@startColor, @endColor, @aplpha) {
+    .linear-gradient(top, fade(@startColor, @aplpha),
+                          fade(@endColor, @aplpha))  !important;
+}
+.normal-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-normal-lightGray,
+                      @color-table-normal-darkGray, @aplpha);
+}
+.inactive-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-inactive-lightGray,
+                      @color-table-inactive-darkGray, @aplpha);
+}
+.selected-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-selected-lightBlue,
+                      @color-table-selected-darkBlue, @aplpha);
+}
+.error-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-error-lightRed,
+                      @color-table-error-darkRed, @aplpha);
+}
+.go-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-go-lightGreen,
+                      @color-table-go-darkGreen, @aplpha);
+}
+.option-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-option-lightBrown,
+                      @color-table-option-darkBrown, @aplpha);
+}
+
+//solid color theme for td
+.columnColorTheme-solid(@color, @aplpha) {
+    background: fade(@color, @aplpha),!important;
+}
+.normal-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-normal-lightGray, @aplpha);
+}
+.inactive-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-inactive-lightGray, @aplpha);
+}
+.selected-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-selected-lightBlue, @aplpha);
+}
+.error-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-error-lightRed, @aplpha);
+}
+.go-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-go-lightGreen, @aplpha);
+}
+.option-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-option-lightBrown, @aplpha);
+}
+/* END NEW TABLE COLOR THEME */
