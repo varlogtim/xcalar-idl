@@ -39,6 +39,7 @@
 @color-background-tableBorders: #E6E6E6;
 @color-table-borderGray: #838384;
 @color-table-borderBlue: #266481;
+@color-error-border: #FCDCDC;
 
 /* Text */
 @color-text-black: #0F0F0F; 
@@ -50,6 +51,7 @@
 @color-text-transparentWhite: rgba(255,255,255,0.95);
 @color-text-lightGray: #B6B6B6;
 @color-text-red: #E04C42;
+@color-text-error: #E45B52;
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
 @font-code: "Source Code Pro", courier;
@@ -101,6 +103,14 @@
 
 .red-gradient {
     .linear-gradient(top, #F28481, #DC4135);
+}
+
+.transform (@argument) {
+    -webkit-transform: @argument;
+    -moz-transform: @argument;
+    -ms-transform: @argument;
+    -o-transform: @argument;
+    transform: @argument;
 }
 
 #datastoreView {
@@ -621,7 +631,6 @@
                 #datasetSearch {
                     .flex(0 0 35px);
                     .flex-order(2);
-                    // background: url(/images/datastore/dataset-search.png) 0 0 no-repeat;
                      z-index: 1;
                     // box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
                     background-color: @color-background-darkGray;
@@ -650,7 +659,6 @@
                     .flex(0 0 93px);
                     .flex-order(1);
 
-                    // background: url(/images/datastore/explore-view-header.png);
                     background-repeat: no-repeat;
                     background-position: center;
                     box-shadow: 0 3px 2px rgba(0,0,0,.2);
@@ -756,11 +764,129 @@
                 .flex-order(3);
                 width: 255px;
                 height: 100%;
-
-                // background: url(/images/datastore/data-cart.png);    
+   
                 background-color: @color-background-darkGray;
                 box-shadow: inset 2px 2px 6px 0 rgba(0,0,0,.3);
                 border-left: 1px solid rgba(0, 0, 0, 0.25);     
+            }
+        }
+    }
+}
+
+input {
+    &.error {
+        background-color: #FFEEEE !important;
+        &:focus {
+            outline: 1px solid #FFD6D6 !important;
+        }
+    }
+}
+
+#statusBox {
+    padding: 5px;
+    position: fixed;
+    display: none;
+    z-index: 10;
+
+    .boxInnerWrap {
+        width: 185px;
+        min-height: 100px;
+        max-height: 300px;
+        padding: 7px;
+        border-radius: 3px;
+        box-shadow: 0 0 5px 1px rgba(0,0,0,.2);
+        background-color: @color-white;
+        position: relative;
+        z-index: 3;
+    }
+
+    .close {
+        position: absolute;
+        background: url(/images/close-gray.png) 50% 50% no-repeat;
+        right: 7px;
+        top: 7px;
+        height: 14px;
+        width: 14px;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .title {
+        height: 24px;
+        font-weight: bold;
+        .icon {
+            height: 20px;
+            width: 20px;
+            margin-right: 6px;
+            float: left;
+        }
+        .titleText {
+            margin-top: 3px;
+            font-size: 14px;
+            line-height: 16px;
+            float: left;
+        }
+    } 
+
+    .arrow {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        left: 0px;
+        top: 38px;
+        background-color: transparent;
+        .transform(rotate(45deg));
+        border: none;
+        z-index: 1;
+        box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
+    }
+
+    .message {
+        color: @color-text-darkGray;
+        font-size: 12px;
+        white-space: normal;
+        line-height: 18px;
+    }
+
+    &.error {
+        display: inline-block;
+        
+        
+        .title {
+            .icon {
+                background: url(/images/error-icon.png) 50% 50% no-repeat;
+            }
+            .titleText {
+                color: @color-text-error;
+            }
+        } 
+
+        .boxInnerWrap {
+            border: 1px solid @color-error-border;
+
+            &:before, &:after {
+                content: "";
+                position: absolute;
+                border-top: 7px solid transparent;
+                border-bottom: 7px solid transparent;
+                top: 30px;
+                left: 0px;
+                margin-left: -9px;
+            }
+
+            &:before {
+                border-right: 10px solid @color-error-border;
+                border-top: 8px solid transparent;
+                border-bottom: 8px solid transparent;
+                margin-left: -11px;
+                margin-top: -1px;
+            }
+
+            &:after {
+                border-right: 9px solid @color-white;
+                margin-right: -2px;
+                z-index: 1;
             }
         }
     }

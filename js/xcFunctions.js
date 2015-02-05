@@ -71,8 +71,10 @@ function checkLoadStatus(name) {
         return (null);
     }
     var dsList = xcalarListDatasets(tHandle);
+    var dsFound = false;
     for (var i = 0; i<dsList.numDatasets; i++) {
         if (dsList.datasets[i].name == name) {
+            dsFound = true;
             if (dsList.datasets[i].loadIsComplete) {
                 console.log("Load of "+name+" is done!");
                 displayNewDataset();
@@ -83,6 +85,7 @@ function checkLoadStatus(name) {
             }
         }
     }
+    return (dsFound);
 }
 
 function sortRows(index, tableNum, order) {

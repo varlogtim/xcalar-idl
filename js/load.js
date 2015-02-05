@@ -18,14 +18,17 @@ function setupImportDSForm() {
         var dsId = XcalarLoad(loadArgs[0], loadFormat, tableName,
                               loadArgs[1], loadArgs[2]);
         console.log("This is the returned dsId "+dsId);
-        appendDSToList(tableName);
-        checkLoadStatus(tableName);  
+        var loadSuccess = checkLoadStatus(tableName);  
+        if (loadSuccess) {
+            appendDSToList(tableName);
+        } else {
+            displayLoadErrorMessage(loadURL);
+        }
         return false;
     });
 }
 
 function displayNewDataset() {
-    // $('#importDataButton').trigger('click');
     $('#importDataBottomForm').find('button[type=reset]').trigger('click');
     $('#iconWaiting').remove();
     $('#gridView').find('.inactive').removeClass('inactive');
@@ -39,4 +42,32 @@ function appendDSToList(dsName) {
         '<div class="label">'+dsName+'</div></grid-unit>';
         $("#gridView").append(dsDisplay);
     $('#iconWaiting').fadeIn(200);
+}
+
+function displayLoadErrorMessage(loadURL) {
+    var statusBox = $('#statusBox');
+    var text = "Could not retrieve dataset from file path: "+loadURL;
+    statusBox.addClass('error');
+    statusBox.find('.titleText').text('Error');
+    statusBox.find('.message').text(text);
+
+    // position error message
+    var top = $('#filePath')[0].getBoundingClientRect().top - 30;
+    var right = $(window).width() - 
+                $('#filePath')[0].getBoundingClientRect().right- 200;
+    statusBox.css({top: top, right: right});
+
+    // set when status box closes
+    $(document).mousedown(hideStatusBox);
+    $('#filePath').keydown(hideStatusBox);
+    $('#filePath').focus().addClass('error');
+}
+
+function hideStatusBox(event) {
+    if ($(event.target).attr('id') != "filePath" || event.type == "keydown") {
+        $('#statusBox').attr('class', "");
+        $(document).off('mousedown', hideStatusBox);
+        $('#filePath').off('blur', hideStatusBox);
+        $('#filePath').removeClass('error');
+    }
 }
