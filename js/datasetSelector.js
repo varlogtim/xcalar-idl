@@ -69,6 +69,7 @@ function setupDSCartButtons() {
         $('#selectedTable'+tableNum).remove();
         table.find('.colAdded').removeClass('colAdded');
         table.find('.selectedCol').removeClass('selectedCol');
+        table.find('input').attr('readonly', false);
         dataCartOverflowShadow();
     });
 }
@@ -233,8 +234,9 @@ function addWorksheetListeners(tableNum) {
                 .attr('id').substring(14));
         var value = $(this).val();
         $('.colSelected').removeClass('colSelected');
-        $('#selectedTable'+tableIndex).find('.colWrap:contains('+value+')')
-            .addClass('colSelected');
+         $('#selectedTable'+tableIndex).find('.colWrap').filter(function () {
+            return $(this).text() == value;
+         }).addClass('colSelected');
     });
 
     table.find('.checkBox').click(function() { 
@@ -249,8 +251,10 @@ function checkColumn(column, selectAll) {
         var index = parseInt(column.closest('.datasetTable')
             .attr('id').substring(14));
         var inputText = input.val();
-        var selectedCol = $('#selectedTable'+index).
-            find('.colName:contains('+inputText+')');
+        var selectedCol = $('#selectedTable'+index).find('.colName')
+            .filter(function () {
+                return $(this).text() == inputText;
+            });
         selectedCol.next().trigger('click');
         highlightDatasetColumn(input, IsActive.Active);
         return;
@@ -267,12 +271,13 @@ function checkColumn(column, selectAll) {
         var tabName = $('#worksheetTable'+index+' ').data('dsname');
         var dsName = $('#worksheetTable'+index+' ').data('dsname');
 
-        if ($('.selectedTable h3:contains('+tabName+')').length > 0) {
+        if ($('.selectedTable h3').filter(function() {
+                return $(this).text() == tabName;
+            }).length > 0) {
             tabName += "1";
             //XXX add possibility of multiple similar names
             // recursive?
         }
-        
         selectedTable = addSelectedTable(index, tabName, dsName);
     }
 
@@ -401,9 +406,10 @@ function createWorksheet() {
 
 function resetDataCart() {
     $('.selectedTable').remove();
-    $('.worksheetTable input').not('.idField').attr('readonly', false);
+    $('.datasetTable input').attr('readonly', false);
     $('.colAdded').removeClass('colAdded');
     $('.selectedCol').removeClass('selectedCol');
+
     dataCartOverflowShadow();
 }
 
