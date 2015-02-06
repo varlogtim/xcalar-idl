@@ -96,7 +96,7 @@ function sortRows(index, tableNum, order) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempSortTable"+rand;
     // XXX: Update widths here
-    setOrder(newTableName, order);
+    setDirection(newTableName, order);
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 

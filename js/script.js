@@ -520,11 +520,11 @@ function documentReadyIndexFunction() {
             generateBlankTable();
         } else {
             var tableNum = 0;
+            for (var i = 0; i < gTableOrderLookup.length; i++) {
+                addTable(gTableOrderLookup[i], i);
+            }
             for (table in gTableIndicesLookup) {
-                if (gTableIndicesLookup[table].active) {
-                    addTable(table, tableNum);
-                    tableNum++;
-                } else {
+                if (!gTableIndicesLookup[table].active) {
                     setupHiddenTable(table);
                 }
             }

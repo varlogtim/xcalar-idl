@@ -2,14 +2,15 @@
 // be holding
 
 var gTableIndicesLookup = {};
-var gTableOrderLookup = {};
+var gTableDirectionLookup = {};
 var gWorksheetName = [];
+var gTableOrderLookup = [];
 
 function emptyAllStorage() {
     localStorage.removeItem("TILookup");
-    localStorage.removeItem("DSName");
-    localStorage.removeItem("TOLookup");
+    localStorage.removeItem("TDLookup");
     localStorage.removeItem("WSName"); 
+    localStorage.removeItem("TOLookup");
 }
 
 function getIndex(tName) {
@@ -26,13 +27,13 @@ function getIndex(tName) {
     return (null);
 }
 
-function getOrder(tName) {
-    if (!gTableOrderLookup) {
+function getDirection(tName) {
+    if (!gTableDirectionLookup) {
         console.log("Nothing has ever been stored ever!");
-        gTableOrderLookup = {};
+        gTableDirectionLookup = {};
     }
-    if (tName in gTableOrderLookup) {
-        return (gTableOrderLookup[tName]);
+    if (tName in gTableDirectionLookup) {
+        return (gTableDirectionLookup[tName]);
     } else {
         console.log("No such datasetId has been saved before");
         return (null);
@@ -70,31 +71,36 @@ function setIndex(tName, index) {
     gTableIndicesLookup[tName] = {};
     gTableIndicesLookup[tName]['columns'] = index;
     gTableIndicesLookup[tName]['active'] = true;
-
 }
 
-function setOrder(tName, order) {
-    gTableOrderLookup[tName] = order;
+function setDirection(tName, order) {
+    gTableDirectionLookup[tName] = order;
 }
 
 function commitToStorage() {
+    setTableOrder();
     var stringed = JSON.stringify(gTableIndicesLookup);
-    var stringed3 = JSON.stringify(gTableOrderLookup);
-    var stringed4 = JSON.stringify(gWorksheetName);
+    var stringed2 = JSON.stringify(gTableDirectionLookup);
+    var stringed3 = JSON.stringify(gWorksheetName);
+    var stringed4 = JSON.stringify(gTableOrderLookup);
     localStorage["TILookup"] = stringed;
-    localStorage["TOLookup"] = stringed3;
-    localStorage["WSName"] = stringed4;
+    localStorage["TDLookup"] = stringed2;
+    localStorage["WSName"] = stringed3;
+    localStorage["TOLookup"] = stringed4;
 }
 
 function readFromStorage() {
     if (localStorage["TILookup"]) {
         gTableIndicesLookup = JSON.parse(localStorage["TILookup"]);
     }
-    if (localStorage["TOLookup"]) {
-        gTableOrderLookup = JSON.parse(localStorage["TOLookup"]);
+    if (localStorage["TDLookup"]) {
+        gTableDirectionLookup = JSON.parse(localStorage["TDLookup"]);
     }
     if (localStorage["WSName"]) {
         gWorksheetName = JSON.parse(localStorage["WSName"]);
+    }
+    if (localStorage["TOLookup"]) {
+        gTableOrderLookup = JSON.parse(localStorage["TOLookup"]);
     }
 
     var datasets = XcalarGetDatasets();
@@ -103,8 +109,9 @@ function readFromStorage() {
     if (numDatasets == 0 || numDatasets == null) {
         emptyAllStorage();
         gTableIndicesLookup = {};
-        gTableOrderLookup = {};
+        gTableDirectionLookup = {};
         gWorksheetName = [];
+        gTableOrderLookup = [];
     } else {
         var tables = XcalarGetTables();
         var numTables = tables.numTables;
@@ -139,4 +146,15 @@ function setWorksheetName(index, name) {
 
 function removeWorksheetName(index) {
     gWorksheetName.splice(index-2, 1);
+}
+
+function setTableOrder() {
+    if (gTables.length == 0) {
+        return;
+    }
+    var tables = [];
+    for (var i = 0; i < gTables.length; i++) {
+        tables.push(gTables[i].frontTableName);
+    }
+    gTableOrderLookup = tables;
 }
