@@ -131,6 +131,17 @@ function initializeJoinModal() {
         }
     });
 
+    $("body").on("keypress", joinTableKeyPress);
+}
+
+function joinTableKeyPress(e) {
+    switch (e.which) {
+        case keyCode.Enter:
+            $('#joinTables').trigger('click');
+            break;
+        default:
+            break;
+    }
 }
 
 function addModalTabListeners(modal) {
@@ -164,6 +175,7 @@ function hideJoinTypeSelect(event) {
 }
 
 function resetJoinTables() {
+    $("body").off("keypress", joinTableKeyPress);
     $('#inputSection input').val("");
     // Fill in a default join name
     var joinTableName = "tempJoinTable" +
