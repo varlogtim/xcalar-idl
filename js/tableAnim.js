@@ -990,9 +990,11 @@ function addColMenuActions(colId, tableId) {
         $(this).select();
     });
 
-    table.find('.joinList.col'+colId).
-        click(function() {
-        setupJoinModalTables();
+    table.find('.joinList.col' + colId).click(function() {
+        tableNum = parseInt($(this).closest('table').attr('id').substring(7));
+        colId = parseColNum($(this));
+        // console.log("Join with table: " + tableNum + " col: " + colId);
+        setupJoinModalTables(tableNum, colId);
         $('.colMenu').hide();
     });
 }

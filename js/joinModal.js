@@ -1,4 +1,4 @@
-function joinModalTabs(modal) {
+function joinModalTabs(modal, tableNum, colId) {
     modal.find('.tableLabel').remove();
     modal.find('.joinTable').remove();
     var numTables = gTables.length;
@@ -41,14 +41,26 @@ function joinModalTabs(modal) {
     modal.find('.tableTabs').append(tabHtml);
     addModalTabListeners(modal);
     // modal.find('.joinTable:first').show();
-    modal.find('.tableLabel:first').trigger('click');
+
+    // trigger click of table and column
+    if(tableNum > 0) {
+         modal.find('.tableLabel:nth-child(' + tableNum + ')')
+              .trigger('click');
+    }else {
+         modal.find('.tableLabel:first').trigger('click');
+    }
+
+    if(colId > 0) {
+        modal.find('table.joinTable:nth-of-type(' + tableNum
+                    + ') th:nth-child(' + colId + ')').trigger('click');
+    }
 }
 
-function setupJoinModalTables() {
+function setupJoinModalTables(tableNum, colId) {
         $('#joinDialog').show();
         $('#joinModal').fadeIn(300);
-        joinModalTabs($('#leftJoin'));
-        joinModalTabs($('#rightJoin'));
+        joinModalTabs($('#leftJoin'), (tableNum + 1), colId);   //here tableNum start from 1;
+        joinModalTabs($('#rightJoin'), -1, -1);
 }
 
 function initializeJoinModal() {
