@@ -38,7 +38,7 @@ function setupLeftMenuBar() {
 
     $('#leftMenuBarSections').on('click','.tableListBox', function(event) {
         var ol = $(this).next();
-        console.log($(event.target))
+        // console.log($(event.target))
         if ($(event.target).hasClass('addArchivedBtn')) {
             return;
         }
@@ -46,7 +46,6 @@ function setupLeftMenuBar() {
             $(this).removeClass('active');
             ol.slideUp(200).removeClass('open');
         } else {
-            $('.tableListBox').removeClass('active');
             $(this).addClass('active');
             ol.slideDown(200).addClass('open');
         }
