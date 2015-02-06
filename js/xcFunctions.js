@@ -66,7 +66,7 @@ function checkStatusLite(name, funcPtr, args) {
     }
 }
 
-function checkLoadStatus(name) {
+function checkLoadStatus(name, secondCall) {
     if (tHandle == null) {
         return (null);
     }
@@ -75,12 +75,15 @@ function checkLoadStatus(name) {
     for (var i = 0; i<dsList.numDatasets; i++) {
         if (dsList.datasets[i].name == name) {
             dsFound = true;
+            if (!secondCall) {
+                appendDSToList(name);
+            }
             if (dsList.datasets[i].loadIsComplete) {
                 console.log("Load of "+name+" is done!");
                 displayNewDataset();
             } else {
                 setTimeout(function() {
-                    checkLoadStatus(name);
+                    checkLoadStatus(name, true);
                 }, 1000);
             }
         }

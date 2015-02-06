@@ -9,7 +9,8 @@ function setupImportDSForm() {
         $('.radio').removeClass('checked');
     });
 
-    $('#importDataForm').submit(function() {
+    $('#importDataForm').submit(function(event) {
+        event.preventDefault();
         var loadURL = $.trim($('#filePath').val());
         var tableName = $.trim($('#fileName').val());
         var loadFormat = $('#fileFormat').find('input[name=dsType]:checked')
@@ -19,9 +20,7 @@ function setupImportDSForm() {
                               loadArgs[1], loadArgs[2]);
         console.log("This is the returned dsId "+dsId);
         var loadSuccess = checkLoadStatus(tableName);  
-        if (loadSuccess) {
-            appendDSToList(tableName);
-        } else {
+        if (!loadSuccess) {
             displayLoadErrorMessage(loadURL);
         }
         return false;
