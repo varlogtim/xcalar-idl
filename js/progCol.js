@@ -183,23 +183,9 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         numRow = numberOfRows||gNumEntriesPerPage;
     } 
     var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
-    
-    // store the variable type
-    var jsonStr = table.find('.row'+startingIndex+' .col'+colid+' .elementText')
-                  .text();
-    if (jsonStr == "") {
-        console.log("Error: pullCol() jsonStr is empty");
-        return;
-    }
-    var value = jQuery.parseJSON(jsonStr);
-    for (var j = 0; j<nested.length; j++) {
-        if (value[nested[j]] == undefined || $.isEmptyObject(value)) {
-            value = "";
-            break;
-        }
-        value = value[nested[j]];
-    }
-    gTables[tableNum].tableCols[newColid-1].type = (typeof value);
+
+   // track column type
+    var columnType = undefined;
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = table.find('.row'+i+' .col'+colid+' .elementText').text();
         if (jsonStr == "") {
@@ -213,12 +199,30 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
             }
             value = value[nested[j]];
         }  
-
+        if(value !== "" && columnType !== "mixed") {
+            var type = typeof value;
+            if(columnType == undefined) {
+                columnType = type;
+            }else if(columnType !== type) {
+                columnType = "mixed";
+            }
+        }
         value = parseJsonValue(value);
         value = '<div class="addedBarTextWrap"><div class="addedBarText">'+
                 value+"</div></div>";
         table.find('.row'+i+' .col'+newColid).html(value);
-    } 
+    }
+    if(columnType == undefined) {
+        gTables[tableNum].tableCols[newColid - 1].type = "mixed";
+    } else {
+        gTables[tableNum].tableCols[newColid - 1].type = columnType;
+    }
+    table.find('th.col' + newColid + ' div.header ul.colMenu li.filterWrap')
+         .removeClass("mixed")
+         .removeClass("string")
+         .removeClass("number")
+         .removeClass("object")
+         .addClass(columnType);
 }
 
 function addCol(colId, tableId, name, options) {
@@ -388,7 +392,7 @@ function addCol(colId, tableId, name, options) {
                 // in the future. O:D
         dropDownHTML += '<li class="filterWrap col'+newColid+'">Filter'+
                         '<ul class="subColMenu">'+
-                            '<li class="filter">Greater Than'+
+                            '<li class="filter numFilter">Greater Than'+
                                 '<span class="greaterThan"></span>'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
@@ -396,7 +400,7 @@ function addCol(colId, tableId, name, options) {
                                 '</ul>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">'+
+                            '<li class="filter numFilter">'+
                                 '<span class="greaterEqual"></span>'+
                                 'Greater Than Equal To'+
                                 '<ul class="subColMenu">'+
@@ -405,7 +409,7 @@ function addCol(colId, tableId, name, options) {
                                 '</ul>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Equals'+
+                            '<li class="filter numFilter">Equals'+
                                 '<span class="equal"></span>'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
@@ -413,7 +417,7 @@ function addCol(colId, tableId, name, options) {
                                 '</ul>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Less Than'+
+                            '<li class="filter numFilter">Less Than'+
                                 '<span class="lessThan"></span>'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
@@ -421,7 +425,7 @@ function addCol(colId, tableId, name, options) {
                                 '</ul>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Less Than Equal To'+
+                            '<li class="filter numFilter">Less Than Equal To'+
                                 '<span class="lessEqual"></span>'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="0"/></li>'+
@@ -429,14 +433,14 @@ function addCol(colId, tableId, name, options) {
                                 '</ul>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Regex'+
+                            '<li class="filter strFilter">Regex'+
                                 '<span class="regex"></span>'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="*"/></li>'+
                                 '</ul>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
-                            '<li class="filter">Others'+
+                            '<li class="filter mixedFilter">Others'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value=""/></li>'+
                                 '</ul>'+

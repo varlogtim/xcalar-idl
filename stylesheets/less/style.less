@@ -2136,6 +2136,20 @@ ul.colMenu {
         }
     }
 
+
+    .filterWrap {
+        &.string, &.object{
+            li.numFilter {
+                display: none;
+            }
+        }
+        &.number{
+            li.strFilter {
+                display: none;
+            }
+        }
+    }
+
     .gb ul:hover, .filter ul:hover {
         li {
             background-color: @color-selectedCell-green;
