@@ -1463,7 +1463,33 @@ in order to work for the new ui. I will clean this up at some point.
     background: transparent;
 }
 
-#mainFrame{
+#watermark {
+    background: url(/images/logo-white-L.png) no-repeat;
+    background-position: 0px -70px;
+    background-size: 100%;
+    position: absolute;
+    width: 579px;
+    height: 253px;
+    z-index: 1;
+    opacity: 0.15;
+    bottom: 90px;
+    left: 15px;
+}
+
+#insight {
+    background: url(/images/insight.png) no-repeat;
+    background-position: 0px 0px;
+    background-size: 100%;
+    position: absolute;
+    width: 243px;
+    height: 79px;
+    z-index: 1;
+    opacity: 0.5;
+    bottom: 79px;
+    left: 238px;
+}
+
+#mainFrame {
     width: 100%;
     height: ~"-webkit-calc(100% - 38px)";
     height: ~"-moz-calc(100% - 38px)";
