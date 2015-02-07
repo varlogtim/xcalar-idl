@@ -817,10 +817,10 @@ body {
     width: 100%;
     height: ~"calc(100% - 152px)";
     top: ~"calc(0% + 78px)";
-    z-index: 5; 
+    z-index: 9; 
     background-color: rgb(140, 173, 181);
     background: url(/images/dag-background.png) repeat right top;
-    .transition(transform 0.3s);
+    .transition (~"transform 0.3s, z-index 0s .3s");
 
     .topBorder {
         position: relative;
@@ -861,16 +861,19 @@ body {
         }
     }
 
-    &.hidden {
-        .transform(translate3d(0, 100%, 0));
-    }
-
     &.midway {
+        z-index: 5;
         .transform(translate3d(0, 50%, 0));
+        .transition (~"transform 0.3s, z-index 0s 0.3s");
     }
 
     &.full {
         z-index: 9;
+        .transition (~"transform 0.3s, z-index 0s 0s");
+    }
+
+    &.hidden {
+        .transform(translate3d(0, 100%, 0));
     }
 }
 
@@ -1497,26 +1500,12 @@ in order to work for the new ui. I will clean this up at some point.
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
-
-    &.staticMainFrame {
-        transform: none;
-        transition: none;
-        margin-left: 255px;
-        width: ~"calc(100% - 255px)";
-    }
-
-    &.shiftedRight {
-        .transition (transform 0.5s linear 0s);
-        .transform (translate3d(255px, 0px, 0px));
-    }
-
-    &.shiftedLeft {
-        width: 100%;
-        .transition (~"transform 0.5s linear .05s");
-        .transform (translate3d(-255px, 0px, 0px));
-    }
-
     
+    
+    &.dagOpen {
+        height: ~"calc(50% - 20px)";
+        .transition(height 0.3s);
+    }  
 }
     
 .dataTable {

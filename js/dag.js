@@ -5,10 +5,10 @@ function setupDag() {
         var workspacePanel = $('#workspacePanel');
         
         if (dag.hasClass('hidden')) {
-            dag.removeClass('hidden').addClass('full');
+            dag.removeClass('hidden');
             compSwitch.addClass('active');
         } else if (workspacePanel.hasClass('active')) {
-            dag.removeClass('full  midway').addClass('hidden');
+            dag.addClass('hidden');
             compSwitch.removeClass('active');
         }
 
