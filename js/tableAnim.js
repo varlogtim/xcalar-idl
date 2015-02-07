@@ -186,21 +186,15 @@ function gRescolMouseMoveLast(event) {
 }
 
 function gRescolMouseUp() {
-    var tableNum = gRescol.tableNum;
-    var colNum = gRescol.index;
     gMouseStatus = null;
     gRescol.lastCellGrabbed = false;
     $('#ew-resizeCursor').remove();
     reenableTextSelection();
     gRescol.table.find('.rowGrab').width(gRescol.table.width());
-    var progCol = gTables[tableNum].tableCols[colNum - 1];
+    var progCol = gTables[gRescol.tableNum].tableCols[gRescol.index-1];
     progCol.width = gRescol.grabbedCell.outerWidth();
-    // hide the column if resize to min width
-    if(Math.abs(gRescol.grabbedCell.width() - 10) < 1) {
-        hideCol(colNum, tableNum);
-    }
-    matchHeaderSizes(tableNum);
-    checkForScrollBar(tableNum);
+    matchHeaderSizes(gRescol.tableNum);
+    checkForScrollBar(gRescol.tableNum);
 }
 
 function resrowMouseDown(el, event) {
