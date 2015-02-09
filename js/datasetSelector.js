@@ -37,6 +37,7 @@ function setupDSCartButtons() {
             createWorksheet();
             resetDataCart();
             $("#workspaceTab").click();
+            $('#dagWrap').addClass('hidden');
         } else {
             alert('Choose a key by clicking on a selected column in your list');
         } 
