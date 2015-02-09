@@ -143,6 +143,14 @@
     .linear-gradient(top, #F28481, #DC4135);
 }
 
+.dag-gradient {
+    .linear-gradient(top, #EAEAEA, @color-background-lightGray);
+}
+
+.dagDark-gradient {
+    .linear-gradient(top, #ABABAB, #737373);
+}
+
 .transition (@argument) {
     -webkit-transition: @argument;
     -moz-transition: @argument;
@@ -566,7 +574,7 @@ body {
     }
 }
 
-#dagWrap {
+#dagPanel {
     position: absolute;
     width: 100%;
     height: ~"calc(100% - 152px)";
@@ -643,6 +651,242 @@ body {
             background-image: url(/images/close-icon.png);
         }
     }
+
+    .dagArea {
+        width: ~"calc(100% - 10px)";
+        height: ~"calc(100% - 10px)";
+        // overflow: auto;
+    }
+}
+
+.dagWrap {
+    position: relative;
+    // overflow: auto;
+    height: 100%;
+    .header {
+        margin: 15px 55px 0px 15px;
+        border-bottom: 1px solid #A5A5A6;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+
+    .infoIcon {
+        float: left;
+        margin-right: 7px;
+
+        &:hover, &:active {
+            cursor: default;
+            .action-gradient;
+            box-shadow: 0 1px 1px 0 rgba(0,0,0,.7);
+        }
+        .icon {
+            background: url(/images/info-icon.png) 50% 50% no-repeat;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .tableTitleArea {
+        display: inline-block;
+        float: left;
+        margin-top: 2px;
+
+        .tableName {
+            display: inline-block;
+            background: none;
+        }
+    }
+
+    .dagImageWrap {
+        height: ~"calc(100% - 54px)";
+        overflow-x: auto;
+    }
+
+    .dagImage {
+        position: relative;
+        // display: flex;
+        overflow: hidden;
+        display: block;
+        float: left;
+    }
+
+    .dagTableWrap {
+        vertical-align: middle;
+        align-self: center;
+        margin: 10px 10px;
+        margin-top: 0px;
+        display: flex;
+    }
+
+    .dagTableWrap + .dagTableWrap {
+        margin-top: 50px;
+    }
+    .dagTableWrap + .joinWrap {
+        margin-top: 30px;
+    }
+
+    .dagTable {
+        display: block;
+        position: relative;
+        text-align: center;
+        line-height: 30px;
+        float: right;
+        width: 40px;
+        height: 40px;
+        
+        
+        top: 0;
+        right: 0;
+
+        .icon {
+            background: url(/images/table-icon.png) 50% 50% no-repeat;
+            background-size: contain;
+            width: 75%;
+            height: 75%;
+            position: absolute;
+            top: 6px;
+            left: 5px;
+        }
+
+        .dagTableIcon {
+            position: absolute;
+            background-color: lightblue;
+            .action-gradient;
+            border-radius: 15px;
+            width: 40px;
+            height: 30px;
+            top: 5px;
+        }
+
+        &.dataStore {
+            background: none;
+            .icon {
+                background: url(/images/db-icon-white.png) 50% 50% no-repeat;
+                left: -4px;
+                top: -1px;
+                width: 100%;
+                height: 100%;
+            }
+            .tableTitle {
+                top: 38px;
+                .transform (translateX(-60%));
+            }
+            .dataStoreIcon {
+                .transform (rotate(-45deg));
+                border-radius: 3px;
+                width: 28px;
+                height: 28px;
+                .action-gradient;
+                top: 6px;
+                left: 2px;
+                position: absolute;
+            }
+        }
+
+        .tableTitle {
+            position: absolute;
+            z-index: 5;
+            font-size: 10px;
+            top: 35px;
+            // left: -1px;
+            // width: 100%;
+            color: @color-text-midGray;
+            font-weight: 700;
+            line-height: 12px;
+            white-space: nowrap;
+            .transform (translateX(-50%));
+        }
+    }
+
+    .childContainer > .dagTableWrap {
+        display: block;
+    }
+
+    .joinWrap {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .joinWrap + .joinWrap {
+        margin-top: 15px;
+    }
+
+    .actionType {
+        display: inline-block;
+        line-height: 30px;
+        margin: auto 20px;
+        width: 100px;
+        height: 32px;
+
+        .actionTypeWrap {
+            .dag-gradient;
+            position: absolute;
+            line-height: 30px;
+            margin: 0;
+            border: 1px solid rgb(135, 132, 132);
+            border-radius: 3px;
+            width: 100px;
+            height: 32px; 
+            max-width: 119px;
+            max-height: 70px;
+            overflow: hidden;
+        }
+
+        .childrenTitle {
+            height: ~"calc(100% - 12px)";
+            overflow: hidden;
+        }
+
+        .dagIcon {
+            width: 22px;
+            height: 100%;
+            .dagDark-gradient;
+            float: left;
+        }
+
+        .icon {
+            width: 100%;
+            height: 100%;
+        }
+
+        .filter {
+            .icon {
+                background: url(/images/dagIcons/greater-than.png) 50% 45% no-repeat;
+            }
+        }
+
+        .join {
+            .icon {
+                background: url(/images/dagIcons/inner-join.png) 40% 40% no-repeat;
+            }
+        }
+
+        .duplicateColumn {
+            .icon {
+                background: url(/images/dagIcons/duplicate-column.png) 40% 45% no-repeat;
+            }
+        }
+
+        span {
+            display: block;
+            float: left;
+            font-size: 8px;
+            line-height: 10px;
+            font-weight: 700;
+            padding-left: 2px;
+            text-transform: capitalize;
+            width: 70%;
+        }
+    }
+}
+
+#canvas {
+    position: absolute;
+    // top: 28px;
+    left: 0;
+    z-index: -1;
+    // margin-top:  10px;
+    top: 0px;
 }
 
 .btn {
@@ -661,7 +905,8 @@ body {
     }
 
     &:active {
-        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+            0px 1px 1px 0 rgba(255, 255, 255, 0.3);
     }
 
     span {
@@ -1446,7 +1691,35 @@ in order to work for the new ui. I will clean this up at some point.
 @color-text-black: #0F0F0F; 
 
 
+  &::-webkit-scrollbar {
+        width: 11px;
+        height: 11px;
+        background: transparent;
+    }
 
+    &::-webkit-scrollbar:vertical {
+        width: 0px;
+        height:11px;
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-width: 1px 0px 1px 0px;
+        border-color: transparent;
+        border-style: solid;
+        border-radius: 10px;
+        background-color: rgba(217,217,217,0.75) !important;
+        background-clip: content-box;
+        -webkit-box-shadow: inset 0 -1px 2px rgba(205,205,205,0.75);
+    }
+
+    &::-webkit-scrollbar-track {
+        background: linear-gradient(to bottom right, #e9e9e9 , #ffffff); /* Standard syntax */
+    }
+
+    &::-webkit-scrollbar-corner {
+        background: transparent;
+    }
 
 
 .tableWrap {
@@ -1861,76 +2134,77 @@ in order to work for the new ui. I will clean this up at some point.
     pointer-events: none;
     z-index: 9;
     display: inline-block;
-}
 
-.tableTitle {
-    height: 35px;
-    // margin-left: 10px;
-    pointer-events: auto;
-    width: 100%;
-    // display: table;
-    text-align: center;
-    display: block;
-    position: relative;
-    .gray-gradient;
-    border-bottom: 1px solid @color-table-borderGray;
-    .tableGrab {
-        position: absolute;
-        height: 40px;
-        width: ~"calc(100% - 15px)";
-        top: 0;
-        z-index: 2;
-        cursor: move;
-        cursor: -webkit-grab;
-        cursor: -moz-grab;
-    }
 
-    &.tblTitleSelected {
-        .action-gradient;
-        color: @color-white; 
-        border-bottom: 1px solid @color-table-borderBlue;
+    .tableTitle {
+        height: 35px;
+        // margin-left: 10px;
+        pointer-events: auto;
+        width: 100%;
+        // display: table;
+        text-align: center;
+        display: block;
+        position: relative;
+        .gray-gradient;
+        border-bottom: 1px solid @color-table-borderGray;
+        .tableGrab {
+            position: absolute;
+            height: 40px;
+            width: ~"calc(100% - 15px)";
+            top: 0;
+            z-index: 2;
+            cursor: move;
+            cursor: -webkit-grab;
+            cursor: -moz-grab;
+        }
+
+        &.tblTitleSelected {
+            .action-gradient;
+            color: @color-white; 
+            border-bottom: 1px solid @color-table-borderBlue;
+
+            input {
+                color: @color-white; 
+            }
+
+            .dropdownBox {
+                opacity: 1;
+                background-image: url(/images/table-corner.png) !important;
+            }
+        }
+
+        &:hover {
+            .dropdownBox {
+                opacity: 1;
+                background-image: url(/images/table-corner-inactive.png);
+            }
+        }
+
+        .dropdownBox {
+            opacity: 0; 
+            background-image: url(/images/table-corner-inactive.png); 
+            border: none;
+            height: 16px;
+            width: 16px;
+        }
 
         input {
-            color: @color-white; 
-        }
-
-        .dropdownBox {
-            opacity: 1;
-            background-image: url(/images/table-corner.png) !important;
-        }
-    }
-
-    &:hover {
-        .dropdownBox {
-            opacity: 1;
-            background-image: url(/images/table-corner-inactive.png);
-        }
-    }
-
-    .dropdownBox {
-        opacity: 0; 
-        background-image: url(/images/table-corner-inactive.png); 
-        border: none;
-        height: 16px;
-        width: 16px;
-    }
-
-    input {
-        width: 100%;
-        height: 25px;
-        text-align: center;
-        background-color: transparent;
-        font: 15px @font-base;
-        font-weight: 600;
-        padding: 0 2px;
-        margin-top: 5px;
-        position: relative;
-        z-index: 2;
-        &:focus {
-            background-color: white;
-            color: @color-text-darkGray;
-            width: auto;
-            max-width: 90%;
+            width: 100%;
+            height: 25px;
+            text-align: center;
+            background-color: transparent;
+            font: 15px @font-base;
+            font-weight: 600;
+            padding: 0 2px;
+            margin-top: 5px;
+            position: relative;
+            z-index: 2;
+            &:focus {
+                background-color: white;
+                color: @color-text-darkGray;
+                width: auto;
+                max-width: 90%;
+            }
         }
     }
 }
@@ -3690,220 +3964,3 @@ ul.inputMenu {
     .columnColorTheme-solid(@color-table-option-lightBrown, @aplpha);
 }
 /* END NEW TABLE COLOR THEME */
-
-
-
-input[type=range] {
-  -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
-  width: 100%; /* Specific width is required for Firefox. */
-}
-
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-}
-
-input[type=range]:focus {
-  outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
-}
-
-input[type=range]::-ms-track {
-  width: 100%;
-  cursor: pointer;
-  background: transparent; /* Hides the slider so custom styles can be added */
-  border-color: transparent;
-  color: transparent;
-}
-
-
-
-/* Special styling for WebKit/Blink */
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  border: 1px solid #000000;
-  height: 36px;
-  width: 16px;
-  border-radius: 3px;
-  background: #ffffff;
-  cursor: pointer;
-  margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
-}
-
-/* All the same stuff for Firefox */
-input[type=range]::-moz-range-thumb {
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  border: 1px solid #000000;
-  height: 36px;
-  width: 16px;
-  border-radius: 3px;
-  background: #ffffff;
-  cursor: pointer;
-}
-
-/* All the same stuff for IE */
-input[type=range]::-ms-thumb {
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  border: 1px solid #000000;
-  height: 36px;
-  width: 16px;
-  border-radius: 3px;
-  background: #ffffff;
-  cursor: pointer;
-}
-
-
-
-
-input[type=range]::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #3071a9;
-  border-radius: 1.3px;
-  border: 0.2px solid #010101;
-}
-
-input[type=range]:focus::-webkit-slider-runnable-track {
-  background: #367ebd;
-}
-
-input[type=range]::-moz-range-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #3071a9;
-  border-radius: 1.3px;
-  border: 0.2px solid #010101;
-}
-
-input[type=range]::-ms-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  background: transparent;
-  border-color: transparent;
-  border-width: 16px 0;
-  color: transparent;
-}
-input[type=range]::-ms-fill-lower {
-  background: #2a6495;
-  border: 0.2px solid #010101;
-  border-radius: 2.6px;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-}
-input[type=range]:focus::-ms-fill-lower {
-  background: #3071a9;
-}
-input[type=range]::-ms-fill-upper {
-  background: #3071a9;
-  border: 0.2px solid #010101;
-  border-radius: 2.6px;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-}
-input[type=range]:focus::-ms-fill-upper {
-  background: #367ebd;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-input[type=range] {
-  -webkit-appearance: none;
-  margin: 18px 0;
-  width: 100%;
-}
-input[type=range]:focus {
-  outline: none;
-}
-input[type=range]::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  animate: 0.2s;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #3071a9;
-  border-radius: 1.3px;
-  border: 0.2px solid #010101;
-}
-input[type=range]::-webkit-slider-thumb {
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  border: 1px solid #000000;
-  height: 36px;
-  width: 16px;
-  border-radius: 3px;
-  background: #ffffff;
-  cursor: pointer;
-  -webkit-appearance: none;
-  margin-top: -14px;
-}
-input[type=range]:focus::-webkit-slider-runnable-track {
-  background: #367ebd;
-}
-input[type=range]::-moz-range-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  animate: 0.2s;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #3071a9;
-  border-radius: 1.3px;
-  border: 0.2px solid #010101;
-}
-input[type=range]::-moz-range-thumb {
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  border: 1px solid #000000;
-  height: 36px;
-  width: 16px;
-  border-radius: 3px;
-  background: #ffffff;
-  cursor: pointer;
-}
-input[type=range]::-ms-track {
-  width: 100%;
-  height: 8.4px;
-  cursor: pointer;
-  animate: 0.2s;
-  background: transparent;
-  border-color: transparent;
-  border-width: 16px 0;
-  color: transparent;
-}
-input[type=range]::-ms-fill-lower {
-  background: #2a6495;
-  border: 0.2px solid #010101;
-  border-radius: 2.6px;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-}
-input[type=range]::-ms-fill-upper {
-  background: #3071a9;
-  border: 0.2px solid #010101;
-  border-radius: 2.6px;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-}
-input[type=range]::-ms-thumb {
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  border: 1px solid #000000;
-  height: 36px;
-  width: 16px;
-  border-radius: 3px;
-  background: #ffffff;
-  cursor: pointer;
-}
-input[type=range]:focus::-ms-fill-lower {
-  background: #3071a9;
-}
-input[type=range]:focus::-ms-fill-upper {
-  background: #367ebd;
-}
