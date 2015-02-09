@@ -77,8 +77,8 @@ function setDirection(tName, order) {
     gTableDirectionLookup[tName] = order;
 }
 
-function commitToStorage() {
-    setTableOrder();
+function commitToStorage(atStartup) {
+    setTableOrder(atStartup);
     var stringed = JSON.stringify(gTableIndicesLookup);
     var stringed2 = JSON.stringify(gTableDirectionLookup);
     var stringed3 = JSON.stringify(gWorksheetName);
@@ -124,7 +124,7 @@ function readFromStorage() {
             }
         }
     }   
-    commitToStorage(); 
+    commitToStorage(AfterStartup.After); 
 }
 
 function getWorksheet(index) {
@@ -148,8 +148,8 @@ function removeWorksheetName(index) {
     gWorksheetName.splice(index-2, 1);
 }
 
-function setTableOrder() {
-    if (gTables.length == 0) {
+function setTableOrder(atStartup) {
+    if (atStartup) {
         return;
     }
     var tables = [];

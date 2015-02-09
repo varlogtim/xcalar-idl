@@ -1,59 +1,3 @@
-function fillPageWithBlankCol(tableNum) {
-    var tableWidth = $("#xcTable"+tableNum).width();
-    var screenWidth = window.screen.availWidth;
-    var numColsToFill = Math.ceil((screenWidth - tableWidth)/gNewCellWidth);
-    var startColId = $("#xcTable"+tableNum+" tr:first th").length;
-    for (var i = 0; i<numColsToFill; i++) {
-        addCol("col"+(startColId-1), "xcTable"+tableNum, "", 
-            {'isDark': true});
-    }
-}
-
-function generateBlankTable() {
-    generateFirstScreen("", 1, 0);
-    var screenWidth = window.screen.availWidth;
-    var numColsToFill = Math.ceil(screenWidth/gNewCellWidth);
-    var html = "";
-    var table = $('#xcTable0');
-    table.parent().addClass('blankTable');
-    table.find('thead, tbody').empty();
-    html += '<tr>';
-    html += '<th style="width:'+(gRescol.cellMinWidth+10)+'px;"></th>';
-    for (var i = 0; i < numColsToFill; i++) {
-            html += '<th style="width:'+gNewCellWidth+'px;"></th>';
-    }
-    html += '</tr>';
-    table.find('thead').append(html);
-    html = "";
-    for (var i = 0; i < gRescol.minNumRows;  i++) {
-        html += '<tr>';
-        html += '<td align="center" '+
-                    'style="height:'+gRescol.minCellHeight+'px;">'+
-                    '<div class="idWrap"><span class="idSpan">'+
-                    (i+1)+'</span>'+
-                    '<div class="rowGrab"></div>'+
-                    '</div>'+
-                '</td>';
-        for (var j = 0; j<numColsToFill; j++) {
-            html += '<td></td>';
-        }
-        html += '</tr>';
-    }
-    table.find('tbody').html(html);
-    table.width(screenWidth);
-    table.find('.rowGrab').mousedown(function(event) {
-        resrowMouseDown($(this), event);
-    });
-
-    cloneTableHeader(0);
-    table.parent().scroll(function() {
-        var dynTableNum = parseInt($(this).attr("id").substring(11));
-        var top = $(this).scrollTop();
-        $('#theadWrap'+dynTableNum).css('top',top);
-    });
-    checkForScrollBar(0);
-}
-
 function generateRowWithCurrentTemplate(json, id, rowTemplate, direction, 
                                         tableNum) {
     var table = $("#xcTable"+tableNum);
@@ -195,13 +139,11 @@ function addTable(tableName, tableNum, AfterStartup) {
         $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
         gTables[i+1] = gTables[i];
     }
-    var firstTime;
-    if ($('.blankTable').length == 1) {
-        $('.blankTable').remove();
-        firstTime = true;
-    }
+
     tableStartupFunctions(tableName, tableNum);
-    if (firstTime) {
+
+    if ($('#mainFrame').hasClass('empty')) {
+        $('#mainFrame').removeClass('empty');
         documentReadyxcTableFunction(); 
     }
     if (!getIndex(tableName)) {

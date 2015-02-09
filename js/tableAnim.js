@@ -1,7 +1,6 @@
 function generateFirstLastVisibleRowNum(rowScrollerMove) {
     //XXX table will need to be passed in
-    if ($('#xcTableWrap'+gActiveTableNum).length == 0 ||
-        $('.blankTable').length > 0) {
+    if ($('#xcTableWrap'+gActiveTableNum).length == 0) {
         return;
     }
     var table = $('#xcTable'+gActiveTableNum);
@@ -706,10 +705,6 @@ function cloneTableHeader(tableNum) {
         $(this).closest('.tableMenu').hide();
         archiveTable(tableNum)
     });
-
-    if ($('.blankTable').length > 0) {
-        matchHeaderSizes(tableNum);
-    }
 
     $('#xcTable'+tableNum).width(0); 
     tHeadClone.find('.colGrab').remove();

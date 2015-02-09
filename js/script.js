@@ -517,7 +517,7 @@ function documentReadyIndexFunction() {
     $(document).ready(function() {
         startupFunctions(); 
         if ($.isEmptyObject(gTableIndicesLookup)) {
-            generateBlankTable();
+            $('#mainFrame').addClass('empty');
         } else {
             var tableNum = 0;
             for (var i = 0; i < gTableOrderLookup.length; i++) {
@@ -528,7 +528,11 @@ function documentReadyIndexFunction() {
                     setupHiddenTable(table);
                 }
             }
-            documentReadyxcTableFunction();
+            if (gTableOrderLookup.length > 0) {
+                documentReadyxcTableFunction();
+            } else {
+                $('#mainFrame').addClass('empty');
+            }
         }
         setupLeftMenuBar();
         initializeJoinModal();
