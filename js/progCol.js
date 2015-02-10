@@ -150,12 +150,12 @@ function updateFunctionBar(text) {
 
 function delCol(colNum, tableNum, resize) {
     var numCol = $("#xcTable"+tableNum+" tr:first th").length;
-    var table = $("#xcTable"+tableNum);
-    table.find('th.col'+colNum+' ,td.col'+colNum).remove();
+    var tableWrap = $("#xcTableWrap"+tableNum);
+    tableWrap.find('th.col'+colNum+' ,td.col'+colNum).remove();
     removeColAtIndex(colNum-1, tableNum);
     updateMenuBarTable(gTables[tableNum], tableNum);
     for (var i = colNum+1; i<=numCol; i++) {
-        table.find('.col'+i).removeClass('col'+i).addClass('col'+(i-1));
+        tableWrap.find('.col'+i).removeClass('col'+i).addClass('col'+(i-1));
     }
     gRescolDelWidth(colNum, tableNum, resize);
 }
@@ -228,8 +228,10 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
 function addCol(colId, tableId, name, options) {
     //colId will be the column class ex. col2
     //tableId will be the table name  ex. xcTable0
-    var table = $('#'+tableId);
     var tableNum = parseInt(tableId.substring(7));
+    var table = $('#'+tableId);
+    var headerWrap = $('#xcTheadWrap'+tableNum);
+    var tables = $('#'+tableId+', #xcTheadWrap'+tableNum);
     var numCol = table.find("tr:first th").length;
     var colIndex = parseInt(colId.substring(3));
     var newColid = colIndex;
@@ -267,7 +269,7 @@ function addCol(colId, tableId, name, options) {
         insertColAtIndex(newColid-1, tableNum, newProgCol);
     }
     for (var i = numCol; i>=newColid; i--) {
-        table.find('.col'+i).removeClass('col'+i).addClass('col'+(i+1));
+        tables.find('.col'+i).removeClass('col'+i).addClass('col'+(i+1));
     }  
      var columnHeadTd = '<th class="table_title_bg '+color+' '+indexedColumnClass+
         ' col'+newColid+'" style="width:'+width+'px;" label="click to edit">'+
@@ -279,7 +281,7 @@ function addCol(colId, tableId, name, options) {
             'title="click to edit" value="'+name+'" size="15" placeholder=""/>'+
         '</div>'+
         '</th>';
-    table.find('.table_title_bg.col'+(newColid-1)).after(columnHeadTd); 
+    tables.find('.table_title_bg.col'+(newColid-1)).after(columnHeadTd); 
 
     var dropDownHTML = '<ul class="colMenu">'+
             '<li>'+
@@ -456,8 +458,7 @@ function addCol(colId, tableId, name, options) {
     // dropDownHTML += '</ul><div class="dropdownBox"></div>'+
     //                 '<div class="subColMenuArea"></div></li>';
     dropDownHTML += '</li>';
-    table.find('.table_title_bg.col'+newColid+' .header').append(dropDownHTML);
-
+    tables.find('.table_title_bg.col'+newColid+' .header').append(dropDownHTML);
     addColListeners(newColid, tableId);
 
     var numRow = table.find("tbody tr").length;
@@ -475,7 +476,7 @@ function addCol(colId, tableId, name, options) {
     }
 
     if (inFocus) {
-        table.find('tr:first .editableHead.col'+newColid).focus();
+        headerWrap.find('tr:first .editableHead.col'+newColid).focus();
     }
     matchHeaderSizes(tableNum);
     checkForScrollBar(tableNum);

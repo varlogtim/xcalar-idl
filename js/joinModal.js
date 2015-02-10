@@ -43,14 +43,14 @@ function joinModalTabs(modal, tableNum, colId) {
     // modal.find('.joinTable:first').show();
 
     // trigger click of table and column
-    if(tableNum > 0) {
+    if (tableNum > 0) {
          modal.find('.tableLabel:nth-child(' + tableNum + ')')
               .trigger('click');
-    }else {
+    } else {
          modal.find('.tableLabel:first').trigger('click');
     }
 
-    if(colId > 0) {
+    if (colId > 0) {
         modal.find('table.joinTable:nth-of-type(' + tableNum
                     + ') th:nth-child(' + colId + ')').trigger('click');
     }

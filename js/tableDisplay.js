@@ -46,11 +46,15 @@ function generateFirstScreen(value, idNo, tableNum, height) {
     if ($('#xcTable'+tableNum).length != 1) {
         if (tableNum == 0) {
             $('#mainFrame').prepend('<div id="xcTableWrap'+tableNum+'"'+
-                    ' class="xcTableWrap tableWrap"></div>');
+                    ' class="xcTableWrap tableWrap">'+
+                    '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
+                    '</div></div>');
         } else {
             $('#xcTableWrap'+(tableNum-1))
             .after('<div id="xcTableWrap'+tableNum+'"'+
-                    ' class="xcTableWrap tableWrap"></div>');
+                    ' class="xcTableWrap tableWrap">'+
+                    '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
+                    '</div></div>');
         }
 
         var newTable = 
@@ -90,7 +94,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
           '<tbody>'+
           '</tbody>'+
         '</table>';
-        $('#xcTableWrap'+tableNum).append(newTable);
+        $('#xcTbodyWrap'+tableNum).append(newTable);
     }
     var table = $("#xcTable"+tableNum);
     table.append('<tr class="row'+idNo+'">'+
@@ -132,8 +136,9 @@ function createRowTemplate(tableNum) {
 function addTable(tableName, tableNum, AfterStartup) {
     for (var i = gTables.length-1; i>=tableNum; i--) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i+1));
+        $("#xcTheadWrap"+i).attr("id", "xcTheadWrap"+(i+1));
+        $("#xcTbodyWrap"+i).attr("id", "xcTbodyWrap"+(i+1));
         $("#xcTable"+i).attr("id", "xcTable"+(i+1));
-        $("#theadWrap"+i).attr("id", "theadWrap"+(i+1));
         $("#tableMenu"+i).attr("id", "tableMenu"+(i+1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
@@ -170,8 +175,9 @@ function archiveTable(tableNum) {
     // delete gTableIndicesLookup[tableName];
     for (var i = tableNum+1; i<=gTables.length; i++) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i-1));
+        $("#xcTheadWrap"+i).attr("id", "xcTheadWrap"+(i-1));
+        $("#xcTbodyWrap"+i).attr("id", "xcTbodyWrap"+(i-1));
         $("#xcTable"+i).attr("id", "xcTable"+(i-1));
-        $("#theadWrap"+i).attr("id", "theadWrap"+(i-1));
         $("#tableMenu"+i).attr("id", "tableMenu"+(i-1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i-1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i-1));

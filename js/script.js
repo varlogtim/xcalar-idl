@@ -57,12 +57,12 @@ var TableMeta = function() {
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
     var timer;
-    $("#xcTableWrap"+tableNum).scroll(function() {
+    $("#xcTbodyWrap"+tableNum).scroll(function() {
         if (gMouseStatus == "movingTable") {
             return;
         }
         var dynTableNum = parseInt($(this).attr("id")
-                           .substring("xcTableWrap".length));
+                           .substring("xcTbodyWrap".length));
         focusTable(dynTableNum);
         var table = $('#xcTable'+dynTableNum);
         table.find('.colGrab').hide().height(0);
@@ -82,7 +82,7 @@ function infScrolling(tableNum) {
                 }
 
                 goToPage(pageNumber, RowDirection.Top, dynTableNum);
-                $('#xcTableWrap'+dynTableNum)
+                $('#xcTbodyWrap'+dynTableNum)
                    .scrollTop(firstRow.offset().top - initialTop + 10);
                 table.find("tbody tr:gt(79)").remove();
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()-
@@ -103,8 +103,6 @@ function infScrolling(tableNum) {
         } , 300 );
 
         table.find('.colGrab').show();
-        var top = $(this).scrollTop();
-        $('#theadWrap'+dynTableNum).css('top',top);
         var rowScrollerMove = true;
         generateFirstLastVisibleRowNum(rowScrollerMove);
         updatePageBar(dynTableNum);
@@ -201,8 +199,8 @@ function setupFunctionBar() {
 
 
                 var index = parseColNum(gFnBarOrigin);
-                var tableNum = parseInt(gFnBarOrigin.closest('table')
-                    .attr('id').substring(7)); 
+                var tableNum = parseInt(gFnBarOrigin.closest('.tableWrap')
+                    .attr('id').substring(11)); 
                 if (gTables[tableNum].tableCols[index-1].userStr.length > 0) {
                     gFnBarOrigin.val(gTables[tableNum].tableCols[index-1]
                                      .userStr);
@@ -219,8 +217,8 @@ function setupFunctionBar() {
             var index = $('th.selectedCell').index();
             // if (gFnBarOrigin.length !=0) {
             if (!gFnBarOrigin && selectedCell.length !=0) {
-                var tableNum = parseInt($('.selectedCell').closest('table')
-                .attr('id').substring(7));
+                var tableNum = parseInt($('.selectedCell').closest('.tableWrap')
+                .attr('id').substring(11));
                 if (gTables[tableNum].tableCols[index-1].name.length > 0) {
                     gFnBarOrigin.val(gTables[tableNum].tableCols[index-1].name);
                 } 
@@ -376,7 +374,7 @@ function documentReadyGeneralFunction() {
         var clickable = target.closest('.colMenu').length > 0;
         if (!clickable && !target.is('.dropdownBox')) {
                 $('.colMenu').hide();
-                $('.theadWrap').css('z-index', '9');
+                $('.xcTheadWrap').css('z-index', '9');
         }
         if (target.closest('.selectedCell').length == 0 
             && target.closest('#scratchpadArea').length == 0
@@ -505,7 +503,7 @@ function tableStartupFunctions(table, tableNum) {
     goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum);
     cloneTableHeader(tableNum);
     focusTable(tableNum);
-    var dataCol = $('#xcTable'+tableNum+' tr:eq(1) th.dataCol');
+    var dataCol = $('#xcTable'+tableNum+' tr:eq(0) th.dataCol');
     addColListeners(parseColNum(dataCol), "xcTable"+tableNum);
     generateFirstLastVisibleRowNum();
     infScrolling(tableNum);
