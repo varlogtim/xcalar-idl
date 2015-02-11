@@ -331,8 +331,8 @@ function addCol(colId, tableId, name, options) {
                     '<span class="countIcon"></span>Count</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
-                            'New Column Name</li>'+
-                            '<li><input type="text" width="100px" '+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px" '+
                                 'value="groupBy"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
@@ -342,8 +342,8 @@ function addCol(colId, tableId, name, options) {
                     '<span class="avgIcon"></span>Average</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
-                            'New Column Name</li>'+
-                            '<li><input type="text" width="100px" '+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px" '+
                                 'value="groupBy"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
@@ -353,8 +353,8 @@ function addCol(colId, tableId, name, options) {
                     '<span class="sumIcon"></span>Sum</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
-                            'New Column Name</li>'+
-                            '<li><input type="text" width="100px" '+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px" '+
                                 'value="groupBy"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
@@ -364,8 +364,8 @@ function addCol(colId, tableId, name, options) {
                     '<span class="maxIcon"></span>Max</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
-                            'New Column Name</li>'+
-                            '<li><input type="text" width="100px" '+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px" '+
                                 'value="groupBy"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
@@ -375,8 +375,8 @@ function addCol(colId, tableId, name, options) {
                     '<span class="minIcon"></span>Min</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
-                            'New Column Name</li>'+
-                            '<li><input type="text" width="100px" '+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px" '+
                                 'value="groupBy"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
@@ -439,12 +439,14 @@ function addCol(colId, tableId, name, options) {
                                 '<span class="regex"></span>'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value="*"/></li>'+
+                                    '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
                             '<li class="filter mixedFilter">Others'+
                                 '<ul class="subColMenu">'+
                                     '<li><input type="text" value=""/></li>'+
+                                    '<div class="subColMenuArea"></div>'+
                                 '</ul>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+

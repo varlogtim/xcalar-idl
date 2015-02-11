@@ -804,12 +804,18 @@ function addColListeners(colId, tableId) {
         }
     });
 
-    tables.find('.colMenu li').mouseenter(function() {
-        $(this).children('ul').addClass('visible');
-        $(this).addClass('selected');
-    }).mouseleave(function() {
-        $(this).children('ul').removeClass('visible');
-        $(this).removeClass('selected');
+    tables.find('.table_title_bg.col'+colId+' .colMenu li')
+        .mouseenter(function() {
+            $(this).children('ul').addClass('visible');
+            $(this).addClass('selected');
+            if (!$(this).hasClass('inputSelected')) {
+                $('.inputSelected').removeClass('inputSelected');
+                console.log('well', $(this));
+            }
+        }).mouseleave(function(event) {
+            $(this).children('ul').removeClass('visible');
+            $(this).removeClass('selected');
+            // console.log(event.target);
     });
 
     tables.find('.table_title_bg.col'+colId+' .subColMenuArea')
@@ -848,6 +854,18 @@ function addColListeners(colId, tableId) {
                             $('.openMenuInput').removeClass('openMenuInput');
                         }, 200);
         $(this).data('timeout', timeout); 
+    });
+
+    tables.find('.table_title_bg.col'+colId+' .colMenu input')
+        .focus(function() {
+            $(this).parents('li').addClass('inputSelected')
+            .parents('.subColMenu').addClass('inputSelected');
+        }).keyup(function() {
+            $(this).parents('li').addClass('inputSelected')
+            .parents('.subColMenu').addClass('inputSelected');
+        }).blur(function() {
+            $(this).parents('li').removeClass('inputSelected')
+            .parents('.subColMenu').removeClass('inputSelected');
     });
 
 
@@ -1163,7 +1181,6 @@ function addRowListeners(rowNum, tableNum) {
 
 function addTableListeners(tableNum) {
     $('#xcTableWrap'+tableNum).mousedown(function() { 
-    console.log('mousedown'+tableNum)  
         var dynTableNum = parseInt($(this).closest('.tableWrap').attr('id')
                        .substring(11));
         $('.tableTitle').removeClass('tblTitleSelected');

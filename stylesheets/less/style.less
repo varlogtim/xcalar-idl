@@ -2110,6 +2110,18 @@ ul.colMenu {
         &.subSelected {
             background-color: @color-monitor-lightGreen !important;
         }
+
+        &.clickable {
+            height: 60px;
+            span {
+                display: block;
+                float: none;
+            }
+            input {
+                top: 10px;
+            }
+            
+        }
     }
 
     ul {
@@ -2137,6 +2149,15 @@ ul.colMenu {
         &:focus {
             outline: none;
         }
+    }
+
+    .visible {
+        visibility: visible !important;
+    }
+
+    .inputSelected {
+        visibility: visible !important;
+        background-color: @color-selectedCell-dark;
     }
 
     .filter ul {
@@ -2248,10 +2269,10 @@ ul.colMenu li > ul {
     .transition-delay (.15s);
 }
 
-
 .visible {
-    visibility: visible !important;
+    visibility: visible;
 }
+
 
 ul.subColMenu li {
     &.subColUnselected {
