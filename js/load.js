@@ -26,7 +26,10 @@ function setupImportDSForm() {
             if (!loadSuccess) {
                 displayLoadErrorMessage(loadURL);
             }
-            return false;
+            return (false);
+        })
+        .fail(function(reason) {
+            console.log("error", reason);
         });
     });
 

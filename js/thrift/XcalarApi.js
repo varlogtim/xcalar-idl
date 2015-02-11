@@ -23,12 +23,11 @@ function xcalarConnectThrift(hostname, port) {
 }
 
 function xcalarGetVersion(thriftHandle) {
-    var deferred = $.Deferred();
+    var deferred = jQuery.Deferred();
 
     console.log("xcalarGetVersion()");
 
     var workItem = new XcalarApiWorkItemT();
-
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiGetVersion;
 
@@ -37,7 +36,7 @@ function xcalarGetVersion(thriftHandle) {
         deferred.resolve(result);
     })
     .fail(function(error) {
-        console.log("xcalarGetVersion() caught exception: " + error);
+        console.log("xcalarGetVersion() caught exception:", error);
 
         error = new XcalarApiGetVersionOutputT();
         error.version = "<unknown>";
@@ -51,7 +50,7 @@ function xcalarGetVersion(thriftHandle) {
 }
 
 function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
-    var deferred = $.Deferred();
+    var deferred = jQuery.Deferred();
 
     console.log("xcalarLoad(url = " + url + ", name = " + name + ", format = " +
                 DfFormatTypeTStr[format] + ", maxSampleSize = " +
@@ -80,7 +79,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
         deferred.resolve(loadOutput);
     })
     .fail(function(error) {
-        console.log("xcalarLoad() caught exception: " + error);
+        console.log("xcalarLoad() caught exception:", error);
 
         error = new XcalarApiBulkLoadOutputT();
         error.status = StatusT.StatusThriftProtocolError;

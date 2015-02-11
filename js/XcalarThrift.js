@@ -1,22 +1,20 @@
 var tHandle = xcalarConnectThrift(hostname, portNumber.toString());
 
-function THandleNotExistError() {
-    this.name = "THandleNotExistError";
+function THandleDoesntExistError() {
+    this.name = "THandleDoesntExistError";
     this.message = "tHandle does not exist yet.";
 }
-THandleNotExistError.prototype = Error.prototype;
+THandleDoesntExistError.prototype = Error.prototype;
 
 function promiseWrapper(value) {
-    var deferred = $.Deferred();
-
+    var deferred = jQuery.Deferred();
     deferred.resolve(value);
-    
-    return deferred.promise();
+    return (deferred.promise());
 }
 
 function XcalarGetVersion() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return promiseWrapper(null);
+        return (promiseWrapper(null));
     } 
 
     return (xcalarGetVersion(tHandle));
@@ -24,7 +22,7 @@ function XcalarGetVersion() {
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
-        return promiseWrapper(null);
+        return (promiseWrapper(null));
     }
     if (fieldDelim == null) {
         fieldDelim = "";
