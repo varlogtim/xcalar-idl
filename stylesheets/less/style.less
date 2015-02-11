@@ -869,7 +869,7 @@ body {
     }
 
     &.midway {
-        z-index: 5;
+        z-index: 9;
         .transform(translate3d(0, 50%, 0));
         .transition (~"transform 0.3s, z-index 0s 0.3s");
     }
@@ -881,6 +881,15 @@ body {
 
     &.hidden {
         .transform(translate3d(0, 100%, 0));
+    }
+
+    #closeDag {
+        position: absolute;
+        right: 18px;
+        top: 16px;
+        .iconClose {
+            background-image: url(/images/close-icon.png);
+        }
     }
 }
 

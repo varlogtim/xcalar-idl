@@ -26,4 +26,8 @@ function setupDag() {
             dag.removeClass('full').addClass('midway');
         }
     });
+
+    $('#closeDag').click(function() {
+        $('#compSwitch').trigger('click');
+    });
 }
