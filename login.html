@@ -2,18 +2,23 @@
 <head>
 <meta charset="UTF-8">
 <title>Xcalar</title>
-<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,600,400' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,600,400'
+      rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Raleway:200' rel='stylesheet'
+      type='text/css'>
 <link href="/stylesheets/css/style.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="bower_components/fontawesome/css/font-awesome.min.css">
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
 <script src="js/login.js"></script>
 </head>
 <body>
+<div id="loginBackgroundArt"></div>
+<div id="loginLogo"></div>
+<div id="loginArea"></div>
+<div id="loginDivider"></div>
+<div id="loginInsight"></div>
+<div id="loginShadow"></div>
 <div id="login">
-  <div id="loginTopBar">
-    LOGIN
-  </div>
-  <br><br>
   <form method="POST" action="dologin.html">
   <div id="loginName">
     <div class="text">
@@ -23,7 +28,7 @@
   </div>
   <br><br>
   <div id="loginPassword">
-    <div class="text">
+    <div class="text" style="margin-left: 91px">
       Password: 
     </div>
     <input id="loginPasswordBox" name="httpd_password" type="password">
