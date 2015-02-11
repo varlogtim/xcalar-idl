@@ -1,11 +1,25 @@
 var tHandle = xcalarConnectThrift(hostname, portNumber.toString());
 
+function THandleNotExistError() {
+    this.name = "THandleNotExistError";
+    this.message = "tHandle does not exist yet.";
+}
+THandleNotExistError.prototype = Error.prototype;
+
+function promiseWrapper(value) {
+    var deferred = $.Deferred();
+
+    deferred.resolve(value);
+    
+    return deferred.promise();
+}
+
 function XcalarGetVersion() {
-    if (tHandle == null) {
-        return (null);
-    } else {
-        return (xcalarGetVersion(tHandle));
-    }
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return promiseWrapper(null);
+    } 
+
+    return (xcalarGetVersion(tHandle));
 }
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {

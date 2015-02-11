@@ -23,6 +23,8 @@ function xcalarConnectThrift(hostname, port) {
 }
 
 function xcalarGetVersion(thriftHandle) {
+    var deferred = $.Deferred();
+
     console.log("xcalarGetVersion()");
 
     var workItem = new XcalarApiWorkItemT();
@@ -30,19 +32,22 @@ function xcalarGetVersion(thriftHandle) {
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiGetVersion;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
-        var verOutput = result.output.getVersionOutput;
-    } catch(ouch) {
-        console.log("xcalarGetVersion() caught exception: " + ouch);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        deferred.resolve(result);
+    })
+    .fail(function(error) {
+        console.log("xcalarGetVersion() caught exception: " + error);
 
-        var verOutput = new XcalarApiGetVersionOutputT();
-        verOutput.version = "<unknown>";
-        verOutput.apiVersionSignatureFull = "<unknown>";
-        verOutput.apiVersionSignatureShort = 0;
-    }
+        error = new XcalarApiGetVersionOutputT();
+        error.version = "<unknown>";
+        error.apiVersionSignatureFull = "<unknown>";
+        error.apiVersionSignatureShort = 0;
 
-    return verOutput;
+        deferred.reject(error);
+    });
+
+    return deferred.promise();
 }
 
 function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
