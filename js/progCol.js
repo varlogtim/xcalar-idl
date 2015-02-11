@@ -271,16 +271,22 @@ function addCol(colId, tableId, name, options) {
     for (var i = numCol; i>=newColid; i--) {
         tables.find('.col'+i).removeClass('col'+i).addClass('col'+(i+1));
     }  
-     var columnHeadTd = '<th class="table_title_bg '+color+' '+indexedColumnClass+
-        ' col'+newColid+'" style="width:'+width+'px;" label="click to edit">'+
-        '<div class="header">'+
-        '<div class="dragArea"></div>'+
-        '<div class="dropdownBox" title="view column options"></div>'+
-            '<input autocomplete="on" input spellcheck="false"'+
-            'type="text" class="editableHead col'+newColid+'" '+
-            'title="click to edit" value="'+name+'" size="15" placeholder=""/>'+
-        '</div>'+
-        '</th>';
+    var columnHeadTd = '<th class="table_title_bg '+color+' '+indexedColumnClass+
+       ' col'+newColid+'" style="width:'+width+'px;" label="click to edit">'+
+       '<div class="header">'+
+       '<div class="dragArea"></div>'+
+       '<div class="dropdownBox" title="view column options"></div>'+
+           '<input autocomplete="on" input spellcheck="false"'+
+           'type="text" class="editableHead col'+newColid+'" '+
+           'title="click to edit" value=\'';
+    if (!name) {
+        columnHeadTd += '"newCol"=map(add(col1, col2))';
+    } else {
+        columnHeadTd += name;
+    }
+    columnHeadTd += '\' size="15" placeholder=""/>'+
+       '</div>'+
+       '</th>';
     tables.find('.table_title_bg.col'+(newColid-1)).after(columnHeadTd); 
 
     var dropDownHTML = '<ul class="colMenu">'+
