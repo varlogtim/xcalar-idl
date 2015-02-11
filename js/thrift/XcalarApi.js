@@ -47,10 +47,12 @@ function xcalarGetVersion(thriftHandle) {
         deferred.reject(error);
     });
 
-    return deferred.promise();
+    return (deferred.promise());
 }
 
 function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
+    var deferred = $.Deferred();
+
     console.log("xcalarLoad(url = " + url + ", name = " + name + ", format = " +
                 DfFormatTypeTStr[format] + ", maxSampleSize = " +
                 maxSampleSize.toString() + ")");
@@ -67,22 +69,26 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
     workItem.input.loadInput.dataset.name = name;
     workItem.input.loadInput.dataset.formatType = format;
     workItem.input.loadInput.maxSize = maxSampleSize;
-    workItem.input.loadInput.loadArgs = loadArgs
+    workItem.input.loadInput.loadArgs = loadArgs;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var loadOutput = result.output.loadOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             loadOutput.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarLoad() caught exception: " + ouch);
+        deferred.resolve(loadOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarLoad() caught exception: " + error);
 
-        var loadOutput = new XcalarApiBulkLoadOutputT();
-        loadOutput.status = StatusT.StatusThriftProtocolError;
-    }
+        error = new XcalarApiBulkLoadOutputT();
+        error.status = StatusT.StatusThriftProtocolError;
 
-    return loadOutput;
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
 }
 
 function xcalarIndexDataset(thriftHandle, sync, datasetId, keyName,

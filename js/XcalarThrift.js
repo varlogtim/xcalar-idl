@@ -23,8 +23,8 @@ function XcalarGetVersion() {
 }
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
-    if (tHandle == null) {
-        return (null);
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return promiseWrapper(null);
     }
     if (fieldDelim == null) {
         fieldDelim = "";
@@ -53,7 +53,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
         formatType = DfFormatTypeT.DfTypeUnknown;
     } 
     return (xcalarLoad(tHandle, url, datasetName, formatType, 0,
-                       loadArgs).datasetId);
+                       loadArgs));
 }
 
 function XcalarIndexFromDataset(varDatasetId, key, tablename) {

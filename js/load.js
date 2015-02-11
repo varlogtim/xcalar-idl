@@ -16,14 +16,18 @@ function setupImportDSForm() {
         var loadFormat = $('#fileFormat').find('input[name=dsType]:checked')
                          .val();
         var loadArgs = loadURL.split("|");
-        var dsId = XcalarLoad(loadArgs[0], loadFormat, tableName,
-                              loadArgs[1], loadArgs[2]);
-        console.log("This is the returned dsId "+dsId);
-        var loadSuccess = checkLoadStatus(tableName);  
-        if (!loadSuccess) {
-            displayLoadErrorMessage(loadURL);
-        }
-        return false;
+        
+        XcalarLoad(loadArgs[0], loadFormat, tableName,
+                              loadArgs[1], loadArgs[2])
+        .done(function(result) {
+            var dsId = result.datasetId;
+            console.log("This is the returned dsId "+dsId);
+            var loadSuccess = checkLoadStatus(tableName);  
+            if (!loadSuccess) {
+                displayLoadErrorMessage(loadURL);
+            }
+            return false;
+        });
     });
 
     $('#filePath').keyup(function() {
