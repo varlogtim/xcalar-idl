@@ -437,6 +437,8 @@ function xcalarListTables(thriftHandle, patternMatch) {
 }
 
 function xcalarListDatasets(thriftHandle) {
+    var deferred = jQuery.Deferred();
+
     console.log("xcalarListDatasets()");
 
     var workItem = new XcalarApiWorkItemT();
@@ -444,21 +446,26 @@ function xcalarListDatasets(thriftHandle) {
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiListDatasets;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
-        var listDatasetsOutput = result.output.listDatasetsOutput;
+    var listDatasetsOutput;
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        listDatasetsOutput = result.output.listDatasetsOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             listDatasetsOutput.status = result.jobStatus;
         }
-    } catch (ouch) {
-        console.log("xcalarListDatasets() caught exception: " + ouch);
+        deferred.resolve(listDatasetsOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarListDatasets() caught exception:", error);
 
         var listDatasetsOutput = new XcalarApiListDatasetsOutputT();
         // XXX FIXME should add StatusT.StatusThriftProtocolError
         listDatasetsOutput.numDatasets = 0;
-    }
 
-    return listDatasetsOutput;
+        deferred.resolve(listDatasetsOutput);
+    });
+
+    return deferred.promise();
 }
 
 function xcalarMakeResultSetFromTable(thriftHandle, tableName) {

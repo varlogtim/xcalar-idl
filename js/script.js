@@ -480,19 +480,31 @@ function documentReadyCatFunction(tableNum) {
 }
 
 function startupFunctions() {
-    readFromStorage();
-    documentReadyGeneralFunction();
-    setupRightSideBar();
-    setupLogout();
-    setupDatasetList();
-    mainPanelsTabing();
-    setupFunctionBar();
-    scratchpadStartup(); 
-    setupDSCartButtons();
-    setupImportDSForm();
-    setupBookmarkArea();
-    updateDatasetInfoFields("Datasets", IsActive.Active);
-    setupDag();
+    var deferred = jQuery.Deferred();
+
+    readFromStorage()
+    .then(function() {
+        documentReadyGeneralFunction();
+        setupRightSideBar();
+        setupLogout();
+        return setupDatasetList();
+    })
+    .then(function() {
+        mainPanelsTabing();
+        setupFunctionBar();
+        scratchpadStartup(); 
+        setupDSCartButtons();
+        setupImportDSForm();
+        setupBookmarkArea();
+        return updateDatasetInfoFields("Datasets", IsActive.Active);
+    })
+    .done(function() {
+        setupDag();
+
+        deferred.resolve();
+    });
+
+    return deferred.promise();
 }  
 
 function tableStartupFunctions(table, tableNum) {
@@ -513,27 +525,29 @@ function tableStartupFunctions(table, tableNum) {
 
 function documentReadyIndexFunction() {
     $(document).ready(function() {
-        startupFunctions(); 
-        if ($.isEmptyObject(gTableIndicesLookup)) {
-            $('#mainFrame').addClass('empty');
-        } else {
-            var tableNum = 0;
-            for (var i = 0; i < gTableOrderLookup.length; i++) {
-                addTable(gTableOrderLookup[i], i);
-            }
-            for (table in gTableIndicesLookup) {
-                if (!gTableIndicesLookup[table].active) {
-                    setupHiddenTable(table);
+        startupFunctions()
+        .done(function() {
+            if ($.isEmptyObject(gTableIndicesLookup)) {
+                $('#mainFrame').addClass('empty');
+            } else {
+                var tableNum = 0;
+                for (var i = 0; i < gTableOrderLookup.length; i++) {
+                    addTable(gTableOrderLookup[i], i);
+                }
+                for (table in gTableIndicesLookup) {
+                    if (!gTableIndicesLookup[table].active) {
+                        setupHiddenTable(table);
+                    }
+                }
+                if (gTableOrderLookup.length > 0) {
+                    documentReadyxcTableFunction();
+                } else {
+                    $('#mainFrame').addClass('empty');
                 }
             }
-            if (gTableOrderLookup.length > 0) {
-                documentReadyxcTableFunction();
-            } else {
-                $('#mainFrame').addClass('empty');
-            }
-        }
-        setupLeftMenuBar();
-        initializeJoinModal();
+            setupLeftMenuBar();
+            initializeJoinModal();
+        }); 
     });
 }
 

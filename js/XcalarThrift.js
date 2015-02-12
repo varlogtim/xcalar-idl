@@ -6,6 +6,17 @@ function THandleDoesntExistError() {
 }
 THandleDoesntExistError.prototype = Error.prototype;
 
+//I'll rewrite this function later
+//Levi
+function chain(arr) {
+    var head = arr.reduce(function(prev, curr, index) {
+        curr.prevPromise = prev;
+        return prev.then(curr);
+    });
+
+    return (head);
+}
+
 function promiseWrapper(value) {
     var deferred = jQuery.Deferred();
     deferred.resolve(value);
@@ -112,11 +123,11 @@ function XcalarGetCount(tableName) {
 }
 
 function XcalarGetDatasets() {
-    if (tHandle == null) {
-        return (null);
-    } else {
-        return (xcalarListDatasets(tHandle));
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
     }
+
+    return (xcalarListDatasets(tHandle));
 }
 
 function XcalarGetTables() {

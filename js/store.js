@@ -43,27 +43,39 @@ function getDirection(tName) {
 
 // XXX Move these 2 functions away from here?
 function getDsId(datasetName) {
-    var datasetObj = XcalarGetDatasets();
-    var numDatasets = datasetObj.numDatasets;
-    for (var i = 0; i<datasetObj.numDatasets; i++) {
-        if (datasetObj.datasets[i].name == datasetName) {
-            return (datasetObj.datasets[i].datasetId);
+    var deferred = jQuery.Deferred();
+
+    XcalarGetDatasets()
+    .done(function(datasetObj) {
+        var numDatasets = datasetObj.numDatasets;
+        for (var i = 0; i<datasetObj.numDatasets; i++) {
+            if (datasetObj.datasets[i].name === datasetName) {
+                return (deferred.resolve(datasetObj.datasets[i].datasetId));
+            }
         }
-    }
-    console.log("Couldn't find a dataset with name: "+datasetName);
-    return (0);
+        console.log("Couldn't find a dataset with name: "+datasetName);
+        return (deferred.resolve(0));
+    });
+
+    return (deferred.promise());
 }
 
 function getDsName(datasetId) {
-    var datasetObj = XcalarGetDatasets();
-    var numDatasets = datasetObj.numDatasets;
-    for (var i = 0; i<datasetObj.numDatasets; i++) {
-        if (datasetObj.datasets[i].datasetId == datasetId) {
-            return (datasetObj.datasets[i].name);
+    var deferred = jQuery.Deferred();
+
+    XcalarGetDatasets()
+    .done(function(datasetObj) {
+        var numDatasets = datasetObj.numDatasets;
+        for (var i = 0; i<datasetObj.numDatasets; i++) {
+            if (datasetObj.datasets[i].datasetId === datasetId) {
+                return (deferred.resolve(datasetObj.datasets[i].name));
+            }
         }
-    }
-    console.log("Couldn't find a dataset with id: "+datasetId);
-    return (0);
+        console.log("Couldn't find a dataset with id: "+datasetId);
+        return (deferred.resolve(0));
+    });
+
+    return (deferred.promise());
 }
 
 
@@ -90,6 +102,8 @@ function commitToStorage(atStartup) {
 }
 
 function readFromStorage() {
+    var deferred = jQuery.Deferred();
+
     if (localStorage["TILookup"]) {
         gTableIndicesLookup = JSON.parse(localStorage["TILookup"]);
     }
@@ -103,28 +117,34 @@ function readFromStorage() {
         gTableOrderLookup = JSON.parse(localStorage["TOLookup"]);
     }
 
-    var datasets = XcalarGetDatasets();
-    var numDatasets = datasets.numDatasets;
-    // clear localStorage is no datasets are loaded
-    if (numDatasets == 0 || numDatasets == null) {
-        emptyAllStorage();
-        gTableIndicesLookup = {};
-        gTableDirectionLookup = {};
-        gWorksheetName = [];
-        gTableOrderLookup = [];
-    } else {
-        var tables = XcalarGetTables();
-        var numTables = tables.numTables;
-        for (i = 0; i<numTables; i++) {
-            var tableName = tables.tables[i].tableName;
-            if (!gTableIndicesLookup[tableName]) {
-                //XXX user may not want all the tables to display
-                // so we will need to fix this
-                // setIndex(tableName, []);
+    XcalarGetDatasets()
+    .done(function(datasets) {
+        var numDatasets = datasets.numDatasets;
+        // clear localStorage is no datasets are loaded
+        if (numDatasets == 0 || numDatasets == null) {
+            emptyAllStorage();
+            gTableIndicesLookup = {};
+            gTableDirectionLookup = {};
+            gWorksheetName = [];
+            gTableOrderLookup = [];
+        } else {
+            var tables = XcalarGetTables();
+            var numTables = tables.numTables;
+            for (i = 0; i<numTables; i++) {
+                var tableName = tables.tables[i].tableName;
+                if (!gTableIndicesLookup[tableName]) {
+                    //XXX user may not want all the tables to display
+                    // so we will need to fix this
+                    // setIndex(tableName, []);
+                }
             }
-        }
-    }   
-    commitToStorage(AfterStartup.After); 
+        }   
+        commitToStorage(AfterStartup.After); 
+
+        deferred.resolve();
+    });
+
+    return (deferred.promise());
 }
 
 function getWorksheet(index) {
