@@ -164,15 +164,23 @@ function addTable(tableName, tableNum, AfterStartup) {
 // Removes a table from the display
 // Shifts all the ids
 // Does not delete the table from backend!
-function archiveTable(tableNum) {
+function archiveTable(tableNum, del) {
     $("#xcTableWrap"+tableNum).remove();
     $("#rowScroller"+tableNum).remove();
     var tableName = gTables[tableNum].frontTableName;
     var deletedTable = gTables.splice(tableNum, 1);
-    gHiddenTables.push(deletedTable[0]);
-    gTableIndicesLookup[tableName].active = false;
-    removeMenuBarTable(deletedTable[0]);
-    // delete gTableIndicesLookup[tableName];
+    if (!del) {
+        gHiddenTables.push(deletedTable[0]);
+        gTableIndicesLookup[tableName].active = false;
+        moveMenuBarTable(deletedTable[0]);
+    } else {
+        delete (gTableIndicesLookup[tableName]);
+        $("#activeTablesList").find('.tableName').filter(
+            function() {
+                return ($(this).text() == tableName);
+            }
+        ).closest("li").remove();
+    }
     for (var i = tableNum+1; i<=gTables.length; i++) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i-1));
         $("#xcTheadWrap"+i).attr("id", "xcTheadWrap"+(i-1));
@@ -193,4 +201,16 @@ function archiveTable(tableNum) {
     }
     generateFirstLastVisibleRowNum();
     focusTable(gActiveTableNum);
+}
+
+function deleteTable(tableNum) {
+    // Basically the same as archive table, but instead of moving to
+    // gHiddenTables, we just delete it from gTablesIndicesLookup
+    var backTableName = gTables[tableNum].backTableName;
+    var resultSetId = gTables[tableNum].resultSetId;
+    archiveTable(tableNum, DeleteTable.Delete);
+    // Free the result set pointer that is still pointing to it
+    XcalarSetFree(resultSetId);    
+    // Trigger delete
+    XcalarDeleteTable(backTableName);
 }

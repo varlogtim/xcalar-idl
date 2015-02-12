@@ -95,7 +95,7 @@ function addMenuBarTables(tables, active, tableNum) {
     }
     if (active) {
         $('#activeTablesList').append(tableDisplay);
-    } else {
+    } else if (tableDisplay) {
         $('#inactiveTablesList').prepend(tableDisplay);
         $('#submitTablesBtn').show();
     }
@@ -142,10 +142,10 @@ function generateMenuBarTableHTML(tables, active) {
             html += '</ol></li>'; 
         }   
     }
-    return html;
+    return (html);
 }
 
-function removeMenuBarTable(table) {
+function moveMenuBarTable(table) {
     $('#activeTablesList').find('.tableName').filter(
         function() {
             return $(this).text() == table.frontTableName;

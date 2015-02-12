@@ -675,7 +675,7 @@ function cloneTableHeader(tableNum) {
         '<ul class="colMenu tableMenu" id="tableMenu'+tableNum+'">'+
         '<li class="archiveTable">Archive Table</li>'+
         '<li class="unavailable">Hide Table</li>'+
-        '<li class="unavailable">Delete Table</li>'+
+        '<li class="deleteTable">Delete Table</li>'+
         '</ul>'+
         '</div>');
     xcTheadWrap.find('.tableTitle input').keyup(function(event) {
@@ -701,7 +701,14 @@ function cloneTableHeader(tableNum) {
         var tableNum = parseInt($(this).closest('.tableMenu').
                        attr('id').substring(9));
         $(this).closest('.tableMenu').hide();
-        archiveTable(tableNum)
+        archiveTable(tableNum, DeleteTable.Keep);
+    });
+
+    tableMenu.find('.deleteTable').click(function() {
+        var tableNum = parseInt($(this).closest('.tableMenu').
+                       attr('id').substring(9));
+        $(this).closest('.tableMenu').hide();
+        deleteTable(tableNum);
     });
 
     $('#xcTable'+tableNum).width(0); 

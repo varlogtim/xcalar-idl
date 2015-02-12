@@ -69,6 +69,20 @@ function XcalarIndexFromTable(srcTablename, key, tablename) {
     xcalarIndexTable(tHandle, SyncOrAsync.Async, srcTablename, key, tablename);
 }
 
+function XcalarDeleteTable(backTableName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    
+    xcalarDeleteTable(tHandle, backTableName)
+    .done(function(sts) {
+        console.log("Done deleting tables!", sts);
+    })
+    .fail(function(error) {
+        console.log("Failed to delete tables!", error);
+    });
+}
+
 function XcalarEditColumn(datasetId, currFieldName, newFieldName, newFieldType)
 {
     if (tHandle == null) {

@@ -25,15 +25,15 @@ function checkStatus(newTableName, tableNum, keepOriginal,
             if (additionalTableNum > -1) {
                 var largerTableNum = Math.max(additionalTableNum, tableNum);
                 var smallerTableNum = Math.min(additionalTableNum, tableNum);
-                archiveTable(largerTableNum);
-                archiveTable(smallerTableNum);
+                archiveTable(largerTableNum, DeleteTable.Keep);
+                archiveTable(smallerTableNum, DeleteTable.Keep);
                 if (newTableNum > gTables.length) {
                     // edge case
                     newTableNum = gTables.length;
                 }
             } else {
                 savedScrollLeft = $('#mainFrame').scrollLeft();
-                archiveTable(tableNum);
+                archiveTable(tableNum, DeleteTable.Keep);
             }
             addTable(newTableName, newTableNum, AfterStartup.After);
             if (savedScrollLeft) {

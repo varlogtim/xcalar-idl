@@ -51,6 +51,11 @@ var SyncOrAsync = {
     Async: false
 }
 
+var DeleteTable = {
+    Delete: true,
+    Keep: false
+}
+
 var keyCode = {
     Backspace: 8,
     Tab: 9,
