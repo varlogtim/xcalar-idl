@@ -23,14 +23,28 @@ function setupDSCartButtons() {
     $(".delete").click(function() {
         var dsName = $(this).closest("#contentViewHeader").find("h2").text();
         function cleanUpDsIcons() {
-            $("#gridView").find('.label:contains('+dsName+')')
-            .closest("grid-unit").remove();
+            $("#gridView").find('.label').filter(
+                function() {
+                    if ($(this).text() === dsName) {
+                        $(this).closest("grid-unit").remove();
+                    }
+                }
+            );
+            $(".datasetTableWrap").filter(
+                function() {
+                    if ($(this).attr("data-dsname") === dsName) {
+                        $(this).remove();
+                        return;
+                    }
+                }
+            );
+
             if ($("#gridView").find("grid-unit").length > 0) {
                 $("#gridView").find("grid-unit:first").click();
             } else {
-                $("#datasetWrap").remove();
-                $(".dbText h2").text("Dataset");
+                $("#importDataButton").click();
             }
+            updateDatasetInfoFields(dsName, true, true);
         }
         XcalarDestroyDataset(dsName).done(cleanUpDsIcons());
     });
@@ -507,19 +521,22 @@ function setupDatasetList() {
     return (deferred.promise());
 }
 
-function updateDatasetInfoFields(dsName, active) {
+function updateDatasetInfoFields(dsName, active, dontUpdateName) {
     var deferred = jQuery.Deferred();
 
     function updateNumDatasets(datasets) {
         var numDatasets = datasets.numDatasets;
+        console.log("Updating to: "+numDatasets);
         $('#worksheetInfo').find('.numDataStores').text(numDatasets);
         $('#datasetExplore').find('.numDataStores').text(numDatasets);
 
         deferred.resolve();
     }
 
-    $('#schemaTitle').text(dsName);
-    $('#contentViewHeader').find('h2').text(dsName);
+    if (!dontUpdateName) {
+        $('#schemaTitle').text(dsName);
+        $('#contentViewHeader').find('h2').text(dsName);
+    }
     if (active) {
         XcalarGetDatasets().done(updateNumDatasets);
     }
