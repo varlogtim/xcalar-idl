@@ -392,7 +392,7 @@ function createWorksheet() {
 
                 var colname = $.trim($(this).text());
                 var progCol = new ProgCol();
-                progCol.index = startIndex+1;
+                progCol.index = ++startIndex;
                 progCol.type = "string";
                 progCol.name = colname;
                 progCol.width = gNewCellWidth;
@@ -400,11 +400,12 @@ function createWorksheet() {
                 progCol.func.func = "pull";
                 progCol.func.args = [colname];
                 progCol.isDark = false;
+
+                var currentIndex = startIndex - 1;
                 getDsId(datasetName)
                 .done(function(id) {
                     progCol.datasetId = parseInt(id);                  
-                    newTableCols[startIndex] = progCol;
-                    startIndex++;
+                    newTableCols[currentIndex] = progCol;
 
                     innerDeferred.resolve();
                 });
@@ -413,7 +414,7 @@ function createWorksheet() {
             }).apply(this));
         });
 
-        jQuery.when.apply(jQuery, promises)
+        chain(promises)
         .then(function() {
             var progCol = new ProgCol();
             progCol.index = startIndex+1;
