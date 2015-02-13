@@ -68,6 +68,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     default:
         formatType = DfFormatTypeT.DfTypeUnknown;
     } 
+
     return (xcalarLoad(tHandle, url, datasetName, formatType, 0,
                        loadArgs));
 }
@@ -82,15 +83,17 @@ function XcalarDestroyDataset(dsName) {
             deferred.resolve();
         });
     });
+
     return (deferred.promise());
 }
 
 function XcalarIndexFromDataset(varDatasetId, key, tablename) {
-    if (tHandle == null) {
-        return;
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
     }
-    xcalarIndexDataset(tHandle, SyncOrAsync.Async, varDatasetId,
-                       key, tablename);
+
+    return (xcalarIndexDataset(tHandle, SyncOrAsync.Async, 
+        varDatasetId, key, tablename));
 }
 
 function XcalarIndexFromTable(srcTablename, key, tablename) {
@@ -105,13 +108,7 @@ function XcalarDeleteTable(backTableName) {
         return (promiseWrapper(null));
     }
     
-    xcalarDeleteTable(tHandle, backTableName)
-    .done(function(sts) {
-        console.log("Done deleting tables!", sts);
-    })
-    .fail(function(error) {
-        console.log("Failed to delete tables!", error);
-    });
+    return (xcalarDeleteTable(tHandle, backTableName));
 }
 
 function XcalarEditColumn(datasetId, currFieldName, newFieldName, newFieldType)
@@ -176,11 +173,12 @@ function XcalarGetTableRefCount(tableName) {
     return (xcalarGetTableRefCount(tHandle, tableName).refCount);
 }
 
-function XcalarGetTableId(tableName) {
-    if (tHandle == null) {
-        return (0);
+function XcalarMakeResultSetFromTable(tableName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(0));
     }
-    return (xcalarMakeResultSetFromTable(tHandle, tableName).resultSetId);
+
+    return (xcalarMakeResultSetFromTable(tHandle, tableName));
 }
 
 function XcalarSetAbsolute(resultSetId, position) {
@@ -284,6 +282,8 @@ function XcalarJoin(left, right, dst) {
     xcalarJoin(tHandle, left, right, dst, OperatorsOpT.OperatorsInnerJoin);
 }
 
+// XXX FIXME
+// This function is problematic
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
                        newTableName) {
     var handle = xcalarConnectThrift(hostname, portNumber);

@@ -130,46 +130,64 @@ function setuptableListSection() {
             $buttons.hide();
         }
 
+        var promises = [];
         $tablesSelected.each(function() {
-            var $li = $(this).closest('li');
-            var index = $li.index();
-            //xx these selected tables are ordered in reverse
-            
-            if (action == "add") {
-                var activeTable =gHiddenTables.splice((
-                             gHiddenTables.length-index-1), 1)[0];
-                gTableIndicesLookup[activeTable.frontTableName].active = true;
+            promises.push( (function() {
+                var innerDeferred = jQuery.Deferred();
+
+                var $li = $(this).closest('li');
+                var index = $li.index();
+                //xx these selected tables are ordered in reverse
                 
-                 // add cli
-                var cliOptions = {};
-                cliOptions.operation = 'addTable';
-                cliOptions.tableName = activeTable.frontTableName;
+                if (action == "add") {
+                    var activeTable =gHiddenTables.splice((
+                                 gHiddenTables.length-index-1), 1)[0];
+                    gTableIndicesLookup[activeTable.frontTableName].active = true;
+                    
+                     // add cli
+                    var cliOptions = {};
+                    cliOptions.operation = 'addTable';
+                    cliOptions.tableName = activeTable.frontTableName;
 
 
-                addTable(activeTable.frontTableName, gTables.length, 
-                AfterStartup.After);
+                    addTable(activeTable.frontTableName, gTables.length, 
+                        AfterStartup.After)
+                    .done(function() {
+                        addCli('Send To WorkSheet', cliOptions);
+                        $li.remove();
 
-                addCli('Send To WorkSheet', cliOptions);
-            } else {
-                var tableNum = gHiddenTables.length-index-1;
-                // add cli
-                var cliOptions = {};
-                cliOptions.operation = 'deleteTable';
-                cliOptions.tableName = gHiddenTables[tableNum].frontTableName;
+                        innerDeferred.resolve();
+                    });
+                } else {
+                    var tableNum = gHiddenTables.length-index-1;
+                    // add cli
+                    var cliOptions = {};
+                    cliOptions.operation = 'deleteTable';
+                    cliOptions.tableName = gHiddenTables[tableNum].frontTableName;
 
-                deleteTable(tableNum, DeleteTable.Delete);
-                addCli('Delete Table', cliOptions);
-            }
-            
-            $li.remove();
+                    deleteTable(tableNum, DeleteTable.Delete)
+                    .done(function() {
+                        addCli('Delete Table', cliOptions);
+                        $li.remove();
+
+                        innerDeferred.resolve();
+                    });
+                }
+                
+                return (innerDeferred.promise());
+            }).apply(this) );
         });
-        if (action == "add") {
-            $mainFrame = $('#mainFrame');
-            $('#workspaceTab').trigger('click');
-            var leftPos = $('#xcTableWrap'+(gTables.length-1)).position().left +
-                            $mainFrame.scrollLeft();
-            $mainFrame.animate({scrollLeft: leftPos});
-        }
+
+        jQuery.when.apply(jQuery, promises)
+        .done(function() {
+            if (action == "add") {
+                $mainFrame = $('#mainFrame');
+                $('#workspaceTab').trigger('click');
+                var leftPos = $('#xcTableWrap'+(gTables.length-1)).position().left +
+                                $mainFrame.scrollLeft();
+                $mainFrame.animate({scrollLeft: leftPos});
+            }
+        }); 
     }
 }
 

@@ -9,7 +9,6 @@ XcalarApiServiceClient.prototype.queueWorkAsync = function(workItem) {
 
 XcalarApiServiceClient.prototype.send_queueWorkAsync = function(workItem) {
   var onComplete = function() {
-    //placeholder
   };
   this.output.writeMessageBegin('queueWork', Thrift.MessageType.CALL, this.seqid);
   var args = new XcalarApiService_queueWork_args();

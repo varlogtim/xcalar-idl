@@ -28,6 +28,8 @@ function parsePullColArgs(progCol) {
 }
 
 function execCol(progCol, tableNum, args) {
+    var deferred = jQuery.Deferred();
+
     switch(progCol.func.func) {
     case ("pull"):
         if (!parsePullColArgs(progCol)) {
@@ -52,9 +54,11 @@ function execCol(progCol, tableNum, args) {
         pullCol(progCol.func.args[0], progCol.index,
                 tableNum, startIndex, numberOfRows);
         // addMenuBarTables([gTables[tableNum]], IsActive.Active);
+        deferred.resolve();
         break;
     case ("raw"):
         console.log("Raw data");
+        deferred.resolve();
         break;
     case ("map"):
         var mapString = progCol.userStr.substring(progCol.userStr.indexOf("map",
@@ -73,17 +77,24 @@ function execCol(progCol, tableNum, args) {
         progCol.isDark = false;
         // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
         //                   fieldName + ")";
-        mapColumn(fieldName, mapString, tableNum);
+        mapColumn(fieldName, mapString, tableNum)
+        .done(function() {
+            deferred.resolve();
+        });
         break;
     case (undefined):
         // console.log("Blank col?");
+        deferred.resolve();
         break;
     default:
         console.log(progCol);
         console.log("No such function yet!"+progCol.func.func
                     + progCol.func.args);
-        return;
+        deferred.resolve();
+        break;
     }
+
+    return (deferred.promise());
 }
 
 function parseCol(funcString, colId, tableNum, modifyCol) {

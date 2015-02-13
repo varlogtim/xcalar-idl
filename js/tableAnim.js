@@ -329,13 +329,16 @@ function dragdropMouseUp() {
                     select: selected, 
                     inFocus: gDragObj.inFocus,
                     progCol: progCol});
-            execCol(progCol, gDragObj.tableNum);
-            updateMenuBarTable(gTables[gDragObj.tableNum], gDragObj.tableNum);
-            //prevent scroll position from changing when 
-            // you delete and add column
-            $('#mainFrame').scrollLeft(storedScrollLeft);
 
-            addCli('Change Column Order', cliOptions);
+            execCol(progCol, gDragObj.tableNum)
+            .done(function() {
+                updateMenuBarTable(gTables[gDragObj.tableNum], gDragObj.tableNum);
+                //prevent scroll position from changing when 
+                // you delete and add column
+                $('#mainFrame').scrollLeft(storedScrollLeft);
+
+                addCli('Change Column Order', cliOptions);
+            });
         }, 0);
     }
 }
@@ -735,9 +738,10 @@ function cloneTableHeader(tableNum) {
         cliOptions.operation = 'deleteTable';
         cliOptions.tableName = gTables[tableNum].frontTableName;
 
-        deleteTable(tableNum);
-
-        addCli('Delete Table', cliOptions);
+        deleteTable(tableNum)
+        .done(function() {
+            addCli('Delete Table', cliOptions);
+        });
     });
 
     $('#xcTable'+tableNum).width(0); 
@@ -820,27 +824,31 @@ function addColListeners(colId, tableId) {
             var tableNum = parseInt($(this).closest('.dataTable').attr('id')
                           .substring(11));
             var progCol = parseCol($(this).val(), index, tableNum, true);
-            execCol(progCol, tableNum);
-            updateMenuBarTable(gTables[tableNum], tableNum);
 
-            // add cli
-            var cliOptions = {};
-            cliOptions.operation = 'execCol';
-            cliOptions.tableName = gTables[tableNum].frontTableName;
-            cliOptions.colIndex = index;
-            cliOptions.progCol = progCol.name;
-            cliOptions.func = progCol.func.func;
+            var self = this;
+            execCol(progCol, tableNum)
+            .done(function() {
+                updateMenuBarTable(gTables[tableNum], tableNum);
 
-            addCli("Prog Column", cliOptions);
+                // add cli
+                var cliOptions = {};
+                cliOptions.operation = 'execCol';
+                cliOptions.tableName = gTables[tableNum].frontTableName;
+                cliOptions.colIndex = index;
+                cliOptions.progCol = progCol.name;
+                cliOptions.func = progCol.func.func;
 
-            if (progCol.name.length > 0) {
-                $(this).val(progCol.name);
-            } else {
-                // keep value that user entered
-            }
-            $(this).blur();
-            $(this).closest('th').removeClass('unusedCell');
-            table.find('td:nth-child('+index+')').removeClass('unusedCell');
+                addCli("Prog Column", cliOptions);
+
+                if (progCol.name.length > 0) {
+                    $(self).val(progCol.name);
+                } else {
+                    // keep value that user entered
+                }
+                $(self).blur();
+                $(self).closest('th').removeClass('unusedCell');
+                table.find('td:nth-child('+index+')').removeClass('unusedCell');
+            });
         }
     });
 
@@ -1022,16 +1030,16 @@ function addColMenuActions(colId, tableId) {
 
         addCli('Duplicate Column', cliOptions);
 
-        // Deep copy
-        // XXX: TEST THIS FEATURE!
         gTables[tableNum].tableCols[index].func.func = 
             gTables[tableNum].tableCols[index-1].func.func;
         gTables[tableNum].tableCols[index].func.args = 
             gTables[tableNum].tableCols[index-1].func.args;
         gTables[tableNum].tableCols[index].userStr = 
             gTables[tableNum].tableCols[index-1].userStr;
-        execCol(gTables[tableNum].tableCols[index], tableNum); 
-        updateMenuBarTable(gTables[tableNum], tableNum);
+        execCol(gTables[tableNum].tableCols[index], tableNum)
+        .done(function() {
+            updateMenuBarTable(gTables[tableNum], tableNum);
+        }); 
     });
 
     tables.find('.hide.col'+colId).click(function() {
@@ -1112,7 +1120,6 @@ function addColMenuActions(colId, tableId) {
                         index+"tableNum: "+tableNum);
 
             groupByCol(operator, value, index, tableNum);
-
             $('.colMenu').hide();
         }
     });

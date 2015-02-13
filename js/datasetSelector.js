@@ -572,14 +572,14 @@ function createWorksheet() {
 
                     innerDeferred.resolve();
                 });
-                
+
                 cliOptions.col.push(colname);
-                
-                return innerDeferred.promise();
+
+                return (innerDeferred.promise());
             }).apply(this));
         });
 
-        chain(promises)
+        jQuery.when.apply(jQuery, promises)
         .then(function() {
             var progCol = new ProgCol();
             progCol.index = startIndex+1;
@@ -594,9 +594,9 @@ function createWorksheet() {
 
             setIndex(tableName, newTableCols);
             commitToStorage();
-            
+
             cliOptions.col.push("DATA");
-            return getDsId(datasetName);
+            return (getDsId(datasetName));
         })
         .then(function(datasetId) {
             datasetId = parseInt(datasetId);
@@ -604,14 +604,17 @@ function createWorksheet() {
 
             cliOptions.key = columnToIndex;
             addCli("Send To Worksheet", cliOptions);
-
-            XcalarIndexFromDataset(datasetId, columnToIndex, tableName);
+            return (XcalarIndexFromDataset(datasetId, columnToIndex, tableName));
+        })
+        .then(function() {
             $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-           '{cursor: wait !important;}</style>');
+                '{cursor: wait !important;}</style>');
             var keepLastTable = true;
             var additionalTableNum = false;
-            checkStatus(tableName, gTables.length, keepLastTable, 
-                        additionalTableNum);
+            return (checkStatus(tableName, gTables.length, keepLastTable, 
+                        additionalTableNum));
+        })
+        .done(function() {
             chainDeferred.resolve();
         });
 
@@ -661,24 +664,24 @@ function setupDatasetList() {
 
     //Jerene: As discussed, please get datasets from server regardless.
     XcalarGetDatasets()
-        .then(function(datasets) {
-            var promises = [];
-            var isRestore = restoreDSObj(datasets);
-            if (!isRestore) {
-                console.log("Construct directly from backend");
-                var numDatasets = datasets.numDatasets;
+    .then(function(datasets) {
+        var promises = [];
+        var isRestore = restoreDSObj(datasets);
+        if (!isRestore) {
+            console.log("Construct directly from backend");
+            var numDatasets = datasets.numDatasets;
 
-                for (var i = 0; i < numDatasets; i++) {
-                    promises.push(appendGrid(datasets.datasets[i].datasetId));
-                };
-            }
-            return jQuery.when.apply(jQuery, promises);
-        })
-        .done(function() {
-            commitDSObjToStorage(); // commit;
-            displayDS();
-            deferred.resolve();
-        });
+            for (var i = 0; i < numDatasets; i++) {
+                promises.push(appendGrid(datasets.datasets[i].datasetId));
+            };
+        }
+        return jQuery.when.apply(jQuery, promises);
+    })
+    .done(function() {
+        commitDSObjToStorage(); // commit;
+        displayDS();
+        deferred.resolve();
+    });
 
     return (deferred.promise());
 }

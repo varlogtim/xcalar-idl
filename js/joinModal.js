@@ -141,10 +141,11 @@ function initializeJoinModal() {
             cliOptions.newTableName = newTableName;
             
             joinTables(newTableName, joinType, leftTableNum, 
-                       leftColumnNum, rightTableNum, rightColumnNum);
-            resetJoinTables();
-
-            addCli("Join Table", cliOptions);
+                       leftColumnNum, rightTableNum, rightColumnNum)
+            .done(function() {
+                resetJoinTables();
+                addCli("Join Table", cliOptions);
+            });
         }
     });
 }

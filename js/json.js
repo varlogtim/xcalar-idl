@@ -119,18 +119,20 @@ function showJsonModal(jsonTd) {
         gTables[tableNum].tableCols[colNum-1].func.func = "pull";        
         gTables[tableNum].tableCols[colNum-1].func.args = [name];
         gTables[tableNum].tableCols[colNum-1].userStr = '"'+name+'" = pull('+name+')';
-        execCol(gTables[tableNum].tableCols[colNum-1], tableNum);
-        updateMenuBarTable(gTables[tableNum], tableNum);
-        autosizeCol($('#xcTable'+tableNum+' th.col'+(colNum)), 
-                    {includeHeader: true, resizeFirstRow: true});
-        $('#xcTable'+tableNum+' tr:first th.col'+(colNum+1)+
-                ' .editableHead').focus();
-        // XXX call autosizeCol after focus if you want to make column wide enough
-        // to show the entire function in the header
-        // autosizeCol($('#xcTable'+tableNum+' th.col'+(colNum+1)), 
-        //             {includeHeader: true, resizeFirstRow: true});
-        $('#jsonModal, #modalBackground').hide();
-        $('body').removeClass('hideScroll');
+        execCol(gTables[tableNum].tableCols[colNum-1], tableNum)
+        .done(function() {
+            updateMenuBarTable(gTables[tableNum], tableNum);
+            autosizeCol($('#xcTable'+tableNum+' th.col'+(colNum)), 
+                        {includeHeader: true, resizeFirstRow: true});
+            $('#xcTable'+tableNum+' tr:first th.col'+(colNum+1)+
+                    ' .editableHead').focus();
+            // XXX call autosizeCol after focus if you want to make column wide enough
+            // to show the entire function in the header
+            // autosizeCol($('#xcTable'+tableNum+' th.col'+(colNum+1)), 
+            //             {includeHeader: true, resizeFirstRow: true});
+            $('#jsonModal, #modalBackground').hide();
+            $('body').removeClass('hideScroll');
+        });
     });
     window.getSelection().removeAllRanges();
     $('body').addClass('hideScroll');

@@ -17,7 +17,7 @@ function goToPage(pageNumber, direction, tableNum) {
     var shift = numPagesToShift(direction);
     XcalarSetAbsolute(gTables[tableNum].resultSetId,
                       (pageNumber-shift)*gNumEntriesPerPage);
-    getPage(gTables[tableNum].resultSetId, null, direction, tableNum);
+    return (getPage(gTables[tableNum].resultSetId, null, direction, tableNum));
 }
 
 function numPagesToShift(direction) {
@@ -36,16 +36,17 @@ function resetAutoIndex() {
 
 function getNextPage(resultSetId, firstTime, tableNum) {
     if (resultSetId == 0) {
-        return;
+        return promiseWrapper(null);
     }
     gTables[tableNum].currentPageNumber++;
-    getPage(resultSetId, firstTime, null, tableNum);
+    return (getPage(resultSetId, firstTime, null, tableNum));
 }
 
 function getPage(resultSetId, firstTime, direction, tableNum) {
+    var deferred = jQuery.Deferred();
     // console.log('made it to getpage');
     if (resultSetId == 0) {
-        return;
+        return (promiseWrapper(null));
         // Reached the end
     }
     var tdHeights = getTdHeights();
@@ -127,6 +128,8 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         newProgCol.isDark = false;
         insertColAtIndex(1, tableNum, newProgCol);
     }
+
+    var promises = [];
     for (var i = 0; i<gTables[tableNum].tableCols.length; i++) {
         if (gTables[tableNum].tableCols[i].name == "DATA") {
             // We don't need to do anything here because if it's the first time
@@ -135,7 +138,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
             // would've sized it in CatFunction
         } else {
             if (firstTime && !getIndex(gTables[tableNum].frontTableName)) {
-                execCol(gTables[tableNum].tableCols[i], tableNum);
+                promises.push(execCol(gTables[tableNum].tableCols[i], tableNum));
             } else { 
 
                 if (direction) { 
@@ -152,9 +155,9 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                     var execColArgs = {};
                     execColArgs.startIndex = startingIndex;
                     execColArgs.numberofRows = numRows;
-                    execCol(gTables[tableNum].tableCols[i], tableNum, execColArgs);
+                    promises.push(execCol(gTables[tableNum].tableCols[i], tableNum, execColArgs));
                 } else {
-                    execCol(gTables[tableNum].tableCols[i], tableNum);
+                    promises.push(execCol(gTables[tableNum].tableCols[i], tableNum));
                 }
                 if (gTables[tableNum].tableCols[i].name ==
                     gTables[tableNum].keyName) {
@@ -165,12 +168,19 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
         }
     }
 
-    var idColWidth = getTextWidth($('#xcTable'+tableNum+' tr:last td:first'));
-    var newWidth = Math.max(idColWidth, 22);
-    var padding = 12;
-    if ($('#xcTable'+tableNum+' .fauxTHead').length != 0) {
-        padding += 5;
-    }
-    $('#xcTableWrap'+tableNum+' th:first-child').width(newWidth+padding);
-    matchHeaderSizes(tableNum);
+    jQuery.when.apply(jQuery, promises)
+    .done(function() {
+        var idColWidth = getTextWidth($('#xcTable'+tableNum+' tr:last td:first'));
+        var newWidth = Math.max(idColWidth, 22);
+        var padding = 12;
+        if ($('#xcTable'+tableNum+' .fauxTHead').length != 0) {
+            padding += 5;
+        }
+        $('#xcTableWrap'+tableNum+' th:first-child').width(newWidth+padding);
+        matchHeaderSizes(tableNum);
+
+        deferred.resolve();
+    });
+
+    return (deferred.promise());
 }

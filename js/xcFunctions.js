@@ -2,71 +2,92 @@ var tempCountShit = 0;
 // XXX: Dedupe with checkLoad!!!!
 function checkStatus(newTableName, tableNum, keepOriginal,
                      additionalTableNum) {
-    tempCountShit++;
-    var refCount = XcalarGetTableRefCount(newTableName);
-    console.log(refCount);
-    if (refCount == 1 || tempCountShit > 20) {
-        tempCountShit = 0;
-        $("body").css({"cursor": "default"});
-        $('#waitCursor').remove();
-        console.log("Done loading");
-        var newTableNum;
-        if (keepOriginal === KeepOriginalTables.Keep) {
-            // append newly created table to the back
-            newTableNum = gTables.length;
-            addTable(newTableName, newTableNum, AfterStartup.After);
-            var leftPos = $('#xcTableWrap'+newTableNum).position().left +
-                            $('#mainFrame').scrollLeft();
-            $('#mainFrame').animate({scrollLeft: leftPos});
-        } else {
-            // default
-            newTableNum = tableNum;
-            var savedScrollLeft;
-            if (additionalTableNum > -1) {
-                var largerTableNum = Math.max(additionalTableNum, tableNum);
-                var smallerTableNum = Math.min(additionalTableNum, tableNum);
-                archiveTable(largerTableNum, DeleteTable.Keep);
-                archiveTable(smallerTableNum, DeleteTable.Keep);
-                if (newTableNum > gTables.length) {
-                    // edge case
-                    newTableNum = gTables.length;
-                }
-            } else {
-                savedScrollLeft = $('#mainFrame').scrollLeft();
-                archiveTable(tableNum, DeleteTable.Keep);
-            }
-            addTable(newTableName, newTableNum, AfterStartup.After);
-            if (savedScrollLeft) {
-                $('#mainFrame').scrollLeft(savedScrollLeft);
-            } 
-        }
-    } else {
+    var deferred = jQuery.Deferred();
+
+    (function internalCheckStatus() {
+        tempCountShit++;
+        var refCount = XcalarGetTableRefCount(newTableName);
         console.log(refCount);
-        // Check twice per second
-        setTimeout(function() {
-            checkStatus(newTableName, tableNum, keepOriginal,
-                        additionalTableNum);
-        }, 500);
-    }
+        if (refCount == 1 || tempCountShit > 20) {
+            tempCountShit = 0;
+            $("body").css({"cursor": "default"});
+            $('#waitCursor').remove();
+            console.log("Done loading");
+            var newTableNum;
+            if (keepOriginal === KeepOriginalTables.Keep) {
+                // append newly created table to the back
+                newTableNum = gTables.length;
+                addTable(newTableName, newTableNum, AfterStartup.After)
+                .done(function() {
+                    var leftPos = $('#xcTableWrap'+newTableNum).position().left +
+                                    $('#mainFrame').scrollLeft();
+                    $('#mainFrame').animate({scrollLeft: leftPos});
+
+                    deferred.resolve();
+                });
+            } else {
+                // default
+                newTableNum = tableNum;
+                var savedScrollLeft;
+                if (additionalTableNum > -1) {
+                    var largerTableNum = Math.max(additionalTableNum, tableNum);
+                    var smallerTableNum = Math.min(additionalTableNum, tableNum);
+                    archiveTable(largerTableNum, DeleteTable.Keep);
+                    archiveTable(smallerTableNum, DeleteTable.Keep);
+                    if (newTableNum > gTables.length) {
+                        // edge case
+                        newTableNum = gTables.length;
+                    }
+                } else {
+                    savedScrollLeft = $('#mainFrame').scrollLeft();
+                    archiveTable(tableNum, DeleteTable.Keep);
+                }
+                addTable(newTableName, newTableNum, AfterStartup.After)
+                .done(function() {
+                    if (savedScrollLeft) {
+                        $('#mainFrame').scrollLeft(savedScrollLeft);
+                    } 
+
+                    deferred.resolve();
+                });
+            }
+        } else {
+            console.log(refCount);
+            // Check twice per second
+            setTimeout(function() {
+                internalCheckStatus();
+            }, 500);
+        }
+    })();
+
+    return (deferred.promise());
 }
 
 function checkStatusLite(name, funcPtr, args) {
-    tempCountShit++;
-    if (tHandle == null) {
-        return (null);
-    }
-    var refCount = XcalarGetTableRefCount(name);
-    if (refCount == 1 || tempCountShit > 20) {
-        tempCountShit = 0;
-        funcPtr(args);
-    } else {
-        setTimeout(function() {
-            checkStatusLite(name, funcPtr, args);
-        }, 500);
-    }
+    var deferred = jQuery.Deferred();
+
+    (function internalCheckStatusLite() {
+        tempCountShit++;
+        if ([null, undefined].indexOf(tHandle) !== -1) {
+            return (promiseWrapper(null));
+        }
+        var refCount = XcalarGetTableRefCount(name);
+        if (refCount == 1 || tempCountShit > 20) {
+            tempCountShit = 0;
+            funcPtr(args);
+
+            deferred.resolve();
+        } else {
+            setTimeout(function() {
+                internalCheckStatusLite();
+            }, 500);
+        }
+    })();
+
+    return (deferred.promise());
 }
 
-function checkLoadStatus(name, secondCall) {
+function checkLoadStatus(name) {
     var deferred = jQuery.Deferred();
 
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -95,7 +116,7 @@ function checkLoadStatus(name, secondCall) {
             }
             deferred.resolve(dsFound);
         });
-    })(!!secondCall);
+    })(false);
 
     return (deferred.promise());  
 }
@@ -142,6 +163,8 @@ function sortRows(index, tableNum, order) {
 }
 
 function mapColumn(fieldName, mapString, tableNum) {
+    var deferred = jQuery.Deferred();
+
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
         '{cursor: wait !important;}</style>');
     var rand = Math.floor((Math.random() * 100000) + 1);
@@ -150,7 +173,12 @@ function mapColumn(fieldName, mapString, tableNum) {
     commitToStorage(); 
     XcalarMap(fieldName, mapString, gTables[tableNum].frontTableName,
               newTableName);
-    checkStatus(newTableName, tableNum);
+    checkStatus(newTableName, tableNum)
+    .done(function() {
+        deferred.resolve();
+    });
+
+    return (deferred.promise());
 }
 /*
 function cont1(newIndexTable, operator, value, datasetId, key, otherTable) {
@@ -224,6 +252,8 @@ function filterNonMainCol(operator, value, datasetId, key, otherTable) {
 }
 
 function groupByCol(operator, newColName, colid, tableNum) {
+    var deferred = jQuery.Deferred();
+
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempGroupByTable"+rand;
     var srcTableName = gTables[tableNum].frontTableName
@@ -243,13 +273,20 @@ function groupByCol(operator, newColName, colid, tableNum) {
     cliOptions.newColumnName = newColName;
 
     $("body").css({"cursor": "wait"});
-    XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName);
-    checkStatus(newTableName, tableNum, KeepOriginalTables.Keep);
 
-    addCli('Group By', cliOptions);
+    XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName);
+    checkStatus(newTableName, tableNum, KeepOriginalTables.Keep)
+    .done(function() {
+        addCli('Group By', cliOptions);
+        deferred.resolve();
+    });
+
+    return (deferred.promise());
 }
 
 function filterCol(operator, value, colid, tableNum) {
+    var deferred = jQuery.Deferred();
+
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
     var srcTableName = gTables[tableNum].frontTableName;
@@ -268,10 +305,15 @@ function filterCol(operator, value, colid, tableNum) {
     commitToStorage(); 
     $("body").css({"cursor": "wait"});
     console.log(colid); 
-    XcalarFilter(operator, value, colName, srcTableName, newTableName);
-    checkStatus(newTableName, tableNum);
 
-    addCli('Filter Table', cliOptions);
+    XcalarFilter(operator, value, colName, srcTableName, newTableName);
+    checkStatus(newTableName, tableNum)
+    .done(function() {
+        addCli('Filter Table', cliOptions);
+        deferred.resolve();
+    });
+    
+    return (deferred.promise());
 }
 
 function createJoinIndex(rightTableNum, tableNum) {
@@ -379,11 +421,11 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
         XcalarIndexFromTable(gTables[leftTableNum].backTableName, leftColName,
                              newTableName1);
         leftName = newTableName1;
-        checkStatusLite(newTableName1, joinTables2, [newTableName, joinTypeStr,
+        return checkStatusLite(newTableName1, joinTables2, [newTableName, joinTypeStr,
                        leftTableNum, leftName, rightTableNum, rightColumnNum]);
     } else {
         console.log("left indexed correctly");
-        joinTables2([newTableName, joinTypeStr, leftTableNum, leftName,
+        return joinTables2([newTableName, joinTypeStr, leftTableNum, leftName,
                      rightTableNum, rightColumnNum]);
     }
 }
@@ -408,16 +450,18 @@ function joinTables2(args) {
         XcalarIndexFromTable(gTables[rightTableNum].backTableName,
                              rightColName, newTableName2);
         rightName = newTableName2;
-        checkStatusLite(newTableName2, joinTables3, [newTableName, joinTypeStr,
+        return checkStatusLite(newTableName2, joinTables3, [newTableName, joinTypeStr,
                        leftTableNum, leftName, rightTableNum, rightName]);
     } else {
         console.log("right correctly indexed");
-        joinTables3([newTableName, joinTypeStr, leftTableNum, leftName,
+        return joinTables3([newTableName, joinTypeStr, leftTableNum, leftName,
                      rightTableNum, rightName]);
     }
 }
 
 function joinTables3(args) {
+    var deferred = jQuery.Deferred();
+
     var newTableName = args[0];
     var joinTypeStr = args[1];
     var leftTableNum = args[2];
@@ -433,6 +477,12 @@ function joinTables3(args) {
         '{cursor: wait !important;}</style>');
     XcalarJoin(leftName, rightName, newTableName);
     checkStatus(newTableName, leftTableNum, KeepOriginalTables.DontKeep,
-                rightTableNum);
-    $('#waitCursor').remove();
+                rightTableNum)
+    .done(function() {
+        $('#waitCursor').remove();
+
+        deferred.resolve();
+    });
+
+    return (deferred.promise());
 }

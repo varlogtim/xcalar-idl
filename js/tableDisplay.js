@@ -134,6 +134,8 @@ function createRowTemplate(tableNum) {
 // Adds a table to the display
 // Shifts all the ids and everything
 function addTable(tableName, tableNum, AfterStartup) {
+    var deferred = jQuery.Deferred();
+
     for (var i = gTables.length-1; i>=tableNum; i--) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i+1));
         $("#xcTheadWrap"+i).attr("id", "xcTheadWrap"+(i+1));
@@ -145,19 +147,24 @@ function addTable(tableName, tableNum, AfterStartup) {
         gTables[i+1] = gTables[i];
     }
 
-    tableStartupFunctions(tableName, tableNum);
+    tableStartupFunctions(tableName, tableNum)
+    .done(function() {
+        if ($('#mainFrame').hasClass('empty')) {
+            $('#mainFrame').removeClass('empty');
+            documentReadyxcTableFunction(); 
+        }
+        if (!getIndex(tableName)) {
+            console.log("This table has never been stored before. Storing it now");
+            setIndex(tableName, gTables[tableNum].tableCols);
+        }
+        if (AfterStartup) {
+            addMenuBarTables([gTables[tableNum]], IsActive.Active);
+        }
 
-    if ($('#mainFrame').hasClass('empty')) {
-        $('#mainFrame').removeClass('empty');
-        documentReadyxcTableFunction(); 
-    }
-    if (!getIndex(tableName)) {
-        console.log("This table has never been stored before. Storing it now");
-        setIndex(tableName, gTables[tableNum].tableCols);
-    }
-    if (AfterStartup) {
-        addMenuBarTables([gTables[tableNum]], IsActive.Active);
-    }
+        deferred.resolve();
+    });
+
+    return (deferred.promise());
 }
 
 // Removes a table from the display
@@ -220,5 +227,5 @@ function deleteTable(tableNum, deleteArchived) {
     // Free the result set pointer that is still pointing to it
     XcalarSetFree(resultSetId);    
     // Trigger delete
-    XcalarDeleteTable(backTableName);
+    return XcalarDeleteTable(backTableName);
 }
