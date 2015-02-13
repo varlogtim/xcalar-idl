@@ -67,28 +67,37 @@ function checkStatusLite(name, funcPtr, args) {
 }
 
 function checkLoadStatus(name, secondCall) {
-    if (tHandle == null) {
-        return (null);
+    var deferred = jQuery.Deferred();
+
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return promiseWrapper(null);
     }
-    var dsList = xcalarListDatasets(tHandle);
-    var dsFound = false;
-    for (var i = 0; i<dsList.numDatasets; i++) {
-        if (dsList.datasets[i].name == name) {
-            dsFound = true;
-            if (!secondCall) {
-                appendDSToList(name);
+
+    (function internalCheckLoadStatus(secondCall) {
+        xcalarListDatasets(tHandle)
+        .done(function(dsList) {
+            var dsFound = false;
+            for (var i = 0; i < dsList.numDatasets; i++) {
+                if (dsList.datasets[i].name == name) {
+                    dsFound = true;
+                    if (!secondCall) {
+                        appendDSToList(name);
+                    }
+                    if (dsList.datasets[i].loadIsComplete) {
+                        console.log("Load of "+name+" is done!");
+                        displayNewDataset();
+                    } else {
+                        setTimeout(function() {
+                            internalCheckLoadStatus(true);
+                        }, 1000);
+                    }
+                }
             }
-            if (dsList.datasets[i].loadIsComplete) {
-                console.log("Load of "+name+" is done!");
-                displayNewDataset();
-            } else {
-                setTimeout(function() {
-                    checkLoadStatus(name, true);
-                }, 1000);
-            }
-        }
-    }
-    return (dsFound);
+            deferred.resolve(dsFound);
+        });
+    })(!!secondCall);
+
+    return (deferred.promise());  
 }
 
 function sortRows(index, tableNum, order) {

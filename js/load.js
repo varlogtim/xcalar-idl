@@ -19,13 +19,16 @@ function setupImportDSForm() {
         
         XcalarLoad(loadArgs[0], loadFormat, tableName,
                               loadArgs[1], loadArgs[2])
-        .done(function(result) {
+        .then(function(result) {
             var dsId = result.datasetId;
             console.log("This is the returned dsId "+dsId);
-            var loadSuccess = checkLoadStatus(tableName);  
+            return checkLoadStatus(tableName);
+        })
+        .done(function(loadSuccess) {
             if (!loadSuccess) {
                 displayLoadErrorMessage(loadURL);
             }
+            //Could this line be removed?
             return (false);
         })
         .fail(function(reason) {
