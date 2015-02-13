@@ -65,6 +65,24 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
                        loadArgs));
 }
 
+function XcalarDestroyDataset(dsName) {
+    var deferred = jQuery.Deferred();
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    getDsId(dsName)
+    .done(function(id) {
+        xcalarDestroyDataset(tHandle, id)
+        .done(function() {
+            deferred.resolve();
+        })
+        .fail(function(sts) {
+            deferred.reject(sts);
+        });
+    });
+    return (deferred.promise());
+}
+
 function XcalarIndexFromDataset(varDatasetId, key, tablename) {
     if (tHandle == null) {
         return;

@@ -822,6 +822,8 @@ function xcalarBulkDeleteTables(thriftHandle, tableNamePattern) {
 }
 
 function xcalarDestroyDataset(thriftHandle, datasetId) {
+    var deferred = jQuery.Deferred();
+
     console.log("xcalarDestroyDataset(datasetId = " + datasetId + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -832,19 +834,24 @@ function xcalarDestroyDataset(thriftHandle, datasetId) {
     workItem.api = XcalarApisT.XcalarApiDestroyDataset;
     workItem.input.destroyDsInput.datasetId = datasetId;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var status = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
+            console.log("xcalarDestroyDataset() failed with status code:" +
+                        status);
+            deferred.reject(status);
+        } else {
+            console.log("xcalarDestroyDataset() success!");
+            deferred.resolve();
         }
-    } catch(ouch) {
+    })
+    .fail(function(ouch) { 
         console.log("xcalarDestroyDataset() caught exception: " + ouch);
-        
-        var status = StatusT.StatusThriftProtocolError;
-    }
+        deferred.reject(status);
+    });
 
-    return status;
+    return (deferred.promise());
 }
 
 function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,

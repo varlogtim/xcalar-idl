@@ -20,6 +20,21 @@ function setupDSCartButtons() {
         }
     });
 
+    $(".delete").click(function() {
+        var dsName = $(this).closest("#contentViewHeader").find("h2").text();
+        function cleanUpDsIcons() {
+            $("#gridView").find('.label:contains('+dsName+')')
+            .closest("grid-unit").remove();
+            if ($("#gridView").find("grid-unit").length > 0) {
+                $("#gridView").find("grid-unit:first").click();
+            } else {
+                $("#datasetWrap").remove();
+                $(".dbText h2").text("Dataset");
+            }
+        }
+        XcalarDestroyDataset(dsName).done(cleanUpDsIcons());
+    });
+
     $("#submitDSTablesBtn").click(function() {
         var keysPresent = true;
         if ($('#dataCart').find('.selectedTable').length == 0) {
