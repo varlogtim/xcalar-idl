@@ -34,6 +34,8 @@
 @color-background-topForm: #F0F0F0;
 @colorShadow-black: rgba(0, 0, 0, 0.15);
 @color-selectedCell-light: #DDEAF2;
+@color-bar-darkGray-bot: #8C8C8C;
+@color-bar-darkGray-top: #A3A3A3;
 
 @color-background-sidebar: #BBBBBB;
 @color-background-tableBorders: #E6E6E6;
@@ -52,6 +54,8 @@
 @color-text-lightGray: #B6B6B6;
 @color-text-red: #E04C42;
 @color-text-error: #E45B52;
+@color-text-headings: #F3F3F3;
+@color-text-drop-shadow: #7F7F7F; 
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
 @font-code: "Source Code Pro", courier;
@@ -115,14 +119,11 @@
 
 #datastoreView {
     display: none;
-
     width: 100%;
-
     position: relative;
     top: 37px;
     top: 0px;
     z-index: 5;
-
     height: ~"-webkit-calc(100% - 115px)";
     height: ~"-moz-calc(100% - 115px)";
     height: ~"calc(100% - 115px)";
@@ -131,13 +132,19 @@
     overflow-y: hidden;
 
     #contentHeader {
+        .words {
+            float: left;
+            font-size: 15px;
+            color: white;
+            margin-left: 3px;
+            margin-top: 8px;
+            text-shadow: 1px 1px @color-text-drop-shadow;
+        }
         height: 38px;
         width: 100%;
-
         position: absolute;
         z-index: 6;
         top: -1px;
-
         color: @color-text-darkGray;
         border-top: 1px solid @color-bar-border;
         border-bottom: 1px solid @color-bar-border;
@@ -161,31 +168,27 @@
                 .flex(1 1 127px);
                 .linear-gradient(top, rgb(163, 163, 163), rgb(140, 140, 140));
                 border-right: 1px solid @color-bar-border;
-
                 &[active] {
                     .linear-gradient(top, rgb(96, 179, 230), rgb(60, 141, 178));
                 }
             }
 
             #exploreButton {
+                margin-top: 6px;
+                margin-left: 8px;
+                margin-right: 2px;
                 height: 24px;
-                width: 89px;
-
-                position: relative;
-                top: 6px;
-                left: 8px;
-
+                width: 24px;
+                float: left;
                 background: url(/images/datastore/explore.png);
                 background-repeat: no-repeat;
             }
             #searchButton {
+                margin-top: 6px;
+                margin-left: 8px;
                 height: 24px;
-                width: 89px;
-
-                position: relative;
-                top: 7px;
-                left: 8px;
-
+                width: 26px;
+                float: left;
                 background: url(/images/datastore/search.png);
                 background-repeat: no-repeat;
             }
@@ -193,16 +196,25 @@
         #contentHeaderMid {
             .flex(1 1 auto);
             .flex-order(2);
-
-            background: url(/images/datastore/dataset-title.png);
             background-repeat: no-repeat;
             background-position: 19px 12px;
         }
         #contentHeaderRight {
             .flex(0 0 255px);
             .flex-order(3);
+            background: linear-gradient(@color-bar-darkGray-top,
+                                        @color-bar-darkGray-bot);
+            border-left: 1px solid black;
+            .icon {
+                height: 19px;
+                width: 19px;
+                margin-top: 9px;
+                margin-left: 8px;
+                background: url(/images/db-icon-white.png);
+                float: left;
+            }
 
-            background: url(/images/datastore/data-cart-title.png) 0 0 no-repeat;
+            color: white;
         }
     }
 
@@ -225,8 +237,6 @@
         background-color: @color-white;
         font-size: 13px;
         overflow: hidden;
-
-      
 
         #importHelp {
             height: 93px;
@@ -273,7 +283,6 @@
                 margin-bottom: 25px;
                 height: 25px;
                 line-height: 25px;
-
                 label {
                     display: inline-block;
                     width: 100px;
@@ -300,7 +309,6 @@
                 display: inline-block;
                 width: 90px;
             }
-
             label {
                 display: inline-block;
                 width: 100px;
@@ -314,7 +322,6 @@
                     display: inline-block;
                     padding-left: 10px;
                 }
-
                 .radio {
                     float: left;
                     margin-top: 4px;
@@ -323,14 +330,12 @@
                     background: url(/images/radioEmpty.png) 0 0 no-repeat;
                     width: 14px;
                     height: 15px;
-
                     .dot {
                         background: url(/images/radioDot.png) 50% 50% no-repeat;
                         width: 14px;
                         height: 15px;
                         display: none;
                     }
-                    
                     &.checked {
                         background: url(/images/radioChecked.png) 0 0 no-repeat;
                         .dot {
@@ -339,7 +344,6 @@
                     }
                 }
             }
-
             input[type=radio] {
                 margin-top: 4px;
                 margin-left: 10px;
@@ -348,18 +352,14 @@
                 pointer-events: none;
                 position: absolute;
                 left: 0;
-
             }
-
             .dsTypeLabel {
                 float: left;
             }
-
             .dsRadio {
                 display: inline-block;
             }
         }
-
         button {
             margin-bottom: 15px;
             margin-left: 20px;
@@ -374,7 +374,6 @@
                 .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
             }
         }
-
     }
 
     .iconWaiting {
@@ -398,27 +397,20 @@
             display: none;
             height: 100%;
         }
-
         #exploreView {
             height: 100%;
         }
-
         #contentView {
             height: 100%;
-
             .flex-display();
             .flex-flow(row);
-
             background-color: white;
-
             #contentViewLeft {
                 .flex(0 0 255px);
                 .flex-order(1);
-
                 .flex-display();
                 .flex-flow(column-reverse);
                 box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
-
                 #datasetExplore {
                     .flex(0 0 35px);
                     .flex-order(4);
@@ -442,7 +434,6 @@
                             height: 23px;
                             margin-left: 2px;
                         }
-
                         #dataListView {
                             .icon {
                                 background: url(/images/ds-listView.png) 50% 50% no-repeat;
@@ -461,13 +452,11 @@
                     background-color: rgb(230, 230, 230);
                     border-right: 1px solid @color-background-lightGray;
                     z-index: 2;
-
                     #importDataButton {
                         position: relative;
                         left: 10px;
                         top: 12px;
                         line-height: 32px;
-
                         .icon {
                             background-image: url(/images/db-icon-white.png);
                             margin: -1px 4px 0px 8px;
@@ -479,38 +468,22 @@
                 #gridView {
                     .flex(1 1 auto);
                     .flex-order(1);
-
                     padding: 9px;
                     background-color: rgb(230, 230, 230);
                     z-index: 1;
                     box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
                     border-top: 1px solid rgba(0,0,0,0.25);
                     border-right: 1px solid rgba(0, 0, 0, 0.25);
-
-                    // .flex-display();
-                    // .flex-flow(row);
-                    // .flex-wrap(wrap);
-
                     grid-unit {
                         height: 65px;
                         width: 45px;
-                        // .flex(0 0 45px);
                         margin: 7px;
                         text-align: center;
                         cursor: pointer;
                         position: relative;
-                        // .flex-display();
-                        // .flex-flow(column);
-
                         float: left;
                         display: inline-block;
-
-
-
                         .gridIcon {
-                            // .flex(1 1 40px);
-                            // .flex-order(1);
-                            // .transition (opacity 0.6s);
                             background: url(/images/datastore/db-large.png);
                             background-repeat: no-repeat;
                             background-position: 4.5px 3px;
@@ -518,32 +491,24 @@
                             width: 50px;
                             height: 40px;
                         }
-
                         .listIcon {
                             display: none;
                         }
-
                         .label {
                             .flex(1 1 25px);
                             .flex-order(2);
                             .transition (opacity 0.6s);
-                            // background-color: green;
                             font-size: 9px;
                             font-weight: 600;
-                            // word-wrap: break-word;
-                            // white-space: normal;
-                            // overflow: hidden;
                             text-overflow: ellipsis;
                             overflow: hidden;
                         }
-
                         &.inactive {
                             .icon, .label {
                                 opacity: 0.5;
                                 .transition (opacity 0.6s);
                             }
                         }
-
                         &.active {
                             box-shadow: 0px 0px 0px 2px @color-background-topAction;
                             .label {
@@ -552,7 +517,6 @@
                             }
                         }
                     }
-
                     &.listView {
                         padding-top: 4px;
                         grid-unit {
@@ -567,16 +531,13 @@
                             background-color: @color-white;
                             box-shadow: 1px 2px 1px rgba(0,0,0,.2);
                         }
-
                         .label {
                             font-size: 11px;
                             line-height: 24px;
                         }
-
                         .gridIcon {
                             display: none;
                         }
-
                         .listIcon {
                             display: inline-block;
                             .gray-gradient;
@@ -587,76 +548,62 @@
                             border-top-left-radius: 3px;
                             border-bottom-left-radius: 3px;
                         }
-
                         .icon {
                             margin: 2px;
+                            margin-right: 4px;
                             display: inline-block;
                             width: 19px;
                             height: 19px;
                             background: url(/images/db-icon-white.png) 0 0 no-repeat;
                         }
-
                         grid-unit:hover {
                             .listIcon {
                                 // .gray-inverse-gradient;
                             }
                         }
-
                         .active {
                             box-shadow: 0px 0px 0px 2px @color-background-topAction;
                             .listIcon {
                                 .action-gradient !important;
                             }  
                         }
-
                         .iconWaiting {
                             left: 98px;
                             top: -6px;
                         }
                         
                     }
-
                     #billy {
                         height: 40px;
                         width: 20px;
                     }
                 }
-
                 #datasetSearch {
                     .flex(0 0 35px);
                     .flex-order(2);
                      z-index: 1;
-                    // box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
                     background-color: @color-background-darkGray;
                 }
                 #listView {
                     .flex(1 1 auto);
                     .flex-order(1);
-                    // background: url(/images/datastore/list-view.png);
-                    // background-repeat: no-repeat;
-                    // background-position: 0% 90%;
                     background-color: rgb(230, 230, 230);
                     z-index: 1;
-                    // box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
                 }
             }
             #contentViewMid {
                 .flex(1 1 auto);
                 .flex-order(2);
-
                 .flex-display();
                 .flex-flow(column);
                 // box-shadow: 2px 0px 11px 0px rgba(0,0,0,.5);
                 z-index: 1;
-
                 #contentViewHeader {
                     .flex(0 0 93px);
                     .flex-order(1);
-
                     background-repeat: no-repeat;
                     background-position: center;
                     box-shadow: 0 3px 2px rgba(0,0,0,.2);
-
                     .dbText {
                         display: inline-block;
                         float: left;
@@ -664,7 +611,6 @@
                         padding-left: 25px;
                         overflow: hidden;
                     }
-
                     .modifyDBButtons {
                         display: inline-block;
                         float: right;
@@ -675,13 +621,11 @@
                         text-align: right;
                         padding-right: 20px;
                     }
-
                     .modifyDBButton {
                         margin-bottom: 5px;
                         cursor: pointer;
                         text-align: right;
                         height: 20px;
-
                         span {
                             float: right;
                         }
@@ -712,8 +656,6 @@
                             margin-top: 1px;
                         }
                     }
-
-
                     h2 {
                         display: block;
                         height: 28px;
@@ -733,11 +675,9 @@
                 #contentViewTable {
                     .flex(1 1 auto);
                     .flex-order(2);
-
                     background-repeat: no-repeat;
                     background-position: center;
                 }
-
                 #searchHeader {
                     .flex(0 0 91px);
                     .flex-order(1);
@@ -748,7 +688,6 @@
                 #searchResult {
                     .flex(1 1 auto);
                     .flex-order(2);
-
                     background-repeat: no-repeat;
                     background-position: center;
                 }
@@ -758,7 +697,6 @@
                 .flex-order(3);
                 width: 255px;
                 height: 100%;
-   
                 background-color: @color-background-darkGray;
                 box-shadow: inset 2px 2px 6px 0 rgba(0,0,0,.3);
                 border-left: 1px solid rgba(0, 0, 0, 0.25);     
@@ -793,7 +731,6 @@ input {
         position: relative;
         z-index: 3;
     }
-
     .close {
         position: absolute;
         background: url(/images/close-gray.png) 50% 50% no-repeat;
@@ -804,7 +741,6 @@ input {
         display: inline-block;
         cursor: pointer;
     }
-
     .title {
         height: 24px;
         font-weight: bold;
@@ -821,7 +757,6 @@ input {
             float: left;
         }
     } 
-
     .arrow {
         display: inline-block;
         width: 10px;
@@ -835,18 +770,14 @@ input {
         z-index: 1;
         box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
     }
-
     .message {
         color: @color-text-darkGray;
         font-size: 12px;
         white-space: normal;
         line-height: 18px;
     }
-
     &.error {
         display: inline-block;
-        
-        
         .title {
             .icon {
                 background: url(/images/error-icon.png) 50% 50% no-repeat;
@@ -855,10 +786,8 @@ input {
                 color: @color-text-error;
             }
         } 
-
         .boxInnerWrap {
             border: 1px solid @color-error-border;
-
             &:before, &:after {
                 content: "";
                 position: absolute;
@@ -868,7 +797,6 @@ input {
                 left: 0px;
                 margin-left: -9px;
             }
-
             &:before {
                 border-right: 10px solid @color-error-border;
                 border-top: 8px solid transparent;
@@ -876,7 +804,6 @@ input {
                 margin-left: -11px;
                 margin-top: -1px;
             }
-
             &:after {
                 border-right: 9px solid @color-white;
                 margin-right: -2px;
@@ -887,12 +814,10 @@ input {
 }
 
 #contentViewTable {
-
     .datasetTitleWrap {
         height: 50px;
         margin-left: 0px;
     }
-
     h2 {
         display: block;
         margin: 15px 0px 8px;
@@ -901,13 +826,11 @@ input {
     p {
         font-size: 13px;
     }
-
     .dsInfo {
         float: left;
         width: ~"calc(100% - 120px)";
         padding-left: 25px;
     }
-
     .buttonGroup {
         display: inline-block;
         float: right;
@@ -918,7 +841,6 @@ input {
         text-align: right;
         padding-right: 20px;
     }
-
     .modifyDSButton {
         margin-bottom: 5px;
         cursor: pointer;
@@ -933,7 +855,6 @@ input {
             height: 17px;
         }
     }
-
     .selectAll {
         .icon {
             background: url(/images/plus-blue.png) 50% 50% no-repeat;
@@ -980,27 +901,22 @@ input {
         box-shadow: 0px 1px  1px @colorShadow-black;
         outline: 2px solid rgba(100, 100, 100, .3);
     }
-
     .fixedThead {
         position: absolute;
         top: 0;
         z-index: 1;
-
         th {
             display: inline-block;
             height: 40px;
         }
     }
-
     .clonedThead {
         box-shadow: none;
         opacity: 0;
     }
-
     th {
         width: 130px;
     }
-
     .selectedCell {
         .editableHead {
             background: none !important;
@@ -1019,10 +935,8 @@ input {
             color: #0090E8 !important;
         }
     }
-
     .header {
         height: 30px;
-        
         .editableHead {
             width: ~"calc(100% - 30px)";
             background-color: @color-white;
@@ -1034,7 +948,6 @@ input {
             border: 1px solid @color-background-topGrayMed;
             z-index: 0;
         }
-
         &.colAdded {
             .checkBox {
                 .action-gradient;
@@ -1042,7 +955,6 @@ input {
             }
         }
     }
-
     .checkBox {
         display: inline-block;
         float: right;
@@ -1073,18 +985,15 @@ input {
             box-shadow: 0px 2px 5px rgba(0,0,0,0.4);
         }
     }
-
     .btnLarge {
         margin-top: 10px;
         width: 225px;
         font-size: 11px;
-
         .icon {
             margin: 4px;
             float: left;
             display: inline-block;
         }
-
         &#submitDSTablesBtn {
             .icon {
                 background: url(/images/send-single.png) 0 0 no-repeat;
@@ -1127,12 +1036,10 @@ input {
         margin-bottom: 20px;
         margin-top: 10px;
         width: 225px;
-
         h3 {
             display: inline-block;
             text-indent: 4px;
         }
-
         li {
             height: 28px;
             line-height: 28px;
@@ -1142,15 +1049,12 @@ input {
             overflow: hidden;
             margin-top: 8px;
             font-weight: 700;
-
             &.colSelected {
                 background-color: @color-selectedCell-light;
             }
-
             &.keySelected {
                 box-shadow: 0px 0px 0px 2px @color-background-bottomAction;
             }
-
             .colName {
                 width: 200px;
                 height: 100%;
@@ -1160,7 +1064,6 @@ input {
                 text-overflow: ellipsis;
                 overflow: hidden;
                 cursor: default;
-                
             }
             .removeCol {
                 width: 25px;
@@ -1169,11 +1072,9 @@ input {
                 display: inline-block;
                 .gray-gradient;
                 cursor: pointer;
-
                 &:hover {
                     .red-gradient;
                 }
-
                 .closeIcon {
                     display: inline-block;
                     width: 100%;
