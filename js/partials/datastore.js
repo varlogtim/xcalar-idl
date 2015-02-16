@@ -31,9 +31,9 @@
             $('.dataViewBtn').removeClass('selected').addClass('btnDeselected');
             $(this).addClass('selected').removeClass('btnDeselected');
             if ($(this).attr('id') == "dataListView") {
-                $('#gridView').addClass('listView');
+                $('#gridViewWrapper').addClass('listView');
             } else {
-                $('#gridView').removeClass('listView');
+                $('#gridViewWrapper').removeClass('listView');
             }
         });
 
