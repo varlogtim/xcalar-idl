@@ -598,6 +598,7 @@
                 .flex-flow(column);
                 // box-shadow: 2px 0px 11px 0px rgba(0,0,0,.5);
                 z-index: 1;
+                height: 100%;
                 #contentViewHeader {
                     .flex(0 0 93px);
                     .flex-order(1);
@@ -814,6 +815,7 @@ input {
 }
 
 #contentViewTable {
+    height: 100%;
     .datasetTitleWrap {
         height: 50px;
         margin-left: 0px;
@@ -883,26 +885,47 @@ input {
 }
 
 #datasetWrap {
-    
+    white-space: nowrap;
+    overflow: hidden;
+    float: left;
+    width: 100%;
+    height: ~"calc(100% - 162px)";
 }
+
+.datasetTbodyWrap {
+    height: ~"calc(100% - 40px)";
+    overflow-x: visible;
+    overflow-y: scroll;
+    display: inline-block;
+}
+
+table.datasetTable {
+    margin-top: -40px;
+    margin-right: 0;
+}
+
 
 .datasetTableWrap {
     width: ~"calc(100% - 20px)";
-    overflow: auto;
+    height: ~"calc(100% - 20px)";
     margin: 20px 10px 0px;
     position: absolute;
-    height: ~"calc(100% - 80px)";
     border: 1px solid #DDDDDD;
-}
+    display: block;
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    .datasetTable {
+        width: 0px;
+    }
 
-.datasetTable {
-    width: 0px !important;
     thead {
         box-shadow: 0px 1px  1px @colorShadow-black;
         outline: 2px solid rgba(100, 100, 100, .3);
     }
+
     .fixedThead {
-        position: absolute;
+        // position: absolute;
         top: 0;
         z-index: 1;
         th {
@@ -1024,7 +1047,7 @@ input {
 #dataCartWrap {
     overflow: auto;
     float: left;
-    height: ~"calc(100% - 135px)";
+    height: ~"calc(100% - 145px)";
     width: 100%;
 }
 

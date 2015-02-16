@@ -81,7 +81,7 @@ function setupDSCartButtons() {
     $('#selectDSCols').click(function() {
         var table = $('.datasetTableWrap').filter(function() {
             return $(this).css('display') == 'block';
-        }).find('table');
+        });
         table.find('thead:first .checkBox').each(function() {
             if (!$(this).parent().hasClass('colAdded')) {
                 checkColumn($(this), SelectUnit.All);
@@ -91,13 +91,13 @@ function setupDSCartButtons() {
     $('#clearDsCols').click(function() {        
         var table = $('.datasetTableWrap').filter(function() {
             return $(this).css('display') == 'block';
-        }).find('table');
+        });
 
         if (table.length == 0) {
             return;
         }
 
-        var tableNum = table.attr('id').substring(14);
+        var tableNum = table.attr('id').substring(16);
         $('#selectedTable'+tableNum).remove();
         table.find('.colAdded').removeClass('colAdded');
         table.find('.selectedCol').removeClass('selectedCol');
@@ -186,14 +186,17 @@ function addDatasetTable(datasetTitle, tableNumber) {
         <div id="dataSetTableWrap'+tableNumber+'" \
         class="datasetTableWrap" \
         data-dsname="'+datasetTitle+'">\
-        <table id="worksheetTable'+tableNumber+'" \
-        class="datasetTable dataTable" \
-        data-dsname="'+datasetTitle+'">\
-            <thead>\
-              <tr>\
-              </tr>\
-            </thead>\
-        </table>\
+        <div class="datasetTheadWrap"></div>\
+        <div class="datasetTbodyWrap">\
+            <table id="worksheetTable'+tableNumber+'" \
+            class="datasetTable dataTable" \
+            data-dsname="'+datasetTitle+'">\
+                <thead>\
+                  <tr>\
+                  </tr>\
+                </thead>\
+            </table>\
+        </div>\
         </div>');
 }
 
@@ -214,16 +217,12 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
     var table = $('#worksheetTable'+index); 
     var tableWidth = table.width();
     table.find('tr:first').append(th);
-    table.find('thead').addClass('fixedThead');
+    var fixedHead = table.find('thead');
+    fixedHead.addClass('fixedThead dataTable datasetTable');
     var cloneThead = '<thead class="clonedThead" style="width:'+
                      tableWidth+'px;">' +th+'</thead>';
-    table.find('thead').after(cloneThead);
-
-    $('#dataSetTableWrap'+index).scroll(function() {
-        var scrollTop = $(this).scrollTop();
-        table.find('.fixedThead').css({'top': scrollTop});
-    });
-
+    fixedHead.after(cloneThead);
+    table.parent().siblings('.datasetTheadWrap').append(fixedHead);
 }
 
 function addDataSetRows(jsonKeys,jsons, tableNum) {
@@ -259,17 +258,17 @@ function addDataSetRows(jsonKeys,jsons, tableNum) {
 }
 
 function addWorksheetListeners(tableNum) {
-    var table = $('#worksheetTable'+tableNum);
+    var table = $('#dataSetTableWrap'+tableNum);
 
     table.find('th input').focus(function() {  
         var index = $(this).closest('th').index();
-        var tableIndex = parseInt($(this).closest('.datasetTable')
-                .attr('id').substring(14));
+        var tableIndex = parseInt($(this).closest('.datasetTableWrap')
+                .attr('id').substring(16));
         var value = $(this).val();
         $('.colSelected').removeClass('colSelected');
-         $('#selectedTable'+tableIndex).find('.colWrap').filter(function () {
+        $('#selectedTable'+tableIndex).find('.colWrap').filter(function () {
             return $(this).text() == value;
-         }).addClass('colSelected');
+        }).addClass('colSelected');
     });
 
     table.find('.checkBox').click(function() { 
@@ -281,8 +280,8 @@ function checkColumn(column, selectAll) {
     var input = column.prev();
 
     if (column.parent().hasClass('colAdded') && !selectAll) {
-        var index = parseInt(column.closest('.datasetTable')
-            .attr('id').substring(14));
+        var index = parseInt(column.closest('.datasetTableWrap')
+            .attr('id').substring(16));
         var inputText = input.val();
         var selectedCol = $('#selectedTable'+index).find('.colName')
             .filter(function () {
@@ -297,8 +296,8 @@ function checkColumn(column, selectAll) {
         highlightDatasetColumn(input);
     }
     
-    var index = parseInt(column.closest('.datasetTable')
-            .attr('id').substring(14));
+    var index = parseInt(column.closest('.datasetTableWrap')
+            .attr('id').substring(16));
     var selectedTable = $('#selectedTable'+index);
     if (selectedTable.length == 0) {
         var tabName = $('#worksheetTable'+index+' ').data('dsname');
@@ -342,7 +341,7 @@ function checkColumn(column, selectAll) {
 }
 
 function attachShoppingCartListeners(tableNum) {
-    var table = $('#worksheetTable'+tableNum);
+    var table = $('#dataSetTableWrap'+tableNum);
     table.find(".shoppingCartCol").keypress(function(e) {
         if (e.which === keyCode.Enter) {
             $(this).blur();
@@ -365,7 +364,7 @@ function attachShoppingCartListeners(tableNum) {
 function removeSelectedKey(closeBox, input) {
     input.parent().removeClass('colAdded').parent().removeClass('selectedCol');
     var index = parseColNum(input);
-    input.closest('table').find('.col'+index).removeClass('selectedCol');
+    input.closest('.datasetTableWrap').find('.col'+index).removeClass('selectedCol');
     input.removeAttr('readonly');
     if (closeBox.closest('li').siblings().length == 0) {
         closeBox.closest('.selectedTable').remove();
@@ -473,7 +472,7 @@ function createWorksheet() {
 
 function resetDataCart() {
     $('.selectedTable').remove();
-    $('.datasetTable input').attr('readonly', false);
+    $('.datasetTableWrap input').attr('readonly', false);
     $('.colAdded').removeClass('colAdded');
     $('.selectedCol').removeClass('selectedCol');
 
@@ -549,5 +548,17 @@ function dataCartOverflowShadow() {
         $('#contentViewRight').find('.buttonArea').addClass('cartOverflow');
     } else {
         $('#contentViewRight').find('.buttonArea').removeClass('cartOverflow');
+    }
+}
+
+function highlightDatasetColumn(el, active) {
+    var index = parseColNum(el);
+    var table = el.closest('.datasetTableWrap');
+    if (active) {
+        table.find('th.col'+index).removeClass('selectedCol');
+        table.find('td.col'+index).removeClass('selectedCol');
+    } else {
+        table.find('th.col'+index).addClass('selectedCol');
+        table.find('td.col'+index).addClass('selectedCol');
     }
 }
