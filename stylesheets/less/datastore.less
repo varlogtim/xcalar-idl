@@ -888,46 +888,48 @@ input {
     white-space: nowrap;
     overflow: hidden;
     float: left;
-    width: 100%;
-    // height: ~"calc(100% - 162px)";
     height: ~"calc(100% - 58px)";
     position: absolute;
+    max-width: 100%;
+}
+
+.datasetTheadWrap {
+    background-color: @color-background-tableBorders;
+    position: absolute;
+    box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.15);
 }
 
 .datasetTbodyWrap {
-    height: ~"calc(100% - 40px)";
+    max-height: 100%;
     overflow-x: visible;
     overflow-y: scroll;
     display: inline-block;
+    outline: 1px solid #DDDDDD;
+    outline-offset: -1px;
+    margin-top: -1px;
 }
 
 table.datasetTable {
     margin-top: -40px;
+    margin-top: 0px;
     margin-right: 0;
 }
 
 
 .datasetTableWrap {
-    width: ~"calc(100% - 20px)";
     height: ~"calc(100% - 20px)";
+    max-height: ~"calc(100% - 20px)";
     margin: 20px 10px 0px;
     position: absolute;
-    border: 1px solid #DDDDDD;
-    display: block;
     position: relative;
     overflow-x: auto;
     overflow-y: hidden;
+    display: block;
     .datasetTable {
         width: 0px;
     }
 
-    thead {
-        box-shadow: 0px 1px  1px @colorShadow-black;
-        outline: 2px solid rgba(100, 100, 100, .3);
-    }
-
     .fixedThead {
-        // position: absolute;
         top: 0;
         z-index: 1;
         th {
