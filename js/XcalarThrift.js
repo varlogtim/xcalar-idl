@@ -6,6 +6,13 @@ function THandleDoesntExistError() {
 }
 THandleDoesntExistError.prototype = Error.prototype;
 
+function atos(func, args) {
+    func.apply(this, args).done(
+        function(retObj) {
+            console.log(retObj);
+        }
+    );
+}
 //I'll rewrite this function later
 //Levi
 function chain(arr) {
@@ -70,14 +77,9 @@ function XcalarDestroyDataset(dsName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    getDsId(dsName)
-    .done(function(id) {
-        xcalarDestroyDataset(tHandle, id)
-        .done(function() {
+    getDsId(dsName).then(function(id) {
+        xcalarDestroyDataset(tHandle, id).done(function() {
             deferred.resolve();
-        })
-        .fail(function(sts) {
-            deferred.reject(sts);
         });
     });
     return (deferred.promise());

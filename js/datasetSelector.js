@@ -46,7 +46,7 @@ function setupDSCartButtons() {
             }
             updateDatasetInfoFields(dsName, true, true);
         }
-        XcalarDestroyDataset(dsName).done(cleanUpDsIcons());
+        XcalarDestroyDataset(dsName).done(cleanUpDsIcons);
     });
 
     $("#submitDSTablesBtn").click(function() {

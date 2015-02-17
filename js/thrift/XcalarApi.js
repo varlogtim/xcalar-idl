@@ -438,7 +438,6 @@ function xcalarListTables(thriftHandle, patternMatch) {
 
 function xcalarListDatasets(thriftHandle) {
     var deferred = jQuery.Deferred();
-
     console.log("xcalarListDatasets()");
 
     var workItem = new XcalarApiWorkItemT();
