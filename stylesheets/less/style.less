@@ -2275,6 +2275,13 @@ ul.colMenu.tableMenu li:hover {
     background-color: @color-selectedCell-dark;
 }
 
+// DATA Column should not have duplicate and sort option
+th.dataCol ul.colMenu {
+    .duplicate, .sort {
+        display: none;
+    }
+}
+
 .visible {
     visibility: visible;
 }
