@@ -104,6 +104,12 @@ function setupDSCartButtons() {
         table.find('input').attr('readonly', false);
         dataCartOverflowShadow();
     });
+    $(".modifyDBButtons").hide();
+    $("#contentViewHeader").hover(function() {
+        $(".modifyDBButtons").show();
+    }, function() {
+        $(".modifyDBButtons").hide();
+    });
 }
 
 function getDatasetSample(datasetName) {
