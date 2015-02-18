@@ -1802,7 +1802,13 @@ in order to work for the new ui. I will clean this up at some point.
         }
     }
 
-    .xcTbodyScrollbarWrap {
+     .xcTbodyWrap {
+        margin-bottom: 0;
+        padding: 0;
+        max-height: ~"calc(100% - 74px)";
+        // width: 100%;
+        font-size: 11px;
+        // margin-bottom: 5px;
         position: absolute;
         right: -2.97%;
         overflow-x: hidden;
@@ -1812,16 +1818,6 @@ in order to work for the new ui. I will clean this up at some point.
         &::-webkit-scrollbar {
             display: none;
         }
-    }
-
-    .xcTbodyWrap {
-        margin-bottom: 0;
-        position: relative;
-        padding: 0;
-        max-height: ~"calc(100% - 74px)";
-        width: 100%;
-        font-size: 11px;
-        // margin-bottom: 5px;
     }
 
     thead {

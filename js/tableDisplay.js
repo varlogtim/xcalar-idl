@@ -47,16 +47,14 @@ function generateFirstScreen(value, idNo, tableNum, height) {
         if (tableNum == 0) {
             $('#mainFrame').prepend('<div id="xcTableWrap'+tableNum+'"'+
                     ' class="xcTableWrap tableWrap">'+
-                    '<div class="xcTbodyScrollbarWrap">' +
                     '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
-                    '</div></div></div>');
+                    '</div></div>');
         } else {
             $('#xcTableWrap'+(tableNum-1))
             .after('<div id="xcTableWrap'+tableNum+'"'+
                     ' class="xcTableWrap tableWrap">'+
-                    '<div class="xcTbodyScrollbarWrap">' +
                     '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
-                    '</div></div></div>');
+                    '</div></div>');
         }
 
         var newTable = 
