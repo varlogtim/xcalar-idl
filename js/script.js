@@ -410,6 +410,8 @@ function documentReadyGeneralFunction() {
             case ("movingJson"):
                 jsonModalMouseMove(event);
                 break;
+            case ("rowScroller"): 
+                rowScrollerMouseMove(event);
             default:  // do nothing
         }
     });
@@ -433,6 +435,8 @@ function documentReadyGeneralFunction() {
             case ("movingJson"):
                 jsonModalMouseUp();
                 break;
+            case ("rowScroller"):
+                rowScrollerMouseUp();
             default: // do nothing
         }
     });

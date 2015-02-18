@@ -817,7 +817,6 @@ function addColListeners(colId, tableId) {
             $(this).addClass('selected');
             if (!$(this).hasClass('inputSelected')) {
                 $('.inputSelected').removeClass('inputSelected');
-                console.log('well', $(this));
             }
         }).mouseleave(function(event) {
             $(this).children('ul').removeClass('visible');
@@ -1195,25 +1194,34 @@ function focusTable(tableNum) {
 }
 
 function moverowScroller(pageNum, resultSetCount) {
+    console.log('move')
     var pct = 100* (pageNum/resultSetCount);
     $('#rowMarker'+gActiveTableNum)
         .css('transform', 'translate3d('+pct+'%, 0px, 0px)');
+
 }
 
 function setupBookmarkArea() {
     $('#rowScrollerArea').mousedown(function(event) {
     // $('#rowScroller'+tableNum).mousedown(function(event) {
+        console.log('dowwwn', event.which, event.target, event.pageX)
         if (event.which != 1) {
             return;
         }
-        
+        if ($(event.target).hasClass('subRowMarker')) {
+            rowScrollerStartDrag(event, $(event.target).parent());
+            return;
+        }
+        console.log($(this).children().children().offset().left, 'here');
+        // console.log(event.target)
         var tableNum = gActiveTableNum;
         var rowScroller = $('#rowScroller'+tableNum)
         var mouseX = event.pageX - rowScroller.offset().left;
-        var rowPercent = mouseX/$(this).width();;
-        var translate = Math.min(99.9, Math.max(0,rowPercent * 100));
-        $('#rowMarker'+tableNum).css('transform', 'translate3d('+translate+'%, 0px, 0px)'); 
+        var rowPercent = mouseX/$(this).width();
 
+        var translate = Math.min(99.9, Math.max(0,rowPercent * 100));
+        $('#rowMarker'+tableNum).css('transform', 
+                                'translate3d('+translate+'%, 0px, 0px)'); 
         
         var rowNum = Math.ceil(rowPercent*gTables[tableNum].resultSetCount);
         if (rowScroller.find('.bookmark').length > 0) {
@@ -1227,12 +1235,16 @@ function setupBookmarkArea() {
                 }
             }
         }
+        
         // var rowInputNum = $("#rowInput").val();
         var e = $.Event("keypress");
         e.which = keyCode.Enter;
         e['rowScrollerMousedown'] = true;
+        var el = $(this)
         setTimeout( function() {
+            console.log(el.children().children().offset().left, 'here2');
             $("#rowInput").val(rowNum).trigger(e);
+             console.log(el.children().children().offset().left, 'here3');
         }, 145);
     });
 }
@@ -1241,6 +1253,9 @@ function addRowScroller(tableNum) {
     var rowScrollerHTML = '<div id="rowScroller'+tableNum+
         '" class="rowScroller" title="scroll to a row">'+
             '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
+            '<div class="subRowMarker top"></div>'+
+            '<div class="subRowMarker middle"></div>'+
+            '<div class="subRowMarker bottom"></div>'+
             '</div>'+
         '</div>';
 
@@ -1299,7 +1314,58 @@ function updatePageBar(tableNum) {
                     toLocaleString('en');
         $('#numPages').text('of '+num);
     }
-    
+}
+
+function rowScrollerStartDrag(event, el) {
+    gMouseStatus = "rowScroller";
+    el.addClass('scrolling');
+    resrow.el = el;
+    resrow.mouseStart = event.pageX;
+    resrow.scrollAreaOffset = el.parent().offset().left;
+    resrow.rowScrollerWidth = el.parent().width(); 
+    var scrollerPositionStart = el.position().left;
+    var mouseOffset = resrow.mouseStart - el.offset().left;
+    var cssLeft = parseInt(el.css('left'));
+    resrow.totalOffset = mouseOffset + cssLeft;
+    resrow.boundary = {
+        lower: resrow.scrollAreaOffset, 
+        upper: resrow.scrollAreaOffset + resrow.rowScrollerWidth 
+    }
+
+    var cursorStyle = '<style id="moveCursor" type="text/css">*'+ 
+    '{cursor:pointer !important}</style>';
+    $(document.head).append(cursorStyle);
+    disableTextSelection();
+}
+
+function rowScrollerMouseMove(event) {
+    var mouseX = event.pageX;
+    var translate;
+    if (mouseX - resrow.totalOffset < resrow.boundary.lower) {
+        translate = 0;
+    } else if (mouseX - resrow.totalOffset > resrow.boundary.upper ) {
+        translate = 100;
+    } else {
+        translate = 100 * (mouseX - resrow.scrollAreaOffset 
+                    - resrow.totalOffset) / (resrow.rowScrollerWidth - 1);
+    }
+    resrow.el.css('transform', 'translate3d('+translate+'%, 0px, 0px)'); 
+}
+
+function rowScrollerMouseUp() {
+    gMouseStatus = null;
+    resrow.el.removeClass('scrolling');
+    $('#moveCursor').remove();
+    reenableTextSelection();
+    var e = $.Event("mousedown");
+    e.which = 1;
+    e.pageX = (resrow.el.offset().left - parseInt(resrow.el.css('left')) + 0.5);
+    if (e.pageX + 3 >= resrow.rowScrollerWidth + resrow.scrollAreaOffset) {
+        e.pageX += 3;
+    } else if (e.pageX - 2 <= resrow.scrollAreaOffset) {
+        e.pageX -= 2;
+    }
+    $("#rowScrollerArea").trigger(e);
 }
 
 function resizeRowInput() {
