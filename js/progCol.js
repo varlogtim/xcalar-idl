@@ -289,7 +289,8 @@ function addCol(colId, tableId, name, options) {
        ' col'+newColid+'" style="width:'+width+'px;" label="click to edit">'+
        '<div class="header">'+
        '<div class="dragArea"></div>'+
-       '<div class="dropdownBox" title="view column options"></div>'+
+       '<div class="dropdownBox" title="view column options">'+
+        '<div class="innerBox"></div></div>'+
            '<input autocomplete="on" input spellcheck="false"'+
            'type="text" class="editableHead col'+newColid+'" '+
            'title="click to edit" value=\'';

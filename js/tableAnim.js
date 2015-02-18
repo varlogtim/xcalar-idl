@@ -1039,7 +1039,7 @@ function dropdownClick(el) {
     $('.colMenu').hide();
     $('.leftColMenu').removeClass('leftColMenu');
     //position colMenu
-    var topMargin = 3;
+    var topMargin = -4;
     var leftMargin = 5;
     var top = el[0].getBoundingClientRect().bottom + topMargin;
     var left = el[0].getBoundingClientRect().left + leftMargin;
