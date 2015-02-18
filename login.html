@@ -12,29 +12,31 @@
 <script src="js/login.js"></script>
 </head>
 <body>
-<div id="loginBackgroundArt"></div>
-<div id="loginLogo"></div>
-<div id="loginArea"></div>
-<div id="loginDivider"></div>
-<div id="loginInsight"></div>
-<div id="loginShadow"></div>
-<div id="login">
-  <form method="POST" action="dologin.html">
-  <div id="loginName">
-    <div class="text">
-      Username: 
+<div id="loginContainer">
+  <div id="loginBackgroundArt"></div>
+  <div id="loginLogo"></div>
+  <div id="loginArea"></div>
+  <div id="loginDivider"></div>
+  <div id="loginInsight"></div>
+  <div id="loginShadow"></div>
+  <div id="login">
+    <form method="POST" action="dologin.html">
+    <div id="loginName">
+      <div class="text">
+        Username: 
+      </div>
+      <input id="loginNameBox" name="httpd_username">
     </div>
-    <input id="loginNameBox" name="httpd_username">
-  </div>
-  <br><br>
-  <div id="loginPassword">
-    <div class="text" style="margin-left: 91px">
-      Password: 
+    <br><br>
+    <div id="loginPassword">
+      <div class="text" style="margin-left: 91px">
+        Password: 
+      </div>
+      <input id="loginPasswordBox" name="httpd_password" type="password">
     </div>
-    <input id="loginPasswordBox" name="httpd_password" type="password">
+    <input id="loginButton" type="submit" name="login" value="LOG IN">
+    </form>
   </div>
-  <input id="loginButton" type="submit" name="login" value="LOG IN">
-  </form>
 </div>
 </body>
 </html>
