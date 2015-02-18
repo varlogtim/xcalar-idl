@@ -199,8 +199,12 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
             }
             value = value[nested[j]];
         }  
+        //define type of the column
         if(value !== "" && columnType !== "mixed") {
             var type = typeof value;
+            if (type == "object" && (value instanceof Array)) {
+                type = "array";
+            }
             if(columnType == undefined) {
                 columnType = type;
             }else if(columnType !== type) {
@@ -217,11 +221,21 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
     } else {
         gTables[tableNum].tableCols[newColid - 1].type = columnType;
     }
-    table.find('th.col' + newColid + ' div.header ul.colMenu li.filterWrap')
+
+    // add class to both static th and real th
+    $('#xcTheadWrap' + tableNum + ' th.col' + newColid + ' div.header ul.colMenu')
          .removeClass("mixed")
          .removeClass("string")
          .removeClass("number")
          .removeClass("object")
+         .removeClass("array")
+         .addClass(columnType);
+    table.find('th.col' + newColid + ' div.header ul.colMenu')
+         .removeClass("mixed")
+         .removeClass("string")
+         .removeClass("number")
+         .removeClass("object")
+         .removeClass("array")
          .addClass(columnType);
 }
 

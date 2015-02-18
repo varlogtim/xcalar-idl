@@ -2247,17 +2247,21 @@ ul.colMenu {
         }
     }
 
-
-    .filterWrap {
-        &.string, &.object{
-            li.numFilter {
-                display: none;
-            }
+    &.string, &.array {
+        .filterWrap .numFilter {
+            display: none;
         }
-        &.number{
-            li.strFilter {
-                display: none;
-            }
+    }
+
+    &.object {
+        .sort, .aggregate, .groupBy, .filterWrap, .joinList {
+            display: none;
+        }
+    }
+
+    &.number {
+        .filterWrap .strFilter {
+            display: none;
         }
     }
 
