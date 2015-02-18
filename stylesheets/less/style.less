@@ -242,7 +242,7 @@ body {
 
 #mainMenu {
     float: left;
-    margin-left: 33px;
+    margin-left: 9px;
     display: inline-block;
     height: 41px;
 }
@@ -437,7 +437,6 @@ body {
 }
 
 #workspaceBar {
-    min-width: 1150px; // temporary in order to keep row scroller from dropping
     border-bottom-width: 2px;
     position: relative;
     top: -1px;
@@ -456,7 +455,6 @@ body {
     float: left;
     line-height: 25px;
     
-
     input {
         height: 25px;
         padding: 0 4px;
@@ -475,63 +473,15 @@ body {
 
     &#functionArea {
         width: 380px;
-        .flex-grow(2);
+        .flex-grow(4);
         .flex-shrink(1);
         #fnBar {
             width: ~"calc(100% - 28px)";
         }
     }
 
-    &:first-child, &:last-child {
+    &:last-child {
         border-right: none;
-    }
-}
-
-#leftMenu {
-    width: 35px;
-    padding: 0;
-    margin: 0;
-    position: relative;
-    cursor: pointer;
-
-    .icon {
-        background: url(/images/menu-closed.png) 0 0 no-repeat; 
-        margin-top: 0;
-        margin-left: 0;
-        width: 34px;
-        height: 35px;
-        border-right: 1px solid @color-bar-border;
-        display: inline-block;
-        position: relative;
-        z-index: 1;
-    }
-
-    .navArrow {
-        // background: url(/images/menuArrow.png) 0 0 no-repeat; 
-        margin-top: 0;
-        margin-left: 0;
-        width: 25px;
-        height: 18px;
-        display: inline-block;
-        position: absolute;
-        bottom: -23px;
-        left: 5px;
-    }
-
-    &:hover {
-        .icon {
-            background-image: url(/images/menu-mouseover.png);
-            //XX this flickers, loading as sprite will fix it
-        }
-    }
-
-    &.open {
-        .icon {
-            background-image: url(/images/menu-open.png);
-        }
-        .navArrow {
-            background-image: url(/images/menuArrow-open.png);
-        }
     }
 }
 
@@ -563,7 +513,7 @@ body {
 }
 
 #rowScrollerArea {
-    .flex-grow(1);
+    .flex-grow(2);
     width: 200px;
     cursor: default;
     .noSelection;
@@ -624,231 +574,11 @@ body {
     }
 }
 
-#leftMenuBar {
-    position: relative;
-    float: left;
-    width: 255px;
-    height: ~"-webkit-calc(100% - 38px)";
-    height: ~"-moz-calc(100% - 38px)";
-    height: ~"calc(100% - 38px)";
-    margin-left: -255px;
-    background-color: @color-background-darkGray;
-    box-shadow: inset -2px 0 4px 0px rgba(0,0,0,.3);
-    .transition (transform 0.3s linear 0s);
-    z-index: 12;
-    overflow: hidden;
-    
-    &.open {
-        transform: (translate3d(255px,0,0));
-        .transition (transform 0.3s linear 0s);
-    }
-}
-
-#leftMenuBarTabs {
-    height: 35px;
-}
-
-.leftMenuBarTab {
-    width: 85px;
-    height: 100%;
-    float: left;
-    display: inline-block;
-    font-weight: 700;
-    line-height: 35px;
-    text-align: center;
-    font-size: 13px;
-    color: @color-text-darkGray;
-    border-right: 1px solid @color-table-borderGray;
-    border-bottom: 1px solid @color-table-borderGray;
-    .gray-gradient;
-    .noSelection;
-
-    &:hover {
-        background: linear-gradient(@color-background-bottomGrayMed,
-         @color-background-topGrayMed);
-        cursor: pointer;
-    }
-
-    &.active {
-        border-bottom: 1px solid @color-tab-borderBlue;
-        .action-gradient;
-        color: @color-white;
-        text-shadow: 2px 2px rgba(0,0,0,.3);
-        font-size: 14px;
-    }
-}
-
-.leftMenuBarSection {
-    display: none;
-    &:first-child {
-        display: block;
-    }
-}
-
-#leftMenuBarSections {
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: ~"calc(100% - 35px)";
-
-    ul {
-        list-style: none;
-        padding-right: 14px;
-        padding-left: 11px;
-        width: 255px;
-
-    }
-    li {
-        width: 100%;
-        margin-top: 8px;
-        color: @color-text-darkGray;
-        font-size: 13px;
-        line-height: 25px;
-        position: relative;
-
-        &:hover {
-            .iconWrap {
-                .action-gradient;
-            }
-        }
-
-        .active {
-            .iconWrap {
-               background: linear-gradient(@color-background-topGrayMed, 
-                    @color-background-midGrayMed);
-            }
-
-            &:hover {
-                .iconWrap {
-                    .action-gradient;
-                }
-            }
-        }
-    }
-
-    .tableListBox {
-        height: 25px;
-        width: 100%;
-        border-radius: 3px;
-        background-color: @color-white;
-        display: inline-block;
-        box-shadow: 1px 2px 1px rgba(0,0,0,.2);
-        cursor: pointer;
-        white-space: nowrap;
-        overflow: hidden;
-
-        .tableName {
-            display: inline-block;
-            overflow: hidden;
-            max-width: 170px;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-    }
-
-    .iconWrap {
-        display: inline-block;
-        background: linear-gradient(@color-background-topGrayMed, 
-                    @color-background-bottomGrayMed);
-        height: 100%;
-        float: left;
-        padding-top: 1px;
-        margin-right: 10px;
-        border-top-left-radius: 3px;
-        border-bottom-left-radius: 3px;
-    }
-
-    .icon {
-        margin: 0px;
-        display: inline-block;
-        width: 25px;
-        height: 22px;
-        background: url(/images/table-icon.png) 0 0 no-repeat;
-    }
-
-    .numCols {
-        float: right;
-        color: @color-text-brightBlue;
-        margin-right: 10px;
-    }
-
-    ol {
-        display: none;
-        .nomargin-padding;
-        margin-top: -7px;
-        padding-top: 2px;
-        margin-left: 22px;
-        position: relative;
-        li {
-            list-style-position: inside;
-            margin-top: 5px;
-            padding-left: 10px;
-            height: 20px;
-            border-radius: 3px;
-            line-height: 20px;
-            background-color: @colorColumnListBackground;
-            font-size: 11px;
-            color: @colorTextColumnList;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            whitespace: nowrap;
-        }
-    }
-
-    .addArchivedBtn {
-        display: none;
-    }
-    
-}
-
-#archivedTableList {
-
-    .addArchivedBtn {
-        display: inline-block;
-        float: right;
-        width: 24px;
-        height: 100%;
-        border-left: 1px solid @color-background-bottomGrayMed;
-        border-radius-top-right: 3px;
-        border-radius-bottom-right: 3px;
-        background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
-                    linear-gradient(@color-background-topGrayMed, 
-                    @color-background-bottomGrayMed);
-        &:hover {
-            background: url(/images/checkmark-inactive.png) 50% 50% no-repeat,
-                        linear-gradient(@color-background-topGrayMed, 
-                        @color-background-midGrayMed);
-        }
-        &.selected {
-            background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
-                        linear-gradient(@color-background-topAction, 
-                        @color-background-bottomAction);
-        } 
-    }
-
-    .tableName {
-        max-width: 150px !important;
-    }
-}
-
-#submitTablesBtn {
-    margin: 10px 0px 20px 11px;
-    display: none;
-
-    .icon {
-        background: url(/images/send-single.png) 0 0 no-repeat;
-        width: 27px;
-        height: 21px;
-        margin: 4px;
-        float: left;
-    }
-
-}
-
 #dagWrap {
     position: absolute;
     width: 100%;
     height: ~"calc(100% - 152px)";
-    top: ~"calc(0% + 78px)";
+    top: 78px;
     z-index: 9; 
     background-color: rgb(140, 173, 181);
     background: url(/images/dag-background.png) repeat right top;
@@ -934,7 +664,6 @@ body {
     }
 
     &:active {
-        // .action-gradient;
         box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 0px 1px 1px 0 rgba(255, 255, 255, 0.3);
     }
 
@@ -1059,14 +788,16 @@ body {
         display: block;
     }
 
-    .btn {
-        width: 19px;
-        height: 19px;
-        float: right;
-        margin-right: 6px;
-        margin-top: 7px;
-        &:first-of-type {
-            margin-right: 10px;
+    .heading {
+        .btn {
+            width: 19px;
+            height: 19px;
+            float: right;
+            margin-right: 6px;
+            margin-top: 7px;
+            &:first-of-type {
+                margin-right: 10px;
+            }
         }
     }
 
@@ -1076,6 +807,222 @@ body {
     .iconClose {
         background-image: url(/images/close-icon.png);
     }
+}
+
+#tableListSection {
+    .rightBarContent {
+        width: ~"calc(100% - 20px)";
+        height: ~"calc(100% - 45px)";
+    }
+}
+
+#tableListSectionTabs {
+    height: 35px;
+    border-top: 1px solid @color-table-borderGray;
+    border-left: 1px solid @color-table-borderGray;
+    width: ~"calc(100% + 1px)";
+}
+
+.tableListSectionTab {
+    width: 33.3333%;
+    height: 100%;
+    float: left;
+    display: inline-block;
+    font-weight: 700;
+    line-height: 35px;
+    text-align: center;
+    font-size: 13px;
+    color: @color-text-darkGray;
+    border-right: 1px solid @color-table-borderGray;
+    border-bottom: 1px solid @color-table-borderGray;
+    .gray-gradient;
+    .noSelection;
+
+    &:hover {
+        background: linear-gradient(@color-background-bottomGrayMed,
+         @color-background-topGrayMed);
+        cursor: pointer;
+    }
+
+    &.active {
+        border-bottom: 1px solid @color-tab-borderBlue;
+        .action-gradient;
+        color: @color-white;
+        text-shadow: 2px 2px rgba(0,0,0,.3);
+        font-size: 14px;
+    }
+}
+
+.tableListSection {
+    display: none;
+    width: 100%;
+    &:first-child {
+        display: block;
+    }
+}
+
+#tableListSections {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: ~"calc(100% - 35px)";
+
+
+    ul {
+        list-style: none;
+        padding-right: 14px;
+        padding-left: 11px;
+        width: 95%;
+        max-width: 275px;
+        margin: 0 auto 10px;
+    }
+    li {
+        width: 100%;
+        margin-top: 4px;
+        color: @color-text-darkGray;
+        font-size: 13px;
+        line-height: 25px;
+        position: relative;
+
+        &:hover {
+            .iconWrap {
+                .action-gradient;
+            }
+        }
+
+        .active {
+            .iconWrap {
+               background: linear-gradient(@color-background-topGrayMed, 
+                    @color-background-midGrayMed);
+            }
+
+            &:hover {
+                .iconWrap {
+                    .action-gradient;
+                }
+            }
+        }
+    }
+
+    ul#activeTablesList {
+        margin-top: 20px;
+    }
+    .tableListBox {
+        height: 25px;
+        width: 100%;
+        border-radius: 3px;
+        background-color: @color-white;
+        display: inline-block;
+        box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+
+        .tableName {
+            display: inline-block;
+            overflow: hidden;
+            max-width: 170px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    .iconWrap {
+        display: inline-block;
+        background: linear-gradient(@color-background-topGrayMed, 
+                    @color-background-bottomGrayMed);
+        height: 100%;
+        float: left;
+        padding-top: 1px;
+        margin-right: 10px;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+    }
+
+    .icon {
+        margin: 0px;
+        display: inline-block;
+        width: 25px;
+        height: 22px;
+        background: url(/images/table-icon.png) 0 0 no-repeat;
+    }
+
+    .numCols {
+        float: right;
+        color: @color-text-brightBlue;
+        margin-right: 10px;
+    }
+
+    ol {
+        display: none;
+        .nomargin-padding;
+        margin: -7px 0 10px 22px;
+        padding-top: 2px;
+        position: relative;
+        li {
+            list-style-position: inside;
+            margin-top: 5px;
+            padding-left: 10px;
+            height: 20px;
+            border-radius: 3px;
+            line-height: 20px;
+            background-color: @colorColumnListBackground;
+            font-size: 11px;
+            color: @colorTextColumnList;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            whitespace: nowrap;
+        }
+    }
+
+    .addArchivedBtn {
+        display: none;
+    }
+    
+}
+
+#archivedTableList {
+
+    .addArchivedBtn {
+        display: inline-block;
+        float: right;
+        width: 24px;
+        height: 100%;
+        border-left: 1px solid @color-background-bottomGrayMed;
+        border-radius-top-right: 3px;
+        border-radius-bottom-right: 3px;
+        background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
+                    linear-gradient(@color-background-topGrayMed, 
+                    @color-background-bottomGrayMed);
+        &:hover {
+            background: url(/images/checkmark-inactive.png) 50% 50% no-repeat,
+                        linear-gradient(@color-background-topGrayMed, 
+                        @color-background-midGrayMed);
+        }
+        &.selected {
+            background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
+                        linear-gradient(@color-background-topAction, 
+                        @color-background-bottomAction);
+        } 
+    }
+
+    .tableName {
+        max-width: 150px !important;
+    }
+}
+
+#submitTablesBtn {
+    margin: 10px auto 20px auto;
+    width: 250px;
+    display: none;
+
+    .icon {
+        background: url(/images/send-single.png) 0 0 no-repeat;
+        width: 27px;
+        height: 21px;
+        margin: 4px;
+        float: left;
+    }
+
 }
 
 #cliSection {
@@ -1241,6 +1188,8 @@ body {
         font-size: 13px;
         line-height: 13px;
         margin-top: 8px;
+        float: none;
+        margin-right: -2px;
     }
 }
 
@@ -1248,6 +1197,9 @@ body {
     height: 100%;
     float: left;
     display: inline-block;
+    width: ~"calc(100% - 145px)";
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .iconBtn {
@@ -1270,6 +1222,23 @@ body {
     .btn {
         margin: 5px;
     }
+}
+
+#leftMenu {
+    .icon {
+        // background: url(/images/menu-closed.png) 0 0 no-repeat; 
+        margin-top: 0;
+        margin-left: 0;
+        // width: 34px;
+        // height: 35px;
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+    }
+}
+
+#tableListBtn {
+    background-image: url(/images/list-icon.png);
 }
 
 #cliBtn {

@@ -549,7 +549,7 @@ function documentReadyIndexFunction() {
                     $('#mainFrame').addClass('empty');
                 }
             }
-            setupLeftMenuBar();
+            setuptableListSection();
             initializeJoinModal();
         }); 
     });
