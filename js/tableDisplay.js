@@ -68,7 +68,7 @@ function generateFirstScreen(value, idNo, tableNum, height) {
             '</th>'+
             '<th class="col1 table_title_bg dataCol" style="width: 500px;">'+
               '<div class="header">'+
-                '<div class="dropdownBox"></div>'+
+                '<div class="dropdownBox"><div class="innerBox"></div></div>'+
                 '<input value="DATA" '+
                 'readonly="" tabindex="-1" class="dataCol col1" title="raw data">'+
                 '<ul class="colMenu" style="display: none;">'+
