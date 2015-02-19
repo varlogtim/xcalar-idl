@@ -259,11 +259,14 @@ function dragdropMouseDown(el, event) {
 
     gDragObj.docHeight = $(document).height();
     gDragObj.val = el.find('.editableHead').val();
-    var tableHeight = $('#xcTable'+gDragObj.tableNum).height();
-    var xcTableWrapHeight = el.closest('#xcTableWrap'+
+    var tableTitleHeight = tableWrap.find('.tableTitle').height();
+    var tableHeaderHeight = tableWrap.find('.trueTHead').height();
+    var tableHeight = $('#xcTable'+gDragObj.tableNum).height() +
+                      tableHeaderHeight;
+    var xcTableWrapHeight = el.closest('#xcTableWrap' +
                                 gDragObj.tableNum).height()+gScrollbarHeight;
-    var shadowDivHeight = Math.min(tableHeight-1,xcTableWrapHeight) -
-        tableWrap.find('.tableTitle').height();
+    var shadowDivHeight = Math.min(tableHeight-5, 
+                          xcTableWrapHeight - tableTitleHeight);
     var headerTop = parseInt($('#xcTheadWrap'+gDragObj.tableNum).css('top')) + 
         tableWrap.find('.trueTHead').position().top;
     gDragObj.inFocus =  el.find('.editableHead').is(':focus');
