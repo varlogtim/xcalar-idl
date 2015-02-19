@@ -1005,7 +1005,13 @@ function addColMenuActions(colId, tableId) {
         console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
         var value = XcalarAggregate(colName, gTables[tableNum].backTableName,
                                     aggrOp);
-        alert(value);
+        var title = 'Aggregate: ' + aggrOp;
+        var instruction = 'This is the aggregate result for column "' + colName +
+                          '". \r\n The aggregate operation is "' + aggrOp + '".';
+        showAlertModal({'title':title, 'msg':value, 
+                        'instruction': instruction, 'isAlert':true,
+                        'isCheckBox': true});
+        // alert(value);
     });
 
     tables.find('.filterWrap.col'+colId+' input').keyup(function(e) {

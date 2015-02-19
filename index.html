@@ -466,6 +466,36 @@
       </body>
     </table>
   </div>
+
+  <div id="alertModal">
+    <div id="alertHeader">
+        <span class="text">Confirmation Required</span>
+        <div class="closeAlertModal">
+            <span class="icon"></span>
+        </div>
+    </div>
+    <div id="alertInformation">
+      <div class="icon"></div>
+      <div class="text">
+        This selected column will be deleted from data set but be available on the archive to the pasted back into current table
+      </div>
+    </div>
+    <div id="alertContentWrap">
+      <div id="alertContent">
+        Are you sure you want to remove this column?
+      </div>
+      <div id="alertOption">
+        <div id="alertCheckBox">
+            <div class="checkbox"></div>
+            <div class="text">Don't show again</div>
+        </div>
+        <div id="alertButton">
+            <div class="button confirm">CONFIRM</div>
+            <div class="button cancel">CANCEL</div>
+        </div>
+    </div>
+  </div>
+
 </div> <!-- END CONTAINER -->
 
 <script src="bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js"></script>
@@ -500,6 +530,7 @@
 <script src="js/joinModal.js" type="text/javascript"></script>
 <script src="js/load.js" type="text/javascript"></script>
 <script src="js/dag.js" type="text/javascript"></script>
+<script src="js/alertModal.js" type="text/javascript"></script>
 <script>
     documentReadyIndexFunction();
 </script>

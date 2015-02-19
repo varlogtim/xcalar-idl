@@ -3495,6 +3495,183 @@ ul.inputMenu {
     overflow-x: hidden;
 }
 
+#alertModal {
+    display: none;
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    z-index: 36;
+    width: 500px;
+    max-width: 500px;
+
+    #alertHeader {
+        position: relative;
+        width: 100%;
+        height: 36px;
+        .action-gradient;
+        text-align: center;
+        text-shadow: 1px 1px rgba(0,0,0,0.2);
+        padding-top: 6px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        .text {
+            color: @color-text-white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .closeAlertModal  {
+            position: absolute;
+            cursor: pointer;
+            z-index: 37;
+            width: 22px;
+            height: 22px;
+            top: 7px;
+            right: 7px;
+            border-radius: 2px;
+            box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
+            .linear-gradient(top, #ACD7F1, #9FCADF);
+
+            .icon {
+                display: inline-block;
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                z-index: 39;
+                height: 22px;
+                width: 22px;
+                background: url(/images/ds-close.png) 50% 50% no-repeat;
+            }
+
+            &:hover {
+                .linear-gradient(top, #9FCADF, #ACD7F1);
+            }
+
+            &:active {
+                box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+                            0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+            }
+        }
+    }
+
+    #alertInformation {
+        height: 58px;
+        width: 100%;
+        z-index: 36;
+        background-color: @color-white;
+        overflow: hidden;
+        padding: 13px;
+        .icon {
+            margin-left: 13px;
+            margin-right: 13px;
+            height: 32px;
+            width: 32px;
+            background-size: 100% 100%;
+            background: url("/images/exclamation.png") no-repeat;
+            float: left;
+        }
+        .text {
+            font-size: 12px;
+            font-weight: bold;
+            color: #AAAAAA;
+            float: left;
+            width: 85%;
+            white-space: pre-line;
+        }
+    }
+
+    #alertContentWrap {
+        max-width: 500px;
+        width: 100%;
+        height: auto;
+        background-color: @color-white;
+        border-top: 3px solid rgba(1, 1, 1, 0.18);
+        z-index: 36;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+        #alertContent {
+            overflow: auto;
+            display: table-cell;
+            background: @color-join-background;
+            padding: 10px 20px;
+            height: 75px;
+            width: 500px;
+            line-height: normal;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        #alertOption {
+            padding: 15px 5px;
+            #alertCheckBox {
+                text-align: center;
+                margin: 0 auto;
+                font-size: 13px;
+                font-weight: bold;
+                .checkbox {
+                    display: inline-block;
+                    height: 16px;
+                    width: 16px;
+                    background-color: @color-background-midGrayMed;
+                    background-image: url("/images/alertModal/checkbox-unchecked.png");
+                    background-repeat: no-repeat;
+                    background-position: 0px 0px;
+
+                    &.checked {
+                        background-image: url("/images/alertModal/checkbox-checked.png");
+                        background-position: -1px 0px;
+                    }
+                }
+                .text {
+                    display: inline-block;
+                    margin-left: 10px;
+                    color: @color-text-lightGray;
+                    position: relative;
+                    top: -4px;
+                }
+
+                // no make it disabled
+                &.inactive {
+                    .checkbox {
+                        background-image: url("/images/alertModal/checkbox-unchecked.png");
+                        background-repeat: no-repeat;
+                        background-position: 0px 0px;
+                        &.checked {
+                            background-image: url("/images/alertModal/checkbox-unchecked.png");
+                        }
+                    }
+                    opacity: 0.5;
+                }
+            }
+            #alertButton {
+                margin: 20px 0 0 0 ;
+                text-align: right;
+                .button {
+                    display: inline-block;
+                    margin: 0 9px;
+                    background: linear-gradient(@color-background-topGrayMed,
+                                                @color-background-bottomGrayMed);
+                    color: white;
+                    font-size: 12px;
+                    font-weight: bold;
+                    text-align: center;
+                    width: 130px;
+                    height: 30px;
+                    line-height: 30px;
+                    border-radius: 3px 3px 3px 3px;
+                    cursor: pointer;
+
+                    &:hover {
+                        .action-gradient;
+                        color: @color-text-cyan;
+                    }
+                }
+            }
+
+        }
+    }
+}
+
 // .prettyJson::-webkit-scrollbar {
 //     width: 8px;
 //     height: 8px;
