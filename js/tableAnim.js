@@ -739,6 +739,12 @@ function matchHeaderSizes(tableNum, reverse) {
     headerWrap.find('.trueTHead').width(tableWidth);
 }
 
+function displayShortenedHeaderName(el, tableNum, colNum) {
+    if (gTables[tableNum].tableCols[colNum-1].name.length > 0) {
+        el.val(gTables[tableNum].tableCols[colNum-1].name);
+    }
+}
+
 function addColListeners(colId, tableId) {
     var table = $('#'+tableId);
     var tableNum = parseInt(tableId.substring(7));
@@ -764,15 +770,21 @@ function addColListeners(colId, tableId) {
         var dynTableNum = parseInt($(this).closest('.dataTable').attr('id')
                           .substring(11));
         var index = parseColNum($(this));
-        if (gTables[dynTableNum].tableCols[index-1].name.length > 0) {
-            $(this).val(gTables[dynTableNum].tableCols[index-1].name);
-        } 
+        var el = $(this);
+        setTimeout(
+            function() {
+                if (!$('#fnBar').is(':focus') && gFnBarOrigin != el) {
+                    displayShortenedHeaderName(el, dynTableNum, index);
+                }
+                
+            },
+        1);
+
         $(this).parent().siblings('.dropdownBox')
             .removeClass('hidden');
     });
 
     tables.find('.editableHead.col'+colId).keyup(function(e) {
-        console.log('head key up');
         gFnBarOrigin = $(this);
         if (e.which == keyCode.Enter) {
             var index = parseColNum($(this));
@@ -1194,7 +1206,6 @@ function focusTable(tableNum) {
 }
 
 function moverowScroller(pageNum, resultSetCount) {
-    console.log('move')
     var pct = 100* (pageNum/resultSetCount);
     $('#rowMarker'+gActiveTableNum)
         .css('transform', 'translate3d('+pct+'%, 0px, 0px)');
@@ -1204,7 +1215,6 @@ function moverowScroller(pageNum, resultSetCount) {
 function setupBookmarkArea() {
     $('#rowScrollerArea').mousedown(function(event) {
     // $('#rowScroller'+tableNum).mousedown(function(event) {
-        console.log('dowwwn', event.which, event.target, event.pageX)
         if (event.which != 1) {
             return;
         }
@@ -1212,7 +1222,6 @@ function setupBookmarkArea() {
             rowScrollerStartDrag(event, $(event.target).parent());
             return;
         }
-        console.log($(this).children().children().offset().left, 'here');
         // console.log(event.target)
         var tableNum = gActiveTableNum;
         var rowScroller = $('#rowScroller'+tableNum)
@@ -1242,9 +1251,7 @@ function setupBookmarkArea() {
         e['rowScrollerMousedown'] = true;
         var el = $(this)
         setTimeout( function() {
-            console.log(el.children().children().offset().left, 'here2');
             $("#rowInput").val(rowNum).trigger(e);
-             console.log(el.children().children().offset().left, 'here3');
         }, 145);
     });
 }
@@ -1505,7 +1512,6 @@ function createTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
 function mainFrameScrollTableTargets() {
     var left = $('#mainFrame').scrollLeft();
     $("#dropTargets").css('left', '-'+left+'px');
-    console.log('scrolling')
 }
 
 function dragdropSwapTables(el) {

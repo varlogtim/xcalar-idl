@@ -189,14 +189,11 @@ function setupFunctionBar() {
     functionbar.mousedown(function() {
         var fnBar = $(this);
         // must activate mousedown after header's blur, hence delay
-        setTimeout(selectCell, 1);
+        setTimeout(selectCell, 0);
+
         function selectCell() {
             if ($(".scratchpad").has(gFnBarOrigin).length == 0 
                 && gFnBarOrigin) {
-                console.log(fnBar.val());
-                // gFnBarOrigin.val(fnBar.val());
-
-
 
                 var index = parseColNum(gFnBarOrigin);
                 var tableNum = parseInt(gFnBarOrigin.closest('.tableWrap')
@@ -213,20 +210,18 @@ function setupFunctionBar() {
         if ($(".scratchpad").has(gFnBarOrigin).length != 0) {
         } else {
             console.log('blurring')
-            var selectedCell = $('th.selectedCell .editableHead');
+            var selectedCell = $('.xcTableWrap th.selectedCell .editableHead');
             var index = $('th.selectedCell').index();
             // if (gFnBarOrigin.length !=0) {
-            if (!gFnBarOrigin && selectedCell.length !=0) {
+            if (gFnBarOrigin && selectedCell.length !=0) {
                 var tableNum = parseInt($('.selectedCell').closest('.tableWrap')
                 .attr('id').substring(11));
+                console.log(tableNum)
                 if (gTables[tableNum].tableCols[index-1].name.length > 0) {
-                    gFnBarOrigin.val(gTables[tableNum].tableCols[index-1].name);
+                    displayShortenedHeaderName(gFnBarOrigin, tableNum, index); 
                 } 
             }
         }
-         // $('#fnBar').val("");
-         // setTimeout(function(){gFnBarOrigin = undefined;},1);
-         
     });
 }
 
@@ -380,8 +375,11 @@ function documentReadyGeneralFunction() {
             && target.closest('#scratchpadArea').length == 0
             && !target.is('#fnBar')
             && (!equationCellRow)) {
-            $('.selectedCell').removeClass('selectedCell');
-            gFnBarOrigin = undefined;
+            setTimeout(function() {
+                $('.selectedCell').removeClass('selectedCell');
+                gFnBarOrigin = undefined;
+            }, 1);
+            
             $('#fnBar').val("");
         }
     });
