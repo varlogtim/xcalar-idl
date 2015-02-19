@@ -167,7 +167,11 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     }
 
     var idColWidth = getTextWidth($('#xcTable'+tableNum+' tr:last td:first'));
-    var newWidth = Math.max(idColWidth, 24);
-    $('#xcTable'+tableNum+' th:first-child').width(newWidth+12);
+    var newWidth = Math.max(idColWidth, 22);
+    var padding = 12;
+    if ($('#xcTable'+tableNum+' .fauxTHead').length != 0) {
+        padding += 5;
+    }
+    $('#xcTableWrap'+tableNum+' th:first-child').width(newWidth+padding);
     matchHeaderSizes(tableNum);
 }

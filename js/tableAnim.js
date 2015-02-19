@@ -592,7 +592,7 @@ function getWidestTdWidth(el, options) {
     var largestWidth = 0;
     var longestText = 0;
     var textLength;
-    var padding = 4;
+    var padding = 10;
     var largestTd = table.find('tbody tr:first td:eq('+(id)+')');
     var headerWidth = 0;
 
