@@ -620,6 +620,7 @@ body {
             width: 100%;
             top: -9px;
             cursor: pointer;
+            background: url(/images/dagIcons/dagTabArrow.png) no-repeat 50% 70%;
         }
     }
 
@@ -627,6 +628,10 @@ body {
         z-index: 9;
         .transform(translate3d(0, 50%, 0));
         .transition (~"transform 0.3s, z-index 0s 0.3s");
+
+        #dagPulloutTab {
+            .transform (rotate(180deg));
+        }
     }
 
     &.full {
