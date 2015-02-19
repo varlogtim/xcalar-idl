@@ -33,6 +33,9 @@ function setupDSCartButtons() {
             $(".datasetTableWrap").filter(
                 function() {
                     if ($(this).attr("data-dsname") === dsName) {
+                        var tableNum = parseInt($(this).attr('id')
+                                       .substring(16));
+                        $('#outerColMenu'+tableNum).remove();
                         $(this).remove();
                         return;
                     }
@@ -82,9 +85,10 @@ function setupDSCartButtons() {
         var table = $('.datasetTableWrap').filter(function() {
             return $(this).css('display') == 'block';
         });
-        table.find('thead:first .checkBox').each(function() {
+        table.find('thead:first .editableHead').each(function() {
             if (!$(this).parent().hasClass('colAdded')) {
                 checkColumn($(this), SelectUnit.All);
+                // checkColumn has been modified
             }
         });
     });
@@ -101,7 +105,6 @@ function setupDSCartButtons() {
         $('#selectedTable'+tableNum).remove();
         table.find('.colAdded').removeClass('colAdded');
         table.find('.selectedCol').removeClass('selectedCol');
-        table.find('input').attr('readonly', false);
         dataCartOverflowShadow();
     });
 }
@@ -114,7 +117,6 @@ function getDatasetSample(datasetName) {
         
         for (var i = 0; i < datasets.numDatasets; i++) {
             if (datasetName != datasets.datasets[i].name) {
-                console.log( datasetName,datasets.datasets[i].name)
                 continue;
             }
 
@@ -157,7 +159,6 @@ function getDatasetSample(datasetName) {
             addDataSetHeaders(jsonKeys, datasets.datasets[i].datasetId, i);
             addDataSetRows(jsonKeys,jsons, i);
             addWorksheetListeners(i);  
-            attachShoppingCartListeners(i);
             updateDatasetInfoFields(datasetName, IsActive.Active);
         } 
     });
@@ -209,8 +210,8 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
                 <div class="header">\
                 <input spellcheck="false" \
                 class="editableHead shoppingCartCol col'+ i +'" value="'+ key +'"\
-                id ="ds'+ datasetId +'cn'+ key +'">\
-                <div class="checkBox"><span class="icon"></span></div>\
+                id ="ds'+ datasetId +'cn'+ key +'" readonly="true">\
+                <div class="dropdownBox"><span class="innerBox"></span></div>\
                 </div>\
             </th>';
     }
@@ -223,6 +224,22 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
                      tableWidth+'px;">' +th+'</thead>';
     fixedHead.after(cloneThead);
     table.parent().siblings('.datasetTheadWrap').append(fixedHead);
+    var colMenu =  '<ul id="outerColMenu'+ index +'" class="colMenu">\
+                    <li class="renameCol">\
+                        <span>Rename Column</span>\
+                        <ul class="subColMenu">\
+                            <li style="text-align: center" class="clickable">\
+                            <span>New Column Name</span>\
+                            <input type="text" width="100px" value="'+ 'something' +'"/>\
+                            </li>\
+                            <div class="subColMenuArea"></div>\
+                        </ul>\
+                        <div class="dropdownBox"></div>\
+                    </li>\
+                    <li class="changeDataType">Change Data Type</li>\
+                </ul>';
+    $('#datasetWrap').append(colMenu);
+
 }
 
 function addDataSetRows(jsonKeys,jsons, tableNum) {
@@ -260,27 +277,86 @@ function addDataSetRows(jsonKeys,jsons, tableNum) {
 function addWorksheetListeners(tableNum) {
     var table = $('#dataSetTableWrap'+tableNum);
 
-    table.find('th input').focus(function() {  
-        var index = $(this).closest('th').index();
-        var tableIndex = parseInt($(this).closest('.datasetTableWrap')
-                .attr('id').substring(16));
-        var value = $(this).val();
-        $('.colSelected').removeClass('colSelected');
-        $('#selectedTable'+tableIndex).find('.colWrap').filter(function () {
-            return $(this).text() == value;
-        }).addClass('colSelected');
+    table.find('.dropdownBox').click(function() { 
+        dropdownClick($(this), true);
+        updateColMenuInfo($(this));
+    });
+    
+    $('#outerColMenu'+tableNum+' li').mouseenter(function() {
+            $(this).children('ul').addClass('visible');
+            $(this).addClass('selected');
+            if (!$(this).hasClass('inputSelected')) {
+                $('.inputSelected').removeClass('inputSelected');
+            }
+        }).mouseleave(function(event) {
+            $(this).children('ul').removeClass('visible');
+            $(this).removeClass('selected');
     });
 
-    table.find('.checkBox').click(function() { 
+    $('#outerColMenu'+tableNum).find('input')
+        .focus(function() {
+            $(this).parents('li').addClass('inputSelected')
+            .parents('.subColMenu').addClass('inputSelected');
+        }).keyup(function() {
+            $(this).parents('li').addClass('inputSelected')
+            .parents('.subColMenu').addClass('inputSelected');
+        }).blur(function() {
+            $(this).parents('li').removeClass('inputSelected')
+            .parents('.subColMenu').removeClass('inputSelected');
+    });
+
+    $('#outerColMenu'+tableNum).find('.subColMenuArea').mousedown(function() {
+        $('.colMenu').hide();
+    });
+
+    $('#outerColMenu'+tableNum).find('input').keyup(function(e) {
+        if (e.which != keyCode.Enter) {
+            return;
+        }
+        $(this).blur();
+        var newName = $(this).val();
+        var colNum = $(this).closest('.colMenu').data('colNum');
+        var headInput = $('#dataSetTableWrap'+tableNum)
+                        .find('.editableHead.col'+colNum);
+        var oldid = headInput.attr("id");
+        var oldColName = oldid.substring(oldid.indexOf("cn")+2);
+        var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
+        console.log("Renaming "+oldColName+" to "+ newName);
+        XcalarEditColumn(dsnumber, oldColName, newName,
+                         DfFieldTypeT.DfString);
+        var newId = "ds"+dsnumber+"cn"+newName;
+        console.log(newId);
+        headInput.attr("id", newId).val(newName); 
+        $('#selectedTable'+tableNum).find('.colName').filter(
+            function() {
+                return $(this).text() == oldColName;
+            }
+        ).text(newName);
+        $('.colMenu').hide();
+    });
+
+    // table.find('.changeDataType').click(function() {
+    //         //XX to implement changing data types
+    // });
+
+    table.find('.editableHead').click(function() {
         checkColumn($(this), SelectUnit.Single);
     });
 }
 
-function checkColumn(column, selectAll) {
-    var input = column.prev();
+function updateColMenuInfo(el) {
+    var tableNum = parseInt(el.closest('.datasetTableWrap').attr('id')
+                       .substring(16));
+    var menu = $('#outerColMenu'+tableNum);
+    var colNum = parseColNum(el.closest('th'));
+    var colName = el.siblings('.editableHead').val();
+    menu.data('colNum', colNum);
+    menu.find('.renameCol input').val(colName);
+}
 
-    if (column.parent().hasClass('colAdded') && !selectAll) {
-        var index = parseInt(column.closest('.datasetTableWrap')
+function checkColumn(input, selectAll) {
+    if (input.parent().hasClass('colAdded') && !selectAll) {
+        var index = parseInt(input.closest('.datasetTableWrap')
             .attr('id').substring(16));
         var inputText = input.val();
         var selectedCol = $('#selectedTable'+index).find('.colName')
@@ -291,12 +367,11 @@ function checkColumn(column, selectAll) {
         highlightDatasetColumn(input, IsActive.Active);
         return;
     } else {
-        column.parent().addClass('colAdded');
-        input.attr('readonly', 'true');
+        input.parent().addClass('colAdded');
         highlightDatasetColumn(input);
     }
     
-    var index = parseInt(column.closest('.datasetTableWrap')
+    var index = parseInt(input.closest('.datasetTableWrap')
             .attr('id').substring(16));
     var selectedTable = $('#selectedTable'+index);
     if (selectedTable.length == 0) {
@@ -340,32 +415,10 @@ function checkColumn(column, selectAll) {
     dataCartOverflowShadow();
 }
 
-function attachShoppingCartListeners(tableNum) {
-    var table = $('#dataSetTableWrap'+tableNum);
-    table.find(".shoppingCartCol").keypress(function(e) {
-        if (e.which === keyCode.Enter) {
-            $(this).blur();
-        }
-    });
-
-    table.find(".shoppingCartCol").change(function() {
-        var oldid = $(this).attr("id");
-        var oldColName = oldid.substring(oldid.indexOf("cn")+2);
-        var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
-        console.log("Renaming "+oldColName+" to "+$(this).val());
-        XcalarEditColumn(dsnumber, oldColName, $(this).val(),
-                         DfFieldTypeT.DfString);
-        var newId = "ds"+dsnumber+"cn"+$(this).val();
-        console.log(newId);
-        $(this).attr("id", newId); 
-    });
-}
-
 function removeSelectedKey(closeBox, input) {
     input.parent().removeClass('colAdded').parent().removeClass('selectedCol');
     var index = parseColNum(input);
     input.closest('.datasetTableWrap').find('.col'+index).removeClass('selectedCol');
-    input.removeAttr('readonly');
     if (closeBox.closest('li').siblings().length == 0) {
         closeBox.closest('.selectedTable').remove();
          
@@ -472,7 +525,6 @@ function createWorksheet() {
 
 function resetDataCart() {
     $('.selectedTable').remove();
-    $('.datasetTableWrap input').attr('readonly', false);
     $('.colAdded').removeClass('colAdded');
     $('.selectedCol').removeClass('selectedCol');
 

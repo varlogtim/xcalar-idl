@@ -889,7 +889,6 @@ function addColListeners(colId, tableId) {
             .parents('.subColMenu').removeClass('inputSelected');
     });
 
-
    addColMenuActions(colId, tableId);
 }
 
@@ -1050,7 +1049,7 @@ function addColMenuActions(colId, tableId) {
     });
 }
 
-function dropdownClick(el) {
+function dropdownClick(el, outside) {
     $('.colMenu').hide();
     $('.leftColMenu').removeClass('leftColMenu');
     //position colMenu
@@ -1058,7 +1057,14 @@ function dropdownClick(el) {
     var leftMargin = 5;
     var top = el[0].getBoundingClientRect().bottom + topMargin;
     var left = el[0].getBoundingClientRect().left + leftMargin;
-    var menu = el.siblings('.colMenu');
+    if (outside) {
+        var tableNum = parseInt(el.closest('.datasetTableWrap').attr('id')
+                       .substring(16));
+        var menu = $('#outerColMenu'+tableNum);
+    } else {
+        var menu = el.siblings('.colMenu');
+    }
+    
     menu.css({'top':top, 'left':left});
     menu.show();
     $('.xcTheadWrap').css('z-index', '9');
