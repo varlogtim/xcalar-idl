@@ -12,7 +12,6 @@ var gMouseStatus = null;
 var gDragObj = {};
 var gRescol = {
     minCellHeight: 30,
-    // cellMinWidth: 30,
     cellMinWidth: 20,
     first: true,
     clicks: 0,
@@ -25,7 +24,7 @@ var gRescol = {
 var resrow = {};
 var gScrollbarHeight = 8;
 var gTempStyle = ""; // XXX
-var gMinTableWidth = 200;
+var gMinTableWidth = 30;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
 var gHiddenTables = [];
@@ -442,6 +441,9 @@ function documentReadyGeneralFunction() {
 
 function documentReadyCatFunction(tableNum) {
     var index = getIndex(gTables[tableNum].frontTableName);
+    if (index == null) {
+
+    }
     getNextPage(gTables[tableNum].resultSetId, true, tableNum);
     if (index && index.length > 0) {
         gTables[tableNum].tableCols = index;

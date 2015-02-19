@@ -190,8 +190,10 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         var jsonStr = table.find('.row'+i+' .col'+colid+' .elementText').text();
         if (jsonStr == "") {
             console.log("Error: pullCol() jsonStr is empty");
+            var value = "";
+        } else {
+            var value = jQuery.parseJSON(jsonStr);
         }
-        var value = jQuery.parseJSON(jsonStr);
         for (var j = 0; j<nested.length; j++) {
             if (value[nested[j]] == undefined || $.isEmptyObject(value)) {
                 value = "";

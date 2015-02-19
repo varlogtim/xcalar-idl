@@ -158,7 +158,6 @@ function addTable(tableName, tableNum, AfterStartup) {
     if (AfterStartup) {
         addMenuBarTables([gTables[tableNum]], IsActive.Active);
     }
-    // focusTable(tableNum);
 }
 
 // Removes a table from the display

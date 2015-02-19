@@ -1577,14 +1577,17 @@ function reorderAfterTableDrop() {
 }
 
 function adjustColGrabHeight(tableNum) {
+    console.log('adjusting height')
     var tableWrap = $('#xcTableWrap'+tableNum);
     var tableTitleHeight = tableWrap.find('.tableTitle').outerHeight();
     var tableWrapHeight = tableWrap.height() - tableTitleHeight;
     var mainFrameHeight = $('#mainFrame').height() - tableTitleHeight - 15;
-    var visibleTableHeight = tableWrap[0].getBoundingClientRect().bottom - 
-        $('#mainFrame')[0].getBoundingClientRect().top -
-        tableTitleHeight - 5;
+    var visibleTableHeight = tableWrap.find('.xcTable')[0]
+                             .getBoundingClientRect().bottom - 
+                             $('#mainFrame')[0].getBoundingClientRect().top -
+                             tableTitleHeight - 5;
+    var tableHeight = tableWrap.find('.xcTable').height() + tableTitleHeight;
 
-    var colGrabHeight = Math.min(tableWrapHeight, mainFrameHeight, visibleTableHeight);
+    var colGrabHeight = Math.min(tableWrapHeight, mainFrameHeight, tableHeight);
     tableWrap.find('.colGrab').height(colGrabHeight);
 }

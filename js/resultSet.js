@@ -62,14 +62,6 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                       gNumEntriesPerPage;
     var numRows = Math.min(gNumEntriesPerPage,
                            tableOfEntries.kvPairs.numRecords);
-    if (numRows == 0) {
-        console.log('no rows found, ERROR???');
-        generateFirstScreen("", -1, tableNum);
-        addRowScroller(tableNum);
-        $('#rowScroller'+tableNum).addClass('hidden');
-        addTableListeners(tableNum);
-        return;
-    }
     var rowTemplate = createRowTemplate(tableNum);
     for (var i = 0; i<numRows; i++) {
         if (direction == 1) {
@@ -95,7 +87,14 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
     }
 
     if (firstTime) {
+        if (numRows == 0) {
+            console.log('no rows found, ERROR???');
+            generateFirstScreen("", -1, tableNum);
+        }
         addRowScroller(tableNum);
+        if (numRows == 0) {
+            $('#rowScroller'+tableNum).addClass('hidden');
+        }
         addTableListeners(tableNum);
     }
 
