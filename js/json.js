@@ -88,7 +88,8 @@ function createJsonSelectionExpression(el) {
 
 function showJsonModal(jsonTd) {
     positionJsonModal(jsonTd);
-    var tableTitle = jsonTd.closest('table').find('.tableTitle input').val();
+    var tableTitle = jsonTd.closest('table').parent().parent()
+                        .find('.xcTheadWrap .tableTitle input').val();
     $('#jsonModal').find('.jsonDragArea').text(tableTitle);
 
     $('.jKey, .jArray>.jString, .jArray>.jNum').click(function() {
