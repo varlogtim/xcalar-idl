@@ -18,9 +18,14 @@
         });
 
         $("#importDataButton").click(function() {
-            $("#importDataView").toggle();
-            $('#importDataBottomForm').find('button[type=reset]').trigger('click');
-            $('#filePath').focus();
+            var importForm = $("#importDataView");
+            if (importForm.css('display') != "block") {
+                importForm.show();
+                $("#filePath").focus();
+                $("#gridView").find("grid-unit.active").removeClass("active");
+                $(".datasetTableWrap").hide();
+                $('.dbText h2').text("");
+            } 
         });
 
         $("grid-unit .label").each(function() {
