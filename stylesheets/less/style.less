@@ -1,6 +1,4 @@
  /*========== Constants ========== */
-
-
 @color-input: #909090;
 @color-input-active: #E6E6E6;
 @color-bar-border: #242C31;
@@ -263,10 +261,6 @@ body {
     .noSelection;
     position: relative;
 
-    &:last-child {
-        padding: 1px 2px;
-    }
-
     &:hover {
         // hover vs regular color scheme needs to be adjusted
         background-color: rgba(255,255,255,.15);
@@ -317,6 +311,10 @@ body {
         .user-icon {
             background: url(/images/user-active.png) 0 0 no-repeat;
         }
+
+        .monitor-icon {
+            background: url(/images/monitor-active.png) 0 0 no-repeat;
+        }
     }
 
     .icon {
@@ -326,14 +324,6 @@ body {
         margin-top: 1px; 
         display: inline-block;
         position: absolute;
-    }
-
-    &.active:last-child {
-        height: 32px;
-        margin: 4px 9px 0px 0px;
-        border: 1px solid @color-tab-border;
-        color: @color-text-tab;
-        background-color: rgba(0,0,0, .15);
     }
 
     .mountain-icon {
@@ -352,18 +342,16 @@ body {
     .user-icon {
         background: url(/images/user-icon.png) 0 0 no-repeat;
     }
+
+    .monitor-icon {
+        background: url(/images/monitor.png) 0 0 no-repeat;
+    }
+
 }
 
-    
-
-#stats {
-    .icon {
-        background: url(/images/stats-icon.png) 0 0 no-repeat; 
-        position: static;
-        margin: 0;
-        width: 19px;
-        height: 28px;
-    }
+#collabTab.active,
+#stats.active {
+    height: 36px;
 }
 
 #userNameArea {
@@ -1343,7 +1331,24 @@ body {
     }
 }
 
-
+.underConstruction {
+    .bar {
+        .workspaceBar;
+    }
+    height: ~"-webkit-calc(100% - 114px)";
+    height: ~"-moz-calc(100% - 114px)";
+    height: ~"calc(100% - 114px)";
+    background: #E6E6E6;
+    text-align: center;
+    .alert {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 50px;
+        width: 28px;
+        height: 28px;
+        background: url(/images/info-icon-large.png) 0 0 no-repeat;
+    }
+}
 
 
 

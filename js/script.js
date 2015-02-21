@@ -237,21 +237,30 @@ function setupHiddenTable() {
 }
 
 function mainPanelsTabing() {
-    $('.mainMenuTab').click(function() {
-        $('.mainMenuTab').removeClass('active');
-        $(this).addClass('active');
-        if ($(this).attr('id') == "workspaceTab") {
-            $('#datastoreView').hide().removeClass('active');
-            if ($('#workspacePanel').css('display') == "none") {
-                $('#workspacePanel').show().addClass('active');
+    $(".mainMenuTab").click(function() {
+        $(".mainMenuTab").removeClass("active");
+        $(this).addClass("active");
+        switch ($(this).attr("id")) {
+        case ("workspaceTab"):
+            $(".underConstruction").hide().removeClass("active");
+            $("#datastoreView").hide().removeClass("active");
+            if ($("#workspacePanel").css("display") == "none") {
+                $("#workspacePanel").show().addClass("active");
                 for (var i = 0; i < gTables.length; i++) {
                     matchHeaderSizes(i);
                     adjustColGrabHeight(i);
                 }
             } 
-        } else if ($(this).attr('id') == "dataStoresTab") {
-            $('.mainPanel').hide().removeClass('active');
-            $('#datastoreView').show().addClass('active');
+            break;
+        case ("dataStoresTab"):
+            $(".underConstruction").hide().removeClass("active");
+            $(".mainPanel").hide().removeClass("active");
+            $("#datastoreView").show().addClass("active");
+            break;
+        default:
+            $("#datastoreView").hide().removeClass("active");
+            $(".mainPanel").hide().removeClass("active");
+            $(".underConstruction").show().addClass("active");
         }
     });
 }
