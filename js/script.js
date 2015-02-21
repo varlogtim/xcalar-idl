@@ -263,6 +263,7 @@ function mainPanelsTabing() {
             $(".underConstruction").show().addClass("active");
         }
     });
+    $("#workspaceTab").click();
 }
 
 function setupLogout() {
