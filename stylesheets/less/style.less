@@ -815,7 +815,8 @@ body {
     height: 35px;
     border-top: 1px solid @color-table-borderGray;
     border-left: 1px solid @color-table-borderGray;
-    width: ~"calc(100% + 1px)";
+    width: ~"calc(100% + 2px)";
+    margin-left: -1px;
 }
 
 .tableListSectionTab {
@@ -864,10 +865,8 @@ body {
 
     ul {
         list-style: none;
-        padding-right: 14px;
-        padding-left: 11px;
-        width: 95%;
-        max-width: 275px;
+        width: 93%;
+        // max-width: 275px;
         margin: 0 auto 10px;
     }
     li {
@@ -1003,21 +1002,41 @@ body {
     .tableName {
         max-width: 150px !important;
     }
-}
 
-#submitTablesBtn {
-    margin: 10px auto 20px auto;
-    width: 250px;
-    display: none;
-
-    .icon {
-        background: url(/images/send-single.png) 0 0 no-repeat;
-        width: 27px;
-        height: 21px;
-        margin: 4px;
-        float: left;
+    .buttonWrap {
+        .flex-display;
+        .flex-wrap(wrap);
+        .justify-content(space-between);
+        width: 97.1%;
+        margin: 10px auto 0px;
     }
 
+    .btnLarge {
+        margin: 0px 2% 9px 2%;
+        display: none;
+        .flex-grow(1);
+        .flex-basis(170px);
+        text-align: center;
+        position: relative;
+        padding-left: 6px;
+
+        .icon {
+            width: 27px;
+            height: 24px;
+            position: absolute;
+            left: 0px;
+        }
+    }
+}
+
+#submitTablesBtn .icon {
+    background: url(/images/send-single.png) 0 0 no-repeat;
+    margin: 4px;
+}
+
+#deleteTablesBtn .icon {
+    background: url(/images/garbageThick.png) 0 0 no-repeat;
+    margin: 2px 6px 0px 2px;
 }
 
 #cliSection {

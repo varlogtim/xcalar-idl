@@ -202,12 +202,21 @@ function archiveTable(tableNum, del) {
     focusTable(gActiveTableNum);
 }
 
-function deleteTable(tableNum) {
+function deleteTable(tableNum, deleteArchived) {
     // Basically the same as archive table, but instead of moving to
     // gHiddenTables, we just delete it from gTablesIndicesLookup
-    var backTableName = gTables[tableNum].backTableName;
-    var resultSetId = gTables[tableNum].resultSetId;
-    archiveTable(tableNum, DeleteTable.Delete);
+    if (deleteArchived) {
+        var backTableName = gHiddenTables[tableNum].backTableName;
+        var frontTableName = gHiddenTables[tableNum].frontTableName;
+        var resultSetId = gHiddenTables[tableNum].resultSetId;
+        gHiddenTables.splice((tableNum), 1);
+        delete (gTableIndicesLookup[frontTableName]);
+    } else {
+        var backTableName = gTables[tableNum].backTableName;
+        var resultSetId = gTables[tableNum].resultSetId;
+        archiveTable(tableNum, DeleteTable.Delete);
+    }
+    
     // Free the result set pointer that is still pointing to it
     XcalarSetFree(resultSetId);    
     // Trigger delete

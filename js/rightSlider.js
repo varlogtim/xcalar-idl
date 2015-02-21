@@ -106,39 +106,55 @@ function setuptableListSection() {
             $(this).addClass('selected');
         }
         if ($('.addArchivedBtn.selected').length == 0) {
-            $('#submitTablesBtn').addClass('btnInactive');
+            $('#archivedTableList').find('.btnLarge').addClass('btnInactive');
         } else {
-            $('#submitTablesBtn').removeClass('btnInactive');
+            $('#archivedTableList').find('.btnLarge').removeClass('btnInactive');
         }
     });
 
     $('#submitTablesBtn').click(function() {
-        var tablesSelected = $('#inactiveTablesList').
-                            find('.addArchivedBtn.selected').prev();
+        archiveButtonClick('add');
+    });
 
-        $(this).addClass('btnInactive');
-        if (tablesSelected.length == gHiddenTables.length) {
-            $(this).hide();
+    $('#deleteTablesBtn').click(function() {
+        archiveButtonClick('delete');
+    });
+
+    function archiveButtonClick(action) {
+        var $tablesSelected = $('#inactiveTablesList').
+                            find('.addArchivedBtn.selected').prev();
+        var $buttons = $('#archivedTableList').find('.btnLarge');
+        $buttons.addClass('btnInactive');
+
+        if ($tablesSelected.length == gHiddenTables.length) {
+            $buttons.hide();
         }
 
-        tablesSelected.each(function() {
-            var index = $(this).closest('li').index();
+        $tablesSelected.each(function() {
+            var $li = $(this).closest('li');
+            var index = $li.index();
             //xx these selected tables are ordered in reverse
-            var activeTable =gHiddenTables.splice((
+            
+            if (action == "add") {
+                var activeTable =gHiddenTables.splice((
                              gHiddenTables.length-index-1), 1)[0];
-            gTableIndicesLookup[activeTable.frontTableName].active = true;
-            addTable(activeTable.frontTableName, gTables.length, 
-            AfterStartup.After);
-            $(this).closest('li').remove();
+                gTableIndicesLookup[activeTable.frontTableName].active = true;
+                addTable(activeTable.frontTableName, gTables.length, 
+                AfterStartup.After);
+            } else {
+                deleteTable(gHiddenTables.length-index-1, DeleteTable.Delete);
+            }
+            
+            $li.remove();
         });
-
-        $('#workspaceTab').trigger('click');
-        var leftPos = $('#xcTableWrap'+(gTables.length-1)).position().left +
-                            $('#mainFrame').scrollLeft();
-        $('#mainFrame').animate({scrollLeft: leftPos});
-
-
-    });
+        if (action == "add") {
+            $mainFrame = $('#mainFrame');
+            $('#workspaceTab').trigger('click');
+            var leftPos = $('#xcTableWrap'+(gTables.length-1)).position().left +
+                            $mainFrame.scrollLeft();
+            $mainFrame.animate({scrollLeft: leftPos});
+        }
+    }
 }
 
 function addMenuBarTables(tables, active, tableNum) {
@@ -151,7 +167,7 @@ function addMenuBarTables(tables, active, tableNum) {
         $('#activeTablesList').append(tableDisplay);
     } else if (tableDisplay) {
         $('#inactiveTablesList').prepend(tableDisplay);
-        $('#submitTablesBtn').show();
+         $('#archivedTableList').find('.btnLarge').show();
     }
 }
 
@@ -207,8 +223,7 @@ function moveMenuBarTable(table) {
     ).closest('li').prependTo('#inactiveTablesList')
     .find('.tableListBox').removeClass('active')
     .next().slideUp(0).removeClass('open');
-    $('#submitTablesBtn').show();
-
+    $('#archivedTableList').find('.btnLarge').show();
 }
 
 function updateMenuBarTable(table, tableNum) {
