@@ -1102,6 +1102,26 @@ body {
     }
 }
 
+@media screen and (max-width: 1300px) {
+    .timeStampWrap {
+        width: 10%;
+        text-align: center;
+        span:first-child {
+            display: none !important;
+        }
+    }
+
+    .tableListBox {
+        width: 90%;
+    }
+
+    .tableListSection {
+        ol {
+            width: 90%;
+        }
+    }
+}
+
 #tableListSections {
     overflow-x: hidden;
     overflow-y: auto;
@@ -1145,9 +1165,40 @@ body {
     ul#activeTablesList {
         margin-top: 20px;
     }
+    .timeStampWrap {
+        width: 22%;
+        height: 25px;
+        display: inline-block;
+        float: left;
+        line-height: 11px;
+        font-size: 9px;
+        overflow: hidden;
+        left: -1%;
+        position: relative;
+        top: 4px;
+
+        .timeStamp {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        span {
+            white-space: nowrap;
+            display: inline-block;
+            width: 45px;
+            &:first-child {
+              margin-right: 8px;  
+            }
+            &:last-child {
+                margin-left: -7px;
+            }
+        }
+    }
+
     .tableListBox {
         height: 25px;
-        width: 100%;
+        width: 78%;
         border-radius: 3px;
         background-color: @color-white;
         display: inline-block;
@@ -1197,6 +1248,9 @@ body {
         margin: -7px 0 10px 22px;
         padding-top: 2px;
         position: relative;
+        width: 78%;
+        float: right;
+
         li {
             list-style-position: inside;
             margin-top: 5px;

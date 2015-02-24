@@ -174,8 +174,23 @@ function addMenuBarTables(tables, active, tableNum) {
 function generateMenuBarTableHTML(tables, active) {
     var numTables = tables.length;
     var html = "";
-    var numCols, start;
-    var firstHtml = '<li><div class="tableListBox">'+
+    var numCols;
+    var D = new Date();
+    var minutes = D.getMinutes();
+    var seconds = D.getSeconds();
+    if (minutes < 10) {
+        minutes = '0'+minutes;
+    }
+    if (seconds < 10) {
+        seconds = '0'+seconds;
+    }
+    var date = (D.getMonth()+1) + '-' + D.getDate() + '-' + D.getFullYear();
+    var time = D.getHours() + ':' + minutes + ':' + seconds;
+
+    var firstHtml = '<li><div class="timeStampWrap">'+
+                    '<div class="timeStamp"><span>'+date+'</span>'+
+                    '<span>'+time+'</span></div></div>'+
+                    '<div class="tableListBox">'+
                     '<div class="iconWrap"><span class="icon">'+
                     '</div></span>'+
                     '<span class="tableName">';
