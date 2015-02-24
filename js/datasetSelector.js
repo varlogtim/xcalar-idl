@@ -460,6 +460,12 @@ function createWorksheet() {
             }
         }
 
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = "createTable";
+        cliOptions.tableName = tableName;
+        cliOptions.col = [];
+
         var promises = [];
         var self     = this;
         $(self).find('.colName').each(function() {
@@ -485,7 +491,9 @@ function createWorksheet() {
 
                     innerDeferred.resolve();
                 });
-
+                
+                cliOptions.col.push(colname);
+                
                 return innerDeferred.promise();
             }).apply(this));
         });
@@ -505,12 +513,17 @@ function createWorksheet() {
 
             setIndex(tableName, newTableCols);
             commitToStorage();
-
+            
+            cliOptions.col.push("DATA");
             return getDsId(datasetName);
         })
         .then(function(datasetId) {
             datasetId = parseInt(datasetId);
             var columnToIndex = $.trim($(self).find('.keySelected .colName').text());
+
+            cliOptions.key = columnToIndex;
+            addCli("Send To Worksheet", cliOptions);
+
             XcalarIndexFromDataset(datasetId, columnToIndex, tableName);
             $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
            '{cursor: wait !important;}</style>');
@@ -518,7 +531,6 @@ function createWorksheet() {
             var additionalTableNum = false;
             checkStatus(tableName, gTables.length, keepLastTable, 
                         additionalTableNum);
-            
             chainDeferred.resolve();
         });
 

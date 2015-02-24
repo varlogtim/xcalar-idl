@@ -125,10 +125,26 @@ function initializeJoinModal() {
                                 .index();
             var rightColumnNum = parseColNum($('#rightJoin').
                                 find('th.colSelected')) - 1;
+
+            // add Cli
+            var cliOptions = {};
+            cliOptions.operation = 'join';
+            cliOptions.leftTable = {};
+            cliOptions.leftTable.name = gTables[leftTableNum].frontTableName;
+            cliOptions.leftTable.colName = gTables[leftTableNum].tableCols[leftColumnNum].name;
+            cliOptions.leftTable.colIndex = leftColumnNum;
+            cliOptions.rightTable = {};
+            cliOptions.rightTable.name = gTables[rightTableNum].frontTableName;
+            cliOptions.rightTable.colName = gTables[rightTableNum].tableCols[rightColumnNum].name;
+            cliOptions.rightTable.colIndex = rightColumnNum;
+            cliOptions.joinType = joinType;
+            cliOptions.newTableName = newTableName;
             
             joinTables(newTableName, joinType, leftTableNum, 
                        leftColumnNum, rightTableNum, rightColumnNum);
             resetJoinTables();
+
+            addCli("Join Table", cliOptions);
         }
     });
 }

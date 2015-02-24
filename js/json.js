@@ -100,8 +100,22 @@ function showJsonModal(jsonTd) {
                         return $(this).find("input").val() == "DATA";
                     });
         var colNum = parseColNum(id);
+
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = 'addCol';
+        cliOptions.tableName = gTables[tableNum].frontTableName;
+        cliOptions.newColName = name;
+        cliOptions.siblColName = gTables[tableNum].tableCols[colNum - 1].name;
+        cliOptions.siblColIndex = colNum;
+        cliOptions.direction = "L";
+
+
         addCol('col'+(colNum), 'xcTable'+tableNum, name, {direction: 'L', 
                 select: true});
+
+        addCli('Add Column', cliOptions);
+
         gTables[tableNum].tableCols[colNum-1].func.func = "pull";        
         gTables[tableNum].tableCols[colNum-1].func.args = [name];
         gTables[tableNum].tableCols[colNum-1].userStr = '"'+name+'" = pull('+name+')';

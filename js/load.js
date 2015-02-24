@@ -28,6 +28,14 @@ function setupImportDSForm() {
             if (!loadSuccess) {
                 displayLoadErrorMessage(loadURL);
             }
+
+            // add cli
+            var cliOptions = {};
+            cliOptions.operation = 'loadDataSet';
+            cliOptions.tableName = tableName;
+
+            addCli('Load dataset', cliOptions);
+
             //Could this line be removed?
             return (false);
         })

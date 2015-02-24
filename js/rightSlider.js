@@ -139,10 +139,26 @@ function setuptableListSection() {
                 var activeTable =gHiddenTables.splice((
                              gHiddenTables.length-index-1), 1)[0];
                 gTableIndicesLookup[activeTable.frontTableName].active = true;
+                
+                 // add cli
+                var cliOptions = {};
+                cliOptions.operation = 'addTable';
+                cliOptions.tableName = activeTable.frontTableName;
+
+
                 addTable(activeTable.frontTableName, gTables.length, 
                 AfterStartup.After);
+
+                addCli('Send To WorkSheet', cliOptions);
             } else {
-                deleteTable(gHiddenTables.length-index-1, DeleteTable.Delete);
+                var tableNum = gHiddenTables.length-index-1;
+                // add cli
+                var cliOptions = {};
+                cliOptions.operation = 'deleteTable';
+                cliOptions.tableName = gHiddenTables[tableNum].frontTableName;
+
+                deleteTable(tableNum, DeleteTable.Delete);
+                addCli('Delete Table', cliOptions);
             }
             
             $li.remove();

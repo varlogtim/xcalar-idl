@@ -312,6 +312,13 @@ function dragdropMouseUp() {
     // only pull col if column is dropped in new location
     if ((gDragObj.colIndex) != gDragObj.colNum) { 
         setTimeout(function() {
+            // add cli
+            var cliOptions = {};
+            cliOptions.tableName = gTables[gDragObj.tableNum].frontTableName;
+            cliOptions.colName = gTables[gDragObj.tableNum].tableCols[gDragObj.colNum - 1].name;
+            cliOptions.oldColIndex = gDragObj.colNum;
+            cliOptions.newColIndex = gDragObj.colIndex;
+
             var storedScrollLeft =  $('#mainFrame').scrollLeft();
             delCol(gDragObj.colNum, gDragObj.tableNum, true);
             progCol.index = gDragObj.colIndex;
@@ -327,6 +334,8 @@ function dragdropMouseUp() {
             //prevent scroll position from changing when 
             // you delete and add column
             $('#mainFrame').scrollLeft(storedScrollLeft);
+
+            addCli('Change Column Order', cliOptions);
         }, 0);
     }
 }
@@ -704,14 +713,31 @@ function cloneTableHeader(tableNum) {
         var tableNum = parseInt($(this).closest('.tableMenu').
                        attr('id').substring(9));
         $(this).closest('.tableMenu').hide();
+
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = 'archiveTable';
+        cliOptions.tableName =  gTables[tableNum].frontTableName;
+
         archiveTable(tableNum, DeleteTable.Keep);
+
+        addCli('Archive Table', cliOptions);
     });
 
     tableMenu.find('.deleteTable').click(function() {
         var tableNum = parseInt($(this).closest('.tableMenu').
                        attr('id').substring(9));
         $(this).closest('.tableMenu').hide();
+
+
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = 'deleteTable';
+        cliOptions.tableName = gTables[tableNum].frontTableName;
+
         deleteTable(tableNum);
+
+        addCli('Delete Table', cliOptions);
     });
 
     $('#xcTable'+tableNum).width(0); 
@@ -796,6 +822,17 @@ function addColListeners(colId, tableId) {
             var progCol = parseCol($(this).val(), index, tableNum, true);
             execCol(progCol, tableNum);
             updateMenuBarTable(gTables[tableNum], tableNum);
+
+            // add cli
+            var cliOptions = {};
+            cliOptions.operation = 'execCol';
+            cliOptions.tableName = gTables[tableNum].frontTableName;
+            cliOptions.colIndex = index;
+            cliOptions.progCol = progCol.name;
+            cliOptions.func = progCol.func.func;
+
+            addCli("Prog Column", cliOptions);
+
             if (progCol.name.length > 0) {
                 $(this).val(progCol.name);
             } else {
@@ -910,25 +947,50 @@ function addColMenuActions(colId, tableId) {
     });
 
     tables.find('.table_title_bg.col'+colId+' .addColumns').click(function() {
-        var index = 'col'+parseColNum($(this));
+        var colNum = parseColNum($(this));
+        var index = 'col'+ colNum;
         var tableNum = parseInt($(this).closest('.dataTable').attr('id').
                        substring(11));
         var tableId = "xcTable"+tableNum;
+
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = "addCol";
+        cliOptions.tableName = gTables[tableNum].frontTableName;
+        cliOptions.newColName = "";
+        cliOptions.siblColName = gTables[tableNum].tableCols[colNum - 1].name;
+        cliOptions.siblColIndex = colNum;
+
         var direction;
         if ($(this).hasClass('addColLeft')) {
             direction = "L";
+            cliOptions.direction = "L";
+        } else {
+            cliOptions.direction = "R";
         }
         $('.colMenu').hide();
         $(this).closest('.xcTheadWrap').css('z-index', '9');
         addCol(index, tableId, null, 
             {direction: direction, isDark: true, inFocus: true});
+
+        addCli("Add Column", cliOptions);
     });
     
     tables.find('.deleteColumn.col'+colId).click(function() {
         var index = parseColNum($(this));
         var tableNum = parseInt($(this).closest('.dataTable')
                         .attr('id').substring(11));
+        
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = "delCol";
+        cliOptions.tableName = gTables[tableNum].frontTableName;
+        cliOptions.colName = gTables[tableNum].tableCols[index - 1].name;
+        cliOptions.colIndex = index;
+
         delCol(index, tableNum);
+
+        addCli('Delete Column', cliOptions);
     });
 
     tables.find('.renameCol.col'+colId).click(function() {
@@ -948,8 +1010,18 @@ function addColMenuActions(colId, tableId) {
         var width = table.find('th.col'+index).outerWidth();
         var isDark = table.find('th.col'+index).hasClass('unusedCell');
 
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = 'duplicateCol'
+        cliOptions.tableName = gTables[tableNum].frontTableName;
+        cliOptions.colName = name;
+        cliOptions.colIndex = index;
+
         addCol('col'+index, table.attr('id'),name, 
             {width: width, isDark: isDark});
+
+        addCli('Duplicate Column', cliOptions);
+
         // Deep copy
         // XXX: TEST THIS FEATURE!
         gTables[tableNum].tableCols[index].func.func = 
@@ -1021,7 +1093,8 @@ function addColMenuActions(colId, tableId) {
         if (e.which === keyCode.Enter) {
             var index = parseColNum($(this).closest('.filterWrap'));
             var operator = $(this).closest('.filter').text(); 
-            console.log(operator, 'operator')
+            console.log(operator, 'operator');
+
             filterCol(operator, value, index, tableNum);
         }
     });
@@ -1037,7 +1110,9 @@ function addColMenuActions(colId, tableId) {
                                           "New Column Name"));
             console.log('operator: '+operator+"value: "+value+"index: "+
                         index+"tableNum: "+tableNum);
+
             groupByCol(operator, value, index, tableNum);
+
             $('.colMenu').hide();
         }
     });

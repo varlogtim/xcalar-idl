@@ -104,6 +104,7 @@ function sortRows(index, tableNum, order) {
     console.log(arguments);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempSortTable"+rand;
+    var srcTableName = gTables[tableNum].frontTableName; 
     // XXX: Update widths here
     setDirection(newTableName, order);
     setIndex(newTableName, gTables[tableNum].tableCols);
@@ -120,9 +121,24 @@ function sortRows(index, tableNum, order) {
         console.log("Cannot sort a col derived from unsupported func");
         return;
     }
-    XcalarIndexFromTable(gTables[tableNum].frontTableName, fieldName, newTableName);
+
+    // add cli
+    var cliOptions = {};
+    cliOptions.operation = 'sort';
+    cliOptions.tableName = srcTableName;
+    cliOptions.key = fieldName;
+    cliOptions.newTableName = newTableName;
+    if (order == SortDirection.Forward) {
+        cliOptions.direction = 'ASC';
+    } else {
+        cliOptions.direction = "DESC";
+    }
+
+    XcalarIndexFromTable(srcTableName, fieldName, newTableName);
     checkStatus(newTableName, tableNum, KeepOriginalTables.DontKeep,
                 undefined);
+    
+    addCli('Sort Table', cliOptions);
 }
 
 function mapColumn(fieldName, mapString, tableNum) {
@@ -210,25 +226,52 @@ function filterNonMainCol(operator, value, datasetId, key, otherTable) {
 function groupByCol(operator, newColName, colid, tableNum) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempGroupByTable"+rand;
+    var srcTableName = gTables[tableNum].frontTableName
+    var fieldName = gTables[tableNum].tableCols[colid - 1].name;
     // TODO Create new gTables entry
     // setIndex(newTableName, newTableCols);
     // commitToStorage();
+
+    // add cli
+    var cliOptions = {};
+    cliOptions.operation = 'groupBy';
+    cliOptions.tableName = srcTableName;
+    cliOptions.colName = fieldName;
+    cliOptions.colIndex = colid;
+    cliOptions.operator = operator;
+    cliOptions.newTableName = newTableName;
+    cliOptions.newColumnName = newColName;
+
     $("body").css({"cursor": "wait"});
-    XcalarGroupBy(operator, newColName, gTables[tableNum].tableCols[colid-1].name,
-                 gTables[tableNum].frontTableName, newTableName);
+    XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName);
     checkStatus(newTableName, tableNum, KeepOriginalTables.Keep);
+
+    addCli('Group By', cliOptions);
 }
 
 function filterCol(operator, value, colid, tableNum) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
+    var srcTableName = gTables[tableNum].frontTableName;
+    var colName = gTables[tableNum].tableCols[colid - 1].name;
+    // add cli
+    var cliOptions = {};
+    cliOptions.operation = 'filter';
+    cliOptions.tableName = srcTableName;
+    cliOptions.colName = colName;
+    cliOptions.colIndex = colid;
+    cliOptions.operator = operator;
+    cliOptions.value = value;
+    cliOptions.newTableName = newTableName;
+
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
     $("body").css({"cursor": "wait"});
     console.log(colid); 
-    XcalarFilter(operator, value, gTables[tableNum].tableCols[colid-1].name,
-                 gTables[tableNum].frontTableName, newTableName);
+    XcalarFilter(operator, value, colName, srcTableName, newTableName);
     checkStatus(newTableName, tableNum);
+
+    addCli('Filter Table', cliOptions);
 }
 
 function createJoinIndex(rightTableNum, tableNum) {
