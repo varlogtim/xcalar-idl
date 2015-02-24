@@ -187,7 +187,7 @@ function generateMenuBarTableHTML(tables, active) {
     var date = (D.getMonth()+1) + '-' + D.getDate() + '-' + D.getFullYear();
     var time = D.getHours() + ':' + minutes + ':' + seconds;
 
-    var firstHtml = '<li><div class="timeStampWrap">'+
+    var firstHtml = '<li class="clearfix"><div class="timeStampWrap">'+
                     '<div class="timeStamp"><span>'+date+'</span>'+
                     '<span>'+time+'</span></div></div>'+
                     '<div class="tableListBox">'+

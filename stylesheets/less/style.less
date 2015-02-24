@@ -1102,7 +1102,7 @@ body {
 
 @media screen and (max-width: 1300px) {
     .timeStampWrap {
-        width: 10%;
+        width: 14% !important;
         text-align: center;
         span:first-child {
             display: none !important;
@@ -1110,12 +1110,12 @@ body {
     }
 
     .tableListBox {
-        width: 90%;
+        width: 86% !important;
     }
 
     .tableListSection {
         ol {
-            width: 90%;
+            width: ~"calc(86% - 26px)" !important;
         }
     }
 }
@@ -1124,13 +1124,9 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     height: ~"calc(100% - 35px)";
-
-
     ul {
         list-style: none;
-        width: 93%;
-        // max-width: 275px;
-        margin: 0 auto 10px;
+        margin: 0 10px 10px;
     }
     li {
         width: 100%;
@@ -1164,13 +1160,12 @@ body {
         margin-top: 20px;
     }
     .timeStampWrap {
-        width: 22%;
+        width: 24%;
         height: 25px;
         display: inline-block;
         float: left;
         line-height: 11px;
         font-size: 9px;
-        overflow: hidden;
         left: -1%;
         position: relative;
         top: 4px;
@@ -1196,7 +1191,7 @@ body {
 
     .tableListBox {
         height: 25px;
-        width: 78%;
+        width: 76%;
         border-radius: 3px;
         background-color: @color-white;
         display: inline-block;
@@ -1246,7 +1241,7 @@ body {
         margin: -7px 0 10px 22px;
         padding-top: 2px;
         position: relative;
-        width: 78%;
+        width: ~"calc(76% - 26px)";
         float: right;
 
         li {
@@ -1304,12 +1299,11 @@ body {
         .flex-display;
         .flex-wrap(wrap);
         .justify-content(space-between);
-        width: 97.1%;
-        margin: 10px auto 0px;
+        margin: 10px 5px 0px;
     }
 
     .btnLarge {
-        margin: 0px 2% 9px 2%;
+        margin: 0px 5px 9px;
         display: none;
         .flex-grow(1);
         .flex-basis(170px);
