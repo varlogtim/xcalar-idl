@@ -9,9 +9,8 @@
       type='text/css'>
 <link rel="stylesheet" href="bower_components/fontawesome/css/font-awesome.min.css">
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
-<script src="https://www.gstatic.com/swiffy/v7.1/runtime.js"></script>
+<script src="3rd/runtime.js"></script>
 <link href="stylesheets/css/login.css" rel="stylesheet" type="text/css">
-<script src="js/login.js"></script>
 </head>
 <body>
     <script>
@@ -47,5 +46,23 @@
     </form>
   </div>
 </div>
+<script>
+$(document).ready(function() {
+    $("#loginContainer").hide();
+    var stage = new swiffy.Stage(document.getElementById('swiffycontainer'),
+                                 swiffyobject, {  });
+    stage.start();
+    setTimeout(function() {
+        $('#swiffycontainer').fadeOut(1000, function() {
+            $("#loginContainer").show();
+        });
+    }, 4500);
+    
+    $('#loginButton').click(function() {
+        console.log("username: "+$("#loginNameBox").val());
+        console.log("password: "+$("#loginPasswordBox").val());
+    });
+});
+</script>
 </body>
 </html>
