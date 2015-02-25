@@ -7,11 +7,11 @@ function freeAllResultSets() {
 function goToPage(pageNumber, direction, tableNum) {
     if (pageNumber > gTables[tableNum].numPages) {
         console.log("Already at last page!");
-        return;
+        return (promiseWrapper(null));
     }
     if (pageNumber < 1) {
         console.log("Cannot go below one!");
-        return;
+        return (promiseWrapper(null));
     }
     gTables[tableNum].currentPageNumber = pageNumber;
     var shift = numPagesToShift(direction);
@@ -36,7 +36,7 @@ function resetAutoIndex() {
 
 function getNextPage(resultSetId, firstTime, tableNum) {
     if (resultSetId == 0) {
-        return promiseWrapper(null);
+        return (promiseWrapper(null));
     }
     gTables[tableNum].currentPageNumber++;
     return (getPage(resultSetId, firstTime, null, tableNum));
