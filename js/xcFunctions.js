@@ -12,7 +12,8 @@ function checkStatus(newTableName, tableNum, keepOriginal,
             tempCountShit = 0;
             $("body").css({"cursor": "default"});
             $('#waitCursor').remove();
-            console.log("Done loading");
+            $('#dagPanel').addClass('hidden');
+            $("#workspaceTab").trigger('click');
             var newTableNum;
             if (keepOriginal === KeepOriginalTables.Keep) {
                 // append newly created table to the back

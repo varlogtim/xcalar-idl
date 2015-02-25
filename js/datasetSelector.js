@@ -150,8 +150,6 @@ function setupDSCartButtons() {
             createWorksheet()
             .done(function() {
                 resetDataCart();
-                $("#workspaceTab").click();
-                $('#dagPanel').addClass('hidden');
             });
         } else {
             // alert('Choose a key by clicking on a selected column in your list');
