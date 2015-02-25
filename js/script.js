@@ -30,6 +30,7 @@ var gTables = []; // This is the main global array containing structures
 var gHiddenTables = [];
 var gFnBarOrigin;
 var gActiveTableNum = 0; // The table that is currently in focus
+var gDSObj = {};    //obj for DS folder structure
 // ================================= Classes ==================================
 var ProgCol = function() {
     this.index = -1;

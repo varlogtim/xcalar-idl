@@ -1,8 +1,25 @@
 function setupDSCartButtons() {
-    $('#gridView').on('click','grid-unit', function() {
-        $('#gridView').find('.active').removeClass('active');
+    var $gridView = $('#gridView');
+    var $deleteFolderBtn = $('#deleteFolderBtn');
+
+    $('#gridViewWrapper').on('click', function() {
+        // this hanlder is called before the following one
+        $gridView.find('.active').removeClass('active');
+        $deleteFolderBtn.removeClass('enable');
+    });
+
+    $gridView.on('click','grid-unit', function(event) {
+        event.stopPropagation(); // stop event bubbling
+        $gridView.find('.active').removeClass('active');
         $(this).addClass('active');
-        var datasetName = $(this).find('.label').text();
+        $deleteFolderBtn.removeClass('enable');
+        // folder now do not show anything
+        if ($(this).hasClass('folder')) {
+            $deleteFolderBtn.addClass('enable');
+            return;
+        }
+
+        var datasetName = $(this).find('.label').data().dsname;
         var displaying = false;
         $('#datasetWrap').find('.datasetTableWrap').each(function() {
             if (datasetName == $(this).data().dsname) {
@@ -20,16 +37,74 @@ function setupDSCartButtons() {
         }
     });
 
+    // press enter to remove focue from folder label
+    $gridView.on('keypress', 'grid-unit.folder div.label', function(event) {
+        if (event.which === keyCode.Enter) {
+            event.preventDefault();
+            $(this).blur();
+        }
+    })
+
+    $gridView.on('focus', 'grid-unit.folder div.label', function(event) {
+        // select all on focus 
+        // Jerene: may need another way to inplement(jquery)
+        var div = $(this).get(0);
+        window.setTimeout(function() {
+            var sel, range;
+            if (window.getSelection && document.createRange) {
+                range = document.createRange();
+                range.selectNodeContents(div);
+                sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            } else if (document.body.createTextRange) {
+                range = document.body.createTextRange();
+                range.moveToElementText(div);
+                range.select();
+            }
+        }, 1);
+    })
+
+    $gridView.on('blur', 'grid-unit.folder div.label', function(event) {
+        var $div = $(event.target);
+        renameDS($div);
+        this.scrollLeft = 0;    //scroll to the start of text;
+
+    })
+
+    // dbclick grid view folder
+    $gridView.on('dblclick', '.folder > .gridIcon, .folder > .dsCount', function(event) {
+        var $grid = $(event.target).closest('grid-unit.folder');
+        $gridView.find('.active').removeClass('active');
+        $deleteFolderBtn.removeClass('enable');
+        if ($gridView.hasClass('gridView')) {
+            changeDSDir($grid.attr("data-dsId"));
+        }
+    })
+
+    // click list view folder
+    $gridView.on('click', '.folder > .listIcon, .folder > .dsCount', function(event) {
+        var $grid = $(event.target).closest('grid-unit.folder');
+
+        if ($gridView.hasClass('listView')) {
+            $grid.toggleClass("collapse");
+        }
+    });
+
     $(".delete").click(function() {
         var dsName = $(this).closest("#contentViewHeader").find("h2").text();
+        var $grid = $('#gridView grid-unit .label[data-dsname=' 
+                        + dsName + ']').closest('grid-unit');
+        $grid.addClass('inactive');
+        $grid.addClass('active');   // active means it is clicked
+        $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');
+        $('#iconWaiting').fadeIn(200);
+
         function cleanUpDsIcons() {
-            $("#gridView").find('.label').filter(
-                function() {
-                    if ($(this).text() === dsName) {
-                        $(this).closest("grid-unit").remove();
-                    }
-                }
-            );
+            var dsId = $grid.attr('data-dsId');
+            removeDS(dsId);
+            $grid.remove();
+
             $(".datasetTableWrap").filter(
                 function() {
                     if ($(this).attr("data-dsname") === dsName) {
@@ -41,13 +116,19 @@ function setupDSCartButtons() {
                     }
                 }
             );
-
-            if ($("#gridView").find("grid-unit").length > 0) {
-                $("#gridView").find("grid-unit:first").click();
+            var $curFolder;
+            if (gDSObj.curId == gDSObj.homeId) {
+                $curFolder = $gridView;
+            } else {
+                $curFolder = $('grid-unit[data-dsId="' + gDSObj.curId + '"]');
+            }
+            if ($curFolder.find('grid-unit').length > 0) {
+                $curFolder.find('grid-unit:first').click();
             } else {
                 $("#importDataButton").click();
             }
             updateDatasetInfoFields(dsName, true, true);
+            $('#iconWaiting').remove();
         }
         XcalarDestroyDataset(dsName).done(cleanUpDsIcons);
     });
@@ -555,6 +636,11 @@ function resetDataCart() {
 
 function setupDatasetList() {
     var deferred = jQuery.Deferred();
+    var $gridView = $("#gridView");
+    $gridView.addClass("gridView"); // default open gridView
+    
+    dsBtnInitizlize($gridView);
+    gDSInitialization();
 
     function appendGrid(datasetId) {
         if (!datasetId)
@@ -564,10 +650,7 @@ function setupDatasetList() {
 
         getDsName(datasetId)
         .done(function(dsName) {
-            var dsDisplay = '<grid-unit><div class="gridIcon"></div>'+
-            '<div class="listIcon"><span class="icon"></span></div>'+
-            '<div class="label">'+dsName+'</div></grid-unit>';
-            $("#gridView").append(dsDisplay);
+            createDSEle(gDSObj.id++, dsName, gDSObj.curId, false);
 
             innerPromise.resolve();
         });
@@ -575,21 +658,27 @@ function setupDatasetList() {
         return (innerPromise.promise());
     }
 
+
+    //Jerene: As discussed, please get datasets from server regardless.
     XcalarGetDatasets()
-    .then(function(datasets) {
-        var numDatasets = datasets.numDatasets;
-        var i;
-        var promises = [];
+        .then(function(datasets) {
+            var promises = [];
+            var isRestore = restoreDSObj(datasets);
+            if (!isRestore) {
+                console.log("Construct directly from backend");
+                var numDatasets = datasets.numDatasets;
 
-        for (i = 0; i<numDatasets; i++) {
-            promises.push(appendGrid(datasets.datasets[i].datasetId));
-        };
-
-        return jQuery.when.apply(jQuery, promises);
-    })
-    .done(function() {
-        deferred.resolve();
-    });
+                for (var i = 0; i < numDatasets; i++) {
+                    promises.push(appendGrid(datasets.datasets[i].datasetId));
+                };
+            }
+            return jQuery.when.apply(jQuery, promises);
+        })
+        .done(function() {
+            commitDSObjToStorage(); // commit;
+            displayDS();
+            deferred.resolve();
+        });
 
     return (deferred.promise());
 }

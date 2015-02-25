@@ -132,35 +132,48 @@ function displayNewDataset() {
     $('#importDataBottomForm').find('button[type=reset]').trigger('click');
     $('#iconWaiting').remove();
     $('#gridView').find('.inactive').removeClass('inactive');
-    $('#gridView').find('grid-unit:last').trigger('click');
+    var lastEleId = gDSObj.id - 1;
+    $('#gridView grid-unit[data-dsId="' + lastEleId + '"]').trigger('click');
 }
 
 function appendDSToList(dsName) {
-    var dsDisplay = '<grid-unit class="inactive"><div class="gridIcon"></div>'+
-        '<div class="listIcon"><span class="icon"></span></div>'+
-        '<div id="iconWaiting" class="iconWaiting"></div>'+
-        '<div class="label">'+dsName+'</div></grid-unit>';
-        $("#gridView").append(dsDisplay);
+    // var dsDisplay = '<grid-unit class="inactive"><div class="gridIcon"></div>'+
+    //     '<div class="listIcon"><span class="icon"></span></div>'+
+    //     '<div id="iconWaiting" class="iconWaiting"></div>'+
+    //     '<div class="label">'+dsName+'</div></grid-unit>';
+    //     $("#gridView").append(dsDisplay);
+    createDSEle(gDSObj.id ++, dsName, gDSObj.curId, false);
+    commitDSObjToStorage();
+    displayDS();
+
+    var lastEleId = gDSObj.id - 1;
+    var $grid = $('#gridView grid-unit[data-dsId="' + lastEleId + '"]');
+    $grid.addClass('inactive')
+    $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');
     $('#iconWaiting').fadeIn(200);
 }
 
 function displayLoadErrorMessage(loadURL) {
-    var statusBox = $('#statusBox');
     var text = "Could not retrieve dataset from file path: "+loadURL;
+    displayErrorMessage(text, $('#filePath'));
+}
+
+function displayErrorMessage(text, $target) {
+    var statusBox = $('#statusBox');
     statusBox.addClass('error');
     statusBox.find('.titleText').text('Error');
     statusBox.find('.message').text(text);
 
     // position error message
-    var top = $('#filePath')[0].getBoundingClientRect().top - 30;
+    var top = $target[0].getBoundingClientRect().top - 30;
     var right = $(window).width() - 
-                $('#filePath')[0].getBoundingClientRect().right- 200;
+                $target[0].getBoundingClientRect().right- 200;
     statusBox.css({top: top, right: right});
 
     // set when status box closes
     $(document).mousedown(hideStatusBox);
-    $('#filePath').keydown(hideStatusBox);
-    $('#filePath').focus().addClass('error');
+    $target.keydown(hideStatusBox);
+    $target.focus().addClass('error');
 }
 
 function hideStatusBox(event) {

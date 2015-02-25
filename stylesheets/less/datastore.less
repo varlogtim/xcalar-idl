@@ -27,6 +27,7 @@
 @color-background-bottomAction: #378CB3;
 @color-background-lightGray: #9C9C9C;
 @color-background-darkGray: #E6E6E6;
+@color-background-darkDarkGray: #DDDDDD;
 @color-background-topGrayMed: #CCCCCC;
 @color-background-midGrayMed: #BEBEBE;
 @color-background-bottomGrayMed: #AEAEAE;
@@ -475,131 +476,454 @@
                     padding: 9px;
                     position: relative;
                     overflow: hidden;
-                    background-color: rgb(230, 230, 230);
+                    background-color: @color-background-darkGray;
                     z-index: 1;
                     box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
                     border-top: 1px solid rgba(0,0,0,0.25);
                     border-right: 1px solid rgba(0, 0, 0, 0.25);
 
-                    // .flex-display();
-                    // .flex-flow(row);
-                    // .flex-wrap(wrap);
                     #gridViewScrollbarWrapper {
                         position: absolute;
-                        right: -7%;
                         overflow-x: hidden;
                         overflow-y: scroll;
-                        width: 103%;
+                        width: ~"calc(100% + 20px)";
                         height: 100%;
                     }
                     #gridViewScrollbarWrapper::-webkit-scrollbar {
                         display: none;
                     }
 
-                    grid-unit {
-                        height: 65px;
-                        width: 45px;
-                        margin: 7px;
-                        text-align: center;
-                        cursor: pointer;
-                        position: relative;
-                        float: left;
-                        display: inline-block;
-                        .gridIcon {
-                            background: url(/images/datastore/db-large.png);
-                            background-repeat: no-repeat;
-                            background-position: 4.5px 3px;
-                            display: inline-block;
-                            width: 50px;
+                    #gridView {
+                        &.gridView {
+                            overflow: auto;
+                            grid-unit.hidden {
+                                > .gridIcon, > .listIcon, > .label, > .dsCount, 
+                                > .dragWrap {
+                                    display: none !important;
+                                }
+                            }
+
+                            .gridViewForGrid() {
+                                height: 65px;
+                                width: 45px;
+                                margin: 7px;
+                                text-align: center;
+                                cursor: pointer;
+                                position: relative;
+                                float: left;
+                                display: inline-block;
+
+                                > .gridIcon {
+                                    display: inline-block;
+                                    width: 50px;
+                                    height: 40px;
+                                }
+
+                                > .listIcon {
+                                    display: none;
+                                }
+
+                                > .label {
+                                    .flex(1 1 25px);
+                                    .flex-order(2);
+                                    .transition (opacity 0.6s);
+                                    font-size: 9px;
+                                    font-weight: 600;
+                                    text-overflow: ellipsis;
+                                    overflow: hidden;
+                                }
+
+                                &.inactive {
+                                    .icon, .label {
+                                        opacity: 0.5;
+                                        .transition (opacity 0.6s);
+                                    }
+                                }
+
+                                &.active {
+                                    background: @color-background-darkDarkGray;
+                                    box-shadow: 0px 0px 0px 2px @color-background-topAction;
+                                    .label {
+                                        font-weight: 700;
+                                        color: #333333;
+                                    }
+                                }
+                            }
+
+                            #addFolderBtn {
+                                .gridViewForGrid();
+                                .gridIcon {
+                                    background: url(/images/datastore/add-folder-large.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 4px 3px;
+                                    background-size: 39px 33px;
+                                }
+                                white-space: normal;
+                                opacity: 0.4;
+                                &:hover {
+                                    opacity: 1.0;
+                                }
+                            }
+
+                            #backFolderBtn {
+                                .gridViewForGrid();
+                                opacity: 1.0;
+                                .gridIcon {
+                                    background: url(/images/datastore/goback.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 4px 3px;
+                                    background-size: 39px 33px;
+                                }
+
+                                &[disabled=disabled] {
+                                    opacity: 0.4;
+                                }
+                            }
+
+                            #deleteFolderBtn {
+                                .gridViewForGrid();
+                                opacity: 0.4;
+                                white-space: normal;
+                                .gridIcon {
+                                    background: url(/images/datastore/delete-folder-lg.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 2px 4px;
+                                    background-size: 39px 33px;
+                                }
+
+                                &.enable {
+                                    opacity: 1.0;
+                                }
+                            }
+
+                            grid-unit:first-of-type {
+                                clear: left;
+                            }
+
+                            grid-unit.ds.display {
+                                .gridViewForGrid();
+                                > .gridIcon {
+                                    background: url(/images/datastore/db-large.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 4.5px 3px;
+                                }
+
+                                > .dragWrap {
+                                    height: 100%;
+                                    width: ~"calc(50% + 7px)";
+                                    position: absolute;
+                                    background: transparent;
+                                    &.leftTopDragWrap {
+                                        // background-color: blue;
+                                        left: -7px;
+                                        &.active {
+                                            box-shadow: inset 2px 0px 0px @color-background-topAction;
+                                        }
+                                    }
+
+                                    &.rightBottomDragWrap {
+                                        // background-color: green;
+                                        left: 50%;
+                                        &.active {
+                                            box-shadow: 2px 0px 0px @color-background-topAction;
+                                        }
+                                    }
+                                }
+                            }
+
+                            grid-unit.folder.display {
+                                .gridViewForGrid();
+
+                                .gridIcon {
+                                    background: url(/images/datastore/folder-lg.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 4px 3px;
+                                    background-size: 39px 33px;
+                                }
+
+                                .label {
+                                    cursor: text;
+                                }
+
+                                .label:focus {
+                                    // border: 1px solid black;
+                                    box-shadow: inset 0px 0px 3px black;
+                                    background: @color-white;
+                                    outline: none;
+                                    white-space: nowrap;
+                                    overflow: scroll;
+                                    width: 150%;
+                                    text-overflow: initial;
+                                    position: absolute;
+                                    left: -10px;
+                                    &::-webkit-scrollbar {
+                                        display: none;
+                                    }
+                                }
+
+                                .dsCount {
+                                    color: @color-text-blue;
+                                    font-weight: 900;
+                                    position: absolute;
+                                    left: -3px;
+                                    right: 0px;
+                                    top: 11px;
+                                    bottom: 0px;
+                                    height: 20px;
+                                    width: 50px;
+                                }
+
+                                > .dragWrap {
+                                    height: 100%;
+                                    position: absolute;
+                                    background: transparent;
+
+                                    &.leftTopDragWrap {
+                                        // background-color: blue;
+                                        left: -7px;
+                                        width: ~"calc(16.5% + 7px)";
+                                         &.active {
+                                            box-shadow: inset 2px 0px 0px @color-background-topAction;
+                                        }
+                                    }
+
+                                    &.rightBottomDragWrap {
+                                        // background-color: green;
+                                        left: 82.5%;
+                                        width: ~"calc(16.5% + 7px)";
+                                        &.active {
+                                            box-shadow: 2px 0px 0px @color-background-topAction;
+                                        }
+                                    }
+
+                                    &.midDragWrap {
+                                        // background-color: yellow;
+                                        width: 66%;
+                                        left: 16.5%;
+                                    }
+                                }
+
+                            }
+
+                        }
+
+                        & .dragWrap {
+                            z-index: -1;
+                        }
+
+                        &.drag .dragWrap {
+                            z-index: 99;
+                        }
+                    
+                        &.listView {
+                            padding-top: 4px;
+                            overflow-y: scroll;
+                            .listViewForGrid() {
+                                position: relative;
+                                display: block;
+                                clear: both;
+                                float: none;
+                                width: 230px;
+                                text-align: left;
+                                margin: 10px 0px 0px 0px;
+                                background-color: transparent;
+                            
+                                 > .label {
+                                    font-size: 11px;
+                                    line-height: 24px;
+                                    height: 25px;
+                                    border-radius: 3px;
+                                    background-color: @color-white;
+                                    box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+                                }
+
+                                > .gridIcon {
+                                    display: none;
+                                }
+
+                                > .listIcon {
+                                    display: inline-block;
+                                    .gray-gradient;
+                                    height: 100%;
+                                    float: left;
+                                    padding-top: 1px;
+                                    margin-right: 10px;
+                                    border-top-left-radius: 3px;
+                                    border-bottom-left-radius: 3px;
+
+                                    .icon {
+                                        margin: 2px 2px 1px 2px;
+                                        display: inline-block;
+                                        width: 19px;
+                                        height: 19px;
+                                    }
+                                }
+
+                                &:hover {
+                                    > .listIcon {
+                                        // .gray-inverse-gradient;
+                                    }
+                                }
+
+                                &.active {
+                                    > .label {
+                                        box-shadow: 0px 0px 0px 2px @color-background-topAction;
+                                    }
+                                    > .listIcon {
+                                        .action-gradient !important;
+                                    }
+                                }
+
+                                &.iconWaiting {
+                                    left: 98px;
+                                    top: -6px;
+                                }
+                            }
+
+                            grid-unit.ds {
+                                .listViewForGrid();
+
+                                > .listIcon .icon {
+                                    background: url(/images/db-icon-white.png) 0 0 no-repeat;
+                                }
+
+                                > .dragWrap {
+                                    width: 100%;
+                                    height: 17.5px;
+                                    position: absolute;
+                                    background: transparent;
+                                    &.leftTopDragWrap {
+                                        // background-color: blue;
+                                        top: -5px;
+                                        &.active {
+                                            box-shadow: inset 0px 2px 0px @color-background-topAction;
+                                        }
+                                    }
+
+                                    &.rightBottomDragWrap {
+                                        // background-color: green;
+                                        top: 12.5px;
+                                        &.active {
+                                            box-shadow: 0px 2px 0px @color-background-topAction;
+                                        }
+                                    }
+                                }
+                            }
+
+                            grid-unit.folder {
+                                .listViewForGrid();
+
+                                > .listIcon .icon {
+                                    background: url(/images/datastore/folder-sm-open.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 2.5px 3px;
+                                }
+
+                                grid-unit {
+                                    margin-left: 5%;
+                                    width: 95%;
+                                    max-width: 230px;
+                                    display: block;
+                                }
+
+                                .label:focus {
+                                    outline: none;
+                                }
+
+                                .dsCount {
+                                    color: @color-text-blue;
+                                    font-weight: 900;
+                                    position: absolute;
+                                    right: 8px;
+                                    top: 3px;
+                                    bottom: 0px;
+                                    height: 25px;
+                                    width: 45px;
+                                    text-align: right;
+                                }
+
+                                > .dragWrap {
+                                    width: 100%;
+                                    position: absolute;
+                                    background: transparent;
+
+                                    &.leftTopDragWrap {
+                                        // background-color: blue;
+                                        top: -5px;
+                                        height: 9.17px;
+                                         &.active {
+                                            box-shadow: inset 0px 2px 0px @color-background-topAction;
+                                        }
+                                    }
+
+                                    &.rightBottomDragWrap {
+                                        // background-color: green;
+                                        top: 20.84px;
+                                        height: 9.16px;
+                                        &.active {
+                                            box-shadow: 0px 2px 0px @color-background-topAction;
+                                        }
+                                    }
+
+                                    &.midDragWrap {
+                                        // background-color: yellow;
+                                        height: 16.67px;
+                                        top: 4.17px;
+                                    }
+                                }
+                            }
+
+                            grid-unit.collapse {
+                                grid-unit {
+                                    display: none !important;
+                                }
+                                &.folder > .listIcon .icon {
+                                    background: url(/images/datastore/folder-sm.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 2.5px 3px;
+                                }
+                            }
+
+                            #addFolderBtn {
+                                .listViewForGrid();
+                                .icon {
+                                    background: url(/images/datastore/add-folder-small.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 2.5px 3px;
+                                }
+                                .label {
+                                    cursor: pointer;
+                                }
+                            }
+
+                            #backFolderBtn {
+                                display: none;
+                            }
+
+                            #deleteFolderBtn {
+                                .listViewForGrid();
+                                .icon {
+                                    background: url(/images/datastore/delete-folder-sm.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 2.5px 3px;
+                                }
+                                opacity: 0.4;
+                                &.enable {
+                                    opacity: 1.0;
+                                }
+                                .label {
+                                    cursor: pointer;
+                                }
+                            }
+                        }
+
+                        #billy {
                             height: 40px;
+                            width: 20px;
                         }
-                        .listIcon {
-                            display: none;
-                        }
-                        .label {
-                            .flex(1 1 25px);
-                            .flex-order(2);
-                            .transition (opacity 0.6s);
-                            font-size: 9px;
-                            font-weight: 600;
-                            text-overflow: ellipsis;
-                            overflow: hidden;
-                        }
-                        &.inactive {
-                            .icon, .label {
-                                opacity: 0.5;
-                                .transition (opacity 0.6s);
-                            }
-                        }
-                        &.active {
-                            box-shadow: 0px 0px 0px 2px @color-background-topAction;
-                            .label {
-                                font-weight: 700;
-                                color: #333333;
-                            }
-                        }
-                    }
-                    &.listView {
-                        padding-top: 4px;
-                        grid-unit {
-                            display: block;
-                            float: none;
-                            height: 25px;
-                            width: 230px;
-                            text-align: left;
-                            margin: 0;
-                            margin-top: 10px;
-                            border-radius: 3px;
-                            background-color: @color-white;
-                            box-shadow: 1px 2px 1px rgba(0,0,0,.2);
-                        }
-                        .label {
-                            font-size: 11px;
-                            line-height: 24px;
-                        }
-                        .gridIcon {
-                            display: none;
-                        }
-                        .listIcon {
-                            display: inline-block;
-                            .gray-gradient;
-                            height: 100%;
-                            float: left;
-                            padding-top: 1px;
-                            margin-right: 10px;
-                            border-top-left-radius: 3px;
-                            border-bottom-left-radius: 3px;
-                        }
-                        .icon {
-                            margin: 2px;
-                            margin-right: 4px;
-                            display: inline-block;
-                            width: 19px;
-                            height: 19px;
-                            background: url(/images/db-icon-white.png) 0 0 no-repeat;
-                        }
-                        grid-unit:hover {
-                            .listIcon {
-                                // .gray-inverse-gradient;
-                            }
-                        }
-                        .active {
-                            box-shadow: 0px 0px 0px 2px @color-background-topAction;
-                            .listIcon {
-                                .action-gradient !important;
-                            }  
-                        }
-                        .iconWaiting {
-                            left: 98px;
-                            top: -6px;
-                        }
-                        
-                    }
-                    #billy {
-                        height: 40px;
-                        width: 20px;
                     }
                 }
+
                 #datasetSearch {
                     .flex(0 0 35px);
                     .flex-order(2);
@@ -613,6 +937,7 @@
                     z-index: 1;
                 }
             }
+
             #contentViewMid {
                 .flex(1 1 auto);
                 .flex-order(2);

@@ -6,11 +6,15 @@ var gTableDirectionLookup = {};
 var gWorksheetName = [];
 var gTableOrderLookup = [];
 
+// data set folder structure
+var gDSObjFolder = {};
+
 function emptyAllStorage() {
     localStorage.removeItem("TILookup");
     localStorage.removeItem("TDLookup");
     localStorage.removeItem("WSName"); 
     localStorage.removeItem("TOLookup");
+    localStorage.removeItem("gDSObj");
 }
 
 function getIndex(tName) {
@@ -95,10 +99,12 @@ function commitToStorage(atStartup) {
     var stringed2 = JSON.stringify(gTableDirectionLookup);
     var stringed3 = JSON.stringify(gWorksheetName);
     var stringed4 = JSON.stringify(gTableOrderLookup);
+    var stringed5 = JSON.stringify(gDSObjFolder);
     localStorage["TILookup"] = stringed;
     localStorage["TDLookup"] = stringed2;
     localStorage["WSName"] = stringed3;
     localStorage["TOLookup"] = stringed4;
+    localStorage["gDSObj"] = stringed5;
 }
 
 function readFromStorage() {
@@ -115,6 +121,9 @@ function readFromStorage() {
     }
     if (localStorage["TOLookup"]) {
         gTableOrderLookup = JSON.parse(localStorage["TOLookup"]);
+    }
+    if (localStorage["gDSObj"]) {
+        gDSObjFolder = JSON.parse(localStorage["gDSObj"]);
     }
 
     XcalarGetDatasets()
@@ -137,6 +146,7 @@ function readFromStorage() {
                     // so we will need to fix this
                     // setIndex(tableName, []);
                 }
+
             }
         }   
         commitToStorage(AfterStartup.After); 
