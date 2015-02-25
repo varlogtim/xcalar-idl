@@ -72,7 +72,7 @@ function infScrolling(tableNum) {
         }
         if ($(this).scrollTop() === 0 && 
             table.find('tbody tr:first').attr('class') != 'row0') {
-                console.log('the top!');
+                // console.log('the top!');
                 var firstRow = table.find('tbody tr:first');
                 var initialTop = firstRow.offset().top;
                 if (table.find("tbody tr").length > 60) {
@@ -89,7 +89,7 @@ function infScrolling(tableNum) {
                 });
         } else if ($(this)[0].scrollHeight - $(this).scrollTop()-
                     $(this).outerHeight() <= 1) {
-            console.log('the bottom!');
+            // console.log('the bottom!');
             gTempStyle = table.find("tbody tr:last").html();
             if (table.find('tbody tr').length >= 80) {
                 // keep row length at 80
@@ -220,14 +220,14 @@ function setupFunctionBar() {
     functionbar.blur(function() {
         if ($(".scratchpad").has(gFnBarOrigin).length != 0) {
         } else {
-            console.log('blurring')
+            // console.log('blurring')
             var selectedCell = $('.xcTableWrap th.selectedCell .editableHead');
             var index = $('th.selectedCell').index();
             // if (gFnBarOrigin.length !=0) {
             if (gFnBarOrigin && selectedCell.length !=0) {
                 var tableNum = parseInt($('.selectedCell').closest('.tableWrap')
                 .attr('id').substring(11));
-                console.log(tableNum)
+                // console.log(tableNum)
                 if (gTables[tableNum].tableCols[index-1].name.length > 0) {
                     displayShortenedHeaderName(gFnBarOrigin, tableNum, index); 
                 } 
@@ -477,59 +477,17 @@ function documentReadyGeneralFunction() {
     });
 }
 
+
 function documentReadyCatFunction(tableNum) {
     var deferred = jQuery.Deferred();
-
     var index = getIndex(gTables[tableNum].frontTableName);
-
-    getNextPage(gTables[tableNum].resultSetId, true, tableNum)
-    .done(function() {
-        if (index && index.length > 0) {
-            gTables[tableNum].tableCols = index;
-            // console.log("Stored "+gTables[tableNum].frontTableName);
-            // XXX Move this into getPage
-            // XXX API: 0105
-            var tableOfEntries =
-                          XcalarGetNextPage(gTables[tableNum].resultSetId,
-                                            gNumEntriesPerPage);
-            gTables[tableNum].keyName = tableOfEntries.keysAttrHeader.name;
-            for (var i = 0; i<index.length; i++) {
-                if (index[i].name != "DATA") {
-                    addCol("col"+(index[i].index-1), 
-                            "xcTable"+tableNum, 
-                            index[i].name,
-                          {width: index[i].width,
-                           isDark: index[i].isDark,
-                           progCol:index[i]});
-                } else {
-                    $("#xcTable"+tableNum+" .table_title_bg.col"+
-                        (index[i].index))
-                        .css("width",index[i].width);
-                }
-            }
-        } else {
-            console.log("Not stored "+gTables[tableNum].frontTableName);
-        }    
-
-        var promises = [];
-        for (var i = 0; i<gTables[tableNum].tableCols.length; i++) {
-            if (gTables[tableNum].tableCols[i].name == "DATA") {
-                // We don't need to do anything here because if it's the first 
-                // time they won't have anything stored. If it's not the first 
-                // time, the column would've been sized already.
-                // If it's indexed, we would've sized it in CatFunction
-            } else { 
-                promises.push(execCol(gTables[tableNum].tableCols[i],
-                                      tableNum));
-            }
-        }
-
-        jQuery.when.apply(jQuery, promises)
-        .done(function() {
-            deferred.resolve();
-        });
-    });
-
+    var firstTime = true; // first time we're loading this table since page load
+    var jsonData = getNextPage(gTables[tableNum].resultSetId, firstTime, 
+                   tableNum);
+    if (index && index.length > 0) {
+        buildInitialTable(index, tableNum, jsonData);
+    }
+    deferred.resolve();
     return (deferred.promise());
 }
 
@@ -569,15 +527,15 @@ function tableStartupFunctions(table, tableNum) {
         gTables[tableNum] = newTableMeta;
         return (documentReadyCatFunction(tableNum));
     })
-    .then(function() {
+    .then(function(val) {
         return goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum)
         .then(goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum));
     })
-    .done(function() {
+    .done(function(val) {
         cloneTableHeader(tableNum);
         focusTable(tableNum);
         var dataCol = $('#xcTable'+tableNum+' tr:eq(0) th.dataCol');
-        addColListeners(parseColNum(dataCol), "xcTable"+tableNum);
+        addColListeners(parseColNum(dataCol), $("#xcTable"+tableNum));
         generateFirstLastVisibleRowNum();
         infScrolling(tableNum);
         checkForScrollBar(tableNum);

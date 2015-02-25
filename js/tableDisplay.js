@@ -1,138 +1,3 @@
-function generateRowWithCurrentTemplate(json, id, rowTemplate, direction, 
-                                        tableNum) {
-    var table = $("#xcTable"+tableNum);
-    // Replace JSON
-    var firstPart = rowTemplate.firstPart;
-    var secondPart = rowTemplate.secondPart;
-    var finalString = firstPart+json+secondPart;
-    // Replace id
-    firstIndex = finalString.indexOf('bookmark">')+('bookmark">').length;
-    secondIndex = finalString.indexOf("<", firstIndex);
-    firstPart = finalString.substring(0, firstIndex);
-    secondPart = finalString.substring(secondIndex);
-    finalString = "<tr class='row"+id+"'>"+firstPart +(id+1)+ secondPart+
-                  "</tr>";
-    if (direction == 1) {
-        var row = "tr:first-child";
-    } else {
-        var row = "tr:last-child";
-    }
-
-    if (table.find("tbody tr").length == 0) {
-        table.find("tbody").append(finalString);
-    } else { 
-        if (direction == 1) {
-            table.prepend(finalString);
-        } else {
-            table.append(finalString);
-        }    
-    }
-
-    // check if this row is bookmarked
-    if (gTables[tableNum].bookmarks.indexOf(id) > -1) {
-        var td = table.find('.row'+id+ ' .col0');
-        td.addClass('rowBookmarked');
-        td.find('.idSpan').attr('title', 'bookmarked');
-    }
-    
-    addRowListeners(id, tableNum);
-}
-
-function generateFirstScreen(value, idNo, tableNum, height) {
-    if (height == undefined) {
-        var cellHeight = gRescol.minCellHeight;
-    } else {
-        var cellHeight = height;
-    }
-    if ($('#xcTable'+tableNum).length != 1) {
-        if (tableNum == 0) {
-            $('#mainFrame').prepend('<div id="xcTableWrap'+tableNum+'"'+
-                    ' class="xcTableWrap tableWrap">'+
-                    '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
-                    '</div></div>');
-        } else {
-            $('#xcTableWrap'+(tableNum-1))
-            .after('<div id="xcTableWrap'+tableNum+'"'+
-                    ' class="xcTableWrap tableWrap">'+
-                    '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
-                    '</div></div>');
-        }
-
-        var newTable = 
-        '<table id="xcTable'+tableNum+'" class="xcTable dataTable">'+
-          '<thead>'+
-          '<tr>'+
-            '<th style="width: 50px;" class="col0 table_title_bg">'+
-              '<div class="header">'+
-                '<input value="" readonly="" tabindex="-1">'+
-              '</div>'+
-            '</th>'+
-            '<th class="col1 table_title_bg dataCol" style="width: 500px;">'+
-              '<div class="header">'+
-                '<div class="dropdownBox"><div class="innerBox"></div></div>'+
-                '<input value="DATA" '+
-                'readonly="" tabindex="-1" class="dataCol col1" '+
-                'title="raw data">'+
-                '<ul class="colMenu" style="display: none;">'+
-                  '<li class="menuClickable">Add a column'+
-                    '<ul class="subColMenu">'+
-                      '<li class="addColumns addColLeft col1">On the left</li>'+
-                      '<li class="addColumns addColRight col1">'+
-                      'On the right</li>'+
-                      '<div class="subColMenuArea"></div>'+
-                    '</ul>'+
-                    '<div class="dropdownBox"></div>'+
-                  '</li>'+
-                  '<li id="duplicate3" class="duplicate col1">'+
-                  'Duplicate column</li>'+
-                  '<li class="sort col1">Sort</li>'+
-                  '<li class="hide col1">Hide column</li>'+
-                  '<li class="unhide col1">Unhide column</li>'+
-                '</ul>'+
-              '</div>'+
-            '</th>'+
-          '</tr>'+
-          '</thead>'+
-          '<tbody>'+
-          '</tbody>'+
-        '</table>';
-        $('#xcTbodyWrap'+tableNum).append(newTable);
-    }
-    var table = $("#xcTable"+tableNum);
-    table.append('<tr class="row'+idNo+'">'+
-        '<td align="center" class="col0" style="height:'+cellHeight+'px;">'+
-        '<div class="idWrap">'+
-        '<span class="idSpan" title="double-click to bookmark">'+
-        (idNo+1)+'</span><div class="rowGrab"></div></div></td>'+
-        '<td class="jsonElement col1">'+
-        '<div title="double-click to view" '+
-        'class="elementTextWrap" style="max-height:'+
-        (cellHeight-4)+'px;">'+
-        '<div class="elementText">'+
-        value+'</div>'+
-        '</div>'+
-        '</td>'+
-        '</tr>');
-
-    addRowListeners(idNo, tableNum);
-}
-
-function createRowTemplate(tableNum) {
-    var startString = '<div class="elementText">';
-    var endString="</div>";
-    var originalString = $("#xcTable"+tableNum+" tbody tr:last").html() ||
-                         gTempStyle;
-    var index = originalString.indexOf(startString);
-    var firstPart = originalString.substring(0, index+startString.length);
-    var secondPart = originalString.substring(index+startString.length+1);
-    var secondIndex = secondPart.indexOf(endString);
-    secondPart = secondPart.substring(secondIndex);
-    var parts = {};
-    parts.firstPart = firstPart;
-    parts.secondPart = secondPart;
-    return (parts);
-}
-
 // Adds a table to the display
 // Shifts all the ids and everything
 function addTable(tableName, tableNum, AfterStartup) {
@@ -236,4 +101,136 @@ function deleteTable(tableNum, deleteArchived) {
     XcalarSetFree(resultSetId);    
     // Trigger delete
     return XcalarDeleteTable(backTableName);
+}
+
+function buildInitialTable(index, tableNum, jsonData) {
+    var table = gTables[tableNum];
+    table.tableCols = index;
+    var tableOfEntries = XcalarGetNextPage(gTables[tableNum].resultSetId,
+                                           gNumEntriesPerPage);
+    table.keyName = tableOfEntries.keysAttrHeader.name;
+    
+    var dataIndex = generateTableShell(table.tableCols, tableNum);
+    var numRows = jsonData.length;
+    var startIndex = 0;
+
+    addRowScroller(tableNum);
+    if (numRows == 0) {
+        console.log('no rows found, ERROR???');
+        $('#rowScroller'+tableNum).addClass('hidden');
+        jsonData = [""];
+    }
+
+    pullRowsBulk(tableNum, jsonData, startIndex, dataIndex);
+    addTableListeners(tableNum);
+    var numCols = table.tableCols.length;
+    var $table = $('#xcTable'+tableNum);
+    for (var i = 1; i <= numCols; i++) {
+        addColListeners(i, $table);
+    }
+    if (numRows == 0) {
+        $table.find('.idSpan').text("");
+    }
+}
+
+function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
+    // this function does some preparation for pullAllCols()
+    var startIndex = startIndex || 0;
+    var $table = $('#xcTable'+tableNum);
+
+    // get the column number of the datacolumn
+    if (dataIndex === null) {
+        dataIndex = parseColNum($('#xcTable'+tableNum)
+                    .find('tr:first .dataCol')) - 1;
+    }
+    var newCells = pullAllCols(startIndex, jsonData, dataIndex, tableNum, 
+                    direction);
+    addRowListeners(newCells);
+
+    var idColWidth = getTextWidth($table.find('tr:last td:first'));
+    var newWidth = Math.max(idColWidth, 22);
+    var padding = 12;
+    if ($table.find('.fauxTHead').length != 0) {
+        padding += 5;
+    }
+    $table.find('th:first-child').width(newWidth+padding);
+    var colNum = 0;
+    matchHeaderSizesOptimal(colNum, $table);
+}
+
+function generateTableShell(columns, tableNum) {
+    // creates a new table, completed thead, and empty tbody
+    if (tableNum == 0) {
+        $('#mainFrame').prepend('<div id="xcTableWrap'+tableNum+'"'+
+                ' class="xcTableWrap tableWrap">'+
+                '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
+                '</div></div>');
+    } else {
+        $('#xcTableWrap'+(tableNum-1))
+        .after('<div id="xcTableWrap'+tableNum+'"'+
+                ' class="xcTableWrap tableWrap">'+
+                '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
+                '</div></div>');
+    }
+
+    var newTable = 
+        '<table id="xcTable'+tableNum+'" class="xcTable dataTable" '+
+        'style="width:0px;">'+
+          '<thead>'+
+          '<tr>'+
+            '<th style="width: 50px;" class="col0 table_title_bg">'+
+              '<div class="header">'+
+                '<input value="" readonly="" tabindex="-1">'+
+              '</div>'+
+            '</th>';
+    var numCols = columns.length;
+    // info we need:  progColstuff
+    var dataIndex = null;
+    for (var i = 0; i < numCols; i++) {
+        var color = "";
+        var indexedColumnClass = ""; 
+        if (columns[i].name == gTables[tableNum].keyName) {
+            indexedColumnClass = " indexedColumn";
+        }
+        if (columns[i].name == "DATA") {
+            dataIndex = i;
+            newTable +=
+                '<th class="col'+(i+1)+' table_title_bg dataCol" '+
+                'style="width:'+columns[i].width+'px;">'+
+                  '<div class="header">'+
+                    '<div class="dropdownBox"><div class="innerBox">'+
+                    '</div></div>'+
+                    '<input value="DATA" '+
+                    'readonly="" tabindex="-1" class="dataCol col'+(i+1)+
+                    ' data-toggle="tooltip" data-placement="bottom" '+
+                    '" title="raw data">'+
+                    '<ul class="colMenu" style="display: none;">'+
+                      '<li class="menuClickable">Add a column'+
+                        '<ul class="subColMenu">'+
+                          '<li class="addColumns addColLeft col'+(i+1)+'">'+
+                            'On the left</li>'+
+                          '<li class="addColumns addColRight col'+(i+1)+'">'+
+                          'On the right</li>'+
+                          '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                      '</li>'+
+                      '<li id="duplicate'+(i+1)+
+                      '" class="duplicate col'+(i+1)+'">'+
+                      'Duplicate column</li>'+
+                      '<li class="sort col'+(i+1)+'">Sort</li>'+
+                      '<li class="hide col'+(i+1)+'">Hide column</li>'+
+                      '<li class="unhide col'+(i+1)+'">Unhide column</li>'+
+                    '</ul>'+
+                  '</div>'+
+                '</th>';
+        } else {
+            newTable += generateColumnHeadHTML(indexedColumnClass, color,
+                       (i+1), columns[i].name, columns[i].width);
+        }  
+    }
+
+    newTable += '</tr></thead><tbody></tbody></table>';
+    $('#xcTbodyWrap'+tableNum).append(newTable);
+    return (dataIndex);
 }

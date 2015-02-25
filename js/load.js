@@ -80,6 +80,9 @@ function setupImportDSForm() {
             case ("zh"): 
                 file = "teachers"; 
                 break;
+            case ("zi"): 
+                file = "jsonGen"; 
+                break;
             default: 
                 break;
             }
@@ -116,6 +119,9 @@ function setupImportDSForm() {
             break;
         case ("teachers"):
             filePath = "qa/indexJoin/teachers"; 
+            break;
+        case ("jsonGen"):
+            filePath = "jsonGen"; 
             break;
         default: 
             break;

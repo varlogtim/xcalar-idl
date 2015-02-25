@@ -109,7 +109,7 @@ function parseCol(funcString, colId, tableNum, modifyCol) {
     } else {
         progCol = new ProgCol();
     }
-    console.log(progCol)
+    // console.log(progCol)
     progCol.userStr = funcString;
     progCol.name = name;
     progCol.func = cleanseFunc(funcSt);
@@ -206,7 +206,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
             var value = jQuery.parseJSON(jsonStr);
         }
         for (var j = 0; j<nested.length; j++) {
-            if (value[nested[j]] == undefined || $.isEmptyObject(value)) {
+            if ($.isEmptyObject(value) || value[nested[j]] == undefined) {
                 value = "";
                 break;
             }
@@ -253,7 +253,142 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
          .addClass(columnType);
 }
 
+function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
+    var table = gTables[tableNum];
+    var tableCols = table.tableCols;
+    var indexedColNum = null;
+    var numCols = tableCols.length;
+    var numRows = jsonData.length;
+    var nestedVals = [];
+    var tBodyHTML = "";
+    var startIndex = startIndex || 0;
+    var columnTypes = [];
+   
+    for (var i = 0; i < numCols; i++) {
+        if ((i != dataIndex) && tableCols[i].func.args) {
+            var nested = tableCols[i].func.args[0]
+                         .replace(/\]/g, "")
+                         .replace(/\[/g, ".")
+                         .split(".");
+            nestedVals.push(nested);
+            // get the column number of the column the table was indexed on
+            if (tableCols[i].name == table.keyName) {
+                indexedColNum = i;
+            }
+        } else { // this is the data Column
+            nestedVals.push([""]);
+        }
+        // track column type
+        columnTypes.push(undefined);
+    }
+    // loop through table tr and start building html
+    for (var row = 0; row < numRows; row++) {
+        if (jsonData[row] == "") {
+            console.log('No DATA found in this row??');
+            var dataValue = "";
+        } else {
+            var dataValue = $.parseJSON(jsonData[row]);
+        }
+
+        var rowNum = row+startIndex;
+        tBodyHTML += '<tr class="row'+(rowNum)+'">';
+        tBodyHTML += '<td align="center" class="col0">'+
+                     '<div class="idWrap">'+
+                     '<span class="idSpan" '+
+                     'data-toggle="tooltip" data-placement="bottom" '+
+                     'title="double-click to bookmark">'+
+                      (rowNum+1)+'</span>'+
+                      '<div class="rowGrab"></div>'+
+                      '</div></td>';
+
+        // loop through table tr's tds
+        for (var col = 0; col < numCols; col++) { 
+            var nested = nestedVals[col];
+            var tdValue = dataValue;
+            if (col != dataIndex) {
+                if (nested == undefined) {
+                    console.log('Error this value should not be empty');
+                }
+                var nestedLength = nested.length;
+                for (var i = 0; i<nestedLength; i++) {
+                    if ($.isEmptyObject(tdValue) || 
+                        tdValue[nested[i]] == undefined) {
+                        tdValue = "";
+                        break;
+                    }
+                    tdValue = tdValue[nested[i]];
+                }  
+                
+                // XXX giving classes to table cells may actually be done later
+                var indexedColumnClass = "";
+                if (col == indexedColNum) {
+                    indexedColumnClass = " indexedColumn";
+                }
+                tBodyHTML += '<td class="'+indexedColumnClass+
+                             ' col'+(col+1)+'">'+
+                             '<div class="addedBarTextWrap">'+
+                             '<div class="addedBarText">';
+            } else {
+                // make data td;
+                tdValue = jsonData[row];
+                tBodyHTML += '<td class="col'+(col+1)+' jsonElement">'+
+                             '<div data-toggle="tooltip" '+
+                             'data-placement="bottom" '+
+                             'title="double-click to view" '+
+                             'class="elementTextWrap">'+
+                             '<div class="elementText">';
+            }
+
+            //define type of the column
+            if (tdValue !== "" && columnTypes[col] !== "mixed") {
+                var type = typeof tdValue;
+                if (type == "object" && (tdValue instanceof Array)) {
+                    type = "array";
+                }
+                if(columnTypes[col] == undefined) {
+                    columnTypes[col] = type;
+                }else if(columnTypes[col] !== type) {
+                    columnTypes[col] = "mixed";
+                }
+            }
+
+            tdValue = parseJsonValue(tdValue);
+            tBodyHTML += tdValue+'</div></div></td>';
+        }
+        tBodyHTML += '</tr>';
+    }
+    tBodyHTML = $(tBodyHTML);
+
+    if (direction == 1) {
+        $('#xcTable'+tableNum).find('tbody').prepend(tBodyHTML);
+    } else {
+        $('#xcTable'+tableNum).find('tbody').append(tBodyHTML);
+    }
+
+    // assign column type class to header menus
+    var $table = $('#xcTable'+tableNum);
+    var $theadWrap = $('#xcTheadWrap'+tableNum);
+    for (var i = 0; i < numCols; i++) {
+        $theadWrap.find('th.col' + (i+1) + ' ul.colMenu')
+            .removeClass("mixed")
+            .removeClass("string")
+            .removeClass("number")
+            .removeClass("object")
+            .removeClass("array")
+            .addClass(columnTypes[i]);
+        $table.find('th.col' + (i+1) + ' ul.colMenu')
+            .removeClass("mixed")
+            .removeClass("string")
+            .removeClass("number")
+            .removeClass("object")
+            .removeClass("array")
+            .addClass(columnTypes[i]);
+    }
+    return tBodyHTML;
+}
+
 function addCol(colId, tableId, name, options) {
+    console.log('addCol')
     //colId will be the column class ex. col2
     //tableId will be the table name  ex. xcTable0
     var tableNum = parseInt(tableId.substring(7));
@@ -276,15 +411,15 @@ function addCol(colId, tableId, name, options) {
     }
     if (name == null) {
         name = "";
-        var select = true;
+        select = true;
     } else if (name == gTables[tableNum].keyName) {
-        indexedColumnClass = "indexedColumn";
+        indexedColumnClass = " indexedColumn";
     }
     if (select) {
-        var color = "selectedCell";
+        var color = " selectedCell";
         $('.selectedCell').removeClass('selectedCell');
     } else if (isDark) {
-        var color = "unusedCell";
+        var color = " unusedCell";
     } else {
         var color = "";
     }
@@ -299,27 +434,61 @@ function addCol(colId, tableId, name, options) {
     for (var i = numCol; i>=newColid; i--) {
         tables.find('.col'+i).removeClass('col'+i).addClass('col'+(i+1));
     }  
-    var columnHeadTd = '<th class="table_title_bg '+color+
-       ' '+indexedColumnClass+
-       ' col'+newColid+'" style="width:'+width+'px;" label="click to edit">'+
+    var columnHeadHTML = generateColumnHeadHTML(indexedColumnClass, color,
+                       newColid, name, width);
+    
+    tables.find('.table_title_bg.col'+(newColid-1)).after(columnHeadHTML); 
+
+    addColListeners(newColid, table);
+
+    var numRow = table.find("tbody tr").length;
+    var idOfFirstRow = table.find("tbody tr:first").attr("class");
+    if (idOfFirstRow) {
+        var startingIndex = parseInt(idOfFirstRow.substring(3));
+    } else {
+        var startingIndex = 1;
+    }
+
+    for (var i = startingIndex; i<startingIndex+numRow; i++) {
+        var newCellHTML = '<td '+
+            'class="'+color+' '+indexedColumnClass+' col'+newColid+'">&nbsp;</td>';
+            table.find(".row"+i+" .col"+(newColid-1)).after(newCellHTML);
+    }
+
+    if (inFocus) {
+        headerWrap.find('tr:first .editableHead.col'+newColid).focus();
+    }
+    matchHeaderSizes(tableNum);
+    checkForScrollBar(tableNum);
+}
+
+function generateColumnHeadHTML(indexedColClass, color, newColid, name, width) {
+    var columnHeadTd = '<th class="table_title_bg'+color+indexedColClass+
+       ' col'+newColid+'" style="width:'+width+'px;">'+
        '<div class="header">'+
        '<div class="dragArea"></div>'+
-       '<div class="dropdownBox" title="view column options">'+
+       '<div class="dropdownBox" data-toggle="tooltip" data-placement="bottom"'+
+       'title="view column options">'+
         '<div class="innerBox"></div></div>'+
            '<input autocomplete="on" input spellcheck="false"'+
            'type="text" class="editableHead col'+newColid+'" '+
+           'data-toggle="tooltip" data-placement="bottom"'+
            'title="click to edit" value=\'';
     if (!name) {
         columnHeadTd += '"newCol"=map(add(col1, col2))';
     } else {
         columnHeadTd += name;
     }
-    columnHeadTd += '\' size="15" placeholder=""/>'+
-       '</div>'+
+    columnHeadTd += '\' size="15" placeholder=""/>';
+    columnHeadTd += generateColDropDownHTML(newColid);
+    columnHeadTd += '</div>'+
        '</th>';
-    tables.find('.table_title_bg.col'+(newColid-1)).after(columnHeadTd); 
+    return (columnHeadTd);
+}
 
-    var dropDownHTML = '<ul class="colMenu">'+
+function generateColDropDownHTML(newColid) {
+    var dropDownHTML = 
+        '<ul class="colMenu">'+
             '<li>'+
                 'Add a column'+
                 '<ul class="subColMenu">'+
@@ -428,105 +597,76 @@ function addCol(colId, tableId, name, options) {
     // whether the type is a string or a int
     if (true) { // This check is here so that you don't have to indent in the
                 // in the future. O:D
-        dropDownHTML += '<li class="filterWrap col'+newColid+'">Filter'+
+        dropDownHTML += 
+            '<li class="filterWrap col'+newColid+'">Filter'+
+                '<ul class="subColMenu">'+
+                    '<li class="filter numFilter">Greater Than'+
+                        '<span class="greaterThan"></span>'+
                         '<ul class="subColMenu">'+
-                            '<li class="filter numFilter">Greater Than'+
-                                '<span class="greaterThan"></span>'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
-                                '<div class="dropdownBox"></div>'+
-                            '</li>'+
-                            '<li class="filter numFilter">'+
-                                '<span class="greaterEqual"></span>'+
-                                'Greater Than Equal To'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
-                                '<div class="dropdownBox"></div>'+
-                            '</li>'+
-                            '<li class="filter numFilter">Equals'+
-                                '<span class="equal"></span>'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
-                                '<div class="dropdownBox"></div>'+
-                            '</li>'+
-                            '<li class="filter numFilter">Less Than'+
-                                '<span class="lessThan"></span>'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
-                                '<div class="dropdownBox"></div>'+
-                            '</li>'+
-                            '<li class="filter numFilter">Less Than Equal To'+
-                                '<span class="lessEqual"></span>'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="0"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
-                                '<div class="dropdownBox"></div>'+
-                            '</li>'+
-                            '<li class="filter strFilter">Like'+
-                                '<span class="like"></span>'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
-                                '<div class="dropdownBox"></div>'+
-                            '</li>'+
-                            '<li class="filter strFilter">Regex'+
-                                '<span class="regex"></span>'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value="*"/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
-                                '<div class="dropdownBox"></div>'+
-                            '</li>'+
-                            '<li class="filter mixedFilter">Others'+
-                                '<ul class="subColMenu">'+
-                                    '<li><input type="text" value=""/></li>'+
-                                    '<div class="subColMenuArea"></div>'+
-                                '</ul>'+
-                                '<div class="dropdownBox"></div>'+
-                            '</li>'+
+                            '<li><input type="text" value="0"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
-                        '</li>'+
-                        '<li class="joinList col'+newColid+'">'+'Join';
+                    '</li>'+
+                    '<li class="filter numFilter">'+
+                        '<span class="greaterEqual"></span>'+
+                        'Greater Than Equal To'+
+                        '<ul class="subColMenu">'+
+                            '<li><input type="text" value="0"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
+                    '<li class="filter numFilter">Equals'+
+                        '<span class="equal"></span>'+
+                        '<ul class="subColMenu">'+
+                            '<li><input type="text" value="0"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
+                    '<li class="filter numFilter">Less Than'+
+                        '<span class="lessThan"></span>'+
+                        '<ul class="subColMenu">'+
+                            '<li><input type="text" value="0"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
+                    '<li class="filter numFilter">Less Than Equal To'+
+                        '<span class="lessEqual"></span>'+
+                        '<ul class="subColMenu">'+
+                            '<li><input type="text" value="0"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
+                    '<li class="filter strFilter">Regex'+
+                        '<span class="regex"></span>'+
+                        '<ul class="subColMenu">'+
+                            '<li><input type="text" value="*"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
+                    '<li class="filter mixedFilter">Others'+
+                        '<ul class="subColMenu">'+
+                            '<li><input type="text" value=""/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
+                    '<div class="subColMenuArea"></div>'+
+                '</ul>'+
+                '<div class="dropdownBox"></div>'+
+                '</li>'+
+                '<li class="joinList col'+newColid+'">'+'Join';
                             // '<ul class="subColMenu" id="joinTables">';
     }
     // dropDownHTML += '</ul><div class="dropdownBox"></div>'+
     //                 '<div class="subColMenuArea"></div></li>';
     dropDownHTML += '</li>';
-    tables.find('.table_title_bg.col'+newColid+' .header').append(dropDownHTML);
-    addColListeners(newColid, tableId);
-
-    var numRow = table.find("tbody tr").length;
-    var idOfFirstRow = table.find("tbody tr:first").attr("class");
-    if (idOfFirstRow) {
-        var startingIndex = parseInt(idOfFirstRow.substring(3));
-    } else {
-        var startingIndex = 1;
-    }
-
-    for (var i = startingIndex; i<startingIndex+numRow; i++) {
-        var newCellHTML = '<td '+
-            'class="'+color+' '+indexedColumnClass+' col'+newColid+
-            '">&nbsp;</td>';
-            table.find(".row"+i+" .col"+(newColid-1)).after(newCellHTML);
-    }
-
-    if (inFocus) {
-        headerWrap.find('tr:first .editableHead.col'+newColid).focus();
-    }
-    matchHeaderSizes(tableNum);
-    checkForScrollBar(tableNum);
+    return (dropDownHTML);
 }
 
 function hideCol(colid, tableid) {
