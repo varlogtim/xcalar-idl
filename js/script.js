@@ -565,8 +565,10 @@ function tableStartupFunctions(table, tableNum) {
         gTables[tableNum] = newTableMeta;
         return (documentReadyCatFunction(tableNum));
     })
-    .then(goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum))
-    .then(goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum))
+    .then(function() {
+        return goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum)
+        .then(goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum));
+    })
     .done(function() {
         cloneTableHeader(tableNum);
         focusTable(tableNum);
