@@ -87,6 +87,7 @@ function setIndex(tName, index) {
     gTableIndicesLookup[tName] = {};
     gTableIndicesLookup[tName]['columns'] = index;
     gTableIndicesLookup[tName]['active'] = true;
+    gTableIndicesLookup[tName]['timeStamp'] = (new Date()).getTime();
 }
 
 function setDirection(tName, order) {

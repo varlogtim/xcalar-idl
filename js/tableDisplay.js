@@ -178,14 +178,19 @@ function archiveTable(tableNum, del) {
     if (!del) {
         gHiddenTables.push(deletedTable[0]);
         gTableIndicesLookup[tableName].active = false;
+        gTableIndicesLookup[tableName].timeStamp = (new Date()).getTime();
         moveMenuBarTable(deletedTable[0]);
     } else {
         delete (gTableIndicesLookup[tableName]);
-        $("#activeTablesList").find('.tableName').filter(
-            function() {
-                return ($(this).text() == tableName);
-            }
-        ).closest("li").remove();
+        var $li = $("#activeTablesList").find('.tableName').filter(
+                    function() {
+                        return ($(this).text() == tableName);
+                    }).closest("li");
+        var $timeLine = $li.parent().parent();
+        $li.remove();
+        if ($timeLine.find('.tableInfo').length == 0) {
+            $timeLine.remove();
+        }
     }
     for (var i = tableNum+1; i<=gTables.length; i++) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i-1));

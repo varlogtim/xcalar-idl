@@ -1221,9 +1221,18 @@ body {
     height: ~"calc(100% - 35px)";
     ul {
         list-style: none;
-        margin: 0 10px 10px;
+        margin: 0 10px;
     }
-    li {
+    li.timeLine {
+        margin-top: -1px;
+        width: 100%;
+        color: @color-text-darkGray;
+        font-size: 13px;
+        line-height: 25px;
+        position: relative;
+    }
+
+    li.tableInfo {
         width: 100%;
         margin-top: 4px;
         color: @color-text-darkGray;
@@ -1252,14 +1261,14 @@ body {
     }
 
     ul#activeTablesList {
-        margin-top: 20px;
+        margin-top: 10px;
     }
     .timeStampWrap {
         width: 24%;
         height: 25px;
         display: inline-block;
         float: left;
-        line-height: 11px;
+        line-height: 15px;
         font-size: 9px;
         left: -1%;
         position: relative;
