@@ -452,10 +452,11 @@
                     }
                 }
                 #importDataArea {
-                    .flex(0 0 58px);
+                    .flex(0 0 59px);
                     .flex-order(3);
                     background-color: rgb(230, 230, 230);
-                    border-right: 1px solid @color-background-lightGray;
+                    border-bottom: 1px solid rgba(0,0,0,0.25);
+                    border-right: 1px solid rgba(0, 0, 0, 0.25);
                     z-index: 2;
                     #importDataButton {
                         position: relative;
@@ -470,6 +471,94 @@
                         }
                     }
                 }
+
+                #gridViewButtonArea {
+                    .flex(0 0 31px);
+                    .flex-order(2);
+                    display: flex;
+                    position: relative;
+                    background-color: @color-background-bottomGrayMed;
+                    border-right: 1px solid rgba(0, 0, 0, 0.25);
+
+                    .gridViewButton(@order) {
+                        .flex(1 1 auto);
+                        .flex-order(@order);
+                        height: 100%;
+                        cursor: pointer;
+                        .icon {
+                            display: inline-block;
+                            width: 25px;
+                            height: 25px;
+                            margin: 3px 5px 3px 8px;
+                            background-repeat: no-repeat;
+                            background-position: 0px 0px;
+                            background-size: 25px 25px;
+                            float: left;
+                        }
+
+                        .label {
+                            display: inline-block;
+                            .transition (opacity 0.6s);
+                            font: @font-base;
+                            font-size: 11px;
+                            text-align: center;
+                            float: left;
+                            line-height: 32px;
+                            color: @color-text-black;
+                        }
+                    }
+                    #backFolderBtn {
+                        .gridViewButton(1);
+                        .gray-gradient;
+                        &:hover {
+                            .gray-inverse-gradient;
+                        }
+                        .icon {
+                            background: url(/images/datastore/btn-upper-folder.png);
+                        }
+                        .label {
+                            font-size: 12px;
+                        }
+                        &.disabled {
+                            background: @color-background-darkGray;
+                            opacity: 0.3;
+                            cursor: default;
+                        }
+                        &.active {
+                            .gray-inverse-gradient;
+                            opacity: 1.0;
+                        }
+                    }
+                    #addFolderBtn {
+                        .gridViewButton(2);
+                        border-left: 1px solid rgba(118, 118, 118, 0.5);
+                        border-right: 1px solid rgba(118, 118, 118, 0.5);
+                        .icon {
+                            background: url(/images/datastore/btn-add-folder.png);
+                        }
+                        .gray-gradient;
+                        &:hover {
+                            .gray-inverse-gradient;
+                        }
+                    }
+                    #deleteFolderBtn {
+                        .gridViewButton(3);
+                        .gray-gradient;
+                        &:hover {
+                            .gray-inverse-gradient;
+                        }
+                        .icon {
+                            background: url(/images/datastore/btn-delete-folder.png);
+                        }
+
+                        &.disabled {
+                            opacity: 0.3;
+                            background: @color-background-darkGray;
+                            cursor: default;
+                        }
+                    }
+                }
+
                 #gridViewWrapper {
                     .flex(1 1 auto);
                     .flex-order(1);
@@ -478,8 +567,7 @@
                     overflow: hidden;
                     background-color: @color-background-darkGray;
                     z-index: 1;
-                    box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
-                    border-top: 1px solid rgba(0,0,0,0.25);
+                    border-top: 1px solid rgba(154,154,154,1);
                     border-right: 1px solid rgba(0, 0, 0, 0.25);
 
                     #gridViewScrollbarWrapper {
@@ -547,52 +635,6 @@
                                         font-weight: 700;
                                         color: #333333;
                                     }
-                                }
-                            }
-
-                            #addFolderBtn {
-                                .gridViewForGrid();
-                                .gridIcon {
-                                    background: url(/images/datastore/add-folder-large.png);
-                                    background-repeat: no-repeat;
-                                    background-position: 4px 3px;
-                                    background-size: 39px 33px;
-                                }
-                                white-space: normal;
-                                opacity: 0.4;
-                                &:hover {
-                                    opacity: 1.0;
-                                }
-                            }
-
-                            #backFolderBtn {
-                                .gridViewForGrid();
-                                opacity: 1.0;
-                                .gridIcon {
-                                    background: url(/images/datastore/goback.png);
-                                    background-repeat: no-repeat;
-                                    background-position: 4px 3px;
-                                    background-size: 39px 33px;
-                                }
-
-                                &[disabled=disabled] {
-                                    opacity: 0.4;
-                                }
-                            }
-
-                            #deleteFolderBtn {
-                                .gridViewForGrid();
-                                opacity: 0.4;
-                                white-space: normal;
-                                .gridIcon {
-                                    background: url(/images/datastore/delete-folder-lg.png);
-                                    background-repeat: no-repeat;
-                                    background-position: 2px 4px;
-                                    background-size: 39px 33px;
-                                }
-
-                                &.enable {
-                                    opacity: 1.0;
                                 }
                             }
 
@@ -881,38 +923,6 @@
                                     background: url(/images/datastore/folder-sm.png);
                                     background-repeat: no-repeat;
                                     background-position: 2.5px 3px;
-                                }
-                            }
-
-                            #addFolderBtn {
-                                .listViewForGrid();
-                                .icon {
-                                    background: url(/images/datastore/add-folder-small.png);
-                                    background-repeat: no-repeat;
-                                    background-position: 2.5px 3px;
-                                }
-                                .label {
-                                    cursor: pointer;
-                                }
-                            }
-
-                            #backFolderBtn {
-                                display: none;
-                            }
-
-                            #deleteFolderBtn {
-                                .listViewForGrid();
-                                .icon {
-                                    background: url(/images/datastore/delete-folder-sm.png);
-                                    background-repeat: no-repeat;
-                                    background-position: 2.5px 3px;
-                                }
-                                opacity: 0.4;
-                                &.enable {
-                                    opacity: 1.0;
-                                }
-                                .label {
-                                    cursor: pointer;
                                 }
                             }
                         }

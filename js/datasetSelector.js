@@ -5,17 +5,17 @@ function setupDSCartButtons() {
     $('#gridViewWrapper').on('click', function() {
         // this hanlder is called before the following one
         $gridView.find('.active').removeClass('active');
-        $deleteFolderBtn.removeClass('enable');
+        $deleteFolderBtn.addClass('disabled');
     });
 
     $gridView.on('click','grid-unit', function(event) {
         event.stopPropagation(); // stop event bubbling
         $gridView.find('.active').removeClass('active');
         $(this).addClass('active');
-        $deleteFolderBtn.removeClass('enable');
+        $deleteFolderBtn.addClass('disabled');
         // folder now do not show anything
         if ($(this).hasClass('folder')) {
-            $deleteFolderBtn.addClass('enable');
+            $deleteFolderBtn.removeClass('disabled');
             return;
         }
 
@@ -76,7 +76,7 @@ function setupDSCartButtons() {
     $gridView.on('dblclick', '.folder > .gridIcon, .folder > .dsCount', function(event) {
         var $grid = $(event.target).closest('grid-unit.folder');
         $gridView.find('.active').removeClass('active');
-        $deleteFolderBtn.removeClass('enable');
+        $deleteFolderBtn.addClass('disabled');
         if ($gridView.hasClass('gridView')) {
             changeDSDir($grid.attr("data-dsId"));
         }
@@ -640,7 +640,7 @@ function setupDatasetList() {
     var $gridView = $("#gridView");
     $gridView.addClass("gridView"); // default open gridView
     
-    dsBtnInitizlize($gridView);
+    dsBtnInitizlize($('#gridViewButtonArea'));
     gDSInitialization();
 
     function appendGrid(datasetId) {

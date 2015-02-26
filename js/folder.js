@@ -188,38 +188,34 @@ function gDSInitialization() {
 * @method dsBtnInitizlize
 * @param {Jquery} $gridView, place to append button
 */
-function dsBtnInitizlize($gridView) {
+function dsBtnInitizlize($gridViewBtnArea) {
     var html = "";
-    html += '<div id="backFolderBtn"  disabled="disabled"' + 
+    html += '<div id="backFolderBtn"  class="disabled"' + 
+                ' title="See previous folders"' + 
                 ' ondrop="dsDropBack(event)"' + 
                 ' ondragover="allowDSDrop(event)"' + 
                 ' ondragenter="dsDragEnter(event)">' +
-                '<div class="gridIcon"></div>' +
+                '<div class="icon"></div>' +
                 '<div class="label">' + 
-                    'Back Up' + 
+                    '..' + 
                 '</div>' + 
             '</div>';
 
-    html += '<div id="addFolderBtn">' + 
-                '<div class="gridIcon"></div>' +
-                '<div class="listIcon">' + 
-                    '<span class="icon"></span>' + 
-                '</div>' +
+    html += '<div id="addFolderBtn" title="Add New Folder">' + 
+                '<div class="icon"></div>' +
                 '<div class="label">' + 
-                    'Add New Folder' + 
+                    'NEW' + 
                 '</div>' + 
             '</div>';
 
-    html += '<div id="deleteFolderBtn">' + 
-                '<div class="gridIcon"></div>' +
-                '<div class="listIcon">' + 
-                    '<span class="icon"></span>' + 
-                '</div>' +
+    html += '<div id="deleteFolderBtn" class="disabled"' + 
+            ' title="Delete Folder">' + 
+                '<div class="icon"></div>' +
                 '<div class="label">' + 
-                    'Delete Folder' + 
+                    'DELETE' + 
                 '</div>' + 
             '</div>';
-    $gridView.append(html);
+    $gridViewBtnArea.append(html);
 
     // click "Add New Folder" button to add new folder
     $("#addFolderBtn").click(function() {
@@ -229,7 +225,7 @@ function dsBtnInitizlize($gridView) {
 
     // click "Back Up" button to go back to parent folder
     $("#backFolderBtn").click(function() {
-        if ($(this).attr('disabled')) {
+        if ($(this).hasClass('disabled')) {
             return;
         }
         dsGoBackUp();
@@ -237,12 +233,13 @@ function dsBtnInitizlize($gridView) {
 
     // click "Delete Folder" button to delete folder
     $("#deleteFolderBtn").click(function() {
-        if ($(this).hasClass('enable')) {
-             var $folder = $('grid-unit.folder.active');
-             var folderId = $folder.attr('data-dsId');
-             if (removeDS(folderId) === true) {
-                $folder.remove();
-             }
+        if ($(this).hasClass('disabled')) {
+             return;
+        }
+        var $folder = $('grid-unit.folder.active');
+        var folderId = $folder.attr('data-dsId');
+        if (removeDS(folderId) === true) {
+            $folder.remove();
         }
     });
 }
@@ -388,7 +385,8 @@ function createDSEle(id, name, parentId, isFolder) {
                         '<span class="icon"></span>' +
                     '</div>' +
                     '<div class="dsCount">0</div>' + 
-                    '<div class="label" contentEditable="true">' + 
+                    '<div title="Click to rename"' + 
+                        ' class="label" contentEditable="true">' + 
                         ds.name + 
                     '</div>' + 
                 '</grid-unit>';
@@ -441,7 +439,17 @@ function renameDS($div) {
 function removeDS(dsId) {
     var ds = getDSObj(dsId);
     if (ds.isFolder && ds.eles.length > 0) {
-        alert('Not Empty, cannot delete');
+        // alert('Not Empty, cannot delete');
+        var options = {};
+        options.title = 'DELETE FOLDER';
+        options.instruction = 'Please remove all the datasets\
+                                     in the folder first.';
+        options.msg = 'Unable to delete non-empty folders. Please ensure'+
+                      ' that all datasets have been removed from folders prior'+
+                      ' to deletion.';
+        options.isCheckBox = true;
+        options.isAlert = true;
+        showAlertModal(options);
         return (false);
     }
 
@@ -471,9 +479,9 @@ function clearDS() {
 function changeDSDir(curId) {
     gDSObj.curId = curId;
     if (gDSObj.curId == gDSObj.homeId) {
-        $('#backFolderBtn').attr("disabled", "disabled");
+        $('#backFolderBtn').addClass("disabled");
     } else {
-        $('#backFolderBtn').removeAttr('disabled');
+        $('#backFolderBtn').removeClass('disabled');
     }
     displayDS();
 }
@@ -493,6 +501,7 @@ function dsDragStart(event) {
     event.stopPropagation();
 
     $grid = $(event.target).closest('grid-unit');
+    $('#deleteFolderBtn').addClass('disabled');
     gDSObj.dragDsId = $grid.attr('data-dsId');
     gDSObj.dropDivId = undefined;
 
@@ -502,6 +511,7 @@ function dsDragStart(event) {
     $gridView.on('dragenter', function(){
         gDSObj.dropDivId = undefined;
         $gridView.find('.active').removeClass('active');
+        $('#backFolderBtn').removeClass('active');
     });
 
     $grid.find('> .dragWrap').css('display', 'none');
@@ -520,6 +530,7 @@ function dsDragEnd(event) {
     $gridView.removeClass('drag');
     $gridView.off('dragenter');
     $gridView.find('.active').removeClass('active');
+    $('#backFolderBtn').removeClass('active');
 }
 
 function dsDrop(event) {
@@ -548,8 +559,14 @@ function dsDragEnter(event) {
     var $dragWrap = $(event.target);
     // var $grid = $drapWrap.closest('grid-unit');
     var id = $dragWrap.attr('id');
-    if (id == 'backFolderBtn') {    //back up button
-         $('#backFolderBtn').addClass('active');
+    // back up button
+    if (id == 'backFolderBtn') {
+        var $bacnFolderBtn = $('#backFolderBtn');
+        if ($('#gridView').hasClass('listView') 
+                || $bacnFolderBtn.hasClass('disabled')) {
+            return;
+        }
+        $('#backFolderBtn').addClass('active');
     }else if (id != gDSObj.dropDivId) {
         $('grid-unit').removeClass('active');
         $('.dragWrap').removeClass('active');
@@ -632,11 +649,12 @@ function dsDropBack(event) {
     event.preventDefault(); // default is open as link on drop
     event.stopPropagation();
 
-    var id = gDSObj.dragDsId;
-    var ds = gDSObj.lookUpTable[id];
-    if ($('#backFolderBtn').attr('disabled')) {
+    if ($('#gridView').hasClass('listView') || 
+            $('#backFolderBtn').hasClass('disabled')) {
         return;
     }
+    var id = gDSObj.dragDsId;
+    var ds = gDSObj.lookUpTable[id];
     // target
     var grandPaId = getDSObj(ds.parentId).parentId;
     var grandPaDs = getDSObj(grandPaId);
