@@ -149,8 +149,6 @@ function addTable(tableName, tableNum, AfterStartup) {
         gTables[i+1] = gTables[i];
     }
 
-    console.log("!!", gTables.length);
-
     tableStartupFunctions(tableName, tableNum)
     .done(function() {
         if ($('#mainFrame').hasClass('empty')) {

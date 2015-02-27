@@ -10,7 +10,8 @@ function checkStatus(newTableName, tableNum, keepOriginal,
         console.log(refCount);
         if (refCount == 1 || tempCountShit > 20) {
             tempCountShit = 0;
-            refreshTable(newTableName, tableNum, keepOriginal, additionalTableNum)
+            refreshTable(newTableName, tableNum, 
+                         keepOriginal, additionalTableNum)
             .done(function() {
                 deferred.resolve();
             });
@@ -27,7 +28,7 @@ function checkStatus(newTableName, tableNum, keepOriginal,
 }
 
 function refreshTable(newTableName, tableNum, 
-    keepOriginal, additionalTableNum) {
+                      keepOriginal, additionalTableNum) {
     var deferred = jQuery.Deferred();
 
     $("body").css({"cursor": "default"});

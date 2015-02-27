@@ -524,7 +524,7 @@ function removeSelectedKey(closeBox, input) {
 }
 
 function createWorksheet() {
-    var deferred     = jQuery.Deferred();
+    var deferred = jQuery.Deferred();
     var promiseChain = [];
 
     $("#dataCart .selectedTable").not('.deselectedTable').each(function() {
@@ -553,7 +553,7 @@ function createWorksheet() {
             cliOptions.col = [];
 
             var promises = [];
-            var self     = this;
+            var self = this;
             $(self).find('.colName').each(function() {
                 promises.push((function() {
                     var innerDeferred = jQuery.Deferred();
@@ -581,10 +581,10 @@ function createWorksheet() {
                     cliOptions.col.push(colname);
 
                     return (innerDeferred.promise());
-                }).apply(this));
+                }).setContext(this));
             });
 
-            jQuery.when.apply(jQuery, promises)
+            chain(promises)
             .then(function() {
                 var progCol = new ProgCol();
                 progCol.index = startIndex+1;

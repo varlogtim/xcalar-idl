@@ -13,14 +13,12 @@ function atos(func, args) {
         }
     );
 }
-//I'll rewrite this function later
-//Levi
+
 Function.prototype.setContext = function() {
-    var fn     = this, 
-        args   = Array.prototype.slice.call(arguments),
-        object = args.shift();
+    var fn = this, args = Array.prototype.slice.call(arguments), 
+        obj = args.shift();
     return function(){
-        return fn.apply(object, 
+        return fn.apply(obj, 
             args.concat(Array.prototype.slice.call(arguments)));
     };
 };

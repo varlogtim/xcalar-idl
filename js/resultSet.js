@@ -137,11 +137,11 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
             // column would've been sized already. If it's indexed, we
             // would've sized it in CatFunction
         } else {
+
             if (firstTime && !getIndex(gTables[tableNum].frontTableName)) {
                 promises.push(execCol(gTables[tableNum].tableCols[i],
                                       tableNum));
             } else { 
-
                 if (direction) { 
                     var startingIndex;
                     if (direction == 1) {
