@@ -471,6 +471,14 @@ function addCol(colId, tableId, name, options) {
                                 '</ul>'+
                                 '<div class="dropdownBox"></div>'+
                             '</li>'+
+                            '<li class="filter strFilter">Like'+
+                                '<span class="like"></span>'+
+                                '<ul class="subColMenu">'+
+                                    '<li><input type="text"/></li>'+
+                                    '<div class="subColMenuArea"></div>'+
+                                '</ul>'+
+                                '<div class="dropdownBox"></div>'+
+                            '</li>'+
                             '<li class="filter strFilter">Regex'+
                                 '<span class="regex"></span>'+
                                 '<ul class="subColMenu">'+

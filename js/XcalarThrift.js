@@ -227,6 +227,9 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
     case ("Regex"):
         filterStr = "regex("+columnName+', "'+value+'")';
         break;
+    case ("Like"):
+        filterStr = "like("+columnName+', "'+value+'")';
+        break;
     case ("Others"):
         filterStr = value;
         break;
