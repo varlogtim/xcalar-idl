@@ -11,12 +11,17 @@ function setupImportDSForm() {
 
     $('#importDataForm').submit(function(event) {
         event.preventDefault();
-        var loadURL = $.trim($('#filePath').val());
-        var tableName = $.trim($('#fileName').val());
+        var loadURL = jQuery.trim($('#filePath').val());
+        var tableName = jQuery.trim($('#fileName').val());
         var loadFormat = $('#fileFormat').find('input[name=dsType]:checked')
                          .val();
         var loadArgs = loadURL.split("|");
-        
+        if (DSObj.isDataSetNameConflict(tableName)) {
+            var text = 'Dataset with the name ' +  tableName + 
+                        ' already exits. Please choose another name.';
+            displayErrorMessage(text, $('#fileName'));
+            return;
+        }
         XcalarLoad(loadArgs[0], loadFormat, tableName,
                               loadArgs[1], loadArgs[2])
         .then(function(result) {
@@ -26,7 +31,9 @@ function setupImportDSForm() {
         })
         .done(function(loadSuccess) {
             if (!loadSuccess) {
-                displayLoadErrorMessage(loadURL);
+                var text = 'Could not retrieve dataset from file path: ' + 
+                            loadURL;
+                displayErrorMessage(text, $('#filePath'));
             }
 
             // add cli
@@ -151,11 +158,6 @@ function appendDSToList(dsName) {
     $grid.addClass('inactive')
     $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');
     $('#iconWaiting').fadeIn(200);
-}
-
-function displayLoadErrorMessage(loadURL) {
-    var text = "Could not retrieve dataset from file path: "+loadURL;
-    displayErrorMessage(text, $('#filePath'));
 }
 
 function displayErrorMessage(text, $target) {

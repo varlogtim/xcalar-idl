@@ -13,7 +13,7 @@
 * @property {number} totalChildren
 * @property {string} dsName, dataset name
 */
-function DSObj(id, name, parentId, isFolder, dsName) {
+function DSObj(id, name, parentId, isFolder) {
     this.id = id;
     this.name = name;
     this.parentId = parentId;     // parent directory
@@ -27,7 +27,7 @@ function DSObj(id, name, parentId, isFolder, dsName) {
         this.totalChildren = 0;
     } else {
         this.totalChildren = 1;
-        this.dsName = dsName;
+        gDSObj.datasetLookUpTable[name] = true;
     }
 
     gDSObj.lookUpTable[this.id] = this; // index into lookup table
@@ -56,9 +56,10 @@ function DSObj(id, name, parentId, isFolder, dsName) {
 * @return {DSObj} this
 */
 DSObj.prototype.rename = function(newName) {
+    newName = jQuery.trim(newName);
     var parent = getDSObj(this.parentId);
     //check name confliction
-    if (isDSNameConflict(this.id, newName, parent, this.isFolder)) {
+    if (DSObj.isNameConflict(this.id, newName, parent, this.isFolder)) {
         var msg = 'Folder "' + newName + 
                 '" already exists, please use another name!';
         $grid = $('grid-unit[data-dsId="' + this.id + '"]');
@@ -122,7 +123,7 @@ DSObj.prototype.moveTo = function(newParent, index) {
     }
 
     // check name conflict
-    if (isDSNameConflict(this.id, this.name, newParent, this.isFolder)) {
+    if (DSObj.isNameConflict(this.id, this.name, newParent, this.isFolder)) {
         var msg;
         if (this.isFolder) {
             msg = 'Folder "' + this.name + 
@@ -175,6 +176,7 @@ function gDSInitialization() {
     gDSObj.homeId = 0;
     gDSObj.curId = gDSObj.homeId;
     gDSObj.lookUpTable = {};
+    gDSObj.datasetLookUpTable = {};
     gDSObj.id = 0;
     gDSObj.folder = new DSObj(gDSObj.id ++, "", -1, true);
     // for drag and drop
@@ -285,8 +287,8 @@ function restoreDSObj(datasets) {
         if (obj.isFolder) {
             createDSEle(obj.id, obj.name, obj.parentId, obj.isFolder);
         } else {
-            if (obj.dsName in searchHash) {
-                 createDSEle(obj.id, obj.dsName, obj.parentId, 
+            if (obj.name in searchHash) {
+                 createDSEle(obj.id, obj.name, obj.parentId, 
                             obj.isFolder);
                  dsCount ++;
             } else {
@@ -325,7 +327,7 @@ function deleteDSObj(id) {
 }
 
 // check name conflict
-function isDSNameConflict(id, name, parent, isFolder) {
+DSObj.isNameConflict = function(id, name, parent, isFolder) {
     for (var i = 0; i <  parent.eles.length; i ++) {
         var dsEle = parent.eles[i];
         if ((dsEle.name == name) && (dsEle.isFolder == isFolder) 
@@ -336,8 +338,19 @@ function isDSNameConflict(id, name, parent, isFolder) {
     return (false);
 }
 
+// check dataset name conflict
+DSObj.isDataSetNameConflict = function(tableName) {
+    if (tableName != undefined &&
+         gDSObj.datasetLookUpTable[tableName] === true)
+    {
+        return true;
+    }
+    return false;
+}
+
 // create ds ele and ds folder ele
 function createDSEle(id, name, parentId, isFolder) {
+    name = jQuery.trim(name);
     var parent = getDSObj(parentId);
     var $parentEle;
     if (parentId == gDSObj.homeId) {  // in home directory
@@ -348,13 +361,12 @@ function createDSEle(id, name, parentId, isFolder) {
 
     //way to rename may change later
     var i = 1;
-    var dsName = name;
     var curName = name;
-    while (isFolder && isDSNameConflict(id, curName, parent, isFolder)) {
+    while (isFolder && DSObj.isNameConflict(id, curName, parent, isFolder)) {
         curName = name + ' (' + i + ')';
         i ++;
     }
-    var ds = new DSObj(id, curName, parentId, isFolder, dsName);
+    var ds = new DSObj(id, curName, parentId, isFolder);
     var html;
     if (isFolder) {
         html =  '<grid-unit class="folder display collapse" draggable="true"' + 
@@ -391,7 +403,7 @@ function createDSEle(id, name, parentId, isFolder) {
                     '</div>' + 
                 '</grid-unit>';
     } else {
-        html = '<grid-unit class="ds" draggable="true"' + 
+        html = '<grid-unit id="dataset"' + ds.name + ' class="ds" draggable="true"' + 
                     ' ondragstart="dsDragStart(event)"' + 
                     ' ondragend="dsDragEnd(event)"' +
                     ' data-dsId=' + ds.id + 
@@ -412,7 +424,7 @@ function createDSEle(id, name, parentId, isFolder) {
                     '<div class="listIcon">' + 
                         '<span class="icon"></span>' + 
                     '</div>' +
-                    '<div class="label" data-dsname=' + dsName + '>' + 
+                    '<div class="label" data-dsname=' + ds.name + '>' + 
                         ds.name + 
                     '</div>' +
                 '</grid-unit>';
