@@ -67,21 +67,21 @@ function setupDSCartButtons() {
 
     $gridView.on('blur', 'grid-unit.folder div.label', function(event) {
         var $div = $(event.target);
-        renameDS($div);
+        DSObj.rename($div);
         this.scrollLeft = 0;    //scroll to the start of text;
 
     })
 
     // dbclick grid view folder
-    $gridView.on('dblclick', '.folder > .gridIcon, .folder > .dsCount',
-    function(event) {
-        var $grid = $(event.target).closest('grid-unit.folder');
-        $gridView.find('.active').removeClass('active');
-        $deleteFolderBtn.addClass('disabled');
-        if ($gridView.hasClass('gridView')) {
-            changeDSDir($grid.attr("data-dsId"));
+    $gridView.on('dblclick', '.folder > .gridIcon, .folder > .dsCount', 
+        function(event) {
+            var $grid = $(event.target).closest('grid-unit.folder');
+            $gridView.find('.active').removeClass('active');
+            $deleteFolderBtn.addClass('disabled');
+            if ($gridView.hasClass('gridView')) {
+                DSObj.changeDir($grid.attr("data-dsId"));
         }
-    })
+    });
 
     // click list view folder
     $gridView.on('click', '.folder > .listIcon, .folder > .dsCount',
@@ -104,7 +104,7 @@ function setupDSCartButtons() {
 
         function cleanUpDsIcons() {
             var dsId = $grid.attr('data-dsId');
-            removeDS(dsId);
+            DSObj.deleteById(dsId);
             $grid.remove();
 
             $(".datasetTableWrap").filter(
@@ -124,8 +124,8 @@ function setupDSCartButtons() {
             } else {
                 $curFolder = $('grid-unit[data-dsId="' + gDSObj.curId + '"]');
             }
-            if ($curFolder.find('grid-unit').length > 0) {
-                $curFolder.find('grid-unit:first').click();
+            if ($curFolder.find('> grid-unit.ds').length > 0) {
+                $curFolder.find('> grid-unit.ds:first').click();
             } else {
                 $("#importDataButton").click();
             }
@@ -659,7 +659,7 @@ function setupDatasetList() {
 
         getDsName(datasetId)
         .done(function(dsName) {
-            createDSEle(gDSObj.id++, dsName, gDSObj.curId, false);
+            DSObj.create(gDSObj.id++, dsName, gDSObj.curId, false);
 
             innerPromise.resolve();
         });
@@ -685,7 +685,7 @@ function setupDatasetList() {
     })
     .done(function() {
         commitDSObjToStorage(); // commit;
-        displayDS();
+        DSObj.display();
         deferred.resolve();
     });
 

@@ -144,9 +144,9 @@ function displayNewDataset() {
 }
 
 function appendDSToList(dsName) {
-    createDSEle(gDSObj.id ++, dsName, gDSObj.curId, false);
+    DSObj.create(gDSObj.id++, dsName, gDSObj.curId, false);
     commitDSObjToStorage();
-    displayDS();
+    DSObj.display();
 
     var lastEleId = gDSObj.id - 1;
     var $grid = $('#gridView grid-unit[data-dsId="' + lastEleId + '"]');

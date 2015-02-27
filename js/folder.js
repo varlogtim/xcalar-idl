@@ -33,7 +33,7 @@ function DSObj(id, name, parentId, isFolder) {
     gDSObj.lookUpTable[this.id] = this; // index into lookup table
 
     if (parentId >= 0) {
-        var parent = getDSObj(parentId);
+        var parent = DSObj.getById(parentId);
         parent.eles.push(this);
     
         // update totalChildren of all ancestors
@@ -41,7 +41,7 @@ function DSObj(id, name, parentId, isFolder) {
             parent.totalChildren += this.totalChildren;
             $('grid-unit[data-dsId="' + parent.id + '"] > div.dsCount')
                 .html(parent.totalChildren);
-            parent = getDSObj(parent.parentId);
+            parent = DSObj.getById(parent.parentId);
         }
     }
 
@@ -57,7 +57,7 @@ function DSObj(id, name, parentId, isFolder) {
 */
 DSObj.prototype.rename = function(newName) {
     newName = jQuery.trim(newName);
-    var parent = getDSObj(this.parentId);
+    var parent = DSObj.getById(this.parentId);
     //check name confliction
     if (DSObj.isNameConflict(this.id, newName, parent, this.isFolder)) {
         var msg = 'Folder "' + newName + 
@@ -79,7 +79,7 @@ DSObj.prototype.rename = function(newName) {
 * @return {DSObj} this
 */
 DSObj.prototype.removeFromParent = function() {
-    var parent = getDSObj(this.parentId);
+    var parent = DSObj.getById(this.parentId);
     var index = parent.eles.indexOf(this);
 
     parent.eles.splice(index, 1);    // remove from parent
@@ -88,7 +88,7 @@ DSObj.prototype.removeFromParent = function() {
         parent.totalChildren -= this.totalChildren;
         $('grid-unit[data-dsId="' + parent.id + '"] > div.dsCount')
             .html(parent.totalChildren);
-        parent = getDSObj(parent.parentId);
+        parent = DSObj.getById(parent.parentId);
     }
     this.parentId = -1;
     return (this);
@@ -116,7 +116,7 @@ DSObj.prototype.moveTo = function(newParent, index) {
     // not append or insert to its own child
     var ele = newParent;
     while (ele != null && ele != this) {
-        ele = getDSObj(ele.parentId);
+        ele = DSObj.getById(ele.parentId);
     }
     if (ele == this) {
         return (false);
@@ -152,7 +152,7 @@ DSObj.prototype.moveTo = function(newParent, index) {
         newParent.totalChildren += this.totalChildren;
         $('grid-unit[data-dsId="' + newParent.id + '"] > div.dsCount')
         .html(newParent.totalChildren);
-        newParent = getDSObj(newParent.parentId);
+        newParent = DSObj.getById(newParent.parentId);
     }
     commitDSObjToStorage(); // commit to local storage
     return (true);
@@ -178,7 +178,7 @@ function gDSInitialization() {
     gDSObj.lookUpTable = {};
     gDSObj.datasetLookUpTable = {};
     gDSObj.id = 0;
-    gDSObj.folder = new DSObj(gDSObj.id ++, "", -1, true);
+    gDSObj.folder = new DSObj(gDSObj.id++, "", -1, true);
     // for drag and drop
     gDSObj.dragDsId = undefined;
     gDSObj.dropDivId = undefined;
@@ -221,7 +221,7 @@ function dsBtnInitizlize($gridViewBtnArea) {
 
     // click "Add New Folder" button to add new folder
     $("#addFolderBtn").click(function() {
-        createDSEle(gDSObj.id++, "New Folder", gDSObj.curId, true);
+        DSObj.create(gDSObj.id++, "New Folder", gDSObj.curId, true);
         commitDSObjToStorage();
     });
 
@@ -230,7 +230,7 @@ function dsBtnInitizlize($gridViewBtnArea) {
         if ($(this).hasClass('disabled')) {
             return;
         }
-        dsGoBackUp();
+        DSObj.upDir();
     });
 
     // click "Delete Folder" button to delete folder
@@ -240,7 +240,7 @@ function dsBtnInitizlize($gridViewBtnArea) {
         }
         var $folder = $('grid-unit.folder.active');
         var folderId = $folder.attr('data-dsId');
-        if (removeDS(folderId) === true) {
+        if (DSObj.deleteById(folderId) === true) {
             $folder.remove();
         }
     });
@@ -285,15 +285,15 @@ function restoreDSObj(datasets) {
     while (cache.length > 0) {
         var obj = cache.shift();
         if (obj.isFolder) {
-            createDSEle(obj.id, obj.name, obj.parentId, obj.isFolder);
+            DSObj.create(obj.id, obj.name, obj.parentId, obj.isFolder);
         } else {
             if (obj.name in searchHash) {
-                 createDSEle(obj.id, obj.name, obj.parentId, 
+                DSObj.create(obj.id, obj.name, obj.parentId, 
                             obj.isFolder);
-                 dsCount ++;
+                dsCount ++;
             } else {
                 // local storage not fit backend data, abort restore
-                clearDS();
+                DSObj.clearAll();
                 return (false);
             }
         }
@@ -305,7 +305,7 @@ function restoreDSObj(datasets) {
 
     // local storage not fit backend data, abort restore
     if (dsCount != numDatasets) {
-        clearDS();
+        DSObj.clearAll();
         return (false);
     }
     gDSObjFolder = gDSObj.folder;
@@ -317,17 +317,21 @@ function restoreDSObj(datasets) {
 /*** Start of helper function ***/
 
 // find dsObj in lookupTable
-function getDSObj(id) {
+DSObj.getById = function (id) {
     return (gDSObj.lookUpTable[id]);
 }
 
 // delete dsObj in lookupTable
-function deleteDSObj(id) {
-    delete gDSObj.lookUpTable[id];
+DSObj.clean = function (dsObj) {
+    delete gDSObj.lookUpTable[dsObj.id];
+    if (!dsObj.isFolder) {
+        delete gDSObj.datasetLookUpTable[dsObj.name];
+    }
+    delete dsObj;
 }
 
 // check name conflict
-DSObj.isNameConflict = function(id, name, parent, isFolder) {
+DSObj.isNameConflict = function (id, name, parent, isFolder) {
     for (var i = 0; i <  parent.eles.length; i ++) {
         var dsEle = parent.eles[i];
         if ((dsEle.name == name) && (dsEle.isFolder == isFolder) 
@@ -339,7 +343,7 @@ DSObj.isNameConflict = function(id, name, parent, isFolder) {
 }
 
 // check dataset name conflict
-DSObj.isDataSetNameConflict = function(tableName) {
+DSObj.isDataSetNameConflict = function (tableName) {
     if (tableName != undefined &&
          gDSObj.datasetLookUpTable[tableName] === true)
     {
@@ -349,9 +353,9 @@ DSObj.isDataSetNameConflict = function(tableName) {
 }
 
 // create ds ele and ds folder ele
-function createDSEle(id, name, parentId, isFolder) {
+DSObj.create = function (id, name, parentId, isFolder) {
     name = jQuery.trim(name);
-    var parent = getDSObj(parentId);
+    var parent = DSObj.getById(parentId);
     var $parentEle;
     if (parentId == gDSObj.homeId) {  // in home directory
         $parentEle = $('#gridView');
@@ -403,7 +407,7 @@ function createDSEle(id, name, parentId, isFolder) {
                     '</div>' + 
                 '</grid-unit>';
     } else {
-        html = '<grid-unit id="dataset"' + ds.name + ' class="ds" draggable="true"' + 
+        html = '<grid-unit id="dataset-' + ds.name + '" class="ds" draggable="true"' + 
                     ' ondragstart="dsDragStart(event)"' + 
                     ' ondragend="dsDragEnd(event)"' +
                     ' data-dsId=' + ds.id + 
@@ -439,7 +443,7 @@ function createDSEle(id, name, parentId, isFolder) {
 }
 
 // rename DS Folder (later also rename ds file?)
-function renameDS($div) {
+DSObj.rename = function ($div) {
     var newName = $div.text();
     var $grid = $div.closest('grid-unit');
     var dsId = $grid.attr("data-dsId");
@@ -448,8 +452,8 @@ function renameDS($div) {
 }
 
 // remove ds
-function removeDS(dsId) {
-    var ds = getDSObj(dsId);
+DSObj.deleteById = function (dsId) {
+    var ds = DSObj.getById(dsId);
     if (ds.isFolder && ds.eles.length > 0) {
         // alert('Not Empty, cannot delete');
         var options = {};
@@ -466,14 +470,13 @@ function removeDS(dsId) {
     }
 
     ds.removeFromParent();
-    deleteDSObj();
-    delete ds;
+    DSObj.clean(ds);
     commitDSObjToStorage();
     return (true);
 }
 
 // refresh css class
-function displayDS() {
+DSObj.display = function () {
     $('grid-unit').removeClass('display')
                   .addClass("hidden");
     $('grid-unit[data-dsParentId="' + gDSObj.curId + '"]').removeClass('hidden')
@@ -481,28 +484,28 @@ function displayDS() {
 }
 
 // clear data set
-function clearDS() {
+DSObj.clearAll = function () {
     $('#gridView grid-unit').remove();
     gDSObj.id = 1;
     gDSObjFolder = {};
 }
 
 // change to another DS dir
-function changeDSDir(curId) {
+DSObj.changeDir = function (curId) {
     gDSObj.curId = curId;
     if (gDSObj.curId == gDSObj.homeId) {
         $('#backFolderBtn').addClass("disabled");
     } else {
         $('#backFolderBtn').removeClass('disabled');
     }
-    displayDS();
+    DSObj.display();
 }
 
 // go back to parent dir
-function dsGoBackUp() {
+DSObj.upDir = function () {
     var curId = gDSObj.curId;
     var parentId = gDSObj.lookUpTable[curId].parentId;
-    changeDSDir(parentId);
+    DSObj.changeDir(parentId);
 }
 /*** End of helper function ***/
 
@@ -596,16 +599,16 @@ function allowDSDrop(event) {
     event.preventDefault();
 }
 
-// drop ds into  a folder
+// drop ds into a folder
 function dsDropIn(dragDsId, $target) {
     
-    var ds = gDSObj.lookUpTable[dragDsId];
+    var ds = DSObj.getById(dragDsId);
 
     var targetId = $target.attr("data-dsId");
     if (dragDsId == targetId) {
         return;
     }
-    var targetDS = gDSObj.lookUpTable[targetId];
+    var targetDS = DSObj.getById(targetId);
 
     var isMoveTo = ds.moveTo(targetDS, -1);
 
@@ -613,23 +616,23 @@ function dsDropIn(dragDsId, $target) {
         var $grid = $('grid-unit[data-dsId="' + dragDsId + '"]');
         $grid.attr("data-dsParentId",targetId);
         $target.append($grid);
-        displayDS();
+        DSObj.display();
     }
 }
 
 // Insert ds before or after another ds
 function dsInsert(dragDsId, $sibling, isBefore) {
-    var ds = gDSObj.lookUpTable[dragDsId];
+    var ds = DSObj.getById(dragDsId);
 
     var siblingId = $sibling.attr("data-dsId");
     if (dragDsId == siblingId) {
         return;
     }
-    var siblingDs = getDSObj(siblingId);
+    var siblingDs = DSObj.getById(siblingId);
 
     // parent
     var parentId = siblingDs.parentId;
-    var parentDs = getDSObj(parentId);
+    var parentDs = DSObj.getById(parentId);
     var $parent;
     if (parentId == gDSObj.homeId) {
         $parent = $('#gridView');
@@ -640,9 +643,9 @@ function dsInsert(dragDsId, $sibling, isBefore) {
     var insertIndex = parentDs.eles.indexOf(siblingDs);
     var isMoveTo;
     if (isBefore) {
-        isMoveTo = ds.moveTo(gDSObj.lookUpTable[parentId], insertIndex);
+        isMoveTo = ds.moveTo(parentDs, insertIndex);
     } else {
-        isMoveTo = ds.moveTo(gDSObj.lookUpTable[parentId], insertIndex + 1);
+        isMoveTo = ds.moveTo(parentDs, insertIndex + 1);
     }
 
     if (isMoveTo) {
@@ -653,7 +656,7 @@ function dsInsert(dragDsId, $sibling, isBefore) {
         } else {
             $sibling.after($grid);
         }
-        displayDS();
+        DSObj.display();
     }
 }
 
@@ -666,10 +669,10 @@ function dsDropBack(event) {
         return;
     }
     var id = gDSObj.dragDsId;
-    var ds = gDSObj.lookUpTable[id];
+    var ds = DSObj.getById(id);
     // target
-    var grandPaId = getDSObj(ds.parentId).parentId;
-    var grandPaDs = getDSObj(grandPaId);
+    var grandPaId = DSObj.getById(ds.parentId).parentId;
+    var grandPaDs = DSObj.getById(grandPaId);
     var $grandPa;
     if (grandPaId == gDSObj.homeId) {
         $grandPa = $('#gridView');
@@ -686,6 +689,6 @@ function dsDropBack(event) {
         //         .trigger('click');  // focus on the folder
         // gDSObj.curId = grandPaId;
         // changeDSDir(grandPaId);
-        displayDS();
+        DSObj.display();
     }
 }
