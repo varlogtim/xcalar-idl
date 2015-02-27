@@ -528,103 +528,104 @@ function createWorksheet() {
     var promiseChain = [];
 
     $("#dataCart .selectedTable").not('.deselectedTable').each(function() {
-        var chainDeferred = jQuery.Deferred();
-        // store columns in localstorage using setIndex()
-        var newTableCols = [];
-        var startIndex = 0;
-        var datasetName = $(this).data('dsname');
-        var tableName = $(this).find('h3').text();
-        var tables = XcalarGetTables();
-        var numTables = tables.numTables;
-        // check if another table with same name exists so we have to rename
-        for (var i = 0; i<numTables; i++) {
-            var tName = tables.tables[i].tableName;
-            if (tName == tableName) {
-                var rand = Math.floor((Math.random() * 100000) + 1);
-                tableName += "-"+rand;
+        promiseChain.push((function() {
+            var chainDeferred = jQuery.Deferred();
+            // store columns in localstorage using setIndex()
+            var newTableCols = [];
+            var startIndex = 0;
+            var datasetName = $(this).data('dsname');
+            var tableName = $(this).find('h3').text();
+            var tables = XcalarGetTables();
+            var numTables = tables.numTables;
+            // check if another table with same name exists so we have to rename
+            for (var i = 0; i<numTables; i++) {
+                var tName = tables.tables[i].tableName;
+                if (tName == tableName) {
+                    var rand = Math.floor((Math.random() * 100000) + 1);
+                    tableName += "-"+rand;
+                }
             }
-        }
 
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = "createTable";
-        cliOptions.tableName = tableName;
-        cliOptions.col = [];
+            // add cli
+            var cliOptions = {};
+            cliOptions.operation = "createTable";
+            cliOptions.tableName = tableName;
+            cliOptions.col = [];
 
-        var promises = [];
-        var self     = this;
-        $(self).find('.colName').each(function() {
-            promises.push((function() {
-                var innerDeferred = jQuery.Deferred();
+            var promises = [];
+            var self     = this;
+            $(self).find('.colName').each(function() {
+                promises.push((function() {
+                    var innerDeferred = jQuery.Deferred();
 
-                var colname = $.trim($(this).text());
+                    var colname = $.trim($(this).text());
+                    var progCol = new ProgCol();
+                    progCol.index = ++startIndex;
+                    progCol.type = "string";
+                    progCol.name = colname;
+                    progCol.width = gNewCellWidth;
+                    progCol.userStr = '"'+colname+'" = pull('+colname+')';
+                    progCol.func.func = "pull";
+                    progCol.func.args = [colname];
+                    progCol.isDark = false;
+
+                    var currentIndex = startIndex - 1;
+                    getDsId(datasetName)
+                    .done(function(id) {
+                        progCol.datasetId = parseInt(id);                  
+                        newTableCols[currentIndex] = progCol;
+
+                        innerDeferred.resolve();
+                    });
+
+                    cliOptions.col.push(colname);
+
+                    return (innerDeferred.promise());
+                }).apply(this));
+            });
+
+            jQuery.when.apply(jQuery, promises)
+            .then(function() {
                 var progCol = new ProgCol();
-                progCol.index = ++startIndex;
-                progCol.type = "string";
-                progCol.name = colname;
-                progCol.width = gNewCellWidth;
-                progCol.userStr = '"'+colname+'" = pull('+colname+')';
-                progCol.func.func = "pull";
-                progCol.func.args = [colname];
+                progCol.index = startIndex+1;
+                progCol.type = "object";
+                progCol.name = "DATA";
+                progCol.width = 500;
+                progCol.userStr = "DATA = raw()";
+                progCol.func.func = "raw";
+                progCol.func.args = [];
                 progCol.isDark = false;
+                newTableCols[startIndex] = progCol;
 
-                var currentIndex = startIndex - 1;
-                getDsId(datasetName)
-                .done(function(id) {
-                    progCol.datasetId = parseInt(id);                  
-                    newTableCols[currentIndex] = progCol;
+                setIndex(tableName, newTableCols);
+                commitToStorage();
 
-                    innerDeferred.resolve();
-                });
+                cliOptions.col.push("DATA");
+                return (getDsId(datasetName));
+            })
+            .then(function(datasetId) {
+                datasetId = parseInt(datasetId);
+                var columnToIndex = 
+                    $.trim($(self).find('.keySelected .colName').text());
 
-                cliOptions.col.push(colname);
+                cliOptions.key = columnToIndex;
+                addCli("Send To Worksheet", cliOptions);
+                return (XcalarIndexFromDataset(datasetId, columnToIndex, tableName));
+            })
+            .then(function() {
+                $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
+                    '{cursor: wait !important;}</style>');
+                var keepLastTable = true;
+                var additionalTableNum = false;
+                return (checkStatus(tableName, gTables.length, 
+                    keepLastTable, additionalTableNum));
+            })
+            .done(function() {
+                chainDeferred.resolve();
+            });
 
-                return (innerDeferred.promise());
-            }).apply(this));
-        });
-
-        jQuery.when.apply(jQuery, promises)
-        .then(function() {
-            var progCol = new ProgCol();
-            progCol.index = startIndex+1;
-            progCol.type = "object";
-            progCol.name = "DATA";
-            progCol.width = 500;
-            progCol.userStr = "DATA = raw()";
-            progCol.func.func = "raw";
-            progCol.func.args = [];
-            progCol.isDark = false;
-            newTableCols[startIndex] = progCol;
-
-            setIndex(tableName, newTableCols);
-            commitToStorage();
-
-            cliOptions.col.push("DATA");
-            return (getDsId(datasetName));
-        })
-        .then(function(datasetId) {
-            datasetId = parseInt(datasetId);
-            var columnToIndex = $.trim($(self).find('.keySelected .colName')
-                                 .text());
-
-            cliOptions.key = columnToIndex;
-            addCli("Send To Worksheet", cliOptions);
-            return (XcalarIndexFromDataset(datasetId, columnToIndex,
-                                           tableName));
-        })
-        .then(function() {
-            $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-                '{cursor: wait !important;}</style>');
-            var keepLastTable = true;
-            var additionalTableNum = false;
-            return (checkStatus(tableName, gTables.length, keepLastTable, 
-                        additionalTableNum));
-        })
-        .done(function() {
-            chainDeferred.resolve();
-        });
-
-        promiseChain.push(chainDeferred.promise());
+            return chainDeferred.promise();
+        }).setContext(this));
     });
 
     chain(promiseChain)

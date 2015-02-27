@@ -15,12 +15,21 @@ function atos(func, args) {
 }
 //I'll rewrite this function later
 //Levi
-function chain(arr) {
-    var head = arr.reduce(function(prev, curr, index) {
-        curr.prevPromise = prev;
-        return prev.then(curr);
-    });
+Function.prototype.setContext = function() {
+    var fn     = this, 
+        args   = Array.prototype.slice.call(arguments),
+        object = args.shift();
+    return function(){
+        return fn.apply(object, 
+            args.concat(Array.prototype.slice.call(arguments)));
+    };
+};
 
+function chain(funcs) {
+    var head = funcs[0]();
+    for (var i = 1; i < funcs.length; i++) {
+        head = head.then(funcs[i]);
+    }
     return (head);
 }
 

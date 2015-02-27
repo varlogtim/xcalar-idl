@@ -149,6 +149,8 @@ function addTable(tableName, tableNum, AfterStartup) {
         gTables[i+1] = gTables[i];
     }
 
+    console.log("!!", gTables.length);
+
     tableStartupFunctions(tableName, tableNum)
     .done(function() {
         if ($('#mainFrame').hasClass('empty')) {
@@ -208,8 +210,8 @@ function archiveTable(tableNum, del) {
     // XXX: Think about gActiveTableNum
     gActiveTableNum--;
     if ($('#xcTable'+gActiveTableNum).length == 0) {
-       gActiveTableNum = 0; 
-       $('#rowScroller0').show();
+        gActiveTableNum = 0; 
+        $('#rowScroller0').show();
     } else {
         $('#rowScroller'+gActiveTableNum).show();
     }
