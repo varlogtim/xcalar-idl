@@ -10,7 +10,8 @@ function generateRowWithCurrentTemplate(json, id, rowTemplate, direction,
     secondIndex = finalString.indexOf("<", firstIndex);
     firstPart = finalString.substring(0, firstIndex);
     secondPart = finalString.substring(secondIndex);
-    finalString = "<tr class='row"+id+"'>"+firstPart +(id+1)+ secondPart+"</tr>";
+    finalString = "<tr class='row"+id+"'>"+firstPart +(id+1)+ secondPart+
+                  "</tr>";
     if (direction == 1) {
         var row = "tr:first-child";
     } else {
@@ -70,7 +71,8 @@ function generateFirstScreen(value, idNo, tableNum, height) {
               '<div class="header">'+
                 '<div class="dropdownBox"><div class="innerBox"></div></div>'+
                 '<input value="DATA" '+
-                'readonly="" tabindex="-1" class="dataCol col1" title="raw data">'+
+                'readonly="" tabindex="-1" class="dataCol col1" '+
+                'title="raw data">'+
                 '<ul class="colMenu" style="display: none;">'+
                   '<li class="menuClickable">Add a column'+
                     '<ul class="subColMenu">'+
@@ -154,7 +156,8 @@ function addTable(tableName, tableNum, AfterStartup) {
             documentReadyxcTableFunction(); 
         }
         if (!getIndex(tableName)) {
-            console.log("This table has never been stored before. Storing it now");
+            console.log("This table has never been stored before. " + 
+                        "Storing it now");
             setIndex(tableName, gTables[tableNum].tableCols);
         }
         if (AfterStartup) {

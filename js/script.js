@@ -322,7 +322,8 @@ function documentReadyxcTableFunction() {
         }
         row = parseInt($('#rowInput').val());
         // XXX: HACK
-        gTempStyle = $("#xcTable"+gActiveTableNum+" tbody tr:nth-last-child(1)").html();
+        gTempStyle = $("#xcTable"+gActiveTableNum+" tbody tr:nth-last-child(1)")
+                     .html();
         $("#xcTable"+gActiveTableNum+" tbody").empty();
 
         if ((row/gNumEntriesPerPage) >
@@ -341,7 +342,8 @@ function documentReadyxcTableFunction() {
 
         var promises = [];
         for (var i = 0; i < numPagesToAdd; i++) {
-            promises.push( goToPage(Math.ceil(pageNum)+i, null, gActiveTableNum) );
+            promises.push(goToPage(Math.ceil(pageNum)+i, null,
+                                   gActiveTableNum));
         }
 
         jQuery.when.apply(jQuery, promises)
@@ -487,8 +489,9 @@ function documentReadyCatFunction(tableNum) {
             // console.log("Stored "+gTables[tableNum].frontTableName);
             // XXX Move this into getPage
             // XXX API: 0105
-            var tableOfEntries = XcalarGetNextPage(gTables[tableNum].resultSetId,
-                                                   gNumEntriesPerPage);
+            var tableOfEntries =
+                          XcalarGetNextPage(gTables[tableNum].resultSetId,
+                                            gNumEntriesPerPage);
             gTables[tableNum].keyName = tableOfEntries.keysAttrHeader.name;
             for (var i = 0; i<index.length; i++) {
                 if (index[i].name != "DATA") {
@@ -511,12 +514,13 @@ function documentReadyCatFunction(tableNum) {
         var promises = [];
         for (var i = 0; i<gTables[tableNum].tableCols.length; i++) {
             if (gTables[tableNum].tableCols[i].name == "DATA") {
-                // We don't need to do anything here because if it's the first time
-                // they won't have anything stored. If it's not the first time, the
-                // column would've been sized already. If it's indexed, we
-                // would've sized it in CatFunction
+                // We don't need to do anything here because if it's the first 
+                // time they won't have anything stored. If it's not the first 
+                // time, the column would've been sized already.
+                // If it's indexed, we would've sized it in CatFunction
             } else { 
-                promises.push( execCol(gTables[tableNum].tableCols[i], tableNum) );
+                promises.push(execCol(gTables[tableNum].tableCols[i],
+                                      tableNum));
             }
         }
 

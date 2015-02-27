@@ -83,7 +83,7 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
             generateFirstScreen(value, indexNumber+i, tableNum, tdHeights[i]);
         } else {
             generateRowWithCurrentTemplate(value, indexNumber+index, 
-                                           rowTemplate, direction, tableNum);      
+                                           rowTemplate, direction, tableNum); 
         }
     }
 
@@ -138,7 +138,8 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
             // would've sized it in CatFunction
         } else {
             if (firstTime && !getIndex(gTables[tableNum].frontTableName)) {
-                promises.push(execCol(gTables[tableNum].tableCols[i], tableNum));
+                promises.push(execCol(gTables[tableNum].tableCols[i],
+                                      tableNum));
             } else { 
 
                 if (direction) { 
@@ -155,9 +156,11 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
                     var execColArgs = {};
                     execColArgs.startIndex = startingIndex;
                     execColArgs.numberofRows = numRows;
-                    promises.push(execCol(gTables[tableNum].tableCols[i], tableNum, execColArgs));
+                    promises.push(execCol(gTables[tableNum].tableCols[i],
+                                          tableNum, execColArgs));
                 } else {
-                    promises.push(execCol(gTables[tableNum].tableCols[i], tableNum));
+                    promises.push(execCol(gTables[tableNum].tableCols[i],
+                                          tableNum));
                 }
                 if (gTables[tableNum].tableCols[i].name ==
                     gTables[tableNum].keyName) {
@@ -170,7 +173,8 @@ function getPage(resultSetId, firstTime, direction, tableNum) {
 
     jQuery.when.apply(jQuery, promises)
     .done(function() {
-        var idColWidth = getTextWidth($('#xcTable'+tableNum+' tr:last td:first'));
+        var idColWidth = getTextWidth($('#xcTable'+tableNum+
+                                        ' tr:last td:first'));
         var newWidth = Math.max(idColWidth, 22);
         var padding = 12;
         if ($('#xcTable'+tableNum+' .fauxTHead').length != 0) {

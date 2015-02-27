@@ -60,7 +60,8 @@ function setupJoinModalTables(tableNum, colId) {
         $("body").on("keypress", joinTableKeyPress);
         $('#joinDialog').show();
         $('#joinModal').fadeIn(300);
-        joinModalTabs($('#leftJoin'), (tableNum + 1), colId);   //here tableNum start from 1;
+        joinModalTabs($('#leftJoin'), (tableNum + 1), colId); 
+        // here tableNum start from 1;
         joinModalTabs($('#rightJoin'), -1, -1);
 }
 
@@ -131,11 +132,13 @@ function initializeJoinModal() {
             cliOptions.operation = 'join';
             cliOptions.leftTable = {};
             cliOptions.leftTable.name = gTables[leftTableNum].frontTableName;
-            cliOptions.leftTable.colName = gTables[leftTableNum].tableCols[leftColumnNum].name;
+            cliOptions.leftTable.colName = gTables[leftTableNum]
+                                           .tableCols[leftColumnNum].name;
             cliOptions.leftTable.colIndex = leftColumnNum;
             cliOptions.rightTable = {};
             cliOptions.rightTable.name = gTables[rightTableNum].frontTableName;
-            cliOptions.rightTable.colName = gTables[rightTableNum].tableCols[rightColumnNum].name;
+            cliOptions.rightTable.colName = gTables[rightTableNum]
+                                            .tableCols[rightColumnNum].name;
             cliOptions.rightTable.colIndex = rightColumnNum;
             cliOptions.joinType = joinType;
             cliOptions.newTableName = newTableName;

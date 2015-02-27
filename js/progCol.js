@@ -236,7 +236,8 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
     }
 
     // add class to both static th and real th
-    $('#xcTheadWrap' + tableNum + ' th.col' + newColid + ' div.header ul.colMenu')
+    $('#xcTheadWrap' + tableNum + ' th.col' + newColid +
+      ' div.header ul.colMenu')
          .removeClass("mixed")
          .removeClass("string")
          .removeClass("number")
@@ -298,7 +299,8 @@ function addCol(colId, tableId, name, options) {
     for (var i = numCol; i>=newColid; i--) {
         tables.find('.col'+i).removeClass('col'+i).addClass('col'+(i+1));
     }  
-    var columnHeadTd = '<th class="table_title_bg '+color+' '+indexedColumnClass+
+    var columnHeadTd = '<th class="table_title_bg '+color+
+       ' '+indexedColumnClass+
        ' col'+newColid+'" style="width:'+width+'px;" label="click to edit">'+
        '<div class="header">'+
        '<div class="dragArea"></div>'+
@@ -507,7 +509,8 @@ function addCol(colId, tableId, name, options) {
 
     for (var i = startingIndex; i<startingIndex+numRow; i++) {
         var newCellHTML = '<td '+
-            'class="'+color+' '+indexedColumnClass+' col'+newColid+'">&nbsp;</td>';
+            'class="'+color+' '+indexedColumnClass+' col'+newColid+
+            '">&nbsp;</td>';
             table.find(".row"+i+" .col"+(newColid-1)).after(newCellHTML);
     }
 

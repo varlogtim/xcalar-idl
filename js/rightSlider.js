@@ -108,7 +108,8 @@ function setuptableListSection() {
         if ($('.addArchivedBtn.selected').length == 0) {
             $('#archivedTableList').find('.btnLarge').addClass('btnInactive');
         } else {
-            $('#archivedTableList').find('.btnLarge').removeClass('btnInactive');
+            $('#archivedTableList').find('.btnLarge')
+                                   .removeClass('btnInactive');
         }
     });
 
@@ -142,10 +143,11 @@ function setuptableListSection() {
                 if (action == "add") {
                     var activeTable = gHiddenTables.splice((
                                  gHiddenTables.length-index-1), 1)[0];
-                    gTableIndicesLookup[activeTable.frontTableName].active = true;
+                    gTableIndicesLookup[activeTable.frontTableName].active =
+                                                                           true;
                     gTableIndicesLookup[activeTable.frontTableName].timeStamp 
                                                       = (new Date()).getTime();
-                     // add cli
+                    // add cli
                     var cliOptions = {};
                     cliOptions.operation = 'addTable';
                     cliOptions.tableName = activeTable.frontTableName;
@@ -163,7 +165,8 @@ function setuptableListSection() {
                     // add cli
                     var cliOptions = {};
                     cliOptions.operation = 'deleteTable';
-                    cliOptions.tableName = gHiddenTables[tableNum].frontTableName;
+                    cliOptions.tableName = gHiddenTables[tableNum]
+                                           .frontTableName;
 
                     deleteTable(tableNum, DeleteTable.Delete)
                     .done(function() {
@@ -185,7 +188,8 @@ function setuptableListSection() {
             if (action == "add") {
                 $mainFrame = $('#mainFrame');
                 $('#workspaceTab').trigger('click');
-                var leftPos = $('#xcTableWrap'+(gTables.length-1)).position().left +
+                var leftPos = $('#xcTableWrap'+(gTables.length-1)).position()
+                                .left +
                                 $mainFrame.scrollLeft();
                 $mainFrame.animate({scrollLeft: leftPos});
             }

@@ -90,7 +90,8 @@ function drawJoinLines(dagTable, canvas, ctx) {
     dagTable.css({'margin-top': yAdjustment}); 
 
     var tableX = dagTable.find('.dagTable').position().left;
-    var tableY = dagTable.find('.dagTable').position().top + dagTable.height()/2;
+    var tableY = dagTable.find('.dagTable').position().top +
+                 dagTable.height()/2;
     drawLine(ctx, tableX, tableY); // line entering table
 
     curvedLineCoor = {
@@ -101,13 +102,15 @@ function drawJoinLines(dagTable, canvas, ctx) {
     }
     
     drawCurve(ctx, curvedLineCoor); // top curvedLine
-    drawLine(ctx, curvedLineCoor.x1, curvedLineCoor.y1); // continuation of curved line
+    drawLine(ctx, curvedLineCoor.x1, curvedLineCoor.y1);
+    // continuation of curved line
     curvedLineCoor.x1 = origin2.position().left + origin2.width();
     curvedLineCoor.y1 = origin2.position().top + origin2.height()/2;
     curvedLineCoor.y2 = Math.floor(dagTable.find('.actionTypeWrap')
                         .position().top + 30);
     drawCurve(ctx, curvedLineCoor); // bottom curvedLine
-    drawLine(ctx, curvedLineCoor.x1, curvedLineCoor.y1); // continuation of curved line
+    drawLine(ctx, curvedLineCoor.x1, curvedLineCoor.y1);
+    // continuation of curved line
 }
 
 
@@ -224,7 +227,8 @@ function drawDagOrigin(dagUnit, prop, dagArray) {
                             '<div class="dagIcon '+dagUnit.origin[i]+'">'+
                                 '<div class="icon"></div>'+
                             '</div>'+
-                            '<span class="typeTitle">'+dagUnit.origin[i]+'</span>'+
+                            '<span class="typeTitle">'+dagUnit.origin[i]+
+                            '</span>'+
                             '<span class="childrenTitle">Table '+
                                 dagUnit.children[0]+additionalInfo+
                             '</span>'+

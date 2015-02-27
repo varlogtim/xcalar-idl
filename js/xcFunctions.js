@@ -20,8 +20,8 @@ function checkStatus(newTableName, tableNum, keepOriginal,
                 newTableNum = gTables.length;
                 addTable(newTableName, newTableNum, AfterStartup.After)
                 .done(function() {
-                    var leftPos = $('#xcTableWrap'+newTableNum).position().left +
-                                    $('#mainFrame').scrollLeft();
+                    var leftPos = $('#xcTableWrap'+newTableNum).position().left
+                                  + $('#mainFrame').scrollLeft();
                     $('#mainFrame').animate({scrollLeft: leftPos});
 
                     deferred.resolve();
@@ -32,7 +32,8 @@ function checkStatus(newTableName, tableNum, keepOriginal,
                 var savedScrollLeft;
                 if (additionalTableNum > -1) {
                     var largerTableNum = Math.max(additionalTableNum, tableNum);
-                    var smallerTableNum = Math.min(additionalTableNum, tableNum);
+                    var smallerTableNum = Math.min(additionalTableNum,
+                                                   tableNum);
                     archiveTable(largerTableNum, DeleteTable.Keep);
                     archiveTable(smallerTableNum, DeleteTable.Keep);
                     if (newTableNum > gTables.length) {
@@ -422,8 +423,9 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
         XcalarIndexFromTable(gTables[leftTableNum].backTableName, leftColName,
                              newTableName1);
         leftName = newTableName1;
-        return checkStatusLite(newTableName1, joinTables2, [newTableName, joinTypeStr,
-                       leftTableNum, leftName, rightTableNum, rightColumnNum]);
+        return checkStatusLite(newTableName1, joinTables2, [newTableName,
+                               joinTypeStr, leftTableNum, leftName,
+                               rightTableNum, rightColumnNum]);
     } else {
         console.log("left indexed correctly");
         return joinTables2([newTableName, joinTypeStr, leftTableNum, leftName,
@@ -451,8 +453,9 @@ function joinTables2(args) {
         XcalarIndexFromTable(gTables[rightTableNum].backTableName,
                              rightColName, newTableName2);
         rightName = newTableName2;
-        return checkStatusLite(newTableName2, joinTables3, [newTableName, joinTypeStr,
-                       leftTableNum, leftName, rightTableNum, rightName]);
+        return checkStatusLite(newTableName2, joinTables3, [newTableName,
+                               joinTypeStr, leftTableNum, leftName,
+                               rightTableNum, rightName]);
     } else {
         console.log("right correctly indexed");
         return joinTables3([newTableName, joinTypeStr, leftTableNum, leftName,

@@ -73,7 +73,8 @@ function setupDSCartButtons() {
     })
 
     // dbclick grid view folder
-    $gridView.on('dblclick', '.folder > .gridIcon, .folder > .dsCount', function(event) {
+    $gridView.on('dblclick', '.folder > .gridIcon, .folder > .dsCount',
+    function(event) {
         var $grid = $(event.target).closest('grid-unit.folder');
         $gridView.find('.active').removeClass('active');
         $deleteFolderBtn.addClass('disabled');
@@ -83,7 +84,8 @@ function setupDSCartButtons() {
     })
 
     // click list view folder
-    $gridView.on('click', '.folder > .listIcon, .folder > .dsCount', function(event) {
+    $gridView.on('click', '.folder > .listIcon, .folder > .dsCount',
+    function(event) {
         var $grid = $(event.target).closest('grid-unit.folder');
 
         if ($gridView.hasClass('listView')) {
@@ -152,7 +154,6 @@ function setupDSCartButtons() {
                 resetDataCart();
             });
         } else {
-            // alert('Choose a key by clicking on a selected column in your list');
             var options = {};
             options.title = 'SEND TO ACTIVE WORKSHEET';
             options.msg = 'Choose a key by clicking on a' +
@@ -227,14 +228,16 @@ function getDatasetSample(datasetName) {
             if (records.recordType ==
                 GenericTypesRecordTypeT.GenericTypesVariableSize) {
                 for (var j = 0; j < recordsSize; j++) {
-                    jsons[j] = jQuery.parseJSON(records.records[j].kvPairVariable.value);
+                    jsons[j] =
+                      jQuery.parseJSON(records.records[j].kvPairVariable.value);
                     for (var key in jsons[j]) {
                         uniqueJsonKey[key] = "";
                     }
                 }
             } else {
                 for (var j = 0; j < recordsSize; j++) {
-                    jsons[j] = jQuery.parseJSON(records.records[j].kvPairFixed.value);
+                    jsons[j] =
+                         jQuery.parseJSON(records.records[j].kvPairFixed.value);
                     for (var key in jsons[j]) {
                         uniqueJsonKey[key] = "";
                     }
@@ -298,7 +301,8 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
         th +=  '<th class="table_title_bg col'+ i +'">\
                 <div class="header">\
                 <input spellcheck="false" \
-                class="editableHead shoppingCartCol col'+ i +'" value="'+ key +'"\
+                class="editableHead shoppingCartCol col' + i + '" value="' + key
+                       +'"\
                 id ="ds'+ datasetId +'cn'+ key +'" readonly="true">\
                 <div class="dropdownBox"><span class="innerBox"></span></div>\
                 </div>\
@@ -319,7 +323,8 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
                         <ul class="subColMenu">\
                             <li style="text-align: center" class="clickable">\
                             <span>New Column Name</span>\
-                            <input type="text" width="100px" value="'+ 'something' +'"/>\
+                            <input type="text" width="100px" value="' +
+                            'something' +'"/>\
                             </li>\
                             <div class="subColMenuArea"></div>\
                         </ul>\
@@ -507,7 +512,8 @@ function checkColumn(input, selectAll) {
 function removeSelectedKey(closeBox, input) {
     input.parent().removeClass('colAdded').parent().removeClass('selectedCol');
     var index = parseColNum(input);
-    input.closest('.datasetTableWrap').find('.col'+index).removeClass('selectedCol');
+    input.closest('.datasetTableWrap').find('.col'+index)
+         .removeClass('selectedCol');
     if (closeBox.closest('li').siblings().length == 0) {
         closeBox.closest('.selectedTable').remove();
          
@@ -598,11 +604,13 @@ function createWorksheet() {
         })
         .then(function(datasetId) {
             datasetId = parseInt(datasetId);
-            var columnToIndex = $.trim($(self).find('.keySelected .colName').text());
+            var columnToIndex = $.trim($(self).find('.keySelected .colName')
+                                 .text());
 
             cliOptions.key = columnToIndex;
             addCli("Send To Worksheet", cliOptions);
-            return (XcalarIndexFromDataset(datasetId, columnToIndex, tableName));
+            return (XcalarIndexFromDataset(datasetId, columnToIndex,
+                                           tableName));
         })
         .then(function() {
             $(document.head).append('<style id="waitCursor" type="text/css">*'+ 

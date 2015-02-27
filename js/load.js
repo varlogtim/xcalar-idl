@@ -144,11 +144,6 @@ function displayNewDataset() {
 }
 
 function appendDSToList(dsName) {
-    // var dsDisplay = '<grid-unit class="inactive"><div class="gridIcon"></div>'+
-    //     '<div class="listIcon"><span class="icon"></span></div>'+
-    //     '<div id="iconWaiting" class="iconWaiting"></div>'+
-    //     '<div class="label">'+dsName+'</div></grid-unit>';
-    //     $("#gridView").append(dsDisplay);
     createDSEle(gDSObj.id ++, dsName, gDSObj.curId, false);
     commitDSObjToStorage();
     displayDS();

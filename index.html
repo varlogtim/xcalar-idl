@@ -2,9 +2,11 @@
 <head>
 <meta charset="UTF-8">
 <title>Xcalar</title>
-<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,600,400' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,600,400'
+      rel='stylesheet' type='text/css'>
 <link href="/stylesheets/css/style.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="bower_components/fontawesome/css/font-awesome.min.css">
+<link rel="stylesheet"
+      href="bower_components/fontawesome/css/font-awesome.min.css">
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
 </head>
 
@@ -26,7 +28,9 @@
       </div>
     </div>
     <div id="logo"></div>
-    <div id="userNameArea">Welcome: <span id="userName">Vikram Joshi</span></div>
+    <div id="userNameArea">Welcome: 
+        <span id="userName">Vikram Joshi</span>
+    </div>
     <div id="userNamePopout">
       <div id="peri">Signed in as:</div><br>
       <div id="name">Vikram Joshi |</div><div id="signout">Sign out</div>
@@ -89,7 +93,10 @@
         <div class="contentViewMidWrap">
           <h2>Import New Data Set</h2>
           <span class="icon"></span>
-          <p>INPUT FILE PATH AND FILE NAME TO IMPORT DATA SET. THEN SELECT FILE FORMAT. IMPORTED DATA WILL BE LISTED ON THE LEFT.</p>
+          <p>
+             INPUT FILE PATH AND FILE NAME TO IMPORT DATA SET.
+             THEN SELECT FILE FORMAT. IMPORTED DATA WILL BE LISTED ON THE LEFT.
+          </p>
         </div>
       </div>
       <form target="_blank" id="importDataForm">
@@ -97,11 +104,13 @@
           <div class="contentViewMidWrap">
             <div id="filePathSelector" class="importFormRow">
               <label>File Path:</label>
-              <input type="text" name="filePath" id="filePath" autocomplete="on" placeholder="Enter File Directory" required> 
+              <input type="text" name="filePath" id="filePath"
+               autocomplete="on" placeholder="Enter File Directory" required> 
             </div>
             <div id="fileNameSelector" class="importFormRow">
               <label>File Name:</label>
-              <input type="text" name="fileName" id="fileName" autocomplete="on" placeholder="Enter Dataset Name" required>
+              <input type="text" name="fileName" id="fileName"
+               autocomplete="on" placeholder="Enter Dataset Name" required>
             </div>
           </div>
         </div>
@@ -110,26 +119,31 @@
             <div id="fileFormat">
               <span>File Format:</span>
               <label>
-                <input type="radio" name="dsType" id="dsTypeJSON" value="JSON" required>
+                <input type="radio" name="dsType" id="dsTypeJSON" value="JSON"
+                 required>
                 <div class="radio"><div class="dot"></div></div>
                 <div class="dsRadio"></div>
                 <span class="dsTypeLabel">JSON</span>
               </label>
               <label>
-                <input type="radio" name="dsType" id="dsTypeCSV" value="CSV" required>
+                <input type="radio" name="dsType" id="dsTypeCSV" value="CSV"
+                 required>
                 <div class="radio"><div class="dot"></div></div>
                 <div class="dsRadio"></div>
                 <span class="dsTypeLabel">CSV</span>
               </label>
               <label>
-                <input type="radio" name="dsType" id="dsTypeRand" value="rand" required>
+                <input type="radio" name="dsType" id="dsTypeRand" value="rand"
+                 required>
                 <div class="radio"><div class="dot"></div></div>
                 <div class="dsRadio"></div>
                 <span class="dsTypeLabel">Random</span>
               </label>
             </div>
             <button class="btn" type="reset">CANCEL</button>
-            <button class="btn" type="submit" id="importDataSubmit">IMPORT DATA</button>
+            <button class="btn" type="submit" id="importDataSubmit">
+              IMPORT DATA
+            </button>
           </div>
         </div>
       </form> 
@@ -159,8 +173,12 @@
             <div id="datasetExplore">
               <span>Data Sets (<span class="numDataStores">0</span>)</span>
               <div class="buttonGroup">
-                <div id="dataListView" class="btn dataViewBtn btnDeselected"><span class="icon"></span></div>
-                <div id="dataGridView" class="btn dataViewBtn"><span class="icon"></span></div>
+                <div id="dataListView" class="btn dataViewBtn btnDeselected">
+                  <span class="icon"></span>
+                </div>
+                <div id="dataGridView" class="btn dataViewBtn">
+                  <span class="icon"></span>
+                </div>
               </div>
             </div>
             <div id="importDataArea">
@@ -179,13 +197,23 @@
             <div id="contentViewHeader">   
               <div class="dbText">
                 <h2>Datasets</h2>
-                <p>Created by: Vikram Joshi | Date Created: 14-12-2015 | Last Updated 31-12-2014</p>
+                <p>Created by: Vikram Joshi | Date Created: 14-12-2015 | 
+                   Last Updated 31-12-2014</p>
                 <p>Records 12,435 | Size: 21 GB</p>
               </div>
               <div class="modifyDBButtons">
-                <div class="edit modifyDBButton"><span class="icon"></span><span>Edit</span></div>
-                <div class="update modifyDBButton"><span class="icon"></span><span>Update</span></div>
-                <div class="delete modifyDBButton"><span class="icon"></span><span>Delete</span></div>
+                <div class="edit modifyDBButton">
+                  <span class="icon"></span>
+                  <span>Edit</span>
+                </div>
+                <div class="update modifyDBButton">
+                  <span class="icon"></span>
+                  <span>Update</span>
+                </div>
+                <div class="delete modifyDBButton">
+                  <span class="icon"></span>
+                  <span>Delete</span>
+                </div>
               </div>
             </div>
             <div id="contentViewTable">
@@ -195,8 +223,14 @@
                   <p><b>Schema Title:</b> <span id="schemaTitle">N/A</span></p>
                 </div>
                 <div class="buttonGroup">
-                  <div id="selectDSCols" class="selectAll modifyDSButton"><span class="icon"></span><span>Select All</span></div>
-                  <div id="clearDsCols" class="clear modifyDSButton"><span class="icon"></span><span>Clear All</span></div>
+                  <div id="selectDSCols" class="selectAll modifyDSButton">
+                    <span class="icon"></span>
+                    <span>Select All</span>
+                  </div>
+                  <div id="clearDsCols" class="clear modifyDSButton">
+                    <span class="icon"></span>
+                    <span>Clear All</span>
+                  </div>
                 </div>
               </div>
               <div id="datasetWrap">
@@ -205,15 +239,18 @@
           </div><!-- end contentviewmid -->
           <div id="contentViewRight">
             <div class="buttonArea">
-              <div class="btn btnLarge" id="submitDSTablesBtn" style="display: block;">
+              <div class="btn btnLarge" id="submitDSTablesBtn"
+                   style="display: block;">
                 <span class="icon"></span>
                 SEND TO ACTIVE WORKSHEET
               </div>
-              <div class="btn btnLarge btnInactive" id="submitMultipleDBTablesBtn" style="display: block;">
+              <div class="btn btnLarge btnInactive"
+                   id="submitMultipleDBTablesBtn" style="display: block;">
                 <span class="icon"></span>
                 SEND TO MULTIPLE WORKSHEETS
               </div>
-              <div class="btn btnLarge" id="clearDataChart" style="display: block;">
+              <div class="btn btnLarge" id="clearDataChart"
+                   style="display: block;">
                 <span class="icon"></span>
                 CLEAR DATA CART
               </div>
@@ -318,10 +355,16 @@
       </div>
       <div class="rightBarContent">
         <div id="helpSearchArea" class="clearfix">
-          <input type="text" id="helpSearch" placeholder="Type in your question...">
-          <div id="helpSubmit"><span class="icon iconSearch"></span>Find</div>
+          <input type="text" id="helpSearch"
+                 placeholder="Type in your question...">
+          <div id="helpSubmit">
+            <span class="icon iconSearch"></span>
+            Find
+          </div>
         </div>
-        <div id="helpResults" class="helpBox"><span>There are no help results</span></div>
+        <div id="helpResults" class="helpBox">
+          <span>There are no help results</span>
+        </div>
         <div id="helpOnOff"></div>
         <div id="helpTopics" class="helpBox">
           <ul><span>Help Topics:</span>
@@ -341,21 +384,29 @@
       <div id="worksheetInfo" class="clearfix">
         <div class="workspaceArea">Xcalar Level Worksheet</div>
         <div class="workspaceArea">Created on 02-14-15 </div>
-        <div class="workspaceArea"><span class="numDataStores">3</span> Data Stores</div>
+        <div class="workspaceArea">
+          <span class="numDataStores">3</span> Data Stores
+        </div>
         <div class="workspaceArea">5 Columns</div>
-        <div class="workspaceArea">Brief Description of worksheet brief description of worksheet</div>
+        <div class="workspaceArea">
+          Brief Description of worksheet brief description of worksheet
+        </div>
       </div>
       <div class="bottomButtonsArea">
         <div id="leftMenu" class="btn btnSmall sliderBtn">
           <span id="tableListBtn" class="icon"></span>
         </div>
         <div class="btn btnSmall sliderBtn"><span id="cliBtn" ></span></div>
-        <div class="btn btnSmall sliderBtn"><span id="scratchpadBtn"></span></div>
+        <div class="btn btnSmall sliderBtn">
+          <span id="scratchpadBtn"></span>
+        </div>
         <div class="btn btnSmall sliderBtn"><span id="infoBtn"></span></div>
       </div>
     </div>
     <div id="bottomTabArea">
-      <div class="btn btnSmall btnInactive" id="addWorksheet"><span class="icon"></span></div>
+      <div class="btn btnSmall btnInactive" id="addWorksheet">
+        <span class="icon"></span>
+      </div>
       <div id="worksheetTabs">
         <div class="worksheetTab">
           <span class="icon"></span>
@@ -391,7 +442,8 @@
       <div class="text">
         First, select the column from the left table that you would like to join
         on. <br>
-        Next, select the table followed by the column from the right that you would like to join on.
+        Next, select the table followed by the column from the right that you 
+        would like to join on.
       </div>
     </div>
     <div id="inputSection">
@@ -488,7 +540,8 @@
     <div id="alertInformation">
       <div class="icon"></div>
       <div class="text">
-        This selected column will be deleted from data set but be available on the archive to the pasted back into current table
+        This selected column will be deleted from data set but be available on 
+        the archive to the pasted back into current table
       </div>
     </div>
     <div id="alertContentWrap">
@@ -509,8 +562,8 @@
 
 </div> <!-- END CONTAINER -->
 
-<script src="bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js"></script>
-
+<script src="bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js">
+</script>
 <script src="/js/thrift/thrift.js" type="text/javascript"></script>
 <script src="/js/thrift/GenericTypesEnums_types.js" type="text/javascript"></script>
 <script src="/js/thrift/DataFormatEnums_types.js" type="text/javascript"></script>
@@ -542,11 +595,8 @@
 <script src="js/load.js" type="text/javascript"></script>
 <script src="js/dag.js" type="text/javascript"></script>
 <script src="js/alertModal.js" type="text/javascript"></script>
-<<<<<<< HEAD
 <script src="js/cli.js" type="text/javascript"></script>
-=======
 <script src="js/folder.js" type="text/javascript"></script>
->>>>>>> 8a518b7... GUI-393 Folder Feature
 <script>
     documentReadyIndexFunction();
 </script>

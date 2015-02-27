@@ -315,7 +315,8 @@ function dragdropMouseUp() {
             // add cli
             var cliOptions = {};
             cliOptions.tableName = gTables[gDragObj.tableNum].frontTableName;
-            cliOptions.colName = gTables[gDragObj.tableNum].tableCols[gDragObj.colNum - 1].name;
+            cliOptions.colName = gTables[gDragObj.tableNum]
+                                 .tableCols[gDragObj.colNum - 1].name;
             cliOptions.oldColIndex = gDragObj.colNum;
             cliOptions.newColIndex = gDragObj.colIndex;
 
@@ -332,7 +333,8 @@ function dragdropMouseUp() {
 
             execCol(progCol, gDragObj.tableNum)
             .done(function() {
-                updateMenuBarTable(gTables[gDragObj.tableNum], gDragObj.tableNum);
+                updateMenuBarTable(gTables[gDragObj.tableNum],
+                                   gDragObj.tableNum);
                 //prevent scroll position from changing when 
                 // you delete and add column
                 $('#mainFrame').scrollLeft(storedScrollLeft);
@@ -488,8 +490,8 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
         $('#mainFrame').scroll(mainFrameScrollDropTargets);
        
     } else {
-        // targets have already been created, so just adjust the one corresponding
-        // to the column that was swapped
+        // targets have already been created, so just adjust the one 
+        // corresponding to the column that was swapped
         var swappedCol = gDragObj.table.find('th:eq('+swappedColIndex+')');
         var colLeft = swappedCol.position().left;
         $('#dropTarget'+dropTargetIndex)
@@ -673,7 +675,8 @@ function cloneTableHeader(tableNum) {
 
     tHeadClone.addClass('fauxTHead');
     tHead.addClass('trueTHead').after(tHeadClone);
-    tHead.wrap('<div id="xcTheadWrap'+tableNum+'" class="xcTheadWrap dataTable"'+
+    tHead.wrap('<div id="xcTheadWrap'+tableNum+
+                '" class="xcTheadWrap dataTable"'+
                 'style="top:0px;"></div>');
     var xcTheadWrap = $('#xcTheadWrap'+tableNum);
 
@@ -943,7 +946,8 @@ function addColMenuActions(colId, tableId) {
     var headerWrap = $('#xcTheadWrap'+tableNum);
     var tables = $('#'+tableId+', #xcTheadWrap'+tableNum);
 
-    tables.find('.table_title_bg.col'+colId+' .colMenu li').click(function(event) {
+    tables.find('.table_title_bg.col'+colId+' .colMenu li').click(
+    function(event) {
         if ($(this).children('.subColMenu, input').length === 0) {
             if ($(this).hasClass('clickable')) {
                 return;
@@ -1086,8 +1090,9 @@ function addColMenuActions(colId, tableId) {
         var value = XcalarAggregate(colName, gTables[tableNum].backTableName,
                                     aggrOp);
         var title = 'Aggregate: ' + aggrOp;
-        var instruction = 'This is the aggregate result for column "' + colName +
-                          '". \r\n The aggregate operation is "' + aggrOp + '".';
+        var instruction = 'This is the aggregate result for column "' + 
+                          colName + '". \r\n The aggregate operation is "' +
+                          aggrOp + '".';
         showAlertModal({'title':title, 'msg':value, 
                         'instruction': instruction, 'isAlert':true,
                         'isCheckBox': true});
@@ -1490,7 +1495,9 @@ function dragTableMouseDown(el, e) {
     var rect = gDragObj.table[0].getBoundingClientRect();
 
     // gDragObj.rectLeft = rect.left - gDragObj.mouseX;
-    // gDragObj.maxScroll = $('#mainFrame')[0].scrollWidth - $('#mainFrame').width();
+    // gDragObj.maxScroll = $('#mainFrame')[0].scrollWidth -
+    //                      $('#mainFrame').width();
+
 
     gDragObj.offsetLeft = gDragObj.table.offset().left;
     gDragObj.prevTable = gDragObj.table.prev();
@@ -1626,7 +1633,8 @@ function dragdropSwapTables(el) {
     gDragObj.table.scrollTop(gDragObj.tableScrollTop);
 
     gDragObj.table.attr('id', 'xcTableWrap'+dropTargetIndex);
-    gDragObj.table.find('.xcTheadWrap').attr('id', 'xcTheadWrap'+dropTargetIndex);
+    gDragObj.table.find('.xcTheadWrap').attr('id',
+                                             'xcTheadWrap'+dropTargetIndex);
      
     table.attr('id', 'xcTableWrap'+gDragObj.tableIndex);
     table.find('.xcTheadWrap').attr('id', 'xcTheadWrap'+gDragObj.tableIndex);
@@ -1646,7 +1654,7 @@ function reorderAfterTableDrop() {
     var tempTable = gTables.splice(gDragObj.originalIndex, 1)[0];
     gTables.splice(gDragObj.tableIndex, 0, tempTable);
     
-    //reorder rowScrollers
+    // reorder rowScrollers
     var rowScroller = $('#rowScroller'+gDragObj.originalIndex);
     if (gDragObj.tableIndex == 0) {
         $('#rowScrollerArea').prepend(rowScroller);
@@ -1656,12 +1664,13 @@ function reorderAfterTableDrop() {
         $('#rowScroller'+gDragObj.tableIndex).before(rowScroller);
     }
 
-    //correct table and rowscroller id numbers
+    // correct table and rowscroller id numbers
     var rowScrollers = $('.rowScroller');
     var start = Math.min(gDragObj.originalIndex, gDragObj.tableIndex);
     var end = Math.max(gDragObj.originalIndex, gDragObj.tableIndex);
     for (var i = start; i <= end; i++) {
-        //tablewrap and xcTheadWrap IDs were already changed during table swapping
+        // tablewrap and xcTheadWrap IDs were already changed during table
+        // swapping
         var tableWrap = $('#xcTableWrap'+i);
         var table = tableWrap.find('.xcTable');
         var oldIndex = parseInt(table.attr('id').substring(7));
