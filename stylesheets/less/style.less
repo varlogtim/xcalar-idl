@@ -2645,6 +2645,10 @@ ul.colMenu {
     }
 
     .sort {
+        // indexed column cannot sort
+        .indexedColumn & {
+            display: none;
+        }
         span {
             height: 16px;
             width: 24px;
