@@ -193,6 +193,7 @@ function gDSInitialization() {
 function dsBtnInitizlize($gridViewBtnArea) {
     var html = "";
     html += '<div id="backFolderBtn"  class="disabled"' + 
+                ' data-toggle="tooltip" data-placement="bottom"' +
                 ' title="See previous folders"' + 
                 ' ondrop="dsDropBack(event)"' + 
                 ' ondragover="allowDSDrop(event)"' + 
@@ -203,7 +204,9 @@ function dsBtnInitizlize($gridViewBtnArea) {
                 '</div>' + 
             '</div>';
 
-    html += '<div id="addFolderBtn" title="Add New Folder">' + 
+    html += '<div id="addFolderBtn"'+ 
+                ' data-toggle="tooltip" data-placement="bottom"'+
+                ' title="Add New Folder">' + 
                 '<div class="icon"></div>' +
                 '<div class="label">' + 
                     'NEW' + 
@@ -211,6 +214,7 @@ function dsBtnInitizlize($gridViewBtnArea) {
             '</div>';
 
     html += '<div id="deleteFolderBtn" class="disabled"' + 
+            ' data-toggle="tooltip" data-placement="bottom"' +
             ' title="Delete Folder">' + 
                 '<div class="icon"></div>' +
                 '<div class="label">' + 

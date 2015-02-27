@@ -142,6 +142,7 @@ function getUrlVars() {
 function prelimFunctions() {
     setTabs();
     selectPage(1);
+
 }
 
 function setTableMeta(table) {
@@ -299,6 +300,13 @@ function setupLogout() {
     $("#signout").click(function() {
         window.location = "dologout.html";
     });
+}
+
+function setupTooltips() {
+    $("body").tooltip({
+        selector: '[data-toggle="tooltip"]',
+        delay: 100
+    });    
 }
 
 // ========================== Document Ready ==================================
@@ -502,6 +510,7 @@ function startupFunctions() {
         return setupDatasetList();
     })
     .then(function() {
+        setupTooltips();
         mainPanelsTabing();
         setupFunctionBar();
         scratchpadStartup(); 

@@ -1370,7 +1370,8 @@ function setupBookmarkArea() {
 
 function addRowScroller(tableNum) {
     var rowScrollerHTML = '<div id="rowScroller'+tableNum+
-        '" class="rowScroller" title="scroll to a row">'+
+        '" class="rowScroller" data-toggle="tooltip"'+
+            'data-placement="bottom" title="scroll to a row">'+
             '<div id="rowMarker'+tableNum+'" class="rowMarker">'+
             '<div class="subRowMarker top"></div>'+
             '<div class="subRowMarker middle"></div>'+
@@ -1400,7 +1401,9 @@ function bookmarkRow(rowNum, tableNum) {
     td.find('.idSpan').attr('title', 'bookmarked');
     var leftPos = 100*(rowNum/gTables[tableNum].resultSetCount);
     var bookmark = $('<div class="bookmark bkmkRow'+rowNum+'"'+
-        ' style="left:'+leftPos+'%;" title="row '+(rowNum+1)+'"></div>');
+        ' style="left:'+leftPos+'%;" data-toggle="tooltip" '+
+        ' data-placement="bottom" title="row '+
+        (rowNum+1)+'"></div>');
     $('#rowScroller'+tableNum).append(bookmark);
     if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
         gTables[tableNum].bookmarks.push(rowNum);
