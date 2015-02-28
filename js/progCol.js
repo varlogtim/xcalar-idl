@@ -292,11 +292,15 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
 
         var rowNum = row+startIndex;
         tBodyHTML += '<tr class="row'+(rowNum)+'">';
-        tBodyHTML += '<td align="center" class="col0">'+
-                     '<div class="idWrap">'+
+        if (gTables[tableNum].bookmarks.indexOf(rowNum) > -1) {
+            tBodyHTML += '<td align="center" class="col0 rowBookmarked">';
+        } else {
+            tBodyHTML += '<td align="center" class="col0">';
+        }
+        tBodyHTML += '<div class="idWrap">'+
                      '<span class="idSpan" '+
                      'data-toggle="tooltip" data-placement="bottom" '+
-                     'title="double-click to bookmark">'+
+                     'title="click to add bookmark">'+
                       (rowNum+1)+'</span>'+
                       '<div class="rowGrab"></div>'+
                       '</div></td>';
