@@ -107,7 +107,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename) {
     if (tHandle == null) {
         return;
     }
-    xcalarIndexTable(tHandle, SyncOrAsync.Async, srcTablename, key, tablename);
+    xcalarIndexTable(tHandle, SyncOrAsync.Sync, srcTablename, key, tablename);
 }
 
 function XcalarDeleteTable(backTableName) {
