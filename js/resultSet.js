@@ -19,7 +19,8 @@ function goToPage(pageNumber, direction, tableNum) {
     var position = (pageNumber-shift)*gNumEntriesPerPage;
     XcalarSetAbsolute(gTables[tableNum].resultSetId, position);
 
-    var jsonData = generateDataColumnJson(gTables[tableNum].resultSetId, true, null, tableNum);
+    var jsonData = generateDataColumnJson(gTables[tableNum].resultSetId,
+                                          true, null, tableNum);
     var startingIndex;
     var $tableBody = $('#xcTable'+tableNum).find('tbody');
     if ($tableBody.children().length === 0) {

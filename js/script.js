@@ -309,6 +309,14 @@ function setupTooltips() {
     });    
 }
 
+function setupWorksheetMeta() {
+    var d = new Date();
+    var day = d.getDate();
+    var month = d.getMonth()+1;
+    var year = d.getFullYear();
+    $("#workspaceDate").text("Created on "+day+"-"+month+"-"+year);
+}
+
 // ========================== Document Ready ==================================
 
 function documentReadyxcTableFunction() {
@@ -507,7 +515,7 @@ function startupFunctions() {
         documentReadyGeneralFunction();
         setupRightSideBar();
         setupLogout();
-        return setupDatasetList();
+        return (setupDatasetList());
     })
     .then(function() {
         setupTooltips();
@@ -517,11 +525,11 @@ function startupFunctions() {
         setupDSCartButtons();
         setupImportDSForm();
         setupBookmarkArea();
+        setupWorksheetMeta();
         return updateDatasetInfoFields("Datasets", IsActive.Active);
     })
     .done(function() {
         setupDag();
-
         deferred.resolve();
     });
 
