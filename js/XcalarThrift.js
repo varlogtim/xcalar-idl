@@ -128,9 +128,16 @@ function XcalarEditColumn(datasetId, currFieldName, newFieldName, newFieldType)
 }
 
 function XcalarSample(datasetId, numEntries) {
-    var resultSetId = xcalarMakeResultSetFromDataset(tHandle,
-                                                     datasetId).resultSetId;
-    return (XcalarGetNextPage(resultSetId, numEntries));
+    var deferred = jQuery.Deferred();
+
+    xcalarMakeResultSetFromDataset(tHandle, datasetId)
+    .done(function(result){
+        var resultSetId = result.resultSetId;
+
+        deferred.resolve(XcalarGetNextPage(resultSetId, numEntries));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarGetCount(tableName) {
@@ -155,9 +162,10 @@ function XcalarGetDatasets() {
 }
 
 function XcalarGetTables() {
-    if (tHandle == null) {
-        return (null);
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
     }
+
     return (xcalarListTables(tHandle, "*"));
 }
 

@@ -425,6 +425,7 @@ function xcalarQueryState(thriftHandle, queryId) {
 }
 
 function xcalarListTables(thriftHandle, patternMatch) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarListTables(patternMatch = " + patternMatch + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -433,21 +434,20 @@ function xcalarListTables(thriftHandle, patternMatch) {
     workItem.api = XcalarApisT.XcalarApiListTables;
     workItem.input.listTablesInput = patternMatch;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var listTablesOutput = result.output.listTablesOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             listTablesOutput.numTables = 0;
         }
-    } catch (ouch) {
-        console.log("xcalarListTables() caught exception: " + ouch);
+        deferred.resolve(listTablesOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarListTables() caught exception:", error);
+        deferred.reject(error);
+    });
 
-        var listTablesOutput = new XcalarApiListTablesOutputT();
-        // XXX FIXME should add StatusT.StatusThriftProtocolError
-        listTablesOutput.numTables = 0;
-    }
-
-    return listTablesOutput;
+    return (deferred.promise());
 }
 
 function xcalarListDatasets(thriftHandle) {
@@ -509,7 +509,7 @@ function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
         deferred.resolve(makeResultSetOutput);
     })
     .fail(function(error) {
-        console.log("xcalarMakeResultSetFromTable() caught exception: " + error);
+        console.log("xcalarMakeResultSetFromTable() caught exception:", error);
 
         makeResultSetOutput = new XcalarApiMakeResultSetOutputT();
         makeResultSetOutput.status = StatusT.StatusThriftProtocolError;
@@ -521,6 +521,7 @@ function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
 }
 
 function xcalarMakeResultSetFromDataset(thriftHandle, datasetId) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarMakeResultSetFromDataset(datasetId = " +
                 datasetId.toString() + ")");
 
@@ -536,21 +537,26 @@ function xcalarMakeResultSetFromDataset(thriftHandle, datasetId) {
     workItem.input.makeResultSetInput.table.tableId = XcalarApiTableIdInvalidT;
     workItem.input.makeResultSetInput.datasetId = datasetId;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
-        var makeResultSetOutput = result.output.makeResultSetOutput;
+    var makeResultSetOutput;
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        makeResultSetOutput = result.output.makeResultSetOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             makeResultSetOutput.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarMakeResultSetFromDataset() caught exception: " +
-                    ouch);
 
-        var makeResultSetOutput = new XcalarApiMakeResultSetOutputT();
+        deferred.resolve(makeResultSetOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarMakeResultSetFromDataset() caught exception:", error);
+
+        makeResultSetOutput = new XcalarApiMakeResultSetOutputT();
         makeResultSetOutput.status = StatusT.StatusThriftProtocolError;
-    }
 
-    return makeResultSetOutput;
+        deferred.reject(makeResultSetOutput);
+    });
+
+    return (deferred.promise());
 }
 
 function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {

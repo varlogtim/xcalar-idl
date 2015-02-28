@@ -219,47 +219,50 @@ function getDatasetSample(datasetName) {
             }
 
             // Gets the first 20 entries and stores it.
-            samples[datasetName] = 
-                XcalarSample(datasets.datasets[i].datasetId, 20);
+            (function(i) {
+                XcalarSample(datasets.datasets[i].datasetId, 20)
+                .done(function(result) {
+                    samples[datasetName] = result;
 
+                    // add the tab and the table for this dataset to shoppingcart div
+                    addDatasetTable(datasetName, i);
+                   
+                    var records = samples[datasetName].kvPairs;
 
-            // add the tab and the table for this dataset to shoppingcart div
-            addDatasetTable(datasetName, i);
-           
-            var records = samples[datasetName].kvPairs;
-
-            var uniqueJsonKey = {}; // store unique Json key
-            var jsonKeys = [];
-            var jsons = [];  // store all jsons
-            var recordsSize = records.records.length;
-            
-            if (records.recordType ==
-                GenericTypesRecordTypeT.GenericTypesVariableSize) {
-                for (var j = 0; j < recordsSize; j++) {
-                    jsons[j] =
-                      jQuery.parseJSON(records.records[j].kvPairVariable.value);
-                    for (var key in jsons[j]) {
-                        uniqueJsonKey[key] = "";
+                    var uniqueJsonKey = {}; // store unique Json key
+                    var jsonKeys = [];
+                    var jsons = [];  // store all jsons
+                    var recordsSize = records.records.length;
+                    
+                    if (records.recordType ==
+                        GenericTypesRecordTypeT.GenericTypesVariableSize) {
+                        for (var j = 0; j < recordsSize; j++) {
+                            jsons[j] =
+                              jQuery.parseJSON(records.records[j].kvPairVariable.value);
+                            for (var key in jsons[j]) {
+                                uniqueJsonKey[key] = "";
+                            }
+                        }
+                    } else {
+                        for (var j = 0; j < recordsSize; j++) {
+                            jsons[j] =
+                                 jQuery.parseJSON(records.records[j].kvPairFixed.value);
+                            for (var key in jsons[j]) {
+                                uniqueJsonKey[key] = "";
+                            }
+                        }
                     }
-                }
-            } else {
-                for (var j = 0; j < recordsSize; j++) {
-                    jsons[j] =
-                         jQuery.parseJSON(records.records[j].kvPairFixed.value);
-                    for (var key in jsons[j]) {
-                        uniqueJsonKey[key] = "";
-                    }
-                }
-            }
 
-            for (var key in uniqueJsonKey) {
-                jsonKeys.push(key);
-            }
-            
-            addDataSetHeaders(jsonKeys, datasets.datasets[i].datasetId, i);
-            addDataSetRows(jsonKeys,jsons, i);
-            addWorksheetListeners(i);  
-            updateDatasetInfoFields(datasetName, IsActive.Active);
+                    for (var key in uniqueJsonKey) {
+                        jsonKeys.push(key);
+                    }
+                    
+                    addDataSetHeaders(jsonKeys, datasets.datasets[i].datasetId, i);
+                    addDataSetRows(jsonKeys,jsons, i);
+                    addWorksheetListeners(i);  
+                    updateDatasetInfoFields(datasetName, IsActive.Active);
+                });
+            })(i);
         } 
     });
 }
@@ -543,93 +546,96 @@ function createWorksheet() {
             var startIndex = 0;
             var datasetName = $(this).data('dsname');
             var tableName = $(this).find('h3').text();
-            var tables = XcalarGetTables();
-            var numTables = tables.numTables;
-            // check if another table with same name exists so we have to rename
-            for (var i = 0; i<numTables; i++) {
-                var tName = tables.tables[i].tableName;
-                if (tName == tableName) {
-                    var rand = Math.floor((Math.random() * 100000) + 1);
-                    tableName += "-"+rand;
-                }
-            }
 
-            // add cli
-            var cliOptions = {};
-            cliOptions.operation = "createTable";
-            cliOptions.tableName = tableName;
-            cliOptions.col = [];
-
-            var promises = [];
             var self = this;
-            $(self).find('.colName').each(function() {
-                promises.push((function() {
-                    var innerDeferred = jQuery.Deferred();
+            XcalarGetTables()
+            .done(function(tables) {
+                var numTables = tables.numTables;
+                // check if another table with same name exists so we have to rename
+                for (var i = 0; i<numTables; i++) {
+                    var tName = tables.tables[i].tableName;
+                    if (tName == tableName) {
+                        var rand = Math.floor((Math.random() * 100000) + 1);
+                        tableName += "-"+rand;
+                    }
+                }
 
-                    var colname = $.trim($(this).text());
+                // add cli
+                var cliOptions = {};
+                cliOptions.operation = "createTable";
+                cliOptions.tableName = tableName;
+                cliOptions.col = [];
+
+                var promises = [];
+                $(self).find('.colName').each(function() {
+                    promises.push((function() {
+                        var innerDeferred = jQuery.Deferred();
+
+                        var colname = $.trim($(this).text());
+                        var progCol = new ProgCol();
+                        progCol.index = ++startIndex;
+                        progCol.type = "string";
+                        progCol.name = colname;
+                        progCol.width = gNewCellWidth;
+                        progCol.userStr = '"'+colname+'" = pull('+colname+')';
+                        progCol.func.func = "pull";
+                        progCol.func.args = [colname];
+                        progCol.isDark = false;
+
+                        var currentIndex = startIndex - 1;
+                        getDsId(datasetName)
+                        .done(function(id) {
+                            progCol.datasetId = parseInt(id);                  
+                            newTableCols[currentIndex] = progCol;
+
+                            innerDeferred.resolve();
+                        });
+
+                        cliOptions.col.push(colname);
+
+                        return (innerDeferred.promise());
+                    }).setContext(this));
+                });
+
+                chain(promises)
+                .then(function() {
                     var progCol = new ProgCol();
-                    progCol.index = ++startIndex;
-                    progCol.type = "string";
-                    progCol.name = colname;
-                    progCol.width = gNewCellWidth;
-                    progCol.userStr = '"'+colname+'" = pull('+colname+')';
-                    progCol.func.func = "pull";
-                    progCol.func.args = [colname];
+                    progCol.index = startIndex+1;
+                    progCol.type = "object";
+                    progCol.name = "DATA";
+                    progCol.width = 500;
+                    progCol.userStr = "DATA = raw()";
+                    progCol.func.func = "raw";
+                    progCol.func.args = [];
                     progCol.isDark = false;
+                    newTableCols[startIndex] = progCol;
 
-                    var currentIndex = startIndex - 1;
-                    getDsId(datasetName)
-                    .done(function(id) {
-                        progCol.datasetId = parseInt(id);                  
-                        newTableCols[currentIndex] = progCol;
+                    setIndex(tableName, newTableCols);
+                    commitToStorage();
 
-                        innerDeferred.resolve();
-                    });
+                    cliOptions.col.push("DATA");
+                    return (getDsId(datasetName));
+                })
+                .then(function(datasetId) {
+                    datasetId = parseInt(datasetId);
+                    var columnToIndex = 
+                        $.trim($(self).find('.keySelected .colName').text());
 
-                    cliOptions.col.push(colname);
-
-                    return (innerDeferred.promise());
-                }).setContext(this));
-            });
-
-            chain(promises)
-            .then(function() {
-                var progCol = new ProgCol();
-                progCol.index = startIndex+1;
-                progCol.type = "object";
-                progCol.name = "DATA";
-                progCol.width = 500;
-                progCol.userStr = "DATA = raw()";
-                progCol.func.func = "raw";
-                progCol.func.args = [];
-                progCol.isDark = false;
-                newTableCols[startIndex] = progCol;
-
-                setIndex(tableName, newTableCols);
-                commitToStorage();
-
-                cliOptions.col.push("DATA");
-                return (getDsId(datasetName));
-            })
-            .then(function(datasetId) {
-                datasetId = parseInt(datasetId);
-                var columnToIndex = 
-                    $.trim($(self).find('.keySelected .colName').text());
-
-                cliOptions.key = columnToIndex;
-                addCli("Send To Worksheet", cliOptions);
-                return (XcalarIndexFromDataset(datasetId, columnToIndex, tableName));
-            })
-            .then(function() {
-                $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-                    '{cursor: wait !important;}</style>');
-                var keepLastTable = true;
-                var additionalTableNum = false;
-                return (checkStatus(tableName, gTables.length, 
-                    keepLastTable, additionalTableNum));
-            })
-            .done(function() {
-                chainDeferred.resolve();
+                    cliOptions.key = columnToIndex;
+                    addCli("Send To Worksheet", cliOptions);
+                    return (XcalarIndexFromDataset(datasetId, columnToIndex, tableName));
+                })
+                .then(function() {
+                    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
+                        '{cursor: wait !important;}</style>');
+                    var keepLastTable = true;
+                    var additionalTableNum = false;
+                    return (checkStatus(tableName, gTables.length, 
+                        keepLastTable, additionalTableNum));
+                })
+                .done(function() {
+                    chainDeferred.resolve();
+                });
             });
 
             return chainDeferred.promise();

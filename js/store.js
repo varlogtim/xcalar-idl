@@ -137,22 +137,25 @@ function readFromStorage() {
             gTableDirectionLookup = {};
             gWorksheetName = [];
             gTableOrderLookup = [];
-        } else {
-            var tables = XcalarGetTables();
-            var numTables = tables.numTables;
-            for (i = 0; i<numTables; i++) {
-                var tableName = tables.tables[i].tableName;
-                if (!gTableIndicesLookup[tableName]) {
-                    //XXX user may not want all the tables to display
-                    // so we will need to fix this
-                    // setIndex(tableName, []);
-                }
 
-            }
+            deferred.resolve();
+        } else {
+            XcalarGetTables()
+            .done(function(tables) {
+                var numTables = tables.numTables;
+                for (i = 0; i<numTables; i++) {
+                    var tableName = tables.tables[i].tableName;
+                    if (!gTableIndicesLookup[tableName]) {
+                        //XXX user may not want all the tables to display
+                        // so we will need to fix this
+                        // setIndex(tableName, []);
+                    }
+                }
+                
+                deferred.resolve();
+            });
         }   
         commitToStorage(AfterStartup.After); 
-
-        deferred.resolve();
     });
 
     return (deferred.promise());
