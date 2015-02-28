@@ -802,6 +802,7 @@ function addColListeners(colId, tableId) {
         $(this).parent().siblings('.dropdownBox')
             .addClass('hidden');
         focusTable(dynTableNum);
+        $('#fnBar').addClass('active');
     }).blur(function() {
         var dynTableNum = parseInt($(this).closest('.dataTable').attr('id')
                           .substring(11));
@@ -818,6 +819,7 @@ function addColListeners(colId, tableId) {
 
         $(this).parent().siblings('.dropdownBox')
             .removeClass('hidden');
+        $('#fnBar').removeClass('active');
     });
 
     tables.find('.editableHead.col'+colId).keyup(function(e) {

@@ -62,6 +62,7 @@
 @color-text-signout-blue: #5BB1E7;
 @color-text-signout-darkGray: #444444;
 @color-text-error: #E45B52;
+@color-text-fnBar-blue: #242C31;
 /* Fonts */
 @font-base: "Open Sans", "Trebuchet MS", Arial, sans-serif;
 @font-code: "Source Code Pro", courier;
@@ -471,8 +472,7 @@ body {
             background-color: @color-input-active;
             box-shadow: 0px 2px 2px 0 #888888 inset;
             outline: none;
-            color: @color-text-brightBlue;
-            font-size: 12px;
+            color: @color-text-fnBar-blue;
         }
     }
 
@@ -482,6 +482,10 @@ body {
         .flex-shrink(1);
         #fnBar {
             width: ~"calc(100% - 28px)";
+            &.active {
+                background-color: @color-input-active;
+                box-shadow: 0px 2px 2px 0 #888888 inset;
+            }
         }
     }
 
