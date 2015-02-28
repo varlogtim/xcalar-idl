@@ -31,8 +31,6 @@ function refreshTable(newTableName, tableNum,
                       keepOriginal, additionalTableNum) {
     var deferred = jQuery.Deferred();
 
-    $("body").css({"cursor": "default"});
-    $('#waitCursor').remove();
     $('#dagPanel').addClass('hidden');
     $("#workspaceTab").trigger('click');
     var newTableNum;
@@ -44,7 +42,8 @@ function refreshTable(newTableName, tableNum,
             var leftPos = $('#xcTableWrap'+newTableNum).position().left +
                             $('#mainFrame').scrollLeft();
             $('#mainFrame').animate({scrollLeft: leftPos});
-
+            $("body").css({"cursor": "default"});
+            $('#waitCursor').remove();
             deferred.resolve();
         });
     } else {
@@ -69,7 +68,8 @@ function refreshTable(newTableName, tableNum,
             if (savedScrollLeft) {
                 $('#mainFrame').scrollLeft(savedScrollLeft);
             } 
-
+            $("body").css({"cursor": "default"});
+            $('#waitCursor').remove();
             deferred.resolve();
         });
     }
@@ -193,76 +193,6 @@ function mapColumn(fieldName, mapString, tableNum) {
     });
 
     return (deferred.promise());
-}
-/*
-function cont1(newIndexTable, operator, value, datasetId, key, otherTable) {
-    var refCount = XcalarGetTableRefCount(newIndexTable);
-    console.log(refCount);
-    if (refCount == 1) {
-        var rand = Math.floor((Math.random() * 100000) + 1);
-        var newFilterTable = "tempFilter"+rand;
-        XcalarFilter(operator, value, newIndexTable, newFilterTable);
-        // Wait for this filter to be done
-        cont2(newFilterTable, operator, value, datasetId, key, otherTable);
-    } else {
-        // Check twice per second
-        setTimeout(function() {
-            cont1(newIndexTable, operator, value, datasetId, key, otherTable);
-        }, 500);
-    }
-}
-
-function cont2(newFilterTable, operator, value, datasetId, key, otherTable) {
-    var refCount = XcalarGetTableRefCount(newFilterTable);
-    console.log(refCount);
-    if (refCount == 1) {
-        var rand = Math.floor((Math.random() * 100000) + 1);
-        var newIndexTable = "tempIndex"+rand;
-        if (otherTable == "sp500") {
-            XcalarIndexFromTable(newFilterTable, "gdeltDate", newIndexTable);
-        } else {
-            XcalarIndexFromTable(newFilterTable, "sp500", newIndexTable);
-        }
-        // Wait for this filter to be done
-        cont3(newIndexTable, operator, value, datasetId, key, otherTable);
-    } else {
-        console.log(refCount);
-        // Check twice per second
-        setTimeout(function() {
-            cont2(newFilterTable, operator, value, datasetId, key, otherTable);
-        }, 500);
-    }
-}
-
-function cont3(newIndexTable, operator, value, datasetId, key, otherTable) {
-    var refCount = XcalarGetTableRefCount(newIndexTable);
-    console.log(refCount);
-    if (refCount == 1) {
-        var rand = Math.floor((Math.random() * 100000) + 1);
-        var newJoinTable = "joined"+rand;
-        XcalarJoin(newIndexTable, otherTable, newJoinTable);
-        setIndex(newJoinTable, gTables.tableCols);
-        commitToStorage();
-        checkStatus(newJoinTable, );
-    } else {
-        console.log(refCount);
-        // Check twice per second
-        setTimeout(function() {
-            cont3(newIndexTable, operator, value, datasetId, key, otherTable);
-        }, 500);
-    }
-}
-*/
-
-// Fucking javascript is so fucking fucked up. So we'll have to do continuation
-// passing. Joy!
-function filterNonMainCol(operator, value, datasetId, key, otherTable) {
-/*    var rand = Math.floor((Math.random() * 100000) + 1);
-    var newIndexTable = "tempIndex"+rand;
-    console.log(newIndexTable);
-    XcalarIndexFromDataset(datasetId, key, newIndexTable);
-    // Wait for this index to be done
-    cont1(newIndexTable, operator, value, datasetId, key, otherTable); */
 }
 
 function groupByCol(operator, newColName, colid, tableNum) {
