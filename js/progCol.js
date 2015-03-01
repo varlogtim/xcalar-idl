@@ -397,7 +397,6 @@ function addCol(colId, tableId, name, options) {
     //tableId will be the table name  ex. xcTable0
     var tableNum = parseInt(tableId.substring(7));
     var table = $('#'+tableId);
-    var headerWrap = $('#xcTheadWrap'+tableNum);
     var tables = $('#'+tableId+', #xcTheadWrap'+tableNum);
     var numCol = table.find("tr:first th").length;
     var colIndex = parseInt(colId.substring(3));
@@ -460,7 +459,7 @@ function addCol(colId, tableId, name, options) {
     }
 
     if (inFocus) {
-        headerWrap.find('tr:first .editableHead.col'+newColid).focus();
+        table.find('tr:first .editableHead.col'+newColid).focus();
     }
     matchHeaderSizes(tableNum);
     checkForScrollBar(tableNum);

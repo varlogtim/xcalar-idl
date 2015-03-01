@@ -21,7 +21,7 @@ var gRescol = {
     minNumRows: 60,
     maxNumRows: 80
 };
-var resrow = {};
+var gResrow = {};
 var gScrollbarHeight = 8;
 var gTempStyle = ""; // XXX
 var gMinTableWidth = 30;
@@ -450,7 +450,7 @@ function documentReadyGeneralFunction() {
                 }
                 break;
             case ("resizingRow"):
-                resrowMouseMove(event);
+                gResrowMouseMove(event);
                 break;
             case ("movingTable"):
                 dragTableMouseMove(event);
@@ -475,7 +475,7 @@ function documentReadyGeneralFunction() {
                 gRescolMouseUp();
                 break;
             case ("resizingRow"):
-                resrowMouseUp();
+                gResrowMouseUp();
                 break;
             case ("movingTable"):
                     dragTableMouseUp();
@@ -552,7 +552,7 @@ function tableStartupFunctions(table, tableNum) {
         .then(goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum));
     })
     .done(function(val) {
-        cloneTableHeader(tableNum);
+        createTableHeader(tableNum);
         focusTable(tableNum);
         var dataCol = $('#xcTable'+tableNum+' tr:eq(0) th.dataCol');
         addColListeners(parseColNum(dataCol), $("#xcTable"+tableNum));
