@@ -5,6 +5,10 @@ function setupRightSideBar() {
         if (!clickable) {
             return;
         }
+
+        $('#worksheetBar').find('.sliderBtn').removeClass('active');
+        $(this).addClass('active');
+
         var sidebar = $('#rightSideBar');
         var index = $(this).index();
         var sidebarSection = sidebar.find('.rightBarSection').eq(index);
