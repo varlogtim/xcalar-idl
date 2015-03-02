@@ -127,19 +127,16 @@ function setuptableListSection() {
         var $buttons = $('#archivedTableList').find('.btnLarge');
         $buttons.addClass('btnInactive');
 
-        if ($tablesSelected.length == gHiddenTables.length) {
-            $buttons.hide();
-        }
-
         var promises = [];
         $tablesSelected.each(function() {
             promises.push((function() {
                 var innerDeferred = jQuery.Deferred();
 
                 var $li = $(this).closest('li.tableInfo');
+                var $timeLine = $li.parent().parent();
                 var index = $li.index();
                 // XXX these selected tables are ordered in reverse
-                
+               
                 if (action == "add") {
                     var activeTable = gHiddenTables.splice((
                                  gHiddenTables.length-index-1), 1)[0];
@@ -157,7 +154,12 @@ function setuptableListSection() {
                     .done(function() {
                         addCli('Send To WorkSheet', cliOptions);
                         $li.remove();
-
+                        if ($timeLine.find('.tableInfo').length === 0) {
+                            $timeLine.remove();
+                        }
+                        if (gHiddenTables.length === 0) {
+                            $buttons.hide();
+                        }
                         innerDeferred.resolve();
                     });
                 } else {
@@ -172,8 +174,11 @@ function setuptableListSection() {
                     .done(function() {
                         addCli('Delete Table', cliOptions);
                         $li.remove();
-                        if ($timeLine.find('.tableInfo').length == 0) {
+                        if ($timeLine.find('.tableInfo').length === 0) {
                             $timeLine.remove();
+                        }
+                        if (gHiddenTables.length === 0) {
+                            $buttons.hide();
                         }
                         innerDeferred.resolve();
                     });
