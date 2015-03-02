@@ -371,6 +371,8 @@ function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
 }
 
 function xcalarQuery(thriftHandle, query) {
+    var deferred = jQuery.Deferred();
+
     console.log("xcalarQuery(query = " + query + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -379,18 +381,24 @@ function xcalarQuery(thriftHandle, query) {
     workItem.api = XcalarApisT.XcalarApiQuery;
     workItem.input.queryInput = query;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var queryOutput = result.output.queryOutput;
-    } catch (ouch) {
-        console.log("xcalarQuery() caught exception: " + ouch);
-        var queryOutput = new XcalarApiQueryOutputT();
-    }
 
-    return queryOutput;
+        deferred.resolve(queryOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarQuery() caught exception:", error);
+        
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
 }
 
 function xcalarQueryState(thriftHandle, queryId) {
+    var deferred = jQuery.Deferred();
+
     console.log("xcalarQueryState(queryId = " + queryId + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -401,15 +409,19 @@ function xcalarQueryState(thriftHandle, queryId) {
     workItem.api = XcalarApisT.XcalarApiQueryState;
     workItem.input.queryStateInput.queryId = queryId;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
-        var queryStateOutput = result.output.queryStateOutput;
-    } catch (ouch) {
-        console.log("xcalarQueryState() caught exception: " + ouch);
-        var queryStateOutput = new XcalarApiQueryStateOutputT();
-    }
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var queryStateOutput = result.output.queryStateOutput
 
-    return queryStateOutput;
+        deferred.resolve(queryStateOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarQueryState() caught exception:", error);
+        
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
 }
 
 function xcalarListTables(thriftHandle, patternMatch) {
