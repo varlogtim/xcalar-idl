@@ -319,3 +319,16 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     }
     xcalarGroupBy(handle, tableName, newTableName, op, oldColName, newColName);
 }
+
+function XcalarQuery(query) {
+    // XXX Now only have a simple output
+    /* some test case : 
+        "load --url file:///var/tmp/gdelt --format csv --name test"
+        "filter yelpUsers 'regex(user_id,\"--O\")'"
+        
+     */ 
+    xcalarQuery(tHandle, query)
+    .then(function(queryOutput) {
+        console.log(queryOutput);
+    })
+}
