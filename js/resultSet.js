@@ -54,16 +54,18 @@ function resetAutoIndex() {
     gTableRowIndex = 1;
 }
 
-function getNextPage(resultSetId, firstTime, tableNum) {
+function getNextPage(resultSetId, firstTime, tableNum, notIndexed) {
     if (resultSetId == 0) {
         return;
     }
     gTables[tableNum].currentPageNumber++;
-    var jsonData = generateDataColumnJson(resultSetId, firstTime, null, tableNum);
+    var jsonData = generateDataColumnJson(resultSetId, firstTime, null, 
+                                          tableNum, notIndexed);
     return (jsonData);
 }
 
-function generateDataColumnJson(resultSetId, firstTime, direction, tableNum) {
+function generateDataColumnJson(resultSetId, firstTime, direction, tableNum,
+                                notIndexed) {
     // produces an array of all the td values that will go into the DATA column
     if (resultSetId == 0) {
         return;
@@ -74,6 +76,12 @@ function generateDataColumnJson(resultSetId, firstTime, direction, tableNum) {
     if (tableOfEntries.kvPairs.numRecords < gNumEntriesPerPage) {
         resultSetId = 0;
     }
+    if (notIndexed) {
+        setupProgCols(tableNum, tableOfEntries);
+    }
+
+
+
     var shift = numPagesToShift(direction);
     var indexNumber = (gTables[tableNum].currentPageNumber-shift) *
                       gNumEntriesPerPage;
@@ -99,4 +107,33 @@ function generateDataColumnJson(resultSetId, firstTime, direction, tableNum) {
         jsonData.push(value);
     }
     return (jsonData);
+}
+
+
+function setupProgCols(tableNum, tableOfEntries) {
+    gTables[tableNum].keyName = tableOfEntries.keysAttrHeader.name;
+    // We cannot rely on addCol to create a new progCol object because
+    // add col relies on gTableCol entry to determine whether or not to add
+    // the menus specific to the main key
+    var newProgCol = new ProgCol();
+    newProgCol.index = 1;
+    newProgCol.isDark = false;
+    newProgCol.width = gNewCellWidth;
+    newProgCol.name = gTables[tableNum].keyName;
+    newProgCol.func.func = "pull";
+    newProgCol.func.args = [gTables[tableNum].keyName];
+    newProgCol.userStr = '"' + gTables[tableNum].keyName +
+                         '" = pull('+gTables[tableNum].keyName+')';
+    insertColAtIndex(0, tableNum, newProgCol);
+    //is this where we add the indexed column??
+
+    newProgCol = new ProgCol();
+    newProgCol.index = 2;
+    newProgCol.name = "DATA";
+    newProgCol.width = 500; // XXX FIXME Grab from CSS
+    newProgCol.func.func = "raw";
+    newProgCol.func.args = [];
+    newProgCol.userStr = '"DATA" = raw()';
+    newProgCol.isDark = false;
+    insertColAtIndex(1, tableNum, newProgCol);
 }

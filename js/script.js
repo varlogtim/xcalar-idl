@@ -496,13 +496,16 @@ function documentReadyGeneralFunction() {
 
 function documentReadyCatFunction(tableNum) {
     var deferred = jQuery.Deferred();
-    var index = getIndex(gTables[tableNum].frontTableName);
     var firstTime = true; // first time we're loading this table since page load
+    var index = getIndex(gTables[tableNum].frontTableName);
+    var notIndexed = !(index && index.length > 0);
     var jsonData = getNextPage(gTables[tableNum].resultSetId, firstTime, 
-                   tableNum);
-    if (index && index.length > 0) {
-        buildInitialTable(index, tableNum, jsonData);
+                   tableNum, notIndexed);
+    if (notIndexed) { // getNextPage will setupProgCols
+        index = gTables[tableNum].tableCols;
     }
+    buildInitialTable(index, tableNum, jsonData);
+
     deferred.resolve();
     return (deferred.promise());
 }
