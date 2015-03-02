@@ -23,7 +23,7 @@ function setupImportDSForm() {
             return;
         }
         XcalarLoad(loadArgs[0], loadFormat, tableName,
-                              loadArgs[1], loadArgs[2])
+                   loadArgs[1], loadArgs[2])
         .then(function(result) {
             var dsId = result.datasetId;
             console.log("This is the returned dsId "+dsId);
@@ -42,12 +42,6 @@ function setupImportDSForm() {
             cliOptions.tableName = tableName;
 
             addCli('Load dataset', cliOptions);
-
-            //Could this line be removed?
-            return (false);
-        })
-        .fail(function(reason) {
-            console.log("error", reason);
         });
     });
 
@@ -142,6 +136,7 @@ function setupImportDSForm() {
 }
 
 function displayNewDataset() {
+    console.log("test");
     $('#importDataBottomForm').find('button[type=reset]').trigger('click');
     $('#iconWaiting').remove();
     $('#gridView').find('.inactive').removeClass('inactive');

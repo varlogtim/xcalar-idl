@@ -560,6 +560,8 @@ function xcalarMakeResultSetFromDataset(thriftHandle, datasetId) {
 }
 
 function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
+    var deferred = jQuery.Deferred();
+
     console.log("xcalarResultSetNext(resultSetId = " + resultSetId.toString() +
                 ", numRecords = " + numRecords.toString() + ")");
 
@@ -572,21 +574,22 @@ function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
     workItem.input.resultSetNextInput.resultSetId = resultSetId;
     workItem.input.resultSetNextInput.numRecords = numRecords;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var resultSetNextOutput = result.output.resultSetNextOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             resultSetNextOutput.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarResultSetNext() caught exception: " +
-                    ouch);
 
-        var resultSetNextOutput = new XcalarApiResultSetNextOutputT();
-        resultSetNextOutput.status = StatusT.StatusThriftProtocolError;
-    }
+        deferred.resolve(resultSetNextOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarResultSetNext() caught exception:", error);
 
-    return resultSetNextOutput;
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
 }
 
 function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,

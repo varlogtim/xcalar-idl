@@ -104,33 +104,41 @@ function deleteTable(tableNum, deleteArchived) {
 }
 
 function buildInitialTable(index, tableNum, jsonData) {
+    var deferred = jQuery.Deferred();
+
     var table = gTables[tableNum];
     table.tableCols = index;
-    var tableOfEntries = XcalarGetNextPage(gTables[tableNum].resultSetId,
-                                           gNumEntriesPerPage);
-    table.keyName = tableOfEntries.keysAttrHeader.name;
-    
-    var dataIndex = generateTableShell(table.tableCols, tableNum);
-    var numRows = jsonData.length;
-    var startIndex = 0;
+    XcalarGetNextPage(gTables[tableNum].resultSetId,
+                      gNumEntriesPerPage)
+    .done(function(tableOfEntries) {
+        table.keyName = tableOfEntries.keysAttrHeader.name;
+        
+        var dataIndex = generateTableShell(table.tableCols, tableNum);
+        var numRows = jsonData.length;
+        var startIndex = 0;
 
-    addRowScroller(tableNum);
-    if (numRows == 0) {
-        console.log('no rows found, ERROR???');
-        $('#rowScroller'+tableNum).addClass('hidden');
-        jsonData = [""];
-    }
+        addRowScroller(tableNum);
+        if (numRows == 0) {
+            console.log('no rows found, ERROR???');
+            $('#rowScroller'+tableNum).addClass('hidden');
+            jsonData = [""];
+        }
 
-    pullRowsBulk(tableNum, jsonData, startIndex, dataIndex);
-    addTableListeners(tableNum);
-    var numCols = table.tableCols.length;
-    var $table = $('#xcTable'+tableNum);
-    for (var i = 1; i <= numCols; i++) {
-        addColListeners(i, $table);
-    }
-    if (numRows == 0) {
-        $table.find('.idSpan').text("");
-    }
+        pullRowsBulk(tableNum, jsonData, startIndex, dataIndex);
+        addTableListeners(tableNum);
+        var numCols = table.tableCols.length;
+        var $table = $('#xcTable'+tableNum);
+        for (var i = 1; i <= numCols; i++) {
+            addColListeners(i, $table);
+        }
+        if (numRows == 0) {
+            $table.find('.idSpan').text("");
+        }
+
+        deferred.resolve();
+    });
+
+    return (deferred.promise());
 }
 
 function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {

@@ -70,25 +70,32 @@ function infScrolling(tableNum) {
             // prevent scrolling on a short table
            $(this).scrollTop(0);
         }
-        if ($(this).scrollTop() === 0 && 
-            table.find('tbody tr:first').attr('class') != 'row0') {
-                // console.log('the top!');
-                var firstRow = table.find('tbody tr:first');
-                var initialTop = firstRow.offset().top;
-                if (table.find("tbody tr").length > 60) {
-                    var pageNumber = gTables[dynTableNum].currentPageNumber-1;
-                } else {
-                    var pageNumber = gTables[dynTableNum].currentPageNumber;
-                }
 
-                goToPage(pageNumber, RowDirection.Top, dynTableNum)
-                .done(function() {
-                    $('#xcTbodyWrap'+dynTableNum)
-                        .scrollTop(firstRow.offset().top - initialTop + 10);
-                    table.find("tbody tr:gt(79)").remove();
-                });
-        } else if ($(this)[0].scrollHeight - $(this).scrollTop()-
-                    $(this).outerHeight() <= 1) {
+        var innerDeferred = jQuery.Deferred();
+        var firstRow = table.find('tbody tr:first');
+        if (firstRow.length === 0) {
+            innerDeferred.resolve();
+        } else if ($(this).scrollTop() === 0 && 
+            table.find('tbody tr:first').attr('class') != 'row0') {
+
+            // console.log('the top!');
+            var initialTop = firstRow.offset().top;
+            if (table.find("tbody tr").length > 60) {
+                var pageNumber = gTables[dynTableNum].currentPageNumber-1;
+            } else {
+                var pageNumber = gTables[dynTableNum].currentPageNumber;
+            }
+
+            goToPage(pageNumber, RowDirection.Top, dynTableNum)
+            .done(function() {
+                $('#xcTbodyWrap'+dynTableNum)
+                    .scrollTop(firstRow.offset().top - initialTop + 10);
+                table.find("tbody tr:gt(79)").remove();
+
+                innerDeferred.resolve();
+            });
+        } else if ($(this)[0].scrollHeight - $(this).scrollTop() -
+                   $(this).outerHeight() <= 1) {
             // console.log('the bottom!');
             gTempStyle = table.find("tbody tr:last").html();
             if (table.find('tbody tr').length >= 80) {
@@ -96,18 +103,22 @@ function infScrolling(tableNum) {
                 table.find('tbody tr:lt(20)').remove();
             }
             goToPage(gTables[dynTableNum].currentPageNumber+1,
-                     RowDirection.Bottom, dynTableNum);
+                     RowDirection.Bottom, dynTableNum)
+            .done(innerDeferred.resolve);
         }
 
-        clearTimeout(timer);
-        timer = setTimeout(function () { 
-            adjustColGrabHeight(dynTableNum);  
-        } , 300 );
+        innerDeferred
+        .done(function() {
+            clearTimeout(timer);
+            timer = setTimeout(function () { 
+                adjustColGrabHeight(dynTableNum);  
+            } , 300 );
 
-        table.find('.colGrab').show();
-        var rowScrollerMove = true;
-        generateFirstLastVisibleRowNum(rowScrollerMove);
-        updatePageBar(dynTableNum);
+            table.find('.colGrab').show();
+            var rowScrollerMove = true;
+            generateFirstLastVisibleRowNum(rowScrollerMove);
+            updatePageBar(dynTableNum);
+        });
     });
 }
 
@@ -354,11 +365,11 @@ function documentReadyxcTableFunction() {
 
         var promises = [];
         for (var i = 0; i < numPagesToAdd; i++) {
-            promises.push(goToPage(Math.ceil(pageNum)+i, null,
-                                   gActiveTableNum));
+            promises.push(goToPage.bind(this, Math.ceil(pageNum)+i, 
+                                        null, gActiveTableNum));
         }
 
-        jQuery.when.apply(jQuery, promises)
+        chain(promises)
         .done(function() {
             adjustColGrabHeight(gActiveTableNum);
             positionScrollbar(row, gActiveTableNum);
@@ -492,17 +503,20 @@ function documentReadyGeneralFunction() {
 
 function documentReadyCatFunction(tableNum) {
     var deferred = jQuery.Deferred();
-    var firstTime = true; // first time we're loading this table since page load
+    
     var index = getIndex(gTables[tableNum].frontTableName);
     var notIndexed = !(index && index.length > 0);
-    var jsonData = getNextPage(gTables[tableNum].resultSetId, firstTime, 
-                   tableNum, notIndexed);
-    if (notIndexed) { // getNextPage will setupProgCols
-        index = gTables[tableNum].tableCols;
-    }
-    buildInitialTable(index, tableNum, jsonData);
+    var firstTime = true; // first time we're loading this table since page load
+    
+    getNextPage(gTables[tableNum].resultSetId, firstTime, tableNum, notIndexed)
+    .then(function(jsonData) {
+        if (notIndexed) { // getNextPage will setupProgCols
+            index = gTables[tableNum].tableCols;
+        }
+        return (buildInitialTable(index, tableNum, jsonData));
+    })
+    .done(deferred.resolve);
 
-    deferred.resolve();
     return (deferred.promise());
 }
 

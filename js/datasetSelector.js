@@ -594,7 +594,7 @@ function createWorksheet() {
                         cliOptions.col.push(colname);
 
                         return (innerDeferred.promise());
-                    }).setContext(this));
+                    }).bind(this));
                 });
 
                 chain(promises)
@@ -639,7 +639,7 @@ function createWorksheet() {
             });
 
             return chainDeferred.promise();
-        }).setContext(this));
+        }).bind(this));
     });
 
     chain(promiseChain)
@@ -715,8 +715,6 @@ function updateDatasetInfoFields(dsName, active, dontUpdateName) {
         console.log("Updating to: "+numDatasets);
         $('#worksheetInfo').find('.numDataStores').text(numDatasets);
         $('#datasetExplore').find('.numDataStores').text(numDatasets);
-
-        deferred.resolve();
     }
 
     if (!dontUpdateName) {
@@ -724,7 +722,14 @@ function updateDatasetInfoFields(dsName, active, dontUpdateName) {
         $('#contentViewHeader').find('h2').text(dsName);
     }
     if (active) {
-        XcalarGetDatasets().done(updateNumDatasets);
+        XcalarGetDatasets()
+        .done(function(datasets) {
+            updateNumDatasets(datasets);
+
+            deferred.resolve();
+        });
+    } else {
+        deferred.resolve();
     }
 
     return (deferred.promise());

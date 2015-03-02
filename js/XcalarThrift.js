@@ -14,7 +14,7 @@ function atos(func, args) {
     );
 }
 
-Function.prototype.setContext = function() {
+Function.prototype.bind = function() {
     var fn = this, args = Array.prototype.slice.call(arguments), 
         obj = args.shift();
     return function(){
@@ -131,10 +131,13 @@ function XcalarSample(datasetId, numEntries) {
     var deferred = jQuery.Deferred();
 
     xcalarMakeResultSetFromDataset(tHandle, datasetId)
-    .done(function(result){
+    .then(function(result){
         var resultSetId = result.resultSetId;
 
-        deferred.resolve(XcalarGetNextPage(resultSetId, numEntries));
+        return (XcalarGetNextPage(resultSetId, numEntries));
+    })
+    .done(function(tableOfEntries) {
+        deferred.resolve(tableOfEntries);
     });
 
     return (deferred.promise());
@@ -204,8 +207,8 @@ function XcalarSetAbsolute(resultSetId, position) {
 }
 
 function XcalarGetNextPage(resultSetId, numEntries) {
-    if (tHandle == null) {
-        return (null);
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
     }
 
     return (xcalarResultSetNext(tHandle, resultSetId, numEntries));
