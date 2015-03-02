@@ -179,6 +179,7 @@ function setuptableListSection() {
                     var tableNum = numHiddenTables-index-1;
                     // add cli
                     $li.remove();
+                    numHiddenTables--;
                     var cliOptions = {};
                     cliOptions.operation = 'deleteTable';
                     cliOptions.tableName = gHiddenTables[tableNum]
@@ -186,6 +187,7 @@ function setuptableListSection() {
 
                     deleteTable(tableNum, DeleteTable.Delete)
                     .done(function() {
+
                         addCli('Delete Table', cliOptions);
                         if ($timeLine.find('.tableInfo').length === 0) {
                             $timeLine.remove();
