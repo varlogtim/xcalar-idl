@@ -12,6 +12,9 @@ function setupRightSideBar() {
             //sidebar is closed so open the correlating section
             sidebar.addClass('open');
             sidebarSection.addClass('active');
+            if (sidebarSection.attr('id') === 'cliSection') {
+                cliScrollDown($('#rightBarTextArea'));
+            }
             sidebar.children('.lastOpen').removeClass('lastOpen');
             //display correct section
         } else {
@@ -26,7 +29,10 @@ function setupRightSideBar() {
                 // close current section, open new section
                 sidebar.children('.active').removeClass('active');
                 sidebarSection.addClass('active');
-                $('#cliSection').find('textarea').focus();
+                if (sidebarSection.attr('id') === 'cliSection') {
+                    cliScrollDown($('#rightBarTextArea'));
+                }
+                // $('#cliSection').find('textarea').focus();
             }
         }
 

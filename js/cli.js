@@ -21,6 +21,12 @@ function addCli(title, options) {
     $textarea.append(html);
 
     // scroll to bottom
+    cliScrollDown($textarea);
+}
+
+// scroll down cli to bottom
+function cliScrollDown($textarea) {
+    // scroll to bottom
     var scrollDiff = $textarea[0].scrollHeight - $textarea.height();
     if (scrollDiff > 0) {
         $textarea.scrollTop(scrollDiff);
