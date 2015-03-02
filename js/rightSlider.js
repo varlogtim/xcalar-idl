@@ -137,6 +137,8 @@ function setuptableListSection() {
         var $buttons = $('#archivedTableList').find('.btnLarge');
         $buttons.addClass('btnInactive');
 
+        var numTables = gTables.length;
+        var numHiddenTables = gHiddenTables.length;
         var promises = [];
         $tablesSelected.each(function() {
             promises.push((function() {
@@ -149,32 +151,34 @@ function setuptableListSection() {
                
                 if (action == "add") {
                     var activeTable = gHiddenTables.splice((
-                                 gHiddenTables.length-index-1), 1)[0];
+                                 numHiddenTables-index-1), 1)[0];
+                    numHiddenTables--;
                     gTableIndicesLookup[activeTable.frontTableName].active =
                                                                            true;
                     gTableIndicesLookup[activeTable.frontTableName].timeStamp 
                                                       = (new Date()).getTime();
+                    $li.remove();
                     // add cli
                     var cliOptions = {};
                     cliOptions.operation = 'addTable';
                     cliOptions.tableName = activeTable.frontTableName;
 
-                    addTable(activeTable.frontTableName, gTables.length, 
+                    addTable(activeTable.frontTableName, numTables++, 
                         AfterStartup.After)
                     .done(function() {
                         addCli('Send To WorkSheet', cliOptions);
-                        $li.remove();
                         if ($timeLine.find('.tableInfo').length === 0) {
                             $timeLine.remove();
                         }
-                        if (gHiddenTables.length === 0) {
+                        if (numHiddenTables === 0) {
                             $buttons.hide();
                         }
                         innerDeferred.resolve();
                     });
                 } else {
-                    var tableNum = gHiddenTables.length-index-1;
+                    var tableNum = numHiddenTables-index-1;
                     // add cli
+                    $li.remove();
                     var cliOptions = {};
                     cliOptions.operation = 'deleteTable';
                     cliOptions.tableName = gHiddenTables[tableNum]
@@ -183,11 +187,10 @@ function setuptableListSection() {
                     deleteTable(tableNum, DeleteTable.Delete)
                     .done(function() {
                         addCli('Delete Table', cliOptions);
-                        $li.remove();
                         if ($timeLine.find('.tableInfo').length === 0) {
                             $timeLine.remove();
                         }
-                        if (gHiddenTables.length === 0) {
+                        if (numHiddenTables === 0) {
                             $buttons.hide();
                         }
                         innerDeferred.resolve();
@@ -203,7 +206,7 @@ function setuptableListSection() {
             if (action == "add") {
                 $mainFrame = $('#mainFrame');
                 $('#workspaceTab').trigger('click');
-                var leftPos = $('#xcTableWrap'+(gTables.length-1)).position()
+                var leftPos = $('#xcTableWrap'+(numTables-1)).position()
                                 .left +
                                 $mainFrame.scrollLeft();
                 $mainFrame.animate({scrollLeft: leftPos});
