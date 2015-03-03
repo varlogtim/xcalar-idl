@@ -1121,9 +1121,8 @@ function addColMenuActions(colId, $table) {
                                           "New Column Name"));
             console.log('operator: '+operator+"value: "+value+"index: "+
                         index+"tableNum: "+tableNum);
-
-            groupByCol(operator, value, index, tableNum);
             $('.colMenu').hide();
+            groupByCol(operator, value, index, tableNum);
         }
     });
 

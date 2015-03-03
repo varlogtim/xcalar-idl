@@ -316,7 +316,8 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     default:
         console.log("Wrong operator! "+operator);
     }
-    xcalarGroupBy(handle, tableName, newTableName, op, oldColName, newColName);
+    return (xcalarGroupBy(handle, tableName, newTableName, 
+            op, oldColName, newColName));
 }
 
 function XcalarQuery(query) {

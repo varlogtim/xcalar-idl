@@ -663,6 +663,7 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
 
 function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
                        fieldName, newFieldName) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                 ", dstTableName = " + dstTableName + ", groupByOp = " +
                 OperatorsOpTStr[groupByOp] + ", fieldName = " + fieldName +
@@ -684,19 +685,19 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
     workItem.input.groupByInput.fieldName = fieldName;
     workItem.input.groupByInput.newFieldName = newFieldName;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
-        var status = result.output.statusOutput;
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var output = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
+            output.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarGroupBy() caught exception: " + ouch);
-
-        var status = StatusT.StatusThriftProtocolError;
-    }
-
-    return status;
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        console.log("xcalarGroupBy() caught exception: " + error);
+        deferred.reject(error);
+    });
+    return (deferred.promise());
 }
 
 function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {

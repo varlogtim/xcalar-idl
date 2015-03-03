@@ -218,8 +218,8 @@ function groupByCol(operator, newColName, colid, tableNum) {
 
     $("body").css({"cursor": "wait"});
 
-    XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName);
-    refreshTable(newTableName, tableNum, KeepOriginalTables.Keep)
+    XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName)
+    .then(refreshTable(newTableName, tableNum, KeepOriginalTables.Keep))
     .done(function() {
         addCli('Group By', cliOptions);
         deferred.resolve();
