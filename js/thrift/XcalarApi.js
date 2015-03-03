@@ -246,6 +246,7 @@ function xcalarGetStats(thriftHandle, nodeId) {
 
 function xcalarEditColumn(thriftHandle, datasetId, tableName, isDataset,
                           currFieldName, newFieldName, newFieldType) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarEditColumn(datasetId = " + datasetId.toString() +
                 ", tableName = " + tableName.toString() + ", isDataset = " +
                 isDataset.toString() + ", currFieldName = " +
@@ -266,21 +267,21 @@ function xcalarEditColumn(thriftHandle, datasetId, tableName, isDataset,
     workItem.input.editColInput.newFieldName = newFieldName;
     workItem.input.editColInput.newFieldType = newFieldType;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
-
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var statusOutput = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             statusOutput.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarEditColumn() caught exception: " + ouch);
 
-        var statusOutput = new Status.StatusT();
-        statusOutput = StatusT.StatusThriftProtocolError;
-    }
+        deferred.resolve(statusOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarEditColumn() caught exception:", error);
+        deferred.reject(error);
+    });
 
-    return statusOutput;
+    return (deferred.promise());
 }
 
 function xcalarGetStatsByGroupId(thriftHandle, nodeId, groupIdList) {

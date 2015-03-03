@@ -135,13 +135,13 @@ function XcalarDeleteTable(backTableName) {
     return (xcalarDeleteTable(tHandle, backTableName));
 }
 
-function XcalarEditColumn(datasetId, currFieldName, newFieldName, newFieldType)
-{
+function XcalarEditColumn(datasetId, currFieldName, newFieldName, newFieldType) {
     if (tHandle == null) {
-        return;
+        return (promiseWrapper(null));
     }
-    xcalarEditColumn(tHandle, datasetId, "", true, currFieldName, newFieldName,
-                     newFieldType);  
+
+    return (xcalarEditColumn(tHandle, datasetId, "", true, 
+                             currFieldName, newFieldName, newFieldType));
 }
 
 function XcalarSample(datasetId, numEntries) {

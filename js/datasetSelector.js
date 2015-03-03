@@ -433,17 +433,20 @@ function addWorksheetListeners(tableNum) {
         var oldColName = oldid.substring(oldid.indexOf("cn")+2);
         var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
         console.log("Renaming "+oldColName+" to "+ newName);
-        XcalarEditColumn(dsnumber, oldColName, newName,
-                         DfFieldTypeT.DfString);
-        var newId = "ds"+dsnumber+"cn"+newName;
-        console.log(newId);
-        headInput.attr("id", newId).val(newName); 
-        $('#selectedTable'+tableNum).find('.colName').filter(
-            function() {
-                return $(this).text() == oldColName;
-            }
-        ).text(newName);
         $('.colMenu').hide();
+        XcalarEditColumn(dsnumber, oldColName, newName,
+                         DfFieldTypeT.DfString)
+        .done(function() {
+            var newId = "ds" + dsnumber + "cn" + newName;
+            console.log(newId);
+            headInput.attr("id", newId)
+                     .val(newName);
+            $('#selectedTable'+tableNum).find('.colName').filter(
+                function() {
+                    return $(this).text() == oldColName;
+                }
+            ).text(newName);
+        });
     });
 
     // table.find('.changeDataType').click(function() {
