@@ -585,6 +585,7 @@ function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
 
 function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
                     joinType) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarJoin(leftTableName = " + leftTableName +
                 ", rightTableName = " + rightTableName + ", joinTableName = " +
                 joinTableName + ", joinType = " + OperatorsOpTStr[joinType] +
@@ -607,20 +608,21 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
     workItem.input.joinInput.joinTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.joinInput.joinType = joinType;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var joinOutput = result.output.joinOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             joinOutput.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarJoin() caught exception: " + ouch);
 
-        var joinOutput = new XcalarApiNewTableOutputT();
-        joinOutput.status = StatusT.StatusThriftProtocolError;
-    }
+        deferred.resolve(joinOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarJoin() caught exception:", error);
+        deferred.reject(error);
+    });
 
-    return joinOutput;
+    return (deferred.promise());
 }
 
 function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {

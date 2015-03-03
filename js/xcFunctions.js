@@ -423,12 +423,12 @@ function joinTables3(args) {
     $("body").css({"cursor": "wait"}); 
     $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
         '{cursor: wait !important;}</style>');
-    XcalarJoin(leftName, rightName, newTableName);
-    refreshTable(newTableName, leftTableNum, 
-        KeepOriginalTables.DontKeep, rightTableNum)
+
+    XcalarJoin(leftName, rightName, newTableName)
+    .then(refreshTable(newTableName, leftTableNum, 
+                       KeepOriginalTables.DontKeep, rightTableNum))
     .done(function() {
         $('#waitCursor').remove();
-
         deferred.resolve();
     });
 

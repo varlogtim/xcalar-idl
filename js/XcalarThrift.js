@@ -283,12 +283,11 @@ function XcalarAggregate(fieldName, srcTablename, op) {
 
 function XcalarJoin(left, right, dst) {
     if (tHandle == null) {
-        return (null);
+        return (promiseWrapper(null));
     }
     
-
-
-    xcalarJoin(tHandle, left, right, dst, OperatorsOpT.OperatorsInnerJoin);
+    return (xcalarJoin(tHandle, left, right, 
+            dst, OperatorsOpT.OperatorsInnerJoin));
 }
 
 // XXX FIXME
