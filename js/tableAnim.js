@@ -1097,16 +1097,17 @@ function addColMenuActions(colId, table) {
         var colName = pCol.func.args[0];
         var aggrOp = $(this).closest('.aggrOp').text();
         console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
-        var value = XcalarAggregate(colName, gTables[tableNum].backTableName,
-                                    aggrOp);
-        var title = 'Aggregate: ' + aggrOp;
-        var instruction = 'This is the aggregate result for column "' + 
-                          colName + '". \r\n The aggregate operation is "' +
-                          aggrOp + '".';
-        showAlertModal({'title':title, 'msg':value, 
-                        'instruction': instruction, 'isAlert':true,
-                        'isCheckBox': true});
-        // alert(value);
+        XcalarAggregate(colName, gTables[tableNum].backTableName, aggrOp)
+        .done(function(value){
+            // show result in alert modal
+            var title = 'Aggregate: ' + aggrOp;
+            var instruction = 'This is the aggregate result for column "' + 
+                              colName + '". \r\n The aggregate operation is "' +
+                              aggrOp + '".';
+            showAlertModal({'title':title, 'msg':value, 
+                            'instruction': instruction, 'isAlert':true,
+                            'isCheckBox': true});
+        });
     });
 
     tables.find('.filterWrap.col'+colId+' input').keyup(function(e) {

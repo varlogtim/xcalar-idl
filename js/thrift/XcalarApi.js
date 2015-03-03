@@ -624,7 +624,7 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
 }
 
 function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
-    var deferred = jQuery.Deferred();   
+    var deferred = jQuery.Deferred();
     console.log("xcalarFilter(srcTableName = " + srcTableName +
                 ", dstTableName = " + dstTableName + ", filterStr = " +
                 filterStr + ")");
@@ -647,7 +647,6 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
     thriftHandle.client.queueWorkAsync(workItem)
     .done(function(result) {
         filterOutput = result.output.filterOutput;
-        console.log('filterOutput', filterOutput);
         if (result.jobStatus != StatusT.StatusOk) {
             filterOutput.status = result.jobStatus;
         }
@@ -660,20 +659,6 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
     });
 
     return (deferred.promise());
-
-    // try {
-    //     var result = thriftHandle.client.queueWork(workItem);
-    //     var filterOutput = result.output.filterOutput;
-    //     if (result.jobStatus != StatusT.StatusOk) {
-    //         filterOutput.status = result.jobStatus;
-    //     }
-    // } catch(ouch) {
-    //     console.log("xcalarFilter() caught exception: " + ouch);
-    //     var filterOutput = new XcalarApiNewTableOutputT();
-    //     filterOutput.status = StatusT.StatusThriftProtocolError;
-    // }
-
-    // return filterOutput;
 }
 
 function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
@@ -932,6 +917,7 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
 }
 
 function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarAggregate(srcTableName = " + srcTableName +
                 ", aggregateOp = " + OperatorsOpTStr[aggregateOp] +
                 ", fieldName = " + fieldName + ")");
@@ -948,19 +934,21 @@ function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
     workItem.input.aggregateInput.aggregateOp = aggregateOp;
     workItem.input.aggregateInput.fieldName = fieldName;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var aggregateOutput = result.output.aggregateOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             aggregateOutput.status = result.jobStatus;
         }
-    } catch (ouch) {
-        console.log("xcalarAggregate() caught exception: " + ouch);
 
-        var aggregateOutput = new XcalarApiAggregateOutputT();
-        aggregateOutput.status = StatusT.StatusThriftProtocolError;
-    }
+        deferred.resolve(aggregateOutput.jsonAnswer);
+    })
+    .fail(function(error) {
+        console.log("xcalarAggregate() caught exception: " + error);
+        deferred.reject(error);
+    });
 
-    return aggregateOutput;
+    return (deferred.promise());
 }
 

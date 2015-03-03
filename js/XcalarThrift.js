@@ -278,8 +278,7 @@ function XcalarAggregate(fieldName, srcTablename, op) {
         console.log("bug!:"+op);
     }
 
-    return (xcalarAggregate(tHandle, srcTablename, aggregateOp, fieldName)
-                            .jsonAnswer);
+    return (xcalarAggregate(tHandle, srcTablename, aggregateOp, fieldName));
 }
 
 function XcalarJoin(left, right, dst) {
