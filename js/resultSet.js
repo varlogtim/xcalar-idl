@@ -1,7 +1,11 @@
 function freeAllResultSets() {
-    for (var i = 0; i<gTables.length; i++) {
-        XcalarSetFree(gTables[i].resultSetId);
+    var promises = [];
+    var gTablesLen = gTables.length;
+    for (var i = 0; i < gTablesLen; i++) {
+        promises.push(XcalarSetFree(gTables[i].resultSetId));
     }
+
+    return (jQuery.when.apply(jQuery, promises));
 }
 
 function goToPage(pageNumber, direction, tableNum) {

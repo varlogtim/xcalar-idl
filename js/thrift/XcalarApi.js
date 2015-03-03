@@ -744,7 +744,8 @@ function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
 }
 
 function xcalarFreeResultSet(thriftHandle, resultSetId) {
-    console.log("xcalarResultSetAbsolute(resultSetId = " +
+    var deferred = jQuery.Deferred();
+    console.log("xcalarFreeResultSet(resultSetId = " +
                 resultSetId.toString() + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -755,21 +756,22 @@ function xcalarFreeResultSet(thriftHandle, resultSetId) {
     workItem.api = XcalarApisT.XcalarApiFreeResultSet;
     workItem.input.freeResultSetInput.resultSetId = resultSetId;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         // XXX FIXME bug 136
         var status = StatusT.StatusOk;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarResultSetAbsolute() caught exception: " +
-                    ouch);
 
-        var status = StatusT.StatusThriftProtocolError;
-    }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarResultSetAbsolute() caught exception:", error);
+        deferred.reject(error);
+    });
 
-    return status;
+    return (deferred.promise());
 }
 
 function xcalarDeleteTable(thriftHandle, tableName) {

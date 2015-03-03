@@ -83,6 +83,7 @@ function archiveTable(tableNum, del) {
 }
 
 function deleteTable(tableNum, deleteArchived) {
+    var deferred = jQuery.Deferred();
     // Basically the same as archive table, but instead of moving to
     // gHiddenTables, we just delete it from gTablesIndicesLookup
     if (deleteArchived) {
@@ -98,9 +99,13 @@ function deleteTable(tableNum, deleteArchived) {
     }
     
     // Free the result set pointer that is still pointing to it
-    XcalarSetFree(resultSetId);    
-    // Trigger delete
-    return XcalarDeleteTable(backTableName);
+    XcalarSetFree(resultSetId)
+    .then(XcalarDeleteTable(backTableName)) // Trigger delete
+    .done(function() {
+        deferred.resolve();
+    });
+
+    return (deferred.promise());
 }
 
 function buildInitialTable(index, tableNum, jsonData) {

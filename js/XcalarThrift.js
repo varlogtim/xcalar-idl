@@ -233,9 +233,9 @@ function XcalarGetNextPage(resultSetId, numEntries) {
 
 function XcalarSetFree(resultSetId) {
     if (tHandle == null) {
-        return (null);
+        return (promiseWrapper(null));
     }
-    xcalarFreeResultSet(tHandle, resultSetId);
+    return (xcalarFreeResultSet(tHandle, resultSetId));
 }
 
 function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
