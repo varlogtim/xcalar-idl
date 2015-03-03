@@ -539,7 +539,7 @@ function startupFunctions() {
         setupImportDSForm();
         setupBookmarkArea();
         setupWorksheetMeta();
-        return updateDatasetInfoFields("Datasets", IsActive.Active);
+        return (updateDatasetInfoFields("Datasets", IsActive.Active));
     })
     .done(function() {
         setupDag();
@@ -589,11 +589,11 @@ function documentReadyIndexFunction() {
             var promises = [];
 
             for (var i = 0; i < gTableOrderLookup.length; i++) {
-                promises.push( addTable(gTableOrderLookup[i], i) );
+                promises.push(addTable(gTableOrderLookup[i], i));
             }
             for (table in gTableIndicesLookup) {
                 if (!gTableIndicesLookup[table].active) {
-                    promises.push( setupHiddenTable(table) );
+                    promises.push(setupHiddenTable(table));
                 }
             }
 

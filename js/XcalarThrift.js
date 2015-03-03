@@ -14,6 +14,23 @@ function atos(func, args) {
     );
 }
 
+// Should check if the function returns a promise
+// but that would require an extra function call 
+Function.prototype.log = function() {
+    var fn = this, args = Array.prototype.slice.call(arguments);
+    if (fn && typeof fn === "function") {
+        var ret = fn.apply(fn, args);
+        if (ret && typeof ret.promise === "function") {
+            ret.done(function(result) {
+                console.log(result);
+            });
+        } else {
+            console.log(ret);
+        }
+            
+    }
+}
+
 Function.prototype.bind = function() {
     var fn = this, args = Array.prototype.slice.call(arguments), 
         obj = args.shift();

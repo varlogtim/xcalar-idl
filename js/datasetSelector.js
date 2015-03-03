@@ -218,13 +218,18 @@ function getDatasetSample(datasetName) {
                 continue;
             }
 
-            // Gets the first 20 entries and stores it.
+            // the reason for this one is, inside XcalarSample.done()
+            // variable i is used, since it's async
+            // the i is already increased when it's actually being used
+            // one way to resolve this is to pass the current i into a closure
+            // which keeps the current i value.            
             (function(i) {
                 XcalarSample(datasets.datasets[i].datasetId, 20)
                 .done(function(result) {
                     samples[datasetName] = result;
 
-                    // add the tab and the table for this dataset to shoppingcart div
+                    // add the tab and the table 
+                    // for this dataset to shoppingcart div
                     addDatasetTable(datasetName, i);
                    
                     var records = samples[datasetName].kvPairs;
@@ -238,7 +243,7 @@ function getDatasetSample(datasetName) {
                         GenericTypesRecordTypeT.GenericTypesVariableSize) {
                         for (var j = 0; j < recordsSize; j++) {
                             jsons[j] =
-                              jQuery.parseJSON(records.records[j].kvPairVariable.value);
+                            jQuery.parseJSON(records.records[j].kvPairVariable.value);
                             for (var key in jsons[j]) {
                                 uniqueJsonKey[key] = "";
                             }
@@ -246,7 +251,7 @@ function getDatasetSample(datasetName) {
                     } else {
                         for (var j = 0; j < recordsSize; j++) {
                             jsons[j] =
-                                 jQuery.parseJSON(records.records[j].kvPairFixed.value);
+                            jQuery.parseJSON(records.records[j].kvPairFixed.value);
                             for (var key in jsons[j]) {
                                 uniqueJsonKey[key] = "";
                             }
@@ -257,7 +262,8 @@ function getDatasetSample(datasetName) {
                         jsonKeys.push(key);
                     }
                     
-                    addDataSetHeaders(jsonKeys, datasets.datasets[i].datasetId, i);
+                    addDataSetHeaders(jsonKeys, 
+                                      datasets.datasets[i].datasetId, i);
                     addDataSetRows(jsonKeys,jsons, i);
                     addWorksheetListeners(i);  
                     updateDatasetInfoFields(datasetName, IsActive.Active);
@@ -551,7 +557,8 @@ function createWorksheet() {
             XcalarGetTables()
             .done(function(tables) {
                 var numTables = tables.numTables;
-                // check if another table with same name exists so we have to rename
+                // check if another table with same name exists 
+                // so we have to rename
                 for (var i = 0; i<numTables; i++) {
                     var tName = tables.tables[i].tableName;
                     if (tName == tableName) {
@@ -623,10 +630,12 @@ function createWorksheet() {
 
                     cliOptions.key = columnToIndex;
                     addCli("Send To Worksheet", cliOptions);
-                    return (XcalarIndexFromDataset(datasetId, columnToIndex, tableName));
+                    return (XcalarIndexFromDataset(datasetId, 
+                            columnToIndex, tableName));
                 })
                 .then(function() {
-                    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
+                    $(document.head).append('<style id="waitCursor" ' +
+                        'type="text/css">*' + 
                         '{cursor: wait !important;}</style>');
                     var keepLastTable = true;
                     var additionalTableNum = false;
@@ -696,7 +705,7 @@ function setupDatasetList() {
                 promises.push(appendGrid(datasets.datasets[i].datasetId));
             };
         }
-        return jQuery.when.apply(jQuery, promises);
+        return (jQuery.when.apply(jQuery, promises));
     })
     .done(function() {
         commitDSObjToStorage(); // commit;

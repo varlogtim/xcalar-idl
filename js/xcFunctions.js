@@ -82,9 +82,6 @@ function checkStatusLite(name, funcPtr, args) {
 
     (function internalCheckStatusLite() {
         tempCountShit++;
-        if ([null, undefined].indexOf(tHandle) !== -1) {
-            return (promiseWrapper(null));
-        }
         var refCount = XcalarGetTableRefCount(name);
         if (refCount == 1 || tempCountShit > 20) {
             tempCountShit = 0;
@@ -104,12 +101,8 @@ function checkStatusLite(name, funcPtr, args) {
 function checkLoadStatus(name) {
     var deferred = jQuery.Deferred();
 
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return promiseWrapper(null);
-    }
-
     (function internalCheckLoadStatus(secondCall) {
-        xcalarListDatasets(tHandle)
+        XcalarGetDatasets()
         .done(function(dsList) {
             var dsFound = false;
             for (var i = 0; i < dsList.numDatasets; i++) {
@@ -308,37 +301,6 @@ function createJoinIndex(rightTableNum, tableNum) {
     newTableCols = newTableCols.concat(dataCol);
     return (newTableCols);
 }
-/**
-function joinTables(rightTable, tableNum) {
-    console.log("Joining "+gTables[tableNum].frontTableName+" and "+rightTable);
-    var rand = Math.floor((Math.random() * 100000) + 1);
-    var newTableName = "tempJoinTable"+rand;
-    var rightTableNum = -1;
-    for (var i = 0; i<gTables.length; i++) {
-        if (gTables[i].frontTableName == rightTable) {
-            rightTableNum = i;
-            break;
-        }
-    }
-    var newTableCols = [];
-    if (rightTableNum == -1) {
-        console.log("XXX Right table is not being displayed!");
-        newTableCols = jQuery.extend(true, [],
-                                     gTables[tableNum].tableCols);
-    } else {
-        newTableCols = createJoinIndex(rightTableNum, tableNum);
-    }
-    setIndex(newTableName, newTableCols);
-    commitToStorage(); 
-    $("body").css({"cursor": "wait"}); 
-    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-        '{cursor: wait !important;}</style>');
-    XcalarJoin(gTables[tableNum].frontTableName, rightTable, newTableName);
-    checkStatus(newTableName, tableNum, KeepOriginalTables.DontKeep,
-                rightTableNum);
-    $('#waitCursor').remove();
-}
-*/
 
 function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
                     rightTableNum, rightColumnNum) {
