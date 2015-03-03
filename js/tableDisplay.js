@@ -155,7 +155,7 @@ function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
     }
     $table.find('th:first-child').width(newWidth+padding);
     var colNum = 0;
-    matchHeaderSizesOptimal(colNum, $table);
+    matchHeaderSizes(colNum, $table);
 }
 
 function generateTableShell(columns, tableNum) {

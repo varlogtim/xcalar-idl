@@ -461,7 +461,7 @@ function addCol(colId, tableId, name, options) {
     if (inFocus) {
         table.find('tr:first .editableHead.col'+newColid).focus();
     }
-    matchHeaderSizes(tableNum);
+    matchHeaderSizes(newColid, table);
     checkForScrollBar(tableNum);
 }
 
@@ -696,7 +696,7 @@ function hideCol(colid, tableid) {
 
     $("#xcTable"+tableid+" td .col"+colid).width(10);
     $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "0px");
-    matchHeaderSizes(tableid);
+    matchHeaderSizes(colid, $('#xcTable'+tableid));
 }
 
 function unhideCol(colid, tableid, options) {

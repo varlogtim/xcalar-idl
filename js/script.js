@@ -267,10 +267,6 @@ function mainPanelsTabing() {
             $("#datastoreView").hide().removeClass("active");
             if ($("#workspacePanel").css("display") == "none") {
                 $("#workspacePanel").show().addClass("active");
-                for (var i = 0; i < gTables.length; i++) {
-                    matchHeaderSizes(i);
-                    adjustColGrabHeight(i);
-                }
             } 
             break;
         case ("dataStoresTab"):

@@ -192,8 +192,6 @@ function gRescolMouseUp() {
     gRescol.table.find('.rowGrab').width(gRescol.table.width());
     var progCol = gTables[gRescol.tableNum].tableCols[gRescol.index-1];
     progCol.width = gRescol.grabbedCell.outerWidth();
-    matchHeaderSizes(gRescol.tableNum);
-    checkForScrollBar(gRescol.tableNum);
 }
 
 function gResrowMouseDown(el, event) {
@@ -545,7 +543,7 @@ function gRescolDelWidth(colNum, tableNum, resize) {
         table.find('thead:last .table_title_bg.col'+lastTd).
             width(lastTdWidth + (gMinTableWidth - oldTableWidth)); 
     }
-    matchHeaderSizes(tableNum);
+    matchHeaderSizes(colNum, $('#xcTable'+tableNum)) ;
 }
 
 function getTextWidth(el) {
@@ -575,7 +573,8 @@ function autosizeCol(el, options) {
     var includeHeader = options.includeHeader || false;
     var resizeFirstRow = options.resizeFirstRow || false;
     var minWidth = options.minWidth || gRescol.cellMinWidth-10;
-    var oldTableWidth = $('#xcTable'+tableNum).width();
+    var $table = $('#xcTable'+tableNum);
+    var oldTableWidth = $table.width();
     var maxWidth = 700;
     var oldWidth = el.width();  
     var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
@@ -590,19 +589,19 @@ function autosizeCol(el, options) {
     var widthDiff = newWidth - oldWidth;
     // reassigning el from the fixed table header cell to the header cell
     // located in the table
-    el = $('#xcTable'+tableNum).find('th.col'+index); 
+    el = $table.find('th.col'+index); 
     if (widthDiff > 0) {
-        $('#xcTable'+tableNum+' thead').width('+='+(newWidth-oldWidth));
+        $table.find('thead').width('+='+(newWidth-oldWidth));
         el.width(newWidth);
     } else if (oldTableWidth + widthDiff < gMinTableWidth) {
         el.width(newWidth);
-        $('#xcTable'+tableNum+' tr:first th:last').outerWidth('+='+
+        $table.find('tr:first th:last').outerWidth('+='+
             (gMinTableWidth-(oldTableWidth+widthDiff)));
     } else {
         el.width(newWidth);
     }
     gTables[tableNum].tableCols[index-1].width = el.width();
-    matchHeaderSizes(tableNum);
+    matchHeaderSizes(index, $table);
 }
 
 function getWidestTdWidth(el, options) {
@@ -747,32 +746,29 @@ function createTableHeader(tableNum) {
         });
     });
 
-    $('#xcTable'+tableNum).width(0); 
-    matchHeaderSizes(tableNum);
+    var $table = $('#xcTable'+tableNum);
+    $table.width(0); 
+    var matchAllHeaders = true;
+    matchHeaderSizes(null, $table, matchAllHeaders);
 }
 
-function matchHeaderSizes(tableNum, reverse) {
-    var table = $('#xcTable'+tableNum);
-    var headerWrap = $('#xcTheadWrap'+tableNum);
-    var tHeadLength = table.find('th').length;
-    for (var i = 0; i < tHeadLength; i++) {
-        var width = table.find('th.col'+i).outerWidth();
-        table.find('th.col'+i+' .header').outerWidth(width);
+function matchHeaderSizes(colNum, $table, matchAllHeaders) {
+    if (matchAllHeaders) {
+        var numCols = $table.find('th').length;
+        for (var i = 0; i < numCols; i++) {
+            var $header = $table.find('th.col'+i);
+            var headerWidth = $header.outerWidth();
+            $header.children().outerWidth(headerWidth);
+        }
+    } else {
+        var $header = $table.find('th.col'+colNum);
+        var headerWidth = $header.outerWidth();
+        $header.children().outerWidth(headerWidth);
     }
-    var tableWidth = table.width();
-    table.find('.rowGrab').width(tableWidth);
-    table.find('.xcTheadWrap').width(tableWidth);
-    headerWrap.width(tableWidth);
-}
-
-function matchHeaderSizesOptimal(colNum, $table) {
-    var $header = $table.find('th.col'+colNum);
-    var headerWidth = $header.outerWidth();
-    var tableWidth = $table.find('thead').width();
+    
+    var tableWidth = $table.width();
     var tableNum = parseInt($table.attr('id').substring(7));
-    var $theadWrap = $('#xcTheadWrap'+tableNum);
-    $header.children().outerWidth(headerWidth);
-    $theadWrap.width(tableWidth);
+    $('#xcTheadWrap'+tableNum).width(tableWidth);
 }
 
 function displayShortenedHeaderName(el, tableNum, colNum) {
