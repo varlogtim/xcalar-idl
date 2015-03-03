@@ -251,14 +251,13 @@ function filterCol(operator, value, colid, tableNum) {
     console.log(colid); 
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
-    .then(function(){
+    .done(function(){
         refreshTable(newTableName, tableNum)
         .done(function() {
             addCli('Filter Table', cliOptions);
             deferred.resolve();
         });
     });
-    
     
     return (deferred.promise());
 }

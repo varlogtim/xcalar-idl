@@ -934,7 +934,6 @@ function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
     workItem.input.aggregateInput.aggregateOp = aggregateOp;
     workItem.input.aggregateInput.fieldName = fieldName;
 
-
     thriftHandle.client.queueWorkAsync(workItem)
     .done(function(result) {
         var aggregateOutput = result.output.aggregateOutput;

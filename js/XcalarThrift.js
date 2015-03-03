@@ -212,7 +212,7 @@ function XcalarSetFree(resultSetId) {
 
 function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
     if (tHandle == null) {
-        return;
+        return (promiseWrapper(null));
     }
     var filterStr = "";
     switch (operator) {
@@ -243,7 +243,7 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
     default:
         console.log("Unknown op "+operator);
     }
-    return (xcalarFilter(tHandle, filterStr, srcTablename, dstTablename));    
+    return (xcalarFilter(tHandle, filterStr, srcTablename, dstTablename));
 }
 
 function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename) {
@@ -255,7 +255,7 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename) {
 
 function XcalarAggregate(fieldName, srcTablename, op) {
     if (tHandle == null) {
-        return (null);
+        return (promiseWrapper(null));
     }
     var aggregateOp;
     switch (op) {
