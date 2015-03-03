@@ -243,7 +243,7 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
     default:
         console.log("Unknown op "+operator);
     }
-    xcalarFilter(tHandle, filterStr, srcTablename, dstTablename);    
+    return (xcalarFilter(tHandle, filterStr, srcTablename, dstTablename));    
 }
 
 function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename) {

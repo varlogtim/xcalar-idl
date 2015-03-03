@@ -250,12 +250,15 @@ function filterCol(operator, value, colid, tableNum) {
     $("body").css({"cursor": "wait"});
     console.log(colid); 
 
-    XcalarFilter(operator, value, colName, srcTableName, newTableName);
-    refreshTable(newTableName, tableNum)
-    .done(function() {
-        addCli('Filter Table', cliOptions);
-        deferred.resolve();
+    XcalarFilter(operator, value, colName, srcTableName, newTableName)
+    .then(function(){
+        refreshTable(newTableName, tableNum)
+        .done(function() {
+            addCli('Filter Table', cliOptions);
+            deferred.resolve();
+        });
     });
+    
     
     return (deferred.promise());
 }

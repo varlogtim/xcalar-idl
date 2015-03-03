@@ -624,6 +624,7 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
 }
 
 function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
+    var deferred = jQuery.Deferred();   
     console.log("xcalarFilter(srcTableName = " + srcTableName +
                 ", dstTableName = " + dstTableName + ", filterStr = " +
                 filterStr + ")");
@@ -642,19 +643,37 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
     workItem.input.filterInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.filterInput.filterStr = filterStr;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
-        var filterOutput = result.output.filterOutput;
+    var filterOutput;
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        filterOutput = result.output.filterOutput;
+        console.log('filterOutput', filterOutput);
         if (result.jobStatus != StatusT.StatusOk) {
             filterOutput.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarFilter() caught exception: " + ouch);
-        var filterOutput = new XcalarApiNewTableOutputT();
-        filterOutput.status = StatusT.StatusThriftProtocolError;
-    }
 
-    return filterOutput;
+        deferred.resolve(filterOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarFilter() caught exception: " + error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+
+    // try {
+    //     var result = thriftHandle.client.queueWork(workItem);
+    //     var filterOutput = result.output.filterOutput;
+    //     if (result.jobStatus != StatusT.StatusOk) {
+    //         filterOutput.status = result.jobStatus;
+    //     }
+    // } catch(ouch) {
+    //     console.log("xcalarFilter() caught exception: " + ouch);
+    //     var filterOutput = new XcalarApiNewTableOutputT();
+    //     filterOutput.status = StatusT.StatusThriftProtocolError;
+    // }
+
+    // return filterOutput;
 }
 
 function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
