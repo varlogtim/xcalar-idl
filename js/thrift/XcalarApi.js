@@ -893,6 +893,7 @@ function xcalarDestroyDataset(thriftHandle, datasetId) {
 
 function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
                       dstTableName) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarApiMap(newFieldName = " + newFieldName + ", evalStr = "
                 + evalStr + ", srcTableName = " +
                 srcTableName + ", dstTableName = " + dstTableName + ")");
@@ -912,20 +913,20 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
     workItem.input.mapInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.mapInput.newFieldName = newFieldName;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result){
         var mapOutput = result.output.mapOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             mapOutput.status = result.jobStatus;
         }
-    } catch (ouch) {
-        console.log("xcalarApiMap() caught exception: " + ouch);
+        deferred.resolve(mapOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiMap() caught exception:", error);
+        deferred.reject(error);
+    });
 
-        var mapOutput = new XcalarApiNewTableOutputT();
-        mapOutput.status = StatusT.StatusThriftProtocolError;
-    }
-
-    return mapOutput;
+    return (deferred.promise());
 }
 
 function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {

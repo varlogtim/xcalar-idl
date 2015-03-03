@@ -276,9 +276,10 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
 
 function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename) {
     if (tHandle == null) {
-        return;
+        return (promiseWrapper(null));
     }
-    xcalarApiMap(tHandle, newFieldName, evalStr, srcTablename, dstTablename);
+    return (xcalarApiMap(tHandle, newFieldName, evalStr, 
+            srcTablename, dstTablename));
 }   
 
 function XcalarAggregate(fieldName, srcTablename, op) {

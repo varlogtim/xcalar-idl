@@ -847,7 +847,7 @@ function addColListeners(colId, $table) {;
                 }
                 $(self).blur();
                 $(self).closest('th').removeClass('unusedCell');
-                table.find('td:nth-child('+index+')').removeClass('unusedCell');
+                $table.find('td:nth-child('+index+')').removeClass('unusedCell');
             });
         }
     });

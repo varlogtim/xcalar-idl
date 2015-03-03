@@ -178,11 +178,16 @@ function mapColumn(fieldName, mapString, tableNum) {
     var newTableName = "tempMapTable"+rand;
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
+
+    // XXX Fix Me: now use nesting one because linear
+    // one casue bug in sortByTime
     XcalarMap(fieldName, mapString, 
-        gTables[tableNum].frontTableName, newTableName);
-    refreshTable(newTableName, tableNum)
-    .done(function() {
-        deferred.resolve();
+              gTables[tableNum].frontTableName, newTableName)
+    .then(function() {
+        refreshTable(newTableName, tableNum)
+        .done(function() {
+            deferred.resolve();
+        });
     });
 
     return (deferred.promise());
@@ -244,12 +249,10 @@ function filterCol(operator, value, colid, tableNum) {
     console.log(colid); 
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
-    .done(function(){
-        refreshTable(newTableName, tableNum)
-        .done(function() {
-            addCli('Filter Table', cliOptions);
-            deferred.resolve();
-        });
+    .then(refreshTable(newTableName, tableNum))
+    .done(function() {
+        addCli('Filter Table', cliOptions);
+        deferred.resolve();
     });
     
     return (deferred.promise());

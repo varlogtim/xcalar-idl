@@ -70,7 +70,6 @@ function execCol(progCol, tableNum, args) {
         fieldName = jQuery.trim(fieldName);
         fieldName = fieldName.replace(/\"/g, "");
         fieldName = jQuery.trim(fieldName);
-
         progCol.func.func = "pull";
         progCol.func.args[0] = fieldName;
         progCol.func.args.splice(1, progCol.func.args.length-1);
