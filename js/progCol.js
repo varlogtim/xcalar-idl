@@ -234,15 +234,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         gTables[tableNum].tableCols[newColid - 1].type = columnType;
     }
 
-    // add class to both static th and real th
-    $('#xcTheadWrap' + tableNum + ' th.col' + newColid +
-      ' div.header ul.colMenu')
-         .removeClass("mixed")
-         .removeClass("string")
-         .removeClass("number")
-         .removeClass("object")
-         .removeClass("array")
-         .addClass(columnType);
+    // add class to th
     table.find('th.col' + newColid + ' div.header ul.colMenu')
          .removeClass("mixed")
          .removeClass("string")
@@ -371,22 +363,18 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
 
     // assign column type class to header menus
     var $table = $('#xcTable'+tableNum);
-    var $theadWrap = $('#xcTheadWrap'+tableNum);
     for (var i = 0; i < numCols; i++) {
-        $theadWrap.find('th.col' + (i+1) + ' ul.colMenu')
+        var $currentTh = $table.find('th.col' +(i+1));
+        $currentTh.find('ul.colMenu')
             .removeClass("mixed")
             .removeClass("string")
             .removeClass("number")
             .removeClass("object")
             .removeClass("array")
             .addClass(columnTypes[i]);
-        $table.find('th.col' + (i+1) + ' ul.colMenu')
-            .removeClass("mixed")
-            .removeClass("string")
-            .removeClass("number")
-            .removeClass("object")
-            .removeClass("array")
-            .addClass(columnTypes[i]);
+        if ($currentTh.hasClass('selectedCell')) {
+            highlightColumn($currentTh);
+        }
     }
     return tBodyHTML;
 }
