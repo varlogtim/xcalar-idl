@@ -5,6 +5,11 @@ function freeAllResultSets() {
         promises.push(XcalarSetFree(gTables[i].resultSetId));
     }
 
+    var gHiddenTablesLen = gHiddenTables.length;
+    for (var i = 0; i < gHiddenTablesLen; i ++) {
+        promises.push(XcalarSetFree(gHiddenTables[i].resultSetId));
+    }
+
     return (jQuery.when.apply(jQuery, promises));
 }
 
