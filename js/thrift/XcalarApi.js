@@ -345,6 +345,7 @@ function xcalarResetStats(thriftHandle, nodeId) {
 }
 
 function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarGetStatGroupIdMap(nodeId = " + nodeId.toString() +
                 ", numGroupId = " + numGroupId.toString() + ")");
 
@@ -356,22 +357,20 @@ function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
     workItem.api = XcalarApisT.XcalarApiGetStatGroupIdMap;
     workItem.input.statInput.nodeId = nodeId;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var statGroupIdMapOutput = result.output.statGroupIdMapOutput;
-	if (result.jobStatus != StatusT.StatusOk) {
-	    statGroupIdMapOutput.status = result.jobStatus;
-	}
-    } catch(ouch) {
-        console.log("xcalarGetStatGroupIdMap() caught exception: " + ouch);
+        if (result.jobStatus != StatusT.StatusOk) {
+            statGroupIdMapOutput.status = result.jobStatus;
+        }
+        deferred.resolve(statGroupIdMapOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarGetStatGroupIdMap() caught exception:", error);
+        deferred.reject(error);
+    });
 
-	// XXX FIXME need status field in XcalarApiGetStatGroupIdMapOutputT
-        var statGroupIdMapOutput = new XcalarApiGetStatGroupIdMapOutputT();
-        statGroupIdMapOutput.status = StatusT.StatusThriftProtocolError;
-        statGroupIdMapOutput.numGroupNames = 0;
-    }
-
-    return statGroupIdMapOutput;
+    return (deferred.promise());
 }
 
 function xcalarQuery(thriftHandle, query) {
