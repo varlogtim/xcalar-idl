@@ -319,6 +319,7 @@ function xcalarGetStatsByGroupId(thriftHandle, nodeId, groupIdList) {
 }
 
 function xcalarResetStats(thriftHandle, nodeId) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarResetStats(nodeId = " + nodeId.toString() + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -329,19 +330,18 @@ function xcalarResetStats(thriftHandle, nodeId) {
     workItem.api = XcalarApisT.XcalarApiResetStat;
     workItem.input.statInput.nodeId = nodeId;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var status = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarResetStats() caught exception: " + ouch);
-
-        var status = StatusT.StatusThriftProtocolError;
-    }
-
-    return status;
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarResetStats() caught exception:", error);
+        deferred.reject(error);
+    });
 }
 
 function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
