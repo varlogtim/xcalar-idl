@@ -165,6 +165,7 @@ function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName) {
 }
 
 function xcalarGetCount(thriftHandle, tableName) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarGetCount(tableName = " + tableName + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -176,20 +177,24 @@ function xcalarGetCount(thriftHandle, tableName) {
     workItem.input.tableInput.tableName = tableName;
     workItem.input.tableInput.tableId = XcalarApiTableIdInvalidT;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var countOutput = result.output.countOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             countOutput.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarGetCount() caught exception: " + ouch);
+        // XXX Fix me if the checking is not right
+        if (countOutput.status != StatusT.StatusOk) {
+            deferred.reject(countOutput.status);
+        }
+        deferred.resolve(countOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarGetCount() caught exception:", error);
+        deferred.reject(error);
+    });
 
-        var countOutput = new XcalarApiCountOutputT();
-        countOutput.status = StatusT.StatusThriftProtocolError;
-    }
-
-    return countOutput;
+    return (deferred.promise());
 }
 
 function xcalarShutdown(thriftHandle) {

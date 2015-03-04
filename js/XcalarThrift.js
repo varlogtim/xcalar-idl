@@ -160,16 +160,21 @@ function XcalarSample(datasetId, numEntries) {
 }
 
 function XcalarGetCount(tableName) {
+    var deferred = jQuery.Deferred();
     if (tHandle == null) {
-        return (0);
+        deferred.resolve(0);
+    } else {
+        xcalarGetCount(tHandle, tableName)
+        .then(function(countOutput) {
+            var totEntries = 0;
+            var numNodes = countOutput.numCounts;
+            for (var i = 0; i < numNodes; i++) {
+                totEntries += countOutput.counts[i];
+            }
+            deferred.resolve(totEntries);
+        });
     }
-    var countOutput = xcalarGetCount(tHandle, tableName);
-    var totEntries = 0;
-    var numNodes = countOutput.numCounts;
-    for (var i = 0; i<numNodes; i++) {
-        totEntries += countOutput.counts[i];
-    }
-    return (totEntries);
+    return (deferred.promise());
 }
 
 function XcalarGetDatasets() {

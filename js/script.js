@@ -141,9 +141,12 @@ function setTableMeta(table) {
     newTable.currentPageNumber = 0;
 
     XcalarMakeResultSetFromTable(tableName)
-    .done(function(resultSet) {
+    .then(function(resultSet) {
         newTable.resultSetId = resultSet.resultSetId;
-        newTable.resultSetCount = XcalarGetCount(tableName);
+        return (XcalarGetCount(tableName));
+    })
+    .done(function(totEntries) {
+        newTable.resultSetCount = totEntries;
         newTable.numPages = Math.ceil(newTable.resultSetCount /
                                       gNumEntriesPerPage);
         newTable.backTableName = tableName;
