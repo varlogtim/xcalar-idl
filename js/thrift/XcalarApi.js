@@ -118,6 +118,7 @@ function xcalarIndexDataset(thriftHandle, datasetId, keyName, dstTableName) {
 }
 
 function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarIndexTable(srcTableName = " + srcTableName +
                 ", keyName = " + keyName + ", dstTableName = " +
                 dstTableName + ")");
@@ -138,20 +139,20 @@ function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName) {
     workItem.input.indexInput.datasetId = 0;
     workItem.input.indexInput.keyName = keyName;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var indexOutput = result.output.indexOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             indexOutput.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarIndexTable() caught exception: " + ouch);
+        deferred.resolve(indexOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarIndexTable() caught exception:", error);
+        deferred.reject(error);
+    });
 
-        var indexOutput = new XcalarApiNewTableOutputT();
-        indexOutput.status = StatusT.StatusThriftProtocolError;
-    }
-
-    return indexOutput;
+    return (deferred.promise());
 }
 
 function xcalarGetCount(thriftHandle, tableName) {
