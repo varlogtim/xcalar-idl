@@ -288,6 +288,7 @@ function xcalarEditColumn(thriftHandle, datasetId, tableName, isDataset,
 }
 
 function xcalarGetStatsByGroupId(thriftHandle, nodeId, groupIdList) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarGetStatsByGroupId(nodeId = " + nodeId.toString() +
                 ", numGroupIds = ", + groupIdList.length.toString() + ", ...)");
 
@@ -301,21 +302,20 @@ function xcalarGetStatsByGroupId(thriftHandle, nodeId, groupIdList) {
     workItem.input.statByGroupIdInput.numGroupId = groupIdList.length;
     workItem.input.statByGroupIdInput.groupId = groupIdList;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var statOutput = result.output.statOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             statOutput.status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarGetStatsByGroupId() caught exception: " + ouch);
+        deferred.resolve(statOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarGetStatsByGroupId() caught exception:", error);
+        deferred.reject(error);
+    });
 
-        var statOutput = new XcalarApiGetStatOutputT();
-        statOutput.status = StatusT.StatusThriftProtocolError;
-        statOutput.numStats = 0;
-    }
-
-    return statOutput;
+    return (deferred.promise());
 }
 
 function xcalarResetStats(thriftHandle, nodeId) {
