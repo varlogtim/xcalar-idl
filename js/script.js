@@ -56,7 +56,7 @@ var TableMeta = function() {
 }
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
-    var timer;
+
     $("#xcTbodyWrap"+tableNum).scroll(function() {
         if (gMouseStatus == "movingTable") {
             return;
@@ -65,7 +65,6 @@ function infScrolling(tableNum) {
                            .substring("xcTbodyWrap".length));
         focusTable(dynTableNum);
         var table = $('#xcTable'+dynTableNum);
-        table.find('.colGrab').hide().height(0);
         if (table.height() < $('#mainFrame').height()) {
             // prevent scrolling on a short table
            $(this).scrollTop(0);
@@ -109,12 +108,6 @@ function infScrolling(tableNum) {
 
         innerDeferred
         .done(function() {
-            clearTimeout(timer);
-            timer = setTimeout(function () { 
-                adjustColGrabHeight(dynTableNum);  
-            } , 300 );
-
-            table.find('.colGrab').show();
             var rowScrollerMove = true;
             generateFirstLastVisibleRowNum(rowScrollerMove);
             updatePageBar(dynTableNum);
