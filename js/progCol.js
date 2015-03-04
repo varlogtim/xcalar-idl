@@ -686,7 +686,7 @@ function hideCol(colid, tableid) {
     }
 
     $("#xcTable"+tableid+" td .col"+colid).width(10);
-    $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "0px");
+    $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "-6px");
     matchHeaderSizes(colid, $('#xcTable'+tableid));
 }
 
@@ -705,7 +705,7 @@ function unhideCol(colid, tableid, options) {
     }
 
     $("#xcTable"+tableid+" input.col"+colid).css("padding-left", "4px");
-    $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "3px");
+    $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "-3px");
 
 }
 
