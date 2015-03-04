@@ -200,9 +200,9 @@ function XcalarShutdown() {
 function XcalarGetStats(nodeId) {
     // Today we have no use for this call yet.
     if (tHandle == null) {
-        return (null);
+        return (promiseWrapper(null));
     }
-    xcalarGetStats(tHandle, nodeId);
+    return (xcalarGetStats(tHandle, nodeId));
 }
 
 function XcalarGetTableRefCount(tableName) {
