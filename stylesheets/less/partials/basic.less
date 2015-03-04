@@ -545,6 +545,7 @@ ul.colMenu {
         text-align: center;
         box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
         background-color: @color-white;
+        font-size: 12px;
 
         &:focus {
             outline: none;
@@ -643,20 +644,33 @@ ul.colMenu {
         }
     }
 
-    .type-string &, .type-array &{
+    &.type-string, &.type-array{
         .filterWrap .numFilter, .aggregate {
             display: none;
         }
     }
 
-    .type-object &{
+    &.type-object {
         .sort, .aggregate, .groupBy, .filterWrap, .joinList {
             display: none;
         }
     }
 
-    .type-number &{
+    &.type-number{
         .filterWrap .strFilter {
+            display: none;
+        }
+    }
+
+    &.type-indexed {
+        .sort {
+            display: none;
+        }
+    }
+
+    &.type-data {
+        .sort, .aggregate, .groupBy, .filterWrap, .joinList, .deleteColumn, 
+        .duplicate, .renameCol {
             display: none;
         }
     }

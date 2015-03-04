@@ -40,6 +40,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $("#tableMenu"+tableNum).attr("id", "");
         $("#rowScroller"+tableNum).attr("id", "rowScrollerToRemove"+tableNum);
         $("#rowMarker"+tableNum).attr("id", "");
+        $("#colMenu"+tableNum).attr("id", "");
     } else {
         $("#xcTableWrap"+tableNum).remove();
         $("#rowScroller"+tableNum).remove();
@@ -72,6 +73,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $("#tableMenu"+i).attr("id", "tableMenu"+(i-1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i-1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i-1));
+        $("#colMenu"+i).attr("id", "colMenu"+(i-1));
     }
     
     // XXX: Think about gActiveTableNum
@@ -140,7 +142,8 @@ function buildInitialTable(index, tableNum, jsonData, keyName) {
     pullRowsBulk(tableNum, jsonData, startIndex, dataIndex);
     addTableListeners(tableNum);
     createTableHeader(tableNum);
-    addColListeners($table);
+    generateColDropDown(tableNum);
+    addColListeners($table, tableNum);
 
     if (numRows == 0) {
         $table.find('.idSpan').text("");
@@ -192,7 +195,7 @@ function generateTableShell(columns, tableNum) {
         'style="width:0px;">'+
           '<thead>'+
           '<tr>'+
-            '<th style="width: 50px;" class="col0 table_title_bg">'+
+            '<th style="width: 50px;" class="col0 th">'+
               '<div class="header">'+
                 '<input value="" readonly="" tabindex="-1">'+
               '</div>'+
@@ -212,10 +215,10 @@ function generateTableShell(columns, tableNum) {
             dataIndex = i;
             var newColid = i + 1;
             newTable +=
-                '<th class="col' + newColid + ' table_title_bg dataCol" ' +
+                '<th class="col' + newColid + ' th dataCol" ' +
                     'style="width:' + columns[i].width + 'px;">' +
-                    '<div class="header">' +
-                    '<div class="colGrab"></div>' +
+                    '<div class="header type-data">' +
+                        '<div class="colGrab"></div>'+
                         '<div class="flexContainer flexRow">' + 
                         '<div class="flexWrap flex-left"></div>' + 
                         '<div class="flexWrap flex-mid">' + 
@@ -223,33 +226,11 @@ function generateTableShell(columns, tableNum) {
                                 ' class="dataCol col' + newColid + 
                                 ' data-toggle="tooltip" data-placement="bottom" ' +
                                 '" title="raw data">' +
-                        '<div>' + 
+                        '</div>'+
                         '<div class="flexWrap flex-right">' + 
                             '<div class="dropdownBox">' + 
                                 '<div class="innerBox"></div>' + 
                             '</div>' + 
-                            '<ul class="colMenu" style="display: none;">' +
-                                '<li class="menuClickable">Add a column' + 
-                                    '<ul class="subColMenu">' + 
-                                        '<li class="addColumns addColLeft' + 
-                                            ' col' + newColid + '">' + 
-                                            'On the left' + 
-                                        '</li>' + 
-                                        '<li class="addColumns addColRight' + 
-                                            ' col' + newColid + '">' + 
-                                            'On the right' + 
-                                        '</li>' + 
-                                        '<div class="subColMenuArea"></div>' + 
-                                    '</ul>' + 
-                                    '<div class="dropdownBox"></div>' + 
-                                '</li>' + 
-                                '<li class="hide col' + newColid + '">' + 
-                                    'Hide column' + 
-                                '</li>' + 
-                                '<li class="unhide col' + newColid + '">' + 
-                                    'Unhide column' + 
-                                '</li>' +
-                            '</ul>' +
                         '</div>' + 
                     '</div>' + 
                 '</th>';
@@ -279,6 +260,7 @@ function reorderTables(tableNum) {
         $("#tableMenu"+i).attr("id", "tableMenu"+(i+1));
         $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
+        $("#colMenu"+i).attr("id", "colMenu"+(i+1));
         gTables[i+1] = gTables[i];
     }
 }

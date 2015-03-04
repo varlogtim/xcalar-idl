@@ -321,7 +321,7 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
     var key;
     for (var i = 0; i < jsonKeys.length; i++) {
         key = jsonKeys[i];
-        th +=  '<th title="' + key + '" class="table_title_bg col' + i + '">\
+        th +=  '<th title="' + key + '" class="th col' + i + '">\
                     <div class="header flexContainer flexRow">\
                         <div class="flexWrap flex-left">\
                             <span class="type icon"></span>\

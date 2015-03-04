@@ -360,6 +360,10 @@ function documentReadyGeneralFunction() {
         $(this).scrollLeft(0);
     });
 
+    $('#mainFrame').scroll(function() {
+        $(this).scrollTop(0);
+    });
+
 
     $('.closeJsonModal, #modalBackground').click(function() {
         if ($('#jsonModal').css('display') == 'block') {
@@ -378,8 +382,6 @@ function documentReadyGeneralFunction() {
         var clickable = $target.closest('.colMenu').length > 0;
         if (!clickable && !$target.is('.dropdownBox')) {
                 $('.colMenu').hide();
-                $('.xcTheadWrap').css('z-index', '9');
-                $('.xcTbodyWrap').find('.header').css('z-index', '9');
         }
 
         if (!$target.is('.editableHead') && !$target.is('#fnBar')) {

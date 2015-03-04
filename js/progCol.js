@@ -434,7 +434,7 @@ function addCol(colId, tableId, name, options) {
     var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
                        newColid, name, width);
     
-    tables.find('.table_title_bg.col'+(newColid-1)).after(columnHeadHTML); 
+    tables.find('.th.col'+(newColid-1)).after(columnHeadHTML); 
 
     var numRow = table.find("tbody tr").length;
     var idOfFirstRow = table.find("tbody tr:first").attr("class");
@@ -469,7 +469,7 @@ function generateColumnHeadHTML(columnClass, color, newColid, name, width) {
     }
 
     var columnHeadTd = 
-        '<th class="table_title_bg' + color + columnClass +
+        '<th class="th' + color + columnClass +
         ' col' + newColid + '" style="width:' + width + 'px;">\
             <div class="header">\
                 <div class="dragArea"></div>\
@@ -493,35 +493,35 @@ function generateColumnHeadHTML(columnClass, color, newColid, name, width) {
                             <div class="innerBox"></div>\
                         </div>';
 
-    columnHeadTd += generateColDropDownHTML(newColid);
+    // columnHeadTd += generateColDropDownHTML(newColid);
     columnHeadTd += '</div></div></div></th>';
 
     return (columnHeadTd);
 }
 
-function generateColDropDownHTML(newColid) {
+function generateColDropDown(tableNum) {
     var dropDownHTML = 
-        '<ul class="colMenu">'+
+        '<ul id="colMenu'+tableNum+'" class="colMenu">'+
             '<li>'+
                 'Add a column'+
                 '<ul class="subColMenu">'+
-                    '<li class="addColumns addColLeft col'+newColid+'">'+
+                    '<li class="addColumns addColLeft">'+ //colid
                     'On the left</li>'+
-                    '<li class="addColumns col'+newColid+'">On the right</li>'+
+                    '<li class="addColumns">On the right</li>'+ //colid
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="dropdownBox"></div>'+
             '</li>'+
-            '<li class="deleteColumn col'+newColid+'">Delete column</li>'+
-            '<li class="duplicate col'+newColid+'">Duplicate column</li>'+
-            '<li class="renameCol col'+newColid+'">Rename column</li>'+
-            '<li class="hide col'+newColid+'">Hide column</li>'+
-            '<li class="unhide col'+newColid+'">Unhide column</li>'+
+            '<li class="deleteColumn">Delete column</li>'+ //colid
+            '<li class="duplicate">Duplicate column</li>'+ //colid
+            '<li class="renameCol">Rename column</li>'+ //colid
+            '<li class="hide">Hide column</li>'+ //colid
+            '<li class="unhide">Unhide column</li>'+ //colid
             '<li class="sort">Sort'+
                 '<ul class="subColMenu">'+
-                    '<li class="sort col'+newColid+'">A-Z'+
+                    '<li class="sort">A-Z'+ //colid
                     '<span class="sortUp"></span></li>'+
-                    '<li class="revSort col'+newColid+'">Z-A'+
+                    '<li class="revSort">Z-A'+ //colid
                     '<span class="sortDown"></span></li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
@@ -529,23 +529,23 @@ function generateColDropDownHTML(newColid) {
             '</li>'+
             '<li class="aggregate">Aggregate'+
                 '<ul class="subColMenu">'+
-                    '<li class="aggrOp col'+newColid+'">Max'+
+                    '<li class="aggrOp">Max'+ //colid
                     '<span class="maxIcon"></span></li>'+
-                    '<li class="aggrOp col'+newColid+'">Min'+
+                    '<li class="aggrOp">Min'+ //colid
                     '<span class="minIcon"></li>'+
-                    '<li class="aggrOp col'+newColid+'">Avg'+
+                    '<li class="aggrOp">Avg'+ //colid
                     '<span class="avgIcon"></li>'+
-                    '<li class="aggrOp col'+newColid+'">Count'+
+                    '<li class="aggrOp">Count'+ //colid
                     '<span class="countIcon"></li>'+
-                    '<li class="aggrOp col'+newColid+'">Sum'+
+                    '<li class="aggrOp">Sum'+ //colid
                     '<span class="sumIcon"></li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="dropdownBox"></div>'+
             '</li>'+
-            '<li class="groupBy col'+newColid+'">Group By'+
+            '<li class="groupBy">Group By'+ //colid
                 '<ul class="subColMenu">'+
-                    '<li class="gb col'+newColid+'"><span>'+
+                    '<li class="gb"><span>'+ //colid
                     '<span class="countIcon"></span>Count</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -556,7 +556,7 @@ function generateColDropDownHTML(newColid) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb col'+newColid+'"><span>'+
+                    '<li class="gb"><span>'+ //colid
                     '<span class="avgIcon"></span>Average</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -567,7 +567,7 @@ function generateColDropDownHTML(newColid) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb col'+newColid+'"><span>'+
+                    '<li class="gb"><span>'+ //colid
                     '<span class="sumIcon"></span>Sum</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -578,7 +578,7 @@ function generateColDropDownHTML(newColid) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb col'+newColid+'"><span>'+
+                    '<li class="gb"><span>'+ //colid
                     '<span class="maxIcon"></span>Max</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -589,7 +589,7 @@ function generateColDropDownHTML(newColid) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb col'+newColid+'"><span>'+
+                    '<li class="gb"><span>'+ //colid
                     '<span class="minIcon"></span>Min</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -611,7 +611,7 @@ function generateColDropDownHTML(newColid) {
     if (true) { // This check is here so that you don't have to indent in the
                 // in the future. O:D
         dropDownHTML += 
-            '<li class="filterWrap col'+newColid+'">Filter'+
+            '<li class="filterWrap">Filter'+ // removed Colid
                 '<ul class="subColMenu">'+
                     '<li class="filter numFilter">Greater Than'+
                         '<span class="greaterThan"></span>'+
@@ -680,18 +680,20 @@ function generateColDropDownHTML(newColid) {
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+
                 '<div class="dropdownBox"></div>'+
-                '</li>'+
-                '<li class="joinList col'+newColid+'">'+'Join';
+            '</li>'+
+            '<li class="joinList">'+'Join</li>'; // removed colId
                             // '<ul class="subColMenu" id="joinTables">';
     }
     // dropDownHTML += '</ul><div class="dropdownBox"></div>'+
     //                 '<div class="subColMenuArea"></div></li>';
-    dropDownHTML += '</li>';
+    dropDownHTML += '</ul>';
+    $('#xcTableWrap'+tableNum).append(dropDownHTML);
+
     return (dropDownHTML);
 }
 
 function hideCol(colid, tableid) {
-    $("#xcTable"+tableid+" .table_title_bg.col"+colid).width(10);
+    $("#xcTable"+tableid+" .th.col"+colid).width(10);
     // data column should have more padding and class for tbody is different
     if($("#xcTable"+tableid+" input.col"+colid).hasClass("dataCol")) {
         // the padding pixel may be chosen again
