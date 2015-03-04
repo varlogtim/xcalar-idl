@@ -54,7 +54,10 @@ function refreshTable(newTableName, tableNum,
             var largerTableNum = Math.max(additionalTableNum, tableNum);
             var smallerTableNum = Math.min(additionalTableNum, tableNum);
             archiveTable(largerTableNum, DeleteTable.Keep);
-            archiveTable(smallerTableNum, DeleteTable.Keep);
+            if (largerTableNum != smallerTableNum) {
+                // excludes self joins
+                archiveTable(smallerTableNum, DeleteTable.Keep);
+            }
             if (newTableNum > gTables.length) {
                 // edge case
                 newTableNum = gTables.length;
