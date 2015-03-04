@@ -128,8 +128,9 @@ function buildInitialTable(index, tableNum, jsonData, keyName) {
     var dataIndex = generateTableShell(table.tableCols, tableNum);
     var numRows = jsonData.length;
     var startIndex = 0;
-
+    var $table = $('#xcTable'+tableNum);
     addRowScroller(tableNum);
+
     if (numRows == 0) {
         console.log('no rows found, ERROR???');
         $('#rowScroller'+tableNum).addClass('hidden');
@@ -139,11 +140,8 @@ function buildInitialTable(index, tableNum, jsonData, keyName) {
     pullRowsBulk(tableNum, jsonData, startIndex, dataIndex);
     addTableListeners(tableNum);
     createTableHeader(tableNum);
-    var numCols = table.tableCols.length;
-    var $table = $('#xcTable'+tableNum);
-    for (var i = 1; i <= numCols; i++) {
-        addColListeners(i, $table);
-    }
+    addColListeners($table);
+
     if (numRows == 0) {
         $table.find('.idSpan').text("");
     }
@@ -200,12 +198,12 @@ function generateTableShell(columns, tableNum) {
               '</div>'+
             '</th>';
     var numCols = columns.length;
-    // info we need:  progColstuff
     var dataIndex = null;
+    var table = gTables[tableNum];
     for (var i = 0; i < numCols; i++) {
         var color = "";
         var columnClass = ""; 
-        if (columns[i].name == gTables[tableNum].keyName) {
+        if (columns[i].name == table.keyName) {
             columnClass = " indexedColumn";
         } else if (columns[i].name == "" || columns[i].func.func == "") {
             columnClass = " newColumn";
@@ -217,6 +215,7 @@ function generateTableShell(columns, tableNum) {
                 '<th class="col' + newColid + ' table_title_bg dataCol" ' +
                     'style="width:' + columns[i].width + 'px;">' +
                     '<div class="header">' +
+                    '<div class="colGrab"></div>' +
                         '<div class="flexContainer flexRow">' + 
                         '<div class="flexWrap flex-left"></div>' + 
                         '<div class="flexWrap flex-mid">' + 

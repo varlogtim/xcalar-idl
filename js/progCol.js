@@ -436,8 +436,6 @@ function addCol(colId, tableId, name, options) {
     
     tables.find('.table_title_bg.col'+(newColid-1)).after(columnHeadHTML); 
 
-    addColListeners(newColid, table);
-
     var numRow = table.find("tbody tr").length;
     var idOfFirstRow = table.find("tbody tr:first").attr("class");
     if (idOfFirstRow) {
@@ -457,6 +455,7 @@ function addCol(colId, tableId, name, options) {
     if (inFocus) {
         table.find('tr:first .editableHead.col'+newColid).focus();
     }
+    adjustColGrabHeight(tableNum);
     matchHeaderSizes(newColid, table);
     checkForScrollBar(tableNum);
 }
@@ -474,6 +473,7 @@ function generateColumnHeadHTML(columnClass, color, newColid, name, width) {
         ' col' + newColid + '" style="width:' + width + 'px;">\
             <div class="header">\
                 <div class="dragArea"></div>\
+                <div class="colGrab"></div>\
                 <div class="flexContainer flexRow">\
                     <div class="flexWrap flex-left">\
                         <div class="iconHidden"></div>\

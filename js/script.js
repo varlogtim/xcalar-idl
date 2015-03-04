@@ -164,7 +164,7 @@ $(window).on('beforeunload', function() {
 });
 
 function setupFunctionBar() {
-     var functionbar = $('#fnBar');
+    var functionbar = $('#fnBar');
 
     functionbar.on('input', function(e) {
         if ($(".scratchpad").has(gFnBarOrigin).length != 0 &&
@@ -179,49 +179,23 @@ function setupFunctionBar() {
     functionbar.keyup(function(e) {
         if (gFnBarOrigin) {
             gFnBarOrigin.val($(this).val());
-            gFnBarOrigin.trigger(e);
         }
         if (e.which == keyCode.Enter) {
-            $(this).blur();
+            functionBarEnter(gFnBarOrigin);
+            $(this).blur().addClass('entered');
         }
     });
 
     functionbar.mousedown(function() {
-        var fnBar = $(this);
-        // must activate mousedown after header's blur, hence delay
-        setTimeout(selectCell, 0);
-
-        function selectCell() {
-            if ($(".scratchpad").has(gFnBarOrigin).length == 0 
-                && gFnBarOrigin) {
-
-                var index = parseColNum(gFnBarOrigin);
-                var tableNum = parseInt(gFnBarOrigin.closest('.tableWrap')
-                    .attr('id').substring(11)); 
-                if (gTables[tableNum].tableCols[index-1].userStr.length > 0) {
-                    gFnBarOrigin.val(gTables[tableNum].tableCols[index-1]
-                                     .userStr);
-                } 
-            }
+        $(this).addClass('inFocus');
+        var $fnBar = $(this);
+        if (gFnBarOrigin) {
+            gFnBarOrigin.val($fnBar.val());
         }
     });
 
     functionbar.blur(function() {
-        if ($(".scratchpad").has(gFnBarOrigin).length != 0) {
-        } else {
-            // console.log('blurring')
-            var selectedCell = $('.xcTableWrap th.selectedCell .editableHead');
-            var index = $('th.selectedCell').index();
-            // if (gFnBarOrigin.length !=0) {
-            if (gFnBarOrigin && selectedCell.length !=0) {
-                var tableNum = parseInt($('.selectedCell').closest('.tableWrap')
-                .attr('id').substring(11));
-                // console.log(tableNum)
-                if (gTables[tableNum].tableCols[index-1].name.length > 0) {
-                    displayShortenedHeaderName(gFnBarOrigin, tableNum, index); 
-                } 
-            }
-        }
+        $(this).removeClass('inFocus');
     });
 }
 
@@ -384,7 +358,8 @@ function documentReadyGeneralFunction() {
     //XXX using this to keep window from scrolling on dragdrop
     $(window).scroll(function() {
         $(this).scrollLeft(0);
-    })
+    });
+
 
     $('.closeJsonModal, #modalBackground').click(function() {
         if ($('#jsonModal').css('display') == 'block') {
@@ -399,23 +374,25 @@ function documentReadyGeneralFunction() {
     });
 
     $(document).mousedown(function(event) {
-        var target = $(event.target);
-        var clickable = target.closest('.colMenu').length > 0;
-        if (!clickable && !target.is('.dropdownBox')) {
+        var $target = $(event.target);
+        var clickable = $target.closest('.colMenu').length > 0;
+        if (!clickable && !$target.is('.dropdownBox')) {
                 $('.colMenu').hide();
                 $('.xcTheadWrap').css('z-index', '9');
                 $('.xcTbodyWrap').find('.header').css('z-index', '9');
         }
-        if (target.closest('.selectedCell').length == 0 
-            && target.closest('#scratchpadArea').length == 0
-            && !target.is('#fnBar')
-            && (!equationCellRow)) {
-            setTimeout(function() {
-                $('.selectedCell').removeClass('selectedCell');
+
+        if (!$target.is('.editableHead') && !$target.is('#fnBar')) {
+                var index = $('th.selectedCell').index();
+                if (index > -1) {
+                    $('.selectedCell').removeClass('selectedCell');
+                    if (gFnBarOrigin) {
+                        displayShortenedHeaderName(gFnBarOrigin, 
+                                                   gActiveTableNum, index);
+                    }
+                }
                 gFnBarOrigin = undefined;
-            }, 1);
-            
-            $('#fnBar').val("");
+                $('#fnBar').val("");
         }
     });
     $(document).mousemove(function(event) {
@@ -538,9 +515,11 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
     .done(function(val) {
         generateFirstLastVisibleRowNum();
         infScrolling(tableNum);
+        adjustColGrabHeight(tableNum);
         checkForScrollBar(tableNum);
         resizeRowInput();
         constructDagImage(gTables[tableNum].backTableName);
+
         deferred.resolve();
     });
 
