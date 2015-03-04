@@ -102,6 +102,11 @@ function setupDSCartButtons() {
         $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');
         $('#iconWaiting').fadeIn(200);
 
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = 'destroyDataSet';
+        cliOptions.dsName = dsName;
+
         function cleanUpDsIcons() {
             var dsId = $grid.attr('data-dsId');
             DSObj.deleteById(dsId);
@@ -132,7 +137,10 @@ function setupDSCartButtons() {
             updateDatasetInfoFields(dsName, true, true);
             $('#iconWaiting').remove();
         }
-        XcalarDestroyDataset(dsName).done(cleanUpDsIcons);
+        XcalarDestroyDataset(dsName).done(function() {
+            cleanUpDsIcons();
+            addCli('Delete DateSet', cliOptions);
+        });
     });
 
     $("#submitDSTablesBtn").click(function() {
