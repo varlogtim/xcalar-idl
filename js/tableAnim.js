@@ -572,13 +572,13 @@ function autosizeCol(el, options) {
     var options = options || {};
     var includeHeader = options.includeHeader || false;
     var resizeFirstRow = options.resizeFirstRow || false;
-    var minWidth = options.minWidth || gRescol.cellMinWidth-10;
-    var $table = $('#xcTable'+tableNum);
+    var minWidth = options.minWidth || (gRescol.cellMinWidth - 10);
+    var $table = $('#xcTable' + tableNum);
     var oldTableWidth = $table.width();
     var maxWidth = 700;
     var oldWidth = el.width();  
     var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
-    var originalWidth = gTables[tableNum].tableCols[index-1].width;
+    var originalWidth = gTables[tableNum].tableCols[index - 1].width;
     var newWidth = Math.max(widestTdWidth, minWidth);
     var dbClick = options && options.dbClick;
     // dbClick is autoSized to a fixed width
@@ -589,18 +589,19 @@ function autosizeCol(el, options) {
     var widthDiff = newWidth - oldWidth;
     // reassigning el from the fixed table header cell to the header cell
     // located in the table
-    el = $table.find('th.col'+index); 
+    el = $table.find('th.col' + index);
     if (widthDiff > 0) {
-        $table.find('thead').width('+='+(newWidth-oldWidth));
-        el.width(newWidth);
-    } else if (oldTableWidth + widthDiff < gMinTableWidth) {
-        el.width(newWidth);
-        $table.find('tr:first th:last').outerWidth('+='+
-            (gMinTableWidth-(oldTableWidth+widthDiff)));
+        $table.find('thead').width('+=' + widthDiff);
+        el.outerWidth(newWidth);
+    } else if ((oldTableWidth + widthDiff) < gMinTableWidth) {
+        el.outerWidth(newWidth);
+        $table.find('tr:first th:last')
+              .outerWidth('+=' + 
+                          (gMinTableWidth - (oldTableWidth + widthDiff)));
     } else {
-        el.width(newWidth);
+        el.outerWidth(newWidth);
     }
-    gTables[tableNum].tableCols[index-1].width = el.width();
+    gTables[tableNum].tableCols[index - 1].width = el.outerWidth();
     matchHeaderSizes(index, $table);
 }
 
