@@ -115,18 +115,6 @@ function infScrolling(tableNum) {
     });
 }
 
-// XXX: This function should disappear. But I need to be able to free the
-// result sets
-function loadMainContent(op) {
-    if (window.location.pathname.search("cat_table.html") > -1) {
-        freeAllResultSets();
-    }
-}
-
-function loadLoad(op) {
-    $("#loadArea").load('/'+op.concat('_r.html'));
-}
-
 function getUrlVars() {
     var vars = [], hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?')
@@ -141,12 +129,6 @@ function getUrlVars() {
         vars[hash[0]] = hash[1];
     }
     return vars;
-}
-
-function prelimFunctions() {
-    setTabs();
-    selectPage(1);
-
 }
 
 function setTableMeta(table) {
@@ -614,32 +596,3 @@ function documentReadyIndexFunction() {
         }); 
     });
 }
-
-function parseJsonValue(value) {
-    if (value == undefined) {
-        value = '<span class="undefined">'+value+'</span>';
-    } else {
-        switch (value.constructor) {
-        case (Object):
-            if ($.isEmptyObject(value)) {
-                value = "";
-            } else {
-                value = JSON.stringify(value).replace(/,/g, ", ");
-            }
-            break;
-        case (Array):
-            value = value.join(', ');
-            break;
-        default: // leave value as is;
-        }
-    }
-    return (value);
-}
-
-//XXX remove this for production. I updated load_r.html
-// but the jquery load function loads the old load_r.html 
-// unless I use ajaxSetup cache: false;
-$.ajaxSetup ({
-    // Disable caching of AJAX responses
-    cache: false
-});

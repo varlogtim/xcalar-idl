@@ -150,19 +150,14 @@ function positionJsonModal(jsonTd) {
     $('.jObject').html(newString);
     $('#jsonModal').show();
     $('#modalBackground').fadeIn(100);
-    $('#jsonWrap').height(400).width(400);
+    $('#jsonWrap').height(500).width(500);
     var modalHeight = $('#jsonModal').outerHeight();
     var modalWidth = $('#jsonModal').outerWidth();
-    var closeHeight = 28;
-    var closeWidth = 25;
-    var closeTop = -8;
-    var closeLeft = -closeWidth;
 
     if (jsonTdPos.top < winHeight/2) {
         var modalTop = jsonTdPos.top; 
     } else {
         var modalTop = jsonTdPos.top - modalHeight + jsonTdHeight;
-        closeTop = modalHeight - closeHeight;
     }
 
     if (modalTop < 5) {
@@ -174,7 +169,6 @@ function positionJsonModal(jsonTd) {
     if (jsonTdPos.left+(jsonTdWidth/2) > (winWidth/2)) {
         var modalLeft = Math.min((jsonTdPos.left+(jsonTdWidth/2)) 
             - modalWidth, winWidth - modalWidth - 20);
-        closeLeft = "auto";
     } else {
         var modalLeft = Math.max(jsonTdPos.left+(jsonTdWidth/2) , 20);
     }

@@ -715,3 +715,24 @@ function parseColNum(el) {
     var substring = classNames.substring(index+'col'.length);
     return (parseInt(substring));
 }
+
+function parseJsonValue(value) {
+    if (value == undefined) {
+        value = '<span class="undefined">'+value+'</span>';
+    } else {
+        switch (value.constructor) {
+        case (Object):
+            if ($.isEmptyObject(value)) {
+                value = "";
+            } else {
+                value = JSON.stringify(value).replace(/,/g, ", ");
+            }
+            break;
+        case (Array):
+            value = value.join(', ');
+            break;
+        default: // leave value as is;
+        }
+    }
+    return (value);
+}
