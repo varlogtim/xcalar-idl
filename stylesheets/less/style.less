@@ -3003,6 +3003,17 @@ ul.inputMenu {
         }
     }
 }
+
+/* CUSTOM DROPDOWNS BASED ON DATA TYPES */
+
+.xcTable th {
+    &.newColumn {
+        .sort, .aggregate, .groupBy, .filterWrap, .joinList {
+            display: none;
+        }
+    }
+}
+
 /* END DROPDOWN STYLING */
 
 /* VERTICAL RESIZING */

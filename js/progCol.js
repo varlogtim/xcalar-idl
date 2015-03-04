@@ -250,6 +250,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
          .removeClass("object")
          .removeClass("array")
          .addClass(columnType);
+    table.find('th.col' + newColid).removeClass('newColumn');
 }
 
 function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
@@ -407,15 +408,16 @@ function addCol(colId, tableId, name, options) {
     var select = options.select || false;
     var inFocus = options.inFocus || false;
     var newProgCol = options.progCol || new ProgCol();
-    var indexedColumnClass = "";
+    var columnClass = "";
     if (options.direction != "L") {
         newColid += 1;
     }
     if (name == null) {
         name = "";
         select = true;
+        columnClass = " newColumn";
     } else if (name == gTables[tableNum].keyName) {
-        indexedColumnClass = " indexedColumn";
+        columnClass = " indexedColumn";
     }
     if (select) {
         var color = " selectedCell";
@@ -436,7 +438,7 @@ function addCol(colId, tableId, name, options) {
     for (var i = numCol; i>=newColid; i--) {
         tables.find('.col'+i).removeClass('col'+i).addClass('col'+(i+1));
     }  
-    var columnHeadHTML = generateColumnHeadHTML(indexedColumnClass, color,
+    var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
                        newColid, name, width);
     
     tables.find('.table_title_bg.col'+(newColid-1)).after(columnHeadHTML); 
@@ -450,10 +452,12 @@ function addCol(colId, tableId, name, options) {
     } else {
         var startingIndex = 1;
     }
-
+    if (columnClass != " indexedColumn") {
+        columnClass = ""; // we don't need to add class to td otherwise
+    }
     for (var i = startingIndex; i<startingIndex+numRow; i++) {
         var newCellHTML = '<td '+
-            'class="'+color+' '+indexedColumnClass+' col'+newColid+'">&nbsp;</td>';
+            'class="'+color+' '+columnClass+' col'+newColid+'">&nbsp;</td>';
             table.find(".row"+i+" .col"+(newColid-1)).after(newCellHTML);
     }
 
@@ -464,8 +468,8 @@ function addCol(colId, tableId, name, options) {
     checkForScrollBar(tableNum);
 }
 
-function generateColumnHeadHTML(indexedColClass, color, newColid, name, width) {
-    var columnHeadTd = '<th class="table_title_bg'+color+indexedColClass+
+function generateColumnHeadHTML(columnClass, color, newColid, name, width) {
+    var columnHeadTd = '<th class="table_title_bg'+color+columnClass+
        ' col'+newColid+'" style="width:'+width+'px;">'+
        '<div class="header">'+
        '<div class="dragArea"></div>'+

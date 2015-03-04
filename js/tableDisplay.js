@@ -201,9 +201,11 @@ function generateTableShell(columns, tableNum) {
     var dataIndex = null;
     for (var i = 0; i < numCols; i++) {
         var color = "";
-        var indexedColumnClass = ""; 
+        var columnClass = ""; 
         if (columns[i].name == gTables[tableNum].keyName) {
-            indexedColumnClass = " indexedColumn";
+            columnClass = " indexedColumn";
+        } else if (columns[i].name == "" || columns[i].func.func == "") {
+            columnClass = " newColumn";
         }
         if (columns[i].name == "DATA") {
             dataIndex = i;
@@ -238,8 +240,14 @@ function generateTableShell(columns, tableNum) {
                   '</div>'+
                 '</th>';
         } else {
-            newTable += generateColumnHeadHTML(indexedColumnClass, color,
-                       (i+1), columns[i].name, columns[i].width);
+            var name = "";
+            if (columns[i].name == "") {
+                name = columns[i].userStr;
+            } else {
+                name = columns[i].name
+            }
+            newTable += generateColumnHeadHTML(columnClass, color,
+                       (i+1), name, columns[i].width);
         }  
     }
 
