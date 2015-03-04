@@ -7,8 +7,8 @@ function setupRightSideBar() {
         }
 
         $('#worksheetBar').find('.sliderBtn').removeClass('active');
-        $(this).addClass('active');
 
+        var $sliderBtn = $(this);
         var sidebar = $('#rightSideBar');
         var index = $(this).index();
         var sidebarSection = sidebar.find('.rightBarSection').eq(index);
@@ -20,6 +20,7 @@ function setupRightSideBar() {
                 cliScrollDown($('#rightBarTextArea'));
             }
             sidebar.children('.lastOpen').removeClass('lastOpen');
+            $sliderBtn.addClass('active');
             //display correct section
         } else {
             // sidebar is already open, check for close or switch sections
@@ -36,7 +37,7 @@ function setupRightSideBar() {
                 if (sidebarSection.attr('id') === 'cliSection') {
                     cliScrollDown($('#rightBarTextArea'));
                 }
-                // $('#cliSection').find('textarea').focus();
+                $sliderBtn.addClass('active');
             }
         }
 
