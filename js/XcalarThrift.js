@@ -190,7 +190,11 @@ function XcalarGetTables() {
 }
 
 function XcalarShutdown() {
-    xcalarShutdown(tHandle);
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+
+    return (xcalarShutdown(tHandle));
 }
 
 function XcalarGetStats(nodeId) {

@@ -195,6 +195,7 @@ function xcalarGetCount(thriftHandle, tableName) {
 }
 
 function xcalarShutdown(thriftHandle) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarShutdown()");
 
     var workItem = new XcalarApiWorkItemT();
@@ -202,18 +203,20 @@ function xcalarShutdown(thriftHandle) {
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiShutdown;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var status = StatusT.StatusOk;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarShutdown() caught exception: " + ouch);
-        var status = StatusT.StatusThriftProtocolError;
-    }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarShutdown() caught exception: ", error);
+        deferred.reject(error);
+    });
 
-    return status;
+    return (deferred.promise());
 }
 
 function xcalarGetStats(thriftHandle, nodeId) {
