@@ -35,7 +35,10 @@ XcalarApisT = {
 'XcalarApiMap' : 26,
 'XcalarApiAggregate' : 27,
 'XcalarApiQuery' : 28,
-'XcalarApiQueryState' : 29
+'XcalarApiQueryState' : 29,
+'XcalarApiExport' : 30,
+'XcalarApiDag' : 31,
+'XcalarApiListFiles' : 32
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -66,5 +69,8 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 26 : 'XcalarApiMap',
 27 : 'XcalarApiAggregate',
 28 : 'XcalarApiQuery',
-29 : 'XcalarApiQueryState'
+29 : 'XcalarApiQueryState',
+30 : 'XcalarApiExport',
+31 : 'XcalarApiDag',
+32 : 'XcalarApiListFiles'
 };

@@ -20,8 +20,10 @@ OperatorsOpT = {
 'OperatorsUnique' : 11,
 'OperatorsNotUnique' : 12,
 'OperatorsRegex' : 13,
-'OperatorsLeftOuterJoin' : 14,
-'OperatorsInnerJoin' : 15
+'OperatorsInnerJoin' : 14,
+'OperatorsRightOuterJoin' : 15,
+'OperatorsLeftOuterJoin' : 16,
+'OperatorsFullOuterJoin' : 17
 };
 OperatorsOpTStr = {0 : 'OperatorsMax',
 1 : 'OperatorsMin',
@@ -37,6 +39,8 @@ OperatorsOpTStr = {0 : 'OperatorsMax',
 11 : 'OperatorsUnique',
 12 : 'OperatorsNotUnique',
 13 : 'OperatorsRegex',
-14 : 'OperatorsLeftOuterJoin',
-15 : 'OperatorsInnerJoin'
+14 : 'OperatorsInnerJoin',
+15 : 'OperatorsRightOuterJoin',
+16 : 'OperatorsLeftOuterJoin',
+17 : 'OperatorsFullOuterJoin'
 };

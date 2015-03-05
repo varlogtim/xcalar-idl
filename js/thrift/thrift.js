@@ -226,17 +226,14 @@ Thrift.Transport.prototype = {
             throw 'Thrift.js requires jQuery 1.5+ to use asynchronous requests';
         }
 
-        jQuery.support.cors = true;
-
         var thriftTransport = this;
 
         var jqXHR = jQuery.ajax({
-            crossDomain: true,
             url: this.url,
             data: postData,
             type: 'POST',
             cache: false,
-            contentType: 'application/jsonp',
+            contentType: 'application/json',
             dataType: 'text thrift',
             converters: {
                 'text thrift' : function(responseData) {
@@ -246,10 +243,7 @@ Thrift.Transport.prototype = {
                 }
             },
             context: client,
-            success: function(data, textStatus, request){
-                // console.log(jqXHR.getResponseHeader("length"));
-            }
-            // success: jQuery.makeArray(args).pop()
+            success: jQuery.makeArray(args).pop()
         });
 
         return jqXHR;

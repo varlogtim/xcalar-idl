@@ -116,8 +116,7 @@ function XcalarIndexFromDataset(varDatasetId, key, tablename) {
         return (promiseWrapper(null));
     }
 
-    return (xcalarIndexDataset(tHandle, SyncOrAsync.Async, 
-        varDatasetId, key, tablename));
+    return (xcalarIndexDataset(tHandle, varDatasetId, key, tablename));
 }
 
 function XcalarIndexFromTable(srcTablename, key, tablename) {
