@@ -1,0 +1,310 @@
+/* ========== Dag ========== */
+#dagPanel {
+    position: absolute;
+    width: 100%;
+    height: ~"calc(100% - 152px)";
+    top: 78px;
+    z-index: 9; 
+    background-color: rgb(140, 173, 181);
+    background: url(/images/dag-background.png) repeat right top;
+    .transition (~"transform 0.3s, z-index 0s .3s");
+
+    .topBorder {
+        position: relative;
+        width: 100%;
+        height: 11px;
+        background-color: @color-background-sidebar;
+        border-top: 1px solid @color-bar-border;
+        border-bottom: 1px solid @color-bar-border;
+        box-shadow: 0 1px 5px 0px rgba(0,0,0,0.5);
+
+        .pulloutTabWrap, .tabShadow {
+            width: 50px;
+            height: 8px;
+            top: 9px;
+            left: 50%;
+            position: absolute;
+            background-color: @color-background-sidebar;
+            border: 1px solid @color-bar-border;
+            border-top: none;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+            z-index: 1;                                                 
+        }
+
+        .tabShadow {
+            z-index: -1;
+            background-color: rgba(0,0,0,0.3);
+            border: none;
+            box-shadow: 0 1px 5px 0px rgba(0,0,0,0.5);
+        }
+
+        #dagPulloutTab {
+            position: absolute;
+            height: 17px;
+            width: 100%;
+            top: -9px;
+            cursor: pointer;
+            background: url(/images/dagIcons/dagTabArrow.png) no-repeat 50% 70%;
+        }
+    }
+
+    &.midway {
+        z-index: 9;
+        .transform(translate3d(0, 50%, 0));
+        .transition (~"transform 0.3s, z-index 0s 0.3s");
+
+        #dagPulloutTab {
+            .transform (rotate(180deg));
+        }
+    }
+
+    &.full {
+        z-index: 9;
+        .transition (~"transform 0.3s, z-index 0s 0s");
+    }
+
+    &.hidden {
+        .transform(translate3d(0, 100%, 0));
+    }
+
+    #closeDag {
+        position: absolute;
+        right: 18px;
+        top: 16px;
+        z-index: 50;
+        .iconClose {
+            background-image: url(/images/close-icon.png);
+        }
+    }
+
+    .dagArea {
+        width: ~"calc(100% - 10px)";
+        height: ~"calc(100% - 10px)";
+    }
+}
+
+.dagWrap {
+    position: relative;
+    height: 100%;
+    .header {
+        margin: 15px 55px 0px 15px;
+        border-bottom: 1px solid #A5A5A6;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+
+    .infoIcon {
+        float: left;
+        margin-right: 7px;
+
+        &:hover, &:active {
+            cursor: default;
+            .action-gradient;
+            box-shadow: 0 1px 1px 0 rgba(0,0,0,.7);
+        }
+        .icon {
+            background: url(/images/info-icon.png) 50% 50% no-repeat;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .tableTitleArea {
+        display: inline-block;
+        float: left;
+        margin-top: 2px;
+
+        .tableName {
+            display: inline-block;
+            background: none;
+        }
+    }
+
+    .dagImageWrap {
+        height: ~"calc(100% - 54px)";
+        overflow-x: auto;
+    }
+
+    .dagImage {
+        position: relative;
+        // display: flex;
+        overflow: hidden;
+        display: block;
+        float: left;
+    }
+
+    .dagTableWrap {
+        vertical-align: middle;
+        align-self: center;
+        margin: 10px 10px;
+        margin-top: 0px;
+        display: flex;
+    }
+
+    .dagTableWrap + .dagTableWrap {
+        margin-top: 50px;
+    }
+    .dagTableWrap + .joinWrap {
+        margin-top: 30px;
+    }
+
+    .dagTable {
+        display: block;
+        position: relative;
+        text-align: center;
+        line-height: 30px;
+        float: right;
+        width: 40px;
+        height: 40px;
+        
+        
+        top: 0;
+        right: 0;
+
+        .icon {
+            background: url(/images/table-icon.png) 50% 50% no-repeat;
+            background-size: contain;
+            width: 75%;
+            height: 75%;
+            position: absolute;
+            top: 6px;
+            left: 5px;
+        }
+
+        .dagTableIcon {
+            position: absolute;
+            background-color: lightblue;
+            .action-gradient;
+            border-radius: 15px;
+            width: 40px;
+            height: 30px;
+            top: 5px;
+        }
+
+        &.dataStore {
+            background: none;
+            .icon {
+                background: url(/images/db-icon-white.png) 50% 50% no-repeat;
+                left: -4px;
+                top: -1px;
+                width: 100%;
+                height: 100%;
+            }
+            .tableTitle {
+                top: 38px;
+                .transform (translateX(-60%));
+            }
+            .dataStoreIcon {
+                .transform (rotate(-45deg));
+                border-radius: 3px;
+                width: 28px;
+                height: 28px;
+                .action-gradient;
+                top: 6px;
+                left: 2px;
+                position: absolute;
+            }
+        }
+
+        .tableTitle {
+            position: absolute;
+            z-index: 5;
+            font-size: 10px;
+            top: 35px;
+            color: @color-text-midGray;
+            font-weight: 700;
+            line-height: 12px;
+            white-space: nowrap;
+            .transform (translateX(-50%));
+        }
+    }
+
+    .childContainer > .dagTableWrap {
+        display: block;
+    }
+
+    .joinWrap {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .joinWrap + .joinWrap {
+        margin-top: 15px;
+    }
+
+    .actionType {
+        display: inline-block;
+        line-height: 30px;
+        margin: auto 20px;
+        width: 100px;
+        height: 32px;
+
+        .actionTypeWrap {
+            .dag-gradient;
+            position: absolute;
+            line-height: 30px;
+            margin: 0;
+            border: 1px solid rgb(135, 132, 132);
+            border-radius: 3px;
+            width: 100px;
+            height: 32px; 
+            max-width: 119px;
+            max-height: 70px;
+            overflow: hidden;
+        }
+
+        .childrenTitle {
+            height: ~"calc(100% - 12px)";
+            overflow: hidden;
+        }
+
+        .dagIcon {
+            width: 22px;
+            height: 100%;
+            .dagDark-gradient;
+            float: left;
+        }
+
+        .icon {
+            width: 100%;
+            height: 100%;
+        }
+
+        .filter {
+            .icon {
+                background: url(/images/dagIcons/greater-than.png) 50% 45% no-repeat;
+            }
+        }
+
+        .join {
+            .icon {
+                background: url(/images/dagIcons/inner-join.png) 40% 40% no-repeat;
+            }
+        }
+
+        .duplicateColumn {
+            .icon {
+                background: url(/images/dagIcons/duplicate-column.png) 40% 45% no-repeat;
+            }
+        }
+
+        span {
+            display: block;
+            float: left;
+            font-size: 8px;
+            line-height: 10px;
+            font-weight: 700;
+            padding-left: 2px;
+            text-transform: capitalize;
+            width: 70%;
+        }
+    }
+}
+
+#canvas {
+    position: absolute;
+    left: 0;
+    z-index: -1;
+    top: 0px;
+}

@@ -1,0 +1,168 @@
+@import "partials/mixins/constants.less";
+@import "partials/mixins/flex.less";
+
+.box-sizing (@type: border-box) {
+    -webkit-box-sizing: @type;
+    -moz-box-sizing:    @type;
+    box-sizing:         @type;
+}
+
+.nomargin-padding() {
+    margin: 0;
+    padding: 0;
+}
+
+.vertical-align() {
+    .transform (translateY(50%));
+    position: relative;
+    top: 50%;
+}
+
+
+.noSelection() {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+    user-select: none;
+}
+
+/* ========== Transition ========== */
+.transition (@argument) {
+    -webkit-transition: @argument;
+    -moz-transition: @argument;
+    -ms-transition: @argument;
+    -o-transition: @argument;
+    transition: @argument;
+}
+
+.transition-duration (@argument) {
+    -webkit-transition-duration: @argument;
+    -moz-transition-duration: @argument;
+    -ms-transition-duration: @argument;
+    -o-transition-duration: @argument;
+    transition-duration: @argument;
+}
+
+.transition-delay (@argument) {
+    -webkit-transition-delay: @argument;
+    -moz-transition-delay: @argument;
+    -ms-transition-delay: @argument;
+    -o-transition-delay: @argument;
+    transition-delay: @argument;
+}
+
+.transform (@argument) {
+    -webkit-transform: @argument;
+    -moz-transform: @argument;
+    -ms-transform: @argument;
+    -o-transform: @argument;
+    transform: @argument;
+}
+/* ========== End Of Transition ========== */
+
+/* ========== Gradient Color ========== */
+.linear-gradient(@origin: left, @start: #ffffff, @stop: #000000) {
+    background: -webkit-linear-gradient(@origin, @start, @stop);
+    background: -moz-linear-gradient(@origin, @start, @stop);
+    background: -o-linear-gradient(@origin, @start, @stop);
+    background: -ms-linear-gradient(@origin, @start, @stop);
+    background: linear-gradient(@origin, @start, @stop);
+}
+
+.action-gradient() {
+    .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
+}
+
+.action-inverse-gradient() {
+    .linear-gradient(top, @color-background-bottomAction, @color-background-topAction);
+}
+
+.gray-gradient() {
+    .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
+}
+
+.gray-inverse-gradient() {
+    .linear-gradient(top, @color-background-bottomGrayMed, @color-background-topGrayMed);
+}
+
+.lightGray-gradient() {
+    .linear-gradient(top, @color-background-topGrayMed, @color-background-midGrayMed);
+}
+
+.darkGray-gradient() {
+    .linear-gradient(top, @color-background-midGrayMed, @color-background-bottomGrayMed);
+}
+
+.light-gradient() {
+    .linear-gradient(top, @color-background-darkGray, #C6C6C6);
+}
+
+.red-gradient() {
+    .linear-gradient(top, #F28481, #DC4135);
+}
+
+/* Dag */
+.dag-gradient() {
+    .linear-gradient(top, #EAEAEA, @color-background-lightGray);
+}
+
+.dagDark-gradient() {
+    .linear-gradient(top, #ABABAB, #737373);
+}
+/* ========== End Of Gradient Color ========== */
+
+/* ========== New Table Color Theme ========== */
+// gradient color theme for furture th use
+.columnColorTheme-gradient(@startColor, @endColor, @aplpha) {
+    .linear-gradient(top, fade(@startColor, @aplpha),
+                          fade(@endColor, @aplpha))  !important;
+}
+.normal-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-normal-lightGray,
+                      @color-table-normal-darkGray, @aplpha);
+}
+.inactive-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-inactive-lightGray,
+                      @color-table-inactive-darkGray, @aplpha);
+}
+.selected-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-selected-lightBlue,
+                      @color-table-selected-darkBlue, @aplpha);
+}
+.error-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-error-lightRed,
+                      @color-table-error-darkRed, @aplpha);
+}
+.go-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-go-lightGreen,
+                      @color-table-go-darkGreen, @aplpha);
+}
+.option-column-gradient(@aplpha: 100%) {
+    .columnColorTheme-gradient(@color-table-option-lightBrown,
+                      @color-table-option-darkBrown, @aplpha);
+}
+
+// solid color theme for td
+.columnColorTheme-solid(@color, @aplpha) {
+    background: fade(@color, @aplpha),!important;
+}
+.normal-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-normal-lightGray, @aplpha);
+}
+.inactive-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-inactive-lightGray, @aplpha);
+}
+.selected-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-selected-lightBlue, @aplpha);
+}
+.error-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-error-lightRed, @aplpha);
+}
+.go-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-go-lightGreen, @aplpha);
+}
+.option-column-solid(@aplpha: 100%) {
+    .columnColorTheme-solid(@color-table-option-lightBrown, @aplpha);
+}
+/* ========== End Of Table Color Theme ========== */

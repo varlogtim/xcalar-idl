@@ -1,0 +1,1405 @@
+/* ========== Elements ========== */
+div, ul, li, span {
+    .box-sizing;
+    .nomargin-padding;
+}
+
+ul > li {
+    list-style-type: none;
+}
+
+table, tr, td, th, input, textarea, p {
+    .nomargin-padding;
+    .box-sizing;
+    border: none;
+    font: 14px @font-base;
+    font-weight: 600;
+    color: @color-text-darkGray;
+}
+
+h1, h2, h3, h4, h5, h6{
+    .nomargin-padding;
+    display: inline;
+}
+
+h2 {
+    font-size: 16px;
+}
+
+/* ========== Main ========== */
+body {
+    -webkit-font-smoothing: antialiased;
+    .nomargin-padding;
+    color: @color-text-darkGray;
+    font-family: @font-base;
+    font-weight: 600;
+    font-size: 0; /* Need to use this to get rid of stupid white space */
+    overflow-y: hidden;
+    background: #36444d url("/images/bg_page.png") repeat right top;
+    overflow: hidden !important;
+}
+
+#container {
+    height: 100vh;
+    position: relative;
+    min-height: 260px;
+    min-width: 1024px;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.clearfix:after { 
+   content: "."; 
+   visibility: hidden; 
+   display: block; 
+   height: 0; 
+   clear: both;
+}
+
+/* For Both worksheet menu bar and bottom area bar */
+.workspaceBar {
+    height: 38px;
+    color: @color-text-darkGray;
+    border-top: 1px solid @color-bar-border;
+    border-bottom: 1px solid @color-bar-border;
+    background: linear-gradient(@color-background-midGrayMed,
+                                @color-background-bottomGrayMed);
+    box-shadow: 0px 3px 3px 0px rgba(0,0,0, .4);
+    display: block;
+    width: 100%;
+    position: relative;
+    z-index: 13;
+}
+
+/* For Both worksheet menu bar and bottom area bar */
+.workspaceArea {
+    display: inline-block;
+    height: 25px;
+    padding: 0px 14px;
+    margin-top: 5px;
+    border-right: 1px solid @color-tab-divider;
+    float: left;
+    line-height: 25px;
+    
+    input {
+        height: 25px;
+        padding: 0 4px;
+        border-radius: 3px;
+        background-color: @color-background-input;
+        font-weight: bold;
+
+        &:focus {
+            background-color: @color-background-input-active;
+            box-shadow: 0px 2px 2px 0 #888888 inset;
+            outline: none;
+            color: @color-text-fnBar-blue;
+        }
+    }
+
+    &#functionArea {
+        width: 380px;
+        .flex-grow(4);
+        .flex-shrink(1);
+        #fnBar {
+            width: ~"calc(100% - 28px)";
+            &.active {
+                background-color: @color-background-input-active;
+                box-shadow: 0px 2px 2px 0 #888888 inset;
+            }
+        }
+    }
+
+    &:last-child {
+        border-right: none;
+    }
+}
+
+.btn {
+    .noSelection;
+    cursor: pointer;
+    display: inline-block;
+    border: 0;
+    outline: 0;
+    border-radius: 2px;
+    color: @color-text-transparentWhite;
+    .action-gradient;
+    box-shadow: 0px 1px 1px 0 rgba(0, 0, 0, 0.7);
+
+    &:hover {
+       .action-inverse-gradient;
+    }
+
+    &:active {
+        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+            0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    span {
+        height: 100%;
+        width: 100%;
+        display: inline-block;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+    }
+}
+
+.btnSmall {
+    height: 22px;
+    width: 22px;
+    border-radius: 2px;
+}
+
+.btnLarge {
+    width: 230px;
+    height: 30px;
+    border-radius: 3px;
+    color: @color-text-transparentWhite;
+    text-shadow: 1px 1px rgba(0,0,0,.3);
+    // box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+    line-height: 30px;
+    font-size: 12px;
+    cursor: pointer;   
+}
+
+.btnInactive {
+    background: linear-gradient(@color-background-topGrayMed, 
+                    @color-background-bottomGrayMed);
+    pointer-events: none;
+}
+
+.btnDeselected {
+    .gray-gradient;
+    &:hover, &:active {
+        .gray-gradient;
+    }
+}
+
+.icon {
+    display: inline-block;
+    .noSelection;
+}
+
+.roundedIcon {
+    width: 19px;
+    height: 19px;
+    float: right;
+    margin-right: 6px;
+    margin-top: 7px;
+    background-color: @color-background-bottomGrayMed;
+    border-radius: 1px;
+    box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+    cursor: pointer;
+}
+
+
+.underConstruction {
+    .bar {
+        .workspaceBar;
+    }
+    height: ~"-webkit-calc(100% - 114px)";
+    height: ~"-moz-calc(100% - 114px)";
+    height: ~"calc(100% - 114px)";
+    background: #E6E6E6;
+    text-align: center;
+    .alert {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 50px;
+        width: 28px;
+        height: 28px;
+        background: url(/images/info-icon-large.png) 0 0 no-repeat;
+    }
+}
+
+/* For Scoll bar in worksheet and datastore */
+#mainFrame, .datasetTableWrap {
+    &::-webkit-scrollbar {
+        width: 11px;
+        height: 11px;
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar:vertical {
+        width: 0px;
+        height:11px;
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-width: 1px 0px 1px 0px;
+        border-color: transparent;
+        border-style: solid;
+        border-radius: 10px;
+        background-color: rgba(217,217,217,0.75) !important;
+        background-clip: content-box;
+        -webkit-box-shadow: inset 0 -1px 2px rgba(205,205,205,0.75);
+    }
+
+    &::-webkit-scrollbar-track {
+        background: linear-gradient(to bottom right, #e9e9e9 , #ffffff); /* Standard syntax */
+    }
+
+    &::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+}
+
+/* For both worksheet table and datastore table */
+.dataTable {
+    border-collapse: separate;
+    border-spacing: 0px;
+    margin-right: 5px;
+    table-layout: fixed;
+    width: 520px;
+
+    th {
+        // height: 35px;
+        height: 40px;
+        background-color: @color-background-tableBorders;
+        border: 5px solid @color-background-tableBorders;
+        border-left: none;
+        font-weight: normal;
+        font-size: 13px;
+        padding: 0px;
+    }
+
+    td {
+        font-family: @font-code;
+        font-size: 11px;
+        line-height: 15px;
+        height: 30px;
+        overflow: hidden;
+        padding: 2px;
+    }
+
+    td/*, th */{
+        vertical-align: middle;
+        text-align: center;
+
+        &:nth-child(odd) {
+            background-color: @colorOpaque-darkGray;
+        }
+        &:nth-child(even) {
+            background-color: @colorOpaque-lightGray;
+        }
+        &:last-child {
+            border-right: 5px solid @color-white !important;
+        }
+    }
+
+    thead {
+        background-color: @color-white;
+    }
+
+    tbody tr {
+        &:nth-child(odd) {
+            background-color: @color-table-lightGray;
+            td {
+                border-right: 5px solid @color-table-lightGray;
+            }
+        }
+        &:nth-child(even) {
+            background-color: @color-white;
+            td {
+                border-right: 5px solid @color-white; 
+            }
+        }
+    }
+    
+    th.unusedCell {
+        background-color: @colorOpaque-blankGrayDark;
+        .editableHead {
+            color: @color-text-black;
+        }
+    }
+
+    tbody .unusedCell {
+        &:nth-child(odd) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+        &:nth-child(even) {
+            background-color: @colorOpaque-blankGrayDark;
+        }
+    }
+
+    tbody tr {
+        &:nth-child(odd) {
+            td.selectedCell {
+                background-color: @color-selectedCell-dark;
+            }
+            td.selectedCol {
+                background-color: @color-selectedCell-dark;
+            }
+        }
+        &:nth-child(even) {
+            td.selectedCell {
+                background-color: @color-selectedCell-light;
+            }
+            td.selectedCol {
+                background-color: @color-selectedCell-light;
+            }
+        }
+
+    }
+
+    tbody td:first-child {
+        .noSelection;
+        overflow: visible;
+        background-color: @colorOpaque-midGray; 
+        border-left: 5px solid @color-white;
+    }
+
+    thead th:first-child {
+        background-color: @color-background-darkGray;
+        border-left: 5px solid @color-background-darkGray 
+    }
+
+    th.selectedCell {
+        .editableHead {
+            .action-gradient;
+            color: @color-white;
+        }
+    }
+
+    .header {
+        position: relative;
+        border-radius: 3px;
+        .gray-gradient;
+    }
+
+    input {
+        font: 13px @font-base;
+        background-color: transparent;
+        &:disabled {
+            color: @color-text-darkGray;
+        }
+        &[readonly] {
+            width: 100%;
+            height: 30px;
+            text-align: center;
+            outline: none;
+            cursor: default;
+            font-weight: 600;
+        }
+        &:focus {
+            outline-offset: -1px;
+        }
+    }
+
+    .editableHead {
+        width: 100%;
+        height: 30px; 
+        padding: 0px 4px;
+        background-color: transparent; 
+        border: none;
+        display: block;
+        text-align: center;
+        overflow: hidden;
+        font: 13px @font-base;
+        font-weight: 600;
+        z-index: 2;
+        position: relative;
+    }
+
+    .addedBarTextTd {
+       overflow: hidden !important;
+    }
+
+    .addedBarTextTd:hover {
+        overflow-y: auto !important;
+    }
+
+    .addedBarText {
+        cursor: default;
+    }
+
+    .elementText{ 
+        cursor: pointer;
+        text-align: left;
+        white-space: normal;
+    }
+
+    .elementTextWrap, .addedBarTextWrap {
+        // overflow-y: auto;
+        // overflow-x: none;
+        max-height: 16px;
+        overflow: hidden;
+    }
+
+    .indexedColumn {
+       background-color: @colorOpaque-blue !important;
+    }
+    // XXX if we have scrollbars on individual tds
+    // .elementTextWrap:hover, .addedBarTextWrap:hover {
+    //     overflow-y: auto;
+    // }
+    span.undefined {
+        color: #c51d23;
+    }
+
+    .rowBookmarked {
+        background-color:@color-background-topAction !important;
+    }
+}
+
+
+.unavailable {
+    // XXX for features that haven't been implemented yet
+    opacity: 0.4;
+}
+
+
+/* DROP DOWN COLUMN STYLING */
+.dropdownBox {
+    width: 16px;
+    height: 12px;
+    position: absolute;
+    vertical-align: middle;
+    right: 3px;
+    bottom: 3px;
+    cursor: pointer;
+    z-index: 6;
+    opacity: 0;
+    .transition (opacity 0.02s linear);
+    .transition-delay (0.08s);
+    border-top: 11px solid transparent;
+    border-right: 11px solid @color-dropBox;
+    &:hover {
+        opacity: 1 !important;
+    }
+    &.hidden {
+        opacity: 0 !important;
+    }
+}
+
+.header {
+    > .dropdownBox {
+        right: -3px;
+        bottom: -4px;
+        height: 24px;
+        width: 22px;
+        border: none;
+
+        .innerBox {
+            position: absolute;
+            width: 16px;
+            height: 12px;
+            right: 6px;
+            bottom: 7px;
+            border-top: 11px solid transparent;
+            border-right: 11px solid @color-dropBox;
+        }
+    }
+}
+
+.fullOpacity {
+    opacity: 1.0 !important;
+}
+
+.xcTable ul, .xcTheadWrap ul, .colMenu, .colMenu ul {
+    position: absolute;
+    list-style: none;
+    padding: 0px;
+    display: inline-block;
+    width: 170px;
+    z-index: 20;
+    box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
+}
+
+ul.colMenu {
+    display:none;
+    background-color: @color-white;
+    position: fixed;
+    z-index: 20;
+    cursor: pointer;
+
+    li {
+        padding: 6px;
+        padding-left: 8px;
+        height: 30px;
+        position:relative;
+        color: @color-text-dropMenu;
+        background-color: @color-white;
+        font-size: 12px;
+        font-weight: 700;
+        .noSelection;
+        text-align: left;
+
+        &.selected {
+            cursor: pointer;
+            background-color: @color-selectedCell-dark;
+            > .dropdownBox {
+                opacity: 1;
+            }
+        }
+
+        .dropdownBox {
+            opacity: 0;
+            z-index: 0;
+            border-right-color: @color-dropBox-secondary;
+            .transition-delay (.0s);
+            pointer-events: none;
+        }
+
+        &.subSelected {
+            background-color: @color-monitor-lightGreen !important;
+        }
+
+        &.clickable {
+            height: 60px;
+            span {
+                display: block;
+                float: none;
+            }
+            input {
+                top: 10px;
+            }
+            
+        }
+    }
+
+    ul {
+        visibility: hidden;
+        z-index: 20;
+        top: 0px;
+        left: 155px;
+        .transition-delay (.15s);
+        margin-top: 30px;
+        background-color: @color-white;
+    }
+
+    input[type=text] {
+        width: 160px;
+        height: 20px;
+        position: relative;
+        top: -1px;
+        right: 0px;
+        margin-left: -3px;
+        padding: 2px;
+        text-align: center;
+        box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
+        background-color: @color-white;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .visible {
+        visibility: visible !important;
+    }
+
+    .inputSelected {
+        visibility: visible !important;
+        background-color: @color-selectedCell-dark;
+    }
+
+    .filter ul {
+        width: 170px;
+        cursor: text;
+    }
+
+    .subColMenu li.selected {
+        background-color: @color-selectedCell-green;
+    }
+
+    .sort {
+        // indexed column cannot sort
+        .indexedColumn & {
+            display: none;
+        }
+        span {
+            height: 16px;
+            width: 24px;
+            float: left;
+            display: inline-block;
+        }
+        .sortUp {
+            background: url(/images/arrowUp.png) 0 50% no-repeat;
+        }
+        .sortDown {
+            background: url(/images/arrowDown.png) 0 50% no-repeat;
+        }
+    }
+
+    .aggregate, .groupBy {
+        span {
+            height: 16px;
+            width: 24px;
+            float: left;
+            display: inline-block;
+        }
+        .maxIcon {
+            background: url(/images/max.png) 0 50% no-repeat;
+        }
+        .minIcon {
+            background: url(/images/min.png) 0 50% no-repeat;
+        }
+        .avgIcon {
+            background: url(/images/average.png) 0 50% no-repeat;
+        }
+        .countIcon {
+            background: url(/images/count.png) 0 50% no-repeat;
+        }
+        .sumIcon {
+            background: url(/images/sum.png) 0 50% no-repeat;
+        }
+    }
+
+    .filter {
+
+        span {
+            height: 16px;
+            width: 24px;
+            float: left;
+            display: inline-block;
+        }
+        .greaterThan{
+            background: url(/images/greaterThan.png) 0 50% no-repeat;
+        }
+        .greaterEqual {
+            background: url(/images/greaterEqual.png) 0 50% no-repeat;
+        }
+        .equal {
+            background: url(/images/equal.png) 0 50% no-repeat;
+        }
+        .lessEqual {
+            background: url(/images/lessEqual.png) 0 50% no-repeat;
+        }
+        .lessThan {
+            background: url(/images/lessThan.png) 0 50% no-repeat;
+        }
+        .regex {
+            background: url(/images/regex.png) 0 50% no-repeat;
+        }
+        .like {
+            background: url(/images/like.png) 0 50% no-repeat;
+        }
+    }
+
+    &.string, &.array {
+        .filterWrap .numFilter, .aggregate {
+            display: none;
+        }
+    }
+
+    &.object {
+        .sort, .aggregate, .groupBy, .filterWrap, .joinList {
+            display: none;
+        }
+    }
+
+    &.number {
+        .filterWrap .strFilter {
+            display: none;
+        }
+    }
+
+    .gb ul:hover, .filter ul:hover {
+        li {
+            background-color: @color-selectedCell-green;
+        }
+    }
+}
+
+ul.colMenu.leftColMenu::before {
+    border-color: @color-selectedCell-dark @color-selectedCell-dark;
+}
+
+ul.colMenu li:hover > ul {
+    .transition-delay (.15s);
+}
+
+ul.colMenu li > ul {
+    .transition-delay (.15s);
+}
+
+ul.colMenu.tableMenu li:hover {
+    background-color: @color-selectedCell-dark;
+}
+
+// DATA Column should not have duplicate and sort option
+th.dataCol ul.colMenu {
+    .duplicate, .sort {
+        display: none;
+    }
+}
+
+.visible {
+    visibility: visible;
+}
+
+
+ul.subColMenu li {
+    &.subColUnselected {
+        background-color: @color-white;
+    }
+    &.subColSelected {
+        background-color: @color-selectedCell-dark;
+    }
+}
+
+.subColMenuArea {
+    position: absolute;
+    top: -30px;
+    left: 14px;
+    width: ~"calc(100% + 30px)";
+    height: ~"calc(100% + 60px)";
+    z-index: -1;
+    cursor: default;
+}
+
+.leftColMenu .subColMenuArea {
+    right: 0;
+    left: auto;
+}
+
+ul.leftColMenu {
+    right: 0px;
+    box-shadow: -1px 1px rgba(0,0,0,0.1);
+
+    .dropdownBox {
+        display: none !important;
+    }
+}
+
+ul.subColMenu.leftColMenu {
+    left: -170px;
+    margin-top: 0px;
+    box-shadow: -1px 1px rgba(0,0,0,0.1);
+}
+
+
+ul.inputMenu {
+
+    > li {
+        height: auto;
+        min-height: 30px;
+        overflow: hidden;
+        padding: 0px;
+        margin: 0px;
+
+        span {
+            .box-sizing;
+            display: block;
+            height: 30px;
+            padding: 6px;
+            padding-top: 8px;
+            position: relative;
+            background-color: @color-white;
+            z-index: 1;
+            .transition (margin-bottom .3s);
+
+            &.openMenuInput {
+                margin-bottom: 30px;
+            }
+        }
+
+        &:hover span {
+            background-color: @color-selectedCell-green;
+        }
+
+        .dropdownBox {
+            top: 15px;
+            z-index: 1;
+        }
+
+    }
+
+    &:hover ul {
+        visibility: visible;
+    }
+
+    input[type=text] {
+        position: absolute;
+        left: 0px;
+        top: 31px;
+        width: 160px;
+        margin: 0px 5px;
+        height: 24px;
+        z-index: 0;
+
+        &:focus {
+            outline: none;
+        }
+    }
+}
+
+/* END DROPDOWN STYLING */
+
+ /* ========== Menu Related CSS ========== */
+
+ /* Top Menu Bar  */
+#menuBar {
+    height: 41px;
+    width: 100%;
+    background: #36444d url("/images/bg_page.png") repeat right top;
+}
+
+#mainMenu {
+    float: left;
+    margin-left: 10px;
+    display: inline-block;
+    height: 41px;
+
+    .mainMenuTab {
+        height: 32px;
+        margin: 4px 10px 0px 0px;
+        padding: 5px 25px 0px 35px;
+        border: 1px solid @color-tab-border;
+        border-radius: 3px;
+        display: inline-block;
+        color: @color-text-tab;
+        background-color: rgba(0,0,0, .15);
+        font-size: 14px;
+        font-family: @font-base;
+        float: left;
+        cursor: default;
+        .noSelection;
+        position: relative;
+
+        &:hover {
+            // hover vs regular color scheme needs to be adjusted
+            background-color: rgba(255,255,255,.15);
+            color: @color-white;
+            border: 1px solid @color-table-borderGray;
+
+            .mountain-icon {
+                background: url(/images/mountain-active.png) 0 0 no-repeat;
+            }
+            .db-icon {
+                background: url(/images/db-icon-active.png) 0 0 no-repeat;
+            }
+            .user-icon {
+                background: url(/images/user-active.png) 0 0 no-repeat;
+            }
+            .monitor-icon {
+                background: url(/images/monitor-active.png) 0 0 no-repeat;
+            }
+        }
+
+        &.active {
+            margin-top: 6px;
+            height: 35px;
+            color: @color-text-darkGray;
+            background: linear-gradient(@color-background-topGrayMed, @color-background-midGrayMed);
+            border: 1px solid @color-bar-border;
+            border-bottom: none;
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+            z-index: 14;
+            position: relative;
+
+            .mountain-icon {
+                background: url(/images/mountain-active.png) 0 0 no-repeat;
+            }
+
+            .page-icon {
+                background: url(/images/page-active.png) 0 0 no-repeat;
+            }
+
+            .db-icon {
+                background: url(/images/db-icon-active.png) 0 0 no-repeat;
+            }
+
+            .user-icon {
+                background: url(/images/user-active.png) 0 0 no-repeat;
+            }
+
+            .monitor-icon {
+                background: url(/images/monitor-active.png) 0 0 no-repeat;
+            }
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            margin-left: -27px;
+            margin-top: 1px; 
+            display: inline-block;
+            position: absolute;
+        }
+
+        .mountain-icon {
+            background: url(/images/mountain.png) 0 0 no-repeat;
+        }
+
+        .page-icon {
+            background: url(/images/page.png) 0 0 no-repeat;
+            margin-top: 0px;
+        }
+
+        .db-icon {
+            background: url(/images/db-icon.png) 0 0 no-repeat;
+        }
+
+        .user-icon {
+            background: url(/images/user-icon.png) 0 0 no-repeat;
+        }
+
+        .monitor-icon {
+            background: url(/images/monitor.png) 0 0 no-repeat;
+        }
+    }
+
+    #stats.active {
+        height: 36px;
+    }
+}
+
+#logo {
+    height: 34px;
+    width: 74px;
+    margin-right: 10px;
+    margin-top: 5px;
+    background-image: url("/images/xcalar-logo-white.png");
+    background-repeat: no-repeat;
+    float: right;
+    display: inline-block;
+}
+
+#userNameArea {
+    color: @color-text-white;
+    float: right;
+    margin-top: 10px;
+    margin-right: 25px;
+    display: inline-block;
+    font-weight: 400;
+    span {
+        color: @color-text-brightBlue;
+        cursor: pointer;
+    }
+}
+
+#userNamePopout {
+    background: url(/images/signout.png) 0 0 no-repeat;
+    width: 168px;
+    height: 46px; 
+    z-index: 42;
+    position: absolute;
+    font-size: 10px;
+    line-height: 5px;
+    #peri {
+        padding-top: 13px;
+        padding-left: 10px;
+        color: @color-text-signout-lightGray;
+    }
+    #name {
+        padding-top: 5px;
+        padding-left: 10px;
+        color: @color-text-signout-darkGray;
+        float: left;
+    }
+    #signout {
+        padding-top: 5px;
+        padding-left: 5px;
+        color: @color-text-signout-blue;
+        float: left;
+        cursor: pointer;
+    }
+}
+ /* End Of Top Menu Bar  */
+
+/* Bottom Section */
+#bottomArea {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    z-index: 9;
+}
+
+#worksheetBar {
+    height: 35px;
+    border-top: 2px solid @color-bar-border;
+    box-shadow: 0px 1px 1px 0px rgba(0,0,0, .5);
+    overflow: hidden;
+    z-index: 0;
+    .lightGray-gradient;
+
+    .workspaceArea {
+        height: 13px;
+        font-size: 13px;
+        line-height: 13px;
+        margin-top: 8px;
+        float: none;
+        margin-right: -2px;
+    }
+}
+
+#worksheetInfo {
+    height: 100%;
+    float: left;
+    display: inline-block;
+    width: ~"calc(100% - 145px)";
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.iconBtn {
+    width: 22px;
+    height: 22px;
+    border-radius: 2px;
+
+    span {
+        height: 100%;
+        width: 100%;
+        display: inline-block;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+    }
+}
+
+.bottomButtonsArea {
+    float: right;
+    .sliderBtn {
+        margin: 5px;
+        &.active {
+            .action-inverse-gradient;
+        }
+    }
+}
+
+#leftMenu {
+    .icon {
+        margin-top: 0;
+        margin-left: 0;
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+    }
+}
+
+#tableListBtn {
+    background-image: url(/images/list-icon.png);
+}
+
+#cliBtn {
+    background-image: url(/images/cli-icon.png); 
+}
+
+#scratchpadBtn {
+    background-image: url(/images/pencil.png); 
+}
+
+#infoBtn {
+    background-image: url(/images/info-icon.png); 
+}
+
+#bottomTabArea {
+    height: 39px;
+    background: #36444d url("/images/bg_page.png") repeat right top;
+}
+
+#addWorksheet {
+    display: inline-block;
+    margin: 8px 8px 0px 9px;
+    cursor: pointer;
+    float: left;
+    span {
+        background-image: url(/images/plus-sign.png); 
+        background-position: 55% 45%;
+        display: block;
+        height: 100%;
+        width: 100%;
+    }
+}
+
+#worksheetTabs {
+    display: inline-block;
+    float: left;
+    position: relative;
+    height: 36px;
+    top: -1px;
+
+}
+
+.worksheetTab {
+    width: 121px;
+    height: 35px;
+    line-height: 35px;
+    text-align: left;
+    border: 1px solid @color-bar-border;
+    border-top: none;
+    border-bottom-left-radius: 3px;
+    font-weight: 700;
+    .darkGray-gradient;
+    float: left;
+    font-size: 14px;
+    .icon {
+        background: url(/images/page-white.png) 50% 50% no-repeat;
+        width: 28px;
+        height: 100%;
+        float: left;
+    }
+}
+
+#compSwitch {
+    float: left;
+    width: 30px;
+    height: 34px;
+    display: inline-block;
+    margin-top: 1px;
+    cursor: pointer;
+    border-bottom: 1px solid @color-bar-border;
+    border-right: 1px solid @color-bar-border;
+    border-bottom-right-radius: 3px;
+    .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
+    .icon {
+        background: url(/images/comp-icon.png) 50% 50% no-repeat;
+        height: 100%;
+        width: 100%;
+    }
+
+    &:hover {
+        .linear-gradient(top, #CCCCCC, #777777);
+    }
+
+    &:active {
+         box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5);
+    }
+
+    &.active {
+        .action-gradient;
+        &:hover {
+            .action-inverse-gradient;
+        }
+    }
+}
+/* End Of Bottom Section */
+
+/* Status Box */
+#statusBox {
+    padding: 5px;
+    position: fixed;
+    display: none;
+    z-index: 10;
+
+    .boxInnerWrap {
+        width: 185px;
+        min-height: 100px;
+        max-height: 300px;
+        padding: 7px;
+        border-radius: 3px;
+        box-shadow: 0 0 5px 1px rgba(0,0,0,.2);
+        background-color: @color-background-white;
+        position: relative;
+        z-index: 3;
+    }
+    .close {
+        position: absolute;
+        background: url(/images/close-gray.png) 50% 50% no-repeat;
+        right: 7px;
+        top: 7px;
+        height: 14px;
+        width: 14px;
+        display: inline-block;
+        cursor: pointer;
+    }
+    .title {
+        height: 24px;
+        font-weight: bold;
+        .icon {
+            height: 20px;
+            width: 20px;
+            margin-right: 6px;
+            float: left;
+        }
+        .titleText {
+            margin-top: 3px;
+            font-size: 14px;
+            line-height: 16px;
+            float: left;
+        }
+    } 
+    .arrow {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        left: 0px;
+        top: 38px;
+        background-color: transparent;
+        .transform(rotate(45deg));
+        border: none;
+        z-index: 1;
+        box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
+    }
+    .message {
+        color: @color-text-darkGray;
+        font-size: 12px;
+        white-space: normal;
+        line-height: 18px;
+    }
+    &.error {
+        display: inline-block;
+        .title {
+            .icon {
+                background: url(/images/error-icon.png) 50% 50% no-repeat;
+            }
+            .titleText {
+                color: @color-text-error;
+            }
+        } 
+        .boxInnerWrap {
+            border: 1px solid @color-error-border;
+            &:before, &:after {
+                content: "";
+                position: absolute;
+                border-top: 7px solid transparent;
+                border-bottom: 7px solid transparent;
+                top: 30px;
+                left: 0px;
+                margin-left: -9px;
+            }
+            &:before {
+                border-right: 10px solid @color-error-border;
+                border-top: 8px solid transparent;
+                border-bottom: 8px solid transparent;
+                margin-left: -11px;
+                margin-top: -1px;
+            }
+            &:after {
+                border-right: 9px solid @color-background-white;
+                margin-right: -2px;
+                z-index: 1;
+            }
+        }
+    }
+}
+/* End Of Status Box */
+
+/* Tool Tips */
+/*!
+ * Bootstrap v3.3.2 (http://getbootstrap.com)
+ * Copyright 2011-2015 Twitter, Inc.
+ * Licensed under MIT
+ * (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+
+/*!
+ * Generated using the Bootstrap Customizer
+ * (http://getbootstrap.com/customize/?id=719e42616a8ac56d2c95)
+ * Config saved to config.json and
+ * https://gist.github.com/719e42616a8ac56d2c95
+ */
+
+.tooltip {
+    position: absolute;
+    z-index: 1070;
+    display: block;
+    visibility: visible;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 1.4;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+.tooltip.in {
+    opacity: 0.9;
+    filter: alpha(opacity=90);
+}
+.tooltip.top {
+    margin-top: -3px;
+    padding: 5px 0;
+}
+.tooltip.right {
+    margin-left: 3px;
+    padding: 0 5px;
+}
+.tooltip.bottom {
+    margin-top: 3px;
+    padding: 5px 0;
+}
+.tooltip.left {
+    margin-left: -3px;
+    padding: 0 5px;
+}
+.tooltip-inner {
+    max-width: 200px;
+    padding: 3px 8px;
+    color: #ffffff;
+    text-align: center;
+    text-decoration: none;
+    background-color: #000000;
+    border-radius: 4px;
+}
+.tooltip-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+}
+.tooltip.top .tooltip-arrow {
+    bottom: 0;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px 5px 0;
+    border-top-color: #000000;
+}
+.tooltip.top-left .tooltip-arrow {
+    bottom: 0;
+    right: 5px;
+    margin-bottom: -5px;
+    border-width: 5px 5px 0;
+    border-top-color: #000000;
+}
+.tooltip.top-right .tooltip-arrow {
+    bottom: 0;
+    left: 5px;
+    margin-bottom: -5px;
+    border-width: 5px 5px 0;
+    border-top-color: #000000;
+}
+.tooltip.right .tooltip-arrow {
+    top: 50%;
+    left: 0;
+    margin-top: -5px;
+    border-width: 5px 5px 5px 0;
+    border-right-color: #000000;
+}
+.tooltip.left .tooltip-arrow {
+    top: 50%;
+    right: 0;
+    margin-top: -5px;
+    border-width: 5px 0 5px 5px;
+    border-left-color: #000000;
+}
+.tooltip.bottom .tooltip-arrow {
+    top: 0;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 0 5px 5px;
+    border-bottom-color: #000000;
+}
+.tooltip.bottom-left .tooltip-arrow {
+    top: 0;
+    right: 5px;
+    margin-top: -5px;
+    border-width: 0 5px 5px;
+    border-bottom-color: #000000;
+}
+.tooltip.bottom-right .tooltip-arrow {
+    top: 0;
+    left: 5px;
+    margin-top: -5px;
+    border-width: 0 5px 5px;
+    border-bottom-color: #000000;
+}
+/* END AUTOGEN BOOTSTRAP CODE */
+/* START CUSTOM BOOTSTRAP CODE */
+.tooltip {
+    z-index: 100;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.tooltip-inner {
+    background-color: #36444D;
+    opacity: 0.95;
+}
+
+.tooltip.bottom .tooltip-arrow {
+    border-bottom-color: rgba(54, 68, 77, 0.95);
+}
+/* END CUSTOM BOOTSTRAP CODE */

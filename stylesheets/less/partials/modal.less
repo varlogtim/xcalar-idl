@@ -1,0 +1,716 @@
+/* ========== Modal CSS ========== */
+
+#joinModal, #modalBackground {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    opacity: 0.6;
+    display: none;
+    z-index: 35;
+}
+
+/* Pretty Json Modal */
+#jsonModal {
+    display: inline-block;
+    position: fixed;
+    z-index: 20;
+    position: fixed;
+    left: 0;
+    opacity: 1;
+    z-index: 36;
+    display: none;
+    border-radius: 2px;
+    overflow: hidden;
+
+    ::-webkit-scrollbar:vertical {
+        width: 11px;
+        height: 11px;
+    }
+}
+
+#jsonWrap {
+    left: 0;
+    min-width: 300px;
+    background-color: @color-white;
+    opacity: 1;
+    z-index: 36;
+    overflow: hidden;
+    resize: both;
+    padding: 32px 0px 10px 10px;
+    width: 400px;
+    height: 400px;
+    font-weight: 400;
+}
+
+.jsonDragArea {
+    position: absolute;
+    width: 100%;
+    height: 30px;
+    top: 0px;
+    cursor: move;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+    .action-gradient;
+    text-align: center;
+    color: @color-text-transparentWhite;
+    text-shadow: 1px 1px rgba(0,0,0,0.2);
+    line-height: 28px;
+    font-size: 15px;
+
+}
+
+.closeJsonModal {
+    position: absolute;
+    top: 0px;
+    right: -20px;
+    cursor: pointer;
+    z-index: 37;
+    width: 22px;
+    height: 22px;
+    top: 3px !important;
+    right: 4px !important;
+    border-radius: 2px;
+    box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
+    .linear-gradient(top, #ACD7F1, #9FCADF);
+    
+    .icon {
+        display: inline-block;
+        position: absolute;
+        z-index: 39;
+        height: 22px;
+        width: 22px;
+        background: url(/images/ds-close.png) 50% 50% no-repeat;
+    }
+
+    &:hover {
+        .linear-gradient(top, #9FCADF, #ACD7F1);
+    }
+
+    &:active {
+        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+                    0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+    }
+}
+
+.prettyJson {
+    font-family: "Source Code Pro", courier, sans-serif;
+    font-size: 16px;
+    color: #FFA633;
+    overflow: auto;
+    min-width: 100px;
+    min-height: 100px;
+    resize: none;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.jObject {
+    padding-left: 25px;
+    padding-right: 5px;
+    position:relative;
+    width: 100%;
+    overflow:visible;
+    height: auto;
+}
+
+.jsonBlock {
+    display:block;
+}
+
+.jKey {
+    color: #002D41;
+    padding: 0px 1px;
+    margin: 0px -1px;
+    display: inline-block;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.jKey:hover {
+    background-color: #EEEEEE;
+    box-shadow: 0px 0px 1px #266481;
+}
+
+.jString {
+    color: #2B594F;
+}
+
+.jNum, .jBool, .jNull , .jUndf {
+    color: #E74A5F;
+}
+
+.jArray > .jString {
+    color: #9B8920;
+    white-space: nowrap;
+}
+
+.hideScroll {
+    overflow: hidden !important;
+}
+/* End Of Pretty Json Modal */
+
+/* Join Modal */
+#joinDialog {
+    margin: auto;
+    margin-right: auto;
+    width: 920px;
+    height: 600px;
+    border-radius: 3px;
+    z-index: 40;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
+    display: none;
+    resize: both;
+    overflow: hidden;
+    background-color: white;
+    max-height: 99%;
+    max-width: 99%;
+
+    #joinHeader {
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        height: 35px;
+        .action-gradient;
+        color: @color-white;
+        font-color: white;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 35px;
+        .icon {
+            width: 22px
+            height: 22px;
+            float: right;
+            margin-right: 6px;
+            margin-top: 6px;
+            background-color: white;
+            border-radius: 3px;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            opacity: 0.5;
+        }
+        #closeJoin {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            right: 7px;
+            top: 7px;
+            background: url("/images/close-icon.png") no-repeat;
+            background-size: 20px 20px;
+            cursor: pointer; 
+        }
+    }
+    #instructions {
+        height: 59px;
+        background: white;
+        box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.18);
+        .icon {
+            float: left;
+            margin-top: 13px;
+            margin-left: 16px;
+            margin-right: 16px;
+            height: 32px;
+            width: 32px;
+            background-size: 100% 100%;
+            background: url("/images/exclamation.png") no-repeat;
+        }
+        .text {
+            font-weight: bold;
+            float: left;
+            margin-top: 11px;
+            color: #AAAAAA;
+            font-size: 13px;
+        }
+    }
+    #inputSection {
+        height: 57px;
+        line-height: 57px;
+        padding-left: 17px;
+        font-size: 14px;
+        font-weight: bold;
+        color: @color-text-darkGray;
+        background: @color-join-background;
+        .text {
+            float: left;
+            margin-right: 10px;
+        }
+        #roundedInput {
+            float: left;
+            margin-top: 16px;
+            margin-right: 15px;
+            width: 198px;
+            height: 25px;
+            padding: 0px 4px;
+            border-radius: 3px;
+            background-color: white;
+            font-weight: bold;
+            font-size: 12px;
+            &:focus {
+                background-color: white;
+                box-shadow: 0px 2px 2px 0 #888888 inset;
+                outline: none;
+                color: @color-text-brightBlue;
+                font-size: 12px;
+            }
+        }
+
+        #joinType {
+            float: left;
+            margin-top: 16px;
+            height: 25px;
+            width: 201px;
+            border-radius: 3px;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            background-color: white;
+            position: relative;
+            cursor: default;
+            .noSelection;
+            .text {
+                font-color: @color-text-darkGray;
+                font-weight: 600;
+                line-height: 25px;
+                padding-left: 10px;
+            }
+            .icon {
+                .action-gradient;
+                width: 25px;
+                height: 25px;
+                float: right;
+                border-radius: 0px 3px 3px 0px;
+            }
+            #arrow {
+                background: url("/images/dropDown.png") no-repeat;
+                height: 10px;
+                width: 14px;
+                float: right;
+                position: relative;
+                right: -19px;
+                margin-top: 7px;
+                cursor: pointer;
+                opacity: 0.7;
+            }
+            ul {
+                background-color: white;
+                position: absolute;
+                z-index: 10;
+                top: 26px;
+                width: ~"calc(100% - 25px)";
+                cursor: default;
+                border-bottom-left-radius: 3px;
+                border-bottom-right-radius: 3px;
+                overflow: hidden;
+                box-shadow: 0px 1px 1px 1px rgba(0,0,0,0.2);
+                display: none;
+                li {
+                    z-index:10;
+                    height: 30px;
+                    line-height: 30px;
+                    padding-left: 10px;
+                    &:hover {
+                        background-color: @color-selectedCell-light;
+                    }
+                    font-weight: 600;
+                    &.inactive {
+                        opacity: 0.3;
+                    }
+                }
+            }
+        }
+    }
+    #mainJoin {
+        padding-top: 16px;
+        height: ~"calc(100% - 195px)";
+        background-color: white;
+        .tabArea {
+            height: 100%;
+            border: 1px solid @color-join-border;
+            position: relative;
+        }
+        .tableTabs {
+            padding-left: 5px;
+            height: 38px;
+            position: absolute;
+            width: 100%;
+            .flex-display();
+            .active {
+                background: @color-selectedCell-light;
+                color: @color-text-blue;
+                width: 115px;
+                height: 32px;
+                padding-top: 2px;
+                border-radius: 0px;
+                margin-top: 7px;
+                border-right: 1px solid @color-join-border;
+                border-left: 1px solid @color-join-border;
+                border-top: 1px solid @color-join-border;
+                box-shadow: none;
+                border-top-left-radius: 3px;
+                border-top-right-radius: 3px;
+                .flex-shrink(0);
+            }
+        }
+        .joinTableArea {
+            width: 100%;
+            background: @color-selectedCell-light;
+            background: white;
+            border-top: 1px solid @color-join-border;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            overflow: auto;
+            overflow-y: hidden;
+            height: ~"calc(100% - 38px)";
+            margin-top: 38px;
+        }
+
+        .background {
+            height: 36px;
+            width: 100%;
+            position: absolute;
+            background-color: @color-selectedCell-light;
+            z-index: 1;
+        }
+
+        .outline {
+            height: 36px;
+            width: 100%;
+            position: absolute;
+            border: 1px solid @color-join-border;
+            border-top: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .joinTable {
+            width: 0px;
+            margin-left: 1px;
+            display: none;
+            position: relative;
+            z-index: 2;
+            td:nth-child(odd) {
+                background-color: rgba(80,80,80,.1);
+            }
+            th {
+                background-color: #ddeaf2;
+                border-color: #ddeaf2;
+                width: 120px;
+                &:first-child {
+                    width: 125px !important;
+                }
+            }
+
+            .addedBarText {
+                word-break: break-all;
+            }
+        }
+
+        .columnTab {
+            background: linear-gradient(@color-background-topGrayMed,
+                                        @color-background-bottomGrayMed);
+            color: @color-text-midGray;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 22px;
+            width: 100%;
+            height: 22px;
+            margin-right: 1px;
+            float: left;
+            margin-top: 0px;
+            border-radius: 3px 3px 3px 3px;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            cursor: pointer;
+        }
+
+        .tableLabel {
+            background: linear-gradient(@color-background-topGrayMed,
+                                        @color-background-bottomGrayMed);
+            color: @color-text-midGray;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 22px;
+            width: 115px;
+            height: 22px;
+            margin-right: 5px;
+            float: left;
+            margin-top: 10px;
+            border-radius: 3px 3px 3px 3px;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            cursor: pointer;
+            padding: 0 2px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            .flex-shrink(1);
+            white-space: nowrap;
+        }
+        .tableText {
+            height: 29px;
+            line-height: 29px;
+            color: @color-text-darkGray;
+            font-weight: bold;
+            padding-left: 25px;
+        }
+        .mainTable {
+            height: ~"calc(100% - 55px)";
+            width: ~"calc(100% - 25px)";
+            margin-left: 15px;
+            border-radius: 3px;
+            background: @color-join-background;
+            box-shadow: 0px 2px 2px 0 @color-join-drop-shadow inset;
+        }
+        #leftJoin {
+            float: left;
+            height: 100%;
+            width: ~"calc(50% - 2px)";
+            .noSelection;
+        }
+        .divider {
+            float: left;
+            width: 1px;
+            height: 100%;
+            background-color: @color-join-divider;
+        }
+        #rightJoin {
+            float: left;
+            height: 100%;
+            width: 50%;
+            .noSelection;
+            .tableText {
+                padding-left: 20px;
+            }
+            .mainTable {
+                margin-left:10px;
+                width: ~"calc(100% - 25px)";
+            }
+        }
+
+        tr:nth-child(odd) td.colSelected {
+            background-color: #d1dee6;
+        }
+
+        tr:nth-child(even) td.colSelected {
+            background-color: #ddeaf2;
+        }
+
+        .colSelected {
+            .columnTab{
+                .action-gradient;
+                color: white;
+            }
+        }
+    }
+    .button {
+        background: linear-gradient(@color-background-topGrayMed,
+                                    @color-background-bottomGrayMed);
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 30px;
+        width: 150px;
+        height: 30px;
+        border-radius: 3px 3px 3px 3px;
+        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+        cursor: pointer;
+    }
+    .active {
+        .action-gradient;
+        color: @color-text-cyan;
+    }
+       
+    #joinActions {
+        height: 35px;
+        border-radius: 0px 0px 3px 3px;
+        background-color: white;
+        .button {
+            float: right;
+            margin-right: 15px;
+        }
+    }
+}
+/* End Of Join Modal */
+
+/* Alert Modal */
+#alertModal {
+    display: none;
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    z-index: 36;
+    width: 500px;
+    max-width: 500px;
+
+    #alertHeader {
+        position: relative;
+        width: 100%;
+        height: 36px;
+        .action-gradient;
+        text-align: center;
+        text-shadow: 1px 1px rgba(0,0,0,0.2);
+        padding-top: 6px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        .text {
+            color: @color-text-white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .closeAlertModal  {
+            position: absolute;
+            cursor: pointer;
+            z-index: 37;
+            width: 22px;
+            height: 22px;
+            top: 7px;
+            right: 7px;
+            border-radius: 2px;
+            box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
+            .linear-gradient(top, #ACD7F1, #9FCADF);
+
+            .icon {
+                display: inline-block;
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                z-index: 39;
+                height: 22px;
+                width: 22px;
+                background: url(/images/ds-close.png) 50% 50% no-repeat;
+            }
+
+            &:hover {
+                .linear-gradient(top, #9FCADF, #ACD7F1);
+            }
+
+            &:active {
+                box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+                            0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+            }
+        }
+    }
+
+    #alertInformation {
+        height: 58px;
+        width: 100%;
+        z-index: 36;
+        background-color: @color-white;
+        overflow: hidden;
+        padding: 13px;
+        .icon {
+            margin-left: 13px;
+            margin-right: 13px;
+            height: 32px;
+            width: 32px;
+            background-size: 100% 100%;
+            background: url("/images/exclamation.png") no-repeat;
+            float: left;
+        }
+        .text {
+            font-size: 12px;
+            font-weight: bold;
+            color: #AAAAAA;
+            float: left;
+            width: 85%;
+            white-space: pre-line;
+        }
+    }
+
+    #alertContentWrap {
+        max-width: 500px;
+        width: 100%;
+        height: auto;
+        background-color: @color-white;
+        border-top: 3px solid rgba(1, 1, 1, 0.18);
+        z-index: 36;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+        #alertContent {
+            overflow: auto;
+            display: table-cell;
+            background: @color-join-background;
+            padding: 10px 20px;
+            height: 75px;
+            width: 500px;
+            line-height: normal;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        #alertOption {
+            padding: 15px 5px;
+            #alertCheckBox {
+                text-align: center;
+                margin: 0 auto;
+                font-size: 13px;
+                font-weight: bold;
+                .checkbox {
+                    display: inline-block;
+                    height: 16px;
+                    width: 16px;
+                    background-color: @color-background-midGrayMed;
+                    background-image: url("/images/alertModal/checkbox-unchecked.png");
+                    background-repeat: no-repeat;
+                    background-position: 0px 0px;
+
+                    &.checked {
+                        background-image: url("/images/alertModal/checkbox-checked.png");
+                        background-position: -1px 0px;
+                    }
+                }
+                .text {
+                    display: inline-block;
+                    margin-left: 10px;
+                    color: @color-text-lightGray;
+                    position: relative;
+                    top: -4px;
+                }
+
+                // now make it disabled
+                &.inactive {
+                    .checkbox {
+                        background-image: url("/images/alertModal/checkbox-unchecked.png");
+                        background-repeat: no-repeat;
+                        background-position: 0px 0px;
+                        &.checked {
+                            background-image: url("/images/alertModal/checkbox-unchecked.png");
+                        }
+                    }
+                    opacity: 0.5;
+                }
+            }
+            #alertButton {
+                margin: 20px 0 0 0 ;
+                text-align: right;
+                .button {
+                    display: inline-block;
+                    margin: 0 9px;
+                    background: linear-gradient(@color-background-topGrayMed,
+                                                @color-background-bottomGrayMed);
+                    color: white;
+                    font-size: 12px;
+                    font-weight: bold;
+                    text-align: center;
+                    width: 130px;
+                    height: 30px;
+                    line-height: 30px;
+                    border-radius: 3px 3px 3px 3px;
+                    cursor: pointer;
+
+                    &:hover {
+                        .action-gradient;
+                        color: @color-text-cyan;
+                    }
+                }
+            }
+
+        }
+    }
+}
+/* End Of Alert Modal */

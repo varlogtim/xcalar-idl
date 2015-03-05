@@ -1,0 +1,585 @@
+/* ========== Right Side Bar ========== */
+#rightSideBar {
+    position: absolute;
+    bottom: 74px;
+    right: -230px;
+    right: -25%;
+    width: ~"calc(25% + 10px)";
+    height: ~"calc(100% - 152px)";
+    border-left: 1px solid @color-bar-border;
+    background-color: @color-background-sidebar;
+    z-index: 11;
+    box-shadow: -2px 0px 2px 3px rgba(0,0,0,0.1), inset 0px 4px 4px rgba(0,0,0,0.3);
+    .transition (right 0.3s);
+
+    &.open {
+        right: 0px;
+    }
+
+    .heading {
+        height: 35px;
+        width: 100%;
+        text-align: center;
+        padding-top: 2px;
+        h2 {
+            margin-left: 55px;
+            line-height: 35px;
+            color: @color-text-darkGray;
+        }
+    }
+
+    .rightBarContent {
+        position: relative;
+        width: auto;
+        height: ~"calc(100% - 35px)";
+        margin-left: 10px;
+        background-color: @color-table-darkGray;
+    }
+
+    .topBorder {
+        left: -7px;
+        bottom: 60px;
+        height: 1px;
+        width: 7px;
+        background-color: #242c31;
+        z-index: 20;
+        position: absolute;
+        box-shadow: -1px -2px 5px rgba(0,0,0,.3);
+    }
+
+    .rightBarSection {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: none;
+        overflow: hidden;
+
+        &.active {
+            display: block;
+        }
+
+        .heading {
+            .btn {
+                width: 19px;
+                height: 19px;
+                float: right;
+                margin-right: 6px;
+                margin-top: 7px;
+                &:first-of-type {
+                    margin-right: 10px;
+                }
+            }
+        }
+
+        .iconArrowDiag {
+            background-image: url(/images/arrow-diag.png);
+        }
+        .iconClose {
+            background-image: url(/images/close-icon.png);
+        }
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    .timeStampWrap {
+        width: 14% !important;
+        text-align: center;
+        span:first-child {
+            display: none !important;
+        }
+    }
+
+    .tableListBox {
+        width: 86% !important;
+    }
+
+    .tableListSection {
+        ol {
+            width: ~"calc(86% - 26px)" !important;
+        }
+    }
+}
+
+/* ========== Table List Section in Right Side Bar ========== */
+#tableListSection {
+    .rightBarContent {
+        width: ~"calc(100% - 20px)";
+        height: ~"calc(100% - 45px)";
+    }
+
+    #tableListSectionTabs {
+        height: 35px;
+        border-top: 1px solid @color-table-borderGray;
+        border-left: 1px solid @color-table-borderGray;
+        width: ~"calc(100% + 2px)";
+        margin-left: -1px;
+
+        .tableListSectionTab {
+            width: 33.3333%;
+            height: 100%;
+            float: left;
+            display: inline-block;
+            font-weight: 700;
+            line-height: 35px;
+            text-align: center;
+            font-size: 13px;
+            color: @color-text-darkGray;
+            border-right: 1px solid @color-table-borderGray;
+            border-bottom: 1px solid @color-table-borderGray;
+            .gray-gradient;
+            .noSelection;
+
+            &:hover {
+                background: linear-gradient(@color-background-bottomGrayMed,
+                 @color-background-topGrayMed);
+                cursor: pointer;
+            }
+
+            &.active {
+                border-bottom: 1px solid @color-tab-borderBlue;
+                .action-gradient;
+                color: @color-white;
+                text-shadow: 2px 2px rgba(0,0,0,.3);
+                font-size: 14px;
+            }
+        }
+    }
+
+    #tableListSections {
+        overflow-x: hidden;
+        overflow-y: auto;
+        height: ~"calc(100% - 35px)";
+
+        .tableListSection {
+            display: none;
+            width: 100%;
+            &:first-child {
+                display: block;
+            }
+        }
+
+        ul {
+            list-style: none;
+            margin: 0 10px;
+        }
+
+        li.timeLine {
+            margin-top: -1px;
+            width: 100%;
+            color: @color-text-darkGray;
+            font-size: 13px;
+            line-height: 25px;
+            position: relative;
+        }
+
+        li.tableInfo {
+            width: 100%;
+            margin-top: 4px;
+            color: @color-text-darkGray;
+            font-size: 13px;
+            line-height: 25px;
+            position: relative;
+
+            &:hover {
+                .iconWrap {
+                    .action-gradient;
+                }
+            }
+
+            .active {
+                .iconWrap {
+                   .lightGray-gradient();
+                }
+
+                &:hover {
+                    .iconWrap {
+                        .action-gradient;
+                    }
+                }
+            }
+        }
+
+        ul#activeTablesList {
+            margin-top: 10px;
+        }
+
+        .timeStampWrap {
+            width: 24%;
+            height: 25px;
+            display: inline-block;
+            float: left;
+            line-height: 15px;
+            font-size: 9px;
+            left: -1%;
+            position: relative;
+            top: 4px;
+
+            .timeStamp {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            span {
+                white-space: nowrap;
+                display: inline-block;
+                width: 45px;
+                &:first-child {
+                  margin-right: 8px;  
+                }
+                &:last-child {
+                    margin-left: -7px;
+                }
+            }
+        }
+
+        .tableListBox {
+            height: 25px;
+            width: 76%;
+            border-radius: 3px;
+            background-color: @color-white;
+            display: inline-block;
+            box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+
+            .tableName {
+                display: inline-block;
+                overflow: hidden;
+                max-width: 170px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        .iconWrap {
+            display: inline-block;
+            background: linear-gradient(@color-background-topGrayMed, 
+                        @color-background-bottomGrayMed);
+            height: 100%;
+            float: left;
+            padding-top: 1px;
+            margin-right: 10px;
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+
+        .icon {
+            margin: 0px;
+            display: inline-block;
+            width: 25px;
+            height: 22px;
+            background: url(/images/table-icon.png) 0 0 no-repeat;
+        }
+
+        .numCols {
+            float: right;
+            color: @color-text-brightBlue;
+            margin-right: 10px;
+        }
+
+        ol {
+            display: none;
+            .nomargin-padding;
+            margin: -7px 0 10px 22px;
+            padding-top: 2px;
+            position: relative;
+            width: ~"calc(76% - 26px)";
+            float: right;
+
+            li {
+                list-style-position: inside;
+                margin-top: 5px;
+                padding-left: 10px;
+                height: 20px;
+                border-radius: 3px;
+                line-height: 20px;
+                background-color: @color-background-columnList;
+                font-size: 11px;
+                color: @color-text-columnList;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                whitespace: nowrap;
+            }
+        }
+
+        .addArchivedBtn {
+            display: none;
+        }
+    }
+
+    #archivedTableList {
+
+        .addArchivedBtn {
+            display: inline-block;
+            float: right;
+            width: 24px;
+            height: 100%;
+            border-left: 1px solid @color-background-bottomGrayMed;
+            border-radius-top-right: 3px;
+            border-radius-bottom-right: 3px;
+            background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
+                        linear-gradient(@color-background-topGrayMed, 
+                        @color-background-bottomGrayMed);
+            &:hover {
+                background: url(/images/checkmark-inactive.png) 50% 50% no-repeat,
+                            linear-gradient(@color-background-topGrayMed, 
+                            @color-background-midGrayMed);
+            }
+            &.selected {
+                background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
+                            linear-gradient(@color-background-topAction, 
+                            @color-background-bottomAction);
+            } 
+        }
+
+        .tableName {
+            max-width: 150px !important;
+        }
+
+        .buttonWrap {
+            .flex-display;
+            .flex-wrap(wrap);
+            .justify-content(space-between);
+            margin: 10px 5px 0px;
+
+            .btnLarge {
+                margin: 0px 5px 9px;
+                display: none;
+                .flex-grow(1);
+                .flex-basis(170px);
+                text-align: center;
+                position: relative;
+                padding-left: 6px;
+
+                .icon {
+                    width: 27px;
+                    height: 24px;
+                    position: absolute;
+                    left: 0px;
+                }
+            }
+        }
+
+        #submitTablesBtn .icon {
+            background: url(/images/send-single.png) 0 0 no-repeat;
+            margin: 4px;
+        }
+
+        #deleteTablesBtn .icon {
+            background: url(/images/garbageThick.png) 0 0 no-repeat;
+            margin: 2px 6px 0px 2px;
+        }
+    }
+}
+/* ========== End Of Table List Section in Right Side Bar ========== */
+
+/* ========== Cli Section in Right Side Bar ========== */
+#cliSection {
+    height: ~"calc(100% - 10px)";
+    #rightBarTextScrollWrap {
+        background-color: @color-background-white;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        #rightBarTextArea {
+            position: absolute;
+            overflow-y: scroll;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            &::-webkit-scrollbar {
+                width: 11px;
+                height: 11px;
+                background: transparent;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                border-width: 1px 0px 1px 0px;
+                border-color: transparent;
+                border-style: solid;
+                border-radius: 10px;
+                background-color: rgba(217,217,217,0.75) !important;
+                background-clip: content-box;
+                -webkit-box-shadow: inset 0 -1px 2px rgba(205,205,205,0.75);
+            }
+
+            &::-webkit-scrollbar-track {
+                background: linear-gradient(to bottom right, #e9e9e9 , #ffffff); /* Standard syntax */
+            }
+
+            &::-webkit-scrollbar-corner {
+                background: transparent;
+            }
+            
+            .cliContentWrap {
+                padding: 2px;
+                width: 100%;
+                font-size: 13px;
+                color: @color-cli-black;
+
+                .cliKey {
+                    color: @color-cli-lightGray;
+                }
+
+                .title {
+                    color: @color-cli-blue;
+                }
+
+                .content {
+                    .operation {
+                        .cliKey {
+                            color: @color-cli-brown;
+                        }
+                        .cliVal {
+                            color: @color-cli-darkGreen;
+                        }
+                    }
+
+                    .tableName, .leftTable, .rightTable, .dsName {
+                        .cliKey {
+                            color: @color-cli-darkGray;
+                        }
+                        .cliVal {
+                            color: @color-cli-orange;
+                        }
+                    }
+
+                    .key {
+                        .cliKey {
+                            color: @color-cli-lightGreen;
+                        }
+                    }
+                }
+
+                &:hover {
+                    background-color: @color-cli-hover;
+                }
+            }
+        }
+    }
+}
+/* ========== End Of Cli Section in Right Side Bar ========== */
+
+/* ========== Scratch Pad Section in Right Side Bar ========== */
+#scratchPadSection {
+
+}
+/* ========== End Of Scratch Pad Section in Right Side Bar ========== */
+
+/* ========== Help Section in Right Side Bar ========== */
+#helpSearchArea {
+    padding: 6px 3% 5px 3%;
+    border-bottom: 1px solid @color-background-midGrayMed;
+    input {
+        width: 70%;
+        height: 30px;
+        padding: 2px;
+        padding-left: 4px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: bold;
+        background-color: @color-background-sidebar;
+        color: @color-text-darkGray;
+        float: left;
+        &:focus {
+            background-color: @color-white;
+            // box-shadow: 0px 2px 2px 0 #888888 inset;
+            outline: none;
+            // color: @color-text-brightBlue;
+            &::-webkit-input-placeholder {
+                color: @color-text-lightGray;
+            } 
+        }
+    }
+
+    ::-webkit-input-placeholder {
+        color: @color-text-darkGray;
+    } 
+}
+
+#helpSubmit {
+    width: 25%;
+    height: 30px;
+    .action-gradient;
+    color: @color-text-white;
+    float: right;
+    line-height: 30px;
+    font-size: 12px;
+    border-radius: 3px;
+    margin-left: 5px;
+    text-align: center;
+    padding-right: 10px;
+
+    .iconSearch {
+        background-image: url(/images/search-icon.png);
+        width: 18px;
+        height: 18px;
+        margin: 5px;
+        display: inline-block;
+        float: left;
+    }
+}
+
+.helpBox {
+    margin-left: 3%;
+    margin-right: 3%;
+    height: 148px;
+    width: auto;
+    padding: 5px;
+    background-color: @color-white;
+}
+
+#helpResults {
+    
+    text-align: center;
+    span {
+        .vertical-align;
+        top: 40%;
+        color: @color-text-lightGray;
+    }
+}
+
+#helpTopics {
+    margin-top: 20px;
+    color: @color-text-dropMenu;
+    span {
+        font-weight: 700;
+    }
+
+    ul {
+        > span {
+            font-size: 14px;
+        }
+        li {
+            font-size: 12px;
+            margin: 6px 0px 0px 4px;
+            font-weight: 400;
+        }
+    }
+}
+
+#helpOnOff {
+    width: 218px;
+    height: 65px;
+    background-image: url(/images/help-on.png);
+    margin: auto;
+}
+#pulloutTab {
+    left: -9px;
+    bottom: 0;
+    height: 60px;
+    width: 18px;
+    border-left: 1px solid @color-bar-border;
+    border-top-left-radius: 3px;
+    background-color: inherit;
+    position: absolute;
+    box-shadow: -1px 0px 0px rgba(0,0,0,0.3);
+    background-image: url(/images/pullout.png); 
+    background-repeat: no-repeat;
+    background-position: 4px 11px;
+}
+/* ========== End Of Help Section in Right Side Bar ========== */

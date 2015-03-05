@@ -1,0 +1,459 @@
+// XXX Style the class .mainPane instead of this id
+#workspacePanel {
+    height: ~"calc(100% - 115px)";
+}
+
+#watermark {
+    background: url(/images/logo-white-L.png) no-repeat;
+    background-position: 0px -70px;
+    background-size: 100%;
+    position: absolute;
+    width: 579px;
+    height: 253px;
+    z-index: 0;
+    opacity: 0.05;
+    bottom: 100px;
+    left: 15px;
+}
+
+#insight {
+    background: url(/images/insight.png) no-repeat;
+    background-position: 0px 0px;
+    background-size: 100%;
+    position: absolute;
+    width: 243px;
+    height: 79px;
+    z-index: 0;
+    opacity: 0.15;
+    bottom: 89px;
+    left: 238px;
+}
+
+/* DRAG AND DROP TABLES */
+.tableDragging {
+    position: absolute;
+    opacity: 0.7;
+    z-index: 10;
+}
+
+#shadowTable {
+    background-color: @color-shadow-darkGray;
+    display: inline-block;
+    opacity: 1;
+    margin-right: 5px;
+    position: relative;
+    overflow: hidden;
+    white-space: normal;
+    left: 0;
+    top: 0;
+    z-index: 0;
+    vertical-align: top;
+}
+
+/* DRAG AND DROP COLUMNS styling */
+#shadowDiv {
+    position: absolute;
+    background-color: @color-table-midGray;
+    z-index: 11;
+    opacity: 1;
+    margin-top: 5px;
+}
+
+#fauxCol{
+    position: absolute;
+    background-color: @color-white;
+    z-index: 12;
+    opacity: 0.7;
+    pointer-events: none;
+    overflow: hidden;
+    box-shadow: 1px 0px 1px 1px rgba(100,100,100,.05);
+    white-space: nowrap;
+    top: 114px;
+}
+
+#fauxTable {
+    background-color: @color-white;
+    z-index: 12;
+    margin-left: 0 !important;
+    margin-top: 5px;
+    th {
+        outline: 1px solid rgba(0,0,0,.1);
+    }
+    tr:first-child {
+        position: absolute;
+        background-color: white !important;
+    }
+    .header {
+        border-left: none !important;
+    }
+}
+
+.xcTable#fauxTable {
+    th, td {
+        border-right: none !important;
+        border-left: none;
+    }
+}
+
+.dragArea {
+    position: absolute;
+    height: 45px;
+    width: 100%;
+    top: -5px;
+    left: 0;
+    cursor: move;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+    z-index: 1;
+}
+
+#dropTargets {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.dropTarget {
+    position: absolute;
+    top: 0;
+    z-index: 22;
+    background-color: rgba(0,0,50,0.2);
+    font-size: 50px;
+    opacity: 0;
+}
+/* END DRAG AND DROP STYLING */
+
+ /* ========== Work Sheet Bar ========== */
+#workspaceBar {
+    border-bottom-width: 2px;
+    position: relative;
+    top: -1px;
+    .flex-display();
+    .workspaceArea {
+        .flex-shrink(0);
+    }
+
+    #fnBar {
+        width: 380px;
+    } 
+
+    #searchBar {
+        width: 180px;
+    }
+
+    #rowInput {
+        width: 60px;
+    }
+
+    #rowScrollerArea {
+        .flex-grow(2);
+        width: 200px;
+        cursor: default;
+        .noSelection;
+        margin: 0 14px;
+        height: 35px;
+
+        .rowScroller {
+            width: 250px;
+            width: 100%;
+            height: 11px;
+            margin-top: 12px;
+            background-color: @color-bar-border;
+            box-shadow: inset 0px 1px #1A1C1D, 0px 1px #d5d5d5;
+            position: relative;
+
+            .bookmark {
+                width: 3px;
+                height: 11px;
+                background-color: @color-background-bookmark;
+                position: absolute;
+                bottom: 0;
+                margin-left: -1px;
+            }
+
+            .rowMarker {
+                display: inline-block;
+                width: ~"calc(100% - 1px)";
+                height: 35px;
+                top: -11px;
+                left: -6px;
+                position: absolute;
+                background: url(/images/locator1.png) 0 0 no-repeat;
+                .transition (transform 0.13s);
+
+                &.scrolling {
+                    .transition (transform 0s);
+                }
+            }
+
+            .subRowMarker {
+                position: absolute;
+                left: 2px;
+                top: 0;
+                height: 11px;
+                width: 10px;
+                cursor: pointer;
+            }
+
+            .bottom {
+                top: 22px;
+            }
+
+            .middle {
+                width: 3px;
+                top: 11px;
+                left: 5px;
+            }
+
+            &.hidden {
+                display: none !important;
+            }
+        }
+    }
+}
+ /* ========== End Of Work Sheet Bar ========== */
+
+ /* ========== Main Frame ========== */
+ #mainFrame {
+    width: 100%;
+    height: ~"-webkit-calc(100% - 38px)";
+    height: ~"-moz-calc(100% - 38px)";
+    height: ~"calc(100% - 38px)";
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    // XXX not using position relative for the sake of 
+    // the scrolling when drag/dropping a table or column
+    
+    &.dagOpen {
+        height: ~"calc(50% - 20px)";
+        .transition(height 0.3s);
+    }
+}
+
+.tableWrap {
+    padding: 0px;
+    height: 100%;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: scroll;
+    display: inline-block;
+    font-size: 11px;
+}
+
+.xcTable {
+    height: 0px;
+    width: 520px;
+
+    td.jsonElement, td.dataCol {
+        .go-column-solid(20%);
+    }
+
+    td:first-child {
+        cursor: pointer;
+    }
+
+    .header {
+        position: absolute;
+        border: 5px solid #e6e6e6;
+        background: #e6e6e6;
+        background-color: #e6e6e6;
+        border-left: none;
+        z-index: 9;
+        border-radius: 0px;
+        top: 35px;
+        box-shadow: 0px 1px  1px @color-shadow-black;
+
+        > input {
+            border-radius: 3px;
+            .gray-gradient;
+        }
+    }
+
+    th:first-child {
+        border-left: none !important;
+        .header {
+            border-left: 5px solid #e6e6e6;
+        }
+    }
+    
+}
+
+.xcTableWrap {
+    margin-bottom: 0px;
+    position: relative;
+    width: auto;
+    overflow: hidden;
+
+    &:last-child {
+        margin-right: 5px;
+    }
+
+    &:only-child {
+        .tableGrab {
+            display: none;
+        }
+    }
+
+     .xcTbodyWrap {
+        margin-bottom: 0;
+        padding: 0;
+        max-height: ~"calc(100% - 35px)";
+        font-size: 11px;
+        right: -17px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: ~"calc(100% + 17px)";
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    thead {
+        box-shadow: 0px 1px  1px @color-shadow-black;
+        .header:hover > .dropdownBox {
+            opacity: 0.6;
+        }
+
+        .colGrab:hover ~ .dropdownBox {
+            opacity: 0;
+        }
+    }
+}
+
+.xcTheadWrap {
+    position: relative;
+    top: 0px !important;
+    left: 0%;
+    width: 100%;
+    pointer-events: none;
+    z-index: 9;
+    display: inline-block;
+
+    .tableTitle {
+        height: 35px;
+        pointer-events: auto;
+        width: 100%;
+        text-align: center;
+        display: block;
+        position: relative;
+        .gray-gradient;
+        border-bottom: 1px solid @color-table-borderGray;
+        .tableGrab {
+            position: absolute;
+            height: 40px;
+            width: ~"calc(100% - 15px)";
+            top: 0;
+            z-index: 2;
+            cursor: move;
+            cursor: -webkit-grab;
+            cursor: -moz-grab;
+        }
+
+        &.tblTitleSelected {
+            .action-gradient;
+            color: @color-white; 
+            border-bottom: 1px solid @color-table-borderBlue;
+
+            input {
+                color: @color-white; 
+            }
+
+            .dropdownBox {
+                opacity: 1;
+                background-image: url(/images/table-corner.png) !important;
+            }
+        }
+
+        &:hover {
+            .dropdownBox {
+                opacity: 1;
+                background-image: url(/images/table-corner-inactive.png);
+            }
+        }
+
+        .dropdownBox {
+            opacity: 0; 
+            background-image: url(/images/table-corner-inactive.png); 
+            border: none;
+            height: 16px;
+            width: 16px;
+        }
+
+        input {
+            width: 100%;
+            height: 25px;
+            text-align: center;
+            background-color: transparent;
+            font: 15px @font-base;
+            font-weight: 600;
+            padding: 0 2px;
+            margin-top: 5px;
+            position: relative;
+            z-index: 2;
+            &:focus {
+                background-color: white;
+                color: @color-text-darkGray;
+                width: auto;
+                max-width: 90%;
+            }
+        }
+    }
+}
+
+.colGrab {
+    display: inline-block;
+    position: absolute;
+    width: 8px;
+    cursor: ew-resize;
+    z-index: 4;
+    right: -8px;
+    top: 0px;
+    .noSelection;
+}
+
+th:last-child .colGrab{
+    right: -10px;
+    width: 12px;
+}
+
+/* CUSTOM DROPDOWNS BASED ON DATA TYPES */
+.xcTable th {
+    &.newColumn {
+        .sort, .aggregate, .groupBy, .filterWrap, .joinList {
+            display: none;
+        }
+    }
+}
+
+/* VERTICAL RESIZING */
+.rowGrab {
+    position: absolute;
+    width: 1000px;
+    height: 7px;
+    bottom: -6px;
+    left: -2px;
+    // background-color: rgba(0,0,0,0.5);
+    z-index: 0;
+    cursor: ns-resize;
+}
+
+.xcTable tbody td {
+    height: 30px;
+}
+
+.idWrap {
+    display: table;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.idSpan {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    width: 100%;
+}
+/* END VERTICAL RESIZING */
+ /* ========== End Of Main Frame ========== */
