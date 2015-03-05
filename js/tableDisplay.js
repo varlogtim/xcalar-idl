@@ -131,6 +131,7 @@ function buildInitialTable(index, tableNum, jsonData) {
 
         pullRowsBulk(tableNum, jsonData, startIndex, dataIndex);
         addTableListeners(tableNum);
+        createTableHeader(tableNum);
         var numCols = table.tableCols.length;
         var $table = $('#xcTable'+tableNum);
         for (var i = 1; i <= numCols; i++) {

@@ -546,7 +546,9 @@ function removeSelectedKey(closeBox, input) {
 function createWorksheet() {
     var deferred = jQuery.Deferred();
     var promiseChain = [];
-
+    $(document.head).append('<style id="waitCursor" ' +
+        'type="text/css">*' + 
+        '{cursor: wait !important;}</style>');
     $("#dataCart .selectedTable").not('.deselectedTable').each(function() {
         promiseChain.push((function() {
             var chainDeferred = jQuery.Deferred();
@@ -576,11 +578,9 @@ function createWorksheet() {
                 cliOptions.tableName = tableName;
                 cliOptions.col = [];
 
-                var promises = [];
-                $(self).find('.colName').each(function() {
-                    promises.push((function() {
-                        var innerDeferred = jQuery.Deferred();
-
+                getDsId(datasetName)
+                .then(function(id) {
+                    $(self).find('.colName').each(function() {
                         var colname = $.trim($(this).text());
                         var progCol = new ProgCol();
                         progCol.index = ++startIndex;
@@ -593,22 +593,11 @@ function createWorksheet() {
                         progCol.isDark = false;
 
                         var currentIndex = startIndex - 1;
-                        getDsId(datasetName)
-                        .done(function(id) {
-                            progCol.datasetId = parseInt(id);                  
-                            newTableCols[currentIndex] = progCol;
-
-                            innerDeferred.resolve();
-                        });
-
+                        progCol.datasetId = parseInt(id);                  
+                        newTableCols[currentIndex] = progCol;
                         cliOptions.col.push(colname);
+                    });
 
-                        return (innerDeferred.promise());
-                    }).bind(this));
-                });
-
-                chain(promises)
-                .then(function() {
                     var progCol = new ProgCol();
                     progCol.index = startIndex+1;
                     progCol.type = "object";
@@ -637,9 +626,7 @@ function createWorksheet() {
                             columnToIndex, tableName));
                 })
                 .then(function() {
-                    $(document.head).append('<style id="waitCursor" ' +
-                        'type="text/css">*' + 
-                        '{cursor: wait !important;}</style>');
+                   
                     var keepLastTable = true;
                     var additionalTableNum = false;
                     return (checkStatus(tableName, gTables.length, 

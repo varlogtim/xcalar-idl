@@ -537,7 +537,6 @@ function tableStartupFunctions(table, tableNum) {
         .then(goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum));
     })
     .done(function(val) {
-        createTableHeader(tableNum);
         focusTable(tableNum);
         var dataCol = $('#xcTable'+tableNum+' tr:eq(0) th.dataCol');
         addColListeners(parseColNum(dataCol), $("#xcTable"+tableNum));
