@@ -542,7 +542,7 @@ function tableStartupFunctions(table, tableNum) {
         infScrolling(tableNum);
         checkForScrollBar(tableNum);
         resizeRowInput();
-
+        constructDagImage(gTables[tableNum].backTableName);
         deferred.resolve();
     });
 

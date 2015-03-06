@@ -213,7 +213,7 @@ Thrift.Transport.prototype = {
         if (xreq.status != 200) {
             throw 'encountered a unknown request status: ' + xreq.status;
         }
-
+        
         this.recv_buf = xreq.responseText;
         this.recv_buf_sz = this.recv_buf.length;
         this.wpos = this.recv_buf.length;

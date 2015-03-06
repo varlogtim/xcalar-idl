@@ -1,9 +1,17 @@
 function refreshTable(newTableName, tableNum, 
                       keepOriginal, additionalTableNum) {
     var deferred = jQuery.Deferred();
+    
+    if (!$('#workspaceTab').hasClass('active')) {
+        if (!$('#dagPanel').hasClass('hidden')) {
+                $('#compSwitch').trigger('click');
+                $('#mainFrame').removeClass('midway');
+        }
+        $("#workspaceTab").trigger('click');
+    }
 
-    $('#dagPanel').addClass('hidden');
-    $("#workspaceTab").trigger('click');
+    // $("#workspaceTab").trigger('click');
+    var newTableNum;
     if (keepOriginal === KeepOriginalTables.Keep) {
         // append newly created table to the back
         newTableNum = gTables.length;

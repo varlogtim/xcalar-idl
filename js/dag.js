@@ -1,3 +1,4 @@
+
 function setupDag() {
     $('#compSwitch').click(function() {
         var compSwitch = $(this);
@@ -36,121 +37,391 @@ function setupDag() {
         $('#compSwitch').trigger('click');
     });
 
-    var outerDag = '<div class="dagWrap">'+
-                '<div class="header clearfix">'+
-                    '<div class="btn btnSmall infoIcon">'+
-                        '<div class="icon"></div>'+
-                    '</div>'+
-                    '<div class="tableTitleArea">'+
-                        'Table: <span class="tableName">Table 0</span>'+
-                    '</div>'+
-                '</div>'+
-                '</div>';
-    var innerDag = '<div class="dagImageWrap"><div class="dagImage">'+
-                   drawDag()+
-                   '</div></div>';
-    $('.dagArea').append(outerDag);
-    $('.dagWrap:last').append(innerDag);
-    var canvas = createCanvas();
-    var ctx = canvas.getContext('2d');
-    ctx.strokeStyle = '#999999';
-    $('.dagTableWrap').each(function() {
-        var el = $(this)
-        drawJoinLines(el, canvas, ctx);
-    });
-
-    $('.dagImageWrap').scrollLeft($('.dagImage').width());
 }
 
-function drawJoinLines(dagTable, canvas, ctx) {
-    if (dagTable.prev().children().length != 2 || 
-        !dagTable.prev().hasClass('childContainer')) {
-            if (dagTable.children('.filter').length != 0) {
-                var tableX = dagTable.find('.dagTable').position().left;
-                var farLeftX = dagTable.position().left;
-                var tableY = dagTable.find('.dagTable').position().top + 
-                             dagTable.height()/2;
-                drawLine(ctx, tableX, tableY, (tableX - farLeftX + 20));
-            }
-            return;
-    }
+function constructDagImage(tableName) {
+    drawDag(tableName).done(function(dagDrawing) {
+      var outerDag = '<div class="dagWrap">'+
+            '<div class="header clearfix">'+
+                '<div class="btn btnSmall infoIcon">'+
+                    '<div class="icon"></div>'+
+                '</div>'+
+                '<div class="tableTitleArea">'+
+                    'Table: <span class="tableName">'+tableName+'</span>'+
+                '</div>'+
+            '</div>'+
+            '</div>';
 
-    var origin1 = dagTable.prev().children().eq(0);
-    var origin2 = dagTable.prev().children().eq(1);
+        var innerDag = '<div class="dagImageWrap"><div class="dagImage">'+
+                        dagDrawing+'</div></div>';
+        $('.dagArea').append(outerDag);
+        $('.dagWrap:last').append(innerDag);
+        var canvas = createCanvas();
+        var ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#999999';
+        // var delay = 300;
+        $('.dagWrap:last').find('.dagTableWrap').each(function() {
+            var el = $(this);
+            // setTimeout(function() {
+                drawDagLines(el, ctx);
+            // }, delay+= 300)
+            // drawDagLines(el, ctx);
+        });
 
-    if (origin1.hasClass('dagTableWrap')) {
-        origin1 = origin1.children();
-    } else if (origin1.hasClass('joinWrap')) {
-        origin1 = origin1.children().eq(1).find('.dagTable');
-    }
-    if (origin2.hasClass('dagTableWrap')) {
-        origin2 = origin2.children();
-    } else if (origin2.hasClass('joinWrap')) {
-        origin2 = origin2.children().eq(1).find('.dagTable');
-    }
+        // $('.dagImageWrap').scrollLeft($('.dagImage').width());
+    });
+}
 
-    var desiredY = (origin1.position().top + origin2.position().top)/2;
-    var currentY = dagTable.find('.dagTable').position().top;
-    var yAdjustment = (desiredY - currentY)*2;// 10 is the current margin 
-    dagTable.css({'margin-top': yAdjustment}); 
+function drawDagUnit(dagUnit, prop, dagArray, html, index, parentChildMap) {
+    var properties = {};
+    properties.x = prop.x+1;
+    properties.width = prop.width;
+    var numChildren = parentChildMap[index].length;
+    var accumulatedDrawings = "";
 
-    var tableX = dagTable.find('.dagTable').position().left;
-    var tableY = dagTable.find('.dagTable').position().top +
-                 dagTable.height()/2;
-    drawLine(ctx, tableX, tableY); // line entering table
-
-    curvedLineCoor = {
-        x1: origin1.position().left + origin1.width(),
-        y1: origin1.position().top + origin1.height()/2,
-        x2: Math.floor(dagTable.find('.actionTypeWrap').position().left + 12),
-        y2: Math.floor(dagTable.find('.actionTypeWrap').position().top)
+    for (var i = 0; i < numChildren; i++) {
+        var childIndex = parentChildMap[index][i];
+        properties.y = i*2 +1 - numChildren + prop.y;
+        accumulatedDrawings += drawDagUnit(dagArray[childIndex], properties, 
+                               dagArray, html, childIndex, parentChildMap);
     }
     
-    drawCurve(ctx, curvedLineCoor); // top curvedLine
-    drawLine(ctx, curvedLineCoor.x1, curvedLineCoor.y1);
-    // continuation of curved line
-    curvedLineCoor.x1 = origin2.position().left + origin2.width();
-    curvedLineCoor.y1 = origin2.position().top + origin2.height()/2;
-    curvedLineCoor.y2 = Math.floor(dagTable.find('.actionTypeWrap')
-                        .position().top + 30);
-    drawCurve(ctx, curvedLineCoor); // bottom curvedLine
-    drawLine(ctx, curvedLineCoor.x1, curvedLineCoor.y1);
-    // continuation of curved line
+    var oneTable = drawDagTable(dagUnit, prop, dagArray);
+    var newHtml;
+    if (accumulatedDrawings) {
+        newHtml = "<div class='joinWrap'><div class='childContainer'>"+
+                  accumulatedDrawings+"</div>"+oneTable+"</div>";
+    }
+
+    if (newHtml) {
+        return (newHtml);
+    } else {
+        return (accumulatedDrawings+oneTable);
+    }
 }
 
+function drawDagTable(dagUnit, prop, dagArray) {
+    var top = 200 + (prop.y*60);
+    var right = 100 + (prop.x*170);
+    var dagOrigin = drawDagOrigin(dagUnit, prop, dagArray);
+    var dagTable = '<div class="dagTableWrap clearfix">' +
+                    dagOrigin;
+    if (dagOrigin == "") {
+        dagTable += '<div class="dagTable dataStore">'+
+                    '<div class="dataStoreIcon"></div>'+
+                    '<div class="icon"></div>'+
+                    '<span class="tableTitle">Dataset '+
+                    getDagName(dagUnit)+
+                    '</span>';
+    } else {
+        dagTable += '<div class="dagTable">' +
+                    '<div class="dagTableIcon"></div>'+
+                    '<div class="icon"></div>'+
+                    '<span class="tableTitle">'+getDagName(dagUnit)+'</span>';
+    }
+    dagTable += '</div></div>';
+    return (dagTable);
+}
+
+function drawDagOrigin(dagUnit, prop, dagArray) {
+    var originHTML = "";
+    var numChildren = getDagNumChildren(dagUnit);
+
+    if (numChildren > 0) {
+        var children = getDagChildren(dagUnit.api, dagUnit);
+        var additionalInfo = "";
+        if (numChildren == 2) {
+            additionalInfo += " & "+children[1];
+        }
+        var key = dagApiMap[dagUnit.api];
+        var name = key.substring(0, key.length - 5);
+        var info = getDagActionInfo(dagUnit, key, children);
+        if (info.type == "sort") {
+            name = "sort";
+        }
+
+        var top = 210 + (prop.y*60);
+        var right = 180 + (prop.x*170);
+        originHTML += '<div class="actionType '+name+'" '+
+                    'style="top:'+0+'px; right:'+0+'px;" '+
+                    'data-toggle="tooltip" '+
+                    'data-placement="top" '+
+                    'data-container="body" '+
+                    'title="'+info.tooltip+'">'+
+                        '<div class="actionTypeWrap">'+
+                            '<div class="dagIcon '+name+' '+info.type+'">'+
+                                '<div class="icon"></div>'+
+                            '</div>'+
+                            '<span class="typeTitle">'+name+
+                            '</span>'+
+                            '<span class="childrenTitle">'+
+                                children[0]+additionalInfo+
+                            '</span>'+
+                            '<span class="info">'+
+                                info.text+
+                            '</span>'+
+                        '</div>'+
+                    '</div>';
+    }
+    
+    return (originHTML);
+}
+
+function drawDag(tableName) {
+    var deferred = jQuery.Deferred();
+    XcalarGetDag(tableName).done(function(dagObj) {
+        var prop = {
+            x:0, 
+            y:0, 
+            childCount: 0,
+        };
+        var index = 0;
+        var dagArray = dagObj.node;
+        var parentChildMap = getParentChildDagMap(dagObj);
+        console.log(dagObj);
+        
+        deferred.resolve(drawDagUnit(dagArray[index], prop, dagArray, "", 
+                         index, parentChildMap));
+    });
+
+
+    function getParentChildDagMap(dagObj) {
+        var dagArray = dagObj.node;
+        var numNodes = dagObj.numNode;
+        var map = {}; // will hold a map of nodes, and array indices of children
+        var childIndex = 0;
+        for (var i = 0; i < numNodes; i++) {
+            var dagUnit = dagArray[i];
+            var numChildren = getDagNumChildren(dagUnit);
+            map[i] = []; 
+            for (var j = 0; j < numChildren; j++) {
+                map[i].push(++childIndex);
+            }
+        }
+        return (map);
+    }
+
+    return (deferred.promise());
+}
+
+function getDagNumChildren(dagUnit) {
+    var numChildren = 0;
+    if (dagUnit.api == XcalarApisT.XcalarApiJoin) {
+        var numChildren = 2;
+    } else if (dagUnit.api != XcalarApisT.XcalarApiBulkLoad) {
+        var numChildren = 1;
+    } 
+    return (numChildren);
+}
+
+function getDagChildren(api, dagUnit) {
+    var children = [];
+    var key = dagApiMap[api];
+    var value = dagUnit.input[key];
+    if (key == 'filterInput') {
+        children.push(value.srcTable.tableName);
+    } else if (key == 'indexInput') {
+        if (value.srcTable.tableName == "") {
+            children.push(value.dstTable.tableName);
+        } else {
+            children.push(value.srcTable.tableName);
+        }
+    } else if (key == 'joinInput') {
+        children.push(value.leftTable.tableName);
+        children.push(value.rightTable.tableName);
+    }
+    return (children);
+}
+
+function getDagName(dagUnit) {
+    var key = dagApiMap[dagUnit.api];
+    var value = dagUnit.input[key];
+    var childName;
+    if (key == 'filterInput') {
+        childName = value.dstTable.tableName;
+    } else if (key == 'indexInput') {
+        childName = value.dstTable.tableName;
+    } else if (key == 'joinInput') {
+        childName = value.joinTable.tableName;
+    } else if (key == 'loadInput') {
+        childName = value.dataset.name;
+    }
+    return (childName);
+}
+
+function getDagActionInfo(dagUnit, key, children) {
+    var value = dagUnit.input[key];
+    // console.log(value);
+    var info = {};
+    info.type = "";
+    info.text = "";
+    info.tooltip = "";
+
+    if (key == 'filterInput') {
+        var filterStr = value.filterStr;
+        var abbrFilterType = filterStr.slice(0,2);
+        
+        info.type = "filter"+abbrFilterType;
+        info.text = filterStr;
+        var filterType = "";
+
+        var filterTypeMap = {
+            "gt" : "greater than",
+            "ge" : "reater than or equal to",
+            "eq" : "equal to",
+            "lt" : "less than",
+            "le" : "less than or equal to",
+            "regex" : false,
+            "like" : false,
+        }
+
+        if (filterTypeMap[abbrFilterType]) {
+            var filteredOn = filterStr.slice(3, filterStr.indexOf(','));
+            var filterType = filterTypeMap[abbrFilterType];
+            var filterValue = filterStr.slice(filterStr.indexOf(',')+2, 
+                                              filterStr.indexOf(')'));
+
+            info.tooltip = "Filtered table &quot;"+children[0]+"&quot; where "+
+                        filteredOn+" is "+filterType+" "+filterValue+".";
+        } else {
+            info.tooltip = "Filtered table &quot;"+children[0]+"&quot;: "+filterStr;
+        }
+    } else if (key == 'indexInput') {
+        if (value.datasetId === 0) {
+            info.type = "sort";
+            info.tooltip = "Sorted by "+value.keyName;
+        } else {
+            info.tooltip = "Indexed on "+value.keyName;
+        }
+        info.text = "indexed on " + value.keyName;
+    } else if (key == 'joinInput') {
+        info.type = OperatorsOpTStr[value.joinType][9].toLowerCase() +
+                    OperatorsOpTStr[value.joinType].slice(10);
+        info.text = OperatorsOpTStr[value.joinType].slice(9);
+        var joinType = info.text.slice(0, info.text.indexOf("Join"));
+        info.tooltip = joinType+ " Join between table &quot;"+children[0]+
+                       "&quot; and table &quot;"+children[1]+"&quot;";
+    } 
+    return (info);
+}
+
+var dagApiMap = {
+    2 : 'loadInput', 
+    3 : 'indexInput',
+    6 : 'statInput', 
+    7 : 'statByGroupIdInput', 
+    10 : 'listTablesInput', 
+    13 : 'makeResultSetInput', 
+    14 : 'resultSetNextInput', 
+    15 : 'joinInput', 
+    16 : 'filterInput', 
+    17 : 'groupByInput', 
+    19 : 'editColInput', 
+    20 : 'resultSetAbsoluteInput', 
+    21 : 'freeResultSetInput', 
+    22 : 'deleteTableInput', 
+    23 : 'getTableRefCountInput', 
+    23 : 'tableInput', 
+    24 : 'bulkDeleteTablesInput', 
+    25 : 'destroyDsInput', 
+    26 : 'mapInput', 
+    27 : 'aggregateInput', 
+    28 : 'queryInput', 
+    29 : 'queryStateInput', 
+    30 : 'exportInput', 
+    31 : 'dagTableNameInput', 
+    32 : 'listFilesInput'
+};
 
 function createCanvas() {
     var dagWrap = $('.dagWrap:last');
     var dagWidth = dagWrap.find('.dagImage > .joinWrap').width();
     var dagHeight = dagWrap.find('.dagImage > .joinWrap').height();
-    var canvasHTML = $('<canvas id="canvas" width="'+dagWidth+
+    var canvasHTML = $('<canvas class="canvas" width="'+dagWidth+
                      '" height="'+dagHeight+'"></canvas>');
-    // $('.dagWrap:last').append(canvasHTML);
     $('.dagWrap:last .dagImage').append(canvasHTML);
     return (canvasHTML[0]);
 }
 
-function drawCurve(ctx, coor) {
-    var yoffset = Math.ceil((coor.y1-coor.y2)/5);
-    var xoffset = 20;
-    // drawDot(coor.x2, coor.y2+offset);
-    ctx.beginPath();
-    ctx.moveTo(coor.x1+(xoffset*2), coor.y1);
-    ctx.bezierCurveTo(coor.x2+xoffset, coor.y1, coor.x2+xoffset, 
-                      coor.y2+yoffset, coor.x2+xoffset, coor.y2+yoffset);
-    ctx.stroke();
+// this function draws all the lines going into a blue table icon and its
+// corresponding gray origin rectangle 
+function drawDagLines(dagTable, ctx) {
+    if (dagTable.prev().children().length != 2 ) { // exclude joins
+        if (dagTable.children('.dataStore').length == 0) { //exclude datasets
+            drawStraightDagConnectionLine(dagTable, ctx);
+        } 
+    } else { // draw lines for joins
 
-    ctx.beginPath();
-    ctx.moveTo(coor.x2+xoffset,coor.y2+yoffset);
-    ctx.lineTo(coor.x2+xoffset, coor.y2);
-    ctx.stroke();
+        var origin1 = dagTable.prev().children().eq(0)
+                      .children().eq(1).find('.dagTable');
+        var origin2 = dagTable.prev().children().eq(1)
+                      .children().eq(1).find('.dagTable');
 
-    drawLine(ctx, coor.x1+(xoffset*2), coor.y1, (xoffset*2));
+        var desiredY = (origin1.position().top + origin2.position().top)/2;
+        var currentY = dagTable.find('.dagTable').position().top;
+        var yAdjustment = (desiredY - currentY)*2;
+        dagTable.css({'margin-top': yAdjustment}); 
+
+        var tableX = dagTable.find('.dagTable').position().left;
+        var tableY = dagTable.find('.dagTable').position().top +
+                     dagTable.height()/2;
+        drawLine(ctx, tableX, tableY); // line entering table
+
+        curvedLineCoor = {
+            x1: origin1.position().left + origin1.width(),
+            y1: origin1.position().top + origin1.height()/2,
+            x2: Math.floor(dagTable.find('.actionTypeWrap').position().left+12),
+            y2: Math.floor(dagTable.find('.actionTypeWrap').position().top)
+        }
+        drawCurve(ctx, curvedLineCoor); 
+    }
 }
+
+// draw the lines corresponding to tables not resulting from joins
+function drawStraightDagConnectionLine(dagTable, ctx) {
+    var tableX = dagTable.find('.dagTable').position().left;
+    var farLeftX = dagTable.position().left;
+    var currentY = dagTable.offset().top;
+    if (dagTable.prev().children().children('.dagTableWrap').length > 0) {
+        var desiredY = dagTable.prev().children().children('.dagTableWrap').offset().top;
+    } else {
+         var desiredY = dagTable.prev().children('.dagTableWrap').offset().top;
+    }
+    var yAdjustment = (desiredY - currentY)*2;
+    dagTable.css({'margin-top': yAdjustment});
+    var tableCenterY = dagTable.find('.dagTable').position().top + 
+                 dagTable.height()/2;
+    drawLine(ctx, tableX, tableCenterY, (tableX - farLeftX + 20));
+}
+
+function drawCurve(ctx, coor) {
+    var x1 = coor.x1;
+    var y1 = coor.y1;
+    var x2 = coor.x2;
+    var y2 = coor.y2;
+    var vertDist = y2 - y1;
+
+    var xoffset = 0;
+    if (vertDist < 60) {
+        xoffset = 1000 / vertDist;
+    }
+   
+    ctx.beginPath();
+    ctx.moveTo(x1 + xoffset, y1);
+    ctx.bezierCurveTo( x2+50, y1,
+                        x2+50, y1 + (vertDist + 16)*2,
+                        x1 + xoffset, y1 + (vertDist + 16)*2 + 1);
+    ctx.moveTo(x1 - 10, y1);
+    ctx.lineTo(x1 + xoffset, y1);
+    ctx.moveTo(x1 - 10, y1 + (vertDist + 17)*2);
+    ctx.lineTo(x1 + xoffset, y1 + (vertDist + 16)*2 +1);
+    ctx.stroke();
+}
+
 
 function drawLine(ctx, x, y, length) {
     // draw a horizontal line
-    var dist = 20;
+    var dist = 30;
     if (length != undefined) {
         dist = length;
     }
@@ -160,216 +431,9 @@ function drawLine(ctx, x, y, length) {
     ctx.stroke();
 }
 
-
-function drawDagUnit(dagUnit, prop, dagArray, html) {
-    var properties = {};
-    properties.x = prop.x+1;
-    properties.width = prop.width;
-    var numChildren = dagUnit.children.length;
-    var numJoins = Math.max(0, numChildren-1);
-
-    var accumulatedDrawings = "";
-
-    for (var i = 0; i < numChildren; i++) {
-        properties.y = i*2 +1 - numChildren + prop.y;
-        accumulatedDrawings += drawDagUnit(dagArray[dagUnit.children[i]], 
-                               properties, dagArray, html);
-    }
-
-    var oneTable = drawDagTable(dagUnit, prop, dagArray);
-
-    var newHtml;
-    if (accumulatedDrawings) {
-        newHtml = "<div class='joinWrap'><div class='childContainer'>"+
-                  accumulatedDrawings+"</div>"+oneTable+"</div>";
-    }
-
-    if (newHtml) {
-        return newHtml;
-    } else {
-        return (accumulatedDrawings+oneTable);
-    }
-}
-
-function drawDagTable(dagUnit, prop, dagArray) {
-    var top = 200 + (prop.y*60);
-    var right = 100 + (prop.x*170);
-    var dagTable = '<div class="dagTableWrap clearfix">' +
-                drawDagOrigin(dagUnit, prop, dagArray);
-    if (dagUnit.children.length == 0) {
-        dagTable += '<div class="dagTable dataStore">'+
-                    '<div class="dataStoreIcon"></div>'+
-                    '<div class="icon"></div>'+
-                    '<span class="tableTitle">Dataset</span>';
-    } else {
-        dagTable += '<div class="dagTable">' +
-                    '<div class="dagTableIcon"></div>'+
-                    '<div class="icon"></div>'+
-                    '<span class="tableTitle">'+dagUnit.tableName+'</span>';
-    }
-    dagTable += '</div></div>';
-    return dagTable;
-}
-
-function drawDagOrigin(dagUnit, prop, dagArray) {
-    var originHTML = "";
-    for (var i = 0; i < dagUnit.origin.length; i++) {
-
-        if (dagUnit.origin[i] == "original") {
-            return "";
-        } 
-        // console.log(origin, prop);
-        var additionalInfo = "";
-        if (dagUnit.children.length == 2) {
-            additionalInfo += " & Table "+dagUnit.children[1];
-        }
-
-        var top = 210 + (prop.y*60);
-        var right = 180 + (prop.x*170);
-        originHTML += '<div class="actionType '+dagUnit.origin[i]+'" '+
-                    'style="top:'+0+'px; right:'+0+'px;">'+
-                        '<div class="actionTypeWrap">'+
-                            '<div class="dagIcon '+dagUnit.origin[i]+'">'+
-                                '<div class="icon"></div>'+
-                            '</div>'+
-                            '<span class="typeTitle">'+dagUnit.origin[i]+
-                            '</span>'+
-                            '<span class="childrenTitle">Table '+
-                                dagUnit.children[0]+additionalInfo+
-                            '</span>'+
-                        '</div>'+
-                    '</div>';
-    }
-    return originHTML;
-}
-
-function drawDag() {
-    var dagArray = getDag();
-    var leafCount = 1;
-    for (var i = 0; i < dagArray.length; i++) {
-        if (dagArray[i].origin[0] == "original") {
-            leafCount++;
-        }
-    }
-    // leaf count should be 1 greater than the number of joins
-    // leaf count will determine how wide the tree will need to be
-
-    var prop = {
-        x:0, 
-        y:0, 
-        width: leafCount,
-        childCount: 0
-    };
-
-    var permProps = {
-        joinCount: 0
-    }
-    return drawDagUnit(dagArray[0], prop, dagArray, "");
-}
-
 function drawDot(x, y) {
     var html = '<div style="font-size: 8px; width:3px;height:3px;'+
                'background-color:green;position:absolute; left:'+x+
                'px;top:'+y+'px;">'+x+','+y+'</div>';
     $('.dagImage').append(html);
 }
-
-function getDag() {
-    var dagUnitArray = [];
-    var DagUnit = function(tableName, origin, children) {
-        this.tableName = tableName;
-        this.origin = origin;
-        this.children = children;
-    }
-
-    var dag17 = new DagUnit('Table 17', ['original'], []);
-    var dag16 = new DagUnit('Table 16', ['original'], []);
-    var dag15 = new DagUnit('Table 15', ['join'], [16, 17]);
-    var dag14 = new DagUnit('Table 14', ['filter', 'filter'], [15]);
-    var dag13 = new DagUnit('Table 13', ['original'], []);
-    var dag12 = new DagUnit('Table 12', ['join'], [13, 14]);
-    // var dag12 = new DagUnit('Table 12', ['original'], []);
-    var dag11 = new DagUnit('Table 11', ['original'], []);
-    var dag10 = new DagUnit('Table 10', ['original'], []);
-    var dag9 = new DagUnit('Table 9', ['original'], []);
-    var dag8 = new DagUnit('Table 8', ['original'], []);
-    var dag7 = new DagUnit('Table 7', ['original'], []);
-    var dag6 = new DagUnit('Table 6', ['join'], [11,12]);
-    var dag5 = new DagUnit('Table 5', ['filter'], [10]);
-    var dag4 = new DagUnit('Table 4', ['join'], [8,9]);
-    var dag3 = new DagUnit('Table 3', ['join'], [6, 7]);
-    var dag2 = new DagUnit('Table 2', ['filter', 'duplicateColumn'], [5]);
-    var dag1 = new DagUnit('Table 1', ['join'], [3,4]);
-    var dag0 = new DagUnit('Table 0', ['join'], [1,2]);
-    // var daga = new DagUnit('Table a', ['filter'], [0]);
-    // dagUnitArray.push(daga);
-    dagUnitArray.push(dag0);
-    dagUnitArray.push(dag1);
-    dagUnitArray.push(dag2);
-    dagUnitArray.push(dag3);
-    dagUnitArray.push(dag4);
-    dagUnitArray.push(dag5);
-    dagUnitArray.push(dag6);
-    dagUnitArray.push(dag7);
-    dagUnitArray.push(dag8);
-    dagUnitArray.push(dag9);
-    dagUnitArray.push(dag10);
-    dagUnitArray.push(dag11);
-    dagUnitArray.push(dag12);
-    dagUnitArray.push(dag13);
-    dagUnitArray.push(dag14);
-    dagUnitArray.push(dag15);
-    dagUnitArray.push(dag16);
-    dagUnitArray.push(dag17);
-    return dagUnitArray;
-}
-
-// function getDag() {
-//     var dagUnitArray = [];
-//     var DagUnit = function(tableName, origin, children) {
-//         this.tableName = tableName;
-//         this.origin = origin;
-//         this.children = children;
-//     }
-
-//     // var dag18 = new DagUnit('Table 18', ['original'], []);
-//     // var dag17 = new DagUnit('Table 17', ['original'], []);
-//     // var dag16 = new DagUnit('Table 16', ['original'], []);
-//     // var dag15 = new DagUnit('Table 15', ['join'], [17, 18]);
-//     // var dag14 = new DagUnit('Table 14', ['filter', 'filter'], [16]);
-//     // var dag13 = new DagUnit('Table 13', ['original'], []);
-//     // var dag12 = new DagUnit('Table 12', ['join'], [14, 15]);
-//     // var dag12 = new DagUnit('Table 12', ['original'], []);
-//     var dag11 = new DagUnit('Table 11', ['original'], []);
-//     var dag10 = new DagUnit('Table 10', ['original'], []);
-//     var dag9 = new DagUnit('Table 9', ['original'], []);
-//     var dag8 = new DagUnit('Table 8', ['original'], []);
-//     var dag7 = new DagUnit('Table 7', ['join'], [10, 11]);
-//     var dag6 = new DagUnit('Table 6', ['original'], []);
-//     var dag5 = new DagUnit('Table 5', ['join'], [8, 9]);
-//     var dag4 = new DagUnit('Table 4', ['join'], [6,7]);
-//     var dag3 = new DagUnit('Table 3', ['filter'], [5]);
-//     var dag2 = new DagUnit('Table 2', ['filter', 'duplicateColumn'], [4]);
-//     var dag1 = new DagUnit('Table 1', ['join'], [2,3]);
-//     var dag0 = new DagUnit('Table 0', ['filter'], [1]);
-//     dagUnitArray.push(dag0);
-//     dagUnitArray.push(dag1);
-//     dagUnitArray.push(dag2);
-//     dagUnitArray.push(dag3);
-//     dagUnitArray.push(dag4);
-//     dagUnitArray.push(dag5);
-//     dagUnitArray.push(dag6);
-//     dagUnitArray.push(dag7);
-//     dagUnitArray.push(dag8);
-//     dagUnitArray.push(dag9);
-//     dagUnitArray.push(dag10);
-//     dagUnitArray.push(dag11);
-//     // dagUnitArray.push(dag12);
-//     // dagUnitArray.push(dag13);
-//     // dagUnitArray.push(dag14);
-//     // dagUnitArray.push(dag15);
-//     // dagUnitArray.push(dag16);
-//     // dagUnitArray.push(dag17);
-//     // dagUnitArray.push(dag18);
-//     return dagUnitArray;
-// }

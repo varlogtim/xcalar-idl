@@ -78,6 +78,11 @@ function archiveTable(tableNum, del) {
     }
     generateFirstLastVisibleRowNum();
     focusTable(gActiveTableNum);
+    $('.dagWrap').find('.tableName')
+        .filter(function() {
+            return $(this).text() == tableName;
+        })
+        .closest('.dagWrap').remove();
 }
 
 function deleteTable(tableNum, deleteArchived) {

@@ -453,6 +453,7 @@ function xcalarDag(thriftHandle, tableName) {
         var dagOutput = result.output.dagOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             var status = result.jobStatus;
+            console.log("xcalarDag() error status: "+status);
             deferred.reject(status);
         } 
         else {
@@ -463,7 +464,7 @@ function xcalarDag(thriftHandle, tableName) {
     .fail(function(error) {
         console.log("xcalarDag() caught exception: " + error);
         deferred.reject(error);
-    })
+    });
 
     return (deferred.promise());
 }
