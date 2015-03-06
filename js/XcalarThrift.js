@@ -363,3 +363,10 @@ function XcalarQuery(query) {
         console.log(queryOutput);
     })
 }
+
+function XcalarGetDag(tableName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    return (xcalarDag(tHandle, tableName));
+}

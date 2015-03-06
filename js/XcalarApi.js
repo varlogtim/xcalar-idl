@@ -426,6 +426,7 @@ function xcalarQueryState(thriftHandle, queryId) {
 }
 
 function xcalarDag(thriftHandle, tableName) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarDag(tableName = " + tableName + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -435,15 +436,24 @@ function xcalarDag(thriftHandle, tableName) {
     workItem.api = XcalarApisT.XcalarApiDag;
     workItem.input.dagTableNameInput = tableName;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var dagOutput = result.output.dagOutput;
-    } catch (ouch) {
-        console.log("xcalarDag() caught exception: " + ouch);
-        var dagOutput = new XcalarApiDagOutputT();
-    }
+        if (result.jobStatus != StatusT.StatusOk) {
+            var status = result.jobStatus;
+            deferred.reject(status);
+        } 
+        else {
+            console.log('status ok!', result);
+            deferred.resolve(dagOutput);
+        }     
+    })
+    .fail(function(error) {
+        console.log("xcalarDag() caught exception: " + error);
+        deferred.reject(error);
+    })
 
-    return dagOutput;
+    return (deferred.promise());
 }
 
 function xcalarListTables(thriftHandle, patternMatch) {
