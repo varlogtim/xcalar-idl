@@ -148,17 +148,19 @@ function setuptableListSection() {
                 var $li = $(this).closest('li.tableInfo');
                 var $timeLine = $li.parent().parent();
                 var index = $li.index();
+                $li.remove();
+                numHiddenTables--;
                 // XXX these selected tables are ordered in reverse
                
                 if (action == "add") {
                     var activeTable = gHiddenTables.splice((
-                                 numHiddenTables-index-1), 1)[0];
-                    numHiddenTables--;
+                                 numHiddenTables-index), 1)[0];
+                    
                     gTableIndicesLookup[activeTable.frontTableName].active =
                                                                            true;
                     gTableIndicesLookup[activeTable.frontTableName].timeStamp 
                                                       = (new Date()).getTime();
-                    $li.remove();
+                    
                     // add cli
                     var cliOptions = {};
                     cliOptions.operation = 'addTable';
@@ -177,10 +179,8 @@ function setuptableListSection() {
                         innerDeferred.resolve();
                     });
                 } else {
-                    var tableNum = numHiddenTables-index-1;
+                    var tableNum = numHiddenTables-index;
                     // add cli
-                    $li.remove();
-                    numHiddenTables--;
                     var cliOptions = {};
                     cliOptions.operation = 'deleteTable';
                     cliOptions.tableName = gHiddenTables[tableNum]
@@ -201,11 +201,12 @@ function setuptableListSection() {
                 }
                 
                 return (innerDeferred.promise());
-            }).apply(this));
+            }).bind(this));
         });
 
-        jQuery.when.apply(jQuery, promises)
-        .done(function() {
+
+        chain(promises)
+        .then(function() {
             if (action == "add") {
                 $mainFrame = $('#mainFrame');
                 $('#workspaceTab').trigger('click');
@@ -214,7 +215,7 @@ function setuptableListSection() {
                                 $mainFrame.scrollLeft();
                 $mainFrame.animate({scrollLeft: leftPos});
             }
-        }); 
+        })
     }
 }
 
