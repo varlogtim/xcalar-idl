@@ -159,9 +159,13 @@ function XcalarDestroyDataset(dsName) {
         return (promiseWrapper(null));
     }
     getDsId(dsName).then(function(id) {
-        xcalarDestroyDataset(tHandle, id).done(function() {
-            deferred.resolve();
-        });
+        return (xcalarDestroyDataset(tHandle, id));
+    })
+    .done(function() {
+        deferred.resolve();
+    })
+    .fail(function(status) {
+        deferred.reject(status);
     });
 
     return (deferred.promise());

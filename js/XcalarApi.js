@@ -892,12 +892,13 @@ function xcalarDeleteTable(thriftHandle, tableName) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
+            console.log("xcalarDeleteTable() failed with status code:", status);
             deferred.reject(status);
         }
         deferred.resolve(status);
     })
     .fail(function(error) {
-        console.log("xcalarDeleteTable() caught exception: " + error);
+        console.log("xcalarDeleteTable() caught exception:", error);
         deferred.reject(error);
     });
 

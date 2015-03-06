@@ -1,13 +1,16 @@
 function freeAllResultSets() {
     var promises = [];
     var gTablesLen = gTables.length;
+    // XXX use promise is not reliable to send all reqeust to backend
     for (var i = 0; i < gTablesLen; i++) {
-        promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
+        // promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
+        XcalarSetFree(gTables[i].resultSetId);
     }
 
     var gHiddenTablesLen = gHiddenTables.length;
     for (var i = 0; i < gHiddenTablesLen; i ++) {
-        promises.push(XcalarSetFree.bind(this, gHiddenTables[i].resultSetId));
+        // promises.push(XcalarSetFree.bind(this, gHiddenTables[i].resultSetId));
+        XcalarSetFree(gHiddenTables[i].resultSetId);
     }
 
     return (chain(promises));

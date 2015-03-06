@@ -101,6 +101,55 @@ function setupRightSideBar() {
                     .removeClass('active');
         }, delay);
     });
+
+    setupHelpSection();
+}
+
+// Current it works as a rest button
+function setupHelpSection() {
+    $('#helpSubmit').click(function() {
+        console.log('Reset Fired!');
+        var promises = [];
+        // delete All Hidden Tables
+        for (var i = gHiddenTables.length - 1; i >= 0; i --) {
+            promises.push(deleteTable.bind(this, i, DeleteTable.Delete));
+        }
+        // delete All Table
+        for (var i = gTables.length - 1; i >= 0; i --) {
+            promises.push(deleteTable.bind(this, i));
+        }
+
+        chain(promises)
+        .then(function() {
+            console.log('Table Deleted');
+
+            // Clear archived Table List
+            $('#inactiveTablesList').html('');
+            $('#archivedTableList').find('.btnLarge').hide();
+            return (DSObj.reset());
+        })
+        .done(function() {
+           emptyStorage();
+           console.log("Clear Up Succeed!")
+        }).fail(function() {
+            console.log("Fail to empty all!");
+            emptyStorage();
+        })
+
+        function emptyStorage() {
+            emptyAllStorage();
+            gTableIndicesLookup = {};
+            gTableDirectionLookup = {};
+            gWorksheetName = [];
+            gTableOrderLookup = [];
+            gDSObjFolder = {};
+            commitToStorage();
+            clearCli();
+
+            $('#worksheetInfo').find('.numDataStores').text(0);
+            $('#datasetExplore').find('.numDataStores').text(0);
+        }
+    });
 }
 
 function setuptableListSection() {

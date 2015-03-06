@@ -490,8 +490,39 @@ DSObj.display = function () {
 // clear data set
 DSObj.clearAll = function () {
     $('#gridView grid-unit').remove();
-    gDSObj.id = 1;
+    gDSInitialization();
     gDSObjFolder = {};
+}
+
+// clear both backend and front end
+DSObj.reset = function() {
+    var deferred = jQuery.Deferred();
+    var promises = [];
+    var queue = [];
+    queue.push(gDSObj.folder);
+    while (queue.length > 0) {
+        var dsFolder = queue.shift();
+        for (var i = 0; i < dsFolder.eles.length; i ++) {
+            var dsObj = dsFolder.eles[i];
+            if (dsObj.isFolder && dsObj.eles.length > 0) {
+                queue.push(dsObj);
+            } else if(!dsObj.isFolder) {
+                promises.push(XcalarDestroyDataset.bind(this, dsObj.name));
+            }
+        }
+    }
+    chain(promises)
+    .done(function() {
+        console.log('Datasets deleted!');
+        DSObj.clearAll();
+        $('#importDataButton').click();
+        deferred.resolve();
+    })
+    .fail(function() {
+        console.log('Datasets fail to delete!');
+        deferred.reject();
+    });
+    return (deferred.promise());
 }
 
 // change to another DS dir

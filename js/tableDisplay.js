@@ -116,7 +116,7 @@ function deleteTable(tableNum, deleteArchived) {
     .then(function() {
         return (XcalarDeleteTable(backTableName));
     })
-    .done(function() {
+    .always(function() {
         deferred.resolve();
     });
 

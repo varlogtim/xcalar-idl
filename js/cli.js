@@ -32,3 +32,7 @@ function cliScrollDown($textarea) {
         $textarea.scrollTop(scrollDiff);
     }
 }
+
+function clearCli() {
+    $('#rightBarTextArea').html('');
+}
