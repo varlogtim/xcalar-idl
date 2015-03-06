@@ -227,7 +227,7 @@ function XcalarMakeResultSetFromTable(tableName) {
 
 function XcalarSetAbsolute(resultSetId, position) {
     if (tHandle == null) {
-        return (0);
+        return (promiseWrapper(0));
     }
     return (xcalarResultSetAbsolute(tHandle, resultSetId, position));
 }

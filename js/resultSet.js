@@ -26,23 +26,28 @@ function goToPage(pageNumber, direction, tableNum) {
     }
     gTables[tableNum].currentPageNumber = pageNumber;
     var shift = numPagesToShift(direction);
-    var position = (pageNumber-shift)*gNumEntriesPerPage;
-    XcalarSetAbsolute(gTables[tableNum].resultSetId, position);
+    var position = (pageNumber - shift) * gNumEntriesPerPage;
 
-    generateDataColumnJson(gTables[tableNum].resultSetId,
-                           true, null, tableNum)
+    XcalarSetAbsolute(gTables[tableNum].resultSetId, position)
+    .then(function(){
+        return (generateDataColumnJson(gTables[tableNum].resultSetId,
+                                 true, null, tableNum));
+    })
     .done(function(jsonData) {
         var startingIndex;
-        var $tableBody = $('#xcTable'+tableNum).find('tbody');
+        var $tableBody = $('#xcTable' + tableNum).find('tbody');
         if ($tableBody.children().length === 0) {
             startingIndex = position;
         } else {
-            if (direction == 1) {
+            if (direction === 1) {
                 startingIndex = parseInt($tableBody.find('tr:first')
-                            .attr('class').substring(3)) - jsonData.length;
+                                                   .attr('class')
+                                                   .substring(3)) 
+                                - jsonData.length;
             } else {
                 startingIndex = parseInt($tableBody.find('tr:last')
-                                                .attr('class').substring(3))+1;
+                                                   .attr('class')
+                                                   .substring(3)) + 1;
             }
         }
         

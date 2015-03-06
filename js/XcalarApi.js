@@ -754,6 +754,7 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
 }
 
 function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarResultSetAbsolute(resultSetId = " +
                 resultSetId.toString() + ", position = " +
                 position.toString() + ")");
@@ -768,20 +769,22 @@ function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
     workItem.input.resultSetAbsoluteInput.resultSetId = resultSetId;
     workItem.input.resultSetAbsoluteInput.position = position;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var status = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
-    } catch(ouch) {
-        console.log("xcalarResultSetAbsolute() caught exception: " +
-                    ouch);
-
-        var status = StatusT.StatusThriftProtocolError;
-    }
-
-    return status;
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarResultSetAbsolute() caught exception:", error);
+        deferred.reject(error);
+    });
+    return (deferred.promise());
 }
 
 function xcalarFreeResultSet(thriftHandle, resultSetId) {
