@@ -165,8 +165,8 @@ function sortRows(index, tableNum, order) {
         cliOptions.direction = "DESC";
     }
 
-    XcalarIndexFromTable(srcTableName, fieldName, newTableName)
-    .then(refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep))
+    XcalarIndexFromTable(srcTableName, fieldName, newTableName);
+    refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep)
     .done(function() {
         addCli('Sort Table', cliOptions);
     });
@@ -338,15 +338,12 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
             // indexed on this key. But for now, we reindex a new table
             var rand = Math.floor((Math.random() * 100000) + 1);
             var newTableName1 = leftName+rand;
+            XcalarIndexFromTable(gTables[leftTableNum].backTableName, leftColName,
+                                 newTableName1);
             leftName = newTableName1;
-            
-            return (
-                XcalarIndexFromTable(gTables[leftTableNum].backTableName, 
-                                     leftColName, newTableName1)
-                .then(checkStatusLite(newTableName1, joinTables2, [newTableName,
-                                      joinTypeStr, leftTableNum, leftName,
-                                      rightTableNum, rightColumnNum]))
-            );
+            return (checkStatusLite(newTableName1, joinTables2, [newTableName,
+                                    joinTypeStr, leftTableNum, leftName,
+                                    rightTableNum, rightColumnNum]));
         } else {
             console.log("left indexed correctly");
             return (joinTables2([newTableName, joinTypeStr, leftTableNum, 
@@ -381,14 +378,12 @@ function joinTables2(args) {
             console.log("right not indexed correctly");
             var rand = Math.floor((Math.random() * 100000) + 1);
             var newTableName2 = gTables[rightTableNum].backTableName+rand;
+            XcalarIndexFromTable(gTables[rightTableNum].backTableName,
+                                 rightColName, newTableName2);
             rightName = newTableName2;
-            return (
-                XcalarIndexFromTable(gTables[rightTableNum].backTableName,
-                                     rightColName, newTableName2)
-                .then(checkStatusLite(newTableName2, joinTables3, [newTableName,
-                                      joinTypeStr, leftTableNum, leftName,
-                                      rightTableNum, rightName]))
-            );  
+            return (checkStatusLite(newTableName2, joinTables3, [newTableName,
+                                    joinTypeStr, leftTableNum, leftName,
+                                    rightTableNum, rightName]));
         } else {
             console.log("right correctly indexed");
             return (joinTables3([newTableName, joinTypeStr, leftTableNum, 
