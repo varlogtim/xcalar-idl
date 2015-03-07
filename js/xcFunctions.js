@@ -252,7 +252,9 @@ function filterCol(operator, value, colid, tableNum) {
     console.log(colid); 
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
-    .then(refreshTable(newTableName, tableNum))
+    .then(function() {
+        return (refreshTable(newTableName, tableNum));
+    })
     .done(function() {
         addCli('Filter Table', cliOptions);
         deferred.resolve();
@@ -416,8 +418,10 @@ function joinTables3(args) {
         '{cursor: wait !important;}</style>');
 
     XcalarJoin(leftName, rightName, newTableName)
-    .then(refreshTable(newTableName, leftTableNum, 
-                       KeepOriginalTables.DontKeep, rightTableNum))
+    .then(function() {
+        return (refreshTable(newTableName, leftTableNum, 
+                       KeepOriginalTables.DontKeep, rightTableNum));
+    })
     .done(function() {
         $('#waitCursor').remove();
         deferred.resolve();

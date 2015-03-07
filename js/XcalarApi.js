@@ -695,7 +695,7 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
         if (result.jobStatus != StatusT.StatusOk) {
             deferred.reject(result.jobStatus);
         } else {
-            deferred.resolve(joinOutput);
+            deferred.resolve(filterOutput);
         } 
     })
     .fail(function(error) {
