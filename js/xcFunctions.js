@@ -1,39 +1,9 @@
-var tempCountShit = 0;
-// XXX: Dedupe with checkLoad!!!!
-function checkStatus(newTableName, tableNum, keepOriginal,
-                     additionalTableNum) {
-    var deferred = jQuery.Deferred();
-
-    (function internalCheckStatus() {
-        tempCountShit++;
-        var refCount = XcalarGetTableRefCount(newTableName);
-        console.log(refCount);
-        if (refCount == 1 || tempCountShit > 20) {
-            tempCountShit = 0;
-            refreshTable(newTableName, tableNum, 
-                         keepOriginal, additionalTableNum)
-            .done(function() {
-                deferred.resolve();
-            });
-        } else {
-            console.log(refCount);
-            // Check twice per second
-            setTimeout(function() {
-                internalCheckStatus();
-            }, 500);
-        }
-    })();
-
-    return (deferred.promise());
-}
-
 function refreshTable(newTableName, tableNum, 
                       keepOriginal, additionalTableNum) {
     var deferred = jQuery.Deferred();
 
     $('#dagPanel').addClass('hidden');
     $("#workspaceTab").trigger('click');
-    var newTableNum;
     if (keepOriginal === KeepOriginalTables.Keep) {
         // append newly created table to the back
         newTableNum = gTables.length;
@@ -76,28 +46,6 @@ function refreshTable(newTableName, tableNum,
             deferred.resolve();
         });
     }
-
-    return (deferred.promise());
-}
-
-function checkStatusLite(name, funcPtr, args) {
-    var deferred = jQuery.Deferred();
-
-    (function internalCheckStatusLite() {
-        tempCountShit++;
-        var refCount = XcalarGetTableRefCount(name);
-        if (refCount == 1 || tempCountShit > 20) {
-            tempCountShit = 0;
-            funcPtr(args);
-
-            deferred.resolve();
-        } else {
-            setTimeout(function() {
-                internalCheckStatusLite();
-            }, 500);
-        }
-    })();
-
     return (deferred.promise());
 }
 
@@ -297,6 +245,10 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
         break;
     }
 
+    $("body").css({"cursor": "wait"}); 
+    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
+        '{cursor: wait !important;}</style>');
+
     var leftName = gTables[leftTableNum].backTableName;
     var joinType = "";
     var leftColName =
@@ -308,19 +260,20 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
 
         if (leftColName != leftIndexColName) {
             console.log("left not indexed correctly");
-            // XXX In the future, we can check if there are other tables that are
+            // XXX In the future,we can check if there are other tables that are
             // indexed on this key. But for now, we reindex a new table
             var rand = Math.floor((Math.random() * 100000) + 1);
             var newTableName1 = leftName+rand;
             leftName = newTableName1;
             
-            return (
-                XcalarIndexFromTable(gTables[leftTableNum].backTableName, 
-                                     leftColName, newTableName1)
-                .then(checkStatusLite(newTableName1, joinTables2, [newTableName,
-                                      joinTypeStr, leftTableNum, leftName,
-                                      rightTableNum, rightColumnNum]))
-            );
+            return (XcalarIndexFromTable(gTables[leftTableNum].backTableName,
+                                 leftColName, newTableName1)
+                    .then(function() {
+                            return (joinTables2([newTableName, joinTypeStr,
+                                               leftTableNum, leftName,
+                                               rightTableNum, rightColumnNum]));
+                          })
+                    );
         } else {
             console.log("left indexed correctly");
             return (joinTables2([newTableName, joinTypeStr, leftTableNum, 
@@ -356,13 +309,14 @@ function joinTables2(args) {
             var rand = Math.floor((Math.random() * 100000) + 1);
             var newTableName2 = gTables[rightTableNum].backTableName+rand;
             rightName = newTableName2;
-            return (
-                XcalarIndexFromTable(gTables[rightTableNum].backTableName,
-                                     rightColName, newTableName2)
-                .then(checkStatusLite(newTableName2, joinTables3, [newTableName,
-                                      joinTypeStr, leftTableNum, leftName,
-                                      rightTableNum, rightName]))
-            );
+            return (XcalarIndexFromTable(gTables[rightTableNum].backTableName,
+                                         rightColName, newTableName2)
+                    .then(function() {
+                              return (joinTables3([newTableName, joinTypeStr,
+                                      leftTableNum, leftName, rightTableNum,
+                                      rightName]));
+                          })
+                    );
         } else {
             console.log("right correctly indexed");
             return (joinTables3([newTableName, joinTypeStr, leftTableNum, 
@@ -387,10 +341,6 @@ function joinTables3(args) {
     var newTableCols = createJoinIndex(rightTableNum, leftTableNum);
     setIndex(newTableName, newTableCols);
     commitToStorage(); 
-    $("body").css({"cursor": "wait"}); 
-    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-        '{cursor: wait !important;}</style>');
-
     XcalarJoin(leftName, rightName, newTableName)
     .then(function() {
         return (refreshTable(newTableName, leftTableNum, 

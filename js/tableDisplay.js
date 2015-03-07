@@ -2,7 +2,6 @@
 // Shifts all the ids and everything
 function addTable(tableName, tableNum, AfterStartup) {
     var deferred = jQuery.Deferred();
-
     for (var i = gTables.length-1; i>=tableNum; i--) {
         $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i+1));
         $("#xcTheadWrap"+i).attr("id", "xcTheadWrap"+(i+1));
@@ -13,7 +12,6 @@ function addTable(tableName, tableNum, AfterStartup) {
         $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
         gTables[i+1] = gTables[i];
     }
-
     tableStartupFunctions(tableName, tableNum)
     .done(function() {
         if ($('#mainFrame').hasClass('empty')) {

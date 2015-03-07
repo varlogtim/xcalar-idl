@@ -249,7 +249,8 @@ function getDatasetSample(datasetName) {
                         GenericTypesRecordTypeT.GenericTypesVariableSize) {
                         for (var j = 0; j < recordsSize; j++) {
                             jsons[j] =
-                            jQuery.parseJSON(records.records[j].kvPairVariable.value);
+                            jQuery.parseJSON(records.records[j].kvPairVariable
+                                             .value);
                             for (var key in jsons[j]) {
                                 uniqueJsonKey[key] = "";
                             }
@@ -257,7 +258,8 @@ function getDatasetSample(datasetName) {
                     } else {
                         for (var j = 0; j < recordsSize; j++) {
                             jsons[j] =
-                            jQuery.parseJSON(records.records[j].kvPairFixed.value);
+                            jQuery.parseJSON(records.records[j].kvPairFixed
+                                             .value);
                             for (var key in jsons[j]) {
                                 uniqueJsonKey[key] = "";
                             }
@@ -679,7 +681,6 @@ function createWorksheet() {
             var startIndex = 0;
             var datasetName = $(this).data('dsname');
             var tableName = $(this).find('h3').text();
-
             var self = this;
             XcalarGetTables()
             .done(function(tables) {
@@ -748,18 +749,14 @@ function createWorksheet() {
                             columnToIndex, tableName));
                 })
                 .then(function() {
-                   
-                    var keepLastTable = true;
-                    var additionalTableNum = false;
-                    return (checkStatus(tableName, gTables.length, 
-                        keepLastTable, additionalTableNum));
+                    return (refreshTable(tableName, gTables.length, true,
+                                         false));
                 })
                 .done(function() {
                     chainDeferred.resolve();
                 });
             });
-
-            return chainDeferred.promise();
+            return (chainDeferred.promise());
         }).bind(this));
     });
 
@@ -804,7 +801,7 @@ function setupDatasetList() {
     }
 
 
-    //Jerene: As discussed, please get datasets from server regardless.
+    // Jerene: As discussed, please get datasets from server regardless.
     XcalarGetDatasets()
     .then(function(datasets) {
         var promises = [];

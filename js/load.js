@@ -22,7 +22,6 @@ function setupImportDSForm() {
             displayErrorMessage(text, $('#fileName'));
             return;
         }
-
         appendTempDSToList(tableName);
 
         XcalarLoad(loadArgs[0], loadFormat, tableName,

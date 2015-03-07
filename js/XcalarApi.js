@@ -78,6 +78,9 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
         }
         if (loadOutput.status != StatusT.StatusOk) {
             deferred.reject(loadOutput.status);
+            console.log("xcalarLoad() failed with status: "+loadOutput.status);
+        } else {
+            deferred.resolve(loadOutput);
         }
         deferred.resolve(loadOutput);
     })

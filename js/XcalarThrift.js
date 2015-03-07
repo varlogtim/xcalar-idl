@@ -135,7 +135,8 @@ function XcalarDeleteTable(backTableName) {
     return (xcalarDeleteTable(tHandle, backTableName));
 }
 
-function XcalarEditColumn(datasetId, currFieldName, newFieldName, newFieldType) {
+function XcalarEditColumn(datasetId, currFieldName, newFieldName,
+                          newFieldType) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }

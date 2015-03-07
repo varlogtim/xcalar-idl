@@ -529,10 +529,10 @@ function startupFunctions() {
 
 function tableStartupFunctions(table, tableNum) {
     var deferred = jQuery.Deferred();
-
     setTableMeta(table)
     .then(function(newTableMeta) {
         gTables[tableNum] = newTableMeta;
+        console.log(gTables.length);
         return (documentReadyCatFunction(tableNum));
     })
     .then(function(val) {
