@@ -100,8 +100,12 @@ function deleteTable(tableNum, deleteArchived) {
     
     // Free the result set pointer that is still pointing to it
     XcalarSetFree(resultSetId)
-    .then(XcalarDeleteTable(backTableName))
-    .done(deferred.resolve);
+    .then(function() {
+        return (XcalarDeleteTable(backTableName));
+    })
+    .done(function() {
+        deferred.resolve();
+    });
 
     return (deferred.promise());
 }

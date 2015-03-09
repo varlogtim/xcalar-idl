@@ -166,8 +166,12 @@ function sortRows(index, tableNum, order) {
     }
 
     XcalarIndexFromTable(srcTableName, fieldName, newTableName)
-    .then(refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep))
-    .done(addCli('Sort Table', cliOptions));
+    .then(function() {
+        return (refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep));
+    })
+    .done(function() {
+        addCli('Sort Table', cliOptions)
+    });
 }
 
 function mapColumn(fieldName, mapString, tableNum) {
@@ -185,10 +189,10 @@ function mapColumn(fieldName, mapString, tableNum) {
     XcalarMap(fieldName, mapString, 
               gTables[tableNum].frontTableName, newTableName)
     .then(function() {
-        refreshTable(newTableName, tableNum)
-        .done(function() {
-            deferred.resolve();
-        });
+        return (refreshTable(newTableName, tableNum));
+    })
+    .done(function() {
+        deferred.resolve();
     });
 
     return (deferred.promise());
@@ -218,7 +222,9 @@ function groupByCol(operator, newColName, colid, tableNum) {
     $("body").css({"cursor": "wait"});
 
     XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName)
-    .then(refreshTable(newTableName, tableNum, KeepOriginalTables.Keep))
+    .then(function() {
+        return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
+    })
     .done(function() {
         addCli('Group By', cliOptions);
         deferred.resolve();
