@@ -158,11 +158,11 @@ function setTableMeta(table) {
     return (deferred.promise());
 }
 
-$(window).unload(
-    function() {
-        freeAllResultSets();
-    }
-);
+$(window).on('beforeunload', function() {
+    freeAllResultSets();
+    // XXX As it blocks the UI, better to add a progress bar in the future
+    sleep("500ms");
+});
 
 function setupFunctionBar() {
      var functionbar = $('#fnBar');

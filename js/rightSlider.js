@@ -187,7 +187,10 @@ function setuptableListSection() {
                     cliOptions.tableName = activeTable.frontTableName;
 
                     addTable(activeTable.frontTableName, numTables++, 
-                        AfterStartup.After)
+                             AfterStartup.After)
+                    .then(function() {
+                        return (XcalarSetFree(activeTable.resultSetId));
+                    })
                     .done(function() {
                         addCli('Send To WorkSheet', cliOptions);
                         if ($timeLine.find('.tableInfo').length === 0) {
