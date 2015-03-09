@@ -7,9 +7,13 @@ function setupDag() {
         if (dag.hasClass('hidden')) {
             dag.removeClass('hidden');
             compSwitch.addClass('active');
+            if (dag.hasClass('midway')) {
+                $('#mainFrame').addClass('midway');
+            }
         } else if (workspacePanel.hasClass('active')) {
             dag.addClass('hidden');
             compSwitch.removeClass('active');
+            $('#mainFrame').removeClass('midway');
         }
 
         $('.mainPanel').hide().removeClass('active');
@@ -24,6 +28,7 @@ function setupDag() {
             dag.removeClass('midway').addClass('full');
         } else {
             dag.removeClass('full').addClass('midway');
+            $('#mainFrame').addClass('midway');
         }
     });
 

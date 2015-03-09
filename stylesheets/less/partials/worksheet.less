@@ -224,10 +224,12 @@
     overflow-y: hidden;
     // XXX not using position relative for the sake of 
     // the scrolling when drag/dropping a table or column
-    
-    &.dagOpen {
+    .transition-delay(0s);
+    .transition(height 0.3s);
+    &.midway {
         height: ~"calc(50% - 20px)";
-        .transition(height 0.3s);
+        .transition(height 0s);
+        .transition-delay(0.3s);
     }
 }
 
@@ -298,7 +300,7 @@
      .xcTbodyWrap {
         margin-bottom: 0;
         padding: 0;
-        max-height: ~"calc(100% - 35px)";
+        max-height: ~"calc(100% - 34px)";
         font-size: 11px;
         right: -17px;
         overflow-x: hidden;
