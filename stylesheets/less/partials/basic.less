@@ -446,6 +446,25 @@ body {
     opacity: 0.4;
 }
 
+/* Flex Styling */
+.flexContainer {
+    .flex-display();
+    &.flexRow {
+        .flex-flow(row);
+    }
+    .flexWrap {
+        &.flex-left {
+            .flex-order(1);
+        }
+        &.flex-mid {
+            .flex-order(2);
+        }
+        &.flex-right {
+            .flex-order(3);
+        }
+    }
+}
+
 
 /* DROP DOWN COLUMN STYLING */
 .dropdownBox {
@@ -471,23 +490,7 @@ body {
 }
 
 .header {
-    > .dropdownBox {
-        right: -3px;
-        bottom: -4px;
-        height: 24px;
-        width: 22px;
-        border: none;
-
-        .innerBox {
-            position: absolute;
-            width: 16px;
-            height: 12px;
-            right: 6px;
-            bottom: 7px;
-            border-top: 11px solid transparent;
-            border-right: 11px solid @color-dropBox;
-        }
-    }
+    .dropDown();
 }
 
 .fullOpacity {

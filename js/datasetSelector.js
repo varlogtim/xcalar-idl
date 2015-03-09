@@ -319,16 +319,23 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
     var key;
     for (var i = 0; i < jsonKeys.length; i++) {
         key = jsonKeys[i];
-        th +=  '<th class="table_title_bg col' + i + '">\
-                    <div class="header">\
-                        <span class="tick icon"></span>\
-                        <input spellcheck="false"\
-                            class="editableHead shoppingCartCol col' + i + '"\
-                            value="' + key + '" \
-                            id ="ds' + datasetId + 'cn' + key + '"\
-                            readonly="true">\
-                        <div class="dropdownBox">\
-                            <span class="innerBox"></span>\
+        th +=  '<th title="' + key + '" class="table_title_bg col' + i + '">\
+                    <div class="header flexContainer flexRow">\
+                        <div class="flexWrap flex-left">\
+                            <span class="type icon"></span>\
+                        </div>\
+                        <div class="flexWrap flex-mid">\
+                            <input spellcheck="false"\
+                                class="editableHead shoppingCartCol col' + i +
+                                '" value="' + key + '" \
+                                id ="ds' + datasetId + 'cn' + key + '"\
+                                readonly="true">\
+                        </div>\
+                        <div class="flexWrap flex-right">\
+                            <span class="tick icon"></span>\
+                            <div class="dropdownBox">\
+                                <span class="innerBox"></span>\
+                            </div>\
                         </div>\
                     </div>\
                 </th>';
@@ -344,22 +351,49 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
                             <li style="text-align: center" class="clickable">\
                                 <span>New Column Name</span>\
                                 <input type="text" width="100px" value="' +
-                                    'something' +'"/>\
+                                    'something' + '"/>\
                             </li>\
                             <div class="subColMenuArea"></div>\
                         </ul>\
                         <div class="dropdownBox"></div>\
                     </li>\
-                    <li class="changeDataType">Change Data Type</li>\
-                  </ul>';
-    $('#datasetWrap').append(colMenu);
+                    <li class="changeDataType">\
+                        <span>Change Data Type</span>\
+                        <ul class="subColMenu">';
 
+    // XXX Now Array, Object and Unknown are invalid type to change
+    var types = ['Boolean', 'Number', 'String', 'Mixed'];
+
+    for (var i = 0; i < types.length; i ++) {
+        var type = types[i];
+        colMenu += '<li class="flexContainer flexRow typeList type-' 
+                        + type.toLowerCase() + '">\
+                        <div class="flexWrap flex-left">\
+                            <span class="type icon"></span>\
+                        </div>\
+                        <div class="flexWrap flex-right">\
+                            <span class="label">' + type + '</span>\
+                        </div>\
+                    </li>';
+    }
+
+    colMenu +=  '</ul>\
+                <div class="dropdownBox"></div>\
+                </ul>';
+    $('#datasetWrap').append(colMenu);
 }
 
-function addDataSetRows(jsonKeys,jsons, tableNum) {
+function addDataSetRows(jsonKeys, jsons, tableNum) {
     var html = "";
     var key;
     var value;
+
+    // track column type
+    var columnsType = [];
+    for (var i = 0; i < jsons.length; i++) {
+        columnsType[i] = "undefined";
+    }
+
     // loop through each row
     for (var i = 0; i < jsons.length; i++) {
         var json = jsons[i];
@@ -375,25 +409,48 @@ function addDataSetRows(jsonKeys,jsons, tableNum) {
                 value = "";
             }
 
-            html += '<td class="col'+ j +'">\
+            // define type of the column
+            if (json[key] !== null && columnsType[j] !== "mixed") {
+                var type = typeof json[key];
+                if (type == "object" && (json[key] instanceof Array)) {
+                    type = "array";
+                }
+                if (columnsType[j] == "undefined") {
+                    columnsType[j] = type;
+                } else if (columnsType[j] !== type) {
+                    columnsType[j] = "mixed";
+                }
+            }
+
+            html += '<td class="col' + j + '">\
                         <div class="addedBarTextWrap">\
-                            <div class="addedBarText">'
-                            + value +
+                            <div class="addedBarText">' + 
+                                value +
                             '</div>\
                         </div>\
                     </td>';
         }
+
         html += '</tr>';
     }
-    $('#worksheetTable'+tableNum).append(html);
+
+    $('#worksheetTable' + tableNum).find('.header').each(function(index) {
+        var $tableHeader = $(this);
+        var type = columnsType[index];
+        $tableHeader.addClass('type-' + type);
+        $tableHeader.data('type', type);
+    });
+
+    $('#worksheetTable' + tableNum).append(html);
 }
 
 function addWorksheetListeners(tableNum) {
     var table = $('#dataSetTableWrap'+tableNum);
 
-    table.find('.dropdownBox').click(function() { 
-        dropdownClick($(this), true);
-        updateColMenuInfo($(this));
+    table.find('.dropdownBox').click(function() {
+        var $dropDownBox = $(this);
+        dropdownClick($dropDownBox, true);
+        updateColMenuInfo($dropDownBox);
     });
     
     $('#outerColMenu'+tableNum+' li').mouseenter(function() {
@@ -437,38 +494,100 @@ function addWorksheetListeners(tableNum) {
         var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
         console.log("Renaming "+oldColName+" to "+ newName);
         $('.colMenu').hide();
-        XcalarEditColumn(dsnumber, oldColName, newName,
-                         DfFieldTypeT.DfString)
-        .done(function() {
-            var newId = "ds" + dsnumber + "cn" + newName;
-            console.log(newId);
-            headInput.attr("id", newId)
-                     .val(newName);
-            $('#selectedTable'+tableNum).find('.colName').filter(
-                function() {
-                    return $(this).text() == oldColName;
-                }
-            ).text(newName);
-        });
+
+        if (newName !== oldColName) {
+            XcalarEditColumn(dsnumber, oldColName, newName,
+                             DfFieldTypeT.DfString)
+            .done(function() {
+                var newId = "ds" + dsnumber + "cn" + newName;
+                console.log(newId);
+                headInput.attr("id", newId)
+                         .val(newName);
+                $('#selectedTable'+tableNum).find('.colName').filter(
+                    function() {
+                        return $(this).text() == oldColName;
+                    }
+                ).text(newName);
+            });
+        }
     });
 
-    // table.find('.changeDataType').click(function() {
-    //         //XX to implement changing data types
-    // });
+    // Change Date Type
+    $('#outerColMenu' + tableNum).children('.changeDataType')
+                                 .on('click', '.typeList', function() {
+        var $typeList = $(this);
+        var newType = $typeList.find('.label')
+                               .text()
+                               .toLowerCase();
+        var colNum = $typeList.closest('.colMenu')
+                              .data('colNum');
+
+        var $tableHeader = $('#dataSetTableWrap' + tableNum + 
+                             ' .col' + colNum + ' .header');
+
+        var $headInput = $tableHeader.find('.editableHead');
+        var oldid = $headInput.attr('id');
+        var dsnumber = parseInt(oldid.substring(2, oldid.indexOf('cn')));
+        var colName = oldid.substring(oldid.indexOf("cn") + 2);
+        var oldType = $tableHeader.data('type');
+        $('.colMenu').hide();
+
+        var typeId = (function getTypeId(type) {
+            switch (type) {
+                case 'undefined':
+                    return DfFieldTypeT.DfUnknown;
+                case 'string':
+                    return DfFieldTypeT.DfString;
+                case 'number':
+                    return DfFieldTypeT.DfFloat64;
+                case 'boolean':
+                    return DfFieldTypeT.DfBoolean;
+                case 'mixed':
+                    return DfFieldTypeT.DfMixed;
+                default:
+                    return -1; // Invalid type
+            }
+        })(newType);
+
+        if (newType != oldType && typeId >= 0) {
+            console.log("Change Type from " + oldType + " to " + newType);
+            XcalarEditColumn(dsnumber, colName, colName,
+                             typeId)
+            .done(function() {
+                $tableHeader.data('type', newType);
+                $tableHeader.removeClass('type-' + oldType)
+                            .addClass('type-' + newType);
+            });
+        }
+
+    });
 
     table.find('.editableHead').click(function() {
         checkColumn($(this), SelectUnit.Single);
     });
 }
 
-function updateColMenuInfo(el) {
-    var tableNum = parseInt(el.closest('.datasetTableWrap').attr('id')
-                       .substring(16));
-    var menu = $('#outerColMenu'+tableNum);
-    var colNum = parseColNum(el.closest('th'));
-    var colName = el.siblings('.editableHead').val();
-    menu.data('colNum', colNum);
-    menu.find('.renameCol input').val(colName);
+function updateColMenuInfo($dropDownBox) {
+    var tableNum = parseInt($dropDownBox.closest('.datasetTableWrap')
+                                        .attr('id')
+                                        .substring(16));
+    var $menu = $('#outerColMenu' + tableNum);
+    var $th = $dropDownBox.closest('th');
+    var colNum = parseColNum($th);
+    var colName = $th.find('.editableHead').val();
+    $menu.data('colNum', colNum);
+    $menu.find('.renameCol input').val(colName);
+
+    // XXX Just for temporary use, will change the functionality in the future
+    var type = $dropDownBox.closest('.header')
+                           .attr('data-type');
+    if (type === 'undefined' || type === 'array' || type === 'object') {
+        $menu.find('.changeDataType')
+             .css('display','none');
+    } else {
+        $menu.find('.changeDataType')
+             .css('display','block');
+    }
 }
 
 function checkColumn(input, selectAll) {

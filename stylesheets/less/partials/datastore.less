@@ -1,4 +1,4 @@
-/* ========== DataStore CSS ========== */
+ // DataStore CSS
 #datastoreView {
     display: none;
     width: 100%;
@@ -1008,17 +1008,30 @@ input {
             ul {
                 left: 145px;
             }
-            .subColMenu:hover {
-                li {
-                    background-color: @color-selectedCell-green;
-                }
-            }
             span {
                 display: block;
                 text-align: left;
             }
             input {
                 font: 13px "Open Sans","Trebuchet MS",Arial,sans-serif;
+            }
+
+            .changeDataType {
+                .subColMenu {
+                    width: 140px;
+                    li.flexContainer {
+                        height: 30px;
+                        // see common.less
+                        .typeIcon();
+
+                        .flexWrap.flex-left {
+                            .flex(0 0 30px);
+                        }
+                        .flexWrap.flex-right {
+                            .flex(1 1 auto);
+                        }
+                    }
+                }
             }
         }
     }
@@ -1060,6 +1073,7 @@ input {
             position: absolute;
             cursor: pointer;
             width: 130px;
+            height: 40px;
             top: 0px;
 
             border: 5px solid @color-background-tableBorders;
@@ -1069,26 +1083,47 @@ input {
             border-radius: 0px;
             box-shadow: 0px 1px  1px @color-shadow-black;
 
-            .editableHead {
-                width: 100%;
-                outline: none;
-                float: left;
-                z-index: 0;
-                cursor: pointer;
+            // see mixins/common.less
+            .typeIcon();
+
+            .flexWrap.flex-left {
+                .flex(0 0 26px);
+                position: relative;
             }
-            &:hover {
-                > .dropdownBox {
-                    opacity: 1;
+
+            .flexWrap.flex-mid {
+                .flex(1 1 auto);
+
+                .editableHead {
+                    width: 100%;
+                    outline: none;
+                    cursor: pointer;
+                    text-overflow: ellipsis;
                 }
             }
-             .tick.icon {
-                width: 15px;
-                height: 12px;
-                background: url(/images/datastore/tick.png) 0 0 no-repeat;
-                position: absolute;
-                top: 2px;
-                right: 2px;
-                opacity: 0.7;
+
+            .flexWrap.flex-right {
+                .flex(0 0 26px);
+                position: relative;
+                .tick.icon {
+                    // see mixins/common.less
+                    .background("/images/datastore/tick.png", 15px, 12px);
+                    position: absolute;
+                    top: 2px;
+                    right: 2px;
+                    opacity: 0.5;
+                }
+                // see mixins/common.less
+                .dropDown();
+            }
+
+
+            &:hover {
+                .flexWrap.flex-right {
+                    > .dropdownBox, > .tick.icon {
+                        opacity: 1.0;
+                    }
+                }
             }
         }
 
@@ -1253,4 +1288,3 @@ input {
         }
     }
 }
-/* End Of Content Right */

@@ -27,6 +27,90 @@
     user-select: none;
 }
 
+.background(@url, @w, @h, @repeat: no-repeat, @pX: 0, @pY: 0) {
+    width: @w;
+    height: @h;
+    background-image: url(@url);
+    background-repeat: @repeat;
+    background-position: @pX @pY;
+    background-size: @w @h;
+}
+
+/* DROP DOWN COLUMN STYLING */
+.dropDown() {
+    .dropdownBox {
+        width: 16px;
+        height: 12px;
+        position: absolute;
+        vertical-align: middle;
+        right: 3px;
+        bottom: 3px;
+        cursor: pointer;
+        z-index: 6;
+        opacity: 0;
+        .transition (opacity 0.02s linear);
+        .transition-delay (0.08s);
+        border-top: 11px solid transparent;
+        border-right: 11px solid @color-dropBox;
+        &:hover {
+            opacity: 1 !important;
+        }
+        &.hidden {
+            opacity: 0 !important;
+        }
+    }
+
+    & > .dropdownBox {
+        right: -3px;
+        bottom: -4px;
+        height: 24px;
+        width: 22px;
+        border: none;
+
+        .innerBox {
+            position: absolute;
+            width: 16px;
+            height: 12px;
+            right: 6px;
+            bottom: 7px;
+            border-top: 11px solid transparent;
+            border-right: 11px solid @color-dropBox;
+        }
+    }
+}
+
+// used for datasetTableWrap in datastore.less
+.typeIcon() {
+    .typeIconCSS(@type: "Unknown") {
+        @url: "/images/datastore/typeIcon/type-@{type}.png";
+        .type.icon {
+            .background(@url, 22px, 22px);
+            position: absolute;
+            top: 4px;
+            left: 4px;
+        }
+    }
+    .typeIconCSS(); // default value is Unknown
+    &.type-array {
+        .typeIconCSS("Array");
+    }
+    &.type-boolean {
+        .typeIconCSS("Boolean");
+    }
+    &.type-mixed {
+        .typeIconCSS("Mixed");
+    }
+    &.type-number {
+        .typeIconCSS("Number");
+    }
+    &.type-object {
+        .typeIconCSS("Object");
+    }
+    &.type-string {
+        .typeIconCSS("String");
+    }
+}
+
 /* ========== Transition ========== */
 .transition (@argument) {
     -webkit-transition: @argument;
