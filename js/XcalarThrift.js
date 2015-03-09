@@ -120,10 +120,11 @@ function XcalarIndexFromDataset(varDatasetId, key, tablename) {
 }
 
 function XcalarIndexFromTable(srcTablename, key, tablename) {
-    if (tHandle == null) {
-        return;
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
     }
-    xcalarIndexTable(tHandle, srcTablename, key, tablename);
+
+    return (xcalarIndexTable(tHandle, srcTablename, key, tablename));
 }
 
 function XcalarDeleteTable(backTableName) {
