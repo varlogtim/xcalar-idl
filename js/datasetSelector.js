@@ -315,6 +315,7 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
         key = jsonKeys[i];
         th +=  '<th class="table_title_bg col' + i + '">\
                     <div class="header">\
+                        <span class="tick icon"></span>\
                         <input spellcheck="false"\
                             class="editableHead shoppingCartCol col' + i + '"\
                             value="' + key + '" \

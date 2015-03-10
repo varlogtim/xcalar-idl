@@ -1080,6 +1080,15 @@ input {
                     opacity: 1;
                 }
             }
+             .tick.icon {
+                width: 15px;
+                height: 12px;
+                background: url(/images/datastore/tick.png) 0 0 no-repeat;
+                position: absolute;
+                top: 2px;
+                right: 2px;
+                opacity: 0.7;
+            }
         }
 
         th {
@@ -1095,17 +1104,16 @@ input {
                 background-color: @color-background-white !important;
                 color: @color-text-darkGray !important;
             }
-            td {
-
-            }
         }
         .selectedCol {
             .header {
                 .action-gradient;
                 .editableHead {
                     color: @color-background-white;
-
-                }  
+                }
+                .tick.icon {
+                    opacity: 1.0;
+                }
             }
         }
     }
