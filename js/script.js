@@ -290,7 +290,7 @@ function setupLogout() {
 function setupTooltips() {
     $("body").tooltip({
         selector: '[data-toggle="tooltip"]',
-        delay: 100
+        delay: 200
     });    
 }
 

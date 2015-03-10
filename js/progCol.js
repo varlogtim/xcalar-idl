@@ -291,7 +291,9 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
         }
         tBodyHTML += '<div class="idWrap">'+
                      '<span class="idSpan" '+
-                     'data-toggle="tooltip" data-placement="bottom" '+
+                     'data-toggle="tooltip" '+
+                     'data-placement="bottom" '+
+                     'data-container="body" '+
                      'title="click to add bookmark">'+
                       (rowNum+1)+'</span>'+
                       '<div class="rowGrab"></div>'+
@@ -330,6 +332,7 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
                 tBodyHTML += '<td class="col'+(col+1)+' jsonElement">'+
                              '<div data-toggle="tooltip" '+
                              'data-placement="bottom" '+
+                             'data-container="body" '+
                              'title="double-click to view" '+
                              'class="elementTextWrap">'+
                              '<div class="elementText">';
