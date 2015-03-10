@@ -292,22 +292,20 @@ function addDatasetTable(datasetTitle, tableNumber) {
 
     //append the table to datasetbrowser div
     $('.datasetTableWrap').hide();
-    $('#datasetWrap').prepend('\
-        <div id="dataSetTableWrap'+tableNumber+'" \
-        class="datasetTableWrap" \
-        data-dsname="'+datasetTitle+'">\
-        <div class="datasetTheadWrap"></div>\
-        <div class="datasetTbodyWrap">\
-            <table id="worksheetTable'+tableNumber+'" \
-            class="datasetTable dataTable" \
-            data-dsname="'+datasetTitle+'">\
-                <thead>\
-                  <tr>\
-                  </tr>\
-                </thead>\
-            </table>\
-        </div>\
-        </div>');
+    var html = '<div id="dataSetTableWrap' + tableNumber + '"\
+                    class="datasetTableWrap"\
+                    data-dsname="' + datasetTitle + '">\
+                    <div class="datasetTbodyWrap">\
+                        <table id="worksheetTable' + tableNumber + '"\
+                            class="datasetTable dataTable" \
+                            data-dsname="' + datasetTitle + '">\
+                            <thead>\
+                                <tr></tr>\
+                            </thead>\
+                        </table>\
+                    </div>\
+                </div>';
+    $('#datasetWrap').prepend(html);
 }
 
 function addDataSetHeaders(jsonKeys, datasetId, index) {
@@ -315,40 +313,38 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
     var key;
     for (var i = 0; i < jsonKeys.length; i++) {
         key = jsonKeys[i];
-        th +=  '<th class="table_title_bg col'+ i +'">\
-                <div class="header">\
-                <input spellcheck="false" \
-                class="editableHead shoppingCartCol col' + i + '" value="' + key
-                       +'"\
-                id ="ds'+ datasetId +'cn'+ key +'" readonly="true">\
-                <div class="dropdownBox"><span class="innerBox"></span></div>\
-                </div>\
-            </th>';
+        th +=  '<th class="table_title_bg col' + i + '">\
+                    <div class="header">\
+                        <input spellcheck="false"\
+                            class="editableHead shoppingCartCol col' + i + '"\
+                            value="' + key + '" \
+                            id ="ds' + datasetId + 'cn' + key + '"\
+                            readonly="true">\
+                        <div class="dropdownBox">\
+                            <span class="innerBox"></span>\
+                        </div>\
+                    </div>\
+                </th>';
     }
-    var table = $('#worksheetTable'+index); 
+    var table = $('#worksheetTable' + index);
     var tableWidth = table.width();
     table.find('tr:first').append(th);
-    var fixedHead = table.find('thead');
-    fixedHead.addClass('fixedThead dataTable datasetTable');
-    var cloneThead = '<thead class="clonedThead" style="width:'+
-                     tableWidth+'px;">' +th+'</thead>';
-    fixedHead.after(cloneThead);
-    table.parent().siblings('.datasetTheadWrap').append(fixedHead);
-    var colMenu =  '<ul id="outerColMenu'+ index +'" class="colMenu">\
+
+    var colMenu = '<ul id="outerColMenu' + index + '" class="colMenu">\
                     <li class="renameCol">\
                         <span>Rename Column</span>\
                         <ul class="subColMenu">\
                             <li style="text-align: center" class="clickable">\
-                            <span>New Column Name</span>\
-                            <input type="text" width="100px" value="' +
-                            'something' +'"/>\
+                                <span>New Column Name</span>\
+                                <input type="text" width="100px" value="' +
+                                    'something' +'"/>\
                             </li>\
                             <div class="subColMenuArea"></div>\
                         </ul>\
                         <div class="dropdownBox"></div>\
                     </li>\
                     <li class="changeDataType">Change Data Type</li>\
-                </ul>';
+                  </ul>';
     $('#datasetWrap').append(colMenu);
 
 }
