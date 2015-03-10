@@ -76,6 +76,9 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
         if (result.jobStatus != StatusT.StatusOk) {
             loadOutput.status = result.jobStatus;
         }
+        if (loadOutput.status != StatusT.StatusOk) {
+            deferred.reject(loadOutput.status);
+        }
         deferred.resolve(loadOutput);
     })
     .fail(function(error) {
@@ -452,7 +455,7 @@ function xcalarDag(thriftHandle, tableName) {
         else {
             console.log('status ok!', result);
             deferred.resolve(dagOutput);
-        }     
+        }   
     })
     .fail(function(error) {
         console.log("xcalarDag() caught exception: " + error);

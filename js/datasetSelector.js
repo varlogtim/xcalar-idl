@@ -100,6 +100,12 @@ function setupDSCartButtons() {
         $grid.addClass('inactive');
         $grid.addClass('active');   // active means it is clicked
         $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');
+        if ($('#gridView').hasClass('listView')) {
+            $('#iconWaiting').css({
+                top: '-8px',
+                left: '98px'
+            });
+         }
         $('#iconWaiting').fadeIn(200);
 
         // add cli

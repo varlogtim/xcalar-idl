@@ -101,36 +101,6 @@ function checkStatusLite(name, funcPtr, args) {
     return (deferred.promise());
 }
 
-function checkLoadStatus(name) {
-    var deferred = jQuery.Deferred();
-
-    (function internalCheckLoadStatus(secondCall) {
-        XcalarGetDatasets()
-        .done(function(dsList) {
-            var dsFound = false;
-            for (var i = 0; i < dsList.numDatasets; i++) {
-                if (dsList.datasets[i].name == name) {
-                    dsFound = true;
-                    if (!secondCall) {
-                        appendDSToList(name);
-                    }
-                    if (dsList.datasets[i].loadIsComplete) {
-                        console.log("Load of "+name+" is done!");
-                        displayNewDataset();
-                    } else {
-                        setTimeout(function() {
-                            internalCheckLoadStatus(true);
-                        }, 1000);
-                    }
-                }
-            }
-            deferred.resolve(dsFound);
-        });
-    })(false);
-
-    return (deferred.promise());  
-}
-
 function sortRows(index, tableNum, order) {
     console.log(arguments);
     var rand = Math.floor((Math.random() * 100000) + 1);

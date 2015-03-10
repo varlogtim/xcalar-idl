@@ -22,19 +22,13 @@ function setupImportDSForm() {
             displayErrorMessage(text, $('#fileName'));
             return;
         }
+
+        appendTempDSToList(tableName);
+
         XcalarLoad(loadArgs[0], loadFormat, tableName,
                    loadArgs[1], loadArgs[2])
-        .then(function(result) {
-            var dsId = result.datasetId;
-            console.log("This is the returned dsId "+dsId);
-            return checkLoadStatus(tableName);
-        })
-        .done(function(loadSuccess) {
-            if (!loadSuccess) {
-                var text = 'Could not retrieve dataset from file path: ' + 
-                            loadURL;
-                displayErrorMessage(text, $('#filePath'));
-            }
+        .done(function(result) {
+            displayNewDataset(tableName);
 
             // add cli
             var cliOptions = {};
@@ -42,6 +36,16 @@ function setupImportDSForm() {
             cliOptions.tableName = tableName;
 
             addCli('Load dataset', cliOptions);
+        })
+        .fail(function(result) {
+            if (result == StatusT.StatusDsInvalidUrl) {
+                var text = 'Could not retrieve dataset from file path: ' + 
+                            loadURL;
+            } else {
+                var text = StatusTStr[result];
+            }
+            $('#tempDSIcon').remove();
+            displayErrorMessage(text, $('#filePath'));
         });
     });
 
@@ -135,25 +139,35 @@ function setupImportDSForm() {
     }
 }
 
-function displayNewDataset() {
-    console.log("test");
-    $('#importDataBottomForm').find('button[type=reset]').trigger('click');
-    $('#iconWaiting').remove();
-    $('#gridView').find('.inactive').removeClass('inactive');
-    var lastEleId = gDSObj.id - 1;
-    $('#gridView grid-unit[data-dsId="' + lastEleId + '"]').trigger('click');
-}
-
-function appendDSToList(dsName) {
+function displayNewDataset(dsName) {
+    $('#tempDSIcon').remove();
     DSObj.create(gDSObj.id++, dsName, gDSObj.curId, false);
     commitDSObjToStorage();
     DSObj.display();
-
     var lastEleId = gDSObj.id - 1;
-    var $grid = $('#gridView grid-unit[data-dsId="' + lastEleId + '"]');
-    $grid.addClass('inactive')
-    $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');
-    $('#iconWaiting').fadeIn(200);
+
+    $('#importDataBottomForm').find('button[type=reset]').trigger('click');
+    $('#gridView grid-unit[data-dsId="' + lastEleId + '"]').trigger('click');
+}
+
+function appendTempDSToList(dsName) {
+     var dsDisplay = 
+        '<grid-unit id="tempDSIcon" class="ds display inactive">'+
+            '<div class="gridIcon"></div>'+
+            '<div class="listIcon">'+
+                '<span class="icon"></span>'+
+            '</div>'+
+            '<div id="iconWaiting" class="iconWaiting"></div>'+
+            '<div class="label">'+dsName+'</div>'+
+        '</grid-unit>';
+     $("#gridView").append(dsDisplay);
+     if ($('#gridView').hasClass('listView')) {
+        $('#iconWaiting').css({
+            top: '-8px',
+            left: '98px'
+        });
+     }
+     $('#iconWaiting').fadeIn(200);
 }
 
 function displayErrorMessage(text, $target) {
@@ -168,17 +182,17 @@ function displayErrorMessage(text, $target) {
                 $target[0].getBoundingClientRect().right- 200;
     statusBox.css({top: top, right: right});
 
-    // set when status box closes
-    $(document).mousedown(hideStatusBox);
-    $target.keydown(hideStatusBox);
+    $(document).mousedown({target: $target}, hideStatusBox);
+    $target.keydown({target: $target}, hideStatusBox);
     $target.focus().addClass('error');
 }
 
 function hideStatusBox(event) {
-    if ($(event.target).attr('id') != "filePath" || event.type == "keydown") {
+    if ($(event.target).attr('id') != event.data.target.attr('id') 
+        || event.type == "keydown") {
         $('#statusBox').attr('class', "");
         $(document).off('mousedown', hideStatusBox);
-        $('#filePath').off('blur', hideStatusBox);
-        $('#filePath').removeClass('error');
+        event.data.target.off('keydown', hideStatusBox)
+                         .removeClass('error');
     }
 }
