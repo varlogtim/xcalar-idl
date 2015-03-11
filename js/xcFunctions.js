@@ -28,14 +28,20 @@ function refreshTable(newTableName, tableNum,
     } else {
         // default
         newTableNum = tableNum;
+        var tablesToRemove = [];
         var savedScrollLeft;
+        var delayTableRemoval = true;
         if (additionalTableNum > -1) {
             var largerTableNum = Math.max(additionalTableNum, tableNum);
             var smallerTableNum = Math.min(additionalTableNum, tableNum);
-            archiveTable(largerTableNum, DeleteTable.Keep);
+           
+            tablesToRemove.push(largerTableNum);
+            archiveTable(largerTableNum, DeleteTable.Keep, delayTableRemoval);
             if (largerTableNum != smallerTableNum) {
-                // excludes self joins
-                archiveTable(smallerTableNum, DeleteTable.Keep);
+                // excludes self join
+                tablesToRemove.push(smallerTableNum);
+                archiveTable(smallerTableNum, DeleteTable.Keep, 
+                             delayTableRemoval);
             }
             if (newTableNum > gTables.length) {
                 // edge case
@@ -43,9 +49,10 @@ function refreshTable(newTableName, tableNum,
             }
         } else {
             savedScrollLeft = $('#mainFrame').scrollLeft();
-            archiveTable(tableNum, DeleteTable.Keep);
+            tablesToRemove.push(tableNum);
+            archiveTable(tableNum, DeleteTable.Keep, delayTableRemoval);
         }
-        addTable(newTableName, newTableNum, AfterStartup.After)
+        addTable(newTableName, newTableNum, AfterStartup.After, tablesToRemove)
         .done(function() {
             if (savedScrollLeft) {
                 $('#mainFrame').scrollLeft(savedScrollLeft);

@@ -1,9 +1,9 @@
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(tableName, tableNum, AfterStartup) {
+function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
     reorderTables(tableNum);
-    tableStartupFunctions(tableName, tableNum)
+    tableStartupFunctions(tableName, tableNum, tableNumsToRemove)
     .done(function() {
         if ($('#mainFrame').hasClass('empty')) {
             $('#mainFrame').removeClass('empty');
@@ -27,9 +27,24 @@ function addTable(tableName, tableNum, AfterStartup) {
 // Removes a table from the display
 // Shifts all the ids
 // Does not delete the table from backend!
-function archiveTable(tableNum, del) {
-    $("#xcTableWrap"+tableNum).remove();
-    $("#rowScroller"+tableNum).remove();
+function archiveTable(tableNum, del, delayTableRemoval) {
+    if (delayTableRemoval) {
+        // if we're delaying the deletion of this table, we need to remove
+        // these element's IDs so they don't interfere with other elements
+        // as non-deleted tables' IDs get reordered
+        $("#xcTableWrap"+tableNum).attr('id', 'tablesToRemove'+tableNum);
+        $("#xcTableWrap"+tableNum).attr("id", "");
+        $("#xcTheadWrap"+tableNum).attr("id", "");
+        $("#xcTbodyWrap"+tableNum).attr("id", "");
+        $("#xcTable"+tableNum).attr("id", "");
+        $("#tableMenu"+tableNum).attr("id", "");
+        $("#rowScroller"+tableNum).attr("id", "rowScrollerToRemove"+tableNum);
+        $("#rowMarker"+tableNum).attr("id", "");
+    } else {
+        $("#xcTableWrap"+tableNum).remove();
+        $("#rowScroller"+tableNum).remove();
+    }
+    
     var tableName = gTables[tableNum].frontTableName;
     var deletedTable = gTables.splice(tableNum, 1);
     if (!del) {
@@ -68,7 +83,9 @@ function archiveTable(tableNum, del) {
         $('#rowScroller'+gActiveTableNum).show();
     }
     generateFirstLastVisibleRowNum();
-    focusTable(gActiveTableNum);
+    if (!delayTableRemoval) {
+        focusTable(gActiveTableNum);
+    }
     $('.dagWrap').find('.tableName')
         .filter(function() {
             return $(this).text() == tableName;

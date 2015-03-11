@@ -36,7 +36,7 @@ function goToPage(pageNumber, direction, tableNum, skipToRow) {
     
     var shift = numPagesToShift(direction);
     var position = (pageNumber - shift) * gNumEntriesPerPage;
-    
+
     XcalarSetAbsolute(gTables[tableNum].resultSetId, position)
     .then(function(){
         return (generateDataColumnJson(gTables[tableNum].resultSetId,

@@ -327,7 +327,7 @@ function documentReadyxcTableFunction() {
             $('#rowInput').val(gTables[gActiveTableNum].resultSetCount);
         }
         row = parseInt($('#rowInput').val());
-        
+
         if ((row/gNumEntriesPerPage) >
                 Math.floor((gTables[gActiveTableNum].resultSetCount/
                             gNumEntriesPerPage)-2)) {
@@ -475,7 +475,7 @@ function documentReadyGeneralFunction() {
 }
 
 
-function documentReadyCatFunction(tableNum) {
+function documentReadyCatFunction(tableNum, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
     
     var index = getIndex(gTables[tableNum].frontTableName);
@@ -484,6 +484,12 @@ function documentReadyCatFunction(tableNum) {
     .done(function(jsonData, keyName) {
         if (notIndexed) { // getNextPage will setupProgCols
             index = gTables[tableNum].tableCols;
+        }
+        if (tableNumsToRemove && tableNumsToRemove.length > 0) {
+            for (var i = 0; i < tableNumsToRemove.length; i++) {
+                $('#tablesToRemove'+tableNumsToRemove[i]).remove();
+                $('#rowScrollerToRemove'+tableNumsToRemove[i]).remove();
+            }
         }
         buildInitialTable(index, tableNum, jsonData, keyName);
         deferred.resolve();
@@ -521,12 +527,12 @@ function startupFunctions() {
     return (deferred.promise());
 }  
 
-function tableStartupFunctions(table, tableNum) {
+function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
     setTableMeta(table)
     .then(function(newTableMeta) {
         gTables[tableNum] = newTableMeta;
-        return (documentReadyCatFunction(tableNum));
+        return (documentReadyCatFunction(tableNum, tableNumsToRemove));
     })
     .done(function(val) {
         generateFirstLastVisibleRowNum();
