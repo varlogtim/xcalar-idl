@@ -363,23 +363,41 @@
 
             .dropdownBox {
                 opacity: 1;
-                background-image: url(/images/table-corner.png) !important;
+                .innerBox {
+                    background-image: url(/images/table-corner.png) !important;
+                }
+            }
+        }
+
+        .dropdownBox {
+            height: 24px;
+            width: 24px;
+            position: absolute;
+            right: -3px;
+            bottom: -4px;
+            z-index: 6;
+            opacity: 0;
+            border: none;
+            cursor: pointer;
+            .transition (opacity 0.02s linear);
+            .transition-delay (0.08s);
+            .innerBox {
+                width: 16px;
+                height: 16px;
+                position: absolute;
+                right: 6px;
+                bottom: 7px;
+                background-image: url(/images/table-corner-inactive.png); 
             }
         }
 
         &:hover {
             .dropdownBox {
                 opacity: 1;
-                background-image: url(/images/table-corner-inactive.png);
+                .innerBox {
+                    background-image: url(/images/table-corner-inactive.png);
+                }
             }
-        }
-
-        .dropdownBox {
-            opacity: 0; 
-            background-image: url(/images/table-corner-inactive.png); 
-            border: none;
-            height: 16px;
-            width: 16px;
         }
 
         input {

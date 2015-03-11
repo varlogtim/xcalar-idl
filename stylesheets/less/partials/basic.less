@@ -465,30 +465,6 @@ body {
     }
 }
 
-
-/* DROP DOWN COLUMN STYLING */
-.dropdownBox {
-    width: 16px;
-    height: 12px;
-    position: absolute;
-    vertical-align: middle;
-    right: 3px;
-    bottom: 3px;
-    cursor: pointer;
-    z-index: 6;
-    opacity: 0;
-    .transition (opacity 0.02s linear);
-    .transition-delay (0.08s);
-    border-top: 11px solid transparent;
-    border-right: 11px solid @color-dropBox;
-    &:hover {
-        opacity: 1 !important;
-    }
-    &.hidden {
-        opacity: 0 !important;
-    }
-}
-
 .header {
     .dropDown();
 }

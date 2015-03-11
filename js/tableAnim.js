@@ -672,50 +672,68 @@ function dblClickResize(el) {
 }
 
 function createTableHeader(tableNum) {
-    var xcTableWrapTop = $('#xcTableWrap'+tableNum).offset().top;
-    var xcTheadWrap = $('<div id="xcTheadWrap'+tableNum+
-                '" class="xcTheadWrap dataTable"'+
-                'style="top:0px;"></div>');
+    var $xcTheadWrap = $('<div id="xcTheadWrap' + tableNum + 
+                         '" class="xcTheadWrap dataTable" ' + 
+                         'style="top:0px;"></div>');
 
-    $('#xcTableWrap'+tableNum).prepend(xcTheadWrap);
-    //XX build this table title somewhere else
+    $('#xcTableWrap' + tableNum).prepend($xcTheadWrap);
+
+    var tableName = "";
+    // XXX build this table title somewhere else
     if (gTables[tableNum] != undefined) {
-        var tableName = gTables[tableNum].frontTableName;
-    } else {
-        var tableName = "";
+        tableName = gTables[tableNum].frontTableName;
     }
-    xcTheadWrap.prepend('<div class="tableTitle"><div class="tableGrab"></div>'+
-        '<input type="text" value="'+tableName+'">'+
-        '<div class="dropdownBox"></div>'+
-        '<ul class="colMenu tableMenu" id="tableMenu'+tableNum+'">'+
-        '<li class="archiveTable">Archive Table</li>'+
-        '<li class="unavailable">Hide Table</li>'+
-        '<li class="deleteTable">Delete Table</li>'+
-        '</ul>'+
-        '</div>');
-    xcTheadWrap.find('.tableTitle input').keyup(function(event) {
+
+    var html = '<div class="tableTitle">\
+                    <div class="tableGrab"></div>\
+                    <input type="text" value="' + tableName + '">\
+                    <div class="dropdownBox">\
+                        <span class="innerBox"></span>\
+                    </div>\
+                    <ul id="tableMenu' + tableNum + 
+                        '" class="colMenu tableMenu" >\
+                        <li class="archiveTable">\
+                            Archive Table\
+                        </li>\
+                        <li class="unavailable">\
+                            Hide Table\
+                        </li>\
+                        <li class="deleteTable">\
+                            Delete Table\
+                        </li>\
+                    </ul>\
+                </div>';
+
+    $xcTheadWrap.prepend(html);
+
+    // Event Listener for table title
+    $xcTheadWrap.on('keyup', '.tableTitle input', function(event) {
         if (event.which == keyCode.Enter) {
             $(this).blur();
         }
     });
 
-    xcTheadWrap.find('.tableTitle > .dropdownBox').click(function() {
+    $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function() {
         dropdownClick($(this));
     });
 
-    xcTheadWrap.find('.tableGrab').mousedown(function(event) {
+    // Change from $xcTheadWrap.find('.tableGrab').mosedown...
+    $xcTheadWrap.on('mousedown', '.tableGrab', function(event) {
+        // Not Mouse down
         if (event.which != 1) {
             return;
         }
         dragTableMouseDown($(this).parent(), event);
     });
 
-    var tableMenu = $('#tableMenu'+tableNum);
+    // Event Listener for table dropdown menu
+    var $tableMenu = $('#tableMenu' + tableNum);
 
-    tableMenu.find('.archiveTable').click(function() {
-        var tableNum = parseInt($(this).closest('.tableMenu').
-                       attr('id').substring(9));
-        $(this).closest('.tableMenu').hide();
+    $tableMenu.on('click', '.archiveTable', function() {
+        var $menu = $(this).closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id')
+                                     .substring(9));
+        $menu.hide();
 
         // add cli
         var cliOptions = {};
@@ -727,11 +745,11 @@ function createTableHeader(tableNum) {
         addCli('Archive Table', cliOptions);
     });
 
-    tableMenu.find('.deleteTable').click(function() {
-        var tableNum = parseInt($(this).closest('.tableMenu').
-                       attr('id').substring(9));
-        $(this).closest('.tableMenu').hide();
-
+    $tableMenu.on('click', '.deleteTable', function() {
+        var $menu = $(this).closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id')
+                                     .substring(9));
+        $menu.hide();
 
         // add cli
         var cliOptions = {};
@@ -744,8 +762,8 @@ function createTableHeader(tableNum) {
         });
     });
 
-    var $table = $('#xcTable'+tableNum);
-    $table.width(0); 
+    var $table = $('#xcTable' + tableNum);
+    $table.width(0);
     var matchAllHeaders = true;
     matchHeaderSizes(null, $table, matchAllHeaders);
 }
