@@ -226,9 +226,8 @@ function setupFunctionBar() {
     });
 }
 
-function setupHiddenTable() {
+function setupHiddenTable(table) {
     var deferred = jQuery.Deferred();
-
     setTableMeta(table)
     .done(function(newTableMeta) {
         gHiddenTables.push(newTableMeta); 
@@ -305,7 +304,6 @@ function setupWorksheetMeta() {
 // ========================== Document Ready ==================================
 
 function documentReadyxcTableFunction() {
-    focusTable(0);
     resizeRowInput();
 
     $('#rowInput').keypress(function(e) {
@@ -540,7 +538,6 @@ function tableStartupFunctions(table, tableNum) {
         .then(goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum));
     })
     .done(function(val) {
-        focusTable(tableNum);
         var dataCol = $('#xcTable'+tableNum+' tr:eq(0) th.dataCol');
         addColListeners(parseColNum(dataCol), $("#xcTable"+tableNum));
         generateFirstLastVisibleRowNum();
@@ -566,26 +563,24 @@ function documentReadyIndexFunction() {
             var promises = [];
 
             for (var i = 0; i < gTableOrderLookup.length; i++) {
-                promises.push(addTable(gTableOrderLookup[i], i));
+                promises.push(addTable.bind(this, gTableOrderLookup[i], i));
             }
-            for (table in gTableIndicesLookup) {
+            for (var table in gTableIndicesLookup) {
                 if (!gTableIndicesLookup[table].active) {
-                    promises.push(setupHiddenTable(table));
+                    promises.push(setupHiddenTable.bind(this, table));
                 }
             }
 
-            jQuery.when.apply(jQuery, promises)
+            chain(promises)
             .done(function() {
-                if (gTableOrderLookup.length > 0) {
+                 if (gTableOrderLookup.length > 0) {
                     documentReadyxcTableFunction();
                 } else {
                     $('#mainFrame').addClass('empty');
                 }
-
                 deferred.resolve();
             });
         }
-
         return (deferred.promise());
     }  
 

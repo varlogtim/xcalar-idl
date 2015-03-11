@@ -214,6 +214,7 @@ function setuptableListSection() {
                                 .left +
                                 $mainFrame.scrollLeft();
                 $mainFrame.animate({scrollLeft: leftPos});
+                focusTable(numTables-1);
             }
         })
     }

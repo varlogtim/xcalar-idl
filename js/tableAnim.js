@@ -117,7 +117,6 @@ function gRescolMouseDown(el, event) {
     rescol.lastCellWidth = rescol.lastCell.outerWidth();
     
     rescol.tableExcessWidth = tableWidth - gMinTableWidth;
-    rescol.xcTheadWrap = headerWrap;
     var minTableWidth = tableWidth - 
                             (rescol.startWidth-rescol.cellMinWidth);
     rescol.minLastCellWidth = Math.max(gMinTableWidth - 
@@ -160,7 +159,6 @@ function gRescolMouseMove(event) {
         rescol.lastCell.outerWidth(rescol.setLastCellWidth);
     }
     var tableWidth = rescol.table.width();
-    rescol.xcTheadWrap.outerWidth(tableWidth);
 }
 
 function gRescolMouseMoveLast(event) {
@@ -179,7 +177,6 @@ function gRescolMouseMoveLast(event) {
         rescol.headerDiv.outerWidth(rescol.minLastCellWidth);
     } 
     var tableWidth = rescol.table.width();
-    rescol.xcTheadWrap.outerWidth(tableWidth);
 }
 
 function gRescolMouseUp() {
@@ -771,8 +768,9 @@ function createTableHeader(tableNum) {
 function matchHeaderSizes(colNum, $table, matchAllHeaders) {
     if (matchAllHeaders) {
         var numCols = $table.find('th').length;
+        var $theadRow = $table.find('thead tr');
         for (var i = 0; i < numCols; i++) {
-            var $header = $table.find('th.col'+i);
+            var $header = $theadRow.find('th.col'+i);
             var headerWidth = $header.outerWidth();
             $header.children().outerWidth(headerWidth);
         }
@@ -781,10 +779,6 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
         var headerWidth = $header.outerWidth();
         $header.children().outerWidth(headerWidth);
     }
-    
-    var tableWidth = $table.width();
-    var tableNum = parseInt($table.attr('id').substring(7));
-    $('#xcTheadWrap'+tableNum).width(tableWidth);
 }
 
 function displayShortenedHeaderName(el, tableNum, colNum) {

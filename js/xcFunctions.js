@@ -14,6 +14,7 @@ function refreshTable(newTableName, tableNum,
             $('#mainFrame').animate({scrollLeft: leftPos});
             $("body").css({"cursor": "default"});
             $('#waitCursor').remove();
+            focusTable(newTableNum);
             deferred.resolve();
         });
     } else {
@@ -43,6 +44,7 @@ function refreshTable(newTableName, tableNum,
             } 
             $("body").css({"cursor": "default"});
             $('#waitCursor').remove();
+            focusTable(newTableNum);
             deferred.resolve();
         });
     }
