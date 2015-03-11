@@ -23,7 +23,6 @@ var gRescol = {
 };
 var gResrow = {};
 var gScrollbarHeight = 8;
-var gTempStyle = ""; // XXX
 var gMinTableWidth = 30;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
@@ -79,7 +78,7 @@ function infScrolling(tableNum) {
 
             // console.log('the top!');
             var initialTop = firstRow.offset().top;
-            if (table.find("tbody tr").length > 60) {
+            if (table.find("tbody tr").length > 40) {
                 var pageNumber = gTables[dynTableNum].currentPageNumber-1;
             } else {
                 var pageNumber = gTables[dynTableNum].currentPageNumber;
@@ -89,16 +88,15 @@ function infScrolling(tableNum) {
             .done(function() {
                 $('#xcTbodyWrap'+dynTableNum)
                     .scrollTop(firstRow.offset().top - initialTop + 10);
-                table.find("tbody tr:gt(79)").remove();
+                table.find("tbody tr:gt(59)").remove();
 
                 innerDeferred.resolve();
             });
         } else if ($(this)[0].scrollHeight - $(this).scrollTop() -
                    $(this).outerHeight() <= 1) {
             // console.log('the bottom!');
-            gTempStyle = table.find("tbody tr:last").html();
-            if (table.find('tbody tr').length >= 80) {
-                // keep row length at 80
+            if (table.find('tbody tr').length >= 60) {
+                // keep number of rows at 60
                 table.find('tbody tr:lt(20)').remove();
             }
             goToPage(gTables[dynTableNum].currentPageNumber+1,
@@ -290,6 +288,10 @@ function setupTooltips() {
     $("body").tooltip({
         selector: '[data-toggle="tooltip"]',
         delay: 200
+    });
+
+    $("body").on('mouseenter', '[data-toggle="tooltip"]', function() {
+        $('.tooltip').hide();
     });    
 }
 
@@ -311,20 +313,21 @@ function documentReadyxcTableFunction() {
             return;
         }
         var row = $('#rowInput').val();
-        //XXX detect which table the user means to target
+
         if (row == "" || row%1 != 0) {
             return;
+        }
+        if (gTables[gActiveTableNum].resultSetCount == 0) {
+            $('#rowInput').val('0');
+            return;
         } else if (row < 1) {
+            
             $('#rowInput').val('1');
         } else if (row > gTables[gActiveTableNum].resultSetCount) {
             $('#rowInput').val(gTables[gActiveTableNum].resultSetCount);
         }
         row = parseInt($('#rowInput').val());
-        // XXX: HACK
-        gTempStyle = $("#xcTable"+gActiveTableNum+" tbody tr:nth-last-child(1)")
-                     .html();
-        $("#xcTable"+gActiveTableNum+" tbody").empty();
-
+        
         if ((row/gNumEntriesPerPage) >
                 Math.floor((gTables[gActiveTableNum].resultSetCount/
                             gNumEntriesPerPage)-2)) {
@@ -337,15 +340,9 @@ function documentReadyxcTableFunction() {
         if (pageNum < 0) {
             pageNum = 0;
         }
-        var numPagesToAdd = 3;
-
-        var promises = [];
-        for (var i = 0; i < numPagesToAdd; i++) {
-            promises.push(goToPage.bind(this, Math.ceil(pageNum)+i, 
-                                        null, gActiveTableNum));
-        }
-
-        chain(promises)
+        var skipToRow = true;
+        goToPage(Math.ceil(pageNum), RowDirection.Bottom, gActiveTableNum, 
+                 skipToRow)
         .done(function() {
             adjustColGrabHeight(gActiveTableNum);
             positionScrollbar(row, gActiveTableNum);
@@ -482,17 +479,15 @@ function documentReadyCatFunction(tableNum) {
     
     var index = getIndex(gTables[tableNum].frontTableName);
     var notIndexed = !(index && index.length > 0);
-    var firstTime = true; // first time we're loading this table since page load
-    
-    getNextPage(gTables[tableNum].resultSetId, firstTime, tableNum, notIndexed)
-    .then(function(jsonData) {
+    getFirstPage(gTables[tableNum].resultSetId, tableNum, notIndexed)
+    .done(function(jsonData, keyName) {
         if (notIndexed) { // getNextPage will setupProgCols
             index = gTables[tableNum].tableCols;
         }
-        return (buildInitialTable(index, tableNum, jsonData));
-    })
-    .done(deferred.resolve);
-
+        buildInitialTable(index, tableNum, jsonData, keyName);
+        deferred.resolve();
+    });
+    
     return (deferred.promise());
 }
 
@@ -530,12 +525,7 @@ function tableStartupFunctions(table, tableNum) {
     setTableMeta(table)
     .then(function(newTableMeta) {
         gTables[tableNum] = newTableMeta;
-        console.log(gTables.length);
         return (documentReadyCatFunction(tableNum));
-    })
-    .then(function(val) {
-        return goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum)
-        .then(goToPage(gTables[tableNum].currentPageNumber+1, null, tableNum));
     })
     .done(function(val) {
         generateFirstLastVisibleRowNum();

@@ -2,16 +2,7 @@
 // Shifts all the ids and everything
 function addTable(tableName, tableNum, AfterStartup) {
     var deferred = jQuery.Deferred();
-    for (var i = gTables.length-1; i>=tableNum; i--) {
-        $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i+1));
-        $("#xcTheadWrap"+i).attr("id", "xcTheadWrap"+(i+1));
-        $("#xcTbodyWrap"+i).attr("id", "xcTbodyWrap"+(i+1));
-        $("#xcTable"+i).attr("id", "xcTable"+(i+1));
-        $("#tableMenu"+i).attr("id", "tableMenu"+(i+1));
-        $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
-        $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
-        gTables[i+1] = gTables[i];
-    }
+    reorderTables(tableNum);
     tableStartupFunctions(tableName, tableNum)
     .done(function() {
         if ($('#mainFrame').hasClass('empty')) {
@@ -113,43 +104,32 @@ function deleteTable(tableNum, deleteArchived) {
     return (deferred.promise());
 }
 
-function buildInitialTable(index, tableNum, jsonData) {
-    var deferred = jQuery.Deferred();
-
+function buildInitialTable(index, tableNum, jsonData, keyName) {
     var table = gTables[tableNum];
     table.tableCols = index;
-    XcalarGetNextPage(gTables[tableNum].resultSetId,
-                      gNumEntriesPerPage)
-    .done(function(tableOfEntries) {
-        table.keyName = tableOfEntries.keysAttrHeader.name;
-        
-        var dataIndex = generateTableShell(table.tableCols, tableNum);
-        var numRows = jsonData.length;
-        var startIndex = 0;
+    table.keyName = keyName;
+    var dataIndex = generateTableShell(table.tableCols, tableNum);
+    var numRows = jsonData.length;
+    var startIndex = 0;
 
-        addRowScroller(tableNum);
-        if (numRows == 0) {
-            console.log('no rows found, ERROR???');
-            $('#rowScroller'+tableNum).addClass('hidden');
-            jsonData = [""];
-        }
+    addRowScroller(tableNum);
+    if (numRows == 0) {
+        console.log('no rows found, ERROR???');
+        $('#rowScroller'+tableNum).addClass('hidden');
+        jsonData = [""];
+    }
 
-        pullRowsBulk(tableNum, jsonData, startIndex, dataIndex);
-        addTableListeners(tableNum);
-        createTableHeader(tableNum);
-        var numCols = table.tableCols.length;
-        var $table = $('#xcTable'+tableNum);
-        for (var i = 1; i <= numCols; i++) {
-            addColListeners(i, $table);
-        }
-        if (numRows == 0) {
-            $table.find('.idSpan').text("");
-        }
-
-        deferred.resolve();
-    });
-
-    return (deferred.promise());
+    pullRowsBulk(tableNum, jsonData, startIndex, dataIndex);
+    addTableListeners(tableNum);
+    createTableHeader(tableNum);
+    var numCols = table.tableCols.length;
+    var $table = $('#xcTable'+tableNum);
+    for (var i = 1; i <= numCols; i++) {
+        addColListeners(i, $table);
+    }
+    if (numRows == 0) {
+        $table.find('.idSpan').text("");
+    }
 }
 
 function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
@@ -158,7 +138,7 @@ function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
     var $table = $('#xcTable'+tableNum);
 
     // get the column number of the datacolumn
-    if (dataIndex === null) {
+    if (dataIndex == null) {
         dataIndex = parseColNum($('#xcTable'+tableNum)
                     .find('tr:first .dataCol')) - 1;
     }
@@ -272,4 +252,17 @@ function generateTableShell(columns, tableNum) {
     newTable += '</tr></thead><tbody></tbody></table>';
     $('#xcTbodyWrap'+tableNum).append(newTable);
     return (dataIndex);
+}
+
+function reorderTables(tableNum) {
+    for (var i = gTables.length-1; i>=tableNum; i--) {
+        $("#xcTableWrap"+i).attr("id", "xcTableWrap"+(i+1));
+        $("#xcTheadWrap"+i).attr("id", "xcTheadWrap"+(i+1));
+        $("#xcTbodyWrap"+i).attr("id", "xcTbodyWrap"+(i+1));
+        $("#xcTable"+i).attr("id", "xcTable"+(i+1));
+        $("#tableMenu"+i).attr("id", "tableMenu"+(i+1));
+        $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
+        $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
+        gTables[i+1] = gTables[i];
+    }
 }

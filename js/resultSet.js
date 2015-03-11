@@ -13,9 +13,9 @@ function freeAllResultSets() {
     return (chain(promises));
 }
 
-function goToPage(pageNumber, direction, tableNum) {
+function goToPage(pageNumber, direction, tableNum, skipToRow) {
+    // pageNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();
-
     if (pageNumber > gTables[tableNum].numPages) {
         console.log("Already at last page!");
         return (promiseWrapper(null));
@@ -25,33 +25,28 @@ function goToPage(pageNumber, direction, tableNum) {
         return (promiseWrapper(null));
     }
     gTables[tableNum].currentPageNumber = pageNumber;
+
+    if (skipToRow) {
+        var numPagesToAdd = 3;
+        gTables[tableNum].currentPageNumber = pageNumber+2;
+    } else {
+        var numPagesToAdd = 1;
+        gTables[tableNum].currentPageNumber = pageNumber;
+    }
+    
     var shift = numPagesToShift(direction);
     var position = (pageNumber - shift) * gNumEntriesPerPage;
-
+    
     XcalarSetAbsolute(gTables[tableNum].resultSetId, position)
     .then(function(){
         return (generateDataColumnJson(gTables[tableNum].resultSetId,
-                                 true, null, tableNum));
+                                 null, tableNum, false, numPagesToAdd));
     })
     .done(function(jsonData) {
-        var startingIndex;
-        var $tableBody = $('#xcTable' + tableNum).find('tbody');
-        if ($tableBody.children().length === 0) {
-            startingIndex = position;
-        } else {
-            if (direction === 1) {
-                startingIndex = parseInt($tableBody.find('tr:first')
-                                                   .attr('class')
-                                                   .substring(3)) 
-                                - jsonData.length;
-            } else {
-                startingIndex = parseInt($tableBody.find('tr:last')
-                                                   .attr('class')
-                                                   .substring(3)) + 1;
-            }
+        if (skipToRow) {
+            $('#xcTable'+tableNum).find('tbody').empty();
         }
-        
-        pullRowsBulk(tableNum, jsonData, startingIndex, null, direction);
+        pullRowsBulk(tableNum, jsonData, position, null, direction);
         
         deferred.resolve();
     });
@@ -62,7 +57,7 @@ function goToPage(pageNumber, direction, tableNum) {
 function numPagesToShift(direction) {
     var shift;
     if (direction == 1) {
-        shift = 4;// shift 4 if we show 3 'pages' at once
+        shift = 3;// shift 3 if we show 3 'pages' at once
     } else {
         shift = 1;
     }
@@ -73,40 +68,40 @@ function resetAutoIndex() {
     gTableRowIndex = 1;
 }
 
-function getNextPage(resultSetId, firstTime, tableNum, notIndexed) {
+function getFirstPage(resultSetId, tableNum, notIndexed) {
     if (resultSetId === 0) {
         return (promiseWrapper(null));
     }
-    gTables[tableNum].currentPageNumber++;
     
-    return (generateDataColumnJson(resultSetId, firstTime, 
-                                   null, tableNum, notIndexed));
+    var numPagesToAdd = Math.min(3, gTables[tableNum].numPages);
+    gTables[tableNum].currentPageNumber = numPagesToAdd;
+    return (generateDataColumnJson(resultSetId, null, tableNum, notIndexed, 
+                                    numPagesToAdd));
 }
 
-function generateDataColumnJson(resultSetId, firstTime, 
-                                direction, tableNum, notIndexed) {
+ // produces an array of all the td values that will go into the DATA column
+function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed, 
+                                numPages) {
     var deferred = jQuery.Deferred();
-    // produces an array of all the td values that will go into the DATA column
+
     if (resultSetId === 0) {
         return (promiseWrapper(null));
     }
     var tdHeights = getTdHeights();
-
-    XcalarGetNextPage(resultSetId, gNumEntriesPerPage)
+    var numRowsToFetch = numPages * gNumEntriesPerPage;
+   
+    XcalarGetNextPage(resultSetId, numRowsToFetch)
     .done(function(tableOfEntries) {
-        // console.log(tableOfEntries, 'gendatacolumnjson');
+        var keyName = tableOfEntries.keysAttrHeader.name;
         if (tableOfEntries.kvPairs.numRecords < gNumEntriesPerPage) {
             resultSetId = 0;
         }
         if (notIndexed) {
             setupProgCols(tableNum, tableOfEntries);
         }
-        var shift = numPagesToShift(direction);
-        var indexNumber = (gTables[tableNum].currentPageNumber-shift) *
-                          gNumEntriesPerPage;
-        var numRows = Math.min(gNumEntriesPerPage,
-                               tableOfEntries.kvPairs.numRecords);
 
+        var numRows = Math.min(numRowsToFetch,
+                               tableOfEntries.kvPairs.numRecords);
         var jsonData = [];
         for (var i = 0; i<numRows; i++) {
             if (direction == 1) {
@@ -126,7 +121,7 @@ function generateDataColumnJson(resultSetId, firstTime,
             jsonData.push(value);
         }
 
-        deferred.resolve(jsonData);
+        deferred.resolve(jsonData, keyName);
     });
 
     return (deferred.promise());

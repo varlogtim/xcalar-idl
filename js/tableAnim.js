@@ -1586,11 +1586,18 @@ function dragTableMouseUp() {
 
 function createShadowTable() {
     var rect = gDragObj.table[0].getBoundingClientRect();
+    var $mainFrame = $('#mainFrame');
     var width = gDragObj.table.children().width();
     var tableHeight = gDragObj.table.find('.xcTheadWrap').height() + 
                       gDragObj.table.find('.xcTbodyWrap').height();
+    var mainFrameHeight = $mainFrame.height();
+    if ($mainFrame[0].scrollWidth > $mainFrame.width()) {
+        mainFrameHeight -= 11;
+    }
+    var shadowHeight = Math.min(mainFrameHeight, tableHeight);
+    
     var shadowTable = '<div id="shadowTable" '+
-                'style="width:'+width+'px;height:'+tableHeight+'px;">'+
+                'style="width:'+width+'px;height:'+shadowHeight+'px;">'+
             '</div>';
 
     if (gDragObj.prevTable.length > 0) {
