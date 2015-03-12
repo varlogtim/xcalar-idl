@@ -698,6 +698,9 @@ function createTableHeader(tableNum) {
                         <li class="deleteTable">\
                             Delete Table\
                         </li>\
+                        <li class="exportTable">\
+                            Export Table\
+                        </li>\
                     </ul>\
                 </div>';
 
@@ -756,6 +759,28 @@ function createTableHeader(tableNum) {
         deleteTable(tableNum)
         .done(function() {
             addCli('Delete Table', cliOptions);
+        });
+    });
+
+    $tableMenu.on('click', '.exportTable', function() {
+        var $menu = $(this).closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id').substring(9));
+        $menu.hide();
+        
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = 'exportTable';
+        cliOptions.tableName = gTables[tableNum].frontTableName;
+        cliOptions.fileName = cliOptions.tableName+".csv";
+        XcalarExport(cliOptions.tableName, cliOptions.tableName+".csv")
+        .done(function() {
+            addCli('Export Table', cliOptions);
+            var title = "Successful Export";
+            var ins = "Your table has been successfully exported ";
+            var msg = "File location: "+hostname+":/var/tmp/xcalar/"+
+                      cliOptions.tableName+".csv";
+            showAlertModal({'title':title, 'msg':msg, 'instruction': ins,
+                            'isAlert':true, 'isCheckBox':true});
         });
     });
 

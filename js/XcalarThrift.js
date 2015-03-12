@@ -102,6 +102,13 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
                        loadArgs));
 }
 
+function XcalarExport(tablename, filename) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    return (xcalarExport(tHandle, tablename, filename));
+}
+
 function XcalarDestroyDataset(dsName) {
     var deferred = jQuery.Deferred();
     if ([null, undefined].indexOf(tHandle) !== -1) {
