@@ -1,40 +1,47 @@
 function setupRightSideBar() {
     var clickable = true;
     var delay = 300;
-    $('#worksheetBar').find('.sliderBtn').click(function() {
+    var $workSheetBar = $('#worksheetBar');
+    var $sliderBtns = $workSheetBar.find('.sliderBtn');
+    var $sidebar = $('#rightSideBar');
+
+    $workSheetBar.on('click', '.sliderBtn', function() {
         if (!clickable) {
             return;
         }
 
-        $('#worksheetBar').find('.sliderBtn').removeClass('active');
+        $sliderBtns.removeClass('active');
 
         var $sliderBtn = $(this);
-        var sidebar = $('#rightSideBar');
-        var index = $(this).index();
-        var sidebarSection = sidebar.find('.rightBarSection').eq(index);
-        if (!sidebar.hasClass('open')) {
-            //sidebar is closed so open the correlating section
-            sidebar.addClass('open');
-            sidebarSection.addClass('active');
-            if (sidebarSection.attr('id') === 'cliSection') {
+        var index = $sliderBtn.index();
+        var $sidebarSection = $sidebar.find('.rightBarSection')
+                                      .eq(index);
+
+        if (!$sidebar.hasClass('open')) {
+            // sidebar is closed so open the correlating section
+            $sidebar.addClass('open');
+            $sidebarSection.addClass('active');
+            if ($sidebarSection.attr('id') === 'cliSection') {
                 cliScrollDown($('#rightBarTextArea'));
             }
-            sidebar.children('.lastOpen').removeClass('lastOpen');
+            $sidebar.children('.lastOpen')
+                    .removeClass('lastOpen');
             $sliderBtn.addClass('active');
-            //display correct section
+            // display correct section
         } else {
             // sidebar is already open, check for close or switch sections
-            if (sidebarSection.hasClass('active')) {
+            if ($sidebarSection.hasClass('active')) {
                 // button clicked has an active section so close slider
-                sidebar.removeClass('open');
+                $sidebar.removeClass('open');
                 setTimeout(function() {
-                    sidebarSection.removeClass('active');
+                    $sidebarSection.removeClass('active');
                 }, delay);
             } else {
                 // close current section, open new section
-                sidebar.children('.active').removeClass('active');
-                sidebarSection.addClass('active');
-                if (sidebarSection.attr('id') === 'cliSection') {
+                $sidebar.children('.active')
+                        .removeClass('active');
+                $sidebarSection.addClass('active');
+                if ($sidebarSection.attr('id') === 'cliSection') {
                     cliScrollDown($('#rightBarTextArea'));
                 }
                 $sliderBtn.addClass('active');
@@ -51,20 +58,25 @@ function setupRightSideBar() {
         if (!clickable) {
             return;
         }
-        var sidebar = $('#rightSideBar');
-        if (!sidebar.hasClass('open')) {
-            sidebar.addClass('open');
-            if (sidebar.children('.lastOpen').length == 0) {
-                sidebar.find('.rightBarSection').eq(0).addClass('active');
+
+        if (!$sidebar.hasClass('open')) {
+            $sidebar.addClass('open');
+            if ($sidebar.children('.lastOpen').length == 0) {
+                $sidebar.find('.rightBarSection')
+                        .eq(0)
+                        .addClass('active');
             } else {
-                sidebar.children('.lastOpen').removeClass('lastOpen')
-                       .addClass('active');
+                $sidebar.children('.lastOpen')
+                        .removeClass('lastOpen')
+                        .addClass('active');
             }
         } else {
-            sidebar.removeClass('open');
+            $sidebar.removeClass('open');
+            $sliderBtns.removeClass('active');
             setTimeout(function() {
-                sidebar.children('.active').removeClass('active')
-                       .addClass('lastOpen');
+                $sidebar.children('.active')
+                        .removeClass('active')
+                        .addClass('lastOpen');
             }, delay);
             
         }
@@ -75,10 +87,12 @@ function setupRightSideBar() {
         }, delay);
     });
 
-    $('#rightSideBar').find('.iconClose').click(function() {
-        $('#rightSideBar').removeClass('open');
+    $sidebar.on('click', '.iconClose', function() {
+        $sidebar.removeClass('open');
+        $sliderBtns.removeClass('active');
         setTimeout(function() {
-            $('#rightSideBar').find('.rightBarSection').removeClass('active');
+            $sidebar.find('.rightBarSection')
+                    .removeClass('active');
         }, delay);
     });
 }
