@@ -187,8 +187,9 @@ function displayErrorMessage(text, $target) {
 }
 
 function hideStatusBox(event) {
-    if ($(event.target).attr('id') != event.data.target.attr('id') 
-        || event.type == "keydown") {
+    var id = $(event.target).attr('id');
+    if (id != event.data.target.attr('id') 
+        || event.type == "keydown" || id == "statusBoxClose") {
         $('#statusBox').attr('class', "");
         $(document).off('mousedown', hideStatusBox);
         event.data.target.off('keydown', hideStatusBox)

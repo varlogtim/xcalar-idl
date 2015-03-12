@@ -24,8 +24,6 @@ function setupRightSideBar() {
             if ($sidebarSection.attr('id') === 'cliSection') {
                 cliScrollDown($('#rightBarTextArea'));
             }
-            $sidebar.children('.lastOpen')
-                    .removeClass('lastOpen');
             $sliderBtn.addClass('active');
             // display correct section
         } else {
@@ -33,6 +31,9 @@ function setupRightSideBar() {
             if ($sidebarSection.hasClass('active')) {
                 // button clicked has an active section so close slider
                 $sidebar.removeClass('open');
+                $sidebar.children('.lastOpen')
+                        .removeClass('lastOpen');
+                $sidebarSection.addClass('.lastOpen');
                 setTimeout(function() {
                     $sidebarSection.removeClass('active');
                 }, delay);
@@ -65,10 +66,15 @@ function setupRightSideBar() {
                 $sidebar.find('.rightBarSection')
                         .eq(0)
                         .addClass('active');
+                $sliderBtns.eq(0)
+                           .addClass('active');
             } else {
-                $sidebar.children('.lastOpen')
-                        .removeClass('lastOpen')
-                        .addClass('active');
+                var $sidebarSection = $sidebar.children('.lastOpen');
+                var index = $sidebarSection.index();
+                $sidebarSection.removeClass('lastOpen')
+                               .addClass('active');
+                $sliderBtns.eq(index)
+                           .addClass('active');
             }
         } else {
             $sidebar.removeClass('open');
