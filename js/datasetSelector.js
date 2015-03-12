@@ -811,10 +811,10 @@ function setupDatasetList() {
             var numDatasets = datasets.numDatasets;
 
             for (var i = 0; i < numDatasets; i++) {
-                promises.push(appendGrid(datasets.datasets[i].datasetId));
+                promises.push(appendGrid.bind(this, datasets.datasets[i].datasetId));
             };
         }
-        return (jQuery.when.apply(jQuery, promises));
+        return (chain(promises));
     })
     .done(function() {
         commitDSObjToStorage(); // commit;

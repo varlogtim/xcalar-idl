@@ -2,15 +2,15 @@ function freeAllResultSets() {
     var promises = [];
     var gTablesLen = gTables.length;
     for (var i = 0; i < gTablesLen; i++) {
-        promises.push(XcalarSetFree(gTables[i].resultSetId));
+        promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
     }
 
     var gHiddenTablesLen = gHiddenTables.length;
     for (var i = 0; i < gHiddenTablesLen; i ++) {
-        promises.push(XcalarSetFree(gHiddenTables[i].resultSetId));
+        promises.push(XcalarSetFree.bind(this, gHiddenTables[i].resultSetId));
     }
 
-    return (jQuery.when.apply(jQuery, promises));
+    return (chain(promises));
 }
 
 function goToPage(pageNumber, direction, tableNum) {

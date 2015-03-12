@@ -41,6 +41,11 @@ Function.prototype.bind = function() {
 };
 
 function chain(funcs) {
+    if (!funcs || 
+        !Array.isArray(funcs) ||
+        typeof funcs[0] !== "function") {
+        return promiseWrapper(null);
+    }
     var head = funcs[0]();
     for (var i = 1; i < funcs.length; i++) {
         head = head.then(funcs[i]);
@@ -213,9 +218,10 @@ function XcalarGetStats(nodeId) {
 
 function XcalarGetTableRefCount(tableName) {
     if (tHandle == null) {
-        return (0);
+        return (promiseWrapper(0));
     }
-    return (xcalarGetTableRefCount(tHandle, tableName).refCount);
+
+    return (xcalarGetTableRefCount(tHandle, tableName));
 }
 
 function XcalarMakeResultSetFromTable(tableName) {
