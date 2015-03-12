@@ -1016,6 +1016,7 @@ function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
 }
 
 function xcalarExport(thriftHandle, tableName, fileName) {
+    var deferred = jQuery.Deferred();
     console.log("xcalarExport(tableName = " + tableName + ", fileName = " +
                 fileName + ")");
 
@@ -1029,20 +1030,23 @@ function xcalarExport(thriftHandle, tableName, fileName) {
     workItem.input.exportInput.srcTable.tableName = tableName;
     workItem.input.exportInput.fileName = fileName;
 
-    try {
-        var result = thriftHandle.client.queueWork(workItem);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
         var exportOutput = result.output.exportOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             exportOutput.status = result.jobStatus;
         }
-    } catch (ouch) {
-        console.log("xcalarExport() caught exception: " + ouch);
+        if (exportOutput.status != StatusT.StatusOk) {
+            deferred.reject(exportOutput.status);
+        }
+        deferred.resolve(exportOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarExport() caught exception: " + error);
+        deferred.reject(error);
+    });
 
-        var exportOutput = new XcalarApiExportOutputT();
-        exportOutput.status = StatusT.StatusThriftProtocolError;
-    }
-
-    return exportOutput;
+    return (deferred.promise());
 }
 
 function xcalarListFiles(thriftHandle, url) {
