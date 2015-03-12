@@ -257,18 +257,52 @@
 
     .header {
         position: absolute;
-        border: 5px solid #e6e6e6;
-        background: #e6e6e6;
-        background-color: #e6e6e6;
-        border-left: none;
-        z-index: 9;
-        border-radius: 0px;
         top: 35px;
-        box-shadow: 0px 1px  1px @color-shadow-black;
+
+        .dataTableHeader();
 
         > input {
-            border-radius: 3px;
             .gray-gradient;
+            border-radius: 3px;
+        }
+
+        .flexContainer {
+            position: relative;
+            width: 100%;
+            .gray-gradient;
+            border-radius: 3px;
+
+            .flexWrap.flex-left {
+                .flex(0 10 26px);
+                margin: 4px 0 0 4px;
+                overflow: hidden;
+            }
+
+            .flexWrap.flex-mid {
+                .flex(1 1 auto);
+            }
+
+            .flexWrap.flex-right {
+                .flex(0 10 26px);
+                position: relative;
+            }
+
+            &:hover {
+                .flexWrap.flex-right {
+                    > .dropdownBox {
+                        opacity: 1.0;
+                    }
+                }
+            }
+        }
+    }
+
+    th.selectedCell {
+        .flexContainer{
+            .action-gradient;
+            .editableHead {
+                color: @color-white !important;
+            }
         }
     }
 

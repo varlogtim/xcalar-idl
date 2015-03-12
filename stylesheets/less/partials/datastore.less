@@ -1023,12 +1023,15 @@ input {
                         height: 30px;
                         // see common.less
                         .typeIcon();
-
+                        .type.icon {
+                            background-position: 0 -2px !important;
+                        }
                         .flexWrap.flex-left {
-                            .flex(0 0 30px);
+                            .flex(0 0 22px);
                         }
                         .flexWrap.flex-right {
                             .flex(1 1 auto);
+                            padding: 2px 0 0 6px;
                         }
                     }
                 }
@@ -1076,30 +1079,16 @@ input {
             height: 40px;
             top: 0px;
 
-            border: 5px solid @color-background-tableBorders;
-            background-color: @color-background-darkGray;
-            border-left: none;
-            z-index: 9;
-            border-radius: 0px;
-            box-shadow: 0px 1px  1px @color-shadow-black;
-
-            // see mixins/common.less
-            .typeIcon();
+           .dataTableHeader();
 
             .flexWrap.flex-left {
                 .flex(0 0 26px);
-                position: relative;
+                margin: 4px 0 0 4px;
+                overflow: hidden;
             }
 
             .flexWrap.flex-mid {
                 .flex(1 1 auto);
-
-                .editableHead {
-                    width: 100%;
-                    outline: none;
-                    cursor: pointer;
-                    text-overflow: ellipsis;
-                }
             }
 
             .flexWrap.flex-right {
@@ -1113,10 +1102,7 @@ input {
                     right: 2px;
                     opacity: 0.5;
                 }
-                // see mixins/common.less
-                .dropDown();
             }
-
 
             &:hover {
                 .flexWrap.flex-right {

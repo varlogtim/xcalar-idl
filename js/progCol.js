@@ -229,19 +229,20 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         table.find('.row'+i+' .col'+newColid).html(value);
     }
     if(columnType == undefined) {
-        gTables[tableNum].tableCols[newColid - 1].type = "mixed";
+        gTables[tableNum].tableCols[newColid - 1].type = "undefined";
     } else {
         gTables[tableNum].tableCols[newColid - 1].type = columnType;
     }
 
     // add class to th
-    table.find('th.col' + newColid + ' div.header ul.colMenu')
-         .removeClass("mixed")
-         .removeClass("string")
-         .removeClass("number")
-         .removeClass("object")
-         .removeClass("array")
-         .addClass(columnType);
+    $header = table.find('th.col' + newColid + ' div.header');
+    $header.removeClass("type-mixed")
+           .removeClass("type-string")
+           .removeClass("type-number")
+           .removeClass("type-object")
+           .removeClass("type-array")
+           .removeClass("type-undefined")
+           .addClass('type-' + columnType);
     table.find('th.col' + newColid).removeClass('newColumn');
 }
 
@@ -365,16 +366,17 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
     }
 
     // assign column type class to header menus
-    var $table = $('#xcTable'+tableNum);
+    var $table = $('#xcTable' + tableNum);
     for (var i = 0; i < numCols; i++) {
-        var $currentTh = $table.find('th.col' +(i+1));
-        $currentTh.find('ul.colMenu')
-            .removeClass("mixed")
-            .removeClass("string")
-            .removeClass("number")
-            .removeClass("object")
-            .removeClass("array")
-            .addClass(columnTypes[i]);
+        var $currentTh = $table.find('th.col' + (i + 1));
+        var $header = $currentTh.find('> .header');
+         $header.removeClass("type-mixed")
+                .removeClass("type-string")
+                .removeClass("type-number")
+                .removeClass("type-object")
+                .removeClass("type-array")
+                .removeClass("type-undefined")
+                .addClass('type-' + columnTypes[i]);
         if ($currentTh.hasClass('selectedCell')) {
             highlightColumn($currentTh);
         }
@@ -460,26 +462,39 @@ function addCol(colId, tableId, name, options) {
 }
 
 function generateColumnHeadHTML(columnClass, color, newColid, name, width) {
-    var columnHeadTd = '<th class="table_title_bg'+color+columnClass+
-       ' col'+newColid+'" style="width:'+width+'px;">'+
-       '<div class="header">'+
-       '<div class="dragArea"></div>'+
-       '<div class="dropdownBox" data-toggle="tooltip" data-placement="bottom"'+
-       'title="view column options">'+
-        '<div class="innerBox"></div></div>'+
-           '<input autocomplete="on" input spellcheck="false"'+
-           'type="text" class="editableHead col'+newColid+'" '+
-           'data-toggle="tooltip" data-placement="bottom"'+
-           'title="click to edit" value=\'';
+    var columnName;
     if (!name) {
-        columnHeadTd += '"newCol"=map(add(col1, col2))';
+        columnName = '"newCol"=map(add(col1, col2))';
     } else {
-        columnHeadTd += name;
+        columnName = name;
     }
-    columnHeadTd += '\' size="15" placeholder=""/>';
+
+    var columnHeadTd = 
+        '<th class="table_title_bg' + color + columnClass +
+        ' col' + newColid + '" style="width:' + width + 'px;">\
+            <div class="header">\
+                <div class="dragArea"></div>\
+                <div class="flexContainer flexRow">\
+                    <div class="flexWrap flex-left">\
+                        <span class="type icon"></span>\
+                    </div>\
+                    <div class="flexWrap flex-mid">\
+                        <input autocomplete="on" input spellcheck="false" \
+                            type="text" class="editableHead col' + newColid +  
+                            '" data-toggle="tooltip" data-placement="bottom" \
+                            title="click to edit" value=\'' + columnName + 
+                            '\' size="15" placeholder=""/>\
+                    </div>\
+                    <div class="flexWrap flex-right">\
+                        <div class="dropdownBox" \
+                            data-toggle="tooltip" data-placement="bottom" \
+                            title="view column options">\
+                            <div class="innerBox"></div>\
+                        </div>';
+
     columnHeadTd += generateColDropDownHTML(newColid);
-    columnHeadTd += '</div>'+
-       '</th>';
+    columnHeadTd += '</div></div></div></th>';
+
     return (columnHeadTd);
 }
 

@@ -352,13 +352,6 @@ body {
         background-color: @color-background-darkGray;
     }
 
-    th.selectedCell {
-        .editableHead {
-            .action-gradient;
-            color: @color-white;
-        }
-    }
-
     .header {
         position: relative;
         border-radius: 3px;
@@ -463,10 +456,6 @@ body {
             .flex-order(3);
         }
     }
-}
-
-.header {
-    .dropDown();
 }
 
 .fullOpacity {
@@ -654,19 +643,19 @@ ul.colMenu {
         }
     }
 
-    &.string, &.array {
+    .type-string &, .type-array &{
         .filterWrap .numFilter, .aggregate {
             display: none;
         }
     }
 
-    &.object {
+    .type-object &{
         .sort, .aggregate, .groupBy, .filterWrap, .joinList {
             display: none;
         }
     }
 
-    &.number {
+    .type-number &{
         .filterWrap .strFilter {
             display: none;
         }

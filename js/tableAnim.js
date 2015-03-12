@@ -892,12 +892,11 @@ function addColListeners(colId, $table) {;
         gFnBarOrigin = $(this);
     });
 
-    $table.find('.table_title_bg.col'+colId+' .header > .dropdownBox').
-        click( 
-            function() {
-                dropdownClick($(this));
-            }
-        );
+    $table.find('.table_title_bg.col' + colId 
+                + ' .header .flex-right > .dropdownBox').click(function() {
+            dropdownClick($(this));
+        }
+    );
 
     $table.find('.table_title_bg.col'+colId+' .dropdownBox')
         .mouseenter(function() {

@@ -210,35 +210,47 @@ function generateTableShell(columns, tableNum) {
         }
         if (columns[i].name == "DATA") {
             dataIndex = i;
+            var newColid = i + 1;
             newTable +=
-                '<th class="col'+(i+1)+' table_title_bg dataCol" '+
-                'style="width:'+columns[i].width+'px;">'+
-                  '<div class="header">'+
-                    '<div class="dropdownBox"><div class="innerBox">'+
-                    '</div></div>'+
-                    '<input value="DATA" '+
-                    'readonly="" tabindex="-1" class="dataCol col'+(i+1)+
-                    ' data-toggle="tooltip" data-placement="bottom" '+
-                    '" title="raw data">'+
-                    '<ul class="colMenu" style="display: none;">'+
-                      '<li class="menuClickable">Add a column'+
-                        '<ul class="subColMenu">'+
-                          '<li class="addColumns addColLeft col'+(i+1)+'">'+
-                            'On the left</li>'+
-                          '<li class="addColumns addColRight col'+(i+1)+'">'+
-                          'On the right</li>'+
-                          '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                      '</li>'+
-                      '<li id="duplicate'+(i+1)+
-                      '" class="duplicate col'+(i+1)+'">'+
-                      'Duplicate column</li>'+
-                      '<li class="sort col'+(i+1)+'">Sort</li>'+
-                      '<li class="hide col'+(i+1)+'">Hide column</li>'+
-                      '<li class="unhide col'+(i+1)+'">Unhide column</li>'+
-                    '</ul>'+
-                  '</div>'+
+                '<th class="col' + newColid + ' table_title_bg dataCol" ' +
+                    'style="width:' + columns[i].width + 'px;">' +
+                    '<div class="header">' +
+                        '<div class="flexContainer flexRow">' + 
+                        '<div class="flexWrap flex-left"></div>' + 
+                        '<div class="flexWrap flex-mid">' + 
+                            '<input value="DATA" readonly="" tabindex="-1"' + 
+                                ' class="dataCol col' + newColid + 
+                                ' data-toggle="tooltip" data-placement="bottom" ' +
+                                '" title="raw data">' +
+                        '<div>' + 
+                        '<div class="flexWrap flex-right">' + 
+                            '<div class="dropdownBox">' + 
+                                '<div class="innerBox"></div>' + 
+                            '</div>' + 
+                            '<ul class="colMenu" style="display: none;">' +
+                                '<li class="menuClickable">Add a column' + 
+                                    '<ul class="subColMenu">' + 
+                                        '<li class="addColumns addColLeft' + 
+                                            ' col' + newColid + '">' + 
+                                            'On the left' + 
+                                        '</li>' + 
+                                        '<li class="addColumns addColRight' + 
+                                            ' col' + newColid + '">' + 
+                                            'On the right' + 
+                                        '</li>' + 
+                                        '<div class="subColMenuArea"></div>' + 
+                                    '</ul>' + 
+                                    '<div class="dropdownBox"></div>' + 
+                                '</li>' + 
+                                '<li class="hide col' + newColid + '">' + 
+                                    'Hide column' + 
+                                '</li>' + 
+                                '<li class="unhide col' + newColid + '">' + 
+                                    'Unhide column' + 
+                                '</li>' +
+                            '</ul>' +
+                        '</div>' + 
+                    '</div>' + 
                 '</th>';
         } else {
             var name = "";
