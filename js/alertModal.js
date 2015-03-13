@@ -20,7 +20,7 @@ function showAlertModal(options) {
     var alertWidth = $alertModal.outerWidth(); 
     
     var modalLeft = (winWidth - alertWidth) / 2;
-    var modalTop = Math.max((winHeight - alertHeight) / 2, 100);
+    var modalTop = Math.max(winHeight / 2 - alertHeight, 100);
 
     $alertModal.css({'left': modalLeft, 'top': modalTop, 
                      'display': 'block'});
@@ -36,7 +36,7 @@ function closeAlertModal() {
     
     // remove all event listener
     $('#alertHeader').off();
-    $('#alertButton').off();
+    $('#alertActions').off();
     $('#alertCheckBox').off();
 }
 
@@ -45,11 +45,11 @@ function closeAlertModal() {
     may need further discussion */
 function configAlertModal(options) {
     var $alertHeader = $('#alertHeader');
-    var $alertBtn = $('#alertButton');
+    var $alertBtn = $('#alertActions');
     var $checkbox = $('#alertCheckBox');
     
     // close icon
-    $alertHeader.on('click', '.icon', function() {
+    $alertHeader.on('click', '.close', function() {
         closeAlertModal();
     });
 
@@ -77,16 +77,16 @@ function configAlertModal(options) {
         }
 
         if (options.instruction) {  // set alert instruction
-            $('#alertInformation .text').text(options.instruction);
-            $('#alertInformation').css('display', 'block');
+            $('#alertInstruction .text').text(options.instruction);
+            $('#alertInstruction').show();
         } else {
-            $('#alertInformation').css('display', 'none');
+            $('#alertInstruction').hide();
         }
 
         if (options.isAlert) {  // set confirm button
-            $alertBtn.find('.confirm').css('display', 'none');
+            $alertBtn.find('.confirm').hide();
         } else {
-            $alertBtn.find('.confirm').css('display', 'inline-block')
+            $alertBtn.find('.confirm').show();
             $alertBtn.on('click', '.confirm', function() {
                 if(options.confirmFunc) {
                     options.confirmFunc();
@@ -99,9 +99,9 @@ function configAlertModal(options) {
              $checkbox.on('click', '.checkbox', function() {
                 $(this).toggleClass('checked');
             });
-            $checkbox.css('display', 'block');
+            $checkbox.show();
         } else {
-            $checkbox.css('display', 'none');
+            $checkbox.hide();
         }
     }
 }

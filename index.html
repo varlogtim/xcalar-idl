@@ -426,13 +426,14 @@
   </div>
   <!-- Start join modal -->
   <div id="joinModal"></div>
-  <div id="joinDialog">
-    <div id="joinHeader">
-      Join Tables
-      <div class="icon"></div>
-      <div id="closeJoin"></div>
+  <div id="joinDialog" class="modalContainer">
+    <div id="joinHeader" class="modalHeader">
+      <span class="text">Join Tables</span>
+      <div id="closeJoin" class="close">
+        <span class="icon"></span>
+      </div>
     </div>
-    <div id="instructions">
+    <div id="instructions" class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
         First, select the column from the left table that you would like to join
@@ -441,7 +442,7 @@
         would like to join on.
       </div>
     </div>
-    <div id="inputSection">
+    <div id="inputSection" class="modalTopMain">
       <div class="text">New Table Name:</div>
       <input id="roundedInput" type="textbox" required></input>
       <div id="joinType">
@@ -456,11 +457,9 @@
         </ul>
       </div>
     </div>
-    <div id="mainJoin" class="clearfix">
+    <div id="mainJoin" class="clearfix modalMain">
       <div id="leftJoin">
-        <div class="tableText">
-            Left Table
-        </div>
+        <div class="tableText">Left Table</div>
         <div class="mainTable">
           <div class="tabArea">
             <div class="tableTabs">
@@ -474,9 +473,7 @@
       </div>
       <div class="divider"></div>
       <div id="rightJoin">
-        <div class="tableText">
-            Right Table
-        </div>
+        <div class="tableText">Right Table</div>
         <div class="mainTable">
           <div class="tabArea">
             <div class="tableTabs"></div>
@@ -489,13 +486,9 @@
       </div>
       <!-- <div id="rightJoin"></div> -->
     </div>
-    <div id="joinActions">
-      <div id="joinTables" class="button active">
-        JOIN TABLES
-      </div>
-      <div id="cancelJoin" class="button">
-        CANCEL JOIN
-      </div>
+    <div id="joinActions" class="modalBottom">
+      <div id="joinTables" class="button active confirm">JOIN TABLES</div>
+      <div id="cancelJoin" class="button cancel">CANCEL JOIN</div>
     </div>
   </div>
 
@@ -525,33 +518,32 @@
     </table>
   </div>
 
-  <div id="alertModal">
-    <div id="alertHeader">
+  <div id="alertModal" class="modalContainer">
+    <div id="alertHeader" class="modalHeader">
         <span class="text">Confirmation Required</span>
-        <div class="closeAlertModal">
+        <div class="close">
             <span class="icon"></span>
         </div>
     </div>
-    <div id="alertInformation">
+    <div id="alertInstruction" class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
         This selected column will be deleted from data set but be available on 
         the archive to the pasted back into current table
       </div>
     </div>
-    <div id="alertContentWrap">
-      <div id="alertContent">
+    <div id="alertContent" class="modalTopMain">
         Are you sure you want to remove this column?
+    </div>
+    <div id="alertOption" class="modalMain">
+      <div id="alertCheckBox">
+          <div class="checkbox"></div>
+          <div class="text">Don't show again</div>
       </div>
-      <div id="alertOption">
-        <div id="alertCheckBox">
-            <div class="checkbox"></div>
-            <div class="text">Don't show again</div>
-        </div>
-        <div id="alertButton">
-            <div class="button confirm">CONFIRM</div>
-            <div class="button cancel">CANCEL</div>
-        </div>
+    </div>
+    <div id="alertActions" class="modalBottom">
+        <div class="button confirm">CONFIRM</div>
+        <div class="button cancel">CANCEL</div>
     </div>
   </div>
 
