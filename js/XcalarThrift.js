@@ -6,14 +6,47 @@ function THandleDoesntExistError() {
 }
 THandleDoesntExistError.prototype = Error.prototype;
 
-function atos(func, args) {
-    func.apply(this, args).done(
-        function(retObj) {
-            console.log(retObj);
-        }
-    );
-}
+function sleep(val) {
 
+    function parse(str) {
+        var timeStr = /^((?:\d+)?\.?\d+)*(ms|s|m|h)?$/i,
+            s = 1000,
+            m = s * 60,
+            h = m * 60;
+
+        var match = timeStr.exec(str);
+
+        if (!match)
+            return (0);
+
+        var n = parseFloat(match[1]),
+            type = (match[2] || "ms").toLowerCase(),
+            duration = null;
+
+        switch(type) {
+            case "ms" :
+                duration = n;
+                break;
+            case "s"  :
+                duration = s * n;
+                break;
+            case "m"  :
+                duration = m * n;
+                break;
+            case "h"  :
+                duration = h * n;
+                break;
+            default   :
+                duration = 0;
+                break;
+        }
+        return (duration);
+    }
+
+    var end = Date.now() + parse(val);
+
+    while (Date.now() < end);
+}
 // Should check if the function returns a promise
 // but that would require an extra function call 
 Function.prototype.log = function() {
