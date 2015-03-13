@@ -186,12 +186,12 @@ input {
 
     #importDataTopForm {
         background-color: @color-background-topForm;
-        padding: 25px 13% 1px 15%;
+        padding: 30px 13% 1px 15%;
 
         .importFormRow {
-            margin-bottom: 25px;
-            height: 25px;
-            line-height: 25px;
+            margin-bottom: 30px;
+            height: 30px;
+            line-height: 30px;
             label {
                 display: inline-block;
                 width: 100px;
@@ -200,15 +200,21 @@ input {
             input {
                 height: 100%;
                 border-radius: 3px;
-                width: ~"calc(100% - 100px)";
+                width: ~"calc(100% - 300px)";
                 padding: 4px;
                 box-shadow: inset 0 1px 2px rgba(0,0,0,0.3)
             }
+            button {
+                width: 150px;
+                height: 100%;
+                display: inline-block;
+            }
+
         }
     }
 
     #importDataBottomForm {
-        padding: 25px 13% 1px 15%;
+        padding: 30px 13% 1px 15%;
     }
 
     #fileFormat {
@@ -503,53 +509,6 @@ input {
                     }
                 }
 
-                .gridViewForGrid() {
-                    height: 65px;
-                    width: 45px;
-                    margin: 7px;
-                    text-align: center;
-                    cursor: pointer;
-                    position: relative;
-                    float: left;
-                    display: inline-block;
-
-                    > .gridIcon {
-                        display: inline-block;
-                        width: 50px;
-                        height: 40px;
-                    }
-
-                    > .listIcon {
-                        display: none;
-                    }
-
-                    > .label {
-                        .flex(1 1 25px);
-                        .flex-order(2);
-                        .transition (opacity 0.6s);
-                        font-size: 9px;
-                        font-weight: 600;
-                        text-overflow: ellipsis;
-                        overflow: hidden;
-                    }
-
-                    &.inactive {
-                        .icon, .label {
-                            opacity: 0.5;
-                            .transition (opacity 0.6s);
-                        }
-                    }
-
-                    &.active {
-                        background: @color-background-lightLightGray;
-                        box-shadow: 0px 0px 0px 2px @color-background-topAction;
-                        .label {
-                            font-weight: 700;
-                            color: #333333;
-                        }
-                    }
-                }
-
                 grid-unit:first-of-type {
                     clear: left;
                 }
@@ -673,67 +632,6 @@ input {
                 padding-top: 4px;
                 padding-bottom: 4px;
                 overflow-y: scroll;
-                .listViewForGrid() {
-                    position: relative;
-                    display: block;
-                    clear: both;
-                    float: none;
-                    width: 230px;
-                    text-align: left;
-                    margin: 10px 0px 0px 0px;
-                    background-color: transparent;
-                
-                     > .label {
-                        font-size: 11px;
-                        line-height: 24px;
-                        height: 25px;
-                        border-radius: 3px;
-                        background-color: @color-background-white;
-                        box-shadow: 1px 2px 1px rgba(0,0,0,.2);
-                    }
-
-                    > .gridIcon {
-                        display: none;
-                    }
-
-                    > .listIcon {
-                        display: inline-block;
-                        .gray-gradient;
-                        height: 100%;
-                        float: left;
-                        padding-top: 1px;
-                        margin-right: 10px;
-                        border-top-left-radius: 3px;
-                        border-bottom-left-radius: 3px;
-
-                        .icon {
-                            margin: 2px 2px 1px 2px;
-                            display: inline-block;
-                            width: 19px;
-                            height: 19px;
-                        }
-                    }
-
-                    &:hover {
-                        > .listIcon {
-                            // .gray-inverse-gradient;
-                        }
-                    }
-
-                    &.active {
-                        > .label {
-                            box-shadow: 0px 0px 0px 2px @color-background-topAction;
-                        }
-                        > .listIcon {
-                            .action-gradient !important;
-                        }
-                    }
-
-                    &.iconWaiting {
-                        left: 98px;
-                        top: -6px;
-                    }
-                }
 
                 grid-unit.ds {
                     .listViewForGrid();

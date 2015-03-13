@@ -10,20 +10,8 @@ function showAlertModal(options) {
 
     configAlertModal(options);
 
-    // put alert modal in the middle of screen
-    var winHeight = $(window).height();
-    var winWidth = $(window).width();
-
     var $alertModal = $('#alertModal');
-
-    var alertHeight = $alertModal.outerHeight();  // reference to CSS
-    var alertWidth = $alertModal.outerWidth(); 
-    
-    var modalLeft = (winWidth - alertWidth) / 2;
-    var modalTop = Math.max(winHeight / 2 - alertHeight, 100);
-
-    $alertModal.css({'left': modalLeft, 'top': modalTop, 
-                     'display': 'block'});
+    $alertModal.show();
    
     // set modal background
     $('#modalBackground').fadeIn(100);
@@ -31,7 +19,7 @@ function showAlertModal(options) {
 }
 
 function closeAlertModal() {
-    $('#alertModal').css({'display': 'none'});
+    $('#alertModal').hide();
     $('#modalBackground').fadeOut(200);
     
     // remove all event listener

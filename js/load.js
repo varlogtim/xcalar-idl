@@ -9,6 +9,12 @@ function setupImportDSForm() {
         $('.radio').removeClass('checked');
     });
 
+    $('#importDataForm').on('click', '#fileBrowserBtn', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        FileBrowser.show();
+    });
+
     $('#importDataForm').submit(function(event) {
         event.preventDefault();
         var loadURL = jQuery.trim($('#filePath').val());
@@ -16,6 +22,7 @@ function setupImportDSForm() {
         var loadFormat = $('#fileFormat').find('input[name=dsType]:checked')
                          .val();
         var loadArgs = loadURL.split("|");
+        console.log('loadArgs', loadArgs);
         if (DSObj.isDataSetNameConflict(tableName)) {
             var text = 'Dataset with the name ' +  tableName + 
                         ' already exits. Please choose another name.';

@@ -95,8 +95,8 @@ function setupDSCartButtons() {
 
     $(".delete").click(function() {
         var dsName = $(this).closest("#contentViewHeader").find("h2").text();
-        var $grid = $('#gridView grid-unit .label[data-dsname=' 
-                        + dsName + ']').closest('grid-unit');
+        var $grid = $('#gridView grid-unit .label[data-dsname="' 
+                        + dsName + '"]').closest('grid-unit');
         $grid.addClass('inactive');
         $grid.addClass('active');   // active means it is clicked
         $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');

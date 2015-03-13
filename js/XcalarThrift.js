@@ -425,3 +425,10 @@ function XcalarGetDag(tableName) {
     }
     return (xcalarDag(tHandle, tableName));
 }
+
+function XcalarListFiles(url) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+    return (xcalarListFiles(tHandle, url));
+}

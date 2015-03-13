@@ -103,6 +103,7 @@
               <label>File Path:</label>
               <input type="text" name="filePath" id="filePath"
                autocomplete="on" placeholder="Enter File Directory" required> 
+              <button id="fileBrowserBtn" class="btn">BROWSE</button>
             </div>
             <div id="fileNameSelector" class="importFormRow">
               <label>File Name:</label>
@@ -547,6 +548,65 @@
     </div>
   </div>
 
+  <div id="fileBrowserModal" class="modalContainer">
+    <div id="fileBrowserHeader" class="modalHeader">
+        <span class="text">Browse Data Set</span>
+        <div class="close">
+            <span class="icon"></span>
+        </div>
+    </div>
+    <div class="modalInstruction">
+      <div class="icon"></div>
+      <div class="text">
+        Select the dataset you want to import and the click "OPEN DATA SET" 
+        button to import it.
+      </div>
+    </div>
+    <div class="modalTopMain">
+      <div class="topSection">
+        <div class="text">Locations:</div>
+        <select id="fileBrowserPath" class="listSection"></select>
+        <div class="iconSection">
+          <div class="iconWrapper">
+            <span class="icon icon-up"></span>
+          </div>
+          <div class="iconWrapper">
+            <span class="icon icon-list"></span>
+          </div>
+          <div class="iconWrapper">
+            <span class="icon icon-sort"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="fileBrowserMain" class="modalMain gridView">
+      <div class="titleSection">
+          <div class="title fileName">Name</div>
+          <div class="title fileSize">Size</div>
+          <div class="title fileDate">Date Modified</div> 
+      </div>
+      <div id="fileBrowserView" class="mainSection"></div>
+    </div>
+    <div class="modalSubMain">
+        <div class="inputSection">
+          <div class="text">File Name:</div>
+          <input id="fileBrowserInputName" type="text" value="">
+        </div>
+        <div class="inputSection">
+          <div class="text">File Format:</div>
+          <select id="fileBrowserFormat" class="listSection">
+            <option value="ALL">ALL</option>
+            <option value="JSON">JSON</option>
+            <option value="CSV">CSV</option>
+          </select>
+        </div>
+    </div>
+    <div id="fileBrowserActions" class="modalBottom">
+        <div class="button confirm">OPEN DATA SET</div>
+        <div class="button cancel">CANCEL</div>
+    </div>
+  </div>
+
 </div> <!-- END CONTAINER -->
 
 <script src="bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js">
@@ -587,6 +647,7 @@
 <script src="js/load.js" type="text/javascript"></script>
 <script src="js/dag.js" type="text/javascript"></script>
 <script src="js/alertModal.js" type="text/javascript"></script>
+<script src="js/fileBrowserModal.js" type="text/javascript"></script>
 <script src="js/cli.js" type="text/javascript"></script>
 <script src="js/folder.js" type="text/javascript"></script>
 <script>

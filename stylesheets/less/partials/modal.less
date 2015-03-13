@@ -1,9 +1,16 @@
-/* ========== Modal CSS ========== */
+ // ========== Modal CSS ==========
 .modalBuilder(@w, @h) {
     &.modalContainer {
         display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
         width: @w;
         height: @h;
+        max-width: 99%;
+        max-height: 99%;
         margin: auto;
         border-radius: 3px;
         z-index: 40;
@@ -42,7 +49,6 @@
                 position: absolute;
                 top: 0px;
                 right: 0px;
-                z-index: 39;
                 height: 22px;
                 width: 22px;
                 background: url(/images/ds-close.png) 50% 50% no-repeat;
@@ -93,31 +99,36 @@
     }
 
     .modalSubMain {
-
+        width: 100%;
+        background: @color-join-background;
+        color: @color-text-darkGray;
     }
 
     .modalBottom {
         width: 100%;
-        height: 40px;
+        height: 50px;
         background-color: @color-white;
         text-align: right;
         .button {
             float: right;
-            margin: 0 10px 10px 0;
-
-            color: @color-text-white;
             font-weight: bold;
             text-align: center;
+            height: 30px;
+            line-height: 30px;
+            font-size: 12px;
             border-radius: 3px 3px 3px 3px;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
             cursor: pointer;
 
             &.confirm {
+                color: @color-text-cyan;
                 .action-gradient;
                 &:hover {
                     .action-inverse-gradient;
                 }
             }
             &.cancel {
+                color: @color-text-white;
                 .gray-gradient;
                 &:hover {
                     .gray-inverse-gradient;
@@ -282,15 +293,8 @@
 
 /* Join Modal */
 #joinDialog {
-    .modalBuilder(920px, 600px);
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
+    .modalBuilder(920px, 670px);
     overflow: hidden;
-    max-height: 99%;
-    max-width: 99%;
 
     #inputSection {
         height: 57px;
@@ -566,34 +570,20 @@
             }
         }
     }
-    .button {
-        background: linear-gradient(@color-background-topGrayMed,
-                                    @color-background-bottomGrayMed);
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-        text-align: center;
-        line-height: 30px;
-        width: 150px;
-        height: 30px;
-        border-radius: 3px 3px 3px 3px;
-        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-        cursor: pointer;
-    }
-    .active {
-        .action-gradient;
-        color: @color-text-cyan;
+    .modalBottom {
+        height: 40px !important;
+        .button {
+            width: 150px;
+            margin: 0 20px 10px 0;
+        }
     }
 }
 /* End Of Join Modal */
 
 /* Alert Modal */
 #alertModal {
-    position: fixed;
-    top: 100px;
-    left: 50%;
     .modalBuilder(500px, 100px);
-
+    margin-top: 10% !important;
     #alertContent {
         overflow: auto;
         display: table-cell;
@@ -637,11 +627,264 @@
         }
     }
 
-    .button {
-        width: 130px;
-        height: 30px;
-        line-height: 30px;
-        font-size: 12px;
+    .modalBottom {
+        height: 40px !important;
+        .button {
+            width: 130px;
+            margin: 0px 10px 10px 0;
+        }
     }
 }
 /* End Of Alert Modal */
+
+/* File Browser Modal */
+#fileBrowserModal {
+    .modalBuilder(800px, 670px);
+    resize: none;
+    select.listSection {
+        width: 450px;
+        float: left;
+        height: 24px;
+        cursor: pointer;
+        padding-left: 10px;
+        font-size: 12px;
+        border: none;
+        -webkit-appearance: none;
+        border-radius: 0px 0px 3px 3px;
+        box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
+        background: url(/images/fileBrowserModal/down.png) no-repeat 100% 50%;
+        background-color: @color-white; 
+        outline: none;
+    }
+
+    .iconWrapper {
+        display: inline-block;
+        height: 25px;
+        width: 25px;
+        border-radius: 3px;
+        cursor: pointer;
+        .action-gradient;
+        &:active {
+            .action-inverse-gradient;
+        }
+        .icon {
+            &.icon-up {
+                .background("/images/fileBrowserModal/up.png", 
+                            22px, 22px, no-repeat, 2px, 3px);
+                background-size: 22px 20px;
+            }
+            &.icon-list {
+                .background("/images/fileBrowserModal/listView.png", 
+                            22px, 22px, no-repeat, 4px, 4px);
+                background-size: 18px 17px;
+            }
+            &.icon-sort {
+                .background("/images/fileBrowserModal/sort.png", 
+                            22px, 22px, no-repeat, 7px, 2px);
+                background-size: 12px 22px;
+            }
+        }
+    }
+
+    .modalTopMain {
+        height: 58px;
+        padding: 14px 0;
+        .topSection {
+            height: 25px;
+            width: 90%;
+            margin: 0px auto;
+            .text {
+                width: 90px;
+                height: 25px;
+                line-height: 25px;
+                font-weight: bold;
+                float: left;
+            }
+            .iconSection {
+                float: left;
+                margin-left: 50px;
+            }
+        }
+    }
+
+    .modalMain {
+        height: 370px;
+        padding: 5px 0;
+        position: relative;
+        .titleSection {
+            width: 98%;
+            height: 40px;
+            padding: 5px 2%;
+            margin: 0 auto;
+            background-color: @color-background-darkGray;
+            border-radius: 3px 3px 0px 0px;
+            box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
+            .title {
+                float: left;
+                .gray-gradient;
+                border-radius: 3px 3px 3px 3px;
+                line-height: 30px;
+                height: 30px;
+                font-weight: bold;
+                padding-left: 5px;
+                &.fileName {
+                    width: ~"calc(50% - 4px)";
+                }
+                &.fileSize, &.fileDate {
+                    margin-left: 7px;
+                    width: 24%;
+                }
+            }
+        }
+        .mainSection {
+            overflow-y: scroll;
+            background: lighten(@color-background-darkGray, 3%);
+            border-radius: 3px 3px 0px 0px;
+            box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
+            width: 98%;
+            height: 100%;
+            margin: 0 auto;
+        }
+
+        &.gridView {
+            .titleSection, .fileDate, .fileSize {
+                display: none;
+            }
+            grid-unit {
+                .gridViewForGrid;
+                .label {
+                    white-space: nowrap;
+                }
+            }
+
+            grid-unit.ds {
+                .gridIcon {
+                    background: url(/images/datastore/db-large.png);
+                    background-repeat: no-repeat;
+                    background-position: 4.5px 3px;
+                }
+            }
+
+            grid-unit.folder {
+                .gridIcon {
+                    background: url(/images/datastore/folder-lg.png);
+                    background-repeat: no-repeat;
+                    background-position: 4px 3px;
+                    background-size: 39px 33px;
+                }
+            }
+        }
+        
+        &.listView {
+            .mainSection {
+                border-radius: 0;
+                height: ~"calc(100% - 40px)";
+            }
+
+            grid-unit {
+                width: 96%;
+                height: 30px;
+                margin: 0 auto;
+                display: block;
+
+                > div {
+                    float: left;
+                    height: 30px;
+                    line-height: 30px;
+                    border: 1px solid transparent;
+                    font-size: 12px;
+                    font-weight: bold;
+                    color: @color-text-midGray;
+                }
+                .label {
+                    width: ~"calc(50% - 30px)";
+                    padding-left: 5px;
+                }
+                .fileSize, .fileDate {
+                    margin-left: 1%;
+                    padding-left: 5px;
+                    width: 24%;
+                }
+
+                .gridIcon {
+                    display: none;
+                }
+
+                .listIcon {
+                    width: 25px;
+                    .icon {
+                        margin: 2px 2px 1px 2px;
+                        display: inline-block;
+                        width: 19px;
+                        height: 19px;
+                        position: relative;
+                        left: 0px;
+                        top: 3px;
+                    }
+                }
+                &:nth-child(odd) > div {
+                    background-color: @colorOpaque-darkGray;
+                }
+                
+                &:nth-child(even) > div {
+                    background-color: @colorOpaque-lightGray;
+                }
+                &.active {
+                    > div {
+                        border: 1px solid @color-background-topAction;
+                        background: @colorOpaque-blue;
+                        color: @color-text-blue;
+                    }
+                    .labe {
+                        border-left: none;
+                    }
+                    .listIcon {
+                        border-right: none;
+                        .action-gradient;
+                    }
+                }
+            }
+            grid-unit.ds {
+                > .listIcon .icon {
+                    background: url(/images/db-icon-white.png) 0 0 no-repeat;
+                }
+            }
+
+            grid-unit.folder {
+                > .listIcon .icon {
+                    background: url(/images/datastore/folder-sm.png);
+                    background-repeat: no-repeat;
+                    background-position: 2.5px 3px;
+                }
+            }
+        }
+    }
+    .modalSubMain {
+        height: 90px;
+        padding: 5px 0;
+        .inputSection {
+            width: 600px;
+            height: 25px;
+            margin: 10px auto 5px auto;
+            .text {
+                width: 100px;
+                height: 25px;
+                line-height: 25px;
+                font-weight: bold;
+                float: left;
+            }
+            input {
+                width: 450px;
+                border-radius: 3px 3px 0px 0px;
+                box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
+                padding-left: 10px;
+            }
+
+        }
+    }
+    .button {
+        width: 150px;
+        margin: 15px 15px 0 0;
+    }
+}
+// End Of File Browser Modal
