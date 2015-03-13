@@ -778,7 +778,7 @@ function createTableHeader(tableNum) {
             var title = "Successful Export";
             var ins = "Your table has been successfully exported ";
             var msg = "File location: "+hostname+":/var/tmp/xcalar/"+
-                      +"answer.csv";
+                      "answer.csv";
             showAlertModal({'title':title, 'msg':msg, 'instruction': ins,
                             'isAlert':true, 'isCheckBox':true});
         });
