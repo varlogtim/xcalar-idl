@@ -772,13 +772,13 @@ function createTableHeader(tableNum) {
         cliOptions.operation = 'exportTable';
         cliOptions.tableName = gTables[tableNum].frontTableName;
         cliOptions.fileName = cliOptions.tableName+".csv";
-        XcalarExport(cliOptions.tableName, cliOptions.tableName+".csv")
+        XcalarExport(cliOptions.tableName, "answer.csv")
         .done(function() {
             addCli('Export Table', cliOptions);
             var title = "Successful Export";
             var ins = "Your table has been successfully exported ";
             var msg = "File location: "+hostname+":/var/tmp/xcalar/"+
-                      cliOptions.tableName+".csv";
+                      +"answer.csv";
             showAlertModal({'title':title, 'msg':msg, 'instruction': ins,
                             'isAlert':true, 'isCheckBox':true});
         });
