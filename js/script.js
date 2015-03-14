@@ -499,11 +499,11 @@ function documentReadyCatFunction(tableNum) {
 function startupFunctions() {
     var deferred = jQuery.Deferred();
 
+    setupLogout();
     readFromStorage()
     .then(function() {
         documentReadyGeneralFunction();
         setupRightSideBar();
-        setupLogout();
         return (setupDatasetList());
     })
     .then(function() {

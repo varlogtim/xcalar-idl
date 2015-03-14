@@ -7,7 +7,6 @@ function THandleDoesntExistError() {
 THandleDoesntExistError.prototype = Error.prototype;
 
 function sleep(val) {
-
     function parse(str) {
         var timeStr = /^((?:\d+)?\.?\d+)*(ms|s|m|h)?$/i,
             s = 1000,
@@ -16,41 +15,44 @@ function sleep(val) {
 
         var match = timeStr.exec(str);
 
-        if (!match)
+        if (!match) {
             return (0);
+        }
 
-        var n = parseFloat(match[1]),
-            type = (match[2] || "ms").toLowerCase(),
-            duration = null;
+        var n = parseFloat(match[1]);
+        var type = (match[2] || "ms").toLowerCase();
+        var duration = null;
 
         switch(type) {
-            case "ms" :
-                duration = n;
-                break;
-            case "s"  :
-                duration = s * n;
-                break;
-            case "m"  :
-                duration = m * n;
-                break;
-            case "h"  :
-                duration = h * n;
-                break;
-            default   :
-                duration = 0;
-                break;
+        case "ms":
+            duration = n;
+            break;
+        case "s":
+            duration = s * n;
+            break;
+        case "m":
+            duration = m * n;
+            break;
+        case "h":
+            duration = h * n;
+            break;
+        default:
+            duration = 0;
+            break;
         }
         return (duration);
     }
 
     var end = Date.now() + parse(val);
 
-    while (Date.now() < end);
+    while(Date.now() < end);
 }
+
 // Should check if the function returns a promise
 // but that would require an extra function call 
 Function.prototype.log = function() {
-    var fn = this, args = Array.prototype.slice.call(arguments);
+    var fn = this
+    var args = Array.prototype.slice.call(arguments);
     if (fn && typeof fn === "function") {
         var ret = fn.apply(fn, args);
         if (ret && typeof ret.promise === "function") {
@@ -60,17 +62,17 @@ Function.prototype.log = function() {
         } else {
             console.log(ret);
         }
-            
     }
 }
 
 Function.prototype.bind = function() {
-    var fn = this, args = Array.prototype.slice.call(arguments), 
-        obj = args.shift();
-    return function(){
-        return fn.apply(obj, 
-            args.concat(Array.prototype.slice.call(arguments)));
-    };
+    var fn = this;
+    var args = Array.prototype.slice.call(arguments);
+    var obj = args.shift();
+    return (function() {
+        return (fn.apply(obj, 
+            args.concat(Array.prototype.slice.call(arguments))));
+    });
 };
 
 function chain(funcs) {
