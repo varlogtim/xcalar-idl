@@ -17,6 +17,7 @@
         box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
         background-color: @color-white;
         resize: both;
+        overflow: hidden;
     }
 
     .modalHeader {
@@ -464,8 +465,10 @@
                 background-color: #ddeaf2;
                 border-color: #ddeaf2;
                 width: 120px;
+                height: 36px;
                 &:first-child {
                     width: 125px !important;
+                    padding-left: 5px;
                 }
             }
 
@@ -582,15 +585,21 @@
 
 /* Alert Modal */
 #alertModal {
-    .modalBuilder(500px, 100px);
+    .modalBuilder(500px, 262px);
     margin-top: 10% !important;
+    resize: none !important;
     #alertContent {
         overflow: auto;
         display: table-cell;
         padding: 10px 20px;
         height: 75px;
+        width: inherit;
         vertical-align: middle;
         text-align: center;
+    }
+
+    #alertInstruction {
+        height: 60px;
     }
 
     #alertOption {
