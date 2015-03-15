@@ -476,6 +476,7 @@ function generateColumnHeadHTML(columnClass, color, newColid, name, width) {
                 <div class="dragArea"></div>\
                 <div class="flexContainer flexRow">\
                     <div class="flexWrap flex-left">\
+                        <div class="iconHidden"></div>\
                         <span class="type icon"></span>\
                     </div>\
                     <div class="flexWrap flex-mid">\
