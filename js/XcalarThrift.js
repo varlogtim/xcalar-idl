@@ -432,3 +432,51 @@ function XcalarListFiles(url) {
     }
     return (xcalarListFiles(tHandle, url));
 }
+
+// Retina related functions
+function XcalarMakeRetina(retName, tableName) {
+    if (retName == "" || retName === undefined ||
+        tableName == "" || tableName === undefined ||
+        [null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    // return (xcalarMakeRetina(retName, tableName));
+}
+        
+function XcalarListRetinas() {
+    // XXX This function is wrong because it does not take in a tablename even
+    // though it should. Hence we just assume that all retinas belong to the 
+    // leftmost table.
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    // return (xcalarListRetinas());
+
+}
+
+function XcalarGetRetina(retName) {
+    if (retName == "" || retName === undefined ||
+        [null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    // return (xcalarGetRetina(retName));
+}
+
+function XcalarAddVariableToRetina(retName, varName) {
+    if (retName == "" || retName === undefined ||
+        varName == "" || varName === undefined ||
+        [null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    
+    // return (xcalarAddVariableToRetina(retName, varName));
+}
+
+function XcalarExecuteRetina(retName, subs) {
+    if (retName == "" || retName === undefined ||
+        [null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    // return (xcalarExecuteRetina(retName, subs));
+}
+
