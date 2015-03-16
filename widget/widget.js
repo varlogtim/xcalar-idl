@@ -75,8 +75,10 @@ var Widget = (function() {
                 info = "Set options.";
                 break;
             case (4) :
-                info = "Set options for " + gParameters[gSelectedParameterIndices[stepFourCurr - 1]].param +
-                       ". (" + stepFourCurr + "/" + stepFourTotal + ")";
+                info = "Set options for " +
+                        gParameters[gSelectedParameterIndices[stepFourCurr - 1]]
+                        .parameterName +
+                        ". (" + stepFourCurr + "/" + stepFourTotal + ")";
                 break;
             case (5) :
                 info = "Confirm and publish.";
@@ -119,8 +121,8 @@ var Widget = (function() {
                     html += 
                         "<div class='check'>" + 
                             "<span>" + 
-                                gParameters[i].param + ":" + 
-                                gParameters[i].defaultVal +
+                                gParameters[i].parameterName + ":" + 
+                                gParameters[i].parameterValue +
                             "</span>" + 
                         "</div>";
                 }
@@ -150,7 +152,7 @@ var Widget = (function() {
                             "<div class='icon'>2</div>" +
                             "<div class='label'>Parameter:</div>" + 
                             "<div class='value'>" + 
-                                gParameters[gFirstSelectedParam].param +
+                                gParameters[gFirstSelectedParam].parameterName +
                             "</div>" + 
                         "</div>" +
                         "<div id='instruction'>" + 
@@ -219,7 +221,7 @@ var Widget = (function() {
                 if (currStep === 6) {
                     return (function apply() {
                         var $radios = $(".radio");
-                        for (var i = 0; i < $radios.length; i ++) {
+                        for (var i = 0; i < $radios.length; i++) {
                             if ($($radios[i]).hasClass("activeRadio")) {
                                 gSelectedRadio = i;
                                 break;
@@ -230,8 +232,19 @@ var Widget = (function() {
                         // gOptionsForParam[gFirstSelectedParam][gSelectedRadio].value;
 
                         // XXX insert spinny here
-                        // The following function is fake!!! Just a placeholder
-                        XcalarExecuteRetina(gRetName, "param:sub")
+                        var parameterList = [];
+                        // for (var i = 0; i<stepFourTotal; i++) {
+                            var paramSub = new XcalarApiParameterT({
+                                parameterName: gParameters[gFirstSelectedParam]
+                                               .parameterName,
+                                parameterValue: gOptionsForParam
+                                                [gFirstSelectedParam]
+                                                [gSelectedRadio].value
+                            });
+                            parameterList.push(paramSub);
+                        // }
+                        console.log(parameterList);
+                        XcalarExecuteRetina(gRetName, parameterList)
                         .done(function() {
                             console.log("Your dashboard should have refreshed");
                         });
@@ -300,11 +313,12 @@ var Widget = (function() {
                                     "Display As" +
                                 "</span>" + 
                            "</div>";
-                var defaultValue = gParameters[stepFourCurr - 1].defaultVal;
+                var defaultValue = gParameters[stepFourCurr - 1].parameterValue;
                 for (var i = 0; i < numOptions; i ++) {
                     html += "<div class='optionField'>" + 
                                 "<span>" + (i + 1) + "</span>" + 
-                                "<input type='text' class='valueInput' value=" + defaultValue + ">" +
+                                "<input type='text' class='valueInput' value=" +
+                                 defaultValue + ">" +
                                 "</input>" + 
                                 "<input type='text' class='displayAsInput'>" +
                                 "</input>" + 
@@ -324,35 +338,17 @@ var Widget = (function() {
         $(document).on("input", "#optionNumberInput", handlers.optionNumberInput);
     };
 
-        
-
     function populateParaCheckList() {
         function getParameterByName(name) {
             var match = RegExp('[?&]' + name +
                                '=([^&]*)').exec(window.location.search);
             return (match && decodeURIComponent(match[1].replace(/\+/g, ' ')));
         }
-        gRetName = getParameterByName("retname");
+        gRetName = getParameterByName("rid");
         XcalarListParametersInRetina(gRetName)
-        .done(function(varList) {
-            // mock data 
-            varList = [
-                {
-                    param: "param1",
-                    defaultVal: 1
-                },
-                {
-                    param: "param2",
-                    defaultVal: 2
-                },
-                {
-                    param: "param3",
-                    defaultVal: 3
-                }
-            ];
-
-            stepFourTotal = varList.length;
-            gParameters = varList;
+        .done(function(result) {
+            stepFourTotal = result.numParameters;
+            gParameters = result.parameters;
         })
         .fail(function(status) {
             console.log("Failed to get list of params from retname with status", 

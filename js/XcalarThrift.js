@@ -442,14 +442,13 @@ function XcalarListFiles(url) {
     return (xcalarListFiles(tHandle, url));
 }
 
-// Retina related functions
 function XcalarMakeRetina(retName, tableName) {
     if (retName == "" || retName === undefined ||
         tableName == "" || tableName === undefined ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    // return (xcalarMakeRetina(retName, tableName));
+    return (xcalarMakeRetina(tHandle, retName, tableName));
 }
         
 function XcalarListRetinas() {
@@ -459,20 +458,16 @@ function XcalarListRetinas() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    // return (xcalarListRetinas());
-
+    return (xcalarListRetinas(tHandle));
 }
 
-function XcalarUpdateRetina(origDagNodeOrId, stringToSub) {
+function XcalarUpdateRetina(retName, dagNodeId, funcApiEnum,
+                            parameterizedInput) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    // Step 1. Find dag node
-    // Step 2. Replace the string / argument with stringToSub
-    // Step 3. (optional) create new dag struct. We may have to do this
-    // depending on how different the parameterized dag node looks compared to
-    // the original one
-    // return (xcalarApiUpdateRetina(retName, parameterizedDagNode));
+    (xcalarUpdateRetina(tHandle, retName, dagNodeId, funcApiEnum,
+                                  parameterizedInput));
 }
 
 function XcalarGetRetina(retName) {
@@ -483,35 +478,29 @@ function XcalarGetRetina(retName) {
     // return (xcalarGetRetina(retName));
 }
 
-function XcalarAddParameterToRetina(retName, varName) {
+function XcalarAddParameterToRetina(retName, varName, defaultVal) {
     if (retName == "" || retName === undefined ||
         varName == "" || varName === undefined ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    // Create new XcalarApiAddParameterToRetinaInput;
-    // var param = new XcalarApiAddParameterToRetinaInputT();
-    // param.retName = retName;
-    // param.varName = varName;
-    // return (xcalarApiAddParameterToRetina(param));
+    return (xcalarAddParameterToRetina(tHandle, retName, varName,
+                                          defaultVal));
 }
 
 function XcalarListParametersInRetina(retName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-
-    return (promiseWrapper(null));
-    // return (xcalarApiListParametersInRetina(retName));
-    // Returns you a struct called 
+    return (xcalarListParametersInRetina(tHandle, retName));
 }
 
-function XcalarExecuteRetina(retName, subs) {
+function XcalarExecuteRetina(retName, params) {
     if (retName == "" || retName === undefined ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-
-    return (promiseWrapper(null));
-    // return (xcalarExecuteRetina(retName, subs));
+    var randomTableName = "table"+Math.floor(Math.random()*1000000000 + 1);
+    return (xcalarExecuteRetina(tHandle, retName, randomTableName,
+                                retName+".csv", params));
 }

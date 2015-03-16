@@ -415,7 +415,7 @@ function xcalarQuery(thriftHandle, query) {
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
-    workItem.apiVersion = 0;
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiQuery;
     workItem.input.queryInput = query;
 
@@ -477,7 +477,7 @@ function xcalarDag(thriftHandle, tableName) {
     workItem.input = new XcalarApiInputT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
-    workItem.api = XcalarApisT.XcalarApiDag;
+    workItem.api = XcalarApisT.XcalarApiGetDag;
     workItem.input.dagTableNameInput = tableName;
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -765,8 +765,8 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
     var deferred = jQuery.Deferred();
     console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                 ", dstTableName = " + dstTableName + ", groupByOp = " +
-                OperatorsOpTStr[groupByOp] + ", fieldName = " + fieldName +
-                ", newFieldName = " + newFieldName + ")");
+                AggregateOperatorTStr[groupByOp] + ", fieldName = " + fieldName 
+                + ", newFieldName = " + newFieldName + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
@@ -1142,5 +1142,236 @@ function xcalarListFiles(thriftHandle, url) {
         deferred.reject(error);
     });
 
+    return (deferred.promise());
+}
+
+function xcalarMakeRetina(thriftHandle, retinaName, tableName) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarMakeRetina(retinaName = " + retinaName +
+                ", tableName = " + tableName + ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.makeRetinaInput = new XcalarApiMakeRetinaInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiMakeRetina;
+    workItem.input.makeRetinaInput.retinaName = retinaName;
+    workItem.input.makeRetinaInput.tableName = tableName;
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var status = (result.jobStatus != StatusT.StatusOk) ?
+                     result.jobStatus : result.output.statusOutput;
+        if (status != StatusT.StatusOk) {
+            console.log("Error with xcalarMakeRetina");
+            deferred.reject(status);
+        }
+        deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("xcalarMakeRetina() caught exception: ", error);
+    });
+    
+    return (deferred.promise());
+
+}
+
+function xcalarListRetinas(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarListRetinas()");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiListRetinas;
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var listRetinasOutput = result.output.listRetinasOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+            listRetinasOutput.status = result.jobStatus;
+        }
+        if (listRetinasOutput.status != StatusT.StatusOk) {
+            deferred.reject(listRetinasOutput.status);
+        }
+        deferred.resolve(listRetinasOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarListRetinas() caught exception: " + error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarGetRetina(thriftHandle, retinaName) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarGetRetina(retinaName = " + retinaName + ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiGetRetina;
+    workItem.input.getRetinaInput = retinaName;
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var getRetinaOutput = result.output.getRetinaOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+            getRetinaOutput.status = result.jobStatus;
+        }
+        if (getRetinaOutput.status != StatusT.StatusOk) {
+            console.log("getRetina failed with status:"+getRetinaOutput.status);
+            deferred.reject(getRetinaOutput.status);
+        }
+        deferred.resolve(getRetinaOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarGetRetina() caught exception: " + error);
+        deferred.reject(error);    
+    });
+    return (deferred.promise());
+}
+
+function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
+                            paramType, paramInput) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarUpdateRetina(retinaName = " + retinaName + ", " +
+                "dagNodeId = " + dagNodeId + ", paramType = " + paramType +
+                ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.updateRetinaInput = new XcalarApiUpdateRetinaInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiUpdateRetina;
+    workItem.input.updateRetinaInput.retinaName = retinaName;
+    workItem.input.updateRetinaInput.dagNodeId = dagNodeId;
+    workItem.input.updateRetinaInput.paramType = paramType;
+    workItem.input.updateRetinaInput.paramInput = paramInput;
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var status = (result.jobStatus != StatusT.StatusOk) ?
+                     result.jobStatus : result.output.statusOutput;
+        if (status != StatusT.StatusOk) {
+            console.log("UpdateRetina failed with status: "+status);
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarUpdateRetina() caught exception: " + ouch);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarExecuteRetina(thriftHandle, retinaName, dstTableName,
+                             exportFileName, parameters) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarExecuteRetina(retinaName = " + retinaName + ", " +
+                "dstTableName = " + dstTableName + ")");
+    console.log(parameters);
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiExecuteRetina;
+    workItem.input.executeRetinaInput.retinaName = retinaName;
+    workItem.input.executeRetinaInput.dstTableName = dstTableName;
+    workItem.input.executeRetinaInput.exportToFile = (exportFileName != null);
+    workItem.input.executeRetinaInput.exportFileName = exportFileName;
+    workItem.input.executeRetinaInput.numParameters = parameters.length;
+    workItem.input.executeRetinaInput.parameters = parameters;
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var status = (result.jobStatus != StatusT.StatusOk) ?
+                    result.jobStatus : result.output.statusOutput;
+        if (status != StatusT.StatusOk) {
+            console.log("ExecuteRetina failed with status: "+status);
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarExecuteRetina() caught exception: " + error);
+        deferred.reject(error);
+    });
+    return (deferred.promise());
+}
+
+function xcalarAddParameterToRetina(thriftHandle, retinaName, parameterName,
+                                    parameterValue) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarAddParameterToRetina(retinaName = " + retinaName +
+                ", parameterName = " + parameterName + ", parameterValue = " +
+                parameterValue + ")");
+    
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.addParameterToRetinaInput =
+                                     new XcalarApiAddParameterToRetinaInputT();
+    workItem.input.addParameterToRetinaInput.parameter = 
+                                                     new XcalarApiParameterT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiAddParameterToRetina;
+    workItem.input.addParameterToRetinaInput.retinaName = retinaName;
+    workItem.input.addParameterToRetinaInput.parameter.parameterName =
+                                                                 parameterName;
+    workItem.input.addParameterToRetinaInput.parameter.parameterValue =
+                                                                parameterValue;
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var status = (result.jobStatus != StatusT.StatusOk) ?
+                     result.jobStatus : result.output.statusOutput;
+        if (status != StatusT.StatusOk) {
+            console.log("addParam failed with status: "+status);
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarAddParameterToRetina() caught exception: " + ouch);
+        deferred.reject(error);
+    });
+    return (deferred.promise());
+}
+
+function xcalarListParametersInRetina(thriftHandle, retinaName) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarListParametersInRetina(retinaName = " + retinaName + ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiListParametersInRetina;
+    workItem.input.listParametersInRetinaInput = retinaName;
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var listParametersInRetinaOutput =
+                                    result.output.listParametersInRetinaOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+            listParametersInRetinaOutput.status = result.jobStatus;
+        }
+        if (listParametersInRetinaOutput.status != StatusT.StatusOk) {
+            console.log("listParams failed with status: "+
+                        listParametersInRetinaOutput.status);
+            deferred.reject(listParametersInRetinaOutput.status);
+        }
+        deferred.resolve(listParametersInRetinaOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarListParametersInRetina() caught exception: " + ouch);
+        deferred.reject(error);
+    });
     return (deferred.promise());
 }

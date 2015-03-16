@@ -771,14 +771,21 @@ function createTableHeader(tableNum) {
         var cliOptions = {};
         cliOptions.operation = 'exportTable';
         cliOptions.tableName = gTables[tableNum].frontTableName;
-        cliOptions.fileName = cliOptions.tableName+".csv";
-        XcalarExport(cliOptions.tableName, "answer.csv")
+        var retName = $(".retTitle:disabled").val();
+        if (retName == "") {
+            retName = "testing";
+        }
+        cliOptions.fileName = retName+".csv";
+        // XXX add spinny
+        XcalarExport(cliOptions.tableName, retName+".csv")
         .done(function() {
             addCli('Export Table', cliOptions);
             var title = "Successful Export";
-            var ins = "Your table has been successfully exported ";
+            var ins = "Widget location: 10.10.6.153:8888/widget/main.html?"+
+                      "rid="+retName;
             var msg = "File location: "+hostname+":/var/tmp/xcalar/"+
-                      "answer.csv";
+                      retName+".csv";
+
             showAlertModal({'title':title, 'msg':msg, 'instruction': ins,
                             'isAlert':true, 'isCheckBox':true});
         });

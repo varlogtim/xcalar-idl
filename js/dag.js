@@ -124,16 +124,14 @@ function setupDag() {
         console.log('Make retina with table:', tableName,
                     'and retina name:', retName);
 
-        // XcalarMakeRetina(retinaName, tableName)
-        // .done(function() {
-        //     console.log('Create New Retina for', tableName);
-        // XXX Can bu put outside if you want to 
-        // make this change before xcalar call
+        XcalarMakeRetina(retName, tableName)
+        .done(function() {
+            console.log('Create New Retina for', tableName);
             $retTab.data('retname', retName);
             $retTab.removeClass('unconfirmed');
             $input.attr('disabled', 'disabled');
             $input.blur();
-        // });
+        });
     });
 
     // toggle open retina pop up
@@ -170,7 +168,7 @@ function setupDag() {
         $input.val("");
         console.log('New Parameter in retina:', retName,
                     'parameter name:',paramName);
-        // XcalarAddVariableToRetina(retName, varName)
+        // XcalarAddParameterToRetina(retName, param)
         // .done(function() {
             // XXX Can bu put outside if you want to 
             // make this change before xcalar call
@@ -226,16 +224,64 @@ function setupDag() {
     });
 
     $dagParameterModal.find('.confirm').click(function() {
-        //XX This is what we call when we click save
+        var retName = $(".retTitle:disabled").val();
 
-        updateRetina($dagParameterModal.data('id'))
-        .done(function(){
-            //XX right now we have this clearing the modal
+        function bindParams() {
+            // First, for each param we have to issue a create param call
+            var promises = [];
+
+            var numParams = $("#dagParameterModal .tableWrapper tbody tr")
+                            .not(".unfilled").length;
+            console.log("numParams: "+numParams);
+            for (var i = 0; i<numParams; i++) {
+                $("#dagParameterModal .tableWrapper tbody tr")
+                .not(".unfilled").each(function() {
+                    var name = $(this).find(".paramName").text();       
+                    var val = $(this).find(".paramVal").val();
+                    console.log("Name: "+name+", val: "+val);
+                    promises.push(XcalarAddParameterToRetina.bind(this, retName,
+                                                                  name, val));
+                });
+            }
+            return (chain(promises));
+        }
+        bindParams()
+        .done(function() { 
+            var paramInput = new XcalarApiParamInputT();
+            paramInput.paramLoad = new XcalarApiParamLoadT();
+            var str = $(".editableParamDiv").text();
+            // XXX: HACK!!!
+            str = str.replace(/\+/g, "");
+            paramInput.paramLoad.datasetUrl = str;
+            console.log($dagParameterModal.data('id'));
+            if (retName == "") {
+                // XXX: Insert hack in case demo fail
+            }
+            switch ($("#dagParameterModal .template td:first").text()) {
+            case ("Filter"): // XXX Doesn't work yet!
+                /**
+                switch ($("#dagParameterModal .template td:nth-child(4)")) {
+                    case (">") {
+                */                     
+                return (XcalarUpdateRetina(retName,
+                                           $dagParameterModal.data('id'),
+                                           XcalarApisT.XcalarApiFilter,
+                                           paramInput));
+                break;
+            case ("Load"):
+                return (XcalarUpdateRetina(retName,
+                                           $dagParameterModal.data('id'),
+                                  XcalarApisT.XcalarApiBulkLoad, paramInput));
+                break;
+            default:
+                console.log("currently not supported");
+                break;
+            }
+        })
+        .done(function() {
             closeDagParamModal($dagParameterModal);
             // show success message??
         });
-
-        
     });
 
     $dagParameterModal.on('click', '.draggableDiv .close', function() {
@@ -283,14 +329,6 @@ function setupDag() {
     });
 
 }
-
-function updateRetina(id) {
-    var deferred = jQuery.Deferred();
-    deferred.resolve();
-    return (deferred.promise());
-}
-
-
 
 function getDagDropDownHTML() {
     var html = 
@@ -758,7 +796,6 @@ function drawDag(tableName) {
         var dagArray = dagObj.node;
         var parentChildMap = getParentChildDagMap(dagObj);
         console.log(dagObj);
-        
         deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "", 
                          index, parentChildMap));
     });
@@ -766,7 +803,7 @@ function drawDag(tableName) {
 
     function getParentChildDagMap(dagObj) {
         var dagArray = dagObj.node;
-        var numNodes = dagObj.numNode;
+        var numNodes = dagObj.numNodes;
         var map = {}; // will hold a map of nodes, and array indices of children
         var childIndex = 0;
         for (var i = 0; i < numNodes; i++) {
@@ -843,8 +880,7 @@ function getDagNodeInfo(dagNode, key, children) {
     info.text = "";
     info.tooltip = "";
     info.column = "";
-    // XX NEED TO FIND REAL DAGNODE ID
-    dagNode.id = Math.ceil(Math.random()*10000); //XX TEMPORARY DAG NODE ID!!!
+    dagNode.id = dagNode.dagNodeId;
     info.id = dagNode.id;
 
     if (key == 'loadInput') {
