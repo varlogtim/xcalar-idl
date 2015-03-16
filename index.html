@@ -608,40 +608,65 @@
     </div>
     <div class="modalTopMain">
       <div class="topSection">
-        <div class="text">Locations:</div>
+        <div class="text">locations:</div>
         <select id="fileBrowserPath" class="listSection"></select>
         <div class="iconSection">
-          <div class="iconWrapper">
-            <span class="icon icon-up"></span>
+          <div class="iconWrapper icon-up">
+            <span class="icon"></span>
           </div>
-          <div class="iconWrapper">
-            <span class="icon icon-list"></span>
+          <div class="iconWrapper icon-list gridView"
+               data-toggle="tooltip"
+               data-placement="bottom"
+               data-original-title="Switch to List view">
+            <span class="icon"></span>
           </div>
-          <div class="iconWrapper">
-            <span class="icon icon-sort"></span>
+          <div class="iconWrapper icon-sort">
+            <span class="icon"></span>
+             <div class="dropdownBox">
+                <span class="innerBox"></span>
+            </div>
+            <ul class="colMenu">
+              <li class="fileName" data-sortkey="name">
+                  <span class="label">name</span>
+                  <span class="icon"></span>
+              </li>
+              <li class="fileSize" data-sortkey="size">
+                <span class="label">size</span>
+                <span class="icon"></span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
     </div>
     <div id="fileBrowserMain" class="modalMain gridView">
       <div class="titleSection">
-          <div class="title fileName">Name</div>
-          <div class="title fileSize">Size</div>
-          <div class="title fileDate">Date Modified</div> 
+          <div class="title fileName clickable" data-sortkey="name">
+            <span class="label">name</span>
+            <span class="icon"></span>
+          </div>
+          <div class="title fileDate">
+            <span class="label">date modified</span>
+            <span class="icon"></span>
+          </div>
+          <div class="title fileSize clickable" data-sortkey="size">
+            <span class="label">size</span>
+            <span class="icon"></span>
+          </div>
       </div>
       <div id="fileBrowserView" class="mainSection"></div>
     </div>
     <div class="modalSubMain">
         <div class="inputSection">
-          <div class="text">File Name:</div>
+          <div class="text">file name:</div>
           <input id="fileBrowserInputName" type="text" value="">
         </div>
         <div class="inputSection">
-          <div class="text">File Format:</div>
+          <div class="text">file format:</div>
           <select id="fileBrowserFormat" class="listSection">
-            <option value="ALL">ALL</option>
-            <option value="JSON">JSON</option>
-            <option value="CSV">CSV</option>
+            <option value="all">ALL</option>
+            <option value="json">JSON</option>
+            <option value="csv">CSV</option>
           </select>
         </div>
     </div>

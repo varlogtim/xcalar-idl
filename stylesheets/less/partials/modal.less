@@ -645,14 +645,13 @@
 /* File Browser Modal */
 #fileBrowserModal {
     .modalBuilder(800px, 670px);
+    text-transform: capitalize;
     resize: none;
     select.listSection {
-        width: 450px;
         float: left;
+        width: 450px;
         height: 24px;
-        cursor: pointer;
         padding-left: 10px;
-        font-size: 12px;
         border: none;
         -webkit-appearance: none;
         border-radius: 0px 0px 3px 3px;
@@ -660,6 +659,7 @@
         background: url(/images/fileBrowserModal/down.png) no-repeat 100% 50%;
         background-color: @color-white; 
         outline: none;
+        font-size: 12px;
     }
 
     .iconWrapper {
@@ -667,26 +667,53 @@
         height: 25px;
         width: 25px;
         border-radius: 3px;
-        cursor: pointer;
         .action-gradient;
         &:active {
             .action-inverse-gradient;
         }
-        .icon {
-            &.icon-up {
-                .background("/images/fileBrowserModal/up.png", 
-                            22px, 22px, no-repeat, 2px, 3px);
-                background-size: 22px 20px;
-            }
-            &.icon-list {
-                .background("/images/fileBrowserModal/listView.png", 
-                            22px, 22px, no-repeat, 4px, 4px);
-                background-size: 18px 17px;
-            }
-            &.icon-sort {
+        &.icon-up .icon{
+            .background("/images/fileBrowserModal/up.png", 
+                        25px, 25px, no-repeat, 2px, 3px);
+            background-size: 21px 18px;
+        }
+        &.icon-sort {
+            position: relative;
+            > .icon {
                 .background("/images/fileBrowserModal/sort.png", 
-                            22px, 22px, no-repeat, 7px, 2px);
-                background-size: 12px 22px;
+                                25px, 25px, no-repeat, 6px, 2px);
+                background-size: 13px 20px;
+            }
+            .dropDown;
+            .dropdownBox {
+                width: 12px;
+                height: 9px;
+                border-width: 9px 9px 0 0;
+                right: 2px;
+            }
+            &:hover .dropdownBox{
+                opacity: 1.0 !important;
+            }
+            .colMenu {
+                width: 120px;
+                position: absolute;
+                top: 25px;
+                right: 0px;
+                li {
+                    position: relative;
+                    .icon {
+                        display: none;
+                        position: absolute;
+                        top: 9px;
+                        right: 6px;
+                        .background("/images/dagIcons/tick-blue.png", 15px, 12px);
+                    }
+                    &:hover {
+                        background-color: @color-selectedCell-dark;
+                    }
+                    &.select .icon {
+                        display: initial;
+                    }
+                }
             }
         }
     }
@@ -703,11 +730,24 @@
                 height: 25px;
                 line-height: 25px;
                 font-weight: bold;
+                font-size: 13px;
                 float: left;
             }
             .iconSection {
                 float: left;
                 margin-left: 50px;
+                .icon-list {
+                    &.gridView .icon {
+                        .background("/images/fileBrowserModal/listView.png", 
+                                    26px, 25px, no-repeat, 4px, 3px);
+                        background-size: 18px 18px;
+                    }
+                    &.listView .icon {
+                        .background("/images/fileBrowserModal/gridView.png", 
+                                    26px, 25px, no-repeat, 4px, 3px);
+                        background-size: 18px 18px;
+                    }
+                }
             }
         }
     }
@@ -716,39 +756,76 @@
         height: 370px;
         padding: 5px 0;
         position: relative;
+        .noSelection;
+
         .titleSection {
-            width: 98%;
+            width: 778px;
             height: 40px;
-            padding: 5px 2%;
+            padding: 5px 0;
             margin: 0 auto;
-            background-color: @color-background-darkGray;
+            background: @color-background-darkGray;
             border-radius: 3px 3px 0px 0px;
-            box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
+            border: 1px solid #b2b2b2;
+            box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
+
             .title {
                 float: left;
+                position: relative;
+                height: 30px;
+                line-height: 30px;
+                margin-left: 10px;
+                padding-left: 15px;
                 .gray-gradient;
                 border-radius: 3px 3px 3px 3px;
-                line-height: 30px;
-                height: 30px;
                 font-weight: bold;
-                padding-left: 5px;
+                font-size: 12px;
+                color: #5e5e5e;
+                cursor: default;
                 &.fileName {
-                    width: ~"calc(50% - 4px)";
+                    width: 400px;
                 }
-                &.fileSize, &.fileDate {
-                    margin-left: 7px;
-                    width: 24%;
+                &.fileDate {
+                    width: 160px;
+                }
+                &.fileSize {
+                    width: 170px;
+                }
+                &.clickable {
+                    .icon {
+                        display: initial;
+                    }
+                    &:hover {
+                        .gray-inverse-gradient;
+                    }
+                }
+                &.select {
+                    .action-gradient;
+                    color: @color-white;
+                    &:hover {
+                        .action-inverse-gradient;
+                    }
+                }
+                .icon {
+                    display: none;
+                    position: absolute;
+                    top: 3px;
+                    right: 2px;
+                    .background("/images/fileBrowserModal/sort.png", 
+                                25px, 25px, no-repeat, 6px, 2px);
+                    background-size: 13px 20px;
                 }
             }
         }
+
         .mainSection {
-            overflow-y: scroll;
+            overflow-y: auto;
             background: lighten(@color-background-darkGray, 3%);
             border-radius: 3px 3px 0px 0px;
             box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
-            width: 98%;
+            width: 778px;
             height: 100%;
             margin: 0 auto;
+            text-transform: none;
         }
 
         &.gridView {
@@ -757,21 +834,20 @@
             }
             grid-unit {
                 .gridViewForGrid;
+                cursor: default;
                 .label {
                     white-space: nowrap;
+                    color: #666666;
                 }
-            }
-
-            grid-unit.ds {
-                .gridIcon {
+                &.active .label{
+                    color: @color-text-blue;
+                }
+                &.ds .gridIcon {
                     background: url(/images/datastore/db-large.png);
                     background-repeat: no-repeat;
                     background-position: 4.5px 3px;
                 }
-            }
-
-            grid-unit.folder {
-                .gridIcon {
+                &.folder .gridIcon {
                     background: url(/images/datastore/folder-lg.png);
                     background-repeat: no-repeat;
                     background-position: 4px 3px;
@@ -782,15 +858,17 @@
         
         &.listView {
             .mainSection {
+                background: #f9f9f9;
                 border-radius: 0;
                 height: ~"calc(100% - 40px)";
+                box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
             }
 
             grid-unit {
-                width: 96%;
                 height: 30px;
                 margin: 0 auto;
                 display: block;
+                cursor: default;
 
                 > div {
                     float: left;
@@ -799,40 +877,44 @@
                     border: 1px solid transparent;
                     font-size: 12px;
                     font-weight: bold;
-                    color: @color-text-midGray;
+                    color: #8b8b8b;
                 }
+
                 .label {
-                    width: ~"calc(50% - 30px)";
+                    width: ~"calc(400px - 30px)";
                     padding-left: 5px;
                 }
                 .fileSize, .fileDate {
-                    margin-left: 1%;
-                    padding-left: 5px;
-                    width: 24%;
+                    margin-left: 10px;
+                    padding-left: 15px;
                 }
-
+                .fileDate {
+                    width: 160px;
+                }
+                .fileSize {
+                    width: 170px;
+                }
                 .gridIcon {
                     display: none;
                 }
 
                 .listIcon {
-                    width: 25px;
+                    margin-left: 10px;
+                    width: 30px;
+                    height: 30px;
                     .icon {
-                        margin: 2px 2px 1px 2px;
                         display: inline-block;
-                        width: 19px;
-                        height: 19px;
-                        position: relative;
-                        left: 0px;
-                        top: 3px;
+                        width: 30px;
+                        height: 30px;
+                        background-position: 50% 50% !important;
                     }
                 }
-                &:nth-child(odd) > div {
-                    background-color: @colorOpaque-darkGray;
+                &:nth-child(even) > div {
+                    background-color: #f4f4f4;
                 }
                 
-                &:nth-child(even) > div {
-                    background-color: @colorOpaque-lightGray;
+                &:nth-child(odd) > div {
+                    background-color: #e6e6e6;
                 }
                 &.active {
                     > div {
@@ -840,23 +922,15 @@
                         background: @colorOpaque-blue;
                         color: @color-text-blue;
                     }
-                    .labe {
-                        border-left: none;
-                    }
                     .listIcon {
                         border-right: none;
                         .action-gradient;
                     }
                 }
-            }
-            grid-unit.ds {
-                > .listIcon .icon {
+                &.ds > .listIcon .icon {
                     background: url(/images/db-icon-white.png) 0 0 no-repeat;
                 }
-            }
-
-            grid-unit.folder {
-                > .listIcon .icon {
+                &.folder > .listIcon .icon {
                     background: url(/images/datastore/folder-sm.png);
                     background-repeat: no-repeat;
                     background-position: 2.5px 3px;
@@ -875,8 +949,11 @@
                 width: 100px;
                 height: 25px;
                 line-height: 25px;
+                font-size: 13px;
                 font-weight: bold;
                 float: left;
+                .noSelection;
+                cursor: default;
             }
             input {
                 width: 450px;

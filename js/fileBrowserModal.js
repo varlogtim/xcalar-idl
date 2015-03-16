@@ -1,4 +1,5 @@
 FileBrowser = (function() {
+    var $modalBackground = $('#modalBackground');
     var $fileBrowser = $('#fileBrowserModal');
     var $container = $("#fileBrowserView");
     var $fileBrowserMain = $('#fileBrowserMain');
@@ -10,22 +11,47 @@ FileBrowser = (function() {
     var validFormats = ["JSON", "CSV", "ALL"];
     /* End Of Contants */
     var curFiles = [];
+    var allFiles = [];
     var sortKey = "name";   // default is sort by name;
-    var sortReverse = false; // current version not support reverse sort
+    var sortRegEx = undefined;
+    var reverseSort = false;
     var testMode = false;
 
-    BrowserModal = function () {}
+    BrowserModal = function() {}
 
     BrowserModal.prototype.show = function() {
         addEventListener();
         listFiles(startPath)
-        .done(function(newPath) {
-            appendPath(newPath);
+        .done(function() {
+            appendPath(startPath);
             // set modal background
-            $('#modalBackground').fadeIn(100);
+            $modalBackground.fadeIn(100);
             $fileBrowser.show();
             window.getSelection().removeAllRanges();
         });
+    }
+
+    BrowserModal.prototype.sortBy = function(key, regEx) {
+        if (allFiles.length == 0) {
+            return;
+        }
+        curFiles = allFiles;
+        if (regEx) {
+            sortRegEx = regEx;
+            curFiles = fileFilter(curFiles, regEx);
+        } else {
+            sortRegEx = undefined; // default
+        }
+        if (key) {
+            sortKey = key;
+            curFiles = sortFiles(curFiles, key);
+        } else {
+            sortKey = "name"; // default
+        }
+        if (reverseSort) {
+            curFiles.reverse();
+        }
+        getHTMLFromFiles(curFiles);
     }
 
     function listFiles(path) {
@@ -33,7 +59,6 @@ FileBrowser = (function() {
 
         if (testMode) {         // fake data
             clear();
-            $container.empty();
             var files = [];
             for (var i = 0; i < 100; i ++) {
                 var fileObj = {};
@@ -47,20 +72,16 @@ FileBrowser = (function() {
                 }
                 files.push(fileObj);
             }
-            curFiles = sortFiles(files, sortKey);
-            var html = getHTMLFromFiles(curFiles);
-            $container.append(html);
+            allFiles = files;
+            self.sortBy(sortKey, sortRegEx);
             deferred.resolve(path);
         } else {
             XcalarListFiles(path)
             .done(function(listFilesOutput) {
                 clear();
-                $container.empty();
-                curFiles = sortFiles(listFilesOutput.files, sortKey);
-
-                var html = getHTMLFromFiles(curFiles);
-                $container.append(html);
-                deferred.resolve(path);
+                allFiles = listFilesOutput.files;
+                self.sortBy(sortKey, sortRegEx);
+                deferred.resolve();
             });
         }
         return (deferred.promise());
@@ -89,8 +110,8 @@ FileBrowser = (function() {
             var path = getCurrentPath() + getGridUnitName($folder) + '/';
             
             listFiles(path)
-            .done(function(newPath) {
-                appendPath(newPath);
+            .done(function() {
+                appendPath(path);
             });
         });
 
@@ -102,33 +123,105 @@ FileBrowser = (function() {
             upTo($newPath);
         });
 
-        // $fileBrowser.on('click', '.icon-list', function(event){
-        //     event.stopPropagation();
-        //     var $iconList = $(this);
-        //     if ($fileBrowserMain.hasClass('listView')) {
-        //         $fileBrowserMain.removeClass('listView').addClass('gridView');
-        //         $iconList.removeClass('listView').addClass('gridView')
-        //     } else {
-        //         $fileBrowserMain.removeClass('gridView').addClass('listView');
-        //         $iconList.removeClass('gridView').addClass('listView');
-        //     }
+        // click icon-list to toggle between listview and gridview
+        $fileBrowser.on('click', '.icon-list', function(event){
+            event.stopPropagation();
+            var $viewIcon = $(this);
+            if ($fileBrowserMain.hasClass('listView')) {
+                $fileBrowserMain.removeClass('listView').addClass('gridView');
+                $viewIcon.removeClass('listView').addClass('gridView');
+                $viewIcon.attr('data-original-title', 'Switch to List view');
+            } else {
+                $fileBrowserMain.removeClass('gridView').addClass('listView');
+                $viewIcon.removeClass('gridView').addClass('listView');
+                $viewIcon.attr('data-original-title', 'Switch to Grid view');
+            }
+            // refresh tooltip
+            $viewIcon.mouseenter();
+            $viewIcon.mouseover();
+        });
 
-        // });
+        // click on title to sort
+        $fileBrowser.on('click', '.title.clickable', function(event){
+            event.stopPropagation();
+            var $title = $(this);
+            var grid = getFocusGrid();
+            // click on selected title, reverse sort
+            if ($title.hasClass('select')) {
+                reverse();
+            } else {
+                $title.siblings('.select').removeClass('select');
+                $title.addClass('select');
+                var key = $title.data('sortkey');
+                reverseSort = false;
+                self.sortBy(key, sortRegEx);
 
+                // mark sort key on li
+                $fileBrowser.find('.colMenu li').each(function(index, li) {
+                    var $li = $(li);
+                    if ($li.data('sortkey') === key) {
+                        $li.addClass('select');
+                    } else {
+                        $li.removeClass('select');
+                    }
+                });
+            }
+            // focus on select grid
+            focusOn(grid);
+        });
+
+        // click sort icon to open drop down menu
+        $fileBrowser.on('mousedown', '.icon-sort > .icon, .dropdownBox',
+                        function(event){
+            event.stopPropagation();
+            $(this).parent().find('.colMenu').toggle();
+        });
+
+        // click on li to sort
+        $fileBrowser.on('click', '.icon-sort li', function(event) {
+            event.stopPropagation();
+            var $li = $(this);
+            $li.closest('.colMenu').hide();
+
+            if ($li.hasClass('select')) {
+                return;
+            }
+
+            var grid = getFocusGrid();
+            $li.siblings('.select').removeClass('select');
+            $li.addClass('select');
+            var key = $li.data('sortkey');
+            reverseSort = false;
+            self.sortBy(key, sortRegEx);
+            // mark sort key on title
+            var $titles = $fileBrowserMain.find('.titleSection .title');
+            $titles.each(function(index, title) {
+                var $title = $(title);
+                if ($title.data('sortkey') === key) {
+                    $title.addClass('select');
+                } else {
+                    $title.removeClass('select');
+                }
+            })
+            // focus on select grid
+            focusOn(grid);
+        });
+
+        // select a path
         $fileBrowser.on('change', '#fileBrowserPath', function() {
             var $newPath = $pathLists.find(':selected');
             upTo($newPath);
         });
-
+        // filter a data format
         $fileBrowser.on('change', '#fileBrowserFormat', function() {
-            var format = $inputFormat.find(':selected').text().toLowerCase();
+            var format = $inputFormat.find(':selected').val();
             var regEx;
-            if (format === "all") {
-                regEx = new RegExp('.*');
-            } else {
+            var grid = getFocusGrid();
+            if (format !== "all") {
                 regEx = new RegExp('\.' + format + '$');
             }
-            fileFilter(regEx);
+            self.sortBy(sortKey, regEx);
+            focusOn(grid);
         });
 
         // confirm to open a ds
@@ -144,7 +237,7 @@ FileBrowser = (function() {
             $('#filePath').val(loadURL);
             closeAll();
         });
-        
+
         // close file browser
         $fileBrowser.on('click', '.close, .cancel', function() {
             closeAll();
@@ -155,13 +248,21 @@ FileBrowser = (function() {
         if ($newPath == undefined || $newPath.length == 0) {
             return;
         }
+        var oldPath = getCurrentPath();
         var path = $newPath.val();
+
         listFiles(path)
         .done(function() {
             $pathLists.children().removeAttr('selected');
             $newPath.attr('selected', 'selected');
+            var $preLists = $newPath.prevAll();
+
+            // find the parent folder and focus on it
+            var folder = oldPath.substring(path.length, oldPath.length);
+            folder = folder.substring(0, folder.indexOf('/'));
+            focusOn(folder);
             // remove all previous siblings
-            $newPath.prevAll().remove();
+            $preLists.remove();
         });
     }
 
@@ -183,61 +284,48 @@ FileBrowser = (function() {
         $pathLists.prepend(html);
     }
 
-    function clear() {
-        $fileBrowser.find('.active')
-                    .removeClass('active');
+    function clear(isALL) {
+        $fileBrowser.find('.active').removeClass('active');
         $inputName.val("");
-        $options = $inputFormat.children();
-        $options.removeAttr('selected')
-        $options.first().attr('selected', 'selected');
+        if (isALL) {
+            $fileBrowser.find('.select').removeClass('select');
+            var $options = $inputFormat.children();
+            $options.removeAttr('selected')
+            $options.first().attr('selected', 'selected');
+            curFiles = [];
+            sortKey = "name";
+            sortRegEx = undefined;
+            reverseSort = false;
+            $pathLists.empty();
+        }
     }
 
     function closeAll() {
         // set to deault value
-        curFiles = [];
-        sortKey = "name";
-        sortReverse = false;
-        $pathLists.empty();
-        clear();
+        clear(true);
         // remove all event listener
         $fileBrowser.off();
         $fileBrowser.hide();
-        $('#modalBackground').fadeOut(200);
+        $modalBackground.fadeOut(200);
     }
 
     function updateInputSection($grid) {
         var name = getGridUnitName($grid);
-        // var format = "ALL";  // defalut format
-        // var index = name.lastIndexOf('.');
-        // // check if file has a format suffix
-        // if (index > 0) {
-        //     format = name.substring(index + 1).toUpperCase();
-        //     if (validFormats.indexOf(format) < 0) {
-        //         format = "ALL";
-        //     } else {
-        //         name = name.substring(0, index);
-        //     }
-        // }
         $inputName.val(name);
-        // var $option = $inputFormat.find('option[value="' + format + '"]');
-        // if ($option.length > 0) {
-        //     $option.attr('selected', 'selected');
-        // }
     }
 
-    function fileFilter(regEx) {
+    function fileFilter(files, regEx) {
         var filterFiles = [];
-        var len = curFiles.length;
+        var len = files.length;
         for (var i = 0; i < len; i ++) {
-            var fileObj = curFiles[i];
+            var fileObj = files[i];
             var name = fileObj.name;
-            if (regEx.test(name) === true) {
+            // XXX not filter folder
+            if (fileObj.attr.isDirectory || regEx.test(name) === true) {
                 filterFiles.push(fileObj);
             }
         }
-        $container.empty();
-        var html = getHTMLFromFiles(filterFiles);
-        $container.append(html);
+        return (filterFiles);
     }
 
     function getHTMLFromFiles(files) {
@@ -267,39 +355,74 @@ FileBrowser = (function() {
                         '<div class="label" data-name=' + name + '>' + 
                             name + 
                         '</div>' +
-                        '<div class="fileSize">' + 
-                            size + 
-                        '</div>' +
                         '<div class="fileDate">' + 
                             date +
+                        '</div>' +
+                        '<div class="fileSize">' + 
+                            size + 
                         '</div>' +  
                     '</grid-unit>';
         }
-        return (html);
+        $container.empty().append(html);
     }
 
-    function sortFiles(files, key, isReverse) {
+    function sortFiles(files, key) {
         var sortedFiles = [];
         var len = files.length;
-        for (var i = 0; i < len; i ++) {
-            var name = files[i].name;
-            sortedFiles.push([files[i], name]);
-        }
-
-        sortedFiles.sort(function(a, b) {return a[1].localeCompare(b[1])});
-
-        var resultFiles = [];
-        if (isReverse) {
-            for (var i = len - 1; i >= 0; i --) {
-                resultFiles.push(sortedFiles[i][0]);
+        if (key === "size") {
+            for (var i = 0; i < len; i ++) {
+                var size = files[i].attr.size;
+                sortedFiles.push([files[i], size]);
             }
+            sortedFiles.sort(function(a, b) {return a[1] - b[1]});
         } else {
             for (var i = 0; i < len; i ++) {
-                resultFiles.push(sortedFiles[i][0]);
+                var name = files[i].name;
+                sortedFiles.push([files[i], name]);
             }
+            sortedFiles.sort(function(a, b) {return a[1].localeCompare(b[1])});
         }
+
+        var resultFiles = [];
+        for (var i = 0; i < len; i ++) {
+            resultFiles.push(sortedFiles[i][0]);
+        }
+
         return (resultFiles);
     }
 
-    return (new BrowserModal());
+    function reverse() {
+        reverseSort = !reverseSort;
+        curFiles.reverse();
+        getHTMLFromFiles(curFiles);
+    }
+
+    function focusOn(grid) {
+        if (grid == undefined) {
+            return;
+        }
+        var str;
+        if (typeof grid === "string") {
+            str = 'grid-unit.folder .label[data-name="' + grid + '"]';
+        } else {
+            var name = grid.name;
+            var type = grid.type;
+            str = 'grid-unit.' + type + ' .label[data-name="' + name + '"]';
+        }
+        $container.find(str).closest('grid-unit').addClass('active');
+    }
+
+    function getFocusGrid() {
+        var grid;
+        var $grid = $container.find('grid-unit.active');
+        if ($grid.length > 0) {
+            grid = {};
+            grid.name = $grid.find('.label').data('name');
+            grid.type = $grid.hasClass('folder') ? 'folder' : 'ds';
+        }
+        return (grid);
+    }
+
+    var self = new BrowserModal();
+    return (self);
 })();
