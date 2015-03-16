@@ -487,6 +487,7 @@ function xcalarDag(thriftHandle, tableName) {
             dagOutput.status = result.jobStatus;
         } 
         if (dagOutput.status != StatusT.StatusOk) {
+            console.log('xcalarDag failed')
             deferred.reject(dagOutput.status);
         }
         deferred.resolve(dagOutput);

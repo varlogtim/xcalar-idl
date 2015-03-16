@@ -403,6 +403,7 @@ function documentReadyGeneralFunction() {
         if (!clickable && !target.is('.dropdownBox')) {
                 $('.colMenu').hide();
                 $('.xcTheadWrap').css('z-index', '9');
+                $('.xcTbodyWrap').find('.header').css('z-index', '9');
         }
         if (target.closest('.selectedCell').length == 0 
             && target.closest('#scratchpadArea').length == 0

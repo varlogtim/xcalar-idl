@@ -442,6 +442,7 @@
 
         &.dataStore {
             background: none;
+            cursor: pointer;
             .icon {
                 background: url(/images/db-icon-white.png) 50% 50% no-repeat;
                 left: -5px;
@@ -548,6 +549,12 @@
             height: 100%;
         }
 
+        .duplicateColumn {
+            .icon {
+                background: url(/images/dagIcons/duplicate-column.png) 40% 45% no-repeat;
+            }
+        }
+
         .filter {
             .icon {
                 background: url(/images/dagIcons/filter.png) 50% 45% no-repeat;
@@ -579,15 +586,34 @@
 
         }
 
-        .join {
+        .groupBy {
             .icon {
-                background: url(/images/dagIcons/inner-join.png) 40% 40% no-repeat;
-            }
-        }
+                background: url(/images/dagIcons/group.png) 40% 40% no-repeat;
+                height: 10px;
+                position: relative;
+                top: -8px;
 
-        .sort {
-            .icon {
-                 background: url(/images/dagIcons/sort-up.png) 40% 40% no-repeat;
+                &.groupByCount {
+                    background: url(/images/dagIcons/count.png) 40% 40% no-repeat;
+                }
+                 &.groupByAverage {
+                    background: url(/images/dagIcons/average.png) 40% 40% no-repeat;
+                }
+                 &.groupBySum {
+                    background: url(/images/dagIcons/sum.png) 40% 40% no-repeat;
+                }
+                &.groupByMax {
+                    background: url(/images/dagIcons/max.png) 40% 40% no-repeat;
+                }
+                &.groupByMin {
+                    background: url(/images/dagIcons/min.png) 40% 40% no-repeat;
+                }
+            }
+
+            .icon2 {
+                height: 15px;
+                top: -24px;
+                left: 1px;
             }
         }
 
@@ -597,9 +623,15 @@
             }
         }
 
-        .duplicateColumn {
+        .join {
             .icon {
-                background: url(/images/dagIcons/duplicate-column.png) 40% 45% no-repeat;
+                background: url(/images/dagIcons/inner-join.png) 40% 40% no-repeat;
+            }
+        }
+
+        .sort {
+            .icon {
+                 background: url(/images/dagIcons/sort-up.png) 40% 40% no-repeat;
             }
         }
     }
