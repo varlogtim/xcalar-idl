@@ -479,4 +479,3 @@ function XcalarExecuteRetina(retName, subs) {
     }
     // return (xcalarExecuteRetina(retName, subs));
 }
-

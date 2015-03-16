@@ -93,7 +93,6 @@
     .header {
         margin: 15px 55px 0px 15px;
         border-bottom: 1px solid #A5A5A6;
-        padding-bottom: 5px;
         margin-bottom: 10px;
     }
 
@@ -121,6 +120,257 @@
         .tableName {
             display: inline-block;
             background: none;
+        }
+    }
+
+    .retinaArea {
+        display: inline-block;
+        float: right;
+        .addRet {
+            display: inline-block;
+            height: 22px;
+            width: 22px;
+            float: right;
+            margin-bottom: 8px;
+            border-radius: 3px;
+            box-shadow: 2px 2px 2px 0 rgba(0,0,0,.4);
+            .icon {
+                .background("/images/retina/retAdd.png", 22px, 22px, 
+                            no-repeat, 50%, 50%);
+                background-size: 17px 17px;
+            }
+        }
+
+        .retTabSection {
+            display: inline-block;
+            float: right;
+            position: relative;
+            top: -5px;
+
+            input:focus {
+                outline: none;
+            }
+            .retTab {
+                display: inline-block;
+                width: 105px;
+                height: 30px;
+                float: right;
+                position: relative;
+                margin-right: 8px;
+
+                .tabWrap {
+                    position: relative;
+                    width: 100%;
+                    height: 30px;
+                    line-height: 30px;
+                    border-radius: 3px;
+                    border: 1px solid #979797;
+                    background: rgba(219, 219, 219, 1);
+                    cursor: pointer;
+
+                    .retTitle {
+                        display: inline-block;
+                        width: ~"calc(100% - 20px)";
+                        margin-top: 5px;
+                        float: left;
+                        font-size: 14px;
+                        background: transparent;
+                        text-align: left;
+                        padding-left: 10px;
+                        color: #989898;
+                        font-weight: bold;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                        cursor: pointer;
+                    }
+
+                    .retDown {
+                        display: inline-block;
+                        height: 30px;
+                        width: 20px;
+                        cursor: pointer;
+                        .icon {
+                            .background("/images/retina/retDown.png", 13px, 8px);
+                        }
+                    }
+                }
+
+                &.unconfirmed .tabWrap{
+                    opacity: 0.7;
+                    .retTitle {
+                        cursor: text;
+                    }
+                    .retDown {
+                        cursor: initial;
+                    }
+                }
+
+                &.active {
+                    top: 5px;
+                    .tabWrap {
+                        background: #c3c3c3;
+                        border-radius: 3px 3px 0 0;
+                        border-bottom: none;
+                        .retTitle {
+                            color: #4d4d4d;
+                        }
+                        .retDown .icon {
+                            background-image: url(/images/retina/retDownActive.png);
+                        }
+                    }
+                    .retPopUp {
+                        display: block;
+                        z-index: 2;
+                    }
+                }
+
+                .retPopUp {
+                    display: none;
+                    width: 440px;
+                    height: 289px;
+                    position: absolute;
+                    left: -288px;
+                    top: 30px;
+                    background: @color-white;
+                    border-radius: 0px 0px 3px 3px;
+                    box-shadow: 0px 3px 6px 0 rgba(0, 0, 0, 0.3);
+
+                    .divider {
+                        width: 100%;
+                        height: 4px;
+                        background: #979797;
+                    }
+                    .inputSection {
+                        width: 100%;
+                        height: 45px;
+                        background: #eaeaea;
+                        box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.4);
+                        padding: 7px 10px;
+                        .newParam {
+                            display: inline-block;
+                            width: 194px;
+                            height: 30px;
+                            background: @color-white;
+                            float: left;
+                            padding-left: 9px;
+                            box-shadow: inset -2px 0px 2px 0 rgba(0, 0, 0, 0.3);
+                            border-radius: 3px;
+                            font-weight: bold;
+                            font-size: 13px;
+                            color: #cccccc;
+                            .input-placeholder(#cccccc);
+                        }
+                        .addParam {
+                            display: inline-block;
+                            width: 214px;
+                            height: 30px;
+                            margin-left: 12px;
+                            border-radius: 3px;
+                            box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.8);
+                            padding-top: 5px;
+                            .icon {
+                                float: left;
+                                margin: 0px 8px 0 6px;
+                                .background("/images/retina/retNewParam.png", 24px, 23px);
+                            }
+                            .label {
+                                width: 170px;
+                                font-size: 12px;
+                                font-weight: bold;
+                                color: @color-text-cyan;
+                            }
+                        }
+                    }
+                    .tableContainer {
+                        position: relative;
+                        width: 100%;
+                        // height: ~"calc(100% - 55px)";
+                        background: @color-white;
+                        z-index: -1;
+                        padding: 0 10px;
+                        border-radius: 0 0 3px 3px;
+                        .tableWrapper {
+                            overflow-y: scroll;
+                            height: 100%;
+                            margin: 0 auto;
+                            .thWrap {
+                                width: 226px;
+                                height: 30px;
+                                line-height: 30px;
+                                position: absolute;
+                                background: #a8a8a8;
+                                top: 0px;
+                                z-index: 40;
+                                padding-left: 10px;
+                                font-weight: bold;
+                                font-size: 13px;
+                                color: @color-text-white;
+                            }
+                            .paramVal {
+                                    float: left;
+                                    background: transparent;
+                                    height: 100%;
+                                    line-height: 100%;
+                                    width: 80%;
+                            }
+                            .paramDelete {
+                                float: right;
+                                width: 20px;
+                                position: relative;
+                                right: 2px;
+                                cursor: pointer;
+                                .icon {
+                                    position: relative;
+                                    top: 1px;
+                                    .background("/images/ds-close.png", 15px, 15px);
+                                }
+                            }
+                            &::-webkit-scrollbar {
+                                display: none;
+                            }
+                            .unfilled .paramDelete {
+                                display: none;
+                            }
+                        }
+                    }
+                    table {
+                        margin: auto;
+                        table-layout: fixed;
+                        text-align: left;
+                        border-collapse: collapse;
+                        th {
+                            height: 30px;
+                            &:first-of-type .thWrap{
+                                width: 194px !important;
+                                border-right: 1px solid #ffffff;
+                            }
+                        }
+                        tbody {
+                            tr {
+                                td {
+                                    width: 226px;
+                                    height: 30px;
+                                    line-height: 30px;
+                                    position: relative;
+                                    padding-left: 10px;
+                                    font-weight: bold;
+                                    font-size: 13px;
+                                    &:first-of-type {
+                                        width: 194px;
+                                        border-right: 1px solid #a8a8a8;
+                                    }
+                                }
+                                &:nth-child(odd) {
+                                    background-color: @color-background-darkGray;
+                                }
+                                &:nth-child(even) {
+                                    background-color: #f4f4f4;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
