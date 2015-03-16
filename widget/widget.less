@@ -1,240 +1,292 @@
-.step {
-    background-size: 232px 160px;
+@import "flex.less";
+
+.border-radius (@radius: 5px) {
+    -webkit-border-radius: @radius;
+    -moz-border-radius:    @radius;
+    border-radius:         @radius;
+
+    -moz-background-clip:    padding;
+    -webkit-background-clip: padding-box;
+    background-clip:         padding-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: tahoma;
+}
+
+#view {
     width: 232px;
-    height: 160px;
-    top: 0px;
-    left: 0px;
-    position: absolute;
-}
+    height: 165px;
 
-#step1 {
-    background: url("img/step1.png");
-    .step;
-}
+    .flex-display();
+    .flex-flow(column);
 
-#step2 {
-    background: url("img/step2.png");
-    .step;
-}
+    #viewHeader {
+        .flex(0 0 19px);
+        .flex-order(1);
 
-#step3 {
-    background: url("img/step3.png");
-    .step;
-}
+        .flex-display();
+        .flex-flow(row);
 
-#step4 {
-    background: url("img/step4.png");
-    .step;
-}
+        border-bottom: 1px solid rgba(44, 100, 134, 0.1);
 
-#step5 {
-    background: url("img/step5.png");
-    .step;
-}
+        #stepNumber {
+            background-color: rgb(82, 82, 82);
+            color: white;
 
-#step6 {
-    background: url("img/step6.png");
-    .step;
-}
+            font-size: .8em;
+            font-weight: bold; 
+            line-height: 1.4em;
+            padding-left: 5px;
 
-.button {
-    background-size: 60px 16px;
-    width: 60px;
-    height: 16px;
-    top: 146px;
-    position: absolute;
-    cursor: pointer;
-}
+            .flex(0 0 13px);
+            .flex-order(1);
+        }
+        #stepInfo {
+            color: rgb(82, 82, 82);
 
-.backButton {
-    background: url("img/back.png");
-    .button;
-    left: 104px;
-}
+            font-weight: bold;
+            font-size: .7em;
+            line-height: 1.8em;
+            padding-left: 5px;
 
-.nextButton {
-    background: url("img/next.png");
-    .button;
-    left: 172px;
-}
+            .flex(1 1 auto);
+            .flex-order(2);
+        }
+    }
+    #viewContent {
+        .flex(1 1 auto);
+        .flex-order(2);
 
-.publish {
-    background: url("img/publish.png") !important;
-    background-size: 60px 16px !important;
-    left: 172px;
-    .button
-}
+        // for step 1
+        .radio {
+            position: relative;
+            margin-top: 10px;
 
-.activeRadio {
-    background: url("img/radioActive.png") !important;
-    background-size: 11px 11px !important;
-}
+            background: url("img/radio.png");
+            background-size: 11.5px 11.5px;
 
-.radio {
-    background: url("img/radio.png");
-    background-size: 11px 11px;
-    width: 11px;
-    height: 11px;
-    left: 21px;
-    position: absolute;
-    cursor: pointer;
-}
+            width: 11.5px;
+            height: 11.5px;
+            left: 21px;
+            cursor: pointer;
 
-#radio1 {
-    top: 28px;
-}
+            span {
+                position: relative;
 
-#radio2 {
-    top: 50px;
-}
+                bottom: 6px;
+                left: 20px;
 
-#radio3 {
-    top: 72px;
-}
+                font-size: .8em;
+                color: rgb(82, 82, 82);
+            }
+        }
+        .activeRadio {
+            background: url("img/radioActive.png") !important;
+            background-size: 11.5px 11.5px !important;
+        }
 
-#radio4 {
-    top: 95px;
-}
+        // for step 2
+        .check {
+            position: relative;
+            margin-top: 10px;
 
-#radio5 {
-    top: 117px;
-}
+            background: url("img/checkbox.png");
+            background-size: 11.5px 11.5px;
 
-.choice {
-    .fontStd;
-    position: absolute;
-    left: 42px;
-}
+            width: 11.5px;
+            height: 11.5px;
+            left: 21px;
+            cursor: pointer;
 
-#choice1 {
-    top: 27px;
-}
+            span {
+                position: relative;
 
-#choice2 {
-    top: 49px;
-}
+                bottom: 6px;
+                left: 20px;
 
-#choice3 {
-    top: 71px;
-}
+                font-size: .8em;
+                color: rgb(82, 82, 82);
+            }
+        }
 
-#choice4 {
-    top: 94px;
-}
+        .activeCheck {
+            background: url("img/checkboxActive.png") !important;
+            background-size: 11.5px 11.5px !important;
+        }
 
-#choice5 {
-    top: 116px;
-}
+        // for step 3
+        #instructionTitle {
+            font-size: 0.7em;
+            color: rgb(82, 82, 82);
+            position: relative;
+            top: 10px;
+            left: 17px;
+        }
+        #instructionField {
+            position: relative;
+            size: 10px;
+            top: 12px;
+            left: 19px;
+            width: 196px;
+            height: 48px;
+            outline: none;
+            resize: none;
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
 
-.activeCheck {
-    background: url("img/checkboxActive.png") !important;
-    background-size: 11px 11px !important;
-}
+        // for step 4
+        #inputArea {
+            position: relative;
 
-.check {
-    background: url("img/checkbox.png");
-    background-size: 11px 11px;
-    width: 11px;
-    height: 11px;
-    left: 21px;
-    position: absolute;
-    cursor: pointer;
-}
+            span {
+                width: 100px;
+                padding-left: 20px;
 
-#check1 {
-    top: 27px;
-}
+                font-size: .7em;
+                color: rgb(81, 81, 81);
+            }
+            #optionNumberInput {
+                position: relative;
+                width: 75px;
+                left: 10px;
+                height: 12px;
+                outline: none;
+            }
+        }
 
-.texta {
-    font-family: tahoma;
-    size: 10px;
-    top: 44px;
-    left: 19px;
-    width: 194px;
-    height: 48px;
-    outline: none;
-    position: absolute;
-    resize: none;
-    background-color: transparent;
-    border: 0px;
-}
+        #paramField {
+            position: relative;
 
-.textb {
-    font-family: tahoma;
-    size: 10px;
-    top: 26px;
-    width: 95px;
-    left: 130px;
-    height: 15px;
-    outline: none;
-    position: absolute;
-    background-color: transparent;
-    border: 0px;
-}
+            color: rgb(81, 81, 81);
 
-.option {
-    font-family: tahoma;
-    font-size: 11px;
-    left: 22px;
-    position: absolute;
-}
+            height: 90px;
+            overflow: hidden;
 
-.optionVal {
-    font-family: tahoma;
-    font-size: 11px;
-    position: absolute;
-    left: 100px;
-    border: 1px solid #E0E0E0;
-    outline: none;
-    background-color: transparent;
-}
+            #valueSpan {
+                position: relative;
 
-#option1 {
-    top: 50px;
-}
+                left: 60px;
+            }
+            #displayAsSpan {
+                position: relative;
 
-#option2 {
-    top: 72px;
-}
+                left: 120px;
+            }
 
-#option3 {
-    top: 94px;
-}
+            span {
+                position: relative;
+                left: 10px;
 
-.fontStd {
-    font-family: tahoma;
-    font-size: 11px;
-    position: absolute;
-}
+                font-size: .7em;
+            }
+            input {
+                padding-left: 3px;
+                border: 1px solid #E0E0E0;
+                outline: none;
+                background-color: transparent;
+            }
 
-#widgetType {
-    .fontStd;
-    left: 85px;
-    top: 30px;
-}
+            .valueInput {
+                position: relative;
 
-#parameter {
-    .fontStd;
-    left: 105px;
-    top: 52px;
-}
+                left: 22px;
+                width: 80px;
+            }
+            .displayAsInput {
+                position: relative;
 
-#inst {
-    .fontStd;
-    left: 114px;
-    top: 75px;
-}
+                left: 35px;
+                width: 92px;
+            }
+        }
 
-#options {
-    .fontStd;
-    left: 95px;
-    top: 97px;
-}
+        // for step 5
+        #confirmView {
+            height: 75px;
 
-#title {
-    font-family: tahoma;
-    font-size: 13px;
-    position: absolute;
-    left: 5px;
-    top: 5px;
+            .flex-display();
+            .flex-flow(column);
+            #widgetType {
+                .flex(1 1 auto);
+            }
+            #parameter {
+                .flex(1 1 auto);
+            }
+            #instruction {
+                .flex(1 1 auto);
+            }
+            
+
+            .icon {
+                position: relative;
+                left: 20px;
+                top: 9px;
+                padding-left: 3px;
+
+                background-color: rgb(153, 153, 153);
+                .border-radius(2px);
+
+                width: 10px;
+                height: 13px;
+                color: white;
+                font-size: .6em;
+                font-weight: bold;                
+            }
+
+            .label {
+                position: relative;
+                left: 40px;
+                top: -4px;
+
+                font-size: .7em;
+                color: rgb(82, 82, 82);
+            }
+
+            .value {
+                font-size: .7em;
+                position: relative;
+                left: 110px;
+                top: -17px;
+            }
+        }
+
+        // for step 6
+        #pubInstruction {
+            position: relative;
+            left: 10px;
+            top: 5px;
+
+            font-size: .8em;
+            color: rgb(82, 82, 82);
+        }
+    }
+    #viewFooter {
+        .flex(0 0 26px);
+        .flex-order(3);
+
+        border-top: 1px solid rgba(44, 100, 134, 0.1);
+
+        .btn {
+            margin-top: 7px;
+            margin-left: 8px;
+            float: right;
+
+            background-size: 60px 16px !important;
+            width: 60px;
+            height: 16px;
+
+            cursor: pointer;
+        }
+        #btnBack {
+            background: url("img/back.png");
+        }
+
+        #btnNext {
+            background: url("img/next.png");
+        }
+    }
 }

@@ -1,53 +1,49 @@
 <!doctype html>
 <head>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,600,400'
+      rel='stylesheet' type='text/css'>
 <script src="../bower_components/jquery/dist/jquery.min.js"></script>
 <script src="widget.js"></script>
 <link href="widget.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<div id="step1" class="step">
-    <div id="next1" class="nextButton"></div>
-    <div id="radio1" class="radio"></div>
-    <div id="radio2" class="radio"></div>
-    <div id="radio3" class="radio activeRadio"></div>
-    <div id="radio4" class="radio"></div>
-    <div id="radio5" class="radio"></div>
-</div>
-<div id="step2" class="step">
-    <div id="check1" class="check"></div>
-    <div id="back2" class="backButton"></div>
-    <div id="next2" class="nextButton"></div>
-</div>
-<div id="step3" class="step">
-    <textarea class="texta" id="instructions"></textarea>
-    <div id="back3" class="backButton"></div>
-    <div id="next3" class="nextButton"></div>
-</div>
-<div id="step4" class="step">
-    <input type="textbox" id="textbox" class="textb"></input>
-    <div id="back4" class="backButton"></div>
-    <div id="next4" class="nextButton"></div>
-</div>
-<div id="step5" class="step">
-    <div id="widgetType"></div>
-    <div id="parameter"></div>
-    <div id="inst"></div>
-    <div id="options"></div>
-    <div id="next5" class="nextButton publish"></div>
-</div>
-<div id="step6" class="step">
-    <div id="title"></div>
-</div>
-<!--
-<div id="step4" class="step">
-<div id="next4"></div>
-</div>
-<div id="step5" class="step">
-<div id="next5"></div>
-</div>
--->
+    <div id="view">
+        <div id="viewHeader">
+            <div id="stepNumber"></div>
+            <div id="stepInfo"></div>
+        </div>
+        <div id="viewContent"></div>
+        <div id="viewFooter">
+            <div class="btn" id="btnNext"></div>
+            <div class="btn" id="btnBack"></div>
+        </div>
+    </div>
+        
+<script src="../bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js">
+</script>
+<script src="../bower_components/bootstrap/js/tooltip.js"></script>
+<script src="../js/thrift/thrift.js" type="text/javascript"></script>
+<script src="../js/thrift/DataFormatEnums_types.js" type="text/javascript">
+</script>
+<script src="../js/thrift/LibApisEnums_types.js" type="text/javascript">
+</script>
+<script src="../js/thrift/OperatorsEnums_types.js" type="text/javascript">
+</script>
+<script src="../js/thrift/GenericTypesEnums_types.js" type="text/javascript">
+</script>
+<script src="../js/thrift/Status_types.js" type="text/javascript"></script>
+<script src="../js/thrift/LibApisCommon_types.js" type="text/javascript">
+</script>
+<script src="../js/thrift/XcalarApiService.js" type="text/javascript"></script>
+<script src="../js/thrift/XcalarApiServiceAsync.js" type="text/javascript">
+</script>
+<script src="../js/config.js" type="text/javascript"></script>
+<script src="../js/thrift/XcalarApiVersionSignature_types.js"
+        type="text/javascript"></script>
+<script src="../js/XcalarApi.js" type="text/javascript"></script>
+<script src="../js/XcalarThrift.js" type="text/javascript"></script>
 <script>
-    startup();
+    Widget.init();
 </script>
 </body>
 </html>

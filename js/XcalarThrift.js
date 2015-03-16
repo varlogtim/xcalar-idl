@@ -88,6 +88,15 @@ function chain(funcs) {
     return (head);
 }
 
+// Jerene's debug function
+function atos(func, args) {                                               
+    func.apply(this, args).done(
+        function(retObj) {
+            console.log(retObj);
+        }
+    );
+} 
+
 function promiseWrapper(value) {
     var deferred = jQuery.Deferred();
     deferred.resolve(value);
@@ -454,6 +463,18 @@ function XcalarListRetinas() {
 
 }
 
+function XcalarUpdateRetina(origDagNodeOrId, stringToSub) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    // Step 1. Find dag node
+    // Step 2. Replace the string / argument with stringToSub
+    // Step 3. (optional) create new dag struct. We may have to do this
+    // depending on how different the parameterized dag node looks compared to
+    // the original one
+    // return (xcalarApiUpdateRetina(retName, parameterizedDagNode));
+}
+
 function XcalarGetRetina(retName) {
     if (retName == "" || retName === undefined ||
         [null, undefined].indexOf(tHandle) !== -1) {
@@ -462,14 +483,27 @@ function XcalarGetRetina(retName) {
     // return (xcalarGetRetina(retName));
 }
 
-function XcalarAddVariableToRetina(retName, varName) {
+function XcalarAddParameterToRetina(retName, varName) {
     if (retName == "" || retName === undefined ||
         varName == "" || varName === undefined ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    
-    // return (xcalarAddVariableToRetina(retName, varName));
+    // Create new XcalarApiAddParameterToRetinaInput;
+    // var param = new XcalarApiAddParameterToRetinaInputT();
+    // param.retName = retName;
+    // param.varName = varName;
+    // return (xcalarApiAddParameterToRetina(param));
+}
+
+function XcalarListParametersInRetina(retName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+
+    return (promiseWrapper(null));
+    // return (xcalarApiListParametersInRetina(retName));
+    // Returns you a struct called 
 }
 
 function XcalarExecuteRetina(retName, subs) {
@@ -477,5 +511,7 @@ function XcalarExecuteRetina(retName, subs) {
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
+
+    return (promiseWrapper(null));
     // return (xcalarExecuteRetina(retName, subs));
 }
