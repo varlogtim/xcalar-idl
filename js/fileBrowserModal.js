@@ -77,7 +77,9 @@ FileBrowser = (function() {
             event.stopPropagation();
             clear();
             var $grid = $(this);
-            updateInputSection($grid);
+            if ($grid.hasClass('ds')) {
+                updateInputSection($grid);
+            }
             $grid.addClass('active');
         });
 
@@ -118,62 +120,29 @@ FileBrowser = (function() {
             upTo($newPath);
         });
 
+        $fileBrowser.on('change', '#fileBrowserFormat', function() {
+            var format = $inputFormat.find(':selected').text().toLowerCase();
+            var regEx;
+            if (format === "all") {
+                regEx = new RegExp('.*');
+            } else {
+                regEx = new RegExp('\.' + format + '$');
+            }
+            fileFilter(regEx);
+        });
+
         // confirm to open a ds
         $fileBrowser.on('click', '.confirm', function() {
             var $grid = $container.find('grid-unit.active');
             if ($grid.length === 0) {
-                var text = "No dataset is selected, please choose one!";
+                var text = "No dataset or folder is selected, please choose one!";
                 displayErrorMessage(text, $inputName);
                 return;
             }
 
-            var tableName = jQuery.trim($inputName.val());
-            if (tableName == undefined || tableName === "") {
-                var text = "File name is empty, please input a valid name!";
-                displayErrorMessage(text, $inputName);
-                return;
-            }
             var loadURL = getCurrentPath() + getGridUnitName($grid);
-            // valid input
-            var loadFormat = $inputFormat.val();
-            if (loadFormat === "ALL") {
-                var text = "Invalid format, please choose a valid one!";
-                displayErrorMessage(text, $inputFormat);
-                return;
-            }
-            var loadArgs = loadURL.split("|");
-
-            if (DSObj.isDataSetNameConflict(tableName)) {
-                var text = 'Dataset with the name ' +  tableName + 
-                            ' already exits. Please choose another name.';
-                displayErrorMessage(text, $inputName);
-                return;
-            }
-            appendTempDSToList(tableName);
-
-            XcalarLoad(loadArgs[0], loadFormat, tableName,
-                       loadArgs[1], loadArgs[2])
-            .done(function(result) {
-                closeAll();
-                displayNewDataset(tableName);
-
-                // add cli
-                var cliOptions = {};
-                cliOptions.operation = 'loadDataSet';
-                cliOptions.tableName = tableName;
-
-                addCli('Load dataset', cliOptions);
-            })
-            .fail(function(result) {
-                if (result == StatusT.StatusDsInvalidUrl) {
-                    var text = 'Could not retrieve dataset from file path: ' + 
-                                loadURL;
-                } else {
-                    var text = StatusTStr[result];
-                }
-                $('#tempDSIcon').remove();
-                displayErrorMessage(text, $inputName);
-            });
+            $('#filePath').val(loadURL);
+            closeAll();
         });
         
         // close file browser
@@ -238,22 +207,37 @@ FileBrowser = (function() {
 
     function updateInputSection($grid) {
         var name = getGridUnitName($grid);
-        var format = "ALL";  // defalut format
-        var index = name.lastIndexOf('.');
-        // check if file has a format suffix
-        if (index > 0) {
-            format = name.substring(index + 1).toUpperCase();
-            if (validFormats.indexOf(format) < 0) {
-                format = "ALL";
-            } else {
-                name = name.substring(0, index);
+        // var format = "ALL";  // defalut format
+        // var index = name.lastIndexOf('.');
+        // // check if file has a format suffix
+        // if (index > 0) {
+        //     format = name.substring(index + 1).toUpperCase();
+        //     if (validFormats.indexOf(format) < 0) {
+        //         format = "ALL";
+        //     } else {
+        //         name = name.substring(0, index);
+        //     }
+        // }
+        $inputName.val(name);
+        // var $option = $inputFormat.find('option[value="' + format + '"]');
+        // if ($option.length > 0) {
+        //     $option.attr('selected', 'selected');
+        // }
+    }
+
+    function fileFilter(regEx) {
+        var filterFiles = [];
+        var len = curFiles.length;
+        for (var i = 0; i < len; i ++) {
+            var fileObj = curFiles[i];
+            var name = fileObj.name;
+            if (regEx.test(name) === true) {
+                filterFiles.push(fileObj);
             }
         }
-        $inputName.val(name);
-        var $option = $inputFormat.find('option[value="' + format + '"]');
-        if ($option.length > 0) {
-            $option.attr('selected', 'selected');
-        }
+        $container.empty();
+        var html = getHTMLFromFiles(filterFiles);
+        $container.append(html);
     }
 
     function getHTMLFromFiles(files) {
