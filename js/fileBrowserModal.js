@@ -7,7 +7,7 @@ FileBrowser = (function() {
     var $pathLists = $('#fileBrowserPath');
     /* Contants */
     var startPath = "file:///var/";
-    var validFormats = ["JSON", "CSV", "RANDOM"];
+    var validFormats = ["JSON", "CSV", "ALL"];
     /* End Of Contants */
     var curFiles = [];
     var sortKey = "name";   // default is sort by name;
@@ -77,10 +77,7 @@ FileBrowser = (function() {
             event.stopPropagation();
             clear();
             var $grid = $(this);
-            // when click a ds
-            if ($grid.hasClass('ds')) {
-                updateInputSection($grid);
-            }
+            updateInputSection($grid);
             $grid.addClass('active');
         });
 
@@ -124,7 +121,7 @@ FileBrowser = (function() {
         // confirm to open a ds
         $fileBrowser.on('click', '.confirm', function() {
             var $grid = $container.find('grid-unit.active');
-            if ($grid.length == 0 || $grid.hasClass('folder')) {
+            if ($grid.length === 0) {
                 var text = "No dataset is selected, please choose one!";
                 displayErrorMessage(text, $inputName);
                 return;
@@ -132,13 +129,18 @@ FileBrowser = (function() {
 
             var tableName = jQuery.trim($inputName.val());
             if (tableName == undefined || tableName === "") {
-                var text = "File name is empty, please select a dataset!";
+                var text = "File name is empty, please input a valid name!";
                 displayErrorMessage(text, $inputName);
                 return;
             }
             var loadURL = getCurrentPath() + getGridUnitName($grid);
             // valid input
-            var loadFormat = $('#fileBrowserFormat').val();
+            var loadFormat = $inputFormat.val();
+            if (loadFormat === "ALL") {
+                var text = "Invalid format, please choose a valid one!";
+                displayErrorMessage(text, $inputFormat);
+                return;
+            }
             var loadArgs = loadURL.split("|");
 
             if (DSObj.isDataSetNameConflict(tableName)) {
@@ -243,6 +245,8 @@ FileBrowser = (function() {
             format = name.substring(index + 1).toUpperCase();
             if (validFormats.indexOf(format) < 0) {
                 format = "ALL";
+            } else {
+                name = name.substring(0, index);
             }
         }
         $inputName.val(name);
