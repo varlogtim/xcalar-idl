@@ -56,6 +56,30 @@ body {
    clear: both;
 }
 
+&::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+    background: transparent;
+}
+
+&::-webkit-scrollbar-thumb {
+    border-width: 1px 0px 1px 0px;
+    border-color: transparent;
+    border-style: solid;
+    border-radius: 10px;
+    background-color: rgba(217,217,217,0.75) !important;
+    background-clip: content-box;
+    -webkit-box-shadow: inset 0 -1px 2px rgba(205,205,205,0.75);
+}
+
+&::-webkit-scrollbar-track {
+    background: linear-gradient(to bottom right, #e9e9e9 , #ffffff); /* Standard syntax */
+}
+
+&::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
 /* For Both worksheet menu bar and bottom area bar */
 .workspaceBar {
     height: 38px;
@@ -213,33 +237,9 @@ body {
 
 /* For Scoll bar in worksheet and datastore */
 #mainFrame, .datasetTableWrap {
-    &::-webkit-scrollbar {
-        width: 11px;
-        height: 11px;
-        background: transparent;
-    }
-
     &::-webkit-scrollbar:vertical {
         width: 0px;
         height:11px;
-        background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        border-width: 1px 0px 1px 0px;
-        border-color: transparent;
-        border-style: solid;
-        border-radius: 10px;
-        background-color: rgba(217,217,217,0.75) !important;
-        background-clip: content-box;
-        -webkit-box-shadow: inset 0 -1px 2px rgba(205,205,205,0.75);
-    }
-
-    &::-webkit-scrollbar-track {
-        background: linear-gradient(to bottom right, #e9e9e9 , #ffffff); /* Standard syntax */
-    }
-
-    &::-webkit-scrollbar-corner {
         background: transparent;
     }
 }

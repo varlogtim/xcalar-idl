@@ -163,11 +163,6 @@
     display: none;
     border-radius: 2px;
     overflow: hidden;
-
-    ::-webkit-scrollbar:vertical {
-        width: 11px;
-        height: 11px;
-    }
 }
 
 #jsonWrap {
@@ -1071,6 +1066,7 @@
             // background-color: rgba(0,0,0,0.5);
             color: @color-text-cyan;
             cursor: pointer;
+            overflow: hidden;
             span {
                 display: inline-block;
                .transform (rotate(45deg)); 
