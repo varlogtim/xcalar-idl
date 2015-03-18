@@ -37,8 +37,15 @@ XcalarApisT = {
 'XcalarApiQuery' : 28,
 'XcalarApiQueryState' : 29,
 'XcalarApiExport' : 30,
-'XcalarApiDag' : 31,
-'XcalarApiListFiles' : 32
+'XcalarApiGetDag' : 31,
+'XcalarApiListFiles' : 32,
+'XcalarApiMakeRetina' : 33,
+'XcalarApiListRetinas' : 34,
+'XcalarApiGetRetina' : 35,
+'XcalarApiUpdateRetina' : 36,
+'XcalarApiAddParameterToRetina' : 37,
+'XcalarApiListParametersInRetina' : 38,
+'XcalarApiExecuteRetina' : 39
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -71,6 +78,13 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 28 : 'XcalarApiQuery',
 29 : 'XcalarApiQueryState',
 30 : 'XcalarApiExport',
-31 : 'XcalarApiDag',
-32 : 'XcalarApiListFiles'
+31 : 'XcalarApiGetDag',
+32 : 'XcalarApiListFiles',
+33 : 'XcalarApiMakeRetina',
+34 : 'XcalarApiListRetinas',
+35 : 'XcalarApiGetRetina',
+36 : 'XcalarApiUpdateRetina',
+37 : 'XcalarApiAddParameterToRetina',
+38 : 'XcalarApiListParametersInRetina',
+39 : 'XcalarApiExecuteRetina'
 };

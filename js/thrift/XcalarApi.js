@@ -408,7 +408,7 @@ function xcalarDag(thriftHandle, tableName) {
     workItem.input = new XcalarApiInputT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
-    workItem.api = XcalarApisT.XcalarApiDag;
+    workItem.api = XcalarApisT.XcalarApiGetDag;
     workItem.input.dagTableNameInput = tableName;
 
     try {
@@ -571,7 +571,7 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
                     joinType) {
     console.log("xcalarJoin(leftTableName = " + leftTableName +
                 ", rightTableName = " + rightTableName + ", joinTableName = " +
-                joinTableName + ", joinType = " + OperatorsOpTStr[joinType] +
+                joinTableName + ", joinType = " + JoinOperatorTStr[joinType] +
                 ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -645,7 +645,7 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
                        fieldName, newFieldName) {
     console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                 ", dstTableName = " + dstTableName + ", groupByOp = " +
-                OperatorsOpTStr[groupByOp] + ", fieldName = " + fieldName +
+                AggregateOperatorTStr[groupByOp] + ", fieldName = " + fieldName +
                 ", newFieldName = " + newFieldName + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -887,7 +887,7 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
 
 function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
     console.log("xcalarAggregate(srcTableName = " + srcTableName +
-                ", aggregateOp = " + OperatorsOpTStr[aggregateOp] +
+                ", aggregateOp = " + AggregateOperatorTStr[aggregateOp] +
                 ", fieldName = " + fieldName + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -974,4 +974,193 @@ function xcalarListFiles(thriftHandle, url) {
     }
 
     return listFilesOutput;
+}
+
+function xcalarMakeRetina(thriftHandle, retinaName, tableName) {
+    console.log("xcalarMakeRetina(retinaName = " + retinaName +
+                ", tableName = " + tableName + ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.makeRetinaInput = new XcalarApiMakeRetinaInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiMakeRetina;
+    workItem.input.makeRetinaInput.retinaName = retinaName;
+    workItem.input.makeRetinaInput.tableName = tableName;
+
+    try {
+        var result = thriftHandle.client.queueWork(workItem);
+        var status = (result.jobStatus != StatusT.StatusOk) ?
+                     result.jobStatus : result.output.statusOutput;
+    } catch (ouch) {
+        console.log("xcalarMakeRetina() caught exception: " + ouch);
+        var status = StatusT.StatusThriftProtocolError;
+    }
+
+    return status;
+}
+
+function xcalarListRetinas(thriftHandle) {
+    console.log("xcalarListRetinas()");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiListRetinas;
+
+    try {
+        var result = thriftHandle.client.queueWork(workItem);
+        var listRetinasOutput = result.output.listRetinasOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+            listRetinasOutput.status = result.jobStatus;
+        }
+    } catch (ouch) {
+        console.log("xcalarListRetinas() caught exception: " + ouch);
+
+        var listRetinasOutput = new XcalarApiListRetinasOutputT();
+        listRetinasOutput.status = StatusT.StatusThriftProtocolError;
+        listRetinasOutput.numRetinas = 0;
+    }
+
+    return listRetinasOutput;
+}
+
+function xcalarGetRetina(thriftHandle, retinaName) {
+    console.log("xcalarGetRetina(retinaName = " + retinaName + ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiGetRetina;
+    workItem.input.getRetinaInput = retinaName;
+
+    try {
+        var result = thriftHandle.client.queueWork(workItem);
+        var getRetinaOutput = result.output.getRetinaOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+            getRetinaOutput.status = result.jobStatus;
+        }
+    } catch (ouch) {
+        console.log("xcalarGetRetina() caught exception: " + ouch);
+
+        var getRetinaOutput = new XcalarApiGetRetinaOutputT();
+        getRetinaOutput.status = StatusT.StatusThriftProtocolError;
+    }
+
+    return getRetinaOutput;
+}
+
+function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
+                            paramType, paramInput) {
+    console.log("xcalarUpdateRetina(retinaName = " + retinaName + ", " +
+                "dagNodeId = " + dagNodeId + ", paramType = " + paramType +
+                ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.updateRetinaInput = new XcalarApiUpdateRetinaInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiUpdateRetina;
+    workItem.input.updateRetinaInput.retinaName = retinaName;
+    workItem.input.updateRetinaInput.dagNodeId = dagNodeId;
+    workItem.input.updateRetinaInput.paramType = paramType;
+    workItem.input.updateRetinaInput.paramInput = paramInput;
+
+    try {
+        var result = thriftHandle.client.queueWork(workItem);
+        var status = (result.jobStatus != StatusT.StatusOk) ?
+                     result.jobStatus : result.output.statusOutput;
+    } catch (ouch) {
+        console.log("xcalarUpdateRetina() caught exception: " + ouch);
+        var status = StatusT.StatusThriftProtocolError;
+    }
+
+    return status;
+}
+
+function xcalarExecuteRetina(thriftHandle, retinaName, dstTableName,
+                             exportFileName, parameters) {
+    console.log("xcalarExecuteRetina(retinaName = " + retinaName + ", " +
+                "dstTableName = " + dstTableName + ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiExecuteRetina;
+    workItem.input.executeRetinaInput.retinaName = retinaName;
+    workItem.input.executeRetinaInput.dstTableName = dstTableName;
+    workItem.input.executeRetinaInput.exportToFile = (exportFileName != null);
+    workItem.input.executeRetinaInput.exportFileName = exportFileName;
+    workItem.input.executeRetinaInput.numParameters = parameters.length;
+    workItem.input.executeRetinaInput.parameters = parameters;
+
+    try {
+        var result = thriftHandle.client.queueWork(workItem);
+        var status = (result.jobStatus != StatusT.StatusOk) ?
+                     result.jobStatus : result.output.statusOutput;
+    } catch (ouch) {
+        console.log("xcalarExecuteRetina() caught exception: " + ouch);
+        var status = StatusT.StatusThriftProtocolError;
+    }
+
+    return status;
+}
+
+function xcalarAddParameterToRetina(thriftHandle, retinaName, parameterName,
+                                    parameterValue) {
+    console.log("xcalarAddParameterToRetina(retinaName = " + retinaName +
+                ", parameterName = " + parameterName + ", parameterValue = " +
+                parameterValue + ")");
+    
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.addParameterToRetinaInput = new XcalarApiAddParameterToRetinaInputT();
+    workItem.input.addParameterToRetinaInput.parameter = new XcalarApiParameterT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiAddParameterToRetina;
+    workItem.input.addParameterToRetinaInput.retinaName = retinaName;
+    workItem.input.addParameterToRetinaInput.parameter.parameterName = parameterName;
+    workItem.input.addParameterToRetinaInput.parameter.parameterValue = parameterValue;
+
+    try {
+        var result = thriftHandle.client.queueWork(workItem);
+        var status = (result.jobStatus != StatusT.StatusOk) ?
+                     result.jobStatus : result.output.statusOutput;
+    } catch (ouch) {
+        console.log("xcalarAddParameterToRetina() caught exception: " + ouch);
+        var status = StatusT.StatusThriftProtocolError;
+    }
+
+    return status;
+}
+
+function xcalarListParametersInRetina(thriftHandle, retinaName) {
+    console.log("xcalarListParametersInRetina(retinaName = " + retinaName + ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiListParametersInRetina;
+    workItem.input.listParametersInRetinaInput = retinaName;
+
+    try {
+        var result = thriftHandle.client.queueWork(workItem);
+        var listParametersInRetinaOutput = result.output.listParametersInRetinaOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+            listParametersInRetinaOutput.status = result.jobStatus;
+        }
+    } catch (ouch) {
+        console.log("xcalarListParametersInRetina() caught exception: " + ouch);
+        var listParametersInRetinaOutput = new XcalarApiListParametersInRetinaOutputT();
+        listParametersInRetinaOutput.status = StatusT.StatusThriftProtocolError;
+        listParametersInRetinaOutput.numParameters = 0;
+    }
+
+    return listParametersInRetinaOutput;
 }

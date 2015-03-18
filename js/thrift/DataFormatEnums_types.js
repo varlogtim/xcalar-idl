@@ -42,8 +42,8 @@ DfFieldTypeTStr = {0 : 'DfUnknown',
 12 : 'DfMixed',
 13 : 'DfFatptr'
 };
-DfFormatTypeTStr = {0 : 'DfTypeUnknown',
-1 : 'DfTypeJson',
-2 : 'DfTypeRandom',
-3 : 'DfTypeCsv'
+DfFormatTypeTStr = {0 : 'unknow',
+1 : 'json',
+2 : 'random',
+3 : 'csv'
 };

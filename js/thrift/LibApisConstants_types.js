@@ -6,7 +6,9 @@
 
 
 XcalarApisConstantsT = {
-'XcalarApiMaxEvalStringLen' : 1024
+'XcalarApiMaxEvalStringLen' : 1024,
+'XcalarApiMaxNumParameters' : 20
 };
-XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen'
+XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
+20 : 'XcalarApiMaxNumParameters'
 };
