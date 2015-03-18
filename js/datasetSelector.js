@@ -670,9 +670,7 @@ function removeSelectedKey(closeBox, input) {
 function createWorksheet() {
     var deferred = jQuery.Deferred();
     var promiseChain = [];
-    $(document.head).append('<style id="waitCursor" ' +
-        'type="text/css">*' + 
-        '{cursor: wait !important;}</style>');
+    showWaitCursor();
     $("#dataCart .selectedTable").not('.deselectedTable').each(function() {
         promiseChain.push((function() {
             var chainDeferred = jQuery.Deferred();

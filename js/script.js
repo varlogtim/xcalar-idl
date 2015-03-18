@@ -30,6 +30,7 @@ var gHiddenTables = [];
 var gFnBarOrigin;
 var gActiveTableNum = 0; // The table that is currently in focus
 var gDSObj = {};    //obj for DS folder structure
+var gRetinaObj = {}; //obj for retina modal
 // ================================= Classes ==================================
 var ProgCol = function() {
     this.index = -1;

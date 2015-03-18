@@ -898,6 +898,10 @@
 
     .transition(height 0.5s);
 
+    &.minimized {
+        height: 265px;
+    }
+    
     &.enlarged {
         height: 670px;
     }
@@ -1098,6 +1102,7 @@
             vertical-align: bottom;
             box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
             .transform (translateZ(0));
+            cursor: text;
             &:focus {
                 // box-shadow: 0px 1px lightGray;
             }
@@ -1146,7 +1151,7 @@
                     background: #a8a8a8;
                     top: 0px;
                     z-index: 40;
-                    padding-left: 10px;
+                    padding-left: 17px;
                     font-weight: bold;
                     font-size: 13px;
                     color: @color-text-white;
@@ -1162,6 +1167,7 @@
                     // width: 200px;
                     width: 385px;
                     font-weight: 700;
+                    font-size: 13px;
                     &:focus {
                        box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
                         background-color: white; 
@@ -1170,7 +1176,7 @@
                 .options {
                     float: right;
                     position: relative;
-                    right: 2px;
+                    right: 0px;
                     cursor: pointer;
 
                     .option {
@@ -1220,12 +1226,16 @@
                         height: 40px;
                         line-height: 30px;
                         position: relative;
-                        padding-left: 10px;
+                        padding-left: 15px;
                         font-weight: bold;
                         font-size: 13px;
                         &:first-of-type {
                             width: 444px;
                             border-right: 1px solid #a8a8a8;
+                            border-left: 7px solid @color-join-background;
+                        }
+                        &:last-of-type {
+                            border-right: 8px solid @color-join-background;
                         }
                     }
                     &:nth-child(odd) {

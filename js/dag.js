@@ -214,24 +214,44 @@ function setupDag() {
 
 
 
-    $dagParameterModal = $('#dagParameterModal');
+    var $dagParameterModal = $('#dagParameterModal');
 
     $dagParameterModal.find('.cancel, .close').click(function() {
         closeDagParamModal($dagParameterModal);
     });
 
     $dagParameterModal.find('.confirm').click(function() {
+        //XX need to check if all default inputs are filled
         var retName = $(".retTitle:disabled").val();
+        var dagNum = $dagParameterModal.data('dagNum');
+        var dagNodeId = $dagParameterModal.data('id');
 
+        (function storeUserFields() {
+            gRetinaObj[dagNodeId] = {};
+            gRetinaObj[dagNodeId].paramQuery = [];
+            gRetinaObj[dagNodeId].params = [];
+            $dagParameterModal.find('.editableParamDiv').each(function() {
+                var html = $(this).html();
+                gRetinaObj[dagNodeId].paramQuery.push(html);
+            });
+
+            $dagParameterModal.find(".tableWrapper tbody tr")
+                .not(".unfilled").each(function() {
+                    var name = $(this).find(".paramName").text();       
+                    var val = $(this).find(".paramVal").val();
+                    gRetinaObj[dagNodeId].params.push({name: name, val: val});
+                    $('.dagWrap').eq(dagNum).find('.retTabSection tbody')
+                        .find('tr:not(".unfilled")').filter(function() {
+                            return ($(this).find(".paramName").text() == name);
+                        }).find(".paramVal").text(val);
+                });
+        })();
+        
         function bindParams() {
             // First, for each param we have to issue a create param call
             var promises = [];
 
-            var numParams = $("#dagParameterModal .tableWrapper tbody tr")
-                            .not(".unfilled").length;
-            console.log("numParams: "+numParams);
-            for (var i = 0; i<numParams; i++) {
-                $("#dagParameterModal .tableWrapper tbody tr")
+            $("#dagParameterModal .tableWrapper tbody tr")
                 .not(".unfilled").each(function() {
                     var name = $(this).find(".paramName").text();       
                     var val = $(this).find(".paramVal").val();
@@ -239,7 +259,7 @@ function setupDag() {
                     promises.push(XcalarAddParameterToRetina.bind(this, retName,
                                                                   name, val));
                 });
-            }
+
             return (chain(promises));
         }
         bindParams()
@@ -548,6 +568,11 @@ function addDagEventListeners($dagWrap) {
     $dagWrap.find('.colMenu .createParamQuery').click(function() {
         showDagParamModal($currentIcon);
     });
+
+    //XX both dropdown options will do the same thing
+    $dagWrap.find('.colMenu .modifyParams').click(function() {
+        showDagParamModal($currentIcon);
+    });
 }
 
 function showDagParamModal($currentIcon) {
@@ -556,7 +581,8 @@ function showDagParamModal($currentIcon) {
     $('#modalBackground').fadeIn(200);
     var type = $currentIcon.data('type');
     var id = $currentIcon.data('id');
-    $('#dagParameterModal').data('id', id);
+    var dagNum = $currentIcon.closest('.dagWrap').index();
+    $('#dagParameterModal').data({'id': id, 'dagNum': dagNum});
     var defaultText = ""; // The html corresponding to Current Query:
     var editableText = ""; // The html corresponding to Parameterized Query:
     if ($currentIcon.hasClass('dataStore')) {
@@ -569,6 +595,7 @@ function showDagParamModal($currentIcon) {
                             '<div class="editableParamDiv boxed large load" '+
                             'ondragover="allowParamDrop(event)"'+ 
                             'ondrop="paramDrop(event)" '+
+                            'data-target="0" '+
                             'contenteditable="true" '+
                             'spellcheck="false"></div>'+
                         '</td>';
@@ -637,7 +664,39 @@ function showDagParamModal($currentIcon) {
     var $dagWrap = $currentIcon.closest('.dagWrap')
     var draggableInputs = generateDraggableParams($dagWrap);
     $dagModal.find('.draggableParams').append(draggableInputs);
+    if ($('.draggableDiv').length == 0) {
+        $dagModal.addClass('minimized');
+    } else {
+        $dagModal.removeClass('minimized');
+    }
+
     generateParameterDefaultList(id);
+    populateSavedFields();
+}
+
+function populateSavedFields() {
+    var $dagModal = $('#dagParameterModal');
+    var id = $dagModal.data('id')
+    if (!gRetinaObj[id]) {
+        return;
+    }
+
+    var paramQueryLen = gRetinaObj[id]['paramQuery'].length;
+    for (var i = 0; i < paramQueryLen; i++) {
+        $dagModal.find('.editableParamDiv').eq(i)
+            .html(gRetinaObj[id]['paramQuery'][i]);
+    }
+
+    var $tbody = $dagModal.find(".tableWrapper tbody");
+    var paramListLen = gRetinaObj[id]['params'].length;
+    for (var i = 0; i < paramListLen; i++) {
+        $tbody.find(".unfilled:first")
+            .removeClass("unfilled")
+            .find(".paramName").text(gRetinaObj[id]['params'][i]['name'])
+            .next().find(".paramVal").val(gRetinaObj[id]['params'][i]['val']);
+    }
+
+    $('#addNewParameterizedQuery').trigger("click");
 }
 
 function generateDraggableParams($dagWrap) {
@@ -711,7 +770,7 @@ function closeDagParamModal($modal) {
     $dagModal.find('.draggableParams').empty();
     $dagModal.find('.defaultListSection').empty().hide();
     $dagModal.find('.currentParameterList').next().hide();
-    $dagModal.removeClass('enlarged');
+    $dagModal.removeClass('enlarged minimized');
     $('#addNewParameterizedQuery').removeClass('btnInactive');
     $('#modalBackground').fadeOut(200);
 }
@@ -721,7 +780,7 @@ function showEditableParamQuery() {
     $dagModal.find('.currentParameterList').next().show();
     $dagModal.find('.editableParamQuery').show();
     $dagModal.find('.defaultListSection').show();
-    $dagModal.addClass('enlarged');
+    $dagModal.removeClass('minimized').addClass('enlarged');
 }
 
 
@@ -752,25 +811,19 @@ function paramDrop(event) {
     var $dropTarget = $(event.target)
     var paramId = event.dataTransfer.getData("text");
     if (!$dropTarget.hasClass('editableParamDiv')) {
-        return;
+        return; // only allow dropping into the appropriate boxes
     }
     
     var $draggableParam = $('#'+paramId).clone();
-    if ($('.editableRow').data('origin') == 'home') {
-        if ($dropTarget.find('#'+paramId).length > 0) {
-            return;
-        }
-    } else {
-        if ($dropTarget.find('#'+paramId).length > 0 && 
-            $dropTarget.data('target') != $('.editableRow').data('origin')) {
-            return;
-        }
+    if ($('.editableRow').data('origin') != 'home') {
+        // the drag origin is from another box, therefore we're moving the div
+        // so we have to remove it from its old location
         $('.editableRow .editableParamDiv').filter(function() {
             return $(this).data('target') == $('.editableRow').data('origin');
-        }).find('#'+paramId).remove();
+        }).find('#'+paramId+':first').remove();
+        // we remove the dragging div from its source
     }
 
-    $draggableParam.addClass('dropped');
     $dropTarget.append($draggableParam);
     var value = $draggableParam.find('.value').text();
 
@@ -782,9 +835,7 @@ function paramDrop(event) {
         var $row = $('.defaultListSection').find('.unfilled:first');
         $row.find('.paramName').text(value);
         $row.removeClass('unfilled');
-
     }
-
 }
 
 function allowParamDrop(event) {
@@ -1045,8 +1096,7 @@ function getDagNodeInfo(dagNode, key, children) {
     info.text = "";
     info.tooltip = "";
     info.column = "";
-    dagNode.id = dagNode.dagNodeId;
-    info.id = dagNode.id;
+    info.id = dagNode.dagNodeId;
 
     if (key == 'loadInput') {
         info.url = value.dataset.url;

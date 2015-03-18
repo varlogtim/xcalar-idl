@@ -776,9 +776,10 @@ function createTableHeader(tableNum) {
             retName = "testing";
         }
         cliOptions.fileName = retName+".csv";
-        // XXX add spinny
+        showWaitCursor();
         XcalarExport(cliOptions.tableName, retName+".csv")
         .done(function() {
+            removeWaitCursor();
             addCli('Export Table', cliOptions);
             var title = "Successful Export";
             var ins = "Widget location: 10.10.6.153:8888/widget/main.html?"+
@@ -1735,4 +1736,15 @@ function reorderAfterTableDrop() {
 function adjustColGrabHeight(tableNum) {
     var colGrabHeight = $('#xcTbodyWrap'+tableNum).height();
     $('#xcTable'+tableNum).find('.colGrab').height(colGrabHeight);
+}
+
+function showWaitCursor() {
+    var waitCursor = '<style id="waitCursor" type="text/css">'+
+                        '*{cursor: wait !important;}'+
+                    '</style>';
+    $(document.head).append(waitCursor);
+}
+
+function removeWaitCursor() {
+    $('#waitCursor').remove();
 }

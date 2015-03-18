@@ -21,7 +21,7 @@ function refreshTable(newTableName, tableNum,
                             $('#mainFrame').scrollLeft();
             $('#mainFrame').animate({scrollLeft: leftPos});
             $("body").css({"cursor": "default"});
-            $('#waitCursor').remove();
+            removeWaitCursor();
             focusTable(newTableNum);
             deferred.resolve();
         });
@@ -58,7 +58,7 @@ function refreshTable(newTableName, tableNum,
                 $('#mainFrame').scrollLeft(savedScrollLeft);
             } 
             $("body").css({"cursor": "default"});
-            $('#waitCursor').remove();
+            removeWaitCursor();
             focusTable(newTableNum);
             deferred.resolve();
         });
@@ -75,8 +75,7 @@ function sortRows(index, tableNum, order) {
     setDirection(newTableName, order);
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
-    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-       '{cursor: wait !important;}</style>');
+    showWaitCursor();
     var fieldName;
     switch(gTables[tableNum].tableCols[index-1].func.func) {
     case ("pull"):
@@ -112,8 +111,7 @@ function sortRows(index, tableNum, order) {
 function mapColumn(fieldName, mapString, tableNum) {
     var deferred = jQuery.Deferred();
 
-    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-        '{cursor: wait !important;}</style>');
+    showWaitCursor();
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempMapTable"+rand;
     setIndex(newTableName, gTables[tableNum].tableCols);
@@ -263,8 +261,7 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
     }
 
     $("body").css({"cursor": "wait"}); 
-    $(document.head).append('<style id="waitCursor" type="text/css">*'+ 
-        '{cursor: wait !important;}</style>');
+    showWaitCursor();
 
     var leftName = gTables[leftTableNum].backTableName;
     var joinType = "";
@@ -364,7 +361,7 @@ function joinTables3(args) {
                              KeepOriginalTables.DontKeep, rightTableNum));
     })
     .done(function() {
-        $('#waitCursor').remove();
+        removeWaitCursor();
         deferred.resolve();
     });
 
