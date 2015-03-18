@@ -271,7 +271,7 @@ var Widget = (function() {
                         gInstructions = value.substring(0, 15) + 
                                         ((value.length > 15) ? "..." : "");
                     } else if (currStep === 4) {
-                        var options = gOptionsForParam[stepFourCurr - 1] = [];
+                        var options = gOptionsForParam[gSelectedParameterIndices[stepFourCurr - 1]] = [];
                         var $optionFields = $(".optionField");
                         for (var i = 0; i < $optionFields.length; i ++) {
                             var $optionField = $($optionFields[i]);
