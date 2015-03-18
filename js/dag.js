@@ -38,74 +38,24 @@ function setupDag() {
 
     var $dagPanel = $('#dagPanel');
 
+    // Remove focus when click other places other than retinaArea
+    $dagPanel.on('click', function(){
+        $dagPanel.find('.retTab.active').removeClass('active');
+    });
+    $dagPanel.on('click', '.retinaArea', function(event){
+        event.stopPropagation();
+    });
     // add new retina
-    $dagPanel.on('click', '.addRet', function(){
+    $dagPanel.on('click', '.addRet', function(event) {
+        event.stopPropagation();
         var $addBtn = $(this);
         $dagPanel.find('.retTab.active').removeClass('active');
         var $retTabSection = $addBtn.closest('.retinaArea')
                                     .find('.retTabSection');
-        var len = $retTabSection.children().length;
-        var retName = 'Retina ' + (len + 1);
-        var html = 
-            '<div class="retTab unconfirmed">' + 
-                '<div class="tabWrap">' + 
-                    '<input type="text" class="retTitle"' + 
-                    ' placeholder="' + retName + '" >' + 
-                    '<div class="retDown">' + 
-                        '<span class="icon"></span>' + 
-                    '</div>' + 
-                '</div>' + 
-                '<div class="retPopUp">' + 
-                    '<div class="divider"></div>' + 
-                    '<div class="inputSection">' + 
-                        '<input class="newParam" type="text"' + 
-                        ' placeholder="Input New Parameter">' + 
-                        '<div class="btn addParam">' + 
-                            '<span class="icon"></span>' + 
-                            '<span class="label">' + 
-                                'CREATE NEW PARAMETER' + 
-                            '</span>' + 
-                        '</div>' +
-                    '</div>' + 
-                    '<div class="tableContainer">' + 
-                        '<div class="tableWrapper">' + 
-                            '<table>' + 
-                                '<thead>' + 
-                                    '<tr>' +
-                                        '<th>' +  
-                                            '<div class="thWrap">' + 
-                                                'Current Parameter' + 
-                                            '</div>' + 
-                                        '</th>' +  
-                                        '<th>' +  
-                                            '<div class="thWrap">' + 
-                                                'Default Value' + 
-                                            '</div>' + 
-                                        '</th>' +   
-                                    '</tr>' + 
-                                '</thead>' +
-                                '<tbody>';
-        for (var i = 0; i < 7; i++) {
-            html += '<tr class="unfilled">' +
-                        '<td class="paramName"></td>' + 
-                        '<td>' + 
-                            '<div class="paramVal"></div>' + 
-                            '<div class="delete paramDelete">' +
-                                '<span class="icon"></span>' + 
-                            '</div>' + 
-                        '</td>' + 
-                   '</tr>';
-        }
-
-        html += '</tbody></table></div></div></div></div>';
-
-        $retTab = $(html);
-        $retTab.data('retname', retName);
-        $retTabSection.append($retTab);
-        $retTab.find('.retTitle').focus();
+        createRetina($retTabSection);
     });
     
-    // keyup on retina title to confirm the input
+    // Press Enter on retina title to confirm the input
     $dagPanel.on('keyup', '.retTitle', function(event) {
         event.preventDefault();
         if (event.which !== keyCode.Enter) {
@@ -113,29 +63,46 @@ function setupDag() {
         }
         var $input = $(this);
         var $retTab = $input.closest('.retTab');
+        if (!$retTab.hasClass('unconfirmed')) {
+            return;
+        }
         var retName = jQuery.trim($input.val());
         if (retName == "") {
             retName = $retTab.data('retname');
-            $input.val(retName);
+        }
+
+        // Check name conflict
+        var isNameConflict = false;
+        $retTab.siblings(':not(.unconfirmed)').each(function(index, sibl) {
+            if (isNameConflict === true) {
+                return;
+            }
+            var $sibl = $(sibl);
+            var name = $sibl.find('.tabWrap input').val();
+            if (retName === name) {
+                isNameConflict = true;
+            }
+        })
+        if (isNameConflict === true) {
+            var text = "Retina " + retName + " already exists!";
+            displayErrorMessage(text, $input);
+            return;
         }
 
         var tableName = $input.closest('.retinaArea')
                               .data('tablename');
-        console.log('Make retina with table:', tableName,
-                    'and retina name:', retName);
 
         XcalarMakeRetina(retName, tableName)
         .done(function() {
-            console.log('Create New Retina for', tableName);
+            console.log('Create New Retina', retName, 'for', tableName);
             $retTab.data('retname', retName);
             $retTab.removeClass('unconfirmed');
-            $input.attr('disabled', 'disabled');
-            $input.blur();
         });
     });
 
     // toggle open retina pop up
-    $dagPanel.on('click', '.tabWrap', function() {
+    $dagPanel.on('click', '.tabWrap', function(event) {
+        event.stopPropagation();
         var $tab = $(this).closest('.retTab');
         if ($tab.hasClass('unconfirmed')) {
             return;
@@ -149,12 +116,24 @@ function setupDag() {
         }
     });
 
+    $dagPanel.on('keyup', '.newParam', function(event){
+        event.preventDefault();
+        if (event.which !== keyCode.Enter) {
+            return;
+        }
+        var $btn = $(this).siblings('.addParam');
+        $btn.click();
+    });
+
     // create new parameters to retina
-    $dagPanel.on('click', '.addParam', function() {
+    $dagPanel.on('click', '.addParam', function(event) {
+        event.stopPropagation();
         var $btn = $(this);
         var $input = $btn.prev('.newParam');
         var paramName = jQuery.trim($input.val());
-        if (paramName == "" || paramName == undefined) {
+
+        // empty input
+        if (paramName == "") {
             var text = "Please input a valid parameter name!";
             displayErrorMessage(text, $input);
             $input.val("");
@@ -164,22 +143,31 @@ function setupDag() {
         var $retPopUp = $btn.closest('.retPopUp');
         var $tbody = $retPopUp.find('tbody');
 
-        var retName = $retPopUp.closest('.retTab').data('retname');
-        $input.val("");
-        console.log('New Parameter in retina:', retName,
-                    'parameter name:',paramName);
-        // XcalarAddParameterToRetina(retName, param)
-        // .done(function() {
-            // XXX Can bu put outside if you want to 
-            // make this change before xcalar call
-            var $trs = $tbody.find('.unfilled');
-            if ($trs.length > 0) {
-                var $tr = $trs.eq(0);
-                $tr.find('.paramName').html(paramName);
-                $tr.removeClass('unfilled');
+        // var retName = $retPopUp.closest('.retTab').data('retname');
+        // console.log('New Parameter in retina:', retName,
+        //             'parameter name:',paramName);
+
+        // Check name conflict
+        var isNameConflict = false;
+        $tbody.find('tr:not(.unfilled)').each(function(index, tr) {
+            if (isNameConflict === true) {
+                return;
             }
-        // });
-        
+            var $tr = $(tr);
+            var name = $tr.find('.paramName').html();
+            if (paramName === name) {
+                isNameConflict = true;
+            }
+        });
+        if (isNameConflict === true) {
+            var text = "Parameter " + paramName + " already exists!";
+            displayErrorMessage(text, $input);
+            return;
+        }
+
+        $input.val("");
+        addParamToRetina($tbody, paramName);
+
         // XXX currently, it is useless code
         // else {
         //     var html = '<tr>' +
@@ -198,9 +186,11 @@ function setupDag() {
     });
 
     // delete retina para
-    $dagPanel.on('click', '.paramDelete', function() {
+    $dagPanel.on('click', '.paramDelete', function(event) {
+        event.stopPropagation();
         var $delBtn = $(this);
         var $tr = $delBtn.closest('tr');
+        var $tbody = $tr.parent();
         var paramName = $tr.find('.paramName').text();
         var options = {};
         options.title = 'DELETE RETINA PARAMETER';
@@ -211,6 +201,7 @@ function setupDag() {
             $tr.find('.paramName').empty();
             $tr.find('.paramVal').empty();
             $tr.addClass('unfilled');
+            $tbody.append($tr);
         }
         showAlertModal(options);
     });
@@ -328,6 +319,141 @@ function setupDag() {
         $(this).next().find('.paramEdit').removeClass('selected');
     });
 
+}
+
+function appendRetinas(){
+    var $dagWrap = $('#dagPanel').find('.dagWrap');
+    if ($dagWrap.length > 1) {
+        return;
+    }
+    var $retTabSection = $dagWrap.find('.retTabSection');
+    // List All Retinas and now append to first table 
+    XcalarListRetinas()
+    .done(function(listRetinasOutput) {
+        console.log(listRetinasOutput);
+        var len =  listRetinasOutput.numRetinas;
+        var retinas = listRetinasOutput.retinaDescs;
+        var promises = [];
+        for (var i = 0; i < len; i ++) {
+            var name = retinas[i].retinaName;
+            promises.push(createRetina.bind(this, $retTabSection, name));
+        }
+        chain(promises);
+    });
+}
+
+function createRetina($retTabSection, retName) {
+    var deferred = jQuery.Deferred();
+    var retClass = "retTab";
+    var inputVal = "";
+    var isNewRetina = false;
+    if (retName == undefined) {
+        var len = $retTabSection.children().length;
+        retName = 'Retina ' + (len + 1);
+        retClass += " unconfirmed";
+        isNewRetina = true;
+        intputHTML = '<input type="text" class="retTitle"' +  
+                     '" placeholder="' + retName + '">';
+    } else {
+        intputHTML = '<input type="text" class="retTitle">'; 
+    }
+
+    var html = 
+        '<div class="' + retClass + '">' + 
+            '<div class="tabWrap">' + 
+                intputHTML + 
+                '<div class="retDown">' + 
+                    '<span class="icon"></span>' + 
+                '</div>' + 
+            '</div>' + 
+            '<div class="retPopUp">' + 
+                '<div class="divider"></div>' + 
+                '<div class="inputSection">' + 
+                    '<input class="newParam" type="text"' + 
+                    ' placeholder="Input New Parameter">' + 
+                    '<div class="btn addParam">' + 
+                        '<span class="icon"></span>' + 
+                        '<span class="label">' + 
+                            'CREATE NEW PARAMETER' + 
+                        '</span>' + 
+                    '</div>' +
+                '</div>' + 
+                '<div class="tableContainer">' + 
+                    '<div class="tableWrapper">' + 
+                        '<table>' + 
+                            '<thead>' + 
+                                '<tr>' +
+                                    '<th>' + 
+                                        '<div class="thWrap">' + 
+                                            'Current Parameter' + 
+                                        '</div>' + 
+                                    '</th>' + 
+                                    '<th>' + 
+                                        '<div class="thWrap">' + 
+                                            'Default Value' + 
+                                        '</div>' + 
+                                    '</th>' + 
+                                '</tr>' + 
+                            '</thead>' +
+                            '<tbody>';
+    for (var i = 0; i < 7; i++) {
+        html += '<tr class="unfilled">' +
+                    '<td class="paramName"></td>' + 
+                    '<td>' + 
+                        '<div class="paramVal"></div>' + 
+                        '<div class="delete paramDelete">' +
+                            '<span class="icon"></span>' + 
+                        '</div>' + 
+                    '</td>' + 
+               '</tr>';
+    }
+
+    html += '</tbody></table></div></div></div></div>';
+
+    var $retTab = $(html);
+    $retTab.data('retname', retName);
+    $retTabSection.append($retTab);
+
+    var $input = $retTab.find('.retTitle');
+    // Only disable the first retina
+    if ($retTabSection.find('.retTitle[disabled="disabled"]').length == 0) {
+        $input.attr('disabled', 'disabled');
+    }
+
+    if (isNewRetina) {
+        $input.blur();
+        $retTab.find('.retTitle').focus();
+        deferred.resolve();
+    } else {
+        $input.val(retName);
+        var $tbody = $retTab.find('tbody');
+        XcalarListParametersInRetina(retName)
+        .done(function(output) {
+            var num = output.numParameters;
+            var params = output.parameters;
+            for (var i = 0; i < num; i ++) {
+                var param = params[i];
+                var paramName = param.parameterName;
+                var paramVal = param.parameterValue;
+                addParamToRetina($tbody, paramName, paramVal);
+            }
+            deferred.resolve();
+        });
+    }
+    return (deferred.promise());
+}
+
+function addParamToRetina($tbody, name, val) {
+    var $trs = $tbody.find('.unfilled');
+    // Now only allow to add 7 parameters
+    if ($trs.length > 0) {
+        var $tr = $trs.eq(0);
+        $tr.find('.paramName').html(name);
+        if (val) {
+            $tr.find('.paramVal').html(val);
+        }
+        $tr.removeClass('unfilled');
+    }
 }
 
 function getDagDropDownHTML() {
@@ -669,6 +795,7 @@ function constructDagImage(tableName) {
         $dagWrap.append(dropdown);
         $dagWrap.find('.colMenu').width('auto');
         addDagEventListeners($dagWrap);
+        appendRetinas();
         // $('.dagImageWrap').scrollLeft($('.dagImage').width());
     })
     .fail(function() {
