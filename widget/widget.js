@@ -260,7 +260,7 @@ var Widget = (function() {
                         var $checkboxes = $(".check");
                         for (var i = 0; i < $checkboxes.length; i ++) {
                             if ($($(".check")[i]).hasClass("activeCheck")) {
-                                if (!gFirstSelectedParam) {
+                                if (gFirstSelectedParam === null) {
                                     gFirstSelectedParam = i;
                                 }
                                 gSelectedParameterIndices.push(i);
