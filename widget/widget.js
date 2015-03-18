@@ -33,11 +33,12 @@
     expose Widget and some variables to global(window).
 */
 var gParameters = {};
+var gSelectedParameterIndices = [];
 var gRetName = "";
 var currStep = 1;
 
 // for step 2
-var gSelectedParamIndex = 0;
+var gFirstSelectedParam = null;
 
 // for step 3
 var gInstructions = "";
@@ -74,7 +75,7 @@ var Widget = (function() {
                 info = "Set options.";
                 break;
             case (4) :
-                info = "Set options for " + gParameters[stepFourCurr - 1].param +
+                info = "Set options for " + gParameters[gSelectedParameterIndices[stepFourCurr - 1]].param +
                        ". (" + stepFourCurr + "/" + stepFourTotal + ")";
                 break;
             case (5) :
@@ -149,7 +150,7 @@ var Widget = (function() {
                             "<div class='icon'>2</div>" +
                             "<div class='label'>Parameter:</div>" + 
                             "<div class='value'>" + 
-                                gParameters[gSelectedParamIndex].param +
+                                gParameters[gFirstSelectedParam].param +
                             "</div>" + 
                         "</div>" +
                         "<div id='instruction'>" + 
@@ -164,7 +165,7 @@ var Widget = (function() {
                     "<div id='pubInstruction'>" + 
                         gInstructions +
                     "</div>";
-                var arr = gOptionsForParam[gSelectedParamIndex];
+                var arr = gOptionsForParam[gFirstSelectedParam];
                 for (var i in arr) {
                     html += 
                         "<div class='radio'>" + 
@@ -226,7 +227,7 @@ var Widget = (function() {
                         }
                         var sub = $(".activeRadio").text();
                         // to get selected value:
-                        // gOptionsForParam[gSelectedParamIndex][gSelectedRadio].value;
+                        // gOptionsForParam[gFirstSelectedParam][gSelectedRadio].value;
 
                         // XXX insert spinny here
                         // The following function is fake!!! Just a placeholder
@@ -239,13 +240,17 @@ var Widget = (function() {
 
                 (function saveParameters() {
                     if (currStep === 2) {
+                        gSelectedParameterIndices = [];
                         var $checkboxes = $(".check");
                         for (var i = 0; i < $checkboxes.length; i ++) {
                             if ($($(".check")[i]).hasClass("activeCheck")) {
-                                gSelectedParamIndex = i;
-                                break;
+                                if (!gFirstSelectedParam) {
+                                    gFirstSelectedParam = i;
+                                }
+                                gSelectedParameterIndices.push(i);
                             }
                         }
+                        stepFourTotal = gSelectedParameterIndices.length;
                     } else if (currStep === 3) {
                         var value = $("#instructionField").val();
                         gInstructions = value.substring(0, 15) + 
