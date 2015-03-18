@@ -41,7 +41,7 @@ var currStep = 1;
 var gFirstSelectedParam = null;
 
 // for step 3
-var gInstructions = "";
+var gInstructionsShort = "";
 
 // for step 4
 var stepFourCurr  = 1;
@@ -50,6 +50,7 @@ var gOptionsForParam = {};
 
 // for step 6
 var gSelectedRadio = 0;
+var gInstructionsFull = "";
 
 var Widget = (function() {
 
@@ -158,14 +159,14 @@ var Widget = (function() {
                         "<div id='instruction'>" + 
                             "<div class='icon'>3</div>" +
                             "<div class='label'>Instructions:</div>" + 
-                            "<div class='value'>" + gInstructions + "</div>" + 
+                            "<div class='value'>" + gInstructionsShort + "</div>" + 
                         "</div>" +
                     "</div>";
                 break;
             case (6) :
                 html += 
                     "<div id='pubInstruction'>" + 
-                        gInstructions +
+                        gInstructionsFull +
                     "</div>";
                 var arr = gOptionsForParam[gFirstSelectedParam];
                 for (var i in arr) {
@@ -268,7 +269,8 @@ var Widget = (function() {
                         stepFourTotal = gSelectedParameterIndices.length;
                     } else if (currStep === 3) {
                         var value = $("#instructionField").val();
-                        gInstructions = value.substring(0, 15) + 
+                        gInstructionsFull = value;
+                        gInstructionsShort = value.substring(0, 15) + 
                                         ((value.length > 15) ? "..." : "");
                     } else if (currStep === 4) {
                         var options = gOptionsForParam[gSelectedParameterIndices[stepFourCurr - 1]] = [];

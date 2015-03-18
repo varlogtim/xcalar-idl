@@ -52,7 +52,7 @@ body {
         }
         #stepInfo {
             color: rgb(82, 82, 82);
-            overflow-x: hidden;
+            overflow: hidden;
 
             font-weight: bold;
             font-size: .7em;
@@ -81,12 +81,15 @@ body {
             cursor: pointer;
 
             span {
-                position: relative;
-
-                bottom: 6px;
+                position: absolute;
+                width: 200px;
                 left: 20px;
 
+                white-space: nowrap;
+                overflow: hidden;
+
                 font-size: .8em;
+                line-height: .8em;
                 color: rgb(82, 82, 82);
             }
         }
@@ -221,14 +224,18 @@ body {
             .flex-display();
             .flex-flow(column);
             #widgetType {
+                overflow: hidden;
+
                 .flex(1 1 auto);
             }
             #parameter {
-                overflow-x: hidden;
+                overflow: hidden;
 
                 .flex(1 1 auto);
             }
             #instruction {
+                overflow: hidden;
+                
                 .flex(1 1 auto);
             }
             
@@ -271,6 +278,9 @@ body {
             position: relative;
             left: 10px;
             top: 5px;
+
+            white-space: nowrap;
+            overflow: hidden;
 
             font-size: .8em;
             color: rgb(82, 82, 82);
