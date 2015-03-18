@@ -1263,7 +1263,7 @@ function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
         deferred.resolve(status);
     })
     .fail(function(error) {
-        console.log("xcalarUpdateRetina() caught exception: " + ouch);
+        console.log("xcalarUpdateRetina() caught exception:", error);
         deferred.reject(error);
     });
 
@@ -1338,7 +1338,7 @@ function xcalarAddParameterToRetina(thriftHandle, retinaName, parameterName,
         deferred.resolve(status);
     })
     .fail(function(error) {
-        console.log("xcalarAddParameterToRetina() caught exception: " + ouch);
+        console.log("xcalarAddParameterToRetina() caught exception:", error);
         deferred.reject(error);
     });
     return (deferred.promise());
@@ -1370,7 +1370,7 @@ function xcalarListParametersInRetina(thriftHandle, retinaName) {
         deferred.resolve(listParametersInRetinaOutput);
     })
     .fail(function(error) {
-        console.log("xcalarListParametersInRetina() caught exception: " + ouch);
+        console.log("xcalarListParametersInRetina() caught exception:", error);
         deferred.reject(error);
     });
     return (deferred.promise());
