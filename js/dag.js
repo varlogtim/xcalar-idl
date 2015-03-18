@@ -63,6 +63,7 @@ function setupDag() {
         }
         var $input = $(this);
         var $retTab = $input.closest('.retTab');
+        var $retTabSection = $retTab.closest('.retTabSection');
         if (!$retTab.hasClass('unconfirmed')) {
             return;
         }
@@ -97,6 +98,11 @@ function setupDag() {
             console.log('Create New Retina', retName, 'for', tableName);
             $retTab.data('retname', retName);
             $retTab.removeClass('unconfirmed');
+            $input.blur();
+            $input.val(retName);
+            if ($retTabSection.find('.retTitle[disabled="disabled"]').length == 0) {
+                $input.attr('disabled', 'disabled');
+            }
         });
     });
 
@@ -238,35 +244,69 @@ function setupDag() {
         }
         bindParams()
         .done(function() { 
+            var $table = $("#dagParameterModal .editableTable");
             var paramInput = new XcalarApiParamInputT();
-            paramInput.paramLoad = new XcalarApiParamLoadT();
-            var str = $(".editableParamDiv").text();
             // XXX: HACK!!!
-            str = str.replace(/\+/g, "");
-            paramInput.paramLoad.datasetUrl = str;
-            console.log($dagParameterModal.data('id'));
+            var dagId = $dagParameterModal.data('id');
+            console.log(dagId);
             if (retName == "") {
                 // XXX: Insert hack in case demo fail
             }
-            switch ($("#dagParameterModal .template td:first").text()) {
-            case ("Filter"): // XXX Doesn't work yet!
-                /**
-                switch ($("#dagParameterModal .template td:nth-child(4)")) {
-                    case (">") {
-                */                     
-                return (XcalarUpdateRetina(retName,
-                                           $dagParameterModal.data('id'),
-                                           XcalarApisT.XcalarApiFilter,
-                                           paramInput));
-                break;
-            case ("Load"):
-                return (XcalarUpdateRetina(retName,
-                                           $dagParameterModal.data('id'),
-                                  XcalarApisT.XcalarApiBulkLoad, paramInput));
-                break;
-            default:
-                console.log("currently not supported");
-                break;
+            switch ($table.find("td:first").text()) {
+                case ("filter"):
+                    var $editableDivs = $table.find('.editableParamDiv');
+                    var filterText = $editableDivs.eq(1).text();
+                    filterText = jQuery.trim(filterText);
+                    var str1 = $editableDivs.eq(0).text().replace(/\+/g, "");
+                    str1 = jQuery.trim(str1);
+                    var str2 = $editableDivs.eq(2).text().replace(/\+/g, "");
+                    str2 = jQuery.trim(str2);
+                    var filter;
+                    // Only support these filter now
+                    switch (filterText) {
+                        case (">"):
+                            filter = "gt";
+                            break;
+                        case ("<"):
+                            filter = "lt";
+                            break;
+                        case (">="):
+                            filter = "ge";
+                            break;
+                        case ("<="):
+                            filter = "le";
+                            break;
+                        case ("="):
+                            filter = "eq";
+                            break;
+                        default:
+                            console.log("currently not supported filter");
+                            return;
+                    }
+                    var str = filter + "(" + str1 + "," + str2 + ")";
+                    console.log("Filter String:", str);
+                    paramInput.paramFilter = new XcalarApiParamFilterT();
+                    paramInput.paramFilter.filterStr = str;
+                    console.log(paramInput);
+                    return (XcalarUpdateRetina(retName,
+                                               dagId,
+                                               XcalarApisT.XcalarApiFilter,
+                                               paramInput));
+                    break;
+                case ("Load"):
+                    var str = $(".editableParamDiv").text();
+                    str = str.replace(/\+/g, "");
+                    console.log(str);
+                    paramInput.paramLoad = new XcalarApiParamLoadT();
+                    paramInput.paramLoad.datasetUrl = str;
+                    return (XcalarUpdateRetina(retName,
+                                               dagId,
+                                               XcalarApisT.XcalarApiBulkLoad,
+                                               paramInput));
+                    break;
+                default:
+                    console.log("currently not supported");
+                    break;
             }
         })
         .done(function() {
@@ -414,19 +454,17 @@ function createRetina($retTabSection, retName) {
     $retTab.data('retname', retName);
     $retTabSection.append($retTab);
 
-    var $input = $retTab.find('.retTitle');
-    // Only disable the first retina
-    if ($retTabSection.find('.retTitle[disabled="disabled"]').length == 0) {
-        $input.attr('disabled', 'disabled');
-    }
-
     if (isNewRetina) {
-        $input.blur();
         $retTab.find('.retTitle').focus();
         deferred.resolve();
     } else {
+        var $input = $retTab.find('.retTitle');
         $input.val(retName);
+        if ($retTabSection.find('.retTitle[disabled="disabled"]').length == 0) {
+            $input.attr('disabled', 'disabled');
+        }
         var $tbody = $retTab.find('tbody');
+        // Only disable the first retina
         XcalarListParametersInRetina(retName)
         .done(function(output) {
             var num = output.numParameters;
