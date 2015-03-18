@@ -562,7 +562,7 @@ Thrift.Protocol.prototype = {
         if (typeof jQuery !== 'undefined') {
             var msg = this.transport.readAll();
             var regex = new RegExp('{"tf":[^01]}', "g");
-            msg.replace(regex, '{"tf":0}');
+            msg = msg.replace(regex, '{"tf":0}');
             this.robj = jQuery.parseJSON(msg);
         } else {
             this.robj = eval(this.transport.readAll());
