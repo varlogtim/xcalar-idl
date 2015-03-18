@@ -220,6 +220,7 @@ var Widget = (function() {
             btnNext: function() {
                 if (currStep === 6) {
                     return (function apply() {
+                        $("#loadingView").show();
                         var $radios = $(".radio");
                         for (var i = 0; i < $radios.length; i++) {
                             if ($($radios[i]).hasClass("activeRadio")) {
@@ -246,6 +247,7 @@ var Widget = (function() {
                         console.log(parameterList);
                         XcalarExecuteRetina(gRetName, parameterList)
                         .done(function() {
+                            $("#loadingView").hide();
                             console.log("Your dashboard should have refreshed");
                         });
                     })();
@@ -353,6 +355,16 @@ var Widget = (function() {
         .fail(function(status) {
             console.log("Failed to get list of params from retname with status", 
                 status);
+            gParameters = [
+                {
+                    parameterName: "Name",
+                    parameterValue: "Levi Lu"
+                },
+                {
+                    parameterName: "Some long name",
+                    parameterValue: "asdasdasdasds"
+                }
+            ];
             // XXX: Add preprogrammed params
         });
     }

@@ -10,6 +10,12 @@
     background-clip:         padding-box;
 }
 
+.animation-timing-function(@func: linear) {
+    -webkit-animation-timing-function: @func;
+    -moz-animation-timing-function: @func;
+
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -46,6 +52,7 @@ body {
         }
         #stepInfo {
             color: rgb(82, 82, 82);
+            overflow-x: hidden;
 
             font-weight: bold;
             font-size: .7em;
@@ -102,12 +109,15 @@ body {
             cursor: pointer;
 
             span {
-                position: relative;
-
-                bottom: 6px;
+                position: absolute;
+                width: 200px;
                 left: 20px;
 
+                white-space: nowrap;
+                overflow: hidden;
+
                 font-size: .8em;
+                line-height: .8em;
                 color: rgb(82, 82, 82);
             }
         }
@@ -214,6 +224,8 @@ body {
                 .flex(1 1 auto);
             }
             #parameter {
+                overflow-x: hidden;
+
                 .flex(1 1 auto);
             }
             #instruction {
@@ -289,4 +301,18 @@ body {
             background: url("img/next.png");
         }
     }
+}
+
+#loadingView {
+    display: none;
+
+    position: absolute;
+    top: 50px;
+    left: 100px;
+
+    width: 35px;
+    height: 37px;
+    background: url("img/waiting-1.gif") 0 0 no-repeat;
+    
+    z-index: 10;
 }
