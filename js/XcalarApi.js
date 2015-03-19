@@ -1101,6 +1101,7 @@ function xcalarExport(thriftHandle, tableName, fileName) {
             exportOutput.status = result.jobStatus;
         }
         if (exportOutput.status != StatusT.StatusOk) {
+            console.log("export failed with status: "+exportOutput.status);
             deferred.reject(exportOutput.status);
         }
         deferred.resolve(exportOutput);

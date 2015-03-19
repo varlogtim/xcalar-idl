@@ -382,8 +382,9 @@ function XcalarJoin(left, right, dst) {
         return (promiseWrapper(null));
     }
     
+    // XXX We actually have the join type. We just are not passing it in
     return (xcalarJoin(tHandle, left, right, 
-            dst, OperatorsOpT.OperatorsInnerJoin));
+            dst, JoinOperatorT.InnerJoin));
 }
 
 // XXX FIXME

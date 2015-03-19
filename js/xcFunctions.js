@@ -248,7 +248,7 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
    
     switch (joinTypeStr) {
     case ("Inner Join"):
-        joinType = OperatorsOpT.OperatorsInnerJoin;
+        joinType = JoinOperatorT.InnerJoin;
         break;
     default:
         console.log("Incorrect join type!");
