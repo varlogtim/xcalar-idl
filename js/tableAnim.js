@@ -782,7 +782,7 @@ function createTableHeader(tableNum) {
             removeWaitCursor();
             addCli('Export Table', cliOptions);
             var title = "Successful Export";
-            var ins = "Widget location: 10.10.6.153:8888/widget/main.html?"+
+            var ins = "Widget location: http://schrodinger/dogfood/widget/main.html?"+
                       "rid="+retName;
             var msg = "File location: "+hostname+":/var/tmp/xcalar/"+
                       retName+".csv";
