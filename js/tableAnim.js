@@ -1125,6 +1125,7 @@ function addColMenuActions(colId, $table) {
         var colName = pCol.func.args[0];
         var aggrOp = $(this).closest('.aggrOp').text();
         console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
+        showWaitCursor();
         XcalarAggregate(colName, gTables[tableNum].backTableName, aggrOp)
         .done(function(value){
             // show result in alert modal
@@ -1135,6 +1136,7 @@ function addColMenuActions(colId, $table) {
             showAlertModal({'title':title, 'msg':value, 
                             'instruction': instruction, 'isAlert':true,
                             'isCheckBox': true});
+            removeWaitCursor();
         });
     });
 
@@ -1146,7 +1148,7 @@ function addColMenuActions(colId, $table) {
             var index = parseColNum($(this).closest('.filterWrap'));
             var operator = $(this).closest('.filter').text(); 
             console.log(operator, 'operator');
-
+            $('.colMenu').hide();
             filterCol(operator, value, index, tableNum);
         }
     });
@@ -1175,8 +1177,9 @@ function addColMenuActions(colId, $table) {
         var tableNum = parseInt($(this).closest('.dataTable').attr('id').
                    substring(7));
         colId = parseColNum($(this));
-        setupJoinModalTables(tableNum, colId);
         $('.colMenu').hide();
+        setupJoinModalTables(tableNum, colId);
+        
     });
 }
 

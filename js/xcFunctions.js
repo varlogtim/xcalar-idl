@@ -152,7 +152,7 @@ function groupByCol(operator, newColName, colid, tableNum) {
     cliOptions.newTableName = newTableName;
     cliOptions.newColumnName = newColName;
 
-    $("body").css({"cursor": "wait"});
+    showWaitCursor();
 
     XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName)
     .then(function() {
@@ -185,7 +185,7 @@ function filterCol(operator, value, colid, tableNum) {
 
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
-    $("body").css({"cursor": "wait"});
+    showWaitCursor();
     console.log(colid); 
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
@@ -260,7 +260,6 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
         break;
     }
 
-    $("body").css({"cursor": "wait"}); 
     showWaitCursor();
 
     var leftName = gTables[leftTableNum].backTableName;
