@@ -486,11 +486,12 @@ function addWorksheetListeners(tableNum) {
         if (e.which != keyCode.Enter) {
             return;
         }
-        $(this).blur();
-        var newName = $(this).val();
-        var colNum = $(this).closest('.colMenu').data('colNum');
-        var headInput = $('#dataSetTableWrap'+tableNum)
-                        .find('.editableHead.col'+colNum);
+        var $input = $(this);
+        $input.blur();
+        var newName = $input.val();
+        var colNum = $input.closest('.colMenu').data('colNum');
+        var $tableWrap = $('#dataSetTableWrap' + tableNum);
+        var headInput = $tableWrap.find('.editableHead.col'+colNum);
         var oldid = headInput.attr("id");
         var oldColName = oldid.substring(oldid.indexOf("cn")+2);
         var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
@@ -510,6 +511,16 @@ function addWorksheetListeners(tableNum) {
                         return $(this).text() == oldColName;
                     }
                 ).text(newName);
+
+                // add cli
+                var dsName = $tableWrap.find('table').data('dsname');
+                var cliOptions = {};
+                cliOptions.operation = 'renameDatasetCol';
+                cliOptions.dsName = dsName;
+                cliOptions.colNum = colNum + 1;
+                cliOptions.oldColName = oldColName;
+                cliOptions.newColName = newName;
+                addCli('Rename dataset column', cliOptions);
             });
         }
     });
@@ -524,8 +535,8 @@ function addWorksheetListeners(tableNum) {
         var colNum = $typeList.closest('.colMenu')
                               .data('colNum');
 
-        var $tableHeader = $('#dataSetTableWrap' + tableNum + 
-                             ' .col' + colNum + ' .header');
+        var $tableWrap = $('#dataSetTableWrap' + tableNum);
+        var $tableHeader = $tableWrap.find(' .col' + colNum + ' .header');
 
         var $headInput = $tableHeader.find('.editableHead');
         var oldid = $headInput.attr('id');
@@ -559,6 +570,16 @@ function addWorksheetListeners(tableNum) {
                 $tableHeader.data('type', newType);
                 $tableHeader.removeClass('type-' + oldType)
                             .addClass('type-' + newType);
+
+                 // add cli
+                var dsName = $tableWrap.find('table').data('dsname');
+                var cliOptions = {};
+                cliOptions.operation = 'changeDataType';
+                cliOptions.dsName = dsName;
+                cliOptions.colNum = colNum + 1;
+                cliOptions.oldType = oldType;
+                cliOptions.newType = newType;
+                addCli('Change dataset data type', cliOptions);
             });
         }
 
