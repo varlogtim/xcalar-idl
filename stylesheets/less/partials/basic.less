@@ -581,10 +581,10 @@ ul.colMenu {
             display: inline-block;
         }
         .sortUp {
-            background: url(/images/arrowUp.png) 0 50% no-repeat;
+            .image("/images/arrowUp.png", 0, 50%);
         }
         .sortDown {
-            background: url(/images/arrowDown.png) 0 50% no-repeat;
+            .image("/images/arrowDown.png", 0, 50%);
         }
     }
 
@@ -596,19 +596,19 @@ ul.colMenu {
             display: inline-block;
         }
         .maxIcon {
-            background: url(/images/max.png) 0 50% no-repeat;
+            .image("/images/max.png", 0, 50%);
         }
         .minIcon {
-            background: url(/images/min.png) 0 50% no-repeat;
+            .image("/images/min.png", 0, 50%);
         }
         .avgIcon {
-            background: url(/images/average.png) 0 50% no-repeat;
+            .image("/images/average.png", 0, 50%);
         }
         .countIcon {
-            background: url(/images/count.png) 0 50% no-repeat;
+            .image("/images/count.png", 0, 50%);
         }
         .sumIcon {
-            background: url(/images/sum.png) 0 50% no-repeat;
+            .image("/images/sum.png", 0, 50%);
         }
     }
 
@@ -621,25 +621,25 @@ ul.colMenu {
             display: inline-block;
         }
         .greaterThan{
-            background: url(/images/greaterThan.png) 0 50% no-repeat;
+            .image("/images/greaterThan.png", 0, 50%);
         }
         .greaterEqual {
-            background: url(/images/greaterEqual.png) 0 50% no-repeat;
+            .image("/images/greaterEqual.png", 0, 50%);
         }
         .equal {
-            background: url(/images/equal.png) 0 50% no-repeat;
+            .image("/images/equal.png", 0, 50%);
         }
         .lessEqual {
-            background: url(/images/lessEqual.png) 0 50% no-repeat;
+            .image("/images/lessEqual.png", 0, 50%);
         }
         .lessThan {
-            background: url(/images/lessThan.png) 0 50% no-repeat;
+            .image("/images/lessThan.png", 0, 50%);
         }
         .regex {
-            background: url(/images/regex.png) 0 50% no-repeat;
+            .image("/images/regex.png", 0, 50%);
         }
         .like {
-            background: url(/images/like.png) 0 50% no-repeat;
+            .image("/images/like.png", 0, 50%);
         }
     }
 
@@ -831,16 +831,19 @@ ul.inputMenu {
             border: 1px solid @color-table-borderGray;
 
             .mountain-icon {
-                background: url(/images/mountain-active.png) 0 0 no-repeat;
+                .image("/images/mountain-active.png");
             }
+
             .db-icon {
-                background: url(/images/db-icon-active.png) 0 0 no-repeat;
+                .image("/images/db-icon-active.png");
             }
+
             .user-icon {
-                background: url(/images/user-active.png) 0 0 no-repeat;
+                .image("/images/user-active.png");
             }
+
             .monitor-icon {
-                background: url(/images/monitor-active.png) 0 0 no-repeat;
+                .image("/images/monitor-active.png");
             }
         }
 
@@ -857,23 +860,23 @@ ul.inputMenu {
             position: relative;
 
             .mountain-icon {
-                background: url(/images/mountain-active.png) 0 0 no-repeat;
+                .image("/images/mountain-active.png");
             }
 
             .page-icon {
-                background: url(/images/page-active.png) 0 0 no-repeat;
+                .image("/images/page-active.png");
             }
 
             .db-icon {
-                background: url(/images/db-icon-active.png) 0 0 no-repeat;
+                .image("/images/db-icon-active.png");
             }
 
             .user-icon {
-                background: url(/images/user-active.png) 0 0 no-repeat;
+                .image("/images/user-active.png");
             }
 
             .monitor-icon {
-                background: url(/images/monitor-active.png) 0 0 no-repeat;
+                .image("/images/monitor-active.png");
             }
         }
 
@@ -887,24 +890,24 @@ ul.inputMenu {
         }
 
         .mountain-icon {
-            background: url(/images/mountain.png) 0 0 no-repeat;
+            .image("/images/mountain.png");
         }
 
         .page-icon {
-            background: url(/images/page.png) 0 0 no-repeat;
+            .image("/images/page.png");
             margin-top: 0px;
         }
 
         .db-icon {
-            background: url(/images/db-icon.png) 0 0 no-repeat;
+            .image("/images/db-icon.png");
         }
 
         .user-icon {
-            background: url(/images/user-icon.png) 0 0 no-repeat;
+            .image("/images/user-icon.png");
         }
 
         .monitor-icon {
-            background: url(/images/monitor.png) 0 0 no-repeat;
+            .image("/images/monitor.png");
         }
     }
 
@@ -938,7 +941,7 @@ ul.inputMenu {
 }
 
 #userNamePopout {
-    background: url(/images/signout.png) 0 0 no-repeat;
+    .image("/images/signout.png");
     width: 168px;
     height: 46px; 
     z-index: 42;
@@ -1062,8 +1065,7 @@ ul.inputMenu {
     cursor: pointer;
     float: left;
     span {
-        background-image: url(/images/plus-sign.png); 
-        background-position: 55% 45%;
+        .image("/images/plus-sign.png", 55%, 45%);
         display: block;
         height: 100%;
         width: 100%;
@@ -1092,7 +1094,7 @@ ul.inputMenu {
     float: left;
     font-size: 14px;
     .icon {
-        background: url(/images/page-white.png) 50% 50% no-repeat;
+        .image("/images/page-white.png", 50%, 50%);
         width: 28px;
         height: 100%;
         float: left;
@@ -1111,7 +1113,7 @@ ul.inputMenu {
     border-bottom-right-radius: 3px;
     .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
     .icon {
-        background: url(/images/comp-icon.png) 50% 50% no-repeat;
+        .image("/images/comp-icon.png", 50%, 50%);
         height: 100%;
         width: 100%;
     }
@@ -1153,7 +1155,7 @@ ul.inputMenu {
     }
     .close {
         position: absolute;
-        background: url(/images/close-gray.png) 50% 50% no-repeat;
+        .image("/images/close-gray.png", 50%, 50%);
         right: 7px;
         top: 7px;
         height: 14px;
@@ -1200,7 +1202,7 @@ ul.inputMenu {
         display: inline-block;
         .title {
             .icon {
-                background: url(/images/error-icon.png) 50% 50% no-repeat;
+                .image("(/images/error-icon.png", 50%, 50%);
             }
             .titleText {
                 color: @color-text-error;

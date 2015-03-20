@@ -17,7 +17,7 @@
         display: none;
         width: 35px;
         height: 37px;
-        background: url(/images/waiting-1.gif) 0 0 no-repeat;
+        .image("/images/waiting-1.gif");
         position: absolute;
         top: 2px;
         left: 3px;
@@ -55,7 +55,7 @@ input {
     color: @color-text-darkGray;
     border-top: 1px solid @color-bar-border;
     border-bottom: 1px solid @color-bar-border;
-    background: linear-gradient(@color-background-midGrayMed, @color-background-bottomGrayMed);
+    .darkGray-gradient;
     box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
 
     .flex-display();
@@ -84,20 +84,14 @@ input {
             margin-top: 6px;
             margin-left: 8px;
             margin-right: 2px;
-            height: 24px;
-            width: 24px;
             float: left;
-            background: url(/images/datastore/explore.png);
-            background-repeat: no-repeat;
+            .background("/images/datastore/explore.png", 24px, 24px);
         }
         #searchButton {
             margin-top: 6px;
             margin-left: 8px;
-            height: 24px;
-            width: 26px;
             float: left;
-            background: url(/images/datastore/search.png);
-            background-repeat: no-repeat;
+            .background("/images/datastore/search.png", 26px, 24px);
         }
     }
     #contentHeaderMid {
@@ -113,11 +107,9 @@ input {
                                     @color-bar-darkGray-bot);
         border-left: 1px solid black;
         .icon {
-            height: 19px;
-            width: 19px;
             margin-top: 9px;
             margin-left: 8px;
-            background: url(/images/db-icon-white.png);
+            .background("/images/db-icon-white.png", 19px, 19px);
             float: left;
         }
 
@@ -175,10 +167,8 @@ input {
             float: left;
         }
         .icon {
-            background: url(/images/info-icon-large.png) 0 0 no-repeat;
+            .background("/images/info-icon-large.png", 28px, 28px);
             display: inline-block;
-            height: 28px;
-            width: 28px;
             float: left;
             margin-right: 10px;
         }
@@ -242,17 +232,15 @@ input {
                 margin-top: 4px;
                 margin-left: 10px;
                 cursor: pointer;
-                background: url(/images/radioEmpty.png) 0 0 no-repeat;
-                width: 14px;
-                height: 15px;
+                .background("/images/radioEmpty.png", 14px, 15px);
                 .dot {
-                    background: url(/images/radioDot.png) 50% 50% no-repeat;
+                    .image("/images/radioDot.png", 50%, 50%);
                     width: 14px;
                     height: 15px;
                     display: none;
                 }
                 &.checked {
-                    background: url(/images/radioChecked.png) 0 0 no-repeat;
+                    .image("/images/radioChecked.png");
                     .dot {
                         display: inline-block;
                     }
@@ -286,7 +274,7 @@ input {
         font-weight: 600;
         font-size: 12px;
         &[type=reset] {
-            .linear-gradient(top, @color-background-topGrayMed, @color-background-bottomGrayMed);
+            .gray-gradient;
         }
     }
 }
@@ -303,7 +291,7 @@ input {
         #datasetSearch {
             .flex(0 0 35px);
             .flex-order(2);
-             z-index: 1;
+            z-index: 1;
             background-color: @color-background-darkGray;
         }
 
@@ -337,7 +325,6 @@ input {
     #datasetExplore {
         .flex(0 0 35px);
         .flex-order(4);
-        background: url(/images/datastore/dataset-explore.png) 0 0 no-repeat;
         .gray-gradient;
         text-align: center;
         padding-top: 6px;
@@ -357,15 +344,11 @@ input {
                 height: 23px;
                 margin-left: 2px;
             }
-            #dataListView {
-                .icon {
-                    background: url(/images/ds-listView.png) 50% 50% no-repeat;
-                }
+            #dataListView .icon {
+                .image("/images/ds-listView.png", 50%, 50%);
             }
-            #dataGridView{
-                .icon {
-                    background: url(/images/ds-iconView.png) 50% 50% no-repeat;
-                }
+            #dataGridView .icon {
+                .image("/images/ds-iconView.png", 50%, 50%);
             }
         }
     }
@@ -398,11 +381,20 @@ input {
         background-color: @color-background-bottomGrayMed;
         border-right: 1px solid rgba(0, 0, 0, 0.25);
 
-        .gridViewButton(@order) {
+        .gridViewButton(@order, @url) {
             .flex(1 1 auto);
             .flex-order(@order);
             height: 100%;
             cursor: pointer;
+            .gray-gradient;
+            &:hover {
+                .gray-inverse-gradient;
+            }
+            &.disabled {
+                opacity: 0.3;
+                background: @color-background-darkGray;
+                cursor: default;
+            }
             .icon {
                 display: inline-block;
                 width: 25px;
@@ -412,12 +404,13 @@ input {
                 background-position: 0px 0px;
                 background-size: 25px 25px;
                 float: left;
+                .image(@url);
             }
 
             .label {
                 display: inline-block;
                 .transition (opacity 0.6s);
-                font: @font-base;
+                font-family: @font-base;
                 font-size: 11px;
                 text-align: center;
                 float: left;
@@ -425,22 +418,11 @@ input {
                 color: @color-text-black;
             }
         }
+
         #backFolderBtn {
-            .gridViewButton(1);
-            .gray-gradient;
-            &:hover {
-                .gray-inverse-gradient;
-            }
-            .icon {
-                background: url(/images/datastore/btn-upper-folder.png);
-            }
+            .gridViewButton(1, "/images/datastore/btn-upper-folder.png");
             .label {
                 font-size: 12px;
-            }
-            &.disabled {
-                background: @color-background-darkGray;
-                opacity: 0.3;
-                cursor: default;
             }
             &.active {
                 .gray-inverse-gradient;
@@ -448,32 +430,12 @@ input {
             }
         }
         #addFolderBtn {
-            .gridViewButton(2);
+            .gridViewButton(2, "/images/datastore/btn-add-folder.png");
             border-left: 1px solid rgba(118, 118, 118, 0.5);
             border-right: 1px solid rgba(118, 118, 118, 0.5);
-            .icon {
-                background: url(/images/datastore/btn-add-folder.png);
-            }
-            .gray-gradient;
-            &:hover {
-                .gray-inverse-gradient;
-            }
         }
         #deleteFolderBtn {
-            .gridViewButton(3);
-            .gray-gradient;
-            &:hover {
-                .gray-inverse-gradient;
-            }
-            .icon {
-                background: url(/images/datastore/btn-delete-folder.png);
-            }
-
-            &.disabled {
-                opacity: 0.3;
-                background: @color-background-darkGray;
-                cursor: default;
-            }
+            .gridViewButton(3, "/images/datastore/btn-delete-folder.png");
         }
     }
 
@@ -513,64 +475,48 @@ input {
                     clear: left;
                 }
 
-                grid-unit.ds.display {
-                    .gridViewForGrid();
-                    > .gridIcon {
-                        background: url(/images/datastore/db-large.png);
-                        background-repeat: no-repeat;
-                        background-position: 4.5px 3px;
+                grid-unit.display {
+                    .gridViewForGrid;
+                }
+
+                grid-unit.ds.display > .dragWrap {
+                    height: 100%;
+                    width: ~"calc(50% + 7px)";
+                    position: absolute;
+                    background: transparent;
+                    &.leftTopDragWrap {
+                        // background-color: blue;
+                        left: -7px;
+                        &.active {
+                            box-shadow: inset 2px 0px 0px @color-background-topAction;
+                        }
                     }
 
-                    > .dragWrap {
-                        height: 100%;
-                        width: ~"calc(50% + 7px)";
-                        position: absolute;
-                        background: transparent;
-                        &.leftTopDragWrap {
-                            // background-color: blue;
-                            left: -7px;
-                            &.active {
-                                box-shadow: inset 2px 0px 0px @color-background-topAction;
-                            }
-                        }
-
-                        &.rightBottomDragWrap {
-                            // background-color: green;
-                            left: 50%;
-                            &.active {
-                                box-shadow: 2px 0px 0px @color-background-topAction;
-                            }
+                    &.rightBottomDragWrap {
+                        // background-color: green;
+                        left: 50%;
+                        &.active {
+                            box-shadow: 2px 0px 0px @color-background-topAction;
                         }
                     }
                 }
 
                 grid-unit.folder.display {
-                    .gridViewForGrid();
-
-                    .gridIcon {
-                        background: url(/images/datastore/folder-lg.png);
-                        background-repeat: no-repeat;
-                        background-position: 4px 3px;
-                        background-size: 39px 33px;
-                    }
-
                     .label {
                         cursor: text;
-                    }
-
-                    .label:focus {
-                        // border: 1px solid black;
-                        box-shadow: inset 0px 0px 3px black;
-                        background: @color-background-white;
-                        outline: none;
-                        white-space: nowrap;
-                        overflow: scroll;
-                        width: 150%;
-                        text-overflow: initial;
-                        position: absolute;
-                        left: -10px;
-                        &::-webkit-scrollbar {
-                            display: none;
+                        &:focus {
+                            box-shadow: inset 0px 0px 3px black;
+                            background: @color-background-white;
+                            outline: none;
+                            white-space: nowrap;
+                            overflow: scroll;
+                            width: 150%;
+                            text-overflow: initial;
+                            position: absolute;
+                            left: -10px;
+                            &::-webkit-scrollbar {
+                                display: none;
+                            }
                         }
                     }
 
@@ -595,7 +541,7 @@ input {
                             // background-color: blue;
                             left: -7px;
                             width: ~"calc(16.5% + 7px)";
-                             &.active {
+                            &.active {
                                 box-shadow: inset 2px 0px 0px @color-background-topAction;
                             }
                         }
@@ -615,9 +561,7 @@ input {
                             left: 16.5%;
                         }
                     }
-
                 }
-
             }
 
             & .dragWrap {
@@ -633,13 +577,10 @@ input {
                 padding-bottom: 4px;
                 overflow-y: scroll;
 
+                grid-unit {
+                    .listViewForGrid;
+                }
                 grid-unit.ds {
-                    .listViewForGrid();
-
-                    > .listIcon .icon {
-                        background: url(/images/db-icon-white.png) 0 0 no-repeat;
-                    }
-
                     > .dragWrap {
                         width: 100%;
                         height: 17.5px;
@@ -664,14 +605,6 @@ input {
                 }
 
                 grid-unit.folder {
-                    .listViewForGrid();
-
-                    > .listIcon .icon {
-                        background: url(/images/datastore/folder-sm-open.png);
-                        background-repeat: no-repeat;
-                        background-position: 2.5px 3px;
-                    }
-
                     grid-unit {
                         margin-left: 5%;
                         width: 95%;
@@ -731,9 +664,7 @@ input {
                         display: none !important;
                     }
                     &.folder > .listIcon .icon {
-                        background: url(/images/datastore/folder-sm.png);
-                        background-repeat: no-repeat;
-                        background-position: 2.5px 3px;
+                        .image("/images/datastore/folder-sm.png", 50%, 50%)
                     }
                 }
             }
@@ -791,20 +722,20 @@ input {
         }
         .delete {
             .icon {
-                background: url(/images/ds-deleteDS-blue.png) 50% 50% no-repeat;
                 margin-top: 2px;
+                .image("/images/ds-deleteDS-blue.png", 50%, 50%);
             }
         }
         .update {
             .icon {
-                background: url(/images/ds-refreshDS.png) 50% 50% no-repeat;
                 margin-top: 0px;
+                .image("/images/ds-refreshDS.png", 50%, 50%);
             }
         }
         .edit {
             .icon {
-                background: url(/images/ds-editDS.png) 50% 50% no-repeat;
                 margin-top: 1px;
+                .image("/images/ds-editDS.png", 50%, 50%);
             }
         }
         h2 {
@@ -875,16 +806,16 @@ input {
         }
         .selectAll {
             .icon {
-                background: url(/images/select-all.png) 50% 50% no-repeat;
                 margin-top: 2px;
                 width: 19px;
+                .image("/images/select-all.png", 50%, 50%);
             }
         }
         .clear {
             .icon {
-                background: url(/images/select-none.png) 50% 50% no-repeat;
                 margin-top: 1px;
                 width: 19px;
+                .image("/images/select-none.png", 50%, 50%);
             }
         }
     }
@@ -920,7 +851,7 @@ input {
                     li.flexContainer {
                         height: 30px;
                         // see common.less
-                        .typeIcon();
+                        .typeIcon;
                         .type.icon {
                             background-position: 0 -2px !important;
                         }
@@ -1020,7 +951,6 @@ input {
         .selectedCell {
             .editableHead {
                 background: none !important;
-                // background-color: #CDE6F6 !important;
                 background-color: @color-background-white !important;
                 color: @color-text-darkGray !important;
             }
@@ -1083,26 +1013,25 @@ input {
         }
         &#submitDSTablesBtn {
             .icon {
-                background: url(/images/send-single.png) 0 0 no-repeat;
                 width: 27px;
                 height: 21px;
+                .image("/images/send-single.png");
             }
 
         }
         &#submitMultipleDBTablesBtn {
             .icon {
-                background: url(/images/send-multiple.png) 0 0 no-repeat;
                 width: 27px;
                 height: 23px;
-                
+                .image("/images/send-multiple.png");
             }
         }
         &#clearDataChart {
             .icon {
-                background: url(/images/garbage.png) 0 0 no-repeat;
                 width: 22px;
                 height: 24px;
                 margin-right: 8px;
+                .image("/images/garbage.png");
             }
         }
     }
@@ -1166,7 +1095,7 @@ input {
                     display: inline-block;
                     width: 100%;
                     height: 100%;
-                    background: url(/images/ds-close.png) 50% 50% no-repeat,
+                    .image("/images/ds-close.png", 50%, 50%);
                 }
             }
         }

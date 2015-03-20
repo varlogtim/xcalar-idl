@@ -4,8 +4,7 @@
 }
 
 #watermark {
-    background: url(/images/logo-white-L.png) no-repeat;
-    background-position: 0px -70px;
+    .image("/images/logo-white-L.png", 0, -70px);
     background-size: 100%;
     position: absolute;
     width: 579px;
@@ -17,12 +16,9 @@
 }
 
 #insight {
-    background: url(/images/insight.png) no-repeat;
-    background-position: 0px 0px;
+    .background("/images/insight.png", 243px, 79px);
     background-size: 100%;
     position: absolute;
-    width: 243px;
-    height: 79px;
     z-index: 0;
     opacity: 0.15;
     bottom: 89px;
@@ -180,7 +176,7 @@
                 top: -11px;
                 left: -6px;
                 position: absolute;
-                background: url(/images/locator1.png) 0 0 no-repeat;
+                .image("/images/locator1.png");
                 .transition (transform 0.13s);
 
                 &.scrolling {
@@ -496,7 +492,6 @@ th:last-child .colGrab{
     height: 7px;
     bottom: -6px;
     left: -2px;
-    // background-color: rgba(0,0,0,0.5);
     z-index: 0;
     cursor: ns-resize;
 }

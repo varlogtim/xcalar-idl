@@ -52,7 +52,7 @@
                 right: 0px;
                 height: 22px;
                 width: 22px;
-                background: url(/images/ds-close.png) 50% 50% no-repeat;
+                .image("/images/ds-close.png", 50%, 50%);
             }
 
             &:hover {
@@ -216,7 +216,7 @@
         z-index: 39;
         height: 22px;
         width: 22px;
-        background: url(/images/ds-close.png) 50% 50% no-repeat;
+        .image("/images/ds-close.png", 50%, 50%);
     }
 
     &:hover {
@@ -347,9 +347,7 @@
                 border-radius: 0px 3px 3px 0px;
             }
             #arrow {
-                background: url("/images/dropDown.png") no-repeat;
-                height: 10px;
-                width: 14px;
+                .background("/images/dropDown.png", 14px, 10px);
                 float: right;
                 position: relative;
                 right: -19px;
@@ -473,8 +471,7 @@
         }
 
         .columnTab {
-            background: linear-gradient(@color-background-topGrayMed,
-                                        @color-background-bottomGrayMed);
+            .gray-gradient;
             color: @color-text-midGray;
             font-size: 12px;
             font-weight: bold;
@@ -491,8 +488,7 @@
         }
 
         .tableLabel {
-            background: linear-gradient(@color-background-topGrayMed,
-                                        @color-background-bottomGrayMed);
+            .gray-gradient;
             color: @color-text-midGray;
             font-size: 14px;
             font-weight: bold;
@@ -611,7 +607,7 @@
                             16px, 17px);
 
                 &.checked {
-                    background-image: url("/images/alertModal/checkbox-checked.png");
+                    background-image: url(/images/alertModal/checkbox-checked.png);
                 }
             }
             .text {
@@ -625,7 +621,7 @@
             // now make it disabled
             &.inactive {
                 .checkbox {
-                    background-image: url("/images/alertModal/checkbox-unchecked.png");
+                    background-image: url(/images/alertModal/checkbox-unchecked.png);
                 }
                 opacity: 0.5;
             }
@@ -656,7 +652,7 @@
         -webkit-appearance: none;
         border-radius: 0px 0px 3px 3px;
         box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
-        background: url(/images/fileBrowserModal/down.png) no-repeat 100% 50%;
+        .image("/images/fileBrowserModal/down.png", 100%, 50%);
         background-color: @color-white; 
         outline: none;
         font-size: 12px;
@@ -671,17 +667,17 @@
         &:active {
             .action-inverse-gradient;
         }
+        .icon {
+            width: 25px;
+            height: 25px;
+        }
         &.icon-up .icon{
-            .background("/images/fileBrowserModal/up.png", 
-                        25px, 25px, no-repeat, 2px, 3px);
-            background-size: 21px 18px;
+            .image("/images/fileBrowserModal/up.png", 50%, 50%);
         }
         &.icon-sort {
             position: relative;
             > .icon {
-                .background("/images/fileBrowserModal/sort.png", 
-                                25px, 25px, no-repeat, 6px, 2px);
-                background-size: 13px 20px;
+                .image("/images/fileBrowserModal/sort.png", 50%, 50%);
             }
             .dropDown;
             .dropdownBox {
@@ -738,14 +734,12 @@
                 margin-left: 50px;
                 .icon-list {
                     &.gridView .icon {
-                        .background("/images/fileBrowserModal/listView.png", 
-                                    26px, 25px, no-repeat, 4px, 3px);
-                        background-size: 18px 18px;
+                        width: 26px;
+                        .image("/images/fileBrowserModal/listView.png", 4px, 3px);
                     }
                     &.listView .icon {
-                        .background("/images/fileBrowserModal/gridView.png", 
-                                    26px, 25px, no-repeat, 4px, 3px);
-                        background-size: 18px 18px;
+                        width: 26px;
+                        .image("/images/fileBrowserModal/gridView.png", 4px, 3px);
                     }
                 }
             }
@@ -808,11 +802,10 @@
                 .icon {
                     display: none;
                     position: absolute;
-                    top: 3px;
                     right: 2px;
-                    .background("/images/fileBrowserModal/sort.png", 
-                                25px, 25px, no-repeat, 6px, 2px);
-                    background-size: 13px 20px;
+                    width: 25px;
+                    height: 30px;
+                    .image("/images/fileBrowserModal/sort.png", 50%, 50%);
                 }
             }
         }
@@ -841,17 +834,6 @@
                 }
                 &.active .label{
                     color: @color-text-blue;
-                }
-                &.ds .gridIcon {
-                    background: url(/images/datastore/db-large.png);
-                    background-repeat: no-repeat;
-                    background-position: 4.5px 3px;
-                }
-                &.folder .gridIcon {
-                    background: url(/images/datastore/folder-lg.png);
-                    background-repeat: no-repeat;
-                    background-position: 4px 3px;
-                    background-size: 39px 33px;
                 }
             }
         }
@@ -928,12 +910,10 @@
                     }
                 }
                 &.ds > .listIcon .icon {
-                    background: url(/images/db-icon-white.png) 0 0 no-repeat;
+                    .image("/images/db-icon-white.png");
                 }
                 &.folder > .listIcon .icon {
-                    background: url(/images/datastore/folder-sm.png);
-                    background-repeat: no-repeat;
-                    background-position: 2.5px 3px;
+                    .image("/images/datastore/folder-sm.png", 2.5px, 3px);
                 }
             }
         }
@@ -987,9 +967,8 @@
         box-shadow: 0 3px 3px 0px rgba(0,0,0,.2);
         position: relative;
         .icon {
-            background: url(/images/info-icon-large.png) no-repeat;
+            .image("/images/info-icon-large.png");
         }
-        
     }
 
     .modalTopMain {
@@ -1122,7 +1101,7 @@
         text-shadow: -1px 0px 1px rgba(0,0,0,0.6);
 
         .icon {
-            background: url(/images/dagIcons/move-white.png) 0 0 no-repeat;
+            .image("/images/dagIcons/move-white.png");
             height: 100%;
             width: 19px;
             display: inline-block;
@@ -1333,7 +1312,7 @@
         color: @color-text-cyan;
         width: 240px;
         .icon {
-            background: url(/images/dagIcons/plus-soft-white.png) 0 50% no-repeat;
+            .image("/images/dagIcons/plus-soft-white.png", 0, 50%);
             width: 20px;
             height: 100%;
             float: left;

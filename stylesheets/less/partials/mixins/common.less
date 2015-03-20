@@ -27,6 +27,10 @@
     user-select: none;
 }
 
+.image(@url, @pX:0, @pY:0, @repeat:no-repeat) {
+    background: url(@url) @repeat @pX @pY;
+}
+
 .background(@url, @w, @h, @repeat: no-repeat, @pX: 0, @pY: 0) {
     width: @w;
     height: @h;
@@ -141,6 +145,14 @@
         height: 40px;
     }
 
+    &.ds > .gridIcon {
+        .image("/images/datastore/db-large.png", 4.5px, 3px);
+    }
+    &.folder > .gridIcon {
+        .image("/images/datastore/folder-lg.png", 3px, 3px);
+        background-size: 39px 33px;
+    }
+
     > .listIcon {
         display: none;
     }
@@ -213,10 +225,11 @@
         }
     }
 
-    &:hover {
-        > .listIcon {
-            // .gray-inverse-gradient;
-        }
+    &.ds > .listIcon .icon {
+        .image("/images/db-icon-white.png", 50%, 50%);
+    }
+    &.folder > .listIcon .icon {
+        .image("/images/datastore/folder-sm-open.png", 50%, 50%);
     }
 
     &.active {

@@ -41,7 +41,7 @@
         bottom: 60px;
         height: 1px;
         width: 7px;
-        background-color: #242c31;
+        background-color: @color-bar-border;
         z-index: 20;
         position: absolute;
         box-shadow: -1px -2px 5px rgba(0,0,0,.3);
@@ -132,8 +132,7 @@
             .noSelection;
 
             &:hover {
-                background: linear-gradient(@color-background-bottomGrayMed,
-                 @color-background-topGrayMed);
+                .gray-inverse-gradient;
                 cursor: pointer;
             }
 
@@ -257,8 +256,7 @@
 
         .iconWrap {
             display: inline-block;
-            background: linear-gradient(@color-background-topGrayMed, 
-                        @color-background-bottomGrayMed);
+            .gray-gradient;
             height: 100%;
             float: left;
             padding-top: 1px;
@@ -270,9 +268,7 @@
         .icon {
             margin: 0px;
             display: inline-block;
-            width: 25px;
-            height: 22px;
-            background: url(/images/table-icon.png) 0 0 no-repeat;
+            .background("/images/table-icon.png", 25px, 22px);
         }
 
         .numCols {
@@ -365,13 +361,13 @@
         }
 
         #submitTablesBtn .icon {
-            background: url(/images/send-single.png) 0 0 no-repeat;
             margin: 4px;
+            .image("/images/send-single.png");
         }
 
         #deleteTablesBtn .icon {
-            background: url(/images/garbageThick.png) 0 0 no-repeat;
             margin: 2px 6px 0px 2px;
+            .image("/images/garbageThick.png");
         }
     }
 }
@@ -464,9 +460,7 @@
         float: left;
         &:focus {
             background-color: @color-white;
-            // box-shadow: 0px 2px 2px 0 #888888 inset;
             outline: none;
-            // color: @color-text-brightBlue;
             &::-webkit-input-placeholder {
                 color: @color-text-lightGray;
             } 
@@ -492,9 +486,7 @@
     padding-right: 10px;
 
     .iconSearch {
-        background-image: url(/images/search-icon.png);
-        width: 18px;
-        height: 18px;
+        .background("/images/search-icon.png", 18px, 18px);
         margin: 5px;
         display: inline-block;
         float: left;
@@ -540,10 +532,8 @@
 }
 
 #helpOnOff {
-    width: 218px;
-    height: 65px;
-    background-image: url(/images/help-on.png);
     margin: auto;
+    .background("/images/help-on.png", 218px, 65px);
 }
 #pulloutTab {
     left: -9px;
