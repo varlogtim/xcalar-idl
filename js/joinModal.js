@@ -1,57 +1,60 @@
-function joinModalTabs(modal, tableNum, colId) {
-    modal.find('.tableLabel').remove();
-    modal.find('.joinTable').remove();
+function joinModalTabs($modal, tableNum, colId) {
+    $modal.find('.tableLabel').remove();
+    $modal.find('.joinTable').remove();
     var numTables = gTables.length;
     var tabHtml = "";
     var tbody;
     
-    columnArea = modal.find('.joinTableArea');
+    $columnArea = $modal.find('.joinTableArea');
     for (var i = 0; i < gTables.length; i++) {
-        tabHtml += '<div class="tableLabel">'+
-                    gTables[i].frontTableName+
+        tabHtml += '<div class="tableLabel">' + 
+                        gTables[i].frontTableName + 
                    '</div>';
-        var colHtml = "";
+        var colHtml;
         // colHtml = '<div class="columnsWrap">';
-        colHtml = '<table class="dataTable joinTable">'+
-                  '<thead>'+
-                  '<tr>';
+        colHtml = '<table class="dataTable joinTable">' + 
+                    '<thead>' + 
+                        '<tr>';
 
 
         for (var j = 0; j < gTables[i].tableCols.length; j++) {
-            if (gTables[i].tableCols[j].name == "DATA") {
+            var colName = gTables[i].tableCols[j].name;
+            if (colName == "DATA") {
                 continue;
             }
-            colHtml += '<th class="col'+(j+1)+'"><div class="columnTab">'+
-                gTables[i].tableCols[j].name;
-            '</div></th>';
+            colHtml +=  '<th class="col' + (j + 1) + '">' + 
+                            '<div class="columnTab">' + 
+                                colName + 
+                            '</div>' + 
+                        '</th>';
         }
-        // colHtml += '</div>';
+
         colHtml += '</tr></thead>';
-        tbody = $('#xcTable'+i).find('tbody').clone(true);
-        tbody.find('tr:gt(14)').remove();
-        tbody.find('.col0').remove();
-        tbody.find('.jsonElement').remove();
-        tbody.find('.indexedColumn').removeClass('indexedColumn');
-        tbody = tbody.html();
-        colHtml += tbody;
+        $tbody = $('#xcTable'+i).find('tbody').clone(true);
+        $tbody.find('tr:gt(14)').remove();
+        $tbody.find('.col0').remove();
+        $tbody.find('.jsonElement').remove();
+        $tbody.find('.indexedColumn').removeClass('indexedColumn');
+        var tbodyHtml = $tbody.html();
+        colHtml += tbodyHtml;
         colHtml +='</table>';
-        columnArea.append(colHtml);
+        $columnArea.append(colHtml);
     }
 
-    modal.find('.tableTabs').append(tabHtml);
-    addModalTabListeners(modal);
+    $modal.find('.tableTabs').append(tabHtml);
+    addModalTabListeners($modal);
     // modal.find('.joinTable:first').show();
 
     // trigger click of table and column
     if (tableNum > 0) {
-         modal.find('.tableLabel:nth-child(' + tableNum + ')')
-              .trigger('click');
+         $modal.find('.tableLabel:nth-child(' + tableNum + ')')
+               .trigger('click');
     } else {
-         modal.find('.tableLabel:first').trigger('click');
+         $modal.find('.tableLabel:first').trigger('click');
     }
 
     if (colId > 0) {
-        modal.find('table.joinTable:nth-of-type(' + tableNum
+        $modal.find('table.joinTable:nth-of-type(' + tableNum
                     + ') th:nth-child(' + colId + ')').trigger('click');
     }
 }
@@ -102,6 +105,10 @@ function initializeJoinModal() {
     var joinTableName = "tempJoinTable" +
                         Math.floor((Math.random() * 100000) + 1);
     $("#inputSection input").val(joinTableName);
+
+    $('.joinTableArea').scroll(function(){
+        $(this).scrollTop(0);
+    });
 
  // ==================
  // This submits the joined tables
