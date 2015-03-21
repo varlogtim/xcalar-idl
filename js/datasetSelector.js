@@ -585,8 +585,31 @@ function addWorksheetListeners(tableNum) {
 
     });
 
-    table.find('.editableHead').click(function() {
-        checkColumn($(this), SelectUnit.Single);
+    table.find('.editableHead').click(function(event) {
+        if (event.shiftKey
+            && gLastClickTarget.closest('.datasetTableWrap')[0] == table[0]) {
+            
+            var startIndex = gLastClickTarget.closest('th').index();
+            var endIndex = $(this).closest('th').index();  
+            var reverse = false;   
+            if (startIndex > endIndex) {
+                var temp = endIndex;
+                endIndex = startIndex;
+                startIndex = temp;
+                reverse == true;
+            }
+
+            for (var i = startIndex; i <= endIndex; i++) {
+                if (table.find('th').eq(i)[0] != 
+                    gLastClickTarget.closest('th')[0]) {
+
+                    checkColumn(table.find('th').eq(i).find('.editableHead'), 
+                            SelectUnit.Single);
+                }
+            }
+        } else {
+            checkColumn($(this), SelectUnit.Single);
+        }   
     });
 }
 

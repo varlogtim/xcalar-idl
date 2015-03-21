@@ -31,6 +31,7 @@ var gFnBarOrigin;
 var gActiveTableNum = 0; // The table that is currently in focus
 var gDSObj = {};    //obj for DS folder structure
 var gRetinaObj = {}; //obj for retina modal
+var gLastClickTarget = $(window); // track which element was last clicked
 // ================================= Classes ==================================
 var ProgCol = function() {
     this.index = -1;
@@ -452,6 +453,11 @@ function documentReadyGeneralFunction() {
             default: // do nothing
         }
     });
+
+    $(document).click(function(event) {
+        var $target = $(event.target);
+        gLastClickTarget = $target;
+    })
 }
 
 
