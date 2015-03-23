@@ -374,6 +374,8 @@ function xcalarResetStats(thriftHandle, nodeId) {
         console.log("xcalarResetStats() caught exception:", error);
         deferred.reject(error);
     });
+
+    return (deferred.promise());
 }
 
 function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
@@ -679,10 +681,10 @@ function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
 function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
                     joinType) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarJoin(leftTableName = " + leftTableName +
-                ", rightTableName = " + rightTableName + ", joinTableName = " +
-                joinTableName + ", joinType = " + OperatorsOpTStr[joinType] +
-                ")");
+    // console.log("xcalarJoin(leftTableName = " + leftTableName +
+    //             ", rightTableName = " + rightTableName + ", joinTableName = " +
+    //             joinTableName + ", joinType = " + OperatorsOpTStr[joinType] +
+    //             ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
@@ -1044,9 +1046,9 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
 
 function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarAggregate(srcTableName = " + srcTableName +
-                ", aggregateOp = " + OperatorsOpTStr[aggregateOp] +
-                ", fieldName = " + fieldName + ")");
+    // console.log("xcalarAggregate(srcTableName = " + srcTableName +
+    //             ", aggregateOp = " + OperatorsOpTStr[aggregateOp] +
+    //             ", fieldName = " + fieldName + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
