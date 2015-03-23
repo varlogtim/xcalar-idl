@@ -239,6 +239,36 @@ function xcalarShutdown(thriftHandle) {
     return (deferred.promise());
 }
 
+function xcalarStartNodes(thriftHandle, numNodes) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarStartNodes(numNodes = " + numNodes + ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.startNodesInput = new XcalarApiStartNodesInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiStartNodes;
+    workItem.input.startNodesInput.numNodes = numNodes;
+    
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var status = StatusT.StatusOk;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarStartNodes() caught exception: "+error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+
 function xcalarGetStats(thriftHandle, nodeId) {
     var deferred = jQuery.Deferred();
     console.log("xcalarGetStats(nodeId = " + nodeId.toString() + ")");
