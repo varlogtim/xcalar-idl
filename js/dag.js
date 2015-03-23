@@ -609,7 +609,8 @@ function showDagParamModal($currentIcon) {
     
     if (type == "filter") {
         var filterInfo = $currentIcon.data('info')+" ";
-        var abbrFilterType = filterInfo.slice(0,2);
+        var parenIndex = filterInfo.indexOf("(");
+        var abbrFilterType = filterInfo.slice(0,parenIndex);
         var filterValue = filterInfo.slice(filterInfo.indexOf(',')+2, 
                                               filterInfo.indexOf(')'));
         var filterTypeMap = {
@@ -1102,7 +1103,8 @@ function getDagNodeInfo(dagNode, key, children) {
         info.url = value.dataset.url;
     } else if (key == 'filterInput') {
         var filterStr = value.filterStr;
-        var abbrFilterType = filterStr.slice(0,2);
+        var parenIndex = filterStr.indexOf("(");
+        var abbrFilterType = filterStr.slice(0, parenIndex);
         
         info.type = "filter"+abbrFilterType;
         info.text = filterStr;
@@ -1114,18 +1116,28 @@ function getDagNodeInfo(dagNode, key, children) {
             "eq" : "equal to",
             "lt" : "less than",
             "le" : "less than or equal to",
-            "regex" : false,
-            "like" : false
+            "regex" : "regex",
+            "like" : "like"
         };
 
         if (filterTypeMap[abbrFilterType]) {
-            var filteredOn = filterStr.slice(3, filterStr.indexOf(','));
+            var filteredOn = filterStr.slice(parenIndex+1, 
+                                             filterStr.indexOf(','));
             var filterType = filterTypeMap[abbrFilterType];
             var filterValue = filterStr.slice(filterStr.indexOf(',')+2, 
                                               filterStr.indexOf(')'));
             info.column = filteredOn;
-            info.tooltip = "Filtered table &quot;"+children[0]+"&quot; where "+
-                        filteredOn+" is "+filterType+" "+filterValue+".";
+            if (filterType == "regex") {
+                info.tooltip = "Filtered table &quot;" + children[0] + 
+                               "&quot; using regex: &quot;" + filterValue + 
+                               "&quot; " + "on " + filteredOn;
+                    ;
+            } else {
+                info.tooltip = "Filtered table &quot;" + children[0] + 
+                               "&quot; where "+ filteredOn + 
+                               " is " + filterType + " "+ filterValue + ".";
+            }
+            
         } else {
             info.tooltip = "Filtered table &quot;"+children[0]+"&quot;: "+filterStr;
         }

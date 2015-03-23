@@ -1026,11 +1026,13 @@
             border-radius: 3px;
             padding: 0px 4px 0px 6px;
             color: @color-text-blue;
+            overflow: hidden;
+            text-overflow: ellipsis;
             &.small {
-                width: 35px;
+                max-width: 50px;
+                min-width: 35px;
                 text-align: center;
                 padding-left: 6px;
-                font-size: 15px;
             }
             &.medium {
                 min-width: 120px;
@@ -1059,10 +1061,10 @@
                 padding: 0px 4px 0px 6px;
                 color: @color-text-blue;
                 &.small {
-                    width: 35px;
+                    max-width: 50px;
+                    min-width: 35px;
                     text-align: center;
                     padding-left: 6px;
-                    font-size: 15px;
                 }
                 &.medium {
                     min-width: 120px;
