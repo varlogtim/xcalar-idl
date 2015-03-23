@@ -860,6 +860,9 @@ function addColListeners($table, tableNum) {;
         if ($(this).closest('th').hasClass('indexedColumn')) {
             options.classes += " type-indexed";
         }
+        if ($(this).closest('th').hasClass('newColumn')) {
+            options.classes += " type-newColumn";
+        }
         dropdownClick($(this), null, options);
     });
 
