@@ -462,14 +462,14 @@ DSObj.deleteById = function (dsId) {
         // alert('Not Empty, cannot delete');
         var options = {};
         options.title = 'DELETE FOLDER';
-        options.instruction = 'Please remove all the datasets ' + 
+        options.instr = 'Please remove all the datasets ' + 
                               'in the folder first.';
         options.msg = 'Unable to delete non-empty folders. Please ensure'+
                       ' that all datasets have been removed from folders prior'+
                       ' to deletion.';
         options.isCheckBox = true;
         options.isAlert = true;
-        showAlertModal(options);
+        Alert.show(options);
         return (false);
     }
 

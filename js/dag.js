@@ -203,13 +203,13 @@ function setupDag() {
         options.msg = 'Are you sure you want to delete parameter ' 
                       + paramName + '?';
         options.isCheckBox = true;
-        options.confirmFunc = function() {
+        options.confirm = function() {
             $tr.find('.paramName').empty();
             $tr.find('.paramVal').empty();
             $tr.addClass('unfilled');
             $tbody.append($tr);
         }
-        showAlertModal(options);
+        Alert.show(options);
     });
 
 

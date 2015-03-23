@@ -755,8 +755,8 @@ function createTableHeader(tableNum) {
             var msg = "File location: "+hostname+":/var/tmp/xcalar/"+
                       retName+".csv";
 
-            showAlertModal({'title':title, 'msg':msg, 'instruction': ins,
-                            'isAlert':true, 'isCheckBox':true});
+            Alert.show({'title':title, 'msg':msg, 'instr': ins,
+                        'isAlert':true, 'isCheckBox':true});
         });
     });
 
@@ -1071,12 +1071,12 @@ function addColMenuActions($colMenu) {
         .done(function(value){
             // show result in alert modal
             var title = 'Aggregate: ' + aggrOp;
-            var instruction = 'This is the aggregate result for column "' + 
-                              colName + '". \r\n The aggregate operation is "' +
-                              aggrOp + '".';
-            showAlertModal({'title':title, 'msg':value, 
-                            'instruction': instruction, 'isAlert':true,
-                            'isCheckBox': true});
+            var instr = 'This is the aggregate result for column "' + 
+                        colName + '". \r\n The aggregate operation is "' +
+                        aggrOp + '".';
+            Alert.show({'title':title, 'msg':value, 
+                        'instr': instr, 'isAlert':true,
+                        'isCheckBox': true});
             removeWaitCursor();
         });
     });

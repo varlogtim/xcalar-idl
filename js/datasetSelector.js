@@ -172,12 +172,9 @@ function setupDSCartButtons() {
             options.title = 'SEND TO ACTIVE WORKSHEET';
             options.msg = 'Choose a key by clicking on a' +
                           ' selected column in your list';
-            options.confirmFunc = function() {
-                console.log('test');
-            }
             options.isCheckBox = true;
             options.isAlert = true;
-            showAlertModal(options);
+            Alert.show(options);
         } 
     });
 
