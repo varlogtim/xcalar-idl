@@ -1142,7 +1142,7 @@ function getDagNodeInfo(dagNode, key, children) {
                         " on " + value.fieldName;
         info.column = value.fieldName;
     } else if (key == 'indexInput') {
-        if (value.datasetName === 0) {
+        if (value.source.isTable) {
             info.type = "sort";
             info.tooltip = "Sorted by "+value.keyName;
         } else {
