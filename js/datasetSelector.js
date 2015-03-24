@@ -267,8 +267,7 @@ function getDatasetSample(datasetName) {
                         jsonKeys.push(key);
                     }
                     
-                    addDataSetHeaders(jsonKeys, 
-                                      datasets.datasets[i].datasetName, i);
+                    addDataSetHeaders(jsonKeys, i);
                     addDataSetRows(jsonKeys,jsons, i);
                     addWorksheetListeners(i);  
                     updateDatasetInfoFields(datasetName, IsActive.Active);
@@ -313,7 +312,7 @@ function addDatasetTable(datasetTitle, tableNumber) {
     $('#datasetWrap').prepend(html);
 }
 
-function addDataSetHeaders(jsonKeys, datasetName, index) {
+function addDataSetHeaders(jsonKeys, index) {
     var th = "";
     var key;
     for (var i = 0; i < jsonKeys.length; i++) {
@@ -326,7 +325,7 @@ function addDataSetHeaders(jsonKeys, datasetName, index) {
                         <div class="flexWrap flex-mid">\
                             <input spellcheck="false"\
                                 class="editableHead shoppingCartCol col' + i +
-                                '" value="' + key + '" id = "' + key + '"\
+                                '" value="' + key + '" \
                                 readonly="true">\
                         </div>\
                         <div class="flexWrap flex-right">\
@@ -488,7 +487,7 @@ function addWorksheetListeners(tableNum) {
         var colNum = $input.closest('.colMenu').data('colNum');
         var $tableWrap = $('#dataSetTableWrap' + tableNum);
         var $headInput = $tableWrap.find('.editableHead.col'+colNum);
-        var oldColName = $headInput.attr("id");
+        var oldColName = $headInput.val();
         var dsName = $(".dbText h2").text();
         console.log("Renaming "+oldColName+" to "+ newName);
         $('.colMenu').hide();
@@ -496,9 +495,8 @@ function addWorksheetListeners(tableNum) {
         if (newName !== oldColName) {
             XcalarEditColumn(dsName, oldColName, newName, DfFieldTypeT.DfString)
             .done(function() {
-                var newId = newName;
-                console.log(newId);
-                $headInput.attr("id", newName).val(newName);
+                $headInput.val(newName);
+                $headInput.closest('th').attr('title', newName);
                 $('#selectedTable'+tableNum).find('.colName').filter(
                     function() {
                         return $(this).text() == oldColName;
@@ -533,7 +531,7 @@ function addWorksheetListeners(tableNum) {
 
         var $headInput = $tableHeader.find('.editableHead');
         var dsName = $(".dbText h2").text();
-        var colName = $headInput.attr("id");
+        var colName = $headInput.val();
         var oldType = $tableHeader.data('type');
         $('.colMenu').hide();
 
@@ -707,7 +705,7 @@ function createWorksheet() {
     var deferred = jQuery.Deferred();
     var promiseChain = [];
     showWaitCursor();
-    $("#dataCart .selectedTable").not('.deselectedTable').each(function() {
+    $("#dataCart").find(".selectedTable").each(function() {
         promiseChain.push((function() {
             var chainDeferred = jQuery.Deferred();
             // store columns in localstorage using setIndex()
