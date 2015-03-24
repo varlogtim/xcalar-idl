@@ -502,7 +502,7 @@ function generateColumnHeadHTML(columnClass, color, newColid, name, width) {
                     <div class="flexWrap flex-right">\
                         <div class="dropdownBox" \
                             data-toggle="tooltip" data-placement="bottom" \
-                            title="view column options">\
+                            data-container="body" title="view column options">\
                             <div class="innerBox"></div>\
                         </div>';
 

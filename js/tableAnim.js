@@ -1476,7 +1476,7 @@ function bookmarkRow(rowNum, tableNum) {
     var leftPos = 100*(rowNum/gTables[tableNum].resultSetCount);
     var bookmark = $('<div class="bookmark bkmkRow'+rowNum+'"'+
         ' style="left:'+leftPos+'%;" data-toggle="tooltip" '+
-        ' data-placement="bottom" title="row '+
+        ' data-placement="bottom" data-container="body" title="row '+
         (rowNum+1)+'"></div>');
     $('#rowScroller'+tableNum).append(bookmark);
     if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
