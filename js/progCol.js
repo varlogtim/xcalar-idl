@@ -370,13 +370,22 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
     for (var i = 0; i < numCols; i++) {
         var $currentTh = $table.find('th.col' + (i + 1));
         var $header = $currentTh.find('> .header');
-         $header.removeClass("type-mixed")
+        var type = columnTypes[i];
+        if (type == undefined) {
+            type = "undefined";
+        }
+        // XXX Fix me if DATA column should not be type object
+        if (gTables[tableNum].tableCols[i].name === "DATA") {
+            type = "object";
+        }
+        $header.removeClass("type-mixed")
                 .removeClass("type-string")
                 .removeClass("type-number")
                 .removeClass("type-object")
                 .removeClass("type-array")
                 .removeClass("type-undefined")
-                .addClass('type-' + columnTypes[i]);
+                .addClass('type-' + type);
+        gTables[tableNum].tableCols[i].type = type;
         if ($currentTh.hasClass('selectedCell')) {
             highlightColumn($currentTh);
         }

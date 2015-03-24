@@ -151,6 +151,7 @@ function setupProgCols(tableNum, tableOfEntries) {
     newProgCol = new ProgCol();
     newProgCol.index = 2;
     newProgCol.name = "DATA";
+    newProgCol.type = "object";
     newProgCol.width = 500; // XXX FIXME Grab from CSS
     newProgCol.func.func = "raw";
     newProgCol.func.args = [];

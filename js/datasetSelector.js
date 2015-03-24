@@ -737,7 +737,6 @@ function createWorksheet() {
                     var colname = $.trim($(this).text());
                     var progCol = new ProgCol();
                     progCol.index = ++startIndex;
-                    progCol.type = "string";
                     progCol.name = colname;
                     progCol.width = gNewCellWidth;
                     progCol.userStr = '"'+colname+'" = pull('+colname+')';
