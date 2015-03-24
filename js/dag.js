@@ -883,7 +883,6 @@ function constructDagImage(tableName) {
         
         var dropdown = getDagDropDownHTML();
         $dagWrap.append(dropdown);
-        $dagWrap.find('.colMenu').width('auto');
         addDagEventListeners($dagWrap);
         appendRetinas();
         // $('.dagImageWrap').scrollLeft($('.dagImage').width());

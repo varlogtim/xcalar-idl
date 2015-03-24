@@ -1020,28 +1020,7 @@
         }
 
         .boxed {
-            background-color: white;
-            height: 30px;
-            line-height: 30px;
-            border-radius: 3px;
-            padding: 0px 4px 0px 6px;
-            color: @color-text-blue;
-            overflow: hidden;
             text-overflow: ellipsis;
-            &.small {
-                max-width: 50px;
-                min-width: 35px;
-                text-align: center;
-                padding-left: 6px;
-            }
-            &.medium {
-                min-width: 120px;
-                max-width: 180px;
-            }
-            &.large {
-                min-width: 300px;
-                max-width: 400px;
-            }
         }
     }
 
@@ -1097,7 +1076,6 @@
         height: 25px;
         border-radius: 3px;
         .action-gradient;
-        // border: 1px dashed rgb(30, 89, 190);
         position: relative;
         cursor: pointer;
         color: @color-text-cyan;
@@ -1126,7 +1104,6 @@
             border-radius: 2px;
             top: 0px;
             right: 0px;
-            // background-color: rgba(0,0,0,0.5);
             color: @color-text-cyan;
             cursor: pointer;
             overflow: hidden;
@@ -1147,10 +1124,6 @@
             text-transform: capitalize;
         }
 
-        // .editableRow {
-        //     display: none;
-        // }
-
         .editableParamDiv {
             margin: 0px 5px;
             padding: 0px 25px 0px 5px;
@@ -1162,9 +1135,6 @@
             box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
             .transform (translateZ(0));
             cursor: text;
-            &:focus {
-                // box-shadow: 0px 1px lightGray;
-            }
 
             &.load {
                 min-width: 300px;
@@ -1189,39 +1159,27 @@
     .defaultListSection {
         display: none;
         padding: 15px 15px 0px 15px;
+        .retinaTable();
         .tableContainer {
-            position: relative;
             height: auto;
-            background: @color-white;
             display: inline-block;
             overflow: hidden;
             border-radius: 5px;
             border: 1px solid #a8a8a8;
             float: left;
+            z-index: 0;
+            padding: 0;
+
             .tableWrapper {
-                overflow-y: scroll;
-                height: 100%;
-                margin: 0 auto;
                 .thWrap {
                     width: 444px;
-                    height: 30px;
-                    line-height: 30px;
-                    position: absolute;
-                    background: #a8a8a8;
-                    top: 0px;
-                    z-index: 40;
                     padding-left: 17px;
-                    font-weight: bold;
-                    font-size: 13px;
-                    color: @color-text-white;
                 }
+
                 .paramName {
                     color: @color-text-darkGray;
                 }
                 .paramVal {
-                    float: left;
-                    background: transparent;
-                    height: 30px;
                     line-height: 100%;
                     // width: 200px;
                     width: 385px;
@@ -1258,19 +1216,14 @@
                         }
                     }
                 }
-                    
-                &::-webkit-scrollbar {
-                    display: none;
-                }
                 .unfilled .paramEdit {
                     display: none;
                 }
             }
         }
+
         table {
-            table-layout: fixed;
-            text-align: left;
-            border-collapse: collapse;
+            margin: 0;
             th {
                 height: 30px;
                 &:first-of-type .thWrap{
@@ -1283,25 +1236,14 @@
                     td {
                         width: 444px;
                         height: 40px;
-                        line-height: 30px;
-                        position: relative;
                         padding-left: 15px;
-                        font-weight: bold;
-                        font-size: 13px;
                         &:first-of-type {
                             width: 444px;
-                            border-right: 1px solid #a8a8a8;
                             border-left: 7px solid @color-join-background;
                         }
                         &:last-of-type {
                             border-right: 8px solid @color-join-background;
                         }
-                    }
-                    &:nth-child(odd) {
-                        background-color: @color-background-darkGray;
-                    }
-                    &:nth-child(even) {
-                        background-color: #f4f4f4;
                     }
                 }
             }
