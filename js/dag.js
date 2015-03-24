@@ -1055,10 +1055,10 @@ function getDagChildrenNames(api, dagNode) {
     } else if (key == 'groupByInput') {
         children.push(value.table.tableName);
     } else if (key == 'indexInput') {
-        if (value.srcTable.tableName == "") {
+        if (value.source.name == "") {
             children.push(value.dstTable.tableName);
         } else {
-            children.push(value.srcTable.tableName);
+            children.push(value.source.name);
         }
     } else if (key == 'joinInput') {
         children.push(value.leftTable.tableName);
@@ -1142,7 +1142,7 @@ function getDagNodeInfo(dagNode, key, children) {
                         " on " + value.fieldName;
         info.column = value.fieldName;
     } else if (key == 'indexInput') {
-        if (value.datasetId === 0) {
+        if (value.datasetName === 0) {
             info.type = "sort";
             info.tooltip = "Sorted by "+value.keyName;
         } else {

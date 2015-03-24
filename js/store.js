@@ -39,49 +39,11 @@ function getDirection(tName) {
     if (tName in gTableDirectionLookup) {
         return (gTableDirectionLookup[tName]);
     } else {
-        console.log("No such datasetId has been saved before");
+        console.log("No such table has been saved before");
         return (null);
     }
     return (null);
 }
-
-// XXX Move these 2 functions away from here?
-function getDsId(datasetName) {
-    var deferred = jQuery.Deferred();
-
-    XcalarGetDatasets()
-    .done(function(datasetObj) {
-        var numDatasets = datasetObj.numDatasets;
-        for (var i = 0; i<datasetObj.numDatasets; i++) {
-            if (datasetObj.datasets[i].name === datasetName) {
-                return (deferred.resolve(datasetObj.datasets[i].datasetId));
-            }
-        }
-        console.log("Couldn't find a dataset with name: "+datasetName);
-        return (deferred.resolve(0));
-    });
-
-    return (deferred.promise());
-}
-
-function getDsName(datasetId) {
-    var deferred = jQuery.Deferred();
-
-    XcalarGetDatasets()
-    .done(function(datasetObj) {
-        var numDatasets = datasetObj.numDatasets;
-        for (var i = 0; i<datasetObj.numDatasets; i++) {
-            if (datasetObj.datasets[i].datasetId === datasetId) {
-                return (deferred.resolve(datasetObj.datasets[i].name));
-            }
-        }
-        console.log("Couldn't find a dataset with id: "+datasetId);
-        return (deferred.resolve(0));
-    });
-
-    return (deferred.promise());
-}
-
 
 function setIndex(tName, index) {
     gTableIndicesLookup[tName] = {};

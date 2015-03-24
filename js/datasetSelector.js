@@ -227,7 +227,7 @@ function getDatasetSample(datasetName) {
             // one way to resolve this is to pass the current i into a closure
             // which keeps the current i value.            
             (function(i) {
-                XcalarSample(datasets.datasets[i].datasetId, 20)
+                XcalarSample(datasets.datasets[i].name, 20)
                 .done(function(result) {
                     samples[datasetName] = result;
 
@@ -268,7 +268,7 @@ function getDatasetSample(datasetName) {
                     }
                     
                     addDataSetHeaders(jsonKeys, 
-                                      datasets.datasets[i].datasetId, i);
+                                      datasets.datasets[i].datasetName, i);
                     addDataSetRows(jsonKeys,jsons, i);
                     addWorksheetListeners(i);  
                     updateDatasetInfoFields(datasetName, IsActive.Active);
@@ -313,7 +313,7 @@ function addDatasetTable(datasetTitle, tableNumber) {
     $('#datasetWrap').prepend(html);
 }
 
-function addDataSetHeaders(jsonKeys, datasetId, index) {
+function addDataSetHeaders(jsonKeys, datasetName, index) {
     var th = "";
     var key;
     for (var i = 0; i < jsonKeys.length; i++) {
@@ -326,8 +326,7 @@ function addDataSetHeaders(jsonKeys, datasetId, index) {
                         <div class="flexWrap flex-mid">\
                             <input spellcheck="false"\
                                 class="editableHead shoppingCartCol col' + i +
-                                '" value="' + key + '" \
-                                id ="ds' + datasetId + 'cn' + key + '"\
+                                '" value="' + key + '" id = "' + key + '"\
                                 readonly="true">\
                         </div>\
                         <div class="flexWrap flex-right">\
@@ -488,21 +487,18 @@ function addWorksheetListeners(tableNum) {
         var newName = $input.val();
         var colNum = $input.closest('.colMenu').data('colNum');
         var $tableWrap = $('#dataSetTableWrap' + tableNum);
-        var headInput = $tableWrap.find('.editableHead.col'+colNum);
-        var oldid = headInput.attr("id");
-        var oldColName = oldid.substring(oldid.indexOf("cn")+2);
-        var dsnumber = parseInt(oldid.substring(2, oldid.indexOf("cn")));
+        var $headInput = $tableWrap.find('.editableHead.col'+colNum);
+        var oldColName = $headInput.attr("id");
+        var dsName = $(".dbText h2").text();
         console.log("Renaming "+oldColName+" to "+ newName);
         $('.colMenu').hide();
 
         if (newName !== oldColName) {
-            XcalarEditColumn(dsnumber, oldColName, newName,
-                             DfFieldTypeT.DfString)
+            XcalarEditColumn(dsName, oldColName, newName, DfFieldTypeT.DfString)
             .done(function() {
-                var newId = "ds" + dsnumber + "cn" + newName;
+                var newId = newName;
                 console.log(newId);
-                headInput.attr("id", newId)
-                         .val(newName);
+                $headInput.attr("id", newName).val(newName);
                 $('#selectedTable'+tableNum).find('.colName').filter(
                     function() {
                         return $(this).text() == oldColName;
@@ -522,7 +518,7 @@ function addWorksheetListeners(tableNum) {
         }
     });
 
-    // Change Date Type
+    // Change Data Type
     $('#outerColMenu' + tableNum).children('.changeDataType')
                                  .on('click', '.typeList', function() {
         var $typeList = $(this);
@@ -536,9 +532,8 @@ function addWorksheetListeners(tableNum) {
         var $tableHeader = $tableWrap.find(' .col' + colNum + ' .header');
 
         var $headInput = $tableHeader.find('.editableHead');
-        var oldid = $headInput.attr('id');
-        var dsnumber = parseInt(oldid.substring(2, oldid.indexOf('cn')));
-        var colName = oldid.substring(oldid.indexOf("cn") + 2);
+        var dsName = $(".dbText h2").text();
+        var colName = $headInput.attr("id");
         var oldType = $tableHeader.data('type');
         $('.colMenu').hide();
 
@@ -561,7 +556,7 @@ function addWorksheetListeners(tableNum) {
 
         if (newType != oldType && typeId >= 0) {
             console.log("Change Type from " + oldType + " to " + newType);
-            XcalarEditColumn(dsnumber, colName, colName,
+            XcalarEditColumn(dsName, colName, colName,
                              typeId)
             .done(function() {
                 $tableHeader.data('type', newType);
@@ -740,60 +735,54 @@ function createWorksheet() {
                 cliOptions.tableName = tableName;
                 cliOptions.col = [];
 
-                getDsId(datasetName)
-                .then(function(id) {
-                    $(self).find('.colName').each(function() {
-                        var colname = $.trim($(this).text());
-                        var progCol = new ProgCol();
-                        progCol.index = ++startIndex;
-                        progCol.type = "string";
-                        progCol.name = colname;
-                        progCol.width = gNewCellWidth;
-                        progCol.userStr = '"'+colname+'" = pull('+colname+')';
-                        progCol.func.func = "pull";
-                        progCol.func.args = [colname];
-                        progCol.isDark = false;
-
-                        var currentIndex = startIndex - 1;
-                        progCol.datasetId = parseInt(id);                  
-                        newTableCols[currentIndex] = progCol;
-                        cliOptions.col.push(colname);
-                    });
-
+                $(self).find('.colName').each(function() {
+                    var colname = $.trim($(this).text());
                     var progCol = new ProgCol();
-                    progCol.index = startIndex+1;
-                    progCol.type = "object";
-                    progCol.name = "DATA";
-                    progCol.width = 500;
-                    progCol.userStr = "DATA = raw()";
-                    progCol.func.func = "raw";
-                    progCol.func.args = [];
+                    progCol.index = ++startIndex;
+                    progCol.type = "string";
+                    progCol.name = colname;
+                    progCol.width = gNewCellWidth;
+                    progCol.userStr = '"'+colname+'" = pull('+colname+')';
+                    progCol.func.func = "pull";
+                    progCol.func.args = [colname];
                     progCol.isDark = false;
-                    newTableCols[startIndex] = progCol;
 
-                    setIndex(tableName, newTableCols);
-                    commitToStorage();
-
-                    cliOptions.col.push("DATA");
-                    return (getDsId(datasetName));
-                })
-                .then(function(datasetId) {
-                    datasetId = parseInt(datasetId);
-                    var columnToIndex = 
-                        $.trim($(self).find('.keySelected .colName').text());
-
-                    cliOptions.key = columnToIndex;
-                    addCli("Send To Worksheet", cliOptions);
-                    return (XcalarIndexFromDataset(datasetId, 
-                            columnToIndex, tableName));
-                })
-                .then(function() {
-                    return (refreshTable(tableName, gTables.length, true,
-                                         false));
-                })
-                .done(function() {
-                    chainDeferred.resolve();
+                    var currentIndex = startIndex - 1;
+                    newTableCols[currentIndex] = progCol;
+                    cliOptions.col.push(colname);
                 });
+
+                var progCol = new ProgCol();
+                progCol.index = startIndex+1;
+                progCol.type = "object";
+                progCol.name = "DATA";
+                progCol.width = 500;
+                progCol.userStr = "DATA = raw()";
+                progCol.func.func = "raw";
+                progCol.func.args = [];
+                progCol.isDark = false;
+                newTableCols[startIndex] = progCol;
+
+                setIndex(tableName, newTableCols);
+                commitToStorage();
+
+                cliOptions.col.push("DATA");
+                
+                var columnToIndex = 
+                    $.trim($(self).find('.keySelected .colName').text());
+
+                cliOptions.key = columnToIndex;
+                addCli("Send To Worksheet", cliOptions);
+                return (XcalarIndexFromDataset(datasetName, 
+                        columnToIndex, tableName));
+            })
+            .then(function() {
+                console.log("here!");
+                return (refreshTable(tableName, gTables.length, true,
+                                     false));
+            })
+            .done(function() {
+                chainDeferred.resolve();
             });
             return (chainDeferred.promise());
         }).bind(this));
@@ -823,39 +812,19 @@ function setupDatasetList() {
     dsBtnInitizlize($('#gridViewButtonArea'));
     gDSInitialization();
 
-    function appendGrid(datasetId) {
-        if (!datasetId)
-            return;
-
-        var innerPromise = jQuery.Deferred();
-
-        getDsName(datasetId)
-        .done(function(dsName) {
-            DSObj.create(gDSObj.id++, dsName, gDSObj.curId, false);
-
-            innerPromise.resolve();
-        });
-
-        return (innerPromise.promise());
-    }
-
-
     // Jerene: As discussed, please get datasets from server regardless.
     XcalarGetDatasets()
     .then(function(datasets) {
-        var promises = [];
         var isRestore = restoreDSObj(datasets);
         if (!isRestore) {
             console.log("Construct directly from backend");
             var numDatasets = datasets.numDatasets;
 
             for (var i = 0; i < numDatasets; i++) {
-                promises.push(appendGrid.bind(this, datasets.datasets[i].datasetId));
-            };
+                DSObj.create(gDSObj.id++, datasets.dataset[i].name,
+                             gDSObj.curId, false);
+            }
         }
-        return (chain(promises));
-    })
-    .done(function() {
         commitDSObjToStorage(); // commit;
         DSObj.display();
         deferred.resolve();

@@ -158,9 +158,7 @@ function XcalarDestroyDataset(dsName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    getDsId(dsName).then(function(id) {
-        return (xcalarDestroyDataset(tHandle, id));
-    })
+    xcalarDestroyDataset(tHandle, dsName)
     .done(function() {
         deferred.resolve();
     })
@@ -171,12 +169,12 @@ function XcalarDestroyDataset(dsName) {
     return (deferred.promise());
 }
 
-function XcalarIndexFromDataset(varDatasetId, key, tablename) {
+function XcalarIndexFromDataset(datasetName, key, tablename) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
 
-    return (xcalarIndexDataset(tHandle, varDatasetId, key, tablename));
+    return (xcalarIndexDataset(tHandle, datasetName, key, tablename));
 }
 
 function XcalarIndexFromTable(srcTablename, key, tablename) {
@@ -195,20 +193,20 @@ function XcalarDeleteTable(backTableName) {
     return (xcalarDeleteTable(tHandle, backTableName));
 }
 
-function XcalarEditColumn(datasetId, currFieldName, newFieldName,
+function XcalarEditColumn(datasetName, currFieldName, newFieldName,
                           newFieldType) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
 
-    return (xcalarEditColumn(tHandle, datasetId, "", true, 
+    return (xcalarEditColumn(tHandle, datasetName, "", true, 
                              currFieldName, newFieldName, newFieldType));
 }
 
-function XcalarSample(datasetId, numEntries) {
+function XcalarSample(datasetName, numEntries) {
     var deferred = jQuery.Deferred();
 
-    xcalarMakeResultSetFromDataset(tHandle, datasetId)
+    xcalarMakeResultSetFromDataset(tHandle, datasetName)
     .then(function(result){
         var resultSetId = result.resultSetId;
 

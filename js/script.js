@@ -41,7 +41,6 @@ var ProgCol = function() {
     this.width = 0;
     this.userStr = "";
     this.isDark = true;
-    this.datasetId = 0;
 };
 
 var TableMeta = function() {

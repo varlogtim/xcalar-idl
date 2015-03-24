@@ -68,7 +68,6 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiBulkLoad;
-    workItem.input.loadInput.dataset.datasetId = 0;
     workItem.input.loadInput.dataset.url = url;
     workItem.input.loadInput.dataset.name = name;
     workItem.input.loadInput.dataset.formatType = format;
@@ -98,27 +97,26 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
 
 }
 
-function xcalarIndexDataset(thriftHandle, datasetId, keyName, dstTableName) {
+function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName) {
     var deferred = jQuery.Deferred();
 
-    console.log("xcalarIndexDataset(datasetId = " + datasetId.toString() +
+    console.log("xcalarIndexDataset(datasetName = " + datasetName +
                 ", keyName = " + keyName + ", dstTableName = " +
                 dstTableName + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
-    workItem.input.indexInput.srcTable = new XcalarApiTableT();
+    workItem.input.indexInput.source = new XcalarApiNamedInputT();
     workItem.input.indexInput.dstTable = new XcalarApiTableT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiIndex;
-    workItem.input.indexInput.isTableBacked = false;
-    workItem.input.indexInput.srcTable.tableName = "";
-    workItem.input.indexInput.srcTable.tableId = XcalarApiTableIdInvalidT;
+    workItem.input.indexInput.source.isTable = false;
+    workItem.input.indexInput.source.name = datasetName;
+    workItem.input.indexInput.source.xid = XcalarApiXidInvalidT;
     workItem.input.indexInput.dstTable.tableName = dstTableName;
     workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.indexInput.datasetId = datasetId;
     workItem.input.indexInput.keyName = keyName;
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -150,17 +148,16 @@ function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName) {
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
-    workItem.input.indexInput.srcTable = new XcalarApiTableT();
+    workItem.input.indexInput.source = new XcalarApiNamedInputT();
     workItem.input.indexInput.dstTable = new XcalarApiTableT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiIndex;
-    workItem.input.indexInput.isTableBacked = true;
-    workItem.input.indexInput.srcTable.tableName = srcTableName;
-    workItem.input.indexInput.srcTable.tableId = XcalarApiTableIdInvalidT;
+    workItem.input.indexInput.source.isTable = true;
+    workItem.input.indexInput.source.name = srcTableName;
+    workItem.input.indexInput.source.xid = XcalarApiXidInvalidT;
     workItem.input.indexInput.dstTable.tableName = dstTableName;
     workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.indexInput.datasetId = 0;
     workItem.input.indexInput.keyName = keyName;
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -300,10 +297,10 @@ function xcalarGetStats(thriftHandle, nodeId) {
     return (deferred.promise());
 }
 
-function xcalarEditColumn(thriftHandle, datasetId, tableName, isDataset,
+function xcalarEditColumn(thriftHandle, datasetName, tableName, isDataset,
                           currFieldName, newFieldName, newFieldType) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarEditColumn(datasetId = " + datasetId.toString() +
+    console.log("xcalarEditColumn(datasetName = " + datasetName +
                 ", tableName = " + tableName.toString() + ", isDataset = " +
                 isDataset.toString() + ", currFieldName = " +
                 currFieldName.toString() + ", newFieldName = " +
@@ -313,12 +310,19 @@ function xcalarEditColumn(thriftHandle, datasetId, tableName, isDataset,
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
     workItem.input.editColInput = new XcalarApiEditColInputT();
+    workItem.input.editColInput.source = new XcalarApiNamedInputT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiEditColumn;
-    workItem.input.editColInput.datasetId = datasetId;
-    workItem.input.editColInput.tableName = tableName;
-    workItem.input.editColInput.isDataset = isDataset;
+    if (isDataset) {
+        workItem.input.editColInput.source.isTable = false;
+        workItem.input.editColInput.source.name = datasetName;
+        workItem.input.editColInput.source.xid = XcalarApiXidInvalidT;
+    } else {
+        workItem.input.editColInput.source.isTable = true;
+        workItem.input.editColInput.source.name = tableName;
+        workItem.input.editColInput.source.xid = XcalarApiXidInvalidT;
+    }
     workItem.input.editColInput.currFieldName = currFieldName;
     workItem.input.editColInput.newFieldName = newFieldName;
     workItem.input.editColInput.newFieldType = newFieldType;
@@ -597,15 +601,13 @@ function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
-    workItem.input.makeResultSetInput = new XcalarApiMakeResultSetInputT();
-    workItem.input.makeResultSetInput.table = new XcalarApiTableT();
+    workItem.input.makeResultSetInput = new XcalarApiNamedInputT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiMakeResultSet;
-    workItem.input.makeResultSetInput.fromTable = true;
-    workItem.input.makeResultSetInput.table.tableName = tableName;
-    workItem.input.makeResultSetInput.table.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.makeResultSetInput.datasetId = 0;
+    workItem.input.makeResultSetInput.isTable = true;
+    workItem.input.makeResultSetInput.name = tableName;
+    workItem.input.makeResultSetInput.xid = XcalarApiXidInvalidT;
 
     var makeResultSetOutput;
     thriftHandle.client.queueWorkAsync(workItem)
@@ -631,22 +633,20 @@ function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
     return (deferred.promise());
 }
 
-function xcalarMakeResultSetFromDataset(thriftHandle, datasetId) {
+function xcalarMakeResultSetFromDataset(thriftHandle, datasetName) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarMakeResultSetFromDataset(datasetId = " +
-                datasetId.toString() + ")");
+    console.log("xcalarMakeResultSetFromDataset(datasetName = " +
+                datasetName + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
-    workItem.input.makeResultSetInput = new XcalarApiMakeResultSetInputT();
-    workItem.input.makeResultSetInput.table = new XcalarApiTableT();
+    workItem.input.makeResultSetInput = new XcalarApiNamedInputT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiMakeResultSet;
-    workItem.input.makeResultSetInput.fromTable = false;
-    workItem.input.makeResultSetInput.table.tableName = "";
-    workItem.input.makeResultSetInput.table.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.makeResultSetInput.datasetId = datasetId;
+    workItem.input.makeResultSetInput.isTable = false;
+    workItem.input.makeResultSetInput.name = datasetName;
+    workItem.input.makeResultSetInput.xid = XcalarApiXidInvalidT;
 
     var makeResultSetOutput;
     thriftHandle.client.queueWorkAsync(workItem)
@@ -1000,18 +1000,17 @@ function xcalarBulkDeleteTables(thriftHandle, tableNamePattern) {
     return (deferred.promise());
 }
 
-function xcalarDestroyDataset(thriftHandle, datasetId) {
+function xcalarDestroyDataset(thriftHandle, datasetName) {
     var deferred = jQuery.Deferred();
 
-    console.log("xcalarDestroyDataset(datasetId = " + datasetId + ")");
+    console.log("xcalarDestroyDataset(datasetName = " + datasetName + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
-    workItem.input.destroyDsInput = new XcalarApiDestroyDatasetInputT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiDestroyDataset;
-    workItem.input.destroyDsInput.datasetId = datasetId;
+    workItem.input.destroyDsInput = datasetName;
 
     thriftHandle.client.queueWorkAsync(workItem)
     .done(function(result) {
@@ -1077,9 +1076,9 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
 
 function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
     var deferred = jQuery.Deferred();
-    // console.log("xcalarAggregate(srcTableName = " + srcTableName +
-    //             ", aggregateOp = " + OperatorsOpTStr[aggregateOp] +
-    //             ", fieldName = " + fieldName + ")");
+    console.log("xcalarAggregate(srcTableName = " + srcTableName +
+                ", aggregateOp = " + AggregateOpTStr[aggregateOp] +
+                ", fieldName = " + fieldName + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();

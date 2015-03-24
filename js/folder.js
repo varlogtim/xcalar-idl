@@ -280,7 +280,6 @@ function restoreDSObj(datasets) {
     for (var i = 0; i < numDatasets; i++) {
         var dsName = datasets.datasets[i].name;
         searchHash[dsName] = true;
-
     }
 
     var dsCount = 0;
