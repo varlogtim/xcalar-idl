@@ -11,7 +11,8 @@ JoinOperatorT = {
 'RightOuterJoin' : 2,
 'FullOuterJoin' : 3
 };
-JoinOperatorTStr = {0 : 'innerJoin',
+JoinOperatorTStr = {
+0 : 'innerJoin',
 1 : 'leftJoin',
 2 : 'rightJoin',
 3 : 'fullOuterJoin'

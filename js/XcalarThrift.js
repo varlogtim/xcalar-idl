@@ -381,14 +381,14 @@ function XcalarAggregate(fieldName, srcTablename, op) {
     return (xcalarAggregate(tHandle, srcTablename, aggregateOp, fieldName));
 }
 
-function XcalarJoin(left, right, dst) {
+function XcalarJoin(left, right, dst, joinType) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
     
     // XXX We actually have the join type. We just are not passing it in
     return (xcalarJoin(tHandle, left, right, 
-            dst, JoinOperatorT.InnerJoin));
+            dst, joinType));
 }
 
 // XXX FIXME

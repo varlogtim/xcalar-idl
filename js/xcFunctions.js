@@ -250,10 +250,19 @@ function createJoinIndex(rightTableNum, tableNum) {
 function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
                     rightTableNum, rightColumnNum) {
     var deferred = jQuery.Deferred();
-   
+    var joinType = "";
     switch (joinTypeStr) {
     case ("Inner Join"):
         joinType = JoinOperatorT.InnerJoin;
+        break;
+    case ("Left Outer Join"):
+        joinType = JoinOperatorT.LeftOuterJoin;
+        break;
+    case ("Right Outer Join"):
+        joinType = JoinOperatorT.RightOuterJoin;
+        break;
+    case ("Full Outer Join"):
+        joinType = JoinOperatorT.FullOuterJoin;
         break;
     default:
         console.log("Incorrect join type!");
@@ -263,7 +272,7 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
     showWaitCursor();
 
     var leftName = gTables[leftTableNum].backTableName;
-    var joinType = "";
+    
     var leftColName =
                     gTables[leftTableNum].tableCols[leftColumnNum].func.args[0];
     
@@ -282,14 +291,14 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
             return (XcalarIndexFromTable(gTables[leftTableNum].backTableName,
                                  leftColName, newTableName1)
                     .then(function() {
-                            return (joinTables2([newTableName, joinTypeStr,
+                            return (joinTables2([newTableName, joinType,
                                                leftTableNum, leftName,
                                                rightTableNum, rightColumnNum]));
                           })
                     );
         } else {
             console.log("left indexed correctly");
-            return (joinTables2([newTableName, joinTypeStr, leftTableNum, 
+            return (joinTables2([newTableName, joinType, leftTableNum, 
                                  leftName, rightTableNum, rightColumnNum]));
         }
     })
@@ -302,7 +311,7 @@ function joinTables2(args) {
     var deferred = jQuery.Deferred();
 
     var newTableName = args[0];
-    var joinTypeStr = args[1];
+    var joinType = args[1];
     var leftTableNum = args[2];
     var leftName = args[3];
     var rightTableNum = args[4];
@@ -325,14 +334,14 @@ function joinTables2(args) {
             return (XcalarIndexFromTable(gTables[rightTableNum].backTableName,
                                          rightColName, newTableName2)
                     .then(function() {
-                              return (joinTables3([newTableName, joinTypeStr,
+                              return (joinTables3([newTableName, joinType,
                                       leftTableNum, leftName, rightTableNum,
                                       rightName]));
                           })
                     );
         } else {
             console.log("right correctly indexed");
-            return (joinTables3([newTableName, joinTypeStr, leftTableNum, 
+            return (joinTables3([newTableName, joinType, leftTableNum, 
                                  leftName, rightTableNum, rightName]));
         }
     })
@@ -345,7 +354,7 @@ function joinTables3(args) {
     var deferred = jQuery.Deferred();
 
     var newTableName = args[0];
-    var joinTypeStr = args[1];
+    var joinType = args[1];
     var leftTableNum = args[2];
     var leftName = args[3];
     var rightTableNum = args[4];
@@ -354,7 +363,7 @@ function joinTables3(args) {
     var newTableCols = createJoinIndex(rightTableNum, leftTableNum);
     setIndex(newTableName, newTableCols);
     commitToStorage(); 
-    XcalarJoin(leftName, rightName, newTableName)
+    XcalarJoin(leftName, rightName, newTableName, joinType)
     .then(function() {
         return (refreshTable(newTableName, leftTableNum, 
                              KeepOriginalTables.DontKeep, rightTableNum));

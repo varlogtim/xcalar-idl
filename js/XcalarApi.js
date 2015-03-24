@@ -711,10 +711,10 @@ function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
 function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
                     joinType) {
     var deferred = jQuery.Deferred();
-    // console.log("xcalarJoin(leftTableName = " + leftTableName +
-    //             ", rightTableName = " + rightTableName + ", joinTableName = " +
-    //             joinTableName + ", joinType = " + OperatorsOpTStr[joinType] +
-    //             ")");
+    console.log("xcalarJoin(leftTableName = " + leftTableName +
+                ", rightTableName = " + rightTableName + ", joinTableName = " +
+                joinTableName + ", joinType = " + JoinOperatorTStr[joinType] +
+                ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();

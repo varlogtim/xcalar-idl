@@ -1152,11 +1152,24 @@ function getDagNodeInfo(dagNode, key, children) {
         info.text = "indexed on " + value.keyName;
         info.column = value.keyName;
     } else if (key == 'joinInput') {
-        info.type = OperatorsOpTStr[value.joinType][9].toLowerCase() +
-                    OperatorsOpTStr[value.joinType].slice(10);
-        info.text = OperatorsOpTStr[value.joinType].slice(9);
+        info.text = JoinOperatorTStr[value.joinType];
         var joinType = info.text.slice(0, info.text.indexOf("Join"));
-        info.tooltip = joinType+ " Join between table &quot;"+children[0]+
+        info.type = joinType;
+        // info.type = JoinOperatorTStr[value.joinType][9].toLowerCase() +
+        //             JoinOperatorTStr[value.joinType].slice(10);
+        // info.type = JoinOperatorTStr[value.joinType];
+        // info.text = JoinOperatorTStr[value.joinType].slice(9);
+        var joinText = "";
+        if (joinType.indexOf("Outer") > -1) {
+            var firstPart = joinType.slice(0, joinType.indexOf("Outer"));
+            firstPart = firstPart[0].toUpperCase() + firstPart.slice(1);
+            joinText = firstPart + " Outer";
+        } else {
+            joinText = joinType[0].toUpperCase() + joinType.slice(1);
+        }
+        
+        
+        info.tooltip = joinText + " Join between table &quot;"+children[0]+
                        "&quot; and table &quot;"+children[1]+"&quot;";
         info.column = children[0] +", "+children[1];
     } else if (key == 'mapInput') {

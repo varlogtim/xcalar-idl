@@ -69,6 +69,9 @@ function setupJoinModalTables(tableNum, colId) {
 }
 
 function initializeJoinModal() {
+    $joinSelect = $('#joinType');
+    $joinDropdown = $('#joinTypeSelect');
+
     $('#closeJoin').click(function() {
         resetJoinTables();
     });
@@ -77,25 +80,27 @@ function initializeJoinModal() {
         resetJoinTables();
     });
 
-    $('#joinType').mousedown(function() {
+    $joinSelect.mousedown(function(event) {
+        if ($(event.target).closest('#joinTypeSelect').length != 0) {
+            return;
+        }
         if ($(this).hasClass('open')) {
-            $('#joinTypeSelect').hide();
+            $joinDropdown.hide();
             $(this).removeClass('open');
         } else {
-            $('#joinTypeSelect').show()
+            $joinDropdown.show()
             $(this).addClass('open');
         }
     });
 
-    $('#joinType').find('li').mousedown(function() {
+    $joinDropdown.find('li').click(function() {
         if ($(this).hasClass('inactive')) {
             return;
         }
         var joinType = $(this).text();
-        $('#joinType').find('.text').text(joinType);
-        setTimeout(function() {
-            $('#joinTypeSelect').hide()
-        }, 100);
+        $joinSelect.find('.text').text(joinType);
+        $joinDropdown.hide();
+        $joinSelect.removeClass('open');
     });
 
     $('#joinModal').mousedown(hideJoinTypeSelect);
