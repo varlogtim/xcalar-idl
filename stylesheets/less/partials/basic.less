@@ -107,8 +107,8 @@ body {
     
     input {
         height: 25px;
+        line-height: 25px;
         padding: 0 4px;
-        border-radius: 3px;
         background-color: @color-background-input;
         font-weight: bold;
 
@@ -196,6 +196,14 @@ body {
     &:hover, &:active {
         .gray-gradient;
     }
+}
+
+input {
+    height: 30px;
+    line-height: 30px;
+    padding: 0 4px;
+    border-radius: 3px;
+    background-color: @color-white;
 }
 
 .icon {
@@ -366,7 +374,6 @@ body {
         }
         &[readonly] {
             width: 100%;
-            height: 30px;
             text-align: center;
             outline: none;
             cursor: default;
@@ -379,7 +386,6 @@ body {
 
     .editableHead {
         width: 100%;
-        height: 30px; 
         padding: 0px 4px;
         background-color: transparent; 
         border: none;
@@ -538,6 +544,7 @@ ul.colMenu {
     input[type=text] {
         width: 160px;
         height: 20px;
+        line-height: 20px;
         position: relative;
         top: -1px;
         right: 0px;
