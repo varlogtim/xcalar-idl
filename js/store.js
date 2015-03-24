@@ -115,9 +115,17 @@ function readFromStorage() {
                 }
                 
                 deferred.resolve();
+            })
+            .fail(function(error) {
+                console.log("readFromStorage fails!");
+                deferred.reject(error);
             });
         }   
         commitToStorage(AfterStartup.After); 
+    })
+    .fail(function(error) {
+        console.log("readFromStorage fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());

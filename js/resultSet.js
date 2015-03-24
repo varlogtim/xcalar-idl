@@ -52,6 +52,10 @@ function goToPage(pageNumber, direction, tableNum, skipToRow) {
         pullRowsBulk(tableNum, jsonData, position, null, direction);
         
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("goToPage fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -125,6 +129,10 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
         }
 
         deferred.resolve(jsonData, keyName);
+    })
+    .fail(function(error) {
+        console.log("generateDataColumnJson fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());

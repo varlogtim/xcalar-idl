@@ -81,10 +81,8 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
             loadOutput.status = result.jobStatus;
         }
         if (loadOutput.status != StatusT.StatusOk) {
+            console.log("xcalarLoad() failed with status:", loadOutput.status);
             deferred.reject(loadOutput.status);
-            console.log("xcalarLoad() failed with status: "+loadOutput.status);
-        } else {
-            deferred.resolve(loadOutput);
         }
         deferred.resolve(loadOutput);
     })
@@ -126,6 +124,8 @@ function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName) {
             indexOutput.status = result.jobStatus;
         }
         if (indexOutput.status != StatusT.StatusOk) {
+            console.log("xcalarIndexDataset() failed with status:",
+                        indexOutput.status);
             deferred.reject(indexOutput.status);
         }
         deferred.resolve(indexOutput);
@@ -167,6 +167,8 @@ function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName) {
             indexOutput.status = result.jobStatus;
         }
         if (indexOutput.status != StatusT.StatusOk) {
+            console.log("xcalarIndexTable() failed with status:",
+                        indexOutput.status);
             deferred.reject(indexOutput.status);
         }
         deferred.resolve(indexOutput);
@@ -199,6 +201,8 @@ function xcalarGetCount(thriftHandle, tableName) {
             countOutput.status = result.jobStatus;
         }
         if (countOutput.status != StatusT.StatusOk) {
+            console.log("xcalarGetCount() failed with status:",
+                        countOutput.status);
             deferred.reject(countOutput.status);
         }
         deferred.resolve(countOutput);
@@ -222,8 +226,10 @@ function xcalarShutdown(thriftHandle) {
 
     thriftHandle.client.queueWorkAsync(workItem)
     .done(function(result) {
+        var status = StatusT.StatusOk;
         if (result.jobStatus != StatusT.StatusOk) {
-            var status = result.jobStatus;
+            status = result.jobStatus;
+            console.log("xcalarShutdown() failed with status:", status);
             deferred.reject(status);
         }
         deferred.resolve(status);
@@ -253,6 +259,7 @@ function xcalarStartNodes(thriftHandle, numNodes) {
         var status = StatusT.StatusOk;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
+            console.log("xcalarShutdown() failed with status:", status);
             deferred.reject(status);
         }
         deferred.resolve(status);
@@ -264,7 +271,6 @@ function xcalarStartNodes(thriftHandle, numNodes) {
 
     return (deferred.promise());
 }
-
 
 function xcalarGetStats(thriftHandle, nodeId) {
     var deferred = jQuery.Deferred();
@@ -285,6 +291,8 @@ function xcalarGetStats(thriftHandle, nodeId) {
             statOutput.status = result.jobStatus;
         }
         if (statOutput.status != StatusT.StatusOk) {
+            console.log("xcalarGetStats() failed with status:",
+                        statOutput.status);
             deferred.reject(statOutput.status);
         }
         deferred.resolve(statOutput);
@@ -335,6 +343,8 @@ function xcalarEditColumn(thriftHandle, datasetName, tableName, isDataset,
             statusOutput = result.jobStatus;
         }
         if (statusOutput != StatusT.StatusOk) {
+            console.log("xcalarEditColumn() failed with status:",
+                        statOutput.status);
             deferred.reject(statusOutput);
         }
         deferred.resolve(statusOutput);
@@ -369,6 +379,8 @@ function xcalarGetStatsByGroupId(thriftHandle, nodeId, groupIdList) {
             statOutput.status = result.jobStatus;
         }
         if (statOutput.status != StatusT.StatusOk) {
+            console.log("xcalarGetStatsByGroupId() failed with status:",
+                        statOutput.status);
             deferred.reject(statOutput.status);
         }
         deferred.resolve(statOutput);
@@ -400,6 +412,7 @@ function xcalarResetStats(thriftHandle, nodeId) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
+            console.log("xcalarResetStats() failed with status:", status);
             deferred.reject(status);
         }
         deferred.resolve(status);
@@ -432,6 +445,8 @@ function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
             statGroupIdMapOutput.status = result.jobStatus;
         }
         if (statGroupIdMapOutput.status != StatusT.StatusOk) {
+            console.log("xcalarGetStatGroupIdMap() failed with status:",
+                        statGroupIdMapOutput.status);
             deferred.reject(statGroupIdMapOutput.status);
         }
         deferred.resolve(statGroupIdMapOutput);
@@ -462,6 +477,8 @@ function xcalarQuery(thriftHandle, query) {
             queryOutput.status = result.jobStatus;
         }
         if (queryOutput.status != StatusT.StatusOk) {
+            console.log("xcalarQuery() failed with status:",
+                        queryOutput.status);
             deferred.reject(queryOutput.status);
         }
         deferred.resolve(queryOutput);
@@ -492,6 +509,11 @@ function xcalarQueryState(thriftHandle, queryId) {
     .done(function(result) {
         var queryStateOutput = result.output.queryStateOutput;
         if (result.jobStatus != StatusT.StatusOk) {
+            queryStateOutput.status = result.jobStatus;
+        }
+        if (queryStateOutput.status != StatusT.StatusOk) {
+            console.log("xcalarQueryState() failed with status:",
+                        queryStateOutput.status);
             deferred.reject(result.jobStatus);
         }
         deferred.resolve(queryStateOutput);
@@ -523,7 +545,7 @@ function xcalarDag(thriftHandle, tableName) {
             dagOutput.status = result.jobStatus;
         } 
         if (dagOutput.status != StatusT.StatusOk) {
-            console.log('xcalarDag failed')
+            console.log("xcalarDag() failed with status:", dagOutput.status);
             deferred.reject(dagOutput.status);
         }
         deferred.resolve(dagOutput);
@@ -549,7 +571,10 @@ function xcalarListTables(thriftHandle, patternMatch) {
     thriftHandle.client.queueWorkAsync(workItem)
     .done(function(result) {
         var listTablesOutput = result.output.listTablesOutput;
+        // No job specific status
         if (result.jobStatus != StatusT.StatusOk) {
+            console.log("xcalarListTables() failed with status:",
+                         result.jobStatus);
             listTablesOutput.numTables = 0;
             deferred.reject(listTablesOutput.status);
         }
@@ -577,7 +602,9 @@ function xcalarListDatasets(thriftHandle) {
         var listDatasetsOutput = result.output.listDatasetsOutput;
         // No job specific status
         if (result.jobStatus != StatusT.StatusOk) {
-            deferred.reject(listDatasetsOutput.status);
+            console.log("xcalarListDatasets() failed with status:",
+                         result.jobStatus);
+            deferred.reject(result.jobStatus);
         }
         deferred.resolve(listDatasetsOutput);
     })
@@ -588,7 +615,7 @@ function xcalarListDatasets(thriftHandle) {
         // XXX FIXME should add StatusT.StatusThriftProtocolError
         listDatasetsOutput.numDatasets = 0;
 
-        deferred.resolve(listDatasetsOutput);
+        deferred.reject(listDatasetsOutput);
     });
 
     return (deferred.promise());
@@ -617,6 +644,8 @@ function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
             makeResultSetOutput.status = result.jobStatus;
         }
         if (makeResultSetOutput.status != StatusT.StatusOk) {
+            console.log("xcalarMakeResultSetFromTable() failed with status:",
+                         makeResultSetOutput.status);
             deferred.reject(makeResultSetOutput.status);
         }
         deferred.resolve(makeResultSetOutput);
@@ -656,6 +685,8 @@ function xcalarMakeResultSetFromDataset(thriftHandle, datasetName) {
             makeResultSetOutput.status = result.jobStatus;
         }
         if (makeResultSetOutput.status != StatusT.StatusOk) {
+            console.log("xcalarMakeResultSetFromDataset() failed with status:",
+                         makeResultSetOutput.status);
             deferred.reject(makeResultSetOutput.status);
         }
         deferred.resolve(makeResultSetOutput);
@@ -695,6 +726,8 @@ function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
             resultSetNextOutput.status = result.jobStatus;
         }
         if (resultSetNextOutput.status != StatusT.StatusOk) {
+            console.log("xcalarResultSetNext() failed with status:",
+                         resultSetNextOutput.status);
             deferred.reject(resultSetNextOutput.status);
         }
         deferred.resolve(resultSetNextOutput);
@@ -740,6 +773,7 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
             joinOutput.status = result.jobStatus;
         }
         if (joinOutput.status != StatusT.StatusOk) {
+            console.log("xcalarJoin() failed with status:", joinOutput.status);
             deferred.reject(joinOutput.status);
         }
         deferred.resolve(joinOutput);
@@ -780,6 +814,8 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
             filterOutput.status = result.jobStatus;
         }
         if (filterOutput.status != StatusT.StatusOk) {
+            console.log("xcalarFilter() failed with status:", 
+                        filterOutput.status);
             deferred.reject(filterOutput.status);
         }
         deferred.resolve(filterOutput);
@@ -821,6 +857,8 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
         var groupByOutput = result.output.groupByOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             groupByOutput.status = result.jobStatus;
+            console.log("xcalarGroupBy() failed with status:", 
+                        groupByOutput.status);
         }
         if (groupByOutput.status != StatusT.StatusOk) {
             deferred.reject(groupByOutput.status);
@@ -857,6 +895,8 @@ function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
+            console.log("xcalarResultSetAbsolute() failed with status:", 
+                        status);
             deferred.reject(status);
         }
         deferred.resolve(status);
@@ -889,6 +929,7 @@ function xcalarFreeResultSet(thriftHandle, resultSetId) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
+            console.log("xcalarFreeResultSet() failed with status:", status);
             deferred.reject(status);
         }
         deferred.resolve(status);
@@ -957,6 +998,8 @@ function xcalarGetTableRefCount(thriftHandle, tableName) {
             getTableRefCountOutput.status = result.jobStatus;
         }
         if (getTableRefCountOutput.status != StatusT.StatusOk) {
+            console.log("xcalarGetTableRefCount() failed with status code:", 
+                        getTableRefCountOutput.status);
             deferred.reject(getTableRefCountOutput.status);
         }
         deferred.resolve(getTableRefCountOutput);
@@ -988,6 +1031,8 @@ function xcalarBulkDeleteTables(thriftHandle, tableNamePattern) {
             deleteTablesOutput.status = result.jobStatus;
         }
         if (deleteTablesOutput.status != StatusT.StatusOk) {
+            console.log("xcalarBulkDeleteTables() failed with status code:", 
+                        deleteTablesOutput.status);
             deferred.reject(deleteTablesOutput.status);
         }
         deferred.resolve(deleteTablesOutput);
@@ -1019,15 +1064,15 @@ function xcalarDestroyDataset(thriftHandle, datasetName) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            console.log("xcalarDestroyDataset() failed with status code:" +
+            console.log("xcalarDestroyDataset() failed with status code:",
                         status);
             deferred.reject(status);
         }
         deferred.resolve();
     })
-    .fail(function(ouch) { 
-        console.log("xcalarDestroyDataset() caught exception: " + ouch);
-        deferred.reject(status);
+    .fail(function(error) {
+        console.log("xcalarDestroyDataset() caught exception:", error);
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -1062,6 +1107,8 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
             mapOutput.status = result.jobStatus;
         }
         if (mapOutput.status != StatusT.StatusOk) {
+            console.log("xcalarApiMap() failed with status code:",
+                        mapOutput.status);
             deferred.reject(mapOutput.status);
         }
         deferred.resolve(mapOutput);
@@ -1099,12 +1146,14 @@ function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
             aggregateOutput.status = result.jobStatus;
         }
         if (aggregateOutput.status != StatusT.StatusOk) {
+            console.log("xcalarAggregate() failed with status code:",
+                        aggregateOutput.status);
             deferred.reject(aggregateOutput.status);
         }
         deferred.resolve(aggregateOutput.jsonAnswer);
     })
     .fail(function(error) {
-        console.log("xcalarAggregate() caught exception: " + error);
+        console.log("xcalarAggregate() caught exception:", error);
         deferred.reject(error);
     });
 
@@ -1133,13 +1182,13 @@ function xcalarExport(thriftHandle, tableName, fileName) {
             exportOutput.status = result.jobStatus;
         }
         if (exportOutput.status != StatusT.StatusOk) {
-            console.log("export failed with status: "+exportOutput.status);
+            console.log("export failed with status:", exportOutput.status);
             deferred.reject(exportOutput.status);
         }
         deferred.resolve(exportOutput);
     })
     .fail(function(error) {
-        console.log("xcalarExport() caught exception: " + error);
+        console.log("xcalarExport() caught exception:", error);
         deferred.reject(error);
     });
 
@@ -1166,12 +1215,14 @@ function xcalarListFiles(thriftHandle, url) {
             listFilesOutput.status = result.jobStatus;
         }
         if (listFilesOutput.status != StatusT.StatusOk) {
+            console.log("xcalarListFiles failed with status:",
+                        listFilesOutput.status);
             deferred.reject(listFilesOutput.status);
         }
         deferred.resolve(listFilesOutput);
     })
     .fail(function(error) {
-        console.log("xcalarListFiles() caught exception: ", error);
+        console.log("xcalarListFiles() caught exception:", error);
         deferred.reject(error);
     });
 
@@ -1197,13 +1248,13 @@ function xcalarMakeRetina(thriftHandle, retinaName, tableName) {
         var status = (result.jobStatus != StatusT.StatusOk) ?
                      result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
-            console.log("Error with xcalarMakeRetina");
+            console.log("xcalarMakeRetina failed with status:", status);
             deferred.reject(status);
         }
         deferred.resolve();
     })
     .fail(function(error) {
-        console.log("xcalarMakeRetina() caught exception: ", error);
+        console.log("xcalarMakeRetina() caught exception:", error);
     });
     
     return (deferred.promise());
@@ -1225,12 +1276,14 @@ function xcalarListRetinas(thriftHandle) {
             listRetinasOutput.status = result.jobStatus;
         }
         if (listRetinasOutput.status != StatusT.StatusOk) {
+            console.log("xcalarListRetinas failed with status:", 
+                        listRetinasOutput.status);
             deferred.reject(listRetinasOutput.status);
         }
         deferred.resolve(listRetinasOutput);
     })
     .fail(function(error) {
-        console.log("xcalarListRetinas() caught exception: " + error);
+        console.log("xcalarListRetinas() caught exception:", error);
         deferred.reject(error);
     });
 
@@ -1290,7 +1343,7 @@ function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
         var status = (result.jobStatus != StatusT.StatusOk) ?
                      result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
-            console.log("UpdateRetina failed with status: "+status);
+            console.log("UpdateRetina failed with status:", status);
             deferred.reject(status);
         }
         deferred.resolve(status);
@@ -1327,13 +1380,13 @@ function xcalarExecuteRetina(thriftHandle, retinaName, dstTableName,
         var status = (result.jobStatus != StatusT.StatusOk) ?
                     result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
-            console.log("ExecuteRetina failed with status: "+status);
+            console.log("ExecuteRetina failed with status:", status);
             deferred.reject(status);
         }
         deferred.resolve(status);
     })
     .fail(function(error) {
-        console.log("xcalarExecuteRetina() caught exception: " + error);
+        console.log("xcalarExecuteRetina() caught exception:", error);
         deferred.reject(error);
     });
     return (deferred.promise());
@@ -1365,7 +1418,7 @@ function xcalarAddParameterToRetina(thriftHandle, retinaName, parameterName,
         var status = (result.jobStatus != StatusT.StatusOk) ?
                      result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
-            console.log("addParam failed with status: "+status);
+            console.log("addParam failed with status:", status);
             deferred.reject(status);
         }
         deferred.resolve(status);

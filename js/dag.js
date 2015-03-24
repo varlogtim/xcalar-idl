@@ -103,6 +103,9 @@ function setupDag() {
             if ($retTabSection.find('.retTitle[disabled="disabled"]').length == 0) {
                 $input.attr('disabled', 'disabled');
             }
+        })
+        .fail(function(error) {
+            console.log("Make Retina fails!");
         });
     });
 
@@ -263,7 +266,7 @@ function setupDag() {
             return (chain(promises));
         }
         bindParams()
-        .done(function() { 
+        .then(function() {
             var $table = $("#dagParameterModal .editableTable");
             var paramInput = new XcalarApiParamInputT();
             // XXX: HACK!!!
@@ -307,7 +310,6 @@ function setupDag() {
                     console.log("Filter String:", str);
                     paramInput.paramFilter = new XcalarApiParamFilterT();
                     paramInput.paramFilter.filterStr = str;
-                    console.log(paramInput);
                     return (XcalarUpdateRetina(retName,
                                                dagId,
                                                XcalarApisT.XcalarApiFilter,
@@ -332,6 +334,9 @@ function setupDag() {
         .done(function() {
             closeDagParamModal($dagParameterModal);
             // show success message??
+        })
+        .fail(function(error) {
+            console.log("Update Params fails!");
         });
     });
 
@@ -398,7 +403,10 @@ function appendRetinas(){
             var name = retinas[i].retinaName;
             promises.push(createRetina.bind(this, $retTabSection, name));
         }
-        chain(promises);
+        return (chain(promises));
+    })
+    .fail(function(error) {
+        console.log("appendRetinas fails!");
     });
 }
 
@@ -496,6 +504,10 @@ function createRetina($retTabSection, retName) {
                 addParamToRetina($tbody, paramName, paramVal);
             }
             deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("list retina parameters fails!");
+            deferred.reject(error);
         });
     }
     return (deferred.promise());
@@ -1014,8 +1026,11 @@ function drawDag(tableName) {
         console.log(dagObj);
         deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "", 
                          index, parentChildMap));
+    })
+    .fail(function(error) {
+        console.log("drawDag fail!");
+        deferred.reject(error);
     });
-
 
     function getParentChildDagMap(dagObj) {
         var dagArray = dagObj.node;

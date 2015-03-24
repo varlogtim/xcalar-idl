@@ -143,9 +143,15 @@ function setupDSCartButtons() {
             updateDatasetInfoFields(dsName, true, true);
             $('#iconWaiting').remove();
         }
-        XcalarDestroyDataset(dsName).done(function() {
+        XcalarDestroyDataset(dsName)
+        .done(function() {
             cleanUpDsIcons();
             addCli('Delete DateSet', cliOptions);
+        })
+        .fail(function(error) {
+            console.log("Delete Dataset fails!");
+            $('#iconWaiting').remove();
+            $grid.removeClass('inactive');
         });
     });
 
@@ -164,7 +170,7 @@ function setupDSCartButtons() {
         );
         if (keysPresent) {
             createWorksheet()
-            .done(function() {
+            .always(function() {
                 resetDataCart();
             });
         } else {
@@ -214,7 +220,7 @@ function getDatasetSample(datasetName) {
     // Get datasets and names
     XcalarGetDatasets()
     .done(function(datasets) {
-        var samples      = {};
+        var samples = {};
         
         for (var i = 0; i < datasets.numDatasets; i++) {
             if (datasetName != datasets.datasets[i].name) {
@@ -274,6 +280,9 @@ function getDatasetSample(datasetName) {
                 });
             })(i);
         } 
+    })
+    .fail(function(error) {
+        console.log("getDatasetSample fails");
     });
 }
 
@@ -704,7 +713,7 @@ function removeSelectedKey(closeBox, input) {
 function createWorksheet() {
     var deferred = jQuery.Deferred();
     var promiseChain = [];
-    showWaitCursor();
+
     $("#dataCart").find(".selectedTable").each(function() {
         promiseChain.push((function() {
             var chainDeferred = jQuery.Deferred();
@@ -780,14 +789,27 @@ function createWorksheet() {
             })
             .done(function() {
                 chainDeferred.resolve();
+            })
+            .fail(function(error) {
+                chainDeferred.reject(error);
             });
             return (chainDeferred.promise());
         }).bind(this));
     });
 
+    showWaitCursor();
+
     chain(promiseChain)
     .then(function() {
         deferred.resolve();
+    })
+    .fail(function(error){
+        console.log("Create work sheet fails!");
+        deferred.reject(error);
+    })
+    .always(function() {
+        $("body").css({"cursor": "default"});
+        removeWaitCursor();
     });
 
     return (deferred.promise());
@@ -825,6 +847,10 @@ function setupDatasetList() {
         commitDSObjToStorage(); // commit;
         DSObj.display();
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("setupDatasetList fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -850,6 +876,10 @@ function updateDatasetInfoFields(dsName, active, dontUpdateName) {
             updateNumDatasets(datasets);
 
             deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("updateDatasetInfoFields fails!");
+            deferred.reject(error);
         });
     } else {
         deferred.resolve();

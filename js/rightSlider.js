@@ -249,6 +249,11 @@ function setuptableListSection() {
                             $buttons.hide();
                         }
                         innerDeferred.resolve();
+                    })
+                    .fail(function(error) {
+                        // XXX actually there are lot of issues 
+                        // in UI when failed
+                        innerDeferred.reject(error);
                     });
                 } else {
                     var tableNum = numHiddenTables-index;
@@ -269,6 +274,9 @@ function setuptableListSection() {
                             $buttons.hide();
                         }
                         innerDeferred.resolve();
+                    })
+                    .fail(function(error) {
+                        innerDeferred.reject(error);
                     });
                 }
                 
@@ -288,7 +296,7 @@ function setuptableListSection() {
                 $mainFrame.animate({scrollLeft: leftPos});
                 focusTable(numTables-1);
             }
-        })
+        });
     }
 }
 

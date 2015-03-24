@@ -19,6 +19,10 @@ function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
         }
 
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("Add Table Fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -116,8 +120,12 @@ function deleteTable(tableNum, deleteArchived) {
     .then(function() {
         return (XcalarDeleteTable(backTableName));
     })
-    .always(function() {
+    .done(function() {
         deferred.resolve();
+    })
+    .fail(function(error){
+        console.log("deleteTable fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());

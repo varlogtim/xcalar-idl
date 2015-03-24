@@ -162,8 +162,8 @@ function XcalarDestroyDataset(dsName) {
     .done(function() {
         deferred.resolve();
     })
-    .fail(function(status) {
-        deferred.reject(status);
+    .fail(function(error) {
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -214,6 +214,10 @@ function XcalarSample(datasetName, numEntries) {
     })
     .done(function(tableOfEntries) {
         deferred.resolve(tableOfEntries);
+    })
+    .fail(function(error) {
+        console.log("XcalarSample fails");
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -232,6 +236,9 @@ function XcalarGetCount(tableName) {
                 totEntries += countOutput.counts[i];
             }
             deferred.resolve(totEntries);
+        })
+        .fail(function(error) {
+            deferred.reject(error);
         });
     }
     return (deferred.promise());
@@ -425,10 +432,11 @@ function XcalarQuery(query) {
         "filter yelpUsers 'regex(user_id,\"--O\")'"
         
      */ 
-    xcalarQuery(tHandle, query)
-    .then(function(queryOutput) {
-        console.log(queryOutput);
-    })
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+
+    return (xcalarQuery(tHandle, query));
 }
 
 function XcalarGetDag(tableName) {
@@ -469,7 +477,7 @@ function XcalarUpdateRetina(retName, dagNodeId, funcApiEnum,
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    (xcalarUpdateRetina(tHandle, retName, dagNodeId, funcApiEnum,
+    return (xcalarUpdateRetina(tHandle, retName, dagNodeId, funcApiEnum,
                                   parameterizedInput));
 }
 

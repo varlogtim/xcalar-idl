@@ -44,11 +44,11 @@ function setupImportDSForm() {
             addCli('Load dataset', cliOptions);
         })
         .fail(function(result) {
+            var text;
             if (result == StatusT.StatusDsInvalidUrl) {
-                var text = 'Could not retrieve dataset from file path: ' + 
-                            loadURL;
+                text = 'Could not retrieve dataset from file path: ' + loadURL;
             } else {
-                var text = StatusTStr[result];
+                text = StatusTStr[result];
             }
             $('#tempDSIcon').remove();
             displayErrorMessage(text, $('#filePath'));

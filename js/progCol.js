@@ -79,6 +79,10 @@ function execCol(progCol, tableNum, args) {
         mapColumn(fieldName, mapString, tableNum)
         .done(function() {
             deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("execCol fails!");
+            deferred.reject(error);
         });
         break;
     case (undefined):

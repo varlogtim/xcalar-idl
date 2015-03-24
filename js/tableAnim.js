@@ -747,7 +747,6 @@ function createTableHeader(tableNum) {
         showWaitCursor();
         XcalarExport(cliOptions.tableName, retName+".csv")
         .done(function() {
-            removeWaitCursor();
             addCli('Export Table', cliOptions);
             var title = "Successful Export";
             var ins = "Widget location: http://schrodinger/dogfood/widget/main.html?"+
@@ -757,6 +756,12 @@ function createTableHeader(tableNum) {
 
             Alert.show({'title':title, 'msg':msg, 'instr': ins,
                         'isAlert':true, 'isCheckBox':true});
+        })
+        .fail(function() {
+            console.log("Export fails!");
+        })
+        .always(function() {
+            removeWaitCursor();
         });
     });
 
@@ -1080,6 +1085,11 @@ function addColMenuActions($colMenu) {
             Alert.show({'title':title, 'msg':value, 
                         'instr': instr, 'isAlert':true,
                         'isCheckBox': true});
+        })
+        .fail(function(error) {
+            console.log("Aggregate fails!");
+        })
+        .always(function() {
             removeWaitCursor();
         });
     });

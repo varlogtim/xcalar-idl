@@ -20,10 +20,12 @@ function refreshTable(newTableName, tableNum,
             var leftPos = $('#xcTableWrap'+newTableNum).position().left +
                             $('#mainFrame').scrollLeft();
             $('#mainFrame').animate({scrollLeft: leftPos});
-            $("body").css({"cursor": "default"});
-            removeWaitCursor();
             focusTable(newTableNum);
             deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("refreshTable fails!");
+            deferred.reject(error);
         });
     } else {
         // default
@@ -57,10 +59,12 @@ function refreshTable(newTableName, tableNum,
             if (savedScrollLeft) {
                 $('#mainFrame').scrollLeft(savedScrollLeft);
             } 
-            $("body").css({"cursor": "default"});
-            removeWaitCursor();
             focusTable(newTableNum);
             deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("refreshTable fails!");
+            deferred.reject(error);
         });
     }
     return (deferred.promise());
@@ -75,7 +79,7 @@ function sortRows(index, tableNum, order) {
     setDirection(newTableName, order);
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
-    showWaitCursor();
+
     var fieldName;
     switch(gTables[tableNum].tableCols[index-1].func.func) {
     case ("pull"):
@@ -99,26 +103,34 @@ function sortRows(index, tableNum, order) {
         cliOptions.direction = "DESC";
     }
 
+    showWaitCursor();
+
     XcalarIndexFromTable(srcTableName, fieldName, newTableName)
     .then(function() {
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep));
     })
     .done(function() {
         addCli('Sort Table', cliOptions)
+    })
+    .fail(function(error) {
+        console.log("Sort Rows Fails!");
+    })
+    .always(function() {
+        $("body").css({"cursor": "default"});
+        removeWaitCursor();
     });
 }
 
 function mapColumn(fieldName, mapString, tableNum) {
     var deferred = jQuery.Deferred();
 
-    showWaitCursor();
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempMapTable"+rand;
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
 
-    // XXX Fix Me: now use nesting one because linear
-    // one casue bug in sortByTime
+    showWaitCursor();
+
     XcalarMap(fieldName, mapString, 
               gTables[tableNum].frontTableName, newTableName)
     .then(function() {
@@ -126,6 +138,14 @@ function mapColumn(fieldName, mapString, tableNum) {
     })
     .done(function() {
         deferred.resolve();
+    })
+    .fail(function(error){
+        console.log("mapColumn fails!");
+        deferred.reject(error);
+    })
+    .always(function() {
+        $("body").css({"cursor": "default"});
+        removeWaitCursor();
     });
 
     return (deferred.promise());
@@ -161,6 +181,14 @@ function groupByCol(operator, newColName, colid, tableNum) {
     .done(function() {
         addCli('Group By', cliOptions);
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("groupByCol fails!");
+        deferred.reject(error);
+    })
+    .always(function() {
+        $("body").css({"cursor": "default"});
+        removeWaitCursor();
     });
 
     return (deferred.promise());
@@ -195,6 +223,14 @@ function filterCol(operator, value, colid, tableNum) {
     .done(function() {
         addCli('Filter Table', cliOptions);
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("filterCol fails!");
+        deferred.reject(error);
+    })
+    .always(function() {
+        $("body").css({"cursor": "default"});
+        removeWaitCursor();
     });
     
     return (deferred.promise());
@@ -302,7 +338,14 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
                                  leftName, rightTableNum, rightColumnNum]));
         }
     })
-    .done(deferred.resolve);
+    .done(deferred.resolve)
+    .fail(function(error) {
+        console.log("joinTables fails!");
+        deferred.reject(error);
+    })
+    .always(function() {
+        removeWaitCursor();
+    });
 
     return (deferred.promise());
 }
@@ -345,7 +388,11 @@ function joinTables2(args) {
                                  leftName, rightTableNum, rightName]));
         }
     })
-    .done(deferred.resolve);
+    .done(deferred.resolve)
+    .fail(function(error) {
+        console.log("joinTables2 fails!");
+        deferred.reject(error);
+    });
 
     return (deferred.promise());
 }
@@ -369,8 +416,11 @@ function joinTables3(args) {
                              KeepOriginalTables.DontKeep, rightTableNum));
     })
     .done(function() {
-        removeWaitCursor();
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("joinTables3 fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());

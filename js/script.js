@@ -92,6 +92,9 @@ function infScrolling(tableNum) {
                 table.find("tbody tr:gt(59)").remove();
 
                 innerDeferred.resolve();
+            })
+            .fail(function(error) {
+                innerDeferred.reject(error);
             });
         } else if ($(this)[0].scrollHeight - $(this).scrollTop() -
                    $(this).outerHeight() <= 1) {
@@ -102,7 +105,10 @@ function infScrolling(tableNum) {
             }
             goToPage(gTables[dynTableNum].currentPageNumber+1,
                      RowDirection.Bottom, dynTableNum)
-            .done(innerDeferred.resolve);
+            .done(innerDeferred.resolve)
+            .fail(function(error) {
+                innerDeferred.reject(error);
+            });
         }
 
         innerDeferred
@@ -110,6 +116,9 @@ function infScrolling(tableNum) {
             var rowScrollerMove = true;
             generateFirstLastVisibleRowNum(rowScrollerMove);
             updatePageBar(dynTableNum);
+        })
+        .fail(function(error) {
+            console.log("Scroll Fails!");
         });
     });
 }
@@ -152,6 +161,10 @@ function setTableMeta(table) {
         newTable.frontTableName = tableName;
 
         deferred.resolve(newTable);
+    })
+    .fail(function(error){
+        console.log("setTableMeta Fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -213,6 +226,10 @@ function setupHiddenTable(table) {
         }  
 
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("setupHiddenTable fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -478,6 +495,10 @@ function documentReadyCatFunction(tableNum, tableNumsToRemove) {
         }
         buildInitialTable(index, tableNum, jsonData, keyName);
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("documentReadyCatFunction fails!");
+        deferred.reject(error);
     });
     
     return (deferred.promise());
@@ -507,6 +528,10 @@ function startupFunctions() {
     .done(function() {
         setupDag();
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("startupFunctions fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -528,6 +553,10 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
         constructDagImage(gTables[tableNum].backTableName);
 
         deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("tableStartupFunctions Fails!");
+        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -561,6 +590,10 @@ function documentReadyIndexFunction() {
                     $('#mainFrame').addClass('empty');
                 }
                 deferred.resolve();
+            })
+            .fail(function(error) {
+                console.log("initializeTable fails!");
+                deferred.reject(error);
             });
         }
         return (deferred.promise());
@@ -572,6 +605,9 @@ function documentReadyIndexFunction() {
         .done(function() {
             setuptableListSection();
             initializeJoinModal();
-        }); 
+        })
+        .fail(function(error) {
+            console.log("Initialization fails!");
+        });
     });
 }

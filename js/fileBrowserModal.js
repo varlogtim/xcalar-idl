@@ -82,6 +82,10 @@ FileBrowser = (function() {
                 allFiles = listFilesOutput.files;
                 self.sortBy(sortKey, sortRegEx);
                 deferred.resolve();
+            })
+            .fail(function(error){
+                console.log("List file fails!");
+                deferred.reject(error);
             });
         }
         return (deferred.promise());
