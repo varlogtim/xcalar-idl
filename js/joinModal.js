@@ -22,7 +22,13 @@ function joinModalTabs($modal, tableNum, colId) {
             if (colName == "DATA") {
                 continue;
             }
-            colHtml +=  '<th class="col' + (j + 1) + '">' + 
+            var thClass = "col" + (j + 1);
+            var type = gTables[i].tableCols[j].type;
+            thClass += " type-" + type;
+            if (type === "object" || type === "undefined") {
+                thClass += " unselectable";
+            }
+            colHtml +=  '<th class="' + thClass + '">' + 
                             '<div class="columnTab">' + 
                                 colName + 
                             '</div>' + 
@@ -175,26 +181,41 @@ function joinTableKeyPress(e) {
     }
 }
 
-function addModalTabListeners(modal) {
-    modal.find('.tableLabel').click(function() {
-        modal.find('.tableLabel.active').removeClass('active');
-        $(this).addClass('active');
-        var index = $(this).index();
-        modal.find('.joinTable').hide();
-        modal.find('.joinTable').eq(index).show();
+function addModalTabListeners($modal) {
+    $modal.on('click', '.tableLabel', function() {
+        var $tableLabel = $(this);
+        $modal.find('.tableLabel.active').removeClass('active');
+        $tableLabel.addClass('active');
+        var index = $tableLabel.index();
+        $modal.find('.joinTable').hide();
+        $modal.find('.joinTable').eq(index).show();
     });
-
-    modal.find('th').click(function() {
-        var colNum = parseColNum($(this));
-        var table = $(this).closest('table');
-        console.log(colNum)
-        if ($(this).hasClass('colSelected')) {
-            $(this).removeClass('colSelected');
-            table.find('.col'+colNum).removeClass('colSelected');
+    $modal.on('click', 'th', function() {
+        var $th = $(this);
+        var delay = 800;
+        if ($th.hasClass("unselectable")) {
+            var $div = $th.find("div");
+            $div.attr("data-toggle", "tooltip");
+            $div.attr("data-placement", "bottom");
+            $div.attr("data-original-title", "can't join this type");
+            $div.mouseover();
+            setTimeout(function(){
+                $div.mouseout();
+                $div.removeAttr("data-toggle");
+                $div.removeAttr("data-placement");
+                $div.removeAttr("data-original-title");
+            }, delay);
+            return;
+        }
+        var colNum = parseColNum($th);
+        console.log(colNum);
+        var $table = $th.closest('table');
+        if ($th.hasClass('colSelected')) {
+            $th.removeClass('colSelected');
+            $table.find('.col' + colNum).removeClass('colSelected');
         } else {
-            modal.find('.colSelected').removeClass('colSelected');
-            $(this).addClass('colSelected');
-            table.find('.col'+colNum).addClass('colSelected');
+            $modal.find('.colSelected').removeClass('colSelected');
+            $table.find('.col' + colNum).addClass('colSelected');
         }
     });
 }
@@ -214,6 +235,8 @@ function resetJoinTables() {
     $("#inputSection input").val(joinTableName);
     $('#joinDialog').hide();
     $('#joinModal').hide();
+    $('#leftJoin').off();
+    $('#rightJoin').off();
     $('#joinDialog').find('.tableLabel').remove();
     $('#joinDialog').find('.joinTable').remove();
     $('#joinDialog').width(920).height(620);
