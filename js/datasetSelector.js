@@ -821,7 +821,7 @@ function setupDatasetList() {
             var numDatasets = datasets.numDatasets;
 
             for (var i = 0; i < numDatasets; i++) {
-                DSObj.create(gDSObj.id++, datasets.dataset[i].name,
+                DSObj.create(gDSObj.id++, datasets.datasets[i].name,
                              gDSObj.curId, false);
             }
         }

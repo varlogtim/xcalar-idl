@@ -1077,7 +1077,7 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
 function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
     var deferred = jQuery.Deferred();
     console.log("xcalarAggregate(srcTableName = " + srcTableName +
-                ", aggregateOp = " + AggregateOpTStr[aggregateOp] +
+                ", aggregateOp = " + AggregateOperatorTStr[aggregateOp] +
                 ", fieldName = " + fieldName + ")");
 
     var workItem = new XcalarApiWorkItemT();
