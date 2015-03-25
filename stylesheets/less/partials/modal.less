@@ -2,56 +2,40 @@
 .modalBuilder(@w, @h) {
     &.modalContainer {
         display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        width: @w;
-        height: @h;
-        max-width: 99%;
-        max-height: 99%;
+        .position(absolute, 0, 0, 0, 0);
+        .size(@width: @w, @height: @h, @max-width: 99%, @max-height: 99%);
         margin: auto;
-        border-radius: 3px;
+        .rounded;
         z-index: 40;
         box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
         background-color: @color-white;
-        resize: both;
         overflow: hidden;
     }
 
     .modalHeader {
         .action-gradient;
-        width: 100%;
-        height: 36px;
+        .size(@width: 100%, @height: 36px);
+        .noSelection;
+        cursor: default;
         line-height: 36px;
-        border-top-left-radius: 3px;
-        border-top-right-radius: 3px;
         text-align: center;
         text-shadow: 1px 1px rgba(0,0,0,0.2);
         .text {
             color: @color-text-white;
-            font-weight: bold;
-            font-size: 18px;
+            .font(@weight: bold, @size: 18px);
         }
         .close {
-            position: absolute;
             cursor: pointer;
-            width: 22px;
-            height: 22px;
-            top: 7px;
-            right: 7px;
-            border-radius: 2px;
+            .position(absolute, @top: 7px, @right: 7px);
+            .size(@width: 22px, @height: 22px);
+            .rounded(2px);
             box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
             .linear-gradient(top, #ACD7F1, #9FCADF);
 
             .icon {
                 display: inline-block;
-                position: absolute;
-                top: 0px;
-                right: 0px;
-                height: 22px;
-                width: 22px;
+                .position(absolute, @top: 0, @right: 0);
+                .size(@width: 22px, @height: 22px);
                 .image("/images/ds-close.png", 50%, 50%);
             }
 
@@ -67,12 +51,11 @@
     }
 
     .modalInstruction {
-        height: 58px;
-        width: 100%;
+        .size(@width: 100%, @height: 58px);
         background-color: @color-white;
         overflow: hidden;
         padding: 13px;
-        .flex-display();
+        .flex-display;
         .flex-direction(row);
 
         .icon {
@@ -80,16 +63,15 @@
             .background('/images/exclamation.png', 32px, 32px);
         }
         .text {
-            font-size: 12px;
-            font-weight: bold;
-            color: @color-text-instructions;
             .flex(0 0 ~"calc(100% - 58px)");
+            .font(@weight: bold, @size: 12px);
+            color: @color-text-instructions;
             overflow: hidden;
         }
     }
 
     .modalTopMain {
-        width: 100%;
+        .size(@width: 100%);
         border-top: 3px solid rgba(1, 1, 1, 0.18);
         background: @color-join-background;
         color: @color-text-darkGray;
@@ -100,33 +82,19 @@
     }
 
     .modalSubMain {
-        width: 100%;
+        .size(@width: 100%);
         background: @color-join-background;
         color: @color-text-darkGray;
     }
 
     .modalBottom {
-        width: 100%;
-        height: 50px;
+        .size(@width: 100%, @height: 50px);
         background-color: @color-white;
-        text-align: right;
-        .button {
-            float: right;
-            font-weight: bold;
-            text-align: center;
-            height: 30px;
-            line-height: 30px;
-            font-size: 12px;
-            border-radius: 3px 3px 3px 3px;
-            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-            cursor: pointer;
 
+        .btn {
+            float: right;
             &.confirm {
                 color: @color-text-cyan;
-                .action-gradient;
-                &:hover {
-                    .action-inverse-gradient;
-                }
             }
             &.cancel {
                 color: @color-text-white;
@@ -140,11 +108,8 @@
 }
 
 #joinModal, #modalBackground {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    .position(fixed, @top: 0, @left: 0);
+    .size(100%, 100%);
     background-color: #000000;
     opacity: 0.6;
     display: none;
@@ -154,36 +119,29 @@
 /* Pretty Json Modal */
 #jsonModal {
     display: inline-block;
-    position: fixed;
-    z-index: 20;
-    position: fixed;
-    left: 0;
+    .position(fixed, @left: 0);
     opacity: 1;
     z-index: 36;
     display: none;
-    border-radius: 2px;
+    .rounded(2px);
     overflow: hidden;
 }
 
 #jsonWrap {
     left: 0;
-    min-width: 300px;
+    .size(400px, 400px, @min-width: 300px);
     background-color: @color-white;
     opacity: 1;
     z-index: 36;
     overflow: hidden;
     resize: both;
     padding: 32px 0px 10px 10px;
-    width: 400px;
-    height: 400px;
-    font-weight: 400;
+    .font(@weight: 400);
 }
 
 .jsonDragArea {
-    position: absolute;
-    width: 100%;
-    height: 30px;
-    top: 0px;
+    .position(absolute, @top: 0);
+    .size(@width: 100%, @height: 30px);
     cursor: move;
     cursor: -webkit-grab;
     cursor: -moz-grab;
@@ -191,64 +149,29 @@
     text-align: center;
     color: @color-text-transparentWhite;
     text-shadow: 1px 1px rgba(0,0,0,0.2);
-    line-height: 28px;
-    font-size: 15px;
-
+    .font(@size: 15px, @line-height: 28px);
 }
 
 .closeJsonModal {
-    position: absolute;
-    top: 0px;
-    right: -20px;
-    cursor: pointer;
-    z-index: 37;
-    width: 22px;
-    height: 22px;
-    top: 3px !important;
-    right: 4px !important;
-    border-radius: 2px;
-    box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
-    .linear-gradient(top, #ACD7F1, #9FCADF);
-    
-    .icon {
-        display: inline-block;
-        position: absolute;
-        z-index: 39;
-        height: 22px;
-        width: 22px;
-        .image("/images/ds-close.png", 50%, 50%);
-    }
-
-    &:hover {
-        .linear-gradient(top, #9FCADF, #ACD7F1);
-    }
-
-    &:active {
-        box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
-                    0px 1px 1px 0 rgba(255, 255, 255, 0.3);
-    }
+    .modalBuilder.modalHeader.close();
+    .position(@top: 3px, @right: 4px);
 }
 
 .prettyJson {
-    font-family: "Source Code Pro", courier, sans-serif;
-    font-size: 16px;
+    .size(@height: 100%, @min-width: 100px, @min-height: 100px);
+    .font(@size: 16px, @family: @font-code);
     color: #FFA633;
-    overflow: auto;
-    min-width: 100px;
-    min-height: 100px;
     resize: none;
-    height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
 .jObject {
+    .position(relative);
+    .size(@width: 100%, @height: auto);
     padding-left: 25px;
     padding-right: 5px;
-    position:relative;
-    width: 100%;
     overflow:visible;
-    height: auto;
 }
 
 .jsonBlock {
@@ -260,7 +183,7 @@
     padding: 0px 1px;
     margin: 0px -1px;
     display: inline-block;
-    border-radius: 3px;
+    .rounded;
     cursor: pointer;
 }
 
@@ -291,90 +214,76 @@
 #joinDialog {
     .modalBuilder(920px, 670px);
     overflow: hidden;
-
+    resize: both;
     #inputSection {
-        height: 57px;
-        line-height: 57px;
+        .size(@height: 57px);
+        .font(@weight: bold, @size: 14px, @line-height: 57px);
         padding-left: 17px;
-        font-size: 14px;
-        font-weight: bold;
         .text {
             float: left;
             margin-right: 10px;
         }
         #roundedInput {
             float: left;
-            margin-top: 16px;
-            margin-right: 15px;
-            width: 198px;
-            height: 25px;
-            line-height: 25px;
-            font-weight: bold;
-            font-size: 12px;
+            margin: 16px 15px 0 0;
+            .size(@width: 198px, @height: 25px);
+            .font(@weight: bold, @size: 12px, @line-height: 25px);
             &:focus {
                 background-color: white;
                 box-shadow: 0px 2px 2px 0 #888888 inset;
                 outline: none;
                 color: @color-text-brightBlue;
-                font-size: 12px;
             }
         }
 
         #joinType {
+            .position(relative);
+            .size(@width: 201px, @height: 25px);
+            .rounded;
             float: left;
             margin-top: 16px;
-            height: 25px;
-            width: 201px;
-            border-radius: 3px;
             box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
             background-color: white;
-            position: relative;
             cursor: default;
             .noSelection;
             .text {
                 font-color: @color-text-darkGray;
-                font-weight: 600;
-                line-height: 25px;
+                .font(@weight: 600, @line-height: 25px);
                 padding-left: 10px;
             }
             .icon {
                 .action-gradient;
-                width: 25px;
-                height: 25px;
+                .size(25px, 25px);
                 float: right;
-                border-radius: 0px 3px 3px 0px;
+                .rounded(0px 3px 3px 0px);
                 cursor: pointer;
             }
             #arrow {
+                .position(relative, @right: -19px);
                 .background("/images/dropDown.png", 14px, 10px);
                 float: right;
-                position: relative;
-                right: -19px;
                 margin-top: 7px;
                 cursor: pointer;
                 opacity: 0.7;
             }
             ul {
+                .position(absolute, @top: 26px);
+                .size(@width: ~"calc(100% - 25px)");
                 background-color: white;
-                position: absolute;
                 z-index: 10;
-                top: 26px;
-                width: ~"calc(100% - 25px)";
                 cursor: default;
-                border-bottom-left-radius: 3px;
-                border-bottom-right-radius: 3px;
+                .rounded(0 0 3px 3px);
                 overflow: hidden;
                 box-shadow: 0px 1px 1px 1px rgba(0,0,0,0.2);
                 display: none;
                 li {
-                    z-index:10;
-                    height: 30px;
-                    line-height: 30px;
+                    z-index: 10;
+                    .size(@height: 30px);
+                    .font(@weight: 600, @line-height: 30px);
                     padding-left: 10px;
                     &:hover {
                         background-color: @color-selectedCell-light;
                     }
-                    font-weight: 600;
                     &.inactive {
                         opacity: 0.3;
                     }
@@ -385,59 +294,52 @@
 
     #mainJoin {
         padding-top: 16px;
-        height: ~"calc(100% - 195px)";
+        .size(@height: ~"calc(100% - 195px)");
         .tabArea {
-            height: 100%;
+            .position(relative);
+            .size(@height: 100%);
             border: 1px solid @color-join-border;
-            position: relative;
         }
         .tableTabs {
+            .position(absolute);
+            .size(@width: 100%, @height: 38px);
             padding-left: 5px;
-            height: 38px;
-            position: absolute;
-            width: 100%;
-            .flex-display();
+            .flex-display;
             .active {
+                .flex-shrink(0);
+                .size(@width: 115px, @height: 32px);
+                .rounded(3px 3px 0 0);
                 background: @color-selectedCell-light;
                 color: @color-text-blue;
-                width: 115px;
-                height: 32px;
                 padding-top: 2px;
-                border-radius: 0px;
                 margin-top: 7px;
                 border-right: 1px solid @color-join-border;
                 border-left: 1px solid @color-join-border;
                 border-top: 1px solid @color-join-border;
                 box-shadow: none;
-                border-top-left-radius: 3px;
-                border-top-right-radius: 3px;
-                .flex-shrink(0);
             }
         }
         .joinTableArea {
-            width: 100%;
+            .size(@width: 100%, @height: ~"calc(100% - 38px)");
             background: @color-selectedCell-light;
             background: white;
             border-top: 1px solid @color-join-border;
             box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
             overflow: auto;
             overflow-y: hidden;
-            height: ~"calc(100% - 38px)";
             margin-top: 38px;
         }
 
         .background {
-            height: 36px;
-            width: 100%;
-            position: absolute;
+            .position(absolute);
+            .size(@width: 100%, @height: 36px);
             background-color: @color-selectedCell-light;
             z-index: 1;
         }
 
         .outline {
-            height: 36px;
-            width: 100%;
-            position: absolute;
+            .position(absolute);
+            .size(@width: 100%, @height: 36px);
             border: 1px solid @color-join-border;
             border-top: 0;
             z-index: 5;
@@ -445,10 +347,10 @@
         }
 
         .joinTable {
-            width: 0px;
+            .position(relative);
+            .size(@width: 0px);
             margin-left: 1px;
             display: none;
-            position: relative;
             z-index: 2;
             td:nth-child(odd) {
                 background-color: rgba(80,80,80,.1);
@@ -456,8 +358,7 @@
             th {
                 background-color: #ddeaf2;
                 border-color: #ddeaf2;
-                width: 120px;
-                height: 36px;
+                .size(@width: 120px, @height: 36px);
                 &:first-child {
                     width: 125px !important;
                     padding-left: 5px;
@@ -470,18 +371,14 @@
         }
 
         .columnTab {
+            .size(@width: 100%, @height: 22px);
             .gray-gradient;
+            .font(@weight: bold, @size: 12px, @line-height: 22px);
             color: @color-text-midGray;
-            font-size: 12px;
-            font-weight: bold;
             text-align: center;
-            line-height: 22px;
-            width: 100%;
-            height: 22px;
             margin-right: 1px;
             float: left;
-            margin-top: 0px;
-            border-radius: 3px 3px 3px 3px;
+            .rounded;
             box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
             cursor: pointer;
         }
@@ -491,18 +388,14 @@
         }
 
         .tableLabel {
+            .size(@width: 115px, @height: 22px);
             .gray-gradient;
             color: @color-text-midGray;
-            font-size: 14px;
-            font-weight: bold;
+            .font(@weight: bold, @size: 14px, @line-height: 22px);
             text-align: center;
-            line-height: 22px;
-            width: 115px;
-            height: 22px;
-            margin-right: 5px;
+            margin: 10px 5px 0 0;
             float: left;
-            margin-top: 10px;
-            border-radius: 3px 3px 3px 3px;
+            .rounded;
             box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
             cursor: pointer;
             padding: 0 2px;
@@ -512,52 +405,46 @@
             white-space: nowrap;
         }
         .tableText {
-            height: 29px;
-            line-height: 29px;
+            .size(@height: 29px);
+            .font(@weight: bold, @line-height: 29px);
             color: @color-text-darkGray;
-            font-weight: bold;
             padding-left: 25px;
         }
         .mainTable {
-            height: ~"calc(100% - 55px)";
-            width: ~"calc(100% - 25px)";
+            .size(@width: ~"calc(100% - 25px)", @height: ~"calc(100% - 55px)");
             margin-left: 15px;
-            border-radius: 3px;
+            .rounded;
             background: @color-join-background;
             box-shadow: 0px 2px 2px 0 @color-join-drop-shadow inset;
         }
         #leftJoin {
             float: left;
-            height: 100%;
-            width: ~"calc(50% - 2px)";
+            .size(@width: ~"calc(50% - 2px)", @height: 100%);
             .noSelection;
         }
         .divider {
             float: left;
-            width: 1px;
-            height: 100%;
+            .size(@width: 1px, @height: 100%);
             background-color: @color-join-divider;
         }
         #rightJoin {
             float: left;
-            height: 100%;
-            width: 50%;
+            .size(@width: 50%, @height: 100%);
             .noSelection;
             .tableText {
                 padding-left: 20px;
             }
             .mainTable {
-                margin-left:10px;
-                width: ~"calc(100% - 25px)";
+                margin-left: 10px;
             }
         }
 
         tr:nth-child(odd) td.colSelected {
-            background-color: #d1dee6;
+            background-color: @color-selectedCell-dark;
         }
 
         tr:nth-child(even) td.colSelected {
-            background-color: #ddeaf2;
+            background-color: @color-selectedCell-light;
         }
 
         .colSelected {
@@ -569,8 +456,7 @@
     }
     .modalBottom {
         height: 40px !important;
-        .button {
-            width: 150px;
+        .btn {
             margin: 0 20px 10px 0;
         }
     }
@@ -582,28 +468,25 @@
     .modalBuilder(500px, auto);
     bottom: auto !important;
     margin-top: 10% !important;
-    resize: none !important;
     #alertContent {
-        overflow: auto;
-        display: table-cell;
-        padding: 10px 20px;
-        height: 75px;
-        width: inherit;
-        vertical-align: middle;
-        text-align: center;
+        .size(@height: 75px);
+        padding: 0 20px;
+        .text {
+            text-align: center;
+            .vertical-align;
+        }
     }
 
     #alertInstruction {
-        height: 60px;
+        .size(@height: 60px);
     }
 
     #alertOption {
-        padding: 15px 5px;
+        padding: 15px 5px 0 5px;
         #alertCheckBox {
             text-align: center;
             margin: 0 auto;
-            font-size: 13px;
-            font-weight: bold;
+            .font(@weight: bold, @size: 13px);
             .checkbox {
                 display: inline-block;
                 .background("/images/alertModal/checkbox-unchecked.png", 
@@ -614,13 +497,11 @@
                 }
             }
             .text {
+                .position(relative, @top: -4px);
                 display: inline-block;
                 margin-left: 10px;
                 color: @color-text-lightGray;
-                position: relative;
-                top: -4px;
             }
-
             // now make it disabled
             &.inactive {
                 .checkbox {
@@ -632,10 +513,9 @@
     }
 
     .modalBottom {
-        height: 40px !important;
-        .button {
-            width: 130px;
-            margin: 0px 10px 10px 0;
+        .btn {
+            .size(@width: 130px);
+            margin: 10px 10px 0px 0;
         }
     }
 }
@@ -645,34 +525,30 @@
 #fileBrowserModal {
     .modalBuilder(800px, 670px);
     text-transform: capitalize;
-    resize: none;
     select.listSection {
         float: left;
-        width: 450px;
-        height: 24px;
+        .size(@width: 450px, @height: 24px);
         padding-left: 10px;
         border: none;
         -webkit-appearance: none;
-        border-radius: 0px 0px 3px 3px;
+        .rounded(0px 0px 3px 3px);
         box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
         .image("/images/fileBrowserModal/down.png", 100%, 50%);
         background-color: @color-white; 
         outline: none;
-        font-size: 12px;
+        .font(@size: 12px);
     }
 
     .iconWrapper {
         display: inline-block;
-        height: 25px;
-        width: 25px;
-        border-radius: 3px;
+        .size(25px, 25px);
+        .rounded;
         .action-gradient;
         &:active {
             .action-inverse-gradient;
         }
         .icon {
-            width: 25px;
-            height: 25px;
+            .size(25px, 25px);
         }
         &.icon-up .icon{
             .image("/images/fileBrowserModal/up.png", 50%, 50%);
@@ -684,27 +560,23 @@
             }
             .dropDown;
             .dropdownBox {
-                width: 12px;
-                height: 9px;
+                .size(@width: 12px, @height: 9px);
+                .position(@right: 2px);
                 border-width: 9px 9px 0 0;
-                right: 2px;
             }
             &:hover .dropdownBox{
                 opacity: 1.0 !important;
             }
             .colMenu {
-                width: 120px;
-                position: absolute;
-                top: 25px;
-                right: 0px;
+                .size(@width: 120px);
+                .position(absolute, @top: 25px, @right: 0);
                 li {
-                    position: relative;
+                    .position(relative);
                     .icon {
                         display: none;
-                        position: absolute;
-                        top: 9px;
-                        right: 6px;
-                        .background("/images/dagIcons/tick-blue.png", 15px, 12px);
+                        .position(absolute, @top: 9px, @right: 6px);
+                        .size(@width: 15px, @height: 12px);
+                        .image("/images/dagIcons/tick-blue.png");
                     }
                     &:hover {
                         background-color: @color-selectedCell-dark;
@@ -717,31 +589,30 @@
         }
     }
 
+    .topSection .text, .inputSection .text {
+        .size(@width: 90px, @height: 25px);
+        .font(@weight: bold, @size: 13px, @line-height: 25px);
+        float: left;
+        .noSelection;
+        cursor: default;
+    }
+
     .modalTopMain {
-        height: 58px;
+        .size(@height: 58px);
         padding: 14px 0;
         .topSection {
-            height: 25px;
-            width: 90%;
+            .size(@width: 90%, @height: 25px);
             margin: 0px auto;
-            .text {
-                width: 90px;
-                height: 25px;
-                line-height: 25px;
-                font-weight: bold;
-                font-size: 13px;
-                float: left;
-            }
             .iconSection {
                 float: left;
                 margin-left: 50px;
                 .icon-list {
                     &.gridView .icon {
-                        width: 26px;
+                        .size(@width: 26px);
                         .image("/images/fileBrowserModal/listView.png", 4px, 3px);
                     }
                     &.listView .icon {
-                        width: 26px;
+                        .size(@width: 26px);
                         .image("/images/fileBrowserModal/gridView.png", 4px, 3px);
                     }
                 }
@@ -750,42 +621,39 @@
     }
 
     .modalMain {
-        height: 370px;
+        .position(relative);
+        .size(@height: 370px);
         padding: 5px 0;
-        position: relative;
         .noSelection;
 
         .titleSection {
-            width: 778px;
-            height: 40px;
+            .size(@width: 778px, @height: 40px);
             padding: 5px 0;
             margin: 0 auto;
             background: @color-background-darkGray;
-            border-radius: 3px 3px 0px 0px;
+            .rounded(3px 3px 0px 0px);
             border: 1px solid #b2b2b2;
             box-shadow: 0px 1px 1px rgba(0,0,0,0.3);
 
             .title {
                 float: left;
-                position: relative;
-                height: 30px;
-                line-height: 30px;
+                .position(relative);
+                .size(@height: 30px);
+                .font(@weight: bold, @size: 12px, @line-height: 30px);
                 margin-left: 10px;
                 padding-left: 15px;
                 .gray-gradient;
-                border-radius: 3px 3px 3px 3px;
-                font-weight: bold;
-                font-size: 12px;
+                .rounded;
                 color: #5e5e5e;
                 cursor: default;
                 &.fileName {
-                    width: 400px;
+                    .size(@width: 400px);
                 }
                 &.fileDate {
-                    width: 160px;
+                    .size(@width: 160px);
                 }
                 &.fileSize {
-                    width: 170px;
+                    .size(@width: 170px);
                 }
                 &.clickable {
                     .icon {
@@ -804,22 +672,19 @@
                 }
                 .icon {
                     display: none;
-                    position: absolute;
-                    right: 2px;
-                    width: 25px;
-                    height: 30px;
+                    .position(absolute, @right: 2px);
+                    .size(@width: 25px, @height: 30px);
                     .image("/images/fileBrowserModal/sort.png", 50%, 50%);
                 }
             }
         }
 
         .mainSection {
+            .size(@width: 778px, @height: 100%);
             overflow-y: auto;
             background: lighten(@color-background-darkGray, 3%);
-            border-radius: 3px 3px 0px 0px;
+            .rounded(3px 3px 0px 0px);
             box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
-            width: 778px;
-            height: 100%;
             margin: 0 auto;
             text-transform: none;
         }
@@ -844,29 +709,27 @@
         &.listView {
             .mainSection {
                 background: #f9f9f9;
-                border-radius: 0;
-                height: ~"calc(100% - 40px)";
+                .rounded(0);
+                .size(@height: ~"calc(100% - 40px)");
                 box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
             }
 
             grid-unit {
-                height: 30px;
+                .size(@height: 30px);
                 margin: 0 auto;
                 display: block;
                 cursor: default;
 
                 > div {
                     float: left;
-                    height: 30px;
-                    line-height: 30px;
+                    .size(@height: 30px);
+                    .font(@weight: bold, @size: 12px, @line-height: 30px);
                     border: 1px solid transparent;
-                    font-size: 12px;
-                    font-weight: bold;
                     color: #8b8b8b;
                 }
 
                 .label {
-                    width: ~"calc(400px - 30px)";
+                    .size(@width: ~"calc(400px - 30px)");
                     padding-left: 5px;
                 }
                 .fileSize, .fileDate {
@@ -874,10 +737,10 @@
                     padding-left: 15px;
                 }
                 .fileDate {
-                    width: 160px;
+                    .size(@width: 160px);
                 }
                 .fileSize {
-                    width: 170px;
+                    .size(@width: 170px);
                 }
                 .gridIcon {
                     display: none;
@@ -885,13 +748,10 @@
 
                 .listIcon {
                     margin-left: 10px;
-                    width: 30px;
-                    height: 30px;
+                    .size(30px, 30px);
                     .icon {
                         display: inline-block;
-                        width: 30px;
-                        height: 30px;
-                        background-position: 50% 50% !important;
+                        .size(30px, 30px);
                     }
                 }
                 &:nth-child(even) > div {
@@ -913,45 +773,34 @@
                     }
                 }
                 &.ds > .listIcon .icon {
-                    .image("/images/db-icon-white.png");
+                    .image("/images/db-icon-white.png", 50%, 40%);
                 }
                 &.folder > .listIcon .icon {
-                    .image("/images/datastore/folder-sm.png", 2.5px, 3px);
+                    .image("/images/datastore/folder-sm.png", 50%, 50%);
                 }
             }
         }
     }
     .modalSubMain {
-        height: 90px;
+        .size(@height: 90px);
         padding: 5px 0;
         .inputSection {
-            width: 600px;
-            height: 25px;
+            .size(@width: 600px, @height: 25px);
             margin: 10px auto 5px auto;
-            .text {
-                width: 100px;
-                height: 25px;
-                line-height: 25px;
-                font-size: 13px;
-                font-weight: bold;
-                float: left;
-                .noSelection;
-                cursor: default;
-            }
             input {
-                width: 450px;
-                height: 25px;
+                .size(@width: 450px, @height: 25px);
                 line-height: 25px;
-                border-radius: 3px 3px 0px 0px;
+                .rounded(3px 3px 0px 0px);
                 box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
                 padding-left: 10px;
             }
 
         }
     }
-    .button {
-        width: 150px;
-        margin: 15px 15px 0 0;
+    .modalBottom {
+        .btn {
+            margin: 15px 15px 0 0;
+        }
     }
 }
 // End Of File Browser Modal
@@ -992,9 +841,8 @@
     }
 
     .heading {
-        font-weight: 700;
+        .font(@weight: 700, @size: 13px);
         color: @color-text-darkGray;
-        font-size: 13px;
         display: block;
         margin-bottom: 5px;
     }
@@ -1007,10 +855,9 @@
     .templateSection {
         white-space: nowrap;
         .heading {
+            .size(@width: 120px, @height: 30px);
             float: left;
             line-height: 30px;
-            height: 30px;
-            width: 120px;
             margin-bottom: 0px;
         }
         .templateTable {
@@ -1033,29 +880,25 @@
         td {
             text-align: left;
             padding: 0px 5px;
-            font-size: 13px;
-            font-weight: 700;
+            .font(@weight: 700, @size: 13px);
             color: @color-text-midlightGray;
             .boxed {
+                .size(@height: 30px);
                 background-color: white;
-                height: 30px;
                 line-height: 30px;
-                border-radius: 3px;
+                .rounded;
                 padding: 0px 4px 0px 6px;
                 color: @color-text-blue;
                 &.small {
-                    max-width: 50px;
-                    min-width: 35px;
+                    .size(@min-width: 35px, @max-width: 50px);
                     text-align: center;
                     padding-left: 6px;
                 }
                 &.medium {
-                    min-width: 120px;
-                    max-width: 350px;
+                    .size(@min-width: 120px, @max-width: 350px);
                 }
                 &.large {
-                    min-width: 300px;
-                    max-width: 600px;
+                    .size(@min-width: 300px, @max-width: 600px);
                 }
             }
         }  
@@ -1066,21 +909,20 @@
     }
 
     .draggableDiv {
+        .position(relative);
+        .size(@height: 25px);
         display: inline-block;
         padding: 2px 12px 2px 2px;
         margin: 5px;
-        height: 25px;
-        border-radius: 3px;
+        .rounded;
         .action-gradient;
-        position: relative;
         cursor: pointer;
         color: @color-text-cyan;
         text-shadow: -1px 0px 1px rgba(0,0,0,0.6);
 
         .icon {
+            .size(@width: 19px, @height: 100%);
             .image("/images/dagIcons/move-white.png");
-            height: 100%;
-            width: 19px;
             display: inline-block;
             float: left;
             margin-right: 4px;
@@ -1090,16 +932,13 @@
             display: none;
         }
         .close {
-            position: absolute;
+            .position(absolute, @top: 0, @right: 0);
+            .size(@height: 11px);
             display: none;
             opacity: 0;
-            line-height: 6px;
-            height: 11px;
             padding: 2px 0px 2px 1px;
-            font-size: 16px;
-            border-radius: 2px;
-            top: 0px;
-            right: 0px;
+            .font(@size: 16px, @line-height: 6px);
+            .rounded(2px);
             color: @color-text-cyan;
             cursor: pointer;
             overflow: hidden;
@@ -1133,8 +972,7 @@
             cursor: text;
 
             &.load {
-                min-width: 300px;
-                max-width: 800px;
+                .size(@min-width: 300px, @max-width: 800px);
             }
 
             .draggableDiv {
@@ -1176,20 +1014,16 @@
                     color: @color-text-darkGray;
                 }
                 .paramVal {
-                    line-height: 100%;
-                    // width: 200px;
                     width: 385px;
-                    font-weight: 700;
-                    font-size: 13px;
+                    .font(@weight: 700, @size: 13px, @line-height: 100%);
                     &:focus {
-                       box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
+                        box-shadow: inset -1px 0px 1px 1px rgba(0,0,0,0.15);
                         background-color: white; 
                     }
                 }
                 .options {
                     float: right;
-                    position: relative;
-                    right: 0px;
+                    .position(relative, @right: 0);
                     cursor: pointer;
 
                     .option {
@@ -1199,8 +1033,7 @@
 
                          &.paramEdit {
                             .icon {
-                                position: relative;
-                                top: 1px;
+                                .position(relative, @top: 1px);
                                 .background("/images/ds-editDS.png", 15px, 15px);
 
                             }
@@ -1230,8 +1063,7 @@
             tbody {
                 tr {
                     td {
-                        width: 444px;
-                        height: 40px;
+                        .size(@width: 444px, @height: 40px);
                         padding-left: 15px;
                         &:first-of-type {
                             width: 444px;
@@ -1249,13 +1081,11 @@
     #addNewParameterizedQuery {
         text-align: center;
         float: right;
-        // margin-top: 10px;
         color: @color-text-cyan;
         width: 240px;
         .icon {
+            .size(@width: 20px, @height: 100%);
             .image("/images/dagIcons/plus-soft-white.png", 0, 50%);
-            width: 20px;
-            height: 100%;
             float: left;
             margin-left: 3px;
         }
@@ -1267,23 +1097,10 @@
     .modalBottom {
         padding-right: 0px;
         right: 0px;
-        width: auto;
-        height: auto;
+        .size(auto, auto);
         padding-bottom: 15px; 
-        .button {
-            color: #cdf1f6;
-            .action-gradient;
-            width: 150px;
+        .btn {
             margin: 15px 15px 0 0;
-            float: right;
-            font-weight: 700;
-            text-align: center;
-            height: 30px;
-            line-height: 30px;
-            font-size: 12px;
-            border-radius: 3px;
-            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
-            cursor: pointer;
         }
     }
 }

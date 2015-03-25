@@ -59,9 +59,9 @@ Alert = (function(){
             }
             // set alert message
             if (options.msg) {
-                $('#alertContent').text(options.msg);
+                $('#alertContent .text').text(options.msg);
             } else {
-                $('#alertContent').text("");
+                $('#alertContent .text').text("");
             }
             // set alert instruction
             if (options.instr) {

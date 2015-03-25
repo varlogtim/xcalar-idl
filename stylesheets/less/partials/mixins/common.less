@@ -13,7 +13,7 @@
 }
 
 .vertical-align() {
-    .transform (translateY(50%));
+    .transform (translateY(-50%));
     position: relative;
     top: 50%;
 }
@@ -38,6 +38,12 @@
     background-repeat: @repeat;
     background-position: @pX @pY;
     background-size: @w @h;
+}
+
+.rounded(@radius: 3px) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
 }
 
 .position(@position: null, @top: null, @right: null, 
@@ -73,9 +79,15 @@
   };
 }
 
-.size(@width: null, @height: null) {
+.size(@width: null, @height: null,
+      @min-width: null, @min-height: null,
+      @max-width: null, @max-height: null) {
     .property(width, @width);
     .property(height, @height);
+    .property(min-width, @min-width);
+    .property(min-height, @min-height);
+    .property(max-width, @max-width);
+    .property(max-height, @max-height);
 
     .property(@property, @value) {
         ._getProp(width) when not (@width = null) {
@@ -84,6 +96,22 @@
 
         ._getProp(height) when not (@height = null) {
           height: @value;
+        }
+
+        ._getProp(min-width) when not (@min-width = null) {
+          min-width: @value;
+        }
+
+        ._getProp(min-height) when not (@min-height = null) {
+          min-height: @value;
+        }
+
+        ._getProp(max-width) when not (@max-width = null) {
+          max-width: @value;
+        }
+
+        ._getProp(max-height) when not (@max-height = null) {
+          max-height: @value;
         }
 
         ._getProp(@property);
@@ -393,7 +421,24 @@
     background: -moz-linear-gradient(@origin, @start, @stop);
     background: -o-linear-gradient(@origin, @start, @stop);
     background: -ms-linear-gradient(@origin, @start, @stop);
-    background: linear-gradient(@origin, @start, @stop);
+
+    .parser(top) {
+        background: linear-gradient(to bottom, @start, @stop);
+    }
+
+    .parser(left) {
+        background: linear-gradient(to right, @start, @stop);
+    }
+
+    .parser(bottom) {
+        background: linear-gradient(to top, @start, @stop);
+    }
+
+    .parser(right) {
+        background: linear-gradient(to left, @start, @stop);
+    }
+
+    .parser(@origin);
 }
 
 .action-gradient() {

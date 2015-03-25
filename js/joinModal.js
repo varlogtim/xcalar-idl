@@ -192,8 +192,11 @@ function addModalTabListeners($modal) {
     });
     $modal.on('click', 'th', function() {
         var $th = $(this);
-        var delay = 800;
         if ($th.hasClass("unselectable")) {
+            if ($th.hasClass('clicked')) {
+                return;
+            }
+            $th.addClass("clicked");
             var $div = $th.find("div");
             $div.attr("data-toggle", "tooltip");
             $div.attr("data-placement", "bottom");
@@ -204,7 +207,12 @@ function addModalTabListeners($modal) {
                 $div.removeAttr("data-toggle");
                 $div.removeAttr("data-placement");
                 $div.removeAttr("data-original-title");
-            }, delay);
+                // XXX the reason for this time out is it will created more
+                // than one tooltip if you click on th too quick
+                setTimeout(function() {
+                    $th.removeClass("clicked");
+                }, 100);
+            }, 800);
             return;
         }
         var colNum = parseColNum($th);
