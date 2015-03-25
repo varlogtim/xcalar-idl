@@ -506,7 +506,6 @@ function generateColumnHeadHTML(columnClass, color, newColid, name, width) {
                             <div class="innerBox"></div>\
                         </div>';
 
-    // columnHeadTd += generateColDropDownHTML(newColid);
     columnHeadTd += '</div></div></div></th>';
 
     return (columnHeadTd);
@@ -518,23 +517,23 @@ function generateColDropDown(tableNum) {
             '<li>'+
                 'Add a column'+
                 '<ul class="subColMenu">'+
-                    '<li class="addColumns addColLeft">'+ //colid
+                    '<li class="addColumns addColLeft">'+
                     'On the left</li>'+
-                    '<li class="addColumns">On the right</li>'+ //colid
+                    '<li class="addColumns">On the right</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="dropdownBox"></div>'+
             '</li>'+
-            '<li class="deleteColumn">Delete column</li>'+ //colid
-            '<li class="duplicate">Duplicate column</li>'+ //colid
-            '<li class="renameCol">Rename column</li>'+ //colid
-            '<li class="hide">Hide column</li>'+ //colid
-            '<li class="unhide">Unhide column</li>'+ //colid
+            '<li class="deleteColumn">Delete column</li>'+ 
+            '<li class="duplicate">Duplicate column</li>'+ 
+            '<li class="renameCol">Rename column</li>'+
+            '<li class="hide">Hide column</li>'+ 
+            '<li class="unhide">Unhide column</li>'+ 
             '<li class="sort">Sort'+
                 '<ul class="subColMenu">'+
-                    '<li class="sort">A-Z'+ //colid
+                    '<li class="sort">A-Z'+ 
                     '<span class="sortUp"></span></li>'+
-                    '<li class="revSort">Z-A'+ //colid
+                    '<li class="revSort">Z-A'+ 
                     '<span class="sortDown"></span></li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
@@ -542,23 +541,23 @@ function generateColDropDown(tableNum) {
             '</li>'+
             '<li class="aggregate">Aggregate'+
                 '<ul class="subColMenu">'+
-                    '<li class="aggrOp">Max'+ //colid
+                    '<li class="aggrOp">Max'+ 
                     '<span class="maxIcon"></span></li>'+
-                    '<li class="aggrOp">Min'+ //colid
+                    '<li class="aggrOp">Min'+ 
                     '<span class="minIcon"></li>'+
-                    '<li class="aggrOp">Avg'+ //colid
+                    '<li class="aggrOp">Avg'+ 
                     '<span class="avgIcon"></li>'+
-                    '<li class="aggrOp">Count'+ //colid
+                    '<li class="aggrOp">Count'+ 
                     '<span class="countIcon"></li>'+
-                    '<li class="aggrOp">Sum'+ //colid
+                    '<li class="aggrOp">Sum'+ 
                     '<span class="sumIcon"></li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="dropdownBox"></div>'+
             '</li>'+
-            '<li class="groupBy">Group By'+ //colid
+            '<li class="groupBy">Group By'+ 
                 '<ul class="subColMenu">'+
-                    '<li class="gb"><span>'+ //colid
+                    '<li class="gb"><span>'+ 
                     '<span class="countIcon"></span>Count</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -569,7 +568,7 @@ function generateColDropDown(tableNum) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb"><span>'+ //colid
+                    '<li class="gb"><span>'+ 
                     '<span class="avgIcon"></span>Average</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -580,7 +579,7 @@ function generateColDropDown(tableNum) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb"><span>'+ //colid
+                    '<li class="gb"><span>'+ 
                     '<span class="sumIcon"></span>Sum</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -591,7 +590,7 @@ function generateColDropDown(tableNum) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb"><span>'+ //colid
+                    '<li class="gb"><span>'+ 
                     '<span class="maxIcon"></span>Max</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -602,7 +601,7 @@ function generateColDropDown(tableNum) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="gb"><span>'+ //colid
+                    '<li class="gb"><span>'+ 
                     '<span class="minIcon"></span>Min</span>'+
                         '<ul class="subColMenu">'+
                             '<li style="text-align: center" class="clickable">'+
@@ -624,7 +623,7 @@ function generateColDropDown(tableNum) {
     if (true) { // This check is here so that you don't have to indent in the
                 // in the future. O:D
         dropDownHTML += 
-            '<li class="filterWrap">Filter'+ // removed Colid
+            '<li class="filterWrap">Filter'+ 
                 '<ul class="subColMenu">'+
                     '<li class="filter numFilter">Greater Than'+
                         '<span class="greaterThan"></span>'+
@@ -667,6 +666,15 @@ function generateColDropDown(tableNum) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
+                    '<li class="filter numFilter">Exclude'+
+                        '<span class="hidden"> number</span>'+
+                        '<span class="exclude"></span>'+
+                        '<ul class="subColMenu">'+
+                            '<li><input type="text"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
                     '<li class="filter strFilter">Like'+
                         '<span class="like"></span>'+
                         '<ul class="subColMenu">'+
@@ -683,6 +691,15 @@ function generateColDropDown(tableNum) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
+                    '<li class="filter strFilter">Exclude'+
+                        '<span class="hidden"> string</span>'+
+                        '<span class="exclude"></span>'+
+                        '<ul class="subColMenu">'+
+                            '<li><input type="text"/></li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                        '<div class="dropdownBox"></div>'+
+                    '</li>'+
                     '<li class="filter mixedFilter">Others'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text" value=""/></li>'+
@@ -694,7 +711,7 @@ function generateColDropDown(tableNum) {
                 '</ul>'+
                 '<div class="dropdownBox"></div>'+
             '</li>'+
-            '<li class="joinList">'+'Join</li>'; // removed colId
+            '<li class="joinList">'+'Join</li>'; 
                             // '<ul class="subColMenu" id="joinTables">';
     }
     // dropDownHTML += '</ul><div class="dropdownBox"></div>'+

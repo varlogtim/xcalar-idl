@@ -564,6 +564,10 @@ ul.colMenu {
         visibility: visible !important;
     }
 
+    .hidden {
+        display: none !important;
+    }
+
     .inputSelected {
         visibility: visible !important;
         background-color: @color-selectedCell-dark;
@@ -643,6 +647,11 @@ ul.colMenu {
         }
         .lessThan {
             .image("/images/lessThan.png", 0, 50%);
+        }
+        .exclude {
+            .image("/images/notEqual.png", 0, 50%);
+            margin-left: -2px;
+            width: 26px;
         }
         .regex {
             .image("/images/regex.png", 0, 50%);

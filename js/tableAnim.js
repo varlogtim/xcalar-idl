@@ -1214,8 +1214,8 @@ function resetColMenuInputs($el) {
     var $menu = $('#colMenu'+tableNum);
     $menu.find('.gb input').val("groupBy");
     $menu.find('.numFilter input').val(0);
-    $menu.find('.strFilter input').val(0);
-    $menu.find('.mixedFilter input').val(0);
+    $menu.find('.strFilter input').val("");
+    $menu.find('.mixedFilter input').val("");
     $menu.find('.regex').next().find('input').val("*");
 }
 

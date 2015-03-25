@@ -335,6 +335,12 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
     case ("Less Than Equal To"):
         filterStr = "le("+columnName+", "+value+")";
         break;
+    case ("Exclude number"):
+        filterStr = "not(eq("+columnName+", "+value+"))";
+        break;
+    case ("Exclude string"):
+        filterStr = "not(like("+columnName+', "'+value+'"))';
+        break;
     case ("Regex"):
         filterStr = "regex("+columnName+', "'+value+'")';
         break;
