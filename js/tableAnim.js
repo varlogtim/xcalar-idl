@@ -57,13 +57,16 @@ function reenableTextSelection() {
     $('input').prop('disabled', false);
 }
 
-function gRescolMouseDown(el, event) {
-    var headerWrap = el.closest('.xcTableWrap').find('.xcTheadWrap');
-    var tableNum = parseInt(headerWrap.attr('id').substring(11));
+function gRescolMouseDown(el, event, options) {
     var rescol = gRescol;
-
-    var table = $('#xcTable'+tableNum);
+    var $table = el.closest('.dataTable');
+    var tableNum = parseTableNum($table);
     var colNum = parseColNum(el.parent().parent());
+
+    if (options && options.target == "datastore") {
+        rescol.isDatastore = true; 
+    } 
+
     if (el.parent().width() === 10) {
         // This is a hidden column! we need to unhide it
         // return;
@@ -71,39 +74,18 @@ function gRescolMouseDown(el, event) {
     }
     gMouseStatus = "resizingCol";
     event.preventDefault();
-    var tableWidth = table.outerWidth();
     rescol.mouseStart = event.pageX;
     rescol.grabbedCell = el.parent().parent();  // the th 
-    rescol.index = rescol.grabbedCell.index();
+    rescol.index = colNum;
     rescol.startWidth = rescol.grabbedCell.outerWidth();
     rescol.tableNum = tableNum;
-    rescol.table = table;
-    // since the headers come in pairs, this is the second header
-    rescol.headerDiv = el.parent();
-    rescol.lastCell = table.find('thead:last th:last');
-    rescol.lastCellWidth = rescol.lastCell.outerWidth();
+    rescol.table = $table;
+    rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap'); 
+    rescol.tableHeadInput = rescol.tableHead.find('input');
+    rescol.headerDiv = el.parent(); // the .header div
     
-    rescol.tableExcessWidth = tableWidth - gMinTableWidth;
-    var minTableWidth = tableWidth - 
-                            (rescol.startWidth-rescol.cellMinWidth);
-    rescol.minLastCellWidth = Math.max(gMinTableWidth - 
-        (tableWidth - rescol.startWidth), rescol.cellMinWidth-5);
-
-    if (rescol.grabbedCell.is(':last-child')) {
-        rescol.lastCellGrabbed = true;
-    }
-
     rescol.tempCellMinWidth = rescol.cellMinWidth-5;
     rescol.leftDragMax =  rescol.tempCellMinWidth - rescol.startWidth;
-
-    // what the last cell width will be if current column is resized to minimum
-    if ((tableWidth - (rescol.startWidth - rescol.cellMinWidth)) > 
-            gMinTableWidth) {
-        rescol.setLastCellWidth = rescol.lastCellWidth;
-    } else {
-        rescol.setLastCellWidth = rescol.lastCellWidth + (gMinTableWidth-
-            (tableWidth + gRescol.leftDragMax));
-    }
 
     disableTextSelection();
     $(document.head).append('<style id="ew-resizeCursor" type="text/css">*'+ 
@@ -116,44 +98,26 @@ function gRescolMouseMove(event) {
     if (dragDist > rescol.leftDragMax) {
         rescol.grabbedCell.outerWidth(rescol.startWidth + dragDist);
         rescol.headerDiv.outerWidth(rescol.startWidth + dragDist);
-        if (dragDist <= -rescol.tableExcessWidth) {
-            rescol.lastCell.outerWidth(rescol.lastCellWidth - 
-                (dragDist + rescol.tableExcessWidth));
-        }     
     } else if (dragDist < rescol.leftDragMax ) {
         rescol.grabbedCell.outerWidth(rescol.tempCellMinWidth);
         rescol.headerDiv.outerWidth(rescol.tempCellMinWidth);
-        rescol.lastCell.outerWidth(rescol.setLastCellWidth);
     }
     var tableWidth = rescol.table.width();
-}
-
-function gRescolMouseMoveLast(event) {
-    var rescol = gRescol;
-    var dragDist = (event.pageX - rescol.mouseStart);
-    if (dragDist >= -rescol.tableExcessWidth) {
-        if (dragDist > rescol.leftDragMax) {
-            rescol.grabbedCell.outerWidth(rescol.startWidth + dragDist);
-            rescol.headerDiv.outerWidth(rescol.startWidth + dragDist);
-        } else {
-            rescol.grabbedCell.outerWidth(rescol.tempCellMinWidth);
-            rescol.headerDiv.outerWidth(rescol.tempCellMinWidth);
-        } 
-    } else {
-        rescol.grabbedCell.outerWidth(rescol.minLastCellWidth);
-        rescol.headerDiv.outerWidth(rescol.minLastCellWidth);
-    } 
-    var tableWidth = rescol.table.width();
+    rescol.tableHeadInput.width(tableWidth - 30);
+    rescol.tableHead.width(tableWidth);
 }
 
 function gRescolMouseUp() {
     gMouseStatus = null;
-    gRescol.lastCellGrabbed = false;
     $('#ew-resizeCursor').remove();
     reenableTextSelection();
     gRescol.table.find('.rowGrab').width(gRescol.table.width());
-    var progCol = gTables[gRescol.tableNum].tableCols[gRescol.index-1];
-    progCol.width = gRescol.grabbedCell.outerWidth();
+    if (!gRescol.isDatastore) {
+        var progCol = gTables[gRescol.tableNum].tableCols[gRescol.index-1];
+        progCol.width = gRescol.grabbedCell.outerWidth();
+    } else {
+        gRescol.isDatastore = false;
+    }
 }
 
 function gResrowMouseDown(el, event) {
@@ -511,9 +475,9 @@ function gRescolDelWidth(colNum, tableNum, resize) {
 function getTextWidth(el) {
     var width;
     if (el.is('input')) {
-        var text = el.val()+" ";
+        var text = $.trim(el.val()+" ");
     } else {
-        var text = el.text();
+        var text = $.trim(el.text());
     }
     tempDiv = $('<div>'+text+'</div>');
     tempDiv.css({'font-family': el.css('font-family'), 
@@ -530,40 +494,27 @@ function getTextWidth(el) {
 
 function autosizeCol(el, options) {
     var index = parseColNum(el);
-    var tableNum = parseInt(el.closest('.tableWrap').attr('id').substring(11));
+    var $table = el.closest('.dataTable');
+    var tableNum = parseTableNum($table);
     var options = options || {};
     var includeHeader = options.includeHeader || false;
     var resizeFirstRow = options.resizeFirstRow || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 10);
-    var $table = $('#xcTable' + tableNum);
     var oldTableWidth = $table.width();
     var maxWidth = 700;
-    var oldWidth = el.width();  
     var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
-    var originalWidth = gTables[tableNum].tableCols[index - 1].width;
     var newWidth = Math.max(widestTdWidth, minWidth);
     var dbClick = options && options.dbClick;
     // dbClick is autoSized to a fixed width
     if (!dbClick) {
+        var originalWidth = gTables[tableNum].tableCols[index - 1].width;
         newWidth = Math.max(newWidth, originalWidth);
     }
     newWidth = Math.min(newWidth, maxWidth);
-    var widthDiff = newWidth - oldWidth;
-    // reassigning el from the fixed table header cell to the header cell
-    // located in the table
-    el = $table.find('th.col' + index);
-    if (widthDiff > 0) {
-        $table.find('thead').width('+=' + widthDiff);
-        el.outerWidth(newWidth);
-    } else if ((oldTableWidth + widthDiff) < gMinTableWidth) {
-        el.outerWidth(newWidth);
-        $table.find('tr:first th:last')
-              .outerWidth('+=' + 
-                          (gMinTableWidth - (oldTableWidth + widthDiff)));
-    } else {
-        el.outerWidth(newWidth);
+    el.outerWidth(newWidth);
+    if ($table.attr('id').indexOf('xc') > -1) {
+        gTables[tableNum].tableCols[index - 1].width = el.outerWidth();
     }
-    gTables[tableNum].tableCols[index - 1].width = el.outerWidth();
     matchHeaderSizes(index, $table);
 }
 
@@ -571,21 +522,19 @@ function getWidestTdWidth(el, options) {
     var options = options || {};
     var includeHeader = options.includeHeader || false;
     var id = parseColNum(el);
-    var tableWrap = el.closest('.tableWrap');
-    var tableNum = parseInt(tableWrap.attr('id').substring(11));
-    var table = $('#xcTable'+tableNum);
+    var $table = el.closest('.dataTable');
     var largestWidth = 0;
     var longestText = 0;
     var textLength;
     var padding = 10;
-    var largestTd = table.find('tbody tr:first td:eq('+(id)+')');
+    var largestTd = $table.find('tbody tr:first td:eq('+(id)+')');
     var headerWidth = 0;
 
-    table.find('tbody tr').each(function() {
+    $table.find('tbody tr').each(function() {
         // we're going to take advantage of monospaced font
         //and assume text length has an exact correlation to text width
         var td = $(this).children(':eq('+(id)+')');
-        textLength = td.text().length;
+        textLength = $.trim(td.text()).length;
         if (textLength > longestText) {
             longestText = textLength; 
             largestTd = td;
@@ -595,7 +544,7 @@ function getWidestTdWidth(el, options) {
     largestWidth = getTextWidth(largestTd);
 
     if (includeHeader) {
-        var th = table.find('.col'+id+' .editableHead');
+        var th = $table.find('.col'+id+' .editableHead');
         headerWidth = getTextWidth(th);
         if (headerWidth > largestWidth) {
             largestWidth = headerWidth;
@@ -614,7 +563,7 @@ function getTdHeights() {
     return (tdHeights);  
 }
 
-function dblClickResize(el) {
+function dblClickResize(el, options) {
     gRescol.clicks++;  //count clicks
     if (gRescol.clicks === 1) {
         gRescol.timer = setTimeout(function() {   
@@ -628,8 +577,14 @@ function dblClickResize(el) {
         } else {
             var resize = false;
         }
+        if (options && options.minWidth) {
+            var minWidth = options.minWidth
+        } else {
+            var minWidth = 17;
+        }
         autosizeCol(el.parent().parent(), {resizeFirstRow: resize,
-                                            dbClick: true});
+                                            dbClick: true,
+                                            minWidth: minWidth});
         $('#ew-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
@@ -785,6 +740,12 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
         var headerWidth = $header.outerWidth();
         $header.children().outerWidth(headerWidth);
     }
+    var tableNum = $table.attr('id').slice(7);
+    var tableWidth = $table.width();
+    $theadWrap = $('#xcTheadWrap'+tableNum);
+    $theadWrap.width(tableWidth);
+    $theadWrap.find('input').width(tableWidth - 30);
+    
 }
 
 function displayShortenedHeaderName(el, tableNum, colNum) {

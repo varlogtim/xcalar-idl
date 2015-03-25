@@ -828,6 +828,10 @@ input {
         height: ~"calc(100% - 58px)";
         position: absolute;
         max-width: 100%;
+        margin-left: 10px;
+        width: ~"calc(100% - 20px)";
+        overflow-x: auto;
+
 
         .colMenu {
             width: 160px;
@@ -888,12 +892,10 @@ input {
     .datasetTableWrap {
         height: ~"calc(100% - 20px)";
         max-height: ~"calc(100% - 20px)";
-        margin: 20px 10px 0px;
-        position: absolute;
+        margin: 20px 0px 0px;
         position: relative;
-        overflow-x: auto;
-        overflow-y: hidden;
-        display: block;
+        display: inline-block;
+        overflow: hidden;
         .datasetTable {
             width: 0px;
         }
@@ -906,6 +908,16 @@ input {
             top: 0px;
 
            .dataTableHeader();
+
+           .colGrab:hover + div {
+                .dropdownBox {
+                    display: none;
+                }
+           }
+
+           .flexContainer {
+                overflow: hidden;
+           }
 
             .flexWrap.flex-left {
                 .flex(0 0 26px);

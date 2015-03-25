@@ -190,7 +190,7 @@ function setupDSCartButtons() {
 
     $('#selectDSCols').click(function() {
         var table = $('.datasetTableWrap').filter(function() {
-            return $(this).css('display') == 'block';
+            return $(this).css('display') == 'inline-block';
         });
         table.find('thead:first .editableHead').each(function() {
             if (!$(this).parent().hasClass('colAdded')) {
@@ -201,7 +201,7 @@ function setupDSCartButtons() {
     });
     $('#clearDsCols').click(function() {        
         var table = $('.datasetTableWrap').filter(function() {
-            return $(this).css('display') == 'block';
+            return $(this).css('display') == 'inline-block';
         });
 
         if (table.length == 0) {
@@ -327,20 +327,23 @@ function addDataSetHeaders(jsonKeys, index) {
     for (var i = 0; i < jsonKeys.length; i++) {
         key = jsonKeys[i];
         th +=  '<th title="' + key + '" class="th col' + i + '">\
-                    <div class="header flexContainer flexRow">\
-                        <div class="flexWrap flex-left">\
-                            <span class="type icon"></span>\
-                        </div>\
-                        <div class="flexWrap flex-mid">\
-                            <input spellcheck="false"\
-                                class="editableHead shoppingCartCol col' + i +
-                                '" value="' + key + '" \
-                                readonly="true">\
-                        </div>\
-                        <div class="flexWrap flex-right">\
-                            <span class="tick icon"></span>\
-                            <div class="dropdownBox">\
-                                <span class="innerBox"></span>\
+                    <div class="header">\
+                        <div class="colGrab"></div>\
+                        <div class="flexContainer flexRow">\
+                            <div class="flexWrap flex-left">\
+                                <span class="type icon"></span>\
+                            </div>\
+                            <div class="flexWrap flex-mid">\
+                                <input spellcheck="false"\
+                                    class="editableHead shoppingCartCol col' + i +
+                                    '" value="' + key + '" \
+                                    readonly="true">\
+                            </div>\
+                            <div class="flexWrap flex-right">\
+                                <span class="tick icon"></span>\
+                                <div class="dropdownBox">\
+                                    <span class="innerBox"></span>\
+                                </div>\
                             </div>\
                         </div>\
                     </div>\
@@ -430,7 +433,7 @@ function addDataSetRows(jsonKeys, jsons, tableNum) {
 
             html += '<td class="col' + j + '">\
                         <div class="addedBarTextWrap">\
-                            <div class="addedBarText">' + 
+                            <div class="addedBarText">'+ 
                                 value +
                             '</div>\
                         </div>\
@@ -440,14 +443,18 @@ function addDataSetRows(jsonKeys, jsons, tableNum) {
         html += '</tr>';
     }
 
-    $('#worksheetTable' + tableNum).find('.header').each(function(index) {
+    var $worksheetTable = $('#worksheetTable' + tableNum);
+
+    $worksheetTable.find('.header').each(function(index) {
         var $tableHeader = $(this);
         var type = columnsType[index];
         $tableHeader.addClass('type-' + type);
         $tableHeader.data('type', type);
     });
 
-    $('#worksheetTable' + tableNum).append(html);
+    $worksheetTable.append(html);
+    var tableHeight = $worksheetTable.height();
+    $worksheetTable.find('.colGrab').height(tableHeight);
 }
 
 function addWorksheetListeners(tableNum) {
@@ -609,6 +616,14 @@ function addWorksheetListeners(tableNum) {
         } else {
             checkColumn($(this), SelectUnit.Single);
         }   
+    });
+
+    table.on('mousedown', '.colGrab', function(event) {
+        if (event.which != 1) {
+            return;
+        }
+        gRescolMouseDown($(this), event, {target: 'datastore'});
+        dblClickResize($(this), {minWidth: 25});
     });
 }
 

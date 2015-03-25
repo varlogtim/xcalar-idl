@@ -359,7 +359,7 @@ function documentReadyGeneralFunction() {
 
     var timer;
     $(window).resize(function() {
-        $('.colGrab').height(30);
+        $('#mainFrame').find('.colGrab').height(30);
         clearTimeout(timer);
         timer = setTimeout(function () { 
             var i = 0;
@@ -421,11 +421,7 @@ function documentReadyGeneralFunction() {
 
         switch (gMouseStatus) {
             case ("resizingCol"):
-                if (gRescol.lastCellGrabbed) {
-                    gRescolMouseMoveLast(event);
-                } else {
-                    gRescolMouseMove(event);
-                }
+                gRescolMouseMove(event);
                 break;
             case ("resizingRow"):
                 gResrowMouseMove(event);

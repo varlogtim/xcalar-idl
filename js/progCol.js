@@ -750,6 +750,15 @@ function parseColNum(el) {
     return (parseInt(substring));
 }
 
+function parseTableNum($table) {
+    // assumes we are passing in a table with an ID 
+    // that contains the string 'Table' ex. #xcTable2 or #worksheetTable2
+    var tableId = $table.attr('id');
+    var numIndex = tableId.indexOf('Table') + 5; // where tableNum is located
+    var tableNum = parseInt(tableId.substring(numIndex));
+    return (tableNum);
+}
+
 function parseJsonValue(value) {
     if (value == undefined) {
         value = '<span class="undefined">'+value+'</span>';
