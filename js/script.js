@@ -279,7 +279,7 @@ function setupLogout() {
 function setupTooltips() {
     $("body").tooltip({
         selector: '[data-toggle="tooltip"]',
-        delay: 200
+        delay: {"show" : 200, "hide" : 100}
     });
 
     $("body").on('mouseenter', '[data-toggle="tooltip"]', function() {
@@ -610,4 +610,8 @@ function documentReadyIndexFunction() {
             console.log("Initialization fails!");
         });
     });
+}
+
+function hi() {
+    console.log('hi');
 }

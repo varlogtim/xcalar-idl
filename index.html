@@ -381,7 +381,9 @@
           <span class="icon iconArrowDiag"></span>
         </div>
       </div>
-      <div class="rightBarContent"></div>
+      <div class="rightBarContent">
+        <textarea spellcheck="false"></textarea>
+      </div>
     </div>
     <div id="helpSection" class="rightBarSection">
       <div class="heading">
@@ -434,13 +436,21 @@
       </div>
       <div class="bottomButtonsArea">
         <div id="leftMenu" class="btn btnSmall sliderBtn">
-          <span id="tableListBtn" class="icon"></span>
+          <span id="tableListBtn" class="icon" data-toggle="tooltip" 
+          data-placement="top" data-container="body" title="tables list"></span>
         </div>
-        <div class="btn btnSmall sliderBtn"><span id="cliBtn" ></span></div>
         <div class="btn btnSmall sliderBtn">
-          <span id="scratchpadBtn"></span>
+          <span id="cliBtn" data-toggle="tooltip" 
+          data-placement="top" data-container="body" title="CLI"></span>
         </div>
-        <div class="btn btnSmall sliderBtn"><span id="infoBtn"></span></div>
+        <div class="btn btnSmall sliderBtn">
+          <span id="scratchpadBtn" data-toggle="tooltip" 
+          data-placement="top" data-container="body" title="scratchpad"></span>
+        </div>
+        <div class="btn btnSmall sliderBtn">
+          <span id="infoBtn" data-toggle="tooltip" 
+          data-placement="top" data-container="body" title="help"></span>
+        </div>
       </div>
     </div>
     <div id="bottomTabArea">
@@ -452,7 +462,12 @@
           <span class="icon"></span>
           Untitled 1
         </div>
-        <div id="compSwitch"><span class="icon"></span></div>
+        <div id="compSwitch" 
+             data-toggle="tooltip" 
+             data-placement="top" 
+             data-title="click to view DAG">
+          <span class="icon"></span>
+        </div>
       </div>
     </div>
   </div>
@@ -621,7 +636,10 @@
             <span class="icon"></span>
           </div>
           <div class="iconWrapper icon-sort">
-            <span class="icon"></span>
+            <span class="icon" 
+               data-toggle="tooltip"
+               data-placement="bottom"
+               data-original-title="Sort"></span>
              <div class="dropdownBox">
                 <span class="innerBox"></span>
             </div>

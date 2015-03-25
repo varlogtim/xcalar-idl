@@ -723,6 +723,7 @@ function generateDraggableParams($dagWrap) {
                     'ondragstart="paramDragStart(event)" '+
                     'ondragend="paramDragEnd(event)" '+
                     'ondrop="return false" '+
+                    'title="click and hold to drag" '+
                     'contenteditable="false">'+
                         '<div class="icon"></div>'+
                         '<span class="delim"><</span>'+
@@ -871,7 +872,9 @@ function constructDagImage(tableName) {
                     'Table: <span class="tableName">'+tableName+'</span>'+
                 '</div>'+
                 '<div class="retinaArea" data-tablename="' + tableName + '">' + 
-                    '<div title="Add New Retina" class="btn addRet">' + 
+                    '<div data-toggle="tooltip" data-container="body" '+
+                    'data-placement="top" title="Add New Retina" '+
+                    'class="btn addRet">' + 
                         '<span class="icon"></span>' + 
                     '</div>' + 
                     '<div class="retTabSection"></div>' +
@@ -1181,10 +1184,6 @@ function getDagNodeInfo(dagNode, key, children) {
         info.text = JoinOperatorTStr[value.joinType];
         var joinType = info.text.slice(0, info.text.indexOf("Join"));
         info.type = joinType;
-        // info.type = JoinOperatorTStr[value.joinType][9].toLowerCase() +
-        //             JoinOperatorTStr[value.joinType].slice(10);
-        // info.type = JoinOperatorTStr[value.joinType];
-        // info.text = JoinOperatorTStr[value.joinType].slice(9);
         var joinText = "";
         if (joinType.indexOf("Outer") > -1) {
             var firstPart = joinType.slice(0, joinType.indexOf("Outer"));
@@ -1194,13 +1193,13 @@ function getDagNodeInfo(dagNode, key, children) {
             joinText = joinType[0].toUpperCase() + joinType.slice(1);
         }
         
-        
         info.tooltip = joinText + " Join between table &quot;"+children[0]+
                        "&quot; and table &quot;"+children[1]+"&quot;";
         info.column = children[0] +", "+children[1];
     } else if (key == 'mapInput') {
         //XX there is a "newFieldName" property that stores the name of 
-        // the new column that is currently not being used
+        // the new column. Currently, we are not using or displaying 
+        // the name of this new column anywhere.
         var evalStr = value.evalStr;
         info.type = "map"+evalStr.slice(0,evalStr.indexOf('('));
         info.text = evalStr;
