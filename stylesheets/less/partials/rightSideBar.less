@@ -1,11 +1,7 @@
-/* ========== Right Side Bar ========== */
+// ========== Right Side Bar ==========
 #rightSideBar {
-    position: absolute;
-    bottom: 74px;
-    right: -230px;
-    right: -25%;
-    width: ~"calc(25% + 10px)";
-    height: ~"calc(100% - 152px)";
+    .position(absolute, @right: -25%, @bottom: 74px);
+    .size(@width: ~"calc(25% + 10px)", @height: ~"calc(100% - 152px)");
     border-left: 1px solid @color-bar-border;
     background-color: @color-background-sidebar;
     z-index: 11;
@@ -17,8 +13,7 @@
     }
 
     .heading {
-        height: 35px;
-        width: 100%;
+        .size(@width: 100%, @height: 35px);
         text-align: center;
         padding-top: 2px;
         h2 {
@@ -29,30 +24,23 @@
     }
 
     .rightBarContent {
-        position: relative;
-        width: auto;
-        height: ~"calc(100% - 35px)";
+        .position(relative);
+        .size(@width: auto, @height: ~"calc(100% - 35px)");
         margin-left: 10px;
         background-color: @color-table-darkGray;
     }
 
     .topBorder {
-        left: -7px;
-        bottom: 60px;
-        height: 1px;
-        width: 7px;
+        .position(absolute, @bottom: 60px, @left: -7px);
+        .size(@width: 7px, @height: 1px);
         background-color: @color-bar-border;
         z-index: 20;
-        position: absolute;
         box-shadow: -1px -2px 5px rgba(0,0,0,.3);
     }
 
     .rightBarSection {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
+        .position(absolute, @top: 0, @left: 0);
+        .size(@width: 100%, @height: 100%);
         display: none;
         overflow: hidden;
 
@@ -62,8 +50,7 @@
 
         .heading {
             .btn {
-                width: 19px;
-                height: 19px;
+                .size(@width: 19px, @height: 19px);
                 float: right;
                 margin-right: 6px;
                 margin-top: 7px;
@@ -105,26 +92,21 @@
 /* ========== Table List Section in Right Side Bar ========== */
 #tableListSection {
     .rightBarContent {
-        width: ~"calc(100% - 20px)";
-        height: ~"calc(100% - 45px)";
+        .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 45px)");
     }
 
     #tableListSectionTabs {
-        height: 35px;
+        .size(@width: ~"calc(100% + 2px)", @height: 35px);
         border-top: 1px solid @color-table-borderGray;
         border-left: 1px solid @color-table-borderGray;
-        width: ~"calc(100% + 2px)";
         margin-left: -1px;
 
         .tableListSectionTab {
-            width: 33.3333%;
-            height: 100%;
+            .size(@width: 33.3333%, @height: 100%);
             float: left;
             display: inline-block;
-            font-weight: 700;
-            line-height: 35px;
+            .font(@weight: 700, @line-height: 35px, @size: 13px);
             text-align: center;
-            font-size: 13px;
             color: @color-text-darkGray;
             border-right: 1px solid @color-table-borderGray;
             border-bottom: 1px solid @color-table-borderGray;
@@ -165,37 +147,31 @@
         }
 
         li.timeLine {
+            .position(relative);
+            .size(@width: 100%);
             margin-top: -1px;
-            width: 100%;
             color: @color-text-darkGray;
-            font-size: 13px;
-            line-height: 25px;
-            position: relative;
+            .font(@line-height: 25px, @size: 13px);
         }
 
         li.tableInfo {
-            width: 100%;
+            .position(relative);
+            .size(@width: 100%);
             margin-top: 4px;
             color: @color-text-darkGray;
-            font-size: 13px;
-            line-height: 25px;
-            position: relative;
+            .font(@line-height: 25px, @size: 13px);
 
-            &:hover {
-                .iconWrap {
-                    .action-gradient;
-                }
+            &:hover .iconWrap {
+                .action-gradient;
             }
 
             .active {
                 .iconWrap {
-                   .lightGray-gradient();
+                   .lightGray-gradient;
                 }
 
-                &:hover {
-                    .iconWrap {
-                        .action-gradient;
-                    }
+                &:hover .iconWrap {
+                    .action-gradient;
                 }
             }
         }
@@ -205,26 +181,22 @@
         }
 
         .timeStampWrap {
-            width: 24%;
-            height: 25px;
+            .position(relative, @top: 4px, @left: -1%);
+            .size(@width: 24%, @height: 25px);
             display: inline-block;
             float: left;
-            line-height: 15px;
-            font-size: 9px;
-            left: -1%;
-            position: relative;
-            top: 4px;
+            .font(@line-height: 15px, @size: 9px);
 
             .timeStamp {
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
+                .flex-display;
+                .flex-wrap(wrap);
+                .justify-content(center);
             }
 
             span {
+                .size(@width: 45px);
                 white-space: nowrap;
                 display: inline-block;
-                width: 45px;
                 &:first-child {
                   margin-right: 8px;  
                 }
@@ -235,8 +207,7 @@
         }
 
         .tableListBox {
-            height: 25px;
-            width: 76%;
+            .size(@width: 76%, @height: 25px);
             border-radius: 3px;
             background-color: @color-white;
             display: inline-block;
@@ -256,8 +227,8 @@
 
         .iconWrap {
             display: inline-block;
+            .size(@height: 100%);
             .gray-gradient;
-            height: 100%;
             float: left;
             padding-top: 1px;
             margin-right: 10px;
@@ -279,22 +250,21 @@
 
         ol {
             display: none;
+            .position(relative);
+            .size(@width: ~"calc(76% - 26px)");
             .nomargin-padding;
             margin: -7px 0 10px 22px;
             padding-top: 2px;
-            position: relative;
-            width: ~"calc(76% - 26px)";
             float: right;
 
             li {
+                .size(@height: 20px);
                 list-style-position: inside;
                 margin-top: 5px;
                 padding-left: 10px;
-                height: 20px;
                 border-radius: 3px;
-                line-height: 20px;
+                .font(@size: 11px, @line-height: 20px);
                 background-color: @color-background-columnList;
-                font-size: 11px;
                 color: @color-text-columnList;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -312,11 +282,9 @@
         .addArchivedBtn {
             display: inline-block;
             float: right;
-            width: 24px;
-            height: 100%;
+            .size(@width: 24px, @height: 100%);
             border-left: 1px solid @color-background-bottomGrayMed;
-            border-radius-top-right: 3px;
-            border-radius-bottom-right: 3px;
+            border-radius: 0 3px 3px 0;
             background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
                         linear-gradient(@color-background-topGrayMed, 
                         @color-background-bottomGrayMed);
@@ -352,10 +320,8 @@
                 padding-left: 6px;
 
                 .icon {
-                    width: 27px;
-                    height: 24px;
-                    position: absolute;
-                    left: 0px;
+                    .position(absolute, @left: 0);
+                    .size(@width: 27px, @height: 24px);
                 }
             }
         }
@@ -382,11 +348,9 @@
         position: relative;
         overflow: hidden;
         #rightBarTextArea {
-            position: absolute;
+            .position(absolute, @top: 0);
+            .size(@width: 100%, @height: 100%);
             overflow-y: scroll;
-            width: 100%;
-            height: 100%;
-            top: 0;
 
             .cliContentWrap {
                 padding: 2px;
@@ -440,8 +404,7 @@
 /* ========== Scratch Pad Section in Right Side Bar ========== */
 #scratchPadSection {
     textarea {
-        width: 100%;
-        height: 100%;
+        .size(@width: 100%, @height: 100%);
         padding: 10px;
         background: transparent;
         resize: none;
@@ -456,35 +419,26 @@
     border-bottom: 1px solid @color-background-midGrayMed;
     input {
         width: 70%;
-        padding: 2px;
-        padding-left: 4px;
-        font-size: 12px;
-        font-weight: bold;
+        padding: 2px 2px 2px 4px;
+        .font(@weight: bold, @size: 12px);
         background-color: @color-background-sidebar;
         color: @color-text-darkGray;
         float: left;
         &:focus {
             background-color: @color-white;
             outline: none;
-            &::-webkit-input-placeholder {
-                color: @color-text-lightGray;
-            } 
+            .input-placeholder(@color-text-lightGray);
         }
+        .input-placeholder(@color-text-darkGray);
     }
-
-    ::-webkit-input-placeholder {
-        color: @color-text-darkGray;
-    } 
 }
 
 #helpSubmit {
-    width: 25%;
-    height: 30px;
+    .size(@width: 25%, @height: 30px);
     .action-gradient;
     color: @color-text-white;
     float: right;
-    line-height: 30px;
-    font-size: 12px;
+    .font(@size: 12px, @line-height: 30px);
     border-radius: 3px;
     margin-left: 5px;
     text-align: center;
@@ -499,16 +453,13 @@
 }
 
 .helpBox {
-    margin-left: 3%;
-    margin-right: 3%;
-    height: 148px;
-    width: auto;
+    .size(@width: auto, @height: 148px);
+    margin: 0 3%;
     padding: 5px;
     background-color: @color-white;
 }
 
 #helpResults {
-    
     text-align: center;
     span {
         .vertical-align;
@@ -529,9 +480,8 @@
             font-size: 14px;
         }
         li {
-            font-size: 12px;
+            .font(@weight: 400, @size: 12px);
             margin: 6px 0px 0px 4px;
-            font-weight: 400;
         }
     }
 }
@@ -541,17 +491,12 @@
     .background("/images/help-on.png", 218px, 65px);
 }
 #pulloutTab {
-    left: -9px;
-    bottom: 0;
-    height: 60px;
-    width: 18px;
+    .position(absolute, @bottom: 0, @left: -9px);
+    .size(@width: 18px, @height: 60px);
     border-left: 1px solid @color-bar-border;
     border-top-left-radius: 3px;
-    background-color: inherit;
-    position: absolute;
     box-shadow: -1px 0px 0px rgba(0,0,0,0.3);
-    background-image: url(/images/pullout.png); 
-    background-repeat: no-repeat;
-    background-position: 4px 11px;
+    .image("/images/pullout.png", 4px, 11px);
+    background-color: inherit;
 }
-/* ========== End Of Help Section in Right Side Bar ========== */
+// ========== End Of Help Section in Right Side Bar ==========

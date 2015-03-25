@@ -40,6 +40,94 @@
     background-size: @w @h;
 }
 
+.position(@position: null, @top: null, @right: null, 
+          @bottom: null, @left: null) {
+  .property(position, @position);
+  .property(top, @top);
+  .property(right, @right);
+  .property(bottom, @bottom);
+  .property(left, @left);
+
+  .property(@property, @value) {
+    ._getProp(position) when not (@position = null) {
+      position: @value;
+    }
+
+    ._getProp(top) when not (@top = null) {
+      top: @value;
+    }
+
+    ._getProp(right) when not (@right = null) {
+      right: @value;
+    }
+
+    ._getProp(bottom) when not (@bottom = null) {
+      bottom: @value;
+    }
+
+    ._getProp(left) when not (@left = null) {
+      left: @value;
+    }
+
+    ._getProp(@property);
+  };
+}
+
+.size(@width: null, @height: null) {
+    .property(width, @width);
+    .property(height, @height);
+
+    .property(@property, @value) {
+        ._getProp(width) when not (@width = null) {
+          width: @value;
+        }
+
+        ._getProp(height) when not (@height = null) {
+          height: @value;
+        }
+
+        ._getProp(@property);
+    }
+}
+
+.font(@style: null, @variant: null, @weight: null, @size: null,
+      @line-height: null, @family: null) {
+    .property(font-style, @style);
+    .property(font-variant, @variant);
+    .property(font-weight, @weight);
+    .property(font-size, @size);
+    .property(line-height, @line-height);
+    .property(font-family, @family);
+
+    .property(@property, @value) {
+        ._getProp(font-style) when not (@style = null) {
+          font-style: @value;
+        }
+
+        ._getProp(font-variant) when not (@variant = null) {
+          font-variant: @value;
+        }
+
+        ._getProp(font-weight) when not (@weight = null) {
+          font-weight: @value;
+        }
+
+        ._getProp(font-size) when not (@size = null) {
+          font-size: @value;
+        }
+
+        ._getProp(line-height) when not (@line-height = null) {
+          line-height: @value;
+        }
+
+        ._getProp(font-family) when not (@family = null) {
+          font-family: @value;
+        }
+
+        ._getProp(@property);
+    }
+}
+
 /* DROP DOWN COLUMN STYLING */
 .dropDown() {
     .dropdownBox {
