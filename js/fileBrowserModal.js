@@ -238,11 +238,6 @@ FileBrowser = (function() {
         // confirm to open a ds
         $fileBrowser.on('click', '.confirm', function() {
             var $grid = $container.find('grid-unit.active');
-            if ($grid.length === 0) {
-                var text = "No dataset or folder is selected, please choose one!";
-                displayErrorMessage(text, $inputName);
-                return;
-            }
             loadDataSet($grid);
             closeAll();
         });
@@ -299,6 +294,13 @@ FileBrowser = (function() {
     function loadDataSet($ds) {
         $('#importDataForm button[type=reset]').click();
 
+        // no selected dataset, load the directory
+        if ($ds == null || $ds.length == 0) {
+            $('#filePath').val(getCurrentPath());
+            return;
+        }
+
+        // load dataset
         var dsName = getGridUnitName($ds);
         var url = getCurrentPath() + dsName;
         var ext = getFormat(dsName);
