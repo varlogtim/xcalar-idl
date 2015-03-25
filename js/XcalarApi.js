@@ -19,7 +19,7 @@ function xcalarConnectThrift(hostname, port) {
     thriftHandle.protocol = protocol;
     thriftHandle.client = client;
 
-    return thriftHandle;
+    return (thriftHandle);
 }
 
 function xcalarGetVersion(thriftHandle) {
