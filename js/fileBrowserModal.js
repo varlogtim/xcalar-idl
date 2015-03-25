@@ -8,7 +8,7 @@ FileBrowser = (function() {
     var $pathLists = $('#fileBrowserPath');
     /* Contants */
     var startPath = "file:///var/";
-    var validFormats = ["JSON", "CSV", "ALL"];
+    var validFormats = ["JSON", "CSV"];
     /* End Of Contants */
     var curFiles = [];
     var allFiles = [];
@@ -109,9 +109,15 @@ FileBrowser = (function() {
         });
 
         // double click on folder to list the files in folder
-        $fileBrowser.on('dblclick', '.folder', function() {
-            var $folder = $(this);
-            var path = getCurrentPath() + getGridUnitName($folder) + '/';
+        $fileBrowser.on('dblclick', 'grid-unit', function() {
+            var $grid = $(this);
+            if ($grid.hasClass('ds')) {
+                loadDataSet($grid);
+                closeAll();
+                return;
+            }
+
+            var path = getCurrentPath() + getGridUnitName($grid) + '/';
             
             listFiles(path)
             .done(function() {
@@ -216,6 +222,7 @@ FileBrowser = (function() {
             var $newPath = $pathLists.find(':selected');
             upTo($newPath);
         });
+
         // filter a data format
         $fileBrowser.on('change', '#fileBrowserFormat', function() {
             var format = $inputFormat.find(':selected').val();
@@ -236,9 +243,7 @@ FileBrowser = (function() {
                 displayErrorMessage(text, $inputName);
                 return;
             }
-
-            var loadURL = getCurrentPath() + getGridUnitName($grid);
-            $('#filePath').val(loadURL);
+            loadDataSet($grid);
             closeAll();
         });
 
@@ -278,6 +283,30 @@ FileBrowser = (function() {
     function getGridUnitName($grid) {
         var name = $grid.find('.label').text();
         return (name);
+    }
+
+    function getFormat(name) {
+        var index = name.lastIndexOf(".");
+        if (index < 0) {
+            return;
+        }
+        var ext = name.substring(index + 1, name.length).toUpperCase();
+        if (validFormats.indexOf(ext) >= 0) {
+            return (ext);
+        }
+    }
+
+    function loadDataSet($ds) {
+        $('#importDataForm button[type=reset]').click();
+
+        var dsName = getGridUnitName($ds);
+        var url = getCurrentPath() + dsName;
+        var ext = getFormat(dsName);
+
+        if (ext != undefined) {
+            $('#fileFormat .dsTypeLabel:contains("' + ext + '")').click();
+        }
+        $('#filePath').val(url);
     }
 
     function appendPath(path) {
