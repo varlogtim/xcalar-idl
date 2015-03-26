@@ -632,7 +632,8 @@ function showDagParamModal($currentIcon) {
             "lt" : "<",
             "le" : "&le;",
             "regex" : "regex",
-            "like" : "like"
+            "like" : "like",
+            "not" : "not"
         };
         
         defaultText += "<td class='static'>by</td>";
@@ -1126,7 +1127,6 @@ function getDagNodeInfo(dagNode, key, children) {
         info.type = "filter"+abbrFilterType;
         info.text = filterStr;
         var filterType = "";
-
         var filterTypeMap = {
             "gt" : "greater than",
             "ge" : "reater than or equal to",
@@ -1134,7 +1134,8 @@ function getDagNodeInfo(dagNode, key, children) {
             "lt" : "less than",
             "le" : "less than or equal to",
             "regex" : "regex",
-            "like" : "like"
+            "like" : "like",
+            "not" : "not"
         };
 
         if (filterTypeMap[abbrFilterType]) {
@@ -1147,8 +1148,13 @@ function getDagNodeInfo(dagNode, key, children) {
             if (filterType == "regex") {
                 info.tooltip = "Filtered table &quot;" + children[0] + 
                                "&quot; using regex: &quot;" + filterValue + 
-                               "&quot; " + "on " + filteredOn;
-                    ;
+                               "&quot; " + "on " + filteredOn + ".";
+            } else if (filterType == "not") {
+                filteredOn = filteredOn.slice(filteredOn.indexOf("(")+1);
+                info.column = filteredOn;
+                info.tooltip = "Filtered table &quot;" + children[0] +
+                               "&quot; excluding " + filterValue + 
+                               " from " + filteredOn + ".";
             } else {
                 info.tooltip = "Filtered table &quot;" + children[0] + 
                                "&quot; where "+ filteredOn + 
