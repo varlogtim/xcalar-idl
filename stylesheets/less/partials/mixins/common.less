@@ -27,6 +27,12 @@
     user-select: none;
 }
 
+.cursor-move() {
+    cursor: move;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+}
+
 .image(@url, @pX:0, @pY:0, @repeat:no-repeat) {
     background: url(@url) @repeat @pX @pY;
 }

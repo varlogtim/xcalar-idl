@@ -4,25 +4,21 @@
 }
 
 #watermark {
+    .position(absolute, @bottom: 100px, @left: 15px);
+    .size(@width: 579px, @height: 253px);
     .image("/images/logo-white-L.png", 0, -70px);
     background-size: 100%;
-    position: absolute;
-    width: 579px;
-    height: 253px;
     z-index: 0;
     opacity: 0.05;
-    bottom: 100px;
-    left: 15px;
 }
 
 #insight {
-    .background("/images/insight.png", 243px, 79px);
+    .position(absolute, @bottom: 89px, @left: 238px);
+    .size(243px, 79px);
+    .image("/images/insight.png");
     background-size: 100%;
-    position: absolute;
     z-index: 0;
     opacity: 0.15;
-    bottom: 89px;
-    left: 238px;
 }
 
 /* DRAG AND DROP TABLES */
@@ -33,22 +29,20 @@
 }
 
 #shadowTable {
+    .position(relative, @top: 0, @left: 0);
     background-color: @color-shadow-darkGray;
     display: inline-block;
     opacity: 1;
     margin-right: 5px;
-    position: relative;
     overflow: hidden;
     white-space: normal;
-    left: 0;
-    top: 0;
     z-index: 0;
     vertical-align: top;
 }
 
 /* DRAG AND DROP COLUMNS styling */
 #shadowDiv {
-    position: absolute;
+    .position(absolute);
     background-color: @color-table-midGray;
     z-index: 11;
     opacity: 1;
@@ -56,7 +50,7 @@
 }
 
 #fauxCol{
-    position: absolute;
+    .position(absolute, @top: 114px);
     background-color: @color-white;
     z-index: 12;
     opacity: 0.7;
@@ -64,7 +58,6 @@
     overflow: hidden;
     box-shadow: 1px 0px 1px 1px rgba(100,100,100,.05);
     white-space: nowrap;
-    top: 114px;
 }
 
 #fauxTable {
@@ -92,26 +85,18 @@
 }
 
 .dragArea {
-    position: absolute;
-    height: 45px;
-    width: 100%;
-    top: -5px;
-    left: 0;
-    cursor: move;
-    cursor: -webkit-grab;
-    cursor: -moz-grab;
+    .position(absolute, @top: -5px, @left: 0);
+    .size(@width: 100%, @height: 45px);
+    .cursor-move;
     z-index: 1;
 }
 
 #dropTargets {
-    position: absolute;
-    top: 0;
-    left: 0;
+    .position(absolute, @top: 0, @left: 0);
 }
 
 .dropTarget {
-    position: absolute;
-    top: 0;
+    .position(absolute, @top: 0);
     z-index: 22;
     background-color: rgba(0,0,50,0.2);
     font-size: 50px;
@@ -121,61 +106,52 @@
 
  /* ========== Work Sheet Bar ========== */
 #workspaceBar {
+    .position(relative, @top: -1px);
     border-bottom-width: 2px;
-    position: relative;
-    top: -1px;
-    .flex-display();
+    .flex-display;
+
     .workspaceArea {
         .flex-shrink(0);
     }
 
     #fnBar {
-        width: 380px;
+        .size(@width: 380px);
     } 
 
     #searchBar {
-        width: 180px;
+        .size(@width: 180px);
     }
 
     #rowInput {
-        width: 60px;
+        .size(@width: 60px);
     }
 
     #rowScrollerArea {
         .flex-grow(2);
-        width: 200px;
+        .size(@width: 200px, @height: 35px);
         cursor: default;
         .noSelection;
         margin: 0 14px;
-        height: 35px;
         overflow: hidden;
 
         .rowScroller {
-            width: 250px;
-            width: 100%;
-            height: 11px;
-            margin-top: 12px;
-            margin-bottom: 25px;
+            .position(relative);
+            .size(@width: 100%, @height: 11px);
+            margin: 12px 0 25px 0;
             background-color: @color-bar-border;
             box-shadow: inset 0px 1px #1A1C1D, 0px 1px #d5d5d5;
-            position: relative;
 
             .bookmark {
-                width: 3px;
-                height: 11px;
+                .position(absolute, @bottom: 0);
+                .size(@width: 3px, @height: 11px);
                 background-color: @color-background-bookmark;
-                position: absolute;
-                bottom: 0;
                 margin-left: -1px;
             }
 
             .rowMarker {
+                .position(absolute, @top: -11px, @left: -6px);
+                .size(@width: ~"calc(100% - 1px)", @height: 35px);
                 display: inline-block;
-                width: ~"calc(100% - 1px)";
-                height: 35px;
-                top: -11px;
-                left: -6px;
-                position: absolute;
                 .image("/images/locator1.png");
                 .transition (transform 0.13s);
 
@@ -185,22 +161,18 @@
             }
 
             .subRowMarker {
-                position: absolute;
-                left: 2px;
-                top: 0;
-                height: 11px;
-                width: 10px;
+                .position(absolute, @top: 0, @left: 2px);
+                .size(@width: 10px, @height: 11px);
                 cursor: pointer;
             }
 
             .bottom {
-                top: 22px;
+                .position(@top: 22px);
             }
 
             .middle {
-                width: 3px;
-                top: 11px;
-                left: 5px;
+                .position(@top: 11px, @left: 5px);
+                .size(@width: 3px);
             }
 
             &.hidden {
@@ -213,10 +185,7 @@
 
  /* ========== Main Frame ========== */
  #mainFrame {
-    width: 100%;
-    height: ~"-webkit-calc(100% - 38px)";
-    height: ~"-moz-calc(100% - 38px)";
-    height: ~"calc(100% - 38px)";
+    .size(@width: 100%, @height: ~"calc(100% - 38px)");
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -225,25 +194,23 @@
     .transition-delay(0s);
     .transition(height 0.3s);
     &.midway {
-        height: ~"calc(50% - 20px)";
+        .size(@height:  ~"calc(50% - 20px)");
         .transition(height 0s);
         .transition-delay(0.3s);
     }
 }
 
 .tableWrap {
-    padding: 0px;
-    height: 100%;
-    width: 100%;
+    padding: 0;
+    .size(100%, 100%);
+    .font(@size: 11px);
     overflow-x: auto;
     overflow-y: scroll;
     display: inline-block;
-    font-size: 11px;
 }
 
 .xcTable {
-    height: 0px;
-    width: 520px;
+    .size(@width: 520px, @height: 0);
 
     td.jsonElement, td.dataCol {
         .go-column-solid(20%);
@@ -254,31 +221,28 @@
     }
 
     .header {
-        position: absolute;
-        top: 35px;
-
-        .dataTableHeader();
+        .position(absolute, @top: 35px);
+        .dataTableHeader;
 
         > input {
             .gray-gradient;
-            border-radius: 3px;
+            .rounded;
         }
 
         .flexContainer {
-            position: relative;
-            width: 100%;
+            .position(relative);
+            .size(@width: 100%);
             .gray-gradient;
-            border-radius: 3px;
+            .rounded;
 
             .flexWrap.flex-left {
                 .flex(0 1 30px);
+                .size(@height: 22px);
                 margin: 4px 0 0 4px;
                 overflow: hidden;
-                height: 22px;
                 white-space: normal;
                 .iconHidden {
-                    width: 0px;
-                    height: 22px;
+                    .size(@width: 0, @height: 22px);
                     display: inline-block;
                 }
             }
@@ -289,7 +253,7 @@
 
             .flexWrap.flex-right {
                 .flex(0 1 30px);
-                position: relative;
+                .position(relative);
             }
 
             &:hover {
@@ -322,9 +286,9 @@
 }
 
 .xcTableWrap {
+    .position(relative);
+    .size(@width: auto);
     margin-bottom: 0px;
-    position: relative;
-    width: auto;
     overflow: hidden;
 
     &:last-child {
@@ -338,14 +302,13 @@
     }
 
      .xcTbodyWrap {
+        .position(@right: -17px);
+        .size(@width: ~"calc(100% + 17px)", @max-height: ~"calc(100% - 31px)");
+        .font(@size: 11px);
         margin-bottom: 0;
         padding: 0;
-        max-height: ~"calc(100% - 31px)";
-        font-size: 11px;
-        right: -17px;
         overflow-x: hidden;
         overflow-y: auto;
-        width: ~"calc(100% + 17px)";
         &::-webkit-scrollbar {
             display: none;
         }
@@ -364,32 +327,26 @@
 }
 
 .xcTheadWrap {
-    position: relative;
+    .position(relative, @left: 0%);
     top: 0px !important;
-    left: 0%;
-    width: ~"calc(100% - 5px)";
+    .size(@width: ~"calc(100% - 5px)");
     pointer-events: none;
     z-index: 9;
     display: inline-block;
 
     .tableTitle {
-        height: 35px;
+        .position(relative);
+        .size(@width: 100%, @height: 35px);
         pointer-events: auto;
-        width: 100%;
         text-align: center;
         display: block;
-        position: relative;
         .gray-gradient;
         border-bottom: 1px solid @color-table-borderGray;
         .tableGrab {
-            position: absolute;
-            height: 40px;
-            width: ~"calc(100% - 15px)";
-            top: 0;
+            .position(absolute, @top: 0);
+            .size(@width: ~"calc(100% - 15px)", @height: 40px);
             z-index: 2;
-            cursor: move;
-            cursor: -webkit-grab;
-            cursor: -moz-grab;
+            .cursor-move;
         }
 
         &.tblTitleSelected {
@@ -410,11 +367,8 @@
         }
 
         .dropdownBox {
-            height: 24px;
-            width: 24px;
-            position: absolute;
-            right: -3px;
-            bottom: -4px;
+            .position(absolute, @right: -3px, @bottom: -4px);
+            .size(24px, 24px);
             z-index: 6;
             opacity: 0;
             border: none;
@@ -422,11 +376,8 @@
             .transition (opacity 0.02s linear);
             .transition-delay (0.08s);
             .innerBox {
-                width: 16px;
-                height: 16px;
-                position: absolute;
-                right: 6px;
-                bottom: 7px;
+                .position(absolute, @right: 6px, @bottom: 7px);
+                .size(16px, 16px);
                 background-image: url(/images/table-corner-inactive.png); 
             }
         }
@@ -441,18 +392,16 @@
         }
 
         input {
-            width: 100%;
-            height: 25px;
+            .position(relative);
+            .size(@width: 100%, @height: 25px);
+            .font(@weight: 600, @size: 15px, @family: @font-base);
             text-align: center;
             background-color: transparent;
-            font: 15px @font-base;
-            font-weight: 600;
             padding: 0 2px;
             margin-top: 5px;
-            position: relative;
             z-index: 2;
             &:focus {
-                background-color: white;
+                background-color: @color-white;
                 color: @color-text-darkGray;
                 width: auto !important;
                 max-width: 90%;
@@ -462,19 +411,17 @@
 }
 
 .colGrab {
+    .position(absolute, @top: 0, @right: -7px);
+    .size(@width: 8px);
     display: inline-block;
-    position: absolute;
-    width: 8px;
     cursor: ew-resize;
     z-index: 4;
-    right: -7px;
-    top: 0px;
     .noSelection;
 }
 
 th:last-child .colGrab{
-    right: -10px;
-    width: 12px;
+    .position(@right: -10px);
+    .size(@width: 12px);
 }
 
 /* CUSTOM DROPDOWNS BASED ON DATA TYPES */
@@ -488,31 +435,27 @@ th:last-child .colGrab{
 
 /* VERTICAL RESIZING */
 .rowGrab {
-    position: absolute;
-    width: 1000px;
-    height: 7px;
-    bottom: -6px;
-    left: -2px;
+    .position(absolute, @bottom: -6px, @left: -2px);
+    .size(@width: 1000px, @height: 7px);
     z-index: 0;
     cursor: ns-resize;
 }
 
 .xcTable tbody td {
-    height: 30px;
+    .size(@height: 30px);
 }
 
 .idWrap {
+    .position(relative);
+    .size(100%, 100%);
     display: table;
-    height: 100%;
-    width: 100%;
-    position: relative;
 }
 
 .idSpan {
+    .size(@width: 100%);
     display: table-cell;
     vertical-align: middle;
     text-align: center;
-    width: 100%;
 }
 /* END VERTICAL RESIZING */
- /* ========== End Of Main Frame ========== */
+/* ========== End Of Main Frame ========== */
