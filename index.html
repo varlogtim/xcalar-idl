@@ -505,11 +505,12 @@
     <div id="inputSection" class="modalTopMain">
       <div class="text">New Table Name:</div>
       <input id="roundedInput" type="textbox" required></input>
-      <div id="joinType">
+      <div id="joinType" class="listSection">
         <div class="text">Inner Join</div>
-        <div class="icon"></div>
-        <div id="arrow"></div>
-        <ul id="joinTypeSelect">
+        <div class="iconWrapper">
+            <div class="icon"></div>
+        </div>
+        <ul id="joinTypeSelect" class="list">
           <li id="innerJoin">Inner Join</li>
           <li id="innerJoin">Left Outer Join</li>
           <li id="innerJoin">Right Outer Join</li>
@@ -625,8 +626,14 @@
     </div>
     <div class="modalTopMain">
       <div class="topSection">
-        <div class="text">locations:</div>
-        <select id="fileBrowserPath" class="listSection"></select>
+        <div class="label">locations:</div>
+        <div id="fileBrowserPath" class="listSection">
+          <div class="text"></div>
+          <div class="iconWrapper">
+            <div class="icon"></div>
+          </div>
+          <ul class="list"></ul>
+        </div>
         <div class="iconSection">
           <div class="iconWrapper icon-up">
             <span class="icon"></span>
@@ -678,16 +685,22 @@
     </div>
     <div class="modalSubMain">
         <div class="inputSection">
-          <div class="text">file name:</div>
+          <div class="label">file name:</div>
           <input id="fileBrowserInputName" type="text" value="">
         </div>
         <div class="inputSection">
-          <div class="text">file format:</div>
-          <select id="fileBrowserFormat" class="listSection">
-            <option value="all">ALL</option>
-            <option value="json">JSON</option>
-            <option value="csv">CSV</option>
-          </select>
+          <div class="label">file format:</div>
+          <div id="fileBrowserFormat" class="listSection">
+            <div class="text">all</div>
+            <div class="iconWrapper">
+              <div class="icon"></div>
+            </div>
+            <ul class="list">
+              <li class="select">all</li>
+              <li>json</li>
+              <li>csv</li>
+            </ul>
+          </div>
         </div>
     </div>
     <div id="fileBrowserActions" class="modalBottom">

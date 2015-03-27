@@ -4,8 +4,14 @@ FileBrowser = (function() {
     var $container = $("#fileBrowserView");
     var $fileBrowserMain = $('#fileBrowserMain');
     var $inputName = $('#fileBrowserInputName');
-    var $inputFormat = $('#fileBrowserFormat');
-    var $pathLists = $('#fileBrowserPath');
+
+    var $formtSection = $('#fileBrowserFormat');
+    var $formatDropdown = $formtSection.find('.list');
+    var $formatLabel = $formtSection.find('.text');
+
+    var $pathSection = $('#fileBrowserPath');
+    var $pathLists = $pathSection.find('.list');
+    var $pathLabel = $pathSection.find('.text');
     /* Contants */
     var startPath = "file:///var/";
     var validFormats = ["JSON", "CSV"];
@@ -217,15 +223,41 @@ FileBrowser = (function() {
             focusOn(grid);
         });
 
-        // select a path
-        $fileBrowser.on('change', '#fileBrowserPath', function() {
-            var $newPath = $pathLists.find(':selected');
+        // open list section option
+        $fileBrowser.on('click', '.listSection', function(event) {
+            event.stopPropagation();
+            var $listSection = $(this);
+            var $list = $listSection.find('.list');
+            if ($list.children().length <= 1) {
+                return;
+            }
+            $listSection.toggleClass('open');
+            $list.toggle();
+        });
+
+          // select a path
+        $fileBrowser.on('click', '#fileBrowserPath .list li', function(event) {
+            var $newPath = $(this);
             upTo($newPath);
         });
 
         // filter a data format
-        $fileBrowser.on('change', '#fileBrowserFormat', function() {
-            var format = $inputFormat.find(':selected').val();
+        $fileBrowser.on('click', '#fileBrowserFormat .list li', 
+                        function(event) {
+            event.stopPropagation();
+            var $li = $(this);
+
+            $formtSection.removeClass('open');
+            $formatDropdown.hide();
+            if ($li.hasClass('select')) {
+                return;
+            }
+
+            var format = $li.text();
+            $formatLabel.text(format);
+            $li.siblings('.select').removeClass('select');
+            $li.addClass('select');
+
             var regEx;
             var grid = getFocusGrid();
             if (format !== "all") {
@@ -233,6 +265,15 @@ FileBrowser = (function() {
             }
             self.sortBy(sortKey, regEx);
             focusOn(grid);
+        });
+
+        // filter a data format
+        $fileBrowser.on('mouseleave', '.listSection', function(event) {
+            event.stopPropagation();
+            var $listSection = $(this);
+            var $list = $listSection.find('.list');
+            $listSection .removeClass('open');
+            $list.hide();
         });
 
         // confirm to open a ds
@@ -253,12 +294,13 @@ FileBrowser = (function() {
             return;
         }
         var oldPath = getCurrentPath();
-        var path = $newPath.val();
+        var path = $newPath.text();
 
         listFiles(path)
         .done(function() {
-            $pathLists.children().removeAttr('selected');
-            $newPath.attr('selected', 'selected');
+            $pathLabel.text(path);
+            $pathLists.children().removeClass('select');
+            $newPath.addClass('select');
             var $preLists = $newPath.prevAll();
 
             // find the parent folder and focus on it
@@ -271,7 +313,7 @@ FileBrowser = (function() {
     }
 
     function getCurrentPath() {
-        var path = $pathLists.children().first().val();
+        var path = $pathLabel.text();
         return (path);
     }
 
@@ -312,21 +354,20 @@ FileBrowser = (function() {
     }
 
     function appendPath(path) {
-        var html = '<option value="' + path + '" selected="selected">' + 
+        var html = '<li class="select">' + 
                         path + 
-                    '</option>';
-        $pathLists.children().removeAttr('selected');
+                    '</li>';
+        $pathLabel.text(path);
         $pathLists.prepend(html);
     }
 
     function clear(isALL) {
         $fileBrowser.find('.active').removeClass('active');
+
         $inputName.val("");
         if (isALL) {
             $fileBrowser.find('.select').removeClass('select');
-            var $options = $inputFormat.children();
-            $options.removeAttr('selected')
-            $options.first().attr('selected', 'selected');
+            $formtSection.find('.text').text('all');
             curFiles = [];
             sortKey = "name";
             sortRegEx = undefined;
