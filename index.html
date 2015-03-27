@@ -112,21 +112,21 @@
   <div id="datastoreView" class="mainPanel">
     <div id="contentHeader">
       <div id="contentHeaderLeft">
-        <div class="buttonArea" active>
+        <div class="buttonArea active">
           <div id="exploreButton"></div>
-          <div class="words">EXPLORE</div>
+          <div class="text">EXPLORE</div>
         </div>
         <div class="buttonArea">
           <div id="searchButton"></div>
-          <div class="words">SEARCH</div>
+          <div class="text">SEARCH</div>
         </div>
       </div>
       <div id="contentHeaderMid">
-        <div class="words" style="margin-left:20px">DATA SET</div> 
+        <div class="text" style="margin-left:20px">DATA SET</div> 
       </div>
       <div id="contentHeaderRight">
         <div class="icon"></div>
-        <div class="words">DATA CART</div>
+        <div class="text">DATA CART</div>
       </div>
     </div>
     <div id="importDataView">
@@ -147,7 +147,7 @@
               <label>File Path:</label>
               <input type="text" name="filePath" id="filePath"
                autocomplete="on" placeholder="Enter File Directory" required> 
-              <button id="fileBrowserBtn" class="btn">BROWSE</button>
+              <button id="fileBrowserBtn" class="btn btnMid">BROWSE</button>
             </div>
             <div id="fileNameSelector" class="importFormRow">
               <label>File Name:</label>
@@ -164,26 +164,23 @@
                 <input type="radio" name="dsType" id="dsTypeJSON" value="JSON"
                  required>
                 <div class="radio"><div class="dot"></div></div>
-                <div class="dsRadio"></div>
                 <span class="dsTypeLabel">JSON</span>
               </label>
               <label>
                 <input type="radio" name="dsType" id="dsTypeCSV" value="CSV"
                  required>
                 <div class="radio"><div class="dot"></div></div>
-                <div class="dsRadio"></div>
                 <span class="dsTypeLabel">CSV</span>
               </label>
               <label>
                 <input type="radio" name="dsType" id="dsTypeRand" value="rand"
                  required>
                 <div class="radio"><div class="dot"></div></div>
-                <div class="dsRadio"></div>
                 <span class="dsTypeLabel">Random</span>
               </label>
             </div>
-            <button class="btn" type="reset">CANCEL</button>
-            <button class="btn" type="submit" id="importDataSubmit">
+            <button class="btn btnMid btn-cancel" type="reset">CANCEL</button>
+            <button class="btn btnMid" type="submit" id="importDataSubmit">
               IMPORT DATA
             </button>
           </div>
@@ -193,15 +190,15 @@
     </div>
     <div id="mainContent">
       <div id="searchView">
-        <div id="contentView">
-          <div id="contentViewLeft">
+        <div class="contentView">
+          <div class="contentViewLeft">
             <div id="importDataArea">
             </div>
             <div id="datasetSearch"></div>
             <div id="listView">
             </div>
           </div>
-          <div id="contentViewMid">
+          <div class="contentViewMid">
             <div id="searchHeader"></div>
             <div id="searchResult"></div>
           </div>
@@ -703,7 +700,7 @@
           </div>
         </div>
     </div>
-    <div id="fileBrowserActions" class="modalBottom">
+    <div class="modalBottom">
         <div class="btn btnMid confirm">OPEN DATA SET</div>
         <div class="btn btnMid cancel">CANCEL</div>
     </div>
