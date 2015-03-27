@@ -618,6 +618,10 @@ function addWorksheetListeners(tableNum) {
         }   
     });
 
+    table.on('click', '.tick', function(event){
+        $(this).closest('.flexContainer').find('.editableHead').click();
+    });
+
     table.on('mousedown', '.colGrab', function(event) {
         if (event.which != 1) {
             return;
