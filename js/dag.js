@@ -430,7 +430,7 @@ function createRetina($retTabSection, retName) {
         '<div class="' + retClass + '">' + 
             '<div class="tabWrap">' + 
                 intputHTML + 
-                '<div class="retDown">' + 
+                '<div class="caret">' + 
                     '<span class="icon"></span>' + 
                 '</div>' + 
             '</div>' + 

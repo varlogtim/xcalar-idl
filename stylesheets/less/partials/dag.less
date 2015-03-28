@@ -1,34 +1,27 @@
 /* ========== Dag ========== */
 #dagPanel {
-    position: absolute;
-    width: 100%;
-    height: ~"calc(100% - 152px)";
-    top: 78px;
+    .position(absolute, @top: 78px);
+    .size(@width: 100%, @height: ~"calc(100% - 152px)");
     z-index: 9; 
     background-color: rgb(140, 173, 181);
     .image("/images/dag-background.png", right, top, repeat);
     .transition (~"transform 0.3s, z-index 0s .3s");
 
     .topBorder {
-        position: relative;
-        width: 100%;
-        height: 11px;
+        .position(relative);
+        .size(@width: 100%, @height: 11px);
         background-color: @color-background-sidebar;
         border-top: 1px solid @color-bar-border;
         border-bottom: 1px solid @color-bar-border;
         box-shadow: 0 1px 5px 0px rgba(0,0,0,0.5);
 
         .pulloutTabWrap, .tabShadow {
-            width: 50px;
-            height: 8px;
-            top: 9px;
-            left: 50%;
-            position: absolute;
+            .position(absolute, @top: 9px, @left: 50%);
+            .size(@width: 50px, @height: 8px);
             background-color: @color-background-sidebar;
             border: 1px solid @color-bar-border;
             border-top: none;
-            border-bottom-right-radius: 3px;
-            border-bottom-left-radius: 3px;
+            .rounded(0 0 3px 3px);
             z-index: 10;                                                 
         }
 
@@ -40,10 +33,8 @@
         }
 
         #dagPulloutTab {
-            position: absolute;
-            height: 17px;
-            width: 100%;
-            top: -9px;
+            .position(absolute, @top: -9px);
+            .size(@width: 100%, @height: 17px);
             cursor: pointer;
             .image("/images/dagIcons/dagTabArrow.png", 50%, 70%);
         }
@@ -69,9 +60,7 @@
     }
 
     #closeDag {
-        position: absolute;
-        right: 18px;
-        top: 16px;
+        .position(absolute, @top: 16px, @right: 18px);
         z-index: 50;
         .iconClose {
             background-image: url(/images/close-icon.png);
@@ -79,16 +68,13 @@
     }
 
     .dagArea {
-        width: ~"calc(100% - 10px)";
-        height: ~"calc(100% - 10px)";
+        .size(~"calc(100% - 10px)", ~"calc(100% - 10px)");
         overflow: auto;
     }
 }
 
 .dagWrap {
-    position: relative;
-    // overflow: auto;
-    // height: 100%;
+    .position(relative);
     margin-bottom: 10px;
     .header {
         margin: 15px 55px 0px 15px;
@@ -106,8 +92,7 @@
             box-shadow: 0 1px 1px 0 rgba(0,0,0,.7);
         }
         .icon {
-            width: 100%;
-            height: 100%;
+            .size(100%, 100%);
             .image("/images/info-icon.png", 50%, 50%);
         }
     }
@@ -128,11 +113,10 @@
         float: right;
         .addRet {
             display: inline-block;
-            height: 22px;
-            width: 22px;
+            .size(22px, 22px);
             float: right;
             margin-bottom: 8px;
-            border-radius: 3px;
+            .rounded;
             box-shadow: 2px 2px 2px 0 rgba(0,0,0,.4);
             .icon {
                 .image("/images/retina/retAdd.png", 50%, 50%);
@@ -140,51 +124,46 @@
         }
 
         .retTabSection {
+            .position(relative, @top: -5px);
             display: inline-block;
             float: right;
-            position: relative;
-            top: -5px;
 
             input:focus {
                 outline: none;
             }
             .retTab {
+                .position(relative, @top: 0);
+                .size(@width: 105px, @height: 30px);
                 display: inline-block;
-                width: 105px;
-                height: 30px;
                 float: right;
-                position: relative;
                 margin-right: 8px;
 
                 .tabWrap {
-                    position: relative;
-                    width: 100%;
-                    height: 30px;
+                    .position(relative);
+                    .size(@width: 100%, @height: 30px);
                     line-height: 30px;
-                    border-radius: 3px;
+                    .rounded;
                     border: 1px solid #979797;
                     background: rgba(219, 219, 219, 1);
                     cursor: pointer;
 
                     .retTitle {
+                        .size(@width: ~"calc(100% - 20px)");
                         display: inline-block;
-                        width: ~"calc(100% - 20px)";
+                        .font(@weight: bold, @size: 14px);
                         float: left;
-                        font-size: 14px;
                         background: transparent;
                         text-align: left;
                         padding-left: 10px;
                         color: #989898;
-                        font-weight: bold;
                         text-overflow: ellipsis;
                         overflow: hidden;
                         cursor: pointer;
                     }
 
-                    .retDown {
+                    .caret {
                         display: inline-block;
-                        height: 30px;
-                        width: 20px;
+                        .size(@width: 20px, @height: 30px);
                         cursor: pointer;
                         .icon {
                             .background("/images/retina/retDown.png", 13px, 8px);
@@ -197,21 +176,21 @@
                     .retTitle {
                         cursor: text;
                     }
-                    .retDown {
-                        cursor: initial;
+                    .caret {
+                        cursor: default;
                     }
                 }
 
                 &.active {
-                    top: 5px;
+                    .position(@top: 5px);
                     .tabWrap {
                         background: #c3c3c3;
-                        border-radius: 3px 3px 0 0;
+                        .rounded(3px 3px 0 0);
                         border-bottom: none;
                         .retTitle {
                             color: #4d4d4d;
                         }
-                        .retDown .icon {
+                        .caret .icon {
                             background-image: url(/images/retina/retDownActive.png);
                         }
                     }
@@ -222,44 +201,37 @@
                 }
 
                 .retPopUp {
+                    .position(absolute, @top: 30px, @left: -288px);
+                    .size(@width: 440px, @height: 289px);
                     display: none;
-                    width: 440px;
-                    height: 289px;
-                    position: absolute;
-                    left: -288px;
-                    top: 30px;
                     background: @color-white;
-                    border-radius: 0px 0px 3px 3px;
+                    .rounded(0 0 3px 3px);
                     box-shadow: 0px 3px 6px 0 rgba(0, 0, 0, 0.3);
 
                     .divider {
-                        width: 100%;
-                        height: 4px;
+                        .size(@width: 100%, @height: 4px);
                         background: #979797;
                     }
                     .inputSection {
-                        width: 100%;
-                        height: 45px;
+                        .size(@width: 100%, @height: 45px);
                         background: #eaeaea;
                         box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.4);
                         padding: 7px 10px;
                         .newParam {
+                            .size(@width: 194px);
                             display: inline-block;
-                            width: 194px;
                             float: left;
                             padding-left: 9px;
                             box-shadow: inset -2px 0px 2px 0 rgba(0, 0, 0, 0.3);
-                            font-weight: bold;
-                            font-size: 13px;
+                            .font(@weight: bold, @size: 13px);
                             color: #cccccc;
                             .input-placeholder(#cccccc);
                         }
                         .addParam {
+                            .size(@width: 214px, @height: 30px);
                             display: inline-block;
-                            width: 214px;
-                            height: 30px;
                             margin-left: 12px;
-                            border-radius: 3px;
+                            .rounded;
                             box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.8);
                             padding-top: 5px;
                             .icon {
@@ -268,44 +240,39 @@
                                 .background("/images/retina/retNewParam.png", 24px, 23px);
                             }
                             .label {
-                                width: 170px;
-                                font-size: 12px;
-                                font-weight: bold;
+                                .size(@width: 170px);
+                                .font(@weight: bold, @size: 12px);
                                 color: @color-text-cyan;
                             }
                         }
                     }
 
-                    .retinaTable();
+                    .retinaTable;
                 }
             }
         }
     }
 
     .dagImageWrap {
-        height: ~"calc(100% - 54px)";
+        .size(@height: ~"calc(100% - 54px)");
         overflow-x: auto;
         margin-left: 10px;
     }
 
     .dagImage {
-        position: relative;
-        // display: flex;
-        overflow: hidden;
+        .position(relative);
         overflow: visible;
         display: block;
         float: left;
         margin-left: 30px;
-        padding-bottom: 30px;
-        padding-right: 30px;
+        padding: 0 30px 30px 0;
     }
 
     .dagTableWrap {
+        .flex-display;
         vertical-align: middle;
         align-self: center;
-        margin: 10px 10px;
-        margin-top: 0px;
-        display: flex;
+        margin: 0 10px 10px 10px;
     }
 
     .dagTableWrap + .dagTableWrap {
@@ -316,72 +283,54 @@
     }
 
     .dagTable {
+        .position(relative, @top: 0, @right: 0);
+        .size(40px, 40px);
         display: block;
-        position: relative;
         text-align: center;
         line-height: 30px;
         float: right;
-        width: 40px;
-        height: 40px;
-        
-        
-        top: 0;
-        right: 0;
 
         .icon {
+            .position(absolute, @top: 5px, @left: 5px);
+            .size(75%, 75%);
             .image("/images/table-icon.png", 50%, 50%);
             background-size: contain;
-            width: 75%;
-            height: 75%;
-            position: absolute;
-            top: 5px;
-            left: 5px;
         }
 
         .dagTableIcon {
-            position: absolute;
+            .position(absolute, @top: 5px);
+            .size(@width: 40px, @height: 30px);
             background-color: lightblue;
             .action-gradient;
-            border-radius: 15px;
-            width: 40px;
-            height: 30px;
-            top: 5px;
+            .rounded(15px);
         }
 
         &.dataStore {
             background: none;
             cursor: pointer;
             .icon {
+                .position(@top: -1px, @left: -5px);
+                .size(100%, 100%);
                 .image("/images/db-icon-white.png", 50%, 50%);
-                left: -5px;
-                top: -1px;
-                width: 100%;
-                height: 100%;
             }
             .tableTitle {
-                top: 38px;
+                .position(@top: 38px);
                 .transform (translateX(-60%));
             }
             .dataStoreIcon {
+                .position(absolute, @top: 6px, @left: 2px);
+                .size(28px, 28px);
                 .transform (rotate(-45deg));
-                border-radius: 3px;
-                width: 28px;
-                height: 28px;
+                .rounded;
                 .action-gradient;
-                top: 6px;
-                left: 2px;
-                position: absolute;
             }
         }
 
         .tableTitle {
-            position: absolute;
+            .position(absolute, @top: 35px);
             z-index: 5;
-            font-size: 10px;
-            top: 35px;
             color: @color-text-midGray;
-            font-weight: 700;
-            line-height: 12px;
+            .font(@weight: 700, @size: 10px, @line-height: 12px);
             white-space: nowrap;
             .transform (translateX(-50%));
         }
@@ -392,8 +341,8 @@
     }
 
     .joinWrap {
-        display: flex;
-        justify-content: flex-end;
+        .flex-display;
+        .justify-content(flex-end);
     }
 
     .joinWrap + .joinWrap {
@@ -401,36 +350,31 @@
     }
 
     .actionType {
+        .size(@width: 100px, @height: 32px);
         display: inline-block;
         line-height: 30px;
         margin: auto 20px;
         margin-right: 30px;
-        width: 100px;
-        height: 32px;
 
         .actionTypeWrap {
+            .position(absolute);
+            .size(@width: 100px, @height: 32px, 
+                  @max-width: 119px, @max-height: 70px);
             .dag-gradient;
-            position: absolute;
             line-height: 30px;
             margin: 0;
             border: 1px solid rgb(135, 132, 132);
-            border-radius: 3px;
-            width: 100px;
-            height: 32px; 
-            max-width: 119px;
-            max-height: 70px;
+            .rounded;
             overflow: hidden;
             cursor: pointer;
         }
 
         span {
+            .size(@width: 70%);
             display: block;
             float: left;
-            font-size: 8px;
-            line-height: 10px;
-            font-weight: 700;
             padding-left: 2px;
-            width: 70%;
+            .font(@weight: 700, @size: 8px, @line-height: 10px);
         }
 
         .typeTitle {
@@ -438,21 +382,19 @@
         }
 
         .childrenTitle {
-            height: ~"calc(100% - 12px)";
+            .size(@height: ~"calc(100% - 12px)");
             overflow: hidden;
             word-break: break-all;
         }
 
         .dagIcon {
-            width: 22px;
-            height: 100%;
+            .size(@width: 22px, @height: 100%);
             .dagDark-gradient;
             float: left;
         }
 
         .icon {
-            width: 100%;
-            height: 100%;
+            .size(100%, 100%);
         }
 
         .duplicateColumn {
@@ -496,10 +438,9 @@
 
         .groupBy {
             .icon {
+                .position(relative, @top: -8px);
+                .size(@height: 10px);
                 .image("/images/dagIcons/group.png", 40%, 40%);
-                height: 10px;
-                position: relative;
-                top: -8px;
 
                 &.groupByCount {
                     .image("/images/dagIcons/count.png", 40%, 40%);
@@ -519,9 +460,8 @@
             }
 
             .icon2 {
-                height: 15px;
-                top: -24px;
-                left: 0px;
+                .position(@top: -24px, @left: 0);
+                .size(@height: 15px);
             }
         }
 
@@ -573,46 +513,39 @@
 
 .retinaTable() {
     .tableContainer {
-        position: relative;
-        width: 100%;
+        .position(relative);
+        .size(@width: 100%);
         // height: ~"calc(100% - 55px)";
         background: @color-white;
         z-index: -1;
         padding: 0 10px;
-        border-radius: 0 0 3px 3px;
+        .rounded(0 0 3px 3px);
         .tableWrapper {
+            .size(@height: 100%);
             overflow-y: scroll;
-            height: 100%;
             margin: 0 auto;
             .thWrap {
-                width: 226px;
-                height: 30px;
-                line-height: 30px;
-                position: absolute;
+                .position(absolute, @top: 0);
+                .size(@width: 226px, @height: 30px);
                 background: #a8a8a8;
-                top: 0px;
                 z-index: 40;
                 padding-left: 10px;
-                font-weight: bold;
-                font-size: 13px;
                 color: @color-text-white;
+                .font(@weight: bold, @size: 13px, @line-height: 30px);
             }
             .paramVal {
-                    float: left;
-                    background: transparent;
-                    height: 30px;
-                    line-height: 30px;
-                    width: 80%;
+                .size(@width: 80%, @height: 30px);
+                float: left;
+                background: transparent;
+                line-height: 30px;
             }
             .paramDelete {
+                .position(relative, @right: 2px);
+                .size(@width: 20px);
                 float: right;
-                width: 20px;
-                position: relative;
-                right: 2px;
                 cursor: pointer;
                 .icon {
-                    position: relative;
-                    top: 1px;
+                    .position(relative, @top: 1px);
                     .background("/images/ds-close.png", 15px, 15px);
                 }
             }
@@ -639,15 +572,12 @@
         tbody {
             tr {
                 td {
-                    width: 226px;
-                    height: 30px;
-                    line-height: 30px;
-                    position: relative;
+                    .position(relative);
+                    .size(@width: 226px, @height: 30px);
                     padding-left: 10px;
-                    font-weight: bold;
-                    font-size: 13px;
+                    .font(@weight: bold, @size: 13px, @line-height: 30px);
                     &:first-of-type {
-                        width: 194px;
+                        .size(@width: 194px);
                         border-right: 1px solid #a8a8a8;
                     }
                 }
@@ -662,14 +592,11 @@
     }
 }
 
-
 .canvas {
-    position: absolute;
-    left: 0;
+    .position(absolute, @top: 0, @left: 0);
     z-index: -1;
-    top: 0px;
 }
 
 .dagDropDown {
-    width: 200px;
+    .size(@width: 200px);
 }
