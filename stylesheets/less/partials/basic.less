@@ -12,8 +12,7 @@ table, tr, td, th, input, textarea, p {
     .nomargin-padding;
     .box-sizing;
     border: none;
-    font: 14px @font-base;
-    font-weight: 600;
+    .font(@weight: 600, @size: 14px, @family: @font-base);
     color: @color-text-darkGray;
 }
 
@@ -31,8 +30,7 @@ body {
     -webkit-font-smoothing: antialiased;
     .nomargin-padding;
     color: @color-text-darkGray;
-    font-family: @font-base;
-    font-weight: 600;
+    .font(@weight: 600, @family: @font-base);
     font-size: 0; /* Need to use this to get rid of stupid white space */
     overflow-y: hidden;
     background: #36444d url("/images/bg_page.png") repeat right top;
@@ -40,10 +38,8 @@ body {
 }
 
 #container {
-    height: 100vh;
-    position: relative;
-    min-height: 260px;
-    min-width: 1024px;
+    .position(relative);
+    .size(@height: 100vh, @min-height: 260px, @min-width: 1024px);
     font-size: 14px;
     overflow: hidden;
 }
@@ -57,8 +53,7 @@ body {
 }
 
 &::-webkit-scrollbar {
-    width: 11px;
-    height: 11px;
+    .size(11px, 11px);
     background: transparent;
 }
 
@@ -66,7 +61,7 @@ body {
     border-width: 1px 0px 1px 0px;
     border-color: transparent;
     border-style: solid;
-    border-radius: 10px;
+    .rounded(10px);
     background-color: rgba(217,217,217,0.75) !important;
     background-clip: content-box;
     -webkit-box-shadow: inset 0 -1px 2px rgba(205,205,205,0.75);
@@ -82,23 +77,21 @@ body {
 
 /* For Both worksheet menu bar and bottom area bar */
 .workspaceBar {
-    height: 38px;
+    .position(relative);
+    .size(@width: 100%, @height: 38px);
     color: @color-text-darkGray;
     border-top: 1px solid @color-bar-border;
     border-bottom: 1px solid @color-bar-border;
-    background: linear-gradient(@color-background-midGrayMed,
-                                @color-background-bottomGrayMed);
+    .darkGray-gradient;
     box-shadow: 0px 3px 3px 0px rgba(0,0,0, .4);
     display: block;
-    width: 100%;
-    position: relative;
     z-index: 13;
 }
 
 /* For Both worksheet menu bar and bottom area bar */
 .workspaceArea {
+    .size(@height: 25px);
     display: inline-block;
-    height: 25px;
     padding: 0px 14px;
     margin-top: 5px;
     border-right: 1px solid @color-tab-divider;
@@ -106,11 +99,10 @@ body {
     line-height: 25px;
     
     input {
-        height: 25px;
-        line-height: 25px;
+        .size(@height: 25px);
         padding: 0 4px;
         background-color: @color-background-input;
-        font-weight: bold;
+        .font(@weight: bold, @line-height: 25px);
 
         &:focus {
             background-color: @color-background-input-active;
@@ -121,11 +113,11 @@ body {
     }
 
     &#functionArea {
-        width: 380px;
+        .size(@width: 380px);
         .flex-grow(4);
         .flex-shrink(1);
         #fnBar {
-            width: ~"calc(100% - 28px)";
+            .size(@width: ~"calc(100% - 28px)");
             &.active {
                 background-color: @color-background-input-active;
                 box-shadow: 0px 2px 2px 0 #888888 inset;
@@ -144,7 +136,7 @@ body {
     display: inline-block;
     border: 0;
     outline: 0;
-    border-radius: 2px;
+    .rounded(2px);
     color: @color-text-transparentWhite;
     .action-gradient;
     box-shadow: 0px 1px 1px 0 rgba(0, 0, 0, 0.7);
@@ -159,8 +151,7 @@ body {
     }
 
     span {
-        height: 100%;
-        width: 100%;
+        .size(100%, 100%);
         display: inline-block;
         background-repeat: no-repeat;
         background-position: 50% 50%;
@@ -168,9 +159,8 @@ body {
 }
 
 .btnSmall {
-    height: 22px;
-    width: 22px;
-    border-radius: 2px;
+    .size(22px, 22px);
+    .rounded(2px);
 }
 
 .btnMid {
@@ -181,15 +171,11 @@ body {
 }
 
 .btnLarge {
-    width: 230px;
-    height: 30px;
-    border-radius: 3px;
+    .size(@width: 230px, @height: 30px);
+    .rounded;
     color: @color-text-transparentWhite;
     text-shadow: 1px 1px rgba(0,0,0,.3);
-    // box-shadow: 1px 2px 1px rgba(0,0,0,.2);
-    line-height: 30px;
-    font-size: 12px;
-    cursor: pointer;   
+    .font(@size: 12px, @line-height: 30px);
 }
 
 .btn-cancel {
@@ -201,8 +187,7 @@ body {
 }
 
 .btnInactive {
-    background: linear-gradient(@color-background-topGrayMed, 
-                    @color-background-bottomGrayMed);
+    .gray-gradient;
     pointer-events: none;
 }
 
@@ -214,10 +199,10 @@ body {
 }
 
 input {
-    height: 30px;
+    .size(@height: 30px);
+    .rounded;
     line-height: 30px;
     padding: 0 4px;
-    border-radius: 3px;
     background-color: @color-white;
 }
 
@@ -227,13 +212,11 @@ input {
 }
 
 .roundedIcon {
-    width: 19px;
-    height: 19px;
+    .size(19px, 19px);
     float: right;
-    margin-right: 6px;
-    margin-top: 7px;
+    margin: 7px 6px 0 0 ;
     background-color: @color-background-bottomGrayMed;
-    border-radius: 1px;
+    .rounded(1px);
     box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
     cursor: pointer;
 }
@@ -243,53 +226,44 @@ input {
     .bar {
         .workspaceBar;
     }
-    height: ~"-webkit-calc(100% - 114px)";
-    height: ~"-moz-calc(100% - 114px)";
-    height: ~"calc(100% - 114px)";
-    background: #E6E6E6;
+    .size(@height: ~"calc(100% - 114px)");
+    background: @color-background-darkGray;
     text-align: center;
     .alert {
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 50px;
-        width: 28px;
-        height: 28px;
-        background: url(/images/info-icon-large.png) 0 0 no-repeat;
+        .size(28px, 28px);
+        margin: 50px auto 0 auto;
+        .image("/images/info-icon-large.png");
     }
 }
 
 /* For Scoll bar in worksheet and datastore */
 #mainFrame, .datasetTableWrap {
     &::-webkit-scrollbar:vertical {
-        width: 0px;
-        height:11px;
+        .size(@width: 0, @height: 11px);
         background: transparent;
     }
 }
 
 /* For both worksheet table and datastore table */
 .dataTable {
+    .size(@width: 520px);
     border-collapse: separate;
     border-spacing: 0px;
     margin-right: 5px;
     table-layout: fixed;
-    width: 520px;
 
     th {
-        height: 40px;
+        .size(@height: 40px);
         background-color: @color-background-tableBorders;
         border: 5px solid @color-background-tableBorders;
         border-left: none;
-        font-weight: normal;
-        font-size: 13px;
         padding: 0px;
+        .font(@weight: normal, @size: 13px);
     }
 
     td {
-        font-family: @font-code;
-        font-size: 11px;
-        line-height: 15px;
-        height: 30px;
+        .size(@height: 30px);
+        .font(@size: 11px, @line-height: 15px, @family: @font-code);
         overflow: hidden;
         padding: 2px;
     }
@@ -376,8 +350,8 @@ input {
     }
 
     .header {
-        position: relative;
-        border-radius: 3px;
+        .position(relative);
+        .rounded;
         .gray-gradient;
     }
 
@@ -388,7 +362,7 @@ input {
             color: @color-text-darkGray;
         }
         &[readonly] {
-            width: 100%;
+            .size(@width: 100%);
             text-align: center;
             outline: none;
             cursor: default;
@@ -400,17 +374,16 @@ input {
     }
 
     .editableHead {
-        width: 100%;
+        .position(relative);
+        .size(@width: 100%);
         padding: 0px 4px;
         background-color: transparent; 
         border: none;
         display: block;
         text-align: center;
         overflow: hidden;
-        font: 13px @font-base;
-        font-weight: 600;
+        .font(@weight: 600, @size: 13px, @family: @font-base);
         z-index: 2;
-        position: relative;
     }
 
     .addedBarTextTd {
@@ -432,8 +405,6 @@ input {
     }
 
     .elementTextWrap, .addedBarTextWrap {
-        // overflow-y: auto;
-        // overflow-x: none;
         max-height: 16px;
         overflow: hidden;
     }
@@ -462,10 +433,12 @@ input {
 
 /* Flex Styling */
 .flexContainer {
-    .flex-display();
+    .flex-display;
+
     &.flexRow {
         .flex-flow(row);
     }
+
     .flexWrap {
         &.flex-left {
             .flex-order(1);
@@ -484,32 +457,30 @@ input {
 }
 
 .xcTable ul, .xcTheadWrap ul, .colMenu, .colMenu ul {
-    position: absolute;
+    .position(absolute);
+    .size(@width: 170px);
     list-style: none;
     padding: 0px;
     display: inline-block;
-    width: 170px;
     z-index: 20;
     box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
 }
 
 ul.colMenu {
+    .position(fixed);
     display:none;
     background-color: @color-white;
-    position: fixed;
     z-index: 20;
     cursor: pointer;
     .dropDown;
 
     li {
-        padding: 6px;
-        padding-left: 8px;
-        height: 30px;
-        position:relative;
+        .position(relative);
+        .size(@height: 30px);
+        padding: 6px 6px 6px 8px;
         color: @color-text-dropMenu;
         background-color: @color-white;
-        font-size: 12px;
-        font-weight: 700;
+        .font(@weight: 700, @size: 12px);
         .noSelection;
         text-align: left;
 
@@ -534,7 +505,7 @@ ul.colMenu {
         }
 
         &.clickable {
-            height: 60px;
+            .size(@height: 60px);
             span {
                 display: block;
                 float: none;
@@ -547,28 +518,23 @@ ul.colMenu {
     }
 
     ul {
+        .position(@top: 0, @left: 155px);
         visibility: hidden;
         z-index: 20;
-        top: 0px;
-        left: 155px;
         .transition-delay (.15s);
         margin-top: 30px;
         background-color: @color-white;
     }
 
     input[type=text] {
-        width: 160px;
-        height: 20px;
-        line-height: 20px;
-        position: relative;
-        top: -1px;
-        right: 0px;
+        .position(relative, @top: -1px, @right: 0);
+        .size(@width: 160px, @height: 20px);
+        .font(@size: 12px, @line-height: 20px);
         margin-left: -3px;
         padding: 2px;
         text-align: center;
         box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
         background-color: @color-white;
-        font-size: 12px;
 
         &:focus {
             outline: none;
@@ -589,7 +555,7 @@ ul.colMenu {
     }
 
     .filter ul {
-        width: 170px;
+        .size(@width: 170px);
         cursor: text;
     }
 
@@ -597,16 +563,18 @@ ul.colMenu {
         background-color: @color-selectedCell-green;
     }
 
+    .sort, .aggregate, .groupBy, .filter {
+        span {
+            .size(@width: 24px, @height: 16px);
+            float: left;
+            display: inline-block;
+        }
+    }
+
     .sort {
         // indexed column cannot sort
         .indexedColumn & {
             display: none;
-        }
-        span {
-            height: 16px;
-            width: 24px;
-            float: left;
-            display: inline-block;
         }
         .sortUp {
             .image("/images/arrowUp.png", 0, 50%);
@@ -617,12 +585,6 @@ ul.colMenu {
     }
 
     .aggregate, .groupBy {
-        span {
-            height: 16px;
-            width: 24px;
-            float: left;
-            display: inline-block;
-        }
         .maxIcon {
             .image("/images/max.png", 0, 50%);
         }
@@ -641,13 +603,6 @@ ul.colMenu {
     }
 
     .filter {
-
-        span {
-            height: 16px;
-            width: 24px;
-            float: left;
-            display: inline-block;
-        }
         .greaterThan{
             .image("/images/greaterThan.png", 0, 50%);
         }
@@ -752,22 +707,18 @@ ul.subColMenu li {
 }
 
 .subColMenuArea {
-    position: absolute;
-    top: -30px;
-    left: 14px;
-    width: ~"calc(100% + 30px)";
-    height: ~"calc(100% + 60px)";
+    .position(absolute, @top: -30px, @left: 14px);
+    .size(@width: ~"calc(100% + 30px)", @height: ~"calc(100% + 60px)");
     z-index: -1;
     cursor: default;
 }
 
 .leftColMenu .subColMenuArea {
-    right: 0;
-    left: auto;
+    .position(@right: 0, @left: auto);
 }
 
 ul.leftColMenu {
-    right: 0px;
+    .position(@right: 0);
     box-shadow: -1px 1px rgba(0,0,0,0.1);
 
     .dropdownBox {
@@ -776,28 +727,25 @@ ul.leftColMenu {
 }
 
 ul.subColMenu.leftColMenu {
-    left: -170px;
+    .position(@left: -170px);
     margin-top: 0px;
     box-shadow: -1px 1px rgba(0,0,0,0.1);
 }
 
 
 ul.inputMenu {
-
     > li {
-        height: auto;
-        min-height: 30px;
+        .size(@height: auto, @min-height: 30px);
         overflow: hidden;
         padding: 0px;
         margin: 0px;
 
         span {
+            .position(relative);
+            .size(@height: 30px);
             .box-sizing;
             display: block;
-            height: 30px;
-            padding: 6px;
-            padding-top: 8px;
-            position: relative;
+            padding: 8px 6px 6px 6px;
             background-color: @color-white;
             z-index: 1;
             .transition (margin-bottom .3s);
@@ -812,10 +760,9 @@ ul.inputMenu {
         }
 
         .dropdownBox {
-            top: 15px;
+            .position(@top: 15px);
             z-index: 1;
         }
-
     }
 
     &:hover ul {
@@ -823,12 +770,9 @@ ul.inputMenu {
     }
 
     input[type=text] {
-        position: absolute;
-        left: 0px;
-        top: 31px;
-        width: 160px;
+        .position(absolute, @top: 31px, @left: 0);
+        .size(@width: 160px, @height: 24px);
         margin: 0px 5px;
-        height: 24px;
         z-index: 0;
 
         &:focus {
@@ -843,32 +787,30 @@ ul.inputMenu {
 
  /* Top Menu Bar  */
 #menuBar {
-    height: 41px;
-    width: 100%;
+    .size(@width: 100%, @height: 41px);
     background: #36444d url("/images/bg_page.png") repeat right top;
 }
 
 #mainMenu {
+    .size(@height: 41px);
     float: left;
     margin-left: 10px;
     display: inline-block;
-    height: 41px;
 
     .mainMenuTab {
-        height: 32px;
+        .position(relative);
+        .size(@height: 32px);
         margin: 4px 10px 0px 0px;
         padding: 5px 25px 0px 35px;
         border: 1px solid @color-tab-border;
-        border-radius: 3px;
+        .rounded;
         display: inline-block;
         color: @color-text-tab;
         background-color: rgba(0,0,0, .15);
-        font-size: 14px;
-        font-family: @font-base;
+        .font(@size: 14px, @family: @font-base);
         float: left;
         cursor: default;
         .noSelection;
-        position: relative;
 
         &:hover {
             // hover vs regular color scheme needs to be adjusted
@@ -894,16 +836,16 @@ ul.inputMenu {
         }
 
         &.active {
+            .position(relative);
+            .size(@height: 35px);
             margin-top: 6px;
-            height: 35px;
             color: @color-text-darkGray;
-            background: linear-gradient(@color-background-topGrayMed, @color-background-midGrayMed);
+            .lightGray-gradient;
             border: 1px solid @color-bar-border;
             border-bottom: none;
             border-bottom-left-radius: 0px;
             border-bottom-right-radius: 0px;
             z-index: 14;
-            position: relative;
 
             .mountain-icon {
                 .image("/images/mountain-active.png");
@@ -927,12 +869,10 @@ ul.inputMenu {
         }
 
         .icon {
-            width: 24px;
-            height: 24px;
-            margin-left: -27px;
-            margin-top: 1px; 
+            .position(absolute);
+            .size(24px, 24px);
+            margin: 1px 0 0 -27px;
             display: inline-block;
-            position: absolute;
         }
 
         .mountain-icon {
@@ -958,17 +898,14 @@ ul.inputMenu {
     }
 
     #stats.active {
-        height: 36px;
+        .size(@height: 36px);
     }
 }
 
 #logo {
-    height: 34px;
-    width: 74px;
-    margin-right: 10px;
-    margin-top: 5px;
-    background-image: url("/images/xcalar-logo-white.png");
-    background-repeat: no-repeat;
+    .size(@width: 74px, @height: 34px);
+    margin: 5px 10px 0 0;
+    .image("/images/xcalar-logo-white.png");
     float: right;
     display: inline-block;
 }
@@ -976,8 +913,7 @@ ul.inputMenu {
 #userNameArea {
     color: @color-text-white;
     float: right;
-    margin-top: 10px;
-    margin-right: 25px;
+    margin: 10px 25px 0 0;
     display: inline-block;
     font-weight: 400;
     span {
@@ -987,27 +923,22 @@ ul.inputMenu {
 }
 
 #userNamePopout {
+    .position(absolute);
+    .size(@width: 168px, @height: 46px);
     .image("/images/signout.png");
-    width: 168px;
-    height: 46px; 
+    .font(@size: 10px, @line-height: 5px);
     z-index: 42;
-    position: absolute;
-    font-size: 10px;
-    line-height: 5px;
     #peri {
-        padding-top: 13px;
-        padding-left: 10px;
+        padding: 13px 0 0 10px;
         color: @color-text-signout-lightGray;
     }
     #name {
-        padding-top: 5px;
-        padding-left: 10px;
+        padding: 5px 0 0 10px;
         color: @color-text-signout-darkGray;
         float: left;
     }
     #signout {
-        padding-top: 5px;
-        padding-left: 5px;
+        padding: 5px 0 0 5px;
         color: @color-text-signout-blue;
         float: left;
         cursor: pointer;
@@ -1017,14 +948,13 @@ ul.inputMenu {
 
 /* Bottom Section */
 #bottomArea {
-    position: absolute;
-    bottom: 0px;
-    width: 100%;
+    .position(absolute, @bottom: 0);
+    .size(@width: 100%);
     z-index: 9;
 }
 
 #worksheetBar {
-    height: 35px;
+    .size(@height: 35px);
     border-top: 2px solid @color-bar-border;
     box-shadow: 0px 1px 1px 0px rgba(0,0,0, .5);
     overflow: hidden;
@@ -1032,32 +962,27 @@ ul.inputMenu {
     .lightGray-gradient;
 
     .workspaceArea {
-        height: 13px;
-        font-size: 13px;
-        line-height: 13px;
-        margin-top: 8px;
+        .size(@height: 13px);
+        .font(@size: 13px, @line-height: 13px);
         float: none;
-        margin-right: -2px;
+        margin: 8px -2px 0 0 ;
     }
 }
 
 #worksheetInfo {
-    height: 100%;
+    .size(@width: ~"calc(100% - 145px)", @height: 100%);
     float: left;
     display: inline-block;
-    width: ~"calc(100% - 145px)";
     white-space: nowrap;
     overflow: hidden;
 }
 
 .iconBtn {
-    width: 22px;
-    height: 22px;
-    border-radius: 2px;
+    .size(22px, 22px);
+    .rounded(2px);
 
     span {
-        height: 100%;
-        width: 100%;
+        .size(100%, 100%);
         display: inline-block;
         background-repeat: no-repeat;
         background-position: 50% 50%;
@@ -1076,10 +1001,9 @@ ul.inputMenu {
 
 #leftMenu {
     .icon {
-        margin-top: 0;
-        margin-left: 0;
+        .position(relative);
+        margin: 0;
         display: inline-block;
-        position: relative;
         z-index: 1;
     }
 }
@@ -1101,7 +1025,7 @@ ul.inputMenu {
 }
 
 #bottomTabArea {
-    height: 39px;
+    .size(@height: 39px);
     background: #36444d url("/images/bg_page.png") repeat right top;
 }
 
@@ -1111,46 +1035,38 @@ ul.inputMenu {
     cursor: pointer;
     float: left;
     span {
+        .size(100%, 100%);
         .image("/images/plus-sign.png", 55%, 45%);
         display: block;
-        height: 100%;
-        width: 100%;
     }
 }
 
 #worksheetTabs {
+    .position(relative, @top: -1px);
+    .size(@height: 36px);
     display: inline-block;
     float: left;
-    position: relative;
-    height: 36px;
-    top: -1px;
-
 }
 
 .worksheetTab {
-    width: 121px;
-    height: 35px;
-    line-height: 35px;
+    .size(@width: 121px, @height: 35px);
+    .font(@weight: 700, @size: 14px, @line-height: 35px);
     text-align: left;
     border: 1px solid @color-bar-border;
     border-top: none;
     border-bottom-left-radius: 3px;
-    font-weight: 700;
     .darkGray-gradient;
     float: left;
-    font-size: 14px;
     .icon {
         .image("/images/page-white.png", 50%, 50%);
-        width: 28px;
-        height: 100%;
+        .size(@width: 28px, @height: 100%);
         float: left;
     }
 }
 
 #compSwitch {
+    .size(@width: 30px, @height: 34px);
     float: left;
-    width: 30px;
-    height: 34px;
     display: inline-block;
     margin-top: 1px;
     cursor: pointer;
@@ -1159,9 +1075,8 @@ ul.inputMenu {
     border-bottom-right-radius: 3px;
     .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
     .icon {
+        .size(100%, 100%);
         .image("/images/comp-icon.png", 50%, 50%);
-        height: 100%;
-        width: 100%;
     }
 
     &:hover {
@@ -1192,55 +1107,45 @@ ul.inputMenu {
 
 /* Status Box */
 #statusBox {
+    .position(fixed);
     padding: 5px;
-    position: fixed;
     display: none;
     z-index: 100;
 
     .boxInnerWrap {
-        width: 185px;
-        min-height: 100px;
-        max-height: 300px;
+        .position(relative);
+        .size(@width: 185px, @min-height: 100px, @max-height: 300px);
         padding: 7px;
-        border-radius: 3px;
+        .rounded;
         box-shadow: 0 0 5px 1px rgba(0,0,0,.2);
         background-color: @color-background-white;
-        position: relative;
         z-index: 3;
     }
     .close {
-        position: absolute;
+        .position(absolute, @top: 7px, @right: 7px);
+        .size(14px, 14px);
         .image("/images/close-gray.png", 50%, 50%);
-        right: 7px;
-        top: 7px;
-        height: 14px;
-        width: 14px;
         display: inline-block;
         cursor: pointer;
     }
     .title {
-        height: 24px;
+        .size(@height: 24px);
         font-weight: bold;
         .icon {
-            height: 20px;
-            width: 20px;
+            .size(20px, 20px);
             margin-right: 6px;
             float: left;
         }
         .titleText {
             margin-top: 3px;
-            font-size: 14px;
-            line-height: 16px;
             float: left;
+            .font(@size: 14px, @line-height: 16px);
         }
     } 
     .arrow {
+        .position(absolute, @top: 38px, @left: 0);
+        .size(10px, 10px);
         display: inline-block;
-        width: 10px;
-        height: 10px;
-        position: absolute;
-        left: 0px;
-        top: 38px;
         background-color: transparent;
         .transform(rotate(45deg));
         border: none;
@@ -1249,9 +1154,8 @@ ul.inputMenu {
     }
     .message {
         color: @color-text-darkGray;
-        font-size: 12px;
+        .font(@size: 12px, @line-height: 18px);
         white-space: normal;
-        line-height: 18px;
     }
     &.error {
         display: inline-block;
@@ -1266,12 +1170,10 @@ ul.inputMenu {
         .boxInnerWrap {
             border: 1px solid @color-error-border;
             &:before, &:after {
+                .position(absolute, @top: 30px, @left: 0);
                 content: "";
-                position: absolute;
                 border-top: 7px solid transparent;
                 border-bottom: 7px solid transparent;
-                top: 30px;
-                left: 0px;
                 margin-left: -9px;
             }
             &:before {
