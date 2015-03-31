@@ -22,7 +22,7 @@ function setupRightSideBar() {
             $sidebar.addClass('open');
             $sidebarSection.addClass('active');
             if ($sidebarSection.attr('id') === 'cliSection') {
-                cliScrollDown($('#rightBarTextArea'));
+                Cli.scrollDown();
             }
             $sliderBtn.addClass('active');
             // display correct section
@@ -43,7 +43,7 @@ function setupRightSideBar() {
                         .removeClass('active');
                 $sidebarSection.addClass('active');
                 if ($sidebarSection.attr('id') === 'cliSection') {
-                    cliScrollDown($('#rightBarTextArea'));
+                    Cli.scrollDown();
                 }
                 $sliderBtn.addClass('active');
             }
@@ -144,7 +144,7 @@ function setupHelpSection() {
             gTableOrderLookup = [];
             gDSObjFolder = {};
             commitToStorage();
-            clearCli();
+            Cli.clear();
 
             $('#worksheetInfo').find('.numDataStores').text(0);
             $('#datasetExplore').find('.numDataStores').text(0);
@@ -241,7 +241,7 @@ function setuptableListSection() {
                         return (XcalarSetFree(activeTable.resultSetId));
                     })
                     .done(function() {
-                        addCli('Send To WorkSheet', cliOptions);
+                        Cli.add('Send To WorkSheet', cliOptions);
                         if ($timeLine.find('.tableInfo').length === 0) {
                             $timeLine.remove();
                         }
@@ -266,7 +266,7 @@ function setuptableListSection() {
                     deleteTable(tableNum, DeleteTable.Delete)
                     .done(function() {
 
-                        addCli('Delete Table', cliOptions);
+                        Cli.add('Delete Table', cliOptions);
                         if ($timeLine.find('.tableInfo').length === 0) {
                             $timeLine.remove();
                         }

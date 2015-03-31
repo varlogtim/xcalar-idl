@@ -41,7 +41,7 @@ function setupImportDSForm() {
             cliOptions.operation = 'loadDataSet';
             cliOptions.dsName = tableName;
 
-            addCli('Load dataset', cliOptions);
+            Cli.add('Load dataset', cliOptions);
         })
         .fail(function(result) {
             var text;

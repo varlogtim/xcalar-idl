@@ -114,7 +114,7 @@ function showJsonModal(jsonTd) {
         addCol('col'+(colNum), 'xcTable'+tableNum, name, {direction: 'L', 
                 select: true});
 
-        addCli('Add Column', cliOptions);
+        Cli.add('Add Column', cliOptions);
 
         gTables[tableNum].tableCols[colNum-1].func.func = "pull";        
         gTables[tableNum].tableCols[colNum-1].func.args = [name];

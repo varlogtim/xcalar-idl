@@ -258,7 +258,7 @@ function dragdropMouseUp() {
                 // you delete and add column
                 $('#mainFrame').scrollLeft(storedScrollLeft);
 
-                addCli('Change Column Order', cliOptions);
+                Cli.add('Change Column Order', cliOptions);
             });
         }, 0);
     }
@@ -665,7 +665,7 @@ function createTableHeader(tableNum) {
 
         archiveTable(tableNum, DeleteTable.Keep);
 
-        addCli('Archive Table', cliOptions);
+        Cli.add('Archive Table', cliOptions);
     });
 
     $tableMenu.on('click', '.deleteTable', function() {
@@ -681,7 +681,7 @@ function createTableHeader(tableNum) {
 
         deleteTable(tableNum)
         .done(function() {
-            addCli('Delete Table', cliOptions);
+            Cli.add('Delete Table', cliOptions);
         });
     });
 
@@ -702,7 +702,7 @@ function createTableHeader(tableNum) {
         showWaitCursor();
         XcalarExport(cliOptions.tableName, retName+".csv")
         .done(function() {
-            addCli('Export Table', cliOptions);
+            Cli.add('Export Table', cliOptions);
             var title = "Successful Export";
             var ins = "Widget location: http://schrodinger/dogfood/widget/main.html?"+
                       "rid="+retName;
@@ -941,7 +941,7 @@ function addColMenuActions($colMenu) {
         addCol(index, tableId, null, 
             {direction: direction, isDark: true, inFocus: true});
 
-        addCli("Add Column", cliOptions);
+        Cli.add("Add Column", cliOptions);
     })
 
     $colMenu.on('click', '.deleteColumn', function() {
@@ -957,7 +957,7 @@ function addColMenuActions($colMenu) {
 
         delCol(index, tableNum);
 
-        addCli('Delete Column', cliOptions);
+        Cli.add('Delete Column', cliOptions);
     });
 
     $colMenu.on('click', '.renameCol', function() {
@@ -985,7 +985,7 @@ function addColMenuActions($colMenu) {
         addCol('col'+index, table.attr('id'),name, 
             {width: width, isDark: isDark});
 
-        addCli('Duplicate Column', cliOptions);
+        Cli.add('Duplicate Column', cliOptions);
 
         gTables[tableNum].tableCols[index].func.func = 
             gTables[tableNum].tableCols[index-1].func.func;
@@ -1114,7 +1114,7 @@ function functionBarEnter($el) {
         cliOptions.progCol = progCol.name;
         cliOptions.func = progCol.func.func;
 
-        addCli("Prog Column", cliOptions);
+        Cli.add("Prog Column", cliOptions);
 
         if (progCol.name.length > 0) {
             $el.val(progCol.name);
@@ -1146,7 +1146,7 @@ function functionBarEnter($el) {
         cliOptions.progCol = progCol.name;
         cliOptions.func = progCol.func.func;
 
-        addCli("Prog Column", cliOptions);
+        Cli.add("Prog Column", cliOptions);
 
         if (progCol.name.length > 0) {
             $el.val(progCol.name);

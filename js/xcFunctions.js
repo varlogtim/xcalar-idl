@@ -110,7 +110,7 @@ function sortRows(index, tableNum, order) {
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep));
     })
     .done(function() {
-        addCli('Sort Table', cliOptions)
+        Cli.add('Sort Table', cliOptions)
     })
     .fail(function(error) {
         console.log("Sort Rows Fails!");
@@ -179,7 +179,7 @@ function groupByCol(operator, newColName, colid, tableNum) {
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
     })
     .done(function() {
-        addCli('Group By', cliOptions);
+        Cli.add('Group By', cliOptions);
         deferred.resolve();
     })
     .fail(function(error) {
@@ -221,7 +221,7 @@ function filterCol(operator, value, colid, tableNum) {
         return (refreshTable(newTableName, tableNum));
     })
     .done(function() {
-        addCli('Filter Table', cliOptions);
+        Cli.add('Filter Table', cliOptions);
         deferred.resolve();
     })
     .fail(function(error) {

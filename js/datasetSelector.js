@@ -146,7 +146,7 @@ function setupDSCartButtons() {
         XcalarDestroyDataset(dsName)
         .done(function() {
             cleanUpDsIcons();
-            addCli('Delete DateSet', cliOptions);
+            Cli.add('Delete DateSet', cliOptions);
         })
         .fail(function(error) {
             console.log("Delete Dataset fails!");
@@ -527,7 +527,7 @@ function addWorksheetListeners(tableNum) {
                 cliOptions.colNum = colNum + 1;
                 cliOptions.oldColName = oldColName;
                 cliOptions.newColName = newName;
-                addCli('Rename dataset column', cliOptions);
+                Cli.add('Rename dataset column', cliOptions);
             });
         }
     });
@@ -585,7 +585,7 @@ function addWorksheetListeners(tableNum) {
                 cliOptions.colNum = colNum + 1;
                 cliOptions.oldType = oldType;
                 cliOptions.newType = newType;
-                addCli('Change dataset data type', cliOptions);
+                Cli.add('Change dataset data type', cliOptions);
             });
         }
 
@@ -797,7 +797,7 @@ function createWorksheet() {
                     $.trim($(self).find('.keySelected .colName').text());
 
                 cliOptions.key = columnToIndex;
-                addCli("Send To Worksheet", cliOptions);
+                Cli.add("Send To Worksheet", cliOptions);
                 return (XcalarIndexFromDataset(datasetName, 
                         columnToIndex, tableName));
             })

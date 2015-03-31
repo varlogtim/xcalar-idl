@@ -165,7 +165,7 @@ function initializeJoinModal() {
                        leftColumnNum, rightTableNum, rightColumnNum)
             .done(function() {
                 resetJoinTables();
-                addCli("Join Table", cliOptions);
+                Cli.add("Join Table", cliOptions);
             });
         }
     });
