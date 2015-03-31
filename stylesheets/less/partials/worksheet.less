@@ -114,8 +114,16 @@
         .flex-shrink(0);
     }
 
+    #functionArea {
+        .flex(4 1 380px);
+    }
+
     #fnBar {
-        .size(@width: 380px);
+        .size(@width: ~"calc(100% - 28px)");
+        &.active {
+            background-color: @color-background-input-active;
+            box-shadow: 0px 2px 2px 0 #888888 inset;
+        }
     } 
 
     #searchBar {
@@ -127,11 +135,11 @@
     }
 
     #rowScrollerArea {
-        .flex-grow(2);
         .size(@width: 200px, @height: 35px);
+        .flex(2 0 200px);
         cursor: default;
         .noSelection;
-        margin: 0 14px;
+        margin: 0 4px;
         overflow: hidden;
 
         .rowScroller {
@@ -416,6 +424,7 @@
     display: inline-block;
     cursor: ew-resize;
     z-index: 4;
+    background-color: rgba(0,0,0,0); //ie hack
     .noSelection;
 }
 

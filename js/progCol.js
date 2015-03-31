@@ -531,26 +531,26 @@ function generateColDropDown(tableNum) {
             '<li class="unhide">Unhide column</li>'+ 
             '<li class="sort">Sort'+
                 '<ul class="subColMenu">'+
-                    '<li class="sort">A-Z'+ 
-                    '<span class="sortUp"></span></li>'+
-                    '<li class="revSort">Z-A'+ 
-                    '<span class="sortDown"></span></li>'+
+                    '<li class="sort">'+ 
+                    '<span class="sortUp"></span>A-Z</li>'+
+                    '<li class="revSort">'+ 
+                    '<span class="sortDown"></span>Z-A</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="dropdownBox"></div>'+
             '</li>'+
             '<li class="aggregate">Aggregate'+
                 '<ul class="subColMenu">'+
-                    '<li class="aggrOp">Max'+ 
-                    '<span class="maxIcon"></span></li>'+
-                    '<li class="aggrOp">Min'+ 
-                    '<span class="minIcon"></li>'+
-                    '<li class="aggrOp">Avg'+ 
-                    '<span class="avgIcon"></li>'+
-                    '<li class="aggrOp">Count'+ 
-                    '<span class="countIcon"></li>'+
-                    '<li class="aggrOp">Sum'+ 
-                    '<span class="sumIcon"></li>'+
+                    '<li class="aggrOp">'+ 
+                    '<span class="maxIcon"></span>Max</li>'+
+                    '<li class="aggrOp">'+ 
+                    '<span class="minIcon"></span>Min</li>'+
+                    '<li class="aggrOp">'+ 
+                    '<span class="avgIcon"></span>Avg</li>'+
+                    '<li class="aggrOp">'+ 
+                    '<span class="countIcon"></span>Count</li>'+
+                    '<li class="aggrOp">'+ 
+                    '<span class="sumIcon"></span>Sum</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="dropdownBox"></div>'+
@@ -625,8 +625,9 @@ function generateColDropDown(tableNum) {
         dropDownHTML += 
             '<li class="filterWrap">Filter'+ 
                 '<ul class="subColMenu">'+
-                    '<li class="filter numFilter">Greater Than'+
+                    '<li class="filter numFilter">'+
                         '<span class="greaterThan"></span>'+
+                        'Greater Than'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text" value="0"/></li>'+
                             '<div class="subColMenuArea"></div>'+
@@ -642,58 +643,65 @@ function generateColDropDown(tableNum) {
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="filter numFilter">Equals'+
+                    '<li class="filter numFilter">'+
                         '<span class="equal"></span>'+
+                        'Equals'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text" value="0"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="filter numFilter">Less Than'+
+                    '<li class="filter numFilter">'+
                         '<span class="lessThan"></span>'+
+                        'Less Than'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text" value="0"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="filter numFilter">Less Than Equal To'+
+                    '<li class="filter numFilter">'+
                         '<span class="lessEqual"></span>'+
+                        'Less Than Equal To'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text" value="0"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="filter numFilter">Exclude'+
+                    '<li class="filter numFilter">'+
                         '<span class="hidden"> number</span>'+
                         '<span class="exclude"></span>'+
+                        'Exclude'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="filter strFilter">Like'+
+                    '<li class="filter strFilter">'+
                         '<span class="like"></span>'+
+                        'Like'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="filter strFilter">Regex'+
+                    '<li class="filter strFilter">'+
                         '<span class="regex"></span>'+
+                        'Regex'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text" value="*"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
-                    '<li class="filter strFilter">Exclude'+
+                    '<li class="filter strFilter">'+
                         '<span class="hidden"> string</span>'+
                         '<span class="exclude"></span>'+
+                        'Exclude'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text"/></li>'+
                             '<div class="subColMenuArea"></div>'+

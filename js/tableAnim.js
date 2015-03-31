@@ -1338,11 +1338,7 @@ function addTableListeners(tableNum) {
         generateFirstLastVisibleRowNum();
     }).scroll(function() {
         $(this).scrollLeft(0); // prevent scrolling when colmenu is open
-        $(this).scrollTop(0); // prevent scrolling when colmenu is open
-    });
-
-    $('#xcTbodyWrap'+tableNum).scroll(function() {
-        $(this).scrollLeft(0);
+        // $(this).scrollTop(0); // prevent scrolling when colmenu is open
     });
 }
 

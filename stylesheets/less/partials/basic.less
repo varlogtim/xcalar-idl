@@ -112,19 +112,6 @@ body {
         }
     }
 
-    &#functionArea {
-        .size(@width: 380px);
-        .flex-grow(4);
-        .flex-shrink(1);
-        #fnBar {
-            .size(@width: ~"calc(100% - 28px)");
-            &.active {
-                background-color: @color-background-input-active;
-                box-shadow: 0px 2px 2px 0 #888888 inset;
-            }
-        }
-    }
-
     &:last-child {
         border-right: none;
     }
@@ -189,6 +176,9 @@ body {
 .btnInactive {
     .gray-gradient;
     pointer-events: none;
+    &:hover {
+        .gray-gradient;
+    }
 }
 
 .btnDeselected {

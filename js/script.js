@@ -404,7 +404,6 @@ function documentReadyGeneralFunction() {
         var clickable = $target.closest('.colMenu').length > 0;
         if (!clickable && !$target.is('.dropdownBox')) {
             $('.colMenu').hide();
-            console.log('this true')
         }
 
         if (!$target.is('.editableHead') && !$target.is('#fnBar')) {
