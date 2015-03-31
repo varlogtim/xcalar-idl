@@ -235,7 +235,7 @@ function setupHiddenTable(table) {
     return (deferred.promise());
 }
 
-function mainPanelsTabing() {
+function mainPanelsTabbing() {
     $(".mainMenuTab").click(function() {
         $(".mainMenuTab").removeClass("active");
         $(this).addClass("active");
@@ -245,6 +245,11 @@ function mainPanelsTabing() {
             $("#datastoreView").hide().removeClass("active");
             if ($("#workspacePanel").css("display") == "none") {
                 $("#workspacePanel").show().addClass("active");
+                var numTables = gTables.length;
+                for (var i = 0; i < numTables; i++) {
+                    adjustColGrabHeight(i);
+                    matchHeaderSizes(null, $('#xcTable'+i)); 
+                }
             } 
             break;
         case ("dataStoresTab"):
@@ -398,20 +403,21 @@ function documentReadyGeneralFunction() {
         var $target = $(event.target);
         var clickable = $target.closest('.colMenu').length > 0;
         if (!clickable && !$target.is('.dropdownBox')) {
-                $('.colMenu').hide();
+            $('.colMenu').hide();
+            console.log('this true')
         }
 
         if (!$target.is('.editableHead') && !$target.is('#fnBar')) {
-                var index = $('th.selectedCell').index();
-                if (index > -1) {
-                    $('.selectedCell').removeClass('selectedCell');
-                    if (gFnBarOrigin) {
-                        displayShortenedHeaderName(gFnBarOrigin, 
-                                                   gActiveTableNum, index);
-                    }
+            var index = $('th.selectedCell').index();
+            if (index > -1) {
+                $('.selectedCell').removeClass('selectedCell');
+                if (gFnBarOrigin) {
+                    displayShortenedHeaderName(gFnBarOrigin, 
+                                               gActiveTableNum, index);
                 }
-                gFnBarOrigin = undefined;
-                $('#fnBar').val("");
+            }
+            gFnBarOrigin = undefined;
+            $('#fnBar').val("");
         }
     });
     $(document).mousemove(function(event) {
@@ -467,9 +473,9 @@ function documentReadyGeneralFunction() {
     });
 
     $(document).click(function(event) {
-        var $target = $(event.target);
-        gLastClickTarget = $target;
-    })
+        gLastClickTarget = $(event.target);
+    });
+
 }
 
 
@@ -512,7 +518,7 @@ function startupFunctions() {
     })
     .then(function() {
         setupTooltips();
-        mainPanelsTabing();
+        mainPanelsTabbing();
         setupFunctionBar();
         scratchpadStartup(); 
         setupDSCartButtons();
@@ -580,7 +586,7 @@ function documentReadyIndexFunction() {
 
             chain(promises)
             .done(function() {
-                 if (gTableOrderLookup.length > 0) {
+                if (gTableOrderLookup.length > 0) {
                     documentReadyxcTableFunction();
                 } else {
                     $('#mainFrame').addClass('empty');
@@ -606,8 +612,4 @@ function documentReadyIndexFunction() {
             console.log("Initialization fails!");
         });
     });
-}
-
-function hi() {
-    console.log('hi');
 }

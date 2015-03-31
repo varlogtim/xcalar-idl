@@ -745,7 +745,6 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
     $theadWrap = $('#xcTheadWrap'+tableNum);
     $theadWrap.width(tableWidth);
     $theadWrap.find('input').width(tableWidth - 30);
-    
 }
 
 function displayShortenedHeaderName(el, tableNum, colNum) {
@@ -1737,6 +1736,7 @@ function reorderAfterTableDrop() {
 
 function adjustColGrabHeight(tableNum) {
     var colGrabHeight = $('#xcTbodyWrap'+tableNum).height();
+
     $('#xcTable'+tableNum).find('.colGrab').height(colGrabHeight);
 }
 

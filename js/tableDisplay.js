@@ -17,7 +17,9 @@ function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
         if (AfterStartup) {
             addMenuBarTables([gTables[tableNum]], IsActive.Active);
         }
-
+        if ($('.xcTable').length == 1) {
+            focusTable(tableNum);
+        }
         deferred.resolve();
     })
     .fail(function(error) {

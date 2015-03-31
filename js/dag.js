@@ -20,6 +20,7 @@ function setupDag() {
         $('.mainMenuTab').removeClass('active');
         workspacePanel.show().addClass('active');
         $('#workspaceTab').addClass('active');
+        $('.xcTheadWrap').css('z-index', 9);
     });
 
     $('#dagPulloutTab').click(function() {
@@ -30,6 +31,7 @@ function setupDag() {
             dag.removeClass('full').addClass('midway');
             $('#mainFrame').addClass('midway');
         }
+        $('.xcTheadWrap').css('z-index', 9);
     });
 
     $('#closeDag').click(function() {
