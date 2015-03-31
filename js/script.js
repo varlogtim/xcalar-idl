@@ -524,7 +524,7 @@ function startupFunctions() {
         setupImportDSForm();
         setupBookmarkArea();
         setupWorksheetMeta();
-        return (updateDatasetInfoFields("Datasets", IsActive.Active));
+        return (updateDatasetInfoFields("Datasets", undefined, IsActive.Active));
     })
     .done(function() {
         setupDag();

@@ -10,30 +10,39 @@ function setupDSCartButtons() {
 
     $gridView.on('click','grid-unit', function(event) {
         event.stopPropagation(); // stop event bubbling
+        var $grid = $(this);
+
         $gridView.find('.active').removeClass('active');
-        $(this).addClass('active');
+        $grid.addClass('active');
         $deleteFolderBtn.addClass('disabled');
         // folder now do not show anything
-        if ($(this).hasClass('folder')) {
+        if ($grid.hasClass('folder')) {
             $deleteFolderBtn.removeClass('disabled');
             return;
         }
 
-        var datasetName = $(this).find('.label').data().dsname;
-        var displaying = false;
-        $('#datasetWrap').find('.datasetTableWrap').each(function() {
-            if (datasetName == $(this).data().dsname) {
-                displaying = $(this);
+        var dsObj = DSObj.getById($grid.data().dsid);
+        var datasetName = dsObj.name;
+        var format = dsObj.attrs.format;
+        var $displayedTable = undefined;
+        var $tableWraps = $('#datasetWrap').find('.datasetTableWrap');
+        $tableWraps.each(function(index, ele) {
+            if ($displayedTable != undefined) {
+                return;
+            }
+            var $table = $(ele);
+            if (datasetName == $table.data().dsname) {
+                $displayedTable = $table;
                 return;
             }
         });
         $('#importDataView').hide();
-        if (!displaying) {
-            getDatasetSample(datasetName);
+        if ($displayedTable == undefined) {
+            getDatasetSample(datasetName, format);
         } else {
-            $('.datasetTableWrap').hide();
-            displaying.show();
-            updateDatasetInfoFields(datasetName);
+            $tableWraps.hide();
+            $displayedTable.show();
+            updateDatasetInfoFields(datasetName, format);
         }
     });
 
@@ -140,7 +149,7 @@ function setupDSCartButtons() {
             } else {
                 $("#importDataButton").click();
             }
-            updateDatasetInfoFields(dsName, true, true);
+            updateDatasetInfoFields(null, null, true, true);
             $('#iconWaiting').remove();
         }
         XcalarDestroyDataset(dsName)
@@ -216,7 +225,7 @@ function setupDSCartButtons() {
     });
 }
 
-function getDatasetSample(datasetName) {
+function getDatasetSample(datasetName, format) {
     // Get datasets and names
     XcalarGetDatasets()
     .done(function(datasets) {
@@ -276,7 +285,7 @@ function getDatasetSample(datasetName) {
                     addDataSetHeaders(jsonKeys, i);
                     addDataSetRows(jsonKeys,jsons, i);
                     addWorksheetListeners(i);  
-                    updateDatasetInfoFields(datasetName, IsActive.Active);
+                    updateDatasetInfoFields(datasetName, format, IsActive.Active);
                 });
             })(i);
         } 
@@ -859,8 +868,12 @@ function setupDatasetList() {
             var numDatasets = datasets.numDatasets;
 
             for (var i = 0; i < numDatasets; i++) {
+                var dataset =  datasets.datasets[i];
+                var attrs = {};
+                attrs.format = DfFormatTypeTStr[dataset.formatType]
+                                .toUpperCase();
                 DSObj.create(gDSObj.id++, datasets.datasets[i].name,
-                             gDSObj.curId, false);
+                             gDSObj.curId, false, attrs);
             }
         }
         commitDSObjToStorage(); // commit;
@@ -875,25 +888,27 @@ function setupDatasetList() {
     return (deferred.promise());
 }
 
-function updateDatasetInfoFields(dsName, active, dontUpdateName) {
+function updateDatasetInfoFields(dsName, dsFormat, active, dontUpdate) {
     var deferred = jQuery.Deferred();
 
     function updateNumDatasets(datasets) {
         var numDatasets = datasets.numDatasets;
-        console.log("Updating to: "+numDatasets);
+        console.log("Updating to:", numDatasets);
         $('#worksheetInfo').find('.numDataStores').text(numDatasets);
         $('#datasetExplore').find('.numDataStores').text(numDatasets);
     }
 
-    if (!dontUpdateName) {
+    if (!dontUpdate) {
         $('#schemaTitle').text(dsName);
         $('#contentViewHeader').find('h2').text(dsName);
+        if (dsFormat) {
+            $('#schemaFormat').text(dsFormat);
+        }
     }
     if (active) {
         XcalarGetDatasets()
         .done(function(datasets) {
             updateNumDatasets(datasets);
-
             deferred.resolve();
         })
         .fail(function(error) {

@@ -34,13 +34,13 @@ function setupImportDSForm() {
         XcalarLoad(loadArgs[0], loadFormat, tableName,
                    loadArgs[1], loadArgs[2])
         .done(function(result) {
-            displayNewDataset(tableName);
+            displayNewDataset(tableName, loadFormat);
 
             // add cli
             var cliOptions = {};
             cliOptions.operation = 'loadDataSet';
             cliOptions.dsName = tableName;
-
+            cliOptions.dsFormat = loadFormat;
             Cli.add('Load dataset', cliOptions);
         })
         .fail(function(result) {
@@ -145,9 +145,11 @@ function setupImportDSForm() {
     }
 }
 
-function displayNewDataset(dsName) {
+function displayNewDataset(dsName, dsFormat) {
     $('#tempDSIcon').remove();
-    DSObj.create(gDSObj.id++, dsName, gDSObj.curId, false);
+    var attrs = {};
+    attrs.format = dsFormat;
+    DSObj.create(gDSObj.id++, dsName, gDSObj.curId, false, attrs);
     commitDSObjToStorage();
     DSObj.display();
     var lastEleId = gDSObj.id - 1;

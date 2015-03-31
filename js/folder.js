@@ -13,12 +13,16 @@
 * @property {number} totalChildren
 * @property {string} dsName, dataset name
 */
-function DSObj(id, name, parentId, isFolder) {
+function DSObj(id, name, parentId, isFolder, attrs) {
     this.id = id;
     this.name = name;
     this.parentId = parentId;     // parent directory
     this.isFolder = isFolder;
-
+    if (attrs) {
+        this.attrs = attrs;
+    } else {
+        this.attrs = {};
+    }
     /* initially, dataset count itself as one child,
        folder has no child;
      */
@@ -288,11 +292,12 @@ function restoreDSObj(datasets) {
     while (cache.length > 0) {
         var obj = cache.shift();
         if (obj.isFolder) {
-            DSObj.create(obj.id, obj.name, obj.parentId, obj.isFolder);
+            DSObj.create(obj.id, obj.name, obj.parentId, 
+                         obj.isFolder, obj.attrs);
         } else {
             if (obj.name in searchHash) {
                 DSObj.create(obj.id, obj.name, obj.parentId, 
-                            obj.isFolder);
+                            obj.isFolder, obj.attrs);
                 dsCount ++;
             } else {
                 // local storage not fit backend data, abort restore
@@ -356,7 +361,7 @@ DSObj.isDataSetNameConflict = function (tableName) {
 }
 
 // create ds ele and ds folder ele
-DSObj.create = function (id, name, parentId, isFolder) {
+DSObj.create = function (id, name, parentId, isFolder, attrs) {
     name = jQuery.trim(name);
     var parent = DSObj.getById(parentId);
     var $parentEle;
@@ -373,7 +378,7 @@ DSObj.create = function (id, name, parentId, isFolder) {
         curName = name + ' (' + i + ')';
         i ++;
     }
-    var ds = new DSObj(id, curName, parentId, isFolder);
+    var ds = new DSObj(id, curName, parentId, isFolder, attrs);
     var html;
     if (isFolder) {
         html =  '<grid-unit class="folder display collapse" draggable="true"' + 
