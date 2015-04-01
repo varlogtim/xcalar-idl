@@ -360,7 +360,7 @@
 }
 
 .listViewForGrid() {
-    position: relative;
+    .position(relative, @left: 2px);
     display: block;
     clear: both;
     float: none;
@@ -373,9 +373,9 @@
         font-size: 11px;
         line-height: 24px;
         height: 25px;
-        border-radius: 3px;
+        .rounded;
         background-color: @color-background-white;
-        box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+        box-shadow: 1px 1px 2px 1px rgba(0,0,0,.2);
     }
 
     > .gridIcon {
@@ -383,20 +383,16 @@
     }
 
     > .listIcon {
+        .size(@height: 25px);
         display: inline-block;
         .gray-gradient;
-        height: 100%;
         float: left;
-        padding-top: 1px;
+        .rounded(3px 0 0 3px);
         margin-right: 10px;
-        border-top-left-radius: 3px;
-        border-bottom-left-radius: 3px;
 
         .icon {
-            margin: 2px 2px 1px 2px;
+            .size(25px, 25px);
             display: inline-block;
-            width: 19px;
-            height: 19px;
         }
     }
 
@@ -409,7 +405,7 @@
 
     &.active {
         > .label {
-            box-shadow: 0px 0px 0px 2px @color-background-topAction;
+            box-shadow: 1px 0px 2px 1px @color-background-topAction;
         }
         > .listIcon {
             .action-gradient !important;

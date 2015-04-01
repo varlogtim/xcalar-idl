@@ -553,7 +553,8 @@ function dsDragStart(event) {
     event.dataTransfer.effectAllowed = "copyMove";
     event.dataTransfer.dropEffect = "copy";  
     event.stopPropagation();
-
+    // must add datatransfer to support firefox drag drop
+    event.dataTransfer.setData('text', '');
     $grid = $(event.target).closest('grid-unit');
     $('#deleteFolderBtn').addClass('disabled');
     gDSObj.dragDsId = $grid.attr('data-dsId');
