@@ -59,6 +59,7 @@ function thriftErrorLog(action, statusCode) {
         msg += ": " + status;
     }
     console.log(msg);
+    return ("Error: " + status);
 }
 
 // Should check if the function returns a promise

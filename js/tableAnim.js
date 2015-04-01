@@ -672,17 +672,30 @@ function createTableHeader(tableNum) {
         var $menu = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id')
                                      .substring(9));
+        var tableName = gTables[tableNum].frontTableName;
+        var alertOptions = {};
+        var cliOptions = {};
+
         $menu.hide();
 
         // add cli
-        var cliOptions = {};
-        cliOptions.operation = 'deleteTable';
-        cliOptions.tableName = gTables[tableNum].frontTableName;
+        cliOptions.operation = "deleteTable";
+        cliOptions.tableName = tableName;
 
-        deleteTable(tableNum)
-        .done(function() {
-            Cli.add('Delete Table', cliOptions);
-        });
+        // add alert
+        alertOptions.title = "DELETE TABLE";
+        alertOptions.msg = "Are you sure you want to delete table " 
+                            + tableName + "?";
+        alertOptions.isCheckBox = true;
+        alertOptions.confirm = function() {
+
+            deleteTable(tableNum)
+            .done(function() {
+                Cli.add("Delete Table", cliOptions);
+            });
+        }
+
+        Alert.show(alertOptions);
     });
 
     $tableMenu.on('click', '.exportTable', function() {

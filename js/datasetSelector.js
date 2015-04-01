@@ -102,66 +102,20 @@ function setupDSCartButtons() {
         }
     });
 
-    $(".delete").click(function() {
+    // delete dataset
+    $("#dsDelete").click(function() {
         var dsName = $(this).closest("#contentViewHeader").find("h2").text();
-        var $grid = $('#gridView grid-unit .label[data-dsname="' 
-                        + dsName + '"]').closest('grid-unit');
-        $grid.addClass('inactive');
-        $grid.addClass('active');   // active means it is clicked
-        $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');
-        if ($('#gridView').hasClass('listView')) {
-            $('#iconWaiting').css({
-                top: '-8px',
-                left: '98px'
-            });
-         }
-        $('#iconWaiting').fadeIn(200);
+        var alertOptions = {};
 
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = 'destroyDataSet';
-        cliOptions.dsName = dsName;
-
-        function cleanUpDsIcons() {
-            var dsId = $grid.attr('data-dsId');
-            DSObj.deleteById(dsId);
-            $grid.remove();
-
-            $(".datasetTableWrap").filter(
-                function() {
-                    if ($(this).attr("data-dsname") === dsName) {
-                        var tableNum = parseInt($(this).attr('id')
-                                       .substring(16));
-                        $('#outerColMenu'+tableNum).remove();
-                        $(this).remove();
-                        return;
-                    }
-                }
-            );
-            var $curFolder;
-            if (gDSObj.curId == gDSObj.homeId) {
-                $curFolder = $gridView;
-            } else {
-                $curFolder = $('grid-unit[data-dsId="' + gDSObj.curId + '"]');
-            }
-            if ($curFolder.find('> grid-unit.ds').length > 0) {
-                $curFolder.find('> grid-unit.ds:first').click();
-            } else {
-                $("#importDataButton").click();
-            }
-            updateDatasetInfoFields(null, null, true, true);
-            $('#iconWaiting').remove();
+        // add alert
+        alertOptions.title = "DELETE DATASET";
+        alertOptions.msg = "Are you sure you want to delete dataset "
+                      + dsName + "?";
+        alertOptions.isCheckBox = true;
+        alertOptions.confirm = function() {
+            deleteDataset(dsName);
         }
-        XcalarDestroyDataset(dsName)
-        .done(function() {
-            cleanUpDsIcons();
-            Cli.add('Delete DateSet', cliOptions);
-        })
-        .fail(function(error) {
-            console.log("Delete Dataset fails!");
-            $('#iconWaiting').remove();
-            $grid.removeClass('inactive');
-        });
+        Alert.show(alertOptions);
     });
 
     $("#submitDSTablesBtn").click(function() {
@@ -183,13 +137,14 @@ function setupDSCartButtons() {
                 resetDataCart();
             });
         } else {
-            var options = {};
-            options.title = 'SEND TO ACTIVE WORKSHEET';
-            options.msg = 'Choose a key by clicking on a' +
-                          ' selected column in your list';
-            options.isCheckBox = true;
-            options.isAlert = true;
-            Alert.show(options);
+            var alertOptions = {};
+            // add alert
+            alertOptions.title = 'SEND TO ACTIVE WORKSHEET';
+            alertOptions.msg = 'Choose a key by clicking on a' +
+                                ' selected column in your list';
+            alertOptions.isCheckBox = true;
+            alertOptions.isAlert = true;
+            Alert.show(alertOptions);
         } 
     });
 
@@ -293,6 +248,81 @@ function getDatasetSample(datasetName, format) {
     .fail(function(error) {
         console.log("getDatasetSample fails");
     });
+}
+
+function deleteDataset(dsName) {
+    var $grid = $('#gridView grid-unit .label[data-dsname="' + dsName + '"]')
+                    .closest('grid-unit');
+
+    $grid.removeClass('active');
+    $grid.addClass('inactive');
+    $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');
+
+    if ($('#gridView').hasClass('listView')) {
+        $('#iconWaiting').css({
+            top: '-8px',
+            left: '98px'
+        });
+     }
+
+    $('#iconWaiting').fadeIn(200);
+
+    XcalarDestroyDataset(dsName)
+    .done(function() {
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = 'destroyDataSet';
+        cliOptions.dsName = dsName;
+
+        Cli.add('Delete DateSet', cliOptions);
+
+        cleanUpDsIcons();
+    })
+    .fail(function(error) {
+        $('#iconWaiting').remove();
+        $grid.removeClass('inactive');
+
+        var options = {};
+        options.title = 'DELETE DATESET FAILS!';
+        options.msg = error;
+        options.isAlert = true;
+        Alert.show(options);
+    });
+
+    function cleanUpDsIcons() {
+        var dsId = $grid.data("dsid");
+        DSObj.deleteById(dsId);
+        $grid.remove();
+
+        //clear data cart
+        $('#dataCart').find('[data-dsname=' + dsName + ']').remove();
+        // clear data table
+        $(".datasetTableWrap").filter(
+            function() {
+                var $table = $(this);
+                if ($table.data("dsname") === dsName) {
+                    var tableNum = parseInt($table.attr('id')
+                                   .substring(16));
+                    $('#outerColMenu' + tableNum).remove();
+                    $table.remove();
+                    return;
+                }
+            }
+        );
+        var $curFolder;
+        if (gDSObj.curId == gDSObj.homeId) {
+            $curFolder = $('#gridView');
+        } else {
+            $curFolder = $('grid-unit[data-dsId="' + gDSObj.curId + '"]');
+        }
+        if ($curFolder.find('> grid-unit.ds').length > 0) {
+            $curFolder.find('> grid-unit.ds:first').click();
+        } else {
+            $("#importDataButton").click();
+        }
+        updateDatasetInfoFields(null, null, true, true);
+        $('#iconWaiting').remove();
+    }
 }
 
 function addSelectedTable(index, tableName, dsName) {

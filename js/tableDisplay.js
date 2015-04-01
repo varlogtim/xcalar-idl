@@ -103,19 +103,10 @@ function archiveTable(tableNum, del, delayTableRemoval) {
 
 function deleteTable(tableNum, deleteArchived) {
     var deferred = jQuery.Deferred();
-    // Basically the same as archive table, but instead of moving to
-    // gHiddenTables, we just delete it from gTablesIndicesLookup
-    if (deleteArchived) {
-        var backTableName = gHiddenTables[tableNum].backTableName;
-        var frontTableName = gHiddenTables[tableNum].frontTableName;
-        var resultSetId = gHiddenTables[tableNum].resultSetId;
-        gHiddenTables.splice((tableNum), 1);
-        delete (gTableIndicesLookup[frontTableName]);
-    } else {
-        var backTableName = gTables[tableNum].backTableName;
-        var resultSetId = gTables[tableNum].resultSetId;
-        archiveTable(tableNum, DeleteTable.Delete);
-    }
+    var table = deleteArchived ? gHiddenTables[tableNum] : gTables[tableNum];
+    var backTableName = table.backTableName;
+    var frontTableName = table.frontTableName;
+    var resultSetId = table.resultSetId;
     
     // Free the result set pointer that is still pointing to it
     XcalarSetFree(resultSetId)
@@ -123,10 +114,25 @@ function deleteTable(tableNum, deleteArchived) {
         return (XcalarDeleteTable(backTableName));
     })
     .done(function() {
+        // XXX if we'd like to hide the cannot delete bug, copy it to 
+        // the fail function
+
+        // Basically the same as archive table, but instead of moving to
+        // gHiddenTables, we just delete it from gTablesIndicesLookup
+        if (deleteArchived) {
+            gHiddenTables.splice((tableNum), 1);
+            delete (gTableIndicesLookup[frontTableName]);
+        } else {
+            archiveTable(tableNum, DeleteTable.Delete);
+        }
         deferred.resolve();
     })
     .fail(function(error){
-        console.log("deleteTable fails!");
+        var options = {};
+        options.title = 'DELETE TABLE FAILS!';
+        options.msg = error;
+        options.isAlert = true;
+        Alert.show(options);
         deferred.reject(error);
     });
 

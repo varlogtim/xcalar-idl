@@ -916,8 +916,7 @@ function xcalarFreeResultSet(thriftHandle, resultSetId) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarFreeResultSet()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarFreeResultSet()", status));
         }
         deferred.resolve(status);
     })
@@ -950,8 +949,7 @@ function xcalarDeleteTable(thriftHandle, tableName) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarDeleteTable()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarDeleteTable()", status));
         }
         deferred.resolve(status);
     })
@@ -1051,8 +1049,7 @@ function xcalarDestroyDataset(thriftHandle, datasetName) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarDestroyDataset()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarDestroyDataset()", status));
         }
         deferred.resolve();
     })

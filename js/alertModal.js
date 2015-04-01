@@ -77,10 +77,10 @@ Alert = (function(){
                 $alertBtn.find(".confirm").show();
                 $alertModal.on("click", ".confirm", function(event) {
                     event.stopPropagation();
+                    closeAlertModal();
                     if(options.confirm) {
                         options.confirm();
                     }
-                    closeAlertModal();
                 });
             }
             // set checkbox

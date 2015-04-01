@@ -202,19 +202,19 @@ function setuptableListSection() {
     });
 
     function archiveButtonClick(action) {
-        var $tablesSelected = $('#inactiveTablesList').
-                            find('.addArchivedBtn.selected').prev();
+        var $tablesSelected = $('#inactiveTablesList')
+                                .find('.addArchivedBtn.selected').prev();
         var $buttons = $('#archivedTableList').find('.btnLarge');
-        $buttons.addClass('btnInactive');
-
         var numTables = gTables.length;
         var numHiddenTables = gHiddenTables.length;
         var promises = [];
-        $tablesSelected.each(function() {
+
+        $buttons.addClass('btnInactive');
+        $tablesSelected.each(function(index, ele) {
             promises.push((function() {
                 var innerDeferred = jQuery.Deferred();
 
-                var $li = $(this).closest('li.tableInfo');
+                var $li = $(ele).closest('li.tableInfo');
                 var $timeLine = $li.parent().parent();
                 var index = $li.index();
                 $li.remove();
@@ -245,9 +245,6 @@ function setuptableListSection() {
                         if ($timeLine.find('.tableInfo').length === 0) {
                             $timeLine.remove();
                         }
-                        if (numHiddenTables === 0) {
-                            $buttons.hide();
-                        }
                         innerDeferred.resolve();
                     })
                     .fail(function(error) {
@@ -270,9 +267,6 @@ function setuptableListSection() {
                         if ($timeLine.find('.tableInfo').length === 0) {
                             $timeLine.remove();
                         }
-                        if (numHiddenTables === 0) {
-                            $buttons.hide();
-                        }
                         innerDeferred.resolve();
                     })
                     .fail(function(error) {
@@ -288,7 +282,7 @@ function setuptableListSection() {
         chain(promises)
         .then(function() {
             if (action == "add") {
-                $mainFrame = $('#mainFrame');
+                var $mainFrame = $('#mainFrame');
                 $('#workspaceTab').trigger('click');
                 var leftPos = $('#xcTableWrap'+(numTables-1)).position()
                                 .left +
