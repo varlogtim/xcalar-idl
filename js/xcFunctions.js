@@ -147,7 +147,6 @@ function mapColumn(fieldName, mapString, tableNum, tableName, message) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempMapTable"+rand;
     var tablCols = gTables[tableNum].tableCols;
-    
     XcalarMap(fieldName, mapString, 
               tableName, newTableName)
     .then(function() {
@@ -164,7 +163,6 @@ function mapColumn(fieldName, mapString, tableNum, tableName, message) {
         StatusMessage.fail(StatusMessageTStr.MapFailed, message);
         deferred.reject(error);
     });
-
     return (deferred.promise());
 }
 

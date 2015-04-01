@@ -573,13 +573,11 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename) {
     }
 
     var deferred = jQuery.Deferred();
-
     xcalarApiMap(tHandle, newFieldName, evalStr, srcTablename, dstTablename)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarMap", error));
     });
-
     return (deferred.promise());
 }   
 

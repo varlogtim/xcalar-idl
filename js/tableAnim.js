@@ -1099,11 +1099,90 @@ function addColMenuActions($colMenu) {
         }
     });
 
+    $colMenu.on('keyup', '.map input', function(e) {
+        if (e.which === keyCode.Enter) {
+            var value = $(this).val();
+            var tableNum = parseInt($colMenu.attr('id').substring(7));
+            var index = $colMenu.data('colNum');
+            var operator = $(this).closest('.mapOp').find('.mapOpText').text(); 
+            var colName = gTables[tableNum].tableCols[index-1].name;
+            $colMenu.hide();
+            var newColName;
+            var value;
+            if ($(this).hasClass("newColName")) {
+                console.log("Enter from ColName");
+                newColName = $(this).val();
+                value = $(this).parent().prev().find('input').val();
+            } else if ($(this).hasClass("mapValCol")) {
+                console.log("Enter from ValCol");
+                newColName = $(this).parent().next().find('input').val();
+                value = $(this).val();
+            } else {
+                console.log("XXX!");
+                return;
+            }
+            var switched = $(this).parent().parent().find('.switch')
+                            .hasClass('selected');
+            var mapStr = formulateMapString(operator, colName,
+                                            value, switched);
+            $(this).closest('.colMenu').find(".addColLeft").click();
+            var $colInput =
+                        $("#xcTable"+tableNum).find('.editableHead.col'+index);
+
+            $("#xcTable"+tableNum).find('.editableHead.col'+index)
+                                  .val(newColName);
+            $("#fnBar").val(mapStr);
+            functionBarEnter($colInput);
+        }
+    });
+
+    $colMenu.on('click', '.switch', function() {
+        $(this).toggleClass("selected");
+    });
+
     $colMenu.on('click', '.joinList', function() {
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var colId = $colMenu.data('colNum');
         setupJoinModalTables(tableNum, colId);
     });
+}
+
+function formulateMapString(operator, columnName, value,
+                            switched) {
+    console.log(arguments);
+    var mapString = '=map(';
+    switch (operator) {
+    case ("Sum"):
+        mapString += "sum(";
+        break;
+    case ("Subtract"):
+        mapString += "sub(";
+        break;
+    case ("Multiply"):
+        mapString += "mult(";
+        break;
+    case ("Divide"):
+        mapString += "div(";
+        break;
+    case ("And"):
+        mapString += "and(";
+        break;
+    case ("Or"):
+        mapString += "or(";
+        break;
+    case ("IP Address To Integer"):
+        mapString += "ipAddrToInt(";
+        break;
+    default:
+        console.log(operator+" not found!");
+    }
+    if (switched) {
+        mapString += value+", "+columnName;
+    } else {
+        mapString += columnName+", "+value;
+    }
+    mapString += "))";
+    return (mapString);
 }
 
 function functionBarEnter($el) {

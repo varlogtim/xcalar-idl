@@ -671,7 +671,7 @@ ul.colMenu {
     }
 
     .filter {
-        .greaterThan{
+        .greaterThan {
             .image("/images/greaterThan.png", 0, 50%);
         }
         .greaterEqual {
@@ -697,6 +697,27 @@ ul.colMenu {
         .like {
             .image("/images/like.png", 0, 50%);
         }
+    }
+
+    .map {
+        span {
+            float: left;
+        }
+        .switch {
+            float: left;
+            .image("/images/switch.png", 0, 50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0.5;
+            &:hover {
+                opacity: 1.0;
+            }
+            &.selected {
+                background-color: #ECFDFF;
+                opacity: 1.0;
+            }
+        }
+
     }
 
     .unavailable {

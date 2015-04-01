@@ -606,6 +606,153 @@ function generateColDropDown(tableNum) {
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="dropdownBox"></div>'+
+            '</li>'+
+            '<li class="map">Map'+
+                '<ul class="subColMenu">'+
+                    '<li class="mapOp"><span class="mapOpText">Sum</span>'+ 
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>Value or Column'+
+                                '<div class="switch"'+
+                                'data-toggle="tooltip" '+
+                                'data-placement="bottom" '+
+                                'data-container="body" '+
+                                'title="Select to toggle arguments"'+
+                                '></div>'+
+                            '</span>'+
+                            '<input type="text" width="100px" '+
+                                'value="3" class="mapValCol"/></li>'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px"'+
+                            ' value="mappedCol" class="newColName">'+
+                            '</li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                    '</li>'+
+                    '<li class="mapOp"><span class="mapOpText">Subtract</span>'+ 
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>Value or Column'+
+                                '<div class="switch"'+
+                                'data-toggle="tooltip" '+
+                                'data-placement="bottom" '+
+                                'data-container="body" '+
+                                'title="Select to toggle arguments"'+
+                                '></div>'+
+                            '</span>'+
+                            '<input type="text" width="100px" '+
+                                'value="2" class="mapValCol"/></li>'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px"'+
+                            ' value="mappedCol" class="newColName">'+
+                            '</li>'+
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                    '</li>'+
+                    '<li class="mapOp"><span class="mapOpText">Multiply</span>'+ 
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>Value or Column'+
+                                '<div class="switch"'+
+                                'data-toggle="tooltip" '+
+                                'data-placement="bottom" '+
+                                'data-container="body" '+
+                                'title="Select to toggle arguments"'+
+                                '></div>'+
+                            '</span>'+
+                            '<input type="text" width="100px" '+
+                                'value="4"class="mapValCol"/></li>'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px"'+
+                            ' value="mappedCol" class="newColName">'+
+                            '</li>'+                           
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                    '</li>'+
+                    '<li class="mapOp"><span class="mapOpText">Divide</span>'+ 
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>Value or Column'+
+                                '<div class="switch"'+
+                                'data-toggle="tooltip" '+
+                                'data-placement="bottom" '+
+                                'data-container="body" '+
+                                'title="Select to toggle arguments"'+
+                                '></div>'+
+                            '</span>'+
+                            '<input type="text" width="100px" '+
+                                'value="1"class="mapValCol"/></li>'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px"'+
+                            ' value="mappedCol" class="newColName">'+
+                            '</li>'+         
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                    '</li>'+
+                    '<li class="mapOp"><span class="mapOpText">And</span>'+ 
+                        '<ul class="subColMenu">'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>Value or Column'+
+                                '<div class="switch"'+
+                                'data-toggle="tooltip" '+
+                                'data-placement="bottom" '+
+                                'data-container="body" '+
+                                'title="Select to toggle arguments"'+
+                                '></div>'+
+                            '</span>'+
+                            '<input type="text" width="100px" '+
+                                'value="1" class="mapValCol"/></li>'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px"'+
+                            ' value="mappedCol" class="newColName">'+
+                            '</li>'+     
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                    '</li>'+
+                    '<li class="mapOp"><span class="mapOpText">Or</span>'+ 
+                         '<ul class="subColMenu">'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>Value or Column'+
+                                '<div class="switch"'+
+                                'data-toggle="tooltip" '+
+                                'data-placement="bottom" '+
+                                'data-container="body" '+
+                                'title="Select to toggle arguments"'+
+                                '></div>'+
+                            '</span>'+
+                            '<input type="text" width="100px" '+
+                                'value="1" class="mapValCol"/></li>'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px"'+
+                            ' value="mappedCol" class="newColName">'+
+                            '</li>'+     
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                    '</li>'+
+                    '<li class="mapOp"><span class="mapOpText">'+
+                        'IP Address To Integer</span>'+ 
+                         '<ul class="subColMenu">'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>Number of Octets</span>'+
+                            '<input type="text" width="100px" '+
+                                'value="3" class="mapValCol"/></li>'+
+                            '<li style="text-align: center" class="clickable">'+
+                            '<span>New Column Name</span>'+
+                            '<input type="text" width="100px"'+
+                            ' value="mappedCol" class="newColName">'+
+                            '</li>'+     
+                            '<div class="subColMenuArea"></div>'+
+                        '</ul>'+
+                    '</li>'+
+                    '<div class="subColMenuArea"></div>'+
+                '</ul>'+ 
+                '<div class="dropdownBox"></div>'+
             '</li>';
     var tableName = gTables[tableNum].backTableName;
     if (gTables[tableNum].isTable) {
