@@ -470,7 +470,6 @@ function addCol(colId, tableId, name, options) {
     }
     adjustColGrabHeight(tableNum);
     matchHeaderSizes(newColid, table);
-    checkForScrollBar(tableNum);
 }
 
 function generateColumnHeadHTML(columnClass, color, newColid, name, width) {

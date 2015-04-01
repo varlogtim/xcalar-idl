@@ -859,6 +859,11 @@ function addColListeners($table, tableNum) {;
         dragdropMouseDown(headCol, event);
     }); 
 
+    addColMenuBehaviors($colMenu);
+    addColMenuActions($colMenu);
+}
+
+function addColMenuBehaviors($colMenu) {
     $colMenu.on({
         "mouseenter": function() {
             $(this).children('ul').addClass('visible');
@@ -884,7 +889,7 @@ function addColListeners($table, tableNum) {;
             $(this).addClass('openMenuInput');
         }
     });
-
+    
     // prevents input from closing unless you hover over a different li
     // on the main column menu
     $colMenu.on({
@@ -902,18 +907,19 @@ function addColListeners($table, tableNum) {;
         }
     }, 'input');
 
-   addColMenuActions($colMenu);
-}
-
-function addColMenuActions($colMenu) {
     $colMenu.on('click', 'li', function(event) {
-        if ($(this).children('.subColMenu, input').length === 0 
-                && !$(this).hasClass('clickable')) {
+        if ($(this).children('.subColMenu, input').length === 0 ) {
             // hide li if doesnt have a submenu or an input field
             $colMenu.hide();
         }
     });
-    
+
+    $colMenu.on('click', 'input', function() {
+        $(this).select();
+    });
+}
+
+function addColMenuActions($colMenu) {
     $colMenu.on('click', '.addColumns', function() {
         var colNum = $colMenu.data('colNum');
         var index = 'col'+ colNum;
@@ -1034,24 +1040,7 @@ function addColMenuActions($colMenu) {
         var colName = pCol.func.args[0];
         var aggrOp = $(this).closest('.aggrOp').text();
         console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
-        showWaitCursor();
-        XcalarAggregate(colName, gTables[tableNum].backTableName, aggrOp)
-        .done(function(value){
-            // show result in alert modal
-            var title = 'Aggregate: ' + aggrOp;
-            var instr = 'This is the aggregate result for column "' + 
-                        colName + '". \r\n The aggregate operation is "' +
-                        aggrOp + '".';
-            Alert.show({'title':title, 'msg':value, 
-                        'instr': instr, 'isAlert':true,
-                        'isCheckBox': true});
-        })
-        .fail(function(error) {
-            console.log("Aggregate fails!");
-        })
-        .always(function() {
-            removeWaitCursor();
-        });
+        aggregateCol(aggrOp, colName, tableNum);
     });
 
     $colMenu.on('keyup', '.filterWrap input', function(e) {
@@ -1081,47 +1070,10 @@ function addColMenuActions($colMenu) {
         }
     });
 
-    $colMenu.on('click', '.filter input', function() {
-        $(this).select();
-    });
-
     $colMenu.on('click', '.joinList', function() {
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var colId = $colMenu.data('colNum');
-        $colMenu.hide();
         setupJoinModalTables(tableNum, colId);
-    });
-}
-
-function functionBarEnter($el) {
-    gFnBarOrigin = $el;
-    var index = parseColNum($el);
-    var $table = $el.closest('.dataTable');
-    var tableNum = parseInt($table.attr('id').substring(7));
-    var progCol = parseCol($el.val(), index, tableNum, true);
-    $el.blur();
-    $('#fnBar').removeClass('inFocus');
-    execCol(progCol, tableNum)
-    .done(function() {
-        updateMenuBarTable(gTables[tableNum], tableNum);
-
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = 'execCol';
-        cliOptions.tableName = gTables[tableNum].frontTableName;
-        cliOptions.colIndex = index;
-        cliOptions.progCol = progCol.name;
-        cliOptions.func = progCol.func.func;
-
-        Cli.add("Prog Column", cliOptions);
-
-        if (progCol.name.length > 0) {
-            $el.val(progCol.name);
-        } else {
-            // keep value that user entered
-        }
-        $el.closest('th').removeClass('unusedCell');
-        $table.find('td:nth-child('+index+')').removeClass('unusedCell');
     });
 }
 
@@ -1229,31 +1181,6 @@ function highlightColumn(el, keepHighlighted) {
 
 }
 
-function checkForScrollBar(tableNum) {
-    // var tableWidth = $('#xcTable'+tableNum).width()+
-    //     parseInt($('#xcTable'+tableNum).css('margin-left'));
-    // if ($('.xcTable').length > 1) {
-    //     gScrollbarHeight = 0;
-    // }else if (tableWidth > $(window).width()) {
-    //     console.log('yes', $('.xcTable').length > 1)
-    //     gScrollBarHeight = 0;
-    //     // gScrollbarHeight = getScrollBarHeight();
-    // } else {
-    //     gScrollbarHeight = 0;
-    // }
-    //XXX this entire function may not be needed
-    gScrollbarHeight = 0;
-}
-
-function checkForMainFrameScrollBar() {
-    if ($('#mainFrame')[0].scrollWidth > $('#mainFrame').width()) {
-        var forMainFrame = true;
-        gScrollbarHeight = getScrollBarHeight(forMainFrame);
-    } else {
-        gScrollbarHeight = 0;
-    } 
-}
-
 function positionScrollbar(row, tableNum) {
     console.log('positioning scrollbar')
     var canScroll = true;
@@ -1276,31 +1203,6 @@ function positionScrollbar(row, tableNum) {
         // try to position the scrollbar to the proper row again
         setTimeout(positionScrollToRow, 1);
     }
-}
-
-function getScrollBarHeight(outerDiv) {
-    console.log('gettingScrollBarHeight')
-    var inner = $('<div style="width:100%;height:200px;"></div>');
-    if (outerDiv) {
-        var outer = $('<div id="mainFrame" style="position:absolute;'+
-                    'top:0;left:0;visibility:hidden;width:200px;'+
-                    'height:150px;overflow:hidden;"></div>');
-    } else {
-        var outer = $('<div class="tableWrap" style="position:absolute;'+
-                    'top:0;left:0;visibility:hidden;width:200px;'+
-                    'height:150px;overflow:hidden;"></div>');
-    }
-    
-    outer.append(inner);
-    $('body').append(outer);
-    var width1 = inner.outerWidth();
-    outer.css('overflow', 'scroll');
-    var width2 = inner.outerWidth();
-    if (width1 == width2) {
-        width2 = outer[0].clientWidth;
-    }
-    outer.remove();
-    return (width1 - width2);
 }
 
 function addRowListeners(newCells) {
@@ -1537,11 +1439,6 @@ function dragTableMouseDown(el, e) {
     gDragObj.mainFrame = $('#mainFrame');
     var rect = gDragObj.table[0].getBoundingClientRect();
 
-    // gDragObj.rectLeft = rect.left - gDragObj.mouseX;
-    // gDragObj.maxScroll = $('#mainFrame')[0].scrollWidth -
-    //                      $('#mainFrame').width();
-
-
     gDragObj.offsetLeft = gDragObj.table.offset().left;
     gDragObj.prevTable = gDragObj.table.prev();
     gDragObj.mouseOffset = gDragObj.mouseX - rect.left;
@@ -1558,7 +1455,6 @@ function dragTableMouseDown(el, e) {
     gDragObj.table.css('left', gDragObj.offsetLeft+'px');
     gDragObj.windowWidth = $(window).width();
     gDragObj.pageX = e.pageX;
-    checkForMainFrameScrollBar();
     gDragObj.table.scrollTop(gDragObj.tableScrollTop);
     createTableDropTargets();
     dragdropMoveMainFrame();
@@ -1579,7 +1475,6 @@ function dragTableMouseUp() {
     $('#mainFrame').off('scroll', mainFrameScrollTableTargets);
     gDragObj.table.scrollTop(gDragObj.tableScrollTop);
     gActiveTableNum = gDragObj.tableIndex;
-    checkForScrollBar();
     reenableTextSelection(); 
 
     if (gDragObj.tableIndex != gDragObj.originalIndex) {

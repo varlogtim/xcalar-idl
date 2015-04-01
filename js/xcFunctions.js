@@ -194,6 +194,27 @@ function groupByCol(operator, newColName, colid, tableNum) {
     return (deferred.promise());
 }
 
+function aggregateCol(operator, colName, tableNum) {
+    showWaitCursor();
+    XcalarAggregate(colName, gTables[tableNum].backTableName, operator)
+    .done(function(value){
+        // show result in alert modal
+        var title = 'Aggregate: ' + operator;
+        var instr = 'This is the aggregate result for column "' + 
+                    colName + '". \r\n The aggregate operation is "' +
+                    operator + '".';
+        Alert.show({'title':title, 'msg':value, 
+                    'instr': instr, 'isAlert':true,
+                    'isCheckBox': true});
+    })
+    .fail(function(error) {
+        console.log("Aggregate fails!");
+    })
+    .always(function() {
+        removeWaitCursor();
+    });
+}
+
 function filterCol(operator, value, colid, tableNum) {
     var deferred = jQuery.Deferred();
 

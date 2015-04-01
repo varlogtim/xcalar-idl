@@ -22,7 +22,6 @@ var gRescol = {
     maxNumRows: 80
 };
 var gResrow = {};
-var gScrollbarHeight = 8;
 var gMinTableWidth = 30;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
@@ -373,7 +372,6 @@ function documentReadyGeneralFunction() {
                 i++;
             });
         }, 100 );
-        checkForScrollBar(0);
         generateFirstLastVisibleRowNum();
     });
 
@@ -549,7 +547,6 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
         generateFirstLastVisibleRowNum();
         infScrolling(tableNum);
         adjustColGrabHeight(tableNum);
-        checkForScrollBar(tableNum);
         resizeRowInput();
         constructDagImage(gTables[tableNum].backTableName);
 
