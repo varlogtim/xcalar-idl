@@ -211,7 +211,7 @@ function getDatasetSample(datasetName, format) {
                     var jsonKeys = [];
                     var jsons = [];  // store all jsons
                     var recordsSize = records.records.length;
-                    
+
                     if (records.recordType ==
                         GenericTypesRecordTypeT.GenericTypesVariableSize) {
                         for (var j = 0; j < recordsSize; j++) {
@@ -398,8 +398,8 @@ function addDataSetHeaders(jsonKeys, index) {
                         <ul class="subColMenu">\
                             <li style="text-align: center" class="clickable">\
                                 <span>New Column Name</span>\
-                                <input type="text" width="100px" value="' +
-                                    'something' + '"/>\
+                                <input type="text" width="100px" \
+                                   spellcheck="false" />\
                             </li>\
                             <div class="subColMenuArea"></div>\
                         </ul>\
@@ -438,7 +438,7 @@ function addDataSetRows(jsonKeys, jsons, tableNum) {
 
     // track column type
     var columnsType = [];
-    for (var i = 0; i < jsons.length; i++) {
+    for (var i = 0; i < jsonKeys.length; i++) {
         columnsType[i] = "undefined";
     }
 
@@ -457,8 +457,7 @@ function addDataSetRows(jsonKeys, jsons, tableNum) {
                 value = "";
             }
 
-            // define type of the column
-            if (json[key] !== null && columnsType[j] !== "mixed") {
+            if (value !== "" && columnsType[j] !== "mixed") {
                 var type = typeof json[key];
                 if (type == "object" && (json[key] instanceof Array)) {
                     type = "array";
@@ -630,7 +629,7 @@ function addWorksheetListeners(tableNum) {
 
     });
 
-    table.find('.editableHead').click(function(event) {
+    table.on('click', '.editableHead', function(event) {
         if (event.shiftKey
             && gLastClickTarget.closest('.datasetTableWrap')[0] == table[0]) {
             

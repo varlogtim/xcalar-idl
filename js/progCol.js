@@ -217,6 +217,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         }  
         //define type of the column
         if(value !== "" && columnType !== "mixed") {
+
             var type = typeof value;
             if (type == "object" && (value instanceof Array)) {
                 type = "array";
@@ -245,6 +246,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
            .removeClass("type-number")
            .removeClass("type-object")
            .removeClass("type-array")
+           .removeClass("type-boolean")
            .removeClass("type-undefined")
            .addClass('type-' + columnType);
     table.find('th.col' + newColid).removeClass('newColumn');
@@ -388,6 +390,7 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
                 .removeClass("type-object")
                 .removeClass("type-array")
                 .removeClass("type-undefined")
+                .removeClass("type-boolean")
                 .addClass('type-' + type);
         gTables[tableNum].tableCols[i].type = type;
         if ($currentTh.hasClass('selectedCell')) {
