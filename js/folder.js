@@ -68,7 +68,7 @@ DSObj.prototype.rename = function(newName) {
                 '" already exists, please use another name!';
         $grid = $('grid-unit[data-dsId="' + this.id + '"]');
         // alert invalid name
-        displayErrorMessage(msg, $grid);
+        StatusBox.show(msg, $grid);
     } else {
         this.name = newName;
         commitDSObjToStorage(); // commit to local storage
@@ -137,7 +137,7 @@ DSObj.prototype.moveTo = function(newParent, index) {
                   '" already exists, cannot move!';
         }
         $grid = $('grid-unit[data-dsId="' + this.id + '"]');
-        displayErrorMessage(msg, $grid);
+        StatusBox.show(msg, $grid);
         return (false);
     }
 

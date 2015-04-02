@@ -26,7 +26,7 @@ function setupImportDSForm() {
         if (DSObj.isDataSetNameConflict(tableName)) {
             var text = 'Dataset with the name ' +  tableName + 
                         ' already exits. Please choose another name.';
-            displayErrorMessage(text, $('#fileName'));
+            StatusBox.show(text, $('#fileName'), true);
             return;
         }
         appendTempDSToList(tableName);
@@ -51,7 +51,7 @@ function setupImportDSForm() {
                 text = StatusTStr[result];
             }
             $('#tempDSIcon').remove();
-            displayErrorMessage(text, $('#filePath'));
+            StatusBox.show(text, $('#filePath'), true);
         });
     });
 
@@ -178,30 +178,61 @@ function appendTempDSToList(dsName) {
      $('#iconWaiting').fadeIn(200);
 }
 
-function displayErrorMessage(text, $target) {
-    var statusBox = $('#statusBox');
-    statusBox.addClass('error');
-    statusBox.find('.titleText').text('Error');
-    statusBox.find('.message').text(text);
+// StatuxBox Modal
+StatusBox = (function(){
 
-    // position error message
-    var top = $target[0].getBoundingClientRect().top - 30;
-    var right = $(window).width() - 
-                $target[0].getBoundingClientRect().right- 200;
-    statusBox.css({top: top, right: right});
+    StatusBoxBuilder = function () {};
 
-    $(document).mousedown({target: $target}, hideStatusBox);
-    $target.keydown({target: $target}, hideStatusBox);
-    $target.focus().addClass('error');
-}
+    var $statusBox = $('#statusBox');
+    var self = new StatusBoxBuilder();
 
-function hideStatusBox(event) {
-    var id = $(event.target).attr('id');
-    if (id != event.data.target.attr('id') 
-        || event.type == "keydown" || id == "statusBoxClose") {
-        $('#statusBox').attr('class', "");
-        $(document).off('mousedown', hideStatusBox);
-        event.data.target.off('keydown', hideStatusBox)
-                         .removeClass('error');
+    StatusBoxBuilder.prototype.show = function(text, $target, isFormMode) {
+        // position error message
+        var top = $target[0].getBoundingClientRect().top - 30;
+        var right = $(window).width() - 
+                    $target[0].getBoundingClientRect().right- 200;
+        $statusBox.css({top: top, right: right});
+
+        $statusBox.addClass('error');
+        $statusBox.find('.titleText').text('Error');
+        $statusBox.find('.message').text(text);
+
+        if (isFormMode) {
+            $(document).mousedown({target: $target}, hideStatusBox);
+            $target.keydown({target: $target}, hideStatusBox);
+            $target.focus().addClass('error');
+        } else {
+            $(document).mousedown(hideStatusBox);
+            $(document).keydown(hideStatusBox);
+        }
     }
-}
+
+    function hideStatusBox(event) {
+        if (event.data && event.data.target) {
+            var id = $(event.target).attr('id');
+
+            if (id === "statusBoxClose" ||
+                id != event.data.target.attr('id') || 
+                event.type == "keydown") 
+            {
+                $(document).off('mousedown', hideStatusBox);
+                event.data.target.off('keydown', hideStatusBox)
+                                 .removeClass('error');
+                clear();
+            }
+
+        } else {
+            $(document).off('mousedown', hideStatusBox);
+            $(document).off('keydown', hideStatusBox);
+            clear();
+        }
+    }
+
+    function clear() {
+        $statusBox.removeClass();
+        $statusBox.find('.titleText').text('');
+        $statusBox.find('.message').text('');
+    }
+
+    return (self);
+})();

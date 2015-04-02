@@ -88,7 +88,7 @@ function setupDag() {
         })
         if (isNameConflict === true) {
             var text = "Retina " + retName + " already exists!";
-            displayErrorMessage(text, $input);
+            StatusBox.show(text, $input, true);
             return;
         }
 
@@ -146,7 +146,7 @@ function setupDag() {
         // empty input
         if (paramName == "") {
             var text = "Please input a valid parameter name!";
-            displayErrorMessage(text, $input);
+            StatusBox.show(text, $input, true);
             $input.val("");
             return;
         }
@@ -172,7 +172,7 @@ function setupDag() {
         });
         if (isNameConflict === true) {
             var text = "Parameter " + paramName + " already exists!";
-            displayErrorMessage(text, $input);
+            StatusBox.show(text, $input, true);
             return;
         }
 
