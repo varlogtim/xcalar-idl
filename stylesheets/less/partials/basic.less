@@ -621,7 +621,7 @@ ul.colMenu {
         }
     }
 
-    &.type-string, &.type-array{
+    &.type-string, &.type-array {
         .filterWrap .numFilter, .aggregate {
             display: none;
         }
@@ -633,9 +633,18 @@ ul.colMenu {
         }
     }
 
-    &.type-number{
+    &.type-number {
         .filterWrap .strFilter {
             display: none;
+        }
+    }
+
+    &.type-boolean {
+        .aggregate .aggrOp, .gb, .filterWrap .numFilter, .filterWrap .strFilter{
+            display: none;
+        }
+        .gb:first-child, .aggregate .aggrOp:nth-child(4) {
+            display: list-item;
         }
     }
 

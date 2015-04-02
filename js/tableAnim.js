@@ -838,7 +838,8 @@ function addColListeners($table, tableNum) {;
         if ($(this).closest('th').hasClass('indexedColumn')) {
             options.classes += " type-indexed";
         }
-        if ($(this).closest('th').hasClass('newColumn')) {
+        if ($(this).closest('th').hasClass('newColumn') ||
+            options.classes.indexOf('type') === -1) {
             options.classes += " type-newColumn";
         }
         dropdownClick($(this), null, options);
@@ -1195,7 +1196,6 @@ function highlightColumn(el, keepHighlighted) {
 }
 
 function positionScrollbar(row, tableNum) {
-    console.log('positioning scrollbar')
     var canScroll = true;
     var table = $('#xcTable'+tableNum);
     var theadHeight = table.find('thead').height();
@@ -1253,7 +1253,7 @@ function addTableListeners(tableNum) {
         generateFirstLastVisibleRowNum();
     }).scroll(function() {
         $(this).scrollLeft(0); // prevent scrolling when colmenu is open
-        // $(this).scrollTop(0); // prevent scrolling when colmenu is open
+        $(this).scrollTop(0); // prevent scrolling when colmenu is open
     });
 }
 

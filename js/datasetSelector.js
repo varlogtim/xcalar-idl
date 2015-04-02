@@ -841,7 +841,6 @@ function createWorksheet() {
                         columnToIndex, tableName));
             })
             .then(function() {
-                console.log("here!");
                 return (refreshTable(tableName, gTables.length, true,
                                      false));
             })

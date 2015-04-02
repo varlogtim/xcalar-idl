@@ -670,9 +670,9 @@ function generateColDropDown(tableNum) {
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
                     '<li class="filter numFilter">'+
-                        '<span class="hidden"> number</span>'+
                         '<span class="exclude"></span>'+
                         'Exclude'+
+                        '<span class="hidden"> number</span>'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text"/></li>'+
                             '<div class="subColMenuArea"></div>'+
@@ -698,9 +698,9 @@ function generateColDropDown(tableNum) {
                         '<div class="dropdownBox"></div>'+
                     '</li>'+
                     '<li class="filter strFilter">'+
-                        '<span class="hidden"> string</span>'+
                         '<span class="exclude"></span>'+
                         'Exclude'+
+                        '<span class="hidden"> string</span>'+
                         '<ul class="subColMenu">'+
                             '<li><input type="text"/></li>'+
                             '<div class="subColMenuArea"></div>'+
