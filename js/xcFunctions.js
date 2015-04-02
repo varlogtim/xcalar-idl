@@ -3,11 +3,11 @@ function refreshTable(newTableName, tableNum,
     var deferred = jQuery.Deferred();
     
     if (!$('#workspaceTab').hasClass('active')) {
-        if (!$('#dagPanel').hasClass('hidden')) {
-                $('#compSwitch').trigger('click');
-                $('#mainFrame').removeClass('midway');
-        }
         $("#workspaceTab").trigger('click');
+        if ($('#dagPanel').hasClass('full')) {
+            $('#compSwitch').trigger('click');
+            $('#mainFrame').removeClass('midway');
+        }
     }
 
     // $("#workspaceTab").trigger('click');
