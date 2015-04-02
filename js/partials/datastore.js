@@ -19,9 +19,9 @@
 
         $("#importDataButton").click(function() {
             var importForm = $("#importDataView");
+            $("#filePath").focus();
             if (importForm.css('display') != "block") {
                 importForm.show();
-                $("#filePath").focus();
                 $("#gridView").find("grid-unit.active").removeClass("active");
                 $(".datasetTableWrap").hide();
                 $('.dbText h2').text("");
