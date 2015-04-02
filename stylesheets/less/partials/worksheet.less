@@ -193,7 +193,7 @@
 
  /* ========== Main Frame ========== */
  #mainFrame {
-    .size(@width: 100%, @height: ~"calc(100% - 38px)");
+    .size(@width: ~"calc(100% - 5px)", @height: ~"calc(100% - 38px)");
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -299,17 +299,13 @@
     margin-bottom: 0px;
     overflow: hidden;
 
-    &:last-child {
-        margin-right: 5px;
-    }
-
     &:only-child {
         .tableGrab {
             display: none;
         }
     }
 
-     .xcTbodyWrap {
+    .xcTbodyWrap {
         .position(@right: -17px);
         .size(@width: ~"calc(100% + 17px)", @max-height: ~"calc(100% - 31px)");
         .font(@size: 11px);
