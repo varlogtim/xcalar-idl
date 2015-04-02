@@ -674,13 +674,8 @@ function createTableHeader(tableNum) {
                                      .substring(9));
         var tableName = gTables[tableNum].frontTableName;
         var alertOptions = {};
-        var cliOptions = {};
 
         $menu.hide();
-
-        // add cli
-        cliOptions.operation = "deleteTable";
-        cliOptions.tableName = tableName;
 
         // add alert
         alertOptions.title = "DELETE TABLE";
@@ -691,7 +686,19 @@ function createTableHeader(tableNum) {
 
             deleteTable(tableNum)
             .done(function() {
+                var cliOptions = {};
+                // add cli
+                cliOptions.operation = "deleteTable";
+                cliOptions.tableName = tableName;
                 Cli.add("Delete Table", cliOptions);
+            })
+            .fail(function() {
+                // add alert
+                var options = {};
+                options.title = 'DELETE TABLE FAILS!';
+                options.msg = error;
+                options.isAlert = true;
+                Alert.show(options);
             });
         }
 

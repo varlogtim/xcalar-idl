@@ -194,103 +194,149 @@ function setuptableListSection() {
     });
 
     $('#submitTablesBtn').click(function() {
-        archiveButtonClick('add');
+        tableBulkAction("add");
     });
 
     $('#deleteTablesBtn').click(function() {
-        archiveButtonClick('delete');
+        var alertOptions = {};
+        // add alert
+        alertOptions.title = "DELETE ARCHIEVED TABLES";
+        alertOptions.msg = "Are you sure you want to delete selected tables?"; 
+        alertOptions.isCheckBox = true;
+        alertOptions.confirm = function() {
+            tableBulkAction("delete");
+        };
+
+        Alert.show(alertOptions);
+    });
+}
+
+function tableBulkAction(action) {
+    // validation check
+    var validAtcion = ["add", "delete"];
+    if (validAtcion.indexOf(action) < 0) {
+        console.log("Invalid action!");
+        return;
+    }
+
+    var $tablesSelected = $("#inactiveTablesList")
+                            .find(".addArchivedBtn.selected")
+                            .closest(".tableInfo");
+    var $buttons = $('#archivedTableList').find('.btnLarge');
+    var promises = [];
+    var failures = [];
+
+    $buttons.addClass('btnInactive');
+
+    $tablesSelected.each(function(index, ele) {
+
+        promises.push((function() {
+
+            var innerDeferred = jQuery.Deferred();
+            var $li = $(ele);
+            var tableName = $li.data("tablename");
+            var tableNum = getTablNum(tableName);
+
+            if (tableNum == undefined) {
+                console.error("Error: do not find the table");
+                innerDeferred.reject();
+                return (innerDeferred.promise());
+            }
+
+            if (action === "add") {
+                // update gTableIndicesLookup
+                gTableIndicesLookup[tableName].active = true;
+                gTableIndicesLookup[tableName].timeStamp = (new Date())
+                                                            .getTime();
+
+                addTable(tableName, gTables.length, AfterStartup.After)
+                .then(function() {
+                    // already add the table
+                    var activeTable = gHiddenTables.splice(tableNum, 1)[0];
+                    doneHandler($li, tableName);
+                    return (XcalarSetFree(activeTable.resultSetId));
+                })
+                .done(function() {
+                    innerDeferred.resolve();
+                })
+                .fail(function(error) {
+                    failHandler($li, tableName, error);
+                    innerDeferred.resolve(error);
+                });
+            } else if (action === "delete") {
+                deleteTable(tableNum, DeleteTable.Delete)
+                .done(function() {
+                    doneHandler($li, tableName);
+                    innerDeferred.resolve();
+                })
+                .fail(function(error) {
+                    failHandler($li, tableName, error);
+                    innerDeferred.resolve(error);
+                });
+            }
+
+            return (innerDeferred.promise());
+
+        }).bind(this));
     });
 
-    function archiveButtonClick(action) {
-        var $tablesSelected = $('#inactiveTablesList')
-                                .find('.addArchivedBtn.selected').prev();
-        var $buttons = $('#archivedTableList').find('.btnLarge');
-        var numTables = gTables.length;
-        var numHiddenTables = gHiddenTables.length;
-        var promises = [];
-
-        $buttons.addClass('btnInactive');
-        $tablesSelected.each(function(index, ele) {
-            promises.push((function() {
-                var innerDeferred = jQuery.Deferred();
-
-                var $li = $(ele).closest('li.tableInfo');
-                var $timeLine = $li.parent().parent();
-                var index = $li.index();
-                $li.remove();
-                numHiddenTables--;
-                // XXX these selected tables are ordered in reverse
-               
-                if (action == "add") {
-                    var activeTable = gHiddenTables.splice((
-                                 numHiddenTables-index), 1)[0];
-                    
-                    gTableIndicesLookup[activeTable.frontTableName].active =
-                                                                           true;
-                    gTableIndicesLookup[activeTable.frontTableName].timeStamp 
-                                                      = (new Date()).getTime();
-                    
-                    // add cli
-                    var cliOptions = {};
-                    cliOptions.operation = 'addTable';
-                    cliOptions.tableName = activeTable.frontTableName;
-
-                    addTable(activeTable.frontTableName, numTables++, 
-                             AfterStartup.After)
-                    .then(function() {
-                        return (XcalarSetFree(activeTable.resultSetId));
-                    })
-                    .done(function() {
-                        Cli.add('Send To WorkSheet', cliOptions);
-                        if ($timeLine.find('.tableInfo').length === 0) {
-                            $timeLine.remove();
-                        }
-                        innerDeferred.resolve();
-                    })
-                    .fail(function(error) {
-                        // XXX actually there are lot of issues 
-                        // in UI when failed
-                        innerDeferred.reject(error);
-                    });
-                } else {
-                    var tableNum = numHiddenTables-index;
-                    // add cli
-                    var cliOptions = {};
-                    cliOptions.operation = 'deleteTable';
-                    cliOptions.tableName = gHiddenTables[tableNum]
-                                           .frontTableName;
-
-                    deleteTable(tableNum, DeleteTable.Delete)
-                    .done(function() {
-
-                        Cli.add('Delete Table', cliOptions);
-                        if ($timeLine.find('.tableInfo').length === 0) {
-                            $timeLine.remove();
-                        }
-                        innerDeferred.resolve();
-                    })
-                    .fail(function(error) {
-                        innerDeferred.reject(error);
-                    });
-                }
-                
-                return (innerDeferred.promise());
-            }).bind(this));
-        });
-
-
-        chain(promises)
-        .then(function() {
-            if (action == "add") {
-                var $mainFrame = $('#mainFrame');
-                $('#workspaceTab').trigger('click');
-                var leftPos = $('#xcTableWrap'+(numTables-1)).position()
-                                .left +
-                                $mainFrame.scrollLeft();
-                $mainFrame.animate({scrollLeft: leftPos});
-                focusTable(numTables-1);
+    chain(promises)
+    .then(function() {
+        if (action === "add") {
+            var $mainFrame = $('#mainFrame');
+            var index = gTables.length - 1
+            $('#workspaceTab').trigger('click');
+            var leftPos = $('#xcTableWrap' + index).position().left +
+                            $mainFrame.scrollLeft();
+            $mainFrame.animate({scrollLeft: leftPos});
+            focusTable(index);
+        }
+        // anything faile to alert
+        if (failures.length > 0) {
+            // add alert
+            var alertOptions = {};
+            if (action === "add") {
+                 alertOptions.title = 'ERROR IN ADDING ARCHIEVED TABLE';
+            } else {
+                alertOptions.title = 'DELETE TABLE FAILS!';
             }
-        });
+            alertOptions.msg = failures.join("\n");
+            alertOptions.isAlert = true;
+            Alert.show(alertOptions);
+        }
+    });
+
+    function getTablNum(tableName) {
+        for (var i = 0; i < gHiddenTables.length; i ++) {
+            if (tableName === gHiddenTables[i].frontTableName) {
+                return i;
+            }
+        }
+        return undefined;
+    }
+
+    function doneHandler($li, tableName) {
+        var $timeLine = $li.closest(".timeLine");
+        $li.remove();
+        if ($timeLine.find('.tableInfo').length === 0) {
+            $timeLine.remove();
+        }
+        // add cli
+        var cliOptions = {};
+        cliOptions.tableName = tableName;
+        if (action == "add") {
+            cliOptions.operation = 'addTable';
+            Cli.add('Send To WorkSheet', cliOptions);
+        } else {
+            cliOptions.operation = "deleteTable";
+            Cli.add("Delete Table", cliOptions);
+        }
+    }
+
+    function failHandler($li, tableName, error) {
+        $li.find(".addArchivedBtn.selected")
+                        .removeClass("selected");
+        failures.push(tableName + ": {" + error + "}");
     }
 }
 
@@ -376,7 +422,8 @@ function generateMenuBarTableHTML(tables, active) {
             time = (new Date(timeStamp)).toLocaleTimeString();
         }
 
-        var html = '<li class="clearfix tableInfo">' +
+        var html = '<li class="clearfix tableInfo"' + 
+                        'data-tablename="' + table.frontTableName + '">' +
                         '<div class="timeStampWrap">' +
                             '<div class="timeStamp">' + 
                                 '<span class="time">' + 

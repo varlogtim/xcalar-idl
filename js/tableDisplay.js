@@ -128,11 +128,6 @@ function deleteTable(tableNum, deleteArchived) {
         deferred.resolve();
     })
     .fail(function(error){
-        var options = {};
-        options.title = 'DELETE TABLE FAILS!';
-        options.msg = error;
-        options.isAlert = true;
-        Alert.show(options);
         deferred.reject(error);
     });
 
