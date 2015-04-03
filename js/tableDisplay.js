@@ -246,14 +246,8 @@ function generateTableShell(columns, tableNum) {
                     '</div>' + 
                 '</th>';
         } else {
-            var name = "";
-            if (columns[i].name == "") {
-                name = columns[i].userStr;
-            } else {
-                name = columns[i].name
-            }
             newTable += generateColumnHeadHTML(columnClass, color,
-                       (i+1), name, columns[i].width);
+                       (i+1), columns[i]);
         }  
     }
 

@@ -438,7 +438,9 @@ function addCol(colId, tableId, name, options) {
     }
 
     if (!options.progCol) {
+        name = name || "newCol"
         newProgCol.name = name;
+        newProgCol.userStr = '"' + name + '" = ';
         newProgCol.index = newColid;
         newProgCol.width = width;
         newProgCol.isDark = isDark;
@@ -448,7 +450,7 @@ function addCol(colId, tableId, name, options) {
         tables.find('.col'+i).removeClass('col'+i).addClass('col'+(i+1));
     }  
     var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
-                       newColid, name, width);
+                       newColid, newProgCol);
     
     tables.find('.th.col'+(newColid-1)).after(columnHeadHTML); 
 
@@ -475,13 +477,9 @@ function addCol(colId, tableId, name, options) {
     matchHeaderSizes(newColid, table);
 }
 
-function generateColumnHeadHTML(columnClass, color, newColid, name, width) {
-    var columnName;
-    if (!name) {
-        columnName = '"newCol"=map(add(col1, col2))';
-    } else {
-        columnName = name;
-    }
+function generateColumnHeadHTML(columnClass, color, newColid, option) {
+    var columnName = option.name || "newCol";
+    var width = option.width || 0;
 
     var columnHeadTd = 
         '<th class="th' + color + columnClass +

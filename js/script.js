@@ -170,38 +170,27 @@ function setTableMeta(table) {
 }
 
 function setupFunctionBar() {
-    var functionbar = $('#fnBar');
+    var $fnBar = $('#fnBar');
 
-    functionbar.on('input', function(e) {
-        if ($(".scratchpad").has(gFnBarOrigin).length != 0 &&
-            $(this).val().indexOf("=") == 0) {
-            enterEquationMode();
+    $fnBar.on({
+        "input": function() {
+            if ($(".scratchpad").has(gFnBarOrigin).length != 0 &&
+                $(this).val().indexOf("=") == 0) {
+                enterEquationMode();
+            }
+        },
+        "keyup": function(event) {
+            if (event.which == keyCode.Enter) {
+                functionBarEnter(gFnBarOrigin);
+                $(this).blur().addClass('entered');
+            }
+        },
+        "mousedown": function() {
+            $(this).addClass('inFocus');
+        },
+        "blur": function() {
+            $(this).removeClass('inFocus');
         }
-        if (gFnBarOrigin) {
-            gFnBarOrigin.val($(this).val());
-        }
-    });
-
-    functionbar.keyup(function(e) {
-        if (gFnBarOrigin) {
-            gFnBarOrigin.val($(this).val());
-        }
-        if (e.which == keyCode.Enter) {
-            functionBarEnter(gFnBarOrigin);
-            $(this).blur().addClass('entered');
-        }
-    });
-
-    functionbar.mousedown(function() {
-        $(this).addClass('inFocus');
-        var $fnBar = $(this);
-        if (gFnBarOrigin) {
-            gFnBarOrigin.val($fnBar.val());
-        }
-    });
-
-    functionbar.blur(function() {
-        $(this).removeClass('inFocus');
     });
 }
 

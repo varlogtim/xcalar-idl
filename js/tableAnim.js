@@ -770,9 +770,9 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
     $theadWrap.find('input').width(tableWidth - 30);
 }
 
-function displayShortenedHeaderName(el, tableNum, colNum) {
+function displayShortenedHeaderName($el, tableNum, colNum) {
     if (gTables[tableNum].tableCols[colNum-1].name.length > 0) {
-        el.val(gTables[tableNum].tableCols[colNum-1].name);
+        $el.val(gTables[tableNum].tableCols[colNum-1].name);
     }
 }
 
@@ -805,34 +805,33 @@ function addColListeners($table, tableNum) {;
             $(this).closest('.xcTheadWrap').css('z-index', '9');
             $(this).closest('.header').css('z-index', '9');
 
-            if (gTables[dynTableNum].tableCols[index-1].userStr.length > 0) {
-                $(this).val(gTables[dynTableNum].tableCols[index-1].userStr);
-            }
-            updateFunctionBar($(this).val());
+            var userStr = gTables[dynTableNum].tableCols[index-1].userStr;
+            userStr = userStr.substring(userStr.indexOf('='));
+            updateFunctionBar(userStr);
+
             highlightColumn(gFnBarOrigin);
             $(this).parent().siblings('.dropdownBox').addClass('hidden');
         },
         "blur": function() {
-            var dynTableNum = parseInt($(this).closest('.dataTable').attr('id')
-                          .substring(7));
-            var index = parseColNum($(this));
             var $el = $(this);
+            var dynTableNum = parseInt($el.closest('.dataTable').attr('id')
+                          .substring(7));
+            var index = parseColNum($el);
 
             if (!$('#fnBar').hasClass('inFocus')) {
                 displayShortenedHeaderName($el, dynTableNum, index);
             }
  
-            $(this).parent().siblings('.dropdownBox').removeClass('hidden');
+            $el.parent().siblings('.dropdownBox').removeClass('hidden');
             $('#fnBar').removeClass('active');
         },
-        "keyup": function(e) {
-            if (e.which == keyCode.Enter) {
+        "keyup": function(event) {
+            if (event.which == keyCode.Enter) {
                 functionBarEnter($(this));
                 return;
             }
         },
         "input": function() {
-            updateFunctionBar($(this).val());
             gFnBarOrigin = $(this);
         }
     }, ".editableHead");
@@ -1106,7 +1105,8 @@ function functionBarEnter($el) {
     var index = parseColNum($el);
     var $table = $el.closest('.dataTable');
     var tableNum = parseInt($table.attr('id').substring(7));
-    var progCol = parseCol($el.val(), index, tableNum, true);
+    var progStr = '"' + $el.val() + '" ' + $('#fnBar').val();
+    var progCol = parseCol(progStr, index, tableNum, true);
     $el.blur();
     $('#fnBar').removeClass('inFocus');
     execCol(progCol, tableNum)
