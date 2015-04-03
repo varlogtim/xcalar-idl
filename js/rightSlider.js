@@ -288,7 +288,8 @@ function tableBulkAction(action) {
             $('#workspaceTab').trigger('click');
             var leftPos = $('#xcTableWrap' + index).position().left +
                             $mainFrame.scrollLeft();
-            $mainFrame.animate({scrollLeft: leftPos});
+            $mainFrame.animate({scrollLeft: leftPos})
+                      .promise().done(generateFirstVisibleRowNum);
             focusTable(index);
         }
         // anything faile to alert

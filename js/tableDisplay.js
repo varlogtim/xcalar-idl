@@ -90,7 +90,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
     } else {
         $('#rowScroller'+gActiveTableNum).show();
     }
-    generateFirstLastVisibleRowNum();
+    generateFirstVisibleRowNum();
     if (!delayTableRemoval) {
         focusTable(gActiveTableNum);
     }

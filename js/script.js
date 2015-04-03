@@ -108,12 +108,14 @@ function infScrolling(tableNum) {
             .fail(function(error) {
                 innerDeferred.reject(error);
             });
+        } else {
+            innerDeferred.resolve();
         }
 
         innerDeferred
         .done(function() {
             var rowScrollerMove = true;
-            generateFirstLastVisibleRowNum(rowScrollerMove);
+            generateFirstVisibleRowNum(rowScrollerMove);
             updatePageBar(dynTableNum);
         })
         .fail(function(error) {
@@ -326,7 +328,7 @@ function documentReadyxcTableFunction() {
         .done(function() {
             adjustColGrabHeight(gActiveTableNum);
             positionScrollbar(row, gActiveTableNum);
-            generateFirstLastVisibleRowNum();
+            generateFirstVisibleRowNum();
             if (!e.rowScrollerMousedown) {
                 moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
             }
@@ -334,7 +336,7 @@ function documentReadyxcTableFunction() {
         
         // $(this).blur(); 
     });
-    generateFirstLastVisibleRowNum();
+    generateFirstVisibleRowNum();
     var num = Number(gTables[gActiveTableNum].resultSetCount).
                     toLocaleString('en');
     $('#numPages').text('of '+num);
@@ -359,7 +361,7 @@ function documentReadyGeneralFunction() {
                 i++;
             });
         }, 100 );
-        generateFirstLastVisibleRowNum();
+        generateFirstVisibleRowNum();
     });
 
     //XXX using this to keep window from scrolling on dragdrop
@@ -531,7 +533,7 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
         return (documentReadyCatFunction(tableNum, tableNumsToRemove));
     })
     .done(function(val) {
-        generateFirstLastVisibleRowNum();
+        generateFirstVisibleRowNum();
         infScrolling(tableNum);
         adjustColGrabHeight(tableNum);
         resizeRowInput();

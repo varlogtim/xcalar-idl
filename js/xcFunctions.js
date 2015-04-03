@@ -20,7 +20,8 @@ function refreshTable(newTableName, tableNum,
         .done(function() {
             var leftPos = $('#xcTableWrap'+newTableNum).position().left +
                             $('#mainFrame').scrollLeft();
-            $('#mainFrame').animate({scrollLeft: leftPos});
+            $('#mainFrame').animate({scrollLeft: leftPos})
+                           .promise().done(generateFirstVisibleRowNum);
             focusTable(newTableNum);
             deferred.resolve();
         })

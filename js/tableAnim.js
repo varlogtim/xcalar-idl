@@ -1,45 +1,24 @@
-function generateFirstLastVisibleRowNum(rowScrollerMove) {
+function generateFirstVisibleRowNum(rowScrollerMove) {
     if ($('#xcTableWrap'+gActiveTableNum).length == 0) {
         return;
     }
-    var table = $('#xcTable'+gActiveTableNum);
-    var tablePos = $('#xcTableWrap'+gActiveTableNum)[0]
-                .getBoundingClientRect();
-    var tdXCoor = 30; //top cell's distance from left side of tablewrap
-    var tdYCoor = 80; //top cell's distance from top of tablewrap
-    var tdBotYCoor = 18; //bottom cell's distance from bottom of tablewrap
+    var tableLeft = $('#xcTable'+gActiveTableNum).offset().left;
+    var tdXCoor = Math.max(0, tableLeft);; 
+    var tdYCoor = 168; //top rows's distance from top of window
     var firstRowNum;
-    var lastRowNum;
-    var firstEl = document.elementFromPoint(tdXCoor+tablePos.left,
-                                            tdYCoor+tablePos.top);
+    var firstEl = document.elementFromPoint(tdXCoor, tdYCoor);
     var firstId = $(firstEl).closest('tr').attr('class');
 
     if (firstId && firstId.length > 0) {
         var firstRowNum = parseInt(firstId.substring(3))+1;
-    }
-
-    var tdBottom = tablePos.bottom - tdBotYCoor; 
-    
-    if ($('#mainFrame').height() > table.height()) {
-        var lastRowNum = table.find('tr:last td:first').text();
-    } else {
-        var lastEl = document.elementFromPoint(tdXCoor+tablePos.left, tdBottom);
-        var lastId = $(lastEl).closest('tr').attr('class');
-        if (lastId && lastId.length > 0) {
-            var lastRowNum = parseInt(lastId.substring(3))+1;
+        if (!isNaN(firstRowNum)) {
+            $('#rowInput').val(firstRowNum);
+            if (rowScrollerMove) {
+                moverowScroller(firstRowNum, 
+                    gTables[gActiveTableNum].resultSetCount);
+            }
         }
     }
-    
-    if (parseInt(firstRowNum) != NaN) {
-        $('#pageBar .rowNum:first-of-type').html(firstRowNum);
-        if (rowScrollerMove) {
-            moverowScroller(firstRowNum, 
-                gTables[gActiveTableNum].resultSetCount);
-        }
-    }
-    if (parseInt(lastRowNum) != NaN) {
-        $('#pageBar .rowNum:last-of-type').html(lastRowNum);
-    } 
 }
 
 function disableTextSelection() {
@@ -156,7 +135,7 @@ function gResrowMouseUp() {
     reenableTextSelection();
     $('body').removeClass('hideScroll'); 
     adjustColGrabHeight(gResrow.tableNum);
-    generateFirstLastVisibleRowNum();
+    generateFirstVisibleRowNum();
 }
 
 function dragdropMouseDown(el, event) {
@@ -1260,7 +1239,7 @@ function addTableListeners(tableNum) {
             .addClass('tblTitleSelected');
         gActiveTableNum = dynTableNum;
         updatePageBar(dynTableNum);
-        generateFirstLastVisibleRowNum();
+        generateFirstVisibleRowNum();
     }).scroll(function() {
         $(this).scrollLeft(0); // prevent scrolling when colmenu is open
         $(this).scrollTop(0); // prevent scrolling when colmenu is open
