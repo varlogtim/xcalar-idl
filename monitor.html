@@ -1,0 +1,171 @@
+<div class="topBar">
+    <div id="systemButton" class="buttonArea active">
+        <div class="icon"></div>
+        <div class="text">SYSTEM</div>
+    </div>
+    <div id="queriesButton" class="buttonArea">
+        <div class="icon"></div>
+        <div class="text">QUERIES</div>
+    </div>
+    <div id="setupButton" class="buttonArea">
+        <div class="icon"></div>
+        <div class="text">SETUP</div>
+    </div>
+</div>
+<div class="topSection clearfix">
+    <div class="sideTabs">
+        <div id="cpuTab" class="sideTab active">
+            <div class="icon"></div>
+            <div class="text">CPU</div>
+        </div>
+        <div id="ramTab" class="sideTab">
+            <div class="icon"></div>
+            <div class="text">RAM</div>
+        </div>
+        <div id="flashTab" class="sideTab">
+            <div class="icon"></div>
+            <div class="text">FLASH</div>
+        </div>
+        <div id="diskTab" class="sideTab">
+            <div class="icon"></div>
+            <div class="text">DISK</div>
+        </div>
+    </div>
+    <div class="graphWrap">
+        <div class="graphTop">
+            <div id="refreshGraph">
+                <span class="text">Refresh</span>
+                <div class="icon"></div>
+            </div>
+            <div class="time">
+                <span class="text">Last Check Time: </span>
+                <span id="graphTime"></span>
+            </div>
+        </div>
+        <div id="graph"></div>
+    </div>
+</div>
+<div class="bottomSection flex-container flex-row">
+    <div id="donut0" class="donutSection">
+        <div class="icon"></div>
+        <div class="donut">
+            <div class="innerCircle"></div>
+            <div class="donutInfo first">
+                <span class="percent userSize">
+                    <span class="num">80</span><sup>%</sup>
+                </span>
+            </div>
+        </div>
+        <div class="statsSection">
+            <div class="statsTopHeading">
+                <span class="global"></span>
+                <span class="user"></span>
+            </div>
+            <div class="statsHeadingBar small open">
+                <span class="arrow"></span>
+                <span class="title">CPU</span>
+                <span class="percent">%</span>
+                <span class="num avgNum">80</span>
+            </div>
+            <div class="listWrap open">
+                <ul class="small">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="donut1" class="donutSection">
+        <div class="icon"></div>
+        <div class="donut">
+            <div class="innerCircle"></div>
+            <div class="donutInfo">
+                <span class="userSize">
+                    <span class="num">200</span><sup>GB</sup>
+                </span>
+                <hr/>
+                <span class="totalSize">
+                    <span class="num">293</span><sup>GB</sup>
+                </span>
+            </div>
+        </div>
+        <div class="statsSection">
+            <div class="statsTopHeading">
+                <span class="global">Global Total</span>
+                <span class="user">User Total</span>
+            </div>
+            <div class="statsHeadingBar open">
+                <span class="arrow"></span>
+                <span class="title">RAM</span>
+                <span class="userSize"><span class="avgNum">45</span> GB</span>
+                <span class="totalSize"><span class="totNum">128</span> GB</span>
+            </div>
+            <div class="listWrap open">
+                <ul>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="donut2" class="donutSection">
+        <div class="icon"></div>
+        <div class="donut">
+            <div class="innerCircle"></div>
+            <div class="donutInfo">
+                <span class="userSize">
+                    <span class="num">200</span><sup>GB</sup>
+                </span>
+                <hr/>
+                <span class="totalSize">
+                    <span class="num">293</span><sup>GB</sup>
+                </span>
+            </div>
+        </div>
+        <div class="statsSection">
+            <div class="statsTopHeading">
+                <span class="global">Global Total</span>
+                <span class="user">User Total</span>
+            </div>
+            <div class="statsHeadingBar open">
+                <span class="arrow"></span>
+                <span class="title">FLASH</span>
+                <span class="userSize"><span class="avgNum">45</span> GB</span>
+                <span class="totalSize"><span class="totNum">128</span> GB</span>
+            </div>
+            <div class="listWrap open">
+                <ul>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="donut3" class="donutSection">
+        <div class="icon"></div>
+        <div class="donut">
+            <div class="innerCircle"></div>
+            <div class="donutInfo">
+                <span class="userSize">
+                    <span class="num">200</span><sup>GB</sup>
+                </span>
+                <hr/>
+                <span class="totalSize">
+                    <span class="num">293</span><sup>GB</sup>
+                </span>
+            </div>
+        </div>
+        <div class="statsSection">
+            <div class="statsTopHeading">
+                <span class="global">Global Total</span>
+                <span class="user">User Total</span>
+            </div>
+            <div class="statsHeadingBar open">
+                <span class="arrow"></span>
+                <span class="title">DISK</span>
+                <span class="userSize"><span class="avgNum">45</span> GB</span>
+                <span class="totalSize"><span class="totNum">128</span> GB</span>
+            </div>
+            <div class="listWrap open">
+                <ul>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/monitor.js" type="text/javascript"></script>

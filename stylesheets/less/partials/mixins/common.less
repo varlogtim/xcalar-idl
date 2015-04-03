@@ -125,13 +125,14 @@
 }
 
 .font(@style: null, @variant: null, @weight: null, @size: null,
-      @line-height: null, @family: null) {
+      @line-height: null, @family: null, @color: null) {
     .property(font-style, @style);
     .property(font-variant, @variant);
     .property(font-weight, @weight);
     .property(font-size, @size);
     .property(line-height, @line-height);
     .property(font-family, @family);
+    .property(color, @color);
 
     .property(@property, @value) {
         ._getProp(font-style) when not (@style = null) {
@@ -156,6 +157,10 @@
 
         ._getProp(font-family) when not (@family = null) {
           font-family: @value;
+        }
+
+        ._getProp(color) when not (@color = null) {
+            color: @value;
         }
 
         ._getProp(@property);
@@ -518,6 +523,10 @@
 
 .darkGray-gradient() {
     .linear-gradient(top, @color-background-midGrayMed, @color-background-bottomGrayMed);
+}
+
+.darkDarkGray-gradient() {
+    .linear-gradient(top, @color-bar-darkGray-top, @color-bar-darkGray-bot);
 }
 
 .light-gradient() {

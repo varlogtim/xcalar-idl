@@ -17,7 +17,7 @@
       <div id="workspaceTab" class="mainMenuTab active">
         <span class="icon mountain-icon"></span>Worksheet
       </div>
-      <div id="stats" class="mainMenuTab">
+      <div id="monitorTab" class="mainMenuTab">
         <span class="icon monitor-icon"></span>Monitor
       </div>
       <div id="dataStoresTab" class="mainMenuTab">
@@ -108,9 +108,12 @@
         <div class="btn btnMid cancel">CANCEL</div>
       </div>
     </div>
-  </div><!-- end workspacePane -->
+  </div><!-- End workspace Panel -->
+
+  <div id="monitorPanel" class="mainPanel"></div>
+
   <div id="datastoreView" class="mainPanel">
-    <div id="contentHeader">
+    <div id="contentHeader" class="topBar">
       <div id="contentHeaderLeft">
         <div class="buttonArea active">
           <div id="exploreButton"></div>
@@ -304,15 +307,15 @@
         </div>
       </div>
     </div>
-  </div><!-- END DATASTORE TAB -->
-  <div id="monitorScreen">
-  </div>
-  <div class="underConstruction">
-    <div class="bar"></div>
+  </div><!-- END DATASTORE PANEL -->
+
+  <div class="underConstruction mainPanel">
+    <div class="topBar"></div>
     <div class="alert"></div>
     <br><br>
     This page is still under construction! 
   </div>
+
   <div id="rightSideBar">
     <div id="tableListSection" class="rightBarSection">
       <div class="heading">
@@ -712,7 +715,7 @@
   </div>
 
 </div> <!-- END CONTAINER -->
-
+<script src="3rd/d3.min.js" charset="utf-8"></script>
 <script src="bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js">
 </script>
 <script src="bower_components/bootstrap/js/tooltip.js"></script>

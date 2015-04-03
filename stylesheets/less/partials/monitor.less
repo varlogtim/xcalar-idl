@@ -1,0 +1,446 @@
+#monitorPanel {
+    background-color: white;
+    width: 100%;
+    height: 100%;
+    .topBar {
+        border-bottom-width: 2px;
+
+        .buttonArea {
+            .size(@width: 150px, @height: 100%);
+            .darkDarkGray-gradient;
+            border-right: 1px solid @color-bar-border;
+            float: left;
+            cursor: pointer;
+
+            &.active {
+                .action-gradient;
+            }
+
+            .icon {
+                margin: 6px 4px 0 10px;
+                float: left;
+            }
+
+            &#systemButton {
+                .icon {
+                    .background("/images/monitor/gear.png", 23px, 23px);
+                }
+            }
+
+            &#queriesButton {
+                .icon {
+                    .background("/images/monitor/query.png", 28px, 24px);
+                }
+            }
+
+            &#setupButton {
+                .icon {
+                    .background("/images/monitor/tools.png", 22px, 23px);
+                }
+            }
+
+            .text {
+                float: left;
+                .font (@color: white, @size: 14px);
+                margin: 8px 0 0 3px;
+                text-shadow: 1px 1px #555555;
+            }
+        }
+    }
+
+    .topSection {
+        box-shadow: 0px 3px 3px 0px rgba(0,0,0,.3);
+        position: relative;
+        z-index: 5;
+        margin-top: -1px;
+        .sideTabs {
+            display: inline-block;
+            float: left;
+            .sideTab {
+                display: block;
+                .size (@width: 65px, @height: 75px);
+                text-align: center;
+                .linear-gradient(top, #CDCDCD, #ACACAC);
+                border-right: 1px solid @color-table-borderGray;
+                border-bottom: 1px solid @color-table-borderGray;
+                cursor: pointer;
+
+                &.active {
+                    .action-gradient;
+                    .text {
+                        .font (@color: white);
+                        text-shadow: 1px 1px #555555;
+                    } 
+                }
+                    
+            }
+
+            .icon {
+                display: block;
+                .size (@height: 50px, @width: 100%);
+            }
+
+            #cpuTab {
+                .icon {
+                    .image("/images/monitor/cpu-white.png", 50%, 60%);
+                }
+            }
+
+            #ramTab {
+                .icon {
+                    .image("/images/monitor/ram-white.png", 50%, 60%);
+                }
+            }
+
+            #flashTab {
+                .icon {
+                    .image("/images/monitor/flash-white.png", 50%, 60%);
+                }
+            }
+
+            #diskTab {
+                .icon {
+                    .image("/images/monitor/disk-white.png", 50%, 60%);
+                }
+            }
+
+            .text {
+                .font (@size: 13px, @weight: bold, @color: @color-text-columnList);
+            }
+        }
+
+        .graphWrap {
+            .size(@width: ~"calc(100% - 65px)", @height: 300px);
+            .font(@color: @color-table-borderGray);
+            padding-left: 50px;
+            padding-right: 95px;
+            display: inline-block;
+            float: left;
+            background-color: @color-background-darkGray;
+            overflow: hidden;
+
+            .graphTop {
+                .size (@height: 32px);
+                .font (@size: 13px);
+                padding-top: 14px;
+
+                .time {
+                    float: right;
+                    .size(@height: 100%, @width: 270px);
+                    .font(@weight: bold);
+                }
+
+                #graphTime {
+                    display: inline-block;
+                    min-width: 50px;
+                }
+
+                #refreshGraph {
+                    float: right;
+                    .size(@height: 100%);
+                    .font(@color: @color-text-blue);
+                    margin-left: 10px;
+                    cursor: pointer;
+
+                    .icon {
+                        display: inline-block;
+                        margin-left: 4px;
+                        float: right;
+                        .size (@width: 16px, @height: 17px);
+                        .image("/images/ds-refreshDS.png", 50%, 50%);
+                    }
+                }
+            }
+
+            #graph {
+                // width: 1070px;
+                width: 100%;
+                height: 265px;
+                float: right;
+                .background("/images/monitor/graph.png", 100%, 265px);
+            }
+        }
+    }
+
+    .bottomSection {
+        .flex-display();
+        .size(@height: ~"calc(100% - 453px)");
+        min-height: 250px;
+        // .align-items(stretch);
+        .donutSection {
+            .flex(1 0 200px);
+            // .flex-display();
+            // .flex-direction(column);
+            // .align-items(center);
+            position: relative;
+            height: 100%;
+
+            &:nth-child(even) {
+                background-color: #fafafa;
+            }
+
+            &> .icon {
+                .size (@width: 75px, @height: 75px);
+                display: inline-block;
+                position: absolute;
+                top: 0;
+                right: 0;
+                z-index: 1;
+            }
+
+            .donut {
+                .size (@height: 180px, @width: 180px);
+                margin: 15px auto 5px;
+                position: relative;
+
+                .innerCircle {
+                    .size (@width: 130px, @height: 130px);
+                    border-radius: 130px;
+                    background-color: rgba(255,255,255,0.5);
+                    position: absolute;
+                    left: 25px;
+                    top: 25px;
+                    z-index: 2;
+                    box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.15);
+                }
+
+                .donutInfo {
+                    display: inline-block;
+                    position: absolute;
+                    top: 60px;
+                    width: 100%;
+                    text-align: center;
+                    z-index: 3;
+
+                    sup {
+                        .font (@size: 12px);
+                    }
+
+                    hr {
+                        width: 73px;
+                        border: none;
+                        border-top: 1px solid @color-background-bottomGrayMed;
+                        display: block;
+                        .nomargin-padding;
+                        margin: 0 auto;
+                    }
+
+                    .userSize {
+                        .font (@size: 32px, @weight: bold);
+                        line-height: 36px;
+                        margin-right: -6px;
+
+                        sup {
+                            margin-top: -6px;
+                            position: relative;
+                            top: -5px;
+                        }
+                        
+                    }
+
+                    .totalSize {
+                        .font (@size: 18px, @weight: bold, @color: @color-background-bottomGrayMed);
+                        margin-right: 8px;
+
+                        sup {
+                            .font (@size: 11px);
+                            position: absolute;
+                        }
+                    }
+                }
+
+                svg:first-of-type {
+                    z-index: 1;
+                }
+            }
+
+            &#donut0 {
+                &> .icon {
+                    .image("/images/monitor/cpu-gray.png", 50%, 16px);
+                }
+                .donut {
+                    .userSize {
+                        .font (@color: #20a7eb);
+                    }
+                    sup {
+                        .font (@color: #20a7eb, @weight: bold);
+                    }
+                }
+                .donutInfo {
+                    top: 64px;
+                }
+            }
+
+            &#donut1 {
+                &> .icon {
+                    .image("/images/monitor/ram-gray.png", 50%, 19px);
+                }
+                .donut {
+                    .userSize {
+                        .font (@color: #90c591);
+                    }
+                }
+
+                li .userSize, .statsHeadingBar .userSize {
+                    background-color: #D6E6D6;
+                }
+            }
+            &#donut2 {
+                &> .icon {
+                    .image("/images/monitor/flash-gray.png", 60%, 19px);
+                }
+                .donut {
+                    .userSize {
+                        .font (@color: #bbae84);
+                    }
+                }
+
+                li .userSize, .statsHeadingBar .userSize {
+                    background-color: #E3DFD2;
+                }
+            }
+            &#donut3 {
+                &> .icon {
+                    .image("/images/monitor/disk-gray.png", 55%, 13px);
+                }
+                .donut {
+                    .userSize {
+                        .font (@color: #1193b8);
+                    }
+                }
+                li .userSize, .statsHeadingBar .userSize {
+                    background-color: #AFD7E2;
+                }
+            }
+
+            .statsSection {
+                height: ~"calc(100% - 220px)";
+
+                .statsTopHeading {
+                    .font (@weight: 600, @size: 11px, @color: @color-text-midlightGray);
+                    .size (@width: 245px, @height: 20px);
+                    margin: 0 auto;
+                    padding: 2px 12px 0px 2px;
+                    
+                    .global {
+                        float: left;
+                    }
+
+                    .user {
+                        float: right;
+                    }
+                }
+
+                .statsHeadingBar {
+                    .font (@size: 13px, @color: @color-text-darkGray, @weight: bold, @line-height: 25px);
+                    .size (@width: 245px, @height: 25px);
+                    background-color: #f4f4f4;
+                    .rounded;
+                    padding: 0 0 0 7px;
+                    margin: 0 auto;
+                    overflow: hidden;
+                    cursor: pointer;
+
+                    &.small {
+                        width: 210px;
+                    }
+
+                    .arrow {
+                        .image("/images/arrowUpGray.png");
+                        .size(@width: 13px, @height: 8px);
+                        display: inline-block;
+                        float: left;
+                        margin: 8px 5px 0px 0px;
+                    }
+
+                    &.open {
+                        .arrow {
+                            .image("/images/arrowDownBlue.png");
+                            margin-top: 10px
+                        }
+                    }
+
+                    .title {
+                        float: left;
+                    }
+
+                    .num {
+                        float: right;
+                    }
+
+                    .percent {
+                        float: right;
+                        display: inline-block;
+                        padding-right: 7px;
+                    }
+                }
+
+                .userSize {
+                    .font (@weight: bold, @color: @color-text-darkGray);
+                    text-align: right;
+                    float: right;
+                    width: 70px;
+                    display: inline-block;
+                    padding-right: 7px;
+                    // background-color: #e3dfd2;
+                    height: 100%;
+                }
+
+                .totalSize {
+                    float: right;
+                    margin-right: 4px;
+
+                }
+
+                .listWrap {
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                    height: ~"calc(100% - 25px)";
+                    ul {
+                        width: 245px;
+                        margin: 0 auto;
+                        
+                        li {
+                            .font (@size: 11px, @color: @color-text-midlightGray, @weight: bold);
+                            .size (@width: 225px, @height: 17px);
+                            margin-top: 6px;
+                            padding-left: 6px;
+                            .rounded;
+                            background-color: @color-background-lightLightGray;
+                            float: right;
+                            overflow: hidden;
+
+                            .statsNum {
+                                float: right;
+                                margin-right: 9px;
+                            }
+                        }
+
+                        &.small {
+                            width: 210px;
+                            li {
+                                width: 190px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .c3-chart-arc path {
+        stroke: none; 
+    }
+    .c3 line, .c3 path {
+        fill: none;
+        stroke: none;
+    }
+
+    svg {
+        position: absolute;
+    }
+
+    text {
+        display: none;
+    }
+}

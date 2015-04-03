@@ -16,9 +16,9 @@ function setupDag() {
             $('#mainFrame').removeClass('midway');
         }
 
-        $('.mainPanel').hide().removeClass('active');
+        $('.mainPanel').removeClass('active');
         $('.mainMenuTab').removeClass('active');
-        workspacePanel.show().addClass('active');
+        workspacePanel.addClass('active');
         $('#workspaceTab').addClass('active');
         $('.xcTheadWrap').css('z-index', 9);
         StatusMessage.updateLocation();

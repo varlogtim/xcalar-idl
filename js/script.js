@@ -32,6 +32,12 @@ var gDSObj = {};    //obj for DS folder structure
 var gRetinaObj = {}; //obj for retina modal
 var gLastClickTarget = $(window); // track which element was last clicked
 var gDatasetBrowserResultSetId = 0; // resultSetId for currently viewed 
+var KB = 1024;
+var MB = 1024 * KB;
+var GB = 1024 * MB;
+var TB = 1024 * GB;
+var PB = 1024 * TB;
+
 // ================================= Classes ==================================
 var ProgCol = function() {
     this.index = -1;
@@ -222,34 +228,35 @@ function setupHiddenTable(table) {
 
 function mainPanelsTabbing() {
     $(".mainMenuTab").click(function() {
+        if ($(this).hasClass('active')) {
+            return;
+        }
         $(".mainMenuTab").removeClass("active");
+        $('.mainPanel').removeClass('active');
         $(this).addClass("active");
         switch ($(this).attr("id")) {
         case ("workspaceTab"):
-            $(".underConstruction").hide().removeClass("active");
-            $("#datastoreView").hide().removeClass("active");
-            if ($("#workspacePanel").css("display") == "none") {
-                $("#workspacePanel").show().addClass("active");
+                $("#workspacePanel").addClass("active");
                 var numTables = gTables.length;
                 for (var i = 0; i < numTables; i++) {
                     adjustColGrabHeight(i);
                     matchHeaderSizes(null, $('#xcTable'+i)); 
                 }
-            } 
             break;
         case ("dataStoresTab"):
-            $(".underConstruction").hide().removeClass("active");
-            $(".mainPanel").hide().removeClass("active");
-            $("#datastoreView").show().addClass("active");
+            $("#datastoreView").addClass("active");
+            break;
+        case ("monitorTab"):
+            $('#monitorPanel').addClass("active");
+            updateMonitorGraphs();
             break;
         default:
-            $("#datastoreView").hide().removeClass("active");
-            $(".mainPanel").hide().removeClass("active");
-            $(".underConstruction").show().addClass("active");
+            $(".underConstruction").addClass("active");
         }
         StatusMessage.updateLocation();
     });
-    $("#workspaceTab").click();
+    // $("#workspaceTab").click();
+    StatusMessage.updateLocation();
 }
 
 function setupLogout() {
@@ -465,6 +472,11 @@ function documentReadyGeneralFunction() {
 
 }
 
+function loadMonitorPanel() {
+    $('#monitorPanel').load('monitor.html', function() {
+        setupMonitorPanel();
+    });
+}
 
 function documentReadyCatFunction(tableNum, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
@@ -512,6 +524,7 @@ function startupFunctions() {
         setupImportDSForm();
         setupBookmarkArea();
         setupWorksheetMeta();
+        loadMonitorPanel();
         return (updateDatasetInfoFields("Datasets", undefined, IsActive.Active));
     })
     .then(function() {
