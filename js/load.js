@@ -174,12 +174,6 @@ function appendTempDSToList(dsName) {
             '<div class="label">'+dsName+'</div>'+
         '</grid-unit>';
      $("#gridView").append(dsDisplay);
-     if ($('#gridView').hasClass('listView')) {
-        $('#waitingIcon').css({
-            top: '-8px',
-            left: '98px'
-        });
-     }
      $('#waitingIcon').fadeIn(200);
 }
 

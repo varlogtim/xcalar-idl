@@ -256,16 +256,9 @@ function deleteDataset(dsName) {
 
     $grid.removeClass('active');
     $grid.addClass('inactive');
-    $grid.append('<div id="iconWaiting" class="iconWaiting"></div>');
+    $grid.append('<div id="waitingIcon" class="waitingIcon"></div>');
 
-    if ($('#gridView').hasClass('listView')) {
-        $('#iconWaiting').css({
-            top: '-8px',
-            left: '98px'
-        });
-     }
-
-    $('#iconWaiting').fadeIn(200);
+    $('#waitingIcon').fadeIn(200);
 
     XcalarDestroyDataset(dsName)
     .done(function() {
@@ -279,7 +272,7 @@ function deleteDataset(dsName) {
         cleanUpDsIcons();
     })
     .fail(function(error) {
-        $('#iconWaiting').remove();
+        $('#waitingIcon').remove();
         $grid.removeClass('inactive');
 
         var options = {};
@@ -321,7 +314,7 @@ function deleteDataset(dsName) {
             $("#importDataButton").click();
         }
         updateDatasetInfoFields(null, null, true, true);
-        $('#iconWaiting').remove();
+        $('#waitingIcon').remove();
     }
 }
 
