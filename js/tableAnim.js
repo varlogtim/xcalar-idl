@@ -683,7 +683,6 @@ function createTableHeader(tableNum) {
                             + tableName + "?";
         alertOptions.isCheckBox = true;
         alertOptions.confirm = function() {
-
             deleteTable(tableNum)
             .done(function() {
                 var cliOptions = {};
@@ -692,7 +691,7 @@ function createTableHeader(tableNum) {
                 cliOptions.tableName = tableName;
                 Cli.add("Delete Table", cliOptions);
             })
-            .fail(function() {
+            .fail(function(error) {
                 // add alert
                 var options = {};
                 options.title = 'DELETE TABLE FAILS!';
@@ -719,7 +718,9 @@ function createTableHeader(tableNum) {
             retName = "testing";
         }
         cliOptions.fileName = retName+".csv";
-        showWaitCursor();
+        var msg = StatusMessageTStr.ExportTable + ": " + cliOptions.tableName;
+        StatusMessage.show(msg);
+        
         XcalarExport(cliOptions.tableName, retName+".csv")
         .done(function() {
             Cli.add('Export Table', cliOptions);
@@ -731,12 +732,14 @@ function createTableHeader(tableNum) {
 
             Alert.show({'title':title, 'msg':msg, 'instr': ins,
                         'isAlert':true, 'isCheckBox':true});
+            StatusMessage.success(msg);
         })
         .fail(function() {
             console.log("Export fails!");
+            StatusMessage.fail(StatusMessageTStr.ExportFailed, msg);
         })
         .always(function() {
-            removeWaitCursor();
+            // removeWaitCursor();
         });
     });
 

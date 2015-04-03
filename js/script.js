@@ -255,6 +255,7 @@ function mainPanelsTabbing() {
             $(".mainPanel").hide().removeClass("active");
             $(".underConstruction").show().addClass("active");
         }
+        StatusMessage.updateLocation();
     });
     $("#workspaceTab").click();
 }
@@ -290,7 +291,7 @@ function setupWorksheetMeta() {
     var day = d.getDate();
     var month = d.getMonth()+1;
     var year = d.getFullYear();
-    $("#workspaceDate").text("Created on "+day+"-"+month+"-"+year);
+    $("#workspaceDate").text("Created on "+month+"-"+day+"-"+year);
 }
 
 // ========================== Document Ready ==================================

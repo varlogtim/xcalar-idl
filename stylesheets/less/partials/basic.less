@@ -963,8 +963,47 @@ ul.inputMenu {
     .workspaceArea {
         .size(@height: 13px);
         .font(@size: 13px, @line-height: 13px);
-        float: none;
-        margin: 8px -2px 0 0 ;
+        margin-top: 8px;
+    }
+
+    #pageStatusText {
+        float: left;
+        overflow: hidden;
+        display: inline-block;
+        .size(@height: 20px);
+        .font(@line-height: 20px);
+        margin-top: -4px;
+        white-space: nowrap;
+
+        span {
+            display: block;
+            .size(@height: 20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .text {
+            float: left;
+        }
+
+        .icon {
+            float: left;
+            .size(@width: 20px);
+            .image("/images/close-icon.png", 50%, 50%);
+            cursor: pointer;
+            margin-left: 4px;
+        }
+    }
+
+    #loadingIconWrap {
+        position: relative;
+        display: inline-block;
+        .size(@width: 30px, @height: 100%);
+        float: left;
+        .waitingIcon {
+            top: -8px;
+            background-size: 80%;
+        }
     }
 }
 

@@ -21,6 +21,7 @@ function setupDag() {
         workspacePanel.show().addClass('active');
         $('#workspaceTab').addClass('active');
         $('.xcTheadWrap').css('z-index', 9);
+        StatusMessage.updateLocation();
     });
 
     $('#dagPulloutTab').click(function() {

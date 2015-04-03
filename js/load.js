@@ -31,6 +31,9 @@ function setupImportDSForm() {
         }
         appendTempDSToList(tableName);
 
+        var msg = StatusMessageTStr.LoadingDataset+": "+tableName
+        StatusMessage.show(msg);
+        
         XcalarLoad(loadArgs[0], loadFormat, tableName,
                    loadArgs[1], loadArgs[2])
         .done(function(result) {
@@ -42,6 +45,7 @@ function setupImportDSForm() {
             cliOptions.dsName = tableName;
             cliOptions.dsFormat = loadFormat;
             Cli.add('Load dataset', cliOptions);
+            StatusMessage.success(msg);
         })
         .fail(function(result) {
             var text;
@@ -52,6 +56,7 @@ function setupImportDSForm() {
             }
             $('#tempDSIcon').remove();
             StatusBox.show(text, $('#filePath'), true);
+            StatusMessage.fail(StatusMessageTStr.LoadFailed, msg);
         });
     });
 
@@ -165,17 +170,17 @@ function appendTempDSToList(dsName) {
             '<div class="listIcon">'+
                 '<span class="icon"></span>'+
             '</div>'+
-            '<div id="iconWaiting" class="iconWaiting"></div>'+
+            '<div id="waitingIcon" class="waitingIcon"></div>'+
             '<div class="label">'+dsName+'</div>'+
         '</grid-unit>';
      $("#gridView").append(dsDisplay);
      if ($('#gridView').hasClass('listView')) {
-        $('#iconWaiting').css({
+        $('#waitingIcon').css({
             top: '-8px',
             left: '98px'
         });
      }
-     $('#iconWaiting').fadeIn(200);
+     $('#waitingIcon').fadeIn(200);
 }
 
 // StatuxBox Modal

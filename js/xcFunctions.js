@@ -104,7 +104,8 @@ function sortRows(index, tableNum, order) {
         cliOptions.direction = "DESC";
     }
 
-    showWaitCursor();
+    var msg = StatusMessageTStr.Sort + " " + cliOptions.key;
+    StatusMessage.show(msg);
 
     XcalarIndexFromTable(srcTableName, fieldName, newTableName)
     .then(function() {
@@ -112,13 +113,11 @@ function sortRows(index, tableNum, order) {
     })
     .done(function() {
         Cli.add('Sort Table', cliOptions)
+        StatusMessage.success(msg);
     })
     .fail(function(error) {
         console.log("Sort Rows Fails!");
-    })
-    .always(function() {
-        $("body").css({"cursor": "default"});
-        removeWaitCursor();
+        StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
     });
 }
 
@@ -130,23 +129,22 @@ function mapColumn(fieldName, mapString, tableNum) {
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
 
-    showWaitCursor();
-
+    var msg = StatusMessageTStr.Map + " " + fieldName;
+    StatusMessage.show(msg);
+    
     XcalarMap(fieldName, mapString, 
               gTables[tableNum].frontTableName, newTableName)
     .then(function() {
         return (refreshTable(newTableName, tableNum));
     })
     .done(function() {
+        StatusMessage.success(msg);
         deferred.resolve();
     })
     .fail(function(error){
-        console.log("mapColumn fails!");
+        console.log("mapColumn fails!"); 
+        StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
         deferred.reject(error);
-    })
-    .always(function() {
-        $("body").css({"cursor": "default"});
-        removeWaitCursor();
     });
 
     return (deferred.promise());
@@ -173,23 +171,23 @@ function groupByCol(operator, newColName, colid, tableNum) {
     cliOptions.newTableName = newTableName;
     cliOptions.newColumnName = newColName;
 
-    showWaitCursor();
 
+    var msg = StatusMessageTStr.GroupBy+" "+cliOptions.operator;
+    StatusMessage.show(msg);
+    
     XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName)
     .then(function() {
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
     })
     .done(function() {
         Cli.add('Group By', cliOptions);
+        StatusMessage.success(msg);
         deferred.resolve();
     })
     .fail(function(error) {
         console.log("groupByCol fails!");
+        StatusMessage.fail(StatusMessageTStr.GroupByFailed, msg);
         deferred.reject(error);
-    })
-    .always(function() {
-        $("body").css({"cursor": "default"});
-        removeWaitCursor();
     });
 
     return (deferred.promise());
@@ -197,6 +195,9 @@ function groupByCol(operator, newColName, colid, tableNum) {
 
 function aggregateCol(operator, colName, tableNum) {
     showWaitCursor();
+    var msg = StatusMessageTStr.Aggregate+' '+operator+' '+
+                        StatusMessageTStr.OnColumn+': ' + colName
+    StatusMessage.show(msg);
     XcalarAggregate(colName, gTables[tableNum].backTableName, operator)
     .done(function(value){
         // show result in alert modal
@@ -207,9 +208,11 @@ function aggregateCol(operator, colName, tableNum) {
         Alert.show({'title':title, 'msg':value, 
                     'instr': instr, 'isAlert':true,
                     'isCheckBox': true});
+        StatusMessage.success(msg);
     })
     .fail(function(error) {
         console.log("Aggregate fails!");
+        StatusMessage.fail(StatusMessageTStr.AggregateFailed, msg);
     })
     .always(function() {
         removeWaitCursor();
@@ -235,7 +238,9 @@ function filterCol(operator, value, colid, tableNum) {
 
     setIndex(newTableName, gTables[tableNum].tableCols);
     commitToStorage(); 
-    showWaitCursor();
+
+    var msg = StatusMessageTStr.Filter+': '+cliOptions.colName
+    StatusMessage.show(msg);
     console.log(colid); 
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
@@ -245,14 +250,12 @@ function filterCol(operator, value, colid, tableNum) {
     .done(function() {
         Cli.add('Filter Table', cliOptions);
         deferred.resolve();
+        StatusMessage.success(msg);
     })
     .fail(function(error) {
         console.log("filterCol fails!");
         deferred.reject(error);
-    })
-    .always(function() {
-        $("body").css({"cursor": "default"});
-        removeWaitCursor();
+        StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
     });
     
     return (deferred.promise());
@@ -328,7 +331,6 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
     }
 
     showWaitCursor();
-
     var leftName = gTables[leftTableNum].backTableName;
     
     var leftColName =

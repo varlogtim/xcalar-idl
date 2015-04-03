@@ -780,6 +780,8 @@ function createWorksheet() {
             var datasetName = $(this).data('dsname');
             var tableName = $(this).find('h3').text();
             var self = this;
+            var msg = StatusMessageTStr.CreatingTable+': '+tableName;
+            StatusMessage.show(msg);
             XcalarGetTables()
             .done(function(tables) {
                 var numTables = tables.numTables;
@@ -844,9 +846,11 @@ function createWorksheet() {
                                      false));
             })
             .done(function() {
+                StatusMessage.success(msg);
                 chainDeferred.resolve();
             })
             .fail(function(error) {
+                StatusMessage.fail(StatusMessageTStr.TableCreationFailed, msg);
                 chainDeferred.reject(error);
             });
             return (chainDeferred.promise());
@@ -864,7 +868,6 @@ function createWorksheet() {
         deferred.reject(error);
     })
     .always(function() {
-        $("body").css({"cursor": "default"});
         removeWaitCursor();
     });
 

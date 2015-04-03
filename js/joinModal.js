@@ -121,7 +121,6 @@ function initializeJoinModal() {
         $(this).scrollTop(0);
     });
 
- // ==================
  // This submits the joined tables
     $('#joinTables').click(function() {
         if($('#inputSection input').val() == "") {
@@ -160,12 +159,20 @@ function initializeJoinModal() {
             cliOptions.rightTable.colIndex = rightColumnNum;
             cliOptions.joinType = joinType;
             cliOptions.newTableName = newTableName;
-            
+
+            var msg = StatusMessageTStr.Join;
+            StatusMessage.show(msg);
+    
             joinTables(newTableName, joinType, leftTableNum, 
                        leftColumnNum, rightTableNum, rightColumnNum)
             .done(function() {
                 resetJoinTables();
                 Cli.add("Join Table", cliOptions);
+                StatusMessage.success(msg);
+            })
+            .fail(function() {
+                console.log('Join Failed!');
+                StatusMessage.fail(StatusMessageTStr.JoinFailed, msg);
             });
         }
     });
