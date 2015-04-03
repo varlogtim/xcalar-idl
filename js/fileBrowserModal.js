@@ -1,4 +1,8 @@
 FileBrowser = (function() {
+    FileBrowserBuilder = function() {}
+
+    var self = new FileBrowserBuilder();
+
     var $modalBackground = $('#modalBackground');
     var $fileBrowser = $('#fileBrowserModal');
     var $container = $("#fileBrowserView");
@@ -12,6 +16,8 @@ FileBrowser = (function() {
     var $pathSection = $('#fileBrowserPath');
     var $pathLists = $pathSection.find('.list');
     var $pathLabel = $pathSection.find('.text');
+
+    var $filePath = $('#filePath');
     /* Contants */
     var startPath = "file:///var/";
     var validFormats = ["JSON", "CSV"];
@@ -23,21 +29,38 @@ FileBrowser = (function() {
     var reverseSort = false;
     var testMode = false;
 
-    BrowserModal = function() {}
-
-    BrowserModal.prototype.show = function() {
+    FileBrowserBuilder.prototype.show = function() {
+        var inputPath = $filePath.val();
+        var path = retrievePaths(inputPath) || startPath;
         addEventListener();
-        listFiles(startPath)
+
+        listFiles(path)
         .done(function() {
-            appendPath(startPath);
+            appendPath(path);
             // set modal background
             $modalBackground.fadeIn(100);
-            $fileBrowser.show();
             window.getSelection().removeAllRanges();
+            $fileBrowser.show();
+
+            // focus on the grid specified by path
+            if (inputPath && inputPath != "") {
+                var grid = {};
+                var start = inputPath.length - 1;
+                if (inputPath.charAt(start) == "/") {
+                    --start;
+                    grid.type = "folder";
+                } else {
+                    grid.type = "ds";
+                }
+                grid.name = inputPath.substring(
+                                inputPath.lastIndexOf("/", start) + 1, 
+                                inputPath.length);
+                focusOn(grid);
+            }
         });
     }
 
-    BrowserModal.prototype.sortBy = function(key, regEx) {
+    FileBrowserBuilder.prototype.sortBy = function(key, regEx) {
         if (allFiles.length == 0) {
             return;
         }
@@ -105,30 +128,34 @@ FileBrowser = (function() {
 
         // click to focus on folder/ds
         $fileBrowser.on('click', 'grid-unit', function(event) {
+            var $grid = $(this);
+
             event.stopPropagation();
             clear();
-            var $grid = $(this);
+
             if ($grid.hasClass('ds')) {
                 updateInputSection($grid);
             }
+
             $grid.addClass('active');
         });
 
-        // double click on folder to list the files in folder
+        // dblclick a folder or dataset
         $fileBrowser.on('dblclick', 'grid-unit', function() {
             var $grid = $(this);
-            if ($grid.hasClass('ds')) {
-                loadDataSet($grid);
-                closeAll();
-                return;
-            }
 
-            var path = getCurrentPath() + getGridUnitName($grid) + '/';
-            
-            listFiles(path)
-            .done(function() {
-                appendPath(path);
-            });
+            if ($grid.hasClass('ds')) {
+                // dblclick a dataset
+                loadDataSet($grid);
+            } else {
+                // dblclick a folder
+                var path = getCurrentPath() + getGridUnitName($grid) + '/';
+
+                listFiles(path)
+                .done(function() {
+                    appendPath(path);
+                });
+            }
         });
 
         // Up to parent folder
@@ -141,8 +168,10 @@ FileBrowser = (function() {
 
         // click icon-list to toggle between listview and gridview
         $fileBrowser.on('click', '.icon-list', function(event){
-            event.stopPropagation();
             var $viewIcon = $(this);
+
+            event.stopPropagation();
+
             if ($fileBrowserMain.hasClass('listView')) {
                 $fileBrowserMain.removeClass('listView').addClass('gridView');
                 $viewIcon.removeClass('listView').addClass('gridView');
@@ -280,13 +309,28 @@ FileBrowser = (function() {
         $fileBrowser.on('click', '.confirm', function() {
             var $grid = $container.find('grid-unit.active');
             loadDataSet($grid);
-            closeAll();
         });
 
         // close file browser
         $fileBrowser.on('click', '.close, .cancel', function() {
             closeAll();
         });
+
+         // press enter to import a dataset
+        $(document).on('keyup', fileBrowserKeyUp);
+
+    }
+
+    function fileBrowserKeyUp(event) {
+        event.preventDefault();
+        if (event.which !== keyCode.Enter) {
+            return;
+        }
+        var $grid = $container.find('grid-unit.active');
+        // only import the focsued ds, not import the folder
+        if ($grid.length > 0) {
+            loadDataSet($grid);
+        }
     }
 
     function upTo($newPath) {
@@ -334,23 +378,24 @@ FileBrowser = (function() {
     }
 
     function loadDataSet($ds) {
+        // reset import data form
         $('#importDataForm button[type=reset]').click();
 
         // no selected dataset, load the directory
         if ($ds == null || $ds.length == 0) {
-            $('#filePath').val(getCurrentPath());
-            return;
-        }
+            $filePath.val(getCurrentPath());
+        } else {
+            // load dataset
+            var dsName = getGridUnitName($ds);
+            var url = getCurrentPath() + dsName;
+            var ext = getFormat(dsName);
 
-        // load dataset
-        var dsName = getGridUnitName($ds);
-        var url = getCurrentPath() + dsName;
-        var ext = getFormat(dsName);
-
-        if (ext != undefined) {
-            $('#fileFormat .dsTypeLabel:contains("' + ext + '")').click();
+            if (ext != undefined) {
+                $('#fileFormat .dsTypeLabel:contains("' + ext + '")').click();
+            }
+            $filePath.val(url);
         }
-        $('#filePath').val(url);
+        closeAll();
     }
 
     function appendPath(path) {
@@ -382,6 +427,7 @@ FileBrowser = (function() {
         // remove all event listener
         $fileBrowser.off();
         $fileBrowser.hide();
+        $(document).off('keyup', fileBrowserKeyUp);
         $modalBackground.fadeOut(200);
     }
 
@@ -405,23 +451,21 @@ FileBrowser = (function() {
     }
 
     function getHTMLFromFiles(files) {
-        var len = files.length;
         var html = "";
-        var isDirectory;
-        var name;
-        var size;
-        var date = "00:00:00 01-01-2015";
 
-        for (var i = 0; i < len; i ++) {
+        files.forEach(function(fileObj) {
             // fileObj: {name, attr{isDirectory, size}}
-            fileObj = files[i];
-            isDirectory = fileObj.attr.isDirectory;
-            name = fileObj.name;
-            size = fileObj.attr.size;
-            gridClass = isDirectory ? "folder" : "ds";
+            var isDirectory = fileObj.attr.isDirectory;
+            var name = fileObj.name;
+
             if (isDirectory && (name === '.' || name === '..')) {
-                continue;
+                return;
             }
+
+            var size = fileObj.attr.size;
+            var gridClass = isDirectory ? "folder" : "ds";
+            var date = "00:00:00 01-01-2015";
+
             html += '<grid-unit title="' + name + 
                     '" class="' + gridClass + '">' + 
                         '<div class="gridIcon"></div>' +
@@ -431,14 +475,11 @@ FileBrowser = (function() {
                         '<div class="label" data-name=' + name + '>' + 
                             name + 
                         '</div>' +
-                        '<div class="fileDate">' + 
-                            date +
-                        '</div>' +
-                        '<div class="fileSize">' + 
-                            size + 
-                        '</div>' +  
+                        '<div class="fileDate">' + date +'</div>' +
+                        '<div class="fileSize">' + size + '</div>' +  
                     '</grid-unit>';
-        }
+        });
+
         $container.empty().append(html);
     }
 
@@ -499,6 +540,28 @@ FileBrowser = (function() {
         return (grid);
     }
 
-    var self = new BrowserModal();
+    function retrievePaths(path) {
+        if (path == "" || path == undefined) {
+            return undefined;
+        }
+
+        var paths = [];
+        for (var i = path.length - 1; i >= (startPath.length - 1); i --) {
+            if (path.charAt(i) === "/") {
+                paths.push(path.substring(0, i + 1));
+            }
+        }
+
+        if (paths.length === 0) {
+            return undefined;
+        }
+
+        for (var i = paths.length - 1; i > 0; i --) {
+            appendPath(paths[i]);
+        }
+
+        return paths[0];
+    }
+
     return (self);
 })();
