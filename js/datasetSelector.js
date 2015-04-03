@@ -656,7 +656,7 @@ function addWorksheetListeners(tableNum) {
         }   
     });
 
-    table.on('click', '.tick', function(event){
+    table.on('click', '.tick, .type', function(event){
         $(this).closest('.flexContainer').find('.editableHead').click();
     });
 
