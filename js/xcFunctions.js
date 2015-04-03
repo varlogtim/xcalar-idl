@@ -4,7 +4,8 @@ function refreshTable(newTableName, tableNum,
     
     if (!$('#workspaceTab').hasClass('active')) {
         $("#workspaceTab").trigger('click');
-        if ($('#dagPanel').hasClass('full')) {
+        if ($('#dagPanel').hasClass('full') &&
+            !$('#dagPanel').hasClass('hidden')) {
             $('#compSwitch').trigger('click');
             $('#mainFrame').removeClass('midway');
         }
