@@ -32,7 +32,7 @@ function xcalarGetVersion(thriftHandle) {
     workItem.api = XcalarApisT.XcalarApiGetVersion;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var getVersionOutput = result.output.getVersionOutput;
         // No status
         if (result.jobStatus != StatusT.StatusOk) {
@@ -76,7 +76,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
     workItem.input.loadInput.loadArgs = loadArgs;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var loadOutput = result.output.loadOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             loadOutput.status = result.jobStatus;
@@ -118,7 +118,7 @@ function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName) {
     workItem.input.indexInput.keyName = keyName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var indexOutput = result.output.indexOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             indexOutput.status = result.jobStatus;
@@ -160,7 +160,7 @@ function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName) {
     workItem.input.indexInput.keyName = keyName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var indexOutput = result.output.indexOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             indexOutput.status = result.jobStatus;
@@ -193,7 +193,7 @@ function xcalarGetCount(thriftHandle, tableName) {
     workItem.input.tableInput.tableId = XcalarApiTableIdInvalidT;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var countOutput = result.output.countOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             countOutput.status = result.jobStatus;
@@ -222,7 +222,7 @@ function xcalarShutdown(thriftHandle) {
     workItem.api = XcalarApisT.XcalarApiShutdown;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = StatusT.StatusOk;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
@@ -251,7 +251,7 @@ function xcalarStartNodes(thriftHandle, numNodes) {
     workItem.input.startNodesInput.numNodes = numNodes;
     
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = StatusT.StatusOk;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
@@ -280,7 +280,7 @@ function xcalarGetStats(thriftHandle, nodeId) {
     workItem.input.statInput.nodeId = nodeId;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var statOutput = result.output.statOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             statOutput.status = result.jobStatus;
@@ -330,7 +330,7 @@ function xcalarEditColumn(thriftHandle, datasetName, tableName, isDataset,
     workItem.input.editColInput.newFieldType = newFieldType;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         // statusOutput is a status
         var statusOutput = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
@@ -366,7 +366,7 @@ function xcalarGetStatsByGroupId(thriftHandle, nodeId, groupIdList) {
     workItem.input.statByGroupIdInput.groupId = groupIdList;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var statOutput = result.output.statOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             statOutput.status = result.jobStatus;
@@ -398,7 +398,7 @@ function xcalarResetStats(thriftHandle, nodeId) {
     workItem.input.statInput.nodeId = nodeId;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
@@ -430,7 +430,7 @@ function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
     workItem.input.statInput.nodeId = nodeId;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var statGroupIdMapOutput = result.output.statGroupIdMapOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             statGroupIdMapOutput.status = result.jobStatus;
@@ -461,7 +461,7 @@ function xcalarQuery(thriftHandle, query) {
     workItem.input.queryInput = query;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var queryOutput = result.output.queryOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             queryOutput.status = result.jobStatus;
@@ -494,7 +494,7 @@ function xcalarQueryState(thriftHandle, queryId) {
     workItem.input.queryStateInput.queryId = queryId;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var queryStateOutput = result.output.queryStateOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             queryStateOutput.status = result.jobStatus;
@@ -525,7 +525,7 @@ function xcalarDag(thriftHandle, tableName) {
     workItem.input.dagTableNameInput = tableName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var dagOutput = result.output.dagOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             dagOutput.status = result.jobStatus;
@@ -554,7 +554,7 @@ function xcalarListTables(thriftHandle, patternMatch) {
     workItem.input.listTablesInput = patternMatch;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var listTablesOutput = result.output.listTablesOutput;
         // No job specific status
         if (result.jobStatus != StatusT.StatusOk) {
@@ -582,7 +582,7 @@ function xcalarListDatasets(thriftHandle) {
     workItem.api = XcalarApisT.XcalarApiListDatasets;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var listDatasetsOutput = result.output.listDatasetsOutput;
         // No job specific status
         if (result.jobStatus != StatusT.StatusOk) {
@@ -621,7 +621,7 @@ function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
 
     var makeResultSetOutput;
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         makeResultSetOutput = result.output.makeResultSetOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             makeResultSetOutput.status = result.jobStatus;
@@ -661,7 +661,7 @@ function xcalarMakeResultSetFromDataset(thriftHandle, datasetName) {
 
     var makeResultSetOutput;
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         makeResultSetOutput = result.output.makeResultSetOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             makeResultSetOutput.status = result.jobStatus;
@@ -701,7 +701,7 @@ function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
     workItem.input.resultSetNextInput.numRecords = numRecords;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var resultSetNextOutput = result.output.resultSetNextOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             resultSetNextOutput.status = result.jobStatus;
@@ -747,7 +747,7 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
     workItem.input.joinInput.joinType = joinType;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var joinOutput = result.output.joinOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             joinOutput.status = result.jobStatus;
@@ -787,7 +787,7 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
 
     var filterOutput;
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         filterOutput = result.output.filterOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             filterOutput.status = result.jobStatus;
@@ -831,7 +831,7 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
     workItem.input.groupByInput.newFieldName = newFieldName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var groupByOutput = result.output.groupByOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             groupByOutput.status = result.jobStatus;
@@ -866,7 +866,7 @@ function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
     workItem.input.resultSetAbsoluteInput.position = position;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
@@ -898,7 +898,7 @@ function xcalarFreeResultSet(thriftHandle, resultSetId) {
     workItem.input.freeResultSetInput.resultSetId = resultSetId;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         // XXX FIXME bug 136
         var status = StatusT.StatusOk;
         if (result.jobStatus != StatusT.StatusOk) {
@@ -930,7 +930,7 @@ function xcalarDeleteTable(thriftHandle, tableName) {
     workItem.input.deleteTableInput.tableId = XcalarApiTableIdInvalidT;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
@@ -964,7 +964,7 @@ function xcalarGetTableRefCount(thriftHandle, tableName) {
 
     
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var getTableRefCountOutput = result.output.getTableRefCountOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             getTableRefCountOutput.status = result.jobStatus;
@@ -996,7 +996,7 @@ function xcalarBulkDeleteTables(thriftHandle, tableNamePattern) {
     workItem.input.bulkDeleteTablesInput = tableNamePattern;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var deleteTablesOutput = result.output.deleteTablesOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             deleteTablesOutput.status = result.jobStatus;
@@ -1028,7 +1028,7 @@ function xcalarDestroyDataset(thriftHandle, datasetName) {
     workItem.input.destroyDsInput = datasetName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = result.output.statusOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
@@ -1069,7 +1069,7 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
     workItem.input.mapInput.newFieldName = newFieldName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result){
+    .then(function(result){
         var mapOutput = result.output.mapOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             mapOutput.status = result.jobStatus;
@@ -1106,7 +1106,7 @@ function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
     workItem.input.aggregateInput.fieldName = fieldName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var aggregateOutput = result.output.aggregateOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             aggregateOutput.status = result.jobStatus;
@@ -1141,7 +1141,7 @@ function xcalarExport(thriftHandle, tableName, fileName) {
     workItem.input.exportInput.fileName = fileName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var exportOutput = result.output.exportOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             exportOutput.status = result.jobStatus;
@@ -1174,7 +1174,7 @@ function xcalarListFiles(thriftHandle, url) {
 
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var listFilesOutput = result.output.listFilesOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             listFilesOutput.status = result.jobStatus;
@@ -1208,7 +1208,7 @@ function xcalarMakeRetina(thriftHandle, retinaName, tableName) {
     workItem.input.makeRetinaInput.tableName = tableName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = (result.jobStatus != StatusT.StatusOk) ?
                      result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
@@ -1233,7 +1233,7 @@ function xcalarListRetinas(thriftHandle) {
     workItem.api = XcalarApisT.XcalarApiListRetinas;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var listRetinasOutput = result.output.listRetinasOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             listRetinasOutput.status = result.jobStatus;
@@ -1264,7 +1264,7 @@ function xcalarGetRetina(thriftHandle, retinaName) {
     workItem.input.getRetinaInput = retinaName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var getRetinaOutput = result.output.getRetinaOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             getRetinaOutput.status = result.jobStatus;
@@ -1301,7 +1301,7 @@ function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
     workItem.input.updateRetinaInput.paramInput = paramInput;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = (result.jobStatus != StatusT.StatusOk) ?
                      result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
@@ -1337,7 +1337,7 @@ function xcalarExecuteRetina(thriftHandle, retinaName, dstTableName,
     workItem.input.executeRetinaInput.parameters = parameters;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = (result.jobStatus != StatusT.StatusOk) ?
                     result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
@@ -1374,7 +1374,7 @@ function xcalarAddParameterToRetina(thriftHandle, retinaName, parameterName,
     workItem.input.addParameterToRetinaInput.parameter.parameterValue =
                                                                 parameterValue;
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var status = (result.jobStatus != StatusT.StatusOk) ?
                      result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
@@ -1402,7 +1402,7 @@ function xcalarListParametersInRetina(thriftHandle, retinaName) {
     workItem.input.listParametersInRetinaInput = retinaName;
 
     thriftHandle.client.queueWorkAsync(workItem)
-    .done(function(result) {
+    .then(function(result) {
         var listParametersInRetinaOutput =
                                     result.output.listParametersInRetinaOutput;
         if (result.jobStatus != StatusT.StatusOk) {

@@ -35,7 +35,7 @@ FileBrowser = (function() {
         addEventListener();
 
         listFiles(path)
-        .done(function() {
+        .then(function() {
             appendPath(path);
             // set modal background
             $modalBackground.fadeIn(100);
@@ -106,7 +106,7 @@ FileBrowser = (function() {
             deferred.resolve(path);
         } else {
             XcalarListFiles(path)
-            .done(function(listFilesOutput) {
+            .then(function(listFilesOutput) {
                 clear();
                 allFiles = listFilesOutput.files;
                 self.sortBy(sortKey, sortRegEx);
@@ -153,7 +153,7 @@ FileBrowser = (function() {
                 var path = getCurrentPath() + getGridUnitName($grid) + '/';
 
                 listFiles(path)
-                .done(function() {
+                .then(function() {
                     appendPath(path);
                 });
             }
@@ -342,7 +342,7 @@ FileBrowser = (function() {
         var path = $newPath.text();
 
         listFiles(path)
-        .done(function() {
+        .then(function() {
             $pathLabel.text(path);
             $pathLists.children().removeClass('select');
             $newPath.addClass('select');

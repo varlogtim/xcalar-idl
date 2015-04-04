@@ -183,7 +183,7 @@ function setupDSCartButtons() {
 function getDatasetSample(datasetName, format) {
     // Get datasets and names
     XcalarGetDatasets()
-    .done(function(datasets) {
+    .then(function(datasets) {
         var samples = {};
         
         for (var i = 0; i < datasets.numDatasets; i++) {
@@ -191,14 +191,14 @@ function getDatasetSample(datasetName, format) {
                 continue;
             }
 
-            // the reason for this one is, inside XcalarSample.done()
+            // the reason for this one is, inside XcalarSample.then()
             // variable i is used, since it's async
             // the i is already increased when it's actually being used
             // one way to resolve this is to pass the current i into a closure
             // which keeps the current i value.            
             (function(i) {
                 XcalarSample(datasets.datasets[i].name, 20)
-                .done(function(result) {
+                .then(function(result) {
                     samples[datasetName] = result;
 
                     // add the tab and the table 
@@ -261,7 +261,7 @@ function deleteDataset(dsName) {
     $('#waitingIcon').fadeIn(200);
 
     XcalarDestroyDataset(dsName)
-    .done(function() {
+    .then(function() {
         // add cli
         var cliOptions = {};
         cliOptions.operation = 'destroyDataSet';
@@ -536,7 +536,7 @@ function addWorksheetListeners(tableNum) {
 
         if (newName !== oldColName) {
             XcalarEditColumn(dsName, oldColName, newName, DfFieldTypeT.DfString)
-            .done(function() {
+            .then(function() {
                 $headInput.val(newName);
                 $headInput.closest('th').attr('title', newName);
                 $('#selectedTable'+tableNum).find('.colName').filter(
@@ -598,7 +598,7 @@ function addWorksheetListeners(tableNum) {
             console.log("Change Type from " + oldType + " to " + newType);
             XcalarEditColumn(dsName, colName, colName,
                              typeId)
-            .done(function() {
+            .then(function() {
                 $tableHeader.data('type', newType);
                 $tableHeader.removeClass('type-' + oldType)
                             .addClass('type-' + newType);
@@ -915,7 +915,7 @@ function updateDatasetInfoFields(dsName, dsFormat, active, dontUpdate) {
     }
     if (active) {
         XcalarGetDatasets()
-        .done(function(datasets) {
+        .then(function(datasets) {
             updateNumDatasets(datasets);
             deferred.resolve();
         })

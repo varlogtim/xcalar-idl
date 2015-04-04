@@ -77,7 +77,7 @@ function execCol(progCol, tableNum, args) {
         // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
         //                   fieldName + ")";
         mapColumn(fieldName, mapString, tableNum)
-        .done(function() {
+        .then(function() {
             deferred.resolve();
         })
         .fail(function(error) {
@@ -324,7 +324,7 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
                     tdValue = tdValue[nested[i]];
                 }  
                 
-                // XXX giving classes to table cells may actually be done later
+                // XXX giving classes to table cells may actually be.then later
                 var indexedColumnClass = "";
                 if (col == indexedColNum) {
                     indexedColumnClass = " indexedColumn";

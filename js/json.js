@@ -121,7 +121,7 @@ function showJsonModal(jsonTd) {
         gTables[tableNum].tableCols[colNum-1].userStr = '"'+name+
                                                         '" = pull('+name+')';
         execCol(gTables[tableNum].tableCols[colNum-1], tableNum)
-        .done(function() {
+        .then(function() {
             updateMenuBarTable(gTables[tableNum], tableNum);
             autosizeCol($('#xcTable'+tableNum+' th.col'+(colNum)), 
                         {includeHeader: true, resizeFirstRow: true});

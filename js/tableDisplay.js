@@ -4,7 +4,7 @@ function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
     reorderTables(tableNum);
     tableStartupFunctions(tableName, tableNum, tableNumsToRemove)
-    .done(function() {
+    .then(function() {
         if ($('#mainFrame').hasClass('empty')) {
             $('#mainFrame').removeClass('empty');
             documentReadyxcTableFunction(); 
@@ -113,7 +113,7 @@ function deleteTable(tableNum, deleteArchived) {
     .then(function() {
         return (XcalarDeleteTable(backTableName));
     })
-    .done(function() {
+    .then(function() {
         // XXX if we'd like to hide the cannot delete bug, copy it to 
         // the fail function
 

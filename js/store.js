@@ -90,7 +90,7 @@ function readFromStorage() {
     }
 
     XcalarGetDatasets()
-    .done(function(datasets) {
+    .then(function(datasets) {
         var numDatasets = datasets.numDatasets;
         // clear localStorage is no datasets are loaded
         if (numDatasets == 0 || numDatasets == null) {
@@ -103,7 +103,7 @@ function readFromStorage() {
             deferred.resolve();
         } else {
             XcalarGetTables()
-            .done(function(tables) {
+            .then(function(tables) {
                 var numTables = tables.numTables;
                 for (i = 0; i<numTables; i++) {
                     var tableName = tables.tables[i].tableName;

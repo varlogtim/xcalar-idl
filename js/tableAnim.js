@@ -230,7 +230,7 @@ function dragdropMouseUp() {
                     progCol: progCol});
 
             execCol(progCol, dragObj.tableNum)
-            .done(function() {
+            .then(function() {
                 updateMenuBarTable(gTables[dragObj.tableNum],
                                    dragObj.tableNum);
                 //prevent scroll position from changing when 
@@ -307,7 +307,7 @@ function createTransparentDragDropCol() {
     //XXX check to see if topRowEl was found;
     if (topRowIndex == -1) {
         console.log("BUG! Cannot find first visible row??");
-        // Clone entire shit and be done.
+        // Clone entire shit and be.then.
         dragObj.table.find('tr').each(function(i, ele) {
             cloneCellHelper(ele);
         });
@@ -663,7 +663,7 @@ function createTableHeader(tableNum) {
         alertOptions.isCheckBox = true;
         alertOptions.confirm = function() {
             deleteTable(tableNum)
-            .done(function() {
+            .then(function() {
                 var cliOptions = {};
                 // add cli
                 cliOptions.operation = "deleteTable";
@@ -696,7 +696,7 @@ function createTableHeader(tableNum) {
         StatusMessage.show(msg);
         
         XcalarExport(cliOptions.tableName, retName+".csv")
-        .done(function() {
+        .then(function() {
             Cli.add('Export Table', cliOptions);
             var title = "Successful Export";
             var ins = "Widget location: http://schrodinger/dogfood/widget/main.html?"+
@@ -996,7 +996,7 @@ function addColMenuActions($colMenu) {
         gTables[tableNum].tableCols[index].userStr = 
             gTables[tableNum].tableCols[index-1].userStr;
         execCol(gTables[tableNum].tableCols[index], tableNum)
-        .done(function() {
+        .then(function() {
             updateMenuBarTable(gTables[tableNum], tableNum);
         }); 
     });
@@ -1084,7 +1084,7 @@ function functionBarEnter($el) {
     $el.blur();
     $('#fnBar').removeClass('inFocus');
     execCol(progCol, tableNum)
-    .done(function() {
+    .then(function() {
         updateMenuBarTable(gTables[tableNum], tableNum);
 
         // add cli

@@ -29,7 +29,7 @@ StatusMessage = (function() {
                 .before('<span>'+msg+'</span>');
         }
 
-        inScroll = scrollToMessage().done(function() {
+        inScroll = scrollToMessage().then(function() {
             $('#viewLocation').remove();
 
             if (isFailed) {
@@ -58,7 +58,7 @@ StatusMessage = (function() {
 
 
     Message.prototype.success = function(msg) {
-        inScroll.done(function() {
+        inScroll.then(function() {
             if (isFailed) {
                 // XX currently, if one message succeeds and the other fails,
                 // we skip the success message and just show the fail.
@@ -74,7 +74,7 @@ StatusMessage = (function() {
                            .eq(rotatePosition)
                            .after(successHTML);
 
-                scrollToMessage().done(function() {
+                scrollToMessage().then(function() {
                     clear();
                 });
             }
@@ -91,11 +91,11 @@ StatusMessage = (function() {
                        '<span class="icon close"></span>'+
                        '</span>';
         
-        inScroll.done(function() {
+        inScroll.then(function() {
             isFailed = true;
             $statusText.children('span').eq(rotatePosition).after(failHTML);
             finishWaiting(msg);
-            scrollToMessage().done(function(){
+            scrollToMessage().then(function(){
                 $statusText.children('span').not('.statusFail').remove();
                 $statusText.find('.statusFail').not(':last-of-type').remove();
                 rotatePosition = 0;
@@ -122,7 +122,7 @@ StatusMessage = (function() {
     function rotateMessages() {
         rotatePosition = 0;
         rotateInterval = setInterval(function() {
-            scrollToMessage().done(function() {
+            scrollToMessage().then(function() {
                 if (rotatePosition >= messages.length) {
                     $statusText.scrollTop(0);
                     rotatePosition = 0;

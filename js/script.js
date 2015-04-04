@@ -85,7 +85,7 @@ function infScrolling(tableNum) {
             }
 
             goToPage(pageNumber, RowDirection.Top, dynTableNum)
-            .done(function() {
+            .then(function() {
                 $('#xcTbodyWrap'+dynTableNum)
                     .scrollTop(firstRow.offset().top - initialTop + 10);
                 table.find("tbody tr:gt(59)").remove();
@@ -104,7 +104,7 @@ function infScrolling(tableNum) {
             }
             goToPage(gTables[dynTableNum].currentPageNumber+1,
                      RowDirection.Bottom, dynTableNum)
-            .done(innerDeferred.resolve)
+            .then(innerDeferred.resolve)
             .fail(function(error) {
                 innerDeferred.reject(error);
             });
@@ -113,7 +113,7 @@ function infScrolling(tableNum) {
         }
 
         innerDeferred
-        .done(function() {
+        .then(function() {
             var rowScrollerMove = true;
             generateFirstVisibleRowNum(rowScrollerMove);
             updatePageBar(dynTableNum);
@@ -154,7 +154,7 @@ function setTableMeta(table) {
         newTable.resultSetId = resultSet.resultSetId;
         return (XcalarGetCount(tableName));
     })
-    .done(function(totEntries) {
+    .then(function(totEntries) {
         newTable.resultSetCount = totEntries;
         newTable.numPages = Math.ceil(newTable.resultSetCount /
                                       gNumEntriesPerPage);
@@ -199,7 +199,7 @@ function setupFunctionBar() {
 function setupHiddenTable(table) {
     var deferred = jQuery.Deferred();
     setTableMeta(table)
-    .done(function(newTableMeta) {
+    .then(function(newTableMeta) {
         gHiddenTables.push(newTableMeta); 
         var lastIndex = gHiddenTables.length - 1;
         var index = getIndex(gHiddenTables[lastIndex].frontTableName);
@@ -325,7 +325,7 @@ function documentReadyxcTableFunction() {
         var skipToRow = true;
         goToPage(Math.ceil(pageNum), RowDirection.Bottom, gActiveTableNum, 
                  skipToRow)
-        .done(function() {
+        .then(function() {
             adjustColGrabHeight(gActiveTableNum);
             positionScrollbar(row, gActiveTableNum);
             generateFirstVisibleRowNum();
@@ -471,7 +471,7 @@ function documentReadyCatFunction(tableNum, tableNumsToRemove) {
     var index = getIndex(gTables[tableNum].frontTableName);
     var notIndexed = !(index && index.length > 0);
     getFirstPage(gTables[tableNum].resultSetId, tableNum, notIndexed)
-    .done(function(jsonData, keyName) {
+    .then(function(jsonData, keyName) {
         if (notIndexed) { // getNextPage will setupProgCols
             index = gTables[tableNum].tableCols;
         }
@@ -513,7 +513,7 @@ function startupFunctions() {
         setupWorksheetMeta();
         return (updateDatasetInfoFields("Datasets", undefined, IsActive.Active));
     })
-    .done(function() {
+    .then(function() {
         setupDag();
         deferred.resolve();
     })
@@ -532,7 +532,7 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
         gTables[tableNum] = newTableMeta;
         return (documentReadyCatFunction(tableNum, tableNumsToRemove));
     })
-    .done(function(val) {
+    .then(function(val) {
         generateFirstVisibleRowNum();
         infScrolling(tableNum);
         adjustColGrabHeight(tableNum);
@@ -570,7 +570,7 @@ function documentReadyIndexFunction() {
             }
 
             chain(promises)
-            .done(function() {
+            .then(function() {
                 if (gTableOrderLookup.length > 0) {
                     documentReadyxcTableFunction();
                 } else {
@@ -589,7 +589,7 @@ function documentReadyIndexFunction() {
     $(document).ready(function() {
         startupFunctions()
         .then(initializeTable)
-        .done(function() {
+        .then(function() {
             setuptableListSection();
             initializeJoinModal();
         })

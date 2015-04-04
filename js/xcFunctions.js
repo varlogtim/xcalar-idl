@@ -17,11 +17,11 @@ function refreshTable(newTableName, tableNum,
         // append newly created table to the back
         newTableNum = gTables.length;
         addTable(newTableName, newTableNum, AfterStartup.After)
-        .done(function() {
+        .then(function() {
             var leftPos = $('#xcTableWrap'+newTableNum).position().left +
                             $('#mainFrame').scrollLeft();
             $('#mainFrame').animate({scrollLeft: leftPos})
-                           .promise().done(generateFirstVisibleRowNum);
+                           .promise().then(generateFirstVisibleRowNum);
             focusTable(newTableNum);
             deferred.resolve();
         })
@@ -57,7 +57,7 @@ function refreshTable(newTableName, tableNum,
             archiveTable(tableNum, DeleteTable.Keep, delayTableRemoval);
         }
         addTable(newTableName, newTableNum, AfterStartup.After, tablesToRemove)
-        .done(function() {
+        .then(function() {
             if (savedScrollLeft) {
                 $('#mainFrame').scrollLeft(savedScrollLeft);
             } 
@@ -112,7 +112,7 @@ function sortRows(index, tableNum, order) {
     .then(function() {
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep));
     })
-    .done(function() {
+    .then(function() {
         Cli.add('Sort Table', cliOptions)
         StatusMessage.success(msg);
     })
@@ -138,7 +138,7 @@ function mapColumn(fieldName, mapString, tableNum) {
     .then(function() {
         return (refreshTable(newTableName, tableNum));
     })
-    .done(function() {
+    .then(function() {
         StatusMessage.success(msg);
         deferred.resolve();
     })
@@ -180,7 +180,7 @@ function groupByCol(operator, newColName, colid, tableNum) {
     .then(function() {
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
     })
-    .done(function() {
+    .then(function() {
         Cli.add('Group By', cliOptions);
         StatusMessage.success(msg);
         deferred.resolve();
@@ -200,7 +200,7 @@ function aggregateCol(operator, colName, tableNum) {
                         StatusMessageTStr.OnColumn+': ' + colName
     StatusMessage.show(msg);
     XcalarAggregate(colName, gTables[tableNum].backTableName, operator)
-    .done(function(value){
+    .then(function(value){
         // show result in alert modal
         var title = 'Aggregate: ' + operator;
         var instr = 'This is the aggregate result for column "' + 
@@ -248,7 +248,7 @@ function filterCol(operator, value, colid, tableNum) {
     .then(function() {
         return (refreshTable(newTableName, tableNum));
     })
-    .done(function() {
+    .then(function() {
         Cli.add('Filter Table', cliOptions);
         deferred.resolve();
         StatusMessage.success(msg);
@@ -363,7 +363,7 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
                                  leftName, rightTableNum, rightColumnNum]));
         }
     })
-    .done(deferred.resolve)
+    .then(deferred.resolve)
     .fail(function(error) {
         console.log("joinTables fails!");
         deferred.reject(error);
@@ -413,7 +413,7 @@ function joinTables2(args) {
                                  leftName, rightTableNum, rightName]));
         }
     })
-    .done(deferred.resolve)
+    .then(deferred.resolve)
     .fail(function(error) {
         console.log("joinTables2 fails!");
         deferred.reject(error);
@@ -440,7 +440,7 @@ function joinTables3(args) {
         return (refreshTable(newTableName, leftTableNum, 
                              KeepOriginalTables.DontKeep, rightTableNum));
     })
-    .done(function() {
+    .then(function() {
         deferred.resolve();
     })
     .fail(function(error) {

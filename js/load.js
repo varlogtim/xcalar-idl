@@ -36,7 +36,7 @@ function setupImportDSForm() {
         
         XcalarLoad(loadArgs[0], loadFormat, tableName,
                    loadArgs[1], loadArgs[2])
-        .done(function(result) {
+        .then(function(result) {
             displayNewDataset(tableName, loadFormat);
 
             // add cli

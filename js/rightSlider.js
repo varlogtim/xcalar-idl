@@ -128,7 +128,7 @@ function setupHelpSection() {
             $('#archivedTableList').find('.btnLarge').hide();
             return (DSObj.reset());
         })
-        .done(function() {
+        .then(function() {
            emptyStorage();
            console.log("Clear Up Succeed!")
         }).fail(function() {
@@ -253,10 +253,10 @@ function tableBulkAction(action) {
                 .then(function() {
                     // already add the table
                     var activeTable = gHiddenTables.splice(tableNum, 1)[0];
-                    doneHandler($li, tableName);
+                   .thenHandler($li, tableName);
                     return (XcalarSetFree(activeTable.resultSetId));
                 })
-                .done(function() {
+                .then(function() {
                     innerDeferred.resolve();
                 })
                 .fail(function(error) {
@@ -265,8 +265,8 @@ function tableBulkAction(action) {
                 });
             } else if (action === "delete") {
                 deleteTable(tableNum, DeleteTable.Delete)
-                .done(function() {
-                    doneHandler($li, tableName);
+                .then(function() {
+                   .thenHandler($li, tableName);
                     innerDeferred.resolve();
                 })
                 .fail(function(error) {
@@ -289,7 +289,7 @@ function tableBulkAction(action) {
             var leftPos = $('#xcTableWrap' + index).position().left +
                             $mainFrame.scrollLeft();
             $mainFrame.animate({scrollLeft: leftPos})
-                      .promise().done(generateFirstVisibleRowNum);
+                      .promise().then(generateFirstVisibleRowNum);
             focusTable(index);
         }
         // anything faile to alert
@@ -309,7 +309,7 @@ function tableBulkAction(action) {
         return undefined;
     }
 
-    function doneHandler($li, tableName) {
+    function.thenHandler($li, tableName) {
         var $timeLine = $li.closest(".timeLine");
         $li.remove();
         if ($timeLine.find('.tableInfo').length === 0) {

@@ -45,7 +45,7 @@ function goToPage(pageNumber, direction, tableNum, skipToRow) {
         return (generateDataColumnJson(gTables[tableNum].resultSetId,
                                  null, tableNum, false, numPagesToAdd));
     })
-    .done(function(jsonData) {
+    .then(function(jsonData) {
         if (skipToRow) {
             $('#xcTable'+tableNum).find('tbody').empty();
         }
@@ -98,7 +98,7 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
     var numRowsToFetch = numPages * gNumEntriesPerPage;
    
     XcalarGetNextPage(resultSetId, numRowsToFetch)
-    .done(function(tableOfEntries) {
+    .then(function(tableOfEntries) {
         var keyName = tableOfEntries.keysAttrHeader.name;
         if (tableOfEntries.kvPairs.numRecords < gNumEntriesPerPage) {
             resultSetId = 0;

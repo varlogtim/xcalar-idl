@@ -97,7 +97,7 @@ function setupDag() {
                               .data('tablename');
 
         XcalarMakeRetina(retName, tableName)
-        .done(function() {
+        .then(function() {
             console.log('Create New Retina', retName, 'for', tableName);
             $retTab.data('retname', retName);
             $retTab.removeClass('unconfirmed');
@@ -334,7 +334,7 @@ function setupDag() {
                     break;
             }
         })
-        .done(function() {
+        .then(function() {
             closeDagParamModal($dagParameterModal);
             // show success message??
         })
@@ -397,7 +397,7 @@ function appendRetinas(){
     var $retTabSection = $dagWrap.find('.retTabSection');
     // List All Retinas and now append to first table 
     XcalarListRetinas()
-    .done(function(listRetinasOutput) {
+    .then(function(listRetinasOutput) {
         console.log(listRetinasOutput);
         var len =  listRetinasOutput.numRetinas;
         var retinas = listRetinasOutput.retinaDescs;
@@ -497,7 +497,7 @@ function createRetina($retTabSection, retName) {
         var $tbody = $retTab.find('tbody');
         // Only disable the first retina
         XcalarListParametersInRetina(retName)
-        .done(function(output) {
+        .then(function(output) {
             var num = output.numParameters;
             var params = output.parameters;
             for (var i = 0; i < num; i ++) {
@@ -866,7 +866,7 @@ function allowParamDrop(event) {
 
 function constructDagImage(tableName) {
     drawDag(tableName)
-    .done(function(dagDrawing) {
+    .then(function(dagDrawing) {
         var outerDag = '<div class="dagWrap">'+
             '<div class="header clearfix">'+
                 '<div class="btn btnSmall infoIcon">'+
@@ -1021,7 +1021,7 @@ function drawDagOrigin(dagNode, prop, dagArray) {
 
 function drawDag(tableName) {
     var deferred = jQuery.Deferred();
-    XcalarGetDag(tableName).done(function(dagObj) {
+    XcalarGetDag(tableName).then(function(dagObj) {
         var prop = {
             x:0, 
             y:0, 

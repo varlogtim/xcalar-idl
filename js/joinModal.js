@@ -165,7 +165,7 @@ function initializeJoinModal() {
     
             joinTables(newTableName, joinType, leftTableNum, 
                        leftColumnNum, rightTableNum, rightColumnNum)
-            .done(function() {
+            .then(function() {
                 resetJoinTables();
                 Cli.add("Join Table", cliOptions);
                 StatusMessage.success(msg);

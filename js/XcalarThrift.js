@@ -1,4 +1,4 @@
-var tHandle = xcalarConnectThrift(hostname, portNumber.toString());
+var tHandle = xcalarConnectThrift(hostname, portNumber.toString();
 
 function THandleDoesntExistError() {
     this.name = "THandleDoesntExistError";
@@ -70,7 +70,7 @@ Function.prototype.log = function() {
     if (fn && typeof fn === "function") {
         var ret = fn.apply(fn, args);
         if (ret && typeof ret.promise === "function") {
-            ret.done(function(result) {
+            ret.then(function(result) {
                 console.log(result);
             });
         } else {
@@ -104,7 +104,7 @@ function chain(funcs) {
 
 // Jerene's debug function
 function atos(func, args) {                                               
-    func.apply(this, args).done(
+    func.apply(this, args).then(
         function(retObj) {
             console.log(retObj);
         }
@@ -173,7 +173,7 @@ function XcalarDestroyDataset(dsName) {
         return (promiseWrapper(null));
     }
     xcalarDestroyDataset(tHandle, dsName)
-    .done(function() {
+    .then(function() {
         deferred.resolve();
     })
     .fail(function(error) {
@@ -226,7 +226,7 @@ function XcalarSample(datasetName, numEntries) {
 
         return (XcalarGetNextPage(resultSetId, numEntries));
     })
-    .done(function(tableOfEntries) {
+    .then(function(tableOfEntries) {
         deferred.resolve(tableOfEntries);
     })
     .fail(function(error) {

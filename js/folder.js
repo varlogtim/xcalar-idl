@@ -516,7 +516,7 @@ DSObj.reset = function() {
         }
     }
     chain(promises)
-    .done(function() {
+    .then(function() {
         console.log('Datasets deleted!');
         DSObj.clearAll();
         $('#importDataButton').click();
