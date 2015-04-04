@@ -117,7 +117,7 @@ function sortRows(index, tableNum, order) {
         StatusMessage.success(msg);
     })
     .fail(function(error) {
-        console.log("Sort Rows Fails!");
+        Alert.error("Sort Rows Fails", error);
         StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
     });
 }
@@ -143,7 +143,7 @@ function mapColumn(fieldName, mapString, tableNum) {
         deferred.resolve();
     })
     .fail(function(error){
-        console.log("mapColumn fails!"); 
+        Alert.error("mapColumn fails", error);
         StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
         deferred.reject(error);
     });
@@ -186,7 +186,7 @@ function groupByCol(operator, newColName, colid, tableNum) {
         deferred.resolve();
     })
     .fail(function(error) {
-        console.log("groupByCol fails!");
+        Alert.error("GroupBy fails", error);
         StatusMessage.fail(StatusMessageTStr.GroupByFailed, msg);
         deferred.reject(error);
     });
@@ -212,7 +212,7 @@ function aggregateCol(operator, colName, tableNum) {
         StatusMessage.success(msg);
     })
     .fail(function(error) {
-        console.log("Aggregate fails!");
+        Alert.error("Aggregate fails", error);
         StatusMessage.fail(StatusMessageTStr.AggregateFailed, msg);
     })
     .always(function() {
@@ -254,9 +254,9 @@ function filterCol(operator, value, colid, tableNum) {
         StatusMessage.success(msg);
     })
     .fail(function(error) {
-        console.log("filterCol fails!");
-        deferred.reject(error);
+        Alert.error("filterCol fails", error);
         StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+        deferred.reject(error);
     });
     
     return (deferred.promise());

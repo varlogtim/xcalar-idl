@@ -671,12 +671,7 @@ function createTableHeader(tableNum) {
                 Cli.add("Delete Table", cliOptions);
             })
             .fail(function(error) {
-                // add alert
-                var options = {};
-                options.title = 'DELETE TABLE FAILS!';
-                options.msg = error;
-                options.isAlert = true;
-                Alert.show(options);
+                Alert.error("Delete Table Fails", error);
             });
         }
 
@@ -713,8 +708,8 @@ function createTableHeader(tableNum) {
                         'isAlert':true, 'isCheckBox':true});
             StatusMessage.success(msg);
         })
-        .fail(function() {
-            console.log("Export fails!");
+        .fail(function(error) {
+            Alert.error("Export Table Fails", error);
             StatusMessage.fail(StatusMessageTStr.ExportFailed, msg);
         })
         .always(function() {

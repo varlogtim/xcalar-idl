@@ -36,8 +36,8 @@ function xcalarGetVersion(thriftHandle) {
         var getVersionOutput = result.output.getVersionOutput;
         // No status
         if (result.jobStatus != StatusT.StatusOk) {
-            thriftErrorLog("xcalarGetVersion()", result.jobStatus);
-            deferred.reject(result.jobStatus);
+            deferred.reject(thriftErrorLog("xcalarGetVersion()", 
+                            result.jobStatus));
         }
         deferred.resolve(result);
     })
@@ -82,8 +82,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
             loadOutput.status = result.jobStatus;
         }
         if (loadOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarLoad()", loadOutput.status);
-            deferred.reject(loadOutput.status);
+            deferred.reject(thriftErrorLog("xcalarLoad()", loadOutput.status));
         }
         deferred.resolve(loadOutput);
     })
@@ -125,8 +124,8 @@ function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName) {
             indexOutput.status = result.jobStatus;
         }
         if (indexOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarIndexDataset()", indexOutput.status);
-            deferred.reject(indexOutput.status);
+            deferred.reject(thriftErrorLog("xcalarIndexDataset()", 
+                            indexOutput.status));
         }
         deferred.resolve(indexOutput);
     })
@@ -167,8 +166,8 @@ function xcalarIndexTable(thriftHandle, srcTableName, keyName, dstTableName) {
             indexOutput.status = result.jobStatus;
         }
         if (indexOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarIndexTable()", indexOutput.status);
-            deferred.reject(indexOutput.status);
+            deferred.reject(thriftErrorLog("xcalarIndexTable()", 
+                            indexOutput.status));
         }
         deferred.resolve(indexOutput);
     })
@@ -200,8 +199,8 @@ function xcalarGetCount(thriftHandle, tableName) {
             countOutput.status = result.jobStatus;
         }
         if (countOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarGetCount()", countOutput.status);
-            deferred.reject(countOutput.status);
+            deferred.reject(thriftErrorLog("xcalarGetCount()", 
+                            countOutput.status));
         }
         deferred.resolve(countOutput);
     })
@@ -227,8 +226,7 @@ function xcalarShutdown(thriftHandle) {
         var status = StatusT.StatusOk;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
-            thriftErrorLog("xcalarShutdown()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarShutdown()", status));
         }
         deferred.resolve(status);
     })
@@ -257,8 +255,7 @@ function xcalarStartNodes(thriftHandle, numNodes) {
         var status = StatusT.StatusOk;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
-            thriftErrorLog("xcalarStartNodes()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarStartNodes()", status));
         }
         deferred.resolve(status);
     })
@@ -289,8 +286,8 @@ function xcalarGetStats(thriftHandle, nodeId) {
             statOutput.status = result.jobStatus;
         }
         if (statOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarGetStats()", statOutput.status);
-            deferred.reject(statOutput.status);
+            deferred.reject(thriftErrorLog("xcalarGetStats()", 
+                            statOutput.status));
         }
         deferred.resolve(statOutput);
     })
@@ -340,8 +337,8 @@ function xcalarEditColumn(thriftHandle, datasetName, tableName, isDataset,
             statusOutput = result.jobStatus;
         }
         if (statusOutput != StatusT.StatusOk) {
-            thriftErrorLog("xcalarEditColumn()", statOutput.status);
-            deferred.reject(statusOutput);
+            deferred.reject(thriftErrorLog("xcalarEditColumn()", 
+                            statOutput.status));
         }
         deferred.resolve(statusOutput);
     })
@@ -375,8 +372,8 @@ function xcalarGetStatsByGroupId(thriftHandle, nodeId, groupIdList) {
             statOutput.status = result.jobStatus;
         }
         if (statOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarGetStatsByGroupId()", statOutput.status);
-            deferred.reject(statOutput.status);
+            deferred.reject(thriftErrorLog("xcalarGetStatsByGroupId()", 
+                            statOutput.status));
         }
         deferred.resolve(statOutput);
     })
@@ -407,8 +404,7 @@ function xcalarResetStats(thriftHandle, nodeId) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarResetStats()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarResetStats()", status));
         }
         deferred.resolve(status);
     })
@@ -440,9 +436,8 @@ function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
             statGroupIdMapOutput.status = result.jobStatus;
         }
         if (statGroupIdMapOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarGetStatGroupIdMap()", 
-                            statGroupIdMapOutput.status);
-            deferred.reject(statGroupIdMapOutput.status);
+            deferred.reject(thriftErrorLog("xcalarGetStatGroupIdMap()", 
+                            statGroupIdMapOutput.status));
         }
         deferred.resolve(statGroupIdMapOutput);
     })
@@ -472,14 +467,13 @@ function xcalarQuery(thriftHandle, query) {
             queryOutput.status = result.jobStatus;
         }
         if (queryOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarQuery()", queryOutput.status);
-            deferred.reject(queryOutput.status);
+            deferred.reject(thriftErrorLog("xcalarQuery()", 
+                            queryOutput.status));
         }
         deferred.resolve(queryOutput);
     })
     .fail(function(error) {
         console.log("xcalarQuery() caught exception:", error);
-        
         deferred.reject(error);
     });
 
@@ -506,14 +500,13 @@ function xcalarQueryState(thriftHandle, queryId) {
             queryStateOutput.status = result.jobStatus;
         }
         if (queryStateOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarQueryState()", queryStateOutput.status);
-            deferred.reject(result.jobStatus);
+            deferred.reject(thriftErrorLog("xcalarQueryState()", 
+                            queryStateOutput.status));
         }
         deferred.resolve(queryStateOutput);
     })
     .fail(function(error) {
         console.log("xcalarQueryState() caught exception:", error);
-        
         deferred.reject(error);
     });
 
@@ -538,8 +531,7 @@ function xcalarDag(thriftHandle, tableName) {
             dagOutput.status = result.jobStatus;
         } 
         if (dagOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarDag()", dagOutput.status);
-            deferred.reject(dagOutput.status);
+            deferred.reject(thriftErrorLog("xcalarDag()", dagOutput.status));
         }
         deferred.resolve(dagOutput);
     })
@@ -566,9 +558,9 @@ function xcalarListTables(thriftHandle, patternMatch) {
         var listTablesOutput = result.output.listTablesOutput;
         // No job specific status
         if (result.jobStatus != StatusT.StatusOk) {
-            thriftErrorLog("xcalarListTables()", result.jobStatus);
             listTablesOutput.numTables = 0;
-            deferred.reject(listTablesOutput.status);
+            deferred.reject(thriftErrorLog("xcalarListTables()", 
+                            result.jobStatus));
         }
         deferred.resolve(listTablesOutput);
     })
@@ -594,8 +586,8 @@ function xcalarListDatasets(thriftHandle) {
         var listDatasetsOutput = result.output.listDatasetsOutput;
         // No job specific status
         if (result.jobStatus != StatusT.StatusOk) {
-            thriftErrorLog("xcalarListDatasets()", result.jobStatus);
-            deferred.reject(result.jobStatus);
+            deferred.reject(thriftErrorLog("xcalarListDatasets()", 
+                            result.jobStatus));
         }
         deferred.resolve(listDatasetsOutput);
     })
@@ -635,9 +627,8 @@ function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
             makeResultSetOutput.status = result.jobStatus;
         }
         if (makeResultSetOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarMakeResultSetFromTable()", 
-                            makeResultSetOutput.status);
-            deferred.reject(makeResultSetOutput.status);
+            deferred.reject(thriftErrorLog("xcalarMakeResultSetFromTable()", 
+                            makeResultSetOutput.status));
         }
         deferred.resolve(makeResultSetOutput);
     })
@@ -676,9 +667,8 @@ function xcalarMakeResultSetFromDataset(thriftHandle, datasetName) {
             makeResultSetOutput.status = result.jobStatus;
         }
         if (makeResultSetOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarMakeResultSetFromDataset()", 
-                            makeResultSetOutput.status);
-            deferred.reject(makeResultSetOutput.status);
+            deferred.reject(thriftErrorLog("xcalarMakeResultSetFromDataset()", 
+                            makeResultSetOutput.status));
         }
         deferred.resolve(makeResultSetOutput);
     })
@@ -717,8 +707,8 @@ function xcalarResultSetNext(thriftHandle, resultSetId, numRecords) {
             resultSetNextOutput.status = result.jobStatus;
         }
         if (resultSetNextOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarResultSetNext()", resultSetNextOutput.status);
-            deferred.reject(resultSetNextOutput.status);
+            deferred.reject(thriftErrorLog("xcalarResultSetNext()", 
+                            resultSetNextOutput.status));
         }
         deferred.resolve(resultSetNextOutput);
     })
@@ -763,8 +753,7 @@ function xcalarJoin(thriftHandle, leftTableName, rightTableName, joinTableName,
             joinOutput.status = result.jobStatus;
         }
         if (joinOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarJoin()", joinOutput.status);
-            deferred.reject(joinOutput.status);
+            deferred.reject(thriftErrorLog("xcalarJoin()", joinOutput.status));
         }
         deferred.resolve(joinOutput);
     })
@@ -804,8 +793,8 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
             filterOutput.status = result.jobStatus;
         }
         if (filterOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarFilter()", filterOutput.status);
-            deferred.reject(filterOutput.status);
+            deferred.reject(thriftErrorLog("xcalarFilter()", 
+                            filterOutput.status));
         }
         deferred.resolve(filterOutput);
     })
@@ -848,8 +837,8 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
             groupByOutput.status = result.jobStatus;
         }
         if (groupByOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarGroupBy()", groupByOutput.status);
-            deferred.reject(groupByOutput.status);
+            deferred.reject(thriftErrorLog("xcalarGroupBy()", 
+                            groupByOutput.status));
         }
         deferred.resolve(groupByOutput);
     })
@@ -883,8 +872,8 @@ function xcalarResultSetAbsolute(thriftHandle, resultSetId, position) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarResultSetAbsolute()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarResultSetAbsolute()", 
+                            status));
         }
         deferred.resolve(status);
     })
@@ -930,9 +919,7 @@ function xcalarFreeResultSet(thriftHandle, resultSetId) {
 
 function xcalarDeleteTable(thriftHandle, tableName) {
     var deferred = jQuery.Deferred();
-
     console.log("xcalarDeleteTable(tableName = " + tableName + ")");
-
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
     workItem.input.deleteTableInput =  new XcalarApiTableT();
@@ -983,9 +970,8 @@ function xcalarGetTableRefCount(thriftHandle, tableName) {
             getTableRefCountOutput.status = result.jobStatus;
         }
         if (getTableRefCountOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarGetTableRefCount()",
-                            getTableRefCountOutput.status);
-            deferred.reject(getTableRefCountOutput.status);
+            deferred.reject(thriftErrorLog("xcalarGetTableRefCount()",
+                            getTableRefCountOutput.status));
         }
         deferred.resolve(getTableRefCountOutput);
     })
@@ -1016,9 +1002,8 @@ function xcalarBulkDeleteTables(thriftHandle, tableNamePattern) {
             deleteTablesOutput.status = result.jobStatus;
         }
         if (deleteTablesOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarBulkDeleteTables()",
-                            deleteTablesOutput.status);
-            deferred.reject(deleteTablesOutput.status);
+            deferred.reject(thriftErrorLog("xcalarBulkDeleteTables()",
+                            deleteTablesOutput.status));
         }
         deferred.resolve(deleteTablesOutput);
     })
@@ -1090,8 +1075,7 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
             mapOutput.status = result.jobStatus;
         }
         if (mapOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarApiMap()", mapOutput.status);
-            deferred.reject(mapOutput.status);
+            deferred.reject(thriftErrorLog("xcalarApiMap()", mapOutput.status));
         }
         deferred.resolve(mapOutput);
     })
@@ -1128,8 +1112,8 @@ function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
             aggregateOutput.status = result.jobStatus;
         }
         if (aggregateOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarAggregate()", aggregateOutput.status);
-            deferred.reject(aggregateOutput.status);
+            deferred.reject(thriftErrorLog("xcalarAggregate()", 
+                            aggregateOutput.status));
         }
         deferred.resolve(aggregateOutput.jsonAnswer);
     })
@@ -1163,8 +1147,8 @@ function xcalarExport(thriftHandle, tableName, fileName) {
             exportOutput.status = result.jobStatus;
         }
         if (exportOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarExport", exportOutput.status);
-            deferred.reject(exportOutput.status);
+            deferred.reject(thriftErrorLog("xcalarExport", 
+                                            exportOutput.status));
         }
         deferred.resolve(exportOutput);
     })
@@ -1196,8 +1180,8 @@ function xcalarListFiles(thriftHandle, url) {
             listFilesOutput.status = result.jobStatus;
         }
         if (listFilesOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarListFiles()", listFilesOutput.status);
-            deferred.reject(listFilesOutput.status);
+            deferred.reject(thriftErrorLog("xcalarListFiles()", 
+                            listFilesOutput.status));
         }
         deferred.resolve(listFilesOutput);
     })
@@ -1228,8 +1212,7 @@ function xcalarMakeRetina(thriftHandle, retinaName, tableName) {
         var status = (result.jobStatus != StatusT.StatusOk) ?
                      result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarMakeRetina()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarMakeRetina()", status));
         }
         deferred.resolve();
     })
@@ -1256,8 +1239,8 @@ function xcalarListRetinas(thriftHandle) {
             listRetinasOutput.status = result.jobStatus;
         }
         if (listRetinasOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarListRetinas()", listRetinasOutput.status);
-            deferred.reject(listRetinasOutput.status);
+            deferred.reject(thriftErrorLog("xcalarListRetinas()", 
+                            listRetinasOutput.status));
         }
         deferred.resolve(listRetinasOutput);
     })
@@ -1287,8 +1270,8 @@ function xcalarGetRetina(thriftHandle, retinaName) {
             getRetinaOutput.status = result.jobStatus;
         }
         if (getRetinaOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarGetRetina()", getRetinaOutput.status);
-            deferred.reject(getRetinaOutput.status);
+            deferred.reject(thriftErrorLog("xcalarGetRetina()", 
+                            getRetinaOutput.status));
         }
         deferred.resolve(getRetinaOutput);
     })
@@ -1322,8 +1305,7 @@ function xcalarUpdateRetina(thriftHandle, retinaName, dagNodeId,
         var status = (result.jobStatus != StatusT.StatusOk) ?
                      result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarUpdateRetina()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarUpdateRetina()", status));
         }
         deferred.resolve(status);
     })
@@ -1359,8 +1341,7 @@ function xcalarExecuteRetina(thriftHandle, retinaName, dstTableName,
         var status = (result.jobStatus != StatusT.StatusOk) ?
                     result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarExecuteRetina()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarExecuteRetina()", status));
         }
         deferred.resolve(status);
     })
@@ -1397,8 +1378,8 @@ function xcalarAddParameterToRetina(thriftHandle, retinaName, parameterName,
         var status = (result.jobStatus != StatusT.StatusOk) ?
                      result.jobStatus : result.output.statusOutput;
         if (status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarAddParameterToRetina()", status);
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarAddParameterToRetina()", 
+                            status));
         }
         deferred.resolve(status);
     })
@@ -1428,9 +1409,8 @@ function xcalarListParametersInRetina(thriftHandle, retinaName) {
             listParametersInRetinaOutput.status = result.jobStatus;
         }
         if (listParametersInRetinaOutput.status != StatusT.StatusOk) {
-            thriftErrorLog("xcalarListParametersInRetina()", 
-                            listParametersInRetinaOutput.status);
-            deferred.reject(listParametersInRetinaOutput.status);
+            deferred.reject(thriftErrorLog("xcalarListParametersInRetina()", 
+                            listParametersInRetinaOutput.status));
         }
         deferred.resolve(listParametersInRetinaOutput);
     })

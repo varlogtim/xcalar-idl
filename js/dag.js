@@ -108,7 +108,7 @@ function setupDag() {
             }
         })
         .fail(function(error) {
-            console.log("Make Retina fails!");
+            Alert.error("Make Retina fails", error);
         });
     });
 
@@ -339,7 +339,7 @@ function setupDag() {
             // show success message??
         })
         .fail(function(error) {
-            console.log("Update Params fails!");
+            Alert.error("Update Params fails", error);
         });
     });
 

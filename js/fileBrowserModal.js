@@ -113,8 +113,9 @@ FileBrowser = (function() {
                 deferred.resolve();
             })
             .fail(function(error){
-                console.log("List file fails!");
                 deferred.reject(error);
+                closeAll();
+                Alert.error("List file fails", error);
             });
         }
         return (deferred.promise());

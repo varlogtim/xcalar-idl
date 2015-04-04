@@ -246,7 +246,7 @@ function getDatasetSample(datasetName, format) {
         } 
     })
     .fail(function(error) {
-        console.log("getDatasetSample fails");
+        Alert.error("getDatasetSample fails", error);
     });
 }
 
@@ -274,12 +274,7 @@ function deleteDataset(dsName) {
     .fail(function(error) {
         $('#waitingIcon').remove();
         $grid.removeClass('inactive');
-
-        var options = {};
-        options.title = 'DELETE DATESET FAILS!';
-        options.msg = error;
-        options.isAlert = true;
-        Alert.show(options);
+        Alert.error("Delete Dataset Fails", error);
     });
 
     function cleanUpDsIcons() {
@@ -857,7 +852,7 @@ function createWorksheet() {
         deferred.resolve();
     })
     .fail(function(error){
-        console.log("Create work sheet fails!");
+        Alert.error("Create work sheet fails", error);
         deferred.reject(error);
     })
     .always(function() {

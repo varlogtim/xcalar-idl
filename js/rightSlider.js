@@ -294,16 +294,9 @@ function tableBulkAction(action) {
         }
         // anything faile to alert
         if (failures.length > 0) {
-            // add alert
-            var alertOptions = {};
-            if (action === "add") {
-                 alertOptions.title = 'ERROR IN ADDING ARCHIEVED TABLE';
-            } else {
-                alertOptions.title = 'DELETE TABLE FAILS!';
-            }
-            alertOptions.msg = failures.join("\n");
-            alertOptions.isAlert = true;
-            Alert.show(alertOptions);
+            var title = action === "add" ? "Error In Adding Archieved Table" :
+                                            "Delete Table Fails"
+            Alert.error(title, failures.join("\n"));
         }
     });
 

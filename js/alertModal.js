@@ -21,6 +21,14 @@ Alert = (function(){
         window.getSelection().removeAllRanges();
     }
 
+    AlertModal.prototype.error = function(title, msg) {
+        var options = {};
+        options.title = title;
+        options.msg = msg;
+        options.isAlert = true;
+        self.show(options);
+    }
+
     function closeAlertModal() {
         // remove all event listener
         $alertModal.off();

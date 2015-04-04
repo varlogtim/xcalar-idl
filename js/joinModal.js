@@ -170,8 +170,9 @@ function initializeJoinModal() {
                 Cli.add("Join Table", cliOptions);
                 StatusMessage.success(msg);
             })
-            .fail(function() {
-                console.log('Join Failed!');
+            .fail(function(error) {
+                resetJoinTables();
+                Alert.error("joinTable fails", error);
                 StatusMessage.fail(StatusMessageTStr.JoinFailed, msg);
             });
         }
