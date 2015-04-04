@@ -770,70 +770,59 @@ function createWorksheet() {
             var self = this;
             var msg = StatusMessageTStr.CreatingTable+': '+tableName;
             StatusMessage.show(msg);
-            XcalarGetTables()
-            .done(function(tables) {
-                var numTables = tables.numTables;
-                // check if another table with same name exists 
-                // so we have to rename
-                for (var i = 0; i<numTables; i++) {
-                    var tName = tables.tables[i].tableName;
-                    if (tName == tableName) {
-                        var rand = Math.floor((Math.random() * 100000) + 1);
-                        tableName += "-"+rand;
-                    }
-                }
+            var rand = Math.floor((Math.random() * 100000) + 1);
+            tableName += "-"+rand;
 
-                // add cli
-                var cliOptions = {};
-                cliOptions.operation = "createTable";
-                cliOptions.tableName = tableName;
-                cliOptions.col = [];
+            // add cli
+            var cliOptions = {};
+            cliOptions.operation = "createTable";
+            cliOptions.tableName = tableName;
+            cliOptions.col = [];
 
-                $(self).find('.colName').each(function() {
-                    var colname = $.trim($(this).text());
-                    var progCol = new ProgCol();
-                    progCol.index = ++startIndex;
-                    progCol.name = colname;
-                    progCol.width = gNewCellWidth;
-                    progCol.userStr = '"'+colname+'" = pull('+colname+')';
-                    progCol.func.func = "pull";
-                    progCol.func.args = [colname];
-                    progCol.isDark = false;
-
-                    var currentIndex = startIndex - 1;
-                    newTableCols[currentIndex] = progCol;
-                    cliOptions.col.push(colname);
-                });
-
+            $(self).find('.colName').each(function() {
+                var colname = $.trim($(this).text());
                 var progCol = new ProgCol();
-                progCol.index = startIndex+1;
-                progCol.type = "object";
-                progCol.name = "DATA";
-                progCol.width = 500;
-                progCol.userStr = "DATA = raw()";
-                progCol.func.func = "raw";
-                progCol.func.args = [];
+                progCol.index = ++startIndex;
+                progCol.name = colname;
+                progCol.width = gNewCellWidth;
+                progCol.userStr = '"'+colname+'" = pull('+colname+')';
+                progCol.func.func = "pull";
+                progCol.func.args = [colname];
                 progCol.isDark = false;
-                newTableCols[startIndex] = progCol;
 
-                setIndex(tableName, newTableCols);
-                commitToStorage();
+                var currentIndex = startIndex - 1;
+                newTableCols[currentIndex] = progCol;
+                cliOptions.col.push(colname);
+            });
 
-                cliOptions.col.push("DATA");
-                
-                var columnToIndex = 
-                    $.trim($(self).find('.keySelected .colName').text());
+            var progCol = new ProgCol();
+            progCol.index = startIndex+1;
+            progCol.type = "object";
+            progCol.name = "DATA";
+            progCol.width = 500;
+            progCol.userStr = "DATA = raw()";
+            progCol.func.func = "raw";
+            progCol.func.args = [];
+            progCol.isDark = false;
+            newTableCols[startIndex] = progCol;
 
-                cliOptions.key = columnToIndex;
-                Cli.add("Send To Worksheet", cliOptions);
-                return (XcalarIndexFromDataset(datasetName, 
-                        columnToIndex, tableName));
-            })
+            setIndex(tableName, newTableCols);
+            commitToStorage();
+
+            cliOptions.col.push("DATA");
+            
+            var columnToIndex = 
+                $.trim($(self).find('.keySelected .colName').text());
+
+            cliOptions.key = columnToIndex;
+            
+            Cli.add("Send To Worksheet", cliOptions);
+            XcalarIndexFromDataset(datasetName, columnToIndex, tableName)
             .then(function() {
                 return (refreshTable(tableName, gTables.length, true,
                                      false));
             })
-            .done(function() {
+            .then(function() {
                 StatusMessage.success(msg);
                 chainDeferred.resolve();
             })
