@@ -465,12 +465,12 @@ function documentReadyGeneralFunction() {
 }
 
 
-function documentReadyCatFunction(tableNum, tableNumsToRemove, datasetName) {
+function documentReadyCatFunction(tableNum, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
     
     var index = getIndex(gTables[tableNum].frontTableName);
     var notIndexed = !(index && index.length > 0);
-    getFirstPage(datasetName, tableNum, notIndexed)
+    getFirstPage(gTables[tableNum].resultSetId, tableNum, notIndexed)
     .then(function(jsonData, keyName) {
         if (notIndexed) { // getNextPage will setupProgCols
             index = gTables[tableNum].tableCols;
@@ -525,13 +525,12 @@ function startupFunctions() {
     return (deferred.promise());
 }  
 
-function tableStartupFunctions(table, tableNum, tableNumsToRemove, datasetName) {
+function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
     setTableMeta(table)
     .then(function(newTableMeta) {
         gTables[tableNum] = newTableMeta;
-        gTables[tableNum].datasetName = datasetName;
-        return (documentReadyCatFunction(tableNum, tableNumsToRemove, datasetName));
+        return (documentReadyCatFunction(tableNum, tableNumsToRemove));
     })
     .then(function(val) {
         generateFirstVisibleRowNum();

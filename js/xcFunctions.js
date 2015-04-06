@@ -1,5 +1,5 @@
 function refreshTable(newTableName, tableNum, 
-                      keepOriginal, additionalTableNum, datasetName) {
+                      keepOriginal, additionalTableNum) {
     var deferred = jQuery.Deferred();
     
     if (!$('#workspaceTab').hasClass('active')) {
@@ -16,7 +16,7 @@ function refreshTable(newTableName, tableNum,
     if (keepOriginal === KeepOriginalTables.Keep) {
         // append newly created table to the back
         newTableNum = gTables.length;
-        addTable(newTableName, newTableNum, AfterStartup.After, null, datasetName)
+        addTable(newTableName, newTableNum, AfterStartup.After)
         .then(function() {
             var leftPos = $('#xcTableWrap'+newTableNum).position().left +
                             $('#mainFrame').scrollLeft();
@@ -56,7 +56,7 @@ function refreshTable(newTableName, tableNum,
             tablesToRemove.push(tableNum);
             archiveTable(tableNum, DeleteTable.Keep, delayTableRemoval);
         }
-        addTable(newTableName, newTableNum, AfterStartup.After, tablesToRemove, datasetName)
+        addTable(newTableName, newTableNum, AfterStartup.After, tablesToRemove)
         .then(function() {
             if (savedScrollLeft) {
                 $('#mainFrame').scrollLeft(savedScrollLeft);
