@@ -48,20 +48,6 @@ function sleep(val) {
     while(Date.now() < end);
 }
 
-function thriftErrorLog(action, statusCode) {
-    var msg;
-    if (action == undefined) {
-        action = "thrift call";
-    }
-    msg = action + " failed with status " + statusCode;
-    var status = StatusTStr[statusCode];
-    if (status) {
-        msg += ": " + status;
-    }
-    console.log(msg);
-    return ("Error: " + status);
-}
-
 // Should check if the function returns a promise
 // but that would require an extra function call 
 Function.prototype.log = function() {

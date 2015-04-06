@@ -4,6 +4,20 @@ ThriftHandle = function(args) {
     this.client = null;
 };
 
+function thriftErrorLog(action, statusCode) {
+    var msg;
+    if (action == undefined) {
+        action = "thrift call";
+    }
+    msg = action + " failed with status " + statusCode;
+    var status = StatusTStr[statusCode];
+    if (status) {
+        msg += ": " + status;
+    }
+    console.log(msg);
+    return ("Error: " + status);
+}
+
 function xcalarConnectThrift(hostname, port) {
     var thriftUrl = "http://" + hostname + ":" + port.toString() +
         "/thrift/service/XcalarApiService/";
