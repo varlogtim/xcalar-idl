@@ -46,10 +46,7 @@ XcalarApisT = {
 'XcalarApiUpdateRetina' : 37,
 'XcalarApiAddParameterToRetina' : 38,
 'XcalarApiListParametersInRetina' : 39,
-'XcalarApiExecuteRetina' : 40,
-'XcalarApiKeyLookup' : 41,
-'XcalarApiKeyAddOrReplace' : 42,
-'XcalarApiKeyDelete' : 43
+'XcalarApiExecuteRetina' : 40
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -91,8 +88,5 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 37 : 'XcalarApiUpdateRetina',
 38 : 'XcalarApiAddParameterToRetina',
 39 : 'XcalarApiListParametersInRetina',
-40 : 'XcalarApiExecuteRetina',
-41 : 'XcalarApiKeyLookup',
-42 : 'XcalarApiKeyAddOrReplace',
-43 : 'XcalarApiKeyDelete'
+40 : 'XcalarApiExecuteRetina'
 };

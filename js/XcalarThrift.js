@@ -1,4 +1,4 @@
-var tHandle = xcalarConnectThrift(hostname, portNumber.toString();
+var tHandle = xcalarConnectThrift(hostname, portNumber.toString());
 
 function THandleDoesntExistError() {
     this.name = "THandleDoesntExistError";

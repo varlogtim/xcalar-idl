@@ -253,7 +253,7 @@ function tableBulkAction(action) {
                 .then(function() {
                     // already add the table
                     var activeTable = gHiddenTables.splice(tableNum, 1)[0];
-                   .thenHandler($li, tableName);
+                    doneHandler($li, tableName);
                     return (XcalarSetFree(activeTable.resultSetId));
                 })
                 .then(function() {
@@ -266,7 +266,7 @@ function tableBulkAction(action) {
             } else if (action === "delete") {
                 deleteTable(tableNum, DeleteTable.Delete)
                 .then(function() {
-                   .thenHandler($li, tableName);
+                    doneHandler($li, tableName);
                     innerDeferred.resolve();
                 })
                 .fail(function(error) {
@@ -309,7 +309,7 @@ function tableBulkAction(action) {
         return undefined;
     }
 
-    function.thenHandler($li, tableName) {
+    function doneHandler($li, tableName) {
         var $timeLine = $li.closest(".timeLine");
         $li.remove();
         if ($timeLine.find('.tableInfo').length === 0) {

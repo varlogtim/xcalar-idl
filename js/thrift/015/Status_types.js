@@ -268,8 +268,7 @@ StatusT = {
 'StatusNsNotFound' : 259,
 'StatusDagNodeNotFound' : 260,
 'StatusUpdateDagNodeOperationNotSupported' : 261,
-'StatusMsgMaxPayloadExceeded' : 262,
-'StatusKvEntryNotFound' : 263
+'StatusMsgMaxPayloadExceeded' : 262
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -533,6 +532,5 @@ StatusTStr = {0 : 'Success',
 259 : 'Table or dataset not found',
 260 : 'Could not find dag node',
 261 : 'Update operation not supported',
-262 : 'Message response size would exceed maximum message payload size',
-263 : 'The requested key was not found'
+262 : 'Message response size would exceed maximum message payload size'
 };
