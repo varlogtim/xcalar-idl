@@ -1,9 +1,9 @@
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
+function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove, datasetName) {
     var deferred = jQuery.Deferred();
     reorderTables(tableNum);
-    tableStartupFunctions(tableName, tableNum, tableNumsToRemove)
+    tableStartupFunctions(tableName, tableNum, tableNumsToRemove, datasetName)
     .then(function() {
         if ($('#mainFrame').hasClass('empty')) {
             $('#mainFrame').removeClass('empty');

@@ -42,7 +42,7 @@ function goToPage(pageNumber, direction, tableNum, skipToRow) {
 
     XcalarSetAbsolute(gTables[tableNum].resultSetId, position)
     .then(function(){
-        return (generateDataColumnJson(gTables[tableNum].resultSetId,
+        return (generateDataColumnJson(gTables[tableNum].datasetName,
                                  null, tableNum, false, numPagesToAdd));
     })
     .then(function(jsonData) {
@@ -75,33 +75,33 @@ function resetAutoIndex() {
     gTableRowIndex = 1;
 }
 
-function getFirstPage(resultSetId, tableNum, notIndexed) {
-    if (resultSetId === 0) {
+function getFirstPage(datasetName, tableNum, notIndexed) {
+    if (datasetName === "") {
         return (promiseWrapper(null));
     }
     
     var numPagesToAdd = Math.min(3, gTables[tableNum].numPages);
     gTables[tableNum].currentPageNumber = numPagesToAdd;
-    return (generateDataColumnJson(resultSetId, null, tableNum, notIndexed, 
+    return (generateDataColumnJson(datasetName, null, tableNum, notIndexed, 
                                     numPagesToAdd));
 }
 
  // produces an array of all the td values that will go into the DATA column
-function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed, 
+function generateDataColumnJson(datasetName, direction, tableNum, notIndexed, 
                                 numPages) {
     var deferred = jQuery.Deferred();
 
-    if (resultSetId === 0) {
+    if (datasetName === "") {
         return (promiseWrapper(null));
     }
     var tdHeights = getTdHeights();
     var numRowsToFetch = numPages * gNumEntriesPerPage;
    
-    XcalarGetNextPage(resultSetId, numRowsToFetch)
+    XcalarSample(datasetName, numRowsToFetch)
     .then(function(tableOfEntries) {
         var keyName = tableOfEntries.keysAttrHeader.name;
         if (tableOfEntries.kvPairs.numRecords < gNumEntriesPerPage) {
-            resultSetId = 0;
+            datasetName = "";
         }
         if (notIndexed) {
             setupProgCols(tableNum, tableOfEntries);

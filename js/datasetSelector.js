@@ -123,6 +123,7 @@ function setupDSCartButtons() {
         if ($('#dataCart').find('.selectedTable').length == 0) {
             return false;
         }
+        // XXX comment this out
         $('#dataCart .selectedTable').each(
             function() {
                 if ($(this).find('.keySelected').length == 0) {
@@ -820,7 +821,7 @@ function createWorksheet() {
             XcalarIndexFromDataset(datasetName, columnToIndex, tableName)
             .then(function() {
                 return (refreshTable(tableName, gTables.length, true,
-                                     false));
+                                     false, datasetName));
             })
             .then(function() {
                 StatusMessage.success(msg);
