@@ -521,3 +521,61 @@ function XcalarExecuteRetina(retName, params) {
     return (xcalarExecuteRetina(tHandle, retName, randomTableName,
                                 retName+".csv", params));
 }
+
+function XcalarKeyLookup(key) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+    return (xcalarKeyLookup(tHandle, key));
+}
+
+function XcalarKeyPut(key, value) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+    return (xcalarKeyAddOrReplace(tHandle, key, value));
+}
+
+function XcalarKeyDelete(key) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+    return (xcalarKeyDelete(tHandle, key));
+}
+
+function XcalarGetStats() {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    // XXX This is fako hacked up random code
+    // Total ram between 32G and 1TB
+    var GB = 1024 * 1024 * 1024 * 1024;
+    var numNodes = Math.ceil(Math.random()*4);
+
+    var nodeStruct = [];
+    for (var i = 0; i<numNodes; i++) {
+        nodeStruct[i] = {};
+        var totRam = Math.floor(Math.random()*1000)*GB;
+        if (totRam < 32 * GB) {
+            totRam = 32 * GB;
+        }
+        var usedRam = Math.floor(Math.random() * totRam);
+        var totFlash = Math.floor(Math.random()*1000)*GB;
+        var usedFlash = Math.floor(Math.random() * totFlash);
+        var totDisk = Math.floor(Math.random()*30*1000)*GB;
+        var usedDisk = Math.floor(Math.random() * totDisk);
+        var percCPU = Math.random();
+        nodeStruct[i].totRam = totRam;
+        nodeStruct[i].usedRam = usedRam;
+        nodeStruct[i].totFlash = totFlash;
+        nodeStruct[i].usedFlash = usedFlash;
+        nodeStruct[i].totDisk = totDisk;
+        nodeStruct[i].usedDisk = usedDisk;
+        nodeStruct[i].percCPU = percCPU;
+    }
+    return (deferred.resolve(nodeStruct));
+}
+       
+        
+>>>>>>> 07aeafb... GUI-691 Noop. Just a function for Rudy to test monitor with till the real one gets done
