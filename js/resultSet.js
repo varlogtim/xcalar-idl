@@ -13,6 +13,10 @@ function freeAllResultSets() {
         XcalarSetFree(gHiddenTables[i].resultSetId);
     }
 
+    // Free datasetBrowser resultSetId
+    if (gDatasetBrowserResultSetId != 0) {
+        XcalarSetFree(gDatasetBrowserResultSetId);
+    }
     return (chain(promises));
 }
 

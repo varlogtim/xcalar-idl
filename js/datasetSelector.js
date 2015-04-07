@@ -40,9 +40,12 @@ function setupDSCartButtons() {
         if ($displayedTable == undefined) {
             getDatasetSample(datasetName, format);
         } else {
-            $tableWraps.hide();
-            $displayedTable.show();
-            updateDatasetInfoFields(datasetName, format);
+            XcalarSetFree(gDatasetBrowserResultSetId)
+            .then(function() {
+                $tableWraps.hide();
+                $displayedTable.show();
+                updateDatasetInfoFields(datasetName, format);
+            });
         }
     });
 
@@ -113,7 +116,10 @@ function setupDSCartButtons() {
                       + dsName + "?";
         alertOptions.isCheckBox = true;
         alertOptions.confirm = function() {
-            deleteDataset(dsName);
+            XcalarSetFree(gDatasetBrowserResultSetId)
+            .then(function() {
+                deleteDataset(dsName);
+            });
         }
         Alert.show(alertOptions);
     });
@@ -197,6 +203,7 @@ function getDatasetSample(datasetName, format) {
             // one way to resolve this is to pass the current i into a closure
             // which keeps the current i value.            
             (function(i) {
+                // XcalarSample sets gDatasetBrowserResultSetId
                 XcalarSample(datasets.datasets[i].name, 20)
                 .then(function(result) {
                     samples[datasetName] = result;

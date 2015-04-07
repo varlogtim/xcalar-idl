@@ -207,9 +207,9 @@ function XcalarSample(datasetName, numEntries) {
     var deferred = jQuery.Deferred();
 
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
-    .then(function(result){
+    .then(function(result) {
         var resultSetId = result.resultSetId;
-
+        gDatasetBrowserResultSetId = resultSetId;
         return (XcalarGetNextPage(resultSetId, numEntries));
     })
     .then(function(tableOfEntries) {
