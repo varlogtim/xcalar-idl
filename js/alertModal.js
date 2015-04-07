@@ -28,7 +28,7 @@ Alert = (function(){
         options.title = title;
         if (type === "object" && error.error) {
             options.msg = error.error;
-        } else if (type === "string" ){
+        } else {
             options.msg = error;
         }
         options.isAlert = true;

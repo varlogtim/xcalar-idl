@@ -6,6 +6,30 @@ function THandleDoesntExistError() {
 }
 THandleDoesntExistError.prototype = Error.prototype;
 
+function thriftLog(action, status) {
+    var thriftError = {};
+    var msg;
+    var error;
+
+    if (action == undefined) {
+        action = "thrift call";
+    }
+    if (typeof status === "number") {
+        thriftError.statusCode = status;
+        msg = action + " failed with status " + status;
+        error = StatusTStr[status];
+        if (status) {
+            msg += ": " + error;
+        }
+        console.log(msg);
+    } else {
+        error = status;
+    }
+
+    thriftError.error = "Error: " + error;
+    return (thriftError);
+}
+
 function sleep(val) {
     function parse(str) {
         var timeStr = /^((?:\d+)?\.?\d+)*(ms|s|m|h)?$/i,
@@ -106,9 +130,17 @@ function promiseWrapper(value) {
 function XcalarGetVersion() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
-    } 
+    }
 
-    return (xcalarGetVersion(tHandle));
+    var deferred = jQuery.Deferred();
+
+    xcalarGetVersion(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarGetVersion()", error));
+    })
+
+    return (deferred.promise());
 }
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
@@ -121,8 +153,9 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     if (recordDelim == null) {
         recordDelim = "";
     }
-
+    var deferred = jQuery.Deferred();
     var loadArgs = new XcalarApiDfLoadArgsT();
+
     loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
     loadArgs.csv.recordDelim = recordDelim;
     loadArgs.csv.fieldDelim = fieldDelim;
@@ -142,28 +175,42 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
         formatType = DfFormatTypeT.DfTypeUnknown;
     } 
 
-    return (xcalarLoad(tHandle, url, datasetName, formatType, 0,
-                       loadArgs));
+    xcalarLoad(tHandle, url, datasetName, formatType, 0, loadArgs)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarLoad", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarExport(tablename, filename) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    return (xcalarExport(tHandle, tablename, filename));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarExport(tHandle, tablename, filename)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarExport", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarDestroyDataset(dsName) {
-    var deferred = jQuery.Deferred();
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
+
+    var deferred = jQuery.Deferred();
+
     xcalarDestroyDataset(tHandle, dsName)
-    .then(function() {
-        deferred.resolve();
-    })
+    .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(error);
+        deferred.reject(thriftLog("XcalarDestroyDataset", error));
     });
 
     return (deferred.promise());
@@ -174,7 +221,15 @@ function XcalarIndexFromDataset(datasetName, key, tablename) {
         return (promiseWrapper(null));
     }
 
-    return (xcalarIndexDataset(tHandle, datasetName, key, tablename));
+    var deferred = jQuery.Deferred();
+
+    xcalarIndexDataset(tHandle, datasetName, key, tablename)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarIndexFromDataset", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarIndexFromTable(srcTablename, key, tablename) {
@@ -182,15 +237,31 @@ function XcalarIndexFromTable(srcTablename, key, tablename) {
         return (promiseWrapper(null));
     }
 
-    return (xcalarIndexTable(tHandle, srcTablename, key, tablename));
+    var deferred = jQuery.Deferred();
+
+    xcalarIndexTable(tHandle, srcTablename, key, tablename)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarIndexFromTable", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarDeleteTable(backTableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    
-    return (xcalarDeleteTable(tHandle, backTableName));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarDeleteTable(tHandle, backTableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarDeleteTable", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarEditColumn(datasetName, currFieldName, newFieldName,
@@ -199,8 +270,16 @@ function XcalarEditColumn(datasetName, currFieldName, newFieldName,
         return (promiseWrapper(null));
     }
 
-    return (xcalarEditColumn(tHandle, datasetName, "", true, 
-                             currFieldName, newFieldName, newFieldType));
+    var deferred = jQuery.Deferred();
+
+    xcalarEditColumn(tHandle, datasetName, "", true, 
+                        currFieldName, newFieldName, newFieldType)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarEditColumn", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarSample(datasetName, numEntries) {
@@ -216,8 +295,7 @@ function XcalarSample(datasetName, numEntries) {
         deferred.resolve(tableOfEntries);
     })
     .fail(function(error) {
-        console.log("XcalarSample fails");
-        deferred.reject(error);
+        deferred.reject(thriftLog("XcalarSample", error));
     });
 
     return (deferred.promise());
@@ -225,6 +303,7 @@ function XcalarSample(datasetName, numEntries) {
 
 function XcalarGetCount(tableName) {
     var deferred = jQuery.Deferred();
+
     if (tHandle == null) {
         deferred.resolve(0);
     } else {
@@ -238,9 +317,10 @@ function XcalarGetCount(tableName) {
             deferred.resolve(totEntries);
         })
         .fail(function(error) {
-            deferred.reject(error);
+            deferred.reject(thriftLog("XcalarGetCount", error));
         });
     }
+
     return (deferred.promise());
 }
 
@@ -249,7 +329,15 @@ function XcalarGetDatasets() {
         return (promiseWrapper(null));
     }
 
-    return (xcalarListDatasets(tHandle));
+    var deferred = jQuery.Deferred();
+
+    xcalarListDatasets(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarGetDatasets", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarGetTables() {
@@ -257,7 +345,15 @@ function XcalarGetTables() {
         return (promiseWrapper(null));
     }
 
-    return (xcalarListTables(tHandle, "*"));
+    var deferred = jQuery.Deferred();
+
+    xcalarListTables(tHandle, "*")
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarGetTables", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarShutdown() {
@@ -265,7 +361,15 @@ function XcalarShutdown() {
         return (promiseWrapper(null));
     }
 
-    return (xcalarShutdown(tHandle));
+    var deferred = jQuery.Deferred();
+
+    xcalarShutdown(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarShutdown", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarGetStats(nodeId) {
@@ -273,7 +377,16 @@ function XcalarGetStats(nodeId) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    return (xcalarGetStats(tHandle, nodeId));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarGetStats(tHandle, nodeId)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarGetStats", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarGetTableRefCount(tableName) {
@@ -281,7 +394,15 @@ function XcalarGetTableRefCount(tableName) {
         return (promiseWrapper(0));
     }
 
-    return (xcalarGetTableRefCount(tHandle, tableName));
+    var deferred = jQuery.Deferred();
+
+    xcalarGetTableRefCount(tHandle, tableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarGetTableRefCount", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarMakeResultSetFromTable(tableName) {
@@ -289,14 +410,31 @@ function XcalarMakeResultSetFromTable(tableName) {
         return (promiseWrapper(0));
     }
 
-    return (xcalarMakeResultSetFromTable(tHandle, tableName));
+    var deferred = jQuery.Deferred();
+
+    xcalarMakeResultSetFromTable(tHandle, tableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarMakeResultSetFromTable", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarSetAbsolute(resultSetId, position) {
     if (tHandle == null) {
         return (promiseWrapper(0));
     }
-    return (xcalarResultSetAbsolute(tHandle, resultSetId, position));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarResultSetAbsolute(tHandle, resultSetId, position)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarSetAbsolute", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarGetNextPage(resultSetId, numEntries) {
@@ -304,21 +442,41 @@ function XcalarGetNextPage(resultSetId, numEntries) {
         return (promiseWrapper(null));
     }
 
-    return (xcalarResultSetNext(tHandle, resultSetId, numEntries));
+    var deferred = jQuery.Deferred();
+
+    xcalarResultSetNext(tHandle, resultSetId, numEntries)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarGetNextPage", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarSetFree(resultSetId) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    return (xcalarFreeResultSet(tHandle, resultSetId));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarFreeResultSet(tHandle, resultSetId)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarSetFree", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
+
+    var deferred = jQuery.Deferred();
     var filterStr = "";
+
     switch (operator) {
     case ("Greater Than"):
         filterStr = "gt("+columnName+", "+value+")";
@@ -352,23 +510,43 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
         break;
     default:
         console.log("Unknown op "+operator);
+        deferred.reject("Unknown op "+operator);
+        return (deferred.promise());
     }
-    return (xcalarFilter(tHandle, filterStr, srcTablename, dstTablename));
+
+    xcalarFilter(tHandle, filterStr, srcTablename, dstTablename)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarFilter", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    return (xcalarApiMap(tHandle, newFieldName, evalStr, 
-            srcTablename, dstTablename));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarApiMap(tHandle, newFieldName, evalStr, srcTablename, dstTablename)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarMap", error));
+    });
+
+    return (deferred.promise());
 }   
 
 function XcalarAggregate(fieldName, srcTablename, op) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
+
+    var deferred = jQuery.Deferred();
     var aggregateOp;
+
     switch (op) {
     case ("Max"):
         aggregateOp = OperatorsOpT.OperatorsMax;
@@ -387,27 +565,42 @@ function XcalarAggregate(fieldName, srcTablename, op) {
         break;
     default:
         console.log("bug!:"+op);
+        deferred.reject("bug!:"+op);
+        return (deferred.promise());
     }
 
-    return (xcalarAggregate(tHandle, srcTablename, aggregateOp, fieldName));
+    xcalarAggregate(tHandle, srcTablename, aggregateOp, fieldName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarAggregate", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarJoin(left, right, dst, joinType) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    
+
+    var deferred = jQuery.Deferred();
     // XXX We actually have the join type. We just are not passing it in
-    return (xcalarJoin(tHandle, left, right, 
-            dst, joinType));
+    xcalarJoin(tHandle, left, right, dst, joinType)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarJoin", error));
+    });
+
+    return (deferred.promise());
 }
 
 // XXX FIXME
 // This function is problematic
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
                        newTableName) {
-    var handle = xcalarConnectThrift(hostname, portNumber);
+    var deferred = jQuery.Deferred();
     var op;
+
     switch (operator) {
     case ("Average"):
         op = OperatorsOpT.OperatorsAverage;
@@ -426,9 +619,17 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         break;
     default:
         console.log("Wrong operator! "+operator);
+        deferred.reject("Wrong operator! "+operator);
+        return (deferred.promise());
     }
-    return (xcalarGroupBy(handle, tableName, newTableName, 
-            op, oldColName, newColName));
+
+    xcalarGroupBy(tHandle, tableName, newTableName, op, oldColName, newColName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarGroupBy", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarQuery(query) {
@@ -442,21 +643,47 @@ function XcalarQuery(query) {
         return (promiseWrapper(null));
     }
 
-    return (xcalarQuery(tHandle, query));
+    var deferred = jQuery.Deferred();
+
+    xcalarQuery(tHandle, query)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarQuery", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarGetDag(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    return (xcalarDag(tHandle, tableName));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarDag(tHandle, tableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarGetDag", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarListFiles(url) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    return (xcalarListFiles(tHandle, url));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarListFiles(tHandle, url)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarListFiles", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarMakeRetina(retName, tableName) {
@@ -465,7 +692,16 @@ function XcalarMakeRetina(retName, tableName) {
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    return (xcalarMakeRetina(tHandle, retName, tableName));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarMakeRetina(tHandle, retName, tableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarMakeRetina", error));
+    });
+
+    return (deferred.promise());
 }
         
 function XcalarListRetinas() {
@@ -475,7 +711,16 @@ function XcalarListRetinas() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    return (xcalarListRetinas(tHandle));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarListRetinas(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarListRetinas", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarUpdateRetina(retName, dagNodeId, funcApiEnum,
@@ -483,8 +728,17 @@ function XcalarUpdateRetina(retName, dagNodeId, funcApiEnum,
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    return (xcalarUpdateRetina(tHandle, retName, dagNodeId, funcApiEnum,
-                                  parameterizedInput));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarUpdateRetina(tHandle, retName, dagNodeId, funcApiEnum,
+                        parameterizedInput)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarUpdateRetina", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarGetRetina(retName) {
@@ -492,7 +746,16 @@ function XcalarGetRetina(retName) {
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    // return (xcalarGetRetina(retName));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarGetRetina(retName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarGetRetina", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarAddParameterToRetina(retName, varName, defaultVal) {
@@ -501,15 +764,32 @@ function XcalarAddParameterToRetina(retName, varName, defaultVal) {
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    return (xcalarAddParameterToRetina(tHandle, retName, varName,
-                                          defaultVal));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarAddParameterToRetina(tHandle, retName, varName, defaultVal)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarAddParameterToRetina", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarListParametersInRetina(retName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    return (xcalarListParametersInRetina(tHandle, retName));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarListParametersInRetina(tHandle, retName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarListParametersInRetina", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarExecuteRetina(retName, params) {
@@ -517,30 +797,66 @@ function XcalarExecuteRetina(retName, params) {
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
+
+    var deferred = jQuery.Deferred();
     var randomTableName = "table"+Math.floor(Math.random()*1000000000 + 1);
-    return (xcalarExecuteRetina(tHandle, retName, randomTableName,
-                                retName+".csv", params));
+
+    xcalarExecuteRetina(tHandle, retName, randomTableName,
+                        retName+".csv", params)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarExecuteRetina", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarKeyLookup(key) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    return (xcalarKeyLookup(tHandle, key));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarKeyLookup(tHandle, key)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarKeyLookup", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarKeyPut(key, value) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    return (xcalarKeyAddOrReplace(tHandle, key, value));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarKeyAddOrReplace(tHandle, key, value)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarKeyPut", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarKeyDelete(key) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    return (xcalarKeyDelete(tHandle, key));
+
+    var deferred = jQuery.Deferred();
+
+    xcalarKeyDelete(tHandle, key)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarKeyDelete", error));
+    });
+
+    return (deferred.promise());
 }
 
 function XcalarGetStats() {

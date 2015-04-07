@@ -291,6 +291,8 @@ function tableBulkAction(action) {
             $mainFrame.animate({scrollLeft: leftPos})
                       .promise().then(generateFirstVisibleRowNum);
             focusTable(index);
+        } else if (action == "delete") {
+            commitToStorage();
         }
         // anything faile to alert
         if (failures.length > 0) {

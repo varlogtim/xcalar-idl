@@ -664,6 +664,7 @@ function createTableHeader(tableNum) {
         alertOptions.confirm = function() {
             deleteTable(tableNum)
             .then(function() {
+                commitToStorage();
                 var cliOptions = {};
                 // add cli
                 cliOptions.operation = "deleteTable";
