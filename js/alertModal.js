@@ -21,10 +21,16 @@ Alert = (function(){
         window.getSelection().removeAllRanges();
     }
 
-    AlertModal.prototype.error = function(title, msg) {
+    AlertModal.prototype.error = function(title, error) {
         var options = {};
+        var type = typeof error;
+
         options.title = title;
-        options.msg = msg;
+        if (type === "object" && error.error) {
+            options.msg = error.error;
+        } else if (type === "string" ){
+            options.msg = error;
+        }
         options.isAlert = true;
         self.show(options);
     }

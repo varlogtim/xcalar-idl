@@ -5,6 +5,7 @@ ThriftHandle = function(args) {
 };
 
 function thriftErrorLog(action, statusCode) {
+    var error = {};
     var msg;
     if (action == undefined) {
         action = "thrift call";
@@ -15,7 +16,9 @@ function thriftErrorLog(action, statusCode) {
         msg += ": " + status;
     }
     console.log(msg);
-    return ("Error: " + status);
+    error.statusCode = statusCode;
+    error.error = "Error: " + status;
+    return (error);
 }
 
 function xcalarConnectThrift(hostname, port) {
