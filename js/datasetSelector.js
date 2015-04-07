@@ -806,9 +806,6 @@ function createWorksheet() {
             progCol.isDark = false;
             newTableCols[startIndex] = progCol;
 
-            setIndex(tableName, newTableCols);
-            commitToStorage();
-
             cliOptions.col.push("DATA");
             
             var columnToIndex = 
@@ -816,13 +813,16 @@ function createWorksheet() {
 
             cliOptions.key = columnToIndex;
             
-            Cli.add("Send To Worksheet", cliOptions);
+
             XcalarIndexFromDataset(datasetName, columnToIndex, tableName)
             .then(function() {
+                setIndex(tableName, newTableCols);
                 return (refreshTable(tableName, gTables.length, true,
                                      false));
             })
             .then(function() {
+                commitToStorage();
+                Cli.add("Send To Worksheet", cliOptions);
                 StatusMessage.success(msg);
                 chainDeferred.resolve();
             })
@@ -884,7 +884,7 @@ function setupDatasetList() {
                              gDSObj.curId, false, attrs);
             }
         }
-        commitDSObjToStorage(); // commit;
+        // commitToStorage(AfterStartup.After);
         DSObj.display();
         deferred.resolve();
     })

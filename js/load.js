@@ -155,7 +155,7 @@ function displayNewDataset(dsName, dsFormat) {
     var attrs = {};
     attrs.format = dsFormat;
     DSObj.create(gDSObj.id++, dsName, gDSObj.curId, false, attrs);
-    commitDSObjToStorage();
+    // commitToStorage();
     DSObj.display();
     var lastEleId = gDSObj.id - 1;
 

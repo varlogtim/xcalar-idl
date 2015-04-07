@@ -344,10 +344,10 @@ function documentReadyxcTableFunction() {
 
 function documentReadyGeneralFunction() {
     $(window).on('beforeunload', function() {
-        commitToStorage();
+        KVStore.release();
         freeAllResultSets();
-        // XXX As it blocks the UI, better to add a progress bar in the future
-        sleep("500ms");
+        sleep("100ms");
+        return;
     }); 
 
     var timer;

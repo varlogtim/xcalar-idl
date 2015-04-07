@@ -21,7 +21,7 @@ Alert = (function(){
         window.getSelection().removeAllRanges();
     }
 
-    AlertModal.prototype.error = function(title, error) {
+    AlertModal.prototype.error = function(title, error, unclosable) {
         var options = {};
         var type = typeof error;
 
@@ -32,6 +32,7 @@ Alert = (function(){
             options.msg = error;
         }
         options.isAlert = true;
+        options.unclosable = unclosable;
         self.show(options);
     }
 
@@ -56,6 +57,9 @@ Alert = (function(){
         // close alert modal
         $alertModal.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
+            if (options && options.unclosable) {
+                return;
+            }
             closeAlertModal();
         });
 

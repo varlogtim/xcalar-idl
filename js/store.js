@@ -10,11 +10,7 @@ var gTableOrderLookup = [];
 var gDSObjFolder = {};
 
 function emptyAllStorage() {
-    localStorage.removeItem("TILookup");
-    localStorage.removeItem("TDLookup");
-    localStorage.removeItem("WSName"); 
-    localStorage.removeItem("TOLookup");
-    localStorage.removeItem("gDSObj");
+    return (KVStore.delete(KVStore.gStorageKey));
 }
 
 function getIndex(tName) {
@@ -58,70 +54,74 @@ function setDirection(tName, order) {
 
 function commitToStorage(atStartup) {
     setTableOrder(atStartup);
-    var stringed = JSON.stringify(gTableIndicesLookup);
-    var stringed2 = JSON.stringify(gTableDirectionLookup);
-    var stringed3 = JSON.stringify(gWorksheetName);
-    var stringed4 = JSON.stringify(gTableOrderLookup);
-    var stringed5 = JSON.stringify(gDSObjFolder);
-    localStorage["TILookup"] = stringed;
-    localStorage["TDLookup"] = stringed2;
-    localStorage["WSName"] = stringed3;
-    localStorage["TOLookup"] = stringed4;
-    localStorage["gDSObj"] = stringed5;
+    var deferred = jQuery.Deferred();
+
+    storage = {"TILookup": gTableIndicesLookup,
+                "TDLookup": gTableDirectionLookup,
+                "WSName": gWorksheetName,
+                "TOLookup": gTableOrderLookup,
+                "gDSObj": gDSObjFolder,
+                "holdStatus": KVStore.isHold()};
+
+    KVStore.put(KVStore.gStorageKey, JSON.stringify(storage))
+    .then(function() {
+        console.log("commitToStorage done!");
+        deferred.resolve();
+    })
+    .fail(function(error) {
+        console.log("commitToStorage fails!");
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
 }
 
 function readFromStorage() {
     var deferred = jQuery.Deferred();
 
-    if (localStorage["TILookup"]) {
-        gTableIndicesLookup = JSON.parse(localStorage["TILookup"]);
-    }
-    if (localStorage["TDLookup"]) {
-        gTableDirectionLookup = JSON.parse(localStorage["TDLookup"]);
-    }
-    if (localStorage["WSName"]) {
-        gWorksheetName = JSON.parse(localStorage["WSName"]);
-    }
-    if (localStorage["TOLookup"]) {
-        gTableOrderLookup = JSON.parse(localStorage["TOLookup"]);
-    }
-    if (localStorage["gDSObj"]) {
-        gDSObjFolder = JSON.parse(localStorage["gDSObj"]);
-    }
+    KVStore.hold()
+    .then(function(gInfos) {
 
-    XcalarGetDatasets()
-    .then(function(datasets) {
-        var numDatasets = datasets.numDatasets;
-        // clear localStorage is no datasets are loaded
-        if (numDatasets == 0 || numDatasets == null) {
-            emptyAllStorage();
+        if (gInfos) {
+            if (gInfos["TILookup"]) {
+                gTableIndicesLookup = gInfos["TILookup"];
+            }
+            if (gInfos["TDLookup"]) {
+                gTableDirectionLookup = gInfos["TDLookup"];
+            }
+            if (gInfos["WSName"]) {
+                gWorksheetName = gInfos["WSName"];
+            }
+            if (gInfos["TOLookup"]) {
+                gTableOrderLookup = gInfos["TOLookup"];
+            }
+            if (gInfos["gDSObj"]) {
+                gDSObjFolder = gInfos["gDSObj"];
+            }
+        } else {
             gTableIndicesLookup = {};
             gTableDirectionLookup = {};
             gWorksheetName = [];
             gTableOrderLookup = [];
+            gDSObjFolder = {};
+        }
 
+        return (XcalarGetDatasets());
+    })
+    .then(function(datasets) {
+        var numDatasets = datasets.numDatasets;
+        // clear KVStore if no datasets are loaded
+        if (numDatasets == 0 || numDatasets == null) {
+            // emptyAllStorage();
+            gTableIndicesLookup = {};
+            gTableDirectionLookup = {};
+            gWorksheetName = [];
+            gTableOrderLookup = [];
+        }
+        return (commitToStorage(AfterStartup.After));
+    })
+    .then(function() {
             deferred.resolve();
-        } else {
-            XcalarGetTables()
-            .then(function(tables) {
-                var numTables = tables.numTables;
-                for (i = 0; i<numTables; i++) {
-                    var tableName = tables.tables[i].tableName;
-                    if (!gTableIndicesLookup[tableName]) {
-                        //XXX user may not want all the tables to display
-                        // so we will need to fix this
-                        // setIndex(tableName, []);
-                    }
-                }
-                
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                console.log("readFromStorage fails!");
-                deferred.reject(error);
-            });
-        }   
-        commitToStorage(AfterStartup.After); 
     })
     .fail(function(error) {
         console.log("readFromStorage fails!");
@@ -162,3 +162,118 @@ function setTableOrder(atStartup) {
     }
     gTableOrderLookup = tables;
 }
+
+var KVStore = (function() {
+    var self = {};
+    var isHold = false;
+
+    self.gStorageKey = generateKey(hostname, portNumber, "gInfo");
+
+    self.get = function(key) {
+        var deferred = jQuery.Deferred();
+        XcalarKeyLookup(key)
+        .then(function(value) {
+            console.log(JSON.parse(value.value));
+            deferred.resolve(value);
+        })
+        .fail(function(error) {
+            console.log("Get from KV Store fails!");
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    }
+
+    self.put = function(key, value) {
+        var deferred = jQuery.Deferred();
+        XcalarKeyPut(key, value)
+        .then(function() {
+            console.log("Put to KV Store succeed!");
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("Put to KV Store fails!");
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    }
+
+    self.delete = function(key, value) {
+        var deferred = jQuery.Deferred();
+        XcalarKeyDelete(key)
+        .then(function() {
+            console.log("Delete in KV Store succeed!");
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("Delete in KV Store fails!");
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    }
+
+    self.hold = function() {
+        var deferred = jQuery.Deferred();
+        XcalarKeyLookup(self.gStorageKey)
+        .then(function(output) {
+            if (!output) {
+                console.log("KVStore is empty!");
+                isHold = true;
+                deferred.resolve(null);
+            } else {
+                var gInfos = JSON.parse(output.value);
+                if (gInfos["holdStatus"] === true) {
+                    Alert.error("Already in use!",
+                                "Sorry, someone are using it.",
+                                true);
+                    deferred.reject("Already in use!");
+                } else {
+                    isHold = true;
+                    deferred.resolve(gInfos);
+                }
+            }
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    }
+
+    self.release = function() {
+        if (!isHold) {
+            return (promiseWrapper(null));
+        }
+        isHold = false;
+        return (commitToStorage());
+    }
+
+    // XXX in case you are hold forever
+    self.forceRelease = function() {
+        isHold = false;
+        return (commitToStorage());
+    }
+
+    self.isHold = function() {
+        return (isHold);
+    }
+
+    function generateKey() {
+        // currently just cat all arguments as a key
+        var key;
+        for (var i = 0; i < arguments.length; i ++) {
+            if (arguments[i]) {
+                if (!key) {
+                    key = arguments[i];
+                } else {
+                    key += "-" + arguments[i];
+                }
+            }
+        }
+        return (key);
+    }
+
+    return (self);
+}());

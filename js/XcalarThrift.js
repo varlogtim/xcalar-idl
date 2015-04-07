@@ -576,6 +576,3 @@ function XcalarGetStats() {
     }
     return (deferred.resolve(nodeStruct));
 }
-       
-        
->>>>>>> 07aeafb... GUI-691 Noop. Just a function for Rudy to test monitor with till the real one gets done

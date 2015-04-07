@@ -71,7 +71,7 @@ DSObj.prototype.rename = function(newName) {
         StatusBox.show(msg, $grid);
     } else {
         this.name = newName;
-        commitDSObjToStorage(); // commit to local storage
+        // commitToStorage();
     }
     return (this);
 }
@@ -158,7 +158,7 @@ DSObj.prototype.moveTo = function(newParent, index) {
         .html(newParent.totalChildren);
         newParent = DSObj.getById(newParent.parentId);
     }
-    commitDSObjToStorage(); // commit to local storage
+    // commitToStorage();
     return (true);
 }
 /*** End of DSObj ***/
@@ -230,7 +230,7 @@ function dsBtnInitizlize($gridViewBtnArea) {
     // click "Add New Folder" button to add new folder
     $("#addFolderBtn").click(function() {
         DSObj.create(gDSObj.id++, "New Folder", gDSObj.curId, true);
-        commitDSObjToStorage();
+        // commitToStorage();
     });
 
     // click "Back Up" button to go back to parent folder
@@ -252,16 +252,6 @@ function dsBtnInitizlize($gridViewBtnArea) {
             $folder.remove();
         }
     });
-}
-
-/**
-* Store gDSObjFolder to local storage
-*
-* @method commitDSObjToStorage
-*/
-function commitDSObjToStorage() {
-    var stringed = JSON.stringify(gDSObjFolder);
-    localStorage["gDSObj"] = stringed;
 }
 
 /**
@@ -479,7 +469,7 @@ DSObj.deleteById = function (dsId) {
 
     ds.removeFromParent();
     DSObj.clean(ds);
-    commitDSObjToStorage();
+    // commitToStorage();
     return (true);
 }
 

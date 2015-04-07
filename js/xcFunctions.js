@@ -76,13 +76,10 @@ function sortRows(index, tableNum, order) {
     console.log(arguments);
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempSortTable"+rand;
-    var srcTableName = gTables[tableNum].frontTableName; 
-    // XXX: Update widths here
-    setDirection(newTableName, order);
-    setIndex(newTableName, gTables[tableNum].tableCols);
-    commitToStorage(); 
-
+    var srcTableName = gTables[tableNum].frontTableName;
+    var tablCols = gTables[tableNum].tableCols;
     var fieldName;
+
     switch(gTables[tableNum].tableCols[index-1].func.func) {
     case ("pull"):
         // Pulled directly, so just sort by this
@@ -110,10 +107,13 @@ function sortRows(index, tableNum, order) {
 
     XcalarIndexFromTable(srcTableName, fieldName, newTableName)
     .then(function() {
+        setDirection(newTableName, order);
+        setIndex(newTableName, tablCols);
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep));
     })
     .then(function() {
-        Cli.add('Sort Table', cliOptions)
+        commitToStorage();
+        Cli.add('Sort Table', cliOptions);
         StatusMessage.success(msg);
     })
     .fail(function(error) {
@@ -127,18 +127,18 @@ function mapColumn(fieldName, mapString, tableNum) {
 
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempMapTable"+rand;
-    setIndex(newTableName, gTables[tableNum].tableCols);
-    commitToStorage(); 
-
     var msg = StatusMessageTStr.Map + " " + fieldName;
+    var tablCols = gTables[tableNum].tableCols;
     StatusMessage.show(msg);
     
     XcalarMap(fieldName, mapString, 
               gTables[tableNum].frontTableName, newTableName)
     .then(function() {
+        setIndex(newTableName, tablCols);
         return (refreshTable(newTableName, tableNum));
     })
     .then(function() {
+        commitToStorage();
         StatusMessage.success(msg);
         deferred.resolve();
     })
@@ -158,9 +158,6 @@ function groupByCol(operator, newColName, colid, tableNum) {
     var newTableName = "tempGroupByTable"+rand;
     var srcTableName = gTables[tableNum].frontTableName
     var fieldName = gTables[tableNum].tableCols[colid - 1].name;
-    // TODO Create new gTables entry
-    // setIndex(newTableName, newTableCols);
-    // commitToStorage();
 
     // add cli
     var cliOptions = {};
@@ -178,9 +175,12 @@ function groupByCol(operator, newColName, colid, tableNum) {
     
     XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName)
     .then(function() {
+        // TODO Create new gTables entry
+        // setIndex(newTableName, newTableCols);
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
     })
     .then(function() {
+        commitToStorage();
         Cli.add('Group By', cliOptions);
         StatusMessage.success(msg);
         deferred.resolve();
@@ -226,7 +226,8 @@ function filterCol(operator, value, colid, tableNum) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
     var srcTableName = gTables[tableNum].frontTableName;
-    var colName = gTables[tableNum].tableCols[colid - 1].name;
+    var tablCols = gTables[tableNum].tableCols;
+    var colName = tablCols[colid - 1].name;
     // add cli
     var cliOptions = {};
     cliOptions.operation = 'filter';
@@ -237,21 +238,20 @@ function filterCol(operator, value, colid, tableNum) {
     cliOptions.value = value;
     cliOptions.newTableName = newTableName;
 
-    setIndex(newTableName, gTables[tableNum].tableCols);
-    commitToStorage(); 
-
     var msg = StatusMessageTStr.Filter+': '+cliOptions.colName
     StatusMessage.show(msg);
     console.log(colid); 
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
     .then(function() {
+        setIndex(newTableName, tablCols);
         return (refreshTable(newTableName, tableNum));
     })
     .then(function() {
+        commitToStorage();
         Cli.add('Filter Table', cliOptions);
-        deferred.resolve();
         StatusMessage.success(msg);
+        deferred.resolve();
     })
     .fail(function(error) {
         Alert.error("filterCol fails", error);
@@ -433,14 +433,14 @@ function joinTables3(args) {
     var rightName = args[5];
     
     var newTableCols = createJoinIndex(rightTableNum, leftTableNum);
-    setIndex(newTableName, newTableCols);
-    commitToStorage(); 
     XcalarJoin(leftName, rightName, newTableName, joinType)
     .then(function() {
+        setIndex(newTableName, newTableCols);
         return (refreshTable(newTableName, leftTableNum, 
                              KeepOriginalTables.DontKeep, rightTableNum));
     })
     .then(function() {
+        commitToStorage();
         deferred.resolve();
     })
     .fail(function(error) {

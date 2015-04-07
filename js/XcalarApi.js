@@ -1456,12 +1456,19 @@ function xcalarKeyLookup(thriftHandle, key) {
             keyLookupOutput.status = result.jobStatus;
         }
         if (keyLookupOutput.status != StatusT.StatusOk) {
-            deferred.reject(keyLookupOutput.status);
+            // it's normal to find an unexisted key.
+            if (keyLookupOutput.status === StatusT.StatusKvEntryNotFound) {
+                console.log("key " + key + " not exist in KV Store.");
+                deferred.resolve(null);
+            } else {
+                deferred.reject(thriftErrorLog("xcalarKeyLookup", 
+                                keyLookupOutput.status));
+            }
         }
         deferred.resolve(keyLookupOutput);
     })
     .fail(function(error) {
-        console.log("xcalarKeyLookup() caught exception: ", error);
+        console.log("xcalarKeyLookup() caught exception:", error);
         deferred.reject(error);
     });
 
@@ -1489,7 +1496,7 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarKeyAddOrReplace", status));
         }
         deferred.resolve(status);
     })
@@ -1519,12 +1526,12 @@ function xcalarKeyDelete(thriftHandle, key) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status);
+            deferred.reject(thriftErrorLog("xcalarKeyDelete", status));
         }
         deferred.resolve(status);
     })
     .fail(function(error) {
-        console.log("xcalarKeyLookup() caught exception: ", error);
+        console.log("xcalarKeyLookup() caught exception:", error);
         deferred.reject(error);
     });
 
