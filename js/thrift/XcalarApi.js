@@ -1411,13 +1411,7 @@ function xcalarKeyLookup(thriftHandle, key) {
             keyLookupOutput.status = result.jobStatus;
         }
         if (keyLookupOutput.status != StatusT.StatusOk) {
-            // it's normal to find an unexisted key.
-            if (keyLookupOutput.status === StatusT.StatusKvEntryNotFound) {
-                console.log("key " + key + " not exist in KV Store.");
-                deferred.resolve(null);
-            } else {
-                deferred.reject(keyLookupOutput.status);
-            }
+            deferred.reject(keyLookupOutput.status);
         }
         deferred.resolve(keyLookupOutput);
     })

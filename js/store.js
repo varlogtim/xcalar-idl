@@ -173,7 +173,9 @@ var KVStore = (function() {
         var deferred = jQuery.Deferred();
         XcalarKeyLookup(key)
         .then(function(value) {
-            console.log(JSON.parse(value.value));
+            if (value != null) {
+                console.log(JSON.parse(value.value));
+            }
             deferred.resolve(value);
         })
         .fail(function(error) {

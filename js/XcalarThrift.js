@@ -843,7 +843,13 @@ function XcalarKeyLookup(key) {
     xcalarKeyLookup(tHandle, key)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarKeyLookup", error));
+        var thriftError = thriftLog("XcalarKeyLookup", error);
+        // it's normal to find an unexisted key.
+        if (thriftError.statusCode === StatusT.StatusKvEntryNotFound) {
+            deferred.resolve(null);
+        } else {
+            deferred.reject(thriftError);
+        }
     });
 
     return (deferred.promise());
