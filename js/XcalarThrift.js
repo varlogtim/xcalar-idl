@@ -301,19 +301,20 @@ function XcalarSample(datasetName, numEntries) {
     return (deferred.promise());
 }
 
-function XcalarSampleTable(datasetName, numEntries) {
+function XcalarGetMetaTable(datasetName, numEntries) {
     var deferred = jQuery.Deferred();
 
+    var resultSetId;
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
     .then(function(result) {
-        var resultSetId = result.resultSetId;
+        resultSetId = result.resultSetId;
         return (XcalarGetNextPage(resultSetId, numEntries));
     })
     .then(function(tableOfEntries) {
-        deferred.resolve(tableOfEntries);
+        deferred.resolve(resultSetId, tableOfEntries);
     })
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarSample", error));
+        deferred.reject(thriftLog("XcalarSampleTable", error));
     });
 
     return (deferred.promise());
@@ -447,6 +448,19 @@ function XcalarMakeResultSetFromTable(tableName) {
 }
 
 function XcalarMakeResultSetFromDataset(datasetName) {
+    if (tHandle == null) {
+        return (promiseWrapper(0));
+    }
+
+    var deferred = jQuery.Deferred();
+
+    xcalarMakeResultSetFromDataset(tHandle, datasetName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarMakeResultSetFromDataset", error));
+    });
+
+    return (deferred.promise());
     
 }
 

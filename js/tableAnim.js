@@ -1041,7 +1041,15 @@ function addColMenuActions($colMenu) {
         var colName = pCol.func.args[0];
         var aggrOp = $(this).closest('.aggrOp').text();
         console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
-        aggregateCol(aggrOp, colName, tableNum);
+        
+        if (gTables[tableNum].isTable) {
+            aggregateCol(aggrOp, colName, tableNum);
+        } else {
+            sortRows(index, tableNum, SortDirection.Forward)
+            .then(function() {
+                aggregateCol(aggrOp, colName, tableNum);
+            });
+        }
     });
 
     $colMenu.on('keyup', '.filterWrap input', function(e) {
@@ -1052,7 +1060,16 @@ function addColMenuActions($colMenu) {
             var operator = $(this).closest('.filter').text(); 
             console.log(operator, 'operator');
             $colMenu.hide();
-            filterCol(operator, value, index, tableNum);
+
+            if (gTables[tableNum].isTable) {
+                filterCol(operator, value, index, tableNum);
+            } else {
+                sortRows(index, tableNum, SortDirection.Forward)
+                .then(function() {
+                    filterCol(operator, value, index, tableNum);
+                });
+            }
+            
         }
     });
 
@@ -1067,7 +1084,16 @@ function addColMenuActions($colMenu) {
             console.log('operator: '+operator+"value: "+value+"index: "+
                         index+"tableNum: "+tableNum);
             $colMenu.hide();
-            groupByCol(operator, value, index, tableNum);
+
+            if (gTables[tableNum].isTable) {
+                groupByCol(operator, value, index, tableNum);
+            } else {
+                sortRows(index, tableNum, SortDirection.Forward)
+                .then(function() {
+                    groupByCol(operator, value, index, tableNum);
+                });
+            }
+            
         }
     });
 

@@ -76,14 +76,35 @@ function execCol(progCol, tableNum, args) {
         progCol.isDark = false;
         // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
         //                   fieldName + ")";
-        mapColumn(fieldName, mapString, tableNum)
-        .then(function() {
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.log("execCol fails!");
-            deferred.reject(error);
-        });
+        if (gTables[tableNum].isTable) {
+            mapColumn(fieldName, mapString, tableNum)
+            .then(function() {
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                console.log("execCol fails!");
+                deferred.reject(error);
+            });
+        } else {
+            var index;
+            if (progCol.index === 1) {
+                index = 2;
+            } else {
+                index = 1;
+            }
+            sortRows(index, tableNum, SortDirection.Forward)
+            .then(function() {
+                return (mapColumn(fieldName, mapString, tableNum));
+            })
+            .then(function() {
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                console.log("execCol fails!");
+                deferred.reject(error);
+            });
+        }
+        
         break;
     case (undefined):
         // console.log("Blank col?");
@@ -559,7 +580,9 @@ function generateColDropDown(tableNum) {
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
                 '<div class="dropdownBox"></div>'+
-            '</li>'+
+            '</li>';
+    if (gTables[tableNum].isTable) {
+        dropDownHTML += 
             '<li class="groupBy">Group By'+ 
                 '<ul class="subColMenu">'+
                     '<li class="gb"><span>'+ 
@@ -622,6 +645,8 @@ function generateColDropDown(tableNum) {
                 '</ul>'+
                 '<div class="dropdownBox"></div>'+
             '</li>';
+    }
+            
 
     // XXX: HACK: I removed the check for the main col. Also, I should check for
     // whether the type is a string or a int

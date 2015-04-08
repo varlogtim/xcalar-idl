@@ -25,6 +25,8 @@ var gResrow = {};
 var gMinTableWidth = 30;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
+// this maps meta table name to corresponding resultId and tableOfEntries
+var gMetaTable = {}; 
 var gHiddenTables = [];
 var gFnBarOrigin;
 var gActiveTableNum = 0; // The table that is currently in focus
@@ -153,28 +155,64 @@ function setTableMeta(table) {
     var urlTableName = getUrlVars()["tablename"];
     var tableName = urlTableName || table;
     var newTable = new TableMeta();
+
+    var isTable = gMetaTable[tableName] && gMetaTable[tableName].isTable;
+
+    console.log(table, isTable, "***");
+
     newTable.tableCols = [];
     newTable.currentPageNumber = 0;
 
-    XcalarMakeResultSetFromTable(tableName)
-    .then(function(resultSet) {
-        newTable.resultSetId = resultSet.resultSetId;
-        return (XcalarGetCount(tableName));
-    })
-    .then(function(totEntries) {
-        newTable.resultSetCount = totEntries;
-        newTable.numPages = Math.ceil(newTable.resultSetCount /
-                                      gNumEntriesPerPage);
-        newTable.backTableName = tableName;
-        newTable.frontTableName = tableName;
+    if (isTable) {
+        console.log(tableName, "true");
 
-        deferred.resolve(newTable);
-    })
-    .fail(function(error){
-        console.log("setTableMeta Fails!");
-        deferred.reject(error);
-    });
+        XcalarMakeResultSetFromTable(tableName)
+        .then(function(resultSet) {
+            newTable.isTable = true;
+            newTable.resultSetId = resultSet.resultSetId;
+            return (XcalarGetCount(tableName));
+        })
+        .then(function(totEntries) {
+            newTable.resultSetCount = totEntries;
+            newTable.numPages = Math.ceil(newTable.resultSetCount /
+                                          gNumEntriesPerPage);
+            newTable.backTableName = tableName;
+            newTable.frontTableName = tableName;
 
+            console.log(newTable);
+
+            deferred.resolve(newTable);
+        })
+        .fail(function(error){
+            console.log("setTableMeta Fails!");
+            deferred.reject(error);
+        });
+    } else {
+        var datasetName = gMetaTable[tableName].datasetName;
+
+        console.log(tableName, "false");
+
+        XcalarMakeResultSetFromDataset(datasetName)
+        .then(function(resultSet) {
+            newTable.isTable = false;
+            newTable.resultSetId = resultSet.resultSetId;
+
+            newTable.resultSetCount = resultSet.numEntries;
+            newTable.numPages = Math.ceil(newTable.resultSetCount /
+                                          gNumEntriesPerPage);
+            newTable.backTableName = tableName;
+            newTable.frontTableName = tableName;
+
+            console.log(newTable);
+
+            deferred.resolve(newTable);
+        })
+        .fail(function(error){
+            console.log("setTableMeta Fails!");
+            deferred.reject(error);
+        });
+    }
+        
     return (deferred.promise());
 }
 
@@ -541,6 +579,7 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
     setTableMeta(table)
     .then(function(newTableMeta) {
+        console.log("@@@", newTableMeta);
         gTables[tableNum] = newTableMeta;
         return (documentReadyCatFunction(tableNum, tableNumsToRemove));
     })
@@ -549,7 +588,7 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
         infScrolling(tableNum);
         adjustColGrabHeight(tableNum);
         resizeRowInput();
-        constructDagImage(gTables[tableNum].backTableName);
+        // constructDagImage(gTables[tableNum].backTableName);
 
         deferred.resolve();
     })

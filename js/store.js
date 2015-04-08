@@ -68,7 +68,9 @@ function commitToStorage(atStartup) {
                 "WSName": gWorksheetName,
                 "TOLookup": gTableOrderLookup,
                 "gDSObj": gDSObjFolder,
-                "holdStatus": KVStore.isHold()};
+                "MetaTable": gMetaTable,
+                "holdStatus": KVStore.isHold()
+            };
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage))
     .then(function() {
@@ -105,14 +107,34 @@ function readFromStorage() {
             if (gInfos["gDSObj"]) {
                 gDSObjFolder = gInfos["gDSObj"];
             }
+            if (gInfos["MetaTable"]) {
+                gMetaTable = gInfos["MetaTable"];
+            }
         } else {
             gTableIndicesLookup = {};
             gTableDirectionLookup = {};
             gWorksheetName = [];
             gTableOrderLookup = [];
             gDSObjFolder = {};
+            gMetaTable = {};
         }
 
+        var promises = [];
+        for (var i in gMetaTable) {
+            promises.push((function(i, datasetName) {
+                return XcalarMakeResultSetFromDataset(datasetName)
+                .done(function(result) {
+                    gMetaTable[i].resultSetId = result.resultSetId;
+                    gMetaTable[i].numEntries = result.numEntries;
+
+                    console.log("new resultSetId:", result.resultSetId);
+                });
+            }).bind(this, i, gMetaTable[i].datasetName));
+        }
+
+        return (chain(promises));
+    })
+    .then(function() {
         return (XcalarGetDatasets());
     })
     .then(function(datasets) {
@@ -163,11 +185,10 @@ function setTableOrder(atStartup) {
     if (atStartup) {
         return;
     }
-    var tables = [];
+    gTableOrderLookup = [];
     for (var i = 0; i < gTables.length; i++) {
-        tables.push(gTables[i].frontTableName);
+        gTableOrderLookup.push(gTables[i].frontTableName);
     }
-    gTableOrderLookup = tables;
 }
 
 var KVStore = (function() {

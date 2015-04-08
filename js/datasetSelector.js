@@ -129,14 +129,14 @@ function setupDSCartButtons() {
         if ($('#dataCart').find('.selectedTable').length == 0) {
             return false;
         }
-        $('#dataCart .selectedTable').each(
-            function() {
-                if ($(this).find('.keySelected').length == 0) {
-                   keysPresent = false;
-                   return false;
-                }
-            }
-        );
+        // $('#dataCart .selectedTable').each(
+        //     function() {
+        //         if ($(this).find('.keySelected').length == 0) {
+        //            keysPresent = false;
+        //            return false;
+        //         }
+        //     }
+        // );
         if (keysPresent) {
             createWorksheet()
             .always(function() {
@@ -826,8 +826,14 @@ function createWorksheet() {
             cliOptions.key = columnToIndex;
             
 
-            XcalarIndexFromDataset(datasetName, columnToIndex, tableName)
-            .then(function() {
+            XcalarMakeResultSetFromDataset(datasetName)
+            .then(function(result) {
+                gMetaTable[tableName] = {};
+                gMetaTable[tableName].resultSetId = result.resultSetId;
+                gMetaTable[tableName].numEntries = result.numEntries;
+                gMetaTable[tableName].datasetName = datasetName;
+                gMetaTable[tableName].isTable = false;
+
                 setIndex(tableName, newTableCols);
                 return (refreshTable(tableName, gTables.length, true,
                                      false));
