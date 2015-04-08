@@ -213,7 +213,7 @@ Thrift.Transport.prototype = {
         if (xreq.status != 200) {
             throw 'encountered a unknown request status: ' + xreq.status;
         }
-
+        
         this.recv_buf = xreq.responseText;
         this.recv_buf_sz = this.recv_buf.length;
         this.wpos = this.recv_buf.length;
@@ -560,7 +560,10 @@ Thrift.Protocol.prototype = {
         this.rpos = [];
 
         if (typeof jQuery !== 'undefined') {
-            this.robj = jQuery.parseJSON(this.transport.readAll());
+            var msg = this.transport.readAll();
+            var regex = new RegExp('{"tf":[^01]}', "g");
+            msg = msg.replace(regex, '{"tf":0}');
+            this.robj = jQuery.parseJSON(msg);
         } else {
             this.robj = eval(this.transport.readAll());
         }
