@@ -190,7 +190,6 @@ var KVStore = (function() {
         var deferred = jQuery.Deferred();
         XcalarKeyPut(key, value)
         .then(function() {
-            console.log("Put to KV Store succeed!");
             deferred.resolve();
         })
         .fail(function(error) {
@@ -226,13 +225,18 @@ var KVStore = (function() {
                 deferred.resolve(null);
             } else {
                 var gInfos = JSON.parse(output.value);
-                if (gInfos["holdStatus"] === true) {
+                if (gInfos["holdStatus"] === true && 
+                    sessionStorage.getItem(self.gStorageKey) !== "hold") {
                     Alert.error("Already in use!",
                                 "Sorry, someone are using it.",
                                 true);
                     deferred.reject("Already in use!");
                 } else {
+                    if (gInfos["holdStatus"] === true) {
+                        console.error("KVStore not relase last time...");
+                    }
                     isHold = true;
+                    sessionStorage.setItem(self.gStorageKey, "hold");
                     deferred.resolve(gInfos);
                 }
             }
@@ -255,7 +259,14 @@ var KVStore = (function() {
     // XXX in case you are hold forever
     self.forceRelease = function() {
         isHold = false;
-        return (commitToStorage());
+        XcalarKeyLookup(self.gStorageKey)
+        .then(function(output) {
+            if (output) {
+                var gInfos = JSON.parse(output.value);
+                gInfos["holdStatus"] = false;
+                XcalarKeyPut(self.gStorageKey, JSON.stringify(gInfos));
+            }
+        });
     }
 
     self.isHold = function() {

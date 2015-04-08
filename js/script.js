@@ -344,12 +344,12 @@ function documentReadyxcTableFunction() {
 }
 
 function documentReadyGeneralFunction() {
-    $(window).on('beforeunload', function() {
+    window.onbeforeunload = function() {
         KVStore.release();
         freeAllResultSets();
         sleep("100ms");
         return;
-    }); 
+    };
 
     var timer;
     $(window).resize(function() {
