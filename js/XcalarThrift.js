@@ -301,6 +301,24 @@ function XcalarSample(datasetName, numEntries) {
     return (deferred.promise());
 }
 
+function XcalarSampleTable(datasetName, numEntries) {
+    var deferred = jQuery.Deferred();
+
+    xcalarMakeResultSetFromDataset(tHandle, datasetName)
+    .then(function(result) {
+        var resultSetId = result.resultSetId;
+        return (XcalarGetNextPage(resultSetId, numEntries));
+    })
+    .then(function(tableOfEntries) {
+        deferred.resolve(tableOfEntries);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarSample", error));
+    });
+
+    return (deferred.promise());
+}
+
 function XcalarGetCount(tableName) {
     var deferred = jQuery.Deferred();
 
@@ -419,6 +437,10 @@ function XcalarMakeResultSetFromTable(tableName) {
     });
 
     return (deferred.promise());
+}
+
+function XcalarMakeResultSetFromDataset(datasetName) {
+    
 }
 
 function XcalarSetAbsolute(resultSetId, position) {
