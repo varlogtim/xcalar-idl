@@ -486,7 +486,12 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
         ' col' + newColid + '" style="width:' + width + 'px;">\
             <div class="header">\
                 <div class="dragArea"></div>\
-                <div class="colGrab"></div>\
+                <div class="colGrab" \
+                    title="Double click to auto resize" \
+                    data-toggle="tooltip" \
+                    data-placement="top" \
+                    data-container="body">\
+                </div>\
                 <div class="flexContainer flexRow">\
                     <div class="flexWrap flex-left">\
                         <div class="iconHidden"></div>\

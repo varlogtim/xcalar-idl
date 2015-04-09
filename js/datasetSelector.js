@@ -362,7 +362,12 @@ function addDataSetHeaders(jsonKeys, index) {
         key = jsonKeys[i];
         th +=  '<th title="' + key + '" class="th col' + i + '">\
                     <div class="header">\
-                        <div class="colGrab"></div>\
+                        <div class="colGrab" \
+                            title="Double click to auto resize" \
+                            data-toggle="tooltip" \
+                            data-placement="top" \
+                            data-container="body">\
+                        </div>\
                         <div class="flexContainer flexRow">\
                             <div class="flexWrap flex-left">\
                                 <span class="type icon"></span>\

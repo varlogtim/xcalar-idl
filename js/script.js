@@ -354,7 +354,7 @@ function documentReadyGeneralFunction() {
     window.onbeforeunload = function() {
         KVStore.release();
         freeAllResultSets();
-        sleep("100ms");
+        sleep("500ms");
         return;
     };
 
