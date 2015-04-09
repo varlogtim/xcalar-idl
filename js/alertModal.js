@@ -2,9 +2,9 @@ Alert = (function(){
     var $alertModal = $("#alertModal");
     var $modalBackground = $("#modalBackground");
 
-    AlertModal = function() {}
+    var self = {};
 
-    AlertModal.prototype.show = function(options) {
+    self.show = function(options) {
        /* options includes:
             title: titile of the alert
             instr: instruction information
@@ -13,7 +13,6 @@ Alert = (function(){
             isCheckBox: if checkbox is enabled  or disabled
             confirm: callback when click confirm button
         */
-
         configAlertModal(options);
 
         $alertModal.show();
@@ -21,7 +20,7 @@ Alert = (function(){
         window.getSelection().removeAllRanges();
     }
 
-    AlertModal.prototype.error = function(title, error, unclosable) {
+    self.error = function(title, error, unclosable) {
         var options = {};
         var type = typeof error;
 
@@ -114,6 +113,5 @@ Alert = (function(){
         }
     }
 
-    var self = new AlertModal();
     return (self);
-})();
+}());

@@ -1,11 +1,9 @@
 Cli = (function(){
 
-    function CliBuilder() {};
-
-    var self = new CliBuilder();
+    var self = {};
     var $textarea = $('#rightBarTextArea');
 
-    CliBuilder.prototype.add = function(title, options) {
+    self.add = function(title, options) {
         var html =  '<div class="cliContentWrap">' + 
                         '<div class="title"> >>' + title + ' :</div>' + 
                         '<div class="content">{'
@@ -30,7 +28,7 @@ Cli = (function(){
         self.scrollDown($textarea);
     }
 
-    CliBuilder.prototype.scrollDown = function() {
+    self.scrollDown = function() {
         // scroll to bottom
         var scrollDiff = $textarea[0].scrollHeight - $textarea.height();
         if (scrollDiff > 0) {
@@ -38,9 +36,9 @@ Cli = (function(){
         }
     }
 
-    CliBuilder.prototype.clear = function() {
+    self.clear = function() {
         $textarea.html("");
     }
 
     return (self);
-})();
+}());

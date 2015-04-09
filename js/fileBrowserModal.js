@@ -1,7 +1,5 @@
 FileBrowser = (function() {
-    FileBrowserBuilder = function() {}
-
-    var self = new FileBrowserBuilder();
+    var self = {};
 
     var $modalBackground = $('#modalBackground');
     var $fileBrowser = $('#fileBrowserModal');
@@ -29,7 +27,7 @@ FileBrowser = (function() {
     var reverseSort = false;
     var testMode = false;
 
-    FileBrowserBuilder.prototype.show = function() {
+    self.show = function() {
         var inputPath = $filePath.val();
         var path = retrievePaths(inputPath) || startPath;
         addEventListener();
@@ -60,7 +58,7 @@ FileBrowser = (function() {
         });
     }
 
-    FileBrowserBuilder.prototype.sortBy = function(key, regEx) {
+    self.sortBy = function(key, regEx) {
         if (allFiles.length == 0) {
             return;
         }
@@ -565,4 +563,4 @@ FileBrowser = (function() {
     }
 
     return (self);
-})();
+}());
