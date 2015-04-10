@@ -260,14 +260,13 @@ function mainPanelsTabbing() {
 }
 
 function setupLogout() {
-    $("#userNamePopout").css("top", $("#userName").position().top+
-                                           $("#userName").height());
-    $("#userNamePopout").css("left",
-        $("#userName").position().left + $("#userName").width()/2 -
-        $("#userNamePopout").width()/2);
-    $("#userNamePopout").hide();
     $("#userName").click(function() {
         $("#userNamePopout").toggle();
+        $("#userNamePopout").css("top", $("#userName").position().top+
+                                           $("#userName").height());
+        $("#userNamePopout").css("left",
+            $("#userName").position().left + $("#userName").width()/2 -
+            $("#userNamePopout").width()/2);
     });
     $("#signout").click(function() {
         window.location = "dologout.html";
@@ -380,7 +379,6 @@ function documentReadyGeneralFunction() {
     $('#mainFrame').scroll(function() {
         $(this).scrollTop(0);
     });
-
 
     $('.closeJsonModal, #modalBackground').click(function() {
         if ($('#jsonModal').css('display') == 'block') {
