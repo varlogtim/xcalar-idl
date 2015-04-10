@@ -1262,7 +1262,7 @@ function moverowScroller(pageNum, resultSetCount) {
 
 function setupBookmarkArea() {
     $('#rowScrollerArea').mousedown(function(event) {
-        if (event.which != 1) {
+        if (event.which != 1 || $('.rowScroller').length == 0) {
             return;
         }
         if ($(event.target).hasClass('subRowMarker')) {
