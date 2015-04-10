@@ -390,6 +390,13 @@ function XcalarShutdown() {
     return (deferred.promise());
 }
 
+function XcalarStartNodes(numNodes) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+    return (xcalarStartNodes(tHandle, numNodes));
+}
+
 function XcalarGetStats(nodeId) {
     // Today we have no use for this call yet.
     if (tHandle == null) {

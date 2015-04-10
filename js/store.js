@@ -10,6 +10,13 @@ var gTableOrderLookup = [];
 var gDSObjFolder = {};
 
 function emptyAllStorage() {
+
+    gTableIndicesLookup = {};
+    gTableDirectionLookup = {};
+    gWorksheetName = [];
+    gTableOrderLookup = [];
+    gDSObjFolder = {};
+
     return (KVStore.delete(KVStore.gStorageKey));
 }
 

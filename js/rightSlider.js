@@ -109,43 +109,25 @@ function setupRightSideBar() {
 function setupHelpSection() {
     $('#helpSubmit').click(function() {
         console.log('Reset Fired!');
-        var promises = [];
-        // delete All Hidden Tables
-        for (var i = gHiddenTables.length - 1; i >= 0; i --) {
-            promises.push(deleteTable.bind(this, i, DeleteTable.Delete));
-        }
-        // delete All Table
-        for (var i = gTables.length - 1; i >= 0; i --) {
-            promises.push(deleteTable.bind(this, i));
-        }
-
-        chain(promises)
+        emptyAllStorage()
+        .then(XcalarShutdown)
         .then(function() {
-            console.log('Table Deleted');
-
-            // Clear archived Table List
-            $('#inactiveTablesList').html('');
-            $('#archivedTableList').find('.btnLarge').hide();
-            return (DSObj.reset());
+            console.log("Shut Down Successfully!");
+            return (XcalarStartNodes(2));
         })
         .then(function() {
-           emptyStorage();
-           console.log("Clear Up Succeed!")
-        }).fail(function() {
-            console.log("Fail to empty all!");
-            emptyStorage();
+            console.log("Restart Successfully!");
+            // clearAll();
         })
+        .fail(function(error) {
+            console.log("Rest fails!");
+        });
 
-        function emptyStorage() {
-            emptyAllStorage();
-            gTableIndicesLookup = {};
-            gTableDirectionLookup = {};
-            gWorksheetName = [];
-            gTableOrderLookup = [];
-            gDSObjFolder = {};
-            commitToStorage();
+        function clearAll() {
+            $("#gridView").empty();
+            $("#datasetWrap").empty();
+            $("#importDataButton").click();
             Cli.clear();
-
             $('#worksheetInfo').find('.numDataStores').text(0);
             $('#datasetExplore').find('.numDataStores').text(0);
         }
