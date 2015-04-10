@@ -589,24 +589,27 @@ function createTableHeader(tableNum) {
                     <div class="dropdownBox">\
                         <span class="innerBox"></span>\
                     </div>\
-                    <ul id="tableMenu' + tableNum + 
-                        '" class="colMenu tableMenu" >\
-                        <li class="archiveTable">\
-                            Archive Table\
-                        </li>\
-                        <li class="unavailable">\
-                            Hide Table\
-                        </li>\
-                        <li class="deleteTable">\
-                            Delete Table\
-                        </li>\
-                        <li class="exportTable">\
-                            Export Table\
-                        </li>\
-                    </ul>\
                 </div>';
 
     $xcTheadWrap.prepend(html);
+
+    var tableMenuHTML = '<ul id="tableMenu' + tableNum + 
+                            '" class="colMenu tableMenu" >\
+                            <li class="archiveTable">\
+                                Archive Table\
+                            </li>\
+                            <li class="unavailable">\
+                                Hide Table\
+                            </li>\
+                            <li class="deleteTable">\
+                                Delete Table\
+                            </li>\
+                            <li class="exportTable">\
+                                Export Table\
+                            </li>\
+                        </ul>';
+
+    $('#xcTableWrap'+ tableNum).append(tableMenuHTML);
 
     // Event Listener for table title
     $xcTheadWrap.on('keyup', '.tableTitle input', function(event) {
@@ -1123,8 +1126,8 @@ function dropdownClick($el, outside, options) {
     } else {
         var tableNum = parseInt($el.closest('.xcTableWrap').attr('id')
                        .substring(11));
-        if ($el.siblings('.colMenu').length > 0) {
-            var $menu = $el.siblings('.colMenu');
+        if ($el.parent().hasClass('tableTitle')) {
+            var $menu = $('#tableMenu'+tableNum)
         } else {
             var $menu = $('#colMenu'+tableNum);
         }
@@ -1617,7 +1620,7 @@ function reorderAfterTableDrop() {
         table.attr('id', 'xcTable'+i);
         tableWrap.find('.xcTbodyWrap').attr('id', 'xcTbodyWrap'+i);
         tableWrap.find('.tableMenu').attr('id', 'tableMenu'+i);
-        tableWrap.children('.colMenu').attr('id', 'colMenu'+i);
+        tableWrap.children('.colMenu:not(.tableMenu)').attr('id', 'colMenu'+i);
         $(rowScrollers[i]).attr('id', 'rowScroller'+i);
         $(rowScrollers[i]).find('.rowMarker').attr('id','rowMarker'+i);
     }
