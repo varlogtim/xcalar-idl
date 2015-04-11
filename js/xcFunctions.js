@@ -73,7 +73,7 @@ function refreshTable(newTableName, tableNum,
     return (deferred.promise());
 }
 
-function sortRows(index, tableNum, order) {
+function sortRows(index, tableNum, order, onRecordNum) {
     var deferred = jQuery.Deferred();
 
     var isTable = gTables[tableNum].isTable;
@@ -134,6 +134,9 @@ function sortRows(index, tableNum, order) {
             deferred.reject(error);
         });
     } else {
+        if (onRecordNum) {
+            fieldName = "recordNum";
+        }
         XcalarIndexFromDataset(datasetName, fieldName, newTableName)
         .then(function() {
             copyMetaTable(srcTableName, newTableName);

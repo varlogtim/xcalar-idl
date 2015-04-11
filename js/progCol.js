@@ -116,7 +116,7 @@ function checkSorted(tableNum, index, isMap) {
                 index = 1;
             }
         }
-        return (sortRows(index, tableNum, SortDirection.Forward).then(deferred.resolve));
+        return (sortRows(index, tableNum, SortDirection.Forward, true).then(deferred.resolve));
     }
     return (deferred.promise());
 }
