@@ -1038,6 +1038,7 @@ function addColMenuActions($colMenu) {
             alert("Cannot aggregate on column that does not exist in DATA.");
             return;
         }
+        console.log(index, pCol);
         var colName = pCol.func.args[0];
         var aggrOp = $(this).closest('.aggrOp').text();
         console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);

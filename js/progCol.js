@@ -109,10 +109,12 @@ function checkSorted(tableNum, index, isMap) {
     if (gTables[tableNum].isTable) {
         deferred.resolve();
     } else {
-        if (isMap && index === 1) {
-            index = 2;
-        } else {
-            index = 1;
+        if (isMap) {
+            if(index === 1) {
+                index = 2;
+            } else {
+                index = 1;
+            }
         }
         return (sortRows(index, tableNum, SortDirection.Forward).then(deferred.resolve));
     }
