@@ -255,8 +255,8 @@ var KVStore = (function() {
                 var gInfos = JSON.parse(output.value);
                 if (gInfos["holdStatus"] === true && 
                     sessionStorage.getItem(self.gStorageKey) !== "hold") {
-                    Alert.error("Already in use!",
-                                "Sorry, someone are using it.",
+                    Alert.error("Signed on elsewhere!",
+                                "Please close your other session.",
                                 true);
                     deferred.reject("Already in use!");
                 } else {
