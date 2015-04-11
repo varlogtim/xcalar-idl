@@ -243,22 +243,24 @@
             .gray-gradient;
             .rounded;
             .flexWrap.flex-left {
-                .flex(0 0 26px);
+                .flex(0 1 27px);
                 .size(@height: 22px);
-                margin: 4px 0 0 10px;
+                margin: 4px 0 0 0px;
                 overflow: hidden;
+                white-space: normal;
+                min-width: 26px;
                 .iconHidden {
-                    .size(@width: 0, @height: 22px);
+                    .size(@width: 1px, @height: 22px);
                     display: inline-block;
                 }
             }
 
             .flexWrap.flex-mid {
-                .flex(1 1 auto);
+                .flex(1 0 0);
             }
 
             .flexWrap.flex-right {
-                .flex(0 0 36px);
+                .flex(0 1 4px);
             }
 
             &:hover {
