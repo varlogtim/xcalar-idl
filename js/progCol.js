@@ -76,34 +76,17 @@ function execCol(progCol, tableNum, args) {
         progCol.isDark = false;
         // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
         //                   fieldName + ")";
-        if (gTables[tableNum].isTable) {
-            mapColumn(fieldName, mapString, tableNum)
-            .then(function() {
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                console.log("execCol fails!");
-                deferred.reject(error);
-            });
-        } else {
-            var index;
-            if (progCol.index === 1) {
-                index = 2;
-            } else {
-                index = 1;
-            }
-            sortRows(index, tableNum, SortDirection.Forward)
-            .then(function() {
-                return (mapColumn(fieldName, mapString, tableNum));
-            })
-            .then(function() {
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                console.log("execCol fails!");
-                deferred.reject(error);
-            });
-        }
+        checkSorted(tableNum, progCol.index)
+        .then(function() {
+            return (mapColumn(fieldName, mapString, tableNum));
+        })
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("execCol fails!");
+            deferred.reject(error);
+        });
         
         break;
     case (undefined):
@@ -118,6 +101,21 @@ function execCol(progCol, tableNum, args) {
         break;
     }
 
+    return (deferred.promise());
+}
+
+function checkSorted(tableNum, index, isMap) {
+    var deferred = jQuery.Deferred();
+    if (gTables[tableNum].isTable) {
+        deferred.resolve();
+    } else {
+        if (isMap && index === 1) {
+            index = 2;
+        } else {
+            index = 1;
+        }
+        return (sortRows(index, tableNum, SortDirection.Forward).then(deferred.resolve));
+    }
     return (deferred.promise());
 }
 

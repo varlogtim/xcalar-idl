@@ -163,57 +163,38 @@ function setTableMeta(table) {
     newTable.tableCols = [];
     newTable.currentPageNumber = 0;
 
-    if (isTable) {
-        console.log(tableName, "true");
+    getResultSet(isTable, tableName)
+    .then(function(resultSet) {
+        newTable.isTable = isTable;
+        newTable.resultSetId = resultSet.resultSetId;
 
-        XcalarMakeResultSetFromTable(tableName)
-        .then(function(resultSet) {
-            newTable.isTable = true;
-            newTable.resultSetId = resultSet.resultSetId;
-            return (XcalarGetCount(tableName));
-        })
-        .then(function(totEntries) {
-            newTable.resultSetCount = totEntries;
-            newTable.numPages = Math.ceil(newTable.resultSetCount /
-                                          gNumEntriesPerPage);
-            newTable.backTableName = tableName;
-            newTable.frontTableName = tableName;
+        newTable.resultSetCount = resultSet.numEntries;
+        newTable.numPages = Math.ceil(newTable.resultSetCount /
+                                      gNumEntriesPerPage);
+        newTable.backTableName = tableName;
+        newTable.frontTableName = tableName;
 
-            console.log(newTable);
+        console.log(newTable);
 
-            deferred.resolve(newTable);
-        })
-        .fail(function(error){
-            console.log("setTableMeta Fails!");
-            deferred.reject(error);
-        });
-    } else {
-        var datasetName = gMetaTable[tableName].datasetName;
-
-        console.log(tableName, "false");
-
-        XcalarMakeResultSetFromDataset(datasetName)
-        .then(function(resultSet) {
-            newTable.isTable = false;
-            newTable.resultSetId = resultSet.resultSetId;
-
-            newTable.resultSetCount = resultSet.numEntries;
-            newTable.numPages = Math.ceil(newTable.resultSetCount /
-                                          gNumEntriesPerPage);
-            newTable.backTableName = tableName;
-            newTable.frontTableName = tableName;
-
-            console.log(newTable);
-
-            deferred.resolve(newTable);
-        })
-        .fail(function(error){
-            console.log("setTableMeta Fails!");
-            deferred.reject(error);
-        });
-    }
+        deferred.resolve(newTable);
+    })
+    .fail(function(error){
+        console.log("setTableMeta Fails!");
+        deferred.reject(error);
+    });
         
     return (deferred.promise());
+}
+
+function getResultSet(isTable, tableName) {
+    if (isTable) {
+        console.log(tableName, "true");
+        return (XcalarMakeResultSetFromTable(tableName));
+    } else {
+        var datasetName = gMetaTable[tableName].datasetName;
+        console.log(tableName, "false");
+        return (XcalarMakeResultSetFromDataset(datasetName));
+    }
 }
 
 function setupFunctionBar() {
