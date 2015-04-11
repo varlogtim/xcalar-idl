@@ -864,8 +864,8 @@ function allowParamDrop(event) {
 
 /* Generation of dag elements and canvas lines */
 
-function constructDagImage(tableName) {
-    drawDag(tableName)
+function constructDagImage(tableName, tableNum) {
+    drawDag(tableName, tableNum)
     .then(function(dagDrawing) {
         var outerDag = '<div class="dagWrap">'+
             '<div class="header clearfix">'+
@@ -1019,9 +1019,48 @@ function drawDagOrigin(dagNode, prop, dagArray) {
     return (originHTML);
 }
 
-function drawDag(tableName) {
+function drawDag(tableName, tableNum) {
     var deferred = jQuery.Deferred();
-    XcalarGetDag(tableName).then(function(dagObj) {
+    if (!gTables[tableNum].isTable) {
+        var dagObj = {node: [{}], numNodes:1};
+        var node = dagObj.node[0];
+        var datasetName = gMetaTable[tableName].datasetName;
+        node.api = 2;
+        node.dagNodeId = Math.ceil(Math.random()*10000);
+        node.input = {loadInput: {}};
+        node.input.loadInput.dataset = {};
+        node.input.loadInput.dataset.datasetId = 0;
+        node.input.loadInput.dataset.name = datasetName;
+        // return (deferred.promise());
+        XcalarGetDatasets()
+        .then(function(datasets) {
+
+            for (var i = 0; i < datasets.numDatasets; i++) {
+                if (datasetName == datasets.datasets[i].name) {
+                    console.log(datasets.datasets[i].url);
+                    node.input.loadInput.dataset.url = datasets.datasets[i].url;
+                    drawDagHelper(dagObj);
+                    break;
+                }
+            }
+        })
+        .fail(function() {
+            Alert.error("getDatasetSets for Dag fails", error);
+        });
+        return (deferred.promise());
+    } else {
+        XcalarGetDag(tableName).then(function(dagObj) {
+
+           return drawDagHelper(dagObj);
+        })
+        .fail(function(error) {
+            console.log("drawDag fail!");
+            deferred.reject(error);
+        });
+    }
+    
+
+    function drawDagHelper(dagObj) {
         var prop = {
             x:0, 
             y:0, 
@@ -1033,11 +1072,7 @@ function drawDag(tableName) {
         console.log(dagObj);
         deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "", 
                          index, parentChildMap));
-    })
-    .fail(function(error) {
-        console.log("drawDag fail!");
-        deferred.reject(error);
-    });
+    }
 
     function getParentChildDagMap(dagObj) {
         var dagArray = dagObj.node;

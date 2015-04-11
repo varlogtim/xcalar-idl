@@ -588,7 +588,7 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
         infScrolling(tableNum);
         adjustColGrabHeight(tableNum);
         resizeRowInput();
-        // constructDagImage(gTables[tableNum].backTableName);
+        constructDagImage(gTables[tableNum].backTableName, tableNum);
 
         deferred.resolve();
     })
