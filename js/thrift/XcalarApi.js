@@ -1485,3 +1485,36 @@ function xcalarKeyDelete(thriftHandle, key) {
 
     return (deferred.promise());
 }
+
+function xcalarApiTop(thriftHandle, measureIntervalInMs) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarApiTop(measureIntervalInMs = ", measureIntervalInMs, ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.topInput = new XcalarApiTopInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiTop;
+    workItem.input.topInput.measureIntervalInMs = measureIntervalInMs;
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var topOutput = result.output.topOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+            topOutput = new XcalarApiTopOutputT();
+            topOutput.status = result.jobStatus;
+        }
+        if (topOutput.status != StatusT.StatusOk) {
+            deferred.reject(topOutput.status);
+        }
+
+        deferred.resolve(topOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiTop() caught exception: ", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}

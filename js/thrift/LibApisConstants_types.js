@@ -7,8 +7,10 @@
 
 XcalarApisConstantsT = {
 'XcalarApiMaxEvalStringLen' : 1024,
-'XcalarApiMaxNumParameters' : 20
+'XcalarApiMaxNumParameters' : 20,
+'XcalarApiDefaultTopIntervalInMs' : 100
 };
 XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
-20 : 'XcalarApiMaxNumParameters'
+20 : 'XcalarApiMaxNumParameters',
+100 : 'XcalarApiDefaultTopIntervalInMs'
 };
