@@ -5,6 +5,16 @@ function setupImportDSForm() {
         $(this).find('.radio').addClass('checked');
     });
 
+    $("#fileFormat .dsTypeLabel").click(function() {
+        if ($(this).text() == "CSV") {
+            $("#fieldDelim").prop("disabled", false);
+            $("#lineDelim").prop("disabled", false);
+        } else {
+            $("#fieldDelim").prop("disabled", true);
+            $("#lineDelim").prop("disabled", true);
+        }
+    });
+
     $('#importDataBottomForm').find('button[type=reset]').click(function() {
         $('.radio').removeClass('checked');
     });
@@ -21,8 +31,10 @@ function setupImportDSForm() {
         var tableName = jQuery.trim($('#fileName').val());
         var loadFormat = $('#fileFormat').find('input[name=dsType]:checked')
                          .val();
-        var loadArgs = loadURL.split("|");
-        console.log('loadArgs', loadArgs);
+        var fieldDelim = $("#fieldDelim").val();
+        var lineDelim = $("#lineDelim").val();
+       
+        console.log(tableName, loadFormat, fieldDelim, lineDelim); 
         if (DSObj.isDataSetNameConflict(tableName)) {
             var text = 'Dataset with the name ' +  tableName + 
                         ' already exits. Please choose another name.';
@@ -34,8 +46,8 @@ function setupImportDSForm() {
         var msg = StatusMessageTStr.LoadingDataset+": "+tableName
         StatusMessage.show(msg);
         
-        XcalarLoad(loadArgs[0], loadFormat, tableName,
-                   loadArgs[1], loadArgs[2])
+        XcalarLoad(loadURL, loadFormat, tableName,
+                   fieldDelim, lineDelim)
         .then(function(result) {
             displayNewDataset(tableName, loadFormat);
 

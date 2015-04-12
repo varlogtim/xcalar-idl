@@ -178,7 +178,7 @@ input {
     }
 
     #fileFormat {
-        margin-bottom: 65px;
+        margin-bottom: 25px;
         font-weight: 700;
         > span {
             display: inline-block;
@@ -226,6 +226,43 @@ input {
             float: left;
         }
     }
+    #csvDelim {
+        margin-bottom: 100px;
+        font-weight: 700;
+        #fieldText {
+            display: inline-block;
+            .position(relative, @left: 10);
+            cursor: default;
+            margin-right: 20px;
+        }
+        #lineText {
+            display: inline-block;
+            .position(absolute, @left: ~"calc(50% - 30px)");
+            cursor: default;
+            margin-right: 20px;
+        }
+        input[disabled] {
+           background-color: #E6E6E6;
+        }
+        #fieldDelim {
+            width: ~"calc(50% - 200px)";
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+            margin-left: 10px;
+            margin-top: -5px;
+            margin-right: 35px;
+            border: 1px solid @color-background-topForm;
+        }
+        #lineDelim {
+            .position(absolute, @left: ~"calc(50% + 80px)");
+            width: ~"calc(50% - 350px)";
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+            margin-left: 10px;
+            margin-top: -6px;
+            margin-right: 45px;
+            border: 1px solid @color-background-topForm;
+        }
+    }
+
     .btn {
         margin-left: 20px;
         padding: 0;
