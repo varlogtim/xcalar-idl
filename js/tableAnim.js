@@ -1044,8 +1044,8 @@ function addColMenuActions($colMenu) {
         console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
         
         checkSorted(tableNum, index)
-        .then(function() {
-            aggregateCol(aggrOp, colName, tableNum);
+        .then(function(tableName) {
+            aggregateCol(aggrOp, colName, tableName);
         });
 
     });
@@ -1060,8 +1060,8 @@ function addColMenuActions($colMenu) {
             $colMenu.hide();
 
             checkSorted(tableNum, index)
-            .then(function() {
-                filterCol(operator, value, index, tableNum);
+            .then(function(tableName) {
+                filterCol(operator, value, index, tableNum, tableName);
             });
         }
     });

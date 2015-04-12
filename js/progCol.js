@@ -1,3 +1,14 @@
+function copyMetaTable(srcTableName, newTableName) {
+    gMetaTable[newTableName] = {};
+    var dest = gMetaTable[newTableName]
+    var src = gMetaTable[srcTableName];
+
+    dest.datasetName = src.datasetName;
+    dest.numEntries = src.numEntries;
+    dest.resultSetId = src.resultSetId;
+    dest.isTable = src.isTable;
+}
+
 function insertColAtIndex(index, tableNum, obj) {
     for (var i = gTables[tableNum].tableCols.length-1; i>=index; i--) {
         gTables[tableNum].tableCols[i].index += 1;
@@ -77,8 +88,8 @@ function execCol(progCol, tableNum, args) {
         // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
         //                   fieldName + ")";
         checkSorted(tableNum, progCol.index)
-        .then(function() {
-            return (mapColumn(fieldName, mapString, tableNum));
+        .then(function(tableName) {
+            return (mapColumn(fieldName, mapString, tableNum, tableName));
         })
         .then(function() {
             deferred.resolve();
@@ -104,19 +115,23 @@ function execCol(progCol, tableNum, args) {
     return (deferred.promise());
 }
 
-function checkSorted(tableNum, index, isMap) {
+function checkSorted(tableNum, index) {
     var deferred = jQuery.Deferred();
+    var tableName = gTables[tableNum].backTableName;
     if (gTables[tableNum].isTable) {
-        deferred.resolve();
+        deferred.resolve(tableName);
     } else {
-        if (isMap) {
-            if(index === 1) {
-                index = 2;
-            } else {
-                index = 1;
-            }
-        }
-        return (sortRows(index, tableNum, SortDirection.Forward, true).then(deferred.resolve));
+        var datasetName = gMetaTable[tableName].datasetName;
+        var newTableName = tableName + Math.floor((Math.random() * 100000) + 1);
+
+        XcalarIndexFromDataset(datasetName, "recordNum", newTableName)
+        .then(function() {
+            copyMetaTable(tableName, newTableName);
+            gMetaTable[newTableName].isTable = true;
+
+            deferred.resolve(newTableName);
+        });
+        // return (sortRows(index, tableNum, SortDirection.Forward, true).then(deferred.resolve));
     }
     return (deferred.promise());
 }

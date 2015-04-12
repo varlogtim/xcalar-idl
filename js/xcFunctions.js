@@ -170,7 +170,7 @@ function sortRows(index, tableNum, order, onRecordNum) {
     return (deferred.promise());
 }
 
-function mapColumn(fieldName, mapString, tableNum) {
+function mapColumn(fieldName, mapString, tableNum, tableName) {
     var deferred = jQuery.Deferred();
 
     var rand = Math.floor((Math.random() * 100000) + 1);
@@ -180,9 +180,9 @@ function mapColumn(fieldName, mapString, tableNum) {
     StatusMessage.show(msg);
     
     XcalarMap(fieldName, mapString, 
-              gTables[tableNum].frontTableName, newTableName)
+              tableName, newTableName)
     .then(function() {
-        copyMetaTable(gTables[tableNum].frontTableName, newTableName);
+        copyMetaTable(tableName, newTableName);
 
         setIndex(newTableName, tablCols);
         return (refreshTable(newTableName, tableNum));
@@ -245,12 +245,12 @@ function groupByCol(operator, newColName, colid, tableNum) {
     return (deferred.promise());
 }
 
-function aggregateCol(operator, colName, tableNum) {
+function aggregateCol(operator, colName, tableName) {
     showWaitCursor();
     var msg = StatusMessageTStr.Aggregate+' '+operator+' '+
                         StatusMessageTStr.OnColumn+': ' + colName
     StatusMessage.show(msg);
-    XcalarAggregate(colName, gTables[tableNum].backTableName, operator)
+    XcalarAggregate(colName, tableName, operator)
     .then(function(value){
         // show result in alert modal
         var title = 'Aggregate: ' + operator;
@@ -271,12 +271,12 @@ function aggregateCol(operator, colName, tableNum) {
     });
 }
 
-function filterCol(operator, value, colid, tableNum) {
+function filterCol(operator, value, colid, tableNum, tableName) {
     var deferred = jQuery.Deferred();
 
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
-    var srcTableName = gTables[tableNum].frontTableName;
+    var srcTableName = tableName;
     var tablCols = gTables[tableNum].tableCols;
     var colName = tablCols[colid - 1].name;
     // add cli
@@ -588,15 +588,4 @@ function joinTables3(args) {
     });
 
     return (deferred.promise());
-}
-
-function copyMetaTable(srcTableName, newTableName) {
-    gMetaTable[newTableName] = {};
-    var dest = gMetaTable[newTableName]
-    var src = gMetaTable[srcTableName];
-
-    dest.datasetName = src.datasetName;
-    dest.numEntries = src.numEntries;
-    dest.resultSetId = src.resultSetId;
-    dest.isTable = src.isTable;
 }
