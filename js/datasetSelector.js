@@ -24,27 +24,14 @@ function setupDSCartButtons() {
         var dsObj = DSObj.getById($grid.data().dsid);
         var datasetName = dsObj.name;
         var format = dsObj.attrs.format;
-        var $displayedTable = undefined;
-        var $tableWraps = $('#datasetWrap').find('.datasetTableWrap');
-        $tableWraps.each(function(index, ele) {
-            if ($displayedTable != undefined) {
-                return;
-            }
-            var $table = $(ele);
-            if (datasetName == $table.data().dsname) {
-                $displayedTable = $table;
-                return;
-            }
-        });
-        $('#importDataView').hide();
-        if ($displayedTable == undefined) {
+        if ($("#importDataView").css("display") != "none") {
+            $('#importDataView').hide();
             getDatasetSample(datasetName, format);
         } else {
+            $('#importDataView').hide();
             XcalarSetFree(gDatasetBrowserResultSetId)
             .then(function() {
-                $tableWraps.hide();
-                $displayedTable.show();
-                updateDatasetInfoFields(datasetName, format);
+                getDatasetSample(datasetName, format);
             });
         }
     });
