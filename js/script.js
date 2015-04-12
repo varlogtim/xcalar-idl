@@ -191,9 +191,11 @@ function getResultSet(isTable, tableName) {
         console.log(tableName, "true");
         return (XcalarMakeResultSetFromTable(tableName));
     } else {
-        var datasetName = gMetaTable[tableName].datasetName;
-        console.log(tableName, "false");
-        return (XcalarMakeResultSetFromDataset(datasetName));
+        // XXX Cheng: All the needed info already in gMetaTable
+        // call XcalarMakeResultSetFromDataset will only increase ref count
+        var deferred = jQuery.Deferred();
+        deferred.resolve(gMetaTable[tableName]);
+        return (deferred.promise());
     }
 }
 

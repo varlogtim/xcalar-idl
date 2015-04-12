@@ -1,14 +1,12 @@
 function freeAllResultSets() {
-    var promises = [];
-    var gTablesLen = gTables.length;
+    // var promises = [];
     // XXX use promise is not reliable to send all reqeust to backend
-    for (var i = 0; i < gTablesLen; i++) {
+    for (var i = 0; i < gTables.length; i++) {
         // promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
         XcalarSetFree(gTables[i].resultSetId);
     }
 
-    var gHiddenTablesLen = gHiddenTables.length;
-    for (var i = 0; i < gHiddenTablesLen; i ++) {
+    for (var i = 0; i < gHiddenTables.length; i ++) {
         // promises.push(XcalarSetFree.bind(this, gHiddenTables[i].resultSetId));
         XcalarSetFree(gHiddenTables[i].resultSetId);
     }
@@ -17,7 +15,7 @@ function freeAllResultSets() {
     if (gDatasetBrowserResultSetId != 0) {
         XcalarSetFree(gDatasetBrowserResultSetId);
     }
-    return (chain(promises));
+    // return (chain(promises));
 }
 
 function goToPage(pageNumber, direction, tableNum, skipToRow) {

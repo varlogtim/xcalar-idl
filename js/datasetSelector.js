@@ -24,13 +24,14 @@ function setupDSCartButtons() {
         var dsObj = DSObj.getById($grid.data().dsid);
         var datasetName = dsObj.name;
         var format = dsObj.attrs.format;
-        if ($("#importDataView").css("display") != "none") {
+        if (gDatasetBrowserResultSetId == 0) {
             $('#importDataView').hide();
             getDatasetSample(datasetName, format);
         } else {
             $('#importDataView').hide();
             XcalarSetFree(gDatasetBrowserResultSetId)
             .then(function() {
+                gDatasetBrowserResultSetId = 0;
                 getDatasetSample(datasetName, format);
             });
         }
@@ -105,6 +106,7 @@ function setupDSCartButtons() {
         alertOptions.confirm = function() {
             XcalarSetFree(gDatasetBrowserResultSetId)
             .then(function() {
+                gDatasetBrowserResultSetId = 0;
                 deleteDataset(dsName);
             });
         }
@@ -325,7 +327,7 @@ function addDatasetTable(datasetTitle, tableNumber) {
     //append the table tabs
 
     //append the table to datasetbrowser div
-    $('.datasetTableWrap').hide();
+    // $('.datasetTableWrap').hide();
     var html = '<div id="dataSetTableWrap' + tableNumber + '"\
                     class="datasetTableWrap"\
                     data-dsname="' + datasetTitle + '">\
@@ -339,7 +341,7 @@ function addDatasetTable(datasetTitle, tableNumber) {
                         </table>\
                     </div>\
                 </div>';
-    $('#datasetWrap').prepend(html);
+    $('#datasetWrap').empty().prepend(html);
 }
 
 function addDataSetHeaders(jsonKeys, index) {

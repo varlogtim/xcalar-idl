@@ -108,33 +108,19 @@ function deleteTable(tableNum, deleteArchived) {
     var frontTableName = table.frontTableName;
     var resultSetId = table.resultSetId;
     
-    if (!gMetaTable[frontTableName]) {
-        console.log(frontTableName + " not in gMetable");
-        deferred.reject("Not in gMetable");
-    }
-
-    // for sample table, just remove from frontend
-    if (gMetaTable[frontTableName].isTable === false) {
-        clear();
-        deferred.resolve();
-    } else {
-        // Free the result set pointer that is still pointing to it
-        XcalarSetFree(resultSetId)
-        .then(function() {
+    // Free the result set pointer that is still pointing to it
+    XcalarSetFree(resultSetId)
+    .then(function() {
+        if (gMetaTable[frontTableName].isTable === false) {
+            return (promiseWrapper(null));
+        } else {
             return (XcalarDeleteTable(backTableName));
-        })
-        .then(function() {
-            // XXX if we'd like to hide the cannot delete bug,
-            // copy it to the fail function
-            clear();
-            deferred.resolve();
-        })
-        .fail(function(error){
-            deferred.reject(error);
-        });
-    }
+        }
+    })
+    .then(function() {
+        // XXX if we'd like to hide the cannot delete bug,
+        // copy it to the fail function
 
-    function clear() {
         // Basically the same as archive table, but instead of moving to
         // gHiddenTables, we just delete it from gTablesIndicesLookup
         if (deleteArchived) {
@@ -144,7 +130,12 @@ function deleteTable(tableNum, deleteArchived) {
             archiveTable(tableNum, DeleteTable.Delete);
         }
         delete gMetaTable[frontTableName];
-    }
+
+        deferred.resolve();
+    })
+    .fail(function(error){
+        deferred.reject(error);
+    });
 
     return (deferred.promise());
 }
