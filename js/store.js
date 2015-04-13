@@ -132,6 +132,7 @@ function readFromStorage() {
             gWorksheetName = [];
             gTableOrderLookup = [];
         }
+        updateDatasetsNumInfo(numDatasets);
         return (commitToStorage(AfterStartup.After));
     })
     .then(function() {

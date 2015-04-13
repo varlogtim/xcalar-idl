@@ -284,15 +284,16 @@ function XcalarEditColumn(datasetName, currFieldName, newFieldName,
 
 function XcalarSample(datasetName, numEntries) {
     var deferred = jQuery.Deferred();
-
+    var totalEntries = 0;
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
     .then(function(result) {
         var resultSetId = result.resultSetId;
+        totalEntries = result.numEntries;
         gDatasetBrowserResultSetId = resultSetId;
         return (XcalarGetNextPage(resultSetId, numEntries));
     })
     .then(function(tableOfEntries) {
-        deferred.resolve(tableOfEntries);
+        deferred.resolve(tableOfEntries, totalEntries);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarSample", error));

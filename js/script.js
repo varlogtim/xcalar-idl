@@ -541,9 +541,6 @@ function startupFunctions() {
         setupBookmarkArea();
         setupWorksheetMeta();
         loadMonitorPanel();
-        return (updateDatasetInfoFields("Datasets", undefined, IsActive.Active));
-    })
-    .then(function() {
         setupDag();
         deferred.resolve();
     })

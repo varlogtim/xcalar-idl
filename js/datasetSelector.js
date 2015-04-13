@@ -180,8 +180,10 @@ function getDatasetSample(datasetName, format) {
     XcalarGetDatasets()
     .then(function(datasets) {
         var samples = {};
-        
-        for (var i = 0; i < datasets.numDatasets; i++) {
+        var numDatasets = datasets.numDatasets;
+        updateDatasetsNumInfo(numDatasets);
+
+        for (var i = 0; i < numDatasets; i++) {
             if (datasetName != datasets.datasets[i].name) {
                 continue;
             }
@@ -194,7 +196,7 @@ function getDatasetSample(datasetName, format) {
             (function(i) {
                 // XcalarSample sets gDatasetBrowserResultSetId
                 XcalarSample(datasets.datasets[i].name, 20)
-                .then(function(result) {
+                .then(function(result, totalEntries) {
                     samples[datasetName] = result;
 
                     // add the tab and the table 
@@ -236,7 +238,7 @@ function getDatasetSample(datasetName, format) {
                     addDataSetHeaders(jsonKeys, i);
                     addDataSetRows(jsonKeys,jsons, i);
                     addWorksheetListeners(i);  
-                    updateDatasetInfoFields(datasetName, format, IsActive.Active);
+                    updateDatasetInfoFields(datasetName, format, totalEntries);
                 });
             })(i);
         } 
@@ -244,6 +246,20 @@ function getDatasetSample(datasetName, format) {
     .fail(function(error) {
         Alert.error("getDatasetSample fails", error);
     });
+
+    function updateDatasetInfoFields(dsName, dsFormat, totalEntries) {
+        var d = new Date();
+        var date = (d.getMonth() + 1) + "-" + d.getDate() + "-" 
+                    + d.getFullYear();
+        $("#schema-title").text(dsName);
+        $("#dsInfo-title").text(dsName);
+        $("#dsInfo-createDate").text(date);
+        $("#dsInfo-updateDate").text(date);
+        $("#dsInfo-records").text(Number(totalEntries).toLocaleString('en'));
+        if (dsFormat) {
+            $("#schema-Format").text(dsFormat);
+        }
+    }
 }
 
 function deleteDataset(dsName) {
@@ -266,6 +282,11 @@ function deleteDataset(dsName) {
         Cli.add('Delete DateSet', cliOptions);
 
         cleanUpDsIcons();
+        // update gloabl info
+        XcalarGetDatasets()
+        .then(function(datasets) {
+            updateDatasetsNumInfo(datasets.numDatasets);
+        });
     })
     .fail(function(error) {
         $('#waitingIcon').remove();
@@ -304,7 +325,6 @@ function deleteDataset(dsName) {
         } else {
             $("#importDataButton").click();
         }
-        updateDatasetInfoFields(null, null, true, true);
         $('#waitingIcon').remove();
     }
 }
@@ -893,38 +913,10 @@ function setupDatasetList() {
     return (deferred.promise());
 }
 
-function updateDatasetInfoFields(dsName, dsFormat, active, dontUpdate) {
-    var deferred = jQuery.Deferred();
-
-    function updateNumDatasets(datasets) {
-        var numDatasets = datasets.numDatasets;
-        console.log("Updating to:", numDatasets);
-        $('#worksheetInfo').find('.numDataStores').text(numDatasets);
-        $('#datasetExplore').find('.numDataStores').text(numDatasets);
-    }
-
-    if (!dontUpdate) {
-        $('#schemaTitle').text(dsName);
-        $('#contentViewHeader').find('h2').text(dsName);
-        if (dsFormat) {
-            $('#schemaFormat').text(dsFormat);
-        }
-    }
-    if (active) {
-        XcalarGetDatasets()
-        .then(function(datasets) {
-            updateNumDatasets(datasets);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.log("updateDatasetInfoFields fails!");
-            deferred.reject(error);
-        });
-    } else {
-        deferred.resolve();
-    }
-
-    return (deferred.promise());
+function updateDatasetsNumInfo(numDatasets) {
+    console.log("Updating to:", numDatasets);
+    $('#worksheetInfo').find('.numDataStores').text(numDatasets);
+    $('#datasetExplore').find('.numDataStores').text(numDatasets);
 }
 
 function dataCartOverflowShadow() {
