@@ -814,6 +814,7 @@ function createWorksheet() {
 
             cliOptions.key = columnToIndex;
             
+            var tmpResultSetId;
 
             XcalarMakeResultSetFromDataset(datasetName)
             .then(function(result) {
@@ -823,9 +824,14 @@ function createWorksheet() {
                 gMetaTable[tableName].datasetName = datasetName;
                 gMetaTable[tableName].isTable = false;
 
+                tmpResultSetId = result.resultSetId;
+
                 setIndex(tableName, newTableCols);
                 return (refreshTable(tableName, gTables.length, true,
                                      false));
+            })
+            .then(function() {
+                return (XcalarSetFree(tmpResultSetId));
             })
             .then(function() {
                 commitToStorage();
