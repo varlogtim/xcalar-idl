@@ -574,7 +574,7 @@ function generateColDropDown(tableNum) {
                 '<ul class="subColMenu">'+
                     '<li class="sort">'+ 
                     '<span class="sortUp"></span>A-Z</li>'+
-                    '<li class="revSort">'+ 
+                    '<li class="revSort unavailable">'+ 
                     '<span class="sortDown"></span>Z-A</li>'+
                     '<div class="subColMenuArea"></div>'+
                 '</ul>'+ 
