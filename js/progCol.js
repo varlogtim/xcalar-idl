@@ -122,8 +122,12 @@ function checkSorted(tableNum, index) {
         deferred.resolve(tableName);
     } else {
         var datasetName = gMetaTable[tableName].datasetName;
+        var resultSetId = gMetaTable[tableName].resultSetId;
 
-        XcalarIndexFromDataset(datasetName, "recordNum", tableName)
+        XcalarSetFree(resultSetId)
+        .then(function() {
+            return (XcalarIndexFromDataset(datasetName, "recordNum", tableName));
+        })
         .then(function() {
             gMetaTable[tableName].isTable = true;
             gTables[tableNum].isTable = true;
