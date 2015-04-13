@@ -47,9 +47,11 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $("#rowScroller"+tableNum).attr("id", "rowScrollerToRemove"+tableNum);
         $("#rowMarker"+tableNum).attr("id", "");
         $("#colMenu"+tableNum).attr("id", "");
+        $("#dagWrap"+tableNum).attr("id", "dagWrapToRemove"+tableNum);
     } else {
         $("#xcTableWrap"+tableNum).remove();
         $("#rowScroller"+tableNum).remove();
+        $('#dagWrap'+tableNum).remove();
     }
     
     var tableName = gTables[tableNum].frontTableName;
@@ -80,6 +82,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $("#rowScroller"+i).attr("id", "rowScroller"+(i-1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i-1));
         $("#colMenu"+i).attr("id", "colMenu"+(i-1));
+        $("#dagWrap"+i).attr("id", "dagWrap"+(i-1));
     }
     
     // XXX: Think about gActiveTableNum
@@ -94,11 +97,6 @@ function archiveTable(tableNum, del, delayTableRemoval) {
     if (!delayTableRemoval) {
         focusTable(gActiveTableNum);
     }
-    $('.dagWrap').find('.tableName')
-        .filter(function() {
-            return $(this).text() == tableName;
-        })
-        .closest('.dagWrap').remove();
 }
 
 function deleteTable(tableNum, deleteArchived) {
@@ -272,6 +270,7 @@ function reorderTables(tableNum) {
         $("#rowScroller"+i).attr("id", "rowScroller"+(i+1));
         $("#rowMarker"+i).attr("id", "rowMarker"+(i+1));
         $("#colMenu"+i).attr("id", "colMenu"+(i+1));
+        $("#dagWrap"+i).attr("id", "dagWrap"+(i+1));
         gTables[i+1] = gTables[i];
     }
 }

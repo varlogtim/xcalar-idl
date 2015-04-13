@@ -1612,16 +1612,21 @@ function reorderAfterTableDrop() {
     
     // reorder rowScrollers
     var rowScroller = $('#rowScroller'+gDragObj.originalIndex);
+    var $dagWrap = $('#dagWrap'+gDragObj.originalIndex);
     if (gDragObj.tableIndex == 0) {
         $('#rowScrollerArea').prepend(rowScroller);
+        $('.dagArea').prepend($dagWrap);
     } else if (gDragObj.originalIndex < gDragObj.tableIndex) {
         $('#rowScroller'+gDragObj.tableIndex).after(rowScroller);
+        $('#dagWrap'+gDragObj.tableIndex).after($dagWrap);
     } else if (gDragObj.originalIndex > gDragObj.tableIndex) {
         $('#rowScroller'+gDragObj.tableIndex).before(rowScroller);
+         $('#dagWrap'+gDragObj.tableIndex).before($dagWrap);
     }
 
     // correct table and rowscroller id numbers
     var rowScrollers = $('.rowScroller');
+    var $dagWraps = $('.dagWrap');
     var start = Math.min(gDragObj.originalIndex, gDragObj.tableIndex);
     var end = Math.max(gDragObj.originalIndex, gDragObj.tableIndex);
     for (var i = start; i <= end; i++) {
@@ -1636,6 +1641,7 @@ function reorderAfterTableDrop() {
         tableWrap.children('.colMenu:not(.tableMenu)').attr('id', 'colMenu'+i);
         $(rowScrollers[i]).attr('id', 'rowScroller'+i);
         $(rowScrollers[i]).find('.rowMarker').attr('id','rowMarker'+i);
+        $($dagWraps[i]).attr('id', 'dagWrap'+i);
     }
 }
 

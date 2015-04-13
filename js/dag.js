@@ -867,7 +867,7 @@ function allowParamDrop(event) {
 function constructDagImage(tableName, tableNum) {
     drawDag(tableName, tableNum)
     .then(function(dagDrawing) {
-        var outerDag = '<div class="dagWrap">'+
+        var outerDag = '<div class="dagWrap" id="dagWrap'+tableNum+'">'+
             '<div class="header clearfix">'+
                 '<div class="btn btnSmall infoIcon">'+
                     '<div class="icon"></div>'+
@@ -888,18 +888,23 @@ function constructDagImage(tableName, tableNum) {
 
         var innerDag = '<div class="dagImageWrap"><div class="dagImage">'+
                         dagDrawing+'</div></div>';
-        $('.dagArea').append(outerDag);
-        $('.dagWrap:last').append(innerDag);
-        var canvas = createCanvas();
+
+        if (tableNum == 0) {
+            $('.dagArea').prepend(outerDag);
+        } else {
+            $('#dagWrap'+(tableNum-1)).after(outerDag);
+        }
+
+        var $dagWrap = $('#dagWrap'+tableNum);
+        $dagWrap.append(innerDag);
+        var canvas = createCanvas($dagWrap);
         var ctx = canvas.getContext('2d');
         ctx.strokeStyle = '#999999';
-        var $dagWrap = $('.dagWrap:last');
         $dagWrap.find('.dagTableWrap').each(function() {
             var el = $(this);
             drawDagLines(el, ctx);
         });
 
-        
         var dropdown = getDagDropDownHTML();
         $dagWrap.append(dropdown);
         addDagEventListeners($dagWrap);
@@ -1281,13 +1286,13 @@ var dagApiMap = {
     32 : 'listFilesInput'
 };
 
-function createCanvas() {
-    var dagWrap = $('.dagWrap:last');
-    var dagWidth = dagWrap.find('.dagImage > .joinWrap').width();
-    var dagHeight = dagWrap.find('.dagImage > .joinWrap').height();
+function createCanvas($dagWrap) {
+    var dagWidth = $dagWrap.find('.dagImage > .joinWrap').width();
+    var dagHeight = $dagWrap.find('.dagImage > .joinWrap').height();
     var canvasHTML = $('<canvas class="canvas" width="'+dagWidth+
                      '" height="'+dagHeight+'"></canvas>');
-    $('.dagWrap:last .dagImage').append(canvasHTML);
+    // $('.dagWrap:last .dagImage').append(canvasHTML);
+    $dagWrap.find('.dagImage').append(canvasHTML);
     return (canvasHTML[0]);
 }
 

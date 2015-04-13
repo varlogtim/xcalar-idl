@@ -511,6 +511,7 @@ function documentReadyCatFunction(tableNum, tableNumsToRemove) {
             for (var i = 0; i < tableNumsToRemove.length; i++) {
                 $('#tablesToRemove'+tableNumsToRemove[i]).remove();
                 $('#rowScrollerToRemove'+tableNumsToRemove[i]).remove();
+                $('#dagWrapToRemove'+tableNumsToRemove[i]).remove();
             }
         }
         buildInitialTable(index, tableNum, jsonData, keyName);
