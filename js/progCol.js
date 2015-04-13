@@ -286,7 +286,11 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
            .removeClass("type-array")
            .removeClass("type-boolean")
            .removeClass("type-undefined")
+           .removeClass("recordNum")
            .addClass('type-' + columnType);
+    if (key == "recordNum") {
+        $header.addClass('recordNum');
+    }
     table.find('th.col' + newColid).removeClass('newColumn');
 }
 
@@ -429,8 +433,12 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
                 .removeClass("type-array")
                 .removeClass("type-undefined")
                 .removeClass("type-boolean")
+                .removeClass("recordNum")
                 .addClass('type-' + type);
         gTables[tableNum].tableCols[i].type = type;
+        if (tableCols[i].name == "recordNum") {
+            $header.addClass('recordNum');
+        }
         if ($currentTh.hasClass('selectedCell')) {
             highlightColumn($currentTh);
         }
@@ -598,7 +606,8 @@ function generateColDropDown(tableNum) {
                 '</ul>'+ 
                 '<div class="dropdownBox"></div>'+
             '</li>';
-    if (gTables[tableNum].isTable) {
+    var tableName = gTables[tableNum].backTableName;
+    if (gTables[tableNum].isTable && gMetaTable[tableName].isTable) {
         dropDownHTML += '<li class="groupBy">Group By';
     } else {
         dropDownHTML += '<li class="groupBy unavailable">Group By';
