@@ -121,15 +121,17 @@ function readFromStorage() {
 
         var promises = [];
         for (var i in gMetaTable) {
-            promises.push((function(i, datasetName) {
-                return XcalarMakeResultSetFromDataset(datasetName)
-                .done(function(result) {
-                    gMetaTable[i].resultSetId = result.resultSetId;
-                    gMetaTable[i].numEntries = result.numEntries;
+            if (!gMetaTable[i].isTable) {
+                promises.push((function(i, datasetName) {
+                    return XcalarMakeResultSetFromDataset(datasetName)
+                    .done(function(result) {
+                        gMetaTable[i].resultSetId = result.resultSetId;
+                        gMetaTable[i].numEntries = result.numEntries;
 
-                    console.log("new resultSetId:", result.resultSetId);
-                });
-            }).bind(this, i, gMetaTable[i].datasetName));
+                        console.log("new resultSetId:", result.resultSetId);
+                    });
+                }).bind(this, i, gMetaTable[i].datasetName));
+            }
         }
 
         return (chain(promises));
@@ -150,7 +152,7 @@ function readFromStorage() {
         return (commitToStorage(AfterStartup.After));
     })
     .then(function() {
-            deferred.resolve();
+        deferred.resolve();
     })
     .fail(function(error) {
         console.log("readFromStorage fails!");

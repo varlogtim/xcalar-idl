@@ -122,16 +122,14 @@ function checkSorted(tableNum, index) {
         deferred.resolve(tableName);
     } else {
         var datasetName = gMetaTable[tableName].datasetName;
-        var newTableName = tableName + Math.floor((Math.random() * 100000) + 1);
 
-        XcalarIndexFromDataset(datasetName, "recordNum", newTableName)
+        XcalarIndexFromDataset(datasetName, "recordNum", tableName)
         .then(function() {
-            copyMetaTable(tableName, newTableName);
-            gMetaTable[newTableName].isTable = true;
+            gMetaTable[tableName].isTable = true;
+            gTables[tableNum].isTable = true;
 
-            deferred.resolve(newTableName);
+            deferred.resolve(tableName);
         });
-        // return (sortRows(index, tableNum, SortDirection.Forward, true).then(deferred.resolve));
     }
     return (deferred.promise());
 }
