@@ -597,70 +597,72 @@ function generateColDropDown(tableNum) {
                 '<div class="dropdownBox"></div>'+
             '</li>';
     if (gTables[tableNum].isTable) {
-        dropDownHTML += 
-            '<li class="groupBy">Group By'+ 
-                '<ul class="subColMenu">'+
-                    '<li class="gb"><span>'+ 
-                    '<span class="countIcon"></span>Count</span>'+
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="groupBy"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="gb"><span>'+ 
-                    '<span class="avgIcon"></span>Average</span>'+
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="groupBy"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="gb"><span>'+ 
-                    '<span class="sumIcon"></span>Sum</span>'+
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="groupBy"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="gb"><span>'+ 
-                    '<span class="maxIcon"></span>Max</span>'+
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="groupBy"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="gb"><span>'+ 
-                    '<span class="minIcon"></span>Min</span>'+
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="groupBy"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-
-                    '<div class="subColMenuArea"></div>'+
-                '</ul>'+
-                '<div class="dropdownBox"></div>'+
-            '</li>';
+        dropDownHTML += '<li class="groupBy">Group By';
+    } else {
+        dropDownHTML += '<li class="groupBy unavailable">Group By';
     }
+    dropDownHTML +=
+            '<ul class="subColMenu">'+
+                '<li class="gb"><span>'+ 
+                '<span class="countIcon"></span>Count</span>'+
+                    '<ul class="subColMenu">'+
+                        '<li style="text-align: center" class="clickable">'+
+                        '<span>New Column Name</span>'+
+                        '<input type="text" width="100px" '+
+                            'value="groupBy"/></li>'+
+                        '<div class="subColMenuArea"></div>'+
+                    '</ul>'+
+                    '<div class="dropdownBox"></div>'+
+                '</li>'+
+                '<li class="gb"><span>'+ 
+                '<span class="avgIcon"></span>Average</span>'+
+                    '<ul class="subColMenu">'+
+                        '<li style="text-align: center" class="clickable">'+
+                        '<span>New Column Name</span>'+
+                        '<input type="text" width="100px" '+
+                            'value="groupBy"/></li>'+
+                        '<div class="subColMenuArea"></div>'+
+                    '</ul>'+
+                    '<div class="dropdownBox"></div>'+
+                '</li>'+
+                '<li class="gb"><span>'+ 
+                '<span class="sumIcon"></span>Sum</span>'+
+                    '<ul class="subColMenu">'+
+                        '<li style="text-align: center" class="clickable">'+
+                        '<span>New Column Name</span>'+
+                        '<input type="text" width="100px" '+
+                            'value="groupBy"/></li>'+
+                        '<div class="subColMenuArea"></div>'+
+                    '</ul>'+
+                    '<div class="dropdownBox"></div>'+
+                '</li>'+
+                '<li class="gb"><span>'+ 
+                '<span class="maxIcon"></span>Max</span>'+
+                    '<ul class="subColMenu">'+
+                        '<li style="text-align: center" class="clickable">'+
+                        '<span>New Column Name</span>'+
+                        '<input type="text" width="100px" '+
+                            'value="groupBy"/></li>'+
+                        '<div class="subColMenuArea"></div>'+
+                    '</ul>'+
+                    '<div class="dropdownBox"></div>'+
+                '</li>'+
+                '<li class="gb"><span>'+ 
+                '<span class="minIcon"></span>Min</span>'+
+                    '<ul class="subColMenu">'+
+                        '<li style="text-align: center" class="clickable">'+
+                        '<span>New Column Name</span>'+
+                        '<input type="text" width="100px" '+
+                            'value="groupBy"/></li>'+
+                        '<div class="subColMenuArea"></div>'+
+                    '</ul>'+
+                    '<div class="dropdownBox"></div>'+
+                '</li>'+
+
+                '<div class="subColMenuArea"></div>'+
+            '</ul>'+
+            '<div class="dropdownBox"></div>'+
+        '</li>';
             
 
     // XXX: HACK: I removed the check for the main col. Also, I should check for

@@ -829,6 +829,7 @@ function addColListeners($table, tableNum) {;
             options.classes.indexOf('type') === -1) {
             options.classes += " type-newColumn";
         }
+
         dropdownClick($(this), null, options);
     });
 
@@ -1139,7 +1140,7 @@ function dropdownClick($el, outside, options) {
         var tableNum = parseInt($el.closest('.xcTableWrap').attr('id')
                        .substring(11));
         if ($el.parent().hasClass('tableTitle')) {
-            var $menu = $('#tableMenu'+tableNum)
+            var $menu = $('#tableMenu'+tableNum);
         } else {
             var $menu = $('#colMenu'+tableNum);
         }
