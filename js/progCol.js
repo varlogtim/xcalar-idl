@@ -132,6 +132,12 @@ function checkSorted(tableNum, index) {
             gMetaTable[tableName].isTable = true;
             gTables[tableNum].isTable = true;
 
+            return (getResultSet(true, tableName));
+        })
+        .then(function(resultSet) {
+            gMetaTable[tableName].resultSetId = resultSet.resultSetId;
+            gTables[tableNum].resultSetId = resultSet.resultSetId;
+            
             deferred.resolve(tableName);
         });
     }
