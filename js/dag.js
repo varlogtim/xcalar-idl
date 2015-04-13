@@ -1287,11 +1287,10 @@ var dagApiMap = {
 };
 
 function createCanvas($dagWrap) {
-    var dagWidth = $dagWrap.find('.dagImage > .joinWrap').width();
-    var dagHeight = $dagWrap.find('.dagImage > .joinWrap').height();
+    var dagWidth = $dagWrap.find('.dagImage > div').width();
+    var dagHeight = $dagWrap.find('.dagImage > div').height();
     var canvasHTML = $('<canvas class="canvas" width="'+dagWidth+
                      '" height="'+dagHeight+'"></canvas>');
-    // $('.dagWrap:last .dagImage').append(canvasHTML);
     $dagWrap.find('.dagImage').append(canvasHTML);
     return (canvasHTML[0]);
 }
