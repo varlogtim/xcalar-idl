@@ -193,6 +193,16 @@
                 margin: 15px auto 5px;
                 position: relative;
 
+                .sampleText {
+                    z-index: 5;
+                    .font(@size: 60px, @color: black, @weight: bold);
+                    .transform(rotate(35deg));
+                    position: absolute;
+                    top: 47px;
+                    left: -29px;
+                    opacity: 0.15;
+                }
+
                 .innerCircle {
                     .size (@width: 130px, @height: 130px);
                     border-radius: 130px;

@@ -908,36 +908,39 @@ function XcalarKeyDelete(key) {
     return (deferred.promise());
 }
 
-function XcalarGetStats() {
+function XcalarGetStats(numNodes) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
     // XXX This is fako hacked up random code
-    // Total ram between 32G and 1TB
-    var GB = 1024 * 1024 * 1024 * 1024;
-    var numNodes = Math.ceil(Math.random()*4);
 
     var nodeStruct = [];
     for (var i = 0; i<numNodes; i++) {
         nodeStruct[i] = {};
-        var totRam = Math.floor(Math.random()*1000)*GB;
-        if (totRam < 32 * GB) {
-            totRam = 32 * GB;
-        }
-        var usedRam = Math.floor(Math.random() * totRam);
+
         var totFlash = Math.floor(Math.random()*1000)*GB;
         var usedFlash = Math.floor(Math.random() * totFlash);
         var totDisk = Math.floor(Math.random()*30*1000)*GB;
         var usedDisk = Math.floor(Math.random() * totDisk);
-        var percCPU = Math.random();
-        nodeStruct[i].totRam = totRam;
-        nodeStruct[i].usedRam = usedRam;
         nodeStruct[i].totFlash = totFlash;
         nodeStruct[i].usedFlash = usedFlash;
         nodeStruct[i].totDisk = totDisk;
         nodeStruct[i].usedDisk = usedDisk;
-        nodeStruct[i].percCPU = percCPU;
     }
     return (deferred.resolve(nodeStruct));
+}
+
+function XcalarApiTop(measureIntervalInMs) {
+     if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+
+    xcalarApiTop(tHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarApiTop", error));
+    });
+    return (deferred.promise());
 }

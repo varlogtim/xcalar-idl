@@ -131,51 +131,60 @@ function updateMonitorGraphs() {
     var date = d.toLocaleDateString().replace(/\//g,'-');
     var time = d.toLocaleTimeString();
     $("#graphTime").text(date+" "+time);
+    var numNodes = 0;
+    var apiTopResult;
 
-    XcalarGetStats()
+    XcalarApiTop()
+    .then(function(result) {
+        apiTopResult = result;
+        numNodes = result.numNodes;
+        return (XcalarGetStats(numNodes));
+    })
     .then(function(nodes) {
-        processNodeStats(nodes);
+        processNodeStats(nodes, apiTopResult, numNodes);
     })
     .fail(function() {
         console.log('XcalarGetStats failed');
     });
 
-    function processNodeStats(nodes) {
+    function processNodeStats(nodes, apiTopResult, numNodes) {
         var StatsObj = function() {
             this.used = [];
             this.tot = [];
             this.sumUsed = 0;
             this.sumTot = 0;
         }
+
         var cpu = new StatsObj();
         var ram = new StatsObj();
         var flash = new StatsObj();
         var disk = new StatsObj();
-        var numNodes = nodes.length;
-        var bytesPerGb = 1024 * 1024 * 1024 * 1024;
-
         for (var i = 0; i < numNodes; i++) {
-            var cpuPct = Math.ceil(nodes[i].percCPU * 100);
+            var cpuPct = apiTopResult.topOutputPerNode[i].cpuUsageInPercent*100;
+            cpuPct = Math.round(cpuPct*10) / 10;
             cpu.used.push(cpuPct);
             cpu.sumUsed += cpuPct;
             cpu.sumTot += 100;
 
-            var ramUsed = Math.ceil(nodes[i].usedRam / bytesPerGb);
-            var ramTot = nodes[i].totRam / bytesPerGb;
+            var ramUsed = apiTopResult.topOutputPerNode[i].memUsedInBytes / GB;
+            var ramTot = 
+                apiTopResult.topOutputPerNode[i].totalAvailableMemInBytes / GB;
+            ramUsed = Math.round(ramUsed*10) / 10;
+            ramTot = Math.round(ramTot*10) / 10;
             ram.used.push(ramUsed);
             ram.tot.push(ramTot);
             ram.sumUsed += ramUsed;
             ram.sumTot += ramTot;
 
-            var flashUsed = Math.ceil(nodes[i].usedFlash / bytesPerGb);
-            var flashTot = nodes[i].totFlash / bytesPerGb;
+            var flashUsed = Math.ceil(nodes[i].usedFlash / GB);
+            var flashTot = nodes[i].totFlash / GB;
             flash.used.push(flashUsed);
             flash.tot.push(flashTot);
             flash.sumUsed += flashUsed;
             flash.sumTot += flashTot;
 
-            var diskUsed = Math.ceil(nodes[i].usedDisk / bytesPerGb);
-            var diskTot = nodes[i].totDisk / bytesPerGb;
+            var diskUsed = Math.ceil(nodes[i].usedDisk / GB);
+            var diskTot = nodes[i].totDisk / GB;
             disk.used.push(diskUsed);
             disk.tot.push(diskTot);
             disk.sumUsed += diskUsed;
