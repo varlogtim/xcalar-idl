@@ -33,7 +33,7 @@ function setupRightSideBar() {
                 $sidebar.removeClass('open');
                 $sidebar.children('.lastOpen')
                         .removeClass('lastOpen');
-                $sidebarSection.addClass('.lastOpen');
+                $sidebarSection.addClass('lastOpen');
                 setTimeout(function() {
                     $sidebarSection.removeClass('active');
                 }, delay);
