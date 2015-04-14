@@ -84,7 +84,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $("#colMenu"+i).attr("id", "colMenu"+(i-1));
         $("#dagWrap"+i).attr("id", "dagWrap"+(i-1));
     }
-    
+    $('#rowInput').val("").data('val',"");
     // XXX: Think about gActiveTableNum
     gActiveTableNum--;
     if ($('#xcTable'+gActiveTableNum).length == 0) {

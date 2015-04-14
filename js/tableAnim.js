@@ -2,6 +2,7 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
     if ($('#xcTableWrap'+gActiveTableNum).length == 0) {
         return;
     }
+
     var tableLeft = $('#xcTable'+gActiveTableNum).offset().left;
     var tdXCoor = Math.max(0, tableLeft);; 
     var tdYCoor = 168; //top rows's distance from top of window
@@ -12,7 +13,7 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
     if (firstId && firstId.length > 0) {
         var firstRowNum = parseInt(firstId.substring(3))+1;
         if (!isNaN(firstRowNum)) {
-            $('#rowInput').val(firstRowNum);
+            $('#rowInput').val(firstRowNum).data('val', firstRowNum);
             if (rowScrollerMove) {
                 moverowScroller(firstRowNum, 
                     gTables[gActiveTableNum].resultSetCount);

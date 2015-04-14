@@ -314,7 +314,9 @@ function setupWorksheetMeta() {
 function documentReadyxcTableFunction() {
     resizeRowInput();
 
-    $('#rowInput').keypress(function(e) {
+    var $rowInput = $('#rowInput');
+
+    $rowInput.keypress(function(e) {
         if (e.which !== keyCode.Enter) {
             return;
         }
@@ -324,15 +326,16 @@ function documentReadyxcTableFunction() {
             return;
         }
         if (gTables[gActiveTableNum].resultSetCount == 0) {
-            $('#rowInput').val('0');
+            $rowInput.val('0');
             return;
         } else if (row < 1) {
             
-            $('#rowInput').val('1');
+            $rowInput.val('1');
         } else if (row > gTables[gActiveTableNum].resultSetCount) {
-            $('#rowInput').val(gTables[gActiveTableNum].resultSetCount);
+            $rowInput.val(gTables[gActiveTableNum].resultSetCount);
         }
-        row = parseInt($('#rowInput').val());
+        row = parseInt($rowInput.val());
+        $rowInput.data('val', row);
 
         if ((row/gNumEntriesPerPage) >
                 Math.floor((gTables[gActiveTableNum].resultSetCount/
@@ -360,6 +363,12 @@ function documentReadyxcTableFunction() {
         
         // $(this).blur(); 
     });
+    
+    $rowInput.change(function() {
+        var val = $(this).data('val');
+        $(this).val(val);
+    });
+    
     generateFirstVisibleRowNum();
     var num = Number(gTables[gActiveTableNum].resultSetCount).
                     toLocaleString('en');
@@ -408,6 +417,14 @@ function documentReadyGeneralFunction() {
     $('.jsonDragArea').mousedown(function(event) {
         jsonModalMouseDown(event);
     });
+
+    var $rowInput = $('#rowInput');
+    $rowInput.val("").data("");
+    $rowInput.change(function() {
+        var val = $(this).data('val');
+        $(this).val(val);
+    });
+    
 
     $(document).mousedown(function(event) {
         var $target = $(event.target);
