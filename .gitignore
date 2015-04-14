@@ -1,3 +1,4 @@
 /js/config.js
 /stylesheets/**/*.css
 /widget/*.css
+/js/thrift/*
