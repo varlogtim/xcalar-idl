@@ -109,7 +109,7 @@ function deleteTable(tableNum, deleteArchived) {
     // Free the result set pointer that is still pointing to it
     XcalarSetFree(resultSetId)
     .then(function() {
-        if (gMetaTable[frontTableName].isTable === false) {
+        if (table.isTable === false) {
             return (promiseWrapper(null));
         } else {
             return (XcalarDeleteTable(backTableName));
@@ -127,7 +127,6 @@ function deleteTable(tableNum, deleteArchived) {
         } else {
             archiveTable(tableNum, DeleteTable.Delete);
         }
-        delete gMetaTable[frontTableName];
 
         deferred.resolve();
     })

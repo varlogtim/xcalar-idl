@@ -815,24 +815,8 @@ function createWorksheet() {
             cliOptions.key = columnToIndex;
             
             var tmpResultSetId;
-
-            XcalarMakeResultSetFromDataset(datasetName)
-            .then(function(result) {
-                gMetaTable[tableName] = {};
-                gMetaTable[tableName].resultSetId = result.resultSetId;
-                gMetaTable[tableName].numEntries = result.numEntries;
-                gMetaTable[tableName].datasetName = datasetName;
-                gMetaTable[tableName].isTable = false;
-
-                tmpResultSetId = result.resultSetId;
-
-                setIndex(tableName, newTableCols);
-                return (refreshTable(tableName, gTables.length, true,
-                                     false));
-            })
-            .then(function() {
-                return (XcalarSetFree(tmpResultSetId));
-            })
+            setIndex(tableName, newTableCols, datasetName);
+            refreshTable(tableName, gTables.length, true, false)
             .then(function() {
                 commitToStorage();
                 Cli.add("Send To Worksheet", cliOptions);

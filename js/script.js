@@ -25,8 +25,6 @@ var gResrow = {};
 var gMinTableWidth = 30;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
-// this maps meta table name to corresponding resultId and tableOfEntries
-var gMetaTable = {}; 
 var gHiddenTables = [];
 var gFnBarOrigin;
 var gActiveTableNum = 0; // The table that is currently in focus
@@ -156,9 +154,11 @@ function setTableMeta(table) {
     var tableName = urlTableName || table;
     var newTable = new TableMeta();
 
-    var isTable = gMetaTable[tableName] && gMetaTable[tableName].isTable;
-
-    console.log(table, isTable, "***");
+    var isTable = true;
+    if (gTableIndicesLookup[tableName] && 
+        !gTableIndicesLookup[tableName].isTable) {
+        isTable = false;
+    }
 
     newTable.tableCols = [];
     newTable.currentPageNumber = 0;
@@ -188,11 +188,10 @@ function setTableMeta(table) {
 
 function getResultSet(isTable, tableName) {
     if (isTable) {
-        console.log(tableName, "true");
         return (XcalarMakeResultSetFromTable(tableName));
     } else {
-        console.log(tableName, "false");
-        return (XcalarMakeResultSetFromDataset(gMetaTable[tableName].datasetName));
+        return (XcalarMakeResultSetFromDataset(gTableIndicesLookup[tableName]
+                                                .datasetName));
     }
 }
 
@@ -560,7 +559,6 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
     setTableMeta(table)
     .then(function(newTableMeta) {
-        console.log("@@@", newTableMeta);
         gTables[tableNum] = newTableMeta;
         return (documentReadyCatFunction(tableNum, tableNumsToRemove));
     })

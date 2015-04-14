@@ -1,14 +1,3 @@
-function copyMetaTable(srcTableName, newTableName) {
-    gMetaTable[newTableName] = {};
-    var dest = gMetaTable[newTableName]
-    var src = gMetaTable[srcTableName];
-
-    dest.datasetName = src.datasetName;
-    dest.numEntries = src.numEntries;
-    dest.resultSetId = src.resultSetId;
-    dest.isTable = src.isTable;
-}
-
 function insertColAtIndex(index, tableNum, obj) {
     for (var i = gTables[tableNum].tableCols.length-1; i>=index; i--) {
         gTables[tableNum].tableCols[i].index += 1;
@@ -121,21 +110,22 @@ function checkSorted(tableNum, index) {
     if (gTables[tableNum].isTable) {
         deferred.resolve(tableName);
     } else {
-        var datasetName = gMetaTable[tableName].datasetName;
-        var resultSetId = gMetaTable[tableName].resultSetId;
+        var datasetName = gTableIndicesLookup[tableName].datasetName;
+        var resultSetId = gTables[tableNum].resultSetId;
 
         XcalarSetFree(resultSetId)
         .then(function() {
+            // XXX maybe later we shall change it to delete and refresh
+            gTableIndicesLookup[tableName].datasetName = undefined;
+            gTableIndicesLookup[tableName].isTable = true;
             return (XcalarIndexFromDataset(datasetName, "recordNum", tableName));
         })
         .then(function() {
-            gMetaTable[tableName].isTable = true;
             gTables[tableNum].isTable = true;
 
             return (getResultSet(true, tableName));
         })
         .then(function(resultSet) {
-            gMetaTable[tableName].resultSetId = resultSet.resultSetId;
             gTables[tableNum].resultSetId = resultSet.resultSetId;
             
             deferred.resolve(tableName);
@@ -613,7 +603,7 @@ function generateColDropDown(tableNum) {
                 '<div class="dropdownBox"></div>'+
             '</li>';
     var tableName = gTables[tableNum].backTableName;
-    if (gTables[tableNum].isTable && gMetaTable[tableName].isTable) {
+    if (gTables[tableNum].isTable) {
         dropDownHTML += '<li class="groupBy">Group By';
     } else {
         dropDownHTML += '<li class="groupBy unavailable">Group By';

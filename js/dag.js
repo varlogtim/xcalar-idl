@@ -1029,7 +1029,7 @@ function drawDag(tableName, tableNum) {
     if (!gTables[tableNum].isTable) {
         var dagObj = {node: [{}], numNodes:1};
         var node = dagObj.node[0];
-        var datasetName = gMetaTable[tableName].datasetName;
+        var datasetName = gTableIndicesLookup[tableName].datasetName;
         node.api = 2;
         node.dagNodeId = Math.ceil(Math.random()*10000);
         node.input = {loadInput: {}};

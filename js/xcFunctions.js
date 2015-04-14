@@ -1,6 +1,5 @@
 function refreshTable(newTableName, tableNum, 
                       keepOriginal, additionalTableNum) {
-    console.log("$$$", tableNum);
     var deferred = jQuery.Deferred();
     
     if (!$('#workspaceTab').hasClass('active')) {
@@ -73,16 +72,24 @@ function refreshTable(newTableName, tableNum,
     return (deferred.promise());
 }
 
-function sortRows(index, tableNum, order, onRecordNum) {
+function getIndexedTable(srcName, fieldName, newTableName, isTable) {
+    if (isTable) {
+        return (XcalarIndexFromTable(srcName, fieldName, newTableName));
+    } else {
+        return (XcalarIndexFromDataset(srcName, fieldName, newTableName));
+    }
+}
+
+function sortRows(index, tableNum, order) {
     var deferred = jQuery.Deferred();
 
     var isTable = gTables[tableNum].isTable;
 
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempSortTable"+rand;
-    var srcTableName = gTables[tableNum].frontTableName;
-    var datasetName = gMetaTable[srcTableName].datasetName;
-
+    var tableName = gTables[tableNum].frontTableName;
+    var srcName = isTable ? tableName : 
+                            gTableIndicesLookup[tableName].datasetName;
     var tablCols = gTables[tableNum].tableCols;
     var fieldName;
 
@@ -97,76 +104,40 @@ function sortRows(index, tableNum, order, onRecordNum) {
         return;
     }
 
-    if (isTable) {
-        console.log(arguments);
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = 'sort';
-        cliOptions.tableName = srcTableName;
-        cliOptions.key = fieldName;
-        cliOptions.newTableName = newTableName;
-        if (order == SortDirection.Forward) {
-            cliOptions.direction = 'ASC';
-        } else {
-            cliOptions.direction = "DESC";
-        }
-
-        var msg = StatusMessageTStr.Sort + " " + cliOptions.key;
-        StatusMessage.show(msg);
-
-        XcalarIndexFromTable(srcTableName, fieldName, newTableName)
-        .then(function() {
-            copyMetaTable(srcTableName, newTableName);
-
-            setDirection(newTableName, order);
-            setIndex(newTableName, tablCols);
-            return (refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep));
-        })
-        .then(function() {
-            commitToStorage();
-            Cli.add('Sort Table', cliOptions);
-            StatusMessage.success(msg);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Alert.error("Sort Rows Fails", error);
-            StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
-            deferred.reject(error);
-        });
+    // add cli
+    var cliOptions = {};
+    cliOptions.operation = 'sort';
+    cliOptions.tableName = srcName;
+    cliOptions.key = fieldName;
+    cliOptions.newTableName = newTableName;
+    if (order == SortDirection.Forward) {
+        cliOptions.direction = 'ASC';
     } else {
-        if (onRecordNum) {
-            fieldName = "recordNum";
-        }
-        XcalarIndexFromDataset(datasetName, fieldName, newTableName)
-        .then(function() {
-            copyMetaTable(srcTableName, newTableName);
-            console.log(newTableName, "true");
-            gMetaTable[newTableName].isTable = true;
-
-            // delete gTableIndicesLookup[srcTableName];
-            // var index = gTableOrderLookup.indexOf(srcTableName);
-            
-            // if (index > -1) {
-            //     console.log(index, srcTableName);
-            //     gTableOrderLookup.splice(index, 1);
-            // }
-
-            setDirection(newTableName, order);
-            setIndex(newTableName, tablCols);
-            return (refreshTable(newTableName, tableNum, KeepOriginalTables.DontKeep));
-        })
-        .then(function() {
-            commitToStorage();
-            deferred.resolve();
-            // Cli.add('Sort Table', cliOptions);
-            // StatusMessage.success(msg);
-        })
-        .fail(function(error) {
-            Alert.error("Sort Rows Fails", error);
-            deferred.deject(error);
-            // StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
-        });
+        cliOptions.direction = "DESC";
     }
+
+    var msg = StatusMessageTStr.Sort + " " + cliOptions.key;
+    StatusMessage.show(msg);
+
+    getIndexedTable(srcName, fieldName, newTableName, isTable)
+    .then(function() {
+        setDirection(newTableName, order);
+        setIndex(newTableName, tablCols);
+        return (refreshTable(newTableName, tableNum, 
+                KeepOriginalTables.DontKeep));
+    })
+    .then(function() {
+        commitToStorage();
+        Cli.add('Sort Table', cliOptions);
+        StatusMessage.success(msg);
+        deferred.resolve();
+    })
+    .fail(function(error) {
+        Alert.error("Sort Rows Fails", error);
+        StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
+        deferred.reject(error);
+    });
+
     return (deferred.promise());
 }
 
@@ -182,8 +153,6 @@ function mapColumn(fieldName, mapString, tableNum, tableName) {
     XcalarMap(fieldName, mapString, 
               tableName, newTableName)
     .then(function() {
-        copyMetaTable(tableName, newTableName);
-
         setIndex(newTableName, tablCols);
         return (refreshTable(newTableName, tableNum));
     })
@@ -225,7 +194,6 @@ function groupByCol(operator, newColName, colid, tableNum) {
     
     XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName)
     .then(function() {
-        copyMetaTable(srcTableName, newTableName);
         // TODO Create new gTables entry
         // setIndex(newTableName, newTableCols);
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
@@ -291,12 +259,9 @@ function filterCol(operator, value, colid, tableNum, tableName) {
 
     var msg = StatusMessageTStr.Filter+': '+cliOptions.colName
     StatusMessage.show(msg);
-    console.log(colid); 
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
     .then(function() {
-        copyMetaTable(srcTableName, newTableName);
-        
         setIndex(newTableName, tablCols);
         return (refreshTable(newTableName, tableNum));
     })
@@ -367,10 +332,6 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
     console.log(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
                     rightTableNum, rightColumnNum);
 
-    console.log("before join");
-    console.dir(gTables);
-    console.log(gMetaTable);
-
     var deferred = jQuery.Deferred();
     var joinType = "";
     switch (joinTypeStr) {
@@ -392,12 +353,12 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
     }
 
     showWaitCursor();
-    var leftName = gTables[leftTableNum].backTableName;
+    var leftTable = gTables[leftTableNum];
+    var leftName = leftTable.backTableName;
     
-    var leftColName =
-                    gTables[leftTableNum].tableCols[leftColumnNum].func.args[0];
+    var leftColName = leftTable.tableCols[leftColumnNum].func.args[0];
     
-    XcalarGetNextPage(gTables[leftTableNum].resultSetId, 1)
+    XcalarGetNextPage(leftTable.resultSetId, 1)
     .then(function(result) {
         var leftIndexColName = result.keysAttrHeader.name;
 
@@ -408,47 +369,17 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
             // indexed on this key. But for now, we reindex a new table
             var rand = Math.floor((Math.random() * 100000) + 1);
             var leftNameNew = leftName + rand;
+            var isTable = leftTable.isTable;
+            var srcName = isTable ? leftName : 
+                                    gTableIndicesLookup[leftName].datasetName;
 
-            var datasetName = gMetaTable[leftName].datasetName;
-
-            console.log("###left", datasetName);
-
-            var isTable = gMetaTable[leftName].isTable;
-
-            if (isTable) {
-                // this solves the map col issue
-                return (XcalarIndexFromTable(leftName, leftColName, leftNameNew)
+            return (getIndexedTable(srcName, leftColName, leftNameNew, isTable)
                     .then(function() {
-                            copyMetaTable(leftName, leftNameNew);
-
-                            console.log("before join2");
-                            console.dir(gTables);
-                            console.log(gMetaTable);
-
                             return (joinTables2([newTableName, joinType,
                                                leftTableNum, leftNameNew,
                                                rightTableNum, rightColumnNum]));
                         })
                     );
-            } else {
-                return (XcalarIndexFromDataset(datasetName, leftColName, leftNameNew)
-                    .then(function() {
-                            copyMetaTable(leftName, leftNameNew);
-
-                            gMetaTable[leftNameNew].isTable = true;
-
-                            console.log("before join2");
-                            console.dir(gTables);
-                            console.log(gMetaTable);
-
-                            return (joinTables2([newTableName, joinType,
-                                               leftTableNum, leftNameNew,
-                                               rightTableNum, rightColumnNum]));
-                        })
-                    );
-            }
-            
-            
         } else {
             console.log("left indexed correctly");
             return (joinTables2([newTableName, joinType, leftTableNum, 
@@ -468,10 +399,6 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
 }
 
 function joinTables2(args) {
-    console.log("joinTables2", args);
-    console.dir(gTables);
-    console.log(gMetaTable);
-
     var deferred = jQuery.Deferred();
 
     var newTableName = args[0];
@@ -480,14 +407,12 @@ function joinTables2(args) {
     var leftName = args[3];
     var rightTableNum = args[4];
     var rightColumnNum = args[5];
-    
-    var rightColName =
-                  gTables[rightTableNum].tableCols[rightColumnNum].func.args[0];
+    var rightTable = gTables[rightTableNum];
+    var rightColName = rightTable.tableCols[rightColumnNum].func.args[0];
 
-    var rightName = gTables[rightTableNum].backTableName;   
-    
+    var rightName = rightTable.backTableName;
 
-    XcalarGetNextPage(gTables[rightTableNum].resultSetId, 1)
+    XcalarGetNextPage(rightTable.resultSetId, 1)
     .then(function(result) {
         var rightIndexColName = result.keysAttrHeader.name;
 
@@ -495,45 +420,18 @@ function joinTables2(args) {
             console.log("right not indexed correctly");
             var rand = Math.floor((Math.random() * 100000) + 1);
             var rightNameNew = rightName + rand;
+            var isTable = rightTable.isTable;
+            var srcName = isTable ? rightName : 
+                                    gTableIndicesLookup[rightName].datasetName;
 
-            var datasetName = gMetaTable[rightName].datasetName;
-
-            console.log("###right", datasetName);
-
-            var isTable = gMetaTable[rightName].isTable;
-
-            if (isTable) {
-                return (XcalarIndexFromTable(rightName, rightColName, rightNameNew)
+            return (getIndexedTable(srcName, rightColName, 
+                                    rightNameNew, isTable)
                     .then(function() {
-                            copyMetaTable(rightName, rightNameNew);
-
-                            console.log("before join3");
-                            console.dir(gTables);
-                            console.log(gMetaTable);
-
                             return (joinTables3([newTableName, joinType,
-                                      leftTableNum, leftName, rightTableNum,
-                                      rightNameNew]));
+                                                leftTableNum, leftName, 
+                                                rightTableNum, rightNameNew]));
                         })
                     );
-            } else {
-                return (XcalarIndexFromDataset(datasetName, rightColName, rightNameNew)
-                    .then(function() {
-                            copyMetaTable(rightName, rightNameNew);
-
-                            gMetaTable[rightNameNew].isTable = true;
-
-                            console.log("before join3");
-                            console.dir(gTables);
-                            console.log(gMetaTable);
-
-                            return (joinTables3([newTableName, joinType,
-                                      leftTableNum, leftName, rightTableNum,
-                                      rightNameNew]));
-                        })
-                    );
-            }
-            
         } else {
             console.log("right correctly indexed");
             return (joinTables3([newTableName, joinType, leftTableNum, 
@@ -550,10 +448,6 @@ function joinTables2(args) {
 }
 
 function joinTables3(args) {
-    console.log("joinTables3", args);
-    console.dir(gTables);
-    console.log(gMetaTable);
-
     var deferred = jQuery.Deferred();
 
     var newTableName = args[0];
@@ -566,15 +460,8 @@ function joinTables3(args) {
     var newTableCols = createJoinIndex(rightTableNum, leftTableNum);
     XcalarJoin(leftName, rightName, newTableName, joinType)
     .then(function() {
-        copyMetaTable(gTables[leftTableNum].frontTableName, newTableName);
-
-        gMetaTable[newTableName].isTable = true;
-
         setIndex(newTableName, newTableCols);
 
-        console.log("before, refresh");
-        console.dir(gTables);
-        console.log(gMetaTable);
         return (refreshTable(newTableName, leftTableNum, 
                              KeepOriginalTables.DontKeep, rightTableNum));
     })

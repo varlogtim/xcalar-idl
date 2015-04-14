@@ -48,11 +48,17 @@ function getDirection(tName) {
     return (null);
 }
 
-function setIndex(tName, index) {
+function setIndex(tName, index, dsName) {
     gTableIndicesLookup[tName] = {};
     gTableIndicesLookup[tName]['columns'] = index;
     gTableIndicesLookup[tName]['active'] = true;
     gTableIndicesLookup[tName]['timeStamp'] = (new Date()).getTime();
+    if (dsName) {
+        gTableIndicesLookup[tName]['datasetName'] = dsName;
+        gTableIndicesLookup[tName]['isTable'] = false;
+    } else {
+        gTableIndicesLookup[tName]['isTable'] = true;
+    }
 }
 
 function setDirection(tName, order) {
@@ -68,7 +74,6 @@ function commitToStorage(atStartup) {
                 "WSName": gWorksheetName,
                 "TOLookup": gTableOrderLookup,
                 "gDSObj": gDSObjFolder,
-                "MetaTable": gMetaTable,
                 "holdStatus": KVStore.isHold()
             };
 
@@ -107,37 +112,15 @@ function readFromStorage() {
             if (gInfos["gDSObj"]) {
                 gDSObjFolder = gInfos["gDSObj"];
             }
-            if (gInfos["MetaTable"]) {
-                gMetaTable = gInfos["MetaTable"];
-            }
         } else {
             gTableIndicesLookup = {};
             gTableDirectionLookup = {};
             gWorksheetName = [];
             gTableOrderLookup = [];
             gDSObjFolder = {};
-            gMetaTable = {};
         }
 
-        var promises = [];
-        for (var i in gMetaTable) {
-            if (!gMetaTable[i].isTable) {
-                promises.push((function(i, datasetName) {
-                    return XcalarMakeResultSetFromDataset(datasetName)
-                    .done(function(result) {
-                        gMetaTable[i].resultSetId = result.resultSetId;
-                        gMetaTable[i].numEntries = result.numEntries;
-
-                        console.log("new resultSetId:", result.resultSetId);
-                    });
-                }).bind(this, i, gMetaTable[i].datasetName));
-            }
-        }
-
-        return (chain(promises));
-    })
-    .then(function() {
-        return (XcalarGetDatasets());
+        return (XcalarGetDatasets())
     })
     .then(function(datasets) {
         var numDatasets = datasets.numDatasets;
