@@ -21,6 +21,8 @@ function setupRightSideBar() {
             // sidebar is closed so open the correlating section
             $sidebar.addClass('open');
             $sidebarSection.addClass('active');
+            $sidebar.children('.lastOpen')
+                    .removeClass('lastOpen');
             if ($sidebarSection.attr('id') === 'cliSection') {
                 Cli.scrollDown();
             }
@@ -40,7 +42,8 @@ function setupRightSideBar() {
             } else {
                 // close current section, open new section
                 $sidebar.children('.active')
-                        .removeClass('active');
+                        .removeClass('active')
+                        .removeClass('lastOpen');
                 $sidebarSection.addClass('active');
                 if ($sidebarSection.attr('id') === 'cliSection') {
                     Cli.scrollDown();
@@ -96,6 +99,7 @@ function setupRightSideBar() {
     $sidebar.on('click', '.iconClose', function() {
         $sidebar.removeClass('open');
         $sliderBtns.removeClass('active');
+        $sidebar.find('.active').addClass('lastOpen');
         setTimeout(function() {
             $sidebar.find('.rightBarSection')
                     .removeClass('active');
