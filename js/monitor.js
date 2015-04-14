@@ -189,8 +189,8 @@ function updateMonitorGraphs() {
         var flash = new StatsObj();
         var disk = new StatsObj();
         for (var i = 0; i < numNodes; i++) {
-            var cpuPct = apiTopResult.topOutputPerNode[i].cpuUsageInPercent*100;
-            cpuPct = Math.round(cpuPct*10) / 10;
+            var cpuPct = apiTopResult.topOutputPerNode[i].cpuUsageInPercent;
+            cpuPct = Math.round(cpuPct*100) / 100;
             cpu.used.push(cpuPct);
             cpu.sumUsed += cpuPct;
             cpu.sumTot += 100;
@@ -244,7 +244,7 @@ function updateStatsSection(el, index, stats) {
     var listHTML = "";
     
     if (index == 0) {
-        var avgUsed = Math.round(stats.sumUsed / numNodes);
+        var avgUsed = Math.round((stats.sumUsed / numNodes)*100)/100;
         $statsSection.find('.statsHeadingBar .avgNum').text(avgUsed);
 
         for (var i = 0; i < numNodes; i++) {
