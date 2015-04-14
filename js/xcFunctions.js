@@ -141,14 +141,12 @@ function sortRows(index, tableNum, order) {
     return (deferred.promise());
 }
 
-function mapColumn(fieldName, mapString, tableNum, tableName) {
+function mapColumn(fieldName, mapString, tableNum, tableName, message) {
     var deferred = jQuery.Deferred();
 
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempMapTable"+rand;
-    var msg = StatusMessageTStr.Map + " " + fieldName;
     var tablCols = gTables[tableNum].tableCols;
-    StatusMessage.show(msg);
     
     XcalarMap(fieldName, mapString, 
               tableName, newTableName)
@@ -158,12 +156,12 @@ function mapColumn(fieldName, mapString, tableNum, tableName) {
     })
     .then(function() {
         commitToStorage();
-        StatusMessage.success(msg);
+        StatusMessage.success(message);
         deferred.resolve();
     })
     .fail(function(error){
         Alert.error("mapColumn fails", error);
-        StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
+        StatusMessage.fail(StatusMessageTStr.MapFailed, message);
         deferred.reject(error);
     });
 
@@ -213,11 +211,11 @@ function groupByCol(operator, newColName, colid, tableNum) {
     return (deferred.promise());
 }
 
-function aggregateCol(operator, colName, tableName) {
+function aggregateCol(operator, colName, tableName, message) {
     showWaitCursor();
-    var msg = StatusMessageTStr.Aggregate+' '+operator+' '+
-                        StatusMessageTStr.OnColumn+': ' + colName
-    StatusMessage.show(msg);
+    // var msg = StatusMessageTStr.Aggregate+' '+operator+' '+
+    //                     StatusMessageTStr.OnColumn+': ' + colName;
+    // StatusMessage.show(msg);
     XcalarAggregate(colName, tableName, operator)
     .then(function(value){
         // show result in alert modal
@@ -228,18 +226,18 @@ function aggregateCol(operator, colName, tableName) {
         Alert.show({'title':title, 'msg':value, 
                     'instr': instr, 'isAlert':true,
                     'isCheckBox': true});
-        StatusMessage.success(msg);
+        StatusMessage.success(message);
     })
     .fail(function(error) {
         Alert.error("Aggregate fails", error);
-        StatusMessage.fail(StatusMessageTStr.AggregateFailed, msg);
+        StatusMessage.fail(StatusMessageTStr.AggregateFailed, message);
     })
     .always(function() {
         removeWaitCursor();
     });
 }
 
-function filterCol(operator, value, colid, tableNum, tableName) {
+function filterCol(operator, value, colid, tableNum, tableName, message) {
     var deferred = jQuery.Deferred();
 
     var rand = Math.floor((Math.random() * 100000) + 1);
@@ -257,8 +255,8 @@ function filterCol(operator, value, colid, tableNum, tableName) {
     cliOptions.value = value;
     cliOptions.newTableName = newTableName;
 
-    var msg = StatusMessageTStr.Filter+': '+cliOptions.colName
-    StatusMessage.show(msg);
+    // var msg = StatusMessageTStr.Filter+': '+cliOptions.colName;
+    // StatusMessage.show(msg);
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
     .then(function() {
@@ -268,12 +266,12 @@ function filterCol(operator, value, colid, tableNum, tableName) {
     .then(function() {
         commitToStorage();
         Cli.add('Filter Table', cliOptions);
-        StatusMessage.success(msg);
+        StatusMessage.success(message);
         deferred.resolve();
     })
     .fail(function(error) {
         Alert.error("filterCol fails", error);
-        StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+        StatusMessage.fail(StatusMessageTStr.FilterFailed, message);
         deferred.reject(error);
     });
     

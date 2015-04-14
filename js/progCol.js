@@ -76,9 +76,14 @@ function execCol(progCol, tableNum, args) {
         progCol.isDark = false;
         // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
         //                   fieldName + ")";
+        
+        var msg = StatusMessageTStr.Map + " " + fieldName;
+        StatusMessage.show(msg);
+
         checkSorted(tableNum, progCol.index)
         .then(function(tableName) {
-            return (mapColumn(fieldName, mapString, tableNum, tableName));
+            return (mapColumn(fieldName, mapString, 
+                    tableNum, tableName, msg));
         })
         .then(function() {
             deferred.resolve();

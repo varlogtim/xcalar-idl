@@ -1044,28 +1044,38 @@ function addColMenuActions($colMenu) {
         var colName = pCol.func.args[0];
         var aggrOp = $(this).closest('.aggrOp').text();
         console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
-        
+        var msg = StatusMessageTStr.Aggregate+' '+aggrOp+' '+
+                        StatusMessageTStr.OnColumn+': ' + colName;
+        StatusMessage.show(msg);
+
         checkSorted(tableNum, index)
         .then(function(tableName) {
-            aggregateCol(aggrOp, colName, tableName);
+            aggregateCol(aggrOp, colName, tableName, msg);
         });
 
     });
 
     $colMenu.on('keyup', '.filterWrap input', function(e) {
-        if (e.which === keyCode.Enter) {
-            var value = $(this).val();
-            var tableNum = parseInt($colMenu.attr('id').substring(7));
-            var index = $colMenu.data('colNum');
-            var operator = $(this).closest('.filter').text(); 
-            console.log(operator, 'operator');
-            $colMenu.hide();
-
-            checkSorted(tableNum, index)
-            .then(function(tableName) {
-                filterCol(operator, value, index, tableNum, tableName);
-            });
+        if (e.which != keyCode.Enter) {
+            return;
         }
+        var value = $(this).val();
+        var tableNum = parseInt($colMenu.attr('id').substring(7));
+        var index = $colMenu.data('colNum');
+        var operator = $(this).closest('.filter').text(); 
+        console.log(operator, 'operator');
+        $colMenu.hide();
+
+        var tablCols = gTables[tableNum].tableCols;
+        var colName = tablCols[colid - 1].name;
+        var msg = StatusMessageTStr.Filter+': '+colName;
+        var colName = tablCols[colid - 1].name;
+        StatusMessage.show(msg);
+
+        checkSorted(tableNum, index)
+        .then(function(tableName) {
+            filterCol(operator, value, index, tableNum, tableName, msg);
+        });
     });
 
     $colMenu.on('keyup', '.groupBy input', function(e) {
