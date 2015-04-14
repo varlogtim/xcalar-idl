@@ -118,6 +118,7 @@
             float: left;
             background-color: @color-background-darkGray;
             overflow: hidden;
+            position: relative;
 
             .graphTop {
                 .size (@height: 32px);
@@ -158,6 +159,22 @@
                 height: 265px;
                 float: right;
                 .background("/images/monitor/graph.png", 100%, 265px);
+            }
+
+            .graphText {
+                width: 100%;
+                height: 80%;
+                float: right;
+                position: absolute;
+                margin-top: 20px;
+                z-index: 1;
+                .sampleText {
+                    text-align: center;
+                    z-index: 5;
+                    .font(@size: 70px, @color: @color-white, @weight: bold);
+                    line-height: 110px;
+                    opacity: 0.15;
+                }
             }
         }
     }

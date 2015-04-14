@@ -1,7 +1,13 @@
 function setupMonitorPanel() {
     initializeDonuts();
 
-    $('#refreshGraph').click(updateMonitorGraphs);
+    $('#refreshGraph').click(function() {
+        toggleRefresh();
+    });
+
+    $('#refreshBtn').click(function() {
+        toggleRefresh();
+    });
 
     $('.statsHeadingBar').click(function() {
         if ($(this).hasClass('open')) {
@@ -16,6 +22,26 @@ function setupMonitorPanel() {
                    .addClass('open');
         }
     });
+
+    function toggleRefresh() {
+        var $refreshBtn = $('#refreshBtn');
+        if ($refreshBtn.hasClass('off')) {
+            $refreshBtn.removeClass('off');
+            turnOnAutoRefresh();
+        } else {
+            $refreshBtn.addClass('off');
+            clearInterval(graphInterval);
+        }
+    }
+
+    var graphInterval;
+    var refreshTime = 4000;
+    function turnOnAutoRefresh() {
+        updateMonitorGraphs();
+        graphInterval = setInterval(function() {
+            updateMonitorGraphs();
+        }, refreshTime);
+    }
 }
 
 function initializeDonuts() {
@@ -127,6 +153,9 @@ function updateDonut(el, val, total) {
 }
 
 function updateMonitorGraphs() {
+    if (!$('#monitorTab').hasClass('active')) {
+        return;
+    }
     var d = new Date();
     var date = d.toLocaleDateString().replace(/\//g,'-');
     var time = d.toLocaleTimeString();

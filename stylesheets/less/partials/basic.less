@@ -199,6 +199,75 @@ body {
     }
 }
 
+.onOffBtn {
+    .size(@width:86px, @height:27px);
+    .rounded;
+    position: relative;
+    top: 3px;
+    margin-top: -8px;
+    display: inline-block;
+    float: right;
+    z-index: 0;
+    cursor: pointer;
+    .noSelection;
+
+    .slider {
+        .size(@width:45px, @height:27px);
+        .rounded;
+        .linear-gradient(top, @color-table-lightGray, @color-table-darkGray);
+        box-shadow: 0px 1px 0px 1px rgba(0,0,0, 0.15);
+        border-left: 1px solid rgba(0,0,0,0.05);
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 5;
+        .transition(all 0.2s);
+        &.off {
+            left: 45px;
+        }
+    }
+
+    .text {
+        .font(@size: 14px, @weight: bold, @line-height: 27px);
+        .rounded;
+        .size(@width: 50px, @height: 100%);
+        text-align: center;
+        display: inline-block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        box-shadow: inset -1px 1px 1px 0px rgba(0, 0, 0, 0.2);
+        z-index: -3;
+        .transition-delay(0.1s);
+
+        &.onText {
+            .font(@color: @color-text-transparentWhite);
+            .action-gradient;
+            left: 35px;
+            z-index: -2;
+            padding-left: 10px;
+
+        }
+        &.offText {
+            .font(@color: @color-text-dropMenu);
+            background-color: @color-cli-hover;
+            box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
+            padding-right: 5px;
+        }
+    }
+
+    &.off {
+        .slider {
+            left: 45px;
+            border-left: none;
+            border-right: 1px solid rgba(0,0,0,0.05);
+        }
+        .offText {
+            z-index: -1;
+        }
+    }
+}
+
 input {
     .size(@height: 30px);
     .rounded;
