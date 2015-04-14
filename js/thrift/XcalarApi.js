@@ -1488,6 +1488,7 @@ function xcalarKeyDelete(thriftHandle, key) {
 
 function xcalarApiTop(thriftHandle, measureIntervalInMs) {
     var deferred = jQuery.Deferred();
+    console.log("xcalarApiTop(measureIntervalInMs = ", measureIntervalInMs, ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
