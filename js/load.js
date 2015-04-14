@@ -5,6 +5,15 @@ function setupImportDSForm() {
         $(this).find('.radio').addClass('checked');
     });
 
+    $("#fileFormat input[type=radio]").click(function() {
+        if ($(this).attr("id").indexOf("CSV") > -1) {
+            $("#fieldDelim").prop("disabled", false);
+            $("#lineDelim").prop("disabled", false);
+        } else {
+            $("#fieldDelim").prop("disabled", true);
+            $("#lineDelim").prop("disabled", true);
+        }
+    });
     $("#fileFormat .dsTypeLabel").click(function() {
         if ($(this).text() == "CSV") {
             $("#fieldDelim").prop("disabled", false);
