@@ -901,7 +901,12 @@ function XcalarKeyDelete(key) {
     xcalarKeyDelete(tHandle, key)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarKeyDelete", error));
+        var thriftError = thriftLog("XcalarKeyDelete", error);
+        if (thriftError.statusCode === StatusT.StatusKvEntryNotFound) {
+            deferred.resolve();
+        } else {
+            deferred.reject(thriftError);
+        }
     });
 
     return (deferred.promise());

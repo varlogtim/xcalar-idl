@@ -10,6 +10,7 @@ var gTableOrderLookup = [];
 var gDSObjFolder = {};
 
 function emptyAllStorage() {
+    var deferred = jQuery.Deferred();
 
     gTableIndicesLookup = {};
     gTableDirectionLookup = {};
@@ -17,7 +18,14 @@ function emptyAllStorage() {
     gTableOrderLookup = [];
     gDSObjFolder = {};
 
-    return (KVStore.delete(KVStore.gStorageKey));
+    KVStore.delete(KVStore.gStorageKey)
+    .then(function() {
+        return (KVStore.delete(KVStore.gLogKey));
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return (deferred.promise());
 }
 
 function getIndex(tName) {
@@ -66,9 +74,9 @@ function setDirection(tName, order) {
 }
 
 function commitToStorage(atStartup) {
-    setTableOrder(atStartup);
     var deferred = jQuery.Deferred();
 
+    setTableOrder(atStartup);
     storage = {"TILookup": gTableIndicesLookup,
                 "TDLookup": gTableDirectionLookup,
                 "WSName": gWorksheetName,
@@ -182,15 +190,26 @@ var KVStore = (function() {
     var isHold = false;
 
     self.gStorageKey = generateKey(hostname, portNumber, "gInfo");
+    self.gLogKey = generateKey(hostname, portNumber, "gLog");
 
     self.get = function(key) {
         var deferred = jQuery.Deferred();
         XcalarKeyLookup(key)
         .then(function(value) {
-            if (value != null) {
-                console.log(JSON.parse(value.value));
+            if (value != null && value.value != null) {
+                try {
+                    value = JSON.parse(value.value);
+                    console.log("Parsed result", value);
+                    deferred.resolve(value);
+                } catch(err) {
+                    console.log(err, value);
+                    self.delete(key);
+                    self.log(err.message);
+                    deferred.resolve(null);
+                }
+            } else {
+                deferred.resolve(null);
             }
-            deferred.resolve(value);
         })
         .fail(function(error) {
             console.log("Get from KV Store fails!");
@@ -231,14 +250,13 @@ var KVStore = (function() {
 
     self.hold = function() {
         var deferred = jQuery.Deferred();
-        XcalarKeyLookup(self.gStorageKey)
-        .then(function(output) {
-            if (!output) {
+        self.get(self.gStorageKey)
+        .then(function(gInfos) {
+            if (!gInfos) {
                 console.log("KVStore is empty!");
                 isHold = true;
                 deferred.resolve(null);
             } else {
-                var gInfos = JSON.parse(output.value);
                 if (gInfos["holdStatus"] === true && 
                     sessionStorage.getItem(self.gStorageKey) !== "hold") {
                     Alert.error("Signed on elsewhere!",
@@ -255,9 +273,7 @@ var KVStore = (function() {
                 }
             }
         })
-        .fail(function(error) {
-            deferred.reject(error);
-        });
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -285,6 +301,12 @@ var KVStore = (function() {
 
     self.isHold = function() {
         return (isHold);
+    }
+
+    self.log = function(error) {
+        var log = {};
+        log.error = error;
+        self.put(self.gLogKey, JSON.stringify(log));
     }
 
     function generateKey() {
