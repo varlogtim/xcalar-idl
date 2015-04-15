@@ -205,47 +205,52 @@ function dragdropMouseUp() {
                    .scrollTop(0);
     reenableTextSelection();
     gDragObj.table.find('.xcTbodyWrap').removeClass('hideScroll');
-    var progCol = gTables[dragObj.tableNum].tableCols[dragObj.colNum-1];
-    var isDark = dragObj.element.hasClass('unusedCell');
-    var selected = dragObj.element.hasClass('selectedCell');
     if (dragObj.inFocus) {
         dragObj.element.find('.editableHead').focus();
     }
     
     // only pull col if column is dropped in new location
     if ((dragObj.colIndex) != dragObj.colNum) { 
-        setTimeout(function() {
-            // add cli
-            var cliOptions = {};
-            cliOptions.tableName = gTables[dragObj.tableNum].frontTableName;
-            cliOptions.colName = gTables[dragObj.tableNum]
-                                 .tableCols[dragObj.colNum - 1].name;
-            cliOptions.oldColIndex = dragObj.colNum;
-            cliOptions.newColIndex = dragObj.colIndex;
-
-            var storedScrollLeft =  $('#mainFrame').scrollLeft();
-            delCol(dragObj.colNum, dragObj.tableNum, true);
-            progCol.index = dragObj.colIndex;
-            insertColAtIndex(dragObj.colIndex-1, dragObj.tableNum, progCol);
-            addCol("col"+(dragObj.colIndex-1), "xcTable"+dragObj.tableNum, 
-                    progCol.name, {width: progCol.width,
-                    isDark: isDark, 
-                    select: selected, 
-                    inFocus: dragObj.inFocus,
-                    progCol: progCol});
-
-            execCol(progCol, dragObj.tableNum)
-            .then(function() {
-                updateMenuBarTable(gTables[dragObj.tableNum],
-                                   dragObj.tableNum);
-                //prevent scroll position from changing when 
-                // you delete and add column
-                $('#mainFrame').scrollLeft(storedScrollLeft);
-
-                Cli.add('Change Column Order', cliOptions);
-            });
-        }, 0);
+        var cliOptions = {};
+        cliOptions.tableName = gTables[dragObj.tableNum].frontTableName;
+        cliOptions.colName = gTables[dragObj.tableNum]
+                             .tableCols[dragObj.colNum - 1].name;
+        cliOptions.oldColIndex = dragObj.colNum;
+        cliOptions.newColIndex = dragObj.colIndex;
+        Cli.add('Change Column Order', cliOptions);
+        
+        reorderAfterColumnDrop();
     }
+}
+
+function reorderAfterColumnDrop() {
+    var dragObj = gDragObj;
+    var tableNum = dragObj.tableNum;
+    var progCol = removeColAtIndex(dragObj.colNum-1, tableNum);
+    insertColAtIndex(dragObj.colIndex-1, tableNum, progCol);
+    progCol.index = dragObj.colIndex;
+
+    dragObj.table.find('.col'+dragObj.colNum)
+                 .removeClass('col'+dragObj.colNum)
+                 .addClass('colNumToChange');
+
+    if (dragObj.colNum > dragObj.colIndex) {
+        for (var i = dragObj.colNum; i >= dragObj.colIndex; i--) {
+            dragObj.table.find('.col'+i)
+                   .removeClass('col'+i)
+                   .addClass('col'+(i+1));
+        }
+    } else {
+        for (var i = dragObj.colNum; i <= dragObj.colIndex; i++) {
+            dragObj.table.find('.col'+i)
+                   .removeClass('col'+i)
+                   .addClass('col'+(i-1));
+        }
+    }
+
+    dragObj.table.find('.colNumToChange')
+                 .addClass('col'+dragObj.colIndex)
+                 .removeClass('colNumToChange');
 }
 
 function dragdropMoveMainFrame() {

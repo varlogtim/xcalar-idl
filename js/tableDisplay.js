@@ -232,6 +232,7 @@ function generateTableShell(columns, tableNum) {
                 '<th class="col' + newColid + ' th dataCol" ' +
                     'style="width:' + columns[i].width + 'px;">' +
                     '<div class="header type-data">' +
+                        '<div class="dragArea"></div>'+
                         '<div class="colGrab"></div>'+
                         '<div class="flexContainer flexRow">' + 
                         '<div class="flexWrap flex-left"></div>' + 

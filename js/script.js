@@ -174,7 +174,7 @@ function setTableMeta(table) {
         newTable.backTableName = tableName;
         newTable.frontTableName = tableName;
 
-        console.log(newTable);
+        // console.log(newTable);
 
         deferred.resolve(newTable);
     })
