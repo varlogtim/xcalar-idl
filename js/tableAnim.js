@@ -3,6 +3,10 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
         return;
     }
 
+    if (! document.elementFromPoint) {
+        return;
+    }
+
     var tableLeft = $('#xcTable'+gActiveTableNum).offset().left;
     var tdXCoor = Math.max(0, tableLeft);; 
     var tdYCoor = 168; //top rows's distance from top of window
