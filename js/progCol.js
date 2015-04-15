@@ -201,6 +201,42 @@ function updateFunctionBar(text) {
     $('#fnBar').val(text);
 }
 
+function checkDuplicateColNames($inputs, $input) {
+    // $inputs are the inputs to check names against, $input is the target input
+    var name = $.trim($input.val());
+    var isDuplicate = false;
+    $inputs.each(function() {
+        if ($(this)[0] == $input[0]) {
+            return (true);
+        }
+        if (name == $(this).val()) {
+            isDuplicate = true;
+            return (false);
+        }
+    });
+    $('.tooltip').hide();
+    if (isDuplicate) {
+
+        var container = $input.closest('.mainPanel').attr('id');
+        $input.parent().tooltip({
+            title : "Name already exists, please use another name",
+            placement : "top",
+            trigger: "manual",
+            container : "#"+container,
+            template: '<div class="tooltip error" role="tooltip">'+
+                      '<div class="tooltip-arrow"></div>'+
+                      '<div class="tooltip-inner"></div>'+
+                      '</div>'
+        });
+        
+        $input.parent().tooltip('show');
+        setTimeout(function() {
+            $input.parent().tooltip('destroy');
+        }, 5000);
+    }
+    return (isDuplicate);
+}
+
 function delCol(colNum, tableNum, resize) {
     var numCol = $("#xcTable"+tableNum+" tr:first th").length;
     var tableWrap = $("#xcTableWrap"+tableNum);

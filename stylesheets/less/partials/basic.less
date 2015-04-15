@@ -75,6 +75,20 @@ body {
     background: transparent;
 }
 
+.avoidClicks {
+    pointer-events: none;
+}
+
+// .allowClicks {
+    
+// }
+
+.persist {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: all;
+}
+
 /* For Both worksheet menu bar and bottom area bar */
 .workspaceBar, .topBar {
     .position(relative);
@@ -1363,6 +1377,7 @@ ul.inputMenu {
     line-height: 1.4;
     opacity: 0;
     filter: alpha(opacity=0);
+    white-space: normal;
 }
 .tooltip.in {
     opacity: 0.9;
@@ -1473,5 +1488,25 @@ ul.inputMenu {
 }
 .tooltip.top .tooltip-arrow {
     border-top-color: rgba(54, 68, 77, 0.95);
+}
+
+.tooltip.error {
+    opacity: 1 !important;
+        
+    .tooltip-inner, .tooltip-arrow {
+        color: #4d4d4d;
+        opacity: 1 !important;
+    }
+
+    .tooltip-arrow {
+        background-color: transparent !important;
+        border-top-color: @color-error-border;
+    }
+
+    .tooltip-inner {
+        background-color: white;
+        border: 1px solid @color-error-border;
+        box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
+    }
 }
 /* END CUSTOM BOOTSTRAP CODE */

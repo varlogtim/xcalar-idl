@@ -332,7 +332,7 @@ function xcalarEditColumn(thriftHandle, datasetName, tableName, isDataset,
             statusOutput = result.jobStatus;
         }
         if (statusOutput != StatusT.StatusOk) {
-            deferred.reject(statOutput.status);
+            deferred.reject(statusOutput.status);
         }
         deferred.resolve(statusOutput);
     })

@@ -522,6 +522,7 @@ function addWorksheetListeners(tableNum) {
         }).mouseleave(function(event) {
             $(this).children('ul').removeClass('visible');
             $(this).removeClass('selected');
+            $('.tooltip').remove();
     });
 
     $('#outerColMenu'+tableNum).find('input')
@@ -546,36 +547,49 @@ function addWorksheetListeners(tableNum) {
         }
         var $input = $(this);
         $input.blur();
-        var newName = $input.val();
+        var newName = $.trim($input.val());
         var colNum = $input.closest('.colMenu').data('colNum');
         var $tableWrap = $('#dataSetTableWrap' + tableNum);
         var $headInput = $tableWrap.find('.editableHead.col'+colNum);
         var oldColName = $headInput.val();
         var dsName = $(".dbText h2").text();
         console.log("Renaming "+oldColName+" to "+ newName);
-        $('.colMenu').hide();
 
-        if (newName !== oldColName) {
-            XcalarEditColumn(dsName, oldColName, newName, DfFieldTypeT.DfString)
-            .then(function() {
-                $headInput.val(newName);
-                $headInput.closest('th').attr('title', newName);
-                $('#selectedTable'+tableNum).find('.colName').filter(
-                    function() {
-                        return $(this).text() == oldColName;
-                    }
-                ).text(newName);
+        var isDuplicate = 
+                    checkDuplicateColNames(table.find('.editableHead'), $input);
+       
+        if (isDuplicate) {
+            return;                     
+        } else {
+            $('.colMenu').hide();
+ 
+            if (newName !== oldColName) {
+                XcalarEditColumn(dsName, oldColName, newName, 
+                DfFieldTypeT.DfString)
+                .then(function() {
+                    console.log(newName, $headInput);
+                    $headInput.val(newName);
+                    $headInput.closest('th').attr('title', newName);
+                    $('#selectedTable'+tableNum).find('.colName').filter(
+                        function() {
+                            return $(this).text() == oldColName;
+                        }
+                    ).text(newName);
 
-                // add cli
-                var dsName = $tableWrap.find('table').data('dsname');
-                var cliOptions = {};
-                cliOptions.operation = 'renameDatasetCol';
-                cliOptions.dsName = dsName;
-                cliOptions.colNum = colNum + 1;
-                cliOptions.oldColName = oldColName;
-                cliOptions.newColName = newName;
-                Cli.add('Rename dataset column', cliOptions);
-            });
+                    // add cli
+                    var dsName = $tableWrap.find('table').data('dsname');
+                    var cliOptions = {};
+                    cliOptions.operation = 'renameDatasetCol';
+                    cliOptions.dsName = dsName;
+                    cliOptions.colNum = colNum + 1;
+                    cliOptions.oldColName = oldColName;
+                    cliOptions.newColName = newName;
+                    Cli.add('Rename dataset column', cliOptions);
+                })
+                .fail(function(error){
+                    console.log('Could not rename column: '+error);
+                });
+            }
         }
     });
 

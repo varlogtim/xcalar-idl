@@ -882,6 +882,7 @@ function addColMenuBehaviors($colMenu) {
         "mouseleave": function() {
             $(this).children('ul').removeClass('visible');
             $(this).removeClass('selected');
+            $('.tooltip').remove();
         }
     }, "li");
 
@@ -1092,10 +1093,15 @@ function addColMenuActions($colMenu) {
                                           "New Column Name"));
             console.log('operator: '+operator+"value: "+value+"index: "+
                         index+"tableNum: "+tableNum);
-            $colMenu.hide();
-
-            groupByCol(operator, value, index, tableNum);
             
+            var $keyColumn = $thead.find('.editableHead').filter(function() {
+                return ($(this).val() == gTables[tableNum].keyName);
+            });
+            var isDuplicate = checkDuplicateColNames($keyColumn, $(this));
+            if (!isDuplicate) {
+                $('.colMenu').hide();
+                groupByCol(operator, value, index, tableNum);
+            }
         }
     });
 
@@ -1106,7 +1112,6 @@ function addColMenuActions($colMenu) {
             var index = $colMenu.data('colNum');
             var operator = $(this).closest('.mapOp').find('.mapOpText').text(); 
             var colName = gTables[tableNum].tableCols[index-1].name;
-            $colMenu.hide();
             var newColName;
             var value;
             if ($(this).hasClass("newColName")) {
@@ -1121,6 +1126,13 @@ function addColMenuActions($colMenu) {
                 console.log("XXX!");
                 return;
             }
+
+            var isDuplicate = 
+                checkDuplicateColNames($thead.find('.editableHead'), $(this));
+            if (isDuplicate) {
+                return;
+            }
+            $colMenu.hide();
             var switched = $(this).parent().parent().find('.switch')
                             .hasClass('selected');
             var mapStr = formulateMapString(operator, colName,
@@ -1153,7 +1165,7 @@ function formulateMapString(operator, columnName, value,
     var mapString = '=map(';
     switch (operator) {
     case ("Sum"):
-        mapString += "sum(";
+        mapString += "add(";
         break;
     case ("Subtract"):
         mapString += "sub(";
