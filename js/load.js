@@ -70,10 +70,10 @@ function setupImportDSForm() {
         })
         .fail(function(result) {
             var text;
-            if (result == StatusT.StatusDsInvalidUrl) {
+            if (result.statusCode === StatusT.StatusDsInvalidUrl) {
                 text = 'Could not retrieve dataset from file path: ' + loadURL;
             } else {
-                text = StatusTStr[result];
+                text = result.error;
             }
             $('#tempDSIcon').remove();
             StatusBox.show(text, $('#filePath'), true);
