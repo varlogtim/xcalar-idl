@@ -556,13 +556,14 @@ ul.colMenu {
             background-color: @color-selectedCell-dark;
             > .dropdownBox {
                 opacity: 1;
+                border-right-color: @color-dropBox-secondary;
             }
         }
 
         .dropdownBox {
-            opacity: 0;
+            opacity: 0.3;
             z-index: 0;
-            border-right-color: @color-dropBox-secondary;
+            border-right-color: @color-background-lightGray;
             .transition-delay (.0s);
             pointer-events: none;
         }
@@ -700,6 +701,9 @@ ul.colMenu {
 
     .unavailable {
         pointer-events: none;
+        .dropdownBox {
+            opacity: 0;
+        }
     }
 
     &.type-string, &.type-array {
