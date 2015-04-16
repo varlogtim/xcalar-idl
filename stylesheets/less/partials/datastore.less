@@ -191,6 +191,7 @@ input {
             .position(relative);
             .size(@width: 100px, @height: 20px);
             .font(@size: 12px, @line-height: 20px);
+            .noSelection;
             span {
                 cursor: pointer;
                 float: left;
@@ -217,7 +218,7 @@ input {
         }
         input[type=radio] {
             .position(absolute, @left: 0);
-            margin: 4px 0 0 10px;
+            margin: 0 0 0 10px;
             cursor: pointer;
             opacity: 0;
             pointer-events: none;

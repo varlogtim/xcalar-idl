@@ -3,19 +3,10 @@ function setupImportDSForm() {
     $('#fileFormat').find('label').click(function() {
         $('.radio').removeClass('checked');
         $(this).find('.radio').addClass('checked');
-    });
+        $('#fileFormat').find('input').prop('checked', false);
+        $(this).find('input').prop('checked', true);
 
-    $("#fileFormat input[type=radio]").click(function() {
-        if ($(this).attr("id").indexOf("CSV") > -1) {
-            $("#fieldDelim").prop("disabled", false);
-            $("#lineDelim").prop("disabled", false);
-        } else {
-            $("#fieldDelim").prop("disabled", true);
-            $("#lineDelim").prop("disabled", true);
-        }
-    });
-    $("#fileFormat .dsTypeLabel").click(function() {
-        if ($(this).text() == "CSV") {
+        if ($(this).find('input').attr("id").indexOf("CSV") > -1) {
             $("#fieldDelim").prop("disabled", false);
             $("#lineDelim").prop("disabled", false);
         } else {
@@ -162,9 +153,9 @@ function setupImportDSForm() {
         $('#fileName').val(file);
 
         if (file == "sp500" || file == "gdelt") {
-            $('.dsTypeLabel:contains("CSV")').click();
+            $('.dsTypeLabel:contains("CSV")').parent().trigger('click');
         } else {
-            $('.dsTypeLabel:contains("JSON")').click();
+            $('.dsTypeLabel:contains("JSON")').parent().trigger('click');
         }
 
         $('#fileName').focus();
