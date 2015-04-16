@@ -1076,10 +1076,8 @@ function addColMenuActions($colMenu) {
         console.log(operator, 'operator');
         $colMenu.hide();
 
-        var tablCols = gTables[tableNum].tableCols;
-        var colName = tablCols[colid - 1].name;
+        var colName = gTables[tableNum].tableCols[index - 1].name;
         var msg = StatusMessageTStr.Filter+': '+colName;
-        var colName = tablCols[colid - 1].name;
         StatusMessage.show(msg);
 
         checkSorted(tableNum, index)
