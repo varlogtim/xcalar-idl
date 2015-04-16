@@ -132,12 +132,15 @@ function updateDonut(el, val, total) {
                         this.textContent = num;
                         return;
                     }
-                    if (num > 1023) {
-                        num = Math.round(num / 102.4) / 10;
-                        $sizeType.html('TB');
-                    } else {
-                        $sizeType.html('GB');
+                    if (index != 3) {
+                        if (num > 1023) {
+                            num = Math.round(num / 102.4) / 10;
+                            $sizeType.html('TB');
+                        } else {
+                            $sizeType.html('GB');
+                        }
                     }
+                    
                     this.textContent = num;
                 });
           });
@@ -212,8 +215,8 @@ function updateMonitorGraphs() {
             flash.sumUsed += flashUsed;
             flash.sumTot += flashTot;
 
-            var diskUsed = Math.ceil(nodes[i].usedDisk / GB);
-            var diskTot = nodes[i].totDisk / GB;
+            var diskUsed = Math.ceil(nodes[i].usedDisk / TB)*5;
+            var diskTot = Math.ceil(nodes[i].totDisk / TB)*5;
             disk.used.push(diskUsed);
             disk.tot.push(diskTot);
             disk.sumUsed += diskUsed;
@@ -256,15 +259,19 @@ function updateStatsSection(el, index, stats) {
     } else {
         $statsSection.find('.statsHeadingBar .totNum').text(stats.sumTot);
         $statsSection.find('.statsHeadingBar .avgNum').text(stats.sumUsed);
-
+        if (index == 3) {
+            var units = " Mbps";
+        } else {
+            var units = " GB";
+        }
         for (var i = 0; i < numNodes; i++) {
             listHTML += '<li>' +
                             '<span class="name">Node '+(i+1)+'</span>' +
                             '<span class="userSize">'+
-                                stats.used[i]+' GB'+
+                                stats.used[i]+units+
                             '</span>' +
                             '<span class="totalSize">'
-                                +stats.tot[i]+' GB'+
+                                +stats.tot[i]+units+
                             '</span>' +
                         '</li>';
         }
