@@ -1,4 +1,4 @@
-Alert = (function(){
+window.Alert = (function(){
     var $alertModal = $("#alertModal");
     var $modalBackground = $("#modalBackground");
 
@@ -17,7 +17,9 @@ Alert = (function(){
 
         $alertModal.show();
         $modalBackground.fadeIn(100);
-        window.getSelection().removeAllRanges();
+        if (window.getSelection) {
+            window.getSelection().removeAllRanges();
+        }
     }
 
     self.error = function(title, error, unclosable) {
