@@ -945,7 +945,7 @@ function generateColDropDown(tableNum) {
                         '<span class="regex"></span>'+
                         'Regex'+
                         '<ul class="subColMenu">'+
-                            '<li><input type="text" value="*"/></li>'+
+                            '<li><input type="text" value="*" id="filterByRegex"/></li>'+
                             '<div class="subColMenuArea"></div>'+
                         '</ul>'+
                         '<div class="dropdownBox"></div>'+
