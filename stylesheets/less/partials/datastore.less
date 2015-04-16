@@ -772,21 +772,6 @@ input {
                 .image("/images/select-none.png", 50%, 50%);
             }
         }
-    }
-
-    .datasetTitleWrap {
-        margin-left: 15px;
-    }
-
-    #datasetWrap {
-        .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 68px)",
-              @max-width: 100%);
-        white-space: nowrap;
-        overflow: hidden;
-        float: left;
-        position: absolute;
-        margin-left: 10px;
-        overflow-x: auto;
 
         .colMenu {
             width: 160px;
@@ -822,6 +807,23 @@ input {
                 }
             }
         }
+    }
+
+    .datasetTitleWrap {
+        margin-left: 15px;
+    }
+
+    #datasetWrap {
+        .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 68px)",
+              @max-width: 100%);
+        white-space: nowrap;
+        overflow: hidden;
+        float: left;
+        position: absolute;
+        margin-left: 10px;
+        overflow-x: auto;
+
+       
     }
 
     .datasetTbodyWrap {

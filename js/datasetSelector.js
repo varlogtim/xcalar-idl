@@ -437,7 +437,7 @@ function addDataSetHeaders(jsonKeys, index) {
     colMenu +=  '</ul>\
                 <div class="dropdownBox"></div>\
                 </ul>';
-    $('#datasetWrap').append(colMenu);
+    $('#contentViewTable').append(colMenu);
 }
 
 function addDataSetRows(jsonKeys, jsons, tableNum) {
