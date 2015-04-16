@@ -194,6 +194,7 @@ function cleanseFunc(funcString) {
     for (var i = 0; i<args.length; i++) {
         args[i] = removeSpaces(args[i]);
     }
+
     return ({func: funcName, args: args});
 }
 
@@ -254,6 +255,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         //check for dot followed by number (invalid)
         return;
     }
+    console.log(arguments)
     var table = $("#xcTable"+tableNum);
     var dataCol = table.find("tr:first th").filter(
         function() {
@@ -271,10 +273,15 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         startingIndex = startIndex;
         numRow = numberOfRows||gNumEntriesPerPage;
     } 
-    var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
-
+    // var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
+    var nested = key.trim()
+                    .replace(/\]/g, "")
+                    .replace(/\[/g, ".")
+                    .match(/([^\\.]|\\.)+/g);
+    // console.log(key, nested);
    // track column type
     var columnType = undefined;
+    var subValue = "";
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = table.find('.row'+i+' .col'+colid+' .elementText').text();
         if (jsonStr == "") {
@@ -284,11 +291,12 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
             var value = jQuery.parseJSON(jsonStr);
         }
         for (var j = 0; j<nested.length; j++) {
-            if ($.isEmptyObject(value) || value[nested[j]] == undefined) {
+            subValue = nested[j].replace(/\\./g, "\.");
+            if ($.isEmptyObject(value) || value[subValue] == undefined) {
                 value = "";
                 break;
             }
-            value = value[nested[j]];
+            value = value[subValue];
         }  
         //define type of the column
         if(value !== "" && columnType !== "mixed") {
@@ -345,9 +353,9 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
     for (var i = 0; i < numCols; i++) {
         if ((i != dataIndex) && tableCols[i].func.args) {
             var nested = tableCols[i].func.args[0]
-                         .replace(/\]/g, "")
-                         .replace(/\[/g, ".")
-                         .split(".");
+                            .replace(/\]/g, "")
+                            .replace(/\[/g, ".")
+                            .match(/([^\\.]|\\.)+/g);
             nestedVals.push(nested);
             // get the column number of the column the table was indexed on
             if (tableCols[i].name == table.keyName) {
@@ -393,14 +401,16 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
                 if (nested == undefined) {
                     console.log('Error this value should not be empty');
                 }
+                var subValue = "";
                 var nestedLength = nested.length;
                 for (var i = 0; i<nestedLength; i++) {
+                    subValue = nested[i].replace(/\\./g, "\.");
                     if ($.isEmptyObject(tdValue) || 
-                        tdValue[nested[i]] == undefined) {
+                        tdValue[subValue] == undefined) {
                         tdValue = "";
                         break;
                     }
-                    tdValue = tdValue[nested[i]];
+                    tdValue = tdValue[subValue];
                 }  
                 
                 // XXX giving classes to table cells may actually be.then later

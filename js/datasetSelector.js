@@ -816,13 +816,14 @@ function createWorksheet() {
 
             $(self).find('.colName').each(function() {
                 var colname = $.trim($(this).text());
+                var escapedColname = colname.replace(/\./g, "\\\.");
                 var progCol = new ProgCol();
                 progCol.index = ++startIndex;
                 progCol.name = colname;
                 progCol.width = gNewCellWidth;
-                progCol.userStr = '"'+colname+'" = pull('+colname+')';
+                progCol.userStr = '"'+colname+'" = pull('+escapedColname+')';
                 progCol.func.func = "pull";
-                progCol.func.args = [colname];
+                progCol.func.args = [escapedColname];
                 progCol.isDark = false;
 
                 var currentIndex = startIndex - 1;

@@ -69,21 +69,29 @@ function prettifyJson(obj, indent, options) {
 }
 
 function createJsonSelectionExpression(el) {
-    var obj = "";
+    var name = "";
+    var escapedName = "";
     el.parents('.jInfo').each(function(){
         var key = "";
+        var escapedKey = "";
         if ($(this).parent().hasClass('jArray') &&
             !$(this).hasClass('jsonBlock')) {
             key = '['+$(this).data('key')+']'; 
         } else if (!$(this).hasClass('jArray')) {
             key = '.'+$(this).data('key'); 
         }
-        obj = key+obj;
+        escapedKey = key;
+        if (key.substr(1).indexOf('.') > -1) {
+            escapedKey = key.replace(/\./g, "\\\.").substr(1);
+        }
+        name = key+name;
+        escapedName = escapedKey+escapedName;
     });
-    if (obj.charAt(0) == '.') {
-        obj = obj.substr(1);
+    if (name.charAt(0) == '.') {
+        name = name.substr(1);
+        escapedName = escapedName.substr(1);
     }
-    return (obj);
+    return ({name: name, escapedName: escapedName});
 }
 
 function showJsonModal(jsonTd) {
@@ -105,21 +113,21 @@ function showJsonModal(jsonTd) {
         var cliOptions = {};
         cliOptions.operation = 'addCol';
         cliOptions.tableName = gTables[tableNum].frontTableName;
-        cliOptions.newColName = name;
+        cliOptions.newColName = name.name;
         cliOptions.siblColName = gTables[tableNum].tableCols[colNum - 1].name;
         cliOptions.siblColIndex = colNum;
         cliOptions.direction = "L";
 
 
-        addCol('col'+(colNum), 'xcTable'+tableNum, name, {direction: 'L', 
+        addCol('col'+(colNum), 'xcTable'+tableNum, name.name, {direction: 'L', 
                 select: true});
 
         Cli.add('Add Column', cliOptions);
 
         gTables[tableNum].tableCols[colNum-1].func.func = "pull";        
-        gTables[tableNum].tableCols[colNum-1].func.args = [name];
-        gTables[tableNum].tableCols[colNum-1].userStr = '"'+name+
-                                                        '" = pull('+name+')';
+        gTables[tableNum].tableCols[colNum-1].func.args = [name.escapedName];
+        gTables[tableNum].tableCols[colNum-1].userStr = '"'+name.name+
+                                                        '" = pull('+name.escapedName+')';
         execCol(gTables[tableNum].tableCols[colNum-1], tableNum)
         .then(function() {
             updateMenuBarTable(gTables[tableNum], tableNum);
