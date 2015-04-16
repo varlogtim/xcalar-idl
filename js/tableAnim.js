@@ -1265,9 +1265,8 @@ function dropdownClick($el, outside, options) {
     var top = $el[0].getBoundingClientRect().bottom + topMargin;
     var left = $el[0].getBoundingClientRect().left + leftMargin;
     if (outside) {
-        var tableNum = parseInt($el.closest('.datasetTableWrap').attr('id')
-                       .substring(16));
-        var $menu = $('#outerColMenu'+tableNum);
+        // for dataset dropdown
+        var $menu = $("#datasetTableMenu");
     } else {
         var tableNum = parseInt($el.closest('.xcTableWrap').attr('id')
                        .substring(11));

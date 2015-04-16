@@ -1,4 +1,4 @@
-FileBrowser = (function() {
+window.FileBrowser = (function() {
     var self = {};
 
     var $modalBackground = $('#modalBackground');

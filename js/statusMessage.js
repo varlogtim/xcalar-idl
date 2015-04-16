@@ -1,5 +1,5 @@
 // displays load message and animated waiting icon near CLI button
-StatusMessage = (function() {
+window.StatusMessage = (function() {
     var $statusText = $('#pageStatusText');
     var $waitingIcon = $('#loadingIconWrap').children();
     var isLoading = false;

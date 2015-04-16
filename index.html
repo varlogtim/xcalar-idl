@@ -190,10 +190,10 @@
               <span id="lineText">Line Delimiter:</span>
               <input type="text" id="lineDelim"></input>
             </div>
-            <button class="btn btnMid" type="submit" id="importDataSubmit">
-              IMPORT DATA
-            </button>
-            <button class="btn btnMid btn-cancel" type="reset">CANCEL</button>
+            <button id="importDataSubmit" class="btn btnMid" 
+                    type="submit">IMPORT DATA</button>
+            <button id="importDataReset" class="btn btnMid btn-cancel" 
+                    type="reset">CANCEL</button>
           </div>
         </div>
       </form> 
@@ -236,10 +236,30 @@
                 <span class="icon"></span>IMPORT NEW DATA SET
               </div>
             </div>
-            <div id="gridViewButtonArea"></div>
+            <div id="gridViewButtonArea">
+              <div id="backFolderBtn"  class="disabled"
+                  title="See previous folders"
+                  data-toggle="tooltip" data-placement="bottom"
+                  ondrop="dsDropBack(event)"
+                  ondragover="allowDSDrop(event)"
+                  ondragenter="dsDragEnter(event)">
+                <div class="icon"></div>
+                <div class="label">..</div>
+              </div>
+              <div id="addFolderBtn" title="Add New Folder"
+                  data-toggle="tooltip" data-placement="bottom">
+                  <div class="icon"></div>
+                  <div class="label">NEW</div>
+              </div>
+              <div id="deleteFolderBtn" class="disabled" title="Delete Folder"
+                data-toggle="tooltip" data-placement="bottom">
+                <div class="icon"></div>
+                <div class="label">DELETE</div>
+              </div>
+            </div>
             <div id="gridViewWrapper">
               <div id="gridViewScrollbarWrapper">
-                <div id="gridView"></div>
+                <div id="gridView" class="gridView"></div>
               </div>
             </div>
           </div>
@@ -290,7 +310,9 @@
                 </div>
               </div>
               <div id="datasetWrap">
+                <div id="dataSetTableWrap" class="datasetTableWrap"></div>
               </div>
+              <ul id="datasetTableMenu" class="colMenu">
             </div><!--- end contentviewtable -->
           </div><!-- end contentviewmid -->
           <div id="contentViewRight">
@@ -305,7 +327,7 @@
                 <span class="icon"></span>
                 SEND TO MULTIPLE WORKSHEETS
               </div>
-              <div class="btn btnLarge" id="clearDataChart"
+              <div class="btn btnLarge" id="clearDataCart"
                    style="display: block;">
                 <span class="icon"></span>
                 CLEAR DATA CART
@@ -316,8 +338,7 @@
               <div class="border"></div>
             </div>
             <div id="dataCartWrap">
-              <div id="dataCart">
-              </div>
+              <div id="dataCart"></div>
             </div><!-- END DATA CART WRAP-->
           </div>
         </div>
@@ -777,8 +798,7 @@
 <script src="/js/xcFunctions.js" type="text/javascript"></script>
 <script src="/js/scratchpad.js" type="text/javascript"></script>
 <script src="/js/rightSlider.js" type="text/javascript"></script>
-<script src="/js/datasetSelector.js" type="text/javascript"></script>
-<script src="js/partials/datastore.js" type="text/javascript"></script>
+<script src="/js/datastore.js" type="text/javascript"></script>
 <script src="js/joinModal.js" type="text/javascript"></script>
 <script src="js/load.js" type="text/javascript"></script>
 <script src="js/dag.js" type="text/javascript"></script>

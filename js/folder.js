@@ -189,72 +189,6 @@ function gDSInitialization() {
 }
 
 /**
-* Button Initialization for data set left menu bar
-*
-* @method dsBtnInitizlize
-* @param {Jquery} $gridView, place to append button
-*/
-function dsBtnInitizlize($gridViewBtnArea) {
-    var html = "";
-    html += '<div id="backFolderBtn"  class="disabled"' + 
-                ' data-toggle="tooltip" data-placement="bottom"' +
-                ' title="See previous folders"' + 
-                ' ondrop="dsDropBack(event)"' + 
-                ' ondragover="allowDSDrop(event)"' + 
-                ' ondragenter="dsDragEnter(event)">' +
-                '<div class="icon"></div>' +
-                '<div class="label">' + 
-                    '..' + 
-                '</div>' + 
-            '</div>';
-
-    html += '<div id="addFolderBtn"'+ 
-                ' data-toggle="tooltip" data-placement="bottom"'+
-                ' title="Add New Folder">' + 
-                '<div class="icon"></div>' +
-                '<div class="label">' + 
-                    'NEW' + 
-                '</div>' + 
-            '</div>';
-
-    html += '<div id="deleteFolderBtn" class="disabled"' + 
-            ' data-toggle="tooltip" data-placement="bottom"' +
-            ' title="Delete Folder">' + 
-                '<div class="icon"></div>' +
-                '<div class="label">' + 
-                    'DELETE' + 
-                '</div>' + 
-            '</div>';
-    $gridViewBtnArea.append(html);
-
-    // click "Add New Folder" button to add new folder
-    $("#addFolderBtn").click(function() {
-        DSObj.create(gDSObj.id++, "New Folder", gDSObj.curId, true);
-        // commitToStorage();
-    });
-
-    // click "Back Up" button to go back to parent folder
-    $("#backFolderBtn").click(function() {
-        if ($(this).hasClass('disabled')) {
-            return;
-        }
-        DSObj.upDir();
-    });
-
-    // click "Delete Folder" button to delete folder
-    $("#deleteFolderBtn").click(function() {
-        if ($(this).hasClass('disabled')) {
-             return;
-        }
-        var $folder = $('grid-unit.folder.active');
-        var folderId = $folder.attr('data-dsId');
-        if (DSObj.deleteById(folderId) === true) {
-            $folder.remove();
-        }
-    });
-}
-
-/**
 * Restore dataset left menu bar from local storage
 *
 * @method restoreDSObj
@@ -313,6 +247,128 @@ function restoreDSObj(datasets) {
 /*** End of initializetion function **/
 
 /*** Start of helper function ***/
+DSObj.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim) {
+    var deferred = jQuery.Deferred();
+
+    console.log(dsName, dsFormat, loadURL, fieldDelim, lineDelim);
+    $("#gridView").append(getTempDSHTML(dsName));
+    $("#waitingIcon").fadeIn(200);
+
+    XcalarLoad(loadURL, dsFormat, dsName, fieldDelim, lineDelim)
+    .then(function(result) {
+        XcalarGetDatasets()
+        .then(function(datasets) {
+            DataStore.updateInfo(datasets.numDatasets);
+        })
+        .fail(function(result) {
+            console.error("Fail to update ds nums");
+        });
+
+        $("#tempDSIcon").remove();
+        displayNewDataset(dsName, dsFormat);
+
+        // add cli
+        Cli.add('Load dataset', {
+            "operation": "loadDataSet",
+            "dsName": dsName,
+            "dsFormat": dsFormat
+        });
+        deferred.resolve();
+    })
+    .fail(function(result) {
+        $('#tempDSIcon').remove();
+        deferred.reject(result);
+    });
+
+    function getTempDSHTML(dsName) {
+        var html = 
+            '<grid-unit id="tempDSIcon" class="ds display inactive">\
+                <div class="gridIcon"></div>\
+                <div class="listIcon">\
+                    <span class="icon"></span>\
+                </div>\
+                <div id="waitingIcon" class="waitingIcon"></div>\
+                <div class="label">' + dsName + '</div>\
+            </grid-unit>';
+        return (html);
+    }
+
+    function displayNewDataset(dsName, dsFormat) {
+        DSObj.create(gDSObj.id++, dsName, gDSObj.curId, 
+                    false, {"format": dsFormat});
+        // commitToStorage();
+        DSObj.display();
+        $("#dataset-" + dsName).click();
+    }
+
+    return (deferred.promise());
+}
+
+DSObj.restore = function(datasets) {
+    var isRestore = restoreDSObj(datasets);
+    if (!isRestore) {
+        console.log("Construct directly from backend");
+        var numDatasets = datasets.numDatasets;
+
+        for (var i = 0; i < numDatasets; i++) {
+            var dataset =  datasets.datasets[i];
+            var attrs = {};
+            attrs.format = DfFormatTypeTStr[dataset.formatType]
+                            .toUpperCase();
+            DSObj.create(gDSObj.id++, datasets.datasets[i].name,
+                         gDSObj.curId, false, attrs);
+        }
+    }
+    // commitToStorage(AfterStartup.After);
+    DSObj.display();
+}
+
+DSObj.getSample = function($grid) {
+    var dsObj = DSObj.getById($grid.data("dsid"));
+    var datasetName = dsObj.name;
+    var format = dsObj.attrs.format;
+    // XcalarSample sets gDatasetBrowserResultSetId
+    XcalarSample(datasetName, 20)
+    .then(function(result, totalEntries) {
+        var uniqueJsonKey = {}; // store unique Json key
+        var jsonKeys = [];
+        var jsons = [];  // store all jsons
+        var kvPairs = result.kvPairs;
+        var records = kvPairs.records;
+
+        if (kvPairs.recordType ==
+            GenericTypesRecordTypeT.GenericTypesVariableSize) {
+
+            records.forEach(function(record) {
+                var json = jQuery.parseJSON(record.kvPairVariable.value);
+                jsons.push(json);
+
+                for (var key in json) {
+                    uniqueJsonKey[key] = "";
+                }
+            });
+        } else {
+            records.forEach(function(record) {
+                var json = jQuery.parseJSON(record.kvPairFixed.value);
+                jsons.push(json);
+
+                for (var key in json) {
+                    uniqueJsonKey[key] = "";
+                }
+            });
+        }
+
+        for (var key in uniqueJsonKey) {
+            jsonKeys.push(key);
+        }
+
+        DataSampleTable.updateTableInfo(datasetName, format, totalEntries);
+        DataSampleTable.getSampleTable(datasetName, jsonKeys, jsons);
+    })
+    .fail(function(error) {
+        Alert.error("getDatasetSample fails", error);
+    });
+}
 
 // find dsObj in lookupTable
 DSObj.getById = function (id) {
@@ -471,6 +527,65 @@ DSObj.deleteById = function (dsId) {
     DSObj.clean(ds);
     // commitToStorage();
     return (true);
+}
+
+function getDSId(dsName) {
+    return ("#dataset-" + dsName);
+}
+
+DSObj.destroy = function(dsName) {
+    var deferred = jQuery.Deferred();
+    var id = getDSId(dsName);
+    var $grid = $(id);
+
+    $grid.removeClass('active');
+    $grid.addClass('inactive');
+    $grid.append('<div id="waitingIcon" class="waitingIcon"></div>');
+
+    $('#waitingIcon').fadeIn(200);
+
+    XcalarSetFree(gDatasetBrowserResultSetId)
+    .then(function() {
+        gDatasetBrowserResultSetId = 0;
+        return (XcalarDestroyDataset(dsName));
+    })
+    .then(function() {
+        // add cli
+        var cliOptions = {};
+        cliOptions.operation = 'destroyDataSet';
+        cliOptions.dsName = dsName;
+
+        Cli.add('Delete DateSet', cliOptions);
+
+        // clean up ds grid icon
+        var dsId = $grid.data("dsid");
+        DSObj.deleteById(dsId);
+        $grid.remove();
+
+        $('#waitingIcon').remove();
+        deferred.resolve();
+    })
+    .fail(function(error) {
+        $('#waitingIcon').remove();
+        $grid.removeClass('inactive');
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+DSObj.focusOnFirst = function() {
+    var $curFolder;
+    if (gDSObj.curId == gDSObj.homeId) {
+        $curFolder = $('#gridView');
+    } else {
+        $curFolder = $('grid-unit[data-dsId="' + gDSObj.curId + '"]');
+    }
+    if ($curFolder.find('> grid-unit.ds').length > 0) {
+        $curFolder.find('> grid-unit.ds:first').click();
+    } else {
+        $("#importDataButton").click();
+    }
 }
 
 // refresh css class

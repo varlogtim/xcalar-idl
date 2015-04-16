@@ -1,5 +1,4 @@
-Cli = (function(){
-
+window.Cli = (function(){
     var self = {};
     var $textarea = $('#rightBarTextArea');
 

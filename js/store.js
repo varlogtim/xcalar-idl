@@ -128,7 +128,7 @@ function readFromStorage() {
             gDSObjFolder = {};
         }
 
-        return (XcalarGetDatasets())
+        return (XcalarGetDatasets());
     })
     .then(function(datasets) {
         var numDatasets = datasets.numDatasets;
@@ -140,7 +140,8 @@ function readFromStorage() {
             gWorksheetName = [];
             gTableOrderLookup = [];
         }
-        updateDatasetsNumInfo(numDatasets);
+        DSObj.restore(datasets);
+        DataStore.updateInfo(numDatasets);
         return (commitToStorage(AfterStartup.After));
     })
     .then(function() {

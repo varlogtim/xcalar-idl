@@ -543,19 +543,15 @@ function startupFunctions() {
     var deferred = jQuery.Deferred();
 
     setupLogout();
+    DataStore.setup();
     readFromStorage()
     .then(function() {
         documentReadyGeneralFunction();
         setupRightSideBar();
-        return (setupDatasetList());
-    })
-    .then(function() {
         setupTooltips();
         mainPanelsTabbing();
         setupFunctionBar();
         scratchpadStartup(); 
-        setupDSCartButtons();
-        setupImportDSForm();
         setupBookmarkArea();
         setupWorksheetMeta();
         loadMonitorPanel();
