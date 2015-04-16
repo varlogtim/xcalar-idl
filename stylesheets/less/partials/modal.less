@@ -440,7 +440,7 @@
     .modalBuilder(500px, auto);
     bottom: auto !important;
     margin-top: 10% !important;
-
+    z-index: 100 !important;
     #alertHeader {
         text-transform: uppercase;
     }
@@ -525,12 +525,26 @@
     .modalTopMain {
         .size(@height: 58px);
         padding: 14px 0;
+        cursor: default;
+
         .topSection {
             .size(@width: 90%, @height: 25px);
             margin: 0px auto;
 
             .listSection {
                 text-transform: none;
+                .text {
+                    .size(@width: ~"calc(100% - 25px)");
+                    cursor: text;
+                    outline: none;
+                }
+                .list {
+                    top: 26px;
+                    .rounded(0px 0px 3px 3px);
+                }
+                &.open {
+                    .rounded(0);
+                }
             }
 
             .iconSection {
@@ -542,6 +556,7 @@
                     .size(25px, 25px);
                     .rounded;
                     .action-gradient;
+                    cursor: pointer;
                     &:active {
                         .action-inverse-gradient;
                     }
@@ -715,7 +730,7 @@
                 }
 
                 .label {
-                    .size(@width: ~"calc(400px - 30px)");
+                    .size(@width: ~"calc(400px - 25px)");
                     padding-left: 5px;
                 }
                 .fileSize, .fileDate {
@@ -734,10 +749,10 @@
 
                 .listIcon {
                     margin-left: 10px;
-                    .size(30px, 30px);
+                    .size(@width: 25px, @height: 30px);
                     .icon {
                         display: inline-block;
-                        .size(30px, 30px);
+                        .size(@width: 25px, @height: 30px);
                     }
                 }
                 &:nth-child(even) > div {

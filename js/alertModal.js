@@ -17,6 +17,7 @@ window.Alert = (function(){
 
         $alertModal.show();
         $modalBackground.fadeIn(100);
+
         if (window.getSelection) {
             window.getSelection().removeAllRanges();
         }
@@ -40,9 +41,11 @@ window.Alert = (function(){
     function closeAlertModal() {
         // remove all event listener
         $alertModal.off();
-
         $alertModal.hide();
-        $modalBackground.fadeOut(200);
+
+        if (!$modalBackground.hasClass("open")) {
+            $modalBackground.fadeOut(200);
+        }
     }
 
     // configuration for alert modal

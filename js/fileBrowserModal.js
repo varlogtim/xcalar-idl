@@ -1,4 +1,4 @@
-window.FileBrowser = (function() {
+window.FileBrowser = (function($) {
     var self = {};
 
     var $modalBackground = $('#modalBackground');
@@ -7,329 +7,270 @@ window.FileBrowser = (function() {
     var $fileBrowserMain = $('#fileBrowserMain');
     var $inputName = $('#fileBrowserInputName');
 
-    var $formtSection = $('#fileBrowserFormat');
-    var $formatDropdown = $formtSection.find('.list');
-    var $formatLabel = $formtSection.find('.text');
+    var $formatSection = $('#fileBrowserFormat');
+    var $formatDropdown = $formatSection.find('.list');
+    var $formatLabel = $formatSection.find('.text');
 
-    var $pathSection = $('#fileBrowserPath');
-    var $pathLists = $pathSection.find('.list');
+    var $pathSection = $("#fileBrowserPath");
+    var $pathLists = $("#fileBrowserPathMenu");
     var $pathLabel = $pathSection.find('.text');
 
-    var $filePath = $('#filePath');
+    var $sortSection = $("#fileBrowserSort");
+    var $sortMenu = $("#fileBrowserSortMenu");
+
+    var $filePath = $("#filePath");
     /* Contants */
-    var startPath = "file:///var/";
+    var defaultPath = "file:///var/";
     var validFormats = ["JSON", "CSV"];
+    var defaultSortKey = "type"; // default is sort by type;
     /* End Of Contants */
     var curFiles = [];
     var allFiles = [];
-    var sortKey = "type";   // default is sort by type;
+    var sortKey = defaultSortKey;
     var sortRegEx = undefined;
     var reverseSort = false;
     var testMode = false;
 
     self.show = function() {
-        var inputPath = $filePath.val();
-        var path = retrievePaths(inputPath) || startPath;
-        addEventListener();
-
-        listFiles(path)
+        retrievePaths($filePath.val())
         .then(function() {
-            appendPath(path);
             // set modal background
             $modalBackground.fadeIn(100);
-            window.getSelection().removeAllRanges();
-            $fileBrowser.show();
-
-            // focus on the grid specified by path
-            if (inputPath && inputPath != "") {
-                var grid = {};
-                var start = inputPath.length - 1;
-                if (inputPath.charAt(start) == "/") {
-                    --start;
-                    grid.type = "folder";
-                } else {
-                    grid.type = "ds";
-                }
-                grid.name = inputPath.substring(
-                                inputPath.lastIndexOf("/", start) + 1, 
-                                inputPath.length);
-                focusOn(grid);
+            $modalBackground.addClass("open");
+            if (window.getSelection) {
+                window.getSelection().removeAllRanges();
             }
+            // press enter to import a dataset
+            $(document).on("keyup", fileBrowserKeyUp);
+            $fileBrowser.show();
+        })
+        .fail(function(result) {
+            closeAll();
+            StatusBox.show(result.error, $filePath, true);
         });
-    }
-
-    self.sortBy = function(key, regEx) {
-        if (allFiles.length == 0) {
-            return;
-        }
-        curFiles = allFiles;
-        if (regEx) {
-            sortRegEx = regEx;
-            curFiles = fileFilter(curFiles, regEx);
-        } else {
-            sortRegEx = undefined; // default
-        }
-        if (key) {
-            sortKey = key;
-            curFiles = sortFiles(curFiles, key);
-        } else {
-            sortKey = "name"; // default
-        }
-        if (reverseSort) {
-            curFiles.reverse();
-        }
-        getHTMLFromFiles(curFiles);
     }
 
     function listFiles(path) {
         var deferred = jQuery.Deferred();
 
-        if (testMode) {         // fake data
+        XcalarListFiles(path)
+        .then(function(listFilesOutput) {
             clear();
-            var files = [];
-            for (var i = 0; i < 100; i ++) {
-                var fileObj = {};
-                fileObj.name = "test" + i;
-                fileObj.attr = {};
-                fileObj.attr.isDirectory =  Math.random() < 0.5 ? true : false;
-                if (!fileObj.attr.isDirectory) {
-                    fileObj.attr.size = Math.floor(Math.random() * 1000) + 1;
-                } else {
-                    fileObj.attr.size = 0;
-                }
-                files.push(fileObj);
-            }
-            allFiles = files;
-            self.sortBy(sortKey, sortRegEx);
-            deferred.resolve(path);
-        } else {
-            XcalarListFiles(path)
-            .then(function(listFilesOutput) {
-                clear();
-                allFiles = listFilesOutput.files;
-                self.sortBy(sortKey, sortRegEx);
-                deferred.resolve();
-            })
-            .fail(function(error){
-                deferred.reject(error);
-                closeAll();
-                Alert.error("List file fails", error);
-            });
-        }
+            allFiles = listFilesOutput.files;
+            sortFilesBy(sortKey, sortRegEx);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
         return (deferred.promise());
     }
 
-    function addEventListener() {
+    self.setup = function() {
         // click blank space to remove foucse on folder/dsds
-        $fileBrowser.on('click', '.mainSection', function() {
+        $fileBrowser.on("click", function() {
             clear();
         });
 
-        // click to focus on folder/ds
-        $fileBrowser.on('click', 'grid-unit', function(event) {
-            var $grid = $(this);
+        $fileBrowser.on({
+            // click to focus
+            "click": function(event) {
+                var $grid = $(this);
 
-            event.stopPropagation();
-            clear();
+                event.stopPropagation();
+                clear();
 
-            if ($grid.hasClass('ds')) {
-                updateInputSection($grid);
+                if ($grid.hasClass('ds')) {
+                    updateFilName($grid);
+                }
+
+                $grid.addClass('active');
+            },
+            "dblclick": function() {
+                var $grid = $(this);
+
+                if ($grid.hasClass('ds')) {   // dblclick a dataset
+                    loadDataSet($grid);
+                } else {       // dblclick a folder
+                    var path = getCurrentPath() + getGridUnitName($grid) + '/';
+
+                    listFiles(path)
+                    .then(function() {
+                        appendPath(path);
+                    })
+                    .fail(function(error) {
+                        Alert.error("List file fails", error);
+                    });
+                }
             }
+        }, "grid-unit");
 
-            $grid.addClass('active');
+        // confirm to open a ds
+        $fileBrowser.on("click", ".confirm", function() {
+            var $grid = $container.find("grid-unit.active");
+            loadDataSet($grid);
         });
 
-        // dblclick a folder or dataset
-        $fileBrowser.on('dblclick', 'grid-unit', function() {
-            var $grid = $(this);
-
-            if ($grid.hasClass('ds')) {
-                // dblclick a dataset
-                loadDataSet($grid);
-            } else {
-                // dblclick a folder
-                var path = getCurrentPath() + getGridUnitName($grid) + '/';
-
-                listFiles(path)
-                .then(function() {
-                    appendPath(path);
-                });
-            }
+        // close file browser
+        $fileBrowser.on("click", ".close, .cancel", function() {
+            closeAll();
         });
 
         // Up to parent folder
-        $fileBrowser.on('click', '.icon-up', function(event){
+        $("#fileBrowserUp").click(function(event){
             event.stopPropagation();
             // the second option in pathLists
-            $newPath = $pathLists.children().eq(1);
+            $newPath = $pathLists.find("li").eq(1);
             upTo($newPath);
         });
 
         // click icon-list to toggle between listview and gridview
-        $fileBrowser.on('click', '.icon-list', function(event){
-            var $viewIcon = $(this);
+        $("#fileBrowserGridView").click(function(){
+            var $btn = $(this);
 
             event.stopPropagation();
 
             if ($fileBrowserMain.hasClass('listView')) {
                 $fileBrowserMain.removeClass('listView').addClass('gridView');
-                $viewIcon.removeClass('listView').addClass('gridView');
-                $viewIcon.attr('data-original-title', 'Switch to List view');
+                $btn.removeClass('listView').addClass('gridView');
+                $btn.attr('data-original-title', 'Switch to List view');
             } else {
                 $fileBrowserMain.removeClass('gridView').addClass('listView');
-                $viewIcon.removeClass('gridView').addClass('listView');
-                $viewIcon.attr('data-original-title', 'Switch to Grid view');
+                $btn.removeClass('gridView').addClass('listView');
+                $btn.attr('data-original-title', 'Switch to Grid view');
             }
             // refresh tooltip
-            $viewIcon.mouseenter();
-            $viewIcon.mouseover();
+            $btn.mouseenter();
+            $btn.mouseover();
         });
 
         // click on title to sort
-        $fileBrowser.on('click', '.title.clickable', function(event){
-            event.stopPropagation();
+        $fileBrowserMain.on("click", ".title.clickable", function(event) {
             var $title = $(this);
             var grid = getFocusGrid();
+
+            event.stopPropagation();
             // click on selected title, reverse sort
-            if ($title.hasClass('select')) {
+            if ($title.hasClass("select")) {
                 reverse();
             } else {
-                $title.siblings('.select').removeClass('select');
-                $title.addClass('select');
-                var key = $title.data('sortkey');
-                reverseSort = false;
-                self.sortBy(key, sortRegEx);
-
-                // mark sort key on li
-                $fileBrowser.find('.colMenu li').each(function(index, li) {
-                    var $li = $(li);
-                    if ($li.data('sortkey') === key) {
-                        $li.addClass('select');
-                    } else {
-                        $li.removeClass('select');
-                    }
-                });
+                sortTrigger($title, false);
             }
-            // focus on select grid
-            focusOn(grid);
         });
 
-        // click sort icon to open drop down menu
-        $fileBrowser.on('mousedown', '.icon-sort > .icon, .dropdownBox',
-                        function(event){
-            event.stopPropagation();
-            $(this).parent().find('.colMenu').toggle();
-        });
+        // toggle sort menu, should use mousedown for toggle
+        $sortSection.on({
+            "mousedown": function(event){
+                event.stopPropagation();
+                $sortMenu.toggle();
+            },
+            // prevent clear event to be trigger
+            "click": function(event) {
+                event.stopPropagation();
+            }
+        }, " .icon, .dropdownBox");
 
-        // click on li to sort
-        $fileBrowser.on('click', '.icon-sort li', function(event) {
-            event.stopPropagation();
+        // click sort option to sort
+        $sortSection.on("click", "li", function(event) {
             var $li = $(this);
-            $li.closest('.colMenu').hide();
 
-            if ($li.hasClass('select')) {
-                return;
-            }
-
-            var grid = getFocusGrid();
-            $li.siblings('.select').removeClass('select');
-            $li.addClass('select');
-            var key = $li.data('sortkey');
-            reverseSort = false;
-            self.sortBy(key, sortRegEx);
-            // mark sort key on title
-            var $titles = $fileBrowserMain.find('.titleSection .title');
-            $titles.each(function(index, title) {
-                var $title = $(title);
-                if ($title.data('sortkey') === key) {
-                    $title.addClass('select');
-                } else {
-                    $title.removeClass('select');
-                }
-            })
-            // focus on select grid
-            focusOn(grid);
-        });
-
-        // open list section option
-        $fileBrowser.on('click', '.listSection', function(event) {
             event.stopPropagation();
-            var $listSection = $(this);
-            var $list = $listSection.find('.list');
-            if ($list.children().length <= 1) {
-                return;
+            $sortMenu.hide();
+            // already sort
+            if (!$li.hasClass("select")) {
+                sortTrigger($li, true);
             }
-            $listSection.toggleClass('open');
-            $list.toggle();
         });
 
-          // select a path
-        $fileBrowser.on('click', '#fileBrowserPath .list li', function(event) {
-            var $newPath = $(this);
-            upTo($newPath);
+        // open path list section
+        $pathSection.on("click", ".icon", function(event) {
+            event.stopPropagation();
+            toggleListSection($(this).closest(".listSection"));
+        });
+
+        // select a path
+        $pathSection.on("click", ".list li", function(event) {
+            event.stopPropagation();
+            upTo($(this));
+            $pathSection.removeClass("open");
+            $pathLists.hide();
+        });
+
+        $pathSection.on({
+            // contentediable must prevent press enter to add a new line
+            "keypress": function(event) {
+                if (event.which === keyCode.Enter) {
+                    event.preventDefault();
+                    return false;
+                }
+            },
+            "keyup": function(event) {
+                if (event.which === keyCode.Enter) {
+                    event.preventDefault();
+                    // XXX assume what inputed should be a path
+                    var $input = $(this);
+                    var path = $input.text();
+                    if (path.charAt(path.length - 1) != "/") {
+                        path += "/";
+                    }
+                    retrievePaths(path)
+                    .then(function() {
+                        $input.blur();
+                    })
+                    .fail(function(result) {
+                        StatusBox.show(result.error, $input, true);
+                    });
+                }
+                return false;
+            }
+        }, ".text");
+        // open format section
+        $formatSection.on("click", ".text, .icon", function(event) {
+            event.stopPropagation();
+            toggleListSection($(this).closest(".listSection"));
         });
 
         // filter a data format
-        $fileBrowser.on('click', '#fileBrowserFormat .list li', 
-                        function(event) {
-            event.stopPropagation();
+        $formatSection.on("click", ".list li", function(event) {
             var $li = $(this);
 
-            $formtSection.removeClass('open');
+            event.stopPropagation();
+            $formatSection.removeClass('open');
             $formatDropdown.hide();
+
             if ($li.hasClass('select')) {
                 return;
             }
-
-            var format = $li.text();
-            $formatLabel.text(format);
-            $li.siblings('.select').removeClass('select');
-            $li.addClass('select');
 
             var regEx;
             var grid = getFocusGrid();
+            var format = $li.text();
+            $formatLabel.text(format);
+            $li.siblings(".select").removeClass("select");
+            $li.addClass("select");
+
             if (format !== "all") {
                 regEx = new RegExp('\.' + format + '$');
             }
-            self.sortBy(sortKey, regEx);
+            sortFilesBy(sortKey, regEx);
             focusOn(grid);
         });
-
-        // filter a data format
-        $fileBrowser.on('mouseleave', '.listSection', function(event) {
-            event.stopPropagation();
-            var $listSection = $(this);
-            var $list = $listSection.find('.list');
-            $listSection .removeClass('open');
-            $list.hide();
-        });
-
-        // confirm to open a ds
-        $fileBrowser.on('click', '.confirm', function() {
-            var $grid = $container.find('grid-unit.active');
-            loadDataSet($grid);
-        });
-
-        // close file browser
-        $fileBrowser.on('click', '.close, .cancel', function() {
-            closeAll();
-        });
-
-         // press enter to import a dataset
-        $(document).on('keyup', fileBrowserKeyUp);
-
     }
-
+    // key up event
     function fileBrowserKeyUp(event) {
         event.preventDefault();
         if (event.which !== keyCode.Enter) {
-            return;
+            return false;
         }
         var $grid = $container.find('grid-unit.active');
         // only import the focsued ds, not import the folder
         if ($grid.length > 0) {
             loadDataSet($grid);
         }
+    }
+
+    function toggleListSection($listSection) {
+        $listSection.toggleClass("open");
+        $listSection.find(".list").toggle();
     }
 
     function upTo($newPath) {
@@ -339,11 +280,15 @@ window.FileBrowser = (function() {
         var oldPath = getCurrentPath();
         var path = $newPath.text();
 
+        if (oldPath === path) {
+            return;
+        }
+
         listFiles(path)
         .then(function() {
             $pathLabel.text(path);
-            $pathLists.children().removeClass('select');
-            $newPath.addClass('select');
+            $pathLists.find("li").removeClass("select");
+            $newPath.addClass("select");
             var $preLists = $newPath.prevAll();
 
             // find the parent folder and focus on it
@@ -352,11 +297,14 @@ window.FileBrowser = (function() {
             focusOn(folder);
             // remove all previous siblings
             $preLists.remove();
+        })
+        .fail(function(error) {
+            Alert.error("List file fails", error);
         });
     }
 
     function getCurrentPath() {
-        var path = $pathLabel.text();
+        var path = $pathLists.find("li:first-of-type").text();
         return (path);
     }
 
@@ -378,42 +326,45 @@ window.FileBrowser = (function() {
 
     function loadDataSet($ds) {
         // reset import data form
-        $('#importDataForm button[type=reset]').click();
+        $("#importDataReset").click();
 
         // no selected dataset, load the directory
         if ($ds == null || $ds.length == 0) {
-            $filePath.val(getCurrentPath());
+            var path = getCurrentPath();
+            // remove the last slash
+            path = path.substring(0, path.length - 1);
+            $filePath.val(path);
         } else {
             // load dataset
             var dsName = getGridUnitName($ds);
-            var url = getCurrentPath() + dsName;
+            var path = getCurrentPath() + dsName;
             var ext = getFormat(dsName);
 
             if (ext != undefined) {
                 $('#fileFormat .dsTypeLabel:contains("' + ext + '")').click();
             }
-            $filePath.val(url);
+            $filePath.val(path);
         }
         closeAll();
     }
 
     function appendPath(path) {
-        var html = '<li class="select">' + 
-                        path + 
-                    '</li>';
+        var html = '<li class="select">' + path + '</li>';
         $pathLabel.text(path);
         $pathLists.prepend(html);
     }
 
     function clear(isALL) {
         $fileBrowser.find('.active').removeClass('active');
-
+        var $listSections = $fileBrowser.find('.listSection');
+        $listSections.removeClass("open");
+        $listSections.find(".list").hide();
         $inputName.val("");
         if (isALL) {
             $fileBrowser.find('.select').removeClass('select');
-            $formtSection.find('.text').text('all');
+            $formatSection.find('.text').text('all');
             curFiles = [];
-            sortKey = "name";
+            sortKey = defaultSortKey;
             sortRegEx = undefined;
             reverseSort = false;
             $pathLists.empty();
@@ -423,19 +374,74 @@ window.FileBrowser = (function() {
     function closeAll() {
         // set to deault value
         clear(true);
-        // remove all event listener
-        $fileBrowser.off();
         $fileBrowser.hide();
         $(document).off('keyup', fileBrowserKeyUp);
+        $modalBackground.removeClass("open");
         $modalBackground.fadeOut(200);
     }
 
-    function updateInputSection($grid) {
+    function updateFilName($grid) {
         var name = getGridUnitName($grid);
         $inputName.val(name);
     }
 
-    function fileFilter(files, regEx) {
+    function sortTrigger($option, isFromSortOption) {
+        var grid = getFocusGrid();
+        var key = $option.data("sortkey");
+        $option.siblings(".select").removeClass("select");
+        $option.addClass("select");
+
+        reverseSort = false;
+        sortFilesBy(key, sortRegEx);
+
+        if (isFromSortOption) {
+            $fileBrowserMain.find(".titleSection .title").each(function() {
+                var $title = $(this);
+                if ($title.data("sortkey") === key) {
+                    $title.addClass("select");
+                } else {
+                    $title.removeClass("select");
+                }
+            })
+        } else {
+           // mark sort key on li
+            $sortMenu.find("li").each(function() {
+                var $li = $(this);
+                if ($li.data("sortkey") === key) {
+                    $li.addClass("select");
+                } else {
+                    $li.removeClass("select");
+                }
+            });
+        }
+
+        focusOn(grid);  // focus on select grid
+    }
+
+    function sortFilesBy(key, regEx) {
+        if (allFiles.length == 0) {
+            return;
+        }
+        curFiles = allFiles;
+        if (regEx) {
+            sortRegEx = regEx;
+            curFiles = filterFiles(curFiles, regEx);
+        } else {
+            sortRegEx = undefined; // default
+        }
+        if (key) {
+            sortKey = key;
+            curFiles = sortFiles(curFiles, key);
+        } else {
+            sortKey = "name"; // default
+        }
+        if (reverseSort) {
+            curFiles.reverse();
+        }
+        getHTMLFromFiles(curFiles);
+    }
+
+    function filterFiles(files, regEx) {
         var filterFiles = [];
         var len = files.length;
         for (var i = 0; i < len; i ++) {
@@ -447,39 +453,6 @@ window.FileBrowser = (function() {
             }
         }
         return (filterFiles);
-    }
-
-    function getHTMLFromFiles(files) {
-        var html = "";
-
-        files.forEach(function(fileObj) {
-            // fileObj: {name, attr{isDirectory, size}}
-            var isDirectory = fileObj.attr.isDirectory;
-            var name = fileObj.name;
-
-            if (isDirectory && (name === '.' || name === '..')) {
-                return;
-            }
-
-            var size = fileObj.attr.size;
-            var gridClass = isDirectory ? "folder" : "ds";
-            var date = "00:00:00 01-01-2015";
-
-            html += '<grid-unit title="' + name + 
-                    '" class="' + gridClass + '">' + 
-                        '<div class="gridIcon"></div>' +
-                        '<div class="listIcon">' +
-                            '<span class="icon"></span>' +
-                        '</div>' +
-                        '<div class="label" data-name=' + name + '>' + 
-                            name + 
-                        '</div>' +
-                        '<div class="fileDate">' + date +'</div>' +
-                        '<div class="fileSize">' + size + '</div>' +  
-                    '</grid-unit>';
-        });
-
-        $container.empty().append(html);
     }
 
     function sortFiles(files, key) {
@@ -545,9 +518,13 @@ window.FileBrowser = (function() {
         } else {
             var name = grid.name;
             var type = grid.type;
-            str = 'grid-unit.' + type + ' .label[data-name="' + name + '"]';
+            if (type == undefined) {
+                str = 'grid-unit' + ' .label[data-name="' + name + '"]';
+            } else {
+                str = 'grid-unit.' + type + ' .label[data-name="' + name + '"]';
+            }
         }
-        $container.find(str).closest('grid-unit').addClass('active');
+        $container.find(str).eq(0).closest('grid-unit').addClass('active');
     }
 
     function getFocusGrid() {
@@ -562,27 +539,76 @@ window.FileBrowser = (function() {
     }
 
     function retrievePaths(path) {
-        if (path == "" || path == undefined) {
-            return undefined;
-        }
-
+        var deferred = jQuery.Deferred();
         var paths = [];
-        for (var i = path.length - 1; i >= (startPath.length - 1); i --) {
-            if (path.charAt(i) === "/") {
-                paths.push(path.substring(0, i + 1));
+        if (!path) {
+            paths.push(defaultPath);
+        } else {
+            // parse path
+            for (var i = path.length - 1; i >= (defaultPath.length - 1); i --) {
+                if (path.charAt(i) === "/") {
+                    paths.push(path.substring(0, i + 1));
+                }
+            }
+            // cannot parse the path
+            if (paths.length === 0) {
+                var error = "Invalid Path, please input a valid one";
+                deferred.reject({"error": error});
+                return (deferred.promise());
             }
         }
 
-        if (paths.length === 0) {
-            return undefined;
-        }
+        listFiles(paths[0])
+        .then(function() {
+            $pathLists.empty();
+            for (var i = paths.length - 1; i >= 0; i --) {
+                appendPath(paths[i]);
+            }
+            // focus on the grid specified by path
+            if (path) {
+                var name = path.substring(path.lastIndexOf("/") + 1,
+                                            path.length);
+                focusOn({"name": name});
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject)
 
-        for (var i = paths.length - 1; i > 0; i --) {
-            appendPath(paths[i]);
-        }
+        return (deferred.promise());
+    }
 
-        return paths[0];
+    function getHTMLFromFiles(files) {
+        var html = "";
+
+        files.forEach(function(fileObj) {
+            // fileObj: {name, attr{isDirectory, size}}
+            var isDirectory = fileObj.attr.isDirectory;
+            var name = fileObj.name;
+
+            if (isDirectory && (name === '.' || name === '..')) {
+                return;
+            }
+
+            var size = fileObj.attr.size;
+            var gridClass = isDirectory ? "folder" : "ds";
+            var date = "00:00:00 01-01-2015";
+
+            html += 
+                '<grid-unit title="' + name + '" class="' + gridClass + '">\
+                    <div class="gridIcon"></div>\
+                    <div class="listIcon">\
+                        <span class="icon"></span>\
+                    </div>\
+                    <div class="label" data-name=' + name + '>' + 
+                        name + 
+                    '</div>\
+                    <div class="fileDate">' + date +'</div>\
+                    <div class="fileSize">' + size + '</div>\
+                </grid-unit>';
+        });
+
+        $container.empty().append(html);
     }
 
     return (self);
-}());
+}(jQuery));

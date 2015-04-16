@@ -312,7 +312,7 @@
               <div id="datasetWrap">
                 <div id="dataSetTableWrap" class="datasetTableWrap"></div>
               </div>
-              <ul id="datasetTableMenu" class="colMenu">
+              <ul id="datasetTableMenu" class="colMenu"></ul>
             </div><!--- end contentviewtable -->
           </div><!-- end contentviewmid -->
           <div id="contentViewRight">
@@ -372,8 +372,7 @@
         </div>
         <div id="tableListSections">
           <div class="tableListSection" id="tableList">
-            <ul id="activeTablesList">
-            </ul>
+            <ul id="activeTablesList"></ul>
           </div>
           <div class="tableListSection" id="archivedTableList">
             <div class="buttonWrap">
@@ -386,8 +385,7 @@
                 DELETE TABLES
               </div>
             </div>
-            <ul id="inactiveTablesList">  
-            </ul>
+            <ul id="inactiveTablesList"></ul>
           </div>
           <div class="tableListSection"></div>
         </div>
@@ -448,10 +446,10 @@
         </div>
         <div id="helpOnOff"></div>
         <div id="helpTopics" class="helpBox">
-          <ul><span>Help Topics:</span>
+          <ul>
+            <span>Help Topics:</span>
             <li>
               <span>This page is under construction.</span>
-              Under construction.
             </li>
           </ul>
         </div>
@@ -670,31 +668,33 @@
       <div class="topSection">
         <div class="label">locations:</div>
         <div id="fileBrowserPath" class="listSection">
-          <div class="text"></div>
-          <div class="iconWrapper">
+          <div class="text" contenteditable></div>
+          <div class="iconWrapper"
+              title="Click to see history" data-toggle="tooltip"
+              data-placement="bottom" data-container="body">
             <div class="icon"></div>
           </div>
-          <ul class="list"></ul>
+          <ul id="fileBrowserPathMenu" class="list"></ul>
         </div>
         <div class="iconSection">
-          <div class="iconWrapper icon-up">
+          <div id="fileBrowserUp" class="iconWrapper icon-up"
+              title="Click to go back" data-toggle="tooltip"
+              data-placement="bottom" data-container="body">
             <span class="icon"></span>
           </div>
-          <div class="iconWrapper icon-list gridView"
-               data-toggle="tooltip"
-               data-placement="bottom"
-               data-original-title="Switch to List view">
+          <div id="fileBrowserGridView" class="iconWrapper icon-list gridView"
+              data-toggle="tooltip" data-placement="bottom"
+              data-original-title="Switch to List view" data-container="body">
             <span class="icon"></span>
           </div>
-          <div class="iconWrapper icon-sort">
-            <span class="icon" 
-               data-toggle="tooltip"
-               data-placement="bottom"
-               data-original-title="Sort"></span>
+          <div id="fileBrowserSort" class="iconWrapper icon-sort"
+              title="Sort" data-toggle="tooltip"
+              data-placement="bottom" data-container="body">
+            <span class="icon"></span>
              <div class="dropdownBox">
                 <span class="innerBox"></span>
             </div>
-            <ul class="colMenu">
+            <ul id="fileBrowserSortMenu" class="colMenu">
               <li data-sortkey="name">
                   <span class="label">name</span>
                   <span class="icon"></span>
@@ -732,7 +732,7 @@
     <div class="modalSubMain">
         <div class="inputSection">
           <div class="label">file name:</div>
-          <input id="fileBrowserInputName" type="text" value="">
+          <input id="fileBrowserInputName" type="text" value="" disabled>
         </div>
         <div class="inputSection">
           <div class="label">file format:</div>

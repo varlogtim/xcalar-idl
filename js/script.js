@@ -558,6 +558,7 @@ function startupFunctions() {
         setupWorksheetMeta();
         loadMonitorPanel();
         setupDag();
+        FileBrowser.setup();
         deferred.resolve();
     })
     .fail(function(error) {
