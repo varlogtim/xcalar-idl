@@ -1084,12 +1084,16 @@ XcalarApiDatasetT.prototype.write = function(output) {
 XcalarApiDfCsvLoadArgsT = function(args) {
   this.recordDelim = null;
   this.fieldDelim = null;
+  this.isCRLF = null;
   if (args) {
     if (args.recordDelim !== undefined) {
       this.recordDelim = args.recordDelim;
     }
     if (args.fieldDelim !== undefined) {
       this.fieldDelim = args.fieldDelim;
+    }
+    if (args.isCRLF !== undefined) {
+      this.isCRLF = args.isCRLF;
     }
   }
 };
@@ -1121,6 +1125,13 @@ XcalarApiDfCsvLoadArgsT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.BOOL) {
+        this.isCRLF = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1140,6 +1151,11 @@ XcalarApiDfCsvLoadArgsT.prototype.write = function(output) {
   if (this.fieldDelim !== null && this.fieldDelim !== undefined) {
     output.writeFieldBegin('fieldDelim', Thrift.Type.STRING, 2);
     output.writeString(this.fieldDelim);
+    output.writeFieldEnd();
+  }
+  if (this.isCRLF !== null && this.isCRLF !== undefined) {
+    output.writeFieldBegin('isCRLF', Thrift.Type.BOOL, 3);
+    output.writeBool(this.isCRLF);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

@@ -170,6 +170,7 @@
         loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
         loadArgs.csv.recordDelim = "";
         loadArgs.csv.fieldDelim = "";
+	loadArgs.csv.isCRLF = false;
 
         xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfTypeJson, 0, loadArgs)
         .done(function(result) {
