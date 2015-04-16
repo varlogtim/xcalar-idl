@@ -59,6 +59,7 @@ var TableMeta = function() {
     this.resultSetCount = -1;
     this.numPages = -1;
     this.bookmarks = [];
+    this.rowHeights = {};
 }
 // ================================ Misc ======================================
 function infScrolling(tableNum) {

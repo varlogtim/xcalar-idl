@@ -177,6 +177,7 @@ function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
     var newCells = pullAllCols(startIndex, jsonData, dataIndex, tableNum, 
                     direction);
     addRowListeners(newCells);
+    adjustRowHeights(newCells, startIndex, tableNum);
 
     var idColWidth = getTextWidth($table.find('tr:last td:first'));
     var newWidth = Math.max(idColWidth, 22);
@@ -187,6 +188,7 @@ function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
     $table.find('th:first-child').width(newWidth+padding);
     var colNum = 0;
     matchHeaderSizes(colNum, $table);
+    $table.find('.rowGrab').width($table.width());
 }
 
 function generateTableShell(columns, tableNum) {

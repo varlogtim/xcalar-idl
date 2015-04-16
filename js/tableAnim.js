@@ -135,12 +135,35 @@ function gResrowMouseMove(event) {
 }
 
 function gResrowMouseUp() {
+    var newRowHeight = gResrow.targetTd.outerHeight();
+    var classNames = gResrow.targetTd.parent().attr('class');
+    var index = classNames.indexOf('row');
+    var rowNum = parseInt(classNames.substring(index+3))+1;
+    var rowObj = gTables[gResrow.tableNum].rowHeights;
+    // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
+    var pageNum = Math.floor((rowNum-1) / gNumEntriesPerPage);
     gMouseStatus = null;
     $('#ns-resizeCursor').remove();
     reenableTextSelection();
     $('body').removeClass('hideScroll'); 
     adjustColGrabHeight(gResrow.tableNum);
     generateFirstVisibleRowNum();
+
+    if (newRowHeight != gRescol.minCellHeight) {
+        if (rowObj[pageNum] == undefined) {
+            rowObj[pageNum] = {};
+        }
+        rowObj[pageNum][rowNum] = newRowHeight;
+    } else {
+        // remove this rowNumber from gTables and 
+        //if no other rows exist in the page, remove the pageNumber as well
+        if (rowObj[pageNum] != undefined) {
+            delete rowObj[pageNum][rowNum];
+            if ($.isEmptyObject(rowObj[pageNum])) {
+                delete rowObj[pageNum];
+            }
+        }
+    }
 }
 
 function dragdropMouseDown(el, event) {
@@ -1349,6 +1372,29 @@ function addRowListeners(newCells) {
             unbookmarkRow(rowNum, tableNum);
         }
     });
+}
+
+function adjustRowHeights(newCells, rowIndex, tableNum) {
+    var rowObj = gTables[tableNum].rowHeights;
+    var numRows = newCells.length;
+    var pageNum = Math.floor(rowIndex / gNumEntriesPerPage);
+    var lastPageNum = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
+    var padding = 4;
+    for (var i = pageNum; i < lastPageNum; i++) {
+        console.log(pageNum, lastPageNum)
+        if (rowObj[i]) {
+            for (var row in rowObj[i]) {
+                var $row = newCells.filter(function() {
+                            return ($(this).hasClass('row'+(row-1)));
+                        });
+                
+                $row.find('td.col0')
+                    .outerHeight(rowObj[i][row]);
+                $row.find('td > div')
+                    .css('max-height', rowObj[i][row]-padding);
+            }
+        }
+    }
 }
 
 function addTableListeners(tableNum) {
