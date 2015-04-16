@@ -125,87 +125,100 @@
     display: none;
     .rounded(2px);
     overflow: hidden;
+
+    #jsonWrap {
+        left: 0;
+        .size(400px, 400px, @min-width: 300px);
+        background-color: @color-white;
+        opacity: 1;
+        z-index: 36;
+        overflow: hidden;
+        resize: both;
+        padding: 32px 0px 10px 10px;
+        .font(@weight: 400);
+    }
+
+    .jsonDragArea {
+        .position(absolute, @top: 0);
+        .size(@width: 100%, @height: 30px);
+        .cursor-move;
+        .action-gradient;
+        text-align: center;
+        color: @color-text-transparentWhite;
+        text-shadow: 1px 1px rgba(0,0,0,0.2);
+        .font(@size: 15px, @line-height: 28px);
+    }
+
+    .closeJsonModal {
+        .modalBuilder.modalHeader.close();
+        .position(@top: 3px, @right: 4px);
+    }
+
+    .prettyJson {
+        .size(@height: 100%, @min-width: 100px, @min-height: 100px);
+        .font(@size: 16px, @family: @font-code);
+        color: #FFA633;
+        resize: none;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .jObject {
+        .position(relative);
+        .size(@width: 100%, @height: auto);
+        padding-left: 25px;
+        padding-right: 5px;
+        overflow:visible;
+    }
+
+    .jsonBlock {
+        display:block;
+    }
+
+    .jKey {
+        color: #002D41;
+        padding: 0px 1px;
+        margin: 0px -1px;
+        display: inline-block;
+        .rounded;
+        cursor: pointer;
+    }
+
+    .jKey  {
+        &:hover {
+            background-color: #EEEEEE;
+            box-shadow: 0px 0px 1px #266481;
+        }
+    }
+
+    .jArray > {
+        .jString, .jNum, .jBool, .jNull , .jUndf {
+            cursor: pointer;
+            &:hover {
+                background-color: #EEEEEE;
+                box-shadow: 0px 0px 1px #266481;
+            }
+        }
+    }
+
+    .jString {
+        color: #2B594F;
+    }
+
+    .jNum, .jBool, .jNull , .jUndf {
+        color: #E74A5F;
+    }
+
+    .jArray > .jString {
+        color: #9B8920;
+        white-space: nowrap;
+    }
+
+    .hideScroll {
+        overflow: hidden !important;
+    }
 }
 
-#jsonWrap {
-    left: 0;
-    .size(400px, 400px, @min-width: 300px);
-    background-color: @color-white;
-    opacity: 1;
-    z-index: 36;
-    overflow: hidden;
-    resize: both;
-    padding: 32px 0px 10px 10px;
-    .font(@weight: 400);
-}
-
-.jsonDragArea {
-    .position(absolute, @top: 0);
-    .size(@width: 100%, @height: 30px);
-    .cursor-move;
-    .action-gradient;
-    text-align: center;
-    color: @color-text-transparentWhite;
-    text-shadow: 1px 1px rgba(0,0,0,0.2);
-    .font(@size: 15px, @line-height: 28px);
-}
-
-.closeJsonModal {
-    .modalBuilder.modalHeader.close();
-    .position(@top: 3px, @right: 4px);
-}
-
-.prettyJson {
-    .size(@height: 100%, @min-width: 100px, @min-height: 100px);
-    .font(@size: 16px, @family: @font-code);
-    color: #FFA633;
-    resize: none;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.jObject {
-    .position(relative);
-    .size(@width: 100%, @height: auto);
-    padding-left: 25px;
-    padding-right: 5px;
-    overflow:visible;
-}
-
-.jsonBlock {
-    display:block;
-}
-
-.jKey {
-    color: #002D41;
-    padding: 0px 1px;
-    margin: 0px -1px;
-    display: inline-block;
-    .rounded;
-    cursor: pointer;
-}
-
-.jKey:hover {
-    background-color: #EEEEEE;
-    box-shadow: 0px 0px 1px #266481;
-}
-
-.jString {
-    color: #2B594F;
-}
-
-.jNum, .jBool, .jNull , .jUndf {
-    color: #E74A5F;
-}
-
-.jArray > .jString {
-    color: #9B8920;
-    white-space: nowrap;
-}
-
-.hideScroll {
-    overflow: hidden !important;
-}
 /* End Of Pretty Json Modal */
 
 /* Join Modal */
