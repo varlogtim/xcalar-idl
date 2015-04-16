@@ -557,11 +557,16 @@
                             .position(absolute, @top: 25px, @right: 0);
                             li {
                                 .position(relative);
+                                padding: 0 6px 0 8px;
+                                .label {
+                                    .position(relative, @top: 1px);
+                                }
                                 .icon {
                                     display: none;
-                                    .position(absolute, @top: 9px, @right: 6px);
-                                    .size(@width: 15px, @height: 12px);
-                                    .image("/images/dagIcons/tick-blue.png");
+                                    .position(absolute, @top: 0, @right: 6px);
+                                    .size(@width: 15px, @height: 25px);
+                                    .image("/images/dagIcons/tick-blue.png", 
+                                            50%, 50%);
                                 }
                                 &:hover {
                                     background-color: @color-selectedCell-dark;

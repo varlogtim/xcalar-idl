@@ -22,7 +22,7 @@ FileBrowser = (function() {
     /* End Of Contants */
     var curFiles = [];
     var allFiles = [];
-    var sortKey = "name";   // default is sort by name;
+    var sortKey = "type";   // default is sort by type;
     var sortRegEx = undefined;
     var reverseSort = false;
     var testMode = false;
@@ -484,24 +484,46 @@ FileBrowser = (function() {
 
     function sortFiles(files, key) {
         var sortedFiles = [];
-        var len = files.length;
-        if (key === "size") {
-            for (var i = 0; i < len; i ++) {
-                var size = files[i].attr.size;
-                sortedFiles.push([files[i], size]);
-            }
-            sortedFiles.sort(function(a, b) {return a[1] - b[1]});
-        } else {
-            for (var i = 0; i < len; i ++) {
-                var name = files[i].name;
-                sortedFiles.push([files[i], name]);
-            }
-            sortedFiles.sort(function(a, b) {return a[1].localeCompare(b[1])});
-        }
-
         var resultFiles = [];
-        for (var i = 0; i < len; i ++) {
-            resultFiles.push(sortedFiles[i][0]);
+
+        if (key === "size") {
+            files.forEach(function(file) {
+                sortedFiles.push([file, file.attr.size]);
+            });
+            sortedFiles.sort(function(a, b) {return a[1] - b[1]});
+            sortedFiles.forEach(function(file) {
+                resultFiles.push(file[0]);
+            });
+        } else {
+            // not sort by size, first sort by name
+            files.forEach(function(file) {
+                sortedFiles.push([file, file.name]);
+            });
+            sortedFiles.sort(function(a, b) {return a[1].localeCompare(b[1])});
+            if (key === "type") {
+                var dirFile = [];
+                var fileWithoutExt = [];  // file with on extention
+                var fileWithExt = [];   // file with extention
+                sortedFiles.forEach(function(file) {
+                    var name = file[1];
+                    var sortedFile = file[0];
+                    if (sortedFile.attr.isDirectory === true) {
+                        dirFile.push(sortedFile);
+                    } else {
+                        if (name.indexOf(".") >= 0) {
+                            fileWithExt.push(sortedFile);
+                        } else {
+                            fileWithoutExt.push(sortedFile);
+                        }
+                    }
+                    resultFiles = dirFile.concat(fileWithoutExt)
+                                        .concat(fileWithExt);
+                });
+            } else {
+                sortedFiles.forEach(function(file) {
+                    resultFiles.push(file[0]);
+                });
+            }
         }
 
         return (resultFiles);
