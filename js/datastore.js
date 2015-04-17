@@ -279,12 +279,22 @@ window.GridView = (function($) {
 
             $("#importDataView").hide();
             if (gDatasetBrowserResultSetId == 0) {
-                DSObj.getSample($grid);
+                DSObj.getSample($grid)
+                .then(function() {
+                    if (event.scrollToColumn) {
+                        DataCart.scrollToDatasetColumn();
+                    }
+                });
             } else {
                 XcalarSetFree(gDatasetBrowserResultSetId)
                 .then(function() {
                     gDatasetBrowserResultSetId = 0;
-                    DSObj.getSample($grid);
+                    return (DSObj.getSample($grid));
+                })
+                .then(function() {
+                    if (event.scrollToColumn) {
+                        DataCart.scrollToDatasetColumn();
+                    }
                 });
             }
         });
@@ -368,6 +378,7 @@ window.DataCart = (function($) {
             var $li = $(this);
             $cartArea.find(".colSelected").removeClass("colSelected");
             $li.addClass("colSelected");
+            triggerScrollToDatasetColumn($li);
         });
 
         // remove selected key
@@ -417,7 +428,8 @@ window.DataCart = (function($) {
                     </li>');
 
         $cart.find("ul").append($li);
-        $li.click();    // focus on this li
+        $cartArea.find(".colSelected").removeClass("colSelected");
+        $li.addClass("colSelected");// focus on this li
         overflowShadow();
     }
     // remove one column from cart
@@ -431,6 +443,34 @@ window.DataCart = (function($) {
     self.removeCart = function(dsName) {
         $("#selectedTable-" + dsName).remove();
         overflowShadow();
+    }
+
+    self.scrollToDatasetColumn = function() {
+        var $table = $("#worksheetTable");
+        var $datasetWrap = $('#datasetWrap');
+        var colNum = $cartArea.find(".colSelected").data("colnum");
+        var $column = $table.find("th.col" + colNum )
+        var position = $column.position().left;
+        var columnWidth = $column.width();
+        var dataWrapWidth = $datasetWrap.width();
+
+        $datasetWrap.scrollLeft(position-(dataWrapWidth/2)+(columnWidth/2));
+
+        // $datasetWrap.animate(
+        //     {scrollLeft : position-(dataWrapWidth/2)+(columnWidth/2)}
+        // );
+    }
+
+    function triggerScrollToDatasetColumn($li) {
+        var datasetName = $li.closest('ul').siblings('h3').text();
+        var $datasetIcon = $('#dataset-'+datasetName);
+        if($datasetIcon.hasClass('active')) {
+            DataCart.scrollToDatasetColumn();
+        } else {
+            var clickEvent = $.Event('click');
+            clickEvent['scrollToColumn'] = true;
+            $datasetIcon.trigger(clickEvent);
+        }
     }
 
     function emptyAllCarts() {
@@ -666,7 +706,6 @@ window.DataSampleTable = (function($) {
         });
         // resize
         $tableWrap.on("mousedown", ".colGrab", function(event) {
-            console.log(event.which)
             if (event.which != 1) {
                 return;
             }

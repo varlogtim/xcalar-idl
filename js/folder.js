@@ -324,6 +324,7 @@ DSObj.restore = function(datasets) {
 }
 
 DSObj.getSample = function($grid) {
+    var deferred = jQuery.Deferred();
     var dsObj = DSObj.getById($grid.data("dsid"));
     var datasetName = dsObj.name;
     var format = dsObj.attrs.format;
@@ -364,10 +365,13 @@ DSObj.getSample = function($grid) {
 
         DataSampleTable.updateTableInfo(datasetName, format, totalEntries);
         DataSampleTable.getSampleTable(datasetName, jsonKeys, jsons);
+        deferred.resolve();
     })
     .fail(function(error) {
         Alert.error("getDatasetSample fails", error);
+        deferred.reject(error);
     });
+    return (deferred.promise());
 }
 
 // find dsObj in lookupTable
