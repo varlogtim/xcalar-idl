@@ -319,7 +319,10 @@
             }
             .tableTitle {
                 .position(@top: 38px);
-                .transform (translateX(-60%));
+                .transform (translateX(-55%));
+                width: 110px;
+                text-align: center;
+
             }
             .dataStoreIcon {
                 .position(absolute, @top: 6px, @left: 2px);
@@ -331,12 +334,18 @@
         }
 
         .tableTitle {
-            .position(absolute, @top: 35px);
+            .position(absolute, @top: 38px);
             z-index: 5;
             color: @color-text-midGray;
             .font(@weight: 700, @size: 10px, @line-height: 12px);
             white-space: nowrap;
             .transform (translateX(-50%));
+            width: 130px;
+            max-height: 26px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            display: inline-block;
         }
     }
 
@@ -388,7 +397,8 @@
         .childrenTitle {
             .size(@height: ~"calc(100% - 12px)");
             overflow: hidden;
-            word-break: break-all;
+            // word-break: break-all;
+            text-overflow: ellipsis;
         }
 
         .dagIcon {

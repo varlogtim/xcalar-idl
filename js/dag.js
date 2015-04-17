@@ -961,14 +961,23 @@ function drawDagTable(dagNode, prop, dagArray) {
                     'data-url="'+url+'">'+
                         '<div class="dataStoreIcon"></div>'+
                         '<div class="icon"></div>'+
-                        '<span class="tableTitle">Dataset '+
+                        '<span class="tableTitle" '+
+                        'data-toggle="tooltip" '+
+                        'data-placement="bottom" '+
+                        'data-container="body" '+
+                        'title="'+getDagName(dagNode)+'">'+
+                        'Dataset '+
                             getDagName(dagNode)+
                         '</span>';
     } else {
         dagTable += '<div class="dagTable">' +
                         '<div class="dagTableIcon"></div>'+
                         '<div class="icon"></div>'+
-                        '<span class="tableTitle">'+
+                        '<span class="tableTitle" '+
+                        'data-toggle="tooltip" '+
+                        'data-placement="bottom" '+
+                        'data-container="body" '+
+                        'title="'+getDagName(dagNode)+'">'+
                             getDagName(dagNode)+
                         '</span>';
     }
