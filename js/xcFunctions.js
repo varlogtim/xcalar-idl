@@ -90,7 +90,7 @@ function sortRows(index, tableNum, order) {
     var tableName = gTables[tableNum].frontTableName;
     var srcName = isTable ? tableName : 
                             gTableIndicesLookup[tableName].datasetName;
-    var tablCols = gTables[tableNum].tableCols;
+    var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
     var fieldName;
 
     switch(gTables[tableNum].tableCols[index-1].func.func) {
@@ -146,7 +146,7 @@ function mapColumn(fieldName, mapString, tableNum, tableName, message) {
 
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempMapTable"+rand;
-    var tablCols = gTables[tableNum].tableCols;
+    var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
     XcalarMap(fieldName, mapString, 
               tableName, newTableName)
     .then(function() {
@@ -241,7 +241,7 @@ function filterCol(operator, value, colid, tableNum, tableName, message) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempFilterTable"+rand;
     var srcTableName = tableName;
-    var tablCols = gTables[tableNum].tableCols;
+    var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
     var colName = tablCols[colid - 1].name;
     // add cli
     var cliOptions = {};
@@ -279,12 +279,7 @@ function filterCol(operator, value, colid, tableNum, tableName, message) {
 function createJoinIndex(rightTableNum, tableNum) {
     // Combine the columns from the 2 current tables
     // Note that we have to create deep copies!!
-    var newTableCols = jQuery.extend(true, [],
-                                     gTables[tableNum].tableCols);
-    for (var i = 0; i<newTableCols.length; i++) {
-        newTableCols[i] = jQuery.extend(true, {},
-                                        gTables[tableNum].tableCols[i]);
-    }
+    var newTableCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
     var removed = false;
     var dataCol;
 
@@ -299,12 +294,8 @@ function createJoinIndex(rightTableNum, tableNum) {
         }
     }
     removed = false;
-    var newRightTableCols = jQuery.extend(true, [], 
-                                          gTables[rightTableNum].tableCols);
-    for (var i = 0; i<newRightTableCols.length; i++) {
-        newRightTableCols[i] = jQuery.extend(true, {},
-                                           gTables[rightTableNum].tableCols[i]);
-    }
+    var newRightTableCols = JSON.parse(JSON.stringify(
+                                       gTables[rightTableNum].tableCols));
     for (var i = 0; i<newRightTableCols.length; i++) {
         newRightTableCols[i].index+=(newTableCols.length);
         if (!removed) {
