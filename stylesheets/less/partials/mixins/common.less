@@ -375,12 +375,14 @@
     background-color: transparent;
 
      > .label {
-        font-size: 11px;
-        line-height: 24px;
-        height: 25px;
-        .rounded;
+        .size(@height: 25px);
+        .font(@size: 11px, @line-height: 24px);
+        .rounded(0 3px 3px 0);
+        padding: 0 10px;
         background-color: @color-background-white;
-        box-shadow: 1px 1px 2px 1px rgba(0,0,0,.2);
+        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.2);
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     > .gridIcon {
@@ -388,12 +390,12 @@
     }
 
     > .listIcon {
-        .size(@height: 25px);
+        .size(@width: 25px, @height: 25px);
         display: inline-block;
         .gray-gradient;
         float: left;
         .rounded(3px 0 0 3px);
-        margin-right: 10px;
+        box-shadow: -1px 1px 1px 1px rgba(0,0,0,.2);
 
         .icon {
             .size(25px, 25px);
@@ -414,6 +416,7 @@
         }
         > .listIcon {
             .action-gradient !important;
+            box-shadow: 0px 0px 0px 1px @color-background-topAction;
         }
     }
 
