@@ -1380,12 +1380,11 @@ function adjustRowHeights(newCells, rowIndex, tableNum) {
     var lastPageNum = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
     var padding = 4;
     for (var i = pageNum; i < lastPageNum; i++) {
-        console.log(pageNum, lastPageNum)
         if (rowObj[i]) {
             for (var row in rowObj[i]) {
                 var $row = newCells.filter(function() {
-                            return ($(this).hasClass('row'+(row-1)));
-                        });
+                                return ($(this).hasClass('row'+(row-1)));
+                           });
                 
                 $row.find('td.col0')
                     .outerHeight(rowObj[i][row]);

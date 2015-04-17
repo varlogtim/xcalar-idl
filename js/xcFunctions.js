@@ -147,10 +147,15 @@ function mapColumn(fieldName, mapString, tableNum, tableName, message) {
     var rand = Math.floor((Math.random() * 100000) + 1);
     var newTableName = "tempMapTable"+rand;
     var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
+    var tableProperties = {bookmarks:[], rowHeights:{}};
+    tableProperties.bookmarks = JSON.parse(JSON.stringify(
+                                                gTables[tableNum].bookmarks));
+    tableProperties.rowHeights = JSON.parse(JSON.stringify(
+                                                gTables[tableNum].rowHeights));
     XcalarMap(fieldName, mapString, 
               tableName, newTableName)
     .then(function() {
-        setIndex(newTableName, tablCols);
+        setIndex(newTableName, tablCols, null, tableProperties);
         return (refreshTable(newTableName, tableNum));
     })
     .then(function() {
@@ -258,6 +263,7 @@ function filterCol(operator, value, colid, tableNum, tableName, message) {
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
     .then(function() {
+        
         setIndex(newTableName, tablCols);
         return (refreshTable(newTableName, tableNum));
     })

@@ -503,7 +503,9 @@ window.DataCart = (function($) {
 
                 cliOptions.col.push("DATA");
 
-                setIndex(tableName, newTableCols, datasetName);
+                var tableProperties = {bookmarks:[], rowHeights:{}};
+                setIndex(tableName, newTableCols, datasetName, tableProperties);
+                
                 refreshTable(tableName, gTables.length, true, false)
                 .then(function() {
                     commitToStorage();

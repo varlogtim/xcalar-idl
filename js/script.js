@@ -154,7 +154,6 @@ function setTableMeta(table) {
     var urlTableName = getUrlVars()["tablename"];
     var tableName = urlTableName || table;
     var newTable = new TableMeta();
-
     var isTable = true;
     if (gTableIndicesLookup[tableName] && 
         !gTableIndicesLookup[tableName].isTable) {
@@ -163,6 +162,10 @@ function setTableMeta(table) {
 
     newTable.tableCols = [];
     newTable.currentPageNumber = 0;
+    if (gTableIndicesLookup[tableName]) {
+        newTable.rowHeights = gTableIndicesLookup[tableName].rowHeights;
+        newTable.bookmarks = gTableIndicesLookup[tableName].bookmarks;
+    }
 
     getResultSet(isTable, tableName)
     .then(function(resultSet) {
@@ -513,7 +516,6 @@ function loadMonitorPanel() {
 
 function documentReadyCatFunction(tableNum, tableNumsToRemove) {
     var deferred = jQuery.Deferred();
-    
     var index = getIndex(gTables[tableNum].frontTableName);
     var notIndexed = !(index && index.length > 0);
     getFirstPage(gTables[tableNum].resultSetId, tableNum, notIndexed)

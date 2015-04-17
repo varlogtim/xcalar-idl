@@ -56,7 +56,7 @@ function getDirection(tName) {
     return (null);
 }
 
-function setIndex(tName, index, dsName) {
+function setIndex(tName, index, dsName, tableProperties) {
     gTableIndicesLookup[tName] = {};
     gTableIndicesLookup[tName]['columns'] = index;
     gTableIndicesLookup[tName]['active'] = true;
@@ -66,6 +66,15 @@ function setIndex(tName, index, dsName) {
         gTableIndicesLookup[tName]['isTable'] = false;
     } else {
         gTableIndicesLookup[tName]['isTable'] = true;
+    }
+
+    if (tableProperties) {
+        gTableIndicesLookup[tName]['bookmarks'] = tableProperties.bookmarks;
+        gTableIndicesLookup[tName]['rowHeights'] = tableProperties.rowHeights;
+        
+    } else {
+        gTableIndicesLookup[tName]['bookmarks'] = [];
+        gTableIndicesLookup[tName]['rowHeights'] = {};
     }
 }
 
