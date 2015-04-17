@@ -357,7 +357,7 @@ window.DataCart = (function($) {
                 return (false);
             }
             createWorksheet()
-            .always(self.clear);
+            .always(emptyAllCarts);
         });
 
         $("#clearDataCart").click(function() {
