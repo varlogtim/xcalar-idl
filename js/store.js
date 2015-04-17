@@ -199,8 +199,15 @@ var KVStore = (function() {
     var self = {};
     var isHold = false;
 
-    self.gStorageKey = generateKey(hostname, portNumber, "gInfo");
-    self.gLogKey = generateKey(hostname, portNumber, "gLog");
+    var username = sessionStorage.getItem("xcalar-username");
+    if (username) {
+        self.gStorageKey = generateKey(username, "gInfo");
+        self.gLogKey = generateKey(username, "gLog");
+    } else {
+        self.gStorageKey = generateKey(hostname, portNumber, "gInfo");
+        self.gLogKey = generateKey(hostname, portNumber, "gLog");
+    }
+    console.log("You are assigned keys", self.gStorageKey, self.gLogKey);
 
     self.get = function(key) {
         var deferred = jQuery.Deferred();

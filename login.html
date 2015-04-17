@@ -28,7 +28,7 @@
   <div id="loginInsight"></div>
   <div id="loginShadow"></div>
   <div id="login">
-    <form method="POST" action="dologin.html">
+    <form method="POST" action="index.html">
     <div id="loginName">
       <div class="text">
         Username: 
@@ -59,8 +59,10 @@ $(document).ready(function() {
     }, 4500);
     
     $('#loginButton').click(function() {
-        console.log("username: "+$("#loginNameBox").val());
+        var username = $("#loginNameBox").val();
+        console.log("username:", username);
         console.log("password: "+$("#loginPasswordBox").val());
+        sessionStorage.setItem("xcalar-username", username);
     });
 });
 </script>
