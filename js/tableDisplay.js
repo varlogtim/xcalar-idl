@@ -19,6 +19,11 @@ function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
         }
         if ($('.xcTable').length == 1) {
             focusTable(tableNum);
+            if (gTables[gActiveTableNum].resultSetCount == 0) {  
+                $('#rowInput').val(0).data('val', 0);
+            } else {
+                generateFirstVisibleRowNum();
+            }
         }
         deferred.resolve();
     })

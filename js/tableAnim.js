@@ -18,7 +18,7 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
         var firstRowNum = parseInt(firstId.substring(3))+1;
         if (!isNaN(firstRowNum)) {
             $('#rowInput').val(firstRowNum).data('val', firstRowNum);
-            if (rowScrollerMove) {
+            if (rowScrollerMove && isTableScrollable(gActiveTableNum)) {
                 moverowScroller(firstRowNum, 
                     gTables[gActiveTableNum].resultSetCount);
             }
@@ -147,7 +147,9 @@ function gResrowMouseUp() {
     reenableTextSelection();
     $('body').removeClass('hideScroll'); 
     adjustColGrabHeight(gResrow.tableNum);
-    generateFirstVisibleRowNum();
+    if (gTables[gActiveTableNum].resultSetCount != 0) {  
+        generateFirstVisibleRowNum();
+    }
 
     if (newRowHeight != gRescol.minCellHeight) {
         if (rowObj[pageNum] == undefined) {
@@ -1327,6 +1329,8 @@ function highlightColumn(el, keepHighlighted) {
 
 }
 
+var userScroll = true;
+
 function positionScrollbar(row, tableNum) {
     var canScroll = true;
     var table = $('#xcTable'+tableNum);
@@ -1338,6 +1342,7 @@ function positionScrollbar(row, tableNum) {
                 (table.height() - $('#xcTableWrap'+tableNum).height())) {
             canScroll = false;
         }
+        $('#rowScrollerArea').addClass('autoScroll');
         $('#xcTbodyWrap'+tableNum).scrollTop(scrollPos);
     }
     
@@ -1399,12 +1404,21 @@ function addTableListeners(tableNum) {
     $('#xcTableWrap'+tableNum).mousedown(function() { 
         var dynTableNum = parseInt($(this).closest('.tableWrap').attr('id')
                        .substring(11));
+        if (gActiveTableNum == dynTableNum) {
+            return;
+        } else {
+            gActiveTableNum = dynTableNum;
+        }
         $('.tableTitle').removeClass('tblTitleSelected');
         $('#xcTheadWrap'+dynTableNum+' .tableTitle')
             .addClass('tblTitleSelected');
-        gActiveTableNum = dynTableNum;
+        
         updatePageBar(dynTableNum);
-        generateFirstVisibleRowNum();
+        if (gTables[dynTableNum].resultSetCount == 0) {  
+            $('#rowInput').val(0).data('val', 0);
+        } else {
+            generateFirstVisibleRowNum();
+        }
     }).scroll(function() {
         $(this).scrollLeft(0); // prevent scrolling when colmenu is open
         $(this).scrollTop(0); // prevent scrolling when colmenu is open
@@ -1419,8 +1433,8 @@ function focusTable(tableNum) {
     updatePageBar(tableNum);
 }
 
-function moverowScroller(pageNum, resultSetCount) {
-    var pct = 100* (pageNum/resultSetCount);
+function moverowScroller(rowNum, resultSetCount) {
+    var pct = 100* ((rowNum-1)/(resultSetCount-1));
     $('#rowMarker'+gActiveTableNum)
         .css('transform', 'translate3d('+pct+'%, 0px, 0px)');
 
@@ -1456,15 +1470,29 @@ function setupBookmarkArea() {
                 }
             }
         }
-        
+
+        if (!isTableScrollable(tableNum)) {
+            return;
+        }
+
         var e = $.Event("keypress");
         e.which = keyCode.Enter;
         e['rowScrollerMousedown'] = true;
-        var el = $(this)
+        var el = $(this);
+
         setTimeout( function() {
             $("#rowInput").val(rowNum).trigger(e);
+            // moverowScroller(rowNum, gTables[gActiveTableNum].resultSetCount);
         }, 145);
     });
+}
+
+function isTableScrollable(tableNum) {
+    var tHeadHeight = $('#xcTheadWrap'+tableNum).height();
+    var tBodyHeight = $('#xcTable'+tableNum).height();
+    var tableWrapHeight = $('#xcTableWrap'+tableNum).height();
+
+    return ((tHeadHeight + tBodyHeight) >= (tableWrapHeight));
 }
 
 function addRowScroller(tableNum) {

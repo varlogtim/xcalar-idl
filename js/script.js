@@ -63,11 +63,15 @@ var TableMeta = function() {
 }
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
-
-    $("#xcTbodyWrap"+tableNum).scroll(function() {
+    var $rowScroller = $('#rowScrollerArea');
+    $("#xcTbodyWrap"+tableNum).scroll(function(e) {
         if (gMouseStatus == "movingTable") {
             return;
         }
+        if ($rowScroller.hasClass('autoScroll')) {
+            $rowScroller.removeClass('autoScroll');
+            return;
+        } 
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("xcTbodyWrap".length));
         focusTable(dynTableNum);
@@ -331,15 +335,15 @@ function documentReadyxcTableFunction() {
         }
         if (gTables[gActiveTableNum].resultSetCount == 0) {
             $rowInput.val('0');
+            $rowInput.data('val', 0);
             return;
         } else if (row < 1) {
-            
-            $rowInput.val('1');
+            row = 1;
         } else if (row > gTables[gActiveTableNum].resultSetCount) {
-            $rowInput.val(gTables[gActiveTableNum].resultSetCount);
+            row = gTables[gActiveTableNum].resultSetCount;
         }
-        row = parseInt($rowInput.val());
         $rowInput.data('val', row);
+        $rowInput.val(row);
 
         if ((row/gNumEntriesPerPage) >
                 Math.floor((gTables[gActiveTableNum].resultSetCount/
@@ -361,19 +365,14 @@ function documentReadyxcTableFunction() {
             positionScrollbar(row, gActiveTableNum);
             generateFirstVisibleRowNum();
             if (!e.rowScrollerMousedown) {
-                moverowScroller(row, gTables[gActiveTableNum].resultSetCount);
+                moverowScroller($('#rowInput').val(), 
+                                 gTables[gActiveTableNum].resultSetCount);
+            } else {
+                $('#rowScrollerArea').addClass('autoScroll');
             }
         });
-        
-        // $(this).blur(); 
     });
     
-    $rowInput.change(function() {
-        var val = $(this).data('val');
-        $(this).val(val);
-    });
-    
-    generateFirstVisibleRowNum();
     var num = Number(gTables[gActiveTableNum].resultSetCount).
                     toLocaleString('en');
     $('#numPages').text('of '+num);
@@ -398,7 +397,9 @@ function documentReadyGeneralFunction() {
                 i++;
             });
         }, 100 );
-        generateFirstVisibleRowNum();
+        if (gTables[gActiveTableNum].resultSetCount != 0) {  
+            generateFirstVisibleRowNum();
+        }
     });
 
     //XXX using this to keep window from scrolling on dragdrop
@@ -424,11 +425,10 @@ function documentReadyGeneralFunction() {
 
     var $rowInput = $('#rowInput');
     $rowInput.val("").data("");
-    $rowInput.change(function() {
+    $rowInput.blur(function() {
         var val = $(this).data('val');
         $(this).val(val);
     });
-    
 
     $(document).mousedown(function(event) {
         var $target = $(event.target);
@@ -577,8 +577,9 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
         return (documentReadyCatFunction(tableNum, tableNumsToRemove));
     })
     .then(function(val) {
-        generateFirstVisibleRowNum();
-        infScrolling(tableNum);
+        if (gTables[tableNum].resultSetCount != 0) {  
+            infScrolling(tableNum);
+        }
         adjustColGrabHeight(tableNum);
         resizeRowInput();
         constructDagImage(gTables[tableNum].backTableName, tableNum);

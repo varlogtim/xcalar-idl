@@ -275,8 +275,16 @@ function tableBulkAction(action) {
             var leftPos = $('#xcTableWrap' + index).position().left +
                             $mainFrame.scrollLeft();
             $mainFrame.animate({scrollLeft: leftPos})
-                      .promise().then(generateFirstVisibleRowNum);
+                      .promise()
+                      .then(function(){
+                            if (gTables[index].resultSetCount != 0) {  
+                                generateFirstVisibleRowNum();
+                            }
+                    });
             focusTable(index);
+            if (gTables[index].resultSetCount != 0) {  
+                generateFirstVisibleRowNum();
+            }
         } else if (action == "delete") {
             commitToStorage();
         }
