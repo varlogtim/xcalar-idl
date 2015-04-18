@@ -238,7 +238,7 @@
             </div>
             <div id="gridViewButtonArea">
               <div id="backFolderBtn"  class="disabled"
-                  title="See previous folders"
+                  title="See previous folders" data-container="body"
                   data-toggle="tooltip" data-placement="bottom"
                   ondrop="dsDropBack(event)"
                   ondragover="allowDSDrop(event)"
@@ -247,11 +247,13 @@
                 <div class="label">..</div>
               </div>
               <div id="addFolderBtn" title="Add New Folder"
+                  data-container="body"
                   data-toggle="tooltip" data-placement="bottom">
                   <div class="icon"></div>
                   <div class="label">NEW</div>
               </div>
-              <div id="deleteFolderBtn" class="disabled" title="Delete Folder"
+              <div id="deleteFolderBtn" class="disabled" 
+                title="Delete folder or dataset" data-container="body"
                 data-toggle="tooltip" data-placement="bottom">
                 <div class="icon"></div>
                 <div class="label">DELETE</div>

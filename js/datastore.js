@@ -248,10 +248,45 @@ window.GridView = (function($) {
             if ($(this).hasClass("disabled")) {
                  return;
             }
-            var $folder = $("grid-unit.folder.active");
-            var folderId = $folder.data("dsid");
-            if (DSObj.deleteById(folderId) === true) {
-                $folder.remove();
+            var $grid = $("grid-unit.active");
+            if ($grid.hasClass("ds")) {
+                // delete a ds
+                var dsName = $grid.attr("id").split("dataset-")[1];
+                // add alert
+                Alert.show({
+                    "title": "DELETE DATASET",
+                    "msg": "Are you sure you want to delete dataset " 
+                            + dsName + "?",
+                    "isCheckBox": true,
+                    "confirm": function() {
+                        DSObj.destroy(dsName)
+                        .then(function() {
+                            //clear data cart
+                            $("#selectedTable-" + dsName).remove();
+                            // clear data table
+                            $tableWrap.empty();
+
+                            DSObj.focusOnFirst();
+
+                            XcalarGetDatasets()
+                            .then(function(datasets) {
+                                DataStore.updateInfo(datasets.numDatasets);
+                            })
+                            .fail(function(result) {
+                                console.error("Fail to update ds nums");
+                            });
+                        })
+                        .fail(function(error) {
+                            Alert.error("Delete Dataset Fails", error);
+                        });
+                    }
+                });
+            } else {
+                // delete a folder
+                var folderId = $grid.data("dsid");
+                if (DSObj.deleteById(folderId) === true) {
+                    $grid.remove();
+                }
             }
         });
     }
@@ -270,10 +305,10 @@ window.GridView = (function($) {
 
             $gridView.find(".active").removeClass("active");
             $grid.addClass("active");
-            $deleteFolderBtn.addClass("disabled");
+            $deleteFolderBtn.removeClass("disabled");
+
             // folder do not show anything
             if ($grid.hasClass("folder")) {
-                $deleteFolderBtn.removeClass("disabled");
                 return;
             }
 
