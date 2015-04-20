@@ -409,8 +409,8 @@ window.DataCart = (function($) {
             emptyAllCarts();
         });
 
-        $cartArea.on("click", ".colWrap", function() {
-            var $li = $(this);
+        $cartArea.on("click", ".colName", function() {
+            var $li = $(this).parent();
             $cartArea.find(".colSelected").removeClass("colSelected");
             $li.addClass("colSelected");
             triggerScrollToDatasetColumn($li);
