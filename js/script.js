@@ -314,6 +314,56 @@ function setupWorksheetMeta() {
     var month = d.getMonth()+1;
     var year = d.getFullYear();
     $("#workspaceDate").text("Created on "+month+"-"+day+"-"+year);
+
+    setupWorksheetsName();
+
+    $("#worksheetTabs").on({
+        "focus": function() {
+            var $text = $(this);
+            var $tab = $text.closest(".worksheetTab");
+            var div = $text[0];
+
+            $tab.addClass("focus");
+            $tab.mouseenter();  // close tooltip
+        },
+        "blur": function() {
+            var $text = $(this);
+            $text.text($text.data("title"));
+            $text.closest(".worksheetTab").removeClass("focus");
+            $text.scrollLeft(0);
+        },
+        "keypress": function(event) {
+            if (event.which === keyCode.Enter) {
+                event.preventDefault();
+
+                var $text = $(this);
+                var name = jQuery.trim($text.text());
+                var $tab = $text.closest(".worksheetTab");
+
+                setWorksheet($tab.index(), {"name": name});
+                $text.data("title", name);
+                $tab.attr("data-original-title", name);
+                $text.blur();
+            }
+        }
+    }, ".worksheetTab .text");
+
+    function setupWorksheetsName() {
+        $("#worksheetTabs .worksheetTab .text").each(function(index) {
+            var $text = $(this);
+            var worksheetInfo = getWorksheet(index);
+            var name;
+            if (worksheetInfo && worksheetInfo.name) {
+                name = worksheetInfo.name;
+            } else {
+                name = "Untitled";
+            }
+
+            $text.text(name);
+            $text.data("title", name);
+            $text.closest(".worksheetTab").attr("data-original-title", name);
+        });
+    }
 }
 
 // ========================== Document Ready ==================================

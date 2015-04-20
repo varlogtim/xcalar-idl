@@ -3,7 +3,7 @@
 
 var gTableIndicesLookup = {};
 var gTableDirectionLookup = {};
-var gWorksheetName = [];
+var gWorksheets = [];
 var gTableOrderLookup = [];
 
 // data set folder structure
@@ -14,7 +14,7 @@ function emptyAllStorage() {
 
     gTableIndicesLookup = {};
     gTableDirectionLookup = {};
-    gWorksheetName = [];
+    gWorksheets = [];
     gTableOrderLookup = [];
     gDSObjFolder = {};
 
@@ -88,7 +88,7 @@ function commitToStorage(atStartup) {
     setTableOrder(atStartup);
     storage = {"TILookup": gTableIndicesLookup,
                 "TDLookup": gTableDirectionLookup,
-                "WSName": gWorksheetName,
+                "gWorksheets": gWorksheets,
                 "TOLookup": gTableOrderLookup,
                 "gDSObj": gDSObjFolder,
                 "holdStatus": KVStore.isHold()
@@ -120,8 +120,8 @@ function readFromStorage() {
             if (gInfos["TDLookup"]) {
                 gTableDirectionLookup = gInfos["TDLookup"];
             }
-            if (gInfos["WSName"]) {
-                gWorksheetName = gInfos["WSName"];
+            if (gInfos["gWorksheets"]) {
+                gWorksheets = gInfos["gWorksheets"];
             }
             if (gInfos["TOLookup"]) {
                 gTableOrderLookup = gInfos["TOLookup"];
@@ -132,7 +132,7 @@ function readFromStorage() {
         } else {
             gTableIndicesLookup = {};
             gTableDirectionLookup = {};
-            gWorksheetName = [];
+            gWorksheets = [];
             gTableOrderLookup = [];
             gDSObjFolder = {};
         }
@@ -146,7 +146,7 @@ function readFromStorage() {
             // emptyAllStorage();
             gTableIndicesLookup = {};
             gTableDirectionLookup = {};
-            gWorksheetName = [];
+            gWorksheets = [];
             gTableOrderLookup = [];
         }
         DSObj.restore(datasets);
@@ -165,25 +165,29 @@ function readFromStorage() {
 }
 
 function getWorksheet(index) {
-    if (!gWorksheetName) {
+    if (!gWorksheets) {
         console.log("Nothing has ever been stored ever!");
-        gWorksheetName = [];
+        gWorksheets = [];
     }
-    if (gWorksheetName.length <= index) {
+    if (gWorksheets.length <= index) {
         console.log("No such index");
         return (null);
     }
-    return (gWorksheetName[index]);
+    return (gWorksheets[index]);
 }
   
-function setWorksheetName(index, name) {
-    console.log(arguments, 'setWorksheetName');
-    gWorksheetName[index] = name;
+function setWorksheet(index, workSheetOpt) {
+    if (!gWorksheets[index]) {
+        gWorksheets[index] = {};
+    }
+    for (key in workSheetOpt) {
+        gWorksheets[index][key] = workSheetOpt[key];
+    }
 }
 
-function removeWorksheetName(index) {
-    gWorksheetName.splice(index-2, 1);
-}
+// function removeWorksheet(index) {
+//     gWorksheets.splice(index-2, 1);
+// }
 
 function setTableOrder(atStartup) {
     if (atStartup) {
