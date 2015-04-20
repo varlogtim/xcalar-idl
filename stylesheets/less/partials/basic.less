@@ -747,8 +747,9 @@ ul.colMenu {
         }
     }
 
-    &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, &.recordNum {
-        .sort, .aggregate, .groupBy, .filterWrap, .joinList {
+    &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
+    &.recordNum, &.childOfArray {
+        .sort, .aggregate, .groupBy, .filterWrap, .joinList, .map {
             display: none;
         }
     }

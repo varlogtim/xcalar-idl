@@ -255,7 +255,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         //check for dot followed by number (invalid)
         return;
     }
-    console.log(arguments)
+    
     var table = $("#xcTable"+tableNum);
     var dataCol = table.find("tr:first th").filter(
         function() {
@@ -273,15 +273,19 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         startingIndex = startIndex;
         numRow = numberOfRows||gNumEntriesPerPage;
     } 
-    // var nested = key.trim().replace(/\]/g, "").replace(/\[/g, ".").split(".");
     var nested = key.trim()
                     .replace(/\]/g, "")
                     .replace(/\[/g, ".")
                     .match(/([^\\.]|\\.)+/g);
-    // console.log(key, nested);
+
    // track column type
     var columnType = undefined;
-    var subValue = "";
+
+    for (var i = 0; i<nested.length; i++) {
+        nested[i] = nested[i].replace(/\\./g, "\.");
+    }
+
+    var childOfArray = false;
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = table.find('.row'+i+' .col'+colid+' .elementText').text();
         if (jsonStr == "") {
@@ -290,24 +294,29 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
         } else {
             var value = jQuery.parseJSON(jsonStr);
         }
+
         for (var j = 0; j<nested.length; j++) {
-            subValue = nested[j].replace(/\\./g, "\.");
-            if ($.isEmptyObject(value) || value[subValue] == undefined) {
+            if ($.isEmptyObject(value) || value[nested[j]] == undefined) {
                 value = "";
                 break;
             }
-            value = value[subValue];
+            value = value[nested[j]];
+            if (j < nested.length - 1 && !childOfArray) {
+                if (typeof value == "object" && (value instanceof Array)) {
+                    childOfArray = true;
+                }
+            }
         }  
         //define type of the column
-        if(value !== "" && columnType !== "mixed") {
+        if (value !== "" && columnType !== "mixed") {
 
             var type = typeof value;
             if (type == "object" && (value instanceof Array)) {
                 type = "array";
             }
-            if(columnType == undefined) {
+            if (columnType == undefined) {
                 columnType = type;
-            }else if(columnType !== type) {
+            } else if (columnType !== type) {
                 columnType = "mixed";
             }
         }
@@ -316,7 +325,7 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
                 value+"</div></div>";
         table.find('.row'+i+' .col'+newColid).html(value);
     }
-    if(columnType == undefined) {
+    if (columnType == undefined) {
         gTables[tableNum].tableCols[newColid - 1].type = "undefined";
     } else {
         gTables[tableNum].tableCols[newColid - 1].type = columnType;
@@ -332,9 +341,13 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
            .removeClass("type-boolean")
            .removeClass("type-undefined")
            .removeClass("recordNum")
+           .removeClass("childOfArray")
            .addClass('type-' + columnType);
     if (key == "recordNum") {
         $header.addClass('recordNum');
+    }
+    if (childOfArray) {
+        $header.addClass('childOfArray');
     }
     table.find('th.col' + newColid).removeClass('newColumn');
 }
@@ -349,6 +362,7 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
     var tBodyHTML = "";
     var startIndex = startIndex || 0;
     var columnTypes = [];
+    var childArrayVals = [];
    
     for (var i = 0; i < numCols; i++) {
         if ((i != dataIndex) && tableCols[i].func.args) {
@@ -356,6 +370,10 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
                             .replace(/\]/g, "")
                             .replace(/\[/g, ".")
                             .match(/([^\\.]|\\.)+/g);
+            for (var j = 0; j<nested.length; j++) {
+                nested[j] = nested[j].replace(/\\./g, "\.");
+            }
+
             nestedVals.push(nested);
             // get the column number of the column the table was indexed on
             if (tableCols[i].name == table.keyName) {
@@ -366,6 +384,7 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
         }
         // track column type
         columnTypes.push(undefined);
+        childArrayVals.push(false);
     }
     // loop through table tr and start building html
     for (var row = 0; row < numRows; row++) {
@@ -397,20 +416,27 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
         for (var col = 0; col < numCols; col++) { 
             var nested = nestedVals[col];
             var tdValue = dataValue;
+            var childOfArray = childArrayVals[col];
             if (col != dataIndex) {
                 if (nested == undefined) {
                     console.log('Error this value should not be empty');
                 }
-                var subValue = "";
                 var nestedLength = nested.length;
                 for (var i = 0; i<nestedLength; i++) {
-                    subValue = nested[i].replace(/\\./g, "\.");
                     if ($.isEmptyObject(tdValue) || 
-                        tdValue[subValue] == undefined) {
+                        tdValue[nested[i]] == undefined) {
                         tdValue = "";
                         break;
                     }
-                    tdValue = tdValue[subValue];
+                    
+                    tdValue = tdValue[nested[i]];
+
+                    if (i < nestedLength - 1 && !childOfArray) {
+                        if (typeof tdValue == "object" 
+                            && (tdValue instanceof Array)) {
+                            childArrayVals[col] = true;
+                        }
+                    }
                 }  
                 
                 // XXX giving classes to table cells may actually be.then later
@@ -481,6 +507,7 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
                 .removeClass("type-undefined")
                 .removeClass("type-boolean")
                 .removeClass("recordNum")
+                .removeClass("childOfArray")
                 .addClass('type-' + type);
         gTables[tableNum].tableCols[i].type = type;
         if (tableCols[i].name == "recordNum") {
@@ -488,6 +515,9 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
         }
         if ($currentTh.hasClass('selectedCell')) {
             highlightColumn($currentTh);
+        }
+        if (childArrayVals[i]) {
+            $header.addClass('childOfArray');
         }
     }
     return tBodyHTML;

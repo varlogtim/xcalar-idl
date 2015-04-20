@@ -126,8 +126,8 @@ function showJsonModal(jsonTd) {
 
         gTables[tableNum].tableCols[colNum-1].func.func = "pull";        
         gTables[tableNum].tableCols[colNum-1].func.args = [name.escapedName];
-        gTables[tableNum].tableCols[colNum-1].userStr = '"'+name.name+
-                                                        '" = pull('+name.escapedName+')';
+        var usrStr = '"'+name.name+'" = pull('+name.escapedName+')';
+        gTables[tableNum].tableCols[colNum-1].userStr = usrStr;
         execCol(gTables[tableNum].tableCols[colNum-1], tableNum)
         .then(function() {
             updateMenuBarTable(gTables[tableNum], tableNum);

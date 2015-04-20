@@ -552,12 +552,18 @@ window.DataCart = (function($) {
                 $cart.find('.colName').each(function() {
                     var colname = $.trim($(this).text());
                     var progCol = new ProgCol();
+                    var escapedName = colname;
+
+                    if (colname.indexOf('.') > -1) {
+                        escapedName = colname.replace(/\./g, "\\\.");
+                    }
+
                     progCol.index = ++startIndex;
                     progCol.name = colname;
                     progCol.width = gNewCellWidth;
-                    progCol.userStr = '"'+colname+'" = pull('+colname+')';
+                    progCol.userStr = '"'+colname+'" = pull('+escapedName+')';
                     progCol.func.func = "pull";
-                    progCol.func.args = [colname];
+                    progCol.func.args = [escapedName];
                     progCol.isDark = false;
 
                     var currentIndex = startIndex - 1;
