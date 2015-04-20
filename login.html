@@ -28,7 +28,7 @@
   <div id="loginInsight"></div>
   <div id="loginShadow"></div>
   <div id="login">
-    <form method="POST" action="index.html">
+    <form method="POST" action="dologin.html">
     <div id="loginName">
       <div class="text">
         Username: 
@@ -58,11 +58,16 @@ $(document).ready(function() {
         });
     }, 4500);
     
-    $('#loginButton').click(function() {
+    $('#loginButton').click(function(event) {
+        // XXX prevent form to submit, temporary use
+        event.preventDefault();
+
         var username = $("#loginNameBox").val();
         console.log("username:", username);
         console.log("password: "+$("#loginPasswordBox").val());
         sessionStorage.setItem("xcalar-username", username);
+        // XXX this redirect is only for temporary use
+        window.location = "index.html";
     });
 });
 </script>

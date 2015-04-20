@@ -284,16 +284,28 @@ function mainPanelsTabbing() {
 }
 
 function setupLogout() {
-    $("#userName").click(function() {
-        $("#userNamePopout").toggle();
-        $("#userNamePopout").css("top", $("#userName").position().top+
-                                           $("#userName").height());
-        $("#userNamePopout").css("left",
-            $("#userName").position().left + $("#userName").width()/2 -
-            $("#userNamePopout").width()/2);
+    var $userName = $("#userName");
+    var $popOut = $("#userNamePopout");
+    var username = sessionStorage.getItem("xcalar-username");
+
+    username = username || "Vikram Joshi";
+
+    $userName.text(username);
+    $popOut.find(".text").text(username);
+
+    $userName.click(function() {
+        var top = $userName.position().top + $userName.height();
+        var left =  $userName.position().left + $userName.width()/2 -
+                    $popOut.width() / 2;
+
+        $popOut.toggle();
+        $popOut.css({"top": top, "left": left});
     });
+
     $("#signout").click(function() {
-        window.location = "dologout.html";
+        // window.location = "dologout.html";
+        // XXX this redirect is only for temporary use
+        window.location = "login.html";
     });
 }
 
