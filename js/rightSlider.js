@@ -24,7 +24,7 @@ function setupRightSideBar() {
             $sidebar.children('.lastOpen')
                     .removeClass('lastOpen');
             if ($sidebarSection.attr('id') === 'cliSection') {
-                Cli.scrollDown();
+                Cli.scrollToBottom();
             }
             $sliderBtn.addClass('active');
             // display correct section
@@ -46,7 +46,7 @@ function setupRightSideBar() {
                         .removeClass('lastOpen');
                 $sidebarSection.addClass('active');
                 if ($sidebarSection.attr('id') === 'cliSection') {
-                    Cli.scrollDown();
+                    Cli.scrollToBottom();
                 }
                 $sliderBtn.addClass('active');
             }

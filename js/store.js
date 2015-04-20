@@ -9,7 +9,7 @@ var gTableOrderLookup = [];
 // data set folder structure
 var gDSObjFolder = {};
 
-function emptyAllStorage() {
+function emptyAllStorage(localEmpty) {
     var deferred = jQuery.Deferred();
 
     gTableIndicesLookup = {};
@@ -17,13 +17,19 @@ function emptyAllStorage() {
     gWorksheets = [];
     gTableOrderLookup = [];
     gDSObjFolder = {};
+    Cli.clear();
+    $("#scratchPadSection textarea").val("");
 
-    KVStore.delete(KVStore.gStorageKey)
-    .then(function() {
-        return (KVStore.delete(KVStore.gLogKey));
-    })
-    .then(deferred.resolve)
-    .fail(deferred.reject);
+    if (localEmpty) {
+        deferred.resolve();
+    } else {
+        KVStore.delete(KVStore.gStorageKey)
+        .then(function() {
+            return (KVStore.delete(KVStore.gLogKey));
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+    }
 
     return (deferred.promise());
 }
@@ -84,14 +90,18 @@ function setDirection(tName, order) {
 
 function commitToStorage(atStartup) {
     var deferred = jQuery.Deferred();
+    var scratchPadText = $("#scratchPadSection textarea").val();
 
     setTableOrder(atStartup);
+    // bacis thing to store
     storage = {"TILookup": gTableIndicesLookup,
                 "TDLookup": gTableDirectionLookup,
                 "gWorksheets": gWorksheets,
                 "TOLookup": gTableOrderLookup,
                 "gDSObj": gDSObjFolder,
-                "holdStatus": KVStore.isHold()
+                "holdStatus": KVStore.isHold(),
+                "cli": Cli.get(),
+                "scratchPad": scratchPadText
             };
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage))
@@ -112,7 +122,6 @@ function readFromStorage() {
 
     KVStore.hold()
     .then(function(gInfos) {
-
         if (gInfos) {
             if (gInfos["TILookup"]) {
                 gTableIndicesLookup = gInfos["TILookup"];
@@ -129,12 +138,14 @@ function readFromStorage() {
             if (gInfos["gDSObj"]) {
                 gDSObjFolder = gInfos["gDSObj"];
             }
+            if (gInfos["cli"]) {
+                Cli.restore(gInfos["cli"]);
+            }
+            if (gInfos["scratchPad"]) {
+                $("#scratchPadSection textarea").val(gInfos["scratchPad"]);
+            }
         } else {
-            gTableIndicesLookup = {};
-            gTableDirectionLookup = {};
-            gWorksheets = [];
-            gTableOrderLookup = [];
-            gDSObjFolder = {};
+            emptyAllStorage(true);
         }
 
         return (XcalarGetDatasets());
@@ -143,7 +154,6 @@ function readFromStorage() {
         var numDatasets = datasets.numDatasets;
         // clear KVStore if no datasets are loaded
         if (numDatasets == 0 || numDatasets == null) {
-            // emptyAllStorage();
             gTableIndicesLookup = {};
             gTableDirectionLookup = {};
             gWorksheets = [];
@@ -286,7 +296,7 @@ var KVStore = (function() {
                     deferred.reject("Already in use!");
                 } else {
                     if (gInfos["holdStatus"] === true) {
-                        console.error("KVStore not relase last time...");
+                        console.error("KVStore not release last time...");
                     }
                     isHold = true;
                     sessionStorage.setItem(self.gStorageKey, "hold");
@@ -304,6 +314,7 @@ var KVStore = (function() {
             return (promiseWrapper(null));
         }
         isHold = false;
+
         return (commitToStorage());
     }
 
