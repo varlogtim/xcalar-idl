@@ -1,5 +1,6 @@
 StatusMessageTStr = {
 'Success' : 'Success!',
+'Completed' : 'Completed',
 'Viewing' : 'Viewing',
 'Error' : 'Error encountered',
 'Loading' : 'Loading',

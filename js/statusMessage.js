@@ -68,7 +68,7 @@ window.StatusMessage = (function() {
             } else {
                 finishWaiting(msg);
                 var successHTML = '<span id="statusSuccess">'+
-                                  StatusMessageTStr.Success+
+                                  StatusMessageTStr.Completed+
                                   '</span>';
                 $statusText.children('span')
                            .eq(rotatePosition)

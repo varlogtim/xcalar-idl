@@ -877,7 +877,7 @@ function constructDagImage(tableName, tableNum) {
                 '</div>'+
                 '<div class="retinaArea" data-tablename="' + tableName + '">' + 
                     '<div data-toggle="tooltip" data-container="body" '+
-                    'data-placement="top" title="Add New Retina" '+
+                    'data-placement="top" title="Create New Retina" '+
                     'class="btn addRet">' + 
                         '<span class="icon"></span>' + 
                     '</div>' + 
