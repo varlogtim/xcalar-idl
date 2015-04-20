@@ -19,11 +19,6 @@ function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
         }
         if ($('.xcTable').length == 1) {
             focusTable(tableNum);
-            if (gTables[gActiveTableNum].resultSetCount == 0) {  
-                $('#rowInput').val(0).data('val', 0);
-            } else {
-                generateFirstVisibleRowNum();
-            }
         }
         deferred.resolve();
     })
@@ -89,7 +84,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $("#colMenu"+i).attr("id", "colMenu"+(i-1));
         $("#dagWrap"+i).attr("id", "dagWrap"+(i-1));
     }
-    $('#rowInput').val("").data('val',"");
+    // $('#rowInput').val("").data('val',"");
     // XXX: Think about gActiveTableNum
     gActiveTableNum--;
     if ($('#xcTable'+gActiveTableNum).length == 0) {
@@ -98,9 +93,12 @@ function archiveTable(tableNum, del, delayTableRemoval) {
     } else {
         $('#rowScroller'+gActiveTableNum).show();
     }
-    generateFirstVisibleRowNum();
-    if (!delayTableRemoval) {
+    if (!delayTableRemoval && $('.xcTable').length != 0) {
         focusTable(gActiveTableNum);
+    }
+    if ($('.xcTable').length == 0) {
+        $('#rowInput').val("").data('val',"");
+        updatePageBar(0);
     }
 }
 

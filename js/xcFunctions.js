@@ -18,11 +18,14 @@ function refreshTable(newTableName, tableNum,
         newTableNum = gTables.length;
         addTable(newTableName, newTableNum, AfterStartup.After)
         .then(function() {
+            focusTable(newTableNum);
             var leftPos = $('#xcTableWrap'+newTableNum).position().left +
                             $('#mainFrame').scrollLeft();
             $('#mainFrame').animate({scrollLeft: leftPos})
-                           .promise().then(generateFirstVisibleRowNum);
-            focusTable(newTableNum);
+                           .promise()
+                           .then(function() {
+                                focusTable(newTableNum);
+                            });
             deferred.resolve();
         })
         .fail(function(error) {

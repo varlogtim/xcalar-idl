@@ -128,7 +128,6 @@ function infScrolling(tableNum) {
         .then(function() {
             var rowScrollerMove = true;
             generateFirstVisibleRowNum(rowScrollerMove);
-            updatePageBar(dynTableNum);
         })
         .fail(function(error) {
             console.log("Scroll Fails!");
@@ -396,10 +395,12 @@ function documentReadyGeneralFunction() {
                 adjustColGrabHeight(i);
                 i++;
             });
+
+            if (gTables[gActiveTableNum] && 
+                gTables[gActiveTableNum].resultSetCount != 0) {  
+                generateFirstVisibleRowNum();
+            }
         }, 100 );
-        if (gTables[gActiveTableNum].resultSetCount != 0) {  
-            generateFirstVisibleRowNum();
-        }
     });
 
     //XXX using this to keep window from scrolling on dragdrop

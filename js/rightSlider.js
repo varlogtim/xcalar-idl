@@ -277,14 +277,10 @@ function tableBulkAction(action) {
             $mainFrame.animate({scrollLeft: leftPos})
                       .promise()
                       .then(function(){
-                            if (gTables[index].resultSetCount != 0) {  
-                                generateFirstVisibleRowNum();
-                            }
+                            focusTable(index);
                     });
             focusTable(index);
-            if (gTables[index].resultSetCount != 0) {  
-                generateFirstVisibleRowNum();
-            }
+
         } else if (action == "delete") {
             commitToStorage();
         }

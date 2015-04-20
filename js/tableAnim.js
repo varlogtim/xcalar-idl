@@ -1,7 +1,7 @@
 function generateFirstVisibleRowNum(rowScrollerMove) {
-    if ($('#xcTableWrap'+gActiveTableNum).length == 0) {
-        return;
-    }
+    // if ($('#xcTableWrap'+gActiveTableNum).length == 0) {
+    //     return;
+    // }
 
     if (! document.elementFromPoint) {
         return;
@@ -708,6 +708,12 @@ function createTableHeader(tableNum) {
                 cliOptions.operation = "deleteTable";
                 cliOptions.tableName = tableName;
                 Cli.add("Delete Table", cliOptions);
+                setTimeout(function() {
+                    if (gTables[gActiveTableNum] && 
+                        gTables[gActiveTableNum].resultSetCount != 0) {  
+                        generateFirstVisibleRowNum();
+                    }
+                }, 300);
             })
             .fail(function(error) {
                 Alert.error("Delete Table Fails", error);
@@ -1408,16 +1414,7 @@ function addTableListeners(tableNum) {
             return;
         } else {
             gActiveTableNum = dynTableNum;
-        }
-        $('.tableTitle').removeClass('tblTitleSelected');
-        $('#xcTheadWrap'+dynTableNum+' .tableTitle')
-            .addClass('tblTitleSelected');
-        
-        updatePageBar(dynTableNum);
-        if (gTables[dynTableNum].resultSetCount == 0) {  
-            $('#rowInput').val(0).data('val', 0);
-        } else {
-            generateFirstVisibleRowNum();
+            focusTable(dynTableNum);
         }
     }).scroll(function() {
         $(this).scrollLeft(0); // prevent scrolling when colmenu is open
@@ -1431,6 +1428,11 @@ function focusTable(tableNum) {
         .addClass('tblTitleSelected');
     gActiveTableNum = tableNum;
     updatePageBar(tableNum);
+    if (gTables[tableNum].resultSetCount == 0) {  
+        $('#rowInput').val(0).data('val', 0);
+    } else {
+        generateFirstVisibleRowNum();
+    }
 }
 
 function moverowScroller(rowNum, resultSetCount) {
