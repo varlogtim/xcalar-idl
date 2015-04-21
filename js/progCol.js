@@ -328,13 +328,22 @@ function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
     }
 
     var childOfArray = false;
+
     for (var i =  startingIndex; i<numRow+startingIndex; i++) {
         var jsonStr = table.find('.row'+i+' .col'+colid+' .elementText').text();
+        var value;
+
         if (jsonStr == "") {
             console.log("Error: pullCol() jsonStr is empty");
-            var value = "";
+            value = "";
         } else {
-            var value = jQuery.parseJSON(jsonStr);
+            try {
+                value = jQuery.parseJSON(jsonStr);
+            } catch (err) {
+                // XXX may need extra handlers to handle the error
+                console.error(err, jsonStr);
+                value = "";
+            }
         }
 
         for (var j = 0; j<nested.length; j++) {
@@ -432,11 +441,18 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
     }
     // loop through table tr and start building html
     for (var row = 0; row < numRows; row++) {
+        var dataValue;
         if (jsonData[row] == "") {
             console.log('No DATA found in this row??');
-            var dataValue = "";
+            dataValue = "";
         } else {
-            var dataValue = $.parseJSON(jsonData[row]);
+            try {
+                dataValue = jQuery.parseJSON(jsonData[row]);
+            } catch(err) {
+                // XXX may add extra handlers to handle the error
+                console.error(err, jsonData[row]);
+                dataValue = "";
+            }
         }
 
         var rowNum = row+startIndex;
@@ -467,7 +483,7 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
                 }
                 var nestedLength = nested.length;
                 for (var i = 0; i<nestedLength; i++) {
-                    if ($.isEmptyObject(tdValue) || 
+                    if (jQuery.isEmptyObject(tdValue) || 
                         tdValue[nested[i]] == undefined) {
                         tdValue = "";
                         break;
@@ -522,12 +538,13 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
         }
         tBodyHTML += '</tr>';
     }
-    tBodyHTML = $(tBodyHTML);
+
+    var $tBody = $(tBodyHTML);
 
     if (direction == 1) {
-        $('#xcTable'+tableNum).find('tbody').prepend(tBodyHTML);
+        $('#xcTable'+tableNum).find('tbody').prepend($tBody);
     } else {
-        $('#xcTable'+tableNum).find('tbody').append(tBodyHTML);
+        $('#xcTable'+tableNum).find('tbody').append($tBody);
     }
 
     // assign column type class to header menus
@@ -564,7 +581,8 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
             $header.addClass('childOfArray');
         }
     }
-    return tBodyHTML;
+
+    return ($tBody);
 }
 
 function addCol(colId, tableId, name, options) {

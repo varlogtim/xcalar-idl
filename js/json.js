@@ -147,18 +147,29 @@ function showJsonModal(jsonTd) {
     $('body').addClass('hideScroll');
 }
 
-function positionJsonModal(jsonTd) {
+function positionJsonModal($jsonTd) {
     var winHeight = $(window).height();
     var winWidth = $(window).width();
-    var jsonTdHeight = jsonTd.outerHeight(); 
-    var jsonTdWidth = jsonTd.outerWidth(); 
-    var jsonTdPos = jsonTd[0].getBoundingClientRect();
-    var jsonString = $.parseJSON(jsonTd.find('.elementText').text());
+    var jsonTdHeight = $jsonTd.outerHeight();
+    var jsonTdWidth = $jsonTd.outerWidth();
+    var jsonTdPos = $jsonTd[0].getBoundingClientRect();
+    var text = $jsonTd.find('.elementText').text();
+    var jsonString;
+
+    try {
+        jsonString = jQuery.parseJSON(text);
+    } catch (err) {
+        console.error(error, text);
+        $('#jsonModal, #modalBackground').hide();
+        return;
+    }
     var newString = prettifyJson(jsonString);
+
     $('.jObject').html(newString);
     $('#jsonModal').show();
     $('#modalBackground').fadeIn(100);
     $('#jsonWrap').height(500).width(500);
+
     var modalHeight = $('#jsonModal').outerHeight();
     var modalWidth = $('#jsonModal').outerWidth();
 
