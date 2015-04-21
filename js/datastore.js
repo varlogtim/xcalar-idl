@@ -2,6 +2,7 @@ window.DataStore = (function($) {
     var self = {};
 
     self.setup = function() {
+        DS.setup();
         GridView.setup();
         setupImportDSForm()
         DataSampleTable.setup();
@@ -9,9 +10,18 @@ window.DataStore = (function($) {
     }
 
     self.updateInfo = function(numDatasets) {
-        console.log("Updating to:", numDatasets);
         $("#worksheetInfo").find(".numDataStores").text(numDatasets);
         $("#datasetExplore").find(".numDataStores").text(numDatasets);
+    }
+
+    self.updateNumDatasets = function() {
+        XcalarGetDatasets()
+        .then(function(datasets) {
+            DataStore.updateInfo(datasets.numDatasets);
+        })
+        .fail(function(result) {
+            console.error("Fail to update ds nums");
+        });
     }
 
     function setupImportDSForm() {
@@ -52,26 +62,29 @@ window.DataStore = (function($) {
         // submit the form
         $("#importDataForm").submit(function(event) {
             event.preventDefault();
-            var $filePath = $("#filePath");
+
             var $fileName = $("#fileName");
-            var loadURL = jQuery.trim($filePath.val());
             var dsName = jQuery.trim($fileName.val());
-            var dsFormat = $("#fileFormat input[name=dsType]:checked").val();
-            var fieldDelim = $("#fieldDelim").val();
-            var lineDelim = $("#lineDelim").val();
             // check name conflict
-            if (DSObj.isDataSetNameConflict(dsName)) {
+            if (DS.has(dsName)) {
                 var text = "Dataset with the name " +  dsName + 
                             " already exits. Please choose another name.";
                 StatusBox.show(text, $fileName, true);
                 return false;
             }
 
-            var msg = StatusMessageTStr.LoadingDataset+": "+dsName
+            var $filePath = $("#filePath");
+            var loadURL = jQuery.trim($filePath.val());
+            var dsFormat = $("#fileFormat input[name=dsType]:checked").val();
+            var fieldDelim = $("#fieldDelim").val();
+            var lineDelim = $("#lineDelim").val();
+            var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
+
             StatusMessage.show(msg);
 
-            DSObj.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim)
+            DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim)
             .then(function() {
+                DataStore.updateNumDatasets();
                 $("#importDataReset").click();
                 StatusMessage.success(msg);
             })
@@ -187,7 +200,6 @@ window.GridView = (function($) {
 
     self.setup = function() {
         // initial gDSObj
-        gDSInitialization();
         setupGridViewButton();
         setupGridViewIcons();
     }
@@ -237,14 +249,17 @@ window.GridView = (function($) {
 
          // click "Add New Folder" button to add new folder
         $("#addFolderBtn").click(function() {
-            DSObj.create(gDSObj.id++, "New Folder", gDSObj.curId, true);
+            DS.create({
+                "name": "New Folder",
+                "isFolder": true
+            })
             // commitToStorage();
         });
 
         // click "Back Up" button to go back to parent folder
         $("#backFolderBtn").click(function() {
             if (!$(this).hasClass("disabled")) {
-                 DSObj.upDir();
+                 DS.upDir();
             }
         });
 
@@ -253,46 +268,8 @@ window.GridView = (function($) {
             if ($(this).hasClass("disabled")) {
                  return;
             }
-            var $grid = $("grid-unit.active");
-            if ($grid.hasClass("ds")) {
-                // delete a ds
-                var dsName = $grid.attr("id").split("dataset-")[1];
-                // add alert
-                Alert.show({
-                    "title": "DELETE DATASET",
-                    "msg": "Are you sure you want to delete dataset " 
-                            + dsName + "?",
-                    "isCheckBox": true,
-                    "confirm": function() {
-                        DSObj.destroy(dsName)
-                        .then(function() {
-                            //clear data cart
-                            $("#selectedTable-" + dsName).remove();
-                            // clear data table
-                            $("#dataSetTableWrap").empty();
 
-                            DSObj.focusOnFirst();
-
-                            XcalarGetDatasets()
-                            .then(function(datasets) {
-                                DataStore.updateInfo(datasets.numDatasets);
-                            })
-                            .fail(function(result) {
-                                console.error("Fail to update ds nums");
-                            });
-                        })
-                        .fail(function(error) {
-                            Alert.error("Delete Dataset Fails", error);
-                        });
-                    }
-                });
-            } else {
-                // delete a folder
-                var folderId = $grid.data("dsid");
-                if (DSObj.deleteById(folderId) === true) {
-                    $grid.remove();
-                }
-            }
+            DS.remove($("grid-unit.active"));
         });
     }
 
@@ -320,7 +297,8 @@ window.GridView = (function($) {
 
             releaseDatasetPointer()
             .then(function() {
-                return (DSObj.getSample($grid));
+                var dsId = $grid.data("dsid");
+                return (DataSampleTable.getTableFromDS(dsId));
             })
             .then(function() {
                 if (event.scrollToColumn) {
@@ -377,8 +355,8 @@ window.GridView = (function($) {
                 }, 1);
             },
             "blur": function() {
-                var $grid = $(this);
-                DSObj.rename($grid);
+                var $label = $(this);
+                DS.rename($label);
                 this.scrollLeft = 0;    //scroll to the start of text;
             }
         }, ".folder .label");
@@ -390,7 +368,7 @@ window.GridView = (function($) {
                 $gridView.find(".active").removeClass("active");
                 $deleteFolderBtn.addClass("disabled");
                 if ($gridView.hasClass("gridView")) {
-                    DSObj.changeDir($grid.data("dsid"));
+                    DS.goToDir($grid.data("dsid"));
             }
         });
 
@@ -494,6 +472,10 @@ window.DataCart = (function($) {
                 appendCartItem(dsName, item.colNum, item.value);
             });
         });
+    }
+
+    self.clear = function() {
+        emptyAllCarts();
     }
 
     self.scrollToDatasetColumn = function() {
@@ -719,7 +701,57 @@ window.DataSampleTable = (function($) {
         setupColumnDropdownMenu();
     }
 
-    self.getSampleTable = function(dsName, jsonKeys, jsons) {
+    self.getTableFromDS = function(dsId) {
+        var deferred = jQuery.Deferred();
+
+        var dsObj = DS.getDSObj(dsId);
+        var datasetName = dsObj.name;
+        var format = dsObj.attrs.format;
+        // XcalarSample sets gDatasetBrowserResultSetId
+        XcalarSample(datasetName, 20)
+        .then(function(result, totalEntries) {
+            var uniqueJsonKey = {}; // store unique Json key
+            var jsonKeys = [];
+            var jsons = [];  // store all jsons
+            var kvPairs = result.kvPairs;
+            var records = kvPairs.records;
+            var isVariable = kvPairs.recordType ==
+                                GenericTypesRecordTypeT.GenericTypesVariableSize;
+
+            updateTableInfo(datasetName, format, totalEntries);
+
+            try {
+                for (var i = 0; i < records.length; i ++) {
+                    var record = records[i];
+                    var value = isVariable ? record.kvPairVariable.value :
+                                            record.kvPairFixed.value;
+                    var json = jQuery.parseJSON(value);
+
+                    jsons.push(json);
+                    // get unique keys
+                    for (var key in json) {
+                        uniqueJsonKey[key] = "";
+                    }
+                }
+
+                for (var key in uniqueJsonKey) {
+                    jsonKeys.push(key);
+                }
+
+                getSampleTable(datasetName, jsonKeys, jsons);
+                deferred.resolve();
+             } catch(err) {
+                console.log(err, value);
+                getSampleTable(datasetName);
+                deferred.reject({"error": "Cannot Parse the dataset"});
+            }
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
+   function getSampleTable(dsName, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsName, jsonKeys, jsons);
         $tableWrap.empty().append(html);
         $(".datasetTbodyWrap").scroll(function(event) {
@@ -731,7 +763,7 @@ window.DataSampleTable = (function($) {
         restoreSelectedColumns();
     }
 
-    self.updateTableInfo = function(dsName, dsFormat, totalEntries) {
+    function updateTableInfo(dsName, dsFormat, totalEntries) {
         var d = new Date();
         var date = (d.getMonth() + 1) + "-" + d.getDate() + "-" 
                     + d.getFullYear();
@@ -812,35 +844,8 @@ window.DataSampleTable = (function($) {
         $("#dsDelete").click(function() {
             var dsName = $("#worksheetTable").data("dsname") 
                         || $("#dsInfo-title").text();
-            // add alert
-            Alert.show({
-                "title": "DELETE DATASET",
-                "msg": "Are you sure you want to delete dataset " 
-                        + dsName + "?",
-                "isCheckBox": true,
-                "confirm": function() {
-                    DSObj.destroy(dsName)
-                    .then(function() {
-                        //clear data cart
-                        $("#selectedTable-" + dsName).remove();
-                        // clear data table
-                        $tableWrap.empty();
 
-                        DSObj.focusOnFirst();
-
-                        XcalarGetDatasets()
-                        .then(function(datasets) {
-                            DataStore.updateInfo(datasets.numDatasets);
-                        })
-                        .fail(function(result) {
-                            console.error("Fail to update ds nums");
-                        });
-                    })
-                    .fail(function(error) {
-                        Alert.error("Delete Dataset Fails", error);
-                    });
-                }
-            });
+            DS.remove($("#dataset-" + dsName));
         });
         // select all columns
         $("#selectDSCols").click(function() {

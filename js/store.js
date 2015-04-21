@@ -6,9 +6,6 @@ var gTableDirectionLookup = {};
 var gWorksheets = [];
 var gTableOrderLookup = [];
 
-// data set folder structure
-var gDSObjFolder = {};
-
 function emptyAllStorage(localEmpty) {
     var deferred = jQuery.Deferred();
 
@@ -16,8 +13,9 @@ function emptyAllStorage(localEmpty) {
     gTableDirectionLookup = {};
     gWorksheets = [];
     gTableOrderLookup = [];
-    gDSObjFolder = {};
+    DS.clear();
     Cli.clear();
+    DataCart.clear();
     $("#scratchPadSection textarea").val("");
 
     if (localEmpty) {
@@ -98,7 +96,7 @@ function commitToStorage(atStartup) {
                 "TDLookup": gTableDirectionLookup,
                 "gWorksheets": gWorksheets,
                 "TOLookup": gTableOrderLookup,
-                "gDSObj": gDSObjFolder,
+                "gDSObj": DS.getCurrentState(),
                 "holdStatus": KVStore.isHold(),
                 "cli": Cli.get(),
                 "scratchPad": scratchPadText,
@@ -120,6 +118,7 @@ function commitToStorage(atStartup) {
 
 function readFromStorage() {
     var deferred = jQuery.Deferred();
+    var gDSObjFolder;
 
     KVStore.hold()
     .then(function(gInfos) {
@@ -163,7 +162,7 @@ function readFromStorage() {
             gWorksheets = [];
             gTableOrderLookup = [];
         }
-        DSObj.restore(datasets);
+        DS.restore(gDSObjFolder, datasets);
         DataStore.updateInfo(numDatasets);
         return (commitToStorage(AfterStartup.After));
     })
