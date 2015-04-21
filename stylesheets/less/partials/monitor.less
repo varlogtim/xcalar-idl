@@ -64,6 +64,7 @@
                 border-right: 1px solid @color-table-borderGray;
                 border-bottom: 1px solid @color-table-borderGray;
                 cursor: pointer;
+                .noSelection;
 
                 &.active {
                     .action-gradient;
@@ -112,7 +113,7 @@
             }
         }
 
-        .graphWrap {
+        .graphSection {
             .size(@width: ~"calc(100% - 65px)", @height: 300px);
             .font(@color: @color-table-borderGray);
             padding-left: 50px;
@@ -122,6 +123,144 @@
             background-color: @color-background-darkGray;
             overflow: hidden;
             position: relative;
+
+            #graphWrap {
+                position: absolute;
+                width: ~"calc(100% - 170px)";
+                height: 260px;
+                left: 79px;
+                z-index: 1;
+                overflow-x: scroll;
+                overflow-y: hidden;
+
+                &::-webkit-scrollbar-track {
+                    border-radius: 20px;
+                }
+            }
+
+            #graphParts {
+                position: absolute;
+                width: 100%;
+
+                .yAxis {
+                    position: absolute;
+                    white-space: nowrap;
+                    text-align: right;
+                    top: 2px;
+
+                    span {
+                        display: block;
+                        .font(@size: 11px, @weight: 500);
+                        height: 42px;
+                    }
+
+                    &.right {
+                        right: 106px;
+                        text-align: left;
+                    }
+                }
+            }
+
+            #graph {
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+                text-align: right;
+                .noSelection;
+
+                .mainSvg {
+                    position: relative;
+                    // float: right;
+                    right: 0px;
+                    top: 10px;
+                    background-color: #3b4952;
+                }
+
+                .separator {
+                    display: block;
+                    width: 100%;
+                    height: 1px;
+                }
+                .xLabelsWrap {
+                    right: 0px;
+                    bottom: 6px;
+                    top: 6px;
+                    display: inline-block;
+                    position: relative;
+                    white-space: nowrap;
+                    text-align: left;
+                    overflow: hidden;
+
+                    .spacer {
+                        // width: 280px;
+                        width: 40px;
+                        float: left;
+                        display: inline-block;
+                        height: 1px;
+                    }
+                    .xLabels {
+                        position: relative;
+                        display: inline-block;
+
+                        span {
+                            display: inline-block;
+                            top: 0px;
+                            width: 240px;
+                            .font(@size: 11px, @weight: 500);
+
+                        }
+                    } 
+                }
+            }
+
+            .graphBackground {
+                // width: 1201px;
+                width: ~"calc(100% - 170px)";
+                height: 210px;
+                margin: 10px 0px 20px -1px;
+                left: 30px;
+                // float: right;
+                background-color: #3b4952;
+                position: absolute;
+            }
+
+            .axis {
+                stroke: black;
+                &.x {
+                    stroke: #27717C;
+                }
+
+                &.y {
+                    stroke: rgba(255,255,255, 0.2);
+                }
+            }
+
+            .line{
+                fill: none;
+                stroke-width: 2px;
+                &.line0 {
+                    stroke: #6DCFF6;
+                }
+                &.line1 {
+                    stroke: #90C591;
+                }
+            }
+
+            .area {
+                
+                opacity: 0.2;
+                stroke-width: 0;
+                &.area0 {
+                    fill: #6DCFF6; 
+                }
+                &.area1 {
+                    fill: #90C591; 
+                }
+
+                &.highlighted {
+                    opacity: 0.6;
+                }
+            }
 
             .graphTop {
                 .size (@height: 32px);
@@ -164,14 +303,6 @@
 
             }
 
-            #graph {
-                // width: 1070px;
-                width: 100%;
-                height: 265px;
-                float: right;
-                .background("/images/monitor/graph.png", 100%, 265px);
-            }
-
             .graphText {
                 width: 100%;
                 height: 80%;
@@ -185,6 +316,18 @@
                     .font(@size: 70px, @color: @color-white, @weight: bold);
                     line-height: 110px;
                     opacity: 0.15;
+                }
+            }
+
+            #grids {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                position: absolute;
+
+                .gridSvg {
+                    right: 0px;
+                    top: 10px;
                 }
             }
         }

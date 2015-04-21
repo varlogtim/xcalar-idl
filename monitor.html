@@ -31,7 +31,7 @@
             <div class="text">NETWORK</div>
         </div>
     </div>
-    <div class="graphWrap">
+    <div class="graphSection">
         <div class="graphTop">
             <div id="connectionInfo">
                 <span class="text" id="phyNodeText">Physical Node: </span>
@@ -53,10 +53,42 @@
                 <span id="graphTime"></span>
             </div>
        </div>
-        <div id="graph"></div>
-        <div class="graphText">
+
+    <!--     <div class="graphText">
             <div class="sampleText">SAMPLE</div>
+        </div> -->
+        <div id="graphWrap">
+            
+            <div id="graph">
+                <div id="grids"></div>
+                <div class="separator"></div>
+                <div class="xLabelsWrap">
+                    <div class="spacer"></div>
+                    <div class="xLabels"></div>
+                </div>
+            </div>
+           
         </div>
+        <div id="graphParts">
+            <div class="yAxis left">
+                <span>100</span>
+                <span>80</span>
+                <span>60</span>
+                <span>40</span>
+                <span>20</span>
+                <span>0 (%)</span>
+            </div>
+            <div class="graphBackground"></div>
+            <div class="yAxis right">
+                <span>256</span>
+                <span>211</span>
+                <span>154</span>
+                <span>106</span>
+                <span>53</span>
+                <span>0 (GB)</span>
+            </div>
+        </div>
+        
     </div>
 </div>
 <div class="bottomSection flex-container flex-row">

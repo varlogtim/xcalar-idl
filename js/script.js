@@ -266,13 +266,16 @@ function mainPanelsTabbing() {
                     adjustColGrabHeight(i);
                     matchHeaderSizes(null, $('#xcTable'+i)); 
                 }
+                MonitorGraph.clear();
             break;
         case ("dataStoresTab"):
             $("#datastoreView").addClass("active");
+            MonitorGraph.clear();
             break;
         case ("monitorTab"):
             $('#monitorPanel').addClass("active");
             updateMonitorGraphs();
+            MonitorGraph.start();
             break;
         default:
             $(".underConstruction").addClass("active");
