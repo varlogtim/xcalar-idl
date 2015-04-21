@@ -474,10 +474,10 @@ function dragdropSwapColumns(el) {
     createDropTargets(dropTargetId, movedCol);
 }
 
-function gRescolDelWidth(colNum, tableNum, resize) {
+function gRescolDelWidth(colNum, tableNum) {
     var table = $('#xcTable'+tableNum);
     var oldTableWidth = table.width();
-    if (!resize && (oldTableWidth < gMinTableWidth)) {
+    if (oldTableWidth < gMinTableWidth) {
         var lastTd = table.find('tr:first th').length-1;
         var lastTdWidth = table.find('.th.col'+lastTd).width();
         table.find('thead:last .th.col'+lastTd).
@@ -642,6 +642,9 @@ function createTableHeader(tableNum) {
                             <li class="exportTable">\
                                 Export Table\
                             </li>\
+                            <li class="delAllDuplicateCols">\
+                                Delete Duplicate Columns\
+                            </li>\
                         </ul>';
 
     $('#xcTableWrap'+ tableNum).append(tableMenuHTML);
@@ -760,6 +763,23 @@ function createTableHeader(tableNum) {
         .always(function() {
             // removeWaitCursor();
         });
+    });
+
+    $tableMenu.on('click', '.delAllDuplicateCols', function() {
+        var $menu = $(this).closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id').substring(9));
+        $menu.hide();
+        var columns = gTables[tableNum].tableCols;
+        // var numCols = columns.length;
+
+        for (var i = 0; i < columns.length; i++) {
+            if (columns[i].func.func && columns[i].func.func == "raw") {
+                continue;
+            } else {
+                var forwardCheck = true;
+                delDuplicateCols(i+1, tableNum, forwardCheck);
+            }     
+        }
     });
 
     var $table = $('#xcTable' + tableNum);
@@ -1007,6 +1027,14 @@ function addColMenuActions($colMenu) {
         delCol(index, tableNum);
 
         Cli.add('Delete Column', cliOptions);
+    });
+
+    $colMenu.on('click', '.deleteDuplicates', function() {
+        var index = $colMenu.data('colNum');
+        var tableNum = parseInt($colMenu.attr('id').substring(7));
+
+        delDuplicateCols(index, tableNum);
+
     });
 
     $colMenu.on('click', '.renameCol', function() {

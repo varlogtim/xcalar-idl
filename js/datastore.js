@@ -796,7 +796,6 @@ window.DataSampleTable = (function($) {
 
                 } catch(err) {
                     console.log(err, value);
-                    DataSampleTable.getSampleTable(datasetName);
                 }
                 
             });

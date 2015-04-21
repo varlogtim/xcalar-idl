@@ -238,7 +238,7 @@ function checkDuplicateColNames($inputs, $input) {
     return (isDuplicate);
 }
 
-function delCol(colNum, tableNum, resize) {
+function delCol(colNum, tableNum) {
     var numCol = $("#xcTable"+tableNum+" tr:first th").length;
     var tableWrap = $("#xcTableWrap"+tableNum);
     tableWrap.find('th.col'+colNum+' ,td.col'+colNum).remove();
@@ -247,7 +247,49 @@ function delCol(colNum, tableNum, resize) {
     for (var i = colNum+1; i<=numCol; i++) {
         tableWrap.find('.col'+i).removeClass('col'+i).addClass('col'+(i-1));
     }
-    gRescolDelWidth(colNum, tableNum, resize);
+    gRescolDelWidth(colNum, tableNum);
+}
+
+function delDuplicateCols(index, tableNum, forwardCheck) {
+    var index = index - 1;
+    var columns = gTables[tableNum].tableCols;
+    var numCols = columns.length;
+    var args = columns[index].func.args;
+    if (args) {
+        var operation = args[0];
+    } else {
+        var operation = undefined;
+    }
+
+    if (forwardCheck) {
+        var start = index;
+    } else {
+        var start = 0;
+    }
+    
+    for (var i = start; i < numCols; i++) {
+        if (i == index) {
+            continue;
+        }
+        if (columns[i].func.args) {
+            if (columns[i].func.args[0] == args
+                && columns[i].func.func != "raw") {
+                
+                delColandAdjustLoop();
+            }
+        } else if (operation == undefined) {
+            delColandAdjustLoop();
+        }
+    }
+
+    function delColandAdjustLoop() {
+        delCol((i+1), tableNum);
+        if (i < index) {
+            index--;
+        }
+        numCols--;
+        i--;
+    }
 }
 
 function pullCol(key, newColid, tableNum, startIndex, numberOfRows) {
@@ -365,11 +407,13 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
     var childArrayVals = [];
    
     for (var i = 0; i < numCols; i++) {
-        if ((i != dataIndex) && tableCols[i].func.args) {
+        if ((i != dataIndex) && tableCols[i].func.args 
+            && tableCols[i].func.args!= "") {
             var nested = tableCols[i].func.args[0]
                             .replace(/\]/g, "")
                             .replace(/\[/g, ".")
                             .match(/([^\\.]|\\.)+/g);
+
             for (var j = 0; j<nested.length; j++) {
                 nested[j] = nested[j].replace(/\\./g, "\.");
             }
@@ -653,7 +697,8 @@ function generateColDropDown(tableNum) {
                 '<div class="dropdownBox"></div>'+
             '</li>'+
             '<li class="deleteColumn">Delete column</li>'+ 
-            '<li class="duplicate">Duplicate column</li>'+ 
+            '<li class="duplicate">Duplicate column</li>'+
+            '<li class="deleteDuplicates">Delete duplicate columns</li>'+ 
             '<li class="renameCol">Rename column</li>'+
             '<li class="hide">Hide column</li>'+ 
             '<li class="unhide">Unhide column</li>'+ 
