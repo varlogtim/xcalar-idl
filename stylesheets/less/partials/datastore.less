@@ -908,8 +908,15 @@ input {
 
         th {
             width: 130px;
-            &:first-child .header {
-                border-left: 5px solid @color-background-tableBorders;
+            &:first-child {
+                width: 40px;
+                cursor: default;
+                pointer-events: none;
+                .header {
+                    border-left: 5px solid @color-background-tableBorders;
+                    width: 40px;
+                    cursor: default;
+                }
             }
         }
         .selectedCell {

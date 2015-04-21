@@ -636,6 +636,8 @@ window.DataSampleTable = (function($) {
     var self = {};
     var $tableWrap = $("#dataSetTableWrap");
     var $menu = $("#datasetTableMenu");
+    var currentRow = 0;
+    var totalRows = 0;
 
     self.setup = function() {
         $menu.append(getDropdownMenuHTML());
@@ -646,6 +648,9 @@ window.DataSampleTable = (function($) {
     self.getSampleTable = function(dsName, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsName, jsonKeys, jsons);
         $tableWrap.empty().append(html);
+        $(".datasetTbodyWrap").scroll(function(event) {
+            dataStoreTableScroll($(this), event)
+        });
         var $table = $("#worksheetTable");
         var tableHeight = $table.height();
         $table.find(".colGrab").height(tableHeight);
@@ -664,6 +669,69 @@ window.DataSampleTable = (function($) {
         if (dsFormat) {
             $("#schema-format").text(dsFormat);
         }
+        totalRows = parseInt($('#dsInfo-records').text().replace(/\,/g, ""));
+    }
+
+    function dataStoreTableScroll($tableWrap, event) {
+        var numRowsToFetch = 20;
+        if (currentRow + 20 >= totalRows) {
+            return;
+        }
+        if ($tableWrap[0].scrollHeight - $tableWrap.scrollTop() -
+                   $tableWrap.outerHeight() <= 1) {
+
+            XcalarSetAbsolute(gDatasetBrowserResultSetId, 
+                                currentRow += numRowsToFetch)
+            .then(function() {
+                return (XcalarGetNextPage(gDatasetBrowserResultSetId, 
+                        numRowsToFetch));
+            })
+            .then(function(result) {
+                var uniqueJsonKey = {}; // store unique Json key
+                var jsonKeys = [];
+                var jsons = [];  // store all jsons
+                var kvPairs = result.kvPairs;
+                var records = kvPairs.records;
+                var isVariable = kvPairs.recordType ==
+                            GenericTypesRecordTypeT.GenericTypesVariableSize;
+
+                try {
+                    for (var i = 0; i < records.length; i ++) {
+                        var record = records[i];
+                        var value = isVariable ? record.kvPairVariable.value :
+                                                record.kvPairFixed.value;
+                        var json = jQuery.parseJSON(value);
+
+                        jsons.push(json);
+                        // get unique keys
+                        for (var key in json) {
+                            uniqueJsonKey[key] = "";
+                        }
+                    }
+
+                    for (var key in uniqueJsonKey) {
+                        jsonKeys.push(key);
+                    }
+
+                    var selectedCols = {};
+
+                    $('#worksheetTable').find('th.selectedCol').each(
+                        function() {
+                            selectedCols[$(this).index()] = true;
+                        }
+                    );
+
+                    var tr = getTableRowsHTML(jsonKeys, jsons, false, 
+                                              selectedCols);
+                    $('#worksheetTable').append(tr);
+
+                } catch(err) {
+                    console.log(err, value);
+                    DataSampleTable.getSampleTable(datasetName);
+                }
+                
+            });
+        }   
     }
 
     function setupSampleTable() {
@@ -764,6 +832,7 @@ window.DataSampleTable = (function($) {
             gRescolMouseDown($(this), event, {target: "datastore"});
             dblClickResize($(this), {minWidth: 25});
         });
+
     }
 
     function setupColumnDropdownMenu() {
@@ -1015,46 +1084,22 @@ window.DataSampleTable = (function($) {
         var tr = "";
         var th = "";
         var columnsType = [];  // track column type
+        currentRow = 0;
 
         jsonKeys.forEach(function() {
             columnsType.push("undefined");
         });
 
         // table rows
-        jsons.forEach(function(json) {
-            tr += '<tr>';
-            // loop through each td, parse object, and add to table cell
-            for (var j = 0; j < jsonKeys.length; j++) {
-                var key = jsonKeys[j];
-                var val = json[key];
-                var parsedVal = val == undefined ? "" : parseJsonValue(val);
-                // Check type
-                if (parsedVal !== "" && columnsType[j] !== "mixed") {
-                    var type = typeof val;
-                    if (type == "object" && (val instanceof Array)) {
-                        type = "array";
-                    }
-                    if (columnsType[j] == "undefined") {
-                        columnsType[j] = type;
-                    } else if (columnsType[j] !== type) {
-                        columnsType[j] = "mixed";
-                    }
-                }
-
-                tr += '<td class="col' + j + '">\
-                        <div class="addedBarTextWrap">\
-                            <div class="addedBarText">' + parsedVal + '</div>\
-                        </div>\
-                      </td>';
-            }
-
-            tr += '</tr>';
-        });
-
+        tr = getTableRowsHTML(jsonKeys, jsons, columnsType);
+        if (jsonKeys.length > 0) {
+            th += '<th><div class="header"></th>';
+        }
+        
         // table header
         for (var i = 0; i < jsonKeys.length; i++) {
             var key = jsonKeys[i];
-            var thClass = "th col" + i;
+            var thClass = "th col" + (i+1);
             var type = columnsType[i];
             th += 
                 '<th title="' + key + '" class="' + thClass + '">\
@@ -1099,6 +1144,56 @@ window.DataSampleTable = (function($) {
             </div>';
 
         return (html);
+    }
+
+    function getTableRowsHTML(jsonKeys, jsons, columnsType, selectedCols) {
+        var tr = "";
+        var i = 0;
+        jsons.forEach(function(json) {
+            tr += '<tr>';
+            tr += '<td>'+(currentRow + i+ 1)+'</td>';
+            // loop through each td, parse object, and add to table cell
+            for (var j = 0; j < jsonKeys.length; j++) {
+                var key = jsonKeys[j];
+                var val = json[key];
+                var parsedVal = val == undefined ? "" : parseJsonValue(val);
+                var selected = "";
+
+                if (selectedCols && selectedCols[j+1]) {
+                    selected = " selectedCol";
+                }
+
+                tr += '<td class="col' + (j+1) + selected + '">\
+                        <div class="addedBarTextWrap">\
+                            <div class="addedBarText">' + 
+                            parsedVal + 
+                            '</div>\
+                        </div>\
+                      </td>';
+
+                if (!columnsType) {
+                    continue;
+                }   
+
+                // Check type
+                if (parsedVal !== "" && columnsType[j] !== "mixed") {
+                    var type = typeof val;
+                    if (type == "object" && (val instanceof Array)) {
+                        type = "array";
+                    }
+                    if (columnsType[j] == "undefined") {
+                        columnsType[j] = type;
+                    } else if (columnsType[j] !== type) {
+                        columnsType[j] = "mixed";
+                    }
+                }
+            }
+
+            tr += '</tr>';
+            i++;
+        });
+
+        return (tr);
     }
 
     return (self);
