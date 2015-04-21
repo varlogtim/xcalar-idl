@@ -104,7 +104,7 @@ function commitToStorage(atStartup) {
                 "scratchPad": scratchPadText
             };
 
-    KVStore.put(KVStore.gStorageKey, JSON.stringify(storage))
+    KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
     .then(function() {
         console.log("commitToStorage done!");
         deferred.resolve();
@@ -250,9 +250,9 @@ window.KVStore = (function() {
         return (deferred.promise());
     }
 
-    self.put = function(key, value) {
+    self.put = function(key, value, persist) {
         var deferred = jQuery.Deferred();
-        XcalarKeyPut(key, value)
+        XcalarKeyPut(key, value, persist)
         .then(function() {
             deferred.resolve();
         })
@@ -326,7 +326,7 @@ window.KVStore = (function() {
             if (output) {
                 var gInfos = JSON.parse(output.value);
                 gInfos["holdStatus"] = false;
-                XcalarKeyPut(self.gStorageKey, JSON.stringify(gInfos));
+                XcalarKeyPut(self.gStorageKey, JSON.stringify(gInfos), false);
             }
         });
     }

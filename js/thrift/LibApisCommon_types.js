@@ -819,6 +819,73 @@ XcalarApiKeyValuePairT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiKeyAddOrReplaceInputT = function(args) {
+  this.persist = null;
+  this.kvPair = null;
+  if (args) {
+    if (args.persist !== undefined) {
+      this.persist = args.persist;
+    }
+    if (args.kvPair !== undefined) {
+      this.kvPair = args.kvPair;
+    }
+  }
+};
+XcalarApiKeyAddOrReplaceInputT.prototype = {};
+XcalarApiKeyAddOrReplaceInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.BOOL) {
+        this.persist = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.kvPair = new XcalarApiKeyValuePairT();
+        this.kvPair.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiKeyAddOrReplaceInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiKeyAddOrReplaceInputT');
+  if (this.persist !== null && this.persist !== undefined) {
+    output.writeFieldBegin('persist', Thrift.Type.BOOL, 1);
+    output.writeBool(this.persist);
+    output.writeFieldEnd();
+  }
+  if (this.kvPair !== null && this.kvPair !== undefined) {
+    output.writeFieldBegin('kvPair', Thrift.Type.STRUCT, 2);
+    this.kvPair.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiKeyLookupOutputT = function(args) {
   this.status = null;
   this.value = null;
@@ -5692,7 +5759,7 @@ XcalarApiInputT.prototype.read = function(input) {
       break;
       case 35:
       if (ftype == Thrift.Type.STRUCT) {
-        this.keyAddOrReplaceInput = new XcalarApiKeyValuePairT();
+        this.keyAddOrReplaceInput = new XcalarApiKeyAddOrReplaceInputT();
         this.keyAddOrReplaceInput.read(input);
       } else {
         input.skip(ftype);

@@ -875,14 +875,17 @@ function XcalarKeyLookup(key) {
     return (deferred.promise());
 }
 
-function XcalarKeyPut(key, value) {
+function XcalarKeyPut(key, value, persist) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
 
     var deferred = jQuery.Deferred();
 
-    xcalarKeyAddOrReplace(tHandle, key, value)
+    if (persist == undefined || persist == null) {
+        persist = false;
+    }
+    xcalarKeyAddOrReplace(tHandle, key, value, persist)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarKeyPut", error));

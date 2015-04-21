@@ -1,4 +1,4 @@
-window.Cli = (function($){
+window.Cli = (function($) {
     var self = {};
     var history = [];
     var $textarea = $('#rightBarTextArea');
@@ -12,7 +12,7 @@ window.Cli = (function($){
     }
 
     self.get = function() {
-        return history;
+        return (history);
     }
 
     self.restore = function(oldCliHistory) {
