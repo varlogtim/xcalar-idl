@@ -264,7 +264,7 @@ window.GridView = (function($) {
                             //clear data cart
                             $("#selectedTable-" + dsName).remove();
                             // clear data table
-                            $tableWrap.empty();
+                            $("#dataSetTableWrap").empty();
 
                             DSObj.focusOnFirst();
 
@@ -311,26 +311,36 @@ window.GridView = (function($) {
             if ($grid.hasClass("folder")) {
                 return;
             }
-
             $("#importDataView").hide();
-            if (gDatasetBrowserResultSetId == 0) {
-                DSObj.getSample($grid)
-                .then(function() {
-                    if (event.scrollToColumn) {
-                        DataCart.scrollToDatasetColumn();
-                    }
-                });
-            } else {
-                XcalarSetFree(gDatasetBrowserResultSetId)
-                .then(function() {
-                    gDatasetBrowserResultSetId = 0;
-                    return (DSObj.getSample($grid));
-                })
-                .then(function() {
-                    if (event.scrollToColumn) {
-                        DataCart.scrollToDatasetColumn();
-                    }
-                });
+
+            releaseDatasetPointer()
+            .then(function() {
+                return (DSObj.getSample($grid));
+            })
+            .then(function() {
+                if (event.scrollToColumn) {
+                    DataCart.scrollToDatasetColumn();
+                }
+            })
+            .fail(function(error) {
+                Alert.error("Load Dataset fails", error);
+            });
+
+            function releaseDatasetPointer() {
+                var deferred = jQuery.Deferred();
+
+                if (gDatasetBrowserResultSetId == 0) {
+                    deferred.resolve();
+                } else {
+                    XcalarSetFree(gDatasetBrowserResultSetId)
+                    .then(function() {
+                        gDatasetBrowserResultSetId = 0;
+                        deferred.resolve();
+                    })
+                    .fail(deferred.reject);
+                }
+
+                return (deferred.promise());
             }
         });
 
@@ -659,7 +669,8 @@ window.DataSampleTable = (function($) {
     function setupSampleTable() {
         // delete dataset
         $("#dsDelete").click(function() {
-            var dsName = $("#worksheetTable").data("dsname");
+            var dsName = $("#worksheetTable").data("dsname") 
+                        || $("#dsInfo-title").text();
             // add alert
             Alert.show({
                 "title": "DELETE DATASET",
@@ -995,6 +1006,11 @@ window.DataSampleTable = (function($) {
     }
     // sample table html
     function getSampleTableHTML(dsName, jsonKeys, jsons) {
+        // validation check
+        if (!dsName || !jsonKeys || !jsons) {
+            return "";
+        }
+
         var html = "";
         var tr = "";
         var th = "";
@@ -1002,7 +1018,7 @@ window.DataSampleTable = (function($) {
 
         jsonKeys.forEach(function() {
             columnsType.push("undefined");
-        })
+        });
 
         // table rows
         jsons.forEach(function(json) {

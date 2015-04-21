@@ -209,7 +209,7 @@ function setTableOrder(atStartup) {
     }
 }
 
-var KVStore = (function() {
+window.KVStore = (function() {
     var self = {};
     var isHold = false;
 

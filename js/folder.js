@@ -336,41 +336,39 @@ DSObj.getSample = function($grid) {
         var jsons = [];  // store all jsons
         var kvPairs = result.kvPairs;
         var records = kvPairs.records;
-
-        if (kvPairs.recordType ==
-            GenericTypesRecordTypeT.GenericTypesVariableSize) {
-
-            records.forEach(function(record) {
-                var json = jQuery.parseJSON(record.kvPairVariable.value);
-                jsons.push(json);
-
-                for (var key in json) {
-                    uniqueJsonKey[key] = "";
-                }
-            });
-        } else {
-            records.forEach(function(record) {
-                var json = jQuery.parseJSON(record.kvPairFixed.value);
-                jsons.push(json);
-
-                for (var key in json) {
-                    uniqueJsonKey[key] = "";
-                }
-            });
-        }
-
-        for (var key in uniqueJsonKey) {
-            jsonKeys.push(key);
-        }
+        var isVariable = kvPairs.recordType ==
+                            GenericTypesRecordTypeT.GenericTypesVariableSize;
 
         DataSampleTable.updateTableInfo(datasetName, format, totalEntries);
-        DataSampleTable.getSampleTable(datasetName, jsonKeys, jsons);
-        deferred.resolve();
+
+        try {
+            for (var i = 0; i < records.length; i ++) {
+                var record = records[i];
+                var value = isVariable ? record.kvPairVariable.value :
+                                        record.kvPairFixed.value;
+                var json = jQuery.parseJSON(value);
+
+                jsons.push(json);
+                // get unique keys
+                for (var key in json) {
+                    uniqueJsonKey[key] = "";
+                }
+            }
+
+            for (var key in uniqueJsonKey) {
+                jsonKeys.push(key);
+            }
+
+            DataSampleTable.getSampleTable(datasetName, jsonKeys, jsons);
+            deferred.resolve();
+         } catch(err) {
+            console.log(err, value);
+            DataSampleTable.getSampleTable(datasetName);
+            deferred.reject({"error": "Cannot Parse the dataset"});
+        }
     })
-    .fail(function(error) {
-        Alert.error("getDatasetSample fails", error);
-        deferred.reject(error);
-    });
+    .fail(deferred.reject);
+
     return (deferred.promise());
 }
 
