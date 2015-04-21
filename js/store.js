@@ -101,7 +101,8 @@ function commitToStorage(atStartup) {
                 "gDSObj": gDSObjFolder,
                 "holdStatus": KVStore.isHold(),
                 "cli": Cli.get(),
-                "scratchPad": scratchPadText
+                "scratchPad": scratchPadText,
+                "datacarts": DataCart.getCarts()
             };
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
@@ -143,6 +144,9 @@ function readFromStorage() {
             }
             if (gInfos["scratchPad"]) {
                 $("#scratchPadSection textarea").val(gInfos["scratchPad"]);
+            }
+            if (gInfos["datacarts"]) {
+                DataCart.restore(gInfos["datacarts"]);
             }
         } else {
             emptyAllStorage(true);

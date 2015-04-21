@@ -404,15 +404,23 @@ window.GridView = (function($) {
 
 window.DataCart = (function($) {
     var self = {};
+    var innerCarts = [];
     var $cartArea = $("#dataCart");
 
     self.setup = function() {
         $("#submitDSTablesBtn").click(function() {
             if ($cartArea.find(".selectedTable").length === 0) {
-                return (false);
+                return false;
             }
             createWorksheet()
-            .always(emptyAllCarts);
+            .then(function() {
+                emptyAllCarts();
+                commitToStorage();
+            })
+            .fail(function(error) {
+                emptyAllCarts();
+                Alert.error("Create work sheet fails", error);
+            });
         });
 
         $("#clearDataCart").click(function() {
@@ -428,66 +436,59 @@ window.DataCart = (function($) {
 
         // remove selected key
         $cartArea.on("click", ".removeCol", function() {
-            var $closeBox = $(this);
-            var $li = $closeBox.closest(".colWrap");
-            var $cart = $li.closest(".selectedTable");
-            var dsname = $cart.attr("id").split("selectedTable-")[1];
-            var colNum = $li.data("colnum");
-            var $table = $("#worksheetTable");
-            // if the table is displayed
-            if ($table.data("dsname") === dsname) {
-                $table.find("th.col" + colNum + " .header")
-                            .removeClass('colAdded');
-                $table.find(".col" + colNum).removeClass('selectedCol');
-            }
+            var $li = $(this).closest(".colWrap");
+            var dsname = $li.closest(".selectedTable").attr("id")
+                            .split("selectedTable-")[1];
 
-            if ($li.siblings().length === 0) {
-                $cart.remove();
-            } else {
-                $li.remove();
-            }
-
-            overflowShadow();
+            removeCartItem(dsname, $li);
         });
     }
     // add column to cart
     self.addItem = function(dsName, $colInput) {
         var colNum = parseColNum($colInput);
-        var $cart = $("#selectedTable-" + dsName);
-        // this ds's cart not exists yet
-        if ($cart.length == 0) {
-            $cart =  $('<div id="selectedTable-' + dsName + '" \
-                            class="selectedTable">\
-                            <h3>' + dsName + '</h3>\
-                            <ul></ul>\
-                        </div>');
-            $cartArea.prepend($cart);
-        }
+        var val = $colInput.val();
+        var $li = appendCartItem(dsName, colNum, val);
 
-        var $li = $('<li style="font-size:13px;" class="colWrap" \
-                        data-colnum="' + colNum + '">\
-                        <span class="colName">' +  $colInput.val() + '</span>\
-                        <div class="removeCol">\
-                            <span class="closeIcon"></span>\
-                        </div>\
-                    </li>');
-
-        $cart.find("ul").append($li);
         $cartArea.find(".colSelected").removeClass("colSelected");
-        $li.addClass("colSelected");// focus on this li
-        overflowShadow();
+        $li.addClass("colSelected"); // focus on this li
+
+        var cart = filterCarts(dsName);
+        cart.items.push({"colNum": colNum, "value": val});
     }
     // remove one column from cart
     self.removeItem = function (dsName, $colInput) {
         var colNum = parseColNum($colInput);
-        var $cart = $("#selectedTable-" + dsName);
-        $cart.find("li[data-colnum=" + colNum + "] .removeCol")
-                .click();
+        var $li = $("#selectedTable-" + dsName)
+                    .find("li[data-colnum=" + colNum + "]");
+
+        removeCartItem(dsName, $li);
     }
     // remove one cart
     self.removeCart = function(dsName) {
         $("#selectedTable-" + dsName).remove();
         overflowShadow();
+        // remove the cart
+        for (var i = 0; i < innerCarts.length; i ++) {
+            if (innerCarts[i].name === dsName) {
+                innerCarts.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    self.getCarts = function() {
+        return (innerCarts);
+    }
+
+    self.restore = function(carts) {
+        innerCarts = carts;
+        innerCarts.forEach(function(cart) {
+            var dsName = cart.name;
+            var items = cart.items;
+            items.forEach(function(item) {
+                appendCartItem(dsName, item.colNum, item.value);
+            });
+        });
     }
 
     self.scrollToDatasetColumn = function() {
@@ -506,6 +507,88 @@ window.DataCart = (function($) {
         // );
     }
 
+    function appendCartItem(dsName, colNum, val) {
+        var $cart = $("#selectedTable-" + dsName);
+        // this ds's cart not exists yet
+        if ($cart.length === 0) {
+            $cart =  $('<div id="selectedTable-' + dsName + '" \
+                            class="selectedTable">\
+                            <h3>' + dsName + '</h3>\
+                            <ul></ul>\
+                        </div>');
+            $cartArea.prepend($cart);
+        }
+
+        var $li = $('<li style="font-size:13px;" class="colWrap" \
+                        data-colnum="' + colNum + '">\
+                        <span class="colName">' +  val + '</span>\
+                        <div class="removeCol">\
+                            <span class="closeIcon"></span>\
+                        </div>\
+                    </li>');
+
+        $cart.find("ul").append($li);
+        overflowShadow();
+
+        return ($li);
+    }
+
+    function removeCartItem(dsname, $li) {
+        var colNum = $li.data("colnum");
+        var $table = $("#worksheetTable");
+        // if the table is displayed
+        if ($table.data("dsname") === dsname) {
+            $table.find("th.col" + colNum + " .header")
+                        .removeClass('colAdded');
+            $table.find(".col" + colNum).removeClass('selectedCol');
+        }
+
+        if ($li.siblings().length === 0) {
+            $li.closest(".selectedTable").remove();
+        } else {
+            $li.remove();
+        }
+
+        overflowShadow();
+
+        var items = filterCarts(dsname).items;
+        for (var i = 0; i < items.length; i ++) {
+            if (items[i].colNum === colNum) {
+                items.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    function emptyAllCarts() {
+        var $table = $("#worksheetTable");
+
+        $cartArea.empty();
+        $table.find('.colAdded').removeClass("colAdded");
+        $table.find('.selectedCol').removeClass("selectedCol");
+        overflowShadow();
+
+        innerCarts = [];
+    }
+
+    function filterCarts(dsName) {
+        var cart;
+        var res = innerCarts.filter(function(curCart) {
+            return curCart.name === dsName;
+        });
+
+        if (res.length === 0) {
+            cart = {"name": dsName};
+            cart.items = [];
+            innerCarts.push(cart);
+        } else {
+            cart = res[0];
+        }
+
+        return (cart);
+    }
+
+
     function triggerScrollToDatasetColumn($li) {
         var datasetName = $li.closest('ul').siblings('h3').text();
         var $datasetIcon = $('#dataset-'+datasetName);
@@ -518,19 +601,13 @@ window.DataCart = (function($) {
         }
     }
 
-    function emptyAllCarts() {
-        var $table = $("#worksheetTable");
-        $cartArea.empty();
-        $table.find('.colAdded').removeClass("colAdded");
-        $table.find('.selectedCol').removeClass("selectedCol");
-        overflowShadow();
-    }
-
     function overflowShadow() {
         if ($cartArea.height() > $('#dataCartWrap').height()) {
-            $('#contentViewRight').find('.buttonArea').addClass('cartOverflow');
+            $('#contentViewRight').find('.buttonArea')
+                                .addClass('cartOverflow');
         } else {
-            $('#contentViewRight').find('.buttonArea').removeClass('cartOverflow');
+            $('#contentViewRight').find('.buttonArea')
+                                .removeClass('cartOverflow');
         }
     }
 
@@ -599,7 +676,6 @@ window.DataCart = (function($) {
                 
                 refreshTable(tableName, gTables.length, true, false)
                 .then(function() {
-                    commitToStorage();
                     Cli.add("Send To Worksheet", cliOptions);
                     StatusMessage.success(msg);
                     innerDeferred.resolve();
@@ -615,16 +691,9 @@ window.DataCart = (function($) {
         showWaitCursor();
 
         chain(promises)
-        .then(function() {
-            deferred.resolve();
-        })
-        .fail(function(error){
-            Alert.error("Create work sheet fails", error);
-            deferred.reject(error);
-        })
-        .always(function() {
-            removeWaitCursor();
-        });
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(removeWaitCursor);
 
         return (deferred.promise());
     }
