@@ -168,8 +168,8 @@
     function testLoad(deferred, testName, currentTestNumber) {
         loadArgs = new XcalarApiDfLoadArgsT();
         loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-        loadArgs.csv.recordDelim = "";
-        loadArgs.csv.fieldDelim = "";
+        loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
+        loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
 	loadArgs.csv.isCRLF = false;
 
         xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfTypeJson, 0, loadArgs)
@@ -233,13 +233,25 @@
 
     function testEditColumn(deferred, testName, currentTestNumber) {
         xcalarEditColumn(thriftHandle, loadOutput.dataset.name, "", true,
-                         "votes.cool", "votes.cool2", 1)
+                         "votes.cool", "votes.cool2", DfFieldTypeT.DfString)
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
+        })
+    }
+
+    function testBogusEditColumn(deferred, testName, currentTestNumber) {
+        xcalarEditColumn(thriftHandle, loadOutput.dataset.name, "", true,
+                         "votes.funny", "votes.funny", DfFieldTypeT.DfMixed)
+        .done(function(status) {
+            printResult(status);
+            fail(deferred, testName, currentTestNumber, status);
+        })
+        .fail(function(reason) {
+            pass(deferred, testName, currentTestNumber);
         })
     }
 
@@ -1164,6 +1176,7 @@
     addTestCase(testCases, testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testEditColumn, "edit column", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testBogusEditColumn, "bogus edit column", defaultTimeout, TestCaseEnabled, "875");
     addTestCase(testCases, testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetInt, "index dataset (int)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetStr, "index dataset (str)", defaultTimeout, TestCaseEnabled, "");

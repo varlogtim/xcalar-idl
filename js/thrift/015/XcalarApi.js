@@ -1423,19 +1423,21 @@ function xcalarKeyLookup(thriftHandle, key) {
     return (deferred.promise());
 }
 
-function xcalarKeyAddOrReplace(thriftHandle, key, value) {
+function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
     console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
-        ")");
+        "persist = " + persist.toString() + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
-    workItem.input.keyAddOrReplaceInput = new XcalarApiKeyValuePairT();
+    workItem.input.keyAddOrReplaceInput = new XcalarApiKeyAddOrReplaceInputT();
+    workItem.input.keyAddOrReplaceInput.kvPair = new XcalarApiKeyValuePairT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiKeyAddOrReplace;
-    workItem.input.keyAddOrReplaceInput.key = key;
-    workItem.input.keyAddOrReplaceInput.value = value;
+    workItem.input.keyAddOrReplaceInput.persist = persist;
+    workItem.input.keyAddOrReplaceInput.kvPair.key = key;
+    workItem.input.keyAddOrReplaceInput.kvPair.value = value;
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

@@ -7121,3 +7121,6 @@ XcalarApiTableIdInvalidT = 0;
 XcalarApiXidInvalidT = 0;
 XcalarApiDagNodeIdInvalidT = 0;
 XcalarApiMaxKeyLenT = 255;
+XcalarApiDefaultRecordDelimT = '
+';
+XcalarApiDefaultFieldDelimT = '	';

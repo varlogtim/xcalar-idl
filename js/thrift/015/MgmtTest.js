@@ -996,7 +996,7 @@
     }
 
     function testApiKeyAddOrReplace(deferred, testName, currentTestNumber, keyName, keyValue) {
-        xcalarKeyAddOrReplace(thriftHandle, keyName, keyValue)
+        xcalarKeyAddOrReplace(thriftHandle, keyName, keyValue, true)
         .done(function(status) {
             printResult(status);
             pass(deferred, testName, currentTestNumber);

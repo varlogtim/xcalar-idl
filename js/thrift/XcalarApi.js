@@ -302,7 +302,7 @@ function xcalarEditColumn(thriftHandle, datasetName, tableName, isDataset,
                 isDataset.toString() + ", currFieldName = " +
                 currFieldName.toString() + ", newFieldName = " +
                 newFieldName.toString() + ", newFieldType = " +
-                newFieldType.toString());
+                DfFieldTypeTStr[newFieldType] + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
@@ -332,7 +332,7 @@ function xcalarEditColumn(thriftHandle, datasetName, tableName, isDataset,
             statusOutput = result.jobStatus;
         }
         if (statusOutput != StatusT.StatusOk) {
-            deferred.reject(statOutput.status);
+            deferred.reject(statusOutput.status);
         }
         deferred.resolve(statusOutput);
     })
