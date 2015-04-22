@@ -18,7 +18,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     var $filePath = $("#filePath");
     /* Contants */
-    var defaultPath = "file:///var/";
+    var defaultPath = "file:///";
     var validFormats = ["JSON", "CSV"];
     var defaultSortKey = "type"; // default is sort by type;
     /* End Of Contants */
