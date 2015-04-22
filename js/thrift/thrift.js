@@ -382,7 +382,10 @@ Thrift.TXHRTransport.prototype = {
 
         var thriftTransport = this;
 
+        $.support.cors = true;
+
         var jqXHR = jQuery.ajax({
+            crossDomain: true,
             url: this.url,
             data: postData,
             type: 'POST',
