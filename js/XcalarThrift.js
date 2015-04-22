@@ -147,18 +147,24 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    if (fieldDelim == null) {
-        fieldDelim = "";
+    if (fieldDelim == null || fieldDelim == undefined
+        || fieldDelim == "") {
+        fieldDelim = XcalarApiDefaultFieldDelimT;
+        console.log(fieldDelim);
+    } 
+    if (recordDelim == null || recordDelim == undefined
+        || recordDelim == "") {
+        recordDelim = XcalarApiDefaultRecordDelimT;
+        console.log(recordDelim);
     }
-    if (recordDelim == null) {
-        recordDelim = "";
-    }
+
     var deferred = jQuery.Deferred();
     var loadArgs = new XcalarApiDfLoadArgsT();
 
     loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
     loadArgs.csv.recordDelim = recordDelim;
     loadArgs.csv.fieldDelim = fieldDelim;
+    loadArgs.csv.isCRLF = false;
 
     var formatType;
     switch (format) {
@@ -168,13 +174,15 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     case ("rand"):
         formatType = DfFormatTypeT.DfTypeRandom;
         break;
+    case ("raw"):
+        loadArgs.csv.fieldDelim = ""; // No Field delim
+        // fallthrough
     case ("CSV"):
         formatType = DfFormatTypeT.DfTypeCsv;
         break;
     default:
         formatType = DfFormatTypeT.DfTypeUnknown;
     } 
-
     xcalarLoad(tHandle, url, datasetName, formatType, 0, loadArgs)
     .then(deferred.resolve)
     .fail(function(error) {

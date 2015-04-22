@@ -27,13 +27,18 @@ window.DataStore = (function($) {
             $formatSection.find("input").prop("checked", false);
             $label.find(".radio").addClass("checked");
             $input.prop("checked", true);
-
-            if ($input.attr("id").indexOf("CSV") >= 0) {
-                $("#fieldDelim").prop("disabled", false);
+            
+            if ($input.attr("id").indexOf("CSV") >= 0 ||
+                $input.attr("id").indexOf("Raw") >= 0) {
                 $("#lineDelim").prop("disabled", false);
             } else {
-                $("#fieldDelim").prop("disabled", true);
                 $("#lineDelim").prop("disabled", true);
+            }
+ 
+            if ($input.attr("id").indexOf("CSV") >= 0) {
+                $("#fieldDelim").prop("disabled", false);
+            } else {
+                $("#fieldDelim").prop("disabled", true);
             }
         });
         // reset form

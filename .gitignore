@@ -2,3 +2,4 @@
 /stylesheets/**/*.css
 /widget/*.css
 /js/thrift/*
+*.DS_Store
