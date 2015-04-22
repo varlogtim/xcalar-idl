@@ -1,34 +1,33 @@
-window.Cli = (function($) {
-    var self = {};
+window.Cli = (function($, Cli) {
     var history = [];
     var $textarea = $('#rightBarTextArea');
 
-    self.add = function(title, options) {
+    Cli.add = function(title, options) {
         history.push({"title": title, "options": options});
-        $textarea.append(getCliHTML(title, options));
+        $textarea.append(getCliHTML_helper(title, options));
 
         // scroll to bottom
-        self.scrollToBottom($textarea);
+        Cli.scrollToBottom($textarea);
     }
 
-    self.get = function() {
+    Cli.getHistory = function() {
         return (history);
     }
 
-    self.restore = function(oldCliHistory) {
+    Cli.restoreFromHistory = function(oldCliHistory) {
         history = oldCliHistory;
         history.forEach(function(record) {
-            $textarea.append(getCliHTML(record.title, record.options));
-            self.scrollToBottom($textarea);
+            $textarea.append(getCliHTML_helper(record.title, record.options));
+            Cli.scrollToBottom($textarea);
         });
     }
 
-    self.clear = function() {
+    Cli.clear = function() {
         $textarea.html("");
         history = [];
     }
 
-    self.scrollToBottom = function() {
+    Cli.scrollToBottom = function() {
         // scroll to bottom
         var scrollDiff = $textarea[0].scrollHeight - $textarea.height();
         if (scrollDiff > 0) {
@@ -36,7 +35,7 @@ window.Cli = (function($) {
         }
     }
 
-    function getCliHTML(title, options) {
+    function getCliHTML_helper(title, options) {
         var html =  '<div class="cliContentWrap">' + 
                         '<div class="title"> >>' + title + ' :</div>' + 
                         '<div class="content">{';
@@ -56,8 +55,9 @@ window.Cli = (function($) {
 
         html += '}</div></div></div>';
         html = html.replace(/,/g, ", ");
+
         return (html);
     }
 
-    return (self);
-}(jQuery));
+    return (Cli);
+}(jQuery, {}));

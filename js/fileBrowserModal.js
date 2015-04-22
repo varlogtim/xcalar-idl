@@ -1,6 +1,4 @@
-window.FileBrowser = (function($) {
-    var self = {};
-
+window.FileBrowser = (function($, FileBrowser) {
     var $modalBackground = $('#modalBackground');
     var $fileBrowser = $('#fileBrowserModal');
     var $container = $("#fileBrowserView");
@@ -31,7 +29,7 @@ window.FileBrowser = (function($) {
     var reverseSort = false;
     var testMode = false;
 
-    self.show = function() {
+    FileBrowser.show = function() {
         retrievePaths($filePath.val())
         .then(function() {
             // set modal background
@@ -50,22 +48,7 @@ window.FileBrowser = (function($) {
         });
     }
 
-    function listFiles(path) {
-        var deferred = jQuery.Deferred();
-
-        XcalarListFiles(path)
-        .then(function(listFilesOutput) {
-            clear();
-            allFiles = listFilesOutput.files;
-            sortFilesBy(sortKey, sortRegEx);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return (deferred.promise());
-    }
-
-    self.setup = function() {
+    FileBrowser.setup = function() {
         // click blank space to remove foucse on folder/dsds
         $fileBrowser.on("click", function() {
             clear();
@@ -255,6 +238,22 @@ window.FileBrowser = (function($) {
             focusOn(grid);
         });
     }
+
+    function listFiles(path) {
+        var deferred = jQuery.Deferred();
+
+        XcalarListFiles(path)
+        .then(function(listFilesOutput) {
+            clear();
+            allFiles = listFilesOutput.files;
+            sortFilesBy(sortKey, sortRegEx);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
     // key up event
     function fileBrowserKeyUp(event) {
         event.preventDefault();
@@ -594,21 +593,21 @@ window.FileBrowser = (function($) {
             var date = "00:00:00 01-01-2015";
 
             html += 
-                '<grid-unit title="' + name + '" class="' + gridClass + '">\
-                    <div class="gridIcon"></div>\
-                    <div class="listIcon">\
-                        <span class="icon"></span>\
-                    </div>\
-                    <div class="label" data-name=' + name + '>' + 
+                '<grid-unit title="' + name + '" class="' + gridClass + '">' + 
+                    '<div class="gridIcon"></div>' + 
+                    '<div class="listIcon">' + 
+                        '<span class="icon"></span>' + 
+                    '</div>' + 
+                    '<div class="label" data-name=' + name + '>' + 
                         name + 
-                    '</div>\
-                    <div class="fileDate">' + date +'</div>\
-                    <div class="fileSize">' + size + '</div>\
-                </grid-unit>';
+                    '</div>' + 
+                    '<div class="fileDate">' + date +'</div>' + 
+                    '<div class="fileSize">' + size + '</div>' + 
+                '</grid-unit>';
         });
 
         $container.empty().append(html);
     }
 
-    return (self);
-}(jQuery));
+    return (FileBrowser);
+}(jQuery, {}));

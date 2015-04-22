@@ -131,7 +131,6 @@ function setupHelpSection() {
             $("#gridView").empty();
             $("#datasetWrap").empty();
             $("#importDataButton").click();
-            Cli.clear();
             $('#worksheetInfo').find('.numDataStores').text(0);
             $('#datasetExplore').find('.numDataStores').text(0);
         }

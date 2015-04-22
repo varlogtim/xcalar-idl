@@ -1,9 +1,8 @@
 // StatuxBox Modal
-window.StatusBox = (function($){
-    var self = {};
+window.StatusBox = (function($, StatusBox){
     var $statusBox = $("#statusBox");
 
-    self.show = function(text, $target, isFormMode) {
+    StatusBox.show = function(text, $target, isFormMode) {
         // position error message
         var top = $target[0].getBoundingClientRect().top - 30;
         var right = $(window).width() - 
@@ -51,5 +50,5 @@ window.StatusBox = (function($){
         $statusBox.find('.message').text('');
     }
 
-    return (self);
-}(jQuery));
+    return (StatusBox);
+}(jQuery, {}));

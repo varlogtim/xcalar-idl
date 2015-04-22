@@ -1,10 +1,8 @@
-window.Alert = (function(){
+window.Alert = (function($, Alert){
     var $alertModal = $("#alertModal");
     var $modalBackground = $("#modalBackground");
 
-    var self = {};
-
-    self.show = function(options) {
+    Alert.show = function(options) {
        /* options includes:
             title: titile of the alert
             instr: instruction information
@@ -13,7 +11,7 @@ window.Alert = (function(){
             isCheckBox: if checkbox is enabled  or disabled
             confirm: callback when click confirm button
         */
-        configAlertModal(options);
+        configAlertModal_helper(options);
 
         $alertModal.show();
         $modalBackground.fadeIn(100);
@@ -23,7 +21,7 @@ window.Alert = (function(){
         }
     }
 
-    self.error = function(title, error, unclosable) {
+    Alert.error = function(title, error, unclosable) {
         var options = {};
         var type = typeof error;
 
@@ -35,10 +33,10 @@ window.Alert = (function(){
         }
         options.isAlert = true;
         options.unclosable = unclosable;
-        self.show(options);
+        Alert.show(options);
     }
 
-    function closeAlertModal() {
+    function closeAlertModal_helper() {
         // remove all event listener
         $alertModal.off();
         $alertModal.hide();
@@ -51,7 +49,7 @@ window.Alert = (function(){
     // configuration for alert modal
     /* Cheng: how alertModal behaves when checkbox is checbox to "don't show again" 
         may need further discussion */
-    function configAlertModal(options) {
+    function configAlertModal_helper(options) {
         var $alertHeader = $("#alertHeader");
         var $alertContent = $("#alertContent");
         var $alretInstruct = $("#alertInstruction");
@@ -64,7 +62,7 @@ window.Alert = (function(){
             if (options && options.unclosable) {
                 return;
             }
-            closeAlertModal();
+            closeAlertModal_helper();
         });
 
         // check box, default is unchecked
@@ -99,7 +97,7 @@ window.Alert = (function(){
                 $alertBtn.find(".confirm").show();
                 $alertModal.on("click", ".confirm", function(event) {
                     event.stopPropagation();
-                    closeAlertModal();
+                    closeAlertModal_helper();
                     if(options.confirm) {
                         options.confirm();
                     }
@@ -118,5 +116,5 @@ window.Alert = (function(){
         }
     }
 
-    return (self);
-}());
+    return (Alert);
+}(jQuery, {}));

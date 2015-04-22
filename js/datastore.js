@@ -1,7 +1,6 @@
-window.DataStore = (function($) {
-    var self = {};
+window.DataStore = (function($, DataStore) {
 
-    self.setup = function() {
+    DataStore.setup = function() {
         DS.setup();
         GridView.setup();
         setupImportDSForm()
@@ -9,12 +8,12 @@ window.DataStore = (function($) {
         DataCart.setup();
     }
 
-    self.updateInfo = function(numDatasets) {
+    DataStore.updateInfo = function(numDatasets) {
         $("#worksheetInfo").find(".numDataStores").text(numDatasets);
         $("#datasetExplore").find(".numDataStores").text(numDatasets);
     }
 
-    self.updateNumDatasets = function() {
+    DataStore.updateNumDatasets = function() {
         XcalarGetDatasets()
         .then(function(datasets) {
             DataStore.updateInfo(datasets.numDatasets);
@@ -190,15 +189,15 @@ window.DataStore = (function($) {
         }
     }
 
-    return (self);
-}(jQuery));
+    return (DataStore);
 
-window.GridView = (function($) {
-    var self = {};
+}(jQuery, {}));
+
+window.GridView = (function($, GridView) {
     var $deleteFolderBtn = $("#deleteFolderBtn");
     var $gridView = $("#gridView");
 
-    self.setup = function() {
+    GridView.setup = function() {
         // initial gDSObj
         setupGridViewButton();
         setupGridViewIcons();
@@ -382,15 +381,14 @@ window.GridView = (function($) {
         });
     }
 
-    return (self);
-}(jQuery));
+    return (GridView);
+}(jQuery, {}));
 
-window.DataCart = (function($) {
-    var self = {};
+window.DataCart = (function($, DataCart) {
     var innerCarts = [];
     var $cartArea = $("#dataCart");
 
-    self.setup = function() {
+    DataCart.setup = function() {
         $("#submitDSTablesBtn").click(function() {
             if ($cartArea.find(".selectedTable").length === 0) {
                 return false;
@@ -427,7 +425,7 @@ window.DataCart = (function($) {
         });
     }
     // add column to cart
-    self.addItem = function(dsName, $colInput) {
+    DataCart.addItem = function(dsName, $colInput) {
         var colNum = parseColNum($colInput);
         var val = $colInput.val();
         var $li = appendCartItem(dsName, colNum, val);
@@ -439,7 +437,7 @@ window.DataCart = (function($) {
         cart.items.push({"colNum": colNum, "value": val});
     }
     // remove one column from cart
-    self.removeItem = function (dsName, $colInput) {
+    DataCart.removeItem = function (dsName, $colInput) {
         var colNum = parseColNum($colInput);
         var $li = $("#selectedTable-" + dsName)
                     .find("li[data-colnum=" + colNum + "]");
@@ -447,7 +445,7 @@ window.DataCart = (function($) {
         removeCartItem(dsName, $li);
     }
     // remove one cart
-    self.removeCart = function(dsName) {
+    DataCart.removeCart = function(dsName) {
         $("#selectedTable-" + dsName).remove();
         overflowShadow();
         // remove the cart
@@ -459,11 +457,11 @@ window.DataCart = (function($) {
         }
     }
 
-    self.getCarts = function() {
+    DataCart.getCarts = function() {
         return (innerCarts);
     }
 
-    self.restore = function(carts) {
+    DataCart.restore = function(carts) {
         innerCarts = carts;
         innerCarts.forEach(function(cart) {
             var dsName = cart.name;
@@ -474,11 +472,11 @@ window.DataCart = (function($) {
         });
     }
 
-    self.clear = function() {
+    DataCart.clear = function() {
         emptyAllCarts();
     }
 
-    self.scrollToDatasetColumn = function() {
+    DataCart.scrollToDatasetColumn = function() {
         var $table = $("#worksheetTable");
         var $datasetWrap = $('#datasetWrap');
         var colNum = $cartArea.find(".colSelected").data("colnum");
@@ -685,23 +683,22 @@ window.DataCart = (function($) {
         return (deferred.promise());
     }
 
-    return (self);
-}(jQuery));
+    return (DataCart);
+}(jQuery, {}));
 
-window.DataSampleTable = (function($) {
-    var self = {};
+window.DataSampleTable = (function($, DataSampleTable) {
     var $tableWrap = $("#dataSetTableWrap");
     var $menu = $("#datasetTableMenu");
     var currentRow = 0;
     var totalRows = 0;
 
-    self.setup = function() {
+    DataSampleTable.setup = function() {
         $menu.append(getDropdownMenuHTML());
         setupSampleTable();
         setupColumnDropdownMenu();
     }
 
-    self.getTableFromDS = function(dsId) {
+    DataSampleTable.getTableFromDS = function(dsId) {
         var deferred = jQuery.Deferred();
 
         var dsObj = DS.getDSObj(dsId);
@@ -1118,37 +1115,35 @@ window.DataSampleTable = (function($) {
         // XXX Now Array, Object and Unknown are invalid type to change
         var types = ['Boolean', 'Number', 'String', 'Mixed'];
         var html = 
-            '<li class="renameCol">\
-                <span>Rename Column</span>\
-                <ul class="subColMenu">\
-                    <li style="text-align: center" class="clickable">\
-                        <span>New Column Name</span>\
-                        <input type="text" width="100px" \
-                           spellcheck="false" />\
-                    </li>\
-                    <div class="subColMenuArea"></div>\
-                </ul>\
-                <div class="dropdownBox"></div>\
-            </li>\
-            <li class="changeDataType">\
-                <span>Change Data Type</span>\
-                <ul class="subColMenu">';
+        '<li class="renameCol">' + 
+            '<span>Rename Column</span>' + 
+            '<ul class="subColMenu">' + 
+                '<li style="text-align: center" class="clickable">' + 
+                    '<span>New Column Name</span>' + 
+                    '<input type="text" width="100px" spellcheck="false" />' + 
+                '</li>' + 
+                '<div class="subColMenuArea"></div>' + 
+            '</ul>' + 
+            '<div class="dropdownBox"></div>' + 
+        '</li>' + 
+        '<li class="changeDataType">' + 
+            '<span>Change Data Type</span>' + 
+            '<ul class="subColMenu">';
 
         types.forEach(function(type) {
             html += 
                 '<li class="flexContainer flexRow typeList type-' 
-                    + type.toLowerCase() + '">\
-                    <div class="flexWrap flex-left">\
-                        <span class="type icon"></span>\
-                    </div>\
-                    <div class="flexWrap flex-right">\
-                        <span class="label">' + type + '</span>\
-                    </div>\
-                </li>';
+                    + type.toLowerCase() + '">' + 
+                    '<div class="flexWrap flex-left">' + 
+                        '<span class="type icon"></span>' + 
+                    '</div>' + 
+                    '<div class="flexWrap flex-right">' + 
+                        '<span class="label">' + type + '</span>' + 
+                    '</div>' + 
+                '</li>';
         });
 
-        html +=  '</ul>\
-                  <div class="dropdownBox"></div>';
+        html +=  '</ul><div class="dropdownBox"></div>';
         return (html);
     }
     // sample table html
@@ -1180,46 +1175,46 @@ window.DataSampleTable = (function($) {
             var thClass = "th col" + (i+1);
             var type = columnsType[i];
             th += 
-                '<th title="' + key + '" class="' + thClass + '">\
-                    <div class="header type-' + type + '" \
-                         data-type=' + type + '>\
-                        <div class="colGrab" \
-                            title="Double click to auto resize" \
-                            data-toggle="tooltip" \
-                            data-placement="top" \
-                            data-container="body">\
-                        </div>\
-                        <div class="flexContainer flexRow">\
-                            <div class="flexWrap flex-left">\
-                                <span class="type icon"></span>\
-                            </div>\
-                            <div class="flexWrap flex-mid">\
-                                <input spellcheck="false"\
-                                    class="editableHead shoppingCartCol ' + 
-                                    thClass + '" value="' + key + '" \
-                                    readonly="true">\
-                            </div>\
-                            <div class="flexWrap flex-right">\
-                                <span class="tick icon"></span>\
-                                <div class="dropdownBox">\
-                                    <span class="innerBox"></span>\
-                                </div>\
-                            </div>\
-                        </div>\
-                    </div>\
-                </th>';
+                '<th title="' + key + '" class="' + thClass + '">' + 
+                    '<div class="header type-' + type + '" ' + 
+                         'data-type=' + type + '>' + 
+                        '<div class="colGrab" ' + 
+                            'title="Double click to auto resize" ' + 
+                            'data-toggle="tooltip" ' + 
+                            'data-placement="top" ' + 
+                            'data-container="body">' + 
+                        '</div>' + 
+                        '<div class="flexContainer flexRow">' + 
+                            '<div class="flexWrap flex-left">' + 
+                                '<span class="type icon"></span>' + 
+                            '</div>' + 
+                            '<div class="flexWrap flex-mid">' + 
+                                '<input spellcheck="false"' + 
+                                    'class="editableHead shoppingCartCol ' + 
+                                    thClass + '" value="' + key + '" ' + 
+                                    'readonly="true">' + 
+                            '</div>' + 
+                            '<div class="flexWrap flex-right">' + 
+                                '<span class="tick icon"></span>' + 
+                                '<div class="dropdownBox">' + 
+                                    '<span class="innerBox"></span>' + 
+                                '</div>' + 
+                            '</div>' + 
+                        '</div>' + 
+                    '</div>' + 
+                '</th>';
         }
 
         var html = 
-            '<div class="datasetTbodyWrap">\
-                <table id="worksheetTable" class="datasetTable dataTable" \
-                        data-dsname="' + dsName + '">\
-                    <thead>\
-                        <tr>' + th + '</tr>\
-                    </thead>\
-                    <tbody>' + tr + '</tbody>\
-                </table>\
-            </div>';
+            '<div class="datasetTbodyWrap">' + 
+                '<table id="worksheetTable" class="datasetTable dataTable" ' + 
+                        'data-dsname="' + dsName + '">' + 
+                    '<thead>' + 
+                        '<tr>' + th + '</tr>' + 
+                    '</thead>' + 
+                    '<tbody>' + tr + '</tbody>' + 
+                '</table>' + 
+            '</div>';
 
         return (html);
     }
@@ -1241,13 +1236,13 @@ window.DataSampleTable = (function($) {
                     selected = " selectedCol";
                 }
 
-                tr += '<td class="col' + (j+1) + selected + '">\
-                        <div class="addedBarTextWrap">\
-                            <div class="addedBarText">' + 
-                            parsedVal + 
-                            '</div>\
-                        </div>\
-                      </td>';
+                tr += '<td class="col' + (j+1) + selected + '">' + 
+                        '<div class="addedBarTextWrap">' + 
+                            '<div class="addedBarText">' + 
+                                parsedVal + 
+                            '</div>' + 
+                        '</div>' + 
+                      '</td>';
 
                 if (!columnsType) {
                     continue;
@@ -1274,5 +1269,5 @@ window.DataSampleTable = (function($) {
         return (tr);
     }
 
-    return (self);
-}(jQuery));
+    return (DataSampleTable);
+}(jQuery, {}));

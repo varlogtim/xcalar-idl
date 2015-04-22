@@ -98,7 +98,7 @@ function commitToStorage(atStartup) {
                 "TOLookup": gTableOrderLookup,
                 "gDSObj": DS.getCurrentState(),
                 "holdStatus": KVStore.isHold(),
-                "cli": Cli.get(),
+                "cli": Cli.getHistory(),
                 "scratchPad": scratchPadText,
                 "datacarts": DataCart.getCarts()
             };
@@ -139,7 +139,7 @@ function readFromStorage() {
                 gDSObjFolder = gInfos["gDSObj"];
             }
             if (gInfos["cli"]) {
-                Cli.restore(gInfos["cli"]);
+                Cli.restoreFromHistory(gInfos["cli"]);
             }
             if (gInfos["scratchPad"]) {
                 $("#scratchPadSection textarea").val(gInfos["scratchPad"]);
@@ -212,21 +212,22 @@ function setTableOrder(atStartup) {
     }
 }
 
-window.KVStore = (function() {
-    var self = {};
+window.KVStore = (function($, KVStore) {
     var isHold = false;
 
     var username = sessionStorage.getItem("xcalar-username");
-    if (username) {
-        self.gStorageKey = generateKey(username, "gInfo");
-        self.gLogKey = generateKey(username, "gLog");
-    } else {
-        self.gStorageKey = generateKey(hostname, portNumber, "gInfo");
-        self.gLogKey = generateKey(hostname, portNumber, "gLog");
-    }
-    console.log("You are assigned keys", self.gStorageKey, self.gLogKey);
 
-    self.get = function(key) {
+    if (username) {
+        KVStore.gStorageKey = generateKey_helper(username, "gInfo");
+        KVStore.gLogKey = generateKey_helper(username, "gLog");
+    } else {
+        KVStore.gStorageKey = generateKey_helper(hostname, portNumber, "gInfo");
+        KVStore.gLogKey = generateKey_helper(hostname, portNumber, "gLog");
+    }
+
+    console.log("You are assigned keys", KVStore.gStorageKey, KVStore.gLogKey);
+
+    KVStore.get = function(key) {
         var deferred = jQuery.Deferred();
         XcalarKeyLookup(key)
         .then(function(value) {
@@ -237,8 +238,8 @@ window.KVStore = (function() {
                     deferred.resolve(value);
                 } catch(err) {
                     console.log(err, value);
-                    self.delete(key);
-                    self.log(err.message);
+                    KVStore.delete(key);
+                    KVStore.log(err.message);
                     deferred.resolve(null);
                 }
             } else {
@@ -253,7 +254,7 @@ window.KVStore = (function() {
         return (deferred.promise());
     }
 
-    self.put = function(key, value, persist) {
+    KVStore.put = function(key, value, persist) {
         var deferred = jQuery.Deferred();
         XcalarKeyPut(key, value, persist)
         .then(function() {
@@ -267,7 +268,7 @@ window.KVStore = (function() {
         return (deferred.promise());
     }
 
-    self.delete = function(key, value) {
+    KVStore.delete = function(key, value) {
         var deferred = jQuery.Deferred();
         XcalarKeyDelete(key)
         .then(function() {
@@ -282,9 +283,9 @@ window.KVStore = (function() {
         return (deferred.promise());
     }
 
-    self.hold = function() {
+    KVStore.hold = function() {
         var deferred = jQuery.Deferred();
-        self.get(self.gStorageKey)
+        KVStore.get(KVStore.gStorageKey)
         .then(function(gInfos) {
             if (!gInfos) {
                 console.log("KVStore is empty!");
@@ -292,7 +293,7 @@ window.KVStore = (function() {
                 deferred.resolve(null);
             } else {
                 if (gInfos["holdStatus"] === true && 
-                    sessionStorage.getItem(self.gStorageKey) !== "hold") {
+                    sessionStorage.getItem(KVStore.gStorageKey) !== "hold") {
                     Alert.error("Signed on elsewhere!",
                                 "Please close your other session.",
                                 true);
@@ -302,7 +303,7 @@ window.KVStore = (function() {
                         console.error("KVStore not release last time...");
                     }
                     isHold = true;
-                    sessionStorage.setItem(self.gStorageKey, "hold");
+                    sessionStorage.setItem(KVStore.gStorageKey, "hold");
                     deferred.resolve(gInfos);
                 }
             }
@@ -312,7 +313,7 @@ window.KVStore = (function() {
         return (deferred.promise());
     }
 
-    self.release = function() {
+    KVStore.release = function() {
         if (!isHold) {
             return (promiseWrapper(null));
         }
@@ -322,29 +323,29 @@ window.KVStore = (function() {
     }
 
     // XXX in case you are hold forever
-    self.forceRelease = function() {
+    KVStore.forceRelease = function() {
         isHold = false;
-        XcalarKeyLookup(self.gStorageKey)
+        XcalarKeyLookup(KVStore.gStorageKey)
         .then(function(output) {
             if (output) {
                 var gInfos = JSON.parse(output.value);
                 gInfos["holdStatus"] = false;
-                XcalarKeyPut(self.gStorageKey, JSON.stringify(gInfos), false);
+                XcalarKeyPut(KVStore.gStorageKey, JSON.stringify(gInfos), false);
             }
         });
     }
 
-    self.isHold = function() {
+    KVStore.isHold = function() {
         return (isHold);
     }
 
-    self.log = function(error) {
+    KVStore.log = function(error) {
         var log = {};
         log.error = error;
-        self.put(self.gLogKey, JSON.stringify(log));
+        KVStore.put(KVStore.gLogKey, JSON.stringify(log));
     }
 
-    function generateKey() {
+    function generateKey_helper() {
         // currently just cat all arguments as a key
         var key;
         for (var i = 0; i < arguments.length; i ++) {
@@ -359,5 +360,5 @@ window.KVStore = (function() {
         return (key);
     }
 
-    return (self);
-}());
+    return (KVStore);
+}(jQuery, {}));
