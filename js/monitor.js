@@ -1,5 +1,6 @@
 function setupMonitorPanel() {
     initializeDonuts();
+    populateNodeInformation();
 
     $('#refreshGraph').click(function() {
         toggleRefresh();
@@ -42,6 +43,11 @@ function setupMonitorPanel() {
             updateMonitorGraphs();
         }, refreshTime);
     }
+}
+
+function populateNodeInformation() {
+    $("#phyNode").text(hostname);
+    // Insert information here regarding virtual nodes next time
 }
 
 function initializeDonuts() {
