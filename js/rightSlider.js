@@ -321,7 +321,7 @@ function tableBulkAction(action) {
     function failHandler($li, tableName, error) {
         $li.find(".addArchivedBtn.selected")
                         .removeClass("selected");
-        failures.push(tableName + ": {" + error + "}");
+        failures.push(tableName + ": {" + error.error + "}");
     }
 }
 
