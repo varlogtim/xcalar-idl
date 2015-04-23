@@ -169,6 +169,7 @@ function initializeJoinModal() {
                 resetJoinTables();
                 Cli.add("Join Table", cliOptions);
                 StatusMessage.success(msg);
+                commitToStorage();
             })
             .fail(function(error) {
                 resetJoinTables();

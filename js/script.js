@@ -305,6 +305,7 @@ function setupLogout() {
     $("#signout").click(function() {
         // window.location = "dologout.html";
         // XXX this redirect is only for temporary use
+        KVStore.release();
         window.location = "login.html";
     });
 }
@@ -356,6 +357,8 @@ function setupWorksheetMeta() {
                 $text.data("title", name);
                 $tab.attr("data-original-title", name);
                 $text.blur();
+
+                commitToStorage();
             }
         }
     }, ".worksheetTab .text");

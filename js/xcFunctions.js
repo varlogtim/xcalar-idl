@@ -130,9 +130,9 @@ function sortRows(index, tableNum, order) {
                 KeepOriginalTables.DontKeep));
     })
     .then(function() {
-        commitToStorage();
         Cli.add('Sort Table', cliOptions);
         StatusMessage.success(msg);
+        commitToStorage();
         deferred.resolve();
     })
     .fail(function(error) {
@@ -162,8 +162,8 @@ function mapColumn(fieldName, mapString, tableNum, tableName, message) {
         return (refreshTable(newTableName, tableNum));
     })
     .then(function() {
-        commitToStorage();
         StatusMessage.success(message);
+        commitToStorage();
         deferred.resolve();
     })
     .fail(function(error){
@@ -203,9 +203,9 @@ function groupByCol(operator, newColName, colid, tableNum) {
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
     })
     .then(function() {
-        commitToStorage();
         Cli.add('Group By', cliOptions);
         StatusMessage.success(msg);
+        commitToStorage();
         deferred.resolve();
     })
     .fail(function(error) {
@@ -271,9 +271,9 @@ function filterCol(operator, value, colid, tableNum, tableName, message) {
         return (refreshTable(newTableName, tableNum));
     })
     .then(function() {
-        commitToStorage();
         Cli.add('Filter Table', cliOptions);
         StatusMessage.success(message);
+        commitToStorage();
         deferred.resolve();
     })
     .fail(function(error) {
@@ -462,7 +462,6 @@ function joinTables3(args) {
                              KeepOriginalTables.DontKeep, rightTableNum));
     })
     .then(function() {
-        commitToStorage();
         deferred.resolve();
     })
     .fail(function(error) {

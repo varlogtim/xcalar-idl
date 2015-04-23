@@ -469,6 +469,7 @@ window.DS = (function($, DS) {
 
             DataStore.updateNumDatasets();
             focusOnFirstDS_helper();
+            commitToStorage();
         })
         .fail(function(error) {
 

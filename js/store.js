@@ -159,7 +159,6 @@ function readFromStorage() {
         if (numDatasets == 0 || numDatasets == null) {
             gTableIndicesLookup = {};
             gTableDirectionLookup = {};
-            gWorksheets = [];
             gTableOrderLookup = [];
         }
         DS.restore(gDSObjFolder, datasets);

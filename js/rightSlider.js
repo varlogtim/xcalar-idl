@@ -273,16 +273,16 @@ function tableBulkAction(action) {
             $('#workspaceTab').trigger('click');
             var leftPos = $('#xcTableWrap' + index).position().left +
                             $mainFrame.scrollLeft();
+
             $mainFrame.animate({scrollLeft: leftPos})
                       .promise()
                       .then(function(){
                             focusTable(index);
                     });
             focusTable(index);
-
-        } else if (action == "delete") {
-            commitToStorage();
         }
+
+        commitToStorage();
         // anything faile to alert
         if (failures.length > 0) {
             var title = action === "add" ? "Error In Adding Archieved Table" :

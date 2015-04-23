@@ -705,18 +705,19 @@ function createTableHeader(tableNum) {
         alertOptions.confirm = function() {
             deleteTable(tableNum)
             .then(function() {
-                commitToStorage();
-                var cliOptions = {};
                 // add cli
-                cliOptions.operation = "deleteTable";
-                cliOptions.tableName = tableName;
-                Cli.add("Delete Table", cliOptions);
+                Cli.add("Delete Table", {
+                    "operation": "deleteTable",
+                    "tableName": tableName
+                });
                 setTimeout(function() {
                     if (gTables[gActiveTableNum] && 
                         gTables[gActiveTableNum].resultSetCount != 0) {  
                         generateFirstVisibleRowNum();
                     }
                 }, 300);
+
+                commitToStorage();
             })
             .fail(function(error) {
                 Alert.error("Delete Table Fails", error);
