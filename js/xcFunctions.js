@@ -110,7 +110,7 @@ function sortRows(index, tableNum, order) {
     // add cli
     var cliOptions = {};
     cliOptions.operation = 'sort';
-    cliOptions.tableName = srcName;
+    cliOptions.tableName = tableName;
     cliOptions.key = fieldName;
     cliOptions.newTableName = newTableName;
     if (order == SortDirection.Forward) {
