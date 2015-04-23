@@ -180,6 +180,8 @@ body {
     .rounded;
     .font(@weight: bold, @size: 12px, @line-height: 30px);
     text-align: center;
+    padding: 0;
+    text-shadow: 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .btnLarge {
@@ -1126,7 +1128,7 @@ ul.inputMenu {
 }
 
 #worksheetInfo {
-    .size(@width: ~"calc(100% - 145px)", @height: 100%);
+    .size(@width: ~"calc(100% - 185px)", @height: 100%);
     float: left;
     display: inline-block;
     white-space: nowrap;
@@ -1171,6 +1173,10 @@ ul.inputMenu {
 }
 
 #cliBtn {
+    background-image: url(/images/sql.png);
+}
+
+#pythonCliBtn {
     background-image: url(/images/cli-icon.png); 
 }
 

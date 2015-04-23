@@ -52,6 +52,12 @@
   border-radius: @radius;
 }
 
+.tab-size(@size: 8) {
+    tab-size: @size;
+    -moz-tab-size: @size; /* Code for Firefox */
+    -o-tab-size: @size; /* Code for Opera 10.6-12.1 */
+}
+
 .position(@position: null, @top: null, @right: null, 
           @bottom: null, @left: null) {
   .property(position, @position);

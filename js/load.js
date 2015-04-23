@@ -2,11 +2,16 @@
 window.StatusBox = (function($, StatusBox){
     var $statusBox = $("#statusBox");
 
-    StatusBox.show = function(text, $target, isFormMode) {
+    StatusBox.show = function(text, $target, isFormMode, offset) {
         // position error message
         var top = $target[0].getBoundingClientRect().top - 30;
         var right = $(window).width() - 
                     $target[0].getBoundingClientRect().right- 200;
+
+        if (offset) {
+            right = right + offset;
+        }
+
         $statusBox.css({top: top, right: right});
 
         $statusBox.addClass('error');

@@ -5,6 +5,8 @@ function setupRightSideBar() {
     var $sliderBtns = $workSheetBar.find('.sliderBtn');
     var $sidebar = $('#rightSideBar');
 
+    setupPythonCli();
+
     $workSheetBar.on('click', '.sliderBtn', function() {
         if (!clickable) {
             return;
@@ -108,6 +110,260 @@ function setupRightSideBar() {
 
     setupHelpSection();
 }
+
+function setupPythonCli() {
+    // switch tabs section
+    var $mainSections = $("#pythonCliSection .mainSection");
+    var $radios = $("#cli-tabs .select-item .radio");
+
+    $("#cli-tabs .select-item").on("click", function() {
+        var $option = $(this);
+        var $radio = $option.find(".radio");
+        var tabId = $option.data("tab");
+
+        $radios.removeClass("checked");
+        $radio.addClass("checked");
+
+        $mainSections.addClass("hidden");
+        $("#" + tabId).removeClass("hidden");
+    });
+
+    // upload file section
+    var $inputFile = $("#cli-fileBrowser");
+    var $filePath = $("#cli-filePath");
+
+    $("#cli-browseBtn").click(function() {
+        $inputFile.click();
+        return false;
+    });
+    // display the chosen file's path
+    $inputFile.change(function() {
+        $filePath.val($(this).val());
+    });
+
+    $("#cli-clearPath").click(function() {
+        $inputFile.val("");
+        $filePath.val("");
+        $filePath.focus();
+    });
+    // upload file
+    $("#cli-fileUpload").click(function() {
+        var path = $filePath.val();
+        var file = $inputFile[0].files[0];
+
+        console.log(file);
+
+        if (path == "") {
+            var text = "File Path is empty," + 
+                       " please choose a file you want to upload";
+
+            StatusBox.show(text, $filePath, true, 150);
+            return;
+        }
+        // clearance
+        $inputFile.val("");
+        $filePath.val("");
+    });
+
+    // function input section
+    var $listSection = $("#cli-fnList");
+    var $listDropdown = $("#cli-fnMenu");
+    var $templateInput = $("#cli-fnTemplate");
+    var $downloadBtn = $("#cli-fnDownload");
+
+    $("#pythonCliSection").click(function(event) {
+        event.stopPropagation();
+
+        $listSection.removeClass('open');
+        $listDropdown.hide();
+    });
+    // open drowdown menu
+    $listSection.on("click", function(event) {
+        event.stopPropagation();
+
+        $listSection.toggleClass("open");
+        $listSection.find(".list").toggle();
+    });
+    // select one option
+    $listSection.on("click", ".list li", function(event) {
+        var $li = $(this);
+
+        event.stopPropagation();
+
+        $listSection.removeClass('open');
+        $listDropdown.hide();
+
+        $templateInput.val($li.text());
+
+        if ($li.attr("name") == "blank") {
+            $downloadBtn.addClass("hidden");
+        } else {
+            $downloadBtn.removeClass("hidden");
+        }
+    });
+    // upload written function
+    var $fnName = $("#cli-fnName");
+
+    $("#cli-fnUpload").click(function() {
+        var fileName = $fnName.val();
+
+        if (fileName == "") {
+            var text = "File name is empty," + 
+                       " please input a function name";
+
+            StatusBox.show(text, $fnName, true, 50);
+            return;
+        }
+        // clearance
+        $fnName.val("");
+        $templateInput.val("");
+        $downloadBtn.addClass("hidden");
+        LineMarker.clear();
+    });
+
+    LineMarker.setup();
+}
+
+window.LineMarker = (function($, LineMarker) {
+    var lineCounter = 1;
+    // constants
+    var lineMarkerOffsetTop = 3;  // hasing padding 3 in CSS
+
+    var $textarea = $("#cli-codeArea");
+    var $lineMarker = $("#cli-lineMarker");
+
+    LineMarker.setup = function() {
+        markLineNumber(lineCounter);
+
+        // python editor listener
+        $textarea.on({
+            "scroll": function() {
+                positoinLineMarker();
+            },
+            "mousedown": function() {
+                positoinLineMarker();
+            },
+            "focus": function() {
+                positoinLineMarker();
+            },
+            "blur": function() {
+                positoinLineMarker();
+            },
+            "keydown": function(event) {
+                positoinLineMarker();
+
+                switch (event.which) {
+                    case keyCode.Enter:
+                        addLineMarker();
+                        break;
+
+                    case keyCode.Tab:
+                        event.preventDefault();
+                        insertTab($(this));
+                        break;
+
+                    case keyCode.Backspace:
+                    case keyCode.Delete:
+                        updateLineMarkerInKeydown();
+
+                    default:
+                        break;
+                }
+            },
+            "keyup": function(event) {
+
+                switch (event.which) {
+                    case keyCode.Backspace:
+                    case keyCode.Delete:
+                        lineMarkerCheck();
+
+                    default:
+                        break;
+                }
+            },
+            "paste": function() {
+                // XXX may have better approach
+                setTimeout(lineMarkerCheck, 50);
+            },
+            "cut": function() {
+                setTimeout(lineMarkerCheck, 50);
+            }
+        });
+    }
+
+    LineMarker.clear = function() {
+        lineCounter = 1;
+        $textarea.val("");
+        markLineNumber(lineCounter);
+    }
+
+    function positoinLineMarker() {
+        var newTop = (-1 * $textarea.scrollTop() + lineMarkerOffsetTop) + "px";
+
+        $lineMarker.css("top", newTop);
+    }
+
+    function markLineNumber(lineCount) {
+        var string = "";
+
+        for (var i = 1; i <= lineCounter; i ++) {
+            if (i > 1) {
+                string += "<br>";
+            }
+            string += i;
+        }
+
+        $lineMarker.html(string);
+    }
+
+    function addLineMarker() {
+        markLineNumber(++lineCounter);
+    }
+
+    function updateLineMarkerInKeydown() {
+        var contents = $textarea.val().split('\n');
+        var len = contents.length;
+
+        if (contents[len - 1] == "") {
+            lineCounter = len - 1;
+        } else {
+            lineCounter = len;
+        }
+
+        if (lineCounter <= 1) {
+            lineCounter = 1;
+        }
+
+        markLineNumber(lineCounter);
+    }
+
+    function lineMarkerCheck() {
+        var len = $textarea.val().split('\n').length;
+
+        if (lineCounter != len) {
+            lineCounter = len;
+            markLineNumber(lineCounter);
+        }
+
+    }
+
+    function insertTab($div) {
+        var div = $div.get(0);
+        var val = $div.val();
+        var start = div.selectionStart;
+        var end = div.selectionEnd;
+
+        // set textarea value to: text before caret + tab + text after caret
+        $div.val(val.substring(0, start)
+                 + "\t"
+                 + val.substring(end));
+
+        // put caret at right position again
+        div.selectionStart = div.selectionEnd = start + 1;
+    }
+
+    return (LineMarker);
+}(jQuery, {}));
 
 // Current it works as a rest button
 function setupHelpSection() {

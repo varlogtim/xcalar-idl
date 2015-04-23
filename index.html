@@ -352,8 +352,9 @@
     <br><br>
     This page is still under construction! 
   </div>
-
+  <!-- Right Side Bar Section -->
   <div id="rightSideBar">
+    <!-- Table List Section -->
     <div id="tableListSection" class="rightBarSection">
       <div class="heading">
         <h2>Tables</h2>
@@ -391,9 +392,11 @@
         </div>
       </div>
     </div>
+
+    <!-- Cli Section -->
     <div id="cliSection" class="rightBarSection">
       <div class="heading">
-        <h2>CLI</h2>
+        <h2>SQL</h2>
         <div class="btn btnDeselected">
           <span class="icon iconClose"></span>
         </div>
@@ -405,9 +408,134 @@
         <div id="rightBarTextScrollWrap">
           <div id="rightBarTextArea"></div>
         </div>
-        <!-- <textarea></textarea> -->
       </div>
     </div>
+
+    <!-- Python Cli -->
+    <div id="pythonCliSection" class="rightBarSection">
+      <!-- Heading -->
+      <div class="heading">
+        <h2>CLI</h2>
+        <div class="btn btnDeselected">
+          <span class="icon iconClose"></span>
+        </div>
+        <div class="btn btnDeselected">
+          <span class="icon iconArrowDiag"></span>
+        </div>
+      </div>
+      <!-- Content -->
+      <div class="rightBarContent">
+        <!-- Section to switch between upload and input section -->
+        <div class="tabSectionContainer">
+          <section id="cli-tabs" class="tabSection">
+            <!-- option for upload section -->
+            <div class="select-item" data-tab="cli-uploadSection">
+              <div class="radio checked">
+                <span class="dot"></span>
+              </div>
+              <div class="label">Upload your script</div>
+            </div>
+            <!-- option for code input section -->
+            <div class="select-item" data-tab="cli-fnSection">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <div class="label">Write your function</div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Main Content -->
+        <div class="mainSectionContainer">
+          <!-- Section to upload file -->
+          <div id="cli-uploadSection" class="mainSection">
+            <!-- head part -->
+            <section>
+              <h3 class="label">
+                <label for="cli-filePath">File Path:</label>
+              </h3>
+            </section>
+            <!-- file path part -->
+            <section class="pathSection">
+              <input id="cli-filePath" type="text">
+              <div id="cli-clearPath" class="iconWrapper">
+                <span class="icon"></span>
+              </div>
+            </section>
+            <!-- button part -->
+            <section class="btnSection">
+              <button id="cli-browseBtn" class="btn btnMid" type="button">
+                BROWSE
+              </button>
+              <input id="cli-fileBrowser"  type="file" style="display: none;" />
+              <button id="cli-fileUpload" 
+                      class="btn btnMid upload" type="button">
+                <span class="icon"></span>UPLOAD
+              </button>
+            </section>
+          </div>
+
+          <!-- Section to write function -->
+          <div id="cli-fnSection" class="mainSection hidden">
+            <!-- Choose File Teamplate -->
+            <section class="templateSection">
+              <div class="sectionContainer">
+                <!-- template dropdown menu -->
+                <section id="cli-fnList" class="listSection">
+                  <input id="cli-fnTemplate" class="text" 
+                         placeholder="Choose your template" disabled />
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul id="cli-fnMenu" class="list">
+                    <li>New Operator</li>
+                    <li>New Dataset</li>
+                    <li name="blank">Blank Function</li>
+                  </ul>
+                </section>
+                <!-- Download Teamplate -->
+                <section class="downloadSection">
+                   <div class="btnSection">
+                    <button id="cli-fnDownload" class="btn btnMid hidden" 
+                            type="button">
+                      <span class="icon"></span>DOWNLOAD
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </section>
+            <!-- Edit section -->
+            <section class="editSection">
+              <div class="sideArea"></div>
+              <div id="cli-editArea" class="editArea">
+                <div id="cli-lineMarker" class="lineMarker"></div>
+                <textarea id="cli-codeArea" class="codeArea" 
+                          spellcheck="false"></textarea>
+              </div>
+            </section>
+            <!-- Submit Section -->
+            <section class="submitSection">
+              <div class="sectionContainer">
+                <section class="inputSection">
+                  <span class="label">
+                    <label for="cli-fnName">File Name:</label>
+                  </span>
+                  <input id="cli-fnName" type="text" />
+                </section>
+                <section class="btnSection">
+                  <button id="cli-fnUpload" 
+                        class="btn btnMid upload" type="button">
+                    <span class="icon"></span>UPLOAD
+                  </button>
+                </section>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scratch Pad Section -->
     <div id="scratchPadSection" class="rightBarSection">
       <div class="heading">
         <h2>ScratchPad</h2>
@@ -422,6 +550,8 @@
         <textarea spellcheck="false"></textarea>
       </div>
     </div>
+
+    <!-- Help Section -->
     <div id="helpSection" class="rightBarSection">
       <div class="heading">
         <h2>Help</h2>
@@ -457,7 +587,8 @@
     </div>
     <div class="topBorder"></div>
     <div id="pulloutTab"></div>
-  </div><!-- end rightsidebar  -->
+  </div>
+  <!-- end rightsidebar  -->
   <div id="bottomArea">
     <div id="worksheetBar" class="workspaceBar clearfix">
       <div id="worksheetInfo" class="clearfix">
@@ -474,19 +605,29 @@
           </div>
         </div>
       </div>
+      <!-- Button to pop out rightside bar -->
       <div class="bottomButtonsArea">
+        <!-- tablelist -->
         <div id="leftMenu" class="btn btnSmall sliderBtn">
           <span id="tableListBtn" class="icon" data-toggle="tooltip" 
           data-placement="top" data-container="body" title="tables list"></span>
         </div>
+        <!-- sql -->
         <div class="btn btnSmall sliderBtn">
           <span id="cliBtn" data-toggle="tooltip" 
+          data-placement="top" data-container="body" title="SQL"></span>
+        </div>
+        <!-- cli -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="pythonCliBtn" class="icon" data-toggle="tooltip" 
           data-placement="top" data-container="body" title="CLI"></span>
         </div>
+        <!-- scratchpad -->
         <div class="btn btnSmall sliderBtn">
           <span id="scratchpadBtn" data-toggle="tooltip" 
           data-placement="top" data-container="body" title="scratchpad"></span>
         </div>
+        <!-- help section -->
         <div class="btn btnSmall sliderBtn">
           <span id="infoBtn" data-toggle="tooltip" 
           data-placement="top" data-container="body" title="help"></span>

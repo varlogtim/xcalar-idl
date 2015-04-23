@@ -412,6 +412,289 @@
 }
 /* ========== End Of Scratch Pad Section in Right Side Bar ========== */
 
+/* ========== Python Cli Section in Right Side Bar ========== */
+#pythonCliSection {
+
+    .tabSectionContainer {
+        .size(@width: 100%, @height: 50px);
+        box-shadow: 0px 2px 2px 2px rgba(153,153,153,.7);
+
+        .tabSection {
+            .size(@width: 350px, @height: 100%, @max-width: 95%);
+            margin: 0 auto;
+        }
+
+        .select-item {
+            .vertical-align;
+            display: inline-block;
+            .position(relative);
+            .size(@width: ~"calc(50% - 5px)", @height: 20px);
+            .font(@size: 13px, @line-height: 20px);
+            .noSelection;
+            cursor: pointer;
+
+            .radio {
+                float: left;
+                display: inline-block;
+                margin: 4px 5px 0 0px;
+                .background("/images/radioEmpty.png", 14px, 15px);
+
+                .dot {
+                    .size(@width: 14px, @height: 15px);
+                    .image("/images/radioDot.png", 50%, 50%);
+                    display: none;
+                }
+                &.checked {
+                    .image("/images/radioChecked.png");
+                    .dot {
+                        display: inline-block;
+                    }
+                }
+            }
+
+            .label {
+                float: left;
+                padding-left: 5px;
+                .font(@weight: 900);
+            }
+        }
+    }
+
+    .mainSectionContainer {
+        .position(relative);
+        .size(@width: 100%, @height: ~"calc(100% - 50px)");
+        padding-bottom: 5px;
+
+        .mainSection {
+            &.hidden {
+                display: none;
+            }
+        }
+    }
+
+    .upload {
+        .position(relative);
+        .icon {
+            .position(absolute, @left: 4px);
+            .size(@width: 25px, @height: 30px);
+            .image("/images/upload.png", 50%, 50%);
+        }
+    }
+
+    #cli-uploadSection {
+        margin: 0 auto;
+        padding-top: 15px;
+        .size(@width: 350px, @max-width: 95%);
+
+        .label {
+            .font(@size: 13px);
+            .noSelection;
+        }
+
+        .pathSection {
+            padding-top: 10px;
+            .position(relative);
+
+            input {
+                .rounded;
+                .size(@width: 100%, @height: 30px);
+                .font(@line-height: 30px);
+                box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.5);
+                padding: 0 40px 0 5px;
+
+                &:focus {
+                    outline: none;
+                }
+            }
+
+            .iconWrapper {
+                .position(absolute, @top: 16px, @right: 7px);
+                .size(20px, 20px);
+                .rounded;
+                .gray-gradient;
+                cursor: pointer;
+
+                &:hover {
+                    .gray-inverse-gradient;
+                }
+
+                .icon {
+                    .size(20px, 20px);
+                    .image("/images/close-icon.png", 50%, 50%);
+                }
+            }
+
+        }
+
+        .btnSection {
+            padding-top: 25px;
+            .btn {
+                width: 160px;
+                &:first-child {
+                    float: left;
+                }
+                &:last-child {
+                    float: right;
+                }
+            }
+        }
+    }
+
+    #cli-fnSection {
+        .position(relative);
+        .size(100%, 100%);
+
+        .templateSection {
+            .size(@width: 100%, @height: 30px);
+            padding: 15px 0;
+
+            .sectionContainer {
+               .size(@width: 420px, @height: 100%, @max-width: 95%);
+                margin: 0 auto;
+            }
+
+            .position(relative);
+
+            .listSection {
+                float: left;
+                .dropDownList(60%, 30px);
+                .text {
+                    .size(@width: ~"calc(100% - 30px)", @height: 30px);
+                    .font(@size: 13px, @line-height: 30px);
+                    .noSelection;
+                }
+                .list {
+                    top: 31px;
+                    .rounded(0px 0px 3px 3px);
+                    background-color: #F8F8F8;
+                    .font(@size: 13px);
+                }
+                &.open {
+                    .rounded(0);
+                }
+            }
+
+            .downloadSection {
+                .size(@width: 35%);
+                float: right;
+
+                .btn {
+                    .size(@width: 150px);
+                    .position(relative);
+                    float: right;
+
+                    .icon {
+                        .position(absolute, @left: 10px);
+                        .size(@width: 25px, @height: 30px);
+                        .image("/images/download.png", 50%, 35%);
+                    }
+
+                    &.hidden {
+                        opacity: 0.5;
+                        pointer-events: none;
+                    }
+                }
+            }
+        }
+
+
+        .editSection {
+            .size(@width: 100%, @height: ~"calc(100% - 125px)");
+            .position(relative);
+            background-color: @color-white;
+            padding-right: 10px;
+            margin-bottom: 5px;
+            .sideArea {
+                .size(@width: 40px, @height: 100%);
+                .position(absolute, @top: 0, @left: 0);
+                background-color: #F4F4F4;
+            }
+
+            .editArea {
+                .position(relative);
+                .size(100%, 100%);
+                // font-family:courier;
+                overflow: hidden;
+
+                .lineMarker {
+                    .size(@width: 40px);
+                    .position(absolute, @top: 3px, @left: 0);
+                    .font(@weight: 900, @size: 12px, @line-height: 15px);
+                    color: #A3A3A3;
+                    text-align: center;
+                }
+
+                .codeArea {
+                    .size(@width: ~"calc(100% - 50px)", @height: 100%);
+                    .position(absolute, @left: 40px);
+                    .font(@size: 12px, @line-height: 15px);
+                    padding: 3px 0 0 5px;
+                    resize: none;
+                    overflow-x: auto;
+                    white-space: pre;
+                    word-wrap: normal;
+
+                   .tab-size(16);
+
+                    &:focus {
+                        outline: none;
+                    }
+                }
+            }
+        }
+
+        .submitSection {
+            .size(@width: 100%, @height: 30px);
+            .position(relative);
+            box-shadow: 0px -3px 3px 0px rgba(153,153,153,.7);
+            padding: 15px 0;
+
+            .sectionContainer {
+                .size(@width: 420px, @height: 100%, @max-width: 95%);
+                margin: 0 auto;
+            }
+
+            .inputSection {
+                .size(@width: 60%);
+                .position(relative);
+                float: left;
+
+                .label {
+                    .size(@width: 80px, @height: 25px);
+                    .font(@weight: 900, @size: 13px, @line-height: 30px);
+                    .noSelection;
+                    cursor: default;
+                    float: left;
+                }
+
+                input {
+                    .size(@width: ~"calc(100% - 80px)", @height: 30px, @min-width: 80px);
+                    .rounded;
+                    .font(@line-height: 30px);
+                    box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.5);
+
+                    &:focus {
+                        outline: none;
+                    }
+                }
+            }
+
+            .btnSection {
+                float: right;
+                .size(@width: 35%);
+                .position(relative);
+                .btn {
+                    .size(@max-width: 100%);
+                    float: right;
+                }
+            }
+        }
+    }
+}
+
+
+/* ========== End Of Scratch Pad Section in Right Side Bar ========== */
+
 /* ========== Help Section in Right Side Bar ========== */
 #helpSearchArea {
     padding: 6px 3% 5px 3%;
