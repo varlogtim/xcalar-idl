@@ -206,6 +206,8 @@ function checkDuplicateColNames($inputs, $input) {
     // $inputs are the inputs to check names against, $input is the target input
     var name = $.trim($input.val());
     var isDuplicate = false;
+    var title = "Name already exists, please use another name";
+
     $inputs.each(function() {
         if ($(this)[0] == $input[0]) {
             return (true);
@@ -216,18 +218,24 @@ function checkDuplicateColNames($inputs, $input) {
         }
     });
     $('.tooltip').hide();
+    // temporarily use, will be removed when backend allow name with space
+    if (/ +/.test(name) === true) {
+        title = "Invalid name, cannot contain spaces between letters"
+        isDuplicate = true;
+    }
+
     if (isDuplicate) {
 
         var container = $input.closest('.mainPanel').attr('id');
         $input.parent().tooltip({
-            title : "Name already exists, please use another name",
-            placement : "top",
-            trigger: "manual",
-            container : "#"+container,
-            template: '<div class="tooltip error" role="tooltip">'+
-                      '<div class="tooltip-arrow"></div>'+
-                      '<div class="tooltip-inner"></div>'+
-                      '</div>'
+            "title": title,
+            "placement": "top",
+            "trigger":"manual",
+            "container": "#"+container,
+            "template": '<div class="tooltip error" role="tooltip">'+
+                        '<div class="tooltip-arrow"></div>'+
+                        '<div class="tooltip-inner"></div>'+
+                        '</div>'
         });
         
         $input.parent().tooltip('show');
