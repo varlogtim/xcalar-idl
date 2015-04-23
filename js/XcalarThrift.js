@@ -164,7 +164,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
     loadArgs.csv.recordDelim = recordDelim;
     loadArgs.csv.fieldDelim = fieldDelim;
-    loadArgs.csv.isCRLF = false;
+    loadArgs.csv.isCRLF = true;
 
     var formatType;
     switch (format) {
