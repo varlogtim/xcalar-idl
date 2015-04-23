@@ -177,91 +177,60 @@ input {
         padding: 30px 13% 1px 15%;
     }
 
+    .label {
+        display: inline-block;
+        float: left;
+        .size(@width: 100px, @height: 30px);
+        .font(@weight: 700, @line-height: 30px);
+        cursor: default;
+    }
+
     #fileFormat {
-        margin-bottom: 25px;
-        font-weight: 700;
-        > span {
-            display: inline-block;
-            width: 90px;
-            float: left;
-            cursor: default;
-        }
-        label {
-            display: inline-block;
-            .position(relative);
-            .size(@width: 100px, @height: 20px);
-            .font(@size: 12px, @line-height: 20px);
-            .noSelection;
-            span {
-                cursor: pointer;
-                float: left;
-                display: inline-block;
-                padding-left: 10px;
+        margin-bottom: 30px;
+        margin-left: 20px;
+        padding: 0;
+        float: right;
+        .size(@height: 30px);
+        .position(relative);
+        .listSection {
+            .dropDownList(150px, 30px);
+            .text {
+                .size(@width: ~"calc(100% - 30px)");
             }
-            .radio {
-                float: left;
-                margin: 4px 0 0 10px;
-                cursor: pointer;
-                .background("/images/radioEmpty.png", 14px, 15px);
-                .dot {
-                    .size(@width: 14px, @height: 15px);
-                    .image("/images/radioDot.png", 50%, 50%);
-                    display: none;
-                }
-                &.checked {
-                    .image("/images/radioChecked.png");
-                    .dot {
-                        display: inline-block;
-                    }
-                }
+            .list {
+                top: 31px;
+                .rounded(0px 0px 3px 3px);
             }
-        }
-        input[type=radio] {
-            .position(absolute, @left: 0);
-            margin: 0 0 0 10px;
-            cursor: pointer;
-            opacity: 0;
-            pointer-events: none;
-        }
-        .dsTypeLabel {
-            float: left;
+            &.open {
+                .rounded(0);
+            }
         }
     }
+
     #csvDelim {
-        margin-bottom: 100px;
-        font-weight: 700;
-        position: relative;
-        #fieldText {
-            display: inline-block;
-            .position(relative, @left: 10);
-            cursor: default;
-            margin-right: 20px;
+        visibility: visible;
+        opacity: 1;
+         .transition(opacity 0.3s);
+
+        &.hidden {
+            visibility: hidden;
+            opacity: 0;
         }
-        #lineText {
-            display: inline-block;
-            .position(absolute, @left: ~"calc(50% - 30px)");
-            cursor: default;
-            margin-right: 20px;
+
+        .size(@height: 30px);
+        .position(relative);
+        margin-bottom: 40px;
+        .font(@weight: 700, @size: 12px);
+        input {
+            float: left;
+            .size(@width: ~"calc(50% - 220px)");
+            margin-right: 40px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+            border: 1px solid @color-background-topForm;
         }
+
         input[disabled] {
            background-color: #E6E6E6;
-        }
-        #fieldDelim {
-            width: ~"calc(50% - 200px)";
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-            margin-left: 10px;
-            margin-top: -5px;
-            margin-right: 35px;
-            border: 1px solid @color-background-topForm;
-        }
-        #lineDelim {
-            .position(absolute, @left: ~"calc(50% + 80px)");
-            width: ~"calc(50% - 200px)";
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-            margin-left: 10px;
-            margin-top: -6px;
-            margin-right: 45px;
-            border: 1px solid @color-background-topForm;
         }
     }
 

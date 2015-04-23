@@ -207,7 +207,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         }, ".text");
         // open format section
-        $formatSection.on("click", ".text, .icon", function(event) {
+        $formatSection.on("click", function(event) {
             event.stopPropagation();
             toggleListSection($(this).closest(".listSection"));
         });
@@ -315,11 +315,13 @@ window.FileBrowser = (function($, FileBrowser) {
     function getFormat(name) {
         var index = name.lastIndexOf(".");
         if (index < 0) {
-            return;
+            return undefined;
         }
         var ext = name.substring(index + 1, name.length).toUpperCase();
         if (validFormats.indexOf(ext) >= 0) {
             return (ext);
+        } else {
+            return undefined;
         }
     }
 
@@ -340,7 +342,8 @@ window.FileBrowser = (function($, FileBrowser) {
             var ext = getFormat(dsName);
 
             if (ext != undefined) {
-                $('#fileFormat .dsTypeLabel:contains("' + ext + '")').click();
+                $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]')
+                    .click();
             }
             $filePath.val(path);
         }

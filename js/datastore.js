@@ -24,35 +24,65 @@ window.DataStore = (function($, DataStore) {
     }
 
     function setupImportDSForm() {
-        var $formatSection = $("#fileFormat");
-        // disable delim input in default
-        $("#fieldDelim").prop("disabled", true);
-        $("#lineDelim").prop("disabled", true);
-        // select on data format
-        $formatSection.on("click", "label", function() {
-            var $label = $(this);
-            var $input = $label.find("input");
-            $formatSection.find(".radio").removeClass("checked");
-            $formatSection.find("input").prop("checked", false);
-            $label.find(".radio").addClass("checked");
-            $input.prop("checked", true);
-            
-            if ($input.attr("id").indexOf("CSV") >= 0 ||
-                $input.attr("id").indexOf("Raw") >= 0) {
-                $("#lineDelim").prop("disabled", false);
-            } else {
-                $("#lineDelim").prop("disabled", true);
-            }
- 
-            if ($input.attr("id").indexOf("CSV") >= 0) {
-                $("#fieldDelim").prop("disabled", false);
-            } else {
-                $("#fieldDelim").prop("disabled", true);
+        var $filePath = $("#filePath");
+        var $fileName = $("#fileName");
+
+        var $formatSection = $("#fileFormatList");
+        var $formatText = $formatSection.find(".text");
+        var $formatDropdown = $("#fileFormatMenu");
+        var $csvDelim = $("#csvDelim");
+        var $fieldDelim = $("#fieldDelim");
+        // constants
+        var formatTranslater = {
+            "JSON": "JSON",
+            "CSV": "CSV",
+            "Random": "rand",
+            "Raw": "raw"
+        };
+
+        $("#importDataView").click(function(event){
+            event.stopPropagation();
+
+            $formatSection.removeClass('open');
+            $formatDropdown.hide();
+        });
+
+        $formatSection.on("click", function(event) {
+            event.stopPropagation();
+
+            $formatSection.toggleClass("open");
+            $formatSection.find(".list").toggle();
+        });
+
+        $formatSection.on("click", ".list li", function(event) {
+            var text = $(this).text();
+
+            event.stopPropagation();
+
+            $formatSection.removeClass('open');
+            $formatDropdown.hide();
+
+            $formatText.val(text);
+
+            switch (text.toLowerCase()) {
+                case 'csv':
+                    $csvDelim.removeClass("hidden");
+                    $fieldDelim.prop("disabled", false);
+                    break;
+                case 'raw':
+                    $csvDelim.removeClass("hidden");
+                    $fieldDelim.prop("disabled", true);
+                    break;
+                default:
+                    $csvDelim.addClass("hidden");
+                    break;
             }
         });
+
         // reset form
         $("#importDataReset").click(function() {
-            $formatSection.find(".radio").removeClass('checked');
+            $formatText.val("");
+            $csvDelim.addClass("hidden");
         });
         // open file browser
         $("#fileBrowserBtn").click(function() {
@@ -62,19 +92,27 @@ window.DataStore = (function($, DataStore) {
         $("#importDataForm").submit(function(event) {
             event.preventDefault();
 
-            var $fileName = $("#fileName");
             var dsName = jQuery.trim($fileName.val());
             // check name conflict
             if (DS.has(dsName)) {
                 var text = "Dataset with the name " +  dsName + 
                             " already exits. Please choose another name.";
+
                 StatusBox.show(text, $fileName, true);
                 return false;
             }
 
-            var $filePath = $("#filePath");
             var loadURL = jQuery.trim($filePath.val());
-            var dsFormat = $("#fileFormat input[name=dsType]:checked").val();
+            var dsFormat = formatTranslater[$formatText.val()];
+
+            if (!dsFormat) {
+                var text = "No file format is selected," + 
+                            " please choose a file format!";
+
+                StatusBox.show(text, $formatText);
+                return false;
+            }
+
             var fieldDelim = $("#fieldDelim").val();
             var lineDelim = $("#lineDelim").val();
             var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
@@ -97,10 +135,11 @@ window.DataStore = (function($, DataStore) {
                 }
                 StatusBox.show(text, $filePath, true);
                 StatusMessage.fail(StatusMessageTStr.LoadFailed, msg);
+                return false;
             });
         });
         // XXX This should be removed in production
-        $("#filePath").keyup(function() {
+        $filePath.keyup(function() {
             var val = $(this).val();
             if (val.length == 2) {
                 var file = null;
@@ -175,17 +214,21 @@ window.DataStore = (function($, DataStore) {
                     break;
             }
 
-            $('#filePath').val('file:///var/tmp/'+filePath);
+            $filePath.val('file:///var/tmp/' + filePath);
 
-            $('#fileName').val(file);
+            $fileName.val(file);
 
             if (file == "sp500" || file == "gdelt") {
-                $('.dsTypeLabel:contains("CSV")').parent().trigger('click');
+                $formatDropdown.find('li[name="CSV"]').click();
             } else {
-                $('.dsTypeLabel:contains("JSON")').parent().trigger('click');
+                $formatDropdown.find('li[name="JSON"]').click();
             }
 
-            $('#fileName').focus();
+            $fileName.focus();
+        }
+
+        function import_helper() {
+
         }
     }
 

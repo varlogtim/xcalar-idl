@@ -161,44 +161,33 @@
               <label>File Name:</label>
               <input type="text" name="fileName" id="fileName"
                autocomplete="on" placeholder="Enter Dataset Name" required>
+              <div id="fileFormat">
+                <div id="fileFormatList" class="listSection">
+                  <input class="text" 
+                         placeholder="Select Format" disabled />
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul id="fileFormatMenu" class="list">
+                    <li name="CSV">CSV</li>
+                    <li name="JSON">JSON</li>
+                    <li name="RAW">Raw</li>
+                    <li name="RANDOM">Random</li>
+                  </ul>
+              </div>
+            </div>
             </div>
           </div>
         </div>
         <div id="importDataBottomForm">
           <div class="contentViewMidWrap">
-            <div id="fileFormat">
-              <span>File Format:</span>
-              <label>
-                <input type="radio" name="dsType" id="dsTypeJSON" value="JSON"
-                 required>
-                <div class="radio"><div class="dot"></div></div>
-                <span class="dsTypeLabel">JSON</span>
-              </label>
-              <label>
-                <input type="radio" name="dsType" id="dsTypeCSV" value="CSV"
-                 required>
-                <div class="radio"><div class="dot"></div></div>
-                <span class="dsTypeLabel">CSV</span>
-              </label>
-             <label>
-                <input type="radio" name="dsType" id="dsTypeRaw" value="raw"
-                 required>
-                <div class="radio"><div class="dot"></div></div>
-                <span class="dsTypeLabel">Raw</span>
-              </label>
-              <label>
-                <input type="radio" name="dsType" id="dsTypeRand" value="rand"
-                 required>
-                <div class="radio"><div class="dot"></div></div>
-                <span class="dsTypeLabel">Random</span>
-              </label>
-            </div>
-            <div id="csvDelim">
-              <span id="fieldText">Field Delimiter:</span>
+            <div id="csvDelim" class="hidden">
+              <span id="fieldText" class="label">Field Delimiter:</span>
               <input type="text" id="fieldDelim"></input>
-              <span id="lineText">Line Delimiter:</span>
+              <span id="lineText" class="label">Line Delimiter:</span>
               <input type="text" id="lineDelim"></input>
             </div>
+
             <button id="importDataSubmit" class="btn btnMid" 
                     type="submit">IMPORT DATA</button>
             <button id="importDataReset" class="btn btnMid btn-cancel" 
