@@ -143,7 +143,10 @@ function showJsonModal(jsonTd) {
             $('body').removeClass('hideScroll');
         });
     });
-    window.getSelection().removeAllRanges();
+
+    if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+    }
     $('body').addClass('hideScroll');
 }
 
