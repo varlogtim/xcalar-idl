@@ -368,6 +368,16 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
 
             return (getIndexedTable(srcName, leftColName, leftNameNew, isTable)
                     .then(function() {
+                            var index = getIndex(srcName);
+                            setIndex(leftNameNew, index);
+                            gTableIndicesLookup[leftNameNew].active = false;
+                            return (setupHiddenTable(leftNameNew));
+                    })
+                    .then(function() {
+                            var index = gHiddenTables.length - 1;
+
+                            addMenuBarTables([gHiddenTables[index]], 
+                                             IsActive.Inactive);
                             return (joinTables2([newTableName, joinType,
                                                leftTableNum, leftNameNew,
                                                rightTableNum, rightColumnNum]));
@@ -420,6 +430,17 @@ function joinTables2(args) {
             return (getIndexedTable(srcName, rightColName, 
                                     rightNameNew, isTable)
                     .then(function() {
+                            var index = getIndex(srcName);
+                            setIndex(rightNameNew, index);
+                            gTableIndicesLookup[rightNameNew].active = false;
+                            return (setupHiddenTable(rightNameNew));
+                    })
+                    .then(function() {
+                            var index = gHiddenTables.length - 1;
+
+                            addMenuBarTables([gHiddenTables[index]], 
+                                             IsActive.Inactive);
+
                             return (joinTables3([newTableName, joinType,
                                                 leftTableNum, leftName, 
                                                 rightTableNum, rightNameNew]));
