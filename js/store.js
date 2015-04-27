@@ -14,7 +14,7 @@ function emptyAllStorage(localEmpty) {
     gWorksheets = [];
     gTableOrderLookup = [];
     DS.clear();
-    Cli.clear();
+    SQL.clear();
     DataCart.clear();
     $("#scratchPadSection textarea").val("");
 
@@ -98,7 +98,7 @@ function commitToStorage(atStartup) {
                 "TOLookup": gTableOrderLookup,
                 "gDSObj": DS.getCurrentState(),
                 "holdStatus": KVStore.isHold(),
-                "cli": Cli.getHistory(),
+                "sql": SQL.getHistory(),
                 "scratchPad": scratchPadText,
                 "datacarts": DataCart.getCarts()
             };
@@ -138,8 +138,8 @@ function readFromStorage() {
             if (gInfos["gDSObj"]) {
                 gDSObjFolder = gInfos["gDSObj"];
             }
-            if (gInfos["cli"]) {
-                Cli.restoreFromHistory(gInfos["cli"]);
+            if (gInfos["sql"]) {
+                SQL.restoreFromHistory(gInfos["sql"]);
             }
             if (gInfos["scratchPad"]) {
                 $("#scratchPadSection textarea").val(gInfos["scratchPad"]);

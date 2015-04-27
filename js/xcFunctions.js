@@ -107,19 +107,17 @@ function sortRows(index, tableNum, order) {
         return;
     }
 
-    // add cli
-    var cliOptions = {};
-    cliOptions.operation = 'sort';
-    cliOptions.tableName = tableName;
-    cliOptions.key = fieldName;
-    cliOptions.newTableName = newTableName;
-    if (order == SortDirection.Forward) {
-        cliOptions.direction = 'ASC';
-    } else {
-        cliOptions.direction = "DESC";
-    }
+    // add sql
+    var sqlOptions = {
+        "operation": "sort",
+        "tableName": tableName,
+        "key": fieldName,
+        "newTableName": newTableName
+    };
 
-    var msg = StatusMessageTStr.Sort + " " + cliOptions.key;
+    sqlOptions.direction = order == SortDirection.Forward ? "ASC" : "DESC";
+
+    var msg = StatusMessageTStr.Sort + " " + fieldName;
     StatusMessage.show(msg);
 
     getIndexedTable(srcName, fieldName, newTableName, isTable)
@@ -130,7 +128,7 @@ function sortRows(index, tableNum, order) {
                 KeepOriginalTables.DontKeep));
     })
     .then(function() {
-        Cli.add('Sort Table', cliOptions);
+        SQL.add("Sort Table", sqlOptions);
         StatusMessage.success(msg);
         commitToStorage();
         deferred.resolve();
@@ -182,18 +180,8 @@ function groupByCol(operator, newColName, colid, tableNum) {
     var srcTableName = gTables[tableNum].frontTableName
     var fieldName = gTables[tableNum].tableCols[colid - 1].name;
 
-    // add cli
-    var cliOptions = {};
-    cliOptions.operation = 'groupBy';
-    cliOptions.tableName = srcTableName;
-    cliOptions.colName = fieldName;
-    cliOptions.colIndex = colid;
-    cliOptions.operator = operator;
-    cliOptions.newTableName = newTableName;
-    cliOptions.newColumnName = newColName;
+    var msg = StatusMessageTStr.GroupBy + " " + operator;
 
-
-    var msg = StatusMessageTStr.GroupBy+" "+cliOptions.operator;
     StatusMessage.show(msg);
     
     XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName)
@@ -203,7 +191,16 @@ function groupByCol(operator, newColName, colid, tableNum) {
         return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
     })
     .then(function() {
-        Cli.add('Group By', cliOptions);
+        // add sql
+        SQL.add("Group By", {
+            "operation": "groupBy",
+            "tableName": srcTableName,
+            "colName": fieldName,
+            "colIndex": colid,
+            "operator": operator,
+            "newTableName": newTableName,
+            "newColumnName": newColName
+        });
         StatusMessage.success(msg);
         commitToStorage();
         deferred.resolve();
@@ -251,17 +248,8 @@ function filterCol(operator, value, colid, tableNum, tableName, message) {
     var srcTableName = tableName;
     var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
     var colName = tablCols[colid - 1].name;
-    // add cli
-    var cliOptions = {};
-    cliOptions.operation = 'filter';
-    cliOptions.tableName = srcTableName;
-    cliOptions.colName = colName;
-    cliOptions.colIndex = colid;
-    cliOptions.operator = operator;
-    cliOptions.value = value;
-    cliOptions.newTableName = newTableName;
 
-    // var msg = StatusMessageTStr.Filter+': '+cliOptions.colName;
+    // var msg = StatusMessageTStr.Filter+': '+colName;
     // StatusMessage.show(msg);
 
     XcalarFilter(operator, value, colName, srcTableName, newTableName)
@@ -271,7 +259,16 @@ function filterCol(operator, value, colid, tableNum, tableName, message) {
         return (refreshTable(newTableName, tableNum));
     })
     .then(function() {
-        Cli.add('Filter Table', cliOptions);
+        // add sql
+        SQL.add('Filter Table', {
+            "operation": "filter",
+            "tableName": srcTableName,
+            "colName": colName,
+            "colIndex": colid,
+            "operator": operator,
+            "value": value,
+            "newTableName": newTableName
+        });
         StatusMessage.success(message);
         commitToStorage();
         deferred.resolve();

@@ -1,33 +1,33 @@
-window.Cli = (function($, Cli) {
+window.SQL = (function($, SQL) {
     var history = [];
     var $textarea = $('#rightBarTextArea');
 
-    Cli.add = function(title, options) {
+    SQL.add = function(title, options) {
         history.push({"title": title, "options": options});
         $textarea.append(getCliHTML_helper(title, options));
 
         // scroll to bottom
-        Cli.scrollToBottom($textarea);
+        SQL.scrollToBottom($textarea);
     }
 
-    Cli.getHistory = function() {
+    SQL.getHistory = function() {
         return (history);
     }
 
-    Cli.restoreFromHistory = function(oldCliHistory) {
+    SQL.restoreFromHistory = function(oldCliHistory) {
         history = oldCliHistory;
         history.forEach(function(record) {
             $textarea.append(getCliHTML_helper(record.title, record.options));
-            Cli.scrollToBottom($textarea);
+            SQL.scrollToBottom($textarea);
         });
     }
 
-    Cli.clear = function() {
+    SQL.clear = function() {
         $textarea.html("");
         history = [];
     }
 
-    Cli.scrollToBottom = function() {
+    SQL.scrollToBottom = function() {
         // scroll to bottom
         var scrollDiff = $textarea[0].scrollHeight - $textarea.height();
         if (scrollDiff > 0) {
@@ -59,5 +59,5 @@ window.Cli = (function($, Cli) {
         return (html);
     }
 
-    return (Cli);
+    return (SQL);
 }(jQuery, {}));

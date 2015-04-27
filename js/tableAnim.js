@@ -235,14 +235,16 @@ function dragdropMouseUp() {
     }
     
     // only pull col if column is dropped in new location
-    if ((dragObj.colIndex) != dragObj.colNum) { 
-        var cliOptions = {};
-        cliOptions.tableName = gTables[dragObj.tableNum].frontTableName;
-        cliOptions.colName = gTables[dragObj.tableNum]
-                             .tableCols[dragObj.colNum - 1].name;
-        cliOptions.oldColIndex = dragObj.colNum;
-        cliOptions.newColIndex = dragObj.colIndex;
-        Cli.add('Change Column Order', cliOptions);
+    if ((dragObj.colIndex) != dragObj.colNum) {
+        // add sql
+        var table = gTables[dragObj.tableNum];
+
+        SQL.add("Change Column Order", {
+            "tablename": table.frontTableName,
+            "colName": table.tableCols[dragObj.colNum - 1].name,
+            "oldColIndex": dragObj.colNum,
+            "newColIndex": dragObj.colIndex
+        });
         
         reorderAfterColumnDrop();
     }
@@ -674,18 +676,17 @@ function createTableHeader(tableNum) {
 
     $tableMenu.on('click', '.archiveTable', function() {
         var $menu = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id')
-                                     .substring(9));
+        var tableNum = parseInt($menu.attr('id').substring(9));
+        var tableName = gTables[tableNum].frontTableName;
+
         $menu.hide();
 
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = 'archiveTable';
-        cliOptions.tableName =  gTables[tableNum].frontTableName;
-
         archiveTable(tableNum, DeleteTable.Keep);
-
-        Cli.add('Archive Table', cliOptions);
+        // add sql
+        SQL.add('Archive Table', {
+            "operation": "archiveTable",
+            "tableName": tableName
+        });
     });
 
     $tableMenu.on('click', '.deleteTable', function() {
@@ -705,8 +706,8 @@ function createTableHeader(tableNum) {
         alertOptions.confirm = function() {
             deleteTable(tableNum)
             .then(function() {
-                // add cli
-                Cli.add("Delete Table", {
+                // add sql
+                SQL.add("Delete Table", {
                     "operation": "deleteTable",
                     "tableName": tableName
                 });
@@ -730,28 +731,35 @@ function createTableHeader(tableNum) {
     $tableMenu.on('click', '.exportTable', function() {
         var $menu = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
+        var tableName = gTables[tableNum].frontTableName;
+
         $menu.hide();
         
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = 'exportTable';
-        cliOptions.tableName = gTables[tableNum].frontTableName;
         var retName = $(".retTitle:disabled").val();
-        if (retName == "") {
+        if (!retName || retName == "") {
             retName = "testing";
         }
-        cliOptions.fileName = retName+".csv";
-        var msg = StatusMessageTStr.ExportTable + ": " + cliOptions.tableName;
+
+        var fileName = retName + ".csv";
+        var msg = StatusMessageTStr.ExportTable + ": " + tableName;
+
         StatusMessage.show(msg);
         
-        XcalarExport(cliOptions.tableName, retName+".csv")
+        XcalarExport(tableName, fileName)
         .then(function() {
-            Cli.add('Export Table', cliOptions);
+            // add sql
+            SQL.add("Export Table", {
+                "operation": "exportTable",
+                "tableName": tableName,
+                "fileName": fileName
+            });
+
             var title = "Successful Export";
-            var ins = "Widget location: http://schrodinger/dogfood/widget/main.html?"+
-                      "rid="+retName;
-            var msg = "File location: "+hostname+":/var/tmp/xcalar/"+
-                      retName+".csv";
+            var ins = "Widget location: " + 
+                      "http://schrodinger/dogfood/widget/main.html?"+
+                      "rid=" + retName;
+            var msg = "File location: " + hostname + ":/var/tmp/xcalar/" + 
+                      retName + ".csv";
 
             Alert.show({'title':title, 'msg':msg, 'instr': ins,
                         'isAlert':true, 'isCheckBox':true});
@@ -991,43 +999,46 @@ function addColMenuActions($colMenu) {
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var tableId = "xcTable"+tableNum;
 
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = "addCol";
-        cliOptions.tableName = gTables[tableNum].frontTableName;
-        cliOptions.newColName = "";
-        cliOptions.siblColName = gTables[tableNum].tableCols[colNum - 1].name;
-        cliOptions.siblColIndex = colNum;
+        // add sql
+        var table = gTables[tableNum];
+        var sqlOptions = {
+            "operation": "addCol",
+            "tableName": table.frontTableName,
+            "newColName": "",
+            "siblColName": table.tableCols[colNum - 1].name,
+            "siblColIndex": colNum
+        };
 
         var direction;
         if ($(this).hasClass('addColLeft')) {
             direction = "L";
-            cliOptions.direction = "L";
+            sqlOptions.direction = "L";
         } else {
-            cliOptions.direction = "R";
+            sqlOptions.direction = "R";
         }
         $colMenu.hide();
 
         addCol(index, tableId, null, 
             {direction: direction, isDark: true, inFocus: true});
 
-        Cli.add("Add Column", cliOptions);
+        SQL.add("Add Column", sqlOptions);
     })
 
     $colMenu.on('click', '.deleteColumn', function() {
         var index = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = "delCol";
-        cliOptions.tableName = gTables[tableNum].frontTableName;
-        cliOptions.colName = gTables[tableNum].tableCols[index - 1].name;
-        cliOptions.colIndex = index;
+        // add sql
+        var sqlOptions = {
+            "operation": "delCol",
+            "tableName": gTables[tableNum].frontTableName,
+            "colName": gTables[tableNum].tableCols[index - 1].name,
+            "colIndex": index
+        };
 
         delCol(index, tableNum);
 
-        Cli.add('Delete Column', cliOptions);
+        SQL.add('Delete Column', sqlOptions);
     });
 
     $colMenu.on('click', '.deleteDuplicates', function() {
@@ -1053,17 +1064,15 @@ function addColMenuActions($colMenu) {
         var width = table.find('th.col'+index).outerWidth();
         var isDark = table.find('th.col'+index).hasClass('unusedCell');
 
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = 'duplicateCol'
-        cliOptions.tableName = gTables[tableNum].frontTableName;
-        cliOptions.colName = name;
-        cliOptions.colIndex = index;
-
         addCol('col'+index, table.attr('id'),name, 
             {width: width, isDark: isDark});
-
-        Cli.add('Duplicate Column', cliOptions);
+        // add sql
+        SQL.add("Duplicate Column", {
+            "operation": "duplicateCol",
+            "tableName": gTables[tableNum].frontTableName,
+            "colName": name,
+            "colIndex": index
+        });
 
         gTables[tableNum].tableCols[index].func.func = 
             gTables[tableNum].tableCols[index-1].func.func;
@@ -1267,21 +1276,23 @@ function functionBarEnter($el) {
     var tableNum = parseInt($table.attr('id').substring(7));
     var progStr = '"' + $el.val() + '" ' + $('#fnBar').val();
     var progCol = parseCol(progStr, index, tableNum, true);
+    var tableName = gTables[tableNum].frontTableName;
+
     $el.blur();
     $('#fnBar').removeClass('inFocus');
+
     execCol(progCol, tableNum)
     .then(function() {
         updateMenuBarTable(gTables[tableNum], tableNum);
 
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = 'execCol';
-        cliOptions.tableName = gTables[tableNum].frontTableName;
-        cliOptions.colIndex = index;
-        cliOptions.progCol = progCol.name;
-        cliOptions.func = progCol.func.func;
-
-        Cli.add("Prog Column", cliOptions);
+        // add sql
+        SQL.add("Prog Column", {
+            "operation": "execCol",
+            "tableName": tableName,
+            "colIndex": index,
+            "progCol": progCol.name,
+            "func": progCol.func.func
+        });
 
         if (progCol.name.length > 0) {
             $el.val(progCol.name);

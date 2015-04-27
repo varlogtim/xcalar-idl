@@ -266,8 +266,8 @@ window.DS = (function($, DS) {
         .then(function(result) {
 
             $("#tempDSIcon").remove();
-            // add cli
-            Cli.add('Load dataset', {
+            // add sql
+            SQL.add('Load dataset', {
                 "operation": "loadDataSet",
                 "dsName": dsName,
                 "dsFormat": dsFormat
@@ -459,8 +459,8 @@ window.DS = (function($, DS) {
             deleteDSObj_helper($grid.data("dsid"));
             $grid.remove();
 
-            // add cli
-            Cli.add("Delete DateSet", {
+            // add sql
+            SQL.add("Delete DateSet", {
                 "operation": "destroyDataSet",
                 "dsName": dsName
             });

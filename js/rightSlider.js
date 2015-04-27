@@ -25,8 +25,8 @@ function setupRightSideBar() {
             $sidebarSection.addClass('active');
             $sidebar.children('.lastOpen')
                     .removeClass('lastOpen');
-            if ($sidebarSection.attr('id') === 'cliSection') {
-                Cli.scrollToBottom();
+            if ($sidebarSection.attr('id') === 'sqlSection') {
+                SQL.scrollToBottom();
             }
             $sliderBtn.addClass('active');
             // display correct section
@@ -47,8 +47,8 @@ function setupRightSideBar() {
                         .removeClass('active')
                         .removeClass('lastOpen');
                 $sidebarSection.addClass('active');
-                if ($sidebarSection.attr('id') === 'cliSection') {
-                    Cli.scrollToBottom();
+                if ($sidebarSection.attr('id') === 'sqlSection') {
+                    SQL.scrollToBottom();
                 }
                 $sliderBtn.addClass('active');
             }
@@ -562,15 +562,17 @@ function tableBulkAction(action) {
         if ($timeLine.find('.tableInfo').length === 0) {
             $timeLine.remove();
         }
-        // add cli
-        var cliOptions = {};
-        cliOptions.tableName = tableName;
+        // add sql
         if (action == "add") {
-            cliOptions.operation = 'addTable';
-            Cli.add('Send To WorkSheet', cliOptions);
+            SQL.add('Send To WorkSheet', {
+                "operation": "addTable",
+                "tableName": tableName
+            });
         } else {
-            cliOptions.operation = "deleteTable";
-            Cli.add("Delete Table", cliOptions);
+            SQL.add("Delete Table", {
+                "operation": "deleteTable",
+                "tableName": tableName
+            });
         }
     }
 

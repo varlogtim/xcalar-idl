@@ -654,8 +654,9 @@ window.DataCart = (function($, DataCart) {
 
                 var rand = Math.floor((Math.random() * 100000) + 1);
                 var tableName = datasetName + "-" + rand;
-                // add cli
-                var cliOptions = {
+
+                // add sql
+                var sqlOptions = {
                     "operation": "createTable",
                     "tableName": tableName,
                     "col": []
@@ -683,7 +684,7 @@ window.DataCart = (function($, DataCart) {
 
                     var currentIndex = startIndex - 1;
                     newTableCols[currentIndex] = progCol;
-                    cliOptions.col.push(colname);
+                    sqlOptions.col.push(colname);
                 });
 
                 var progCol = new ProgCol();
@@ -697,14 +698,14 @@ window.DataCart = (function($, DataCart) {
                 progCol.isDark = false;
                 newTableCols[startIndex] = progCol;
 
-                cliOptions.col.push("DATA");
+                sqlOptions.col.push("DATA");
 
                 var tableProperties = {bookmarks:[], rowHeights:{}};
                 setIndex(tableName, newTableCols, datasetName, tableProperties);
                 
                 refreshTable(tableName, gTables.length, true, false)
                 .then(function() {
-                    Cli.add("Send To Worksheet", cliOptions);
+                    SQL.add("Send To Worksheet", sqlOptions);
                     StatusMessage.success(msg);
                     innerDeferred.resolve();
                 })
@@ -1087,8 +1088,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
                     .find("li[data-colnum=" + colNum + "] .colName")
                     .text(newColName);
 
-                // add cli
-                Cli.add("Rename dataset column", {
+                // add sql
+                SQL.add("Rename dataset column", {
                     "operation": "renameDatasetCol",
                     "dsName": dsName,
                     "colNum": colNum + 1,
@@ -1143,8 +1144,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $tableHeader.data("type", newType);
             $tableHeader.removeClass("type-" + oldType)
                         .addClass("type-" + newType);
-
-            Cli.add("Change dataset data type", {
+            // add sql
+            SQL.add("Change dataset data type", {
                 "operation": "changeDataType",
                 "dsName": dsName,
                 "colNum": colNum + 1,

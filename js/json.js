@@ -109,25 +109,28 @@ function showJsonModal(jsonTd) {
                     });
         var colNum = parseColNum(id);
 
-        // add cli
-        var cliOptions = {};
-        cliOptions.operation = 'addCol';
-        cliOptions.tableName = gTables[tableNum].frontTableName;
-        cliOptions.newColName = name.name;
-        cliOptions.siblColName = gTables[tableNum].tableCols[colNum - 1].name;
-        cliOptions.siblColIndex = colNum;
-        cliOptions.direction = "L";
-
+        // sql cli
+        var table = gTables[tableNum];
+        // XXX content will change if define it after addCol
+        var sqlOptions = {
+            "operation": "addCol",
+            "tableName": table.frontTableName,
+            "newColName": name.name,
+            "siblColName": table.tableCols[colNum - 1].name,
+            "siblColIndex": colNum,
+            "direction": "L"
+        }
 
         addCol('col'+(colNum), 'xcTable'+tableNum, name.name, {direction: 'L', 
                 select: true});
 
-        Cli.add('Add Column', cliOptions);
+        SQL.add("Add Column", sqlOptions);
 
         gTables[tableNum].tableCols[colNum-1].func.func = "pull";        
         gTables[tableNum].tableCols[colNum-1].func.args = [name.escapedName];
         var usrStr = '"'+name.name+'" = pull('+name.escapedName+')';
         gTables[tableNum].tableCols[colNum-1].userStr = usrStr;
+
         execCol(gTables[tableNum].tableCols[colNum-1], tableNum)
         .then(function() {
             updateMenuBarTable(gTables[tableNum], tableNum);

@@ -144,21 +144,24 @@ function initializeJoinModal() {
             var rightColumnNum = parseColNum($('#rightJoin').
                                 find('th.colSelected')) - 1;
 
-            // add Cli
-            var cliOptions = {};
-            cliOptions.operation = 'join';
-            cliOptions.leftTable = {};
-            cliOptions.leftTable.name = gTables[leftTableNum].frontTableName;
-            cliOptions.leftTable.colName = gTables[leftTableNum]
-                                           .tableCols[leftColumnNum].name;
-            cliOptions.leftTable.colIndex = leftColumnNum;
-            cliOptions.rightTable = {};
-            cliOptions.rightTable.name = gTables[rightTableNum].frontTableName;
-            cliOptions.rightTable.colName = gTables[rightTableNum]
-                                            .tableCols[rightColumnNum].name;
-            cliOptions.rightTable.colIndex = rightColumnNum;
-            cliOptions.joinType = joinType;
-            cliOptions.newTableName = newTableName;
+            var leftTable = gTables[leftTableNum];
+            var rightTable = gTables[rightTableNum];
+            // add sql
+            var sqlOptions = {
+                "operation": "join",
+                "leftTable": {
+                    "name": leftTable.frontTableName,
+                    "colName": leftTable.tableCols[leftColumnNum].name,
+                    "colIndex": leftColumnNum
+                },
+                "rightTable": {
+                    "name": rightTable.frontTableName,
+                    "colName": rightTable.tableCols[rightColumnNum].name,
+                    "colIndex": rightColumnNum
+                },
+                "joinType": joinType,
+                "newTableName": newTableName
+            }
 
             var msg = StatusMessageTStr.Join;
             StatusMessage.show(msg);
@@ -167,7 +170,7 @@ function initializeJoinModal() {
                        leftColumnNum, rightTableNum, rightColumnNum)
             .then(function() {
                 resetJoinTables();
-                Cli.add("Join Table", cliOptions);
+                SQL.add("Join Table", sqlOptions);
                 StatusMessage.success(msg);
                 commitToStorage();
             })
