@@ -36,7 +36,7 @@ window.SQL = (function($, SQL) {
     }
 
     function getCliHTML_helper(title, options) {
-        var html =  '<div class="cliContentWrap">' + 
+        var html =  '<div class="sqlContentWrap">' + 
                         '<div class="title"> >>' + title + ' :</div>' + 
                         '<div class="content">{';
         var count = 0;
@@ -47,8 +47,8 @@ window.SQL = (function($, SQL) {
             }
             var val = JSON.stringify(options[key]);
             html += '<span class="' + key + '">' + 
-                        '<span class="cliKey">' + key + '</span> : ' + 
-                        '<span class="cliVal">' + val + '</span>' + 
+                        '<span class="sqlKey">' + key + '</span> : ' + 
+                        '<span class="sqlVal">' + val + '</span>' + 
                     '</span>';
             ++ count;
         }
