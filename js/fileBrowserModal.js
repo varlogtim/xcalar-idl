@@ -107,7 +107,7 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         // click icon-list to toggle between listview and gridview
-        $("#fileBrowserGridView").click(function(){
+        $("#fileBrowserGridView").click(function(event){
             var $btn = $(this);
 
             event.stopPropagation();
