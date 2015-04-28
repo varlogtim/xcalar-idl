@@ -221,6 +221,218 @@
 
 /* End Of Pretty Json Modal */
 
+/* Quick Aggregate Modal */
+#quickAggDialog {
+    .modalBuilder(920px, 670px);
+    overflow: hidden;
+    resize: horizontal;
+    #aggInputSection {
+        .size(@height: 57px);
+        .font(@weight: bold, @size: 14px, @line-height: 57px);
+        padding-left: 17px;
+        .text {
+            float: left;
+            margin-right: 10px;
+        }
+        #aggRoundedInput {
+            float: left;
+            margin: 16px 15px 0 0;
+            .size(@width: 198px, @height: 25px);
+            .font(@weight: bold, @size: 12px, @line-height: 25px);
+            &:focus {
+                background-color: white;
+                box-shadow: 0px 2px 2px 0 #888888 inset;
+                outline: none;
+                color: @color-text-brightBlue;
+            }
+        }
+
+        #aggOp {
+            .dropDownList(201px, 25px);
+            margin-top: 16px;
+            .text, .list li {
+                .font(@weight: 600);
+            }
+            .list {
+                .position(@top: 26px);
+                .rounded(0 0 3px 3px);
+                overflow: hidden;
+            }
+            &.open {
+                .rounded(3px 3px 3px 0);
+            }
+        }
+    }
+
+    #mainAgg {
+        padding-top: 16px;
+        .size(@height: ~"calc(100% - 155px)");
+        .tableText {
+            .size(@height: 29px);
+            .font(@weight: bold, @line-height: 29px);
+            color: @color-text-darkGray;
+            padding-left: 25px;
+        }
+        .mainTable {
+            .size(@width: ~"calc(100% - 25px)", @height: ~"calc(100% - 55px)");
+            margin-left: 15px;
+            .rounded;
+            background: @color-join-background;
+            box-shadow: 0px 2px 2px 0 @color-join-drop-shadow inset;
+        }
+        .tabArea {
+            .position(relative);
+            .size(@height: 100%);
+            border: 1px solid @color-join-border;
+            overflow-x: scroll;
+        }
+        .tableTabs {
+            .position(absolute);
+            .size(@width: auto, @height: 38px);
+            padding-left: 105px;
+            .flex-display;
+            border-bottom: 1px solid @color-join-border;
+            min-width: 100%;
+            float: left;
+        }
+        .mainAggArea {
+            .size(@width: 100%, @height: ~"calc(100% - 38px)");
+            .position(relative, @top: 38px);
+        }
+        .blankSpace {
+            .position(absolute, @top:200px, @left:16px);
+            .size(@width: 105px, @height: 40px);
+            background: @color-join-background;
+        }
+        .vertTabArea {
+            .position(absolute);
+            .size(@width: 105px, @height: 362px);
+            padding-left: 5px;
+            padding-top: 0px;
+            // padding-bottom: 5px;
+            .flex-display;
+            .flex-flow(column);
+            background: @color-join-background;
+            top: 235px;
+            left: 16px;
+        }
+
+        .quickAggArea {
+            // .size(@width: 100%, @height: ~"calc(100% - 28px)");
+            .size(@width: auto, @height: ~"calc(100% - 28px)");
+            background: @color-selectedCell-light;
+            background: white;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            overflow-y: hidden;
+            margin-bottom: 1px;
+            padding-bottom: 5px;
+            float: left;
+        }
+
+        .background {
+            .position(absolute);
+            .size(@width: 100%, @height: 36px);
+            background-color: @color-selectedCell-light;
+            z-index: 1;
+        }
+
+        .outline {
+            .position(absolute);
+            .size(@width: 100%, @height: 36px);
+            border: 1px solid @color-join-border;
+            border-top: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .columnTab {
+            .size(@width: 100%, @height: 22px);
+            .gray-gradient;
+            .font(@weight: bold, @size: 12px, @line-height: 22px);
+            color: @color-text-midGray;
+            text-align: center;
+            margin-right: 1px;
+            float: left;
+            .rounded;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            cursor: pointer;
+        }
+
+        .unselectable .columnTab {
+            cursor: default;
+        }
+
+        .tableLabel {
+            .size(@width: 115px, @height: 22px);
+            .gray-gradient;
+            color: @color-text-midGray;
+            .font(@weight: bold, @size: 14px, @line-height: 22px);
+            text-align: center;
+            margin: 10px 5px 0 0;
+            float: left;
+            .rounded;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            padding: 0 2px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            .flex(0 0 115px);
+            white-space: nowrap;
+        }
+        
+        .tableLabelVert {
+            .size(@width: 95px, @height: 22px);
+            .flex(1 1 22px);
+            .font(@weight: bold, @size: 14px, @line-height: 55px);
+        }
+
+        .aggTable {
+            // .position(absolute);
+            .size(@width: ~"calc(100%)", @height: ~"calc(100%)");
+            padding-left: 105px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            .flex-display;
+            .flex-flow(row);
+        }
+
+        .aggCol {
+            // .size(@width: ~"calc(100%)", @height: ~"calc(100% - 38px)");
+            .size(@width: ~"calc(100%)");
+            padding-left: 0px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            margin: 0 5px 0 0;
+            .flex(0 0 115px);
+            .flex-display;
+            .flex-flow(column);
+        }
+
+        .aggTableField {
+            .size(@width: 115px, @height: 22px);
+            color: @color-text-midGray;
+            .font(@weight: bold, @size: 14px, @line-height: 55px);
+            text-align: center;
+            margin: 10px 0 0 0;
+            float: left;
+            .rounded;
+            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+            padding: 0 2px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            background-color: @color-selectedCell-light;
+            .flex(1 1 22px);
+        }
+
+        .spinny {
+            .size(@width: 35px, @height: 37px);
+            .image("/images/waiting-1.gif");
+            margin: auto;
+            margin-top: 10px;
+        }
+    }
+}
+
 /* Join Modal */
 #joinDialog {
     .modalBuilder(920px, 670px);

@@ -380,8 +380,7 @@ function setupHelpSection() {
         }, function(error) {
             console.log("Failed to write! Commencing shutdown");
             return (XcalarStartNodes(2));
-        }
-        )
+        })
         .then(function() {
             console.log("Restart Successfully!");
             refreshPage();

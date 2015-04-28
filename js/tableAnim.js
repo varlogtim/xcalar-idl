@@ -647,6 +647,9 @@ function createTableHeader(tableNum) {
                             <li class="delAllDuplicateCols">\
                                 Delete Duplicate Columns\
                             </li>\
+                            <li class="quickAgg">\
+                                Quick Aggregates\
+                            </li>\
                         </ul>';
 
     $('#xcTableWrap'+ tableNum).append(tableMenuHTML);
@@ -789,6 +792,13 @@ function createTableHeader(tableNum) {
                 delDuplicateCols(i+1, tableNum, forwardCheck);
             }     
         }
+    });
+
+    $tableMenu.on('click', '.quickAgg', function() {
+        var $menu = $(this).closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id').substring(9));
+        $menu.hide();
+        setupAggModalTables(tableNum);
     });
 
     var $table = $('#xcTable' + tableNum);

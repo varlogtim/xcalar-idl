@@ -706,6 +706,7 @@ function documentReadyIndexFunction() {
         .then(function() {
             setuptableListSection();
             initializeJoinModal();
+            initializeAggModal();
         })
         .fail(function(error) {
             console.log("Initialization fails!");
