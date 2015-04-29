@@ -171,7 +171,7 @@ function setupPythonCli() {
     var $templateInput = $("#cli-fnTemplate");
     var $downloadBtn = $("#cli-fnDownload");
 
-    $("#pythonCliSection").click(function(event) {
+    $("#pythonCliSection .rightBarContent").click(function(event) {
         event.stopPropagation();
 
         $listSection.removeClass('open');
