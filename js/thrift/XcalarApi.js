@@ -208,14 +208,16 @@ function xcalarGetCount(thriftHandle, tableName) {
     return (deferred.promise());
 }
 
-function xcalarShutdown(thriftHandle) {
+function xcalarShutdown(thriftHandle, force) {
     var deferred = jQuery.Deferred();
     console.log("xcalarShutdown()");
 
     var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiShutdown;
+    workItem.input.shutdownInput = force;
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
