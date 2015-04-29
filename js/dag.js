@@ -1147,7 +1147,7 @@ function getDagName(dagNode) {
     if (key == 'filterInput') {
         childName = value.dstTable.tableName;
     } else if (key == 'groupByInput') {
-        childName = value.newFieldName;
+        childName = value.groupByTable.tableName;
     } else if (key == 'indexInput') {
         childName = value.dstTable.tableName;
     } else if (key == 'joinInput') {
