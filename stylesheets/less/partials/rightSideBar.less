@@ -579,14 +579,18 @@
                 float: right;
 
                 .btn {
-                    .size(@width: 150px);
+                    .size(@max-width: 100%);
                     .position(relative);
                     float: right;
 
                     .icon {
-                        .position(absolute, @left: 10px);
+                        .position(absolute, @left: 3px);
                         .size(@width: 25px, @height: 30px);
                         .image("/images/download.png", 50%, 35%);
+                    }
+
+                    .text {
+                        .position(relative, @left: 8px);
                     }
 
                     &.hidden {
