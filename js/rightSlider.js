@@ -370,7 +370,9 @@ function setupHelpSection() {
     $('#helpSubmit').click(function() {
         console.log('Reset Fired!');
         emptyAllStorage()
-        .then(XcalarShutdown)
+        .then(function() {
+            return (XcalarShutdown(true));
+        })
         .then(function() {
             console.log("Shut Down Successfully!");
             return (XcalarStartNodes(2));

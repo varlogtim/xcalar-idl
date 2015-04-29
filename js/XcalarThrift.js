@@ -384,14 +384,16 @@ function XcalarGetTables() {
     return (deferred.promise());
 }
 
-function XcalarShutdown() {
+function XcalarShutdown(force) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-
+    if (force == undefined) {
+        force = false;
+    }
     var deferred = jQuery.Deferred();
 
-    xcalarShutdown(tHandle)
+    xcalarShutdown(tHandle, force)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarShutdown", error));
