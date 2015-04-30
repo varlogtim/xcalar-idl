@@ -301,29 +301,9 @@ function updateStatsSection(el, index, stats) {
 window.MonitorGraph = (function($, MonitorGraph) {
     var width = 60;
     var height = 210;
-    var numGraphs = 2;
-    var yMax = [100, 256];
-
-    var xScale = d3.scale.linear()
-                   .domain([0, 10])
-                   .range([0, width]); 
-
-    var yScale0 = d3.scale.linear()
-        .domain([0, 100])
-        .range([height, 0]);
-
-
-    var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient("bottom")
-        .innerTickSize(-height)
-        .ticks(1);
-
-    var yAxisLeft = d3.svg.axis()
-        .scale(yScale0)
-        .orient("left")
-        .innerTickSize(-width);
-
+    var xAxis;
+    var yAxis;
+    var yScale;
     var datasets;
     var xGridVals;
     var svg; 
@@ -367,16 +347,35 @@ window.MonitorGraph = (function($, MonitorGraph) {
     }
 
     MonitorGraph.start = function() {
-        $('#ramTab, #cpuTab').addClass('active');
         datasets = [[0], [0]];
+        var numGraphs = datasets.length;
+        $('#ramTab, #cpuTab').addClass('active');
+        
         xGridVals = [];
         for (var i = 0; i < 300; i += 60) {
             xGridVals.push(i);
         }
 
+        xScale = d3.scale.linear()
+                   .domain([0, 10])
+                   .range([0, width]); 
+
+        yScale = d3.scale.linear()
+                    .range([height, 0]);
+
+        xAxis = d3.svg.axis()
+                    .scale(xScale)
+                    .orient("bottom")
+                    .innerTickSize(-height)
+                    .ticks(1);
+
+        yAxis = d3.svg.axis()
+                    .scale(yScale)
+                    .orient("left")
+                    .innerTickSize(-width);
+
         var svgWrap = d3.select("#graph").insert("svg", ".separator");
         
-
         svg = svgWrap.attr("width", width)
                      .attr("height", height)
                      .attr("class", "mainSvg")
@@ -389,16 +388,9 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
         svg.append("g")
            .attr("class", "y axis")
-           .call(yAxisLeft);
-
+           .call(yAxis);
 
         for (var i = 0; i < numGraphs; i++) {
-
-             var yScale = d3.scale
-                            .linear()
-                            .domain([0, yMax[i]])
-                            .range([height, 0]);
-   
 
             var line = d3.svg.line()
                         .x(function(d,j) { 
@@ -444,7 +436,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     function startCycle() {
         var gridWidth = 60;
         var pointsPerGrid = 10;
-        var iterations = 0;
+        var count = 0;
         var interval = 3000; // in milliseconds
         var shiftWidth = gridWidth / pointsPerGrid;
         var newWidth = width + shiftWidth;
@@ -453,17 +445,16 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var $graphWrap = $('#graphWrap');
         var svgWrap = svg.select(function() {return this.parentNode});
         var timeStamp;
-
-        getStatsAndUpdateGraph();
+        var firstTime = true;
+        getStatsAndUpdateGraph(firstTime);
         graphCycle = setInterval(getStatsAndUpdateGraph, interval);
 
-        function getStatsAndUpdateGraph() {
-
-            if (iterations % 10 == 0) {
+        function getStatsAndUpdateGraph(firstTime) {
+            if (count % 10 == 0) {
                 xGridVals.push(numXGridMarks*gridWidth);
                 numXGridMarks++;    
 
-                if (iterations % 40 == 0) {
+                if (count % 40 == 0) {
                     var d = new Date();
                     var time = d.toLocaleTimeString();
                     time = time.substr(0, (time.length - 3));
@@ -484,8 +475,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
                     datasets[i].push(allStats[i].sumUsed);
                     // datasets[i].push(50);
                 }
-                
-                redraw(newWidth, gridRight, numGraphs);
+                var yMax = [100, allStats[1].sumTot];
+                redraw(newWidth, gridRight, numGraphs, yMax, firstTime);
                 $('.xLabelsWrap').width(newWidth);
                 svgWrap.attr("width", newWidth);
                 newWidth += shiftWidth;
@@ -506,17 +497,16 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 console.log('XcalarGetStats failed');
             });
 
-            iterations++;
+            count++;
         }
     }
     
-
     function createTempGrid() {
         var tempGridWrap = d3.select('#grids').append("svg");
         var gridSvg = tempGridWrap.attr("width", 4020)
-                         .attr("height", height)
-                         .attr("class", "gridSvg")
-                         .append("g");
+                                .attr("height", height)
+                                .attr("class", "gridSvg")
+                                .append("g");
         var tempXGridVals = [];
         for (var i = 0; i < 4020; i += 60) {
             tempXGridVals.push(i);
@@ -537,18 +527,47 @@ window.MonitorGraph = (function($, MonitorGraph) {
                .attr("transform", "translate(0," + height + ")")
                .call(tempXAxis);
 
-        yAxisLeft.innerTickSize(-4020);
+        yAxis.innerTickSize(-4020);
 
         gridSvg.append("g")
                .attr("class", "y axis")
-               .call(yAxisLeft);
+               .call(yAxis);
     }
 
-    function redraw(newWidth, gridRight, numGraphs) {
+    function drawRightYAxis(yMax) {
+            var yScale = d3.scale.linear()
+                                .domain([0, yMax[1]])
+                                .range([height, 0]);
+
+            var yAxisStart = yMax[1] / 5;
+            var yAxisMax = yMax[1] + 1;
+            var yAxisSteps = yMax[1] / 5;
+
+            var yAxis = d3.svg.axis()
+                            .scale(yScale)
+                            .orient("right")
+                            .innerTickSize(0)
+                            .tickValues(d3.range(yAxisStart, 
+                                                 yAxisMax, yAxisSteps));
+
+            d3.select("#rightYAxis").append("svg")
+                                    .attr("width", 40)
+                                    .attr("height", height+30)
+                                    .attr("class", "rightYAxisWrap")
+                                    .append("g")
+                                    .attr("transform", 
+                                          "translate(-2,8)")
+                                    .call(yAxis);
+    }
+
+    function redraw(newWidth, gridRight, numGraphs, yMax, firstTime) {
+        if (firstTime) {
+            drawRightYAxis(yMax);
+        }
 
         for (var i = 0; i < numGraphs; i++) {
 
-            var yScale = d3.scale
+            var tempYScale = d3.scale
                             .linear()
                             .domain([0, yMax[i]])
                             .range([height, 0]);
@@ -558,7 +577,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                                 return (xScale(j)); 
                             })
                             .y(function(d) { 
-                                return (yScale(d)); 
+                                return (tempYScale(d)); 
                             });
 
             var area = d3.svg.area()
@@ -567,7 +586,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                             })
                             .y0(height)
                             .y1(function(d) { 
-                                return (yScale(d)); 
+                                return (tempYScale(d)); 
                             });
 
             svg.selectAll(".line"+i)
@@ -593,13 +612,13 @@ window.MonitorGraph = (function($, MonitorGraph) {
         svg.selectAll(".x")
             .call(xAxis); 
 
-        var yAxisLeft = d3.svg.axis()
-                              .scale(yScale0)
-                              .orient("left")
-                              .innerTickSize(-newWidth);
+        var yAxis = d3.svg.axis()
+                          .scale(yScale)
+                          .orient("left")
+                          .innerTickSize(-newWidth);
 
         svg.selectAll(".y")
-           .call(yAxisLeft);
+           .call(yAxis);
 
         $('.gridSvg').css('right', gridRight+'px');;
     }

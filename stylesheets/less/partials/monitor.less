@@ -155,8 +155,29 @@
                     }
 
                     &.right {
-                        right: 106px;
+                        // right: 106px;
+                        right: 136px;
                         text-align: left;
+                        height: 210px;
+
+                        span {
+                            position: absolute;
+                            bottom: -42px;
+                        }
+
+                        svg {
+                            top: 0px;
+                            stroke: none;
+                            fill: transparent;
+                            margin-left: -2px;
+
+                            text {
+                                display: block;
+                                // stroke: @color-table-borderGray;
+                                fill: @color-table-borderGray;
+                                .font(@size: 11px, @weight: 500);
+                            }
+                        }
                     }
                 }
             }
