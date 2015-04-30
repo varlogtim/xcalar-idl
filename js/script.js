@@ -611,11 +611,11 @@ function startupFunctions() {
     var deferred = jQuery.Deferred();
 
     setupLogout();
+    setupRightSideBar();
     DataStore.setup();
     readFromStorage()
     .then(function() {
         documentReadyGeneralFunction();
-        setupRightSideBar();
         setupTooltips();
         mainPanelsTabbing();
         setupFunctionBar();

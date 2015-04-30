@@ -367,22 +367,25 @@ window.LineMarker = (function($, LineMarker) {
 
 // Current it works as a rest button
 function setupHelpSection() {
+    function refreshPage() {
+        location.reload();
+    }
+
     $('#helpSubmit').click(function() {
         console.log('Reset Fired!');
         emptyAllStorage()
         .then(function() {
-            return (XcalarShutdown(true));
-        })
-        .then(function() {
             console.log("Shut Down Successfully!");
             return (XcalarStartNodes(2));
-        })
+        }, function(error) {
+            console.log("Failed to write! Commencing shutdown");
+            return (XcalarStartNodes(2));
+        }
+        )
         .then(function() {
             console.log("Restart Successfully!");
+            refreshPage();
             // clearAll();
-        })
-        .fail(function(error) {
-            console.log("Rest fails!");
         });
 
         function clearAll() {
