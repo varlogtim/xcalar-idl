@@ -5,7 +5,7 @@ function setupRightSideBar() {
     var $sliderBtns = $workSheetBar.find('.sliderBtn');
     var $sidebar = $('#rightSideBar');
 
-    setupPythonCli();
+    setupUDF();
 
     $workSheetBar.on('click', '.sliderBtn', function() {
         if (!clickable) {
@@ -111,12 +111,12 @@ function setupRightSideBar() {
     setupHelpSection();
 }
 
-function setupPythonCli() {
+function setupUDF() {
     // switch tabs section
-    var $mainSections = $("#pythonCliSection .mainSection");
-    var $radios = $("#cli-tabs .select-item .radio");
+    var $mainSections = $("#udfSection .mainSection");
+    var $radios = $("#udf-tabs .select-item .radio");
 
-    $("#cli-tabs .select-item").on("click", function() {
+    $("#udf-tabs .select-item").on("click", function() {
         var $option = $(this);
         var $radio = $option.find(".radio");
         var tabId = $option.data("tab");
@@ -129,10 +129,10 @@ function setupPythonCli() {
     });
 
     // upload file section
-    var $inputFile = $("#cli-fileBrowser");
-    var $filePath = $("#cli-filePath");
+    var $inputFile = $("#udf-fileBrowser");
+    var $filePath = $("#udf-filePath");
 
-    $("#cli-browseBtn").click(function() {
+    $("#udf-browseBtn").click(function() {
         $inputFile.click();
         return false;
     });
@@ -141,13 +141,13 @@ function setupPythonCli() {
         $filePath.val($(this).val());
     });
 
-    $("#cli-clearPath").click(function() {
+    $("#udf-clearPath").click(function() {
         $inputFile.val("");
         $filePath.val("");
         $filePath.focus();
     });
     // upload file
-    $("#cli-fileUpload").click(function() {
+    $("#udf-fileUpload").click(function() {
         var path = $filePath.val();
         var file = $inputFile[0].files[0];
 
@@ -166,12 +166,12 @@ function setupPythonCli() {
     });
 
     // function input section
-    var $listSection = $("#cli-fnList");
-    var $listDropdown = $("#cli-fnMenu");
-    var $templateInput = $("#cli-fnTemplate");
-    var $downloadBtn = $("#cli-fnDownload");
+    var $listSection = $("#udf-fnList");
+    var $listDropdown = $("#udf-fnMenu");
+    var $templateInput = $("#udf-fnTemplate");
+    var $downloadBtn = $("#udf-fnDownload");
 
-    $("#pythonCliSection .rightBarContent").click(function(event) {
+    $("#udfSection .rightBarContent").click(function(event) {
         event.stopPropagation();
 
         $listSection.removeClass('open');
@@ -202,9 +202,9 @@ function setupPythonCli() {
         }
     });
     // upload written function
-    var $fnName = $("#cli-fnName");
+    var $fnName = $("#udf-fnName");
 
-    $("#cli-fnUpload").click(function() {
+    $("#udf-fnUpload").click(function() {
         var fileName = $fnName.val();
 
         if (fileName == "") {
@@ -229,8 +229,8 @@ window.LineMarker = (function($, LineMarker) {
     // constants
     var lineMarkerOffsetTop = 3;  // hasing padding 3 in CSS
 
-    var $textarea = $("#cli-codeArea");
-    var $lineMarker = $("#cli-lineMarker");
+    var $textarea = $("#udf-codeArea");
+    var $lineMarker = $("#udf-lineMarker");
 
     LineMarker.setup = function() {
         markLineNumber(lineCounter);

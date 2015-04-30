@@ -109,8 +109,9 @@ function showJsonModal(jsonTd) {
                     });
         var colNum = parseColNum(id);
 
-        // sql cli
         var table = gTables[tableNum];
+
+        // add sql
         // XXX content will change if define it after addCol
         var sqlOptions = {
             "operation": "addCol",
