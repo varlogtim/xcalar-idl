@@ -654,6 +654,8 @@ function createTableHeader(tableNum) {
 
     $('#xcTableWrap'+ tableNum).append(tableMenuHTML);
 
+    addColMenuBehaviors($("#tableMenu" + tableNum));
+
     // Event Listener for table title
     $xcTheadWrap.on('keyup', '.tableTitle input', function(event) {
         if (event.which == keyCode.Enter) {

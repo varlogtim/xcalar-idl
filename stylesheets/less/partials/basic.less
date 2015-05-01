@@ -647,9 +647,13 @@ ul.colMenu {
         display: none !important;
     }
 
+    > .inputSelected {
+        background-color: @color-selectedCell-dark !important;
+    }
+
     .inputSelected {
         visibility: visible !important;
-        background-color: @color-selectedCell-dark;
+        background-color: @color-selectedCell-green;  
     }
 
     .filter ul {
@@ -797,12 +801,6 @@ ul.colMenu {
             display: none;
         }
     }
-
-    .gb ul:hover, .filter ul:hover {
-        li {
-            background-color: @color-selectedCell-green;
-        }
-    }
 }
 
 ul.colMenu.leftColMenu::before {
@@ -815,10 +813,6 @@ ul.colMenu li:hover > ul {
 
 ul.colMenu li > ul {
     .transition-delay (.15s);
-}
-
-ul.colMenu.tableMenu li:hover {
-    background-color: @color-selectedCell-dark;
 }
 
 // DATA Column should not have duplicate and sort option
@@ -889,10 +883,6 @@ ul.inputMenu {
             &.openMenuInput {
                 margin-bottom: 30px;
             }
-        }
-
-        &:hover span {
-            background-color: @color-selectedCell-green;
         }
 
         .dropdownBox {
