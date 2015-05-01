@@ -1108,6 +1108,12 @@ function addColMenuActions($colMenu) {
         unhideCol(index, tableNum, {autoResize: true});
     });
 
+    $colMenu.on('click', '.textAlign', function() {
+        var index = $colMenu.data('colNum');
+        var tableNum = parseInt($colMenu.attr('id').substring(7));
+        textAlign(index, tableNum, $(this).attr("class")); 
+    });
+
     $colMenu.on('click', '.sort .sort', function() {
         var index = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
@@ -1385,7 +1391,6 @@ function highlightColumn(el, keepHighlighted) {
     $('.selectedCell').removeClass('selectedCell');
     $table.find('th.col'+index).addClass('selectedCell');
     $table.find('td.col'+index).addClass('selectedCell');
-
 }
 
 var userScroll = true;

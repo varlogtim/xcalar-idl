@@ -47,6 +47,7 @@ var ProgCol = function() {
     this.width = 0;
     this.userStr = "";
     this.isDark = true;
+    this.textAlign = "Center";
 };
 
 var TableMeta = function() {

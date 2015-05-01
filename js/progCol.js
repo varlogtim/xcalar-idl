@@ -507,12 +507,18 @@ function pullAllCols(startIndex, jsonData, dataIndex, tableNum, direction) {
                     }
                 }  
                 
-                // XXX giving classes to table cells may actually be.then later
+                // XXX giving classes to table cells may actually be done later
                 var indexedColumnClass = "";
                 if (col == indexedColNum) {
                     indexedColumnClass = " indexedColumn";
                 }
-                tBodyHTML += '<td class="'+indexedColumnClass+
+                var textAlignment = "";
+                if (tableCols[col].textAlign == "Left") {
+                    textAlignment = "textAlignLeft";
+                } else if (tableCols[col].textAlign == "Right") {
+                    textAlignment = "textAlignRight";
+                }
+                tBodyHTML += '<td class="'+indexedColumnClass+' '+textAlignment+
                              ' col'+(col+1)+'">'+
                              '<div class="addedBarTextWrap">'+
                              '<div class="addedBarText">';
@@ -727,7 +733,15 @@ function generateColDropDown(tableNum) {
             '<li class="deleteDuplicates">Delete duplicate columns</li>'+ 
             '<li class="renameCol">Rename column</li>'+
             '<li class="hide">Hide column</li>'+ 
-            '<li class="unhide">Unhide column</li>'+ 
+            '<li class="unhide">Unhide column</li>'+
+            '<li>Text align'+
+                '<ul class="subColMenu">'+
+                    '<li class="textAlign leftAlign">Left Align</li>'+
+                    '<li class="textAlign centerAlign">Center Align</li>'+
+                    '<li class="textAlign rightAlign">Right Align</li>'+
+                '</ul>'+
+                '<div class="dropdownBox"></div>'+
+            '</li>'+ 
             '<li class="sort">Sort'+
                 '<ul class="subColMenu">'+
                     '<li class="sort">'+ 
@@ -1119,6 +1133,21 @@ function unhideCol(colid, tableid, options) {
     $("#xcTable"+tableid+" input.col"+colid).css("padding-left", "4px");
     $("#xcTable"+tableid+" .col"+colid+" .dropdownBox").css("right", "-3px");
 
+}
+
+function textAlign(colid, tableid, alignment) {
+    if (alignment.indexOf("leftAlign") > -1) {
+        alignment = "Left";
+    } else if (alignment.indexOf("rightAlign") > -1) {
+        alignment = "Right";
+    } else {
+        alignment = "Center";
+    }
+    gTables[tableid].tableCols[colid-1].textAlign = alignment;
+    $("#xcTable"+tableid).find('td.col'+colid).removeClass('textAlignLeft');
+    $("#xcTable"+tableid).find('td.col'+colid).removeClass('textAlignRight');
+    $("#xcTable"+tableid).find('td.col'+colid).removeClass('textAlignCenter');
+    $("#xcTable"+tableid).find('td.col'+colid).addClass('textAlign'+alignment);
 }
 
 function parseColNum(el) {
