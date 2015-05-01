@@ -1292,7 +1292,6 @@ function functionBarEnter($el) {
     var tableNum = parseInt($table.attr('id').substring(7));
     var progStr = '"' + $el.val() + '" ' + $('#fnBar').val();
     var progCol = parseCol(progStr, index, tableNum, true);
-    var oldTableName = gTables[tableNum].frontTableName;
 
     $el.blur();
     $('#fnBar').removeClass('inFocus');
@@ -1300,18 +1299,6 @@ function functionBarEnter($el) {
     execCol(progCol, tableNum)
     .then(function() {
         updateMenuBarTable(gTables[tableNum], tableNum);
-
-        // add sql
-        var newTableName = gTables[tableNum].frontTableName;
-
-        SQL.add("Prog Column", {
-            "operation": "execCol",
-            "srcTableName": oldTableName,
-            "tableName": newTableName,
-            "colIndex": index,
-            "progCol": progCol.name,
-            "func": progCol.func.func
-        });
 
         if (progCol.name.length > 0) {
             $el.val(progCol.name);
