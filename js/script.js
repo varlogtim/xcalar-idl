@@ -469,6 +469,7 @@ function documentReadyGeneralFunction() {
                 gTables[gActiveTableNum].resultSetCount != 0) {  
                 generateFirstVisibleRowNum();
             }
+            moveTableDropdownBoxes();
         }, 100 );
     });
 
@@ -479,6 +480,11 @@ function documentReadyGeneralFunction() {
 
     $('#mainFrame').scroll(function() {
         $(this).scrollTop(0);
+
+        clearTimeout(timer);
+        timer = setTimeout(function () { 
+           moveTableDropdownBoxes();
+        }, 300 );
     });
 
     $('.closeJsonModal, #modalBackground').click(function() {
@@ -653,7 +659,6 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
         adjustColGrabHeight(tableNum);
         resizeRowInput();
         constructDagImage(gTables[tableNum].backTableName, tableNum);
-
         deferred.resolve();
     })
     .fail(function(error) {

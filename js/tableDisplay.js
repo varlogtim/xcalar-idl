@@ -100,6 +100,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $('#rowInput').val("").data('val',"");
         updatePageBar(0);
     }
+    moveTableDropdownBoxes();
 }
 
 function deleteTable(tableNum, deleteArchived) {
