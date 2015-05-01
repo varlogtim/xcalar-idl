@@ -1565,12 +1565,18 @@ function addRowScroller(tableNum) {
             '<div class="subRowMarker bottom"></div>'+
             '</div>'+
         '</div>';
-
     if (tableNum == 0) {
         $('#rowScrollerArea').prepend(rowScrollerHTML);
     } else {
         $('#rowScroller'+(tableNum-1)).after(rowScrollerHTML);
     }
+
+    var rows = gTables[tableNum].bookmarks;
+    var numRows = rows.length;
+    for (var i = 0; i < numRows; i++) {
+        appendBookmarkTick(rows[i], tableNum);
+    }
+    
     if ($('.xcTable').length > 1) {
         $('#rowScroller'+tableNum).hide();
     }  
@@ -1586,19 +1592,22 @@ function bookmarkRow(rowNum, tableNum) {
     var td = $('#xcTable'+tableNum+' .row'+rowNum+ ' .col0');
     td.addClass('rowBookmarked');
     td.find('.idSpan').attr('title', 'bookmarked');
+    appendBookmarkTick(rowNum, tableNum);
+    if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
+        gTables[tableNum].bookmarks.push(rowNum);
+    }
+}
+
+function appendBookmarkTick(rowNum, tableNum) {
     var leftPos = 100*(rowNum/gTables[tableNum].resultSetCount);
     var bookmark = $('<div class="bookmark bkmkRow'+rowNum+'"'+
         ' style="left:'+leftPos+'%;" data-toggle="tooltip" '+
         ' data-placement="bottom" data-container="body" title="row '+
         (rowNum+1)+'"></div>');
     $('#rowScroller'+tableNum).append(bookmark);
-    if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
-        gTables[tableNum].bookmarks.push(rowNum);
-    }
 }
 
 function unbookmarkRow(rowNum, tableNum) {
-    console.log('unbookmark')
     var td = $('#xcTable'+tableNum+' .row'+rowNum+ ' .col0');
     td.removeClass('rowBookmarked');
     td.find('.idSpan').attr('title', '');
