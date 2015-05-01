@@ -27,7 +27,6 @@ window.FileBrowser = (function($, FileBrowser) {
     var sortKey = defaultSortKey;
     var sortRegEx = undefined;
     var reverseSort = false;
-    var testMode = false;
 
     FileBrowser.show = function() {
         retrievePaths($filePath.val())
@@ -41,6 +40,7 @@ window.FileBrowser = (function($, FileBrowser) {
             // press enter to import a dataset
             $(document).on("keyup", fileBrowserKeyUp);
             $fileBrowser.show();
+            $fileBrowser.focus();
         })
         .fail(function(result) {
             closeAll();
@@ -62,9 +62,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 event.stopPropagation();
                 clear();
 
-                if ($grid.hasClass('ds')) {
-                    updateFilName($grid);
-                }
+                 updateFilName($grid);
 
                 $grid.addClass('active');
             },
@@ -237,6 +235,11 @@ window.FileBrowser = (function($, FileBrowser) {
             sortFilesBy(sortKey, regEx);
             focusOn(grid);
         });
+
+        $inputName.keyup(function() {
+            var text = $(this).val();
+            focusOn(text, true);
+        });
     }
 
     function listFiles(path) {
@@ -257,14 +260,12 @@ window.FileBrowser = (function($, FileBrowser) {
     // key up event
     function fileBrowserKeyUp(event) {
         event.preventDefault();
-        if (event.which !== keyCode.Enter) {
-            return false;
-        }
-        var $grid = $container.find('grid-unit.active');
-        // only import the focsued ds, not import the folder
-        if ($grid.length > 0) {
+        if (event.which === keyCode.Enter) {
+            var $grid = $container.find('grid-unit.active');
             loadDataSet($grid);
         }
+
+        return false;
     }
 
     function toggleListSection($listSection) {
@@ -326,6 +327,14 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function loadDataSet($ds) {
+        if ($ds == null || $ds.length == 0) {
+            var text = "Invalid file name!" + 
+                        " Please choose a file or folder to import!";
+
+            StatusBox.show(text, $inputName, true);
+
+            return;
+        }
         // reset import data form
         $("#importDataReset").click();
 
@@ -333,7 +342,9 @@ window.FileBrowser = (function($, FileBrowser) {
         if ($ds == null || $ds.length == 0) {
             var path = getCurrentPath();
             // remove the last slash
-            path = path.substring(0, path.length - 1);
+            if (path !== defaultPath) {
+                path = path.substring(0, path.length - 1);
+            }
             $filePath.val(path);
         } else {
             // load dataset
@@ -376,8 +387,8 @@ window.FileBrowser = (function($, FileBrowser) {
     function closeAll() {
         // set to deault value
         clear(true);
-        $fileBrowser.hide();
         $(document).off('keyup', fileBrowserKeyUp);
+        $fileBrowser.hide();
         $modalBackground.removeClass("open");
         $modalBackground.fadeOut(200);
     }
@@ -510,13 +521,18 @@ window.FileBrowser = (function($, FileBrowser) {
         getHTMLFromFiles(curFiles);
     }
 
-    function focusOn(grid) {
+    function focusOn(grid, isAll) {
         if (grid == undefined) {
             return;
         }
         var str;
+
         if (typeof grid === "string") {
-            str = 'grid-unit.folder .label[data-name="' + grid + '"]';
+            if (isAll) {
+                str = 'grid-unit .label[data-name="' + grid + '"]'
+            } else {
+                str = 'grid-unit.folder .label[data-name="' + grid + '"]';
+            }
         } else {
             var name = grid.name;
             var type = grid.type;
@@ -526,6 +542,8 @@ window.FileBrowser = (function($, FileBrowser) {
                 str = 'grid-unit.' + type + ' .label[data-name="' + name + '"]';
             }
         }
+
+        $container.find("grid-unit").removeClass("active");
         $container.find(str).eq(0).closest('grid-unit').addClass('active');
     }
 

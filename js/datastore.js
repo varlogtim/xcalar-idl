@@ -86,6 +86,7 @@ window.DataStore = (function($, DataStore) {
         });
         // open file browser
         $("#fileBrowserBtn").click(function() {
+            $("#fileBrowserBtn").blur();
             FileBrowser.show();
         });
         // submit the form
