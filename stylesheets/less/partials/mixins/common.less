@@ -510,6 +510,13 @@
     .parser(@origin);
 }
 
+.linear-gradient-center(@origin: left, @start: #fffff, @middle: #999999, @stop: #000000) {
+    background: -webkit-linear-gradient(@origin, @start, @middle, @stop);
+    background: -moz-linear-gradient(@origin, @start, @middle, @stop);
+    background: -o-linear-gradient(@origin, @start, @middle, @stop);
+    background: -ms-linear-gradient(@origin, @start, @middle, @stop);
+}
+
 .action-gradient() {
     .linear-gradient(top, @color-background-topAction, @color-background-bottomAction);
 }

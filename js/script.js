@@ -136,6 +136,29 @@ function infScrolling(tableNum) {
     });
 }
 
+var MouseEvents = function() {
+    var lastMouseDownTarget;
+    var lastClickTarget;
+
+    this.setMouseDownTarget = function($element) {
+        lastMouseDownTarget = $element;
+    }
+
+    this.setClickTarget = function($element) {
+        lastClickTarget = $element;
+    }
+
+    this.getLastMouseDownTarget = function() {
+        return (lastMouseDownTarget);
+    }
+
+    this.getLastClickTarget = function() {
+        return (lastClickTarget);
+    }
+}
+
+var gMouseEvents = new MouseEvents();
+
 function getUrlVars() {
     var vars = [], hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?')
@@ -440,6 +463,7 @@ function documentReadyGeneralFunction() {
 
     $(document).mousedown(function(event) {
         var $target = $(event.target);
+        gMouseEvents.setMouseDownTarget($target);
         var clickable = $target.closest('.colMenu').length > 0;
         if (!clickable && !$target.is('.dropdownBox')) {
             $('.colMenu').hide();
@@ -682,6 +706,7 @@ function documentReadyIndexFunction() {
             RightSideBar.initialize();
             initializeJoinModal();
             AggModal.setup();
+            OperationsModal.setup();
             WSManager.focusOnWorksheet();
         })
         .fail(function(error) {

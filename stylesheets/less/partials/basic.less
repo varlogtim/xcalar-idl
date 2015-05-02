@@ -8,7 +8,7 @@ ul > li {
     list-style-type: none;
 }
 
-table, tr, td, th, input, textarea, p {
+table, tr, td, th, input, textarea, section, p {
     .nomargin-padding;
     .box-sizing;
     border: none;
@@ -155,6 +155,10 @@ body {
 
     &:hover {
        .action-inverse-gradient;
+    }
+
+    &:focus {
+        .action-inverse-gradient;
     }
 
     &:active {
@@ -378,6 +382,9 @@ input {
                 &:first-child {
                     background-color: @color-table-col-darkestGray;
                 }
+                &.indexedColumn {
+                    background-color: @color-table-indexed-blue !important;
+                }
             }
         }
         &:nth-child(even) {
@@ -392,6 +399,9 @@ input {
                 }
                 &:first-child {
                     background-color: @color-table-col-darkGray;
+                }
+                &.indexedColumn {
+                    background-color: @color-table-indexed-lightBlue !important;
                 }
             }
         }
@@ -779,7 +789,7 @@ ul.colMenu {
 
     &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
     &.recordNum, &.childOfArray {
-        .sort, .aggregate, .groupBy, .filterWrap, .joinList, .map {
+        .sort, .aggregate, .groupBy, .filterWrap, .joinList, .map, .operations {
             display: none;
         }
     }
@@ -807,7 +817,7 @@ ul.colMenu {
 
     &.type-data {
         .sort, .aggregate, .groupBy, .filterWrap, .joinList, .deleteColumn, 
-        .deleteDuplicates, .duplicate, .renameCol, .map {
+        .deleteDuplicates, .duplicate, .renameCol, .map, .operations {
             display: none;
         }
     }
@@ -1624,4 +1634,3 @@ ul.inputMenu {
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
     }
 }
-/* END CUSTOM BOOTSTRAP CODE */

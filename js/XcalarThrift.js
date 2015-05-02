@@ -559,7 +559,7 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
     case ("Like"):
         filterStr = "like("+columnName+', "'+value+'")';
         break;
-    case ("Others"):
+    case ("Custom"):
         filterStr = value;
         break;
     default:
@@ -606,7 +606,7 @@ function XcalarAggregate(fieldName, srcTablename, op) {
     case ("Min"):
         aggregateOp = OperatorsOpT.OperatorsMin;
         break;
-    case ("Avg"):
+    case ("Average"):
         aggregateOp = OperatorsOpT.OperatorsAverage;
         break;
     case ("Count"):

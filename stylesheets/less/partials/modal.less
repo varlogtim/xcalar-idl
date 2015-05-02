@@ -99,7 +99,7 @@
             &.cancel {
                 color: @color-text-white;
                 .gray-gradient;
-                &:hover {
+                &:hover, &:focus {
                     .gray-inverse-gradient;
                 }
             }
@@ -1239,12 +1239,12 @@
     .defaultListSection {
         display: none;
         padding: 15px 15px 0px 15px;
-        .retinaTable();
+        .parameterTable();
         .tableContainer {
             height: auto;
             display: inline-block;
             overflow: hidden;
-            border-radius: 5px;
+            .rounded(5px);
             border: 1px solid #a8a8a8;
             float: left;
             z-index: 0;
@@ -1347,6 +1347,359 @@
         padding-bottom: 15px; 
         .btn {
             margin: 15px 15px 0 0;
+        }
+    }
+}
+
+#operationsModal {
+    .modalBuilder(920px, 476px); 
+
+    .modalInstruction {
+        padding: 13px 16px;
+        .icon {
+            .background('/images/info-icon-xl.png', 32px, 32px);
+        } 
+    }
+
+    .listSection {
+        .dropDownList(395px, 22px);
+        box-shadow: none;
+        margin-left: 15px;
+        top: -2px;
+        .text {
+            .size(@width: 100%);
+            padding-right: 26px;
+            .input-placeholder(@color-text-placeholder);
+            text-transform: capitalize;
+        }
+        .list {
+            .size (@width: 100%);
+            top: 26px;
+            .rounded(0px 0px 3px 3px);
+            box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
+            text-transform: capitalize;
+            li {
+                display: none;
+            }
+        }
+        &.open {
+            .rounded(0);
+        }
+        .iconWrapper {
+            .size (18px, 18px);
+            .rounded(3px);
+            background: none;
+            background-color: @color-background-icon-darkGray;
+            position: absolute;
+            right: 3px;
+            top: 3px;
+
+            .icon {
+                .image("/images/cross-white.png", 50%, 50%);
+                .size (18px, 18px);
+            }
+        }
+    }
+    input {
+        .size (@height: 25px);
+        line-height: 22px;
+        border-bottom: 2px solid @color-input-border-lightGray;
+        border-top: 1px solid @color-input-border-midGray;
+        border-right: 1px solid @color-background-lightLightGray;
+        box-shadow: 1px 0px 0px rgba(0, 0, 0, 0.1);
+    }
+
+    section {
+        .size (100%, 55px);
+        .font (@size: 13px);
+        padding-top: 15px;
+        padding-left: 70px;
+
+        &:first-child {
+            .size(@height: 52px);
+        }
+        b {
+            float: left;
+        }
+    }
+
+    .step {
+        &.inactive {
+            color: @color-text-placeholder;
+            pointer-events: none;
+            .clearInput {
+                background-color: @color-input-border-midGray;
+            }
+            .listSection {
+                box-shadow: none;
+            }
+           .argumentSection {
+                opacity: 0;
+            }
+        }
+    }
+    .argumentSection {
+         .transition (opacity 0.3s);
+         .size (@height: 175px);
+    }
+
+    .border {
+        .size(@width: 100%);
+        border-top: 1px solid @color-retina-border;
+        border-bottom: 1px solid @color-white;
+    }
+
+    .stepChain {
+        .size (70px, 160px);
+        position: absolute;
+        top: 94px;
+
+        .outerCircle {
+            .size (27px, 27px);
+            .rounded(27px);
+            border: 1px solid @color-circle-border;
+            margin-left:21px;
+            background-color: @color-circle-background;
+            padding: 2px;
+            box-shadow: inset 0px 3px 4px 1px rgba(0,0,0,0.15);
+            position: relative;
+
+            &:first-of-type {
+                margin-top:15px;
+            }
+
+            .innerCircle {
+                .size (100%, 100%);
+                .rounded(30px);
+                .transition (background-color 0.3s);
+            }
+
+            &.filled {
+                .innerCircle {
+                    background-color: @color-innerCircle-background;
+                }
+                .circleContent {
+                    .text {
+                        .font (@color: @color-innerCircle-text);
+                    }
+                }
+            }
+
+            .circleContent {
+                display: inline-block;
+                .size (100%, 100%);
+                position: absolute;
+                left: 0;
+                top: 3px;
+
+                .text {
+                    display: inline-block;
+                    .size (100%, 100%);
+                    text-align: center;
+                    .font (@color: @color-background-lightLightGray);
+                }
+
+                .tick {
+                    .image("/images/tick-white.png", 50%, 50%);
+                    .size (100%, 19px);
+                    display: none;
+                }
+            }
+            
+            &.done {
+                .text {
+                    display: none;
+                }
+                .tick {
+                    display: inline-block;
+                }
+            }
+        }
+
+        .outerLink {
+            position: relative;
+            .size (6px, 32px);
+            border: 1px solid @color-circle-border;
+            border-top: none;
+            border-bottom: none;
+            margin-left: 32px;
+            margin-top: -2px;
+            margin-bottom: -2px;
+            padding: 0px 1px;
+            .linear-gradient-center(left, @color-background-lightLightGray, 
+                            @color-white, @color-background-lightLightGray);
+            box-shadow: inset 0px -1px 1px rgba(0,0,0,0.1);
+            z-index: 1;
+
+            .innerLink {
+                background-color: @color-innerCircle-background;
+                .size (2px, 0px);
+                position: absolute;
+                top: -2px;
+                left: 1px;
+                .transition (height 0s);
+                
+                &.filled {
+                    height: 36px;
+                    .transition (height 0.5s);
+                }
+            }
+        }
+    }
+
+    .modalMain {
+        padding: 16px 15px 10px 70px;
+        .font (@size: 13px);
+        b {
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+    }
+
+    .parameterTable();
+    .tableContainer {
+        z-index: 0;
+        padding: 0px;
+        .rounded(3px);
+        overflow: hidden;
+        .tableWrapper {
+            table {
+                width: 100%;
+
+                .thWrap {
+                    .size(@width: ~"calc(70% + 1px)");
+                }
+                th:first-of-type {
+                    .size(@width: 30%);
+                    border-right: 1px solid @color-white;
+                    .thWrap {
+                        width: ~"calc(30% - 1px)" !important;
+                        border-right: none;
+                        padding-left: 12px;
+                    }
+                }
+
+                td {
+                    height: 40px;
+                    .font(@weight: 600);
+                    &:first-of-type {
+                        border-left: 16px solid @color-join-background;
+                    }
+                    &:last-of-type {
+                        border-right: 16px solid @color-join-background;
+                    }
+                }
+                .inputWrap {
+                    margin-left: 8px;
+                    margin: 4px 8px 4px 0px;
+                    input {
+                        width: 100%;
+                        text-align: center;
+                    }
+                }
+            }
+        }
+    }
+
+    .modalBottom {
+        padding: 0px 15px 10px 0px;
+        .btn {
+             margin-left: 20px;
+        }
+    }
+
+    &.type-array, &.type-boolean {
+        .map {
+            display: none !important;
+            opacity: 0.11; // using as a marker;
+        }
+
+        .category-map li {
+            display: none !important;
+            opacity: 0.11; // using as a marker;
+        }
+    }
+
+
+    &.type-string, &.type-array, &.type-boolean {
+        .category-filter {
+            .greaterthan, .greaterthanequalto, 
+            .lessthan, .lessthanequalto, .equals {
+                display: none !important;
+                opacity: 0.11; // using as a marker;
+            }
+        }
+
+        .category-aggregate li {
+            display: none !important;
+            opacity: 0.11; // using as a marker;
+        }
+
+        .aggregate {
+            display: none !important;
+            opacity: 0.11; // using as a marker;
+        }
+    }
+
+    &.type-number, &.type-boolean {
+        .category-filter {
+            .like, .regex {
+                display: none !important;
+                opacity: 0.11; // using as a marker;
+            }
+        }
+    }
+
+    &.type-boolean {
+        .category-groupby li, .category-filter li {
+            display: none !important;
+            opacity: 0.11; // using as a marker;
+        }
+        .category-groupby .count, .category-aggregate .count, 
+        .category-filter .custom  {
+            display: list-item !important;
+            opacity: 1;
+        }
+    }
+
+    &.type-indexed {
+        .sort {
+            display: none !important;
+            opacity: 0.11; // using as a marker;
+        }
+    }
+
+    &.type-dataset {
+        .groupby {
+            display: none !important;
+            opacity: 0.11; // using as a marker;
+        }
+    }
+}
+
+.modalHighlighted {
+    position: relative !important;
+    z-index: 36 !important;
+    .noSelection;
+    pointer-events: none;
+}
+
+th.modalHighlighted {
+    z-index: 37 !important;
+    background-color: transparent;
+    border-color: transparent;
+    .header {
+        top: 114px !important;
+        position: fixed !important;
+        .colGrab {
+            top: -5px;
+            .transition (all 0.2s);
+            border-left: 6px solid rgba(0, 0, 0, 0.6) !important;
+            pointer-events: initial;
         }
     }
 }

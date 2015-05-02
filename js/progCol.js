@@ -225,7 +225,6 @@ function checkDuplicateColNames($inputs, $input) {
     }
 
     if (isDuplicate) {
-
         var container = $input.closest('.mainPanel').attr('id');
         $input.parent().tooltip({
             "title": title,
@@ -239,10 +238,18 @@ function checkDuplicateColNames($inputs, $input) {
         });
         
         $input.parent().tooltip('show');
-        setTimeout(function() {
-            $input.parent().tooltip('destroy');
+        $input.click(hideTooltip);
+        var timeout = setTimeout(function() {
+            hideTooltip();
         }, 5000);
     }
+
+    function hideTooltip() {
+        $input.parent().tooltip('destroy');
+        $input.off('click', hideTooltip);
+        clearTimeout(timeout);
+    }
+
     return (isDuplicate);
 }
 
@@ -744,352 +751,15 @@ function generateColDropDown(tableNum) {
                     '<li class="textAlign rightAlign">Right Align</li>'+
                 '</ul>'+
                 '<div class="dropdownBox"></div>'+
-            '</li>'+ 
-            '<li class="sort">Sort'+
-                '<ul class="subColMenu">'+
-                    '<li class="sort">'+ 
-                    '<span class="sortUp"></span>A-Z</li>'+
-                    '<li class="revSort unavailable">'+ 
-                    '<span class="sortDown"></span>Z-A</li>'+
-                    '<div class="subColMenuArea"></div>'+
-                '</ul>'+ 
-                '<div class="dropdownBox"></div>'+
-            '</li>'+
-            '<li class="aggregate">Aggregate'+
-                '<ul class="subColMenu">'+
-                    '<li class="aggrOp">'+ 
-                    '<span class="maxIcon"></span>Max</li>'+
-                    '<li class="aggrOp">'+ 
-                    '<span class="minIcon"></span>Min</li>'+
-                    '<li class="aggrOp">'+ 
-                    '<span class="avgIcon"></span>Avg</li>'+
-                    '<li class="aggrOp">'+ 
-                    '<span class="countIcon"></span>Count</li>'+
-                    '<li class="aggrOp">'+ 
-                    '<span class="sumIcon"></span>Sum</li>'+
-                    '<div class="subColMenuArea"></div>'+
-                '</ul>'+ 
-                '<div class="dropdownBox"></div>'+
-            '</li>'+
-            '<li class="map">Map'+
-                '<ul class="subColMenu">'+
-                    '<li class="mapOp"><span class="mapOpText">Sum</span>'+ 
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>Value or Column'+
-                                '<div class="switch"'+
-                                'data-toggle="tooltip" '+
-                                'data-placement="bottom" '+
-                                'data-container="body" '+
-                                'title="Select to toggle arguments"'+
-                                '></div>'+
-                            '</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="3" class="mapValCol"/></li>'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px"'+
-                            ' value="mappedCol" class="newColName">'+
-                            '</li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                    '</li>'+
-                    '<li class="mapOp"><span class="mapOpText">Subtract</span>'+ 
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>Value or Column'+
-                                '<div class="switch"'+
-                                'data-toggle="tooltip" '+
-                                'data-placement="bottom" '+
-                                'data-container="body" '+
-                                'title="Select to toggle arguments"'+
-                                '></div>'+
-                            '</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="2" class="mapValCol"/></li>'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px"'+
-                            ' value="mappedCol" class="newColName">'+
-                            '</li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                    '</li>'+
-                    '<li class="mapOp"><span class="mapOpText">Multiply</span>'+ 
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>Value or Column'+
-                                '<div class="switch"'+
-                                'data-toggle="tooltip" '+
-                                'data-placement="bottom" '+
-                                'data-container="body" '+
-                                'title="Select to toggle arguments"'+
-                                '></div>'+
-                            '</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="4"class="mapValCol"/></li>'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px"'+
-                            ' value="mappedCol" class="newColName">'+
-                            '</li>'+                           
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                    '</li>'+
-                    '<li class="mapOp"><span class="mapOpText">Divide</span>'+ 
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>Value or Column'+
-                                '<div class="switch"'+
-                                'data-toggle="tooltip" '+
-                                'data-placement="bottom" '+
-                                'data-container="body" '+
-                                'title="Select to toggle arguments"'+
-                                '></div>'+
-                            '</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="1"class="mapValCol"/></li>'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px"'+
-                            ' value="mappedCol" class="newColName">'+
-                            '</li>'+         
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                    '</li>'+
-                    '<li class="mapOp"><span class="mapOpText">And</span>'+ 
-                        '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>Value or Column'+
-                                '<div class="switch"'+
-                                'data-toggle="tooltip" '+
-                                'data-placement="bottom" '+
-                                'data-container="body" '+
-                                'title="Select to toggle arguments"'+
-                                '></div>'+
-                            '</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="1" class="mapValCol"/></li>'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px"'+
-                            ' value="mappedCol" class="newColName">'+
-                            '</li>'+     
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                    '</li>'+
-                    '<li class="mapOp"><span class="mapOpText">Or</span>'+ 
-                         '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>Value or Column'+
-                                '<div class="switch"'+
-                                'data-toggle="tooltip" '+
-                                'data-placement="bottom" '+
-                                'data-container="body" '+
-                                'title="Select to toggle arguments"'+
-                                '></div>'+
-                            '</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="1" class="mapValCol"/></li>'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px"'+
-                            ' value="mappedCol" class="newColName">'+
-                            '</li>'+     
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                    '</li>'+
-                    '<li class="mapOp"><span class="mapOpText">'+
-                        'IP Address To Integer</span>'+ 
-                         '<ul class="subColMenu">'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>Number of Octets</span>'+
-                            '<input type="text" width="100px" '+
-                                'value="3" class="mapValCol"/></li>'+
-                            '<li style="text-align: center" class="clickable">'+
-                            '<span>New Column Name</span>'+
-                            '<input type="text" width="100px"'+
-                            ' value="mappedCol" class="newColName">'+
-                            '</li>'+     
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                    '</li>'+
-                    '<div class="subColMenuArea"></div>'+
-                '</ul>'+ 
-                '<div class="dropdownBox"></div>'+
             '</li>';
-    var tableName = gTables[tableNum].backTableName;
-    if (gTables[tableNum].isTable) {
-        dropDownHTML += '<li class="groupBy">Group By';
-    } else {
-        dropDownHTML += '<li class="groupBy unavailable">Group By';
-    }
-    dropDownHTML +=
-            '<ul class="subColMenu">'+
-                '<li class="gb"><span>'+ 
-                '<span class="countIcon"></span>Count</span>'+
-                    '<ul class="subColMenu">'+
-                        '<li style="text-align: center" class="clickable">'+
-                        '<span>New Column Name</span>'+
-                        '<input type="text" width="100px" '+
-                            'value="groupBy"/></li>'+
-                        '<div class="subColMenuArea"></div>'+
-                    '</ul>'+
-                    '<div class="dropdownBox"></div>'+
-                '</li>'+
-                '<li class="gb"><span>'+ 
-                '<span class="avgIcon"></span>Average</span>'+
-                    '<ul class="subColMenu">'+
-                        '<li style="text-align: center" class="clickable">'+
-                        '<span>New Column Name</span>'+
-                        '<input type="text" width="100px" '+
-                            'value="groupBy"/></li>'+
-                        '<div class="subColMenuArea"></div>'+
-                    '</ul>'+
-                    '<div class="dropdownBox"></div>'+
-                '</li>'+
-                '<li class="gb"><span>'+ 
-                '<span class="sumIcon"></span>Sum</span>'+
-                    '<ul class="subColMenu">'+
-                        '<li style="text-align: center" class="clickable">'+
-                        '<span>New Column Name</span>'+
-                        '<input type="text" width="100px" '+
-                            'value="groupBy"/></li>'+
-                        '<div class="subColMenuArea"></div>'+
-                    '</ul>'+
-                    '<div class="dropdownBox"></div>'+
-                '</li>'+
-                '<li class="gb"><span>'+ 
-                '<span class="maxIcon"></span>Max</span>'+
-                    '<ul class="subColMenu">'+
-                        '<li style="text-align: center" class="clickable">'+
-                        '<span>New Column Name</span>'+
-                        '<input type="text" width="100px" '+
-                            'value="groupBy"/></li>'+
-                        '<div class="subColMenuArea"></div>'+
-                    '</ul>'+
-                    '<div class="dropdownBox"></div>'+
-                '</li>'+
-                '<li class="gb"><span>'+ 
-                '<span class="minIcon"></span>Min</span>'+
-                    '<ul class="subColMenu">'+
-                        '<li style="text-align: center" class="clickable">'+
-                        '<span>New Column Name</span>'+
-                        '<input type="text" width="100px" '+
-                            'value="groupBy"/></li>'+
-                        '<div class="subColMenuArea"></div>'+
-                    '</ul>'+
-                    '<div class="dropdownBox"></div>'+
-                '</li>'+
-
-                '<div class="subColMenuArea"></div>'+
-            '</ul>'+
-            '<div class="dropdownBox"></div>'+
-        '</li>';
-            
 
     // XXX: HACK: I removed the check for the main col. Also, I should check for
     // whether the type is a string or a int
     if (true) { // This check is here so that you don't have to indent in the
                 // in the future. O:D
         dropDownHTML += 
-            '<li class="filterWrap">Filter'+ 
-                '<ul class="subColMenu">'+
-                    '<li class="filter numFilter">'+
-                        '<span class="greaterThan"></span>'+
-                        'Greater Than'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text" value="0"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="filter numFilter">'+
-                        '<span class="greaterEqual"></span>'+
-                        'Greater Than Equal To'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text" value="0"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="filter numFilter">'+
-                        '<span class="equal"></span>'+
-                        'Equals'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text" value="0"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="filter numFilter">'+
-                        '<span class="lessThan"></span>'+
-                        'Less Than'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text" value="0"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="filter numFilter">'+
-                        '<span class="lessEqual"></span>'+
-                        'Less Than Equal To'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text" value="0"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="filter numFilter">'+
-                        '<span class="exclude"></span>'+
-                        'Exclude'+
-                        '<span class="hidden"> number</span>'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="filter strFilter">'+
-                        '<span class="like"></span>'+
-                        'Like'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="filter strFilter">'+
-                        '<span class="regex"></span>'+
-                        'Regex'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text" value="*" id="filterByRegex"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="filter strFilter">'+
-                        '<span class="exclude"></span>'+
-                        'Exclude'+
-                        '<span class="hidden"> string</span>'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text"/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<li class="filter mixedFilter">Others'+
-                        '<ul class="subColMenu">'+
-                            '<li><input type="text" value=""/></li>'+
-                            '<div class="subColMenuArea"></div>'+
-                        '</ul>'+
-                        '<div class="dropdownBox"></div>'+
-                    '</li>'+
-                    '<div class="subColMenuArea"></div>'+
-                '</ul>'+
-                '<div class="dropdownBox"></div>'+
-            '</li>'+
-            '<li class="joinList">'+'Join</li>'; 
+            '<li class="joinList">'+'Join</li>'+
+            '<li class="operations">'+'Functions</li>'; 
                             // '<ul class="subColMenu" id="joinTables">';
     }
     // dropDownHTML += '</ul><div class="dropdownBox"></div>'+

@@ -964,7 +964,7 @@ function updateTableHeader(tableNum, $tHead, isFocus) {
     var tableName = "";
     var cols = 0;
 
-    $tHead = $tHead || $("#xcTheadWrap" + tableNum + " .tableTitle input");
+    var $tHead = $tHead || $("#xcTheadWrap" + tableNum + " .tableTitle input");
     // for blur and focus on table header
     if (tableNum == null) {
         cols = $tHead.data("cols");
@@ -1016,8 +1016,8 @@ function displayShortenedHeaderName($el, tableNum, colNum) {
 }
 
 function addColListeners($table, tableNum) {;
-    $thead = $table.find('thead tr');
-    $colMenu = $('#colMenu'+tableNum);
+    var $thead = $table.find('thead tr');
+    var $colMenu = $('#colMenu'+tableNum);
     $thead.on({
         "focus": function() {
             $('#fnBar').addClass('active');
@@ -1123,7 +1123,7 @@ function addColListeners($table, tableNum) {;
     }); 
 
     addColMenuBehaviors($colMenu);
-    addColMenuActions($colMenu);
+    addColMenuActions($colMenu, $thead);
 }
 
 function addColMenuBehaviors($colMenu) {
@@ -1183,7 +1183,8 @@ function addColMenuBehaviors($colMenu) {
     });
 }
 
-function addColMenuActions($colMenu) {
+function addColMenuActions($colMenu, $thead) {
+
     $colMenu.on('click', '.addColumns', function() {
         var colNum = $colMenu.data('colNum');
         var index = 'col'+ colNum;
@@ -1368,6 +1369,7 @@ function addColMenuActions($colMenu) {
                 return ($(this).val() == gTables[tableNum].keyName);
             });
             var isDuplicate = checkDuplicateColNames($keyColumn, $(this));
+
             if (!isDuplicate) {
                 $('.colMenu').hide();
                 groupByCol(operator, value, index, tableNum);
@@ -1427,6 +1429,13 @@ function addColMenuActions($colMenu) {
         var colId = $colMenu.data('colNum');
         setupJoinModalTables(tableNum, colId);
     });
+
+    $colMenu.on('click', '.operations', function() {
+        var colNum = $colMenu.data('colNum');
+        var tableNum = parseInt($colMenu.attr('id').substring(7));
+        OperationsModal.show(tableNum, colNum);
+    });
+
 }
 
 function formulateMapString(operator, columnName, value,

@@ -31,11 +31,10 @@ window.StatusBox = (function($, StatusBox){
     function hideStatusBox(event) {
         if (event.data && event.data.target) {
             var id = $(event.target).attr('id');
-
             if (id === "statusBoxClose" ||
                 id != event.data.target.attr('id') || 
                 event.type == "keydown") 
-            {
+            { 
                 $(document).off('mousedown', hideStatusBox);
                 event.data.target.off('keydown', hideStatusBox)
                                  .removeClass('error');
