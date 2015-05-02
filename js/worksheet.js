@@ -202,10 +202,11 @@ window.WSManager = (function($, WSManager) {
                 isFocus = true;
                 focusTable(tableNum);
             }
-            matchHeaderSizes(null, $(".xcTable"), true);
+            
             for (var i = 0; i < gTables.length; i++) {
                 // update table width and height
                 adjustColGrabHeight(i);
+                matchHeaderSizes(null, $("#xcTable" + i));
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {
                     var wsIndex = tabLookUp[gTables[i].frontTableName];
