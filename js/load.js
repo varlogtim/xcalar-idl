@@ -57,3 +57,15 @@ window.StatusBox = (function($, StatusBox){
 
     return (StatusBox);
 }(jQuery, {}));
+
+
+function randName(name, digits) {
+    if (digits == undefined) {
+        digits = 5; // default
+    }
+
+    var max = Math.pow(10, digits);
+    var rand = Math.floor((Math.random() * max) + 1);
+
+    return (name + rand);
+}

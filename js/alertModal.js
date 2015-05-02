@@ -1,6 +1,10 @@
 window.Alert = (function($, Alert){
     var $alertModal = $("#alertModal");
     var $modalBackground = $("#modalBackground");
+    var $newBtns = [];
+    var $dataList = $("#alertlist");
+    var $alertOptionLabel = $("#alertOptionLabel");
+    var $alertOptionInput = $("#alertOptionInput");
 
     Alert.show = function(options) {
        /* options includes:
@@ -11,7 +15,7 @@ window.Alert = (function($, Alert){
             isCheckBox: if checkbox is enabled  or disabled
             confirm: callback when click confirm button
         */
-        configAlertModal_helper(options);
+        configAlertModal(options);
 
         $alertModal.show();
         $modalBackground.fadeIn(100);
@@ -36,7 +40,19 @@ window.Alert = (function($, Alert){
         Alert.show(options);
     }
 
-    function closeAlertModal_helper() {
+    Alert.getOptionVal = function() {
+        var val = $alertOptionInput.val();
+
+        return (jQuery.trim(val));
+    }
+
+    function closeAlertModal() {
+        $newBtns.forEach(function($btn) {
+            $btn.remove();
+        });
+        $newBtns = [];
+        $dataList.empty();
+        $alertOptionLabel.empty();
         // remove all event listener
         $alertModal.off();
         $alertModal.hide();
@@ -49,12 +65,14 @@ window.Alert = (function($, Alert){
     // configuration for alert modal
     /* Cheng: how alertModal behaves when checkbox is checbox to "don't show again" 
         may need further discussion */
-    function configAlertModal_helper(options) {
+    function configAlertModal(options) {
         var $alertHeader = $("#alertHeader");
         var $alertContent = $("#alertContent");
         var $alretInstruct = $("#alertInstruction");
         var $alertBtn = $("#alertActions");
         var $checkbox = $("#alertCheckBox");
+        var $confirmBtn = $alertBtn.find(".confirm");
+        var $contentOptions = $alertContent.find(".options");
 
         // close alert modal
         $alertModal.on("click", ".close, .cancel", function(event) {
@@ -62,13 +80,21 @@ window.Alert = (function($, Alert){
             if (options && options.unclosable) {
                 return;
             }
-            closeAlertModal_helper();
+            closeAlertModal();
+
+            if (options && options.cancel) {
+                options.cancel();
+            }
         });
 
         // check box, default is unchecked
         $checkbox.find(".checkbox").removeClass("checked");
         $checkbox.addClass("inactive"); // now make it disabled
 
+        $contentOptions.hide();
+        $confirmBtn.hide();
+
+        $alertOptionInput.val("");
         // set all given options
         if (options) {
             // set title
@@ -79,9 +105,15 @@ window.Alert = (function($, Alert){
             }
             // set alert message
             if (options.msg) {
-                $('#alertContent .text').text(options.msg);
+                $alertContent.find(".text").text(options.msg);
             } else {
-                $('#alertContent .text').text("");
+                $alertContent.find(".text").text("");
+            }
+
+            if (options.optList) {
+                $dataList.append(options.optList.option);
+                $alertOptionLabel.text(options.optList.label);
+                $contentOptions.show();
             }
             // set alert instruction
             if (options.instr) {
@@ -89,19 +121,6 @@ window.Alert = (function($, Alert){
                 $alretInstruct.show();
             } else {
                 $alretInstruct.hide();
-            }
-            // set confirm button
-            if (options.isAlert) {
-                $alertBtn.find(".confirm").hide();
-            } else {
-                $alertBtn.find(".confirm").show();
-                $alertModal.on("click", ".confirm", function(event) {
-                    event.stopPropagation();
-                    closeAlertModal_helper();
-                    if(options.confirm) {
-                        options.confirm();
-                    }
-                });
             }
             // set checkbox
             if (options.isCheckBox) {
@@ -112,6 +131,39 @@ window.Alert = (function($, Alert){
                 $checkbox.show();
             } else {
                 $checkbox.hide();
+            }
+            // set confirm button
+            if (!options.isAlert) {
+
+                if (options.buttons) {
+
+                    options.buttons.forEach(function(btnOption) {
+                        var className = btnOption.className;
+                        var $btn = $confirmBtn.clone();
+
+                        $newBtns.push($btn);
+                        $alertBtn.prepend($btn);
+                        $btn.show();
+                        $btn.text(btnOption.name);
+                        $btn.addClass(className);
+                        $btn.click(function(event) {
+                            event.stopPropagation();
+                            closeAlertModal();
+                            btnOption.func();
+                        });
+                    });
+
+                    return;
+                }
+
+                $confirmBtn.show();
+                $alertModal.on("click", ".confirm", function(event) {
+                    event.stopPropagation();
+                    closeAlertModal();
+                    if(options.confirm) {
+                        options.confirm();
+                    }
+                });
             }
         }
     }

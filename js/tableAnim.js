@@ -620,37 +620,56 @@ function createTableHeader(tableNum) {
         tableName = gTables[tableNum].frontTableName;
     }
 
-    var html = '<div class="tableTitle">\
-                    <div class="tableGrab"></div>\
-                    <input type="text" value="' + tableName + '">\
-                    <div class="dropdownBox">\
-                        <span class="innerBox"></span>\
-                    </div>\
-                </div>';
+    var html = '<div class="tableTitle">' + 
+                    '<div class="tableGrab"></div>' + 
+                    '<input type="text" value="' + tableName + '">' + 
+                    '<div class="dropdownBox">' + 
+                        '<span class="innerBox"></span>' + 
+                    '</div>' + 
+                '</div>';
 
     $xcTheadWrap.prepend(html);
 
-    var tableMenuHTML = '<ul id="tableMenu' + tableNum + 
-                            '" class="colMenu tableMenu" >\
-                            <li class="archiveTable">\
-                                Archive Table\
-                            </li>\
-                            <li class="unavailable">\
-                                Hide Table\
-                            </li>\
-                            <li class="deleteTable">\
-                                Delete Table\
-                            </li>\
-                            <li class="exportTable">\
-                                Export Table\
-                            </li>\
-                            <li class="delAllDuplicateCols">\
-                                Delete Duplicate Columns\
-                            </li>\
-                            <li class="quickAgg">\
-                                Quick Aggregates\
-                            </li>\
-                        </ul>';
+    var newTableName = randName(tableName);
+    var tableMenuHTML = 
+        '<ul id="tableMenu' + tableNum + 
+            '" class="colMenu tableMenu" >' + 
+            '<li class="archiveTable">Archive Table</li>' + 
+            '<li class="unavailable">Hide Table</li>' + 
+            '<li class="deleteTable">Delete Table</li>' + 
+            '<li class="exportTable">Export Table</li>' + 
+            '<li class="delAllDuplicateCols">Delete Duplicate Columns</li>' + 
+            '<li class="quickAgg">Quick Aggregates</li>' + 
+            '<li class="moveToWorksheet">' + 
+                'Move to worksheet' + 
+                '<ul class="subColMenu">' + 
+                    '<li style="text-align: center" class="clickable">'+
+                        '<span>Worksheet Name</span>' + 
+                        '<input class="wsName" type="text" width="100px" ' + 
+                            'list="worksheetlist"/>' +
+                    '</li>' +
+                '</ul>' + 
+                '<div class="dropdownBox"></div>' + 
+            '</li>' + 
+            '<li class="duplicateToWorksheet">' + 
+                '<span class="label">Copy to worksheet</span>' + 
+                '<ul class="subColMenu">' + 
+                    '<li style="text-align: center" class="clickable">'+
+                        '<span>Worksheet Name</span>' + 
+                        '<input class="wsName" type="text" width="100px" ' + 
+                            'list="worksheetlist" ' + 
+                            'placeholder="click to see options"/>' + 
+                    '</li>' +
+                    '<li style="text-align: center" class="clickable">'+
+                        '<span>New Table Name</span>' + 
+                        '<input class="tableName" type="text" width="100px" ' + 
+                                'placeholder="Enter a new table name" ' + 
+                                'value="' + newTableName + '"/>' + 
+                    '</li>' +
+                '</ul>' + 
+                '<div class="dropdownBox"></div>' + 
+            '</li>' + 
+        '</ul>';
 
     $('#xcTableWrap'+ tableNum).append(tableMenuHTML);
 
@@ -709,20 +728,8 @@ function createTableHeader(tableNum) {
                             + tableName + "?";
         alertOptions.isCheckBox = true;
         alertOptions.confirm = function() {
-            deleteTable(tableNum)
+            deleteActiveTable(tableNum)
             .then(function() {
-                // add sql
-                SQL.add("Delete Table", {
-                    "operation": "deleteTable",
-                    "tableName": tableName
-                });
-                setTimeout(function() {
-                    if (gTables[gActiveTableNum] && 
-                        gTables[gActiveTableNum].resultSetCount != 0) {  
-                        generateFirstVisibleRowNum();
-                    }
-                }, 300);
-
                 commitToStorage();
             })
             .fail(function(error) {
@@ -801,6 +808,137 @@ function createTableHeader(tableNum) {
         var tableNum = parseInt($menu.attr('id').substring(9));
         $menu.hide();
         setupAggModalTables(tableNum);
+    });
+
+    $tableMenu.on('mouseenter', '.moveToWorksheet', function() {
+        var $li = $(this);
+        var $menu = $li.closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id').substring(9));
+        var $input = $li.find(".wsName");
+        var $datalist = $("#worksheetlist");
+        var html = WSManager.getWorksheetLists();
+
+        $datalist.empty().append(html);
+
+        if (html == "") {
+            $input.attr("placeholder", "No worksheet to move");
+        } else {
+            $input.attr("placeholder", "click to see options");
+        }
+    });
+
+    $tableMenu.on('mouseenter', '.duplicateToWorksheet', function() {
+        var $li = $(this);
+        var $menu = $li.closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id').substring(9));
+        var $input = $li.find(".wsName");
+        var $datalist = $("#worksheetlist");
+        var html = WSManager.getWorksheetLists(true);
+
+        $datalist.empty().append(html);
+
+        $input.attr("placeholder", "click to see options");
+    });
+
+    $tableMenu.on('keypress', '.moveToWorksheet input', function(event) {
+        if (event.which == keyCode.Enter) {
+            var $input = $(this);
+            var worksheetName = jQuery.trim($input.val());
+            var $menu = $input.closest('.tableMenu');
+            var tableNum = parseInt($menu.attr('id').substring(9));
+
+            if (worksheetName == "") {
+                var text = "Worksheet name is empty," + 
+                            " please choose a worksheet!";
+
+                StatusBox.show(text, $input, true);
+                return false;
+            }
+
+            var $datalist = $("#worksheetlist");
+            var $option = $datalist.find("option").filter(function() {
+                return $(this).val() == worksheetName;
+            });
+
+            if ($option.length === 0) {
+                var text = "Invalid worksheet name, " + 
+                            "please choose a worksheet in the pop up list!";
+
+                StatusBox.show(text, $input, true);
+                return false;
+            }
+
+            var worksheetIndex = $option.data("worksheet");
+
+            WSManager.moveTable(tableNum, worksheetIndex);
+
+            $input.val("");
+            $input.blur();
+            $menu.hide();
+
+            // return false;
+        }
+    });
+
+    $tableMenu.on('keypress', '.duplicateToWorksheet input', function(event) {
+        if (event.which == keyCode.Enter) {
+
+            var $li = $(this).closest(".duplicateToWorksheet");
+            var $menu = $li.closest('.tableMenu');
+            var tableNum = parseInt($menu.attr('id').substring(9));
+            var $wsInput = $li.find(".wsName");
+            var $tableNameInput = $li.find(".tableName");
+
+            var worksheetName = jQuery.trim($wsInput.val());
+            var newTableName = jQuery.trim($tableNameInput.val());
+
+            var srcTableName = gTables[tableNum].frontTableName;
+            // validation
+            if (worksheetName == "") {
+                var text = "Worksheet name is empty," + 
+                            " please choose a worksheet!";
+
+                StatusBox.show(text, $wsInput, true);
+
+                return false;
+            }
+
+            if (newTableName == "") {
+                var text = "Table name is empty, please input a valid name!";
+
+                StatusBox.show(text, $tableNameInput, true);
+
+                return false;
+            }
+            // XXX also need to check table name conflict
+
+            var $datalist = $("#worksheetlist");
+            var $option = $datalist.find("option").filter(function() {
+                return $(this).val() == worksheetName;
+            });
+
+            if ($option.length === 0) {
+                var text = "Invalid worksheet name, " + 
+                            "please choose a worksheet in the pop up list!";
+
+                StatusBox.show(text, $wsInput, true);
+
+                return false;
+            }
+
+            var worksheetIndex = $option.data("worksheet");
+
+            WSManager.copyTable(srcTableName, newTableName, worksheetIndex);
+
+            $wsInput.val("");
+            $wsInput.blur();
+
+            $tableNameInput.val(randName(tableName));
+            $tableNameInput.blur();
+            $menu.hide();
+
+            // return false;
+        }
     });
 
     var $table = $('#xcTable' + tableNum);
@@ -1613,7 +1751,15 @@ function addRowScroller(tableNum) {
 
 function showRowScroller(tableNum) {
     $('.rowScroller').hide();
-    $('#rowScroller'+tableNum).show();
+    if (tableNum != undefined && tableNum >= 0) {
+        $('#rowScroller'+tableNum).show();
+    }
+}
+
+function emptyScroller() {
+    $('#rowInput').val("").data('val',"");
+    gActiveTableNum = -1;
+    updatePageBar();
 }
 
 function bookmarkRow(rowNum, tableNum) {
@@ -1654,7 +1800,7 @@ function parseBookmarkNum(el) {
 
 function updatePageBar(tableNum) {
     showRowScroller(tableNum);
-    if ($.isEmptyObject(gTables[gActiveTableNum])) {
+    if (gActiveTableNum < 0 || $.isEmptyObject(gTables[gActiveTableNum])) {
         $('#numPages').text("");
     } else {
         var num = Number(gTables[gActiveTableNum].resultSetCount).
@@ -1716,6 +1862,10 @@ function rowScrollerMouseUp() {
 }
 
 function resizeRowInput() {
+    if (gActiveTableNum < 0) {
+        return;
+    }
+
     var resultTextLength = (""+gTables[gActiveTableNum].resultSetCount).length;
     if (resultTextLength > $('#rowInput').attr('size')) {
         $('#rowInput').attr({'maxLength': resultTextLength,

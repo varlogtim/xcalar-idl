@@ -152,7 +152,7 @@ function getUrlVars() {
     return vars;
 }
 
-function setTableMeta(table) {
+function setTableMeta(table, frontName) {
     var deferred = jQuery.Deferred();
 
     var urlTableName = getUrlVars()["tablename"];
@@ -180,7 +180,7 @@ function setTableMeta(table) {
         newTable.numPages = Math.ceil(newTable.resultSetCount /
                                       gNumEntriesPerPage);
         newTable.backTableName = tableName;
-        newTable.frontTableName = tableName;
+        newTable.frontTableName = frontName == undefined ? tableName:frontName;
 
         // console.log(newTable);
 
@@ -228,9 +228,14 @@ function setupFunctionBar() {
     });
 }
 
-function setupHiddenTable(table) {
+function setupHiddenTable(table, frontName) {
     var deferred = jQuery.Deferred();
-    setTableMeta(table)
+
+    if (frontName == undefined) {
+        frontName = table;
+    }
+
+    setTableMeta(table, frontName)
     .then(function(newTableMeta) {
         gHiddenTables.push(newTableMeta); 
         var lastIndex = gHiddenTables.length - 1;
@@ -262,12 +267,8 @@ function mainPanelsTabbing() {
         switch ($(this).attr("id")) {
         case ("workspaceTab"):
                 $("#workspacePanel").addClass("active");
-                var numTables = gTables.length;
-                for (var i = 0; i < numTables; i++) {
-                    adjustColGrabHeight(i);
-                    matchHeaderSizes(null, $('#xcTable'+i)); 
-                }
                 MonitorGraph.clear();
+                WSManager.focusOnWorksheet();
             break;
         case ("dataStoresTab"):
             $("#datastoreView").addClass("active");
@@ -323,66 +324,6 @@ function setupTooltips() {
     $("body").on('mouseenter', '[data-toggle="tooltip"]', function() {
         $('.tooltip').hide();
     });    
-}
-
-function setupWorksheetMeta() {
-    var d = new Date();
-    var day = d.getDate();
-    var month = d.getMonth()+1;
-    var year = d.getFullYear();
-    $("#workspaceDate").text("Created on "+month+"-"+day+"-"+year);
-
-    setupWorksheetsName();
-
-    $("#worksheetTabs").on({
-        "focus": function() {
-            var $text = $(this);
-            var $tab = $text.closest(".worksheetTab");
-            var div = $text[0];
-
-            $tab.addClass("focus");
-            $tab.mouseenter();  // close tooltip
-        },
-        "blur": function() {
-            var $text = $(this);
-            $text.text($text.data("title"));
-            $text.closest(".worksheetTab").removeClass("focus");
-            $text.scrollLeft(0);
-        },
-        "keypress": function(event) {
-            if (event.which === keyCode.Enter) {
-                event.preventDefault();
-
-                var $text = $(this);
-                var name = jQuery.trim($text.text());
-                var $tab = $text.closest(".worksheetTab");
-
-                setWorksheet($tab.index(), {"name": name});
-                $text.data("title", name);
-                $tab.attr("data-original-title", name);
-                $text.blur();
-
-                commitToStorage();
-            }
-        }
-    }, ".worksheetTab .text");
-
-    function setupWorksheetsName() {
-        $("#worksheetTabs .worksheetTab .text").each(function(index) {
-            var $text = $(this);
-            var worksheetInfo = getWorksheet(index);
-            var name;
-            if (worksheetInfo && worksheetInfo.name) {
-                name = worksheetInfo.name;
-            } else {
-                name = "Untitled";
-            }
-
-            $text.text(name);
-            $text.data("title", name);
-            $text.closest(".worksheetTab").attr("data-original-title", name);
-        });
-    }
 }
 
 // ========================== Document Ready ==================================
@@ -441,9 +382,12 @@ function documentReadyxcTableFunction() {
         });
     });
     
-    var num = Number(gTables[gActiveTableNum].resultSetCount).
-                    toLocaleString('en');
-    $('#numPages').text('of '+num);
+    if (gActiveTableNum >= 0) {
+        var num = Number(gTables[gActiveTableNum].resultSetCount)
+                    .toLocaleString('en');
+
+        $("#numPages").text("of " + num);
+    }
 }
 
 function documentReadyGeneralFunction() {
@@ -631,7 +575,7 @@ function startupFunctions() {
         setupFunctionBar();
         scratchpadStartup(); 
         setupBookmarkArea();
-        setupWorksheetMeta();
+        WSManager.setup();
         loadMonitorPanel();
         setupDag();
         FileBrowser.setup();
@@ -645,20 +589,40 @@ function startupFunctions() {
     return (deferred.promise());
 }  
 
-function tableStartupFunctions(table, tableNum, tableNumsToRemove) {
+function tableStartupFunctions(table, tableNum, tableNumsToRemove, frontName) {
     var deferred = jQuery.Deferred();
-    setTableMeta(table)
+    var worksheetIndex;
+
+    if (frontName == undefined) {
+        frontName = table;
+    }
+
+    setTableMeta(table, frontName)
     .then(function(newTableMeta) {
         gTables[tableNum] = newTableMeta;
+
         return (documentReadyCatFunction(tableNum, tableNumsToRemove));
     })
     .then(function(val) {
+        // not have the flick, must refresh immediately after create table
+        worksheetIndex = WSManager.addTable(frontName);
+        $("#xcTableWrap" + tableNum).addClass("worksheet-" + worksheetIndex);
+        WSManager.focusOnWorksheet();
+
         if (gTables[tableNum].resultSetCount != 0) {  
             infScrolling(tableNum);
         }
+
         adjustColGrabHeight(tableNum);
         resizeRowInput();
-        constructDagImage(gTables[tableNum].backTableName, tableNum);
+
+        return (constructDagImage(gTables[tableNum].backTableName, tableNum));
+    })
+    .then(function() {
+        // refresh dag
+        $("#dagWrap" + tableNum).addClass("worksheet-" + worksheetIndex);
+        WSManager.focusOnWorksheet();
+
         deferred.resolve();
     })
     .fail(function(error) {
@@ -681,11 +645,27 @@ function documentReadyIndexFunction() {
             var promises = [];
 
             for (var i = 0; i < gTableOrderLookup.length; i++) {
-                promises.push(addTable.bind(this, gTableOrderLookup[i], i));
+                var frontName = gTableOrderLookup[i];
+                var backName = gTableIndicesLookup[frontName].backTableName;
+
+                if (backName == undefined) {
+                    backName = frontName;
+                }
+                promises.push(addTable.bind(this, backName, i, 
+                                            null, null, frontName));
             }
-            for (var table in gTableIndicesLookup) {
-                if (!gTableIndicesLookup[table].active) {
-                    promises.push(setupHiddenTable.bind(this, table));
+            for (var frontName in gTableIndicesLookup) {
+                var table = gTableIndicesLookup[frontName];
+
+                if (!table.active) {
+                    var backName = table.backTableName;
+
+                    if (backName == undefined) {
+                        backName = frontName;
+                    }
+
+                    promises.push(setupHiddenTable.bind(this, 
+                                                        backName, frontName));
                 }
             }
 
@@ -713,6 +693,7 @@ function documentReadyIndexFunction() {
             setuptableListSection();
             initializeJoinModal();
             initializeAggModal();
+            WSManager.focusOnWorksheet();
         })
         .fail(function(error) {
             console.log("Initialization fails!");

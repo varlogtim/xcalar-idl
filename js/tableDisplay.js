@@ -1,18 +1,23 @@
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
+function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
     var deferred = jQuery.Deferred();
+
+    if (frontName == undefined) {
+        frontName = table;
+    }
+
     reorderTables(tableNum);
-    tableStartupFunctions(tableName, tableNum, tableNumsToRemove)
+    tableStartupFunctions(table, tableNum, tableNumsToRemove, frontName)
     .then(function() {
         if ($('#mainFrame').hasClass('empty')) {
             $('#mainFrame').removeClass('empty');
             documentReadyxcTableFunction(); 
         }
-        if (!getIndex(tableName)) {
+        if (!getIndex(frontName)) {
             console.log("This table has never been stored before. " + 
                         "Storing it now");
-            setIndex(tableName, gTables[tableNum].tableCols);
+            setIndex(frontName, gTables[tableNum].tableCols, null, null, table);
         }
         if (AfterStartup) {
             addMenuBarTables([gTables[tableNum]], IsActive.Active);
@@ -93,14 +98,39 @@ function archiveTable(tableNum, del, delayTableRemoval) {
     } else {
         $('#rowScroller'+gActiveTableNum).show();
     }
-    if (!delayTableRemoval && $('.xcTable').length != 0) {
+    if (!delayTableRemoval && $('.xcTableWrap.active').length != 0) {
         focusTable(gActiveTableNum);
     }
-    if ($('.xcTable').length == 0) {
-        $('#rowInput').val("").data('val',"");
-        updatePageBar(0);
+    if ($('.xcTableWrap.active').length == 0) {
+       emptyScroller();
     }
     moveTableDropdownBoxes();
+}
+
+function deleteActiveTable(tableNum) {
+    var tableName = gTables[tableNum].frontTableName;
+    var deferred = jQuery.Deferred();
+
+    deleteTable(tableNum)
+    .then(function() {
+        // add sql
+        SQL.add("Delete Table", {
+            "operation": "deleteTable",
+            "tableName": tableName
+        });
+
+        setTimeout(function() {
+            if (gTables[gActiveTableNum] && 
+                gTables[gActiveTableNum].resultSetCount != 0) {  
+                generateFirstVisibleRowNum();
+            }
+        }, 300);
+
+        deferred.resolve();
+    })
+    .fail(deferred.reject);
+
+    return (deferred.promise());
 }
 
 function deleteTable(tableNum, deleteArchived) {
@@ -116,6 +146,23 @@ function deleteTable(tableNum, deleteArchived) {
         if (table.isTable === false) {
             return (promiseWrapper(null));
         } else {
+            // check if it is the only table
+            for (var i = 0; i < gTables.length; i++) {
+                if (gTables[i].backTableName === backTableName &&
+                    (deleteArchived || i !== tableNum)) {
+                    console.log("delete copy table");
+                    return (promiseWrapper(null));
+                }
+            }
+
+            for (var i = 0; i < gHiddenTables.length; i++) {
+                if (gHiddenTables[i].backTableName === backTableName &&
+                    (!deleteArchived || i !== tableNum)) {
+                    console.log("delete copy table");
+                    return (promiseWrapper(null));
+                }
+            }
+
             return (XcalarDeleteTable(backTableName));
         }
     })
@@ -131,6 +178,8 @@ function deleteTable(tableNum, deleteArchived) {
         } else {
             archiveTable(tableNum, DeleteTable.Delete);
         }
+
+        WSManager.removeTable(frontTableName);
 
         deferred.resolve();
     })
@@ -196,18 +245,18 @@ function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
 }
 
 function generateTableShell(columns, tableNum) {
+    var table = gTables[tableNum];
+    var tableName = table.frontTableName;
+    var wrapper = 
+        '<div id="xcTableWrap' + tableNum + '"' + 
+            ' class="xcTableWrap tableWrap">' + 
+            '<div id="xcTbodyWrap' + tableNum + '" class="xcTbodyWrap"></div>' +
+        '</div>';
     // creates a new table, completed thead, and empty tbody
     if (tableNum == 0) {
-        $('#mainFrame').prepend('<div id="xcTableWrap'+tableNum+'"'+
-                ' class="xcTableWrap tableWrap">'+
-                '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
-                '</div></div>');
+        $('#mainFrame').prepend(wrapper);
     } else {
-        $('#xcTableWrap'+(tableNum-1))
-        .after('<div id="xcTableWrap'+tableNum+'"'+
-                ' class="xcTableWrap tableWrap">'+
-                '<div id="xcTbodyWrap'+tableNum+'" class="xcTbodyWrap">'+
-                '</div></div>');
+        $('#xcTableWrap' + (tableNum - 1)).after(wrapper);
     }
 
     var newTable = 
@@ -222,7 +271,7 @@ function generateTableShell(columns, tableNum) {
             '</th>';
     var numCols = columns.length;
     var dataIndex = null;
-    var table = gTables[tableNum];
+
     for (var i = 0; i < numCols; i++) {
         var color = "";
         var columnClass = ""; 

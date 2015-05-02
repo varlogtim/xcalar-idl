@@ -1,18 +1,21 @@
 function setupDag() {
-    $('#compSwitch').click(function() {
-        var compSwitch = $(this);
+
+    $("#worksheetTabs").on("click", ".dagTab", function(event) {
+        var $compSwitch = $("#worksheetTabs .dagTab");
         var dag = $('#dagPanel');
         var workspacePanel = $('#workspacePanel');
         
+        event.stopPropagation();
+
         if (dag.hasClass('hidden')) {
             dag.removeClass('hidden');
-            compSwitch.addClass('active');
+            $compSwitch.addClass('active');
             if (dag.hasClass('midway')) {
                 $('#mainFrame').addClass('midway');
             }
         } else if (workspacePanel.hasClass('active')) {
             dag.addClass('hidden');
-            compSwitch.removeClass('active');
+            $compSwitch.removeClass('active');
             $('#mainFrame').removeClass('midway');
         }
 
@@ -36,6 +39,7 @@ function setupDag() {
     });
 
     $('#closeDag').click(function() {
+        // only triiger the first dagTab is enough
         $('#compSwitch').trigger('click');
     });
 
@@ -865,6 +869,8 @@ function allowParamDrop(event) {
 /* Generation of dag elements and canvas lines */
 
 function constructDagImage(tableName, tableNum) {
+    var deferred = jQuery.Deferred();
+
     drawDag(tableName, tableNum)
     .then(function(dagDrawing) {
         var outerDag = '<div class="dagWrap" id="dagWrap'+tableNum+'">'+
@@ -910,10 +916,15 @@ function constructDagImage(tableName, tableNum) {
         addDagEventListeners($dagWrap);
         appendRetinas();
         // $('.dagImageWrap').scrollLeft($('.dagImage').width());
+
+        deferred.resolve();
     })
-    .fail(function() {
-        console.log('dag failed')
+    .fail(function(error) {
+        console.log('dag failed');
+        deferred.reject(error);
     });
+
+    return (deferred.promise());
 }
 
 function drawDagNode(dagNode, prop, dagArray, html, index, parentChildMap) {

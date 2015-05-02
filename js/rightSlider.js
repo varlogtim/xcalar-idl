@@ -398,7 +398,7 @@ function setupHelpSection() {
 }
 
 function setuptableListSection() {
-    $('.tableListSectionTab').click(function() {
+    $("#tableListSection").on("click", ".tableListSectionTab", function() {
         $('.tableListSectionTab.active').removeClass('active');
         $(this).addClass('active');
         var index = $(this).index();
@@ -439,24 +439,101 @@ function setuptableListSection() {
     });
 
     $('#submitTablesBtn').click(function() {
-        tableBulkAction("add");
+        addBulkTableHelper();
     });
 
     $('#deleteTablesBtn').click(function() {
-        var alertOptions = {};
-        // add alert
-        alertOptions.title = "DELETE ARCHIEVED TABLES";
-        alertOptions.msg = "Are you sure you want to delete selected tables?"; 
-        alertOptions.isCheckBox = true;
-        alertOptions.confirm = function() {
-            tableBulkAction("delete");
-        };
-
-        Alert.show(alertOptions);
+        Alert.show({
+            "title": "DELETE ARCHIEVED TABLES",
+            "msg": "Are you sure you want to delete selected tables?",
+            "isCheckBox": true,
+            "confirm": function() {
+                tableBulkAction("delete")
+                .then(function() {
+                    commitToStorage();
+                })
+                .fail(function(error) {
+                    Alert.error("Delete Table Fails", error);
+                });
+            }
+        });
     });
 }
 
+function addBulkTableHelper() {
+    var $tables = $("#inactiveTablesList").find(".addArchivedBtn.selected")
+                                          .closest(".tableInfo");
+    var $noSheetTables = $tables.filter(function() {
+        return $(this).find(".worksheetInfo").hasClass("inactive");
+    })
+
+    if ($noSheetTables.length > 0) {
+        var instr = "You have tables that are not in any worksheet," + 
+                    " please choose a worksheet to send for those tables!";
+
+        $noSheetTables.addClass("highlight");
+        // must get highlight class  from source
+        var $clone = $("#rightSideBar").clone();
+
+        $clone.addClass("faux");
+        $("#modalBackground").after($clone);
+
+        $clone.css({"z-index": "initial"});
+
+        Alert.show({
+            "title": "SEND TO WORKSHEET",
+            "instr": instr,
+            "optList": {
+                "option": WSManager.getWorksheetLists(true),
+                "label": "Worksheet to send: "
+            },
+            "confirm": function() {
+                $noSheetTables.removeClass("highlight");
+                $("#rightSideBar.faux").remove();
+
+                var wsName = Alert.getOptionVal();
+                var wsIndex = WSManager.getWorksheetByName(wsName);
+
+                if (wsIndex == undefined) {
+                    Alert.error("Invalid worksheet name", 
+                                "please input a valid name!");
+                } else {
+                    $noSheetTables.each(function() {
+                        var tableName = $(this).data("tablename");
+
+                        WSManager.addTable(tableName, wsIndex);
+
+                        addBulkTable();
+                    });
+                }
+            },
+            "cancel": function() {
+                $noSheetTables.removeClass("highlight");
+                $("#rightSideBar.faux").remove();
+            }
+        });
+
+    } else {
+        addBulkTable();
+    }
+
+    function addBulkTable() {
+        tableBulkAction("add")
+        .then(function() {
+            if (!$("#workspaceTab").hasClass("active")) {
+                $("#workspaceTab").click();
+            }
+            WSManager.focusOnLastTable();
+            commitToStorage();
+        })
+        .fail(function(error) {
+            Alert.error("Error In Adding Archieved Table", error);
+        });
+    }
+}
+
 function tableBulkAction(action) {
+    var deferred = jQuery.Deferred();
     // validation check
     var validAtcion = ["add", "delete"];
     if (validAtcion.indexOf(action) < 0) {
@@ -527,29 +604,15 @@ function tableBulkAction(action) {
 
     chain(promises)
     .then(function() {
-        if (action === "add") {
-            var $mainFrame = $('#mainFrame');
-            var index = gTables.length - 1
-            $('#workspaceTab').trigger('click');
-            var leftPos = $('#xcTableWrap' + index).position().left +
-                            $mainFrame.scrollLeft();
-
-            $mainFrame.animate({scrollLeft: leftPos})
-                      .promise()
-                      .then(function(){
-                            focusTable(index);
-                    });
-            focusTable(index);
-        }
-
-        commitToStorage();
         // anything faile to alert
         if (failures.length > 0) {
-            var title = action === "add" ? "Error In Adding Archieved Table" :
-                                            "Delete Table Fails"
-            Alert.error(title, failures.join("\n"));
+            deferred.reject(failures.join("\n"));
+        } else {
+            deferred.resolve();
         }
     });
+
+    return (deferred.promise());
 
     function getTablNum(tableName) {
         for (var i = 0; i < gHiddenTables.length; i ++) {
@@ -669,28 +732,43 @@ function generateMenuBarTableHTML(tables, active) {
             time = (new Date(timeStamp)).toLocaleTimeString();
         }
 
-        var html = '<li class="clearfix tableInfo"' + 
-                        'data-tablename="' + table.frontTableName + '">' +
-                        '<div class="timeStampWrap">' +
-                            '<div class="timeStamp">' + 
-                                '<span class="time">' + 
-                                    time + 
-                                '</span>' +
-                            '</div>' + 
-                        '</div>' +
-                        '<div class="tableListBox">' +
-                            '<div class="iconWrap">' + 
-                                '<span class="icon"></span>'+
-                            '</div>'+
-                            '<span class="tableName">' +
-                                table.frontTableName +
-                            '</span>' + 
-                            '<span class="addArchivedBtn"></span>' + 
-                            '<span class="numCols">' + 
-                                numCols + 
-                            '</span>' + 
-                        '</div>' + 
-                        '<ol>';
+        var tableName = table.frontTableName;
+        var wsIndex = WSManager.getWorksheetIndex(tableName);
+
+        var wsInfo;
+
+        if (wsIndex == undefined) {
+            wsInfo = '<div class="worksheetInfo inactive">No sheet</div>';
+        } else {
+            wsInfo = '<div class="worksheetInfo worksheet-' + wsIndex + '">' + 
+                        WSManager.getWorksheetName(wsIndex) + 
+                    '</div>';
+        }
+
+        var html = 
+            '<li class="clearfix tableInfo"' + 
+                'data-tablename="' + tableName + '">' +
+                '<div class="timeStampWrap">' +
+                    '<div class="timeStamp">' + 
+                        '<span class="time">' + 
+                            time + 
+                        '</span>' +
+                    '</div>' + 
+                    wsInfo + 
+                '</div>' +
+                '<div class="tableListBox">' +
+                    '<div class="iconWrap">' + 
+                        '<span class="icon"></span>'+
+                    '</div>'+
+                    '<span class="tableName">' +
+                        tableName +
+                    '</span>' + 
+                    '<span class="addArchivedBtn"></span>' + 
+                    '<span class="numCols">' + 
+                        numCols + 
+                    '</span>' + 
+                '</div>' + 
+                '<ol>';
         for (var j = 0; j <= numCols; j++) {
             if (table.tableCols[j].name != 'DATA') {
                 html += '<li>' + table.tableCols[j].name + '</li>'

@@ -629,7 +629,7 @@ ul.colMenu {
         .size(@width: 160px, @height: 20px);
         .font(@size: 12px, @line-height: 20px);
         margin-left: -3px;
-        padding: 2px;
+        padding: 0 2px;
         text-align: center;
         box-shadow: 0px 0px 0px 1px @color-selectedCell-dark;
         background-color: @color-white;
@@ -1215,82 +1215,164 @@ ul.inputMenu {
 
 #worksheetTabs {
     .position(relative, @top: -1px);
-    .size(@height: 36px);
-    display: inline-block;
+    .size(@width: ~"calc(100% - 40px)", @height: 36px);
+    .flex-display;
     float: left;
-}
 
-.worksheetTab {
-    .size(@width: 121px, @height: 35px);
-    .font(@weight: 700, @size: 14px, @line-height: 35px);
-    .position(relative);
-    text-align: left;
-    border: 1px solid @color-bar-border;
-    border-top: none;
-    border-bottom-left-radius: 3px;
-    .darkGray-gradient;
-    float: left;
-    .icon {
-        .image("/images/page-white.png", 50%, 50%);
-        .size(@width: 28px, @height: 100%);
+    .worksheetTab {
+        .size(@width: 172px, @height: 35px);
+        .position(relative);
         float: left;
-    }
-    .text {
-        .size(@width: ~"calc(100% - 30px)", @height: 25px);
-        float: left;
-        outline: none;
-        line-height: 25px;
-        padding: 0 5px;
-        overflow: hidden;
-        text-overflow:ellipsis;
-        white-space: nowrap;
-        .vertical-align;
-        &:focus {
-            box-shadow: inset 0 0 3px rgba(0, 0, 0, 1);
-            text-overflow: initial;
+        .flex(0 0 172px);
+        margin-right: 10px;
+
+
+        &:only-child {
+            .delete {
+                display: none !important;
+            }
+            .wsIcon {
+                margin-left: 5px !important;
+            }
+            .text {
+                margin-left: 5px !important;
+                width: ~"calc(100% - 35px)" !important;
+            }
+        }
+
+        .label {
+            .size(@width: ~"calc(100% - 30px)", @height: 100%);
+            .position(relative);
+            .darkGray-gradient;
+            display: inline-block;
+            float: left;
+            text-align: left;
+            border: 1px solid @color-bar-border;
+            border-top: none;
+            .rounded(0 0 0 3px);
+
+            .delete {
+                .position(relative);
+                .size(@width: 20px, @height: 17px);
+                margin-left: 2px;
+                padding-right: 2px;
+                border-right: 1px solid @color-tab-divider;
+                display: inline-block;
+                float: left;
+                cursor: pointer;
+                .vertical-align;
+
+                .icon {
+                    .size(100%, 100%);
+                    .image("/images/worksheet/ws_close.png", 50%, 50%);
+                    background-size: 10px 10px;
+                }
+
+                &:hover .icon {
+                    background-image: url(/images/worksheet/ws_close_hover.png);
+                }
+            }
+
+            .wsIcon {
+                .size(@width: 20px, @height: 100%);
+                margin-left: 3px;
+                .image("/images/page-white.png", 50%, 50%);
+                float: left;
+            }
+
+            .text {
+                .size(@width: ~"calc(100% - 50px)", @height: 21px);
+                .font(@weight: 700, @size: 14px, @line-height: 21px);
+                float: left;
+                outline: none;
+                margin: 0 2px;
+                padding: 0 2px;
+                overflow: hidden;
+                text-overflow:ellipsis;
+                white-space: nowrap;
+                .vertical-align;
+                &:focus {
+                    box-shadow: inset 0 0 3px rgba(0, 0, 0, 1);
+                    text-overflow: initial;
+                }
+            }
+        }
+
+        .dagTab {
+            .size(@width: 30px, @height: 34px);
+            float: left;
+            display: inline-block;
+            margin-top: 1px;
+            cursor: pointer;
+            .noSelection;
+            border-bottom: 1px solid @color-bar-border;
+            border-right: 1px solid @color-bar-border;
+            .rounded(0 0 3px 0);
+            .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
+            .icon {
+                .size(100%, 100%);
+                .image("/images/comp-icon.png", 50%, 50%);
+            }
+
+            &:hover {
+                .linear-gradient(top, #CCCCCC, #777777);
+            }
+
+            &:active {
+                 box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5);
+            }
+
+            &.active {
+                .action-gradient;
+                &:hover {
+                    .action-inverse-gradient;
+                }
+            }
+
+            & + .tooltip {
+                white-space: nowrap;
+            }
+
+            &.active + .tooltip {
+                display: none !important;
+            }
+
+        }
+
+        &.inActive {
+            .size (@height: 28px);
+            .position(@top: 6px);
+            .noSelection;
+            .flex(0 1 auto);
+            .label {
+                background: rgba(0,0,0, .15);
+                border: 1px solid @color-tab-border;
+                color: @color-text-tab;
+                .size(@width: ~"calc(100% - 2px)");
+                .rounded;
+                .wsIcon, .delete {
+                    display: none;
+                }
+                .text {
+                    .size(@width: 100%);
+                    text-align: center;
+                    pointer-events: none;
+                    margin: 0;
+                }
+            }
+
+            .dagTab {
+                display: none;
+            }
+
+            &:hover .label {
+                // hover vs regular color scheme needs to be adjusted
+                background-color: rgba(255,255,255,.15);
+                color: @color-white;
+                border: 1px solid @color-table-borderGray;
+            }
         }
     }
-}
-
-#compSwitch {
-    .size(@width: 30px, @height: 34px);
-    float: left;
-    display: inline-block;
-    margin-top: 1px;
-    cursor: pointer;
-    .noSelection;
-    border-bottom: 1px solid @color-bar-border;
-    border-right: 1px solid @color-bar-border;
-    border-bottom-right-radius: 3px;
-    .linear-gradient(top, @color-background-sidebar, @color-background-darkdarkGray);
-    .icon {
-        .size(100%, 100%);
-        .image("/images/comp-icon.png", 50%, 50%);
-    }
-
-    &:hover {
-        .linear-gradient(top, #CCCCCC, #777777);
-    }
-
-    &:active {
-         box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5);
-    }
-
-    &.active {
-        .action-gradient;
-        &:hover {
-            .action-inverse-gradient;
-        }
-    }
-
-    & + .tooltip {
-        white-space: nowrap;
-    }
-
-    &.active + .tooltip {
-        display: none !important;
-    }
-
 }
 /* End Of Bottom Section */
 
