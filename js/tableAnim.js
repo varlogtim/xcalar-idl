@@ -374,7 +374,8 @@ function createTransparentDragDropCol() {
     // Ensure rows are offset correctly
     var fauxTableHeight = $('#fauxTable').height()+
                         $('#fauxTable tr:first').outerHeight();
-    var xcTableWrap0Height = $('#xcTableWrap0').height();
+
+    var xcTableWrap0Height = $('#xcTableWrap'+dragObj.tableNum).height();
     var fauxColHeight = Math.min(fauxTableHeight, xcTableWrap0Height - 36);
     dragObj.fauxCol.height(fauxColHeight);
     var firstRowOffset = $(topRowEl).offset().top - topPx-rowHeight;
