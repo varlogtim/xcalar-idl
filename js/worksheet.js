@@ -202,11 +202,10 @@ window.WSManager = (function($, WSManager) {
                 isFocus = true;
                 focusTable(tableNum);
             }
-
+            matchHeaderSizes(null, $(".xcTable"), true);
             for (var i = 0; i < gTables.length; i++) {
                 // update table width and height
                 adjustColGrabHeight(i);
-                matchHeaderSizes(null, $("#xcTable" + i));
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {
                     var wsIndex = tabLookUp[gTables[i].frontTableName];
@@ -533,9 +532,8 @@ window.WSManager = (function($, WSManager) {
         //     'data-toggle="tooltip" ' + 
         //     'data-placement="top" ' + 
         //     'data-container="body"';
-
         var html = 
-            '<section id="' + id + '"class="worksheetTab">' + 
+            '<section id="' + id + '"class="worksheetTab inActive">' + 
                 '<div class="label" ' + tabTooltip + '>' + 
                     '<div class="iconWrapper delete">' +
                         '<span class="icon"></span>' + 
