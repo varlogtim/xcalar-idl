@@ -1649,16 +1649,15 @@ function addTableListeners(tableNum) {
 }
 
 function moveTableDropdownBoxes() {
-    if (!document.elementFromPoint) {
-        return;
-    }
-    var element = document.elementFromPoint(1, 120);
-    if ($(element).closest('.xcTableWrap').length < 1) {
-        return;
-    } else {
-        var $startingTableHead = $(element).closest('.xcTableWrap')
-                                           .find('.xcTheadWrap');
-    }
+    var mainFrameScrollLeft = $('#mainFrame').scrollLeft();
+    var $startingTableHead;
+
+    $('.xcTableWrap:not(".inActive")').each(function() {
+        if ($(this)[0].getBoundingClientRect().right > mainFrameScrollLeft) {
+            $startingTableHead = $(this).find('.xcTheadWrap');
+            return false;
+        }
+    });
 
     if ($startingTableHead.length > 0) {
         var tablesAreVisible = true;
