@@ -134,6 +134,7 @@ function showJsonModal(jsonTd) {
 
         execCol(gTables[tableNum].tableCols[colNum-1], tableNum)
         .then(function() {
+            updateTableHeader(tableNum);
             updateMenuBarTable(gTables[tableNum], tableNum);
             autosizeCol($('#xcTable'+tableNum+' th.col'+(colNum)), 
                         {includeHeader: true, resizeFirstRow: true});

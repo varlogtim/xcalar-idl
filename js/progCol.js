@@ -259,6 +259,7 @@ function delCol(colNum, tableNum) {
     var tableWrap = $("#xcTableWrap"+tableNum);
     tableWrap.find('th.col'+colNum+' ,td.col'+colNum).remove();
     removeColAtIndex(colNum-1, tableNum);
+    updateTableHeader(tableNum)
     updateMenuBarTable(gTables[tableNum], tableNum);
     for (var i = colNum+1; i<=numCol; i++) {
         tableWrap.find('.col'+i).removeClass('col'+i).addClass('col'+(i-1));
@@ -680,6 +681,8 @@ function addCol(colId, tableId, name, options) {
     if (inFocus) {
         table.find('tr:first .editableHead.col'+newColid).focus();
     }
+    updateTableHeader(tableNum);
+    updateMenuBarTable(gTables[tableNum], tableNum);
     adjustColGrabHeight(tableNum);
     matchHeaderSizes(newColid, table);
 }

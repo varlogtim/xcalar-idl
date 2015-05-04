@@ -623,13 +623,15 @@ function createTableHeader(tableNum) {
 
     var html = '<div class="tableTitle">' + 
                     '<div class="tableGrab"></div>' + 
-                    '<input type="text" value="' + tableName + '">' + 
+                    '<input type="text">' + 
                     '<div class="dropdownBox">' + 
                         '<span class="innerBox"></span>' + 
                     '</div>' + 
                 '</div>';
 
     $xcTheadWrap.prepend(html);
+    // XXX Format is tablename  [cols]
+    updateTableHeader(tableNum);
 
     var newTableName = randName(tableName);
     var tableMenuHTML = 
@@ -677,11 +679,19 @@ function createTableHeader(tableNum) {
     addColMenuBehaviors($("#tableMenu" + tableNum));
 
     // Event Listener for table title
-    $xcTheadWrap.on('keyup', '.tableTitle input', function(event) {
-        if (event.which == keyCode.Enter) {
-            $(this).blur();
+    $xcTheadWrap.on({
+        "keyup": function(event) {
+            if (event.which == keyCode.Enter) {
+                $(this).blur();
+            }
+        },
+        "focus": function() {
+            updateTableHeader(null, $(this), true);
+        },
+        "blur": function() {
+            updateTableHeader(null, $(this));
         }
-    });
+    }, ".tableTitle input");
 
     $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function() {
         dropdownClick($(this));
@@ -946,6 +956,32 @@ function createTableHeader(tableNum) {
     $table.width(0);
     var matchAllHeaders = true;
     matchHeaderSizes(null, $table, matchAllHeaders);
+}
+
+function updateTableHeader(tableNum, $tHead, isFocus) {
+    var tableName = "";
+    var cols = 0;
+
+    $tHead = $tHead || $("#xcTheadWrap" + tableNum + " .tableTitle input");
+    // for blur and focus on table header
+    if (tableNum == null) {
+        cols = $tHead.data["cols"];
+        tableName = $tHead.data["title"];
+        if (isFocus) {
+            $tHead.val(tableName);
+        } else {
+            $tHead.val(tableName + "  [" + cols + "]");
+        }
+    } else {
+        // for update table header
+        if (gTables[tableNum] != undefined) {
+            tableName = gTables[tableNum].frontTableName;
+            cols = gTables[tableNum].tableCols.length;
+        }
+        $tHead.data["cols"] = cols;
+        $tHead.data["title"] = tableName;
+        $tHead.val(tableName + "  [" + cols + "]");
+    }
 }
 
 function matchHeaderSizes(colNum, $table, matchAllHeaders) {
@@ -1235,6 +1271,7 @@ function addColMenuActions($colMenu) {
             gTables[tableNum].tableCols[index-1].userStr;
         execCol(gTables[tableNum].tableCols[index], tableNum)
         .then(function() {
+            updateTableHeader(tableNum);
             updateMenuBarTable(gTables[tableNum], tableNum);
         }); 
     });
@@ -1441,6 +1478,7 @@ function functionBarEnter($el) {
 
     execCol(progCol, tableNum)
     .then(function() {
+        updateTableHeader(tableNum);
         updateMenuBarTable(gTables[tableNum], tableNum);
 
         if (progCol.name.length > 0) {

@@ -724,7 +724,7 @@ function generateMenuBarTableHTML(tables, active) {
         }
 
         var $dateDivider = $tableList.find('> li.date' + p + ' .tableList');
-        var numCols = table.tableCols.length - 1;
+        var numCols = table.tableCols.length;
         var time;
         if (dateIndex >= 7) {
             time = (new Date(timeStamp)).toLocaleDateString();
@@ -750,9 +750,7 @@ function generateMenuBarTableHTML(tables, active) {
                 'data-tablename="' + tableName + '">' +
                 '<div class="timeStampWrap">' +
                     '<div class="timeStamp">' + 
-                        '<span class="time">' + 
-                            time + 
-                        '</span>' +
+                        '<span class="time">' + time + '</span>' +
                     '</div>' + 
                     wsInfo + 
                 '</div>' +
@@ -760,19 +758,15 @@ function generateMenuBarTableHTML(tables, active) {
                     '<div class="iconWrap">' + 
                         '<span class="icon"></span>'+
                     '</div>'+
-                    '<span class="tableName">' +
-                        tableName +
-                    '</span>' + 
+                    '<span class="tableName">' + tableName + '</span>' + 
                     '<span class="addArchivedBtn"></span>' + 
-                    '<span class="numCols">' + 
-                        numCols + 
-                    '</span>' + 
+                    '<span class="numCols">' + numCols + '</span>' + 
                 '</div>' + 
                 '<ol>';
-        for (var j = 0; j <= numCols; j++) {
-            if (table.tableCols[j].name != 'DATA') {
-                html += '<li>' + table.tableCols[j].name + '</li>'
-            }
+        for (var j = 0; j < numCols; j++) {
+            // if (table.tableCols[j].name != 'DATA') {
+            html += '<li>' + table.tableCols[j].name + '</li>'
+            // }
         }
         html += '</ol></li>';
         $dateDivider.prepend(html);
