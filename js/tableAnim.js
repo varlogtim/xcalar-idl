@@ -1659,7 +1659,7 @@ function moveTableDropdownBoxes() {
         }
     });
 
-    if ($startingTableHead.length > 0) {
+    if ($startingTableHead && $startingTableHead.length > 0) {
         var tablesAreVisible = true;
     } else {
         var tablesAreVisible = false;
