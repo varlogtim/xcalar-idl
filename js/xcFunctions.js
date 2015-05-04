@@ -88,10 +88,9 @@ function sortRows(index, tableNum, order) {
 
     var isTable = gTables[tableNum].isTable;
 
-    var rand = Math.floor((Math.random() * 100000) + 1);
-    var newTableName = "tempSortTable"+rand;
+    var newTableName = randName("tempSortTable");
     var tableName = gTables[tableNum].frontTableName;
-    var srcName = isTable ? tableName : 
+    var srcName = isTable ? gTables[tableNum].backTableName : 
                             gTableIndicesLookup[tableName].datasetName;
     var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
     var fieldName;

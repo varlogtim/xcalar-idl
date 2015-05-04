@@ -558,6 +558,7 @@ function tableBulkAction(action) {
             var $li = $(ele);
             var tableName = $li.data("tablename");
             var tableNum = getTablNum(tableName);
+            var backTableName = gHiddenTables[tableNum].backTableName;
 
             if (tableNum == undefined) {
                 console.error("Error: do not find the table");
@@ -571,7 +572,8 @@ function tableBulkAction(action) {
                 gTableIndicesLookup[tableName].timeStamp = (new Date())
                                                             .getTime();
 
-                addTable(tableName, gTables.length, AfterStartup.After)
+                addTable(backTableName, gTables.length, AfterStartup.After, 
+                            null, tableName)
                 .then(function() {
                     // already add the table
                     var activeTable = gHiddenTables.splice(tableNum, 1)[0];
