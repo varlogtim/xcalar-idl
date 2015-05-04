@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <head>
-<meta charset="UTF-8">
-<title>Xcalar</title>
-<link href='http://fonts.googleapis.com/css?family=Open+Sans:700,600,400'
-      rel='stylesheet' type='text/css'>
-<link href="/stylesheets/css/style.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet"
-      href="bower_components/fontawesome/css/font-awesome.min.css">
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Xcalar</title>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:700,600,400'
+        rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/css/style.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet"
+        href="bower_components/fontawesome/css/font-awesome.min.css">
+  <script src="bower_components/jquery/dist/jquery.min.js"></script>
 </head>
 
 <body class="hideScroll">
 <div id="container">
+  <!-- Top Menu Bar -->
   <div id="menuBar" class="clearfix">
     <div id="mainMenu" class="clearfix">
       <div id="workspaceTab" class="mainMenuTab active">
@@ -36,6 +37,9 @@
       <div id="signout">Sign out</div>
     </div>
   </div>
+  <!-- End of Menu Bar -->
+
+  <!-- WORK SPACE PANEL -->
   <div id="workspacePanel" class="mainPanel active">
     <div id="workspaceBar" class="workspaceBar topBar">
       <div id="functionArea" class="workspaceArea">
@@ -54,6 +58,7 @@
     <div id="insight"></div>
     <div id="mainFrame"></div>
     <datalist id="worksheetlist" style="display:none"></datalist>
+    <!-- Dag Panel -->
     <div id="dagPanel" class="hidden full">
       <div class="topBorder">
         <div class="pulloutTabWrap">
@@ -67,6 +72,8 @@
       <div class="dagArea">
       </div>
     </div>
+    <!-- End Of Dag Panel -->
+    <!-- dag Parameter Modal -->
     <div id="dagParameterModal" class="modalContainer">
       <div class="modalHeader">
         <span class="text">Parameterize Query</span>
@@ -103,19 +110,23 @@
           </table>
         </div>
       </div>
-      <div class="defaultListSection">
-
-      </div>
+      <div class="defaultListSection"></div>
       <div class="modalBottom clearfix">
         <div class="btn btnMid confirm">SAVE</div>
         <div class="btn btnMid cancel">CANCEL</div>
       </div>
     </div>
-  </div><!-- End workspace Panel -->
+    <!-- End Of Parameter Modal -->
+  </div>
+  <!-- END WORKSPACE PANEL -->
 
+  <!-- MONITOR PANEL -->
   <div id="monitorPanel" class="mainPanel"></div>
+  <!-- END OF MONITOR PANEL -->
 
+  <!-- DATASTORE PANEL -->
   <div id="datastoreView" class="mainPanel">
+    <!-- Datastore header -->
     <div id="contentHeader" class="topBar">
       <div id="contentHeaderLeft">
         <div class="buttonArea active">
@@ -135,6 +146,7 @@
         <div class="text">DATA CART</div>
       </div>
     </div>
+    <!-- Import Data Form -->
     <div id="importDataView">
       <div id="importHelp">
         <div class="contentViewMidWrap">
@@ -197,24 +209,24 @@
       </form> 
       <div id="importDataOverlay"></div>
     </div>
+    <!-- Main Content -->
     <div id="mainContent">
+      <!-- Search View -->
       <div id="searchView">
         <div class="contentView">
           <div class="contentViewLeft">
-            <div id="importDataArea">
-            </div>
+            <div id="importDataArea"></div>
             <div id="datasetSearch"></div>
-            <div id="listView">
-            </div>
+            <div id="listView"></div>
           </div>
           <div class="contentViewMid">
             <div id="searchHeader"></div>
             <div id="searchResult"></div>
           </div>
-          <div class="contentViewRight">
-          </div>
+          <div class="contentViewRight"></div>
         </div>
       </div>
+      <!-- Explore View -->
       <div id="exploreView">
         <div id="contentView">
           <div id="contentViewLeft">
@@ -234,6 +246,7 @@
                 <span class="icon"></span>IMPORT NEW DATA SET
               </div>
             </div>
+            <!-- Grid Views of ds -->
             <div id="gridViewButtonArea">
               <div id="backFolderBtn"  class="disabled"
                   title="See previous folders" data-container="body"
@@ -247,12 +260,12 @@
               <div id="addFolderBtn" title="Add New Folder"
                   data-container="body"
                   data-toggle="tooltip" data-placement="bottom">
-                  <div class="icon"></div>
-                  <div class="label">NEW</div>
+                <div class="icon"></div>
+                <div class="label">NEW</div>
               </div>
               <div id="deleteFolderBtn" class="disabled" 
-                title="Delete folder or dataset" data-container="body"
-                data-toggle="tooltip" data-placement="bottom">
+                  title="Delete folder or dataset" data-container="body"
+                  data-toggle="tooltip" data-placement="bottom">
                 <div class="icon"></div>
                 <div class="label">DELETE</div>
               </div>
@@ -278,6 +291,7 @@
                 </p>
               </div>
             </div>
+            <!-- Datastore Table -->
             <div id="contentViewTable">
               <div class="datasetTitleWrap">
                 <div class="dsInfo">
@@ -299,24 +313,22 @@
                 <div id="dataSetTableWrap" class="datasetTableWrap"></div>
               </div>
               <ul id="datasetTableMenu" class="colMenu"></ul>
-            </div><!--- end contentviewtable -->
-          </div><!-- end contentviewmid -->
+            </div>
+          </div>
+          <!-- End Datastore Table -->
           <div id="contentViewRight">
             <div class="buttonArea">
               <div class="btn btnLarge" id="submitDSTablesBtn"
                    style="display: block;">
-                <span class="icon"></span>
-                SEND TO ACTIVE WORKSHEET
+                <span class="icon"></span>SEND TO ACTIVE WORKSHEET
               </div>
               <div class="btn btnLarge btnInactive"
                    id="submitMultipleDBTablesBtn" style="display: block;">
-                <span class="icon"></span>
-                SEND TO MULTIPLE WORKSHEETS
+                <span class="icon"></span>SEND TO MULTIPLE WORKSHEETS
               </div>
               <div class="btn btnLarge" id="clearDataCart"
                    style="display: block;">
-                <span class="icon"></span>
-                CLEAR DATA CART
+                <span class="icon"></span>CLEAR DATA CART
               </div>
               <div class="title">
                 <b>Selected Columns</b>
@@ -325,12 +337,14 @@
             </div>
             <div id="dataCartWrap">
               <div id="dataCart"></div>
-            </div><!-- END DATA CART WRAP-->
+            </div>
+            <!-- END DATA CART WRAP-->
           </div>
         </div>
       </div>
     </div>
-  </div><!-- END DATASTORE PANEL -->
+  </div>
+  <!-- END DATASTORE PANEL -->
 
   <div class="underConstruction mainPanel">
     <div class="topBar"></div>
@@ -338,10 +352,11 @@
     <br><br>
     This page is still under construction! 
   </div>
+
   <!-- Right Side Bar Section -->
   <div id="rightSideBar">
     <!-- Table List Section -->
-    <div id="tableListSection" class="rightBarSection">
+    <section id="tableListSection" class="rightBarSection">
       <div class="heading">
         <h2>Tables</h2>
         <div class="btn btnDeselected">
@@ -364,12 +379,10 @@
           <div class="tableListSection" id="archivedTableList">
             <div class="buttonWrap">
               <div class="btn btnLarge btnInactive" id="submitTablesBtn">
-                <span class="icon"></span>
-                ADD TO WORKSHEET
+                <span class="icon"></span>ADD TO WORKSHEET
               </div>
               <div class="btn btnLarge btnInactive" id="deleteTablesBtn">
-                <span class="icon"></span>
-                DELETE TABLES
+                <span class="icon"></span>DELETE TABLES
               </div>
             </div>
             <ul id="inactiveTablesList"></ul>
@@ -377,11 +390,11 @@
           <div class="tableListSection"></div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- SQL Section -->
-    <div id="sqlSection" class="rightBarSection">
-      <div class="heading">
+    <section id="sqlSection" class="rightBarSection">
+      <header class="heading">
         <h2>SQL</h2>
         <div class="btn btnDeselected">
           <span class="icon iconClose"></span>
@@ -389,18 +402,18 @@
         <div class="btn btnDeselected">
           <span class="icon iconArrowDiag"></span>
         </div>
-      </div>
+      </header>
       <div class="rightBarContent">
         <div id="rightBarTextScrollWrap">
           <div id="rightBarTextArea"></div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- UDF Section -->
-    <div id="udfSection" class="rightBarSection">
+    <section id="udfSection" class="rightBarSection">
       <!-- Heading -->
-      <div class="heading">
+      <header class="heading">
         <h2>User Defined Function</h2>
         <div class="btn btnDeselected">
           <span class="icon iconClose"></span>
@@ -408,12 +421,12 @@
         <div class="btn btnDeselected">
           <span class="icon iconArrowDiag"></span>
         </div>
-      </div>
+      </header>
       <!-- Content -->
       <div class="rightBarContent">
         <!-- Section to switch between upload and input section -->
-        <div class="tabSectionContainer">
-          <section id="udf-tabs" class="tabSection">
+        <section class="tabSectionContainer">
+          <div id="udf-tabs" class="tabSection">
             <!-- option for upload section -->
             <div class="select-item" data-tab="udf-uploadSection">
               <div class="radio checked">
@@ -428,28 +441,28 @@
               </div>
               <div class="label">Write your function</div>
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
 
         <!-- Main Content -->
-        <div class="mainSectionContainer">
+        <section class="mainSectionContainer">
           <!-- Section to upload file -->
-          <div id="udf-uploadSection" class="mainSection">
+          <section id="udf-uploadSection" class="mainSection">
             <!-- head part -->
-            <section>
+            <div>
               <h3 class="label">
                 <label for="udf-filePath">File Path:</label>
               </h3>
-            </section>
+            </div>
             <!-- file path part -->
-            <section class="pathSection">
+            <div class="pathSection">
               <input id="udf-filePath" type="text">
               <div id="udf-clearPath" class="iconWrapper">
                 <span class="icon"></span>
               </div>
-            </section>
+            </div>
             <!-- button part -->
-            <section class="btnSection">
+            <div class="btnSection">
               <button id="udf-browseBtn" class="btn btnMid" type="button">
                 BROWSE
               </button>
@@ -458,16 +471,16 @@
                       class="btn btnMid upload" type="button">
                 <span class="icon"></span>UPLOAD
               </button>
-            </section>
-          </div>
+            </div>
+          </section>
 
           <!-- Section to write function -->
-          <div id="udf-fnSection" class="mainSection hidden">
+          <section id="udf-fnSection" class="mainSection hidden">
             <!-- Choose File Teamplate -->
             <section class="templateSection">
               <div class="sectionContainer">
                 <!-- template dropdown menu -->
-                <section id="udf-fnList" class="listSection">
+                <div id="udf-fnList" class="listSection">
                   <input id="udf-fnTemplate" class="text" 
                          placeholder="Choose your template" disabled />
                   <div class="iconWrapper">
@@ -478,9 +491,9 @@
                     <li>New Dataset</li>
                     <li name="blank">Blank Function</li>
                   </ul>
-                </section>
+                </div>
                 <!-- Download Teamplate -->
-                <section class="downloadSection">
+                <div class="downloadSection">
                    <div class="btnSection">
                     <button id="udf-fnDownload" class="btn btnMid hidden" 
                             type="button">
@@ -488,7 +501,7 @@
                       <span class="text">DOWNLOAD</span>
                     </button>
                   </div>
-                </section>
+                </div>
               </div>
             </section>
             <!-- Edit section -->
@@ -503,28 +516,30 @@
             <!-- Submit Section -->
             <section class="submitSection">
               <div class="sectionContainer">
-                <section class="inputSection">
+                <div class="inputSection">
                   <span class="label">
                     <label for="udf-fnName">File Name:</label>
                   </span>
                   <input id="udf-fnName" type="text" />
-                </section>
-                <section class="btnSection">
+                </div>
+                <div class="btnSection">
                   <button id="udf-fnUpload" 
                         class="btn btnMid upload" type="button">
                     <span class="icon"></span>UPLOAD
                   </button>
-                </section>
+                </div>
               </div>
             </section>
-          </div>
-        </div>
+          </section>
+          <!-- End of Write Function Section -->
+        </section>
+        <!-- End of Main Section -->
       </div>
-    </div>
+    </section>
 
     <!-- Cli Section -->
-    <div id="cliSection" class="rightBarSection">
-      <div class="heading">
+    <section id="cliSection" class="rightBarSection">
+      <header class="heading">
         <h2>Command Line Tool</h2>
         <div class="btn btnDeselected">
           <span class="icon iconClose"></span>
@@ -532,15 +547,15 @@
         <div class="btn btnDeselected">
           <span class="icon iconArrowDiag"></span>
         </div>
-      </div>
+      </header>
       <div class="rightBarContent">
         <textarea spellcheck="false">This page is under construction</textarea>
       </div>
-    </div>
+    </section>
 
     <!-- Scratch Pad Section -->
-    <div id="scratchPadSection" class="rightBarSection">
-      <div class="heading">
+    <section id="scratchPadSection" class="rightBarSection">
+      <header class="heading">
         <h2>ScratchPad</h2>
         <div class="btn btnDeselected">
           <span class="icon iconClose"></span>
@@ -548,15 +563,15 @@
         <div class="btn btnDeselected">
           <span class="icon iconArrowDiag"></span>
         </div>
-      </div>
+      </header>
       <div class="rightBarContent">
         <textarea spellcheck="false"></textarea>
       </div>
-    </div>
+    </section>
 
     <!-- Help Section -->
-    <div id="helpSection" class="rightBarSection">
-      <div class="heading">
+    <section id="helpSection" class="rightBarSection">
+      <header class="heading">
         <h2>Help</h2>
         <div class="btn btnDeselected">
           <span class="icon iconClose"></span>
@@ -564,14 +579,13 @@
         <div class="btn btnDeselected">
           <span class="icon iconArrowDiag"></span>
         </div>
-      </div>
+      </header>
       <div class="rightBarContent">
         <div id="helpSearchArea" class="clearfix">
           <input type="text" id="helpSearch"
                  placeholder="Type in your question...">
           <div id="helpSubmit">
-            <span class="icon iconSearch"></span>
-            Find
+            <span class="icon iconSearch"></span>Find
           </div>
         </div>
         <div id="helpResults" class="helpBox">
@@ -587,29 +601,32 @@
           </ul>
         </div>
       </div>
-    </div>
+    </section>
+
     <div class="topBorder"></div>
     <div id="pulloutTab"></div>
   </div>
-  <!-- end rightsidebar  -->
+  <!-- End Of Rightsidebar -->
+
+  <!-- Bottom Bar -->
   <div id="bottomArea">
+    <!-- Worksheet Bar -->
     <div id="worksheetBar" class="workspaceBar clearfix">
-      <div id="worksheetInfo" class="clearfix">
+      <section id="worksheetInfo" class="clearfix">
         <div class="workspaceArea">Xcalar Insight</div>
-        <div class="workspaceArea" id="workspaceDate"></div>
+        <div class="workspaceArea" id="workspaceDate">Created on -  - </div>
         <div class="workspaceArea">
           <span class="numDataStores">0</span> Data Stores
         </div>
-        <!-- <div class="workspaceArea">5 Columns</div> -->
         <div class="workspaceArea">
           <span id="pageStatusText">Connection Not Established</span>
           <div id="loadingIconWrap">
             <div class="waitingIcon"></div>
           </div>
         </div>
-      </div>
-      <!-- Button to pop out rightside bar -->
-      <div class="bottomButtonsArea">
+      </section>
+      <!-- Buttons to pop out rightside bar -->
+      <section class="bottomButtonsArea">
         <!-- tablelist -->
         <div id="leftMenu" class="btn btnSmall sliderBtn">
           <span id="tableListBtn" class="icon" data-toggle="tooltip" 
@@ -640,15 +657,16 @@
           <span id="infoBtn" data-toggle="tooltip" 
           data-placement="top" data-container="body" title="help"></span>
         </div>
-      </div>
+      </section>
     </div>
+    <!-- Bottom Worksheet Tabs -->
     <div id="bottomTabArea">
       <div class="btn btnSmall" id="addWorksheet">
         <span class="icon"></span>
       </div>
       <!-- Worksheet Tabs -->
       <div id="worksheetTabs">
-        <!-- This is a placeholder, Keep this so that user do not see difference when loading -->
+        <!-- Placeholder, Keep it so user don't see difference when loading -->
         <section class="worksheetTab active">
           <div class="label">
             <div class="iconWrapper delete">
@@ -665,7 +683,8 @@
       </div>
     </div>
   </div>
-  <!-- Fixed positioned statusBox -->
+
+  <!-- Fixed positioned StatusBox -->
   <div id="statusBox">
     <div class="arrow"></div>
     <div class="boxInnerWrap">
@@ -674,26 +693,30 @@
         <span class="icon"></span>
         <span class="titleText"></span>
       </div>
-      <div class="message">
-      </div>
+      <div class="message"></div>
     </div>
   </div>
-  <!-- Start quick aggregates modal -->
+  <!-- End Of StatusBox -->
+
+  <!-- Quick Aggregates Modal -->
   <div id="quickAggDialog" class="modalContainer">
-    <div id="quickAggHeader" class="modalHeader">
+    <!-- Header -->
+    <header id="quickAggHeader" class="modalHeader">
       <span class="text">Quick Aggregates</span>
       <div id="closeAgg" class="close">
         <span class="icon"></span>
       </div>
-    </div>
-    <div id="quickAggInstructions" class="modalInstruction">
+    </header>
+    <!-- Quick Aggregates Instruction Section -->
+    <section id="quickAggInstructions" class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
         Viewing common aggregate functions on all of the columns in the active
         table.
       </div>
-    </div>
-    <div id="aggInputSection" class="modalTopMain">
+    </section>
+    <!-- Quick Aggregates Input Section -->
+    <section id="aggInputSection" class="modalTopMain">
       <div class="text">Table Name:</div>
       <input id="aggRoundedInput" disabled type="textbox"></input>
       <div id="aggOp" class="listSection">
@@ -706,34 +729,36 @@
           <!--<li>Correlation Coefficient</li>-->
         </ul>
       </div>
-    </div>
-    <div id="mainAgg" class="clearfix modalMain">
+    </section>
+    <!-- Quick Aggregates Main Section -->
+    <section id="mainAgg" class="clearfix modalMain">
       <div class="tableText">Quick aggregates for each individual column</div>
       <div class="mainTable">
         <div class="tabArea">
-          <div class="tableTabs">
-          </div>
+          <div class="tableTabs"></div>
           <div class="mainAggArea">
-            <div class="quickAggArea">
-            </div>
+            <div class="quickAggArea"></div>
           </div>
         </div>
         <div class="blankSpace"></div>
-        <div class="vertTabArea">
-        </div>
+        <div class="vertTabArea"></div>
       </div>
-    </div>
+    </section>
   </div>
-  <!-- Start join modal -->
+  <!-- End Of Quick Aggregates Modal -->
+
   <div id="joinModal"></div>
+  <!-- Join Modal -->
   <div id="joinDialog" class="modalContainer">
-    <div id="joinHeader" class="modalHeader">
+    <!-- Join Modal Header -->
+    <header id="joinHeader" class="modalHeader">
       <span class="text">Join Tables</span>
       <div id="closeJoin" class="close">
         <span class="icon"></span>
       </div>
-    </div>
-    <div id="instructions" class="modalInstruction">
+    </header>
+    <!-- Jonin Modal Instrunction Section -->
+    <section id="instructions" class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
         First, select the column from the left table that you would like to join
@@ -741,8 +766,9 @@
         Next, select the table followed by the column from the right that you 
         would like to join on.
       </div>
-    </div>
-    <div id="inputSection" class="modalTopMain">
+    </section>
+    <!-- Join Modal Input Section -->
+    <section id="inputSection" class="modalTopMain">
       <div class="text">New Table Name:</div>
       <input id="roundedInput" type="textbox" required></input>
       <div id="joinType" class="listSection">
@@ -757,8 +783,10 @@
           <li>Full Outer Join</li>
         </ul>
       </div>
-    </div>
-    <div id="mainJoin" class="clearfix modalMain">
+    </section>
+    <!-- Join Modal Main Section -->
+    <section id="mainJoin" class="clearfix modalMain">
+      <!-- left join -->
       <div id="leftJoin">
         <div class="tableText">Left Table</div>
         <div class="mainTable">
@@ -773,6 +801,7 @@
         </div>
       </div>
       <div class="divider"></div>
+      <!-- right join -->
       <div id="rightJoin">
         <div class="tableText">Right Table</div>
         <div class="mainTable">
@@ -785,16 +814,18 @@
           </div>
         </div>
       </div>
-      <!-- <div id="rightJoin"></div> -->
-    </div>
-    <div id="joinActions" class="modalBottom">
+    </section>
+    <!-- Join Modal Button Section -->
+    <section id="joinActions" class="modalBottom">
       <div id="joinTables" class="btn btnMid confirm">JOIN TABLES</div>
       <div id="cancelJoin" class="btn btnMid cancel">CANCEL JOIN</div>
-    </div>
+    </section>
   </div>
+  <!-- End Of Join Modal -->
 
+  <!-- Modal Background -->
   <div id="modalBackground"></div>
-
+  <!-- Json Modal -->
   <div id="jsonModal">
     <div class="jsonDragArea"></div>
     <div class="closeJsonModal">
@@ -802,11 +833,13 @@
     </div>
     <div id="jsonWrap">
       <div class="prettyJson">
-        {<div class="jObject">
-        </div>}
+        {<div class="jObject"></div>}
       </div>
     </div>
   </div>
+  <!-- End Of Json Modal -->
+
+  <!-- ScratchPad -->
   <div id="scratchpadArea">
     <table class="scratchpad">
       <thead>
@@ -818,22 +851,27 @@
       </tbody>
     </table>
   </div>
+  <!-- End of ScratchPad -->
 
+  <!-- Alert Modal -->
   <div id="alertModal" class="modalContainer">
-    <div id="alertHeader" class="modalHeader">
-        <span class="text">Confirmation Required</span>
-        <div class="close">
-            <span class="icon"></span>
-        </div>
-    </div>
-    <div id="alertInstruction" class="modalInstruction">
+    <!-- Alert Modal Header -->
+    <header id="alertHeader" class="modalHeader">
+      <span class="text">Confirmation Required</span>
+      <div class="close">
+        <span class="icon"></span>
+      </div>
+    </header>
+    <!-- Alert Modal Instruction -->
+    <section id="alertInstruction" class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
         This selected column will be deleted from data set but be available on 
         the archive to the pasted back into current table
       </div>
-    </div>
-    <div id="alertContent" class="modalTopMain">
+    </section>
+    <!-- Alert Modal Content -->
+    <section id="alertContent" class="modalTopMain">
       <div class="text">
         Are you sure you want to remove this column?
       </div>
@@ -843,35 +881,43 @@
                placeholder="click to see options"/>
         <datalist id="alertlist"></datalist>
       </div>
-    </div>
-    <div id="alertOption" class="modalMain">
+    </section>
+    <!-- Alert Checkbox -->
+    <section id="alertOption" class="modalMain">
       <div id="alertCheckBox">
-          <div class="checkbox"></div>
-          <div class="text">Don't show again</div>
+        <div class="checkbox"></div>
+        <div class="text">Don't show again</div>
       </div>
-    </div>
-    <div id="alertActions" class="modalBottom">
-        <div class="btn btnMid confirm">CONFIRM</div>
-        <div class="btn btnMid cancel">CANCEL</div>
-    </div>
+    </section>
+    <!-- Button Section -->
+    <section id="alertActions" class="modalBottom">
+      <button type="button" class="btn btnMid confirm">CONFIRM</button>
+      <button type="button" class="btn btnMid cancel">CANCEL</button>
+    </section>
   </div>
+  <!-- End of Alert Modal -->
 
+  <!-- File Browser Modal -->
   <div id="fileBrowserModal" class="modalContainer">
-    <div id="fileBrowserHeader" class="modalHeader">
-        <span class="text">Browse Data Set</span>
-        <div class="close">
-            <span class="icon"></span>
-        </div>
-    </div>
-    <div class="modalInstruction">
+    <!-- File Browser Header -->
+    <header id="fileBrowserHeader" class="modalHeader">
+      <span class="text">Browse Data Set</span>
+      <div class="close">
+          <span class="icon"></span>
+      </div>
+    </header>
+    <!-- File Browser Instruction -->
+    <section class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
         Select the dataset that you want to import and then click the 
         "OPEN DATASET" button to import it.
       </div>
-    </div>
-    <div class="modalTopMain">
+    </section>
+    <!-- File Browser Menu Bar -->
+    <section class="modalTopMain">
       <div class="topSection">
+        <!-- Location -->
         <div class="label">locations:</div>
         <div id="fileBrowserPath" class="listSection">
           <div class="text" contenteditable></div>
@@ -882,28 +928,33 @@
           </div>
           <ul id="fileBrowserPathMenu" class="list"></ul>
         </div>
-        <div class="iconSection">
+        <!-- Icon Options -->
+        <section class="iconSection">
+          <!-- up -->
           <div id="fileBrowserUp" class="iconWrapper icon-up"
               title="Click to go back" data-toggle="tooltip"
               data-placement="bottom" data-container="body">
             <span class="icon"></span>
           </div>
+          <!-- toggle view -->
           <div id="fileBrowserGridView" class="iconWrapper icon-list gridView"
               data-toggle="tooltip" data-placement="bottom"
               data-original-title="Switch to List view" data-container="body">
             <span class="icon"></span>
           </div>
+          <!-- sort -->
           <div id="fileBrowserSort" class="iconWrapper icon-sort"
               title="Sort" data-toggle="tooltip"
               data-placement="bottom" data-container="body">
             <span class="icon"></span>
-             <div class="dropdownBox">
-                <span class="innerBox"></span>
+            <div class="dropdownBox">
+              <span class="innerBox"></span>
             </div>
+            <!-- sort dropdown -->
             <ul id="fileBrowserSortMenu" class="colMenu">
               <li data-sortkey="name">
-                  <span class="label">name</span>
-                  <span class="icon"></span>
+                <span class="label">name</span>
+                <span class="icon"></span>
               </li>
               <li data-sortkey="size">
                 <span class="label">size</span>
@@ -914,54 +965,68 @@
                   <span class="icon"></span>
               </li>
             </ul>
+            <!-- end of sort dropdown -->
           </div>
-        </div>
+        </section>
       </div>
-    </div>
-    <div id="fileBrowserMain" class="modalMain gridView">
-      <div class="titleSection">
+    </section>
+    <!-- File Browser Main Section -->
+    <section id="fileBrowserMain" class="modalMain gridView">
+      <!-- Titles -->
+      <section class="titleSection">
+          <!-- file name -->
           <div class="title fileName clickable" data-sortkey="name">
             <span class="label">name</span>
             <span class="icon"></span>
           </div>
+          <!-- file date -->
           <div class="title fileDate">
             <span class="label">date modified</span>
             <span class="icon"></span>
           </div>
+          <!-- file size -->
           <div class="title fileSize clickable" data-sortkey="size">
             <span class="label">size</span>
             <span class="icon"></span>
           </div>
-      </div>
-      <div id="fileBrowserContainer" class="mainSection"></div>
-    </div>
-    <div class="modalSubMain">
-        <div class="inputSection">
-          <div class="label">file name:</div>
-          <input id="fileBrowserInputName" type="text" value="">
+      </section>
+      <!-- Main Content -->
+      <section id="fileBrowserContainer" class="mainSection"></section>
+    </section>
+    <!-- File Info Section -->
+    <section class="modalSubMain">
+      <!-- Input for file name -->
+      <section class="inputSection">
+        <div class="label">
+          <label for="fileBrowserInputName">file name:</label>
         </div>
-        <div class="inputSection">
-          <div class="label">file format:</div>
-          <div id="fileBrowserFormat" class="listSection">
-            <div class="text">all</div>
-            <div class="iconWrapper">
-              <div class="icon"></div>
-            </div>
-            <ul class="list">
-              <li class="select">all</li>
-              <li>json</li>
-              <li>csv</li>
-            </ul>
+        <input id="fileBrowserInputName" type="text" value="">
+      </section>
+      <!-- Input for file format -->
+      <section class="inputSection">
+        <div class="label">file format:</div>
+        <div id="fileBrowserFormat" class="listSection">
+          <div class="text">all</div>
+          <div class="iconWrapper">
+            <div class="icon"></div>
           </div>
+          <ul class="list">
+            <li class="select">all</li>
+            <li>json</li>
+            <li>csv</li>
+          </ul>
         </div>
-    </div>
-    <div class="modalBottom">
-        <div class="btn btnMid confirm">OPEN DATASET</div>
-        <div class="btn btnMid cancel">CANCEL</div>
-    </div>
+      </section>
+    </section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+      <button type="button" class="btn btnMid confirm">OPEN DATASET</button>
+      <button type="button" class="btn btnMid cancel">CANCEL</button>
+    </section>
   </div>
-
-</div> <!-- END CONTAINER -->
+  <!-- End File Browser Modal -->
+</div>
+<!-- END CONTAINER -->
 <script src="3rd/d3.min.js" charset="utf-8"></script>
 <script src="bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.min.js">
 </script>
@@ -983,7 +1048,8 @@
 <script src="/js/thrift/JoinOpEnums_types.js" type="text/javascript"></script>
 <script src="/js/thrift/Status_types.js" type="text/javascript"></script>
 <script src="/js/thrift/LibApisCommon_types.js" type="text/javascript"></script>
-<script src="/js/thrift/LibApisConstants_types.js" type="text/javascript"></script>
+<script src="/js/thrift/LibApisConstants_types.js" type="text/javascript">
+</script>
 <script src="/js/thrift/XcalarApiService.js" type="text/javascript"></script>
 <script src="/js/thrift/XcalarApiServiceAsync.js" type="text/javascript">
 </script>
@@ -1016,6 +1082,7 @@
 <script src="js/quickAggModal.js" type="text/javascript"></script>
 <script src="js/statusMessage.js" type="text/javascript"></script>
 <script src="js/statusMessage_types_en.js" type="text/javascript"></script>
+<!-- Start up script -->
 <script>
     documentReadyIndexFunction();
 </script>

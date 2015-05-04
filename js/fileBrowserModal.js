@@ -1,7 +1,7 @@
 window.FileBrowser = (function($, FileBrowser) {
     var $modalBackground = $('#modalBackground');
     var $fileBrowser = $('#fileBrowserModal');
-    var $container = $("#fileBrowserView");
+    var $container = $("#fileBrowserContainer");
     var $fileBrowserMain = $('#fileBrowserMain');
     var $inputName = $('#fileBrowserInputName');
 
