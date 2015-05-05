@@ -162,7 +162,7 @@ function mapColumn(fieldName, mapString, tableNum, tableName, message) {
     .then(function() {
         StatusMessage.success(message);
         // add sql
-        SQL.add("MapColumn", {
+        SQL.add("Map Column", {
             "operation": "mapColumn",
            "srcTableName": srcTableName,
            "newTableName": newTableName,

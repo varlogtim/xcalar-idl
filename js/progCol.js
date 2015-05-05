@@ -55,13 +55,6 @@ function execCol(progCol, tableNum, args) {
                 tableNum, startIndex, numberOfRows);
         // addMenuBarTables([gTables[tableNum]], IsActive.Active);
 
-        // add sql
-        SQL.add("Pull Column", {
-            "operation": "pullCol",
-            "tableName": gTables[tableNum].frontTableName,
-            "colName": progCol.name,
-            "colIndex": progCol.index,
-        });
         deferred.resolve();
         break;
     case ("raw"):

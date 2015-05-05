@@ -1476,6 +1476,13 @@ function functionBarEnter($el) {
 
     $el.blur();
     $('#fnBar').removeClass('inFocus');
+    // add sql
+    SQL.add("Pull Column", {
+        "operation": "pullCol",
+        "tableName": gTables[tableNum].frontTableName,
+        "colName": progCol.name,
+        "colIndex": progCol.index,
+    });
 
     execCol(progCol, tableNum)
     .then(function() {
