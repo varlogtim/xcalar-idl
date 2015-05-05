@@ -370,13 +370,13 @@ input {
             td {
                 border-right: 5px solid @color-table-lightGray;
                 &:nth-child(odd) {
-                    background-color: #e6e6e6;
+                    background-color: @color-table-darkGray;
                 }
                 &:nth-child(even) {
-                    background-color: #EDEDED;
+                    background-color: @color-table-midGray;
                 }
                 &:first-child {
-                    background-color: #cfcfcf;
+                    background-color: @color-table-col-darkestGray;
                 }
             }
         }
@@ -385,13 +385,13 @@ input {
             td {
                 border-right: 5px solid @color-white; 
                 &:nth-child(odd) {
-                    background-color: #f4f4f4;
+                    background-color: @color-table-lightGray;
                 }
                 &:nth-child(even) {
-                    background-color: #FBFBFB;
+                    background-color: @color-table-col-lightGray;
                 }
                 &:first-child {
-                    background-color: #dbdbdb;
+                    background-color: @color-table-col-darkGray;
                 }
             }
         }
