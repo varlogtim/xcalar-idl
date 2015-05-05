@@ -569,8 +569,8 @@ function tableBulkAction(action) {
             if (action === "add") {
                 // update gTableIndicesLookup
                 gTableIndicesLookup[tableName].active = true;
-                gTableIndicesLookup[tableName].timeStamp = (new Date())
-                                                            .getTime();
+                gTableIndicesLookup[tableName].timeStamp = 
+                                                        xcHelper.getTimeInMS();
 
                 addTable(backTableName, gTables.length, AfterStartup.After, 
                             null, tableName)
@@ -729,9 +729,9 @@ function generateMenuBarTableHTML(tables, active) {
         var numCols = table.tableCols.length;
         var time;
         if (dateIndex >= 7) {
-            time = (new Date(timeStamp)).toLocaleDateString();
+            time = xcHelper.getDate("-", null, timeStamp);
         } else {
-            time = (new Date(timeStamp)).toLocaleTimeString();
+            time = xcHelper.getTime(null, timeStamp);
         }
 
         var tableName = table.frontTableName;
@@ -783,7 +783,7 @@ function generateMenuBarTableHTML(tables, active) {
 
             if (timeStamp === undefined) {
                 console.log('Time Stamp undefined');
-                timeStamp = (new Date('2014-02-14')).getTime();
+                timeStamp = xcHelper.getTimeInMS(null, "2014-02-14");
             }
 
             sortedTables.push([tables[i], timeStamp]);
@@ -819,8 +819,6 @@ function moveMenuBarTable(table) {
                             return $(this).text() == table.frontTableName;
                         }
                       ).closest('li');
-    var timeStamp = gTableIndicesLookup[table.frontTableName].timeStamp;
-    var time = (new Date(timeStamp)).toLocaleTimeString();
 
     $timeLine = $tableList.parent().parent();
     addMenuBarTables([table], IsActive.Inactive);

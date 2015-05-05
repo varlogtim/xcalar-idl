@@ -64,7 +64,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
     if (!del) {
         gHiddenTables.push(deletedTable[0]);
         gTableIndicesLookup[tableName].active = false;
-        gTableIndicesLookup[tableName].timeStamp = (new Date()).getTime();
+        gTableIndicesLookup[tableName].timeStamp = xcHelper.getTimeInMS();
         moveMenuBarTable(deletedTable[0]);
     } else {
         delete (gTableIndicesLookup[tableName]);

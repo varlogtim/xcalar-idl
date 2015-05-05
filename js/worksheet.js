@@ -11,12 +11,7 @@ window.WSManager = (function($, WSManager) {
 
     WSManager.setup = function() {
         // set up workhseet meta
-        var d = new Date();
-        var day = d.getDate();
-        var month = d.getMonth() + 1;
-        var year = d.getFullYear();
-        $("#workspaceDate").text("Created on " + month + "-" 
-                                    + day + "-" + year);
+        $("#workspaceDate").text("Created on " + xcHelper.getDate());
 
         setupWorksheetListener();
         initializeWorksheet();
@@ -166,9 +161,7 @@ window.WSManager = (function($, WSManager) {
         var $dags = $("#dagPanel .dagWrap");
 
         // refresh worksheet tabe
-        if (window.getSelection) {
-             window.getSelection().removeAllRanges();
-        }
+        xcHelper.removeSelectionRange();
 
         $tabs.find(".text").blur();
         $tabs.addClass("inActive");
@@ -554,4 +547,4 @@ window.WSManager = (function($, WSManager) {
     }
 
     return (WSManager);
-}(jQuery, {}))
+}(jQuery, {}));

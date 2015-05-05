@@ -34,9 +34,7 @@ window.FileBrowser = (function($, FileBrowser) {
             // set modal background
             $modalBackground.fadeIn(100);
             $modalBackground.addClass("open");
-            if (window.getSelection) {
-                window.getSelection().removeAllRanges();
-            }
+            xcHelper.removeSelectionRange();
             // press enter to import a dataset
             $(document).on("keyup", fileBrowserKeyUp);
             $fileBrowser.show();

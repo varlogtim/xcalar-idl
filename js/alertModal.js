@@ -20,9 +20,7 @@ window.Alert = (function($, Alert){
         $alertModal.show();
         $modalBackground.fadeIn(100);
 
-        if (window.getSelection) {
-            window.getSelection().removeAllRanges();
-        }
+        xcHelper.removeSelectionRange();
     }
 
     Alert.error = function(title, error, unclosable) {

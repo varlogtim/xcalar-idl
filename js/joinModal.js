@@ -113,8 +113,8 @@ function initializeJoinModal() {
     $('#joinDialog').mousedown(hideJoinTypeSelect);
 
     // Fill in a default join name
-    var joinTableName = "tempJoinTable" +
-                        Math.floor((Math.random() * 100000) + 1);
+    var joinTableName = xcHelper.randName("tempJoinTable-");
+
     $("#inputSection input").val(joinTableName);
 
     $('.joinTableArea').scroll(function(){
@@ -250,8 +250,8 @@ function resetJoinTables() {
     $("body").off("keypress", joinTableKeyPress);
     $('#inputSection input').val("");
     // Fill in a default join name
-    var joinTableName = "tempJoinTable" +
-                        Math.floor((Math.random() * 100000) + 1);
+    var joinTableName = xcHelper.randName("tempJoinTable-");
+
     $("#inputSection input").val(joinTableName);
     $('#joinDialog').hide();
     $('#joinModal').hide();

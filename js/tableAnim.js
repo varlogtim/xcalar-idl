@@ -27,7 +27,7 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
 }
 
 function disableTextSelection() {
-    window.getSelection().removeAllRanges();
+    xcHelper.removeSelectionRange();
     var style = '<style id="disableSelection" type="text/css">*'+ 
         '{ -ms-user-select:none;-moz-user-select:-moz-none;'+
         '-khtml-user-select:none;'+
@@ -618,7 +618,7 @@ function createTableHeader(tableNum) {
     var tableName = "";
     // XXX build this table title somewhere else
     if (gTables[tableNum] != undefined) {
-        tableName = gTables[tableNum].frontTableName;
+        tableName = gTables[tableNum].backTableName;
     }
 
     var html = '<div class="tableTitle">' + 
@@ -633,7 +633,7 @@ function createTableHeader(tableNum) {
     // XXX Format is tablename  [cols]
     updateTableHeader(tableNum);
 
-    var newTableName = randName(tableName);
+    var newTableName = xcHelper.randName(tableName);
     var tableMenuHTML = 
         '<ul id="tableMenu' + tableNum + 
             '" class="colMenu tableMenu" >' + 
@@ -904,6 +904,7 @@ function createTableHeader(tableNum) {
             var newTableName = jQuery.trim($tableNameInput.val());
 
             var srcTableName = gTables[tableNum].frontTableName;
+            var backTableName = gTables[tableNum].backTableName;
             // validation
             if (worksheetName == "") {
                 var text = "Worksheet name is empty," + 
@@ -944,7 +945,7 @@ function createTableHeader(tableNum) {
             $wsInput.val("");
             $wsInput.blur();
 
-            $tableNameInput.val(randName(tableName));
+            $tableNameInput.val(xcHelper.randName(backTableName));
             $tableNameInput.blur();
             $menu.hide();
 

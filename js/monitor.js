@@ -168,9 +168,9 @@ function updateMonitorGraphs() {
         return;
     }
     var d = new Date();
-    var date = d.toLocaleDateString().replace(/\//g,'-');
-    var time = d.toLocaleTimeString();
-    $("#graphTime").text(date+" "+time);
+    var date = xcHelper.getDate("-", d);
+    var time = xcHelper.getTime(d);
+    $("#graphTime").text(date + " " + time);
     var numNodes = 0;
     var apiTopResult;
 
@@ -455,8 +455,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 numXGridMarks++;    
 
                 if (count % 40 == 0) {
-                    var d = new Date();
-                    var time = d.toLocaleTimeString();
+                    var time = xcHelper.getTime();
                     time = time.substr(0, (time.length - 3));
                     timeStamp = '<span>'+time+'</span>';
                 }

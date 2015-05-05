@@ -653,8 +653,7 @@ window.DataCart = (function($, DataCart) {
                 var startIndex = 0;
                 var datasetName = $cart.attr("id").split("selectedTable-")[1];
 
-                var rand = Math.floor((Math.random() * 100000) + 1);
-                var tableName = datasetName + "-" + rand;
+                var tableName = xcHelper.randName(datasetName + "-");
 
                 // add sql
                 var sqlOptions = {
@@ -806,13 +805,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
     }
 
     function updateTableInfo(dsName, dsFormat, totalEntries) {
-        var d = new Date();
-        var date = (d.getMonth() + 1) + "-" + d.getDate() + "-" 
-                    + d.getFullYear();
         $("#schema-title").text(dsName);
         $("#dsInfo-title").text(dsName);
-        $("#dsInfo-createDate").text(date);
-        $("#dsInfo-updateDate").text(date);
+        $("#dsInfo-createDate").text(xcHelper.getDate());
+        $("#dsInfo-updateDate").text(xcHelper.getDate());
         $("#dsInfo-records").text(Number(totalEntries).toLocaleString('en'));
         if (dsFormat) {
             $("#schema-format").text(dsFormat);

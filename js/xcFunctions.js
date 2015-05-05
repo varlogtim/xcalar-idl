@@ -88,7 +88,7 @@ function sortRows(index, tableNum, order) {
 
     var isTable = gTables[tableNum].isTable;
 
-    var newTableName = randName("tempSortTable");
+    var newTableName = xcHelper.randName("tempSortTable-");
     var tableName = gTables[tableNum].frontTableName;
     var srcName = isTable ? gTables[tableNum].backTableName : 
                             gTableIndicesLookup[tableName].datasetName;
@@ -143,17 +143,18 @@ function sortRows(index, tableNum, order) {
 
 function mapColumn(fieldName, mapString, tableNum, tableName, message) {
     var deferred = jQuery.Deferred();
-
-    var rand = Math.floor((Math.random() * 100000) + 1);
-    var newTableName = "tempMapTable"+rand;
+    var newTableName = xcHelper.randName("tempMapTable-");
+    var srcTableName = gTables[tableNum].frontTableName;
+    var backTableName = gTables[tableNum].backTableName;
     var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
     var tableProperties = {bookmarks:[], rowHeights:{}};
+
     tableProperties.bookmarks = JSON.parse(JSON.stringify(
                                                 gTables[tableNum].bookmarks));
     tableProperties.rowHeights = JSON.parse(JSON.stringify(
                                                 gTables[tableNum].rowHeights));
-    XcalarMap(fieldName, mapString, 
-              tableName, newTableName)
+
+    XcalarMap(fieldName, mapString, backTableName, newTableName)
     .then(function() {
         setIndex(newTableName, tablCols, null, tableProperties);
         return (refreshTable(newTableName, tableNum));
@@ -163,7 +164,7 @@ function mapColumn(fieldName, mapString, tableNum, tableName, message) {
         // add sql
         SQL.add("MapColumn", {
             "operation": "mapColumn",
-           "srcTableName": tableName,
+           "srcTableName": srcTableName,
            "newTableName": newTableName,
            "colName": fieldName,
            "mapString": mapString
@@ -181,17 +182,16 @@ function mapColumn(fieldName, mapString, tableNum, tableName, message) {
 
 function groupByCol(operator, newColName, colid, tableNum) {
     var deferred = jQuery.Deferred();
-
-    var rand = Math.floor((Math.random() * 100000) + 1);
-    var newTableName = "tempGroupByTable"+rand;
-    var srcTableName = gTables[tableNum].frontTableName
+    var newTableName = xcHelper.randName("tempGroupByTable-");
+    var srcTableName = gTables[tableNum].frontTableName;
+    var backTableName = gTables[tableNum].backTableName;
     var fieldName = gTables[tableNum].tableCols[colid - 1].name;
 
     var msg = StatusMessageTStr.GroupBy + " " + operator;
 
     StatusMessage.show(msg);
     
-    XcalarGroupBy(operator, newColName, fieldName, srcTableName, newTableName)
+    XcalarGroupBy(operator, newColName, fieldName, backTableName, newTableName)
     .then(function() {
         // TODO Create new gTables entry
         // setIndex(newTableName, newTableCols);
@@ -250,16 +250,16 @@ function aggregateCol(operator, colName, tableName, message) {
 function filterCol(operator, value, colid, tableNum, tableName, message) {
     var deferred = jQuery.Deferred();
 
-    var rand = Math.floor((Math.random() * 100000) + 1);
-    var newTableName = "tempFilterTable"+rand;
-    var srcTableName = tableName;
+    var newTableName = xcHelper.randName("tempFilterTable-");
+    var srcTableName = gTables[tableNum].frontTableName;
+    var backTableName = gTables[tableNum].backTableName
     var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
     var colName = tablCols[colid - 1].name;
 
     // var msg = StatusMessageTStr.Filter+': '+colName;
     // StatusMessage.show(msg);
 
-    XcalarFilter(operator, value, colName, srcTableName, newTableName)
+    XcalarFilter(operator, value, colName, backTableName, newTableName)
     .then(function() {
         
         setIndex(newTableName, tablCols);
@@ -367,8 +367,7 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
             
             // XXX In the future,we can check if there are other tables that are
             // indexed on this key. But for now, we reindex a new table
-            var rand = Math.floor((Math.random() * 100000) + 1);
-            var leftNameNew = leftName + rand;
+            var leftNameNew = xcHelper.randName(leftName);
             var isTable = leftTable.isTable;
             var srcName = isTable ? leftName : 
                                     gTableIndicesLookup[leftName].datasetName;
@@ -428,8 +427,7 @@ function joinTables2(args) {
 
         if (rightColName != rightIndexColName) {
             console.log("right not indexed correctly");
-            var rand = Math.floor((Math.random() * 100000) + 1);
-            var rightNameNew = rightName + rand;
+            var rightNameNew = xcHelper.randName(rightName);
             var isTable = rightTable.isTable;
             var srcName = isTable ? rightName : 
                                     gTableIndicesLookup[rightName].datasetName;

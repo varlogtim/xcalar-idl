@@ -149,9 +149,7 @@ function showJsonModal(jsonTd) {
         });
     });
 
-    if (window.getSelection) {
-        window.getSelection().removeAllRanges();
-    }
+    xcHelper.removeSelectionRange();
     $('body').addClass('hideScroll');
 }
 

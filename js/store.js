@@ -63,7 +63,7 @@ function setIndex(tName, index, dsName, tableProperties, backTableName) {
     gTableIndicesLookup[tName] = {};
     gTableIndicesLookup[tName]['columns'] = index;
     gTableIndicesLookup[tName]['active'] = true;
-    gTableIndicesLookup[tName]['timeStamp'] = (new Date()).getTime();
+    gTableIndicesLookup[tName]['timeStamp'] = xcHelper.getTimeInMS();
     if (dsName) {
         gTableIndicesLookup[tName]['datasetName'] = dsName;
         gTableIndicesLookup[tName]['isTable'] = false;
