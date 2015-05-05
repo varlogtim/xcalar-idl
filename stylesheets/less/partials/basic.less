@@ -355,12 +355,6 @@ input {
         vertical-align: middle;
         text-align: center;
 
-        &:nth-child(odd) {
-            background-color: @colorOpaque-darkGray;
-        }
-        &:nth-child(even) {
-            background-color: @colorOpaque-lightGray;
-        }
         &:last-child {
             border-right: 5px solid @color-white !important;
         }
@@ -375,12 +369,30 @@ input {
             background-color: @color-table-lightGray;
             td {
                 border-right: 5px solid @color-table-lightGray;
+                &:nth-child(odd) {
+                    background-color: #e6e6e6;
+                }
+                &:nth-child(even) {
+                    background-color: #EDEDED;
+                }
+                &:first-child {
+                    background-color: #cfcfcf;
+                }
             }
         }
         &:nth-child(even) {
             background-color: @color-white;
             td {
                 border-right: 5px solid @color-white; 
+                &:nth-child(odd) {
+                    background-color: #f4f4f4;
+                }
+                &:nth-child(even) {
+                    background-color: #FBFBFB;
+                }
+                &:first-child {
+                    background-color: #dbdbdb;
+                }
             }
         }
     }
@@ -418,13 +430,11 @@ input {
                 background-color: @color-selectedCell-light;
             }
         }
-
     }
 
     tbody td:first-child {
         .noSelection;
         overflow: visible;
-        background-color: @colorOpaque-midGray; 
         border-left: 5px solid @color-white;
     }
 

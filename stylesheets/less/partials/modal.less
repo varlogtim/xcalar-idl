@@ -536,9 +536,7 @@
             margin-left: 1px;
             display: none;
             z-index: 2;
-            td:nth-child(odd) {
-                background-color: rgba(80,80,80,.1);
-            }
+            
             th {
                 background-color: #ddeaf2;
                 border-color: #ddeaf2;
@@ -547,6 +545,14 @@
                     width: 125px !important;
                     padding-left: 5px;
                 }
+            }
+
+            tr:nth-child(odd)  td:first-child {
+                background-color: #e6e6e6;
+            }
+
+            tr:nth-child(even) td:first-child {
+                background-color: #f4f4f4;     
             }
 
             .addedBarText {
@@ -624,11 +630,11 @@
         }
 
         tr:nth-child(odd) td.colSelected {
-            background-color: @color-selectedCell-dark;
+            background-color: @color-selectedCell-dark !important;
         }
 
         tr:nth-child(even) td.colSelected {
-            background-color: @color-selectedCell-light;
+            background-color: @color-selectedCell-light !important;
         }
 
         .colSelected {
