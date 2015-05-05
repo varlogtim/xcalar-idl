@@ -53,7 +53,6 @@ function execCol(progCol, tableNum, args) {
         }
         pullCol(progCol.func.args[0], progCol.index,
                 tableNum, startIndex, numberOfRows);
-        // addMenuBarTables([gTables[tableNum]], IsActive.Active);
 
         deferred.resolve();
         break;
@@ -253,7 +252,7 @@ function delCol(colNum, tableNum) {
     tableWrap.find('th.col'+colNum+' ,td.col'+colNum).remove();
     removeColAtIndex(colNum-1, tableNum);
     updateTableHeader(tableNum)
-    updateMenuBarTable(gTables[tableNum], tableNum);
+    RightSideBar.updateTableInfo(gTables[tableNum]);
     for (var i = colNum+1; i<=numCol; i++) {
         tableWrap.find('.col'+i).removeClass('col'+i).addClass('col'+(i-1));
     }
@@ -675,7 +674,7 @@ function addCol(colId, tableId, name, options) {
         table.find('tr:first .editableHead.col'+newColid).focus();
     }
     updateTableHeader(tableNum);
-    updateMenuBarTable(gTables[tableNum], tableNum);
+    RightSideBar.updateTableInfo(gTables[tableNum]);
     adjustColGrabHeight(tableNum);
     matchHeaderSizes(newColid, table);
 }

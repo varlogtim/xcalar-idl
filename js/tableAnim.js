@@ -1273,7 +1273,7 @@ function addColMenuActions($colMenu) {
         execCol(gTables[tableNum].tableCols[index], tableNum)
         .then(function() {
             updateTableHeader(tableNum);
-            updateMenuBarTable(gTables[tableNum], tableNum);
+            RightSideBar.updateTableInfo(gTables[tableNum]);
         }); 
     });
 
@@ -1487,7 +1487,7 @@ function functionBarEnter($el) {
     execCol(progCol, tableNum)
     .then(function() {
         updateTableHeader(tableNum);
-        updateMenuBarTable(gTables[tableNum], tableNum);
+        RightSideBar.updateTableInfo(gTables[tableNum]);
 
         if (progCol.name.length > 0) {
             $el.val(progCol.name);

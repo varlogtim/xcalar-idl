@@ -20,7 +20,7 @@ function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
             setIndex(frontName, gTables[tableNum].tableCols, null, null, table);
         }
         if (AfterStartup) {
-            addMenuBarTables([gTables[tableNum]], IsActive.Active);
+            RightSideBar.addTables([gTables[tableNum]], IsActive.Active);
         }
         if ($('.xcTable').length == 1) {
             focusTable(tableNum);
@@ -65,7 +65,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         gHiddenTables.push(deletedTable[0]);
         gTableIndicesLookup[tableName].active = false;
         gTableIndicesLookup[tableName].timeStamp = xcHelper.getTimeInMS();
-        moveMenuBarTable(deletedTable[0]);
+        RightSideBar.moveTable(deletedTable[0]);
     } else {
         delete (gTableIndicesLookup[tableName]);
         var $li = $("#activeTablesList").find('.tableName').filter(

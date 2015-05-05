@@ -1,5 +1,17 @@
 window.xcHelper = (function($, xcHelper) {
 
+    xcHelper.getTableIndexFromName = function(tableName, isHidden) {
+        var table = isHidden ? gHiddenTables : gTables;
+
+        for (var i = 0; i < gHiddenTables.length; i ++) {
+            if (tableName === gHiddenTables[i].frontTableName) {
+                return (i);
+            }
+        }
+
+        return undefined;
+    }
+
     xcHelper.randName = function(name, digits) {
         if (digits == undefined) {
             digits = 5; // default
@@ -46,6 +58,29 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return d.getTime();
+    }
+
+    xcHelper.getTwoWeeksDate = function() {
+        var res     = [];
+        var d       = new Date();
+        var day     = d.getDate();
+        var date;
+
+        d.setHours(0, 0, 0, 0);
+
+        // date from today to lastweek, all dates' time is 0:00 am
+        for (var i = 0; i < 7; i ++) {
+            date = new Date(d);
+            date.setDate(day - i);
+            res.push(date);
+        }
+
+        // older than one week
+        date = new Date(d);
+        date.setDate(day - 13);
+        res.push(date);
+
+        return (res);
     }
 
     return (xcHelper);

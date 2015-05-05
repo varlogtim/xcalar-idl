@@ -382,7 +382,7 @@ function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
                     .then(function() {
                             var index = gHiddenTables.length - 1;
 
-                            addMenuBarTables([gHiddenTables[index]], 
+                            RightSideBar.addTables([gHiddenTables[index]], 
                                              IsActive.Inactive);
                             return (joinTables2([newTableName, joinType,
                                                leftTableNum, leftNameNew,
@@ -443,7 +443,7 @@ function joinTables2(args) {
                     .then(function() {
                             var index = gHiddenTables.length - 1;
 
-                            addMenuBarTables([gHiddenTables[index]], 
+                            RightSideBar.addTables([gHiddenTables[index]], 
                                              IsActive.Inactive);
 
                             return (joinTables3([newTableName, joinType,

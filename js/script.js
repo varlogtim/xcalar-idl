@@ -565,7 +565,7 @@ function startupFunctions() {
     var deferred = jQuery.Deferred();
 
     setupLogout();
-    setupRightSideBar();
+    RightSideBar.setup();
     DataStore.setup();
     readFromStorage()
     .then(function() {
@@ -690,7 +690,7 @@ function documentReadyIndexFunction() {
         startupFunctions()
         .then(initializeTable)
         .then(function() {
-            setuptableListSection();
+            RightSideBar.initialize();
             initializeJoinModal();
             initializeAggModal();
             WSManager.focusOnWorksheet();

@@ -464,12 +464,15 @@ window.WSManager = (function($, WSManager) {
     }
 
     function tableDeleteHelper(worsheet, wsIndex) {
-        var tables = worsheet.tables;
-        var promises = [];
+        var promises    = [];
+        var tables      = worsheet.tables;
+        var $tableLists = $("#inactiveTablesList");
+
         // click all inactive table in this worksheet
-        $("#inactiveTablesList").find(".worksheet-" + wsIndex)
-                                .closest(".tableInfo")
-                                .find(".addArchivedBtn").click();
+        $tableLists.find(".addArchivedBtn.selected").click();
+        $tableLists.find(".worksheet-" + wsIndex)
+                    .closest(".tableInfo")
+                    .find(".addArchivedBtn").click();
 
         // as delete table will change tables array,
         // so should delete from last
@@ -483,7 +486,7 @@ window.WSManager = (function($, WSManager) {
 
         chain(promises)
         .then(function() {
-            return (tableBulkAction("delete"));
+            return (RightSideBar.tableBulkAction("delete"));
         })
         .then(function() {
             removeWorksheet(wsIndex);

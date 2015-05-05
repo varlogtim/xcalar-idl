@@ -357,7 +357,8 @@
   <div id="rightSideBar">
     <!-- Table List Section -->
     <section id="tableListSection" class="rightBarSection">
-      <div class="heading">
+      <!-- Heading -->
+      <header class="heading">
         <h2>Tables</h2>
         <div class="btn btnDeselected">
           <span class="icon iconClose"></span>
@@ -365,18 +366,23 @@
         <div class="btn btnDeselected">
           <span class="icon iconArrowDiag"></span>
         </div>
-      </div>
+      </header>
+      <!-- Main Content -->
       <div class="rightBarContent">
-        <div id="tableListSectionTabs">
+        <!-- Tabs -->
+        <section id="tableListSectionTabs">
           <div class="tableListSectionTab active">Active</div>
           <div class="tableListSectionTab">Inactive</div>
           <div class="tableListSectionTab">Users</div>
-        </div>
-        <div id="tableListSections">
-          <div class="tableListSection" id="tableList">
+        </section>
+        <!-- Sections -->
+        <section id="tableListSections">
+          <!-- active list -->
+          <div id="tableList" class="tableListSection">
             <ul id="activeTablesList"></ul>
           </div>
-          <div class="tableListSection" id="archivedTableList">
+          <!-- inactive list -->
+          <div id="archivedTableList" class="tableListSection">
             <div class="buttonWrap">
               <div class="btn btnLarge btnInactive" id="submitTablesBtn">
                 <span class="icon"></span>ADD TO WORKSHEET
@@ -387,8 +393,10 @@
             </div>
             <ul id="inactiveTablesList"></ul>
           </div>
+          <!-- user list -->
           <div class="tableListSection"></div>
-        </div>
+        </section>
+        <!-- End Of Sections -->
       </div>
     </section>
 
@@ -626,9 +634,9 @@
         </div>
       </section>
       <!-- Buttons to pop out rightside bar -->
-      <section class="bottomButtonsArea">
+      <section id="rightSideBarBtns"class="bottomButtonsArea">
         <!-- tablelist -->
-        <div id="leftMenu" class="btn btnSmall sliderBtn">
+        <div class="btn btnSmall sliderBtn">
           <span id="tableListBtn" class="icon" data-toggle="tooltip" 
           data-placement="top" data-container="body" title="tables list"></span>
         </div>
@@ -1071,7 +1079,7 @@
 <script src="/js/tableDisplay.js" type="text/javascript"></script>
 <script src="/js/xcFunctions.js" type="text/javascript"></script>
 <script src="/js/scratchpad.js" type="text/javascript"></script>
-<script src="/js/rightSlider.js" type="text/javascript"></script>
+<script src="/js/rightSideBar.js" type="text/javascript"></script>
 <script src="/js/datastore.js" type="text/javascript"></script>
 <script src="js/joinModal.js" type="text/javascript"></script>
 <script src="js/load.js" type="text/javascript"></script>
