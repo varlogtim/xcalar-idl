@@ -3,7 +3,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var $fileBrowser = $('#fileBrowserModal');
     var $container = $("#fileBrowserContainer");
     var $fileBrowserMain = $('#fileBrowserMain');
-    var $inputName = $('#fileBrowserInputName');
+    var $fileName = $('#fileBrowserInputName');
 
     var $formatSection = $('#fileBrowserFormat');
     var $formatDropdown = $formatSection.find('.list');
@@ -52,7 +52,7 @@ window.FileBrowser = (function($, FileBrowser) {
             clear();
         });
 
-        $fileBrowser.on({
+        $container.on({
             // click to focus
             "click": function(event) {
                 var $grid = $(this);
@@ -60,15 +60,16 @@ window.FileBrowser = (function($, FileBrowser) {
                 event.stopPropagation();
                 clear();
 
-                 updateFilName($grid);
+                 updateFileName($grid);
 
                 $grid.addClass('active');
             },
             "dblclick": function() {
                 var $grid = $(this);
 
-                if ($grid.hasClass('ds')) {   // dblclick a dataset
-                    loadDataSet($grid);
+                if ($grid.hasClass('ds')) {
+                    // dblclick a dataset to import
+                    importDataset($grid);
                 } else {       // dblclick a folder
                     var path = getCurrentPath() + getGridUnitName($grid) + '/';
 
@@ -86,7 +87,8 @@ window.FileBrowser = (function($, FileBrowser) {
         // confirm to open a ds
         $fileBrowser.on("click", ".confirm", function() {
             var $grid = $container.find("grid-unit.active");
-            loadDataSet($grid);
+
+            importDataset($grid);
         });
 
         // close file browser
@@ -96,10 +98,11 @@ window.FileBrowser = (function($, FileBrowser) {
 
         // Up to parent folder
         $("#fileBrowserUp").click(function(event){
-            event.stopPropagation();
             // the second option in pathLists
-            $newPath = $pathLists.find("li").eq(1);
-            upTo($newPath);
+            var $newPath = $pathLists.find("li").eq(1);
+
+            event.stopPropagation();
+            goToPath($newPath);
         });
 
         // click icon-list to toggle between listview and gridview
@@ -130,9 +133,9 @@ window.FileBrowser = (function($, FileBrowser) {
             event.stopPropagation();
             // click on selected title, reverse sort
             if ($title.hasClass("select")) {
-                reverse();
+                reverseFiles();
             } else {
-                sortTrigger($title, false);
+                sortAction($title, false);
             }
         });
 
@@ -156,20 +159,20 @@ window.FileBrowser = (function($, FileBrowser) {
             $sortMenu.hide();
             // already sort
             if (!$li.hasClass("select")) {
-                sortTrigger($li, true);
+                sortAction($li, true);
             }
         });
 
         // open path list section
         $pathSection.on("click", ".icon", function(event) {
             event.stopPropagation();
-            toggleListSection($(this).closest(".listSection"));
+            toggleDropdownMenu($(this).closest(".listSection"));
         });
 
         // select a path
         $pathSection.on("click", ".list li", function(event) {
             event.stopPropagation();
-            upTo($(this));
+            goToPath($(this));
             $pathSection.removeClass("open");
             $pathLists.hide();
         });
@@ -184,13 +187,15 @@ window.FileBrowser = (function($, FileBrowser) {
             },
             "keyup": function(event) {
                 if (event.which === keyCode.Enter) {
-                    event.preventDefault();
-                    // XXX assume what inputed should be a path
+                     // XXX assume what inputed should be a path
                     var $input = $(this);
                     var path = $input.text();
+
+                    event.preventDefault();
                     if (path.charAt(path.length - 1) != "/") {
                         path += "/";
                     }
+
                     retrievePaths(path)
                     .then(function() {
                         $input.blur();
@@ -198,14 +203,15 @@ window.FileBrowser = (function($, FileBrowser) {
                     .fail(function(result) {
                         StatusBox.show(result.error, $input, true);
                     });
+
+                    return false;
                 }
-                return false;
             }
         }, ".text");
         // open format section
         $formatSection.on("click", function(event) {
             event.stopPropagation();
-            toggleListSection($(this).closest(".listSection"));
+            toggleDropdownMenu($(this).closest(".listSection"));
         });
 
         // filter a data format
@@ -220,9 +226,10 @@ window.FileBrowser = (function($, FileBrowser) {
                 return;
             }
 
-            var regEx;
             var grid = getFocusGrid();
             var format = $li.text();
+            var regEx;
+
             $formatLabel.text(format);
             $li.siblings(".select").removeClass("select");
             $li.addClass("select");
@@ -234,10 +241,96 @@ window.FileBrowser = (function($, FileBrowser) {
             focusOn(grid);
         });
 
-        $inputName.keyup(function() {
+        $fileName.keyup(function() {
             var text = $(this).val();
+
             focusOn(text, true);
         });
+
+        $fileName.click(function() {
+            return false;
+        });
+    }
+
+    // key up event
+    function fileBrowserKeyUp(event) {
+        event.preventDefault();
+        if (event.which === keyCode.Enter) {
+            var $grid = $container.find('grid-unit.active');
+            importDataset($grid);
+        }
+
+        return false;
+    }
+
+    function toggleDropdownMenu($listSection) {
+        $listSection.toggleClass("open");
+        $listSection.find(".list").toggle();
+    }
+
+    function getCurrentPath() {
+        return ($pathLists.find("li:first-of-type").text());
+    }
+
+    function getGridUnitName($grid) {
+        return ($grid.find('.label').text());
+    }
+
+    function getFormat(name) {
+        var index = name.lastIndexOf(".");
+
+        if (index < 0) {
+            return undefined;
+        }
+
+        var ext = name.substring(index + 1, name.length).toUpperCase();
+
+        if (validFormats.indexOf(ext) >= 0) {
+            return (ext);
+        } else {
+            return undefined;
+        }
+    }
+
+    function appendPath(path) {
+        $pathLabel.text(path);
+        $pathLists.prepend('<li>' + path + '</li>');
+    }
+
+    function clear(isALL) {
+        var $listSections = $fileBrowser.find('.listSection');
+
+        $fileBrowser.find('.active').removeClass('active');
+
+        $listSections.removeClass("open");
+        $listSections.find(".list").hide();
+
+        $fileName.val("");
+
+        if (isALL) {
+            $fileBrowser.find('.select').removeClass('select');
+            $formatSection.find('.text').text('all');
+            curFiles = [];
+            sortKey = defaultSortKey;
+            sortRegEx = undefined;
+            reverseSort = false;
+            $pathLists.empty();
+        }
+    }
+
+    function closeAll() {
+        // set to deault value
+        clear(true);
+        $(document).off('keyup', fileBrowserKeyUp);
+        $fileBrowser.hide();
+        $modalBackground.removeClass("open");
+        $modalBackground.fadeOut(200);
+    }
+
+    function updateFileName($grid) {
+        var name = getGridUnitName($grid);
+
+        $fileName.val(name);
     }
 
     function listFiles(path) {
@@ -255,23 +348,7 @@ window.FileBrowser = (function($, FileBrowser) {
         return (deferred.promise());
     }
 
-    // key up event
-    function fileBrowserKeyUp(event) {
-        event.preventDefault();
-        if (event.which === keyCode.Enter) {
-            var $grid = $container.find('grid-unit.active');
-            loadDataSet($grid);
-        }
-
-        return false;
-    }
-
-    function toggleListSection($listSection) {
-        $listSection.toggleClass("open");
-        $listSection.find(".list").toggle();
-    }
-
-    function upTo($newPath) {
+    function goToPath($newPath) {
         if ($newPath == undefined || $newPath.length == 0) {
             return;
         }
@@ -301,104 +378,44 @@ window.FileBrowser = (function($, FileBrowser) {
         });
     }
 
-    function getCurrentPath() {
-        var path = $pathLists.find("li:first-of-type").text();
-        return (path);
-    }
-
-    function getGridUnitName($grid) {
-        var name = $grid.find('.label').text();
-        return (name);
-    }
-
-    function getFormat(name) {
-        var index = name.lastIndexOf(".");
-        if (index < 0) {
-            return undefined;
-        }
-        var ext = name.substring(index + 1, name.length).toUpperCase();
-        if (validFormats.indexOf(ext) >= 0) {
-            return (ext);
-        } else {
-            return undefined;
-        }
-    }
-
-    function loadDataSet($ds) {
+    function importDataset($ds) {
         if ($ds == null || $ds.length == 0) {
             var text = "Invalid file name!" + 
                         " Please choose a file or folder to import!";
 
-            StatusBox.show(text, $inputName, true);
-
+            StatusBox.show(text, $fileName, true);
             return;
         }
         // reset import data form
         $("#importDataReset").click();
 
         // no selected dataset, load the directory
-        if ($ds == null || $ds.length == 0) {
-            var path = getCurrentPath();
-            // remove the last slash
-            if (path !== defaultPath) {
-                path = path.substring(0, path.length - 1);
-            }
-            $filePath.val(path);
-        } else {
-            // load dataset
-            var dsName = getGridUnitName($ds);
-            var path = getCurrentPath() + dsName;
-            var ext = getFormat(dsName);
+        // if ($ds == null || $ds.length == 0) {
+        //     var path = getCurrentPath();
+        //     // remove the last slash
+        //     if (path !== defaultPath) {
+        //         path = path.substring(0, path.length - 1);
+        //     }
+        //     $filePath.val(path);
+        // } else {
+        // load dataset
+        var dsName = getGridUnitName($ds);
+        var path = getCurrentPath() + dsName;
+        var ext = getFormat(dsName);
 
-            if (ext != undefined) {
-                $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]')
-                    .click();
-            }
-            $filePath.val(path);
+        if (ext != undefined) {
+            $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]')
+                .click();
         }
+        $filePath.val(path);
+        // }
         closeAll();
     }
 
-    function appendPath(path) {
-        var html = '<li class="select">' + path + '</li>';
-        $pathLabel.text(path);
-        $pathLists.prepend(html);
-    }
-
-    function clear(isALL) {
-        $fileBrowser.find('.active').removeClass('active');
-        var $listSections = $fileBrowser.find('.listSection');
-        $listSections.removeClass("open");
-        $listSections.find(".list").hide();
-        $inputName.val("");
-        if (isALL) {
-            $fileBrowser.find('.select').removeClass('select');
-            $formatSection.find('.text').text('all');
-            curFiles = [];
-            sortKey = defaultSortKey;
-            sortRegEx = undefined;
-            reverseSort = false;
-            $pathLists.empty();
-        }
-    }
-
-    function closeAll() {
-        // set to deault value
-        clear(true);
-        $(document).off('keyup', fileBrowserKeyUp);
-        $fileBrowser.hide();
-        $modalBackground.removeClass("open");
-        $modalBackground.fadeOut(200);
-    }
-
-    function updateFilName($grid) {
-        var name = getGridUnitName($grid);
-        $inputName.val(name);
-    }
-
-    function sortTrigger($option, isFromSortOption) {
+    function sortAction($option, isFromSortOption) {
         var grid = getFocusGrid();
         var key = $option.data("sortkey");
+
         $option.siblings(".select").removeClass("select");
         $option.addClass("select");
 
@@ -425,8 +442,8 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
             });
         }
-
-        focusOn(grid);  // focus on select grid
+        // focus on select grid
+        focusOn(grid);
     }
 
     function sortFilesBy(key, regEx) {
@@ -513,16 +530,20 @@ window.FileBrowser = (function($, FileBrowser) {
         return (resultFiles);
     }
 
-    function reverse() {
+    function reverseFiles() {
+        var grid = getFocusGrid();
+
         reverseSort = !reverseSort;
         curFiles.reverse();
         getHTMLFromFiles(curFiles);
+        focusOn(grid);
     }
 
     function focusOn(grid, isAll) {
         if (grid == undefined) {
             return;
         }
+
         var str;
 
         if (typeof grid === "string") {
@@ -534,6 +555,7 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             var name = grid.name;
             var type = grid.type;
+
             if (type == undefined) {
                 str = 'grid-unit' + ' .label[data-name="' + name + '"]';
             } else {
@@ -548,22 +570,26 @@ window.FileBrowser = (function($, FileBrowser) {
     function getFocusGrid() {
         var grid;
         var $grid = $container.find('grid-unit.active');
+
         if ($grid.length > 0) {
-            grid = {};
-            grid.name = $grid.find('.label').data('name');
-            grid.type = $grid.hasClass('folder') ? 'folder' : 'ds';
+            grid = {
+                "name": $grid.find(".label").data("name"),
+                "type": $grid.hasClass("folder") ? "folder" : "ds"
+            };
         }
+
         return (grid);
     }
 
     function retrievePaths(path) {
         var deferred = jQuery.Deferred();
         var paths = [];
+
         if (!path) {
             paths.push(defaultPath);
         } else {
             // parse path
-            for (var i = path.length - 1; i >= (defaultPath.length - 1); i --) {
+            for (var i = path.length - 1; i >= (defaultPath.length - 1); i--) {
                 if (path.charAt(i) === "/") {
                     paths.push(path.substring(0, i + 1));
                 }
@@ -571,7 +597,9 @@ window.FileBrowser = (function($, FileBrowser) {
             // cannot parse the path
             if (paths.length === 0) {
                 var error = "Invalid Path, please input a valid one";
+
                 deferred.reject({"error": error});
+
                 return (deferred.promise());
             }
         }
@@ -579,6 +607,7 @@ window.FileBrowser = (function($, FileBrowser) {
         listFiles(paths[0])
         .then(function() {
             $pathLists.empty();
+
             for (var i = paths.length - 1; i >= 0; i --) {
                 appendPath(paths[i]);
             }
@@ -588,9 +617,10 @@ window.FileBrowser = (function($, FileBrowser) {
                                             path.length);
                 focusOn({"name": name});
             }
+
             deferred.resolve();
         })
-        .fail(deferred.reject)
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
