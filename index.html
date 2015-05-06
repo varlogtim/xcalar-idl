@@ -175,12 +175,13 @@
                autocomplete="on" placeholder="Enter Dataset Name" required>
               <div id="fileFormat">
                 <div id="fileFormatList" class="listSection">
-                  <input class="text" 
-                         placeholder="Select Format" disabled />
+                  <input class="text hint" type="text" value="Select Format"
+                        disabled="disabled"/>
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
                   <ul id="fileFormatMenu" class="list">
+                    <li class="hint">Select Format</li>
                     <li name="CSV">CSV</li>
                     <li name="JSON">JSON</li>
                     <li name="RAW">Raw</li>
@@ -194,10 +195,44 @@
         <div id="importDataBottomForm">
           <div class="contentViewMidWrap">
             <div id="csvDelim" class="hidden">
-              <span id="fieldText" class="label">Field Delimiter:</span>
-              <input type="text" id="fieldDelim"></input>
-              <span id="lineText" class="label">Line Delimiter:</span>
-              <input type="text" id="lineDelim"></input>
+              <!-- Field Delimiter -->
+              <section id="fieldDelim" class="wrapper">
+                <span class="label">Field Delimiter:</span>
+                <div class="listSection">
+                  <input id="fieldText" class="text" type="text" disabled>
+                  <div class="iconWrapper">
+                      <span class="icon"></span>
+                  </div>
+                  <!-- dropdown menu -->
+                  <ul id="fileFormatMenu" class="list">
+                    <li name="default">Default</li>
+                    <li name="null">Null</li>
+                    <li name="other" class="other">
+                      <span>Other</span>
+                      <input class="delimVal" type="text">
+                    </li>
+                  </ul>
+                </div>
+              </section>
+              <!-- Line Delimiter -->
+              <section id="lineDelim" class="wrapper">
+                <span class="label">Line Delimiter:</span>
+                <div class="listSection">
+                  <input id="lineText" class="text" type="text" disabled>
+                  <div class="iconWrapper">
+                      <span class="icon"></span>
+                  </div>
+                  <!-- dropdown menu -->
+                  <ul id="fileFormatMenu" class="list">
+                    <li name="default">Default</li>
+                    <li name="null">Null</li>
+                    <li name="other" class="other">
+                      <span>Other</span>
+                      <input class="delimVal" type="text">
+                    </li>
+                  </ul>
+                </div>
+              </section>
             </div>
 
             <button id="importDataSubmit" class="btn btnMid" 

@@ -24,54 +24,58 @@ window.DataStore = (function($, DataStore) {
     }
 
     function setupImportDSForm() {
-        var $filePath = $("#filePath");
-        var $fileName = $("#fileName");
+        var $filePath        = $("#filePath");
+        var $fileName        = $("#fileName");
 
-        var $formatSection = $("#fileFormatList");
-        var $formatText = $formatSection.find(".text");
-        var $formatDropdown = $("#fileFormatMenu");
-        var $csvDelim = $("#csvDelim");
-        var $fieldDelim = $("#fieldDelim");
+        var $formatSection   = $("#fileFormatList");
+        var $formatText      = $formatSection.find(".text");
+        var $formatDropdown  = $("#fileFormatMenu");
+
+        var $csvDelim        = $("#csvDelim");
+        var $fieldDelim      = $("#fieldDelim");
         // constants
         var formatTranslater = {
-            "JSON": "JSON",
-            "CSV": "CSV",
+            "JSON"  : "JSON",
+            "CSV"   : "CSV",
             "Random": "rand",
-            "Raw": "raw"
+            "Raw"   : "raw"
         };
 
         $("#importDataView").click(function(event){
             event.stopPropagation();
-
-            $formatSection.removeClass('open');
-            $formatDropdown.hide();
+            hideDropdownMenu();
         });
 
         $formatSection.on("click", function(event) {
             event.stopPropagation();
-
-            $formatSection.toggleClass("open");
-            $formatSection.find(".list").toggle();
+            toggleDropdownMenu($(this));
         });
 
         $formatSection.on("click", ".list li", function(event) {
-            var text = $(this).text();
+            var $li  = $(this);
+            var text = $li.text();
 
             event.stopPropagation();
 
-            $formatSection.removeClass('open');
-            $formatDropdown.hide();
+            hideDropdownMenu();
+            // select the same option
+            if ($li.hasClass("hint") || $formatText.val() === text) {
+                return;
+            }
 
+            $formatText.removeClass("hint");
             $formatText.val(text);
 
             switch (text.toLowerCase()) {
-                case 'csv':
+                case "csv":
+                    resetDelimiter();
+                    $fieldDelim.show();
                     $csvDelim.removeClass("hidden");
-                    $fieldDelim.prop("disabled", false);
                     break;
-                case 'raw':
+                case "raw":
+                    resetDelimiter();
+                    $fieldDelim.hide();
                     $csvDelim.removeClass("hidden");
-                    $fieldDelim.prop("disabled", true);
                     break;
                 default:
                     $csvDelim.addClass("hidden");
@@ -79,9 +83,74 @@ window.DataStore = (function($, DataStore) {
             }
         });
 
+        $csvDelim.on("click", ".listSection", function(event) {
+            event.stopPropagation();
+            toggleDropdownMenu($(this));
+        });
+
+        // choose a delimiter
+        $csvDelim.on({
+            "click": function(event) {
+                var $li    = $(this);
+                var $input = $li.closest(".listSection").find(".text");
+
+                event.stopPropagation();
+
+                switch ($li.attr("name")) {
+                    case "default":
+                        if ($input.attr("id") === "fieldText") {
+                            $input.val("\\t");
+                        } else {
+                            $input.val("\\n");
+                        }
+                        hideDropdownMenu();
+                        break;
+                    case "null":
+                        $input.val("");
+                        hideDropdownMenu();
+                        break;
+                    default:
+                        break;
+                }
+            },
+            "mouseenter": function() {
+                $(this).addClass("hover");
+
+            },
+            "mouseleave": function() {
+                $(this).removeClass("hover");
+            }
+        }, ".listSection .list li");
+
+        // input other delimiters
+        $csvDelim.on("keyup", ".delimVal", function(event) {
+            if (event.which === keyCode.Enter) {
+                var $input = $(this);
+                var val    = $input.val();
+
+                event.stopPropagation();
+
+                if (val != "") {
+                    $input.closest(".listSection").find(".text").val(val);
+                    $input.val("");
+                    $input.blur();
+
+                    hideDropdownMenu();
+                }
+            }
+        });
+
+        // prevent form to be submitted
+        $csvDelim.on("keypress", ".delimVal", function(event) {
+            if (event.which === keyCode.Enter) {
+                return false;
+            }
+        });
+
         // reset form
         $("#importDataReset").click(function() {
-            $formatText.val("");
+            $formatText.val("Select Format");
+            $formatText.addClass("hint");
             $csvDelim.addClass("hidden");
         });
         // open file browser
@@ -103,7 +172,6 @@ window.DataStore = (function($, DataStore) {
                 return false;
             }
 
-            var loadURL = jQuery.trim($filePath.val());
             var dsFormat = formatTranslater[$formatText.val()];
 
             if (!dsFormat) {
@@ -114,9 +182,11 @@ window.DataStore = (function($, DataStore) {
                 return false;
             }
 
-            var fieldDelim = $("#fieldDelim").val();
-            var lineDelim = $("#lineDelim").val();
-            var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
+            var loadURL    = jQuery.trim($filePath.val());
+            var fieldDelim = delimiterTranslate($("#fieldText").val());
+            var lineDelim  = delimiterTranslate($("#lineText").val());
+
+            var msg        = StatusMessageTStr.LoadingDataset + ": " + dsName;
 
             StatusMessage.show(msg);
 
@@ -124,21 +194,26 @@ window.DataStore = (function($, DataStore) {
             .then(function() {
                 DataStore.updateNumDatasets();
                 $("#importDataReset").click();
+
                 StatusMessage.success(msg);
             })
             .fail(function(result) {
                 var text;
+
                 if (result.statusCode === StatusT.StatusDsInvalidUrl) {
                     text = "Could not retrieve dataset from file path: " 
                             + loadURL;
                 } else {
                     text = result.error;
                 }
+
                 StatusBox.show(text, $filePath, true);
                 StatusMessage.fail(StatusMessageTStr.LoadFailed, msg);
+
                 return false;
             });
         });
+
         // XXX This should be removed in production
         $filePath.keyup(function() {
             var val = $(this).val();
@@ -227,10 +302,42 @@ window.DataStore = (function($, DataStore) {
 
             $fileName.focus();
         }
+    }
 
-        function import_helper() {
-
+    function delimiterTranslate(delimiter) {
+        switch (delimiter) {
+            case "\\t":
+                return "\t";
+            case "\\n":
+                return "\n";
+            default:
+                return delimiter;
         }
+    }
+
+    function toggleDropdownMenu($listSection) {
+        if ($listSection.hasClass("open")) {
+            hideDropdownMenu();
+        } else {
+            hideDropdownMenu();
+            $listSection.addClass("open");
+            $listSection.find(".list").show();
+        }
+    }
+
+    function hideDropdownMenu() {
+        var $sections = $("#importDataView").find(".listSection");
+
+        $sections.find(".list").hide();
+        $sections.removeClass("open");
+
+        $("#csvDelim").find(".delimVal").val("");
+    }
+
+    function resetDelimiter() {
+        // XXX to show \t, \ should be escaped
+        $("#fieldText").val("\\t");
+        $("#lineText").val("\\n");
     }
 
     return (DataStore);
