@@ -966,8 +966,8 @@ function updateTableHeader(tableNum, $tHead, isFocus) {
     $tHead = $tHead || $("#xcTheadWrap" + tableNum + " .tableTitle input");
     // for blur and focus on table header
     if (tableNum == null) {
-        cols = $tHead.data["cols"];
-        tableName = $tHead.data["title"];
+        cols = $tHead.data("cols");
+        tableName = $tHead.data("title");
         if (isFocus) {
             $tHead.val(tableName);
         } else {
@@ -979,8 +979,8 @@ function updateTableHeader(tableNum, $tHead, isFocus) {
             tableName = gTables[tableNum].frontTableName;
             cols = gTables[tableNum].tableCols.length;
         }
-        $tHead.data["cols"] = cols;
-        $tHead.data["title"] = tableName;
+        $tHead.data("cols", cols);
+        $tHead.data("title", tableName);
         $tHead.val(tableName + "  [" + cols + "]");
     }
 }
