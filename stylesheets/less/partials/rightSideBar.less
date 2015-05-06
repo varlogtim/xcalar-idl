@@ -339,18 +339,34 @@
                 padding: 0;
 
                 .icon {
-                    .position(absolute, @left: 2px);
-                    .size(@width: 27px, @height: 100%);
+                    .position(relative, @left: 2px);
+                    float: left;
+                    .size(@width: 25px, @height: 100%);
+                }
+
+                .label {
+                    float: left;
                 }
             }
         }
 
-        #submitTablesBtn .icon {
-            .image("/images/send-single.png", 50%, 50%);
+        #submitTablesBtn {
+            .icon {
+                .image("/images/send-single.png", 50%, 50%);
+            }
+
+            .label {
+                .size(@width: ~"calc(100% - 25px)");
+            }
         }
 
-        #deleteTablesBtn .icon {
-            .image("/images/garbageThick.png", 50%, 50%);
+        #deleteTablesBtn {
+            .icon {
+                .image("/images/garbageThick.png", 50%, 50%);
+            }
+            .label {
+                .size(@width: ~"calc(100% - 50px)");
+            }
         }
     }
 }
