@@ -1597,7 +1597,7 @@ function positionScrollbar(row, tableNum) {
 
 function addRowListeners(newCells) {
     newCells.find('.jsonElement').dblclick(function() {
-            showJsonModal($(this));
+            JSONModal.show($(this));
         }
     );
     newCells.find('.rowGrab').mousedown(function(event) {

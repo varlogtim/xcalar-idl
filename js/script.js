@@ -431,18 +431,6 @@ function documentReadyGeneralFunction() {
         }, 300 );
     });
 
-    $('.closeJsonModal, #modalBackground').click(function() {
-        if ($('#jsonModal').css('display') == 'block') {
-            $('#modalBackground').hide(); 
-            $('body').removeClass('hideScroll');
-        }
-        $('#jsonModal').hide();
-    });
-
-    $('.jsonDragArea').mousedown(function(event) {
-        jsonModalMouseDown(event);
-    });
-
     var $rowInput = $('#rowInput');
     $rowInput.val("").data("");
     $rowInput.blur(function() {
@@ -489,7 +477,7 @@ function documentReadyGeneralFunction() {
                 dragdropMouseMove(event);
                 break;
             case ("movingJson"):
-                jsonModalMouseMove(event);
+                JSONModal.mouseMove(event);
                 break;
             case ("rowScroller"): 
                 rowScrollerMouseMove(event);
@@ -514,7 +502,7 @@ function documentReadyGeneralFunction() {
                 dragdropMouseUp();
                 break;
             case ("movingJson"):
-                jsonModalMouseUp();
+                JSONModal.mouseUp();
                 break;
             case ("rowScroller"):
                 rowScrollerMouseUp();
@@ -570,6 +558,7 @@ function startupFunctions() {
     readFromStorage()
     .then(function() {
         documentReadyGeneralFunction();
+        JSONModal.setup();
         setupTooltips();
         mainPanelsTabbing();
         setupFunctionBar();
