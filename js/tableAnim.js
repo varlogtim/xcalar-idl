@@ -815,10 +815,11 @@ function createTableHeader(tableNum) {
     });
 
     $tableMenu.on('click', '.quickAgg', function() {
-        var $menu = $(this).closest('.tableMenu');
+        var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
+
         $menu.hide();
-        setupAggModalTables(tableNum);
+        AggModal.show(tableNum);
     });
 
     $tableMenu.on('mouseenter', '.moveToWorksheet', function() {

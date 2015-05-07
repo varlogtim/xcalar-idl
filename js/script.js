@@ -681,7 +681,7 @@ function documentReadyIndexFunction() {
         .then(function() {
             RightSideBar.initialize();
             initializeJoinModal();
-            initializeAggModal();
+            AggModal.setup();
             WSManager.focusOnWorksheet();
         })
         .fail(function(error) {
