@@ -1046,7 +1046,7 @@ function addColListeners($table, tableNum) {;
 
             var userStr = gTables[dynTableNum].tableCols[index-1].userStr;
             userStr = userStr.substring(userStr.indexOf('='));
-            updateFunctionBar(userStr);
+            $('#fnBar').val(userStr);
 
             highlightColumn(gFnBarOrigin);
             $(this).parent().siblings('.dropdownBox').addClass('hidden');
