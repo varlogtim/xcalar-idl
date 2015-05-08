@@ -412,9 +412,9 @@
               </div>
             </div>
             <div id="importDataArea">
-              <div id="importDataButton" class="btn btnLarge">
+              <button id="importDataButton" class="btn btnLarge iconBtn">
                 <span class="icon"></span>IMPORT NEW DATA SET
-              </div>
+              </button>
             </div>
             <!-- Grid Views of ds -->
             <div id="gridViewButtonArea">
@@ -488,18 +488,16 @@
           <!-- End Datastore Table -->
           <div id="contentViewRight">
             <div class="buttonArea">
-              <div class="btn btnLarge" id="submitDSTablesBtn"
-                   style="display: block;">
+              <button id="submitDSTablesBtn" class="btn btnLarge iconBtn">
                 <span class="icon"></span>SEND TO ACTIVE WORKSHEET
-              </div>
-              <div class="btn btnLarge btnInactive"
-                   id="submitMultipleDBTablesBtn" style="display: block;">
+              </button>
+              <button id="submitMultipleDBTablesBtn" 
+                  class="btn btnLarge btnInactive iconBtn">
                 <span class="icon"></span>SEND TO MULTIPLE WORKSHEETS
-              </div>
-              <div class="btn btnLarge" id="clearDataCart"
-                   style="display: block;">
+              </button>
+              <button id="clearDataCart" class="btn btnLarge iconBtn">
                 <span class="icon"></span>CLEAR DATA CART
-              </div>
+              </button>
               <div class="title">
                 <b>Selected Columns</b>
               </div>
@@ -554,13 +552,13 @@
           <!-- inactive list -->
           <div id="archivedTableList" class="tableListSection">
             <div class="buttonWrap">
-              <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive">
-                <span class="icon"></span>
-                <span class="label">ADD TO WORKSHEET</span>
+              <button id="submitTablesBtn" type="button" 
+                      class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>ADD TO WORKSHEET
               </button>
-              <button id="deleteTablesBtn" type="button" class="btn btnLarge btnInactive">
-                <span class="icon"></span>
-                <span class="label">DELETE TABLES</span>
+              <button id="deleteTablesBtn" type="button" 
+                      class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>DELETE TABLES
               </button>
             </div>
             <ul id="inactiveTablesList"></ul>

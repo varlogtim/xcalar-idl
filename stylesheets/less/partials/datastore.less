@@ -393,15 +393,14 @@ input {
         border-right: 1px solid rgba(0, 0, 0, 0.25);
         z-index: 2;
         height: 59px;
+
         #importDataButton {
             .vertical-align;
             display: block;
             margin: 0 auto;
+
             .icon {
-                .size(@width: 25px, @height: 100%);
-                background-image: url(/images/db-icon-white.png);
-                margin: 0 4px 0px 8px;
-                float: left;
+                .image("/images/db-icon-white.png", 50%, 50%);
             }
         }
     }
@@ -977,27 +976,27 @@ input {
             width: 225px;
         }
     }
+
     .btnLarge {
         margin-top: 10px;
         width: 225px;
         font-size: 11px;
+        display: block;
+        text-align: left !important;
+        text-indent: 4px;
+
         .icon {
-            margin: 4px;
-            float: left;
-            display: inline-block;
+            left: -2px !important;
         }
+
         &#submitDSTablesBtn .icon {
-            .size(@width: 27px, @height: 21px);
-            .image("/images/send-single.png");
+            .image("/images/send-single.png", 0, 50%);
         }
         &#submitMultipleDBTablesBtn .icon {
-            .size(@width: 27px, @height: 23px);
-            .image("/images/send-multiple.png");
+            .image("/images/send-multiple.png", 0, 50%);
         }
         &#clearDataCart .icon {
-            .size(@width: 22px, @height: 24px);
-            margin-right: 8px;
-            .image("/images/garbage.png");
+            .image("/images/garbage.png", 0, 50%);
         }
     }
 }

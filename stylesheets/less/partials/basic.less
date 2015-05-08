@@ -152,6 +152,7 @@ body {
     color: @color-text-transparentWhite;
     .action-gradient;
     box-shadow: 0px 1px 1px 0 rgba(0, 0, 0, 0.7);
+    .font(@family: @font-base);
 
     &:hover {
        .action-inverse-gradient;
@@ -194,6 +195,20 @@ body {
     color: @color-text-transparentWhite;
     text-shadow: 1px 1px rgba(0,0,0,.3);
     .font(@size: 12px, @line-height: 30px);
+}
+
+.iconBtn {
+    .position(relative);
+    // XXX padding-right = padding-left + icon width
+    padding: 0 30px 0 5px;
+    text-align: center;
+
+    .icon {
+        display: inline-block;
+        .size(@width: 25px, @height: 100%);
+        .position(relative, @top: 0, @left: 0);
+        float: left;
+    }
 }
 
 .btn-cancel {
@@ -1159,17 +1174,17 @@ ul.inputMenu {
     overflow: hidden;
 }
 
-.iconBtn {
-    .size(22px, 22px);
-    .rounded(2px);
+// .iconBtn {
+//     .size(22px, 22px);
+//     .rounded(2px);
 
-    span {
-        .size(100%, 100%);
-        display: inline-block;
-        background-repeat: no-repeat;
-        background-position: 50% 50%;
-    }
-}
+//     span {
+//         .size(100%, 100%);
+//         display: inline-block;
+//         background-repeat: no-repeat;
+//         background-position: 50% 50%;
+//     }
+// }
 
 .bottomButtonsArea {
     float: right;
