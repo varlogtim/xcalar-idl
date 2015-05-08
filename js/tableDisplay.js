@@ -1,3 +1,81 @@
+function refreshTable(newTableName, tableNum, 
+                      keepOriginal, additionalTableNum) {
+    var deferred = jQuery.Deferred();
+
+    if (!$('#workspaceTab').hasClass('active')) {
+        $("#workspaceTab").trigger('click');
+        if ($('#dagPanel').hasClass('full') &&
+            !$('#dagPanel').hasClass('hidden')) {
+            $('#compSwitch').trigger('click');
+            $('#mainFrame').removeClass('midway');
+        }
+    }
+
+    // $("#workspaceTab").trigger('click');
+    var newTableNum;
+    if (keepOriginal === KeepOriginalTables.Keep) {
+        // append newly created table to the back
+        newTableNum = gTables.length;
+        addTable(newTableName, newTableNum, AfterStartup.After)
+        .then(function() {
+            focusTable(newTableNum);
+            var leftPos = $('#xcTableWrap'+newTableNum).position().left +
+                            $('#mainFrame').scrollLeft();
+            $('#mainFrame').animate({scrollLeft: leftPos})
+                           .promise()
+                           .then(function() {
+                                focusTable(newTableNum);
+                            });
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("refreshTable fails!");
+            deferred.reject(error);
+        });
+    } else {
+        // default
+        newTableNum = tableNum;
+        var savedScrollLeft;
+        var tablesToRemove    = [];
+        var delayTableRemoval = true;
+
+        if (additionalTableNum > -1) {
+            var largerTableNum  = Math.max(additionalTableNum, tableNum);
+            var smallerTableNum = Math.min(additionalTableNum, tableNum);
+
+            tablesToRemove.push(largerTableNum);
+            archiveTable(largerTableNum, DeleteTable.Keep, delayTableRemoval);
+            if (largerTableNum != smallerTableNum) {
+                // excludes self join
+                tablesToRemove.push(smallerTableNum);
+                archiveTable(smallerTableNum, DeleteTable.Keep, 
+                             delayTableRemoval);
+            }
+            if (newTableNum > gTables.length) {
+                // edge case
+                newTableNum = gTables.length;
+            }
+        } else {
+            savedScrollLeft = $('#mainFrame').scrollLeft();
+            tablesToRemove.push(tableNum);
+            archiveTable(tableNum, DeleteTable.Keep, delayTableRemoval);
+        }
+
+        addTable(newTableName, newTableNum, AfterStartup.After, tablesToRemove)
+        .then(function() {
+            if (savedScrollLeft) {
+                $('#mainFrame').scrollLeft(savedScrollLeft);
+            }
+            focusTable(newTableNum);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("refreshTable fails!");
+            deferred.reject(error);
+        });
+    }
+    return (deferred.promise());
+}
 // Adds a table to the display
 // Shifts all the ids and everything
 function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {

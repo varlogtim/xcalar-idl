@@ -77,17 +77,8 @@ function execCol(progCol, tableNum, args) {
         // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
         //                   fieldName + ")";
         
-        var msg = StatusMessageTStr.Map + " " + fieldName;
-        StatusMessage.show(msg);
-
-        checkSorted(tableNum, progCol.index)
-        .then(function(tableName) {
-            return (mapColumn(fieldName, mapString, 
-                    tableNum, tableName, msg));
-        })
-        .then(function() {
-            deferred.resolve();
-        })
+        xcFunction.map(progCol.index, tableNum, fieldName, mapString)
+        .then(deferred.resolve)
         .fail(function(error) {
             console.log("execCol fails!");
             deferred.reject(error);

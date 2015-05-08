@@ -143,42 +143,10 @@ function initializeJoinModal() {
                                 .index();
             var rightColumnNum = parseColNum($('#rightJoin').
                                 find('th.colSelected')) - 1;
-
-            var leftTable = gTables[leftTableNum];
-            var rightTable = gTables[rightTableNum];
-            // add sql
-            var sqlOptions = {
-                "operation": "join",
-                "leftTable": {
-                    "name": leftTable.frontTableName,
-                    "colName": leftTable.tableCols[leftColumnNum].name,
-                    "colIndex": leftColumnNum
-                },
-                "rightTable": {
-                    "name": rightTable.frontTableName,
-                    "colName": rightTable.tableCols[rightColumnNum].name,
-                    "colIndex": rightColumnNum
-                },
-                "joinType": joinType,
-                "newTableName": newTableName
-            }
-
-            var msg = StatusMessageTStr.Join;
-            StatusMessage.show(msg);
     
-            joinTables(newTableName, joinType, leftTableNum, 
-                       leftColumnNum, rightTableNum, rightColumnNum)
-            .then(function() {
-                resetJoinTables();
-                SQL.add("Join Table", sqlOptions);
-                StatusMessage.success(msg);
-                commitToStorage();
-            })
-            .fail(function(error) {
-                resetJoinTables();
-                Alert.error("joinTable fails", error);
-                StatusMessage.fail(StatusMessageTStr.JoinFailed, msg);
-            });
+            xcFunction.join(leftColumnNum, leftTableNum, rightColumnNum, 
+                            rightTableNum, joinType, newTableName)
+            .always(resetJoinTables);
         }
     });
 }

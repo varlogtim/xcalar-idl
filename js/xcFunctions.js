@@ -1,496 +1,454 @@
-function refreshTable(newTableName, tableNum, 
-                      keepOriginal, additionalTableNum) {
-    var deferred = jQuery.Deferred();
-    
-    if (!$('#workspaceTab').hasClass('active')) {
-        $("#workspaceTab").trigger('click');
-        if ($('#dagPanel').hasClass('full') &&
-            !$('#dagPanel').hasClass('hidden')) {
-            $('#compSwitch').trigger('click');
-            $('#mainFrame').removeClass('midway');
-        }
+window.xcFunction = (function ($, xcFunction) {
+
+    // filter table column
+    xcFunction.filter = function (colNum, tableNum, operator, value) {
+        var table        = gTables[tableNum];
+        var frontName    = table.frontTableName;
+        var colName      = table.tableCols[colNum - 1].name;
+        var tablCols     = xcHelper.deepCopy(table.tableCols);
+        var newTableName = xcHelper.randName("tempFilterTable-");
+        var msg          = StatusMessageTStr.Filter+': '+colName;
+
+        StatusMessage.show(msg);
+
+        checkSorted(tableNum, colNum)
+        .then(function(srcName) {
+            return (XcalarFilter(operator, value, colName, 
+                                 srcName, newTableName));
+        })
+        .then(function() {
+            setIndex(newTableName, tablCols);
+
+            return (refreshTable(newTableName, tableNum));
+        })
+        .then(function() {
+            // add sql
+            SQL.add("Filter Table", {
+                "operation"    : "filter",
+                "tableName"    : frontName,
+                "colName"      : colName,
+                "colIndex"     : colNum,
+                "operator"     : operator,
+                "value"        : value,
+                "newTableName" : newTableName
+            });
+
+            StatusMessage.success(msg);
+            commitToStorage();
+        })
+        .fail(function(error) {
+            Alert.error("Filter Columns Fails", error);
+            StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+        });
     }
 
-    // $("#workspaceTab").trigger('click');
-    var newTableNum;
-    if (keepOriginal === KeepOriginalTables.Keep) {
-        // append newly created table to the back
-        newTableNum = gTables.length;
-        addTable(newTableName, newTableNum, AfterStartup.After)
+    // aggregate table column
+    xcFunction.aggregate = function (colNum, tableNum, aggrOp) {
+        var table     = gTables[tableNum];
+        var frontName = gTables[tableNum].frontTableName;
+        var pCol      = table.tableCols[colNum - 1];
+
+        if (pCol.func.func != "pull") {
+            console.log(pCol);
+            alert("Cannot aggregate on column that does not exist in DATA.");
+            return;
+        }
+
+        var colName = pCol.func.args[0];
+        var msg     = StatusMessageTStr.Aggregate + " " + aggrOp + " " + 
+                        StatusMessageTStr.OnColumn + ": " + colName;
+
+        StatusMessage.show(msg);
+        showWaitCursor();
+
+        checkSorted(tableNum, colNum)
+        .then(function(srcName) {
+            return (XcalarAggregate(colName, srcName, aggrOp));
+        })
+        .then(function(value){
+            // show result in alert modal
+            var instr = 'This is the aggregate result for column "' + 
+                        colName + '". \r\n The aggregate operation is "' +
+                        aggrOp + '".';
+            // add alert
+            Alert.show({
+                "title"      : "Aggregate: " + aggrOp,
+                "instr"      : instr,
+                "msg"        : value,
+                "isAlert"    : true,
+                "isCheckBox" : true
+            });
+
+            try {
+                var val = JSON.parse(value);
+                // add sql
+                SQL.add("Aggregate", {
+                    "operation" : "aggregate",
+                    "tableName" : frontName,
+                    "colName"   : colName,
+                    "colIndex"  : colNum,
+                    "operator"  : aggrOp,
+                    "value"     : val["Value"]
+                });
+            } catch(error) {
+                consolr.error(error, val);
+            }
+
+            StatusMessage.success(msg);
+        })
+        .fail(function(error) {
+            Alert.error("Aggregate fails", error);
+            StatusMessage.fail(StatusMessageTStr.AggregateFailed, msg);
+        })
+        .always(removeWaitCursor);
+    }
+
+    // sort tabe column
+    xcFunction.sort = function (colNum, tableNum, order) {
+        var table     = gTables[tableNum];
+        var isTable   = table.isTable;
+        var tableName = table.frontTableName;
+        var srcName   = isTable ? table.backTableName : 
+                                  gTableIndicesLookup[tableName].datasetName;
+        var tablCols  = xcHelper.deepCopy(table.tableCols);
+        var pCol      = table.tableCols[colNum - 1];
+
+        var newTableName = xcHelper.randName("tempSortTable-");
+        var fieldName;
+
+        switch(pCol.func.func) {
+            case ("pull"):
+                // Pulled directly, so just sort by this
+                fieldName = pCol.func.args[0];
+                break;
+            default:
+                var error = "Cannot sort a col derived from unsupported func";
+                console.error(error);
+                return;
+        }
+
+
+        var direction = (order == SortDirection.Forward) ? "ASC" : "DESC";
+        var msg       = StatusMessageTStr.Sort + " " + fieldName;
+
+        StatusMessage.show(msg);
+
+        getIndexedTable(srcName, fieldName, newTableName, isTable)
         .then(function() {
-            focusTable(newTableNum);
-            var leftPos = $('#xcTableWrap'+newTableNum).position().left +
-                            $('#mainFrame').scrollLeft();
-            $('#mainFrame').animate({scrollLeft: leftPos})
-                           .promise()
-                           .then(function() {
-                                focusTable(newTableNum);
-                            });
+            setDirection(newTableName, order);
+            setIndex(newTableName, tablCols);
+
+            return (refreshTable(newTableName, tableNum, 
+                    KeepOriginalTables.DontKeep));
+        })
+        .then(function() {
+            // add sql
+            SQL.add("Sort Table", {
+                "operation"    : "sort",
+                "tableName"    : tableName,
+                "key"          : fieldName,
+                "direction"    : direction,
+                "newTableName" : newTableName
+            });
+
+            StatusMessage.success(msg);
+            commitToStorage();
+        })
+        .fail(function(error) {
+            Alert.error("Sort Rows Fails", error);
+            StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
+        });
+    }
+
+    // join two tables
+    xcFunction.join = function (leftColNum, leftTableNum, rightColNum, rightTableNum, joinStr, newTableName) {
+        var deferred = jQuery.Deferred();
+        var isLeft   = true;
+        var isRight  = false;
+        var joinType;
+
+        switch (joinStr) {
+            case ("Inner Join"):
+                joinType = JoinOperatorT.InnerJoin;
+                break;
+            case ("Left Outer Join"):
+                joinType = JoinOperatorT.LeftOuterJoin;
+                break;
+            case ("Right Outer Join"):
+                joinType = JoinOperatorT.RightOuterJoin;
+                break;
+            case ("Full Outer Join"):
+                joinType = JoinOperatorT.FullOuterJoin;
+                break;
+            default:
+                console.log("Incorrect join type!");
+                break;
+        }
+
+        console.log("leftColNum"   , leftColNum,
+                    "leftTableNum" , leftTableNum, 
+                    "rightColNum"  , rightColNum,
+                    "rightTableNum", rightTableNum,
+                    "joinStr"      , joinStr,
+                    "newTableName" , newTableName);
+
+        var leftTable      = gTables[leftTableNum];
+        var leftFrontName  = leftTable.frontTableName;
+        var leftColName    = leftTable.tableCols[leftColNum].name;
+
+        var rightTable     = gTables[rightTableNum];
+        var rightFrontName = rightTable.frontTableName
+        var rightColName   = rightTable.tableCols[rightColNum].name;
+
+        var leftSrcName;
+        var rightSrcName;
+        var newTableCols   = createJoinedColumns(rightTable, leftTable);
+
+        var msg            = StatusMessageTStr.Join;
+
+        StatusMessage.show(msg);
+
+        showWaitCursor();
+        // check left table index
+        checkJoinTableIndex(leftColName, leftTable, isLeft)
+        .then(function(realLeftTableName) {
+            leftSrcName = realLeftTableName;
+            // check right table index
+            return (checkJoinTableIndex(rightColName, rightTable, isRight));
+        })
+        .then(function(realRightTableName) {
+            rightSrcName = realRightTableName;
+            // join indexed table
+            return (XcalarJoin(leftSrcName, rightSrcName, 
+                                newTableName, joinType));
+        })
+        .then(function() {
+            setIndex(newTableName, newTableCols);
+
+            return (refreshTable(newTableName, leftTableNum, 
+                                 KeepOriginalTables.DontKeep, rightTableNum));
+        })
+        .then(function() {
+            SQL.add("Join Table", {
+                "operation"    : "join",
+                "leftTable"    : {
+                    "name"     : leftFrontName,
+                    "colName"  : leftColName,
+                    "colIndex" : leftColNum
+                },
+                "rightTable"   : {
+                    "name"     : rightFrontName,
+                    "colName"  : rightColName,
+                    "colIndex" : rightColNum
+                },
+                "joinType"     : joinStr,
+                "newTableName" : newTableName
+            });
+
+            StatusMessage.success(msg);
+            commitToStorage();
+
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("refreshTable fails!");
+            Alert.error("Join Table Fails", error);
+            StatusMessage.fail(StatusMessageTStr.JoinFailed, msg);
+
             deferred.reject(error);
-        });
-    } else {
-        // default
-        newTableNum = tableNum;
-        var tablesToRemove = [];
-        var savedScrollLeft;
-        var delayTableRemoval = true;
-        if (additionalTableNum > -1) {
-            var largerTableNum = Math.max(additionalTableNum, tableNum);
-            var smallerTableNum = Math.min(additionalTableNum, tableNum);
-           
-            tablesToRemove.push(largerTableNum);
-            archiveTable(largerTableNum, DeleteTable.Keep, delayTableRemoval);
-            if (largerTableNum != smallerTableNum) {
-                // excludes self join
-                tablesToRemove.push(smallerTableNum);
-                archiveTable(smallerTableNum, DeleteTable.Keep, 
-                             delayTableRemoval);
-            }
-            if (newTableNum > gTables.length) {
-                // edge case
-                newTableNum = gTables.length;
-            }
-        } else {
-            savedScrollLeft = $('#mainFrame').scrollLeft();
-            tablesToRemove.push(tableNum);
-            archiveTable(tableNum, DeleteTable.Keep, delayTableRemoval);
-        }
-        addTable(newTableName, newTableNum, AfterStartup.After, tablesToRemove)
-        .then(function() {
-            if (savedScrollLeft) {
-                $('#mainFrame').scrollLeft(savedScrollLeft);
-            } 
-            focusTable(newTableNum);
-            deferred.resolve();
         })
-        .fail(function(error) {
-            console.log("refreshTable fails!");
-            deferred.reject(error);
-        });
-    }
-    return (deferred.promise());
-}
+        .always(removeWaitCursor);
 
-function getIndexedTable(srcName, fieldName, newTableName, isTable) {
-    if (isTable) {
-        return (XcalarIndexFromTable(srcName, fieldName, newTableName));
-    } else {
-        return (XcalarIndexFromDataset(srcName, fieldName, newTableName));
-    }
-}
-
-function sortRows(index, tableNum, order) {
-    var deferred = jQuery.Deferred();
-
-    var isTable = gTables[tableNum].isTable;
-
-    var newTableName = xcHelper.randName("tempSortTable-");
-    var tableName = gTables[tableNum].frontTableName;
-    var srcName = isTable ? gTables[tableNum].backTableName : 
-                            gTableIndicesLookup[tableName].datasetName;
-    var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
-    var fieldName;
-
-    switch(gTables[tableNum].tableCols[index-1].func.func) {
-    case ("pull"):
-        // Pulled directly, so just sort by this
-        fieldName = gTables[tableNum].tableCols[index-1].func.args[0];
-        break;
-    default:
-        console.log("Cannot sort a col derived from unsupported func");
-        deferred.resolve();
-        return;
+        return (deferred.promise());
     }
 
-    // add sql
-    var sqlOptions = {
-        "operation": "sort",
-        "tableName": tableName,
-        "key": fieldName,
-        "newTableName": newTableName
-    };
+    // group by on a column
+    xcFunction.groupBy = function (colNum, tableNum, newColName, operator) {
+        var table        = gTables[tableNum];
+        var frontName    = table.frontTableName;
+        var srcName      = table.backTableName;
+        var fieldName    = table.tableCols[colNum - 1].name;
+        var newTableName = xcHelper.randName("tempGroupByTable-");
 
-    sqlOptions.direction = order == SortDirection.Forward ? "ASC" : "DESC";
+        var msg          = StatusMessageTStr.GroupBy + " " + operator;
 
-    var msg = StatusMessageTStr.Sort + " " + fieldName;
-    StatusMessage.show(msg);
-
-    getIndexedTable(srcName, fieldName, newTableName, isTable)
-    .then(function() {
-        setDirection(newTableName, order);
-        setIndex(newTableName, tablCols);
-        return (refreshTable(newTableName, tableNum, 
-                KeepOriginalTables.DontKeep));
-    })
-    .then(function() {
-        SQL.add("Sort Table", sqlOptions);
-        StatusMessage.success(msg);
-        commitToStorage();
-        deferred.resolve();
-    })
-    .fail(function(error) {
-        Alert.error("Sort Rows Fails", error);
-        StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
-function mapColumn(fieldName, mapString, tableNum, tableName, message) {
-    var deferred = jQuery.Deferred();
-    var newTableName = xcHelper.randName("tempMapTable-");
-    var srcTableName = gTables[tableNum].frontTableName;
-    var backTableName = gTables[tableNum].backTableName;
-    var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
-    var tableProperties = {bookmarks:[], rowHeights:{}};
-
-    tableProperties.bookmarks = JSON.parse(JSON.stringify(
-                                                gTables[tableNum].bookmarks));
-    tableProperties.rowHeights = JSON.parse(JSON.stringify(
-                                                gTables[tableNum].rowHeights));
-
-    XcalarMap(fieldName, mapString, backTableName, newTableName)
-    .then(function() {
-        setIndex(newTableName, tablCols, null, tableProperties);
-        return (refreshTable(newTableName, tableNum));
-    })
-    .then(function() {
-        StatusMessage.success(message);
-        // add sql
-        SQL.add("Map Column", {
-            "operation": "mapColumn",
-           "srcTableName": srcTableName,
-           "newTableName": newTableName,
-           "colName": fieldName,
-           "mapString": mapString
-        });
-        commitToStorage();
-        deferred.resolve();
-    })
-    .fail(function(error){
-        Alert.error("mapColumn fails", error);
-        StatusMessage.fail(StatusMessageTStr.MapFailed, message);
-        deferred.reject(error);
-    });
-    return (deferred.promise());
-}
-
-function groupByCol(operator, newColName, colid, tableNum) {
-    var deferred = jQuery.Deferred();
-    var newTableName = xcHelper.randName("tempGroupByTable-");
-    var srcTableName = gTables[tableNum].frontTableName;
-    var backTableName = gTables[tableNum].backTableName;
-    var fieldName = gTables[tableNum].tableCols[colid - 1].name;
-
-    var msg = StatusMessageTStr.GroupBy + " " + operator;
-
-    StatusMessage.show(msg);
-    
-    XcalarGroupBy(operator, newColName, fieldName, backTableName, newTableName)
-    .then(function() {
-        // TODO Create new gTables entry
-        // setIndex(newTableName, newTableCols);
-        return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
-    })
-    .then(function() {
-        // add sql
-        SQL.add("Group By", {
-            "operation": "groupBy",
-            "tableName": srcTableName,
-            "colName": fieldName,
-            "colIndex": colid,
-            "operator": operator,
-            "newTableName": newTableName,
-            "newColumnName": newColName
-        });
-        StatusMessage.success(msg);
-        commitToStorage();
-        deferred.resolve();
-    })
-    .fail(function(error) {
-        Alert.error("GroupBy fails", error);
-        StatusMessage.fail(StatusMessageTStr.GroupByFailed, msg);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
-function aggregateCol(operator, colName, tableName, message) {
-    showWaitCursor();
-    // var msg = StatusMessageTStr.Aggregate+' '+operator+' '+
-    //                     StatusMessageTStr.OnColumn+': ' + colName;
-    // StatusMessage.show(msg);
-    XcalarAggregate(colName, tableName, operator)
-    .then(function(value){
-        // show result in alert modal
-        var title = 'Aggregate: ' + operator;
-        var instr = 'This is the aggregate result for column "' + 
-                    colName + '". \r\n The aggregate operation is "' +
-                    operator + '".';
-        Alert.show({'title':title, 'msg':value, 
-                    'instr': instr, 'isAlert':true,
-                    'isCheckBox': true});
-        StatusMessage.success(message);
-    })
-    .fail(function(error) {
-        Alert.error("Aggregate fails", error);
-        StatusMessage.fail(StatusMessageTStr.AggregateFailed, message);
-    })
-    .always(function() {
-        removeWaitCursor();
-    });
-}
-
-function filterCol(operator, value, colid, tableNum, tableName, message) {
-    var deferred = jQuery.Deferred();
-
-    var newTableName = xcHelper.randName("tempFilterTable-");
-    var srcTableName = gTables[tableNum].frontTableName;
-    var backTableName = gTables[tableNum].backTableName
-    var tablCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
-    var colName = tablCols[colid - 1].name;
-
-    // var msg = StatusMessageTStr.Filter+': '+colName;
-    // StatusMessage.show(msg);
-
-    XcalarFilter(operator, value, colName, backTableName, newTableName)
-    .then(function() {
+        StatusMessage.show(msg);
         
-        setIndex(newTableName, tablCols);
-        return (refreshTable(newTableName, tableNum));
-    })
-    .then(function() {
-        // add sql
-        SQL.add('Filter Table', {
-            "operation": "filter",
-            "tableName": srcTableName,
-            "colName": colName,
-            "colIndex": colid,
-            "operator": operator,
-            "value": value,
-            "newTableName": newTableName
+        XcalarGroupBy(operator, newColName, fieldName, srcName, newTableName)
+        .then(function() {
+            // TODO Create new gTables entry
+            // setIndex(newTableName, newTableCols);
+            return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
+        })
+        .then(function() {
+            // add sql
+            SQL.add("Group By", {
+                "operation"     : "groupBy",
+                "tableName"     : frontName,
+                "colName"       : fieldName,
+                "colIndex"      : colNum,
+                "operator"      : operator,
+                "newTableName"  : newTableName,
+                "newColumnName" : newColName
+            });
+            StatusMessage.success(msg);
+            commitToStorage();
+        })
+        .fail(function(error) {
+            Alert.error("GroupBy fails", error);
+            StatusMessage.fail(StatusMessageTStr.GroupByFailed, msg);
         });
-        StatusMessage.success(message);
-        commitToStorage();
-        deferred.resolve();
-    })
-    .fail(function(error) {
-        Alert.error("filterCol fails", error);
-        StatusMessage.fail(StatusMessageTStr.FilterFailed, message);
-        deferred.reject(error);
-    });
-    
-    return (deferred.promise());
-}
+    }
 
-function createJoinIndex(rightTableNum, tableNum) {
-    // Combine the columns from the 2 current tables
-    // Note that we have to create deep copies!!
-    var newTableCols = JSON.parse(JSON.stringify(gTables[tableNum].tableCols));
-    var removed = false;
-    var dataCol;
+    // map a column
+    xcFunction.map = function (colNum, tableNum, fieldName, mapString) {
+        var deferred        = jQuery.Deferred();
 
-    for (var i = 0; i<newTableCols.length; i++) {
-        if (!removed) {
-            if (newTableCols[i].name == "DATA") {
-                dataCol = newTableCols.splice(i, 1);
-                removed = true;
-            }
+        var table           = gTables[tableNum];
+        var frontName       = table.frontTableName;
+        var newTableName    = xcHelper.randName("tempMapTable-");
+        var tablCols        = xcHelper.deepCopy(table.tableCols);
+        var tableProperties = { 
+            "bookmarks"  :  xcHelper.deepCopy(table.bookmarks), 
+            "rowHeights" :  xcHelper.deepCopy(table.rowHeights)
+        };
+
+        var msg             = StatusMessageTStr.Map + " " + fieldName;
+
+        StatusMessage.show(msg);
+
+        checkSorted(tableNum, colNum)
+        .then(function(srcName) {
+            return (XcalarMap(fieldName, mapString, srcName, newTableName));
+        })
+        .then(function() {
+            setIndex(newTableName, tablCols, null, tableProperties);
+
+            return (refreshTable(newTableName, tableNum));
+        })
+        .then(function() {
+            // add sql
+            SQL.add("Map Column", {
+                "operation"    : "mapColumn",
+                "srcTableName" : frontName,
+                "newTableName" : newTableName,
+                "colName"      : fieldName,
+                "mapString"    : mapString
+            });
+
+            StatusMessage.success(msg);
+            commitToStorage();
+
+            deferred.resolve();
+        })
+        .fail(function(error){
+            Alert.error("mapColumn fails", error);
+            StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
+
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    }
+
+    function getIndexedTable(srcName, fieldName, newTableName, isTable) {
+        if (isTable) {
+            return (XcalarIndexFromTable(srcName, fieldName, newTableName));
         } else {
-            newTableCols[i].index--;
+            return (XcalarIndexFromDataset(srcName, fieldName, newTableName));
         }
     }
-    removed = false;
-    var newRightTableCols = JSON.parse(JSON.stringify(
-                                       gTables[rightTableNum].tableCols));
-    for (var i = 0; i<newRightTableCols.length; i++) {
-        newRightTableCols[i].index+=(newTableCols.length);
-        if (!removed) {
-            if (newRightTableCols[i].name == "DATA") {
-                newRightTableCols.splice(i, 1);
-                removed = true;
-            }
-        } else {
-            newRightTableCols[i].index--;
 
-        }
-    }
-    newTableCols = newTableCols.concat(newRightTableCols);
-    dataCol[0].index = newTableCols.length+1;
-    newTableCols = newTableCols.concat(dataCol);
-    return (newTableCols);
-}
+    // For xcFuncion.join, check if table has correct index
+    function checkJoinTableIndex(colName, table, isLeft) {
+        var deferred      = jQuery.Deferred();
 
-function joinTables(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
-                    rightTableNum, rightColumnNum) {
-    console.log(newTableName, joinTypeStr, leftTableNum, leftColumnNum,
-                    rightTableNum, rightColumnNum);
+        var indexColName  = table.keyName;
+        var frontName     = table.frontTableName;
+        var backTableName = table.backTableName;
 
-    var deferred = jQuery.Deferred();
-    var joinType = "";
-    switch (joinTypeStr) {
-    case ("Inner Join"):
-        joinType = JoinOperatorT.InnerJoin;
-        break;
-    case ("Left Outer Join"):
-        joinType = JoinOperatorT.LeftOuterJoin;
-        break;
-    case ("Right Outer Join"):
-        joinType = JoinOperatorT.RightOuterJoin;
-        break;
-    case ("Full Outer Join"):
-        joinType = JoinOperatorT.FullOuterJoin;
-        break;
-    default:
-        console.log("Incorrect join type!");
-        break;
-    }
+        var text          = isLeft ? "Left Table" : "Right Table";
 
-    showWaitCursor();
-    var leftTable = gTables[leftTableNum];
-    var leftName = leftTable.backTableName;
-    
-    var leftColName = leftTable.tableCols[leftColumnNum].func.args[0];
-    
-    XcalarGetNextPage(leftTable.resultSetId, 1)
-    .then(function(result) {
-        var leftIndexColName = result.keysAttrHeader.name;
-
-        if (leftColName != leftIndexColName) {
-            console.log("left not indexed correctly");
+        if (colName !== indexColName) {
+            console.log(text, "not indexed correctly!");
             
-            // XXX In the future,we can check if there are other tables that are
-            // indexed on this key. But for now, we reindex a new table
-            var leftNameNew = xcHelper.randName(leftName);
-            var isTable = leftTable.isTable;
-            var srcName = isTable ? leftName : 
-                                    gTableIndicesLookup[leftName].datasetName;
+            // XXX In the future,we can check if there are other tables that
+            // are indexed on this key. But for now, we reindex a new table
+            var newTableName = xcHelper.randName(backTableName);
+            var isTable      = table.isTable;
+            var srcName      = isTable ? 
+                                    backTableName : 
+                                    gTableIndicesLookup[frontName].datasetName;
 
-            return (getIndexedTable(srcName, leftColName, leftNameNew, isTable)
-                    .then(function() {
-                            var index = getIndex(srcName);
-                            setIndex(leftNameNew, index);
-                            gTableIndicesLookup[leftNameNew].active = false;
-                            return (setupHiddenTable(leftNameNew));
-                    })
-                    .then(function() {
-                            var index = gHiddenTables.length - 1;
+            getIndexedTable(srcName, colName, newTableName, isTable)
+            .then(function() {
+                var colums = xcHelper.deepCopy(getIndex(srcName));
 
-                            RightSideBar.addTables([gHiddenTables[index]], 
-                                             IsActive.Inactive);
-                            return (joinTables2([newTableName, joinType,
-                                               leftTableNum, leftNameNew,
-                                               rightTableNum, rightColumnNum]));
-                        })
-                    );
+                setIndex(newTableName, colums);
+                gTableIndicesLookup[newTableName].active = false;
+
+                return (setupHiddenTable(newTableName));
+            })
+            .then(function() {
+                var index = gHiddenTables.length - 1;
+
+                RightSideBar.addTables([gHiddenTables[index]], 
+                                        IsActive.Inactive);
+
+                deferred.resolve(newTableName);
+            })
+            .fail(deferred.reject);
+
         } else {
-            console.log("left indexed correctly");
-            return (joinTables2([newTableName, joinType, leftTableNum, 
-                                 leftName, rightTableNum, rightColumnNum]));
+            console.log(text, "indexed correctly!");
+            deferred.resolve(backTableName);
         }
-    })
-    .then(deferred.resolve)
-    .fail(function(error) {
-        console.log("joinTables fails!");
-        deferred.reject(error);
-    })
-    .always(function() {
-        removeWaitCursor();
-    });
 
-    return (deferred.promise());
-}
+        return (deferred.promise());
+    }
 
-function joinTables2(args) {
-    var deferred = jQuery.Deferred();
+    // For xcFuncion.join, deepy copy of right table and left table columns
+    function createJoinedColumns(rightTable, leftTable) {
+        // Combine the columns from the 2 current tables
+        // Note that we have to create deep copies!!
+        var newTableCols      = xcHelper.deepCopy(leftTable.tableCols);
+        var len               = newTableCols.length;
+        var newRightTableCols = xcHelper.deepCopy(rightTable.tableCols);
+        var removed           = false;
+        var dataCol;
 
-    var newTableName = args[0];
-    var joinType = args[1];
-    var leftTableNum = args[2];
-    var leftName = args[3];
-    var rightTableNum = args[4];
-    var rightColumnNum = args[5];
-    var rightTable = gTables[rightTableNum];
-    var rightColName = rightTable.tableCols[rightColumnNum].func.args[0];
-
-    var rightName = rightTable.backTableName;
-
-    XcalarGetNextPage(rightTable.resultSetId, 1)
-    .then(function(result) {
-        var rightIndexColName = result.keysAttrHeader.name;
-
-        if (rightColName != rightIndexColName) {
-            console.log("right not indexed correctly");
-            var rightNameNew = xcHelper.randName(rightName);
-            var isTable = rightTable.isTable;
-            var srcName = isTable ? rightName : 
-                                    gTableIndicesLookup[rightName].datasetName;
-
-            return (getIndexedTable(srcName, rightColName, 
-                                    rightNameNew, isTable)
-                    .then(function() {
-                            var index = getIndex(srcName);
-                            setIndex(rightNameNew, index);
-                            gTableIndicesLookup[rightNameNew].active = false;
-                            return (setupHiddenTable(rightNameNew));
-                    })
-                    .then(function() {
-                            var index = gHiddenTables.length - 1;
-
-                            RightSideBar.addTables([gHiddenTables[index]], 
-                                             IsActive.Inactive);
-
-                            return (joinTables3([newTableName, joinType,
-                                                leftTableNum, leftName, 
-                                                rightTableNum, rightNameNew]));
-                        })
-                    );
-        } else {
-            console.log("right correctly indexed");
-            return (joinTables3([newTableName, joinType, leftTableNum, 
-                                 leftName, rightTableNum, rightName]));
+        for (var i = 0; i < len; i++) {
+            if (!removed) {
+                if (newTableCols[i].name == "DATA") {
+                    dataCol = newTableCols.splice(i, 1);
+                    removed = true;
+                }
+            } else {
+                newTableCols[i].index--;
+            }
         }
-    })
-    .then(deferred.resolve)
-    .fail(function(error) {
-        console.log("joinTables2 fails!");
-        deferred.reject(error);
-    });
 
-    return (deferred.promise());
-}
+        removed = false;
 
-function joinTables3(args) {
-    var deferred = jQuery.Deferred();
+        for (var i = 0; i < newRightTableCols.length; i++) {
+            newRightTableCols[i].index += len;
 
-    var newTableName = args[0];
-    var joinType = args[1];
-    var leftTableNum = args[2];
-    var leftName = args[3];
-    var rightTableNum = args[4];
-    var rightName = args[5];
-    
-    var newTableCols = createJoinIndex(rightTableNum, leftTableNum);
-    XcalarJoin(leftName, rightName, newTableName, joinType)
-    .then(function() {
-        setIndex(newTableName, newTableCols);
+            if (!removed) {
+                if (newRightTableCols[i].name == "DATA") {
+                    newRightTableCols.splice(i, 1);
+                    removed = true;
+                }
+            } else {
+                newRightTableCols[i].index--;
 
-        return (refreshTable(newTableName, leftTableNum, 
-                             KeepOriginalTables.DontKeep, rightTableNum));
-    })
-    .then(function() {
-        deferred.resolve();
-    })
-    .fail(function(error) {
-        console.log("joinTables3 fails!");
-        deferred.reject(error);
-    });
+            }
+        }
 
-    return (deferred.promise());
-}
+        newTableCols = newTableCols.concat(newRightTableCols);
+        // now newTablCols.length is differenet from len
+        dataCol[0].index = newTableCols.length + 1;
+        newTableCols = newTableCols.concat(dataCol);
+        return (newTableCols);
+    }
+
+    return (xcFunction);
+}(jQuery, {}));

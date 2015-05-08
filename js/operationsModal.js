@@ -464,23 +464,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function aggregate(aggrOp) {
-        var pCol = gTables[tableNum].tableCols[colNum-1];
-
-        if (pCol.func.func != "pull") {
-            console.log(pCol);
-            alert("Cannot aggregate on column that does not exist in DATA.");
-            return;
-        }
-
-        console.log(backColName+" "+gTables[tableNum].backTableName+" "+aggrOp);
-        var msg = StatusMessageTStr.Aggregate+' '+aggrOp+' '+
-                        StatusMessageTStr.OnColumn+': ' + colName;
-
-        StatusMessage.show(msg);
-        checkSorted(tableNum, colNum)
-        .then(function(tableName) {
-            aggregateCol(aggrOp, backColName, tableName, msg);
-        });
+        xcFunction.aggregate(colNum, tableNum, aggrOp);
     }
 
     function filter(operator) {
@@ -495,25 +479,21 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         console.log(operator, 'operator');
 
-        var msg = StatusMessageTStr.Filter+': '+colName;
-        StatusMessage.show(msg);
-
-        checkSorted(tableNum, colNum)
-        .then(function(tableName) {
-            filterCol(operator, value, colNum, tableNum, tableName, msg);
-        });
+        xcFunction.filter(colNum, tableNum, operator, value);
     }
 
     function groupBy(operator) {
-        var $input = $operationsModal.find('.argument').eq(0);
-        var value =  $.trim($input.val());
+        var $input       = $operationsModal.find('.argument').eq(0);
+        var newColName   =  $.trim($input.val());
         var $theadInputs = $('#xcTable'+tableNum).find('.editableHead');
-        console.log('operator: '+operator+"value: "+value+"index: "+
-                    colNum+"tableNum: "+tableNum);
+
+        console.log("operator:", operator, "newColName:", newColName, 
+                    "colNum:"  , colNum  , "tableNum:"  , tableNum);
 
         var isDuplicate = checkDuplicateColNames($theadInputs, $input);
+
         if (!isDuplicate) {
-            groupByCol(operator, value, colNum, tableNum);
+             xcFunction.groupBy(colNum, tableNum, newColName, operator);
             return (true);
         } else {
             return (false);
@@ -521,34 +501,39 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function map(operator) {
-        var $valInput = $operationsModal.find('.argument').eq(0);
-        var $nameInput = $operationsModal.find('.argument').eq(1);
-        var value =  $.trim($valInput.val());
-        console.log(operator)
-        var newColName =  $.trim($nameInput.val());
+        var $nameInput   = $operationsModal.find('.argument').eq(1);
         var $theadInputs = $('#xcTable'+tableNum).find('.editableHead');
-        var isDuplicate = checkDuplicateColNames($theadInputs, $nameInput);
+        var isDuplicate  = checkDuplicateColNames($theadInputs, $nameInput);
+
         if (isDuplicate) {
             return (false);
         }
 
-        var switched = false; // XX we need to enable argument switching;
-        var mapStr = formulateMapString(operator, backColName,
+        var $valInput  = $operationsModal.find('.argument').eq(0);
+        var value      = $.trim($valInput.val());
+        var newColName = $.trim($nameInput.val());
+
+        var switched   = false; // XX we need to enable argument switching;
+        var mapStr     = formulateMapString(operator, backColName,
                                         value, switched);
 
-        
-        addCol('col'+colNum, 'xcTable'+tableNum, null, 
-            {direction: 'L', isDark: true});
-        var $th = $('#xcTable'+tableNum).find('th.col'+colNum);
+        console.log(operator);
+
+        addCol('col' + colNum, 'xcTable' + tableNum, null, 
+               {direction: 'L', isDark: true});
+
+        var $th       = $('#xcTable'+tableNum).find('th.col'+colNum);
         var $colInput = $th.find('.editableHead.col'+colNum);
+
         $colInput.val(newColName);
         $("#fnBar").val(mapStr);
         functionBarEnter($colInput);
+
         return (true);
     }
 
     function ascSort() {
-        sortRows(colNum, tableNum, SortDirection.Forward);
+        xcFunction.sort(colNum, tableNum, SortDirection.Forward);
     }
 
     function capitalize(string) {

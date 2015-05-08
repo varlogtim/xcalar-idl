@@ -12,6 +12,20 @@ window.xcHelper = (function($, xcHelper) {
         return undefined;
     }
 
+    // get a deep copy
+    xcHelper.deepCopy = function(obj) {
+        var string = JSON.stringify(obj);
+        var res;
+
+        try {
+            res = JSON.parse(string);
+        } catch (err) {
+            console.error(err, string);
+        }
+
+        return (res);
+    }
+
     xcHelper.randName = function(name, digits) {
         if (digits == undefined) {
             digits = 5; // default
