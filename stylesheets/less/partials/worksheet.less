@@ -220,8 +220,18 @@
 .xcTable {
     .size(@width: 520px, @height: 0);
 
-    td.jsonElement, td.dataCol {
-        .go-column-solid(20%);
+   
+    tbody tr {
+        &:nth-child(odd) {
+            td.jsonElement, td.dataCol {
+                background-color: @color-table-col-green !important;
+            }
+        }
+        &:nth-child(even) {
+            td.jsonElement, td.dataCol {
+                background-color: @color-table-col-lightGreen !important;
+            }
+        }
     }
 
     td:first-child {

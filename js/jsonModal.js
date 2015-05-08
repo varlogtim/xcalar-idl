@@ -25,6 +25,7 @@ window.JSONModal = (function($, JSONModal) {
 
         positionJsonModal($jsonTd);
         jsonModalEvent($jsonTd);
+        $jsonTd.addClass('modalHighlighted');
 
         $("body").addClass("hideScroll");
     }
@@ -131,6 +132,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonModal.hide();
         $modalBackground.fadeOut(200);
         $("body").removeClass("hideScroll");
+        $('.modalHighlighted').removeClass('modalHighlighted');
     }
 
     function positionJsonModal($jsonTd) {
