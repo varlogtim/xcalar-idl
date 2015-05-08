@@ -6,10 +6,8 @@ window.JSONModal = (function($, JSONModal) {
     JSONModal.setup = function() {
          $('#jsonModal .closeJsonModal, #modalBackground').click(function() {
             if ($('#jsonModal').css('display') == 'block') {
-                $('#modalBackground').hide();
-                $('body').removeClass('hideScroll');
+                closeJSONModal();
             }
-            $('#jsonModal').hide();
         });
 
         $('#jsonModal .jsonDragArea').mousedown(function(event) {
@@ -131,7 +129,7 @@ window.JSONModal = (function($, JSONModal) {
     function closeJSONModal() {
         $jsonWrap.off();
         $jsonModal.hide();
-        $modalBackground.fadeOut(100);
+        $modalBackground.fadeOut(200);
         $("body").removeClass("hideScroll");
     }
 
@@ -157,7 +155,7 @@ window.JSONModal = (function($, JSONModal) {
         $("#jsonWrap").height(500).width(500);
 
         $jsonModal.show();
-        $modalBackground.fadeIn(100);
+        $modalBackground.fadeIn(200);
 
         var modalHeight = $jsonModal.outerHeight();
         var modalWidth  = $jsonModal.outerWidth();
