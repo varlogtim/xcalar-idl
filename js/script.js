@@ -489,9 +489,9 @@ function documentReadyGeneralFunction() {
             case ("movingCol"):
                 dragdropMouseMove(event);
                 break;
-            case ("movingJson"):
-                JSONModal.mouseMove(event);
-                break;
+            // case ("movingJson"):
+            //     JSONModal.mouseMove(event);
+            //     break;
             case ("rowScroller"): 
                 rowScrollerMouseMove(event);
             default:  // do nothing
@@ -514,9 +514,9 @@ function documentReadyGeneralFunction() {
             case ("movingCol"):
                 dragdropMouseUp();
                 break;
-            case ("movingJson"):
-                JSONModal.mouseUp();
-                break;
+            // case ("movingJson"):
+            //     JSONModal.mouseUp();
+            //     break;
             case ("rowScroller"):
                 rowScrollerMouseUp();
             default: // do nothing

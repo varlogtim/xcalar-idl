@@ -2071,3 +2071,19 @@ function showWaitCursor() {
 function removeWaitCursor() {
     $('#waitCursor').remove();
 }
+
+function centerPositionElement($target) {
+    // to position elements in the center of the window i.e. for modals
+    var $window      = $(window);
+    var winHeight    = $window.height();
+    var winWidth     = $window.width();
+    var modalWidth   = $target.width();
+    var modalHeight  = $target.height();
+    var left         = ((winWidth - modalWidth) / 2);
+    var top          = ((winHeight - modalHeight) / 2);
+
+    $target.css({
+        "left": left, 
+        "top" : top
+    });
+}

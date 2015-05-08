@@ -391,6 +391,11 @@ function setupDag() {
         $(this).next().find('.paramEdit').removeClass('selected');
     });
 
+    $dagParameterModal.draggable({
+        handle: '.modalHeader',
+        cursor: '-webkit-grabbing'
+    });
+
 }
 
 function appendRetinas(){
@@ -597,11 +602,13 @@ function addDagEventListeners($dagWrap) {
 function showDagParamModal($currentIcon) {
     $dagModal = $('#dagParameterModal');
     $dagModal.show();
+    centerPositionElement($dagModal);
+
     $('#modalBackground').fadeIn(200);
     var type = $currentIcon.data('type');
     var id = $currentIcon.data('id');
     var dagNum = $currentIcon.closest('.dagWrap').index();
-    $('#dagParameterModal').data({'id': id, 'dagNum': dagNum});
+    $dagModal.data({'id': id, 'dagNum': dagNum});
     var defaultText = ""; // The html corresponding to Current Query:
     var editableText = ""; // The html corresponding to Parameterized Query:
     if ($currentIcon.hasClass('dataStore')) {

@@ -10,8 +10,13 @@ window.JSONModal = (function($, JSONModal) {
             }
         });
 
-        $('#jsonModal .jsonDragArea').mousedown(function(event) {
-            JSONModal.mouseDown(event);
+        // $('#jsonModal .jsonDragArea').mousedown(function(event) {
+        //     JSONModal.mouseDown(event);
+        // });
+
+        $jsonModal.draggable({
+            handle: '.jsonDragArea',
+            cursor: '-webkit-grabbing'
         });
     }
 
@@ -23,12 +28,15 @@ window.JSONModal = (function($, JSONModal) {
         $jsonModal.find(".jsonDragArea").text(tableTitle);
         xcHelper.removeSelectionRange();
 
-        positionJsonModal($jsonTd);
+        fillJsonModal($jsonTd);
+        centerPositionElement($jsonModal);
         jsonModalEvent($jsonTd);
         $jsonTd.addClass('modalHighlighted');
-
         $("body").addClass("hideScroll");
     }
+
+    // XX JSONModal.mouseDown and MouseMove are tentatively replaced by
+    // jquery's draggable function
 
     JSONModal.mouseDown = function (event) {
         gMouseStatus    = "movingJson"
@@ -54,6 +62,7 @@ window.JSONModal = (function($, JSONModal) {
 
         $jsonModal.css("left" ,(gDragObj.left + distX) + "px");
         $jsonModal.css("top"  ,(gDragObj.top + distY) + "px");
+
     }
 
     JSONModal.mouseUp = function () {
@@ -135,14 +144,23 @@ window.JSONModal = (function($, JSONModal) {
         $('.modalHighlighted').removeClass('modalHighlighted');
     }
 
-    function positionJsonModal($jsonTd) {
-        var $window      = $(window);
-        var winHeight    = $window.height();
-        var winWidth     = $window.width();
-        var jsonTdHeight = $jsonTd.outerHeight();
-        var jsonTdWidth  = $jsonTd.outerWidth();
-        var jsonTdPos    = $jsonTd[0].getBoundingClientRect();
-        var text         = $jsonTd.find(".elementText").text();
+    // function positionJsonModal() {
+    //     var $window      = $(window);
+    //     var winHeight    = $window.height();
+    //     var winWidth     = $window.width();
+    //     var modalWidth   = $jsonModal.width();
+    //     var modalHeight  = $jsonModal.height();
+    //     var left = ((winWidth - modalWidth) / 2);
+    //     var top = ((winHeight - modalHeight) / 2);
+
+    //     $jsonModal.css({
+    //         "left": left, 
+    //         "top" : top
+    //     });
+    // }
+
+    function fillJsonModal($jsonTd) {
+        var text = $jsonTd.find(".elementText").text();
         var jsonString;
 
         try {
@@ -151,43 +169,12 @@ window.JSONModal = (function($, JSONModal) {
             console.error(error, text);
             closeJSONModal();
             return;
-        }
+        } 
 
-        $("#jsonObj").html(prettifyJson(jsonString));
         $("#jsonWrap").height(500).width(500);
-
         $jsonModal.show();
-        $modalBackground.fadeIn(200);
-
-        var modalHeight = $jsonModal.outerHeight();
-        var modalWidth  = $jsonModal.outerWidth();
-
-        var modalTop;
-        var modalLeft;
-
-        if (jsonTdPos.top < winHeight/2) {
-            modalTop = jsonTdPos.top; 
-        } else {
-            modalTop = jsonTdPos.top - modalHeight + jsonTdHeight;
-        }
-
-        if (modalTop < 5) {
-            modalTop = 5;
-        } else if (modalTop + modalHeight > winHeight) {
-            modalTop = Math.max(winHeight - modalHeight - 5, 5);
-        }
-
-        if (jsonTdPos.left + (jsonTdWidth/2) > (winWidth/2)) {
-            modalLeft = Math.min((jsonTdPos.left + (jsonTdWidth/2)) 
-                        - modalWidth, winWidth - modalWidth - 20);
-        } else {
-            modalLeft = Math.max(jsonTdPos.left+(jsonTdWidth/2) , 20);
-        }
-
-        $jsonModal.css({
-            "left": modalLeft, 
-            "top" : modalTop
-        });
+        $modalBackground.fadeIn(100);
+        $("#jsonObj").html(prettifyJson(jsonString));
     }
 
     function prettifyJson(obj, indent, options) {

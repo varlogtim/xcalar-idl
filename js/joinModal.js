@@ -74,6 +74,11 @@ window.JoinModal = (function($, JoinModal) {
             .always(resetJoinTables);
         });
 
+        $joinModal.draggable({
+            handle: '.modalHeader',
+            cursor: '-webkit-grabbing'
+        });
+
         addModalTabListeners($leftJoinTable);
         addModalTabListeners($rightJoinTable);
     }
@@ -82,7 +87,7 @@ window.JoinModal = (function($, JoinModal) {
         $("body").on("keypress", joinTableKeyPress);
         $modalBackground.on("click", hideJoinTypeSelect);
         updateJoinTableName();
-
+        centerPositionElement($joinModal);
         $joinModal.show();
         $modalBackground.fadeIn(300);
 

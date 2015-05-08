@@ -116,6 +116,7 @@
     z-index: 35;
 }
 
+
 /* Pretty Json Modal */
 #jsonModal {
     display: inline-block;
@@ -226,6 +227,11 @@
     .modalBuilder(920px, 670px);
     overflow: hidden;
     resize: horizontal;
+    margin: 0 !important;
+    .modalHeader {
+        .cursor-move;
+    }
+
     #aggInputSection {
         .size(@height: 57px);
         .font(@weight: bold, @size: 14px, @line-height: 57px);
@@ -438,6 +444,11 @@
     .modalBuilder(920px, 670px);
     overflow: hidden;
     resize: both;
+    margin: 0 !important;
+
+    .modalHeader {
+        .cursor-move;
+    }
 
     .modalTopMain {
         .size(@height: 57px);
@@ -1055,6 +1066,11 @@
     .modalBuilder(920px, 300px);
 
     .transition(height 0.5s);
+    margin: 0 !important;
+
+    .modalHeader {
+        .cursor-move;
+    }
 
     &.minimized {
         height: 265px;
@@ -1353,7 +1369,12 @@
 }
 
 #operationsModal {
-    .modalBuilder(920px, 476px); 
+    .modalBuilder(720px, 476px); 
+    margin: 0 !important;
+
+    .modalHeader {
+        .cursor-move;
+    }
 
     .modalInstruction {
         padding: 13px 16px;
@@ -1702,5 +1723,13 @@ th.modalHighlighted {
             border-left: 6px solid rgba(0, 0, 0, 0.6) !important;
             pointer-events: initial;
         }
+    }
+}
+
+.ui-draggable-dragging {
+    .cursor-grabbing;
+
+    .ui-draggable-handle {
+        .cursor-grabbing;
     }
 }

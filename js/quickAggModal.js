@@ -36,6 +36,11 @@ window.AggModal = (function($, AggModal) {
 
         $aggModal.click(hideAggOpSelect);
         $aggTableName.val("tempTableName");
+
+        $aggModal.draggable({
+            handle: '.modalHeader',
+            cursor: '-webkit-grabbing'
+        });
     }
 
     AggModal.show = function (tableNum) {
@@ -44,6 +49,7 @@ window.AggModal = (function($, AggModal) {
 
         $aggModal.show();
         $modalBackground.fadeIn(300);
+        centerPositionElement($aggModal)
 
         aggColumns(tableNum);
         aggVert(tableNum);

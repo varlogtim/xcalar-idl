@@ -33,6 +33,12 @@
     cursor: -moz-grab;
 }
 
+.cursor-grabbing() {
+    cursor: move !important;
+    cursor: -webkit-grabbing !important;
+    cursor: -moz-grabbing !important;
+}
+
 .image(@url, @pX:0, @pY:0, @repeat:no-repeat) {
     background: url(@url) @repeat @pX @pY;
 }

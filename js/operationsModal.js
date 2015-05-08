@@ -114,6 +114,11 @@ window.OperationsModal = (function($, OperationsModal) {
         });
 
         $operationsModal.find('.confirm').on('click', submitForm);
+
+        $operationsModal.draggable({
+            handle: '.operationsModalHeader',
+            cursor: '-webkit-grabbing'
+        });
     }
 
     OperationsModal.show = function(newTableNum, newColNum) {
@@ -122,6 +127,7 @@ window.OperationsModal = (function($, OperationsModal) {
         colName = gTables[tableNum].tableCols[colNum-1].name;
         backColName = gTables[tableNum].tableCols[colNum-1].func.args[0];
 
+        centerPositionElement($operationsModal);
         highlightOperationColumn(tableNum, colNum);
         $operationsModal = $('#operationsModal');
         $operationsModal.fadeIn(200);
