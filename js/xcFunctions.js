@@ -4,16 +4,17 @@ window.xcFunction = (function ($, xcFunction) {
     xcFunction.filter = function (colNum, tableNum, operator, value) {
         var table        = gTables[tableNum];
         var frontName    = table.frontTableName;
-        var colName      = table.tableCols[colNum - 1].name;
+        var frontColName = table.tableCols[colNum - 1].name;
+        var backColName  = table.tableCols[colNum - 1].func.args[0];
         var tablCols     = xcHelper.deepCopy(table.tableCols);
         var newTableName = xcHelper.randName("tempFilterTable-");
-        var msg          = StatusMessageTStr.Filter+': '+colName;
+        var msg          = StatusMessageTStr.Filter+': '+frontColName;
 
         StatusMessage.show(msg);
 
         checkSorted(tableNum, colNum)
         .then(function(srcName) {
-            return (XcalarFilter(operator, value, colName, 
+            return (XcalarFilter(operator, value, backColName, 
                                  srcName, newTableName));
         })
         .then(function() {
@@ -26,7 +27,7 @@ window.xcFunction = (function ($, xcFunction) {
             SQL.add("Filter Table", {
                 "operation"    : "filter",
                 "tableName"    : frontName,
-                "colName"      : colName,
+                "colName"      : frontColName,
                 "colIndex"     : colNum,
                 "operator"     : operator,
                 "value"        : value,
@@ -54,21 +55,22 @@ window.xcFunction = (function ($, xcFunction) {
             return;
         }
 
-        var colName = pCol.func.args[0];
+        var frontColName = pCol.name;
+        var backColName = pCol.func.args[0];
         var msg     = StatusMessageTStr.Aggregate + " " + aggrOp + " " + 
-                        StatusMessageTStr.OnColumn + ": " + colName;
+                        StatusMessageTStr.OnColumn + ": " + frontColName;
 
         StatusMessage.show(msg);
         showWaitCursor();
 
         checkSorted(tableNum, colNum)
         .then(function(srcName) {
-            return (XcalarAggregate(colName, srcName, aggrOp));
+            return (XcalarAggregate(backColName, srcName, aggrOp));
         })
         .then(function(value){
             // show result in alert modal
             var instr = 'This is the aggregate result for column "' + 
-                        colName + '". \r\n The aggregate operation is "' +
+                        frontColName + '". \r\n The aggregate operation is "' +
                         aggrOp + '".';
             // add alert
             Alert.show({
@@ -85,7 +87,7 @@ window.xcFunction = (function ($, xcFunction) {
                 SQL.add("Aggregate", {
                     "operation" : "aggregate",
                     "tableName" : frontName,
-                    "colName"   : colName,
+                    "colName"   : frontColName,
                     "colIndex"  : colNum,
                     "operator"  : aggrOp,
                     "value"     : val["Value"]
@@ -114,12 +116,14 @@ window.xcFunction = (function ($, xcFunction) {
         var pCol      = table.tableCols[colNum - 1];
 
         var newTableName = xcHelper.randName("tempSortTable-");
-        var fieldName;
+        var backFieldName;
+        var frontFieldName;
 
         switch(pCol.func.func) {
             case ("pull"):
                 // Pulled directly, so just sort by this
-                fieldName = pCol.func.args[0];
+                frontFieldName = pCol.name;
+                backFieldName = pCol.func.args[0];
                 break;
             default:
                 var error = "Cannot sort a col derived from unsupported func";
@@ -129,11 +133,11 @@ window.xcFunction = (function ($, xcFunction) {
 
 
         var direction = (order == SortDirection.Forward) ? "ASC" : "DESC";
-        var msg       = StatusMessageTStr.Sort + " " + fieldName;
+        var msg       = StatusMessageTStr.Sort + " " + frontFieldName;
 
         StatusMessage.show(msg);
 
-        getIndexedTable(srcName, fieldName, newTableName, isTable)
+        getIndexedTable(srcName, backFieldName, newTableName, isTable)
         .then(function() {
             setDirection(newTableName, order);
             setIndex(newTableName, tablCols);
@@ -146,7 +150,7 @@ window.xcFunction = (function ($, xcFunction) {
             SQL.add("Sort Table", {
                 "operation"    : "sort",
                 "tableName"    : tableName,
-                "key"          : fieldName,
+                "key"          : frontFieldName,
                 "direction"    : direction,
                 "newTableName" : newTableName
             });
@@ -194,11 +198,13 @@ window.xcFunction = (function ($, xcFunction) {
 
         var leftTable      = gTables[leftTableNum];
         var leftFrontName  = leftTable.frontTableName;
-        var leftColName    = leftTable.tableCols[leftColNum].name;
+        var leftColName    = leftTable.tableCols[leftColNum].func.args[0];
+        var leftFrontColName    = leftTable.tableCols[leftColNum].name;
 
         var rightTable     = gTables[rightTableNum];
         var rightFrontName = rightTable.frontTableName
-        var rightColName   = rightTable.tableCols[rightColNum].name;
+        var rightColName   = rightTable.tableCols[rightColNum].func.args[0];
+        var rightFrontColName   = rightTable.tableCols[rightColNum].name;
 
         var leftSrcName;
         var rightSrcName;
@@ -233,12 +239,12 @@ window.xcFunction = (function ($, xcFunction) {
                 "operation"    : "join",
                 "leftTable"    : {
                     "name"     : leftFrontName,
-                    "colName"  : leftColName,
+                    "colName"  : leftFrontColName,
                     "colIndex" : leftColNum
                 },
                 "rightTable"   : {
                     "name"     : rightFrontName,
-                    "colName"  : rightColName,
+                    "colName"  : rightFrontColName,
                     "colIndex" : rightColNum
                 },
                 "joinType"     : joinStr,
@@ -266,25 +272,28 @@ window.xcFunction = (function ($, xcFunction) {
         var table        = gTables[tableNum];
         var frontName    = table.frontTableName;
         var srcName      = table.backTableName;
-        var fieldName    = table.tableCols[colNum - 1].name;
+        var frontFieldName = table.tableCols[colNum - 1].name;
+        var backFieldName = table.tableCols[colNum - 1].func.args[0];
         var newTableName = xcHelper.randName("tempGroupByTable-");
 
         var msg          = StatusMessageTStr.GroupBy + " " + operator;
 
         StatusMessage.show(msg);
         
-        XcalarGroupBy(operator, newColName, fieldName, srcName, newTableName)
+        XcalarGroupBy(operator, newColName, backFieldName, srcName, 
+                      newTableName)
         .then(function() {
             // TODO Create new gTables entry
             // setIndex(newTableName, newTableCols);
-            return (refreshTable(newTableName, tableNum, KeepOriginalTables.Keep));
+            return (refreshTable(newTableName, tableNum, 
+                    KeepOriginalTables.Keep));
         })
         .then(function() {
             // add sql
             SQL.add("Group By", {
                 "operation"     : "groupBy",
                 "tableName"     : frontName,
-                "colName"       : fieldName,
+                "colName"       : frontFieldName,
                 "colIndex"      : colNum,
                 "operator"      : operator,
                 "newTableName"  : newTableName,

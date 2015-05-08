@@ -178,7 +178,7 @@ function checkDuplicateColNames($inputs, $input) {
     // $inputs are the inputs to check names against, $input is the target input
     var name        = jQuery.trim($input.val());
     var isDuplicate = false;
-    var title       = "Name already exists, please use another name";
+    var title       = "Name already exists, please use another name.";
 
     $inputs.each(function() {
         if (isDuplicate) {
@@ -196,7 +196,10 @@ function checkDuplicateColNames($inputs, $input) {
     $(".tooltip").hide();
     // temporarily use, will be removed when backend allow name with space
     if (/ +/.test(name) === true) {
-        title = "Invalid name, cannot contain spaces between letters"
+        title = "Invalid name, cannot contain spaces between letters.";
+        isDuplicate = true;
+    } else if (name == 'DATA') {
+        title = "The name \'DATA\' is reserved.";
         isDuplicate = true;
     }
 
