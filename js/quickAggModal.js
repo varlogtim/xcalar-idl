@@ -77,7 +77,7 @@ window.AggModal = (function($, AggModal) {
         var table         = gTables[tableNum];
         var numColumns    = table.tableCols.length;
 
-        var aggrFunctions = ["Sum", "Avg", "Min", "Max", "Count"];
+        var aggrFunctions = ["Sum", "Average", "Min", "Max", "Count"];
         var $mainAgg      = $("#mainAgg");
 
         var tabHtml       = "";
