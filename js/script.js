@@ -704,7 +704,7 @@ function documentReadyIndexFunction() {
         .then(initializeTable)
         .then(function() {
             RightSideBar.initialize();
-            initializeJoinModal();
+            JoinModal.setup();
             AggModal.setup();
             OperationsModal.setup();
             WSManager.focusOnWorksheet();

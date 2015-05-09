@@ -1299,8 +1299,9 @@ function addColMenuActions($colMenu, $thead) {
 
     $colMenu.on('click', '.joinList', function() {
         var tableNum = parseInt($colMenu.attr('id').substring(7));
-        var colId = $colMenu.data('colNum');
-        setupJoinModalTables(tableNum, colId);
+        var colNum   = $colMenu.data('colNum');
+
+        JoinModal.show(tableNum, colNum);
     });
 
     $colMenu.on('click', '.operations', function() {

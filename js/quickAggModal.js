@@ -12,18 +12,14 @@ window.AggModal = (function($, AggModal) {
             resetAggTables();
         });
 
-        $aggSelect.mousedown(function(event) {
+        $aggSelect.click(function(event) {
             event.stopPropagation();
-
-            if ($aggSelect.length == 0) {
-                return;
-            }
 
             $aggSelect.toggleClass("open");
             $aggDropdown.toggle();
         });
 
-        $aggDropdown.on("click", ".list li", function(event) {
+        $aggDropdown.on("click", "li", function(event) {
             var $li  = $(this);
 
             event.stopPropagation();
@@ -35,27 +31,25 @@ window.AggModal = (function($, AggModal) {
             var aggOp = $li.text();
 
             $aggSelect.find(".text").text(aggOp);
-
-            $aggDropdown.hide();
-            $aggSelect.removeClass("open");
+            hideAggOpSelect();
         });
 
-        $modalBackground.mousedown(hideAggOpSelect);
-        $aggModal.mousedown(hideAggOpSelect);
+        $aggModal.click(hideAggOpSelect);
         $aggTableName.val("tempTableName");
     }
 
     AggModal.show = function (tableNum) {
+        $modalBackground.on("click", hideAggOpSelect);
         $aggTableName.val(gTables[tableNum].frontTableName);
 
         $aggModal.show();
-        $modalBackground.fadeIn(200);
+        $modalBackground.fadeIn(300);
 
         aggColumns(tableNum);
         aggVert(tableNum);
     }
 
-    function hideAggOpSelect(event) {
+    function hideAggOpSelect() {
         $aggDropdown.hide();
         $aggSelect.removeClass('open');
     }
@@ -164,8 +158,9 @@ window.AggModal = (function($, AggModal) {
 
     function resetAggTables() {
         $('#mainTable').off();
+        $modalBackground.off("click", hideAggOpSelect);
         $aggModal.hide();
-        $modalBackground.fadeOut(200);
+        $modalBackground.fadeOut(300);
         $aggModal.width(920).height(670);
     }
 
