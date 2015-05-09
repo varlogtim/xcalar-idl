@@ -1398,6 +1398,12 @@ function dropdownClick($el, outside, options) {
                        .substring(11));
         if ($el.parent().hasClass('tableTitle')) {
             var $menu = $('#tableMenu'+tableNum);
+
+            if (WSManager.getWorksheetLen() <= 1) {
+                $menu.find(".moveToWorksheet").addClass("unavailable");
+            } else {
+                $menu.find(".moveToWorksheet").removeClass("unavailable");
+            }
         } else {
             var $menu = $('#colMenu'+tableNum);
         }

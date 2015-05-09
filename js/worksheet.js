@@ -21,6 +21,18 @@ window.WSManager = (function($, WSManager) {
         return (worksheets);
     }
 
+    WSManager.getWorksheetLen = function() {
+        var len = 0;
+
+        for (var i = 0; i < worksheets.length; i++) {
+            if (worksheets[i] != null) {
+                ++len;
+            }
+        }
+
+        return len;
+    }
+
     WSManager.restoreWorksheets = function(oldSheets) {
         for (var i = 0, j = 0; i < oldSheets.length; i ++) {
             // remove the deleted worksheets
@@ -315,18 +327,6 @@ window.WSManager = (function($, WSManager) {
 
             deleteWorksheetAction(wsIndex);
         });
-    }
-
-    function getWorksheetLen() {
-        var len = 0;
-
-        for (var i = 0; i < worksheets.length; i++) {
-            if (worksheets[i] != null) {
-                ++len;
-            }
-        }
-
-        return len;
     }
 
     function newWorksheet() {
