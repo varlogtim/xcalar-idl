@@ -236,7 +236,12 @@ window.JSONModal = (function($, JSONModal) {
 
                     break;
                 case ('object'):
-                    if (value.constructor == Array) {
+                    if (value == null) {
+                        value = '<span class="jNull">'+value+'</span>';
+                        if (options.inarray) {
+                            value += ',';
+                        }
+                    } else if (value.constructor == Array) {
                         ++options.inarray;
                         value = 
                             '[<span class="jArray jInfo" data-key="'+key+'">' +
