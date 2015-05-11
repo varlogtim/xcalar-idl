@@ -110,19 +110,25 @@ input {
     overflow: hidden;
 
     .contentViewMidWrap {
-        .size(@height: 100%, @max-width: 900px);
+        .size(@height: 100%, @width: 85%, @min-width: 470px, @max-width: 900px);
         margin: 0 auto;
+        padding: 0 0px;
     }
 
     #importHelp {
         .position(relative);
         .size(@height: 93px);
-        padding: 15px 6% 5px 6%;
+        padding: 15px 10px 5px 10px;
         font-weight: 700;
         box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
         text-align: left;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        .contentViewMidWrap {
+            width: 85%;
+            .size (@width: 90%, @max-width: 960px);
+        }
 
         h2 {
             font-size: 18px;
@@ -149,32 +155,35 @@ input {
 
     #importDataTopForm {
         background-color: @color-background-topForm;
-        padding: 30px 13% 1px 15%;
+        padding: 30px 20px 1px 20px;
 
         .importFormRow {
-            margin-bottom: 30px;
             height: 30px;
             line-height: 30px;
+            margin-bottom: 30px;
+            .flex-display;
             label {
                 display: inline-block;
-                width: 100px;
+                max-width: 100px;
+                min-width: 80px;
+                width: 15%;
                 font-weight: 700;
                 float: left;
             }
             input {
-                width: ~"calc(100% - 300px)";
+                max-width: 620px;
+                min-width: ~"calc(100% - 300px)";
+                width: ~"calc(100% - 260px)";
                 box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
                 float: left;
+                .flex(2 0 180px);
             }
-            :-ms-input-placeholder {  
-               color: #A9A9B1;  
-               color: @color-text-instructions;
-            }
+            .input-placeholder(@color-text-instructions);
         }
     }
 
     #importDataBottomForm {
-        padding: 30px 13% 1px 15%;
+        padding: 30px 20px 1px 20px;
     }
 
     .label {
@@ -227,19 +236,26 @@ input {
             opacity: 0;
         }
 
-        .size(@height: 30px);
+        .size(@min-height: 50px; @max-height: 95px);
         .position(relative);
-        margin-bottom: 40px;
+        margin-bottom: 15px;
+        margin-right: -30px;
         .font(@weight: 700, @size: 12px);
 
         .wrapper {
-            .size(~"calc(50% - 90px)", 30px);
+            .size(@height: 50px);
+            margin-right: 30px;
             .position(relative);
             float: left;
         }
 
+        .label {
+            .size(@width: 110px, @height: 30px);
+            .font(@size: 12px);
+        }
+
         .listSection {
-            .dropDownList(~"calc(50%)", 30px);
+            .dropDownList(150px, 30px);
 
              .text {
                 .size(@width: ~"calc(100% - 30px)");
@@ -294,6 +310,7 @@ input {
     }
 
     .btn {
+        .size (@min-width: 150px);
         margin-left: 20px;
         padding: 0;
         float: right;
@@ -551,7 +568,6 @@ input {
                         background: transparent;
 
                         &.leftTopDragWrap {
-                            // background-color: blue;
                             left: -7px;
                             width: ~"calc(16.5% + 7px)";
                             &.active {
@@ -560,7 +576,6 @@ input {
                         }
 
                         &.rightBottomDragWrap {
-                            // background-color: green;
                             left: 82.5%;
                             width: ~"calc(16.5% + 7px)";
                             &.active {
@@ -569,7 +584,6 @@ input {
                         }
 
                         &.midDragWrap {
-                            // background-color: yellow;
                             width: 66%;
                             left: 16.5%;
                         }
@@ -598,7 +612,6 @@ input {
                     .size(@width: 100%, @height: 17.5px);
                     background: transparent;
                     &.leftTopDragWrap {
-                        // background-color: blue;
                         top: -5px;
                         &.active {
                             box-shadow: inset 0px 2px 0px @color-background-topAction;
@@ -606,7 +619,6 @@ input {
                     }
 
                     &.rightBottomDragWrap {
-                        // background-color: green;
                         top: 12.5px;
                         &.active {
                             box-shadow: 0px 2px 0px @color-background-topAction;
@@ -639,7 +651,6 @@ input {
                         background: transparent;
 
                         &.leftTopDragWrap {
-                            // background-color: blue;
                             top: -5px;
                             height: 9.17px;
                              &.active {
@@ -648,7 +659,6 @@ input {
                         }
 
                         &.rightBottomDragWrap {
-                            // background-color: green;
                             top: 20.84px;
                             height: 9.16px;
                             &.active {
@@ -657,7 +667,6 @@ input {
                         }
 
                         &.midDragWrap {
-                            // background-color: yellow;
                             height: 16.67px;
                             top: 4.17px;
                         }
