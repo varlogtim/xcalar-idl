@@ -447,7 +447,7 @@ function documentReadyGeneralFunction() {
 
     $('#mainFrame').scroll(function() {
         $(this).scrollTop(0);
-
+        
         clearTimeout(timer);
         timer = setTimeout(function () { 
            moveTableDropdownBoxes();

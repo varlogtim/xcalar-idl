@@ -1550,7 +1550,7 @@ function moveTableDropdownBoxes() {
     var $startingTableHead;
 
     $('.xcTableWrap:not(".inActive")').each(function() {
-        if ($(this)[0].getBoundingClientRect().right > mainFrameScrollLeft) {
+        if ($(this)[0].getBoundingClientRect().right > 0) {
             $startingTableHead = $(this).find('.xcTheadWrap');
             return false;
         }
@@ -1563,7 +1563,10 @@ function moveTableDropdownBoxes() {
     }
     
     var rightSideBarWidth = 10;
-    var windowWidth = $(window).width() - 10;
+    var windowWidth = $(window).width();
+    if (windowWidth == $('#container').width()) {
+        windowWidth -= rightSideBarWidth;
+    }
     while (tablesAreVisible) {
         var tableRight = $startingTableHead[0].getBoundingClientRect().right;
         if (tableRight > windowWidth) {
@@ -1721,7 +1724,6 @@ function unbookmarkRow(rowNum, tableNum) {
     var td = $('#xcTable'+tableNum+' .row'+rowNum+ ' .col0');
     td.removeClass('rowBookmarked');
     td.find('.idSpan').attr('title', '');
-    console.log('#bkmkRow'+rowNum);
     $('#rowScroller'+tableNum).find('.bkmkRow'+rowNum).remove();
     var index = gTables[tableNum].bookmarks.indexOf(rowNum);
     gTables[tableNum].bookmarks.splice(index,1);
