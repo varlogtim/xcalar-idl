@@ -1040,8 +1040,6 @@ function addColListeners($table, tableNum) {;
                 $('#fnBar').removeClass('entered');
             }
             var index = parseColNum($(this));
-            
-            $(this).closest('.xcTheadWrap').css('z-index', '9');
             $(this).closest('.header').css('z-index', '9');
 
             var userStr = gTables[dynTableNum].tableCols[index-1].userStr;
@@ -1349,16 +1347,39 @@ function formulateMapString(operator, columnName, value,
     return (mapString);
 }
 
-function functionBarEnter($el) {
-    gFnBarOrigin = $el;
-    var index = parseColNum($el);
-    var $table = $el.closest('.dataTable');
+function functionBarEnter($colInput) {
+    gFnBarOrigin = $colInput;
+    var index = parseColNum($colInput);
+    var $table = $colInput.closest('.dataTable');
     var tableNum = parseInt($table.attr('id').substring(7));
-    var progStr = '"' + $el.val() + '" ' + $('#fnBar').val();
-    var progCol = parseCol(progStr, index, tableNum, true);
-
-    $el.blur();
+    var tableCol = gTables[tableNum].tableCols[index-1];
+    var newName = $.trim($colInput.val());
+    var oldName = tableCol.name;
+    var newFuncStr = $.trim($('#fnBar').val());
+    var progStr = '"' + newName + '" ' + newFuncStr;
+    var oldUsrStr = tableCol.userStr;
     $('#fnBar').removeClass('inFocus');
+  
+    if (progStr == oldUsrStr || newName == "") {
+        $colInput.val(oldName);
+        $colInput.blur();
+        return;
+    }
+
+    $colInput.closest('th').removeClass('unusedCell');
+    $table.find('td:nth-child('+index+')').removeClass('unusedCell');
+
+    //check if the function changed
+    var tempFuncStr = '"' + oldName + '" ' + newFuncStr;
+    if (oldUsrStr == tempFuncStr) {
+        // only the name has changed, not the function
+        tableCol.name = newName;
+        tableCol.userStr = progStr;
+        $colInput.blur();
+        return;
+    }
+
+    var progCol = parseCol(progStr, index, tableNum, true);
     // add sql
     SQL.add("Pull Column", {
         "operation": "pullCol",
@@ -1371,14 +1392,6 @@ function functionBarEnter($el) {
     .then(function() {
         updateTableHeader(tableNum);
         RightSideBar.updateTableInfo(gTables[tableNum]);
-
-        if (progCol.name.length > 0) {
-            $el.val(progCol.name);
-        } else {
-            // keep value that user entered
-        }
-        $el.closest('th').removeClass('unusedCell');
-        $table.find('td:nth-child('+index+')').removeClass('unusedCell');
     });
 }
 
@@ -1457,8 +1470,6 @@ function highlightColumn(el, keepHighlighted) {
     $table.find('th.col'+index).addClass('selectedCell');
     $table.find('td.col'+index).addClass('selectedCell');
 }
-
-var userScroll = true;
 
 function positionScrollbar(row, tableNum) {
     var canScroll = true;
