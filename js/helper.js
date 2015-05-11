@@ -12,6 +12,44 @@ window.xcHelper = (function($, xcHelper) {
         return undefined;
     }
 
+    xcHelper.parseTableNum = function($table) {
+        // assumes we are passing in a table with an ID
+        // that contains the string 'Table' ex. #xcTable2 or #worksheetTable2
+        var id       = $table.attr('id');
+        var numIndex = id.indexOf('Table') + 5;  // where tableNum is located
+        var tableNum = parseInt(id.substring(numIndex));
+        return (tableNum);
+    }
+
+    xcHelper.parseColNum = function($el) {
+        var classNames = $el.attr('class');
+        var index      = classNames.indexOf('col');
+        var substring  = classNames.substring(index + 'col'.length);
+
+        return (parseInt(substring));
+    }
+
+    xcHelper.parseJsonValue = function(value) {
+        if (value == undefined) {
+            value = '<span class="undefined">'+value+'</span>';
+        } else {
+            switch (value.constructor) {
+                case (Object):
+                    if ($.isEmptyObject(value)) {
+                        value = "";
+                    } else {
+                        value = JSON.stringify(value).replace(/,/g, ", ");
+                    }
+                    break;
+                case (Array):
+                    value = value.join(', ');
+                    break;
+                default: // leave value as is;
+            }
+        }
+        return (value);
+    }
+
     // get a deep copy
     xcHelper.deepCopy = function(obj) {
         var string = JSON.stringify(obj);

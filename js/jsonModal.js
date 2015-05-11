@@ -77,13 +77,13 @@ window.JSONModal = (function($, JSONModal) {
                                         return val === "DATA";
                                 });
 
-                var colNum      = parseColNum($id);
+                var colNum      = xcHelper.parseColNum($id);
                 var table       = gTables[tableNum];
                 var frontName   = table.frontTableName;
                 var siblColName = table.tableCols[colNum - 1].name;
 
-                addCol("col" + colNum, "xcTable" + tableNum, name.name, 
-                      {"direction": "L", "select": true});
+                ColManager.addCol("col" + colNum, "xcTable" + tableNum, 
+                                name.name, {"direction": "L", "select": true});
 
                 // now the column is different as we add a new column
                 var col         = table.tableCols[colNum-1];
@@ -91,7 +91,7 @@ window.JSONModal = (function($, JSONModal) {
                 col.func.args   = [name.escapedName];
                 col.userStr     = usrStr;
 
-                execCol(col, tableNum)
+                ColManager.execCol(col, tableNum)
                 .then(function() {
                     updateTableHeader(tableNum);
                     RightSideBar.updateTableInfo(table);

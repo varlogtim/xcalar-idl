@@ -577,21 +577,22 @@ window.DataCart = (function($, DataCart) {
     }
     // add column to cart
     DataCart.addItem = function(dsName, $colInput) {
-        var colNum = parseColNum($colInput);
-        var val = $colInput.val();
-        var $li = appendCartItem(dsName, colNum, val);
+        var colNum = xcHelper.parseColNum($colInput);
+        var val    = $colInput.val();
+        var $li    = appendCartItem(dsName, colNum, val);
 
         $cartArea.find(".colSelected").removeClass("colSelected");
         $li.addClass("colSelected"); // focus on this li
 
         var cart = filterCarts(dsName);
+
         cart.items.push({"colNum": colNum, "value": val});
     }
     // remove one column from cart
     DataCart.removeItem = function (dsName, $colInput) {
-        var colNum = parseColNum($colInput);
-        var $li = $("#selectedTable-" + dsName)
-                    .find("li[data-colnum=" + colNum + "]");
+        var colNum = xcHelper.parseColNum($colInput);
+        var $li    = $("#selectedTable-" + dsName)
+                        .find("li[data-colnum=" + colNum + "]");
 
         removeCartItem(dsName, $li);
     }
@@ -774,36 +775,30 @@ window.DataCart = (function($, DataCart) {
 
                 $cart.find('.colName').each(function() {
                     var colname = $.trim($(this).text());
-                    var progCol = new ProgCol();
                     var escapedName = colname;
 
                     if (colname.indexOf('.') > -1) {
                         escapedName = colname.replace(/\./g, "\\\.");
                     }
 
-                    progCol.index = ++startIndex;
-                    progCol.name = colname;
-                    progCol.width = gNewCellWidth;
-                    progCol.userStr = '"'+colname+'" = pull('+escapedName+')';
-                    progCol.func.func = "pull";
-                    progCol.func.args = [escapedName];
-                    progCol.isDark = false;
+                    var progCol = ColManager.newCol({
+                        "index"   : ++startIndex,
+                        "name"    : colname,
+                        "width"   : gNewCellWidth,
+                        "userStr" : '"'+colname+'" = pull('+escapedName+')',
+                        "func"    : {
+                            "func": "pull",
+                            "args": [escapedName]
+                        }
+                    });
 
                     var currentIndex = startIndex - 1;
+
                     newTableCols[currentIndex] = progCol;
                     sqlOptions.col.push(colname);
                 });
-
-                var progCol = new ProgCol();
-                progCol.index = startIndex + 1;
-                progCol.type = "object";
-                progCol.name = "DATA";
-                progCol.width = 500;
-                progCol.userStr = "DATA = raw()";
-                progCol.func.func = "raw";
-                progCol.func.args = [];
-                progCol.isDark = false;
-                newTableCols[startIndex] = progCol;
+                // new "DATA" column
+                newTableCols[startIndex] = ColManager.newDATACol(startIndex+1);
 
                 sqlOptions.col.push("DATA");
 
@@ -1109,9 +1104,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
     }
     // update column menu
     function updateDropdownMenu($dropDownBox) {
-        var $th = $dropDownBox.closest("th");
-        var colNum = parseColNum($th);
+        var $th     = $dropDownBox.closest("th");
+        var colNum  = xcHelper.parseColNum($th);
         var colName = $th.find(".editableHead").val();
+
         $menu.data("colnum", colNum);
         $menu.find(".renameCol input").val(colName);
 
@@ -1151,8 +1147,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
     }
     // hightligt the column
     function highlightColumn($input, active) {
-        var colNum = parseColNum($input);
-        var $table = $input.closest(".datasetTable");
+        var colNum  = xcHelper.parseColNum($input);
+        var $table  = $input.closest(".datasetTable");
         var $header = $input.closest(".header");
         if (active) {
             $header.removeClass("colAdded");
@@ -1179,7 +1175,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             return;
         }
 
-        if (!checkDuplicateColNames($table.find(".editableHead"), $input)) {
+        if (!ColManager.checkColDup($table.find(".editableHead"), $input)) {
             console.log("Renaming", oldColName, "to", newColName);
 
             $menu.hide();
@@ -1375,10 +1371,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
             tr += '<td>'+(currentRow + i+ 1)+'</td>';
             // loop through each td, parse object, and add to table cell
             for (var j = 0; j < jsonKeys.length; j++) {
-                var key = jsonKeys[j];
-                var val = json[key];
-                var parsedVal = val == undefined ? "" : parseJsonValue(val);
-                var selected = "";
+                var key       = jsonKeys[j];
+                var val       = json[key];
+                var parsedVal = (val == undefined) ? 
+                                    "" : xcHelper.parseJsonValue(val);
+                var selected  = "";
 
                 if (selectedCols && selectedCols[j+1]) {
                     selected = " selectedCol";

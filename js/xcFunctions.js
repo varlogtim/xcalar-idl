@@ -1,5 +1,33 @@
 window.xcFunction = (function ($, xcFunction) {
+    xcFunction.checkSorted = function(tableNum, index) {
+        var deferred = jQuery.Deferred();
+        var tableName = gTables[tableNum].backTableName;
+        if (gTables[tableNum].isTable) {
+            deferred.resolve(tableName);
+        } else {
+            var datasetName = gTableIndicesLookup[tableName].datasetName;
+            var resultSetId = gTables[tableNum].resultSetId;
 
+            XcalarSetFree(resultSetId)
+            .then(function() {
+                // XXX maybe later we shall change it to delete and refresh
+                gTableIndicesLookup[tableName].datasetName = undefined;
+                gTableIndicesLookup[tableName].isTable = true;
+                return (XcalarIndexFromDataset(datasetName, "recordNum", tableName));
+            })
+            .then(function() {
+                gTables[tableNum].isTable = true;
+
+                return (getResultSet(true, tableName));
+            })
+            .then(function(resultSet) {
+                gTables[tableNum].resultSetId = resultSet.resultSetId;
+
+                deferred.resolve(tableName);
+            });
+        }
+        return (deferred.promise());
+    }
     // filter table column
     xcFunction.filter = function (colNum, tableNum, operator, value) {
         var table        = gTables[tableNum];
@@ -12,7 +40,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         StatusMessage.show(msg);
 
-        checkSorted(tableNum, colNum)
+        xcFunction.checkSorted(tableNum, colNum)
         .then(function(srcName) {
             return (XcalarFilter(operator, value, backColName, 
                                  srcName, newTableName));
@@ -63,7 +91,7 @@ window.xcFunction = (function ($, xcFunction) {
         StatusMessage.show(msg);
         showWaitCursor();
 
-        checkSorted(tableNum, colNum)
+        xcFunction.checkSorted(tableNum, colNum)
         .then(function(srcName) {
             return (XcalarAggregate(backColName, srcName, aggrOp));
         })
@@ -325,7 +353,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         StatusMessage.show(msg);
 
-        checkSorted(tableNum, colNum)
+        xcFunction.checkSorted(tableNum, colNum)
         .then(function(srcName) {
             return (XcalarMap(fieldName, mapString, srcName, newTableName));
         })

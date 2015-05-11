@@ -106,7 +106,7 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
             resultSetId = 0;
         }
         if (notIndexed) {
-            setupProgCols(tableNum, tableOfEntries);
+            ColManager.setupProgCols(tableNum, tableOfEntries);
         }
 
         var numRows = Math.min(numRowsToFetch,
@@ -138,34 +138,4 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
     });
 
     return (deferred.promise());
-}
-
-
-function setupProgCols(tableNum, tableOfEntries) {
-    gTables[tableNum].keyName = tableOfEntries.keysAttrHeader.name;
-    // We cannot rely on addCol to create a new progCol object because
-    // add col relies on gTableCol entry to determine whether or not to add
-    // the menus specific to the main key
-    var newProgCol = new ProgCol();
-    newProgCol.index = 1;
-    newProgCol.isDark = false;
-    newProgCol.width = gNewCellWidth;
-    newProgCol.name = gTables[tableNum].keyName;
-    newProgCol.func.func = "pull";
-    newProgCol.func.args = [gTables[tableNum].keyName];
-    newProgCol.userStr = '"' + gTables[tableNum].keyName +
-                         '" = pull('+gTables[tableNum].keyName+')';
-    insertColAtIndex(0, tableNum, newProgCol);
-    //is this where we add the indexed column??
-
-    newProgCol = new ProgCol();
-    newProgCol.index = 2;
-    newProgCol.name = "DATA";
-    newProgCol.type = "object";
-    newProgCol.width = 500; // XXX FIXME Grab from CSS
-    newProgCol.func.func = "raw";
-    newProgCol.func.args = [];
-    newProgCol.userStr = '"DATA" = raw()';
-    newProgCol.isDark = false;
-    insertColAtIndex(1, tableNum, newProgCol);
 }

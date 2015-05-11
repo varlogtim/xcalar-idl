@@ -39,17 +39,6 @@ var TB = 1024 * GB;
 var PB = 1024 * TB;
 
 // ================================= Classes ==================================
-var ProgCol = function() {
-    this.index = -1;
-    this.name = "New heading";
-    this.type = "undefined";
-    this.func = {};
-    this.width = 0;
-    this.userStr = "";
-    this.isDark = true;
-    this.textAlign = "Center";
-};
-
 var TableMeta = function() {
     this.tableCols = undefined;
     this.currentPageNumber = -1;
@@ -552,7 +541,7 @@ function documentReadyCatFunction(tableNum, tableNumsToRemove) {
     var notIndexed = !(index && index.length > 0);
     getFirstPage(gTables[tableNum].resultSetId, tableNum, notIndexed)
     .then(function(jsonData, keyName) {
-        if (notIndexed) { // getNextPage will setupProgCols
+        if (notIndexed) { // getNextPage will ColManager.setupProgCols()
             index = gTables[tableNum].tableCols;
         }
         if (tableNumsToRemove && tableNumsToRemove.length > 0) {

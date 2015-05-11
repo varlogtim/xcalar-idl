@@ -296,17 +296,17 @@ function buildInitialTable(index, tableNum, jsonData, keyName) {
 }
 
 function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
-    // this function does some preparation for pullAllCols()
+    // this function does some preparation for ColManager.pullAllCols()
     var startIndex = startIndex || 0;
     var $table = $('#xcTable'+tableNum);
 
     // get the column number of the datacolumn
     if (dataIndex == null) {
-        dataIndex = parseColNum($('#xcTable'+tableNum)
-                    .find('tr:first .dataCol')) - 1;
+        dataIndex = xcHelper.parseColNum($('#xcTable'+tableNum)
+                                            .find('tr:first .dataCol')) - 1;
     }
-    var newCells = pullAllCols(startIndex, jsonData, dataIndex, tableNum, 
-                    direction);
+    var newCells = ColManager.pullAllCols(startIndex, jsonData, dataIndex, 
+                                          tableNum, direction);
     addRowListeners(newCells);
     adjustRowHeights(newCells, startIndex, tableNum);
 
@@ -406,4 +406,93 @@ function reorderTables(tableNum) {
         $("#dagWrap"+i).attr("id", "dagWrap"+(i+1));
         gTables[i+1] = gTables[i];
     }
+}
+
+function generateColumnHeadHTML(columnClass, color, newColid, option) {
+    var columnName = option.name || "newCol";
+    var width      = option.width || 0;
+
+    var columnHeadTd = 
+        '<th class="th' + color + columnClass +
+        ' col' + newColid + '" style="width:' + width + 'px;">' + 
+            '<div class="header">' + 
+                '<div class="dragArea"></div>' + 
+                '<div class="colGrab" ' + 
+                     'title="Double click to auto resize" ' + 
+                     'data-toggle="tooltip" ' + 
+                     'data-placement="top" ' + 
+                     'data-container="body">' + 
+                '</div>' + 
+                '<div class="flexContainer flexRow">' + 
+                    '<div class="flexWrap flex-left">' +
+                    // XXX keep a space for hiding the icon in hide
+                        '<div class="iconHidden"></div> ' + 
+                        '<span class="type icon"></span>' + 
+                    '</div>' + 
+                    '<div class="flexWrap flex-mid">' + 
+                        '<input autocomplete="on" spellcheck="false" ' + 
+                            'type="text" class="editableHead col' + newColid + 
+                            '" data-toggle="tooltip" data-placement="bottom" ' +
+                            'title="click to edit" value=' + columnName + 
+                            ' size="15" placeholder=""/>' + 
+                    '</div>' + 
+                    '<div class="flexWrap flex-right">' + 
+                        '<div class="dropdownBox" ' + 
+                            'data-toggle="tooltip" ' + 
+                            'data-placement="bottom" ' + 
+                            'data-container="body" '+ 
+                            'title="view column options">' + 
+                            '<div class="innerBox"></div>' + 
+                        '</div>'
+                    '</div>' + 
+                '</div>' + 
+            '</div>' + 
+        '</th>';
+
+    return (columnHeadTd);
+}
+
+function generateColDropDown(tableNum) {
+    var dropDownHTML = 
+        '<ul id="colMenu'+tableNum+'" class="colMenu">'+
+            '<li>'+
+                'Add a column'+
+                '<ul class="subColMenu">'+
+                    '<li class="addColumns addColLeft">'+
+                    'On the left</li>'+
+                    '<li class="addColumns">On the right</li>'+
+                    '<div class="subColMenuArea"></div>'+
+                '</ul>'+ 
+                '<div class="dropdownBox"></div>'+
+            '</li>'+
+            '<li class="deleteColumn">Delete column</li>'+ 
+            '<li class="duplicate">Duplicate column</li>'+
+            '<li class="deleteDuplicates">Delete duplicate columns</li>'+ 
+            '<li class="renameCol">Rename column</li>'+
+            '<li class="hide">Hide column</li>'+ 
+            '<li class="unhide">Unhide column</li>'+
+            '<li>Text align'+
+                '<ul class="subColMenu">'+
+                    '<li class="textAlign leftAlign">Left Align</li>'+
+                    '<li class="textAlign centerAlign">Center Align</li>'+
+                    '<li class="textAlign rightAlign">Right Align</li>'+
+                '</ul>'+
+                '<div class="dropdownBox"></div>'+
+            '</li>';
+
+    // XXX: HACK: I removed the check for the main col. Also, I should check for
+    // whether the type is a string or a int
+    if (true) { // This check is here so that you don't have to indent in the
+                // in the future. O:D
+        dropDownHTML += 
+            '<li class="joinList">'+'Join</li>'+
+            '<li class="operations">'+'Functions</li>'; 
+                            // '<ul class="subColMenu" id="joinTables">';
+    }
+    // dropDownHTML += '</ul><div class="dropdownBox"></div>'+
+    //                 '<div class="subColMenuArea"></div></li>';
+    dropDownHTML += '</ul>';
+    $('#xcTableWrap'+tableNum).append(dropDownHTML);
+
+    return (dropDownHTML);
 }

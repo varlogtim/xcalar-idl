@@ -490,7 +490,7 @@ window.OperationsModal = (function($, OperationsModal) {
         console.log("operator:", operator, "newColName:", newColName, 
                     "colNum:"  , colNum  , "tableNum:"  , tableNum);
 
-        var isDuplicate = checkDuplicateColNames($theadInputs, $input);
+        var isDuplicate = ColManager.checkColDup($theadInputs, $input);
 
         if (!isDuplicate) {
              xcFunction.groupBy(colNum, tableNum, newColName, operator);
@@ -503,7 +503,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function map(operator) {
         var $nameInput   = $operationsModal.find('.argument').eq(1);
         var $theadInputs = $('#xcTable'+tableNum).find('.editableHead');
-        var isDuplicate  = checkDuplicateColNames($theadInputs, $nameInput);
+        var isDuplicate  = ColManager.checkColDup($theadInputs, $nameInput);
 
         if (isDuplicate) {
             return (false);
@@ -519,8 +519,8 @@ window.OperationsModal = (function($, OperationsModal) {
 
         console.log(operator);
 
-        addCol('col' + colNum, 'xcTable' + tableNum, null, 
-               {direction: 'L', isDark: true});
+        ColManager.addCol('col' + colNum, 'xcTable' + tableNum, null, 
+                          {direction: 'L', isDark: true});
 
         var $th       = $('#xcTable'+tableNum).find('th.col'+colNum);
         var $colInput = $th.find('.editableHead.col'+colNum);

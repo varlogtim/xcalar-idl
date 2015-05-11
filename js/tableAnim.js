@@ -42,10 +42,10 @@ function reenableTextSelection() {
 }
 
 function gRescolMouseDown(el, event, options) {
-    var rescol = gRescol;
-    var $table = el.closest('.dataTable');
-    var tableNum = parseTableNum($table);
-    var colNum = parseColNum(el.parent().parent());
+    var rescol   = gRescol;
+    var $table   = el.closest('.dataTable');
+    var tableNum = xcHelper.parseTableNum($table);
+    var colNum   = xcHelper.parseColNum(el.parent().parent());
 
     if (options && options.target == "datastore") {
         rescol.isDatastore = true; 
@@ -54,7 +54,7 @@ function gRescolMouseDown(el, event, options) {
     if (el.parent().width() === 10) {
         // This is a hidden column! we need to unhide it
         // return;
-        unhideCol(colNum, tableNum, {autoResize: false});
+        ColManager.unhideCol(colNum, tableNum, {autoResize: false});
     }
     gMouseStatus = "resizingCol";
     event.preventDefault();
@@ -178,7 +178,7 @@ function dragdropMouseDown(el, event) {
     $(document.head).append(cursorStyle);
 
     dragObj.mouseX = event.pageX;
-    dragObj.colNum = parseColNum(el);
+    dragObj.colNum = xcHelper.parseColNum(el);
     var tableWrap = el.closest('.xcTableWrap');
     var $table = el.closest('.xcTable');
     var $tbodyWrap = $table.parent();
@@ -252,11 +252,12 @@ function dragdropMouseUp() {
 }
 
 function reorderAfterColumnDrop() {
-    var dragObj = gDragObj;
+    var dragObj  = gDragObj;
     var tableNum = dragObj.tableNum;
-    var progCol = removeColAtIndex(dragObj.colNum-1, tableNum);
-    insertColAtIndex(dragObj.colIndex-1, tableNum, progCol);
-    progCol.index = dragObj.colIndex;
+    var oldIndex = dragObj.colNum - 1;
+    var newIndex = dragObj.colIndex - 1;
+
+    ColManager.reorderCol(tableNum, oldIndex, newIndex);
 
     dragObj.table.find('.col'+dragObj.colNum)
                  .removeClass('col'+dragObj.colNum)
@@ -511,9 +512,9 @@ function getTextWidth(el) {
 }
 
 function autosizeCol(el, options) {
-    var index = parseColNum(el);
+    var index = xcHelper.parseColNum(el);
     var $table = el.closest('.dataTable');
-    var tableNum = parseTableNum($table);
+    var tableNum = xcHelper.parseTableNum($table);
     var options = options || {};
     var includeHeader = options.includeHeader || false;
     var resizeFirstRow = options.resizeFirstRow || false;
@@ -539,7 +540,7 @@ function autosizeCol(el, options) {
 function getWidestTdWidth(el, options) {
     var options = options || {};
     var includeHeader = options.includeHeader || false;
-    var id = parseColNum(el);
+    var id = xcHelper.parseColNum(el);
     var $table = el.closest('.dataTable');
     var largestWidth = 0;
     var longestText = 0;
@@ -809,7 +810,7 @@ function createTableHeader(tableNum) {
                 continue;
             } else {
                 var forwardCheck = true;
-                delDuplicateCols(i+1, tableNum, forwardCheck);
+                ColManager.delDupCols(i+1, tableNum, forwardCheck);
             }     
         }
     });
@@ -1039,7 +1040,7 @@ function addColListeners($table, tableNum) {;
             } else {
                 $('#fnBar').removeClass('entered');
             }
-            var index = parseColNum($(this));
+            var index = xcHelper.parseColNum($(this));
             $(this).closest('.header').css('z-index', '9');
 
             var userStr = gTables[dynTableNum].tableCols[index-1].userStr;
@@ -1050,10 +1051,10 @@ function addColListeners($table, tableNum) {;
             $(this).parent().siblings('.dropdownBox').addClass('hidden');
         },
         "blur": function() {
-            var $el = $(this);
+            var $el         = $(this);
             var dynTableNum = parseInt($el.closest('.dataTable').attr('id')
-                          .substring(7));
-            var index = parseColNum($el);
+                                        .substring(7));
+            var index       = xcHelper.parseColNum($el);
 
             if (!$('#fnBar').hasClass('inFocus')) {
                 displayShortenedHeaderName($el, dynTableNum, index);
@@ -1076,7 +1077,7 @@ function addColListeners($table, tableNum) {;
     $thead.on('click', '.header .flex-right > .dropdownBox', function() {
         $('.tooltip').hide();
         var options = {};
-        var colNum = parseColNum($(this).closest('th'));
+        var colNum  = xcHelper.parseColNum($(this).closest('th'));
         resetColMenuInputs($(this));
 
         options.colNum = colNum;
@@ -1208,34 +1209,24 @@ function addColMenuActions($colMenu, $thead) {
         }
         $colMenu.hide();
 
-        addCol(index, tableId, null, 
-            {direction: direction, isDark: true, inFocus: true});
+        ColManager.addCol(index, tableId, null, 
+                         {direction: direction, isDark: true, inFocus: true});
 
         SQL.add("Add Column", sqlOptions);
     })
 
     $colMenu.on('click', '.deleteColumn', function() {
-        var index = $colMenu.data('colNum');
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-        
-        // add sql
-        var sqlOptions = {
-            "operation": "delCol",
-            "tableName": gTables[tableNum].frontTableName,
-            "colName": gTables[tableNum].tableCols[index - 1].name,
-            "colIndex": index
-        };
+        var colNum   = $colMenu.data('colNum');
+        var tableNum = parseInt($colMenu.attr('id').substring(7)); 
 
-        delCol(index, tableNum);
-
-        SQL.add('Delete Column', sqlOptions);
+        ColManager.delCol(colNum, tableNum);
     });
 
     $colMenu.on('click', '.deleteDuplicates', function() {
-        var index = $colMenu.data('colNum');
+        var index    = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
 
-        delDuplicateCols(index, tableNum);
+        ColManager.delDupCols(index, tableNum);
 
     });
 
@@ -1254,8 +1245,8 @@ function addColMenuActions($colMenu, $thead) {
         var width = table.find('th.col'+index).outerWidth();
         var isDark = table.find('th.col'+index).hasClass('unusedCell');
 
-        addCol('col'+index, table.attr('id'),name, 
-            {width: width, isDark: isDark});
+        ColManager.addCol('col'+index, table.attr('id'),name, 
+                          {width: width, isDark: isDark});
         // add sql
         SQL.add("Duplicate Column", {
             "operation": "duplicateCol",
@@ -1270,7 +1261,8 @@ function addColMenuActions($colMenu, $thead) {
             gTables[tableNum].tableCols[index-1].func.args;
         gTables[tableNum].tableCols[index].userStr = 
             gTables[tableNum].tableCols[index-1].userStr;
-        execCol(gTables[tableNum].tableCols[index], tableNum)
+
+        ColManager.execCol(gTables[tableNum].tableCols[index], tableNum)
         .then(function() {
             updateTableHeader(tableNum);
             RightSideBar.updateTableInfo(gTables[tableNum]);
@@ -1278,21 +1270,24 @@ function addColMenuActions($colMenu, $thead) {
     });
 
     $colMenu.on('click', '.hide', function() {
-        var index = $colMenu.data('colNum');
+        var colNum   = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
-        hideCol(index, tableNum);
+
+        ColManager.hideCol(colNum, tableNum);
     });
 
     $colMenu.on('click', '.unhide', function() {
-        var index = $colMenu.data('colNum');
+        var colNum   = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
-        unhideCol(index, tableNum, {autoResize: true});
+
+        ColManager.unhideCol(colNum, tableNum, {autoResize: true});
     });
 
     $colMenu.on('click', '.textAlign', function() {
-        var index = $colMenu.data('colNum');
+        var colNum   = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
-        textAlign(index, tableNum, $(this).attr("class")); 
+
+        ColManager.textAlign(colNum, tableNum, $(this).attr("class")); 
     });
 
     $colMenu.on('click', '.joinList', function() {
@@ -1349,7 +1344,7 @@ function formulateMapString(operator, columnName, value,
 
 function functionBarEnter($colInput) {
     gFnBarOrigin = $colInput;
-    var index = parseColNum($colInput);
+    var index = xcHelper.parseColNum($colInput);
     var $table = $colInput.closest('.dataTable');
     var tableNum = parseInt($table.attr('id').substring(7));
     var tableCol = gTables[tableNum].tableCols[index-1];
@@ -1379,7 +1374,7 @@ function functionBarEnter($colInput) {
         return;
     }
 
-    var progCol = parseCol(progStr, index, tableNum, true);
+    var progCol = parseFunc(progStr, index, tableNum, true);
     // add sql
     SQL.add("Pull Column", {
         "operation": "pullCol",
@@ -1388,11 +1383,48 @@ function functionBarEnter($colInput) {
         "colIndex": progCol.index,
     });
 
-    execCol(progCol, tableNum)
+    ColManager.execCol(progCol, tableNum)
     .then(function() {
         updateTableHeader(tableNum);
         RightSideBar.updateTableInfo(gTables[tableNum]);
     });
+
+    function parseFunc(funcString, colId, tableNum, modifyCol) {
+        // Everything must be in a "name" = function(args) format
+        var open   = funcString.indexOf("\"");
+        var close  = (funcString.substring(open + 1)).indexOf("\"") + open + 1;
+        var name   = funcString.substring(open + 1, close);
+        var funcSt = funcString.substring(funcString.indexOf("=") + 1);
+        var progCol;
+
+        if (modifyCol) {
+            progCol = gTables[tableNum].tableCols[colId-1];
+        } else {
+            progCol = ColManager.newCol();
+        }
+        // console.log(progCol)
+        progCol.userStr = funcString;
+        progCol.name    = name;
+        progCol.func    = cleanseFunc(funcSt);
+        progCol.index   = colId;
+
+        return (progCol);
+    }
+
+    function cleanseFunc(funcString) {
+        // funcString should be: function(args)
+        var open     = funcString.indexOf("(");
+        var close    = funcString.lastIndexOf(")");
+        var funcName = jQuery.trim(funcString.substring(0, open));
+        var args     = (funcString.substring(open+1, close)).split(",");
+
+        for (var i = 0; i < args.length; i++) {
+            args[i] = jQuery.trim(args[i]);
+        }
+
+        return ({func: funcName, args: args});
+    }
+
 }
 
 function dropdownClick($el, outside, options) {
@@ -1462,10 +1494,10 @@ function resetColMenuInputs($el) {
 }
 
 function highlightColumn(el, keepHighlighted) {
-    var index = parseColNum(el);
+    var index    = xcHelper.parseColNum(el);
     var tableNum = parseInt(el.closest('.dataTable').attr('id').
                        substring(7));
-    var $table = $('#xcTable'+tableNum);
+    var $table   = $('#xcTable'+tableNum);
     $('.selectedCell').removeClass('selectedCell');
     $table.find('th.col'+index).addClass('selectedCell');
     $table.find('td.col'+index).addClass('selectedCell');

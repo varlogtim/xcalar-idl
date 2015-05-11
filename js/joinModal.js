@@ -61,12 +61,12 @@ window.JoinModal = (function($, JoinModal) {
             var joinType      = $joinSelect.find(".text").text();
             var leftTableNum  = $leftJoinTable.find('.tableLabel.active')
                                               .index();
-            var leftColNum    = parseColNum($leftJoinTable
+            var leftColNum    = xcHelper.parseColNum($leftJoinTable
                                             .find('th.colSelected')) - 1;
 
             var rightTableNum = $rightJoinTable.find('.tableLabel.active')
                                                .index();
-            var rightColNum   = parseColNum($rightJoinTable
+            var rightColNum   = xcHelper.parseColNum($rightJoinTable
                                              .find('th.colSelected')) - 1;
 
             xcFunction.join(leftColNum, leftTableNum, rightColNum, 
@@ -236,7 +236,7 @@ window.JoinModal = (function($, JoinModal) {
                 return;
             }
 
-            var colNum = parseColNum($th);
+            var colNum = xcHelper.parseColNum($th);
             var $table = $th.closest('table');
             console.log(colNum);
 

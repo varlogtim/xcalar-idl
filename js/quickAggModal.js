@@ -122,7 +122,7 @@ window.AggModal = (function($, AggModal) {
 
         // First we need to determine if this is a dataset-table
         // or just a regular table
-        checkSorted(tableNum)
+        xcFunction.checkSorted(tableNum)
         .then(function(tableName) {
             for (var j = 0; j < numColumns; j++) {
                 var cols = table.tableCols[j];
