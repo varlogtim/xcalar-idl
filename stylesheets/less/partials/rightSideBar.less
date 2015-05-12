@@ -16,10 +16,17 @@
         .size(@width: 100%, @height: 35px);
         text-align: center;
         padding-top: 2px;
+        overflow: hidden;
         h2 {
-            margin-left: 55px;
+            .size (@width: ~"calc(100% - 118px)");
+            margin-left: 10px;
             line-height: 35px;
             color: @color-text-darkGray;
+            display: inline-block;
+            white-space: nowrap;
+            
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
@@ -54,8 +61,13 @@
                 float: right;
                 margin-right: 6px;
                 margin-top: 7px;
+                position: absolute;
+                right: 29px;
+                top: 2px;
+
                 &:first-of-type {
                     margin-right: 10px;
+                    right: 0px;
                 }
             }
         }
@@ -444,20 +456,29 @@
     .tabSectionContainer {
         .size(@width: 100%, @height: 50px);
         box-shadow: 0px 2px 2px 2px rgba(153,153,153,.7);
+        padding: 15px 0px;
 
         .tabSection {
-            .size(@width: 350px, @height: 100%, @max-width: 95%);
+            .size(@height: 100%, @width: 350px, @max-width: 92%);
             margin: 0 auto;
+            .align-content(center);
+            .flex-display;
+            // .justify-content(center);
+            .flex-flow(row wrap);
         }
 
         .select-item {
-            .vertical-align;
             display: inline-block;
             .position(relative);
-            .size(@width: ~"calc(50% - 5px)", @height: 20px);
+            .size(@min-width: 160px, @height: 20px);
             .font(@size: 13px, @line-height: 20px);
+            // margin-right: 15px;
             .noSelection;
             cursor: pointer;
+
+            &:first-child {
+                margin-right: 15px;
+            }
 
             .radio {
                 float: left;
@@ -482,6 +503,8 @@
                 float: left;
                 padding-left: 5px;
                 .font(@weight: 900);
+                .size(@width:~"calc(100% - 19px)");
+                text-align: left;
             }
         }
     }
@@ -510,7 +533,7 @@
     #udf-uploadSection {
         margin: 0 auto;
         padding-top: 15px;
-        .size(@width: 350px, @max-width: 95%);
+        .size(@width: 350px, @max-width: 92%);
 
         .label {
             .font(@size: 13px);
@@ -554,14 +577,13 @@
 
         .btnSection {
             padding-top: 25px;
+            margin: 0 -15px;
+            .flex-display;
+            .flex-flow (row wrap);
+            .justify-content (center);
             .btn {
-                width: 160px;
-                &:first-child {
-                    float: left;
-                }
-                &:last-child {
-                    float: right;
-                }
+                .size(@width: 160px);
+                margin: 8px 15px;
             }
         }
     }
@@ -573,13 +595,12 @@
         .templateSection {
             .size(@width: 100%, @height: 60px);
             padding: 15px 0;
+            .position(relative);
 
             .sectionContainer {
-               .size(@width: 420px, @height: 100%, @max-width: 95%);
+               .size(@width: 420px, @height: 100%, @max-width: 92%);
                 margin: 0 auto;
             }
-
-            .position(relative);
 
             .listSection {
                 float: left;
@@ -607,21 +628,35 @@
                 .btn {
                     .size(@max-width: 100%);
                     .position(relative);
-                    float: right;
-
-                    .icon {
-                        .position(absolute, @left: 3px);
-                        .size(@width: 25px, @height: 30px);
-                        .image("/images/download.png", 50%, 35%);
-                    }
-
-                    .text {
-                        .position(relative, @left: 8px);
-                    }
+                    .flex-display;
+                    .justify-content(center);
+                    .flex-flow(row wrap-reverse);
 
                     &.hidden {
                         opacity: 0.5;
                         pointer-events: none;
+                    }
+
+                    .iconWrap {
+                        position: static !important;
+                        float: left;
+                        margin-left: 5px;
+                        width: 1px !important;
+
+                        .icon {
+                            .size(@width: 25px, @height: 30px);
+                            .image("/images/download.png", 50%, 35%);
+                            display: block;
+                            margin-left: -3px;
+                        }
+                    }
+
+                    .text {
+                        float: left;
+                        text-align: center;
+                        position: static !important;
+                        margin: 0 19px;
+                        .flex (1 0 80px);
                     }
                 }
             }
@@ -680,13 +715,17 @@
             padding: 15px 0;
 
             .sectionContainer {
-                .size(@width: 420px, @height: 100%, @max-width: 95%);
+                .size(@width: 420px, @height: 100%, @max-width: 92%);
                 margin: 0 auto;
             }
 
             .inputSection {
-                .size(@width: 60%);
+                .size(@width: 60%, @height: 15px);
                 .position(relative);
+                .flex-display;
+                .align-content(center);
+                .justify-content(center);
+                .flex-flow(row wrap);
                 float: left;
 
                 .label {
@@ -698,10 +737,11 @@
                 }
 
                 input {
-                    .size(@width: ~"calc(100% - 80px)", @height: 30px, @min-width: 80px);
+                      .size(@height: 30px);
                     .rounded;
                     .font(@line-height: 30px);
                     box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.5);
+                    .flex(1 0 90px);
 
                     &:focus {
                         outline: none;
@@ -716,6 +756,19 @@
                 .btn {
                     .size(@max-width: 100%);
                     float: right;
+                }
+
+                .icon {
+                    position: static !important;
+                    float: left;
+                    margin-left: 3px;
+                }
+
+                .text {
+                    float: left;
+                    .size(@width: ~"calc(100% - 30px)");
+                    text-align: center;
+                    padding-right: 12%;
                 }
             }
         }
