@@ -82,6 +82,30 @@
         border-right: none !important;
         border-left: none;
     }
+
+    tr {
+        &:nth-child(odd) {
+            td {
+                &.indexedColumn {
+                    background-color: @color-table-indexed-lightBlue !important;
+                }
+                &.jsonElement, &.dataCol {
+                    background-color: @color-table-col-lightGreen !important;
+                }
+            }
+           
+        }
+        &:nth-child(even) {
+            td {
+                &.indexedColumn {
+                    background-color: @color-table-indexed-blue !important;
+                }
+                &.jsonElement, &.dataCol {
+                    background-color: @color-table-col-green !important;
+                }
+            }
+        }
+    }
 }
 
 .dragArea {
