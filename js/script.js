@@ -288,7 +288,7 @@ function mainPanelsTabbing() {
             break;
         case ("monitorTab"):
             $('#monitorPanel').addClass("active");
-            updateMonitorGraphs();
+            MonitorPanel.updateDonuts();
             MonitorGraph.start();
             break;
         default:
@@ -531,7 +531,7 @@ function documentReadyGeneralFunction() {
 
 function loadMonitorPanel() {
     $('#monitorPanel').load('monitor.html', function() {
-        setupMonitorPanel();
+        MonitorPanel.setup();
     });
 }
 
