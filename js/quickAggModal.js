@@ -106,11 +106,19 @@ window.AggModal = (function($, AggModal) {
 
             wholeTable += '<div class="aggCol">';
 
+            var isChildOfArray = $("#xcTable" + tableNum + " .th.col" + 
+                                (j+1)  + " .header").hasClass("childOfArray");
+
             for (var i = 0; i < 5; i++) {
                 wholeTable += '<div class="aggTableField">';
 
                 if (cols.type === "number") {
-                    wholeTable += '<div class="spinny"></div>';
+                    // XXX now agg on child of array is not supported
+                    if (isChildOfArray) {
+                        wholeTable += "Not Supported"
+                    } else {
+                        wholeTable += '<div class="spinny"></div>';
+                    }
                 } else {
                     wholeTable += "N/A";
                 }
@@ -134,9 +142,14 @@ window.AggModal = (function($, AggModal) {
                 var cols = table.tableCols[j];
                 // XXX Skip DATA!
                 if (cols.type === "number" && cols.name !== "DATA") {
-                    for (var i = 0; i < 5; i++) {
-                        runAggregate(tableName, cols.func.args[0], 
-                                    aggrFunctions[i], i, j);
+                    var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
+                                        (j+1)  + " .header");
+                    // XXX now agg on child of array is not supported
+                    if (!$colHeader.hasClass("childOfArray")) {
+                        for (var i = 0; i < 5; i++) {
+                            runAggregate(tableName, cols.func.args[0], 
+                                        aggrFunctions[i], i, j);
+                        }
                     }
                 }
             }
