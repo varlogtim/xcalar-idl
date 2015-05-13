@@ -1,9 +1,8 @@
 window.DataStore = (function($, DataStore) {
-
     DataStore.setup = function() {
         DS.setup();
         GridView.setup();
-        setupImportDSForm()
+        DatastoreForm.setup()
         DataSampleTable.setup();
         DataCart.setup();
     }
@@ -23,78 +22,41 @@ window.DataStore = (function($, DataStore) {
         });
     }
 
-    function setupImportDSForm() {
-        var $filePath        = $("#filePath");
-        var $fileName        = $("#fileName");
+    return (DataStore);
 
-        var $formatSection   = $("#fileFormatList");
-        var $formatText      = $formatSection.find(".text");
-        var $formatDropdown  = $("#fileFormatMenu");
+}(jQuery, {}));
 
-        var $csvDelim        = $("#csvDelim");
-        var $fieldDelim      = $("#fieldDelim");
-        // constants
-        var formatTranslater = {
-            "JSON"  : "JSON",
-            "CSV"   : "CSV",
-            "Random": "rand",
-            "Raw"   : "raw"
-        };
+window.DatastoreForm = (function($, DatastoreForm) {
+    var $filePath        = $("#filePath");
+    var $fileName        = $("#fileName");
 
+    var $formatSection   = $("#fileFormatList");
+    var $formatText      = $formatSection.find(".text");
+    var $formatDropdown  = $("#fileFormatMenu");
+
+    var $csvDelim        = $("#csvDelim");
+    var $fieldDelim      = $("#fieldDelim");
+    // constants
+    var formatTranslater = {
+        "JSON"  : "JSON",
+        "CSV"   : "CSV",
+        "Random": "rand",
+        "Raw"   : "raw"
+    };
+
+    DatastoreForm.setup = function() {
         $("#importDataView").click(function(event){
             event.stopPropagation();
             hideDropdownMenu();
         });
 
-        $formatSection.on("click", function(event) {
-            event.stopPropagation();
-            toggleDropdownMenu($(this));
+        xcHelper.dropdownList($formatSection, {
+            "onSelect": formatSectionHandler
         });
 
-        $formatSection.on("click", ".list li", function(event) {
-            var $li  = $(this);
-            var text = $li.text();
-
-            event.stopPropagation();
-
-            hideDropdownMenu();
-            // select the same option
-            if ($li.hasClass("hint") || $formatText.val() === text) {
-                return;
-            }
-
-            $formatText.removeClass("hint");
-            $formatText.val(text);
-
-            switch (text.toLowerCase()) {
-                case "csv":
-                    resetDelimiter();
-                    $fieldDelim.show();
-                    $csvDelim.removeClass("hidden");
-                    break;
-                case "raw":
-                    resetDelimiter();
-                    $fieldDelim.hide();
-                    $csvDelim.removeClass("hidden");
-                    break;
-                default:
-                    $csvDelim.addClass("hidden");
-                    break;
-            }
-        });
-
-        $csvDelim.on("click", ".listSection", function(event) {
-            event.stopPropagation();
-            toggleDropdownMenu($(this));
-        });
-
-        // choose a delimiter
-        $csvDelim.on({
-            "click": function(event) {
-                var $li    = $(this);
+        xcHelper.dropdownList($csvDelim.find(".listSection"), {
+            "onSelect": function($li) {
                 var $input = $li.closest(".listSection").find(".text");
-
-                event.stopPropagation();
 
                 switch ($li.attr("name")) {
                     case "default":
@@ -103,24 +65,16 @@ window.DataStore = (function($, DataStore) {
                         } else {
                             $input.val("\\n");
                         }
-                        hideDropdownMenu();
-                        break;
+                        return false;
                     case "null":
                         $input.val("");
-                        hideDropdownMenu();
-                        break;
+                        return false;
                     default:
-                        break;
+                    // keep list open
+                        return true;
                 }
-            },
-            "mouseenter": function() {
-                $(this).addClass("hover");
-
-            },
-            "mouseleave": function() {
-                $(this).removeClass("hover");
             }
-        }, ".listSection .list li");
+        });
 
         // input other delimiters
         $csvDelim.on("keyup", ".delimVal", function(event) {
@@ -315,13 +269,30 @@ window.DataStore = (function($, DataStore) {
         }
     }
 
-    function toggleDropdownMenu($listSection) {
-        if ($listSection.hasClass("open")) {
-            hideDropdownMenu();
-        } else {
-            hideDropdownMenu();
-            $listSection.addClass("open");
-            $listSection.find(".list").show();
+    function formatSectionHandler($li) {
+        var text = $li.text();
+
+        if ($li.hasClass("hint") || $formatText.val() === text) {
+            return;
+        }
+
+        $formatText.removeClass("hint");
+        $formatText.val(text);
+
+        switch (text.toLowerCase()) {
+            case "csv":
+                resetDelimiter();
+                $fieldDelim.show();
+                $csvDelim.removeClass("hidden");
+                break;
+            case "raw":
+                resetDelimiter();
+                $fieldDelim.hide();
+                $csvDelim.removeClass("hidden");
+                break;
+            default:
+                $csvDelim.addClass("hidden");
+                break;
         }
     }
 
@@ -340,8 +311,7 @@ window.DataStore = (function($, DataStore) {
         $("#lineText").val("\\n");
     }
 
-    return (DataStore);
-
+    return (DatastoreForm);
 }(jQuery, {}));
 
 window.GridView = (function($, GridView) {

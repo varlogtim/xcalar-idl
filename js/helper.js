@@ -135,5 +135,67 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     }
 
+    // handle dropdown list generally
+    xcHelper.dropdownList = function($listSection, option) {
+        option = option || {};
+        /*
+         * option includ:
+            onlyClickIcon: if set true, only toggle dropdown menu when click
+                             dropdown icon, otherwise, toggle also on click 
+                             input section
+            onSelect: callback to trigger when select an item on list
+         *
+         * Note that option can be extented if nesessary
+         */
+
+         // toggle list section
+         if (option.onlyClickIcon) {
+            $listSection.on("click", ".icon", function(event) {
+                 event.stopPropagation();
+                 toggleDropdownMenu($(this).closest(".listSection"));
+            });
+         } else {
+            $listSection.on("click", function(event) {
+                 event.stopPropagation();
+                 toggleDropdownMenu($(this));
+            });
+         }
+
+         // on click a list
+        $listSection.on({
+            "click": function(event) {
+                var keepOpen = false;
+
+                event.stopPropagation();
+                // trigger callback
+                if (option.onSelect) {
+                    // keepOpen be true, false or undefined
+                    keepOpen = option.onSelect($(this));
+                }
+
+                if (!keepOpen) {
+                    toggleDropdownMenu($listSection, true);
+                }
+            },
+            "mouseenter": function() {
+                $(this).addClass("hover");
+
+            },
+            "mouseleave": function() {
+                $(this).removeClass("hover");
+            }
+        }, ".list li");
+
+        function toggleDropdownMenu($listSection, onlyHide) {
+            if (onlyHide) {
+                $listSection.removeClass("open");
+                $listSection.find(".list").hide();
+            } else {
+                $listSection.toggleClass("open");
+                $listSection.find(".list").toggle();
+            }
+         }
+    }
+
     return (xcHelper);
 } (jQuery, {}));

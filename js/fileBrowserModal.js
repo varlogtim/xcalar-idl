@@ -1,31 +1,30 @@
 window.FileBrowser = (function($, FileBrowser) {
     var $modalBackground = $('#modalBackground');
-    var $fileBrowser = $('#fileBrowserModal');
-    var $container = $("#fileBrowserContainer");
+    var $fileBrowser     = $('#fileBrowserModal');
+    var $container       = $("#fileBrowserContainer");
     var $fileBrowserMain = $('#fileBrowserMain');
-    var $fileName = $('#fileBrowserInputName');
+    var $fileName        = $('#fileBrowserInputName');
 
     var $formatSection = $('#fileBrowserFormat');
-    var $formatDropdown = $formatSection.find('.list');
-    var $formatLabel = $formatSection.find('.text');
 
-    var $pathSection = $("#fileBrowserPath");
-    var $pathLists = $("#fileBrowserPathMenu");
-    var $pathLabel = $pathSection.find('.text');
+    var $pathSection   = $("#fileBrowserPath");
+    var $pathLists     = $("#fileBrowserPathMenu");
+    var $pathLabel     = $pathSection.find('.text');
 
-    var $sortSection = $("#fileBrowserSort");
-    var $sortMenu = $("#fileBrowserSortMenu");
+    var $sortSection   = $("#fileBrowserSort");
+    var $sortMenu      = $("#fileBrowserSortMenu");
 
-    var $filePath = $("#filePath");
+    var $filePath      = $("#filePath");
+
     /* Contants */
-    var defaultPath = "file:///";
-    var validFormats = ["JSON", "CSV"];
+    var defaultPath    = "file:///";
+    var validFormats   = ["JSON", "CSV"];
     var defaultSortKey = "type"; // default is sort by type;
     /* End Of Contants */
-    var curFiles = [];
-    var allFiles = [];
-    var sortKey = defaultSortKey;
-    var sortRegEx = undefined;
+    var curFiles    = [];
+    var allFiles    = [];
+    var sortKey     = defaultSortKey;
+    var sortRegEx   = undefined;
     var reverseSort = false;
 
     FileBrowser.show = function() {
@@ -128,7 +127,7 @@ window.FileBrowser = (function($, FileBrowser) {
         // click on title to sort
         $fileBrowserMain.on("click", ".title.clickable", function(event) {
             var $title = $(this);
-            var grid = getFocusGrid();
+            var grid   = getFocusGrid();
 
             event.stopPropagation();
             // click on selected title, reverse sort
@@ -163,18 +162,9 @@ window.FileBrowser = (function($, FileBrowser) {
             }
         });
 
-        // open path list section
-        $pathSection.on("click", ".icon", function(event) {
-            event.stopPropagation();
-            toggleDropdownMenu($(this).closest(".listSection"));
-        });
-
-        // select a path
-        $pathSection.on("click", ".list li", function(event) {
-            event.stopPropagation();
-            goToPath($(this));
-            $pathSection.removeClass("open");
-            $pathLists.hide();
+        xcHelper.dropdownList($pathSection, {
+            "onlyClickIcon": true,
+            "onSelect"     : goToPath
         });
 
         $pathSection.on({
@@ -189,7 +179,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 if (event.which === keyCode.Enter) {
                      // XXX assume what inputed should be a path
                     var $input = $(this);
-                    var path = $input.text();
+                    var path   = $input.text();
 
                     event.preventDefault();
                     if (path.charAt(path.length - 1) != "/") {
@@ -208,37 +198,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
             }
         }, ".text");
-        // open format section
-        $formatSection.on("click", function(event) {
-            event.stopPropagation();
-            toggleDropdownMenu($(this).closest(".listSection"));
-        });
 
-        // filter a data format
-        $formatSection.on("click", ".list li", function(event) {
-            var $li = $(this);
-
-            event.stopPropagation();
-            $formatSection.removeClass('open');
-            $formatDropdown.hide();
-
-            if ($li.hasClass('select')) {
-                return;
-            }
-
-            var grid = getFocusGrid();
-            var format = $li.text();
-            var regEx;
-
-            $formatLabel.text(format);
-            $li.siblings(".select").removeClass("select");
-            $li.addClass("select");
-
-            if (format !== "all") {
-                regEx = new RegExp('\.' + format + '$');
-            }
-            sortFilesBy(sortKey, regEx);
-            focusOn(grid);
+        xcHelper.dropdownList($formatSection, {
+            "onSelect": formatSectionHandler
         });
 
         $fileName.keyup(function() {
@@ -261,11 +223,6 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         return false;
-    }
-
-    function toggleDropdownMenu($listSection) {
-        $listSection.toggleClass("open");
-        $listSection.find(".list").toggle();
     }
 
     function getCurrentPath() {
@@ -310,9 +267,9 @@ window.FileBrowser = (function($, FileBrowser) {
         if (isALL) {
             $fileBrowser.find('.select').removeClass('select');
             $formatSection.find('.text').text('all');
-            curFiles = [];
-            sortKey = defaultSortKey;
-            sortRegEx = undefined;
+            curFiles    = [];
+            sortKey     = defaultSortKey;
+            sortRegEx   = undefined;
             reverseSort = false;
             $pathLists.empty();
         }
@@ -353,7 +310,7 @@ window.FileBrowser = (function($, FileBrowser) {
             return;
         }
         var oldPath = getCurrentPath();
-        var path = $newPath.text();
+        var path    = $newPath.text();
 
         if (oldPath === path) {
             return;
@@ -400,8 +357,8 @@ window.FileBrowser = (function($, FileBrowser) {
         // } else {
         // load dataset
         var dsName = getGridUnitName($ds);
-        var path = getCurrentPath() + dsName;
-        var ext = getFormat(dsName);
+        var path   = getCurrentPath() + dsName;
+        var ext    = getFormat(dsName);
 
         if (ext != undefined) {
             $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]')
@@ -412,9 +369,29 @@ window.FileBrowser = (function($, FileBrowser) {
         closeAll();
     }
 
+    function formatSectionHandler($li) {
+        if ($li.hasClass('select')) {
+            return;
+        }
+
+        var grid   = getFocusGrid();
+        var format = $li.text();
+        var regEx;
+
+        $formatSection.find('.text').text(format);
+        $li.siblings(".select").removeClass("select");
+        $li.addClass("select");
+
+        if (format !== "all") {
+            regEx = new RegExp('\.' + format + '$');
+        }
+        sortFilesBy(sortKey, regEx);
+        focusOn(grid);
+    }
+
     function sortAction($option, isFromSortOption) {
         var grid = getFocusGrid();
-        var key = $option.data("sortkey");
+        var key  = $option.data("sortkey");
 
         $option.siblings(".select").removeClass("select");
         $option.addClass("select");
@@ -435,6 +412,7 @@ window.FileBrowser = (function($, FileBrowser) {
            // mark sort key on li
             $sortMenu.find("li").each(function() {
                 var $li = $(this);
+
                 if ($li.data("sortkey") === key) {
                     $li.addClass("select");
                 } else {
@@ -471,10 +449,11 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function filterFiles(files, regEx) {
         var filterFiles = [];
-        var len = files.length;
+        var len         = files.length;
+
         for (var i = 0; i < len; i ++) {
             var fileObj = files[i];
-            var name = fileObj.name;
+            var name    = fileObj.name;
             // XXX not filter folder
             if (fileObj.attr.isDirectory || regEx.test(name) === true) {
                 filterFiles.push(fileObj);
@@ -502,9 +481,10 @@ window.FileBrowser = (function($, FileBrowser) {
             });
             sortedFiles.sort(function(a, b) {return a[1].localeCompare(b[1])});
             if (key === "type") {
-                var dirFile = [];
+                var dirFile        = [];
                 var fileWithoutExt = [];  // file with on extention
-                var fileWithExt = [];   // file with extention
+                var fileWithExt    = [];   // file with extention
+
                 sortedFiles.forEach(function(file) {
                     var name = file[1];
                     var sortedFile = file[0];
@@ -568,8 +548,8 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function getFocusGrid() {
-        var grid;
         var $grid = $container.find('grid-unit.active');
+        var grid;
 
         if ($grid.length > 0) {
             grid = {
@@ -583,7 +563,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function retrievePaths(path) {
         var deferred = jQuery.Deferred();
-        var paths = [];
+        var paths    = [];
 
         if (!path) {
             paths.push(defaultPath);
@@ -637,9 +617,9 @@ window.FileBrowser = (function($, FileBrowser) {
                 return;
             }
 
-            var size = fileObj.attr.size;
+            var size      = fileObj.attr.size;
             var gridClass = isDirectory ? "folder" : "ds";
-            var date = "00:00:00 01-01-2015";
+            var date      = "00:00:00 01-01-2015";
 
             html += 
                 '<grid-unit title="' + name + '" class="' + gridClass + '">' + 
