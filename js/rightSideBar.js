@@ -207,15 +207,41 @@ window.RightSideBar = (function($, RightSideBar) {
                 }
             } else {
                 // section is active, close right side bar
-                closeRightSidebar();
+                if (!$rightSideBar.hasClass('poppedOut')) {
+                    // disable closing if popped out
+                    closeRightSidebar();
+                }
+                
             }
 
             delayClick();
         });
 
         $rightSideBar.on("click", ".iconClose", function() {
-            closeRightSidebar();
+            if ($rightSideBar.hasClass('poppedOut')) {
+                setTimeout(function() {
+                    closeRightSidebar();
+                }, 100);
+            } else {
+                closeRightSidebar();
+            }
+            popInModal($rightSideBar);
         });
+
+        $rightSideBar.on("click", ".popOut", function() {
+            if ($rightSideBar.hasClass('poppedOut')) {
+                popInModal($rightSideBar);
+            } else {
+                popOutModal($rightSideBar);
+            }
+            
+        });
+
+        $rightSideBar.draggable({
+            handle: '.heading',
+            containment: 'window',
+            cursor: '-webkit-grabbing'
+        })
 
         $("#pulloutTab").click(function() {
             if (!clickable) {
@@ -246,6 +272,9 @@ window.RightSideBar = (function($, RightSideBar) {
 
             delayClick();
         });
+
+
+
 
         function delayClick() {
             clickable = false;
@@ -678,6 +707,26 @@ window.RightSideBar = (function($, RightSideBar) {
 
             return (sortedTables);
         }
+
+    }
+
+    function popOutModal($rightSideBar) {
+        console.log('popping out');
+        $rightSideBar.addClass('poppedOut');
+        $('#rightSideBarBtns').appendTo($rightSideBar);
+        $rightSideBar.find('.popOut')
+                     .attr('data-original-title', 'pop back in');
+        $('.tooltip').hide();
+
+    }
+
+    function popInModal($rightSideBar) {
+        $rightSideBar.removeClass('poppedOut');
+        $('#rightSideBarBtns').appendTo('#worksheetBar');
+        $rightSideBar.attr('style', "");
+        $rightSideBar.find('.popOut')
+                     .attr('data-original-title', 'click to pop out');
+        $('.tooltip').hide();
     }
 
     return (RightSideBar);

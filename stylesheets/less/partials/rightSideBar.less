@@ -1,15 +1,86 @@
 // ========== Right Side Bar ==========
 #rightSideBar {
-    .position(absolute, @right: -25%, @bottom: 74px);
+    // .position(absolute, @right: -25%, @bottom: 74px);
+    .position(absolute, @left: ~"calc(100% - 10px)", @bottom: 74px);
     .size(@width: ~"calc(25% + 10px)", @height: ~"calc(100% - 152px)");
     border-left: 1px solid @color-bar-border;
     background-color: @color-background-sidebar;
     z-index: 11;
     box-shadow: -2px 0px 2px 3px rgba(0,0,0,0.1), inset 0px 4px 4px rgba(0,0,0,0.3);
-    .transition (right 0.3s);
+    // .transition (right 0.3s);
+    .transition (left 0.3s);
 
     &.open {
-        right: 0px;
+        // right: 0px;
+        left: ~"calc(75% - 10px)";
+    }
+
+    &.poppedOut {
+        z-index: 20;
+        border: 1px solid @color-bar-border;
+        border-bottom: none;
+        box-shadow: 0px 0px 3px 4px rgba(0,0,0,0.2);
+        bottom: 79px;
+        left: ~"calc(75% - 15px)";
+        // top: 100px;
+        // left: 300px;
+        .transition (left 0s);
+
+        .popOut {
+            .transform (rotate(180deg));
+        }
+
+        #rightSideBarBtns {
+            position: absolute;
+            bottom: -34px;
+            right: -1px;
+            background-color: @color-background-sidebar;
+            border: 1px solid @color-bar-border;
+            border-top: none;
+            width: ~"calc(100% + 2px)";
+            padding-left: ~"calc(100% - 217px)";
+            padding-top: 1px;
+            box-shadow: 0px 7px 3px 3px rgba(0,0,0,0.2);
+        }
+
+        .heading {
+            pointer-events: initial;
+            .cursor-move;
+        }
+
+        .rightBarContent {
+            margin-right: 10px; 
+        }
+
+        #pulloutTab, .topBorder {
+            display: none;
+        }
+        
+    }
+
+    .sideBarTopButtons {
+        position: relative;
+        z-index: 1;
+        .btn {
+            .size(@width: 19px, @height: 19px);
+            float: right;
+            margin-right: 6px;
+            margin-top: 7px;
+            position: absolute;
+            right: 29px;
+            top: 2px;
+
+            &:first-of-type {
+                margin-right: 10px;
+                right: 0px;
+            }
+        }
+        .popOut {
+            background-image: url(/images/arrow-diag.png);
+        }
+        .iconClose {
+            background-image: url(/images/close-icon.png);
+        }
     }
 
     .heading {
@@ -17,6 +88,8 @@
         text-align: center;
         padding-top: 2px;
         overflow: hidden;
+        pointer-events: none;
+
         h2 {
             .size (@width: ~"calc(100% - 118px)");
             margin-left: 10px;
@@ -53,30 +126,6 @@
 
         &.active {
             display: block;
-        }
-
-        .heading {
-            .btn {
-                .size(@width: 19px, @height: 19px);
-                float: right;
-                margin-right: 6px;
-                margin-top: 7px;
-                position: absolute;
-                right: 29px;
-                top: 2px;
-
-                &:first-of-type {
-                    margin-right: 10px;
-                    right: 0px;
-                }
-            }
-        }
-
-        .iconArrowDiag {
-            background-image: url(/images/arrow-diag.png);
-        }
-        .iconClose {
-            background-image: url(/images/close-icon.png);
         }
     }
 }
