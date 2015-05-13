@@ -1091,8 +1091,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
     }
     // select a column
     function selectColumn($input, selectAll) {
-        var dsName = $("#worksheetTable").data("dsname");
-        var $cart = $("#selectedTable-" + dsName);
+        var dsName  = $("#worksheetTable").data("dsname");
+        var $cart   = $("#selectedTable-" + dsName);
         var $header = $input.closest(".header");
         // unselect the column
         if ($header.hasClass("colAdded") && !selectAll) {
@@ -1120,6 +1120,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var colNum  = xcHelper.parseColNum($input);
         var $table  = $input.closest(".datasetTable");
         var $header = $input.closest(".header");
+
         if (active) {
             $header.removeClass("colAdded");
             $table.find(".col" + colNum).removeClass("selectedCol");
@@ -1131,12 +1132,20 @@ window.DataSampleTable = (function($, DataSampleTable) {
     // rename column
     function renameColumn($input) {
         var newColName = $.trim($input.val());
-        var colNum = $input.closest(".colMenu").data("colnum");
-        var $table = $("#worksheetTable");
-        var $th = $table.find("th.col" + colNum);
+
+        // check validation
+        if (newColName == "") {
+            var text = "Name is empty, please enter a valid name!";
+            StatusBox.show(text, $input, true);
+            return;
+        }
+
+        var colNum     = $input.closest(".colMenu").data("colnum");
+        var $table     = $("#worksheetTable");
+        var $th        = $table.find("th.col" + colNum);
         var $headInput = $th.find(".editableHead");
         var oldColName = $headInput.val();
-        var dsName = $table.data("dsname");
+        var dsName     = $table.data("dsname");
 
         $input.blur();
 
@@ -1149,7 +1158,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             console.log("Renaming", oldColName, "to", newColName);
 
             $menu.hide();
-            XcalarEditColumn(dsName, oldColName, newColName, DfFieldTypeT.DfString)
+            XcalarEditColumn(dsName, oldColName, 
+                             newColName, DfFieldTypeT.DfString)
             .then(function() {
                 // update column name
                 $headInput.val(newColName);
@@ -1160,9 +1170,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
                 // add sql
                 SQL.add("Rename dataset column", {
-                    "operation": "renameDatasetCol",
-                    "dsName": dsName,
-                    "colNum": colNum + 1,
+                    "operation" : "renameDatasetCol",
+                    "dsName"    : dsName,
+                    "colNum"    : colNum + 1,
                     "oldColName": oldColName,
                     "newColName": newColName }
                 );
@@ -1174,17 +1184,17 @@ window.DataSampleTable = (function($, DataSampleTable) {
     }
     // change col type
     function changeColumnType($typeList) {
-        var newType = $typeList.find(".label").text().toLowerCase();
-        var colNum = $typeList.closest(".colMenu").data("colnum");
+        var newType      = $typeList.find(".label").text().toLowerCase();
+        var colNum       = $typeList.closest(".colMenu").data("colnum");
 
-        var $table = $("#worksheetTable");
+        var $table       = $("#worksheetTable");
         var $tableHeader = $table.find(" .col" + colNum + " .header");
 
-        var $headInput = $tableHeader.find(".editableHead");
-        var dsName = $table.data("dsname");
-        var colName = $headInput.val();
-        var oldType = $tableHeader.data('type');
-        var typeId = (function getTypeId(type) {
+        var $headInput   = $tableHeader.find(".editableHead");
+        var dsName       = $table.data("dsname");
+        var colName      = $headInput.val();
+        var oldType      = $tableHeader.data('type');
+        var typeId       = (function getTypeId(type) {
             switch (type) {
                 case "undefined":
                     return DfFieldTypeT.DfUnknown;
@@ -1217,10 +1227,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
             // add sql
             SQL.add("Change dataset data type", {
                 "operation": "changeDataType",
-                "dsName": dsName,
-                "colNum": colNum + 1,
-                "oldType": oldType,
-                "newType": newType
+                "dsName"   : dsName,
+                "colNum"   : colNum + 1,
+                "oldType"  : oldType,
+                "newType"  : newType
             });
         });
     }
@@ -1228,7 +1238,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
     function getDropdownMenuHTML() {
         // XXX Now Array, Object and Unknown are invalid type to change
         var types = ['Boolean', 'Number', 'String', 'Mixed'];
-        var html = 
+        var html  = 
         '<li class="renameCol">' + 
             '<span>Rename Column</span>' + 
             '<ul class="subColMenu">' + 
@@ -1267,10 +1277,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
             return "";
         }
 
-        var html = "";
-        var tr = "";
-        var th = "";
+        var html        = "";
+        var tr          = "";
+        var th          = "";
         var columnsType = [];  // track column type
+
         currentRow = 0;
 
         jsonKeys.forEach(function() {
@@ -1285,9 +1296,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
         
         // table header
         for (var i = 0; i < jsonKeys.length; i++) {
-            var key = jsonKeys[i];
+            var key     = jsonKeys[i];
             var thClass = "th col" + (i+1);
-            var type = columnsType[i];
+            var type    = columnsType[i];
             th += 
                 '<th title="' + key + '" class="' + thClass + '">' + 
                     '<div class="header type-' + type + '" ' + 
