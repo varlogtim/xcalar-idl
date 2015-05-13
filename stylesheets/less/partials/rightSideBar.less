@@ -1,30 +1,27 @@
 // ========== Right Side Bar ==========
 #rightSideBar {
-    // .position(absolute, @right: -25%, @bottom: 74px);
     .position(absolute, @left: ~"calc(100% - 10px)", @bottom: 74px);
     .size(@width: ~"calc(25% + 10px)", @height: ~"calc(100% - 152px)");
     border-left: 1px solid @color-bar-border;
     background-color: @color-background-sidebar;
     z-index: 11;
     box-shadow: -2px 0px 2px 3px rgba(0,0,0,0.1), inset 0px 4px 4px rgba(0,0,0,0.3);
-    // .transition (right 0.3s);
     .transition (left 0.3s);
 
     &.open {
-        // right: 0px;
         left: ~"calc(75% - 10px)";
     }
 
     &.poppedOut {
+        .size (@height: ~"calc(100% - 119px)");
         z-index: 20;
         border: 1px solid @color-bar-border;
-        border-bottom: none;
         box-shadow: 0px 0px 3px 4px rgba(0,0,0,0.2);
-        bottom: 79px;
+        bottom: 46px;
         left: ~"calc(75% - 15px)";
-        // top: 100px;
-        // left: 300px;
         .transition (left 0s);
+        overflow: hidden;
+        resize: both;
 
         .popOut {
             .transform (rotate(180deg));
@@ -32,15 +29,11 @@
 
         #rightSideBarBtns {
             position: absolute;
-            bottom: -34px;
-            right: -1px;
-            background-color: @color-background-sidebar;
-            border: 1px solid @color-bar-border;
-            border-top: none;
-            width: ~"calc(100% + 2px)";
-            padding-left: ~"calc(100% - 217px)";
-            padding-top: 1px;
-            box-shadow: 0px 7px 3px 3px rgba(0,0,0,0.2);
+            .size (@width: 200px);
+            bottom: 0px;
+            right: 17px;
+            padding: 0;
+            white-space: nowrap;
         }
 
         .heading {
@@ -52,6 +45,16 @@
             margin-right: 10px; 
         }
 
+        .rightBarSection {
+            .size(@height: ~"calc(100% - 33px)");
+        }
+
+        #tableListSection {
+            .rightBarContent {
+                .size(@height: ~"calc(100% - 35px)");
+            }
+        }
+        
         #pulloutTab, .topBorder {
             display: none;
         }
