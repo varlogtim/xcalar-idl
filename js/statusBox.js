@@ -1,12 +1,13 @@
-// StatuxBox Modal
+// StatusBox Modal
 window.StatusBox = (function($, StatusBox){
     var $statusBox = $("#statusBox");
+    var $doc       = $(document);
 
     StatusBox.show = function(text, $target, isFormMode, offset) {
         // position error message
-        var top = $target[0].getBoundingClientRect().top - 30;
-        var right = $(window).width() - 
-                    $target[0].getBoundingClientRect().right- 200;
+        var bound = $target[0].getBoundingClientRect();
+        var top   = bound.top - 30;
+        var right = $(window).width() - bound.right - 200;
 
         if (offset) {
             right = right + offset;
@@ -19,31 +20,32 @@ window.StatusBox = (function($, StatusBox){
         $statusBox.find('.message').text(text);
 
         if (isFormMode) {
-            $(document).mousedown({target: $target}, hideStatusBox);
+            $doc.mousedown({target: $target}, hideStatusBox);
             $target.keydown({target: $target}, hideStatusBox);
             $target.focus().addClass('error');
         } else {
-            $(document).mousedown(hideStatusBox);
-            $(document).keydown(hideStatusBox);
+            $doc.mousedown(hideStatusBox);
+            $doc.keydown(hideStatusBox);
         }
     }
 
     function hideStatusBox(event) {
         if (event.data && event.data.target) {
             var id = $(event.target).attr('id');
+
             if (id === "statusBoxClose" ||
-                id != event.data.target.attr('id') || 
-                event.type == "keydown") 
-            { 
-                $(document).off('mousedown', hideStatusBox);
+                id != event.data.target.attr('id') ||
+                event.type == "keydown")
+            {
+                $doc.off('mousedown', hideStatusBox);
                 event.data.target.off('keydown', hideStatusBox)
                                  .removeClass('error');
                 clear();
             }
 
         } else {
-            $(document).off('mousedown', hideStatusBox);
-            $(document).off('keydown', hideStatusBox);
+            $doc.off('mousedown', hideStatusBox);
+            $doc.off('keydown', hideStatusBox);
             clear();
         }
     }
@@ -55,5 +57,4 @@ window.StatusBox = (function($, StatusBox){
     }
 
     return (StatusBox);
-
 }(jQuery, {}));
