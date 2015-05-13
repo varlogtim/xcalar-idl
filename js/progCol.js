@@ -130,8 +130,9 @@ window.ColManager = (function($, ColManager) {
                       .addClass('col' + (i + 1));
         }
         // insert new th column
+        var options = {name: name, width: width};
         var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
-                                                    newColid, newProgCol);
+                                                    newColid, options);
         $tableWrap.find('.th.col' + (newColid - 1)).after(columnHeadHTML);
 
         // get the first row in UI and start to add td to each row
@@ -288,7 +289,7 @@ window.ColManager = (function($, ColManager) {
         $(".tooltip").hide();
         // temporarily use, will be removed when backend allow name with space
         if (/ +/.test(name) === true) {
-            title = "Invalid name, cannot contain spaces between letters.";
+            title = "Invalid name, cannot contain spaces between characters.";
             isDuplicate = true;
         } else if (name == 'DATA') {
             title = "The name \'DATA\' is reserved.";
@@ -434,7 +435,7 @@ window.ColManager = (function($, ColManager) {
     {
         var table          = gTables[tableNum];
         var tableCols      = table.tableCols;
-        var indexedColNum  = null;
+        var indexedColNums = [];
         var numCols        = tableCols.length;
         var numRows        = jsonData.length;
         var nestedVals     = [];
@@ -459,8 +460,9 @@ window.ColManager = (function($, ColManager) {
 
                 nestedVals.push(nested);
                 // get the column number of the column the table was indexed on
-                if (tableCols[i].name == table.keyName) {
-                    indexedColNum = i;
+                if (tableCols[i].func.args && 
+                    (tableCols[i].func.args[0] == table.keyName)) {
+                    indexedColNums.push(i);
                 }
             } else { // this is the data Column
                 nestedVals.push([""]);
@@ -539,7 +541,7 @@ window.ColManager = (function($, ColManager) {
                     // XXX giving classes to table cells may
                     // actually be done later
                     var indexedColumnClass = "";
-                    if (col == indexedColNum) {
+                    if (indexedColNums.indexOf(col) > -1) {
                         indexedColumnClass = " indexedColumn";
                     }
 

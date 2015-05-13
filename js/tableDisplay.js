@@ -352,13 +352,21 @@ function generateTableShell(columns, tableNum) {
 
     for (var i = 0; i < numCols; i++) {
         var color = "";
-        var columnClass = ""; 
-        if (columns[i].name == table.keyName) {
+        var columnClass = "";
+        var backName = "";
+
+        if (columns[i].func.args && columns[i].func.args[0]) {
+            backName = columns[i].func.args[0]; 
+        } else {
+            backName = columns[i].name;
+        }
+
+        if (backName == table.keyName) {
             columnClass = " indexedColumn";
         } else if (columns[i].name == "" || columns[i].func.func == "") {
             columnClass = " newColumn";
         }
-        if (columns[i].name == "DATA") {
+        if (backName == "DATA") {
             dataIndex = i;
             var newColid = i + 1;
             newTable +=
@@ -409,6 +417,7 @@ function reorderTables(tableNum) {
 }
 
 function generateColumnHeadHTML(columnClass, color, newColid, option) {
+    var option = option || {};
     var columnName = option.name || "newCol";
     var width      = option.width || 0;
 
@@ -433,8 +442,8 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
                         '<input autocomplete="on" spellcheck="false" ' + 
                             'type="text" class="editableHead col' + newColid + 
                             '" data-toggle="tooltip" data-placement="bottom" ' +
-                            'title="click to edit" value=' + columnName + 
-                            ' size="15" placeholder=""/>' + 
+                            'title="click to edit" value="' + columnName + 
+                            '" size="15" placeholder=""/>' + 
                     '</div>' + 
                     '<div class="flexWrap flex-right">' + 
                         '<div class="dropdownBox" ' + 
