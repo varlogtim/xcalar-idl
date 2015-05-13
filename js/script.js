@@ -310,13 +310,19 @@ function setupLogout() {
     $userName.text(username);
     $popOut.find(".text").text(username);
 
-    $userName.click(function() {
-        var top = $userName.position().top + $userName.height();
+    $userName.click(function(event) {
+        var top  = $userName.position().top + $userName.height();
         var left =  $userName.position().left + $userName.width()/2 -
                     $popOut.width() / 2;
 
+        event.stopPropagation();
+
         $popOut.toggle();
         $popOut.css({"top": top, "left": left});
+    });
+
+    $("body").click(function() {
+        $popOut.hide();
     });
 
     $("#signout").click(function() {
