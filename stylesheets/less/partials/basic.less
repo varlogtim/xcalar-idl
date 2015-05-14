@@ -789,6 +789,10 @@ ul.colMenu {
 
     }
 
+    .unhide {
+        display: none;
+    }
+
     .unavailable {
         pointer-events: none;
         .dropdownBox {
@@ -834,6 +838,15 @@ ul.colMenu {
         .sort, .aggregate, .groupBy, .filterWrap, .joinList, .deleteColumn, 
         .deleteDuplicates, .duplicate, .renameCol, .map, .operations {
             display: none;
+        }
+    }
+
+    &.type-hidden {
+        .hide {
+            display: none;
+        }
+        .unhide {
+            display: list-item;
         }
     }
 }

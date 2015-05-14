@@ -1089,6 +1089,10 @@ function addColListeners($table, tableNum) {;
             options.classes.indexOf('type') === -1) {
             options.classes += " type-newColumn";
         }
+        if ($(this).closest('th').width() == 10) {
+            // column is hidden
+            options.classes += " type-hidden";
+        }
 
         dropdownClick($(this), null, options);
     });
