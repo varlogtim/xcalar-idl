@@ -407,8 +407,8 @@ window.DS = (function($, DS) {
 
     // refresh css class
     DS.refresh = function () {
-        $("grid-unit").removeClass("display").addClass("hidden");
-        $('grid-unit[data-dsParentId="' + curDirId + '"]')
+        $("#gridView grid-unit").removeClass("display").addClass("hidden");
+        $('#gridView grid-unit[data-dsParentId="' + curDirId + '"]')
             .removeClass("hidden").addClass("display");
     }
 

@@ -765,6 +765,322 @@
 }
 /* End Of Alert Modal */
 
+#workbookModal {
+    .modalBuilder(1000px, 625px);
+
+    .modalInstruction {
+        b {
+            color: @color-text-blue;
+        }
+    }
+
+    .modalTopMain {
+        .size(@height: 100px);
+        padding: 15px 0;
+
+        .optionSection {
+            .size(@width: 80%, @height: 30px);
+            .position(relative);
+            margin: 0 auto;
+            .flex-display;
+
+            .select-item {
+                .flex(1 1 33%);
+                .justify-content(center);
+                .radio-check;
+            }
+        }
+
+        .inputSection {
+            .position(relative);
+            .size(@width: 80%, @height: 30px);
+            margin: 10px auto 0 auto;
+
+            &.unavailable {
+                opacity: 0.4;
+                pointer-events: none;
+            }
+
+            .label {
+                .size(@width: 150px, @height: 25px);
+                .font(@weight: bold, @size: 13px, @line-height: 25px);
+                float: left;
+                margin-right: 10px;
+            }
+
+            .input-box(@w: ~"calc(100% - 235px)", @h: 25px);
+        }
+    }
+
+    .modalMain {
+        .position(relative);
+        .size(@height: 370px);
+        padding: 10px;
+        .noSelection;
+        .flex-display;
+        .flex-flow(row);
+
+        &.unavailable {
+            opacity: 0.4;
+            pointer-events: none;
+
+            .userListBox .iconWrap {
+                background: @color-background-columnList !important;
+            }
+
+            .list li {
+                color: @color-text-columnList !important;
+                background: @color-background-columnList !important;
+            }
+
+            grid-unit {
+                > div {
+                    border: 1px solid transparent !important;
+                    color: #8b8b8b !important;
+                }
+
+                &:nth-child(even) > div {
+                    background-color: #f4f4f4 !important;
+                }
+
+                &:nth-child(odd) > div {
+                    background-color: @color-background-darkGray !important;
+                }
+            }
+        }
+
+        .userSection {
+            .position(relative);
+            .size(@width: 170px, @height: 100%);
+            .flex(0 0 170px);
+
+            .flex-display;
+            .flex-flow(column);
+
+            .title {
+                .flex-order(1);
+                .flex(0 0 42px);
+                .gray-gradient;
+                .rounded(3px 0 0 0);
+                text-align: center;
+                cursor: default;
+
+                h2 {
+                    .font(@size: 14px, @line-height: 42px);
+                    color: @color-text-columnList;
+                }
+            }
+
+            .userLists {
+                .position(relative);
+                .rounded(0 0 0 3px);
+                .flex-order(2);
+                .flex(0 0 ~"calc(100% - 42px)");
+                background: @color-background-darkGray;
+                padding: 10px;
+                box-shadow: inset -1px -1px 1px 1px rgba(0, 0, 0, 0.2);
+
+                .searchArea {
+                    .position(relative);
+                    .size(@width: 100%, @height: 35px);
+                    padding-bottom: 9px;
+                    border-bottom: 1px solid @color-retina-border;
+
+                    .input-box(@w: 100%, @h: 25px);
+
+                    input {
+                        .font(@weight: bold);
+                        color: @color-text-midGray;
+
+                        .input-placeholder(@color-text-midGray);
+                        padding-right: 25px;
+                    }
+
+                    .closeIcon(@topOff: 3px, @rightOff: 3px);
+                }
+
+                .listSection {
+                    .position(relative);
+                    .size(@width: 100%);
+                    border-top: 1px solid @color-white;
+                    padding-top: 11px;
+
+                    .userListBox {
+                        .size(@width: 100%, @height: 25px);
+                        .rounded;
+                        background: @color-white;
+                        box-shadow: 1px 2px 1px rgba(0,0,0,.3);
+                        cursor: pointer;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        .flex-display;
+                        .flex-flow(row);
+
+                        .iconWrap {
+                            .flex(0 0 25px);
+                            .gray-gradient;
+                            .rounded(3px 0 0 3px);
+
+                            .icon {
+                                .position(relative, @top: 3px, @left: 3px);
+                                .size(@width: 20px, @height: 19px);
+                                .image("/images/user-multi.png");
+                            }
+
+                        }
+
+                        &.active .iconWrap {
+                            .action-gradient;
+                        }
+
+                        .label {
+                            .flex(0 0 auto);
+                            padding-left: 8px;
+                            .font(@line-height: 25px, @size: 13px);
+                            color: @color-text-darkGray;
+                        }
+                    }
+
+                    .list {
+                        .position(relative);
+                        .size(@width: ~"calc(100% - 8px)");
+                        margin: 10px 0 0 8px;
+
+                        li {
+                            .size(@height: 22px);
+                            .rounded;
+                            list-style: none;
+                            margin-top: 5px;
+                            padding-left: 8px;
+                            .font(@line-height: 22px, @size: 12px);
+                            background: @color-background-columnList;
+                            color: @color-text-columnList;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            cursor: default;
+
+                            &.active {
+                                background: #4CA1D0;
+                                color: @color-white;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        .workbookSection {
+            .position(relative);
+            .size(@width: ~"calc(100% - 170px)", @height: 100%);
+            .flex(0 0 ~"calc(100% - 170px)");
+
+            .flex-display;
+            .flex-flow(column);
+
+            .titleSection, .listSection grid-unit {
+                .flex-display;
+
+                > div {
+                    .position(relative);
+                    .size(@height: 30px);
+                    .flex(0 0 152px);
+                    cursor: default;
+                    margin-left: 5px;
+                    padding-left: 10px;
+                    .font(@weight: bold, @size: 12px, @line-height: 30px);
+
+                    &:first-child {
+                        margin-left: 0;
+                    }
+                }
+            }
+
+            .titleSection {
+                .flex-order(1);
+                .flex(0 0 42px);
+                .rounded(0 3px 0 0);
+                padding: 5px 10px;
+                background: @color-background-darkGray;
+                border: 1px solid #b2b2b2;
+                margin-left: -1px;
+
+                .title {
+                    .gray-gradient;
+                    .rounded;
+                    color: #5e5e5e;
+
+                    .label {
+                        .size(@width: ~"calc(95% - 15px)");
+                        .text-overflow;
+                    }
+
+                    .icon {
+                        .position(absolute, @right: 2px);
+                        .size(@width: 20px, @height: 30px);
+                        .image("/images/fileBrowserModal/sort.png", 50%, 50%);
+                        // XXX disable it unitl js support sort
+                        display: none;
+                    }
+                    &:hover {
+                        .gray-inverse-gradient;
+                    }
+
+                    &.active {
+                        .action-gradient;
+                        color: @color-white;
+                        &:hover {
+                            .action-inverse-gradient;
+                        }
+                    }
+
+                }
+            }
+
+            .listSection {
+                .flex-order(1);
+                .flex(0 0 ~"calc(100% - 42px)");
+                .rounded(0 0 3px 0);
+                background: #fdfdfd;
+                overflow-y: scroll;
+                padding: 0 10px;
+                box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
+
+                grid-unit {
+                    > div {
+                        color: #808080;
+                        padding-right: 5px;
+                        border: 1px solid transparent;
+                        .font(@line-height: 28px);
+                        .text-overflow;
+                    }
+
+                    &:nth-child(even) > div {
+                        background-color: #f4f4f4;
+                    }
+                    
+                    &:nth-child(odd) > div {
+                        background-color: @color-background-darkGray;
+                    }
+
+                    &.active > div {
+                        border: 1px solid @color-background-topAction;
+                        background: @colorOpaque-blue;
+                        color: @color-text-blue;
+                    }
+                }
+            }
+        }
+    }
+
+    .modalBottom {
+        .btn {
+            margin: 15px 15px 0 0;
+        }
+    }
+}
+
 /* File Browser Modal */
 #fileBrowserModal {
     .modalBuilder(800px, 670px);
@@ -1021,9 +1337,9 @@
                 &:nth-child(even) > div {
                     background-color: #f4f4f4;
                 }
-                
+
                 &:nth-child(odd) > div {
-                    background-color: #e6e6e6;
+                    background-color: @color-background-darkGray;
                 }
                 &.active {
                     > div {

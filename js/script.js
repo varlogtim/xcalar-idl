@@ -584,7 +584,10 @@ function startupFunctions() {
     setupLogout();
     RightSideBar.setup();
     DataStore.setup();
-    readFromStorage()
+    WKBKManager.setup()
+    .then(function() {
+        return (readFromStorage());
+    })
     .then(function() {
         documentReadyGeneralFunction();
         JSONModal.setup();
@@ -713,6 +716,7 @@ function documentReadyIndexFunction() {
             JoinModal.setup();
             AggModal.setup();
             OperationsModal.setup();
+            WorkbookModal.setup();
             WSManager.focusOnWorksheet();
         })
         .fail(function(error) {

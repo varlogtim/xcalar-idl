@@ -564,32 +564,7 @@
                 margin-right: 15px;
             }
 
-            .radio {
-                float: left;
-                display: inline-block;
-                margin: 4px 5px 0 0px;
-                .background("/images/radioEmpty.png", 14px, 15px);
-
-                .dot {
-                    .size(@width: 14px, @height: 15px);
-                    .image("/images/radioDot.png", 50%, 50%);
-                    display: none;
-                }
-                &.checked {
-                    .image("/images/radioChecked.png");
-                    .dot {
-                        display: inline-block;
-                    }
-                }
-            }
-
-            .label {
-                float: left;
-                padding-left: 5px;
-                .font(@weight: 900);
-                .size(@width:~"calc(100% - 19px)");
-                text-align: left;
-            }
+            .radio-check;
         }
     }
 
@@ -640,23 +615,7 @@
                 }
             }
 
-            .iconWrapper {
-                .position(absolute, @top: 16px, @right: 7px);
-                .size(20px, 20px);
-                .rounded;
-                .gray-gradient;
-                cursor: pointer;
-
-                &:hover {
-                    .gray-inverse-gradient;
-                }
-
-                .icon {
-                    .size(20px, 20px);
-                    .image("/images/close-icon.png", 50%, 50%);
-                }
-            }
-
+            .closeIcon(@topOff: 15px, @rightOff: 7px);
         }
 
         .btnSection {

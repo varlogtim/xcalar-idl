@@ -663,7 +663,7 @@
             <!-- file path part -->
             <div class="pathSection">
               <input id="udf-filePath" type="text">
-              <div id="udf-clearPath" class="iconWrapper">
+              <div id="udf-clearPath" class="iconWrap">
                 <span class="icon"></span>
               </div>
             </div>
@@ -1107,6 +1107,126 @@
   </div>
   <!-- End of Alert Modal -->
 
+  <!-- Workbook Modal -->
+  <div id="workbookModal" class="modalContainer">
+    <!-- Workbook Modal Header -->
+    <header class="modalHeader">
+      <span class="text">Workbook Browser</span>
+      <div class="close">
+        <span class="icon"></span>
+      </div>
+    </header>
+    <!-- Workbook Modal Instruction -->
+    <section class="modalInstruction">
+      <div class="icon"></div>
+      <div class="text">
+        This is a workbook browser instruction placeholder
+      </div>
+    </section>
+    <!-- Workbook Modal Top Section-->
+    <section class="modalTopMain">
+      <!-- option section -->
+      <div class="optionSection">
+          <!-- option: new workbook -->
+          <div class="select-item" data-no="0">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">New Workbook</div>
+          </div>
+          <!-- option: continue workbook -->
+          <div class="select-item" data-no="1">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Continue from Workbook</div>
+          </div>
+          <!-- option: copy workbook -->
+          <div class="select-item" data-no="2">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Copy of Existing Workbook</div>
+          </div>
+      </div>
+      <!-- input section for new workbook name -->
+      <div class="inputSection">
+        <span class="label">New Workbook Name:</span>
+        <input id="workbookInput" type="text"/>
+      </div>
+    </section>
+    <!-- Workbook Modal Main Section -->
+    <section class="modalMain">
+      <!-- User Lists Section -->
+      <section class="userSection">
+        <!-- header -->
+        <header class="title">
+          <h2>Users (<span class="num">0</span>)</h2>
+        </header>
+        <!-- userlists -->
+        <div class="userLists">
+          <!-- search area -->
+          <div class="searchArea">
+            <input id="workbookUserSearch" type="text" 
+                  placeholder="Search keyword...">
+            <div class="iconWrap clear">
+              <span class="icon"></span>
+            </div>
+          </div>
+          <!-- list section -->
+          <div class="listSection">
+            <div class="userListBox">
+              <div class="iconWrap">
+                <span class="icon"></span>
+              </div>
+              <div class="label">All Users</div>
+            </div>
+            <ul id="workbookUserLists" class="list"></ul>
+          </div>
+        </div>
+      </section>
+      <!-- Workbook Section -->
+      <section class="workbookSection">
+        <!-- title section -->
+        <section class="titleSection">
+           <!-- name -->
+          <div class="title">
+            <span class="label">Name</span>
+            <span class="icon"></span>
+          </div>
+          <!--  date created-->
+          <div class="title">
+            <span class="label">Date Created</span>
+            <span class="icon"></span>
+          </div>
+          <!--  date created-->
+          <div class="title">
+            <span class="label">Date Modified</span>
+            <span class="icon"></span>
+          </div>
+          <!-- number of table -->
+          <div class="title">
+            <span class="label">Created By</span>
+            <span class="icon"></span>
+          </div>
+          <!-- number of worksheet -->
+          <div class="title">
+            <span class="label">Last Modified By</span>
+            <span class="icon"></span>
+          </div>
+        </section>
+        <!-- workbook list section -->
+        <section id="workbookLists" class="listSection"></section>
+      </section>
+    </section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+      <button type="button" class="btn btnMid confirm">CREATE</button>
+      <button type="button" class="btn btnMid cancel">CANCEL</button>
+    </section>
+  </div>
+  <!-- End of Workbook Modal -->
+
   <!-- File Browser Modal -->
   <div id="fileBrowserModal" class="modalContainer">
     <!-- File Browser Header -->
@@ -1290,6 +1410,7 @@
 <script src="/js/dag.js" type="text/javascript"></script>
 <script src="/js/jsonModal.js" type="text/javascript"></script>
 <script src="/js/alertModal.js" type="text/javascript"></script>
+<script src="/js/workbook.js" type="text/javascript"></script>
 <script src="/js/fileBrowserModal.js" type="text/javascript"></script>
 <script src="/js/sql.js" type="text/javascript"></script>
 <script src="/js/folder.js" type="text/javascript"></script>
@@ -1297,6 +1418,7 @@
 <script src="/js/statusMessage.js" type="text/javascript"></script>
 <script src="/js/englishStrings.js" type="text/javascript"></script>
 <script src="/js/operationsModal.js" type="text/javascript"></script>
+
 <!-- Start up script -->
 <script>
     documentReadyIndexFunction();

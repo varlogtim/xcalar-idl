@@ -276,6 +276,87 @@
     }
 }
 
+// style for text overfolw
+.text-overflow() {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// style for radio check
+.radio-check(@h: 20px) {
+    display: inline-block;
+    .position(relative);
+    .size(@height: @h);
+    .font(@size: 13px, @line-height: @h);
+    .noSelection;
+    cursor: pointer;
+
+    .radio {
+        float: left;
+        display: inline-block;
+        margin: 4px 5px 0 0px;
+        .background("/images/radioEmpty.png", 14px, 15px);
+
+        .dot {
+            .size(@width: 14px, @height: 15px);
+            .image("/images/radioDot.png", 50%, 50%);
+            display: none;
+        }
+        &.checked {
+            .image("/images/radioChecked.png");
+            .dot {
+                display: inline-block;
+            }
+        }
+    }
+
+
+    .label {
+        float: left;
+        padding-left: 5px;
+        .font(@weight: 900);
+        .size(@width:~"calc(100% - 19px)");
+        text-align: left;
+    }
+}
+
+//style for input box
+.input-box(@w, @h: 25px) {
+    input {
+        .size(@width: @w, @height: @h);
+        .rounded;
+        .font(@size:12px, @line-height: @h);
+        box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.5);
+        padding: 0 10px;
+
+        &:focus {
+            outline: none;
+        }
+    }
+}
+
+// style for close icon
+.closeIcon(@topOff: 0px, @rightOff: 0px) {
+   .iconWrap {
+        .position(absolute, @top: @topOff, @right: @rightOff);
+        .size(20px, 20px);
+        .rounded;
+        .gray-gradient;
+        cursor: pointer;
+
+        &:hover {
+            .gray-inverse-gradient;
+        }
+
+        .icon {
+            .size(20px, 20px);
+            .image("/images/close-icon.png", 50%, 50%);
+        }
+    }
+}
+
 // used for datasetTableWrap in datastore.less
 .typeIcon() {
 

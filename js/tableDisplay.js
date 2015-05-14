@@ -224,7 +224,15 @@ function deleteTable(tableNum, deleteArchived) {
         if (table.isTable === false) {
             return (promiseWrapper(null));
         } else {
-            // check if it is the only table
+            // check if table also in other workbooks
+            return (WKBKManager.canDelTable(backTableName));
+        }
+    })
+    .then(function(canDelete) {
+        if (!canDelete) {
+            return (promiseWrapper(null));
+        } else {
+            // check if it is the only table in this workbook
             for (var i = 0; i < gTables.length; i++) {
                 if (gTables[i].backTableName === backTableName &&
                     (deleteArchived || i !== tableNum)) {
