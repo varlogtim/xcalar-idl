@@ -1456,7 +1456,7 @@
                 box-shadow: none;
             }
            .argumentSection {
-                visibility: hidden;
+                opacity: 0;
             }
             .tableContainer {
                 display: none;
@@ -1464,8 +1464,8 @@
         }
     }
     .argumentSection {
-         .transition (opacity 0.3s);
-         .size (@height: 175px);
+        .transition (opacity 0.3s);
+        .size (@height: 175px);
     }
 
     .border {
