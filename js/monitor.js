@@ -435,7 +435,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     }
 
     MonitorGraph.clear = function() {
-        $graph = $('#graph');
+        var $graph = $('#graph');
         $graph.find('svg').remove();
         $graph.find('.xLabels').empty();
         clearInterval(graphCycle);

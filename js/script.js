@@ -585,7 +585,7 @@ function startupFunctions() {
         setupBookmarkArea();
         WSManager.setup();
         loadMonitorPanel();
-        setupDag();
+        DagPanel.setup();
         FileBrowser.setup();
         deferred.resolve();
     })
@@ -624,7 +624,7 @@ function tableStartupFunctions(table, tableNum, tableNumsToRemove, frontName) {
         adjustColGrabHeight(tableNum);
         resizeRowInput();
 
-        return (constructDagImage(gTables[tableNum].backTableName, tableNum));
+        return (Dag.construct(gTables[tableNum].backTableName, tableNum));
     })
     .then(function() {
         // refresh dag
