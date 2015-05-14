@@ -1,10 +1,13 @@
 window.Alert = (function($, Alert){
-    var $alertModal = $("#alertModal");
-    var $modalBackground = $("#modalBackground");
-    var $newBtns = [];
-    var $dataList = $("#alertlist");
+    var $alertModal       = $("#alertModal");
+    var $modalBackground  = $("#modalBackground");
+    var $newBtns          = [];
+    var $dataList         = $("#alertlist");
     var $alertOptionLabel = $("#alertOptionLabel");
     var $alertOptionInput = $("#alertOptionInput");
+
+    var modalHelper       = new xcHelper.Modal($alertModal, 
+                                               {"focusOnOpen": true});
 
     Alert.show = function(options) {
        /* options includes:
@@ -21,6 +24,8 @@ window.Alert = (function($, Alert){
         $modalBackground.fadeIn(100);
 
         xcHelper.removeSelectionRange();
+
+        modalHelper.setup();
     }
 
     Alert.error = function(title, error, unclosable) {
@@ -55,6 +60,8 @@ window.Alert = (function($, Alert){
         $alertModal.off();
         $alertModal.hide();
 
+        modalHelper.clear();
+
         if (!$modalBackground.hasClass("open")) {
             $modalBackground.fadeOut(200);
         }
@@ -84,7 +91,6 @@ window.Alert = (function($, Alert){
                 options.cancel();
             }
         });
-
         // check box, default is unchecked
         $checkbox.find(".checkbox").removeClass("checked");
         $checkbox.addClass("inactive"); // now make it disabled

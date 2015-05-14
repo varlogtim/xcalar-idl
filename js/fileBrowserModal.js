@@ -16,6 +16,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     var $filePath      = $("#filePath");
 
+    var modalHelper    = new xcHelper.Modal($fileBrowser);
     /* Contants */
     var defaultPath    = "file:///";
     var validFormats   = ["JSON", "CSV"];
@@ -36,8 +37,11 @@ window.FileBrowser = (function($, FileBrowser) {
             xcHelper.removeSelectionRange();
             // press enter to import a dataset
             $(document).on("keyup", fileBrowserKeyUp);
+
             $fileBrowser.show();
             $fileBrowser.focus();
+
+            modalHelper.setup();
         })
         .fail(function(result) {
             closeAll();
@@ -217,7 +221,7 @@ window.FileBrowser = (function($, FileBrowser) {
     // key up event
     function fileBrowserKeyUp(event) {
         event.preventDefault();
-        if (event.which === keyCode.Enter) {
+        if (event.which === keyCode.Enter && !modalHelper.checkBtnFocus()) {
             var $grid = $container.find('grid-unit.active');
             importDataset($grid);
         }
@@ -278,6 +282,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function closeAll() {
         // set to deault value
         clear(true);
+        modalHelper.clear();
         $(document).off('keyup', fileBrowserKeyUp);
         $fileBrowser.hide();
         $modalBackground.removeClass("open");

@@ -196,6 +196,99 @@ window.xcHelper = (function($, xcHelper) {
             }
          }
     }
+    // an object used for global Modal Actions
+    xcHelper.Modal = function($modal, options) {
+        /* options incluade:
+         * focusOnOpen: if set true, will focus on confirm btn when open modal
+         */
+        this.$modal = $modal;
+        this.options   = options || {};
+        this.id  = $modal.attr("id");
+
+        return (this);
+    }
+
+    xcHelper.Modal.prototype.setup = function() {
+        // XXX to find the visiable btn, must show the modal first
+        var $modal     = this.$modal;
+        var $btns      = $modal.find(".btn");
+        var $inputs    = $modal.find("input");
+        var focusIndex = 0;
+        var $eles      = [];
+
+        $btns.each(function() {
+            $eles.push($(this));
+        });
+
+        $inputs.each(function() {
+            $eles.push($(this));
+        });
+
+        var len = $eles.length;
+        // focus on the right most button
+        if (this.options.focusOnOpen) {
+            getEleToFocus();
+        }
+
+        // for switch between modal tab using tab key
+        $(document).on("keydown.xcModal" + this.id, function(event) {
+            if (event.which == keyCode.Tab) {
+                event.preventDefault();
+                getEleToFocus();
+
+                return false;
+            }
+        });
+        // for when mouse move on other buttons
+        $btns.on("mouseenter.xcModal", function() {
+            var $btn = $(this);
+
+            $btns.blur();
+            $btn.focus();
+        });
+
+        $btns.on("mouseleave.xcModal", function() {
+            $(this).blur();
+        });
+        // find the input or button that is visible and not disabled
+        function getEleToFocus() {
+            // the current ele should not be focused
+            if (!isActive($eles[focusIndex])) {
+                var start  = focusIndex;
+                focusIndex = (focusIndex + 1) % len;
+
+                while (focusIndex !== start && !isActive($eles[focusIndex])) {
+                    focusIndex = (focusIndex + 1) % len;
+                }
+                // not find any active ele that could be focused
+                if (focusIndex === start) {
+                    focusIndex = -1;
+                }
+            }
+
+            if (focusIndex >= 0) {
+                $eles[focusIndex].focus();
+            }
+            // go to next index
+            focusIndex = (focusIndex + 1) % len;
+        }
+
+        function isActive($ele) {
+            if ($ele == undefined) {
+                console.log("dfs");
+            }
+            return ($ele.is(":visible") && !$ele.is("[disabled]"));
+        }
+    }
+
+    xcHelper.Modal.prototype.clear = function() {
+        $(document).off("keydown.xcModal" + this.id);
+        this.$modal.find(".btn").off(".xcModal");
+    }
+    // check if any button is on focus
+    xcHelper.Modal.prototype.checkBtnFocus = function() {
+        return (this.$modal.find(".btn:focus").length > 0);
+    }
 
     return (xcHelper);
 } (jQuery, {}));

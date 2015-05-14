@@ -9,6 +9,8 @@ window.OperationsModal = (function($, OperationsModal) {
     var colName = "";
     var backColName = "";
 
+    var modalHelper = new xcHelper.Modal($operationsModal);
+
     OperationsModal.setup = function() {
         var $autocompleteInputs = $operationsModal.find('.autocomplete');
 
@@ -80,7 +82,7 @@ window.OperationsModal = (function($, OperationsModal) {
         });
 
         $argumentInputs.on('keypress', function(event) {
-            if (event.which == keyCode.Enter) {
+            if (event.which == keyCode.Enter && !modalHelper.checkBtnFocus()) {
                 $(this).blur();
                 submitForm();
             }
@@ -100,6 +102,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $(document).mousedown(); // hides any error boxes;
             $('#highlightOffset').remove();
             $(window).off('resize', moveHighlightedColumn);
+             modalHelper.clear();
         });
 
         $operationsModal.on('click', function() {
@@ -155,6 +158,8 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.addClass('type-dataset');
         }
 
+        modalHelper.setup();
+
         fillInputPlaceholder(0); 
         $categoryInput.focus();
     }
@@ -187,7 +192,7 @@ window.OperationsModal = (function($, OperationsModal) {
                         .removeClass('inactive')
                         .find('.autocomplete')
                         .attr('disabled', false);
-        
+
         if (inputNum == 1) {
             produceArgumentTable();
         }

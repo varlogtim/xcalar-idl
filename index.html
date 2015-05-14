@@ -492,7 +492,7 @@
                 <span class="icon"></span>SEND TO ACTIVE WORKSHEET
               </button>
               <button id="submitMultipleDBTablesBtn" 
-                  class="btn btnLarge btnInactive iconBtn">
+                  class="btn btnLarge btnInactive iconBtn" tabindex="-1">
                 <span class="icon"></span>SEND TO MULTIPLE WORKSHEETS
               </button>
               <button id="clearDataCart" class="btn btnLarge iconBtn">
@@ -971,8 +971,12 @@
     </section>
     <!-- Join Modal Button Section -->
     <section id="joinActions" class="modalBottom">
-      <div id="joinTables" class="btn btnMid confirm">JOIN TABLES</div>
-      <div id="cancelJoin" class="btn btnMid cancel">CANCEL JOIN</div>
+      <button id="joinTables" class="btn btnMid confirm" type="button">
+        JOIN TABLES
+      </button>
+      <button id="cancelJoin" class="btn btnMid cancel" type="button">
+        CANCEL JOIN
+      </button>
     </section>
   </div>
   <!-- End Of Join Modal -->

@@ -10,6 +10,8 @@ window.JoinModal = (function($, JoinModal) {
     var $leftJoinTable   = $("#leftJoin");
     var $rightJoinTable  = $("#rightJoin");
 
+    var modalHelper      = new xcHelper.Modal($joinModal);
+
     JoinModal.setup = function () {
         $("#closeJoin, #cancelJoin").click(function() {
             resetJoinTables();
@@ -45,6 +47,7 @@ window.JoinModal = (function($, JoinModal) {
 
         // This submits the joined tables
         $("#joinTables").click(function() {
+            $(this).blur();
             // check validation
             if($joinTableName.val() === "") {
                 var text = "Table name is empty! Please name your new table";
@@ -91,6 +94,8 @@ window.JoinModal = (function($, JoinModal) {
         $joinModal.show();
         $modalBackground.fadeIn(300);
 
+        modalHelper.setup();
+
         joinModalTabs($leftJoinTable, (tableNum + 1), colNum);
         // here tableNum start from 1;
         joinModalTabs($rightJoinTable, -1, -1);
@@ -99,6 +104,8 @@ window.JoinModal = (function($, JoinModal) {
     function resetJoinTables() {
         $("body").off("keypress", joinTableKeyPress);
         $modalBackground.off("click", hideJoinTypeSelect);
+
+        modalHelper.clear();
 
         $joinModal.hide();
         $modalBackground.fadeOut(300);
@@ -121,6 +128,10 @@ window.JoinModal = (function($, JoinModal) {
     function joinTableKeyPress(event) {
         switch (event.which) {
             case keyCode.Enter:
+                // XXX when focus on a button, no trigger
+                if (modalHelper.checkBtnFocus()) {
+                    break;
+                }
                 $('#joinTables').click();
                 break;
             default:

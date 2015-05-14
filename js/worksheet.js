@@ -419,7 +419,7 @@ window.WSManager = (function($, WSManager) {
     }
 
     function deleteWorksheetAction(wsIndex) {
-        var title = "DELETE WOEKSHEET";
+        var title       = "DELETE WORKSHEET";
         var curWorsheet = worksheets[wsIndex];
 
         // delete empty worksheet
@@ -427,10 +427,10 @@ window.WSManager = (function($, WSManager) {
             var msg = "Are you sure you want to delete the worksheet?";
 
             Alert.show({
-                "title": title,
-                "msg": msg,
+                "title"     : title,
+                "msg"       : msg,
                 "isCheckBox": true,
-                "confirm": function() {
+                "confirm"   : function() {
                     removeWorksheet(wsIndex);
                 }
             });
@@ -438,24 +438,24 @@ window.WSManager = (function($, WSManager) {
             return;
         }
 
-        var msg = "There are tables in worksheet, " + 
-                    "how would you deal with them?";
+        var msg = "There are tables in worksheet, " +
+                  "how would you deal with them?";
 
         Alert.show({
-            "title": "DELETE WOEKSHEET",
-            "msg": msg,
+            "title"  : title,
+            "msg"    : msg,
             "buttons": [
                 {
-                    "name": "Delete Tables",
+                    "name"     : "Delete Tables",
                     "className": "deleteTale",
-                    "func": function() {
+                    "func"     : function() {
                         tableDeleteHelper(curWorsheet, wsIndex);
                     }
                 },
                 {
-                    "name": "Archive Tables",
+                    "name"     : "Archive Tables",
                     "className": "archiveTable",
-                    "func": function() {
+                    "func"     : function() {
                         archiveTableHelper(curWorsheet, wsIndex);
                     }
                 }
