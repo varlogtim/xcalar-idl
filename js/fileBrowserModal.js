@@ -35,12 +35,16 @@ window.FileBrowser = (function($, FileBrowser) {
             $modalBackground.fadeIn(100);
             $modalBackground.addClass("open");
             xcHelper.removeSelectionRange();
-            // press enter to import a dataset
-            $(document).on("keyup", fileBrowserKeyUp);
 
             $fileBrowser.show();
             $fileBrowser.focus();
-
+            // press enter to import a dataset
+            // XXX use time out beacuse if you press browser button to open the
+            // modal, it will trigger keyup event, so delay the event here
+            // may have bettter way to solve it..
+            setTimeout(function() {
+                $(document).on("keyup", fileBrowserKeyUp);
+            }, 300);
             modalHelper.setup();
         })
         .fail(function(result) {
