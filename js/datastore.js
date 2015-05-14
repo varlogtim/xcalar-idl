@@ -103,18 +103,20 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
         // reset form
         $("#importDataReset").click(function() {
+            $(this).blur();
             $formatText.val("Select Format");
             $formatText.addClass("hint");
             $csvDelim.addClass("hidden");
         });
         // open file browser
         $("#fileBrowserBtn").click(function() {
-            $("#fileBrowserBtn").blur();
+            $(this).blur();
             FileBrowser.show();
         });
         // submit the form
         $("#importDataForm").submit(function(event) {
             event.preventDefault();
+            $(this).blur();
 
             var dsName = jQuery.trim($fileName.val());
             // check name conflict
@@ -511,6 +513,8 @@ window.DataCart = (function($, DataCart) {
 
     DataCart.setup = function() {
         $("#submitDSTablesBtn").click(function() {
+            $(this).blur();
+
             if ($cartArea.find(".selectedTable").length === 0) {
                 return false;
             }
@@ -526,6 +530,7 @@ window.DataCart = (function($, DataCart) {
         });
 
         $("#clearDataCart").click(function() {
+            $(this).blur();
             emptyAllCarts();
         });
 
