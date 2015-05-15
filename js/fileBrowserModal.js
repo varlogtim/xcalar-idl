@@ -614,6 +614,19 @@ window.FileBrowser = (function($, FileBrowser) {
         return (deferred.promise());
     }
 
+    function sizeTranslater(size) {
+        var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
+        var start = 0;
+        var end   = unit.length - 2;
+
+        while (size >= 1024 && start <= end) {
+            size = Math.ceil(size / 1024);
+            ++start;
+        }
+
+        return (size + unit[start]);
+    }
+
     function getHTMLFromFiles(files) {
         var html = "";
 
@@ -626,7 +639,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 return;
             }
 
-            var size      = fileObj.attr.size;
+            var size      = sizeTranslater(fileObj.attr.size);
             var gridClass = isDirectory ? "folder" : "ds";
             var date      = "00:00:00 01-01-2015";
 
