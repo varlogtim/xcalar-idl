@@ -196,6 +196,63 @@ window.xcHelper = (function($, xcHelper) {
             }
          }
     }
+
+    xcHelper.validate = function(eles) {
+        /*
+         * eles is an object or an array of object, each object includes:
+
+           $selector: selector to check
+           check    : function to check validation, if empty, will check if the 
+                      value of selecor is empty. Val of the selector will be 
+                      passed into the function
+           text     : text to show if now pass the check
+           noWarn   : if set true, will not show any warnning box.
+           callback : if not null, will call it after check fails
+           isAlert  : if set true, will show Alert Modal, default is StatusBox
+           formMode : if set true, will use StatusBox's form mode
+           ...      : to be extened in the future.
+
+         * Check will run in array's order.
+         */
+
+         if (!(eles instanceof Array)) {
+            eles = [eles];
+         }
+
+        for (var i = 0; i < eles.length; i++) {
+            var ele = eles[i];
+            var $e  = ele.$selector;
+            var val = $e.is("input") ? $e.val() : $e.text();
+            var error;
+            var notValid;
+
+            if (ele.check != null) {
+                notValid = ele.check(val);
+                error    = ele.text || "Invalid Inputs.";
+            } else {
+                notValid = jQuery.trim(val) == "";
+                error    = ele.text || "Please fill out this field.";
+            }
+
+            if (notValid) {
+                if (ele.noWarn) {
+                    return false;
+                }
+
+                if (ele.callback) {
+                    callback();
+                } else if (ele.isAlert) {
+                    Alert.error("Invalid Filed", text);
+                } else {
+                    StatusBox.show(error, $e, ele.formMode);
+                }
+
+                return false;
+            }
+        }
+
+        return true;
+    }
     // an object used for global Modal Actions
     xcHelper.Modal = function($modal, options) {
         /* options incluade:

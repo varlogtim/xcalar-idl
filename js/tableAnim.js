@@ -855,103 +855,99 @@ function createTableHeader(tableNum) {
 
     $tableMenu.on('keypress', '.moveToWorksheet input', function(event) {
         if (event.which == keyCode.Enter) {
-            var $input = $(this);
-            var worksheetName = jQuery.trim($input.val());
-            var $menu = $input.closest('.tableMenu');
+            var $input   = $(this);
+            var $menu    = $input.closest('.tableMenu');
             var tableNum = parseInt($menu.attr('id').substring(9));
+            var wsName   = jQuery.trim($input.val());
 
-            if (worksheetName == "") {
-                var text = "Worksheet name is empty," + 
-                            " please choose a worksheet!";
-
-                StatusBox.show(text, $input, true);
-                return false;
-            }
-
-            var $datalist = $("#worksheetlist");
-            var $option = $datalist.find("option").filter(function() {
-                return $(this).val() == worksheetName;
+            var $option = $("#worksheetlist").find("option").filter(function() {
+                return $(this).val() == wsName;
             });
 
-            if ($option.length === 0) {
-                var text = "Invalid worksheet name, " + 
-                            "please choose a worksheet in the pop up list!";
+            var isValid = xcHelper.validate([
+                {
+                    "$selector": $input,
+                    "forMode"  : true,
+                },
+                {
+                    "$selector": $input,
+                    "check"    : function () {
+                        return ($option.length === 0);
+                    },
+                    "text"     : "Invalid worksheet name, please choose a " + 
+                                 "worksheet in the pop up list!",
+                    "forMode"  : true
+                }
+            ]);
 
-                StatusBox.show(text, $input, true);
+            if (!isValid) {
                 return false;
             }
 
-            var worksheetIndex = $option.data("worksheet");
+            var wsIndex = $option.data("worksheet");
 
-            WSManager.moveTable(tableNum, worksheetIndex);
+            WSManager.moveTable(tableNum, wsIndex);
 
             $input.val("");
             $input.blur();
             $menu.hide();
-
-            // return false;
         }
     });
 
     $tableMenu.on('keypress', '.duplicateToWorksheet input', function(event) {
         if (event.which == keyCode.Enter) {
+            var $li             = $(this).closest(".duplicateToWorksheet");
+            var $menu           = $li.closest('.tableMenu');
+            var tableNum        = parseInt($menu.attr('id').substring(9));
 
-            var $li = $(this).closest(".duplicateToWorksheet");
-            var $menu = $li.closest('.tableMenu');
-            var tableNum = parseInt($menu.attr('id').substring(9));
-            var $wsInput = $li.find(".wsName");
+            var $wsInput        = $li.find(".wsName");
             var $tableNameInput = $li.find(".tableName");
+            // validation check
+            var isValid = xcHelper.validate([
+                { "$selector": $wsInput,
+                  "formMode" : true
+                },
+                { "$selector": $tableNameInput,
+                  "formMode" : true
+                }
+            ]);
 
-            var worksheetName = jQuery.trim($wsInput.val());
-            var newTableName = jQuery.trim($tableNameInput.val());
-
-            var srcTableName = gTables[tableNum].frontTableName;
-            var backTableName = gTables[tableNum].backTableName;
-            // validation
-            if (worksheetName == "") {
-                var text = "Worksheet name is empty," + 
-                            " please choose a worksheet!";
-
-                StatusBox.show(text, $wsInput, true);
-
+            if (!isValid) {
                 return false;
             }
 
-            if (newTableName == "") {
-                var text = "Table name is empty, please input a valid name!";
+            var wsName        = jQuery.trim($wsInput.val());
+            var newTableName  = jQuery.trim($tableNameInput.val());
 
-                StatusBox.show(text, $tableNameInput, true);
-
-                return false;
-            }
+            var $option = $("#worksheetlist").find("option").filter(function() {
+                return $(this).val() == wsName;
+            });
             // XXX also need to check table name conflict
-
-            var $datalist = $("#worksheetlist");
-            var $option = $datalist.find("option").filter(function() {
-                return $(this).val() == worksheetName;
+            isValid = xcHelper.validate({
+                "$selector": $wsInput,
+                "check"    : function() {
+                    return ($option.length === 0);
+                },
+                "text"     : "Invalid worksheet name, " + 
+                             "please choose a worksheet in the pop up list!",
+                "formMode" : true
             });
 
-            if ($option.length === 0) {
-                var text = "Invalid worksheet name, " + 
-                            "please choose a worksheet in the pop up list!";
-
-                StatusBox.show(text, $wsInput, true);
-
+            if (!isValid) {
                 return false;
             }
 
-            var worksheetIndex = $option.data("worksheet");
+            var table   = gTables[tableNum];
+            var wsIndex = $option.data("worksheet");
 
-            WSManager.copyTable(srcTableName, newTableName, worksheetIndex);
+            WSManager.copyTable(table.frontTableName, newTableName, wsIndex);
 
             $wsInput.val("");
             $wsInput.blur();
 
-            $tableNameInput.val(xcHelper.randName(backTableName));
+            $tableNameInput.val(xcHelper.randName(table.backTableName));
             $tableNameInput.blur();
             $menu.hide();
-
-            // return false;
         }
     });
 

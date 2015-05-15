@@ -118,23 +118,28 @@ window.DatastoreForm = (function($, DatastoreForm) {
             event.preventDefault();
             $(this).blur();
 
-            var dsName = jQuery.trim($fileName.val());
-            // check name conflict
-            if (DS.has(dsName)) {
-                var text = "Dataset with the name " +  dsName + 
-                            " already exits. Please choose another name.";
-
-                StatusBox.show(text, $fileName, true);
-                return false;
-            }
-
+            var dsName   = jQuery.trim($fileName.val());
             var dsFormat = formatTranslater[$formatText.val()];
+            // check name conflict
+            var isValid  = xcHelper.validate([
+                {
+                    "$selector": $fileName,
+                    "check"    : DS.has,
+                    "text"     : "Dataset with the name " +  dsName +
+                                 " already exits. Please choose another name.",
+                    "formMode" : true
+                },
+                {
+                    "$selector": $formatText,
+                    "check"    : function() {
+                        return (dsFormat == null);
+                    },
+                    "text"     : "No file format is selected," +
+                                 " please choose a file format!"
+                }
+            ]);
 
-            if (!dsFormat) {
-                var text = "No file format is selected," + 
-                            " please choose a file format!";
-
-                StatusBox.show(text, $formatText);
+            if (!isValid) {
                 return false;
             }
 
@@ -1137,11 +1142,12 @@ window.DataSampleTable = (function($, DataSampleTable) {
     // rename column
     function renameColumn($input) {
         var newColName = $.trim($input.val());
+        var isValid    = xcHelper.validate({  // check validation
+            "$selector": $input,
+            "formMode" : true
+        })
 
-        // check validation
-        if (newColName == "") {
-            var text = "Name is empty, please enter a valid name!";
-            StatusBox.show(text, $input, true);
+        if (!isValid) {
             return;
         }
 
@@ -1153,39 +1159,50 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var dsName     = $table.data("dsname");
 
         $input.blur();
-
+        // in this case, no need to have thrift call
         if (newColName === oldColName) {
             $menu.hide();
             return;
         }
+        // check name conflict
+        isValid = xcHelper.validate({
+            "$selector": $input,
+            "check"    : function() {
+                var $headers = $table.find(".editableHead");
+                return (ColManager.checkColDup($headers, $input));
+            },
+            "noWarn"   : true
+        });
 
-        if (!ColManager.checkColDup($table.find(".editableHead"), $input)) {
-            console.log("Renaming", oldColName, "to", newColName);
-
-            $menu.hide();
-            XcalarEditColumn(dsName, oldColName, 
-                             newColName, DfFieldTypeT.DfString)
-            .then(function() {
-                // update column name
-                $headInput.val(newColName);
-                $th.attr("title", newColName);
-                $("#selectedTable-" + dsName)
-                    .find("li[data-colnum=" + colNum + "] .colName")
-                    .text(newColName);
-
-                // add sql
-                SQL.add("Rename dataset column", {
-                    "operation" : "renameDatasetCol",
-                    "dsName"    : dsName,
-                    "colNum"    : colNum + 1,
-                    "oldColName": oldColName,
-                    "newColName": newColName }
-                );
-            })
-            .fail(function(error){
-                Alert.error(error);
-            });
+        if (!isValid) {
+            return;
         }
+
+        console.log("Renaming", oldColName, "to", newColName);
+
+        $menu.hide();
+        XcalarEditColumn(dsName, oldColName, 
+                         newColName, DfFieldTypeT.DfString)
+        .then(function() {
+            // update column name
+            $headInput.val(newColName);
+            $th.attr("title", newColName);
+            $("#selectedTable-" + dsName)
+                .find("li[data-colnum=" + colNum + "] .colName")
+                .text(newColName);
+
+            // add sql
+            SQL.add("Rename dataset column", {
+                "operation" : "renameDatasetCol",
+                "dsName"    : dsName,
+                "colNum"    : colNum + 1,
+                "oldColName": oldColName,
+                "newColName": newColName }
+            );
+        })
+        .fail(function(error){
+            Alert.error(error);
+        });
     }
     // change col type
     function changeColumnType($typeList) {

@@ -49,15 +49,19 @@ function DSObj(id, name, parentId, isFolder, attrs) {
 * @return {DSObj} this
 */
 DSObj.prototype.rename = function(newName) {
-    var parent = DS.getDSObj(this.parentId);
+    var self    = this;
+    var parent  = DS.getDSObj(self.parentId);
     //check name confliction
-    if (parent.checkNameConflict(this.id, newName, this.isFolder)) {
-        var msg = 'Folder "' + newName + 
-                '" already exists, please use another name!';
-        var $grid = DS.getGrid(this.id);
-        // alert invalid name
-        StatusBox.show(msg, $grid);
-    } else {
+    var isValid = xcHelper.validate({
+        "$selector": DS.getGrid(self.id),
+        "check"    : function() {
+            return (parent.checkNameConflict(self.id, newName, self.isFolder));
+        },
+        "text"     : 'Folder "' + newName + 
+                     '" already exists, please use another name!'
+    });
+
+    if (isValid) {
         this.name = newName;
         // commitToStorage();
     }
