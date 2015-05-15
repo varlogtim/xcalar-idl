@@ -306,8 +306,10 @@
             </div>
             <div id="fileNameSelector" class="importFormRow">
               <label>File Name:</label>
-              <input type="text" name="fileName" id="fileName"
-               autocomplete="on" placeholder="Enter Dataset Name" required>
+              <input id="fileName" name="fileName" type="text" 
+               placeholder="Enter Dataset Name" autocomplete="on" 
+               pattern="^\w+$" 
+               title="A valid name with no special characters" required>
               <div id="fileFormat">
                 <div id="fileFormatList" class="listSection">
                   <input class="text hint" type="text" value="Select Format"
