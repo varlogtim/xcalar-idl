@@ -1,29 +1,35 @@
 window.xcFunction = (function ($, xcFunction) {
-    xcFunction.checkSorted = function(tableNum, index) {
-        var deferred = jQuery.Deferred();
-        var tableName = gTables[tableNum].backTableName;
+    xcFunction.checkSorted = function(tableNum) {
+        var deferred  = jQuery.Deferred();
+        // XXX for general case, the two names should be the same for 
+        // data set sample table
+        var frontName = gTables[tableNum].frontTableName
+        var srcName   = gTables[tableNum].backTableName;
+
         if (gTables[tableNum].isTable) {
-            deferred.resolve(tableName);
+            deferred.resolve(srcName);
         } else {
-            var datasetName = gTableIndicesLookup[tableName].datasetName;
+            var datasetName = gTableIndicesLookup[frontName].datasetName;
             var resultSetId = gTables[tableNum].resultSetId;
 
             XcalarSetFree(resultSetId)
             .then(function() {
                 // XXX maybe later we shall change it to delete and refresh
-                gTableIndicesLookup[tableName].datasetName = undefined;
-                gTableIndicesLookup[tableName].isTable = true;
-                return (XcalarIndexFromDataset(datasetName, "recordNum", tableName));
+                gTableIndicesLookup[frontName].datasetName = undefined;
+                gTableIndicesLookup[frontName].isTable = true;
+
+                return (XcalarIndexFromDataset(datasetName, "recordNum", 
+                                              srcName));
             })
             .then(function() {
                 gTables[tableNum].isTable = true;
 
-                return (getResultSet(true, tableName));
+                return (getResultSet(true, srcName));
             })
             .then(function(resultSet) {
                 gTables[tableNum].resultSetId = resultSet.resultSetId;
 
-                deferred.resolve(tableName);
+                deferred.resolve(srcName);
             });
         }
         return (deferred.promise());
@@ -40,7 +46,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         StatusMessage.show(msg);
 
-        xcFunction.checkSorted(tableNum, colNum)
+        xcFunction.checkSorted(tableNum)
         .then(function(srcName) {
             return (XcalarFilter(operator, value, backColName, 
                                  srcName, newTableName));
@@ -84,14 +90,14 @@ window.xcFunction = (function ($, xcFunction) {
         }
 
         var frontColName = pCol.name;
-        var backColName = pCol.func.args[0];
-        var msg     = StatusMessageTStr.Aggregate + " " + aggrOp + " " + 
-                        StatusMessageTStr.OnColumn + ": " + frontColName;
+        var backColName  = pCol.func.args[0];
+        var msg          = StatusMessageTStr.Aggregate + " " + aggrOp + " " + 
+                           StatusMessageTStr.OnColumn + ": " + frontColName;
 
         StatusMessage.show(msg);
         showWaitCursor();
 
-        xcFunction.checkSorted(tableNum, colNum)
+        xcFunction.checkSorted(tableNum)
         .then(function(srcName) {
             return (XcalarAggregate(backColName, srcName, aggrOp));
         })
@@ -297,14 +303,14 @@ window.xcFunction = (function ($, xcFunction) {
 
     // group by on a column
     xcFunction.groupBy = function (colNum, tableNum, newColName, operator) {
-        var table        = gTables[tableNum];
-        var frontName    = table.frontTableName;
-        var srcName      = table.backTableName;
+        var table          = gTables[tableNum];
+        var frontName      = table.frontTableName;
+        var srcName        = table.backTableName;
         var frontFieldName = table.tableCols[colNum - 1].name;
-        var backFieldName = table.tableCols[colNum - 1].func.args[0];
-        var newTableName = xcHelper.randName("tempGroupByTable-");
+        var backFieldName  = table.tableCols[colNum - 1].func.args[0];
+        var newTableName   = xcHelper.randName("tempGroupByTable-");
 
-        var msg          = StatusMessageTStr.GroupBy + " " + operator;
+        var msg            = StatusMessageTStr.GroupBy + " " + operator;
 
         StatusMessage.show(msg);
         
@@ -327,6 +333,7 @@ window.xcFunction = (function ($, xcFunction) {
                 "newTableName"  : newTableName,
                 "newColumnName" : newColName
             });
+
             StatusMessage.success(msg);
             commitToStorage();
         })
@@ -353,7 +360,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         StatusMessage.show(msg);
 
-        xcFunction.checkSorted(tableNum, colNum)
+        xcFunction.checkSorted(tableNum)
         .then(function(srcName) {
             return (XcalarMap(fieldName, mapString, srcName, newTableName));
         })
@@ -385,6 +392,52 @@ window.xcFunction = (function ($, xcFunction) {
         });
 
         return (deferred.promise());
+    }
+    // export table
+    xcFunction.exportTable = function(tableNum) {
+        var frontName = gTables[tableNum].frontTableName;
+        var retName   = $(".retTitle:disabled").val();
+
+        if (!retName || retName == "") {
+            retName = "testing";
+        }
+
+        var fileName  = retName + ".csv";
+        var msg       = StatusMessageTStr.ExportTable + ": " + frontName;
+
+        StatusMessage.show(msg);
+
+        xcFunction.checkSorted(tableNum)
+        .then(function(srcName) {
+            return (XcalarExport(srcName, fileName));
+        })
+        .then(function() {
+            var location = hostname + ":/var/tmp/xcalar/" + fileName;
+            // add sql
+            SQL.add("Export Table", {
+                "operation": "exportTable",
+                "tableName": frontName,
+                "fileName" : fileName,
+                "filePath" : location
+            });
+
+            var title = "Successful Export";
+            var ins   = "Widget location: " +
+                        "http://schrodinger/dogfood/widget/main.html?"+
+                        "rid=" + retName;
+            var msg   = "File location: " + location;
+
+            Alert.show({'title'  : title, 'msg'       :msg, 'instr': ins,
+                        'isAlert': true,  'isCheckBox':true });
+            StatusMessage.success(msg);
+        })
+        .fail(function(error) {
+            Alert.error("Export Table Fails", error);
+            StatusMessage.fail(StatusMessageTStr.ExportFailed, msg);
+        })
+        .always(function() {
+            // removeWaitCursor();
+        });
     }
 
     function getIndexedTable(srcName, fieldName, newTableName, isTable) {

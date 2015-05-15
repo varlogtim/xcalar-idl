@@ -753,49 +753,11 @@ function createTableHeader(tableNum) {
     });
 
     $tableMenu.on('click', '.exportTable', function() {
-        var $menu = $(this).closest('.tableMenu');
+        var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
-        var tableName = gTables[tableNum].frontTableName;
 
         $menu.hide();
-        
-        var retName = $(".retTitle:disabled").val();
-        if (!retName || retName == "") {
-            retName = "testing";
-        }
-
-        var fileName = retName + ".csv";
-        var msg = StatusMessageTStr.ExportTable + ": " + tableName;
-
-        StatusMessage.show(msg);
-        
-        XcalarExport(tableName, fileName)
-        .then(function() {
-            // add sql
-            SQL.add("Export Table", {
-                "operation": "exportTable",
-                "tableName": tableName,
-                "fileName": fileName
-            });
-
-            var title = "Successful Export";
-            var ins = "Widget location: " + 
-                      "http://schrodinger/dogfood/widget/main.html?"+
-                      "rid=" + retName;
-            var msg = "File location: " + hostname + ":/var/tmp/xcalar/" + 
-                      retName + ".csv";
-
-            Alert.show({'title':title, 'msg':msg, 'instr': ins,
-                        'isAlert':true, 'isCheckBox':true});
-            StatusMessage.success(msg);
-        })
-        .fail(function(error) {
-            Alert.error("Export Table Fails", error);
-            StatusMessage.fail(StatusMessageTStr.ExportFailed, msg);
-        })
-        .always(function() {
-            // removeWaitCursor();
-        });
+        xcFunction.exportTable(tableNum)
     });
 
     $tableMenu.on('click', '.delAllDuplicateCols', function() {

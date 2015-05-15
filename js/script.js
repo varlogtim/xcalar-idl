@@ -411,6 +411,7 @@ function documentReadyxcTableFunction() {
 function documentReadyGeneralFunction() {
     window.onbeforeunload = function() {
         KVStore.release();
+        sleep("500ms");
         freeAllResultSets();
         sleep("500ms");
         return;
