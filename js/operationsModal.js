@@ -98,6 +98,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $('#modalBackground').fadeOut(time);
             
             $('.modalHighlighted').removeClass('modalHighlighted');
+            $functionInput.attr('placeholder', "");
             clearInput(0);
             $(document).mousedown(); // hides any error boxes;
             $('#highlightOffset').remove();
