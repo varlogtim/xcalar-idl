@@ -1641,6 +1641,7 @@ ul.inputMenu {
 
 .tooltip.error {
     opacity: 1 !important;
+    display: block !important;
         
     .tooltip-inner, .tooltip-arrow {
         color: #4d4d4d;
@@ -1656,5 +1657,14 @@ ul.inputMenu {
         background-color: white;
         border: 1px solid @color-error-border;
         box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2);
+    }
+}
+
+body.tooltipOff {
+    .tooltip {
+        display: none !important;
+        &.error {
+            display: block !important;
+        }
     }
 }

@@ -496,6 +496,18 @@ window.RightSideBar = (function($, RightSideBar) {
                 location.reload();
             });
         });
+
+        $('#helpOnOff').click(function() {
+            toggleRefresh($(this));
+        });
+
+        function toggleRefresh($target) {
+            if ($target.hasClass('off')) {
+                HelpController.tooltipOn();
+            } else {
+                HelpController.tooltipOff();
+            }
+        }
     }
 
     function addBulkTableHelper() {
@@ -871,4 +883,24 @@ window.LineMarker = (function($, LineMarker) {
     }
 
     return (LineMarker);
+}(jQuery, {}));
+
+window.HelpController = (function($, HelpController){
+
+    HelpController.tooltipOff = function() {
+        $('body').addClass('tooltipOff');
+        $('#helpOnOff').addClass('off');
+    };
+
+    HelpController.tooltipOn = function() {
+        $('body').removeClass('tooltipOff');
+        $('#helpOnOff').removeClass('off');
+    };
+
+    HelpController.isOff = function() {
+        return ($('body').hasClass('tooltipOff'));
+    }
+
+    return (HelpController);
+
 }(jQuery, {}));

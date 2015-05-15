@@ -105,7 +105,8 @@ function commitToStorage(atStartup) {
                 "holdStatus": KVStore.isHold(),
                 "sql": SQL.getHistory(),
                 "scratchPad": scratchPadText,
-                "datacarts": DataCart.getCarts()
+                "datacarts": DataCart.getCarts(),
+                "helpStatusOff" : HelpController.isOff()
             };
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
@@ -151,6 +152,9 @@ function readFromStorage() {
             }
             if (gInfos["datacarts"]) {
                 DataCart.restore(gInfos["datacarts"]);
+            }
+            if (gInfos["helpStatusOff"]) {
+                HelpController.tooltipOff();
             }
         } else {
             emptyAllStorage(true);

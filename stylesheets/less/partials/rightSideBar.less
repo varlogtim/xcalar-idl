@@ -902,9 +902,22 @@
     }
 }
 
-#helpOnOff {
-    margin: auto;
-    .background("/images/help-on.png", 218px, 65px);
+.helpOnOffWrap {
+    .size(@width: 182px, @height: 65px);
+    margin: 0 auto;
+    padding-top: 25px;
+    white-space: nowrap;
+    .onOffBtn {
+        display: block;
+        margin: 0;
+        margin-right: 10px;
+        float: left;
+    }
+    > .text {
+        display: inline-block;
+        .font(@weight: 700);
+        line-height: 32px;
+    }
 }
 #pulloutTab {
     .position(absolute, @bottom: 0, @left: -9px);

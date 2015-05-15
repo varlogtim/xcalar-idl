@@ -4,11 +4,11 @@ window.MonitorPanel = (function($, MonitorPanel) {
         populateNodeInformation()
 
         $('#refreshGraph').click(function() {
-            toggleRefresh();
+            toggleRefresh($('#refreshBtn'));
         });
 
         $('#refreshBtn').click(function() {
-            toggleRefresh();
+            toggleRefresh($(this));
         });
 
         $('.statsHeadingBar').click(function() {
@@ -25,13 +25,12 @@ window.MonitorPanel = (function($, MonitorPanel) {
             }
         });
 
-        function toggleRefresh() {
-            var $refreshBtn = $('#refreshBtn');
-            if ($refreshBtn.hasClass('off')) {
-                $refreshBtn.removeClass('off');
+        function toggleRefresh($target) {
+            if ($target.hasClass('off')) {
+                $target.removeClass('off');
                 turnOnAutoRefresh();
             } else {
-                $refreshBtn.addClass('off');
+                $target.addClass('off');
                 clearInterval(graphInterval);
             }
         }
