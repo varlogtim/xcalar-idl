@@ -1,11 +1,11 @@
 window.WSManager = (function($, WSManager) {
-    var worksheets = [];
-    var tabLookUp = {}; // use it to find worksheet tab from table name
-    var wsNameLookUp = {};
+    var worksheets     = [];
+    var tabLookUp      = {}; // use it to find worksheet tab from table name
+    var wsNameLookUp   = {}; // find wsIndex by name
     var activeWorsheet = 0;
-
-    var defaultName = "Sheet ";
-    var nameSuffix = 1;
+    // var for name worksheet automatically
+    var defaultName    = "Sheet ";
+    var nameSuffix     = 1;
 
     var $workSheetTabSection = $("#worksheetTabs");
 
@@ -126,13 +126,19 @@ window.WSManager = (function($, WSManager) {
     WSManager.copyTable = function(srcTableName, newTableName, wsIndex) {
         var tableNum = gTables.length;
         // do a deep copy
-        var srcTable = gTableIndicesLookup[srcTableName];
+        var srcTable  = gTableIndicesLookup[srcTableName];
         var tableCopy = JSON.parse(JSON.stringify(srcTable));
 
         activeWorsheet = wsIndex;
-        gTableIndicesLookup[newTableName] = tableCopy;
+        // XXX for sample table, should sync frontName with backName since
+        // there both src sample and the copied can change to real table using
+        // its backTableName
+        if (!tableCopy.isTable) {
+            gTableIndicesLookup[newTableName] = tableCopy;
+            tableCopy.backTableName  = newTableName;
+        }
 
-        addTable(srcTable.backTableName, tableNum, 
+        addTable(tableCopy.backTableName, tableNum, 
                  AfterStartup.After, undefined, newTableName)
         .then(function() {
             WSManager.focusOnWorksheet(wsIndex, false, tableNum);
