@@ -1,13 +1,19 @@
 window.Alert = (function($, Alert){
     var $alertModal       = $("#alertModal");
     var $modalBackground  = $("#modalBackground");
-    var $newBtns          = [];
-    var $dataList         = $("#alertlist");
-    var $alertOptionLabel = $("#alertOptionLabel");
+
     var $alertOptionInput = $("#alertOptionInput");
+    var $btnSection       = $("#alertActions");
 
     var modalHelper       = new xcHelper.Modal($alertModal, 
                                                {"focusOnOpen": true});
+
+    Alert.setup = function() {
+        $alertModal.draggable({
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing"
+        });
+    }
 
     Alert.show = function(options) {
        /* options includes:
@@ -16,7 +22,15 @@ window.Alert = (function($, Alert){
             msg: alert cnotent
             isAlert: if it is an alert or a confirm
             isCheckBox: if checkbox is enabled  or disabled
-            confirm: callback when click confirm button
+            unclosable: if set true, will on close the modal when close
+            optList: an object to setup datalist in alert modal, it contains:
+                label: label to show
+                list: options in the datalist
+            buttons: buttons to show instead of confirm buttonm which contains:
+                name: name of the button
+                className: class of the button
+                func: callback to trigger when click
+            confirm: callback to trigger when click confirm button
         */
         configAlertModal(options);
 
@@ -29,33 +43,30 @@ window.Alert = (function($, Alert){
     }
 
     Alert.error = function(title, error, unclosable) {
-        var options = {};
         var type = typeof error;
+        var msg;
 
-        options.title = title;
-        if (type === "object" && error.error) {
-            options.msg = error.error;
+        if (type === "object") {
+            msg = error.error || "Error Occurred!";
         } else {
-            options.msg = error;
+            msg = error;
         }
-        options.isAlert = true;
-        options.unclosable = unclosable;
-        Alert.show(options);
+
+        Alert.show({
+            "title"     : title,
+            "msg"       : msg,
+            "isAlert"   : true,
+            "unclosable": unclosable
+        });
     }
 
     Alert.getOptionVal = function() {
         var val = $alertOptionInput.val();
-
         return (jQuery.trim(val));
     }
 
     function closeAlertModal() {
-        $newBtns.forEach(function($btn) {
-            $btn.remove();
-        });
-        $newBtns = [];
-        $dataList.empty();
-        $alertOptionLabel.empty();
+        $btnSection.find(".funcBtn").remove();
         // remove all event listener
         $alertModal.off();
         $alertModal.hide();
@@ -71,95 +82,84 @@ window.Alert = (function($, Alert){
     /* Cheng: how alertModal behaves when checkbox is checbox to "don't show again" 
         may need further discussion */
     function configAlertModal(options) {
-        var $alertHeader = $("#alertHeader");
+        options = options || {};
+        // set title
+        var title = options.title || "Warning";
+        $("#alertHeader").find(".text").text(title);
+
+        // set alert message
+        var msg           = options.msg || "";
         var $alertContent = $("#alertContent");
-        var $alretInstruct = $("#alertInstruction");
-        var $alertBtn = $("#alertActions");
+        $alertContent.find(".text").text(msg);
+
+        // set alert instruction
+        var $alretInstr = $("#alertInstruction");
+        if (options.instr) {
+            $alretInstr.find(".text").text(options.instr);
+            $alretInstr.show();
+        } else {
+            $alretInstr.hide();
+        }
+
+        // set checkbox,  default is unchecked
         var $checkbox = $("#alertCheckBox");
-        var $confirmBtn = $alertBtn.find(".confirm");
-        var $contentOptions = $alertContent.find(".options");
+        $checkbox.find(".checkbox").removeClass("checked");
+        $checkbox.addClass("inactive"); // now make it disabled
+        if (options.isCheckBox) {
+             $alertModal.on("click", ".checkbox", function(event) {
+                event.stopPropagation();
+                $(this).toggleClass("checked");
+            });
+            $checkbox.show();
+        } else {
+            $checkbox.hide();
+        }
+
+        // set option list
+        var $optionSection = $alertContent.find(".options");
+        $alertOptionInput.val("");
+        if (options.optList) {
+            $("#alertlist").empty().append(options.optList.list);
+            $("#alertOptionLabel").text(options.optList.label);
+            $optionSection.show();
+        } else {
+            $optionSection.hide();
+        }
 
         // close alert modal
         $alertModal.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
-            if (options && options.unclosable) {
+            if (options.unclosable) {
                 return;
             }
             closeAlertModal();
 
-            if (options && options.cancel) {
+            if (options.cancel) {
                 options.cancel();
             }
         });
-        // check box, default is unchecked
-        $checkbox.find(".checkbox").removeClass("checked");
-        $checkbox.addClass("inactive"); // now make it disabled
 
-        $contentOptions.hide();
-        $confirmBtn.hide();
+        // set confirm button
+        var $confirmBtn = $btnSection.find(".confirm");
+        if (!options.isAlert) {
+            if (options.buttons) {
+                $confirmBtn.hide();
+                options.buttons.forEach(function(btnOption) {
+                    var className = btnOption.className + " funcBtn";
+                    var $btn      = $confirmBtn.clone();
 
-        $alertOptionInput.val("");
-        // set all given options
-        if (options) {
-            // set title
-            if (options.title) {
-                $alertHeader.find(".text").text(options.title);
-            } else {
-                $alertHeader.find(".text").text("");
-            }
-            // set alert message
-            if (options.msg) {
-                $alertContent.find(".text").text(options.msg);
-            } else {
-                $alertContent.find(".text").text("");
-            }
-
-            if (options.optList) {
-                $dataList.append(options.optList.option);
-                $alertOptionLabel.text(options.optList.label);
-                $contentOptions.show();
-            }
-            // set alert instruction
-            if (options.instr) {
-                $alretInstruct.find(".text").text(options.instr);
-                $alretInstruct.show();
-            } else {
-                $alretInstruct.hide();
-            }
-            // set checkbox
-            if (options.isCheckBox) {
-                 $alertModal.on("click", ".checkbox", function(event) {
-                    event.stopPropagation();
-                    $(this).toggleClass("checked");
-                });
-                $checkbox.show();
-            } else {
-                $checkbox.hide();
-            }
-            // set confirm button
-            if (!options.isAlert) {
-
-                if (options.buttons) {
-
-                    options.buttons.forEach(function(btnOption) {
-                        var className = btnOption.className;
-                        var $btn = $confirmBtn.clone();
-
-                        $newBtns.push($btn);
-                        $alertBtn.prepend($btn);
-                        $btn.show();
-                        $btn.text(btnOption.name);
-                        $btn.addClass(className);
-                        $btn.click(function(event) {
-                            event.stopPropagation();
-                            closeAlertModal();
-                            btnOption.func();
-                        });
+                    $btnSection.prepend($btn);
+                    $btn.show();
+                    $btn.text(btnOption.name);
+                    $btn.addClass(className);
+                    $btn.click(function (event) {
+                        event.stopPropagation();
+                        closeAlertModal();
+                        btnOption.func();
                     });
-
-                    return;
-                }
-
+                });
+                return;
+            } else {
                 $confirmBtn.show();
                 $alertModal.on("click", ".confirm", function(event) {
                     event.stopPropagation();
@@ -169,6 +169,8 @@ window.Alert = (function($, Alert){
                     }
                 });
             }
+        } else {
+            $confirmBtn.hide();
         }
     }
 

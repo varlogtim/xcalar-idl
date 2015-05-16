@@ -700,6 +700,7 @@ function documentReadyIndexFunction() {
         .then(initializeTable)
         .then(function() {
             RightSideBar.initialize();
+            Alert.setup();
             JoinModal.setup();
             AggModal.setup();
             OperationsModal.setup();

@@ -531,11 +531,11 @@ window.RightSideBar = (function($, RightSideBar) {
             $clone.css({"z-index": "initial"});
 
             Alert.show({
-                "title": "SEND TO WORKSHEET",
-                "instr": instr,
+                "title"  : "SEND TO WORKSHEET",
+                "instr"  : instr,
                 "optList": {
-                    "option": WSManager.getWorksheetLists(true),
-                    "label": "Worksheet to send: "
+                    "label": "Worksheet to send:",
+                    "list" : WSManager.getWorksheetLists(true),
                 },
                 "confirm": function() {
                     $noSheetTables.removeClass("highlight");
@@ -550,7 +550,6 @@ window.RightSideBar = (function($, RightSideBar) {
                     } else {
                         $noSheetTables.each(function() {
                             var tableName = $(this).data("tablename");
-
                             WSManager.addTable(tableName, wsIndex);
                         });
 
