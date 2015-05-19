@@ -18,7 +18,7 @@ window.ColManager = (function($, ColManager) {
             this.func      = {};
             this.width     = 0;
             this.userStr   = "";
-            this.isDark    = true;
+            this.isNewCol    = true;
             this.textAlign = "Center";
         };
     }
@@ -34,7 +34,7 @@ window.ColManager = (function($, ColManager) {
                 "func":  "raw",
                 "args": []
             },
-            "isDark"  : false
+            "isNewCol"  : false
         });
 
         return (progCol);
@@ -56,7 +56,7 @@ window.ColManager = (function($, ColManager) {
                 "func":  "pull",
                 "args": [keyName]
             },
-            "isDark"  : false
+            "isNewCol"  : false
         });
 
         insertColHelper(0, tableNum, newProgCol);
@@ -79,7 +79,7 @@ window.ColManager = (function($, ColManager) {
         var options     = options || {};
         var width       = options.width || gNewCellWidth;
         var resize      = options.resize || false;
-        var isDark      = options.isDark || false;
+        var isNewCol    = options.isNewCol || false;
         var select      = options.select || false;
         var inFocus     = options.inFocus || false;
         var newProgCol  = options.progCol;
@@ -104,7 +104,7 @@ window.ColManager = (function($, ColManager) {
         if (select) {
             color = " selectedCell";
             $('.selectedCell').removeClass('selectedCell');
-        } else if (isDark) {
+        } else if (isNewCol) {
             color = " unusedCell";
         } else {
             color = "";
@@ -118,7 +118,7 @@ window.ColManager = (function($, ColManager) {
                 "name"    : name,
                 "width"   : width,
                 "userStr" : '"' + name + '" = ',
-                "isDark"  : isDark
+                "isNewCol"  : isNewCol
             });
 
             insertColHelper(newColid - 1, tableNum, newProgCol);
@@ -214,8 +214,8 @@ window.ColManager = (function($, ColManager) {
                         numberOfRows = args.numberOfRows;
                     }
                 }
-                if (progCol.isDark) {
-                    progCol.isDark = false;
+                if (progCol.isNewCol) {
+                    progCol.isNewCol = false;
                 }
 
                 pullColHelper(progCol.func.args[0], progCol.index,
@@ -242,7 +242,7 @@ window.ColManager = (function($, ColManager) {
                 progCol.func.func    = "pull";
                 progCol.func.args[0] = fieldName;
                 progCol.func.args.splice(1, progCol.func.args.length - 1);
-                progCol.isDark       = false;
+                progCol.isNewCol       = false;
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
 

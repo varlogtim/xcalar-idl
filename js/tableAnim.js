@@ -1172,7 +1172,7 @@ function addColMenuActions($colMenu, $thead) {
         $colMenu.hide();
 
         ColManager.addCol(index, tableId, null, 
-                         {direction: direction, isDark: true, inFocus: true});
+                         {direction: direction, isNewCol: true, inFocus: true});
 
         SQL.add("Add Column", sqlOptions);
     })
@@ -1205,10 +1205,10 @@ function addColMenuActions($colMenu, $thead) {
         var table = $('#xcTable'+tableNum);
         var name = table.find('.editableHead.col'+index).val();
         var width = table.find('th.col'+index).outerWidth();
-        var isDark = table.find('th.col'+index).hasClass('unusedCell');
+        var isNewCol = table.find('th.col'+index).hasClass('unusedCell');
 
         ColManager.addCol('col'+index, table.attr('id'),name, 
-                          {width: width, isDark: isDark});
+                          {width: width, isNewCol: isNewCol});
         // add sql
         SQL.add("Duplicate Column", {
             "operation": "duplicateCol",
@@ -1252,6 +1252,45 @@ function addColMenuActions($colMenu, $thead) {
         ColManager.textAlign(colNum, tableNum, $(this).attr("class")); 
     });
 
+    /// added back in
+    $colMenu.on('click', '.sort .sort', function() {
+        var index = $colMenu.data('colNum');
+        var tableNum = parseInt($colMenu.attr('id').substring(7));
+        xcFunction.sort(index, tableNum, SortDirection.Forward);
+    }); 
+    
+    $colMenu.on('click', '.sort .revSort', function() {
+        var index = $colMenu.data('colNum');
+        var tableNum = parseInt($colMenu.attr('id').substring(7));
+        xcFunction.sort(index, tableNum, SortDirection.Backward);
+    }); 
+    
+    // $colMenu.on('click', '.aggrOp', function() {
+    //     var index = $colMenu.data('colNum');
+    //     var tableNum = parseInt($colMenu.attr('id').substring(7));
+    //     var pCol = gTables[tableNum].tableCols[index-1];
+    //     if (pCol.func.func != "pull") {
+    //         console.log(pCol);
+    //         alert("Cannot aggregate on column that does not exist in DATA.");
+    //         return;
+    //     }
+    //     console.log(index, pCol);
+    //     var colName = pCol.func.args[0];
+    //     var aggrOp = $(this).closest('.aggrOp').text();
+    //     console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
+    //     var msg = StatusMessageTStr.Aggregate+' '+aggrOp+' '+
+    //                     StatusMessageTStr.OnColumn+': ' + colName;
+    //     StatusMessage.show(msg);
+
+    //     checkSorted(tableNum, index)
+    //     .then(function(tableName) {
+    //         aggregateCol(aggrOp, colName, tableName, msg);
+    //     });
+
+    // });
+
+    // // added back in
+
     $colMenu.on('click', '.joinList', function() {
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var colNum   = $colMenu.data('colNum');
@@ -1259,15 +1298,21 @@ function addColMenuActions($colMenu, $thead) {
         JoinModal.show(tableNum, colNum);
     });
 
-    $colMenu.on('click', '.operations', function() {
+    $colMenu.on('click', '.functions', function() {
         var colNum = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
-        OperationsModal.show(tableNum, colNum);
+        var func = $(this).text().replace(/\./g,'');
+        OperationsModal.show(tableNum, colNum, func);
     });
+
+    // $colMenu.on('click', '.operations', function() {
+    //     var colNum = $colMenu.data('colNum');
+    //     var tableNum = parseInt($colMenu.attr('id').substring(7));
+    //     OperationsModal.show(tableNum, colNum);
+    // });
 }
 
-function formulateMapString(operator, columnName, value,
-                            switched) {
+function formulateMapString(operator, columnName, value) {
     console.log(arguments);
     var mapString = '=map(';
     switch (operator) {
@@ -1295,11 +1340,7 @@ function formulateMapString(operator, columnName, value,
     default:
         console.log(operator+" not found!");
     }
-    if (switched) {
-        mapString += value+", "+columnName;
-    } else {
-        mapString += columnName+", "+value;
-    }
+    mapString += columnName+", "+value;
     mapString += "))";
     return (mapString);
 }

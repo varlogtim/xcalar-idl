@@ -8,6 +8,8 @@ window.OperationsModal = (function($, OperationsModal) {
     var tableNum = "";
     var colName = "";
     var backColName = "";
+    var operatorName = "";
+    var operatorNoSpace = operatorName.replace(/\s+/g, ''); // remove spaces;
 
     var modalHelper = new xcHelper.Modal($operationsModal);
 
@@ -68,10 +70,17 @@ window.OperationsModal = (function($, OperationsModal) {
             enterInput(index);
         });
 
-        $operationsModal.find('.clearInput').on('click', function() {
-            var index = $operationsModal.find('.clearInput').index($(this));
-            clearInput(index);
-            $autocompleteInputs.eq(index).focus();
+        // $operationsModal.find('.clearInput').on('click', function() {
+        //     var index = $operationsModal.find('.clearInput').index($(this));
+        //     clearInput(index);
+        //     $autocompleteInputs.eq(index).focus();
+        // });
+        
+        $operationsModal.find('.dropdown').on('click', function() {
+            // console.log($(this).siblings('.list'));
+            var $list = $(this).siblings('.list');
+            $list.show();
+            $list.children().show();
         });
 
         var $argumentInputs = $operationsModal.find('.argumentSection input');
@@ -94,16 +103,19 @@ window.OperationsModal = (function($, OperationsModal) {
             } else {
                 var time = 0;
             }
-            $operationsModal.fadeOut(time); 
-            $('#modalBackground').fadeOut(time);
+            $operationsModal.fadeOut(time, function() {
+                clearInput(0);
+                modalHelper.clear();
+            }); 
+            $('#modalBackground').removeClass('light').fadeOut(time);
             
             $('.modalHighlighted').removeClass('modalHighlighted');
             $functionInput.attr('placeholder', "");
-            clearInput(0);
+            
             $(document).mousedown(); // hides any error boxes;
             $('#highlightOffset').remove();
             $(window).off('resize', moveHighlightedColumn);
-             modalHelper.clear();
+             
         });
 
         $operationsModal.on('click', function() {
@@ -125,28 +137,40 @@ window.OperationsModal = (function($, OperationsModal) {
         });
     }
 
-    OperationsModal.show = function(newTableNum, newColNum) {
+    OperationsModal.show = function(newTableNum, newColNum, operator) {
         tableNum = newTableNum;
         colNum = newColNum;
         colName = gTables[tableNum].tableCols[colNum-1].name;
-        backColName = gTables[tableNum].tableCols[colNum-1].func.args[0];
+        if (gTables[tableNum].tableCols[colNum-1].func.args) {
+            backColName = gTables[tableNum].tableCols[colNum-1].func.args[0];
+        } else {
+            backColName = gTables[tableNum].tableCols[colNum-1].name;
+        }
+        
 
         centerPositionElement($operationsModal);
         highlightOperationColumn(tableNum, colNum);
         $operationsModal = $('#operationsModal');
         $operationsModal.fadeIn(200);
-        $('#modalBackground').fadeIn(200);
+        $('#modalBackground').addClass('light').fadeIn(200);
+        $operationsModal.find('.operationsModalHeader .text').text(operator);
+        operatorName = $.trim(operator.toLowerCase());
+        operatorNoSpace = operatorName.replace(/\s+/g, ''); // remove spaces;
 
+        
         var colTypes = [gTables[tableNum].tableCols[colNum-1].type];
-       
+        
         if ($('#xcTable'+tableNum).find('th.col'+colNum)
                                   .hasClass('indexedColumn')) {
             colTypes.push('indexed');
         }
-        var classes = $operationsModal.attr('class').split(' ');
 
+        var classes = $operationsModal.attr('class').split(' ');
         for (var i = 0; i < classes.length; i++) {
             if (classes[i].indexOf('type') == 0) {
+                classes.splice(i, 1);
+                i--;
+            }else if (classes[i].indexOf('numArgs') == 0){
                 classes.splice(i, 1);
                 i--;
             }
@@ -158,6 +182,18 @@ window.OperationsModal = (function($, OperationsModal) {
         if (!gTables[tableNum].isTable) {
             $operationsModal.addClass('type-dataset');
         }
+        if (gTables[tableNum].tableCols[colNum-1].isNewCol) {
+            $operationsModal.addClass('type-newColumn');
+        }
+
+        var args = Object.keys(allArgs[operatorName])
+        if (args.length == 1 && 
+            allArgs[operatorName]['defaultArgs'].length == 0) {
+            $operationsModal.addClass('numArgs0');
+        } else if (allArgs[operatorName]['defaultArgs'].length == 3) {
+            $operationsModal.addClass('numArgs3');
+        }
+
 
         modalHelper.setup();
 
@@ -242,8 +278,8 @@ window.OperationsModal = (function($, OperationsModal) {
     function isOperationValid(inputNum) {
         var category = $.trim($categoryInput.val().toLowerCase());
         var categoryNoSpace = category.replace(/\s+/g, ''); // remove spaces;
-        var operation = $.trim($functionInput.val().toLowerCase());
-        var operationNoSpace = operation.replace(/\s+/g, ''); // remove spaces;
+        var func = $.trim($functionInput.val().toLowerCase());
+        var funcNoSpace = func.replace(/\s+/g, ''); // remove spaces;
 
         if (inputNum == 0) {
             if ($operationsModal.find('.'+categoryNoSpace).css('opacity')
@@ -254,11 +290,11 @@ window.OperationsModal = (function($, OperationsModal) {
                 return (categoriesList[category]);
             }
         } else if (inputNum == 1) {
-            if ($operationsModal.find('.'+operationNoSpace).css('opacity')
+            if ($operationsModal.find('.'+funcNoSpace).css('opacity')
                  < 0.2) {
                 return (false);
             } else if (categoriesList[category] 
-                && categoriesList[category].indexOf(operation) > -1) {
+                && functionsList[operatorName].indexOf(func) > -1) {
                 return (true);
             } else {
                 return (false);
@@ -293,9 +329,9 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         $functionsMenu.attr('class', classes.join(' '));
-        $functionsMenu.addClass('category-'+categoryNoSpace);
+        $functionsMenu.addClass('category-'+operatorName);
 
-        if (categoriesList[category]) {
+        if (functionsList[operatorName]) {
             if ($operationsModal.find('.'+categoryNoSpace).css('opacity')
                  < 0.2) {
                 $functionsMenu.empty();
@@ -303,9 +339,9 @@ window.OperationsModal = (function($, OperationsModal) {
             } 
 
             var html = "";
-            var numOptions = categoriesList[category].length;
+            var numOptions = functionsList[operatorName].length;
             for (var i = 0; i < numOptions; i++) {
-                var value = categoriesList[category][i];
+                var value = functionsList[operatorName][i];
                 var classValue = value.replace(/\s+/g, ''); // remove spaces;
                 html += '<li class="'+classValue+'">'+value+'</li>';
             }
@@ -329,11 +365,11 @@ window.OperationsModal = (function($, OperationsModal) {
         var category = $.trim($categoryInput.val().toLowerCase());
         var func = $.trim($functionInput.val().toLowerCase());
 
-        if (allArgs[category]) {
-            if (allArgs[category][func]) {
-                var args = allArgs[category][func];
+        if (allArgs[operatorName]) {
+            if (allArgs[operatorName][func]) {
+                var args = allArgs[operatorName][func];
             } else {
-                var args = allArgs[category]['defaultArgs'];
+                var args = allArgs[operatorName]['defaultArgs'];
             }
             args = JSON.parse(JSON.stringify(args));
 
@@ -343,7 +379,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 delete args[0][""];
             }
 
-            displayArgumentRows(args, category);
+            displayArgumentRows(args);
 
             if (args.length == 0) {
                 $operationsModal.find('.argumentListTitle').hide();
@@ -369,15 +405,19 @@ window.OperationsModal = (function($, OperationsModal) {
         } else {
             var article = 'a';
         }
-        var descriptionOfFunction = "Perform "+article+" " + 
-                                    capitalize(category) + 
+        // var descriptionOfFunction = "Perform "+article+" " + 
+        //                             capitalize(category) + 
+        //                             ": \"<b>" + func +
+        //                             "\"</b> on column: \"<b>" + colName + 
+        //                             "</b>\".";
+        var descriptionOfFunction = "Perform function"+
                                     ": \"<b>" + func +
                                     "\"</b> on column: \"<b>" + colName + 
-                                    "</b>\".";;
+                                    "</b>\".";
         $operationsModal.find('.descriptionText').html(descriptionOfFunction);
     }
 
-    function displayArgumentRows(args, category) {
+    function displayArgumentRows(args) {
         var numArgs = args.length;
         var $rows = $operationsModal.find('.argumentTable tbody tr');
 
@@ -392,7 +432,7 @@ window.OperationsModal = (function($, OperationsModal) {
         for (var i = 0; i < numArgs; i++) {
             for (var description in args[i]) {
                 $rows.eq(i).find('.description').text(capitalize(description)); 
-                if (category == 'filter' 
+                if (operatorName == 'filter' 
                     && $operationsModal.hasClass('type-string')
                     && args[i][description] == 0) {
                     $rows.eq(i).find('input').val('');
@@ -409,7 +449,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var isPassing = false;
         if (!categoriesList[category]) {
             showErrorMessage(0);
-        } else if (categoriesList[category].indexOf(func) == -1) {
+        } else if (functionsList[operatorName].indexOf(func) == -1) {
             showErrorMessage(1);
         } else {
             isPassing = checkArgumentParams();
@@ -421,7 +461,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         func = capitalize(func);
 
-        switch (category) {
+        switch (operatorName) {
             case ('aggregate'):
                 aggregate(func);
                 break;
@@ -433,9 +473,6 @@ window.OperationsModal = (function($, OperationsModal) {
                 break;
             case ('map') :
                 isPassing = map(func);
-                break;
-            case ('sort') :
-                ascSort();
                 break;
             default: 
                 showErrorMessage(0);
@@ -513,7 +550,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function map(operator) {
-        var $nameInput   = $operationsModal.find('.argument').eq(1);
+        var $nameInput   = $operationsModal.find('.argument').eq(2);
         var $theadInputs = $('#xcTable'+tableNum).find('.editableHead');
         var isDuplicate  = ColManager.checkColDup($theadInputs, $nameInput);
 
@@ -521,18 +558,22 @@ window.OperationsModal = (function($, OperationsModal) {
             return (false);
         }
 
-        var $valInput  = $operationsModal.find('.argument').eq(0);
-        var value      = $.trim($valInput.val());
+        var $firstVal  = $operationsModal.find('.argument').eq(0);
+        var firstValue      = $.trim($firstVal.val());
+        var $secondVal  = $operationsModal.find('.argument').eq(1);
+        var secondValue      = $.trim($secondVal.val());
         var newColName = $.trim($nameInput.val());
 
         var switched   = false; // XX we need to enable argument switching;
-        var mapStr     = formulateMapString(operator, backColName,
-                                        value, switched);
+        var mapStr     = formulateMapString(operator, firstValue, secondValue);
 
         console.log(operator);
 
-        ColManager.addCol('col' + colNum, 'xcTable' + tableNum, null, 
-                          {direction: 'L', isDark: true});
+        if (!$operationsModal.hasClass('type-newColumn')) {
+            ColManager.addCol('col' + colNum, 'xcTable' + tableNum, null, 
+                          {direction: 'L', isNewCol: true});
+        }
+        
 
         var $th       = $('#xcTable'+tableNum).find('th.col'+colNum);
         var $colInput = $th.find('.editableHead.col'+colNum);
@@ -555,7 +596,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 }));
     }
 
-    var categoriesList = {
+    var categoriesList = {'all': true};
+
+    var functionsList = {
         'aggregate' : [
                         'average',
                         'count',
@@ -606,21 +649,26 @@ window.OperationsModal = (function($, OperationsModal) {
         'map' : {
                     'defaultArgs' : [
                         {'Value or Column' : 1}, 
+                        {'Value or Column' : 1}, 
                         {'New Column Name' : 'mappedCol'}
                     ], 
                     'sum' : [
+                        {'Value or Column' : 3}, 
                         {'Value or Column' : 3}, 
                         {'New Column Name' : 'mappedCol'}
                     ],
                     'subtract' : [
                         {'Value or Column' : 2}, 
+                        {'Value or Column' : 2}, 
                         {'New Column Name' : 'mappedCol'}
                     ],
                     'multiply' : [
                         {'Value or Column' : 4}, 
+                        {'Value or Column' : 4}, 
                         {'New Column Name' : 'mappedCol'}
                     ],
                     'ip address to integer' : [
+                        {'Value or Column' : 3}, 
                         {'Value or Column' : 3}, 
                         {'Number of Octets' : 'mappedCol'}
                     ]

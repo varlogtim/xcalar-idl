@@ -487,17 +487,38 @@ function generateColDropDown(tableNum) {
                     '<li class="textAlign rightAlign">Right Align</li>'+
                 '</ul>'+
                 '<div class="dropdownBox"></div>'+
-            '</li>';
+            '</li>'+
+            '<li class="sort">Sort'+
+                '<ul class="subColMenu">'+
+                    '<li class="sort">'+ 
+                    '<span class="sortUp"></span>A-Z</li>'+
+                    '<li class="revSort unavailable">'+ 
+                    '<span class="sortDown"></span>Z-A</li>'+
+                    '<div class="subColMenuArea"></div>'+
+                '</ul>'+ 
+                '<div class="dropdownBox"></div>'+
+            '</li>'+
+            '<li class="functions aggregate">Aggregate...</li>'+
+            '<li class="functions filter">Filter...</li>';
+    if (gTables[tableNum].isTable) {
+        dropDownHTML += '<li class="groupby">Group By</li>';
+    } else {
+        dropDownHTML += '<li class="groupby unavailable">Group By</li>';
+    }
+    dropDownHTML +=       
+            '<li class="functions map">Map...</li>'+
+            '<li class="joinList">'+'Join</li>';
+
 
     // XXX: HACK: I removed the check for the main col. Also, I should check for
     // whether the type is a string or a int
-    if (true) { // This check is here so that you don't have to indent in the
-                // in the future. O:D
-        dropDownHTML += 
-            '<li class="joinList">'+'Join</li>'+
-            '<li class="operations">'+'Functions</li>'; 
-                            // '<ul class="subColMenu" id="joinTables">';
-    }
+    // if (true) { // This check is here so that you don't have to indent in the
+    //             // in the future. O:D
+    //     dropDownHTML += 
+    //         '<li class="joinList">'+'Join</li>'+
+    //         '<li class="operations">'+'Functions</li>'; 
+    //                         // '<ul class="subColMenu" id="joinTables">';
+    // }
     // dropDownHTML += '</ul><div class="dropdownBox"></div>'+
     //                 '<div class="subColMenuArea"></div></li>';
     dropDownHTML += '</ul>';

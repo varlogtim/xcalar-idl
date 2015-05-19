@@ -797,26 +797,26 @@ ul.colMenu {
     }
 
     &.type-string, &.type-array {
-        .filterWrap .numFilter, .aggregate {
+        .aggregate {
             display: none;
         }
     }
 
     &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
     &.recordNum, &.childOfArray {
-        .sort, .aggregate, .groupBy, .filterWrap, .joinList, .map, .operations {
+        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations {
             display: none;
         }
     }
 
-    &.type-number {
-        .filterWrap .strFilter {
-            display: none;
+    &.type-newColumn, &.type-undefined {
+        .operations, .map {
+            display: list-item;
         }
     }
 
     &.type-boolean {
-        .aggregate .aggrOp, .gb, .filterWrap .numFilter, .filterWrap .strFilter{
+        .aggregate, .groupby, .filter{
             display: none;
         }
         .gb:first-child, .aggregate .aggrOp:nth-child(4) {
@@ -831,7 +831,7 @@ ul.colMenu {
     }
 
     &.type-data {
-        .sort, .aggregate, .groupBy, .filterWrap, .joinList, .deleteColumn, 
+        .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
         .deleteDuplicates, .duplicate, .renameCol, .map, .operations {
             display: none;
         }

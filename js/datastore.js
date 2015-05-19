@@ -773,6 +773,7 @@ window.DataCart = (function($, DataCart) {
                         "index"   : ++startIndex,
                         "name"    : colname,
                         "width"   : gNewCellWidth,
+                        "isNewCol"  : false,
                         "userStr" : '"'+colname+'" = pull('+escapedName+')',
                         "func"    : {
                             "func": "pull",

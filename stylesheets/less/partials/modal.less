@@ -114,6 +114,9 @@
     opacity: 0.6;
     display: none;
     z-index: 35;
+    &.light {
+        opacity: 0.25;
+    }
 }
 
 
@@ -1370,7 +1373,7 @@
 }
 
 #operationsModal {
-    .modalBuilder(720px, 476px); 
+    .modalBuilder(720px, 480px); 
     margin: 0 !important;
 
     .modalHeader {
@@ -1396,7 +1399,7 @@
             text-transform: capitalize;
         }
         .list {
-            .size (@width: 100%);
+            .size (@width: ~"calc(100% - 22px)");
             top: 26px;
             .rounded(0px 0px 3px 3px);
             box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.2);
@@ -1409,18 +1412,10 @@
             .rounded(0);
         }
         .iconWrapper {
-            .size (18px, 18px);
-            .rounded(3px);
-            background: none;
-            background-color: @color-background-icon-darkGray;
+            top: 1px;
             position: absolute;
-            right: 3px;
-            top: 3px;
-
-            .icon {
-                .image("/images/cross-white.png", 50%, 50%);
-                .size (18px, 18px);
-            }
+            right: 0px;
+            .size(@height: 23px);
         }
     }
     input {
@@ -1450,8 +1445,9 @@
         &.inactive {
             color: @color-text-placeholder;
             pointer-events: none;
-            .clearInput {
-                background-color: @color-input-border-midGray;
+            .dropdown {
+                // background-color: @color-input-border-midGray;
+                .gray-gradient;
             }
             .listSection {
                 box-shadow: none;
@@ -1480,17 +1476,25 @@
         position: absolute;
         top: 94px;
 
+        .stepChainImg {
+            .image("/images/stepChains.png", 50%, 50%);
+            .size(27px, 139px);
+            position: absolute;
+            top: 15px;
+            left: 21px;
+        }
+
         .outerCircle {
             .size (27px, 27px);
             .rounded(27px);
-            border: 1px solid @color-circle-border;
+            // border: 1px solid @color-circle-border;
             margin-left:21px;
-            background-color: @color-circle-background;
-            padding: 2px;
-            box-shadow: inset 0px 3px 4px 1px rgba(0,0,0,0.15);
+            // background-color: @color-circle-background;
+            padding: 3px;
+            // box-shadow: inset 0px 3px 4px 1px rgba(0,0,0,0.15);
             position: relative;
 
-            &:first-of-type {
+            &.circle0 {
                 margin-top:15px;
             }
 
@@ -1545,16 +1549,16 @@
         .outerLink {
             position: relative;
             .size (6px, 32px);
-            border: 1px solid @color-circle-border;
+            // border: 1px solid @color-circle-border;
             border-top: none;
             border-bottom: none;
             margin-left: 32px;
             margin-top: -2px;
             margin-bottom: -2px;
-            padding: 0px 1px;
-            .linear-gradient-center(left, @color-background-lightLightGray, 
-                            @color-white, @color-background-lightLightGray);
-            box-shadow: inset 0px -1px 1px rgba(0,0,0,0.1);
+            padding: 1px 2px;
+            // .linear-gradient-center(left, @color-background-lightLightGray, 
+            //                 @color-white, @color-background-lightLightGray);
+            // box-shadow: inset 0px -1px 1px rgba(0,0,0,0.1);
             z-index: 1;
 
             .innerLink {
@@ -1562,7 +1566,7 @@
                 .size (2px, 0px);
                 position: absolute;
                 top: -2px;
-                left: 1px;
+                left: 2px;
                 .transition (height 0s);
                 
                 &.filled {
@@ -1570,6 +1574,32 @@
                     .transition (height 0.5s);
                 }
             }
+        }
+    }
+
+    &.numArgs0 {
+        height: 440px;
+        .argumentSection {
+            height: 135px;
+        }
+        .stepChainImg {
+            .image("/images/stepChainsTrimmed.png", 50%, 50%);
+            .size (27px, 83px);
+        }
+        .link1 {
+            display: none;
+        }
+        .circle1 {
+            top: -1px;
+        }
+        .circle2 {
+            display: none;
+        }
+    }
+    &.numArgs3 {
+        height: 520px;
+        .argumentSection {
+            height: 215px;
         }
     }
 
@@ -1603,7 +1633,7 @@
                     .size(@width: 30%);
                     border-right: 1px solid @color-white;
                     .thWrap {
-                        width: ~"calc(30% - 1px)" !important;
+                        width: 30% !important;
                         border-right: none;
                         padding-left: 12px;
                     }
@@ -1724,7 +1754,7 @@ th.modalHighlighted {
         .colGrab {
             top: -5px;
             .transition (all 0.2s);
-            border-left: 6px solid rgba(0, 0, 0, 0.6) !important;
+            border-left: 5px solid rgba(0, 0, 0, 0.25) !important;
             pointer-events: initial;
         }
     }
