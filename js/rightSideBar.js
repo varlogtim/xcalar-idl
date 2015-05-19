@@ -5,6 +5,7 @@ window.RightSideBar = (function($, RightSideBar) {
         setuptableListSection();
         setupUDF();
         setupHelpSection();
+        setupSQL();
     }
 
     RightSideBar.initialize = function() {
@@ -203,7 +204,10 @@ window.RightSideBar = (function($, RightSideBar) {
                 $rightSideBar.addClass("open");
 
                 if ($section.attr("id") === "sqlSection") {
-                    SQL.scrollToBottom();
+                    SQL.scrollToBottom($('#rightBarTextArea'));
+                    $("#sqlButtonWrap").show();
+                } else {
+                    $("#sqlButtonWrap").hide();
                 }
             } else {
                 // section is active, close right side bar
@@ -235,6 +239,20 @@ window.RightSideBar = (function($, RightSideBar) {
                 popOutModal($rightSideBar);
             }
             
+        });
+
+        $rightSideBar.on("click", ".machineSQL", function() {
+            $(this).removeClass("machineSQL");
+            $(this).addClass("humanSQL");
+            $("#rightBarMachineTextArea").hide();
+            $("#rightBarTextArea").show();
+        });
+
+        $rightSideBar.on("click", ".humanSQL", function() {
+            $(this).removeClass("humanSQL");
+            $(this).addClass("machineSQL");
+            $("#rightBarMachineTextArea").show();
+            $("#rightBarTextArea").hide();
         });
 
         $rightSideBar.draggable({
@@ -272,9 +290,6 @@ window.RightSideBar = (function($, RightSideBar) {
 
             delayClick();
         });
-
-
-
 
         function delayClick() {
             clickable = false;
@@ -478,7 +493,11 @@ window.RightSideBar = (function($, RightSideBar) {
         /* end of upload written function section */
     }
 
-    // XXX Current it works as a rest button
+    function setupSQL() {
+        $("#rightBarMachineTextArea").hide();
+    }
+
+    // XXX Current it works as a reset button
     function setupHelpSection() {
         $("#helpSubmit").click(function() {
             console.log('Reset Fired!');

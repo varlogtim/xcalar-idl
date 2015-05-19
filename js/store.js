@@ -96,7 +96,7 @@ function commitToStorage(atStartup) {
     var scratchPadText = $("#scratchPadSection textarea").val();
 
     setTableOrder(atStartup);
-    // bacis thing to store
+    // basic thing to store
     storage = {"TILookup": gTableIndicesLookup,
                 "TDLookup": gTableDirectionLookup,
                 "worksheets": WSManager.getWorksheets(),

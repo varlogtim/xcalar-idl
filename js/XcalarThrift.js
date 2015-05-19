@@ -523,14 +523,8 @@ function XcalarSetFree(resultSetId) {
     return (deferred.promise());
 }
 
-function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
-    if (tHandle == null) {
-        return (promiseWrapper(null));
-    }
-
-    var deferred = jQuery.Deferred();
+function generateFilterString(operator, value, columnName) {
     var filterStr = "";
-
     switch (operator) {
     case ("Greater Than"):
         filterStr = "gt("+columnName+", "+value+")";
@@ -563,6 +557,20 @@ function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
         filterStr = value;
         break;
     default:
+        break;
+    }
+    return (filterStr);
+}
+
+function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    var filterStr = generateFilterString(operator, value, columnName);
+
+    if (filterStr === "") {
         console.log("Unknown op "+operator);
         deferred.reject("Unknown op "+operator);
         return (deferred.promise());

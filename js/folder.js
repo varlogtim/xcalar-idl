@@ -273,6 +273,7 @@ window.DS = (function($, DS) {
             // add sql
             SQL.add('Load dataset', {
                 "operation": "loadDataSet",
+                "dsPath": loadURL,
                 "dsName": dsName,
                 "dsFormat": dsFormat
             });

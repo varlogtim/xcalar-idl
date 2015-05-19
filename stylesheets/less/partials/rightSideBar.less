@@ -69,12 +69,8 @@
             float: right;
             margin-right: 6px;
             margin-top: 7px;
-            position: absolute;
-            right: 29px;
-            top: 2px;
 
             &:first-of-type {
-                margin-right: 10px;
                 right: 0px;
             }
         }
@@ -83,6 +79,19 @@
         }
         .iconClose {
             background-image: url(/images/close-icon.png);
+        }
+        .machineSQL {
+            background-image: url(/images/machine.png);
+        }
+        .humanSQL {
+            background-image: url(/images/human.png);
+        }
+        .selectSQL {
+            background-image: url(/images/arrow-diag.png);
+        }
+
+        #sqlButtonWrap {
+            display: none;
         }
     }
 
@@ -424,6 +433,20 @@
         height: 100%;
         position: relative;
         overflow: hidden;
+
+        #rightBarMachineTextArea {
+            .position(absolute, @top: 0);
+            .size(@width: 100%, @height: 100%);
+            overflow-y: scroll;
+            word-wrap: break-word;
+            .sqlContentWrap {
+                padding: 2px;
+                width: 100%;
+                font-size: 13px;
+                color: @color-sql-black;
+            }
+        }
+
         #rightBarTextArea {
             .position(absolute, @top: 0);
             .size(@width: 100%, @height: 100%);

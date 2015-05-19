@@ -72,6 +72,12 @@ window.xcHelper = (function($, xcHelper) {
         var max = Math.pow(10, digits);
         var rand = Math.floor((Math.random() * max) + 1);
 
+        function padZero(number, numDigits) {
+            number = number.toString();
+            return ((number.length < numDigits) ? 
+                    padZero("0"+number, numDigits): number);
+        }
+        rand = padZero(rand, digits);
         return (name + rand);
     }
 

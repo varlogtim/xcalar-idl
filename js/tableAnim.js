@@ -241,6 +241,7 @@ function dragdropMouseUp() {
         var table = gTables[dragObj.tableNum];
 
         SQL.add("Change Column Order", {
+            "operation": "changeColOrder",
             "tablename": table.frontTableName,
             "colName": table.tableCols[dragObj.colNum - 1].name,
             "oldColIndex": dragObj.colNum,

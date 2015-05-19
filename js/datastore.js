@@ -1263,7 +1263,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             SQL.add("Change dataset data type", {
                 "operation": "changeDataType",
                 "dsName"   : dsName,
-                "colNum"   : colNum + 1,
+                "colName"  : colName,
                 "oldType"  : oldType,
                 "newType"  : newType
             });

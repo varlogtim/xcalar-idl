@@ -22,6 +22,11 @@ window.xcFunction = (function ($, xcFunction) {
                                               srcName));
             })
             .then(function() {
+                SQL.add("Index From Dataset", {
+                    "operation"    : "index",
+                    "newTableName" : srcName,
+                    "dsName"       : datasetName
+                });
                 gTables[tableNum].isTable = true;
 
                 return (getResultSet(true, srcName));
@@ -62,6 +67,7 @@ window.xcFunction = (function ($, xcFunction) {
                 "operation"    : "filter",
                 "tableName"    : frontName,
                 "colName"      : frontColName,
+                "backColName"  : backColName,
                 "colIndex"     : colNum,
                 "operator"     : operator,
                 "value"        : value,
@@ -249,7 +255,7 @@ window.xcFunction = (function ($, xcFunction) {
         StatusMessage.show(msg);
 
         showWaitCursor();
-        // check left table index
+        // check left table lName"])index
         checkJoinTableIndex(leftColName, leftTable, isLeft)
         .then(function(realLeftTableName) {
             leftSrcName = realLeftTableName;
@@ -273,11 +279,13 @@ window.xcFunction = (function ($, xcFunction) {
                 "operation"    : "join",
                 "leftTable"    : {
                     "name"     : leftFrontName,
+                    "backname" : leftSrcName,
                     "colName"  : leftFrontColName,
                     "colIndex" : leftColNum
                 },
                 "rightTable"   : {
                     "name"     : rightFrontName,
+                    "backname" : rightSrcName,
                     "colName"  : rightFrontColName,
                     "colIndex" : rightColNum
                 },
@@ -327,6 +335,8 @@ window.xcFunction = (function ($, xcFunction) {
             SQL.add("Group By", {
                 "operation"     : "groupBy",
                 "tableName"     : frontName,
+                "backname"      : srcName,
+                "backFieldName" : backFieldName,
                 "colName"       : frontFieldName,
                 "colIndex"      : colNum,
                 "operator"      : operator,
@@ -355,13 +365,13 @@ window.xcFunction = (function ($, xcFunction) {
             "bookmarks"  :  xcHelper.deepCopy(table.bookmarks), 
             "rowHeights" :  xcHelper.deepCopy(table.rowHeights)
         };
-
         var msg             = StatusMessageTStr.Map + " " + fieldName;
-
+        var backTableName;
         StatusMessage.show(msg);
 
         xcFunction.checkSorted(tableNum)
         .then(function(srcName) {
+            backTableName = srcName;
             return (XcalarMap(fieldName, mapString, srcName, newTableName));
         })
         .then(function() {
@@ -374,6 +384,7 @@ window.xcFunction = (function ($, xcFunction) {
             SQL.add("Map Column", {
                 "operation"    : "mapColumn",
                 "srcTableName" : frontName,
+                "backname"     : backTableName,
                 "newTableName" : newTableName,
                 "colName"      : fieldName,
                 "mapString"    : mapString
@@ -448,7 +459,7 @@ window.xcFunction = (function ($, xcFunction) {
         }
     }
 
-    // For xcFuncion.join, check if table has correct index
+    // For xcFunction.join, check if table has correct index
     function checkJoinTableIndex(colName, table, isLeft) {
         var deferred      = jQuery.Deferred();
 
@@ -471,6 +482,23 @@ window.xcFunction = (function ($, xcFunction) {
 
             getIndexedTable(srcName, colName, newTableName, isTable)
             .then(function() {
+                if (isTable) {
+                    SQL.add("Sort Table", {
+                    "operation"    : "sort",
+                    "tableName"    : srcName,
+                    "key"          : colName,
+                    "direction"    : "ASC",
+                    "newTableName" : newTableName
+                    });
+                } else {
+                    SQL.add("Index From Dataset", {
+                    "operation"    : "index",
+                    "key"          : colName,
+                    "newTableName" : newTableName,
+                    "dsName"       : backTableName.substring(0,
+                                     backTableName.length - 6)
+                    });
+                } 
                 var colums = xcHelper.deepCopy(getIndex(srcName));
 
                 setIndex(newTableName, colums);
