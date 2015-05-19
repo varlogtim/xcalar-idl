@@ -51,13 +51,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
         });
 
         xcHelper.dropdownList($formatSection, {
-            "onSelect": formatSectionHandler
+            "onSelect" : formatSectionHandler,
+            "container": "#importDataView"
         });
 
         xcHelper.dropdownList($csvDelim.find(".listSection"), {
             "onSelect": function($li) {
                 var $input = $li.closest(".listSection").find(".text");
-
                 switch ($li.attr("name")) {
                     case "default":
                         if ($input.attr("id") === "fieldText") {
@@ -65,15 +65,18 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         } else {
                             $input.val("\\n");
                         }
+                        $input.removeClass("nullVal");
                         return false;
                     case "null":
-                        $input.val("");
+                        $input.val("Null");
+                        $input.addClass("nullVal");
                         return false;
                     default:
                     // keep list open
                         return true;
                 }
-            }
+            },
+            "container": "#importDataView"
         });
 
         // input other delimiters
@@ -85,10 +88,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 event.stopPropagation();
 
                 if (val != "") {
-                    $input.closest(".listSection").find(".text").val(val);
+                    $input.closest(".listSection").find(".text").val(val)
+                                                .removeClass("nullVal");
                     $input.val("");
                     $input.blur();
-
                     hideDropdownMenu();
                 }
             }
@@ -144,8 +147,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
             }
 
             var loadURL    = jQuery.trim($filePath.val());
-            var fieldDelim = delimiterTranslate($("#fieldText").val());
-            var lineDelim  = delimiterTranslate($("#lineText").val());
+            var fieldDelim = delimiterTranslate($("#fieldText"));
+            var lineDelim  = delimiterTranslate($("#lineText"));
 
             var msg        = StatusMessageTStr.LoadingDataset + ": " + dsName;
 
@@ -265,7 +268,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
     }
 
-    function delimiterTranslate(delimiter) {
+    function delimiterTranslate($input) {
+        if ($input.hasClass("nullVal")) {
+            return "";
+        }
+
+        var delimiter = $input.val();
         switch (delimiter) {
             case "\\t":
                 return "\t";
@@ -314,8 +322,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     function resetDelimiter() {
         // XXX to show \t, \ should be escaped
-        $("#fieldText").val("\\t");
-        $("#lineText").val("\\n");
+        $("#fieldText").val("\\t").removeClass("nullVal");
+        $("#lineText").val("\\n").removeClass("nullVal");
     }
 
     return (DatastoreForm);

@@ -136,20 +136,24 @@ window.xcHelper = (function($, xcHelper) {
     }
 
     // handle dropdown list generally
-    xcHelper.dropdownList = function($listSection, option) {
-        option = option || {};
+    xcHelper.dropdownList = function($listSection, options) {
+        options = options || {};
         /*
-         * option includ:
+         * options includ:
             onlyClickIcon: if set true, only toggle dropdown menu when click
                              dropdown icon, otherwise, toggle also on click 
                              input section
-            onSelect: callback to trigger when select an item on list
+            onSelect: callback to trigger when select an item on list, $li will
+                      be passed into the callback
+            container: will hide all other list in the container when focus on 
+                       this one. Default is $listSectin.parent()
          *
-         * Note that option can be extented if nesessary
+         * Note that options can be extented if nesessary
          */
-
+         var $container = options.container ? $(options.container) : 
+                                              $listSection.parent();
          // toggle list section
-         if (option.onlyClickIcon) {
+         if (options.onlyClickIcon) {
             $listSection.on("click", ".icon", function(event) {
                  event.stopPropagation();
                  toggleDropdownMenu($(this).closest(".listSection"));
@@ -167,14 +171,13 @@ window.xcHelper = (function($, xcHelper) {
                 var keepOpen = false;
 
                 event.stopPropagation();
-                // trigger callback
-                if (option.onSelect) {
+                if (options.onSelect) {    // trigger callback
                     // keepOpen be true, false or undefined
-                    keepOpen = option.onSelect($(this));
+                    keepOpen = options.onSelect($(this));
                 }
 
                 if (!keepOpen) {
-                    toggleDropdownMenu($listSection, true);
+                    hideDropdowns();
                 }
             },
             "mouseenter": function() {
@@ -186,15 +189,21 @@ window.xcHelper = (function($, xcHelper) {
             }
         }, ".list li");
 
-        function toggleDropdownMenu($listSection, onlyHide) {
-            if (onlyHide) {
-                $listSection.removeClass("open");
-                $listSection.find(".list").hide();
-            } else {
-                $listSection.toggleClass("open");
-                $listSection.find(".list").toggle();
+        function toggleDropdownMenu($listSection) {
+            if ($listSection.hasClass("open")) {    // close dropdown
+                hideDropdowns();
+            } else {                                // open dropdown
+                hideDropdowns();
+                $listSection.addClass("open");
+                $listSection.find(".list").show();
             }
-         }
+        }
+
+        function hideDropdowns() {
+            var $sections = $container.find(".listSection");
+            $sections.find(".list").hide();
+            $sections.removeClass("open");
+        }
     }
 
     xcHelper.validate = function(eles) {

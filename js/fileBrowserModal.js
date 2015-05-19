@@ -172,7 +172,8 @@ window.FileBrowser = (function($, FileBrowser) {
 
         xcHelper.dropdownList($pathSection, {
             "onlyClickIcon": true,
-            "onSelect"     : goToPath
+            "onSelect"     : goToPath,
+            "container"    : "#fileBrowserModal"
         });
 
         $pathSection.on({
@@ -208,7 +209,8 @@ window.FileBrowser = (function($, FileBrowser) {
         }, ".text");
 
         xcHelper.dropdownList($formatSection, {
-            "onSelect": formatSectionHandler
+            "onSelect" : formatSectionHandler,
+            "container": "#fileBrowserModal"
         });
 
         $fileName.keyup(function() {
