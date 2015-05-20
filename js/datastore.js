@@ -441,7 +441,11 @@ window.GridView = (function($, GridView) {
                 }
             })
             .fail(function(error) {
-                Alert.error("Load Dataset fails", error);
+                var errorHTML = "<div class='loadError'>"+
+                                "Loading dataset failed: "+error.error+"</div>";
+                console.log(error)
+                $('#dataSetTableWrap').html(errorHTML);
+                // Alert.error("Load Dataset fails", error);
             });
 
             function releaseDatasetPointer() {
@@ -875,7 +879,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
              } catch(err) {
                 console.log(err, value);
                 getSampleTable(datasetName);
-                deferred.reject({"error": "Cannot Parse the dataset"});
+                deferred.reject({"error": "Cannot parse the dataset."});
             }
         })
         .fail(deferred.reject);
