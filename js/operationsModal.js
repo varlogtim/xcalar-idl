@@ -25,18 +25,17 @@ window.OperationsModal = (function($, OperationsModal) {
         });
 
         $autocompleteInputs.on('change', function(event) {
-            var parentId = $(this).closest('.listSection').attr('id');
-            var $whatCausedBlur = gMouseEvents.getLastMouseDownTarget();
-            if ($whatCausedBlur.closest('#'+parentId).length == 0) {
+            if ($(this).parent().index() == 0) {
                 updateFunctionsList();
-                produceArgumentTable();
-                var index = $autocompleteInputs.index($(this));
-                if ($(this).val() == "") {
-                    clearInput(index);
-                } else {
-                    enterInput(index);
-                }
-            }     
+            }
+            
+            produceArgumentTable();
+            var index = $autocompleteInputs.index($(this));
+            if ($(this).val() == "") {
+                clearInput(index);
+            } else {
+                enterInput(index);
+            } 
         });
 
         $autocompleteInputs.on('click', function() {
@@ -147,8 +146,6 @@ window.OperationsModal = (function($, OperationsModal) {
             backColName = gTables[tableNum].tableCols[colNum-1].name;
         }
         
-
-        
         highlightOperationColumn(tableNum, colNum);
         $operationsModal = $('#operationsModal');
         $operationsModal.fadeIn(200);
@@ -198,7 +195,9 @@ window.OperationsModal = (function($, OperationsModal) {
         modalHelper.setup();
 
         fillInputPlaceholder(0); 
-        $categoryInput.focus();
+        $categoryInput.val('all').change();
+        $operationsModal.find('.circle1').addClass('filled');
+        $functionInput.focus();
     }
 
 

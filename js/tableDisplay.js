@@ -508,7 +508,7 @@ function generateColDropDown(tableNum) {
     }
     dropDownHTML +=       
             '<li class="functions map">Map...</li>'+
-            '<li class="joinList">'+'Join</li>';
+            '<li class="joinList">'+'Join...</li>';
 
 
     // XXX: HACK: I removed the check for the main col. Also, I should check for
