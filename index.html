@@ -57,7 +57,6 @@
     <div id="watermark"></div>
     <div id="insight"></div>
     <div id="mainFrame"></div>
-    <datalist id="worksheetlist" style="display:none"></datalist>
 
     <!-- Start OPERATIONS MODAL -->
     <div id="operationsModal" class="modalContainer">
@@ -1061,9 +1060,11 @@
       </div>
       <div class="options">
         <span id="alertOptionLabel" class="label"></span>
-        <input id="alertOptionInput" type="text" list="alertlist" 
-               placeholder="click to see options"/>
-        <datalist id="alertlist"></datalist>
+        <div class="listSection">
+            <input id="alertOptionInput" type="text"
+                   placeholder="click to see options"/>
+            <ul id="alertlist" class="list"></ul>
+        </div>
       </div>
     </section>
     <!-- Alert Checkbox -->

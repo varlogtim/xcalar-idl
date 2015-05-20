@@ -650,20 +650,25 @@ function createTableHeader(tableNum) {
                 '<ul class="subColMenu">' + 
                     '<li style="text-align: center" class="clickable">'+
                         '<span>Worksheet Name</span>' + 
-                        '<input class="wsName" type="text" width="100px" ' + 
-                            'list="worksheetlist"/>' +
+                        '<div class="listSection">' + 
+                            '<input class="wsName" type="text" width="100px" '+ 
+                                'placeholder="click to see options"/>' +
+                            '<ul class="list"></ul>' + 
+                        '</div>' + 
                     '</li>' +
                 '</ul>' + 
                 '<div class="dropdownBox"></div>' + 
             '</li>' + 
-            '<li class="duplicateToWorksheet">' + 
+            '<li class="dupToWorksheet">' + 
                 '<span class="label">Copy to worksheet</span>' + 
                 '<ul class="subColMenu">' + 
                     '<li style="text-align: center" class="clickable">'+
                         '<span>Worksheet Name</span>' + 
-                        '<input class="wsName" type="text" width="100px" ' + 
-                            'list="worksheetlist" ' + 
-                            'placeholder="click to see options"/>' + 
+                        '<div class="listSection">' + 
+                            '<input class="wsName" type="text" width="100px" '+ 
+                                'placeholder="click to see options"/>' +
+                            '<ul class="list"></ul>' + 
+                        '</div>' + 
                     '</li>' +
                     '<li style="text-align: center" class="clickable">'+
                         '<span>New Table Name</span>' + 
@@ -786,48 +791,40 @@ function createTableHeader(tableNum) {
         AggModal.show(tableNum);
     });
 
+    // opeartion for move to worksheet and copy to worksheet
     $tableMenu.on('mouseenter', '.moveToWorksheet', function() {
-        var $li = $(this);
-        var $menu = $li.closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
-        var $input = $li.find(".wsName");
-        var $datalist = $("#worksheetlist");
-        var html = WSManager.getWorksheetLists();
+        var $list = $(this).find(".list");
+        var html   = WSManager.getWorksheetLists(false);
 
-        $datalist.empty().append(html);
-
-        if (html == "") {
-            $input.attr("placeholder", "No worksheet to move");
-        } else {
-            $input.attr("placeholder", "click to see options");
-        }
+        $list.empty().append(html);
     });
 
-    $tableMenu.on('mouseenter', '.duplicateToWorksheet', function() {
-        var $li = $(this);
-        var $menu = $li.closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
-        var $input = $li.find(".wsName");
-        var $datalist = $("#worksheetlist");
-        var html = WSManager.getWorksheetLists(true);
 
-        $datalist.empty().append(html);
+    $tableMenu.on('mouseenter', '.dupToWorksheet', function() {
+        var $list = $(this).find(".list");
+        var html  = WSManager.getWorksheetLists(true);
 
-        $input.attr("placeholder", "click to see options");
+        $list.empty().append(html);
+    });
+
+    xcHelper.dropdownList($tableMenu.find(".listSection"), {
+        "onSelect" : function($li) {
+            var $input = $li.closest(".listSection").find(".wsName");
+            $input.val($li.text()).focus();
+        }
     });
 
     $tableMenu.on('keypress', '.moveToWorksheet input', function(event) {
         if (event.which == keyCode.Enter) {
             var $input   = $(this);
-            var $menu    = $input.closest('.tableMenu');
-            var tableNum = parseInt($menu.attr('id').substring(9));
             var wsName   = jQuery.trim($input.val());
-
-            var $option = $("#worksheetlist").find("option").filter(function() {
-                return $(this).val() == wsName;
+            var $option  = $input.siblings(".list").find("li")
+                                 .filter(function() 
+            {
+                return $(this).text() === wsName;
             });
 
-            var isValid = xcHelper.validate([
+            var isValid  = xcHelper.validate([
                 {
                     "$selector": $input,
                     "forMode"  : true,
@@ -847,7 +844,9 @@ function createTableHeader(tableNum) {
                 return false;
             }
 
-            var wsIndex = $option.data("worksheet");
+            var $menu    = $input.closest('.tableMenu');
+            var tableNum = parseInt($menu.attr('id').substring(9));
+            var wsIndex  = $option.data("worksheet");
 
             WSManager.moveTable(tableNum, wsIndex);
 
@@ -857,16 +856,14 @@ function createTableHeader(tableNum) {
         }
     });
 
-    $tableMenu.on('keypress', '.duplicateToWorksheet input', function(event) {
-        if (event.which == keyCode.Enter) {
-            var $li             = $(this).closest(".duplicateToWorksheet");
-            var $menu           = $li.closest('.tableMenu');
-            var tableNum        = parseInt($menu.attr('id').substring(9));
-
+    $tableMenu.on('keypress', '.dupToWorksheet input', function(event) {
+        if (event.which === keyCode.Enter) {
+            var $li             = $(this).closest(".dupToWorksheet");
+            // there are two inputs in the sectin, so not use $(this)
             var $wsInput        = $li.find(".wsName");
             var $tableNameInput = $li.find(".tableName");
             // validation check
-            var isValid = xcHelper.validate([
+            var isValid         = xcHelper.validate([
                 { "$selector": $wsInput,
                   "formMode" : true
                 },
@@ -882,8 +879,8 @@ function createTableHeader(tableNum) {
             var wsName        = jQuery.trim($wsInput.val());
             var newTableName  = jQuery.trim($tableNameInput.val());
 
-            var $option = $("#worksheetlist").find("option").filter(function() {
-                return $(this).val() == wsName;
+            var $option       = $li.find(".list li").filter(function() {
+                return $(this).text() === wsName;
             });
             // XXX also need to check table name conflict
             isValid = xcHelper.validate({
@@ -900,8 +897,10 @@ function createTableHeader(tableNum) {
                 return false;
             }
 
-            var table   = gTables[tableNum];
-            var wsIndex = $option.data("worksheet");
+            var $menu    = $li.closest('.tableMenu');
+            var tableNum = parseInt($menu.attr('id').substring(9));
+            var table    = gTables[tableNum];
+            var wsIndex  = $option.data("worksheet");
 
             WSManager.copyTable(table.frontTableName, newTableName, wsIndex);
 
@@ -1099,6 +1098,8 @@ function addColMenuBehaviors($colMenu) {
         },
         "mouseleave": function() {
             $(this).children('ul').removeClass('visible');
+            $(this).find('.listSection').removeClass("open")
+                    .find('.list').hide();
             $(this).removeClass('selected');
             $('.tooltip').remove();
         }

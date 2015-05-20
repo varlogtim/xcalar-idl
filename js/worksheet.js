@@ -265,7 +265,7 @@ window.WSManager = (function($, WSManager) {
 
             var name = worksheets[i].name;
 
-            html += '<option data-worksheet="' + i + '"value="' + name + '">';
+            html += '<li data-worksheet="' + i + '">' + name + '</li>';
         }
 
         return (html);

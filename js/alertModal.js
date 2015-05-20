@@ -13,6 +13,12 @@ window.Alert = (function($, Alert){
             "handle": ".modalHeader",
             "cursor": "-webkit-grabbing"
         });
+
+         xcHelper.dropdownList($alertModal.find(".listSection"), {
+            "onSelect" : function($li) {
+                $alertOptionInput.val($li.text()).focus();
+            }
+        });
     }
 
     Alert.show = function(options) {
