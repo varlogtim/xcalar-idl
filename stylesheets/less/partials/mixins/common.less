@@ -277,13 +277,16 @@
 
 // used for datasetTableWrap in datastore.less
 .typeIcon() {
+
     .typeIconCSS(@type: "Unknown") {
         @url: "/images/datastore/typeIcon/type-@{type}.png";
         .type.icon {
             .background(@url, 22px, 22px);
         }
     }
+
     .typeIconCSS(); // default value is Unknown
+
     &.type-array {
         .typeIconCSS("Array");
     }
@@ -293,7 +296,10 @@
     &.type-mixed {
         .typeIconCSS("Mixed");
     }
-    &.type-number {
+    &.type-integer {
+        .typeIconCSS("Number");
+    }
+    &.type-decimal {
         .typeIconCSS("Number");
     }
     &.type-object {

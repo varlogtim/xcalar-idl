@@ -50,6 +50,36 @@ window.xcHelper = (function($, xcHelper) {
         return (value);
     }
 
+    //define type of the column
+    xcHelper.parseColType = function(val, oldType) {
+        var type = oldType;
+
+        if (val !== "" && oldType !== "mixed") {
+            type = typeof val;
+            // get specific type
+            if (type === "number") {
+                // the case when type is decimal
+                if (oldType === "decimal" ||
+                    xcHelper.isDecimal(val))
+                {
+                    type = "decimal";
+                } else {
+                    type = "integer";
+                }
+            } else if (type === "object") {
+                if (val instanceof Array) {
+                    type = "array";
+                }
+            }
+
+            if (oldType != undefined && oldType !== type) {
+                type = "mixed";
+            }
+        }
+
+        return (type);
+    }
+
     // get a deep copy
     xcHelper.deepCopy = function(obj) {
         var string = JSON.stringify(obj);
@@ -86,6 +116,11 @@ window.xcHelper = (function($, xcHelper) {
             window.getSelection().removeAllRanges();
         }
     }
+
+    xcHelper.isDecimal = function(num) {
+        return (num % 1 !== 0);
+    }
+
     // fomart is mm-dd-yyyy
     xcHelper.getDate = function(delimiter, d, timeStamp) {
         var date;

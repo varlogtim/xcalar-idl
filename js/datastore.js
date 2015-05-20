@@ -1170,6 +1170,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var $headInput = $th.find(".editableHead");
         var oldColName = $headInput.val();
         var dsName     = $table.data("dsname");
+        var type       = $th.find(".header").data('type');
+        var typeId      = getTypeId(type);
 
         $input.blur();
         // in this case, no need to have thrift call
@@ -1194,8 +1196,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         console.log("Renaming", oldColName, "to", newColName);
 
         $menu.hide();
-        XcalarEditColumn(dsName, oldColName, 
-                         newColName, DfFieldTypeT.DfString)
+        XcalarEditColumn(dsName, oldColName, newColName, typeId)
         .then(function() {
             // update column name
             $headInput.val(newColName);
@@ -1229,26 +1230,16 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var dsName       = $table.data("dsname");
         var colName      = $headInput.val();
         var oldType      = $tableHeader.data('type');
-        var typeId       = (function getTypeId(type) {
-            switch (type) {
-                case "undefined":
-                    return DfFieldTypeT.DfUnknown;
-                case "string":
-                    return DfFieldTypeT.DfString;
-                case "number":
-                    return DfFieldTypeT.DfFloat64;
-                case "boolean":
-                    return DfFieldTypeT.DfBoolean;
-                case "mixed":
-                    return DfFieldTypeT.DfMixed;
-                default:
-                    return -1; // Invalid type
-            }
-        })(newType);
+        var typeId       = getTypeId(newType);
 
         $menu.hide();
 
-        if (newType === oldType || typeId < 0) {
+        // if (newType === oldType || typeId < 0) {
+        //     return;
+        // }
+        // XXX Change this because JS may treat 1.00 as 1 so the type is
+        // integer, while in backend the type is decimal
+        if (typeId < 0) {
             return;
         }
 
@@ -1256,9 +1247,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         XcalarEditColumn(dsName, colName, colName, typeId)
         .then(function() {
-            $tableHeader.data("type", newType);
-            $tableHeader.removeClass("type-" + oldType)
-                        .addClass("type-" + newType);
             // add sql
             SQL.add("Change dataset data type", {
                 "operation": "changeDataType",
@@ -1267,12 +1255,33 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 "oldType"  : oldType,
                 "newType"  : newType
             });
+            // update the sample table
+            DS.getGridFromName(dsName).click();
         });
     }
+
+    function getTypeId(type) {
+        switch (type) {
+            case "undefined":
+                return DfFieldTypeT.DfUnknown;
+            case "string":
+                return DfFieldTypeT.DfString;
+            case "integer":
+                return DfFieldTypeT.DfInt64;
+            case "decimal":
+                return DfFieldTypeT.DfFloat64;
+            case "boolean":
+                return DfFieldTypeT.DfBoolean;
+            case "mixed":
+                return DfFieldTypeT.DfMixed;
+            default:
+                return -1; // Invalid type
+        }
+    };
     // table menu html
     function getDropdownMenuHTML() {
         // XXX Now Array, Object and Unknown are invalid type to change
-        var types = ['Boolean', 'Number', 'String', 'Mixed'];
+        var types = ['Boolean', 'Integer', 'Decimal', 'String', 'Mixed'];
         var html  = 
         '<li class="renameCol">' + 
             '<span>Rename Column</span>' + 
@@ -1320,7 +1329,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         currentRow = 0;
 
         jsonKeys.forEach(function() {
-            columnsType.push("undefined");
+            columnsType.push(undefined);
         });
 
         // table rows
@@ -1410,17 +1419,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 }   
 
                 // Check type
-                if (parsedVal !== "" && columnsType[j] !== "mixed") {
-                    var type = typeof val;
-                    if (type == "object" && (val instanceof Array)) {
-                        type = "array";
-                    }
-                    if (columnsType[j] == "undefined") {
-                        columnsType[j] = type;
-                    } else if (columnsType[j] !== type) {
-                        columnsType[j] = "mixed";
-                    }
-                }
+                columnsType[j] = xcHelper.parseColType(parsedVal, 
+                                                       columnsType[j]);
             }
 
             tr += '</tr>';

@@ -221,6 +221,9 @@ window.DS = (function($, DS) {
         }
     }
 
+    DS.getGridFromName = function(dsName) {
+        return ($("#dataset-" + dsName));
+    }
     // create datasets or folder
     DS.create = function (options) {
         if (!options || !options.name) {

@@ -447,7 +447,7 @@ window.ColManager = (function($, ColManager) {
         for (var i = 0; i < numCols; i++) {
             if ((i != dataIndex) && 
                 tableCols[i].func.args && 
-                tableCols[i].func.args!= "") 
+                tableCols[i].func.args != "")
             {
                 var nested = tableCols[i].func.args[0]
                                 .replace(/\]/g, "")
@@ -471,6 +471,7 @@ window.ColManager = (function($, ColManager) {
             columnTypes.push(undefined);
             childArrayVals.push(false);
         }
+
         // loop through table tr and start building html
         for (var row = 0; row < numRows; row++) {
             var dataValue;
@@ -489,14 +490,14 @@ window.ColManager = (function($, ColManager) {
             }
 
             var rowNum = row + startIndex;
-            tBodyHTML += '<tr class="row' + (rowNum) + '">';
-
-            if (gTables[tableNum].bookmarks.indexOf(rowNum) > -1) {
+            tBodyHTML += '<tr class="row' + rowNum + '">';
+            // add bookmark
+            if (table.bookmarks.indexOf(rowNum) > -1) {
                 tBodyHTML += '<td align="center" class="col0 rowBookmarked">';
             } else {
                 tBodyHTML += '<td align="center" class="col0">';
             }
-
+            // the line marker column
             tBodyHTML += '<div class="idWrap">'+
                             '<span class="idSpan" '+
                                 'data-toggle="tooltip" '+
@@ -516,7 +517,7 @@ window.ColManager = (function($, ColManager) {
 
                 if (col != dataIndex) {
                     if (nested == undefined) {
-                        console.log('Error this value should not be empty');
+                        console.error('Error this value should not be empty');
                     }
 
                     var nestedLength = nested.length;
@@ -570,19 +571,23 @@ window.ColManager = (function($, ColManager) {
                 }
 
                 //define type of the column
-                if (tdValue !== "" && columnTypes[col] !== "mixed") {
-                    var type = typeof tdValue;
-                    if (type == "object" && (tdValue instanceof Array)) {
-                        type = "array";
-                    }
-
-                    if (columnTypes[col] == undefined) {
-                        columnTypes[col] = type;
-                    } else if (columnTypes[col] !== type) {
-                        columnTypes[col] = "mixed";
-                    }
-                }
-
+                columnTypes[col] = xcHelper.parseColType(tdValue, 
+                                                         columnTypes[col]);
+                // XXX This part try to detect edge case of decimal, doese not
+                // need it right now
+                // if (columnTypes[col] === "integer" || 
+                //     columnTypes[col] === "decimal") 
+                // {
+                //     var str = '"' + tableCols[col].name + '":' + tdValue;
+                //     var index = jsonData[row].indexOf(str) + str.length;
+                //     var next = jsonData[row].charAt(index);
+                //     // if it's like 123.000, find it and output the right format
+                //     if (next === ".") {
+                //         var end = jsonData[row].indexOf(",", index);
+                //         tdValue += jsonData[row].substring(index, end);
+                //         columnTypes[col] = "decimal";
+                //     }
+                // }
                 tdValue = xcHelper.parseJsonValue(tdValue);
                 tBodyHTML += tdValue + '</div></div></td>';
             }
@@ -612,7 +617,8 @@ window.ColManager = (function($, ColManager) {
             }
             $header.removeClass("type-mixed")
                     .removeClass("type-string")
-                    .removeClass("type-number")
+                    .removeClass("type-integer")
+                    .removeClass("type-decimal")
                     .removeClass("type-object")
                     .removeClass("type-array")
                     .removeClass("type-undefined")
@@ -706,19 +712,23 @@ window.ColManager = (function($, ColManager) {
                     }
                 }
             }
-            //define type of the column
-            if (value !== "" && columnType !== "mixed") {
-                var type = typeof value;
 
-                if (type == "object" && (value instanceof Array)) {
-                    type = "array";
-                }
-                if (columnType == undefined) {
-                    columnType = type;
-                } else if (columnType !== type) {
-                    columnType = "mixed";
-                }
-            }
+            //define type of the column
+            columnType = xcHelper.parseColType(value, columnType);
+
+            // if (columnType === "integer" || columnType === "decimal") {
+            //     var str = '"' + gTables[tableNum].tableCols[newColid - 1].name 
+            //                 + '":' + value;
+            //     var index = jsonStr.indexOf(str) + str.length;
+            //     var next = jsonStr.charAt(index);
+            //     // if it's like 123.000, find it and output the right format
+            //     if (next === ".") {
+            //         var end = jsonStr.indexOf(",", index);
+            //         value += jsonStr.substring(index, end);
+            //         columnType = "decimal";
+            //     }
+            // }
+
             value = xcHelper.parseJsonValue(value);
             value = '<div class="addedBarTextWrap">' + 
                         '<div class="addedBarText">' + value + '</div>' + 
@@ -736,7 +746,8 @@ window.ColManager = (function($, ColManager) {
 
         $header.removeClass("type-mixed")
                .removeClass("type-string")
-               .removeClass("type-number")
+               .removeClass("type-integer")
+               .removeClass("type-decimal")
                .removeClass("type-object")
                .removeClass("type-array")
                .removeClass("type-boolean")
