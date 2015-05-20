@@ -18,6 +18,25 @@ function freeAllResultSets() {
     // return (chain(promises));
 }
 
+function freeAllResultSetsSync() {
+    var promises = [];
+
+    for (var i = 0; i < gTables.length; i++) {
+        promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
+    }
+
+    for (var i = 0; i < gHiddenTables.length; i ++) {
+        promises.push(XcalarSetFree.bind(this, gHiddenTables[i].resultSetId));
+    }
+
+    // Free datasetBrowser resultSetId
+    if (gDatasetBrowserResultSetId != 0) {
+        promises.push(XcalarSetFree.bind(this, gDatasetBrowserResultSetId));
+    }
+
+    return (chain(promises));
+}
+
 function goToPage(pageNumber, direction, tableNum, skipToRow) {
     // pageNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();

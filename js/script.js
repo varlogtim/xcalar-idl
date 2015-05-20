@@ -328,8 +328,17 @@ function setupLogout() {
     $("#signout").click(function() {
         // window.location = "dologout.html";
         // XXX this redirect is only for temporary use
-        KVStore.release();
-        window.location = "login.html";
+        freeAllResultSetsSync()
+        .then(function() {
+            return (KVStore.release());
+        })
+        .then(function() {
+            window.location = "login.html";
+        })
+        .fail(function(error) {
+            Alert.error("Signout fails", error);
+        });
+
     });
 }
 
