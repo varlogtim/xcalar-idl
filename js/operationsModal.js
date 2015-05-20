@@ -106,7 +106,14 @@ window.OperationsModal = (function($, OperationsModal) {
                 clearInput(0);
                 modalHelper.clear();
             }); 
-            $('#modalBackground').removeClass('light').fadeOut(time);
+            $('#modalBackground').fadeOut(time, function() {
+                $(this).removeClass('light');
+            });
+            $('#sideBarModal').fadeOut(time, function() {
+                $(this).removeClass('light');
+                $('#rightSideBar').removeClass('modalOpen');
+            });
+            
             
             $('.modalHighlighted').removeClass('modalHighlighted');
             $functionInput.attr('placeholder', "");
@@ -150,6 +157,8 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsModal = $('#operationsModal');
         $operationsModal.fadeIn(200);
         $('#modalBackground').addClass('light').fadeIn(200);
+        $('#sideBarModal').addClass('light').fadeIn(200);
+        $('#rightSideBar').addClass('modalOpen');
         $operationsModal.find('.operationsModalHeader .text').text(operator);
         operatorName = $.trim(operator.toLowerCase());
         operatorNoSpace = operatorName.replace(/\s+/g, ''); // remove spaces;

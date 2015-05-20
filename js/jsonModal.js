@@ -140,8 +140,11 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.off();
         $jsonModal.hide();
         $modalBackground.fadeOut(200);
-        $("body").removeClass("hideScroll");
+        $('#sideBarModal').fadeOut(200, function(){
+            $('#rightSideBar').removeClass('modalOpen');
+        });
         $('.modalHighlighted').removeClass('modalHighlighted');
+        $("body").removeClass("hideScroll");
     }
 
     // function positionJsonModal() {
@@ -174,6 +177,9 @@ window.JSONModal = (function($, JSONModal) {
         $("#jsonWrap").height(500).width(500);
         $jsonModal.show();
         $modalBackground.fadeIn(100);
+        $('#sideBarModal').fadeIn(100);
+        $('#rightSideBar').addClass('modalOpen');
+
         $("#jsonObj").html(prettifyJson(jsonString));
     }
 
