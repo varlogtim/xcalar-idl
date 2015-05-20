@@ -476,7 +476,7 @@ function generateColDropDown(tableNum) {
             '</li>'+
             '<li class="deleteColumn">Delete column</li>'+ 
             '<li class="duplicate">Duplicate column</li>'+
-            '<li class="deleteDuplicates">Delete duplicate columns</li>'+ 
+            '<li class="deleteDuplicates">Delete other duplicates</li>'+ 
             '<li class="renameCol">Rename column</li>'+
             '<li class="hide">Hide column</li>'+ 
             '<li class="unhide">Unhide column</li>'+

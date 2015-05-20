@@ -642,7 +642,7 @@ function createTableHeader(tableNum) {
             '<li class="unavailable">Hide Table</li>' + 
             '<li class="deleteTable">Delete Table</li>' + 
             '<li class="exportTable">Export Table</li>' + 
-            '<li class="delAllDuplicateCols">Delete Duplicate Columns</li>' + 
+            '<li class="delAllDuplicateCols">Delete All Duplicates</li>' + 
             '<li class="quickAgg">Quick Aggregates</li>' + 
             '<li class="moveToWorksheet">' + 
                 'Move to worksheet' + 
