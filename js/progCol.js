@@ -138,8 +138,10 @@ window.ColManager = (function($, ColManager) {
         // get the first row in UI and start to add td to each row
         var numRow        = $table.find("tbody tr").length;
         var idOfFirstRow  = $table.find("tbody tr:first").attr("class");
+        var idOfLastRow  = $table.find("tbody tr:last").attr("class");
         var startingIndex = idOfFirstRow ? 
                                 parseInt(idOfFirstRow.substring(3)) : 1;
+        var endingIndex = parseInt(idOfLastRow.substring(3));
 
         if (columnClass != " indexedColumn") {
             columnClass = ""; // we don't need to add class to td otherwise
@@ -150,9 +152,12 @@ window.ColManager = (function($, ColManager) {
                             '&nbsp;' + 
                           '</td>';
 
-        for (var i = startingIndex; i < startingIndex + numRow; i++) {
+        var i = startingIndex; 
+        while (i <= endingIndex) {
             $table.find(".row" + i + " .col" + (newColid - 1))
                   .after(newCellHTML);
+                  console.log(  $table.find(".row" + i + " .col" + (newColid - 1)));
+            i++;
         }
 
         if (inFocus) {
@@ -457,7 +462,6 @@ window.ColManager = (function($, ColManager) {
 
         var numCols        = tableCols.length;
         var numRows        = jsonData.length;
-
         var indexedColNums = [];
         var nestedVals     = [];
         var columnTypes    = [];
@@ -767,7 +771,7 @@ window.ColManager = (function($, ColManager) {
         var value;
 
         if (jsonStr == "") {
-            console.error("Error in pullCol, jsonStr is empty");
+            // console.error("Error in pullCol, jsonStr is empty");
             value = "";
         } else {
             try {

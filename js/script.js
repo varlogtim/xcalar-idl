@@ -41,7 +41,7 @@ var PB = 1024 * TB;
 // ================================= Classes ==================================
 var TableMeta = function() {
     this.tableCols = undefined;
-    this.currentPageNumber = -1;
+    this.currentRowNumber = -1;
     this.resultSetId = -1;
     this.keyName = "";
     this.backTableName = "";
@@ -51,6 +51,7 @@ var TableMeta = function() {
     this.bookmarks = [];
     this.rowHeights = {};
 }
+var scrollCount = 0;
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
     var $rowScroller = $('#rowScrollerArea');
@@ -73,43 +74,74 @@ function infScrolling(tableNum) {
 
         var innerDeferred = jQuery.Deferred();
         var firstRow = table.find('tbody tr:first');
+        var topRowNum = parseInt(firstRow.attr('class').substr(3));
         if (firstRow.length === 0) {
             innerDeferred.resolve();
         } else if ($(this).scrollTop() === 0 && 
-            table.find('tbody tr:first').attr('class') != 'row0') {
+            firstRow.attr('class') != 'row0') {
+            scrollCount++;
+            
+            if (scrollCount < 2) {
+                var initialTop = firstRow.offset().top;
+                var numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum);
+                var rowNumber = topRowNum - numRowsToAdd;
+                var lastRowToDisplay = table.find('tbody tr:lt(40)');
 
-            // console.log('the top!');
-            var initialTop = firstRow.offset().top;
-            if (table.find("tbody tr").length > 40) {
-                var pageNumber = gTables[dynTableNum].currentPageNumber-1;
+                var info = {
+                    numRowsToAdd: numRowsToAdd,
+                    numRowsAdded: 0,
+                    targetRow: rowNumber,
+                    lastRowToDisplay: lastRowToDisplay,
+                    bulk: false
+                }
+
+                goToPage(rowNumber, numRowsToAdd, RowDirection.Top, 
+                         dynTableNum, false, info)
+                .then(function() {
+
+                    scrollCount--;
+                    innerDeferred.resolve();
+                })
+                .fail(function(error) {
+                    scrollCount--;
+                    innerDeferred.reject(error);
+                });
             } else {
-                var pageNumber = gTables[dynTableNum].currentPageNumber;
-            }
-
-            goToPage(pageNumber, RowDirection.Top, dynTableNum)
-            .then(function() {
-                $('#xcTbodyWrap'+dynTableNum)
-                    .scrollTop(firstRow.offset().top - initialTop + 10);
-                table.find("tbody tr:gt(59)").remove();
-
+                scrollCount--;
                 innerDeferred.resolve();
-            })
-            .fail(function(error) {
-                innerDeferred.reject(error);
-            });
+            }
         } else if ($(this)[0].scrollHeight - $(this).scrollTop() -
                    $(this).outerHeight() <= 1) {
-            // console.log('the bottom!');
-            if (table.find('tbody tr').length >= 60) {
-                // keep number of rows at 60
-                table.find('tbody tr:lt(20)').remove();
+            scrollCount++;
+
+            if (scrollCount < 2) {
+                var numRowsToAdd = Math.min(gNumEntriesPerPage, 
+                                  gTables[dynTableNum].resultSetMax - 
+                                  gTables[dynTableNum].currentRowNumber);
+                var info = {
+                    numRowsToAdd: numRowsToAdd,
+                    numRowsAdded: 0,
+                    targetRow: gTables[dynTableNum].currentRowNumber+
+                               numRowsToAdd,
+                    lastRowToDisplay: gTables[dynTableNum].currentRowNumber+
+                                      numRowsToAdd,
+                    bulk: false
+                }
+                
+                goToPage(gTables[dynTableNum].currentRowNumber, numRowsToAdd,
+                         RowDirection.Bottom, dynTableNum, false, info)
+                .then(function() {
+                    scrollCount--;
+                    innerDeferred.resolve();
+                })
+                .fail(function(error) {
+                    scrollCount--;
+                    innerDeferred.reject(error);
+                });
+            } else {
+                 scrollCount--;
+                innerDeferred.resolve();
             }
-            goToPage(gTables[dynTableNum].currentPageNumber+1,
-                     RowDirection.Bottom, dynTableNum)
-            .then(innerDeferred.resolve)
-            .fail(function(error) {
-                innerDeferred.reject(error);
-            });
         } else {
             innerDeferred.resolve();
         }
@@ -177,7 +209,7 @@ function setTableMeta(table, frontName) {
     }
 
     newTable.tableCols = [];
-    newTable.currentPageNumber = 0;
+    newTable.currentRowNumber = 0;
     if (gTableIndicesLookup[tableName]) {
         newTable.rowHeights = gTableIndicesLookup[tableName].rowHeights;
         newTable.bookmarks = gTableIndicesLookup[tableName].bookmarks;
@@ -189,12 +221,11 @@ function setTableMeta(table, frontName) {
         newTable.resultSetId = resultSet.resultSetId;
 
         newTable.resultSetCount = resultSet.numEntries;
+        newTable.resultSetMax = resultSet.numEntries;
         newTable.numPages = Math.ceil(newTable.resultSetCount /
                                       gNumEntriesPerPage);
         newTable.backTableName = tableName;
         newTable.frontTableName = frontName == undefined ? tableName:frontName;
-
-        // console.log(newTable);
 
         deferred.resolve(newTable);
     })
@@ -364,41 +395,48 @@ function documentReadyxcTableFunction() {
         if (e.which !== keyCode.Enter) {
             return;
         }
-        var row = $('#rowInput').val();
+        var targetRow = $('#rowInput').val();
+        var backRow = parseInt(targetRow);
 
-        if (row == "" || row%1 != 0) {
+        if (targetRow == "" || targetRow%1 != 0) {
             return;
         }
         if (gTables[gActiveTableNum].resultSetCount == 0) {
             $rowInput.val('0');
             $rowInput.data('val', 0);
             return;
-        } else if (row < 1) {
-            row = 1;
-        } else if (row > gTables[gActiveTableNum].resultSetCount) {
-            row = gTables[gActiveTableNum].resultSetCount;
+        } else if (targetRow < 1) {
+            targetRow = 1;
+            backRow = 0;
+        } else if (targetRow > gTables[gActiveTableNum].resultSetCount) {
+            targetRow = gTables[gActiveTableNum].resultSetCount;
+            backRow = gTables[gActiveTableNum].resultSetCount - 20;
         }
-        $rowInput.data('val', row);
-        $rowInput.val(row);
+        $rowInput.data('val', targetRow);
+        $rowInput.val(targetRow);
 
-        if ((row/gNumEntriesPerPage) >
-                Math.floor((gTables[gActiveTableNum].resultSetCount/
-                            gNumEntriesPerPage)-2)) {
-            //if row lives inside last 3 pages, prepare to display last 3 pages
-            var pageNum = (gTables[gActiveTableNum].resultSetCount-1)/
-                           gNumEntriesPerPage - 2;
-        } else {
-            var pageNum = row/gNumEntriesPerPage;
+        backRow = Math.min(gTables[gActiveTableNum].resultSetMax-60, 
+                            backRow-20);
+
+        if (backRow < 0) {
+            backRow = 0;
         }
-        if (pageNum < 0) {
-            pageNum = 0;
+
+        var numRowsToAdd = 60;
+        var info = {
+            numRowsToAdd: numRowsToAdd,
+            numRowsAdded: 0,
+            lastRowToDisplay: backRow+60,
+            targetRow: targetRow,
+            bulk: true
         }
-        var skipToRow = true;
-        goToPage(Math.ceil(pageNum), RowDirection.Bottom, gActiveTableNum, 
-                 skipToRow)
+        goToPage(backRow, numRowsToAdd, RowDirection.Bottom,
+                 gActiveTableNum, false, info)
         .then(function() {
             adjustColGrabHeight(gActiveTableNum);
-            positionScrollbar(row, gActiveTableNum);
+            var rowToScrollTo = Math.min(targetRow, 
+                                gTables[gActiveTableNum].resultSetMax);
+            positionScrollbar(rowToScrollTo, gActiveTableNum);
             generateFirstVisibleRowNum();
             if (!e.rowScrollerMousedown) {
                 moverowScroller($('#rowInput').val(), 
@@ -567,6 +605,7 @@ function documentReadyCatFunction(tableNum, tableNumsToRemove) {
                 $('#dagWrapToRemove'+tableNumsToRemove[i]).remove();
             }
         }
+        gTables[tableNum].currentRowNumber = jsonData.length;
         buildInitialTable(index, tableNum, jsonData, keyName);
         deferred.resolve();
     })

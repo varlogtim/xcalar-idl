@@ -1487,6 +1487,9 @@ function positionScrollbar(row, tableNum) {
     var table = $('#xcTable'+tableNum);
     var theadHeight = table.find('thead').height();
     function positionScrollToRow() {
+        if (!table.find('.row'+(row-1))[0]) {
+            return;
+        } 
         var tdTop = table.find('.row'+(row-1))[0].offsetTop;
         var scrollPos = Math.max((tdTop-theadHeight), 1);
         if (canScroll && scrollPos > 

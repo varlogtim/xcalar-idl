@@ -352,7 +352,6 @@ function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
     // this function does some preparation for ColManager.pullAllCols()
     var startIndex = startIndex || 0;
     var $table = $('#xcTable'+tableNum);
-
     // get the column number of the datacolumn
     if (dataIndex == null) {
         dataIndex = xcHelper.parseColNum($('#xcTable'+tableNum)
