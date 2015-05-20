@@ -148,7 +148,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         
 
-        centerPositionElement($operationsModal);
+        
         highlightOperationColumn(tableNum, colNum);
         $operationsModal = $('#operationsModal');
         $operationsModal.fadeIn(200);
@@ -194,7 +194,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.addClass('numArgs3');
         }
 
-
+        centerPositionElement($operationsModal);
         modalHelper.setup();
 
         fillInputPlaceholder(0); 

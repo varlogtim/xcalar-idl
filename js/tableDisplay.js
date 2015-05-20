@@ -501,9 +501,10 @@ function generateColDropDown(tableNum) {
             '<li class="functions aggregate">Aggregate...</li>'+
             '<li class="functions filter">Filter...</li>';
     if (gTables[tableNum].isTable) {
-        dropDownHTML += '<li class="groupby">Group By</li>';
+        dropDownHTML += '<li class="functions groupby">Group By...</li>';
     } else {
-        dropDownHTML += '<li class="groupby unavailable">Group By</li>';
+        dropDownHTML += '<li class="functions groupby unavailable">'+
+                        'Group By...</li>';
     }
     dropDownHTML +=       
             '<li class="functions map">Map...</li>'+
