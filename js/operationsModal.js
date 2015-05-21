@@ -641,48 +641,48 @@ window.OperationsModal = (function($, OperationsModal) {
                     'or', 
                     'ip address to integer'
                 ],
-        'sort' : ['a-z']
     }
 
     var allArgs = {
         'aggregate' : {'defaultArgs' : []},
 
         'filter' : {
-                    'defaultArgs' : [{'': 0}],
-                    'regex' : [{'': '*'}],
+                    'defaultArgs' : [{'Value to be compared with': 0}],
+                    'exclude' : [{'Value or Regex to exclude': '*'}],
+                    'like': [{'Clause to search for a specified pattern': ''}],
+                    'regex' : [{'Regular expression to be matched to': '*'}],
                     'custom' : [{'enter a custom argument': ''}]
                    },
-        'group by' : {'defaultArgs' : [{'New Column Name' : 'groupBy'}]},
+        'group by' : {'defaultArgs' : 
+                      [{'New Column Name for the groupBy resultant column' :
+                        'groupBy'}]},
 
         'map' : {
                     'defaultArgs' : [
-                        {'Value or Column' : 1}, 
-                        {'Value or Column' : 1}, 
-                        {'New Column Name' : 'mappedCol'}
+                        {'Value or Column Name' : 1}, 
+                        {'Value or Column Name' : 1}, 
+                        {'New Resultant Column Name' : 'mappedCol'}
                     ], 
                     'sum' : [
-                        {'Value or Column' : 3}, 
-                        {'Value or Column' : 3}, 
-                        {'New Column Name' : 'mappedCol'}
+                        {'Value or Column Name' : 3}, 
+                        {'Value or Column Name' : 3}, 
+                        {'New Resultant Column Name' : 'mappedCol'}
                     ],
                     'subtract' : [
-                        {'Value or Column' : 2}, 
-                        {'Value or Column' : 2}, 
-                        {'New Column Name' : 'mappedCol'}
+                        {'Value or Column Name' : 2}, 
+                        {'Value or Column Name' : 2}, 
+                        {'New Resultant Column Name' : 'mappedCol'}
                     ],
                     'multiply' : [
-                        {'Value or Column' : 4}, 
-                        {'Value or Column' : 4}, 
-                        {'New Column Name' : 'mappedCol'}
+                        {'Value or Column Name' : 4}, 
+                        {'Value or Column Name' : 4}, 
+                        {'New Resultant Column Name' : 'mappedCol'}
                     ],
                     'ip address to integer' : [
-                        {'Value or Column' : 3}, 
-                        {'Value or Column' : 3}, 
-                        {'Number of Octets' : 'mappedCol'}
+                        {'Number of Octets' : 3}, 
+                        {'New Resultant Column Name' : 'mappedCol'}
                     ]
-                },
-        'sort' : {'defaultArgs' : []}
-        
+                }
     }
 
     function fillInputPlaceholder(inputNum) {
