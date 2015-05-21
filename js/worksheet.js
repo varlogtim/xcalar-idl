@@ -337,7 +337,7 @@ window.WSManager = (function($, WSManager) {
 
     function newWorksheet() {
         var wsIndex = worksheets.length;
-        var name = defaultName + (nameSuffix++);
+        var name    = defaultName + (nameSuffix++);
 
         while (wsNameLookUp[name] != undefined) {
             name = defaultName + (nameSuffix++);
@@ -345,8 +345,9 @@ window.WSManager = (function($, WSManager) {
         }
 
         setWorksheet(wsIndex, {"name": name});
-
         makeWorksheet(name, wsIndex);
+        // focus on new worksheet
+        WSManager.focusOnWorksheet(wsIndex);
     }
 
     function makeWorksheet(name, wsIndex) {
