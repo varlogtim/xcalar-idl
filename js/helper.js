@@ -121,6 +121,10 @@ window.xcHelper = (function($, xcHelper) {
         return (num % 1 !== 0);
     }
 
+    xcHelper.isArray = function(obj) {
+        return (obj.constructor.toString().indexOf("Array") > -1);
+    }
+
     // fomart is mm-dd-yyyy
     xcHelper.getDate = function(delimiter, d, timeStamp) {
         var date;

@@ -435,29 +435,24 @@ window.ColManager = (function($, ColManager) {
     {
         var table          = gTables[tableNum];
         var tableCols      = table.tableCols;
-        var indexedColNums = [];
+
         var numCols        = tableCols.length;
         var numRows        = jsonData.length;
+
+        var indexedColNums = [];
         var nestedVals     = [];
-        var tBodyHTML      = "";
-        var startIndex     = startIndex || 0;
         var columnTypes    = [];
         var childArrayVals = [];
+
+        var tBodyHTML      = "";
+        var startIndex     = startIndex || 0;
 
         for (var i = 0; i < numCols; i++) {
             if ((i != dataIndex) && 
                 tableCols[i].func.args && 
                 tableCols[i].func.args != "")
             {
-                var nested = tableCols[i].func.args[0]
-                                .replace(/\]/g, "")
-                                .replace(/\[/g, ".")
-                                .match(/([^\\.]|\\.)+/g);
-
-                for (var j = 0; j < nested.length; j++) {
-                    nested[j] = nested[j].replace(/\\./g, "\.");
-                }
-
+                var nested = parseColFuncArgs(tableCols[i].func.args[0]);
                 nestedVals.push(nested);
                 // get the column number of the column the table was indexed on
                 if (tableCols[i].func.args && 
@@ -474,22 +469,9 @@ window.ColManager = (function($, ColManager) {
 
         // loop through table tr and start building html
         for (var row = 0; row < numRows; row++) {
-            var dataValue;
+            var dataValue = parseRowJSON(jsonData[row]);
+            var rowNum    = row + startIndex;
 
-            if (jsonData[row] == "") {
-                console.log('No DATA found in this row??');
-                dataValue = "";
-            } else {
-                try {
-                    dataValue = jQuery.parseJSON(jsonData[row]);
-                } catch(err) {
-                    // XXX may add extra handlers to handle the error
-                    console.error(err, jsonData[row]);
-                    dataValue = "";
-                }
-            }
-
-            var rowNum = row + startIndex;
             tBodyHTML += '<tr class="row' + rowNum + '">';
             // add bookmark
             if (table.bookmarks.indexOf(rowNum) > -1) {
@@ -515,7 +497,7 @@ window.ColManager = (function($, ColManager) {
                 var tdValue      = dataValue;
                 var childOfArray = childArrayVals[col];
 
-                if (col != dataIndex) {
+                if (col !== dataIndex) {
                     if (nested == undefined) {
                         console.error('Error this value should not be empty');
                     }
@@ -531,35 +513,31 @@ window.ColManager = (function($, ColManager) {
 
                         tdValue = tdValue[nested[i]];
 
-                        if (i < nestedLength - 1 && !childOfArray) {
-                            if (typeof tdValue == "object" && 
-                                (tdValue instanceof Array)) 
-                            {
-                                childArrayVals[col] = true;
-                            }
+                        if (!childOfArray && i < nestedLength - 1 && 
+                            xcHelper.isArray(tdValue)) {
+                            childArrayVals[col] = true;
                         }
                     }
                     // XXX giving classes to table cells may
                     // actually be done later
-                    var indexedColumnClass = "";
+                    var tdClass = "col" + (col + 1);
+                    // class for indexed col
                     if (indexedColNums.indexOf(col) > -1) {
-                        indexedColumnClass = " indexedColumn";
+                        tdClass += " indexedColumn";
+                    }
+                    // class for textAlign
+                    if (tableCols[col].textAlign === "Left") {
+                        tdClass += " textAlignLeft";
+                    } else if (tableCols[col].textAlign === "Right") {
+                        tdClass += " textAlignRight";
                     }
 
-                    var textAlignment = "";
-                    if (tableCols[col].textAlign == "Left") {
-                        textAlignment = "textAlignLeft";
-                    } else if (tableCols[col].textAlign == "Right") {
-                        textAlignment = "textAlignRight";
-                    }
-
-                    tBodyHTML += '<td class="' + indexedColumnClass + ' ' + 
-                                    textAlignment + ' col' + (col + 1) + '">' + 
+                    tBodyHTML += '<td class="' + tdClass + '">' + 
                                     '<div class="addedBarTextWrap">' +
                                         '<div class="addedBarText">';
                 } else {
                     // make data td;
-                    tdValue = jsonData[row];
+                    tdValue   = jsonData[row];
                     tBodyHTML += 
                         '<td class="col' + (col + 1) + ' jsonElement">' + 
                             '<div data-toggle="tooltip" ' + 
@@ -591,53 +569,59 @@ window.ColManager = (function($, ColManager) {
                 tdValue = xcHelper.parseJsonValue(tdValue);
                 tBodyHTML += tdValue + '</div></div></td>';
             }
+            // end of loop through table tr's tds
             tBodyHTML += '</tr>';
         }
 
         var $tBody = $(tBodyHTML);
 
-        if (direction == 1) {
+        if (direction === 1) {
             $('#xcTable' + tableNum).find('tbody').prepend($tBody);
         } else {
             $('#xcTable' + tableNum).find('tbody').append($tBody);
         }
+        // end of loop through table tr and start building html
 
         // assign column type class to header menus
         var $table = $('#xcTable' + tableNum);
         for (var i = 0; i < numCols; i++) {
             var $currentTh = $table.find('th.col' + (i + 1));
-            var $header = $currentTh.find('> .header');
-            var type = columnTypes[i];
-            if (type == undefined) {
-                type = "undefined";
+            var $header    = $currentTh.find('> .header');
+            var columnType = columnTypes[i];
+
+            if (columnType == undefined) {
+                columnType = "undefined";
             }
             // XXX Fix me if DATA column should not be type object
-            if (gTables[tableNum].tableCols[i].name === "DATA") {
-                type = "object";
+            if (tableCols[i].name === "DATA") {
+                columnType = "object";
             }
-            $header.removeClass("type-mixed")
-                    .removeClass("type-string")
-                    .removeClass("type-integer")
-                    .removeClass("type-decimal")
-                    .removeClass("type-object")
-                    .removeClass("type-array")
-                    .removeClass("type-undefined")
-                    .removeClass("type-boolean")
-                    .removeClass("recordNum")
-                    .removeClass("childOfArray")
-                    .addClass('type-' + type);
-            gTables[tableNum].tableCols[i].type = type;
+            tableCols.type = columnType;
+
+            // $header.removeClass("type-mixed")
+            //         .removeClass("type-string")
+            //         .removeClass("type-integer")
+            //         .removeClass("type-decimal")
+            //         .removeClass("type-object")
+            //         .removeClass("type-array")
+            //         .removeClass("type-undefined")
+            //         .removeClass("type-boolean")
+            //         .removeClass("recordNum")
+            //         .removeClass("childOfArray")
+            //         .addClass('type-' + columnType);
+
+            $header.addClass('type-' + columnType);
+
             if (tableCols[i].name == "recordNum") {
                 $header.addClass('recordNum');
-            }
-            if ($currentTh.hasClass('selectedCell')) {
-                highlightColumn($currentTh);
             }
             if (childArrayVals[i]) {
                 $header.addClass('childOfArray');
             }
+            if ($currentTh.hasClass('selectedCell')) {
+                highlightColumn($currentTh);
+            }
         }
-
         return ($tBody);
     }
 
@@ -665,37 +649,15 @@ window.ColManager = (function($, ColManager) {
             numRow = numberOfRows || gNumEntriesPerPage;
         }
 
-        var nested = key.trim()
-                        .replace(/\]/g, "")
-                        .replace(/\[/g, ".")
-                        .match(/([^\\.]|\\.)+/g);
-
-       // track column type
-        var columnType = undefined;
-
-        for (var i = 0; i<nested.length; i++) {
-            nested[i] = nested[i].replace(/\\./g, "\.");
-        }
-
+        var endingIndex  = numRow + startingIndex;
+        var nested       = parseColFuncArgs(key);
+        var columnType   = undefined;  // track column type
         var childOfArray = false;
 
-        for (var i = startingIndex; i < numRow + startingIndex; i++) {
+        for (var i = startingIndex; i < endingIndex; i++) {
             var jsonStr = $table.find('.row'+i+' .col'+colid+' .elementText')
                                 .text();
-            var value;
-
-            if (jsonStr == "") {
-                console.log("Error: pullCol() jsonStr is empty");
-                value = "";
-            } else {
-                try {
-                    value = jQuery.parseJSON(jsonStr);
-                } catch (err) {
-                    // XXX may need extra handlers to handle the error
-                    console.error(err, jsonStr);
-                    value = "";
-                }
-            }
+            var value = parseRowJSON(jsonStr);
 
             for (var j = 0; j < nested.length; j++) {
                 if (jQuery.isEmptyObject(value) || 
@@ -706,10 +668,9 @@ window.ColManager = (function($, ColManager) {
                 }
                 value = value[nested[j]];
 
-                if (j < nested.length - 1 && !childOfArray) {
-                    if (typeof value == "object" && (value instanceof Array)) {
-                        childOfArray = true;
-                    }
+                if (!childOfArray && j < nested.length - 1 && 
+                    xcHelper.isArray(value)) {
+                    childOfArray = true;
                 }
             }
 
@@ -735,26 +696,29 @@ window.ColManager = (function($, ColManager) {
                     '</div>';
             $table.find('.row'+i+' .col'+newColid).html(value);
         }
+
         if (columnType == undefined) {
-            gTables[tableNum].tableCols[newColid - 1].type = "undefined";
-        } else {
-            gTables[tableNum].tableCols[newColid - 1].type = columnType;
+            columnType = "undefined";
         }
+
+        gTables[tableNum].tableCols[newColid - 1].type = columnType;
 
         // add class to th
         var $header = $table.find('th.col' + newColid + ' div.header');
 
-        $header.removeClass("type-mixed")
-               .removeClass("type-string")
-               .removeClass("type-integer")
-               .removeClass("type-decimal")
-               .removeClass("type-object")
-               .removeClass("type-array")
-               .removeClass("type-boolean")
-               .removeClass("type-undefined")
-               .removeClass("recordNum")
-               .removeClass("childOfArray")
-               .addClass('type-' + columnType);
+        // $header.removeClass("type-mixed")
+        //        .removeClass("type-string")
+        //        .removeClass("type-integer")
+        //        .removeClass("type-decimal")
+        //        .removeClass("type-object")
+        //        .removeClass("type-array")
+        //        .removeClass("type-boolean")
+        //        .removeClass("type-undefined")
+        //        .removeClass("recordNum")
+        //        .removeClass("childOfArray")
+        //        .addClass('type-' + columnType);
+
+        $header.addClass('type-' + columnType);
 
         if (key == "recordNum") {
             $header.addClass('recordNum');
@@ -762,8 +726,43 @@ window.ColManager = (function($, ColManager) {
         if (childOfArray) {
             $header.addClass('childOfArray');
         }
+
         $table.find('th.col' + newColid).removeClass('newColumn');
     }
+    // Help Functon for pullAllCols and pullCOlHelper
+    // parse tableCol.func.args
+    function parseColFuncArgs(key) {
+        var nested = key.trim()
+                        .replace(/\]/g, "")
+                        .replace(/\[/g, ".")
+                        .match(/([^\\.]|\\.)+/g);
+
+        for (var i = 0; i < nested.length; i++) {
+            nested[i] = nested[i].replace(/\\./g, "\.");
+        }
+
+        return (nested);
+    }
+    // parse json string of a table row
+    function parseRowJSON(jsonStr) {
+        var value;
+
+        if (jsonStr == "") {
+            console.error("Error in pullCol, jsonStr is empty");
+            value = "";
+        } else {
+            try {
+                value = jQuery.parseJSON(jsonStr);
+            } catch (err) {
+                // XXX may need extra handlers to handle the error
+                console.error(err, jsonStr);
+                value = "";
+            }
+        }
+
+        return (value);
+    }
+    // End Of Help Functon for pullAllCols and pullCOlHelper
 
     function insertColHelper(index, tableNum, progCol) {
          // tableCols is an array of ProgCol obj
