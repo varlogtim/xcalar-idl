@@ -130,11 +130,11 @@ window.WSManager = (function($, WSManager) {
         var tableCopy = JSON.parse(JSON.stringify(srcTable));
 
         activeWorsheet = wsIndex;
+        gTableIndicesLookup[newTableName] = tableCopy;
         // XXX for sample table, should sync frontName with backName since
         // there both src sample and the copied can change to real table using
         // its backTableName
         if (!tableCopy.isTable) {
-            gTableIndicesLookup[newTableName] = tableCopy;
             tableCopy.backTableName  = newTableName;
         }
 
