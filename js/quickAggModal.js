@@ -97,7 +97,7 @@ window.AggModal = (function($, AggModal) {
 
         var wholeTable    = '<div class="aggTable">';
 
-        for (var j = 0; j< numColumns; j++) {
+        for (var j = 0; j < numColumns; j++) {
             var cols = table.tableCols[j];
             // XXX Skip DATA!
             if (cols.name === "DATA") {
@@ -112,7 +112,7 @@ window.AggModal = (function($, AggModal) {
             for (var i = 0; i < 5; i++) {
                 wholeTable += '<div class="aggTableField">';
 
-                if (cols.type === "number") {
+                if (cols.type === "integer" || cols.type === "decimal") {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray) {
                         wholeTable += "Not Supported"
@@ -141,7 +141,8 @@ window.AggModal = (function($, AggModal) {
             for (var j = 0; j < numColumns; j++) {
                 var cols = table.tableCols[j];
                 // XXX Skip DATA!
-                if (cols.type === "number" && cols.name !== "DATA") {
+                if ((cols.type === "integer" || cols.type === "decimal")
+                     && cols.name !== "DATA") {
                     var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
                                         (j+1)  + " .header");
                     // XXX now agg on child of array is not supported
