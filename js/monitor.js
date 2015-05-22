@@ -381,7 +381,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                     .orient("left")
                     .innerTickSize(-width);
 
-        var svgWrap = d3.select("#graph").insert("svg", ".separator");
+        var svgWrap = d3.select("#graph .svgWrap").append("svg");
         
         svg = svgWrap.attr("width", width)
                      .attr("height", height)
@@ -437,6 +437,10 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var $graph = $('#graph');
         $graph.find('svg').remove();
         $graph.find('.xLabels').empty();
+        clearInterval(graphCycle);
+    }
+
+    MonitorGraph.stop = function() {
         clearInterval(graphCycle);
     }
 
@@ -505,6 +509,12 @@ window.MonitorGraph = (function($, MonitorGraph) {
             });
 
             count++;
+            setTimeout(function() {
+                //XX Hack - the graph refuses to move unless I change more
+                // of its attributes
+                var rand = Math.random()*.1;
+                svgWrap.attr("height", 210+rand);
+            },200);
         }
     }
     
