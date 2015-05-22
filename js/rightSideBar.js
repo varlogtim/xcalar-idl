@@ -379,7 +379,17 @@ window.RightSideBar = (function($, RightSideBar) {
 
     // setup UDF section
     function setupUDF() {
-        LineMarker.setup();
+        var textArea = document.getElementById("udf-codeArea");
+        var editor   = CodeMirror.fromTextArea(textArea, {
+            "mode": {
+                "name": "python",
+                "version": 3,
+                "singleLineStringErrors": false
+            },
+            "lineNumbers": true,
+            "indentUnit": 4,
+            "matchBrackets": true
+        });
 
         /* switch between UDF sections */
         var $sections = $("#udfSection .mainSection");
@@ -394,6 +404,10 @@ window.RightSideBar = (function($, RightSideBar) {
 
             $sections.addClass("hidden");
             $("#" + tabId).removeClass("hidden");
+
+            if (tabId === "udf-fnSection") {
+                editor.refresh();
+            }
         });
         /* end of switch between UDF sections */
 
@@ -488,7 +502,6 @@ window.RightSideBar = (function($, RightSideBar) {
             $fnName.val("");
             $template.val("");
             $downloadBtn.addClass("hidden");
-            LineMarker.clear();
         });
         /* end of upload written function section */
     }
@@ -760,147 +773,6 @@ window.RightSideBar = (function($, RightSideBar) {
     }
 
     return (RightSideBar);
-}(jQuery, {}));
-
-window.LineMarker = (function($, LineMarker) {
-    // constants
-    var lineCounter         = 1;
-    var lineMarkerOffsetTop = 3;  // has padding 3 in CSS
-
-    var $textarea   = $("#udf-codeArea");
-    var $lineMarker = $("#udf-lineMarker");
-
-    LineMarker.setup = function() {
-        markLineNumber(lineCounter);
-
-        // python editor listener
-        $textarea.on({
-            "scroll": function() {
-                positoinLineMarker();
-            },
-            "mousedown": function() {
-                positoinLineMarker();
-            },
-            "focus": function() {
-                positoinLineMarker();
-            },
-            "blur": function() {
-                positoinLineMarker();
-            },
-            "keydown": function(event) {
-                positoinLineMarker();
-
-                switch (event.which) {
-                    case keyCode.Enter:
-                        addLineMarker();
-                        break;
-
-                    case keyCode.Tab:
-                        event.preventDefault();
-                        insertTab($(this));
-                        break;
-
-                    case keyCode.Backspace:
-                    case keyCode.Delete:
-                        updateLineMarkerInKeydown();
-
-                    default:
-                        break;
-                }
-            },
-            "keyup": function(event) {
-
-                switch (event.which) {
-                    case keyCode.Backspace:
-                    case keyCode.Delete:
-                        lineMarkerCheck();
-
-                    default:
-                        break;
-                }
-            },
-            "paste": function() {
-                // XXX may have better approach
-                setTimeout(lineMarkerCheck, 50);
-            },
-            "cut": function() {
-                setTimeout(lineMarkerCheck, 50);
-            }
-        });
-    }
-
-    LineMarker.clear = function() {
-        lineCounter = 1;
-        $textarea.val("");
-        markLineNumber(lineCounter);
-    }
-
-    function positoinLineMarker() {
-        var newTop = (-1 * $textarea.scrollTop() + lineMarkerOffsetTop) + "px";
-
-        $lineMarker.css("top", newTop);
-    }
-
-    function markLineNumber(lineCount) {
-        var string = "";
-
-        for (var i = 1; i <= lineCounter; i ++) {
-            if (i > 1) {
-                string += "<br>";
-            }
-            string += i;
-        }
-
-        $lineMarker.html(string);
-    }
-
-    function addLineMarker() {
-        markLineNumber(++lineCounter);
-    }
-
-    function updateLineMarkerInKeydown() {
-        var contents = $textarea.val().split('\n');
-        var len      = contents.length;
-
-        if (contents[len - 1] == "") {
-            lineCounter = len - 1;
-        } else {
-            lineCounter = len;
-        }
-
-        if (lineCounter <= 1) {
-            lineCounter = 1;
-        }
-
-        markLineNumber(lineCounter);
-    }
-
-    function lineMarkerCheck() {
-        var len = $textarea.val().split('\n').length;
-
-        if (lineCounter != len) {
-            lineCounter = len;
-            markLineNumber(lineCounter);
-        }
-
-    }
-
-    function insertTab($div) {
-        var div     = $div.get(0);
-        var val     = $div.val();
-        var start   = div.selectionStart;
-        var end     = div.selectionEnd;
-
-        // set textarea value to: text before caret + tab + text after caret
-        $div.val(val.substring(0, start)
-                 + "\t"
-                 + val.substring(end));
-
-        // put caret at right position again
-        div.selectionStart = div.selectionEnd = start + 1;
-    }
-
-    return (LineMarker);
 }(jQuery, {}));
 
 window.HelpController = (function($, HelpController){
