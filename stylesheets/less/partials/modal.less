@@ -1417,6 +1417,14 @@
             text-transform: capitalize;
             li {
                 display: none;
+                &:hover {
+                    background-color: transparent;
+                }
+                &.highlighted {
+                    // background-color: red;
+                    background-color: @color-selectedCell-light;
+                }
+
             }
         }
         &.open {
@@ -1712,7 +1720,7 @@
         }
     }
 
-    &.type-number, &.type-boolean {
+    &.type-integer, &.type-boolean {
         .category-filter {
             .like, .regex {
                 display: none !important;

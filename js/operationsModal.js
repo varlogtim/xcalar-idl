@@ -20,36 +20,47 @@ window.OperationsModal = (function($, OperationsModal) {
             suggest($(this));
         });
 
-        $autocompleteInputs.on('blur', function(event) {
-            closeListIfNeeded($(this));
-        });
-
         $autocompleteInputs.on('change', function(event) {
             if ($(this).parent().index() == 0) {
                 updateFunctionsList();
             }
-            
+            if ($(this).siblings('.list').find('li').length > 0) {
+                return;
+            }
             produceArgumentTable();
             var index = $autocompleteInputs.index($(this));
-            if ($(this).val() == "") {
-                clearInput(index);
-            } else {
+            if ($(this).val() != "") {
                 enterInput(index);
             } 
         });
 
         $autocompleteInputs.on('click', function() {
+            $operationsModal.find('.list, .list li').hide();
             suggest($(this));
+            $operationsModal.find('li.highlighted').removeClass('highlighted');
         });
 
         $autocompleteInputs.on('keypress', function(event) {
-            if (event.which == keyCode.Enter && $(this).val() != "") {
+            if (event.which == keyCode.Enter) {
+                var index = $autocompleteInputs.index($(this));
+                if ($(this).val() == "") {
+                    clearInput(index);
+                    return;
+                }
                 $(this).blur();
                 $operationsModal.find('.list, .list li').hide();
-                var index = $autocompleteInputs.index($(this));
-                enterInput(index);
+                
+                enterInput(index);  
             } else {
                 closeListIfNeeded($(this));
+            }
+        });
+
+        $autocompleteInputs.on('keydown', function(event) {
+            if (event.which == keyCode.Down) {
+                listHighlight($(this), keyCode.Down);
+            } else if (event.which == keyCode.Up) {
+                listHighlight($(this), keyCode.Up);
             }
         });
 
@@ -69,14 +80,19 @@ window.OperationsModal = (function($, OperationsModal) {
             enterInput(index);
         });
 
-        // $operationsModal.find('.clearInput').on('click', function() {
-        //     var index = $operationsModal.find('.clearInput').index($(this));
-        //     clearInput(index);
-        //     $autocompleteInputs.eq(index).focus();
-        // });
-        
+        $operationsModal.find('.list').on('mouseenter', 'li', function(event) {
+            $operationsModal.find('.list li').removeClass('highlighted');
+            $(this).addClass('highlighted');
+        });
+
+        $operationsModal.find('.list').on('mouseleave', 'li', function(event) {
+            $operationsModal.find('.list li').removeClass('highlighted');
+            $(this).removeClass('highlighted');
+        });
+
         $operationsModal.find('.dropdown').on('click', function() {
-            // console.log($(this).siblings('.list'));
+
+            $operationsModal.find('.list').hide();
             var $list = $(this).siblings('.list');
             $list.show();
             $list.children().show();
@@ -129,10 +145,6 @@ window.OperationsModal = (function($, OperationsModal) {
             if ($mousedownTarget.closest('.listSection').length == 0) {
                 $operationsModal.find('.list, .list li').hide();
             }
-        });
-
-        $operationsModal.on('keydown', function() {
-            closeListIfNeeded($(this));
         });
 
         $operationsModal.find('.confirm').on('click', submitForm);
@@ -204,7 +216,9 @@ window.OperationsModal = (function($, OperationsModal) {
         modalHelper.setup();
 
         fillInputPlaceholder(0); 
+
         $categoryInput.val('all').change();
+        enterInput(0);
         $operationsModal.find('.circle1').addClass('filled');
         $functionInput.focus();
     }
@@ -214,8 +228,26 @@ window.OperationsModal = (function($, OperationsModal) {
         var value = $.trim($input.val()).toLowerCase();
         var $list = $input.siblings('.list');
         $list.show();
+        
+        replaceFunctionListItems();
         $list.find('li').show();
-        $list.find('li:not(:contains('+value+'))').hide();
+        $list.find('li:not(:contains('+value+'))').remove();
+        if (value == "") {
+            return;
+        }
+
+        var $lis = $list.find('li');
+        var strongMatchArray = [];
+        for (var i = 0; i < $lis.length; i++) {
+            var $li = $lis.eq(i);
+            var liText = $li.text();
+            if (liText.indexOf(value) == 0) {
+                strongMatchArray.push($li);
+            }
+        }
+        for (var i = 0; i < strongMatchArray.length; i++) {
+            $list.prepend(strongMatchArray[i]);
+        }
     }
 
     function enterInput(inputNum, noFocus) {
@@ -248,7 +280,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         setTimeout(function() {
             $operationsModal.find('.circle'+(inputNum+1)).addClass('filled');
-        }, 350);
+        }, 300);
     }
 
     function clearInput(inputNum, keep) {
@@ -280,6 +312,46 @@ window.OperationsModal = (function($, OperationsModal) {
         if ($mousedownTarget.closest('#'+parentId).length == 0) {
             $operationsModal.find('.list, .list li').hide();
         }
+    }
+
+    function listHighlight($input, keyCodeNum) {
+        if (keyCodeNum == keyCode.Up) {
+            var direction = -1;
+        } else if (keyCodeNum == keyCode.Down) {
+            var direction = 1;
+        } else {
+            // key code not supported
+            return;
+        }
+
+        var $lis = $input.siblings('.list').find('li').filter(function() {
+                        return ($(this).css('display') != 'none');
+                    });
+        if ($lis.length == 0) {
+            return;
+        }
+        var $highlightedLi = $lis.filter(function() {
+                                return ($(this).hasClass('highlighted'));
+                            });
+        if ($highlightedLi.length != 0) {
+            var index = $highlightedLi.index();
+            $highlightedLi.removeClass('highlighted');
+            if ((index+1) >= $lis.length) {
+                if (direction == -1) {
+                    $highlightedLi = $lis.eq(index+direction);
+                } else {
+                    $highlightedLi = $lis.eq(0);
+                }
+            } else {
+                $highlightedLi = $lis.eq(index+direction);
+            }
+        } else {
+            var index = 0;
+            $highlightedLi = $lis.eq(0); 
+        } 
+        $highlightedLi.addClass('highlighted');
+        var val = $highlightedLi.text();
+        $input.val(val);
     }
     
 
@@ -322,10 +394,8 @@ window.OperationsModal = (function($, OperationsModal) {
         StatusBox.show(text, $target, isFormMode, offset);
     }
 
-
     function updateFunctionsList() {
-        var category = $.trim($categoryInput.val().toLowerCase());
-        var categoryNoSpace = category.replace(/\s+/g, ''); // remove spaces;
+
         var funcText = $.trim($functionInput.val()).toLowerCase();
         var classes = $functionsMenu.attr('class').split(' ');
 
@@ -338,7 +408,14 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $functionsMenu.attr('class', classes.join(' '));
         $functionsMenu.addClass('category-'+operatorName);
+        replaceFunctionListItems();
+       
+        fillInputPlaceholder(1);
+    }
 
+    function replaceFunctionListItems() {
+        var category = $.trim($categoryInput.val().toLowerCase());
+        var categoryNoSpace = category.replace(/\s+/g, ''); // remove spaces
         if (functionsList[operatorName]) {
             if ($operationsModal.find('.'+categoryNoSpace).css('opacity')
                  < 0.2) {
@@ -353,20 +430,16 @@ window.OperationsModal = (function($, OperationsModal) {
                 var classValue = value.replace(/\s+/g, ''); // remove spaces;
                 html += '<li class="'+classValue+'">'+value+'</li>';
             }
-            
-            $functionsMenu.html(html);
 
-            var $lis = $functionsMenu.find('li').filter(function() {
-                            return ($(this).text() == funcText);
-                        });
-            if ($lis.length == 0) {
-                $functionInput.val("");
-            }
+            $functionsMenu.html(html);
+            var $hiddenLis = $functionsMenu.find('li').filter(function() {
+                return ($(this).css('opacity') < 0.2);
+            });
+
+            $hiddenLis.remove();
         } else {
             $functionsMenu.empty();
-            $functionInput.val("");
         }
-        fillInputPlaceholder(1);
     }
 
     function produceArgumentTable() {
