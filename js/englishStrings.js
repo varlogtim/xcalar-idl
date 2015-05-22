@@ -30,3 +30,21 @@ StatusMessageTStr = {
 TooltipTStr = {
 'ComingSoon' : 'Coming Soon'
 }
+
+
+TipsTStr = {
+    "Scrollbar": "Scroll Table Here",
+    "AddWorksheet": "Add Worksheet",
+    "EditColumn": "Click header to edit column",
+    "LineMarker": "Click line marker to add bookmark",
+    "JSONEle": "Double-click to view and pull out data",
+    "ToggleGridView": "Toggle grid view and list view",
+    "DragGrid": "You can drag dataset or folder to reorder",
+    "DataSampleTable": "Click table header to adding/removing columns to/from "
+        + "data cart, and hover on header to see dropdown menu of the column",
+    "Datacart": "Data Cart Area, you can send the columns " + 
+                "in the cart to create tables in worksheet",
+    "PullRightsidebar": "Click to toggle right side bar",
+    "TablList": "Click to see details",
+    "PullColumn": "Click key to pull out the column"
+}

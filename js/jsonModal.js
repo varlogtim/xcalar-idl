@@ -146,7 +146,9 @@ window.JSONModal = (function($, JSONModal) {
     function closeJSONModal() {
         $jsonWrap.off();
         $jsonModal.hide();
-        $modalBackground.fadeOut(200);
+        $modalBackground.fadeOut(200, function() {
+            Tips.refresh();
+        });
         $('#sideBarModal').fadeOut(200, function(){
             $('#rightSideBar').removeClass('modalOpen');
         });

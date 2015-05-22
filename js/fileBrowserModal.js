@@ -32,10 +32,18 @@ window.FileBrowser = (function($, FileBrowser) {
         retrievePaths($filePath.val())
         .then(function() {
             // set modal background
-            $modalBackground.fadeIn(100);
+            $modalBackground.fadeIn(100, function() {
+                Tips.refresh();
+            });
             $modalBackground.addClass("open");
             xcHelper.removeSelectionRange();
 
+            $fileBrowser.css({
+                "left"  : 0,
+                "right" : 0,
+                "top"   : 0,
+                "bottom": 0
+            });
             $fileBrowser.show();
             $fileBrowser.focus();
             // press enter to import a dataset
@@ -54,6 +62,10 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     FileBrowser.setup = function() {
+        $fileBrowser.draggable({
+                "handle": ".modalHeader",
+                "cursor": "-webkit-grabbing"
+        });
         // click blank space to remove foucse on folder/dsds
         $fileBrowser.on("click", function() {
             clear();
@@ -297,7 +309,9 @@ window.FileBrowser = (function($, FileBrowser) {
         $(document).off('keyup', fileBrowserKeyUp);
         $fileBrowser.hide();
         $modalBackground.removeClass("open");
-        $modalBackground.fadeOut(200);
+        $modalBackground.fadeOut(200, function() {
+            Tips.refresh();
+        });
     }
 
     function updateFileName($grid) {

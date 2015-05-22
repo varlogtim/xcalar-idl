@@ -41,7 +41,9 @@ window.Alert = (function($, Alert){
         configAlertModal(options);
 
         $alertModal.show();
-        $modalBackground.fadeIn(100);
+        $modalBackground.fadeIn(100, function() {
+            Tips.refresh();
+        });
 
         xcHelper.removeSelectionRange();
 
@@ -80,7 +82,9 @@ window.Alert = (function($, Alert){
         modalHelper.clear();
 
         if (!$modalBackground.hasClass("open")) {
-            $modalBackground.fadeOut(200);
+            $modalBackground.fadeOut(200, function(){
+                Tips.refresh();
+            });
         }
     }
 

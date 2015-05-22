@@ -160,7 +160,16 @@ window.WorkbookModal = (function($, WorkbookModal) {
     WorkbookModal.show = function() {
         xcHelper.removeSelectionRange();
 
-        $modalBackground.fadeIn(300);
+        $modalBackground.fadeIn(300, function() {
+            Tips.refresh();
+        });
+
+        $workbookModal.css({
+            "left"  : 0,
+            "right" : 0,
+            "top"   : 0,
+            "bottom": 0
+        });
         $workbookModal.show();
 
         resetWorkbookModal();
@@ -181,7 +190,9 @@ window.WorkbookModal = (function($, WorkbookModal) {
         modalHelper.clear();
 
         $workbookModal.hide();
-        $modalBackground.fadeOut(300);
+        $modalBackground.fadeOut(300, function() {
+            Tips.refresh();
+        });
     }
 
     function getUserLists() {

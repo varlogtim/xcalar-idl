@@ -55,7 +55,9 @@ window.AggModal = (function($, AggModal) {
         $aggTableName.val(gTables[tableNum].frontTableName);
 
         $aggModal.show();
-        $modalBackground.fadeIn(300);
+        $modalBackground.fadeIn(300, function() {
+            Tips.refresh();
+        });
         centerPositionElement($aggModal)
 
         aggColumns(tableNum);
@@ -187,7 +189,9 @@ window.AggModal = (function($, AggModal) {
         $('#mainTable').off();
         $modalBackground.off("click", hideAggOpSelect);
         $aggModal.hide();
-        $modalBackground.fadeOut(300);
+        $modalBackground.fadeOut(300, function() {
+            Tips.refersh();
+        });
         $aggModal.width(920).height(670);
     }
 

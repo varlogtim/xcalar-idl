@@ -250,6 +250,7 @@ function dragdropMouseUp() {
         });
         
         reorderAfterColumnDrop();
+        Tips.refresh();
     }
 }
 
@@ -1651,6 +1652,7 @@ function focusTable(tableNum) {
     } else {
         generateFirstVisibleRowNum();
     }
+    Tips.refresh();
 }
 
 function moverowScroller(rowNum, resultSetCount) {

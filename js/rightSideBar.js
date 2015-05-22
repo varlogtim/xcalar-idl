@@ -530,6 +530,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
     // XXX Current it works as a reset button
     function setupHelpSection() {
+        // XXX !!! landmine section to restart node
         $("#helpSubmit").click(function() {
             console.log('Reset Fired!');
             emptyAllStorage()
@@ -547,17 +548,23 @@ window.RightSideBar = (function($, RightSideBar) {
             });
         });
 
+        // Toggleing helper tooltips
         $('#helpOnOff').click(function() {
             toggleRefresh($(this));
         });
 
         function toggleRefresh($target) {
             if ($target.hasClass('off')) {
-                HelpController.tooltipOn();
+                $('#helpOnOff').removeClass('off');
+                Tips.display();
+                // HelpController.tooltipOn();
             } else {
-                HelpController.tooltipOff();
+                $('#helpOnOff').addClass('off');
+                Tips.destroy();
+                // HelpController.tooltipOff();
             }
         }
+
     }
 
     function addBulkTableHelper() {

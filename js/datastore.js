@@ -450,6 +450,7 @@ window.GridView = (function($, GridView) {
                 if (event.scrollToColumn) {
                     DataCart.scrollToDatasetColumn();
                 }
+                Tips.refresh();
             })
             .fail(function(error) {
                 var errorHTML = "<div class='loadError'>"+

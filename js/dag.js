@@ -34,6 +34,7 @@ window.DagPanel = (function($, DagPanel) {
             $('#workspaceTab').addClass('active');
             $('.xcTheadWrap').css('z-index', 9);
             StatusMessage.updateLocation();
+            Tips.refresh();
         });
 
         $('#dagPulloutTab').click(function() {

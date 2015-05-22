@@ -116,7 +116,9 @@ window.JoinModal = (function($, JoinModal) {
         modalHelper.clear();
 
         $joinModal.hide();
-        $modalBackground.fadeOut(300);
+        $modalBackground.fadeOut(300, function() {
+            Tips.refresh();
+        });
 
         $joinModal.find('.tableLabel').remove();
         $joinModal.find('.joinTable').remove();
