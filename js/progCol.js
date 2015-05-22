@@ -596,7 +596,7 @@ window.ColManager = (function($, ColManager) {
             if (tableCols[i].name === "DATA") {
                 columnType = "object";
             }
-            tableCols.type = columnType;
+            tableCols[i].type = columnType;
 
             // $header.removeClass("type-mixed")
             //         .removeClass("type-string")
