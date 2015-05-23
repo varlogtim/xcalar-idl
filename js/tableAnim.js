@@ -635,7 +635,7 @@ function createTableHeader(tableNum) {
     // XXX Format is tablename  [cols]
     updateTableHeader(tableNum);
 
-    var newTableName = xcHelper.randName(tableName);
+    var newTableName = xcHelper.randName(tableName, undefined, true);
     var tableMenuHTML = 
         '<ul id="tableMenu' + tableNum + 
             '" class="colMenu tableMenu" >' + 
@@ -907,7 +907,8 @@ function createTableHeader(tableNum) {
             $wsInput.val("");
             $wsInput.blur();
 
-            $tableNameInput.val(xcHelper.randName(table.backTableName));
+            $tableNameInput.val(xcHelper.randName(table.backTableName, 
+                                                  undefined, true));
             $tableNameInput.blur();
             $menu.hide();
         }

@@ -94,13 +94,21 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     }
 
-    xcHelper.randName = function(name, digits) {
+    xcHelper.randName = function(name, digits, strip) {
         if (digits == undefined) {
             digits = 5; // default
         }
 
         var max = Math.pow(10, digits);
         var rand = Math.floor((Math.random() * max) + 1);
+
+        if (strip) {
+            // strip when name is "abc-000"
+            var index = name.lastIndexOf("-");
+            if (index > 0) {
+                name = name.substring(0, index) + "-";
+            }
+        }
 
         function padZero(number, numDigits) {
             number = number.toString();
