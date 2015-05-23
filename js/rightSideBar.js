@@ -259,7 +259,14 @@ window.RightSideBar = (function($, RightSideBar) {
             handle: '.heading',
             containment: 'window',
             cursor: '-webkit-grabbing'
-        })
+        });
+
+        $rightSideBar.resizable({
+            handles: "n, e, s, w, se",
+            minHeight: 500,
+            minWidth: 264,
+            containment: "document"
+        });
 
         $("#pulloutTab").click(function() {
             if (!clickable) {

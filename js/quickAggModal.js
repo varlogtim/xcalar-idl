@@ -39,7 +39,14 @@ window.AggModal = (function($, AggModal) {
 
         $aggModal.draggable({
             handle: '.modalHeader',
-            cursor: '-webkit-grabbing'
+            cursor: '-webkit-grabbing',
+            containment: 'window'
+        });
+        $aggModal.resizable({
+            handles: "e, w",
+            minHeight: 300,
+            minWidth: 580,
+            containment: "document"
         });
     }
 

@@ -79,7 +79,15 @@ window.JoinModal = (function($, JoinModal) {
 
         $joinModal.draggable({
             handle: '.modalHeader',
-            cursor: '-webkit-grabbing'
+            cursor: '-webkit-grabbing',
+            containment: 'window'
+        });
+
+        $joinModal.resizable({
+            handles: "n, e, s, w, se",
+            minHeight: 600,
+            minWidth: 800,
+            containment: "document"
         });
 
         addModalTabListeners($leftJoinTable);

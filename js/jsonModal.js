@@ -18,6 +18,13 @@ window.JSONModal = (function($, JSONModal) {
             handle: '.jsonDragArea',
             cursor: '-webkit-grabbing'
         });
+
+        $jsonModal.resizable({
+            handles: "n, e, s, w, se",
+            minHeight: 300,
+            minWidth: 300,
+            containment: "document"
+        });
     }
 
     JSONModal.show = function ($jsonTd) {
@@ -174,7 +181,7 @@ window.JSONModal = (function($, JSONModal) {
             return;
         } 
 
-        $("#jsonWrap").height(500).width(500);
+        $jsonModal.height(500).width(500);
         $jsonModal.show();
         $modalBackground.fadeIn(100);
         $('#sideBarModal').fadeIn(100);
