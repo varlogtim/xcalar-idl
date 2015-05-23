@@ -478,10 +478,23 @@ window.FileBrowser = (function($, FileBrowser) {
         var resultFiles = [];
 
         if (key === "size") {
+            var folders = [];
+
             files.forEach(function(file) {
-                sortedFiles.push([file, file.attr.size]);
+                // folders sort by name
+                if (file.attr.isDirectory) {
+                    folders.push([file, file.name])
+                } else {
+                    sortedFiles.push([file, file.attr.size]);
+                }
             });
+
+            folders.sort(function(a, b) {return a[1].localeCompare(b[1])});
             sortedFiles.sort(function(a, b) {return a[1] - b[1]});
+
+            folders.forEach(function(file) {
+                resultFiles.push(file[0]);
+            });
             sortedFiles.forEach(function(file) {
                 resultFiles.push(file[0]);
             });
@@ -641,7 +654,8 @@ window.FileBrowser = (function($, FileBrowser) {
                 return;
             }
 
-            var size      = sizeTranslater(fileObj.attr.size);
+            var size      = isDirectory ? "" : 
+                                          sizeTranslater(fileObj.attr.size);
             var gridClass = isDirectory ? "folder" : "ds";
             var date      = "00:00:00 01-01-2015";
 
