@@ -1333,17 +1333,20 @@ ul.inputMenu {
 
             .text {
                 .size(@width: ~"calc(100% - 50px)", @height: 21px);
-                .font(@weight: 700, @size: 14px, @line-height: 21px);
+                .font(@weight: 700, @size: 14px, @line-height: 20px);
                 float: left;
                 outline: none;
                 margin: 0 2px;
-                padding: 0 2px;
+                padding: 0 3px;
                 overflow: hidden;
                 text-overflow:ellipsis;
                 white-space: nowrap;
                 .vertical-align;
+                border: 1px solid transparent;
+
                 &:focus {
-                    box-shadow: inset 0 0 3px rgba(0, 0, 0, 1);
+                    border: 1px solid #5FC8FF;
+                    box-shadow: inset 0 1px 2px 1px rgba(0, 0, 0, 0.2);
                     text-overflow: initial;
                 }
             }
