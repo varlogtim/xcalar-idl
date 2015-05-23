@@ -503,7 +503,11 @@ function generateColDropDown(tableNum) {
     if (gTables[tableNum].isTable) {
         dropDownHTML += '<li class="functions groupby">Group By...</li>';
     } else {
-        dropDownHTML += '<li class="functions groupby unavailable">'+
+        dropDownHTML += '<li class="functions groupby unavailable" '+ 
+                         'title="table needs to be indexed" ' + 
+                         'data-toggle="tooltip" ' + 
+                         'data-placement="top" ' + 
+                         'data-container="body">' +
                         'Group By...</li>';
     }
     dropDownHTML +=       

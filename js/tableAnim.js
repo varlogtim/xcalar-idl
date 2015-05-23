@@ -640,12 +640,13 @@ function createTableHeader(tableNum) {
         '<ul id="tableMenu' + tableNum + 
             '" class="colMenu tableMenu" >' + 
             '<li class="archiveTable">Archive Table</li>' + 
-            '<li class="unavailable">Hide Table</li>' + 
+            // '<li class="unavailable">Hide Table</li>' + 
             '<li class="deleteTable">Delete Table</li>' + 
             '<li class="exportTable">Export Table</li>' + 
             '<li class="delAllDuplicateCols">Delete All Duplicates</li>' + 
             '<li class="quickAgg">Quick Aggregates</li>' + 
-            '<li class="moveToWorksheet">' + 
+            '<li class="moveToWorksheet" data-toggle="tooltip" '+
+                'data-placement="top" title="no worksheet to move to">' + 
                 'Move to worksheet' + 
                 '<ul class="subColMenu">' + 
                     '<li style="text-align: center" class="clickable">'+

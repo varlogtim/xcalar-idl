@@ -276,7 +276,9 @@
           <div id="exploreButton"></div>
           <div class="text">EXPLORE</div>
         </div>
-        <div class="buttonArea">
+        <div class="buttonArea" data-toggle="tooltip" 
+            data-placement="bottom" data-container="body" 
+            title="Coming Soon">
           <div id="searchButton"></div>
           <div class="text">SEARCH</div>
         </div>
@@ -501,10 +503,10 @@
               <button id="submitDSTablesBtn" class="btn btnLarge iconBtn">
                 <span class="icon"></span>SEND TO ACTIVE WORKSHEET
               </button>
-              <button id="submitMultipleDBTablesBtn" 
+            <!--   <button id="submitMultipleDBTablesBtn" 
                   class="btn btnLarge btnInactive iconBtn" tabindex="-1">
                 <span class="icon"></span>SEND TO MULTIPLE WORKSHEETS
-              </button>
+              </button> -->
               <button id="clearDataCart" class="btn btnLarge iconBtn">
                 <span class="icon"></span>CLEAR DATA CART
               </button>
@@ -539,7 +541,7 @@
       </div>
       <div class="btn btnDeselected">
         <span class="icon popOut" data-toggle="tooltip" 
-          data-placement="top" data-container="body" title="click to pop out">
+          data-placement="top" data-container="body" title="pop out">
         </span>
       </div>
       <div id="sqlButtonWrap">
@@ -753,8 +755,12 @@
       <div class="rightBarContent">
         <div id="helpSearchArea" class="clearfix">
           <input type="text" id="helpSearch"
-                 placeholder="Type in your question...">
-          <div id="helpSubmit">
+                 placeholder="Type in your question..." data-toggle="tooltip" 
+            data-placement="bottom" data-container="body" 
+            title="Coming Soon" disabled>
+          <div id="helpSubmit" class="btnInactive" data-toggle="tooltip" 
+            data-placement="bottom" data-container="body" 
+            title="Coming Soon">
             <span class="icon iconSearch"></span>Find
           </div>
         </div>
@@ -1276,7 +1282,7 @@
 <script src="/js/folder.js" type="text/javascript"></script>
 <script src="/js/quickAggModal.js" type="text/javascript"></script>
 <script src="/js/statusMessage.js" type="text/javascript"></script>
-<script src="/js/statusMessage_types_en.js" type="text/javascript"></script>
+<script src="/js/englishStrings.js" type="text/javascript"></script>
 <script src="/js/operationsModal.js" type="text/javascript"></script>
 <!-- Start up script -->
 <script>

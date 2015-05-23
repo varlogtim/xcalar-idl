@@ -775,7 +775,7 @@ window.RightSideBar = (function($, RightSideBar) {
         $('#rightSideBarBtns').appendTo('#worksheetBar');
         $rightSideBar.attr('style', "");
         $rightSideBar.find('.popOut')
-                     .attr('data-original-title', 'click to pop out');
+                     .attr('data-original-title', 'pop out');
         $('.tooltip').hide();
     }
 

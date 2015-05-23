@@ -790,9 +790,24 @@ ul.colMenu {
     }
 
     .unavailable {
-        pointer-events: none;
+        // pointer-events: none;
+        cursor: default !important;
         .dropdownBox {
-            opacity: 0;
+            opacity: 0 !important;
+        }
+        ul {
+            display: none !important;
+        }
+        &.moveToWorksheet {
+            &+ .tooltip {
+                display: block !important;
+            }
+        }
+    }
+
+    .moveToWorksheet {
+        &+ .tooltip {
+            display: none !important;
         }
     }
 

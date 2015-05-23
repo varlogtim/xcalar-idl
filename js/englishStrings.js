@@ -26,3 +26,7 @@ StatusMessageTStr = {
 'Filter' : 'Filtering column',
 'FilterFailed' : 'Filter failed'
 }
+
+TooltipTStr = {
+'ComingSoon' : 'Coming Soon'
+}
