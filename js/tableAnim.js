@@ -1924,7 +1924,7 @@ function createShadowTable() {
     if ($mainFrame[0].scrollWidth > $mainFrame.width()) {
         mainFrameHeight -= 11;
     }
-    var shadowHeight = Math.min(mainFrameHeight, tableHeight);
+    var shadowHeight = Math.min(mainFrameHeight, tableHeight+5);
     
     var shadowTable = '<div id="shadowTable" '+
                 'style="width:'+width+'px;height:'+shadowHeight+'px;">'+
