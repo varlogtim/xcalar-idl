@@ -758,103 +758,111 @@ window.Dag = (function($, Dag) {
         info.column = "";
         info.id = dagNode.dagNodeId;
 
-        if (key == 'loadInput') {
-            info.url = value.dataset.url;
-        } else if (key == 'filterInput') {
-            var filterStr = value.filterStr;
-            var parenIndex = filterStr.indexOf("(");
-            var abbrFilterType = filterStr.slice(0, parenIndex);
-            
-            info.type = "filter"+abbrFilterType;
-            info.text = filterStr;
-            var filterType = "";
-            var filterTypeMap = {
-                "gt" : "greater than",
-                "ge" : "reater than or equal to",
-                "eq" : "equal to",
-                "lt" : "less than",
-                "le" : "less than or equal to",
-                "regex" : "regex",
-                "like" : "like",
-                "not" : "not"
-            };
+        switch (key) {
+            case ('loadInput'):
+                info.url = value.dataset.url;
+                break;
+            case ('filterInput'):
+                var filterStr = value.filterStr;
+                var parenIndex = filterStr.indexOf("(");
+                var abbrFilterType = filterStr.slice(0, parenIndex);
+                
+                info.type = "filter"+abbrFilterType;
+                info.text = filterStr;
+                var filterType = "";
+                var filterTypeMap = {
+                    "gt" : "greater than",
+                    "ge" : "reater than or equal to",
+                    "eq" : "equal to",
+                    "lt" : "less than",
+                    "le" : "less than or equal to",
+                    "regex" : "regex",
+                    "like" : "like",
+                    "not" : "not"
+                };
 
-            if (filterTypeMap[abbrFilterType]) {
-                var filteredOn = filterStr.slice(parenIndex+1, 
-                                                 filterStr.indexOf(','));
-                var filterType = filterTypeMap[abbrFilterType];
-                var filterValue = filterStr.slice(filterStr.indexOf(',')+2, 
-                                                  filterStr.indexOf(')'));
-                info.column = filteredOn;
-                if (filterType == "regex") {
-                    info.tooltip = "Filtered table &quot;" + children[0] + 
-                                   "&quot; using regex: &quot;" + filterValue + 
-                                   "&quot; " + "on " + filteredOn + ".";
-                } else if (filterType == "not") {
-                    filteredOn = filteredOn.slice(filteredOn.indexOf("(")+1);
+                if (filterTypeMap[abbrFilterType]) {
+                    var filteredOn = filterStr.slice(parenIndex+1, 
+                                                     filterStr.indexOf(','));
+                    var filterType = filterTypeMap[abbrFilterType];
+                    var filterValue = filterStr.slice(filterStr.indexOf(',')+2, 
+                                                      filterStr.indexOf(')'));
                     info.column = filteredOn;
-                    info.tooltip = "Filtered table &quot;" + children[0] +
-                                   "&quot; excluding " + filterValue + 
-                                   " from " + filteredOn + ".";
+                    if (filterType == "regex") {
+                        info.tooltip = "Filtered table &quot;" + children[0] + 
+                                       "&quot; using regex: &quot;" + filterValue + 
+                                       "&quot; " + "on " + filteredOn + ".";
+                    } else if (filterType == "not") {
+                        filteredOn = filteredOn.slice(filteredOn.indexOf("(")+1);
+                        info.column = filteredOn;
+                        info.tooltip = "Filtered table &quot;" + children[0] +
+                                       "&quot; excluding " + filterValue + 
+                                       " from " + filteredOn + ".";
+                    } else {
+                        info.tooltip = "Filtered table &quot;" + children[0] + 
+                                       "&quot; where "+ filteredOn + 
+                                       " is " + filterType + " "+ filterValue + ".";
+                    }
+                    
                 } else {
-                    info.tooltip = "Filtered table &quot;" + children[0] + 
-                                   "&quot; where "+ filteredOn + 
-                                   " is " + filterType + " "+ filterValue + ".";
+                    info.tooltip = "Filtered table &quot;"+children[0]+
+                                    "&quot;: "+filterStr;
+                }
+                break;
+            case ('groupByInput'):
+                info.type = "groupBy" + 
+                            OperatorsOpTStr[value.groupByOp].slice(9)
+                            .replace('Keys', '');
+                info.text = OperatorsOpTStr[value.groupByOp].slice(9) + ":" +
+                            value.fieldName;
+                info.tooltip = "Grouped by " +
+                                OperatorsOpTStr[value.groupByOp].slice(9)
+                                .toLowerCase()
+                                .replace('keys', '') + 
+                                " on " + value.fieldName;
+                info.column = value.fieldName;
+                break;
+            case ('indexInput'):
+                if (value.source.isTable) {
+                    info.type = "sort";
+                    info.tooltip = "Sorted by "+value.keyName;
+                } else {
+                    info.type = "sort"
+                    info.tooltip = "Sorted on "+value.keyName;
+                }
+                info.text = "sorted on " + value.keyName;
+                info.column = value.keyName;
+                break;
+            case ('joinInput'):
+                info.text = JoinOperatorTStr[value.joinType];
+                var joinType = info.text.slice(0, info.text.indexOf("Join"));
+                info.type = joinType;
+                var joinText = "";
+                if (joinType.indexOf("Outer") > -1) {
+                    var firstPart = joinType.slice(0, joinType.indexOf("Outer"));
+                    firstPart = firstPart[0].toUpperCase() + firstPart.slice(1);
+                    joinText = firstPart + " Outer";
+                } else {
+                    joinText = joinType[0].toUpperCase() + joinType.slice(1);
                 }
                 
-            } else {
-                info.tooltip = "Filtered table &quot;"+children[0]+
-                                "&quot;: "+filterStr;
+                info.tooltip = joinText + " Join between table &quot;"+children[0]+
+                               "&quot; and table &quot;"+children[1]+"&quot;";
+                info.column = children[0] +", "+children[1];
+                break;
+            case ('mapInput'):
+                //XX there is a "newFieldName" property that stores the name of 
+                // the new column. Currently, we are not using or displaying 
+                // the name of this new column anywhere.
+                var evalStr = value.evalStr;
+                info.type = "map"+evalStr.slice(0,evalStr.indexOf('('));
+                info.text = evalStr;
+                info.tooltip = "Map: "+evalStr;
+                info.column = evalStr.slice(evalStr.indexOf('(')+1, 
+                                            evalStr.indexOf(')'));
+            default: // do nothing
+                break;
             }
-        } else if (key == 'groupByInput') {
-            info.type = "groupBy" + 
-                        OperatorsOpTStr[value.groupByOp].slice(9)
-                        .replace('Keys', '');
-            info.text = OperatorsOpTStr[value.groupByOp].slice(9) + ":" +
-                        value.fieldName;
-            info.tooltip = "Grouped by " +
-                            OperatorsOpTStr[value.groupByOp].slice(9)
-                            .toLowerCase()
-                            .replace('keys', '') + 
-                            " on " + value.fieldName;
-            info.column = value.fieldName;
-        } else if (key == 'indexInput') {
-            if (value.source.isTable) {
-                info.type = "sort";
-                info.tooltip = "Sorted by "+value.keyName;
-            } else {
-                info.type = "index"
-                info.tooltip = "Indexed on "+value.keyName;
-            }
-            info.text = "indexed on " + value.keyName;
-            info.column = value.keyName;
-        } else if (key == 'joinInput') {
-            info.text = JoinOperatorTStr[value.joinType];
-            var joinType = info.text.slice(0, info.text.indexOf("Join"));
-            info.type = joinType;
-            var joinText = "";
-            if (joinType.indexOf("Outer") > -1) {
-                var firstPart = joinType.slice(0, joinType.indexOf("Outer"));
-                firstPart = firstPart[0].toUpperCase() + firstPart.slice(1);
-                joinText = firstPart + " Outer";
-            } else {
-                joinText = joinType[0].toUpperCase() + joinType.slice(1);
-            }
-            
-            info.tooltip = joinText + " Join between table &quot;"+children[0]+
-                           "&quot; and table &quot;"+children[1]+"&quot;";
-            info.column = children[0] +", "+children[1];
-        } else if (key == 'mapInput') {
-            //XX there is a "newFieldName" property that stores the name of 
-            // the new column. Currently, we are not using or displaying 
-            // the name of this new column anywhere.
-            var evalStr = value.evalStr;
-            info.type = "map"+evalStr.slice(0,evalStr.indexOf('('));
-            info.text = evalStr;
-            info.tooltip = "Map: "+evalStr;
-            info.column = evalStr.slice(evalStr.indexOf('(')+1, 
-                                        evalStr.indexOf(')'));
-        }
         return (info);
     }
 
