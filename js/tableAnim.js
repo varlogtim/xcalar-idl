@@ -197,6 +197,7 @@ function dragdropMouseDown(el, event) {
     var shadowDivHeight = $tbodyWrap.height();
     var shadowTop = tableWrap.find('.header').position().top - 5;
     dragObj.inFocus =  el.find('.editableHead').is(':focus');
+    dragObj.selected = el.hasClass('selectedCell');
     dragObj.colWidth = el.width();
     dragObj.windowWidth = $(window).width();
     
@@ -319,6 +320,7 @@ function cloneCellHelper(obj) {
 }
 
 function createTransparentDragDropCol() {
+    console.log('here')
     var dragObj = gDragObj;
     $('#mainFrame').append('<div id="fauxCol" style="left:'+
                     dragObj.mouseX+'px;'+
@@ -357,6 +359,9 @@ function createTransparentDragDropCol() {
     // Clone head
     dragObj.table.find('tr:first').each(function(i, ele) {
         cloneCellHelper(ele);
+        if (dragObj.selected) {
+            $('#fauxTable').addClass('selectedCol');
+        }
     });
 
     var totalRowHeight = dragObj.element

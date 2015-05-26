@@ -75,6 +75,23 @@
     .header {
         border-left: none !important;
     }
+    &.selectedCol {
+        .flexContainer{
+            .action-gradient;
+            .editableHead {
+                color: @color-white !important;
+                text-overflow: clip;
+            }
+            .flexWrap.flex-left {
+                .colIcon-active-gradient();
+            }
+        }
+        .type-boolean .flexWrap.flex-left {
+            &:after {
+                border-top: 30px solid @color-triangle-colIcon-blue;
+            }
+        }
+    }
 }
 
 .xcTable#fauxTable {
@@ -265,7 +282,7 @@
     .header {
         .position(absolute, @top: 35px);
         .dataTableHeader;
-
+            
         > input {
             .gray-gradient;
             .rounded;
@@ -276,15 +293,17 @@
             .size(@width: 100%);
             .gray-gradient;
             .rounded;
+            overflow: hidden;
             .flexWrap.flex-left {
-                .flex(0 1 27px);
-                .size(@height: 22px);
-                margin: 4px 0 0 0px;
+                .flex(0 1 24px);
+                .size(@height: 30px);
+                margin: 0px 0 0 0px;
                 overflow: hidden;
                 white-space: normal;
-                min-width: 26px;
+                min-width: 23px;
+                .colIcon-gray-gradient();
                 .iconHidden {
-                    .size(@width: 1px, @height: 22px);
+                    .size(@width: 1px, @height: 30px);
                     display: inline-block;
                 }
             }
@@ -292,12 +311,12 @@
             .flexWrap.flex-mid {
                 .flex(1 0 0);
                 .editableHead {
-                    padding-right: 27px;
+                    padding-right: 24px;
                 }
             }
 
             .flexWrap.flex-right {
-                .flex(0 1 4px);
+                .flex(0 1 0px);
             }
 
             &:hover {
@@ -308,6 +327,10 @@
                 }
             }
         }
+
+        &.type-data .flexWrap.flex-left {
+            background: transparent;
+        }
     }
 
     th.selectedCell {
@@ -316,6 +339,15 @@
             .editableHead {
                 color: @color-white !important;
                 text-overflow: clip;
+            }
+            .flexWrap.flex-left {
+                .colIcon-active-gradient();
+            }
+            
+        }
+        .type-boolean .flexWrap.flex-left {
+            &:after {
+                border-top: 30px solid @color-triangle-colIcon-blue;
             }
         }
     }

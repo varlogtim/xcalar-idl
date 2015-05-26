@@ -429,6 +429,13 @@ window.MonitorGraph = (function($, MonitorGraph) {
                .attr("d", area);
         }
 
+        setTimeout(function() {
+            //XX Hack - the graph refuses to move unless I change more
+            // of its attributes
+            var rand = Math.random()*.1;
+            svgWrap.attr("height", 210+rand);
+        },300);
+
         createTempGrid();
         startCycle();
     }
@@ -509,12 +516,13 @@ window.MonitorGraph = (function($, MonitorGraph) {
             });
 
             count++;
+
             setTimeout(function() {
                 //XX Hack - the graph refuses to move unless I change more
                 // of its attributes
                 var rand = Math.random()*.1;
                 svgWrap.attr("height", 210+rand);
-            },200);
+            },150);
         }
     }
     

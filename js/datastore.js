@@ -1313,7 +1313,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             html += 
                 '<li class="flexContainer flexRow typeList type-' 
                     + type.toLowerCase() + '">' + 
-                    '<div class="flexWrap flex-left">' + 
+                    '<div class="flexWrap flex-left">' +  
                         '<span class="type icon"></span>' + 
                     '</div>' + 
                     '<div class="flexWrap flex-right">' + 
@@ -1366,6 +1366,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                         '</div>' + 
                         '<div class="flexContainer flexRow">' + 
                             '<div class="flexWrap flex-left">' + 
+                                '<span class="iconHidden"></span>' +
                                 '<span class="type icon"></span>' + 
                             '</div>' + 
                             '<div class="flexWrap flex-mid">' + 
