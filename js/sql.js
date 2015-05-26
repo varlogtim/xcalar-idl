@@ -150,7 +150,10 @@ window.SQL = (function($, SQL) {
         case ("string"):
             string += " DfString";
             break;
-        case ("number"):
+        case ("integer"):
+            string += " DfInt64";
+            break;
+        case ("decimal"):
             string += " DfFloat64";
             break;
         case ("boolean"):
