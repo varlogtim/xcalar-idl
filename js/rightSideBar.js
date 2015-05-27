@@ -428,7 +428,7 @@ window.RightSideBar = (function($, RightSideBar) {
         });
         // display the chosen file's path
         $inputFile.change(function() {
-            $filePath.val($(this).val());
+            $filePath.val($(this).val().replace(/C:\\fakepath\\/i, ''));
         });
         // clear file path
         $("#udf-clearPath").click(function() {
@@ -438,10 +438,9 @@ window.RightSideBar = (function($, RightSideBar) {
         });
         // upload file
         $("#udf-fileUpload").click(function() {
-            var path = $filePath.val();
             var file = $inputFile[0].files[0];
-
-            console.log(file);
+            var path = file.name;
+            console.log(path, file);
 
             if (path == "") {
                 var text = "File Path is empty," + 
@@ -449,6 +448,13 @@ window.RightSideBar = (function($, RightSideBar) {
 
                 StatusBox.show(text, $filePath, true, 150);
             } else {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    console.log(event.target.result);
+                    // XXX Call upload here
+                }
+                reader.readAsText(file);
+                
                 $inputFile.val("");
                 $filePath.val("");
             }
@@ -505,6 +511,11 @@ window.RightSideBar = (function($, RightSideBar) {
                 StatusBox.show(text, $fnName, true, 50);
                 return;
             }
+            
+            // Get code written and call thrift call to upload
+            var entireString = editor.getValue();
+            console.log(entireString);
+
             // clearance
             $fnName.val("");
             $template.val("");
