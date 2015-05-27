@@ -36,6 +36,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     var $csvDelim        = $("#csvDelim");
     var $fieldDelim      = $("#fieldDelim");
+
+    var $udfArgs         = $("#udfArgs");
     // constants
     var formatTranslater = {
         "JSON"  : "JSON",
@@ -109,7 +111,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
             $formatText.val("Select Format");
             $formatText.addClass("hint");
+            // visbility 0 csvDelim and hide udfArgs
+            $csvDelim.show();
             $csvDelim.addClass("hidden");
+            $udfArgs.addClass("hidden");
         });
         // open file browser
         $("#fileBrowserBtn").click(function() {
@@ -294,6 +299,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $formatText.removeClass("hint");
         $formatText.val(text);
 
+        $csvDelim.show();
+        $udfArgs.addClass("hidden");
         switch (text.toLowerCase()) {
             case "csv":
                 resetDelimiter();
@@ -305,6 +312,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 $fieldDelim.hide();
                 $csvDelim.removeClass("hidden");
                 break;
+            case "udf":
+                resetDelimiter();
+                $csvDelim.hide();
+                $udfArgs.removeClass("hidden");
             default:
                 $csvDelim.addClass("hidden");
                 break;
