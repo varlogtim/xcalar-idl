@@ -169,19 +169,19 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     var formatType;
     switch (format) {
     case ("JSON"):
-        formatType = DfFormatTypeT.DfTypeJson;
+        formatType = DfFormatTypeT.DfFormatJson;
         break;
     case ("rand"):
-        formatType = DfFormatTypeT.DfTypeRandom;
+        formatType = DfFormatTypeT.DfFormatRandom;
         break;
     case ("raw"):
         loadArgs.csv.fieldDelim = ""; // No Field delim
         // fallthrough
     case ("CSV"):
-        formatType = DfFormatTypeT.DfTypeCsv;
+        formatType = DfFormatTypeT.DfFormatCsv;
         break;
     default:
-        formatType = DfFormatTypeT.DfTypeUnknown;
+        formatType = DfFormatTypeT.DfFormatUnknown;
     } 
     xcalarLoad(tHandle, url, datasetName, formatType, 0, loadArgs)
     .then(deferred.resolve)
