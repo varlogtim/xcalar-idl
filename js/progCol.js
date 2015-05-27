@@ -229,15 +229,11 @@ window.ColManager = (function($, ColManager) {
                 break;
             case ("map"):
                 var userStr   = progCol.userStr;
-                var mapString = userStr.substring(userStr.indexOf("map",
-                                                  userStr.indexOf("="))
-                                                  + 4, userStr.length - 1);
-                var fieldName = userStr.substring(0, userStr.indexOf("="));
-
-                mapString = jQuery.trim(mapString);
-                fieldName = jQuery.trim(fieldName);
-                fieldName = fieldName.replace(/\"/g, "");
-                fieldName = jQuery.trim(fieldName);
+                var regex = new RegExp(' *" *(.*) *" *= *map *[(] *(.*) *[)]',
+                                       "g");
+                var matches = regex.exec(userStr);
+                var mapString = matches[2];
+                var fieldName = matches[1];
 
                 progCol.func.func    = "pull";
                 progCol.func.args[0] = fieldName;
