@@ -10,7 +10,8 @@ window.OperationsModal = (function($, OperationsModal) {
     var backColName = "";
     var operatorName = "";
     var operatorNoSpace = operatorName.replace(/\s+/g, ''); // remove spaces;
-
+    var operatorsArray = [];
+    
     var modalHelper = new xcHelper.Modal($operationsModal);
 
     OperationsModal.setup = function() {
@@ -152,6 +153,15 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsModal.draggable({
             handle: '.operationsModalHeader',
             cursor: '-webkit-grabbing'
+        });
+        
+        // Populate the XDFs list on setup so that we don't have to keep calling
+        // the listXdfs call. However we must keep calling listUdfs because user
+        // defined functions are populated on run. However, Xdfs will not be
+        // added dynamically.
+        XcalarListXdfs("*", "*")
+        .done(function(listXdfsObj) {
+            operatorsArray = listXdfsObj.fnDescs;
         });
     }
 

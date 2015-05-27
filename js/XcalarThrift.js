@@ -971,3 +971,17 @@ function XcalarApiTop(measureIntervalInMs) {
     });
     return (deferred.promise());
 }
+
+function XcalarListXdfs(fnNamePattern, categoryPattern) {
+     if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+
+    xcalarApiListXdfs(tHandle, fnNamePattern, categoryPattern)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarApiTop", error));
+    });
+    return (deferred.promise());
+}
