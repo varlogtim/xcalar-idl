@@ -810,6 +810,11 @@ window.Dag = (function($, Dag) {
                 }
                 break;
             case ('groupByInput'):
+                info.type = "groupBy "+value.evalStr;
+                info.text = value.evalStr;
+                info.tooltip = "Grouped by "+value.evalStr;
+                info.column = value.fieldName;
+                /**
                 info.type = "groupBy" + 
                             OperatorsOpTStr[value.groupByOp].slice(9)
                             .replace('Keys', '');
@@ -821,6 +826,7 @@ window.Dag = (function($, Dag) {
                                 .replace('keys', '') + 
                                 " on " + value.fieldName;
                 info.column = value.fieldName;
+                */
                 break;
             case ('indexInput'):
                 if (value.source.isTable) {

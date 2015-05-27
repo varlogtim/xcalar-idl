@@ -599,37 +599,57 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename) {
     return (deferred.promise());
 }   
 
+function generateAggregateString(fieldName, op) {
+    var evalStr = "";
+
+    switch (op) {
+    case ("Max"):
+        evalStr += "max(";
+        break;
+    case ("Min"):
+        evalStr += "min(";
+        break;
+    case ("Average"):
+        evalStr += "avg(";
+        break;
+    case ("Count"):
+        evalStr += "count(";
+        break;
+    case ("Sum"):
+        evalStr += "sum(";
+        break;
+    // The following functions are not being called yet! GUI-1155
+    case ("MaxInt"): // Feel free to change these
+        evalStr += "maxInteger(";
+        break;
+    case ("MinInt"):
+        evalStr += "minInteger(";
+        break;
+    case ("SumInt"):
+        evalStr += "sumInteger(";
+        break;
+    default:
+        console.log("bug!:"+op);
+    }
+    
+    evalStr += fieldName;
+    evalStr += ")";
+    return (evalStr);
+}
+
+
 function XcalarAggregate(fieldName, srcTablename, op) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
 
     var deferred = jQuery.Deferred();
-    var aggregateOp;
-
-    switch (op) {
-    case ("Max"):
-        aggregateOp = OperatorsOpT.OperatorsMax;
-        break;
-    case ("Min"):
-        aggregateOp = OperatorsOpT.OperatorsMin;
-        break;
-    case ("Average"):
-        aggregateOp = OperatorsOpT.OperatorsAverage;
-        break;
-    case ("Count"):
-        aggregateOp = OperatorsOpT.OperatorsCountKeys;
-        break;
-    case ("Sum"):
-        aggregateOp = OperatorsOpT.OperatorsSumKeys;
-        break;
-    default:
-        console.log("bug!:"+op);
+    var evalStr = generateAggregateString(fieldName, op);
+    if (evalStr === "") {
         deferred.reject("bug!:"+op);
         return (deferred.promise());
     }
-
-    xcalarAggregate(tHandle, srcTablename, aggregateOp, fieldName)
+    xcalarAggregate(tHandle, srcTablename, evalStr)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarAggregate", error));
@@ -659,31 +679,13 @@ function XcalarJoin(left, right, dst, joinType) {
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
                        newTableName) {
     var deferred = jQuery.Deferred();
-    var op;
-
-    switch (operator) {
-    case ("Average"):
-        op = OperatorsOpT.OperatorsAverage;
-        break;
-    case ("Count"):
-        op = OperatorsOpT.OperatorsCountKeys;
-        break;
-    case ("Sum"):
-        op = OperatorsOpT.OperatorsSumKeys;
-        break;
-    case ("Max"):
-        op = OperatorsOpT.OperatorsMax;
-        break;
-    case ("Min"):
-        op = OperatorsOpT.OperatorsMin;
-        break;
-    default:
-        console.log("Wrong operator! "+operator);
+    var evalStr = generateAggregateString(oldColName, operator);
+    if (evalStr === "") {
         deferred.reject("Wrong operator! "+operator);
         return (deferred.promise());
     }
 
-    xcalarGroupBy(tHandle, tableName, newTableName, op, oldColName, newColName)
+    xcalarGroupBy(tHandle, tableName, newTableName, evalStr, newColName)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarGroupBy", error));

@@ -50,7 +50,8 @@ XcalarApisT = {
   'XcalarApiKeyLookup' : 41,
   'XcalarApiKeyAddOrReplace' : 42,
   'XcalarApiKeyDelete' : 43,
-  'XcalarApiTop' : 44
+  'XcalarApiTop' : 44,
+  'XcalarApiListXdfs' : 45
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -96,5 +97,6 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 41 : 'XcalarApiKeyLookup',
 42 : 'XcalarApiKeyAddOrReplace',
 43 : 'XcalarApiKeyDelete',
-44 : 'XcalarApiTop'
+44 : 'XcalarApiTop',
+45 : 'XcalarApiListXdfs'
 };
