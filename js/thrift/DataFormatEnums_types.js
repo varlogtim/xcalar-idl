@@ -22,11 +22,11 @@ DfFieldTypeT = {
   'DfFatptr' : 13
 };
 DfFormatTypeT = {
-  'DfTypeUnknown' : 0,
-  'DfTypeJson' : 1,
-  'DfTypeRandom' : 2,
-  'DfTypeCsv' : 3,
-  'DfTypeMysql' : 4
+  'DfFormatUnknown' : 0,
+  'DfFormatJson' : 1,
+  'DfFormatRandom' : 2,
+  'DfFormatCsv' : 3,
+  'DfFormatMysql' : 4
 };
 DfFieldTypeTStr = {0 : 'DfUnknown',
 1 : 'DfString',

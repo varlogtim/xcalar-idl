@@ -172,7 +172,7 @@
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
 	loadArgs.csv.isCRLF = false;
 
-        xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfTypeJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(result) {
             printResult(result);
             loadOutput = result;
@@ -185,7 +185,7 @@
     }
 
     function testLoadBogus(deferred, testName, currentTestNumber) {
-        xcalarLoad(thriftHandle, "somejunk", "junk", DfFormatTypeT.DfTypeJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "somejunk", "junk", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(bogusOutput) {
             printResult(bogusOutput);
             fail(deferred, testName, currentTestNumber, "load succeeded when it should have failed");
@@ -1146,7 +1146,7 @@
     fails             = 0;
     skips             = 0;
     returnValue       = 0;
-    defaultTimeout    = 32000;
+    defaultTimeout    = 256000;
     disableIsPass     = true;
 
     thriftHandle   = xcalarConnectThrift("localhost", 9090);
@@ -1239,7 +1239,8 @@
     addTestCase(testCases, testDeleteTable, "delete table", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testBulkDeleteTables, "bulk delete tables", defaultTimeout, TestCaseEnabled, "103");
     addTestCase(testCases, testDestroyDataset, "destroy dataset", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
+    // temporarily disabled due to bug 973
+    addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
 
 
     runTestSuite(testCases);

@@ -208,14 +208,16 @@ function xcalarGetCount(thriftHandle, tableName) {
     return (deferred.promise());
 }
 
-function xcalarShutdown(thriftHandle) {
+function xcalarShutdown(thriftHandle, force) {
     var deferred = jQuery.Deferred();
     console.log("xcalarShutdown()");
 
     var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiShutdown;
+    workItem.input.shutdownInput = force;
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -302,7 +304,7 @@ function xcalarEditColumn(thriftHandle, datasetName, tableName, isDataset,
                 isDataset.toString() + ", currFieldName = " +
                 currFieldName.toString() + ", newFieldName = " +
                 newFieldName.toString() + ", newFieldType = " +
-                newFieldType.toString());
+                DfFieldTypeTStr[newFieldType] + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
@@ -332,7 +334,7 @@ function xcalarEditColumn(thriftHandle, datasetName, tableName, isDataset,
             statusOutput = result.jobStatus;
         }
         if (statusOutput != StatusT.StatusOk) {
-            deferred.reject(statOutput.status);
+            deferred.reject(statusOutput.status);
         }
         deferred.resolve(statusOutput);
     })
@@ -1425,8 +1427,8 @@ function xcalarKeyLookup(thriftHandle, key) {
 
 function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
-        "persist = " + persist.toString() + ")");
+    // console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
+    //     "persist = " + persist.toString() + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();

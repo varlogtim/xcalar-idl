@@ -11223,11 +11223,11 @@ DfFieldTypeT = {
   'DfFatptr' : 13
 };
 DfFormatTypeT = {
-  'DfTypeUnknown' : 0,
-  'DfTypeJson' : 1,
-  'DfTypeRandom' : 2,
-  'DfTypeCsv' : 3,
-  'DfTypeMysql' : 4
+  'DfFormatUnknown' : 0,
+  'DfFormatJson' : 1,
+  'DfFormatRandom' : 2,
+  'DfFormatCsv' : 3,
+  'DfFormatMysql' : 4
 };
 DfFieldTypeTStr = {0 : 'DfUnknown',
 1 : 'DfString',
@@ -20512,7 +20512,7 @@ function xcalarApiTop(thriftHandle, measureIntervalInMs) {
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
 	loadArgs.csv.isCRLF = false;
 
-        xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfTypeJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(result) {
             printResult(result);
             loadOutput = result;
@@ -20525,7 +20525,7 @@ function xcalarApiTop(thriftHandle, measureIntervalInMs) {
     }
 
     function testLoadBogus(deferred, testName, currentTestNumber) {
-        xcalarLoad(thriftHandle, "somejunk", "junk", DfFormatTypeT.DfTypeJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "somejunk", "junk", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(bogusOutput) {
             printResult(bogusOutput);
             fail(deferred, testName, currentTestNumber, "load succeeded when it should have failed");
@@ -21486,7 +21486,7 @@ function xcalarApiTop(thriftHandle, measureIntervalInMs) {
     fails             = 0;
     skips             = 0;
     returnValue       = 0;
-    defaultTimeout    = 32000;
+    defaultTimeout    = 256000;
     disableIsPass     = true;
 
     thriftHandle   = xcalarConnectThrift("localhost", 9090);
@@ -21579,7 +21579,8 @@ function xcalarApiTop(thriftHandle, measureIntervalInMs) {
     addTestCase(testCases, testDeleteTable, "delete table", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testBulkDeleteTables, "bulk delete tables", defaultTimeout, TestCaseEnabled, "103");
     addTestCase(testCases, testDestroyDataset, "destroy dataset", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
+    // temporarily disabled due to bug 973
+    addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
 
 
     runTestSuite(testCases);
