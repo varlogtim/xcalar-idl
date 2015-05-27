@@ -19,14 +19,15 @@ DfFieldTypeT = {
   'DfBlob' : 10,
   'DfNull' : 11,
   'DfMixed' : 12,
-  'DfFatptr' : 13
+  'DfFatptr' : 13,
+  'DfScalarPtr' : 14
 };
 DfFormatTypeT = {
-  'DfTypeUnknown' : 0,
-  'DfTypeJson' : 1,
-  'DfTypeRandom' : 2,
-  'DfTypeCsv' : 3,
-  'DfTypeMysql' : 4
+  'DfFormatUnknown' : 0,
+  'DfFormatJson' : 1,
+  'DfFormatRandom' : 2,
+  'DfFormatCsv' : 3,
+  'DfFormatMysql' : 4
 };
 DfFieldTypeTStr = {0 : 'DfUnknown',
 1 : 'DfString',
@@ -41,7 +42,8 @@ DfFieldTypeTStr = {0 : 'DfUnknown',
 10 : 'DfBlob',
 11 : 'DfNull',
 12 : 'DfMixed',
-13 : 'DfFatptr'
+13 : 'DfFatptr',
+14 : 'DfScalarPtr'
 };
 DfFormatTypeTStr = {0 : 'unknown',
 1 : 'json',

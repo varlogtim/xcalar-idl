@@ -8,6 +8,9 @@
         throw "Requires jQuery 1.5+ to use asynchronous requests.";
     }
 
+    var TestCaseEnabled = true;
+    var TestCaseDisabled = false;
+
     // Test related variables
     var passes
     ,   fails
@@ -39,6 +42,19 @@
     ,   paramInput;
 
     testCases = new Array();
+
+    // For start nodes test
+    var startNodesState;
+    var system = require('system');
+
+    startNodesState = TestCaseEnabled;
+
+    system.args.forEach(function(arg, i) {
+	if (arg === "nostartnodes") {
+	    console.log("Disabling testStartNodes()");
+	    startNodesState = TestCaseDisabled;
+	}
+    });
 
     function startTest(deferred, testNameLocal, currentTestNumberLocal, timeout) {
     }
@@ -172,7 +188,7 @@
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
 	loadArgs.csv.isCRLF = false;
 
-        xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfTypeJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(result) {
             printResult(result);
             loadOutput = result;
@@ -185,7 +201,7 @@
     }
 
     function testLoadBogus(deferred, testName, currentTestNumber) {
-        xcalarLoad(thriftHandle, "somejunk", "junk", DfFormatTypeT.DfTypeJson, 0, loadArgs)
+        xcalarLoad(thriftHandle, "somejunk", "junk", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(bogusOutput) {
             printResult(bogusOutput);
             fail(deferred, testName, currentTestNumber, "load succeeded when it should have failed");
@@ -677,7 +693,7 @@
                     "  map --eval \"add(1,2)\"  --srctable yelp-votesFunnyTable" +
                     " --fieldName newField --dsttable yelp-mapTable;" +
                     " filter yelp-mapTable \" sub(2,1)\" yelp-filterTable;" +
-                    " groupBy yelp-filterTable avg votes.cool avgCool yelp-groupByTable;" +
+                    " groupBy yelp-filterTable \"avg(votes.cool)\" avgCool yelp-groupByTable;" +
                     " join --leftTable yelp-review_countTable --rightTable" +
                     "  yelp-groupByTable --joinTable " + queryTableName;
 
@@ -711,14 +727,14 @@
                 xcalarQueryState(thriftHandle, queryId)
                 .done(function(result) {
                     queryStateOutput = result;
-                    if (queryStateOutput.queryState === 1) {
+                    if (queryStateOutput.queryState === QueryStateT.qrProcssing) {
                         return wait();
                     }
 
-                    if (queryStateOutput.queryState === 2) {
+                    if (queryStateOutput.queryState === QueryStateT.qrFinished) {
                         pass(deferred, testName, currentTestNumber);
                     } else {
-                        var reason = "queryStateOutput.queryState = " + queryStateOutput.queryState.toString();
+                        var reason = "queryStateOutput.queryState = " + QueryStateTStr[queryStateOutput.queryState];
                         fail(deferred, testName, currentTestNumber, reason);
                     }
                  })
@@ -743,8 +759,7 @@
     function testGroupBy(deferred, testName, currentTestNumber) {
         xcalarGroupBy(thriftHandle, "yelp/user-votes.funny-gt900",
                       "yelp/user-votes.funny-gt900-average",
-                      AggregateOperatorT.AggrAverage, "votes.funny",
-                      "averageVotesFunny")
+                      "avg(votes.funny)", "averageVotesFunny")
         .done(function(groupByOutput) {
             printResult(groupByOutput);
             pass(deferred, testName, currentTestNumber);
@@ -755,8 +770,7 @@
     }
 
     function testAggregate(deferred, testName, currentTestNumber) {
-        xcalarAggregate(thriftHandle, origStrTable,
-                        AggregateOperatorT.AggrSumKeys, "fans")
+        xcalarAggregate(thriftHandle, origStrTable, "sum(fans)")
         .done(function(aggregateOutput) {
             console.log("jsonAnswer: " + aggregateOutput + "\n");
             var jsonAnswer = JSON.parse(aggregateOutput);
@@ -1063,7 +1077,7 @@
         })
         .fail(function(reason) {
             pass(deferred, testName, currentTestNumber);
-        });        
+        });
     }
 
     function testTop(deferred, testName, currentTestNumber) {
@@ -1080,6 +1094,34 @@
                 console.log("\n\n");
             }
             pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testListXdfs(deferred, testName, currentTestNumber) {
+        xcalarApiListXdfs(thriftHandle, "*", "*")
+        .done(function(listXdfsOutput) {
+            var ii;
+            var jj;
+            printResult(listXdfsOutput);
+
+            if (listXdfsOutput.status == StatusT.StatusOk) {
+                for (ii = 0; ii < listXdfsOutput.numXdfs; ii++) {
+                    console.log("\tfnName: ", listXdfsOutput.fnDescs[ii].fnName);
+                    console.log("\tfnDesc: ", listXdfsOutput.fnDescs[ii].fnDesc);
+                    console.log("\tNumArgs: ", listXdfsOutput.fnDescs[ii].numArgs);
+                    for (jj = 0; jj < listXdfsOutput.fnDescs[ii].numArgs; jj++) {
+                        console.log("\tArg ", jj, ": ", listXdfsOutput.fnDescs[ii].argDescs[jj].argDesc);
+                    }
+                    console.log("\n\n");
+                }
+                pass(deferred, testName, currentTestNumber);
+            } else {
+                var reason = "listXdfsOutput.status = " + listXdfsOutput.status;
+                fail(deferred, testName, currentTestNumber, reason);
+            }
         })
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
@@ -1139,14 +1181,11 @@
         });
     }
 
-    var TestCaseEnabled = true;
-    var TestCaseDisabled = false;
-
     passes            = 0;
     fails             = 0;
     skips             = 0;
     returnValue       = 0;
-    defaultTimeout    = 32000;
+    defaultTimeout    = 256000;
     disableIsPass     = true;
 
     thriftHandle   = xcalarConnectThrift("localhost", 9090);
@@ -1170,7 +1209,7 @@
 
     // Format
     // addTestCase(testCases, testFn, testName, timeout, TestCaseEnabled, Witness)
-    addTestCase(testCases, testStartNodes, "startNodes", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testStartNodes, "startNodes", defaultTimeout, startNodesState, "");
     addTestCase(testCases, testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testLoad, "load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
@@ -1189,10 +1228,10 @@
     addTestCase(testCases, testListTables, "list tables", defaultTimeout, TestCaseEnabled, "");
 
     // XXX Re-enable as soon as bug is fixed
-    addTestCase(testCases, testGetStats, "get stats", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testGetStats, "get stats", defaultTimeout, TestCaseEnabled, "");
 
     // XXX Re-enable as soon as bug is fixed
-    addTestCase(testCases, testGetStatGroupIdMap, "get stats group id map", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testGetStatGroupIdMap, "get stats group id map", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCases, testGetStatsByGroupId, "get stats group id", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testResetStats, "reset stats", defaultTimeout, TestCaseEnabled, "");
@@ -1235,11 +1274,13 @@
     addTestCase(testCases, testApiKeyBogusLookup, "bogus key lookup", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCases, testTop, "top test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCases, testDeleteTable, "delete table", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testBulkDeleteTables, "bulk delete tables", defaultTimeout, TestCaseEnabled, "103");
     addTestCase(testCases, testDestroyDataset, "destroy dataset", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseEnabled, "98");
+    // temporarily disabled due to bug 973
+    addTestCase(testCases, testShutdown, "shutdown", defaultTimeout, TestCaseDisabled, "98");
 
 
     runTestSuite(testCases);

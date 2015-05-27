@@ -790,13 +790,12 @@ function xcalarFilter(thriftHandle, filterStr, srcTableName, dstTableName) {
     return (deferred.promise());
 }
 
-function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
-                       fieldName, newFieldName) {
+function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByEvalStr,
+                       newFieldName) {
     var deferred = jQuery.Deferred();
     console.log("xcalarGroupBy(srcTableName = " + srcTableName +
-                ", dstTableName = " + dstTableName + ", groupByOp = " +
-                AggregateOperatorTStr[groupByOp] + ", fieldName = " + fieldName 
-                + ", newFieldName = " + newFieldName + ")");
+                ", dstTableName = " + dstTableName + ", groupByEvalStr = " +
+                groupByEvalStr + ", newFieldName = " + newFieldName + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
@@ -810,8 +809,7 @@ function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByOp,
     workItem.input.groupByInput.table.tableId = XcalarApiTableIdInvalidT;
     workItem.input.groupByInput.groupByTable.tableName = dstTableName;
     workItem.input.groupByInput.groupByTable.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.groupByInput.groupByOp = groupByOp;
-    workItem.input.groupByInput.fieldName = fieldName;
+    workItem.input.groupByInput.evalStr = groupByEvalStr;
     workItem.input.groupByInput.newFieldName = newFieldName;
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -1067,11 +1065,10 @@ function xcalarApiMap(thriftHandle, newFieldName, evalStr, srcTableName,
     return (deferred.promise());
 }
 
-function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
+function xcalarAggregate(thriftHandle, srcTableName, aggregateEvalStr) {
     var deferred = jQuery.Deferred();
     console.log("xcalarAggregate(srcTableName = " + srcTableName +
-                ", aggregateOp = " + AggregateOperatorTStr[aggregateOp] +
-                ", fieldName = " + fieldName + ")");
+                ", aggregateEvalStr = " + aggregateEvalStr + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
@@ -1082,8 +1079,7 @@ function xcalarAggregate(thriftHandle, srcTableName, aggregateOp, fieldName) {
     workItem.api = XcalarApisT.XcalarApiAggregate;
     workItem.input.aggregateInput.table.tableName = srcTableName;
     workItem.input.aggregateInput.table.tableId = XcalarApiTableIdInvalidT;
-    workItem.input.aggregateInput.aggregateOp = aggregateOp;
-    workItem.input.aggregateInput.fieldName = fieldName;
+    workItem.input.aggregateInput.evalStr = aggregateEvalStr;
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1427,8 +1423,8 @@ function xcalarKeyLookup(thriftHandle, key) {
 
 function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
-    // console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
-    //     "persist = " + persist.toString() + ")");
+    console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
+        "persist = " + persist.toString() + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
@@ -1517,6 +1513,41 @@ function xcalarApiTop(thriftHandle, measureIntervalInMs) {
     })
     .fail(function(error) {
         console.log("xcalarApiTop() caught exception: ", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarApiListXdfs(thriftHandle, fnNamePattern, categoryPattern) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarApiListXdfs(fnNamePattern = ", fnNamePattern, ", ",
+                "categoryPattern = ", categoryPattern, ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.listXdfsInput = new XcalarApiListXdfsInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiListXdfs;
+    workItem.input.listXdfsInput.fnNamePattern = fnNamePattern;
+    workItem.input.listXdfsInput.categoryPattern = categoryPattern;
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var listXdfsOutput = result.output.listXdfsOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+            listXdfsOutput = new XcalarApiListXdfsOutputT();
+            listXdfsOutput.status = result.jobStatus;
+        }
+        if (listXdfsOutput.status != StatusT.StatusOk) {
+            deferred.reject(listXdfsOutput.status);
+        }
+
+        deferred.resolve(listXdfsOutput);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiListXdfs() caught exception: ", error);
         deferred.reject(error);
     });
 
