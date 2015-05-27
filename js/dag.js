@@ -810,23 +810,14 @@ window.Dag = (function($, Dag) {
                 }
                 break;
             case ('groupByInput'):
-                info.type = "groupBy "+value.evalStr;
-                info.text = value.evalStr;
-                info.tooltip = "Grouped by "+value.evalStr;
-                info.column = value.fieldName;
-                /**
-                info.type = "groupBy" + 
-                            OperatorsOpTStr[value.groupByOp].slice(9)
-                            .replace('Keys', '');
-                info.text = OperatorsOpTStr[value.groupByOp].slice(9) + ":" +
-                            value.fieldName;
-                info.tooltip = "Grouped by " +
-                                OperatorsOpTStr[value.groupByOp].slice(9)
-                                .toLowerCase()
-                                .replace('keys', '') + 
-                                " on " + value.fieldName;
-                info.column = value.fieldName;
-                */
+                var evalStr = value.evalStr;
+                var parenIndex = evalStr.indexOf("(");
+                var type = evalStr.substr(0, parenIndex);
+                info.type = "groupBy"+type;
+                info.text = evalStr;
+                info.tooltip = "Grouped by "+ evalStr;
+                info.column = evalStr.slice(evalStr.indexOf('(')+1, 
+                                            evalStr.indexOf(')'));
                 break;
             case ('indexInput'):
                 if (value.source.isTable) {
@@ -1195,6 +1186,7 @@ window.DagModal = (function($, DagModal){
 
         $dagModal.draggable({
             handle: '.modalHeader',
+            containment: 'window',
             cursor: '-webkit-grabbing'
         });
     }
@@ -1302,7 +1294,6 @@ window.DagModal = (function($, DagModal){
     }
 
     DagModal.paramDrop = function(event) {
-        // console.log(event)
         event.stopPropagation();
         var $dropTarget = $(event.target)
         var paramId = event.dataTransfer.getData("text");
