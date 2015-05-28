@@ -563,12 +563,21 @@ function generateFilterString(operator, value, columnName) {
 }
 
 function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
+    var deferred = jQuery.Deferred();
+
+    var filterStr = generateFilterString(operator, value, columnName);
+    XcalarFilterHelper(filterStr, srcTablename, dstTablename).
+    then(deferred.resolve);
+
+    return (deferred.promise());
+}
+
+function XcalarFilterHelper(filterStr, srcTablename, dstTablename) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
 
     var deferred = jQuery.Deferred();
-    var filterStr = generateFilterString(operator, value, columnName);
 
     if (filterStr === "") {
         console.log("Unknown op "+operator);

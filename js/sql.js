@@ -200,8 +200,11 @@ window.SQL = (function($, SQL) {
         // filter <tableName> <"filterStr"> <filterTableName>
         var string = "filter";
         string += " " + options["tableName"];
-        var flt = generateFilterString(options["operator"], options["value"],
+        var flt = options["filterString"];
+        if (!flt) {
+            flt = generateFilterString(options["operator"], options["value"],
                                        options["backColName"]);
+        }
         // Now we need to escape quotes. We don't need to do it for the thrift
         // call because that's a thrift field. However, now that everything is
         // lumped into one string, we have to do some fun escaping

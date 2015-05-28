@@ -40,7 +40,7 @@ window.xcFunction = (function ($, xcFunction) {
         return (deferred.promise());
     }
     // filter table column
-    xcFunction.filter = function (colNum, tableNum, operator, value) {
+    xcFunction.filter = function (colNum, tableNum, options) {
         var table        = gTables[tableNum];
         var frontName    = table.frontTableName;
         var frontColName = table.tableCols[colNum - 1].name;
@@ -48,13 +48,20 @@ window.xcFunction = (function ($, xcFunction) {
         var tablCols     = xcHelper.deepCopy(table.tableCols);
         var newTableName = xcHelper.randName("tempFilterTable-");
         var msg          = StatusMessageTStr.Filter+': '+frontColName;
+        var operator = options["operator"];
+        var value = options["value"];
+        var fltStr = options["filterString"];
 
         StatusMessage.show(msg);
 
         xcFunction.checkSorted(tableNum)
         .then(function(srcName) {
-            return (XcalarFilter(operator, value, backColName, 
-                                 srcName, newTableName));
+            if (fltStr) {
+                return (XcalarFilterHelper(fltStr, srcName, newTableName));
+            } else {
+                return (XcalarFilter(operator, value, backColName, 
+                                     srcName, newTableName));
+            }
         })
         .then(function() {
             setIndex(newTableName, tablCols);
@@ -71,9 +78,10 @@ window.xcFunction = (function ($, xcFunction) {
                 "colIndex"     : colNum,
                 "operator"     : operator,
                 "value"        : value,
-                "newTableName" : newTableName
+                "newTableName" : newTableName,
+                "filterString" : fltStr
             });
-
+            
             StatusMessage.success(msg);
             commitToStorage();
         })

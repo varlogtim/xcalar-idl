@@ -619,7 +619,8 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         console.log(operator, 'operator');
 
-        xcFunction.filter(colNum, tableNum, operator, value);
+        xcFunction.filter(colNum, tableNum, {"operator": operator, 
+                                             "value": value});
     }
 
     function groupBy(operator) {

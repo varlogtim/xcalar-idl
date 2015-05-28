@@ -249,6 +249,29 @@ window.ColManager = (function($, ColManager) {
                     deferred.reject(error);
                 });
                 break;
+            case ("filter"):
+                var userStr   = progCol.userStr;
+                var regex = new RegExp(' *" *(.*) *" *= *filter *[(] *(.*) *[)]'
+                                       , "g");
+                var matches = regex.exec(userStr);
+                var fltString = matches[2];
+                var fieldName = matches[1];
+
+                progCol.func.func    = "pull";
+                progCol.func.args[0] = fieldName;
+                progCol.func.args.splice(1, progCol.func.args.length - 1);
+                progCol.isNewCol     = false;
+                // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
+                //                   fieldName + ")";
+                xcFunction.filter(progCol.index, tableNum, {"filterString": 
+                                  fltString})
+                .then(deferred.resolve)
+                .fail(function(error) {
+                    console.log("execCol fails!");
+                    deferred.reject(error);
+                });
+                break;
+
             case (undefined):
                 console.log("Blank col?");
                 deferred.resolve();
