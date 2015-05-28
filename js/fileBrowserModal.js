@@ -176,6 +176,7 @@ window.FileBrowser = (function($, FileBrowser) {
             "container"    : "#fileBrowserModal"
         });
 
+        var timer;
         $pathSection.on({
             // contentediable must prevent press enter to add a new line
             "keypress": function(event) {
@@ -185,26 +186,30 @@ window.FileBrowser = (function($, FileBrowser) {
                 }
             },
             "keyup": function(event) {
-                if (event.which === keyCode.Enter) {
-                     // XXX assume what inputed should be a path
-                    var $input = $(this);
-                    var path   = $input.text();
+                // XXX assume what inputed should be a path
+                var $input = $(this);
+                var path   = $input.text();
 
-                    event.preventDefault();
+                event.preventDefault();
+
+                clearTimeout(timer);
+                timer = setTimeout(function() {
                     if (path.charAt(path.length - 1) != "/") {
                         path += "/";
                     }
 
                     retrievePaths(path)
                     .then(function() {
-                        $input.blur();
-                    })
-                    .fail(function(result) {
-                        StatusBox.show(result.error, $input, true);
+                        $input.focus();
+                        setEndOfContenteditable($input[0]);
                     });
+                }, 400);
 
-                    return false;
-                }
+                return false;
+            },
+            "focus": function() {
+                console.log("fdas")
+                $(this).text($(this).text());
             }
         }, ".text");
 
@@ -674,6 +679,28 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $container.empty().append(html);
+    }
+
+    // this function is from http://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity
+    function setEndOfContenteditable(contentEditableElement) {
+        var range;
+        var selection;
+
+        if (document.createRange) {
+            //Firefox, Chrome, Opera, Safari, IE 9+
+            range = document.createRange();
+            range.selectNodeContents(contentEditableElement);
+            range.collapse(false);
+            selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } else if (document.selection) {
+            //IE 8 and lower
+            range = document.body.createTextRange();
+            range.moveToElementText(contentEditableElement);
+            range.collapse(false);
+            range.select();
+        }
     }
 
     return (FileBrowser);
