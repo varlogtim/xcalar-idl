@@ -49,7 +49,9 @@ window.xcFunction = (function ($, xcFunction) {
         var newTableName = xcHelper.randName("tempFilterTable-");
         var msg          = StatusMessageTStr.Filter+': '+frontColName;
         var operator = options["operator"];
-        var value = options["value"];
+        var value1 = options["value1"];
+        var value2 = options["value2"];
+        var value3 = options["value3"];
         var fltStr = options["filterString"];
 
         StatusMessage.show(msg);
@@ -60,13 +62,12 @@ window.xcFunction = (function ($, xcFunction) {
             if (fltStr) {
                 return (XcalarFilterHelper(fltStr, srcName, newTableName));
             } else {
-                return (XcalarFilter(operator, value, backColName, 
+                return (XcalarFilter(operator, value1, value2, value3,
                                      srcName, newTableName));
             }
         })
         .then(function() {
             setIndex(newTableName, tablCols);
-
             return (refreshTable(newTableName, tableNum));
         })
         .then(function() {
@@ -78,38 +79,36 @@ window.xcFunction = (function ($, xcFunction) {
                 "backColName"  : backColName,
                 "colIndex"     : colNum,
                 "operator"     : operator,
-                "value"        : value,
+                "value"        : value2,
                 "newTableName" : newTableName,
                 "filterString" : fltStr
             });
             
             StatusMessage.success(msg);
             commitToStorage();
+            
         })
         .fail(function(error) {
+            console.log("failed here");
             Alert.error("Filter Columns Fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+
             WSManager.removeTable(newTableName);
+            return (false);
         });
+        return (true);
     }
 
     // aggregate table column
-    xcFunction.aggregate = function (colNum, tableNum, aggrOp) {
+    xcFunction.aggregate = function (colNum, frontColName, backColName, tableNum, 
+                                     aggrOp) {
         var table     = gTables[tableNum];
         var frontName = gTables[tableNum].frontTableName;
-        var pCol      = table.tableCols[colNum - 1];
-
-        if (pCol.func.func != "pull") {
-            console.log(pCol);
-            alert("Cannot aggregate on column that does not exist in DATA.");
-            return;
-        }
-
-        var frontColName = pCol.name;
-        var backColName  = pCol.func.args[0];
         var msg          = StatusMessageTStr.Aggregate + " " + aggrOp + " " + 
                            StatusMessageTStr.OnColumn + ": " + frontColName;
-
+        if (colNum == -1) {
+            colNum = undefined;
+        }
         StatusMessage.show(msg);
         showWaitCursor();
 
@@ -143,9 +142,8 @@ window.xcFunction = (function ($, xcFunction) {
                     "value"     : val["Value"]
                 });
             } catch(error) {
-                consolr.error(error, val);
+                console.error(error, val);
             }
-
             StatusMessage.success(msg);
         })
         .fail(function(error) {
@@ -153,6 +151,8 @@ window.xcFunction = (function ($, xcFunction) {
             StatusMessage.fail(StatusMessageTStr.AggregateFailed, msg);
         })
         .always(removeWaitCursor);
+
+        return (true);
     }
 
     // sort tabe column
@@ -323,15 +323,16 @@ window.xcFunction = (function ($, xcFunction) {
     }
 
     // group by on a column
-    xcFunction.groupBy = function (colNum, tableNum, newColName, operator) {
+    xcFunction.groupBy = function (colNum, frontFieldName, backFieldName, 
+                                    tableNum, newColName, operator) {
         var table          = gTables[tableNum];
         var frontName      = table.frontTableName;
         var srcName        = table.backTableName;
-        var frontFieldName = table.tableCols[colNum - 1].name;
-        var backFieldName  = table.tableCols[colNum - 1].func.args[0];
         var newTableName   = xcHelper.randName("tempGroupByTable-");
-
         var msg            = StatusMessageTStr.GroupBy + " " + operator;
+        if (colNum == -1) {
+            colNum = undefined;
+        }
 
         StatusMessage.show(msg);
         WSManager.addTable(newTableName);
@@ -345,6 +346,7 @@ window.xcFunction = (function ($, xcFunction) {
                     KeepOriginalTables.Keep));
         })
         .then(function() {
+            console.log('well??')
             // add sql
             SQL.add("Group By", {
                 "operation"     : "groupBy",
@@ -362,6 +364,7 @@ window.xcFunction = (function ($, xcFunction) {
             commitToStorage();
         })
         .fail(function(error) {
+             console.log('well fail')
             Alert.error("GroupBy fails", error);
             StatusMessage.fail(StatusMessageTStr.GroupByFailed, msg);
             WSManager.removeTable(newTableName);

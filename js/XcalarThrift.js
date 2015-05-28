@@ -513,51 +513,69 @@ function XcalarSetFree(resultSetId) {
     return (deferred.promise());
 }
 
-function generateFilterString(operator, value, columnName) {
+function generateFilterString(operator, value1, value2, value3) {
     var filterStr = "";
     switch (operator) {
     case ("Greater Than"):
-        filterStr = "gt("+columnName+", "+value+")";
+        filterStr = "gt("+value1+", "+value2+")";
         break;
     case ("Greater Than Equal To"):
-        filterStr = "ge("+columnName+", "+value+")";
+        filterStr = "ge("+value1+", "+value2+")";
         break;
     case ("Equals"):
-        filterStr = "eq("+columnName+", "+value+")";
+        filterStr = "eq("+value1+", "+value2+")";
          break;
     case ("Less Than"):
-        filterStr = "lt("+columnName+", "+value+")";
+        filterStr = "lt("+value1+", "+value2+")";
         break;
     case ("Less Than Equal To"):
-        filterStr = "le("+columnName+", "+value+")";
+        filterStr = "le("+value1+", "+value2+")";
         break;
     case ("Exclude number"):
-        filterStr = "not(eq("+columnName+", "+value+"))";
+        filterStr = "not(eq("+value1+", "+value2+"))";
         break;
     case ("Exclude string"):
-        filterStr = "not(like("+columnName+', "'+value+'"))';
+        filterStr = "not(like("+value1+', "'+value2+'"))';
         break;
     case ("Regex"):
-        filterStr = "regex("+columnName+', "'+value+'")';
+        filterStr = "regex("+value1+', "'+value2+'")';
         break;
     case ("Like"):
-        filterStr = "like("+columnName+', "'+value+'")';
+        filterStr = "like("+value1+', "'+value2+'")';
         break;
     case ("Custom"):
-        filterStr = value;
+        filterStr = value1;
         break;
     default:
+        if (value3 != undefined) {
+            filterStr = operator+ "("+value1+", "+value2+", "+value3+")";
+        }else if (value2 == undefined) {
+            filterStr = operator+ "("+value1+")";
+        } else {
+            if (isNaN(value2)) {
+                filterStr = operator+'('+value1+', "'+value2+'")';
+            } else {
+                filterStr = operator+'('+value1+', '+value2+')';
+            }
+            
+        }
+        
         break;
     }
+
     return (filterStr);
 }
 
-function XcalarFilter(operator, value, columnName, srcTablename, dstTablename) {
+function XcalarFilter(operator, value1, value2, value3,
+                      srcTablename, dstTablename) {
     var deferred = jQuery.Deferred();
 
-    var filterStr = generateFilterString(operator, value, columnName);
+    var filterStr = generateFilterString(operator, value1, value2, value3);
     XcalarFilterHelper(filterStr, srcTablename, dstTablename).
-    then(deferred.resolve);
+    then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(error);
+    });
 
     return (deferred.promise());
 }
@@ -570,8 +588,8 @@ function XcalarFilterHelper(filterStr, srcTablename, dstTablename) {
     var deferred = jQuery.Deferred();
 
     if (filterStr === "") {
-        console.log("Unknown op "+operator);
-        deferred.reject("Unknown op "+operator);
+        console.log("Unknown op "+filterStr);
+        deferred.reject("Unknown op "+filterStr);
         return (deferred.promise());
     }
 
@@ -608,7 +626,7 @@ function generateAggregateString(fieldName, op) {
     case ("Min"):
         evalStr += "min(";
         break;
-    case ("Average"):
+    case ("Avg"):
         evalStr += "avg(";
         break;
     case ("Count"):
@@ -618,13 +636,13 @@ function generateAggregateString(fieldName, op) {
         evalStr += "sum(";
         break;
     // The following functions are not being called yet! GUI-1155
-    case ("MaxInt"): // Feel free to change these
+    case ("MaxInteger"): // Feel free to change these
         evalStr += "maxInteger(";
         break;
-    case ("MinInt"):
+    case ("MinInteger"):
         evalStr += "minInteger(";
         break;
-    case ("SumInt"):
+    case ("SumInteger"):
         evalStr += "sumInteger(";
         break;
     default:

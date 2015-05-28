@@ -65,6 +65,7 @@
     <div id="mainFrame"></div>
 
     <!-- Start OPERATIONS MODAL -->
+    <div id="opModalBackground"></div>
     <div id="operationsModal" class="modalContainer">
       <div class="modalHeader operationsModalHeader ">
         <span class="text">Select Your Operation</span>
@@ -75,8 +76,8 @@
 
       <div class="modalInstruction">
         <div class="icon"></div>
-        <div class="text"> Select a category (e.g aggregate or filter).
-        Then select a specific function, e.g. sum. <br />
+        <div class="text"> Select a category (e.g Arithmetic Functions).
+        Then select a specific function, e.g. add. <br />
         Finally, enter in any arguments if applicable.
         </div>
       </div> 
@@ -90,7 +91,7 @@
           </div>
         </div>
         <div class="outerLink">
-          <div class="innerLink link0 filled"></div>
+          <div class="innerLink link0"></div>
         </div>
         <div class="outerCircle circle1">
           <div class="innerCircle"></div>
@@ -140,10 +141,7 @@
       <div class="modalMain step inactive">
         <b>Description of Function:</b>
         <div class="argumentSection">
-          <p class="descriptionText"> cillum dolore eu fugiat nulla pariatur. 
-          Excepteur sint occaecat cupidatat non
-          proident, sunt in culpa qui officia 
-          deserunt mollit anim id est laborum.</p>
+          <p class="descriptionText">N/A</p>
           <b class="argumentListTitle">Argument List:</b>
           <div class="tableContainer">
             <div class="tableWrapper">
@@ -166,7 +164,7 @@
                   <tr>
                     <td>
                       <div class="inputWrap">
-                        <input class="argument" type="text" tabindex="10">
+                        <input class="argument" type="text" tabindex="10" spellcheck="false">
                       </div>
                     </td> 
                     <td> 
@@ -176,7 +174,7 @@
                   <tr>
                     <td>
                       <div class="inputWrap">
-                        <input class="argument" type="text" tabindex="10">
+                        <input class="argument" type="text" tabindex="10" spellcheck="false">
                       </div>
                     </td> 
                     <td> 
@@ -186,7 +184,17 @@
                   <tr>
                     <td>
                       <div class="inputWrap">
-                        <input class="argument" type="text" tabindex="10">
+                        <input class="argument" type="text" tabindex="10" spellcheck="false">
+                      </div>
+                    </td> 
+                    <td> 
+                      <div class="description"></div>
+                    </td> 
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="inputWrap">
+                        <input class="argument" type="text" tabindex="10" spellcheck="false">
                       </div>
                     </td> 
                     <td> 
@@ -1376,6 +1384,8 @@
 <script src="/js/thrift/Status_types.js" type="text/javascript"></script>
 <script src="/js/thrift/LibApisCommon_types.js" type="text/javascript"></script>
 <script src="/js/thrift/LibApisConstants_types.js" type="text/javascript">
+</script>
+<script src="/js/thrift/FunctionCategory_types.js" type="text/javascript">
 </script>
 <script src="/js/thrift/XcalarApiService.js" type="text/javascript"></script>
 <script src="/js/thrift/XcalarApiServiceAsync.js" type="text/javascript">

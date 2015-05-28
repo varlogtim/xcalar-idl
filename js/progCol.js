@@ -393,7 +393,7 @@ window.ColManager = (function($, ColManager) {
         $th.width(10);
         // data column should have more padding
         // and class for tbody is different
-        if($thInput.hasClass("dataCol")) {
+        if ($thInput.hasClass("dataCol")) {
             // the padding pixel may be chosen again
             $thInput.css("padding-left","10px");
             $cols.find(".elementText").css("padding-left","15px");

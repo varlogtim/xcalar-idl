@@ -321,7 +321,6 @@ function cloneCellHelper(obj) {
 }
 
 function createTransparentDragDropCol() {
-    console.log('here')
     var dragObj = gDragObj;
     $('#mainFrame').append('<div id="fauxCol" style="left:'+
                     dragObj.mouseX+'px;'+
@@ -1320,39 +1319,6 @@ function addColMenuActions($colMenu, $thead) {
     //     var tableNum = parseInt($colMenu.attr('id').substring(7));
     //     OperationsModal.show(tableNum, colNum);
     // });
-}
-
-function formulateMapString(operator, columnName, value) {
-    console.log(arguments);
-    var mapString = '=map(';
-    switch (operator) {
-    case ("Sum"):
-        mapString += "add(";
-        break;
-    case ("Subtract"):
-        mapString += "sub(";
-        break;
-    case ("Multiply"):
-        mapString += "mult(";
-        break;
-    case ("Divide"):
-        mapString += "div(";
-        break;
-    case ("And"):
-        mapString += "and(";
-        break;
-    case ("Or"):
-        mapString += "or(";
-        break;
-    case ("IP Address To Integer"):
-        mapString += "ipAddrToInt(";
-        break;
-    default:
-        console.log(operator+" not found!");
-    }
-    mapString += columnName+", "+value;
-    mapString += "))";
-    return (mapString);
 }
 
 function functionBarEnter($colInput) {

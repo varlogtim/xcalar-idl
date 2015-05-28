@@ -22,3 +22,4 @@ FunctionCategoryTStr = {0 : 'Arithmetic functions',
 5 : 'Conditional functions',
 6 : 'Aggregate functions'
 };
+
