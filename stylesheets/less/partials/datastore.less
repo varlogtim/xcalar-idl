@@ -850,17 +850,22 @@ input {
                     width: 140px;
                     li.flexContainer {
                         height: 30px;
+                        padding: 0;
                         // see common.less
                         .typeIcon;
-                        .type.icon {
-                            background-position: 0 -2px !important;
-                        }
+
                         .flexWrap.flex-left {
-                            .flex(0 0 22px);
+                            .flex(0 0 24px);
+                            padding: 6px 5px;
+                            position: relative;
+                            height: 30px;
+                            .gray-gradient;
+                            overflow:hidden;
+                            
                         }
                         .flexWrap.flex-right {
                             .flex(1 1 auto);
-                            padding: 2px 0 0 6px;
+                            padding: 6px 8px;
                         }
                     }
                 }
@@ -923,6 +928,10 @@ input {
             cursor: pointer;
 
            .dataTableHeader;
+           .editableHead {
+                .noSelection();
+           }
+           
 
            .colGrab:hover + div {
                 .dropdownBox {
