@@ -6,13 +6,13 @@
 
 
 FunctionCategoryT = {
-  'CategoryArithmetic' : 0,
-  'CategoryBitwise' : 1,
-  'CategoryTrigonometry' : 2,
-  'CategoryConversion' : 3,
-  'CategoryMisc' : 4,
-  'CategoryCondition' : 5,
-  'CategoryAggregate' : 6
+  'FunctionCategoryArithmetic' : 0,
+  'FunctionCategoryBitwise' : 1,
+  'FunctionCategoryTrigonometry' : 2,
+  'FunctionCategoryConversion' : 3,
+  'FunctionCategoryMisc' : 4,
+  'FunctionCategoryCondition' : 5,
+  'FunctionCategoryAggregate' : 6
 };
 FunctionCategoryTStr = {0 : 'Arithmetic functions',
 1 : 'Bitwise functions',

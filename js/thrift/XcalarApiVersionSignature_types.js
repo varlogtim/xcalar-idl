@@ -6,7 +6,7 @@
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 194420617
+  'XcalarApiVersionSignature' : 55332440
 };
-XcalarApiVersionTStr = {194420617 : 'b969f8945697b5899e9bafc5e48c8481'
+XcalarApiVersionTStr = {55332440 : '34c4e58a9c9531b670f6c065a3358dcd'
 };

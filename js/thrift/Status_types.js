@@ -283,7 +283,17 @@ StatusT = {
   'StatusPyExecFailure' : 274,
   'StatusPyExecNotEnoughMem' : 275,
   'StatusWaitKeyTimeout' : 276,
-  'StatusVariableNameTooLong' : 277
+  'StatusVariableNameTooLong' : 277,
+  'StatusPyExecNotEnoughArguments' : 278,
+  'StatusPyExecFunctionNotCallable' : 279,
+  'StatusPyExecInvalidParameter' : 280,
+  'StatusPyEmptyValueReturnedFromPyExecFunction' : 281,
+  'StatusPyInterpreterNotInitialized' : 282,
+  'StatusPyInterpreterAlreadyInitialized' : 283,
+  'StatusPyFailedToImportModule' : 284,
+  'StatusPyFilterFunctionNotCallable' : 285,
+  'StatusPyFilterRecordInvalidParameter' : 286,
+  'StatusPyEmptyValueReturnedFromFilterFunction' : 287
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -562,5 +572,15 @@ StatusTStr = {0 : 'Success',
 274 : 'Some weird pyexec failure',
 275 : 'ran out of memory',
 276 : 'timed out waiting for table key type to resolve',
-277 : 'Variable name in evalString too long'
+277 : 'Variable name in evalString too long',
+278 : 'Not enough arguments for pyExec',
+279 : 'The pyExec function being provided is not callable',
+280 : 'Parameter being passed into the pyExec function is not valid',
+281 : 'The return value from pyExec function is empty',
+282 : 'Python interpreter has not initialized yet',
+283 : 'Python interpreter has already initialized',
+284 : 'Failed to import the module file being provided',
+285 : 'The filter function being provided is not callable',
+286 : 'Parameter being passed into the filter function is not valid',
+287 : 'The return value from filter function is empty'
 };
