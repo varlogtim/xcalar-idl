@@ -80,6 +80,8 @@ function refreshTable(newTableName, tableNum,
 // Shifts all the ids and everything
 function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
     var deferred = jQuery.Deferred();
+    // default ws if no other specified
+    var wsIndex  = WSManager.getActiveWorksheet();
 
     if (frontName == undefined) {
         frontName = table;
@@ -111,6 +113,49 @@ function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
     });
 
     return (deferred.promise());
+
+    function tableStartupFunctions(table, tableNum, tableNumsToRemove, frontName) {
+        var deferred = jQuery.Deferred();
+
+        if (frontName == undefined) {
+            frontName = table;
+        }
+
+        setTableMeta(table, frontName)
+        .then(function(newTableMeta) {
+            gTables[tableNum] = newTableMeta;
+
+            return (documentReadyCatFunction(tableNum, tableNumsToRemove));
+        })
+        .then(function(val) {
+            // not have the flick, must refresh immediately after create table
+            wsIndex = WSManager.addTable(frontName, wsIndex);
+            $("#xcTableWrap" + tableNum).addClass("worksheet-" + wsIndex);
+            WSManager.focusOnWorksheet();
+
+            if (gTables[tableNum].resultSetCount != 0) {
+                infScrolling(tableNum);
+            }
+
+            adjustColGrabHeight(tableNum);
+            resizeRowInput();
+
+            return (Dag.construct(gTables[tableNum].backTableName, tableNum));
+        })
+        .then(function() {
+            // refresh dag
+            $("#dagWrap" + tableNum).addClass("worksheet-" + wsIndex);
+            WSManager.focusOnWorksheet();
+
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.log("tableStartupFunctions Fails!");
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    }
 }
 
 // Removes a table from the display

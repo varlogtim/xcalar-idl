@@ -1,9 +1,11 @@
 window.WSManager = (function($, WSManager) {
-    var worksheets     = [];
-    var tabLookUp      = {}; // use it to find worksheet tab from table name
-    var wsNameLookUp   = {}; // find wsIndex by name
+    var worksheets     = [];  // {name. tables}, tables=[name1, name2...]
+
+    var wsIndexLookUp  = {};  // find wsIndex by table name
+    var wsNameLookUp   = {};  // find wsIndex by wsName
+
     var activeWorsheet = 0;
-    // var for name worksheet automatically
+    // var for naming worksheet automatically
     var defaultName    = "Sheet ";
     var nameSuffix     = 1;
 
@@ -21,6 +23,7 @@ window.WSManager = (function($, WSManager) {
         return (worksheets);
     }
 
+    // get real length of worksheet
     WSManager.getWorksheetLen = function() {
         var len = 0;
 
@@ -33,6 +36,7 @@ window.WSManager = (function($, WSManager) {
         return len;
     }
 
+    // restore worksheet structure from backend
     WSManager.restoreWorksheets = function(oldSheets) {
         for (var i = 0, j = 0; i < oldSheets.length; i ++) {
             // remove the deleted worksheets
@@ -49,13 +53,13 @@ window.WSManager = (function($, WSManager) {
             var tables = worksheets[i].tables;
 
             for (var j = 0; j < tables.length; j ++) {
-                tabLookUp[tables[j]] = i;
+                wsIndexLookUp[tables[j]] = i;
             }
         }
     }
 
     WSManager.getWorksheetIndex = function(tableName) {
-        return tabLookUp[tableName];
+        return wsIndexLookUp[tableName];
     }
 
     WSManager.getWorksheetByName = function(wsName) {
@@ -66,9 +70,13 @@ window.WSManager = (function($, WSManager) {
         return worksheets[wsIndex].name;
     }
 
+    WSManager.getActiveWorksheet = function() {
+        return (activeWorsheet);
+    }
+
     WSManager.clear = function() {
         worksheets = [];
-        tabLookUp = {};
+        wsIndexLookUp = {};
         wsNameLookUp = {};
         activeWorsheet = 0;
         nameSuffix = 1;
@@ -80,8 +88,8 @@ window.WSManager = (function($, WSManager) {
             wsIndex = activeWorsheet;
         }
 
-        if (tableName in tabLookUp) {
-            return (tabLookUp[tableName]);
+        if (tableName in wsIndexLookUp) {
+            return (wsIndexLookUp[tableName]);
         } else {
             setWorksheet(wsIndex, {"tables": tableName});
 
@@ -150,7 +158,7 @@ window.WSManager = (function($, WSManager) {
     }
 
     WSManager.removeTable = function(tableName) {
-        var wsIndex = tabLookUp[tableName];
+        var wsIndex = wsIndexLookUp[tableName];
 
         if (wsIndex == undefined) {
             console.error("Table not exist in worksheet");
@@ -162,7 +170,7 @@ window.WSManager = (function($, WSManager) {
 
         tables.splice(tableIndex, 1);
 
-        delete tabLookUp[tableName];
+        delete wsIndexLookUp[tableName];
 
         return (wsIndex);
     }
@@ -220,7 +228,7 @@ window.WSManager = (function($, WSManager) {
                 matchHeaderSizes(null, $("#xcTable" + i));
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {
-                    var wsIndex = tabLookUp[gTables[i].frontTableName];
+                    var wsIndex = wsIndexLookUp[gTables[i].frontTableName];
 
                     if (wsIndex === activeWorsheet) {
                         isFocus = true;
@@ -380,7 +388,7 @@ window.WSManager = (function($, WSManager) {
 
     function removeWorksheet(wsIndex) {
         worksheets[wsIndex].tables.forEach(function(table) {
-            delete tabLookUp[table];
+            delete wsIndexLookUp[table];
         });
 
         delete wsNameLookUp[worksheets[wsIndex].name];
@@ -408,13 +416,13 @@ window.WSManager = (function($, WSManager) {
             var val = options[key];
 
             if (key === "tables") {
-                if (key in tabLookUp) {
+                if (key in wsIndexLookUp) {
                     console.error(val, "already in worksheets!");
                     return;
                 }
 
                 worksheets[wsIndex][key].push(val);
-                tabLookUp[val] = wsIndex;
+                wsIndexLookUp[val] = wsIndex;
             } else {
                 worksheets[wsIndex][key] = val;
 

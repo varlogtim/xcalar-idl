@@ -53,6 +53,7 @@ window.xcFunction = (function ($, xcFunction) {
         var fltStr = options["filterString"];
 
         StatusMessage.show(msg);
+        WSManager.addTable(newTableName);
 
         xcFunction.checkSorted(tableNum)
         .then(function(srcName) {
@@ -88,6 +89,7 @@ window.xcFunction = (function ($, xcFunction) {
         .fail(function(error) {
             Alert.error("Filter Columns Fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+            WSManager.removeTable(newTableName);
         });
     }
 
@@ -184,6 +186,7 @@ window.xcFunction = (function ($, xcFunction) {
         var msg       = StatusMessageTStr.Sort + " " + frontFieldName;
 
         StatusMessage.show(msg);
+        WSManager.addTable(newTableName);
 
         getIndexedTable(srcName, backFieldName, newTableName, isTable)
         .then(function() {
@@ -209,6 +212,7 @@ window.xcFunction = (function ($, xcFunction) {
         .fail(function(error) {
             Alert.error("Sort Rows Fails", error);
             StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
+            WSManager.removeTable(newTableName);
         });
     }
 
@@ -261,7 +265,7 @@ window.xcFunction = (function ($, xcFunction) {
         var msg            = StatusMessageTStr.Join;
 
         StatusMessage.show(msg);
-
+        WSManager.addTable(newTableName);
         showWaitCursor();
         // check left table lName"])index
         checkJoinTableIndex(leftColName, leftTable, isLeft)
@@ -309,6 +313,7 @@ window.xcFunction = (function ($, xcFunction) {
         .fail(function(error) {
             Alert.error("Join Table Fails", error);
             StatusMessage.fail(StatusMessageTStr.JoinFailed, msg);
+            WSManager.removeTable(newTableName);
 
             deferred.reject(error);
         })
@@ -329,7 +334,8 @@ window.xcFunction = (function ($, xcFunction) {
         var msg            = StatusMessageTStr.GroupBy + " " + operator;
 
         StatusMessage.show(msg);
-        
+        WSManager.addTable(newTableName);
+
         XcalarGroupBy(operator, newColName, backFieldName, srcName, 
                       newTableName)
         .then(function() {
@@ -358,6 +364,7 @@ window.xcFunction = (function ($, xcFunction) {
         .fail(function(error) {
             Alert.error("GroupBy fails", error);
             StatusMessage.fail(StatusMessageTStr.GroupByFailed, msg);
+            WSManager.removeTable(newTableName);
         });
     }
 
@@ -376,6 +383,7 @@ window.xcFunction = (function ($, xcFunction) {
         var msg             = StatusMessageTStr.Map + " " + fieldName;
         var backTableName;
         StatusMessage.show(msg);
+        WSManager.addTable(newTableName);
 
         xcFunction.checkSorted(tableNum)
         .then(function(srcName) {
@@ -406,6 +414,7 @@ window.xcFunction = (function ($, xcFunction) {
         .fail(function(error){
             Alert.error("mapColumn fails", error);
             StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
+            WSManager.removeTable(newTableName);
 
             deferred.reject(error);
         });

@@ -608,51 +608,7 @@ function startupFunctions() {
     });
 
     return (deferred.promise());
-}  
-
-function tableStartupFunctions(table, tableNum, tableNumsToRemove, frontName) {
-    var deferred = jQuery.Deferred();
-    var worksheetIndex;
-
-    if (frontName == undefined) {
-        frontName = table;
-    }
-
-    setTableMeta(table, frontName)
-    .then(function(newTableMeta) {
-        gTables[tableNum] = newTableMeta;
-
-        return (documentReadyCatFunction(tableNum, tableNumsToRemove));
-    })
-    .then(function(val) {
-        // not have the flick, must refresh immediately after create table
-        worksheetIndex = WSManager.addTable(frontName);
-        $("#xcTableWrap" + tableNum).addClass("worksheet-" + worksheetIndex);
-        WSManager.focusOnWorksheet();
-
-        if (gTables[tableNum].resultSetCount != 0) {  
-            infScrolling(tableNum);
-        }
-
-        adjustColGrabHeight(tableNum);
-        resizeRowInput();
-
-        return (Dag.construct(gTables[tableNum].backTableName, tableNum));
-    })
-    .then(function() {
-        // refresh dag
-        $("#dagWrap" + tableNum).addClass("worksheet-" + worksheetIndex);
-        WSManager.focusOnWorksheet();
-
-        deferred.resolve();
-    })
-    .fail(function(error) {
-        console.log("tableStartupFunctions Fails!");
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}    
+}
 
 function documentReadyIndexFunction() {
     function initializeTable() {

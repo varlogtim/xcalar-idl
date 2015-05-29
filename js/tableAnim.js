@@ -1642,6 +1642,12 @@ function moveTableDropdownBoxes() {
 }
 
 function focusTable(tableNum) {
+    var tableName = gTables[tableNum].frontTableName;
+    if (WSManager.getWorksheetIndex(tableName) !== 
+        WSManager.getActiveWorksheet()) {
+        console.log("Table not in current worksheet");
+        return;
+    }
     $('#mainFrame').find('.tableTitle').removeClass('tblTitleSelected');
     $('#xcTheadWrap'+tableNum).find('.tableTitle')
         .addClass('tblTitleSelected');

@@ -809,7 +809,7 @@ window.DataCart = (function($, DataCart) {
 
                 var tableProperties = {bookmarks:[], rowHeights:{}};
                 setIndex(tableName, newTableCols, datasetName, tableProperties);
-                
+
                 refreshTable(tableName, gTables.length, true, false)
                 .then(function() {
                     SQL.add("Send To Worksheet", sqlOptions);
