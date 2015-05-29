@@ -617,17 +617,16 @@ window.ColManager = (function($, ColManager) {
             }
             tableCols[i].type = columnType;
 
-            // $header.removeClass("type-mixed")
-            //         .removeClass("type-string")
-            //         .removeClass("type-integer")
-            //         .removeClass("type-decimal")
-            //         .removeClass("type-object")
-            //         .removeClass("type-array")
-            //         .removeClass("type-undefined")
-            //         .removeClass("type-boolean")
-            //         .removeClass("recordNum")
-            //         .removeClass("childOfArray")
-            //         .addClass('type-' + columnType);
+            $header.removeClass("type-mixed")
+                    .removeClass("type-string")
+                    .removeClass("type-integer")
+                    .removeClass("type-decimal")
+                    .removeClass("type-object")
+                    .removeClass("type-array")
+                    .removeClass("type-undefined")
+                    .removeClass("type-boolean")
+                    .removeClass("recordNum")
+                    .removeClass("childOfArray");
 
             $header.addClass('type-' + columnType);
 
@@ -725,17 +724,16 @@ window.ColManager = (function($, ColManager) {
         // add class to th
         var $header = $table.find('th.col' + newColid + ' div.header');
 
-        // $header.removeClass("type-mixed")
-        //        .removeClass("type-string")
-        //        .removeClass("type-integer")
-        //        .removeClass("type-decimal")
-        //        .removeClass("type-object")
-        //        .removeClass("type-array")
-        //        .removeClass("type-boolean")
-        //        .removeClass("type-undefined")
-        //        .removeClass("recordNum")
-        //        .removeClass("childOfArray")
-        //        .addClass('type-' + columnType);
+        $header.removeClass("type-mixed")
+               .removeClass("type-string")
+               .removeClass("type-integer")
+               .removeClass("type-decimal")
+               .removeClass("type-object")
+               .removeClass("type-array")
+               .removeClass("type-boolean")
+               .removeClass("type-undefined")
+               .removeClass("recordNum")
+               .removeClass("childOfArray");
 
         $header.addClass('type-' + columnType);
 
