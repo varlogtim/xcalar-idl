@@ -473,7 +473,9 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
     var option = option || {};
     var columnName = option.name || "newCol";
     var width      = option.width || 0;
-
+    var tooltip    = columnClass.indexOf("indexedColumn") < 0 ? "" :
+                     ' title="Indexed Column" data-toggle="tooltip" ' +
+                     'data-placement="top" data-container="body"';
     var columnHeadTd = 
         '<th class="th' + color + columnClass +
         ' col' + newColid + '" style="width:' + width + 'px;">' + 
@@ -491,7 +493,7 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
                         '<div class="iconHidden"></div> ' + 
                         '<span class="type icon"></span>' + 
                     '</div>' + 
-                    '<div class="flexWrap flex-mid">' + 
+                    '<div class="flexWrap flex-mid"' + tooltip + '>' + 
                         '<input autocomplete="on" spellcheck="false" ' + 
                             'type="text" class="editableHead col' + newColid + 
                             '" data-toggle="tooltip" data-placement="bottom" ' +
