@@ -92,11 +92,13 @@ window.Tips = (function($, Tips) {
     function addTipsEvent() {
         $(document).on("click", Tips.refresh);
         $("#mainFrame").on("scroll", Tips.refresh);
+        $(window).on("resize", Tips.refresh);
     }
 
     function removeTipsEvent() {
         $(document).off("click", Tips.refresh);
         $("#mainFrame").off("scroll", Tips.refresh);
+        $(window).off("resize", Tips.refresh);
     }
 
     /* Section of adding tips */
