@@ -285,7 +285,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             case "\\n":
                 return "\n";
             default:
-                return delimiter;
+                return (delimiter);
         }
     }
 

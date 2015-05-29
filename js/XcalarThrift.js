@@ -147,16 +147,6 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-    if (fieldDelim == null || fieldDelim == undefined
-        || fieldDelim == "") {
-        fieldDelim = XcalarApiDefaultFieldDelimT;
-        console.log(fieldDelim);
-    } 
-    if (recordDelim == null || recordDelim == undefined
-        || recordDelim == "") {
-        recordDelim = XcalarApiDefaultRecordDelimT;
-        console.log(recordDelim);
-    }
 
     var deferred = jQuery.Deferred();
     var loadArgs = new XcalarApiDfLoadArgsT();
