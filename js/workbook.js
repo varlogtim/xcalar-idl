@@ -14,8 +14,12 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
     var modalHelper      = new xcHelper.Modal($workbookModal);
 
+    var reverseLookup    = {};
+    var sortkey          = "name";
+
     var activeActionNo   = 0;
     var allUsers         = [];
+    var curUsers         = [];
 
     WorkbookModal.setup = function() {
         $workbookModal.draggable({
@@ -62,8 +66,17 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
     function resetWorkbookModal() {
         $workbookModal.find(".active").removeClass("active");
-        toggleWorkbooks(); // default select all workbooks
         filterUser();   // show all user lists
+        // default select all workbooks and sort by name
+        reverseLookup = {
+            "name": false,
+            "created": false,
+            "modified": false,
+            "srcUser": false,
+            "curUser": false
+        }
+        sortkey = "name";
+        toggleWorkbooks();
         // default choose first option
         $optionSection.find(".radio").eq(0).click();
         $searchInput.val("");
@@ -157,6 +170,18 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
                 return;
             }
+        });
+
+        // click title to srot
+        var $titleSection = $workbookLists.siblings(".titleSection");
+        $titleSection.on("click", ".title", function(event) {
+            var $title = $(this);
+
+            $titleSection.find(".title.active").removeClass("active");
+            $title.addClass("active");
+
+            sortkey = $title.data("sortkey");
+            addWorkbooks();
         });
 
         // select a workbook
@@ -339,25 +364,26 @@ window.WorkbookModal = (function($, WorkbookModal) {
             userNames[$li.text()] = true;
         });
 
-        var activeUsers = allUsers.filter(function(user) {
+        curUsers = allUsers.filter(function(user) {
             return (userNames[user.username] === true);
         });
 
-        addWorkbooks(activeUsers);
+        addWorkbooks();
     }
 
-    function addWorkbooks(users) {
+    function addWorkbooks() {
         var html   = "";
         var sorted = [];
 
-        users.forEach(function(user) {
+        curUsers.forEach(function(user) {
             user.workbooks.forEach(function(workbook) {
                 sorted.push(workbook);
             });
         });
 
         // sort by workbook.name
-        sorted = sortObj(sorted, "name");
+        var isNum = (sortkey === "created" || sortkey === "modified");
+        sorted = sortObj(sorted, sortkey, isNum);
         sorted.forEach(function(workbook) {
             var created  = workbook.created;
             var modified = workbook.modified;
@@ -402,7 +428,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
     }
 
-    function sortObj(objs, key) {
+    function sortObj(objs, key, isNum) {
         var sorted  = [];
         var results = [];
 
@@ -411,12 +437,20 @@ window.WorkbookModal = (function($, WorkbookModal) {
             sorted.push([obj, obj[key]]);
         });
 
-        sorted.sort(function(a, b) {return a[1].localeCompare(b[1])});
+        if (isNum) {
+            sorted.sort(function(a, b) {return a[1] - b[1]});
+        } else {
+            sorted.sort(function(a, b) {return a[1].localeCompare(b[1])});
+        }
 
         sorted.forEach(function(obj) {
             results.push(obj[0]);
         });
 
+        if (reverseLookup[key] === true) {
+            results.reverse();
+        }
+        reverseLookup[key] = !reverseLookup[key];
         return (results);
     }
 
