@@ -329,24 +329,32 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.Modal.prototype.setup = function() {
         // XXX to find the visiable btn, must show the modal first
-        var $modal     = this.$modal;
-        var $btns      = $modal.find(".btn");
-        var $inputs    = $modal.find("input");
-        var focusIndex = 0;
-        var $eles      = [];
+        var $modal      = this.$modal;
+        var eleLists    = [
+            $modal.find(".btn"),                // buttons
+            $modal.find("input")                // input
+        ];
 
-        $btns.each(function() {
-            $eles.push($(this));
-        });
+        var focusIndex  = 0;
+        var $focusables = [];
 
-        $inputs.each(function() {
-            $eles.push($(this));
-        });
+        // make an array for all focusable element
+        eleLists.forEach(function($eles) {
+            $eles.each(function() {
+                $focusables.push($(this));
+            });
+        })
 
-        var len = $eles.length;
-        // focus on the right most button
-        if (this.options.focusOnOpen) {
-            getEleToFocus();
+        var len = $focusables.length;
+        for (var i = 0; i < len; i++) {
+            $focusables[i].addClass("focusable").data("tabid", i);
+            $focusables[i].on("focus.xcModal", function() {
+                var $ele = $(this);
+                if (!isActive($ele)) {
+                    return;
+                }
+                focusOn($ele.data("tabid"));
+            });
         }
 
         // for switch between modal tab using tab key
@@ -358,10 +366,11 @@ window.xcHelper = (function($, xcHelper) {
                 return false;
             }
         });
+
         // for when mouse move on other buttons
+        var $btns = eleLists[0];
         $btns.on("mouseenter.xcModal", function() {
             var $btn = $(this);
-
             $btns.blur();
             $btn.focus();
         });
@@ -369,14 +378,22 @@ window.xcHelper = (function($, xcHelper) {
         $btns.on("mouseleave.xcModal", function() {
             $(this).blur();
         });
-        // find the input or button that is visible and not disabled
+
+        // focus on the right most button
+        if (this.options.focusOnOpen) {
+            getEleToFocus();
+        }
+
+        // find the input or button that is visible and not disabled to focus
         function getEleToFocus() {
-            // the current ele should not be focused
-            if (!isActive($eles[focusIndex])) {
+            // the current ele is not active, should no by aocused
+            if (!isActive($focusables[focusIndex])) {
                 var start  = focusIndex;
                 focusIndex = (focusIndex + 1) % len;
 
-                while (focusIndex !== start && !isActive($eles[focusIndex])) {
+                while (focusIndex !== start && 
+                        !isActive($focusables[focusIndex])) 
+                {
                     focusIndex = (focusIndex + 1) % len;
                 }
                 // not find any active ele that could be focused
@@ -386,15 +403,19 @@ window.xcHelper = (function($, xcHelper) {
             }
 
             if (focusIndex >= 0) {
-                $eles[focusIndex].focus();
+                $focusables[focusIndex].focus();
             }
+        }
+
+        function focusOn(index) {
+            focusIndex = index;
             // go to next index
             focusIndex = (focusIndex + 1) % len;
         }
 
         function isActive($ele) {
             if ($ele == undefined) {
-                console.log("dfs");
+                console.error("undefined element!");
             }
             return ($ele.is(":visible") && !$ele.is("[disabled]"));
         }
@@ -402,7 +423,8 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.Modal.prototype.clear = function() {
         $(document).off("keydown.xcModal" + this.id);
-        this.$modal.find(".btn").off(".xcModal");
+        this.$modal.find(".focusable").off(".xcModal")
+                                      .removeClass("focusable");
     }
     // check if any button is on focus
     xcHelper.Modal.prototype.checkBtnFocus = function() {
