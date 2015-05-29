@@ -22,11 +22,64 @@ window.WorkbookModal = (function($, WorkbookModal) {
                  "handle": ".modalHeader",
                  "cursor": "-webkit-grabbing"
         });
+
         // open workbook modal
         $("#workbookBtn").click(function() {
             WorkbookModal.show();
         });
 
+        addWorkbookEvents();
+        getUserLists();
+    }
+
+    WorkbookModal.show = function() {
+        xcHelper.removeSelectionRange();
+
+        $modalBackground.fadeIn(300, function() {
+            Tips.refresh();
+        });
+
+        $workbookModal.css({
+            "left"  : 0,
+            "right" : 0,
+            "top"   : 0,
+            "bottom": 0
+        });
+        $workbookModal.show();
+
+        resetWorkbookModal();
+        modalHelper.setup();
+    }
+
+    WorkbookModal.forceShow = function() {
+        addWorkbookEvents();
+        $workbookModal.find(".cancel, .close").hide();
+        getUserLists(true)
+        .then(function() {
+            WorkbookModal.show();
+        });
+    }
+
+    function resetWorkbookModal() {
+        $workbookModal.find(".active").removeClass("active");
+        toggleWorkbooks(); // default select all workbooks
+        filterUser();   // show all user lists
+        // default choose first option
+        $optionSection.find(".radio").eq(0).click();
+        $searchInput.val("");
+        $workbookInput.val("").focus();
+    }
+
+    function closeWorkbookModal() {
+        modalHelper.clear();
+
+        $workbookModal.hide();
+        $modalBackground.fadeOut(300, function() {
+            Tips.refresh();
+        });
+    }
+
+    function addWorkbookEvents() {
         // click cancel or close button
         $workbookModal.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
@@ -153,53 +206,15 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $searchInput.keyup(function(event) {
             filterUser($searchInput.val());
         });
-
-        getUserLists();
     }
 
-    WorkbookModal.show = function() {
-        xcHelper.removeSelectionRange();
-
-        $modalBackground.fadeIn(300, function() {
-            Tips.refresh();
-        });
-
-        $workbookModal.css({
-            "left"  : 0,
-            "right" : 0,
-            "top"   : 0,
-            "bottom": 0
-        });
-        $workbookModal.show();
-
-        resetWorkbookModal();
-        modalHelper.setup();
-    }
-
-    function resetWorkbookModal() {
-        $workbookModal.find(".active").removeClass("active");
-        toggleWorkbooks(); // default select all workbooks
-        filterUser();   // show all user lists
-        // default choose first option
-        $optionSection.find(".radio").eq(0).click();
-        $searchInput.val("");
-        $workbookInput.val("").focus();
-    }
-
-    function closeWorkbookModal() {
-        modalHelper.clear();
-
-        $workbookModal.hide();
-        $modalBackground.fadeOut(300, function() {
-            Tips.refresh();
-        });
-    }
-
-    function getUserLists() {
+    function getUserLists(isForceMode) {
+        var deferred = jQuery.Deferred();
         allUsers = [];
 
         WKBKManager.getUsersInfo()
         .then(function(userInfo) {
+            userInfo = userInfo || {}; // in case userInfo is null
             var users = userInfo.users;
 
             for (var username in users) {
@@ -220,15 +235,27 @@ window.WorkbookModal = (function($, WorkbookModal) {
             $userLists.html(html);
 
             // get current workbook info
-            getActiveWorkbook(userInfo);
+            getWorkbookInfo(userInfo, isForceMode);
         })
+        .then(deferred.resolve)
         .fail(function(error) {
             console.error("Get Session Error", error);
             $datalist.html("");
+            deferred.reject(error);
         });
+
+        return (deferred.promise());
     }
 
-    function getActiveWorkbook(userInfo) {
+    function getWorkbookInfo(userInfo, isForceMode) {
+        if (isForceMode) {
+            var html = 
+                'Hello <b>' +  WKBKManager.getUser() + '</b>, ' + 
+                ' you have no workbook yet, you can create new workbook, ' + 
+                'cotinue a workbook or copy a workbook';
+            $workbookModal.find(".modalInstruction .text").html(html);
+            return;
+        }
         var activeWKBKId = WKBKManager.getActiveWKBK();
         var srcUser      = userInfo.wkbkLookup[activeWKBKId];
         var workbooks    = userInfo.users[srcUser].workbooks;
@@ -236,7 +263,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
         for (var i = 0; i < workbooks.length; i++) {
             if (workbooks[i].id === activeWKBKId) {
                 var html = 
-                    'Current workbook is <b>' + workbooks[i].name + '</b>' + 
+                    'Hello <b>' +  WKBKManager.getUser() + '</b>, ' +
+                    'current workbook is <b>' + workbooks[i].name + '</b>' + 
                     ' created by <b>' + srcUser + '</b>';
                 $workbookModal.find(".modalInstruction .text").html(html);
                 break;
@@ -407,24 +435,20 @@ window.WKBKManager = (function($, WKBKManager) {
     // initial setup
     WKBKManager.setup = function() {
         var deferred = jQuery.Deferred();
-        var isNew    = false;
 
         KVStore.get(activeWKBKKey)  // get active workbook
         .then(function(wkbkId) {
-            // if no any workbook, create a new one
+            var innerDeferred = jQuery.Deferred();
+            // if no any workbook, force displaying the workbook modal
             if (wkbkId == null) {
-                isNew = true;
-                return (WKBKManager.newWKBK("untitled"));
+                innerDeferred.reject("No workbook for the user");
+                WorkbookModal.forceShow();
             } else {
-                return (promiseWrapper(wkbkId));
+                innerDeferred.resolve(wkbkId);
             }
+            return (innerDeferred.promise());
         })
         .then(function(wkbkId) {
-            // mark this workbook as active
-            if (isNew) {
-                KVStore.put(activeWKBKKey, wkbkId);
-            }
-
             activeWKBKId = wkbkId;
             console.log("Current Workbook Id is", wkbkId);
             // retive key from username and wkbkId
@@ -451,6 +475,11 @@ window.WKBKManager = (function($, WKBKManager) {
     // get current active workbook
     WKBKManager.getActiveWKBK = function() {
         return (activeWKBKId);
+    }
+
+    // get current user
+    WKBKManager.getUser = function() {
+        return (username);
     }
 
     // make new workbook
