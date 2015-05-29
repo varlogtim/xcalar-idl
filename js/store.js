@@ -103,7 +103,8 @@ function commitToStorage(atStartup) {
                 "sql": SQL.getHistory(),
                 "scratchPad": scratchPadText,
                 "datacarts": DataCart.getCarts(),
-                "helpStatusOff" : HelpController.isOff()
+                "helpStatusOff": HelpController.isOff(),
+                "udfLookup": RightSideBar.storeUDFLookup(),
             };
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
@@ -152,6 +153,9 @@ function readFromStorage() {
             }
             if (gInfos["helpStatusOff"]) {
                 HelpController.tooltipOff();
+            }
+            if (gInfos["udfLookup"]) {
+                RightSideBar.reinstateUDFLookup(gInfos["udfLookup"]);
             }
         } else {
             emptyAllStorage(true);

@@ -978,7 +978,21 @@ function XcalarListXdfs(fnNamePattern, categoryPattern) {
     xcalarApiListXdfs(tHandle, fnNamePattern, categoryPattern)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarApiTop", error));
+        deferred.reject(thriftLog("XcalarListXdf", error));
+    });
+    return (deferred.promise());
+}
+
+function XcalarUploadPython(moduleName, funcName, pythonStr) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+
+    xcalarApiUploadPython(tHandle, moduleName, funcName, pythonStr)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarUploadPython", error));
     });
     return (deferred.promise());
 }

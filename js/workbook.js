@@ -252,7 +252,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
             var html = 
                 'Hello <b>' +  WKBKManager.getUser() + '</b>, ' + 
                 ' you have no workbook yet, you can create new workbook, ' + 
-                'cotinue a workbook or copy a workbook';
+                'continue a workbook or copy a workbook';
             $workbookModal.find(".modalInstruction .text").html(html);
             return;
         }

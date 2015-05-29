@@ -1,4 +1,5 @@
 window.RightSideBar = (function($, RightSideBar) {
+    var UDFLookup = []; // Temporary array to store UDF
 
     RightSideBar.setup = function() {
         setupButtons();
@@ -386,6 +387,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
     // setup UDF section
     function setupUDF() {
+        
         var textArea = document.getElementById("udf-codeArea");
         var editor   = CodeMirror.fromTextArea(textArea, {
             "mode": {
@@ -441,7 +443,8 @@ window.RightSideBar = (function($, RightSideBar) {
             var file = $inputFile[0].files[0];
             var path = file.name;
             console.log(path, file);
-
+            var moduleName = path.substring(0, path.indexOf("."));
+            var functionName = moduleName;
             if (path == "") {
                 var text = "File Path is empty," + 
                            " please choose a file you want to upload";
@@ -451,12 +454,17 @@ window.RightSideBar = (function($, RightSideBar) {
                 var reader = new FileReader();
                 reader.onload = function(event) {
                     console.log(event.target.result);
-                    // XXX Call upload here
+                    // XXX: Change cursor, handle failure
+                    XcalarUploadPython(moduleName, functionName,
+                                       event.target.result)
+                    .then(function() {
+                        // clearance
+                        $inputFile.val("");
+                        $filePath.val("");
+                        uploadSuccess();
+                    });
                 }
                 reader.readAsText(file);
-                
-                $inputFile.val("");
-                $filePath.val("");
             }
         });
         /* end of upload file section */
@@ -514,14 +522,48 @@ window.RightSideBar = (function($, RightSideBar) {
             
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
-            console.log(entireString);
+            // XXX: Set these properly
+            var moduleName;
+            if (fileName.indexOf(".") >= 0) {
+                moduleName = fileName.substring(0,fileName.indexOf("."));
+            } else {
+                moduleName = fileName;
+            }
+            var functionName = moduleName;
 
-            // clearance
-            $fnName.val("");
-            $template.val("");
-            $downloadBtn.addClass("hidden");
+            // XXX: Change cursor, handle failure
+
+            XcalarUploadPython(moduleName, functionName, entireString)
+            .then(function() {
+                UDFLookup.push({"moduleName": moduleName,
+                                "functionName": functionName});
+                // clearance
+                $fnName.val("");
+                $template.val("");
+                $downloadBtn.addClass("hidden");
+                uploadSuccess();
+            });
         });
         /* end of upload written function section */
+    }
+
+    function uploadSuccess() {
+        var alertOptions = {};
+        alertOptions.title = "UPLOAD SUCCESS";
+        alertOptions.msg = "Your python script has been successfully uploaded!";
+        alertOptions.isCheckBox = false;
+        alertOptions.confirm = function() {
+            $("#udfBtn").parent().click();
+        }
+        Alert.show(alertOptions);
+    }
+
+    RightSideBar.storeUDFLookup = function() {
+        return (JSON.stringify(UDFLookup));
+    }
+    
+    RightSideBar.reinstateUDFLookup = function(str) {
+        UDFLookup = jQuery.parseJSON(str);
     }
 
     function setupSQL() {

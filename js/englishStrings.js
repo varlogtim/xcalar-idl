@@ -35,16 +35,18 @@ TooltipTStr = {
 TipsTStr = {
     "Scrollbar": "Scroll Table Here",
     "AddWorksheet": "Add Worksheet",
-    "EditColumn": "Click header to edit column",
-    "LineMarker": "Click line marker to add bookmark",
-    "JSONEle": "Double-click to view and pull out data",
-    "ToggleGridView": "Toggle grid view and list view",
-    "DragGrid": "You can drag dataset or folder to reorder",
-    "DataSampleTable": "Click table header to adding/removing columns to/from "
-        + "data cart, and hover on header to see dropdown menu of the column",
-    "Datacart": "Data Cart Area, you can send the columns " + 
-                "in the cart to create tables in worksheet",
-    "PullRightsidebar": "Click to toggle right side bar",
+    "EditColumn": "Click here to edit column name",
+    "LineMarker": "Click row number to add bookmark",
+    "JSONEle": "Double-click to view, then click on key names to pull columns",
+    "ToggleGridView": "Toggle between grid view and list view",
+    "DragGrid": "You can drag datasets or folders around to reorder",
+    "DataSampleTable": "Click table header to add/remove columns to/from "
+        + "data cart. Click on column headings to further modify the column.",
+    "Datacart": "Datacart area, you can add columns from datasets into your "+
+                "cart. These columns will be used to create the table in your"+
+                "active worksheet. You can add columns in the worksheet screen "
+                + "too.",
+    "PullRightsidebar": "Click to open and close side bar",
     "TablList": "Click to see details",
-    "PullColumn": "Click key to pull out the column"
+    "PullColumn": "Click key to add the column to your table"
 }
