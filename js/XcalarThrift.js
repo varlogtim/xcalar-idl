@@ -673,8 +673,6 @@ function XcalarJoin(left, right, dst, joinType) {
     return (deferred.promise());
 }
 
-// XXX FIXME
-// This function is problematic
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
                        newTableName) {
     var deferred = jQuery.Deferred();
