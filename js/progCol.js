@@ -629,6 +629,7 @@ window.ColManager = (function($, ColManager) {
                     .removeClass("childOfArray");
 
             $header.addClass('type-' + columnType);
+            $header.find('.iconHelper').attr('title', columnType);
 
             if (tableCols[i].name == "recordNum") {
                 $header.addClass('recordNum');
@@ -736,6 +737,7 @@ window.ColManager = (function($, ColManager) {
                .removeClass("childOfArray");
 
         $header.addClass('type-' + columnType);
+        $header.find('.iconHelper').attr('title', columnType);
 
         if (key == "recordNum") {
             $header.addClass('recordNum');

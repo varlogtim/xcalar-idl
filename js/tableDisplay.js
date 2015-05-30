@@ -479,13 +479,18 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
     var columnHeadTd = 
         '<th class="th' + color + columnClass +
         ' col' + newColid + '" style="width:' + width + 'px;">' + 
-            '<div class="header">' + 
-                '<div class="dragArea"></div>' + 
+            '<div class="header">'+
+                '<div class="dragArea">'+
+                    '<div class="iconHelper" '+
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' + 
+                        'data-container="body">' +
+                    '</div>'+
+                '</div>' + 
                 '<div class="colGrab" ' + 
                      'title="Double click to auto resize" ' + 
                      'data-toggle="tooltip" ' + 
-                     'data-placement="top" ' + 
-                     'data-container="body">' + 
+                     'data-placement="left">' + 
                 '</div>' + 
                 '<div class="flexContainer flexRow">' + 
                     '<div class="flexWrap flex-left">' +
