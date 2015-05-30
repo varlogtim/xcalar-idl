@@ -92,7 +92,7 @@ window.AggModal = (function($, AggModal) {
         var table         = gTables[tableNum];
         var numColumns    = table.tableCols.length;
 
-        var aggrFunctions = ["Sum", "Average", "Min", "Max", "Count"];
+        var aggrFunctions = ["Sum", "Avg", "Min", "Max", "Count"];
         var $mainAgg      = $("#mainAgg");
 
         var tabHtml       = "";
@@ -145,6 +145,8 @@ window.AggModal = (function($, AggModal) {
 
         // First we need to determine if this is a dataset-table
         // or just a regular table
+        var dupCols = [];
+
         xcFunction.checkSorted(tableNum)
         .then(function(tableName) {
             for (var j = 0; j < numColumns; j++) {
@@ -152,13 +154,24 @@ window.AggModal = (function($, AggModal) {
                 // XXX Skip DATA!
                 if ((cols.type === "integer" || cols.type === "decimal")
                      && cols.name !== "DATA") {
+                    // for duplicated columns, no need to trigger thrift call
+                    if (dupCols[j]) {
+                        console.log("Duplicated column", j);
+                        continue;
+                    }
+
+                    var dups = checkDupCols(table.tableCols, j);
+                    dups.forEach(function(colNum) {
+                        dupCols[colNum] = true;
+                    });
+
                     var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
                                         (j+1)  + " .header");
                     // XXX now agg on child of array is not supported
                     if (!$colHeader.hasClass("childOfArray")) {
                         for (var i = 0; i < 5; i++) {
                             runAggregate(tableName, cols.func.args[0], 
-                                        aggrFunctions[i], i, j);
+                                        aggrFunctions[i], i, j, dups);
                         }
                     }
                 }
@@ -166,7 +179,25 @@ window.AggModal = (function($, AggModal) {
         });
     }
 
-    function runAggregate(tableName, fieldName, opString, row, col) {
+    function checkDupCols(tableCols, colNum) {
+        if (!tableCols[colNum].func.args) {
+            return ([]);
+        }
+
+        var args  = tableCols[colNum].func.args[0];
+        var dups  = [];
+        for (var i = colNum + 1; i < tableCols.length; i++) {
+            if (tableCols[i].func.args && 
+                (tableCols[i].func.args[0] === args) && 
+                (tableCols[i].func.func !== "raw")) 
+            {
+                dups.push(i);
+            }
+        }
+        return (dups);
+    }
+
+    function runAggregate(tableName, fieldName, opString, row, col, dups) {
         XcalarAggregate(fieldName, tableName, opString)
         .done(function(value) {
             var val;
@@ -182,6 +213,11 @@ window.AggModal = (function($, AggModal) {
 
             $("#mainAgg .aggTable .aggCol:eq(" + col + ")" + 
               " .aggTableField:eq(" + row + ")").html(val);
+
+            dups.forEach(function(colNum) {
+                $("#mainAgg .aggTable .aggCol:eq(" + colNum + ")" + 
+                  " .aggTableField:eq(" + row + ")").html(val);
+            });
         });
     }
 
@@ -190,7 +226,7 @@ window.AggModal = (function($, AggModal) {
         $modalBackground.off("click", hideAggOpSelect);
         $aggModal.hide();
         $modalBackground.fadeOut(300, function() {
-            Tips.refersh();
+            Tips.refresh();
         });
         $aggModal.width(920).height(670);
     }
