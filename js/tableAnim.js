@@ -800,7 +800,7 @@ function createTableHeader(tableNum) {
     // opeartion for move to worksheet and copy to worksheet
     $tableMenu.on('mouseenter', '.moveToWorksheet', function() {
         var $list = $(this).find(".list");
-        var html   = WSManager.getWorksheetLists(false);
+        var html  = WSManager.getWSLists(false);
 
         $list.empty().append(html);
     });
@@ -808,7 +808,7 @@ function createTableHeader(tableNum) {
 
     $tableMenu.on('mouseenter', '.dupToWorksheet', function() {
         var $list = $(this).find(".list");
-        var html  = WSManager.getWorksheetLists(true);
+        var html  = WSManager.getWSLists(true);
 
         $list.empty().append(html);
     });
@@ -1423,7 +1423,7 @@ function dropdownClick($el, outside, options) {
         if ($el.parent().hasClass('tableTitle')) {
             var $menu = $('#tableMenu'+tableNum);
 
-            if (WSManager.getWorksheetLen() <= 1) {
+            if (WSManager.getWSLen() <= 1) {
                 $menu.find(".moveToWorksheet").addClass("unavailable");
             } else {
                 $menu.find(".moveToWorksheet").removeClass("unavailable");
@@ -1609,8 +1609,8 @@ function moveTableDropdownBoxes() {
 
 function focusTable(tableNum) {
     var tableName = gTables[tableNum].frontTableName;
-    if (WSManager.getWorksheetIndex(tableName) !== 
-        WSManager.getActiveWorksheet()) {
+    if (WSManager.getWSFromTable(tableName) !== 
+        WSManager.getActiveWS()) {
         console.log("Table not in current worksheet");
         return;
     }

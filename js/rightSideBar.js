@@ -634,14 +634,14 @@ window.RightSideBar = (function($, RightSideBar) {
                 "instr"  : instr,
                 "optList": {
                     "label": "Worksheet to send:",
-                    "list" : WSManager.getWorksheetLists(true),
+                    "list" : WSManager.getWSLists(true),
                 },
                 "confirm": function() {
                     $noSheetTables.removeClass("highlight");
                     $("#rightSideBar.faux").remove();
 
                     var wsName  = Alert.getOptionVal();
-                    var wsIndex = WSManager.getWorksheetByName(wsName);
+                    var wsIndex = WSManager.getWSByName(wsName);
 
                     if (wsIndex == undefined) {
                         Alert.error("Invalid worksheet name", 
@@ -755,7 +755,7 @@ window.RightSideBar = (function($, RightSideBar) {
             }
 
             var tableName = table.frontTableName;
-            var wsIndex   = WSManager.getWorksheetIndex(tableName);
+            var wsIndex   = WSManager.getWSFromTable(tableName);
             var wsInfo;
 
             if (wsIndex == undefined) {
@@ -763,7 +763,7 @@ window.RightSideBar = (function($, RightSideBar) {
             } else {
                 wsInfo = 
                     '<div class="worksheetInfo worksheet-' + wsIndex + '">' + 
-                        WSManager.getWorksheetName(wsIndex) + 
+                        WSManager.getWSName(wsIndex) + 
                     '</div>';
             }
 

@@ -134,7 +134,7 @@ function readFromStorage() {
                 gTableDirectionLookup = gInfos["TDLookup"];
             }
             if (gInfos["worksheets"]) {
-                WSManager.restoreWorksheets(gInfos["worksheets"]);
+                WSManager.restoreWS(gInfos["worksheets"]);
             }
             if (gInfos["TOLookup"]) {
                 gTableOrderLookup = gInfos["TOLookup"];

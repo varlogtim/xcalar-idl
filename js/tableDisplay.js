@@ -79,9 +79,9 @@ function refreshTable(newTableName, tableNum,
 // Adds a table to the display
 // Shifts all the ids and everything
 function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
-    var deferred = jQuery.Deferred();
+    var deferred  = jQuery.Deferred();
     // default ws if no other specified
-    var wsIndex  = WSManager.getActiveWorksheet();
+    var wsIndex   = WSManager.getActiveWS();
 
     if (frontName == undefined) {
         frontName = table;
