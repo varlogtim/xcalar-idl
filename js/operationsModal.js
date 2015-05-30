@@ -18,6 +18,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var modalHelper = new xcHelper.Modal($operationsModal);
 
     OperationsModal.setup = function() {
+        var allowInputChange = true;
         var $autocompleteInputs = $operationsModal.find('.autocomplete');
 
         $autocompleteInputs.on('input', function() {
@@ -25,11 +26,15 @@ window.OperationsModal = (function($, OperationsModal) {
         });
 
         $autocompleteInputs.on('change', function(event) {
+            if (!allowInputChange) {
+                return;
+            }
             var inputNum = $autocompleteInputs.index($(this));
             if (inputNum == 0) {
                 updateFunctionsList();
             }
             if ($(this).siblings('.list').find('li').length > 0) {
+                clearInput(inputNum, true);
                 return;
             }
             produceArgumentTable();
@@ -53,7 +58,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
                 $(this).blur();
                 $operationsModal.find('.list, .list li').hide();
-                
+                if ($(this).val() == $functionsMenu.data('category')) {
+                    return;
+                }
                 enterInput(index);  
             } else {
                 closeListIfNeeded($(this));
@@ -68,21 +75,31 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
-        $operationsModal.find('.list').on('click', 'li', function(event) {
+        $operationsModal.find('.list').on('mousedown', 'li', function(event) {
+            allowInputChange = false;
+        });
+
+        $operationsModal.find('.list').on('mouseup', 'li', function(event) {
+            allowInputChange = true;
             event.stopPropagation();
             var $el = $(this);
             var value = $el.text();
             var $input = $el.parent().siblings('.autocomplete');
             $el.parent().hide().children().hide(); 
             if ($input.val() == value) {
-
                 return;
             }
             $input.val(value);
+
+            if (value == $functionsMenu.data('category')) {
+                return;
+            }
             
             var index = $operationsModal.find('.list').index($el.parent());
             enterInput(index);
         });
+
+
 
         $operationsModal.find('.list').on('mouseenter', 'li', function(event) {
             $operationsModal.find('.list li').removeClass('highlighted');
@@ -150,6 +167,7 @@ window.OperationsModal = (function($, OperationsModal) {
             if ($mousedownTarget.closest('.listSection').length == 0) {
                 $operationsModal.find('.list, .list li').hide();
             }
+            allowInputChange = true;
         });
 
         $operationsModal.find('.confirm').on('click', submitForm);
@@ -374,7 +392,9 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function clearInput(inputNum, keep) {
         if (!keep) {
-            $operationsModal.find('.autocomplete').eq(inputNum).val("");
+            $operationsModal.find('.autocomplete')
+                            .eq(inputNum).val("")
+                            .attr('placeholder', "");
         }
 
         $operationsModal.find('.list, .list li').hide();
@@ -508,7 +528,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var $list = $(html);
 
         $list.sort(sortHTML).prependTo($functionsMenu);
-       
+        $functionsMenu.data('category', category);
         fillInputPlaceholder(1);
     }
 
