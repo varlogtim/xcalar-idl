@@ -156,6 +156,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     loadArgs.csv.fieldDelim = fieldDelim;
     loadArgs.csv.isCRLF = true;
 
+    /**
+    loadArgs.pyArgs = new XcalarApiDfPyArgsLoadArgsT();
+    loadArgs.pyArgs.moduleName
+    loadArgs.pyArgs.funcName
+    */
     var formatType;
     switch (format) {
     case ("JSON"):

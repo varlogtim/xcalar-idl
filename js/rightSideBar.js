@@ -520,7 +520,6 @@ window.RightSideBar = (function($, RightSideBar) {
             
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
-            // XXX: Set these properly
             var moduleName;
             if (fileName.indexOf(".") >= 0) {
                 moduleName = fileName.substring(0,fileName.indexOf("."));
@@ -554,6 +553,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 $fnName.val("");
                 $template.val("");
                 $downloadBtn.addClass("hidden");
+                UDF.set(moduleName, functionName);
                 uploadSuccess();
             });
         });
@@ -872,15 +872,14 @@ window.UDF = (function($, UDF) {
      // Temporary Obj to store UDF
     // structure: {"moduleName": [func1, func2...]};
     var UDFLookup = {};
-    // XXX Cheng: remove it when no need to test
-    var testMode = true;
+    var testMode = false; // For testing
 
     UDF.get = function() {
         return (UDFLookup);
     }
 
     UDF.set = function(moduleName, functionName) {
-        UDFLookup[moduleName] = UDFLookup[moduleName] || {};
+        UDFLookup[moduleName] = UDFLookup[moduleName] || [];
         UDFLookup[moduleName].push(functionName);
     }
     
@@ -900,14 +899,14 @@ window.UDF = (function($, UDF) {
         var udfs        = UDFLookup;
 
         for (var module in udfs) {
-            moduleList += '<li class="openli">' + module + '</li>';
+            moduleList += '<li class="openli textNoCap">' + module + '</li>';
             udfs[module].forEach(function(func) {
-                funcList += '<li data-module="' + module + '">' + 
-                                func + 
+                funcList += '<li data-module="' + module + '" '+
+                             'class="textNoCap">' + 
+                                func + "()" + 
                             '</li>';
             });
         }
-
         $moduleList.find(".list").html(moduleList);
         $funcList.find(".list").html(funcList);
         // choose first li

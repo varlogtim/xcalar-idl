@@ -99,8 +99,6 @@ window.OperationsModal = (function($, OperationsModal) {
             enterInput(index);
         });
 
-
-
         $operationsModal.find('.list').on('mouseenter', 'li', function(event) {
             $operationsModal.find('.list li').removeClass('highlighted');
             $(this).addClass('highlighted');

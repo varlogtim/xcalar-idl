@@ -1736,12 +1736,18 @@
         box-shadow: none;
         margin-left: 15px;
         top: -2px;
+        
+        .textNoCap {
+            text-transform: none !important;
+        }
+        
         .text {
             .size(@width: 100%);
             padding-right: 26px;
             .input-placeholder(@color-text-placeholder);
             text-transform: capitalize;
         }
+        
         .list {
             .size (@width: ~"calc(100% - 22px)");
             top: 24px;
