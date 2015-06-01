@@ -924,6 +924,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
     function updateTableInfo(dsName, dsFormat, totalEntries) {
         $("#schema-title").text(dsName);
         $("#dsInfo-title").text(dsName);
+        // XXX these info should be changed after better backend support
+        $("#dsInfo-author").text(WKBKManager.getUser());
         $("#dsInfo-createDate").text(xcHelper.getDate());
         $("#dsInfo-updateDate").text(xcHelper.getDate());
         $("#dsInfo-records").text(Number(totalEntries).toLocaleString('en'));
