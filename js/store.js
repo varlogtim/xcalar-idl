@@ -296,7 +296,11 @@ window.KVStore = (function($, KVStore) {
                     sessionStorage.getItem(KVStore.user) !== "hold") {
                     Alert.error("Signed on elsewhere!",
                                 "Please close your other session.",
-                                true);
+                                {
+                        "cancel": function() {
+                            KVStore.forceRelease();
+                        }
+                    });
                     deferred.reject("Already in use!");
                 } else {
                     if (gInfos["holdStatus"] === true) {
@@ -330,8 +334,15 @@ window.KVStore = (function($, KVStore) {
             if (output) {
                 var gInfos = JSON.parse(output.value);
                 gInfos["holdStatus"] = false;
-                XcalarKeyPut(KVStore.gStorageKey, JSON.stringify(gInfos), false);
+                return (XcalarKeyPut(KVStore.gStorageKey, 
+                                     JSON.stringify(gInfos), false));
+            } else {
+                console.error("Output is empty");
+                return (promiseWrapper(null));
             }
+        })
+        .then(function() {
+            location.reload();
         });
     }
 

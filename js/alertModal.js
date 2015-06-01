@@ -37,6 +37,7 @@ window.Alert = (function($, Alert){
                 className: class of the button
                 func: callback to trigger when click
             confirm: callback to trigger when click confirm button
+            cancel:  callback to trigger when click cancel button
         */
         configAlertModal(options);
 
@@ -50,7 +51,7 @@ window.Alert = (function($, Alert){
         modalHelper.setup();
     }
 
-    Alert.error = function(title, error, unclosable) {
+    Alert.error = function(title, error, options) {
         var type = typeof error;
         var msg;
 
@@ -60,12 +61,14 @@ window.Alert = (function($, Alert){
             msg = error;
         }
 
-        Alert.show({
+        var alertOptions = {
             "title"     : title,
             "msg"       : msg,
-            "isAlert"   : true,
-            "unclosable": unclosable
-        });
+            "isAlert"   : true
+        };
+
+        alertOptions = $.extend(options, alertOptions);
+        Alert.show(alertOptions);
     }
 
     Alert.getOptionVal = function() {
@@ -139,9 +142,7 @@ window.Alert = (function($, Alert){
         // close alert modal
         $alertModal.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
-            if (options.unclosable) {
-                return;
-            }
+
             closeAlertModal();
 
             if (options.cancel) {
