@@ -100,8 +100,8 @@ window.xcFunction = (function ($, xcFunction) {
     }
 
     // aggregate table column
-    xcFunction.aggregate = function (colNum, frontColName, backColName, tableNum, 
-                                     aggrOp) {
+    xcFunction.aggregate = function (colNum, frontColName, backColName,
+                                     tableNum, aggrOp) {
         var table     = gTables[tableNum];
         var frontName = gTables[tableNum].frontTableName;
         var msg          = StatusMessageTStr.Aggregate + " " + aggrOp + " " + 

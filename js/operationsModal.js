@@ -302,11 +302,12 @@ window.OperationsModal = (function($, OperationsModal) {
         var i = 0;
         for (var category in FunctionCategoryT) {
             var custom = {
-                argDescs: [{'argDesc': 'value'}],
+                argDescs: [{'argDesc': 'Module Name'},
+                           {'argDesc': 'Function String'}],
                 category: i,
-                fnDesc: "Enter a custom function",
-                fnName: "custom",
-                numArgs: 1,
+                fnDesc: "Enter a user defined function",
+                fnName: "udf",
+                numArgs: 2,
                 outputType: -1
             };
 
@@ -631,7 +632,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if (isPassing) {
             $operationsModal.find('.close').trigger('click', {slow:true});
         } else {
-            // show some kidna error message
+            // show some kidddna error message
         }
     }
 
@@ -666,13 +667,20 @@ window.OperationsModal = (function($, OperationsModal) {
         var colIndex = -1;
         var columns = gTables[tableNum].tableCols;
         var numCols = columns.length;
-        var frontName = $.trim($operationsModal.find('.argument').val());
-        var backName = frontName;
-        for (var i = 0; i < numCols; i++) {
-            if (columns[i].name == frontName) {
-                if (columns[i].func.args) {
-                    backName = columns[i].func.args[0];
-                    colIndex = i;
+        var args = $operationsModal.find('.argument');
+        if (aggrOp === "Udf") {
+            Alert.error("Aggregate Failed",
+                        "UDF currently not available for aggregates");
+            return (false);
+        } else {
+            var frontName = $.trim($operationsModal.find('.argument').val());
+            var backName = frontName;
+            for (var i = 0; i < numCols; i++) {
+                if (columns[i].name == frontName) {
+                    if (columns[i].func.args) {
+                        backName = columns[i].func.args[0];
+                        colIndex = i;
+                    }
                 }
             }
         }
@@ -686,6 +694,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var value1 = $.trim($operationsModal.find('.argument').eq(0).val());
         var value2;
         var value3;
+        var options = {};
         if (numVisibleInputs == 2) {
             value2 = $.trim($operationsModal.find('.argument').eq(1).val());
         } else if (numVisibleInputs == 3) {
@@ -693,11 +702,26 @@ window.OperationsModal = (function($, OperationsModal) {
             value3 = $.trim($operationsModal.find('.argument').eq(2).val());
         }   
         console.log(operator, 'operator');
-
-        return (xcFunction.filter(colNum, tableNum, {"operator": operator, 
-                                             "value1": value1, 
-                                             "value2" : value2,
-                                             "value3" : value3}));
+        
+        if (operator === "udf") {
+            // value2 is in the form of fnCall(arg1, arg2, ...) and I need to
+            // break it into "fnCall", arg1, arg2, arg3
+            var regex = new RegExp('(.*)[(](.*)[)]', "g");
+            var match = regex.exec(value2);
+            var funcName = match[1];
+            var args = match[2];
+            var fltStr = "filter(pyExec(\"" + value1 + "\",\"";
+            fltStr += funcName + "\",";
+            fltStr += args + "))";
+            options = {"filterString": fltStr};
+        } else {
+            options = {"operator": operator, 
+                       "value1": value1, 
+                       "value2" : value2,
+                       "value3" : value3};
+        } 
+    
+        return (xcFunction.filter(colNum, tableNum, options)); 
     }
 
     function groupBy(operator) {
@@ -752,19 +776,30 @@ window.OperationsModal = (function($, OperationsModal) {
             var $secondVal  = $operationsModal.find('.argument').eq(1);
             secondValue = $.trim($secondVal.val());
         }
-        
+                
         var newColName  = $.trim($nameInput.val());
 
-        var switched   = false;
-        var mapStr     = formulateMapString(operator, firstValue, secondValue);
-
+        var switched  = false;
+        var mapStr = "";
+        if (operator.toLowerCase() === "udf") {
+            var moduleName = firstValue;
+            var funcString = secondValue;
+            var regex = new RegExp('(.*)[(](.*)[)]', "g");
+            var match = regex.exec(funcString);
+            var funcName = match[1];
+            var args = match[2];
+            var mapStr = "=map(pyExec(\"" + moduleName + "\",\"";
+            mapStr += funcName + "\",";
+            mapStr += args + "))";
+        } else {
+            mapStr = formulateMapString(operator, firstValue, secondValue);
+        }
         console.log(operator, mapStr);
 
         if (!$operationsModal.hasClass('type-newColumn')) {
             ColManager.addCol('col' + colNum, 'xcTable' + tableNum, null, 
                           {direction: 'L', isNewCol: true});
         }
-        
 
         var $th       = $('#xcTable'+tableNum).find('th.col'+colNum);
         var $colInput = $th.find('.editableHead.col'+colNum);

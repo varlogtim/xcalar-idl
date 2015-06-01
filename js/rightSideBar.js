@@ -514,7 +514,7 @@ window.RightSideBar = (function($, RightSideBar) {
             var fileName = $fnName.val();
 
             if (fileName == "") {
-                var text = "File name is empty, please input a function name!";
+                var text = "Module name is empty, please input a module name!";
 
                 StatusBox.show(text, $fnName, true, 50);
                 return;
@@ -530,9 +530,26 @@ window.RightSideBar = (function($, RightSideBar) {
                 moduleName = fileName;
             }
             var functionName = moduleName;
+            var lines = entireString.split('\n');
+            var found = false;
+            for (var i = 0; i<lines.length; i++) {
+                var line = lines[i];
+                line = jQuery.trim(line);
+                if (line.indexOf("#") != 0 && line.indexOf("def") === 0) {
+                    // This is the function definition
+                    var regex = new RegExp('def *([^( ]*)', "g");
+                    var matches = regex.exec(line);
+                    functionName = matches[1];
+                    console.log(matches);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                console.log("XXX no function definition");
+            }
 
             // XXX: Change cursor, handle failure
-
             XcalarUploadPython(moduleName, functionName, entireString)
             .then(function() {
                 UDFLookup.push({"moduleName": moduleName,
