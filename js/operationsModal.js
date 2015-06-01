@@ -579,8 +579,13 @@ window.OperationsModal = (function($, OperationsModal) {
                 $tbody.prepend($funcRow ).prepend($moduleRow);
                 UDF.getDropdownList($moduleRow.find(".listSection"), 
                                     $funcRow.find(".listSection"));
+                // XXX Cheng handle dropdown list overflow issue
+                $operationsModal.find(".tableContainer")
+                                    .addClass("udfMode");
             } else {
                 $tbody.append($moduleRow).append($funcRow);
+                $operationsModal.find(".tableContainer")
+                                    .removeClass("udfMode");
             }
 
             // as rows order may change, update it here

@@ -900,7 +900,7 @@ window.UDF = (function($, UDF) {
         var udfs        = UDFLookup;
 
         for (var module in udfs) {
-            moduleList += '<li>' + module + '</li>';
+            moduleList += '<li class="openli">' + module + '</li>';
             udfs[module].forEach(function(func) {
                 funcList += '<li data-module="' + module + '">' + 
                                 func + 
