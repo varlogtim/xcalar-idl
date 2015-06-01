@@ -2016,14 +2016,17 @@
                 width: 100%;
 
                 .thWrap {
-                    .size(@width: ~"calc(70% + 1px)");
+                    .size(@width: ~"calc(70% - 1px)");
+                    // width: 191px !important;
+                    // border-right: 1px solid #ffffff;
                 }
                 th:first-of-type {
                     .size(@width: 30%);
                     border-right: 1px solid @color-white;
+                    background-color: #a8a8a8;
                     .thWrap {
                         width: 30% !important;
-                        border-right: none;
+                        // border-right: 1px solid @color-white;
                         padding-left: 12px;
                     }
                 }
@@ -2031,12 +2034,12 @@
                 td {
                     height: 40px;
                     .font(@weight: 600);
-                    &:first-of-type {
-                        border-left: 16px solid @color-join-background;
-                    }
-                    &:last-of-type {
-                        border-right: 16px solid @color-join-background;
-                    }
+                    // &:first-of-type {
+                    //     border-left: 16px solid @color-join-background;
+                    // }
+                    // &:last-of-type {
+                    //     border-right: 16px solid @color-join-background;
+                    // }
                 }
                 .inputWrap {
                     margin-left: 8px;
