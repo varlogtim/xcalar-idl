@@ -12,7 +12,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
     var $workbookLists   = $("#workbookLists");
 
-    var modalHelper      = new xcHelper.Modal($workbookModal);
+    var modalHelper      = new xcHelper.Modal($workbookModal, 
+                                              {"focusOnOpen": true});
 
     var reverseLookup    = {};
     var sortkey          = "name";
