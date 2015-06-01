@@ -35,7 +35,14 @@ window.xcFunction = (function ($, xcFunction) {
                 gTables[tableNum].resultSetId = resultSet.resultSetId;
 
                 deferred.resolve(srcName);
-            });
+            })
+            .fail(function(thriftError) {
+                if (thriftError.statusCode === StatusT.StatusNsObjAlreadyExists)
+                {
+                    console.warn("Table or dataset already exists");
+                    deferred.resolve(srcName);
+                }
+            })
         }
         return (deferred.promise());
     }
