@@ -143,7 +143,8 @@ function XcalarGetVersion() {
     return (deferred.promise());
 }
 
-function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
+function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
+                    moduleName, funcName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -155,12 +156,10 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
     loadArgs.csv.recordDelim = recordDelim;
     loadArgs.csv.fieldDelim = fieldDelim;
     loadArgs.csv.isCRLF = true;
-
-    /**
-    loadArgs.pyArgs = new XcalarApiDfPyArgsLoadArgsT();
-    loadArgs.pyArgs.moduleName
-    loadArgs.pyArgs.funcName
-    */
+    loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
+    loadArgs.pyLoadArgs.moduleName = "";
+    loadArgs.pyLoadArgs.funcName = ""; 
+    
     var formatType;
     switch (format) {
     case ("JSON"):
@@ -168,6 +167,13 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim) {
         break;
     case ("rand"):
         formatType = DfFormatTypeT.DfFormatRandom;
+        break;
+    case ("UDF"):
+        formatType = DfFormatTypeT.DfFormatCsv;
+        loadArgs.csv.recordDelim = "\n";
+        loadArgs.csv.fieldDelim = "\t";
+        loadArgs.pyLoadArgs.moduleName = moduleName;
+        loadArgs.pyLoadArgs.funcName = funcName.substring(0, funcName.length-2);
         break;
     case ("raw"):
         loadArgs.csv.fieldDelim = ""; // No Field delim

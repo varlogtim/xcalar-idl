@@ -262,14 +262,17 @@ window.DS = (function($, DS) {
     }
 
     // load dataset from backend
-    DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim) {
+    DS.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+                       moduleName, funcName) {
         var deferred = jQuery.Deferred();
 
-        console.log(dsName, dsFormat, loadURL, fieldDelim, lineDelim);
+        console.log(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+                    moduleName, funcName);
         $("#gridView").append(getTempDSHTML_helper(dsName));
         $("#waitingIcon").fadeIn(200);
 
-        XcalarLoad(loadURL, dsFormat, dsName, fieldDelim, lineDelim)
+        XcalarLoad(loadURL, dsFormat, dsName, fieldDelim, lineDelim,
+                   moduleName, funcName)
         .then(function(result) {
 
             $("#tempDSIcon").remove();

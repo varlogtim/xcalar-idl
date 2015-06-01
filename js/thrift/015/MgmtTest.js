@@ -863,7 +863,7 @@
 
             console.log("\tretinaName: " + getRetinaOutput.retina.retinaDesc.retinaName);
             console.log("\tnumNodes: " + getRetinaOutput.retina.retinaDag.numNodes);
-            
+
             for (var ii = 0; ii < getRetinaOutput.retina.retinaDag.numNodes; ii ++) {
                 console.log("\tnode[" + ii + "].api = " +
                             getRetinaOutput.retina.retinaDag.node[ii].dagNodeId);
@@ -1006,7 +1006,7 @@
             evalString = "add(1, " + evalString + ")";
         }
 
-        xcalarFilter(thriftHandle, evalString, origTable, "ShouldNotExist")      
+        xcalarFilter(thriftHandle, evalString, origTable, "ShouldNotExist")
         .done(function(filterOutput) {
             returnValue = 1;
             var reason = "Map succeeded with long eval string when it should have failed";
@@ -1120,6 +1120,22 @@
                 pass(deferred, testName, currentTestNumber);
             } else {
                 var reason = "listXdfsOutput.status = " + listXdfsOutput.status;
+                fail(deferred, testName, currentTestNumber, reason);
+            }
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testUploadPython(deferred, testName, currentTestNumber) {
+        xcalarApiUploadPython(thriftHandle, "levi", "strLength",
+            "def strLength( strVal ):\n  return \"%d\" % len(strVal)\n")
+        .done(function(uploadPythonOutput) {
+            if (status == StatusT.StatusOk) {
+                pass(deferred, testName, currentTestNumber);
+            } else {
+                var reason = "status = " + status;
                 fail(deferred, testName, currentTestNumber, reason);
             }
         })
@@ -1262,6 +1278,8 @@
     addTestCase(testCases, testAddParameterToRetina, "addParamaterToRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testUploadPython, "upload python", defaultTimeout, TestCaseEnabled, "");
+
 
     // Witness to bug 238
     addTestCase(testCases, testApiMapLongEvalString, "Map long eval string", defaultTimeout, TestCaseEnabled, "238");
@@ -1285,4 +1303,3 @@
 
     runTestSuite(testCases);
 }();
-

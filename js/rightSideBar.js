@@ -554,6 +554,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 $template.val("");
                 $downloadBtn.addClass("hidden");
                 UDF.set(moduleName, functionName);
+                commitToStorage();
                 uploadSuccess();
             });
         });

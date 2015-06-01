@@ -8,7 +8,7 @@ function xcalarConnectThrift(hostname, port) {
     var thriftUrl = "http://" + hostname + ":" + port.toString() +
         "/thrift/service/XcalarApiService/";
 
-    console.log("xcalarConnectThrift(thriftUrl = " + thriftUrl + ")") 
+    console.log("xcalarConnectThrift(thriftUrl = " + thriftUrl + ")")
 
     var transport = new Thrift.Transport(thriftUrl);
     var protocol  = new Thrift.Protocol(transport);
@@ -247,7 +247,7 @@ function xcalarStartNodes(thriftHandle, numNodes) {
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
     workItem.api = XcalarApisT.XcalarApiStartNodes;
     workItem.input.startNodesInput.numNodes = numNodes;
-    
+
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = StatusT.StatusOk;
@@ -496,7 +496,7 @@ function xcalarQueryState(thriftHandle, queryId) {
     })
     .fail(function(error) {
         console.log("xcalarQueryState() caught exception:", error);
-        
+
         deferred.reject(error);
     });
 
@@ -519,7 +519,7 @@ function xcalarDag(thriftHandle, tableName) {
         var dagOutput = result.output.dagOutput;
         if (result.jobStatus != StatusT.StatusOk) {
             dagOutput.status = result.jobStatus;
-        } 
+        }
         if (dagOutput.status != StatusT.StatusOk) {
             deferred.reject(dagOutput.status);
         }
@@ -942,7 +942,7 @@ function xcalarGetTableRefCount(thriftHandle, tableName) {
     workItem.input.getTableRefCountInput.tableName = tableName;
     workItem.input.getTableRefCountInput.tableId = XcalarApiTableIdInvalidT;
 
-    
+
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var getTableRefCountOutput = result.output.getTableRefCountOutput;
@@ -1193,7 +1193,7 @@ function xcalarMakeRetina(thriftHandle, retinaName, tableName) {
         console.log("xcalarMakeRetina() caught exception:", error);
         deferred.reject(error);
     });
-    
+
     return (deferred.promise());
 
 }
@@ -1249,7 +1249,7 @@ function xcalarGetRetina(thriftHandle, retinaName) {
     })
     .fail(function(error) {
         console.log("xcalarGetRetina() caught exception: " + error);
-        deferred.reject(error);    
+        deferred.reject(error);
     });
     return (deferred.promise());
 }
@@ -1330,12 +1330,12 @@ function xcalarAddParameterToRetina(thriftHandle, retinaName, parameterName,
     console.log("xcalarAddParameterToRetina(retinaName = " + retinaName +
                 ", parameterName = " + parameterName + ", parameterValue = " +
                 parameterValue + ")");
-    
+
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
     workItem.input.addParameterToRetinaInput =
                                      new XcalarApiAddParameterToRetinaInputT();
-    workItem.input.addParameterToRetinaInput.parameter = 
+    workItem.input.addParameterToRetinaInput.parameter =
                                                      new XcalarApiParameterT();
 
     workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
@@ -1548,6 +1548,42 @@ function xcalarApiListXdfs(thriftHandle, fnNamePattern, categoryPattern) {
     })
     .fail(function(error) {
         console.log("xcalarApiListXdfs() caught exception: ", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarApiUploadPython(thriftHandle, moduleName, funcName, pythonStr) {
+    var deferred = jQuery.Deferred();
+    console.log("xcalarApiUploadPython(pythonStr = ", pythonStr, ", ",
+                "moduleName = ", moduleName, ", ",
+                "funcName = ", funcName, ")");
+
+    var workItem = new XcalarApiWorkItemT();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.uploadPythonInput = new XcalarApiUploadPythonInputT();
+
+    workItem.apiVersionSignature = XcalarApiVersionT.XcalarApiVersionSignature;
+    workItem.api = XcalarApisT.XcalarApiUploadPython;
+    workItem.input.uploadPythonInput.moduleName = moduleName;
+    workItem.input.uploadPythonInput.funcName = funcName;
+    workItem.input.uploadPythonInput.pythonStr = pythonStr;
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.statusOutput;
+        if (result.jobStatus != StatusT.StatusOk) {
+	    status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiUploadPython() caught exception: ", error);
         deferred.reject(error);
     });
 

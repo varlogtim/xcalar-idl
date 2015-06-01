@@ -43,7 +43,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         "JSON"  : "JSON",
         "CSV"   : "CSV",
         "Random": "rand",
-        "Raw"   : "raw"
+        "Raw"   : "raw",
+        "UDF"   : "UDF"
     };
 
     DatastoreForm.setup = function() {
@@ -155,11 +156,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
             var fieldDelim = delimiterTranslate($("#fieldText"));
             var lineDelim  = delimiterTranslate($("#lineText"));
 
+            var moduleName = $("#udfArgs-moduleList input").val();
+            var funcName   = $("#udfArgs-funcList input").val();
             var msg        = StatusMessageTStr.LoadingDataset + ": " + dsName;
 
             StatusMessage.show(msg);
 
-            DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim)
+            DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+                    moduleName, funcName)
             .then(function() {
                 DataStore.updateNumDatasets();
                 $("#importDataReset").click();

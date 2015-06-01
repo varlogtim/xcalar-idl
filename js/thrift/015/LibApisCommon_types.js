@@ -1038,6 +1038,88 @@ XcalarApiListXdfsInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiUploadPythonInputT = function(args) {
+  this.moduleName = null;
+  this.funcName = null;
+  this.pythonStr = null;
+  if (args) {
+    if (args.moduleName !== undefined) {
+      this.moduleName = args.moduleName;
+    }
+    if (args.funcName !== undefined) {
+      this.funcName = args.funcName;
+    }
+    if (args.pythonStr !== undefined) {
+      this.pythonStr = args.pythonStr;
+    }
+  }
+};
+XcalarApiUploadPythonInputT.prototype = {};
+XcalarApiUploadPythonInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.moduleName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.funcName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.pythonStr = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiUploadPythonInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiUploadPythonInputT');
+  if (this.moduleName !== null && this.moduleName !== undefined) {
+    output.writeFieldBegin('moduleName', Thrift.Type.STRING, 1);
+    output.writeString(this.moduleName);
+    output.writeFieldEnd();
+  }
+  if (this.funcName !== null && this.funcName !== undefined) {
+    output.writeFieldBegin('funcName', Thrift.Type.STRING, 2);
+    output.writeString(this.funcName);
+    output.writeFieldEnd();
+  }
+  if (this.pythonStr !== null && this.pythonStr !== undefined) {
+    output.writeFieldBegin('pythonStr', Thrift.Type.STRING, 3);
+    output.writeString(this.pythonStr);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiListXdfsOutputT = function(args) {
   this.status = null;
   this.numXdfs = null;
@@ -5736,6 +5818,7 @@ XcalarApiInputT = function(args) {
   this.topInput = null;
   this.shutdownInput = null;
   this.listXdfsInput = null;
+  this.uploadPythonInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -5850,6 +5933,9 @@ XcalarApiInputT = function(args) {
     }
     if (args.listXdfsInput !== undefined) {
       this.listXdfsInput = args.listXdfsInput;
+    }
+    if (args.uploadPythonInput !== undefined) {
+      this.uploadPythonInput = args.uploadPythonInput;
     }
   }
 };
@@ -6161,6 +6247,14 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 40:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.uploadPythonInput = new XcalarApiUploadPythonInputT();
+        this.uploadPythonInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -6360,6 +6454,11 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.listXdfsInput !== null && this.listXdfsInput !== undefined) {
     output.writeFieldBegin('listXdfsInput', Thrift.Type.STRUCT, 39);
     this.listXdfsInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.uploadPythonInput !== null && this.uploadPythonInput !== undefined) {
+    output.writeFieldBegin('uploadPythonInput', Thrift.Type.STRUCT, 40);
+    this.uploadPythonInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

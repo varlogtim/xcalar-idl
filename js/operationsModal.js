@@ -620,9 +620,10 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function submitForm() {
+        // XXX This is a time bomb! We have to fix this
         var category = $.trim($categoryInput.val().toLowerCase());
-        var func =  $.trim($functionInput.val())
-        var funcLower = func.toLowerCase();
+        var func =  $.trim($functionInput.val());
+        var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var isPassing = false;
         if (!isOperationValid(0)) {
             showErrorMessage(0);
