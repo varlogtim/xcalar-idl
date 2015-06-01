@@ -70,9 +70,13 @@ window.AggModal = (function($, AggModal) {
         centerPositionElement($aggModal)
 
         aggColumns(tableNum, $("#mainAgg1"));
-        aggVert(tableNum);
         aggColumns(tableNum, $("#mainAgg2"));
-        calcCorr(tableNum);
+        
+        xcFunction.checkSorted(tableNum)
+        .then(function(tableName) {
+            aggVert(tableNum, tableName);
+            calcCorr(tableNum, tableName);
+        });
     }
 
     function hideAggOpSelect() {
@@ -99,7 +103,7 @@ window.AggModal = (function($, AggModal) {
         target.find('.tableTabs').html(tabHtml);
     }
 
-    function calcCorr(tableNum) {
+    function calcCorr(tableNum, tableName) {
         var table         = gTables[tableNum];
         var numColumns    = table.tableCols.length;
         var vertColumns   = [];
@@ -180,49 +184,46 @@ window.AggModal = (function($, AggModal) {
                          "avg($arg1)), 2)), sum(pow(sub($arg2, avg($arg2)), "+
                          "2)))))";
 
-        xcFunction.checkSorted(tableNum)
-        .then(function(tableName) {
-            for (var j = 0; j < numColumns; j++) {
-                var cols = table.tableCols[j];
-                // XXX Skip DATA!
-                if ((cols.type === "integer" || cols.type === "decimal")
-                     && cols.name !== "DATA") {
-                    // for duplicated columns, no need to trigger thrift call
-                    if (dupCols[j]) {
-                        console.log("Duplicated column", j);
-                        continue;
-                    }
+        for (var j = 0; j < numColumns; j++) {
+            var cols = table.tableCols[j];
+            // XXX Skip DATA!
+            if ((cols.type === "integer" || cols.type === "decimal")
+                 && cols.name !== "DATA") {
+                // for duplicated columns, no need to trigger thrift call
+                if (dupCols[j]) {
+                    console.log("Duplicated column", j);
+                    continue;
+                }
 
-                   var dups = checkDupCols(table.tableCols, j);
-                    dups.forEach(function(colNum) {
-                        dupCols[colNum] = true;
-                    });
+                var dups = checkDupCols(table.tableCols, j);
+                dups.forEach(function(colNum) {
+                    dupCols[colNum] = true;
+                });
 
-                    var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
-                                        (j+1)  + " .header");
-                    // XXX now agg on child of array is not supported
-                    if (!$colHeader.hasClass("childOfArray")) {
-                        for (var i = 0; i < j; i++) {
-                            if (i == j) {
-                                // Must be 1 so skip
-                                continue;
-                            }
-                            if ((vertColumns[i]).type != "integer" &&
-                                (vertColumns[i]).type != "decimal") {
-                                continue;
-                            }
-                            var sub = corrString.replace(/[$]arg1/g, cols.name);
-                            sub = sub.replace(/[$]arg2/g, vertColumns[i].name);
-                            // Run correlation function
-                            runCorr(tableName, sub, i, j, dups);
+                var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
+                                    (j+1)  + " .header");
+                // XXX now agg on child of array is not supported
+                if (!$colHeader.hasClass("childOfArray")) {
+                    for (var i = 0; i < j; i++) {
+                        if (i == j) {
+                            // Must be 1 so skip
+                            continue;
                         }
+                        if ((vertColumns[i]).type != "integer" &&
+                            (vertColumns[i]).type != "decimal") {
+                            continue;
+                        }
+                        var sub = corrString.replace(/[$]arg1/g, cols.name);
+                        sub = sub.replace(/[$]arg2/g, vertColumns[i].name);
+                        // Run correlation function
+                        runCorr(tableName, sub, i, j, dups);
                     }
                 }
             }
-        });
+        }
     }
 
-    function aggVert(tableNum) {
+    function aggVert(tableNum, tableName) {
         var table         = gTables[tableNum];
         var numColumns    = table.tableCols.length;
 
@@ -281,36 +282,33 @@ window.AggModal = (function($, AggModal) {
         // or just a regular table
         var dupCols = [];
 
-        xcFunction.checkSorted(tableNum)
-        .then(function(tableName) {
-            for (var j = 0; j < numColumns; j++) {
-                var cols = table.tableCols[j];
-                // XXX Skip DATA!
-                if ((cols.type === "integer" || cols.type === "decimal")
-                     && cols.name !== "DATA") {
-                    // for duplicated columns, no need to trigger thrift call
-                    if (dupCols[j]) {
-                        console.log("Duplicated column", j);
-                        continue;
-                    }
+        for (var j = 0; j < numColumns; j++) {
+            var cols = table.tableCols[j];
+            // XXX Skip DATA!
+            if ((cols.type === "integer" || cols.type === "decimal")
+                 && cols.name !== "DATA") {
+                // for duplicated columns, no need to trigger thrift call
+                if (dupCols[j]) {
+                    console.log("Duplicated column", j);
+                    continue;
+                }
 
-                    var dups = checkDupCols(table.tableCols, j);
-                    dups.forEach(function(colNum) {
-                        dupCols[colNum] = true;
-                    });
+                var dups = checkDupCols(table.tableCols, j);
+                dups.forEach(function(colNum) {
+                    dupCols[colNum] = true;
+                });
 
-                    var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
-                                        (j+1)  + " .header");
-                    // XXX now agg on child of array is not supported
-                    if (!$colHeader.hasClass("childOfArray")) {
-                        for (var i = 0; i < 5; i++) {
-                            runAggregate(tableName, cols.func.args[0], 
-                                        aggrFunctions[i], i, j, dups);
-                        }
+                var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
+                                    (j+1)  + " .header");
+                // XXX now agg on child of array is not supported
+                if (!$colHeader.hasClass("childOfArray")) {
+                    for (var i = 0; i < 5; i++) {
+                        runAggregate(tableName, cols.func.args[0], 
+                                    aggrFunctions[i], i, j, dups);
                     }
                 }
             }
-        });
+        }
     }
 
     function checkDupCols(tableCols, colNum) {
