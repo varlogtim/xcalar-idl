@@ -86,9 +86,6 @@ window.OperationsModal = (function($, OperationsModal) {
             var value = $el.text();
             var $input = $el.parent().siblings('.autocomplete');
             $el.parent().hide().children().hide(); 
-            if ($input.val() == value) {
-                return;
-            }
             $input.val(value);
 
             if (value == $functionsMenu.data('category')) {
