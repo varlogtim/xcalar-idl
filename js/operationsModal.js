@@ -141,6 +141,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.fadeOut(time, function() {
                 clearInput(0);
                 modalHelper.clear();
+                $functionsMenu.data('category', 'null');
             }); 
             $('#opModalBackground').fadeOut(time, function() {
                 $(this).removeClass('light');
@@ -399,6 +400,9 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.find('.autocomplete')
                             .eq(inputNum).val("")
                             .attr('placeholder', "");
+        }
+        if (inputNum == 0) {
+            $functionsMenu.data('category', 'null');
         }
 
         $operationsModal.find('.list, .list li').hide();
