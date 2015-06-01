@@ -247,8 +247,12 @@ window.xcHelper = (function($, xcHelper) {
                 hideDropdowns();
             } else {                                // open dropdown
                 hideDropdowns();
+                var $lists = $listSection.find(".list");
+                if ($lists.children().length === 0) {
+                    return;
+                }
                 $listSection.addClass("open");
-                $listSection.find(".list").show().addClass("openList");
+                $lists.show().addClass("openList");
             }
         }
 
