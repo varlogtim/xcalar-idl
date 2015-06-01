@@ -171,6 +171,7 @@
                       <div class="description"></div>
                     </td> 
                   </tr>
+
                   <tr>
                     <td>
                       <div class="inputWrap">
@@ -181,6 +182,7 @@
                       <div class="description"></div>
                     </td> 
                   </tr>
+
                   <tr>
                     <td>
                       <div class="inputWrap">
@@ -191,6 +193,7 @@
                       <div class="description"></div>
                     </td> 
                   </tr>
+
                   <tr>
                     <td>
                       <div class="inputWrap">
@@ -199,7 +202,42 @@
                     </td> 
                     <td> 
                       <div class="description"></div>
+                    </td>
+                  </tr>
+                  <!-- for udf module -->
+                  <tr id="agrTable-udfModule">
+                    <td>
+                      <div class="inputWrap">
+                        <div class="listSection">
+                          <input class="argument text" type="text" 
+                           spellcheck="false" disabled="disabled">
+                          <div class="iconWrapper">
+                            <span class="icon"></span>
+                          </div>
+                          <ul class="list"></ul>
+                        </div>
+                      </div>
+                    </td>
+                    <td> 
+                      <div class="description"></div>
+                    </td>
+                  </tr>
+                  <!-- for udf function -->
+                  <tr id="agrTable-udfFunc">
+                    <td>
+                      <div class="inputWrap">
+                        <div class="listSection">
+                          <input class="argument text" type="text" tabindex="10" spellcheck="false">
+                          <div class="iconWrapper">
+                            <span class="icon"></span>
+                          </div>
+                          <ul class="list"></ul>
+                        </div>
+                      </div>
                     </td> 
+                    <td> 
+                      <div class="description"></div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -398,11 +436,23 @@
             <div id="udfArgs" class="hidden clearfix">
               <section class="wrapper">
                 <span class="label">Module Name:</span>
-                <input class="text" type="text">
+                <div id="udfArgs-moduleList" class="listSection">
+                  <input class="text" type="text" spellcheck="false" disabled>
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul class="list"></ul>
+                </div>
               </section>
               <section class="wrapper">
                 <span class="label">Function Name:</span>
-                <input class="text" type="text">
+                <div id="udfArgs-funcList" class="listSection">
+                  <input class="text" type="text" spellcheck="false">
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul class="list"></ul>
+                </div>
               </section>
             </div>
             <button id="importDataSubmit" class="btn btnMid" 

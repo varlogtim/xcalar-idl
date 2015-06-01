@@ -248,13 +248,13 @@ window.xcHelper = (function($, xcHelper) {
             } else {                                // open dropdown
                 hideDropdowns();
                 $listSection.addClass("open");
-                $listSection.find(".list").show();
+                $listSection.find(".list").show().addClass("openList");
             }
         }
 
         function hideDropdowns() {
             var $sections = $container.find(".listSection");
-            $sections.find(".list").hide();
+            $sections.find(".list").hide().removeClass("openList");
             $sections.removeClass("open");
         }
     }

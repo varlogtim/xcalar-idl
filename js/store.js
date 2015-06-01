@@ -104,7 +104,7 @@ function commitToStorage(atStartup) {
                 "scratchPad": scratchPadText,
                 "datacarts": DataCart.getCarts(),
                 "helpStatusOff": HelpController.isOff(),
-                "udfLookup": RightSideBar.storeUDFLookup(),
+                "udfLookup": UDF.get(),
             };
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
@@ -155,7 +155,7 @@ function readFromStorage() {
                 HelpController.tooltipOff();
             }
             if (gInfos["udfLookup"]) {
-                RightSideBar.reinstateUDFLookup(gInfos["udfLookup"]);
+                UDF.restore(gInfos["udfLookup"]);
             }
         } else {
             emptyAllStorage(true);

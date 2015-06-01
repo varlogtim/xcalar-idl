@@ -271,6 +271,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             $fileName.focus();
         }
+
+        UDF.dropdownEvent($("#udfArgs-moduleList"), $("#udfArgs-funcList"), 
+                     "#importDataView");
     }
 
     function delimiterTranslate($input) {
@@ -316,6 +319,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 resetDelimiter();
                 $csvDelim.hide();
                 $udfArgs.removeClass("hidden");
+                // trigger it event click to make it in update
+                UDF.getDropdownList($("#udfArgs-moduleList"), 
+                                     $("#udfArgs-funcList"));
             default:
                 $csvDelim.addClass("hidden");
                 break;

@@ -186,6 +186,11 @@ window.OperationsModal = (function($, OperationsModal) {
         .done(function(listXdfsObj) {
             setupOperatorsMap(listXdfsObj.fnDescs);
         });
+
+        // XXX Cheng for udf dropdown list
+        UDF.dropdownEvent($("#agrTable-udfModule").find(".listSection"),
+                          $("#agrTable-udfFunc").find(".listSection"),
+                          "#operationsModal");
     }
 
     OperationsModal.show = function(newTableNum, newColNum, operator) {
@@ -239,7 +244,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         populateInitialCategoryField(operatorName);
 
-        if (operatorName == 'aggregate') {
+        if (operatorName == 'aggregate') { 
             $operationsModal.addClass('numArgs0');
         }  else if (operatorName == 'map') {
             $operationsModal.addClass('numArgs4');
@@ -553,6 +558,8 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
 
+        console.log(func);
+
         if (opIndex > -1) {
             if (operatorName == "aggregate" || operatorName == "group by") {
                 var defaultValue = backColName;
@@ -562,12 +569,30 @@ window.OperationsModal = (function($, OperationsModal) {
             var html = "";
 
             var numArgs = operObj.numArgs;
-            var $rows = $operationsModal.find('.argumentTable tbody tr');
+            var $tbody = $operationsModal.find('.argumentTable tbody');
+
+            var $moduleRow = $("#agrTable-udfModule");
+            var $funcRow   = $("#agrTable-udfFunc");
+            // specifically for udf section
+            if (func === "udf") {
+                // make module row and func row as first row and second row
+                $tbody.prepend($funcRow ).prepend($moduleRow);
+                UDF.getDropdownList($moduleRow.find(".listSection"), 
+                                    $funcRow.find(".listSection"));
+            } else {
+                $tbody.append($moduleRow).append($funcRow);
+            }
+
+            // as rows order may change, update it here
+            var $rows = $tbody.find('tr');
             $rows.show();
 
             for (var i = 0; i < operObj.numArgs; i++) {
                 var description = operObj.argDescs[i].argDesc;
-                $rows.eq(i).find('input').val(defaultValue);
+
+                if (func !== "udf") {
+                    $rows.eq(i).find('input').val(defaultValue);
+                }
                 $rows.eq(i).find('.description').text(description);
             }
             if (operatorName == 'map') {
@@ -765,6 +790,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var $theadInputs = $('#xcTable'+tableNum).find('.editableHead');
         var isDuplicate  = ColManager.checkColDup($theadInputs, $nameInput);
 
+
         if (isDuplicate) {
             return (false);
         }
@@ -781,6 +807,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var switched  = false;
         var mapStr = "";
+
         if (operator.toLowerCase() === "udf") {
             var moduleName = firstValue;
             var funcString = secondValue;
