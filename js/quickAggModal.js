@@ -31,12 +31,21 @@ window.AggModal = (function($, AggModal) {
             var aggOp = $li.text();
 
             $aggSelect.find(".text").text(aggOp);
+
+            if (aggOp === "Aggregate Functions") {
+                $("#mainAgg1").show();
+                $("#mainAgg2").hide();
+            } else if (aggOp === "Correlation Coefficient") {
+                $("#mainAgg1").hide();
+                $("#mainAgg2").show();
+            }
+
             hideAggOpSelect();
         });
 
         $aggModal.click(hideAggOpSelect);
         $aggTableName.val("tempTableName");
-
+        
         $aggModal.draggable({
             handle: '.modalHeader',
             cursor: '-webkit-grabbing',
@@ -60,8 +69,10 @@ window.AggModal = (function($, AggModal) {
         });
         centerPositionElement($aggModal)
 
-        aggColumns(tableNum);
+        aggColumns(tableNum, $("#mainAgg1"));
         aggVert(tableNum);
+        aggColumns(tableNum, $("#mainAgg2"));
+        calcCorr(tableNum);
     }
 
     function hideAggOpSelect() {
@@ -69,7 +80,7 @@ window.AggModal = (function($, AggModal) {
         $aggSelect.removeClass('open');
     }
 
-    function aggColumns(tableNum) {
+    function aggColumns(tableNum, target) {
         var table      = gTables[tableNum];
         var numColumns = table.tableCols.length;
         var tabHtml    = "";
@@ -85,7 +96,130 @@ window.AggModal = (function($, AggModal) {
             tabHtml += '<div class="tableLabel">' + colName + '</div>';
         }
 
-        $("#mainAgg").find('.tableTabs').html(tabHtml);
+        target.find('.tableTabs').html(tabHtml);
+    }
+
+    function calcCorr(tableNum) {
+        var table         = gTables[tableNum];
+        var numColumns    = table.tableCols.length;
+        var vertColumns   = [];
+        var $mainAgg2     = $("#mainAgg2");
+        var tabHtml       = "";
+        var tbody;
+
+        for (var i = 0; i < numColumns; i++) {
+            var colName = table.tableCols[i].name;
+            if (colName === "DATA") {
+                continue;
+            }
+            vertColumns.push(table.tableCols[i]);
+        }
+
+        for (var i = 0; i < vertColumns.length; i++) {
+            tabHtml += '<div class="tableLabel tableLabelVertSkinny">' + 
+                            vertColumns[i].name + 
+                       '</div>';
+        }
+
+        var wholeTable    = '<div class="aggTable">';
+
+        for (var j = 0; j < numColumns; j++) {
+            var cols = table.tableCols[j];
+            // XXX Skip DATA!
+            if (cols.name === "DATA") {
+                continue;
+            }
+
+            wholeTable += '<div class="aggCol">';
+
+            var isChildOfArray = $("#xcTable" + tableNum + " .th.col" + 
+                                (j+1)  + " .header").hasClass("childOfArray");
+
+            for (var i = 0; i < vertColumns.length; i++) {
+                wholeTable += '<div class="aggTableField aggTableFlex" ';
+                var backgroundOpacity =
+                                    "style='background-color:rgba(66,158,212,";
+                if (i == j) {
+                    wholeTable += ">1";
+                } else if (i > j) {
+                    wholeTable += backgroundOpacity + "0)'";
+                    wholeTable += ">See other";
+                } else if ((cols.type === "integer" || cols.type === "decimal")
+                           && (vertColumns[i].type === "integer" ||
+                               vertColumns[i].type === "decimal")) {
+                    // XXX now agg on child of array is not supported
+                    if (isChildOfArray) {
+                        wholeTable += backgroundOpacity + "0)'";
+                        wholeTable += ">Not Supported"
+                    } else {
+                        wholeTable += backgroundOpacity + "0)'";
+                        wholeTable += '><div class="spinny"></div>';
+                    }
+                } else {
+                    wholeTable += backgroundOpacity + "0)'";
+                    wholeTable += ">N/A";
+                }
+
+                wholeTable += "</div>";
+            }
+
+            wholeTable += "</div>";
+        }
+
+        wholeTable += "</div>";
+
+        $mainAgg2.find('.vertTabArea').html(tabHtml);
+        $mainAgg2.find('.quickAggArea').html(wholeTable);
+
+        var dupCols = [];
+        // First we need to determine if this is a dataset-table
+        // or just a regular table
+
+        var corrString = "div(sum(mult(sub($arg1, avg($arg1)), sub($arg2," +
+                         "avg($arg2)))), sqrt(mult(sum(pow(sub($arg1, " +
+                         "avg($arg1)), 2)), sum(pow(sub($arg2, avg($arg2)), "+
+                         "2)))))";
+
+        xcFunction.checkSorted(tableNum)
+        .then(function(tableName) {
+            for (var j = 0; j < numColumns; j++) {
+                var cols = table.tableCols[j];
+                // XXX Skip DATA!
+                if ((cols.type === "integer" || cols.type === "decimal")
+                     && cols.name !== "DATA") {
+                    // for duplicated columns, no need to trigger thrift call
+                    if (dupCols[j]) {
+                        console.log("Duplicated column", j);
+                        continue;
+                    }
+
+                   var dups = checkDupCols(table.tableCols, j);
+                    dups.forEach(function(colNum) {
+                        dupCols[colNum] = true;
+                    });
+
+                    var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
+                                        (j+1)  + " .header");
+                    // XXX now agg on child of array is not supported
+                    if (!$colHeader.hasClass("childOfArray")) {
+                        for (var i = 0; i < j; i++) {
+                            if (i == j) {
+                                // Must be 1 so skip
+                                continue;
+                            }
+                            if ((vertColumns[i]).type != "integer" &&
+                                (vertColumns[i]).type != "decimal") {
+                                continue;
+                            }
+                            var sub = corrString.replace(/[$]arg1/g, cols.name);
+                            sub = sub.replace(/[$]arg2/g, vertColumns[i].name);
+                            // Run correlation function
+                            runCorr(tableName, sub, i, j, dups);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     function aggVert(tableNum) {
@@ -93,7 +227,7 @@ window.AggModal = (function($, AggModal) {
         var numColumns    = table.tableCols.length;
 
         var aggrFunctions = ["Sum", "Avg", "Min", "Max", "Count"];
-        var $mainAgg      = $("#mainAgg");
+        var $mainAgg1      = $("#mainAgg1");
 
         var tabHtml       = "";
         var tbody;
@@ -140,8 +274,8 @@ window.AggModal = (function($, AggModal) {
 
         wholeTable += "</div>";
 
-        $mainAgg.find('.vertTabArea').html(tabHtml);
-        $mainAgg.find('.quickAggArea').html(wholeTable);
+        $mainAgg1.find('.vertTabArea').html(tabHtml);
+        $mainAgg1.find('.quickAggArea').html(wholeTable);
 
         // First we need to determine if this is a dataset-table
         // or just a regular table
@@ -211,12 +345,46 @@ window.AggModal = (function($, AggModal) {
                 val     = "";
             }
 
-            $("#mainAgg .aggTable .aggCol:eq(" + col + ")" + 
+            $("#mainAgg1 .aggTable .aggCol:eq(" + col + ")" + 
               " .aggTableField:eq(" + row + ")").html(val);
 
             dups.forEach(function(colNum) {
-                $("#mainAgg .aggTable .aggCol:eq(" + colNum + ")" + 
+                $("#mainAgg1 .aggTable .aggCol:eq(" + colNum + ")" + 
                   " .aggTableField:eq(" + row + ")").html(val);
+            });
+        });
+    }
+
+    function runCorr(tableName, evalStr, row, col, dups) {
+        XcalarAggregateHelper(tableName, evalStr)
+        .done(function(value) {
+            var val;
+
+            try {
+                var obj = jQuery.parseJSON(value);
+                val     = obj["Value"];
+            } catch (error) {
+                console.error(error, obj);
+                val     = "";
+            }
+
+            if (jQuery.isNumeric(val)) {
+                val = parseFloat(val);
+                $("#mainAgg2 .aggTable .aggCol:eq(" + col + ")" + 
+                  " .aggTableField:eq(" + row + ")").html(val);
+
+                $("#mainAgg2 .aggTable .aggCol:eq(" + col + ")" + 
+                  " .aggTableField:eq(" + row + ")").css("background-color",
+                  "rgba(66, 158, 212,"+val+")");
+            }
+            dups.forEach(function(colNum) {
+                $("#mainAgg2 .aggTable .aggCol:eq(" + colNum + ")" + 
+                  " .aggTableField:eq(" + row + ")").html(val);
+                if (jQuery.isNumeric(val)) {
+                    $("#mainAgg2 .aggTable .aggCol:eq(" + col + ")" + 
+                      " .aggTableField:eq(" + row + ")").css("background-color",
+                      "rgba(66, 158, 212,"+val+")");
+                }
             });
         });
     }

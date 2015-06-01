@@ -568,16 +568,8 @@ function generateFilterString(operator, value1, value2, value3) {
 
 function XcalarFilter(operator, value1, value2, value3,
                       srcTablename, dstTablename) {
-    var deferred = jQuery.Deferred();
-
     var filterStr = generateFilterString(operator, value1, value2, value3);
-    XcalarFilterHelper(filterStr, srcTablename, dstTablename).
-    then(deferred.resolve)
-    .fail(function(error) {
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
+    return (XcalarFilterHelper(filterStr, srcTablename, dstTablename));
 }
 
 function XcalarFilterHelper(filterStr, srcTablename, dstTablename) {
@@ -654,14 +646,17 @@ function generateAggregateString(fieldName, op) {
     return (evalStr);
 }
 
-
 function XcalarAggregate(fieldName, srcTablename, op) {
+    var evalStr = generateAggregateString(fieldName, op);
+    return (XcalarAggregateHelper(srcTablename, evalStr));
+}
+
+function XcalarAggregateHelper(srcTablename, evalStr) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
 
     var deferred = jQuery.Deferred();
-    var evalStr = generateAggregateString(fieldName, op);
     if (evalStr === "") {
         deferred.reject("bug!:"+op);
         return (deferred.promise());

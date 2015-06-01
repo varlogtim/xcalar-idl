@@ -273,7 +273,7 @@
         }
     }
 
-    #mainAgg {
+    .mainAgg {
         padding-top: 16px;
         .size(@height: ~"calc(100% - 155px)");
         .tableText {
@@ -394,6 +394,12 @@
             .font(@weight: bold, @size: 14px, @line-height: 55px);
         }
 
+        .tableLabelVertSkinny {
+            .size(@width: 95px, @height: 22px);
+            .flex(1 1 22px);
+            .font(@weight: bold, @size: 14px, @line-height: 22px);
+        }
+
         .aggTable {
             // .position(absolute);
             .size(@width: ~"calc(100%)", @height: ~"calc(100%)");
@@ -433,6 +439,11 @@
             .flex(1 1 22px);
         }
 
+        .aggTableFlex {
+            .font(@weight: bold, @size: 14px, @line-height: normal);
+            background-color: @color-background-colIcon-lightBlue;
+        }
+
         .spinny {
             .size(@width: 35px, @height: 37px);
             .image("/images/waiting-1.gif");
@@ -440,6 +451,11 @@
             margin-top: 10px;
         }
     }
+
+    #mainAgg2 {
+        display: none;
+    }
+
 }
 
 /* Join Modal */
