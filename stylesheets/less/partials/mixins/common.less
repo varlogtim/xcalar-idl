@@ -698,55 +698,55 @@
 
 /* ========== New Table Color Theme ========== */
 // gradient color theme for furture th use
-.columnColorTheme-gradient(@startColor, @endColor, @aplpha) {
-    .linear-gradient(top, fade(@startColor, @aplpha),
-                          fade(@endColor, @aplpha))  !important;
+.columnColorTheme-gradient(@startColor, @endColor, @alpha) {
+    .linear-gradient(top, fade(@startColor, @alpha),
+                          fade(@endColor, @alpha))  !important;
 }
-.normal-column-gradient(@aplpha: 100%) {
+.normal-column-gradient(@alpha: 100%) {
     .columnColorTheme-gradient(@color-table-normal-lightGray,
-                      @color-table-normal-darkGray, @aplpha);
+                      @color-table-normal-darkGray, @alpha);
 }
-.inactive-column-gradient(@aplpha: 100%) {
+.inactive-column-gradient(@alpha: 100%) {
     .columnColorTheme-gradient(@color-table-inactive-lightGray,
-                      @color-table-inactive-darkGray, @aplpha);
+                      @color-table-inactive-darkGray, @alpha);
 }
-.selected-column-gradient(@aplpha: 100%) {
+.selected-column-gradient(@alpha: 100%) {
     .columnColorTheme-gradient(@color-table-selected-lightBlue,
-                      @color-table-selected-darkBlue, @aplpha);
+                      @color-table-selected-darkBlue, @alpha);
 }
-.error-column-gradient(@aplpha: 100%) {
+.error-column-gradient(@alpha: 100%) {
     .columnColorTheme-gradient(@color-table-error-lightRed,
-                      @color-table-error-darkRed, @aplpha);
+                      @color-table-error-darkRed, @alpha);
 }
-.go-column-gradient(@aplpha: 100%) {
+.go-column-gradient(@alpha: 100%) {
     .columnColorTheme-gradient(@color-table-go-lightGreen,
-                      @color-table-go-darkGreen, @aplpha);
+                      @color-table-go-darkGreen, @alpha);
 }
-.option-column-gradient(@aplpha: 100%) {
+.option-column-gradient(@alpha: 100%) {
     .columnColorTheme-gradient(@color-table-option-lightBrown,
-                      @color-table-option-darkBrown, @aplpha);
+                      @color-table-option-darkBrown, @alpha);
 }
 
 // solid color theme for td
-.columnColorTheme-solid(@color, @aplpha) {
-    background: fade(@color, @aplpha),!important;
+.columnColorTheme-solid(@color, @alpha) {
+    background: fade(@color, @alpha),!important;
 }
-.normal-column-solid(@aplpha: 100%) {
-    .columnColorTheme-solid(@color-table-normal-lightGray, @aplpha);
+.normal-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-gunormal-lightGray, @alpha);
 }
-.inactive-column-solid(@aplpha: 100%) {
-    .columnColorTheme-solid(@color-table-inactive-lightGray, @aplpha);
+.inactive-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-inactive-lightGray, @alpha);
 }
-.selected-column-solid(@aplpha: 100%) {
-    .columnColorTheme-solid(@color-table-selected-lightBlue, @aplpha);
+.selected-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-selected-lightBlue, @alpha);
 }
-.error-column-solid(@aplpha: 100%) {
-    .columnColorTheme-solid(@color-table-error-lightRed, @aplpha);
+.error-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-error-lightRed, @alpha);
 }
-.go-column-solid(@aplpha: 100%) {
-    .columnColorTheme-solid(@color-table-go-lightGreen, @aplpha);
+.go-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-go-lightGreen, @alpha);
 }
-.option-column-solid(@aplpha: 100%) {
-    .columnColorTheme-solid(@color-table-option-lightBrown, @aplpha);
+.option-column-solid(@alpha: 100%) {
+    .columnColorTheme-solid(@color-table-option-lightBrown, @alpha);
 }
 /* ========== End Of Table Color Theme ========== */
