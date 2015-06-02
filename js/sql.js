@@ -48,6 +48,10 @@ window.SQL = (function($, SQL) {
         var count = 0;
 
         for (var key in options) {
+            // not show up null value
+            if (options[key] == null) {
+                continue;
+            }
             if (count > 0) {
                 html += ',';
             }

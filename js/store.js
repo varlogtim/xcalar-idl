@@ -98,7 +98,7 @@ function commitToStorage(atStartup) {
                 "TDLookup": gTableDirectionLookup,
                 "worksheets": WSManager.getWorksheets(),
                 "TOLookup": gTableOrderLookup,
-                "gDSObj": DS.getCurrentState(),
+                "gDSObj": DS.getHomeDir(),
                 "holdStatus": KVStore.isHold(),
                 "sql": SQL.getHistory(),
                 "scratchPad": scratchPadText,
