@@ -398,6 +398,9 @@
             .size(@width: 95px, @height: 22px);
             .flex(1 1 22px);
             .font(@weight: bold, @size: 14px, @line-height: 22px);
+            .flex-display;
+            .justify-content(center);
+            .align-items(center);
         }
 
         .aggTable {
@@ -437,6 +440,9 @@
             white-space: nowrap;
             background-color: @color-selectedCell-light;
             .flex(1 1 22px);
+            .flex-display;
+            .justify-content(center);
+            .align-items(center);
         }
 
         .aggTableFlex {
@@ -449,6 +455,11 @@
             .image("/images/waiting-1.gif");
             margin: auto;
             margin-top: 10px;
+        }
+        .spinner > div {
+            margin: 0px 3px;
+            position: relative;
+            top: -2px;
         }
     }
 

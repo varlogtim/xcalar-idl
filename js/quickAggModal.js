@@ -157,7 +157,11 @@ window.AggModal = (function($, AggModal) {
                         wholeTable += ">Not Supported"
                     } else {
                         wholeTable += backgroundOpacity + "0)'";
-                        wholeTable += '><div class="spinny"></div>';
+                        wholeTable += '><div class="spinner">'+
+                                        '<div class="bounce1"></div>'+
+                                        '<div class="bounce2"></div>'+
+                                        '<div class="bounce3"></div>'+
+                                        '</div>';
                     }
                 } else {
                     wholeTable += backgroundOpacity + "0)'";
