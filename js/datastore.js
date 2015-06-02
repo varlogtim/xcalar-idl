@@ -867,7 +867,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var format = dsObj.attrs.format;
         var fileSize = dsObj.attrs.fileSize || 'N/A';
         // XcalarSample sets gDatasetBrowserResultSetId
-        XcalarSample(datasetName, 20)
+        XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
             var uniqueJsonKey = {}; // store unique Json key
             var jsonKeys = [];
@@ -943,9 +943,12 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
         if ($tableWrap[0].scrollHeight - $tableWrap.scrollTop() -
                    $tableWrap.outerHeight() <= 1) {
-
-            XcalarSetAbsolute(gDatasetBrowserResultSetId, 
-                                currentRow += numRowsToFetch)
+            if (currentRow == 0) {
+                currentRow += 40;
+            } else {
+                currentRow += numRowsToFetch;
+            }
+            XcalarSetAbsolute(gDatasetBrowserResultSetId, currentRow)
             .then(function() {
                 return (XcalarGetNextPage(gDatasetBrowserResultSetId, 
                         numRowsToFetch));
@@ -1355,7 +1358,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
         if (jsonKeys.length > 0) {
             th += '<th><div class="header"></th>';
         }
-        
         // table header
         for (var i = 0; i < jsonKeys.length; i++) {
             var key     = jsonKeys[i];
