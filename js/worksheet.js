@@ -1,5 +1,5 @@
 window.WSManager = (function($, WSManager) {
-    var worksheets     = [];  // {name. tables}, tables=[name1, name2...]
+    var worksheets     = [];  // {name, tables}, tables=[name1, name2...]
 
     var wsIndexLookUp  = {};  // find wsIndex by table name
     var wsNameLookUp   = {};  // find wsIndex by wsName
@@ -12,30 +12,43 @@ window.WSManager = (function($, WSManager) {
     var $workSheetTabSection  = $("#worksheetTabs");
     var $workspaceDateSection = $("#workspaceDate").find(".date");
 
-    // setup function called in start up
+    /**
+     * Setup function fpr WSManager
+     */
     WSManager.setup = function() {
-        setupWSEvents();
+        addWSEvents();
         initializeWorksheet();
     }
 
+    /**
+     * Get all worksheets
+     * @return {Object[]} worksheets Array of worksheet obj
+     */
     WSManager.getWorksheets = function() {
         return (worksheets);
     }
 
-    // get real length of worksheet
+    /**
+     * Get number of worksheets that exist
+     * @return {number} len The number ofreal worksheet
+     */
     WSManager.getWSLen = function() {
         var len = 0;
 
         for (var i = 0; i < worksheets.length; i++) {
+            // null is the worksheet that is deleted
             if (worksheets[i] != null) {
                 ++len;
             }
         }
 
-        return len;
+        return (len);
     }
 
-    // restore worksheet structure from backend
+    /**
+     * Restore worksheet structure from backend
+     * @param {Object[]} oldSheets The old array of worksheet to be restored
+     */
     WSManager.restoreWS = function(oldSheets) {
         for (var i = 0, j = 0; i < oldSheets.length; i ++) {
             // remove the deleted worksheets
@@ -57,26 +70,44 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
-    // get worksheet index from table name
+    /**
+     * Get worksheet index from table name
+     * @param {string} tableName The table's name
+     * @return {number} index The worksheet's index
+     */
     WSManager.getWSFromTable = function(tableName) {
         return (wsIndexLookUp[tableName]);
     }
 
-    // get worksheet index by its name
+    /**
+     * Get worksheet index by worksheet name
+     * @param {string} wsName The worksheet's name
+     * @return {number} index The worksheet's index
+     */
     WSManager.getWSByName = function(wsName) {
         return (wsNameLookUp[wsName]);
     }
 
-    // get worksheet name by index
+    /**
+     * Get worksheet's name by its index
+     * @param {number} wsIndex The worksheet's index
+     * @return {string} name The worksheet's name
+     */
     WSManager.getWSName = function(wsIndex) {
         return (worksheets[wsIndex].name);
     }
 
-    // get current active worksheet
+    /**
+     * Get current active worksheet
+     * @return {number} activeWorsheet The index of current active worksheet
+     */
     WSManager.getActiveWS = function() {
         return (activeWorsheet);
     }
 
+    /**
+     * Clear all data in WSManager
+     */
     WSManager.clear = function() {
         worksheets     = [];
         wsIndexLookUp  = {};
@@ -88,6 +119,11 @@ window.WSManager = (function($, WSManager) {
         initializeWorksheet();
     }
 
+    /**
+     * Add table to worksheet
+     * @param {string} tableName The table's name
+     * @param {number} [wsIndex=activeWorksheet] The worksheet's index
+     */
     WSManager.addTable = function(tableName, wsIndex) {
         if (wsIndex == undefined) {
             wsIndex = activeWorsheet;
@@ -101,6 +137,11 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
+    /**
+     * Move table to another worksheet
+     * @param {number} tableNum The table's index in gTables
+     * @param {number} newIndex The new worksheet's index
+     */
     WSManager.moveTable = function(tableNum, newIndex) {
         var tableName = gTables[tableNum].frontTableName;
         var oldIndex  = WSManager.removeTable(tableName);
@@ -136,6 +177,12 @@ window.WSManager = (function($, WSManager) {
         commitToStorage();
     }
 
+    /**
+     * Copy one table to a worksheet
+     * @param {string} srcTableName The name of source table
+     * @param {string} newTableName The name of new table
+     * @param {number} wsIndex The index of worksheet that new table belongs to
+     */
     WSManager.copyTable = function(srcTableName, newTableName, wsIndex) {
         var tableNum   = gTables.length;
         // do a deep copy
@@ -162,6 +209,10 @@ window.WSManager = (function($, WSManager) {
         });
     }
 
+    /**
+     * Remove table from worksheet
+     * @param {string} tableName The table's name
+     */
     WSManager.removeTable = function(tableName) {
         var wsIndex = wsIndexLookUp[tableName];
 
@@ -180,30 +231,35 @@ window.WSManager = (function($, WSManager) {
         return (wsIndex);
     }
 
+    /**
+     * Refresh Worksheet space to focus on one worksheet
+     * @param {number} [wsIndex=activeWorsheet] The worsheet's index
+     * @param {boolean} [notfocusTable] Whether table should be focused on
+     * @param {number} [tableNum] The index of table to be focused on
+     */
     WSManager.focusOnWorksheet = function(wsIndex, notfocusTable, tableNum) {
+        // update activeWorksheet first
         if (wsIndex == undefined) {
             wsIndex = activeWorsheet;
         }
 
         activeWorsheet = wsIndex;
 
-        var date = worksheets[activeWorsheet].date || xcHelper.getDate();
+        var date    = worksheets[activeWorsheet].date || xcHelper.getDate();
+        var $tabs   = $workSheetTabSection.find(".worksheetTab");
+        var $tables = $("#mainFrame .xcTableWrap");
+        var $dags   = $("#dagPanel .dagWrap");
+
+        // update worksheet created date
         $workspaceDateSection.text(date);
 
-        var $tables = $("#mainFrame .xcTableWrap");
-        var $tabs = $workSheetTabSection.find(".worksheetTab");
-        var $dags = $("#dagPanel .dagWrap");
-
-        // refresh worksheet tabe
+        // refresh worksheet tab
         xcHelper.removeSelectionRange();
-
         $tabs.find(".text").blur();
         $tabs.addClass("inActive");
         $("#worksheetTab-" + wsIndex).removeClass("inActive");
 
         // refresh mainFrame
-        var $curActiveTable = $tables.filter(".worksheet-" + wsIndex);
-
         $tables.addClass("inActive");
         $tables.filter(".worksheet-" + wsIndex).removeClass("inActive");
 
@@ -212,7 +268,9 @@ window.WSManager = (function($, WSManager) {
         $dags.filter(".worksheet-" + wsIndex).removeClass("inActive");
 
         // refresh table and scrollbar
-        if ($curActiveTable.length === 0 || notfocusTable) {
+        var $curActiveTable = $tables.filter(".worksheet-" + wsIndex);
+        if (notfocusTable || $curActiveTable.length === 0) {
+            // no table to focus
             emptyScroller();
 
             if ($curActiveTable.length > 0) {
@@ -236,7 +294,8 @@ window.WSManager = (function($, WSManager) {
                 matchHeaderSizes(null, $("#xcTable" + i));
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {
-                    var wsIndex = wsIndexLookUp[gTables[i].frontTableName];
+                    var wsIndex = WSManager.getWSFromTable(
+                                            gTables[i].frontTableName);
 
                     if (wsIndex === activeWorsheet) {
                         isFocus = true;
@@ -247,6 +306,9 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
+    /**
+     * Focus on the last table in the worksheet
+     */
     WSManager.focusOnLastTable = function() {
         var $mainFrame = $('#mainFrame');
 
@@ -267,6 +329,11 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
+
+    /**
+     * Get html list of worksheets
+     * @param {boolean} isAll Whether it includes current active worksheet
+     */
     WSManager.getWSLists = function(isAll) {
         var html = "";
 
@@ -287,6 +354,9 @@ window.WSManager = (function($, WSManager) {
         return (html);
     }
 
+    /**
+     * Initialize worksheet, helper function for WSManager.setup()
+     */
     function initializeWorksheet() {
         // remove the placeholder in html
         $workSheetTabSection.empty();
@@ -302,8 +372,10 @@ window.WSManager = (function($, WSManager) {
         WSManager.focusOnWorksheet(0);
     }
 
-    // event listener for worksheets
-    function setupWSEvents() {
+    /**
+     * Add worksheet events, helper function for WSManager.setup()
+     */
+    function addWSEvents() {
         // click to add new worksheet
         $("#addWorksheet").click(function() {
             newWorksheet();
@@ -352,6 +424,9 @@ window.WSManager = (function($, WSManager) {
         });
     }
 
+    /**
+     * Create a new worksheet
+     */
     function newWorksheet() {
         var wsIndex = worksheets.length;
         var name    = defaultName + (nameSuffix++);
@@ -371,10 +446,18 @@ window.WSManager = (function($, WSManager) {
         WSManager.focusOnWorksheet(wsIndex);
     }
 
+    /**
+     * Make a worksheet
+     * @param {number} wsIndex The worksheet's index
+     */
     function makeWorksheet(wsIndex) {
         $workSheetTabSection.append(getWSTabHTML(wsIndex));
     }
 
+    /**
+     * Rename a worksheet
+     * @param {JQuery} $text The label element of worksheet tab
+     */
     function renameWorksheet($text) {
         var name = jQuery.trim($text.text());
         // name confilct
@@ -399,7 +482,10 @@ window.WSManager = (function($, WSManager) {
         commitToStorage();
     }
 
-    // remove worksheet
+    /**
+     * Remove worksheet
+     * @param {number} wsIndex The worksheet's index
+     */
     function rmWorksheet(wsIndex) {
         worksheets[wsIndex].tables.forEach(function(table) {
             delete wsIndexLookUp[table];
@@ -421,6 +507,13 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
+    /**
+     * Set worksheet
+     * @param {number} wsIndex The worksheet's index
+     * @param {Object} options The options of the worksheet
+     * @param {string} options.name The worksheet's name
+     * @param {string} options.tables A table's name
+     */
     function setWorksheet(wsIndex, options) {
         if (worksheets[wsIndex] == undefined) {
             worksheets[wsIndex] = {"tables": []};
@@ -447,6 +540,10 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
+    /**
+     * Helper function to delete worksheet
+     * @param {number} wsIndex The worksheet's index
+     */
     function delWSHelper(wsIndex) {
         var title    = "DELETE WORKSHEET";
         var worsheet = worksheets[wsIndex];
@@ -476,14 +573,14 @@ window.WSManager = (function($, WSManager) {
                         "name"     : "Delete Tables",
                         "className": "deleteTale",
                         "func"     : function() {
-                            delTableHelper(worsheet, wsIndex);
+                            delTableHelper(wsIndex);
                         }
                     },
                     {
                         "name"     : "Archive Tables",
                         "className": "archiveTable",
                         "func"     : function() {
-                            archiveTableHelper(worsheet, wsIndex);
+                            archiveTableHelper(wsIndex);
                         }
                     }
                 ]
@@ -491,9 +588,13 @@ window.WSManager = (function($, WSManager) {
         }
     }
 
-    function delTableHelper(worsheet, wsIndex) {
+    /**
+     * Helper function to delete tables in a worksheet
+     * @param {number} wsIndex The worksheet's index
+     */
+    function delTableHelper(wsIndex) {
         var promises    = [];
-        var tables      = worsheet.tables;
+        var tables      = worksheets[wsIndex].tables;
         var $tableLists = $("#inactiveTablesList");
 
         // click all inactive table in this worksheet
@@ -524,7 +625,11 @@ window.WSManager = (function($, WSManager) {
         });
     }
 
-    function archiveTableHelper(worsheet, wsIndex) {
+    /**
+     * Helper function to archieve tables in a worksheet
+     * @param {number} wsIndex The worksheet's index
+     */
+    function archiveTableHelper(wsIndex) {
         // archive all active tables first
         for (var i = gTables.length - 1; i >= 0; i --) {
             var tableName = gTables[i].frontTableName;
@@ -539,7 +644,10 @@ window.WSManager = (function($, WSManager) {
         rmWorksheet(wsIndex);
     }
 
-    // HTML for worksheet tab
+    /**
+     * HTML of worksheet tab, helper function for makeWorksheet()
+     * @param {number} wsIndex The worksheet's index
+     */
     function getWSTabHTML(wsIndex) {
         var name     = worksheets[wsIndex].name;
         var id       = "worksheetTab-" + wsIndex;
