@@ -865,6 +865,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var dsObj = DS.getDSObj(dsId);
         var datasetName = dsObj.name;
         var format = dsObj.attrs.format;
+        var fileSize = dsObj.attrs.fileSize || 'N/A';
         // XcalarSample sets gDatasetBrowserResultSetId
         XcalarSample(datasetName, 20)
         .then(function(result, totalEntries) {
@@ -875,8 +876,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var records = kvPairs.records;
             var isVariable = kvPairs.recordType ==
                                 GenericTypesRecordTypeT.GenericTypesVariableSize;
-
-            updateTableInfo(datasetName, format, totalEntries);
+            updateTableInfo(datasetName, format, totalEntries, fileSize);
 
             try {
                 for (var i = 0; i < records.length; i ++) {
@@ -921,7 +921,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         restoreSelectedColumns();
     }
 
-    function updateTableInfo(dsName, dsFormat, totalEntries) {
+    function updateTableInfo(dsName, dsFormat, totalEntries, fileSize) {
         $("#schema-title").text(dsName);
         $("#dsInfo-title").text(dsName);
         // XXX these info should be changed after better backend support
@@ -929,6 +929,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $("#dsInfo-createDate").text(xcHelper.getDate());
         $("#dsInfo-updateDate").text(xcHelper.getDate());
         $("#dsInfo-records").text(Number(totalEntries).toLocaleString('en'));
+        $("#dsInfo-size").text(fileSize);
         if (dsFormat) {
             $("#schema-format").text(dsFormat);
         }
@@ -1588,9 +1589,9 @@ window.DS = (function ($, DS) {
      * @param {string} funcName  The python function name
      * @return {Promise} deferred
      */
-    DS.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim, moduleName, funcName) {
+    DS.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+                        moduleName, funcName) {
         var deferred = jQuery.Deferred();
-
         console.log(dsName, dsFormat, loadURL, 
                     fieldDelim, lineDelim,
                     moduleName, funcName);
@@ -1614,12 +1615,25 @@ window.DS = (function ($, DS) {
                 "moduleName": moduleName || null,
                 "funcName"  : funcName || null
             });
-
+        })
+        .then(function() {
+            var urlLen = loadURL.length;
+            console.log(loadURL[urlLen-1], loadURL);
+            var slashIndex = loadURL.lastIndexOf('/');
+            var dotIndex = loadURL.lastIndexOf('.');
+            if (dotIndex > slashIndex) {
+                loadURL = loadURL.substr(0, slashIndex+1);
+            }
+            return (XcalarListFiles(loadURL));
+        })
+        .then(function(files) {
             // display new dataset
+            console.log('files', files)
+            var fileSize = getFileSize(files);
             DS.create({
                 "name"    : dsName,
                 "isFolder": false,
-                "attrs"   : {"format": dsFormat}
+                "attrs"   : {"format": dsFormat, "fileSize" : fileSize}
             });
             DS.refresh();
             DS.getGridByName(dsName).click(); // lodat this dataset
@@ -1815,6 +1829,25 @@ window.DS = (function ($, DS) {
 
     /* End of Drag and Drop API */
 
+
+
+    function getFileSize(files) {
+        var size = 'N/A';
+        var numFiles = 0;
+        for (var i = 0; i < files.numFiles; i++) {
+            var file = files.files[i];
+            if (!file.attr.isDirectory) {
+                numFiles++;
+                if (numFiles > 1) {
+                    size = 'N/A';
+                    break;
+                } else {
+                    size = FileBrowser.sizeTranslater(file.attr.size);
+                }
+            }
+        }
+        return (size);
+    }
     /**
      * Helper function for DS.remove()
      * @param {JQuery} $grid The element to be removed
@@ -1998,7 +2031,7 @@ window.DS = (function ($, DS) {
                 ' ondragstart="dsDragStart(event)"' + 
                 ' ondragend="dsDragEnd(event)"' + 
                 ' data-dsId=' + id + 
-                ' data-dsParentId=' + parentId + '>' + 
+                ' data-dsParentId=' + parentId + '>'+
                 '<div id=' + (id + "leftWarp") +
                     ' class="dragWrap leftTopDragWrap"' +
                     ' ondragenter="dsDragEnter(event)"' +
@@ -2033,7 +2066,7 @@ window.DS = (function ($, DS) {
                 ' ondragstart="dsDragStart(event)"' + 
                 ' ondragend="dsDragEnd(event)"' +
                 ' data-dsId=' + id + 
-                ' data-dsParentId=' + parentId + '>' +
+                ' data-dsParentId=' + parentId + '>'+
                 '<div  id=' + (id + "leftWarp") + 
                     ' class="dragWrap leftTopDragWrap"' + 
                     ' ondragenter="dsDragEnter(event)"' + 

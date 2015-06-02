@@ -648,7 +648,7 @@ window.FileBrowser = (function($, FileBrowser) {
         return (deferred.promise());
     }
 
-    function sizeTranslater(size) {
+    FileBrowser.sizeTranslater = function(size) {
         var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var start = 0;
         var end   = unit.length - 2;
@@ -674,7 +674,7 @@ window.FileBrowser = (function($, FileBrowser) {
             }
 
             var size      = isDirectory ? "" : 
-                                          sizeTranslater(fileObj.attr.size);
+                                FileBrowser.sizeTranslater(fileObj.attr.size);
             var gridClass = isDirectory ? "folder" : "ds";
             var date      = "00:00:00 01-01-2015";
 
