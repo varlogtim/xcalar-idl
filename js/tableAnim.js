@@ -645,7 +645,8 @@ function createTableHeader(tableNum) {
         '<ul id="tableMenu' + tableNum + 
             '" class="colMenu tableMenu" >' + 
             '<li class="archiveTable">Archive Table</li>' + 
-            // '<li class="unavailable">Hide Table</li>' + 
+            '<li class="hideTable">Hide Table</li>' + 
+            '<li class="unhideTable">Unhide Table</li>' + 
             '<li class="deleteTable">Delete Table</li>' + 
             '<li class="exportTable">Export Table</li>' + 
             '<li class="delAllDuplicateCols">Delete All Duplicates</li>' + 
@@ -735,6 +736,20 @@ function createTableHeader(tableNum) {
             "operation": "archiveTable",
             "tableName": tableName
         });
+    });
+
+    $tableMenu.on('click', '.hideTable', function() {
+        var $menu    = $(this).closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id').substring(9));
+
+        $('#xcTableWrap'+tableNum).addClass('tableHidden');
+    });
+
+    $tableMenu.on('click', '.unhideTable', function() {
+        var $menu    = $(this).closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id').substring(9));
+
+        $('#xcTableWrap'+tableNum).removeClass('tableHidden');
     });
 
     $tableMenu.on('click', '.deleteTable', function() {
@@ -1921,7 +1936,7 @@ function createShadowTable() {
 
 function createTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
     var offset = gDragObj.mouseX - gDragObj.offsetLeft;
-    var dragMargin = 100;
+    var dragMargin = 10;
     
     if (!swappedTable) {
         var dropTargets = "";

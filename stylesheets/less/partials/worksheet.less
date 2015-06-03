@@ -413,6 +413,69 @@
     &.inActive {
         display: none;
     }
+
+    .unhideTable {
+        display: none;
+    }
+
+    &.tableHidden {
+        .unhideTable {
+            display: block !important;
+        }
+        .hideTable {
+            display: none !important;
+        }
+        .xcTheadWrap {
+            width: 30px !important;
+            .tableTitle > input {
+                width: 30px !important;
+            }
+        }
+        .xcTbodyWrap {
+            width: 30px !important; 
+            pointer-events: none;
+            cursor: default;
+            thead {
+                // visibility: hidden;
+                .header {
+                    width: 30px !important;
+                }
+                th {
+                    display: none;
+                }
+
+                th:first-child {
+                    display: table-cell;
+                    .header {
+                        width: 30px;
+                        height: 40px;
+                    }
+                    input {
+                        background: @color-table-darkGray;
+                    }
+                }
+            }
+            td, tr, .idWrap {
+                background-color: @color-table-lightGray !important;
+                border-color: @color-table-lightGray !important;
+            }
+            .idWrap {
+                overflow: hidden;
+                pointer-events: none;
+                cursor: default;
+            }
+            .idWrap::after {
+                content: "";
+                position: absolute;
+                width: 30px;
+                z-index: 0;
+                background-color: @color-table-lightGray;
+                top: -2px;
+                left: -7px;
+                height: 35px;
+            }
+        }    
+    }
 }
 
 .xcTheadWrap {
