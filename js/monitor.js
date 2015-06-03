@@ -94,34 +94,32 @@ window.MonitorPanel = (function($, MonitorPanel) {
             cpu.sumUsed += cpuPct;
             cpu.sumTot += 100;
 
-            var ramUsed = apiTopResult.topOutputPerNode[i].memUsedInBytes / GB;
+            var ramUsed = apiTopResult.topOutputPerNode[i].memUsedInBytes;
             var ramTot = 
-                apiTopResult.topOutputPerNode[i].totalAvailableMemInBytes / GB;
-            ramUsed = Math.round(ramUsed*10) / 10;
+                apiTopResult.topOutputPerNode[i].totalAvailableMemInBytes;
+            ramUsed = ramUsed;
             // console.log(ramUsed)
-            ramTot = Math.round(ramTot*10) / 10;
+            ramTot = ramTot;
             ram.used.push(ramUsed);
             ram.tot.push(ramTot);
             ram.sumUsed += ramUsed;
             ram.sumTot += ramTot;
 
-            var flashUsed = Math.ceil(nodes[i].usedFlash / GB);
-            var flashTot = nodes[i].totFlash / GB;
+            var flashUsed = nodes[i].usedFlash;
+            var flashTot = nodes[i].totFlash;
             flash.used.push(flashUsed);
             flash.tot.push(flashTot);
             flash.sumUsed += flashUsed;
             flash.sumTot += flashTot;
 
-            var diskUsed = Math.ceil(nodes[i].usedDisk / TB)*5;
-            var diskTot = Math.ceil(nodes[i].totDisk / TB)*5;
+            var diskUsed = nodes[i].usedDisk;
+            var diskTot = nodes[i].totDisk;
             disk.used.push(diskUsed);
             disk.tot.push(diskTot);
             disk.sumUsed += diskUsed;
             disk.sumTot += diskTot;
         }
 
-        ram.sumUsed = Math.round(ram.sumUsed*10) /10;
-        ram.sumTot = Math.round(ram.sumTot*10) /10;
         var allStats = [cpu, ram, flash, disk];
 
         return (allStats);
@@ -232,23 +230,27 @@ window.MonitorPanel = (function($, MonitorPanel) {
               .duration(duration)
               .tween("text", function() {
                     var startNum = this.textContent;
-                    if (type == "TB") {
-                      startNum *= 1024;
+                    var size = xcHelper.sizeTranslater(num, true);
+                    if (index != 3) {
+                        startNum = xcHelper.textToBytesTranslator(startNum+
+                                                                  type);
+                        var i = d3.interpolate(startNum, num);
+                    }   else {
+                        var i = d3.interpolate(startNum, size[0]);
                     }
-                    var i = d3.interpolate(startNum, num);
+                    
                     return (function(t) {
-                        var num = Math.round(i(t));
+                        var size = xcHelper.sizeTranslater(i(t), true);
+                        num = parseFloat(size[0]).toFixed(1);
+                        if (num >= 10 || index == 0) {
+                            num = Math.round(num);
+                        }
                         if (index == 0) {
                             this.textContent = num;
                             return;
                         }
                         if (index != 3) {
-                            if (num > 1023) {
-                                num = Math.round(num / 102.4) / 10;
-                                $sizeType.html('TB');
-                            } else {
-                                $sizeType.html('GB');
-                            }
+                            $sizeType.html(size[1]);
                         }
                         
                         this.textContent = num;
@@ -273,21 +275,33 @@ window.MonitorPanel = (function($, MonitorPanel) {
                             '</li>';
             }
         } else {
-            $statsSection.find('.statsHeadingBar .totNum').text(stats.sumTot);
-            $statsSection.find('.statsHeadingBar .avgNum').text(stats.sumUsed);
-            if (index == 3) {
-                var units = " Mbps";
-            } else {
-                var units = " GB";
+            var sumTotal = xcHelper.sizeTranslater(stats.sumTot, true);
+            var sumUsed = xcHelper.sizeTranslater(stats.sumUsed, true);
+            if (index != 3) {
+                $statsSection.find('.statsHeadingBar .totNum')
+                             .text(sumTotal[0]+" "+sumTotal[1]);
+                $statsSection.find('.statsHeadingBar .avgNum')
+                             .text(sumUsed[0]+" "+sumUsed[1]);
             }
+            
             for (var i = 0; i < numNodes; i++) {
+                var total = xcHelper.sizeTranslater(stats.tot[i], true);
+                var used = xcHelper.sizeTranslater(stats.used[i], true);
+                if (index == 3) {
+
+                    var usedUnits = totalUnits = "Mbps";
+                } else {
+                    var usedUnits = used[1];
+                    var totalUnits = total[1];
+                }
+                
                 listHTML += '<li>' +
                                 '<span class="name">Node '+(i+1)+'</span>' +
                                 '<span class="userSize">'+
-                                    stats.used[i]+units+
+                                    used[0]+" "+usedUnits+
                                 '</span>' +
                                 '<span class="totalSize">'
-                                    +stats.tot[i]+units+
+                                    +total[0]+" "+totalUnits+
                                 '</span>' +
                             '</li>';
             }
@@ -490,10 +504,15 @@ window.MonitorGraph = (function($, MonitorGraph) {
                                                         apiTopResult, numNodes);
                 var numGraphs = 2;
                 for (var i = 0; i < numGraphs; i++) {
-                    datasets[i].push(allStats[i].sumUsed);
-                    // datasets[i].push(50);
+                    var xVal = allStats[i].sumUsed;
+                    if (i === 1) {
+                        xVal = xcHelper.sizeTranslater(xVal, true)[0];
+                    }
+                    datasets[i].push(xVal);
                 }
-                var yMax = [100, allStats[1].sumTot];
+                yMax2 = xcHelper.sizeTranslater(allStats[1].sumTot, true)[0];
+                var yMax = [100, yMax2];
+                console.log(yMax)
                 redraw(newWidth, gridRight, numGraphs, yMax, firstTime);
                 $('.xLabelsWrap').width(newWidth);
                 svgWrap.attr("width", newWidth);

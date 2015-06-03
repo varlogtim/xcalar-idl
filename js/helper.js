@@ -94,17 +94,35 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     }
 
-    xcHelper.sizeTranslater = function(size) {
+    xcHelper.sizeTranslater = function(size, unitSeparated) {
         var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var start = 0;
         var end   = unit.length - 2;
 
         while (size >= 1024 && start <= end) {
-            size = Math.ceil(size / 1024);
+            size =(size / 1024).toFixed(1);
             ++start;
         }
+        if (size >= 10) {
+            size = Math.ceil(size);
+        }
 
-        return (size + unit[start]);
+        if (unitSeparated) {
+            return ([size, unit[start]]);
+        } else {
+            return (size + unit[start]);
+        }
+    };
+
+    xcHelper.textToBytesTranslator = function(numText) {
+        // accepts parameters in the form of 23GB or 56.2 mb
+        // and converts them to bytes
+        var units  = ["B", "KB", "MB", "GB", "TB", "PB"];
+        var num = parseFloat(numText);
+        var text = $.trim(numText.substr((""+num).length)).toUpperCase();
+        var index = units.indexOf(text);
+        var bytes = num*Math.pow(1024, index);
+        return (bytes);
     };
 
     xcHelper.randName = function(name, digits, strip) {
