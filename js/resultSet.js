@@ -60,17 +60,19 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
         return (generateDataColumnJson(gTables[tableNum].resultSetId,
                                  null, tableNum, false, numRowsToAdd));
     })
-    .then(function(jsonData) {
+    .then(function(jsonObj, keyName) {
         var deferred2 = jQuery.Deferred();
+        var jsonLen   = jsonObj.normal.length;
+
         $table = $('#xcTable'+tableNum);
         prepullTableHeight = $table.height();
 
-        info.numRowsAdded += jsonData.length;
-        var numRowsLacking = numRowsToAdd - jsonData.length;
-        var position = rowNumber + jsonData.length;
+        info.numRowsAdded += jsonLen;
+        var numRowsLacking = numRowsToAdd - jsonLen;
+        var position = rowNumber + jsonLen;
         numRowsBefore = $table.find('tbody tr').length;
 
-        pullRowsBulk(tableNum, jsonData, rowPosition, null, direction);
+        pullRowsBulk(tableNum, jsonObj, rowPosition, null, direction);
         var numRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
         if (numRowsStillNeeded > 0) {
             info.looped = true;
@@ -92,8 +94,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
                                         info.numRowsToAdd, numRowsStillNeeded);
                     info.targetRow = newRowToGoTo;
                     if (!info.reverseLooped) {
-                        gTables[tableNum].resultSetMax = jsonData.length + 
-                                                         rowPosition;
+                        gTables[tableNum].resultSetMax = jsonLen + rowPosition;
                         gTables[tableNum].currentRowNumber = 
                                             gTables[tableNum].resultSetMax;
                         var numRowsToRemove = $table.find("tbody tr").length -
@@ -227,35 +228,48 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
     XcalarGetNextPage(resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {
         var keyName = tableOfEntries.keysAttrHeader.name;
-        if (tableOfEntries.kvPairs.numRecords < gNumEntriesPerPage) {
+        var kvPairs = tableOfEntries.kvPairs;
+
+        if (kvPairs.numRecords < gNumEntriesPerPage) {
             resultSetId = 0;
         }
         if (notIndexed) {
             ColManager.setupProgCols(tableNum, tableOfEntries);
         }
 
-        var numRows = Math.min(numRowsToFetch,
-                               tableOfEntries.kvPairs.numRecords);
-        var jsonData = [];
-        for (var i = 0; i<numRows; i++) {
-            if (direction == 1) {
-                var index = numRows-1-i;
-            } else {
-                var index = i;
-            }
-            if (tableOfEntries.kvPairs.recordType ==
-                GenericTypesRecordTypeT.GenericTypesVariableSize) { 
-                var value = tableOfEntries.kvPairs
-                            .records[index].kvPairVariable.value;
+        var numRows     = Math.min(numRowsToFetch, kvPairs.numRecords);
+        var jsonNormal  = [];
+        var jsonWithKey = [];
+        var records     = kvPairs.records;
 
+        for (var i = 0; i<numRows; i++) {
+            var index = (direction === 1) ? (numRows - 1 - i) : i;
+            var key;
+            var value;
+
+            if (kvPairs.recordType ===
+                GenericTypesRecordTypeT.GenericTypesVariableSize)
+            {
+                key = records[index].kvPairVariable.key;
+                value = records[index].kvPairVariable.value;
             } else {
-                var value = tableOfEntries.kvPairs.records[index]
-                            .kvPairFixed.value;
+                key = records[index].kvPairFixed.key;
+                value = records[index].kvPairFixed.value;
             }
-            jsonData.push(value);
+
+            jsonNormal.push(value);
+            // remove the last char, which should be "}"
+            var newValue = value.substring(0, value.length - 1);
+            newValue += ',"' + keyName + '_indexed":' + key + '}';
+
+            jsonWithKey.push(newValue);
         }
 
-        deferred.resolve(jsonData, keyName);
+        var jsonObj = {
+            "normal" : jsonNormal,
+            "withKey": jsonWithKey
+        }
+        deferred.resolve(jsonObj, keyName);
     })
     .fail(function(error) {
         console.log("generateDataColumnJson fails!");

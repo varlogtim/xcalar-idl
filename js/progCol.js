@@ -453,9 +453,10 @@ window.ColManager = (function($, ColManager) {
     }
 
 
-    ColManager.pullAllCols = function(startIndex, jsonData, dataIndex, 
-                                      tableNum, direction) 
+    ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
+                                      tableNum, direction, secondPull)
     {
+        var jsonData       = secondPull ? jsonObj.withKey : jsonObj.normal;
         var table          = gTables[tableNum];
         var tableCols      = table.tableCols;
 
@@ -475,7 +476,9 @@ window.ColManager = (function($, ColManager) {
                 tableCols[i].func.args != "")
             {
                 var nested = parseColFuncArgs(tableCols[i].func.args[0]);
-                if (tableCols[i].func.args[0] != "" & tableCols[i].func.args[0] != undefined) {
+                if (tableCols[i].func.args[0] !== "" &&
+                    tableCols[i].func.args[0] != null)
+                {
                     if (/\\.([0-9])/.test(tableCols[i].func.args[0])) {
                         // slash followed by dot followed by number is ok
                         // fall through
@@ -488,7 +491,7 @@ window.ColManager = (function($, ColManager) {
                 nestedVals.push(nested);
                 // get the column number of the column the table was indexed on
                 if (tableCols[i].func.args && 
-                    (tableCols[i].func.args[0] == table.keyName)) {
+                    (tableCols[i].func.args[0] === table.keyName)) {
                     indexedColNums.push(i);
                 }
             } else { // this is the data Column
@@ -503,6 +506,11 @@ window.ColManager = (function($, ColManager) {
         for (var row = 0; row < numRows; row++) {
             var dataValue = parseRowJSON(jsonData[row]);
             var rowNum    = row + startIndex;
+
+            if (secondPull) {
+                dataValue[table.keyName] = dataValue[table.keyName +
+                                                     "_indexed"];
+            }
 
             tBodyHTML += '<tr class="row' + rowNum + '">';
             // add bookmark
@@ -550,6 +558,7 @@ window.ColManager = (function($, ColManager) {
                             childArrayVals[col] = true;
                         }
                     }
+
                     // XXX giving classes to table cells may
                     // actually be done later
                     var tdClass = "col" + (col + 1);
@@ -604,18 +613,34 @@ window.ColManager = (function($, ColManager) {
             // end of loop through table tr's tds
             tBodyHTML += '</tr>';
         }
-
-        var $tBody = $(tBodyHTML);
-
-        if (direction === 1) {
-            $('#xcTable' + tableNum).find('tbody').prepend($tBody);
-        } else {
-            $('#xcTable' + tableNum).find('tbody').append($tBody);
-        }
         // end of loop through table tr and start building html
 
         // assign column type class to header menus
         var $table = $('#xcTable' + tableNum);
+
+        // XXX Cheng: this check of column index on array is poor in performance
+        // should use better way after backend support
+        if (!secondPull && columnTypes[indexedColNums[0]] === "array") {
+            for (var i = 0; i < indexedColNums.length; i++) {
+                var colNum  = indexedColNums[i];
+                var $input  = $table.find('th.col' + (colNum + 1) +
+                                          '> .header input');
+                $input.val(table.keyName + "_indexed");
+            }
+            return ColManager.pullAllCols(startIndex, jsonObj,
+                                              dataIndex, tableNum,
+                                              direction, true);
+        }
+
+        var $tBody = $(tBodyHTML);
+        if (direction === 1) {
+            $table.find('tbody').prepend($tBody);
+        } else {
+            $table.find('tbody').append($tBody);
+        }
+
+        // var needSecondPull = false;
+
         for (var i = 0; i < numCols; i++) {
             var $currentTh = $table.find('th.col' + (i + 1));
             var $header    = $currentTh.find('> .header');
@@ -654,6 +679,7 @@ window.ColManager = (function($, ColManager) {
                 highlightColumn($currentTh);
             }
         }
+
         return ($tBody);
     }
 

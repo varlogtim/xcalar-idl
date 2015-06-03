@@ -594,7 +594,7 @@ function documentReadyCatFunction(tableNum, tableNumsToRemove) {
     var index = getIndex(gTables[tableNum].frontTableName);
     var notIndexed = !(index && index.length > 0);
     getFirstPage(gTables[tableNum].resultSetId, tableNum, notIndexed)
-    .then(function(jsonData, keyName) {
+    .then(function(jsonObj, keyName) {
         if (notIndexed) { // getNextPage will ColManager.setupProgCols()
             index = gTables[tableNum].tableCols;
         }
@@ -605,8 +605,8 @@ function documentReadyCatFunction(tableNum, tableNumsToRemove) {
                 $('#dagWrapToRemove'+tableNumsToRemove[i]).remove();
             }
         }
-        gTables[tableNum].currentRowNumber = jsonData.length;
-        buildInitialTable(index, tableNum, jsonData, keyName);
+        gTables[tableNum].currentRowNumber = jsonObj.normal.length;
+        buildInitialTable(index, tableNum, jsonObj, keyName);
         deferred.resolve();
     })
     .then(function() {

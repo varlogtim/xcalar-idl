@@ -321,12 +321,12 @@ function deleteTable(tableNum, deleteArchived) {
     return (deferred.promise());
 }
 
-function buildInitialTable(index, tableNum, jsonData, keyName) {
+function buildInitialTable(index, tableNum, jsonObj, keyName) {
     var table = gTables[tableNum];
     table.tableCols = index;
     table.keyName = keyName;
     var dataIndex = generateTableShell(table.tableCols, tableNum);
-    var numRows = jsonData.length;
+    var numRows = jsonObj.normal.length;
     var startIndex = 0;
     var $table = $('#xcTable'+tableNum);
     addRowScroller(tableNum);
@@ -334,10 +334,13 @@ function buildInitialTable(index, tableNum, jsonData, keyName) {
     if (numRows == 0) {
         console.log('no rows found, ERROR???');
         $('#rowScroller'+tableNum).addClass('hidden');
-        jsonData = [""];
+        jsonObj = {
+            "normal" : [""],
+            "withKey": [""]
+        };
     }
 
-    pullRowsBulk(tableNum, jsonData, startIndex, dataIndex);
+    pullRowsBulk(tableNum, jsonObj, startIndex, dataIndex, null);
     addTableListeners(tableNum);
     createTableHeader(tableNum);
     generateColDropDown(tableNum);
@@ -348,7 +351,7 @@ function buildInitialTable(index, tableNum, jsonData, keyName) {
     }
 }
 
-function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
+function pullRowsBulk(tableNum, jsonObj, startIndex, dataIndex, direction) {
     // this function does some preparation for ColManager.pullAllCols()
     var startIndex = startIndex || 0;
     var $table = $('#xcTable'+tableNum);
@@ -357,7 +360,7 @@ function pullRowsBulk(tableNum, jsonData, startIndex, dataIndex, direction) {
         dataIndex = xcHelper.parseColNum($('#xcTable'+tableNum)
                                             .find('tr:first .dataCol')) - 1;
     }
-    var newCells = ColManager.pullAllCols(startIndex, jsonData, dataIndex, 
+    var newCells = ColManager.pullAllCols(startIndex, jsonObj, dataIndex,
                                           tableNum, direction);
     addRowListeners(newCells);
     adjustRowHeights(newCells, startIndex, tableNum);
