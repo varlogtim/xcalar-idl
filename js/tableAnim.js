@@ -743,6 +743,7 @@ function createTableHeader(tableNum) {
         var tableNum = parseInt($menu.attr('id').substring(9));
 
         $('#xcTableWrap'+tableNum).addClass('tableHidden');
+        moveTableDropdownBoxes();
     });
 
     $tableMenu.on('click', '.unhideTable', function() {
@@ -750,6 +751,8 @@ function createTableHeader(tableNum) {
         var tableNum = parseInt($menu.attr('id').substring(9));
 
         $('#xcTableWrap'+tableNum).removeClass('tableHidden');
+        WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableNum);
+        moveTableDropdownBoxes();
     });
 
     $tableMenu.on('click', '.deleteTable', function() {
@@ -1260,6 +1263,7 @@ function addColMenuActions($colMenu, $thead) {
         var tableNum = parseInt($colMenu.attr('id').substring(7));
 
         ColManager.hideCol(colNum, tableNum);
+        
     });
 
     $colMenu.on('click', '.unhide', function() {
