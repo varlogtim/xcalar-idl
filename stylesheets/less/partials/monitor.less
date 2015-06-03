@@ -1,7 +1,8 @@
 #monitorPanel {
     background-color: white;
     width: 100%;
-    height: 100%;
+    height: ~"calc(100% - 115px)";
+    position: relative;
     .topBar {
         border-bottom-width: 2px;
 
@@ -155,7 +156,6 @@
                     }
 
                     &.right {
-                        // right: 106px;
                         right: 136px;
                         text-align: left;
                         height: 210px;
@@ -173,7 +173,6 @@
 
                             text {
                                 display: block;
-                                // stroke: @color-table-borderGray;
                                 fill: @color-table-borderGray;
                                 .font(@size: 11px, @weight: 500);
                             }
@@ -203,12 +202,6 @@
                     top: 10px;
                     background-color: #3b4952;
                     display: inline-block;
-                    // white-space: nowrap;
-                    // text-align: left;
-                    // overflow: hidden;
-                    // width: auto;
-                    // height: 210px;
-                    // float: right;
                 }
 
                 .separator {
@@ -227,7 +220,6 @@
                     overflow: hidden;
 
                     .spacer {
-                        // width: 280px;
                         width: 40px;
                         float: left;
                         display: inline-block;
@@ -249,12 +241,10 @@
             }
 
             .graphBackground {
-                // width: 1201px;
                 width: ~"calc(100% - 170px)";
                 height: 210px;
                 margin: 10px 0px 20px -1px;
                 left: 30px;
-                // float: right;
                 background-color: #3b4952;
                 position: absolute;
             }
@@ -370,14 +360,12 @@
 
     .bottomSection {
         .flex-display();
-        .size(@height: ~"calc(100% - 453px)");
-        min-height: 250px;
-        // .align-items(stretch);
+        .size(@height: ~"calc(100% - 335px)");
+        overflow-x: hidden;
+        overflow-y: scroll;
+        margin-right: 10px;
         .donutSection {
             .flex(1 0 200px);
-            // .flex-display();
-            // .flex-direction(column);
-            // .align-items(center);
             position: relative;
             height: 100%;
 
@@ -530,7 +518,6 @@
             }
 
             .statsSection {
-                height: ~"calc(100% - 220px)";
 
                 .statsTopHeading {
                     .font (@weight: 600, @size: 11px, @color: @color-text-midlightGray);
@@ -598,7 +585,6 @@
                     width: 70px;
                     display: inline-block;
                     padding-right: 7px;
-                    // background-color: #e3dfd2;
                     height: 100%;
                 }
 
@@ -612,6 +598,7 @@
                     overflow-x: hidden;
                     overflow-y: auto;
                     height: ~"calc(100% - 25px)";
+                    margin-bottom: 5px;
                     ul {
                         width: 245px;
                         margin: 0 auto;
