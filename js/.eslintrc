@@ -37,9 +37,11 @@
             }
         ],
         "no-redeclare": 1,
-        "no-console": 0, // enable use of console,
+        "no-console": 1, // use of console
+        "no-alert": 1,  // use of alert
         "eqeqeq": [   // use === and !== but allow == null/undefined
-            2, 
+            2,
+            "smart",
             "allow-null"
         ],
         "key-spacing": [
@@ -51,6 +53,10 @@
         "space-after-keywords": [
             2,
             "always",
+        ],
+        "new-cap": [
+            2,
+            "capIsNew": false // allow function to be uppercase
         ]
     },
     "env": {

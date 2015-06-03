@@ -94,6 +94,19 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     }
 
+    xcHelper.sizeTranslater = function(size) {
+        var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
+        var start = 0;
+        var end   = unit.length - 2;
+
+        while (size >= 1024 && start <= end) {
+            size = Math.ceil(size / 1024);
+            ++start;
+        }
+
+        return (size + unit[start]);
+    };
+
     xcHelper.randName = function(name, digits, strip) {
         if (digits == undefined) {
             digits = 5; // default

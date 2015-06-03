@@ -4,8 +4,8 @@ window.JSONModal = (function($, JSONModal) {
     var $modalBackground = $("#modalBackground");
 
     JSONModal.setup = function() {
-         $('#jsonModal .closeJsonModal, #modalBackground').click(function() {
-            if ($('#jsonModal').css('display') == 'block') {
+        $('#jsonModal .closeJsonModal, #modalBackground').click(function() {
+            if ($('#jsonModal').css('display') === 'block') {
                 closeJSONModal();
             }
         });
@@ -20,12 +20,12 @@ window.JSONModal = (function($, JSONModal) {
         });
 
         $jsonModal.resizable({
-            handles: "n, e, s, w, se",
-            minHeight: 300,
-            minWidth: 300,
+            handles    : "n, e, s, w, se",
+            minHeight  : 300,
+            minWidth   : 300,
             containment: "document"
         });
-    }
+    };
 
     JSONModal.show = function ($jsonTd) {
         var tableTitle = $jsonTd.closest(".xcTableWrap")
@@ -40,26 +40,26 @@ window.JSONModal = (function($, JSONModal) {
         jsonModalEvent($jsonTd);
         $jsonTd.addClass('modalHighlighted');
         $("body").addClass("hideScroll");
-    }
+    };
 
     // XX JSONModal.mouseDown and MouseMove are tentatively replaced by
     // jquery's draggable function
 
     JSONModal.mouseDown = function (event) {
-        gMouseStatus    = "movingJson"
+        gMouseStatus = "movingJson";
         gDragObj.mouseX = event.pageX;
         gDragObj.mouseY = event.pageY;
-        gDragObj.left   = parseInt($('#jsonModal').css('left'));
-        gDragObj.top    = parseInt($('#jsonModal').css('top'));
+        gDragObj.left = parseInt($('#jsonModal').css('left'));
+        gDragObj.top = parseInt($('#jsonModal').css('top'));
 
-        var cursorStyle = 
-            '<style id="moveCursor" type="text/css">*' + 
-            '{cursor:move !important; cursor: -webkit-grabbing !important;' + 
+        var cursorStyle =
+            '<style id="moveCursor" type="text/css">*' +
+            '{cursor:move !important; cursor: -webkit-grabbing !important;' +
             'cursor: -moz-grabbing !important;}</style>';
 
         $(document.head).append(cursorStyle);
         disableTextSelection();
-    }
+    };
 
     JSONModal.mouseMove = function (event) {
         var newX  = event.pageX;
@@ -67,17 +67,17 @@ window.JSONModal = (function($, JSONModal) {
         var distX = newX - gDragObj.mouseX;
         var distY = newY - gDragObj.mouseY;
 
-        $jsonModal.css("left" ,(gDragObj.left + distX) + "px");
-        $jsonModal.css("top"  ,(gDragObj.top + distY) + "px");
+        $jsonModal.css("left", (gDragObj.left + distX) + "px");
+        $jsonModal.css("top", (gDragObj.top + distY) + "px");
 
-    }
+    };
 
     JSONModal.mouseUp = function () {
         gMouseStatus = null;
         reenableTextSelection();
 
         $("#moveCursor").remove();
-    }
+    };
 
     function jsonModalEvent($jsonTd) {
         $jsonWrap.on({
@@ -85,43 +85,43 @@ window.JSONModal = (function($, JSONModal) {
                 var tableNum = parseInt($jsonTd.closest('table').attr('id')
                                         .substring(7));
                 var name     = createJsonSelectionExpression($(this));
-                var usrStr   = '"' + name.name + '" = pull(' + 
+                var usrStr   = '"' + name.name + '" = pull(' +
                                 name.escapedName + ')';
                 var $id      = $("#xcTable" + tableNum + " tr:first th")
                                     .filter(function() {
                                         var val = $(this).find("input").val();
-                                        return val === "DATA";
-                                });
+                                        return (val === "DATA");
+                                    });
 
                 var colNum      = xcHelper.parseColNum($id);
                 var table       = gTables[tableNum];
                 var frontName   = table.frontTableName;
                 var siblColName = table.tableCols[colNum - 1].name;
 
-                ColManager.addCol("col" + colNum, "xcTable" + tableNum, 
+                ColManager.addCol("col" + colNum, "xcTable" + tableNum,
                                 name.name, {"direction": "L", "select": true});
 
                 // now the column is different as we add a new column
-                var col         = table.tableCols[colNum-1];
-                col.func.func   = "pull";
-                col.func.args   = [name.escapedName];
-                col.userStr     = usrStr;
+                var col = table.tableCols[colNum - 1];
+                col.func.func = "pull";
+                col.func.args = [name.escapedName];
+                col.userStr = usrStr;
 
                 ColManager.execCol(col, tableNum)
                 .then(function() {
                     updateTableHeader(tableNum);
                     RightSideBar.updateTableInfo(table);
 
-                    autosizeCol($('#xcTable' + tableNum + ' th.col' + (colNum)), 
-                                {"includeHeader" : true, 
+                    autosizeCol($('#xcTable' + tableNum + ' th.col' + (colNum)),
+                                {"includeHeader" : true,
                                  "resizeFirstRow": true});
 
                     $('#xcTable' + tableNum + ' tr:first th.col' + (colNum + 1)
                         + ' .editableHead').focus();
                     // XXX call autosizeCol after focus if you want to make
-                    // column wide enough to show the entire 
+                    // column wide enough to show the entire
                     // function in the header
-                    // autosizeCol($('#xcTable'+tableNum+' th.col'+(colNum+1)), 
+                    // autosizeCol($('#xcTable' + tableNum + ' th.col' + (colNum + 1)),
                     //             {includeHeader: true, resizeFirstRow: true});
 
                     // add sql
@@ -138,7 +138,7 @@ window.JSONModal = (function($, JSONModal) {
                 })
                 .fail(function(error) {
                     console.error("execCol fails!", error);
-                })
+                });
             }
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
     }
@@ -166,7 +166,7 @@ window.JSONModal = (function($, JSONModal) {
     //     var top = ((winHeight - modalHeight) / 2);
 
     //     $jsonModal.css({
-    //         "left": left, 
+    //         "left": left,
     //         "top" : top
     //     });
     // }
@@ -181,7 +181,7 @@ window.JSONModal = (function($, JSONModal) {
             console.error(error, text);
             closeJSONModal();
             return;
-        } 
+        }
 
         $jsonModal.height(500).width(500);
         $jsonModal.show();
@@ -197,11 +197,11 @@ window.JSONModal = (function($, JSONModal) {
             return (JSON.stringify(obj));
         }
 
-        var result  = "";
-        var indent  = indent || "";
-        var options = options || {};
+        var result = "";
+        indent = indent || "";
+        options = options || {};
 
-        options['inarray'] = options['inarray'] || 0;
+        options.inarray = options.inarray || 0;
 
         for (var key in obj) {
             var value = obj[key];
@@ -211,8 +211,9 @@ window.JSONModal = (function($, JSONModal) {
                     value = '"<span class="jString">' + value + '</span>"';
 
                     if (options.inarray) {
-                        value = 
-                            '<span class="jArray jInfo" data-key="'+key+'">' + 
+                        value =
+                            '<span class="jArray jInfo" ' +
+                                'data-key="' + key + '">' +
                                 value +
                             '</span>, ';
                     }
@@ -222,8 +223,9 @@ window.JSONModal = (function($, JSONModal) {
                     value = '<span class="jNum">' + value + '</span>';
 
                     if (options.inarray) {
-                        value = 
-                            '<span class="jArray jInfo" data-key="'+key+'">' +
+                        value =
+                            '<span class="jArray jInfo" ' +
+                                'data-key="' + key + '">' +
                                 value +
                             '</span>,';
                     }
@@ -239,14 +241,15 @@ window.JSONModal = (function($, JSONModal) {
                     break;
                 case ('object'):
                     if (value == null) {
-                        value = '<span class="jNull">'+value+'</span>';
+                        value = '<span class="jNull">' + value + '</span>';
                         if (options.inarray) {
                             value += ',';
                         }
-                    } else if (value.constructor == Array) {
+                    } else if (value.constructor === Array) {
                         ++options.inarray;
-                        value = 
-                            '[<span class="jArray jInfo" data-key="'+key+'">' +
+                        value =
+                            '[<span class="jArray jInfo" ' +
+                                'data-key="' + key + '">' +
                                 prettifyJson(value, indent, options) +
                             '</span>],';
                     } else {
@@ -256,9 +259,10 @@ window.JSONModal = (function($, JSONModal) {
                         value = '{\n' + object + indent + '}';
 
                         if (options.inarray) {
-                            value = 
-                            '<span class="jArray jInfo" data-key="'+key+'">' + 
-                                value + 
+                            value =
+                            '<span class="jArray jInfo" ' +
+                                'data-key="' + key + '">' +
+                                value +
                             '</span>,';
                         }
                     }
@@ -277,10 +281,11 @@ window.JSONModal = (function($, JSONModal) {
                 result += value;
             } else {
                 value = value.replace(/,$/, "");
-                result += 
-                    '<div class="jsonBlock jInfo" data-key="' + key + '">' + 
+                result +=
+                    '<div class="jsonBlock jInfo" data-key="' + key + '">' +
                         indent +
-                        '"<span class="jKey">'+key+'</span>": '+value+','+ 
+                        '"<span class="jKey">' + key + '</span>": ' +
+                        value + ',' +
                     '</div>';
             }
         }
@@ -288,7 +293,7 @@ window.JSONModal = (function($, JSONModal) {
         --options.inarray;
 
         return (result.replace(/\,<\/div>$/, "</div>").replace(/\, $/, "")
-                                                      .replace(/\,$/, "")); 
+                                                      .replace(/\,$/, ""));
         // .replace used to remove comma if last value in object
     }
 
@@ -315,16 +320,16 @@ window.JSONModal = (function($, JSONModal) {
                 escapedKey = key.replace(/\./g, "\\\.").substr(1);
             }
 
-            name        = key + name;
+            name = key + name;
             escapedName = escapedKey + escapedName;
         });
 
-        if (name.charAt(0) == '.') {
-            name        = name.substr(1);
+        if (name.charAt(0) === '.') {
+            name = name.substr(1);
             escapedName = escapedName.substr(1);
         }
 
-        return ({"name"       : name, 
+        return ({"name"       : name,
                  "escapedName": escapedName});
     }
 

@@ -25,7 +25,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var curFiles    = [];
     var allFiles    = [];
     var sortKey     = defaultSortKey;
-    var sortRegEx   = undefined;
+    var sortRegEx;
     var reverseSort = false;
 
     FileBrowser.show = function() {
@@ -59,7 +59,7 @@ window.FileBrowser = (function($, FileBrowser) {
             closeAll();
             StatusBox.show(result.error, $filePath, true);
         });
-    }
+    };
 
     FileBrowser.setup = function() {
         $fileBrowser.draggable({
@@ -79,7 +79,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 event.stopPropagation();
                 clear();
 
-                 updateFileName($grid);
+                updateFileName($grid);
 
                 $grid.addClass('active');
             },
@@ -147,7 +147,6 @@ window.FileBrowser = (function($, FileBrowser) {
         // click on title to sort
         $fileBrowserMain.on("click", ".title.clickable", function(event) {
             var $title = $(this);
-            var grid   = getFocusGrid();
 
             event.stopPropagation();
             // click on selected title, reverse sort
@@ -206,7 +205,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
                 clearTimeout(timer);
                 timer = setTimeout(function() {
-                    if (path.charAt(path.length - 1) != "/") {
+                    if (path.charAt(path.length - 1) !== "/") {
                         path += "/";
                     }
 
@@ -220,7 +219,6 @@ window.FileBrowser = (function($, FileBrowser) {
                 return false;
             },
             "focus": function() {
-                console.log("fdas")
                 $(this).text($(this).text());
             }
         }, ".text");
@@ -239,7 +237,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileName.click(function() {
             return false;
         });
-    }
+    };
 
     // key up event
     function fileBrowserKeyUp(event) {
@@ -294,9 +292,9 @@ window.FileBrowser = (function($, FileBrowser) {
         if (isALL) {
             $fileBrowser.find('.select').removeClass('select');
             $formatSection.find('.text').text('all');
-            curFiles    = [];
-            sortKey     = defaultSortKey;
-            sortRegEx   = undefined;
+            curFiles = [];
+            sortKey = defaultSortKey;
+            sortRegEx = undefined;
             reverseSort = false;
             $pathLists.empty();
         }
@@ -336,7 +334,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function goToPath($newPath) {
-        if ($newPath == undefined || $newPath.length == 0) {
+        if ($newPath == null || $newPath.length === 0) {
             return;
         }
         var oldPath = getCurrentPath();
@@ -366,8 +364,8 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function importDataset($ds) {
-        if ($ds == null || $ds.length == 0) {
-            var text = "Invalid file name!" + 
+        if ($ds == null || $ds.length === 0) {
+            var text = "Invalid file name!" +
                         " Please choose a file or folder to import!";
 
             StatusBox.show(text, $fileName, true);
@@ -390,7 +388,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var path   = getCurrentPath() + dsName;
         var ext    = getFormat(dsName);
 
-        if (ext != undefined) {
+        if (ext != null) {
             $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]')
                 .click();
         }
@@ -437,7 +435,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 } else {
                     $title.removeClass("select");
                 }
-            })
+            });
         } else {
            // mark sort key on li
             $sortMenu.find("li").each(function() {
@@ -455,7 +453,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function sortFilesBy(key, regEx) {
-        if (allFiles.length == 0) {
+        if (allFiles.length === 0) {
             return;
         }
         curFiles = allFiles;
@@ -478,18 +476,18 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function filterFiles(files, regEx) {
-        var filterFiles = [];
-        var len         = files.length;
+        var result = [];
+        var len    = files.length;
 
-        for (var i = 0; i < len; i ++) {
+        for (var i = 0; i < len; i++) {
             var fileObj = files[i];
             var name    = fileObj.name;
             // XXX not filter folder
             if (fileObj.attr.isDirectory || regEx.test(name) === true) {
-                filterFiles.push(fileObj);
+                result.push(fileObj);
             }
         }
-        return (filterFiles);
+        return (result);
     }
 
     function sortFiles(files, key) {
@@ -502,14 +500,18 @@ window.FileBrowser = (function($, FileBrowser) {
             files.forEach(function(file) {
                 // folders sort by name
                 if (file.attr.isDirectory) {
-                    folders.push([file, file.name])
+                    folders.push([file, file.name]);
                 } else {
                     sortedFiles.push([file, file.attr.size]);
                 }
             });
 
-            folders.sort(function(a, b) {return a[1].localeCompare(b[1])});
-            sortedFiles.sort(function(a, b) {return a[1] - b[1]});
+            folders.sort(function(a, b) {
+                return (a[1].localeCompare(b[1]));
+            });
+            sortedFiles.sort(function(a, b) {
+                return (a[1] - b[1]);
+            });
 
             folders.forEach(function(file) {
                 resultFiles.push(file[0]);
@@ -522,7 +524,9 @@ window.FileBrowser = (function($, FileBrowser) {
             files.forEach(function(file) {
                 sortedFiles.push([file, file.name]);
             });
-            sortedFiles.sort(function(a, b) {return a[1].localeCompare(b[1])});
+            sortedFiles.sort(function(a, b) {
+                return (a[1].localeCompare(b[1]));
+            });
             if (key === "type") {
                 var dirFile        = [];
                 var fileWithoutExt = [];  // file with on extention
@@ -563,7 +567,7 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function focusOn(grid, isAll) {
-        if (grid == undefined) {
+        if (grid == null) {
             return;
         }
 
@@ -571,7 +575,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         if (typeof grid === "string") {
             if (isAll) {
-                str = 'grid-unit .label[data-name="' + grid + '"]'
+                str = 'grid-unit .label[data-name="' + grid + '"]';
             } else {
                 str = 'grid-unit.folder .label[data-name="' + grid + '"]';
             }
@@ -579,7 +583,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var name = grid.name;
             var type = grid.type;
 
-            if (type == undefined) {
+            if (type == null) {
                 str = 'grid-unit' + ' .label[data-name="' + name + '"]';
             } else {
                 str = 'grid-unit.' + type + ' .label[data-name="' + name + '"]';
@@ -631,8 +635,8 @@ window.FileBrowser = (function($, FileBrowser) {
         .then(function() {
             $pathLists.empty();
 
-            for (var i = paths.length - 1; i >= 0; i --) {
-                appendPath(paths[i]);
+            for (var j = paths.length - 1; j >= 0; j--) {
+                appendPath(paths[j]);
             }
             // focus on the grid specified by path
             if (path) {
@@ -648,19 +652,6 @@ window.FileBrowser = (function($, FileBrowser) {
         return (deferred.promise());
     }
 
-    FileBrowser.sizeTranslater = function(size) {
-        var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
-        var start = 0;
-        var end   = unit.length - 2;
-
-        while (size >= 1024 && start <= end) {
-            size = Math.ceil(size / 1024);
-            ++start;
-        }
-
-        return (size + unit[start]);
-    }
-
     function getHTMLFromFiles(files) {
         var html = "";
 
@@ -673,22 +664,22 @@ window.FileBrowser = (function($, FileBrowser) {
                 return;
             }
 
-            var size      = isDirectory ? "" : 
-                                FileBrowser.sizeTranslater(fileObj.attr.size);
+            var size      = isDirectory ? "" :
+                                xcHelper.sizeTranslater(fileObj.attr.size);
             var gridClass = isDirectory ? "folder" : "ds";
             var date      = "00:00:00 01-01-2015";
 
-            html += 
-                '<grid-unit title="' + name + '" class="' + gridClass + '">' + 
-                    '<div class="gridIcon"></div>' + 
-                    '<div class="listIcon">' + 
-                        '<span class="icon"></span>' + 
-                    '</div>' + 
-                    '<div class="label" data-name=' + name + '>' + 
-                        name + 
-                    '</div>' + 
-                    '<div class="fileDate">' + date +'</div>' + 
-                    '<div class="fileSize">' + size + '</div>' + 
+            html +=
+                '<grid-unit title="' + name + '" class="' + gridClass + '">' +
+                    '<div class="gridIcon"></div>' +
+                    '<div class="listIcon">' +
+                        '<span class="icon"></span>' +
+                    '</div>' +
+                    '<div class="label" data-name=' + name + '>' +
+                        name +
+                    '</div>' +
+                    '<div class="fileDate">' + date + '</div>' +
+                    '<div class="fileSize">' + size + '</div>' +
                 '</grid-unit>';
         });
 

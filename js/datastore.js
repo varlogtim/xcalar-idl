@@ -1844,7 +1844,7 @@ window.DS = (function ($, DS) {
                     size = 'N/A';
                     break;
                 } else {
-                    size = FileBrowser.sizeTranslater(file.attr.size);
+                    size = xcHelper.sizeTranslater(file.attr.size);
                 }
             }
         }

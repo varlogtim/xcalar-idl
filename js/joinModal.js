@@ -49,14 +49,14 @@ window.JoinModal = (function($, JoinModal) {
         $("#joinTables").click(function() {
             $(this).blur();
             // check validation
-            if($joinTableName.val() === "") {
+            if ($joinTableName.val() === "") {
                 var text = "Table name is empty! Please name your new table";
                 StatusBox.show(text, $joinTableName, true);
                 return;
             }
 
-            if ($("#mainJoin th.colSelected").length != 2) {
-                alert ("Select 2 columns to join by");
+            if ($("#mainJoin th.colSelected").length !== 2) {
+                alert("Select 2 columns to join by");
                 return;
             }
 
@@ -72,27 +72,27 @@ window.JoinModal = (function($, JoinModal) {
             var rightColNum   = xcHelper.parseColNum($rightJoinTable
                                              .find('th.colSelected')) - 1;
 
-            xcFunction.join(leftColNum, leftTableNum, rightColNum, 
+            xcFunction.join(leftColNum, leftTableNum, rightColNum,
                             rightTableNum, joinType, newTableName)
             .always(resetJoinTables);
         });
 
         $joinModal.draggable({
-            handle: '.modalHeader',
-            cursor: '-webkit-grabbing',
+            handle     : '.modalHeader',
+            cursor     : '-webkit-grabbing',
             containment: 'window'
         });
 
         $joinModal.resizable({
-            handles: "n, e, s, w, se",
-            minHeight: 600,
-            minWidth: 800,
+            handles    : "n, e, s, w, se",
+            minHeight  : 600,
+            minWidth   : 800,
             containment: "document"
         });
 
         addModalTabListeners($leftJoinTable);
         addModalTabListeners($rightJoinTable);
-    }
+    };
 
     JoinModal.show = function (tableNum, colNum) {
         $("body").on("keypress", joinTableKeyPress);
@@ -107,7 +107,7 @@ window.JoinModal = (function($, JoinModal) {
         joinModalTabs($leftJoinTable, (tableNum + 1), colNum);
         // here tableNum start from 1;
         joinModalTabs($rightJoinTable, -1, -1);
-    }
+    };
 
     function resetJoinTables() {
         $("body").off("keypress", joinTableKeyPress);
@@ -159,12 +159,12 @@ window.JoinModal = (function($, JoinModal) {
         for (var i = 0; i < gTables.length; i++) {
             var table = gTables[i];
 
-            tabHtml += '<div class="tableLabel">' + 
-                            table.frontTableName + 
+            tabHtml += '<div class="tableLabel">' +
+                            table.frontTableName +
                        '</div>';
 
-            var colHtml = '<table class="dataTable joinTable">' + 
-                            '<thead>' + 
+            var colHtml = '<table class="dataTable joinTable">' +
+                            '<thead>' +
                                 '<tr>';
 
             for (var j = 0; j < table.tableCols.length; j++) {
@@ -183,10 +183,10 @@ window.JoinModal = (function($, JoinModal) {
                     thClass += " unselectable";
                 }
 
-                colHtml +=  '<th class="' + thClass + '">' + 
-                                '<div class="columnTab">' + 
-                                    colName + 
-                                '</div>' + 
+                colHtml += '<th class="' + thClass + '">' +
+                                '<div class="columnTab">' +
+                                    colName +
+                                '</div>' +
                             '</th>';
             }
 
@@ -209,9 +209,9 @@ window.JoinModal = (function($, JoinModal) {
 
         // trigger click of table and column
         if (tableNum >= 0) {
-             $modal.find('.tableLabel:nth-child(' + tableNum + ')').click();
+            $modal.find('.tableLabel:nth-child(' + tableNum + ')').click();
         } else {
-             $modal.find('.tableLabel:first').click();
+            $modal.find('.tableLabel:first').click();
         }
 
         if (colNum > 0) {

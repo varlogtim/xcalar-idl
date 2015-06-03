@@ -47,17 +47,17 @@ window.AggModal = (function($, AggModal) {
         $aggTableName.val("tempTableName");
         
         $aggModal.draggable({
-            handle: '.modalHeader',
-            cursor: '-webkit-grabbing',
+            handle     : '.modalHeader',
+            cursor     : '-webkit-grabbing',
             containment: 'window'
         });
         $aggModal.resizable({
-            handles: "e, w",
-            minHeight: 300,
-            minWidth: 580,
+            handles    : "e, w",
+            minHeight  : 300,
+            minWidth   : 580,
             containment: "document"
         });
-    }
+    };
 
     AggModal.show = function (tableNum) {
         $modalBackground.on("click", hideAggOpSelect);
@@ -67,7 +67,7 @@ window.AggModal = (function($, AggModal) {
         $modalBackground.fadeIn(300, function() {
             Tips.refresh();
         });
-        centerPositionElement($aggModal)
+        centerPositionElement($aggModal);
 
         aggColumns(tableNum, $("#mainAgg1"));
         aggColumns(tableNum, $("#mainAgg2"));
@@ -77,7 +77,7 @@ window.AggModal = (function($, AggModal) {
             aggVert(tableNum, tableName);
             calcCorr(tableNum, tableName);
         });
-    }
+    };
 
     function hideAggOpSelect() {
         $aggDropdown.hide();
@@ -88,7 +88,6 @@ window.AggModal = (function($, AggModal) {
         var table      = gTables[tableNum];
         var numColumns = table.tableCols.length;
         var tabHtml    = "";
-        var tbody;
 
         for (var i = 0; i < numColumns; i++) {
             var colName = table.tableCols[i].name;
@@ -109,7 +108,6 @@ window.AggModal = (function($, AggModal) {
         var vertColumns   = [];
         var $mainAgg2     = $("#mainAgg2");
         var tabHtml       = "";
-        var tbody;
 
         for (var i = 0; i < numColumns; i++) {
             var colName = table.tableCols[i].name;
@@ -120,8 +118,8 @@ window.AggModal = (function($, AggModal) {
         }
 
         for (var i = 0; i < vertColumns.length; i++) {
-            tabHtml += '<div class="tableLabel tableLabelVertSkinny">' + 
-                            vertColumns[i].name + 
+            tabHtml += '<div class="tableLabel tableLabelVertSkinny">' +
+                            vertColumns[i].name +
                        '</div>';
         }
 
@@ -136,14 +134,14 @@ window.AggModal = (function($, AggModal) {
 
             wholeTable += '<div class="aggCol">';
 
-            var isChildOfArray = $("#xcTable" + tableNum + " .th.col" + 
-                                (j+1)  + " .header").hasClass("childOfArray");
+            var isChildOfArray = $("#xcTable" + tableNum + " .th.col" +
+                                (j + 1) + " .header").hasClass("childOfArray");
 
             for (var i = 0; i < vertColumns.length; i++) {
                 wholeTable += '<div class="aggTableField aggTableFlex" ';
                 var backgroundOpacity =
                                     "style='background-color:rgba(66,158,212,";
-                if (i == j) {
+                if (i === j) {
                     wholeTable += ">1";
                 } else if (i > j) {
                     wholeTable += backgroundOpacity + "0)'";
@@ -154,13 +152,13 @@ window.AggModal = (function($, AggModal) {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray) {
                         wholeTable += backgroundOpacity + "0)'";
-                        wholeTable += ">Not Supported"
+                        wholeTable += ">Not Supported";
                     } else {
                         wholeTable += backgroundOpacity + "0)'";
-                        wholeTable += '><div class="spinner">'+
-                                        '<div class="bounce1"></div>'+
-                                        '<div class="bounce2"></div>'+
-                                        '<div class="bounce3"></div>'+
+                        wholeTable += '><div class="spinner">' +
+                                        '<div class="bounce1"></div>' +
+                                        '<div class="bounce2"></div>' +
+                                        '<div class="bounce3"></div>' +
                                         '</div>';
                     }
                 } else {
@@ -185,7 +183,7 @@ window.AggModal = (function($, AggModal) {
 
         var corrString = "div(sum(mult(sub($arg1, avg($arg1)), sub($arg2," +
                          "avg($arg2)))), sqrt(mult(sum(pow(sub($arg1, " +
-                         "avg($arg1)), 2)), sum(pow(sub($arg2, avg($arg2)), "+
+                         "avg($arg1)), 2)), sum(pow(sub($arg2, avg($arg2)), " +
                          "2)))))";
 
         for (var j = 0; j < numColumns; j++) {
@@ -204,17 +202,17 @@ window.AggModal = (function($, AggModal) {
                     dupCols[colNum] = true;
                 });
 
-                var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
-                                    (j+1)  + " .header");
+                var $colHeader = $("#xcTable" + tableNum + " .th.col" +
+                                    (j + 1) + " .header");
                 // XXX now agg on child of array is not supported
                 if (!$colHeader.hasClass("childOfArray")) {
                     for (var i = 0; i < j; i++) {
-                        if (i == j) {
+                        if (i === j) {
                             // Must be 1 so skip
                             continue;
                         }
-                        if ((vertColumns[i]).type != "integer" &&
-                            (vertColumns[i]).type != "decimal") {
+                        if ((vertColumns[i]).type !== "integer" &&
+                            (vertColumns[i]).type !== "decimal") {
                             continue;
                         }
                         var sub = corrString.replace(/[$]arg1/g, cols.name);
@@ -232,14 +230,13 @@ window.AggModal = (function($, AggModal) {
         var numColumns    = table.tableCols.length;
 
         var aggrFunctions = ["Sum", "Avg", "Min", "Max", "Count"];
-        var $mainAgg1      = $("#mainAgg1");
+        var $mainAgg1     = $("#mainAgg1");
 
         var tabHtml       = "";
-        var tbody;
 
         for (var i = 0; i < aggrFunctions.length; i++) {
-            tabHtml += '<div class="tableLabel tableLabelVert">' + 
-                            aggrFunctions[i] + 
+            tabHtml += '<div class="tableLabel tableLabelVert">' +
+                            aggrFunctions[i] +
                        '</div>';
         }
 
@@ -254,8 +251,8 @@ window.AggModal = (function($, AggModal) {
 
             wholeTable += '<div class="aggCol">';
 
-            var isChildOfArray = $("#xcTable" + tableNum + " .th.col" + 
-                                (j+1)  + " .header").hasClass("childOfArray");
+            var isChildOfArray = $("#xcTable" + tableNum + " .th.col" +
+                                (j + 1) + " .header").hasClass("childOfArray");
 
             for (var i = 0; i < 5; i++) {
                 wholeTable += '<div class="aggTableField">';
@@ -263,7 +260,7 @@ window.AggModal = (function($, AggModal) {
                 if (cols.type === "integer" || cols.type === "decimal") {
                     // XXX now agg on child of array is not supported
                     if (isChildOfArray) {
-                        wholeTable += "Not Supported"
+                        wholeTable += "Not Supported";
                     } else {
                         wholeTable += '<div class="spinny"></div>';
                     }
@@ -302,12 +299,12 @@ window.AggModal = (function($, AggModal) {
                     dupCols[colNum] = true;
                 });
 
-                var $colHeader = $("#xcTable" + tableNum + " .th.col" + 
-                                    (j+1)  + " .header");
+                var $colHeader = $("#xcTable" + tableNum + " .th.col" +
+                                    (j + 1) + " .header");
                 // XXX now agg on child of array is not supported
                 if (!$colHeader.hasClass("childOfArray")) {
                     for (var i = 0; i < 5; i++) {
-                        runAggregate(tableName, cols.func.args[0], 
+                        runAggregate(tableName, cols.func.args[0],
                                     aggrFunctions[i], i, j, dups);
                     }
                 }
@@ -323,8 +320,8 @@ window.AggModal = (function($, AggModal) {
         var args  = tableCols[colNum].func.args[0];
         var dups  = [];
         for (var i = colNum + 1; i < tableCols.length; i++) {
-            if (tableCols[i].func.args && 
-                (tableCols[i].func.args[0] === args) && 
+            if (tableCols[i].func.args &&
+                (tableCols[i].func.args[0] === args) &&
                 (tableCols[i].func.func !== "raw")) 
             {
                 dups.push(i);
@@ -340,18 +337,17 @@ window.AggModal = (function($, AggModal) {
 
             try {
                 var obj = jQuery.parseJSON(value);
-
-                val     = obj["Value"];
+                val = obj.Value;
             } catch (error) {
                 console.error(error, obj);
-                val     = "";
+                val = "";
             }
 
-            $("#mainAgg1 .aggTable .aggCol:eq(" + col + ")" + 
+            $("#mainAgg1 .aggTable .aggCol:eq(" + col + ")" +
               " .aggTableField:eq(" + row + ")").html(val);
 
             dups.forEach(function(colNum) {
-                $("#mainAgg1 .aggTable .aggCol:eq(" + colNum + ")" + 
+                $("#mainAgg1 .aggTable .aggCol:eq(" + colNum + ")" +
                   " .aggTableField:eq(" + row + ")").html(val);
             });
         });
@@ -364,28 +360,28 @@ window.AggModal = (function($, AggModal) {
 
             try {
                 var obj = jQuery.parseJSON(value);
-                val     = obj["Value"];
+                val = obj.Value;
             } catch (error) {
                 console.error(error, obj);
-                val     = "";
+                val = "";
             }
 
             if (jQuery.isNumeric(val)) {
                 val = parseFloat(val);
-                $("#mainAgg2 .aggTable .aggCol:eq(" + col + ")" + 
+                $("#mainAgg2 .aggTable .aggCol:eq(" + col + ")" +
                   " .aggTableField:eq(" + row + ")").html(val);
 
-                $("#mainAgg2 .aggTable .aggCol:eq(" + col + ")" + 
+                $("#mainAgg2 .aggTable .aggCol:eq(" + col + ")" +
                   " .aggTableField:eq(" + row + ")").css("background-color",
-                  "rgba(66, 158, 212,"+val+")");
+                  "rgba(66, 158, 212," + val + ")");
             }
             dups.forEach(function(colNum) {
-                $("#mainAgg2 .aggTable .aggCol:eq(" + colNum + ")" + 
+                $("#mainAgg2 .aggTable .aggCol:eq(" + colNum + ")" +
                   " .aggTableField:eq(" + row + ")").html(val);
                 if (jQuery.isNumeric(val)) {
-                    $("#mainAgg2 .aggTable .aggCol:eq(" + col + ")" + 
+                    $("#mainAgg2 .aggTable .aggCol:eq(" + col + ")" +
                       " .aggTableField:eq(" + row + ")").css("background-color",
-                      "rgba(66, 158, 212,"+val+")");
+                      "rgba(66, 158, 212," + val + ")");
                 }
             });
         });
@@ -402,4 +398,4 @@ window.AggModal = (function($, AggModal) {
     }
 
     return (AggModal);
-}(jQuery, {}))
+}(jQuery, {}));
