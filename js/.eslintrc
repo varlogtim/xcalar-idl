@@ -1,0 +1,60 @@
+{   
+    // rules mode: 0 = turn off, 1 = warning, 2 = error
+    "rules": {
+        "strict": 0, // not using stric mode
+        "indent": [
+            2,
+            4
+        ],
+        "linebreak-style": [
+            2,
+            "unix"
+        ],
+        "quotes": [  // No quotes checking
+            0
+        ],
+        "semi": [
+            1,
+            "always"
+        ],
+        "no-undef": 0,  // temporarily not checking global function undefined
+        "no-extra-semi": 2,
+        "no-multi-spaces": [
+            1, {
+                "exceptions": {
+                    "VariableDeclarator": true
+                }
+        }],
+        "no-use-before-define": [
+            2,
+            "nofunc"
+        ],
+        "no-loop-func": 1,
+        "no-trailing-spaces": [
+            2, 
+            { 
+                "skipBlankLines": true 
+            }
+        ],
+        "no-redeclare": 1,
+        "no-console": 0, // enable use of console,
+        "eqeqeq": [   // use === and !== but allow == null/undefined
+            2, 
+            "allow-null"
+        ],
+        "key-spacing": [
+            1, {
+                "align": "colon",
+                "beforeColon": false,
+                "afterColon": true
+        }],
+        "space-after-keywords": [
+            2,
+            "always",
+        ]
+    },
+    "env": {
+        "browser": true,
+        "jquery" : true
+    }
+}

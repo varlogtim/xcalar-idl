@@ -5,7 +5,7 @@ window.Alert = (function($, Alert){
     var $alertOptionInput = $("#alertOptionInput");
     var $btnSection       = $("#alertActions");
 
-    var modalHelper       = new xcHelper.Modal($alertModal, 
+    var modalHelper       = new xcHelper.Modal($alertModal,
                                                {"focusOnOpen": true});
 
     Alert.setup = function() {
@@ -14,12 +14,12 @@ window.Alert = (function($, Alert){
             "cursor": "-webkit-grabbing"
         });
 
-         xcHelper.dropdownList($alertModal.find(".listSection"), {
-            "onSelect" : function($li) {
+        xcHelper.dropdownList($alertModal.find(".listSection"), {
+            "onSelect": function($li) {
                 $alertOptionInput.val($li.text()).focus();
             }
         });
-    }
+    };
 
     Alert.show = function(options) {
        /* options includes:
@@ -49,7 +49,7 @@ window.Alert = (function($, Alert){
         xcHelper.removeSelectionRange();
 
         modalHelper.setup();
-    }
+    };
 
     Alert.error = function(title, error, options) {
         var type = typeof error;
@@ -62,19 +62,19 @@ window.Alert = (function($, Alert){
         }
 
         var alertOptions = {
-            "title"     : title,
-            "msg"       : msg,
-            "isAlert"   : true
+            "title"  : title,
+            "msg"    : msg,
+            "isAlert": true
         };
 
         alertOptions = $.extend(options, alertOptions);
         Alert.show(alertOptions);
-    }
+    };
 
     Alert.getOptionVal = function() {
         var val = $alertOptionInput.val();
         return (jQuery.trim(val));
-    }
+    };
 
     function closeAlertModal() {
         $btnSection.find(".funcBtn").remove();
@@ -92,8 +92,8 @@ window.Alert = (function($, Alert){
     }
 
     // configuration for alert modal
-    /* Cheng: how alertModal behaves when checkbox is checbox to "don't show again" 
-        may need further discussion */
+    /* Cheng: how alertModal behaves when checkbox is checbox to
+        "don't show again" may need further discussion */
     function configAlertModal(options) {
         options = options || {};
         // set title
@@ -119,7 +119,7 @@ window.Alert = (function($, Alert){
         $checkbox.find(".checkbox").removeClass("checked");
         $checkbox.addClass("inactive"); // now make it disabled
         if (options.isCheckBox) {
-             $alertModal.on("click", ".checkbox", function(event) {
+            $alertModal.on("click", ".checkbox", function(event) {
                 event.stopPropagation();
                 $(this).toggleClass("checked");
             });
@@ -175,7 +175,7 @@ window.Alert = (function($, Alert){
                 $alertModal.on("click", ".confirm", function(event) {
                     event.stopPropagation();
                     closeAlertModal();
-                    if(options.confirm) {
+                    if (options.confirm) {
                         options.confirm();
                     }
                 });
