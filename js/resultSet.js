@@ -140,7 +140,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
             removeOldRows($table, tableNum, info, direction, 
                            prepullTableHeight, numRowsBefore, numRowsToAdd);
         } else if (!loop) {
-            alert('some rows were too large to be retrieved');
+            console.log('some rows were too large to be retrieved');
         }
         deferred.resolve();
     })
@@ -185,7 +185,7 @@ function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
     var bottomRowNum = parseInt(lastRow.attr('class').substr(3));
     gTables[tableNum].currentRowNumber = bottomRowNum + 1;
     if (info.looped) {
-        alert('some rows were too large to be retrieved');
+        console.log('some rows were too large to be retrieved');
     }
 }
 

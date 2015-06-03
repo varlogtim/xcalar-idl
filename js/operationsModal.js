@@ -567,10 +567,12 @@ window.OperationsModal = (function($, OperationsModal) {
         console.log(func);
 
         if (opIndex > -1) {
-            var defaultValue;
-            if (operatorName === "aggregate" || operatorName === "group by") {
-                defaultValue = backColName;
-            } else {
+            // var defaultValue;
+            var firstDefaultValue;
+            var defaultValue = backColName;
+            if (!firstArgExceptions[category]) {
+                defaultValue = "";
+            } else if (firstArgExceptions[category].indexOf(func) != -1) {
                 defaultValue = "";
             }
 
@@ -603,7 +605,12 @@ window.OperationsModal = (function($, OperationsModal) {
                 description = operObj.argDescs[i].argDesc;
 
                 if (func !== "udf") {
-                    $rows.eq(i).find('input').val(defaultValue);
+                    
+                    if (i == 0) {
+                        $rows.eq(i).find('input').val(defaultValue);
+                    } else {
+                        $rows.eq(i).find('input').val("");
+                    }
                 }
                 $rows.eq(i).find('.description').text(description);
             }
@@ -855,31 +862,6 @@ window.OperationsModal = (function($, OperationsModal) {
         // we're assuming the operator was picked from a list of valid operators
         console.log(arguments);
         var mapString = '=map(';
-        // switch (operator) {
-        // case ("Sum"):
-        //     mapString += "add(";
-        //     break;
-        // case ("Subtract"):
-        //     mapString += "sub(";
-        //     break;
-        // case ("Multiply"):
-        //     mapString += "mult(";
-        //     break;
-        // case ("Divide"):
-        //     mapString += "div(";
-        //     break;
-        // case ("And"):
-        //     mapString += "and(";
-        //     break;
-        // case ("Or"):
-        //     mapString += "or(";
-        //     break;
-        // case ("IP Address To Integer"):
-        //     mapString += "ipAddrToInt(";
-        //     break;
-        // default:
-        //     console.log(operator+" not found!");
-        // }
         mapString += operator + "(";
         mapString += value1;
         if (value2 != null) {
@@ -932,6 +914,19 @@ window.OperationsModal = (function($, OperationsModal) {
         var left = $th.offset().left;
         $('#highlightOffset').text('.modalHighlighted .header{left:' + left +
                                     'px;}');
+    }
+
+    // empty array means the first argument will always be the column name
+    // value of false means the first argument will never be the column name
+    // any functions in the array will not have column name as first argument
+    var firstArgExceptions = {
+        'aggregate functions' : [],
+        'arithmetic functions' : [],
+        'bitwise functions' : [],
+        'conditional functions' : ['not'],
+        'conversion functions' : false,
+        'miscellaneous functions' : false,
+        'trigonometric functions' : []
     }
 
     return (OperationsModal);

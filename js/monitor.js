@@ -112,14 +112,13 @@ window.MonitorPanel = (function($, MonitorPanel) {
             flash.sumUsed += flashUsed;
             flash.sumTot += flashTot;
 
-            var diskUsed = nodes[i].usedDisk;
-            var diskTot = nodes[i].totDisk;
+            var diskUsed = nodes[i].usedDisk*5;
+            var diskTot = nodes[i].totDisk*5;
             disk.used.push(diskUsed);
             disk.tot.push(diskTot);
             disk.sumUsed += diskUsed;
             disk.sumTot += diskTot;
         }
-
         var allStats = [cpu, ram, flash, disk];
 
         return (allStats);
@@ -512,7 +511,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 }
                 yMax2 = xcHelper.sizeTranslater(allStats[1].sumTot, true)[0];
                 var yMax = [100, yMax2];
-                console.log(yMax)
                 redraw(newWidth, gridRight, numGraphs, yMax, firstTime);
                 $('.xLabelsWrap').width(newWidth);
                 svgWrap.attr("width", newWidth);
