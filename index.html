@@ -353,9 +353,12 @@
           </p>
         </div>
       </div>
+      <!-- Data Form -->
       <form target="_blank" id="importDataForm">
+        <!-- Top Form -->
         <div id="importDataTopForm">
           <div class="contentViewMidWrap">
+            <!-- file path -->
             <div id="filePathSelector" class="importFormRow">
               <label>File Path:</label>
               <input type="text" name="filePath" id="filePath"
@@ -364,32 +367,41 @@
                 BROWSE
               </button>
             </div>
+            <!-- file name -->
             <div id="fileNameSelector" class="importFormRow">
               <label>File Name:</label>
               <input id="fileName" name="fileName" type="text" 
                placeholder="Enter Dataset Name" autocomplete="on" 
                pattern="^\w+$" 
                title="A valid name with no special characters" required>
-              <div id="fileFormat">
+               <!-- file formt -->
+               <div id="fileFormat">
                 <div id="fileFormatList" class="listSection">
-                  <input class="text hint" type="text" value="Select Format"
+                  <input class="text hint" type="text" value="Format"
                         disabled="disabled"/>
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
                   <ul id="fileFormatMenu" class="list">
-                    <li class="hint">Select Format</li>
+                    <li class="hint">Format</li>
                     <li name="CSV">CSV</li>
                     <li name="JSON">JSON</li>
                     <li name="RAW">Raw</li>
                     <li name="RANDOM">Random</li>
-                    <li name="UDF">UDF</li>
                   </ul>
+                </div>
               </div>
-            </div>
+              <!-- udf checkbox -->
+              <div id="udfCheckbox" class="hidden">
+                <div class="checkbox iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <div class="text">Use UDF</div>
+              </div>
             </div>
           </div>
         </div>
+        <!-- Bottom Form -->
         <div id="importDataBottomForm">
           <div class="contentViewMidWrap">
             <div id="csvDelim" class="hidden clearfix">

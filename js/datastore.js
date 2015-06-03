@@ -38,6 +38,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
     var $fieldDelim      = $("#fieldDelim");
 
     var $udfArgs         = $("#udfArgs");
+    var $udfCheckbox     = $("#udfCheckbox");
     // constants
     var formatTranslater = {
         "JSON"  : "JSON",
@@ -107,21 +108,41 @@ window.DatastoreForm = (function($, DatastoreForm) {
             }
         });
 
+        // udf checkbox
+        $udfCheckbox.click(function() {
+            var $checkbox = $(this).find(".checkbox");
+
+            if ($udfArgs.hasClass("hidden")) {
+                $checkbox.addClass("checked");
+                $udfArgs.removeClass("hidden").slideDown(200);
+                // trigger it event click to make it in update
+                UDF.getDropdownList($("#udfArgs-moduleList"),
+                                $("#udfArgs-funcList"));
+            } else {
+                $checkbox.removeClass("checked");
+                $udfArgs.addClass("hidden").slideUp(200);
+            }
+        });
+
         // reset form
         $("#importDataReset").click(function() {
             $(this).blur();
-            $formatText.val("Select Format");
+            $formatText.val("Format");
             $formatText.addClass("hint");
             // visbility 0 csvDelim and hide udfArgs
             $csvDelim.show();
             $csvDelim.addClass("hidden");
             $udfArgs.addClass("hidden");
+            $udfCheckbox.addClass("hidden");
+            $udfCheckbox.find(".checkbox").removeClass("checked");
         });
+
         // open file browser
         $("#fileBrowserBtn").click(function() {
             $(this).blur();
             FileBrowser.show();
         });
+
         // submit the form
         $("#importDataForm").submit(function(event) {
             event.preventDefault();
@@ -299,15 +320,17 @@ window.DatastoreForm = (function($, DatastoreForm) {
     function formatSectionHandler($li) {
         var text = $li.text();
 
-        if ($li.hasClass("hint") || $formatText.val() === text) {
+        if ($li.hasClass("hint")) {
+            $udfCheckbox.addClass("hidden");
+            return;
+        } else if ($formatText.val() === text) {
             return;
         }
 
         $formatText.removeClass("hint");
         $formatText.val(text);
+        $udfCheckbox.removeClass("hidden");
 
-        $csvDelim.show();
-        $udfArgs.addClass("hidden");
         switch (text.toLowerCase()) {
             case "csv":
                 resetDelimiter();
@@ -319,13 +342,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 $fieldDelim.hide();
                 $csvDelim.removeClass("hidden");
                 break;
-            case "udf":
-                resetDelimiter();
-                $csvDelim.hide();
-                $udfArgs.removeClass("hidden");
-                // trigger it event click to make it in update
-                UDF.getDropdownList($("#udfArgs-moduleList"), 
-                                     $("#udfArgs-funcList"));
             default:
                 $csvDelim.addClass("hidden");
                 break;

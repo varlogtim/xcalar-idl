@@ -176,10 +176,81 @@ input {
                 width: ~"calc(100% - 260px)";
                 box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
                 float: left;
-                .flex(2 0 180px);
+                // .flex(2 0 180px);
             }
             .input-placeholder(@color-text-instructions);
+
+            &#fileNameSelector {
+                input {
+                    max-width: 485px;
+                    min-width: ~"calc(100% - 440px)";
+                    width: ~"calc(100% - 400px)";
+                }
+
+                #fileFormat {
+                    margin-left: 20px;
+                    .size(@height: 30px);
+                    .position(relative);
+                    outline: none;
+
+                    .listSection {
+                        .dropDownList(115px, 30px);
+                        .text {
+                            .size(@width: ~"calc(100% - 30px)");
+                            .font(@size: 13px);
+                            .rounded(3px 0 0 3px);
+                            cursor: default;
+                            .noSelection;
+                        }
+                        .list {
+                            .rounded(3px 0 0 3px);
+                            .position(@top: 0px);
+                            .font(@size: 13px);
+                        }
+                        &.open {
+                            box-shadow: none;
+                        }
+
+                        .hint {
+                            color: @color-text-lightGray;
+                        }
+                    }
+                }
+
+                #udfCheckbox {
+                    .size(@width: 100px, @height: 30px);
+                    .font(@weight: 700, @size: 13px);
+                    margin-left: 5%;
+                    cursor: pointer;
+
+                    &.hidden {
+                        display: none;
+                    }
+
+                    .iconWrapper {
+                        float: left;
+                        .size(@width: 16px, @height: 100%);
+                        .position(relative);
+
+                        .icon {
+                            .size(@width: 100%, @height: 100%);
+                            .image("/images/alertModal/checkbox-unchecked.png", 50%, 50%);
+                        }
+
+                        &.checked .icon {
+                            .image("/images/alertModal/checkbox-checked.png", 50%, 50%);
+                        }
+                    }
+
+                    .text {
+                        color: @color-text-lightGray;
+                        float: left;
+                        margin-left: 10px;
+                    }
+                }
+            }
         }
+
     }
 
     #importDataBottomForm {
@@ -194,39 +265,6 @@ input {
         cursor: default;
     }
 
-    #fileFormat {
-        margin-bottom: 30px;
-        margin-left: 20px;
-        padding: 0;
-        float: right;
-        .size(@height: 30px);
-        .position(relative);
-        outline: none;
-
-        .listSection {
-            .dropDownList(150px, 30px);
-            .text {
-                .size(@width: ~"calc(100% - 30px)");
-                .font(@size: 13px);
-                .rounded(3px 0 0 3px);
-                cursor: default;
-                .noSelection;
-            }
-            .list {
-                .rounded(3px 0 0 3px);
-                .position(@top: 0px);
-                .font(@size: 13px);
-            }
-            &.open {
-                box-shadow: none;
-            }
-
-            .hint {
-                color: @color-text-lightGray;
-            }
-        }
-    }
-
     #csvDelim, #udfArgs {
         visibility: visible;
         opacity: 1;
@@ -235,28 +273,33 @@ input {
         &.hidden {
             visibility: hidden;
             opacity: 0;
+            display: none;
         }
 
         .size(@min-height: 50px; @max-height: 95px);
         .position(relative);
         margin-bottom: 15px;
-        margin-right: -30px;
+        // margin-right: -30px;
         .font(@weight: 700, @size: 12px);
 
         .wrapper {
             .size(@height: 50px);
-            margin-right: 30px;
             .position(relative);
             float: left;
+            .size(@width: 50%);
+            &:first-child {
+                margin-right: 30px;
+                .size(@width: ~"calc(50% - 30px)");
+            }
         }
 
         .label {
             .size(@width: 110px, @height: 30px);
-            .font(@size: 12px);
+            .font(@size: 13px);
         }
 
         .listSection {
-            .dropDownList(150px, 30px);
+            .dropDownList(~"calc(100% - 110px)", 30px);
 
              .text {
                 .size(@width: ~"calc(100% - 30px)");
@@ -305,33 +348,6 @@ input {
                 .rounded(3px 3px 0 0);
                 .text {
                     .rounded(3px 0 0 0);
-                }
-            }
-        }
-    }
-
-    #udfArgs {
-        &.hidden {
-            display: none;
-        }
-
-        .wrapper {
-            input {
-                &:focus {
-                    outline: none;
-                }
-            }
-            // for #udfArgs-funcList
-            &:last-child {
-                margin-right: 0px;
-                .size(@width: ~"calc(100% - 500px)", @max-width: 430px,
-                      @min-width: 260px);
-
-                .listSection {
-                    .size(@width: ~"calc(100% - 110px)");
-                    input {
-                        cursor: text !important;
-                    }
                 }
             }
         }
