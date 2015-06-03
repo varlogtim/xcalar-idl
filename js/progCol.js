@@ -156,7 +156,6 @@ window.ColManager = (function($, ColManager) {
         while (i <= endingIndex) {
             $table.find(".row" + i + " .col" + (newColid - 1))
                   .after(newCellHTML);
-                  console.log(  $table.find(".row" + i + " .col" + (newColid - 1)));
             i++;
         }
 
@@ -476,6 +475,16 @@ window.ColManager = (function($, ColManager) {
                 tableCols[i].func.args != "")
             {
                 var nested = parseColFuncArgs(tableCols[i].func.args[0]);
+                if (tableCols[i].func.args[0] != "" & tableCols[i].func.args[0] != undefined) {
+                    if (/\\.([0-9])/.test(tableCols[i].func.args[0])) {
+                        // slash followed by dot followed by number is ok
+                        // fall through
+                    } else if (/\.([0-9])/.test(tableCols[i].func.args[0])) {
+                        // dot followed by number is invalid
+                        nested = [""];
+                    }
+                }
+
                 nestedVals.push(nested);
                 // get the column number of the column the table was indexed on
                 if (tableCols[i].func.args && 
@@ -649,9 +658,13 @@ window.ColManager = (function($, ColManager) {
     }
 
     function pullColHelper(key, newColid, tableNum, startIndex, numberOfRows) {
-        if (key == "" || key == undefined || /\.([0-9])/.test(key)) {
-            //check for dot followed by number (invalid)
-            return;
+        if (key != "" & key != undefined) {
+            if (/\\.([0-9])/.test(key)) {
+                // slash followed by dot followed by number is ok
+            } else if (/\.([0-9])/.test(key)) {
+                // dot followed by number is invalid
+                return;
+            }
         }
 
         var $table   = $("#xcTable" + tableNum);

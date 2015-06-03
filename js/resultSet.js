@@ -36,8 +36,7 @@ function freeAllResultSetsSync() {
 
     return (chain(promises));
 }
- magic = 100;
-// function goToPage(pageNumber, direction, tableNum, skipToRow) {
+
 function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
     // rowNumber is checked for validity before calling goToPage()
     var info = info || {};
@@ -65,14 +64,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
         var deferred2 = jQuery.Deferred();
         $table = $('#xcTable'+tableNum);
         prepullTableHeight = $table.height();
-        // var rand = Math.random()* 100;
-       
-        // if (magic < 90) {
-        //     if (rand < 95) {
-        //         jsonData = [];
-        //     }
-            
-        // }
+
         info.numRowsAdded += jsonData.length;
         var numRowsLacking = numRowsToAdd - jsonData.length;
         var position = rowNumber + jsonData.length;
