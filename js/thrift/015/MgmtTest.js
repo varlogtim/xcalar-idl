@@ -1144,6 +1144,44 @@
         });
     }
 
+    function testPyExecOnLoad(deferred, testName, currentTestNumber) {
+	var fs = require('fs');
+
+	var content = fs.read('PyExecOnLoadTest.py');
+
+        xcalarApiUploadPython(thriftHandle, "PyExecOnLoadTest",
+			      "poorManCsvToJson", content)
+        .done(function(uploadPythonOutput) {
+            if (status == StatusT.StatusOk) {
+		loadArgs = new XcalarApiDfLoadArgsT();
+		loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+		loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
+		loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
+		loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
+		loadArgs.csv.isCRLF = false;
+		loadArgs.pyLoadArgs.moduleName = "PyExecOnLoadTest";
+		loadArgs.pyLoadArgs.funcName = "poorManCsvToJson";
+
+		xcalarLoad(thriftHandle, "file:///var/tmp/qa/operatorsTest/movies/movies.csv", "movies", DfFormatTypeT.DfFormatJson, 0, loadArgs)
+	        .done(function(result) {
+		    printResult(result);
+		    loadOutput = result;
+		    origDataset = loadOutput.dataset.name;
+		    pass(deferred, testName, currentTestNumber);
+		})
+		.fail(function(reason) {
+		    fail(deferred, testName, currentTestNumber);
+		});
+            } else {
+                var reason = "status = " + status;
+                fail(deferred, testName, currentTestNumber, reason);
+            }
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
     function testDeleteTable(deferred, testName, currentTestNumber) {
         xcalarDeleteTable(thriftHandle, "yelp/user-votes.funny-map")
         .done(function(status) {
@@ -1279,6 +1317,7 @@
     addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testUploadPython, "upload python", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");
 
 
     // Witness to bug 238

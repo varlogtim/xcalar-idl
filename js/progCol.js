@@ -40,10 +40,8 @@ window.ColManager = (function($, ColManager) {
         return (progCol);
     }
 
-    ColManager.setupProgCols = function(tableNum, tableOfEntries) {
-        var keyName = tableOfEntries.keysAttrHeader.name;
-
-        gTables[tableNum].keyName = keyName;
+    ColManager.setupProgCols = function(tableNum) {
+        var keyName = gTables[tableNum].keyName;
         // We cannot rely on addCol to create a new progCol object because
         // add col relies on gTableCol entry to determine whether or not to add
         // the menus specific to the main key
@@ -456,8 +454,8 @@ window.ColManager = (function($, ColManager) {
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
                                       tableNum, direction, secondPull)
     {
-        var table          = gTables[tableNum];
-        var tableCols      = table.tableCols;
+        var table     = gTables[tableNum];
+        var tableCols = table.tableCols;
 
         // check if already indexed on array and stored the info in gTables
         for (var i = 0; i < tableCols.length; i++) {

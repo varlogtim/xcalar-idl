@@ -10886,59 +10886,60 @@ StatusT = {
   'StatusXdfTypeUnsupported' : 232,
   'StatusXdfDivByZero' : 233,
   'StatusXdfMixedTypeNotSupported' : 234,
-  'StatusKvNotFound' : 235,
-  'StatusXdbSlotPrettyVacant' : 236,
-  'StatusNoDataInXdb' : 237,
-  'StatusXdbNotFound' : 238,
-  'StatusXdbUninitializedCursor' : 239,
-  'StatusQrTaskFailed' : 240,
-  'StatusQrIdNonExist' : 241,
-  'StatusQrJobNonExist' : 242,
-  'StatusApiTaskFailed' : 243,
-  'StatusAlreadyIndexed' : 244,
-  'StatusEvalUnsubstitutedVariables' : 245,
-  'StatusKvDstFull' : 246,
-  'StatusModuleNotInit' : 247,
-  'StatusMaxJoinFieldsExceeded' : 248,
-  'StatusXdbKeyTypeAlreadySet' : 249,
-  'StatusJoinTypeMismatch' : 250,
-  'StatusFailed' : 251,
-  'StatusIllegalFileName' : 252,
-  'StatusEmptyFile' : 253,
-  'StatusEvalStringTooLong' : 254,
-  'StatusTableDeleted' : 255,
-  'StatusFailOpenFile' : 256,
-  'StatusQueryFailed' : 257,
-  'StatusCreateDagNodeFailed' : 258,
-  'StatusAggregateNoSuchField' : 259,
-  'StatusAggregateLocalFnNeedArgument' : 260,
-  'StatusAggregateAccNotInited' : 261,
-  'StatusAggregateReturnValueNotScalar' : 262,
-  'StatusNsMaximumObjectsReached' : 263,
-  'StatusNsObjInUse' : 264,
-  'StatusNsInvalidObjName' : 265,
-  'StatusNsNotFound' : 266,
-  'StatusDagNodeNotFound' : 267,
-  'StatusUpdateDagNodeOperationNotSupported' : 268,
-  'StatusMsgMaxPayloadExceeded' : 269,
-  'StatusKvEntryNotFound' : 270,
-  'StatusStatsCouldNotGetMemUsedInfo' : 271,
-  'StatusStatusFieldNotInited' : 272,
-  'StatusAggNoSuchFunction' : 273,
-  'StatusPyExecFailure' : 274,
-  'StatusPyExecNotEnoughMem' : 275,
-  'StatusWaitKeyTimeout' : 276,
-  'StatusVariableNameTooLong' : 277,
-  'StatusPyExecNotEnoughArguments' : 278,
-  'StatusPyExecFunctionNotCallable' : 279,
-  'StatusPyExecInvalidParameter' : 280,
-  'StatusPyEmptyValueReturnedFromPyExecFunction' : 281,
-  'StatusPyInterpreterNotInitialized' : 282,
-  'StatusPyInterpreterAlreadyInitialized' : 283,
-  'StatusPyFailedToImportModule' : 284,
-  'StatusPyFilterFunctionNotCallable' : 285,
-  'StatusPyFilterRecordInvalidParameter' : 286,
-  'StatusPyEmptyValueReturnedFromFilterFunction' : 287
+  'StatusXdfAggregateOverflow' : 235,
+  'StatusKvNotFound' : 236,
+  'StatusXdbSlotPrettyVacant' : 237,
+  'StatusNoDataInXdb' : 238,
+  'StatusXdbNotFound' : 239,
+  'StatusXdbUninitializedCursor' : 240,
+  'StatusQrTaskFailed' : 241,
+  'StatusQrIdNonExist' : 242,
+  'StatusQrJobNonExist' : 243,
+  'StatusApiTaskFailed' : 244,
+  'StatusAlreadyIndexed' : 245,
+  'StatusEvalUnsubstitutedVariables' : 246,
+  'StatusKvDstFull' : 247,
+  'StatusModuleNotInit' : 248,
+  'StatusMaxJoinFieldsExceeded' : 249,
+  'StatusXdbKeyTypeAlreadySet' : 250,
+  'StatusJoinTypeMismatch' : 251,
+  'StatusFailed' : 252,
+  'StatusIllegalFileName' : 253,
+  'StatusEmptyFile' : 254,
+  'StatusEvalStringTooLong' : 255,
+  'StatusTableDeleted' : 256,
+  'StatusFailOpenFile' : 257,
+  'StatusQueryFailed' : 258,
+  'StatusCreateDagNodeFailed' : 259,
+  'StatusAggregateNoSuchField' : 260,
+  'StatusAggregateLocalFnNeedArgument' : 261,
+  'StatusAggregateAccNotInited' : 262,
+  'StatusAggregateReturnValueNotScalar' : 263,
+  'StatusNsMaximumObjectsReached' : 264,
+  'StatusNsObjInUse' : 265,
+  'StatusNsInvalidObjName' : 266,
+  'StatusNsNotFound' : 267,
+  'StatusDagNodeNotFound' : 268,
+  'StatusUpdateDagNodeOperationNotSupported' : 269,
+  'StatusMsgMaxPayloadExceeded' : 270,
+  'StatusKvEntryNotFound' : 271,
+  'StatusStatsCouldNotGetMemUsedInfo' : 272,
+  'StatusStatusFieldNotInited' : 273,
+  'StatusAggNoSuchFunction' : 274,
+  'StatusPyExecFailure' : 275,
+  'StatusPyExecNotEnoughMem' : 276,
+  'StatusWaitKeyTimeout' : 277,
+  'StatusVariableNameTooLong' : 278,
+  'StatusPyExecNotEnoughArguments' : 279,
+  'StatusPyExecFunctionNotCallable' : 280,
+  'StatusPyExecInvalidParameter' : 281,
+  'StatusPyEmptyValueReturnedFromPyExecFunction' : 282,
+  'StatusPyInterpreterNotInitialized' : 283,
+  'StatusPyInterpreterAlreadyInitialized' : 284,
+  'StatusPyFailedToImportModule' : 285,
+  'StatusPyFilterFunctionNotCallable' : 286,
+  'StatusPyFilterRecordInvalidParameter' : 287,
+  'StatusPyEmptyValueReturnedFromFilterFunction' : 288
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -11175,59 +11176,60 @@ StatusTStr = {0 : 'Success',
 232 : 'Operation is not supported on input type',
 233 : 'Divide by zero error',
 234 : 'Mixed type is not supported in this xdf',
-235 : 'KV not found in table',
-236 : 'Listen to: Pretty Vacant by Sex Pistols',
-237 : 'Xdb is vacant',
-238 : 'Stale XdbHandle, Xdb not found',
-239 : 'Xdb cursor is uninitialized',
-240 : 'Task(s) failed',
-241 : 'The query ID is not existed',
-242 : 'There is no query job associate with this ID',
-243 : 'API Task Failed',
-244 : 'The source table is already indexed by the specified key',
-245 : 'Some variables are undefined during evaluation',
-246 : 'The destination key/value buffer was full',
-247 : 'The module is not initialized yet',
-248 : 'Maximum number of joined values exceeded',
-249 : 'Xdb key type is already set',
-250 : 'Joins may only be performed on tables with the same key type',
-251 : 'Failed',
-252 : 'FileName entered is illegal',
-253 : 'File contents are empty',
-254 : 'Eval string entered is too long',
-255 : 'Table has been deleted',
-256 : 'Cant open the file',
-257 : 'Query failed',
-258 : 'Failed to create a Dag Node',
-259 : 'No such field found while running aggregate',
-260 : 'Local function requires argument',
-261 : 'Accumulator is not inited',
-262 : 'Return value of aggregate is not a scalar',
-263 : 'Maximum number of tables and datasets reached',
-264 : 'Table or dataset is in use',
-265 : 'Bad table or dataset name',
-266 : 'Table or dataset not found',
-267 : 'Could not find dag node',
-268 : 'Update operation not supported',
-269 : 'Message response size would exceed maximum message payload size',
-270 : 'The requested key was not found',
-271 : 'Could not get amount of memory consumed',
-272 : 'No valid status received!',
-273 : 'No such aggregate operator!',
-274 : 'Some weird pyexec failure',
-275 : 'ran out of memory',
-276 : 'timed out waiting for table key type to resolve',
-277 : 'Variable name in evalString too long',
-278 : 'Not enough arguments for pyExec',
-279 : 'The pyExec function being provided is not callable',
-280 : 'Parameter being passed into the pyExec function is not valid',
-281 : 'The return value from pyExec function is empty',
-282 : 'Python interpreter has not initialized yet',
-283 : 'Python interpreter has already initialized',
-284 : 'Failed to import the module file being provided',
-285 : 'The filter function being provided is not callable',
-286 : 'Parameter being passed into the filter function is not valid',
-287 : 'The return value from filter function is empty'
+235 : 'Aggregate output has insufficient size to store the result',
+236 : 'KV not found in table',
+237 : 'Listen to: Pretty Vacant by Sex Pistols',
+238 : 'Xdb is vacant',
+239 : 'Stale XdbHandle, Xdb not found',
+240 : 'Xdb cursor is uninitialized',
+241 : 'Task(s) failed',
+242 : 'The query ID is not existed',
+243 : 'There is no query job associate with this ID',
+244 : 'API Task Failed',
+245 : 'The source table is already indexed by the specified key',
+246 : 'Some variables are undefined during evaluation',
+247 : 'The destination key/value buffer was full',
+248 : 'The module is not initialized yet',
+249 : 'Maximum number of joined values exceeded',
+250 : 'Xdb key type is already set',
+251 : 'Joins may only be performed on tables with the same key type',
+252 : 'Failed',
+253 : 'FileName entered is illegal',
+254 : 'File contents are empty',
+255 : 'Eval string entered is too long',
+256 : 'Table has been deleted',
+257 : 'Cant open the file',
+258 : 'Query failed',
+259 : 'Failed to create a Dag Node',
+260 : 'No such field found while running aggregate',
+261 : 'Local function requires argument',
+262 : 'Accumulator is not inited',
+263 : 'Return value of aggregate is not a scalar',
+264 : 'Maximum number of tables and datasets reached',
+265 : 'Table or dataset is in use',
+266 : 'Bad table or dataset name',
+267 : 'Table or dataset not found',
+268 : 'Could not find dag node',
+269 : 'Update operation not supported',
+270 : 'Message response size would exceed maximum message payload size',
+271 : 'The requested key was not found',
+272 : 'Could not get amount of memory consumed',
+273 : 'No valid status received!',
+274 : 'No such aggregate operator!',
+275 : 'Some weird pyexec failure',
+276 : 'ran out of memory',
+277 : 'timed out waiting for table key type to resolve',
+278 : 'Variable name in evalString too long',
+279 : 'Not enough arguments for pyExec',
+280 : 'The pyExec function being provided is not callable',
+281 : 'Parameter being passed into the pyExec function is not valid',
+282 : 'The return value from pyExec function is empty',
+283 : 'Python interpreter has not initialized yet',
+284 : 'Python interpreter has already initialized',
+285 : 'Failed to import the module file being provided',
+286 : 'The filter function being provided is not callable',
+287 : 'Parameter being passed into the filter function is not valid',
+288 : 'The return value from filter function is empty'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11237,9 +11239,9 @@ StatusTStr = {0 : 'Success',
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 55332440
+  'XcalarApiVersionSignature' : 82894742
 };
-XcalarApiVersionTStr = {55332440 : '34c4e58a9c9531b670f6c065a3358dcd'
+XcalarApiVersionTStr = {82894742 : '4f0df9655ef70749d28f29b48673186d'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11455,20 +11457,6 @@ JoinOperatorTStr = {0 : 'innerJoin',
 1 : 'leftJoin',
 2 : 'rightJoin',
 3 : 'fullOuterJoin'
-};
-//
-// Autogenerated by Thrift Compiler (0.9.2)
-//
-// DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
-//
-
-
-GenericTypesRecordTypeT = {
-  'GenericTypesFixedSize' : 0,
-  'GenericTypesVariableSize' : 1
-};
-GenericTypesRecordTypeTStr = {0 : 'GenericTypesFixedSize',
-1 : 'GenericTypesVariableSize'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11816,343 +11804,6 @@ DfFieldAttrHeaderT.prototype.write = function(output) {
   return;
 };
 
-KeyValuePairFixedT = function(args) {
-  this.key = null;
-  this.value = null;
-  if (args) {
-    if (args.key !== undefined) {
-      this.key = args.key;
-    }
-    if (args.value !== undefined) {
-      this.value = args.value;
-    }
-  }
-};
-KeyValuePairFixedT.prototype = {};
-KeyValuePairFixedT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.I64) {
-        this.key = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.value = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-KeyValuePairFixedT.prototype.write = function(output) {
-  output.writeStructBegin('KeyValuePairFixedT');
-  if (this.key !== null && this.key !== undefined) {
-    output.writeFieldBegin('key', Thrift.Type.I64, 1);
-    output.writeI64(this.key);
-    output.writeFieldEnd();
-  }
-  if (this.value !== null && this.value !== undefined) {
-    output.writeFieldBegin('value', Thrift.Type.I64, 2);
-    output.writeI64(this.value);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-KeyValuePairVariableT = function(args) {
-  this.key = null;
-  this.valueSize = null;
-  this.value = null;
-  if (args) {
-    if (args.key !== undefined) {
-      this.key = args.key;
-    }
-    if (args.valueSize !== undefined) {
-      this.valueSize = args.valueSize;
-    }
-    if (args.value !== undefined) {
-      this.value = args.value;
-    }
-  }
-};
-KeyValuePairVariableT.prototype = {};
-KeyValuePairVariableT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.I64) {
-        this.key = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.valueSize = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.STRING) {
-        this.value = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-KeyValuePairVariableT.prototype.write = function(output) {
-  output.writeStructBegin('KeyValuePairVariableT');
-  if (this.key !== null && this.key !== undefined) {
-    output.writeFieldBegin('key', Thrift.Type.I64, 1);
-    output.writeI64(this.key);
-    output.writeFieldEnd();
-  }
-  if (this.valueSize !== null && this.valueSize !== undefined) {
-    output.writeFieldBegin('valueSize', Thrift.Type.I64, 2);
-    output.writeI64(this.valueSize);
-    output.writeFieldEnd();
-  }
-  if (this.value !== null && this.value !== undefined) {
-    output.writeFieldBegin('value', Thrift.Type.STRING, 3);
-    output.writeString(this.value);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-KeyValuePairT = function(args) {
-  this.kvPairFixed = null;
-  this.kvPairVariable = null;
-  if (args) {
-    if (args.kvPairFixed !== undefined) {
-      this.kvPairFixed = args.kvPairFixed;
-    }
-    if (args.kvPairVariable !== undefined) {
-      this.kvPairVariable = args.kvPairVariable;
-    }
-  }
-};
-KeyValuePairT.prototype = {};
-KeyValuePairT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.kvPairFixed = new KeyValuePairFixedT();
-        this.kvPairFixed.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.kvPairVariable = new KeyValuePairVariableT();
-        this.kvPairVariable.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-KeyValuePairT.prototype.write = function(output) {
-  output.writeStructBegin('KeyValuePairT');
-  if (this.kvPairFixed !== null && this.kvPairFixed !== undefined) {
-    output.writeFieldBegin('kvPairFixed', Thrift.Type.STRUCT, 1);
-    this.kvPairFixed.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.kvPairVariable !== null && this.kvPairVariable !== undefined) {
-    output.writeFieldBegin('kvPairVariable', Thrift.Type.STRUCT, 2);
-    this.kvPairVariable.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-KeyValuePairsT = function(args) {
-  this.recordType = null;
-  this.totalRecordsSize = null;
-  this.numRecords = null;
-  this.records = null;
-  if (args) {
-    if (args.recordType !== undefined) {
-      this.recordType = args.recordType;
-    }
-    if (args.totalRecordsSize !== undefined) {
-      this.totalRecordsSize = args.totalRecordsSize;
-    }
-    if (args.numRecords !== undefined) {
-      this.numRecords = args.numRecords;
-    }
-    if (args.records !== undefined) {
-      this.records = args.records;
-    }
-  }
-};
-KeyValuePairsT.prototype = {};
-KeyValuePairsT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.recordType = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.totalRecordsSize = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.I32) {
-        this.numRecords = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 4:
-      if (ftype == Thrift.Type.LIST) {
-        var _size8 = 0;
-        var _rtmp312;
-        this.records = [];
-        var _etype11 = 0;
-        _rtmp312 = input.readListBegin();
-        _etype11 = _rtmp312.etype;
-        _size8 = _rtmp312.size;
-        for (var _i13 = 0; _i13 < _size8; ++_i13)
-        {
-          var elem14 = null;
-          elem14 = new KeyValuePairT();
-          elem14.read(input);
-          this.records.push(elem14);
-        }
-        input.readListEnd();
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-KeyValuePairsT.prototype.write = function(output) {
-  output.writeStructBegin('KeyValuePairsT');
-  if (this.recordType !== null && this.recordType !== undefined) {
-    output.writeFieldBegin('recordType', Thrift.Type.I32, 1);
-    output.writeI32(this.recordType);
-    output.writeFieldEnd();
-  }
-  if (this.totalRecordsSize !== null && this.totalRecordsSize !== undefined) {
-    output.writeFieldBegin('totalRecordsSize', Thrift.Type.I64, 2);
-    output.writeI64(this.totalRecordsSize);
-    output.writeFieldEnd();
-  }
-  if (this.numRecords !== null && this.numRecords !== undefined) {
-    output.writeFieldBegin('numRecords', Thrift.Type.I32, 3);
-    output.writeI32(this.numRecords);
-    output.writeFieldEnd();
-  }
-  if (this.records !== null && this.records !== undefined) {
-    output.writeFieldBegin('records', Thrift.Type.LIST, 4);
-    output.writeListBegin(Thrift.Type.STRUCT, this.records.length);
-    for (var iter15 in this.records)
-    {
-      if (this.records.hasOwnProperty(iter15))
-      {
-        iter15 = this.records[iter15];
-        iter15.write(output);
-      }
-    }
-    output.writeListEnd();
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 XcalarApiFileAttrT = function(args) {
   this.isDirectory = null;
   this.size = null;
@@ -12385,19 +12036,19 @@ XcalarApiListFilesOutputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size16 = 0;
-        var _rtmp320;
+        var _size8 = 0;
+        var _rtmp312;
         this.files = [];
-        var _etype19 = 0;
-        _rtmp320 = input.readListBegin();
-        _etype19 = _rtmp320.etype;
-        _size16 = _rtmp320.size;
-        for (var _i21 = 0; _i21 < _size16; ++_i21)
+        var _etype11 = 0;
+        _rtmp312 = input.readListBegin();
+        _etype11 = _rtmp312.etype;
+        _size8 = _rtmp312.size;
+        for (var _i13 = 0; _i13 < _size8; ++_i13)
         {
-          var elem22 = null;
-          elem22 = new XcalarApiFileT();
-          elem22.read(input);
-          this.files.push(elem22);
+          var elem14 = null;
+          elem14 = new XcalarApiFileT();
+          elem14.read(input);
+          this.files.push(elem14);
         }
         input.readListEnd();
       } else {
@@ -12428,12 +12079,12 @@ XcalarApiListFilesOutputT.prototype.write = function(output) {
   if (this.files !== null && this.files !== undefined) {
     output.writeFieldBegin('files', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRUCT, this.files.length);
-    for (var iter23 in this.files)
+    for (var iter15 in this.files)
     {
-      if (this.files.hasOwnProperty(iter23))
+      if (this.files.hasOwnProperty(iter15))
       {
-        iter23 = this.files[iter23];
-        iter23.write(output);
+        iter15 = this.files[iter15];
+        iter15.write(output);
       }
     }
     output.writeListEnd();
@@ -12638,19 +12289,19 @@ XcalarApiListXdfsOutputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size24 = 0;
-        var _rtmp328;
+        var _size16 = 0;
+        var _rtmp320;
         this.fnDescs = [];
-        var _etype27 = 0;
-        _rtmp328 = input.readListBegin();
-        _etype27 = _rtmp328.etype;
-        _size24 = _rtmp328.size;
-        for (var _i29 = 0; _i29 < _size24; ++_i29)
+        var _etype19 = 0;
+        _rtmp320 = input.readListBegin();
+        _etype19 = _rtmp320.etype;
+        _size16 = _rtmp320.size;
+        for (var _i21 = 0; _i21 < _size16; ++_i21)
         {
-          var elem30 = null;
-          elem30 = new XcalarEvalFnDescT();
-          elem30.read(input);
-          this.fnDescs.push(elem30);
+          var elem22 = null;
+          elem22 = new XcalarEvalFnDescT();
+          elem22.read(input);
+          this.fnDescs.push(elem22);
         }
         input.readListEnd();
       } else {
@@ -12681,12 +12332,12 @@ XcalarApiListXdfsOutputT.prototype.write = function(output) {
   if (this.fnDescs !== null && this.fnDescs !== undefined) {
     output.writeFieldBegin('fnDescs', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRUCT, this.fnDescs.length);
-    for (var iter31 in this.fnDescs)
+    for (var iter23 in this.fnDescs)
     {
-      if (this.fnDescs.hasOwnProperty(iter31))
+      if (this.fnDescs.hasOwnProperty(iter23))
       {
-        iter31 = this.fnDescs[iter31];
-        iter31.write(output);
+        iter23 = this.fnDescs[iter23];
+        iter23.write(output);
       }
     }
     output.writeListEnd();
@@ -15028,19 +14679,19 @@ XcalarApiListParametersInRetinaOutputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size32 = 0;
-        var _rtmp336;
+        var _size24 = 0;
+        var _rtmp328;
         this.parameters = [];
-        var _etype35 = 0;
-        _rtmp336 = input.readListBegin();
-        _etype35 = _rtmp336.etype;
-        _size32 = _rtmp336.size;
-        for (var _i37 = 0; _i37 < _size32; ++_i37)
+        var _etype27 = 0;
+        _rtmp328 = input.readListBegin();
+        _etype27 = _rtmp328.etype;
+        _size24 = _rtmp328.size;
+        for (var _i29 = 0; _i29 < _size24; ++_i29)
         {
-          var elem38 = null;
-          elem38 = new XcalarApiParameterT();
-          elem38.read(input);
-          this.parameters.push(elem38);
+          var elem30 = null;
+          elem30 = new XcalarApiParameterT();
+          elem30.read(input);
+          this.parameters.push(elem30);
         }
         input.readListEnd();
       } else {
@@ -15071,12 +14722,12 @@ XcalarApiListParametersInRetinaOutputT.prototype.write = function(output) {
   if (this.parameters !== null && this.parameters !== undefined) {
     output.writeFieldBegin('parameters', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRUCT, this.parameters.length);
-    for (var iter39 in this.parameters)
+    for (var iter31 in this.parameters)
     {
-      if (this.parameters.hasOwnProperty(iter39))
+      if (this.parameters.hasOwnProperty(iter31))
       {
-        iter39 = this.parameters[iter39];
-        iter39.write(output);
+        iter31 = this.parameters[iter31];
+        iter31.write(output);
       }
     }
     output.writeListEnd();
@@ -15166,19 +14817,19 @@ XcalarApiExecuteRetinaInputT.prototype.read = function(input) {
       break;
       case 6:
       if (ftype == Thrift.Type.LIST) {
-        var _size40 = 0;
-        var _rtmp344;
+        var _size32 = 0;
+        var _rtmp336;
         this.parameters = [];
-        var _etype43 = 0;
-        _rtmp344 = input.readListBegin();
-        _etype43 = _rtmp344.etype;
-        _size40 = _rtmp344.size;
-        for (var _i45 = 0; _i45 < _size40; ++_i45)
+        var _etype35 = 0;
+        _rtmp336 = input.readListBegin();
+        _etype35 = _rtmp336.etype;
+        _size32 = _rtmp336.size;
+        for (var _i37 = 0; _i37 < _size32; ++_i37)
         {
-          var elem46 = null;
-          elem46 = new XcalarApiParameterT();
-          elem46.read(input);
-          this.parameters.push(elem46);
+          var elem38 = null;
+          elem38 = new XcalarApiParameterT();
+          elem38.read(input);
+          this.parameters.push(elem38);
         }
         input.readListEnd();
       } else {
@@ -15224,12 +14875,12 @@ XcalarApiExecuteRetinaInputT.prototype.write = function(output) {
   if (this.parameters !== null && this.parameters !== undefined) {
     output.writeFieldBegin('parameters', Thrift.Type.LIST, 6);
     output.writeListBegin(Thrift.Type.STRUCT, this.parameters.length);
-    for (var iter47 in this.parameters)
+    for (var iter39 in this.parameters)
     {
-      if (this.parameters.hasOwnProperty(iter47))
+      if (this.parameters.hasOwnProperty(iter39))
       {
-        iter47 = this.parameters[iter47];
-        iter47.write(output);
+        iter39 = this.parameters[iter39];
+        iter39.write(output);
       }
     }
     output.writeListEnd();
@@ -15286,19 +14937,19 @@ XcalarApiGetStatOutputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size48 = 0;
-        var _rtmp352;
+        var _size40 = 0;
+        var _rtmp344;
         this.stats = [];
-        var _etype51 = 0;
-        _rtmp352 = input.readListBegin();
-        _etype51 = _rtmp352.etype;
-        _size48 = _rtmp352.size;
-        for (var _i53 = 0; _i53 < _size48; ++_i53)
+        var _etype43 = 0;
+        _rtmp344 = input.readListBegin();
+        _etype43 = _rtmp344.etype;
+        _size40 = _rtmp344.size;
+        for (var _i45 = 0; _i45 < _size40; ++_i45)
         {
-          var elem54 = null;
-          elem54 = new XcalarApiStatT();
-          elem54.read(input);
-          this.stats.push(elem54);
+          var elem46 = null;
+          elem46 = new XcalarApiStatT();
+          elem46.read(input);
+          this.stats.push(elem46);
         }
         input.readListEnd();
       } else {
@@ -15329,12 +14980,12 @@ XcalarApiGetStatOutputT.prototype.write = function(output) {
   if (this.stats !== null && this.stats !== undefined) {
     output.writeFieldBegin('stats', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRUCT, this.stats.length);
-    for (var iter55 in this.stats)
+    for (var iter47 in this.stats)
     {
-      if (this.stats.hasOwnProperty(iter55))
+      if (this.stats.hasOwnProperty(iter47))
       {
-        iter55 = this.stats[iter55];
-        iter55.write(output);
+        iter47 = this.stats[iter47];
+        iter47.write(output);
       }
     }
     output.writeListEnd();
@@ -15391,18 +15042,18 @@ XcalarApiStatByGroupIdInputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size56 = 0;
-        var _rtmp360;
+        var _size48 = 0;
+        var _rtmp352;
         this.groupId = [];
-        var _etype59 = 0;
-        _rtmp360 = input.readListBegin();
-        _etype59 = _rtmp360.etype;
-        _size56 = _rtmp360.size;
-        for (var _i61 = 0; _i61 < _size56; ++_i61)
+        var _etype51 = 0;
+        _rtmp352 = input.readListBegin();
+        _etype51 = _rtmp352.etype;
+        _size48 = _rtmp352.size;
+        for (var _i53 = 0; _i53 < _size48; ++_i53)
         {
-          var elem62 = null;
-          elem62 = input.readI64().value;
-          this.groupId.push(elem62);
+          var elem54 = null;
+          elem54 = input.readI64().value;
+          this.groupId.push(elem54);
         }
         input.readListEnd();
       } else {
@@ -15433,12 +15084,12 @@ XcalarApiStatByGroupIdInputT.prototype.write = function(output) {
   if (this.groupId !== null && this.groupId !== undefined) {
     output.writeFieldBegin('groupId', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.I64, this.groupId.length);
-    for (var iter63 in this.groupId)
+    for (var iter55 in this.groupId)
     {
-      if (this.groupId.hasOwnProperty(iter63))
+      if (this.groupId.hasOwnProperty(iter55))
       {
-        iter63 = this.groupId[iter63];
-        output.writeI64(iter63);
+        iter55 = this.groupId[iter55];
+        output.writeI64(iter55);
       }
     }
     output.writeListEnd();
@@ -15701,18 +15352,18 @@ XcalarApiGetStatGroupIdMapOutputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size64 = 0;
-        var _rtmp368;
+        var _size56 = 0;
+        var _rtmp360;
         this.groupName = [];
-        var _etype67 = 0;
-        _rtmp368 = input.readListBegin();
-        _etype67 = _rtmp368.etype;
-        _size64 = _rtmp368.size;
-        for (var _i69 = 0; _i69 < _size64; ++_i69)
+        var _etype59 = 0;
+        _rtmp360 = input.readListBegin();
+        _etype59 = _rtmp360.etype;
+        _size56 = _rtmp360.size;
+        for (var _i61 = 0; _i61 < _size56; ++_i61)
         {
-          var elem70 = null;
-          elem70 = input.readString().value;
-          this.groupName.push(elem70);
+          var elem62 = null;
+          elem62 = input.readString().value;
+          this.groupName.push(elem62);
         }
         input.readListEnd();
       } else {
@@ -15743,12 +15394,12 @@ XcalarApiGetStatGroupIdMapOutputT.prototype.write = function(output) {
   if (this.groupName !== null && this.groupName !== undefined) {
     output.writeFieldBegin('groupName', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRING, this.groupName.length);
-    for (var iter71 in this.groupName)
+    for (var iter63 in this.groupName)
     {
-      if (this.groupName.hasOwnProperty(iter71))
+      if (this.groupName.hasOwnProperty(iter63))
       {
-        iter71 = this.groupName[iter71];
-        output.writeString(iter71);
+        iter63 = this.groupName[iter63];
+        output.writeString(iter63);
       }
     }
     output.writeListEnd();
@@ -15805,18 +15456,18 @@ XcalarApiCountOutputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size72 = 0;
-        var _rtmp376;
+        var _size64 = 0;
+        var _rtmp368;
         this.counts = [];
-        var _etype75 = 0;
-        _rtmp376 = input.readListBegin();
-        _etype75 = _rtmp376.etype;
-        _size72 = _rtmp376.size;
-        for (var _i77 = 0; _i77 < _size72; ++_i77)
+        var _etype67 = 0;
+        _rtmp368 = input.readListBegin();
+        _etype67 = _rtmp368.etype;
+        _size64 = _rtmp368.size;
+        for (var _i69 = 0; _i69 < _size64; ++_i69)
         {
-          var elem78 = null;
-          elem78 = input.readI64().value;
-          this.counts.push(elem78);
+          var elem70 = null;
+          elem70 = input.readI64().value;
+          this.counts.push(elem70);
         }
         input.readListEnd();
       } else {
@@ -15847,12 +15498,12 @@ XcalarApiCountOutputT.prototype.write = function(output) {
   if (this.counts !== null && this.counts !== undefined) {
     output.writeFieldBegin('counts', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.I64, this.counts.length);
-    for (var iter79 in this.counts)
+    for (var iter71 in this.counts)
     {
-      if (this.counts.hasOwnProperty(iter79))
+      if (this.counts.hasOwnProperty(iter71))
       {
-        iter79 = this.counts[iter79];
-        output.writeI64(iter79);
+        iter71 = this.counts[iter71];
+        output.writeI64(iter71);
       }
     }
     output.writeListEnd();
@@ -15867,6 +15518,7 @@ XcalarApiMakeResultSetOutputT = function(args) {
   this.status = null;
   this.resultSetId = null;
   this.numEntries = null;
+  this.keyAttrHeader = null;
   if (args) {
     if (args.status !== undefined) {
       this.status = args.status;
@@ -15876,6 +15528,9 @@ XcalarApiMakeResultSetOutputT = function(args) {
     }
     if (args.numEntries !== undefined) {
       this.numEntries = args.numEntries;
+    }
+    if (args.keyAttrHeader !== undefined) {
+      this.keyAttrHeader = args.keyAttrHeader;
     }
   }
 };
@@ -15914,6 +15569,14 @@ XcalarApiMakeResultSetOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 4:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.keyAttrHeader = new DfFieldAttrHeaderT();
+        this.keyAttrHeader.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -15940,6 +15603,11 @@ XcalarApiMakeResultSetOutputT.prototype.write = function(output) {
     output.writeI64(this.numEntries);
     output.writeFieldEnd();
   }
+  if (this.keyAttrHeader !== null && this.keyAttrHeader !== undefined) {
+    output.writeFieldBegin('keyAttrHeader', Thrift.Type.STRUCT, 4);
+    this.keyAttrHeader.write(output);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -15947,17 +15615,17 @@ XcalarApiMakeResultSetOutputT.prototype.write = function(output) {
 
 XcalarApiResultSetNextOutputT = function(args) {
   this.status = null;
-  this.keysAttrHeader = null;
-  this.kvPairs = null;
+  this.numKvPairs = null;
+  this.kvPair = null;
   if (args) {
     if (args.status !== undefined) {
       this.status = args.status;
     }
-    if (args.keysAttrHeader !== undefined) {
-      this.keysAttrHeader = args.keysAttrHeader;
+    if (args.numKvPairs !== undefined) {
+      this.numKvPairs = args.numKvPairs;
     }
-    if (args.kvPairs !== undefined) {
-      this.kvPairs = args.kvPairs;
+    if (args.kvPair !== undefined) {
+      this.kvPair = args.kvPair;
     }
   }
 };
@@ -15983,17 +15651,29 @@ XcalarApiResultSetNextOutputT.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.keysAttrHeader = new DfFieldAttrHeaderT();
-        this.keysAttrHeader.read(input);
+      if (ftype == Thrift.Type.I64) {
+        this.numKvPairs = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.kvPairs = new KeyValuePairsT();
-        this.kvPairs.read(input);
+      if (ftype == Thrift.Type.LIST) {
+        var _size72 = 0;
+        var _rtmp376;
+        this.kvPair = [];
+        var _etype75 = 0;
+        _rtmp376 = input.readListBegin();
+        _etype75 = _rtmp376.etype;
+        _size72 = _rtmp376.size;
+        for (var _i77 = 0; _i77 < _size72; ++_i77)
+        {
+          var elem78 = null;
+          elem78 = new XcalarApiKeyValuePairT();
+          elem78.read(input);
+          this.kvPair.push(elem78);
+        }
+        input.readListEnd();
       } else {
         input.skip(ftype);
       }
@@ -16014,14 +15694,23 @@ XcalarApiResultSetNextOutputT.prototype.write = function(output) {
     output.writeI32(this.status);
     output.writeFieldEnd();
   }
-  if (this.keysAttrHeader !== null && this.keysAttrHeader !== undefined) {
-    output.writeFieldBegin('keysAttrHeader', Thrift.Type.STRUCT, 2);
-    this.keysAttrHeader.write(output);
+  if (this.numKvPairs !== null && this.numKvPairs !== undefined) {
+    output.writeFieldBegin('numKvPairs', Thrift.Type.I64, 2);
+    output.writeI64(this.numKvPairs);
     output.writeFieldEnd();
   }
-  if (this.kvPairs !== null && this.kvPairs !== undefined) {
-    output.writeFieldBegin('kvPairs', Thrift.Type.STRUCT, 3);
-    this.kvPairs.write(output);
+  if (this.kvPair !== null && this.kvPair !== undefined) {
+    output.writeFieldBegin('kvPair', Thrift.Type.LIST, 3);
+    output.writeListBegin(Thrift.Type.STRUCT, this.kvPair.length);
+    for (var iter79 in this.kvPair)
+    {
+      if (this.kvPair.hasOwnProperty(iter79))
+      {
+        iter79 = this.kvPair[iter79];
+        iter79.write(output);
+      }
+    }
+    output.writeListEnd();
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -19190,9 +18879,9 @@ XcalarApiDefaultFieldDelimT = '\t';
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 55332440
+  'XcalarApiVersionSignature' : 82894742
 };
-XcalarApiVersionTStr = {55332440 : '34c4e58a9c9531b670f6c065a3358dcd'
+XcalarApiVersionTStr = {82894742 : '4f0df9655ef70749d28f29b48673186d'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -21584,24 +21273,13 @@ function xcalarApiUploadPython(thriftHandle, moduleName, funcName, pythonStr) {
             .done(function(resultNextOutput1) {
                 printResult(resultNextOutput1);
 
-                var recordType = resultNextOutput1.kvPairs.recordType;
+                for (var i = 0, kvPair = null; i < resultNextOutput1.numEntries; i ++) {
+                    kvPair = resultNextOutput1.entries[i];
 
-                for (var i = 0, kvPair = null; i < resultNextOutput1.kvPairs.numRecords; i ++) {
-                    kvPair = resultNextOutput1.kvPairs.records[i];
-
-                    if (recordType === GenericTypesRecordTypeT.GenericTypesFixedSize) {
-                        console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.kvPairFixed.key.toString());
-                        console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.kvPairFixed.value.toString());
-                    } else {
-                        console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.kvPairVariable.key.toString());
-                        console.log("\trecord[" + i.toString() + "].valueSize = " +
-                                kvPair.kvPairVariable.valueSize.toString());
-                        console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.kvPairVariable.value);
-                    }
+                    console.log("\trecord[" + i.toString() + "].key = " +
+                                kvPair.key);
+                    console.log("\trecord[" + i.toString() + "].value = " +
+                                kvPair.value);
                 }
                 pass(deferred, testName, currentTestNumber);
             })
@@ -21638,23 +21316,12 @@ function xcalarApiUploadPython(thriftHandle, moduleName, funcName, pythonStr) {
             .done(function(resultNextOutput2) {
                 printResult(resultNextOutput2);
 
-                var recordType = resultNextOutput2.kvPairs.recordType;
-
-                for (var i = 0, kvPair = null; i < resultNextOutput2.kvPairs.numRecords; i ++) {
-                    kvPair = resultNextOutput2.kvPairs.records[i];
-                    if (recordType == GenericTypesRecordTypeT.GenericTypesFixedSize) {
-                        console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.kvPairFixed.key.toString());
-                        console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.kvPairFixed.value.toString());
-                    } else {
-                        console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.kvPairVariable.key.toString());
-                        console.log("\trecord[" + i.toString() + "].valueSize = " +
-                                kvPair.kvPairVariable.valueSize.toString());
-                        console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.kvPairVariable.value);
-                    }
+                for (var i = 0, kvPair = null; i < resultNextOutput2.numEntries; i ++) {
+                    kvPair = resultNextOutput2.entries[i];
+                    console.log("\trecord[" + i.toString() + "].key = " +
+                                kvPair.key);
+                    console.log("\trecord[" + i.toString() + "].value = " +
+                                kvPair.value);
                 }
                 pass(deferred, testName, currentTestNumber);
             })

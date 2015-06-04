@@ -224,40 +224,34 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
    
     XcalarGetNextPage(resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {
-        var keyName = tableOfEntries.keysAttrHeader.name;
-        var kvPairs = tableOfEntries.kvPairs;
+        var keyName = gTables[tableNum].keyName;
+        var kvPairs = tableOfEntries.kvPair;
+        var numKvPairs = tableOfEntries.numKvPairs;
 
-        if (kvPairs.numRecords < gNumEntriesPerPage) {
+        if (numKvPairs < gNumEntriesPerPage) {
             resultSetId = 0;
         }
         if (notIndexed) {
-            ColManager.setupProgCols(tableNum, tableOfEntries);
+            ColManager.setupProgCols(tableNum);
         }
 
-        var numRows     = Math.min(numRowsToFetch, kvPairs.numRecords);
+        var numRows     = Math.min(numRowsToFetch, numKvPairs);
         var jsonNormal  = [];
         var jsonWithKey = [];
-        var records     = kvPairs.records;
+        var index;
+        var key;
+        var value;
+        var newValue;
 
-        for (var i = 0; i<numRows; i++) {
-            var index = (direction === 1) ? (numRows - 1 - i) : i;
-            var key;
-            var value;
-
-            if (kvPairs.recordType ===
-                GenericTypesRecordTypeT.GenericTypesVariableSize)
-            {
-                key = records[index].kvPairVariable.key;
-                value = records[index].kvPairVariable.value;
-            } else {
-                key = records[index].kvPairFixed.key;
-                value = records[index].kvPairFixed.value;
-            }
+        for (var i = 0; i < numRows; i++) {
+            index = (direction === 1) ? (numRows - 1 - i) : i;
+            key   = kvPairs[index].key;
+            value = kvPairs[index].value;
 
             jsonNormal.push(value);
             // remove the last char, which should be "}"
-            var newValue = value.substring(0, value.length - 1);
-            newValue += ',"' + keyName + '_indexed":' + key + '}';
+            newValue = value.substring(0, value.length - 1);
+            newValue += ',"' + keyName + '_indexed":"' + key + '"}';
 
             jsonWithKey.push(newValue);
         }

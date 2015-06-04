@@ -1702,11 +1702,81 @@ XcalarApiDfCsvLoadArgsT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiPyLoadArgsT = function(args) {
+  this.moduleName = null;
+  this.funcName = null;
+  if (args) {
+    if (args.moduleName !== undefined) {
+      this.moduleName = args.moduleName;
+    }
+    if (args.funcName !== undefined) {
+      this.funcName = args.funcName;
+    }
+  }
+};
+XcalarApiPyLoadArgsT.prototype = {};
+XcalarApiPyLoadArgsT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.moduleName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.funcName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiPyLoadArgsT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiPyLoadArgsT');
+  if (this.moduleName !== null && this.moduleName !== undefined) {
+    output.writeFieldBegin('moduleName', Thrift.Type.STRING, 1);
+    output.writeString(this.moduleName);
+    output.writeFieldEnd();
+  }
+  if (this.funcName !== null && this.funcName !== undefined) {
+    output.writeFieldBegin('funcName', Thrift.Type.STRING, 2);
+    output.writeString(this.funcName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiDfLoadArgsT = function(args) {
   this.csv = null;
+  this.pyLoadArgs = null;
   if (args) {
     if (args.csv !== undefined) {
       this.csv = args.csv;
+    }
+    if (args.pyLoadArgs !== undefined) {
+      this.pyLoadArgs = args.pyLoadArgs;
     }
   }
 };
@@ -1732,9 +1802,14 @@ XcalarApiDfLoadArgsT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.pyLoadArgs = new XcalarApiPyLoadArgsT();
+        this.pyLoadArgs.read(input);
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1749,6 +1824,11 @@ XcalarApiDfLoadArgsT.prototype.write = function(output) {
   if (this.csv !== null && this.csv !== undefined) {
     output.writeFieldBegin('csv', Thrift.Type.STRUCT, 1);
     this.csv.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.pyLoadArgs !== null && this.pyLoadArgs !== undefined) {
+    output.writeFieldBegin('pyLoadArgs', Thrift.Type.STRUCT, 2);
+    this.pyLoadArgs.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

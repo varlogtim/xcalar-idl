@@ -554,24 +554,13 @@
             .done(function(resultNextOutput1) {
                 printResult(resultNextOutput1);
 
-                var recordType = resultNextOutput1.kvPairs.recordType;
+                for (var i = 0, kvPair = null; i < resultNextOutput1.numEntries; i ++) {
+                    kvPair = resultNextOutput1.entries[i];
 
-                for (var i = 0, kvPair = null; i < resultNextOutput1.kvPairs.numRecords; i ++) {
-                    kvPair = resultNextOutput1.kvPairs.records[i];
-
-                    if (recordType === GenericTypesRecordTypeT.GenericTypesFixedSize) {
-                        console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.kvPairFixed.key.toString());
-                        console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.kvPairFixed.value.toString());
-                    } else {
-                        console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.kvPairVariable.key.toString());
-                        console.log("\trecord[" + i.toString() + "].valueSize = " +
-                                kvPair.kvPairVariable.valueSize.toString());
-                        console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.kvPairVariable.value);
-                    }
+                    console.log("\trecord[" + i.toString() + "].key = " +
+                                kvPair.key);
+                    console.log("\trecord[" + i.toString() + "].value = " +
+                                kvPair.value);
                 }
                 pass(deferred, testName, currentTestNumber);
             })
@@ -608,23 +597,12 @@
             .done(function(resultNextOutput2) {
                 printResult(resultNextOutput2);
 
-                var recordType = resultNextOutput2.kvPairs.recordType;
-
-                for (var i = 0, kvPair = null; i < resultNextOutput2.kvPairs.numRecords; i ++) {
-                    kvPair = resultNextOutput2.kvPairs.records[i];
-                    if (recordType == GenericTypesRecordTypeT.GenericTypesFixedSize) {
-                        console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.kvPairFixed.key.toString());
-                        console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.kvPairFixed.value.toString());
-                    } else {
-                        console.log("\trecord[" + i.toString() + "].key = " +
-                                kvPair.kvPairVariable.key.toString());
-                        console.log("\trecord[" + i.toString() + "].valueSize = " +
-                                kvPair.kvPairVariable.valueSize.toString());
-                        console.log("\trecord[" + i.toString() + "].value = " +
-                                kvPair.kvPairVariable.value);
-                    }
+                for (var i = 0, kvPair = null; i < resultNextOutput2.numEntries; i ++) {
+                    kvPair = resultNextOutput2.entries[i];
+                    console.log("\trecord[" + i.toString() + "].key = " +
+                                kvPair.key);
+                    console.log("\trecord[" + i.toString() + "].value = " +
+                                kvPair.value);
                 }
                 pass(deferred, testName, currentTestNumber);
             })

@@ -382,10 +382,7 @@ Thrift.TXHRTransport.prototype = {
 
         var thriftTransport = this;
 
-        $.support.cors = true;
-
         var jqXHR = jQuery.ajax({
-            crossDomain: true,
             url: this.url,
             data: postData,
             type: 'POST',
@@ -1021,15 +1018,9 @@ Thrift.Protocol.prototype = {
         this.rpos = [];
 
         if (typeof JSON !== 'undefined' && typeof JSON.parse === 'function') {
-            var msg = this.transport.readAll();
-            var regex = new RegExp('{"tf":[^01]}', "g");
-            msg = msg.replace(regex, '{"tf":0}');
-            this.robj = JSON.parse(msg);
+            this.robj = JSON.parse(this.transport.readAll());
         } else if (typeof jQuery !== 'undefined') {
-            var msg = this.transport.readAll();
-            var regex = new RegExp('{"tf":[^01]}', "g");
-            msg = msg.replace(regex, '{"tf":0}');
-            this.robj = jQuery.parseJSON(msg);
+            this.robj = jQuery.parseJSON(this.transport.readAll());
         } else {
             this.robj = eval(this.transport.readAll());
         }

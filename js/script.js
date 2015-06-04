@@ -225,7 +225,8 @@ function setTableMeta(table, frontName) {
         newTable.numPages = Math.ceil(newTable.resultSetCount /
                                       gNumEntriesPerPage);
         newTable.backTableName = tableName;
-        newTable.frontTableName = frontName == undefined ? tableName:frontName;
+        newTable.frontTableName = frontName == null ? tableName : frontName;
+        newTable.keyName = resultSet.keyAttrHeader.name;
 
         deferred.resolve(newTable);
     })

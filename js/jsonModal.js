@@ -177,7 +177,7 @@ window.JSONModal = (function($, JSONModal) {
 
         try {
             jsonString = jQuery.parseJSON(text);
-        } catch (err) {
+        } catch (error) {
             console.error(error, text);
             closeJSONModal();
             return;

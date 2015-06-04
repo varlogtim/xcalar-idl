@@ -982,21 +982,21 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // XcalarSample sets gDatasetBrowserResultSetId
         XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
+            var kvPairs    = result.kvPair;
+            var numKvPairs = result.numKvPairs;
+
+            updateTableInfo(datasetName, format, totalEntries, fileSize);
+
+            var value;
+            var json;
             var uniqueJsonKey = {}; // store unique Json key
             var jsonKeys = [];
             var jsons = [];  // store all jsons
-            var kvPairs = result.kvPairs;
-            var records = kvPairs.records;
-            var isVariable = kvPairs.recordType ==
-                                GenericTypesRecordTypeT.GenericTypesVariableSize;
-            updateTableInfo(datasetName, format, totalEntries, fileSize);
 
             try {
-                for (var i = 0; i < records.length; i ++) {
-                    var record = records[i];
-                    var value = isVariable ? record.kvPairVariable.value :
-                                            record.kvPairFixed.value;
-                    var json = jQuery.parseJSON(value);
+                for (var i = 0; i < numKvPairs; i ++) {
+                    value = kvPairs[i].value;
+                    json = jQuery.parseJSON(value);
 
                     jsons.push(json);
                     // get unique keys
@@ -1067,25 +1067,23 @@ window.DataSampleTable = (function($, DataSampleTable) {
                         numRowsToFetch));
             })
             .then(function(result) {
+                var kvPairs    = result.kvPair;
+                var numKvPairs = result.numKvPairs;
+
+                var value;
+                var json;
                 var uniqueJsonKey = {}; // store unique Json key
                 var jsonKeys = [];
                 var jsons = [];  // store all jsons
-                var kvPairs = result.kvPairs;
-                var records = kvPairs.records;
-                var isVariable = kvPairs.recordType ==
-                            GenericTypesRecordTypeT.GenericTypesVariableSize;
 
                 try {
-                    for (var i = 0; i < records.length; i ++) {
-                        var record = records[i];
-                        var value = isVariable ? record.kvPairVariable.value :
-                                                record.kvPairFixed.value;
-                        var json = jQuery.parseJSON(value);
-
+                    for (var i = 0; i < numKvPairs; i ++) {
+                        value = kvPairs[i].value;
+                        json = jQuery.parseJSON(value);
                         jsons.push(json);
                         // get unique keys
                         for (var key in json) {
-                            uniqueJsonKey[key] = "";
+                            uniqueJsonKey[key] = true;
                         }
                     }
 
