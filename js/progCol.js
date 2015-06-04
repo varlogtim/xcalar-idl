@@ -456,10 +456,18 @@ window.ColManager = (function($, ColManager) {
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
                                       tableNum, direction, secondPull)
     {
-        var jsonData       = secondPull ? jsonObj.withKey : jsonObj.normal;
         var table          = gTables[tableNum];
         var tableCols      = table.tableCols;
 
+        // check if already indexed on array and stored the info in gTables
+        for (var i = 0; i < tableCols.length; i++) {
+            if (tableCols[i].isSortedArray) {
+                secondPull = true;
+                break;
+            }
+        }
+
+        var jsonData       = secondPull ? jsonObj.withKey : jsonObj.normal;
         var numCols        = tableCols.length;
         var numRows        = jsonData.length;
         var indexedColNums = [];
@@ -467,8 +475,9 @@ window.ColManager = (function($, ColManager) {
         var columnTypes    = [];
         var childArrayVals = [];
 
-        var tBodyHTML      = "";
-        var startIndex     = startIndex || 0;
+        var $table     = $('#xcTable' + tableNum);
+        var tBodyHTML  = "";
+        var startIndex = startIndex || 0;
 
         for (var i = 0; i < numCols; i++) {
             if ((i != dataIndex) && 
@@ -506,11 +515,6 @@ window.ColManager = (function($, ColManager) {
         for (var row = 0; row < numRows; row++) {
             var dataValue = parseRowJSON(jsonData[row]);
             var rowNum    = row + startIndex;
-
-            if (secondPull) {
-                dataValue[table.keyName] = dataValue[table.keyName +
-                                                     "_indexed"];
-            }
 
             tBodyHTML += '<tr class="row' + rowNum + '">';
             // add bookmark
@@ -557,6 +561,15 @@ window.ColManager = (function($, ColManager) {
                             xcHelper.isArray(tdValue)) {
                             childArrayVals[col] = true;
                         }
+                    }
+
+                    // if it's the index array field, pull indexed one instead
+                    if (tableCols[col].isSortedArray) {
+                        var $input  = $table.find('th.col' + (col + 1) +
+                                          '> .header input');
+                        var key = table.keyName + "_indexed";
+                        $input.val(key + "_indexed");
+                        tdValue = dataValue[key];
                     }
 
                     // XXX giving classes to table cells may
@@ -616,16 +629,12 @@ window.ColManager = (function($, ColManager) {
         // end of loop through table tr and start building html
 
         // assign column type class to header menus
-        var $table = $('#xcTable' + tableNum);
 
-        // XXX Cheng: this check of column index on array is poor in performance
-        // should use better way after backend support
+        // This only run once,  check if it's a indexed array, mark on gTables
+        // and redo the pull column thing
         if (!secondPull && columnTypes[indexedColNums[0]] === "array") {
             for (var i = 0; i < indexedColNums.length; i++) {
-                var colNum  = indexedColNums[i];
-                var $input  = $table.find('th.col' + (colNum + 1) +
-                                          '> .header input');
-                $input.val(table.keyName + "_indexed");
+                tableCols[indexedColNums[i]].isSortedArray = true;
             }
             return ColManager.pullAllCols(startIndex, jsonObj,
                                               dataIndex, tableNum,
