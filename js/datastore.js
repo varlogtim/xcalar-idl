@@ -1414,37 +1414,32 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     function getTableRowsHTML(jsonKeys, jsons, columnsType, selectedCols) {
         var tr = "";
-        var i = 0;
+        var i  = 0;
+
         jsons.forEach(function(json) {
             tr += '<tr>';
-            tr += '<td>'+(currentRow + i+ 1)+'</td>';
+            tr += '<td>' + (currentRow + i + 1) + '</td>';
             // loop through each td, parse object, and add to table cell
             for (var j = 0; j < jsonKeys.length; j++) {
                 var key       = jsonKeys[j];
                 var val       = json[key];
-                var parsedVal = (val == undefined) ? 
-                                    "" : xcHelper.parseJsonValue(val);
-                var selected  = "";
+                // Check type
+                columnsType[j] = xcHelper.parseColType(val, columnsType[j]);
 
-                if (selectedCols && selectedCols[j+1]) {
+                var selected  = "";
+                var parsedVal = (val == null) ?
+                                    "" : xcHelper.parseJsonValue(val);
+                if (selectedCols && selectedCols[j + 1]) {
                     selected = " selectedCol";
                 }
 
-                tr += '<td class="col' + (j+1) + selected + '">' + 
-                        '<div class="addedBarTextWrap">' + 
-                            '<div class="addedBarText">' + 
-                                parsedVal + 
-                            '</div>' + 
-                        '</div>' + 
+                tr += '<td class="col' + (j + 1) + selected + '">' +
+                        '<div class="addedBarTextWrap">' +
+                            '<div class="addedBarText">' +
+                                parsedVal +
+                            '</div>' +
+                        '</div>' +
                       '</td>';
-
-                if (!columnsType) {
-                    continue;
-                }   
-
-                // Check type
-                columnsType[j] = xcHelper.parseColType(parsedVal, 
-                                                       columnsType[j]);
             }
 
             tr += '</tr>';
