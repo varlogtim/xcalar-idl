@@ -76,6 +76,10 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
         var numRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
         if (numRowsStillNeeded > 0) {
             info.looped = true;
+            if (!info.missingRows) {
+                info.missingRows = [];
+            }
+            info.missingRows.push(position+1);
             if (direction == RowDirection.Bottom) {
                 if (position < gTables[tableNum].resultSetMax - 1) {
                     var newRowToGoTo = 
@@ -141,7 +145,8 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
             removeOldRows($table, tableNum, info, direction, 
                            prepullTableHeight, numRowsBefore, numRowsToAdd);
         } else if (!loop) {
-            console.log('some rows were too large to be retrieved');
+            console.log('some rows were too large to be retrieved, rows: '+
+                        info.missingRows);
         }
         deferred.resolve();
     })
@@ -186,19 +191,11 @@ function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
     var bottomRowNum = parseInt(lastRow.attr('class').substr(3));
     gTables[tableNum].currentRowNumber = bottomRowNum + 1;
     if (info.looped) {
-        console.log('some rows were too large to be retrieved');
+        console.log('some rows were too large to be retrieved, rows: '+
+                    info.missingRows);
     }
 }
 
-function numPagesToShift(direction) {
-    var shift;
-    if (direction == 1) {
-        shift = 3;// shift 3 if we show 3 'pages' at once
-    } else {
-        shift = 1;
-    }
-    return (shift);
-}
 
 function resetAutoIndex() {
     gTableRowIndex = 1;

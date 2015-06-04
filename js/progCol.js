@@ -710,17 +710,20 @@ window.ColManager = (function($, ColManager) {
         var colid         = xcHelper.parseColNum($dataCol);
         var numRow        = -1;
         var startingIndex = -1;
+        var endingIndex = -1;
 
         if (!startIndex) {
             startingIndex = parseInt($table.find("tbody tr:first")
                                            .attr('class').substring(3));
             numRow = $table.find("tbody tr").length;
+            endingIndex = parseInt($table.find("tbody tr:last")
+                                           .attr('class').substring(3))+1;
         } else {
             startingIndex = startIndex;
             numRow = numberOfRows || gNumEntriesPerPage;
+            endingIndex = startIndex + numRow;
         }
 
-        var endingIndex  = numRow + startingIndex;
         var nested       = parseColFuncArgs(key);
         var columnType   = undefined;  // track column type
         var childOfArray = false;
@@ -747,7 +750,6 @@ window.ColManager = (function($, ColManager) {
 
             //define type of the column
             columnType = xcHelper.parseColType(value, columnType);
-
             // if (columnType === "integer" || columnType === "decimal") {
             //     var str = '"' + gTables[tableNum].tableCols[newColid - 1].name 
             //                 + '":' + value;
