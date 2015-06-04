@@ -103,6 +103,7 @@ window.Alert = (function($, Alert){
         // set alert message
         var msg           = options.msg || "";
         var $alertContent = $("#alertContent");
+
         $alertContent.find(".text").text(msg);
 
         // set alert instruction
@@ -152,7 +153,12 @@ window.Alert = (function($, Alert){
 
         // set confirm button
         var $confirmBtn = $btnSection.find(".confirm");
+        var $cancelBtn  = $btnSection.find(".cancel");
         if (!options.isAlert) {
+            if (options.noCancel) {
+                $cancelBtn.hide();
+            }
+
             if (options.buttons) {
                 $confirmBtn.hide();
                 options.buttons.forEach(function(btnOption) {

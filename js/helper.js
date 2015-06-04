@@ -55,7 +55,8 @@ window.xcHelper = (function($, xcHelper) {
         var type = oldType;
 
         if (val !== "" && oldType !== "mixed") {
-            type = typeof val;
+            var valType = typeof val;
+            type = valType;
             // get specific type
             if (type === "number") {
                 // the case when type is decimal
@@ -72,7 +73,10 @@ window.xcHelper = (function($, xcHelper) {
                 }
             }
 
-            if (oldType != undefined && oldType !== type) {
+            var isAllNum = (valType === "number") &&
+                           ((oldType === "decimal") || (oldType === "integer"));
+            if (oldType != undefined && oldType !== type && !isAllNum)
+            {
                 type = "mixed";
             }
         }

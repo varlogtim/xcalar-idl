@@ -294,12 +294,19 @@ window.KVStore = (function($, KVStore) {
             } else {
                 if (gInfos["holdStatus"] === true && 
                     sessionStorage.getItem(KVStore.user) !== "hold") {
-                    Alert.error("Signed on elsewhere!",
-                                "Please close your other session.",
-                                {
-                        "cancel": function() {
-                            KVStore.forceRelease();
-                        }
+                    Alert.show({
+                        "title"  : "Signed on elsewhere!",
+                        "msg"    : "Please close your other session.",
+                        "buttons": [
+                            {
+                                "name"     : "Force Release",
+                                "className": "cancel",
+                                "func"     : function() {
+                                    KVStore.forceRelease();
+                                }
+                            }
+                        ],
+                        "noCancel": true
                     });
                     deferred.reject("Already in use!");
                 } else {
