@@ -737,7 +737,10 @@ function createTableHeader(tableNum) {
         }
     }, ".tableTitle input");
 
-    $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function() {
+    $xcTheadWrap.on('mousedown', '.tableTitle > .dropdownBox', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         dropdownClick($(this));
     });
 
@@ -753,7 +756,10 @@ function createTableHeader(tableNum) {
     // Event Listener for table dropdown menu
     var $tableMenu = $('#tableMenu' + tableNum);
 
-    $tableMenu.on('click', '.archiveTable', function() {
+    $tableMenu.on('mouseup', '.archiveTable', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var $menu = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
         var tableName = gTables[tableNum].frontTableName;
@@ -768,7 +774,10 @@ function createTableHeader(tableNum) {
         });
     });
 
-    $tableMenu.on('click', '.hideTable', function() {
+    $tableMenu.on('mouseup', '.hideTable', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
 
@@ -777,7 +786,10 @@ function createTableHeader(tableNum) {
         moveFirstColumn();
     });
 
-    $tableMenu.on('click', '.unhideTable', function() {
+    $tableMenu.on('mouseup', '.unhideTable', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
 
@@ -789,7 +801,10 @@ function createTableHeader(tableNum) {
         $table.find('.rowGrab').width($table.width());
     });
 
-    $tableMenu.on('click', '.deleteTable', function() {
+    $tableMenu.on('mouseup', '.deleteTable', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var $menu = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
         var tableName = gTables[tableNum].frontTableName;
@@ -813,7 +828,10 @@ function createTableHeader(tableNum) {
         });
     });
 
-    $tableMenu.on('click', '.exportTable', function() {
+    $tableMenu.on('mouseup', '.exportTable', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
 
@@ -821,7 +839,10 @@ function createTableHeader(tableNum) {
         xcFunction.exportTable(tableNum);
     });
 
-    $tableMenu.on('click', '.delAllDuplicateCols', function() {
+    $tableMenu.on('mouseup', '.delAllDuplicateCols', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var $menu = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
         $menu.hide();
@@ -846,7 +867,10 @@ function createTableHeader(tableNum) {
     //     AggModal.show(tableNum);
     // });
 
-    $tableMenu.on('click', '.aggregates', function() {
+    $tableMenu.on('mouseup', '.aggregates', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
 
@@ -854,7 +878,10 @@ function createTableHeader(tableNum) {
         AggModal.show(tableNum, 'aggregates');
     });
 
-    $tableMenu.on('click', '.correlation', function() {
+    $tableMenu.on('mouseup', '.correlation', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
 
@@ -986,6 +1013,8 @@ function createTableHeader(tableNum) {
     matchHeaderSizes(null, $table, matchAllHeaders);
 }
 
+
+
 function updateTableHeader(tableNum, $tHead, isFocus) {
     var tableName = "";
     var cols = 0;
@@ -1103,7 +1132,7 @@ function addColListeners($table, tableNum) {
         }
     }, ".editableHead");
 
-    $thead.on('click', '.header .flex-right > .dropdownBox', function() {
+    $thead.on('mousedown', '.header .flex-right > .dropdownBox', function() {
         $('.tooltip').hide();
         var options = {};
         var colNum  = xcHelper.parseColNum($(this).closest('th'));
@@ -1122,11 +1151,13 @@ function addColListeners($table, tableNum) {
             // column is hidden
             options.classes += " type-hidden";
         }
+
         if ($(this).closest('.xcTable').hasClass('emptyTable')) {
             options.classes += " type-emptyTable";
         }
 
-        dropdownClick($(this), null, options);
+        var $el = $(this);
+        dropdownClick($el, null, options);
     });
 
     $thead.on({
@@ -1179,11 +1210,17 @@ function addColMenuBehaviors($colMenu) {
         }
     }, "li");
 
-    $colMenu.on('mousedown', '.subColMenuArea', function() {
+    $colMenu.on('mousedown', '.subColMenuArea', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         $colMenu.hide();
     });
 
-    $colMenu.on('mousedown', '.inputMenu span', function() {
+    $colMenu.on('mousedown', '.inputMenu span', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         if ($(this).hasClass('openMenuInput')) {
             $(this).removeClass('openMenuInput');
         } else {
@@ -1208,24 +1245,26 @@ function addColMenuBehaviors($colMenu) {
         }
     }, 'input');
 
-    $colMenu.on('click', 'li', function() {
+    $colMenu.on('click', 'li', function(event) {
         if ($(this).children('.subColMenu, input').length === 0 &&
-            !$(this).hasClass('unavailable'))
-        {
+            !$(this).hasClass('unavailable')) {
             
             // hide li if doesnt have a submenu or an input field
             $colMenu.hide();
         }
     });
 
-    $colMenu.on('click', 'input', function() {
+    $colMenu.on('mouseup', 'input', function() {
         $(this).select();
     });
 }
 
 function addColMenuActions($colMenu, $thead) {
 
-    $colMenu.on('click', '.addColumns', function() {
+    $colMenu.on('mouseup', '.addColumns', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var colNum = $colMenu.data('colNum');
         var index = 'col' + colNum;
         var tableNum = parseInt($colMenu.attr('id').substring(7));
@@ -1256,14 +1295,20 @@ function addColMenuActions($colMenu, $thead) {
         SQL.add("Add Column", sqlOptions);
     });
 
-    $colMenu.on('click', '.deleteColumn', function() {
+    $colMenu.on('mouseup', '.deleteColumn', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var colNum   = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
 
         ColManager.delCol(colNum, tableNum);
     });
 
-    $colMenu.on('click', '.deleteDuplicates', function() {
+    $colMenu.on('mouseup', '.deleteDuplicates', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var index    = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
 
@@ -1271,14 +1316,20 @@ function addColMenuActions($colMenu, $thead) {
 
     });
 
-    $colMenu.on('click', '.renameCol', function() {
+    $colMenu.on('mouseup', '.renameCol', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var index = $colMenu.data('colNum');
         $('#xcTable' + tableNum).find('.editableHead.col' + index)
                                 .focus().select();
     });
 
-    $colMenu.on('click', '.duplicate', function() {
+    $colMenu.on('mouseup', '.duplicate', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var index = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var table = $('#xcTable' + tableNum);
@@ -1311,7 +1362,10 @@ function addColMenuActions($colMenu, $thead) {
         });
     });
 
-    $colMenu.on('click', '.hide', function() {
+    $colMenu.on('mouseup', '.hide', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var colNum   = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
 
@@ -1319,14 +1373,20 @@ function addColMenuActions($colMenu, $thead) {
         
     });
 
-    $colMenu.on('click', '.unhide', function() {
+    $colMenu.on('mouseup', '.unhide', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var colNum   = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
 
         ColManager.unhideCol(colNum, tableNum, {autoResize: true});
     });
 
-    $colMenu.on('click', '.textAlign', function() {
+    $colMenu.on('mouseup', '.textAlign', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var colNum   = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
 
@@ -1334,13 +1394,19 @@ function addColMenuActions($colMenu, $thead) {
     });
 
     /// added back in
-    $colMenu.on('click', '.sort .sort', function() {
+    $colMenu.on('mouseup', '.sort .sort', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var index = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         xcFunction.sort(index, tableNum, SortDirection.Forward);
     });
     
-    $colMenu.on('click', '.sort .revSort', function() {
+    $colMenu.on('mouseup', '.sort .revSort', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var index = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         xcFunction.sort(index, tableNum, SortDirection.Backward);
@@ -1372,15 +1438,18 @@ function addColMenuActions($colMenu, $thead) {
 
     // // added back in
 
-    $colMenu.on('click', '.joinList', function() {
+    $colMenu.on('mouseup', '.joinList', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var colNum   = $colMenu.data('colNum');
 
         JoinModal.show(tableNum, colNum);
     });
 
-    $colMenu.on('click', '.functions', function() {
-        if ($(this).hasClass('unavailable')) {
+    $colMenu.on('mouseup', '.functions', function(event) {
+        if (event.which !== 1 || $(this).hasClass('unavailable')) {
             return;
         }
         var colNum = $colMenu.data('colNum');
@@ -1388,12 +1457,6 @@ function addColMenuActions($colMenu, $thead) {
         var func = $(this).text().replace(/\./g, '');
         OperationsModal.show(tableNum, colNum, func);
     });
-
-    // $colMenu.on('click', '.operations', function() {
-    //     var colNum = $colMenu.data('colNum');
-    //     var tableNum = parseInt($colMenu.attr('id').substring(7));
-    //     OperationsModal.show(tableNum, colNum);
-    // });
 }
 
 function functionBarEnter($colInput) {

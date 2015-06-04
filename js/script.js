@@ -514,7 +514,7 @@ function documentReadyGeneralFunction() {
         var $target = $(event.target);
         gMouseEvents.setMouseDownTarget($target);
         var clickable = $target.closest('.colMenu').length > 0;
-        if (!clickable && !$target.is('.dropdownBox')) {
+        if (!clickable && $target.closest('.dropdownBox').length === 0) {
             $('.colMenu').hide();
         }
 

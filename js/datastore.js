@@ -1175,7 +1175,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
             DataCart.removeCart(dsName);
         });
         // click on dropdown icon to open menu
-        $tableWrap.on("click", ".datasetTable .dropdownBox", function() {
+        $tableWrap.on("mousedown", ".datasetTable .dropdownBox", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $dropDownBox = $(this);
             dropdownClick($dropDownBox, true);
             updateDropdownMenu($dropDownBox);
@@ -1273,7 +1276,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $menu.hide();
         });
         // change Data Type
-        $menu.find(".changeDataType").on("click", ".typeList", function() {
+        $menu.find(".changeDataType").on("mouseup", ".typeList", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             changeColumnType($(this));
         });
     }
