@@ -215,9 +215,17 @@ window.JoinModal = (function($, JoinModal) {
         }
 
         if (colNum > 0) {
-            $modal.find('.joinTable:nth-of-type(' + tableNum
-                         + ') th:nth-child(' + colNum + ')')
-                  .click();
+            $thToClick = $modal.find('.joinTable:nth-of-type(' + tableNum
+                         + ') th:nth-child(' + colNum + ')');
+            $thToClick.click();
+            var $tableArea = $('#leftJoin').find('.joinTableArea');
+            var tableOffset = $tableArea.offset().left;
+            var tableAreaWidth = $tableArea.width();
+            var thWidth = $thToClick.width();
+            var thOffset = $thToClick.offset().left;
+            var position = (thOffset - tableOffset) - (tableAreaWidth * 0.5) +
+                           (thWidth * 0.5);
+            $tableArea.scrollLeft(position);
         }
     }
 
