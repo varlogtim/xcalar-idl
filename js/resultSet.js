@@ -136,7 +136,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
         }
     }).
     then(function() {
-        if (!loop && !info.reverseLooped) {
+        if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
             removeOldRows($table, tableNum, info, direction, 
                            prepullTableHeight, numRowsBefore, numRowsToAdd);
         } else if (!loop) {

@@ -139,7 +139,7 @@ function infScrolling(tableNum) {
                     innerDeferred.reject(error);
                 });
             } else {
-                 scrollCount--;
+                scrollCount--;
                 innerDeferred.resolve();
             }
         } else {
@@ -608,6 +608,38 @@ function documentReadyCatFunction(tableNum, tableNumsToRemove) {
         gTables[tableNum].currentRowNumber = jsonData.length;
         buildInitialTable(index, tableNum, jsonData, keyName);
         deferred.resolve();
+    })
+    .then(function() {
+        var deferred2 = jQuery.Deferred();
+        var requiredNumRows = Math.min(60, gTables[tableNum].resultSetCount);
+        var numRowsStillNeeded = requiredNumRows - 
+                                 $('#xcTable'+tableNum+' tbody tr').length;
+        if (numRowsStillNeeded > 0) {
+            var info = {
+                numRowsToAdd: numRowsStillNeeded,
+                numRowsAdded: 0,
+                targetRow: gTables[tableNum].currentRowNumber+
+                           numRowsStillNeeded,
+                lastRowToDisplay: gTables[tableNum].currentRowNumber+
+                                  numRowsStillNeeded,
+                bulk: false,
+                dontRemoveRows : true
+            };
+            goToPage(gTables[tableNum].currentRowNumber, numRowsStillNeeded,
+                         RowDirection.Bottom, tableNum, false, info)
+            .then(function() {
+                var lastRow = $('#xcTable'+tableNum+' tr:last');
+                var lastRowNum = parseInt(lastRow.attr('class').substr(3));
+                gTables[tableNum].currentRowNumber = lastRowNum + 1;
+                deferred2.resolve();
+            })
+            .fail(function(error) {
+                deferred2.reject(error);
+            });
+        } else {
+            deferred2.resolve();
+        }
+        return (deferred2.promise());      
     })
     .fail(function(error) {
         console.log("documentReadyCatFunction fails!");

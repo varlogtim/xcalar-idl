@@ -1984,7 +1984,6 @@ function createTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
         $('#dropTarget'+oldIndex)
             .css({'left': (tableLeft-dragMargin+offset)+'px'});
     }
-
 }
 
 function mainFrameScrollTableTargets() {
