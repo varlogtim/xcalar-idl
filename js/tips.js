@@ -1,20 +1,20 @@
 window.Tips = (function($, Tips) {
-    var $targets    = [];
-    var default_opt = {
+    var $targets   = [];
+    var defaultOpt = {
         "trigger"  : "manual",
         "placement": "top",
         "container": "body",
-        "template" : '<div class="tooltip tutorial" role="tooltip">' + 
-                        '<div class="tooltip-arrow"></div>' + 
-                        '<div class="tooltip-inner"></div>' + 
+        "template" : '<div class="tooltip tutorial" role="tooltip">' +
+                        '<div class="tooltip-arrow"></div>' +
+                        '<div class="tooltip-inner"></div>' +
                      '</div>'
-    }
+    };
 
     // template that have z-index 10
-    var template_z10 = 
-        '<div class="tooltip tutorial z-10" role="tooltip">' + 
-            '<div class="tooltip-arrow"></div>' + 
-                '<div class="tooltip-inner"></div>' + 
+    var templateZ10 =
+        '<div class="tooltip tutorial z-10" role="tooltip">' +
+            '<div class="tooltip-arrow"></div>' +
+                '<div class="tooltip-inner"></div>' +
         '</div>';
 
     var timer;
@@ -23,17 +23,17 @@ window.Tips = (function($, Tips) {
     // disply tips
     Tips.display = function() {
         lastPos = 0;
-        isOn    = true;
+        isOn = true;
         showTips();
         addTipsEvent();
-    }
+    };
 
     // destroy tips
     Tips.destroy = function() {
         isOn = false;
         hideTips();
         removeTipsEvent();
-    }
+    };
 
     // refresh tips, some place should manually call it for refreshing
     // e.g some event.stopPropagation stop the trigger in addTipsEvent()
@@ -46,7 +46,7 @@ window.Tips = (function($, Tips) {
                 showTips();
             }, 100);
         }
-    }
+    };
 
     // main function to show tips
     function showTips() {
@@ -103,14 +103,14 @@ window.Tips = (function($, Tips) {
 
     /* Section of adding tips */
     function addTopMenuBarTips() {
-        var menuBar = "#menuBar"
+        var menuBar = "#menuBar";
 
         // xcalar horizontal scrollbar
         // only show when there is row scroller in the area
         if ($("#rowScrollerArea .rowScroller:visible").length > 0) {
             setTooltip($("#rowScrollerArea"), {
                 "title"    : TipsTStr.Scrollbar,
-                "container": menuBar,
+                "container": menuBar
             });
         }
 
@@ -122,11 +122,11 @@ window.Tips = (function($, Tips) {
     }
 
     function addBottomAreaTips() {
-       // tips for add worksheet button
-       setTooltip($("#addWorksheet"), {
+        // tips for add worksheet button
+        setTooltip($("#addWorksheet"), {
             "title"    : TipsTStr.AddWorksheet,
             "container": "#addWorksheet"
-       })
+       });
     }
 
     function addWorksheetTips() {
@@ -144,12 +144,12 @@ window.Tips = (function($, Tips) {
             // tips on table header
             var $header  = getMiddleElement($table.find('th:not(".dataCol")'))
                                             .find(".header");
-            // padding:"1px" is a trick to put this tip in right place, 
+            // padding:"1px" is a trick to put this tip in right place,
             // the format is not right, should be corrected
             setTooltip($header, {
                 "title"    : TipsTStr.EditColumn,
                 "container": tableId,
-                "template" : template_z10,
+                "template" : templateZ10,
                 "viewport" : {
                     "selector": tableId,
                     "padding" : "1px"
@@ -162,7 +162,7 @@ window.Tips = (function($, Tips) {
             var tdY = 168; //top rows's distance from top of window
             var $ele = getElementFromPoint(tdX, tdY);
 
-            // make sure the pointed ele is line marker 
+            // make sure the pointed ele is line marker
             // (when scroll, the point may be other element)
             if ($ele.find(".idWrap").length > 0 || 
                 $ele.closest(".idWrap").length > 0) 
@@ -172,7 +172,7 @@ window.Tips = (function($, Tips) {
                     "title"    : TipsTStr.LineMarker,
                     "placement": "right",
                     "container": tableId,
-                    "template" : template_z10
+                    "template" : templateZ10
                 });
             }
 
@@ -183,7 +183,7 @@ window.Tips = (function($, Tips) {
             setTooltip($tr.find(".jsonElement"), {
                 "title"    : TipsTStr.JSONEle,
                 "container": tableId,
-                "template" : template_z10,
+                "template" : templateZ10,
                 "viewport" : {
                     "selector": tableId,
                     "padding" : "1px"
@@ -199,13 +199,13 @@ window.Tips = (function($, Tips) {
         setTooltip($("#datasetExplore"), {
             "title"    : TipsTStr.ToggleGridView,
             "container": dataView,
-            "placement": "right",
+            "placement": "right"
         });
 
         setTooltip($("#gridView grid-unit:last-child"), {
             "title"    : TipsTStr.DragGrid,
             "container": dataView,
-            "placement": "right",
+            "placement": "right"
         });
 
         // data store table
@@ -265,14 +265,14 @@ window.Tips = (function($, Tips) {
 
     /* Section of helper function in Tips */
     function setTooltip($target, options) {
-        // options reference: 
+        // options reference:
         // http://www.w3schools.com/bootstrap/bootstrap_ref_js_tooltip.asp
         if (!$target) {
             console.error("Invalid target!");
             return;
         }
 
-        options = $.extend({}, default_opt, options);
+        options = $.extend({}, defaultOpt, options);
 
         $target.tooltip(options);
         $targets.push($target);
@@ -280,13 +280,13 @@ window.Tips = (function($, Tips) {
 
     // get the element in the middle
     function getMiddleElement($eles) {
-        return ($eles.eq(Math.floor($eles.length / 2)))
+        return ($eles.eq(Math.floor($eles.length / 2)));
     }
 
     // return a jQuery element
     function getElementFromPoint(x, y) {
         if (document.elementFromPoint) {
-            return $(document.elementFromPoint(x, y))
+            return $(document.elementFromPoint(x, y));
         }
     }
 

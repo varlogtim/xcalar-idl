@@ -1,16 +1,15 @@
 window.xcHelper = (function($, xcHelper) {
-
     xcHelper.getTableIndexFromName = function(tableName, isHidden) {
         var table = isHidden ? gHiddenTables : gTables;
 
-        for (var i = 0; i < gHiddenTables.length; i ++) {
-            if (tableName === gHiddenTables[i].frontTableName) {
+        for (var i = 0; i < table.length; i++) {
+            if (tableName === table[i].frontTableName) {
                 return (i);
             }
         }
 
         return undefined;
-    }
+    };
 
     xcHelper.parseTableNum = function($table) {
         // assumes we are passing in a table with an ID
@@ -19,7 +18,7 @@ window.xcHelper = (function($, xcHelper) {
         var numIndex = id.indexOf('Table') + 5;  // where tableNum is located
         var tableNum = parseInt(id.substring(numIndex));
         return (tableNum);
-    }
+    };
 
     xcHelper.parseColNum = function($el) {
         var classNames = $el.attr('class');
@@ -27,11 +26,11 @@ window.xcHelper = (function($, xcHelper) {
         var substring  = classNames.substring(index + 'col'.length);
 
         return (parseInt(substring));
-    }
+    };
 
     xcHelper.parseJsonValue = function(value) {
-        if (value == undefined) {
-            value = '<span class="undefined">'+value+'</span>';
+        if (value == null) {
+            value = '<span class="undefined">' + value + '</span>';
         } else {
             switch (value.constructor) {
                 case (Object):
@@ -48,7 +47,7 @@ window.xcHelper = (function($, xcHelper) {
             }
         }
         return (value);
-    }
+    };
 
     //define type of the column
     xcHelper.parseColType = function(val, oldType) {
@@ -75,14 +74,14 @@ window.xcHelper = (function($, xcHelper) {
 
             var isAllNum = (valType === "number") &&
                            ((oldType === "decimal") || (oldType === "integer"));
-            if (oldType != undefined && oldType !== type && !isAllNum)
+            if (oldType != null && oldType !== type && !isAllNum)
             {
                 type = "mixed";
             }
         }
 
         return (type);
-    }
+    };
 
     // get a deep copy
     xcHelper.deepCopy = function(obj) {
@@ -96,7 +95,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return (res);
-    }
+    };
 
     xcHelper.sizeTranslater = function(size, unitSeparated) {
         var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
@@ -104,7 +103,7 @@ window.xcHelper = (function($, xcHelper) {
         var end   = unit.length - 2;
 
         while (size >= 1024 && start <= end) {
-            size =(size / 1024).toFixed(1);
+            size = (size / 1024).toFixed(1);
             ++start;
         }
         if (size >= 10) {
@@ -123,14 +122,14 @@ window.xcHelper = (function($, xcHelper) {
         // and converts them to bytes
         var units  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var num = parseFloat(numText);
-        var text = $.trim(numText.substr((""+num).length)).toUpperCase();
+        var text = $.trim(numText.substr(("" + num).length)).toUpperCase();
         var index = units.indexOf(text);
-        var bytes = num*Math.pow(1024, index);
+        var bytes = num * Math.pow(1024, index);
         return (bytes);
     };
 
     xcHelper.randName = function(name, digits, strip) {
-        if (digits == undefined) {
+        if (digits == null) {
             digits = 5; // default
         }
 
@@ -147,69 +146,69 @@ window.xcHelper = (function($, xcHelper) {
 
         function padZero(number, numDigits) {
             number = number.toString();
-            return ((number.length < numDigits) ? 
-                    padZero("0"+number, numDigits): number);
+            return ((number.length < numDigits) ?
+                    padZero("0" + number, numDigits) : number);
         }
         rand = padZero(rand, digits);
         return (name + rand);
-    }
+    };
 
     xcHelper.removeSelectionRange = function() {
         if (window.getSelection) {
             window.getSelection().removeAllRanges();
         }
-    }
+    };
 
     xcHelper.isDecimal = function(num) {
         return (num % 1 !== 0);
-    }
+    };
 
     xcHelper.isArray = function(obj) {
         return (obj.constructor.toString().indexOf("Array") > -1);
-    }
+    };
 
     // fomart is mm-dd-yyyy
     xcHelper.getDate = function(delimiter, d, timeStamp) {
         var date;
 
-        if (d == undefined) {
-            d = (timeStamp == undefined) ? new Date() : new Date(timeStamp);
+        if (d == null) {
+            d = (timeStamp == null) ? new Date() : new Date(timeStamp);
         }
 
-        if (delimiter == undefined) {
+        if (delimiter == null) {
             delimiter = "-";
         }
         date = d.toLocaleDateString().replace(/\//g, delimiter);
 
         return (date);
-    }
+    };
 
     xcHelper.getTime = function(d, timeStamp) {
-        if (d == undefined) {
-            d = (timeStamp == undefined) ? new Date() : new Date(timeStamp);
+        if (d == null) {
+            d = (timeStamp == null) ? new Date() : new Date(timeStamp);
         }
 
         return (d.toLocaleTimeString());
-    }
+    };
     // time in million seconds
     xcHelper.getTimeInMS = function(d, timeStamp) {
-        if (d == undefined) {
-            d = (timeStamp == undefined) ? new Date() : new Date(timeStamp);
+        if (d == null) {
+            d = (timeStamp == null) ? new Date() : new Date(timeStamp);
         }
 
         return d.getTime();
-    }
+    };
 
     xcHelper.getTwoWeeksDate = function() {
-        var res     = [];
-        var d       = new Date();
-        var day     = d.getDate();
+        var res = [];
+        var d   = new Date();
+        var day = d.getDate();
         var date;
 
         d.setHours(0, 0, 0, 0);
 
         // date from today to lastweek, all dates' time is 0:00 am
-        for (var i = 0; i < 7; i ++) {
+        for (var i = 0; i < 7; i++) {
             date = new Date(d);
             date.setDate(day - i);
             res.push(date);
@@ -221,7 +220,7 @@ window.xcHelper = (function($, xcHelper) {
         res.push(date);
 
         return (res);
-    }
+    };
 
     // handle dropdown list generally
     xcHelper.dropdownList = function($listSection, options) {
@@ -229,29 +228,29 @@ window.xcHelper = (function($, xcHelper) {
         /*
          * options includ:
             onlyClickIcon: if set true, only toggle dropdown menu when click
-                             dropdown icon, otherwise, toggle also on click 
+                             dropdown icon, otherwise, toggle also on click
                              input section
             onSelect: callback to trigger when select an item on list, $li will
                       be passed into the callback
-            container: will hide all other list in the container when focus on 
+            container: will hide all other list in the container when focus on
                        this one. Default is $listSectin.parent()
          *
          * Note that options can be extented if nesessary
          */
-         var $container = options.container ? $(options.container) : 
+        var $container = options.container ? $(options.container) :
                                               $listSection.parent();
          // toggle list section
-         if (options.onlyClickIcon) {
+        if (options.onlyClickIcon) {
             $listSection.on("click", ".icon", function(event) {
-                 event.stopPropagation();
-                 toggleDropdownMenu($(this).closest(".listSection"));
+                event.stopPropagation();
+                toggleDropdownMenu($(this).closest(".listSection"));
             });
-         } else {
+        } else {
             $listSection.on("click", function(event) {
-                 event.stopPropagation();
-                 toggleDropdownMenu($(this));
+                event.stopPropagation();
+                toggleDropdownMenu($(this));
             });
-         }
+        }
 
          // on click a list
         $listSection.on({
@@ -277,16 +276,16 @@ window.xcHelper = (function($, xcHelper) {
             }
         }, ".list li");
 
-        function toggleDropdownMenu($listSection) {
-            if ($listSection.hasClass("open")) {    // close dropdown
+        function toggleDropdownMenu($curlistSection) {
+            if ($curlistSection.hasClass("open")) {    // close dropdown
                 hideDropdowns();
             } else {                                // open dropdown
                 hideDropdowns();
-                var $lists = $listSection.find(".list");
+                var $lists = $curlistSection.find(".list");
                 if ($lists.children().length === 0) {
                     return;
                 }
-                $listSection.addClass("open");
+                $curlistSection.addClass("open");
                 $lists.show().addClass("openList");
             }
         }
@@ -296,15 +295,15 @@ window.xcHelper = (function($, xcHelper) {
             $sections.find(".list").hide().removeClass("openList");
             $sections.removeClass("open");
         }
-    }
+    };
 
     xcHelper.validate = function(eles) {
         /*
          * eles is an object or an array of object, each object includes:
 
            $selector: selector to check
-           check    : function to check validation, if empty, will check if the 
-                      value of selecor is empty. Val of the selector will be 
+           check    : function to check validation, if empty, will check if the
+                      value of selecor is empty. Val of the selector will be
                       passed into the function
            text     : text to show if now pass the check
            noWarn   : if set true, will not show any warnning box.
@@ -316,9 +315,9 @@ window.xcHelper = (function($, xcHelper) {
          * Check will run in array's order.
          */
 
-         if (!(eles instanceof Array)) {
+        if (!(eles instanceof Array)) {
             eles = [eles];
-         }
+        }
 
         for (var i = 0; i < eles.length; i++) {
             var ele = eles[i];
@@ -329,10 +328,10 @@ window.xcHelper = (function($, xcHelper) {
 
             if (ele.check != null) {
                 notValid = ele.check(val);
-                error    = ele.text || "Invalid Inputs.";
+                error = ele.text || "Invalid Inputs.";
             } else {
-                notValid = jQuery.trim(val) == "";
-                error    = ele.text || "Please fill out this field.";
+                notValid = (jQuery.trim(val) === "");
+                error = ele.text || "Please fill out this field.";
             }
 
             if (notValid) {
@@ -353,18 +352,18 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return true;
-    }
+    };
     // an object used for global Modal Actions
     xcHelper.Modal = function($modal, options) {
         /* options incluade:
          * focusOnOpen: if set true, will focus on confirm btn when open modal
          */
         this.$modal = $modal;
-        this.options   = options || {};
-        this.id  = $modal.attr("id");
+        this.options = options || {};
+        this.id = $modal.attr("id");
 
         return (this);
-    }
+    };
 
     xcHelper.Modal.prototype.setup = function() {
         // XXX to find the visiable btn, must show the modal first
@@ -382,23 +381,15 @@ window.xcHelper = (function($, xcHelper) {
             $eles.each(function() {
                 $focusables.push($(this));
             });
-        })
+        });
 
-        var len = $focusables.length;
-        for (var i = 0; i < len; i++) {
-            $focusables[i].addClass("focusable").data("tabid", i);
-            $focusables[i].on("focus.xcModal", function() {
-                var $ele = $(this);
-                if (!isActive($ele)) {
-                    return;
-                }
-                focusOn($ele.data("tabid"));
-            });
+        for (var i = 0, len = $focusables.length; i < len; i++) {
+            addFocusEvent($focusables[i], i);
         }
 
         // for switch between modal tab using tab key
         $(document).on("keydown.xcModal" + this.id, function(event) {
-            if (event.which == keyCode.Tab) {
+            if (event.which === keyCode.Tab) {
                 event.preventDefault();
                 getEleToFocus();
 
@@ -423,6 +414,17 @@ window.xcHelper = (function($, xcHelper) {
             getEleToFocus();
         }
 
+        function addFocusEvent($focusable, index) {
+            $focusable.addClass("focusable").data("tabid", index);
+            $focusable.on("focus.xcModal", function() {
+                var $ele = $(this);
+                if (!isActive($ele)) {
+                    return;
+                }
+                focusOn($ele.data("tabid"));
+            });
+        }
+
         // find the input or button that is visible and not disabled to focus
         function getEleToFocus() {
             // the current ele is not active, should no by aocused
@@ -430,8 +432,8 @@ window.xcHelper = (function($, xcHelper) {
                 var start  = focusIndex;
                 focusIndex = (focusIndex + 1) % len;
 
-                while (focusIndex !== start && 
-                        !isActive($focusables[focusIndex])) 
+                while (focusIndex !== start &&
+                        !isActive($focusables[focusIndex]))
                 {
                     focusIndex = (focusIndex + 1) % len;
                 }
@@ -453,22 +455,22 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         function isActive($ele) {
-            if ($ele == undefined) {
+            if ($ele == null) {
                 console.error("undefined element!");
             }
             return ($ele.is(":visible") && !$ele.is("[disabled]"));
         }
-    }
+    };
 
     xcHelper.Modal.prototype.clear = function() {
         $(document).off("keydown.xcModal" + this.id);
         this.$modal.find(".focusable").off(".xcModal")
                                       .removeClass("focusable");
-    }
+    };
     // check if any button is on focus
     xcHelper.Modal.prototype.checkBtnFocus = function() {
         return (this.$modal.find(".btn:focus").length > 0);
-    }
+    };
 
     return (xcHelper);
-} (jQuery, {}));
+}(jQuery, {}));
