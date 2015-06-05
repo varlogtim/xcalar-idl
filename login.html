@@ -33,7 +33,7 @@
       <div class="text">
         Username: 
       </div>
-      <input id="loginNameBox" name="httpd_username">
+      <input id="loginNameBox" name="httpd_username" autofocus>
     </div>
     <br><br>
     <div id="loginPassword">
@@ -54,7 +54,8 @@ $(document).ready(function() {
     stage.start();
     setTimeout(function() {
         $('#swiffycontainer').fadeOut(1000, function() {
-            $("#loginContainer").fadeIn();
+            $("#loginContainer").fadeIn(200);
+            $('#loginNameBox').focus();
         });
     }, 4500);
     
