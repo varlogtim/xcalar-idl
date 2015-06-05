@@ -155,7 +155,8 @@ window.JoinModal = (function($, JoinModal) {
 
         var tabHtml     = "";
         var $columnArea = $modal.find('.joinTableArea');
-
+        var dataColNum = $('#xcTable'+(tableNum-1)+' tbody .jsonElement')
+                                                                .index();
         for (var i = 0; i < gTables.length; i++) {
             var table = gTables[i];
 
@@ -215,6 +216,9 @@ window.JoinModal = (function($, JoinModal) {
         }
 
         if (colNum > 0) {
+            if (colNum >= dataColNum) {
+                colNum--;
+            }
             $thToClick = $modal.find('.joinTable:nth-of-type(' + tableNum
                          + ') th:nth-child(' + colNum + ')');
             $thToClick.click();
