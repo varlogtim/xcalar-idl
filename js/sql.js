@@ -74,64 +74,64 @@ window.SQL = (function($, SQL) {
 
         // Here's the real code
         switch (options.operation) {
-        case ("duplicateCol"):
-            // fallthrough
-        case ("delCol"):
-            // fallthrough
-        case ("changeColOrder"):
-            // fallthrough
-        case ("addCol"):
-            // fallthrough
-        case ("pullCol"):
-            // fallthrough
-        case ("archiveTable"):
-            // fallthrough
-        case ("aggregate"):
-            // fallthrough
-        case ("createTable"):
-            // fallthrough
-        case ("exportTable"):
-            // XXX should export tables have an effect?
-            break;
-        // Here are all the ops that need to be replicated
-        case ("renameDatasetCol"):
-            string += cliRenameColHelper(options);
-            break;
-        case ("changeDataType"):
-            string += cliRetypeColHelper(options);
-            break;
-        case ("loadDataSet"):
-            string += cliLoadHelper(options);
-            console.log("load");
-            break;
-        case ("destroyDataSet"):
-            // fallthrough
-        case ("deleteTable"):
-            string += cliDeleteHelper(options);
-            break;
-        case ("filter"):
-            string += cliFilterHelper(options);
-            break;
-        case ("sort"):
-            // fallthrough
-        case ("index"):
-            string += cliIndexHelper(options);
-            break;
-        case ("join"):
-            string += cliJoinHelper(options);
-            break;
-        case ("groupBy"):
-            string += cliGroupByHelper(options);
-            break;
-        case ("mapColumn"):
-            string += cliMapHelper(options);
-            break;
-        default:
-            console.log("XXX! Operation unexpected" + options.operation);
-        }
-        if (string.length > 0) {
-            string += ";";
-        }
+            case ("duplicateCol"):
+                // fallthrough
+            case ("delCol"):
+                // fallthrough
+            case ("changeColOrder"):
+                // fallthrough
+            case ("addCol"):
+                // fallthrough
+            case ("pullCol"):
+                // fallthrough
+            case ("archiveTable"):
+                // fallthrough
+            case ("aggregate"):
+                // fallthrough
+            case ("createTable"):
+                // fallthrough
+            case ("exportTable"):
+                // XXX should export tables have an effect?
+                break;
+            // Here are all the ops that need to be replicated
+            case ("renameDatasetCol"):
+                string += cliRenameColHelper(options);
+                break;
+            case ("changeDataType"):
+                string += cliRetypeColHelper(options);
+                break;
+            case ("loadDataSet"):
+                string += cliLoadHelper(options);
+                break;
+            case ("destroyDataSet"):
+                // fallthrough
+            case ("deleteTable"):
+                string += cliDeleteHelper(options);
+                break;
+            case ("filter"):
+                string += cliFilterHelper(options);
+                break;
+            case ("sort"):
+                // fallthrough
+            case ("index"):
+                string += cliIndexHelper(options);
+                break;
+            case ("join"):
+                string += cliJoinHelper(options);
+                break;
+            case ("groupBy"):
+                string += cliGroupByHelper(options);
+                break;
+            case ("mapColumn"):
+                string += cliMapHelper(options);
+                break;
+            default:
+                console.warn("XXX! Operation unexpected", options.operation);
+            }
+            if (string.length > 0) {
+                // string += ";";
+                string += "\r\n";
+            }
         return (string);
     }
 
