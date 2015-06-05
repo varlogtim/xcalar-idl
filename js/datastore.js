@@ -1123,6 +1123,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 gLastClickTarget.closest(".datasetTable")[0] == $table[0]) {
 
                 var startIndex = gLastClickTarget.closest("th").index();
+                var highlight = gLastClickTarget.closest("th")
+                                .hasClass('selectedCol');
+
                 var endIndex = $input.closest('th').index();
                 if (startIndex > endIndex) {
                     var temp = endIndex;
@@ -1134,8 +1137,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 for (var i = startIndex; i <= endIndex; i++) {
                     var $th = $ths.eq(i);
                     if ($th[0] != gLastClickTarget.closest('th')[0]) {
-                        selectColumn($th.find(".editableHead"), 
+                        if ($th.hasClass('selectedCol') !== highlight) {
+                             selectColumn($th.find(".editableHead"), 
                                         SelectUnit.Single);
+                        }
                     }
                 }
             } else {
