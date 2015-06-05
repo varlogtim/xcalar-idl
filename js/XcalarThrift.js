@@ -369,14 +369,18 @@ function XcalarGetDatasets() {
     return (deferred.promise());
 }
 
-function XcalarGetTables() {
+function XcalarGetTables(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
 
     var deferred = jQuery.Deferred();
-
-    xcalarListTables(tHandle, "*")
+    if (tableName == null) {
+        var patternMatch = "*";
+    } else {
+        var patternMatch = tableName;
+    }
+    xcalarListTables(tHandle, patternMatch)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarGetTables", error));

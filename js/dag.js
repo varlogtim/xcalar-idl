@@ -647,7 +647,6 @@ window.Dag = (function($, Dag) {
 
                 for (var i = 0; i < datasets.numDatasets; i++) {
                     if (datasetName == datasets.datasets[i].name) {
-                        console.log(datasets.datasets[i].url);
                         node.input.loadInput.dataset.url = 
                                                 datasets.datasets[i].url;
                         drawDagHelper(dagObj);
@@ -675,12 +674,12 @@ window.Dag = (function($, Dag) {
             var prop = {
                 x:0, 
                 y:0, 
-                childCount: 0,
+                childCount: 0
             };
             var index = 0;
             var dagArray = dagObj.node;
             var parentChildMap = getParentChildDagMap(dagObj);
-            console.log(dagObj);
+            // console.log(dagObj);
             deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "", 
                              index, parentChildMap));
         }
@@ -1013,6 +1012,7 @@ window.Dag = (function($, Dag) {
     return (Dag);
 
 }(jQuery, {}));
+
 
 window.DagModal = (function($, DagModal){
     var $dagModal = $('#dagParameterModal');

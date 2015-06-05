@@ -1561,16 +1561,7 @@ ul.inputMenu {
             .font(@size: 14px, @line-height: 16px);
         }
     } 
-    .arrow {
-        .position(absolute, @top: 38px, @left: 0);
-        .size(10px, 10px);
-        display: inline-block;
-        background-color: transparent;
-        .transform(rotate(45deg));
-        border: none;
-        z-index: 1;
-        box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
-    }
+    
     .message {
         color: @color-text-darkGray;
         .font(@size: 12px, @line-height: 18px);
@@ -1586,29 +1577,70 @@ ul.inputMenu {
                 color: @color-text-error;
             }
         } 
+        .arrow {
+            .size(10px, 10px);
+            display: inline-block;
+            background-color: transparent;
+            .transform(rotate(45deg));
+            border: none;
+            z-index: 1;
+            box-shadow: 0 0 5px 2px rgba(0,0,0,.2);
+        }
         .boxInnerWrap {
             border: 1px solid @color-error-border;
             &:before, &:after {
-                .position(absolute, @top: 30px, @left: 0);
                 content: "";
                 border-top: 7px solid transparent;
                 border-bottom: 7px solid transparent;
                 margin-left: -9px;
             }
             &:before {
-                border-right: 10px solid @color-error-border;
                 border-top: 8px solid transparent;
                 border-bottom: 8px solid transparent;
                 margin-left: -11px;
                 margin-top: -1px;
             }
             &:after {
-                border-right: 9px solid @color-background-white;
-                margin-right: -2px;
                 z-index: 1;
             }
         }
+        &.right {
+            .arrow {
+                .position(absolute, @top: 38px, @left: 0);
+            }
+            .boxInnerWrap {
+                &:before, &:after {
+                    .position(absolute, @top: 30px, @left: 0);
+                }
+                &:before {
+                    border-right: 10px solid @color-error-border;
+                }
+                &:after {
+                    border-right: 9px solid @color-background-white;
+                    margin-right: -2px;
+                }
+            }
+        }
+        &.left {
+            .arrow {
+                .position(absolute, @top: 38px, @right: 0);
+            }
+            .boxInnerWrap {
+                &:before, &:after {
+                    .position(absolute, @top: 30px, @right: -10px);
+                }
+                &:before {
+                    border-left: 10px solid @color-error-border;
+                }
+                &:after {
+                    border-left: 9px solid @color-background-white;
+                    margin-right: 2px;
+                }
+            }
+        }
+
     }
+    
 }
 /* End Of Status Box */
 

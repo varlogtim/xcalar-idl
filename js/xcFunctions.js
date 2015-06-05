@@ -173,7 +173,11 @@ window.xcFunction = (function ($, xcFunction) {
         var tablCols  = xcHelper.deepCopy(table.tableCols);
         var pCol      = table.tableCols[colNum - 1];
 
-        var newTableName = xcHelper.randName("tempSortTable-");
+        if (!isTable) {
+            var newTableName = table.backTableName;
+        } else {
+            var newTableName = xcHelper.randName("tempSortTable-");
+        }
         var backFieldName;
         var frontFieldName;
 
@@ -505,11 +509,16 @@ window.xcFunction = (function ($, xcFunction) {
             console.log(text, "not indexed correctly!");
             // XXX In the future,we can check if there are other tables that
             // are indexed on this key. But for now, we reindex a new table
-            var newTableName = xcHelper.randName(backTableName);
+           
             var isTable      = table.isTable;
             var srcName      = isTable ?
                                     backTableName :
                                     gTableIndicesLookup[frontName].datasetName;
+            if (!isTable) {
+                var newTableName = backTableName;
+            } else {
+                var newTableName = xcHelper.randName(backTableName);
+            }
 
             getIndexedTable(srcName, colName, newTableName, isTable)
             .then(function() {

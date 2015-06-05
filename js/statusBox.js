@@ -3,19 +3,26 @@ window.StatusBox = (function($, StatusBox){
     var $statusBox = $("#statusBox");
     var $doc       = $(document);
 
-    StatusBox.show = function(text, $target, isFormMode, offset) {
+    StatusBox.show = function(text, $target, isFormMode, offset, options) {
         // position error message
         var bound = $target[0].getBoundingClientRect();
         var top   = bound.top - 30;
         var right = $(window).width() - bound.right - 200;
+        var left = bound.left - 200;
 
         if (offset) {
             right = right + offset;
         }
+        if (options && options.side == 'left') {
+            var side = options.side;
+            $statusBox.css({top: top, left: left, right: 'auto'});
+        } else {
+            var side = 'right';
+            $statusBox.css({top: top, right: right, left: 'auto'});
+        }
+       
 
-        $statusBox.css({top: top, right: right});
-
-        $statusBox.addClass('error');
+        $statusBox.addClass('error '+side);
         $statusBox.find('.titleText').text('Error');
         $statusBox.find('.message').text(text);
 

@@ -565,7 +565,9 @@ window.GridView = (function($, GridView) {
 window.DataCart = (function($, DataCart) {
     var innerCarts = [];
     var $cartArea = $("#dataCart");
-
+    DataCart.innershow = function() {
+        return innerCarts;
+    }
     DataCart.setup = function() {
         $("#submitDSTablesBtn").click(function() {
             $(this).blur();
@@ -573,12 +575,62 @@ window.DataCart = (function($, DataCart) {
             if ($cartArea.find(".selectedTable").length === 0) {
                 return false;
             }
-            createWorksheet()
-            .then(function() {
-                emptyAllCarts();
-                commitToStorage();
+            
+            var datasetsList;
+            var datasetNamesArray = [];
+            var tableNamesArray = [];
+            XcalarGetDatasets()
+            .then(function(datasets) {
+                datasetsList = datasets;
             })
-            .fail(function(error) {
+            .then(XcalarGetTables)
+            .then(function(tables) {
+                 var deferred = jQuery.Deferred();
+                
+                for (var i = 0; i < datasetsList.numDatasets; i ++) {
+                    datasetNamesArray.push(datasetsList.datasets[i].name);
+                }
+                for (var i = 0; i < tables.numTables; i++) {
+                    tableNamesArray.push(tables.tables[i].tableName);
+                }
+                var nameIsValid = true;
+                $cartArea.find(".selectedTable").each(function(){
+                    $cart = $(this);
+                    $input = $cart.find('.tableNameEdit');
+                    var dsName = $cart.attr("id").split("selectedTable-")[1];
+                    var tableName = $.trim($input.val());
+                    if (tableName === "") {
+                        var text = 'Please give your new table a name.';
+                        StatusBox.show(text, $input, true, 0, {side : 'left'});
+                        nameIsValid = false;
+                        return (false);
+                    } else if (datasetNamesArray.indexOf(tableName) != -1) {
+                        var text = 'A dataset with the name "' + tableName +
+                                '" already exists. Please use a unique name.';
+                        StatusBox.show(text, $input, true, 0, {side : 'left'});
+                        nameIsValid = false;
+                        return (false);
+                    } else if (tableNamesArray.indexOf(tableName) != -1) {
+                        var text = 'A table with the name "' + tableName +
+                                '" already exists. Please use a unique name.';
+                        StatusBox.show(text, $input, true, 0, {side : 'left'});
+                        nameIsValid = false;
+                        return (false);
+                    }
+                });
+
+                if (nameIsValid) {
+                    createWorksheet()
+                    .then(function() {
+                        emptyAllCarts();
+                        commitToStorage();
+                    })
+                    .fail(function(error) {
+                        emptyAllCarts();
+                        Alert.error("Create work sheet fails", error);
+                    });
+                }
+            }). fail(function(error) {
                 emptyAllCarts();
                 Alert.error("Create work sheet fails", error);
             });
@@ -604,12 +656,26 @@ window.DataCart = (function($, DataCart) {
 
             removeCartItem(dsname, $li);
         });
+
+        $cartArea.on("keypress", ".tableNameEdit", function(event) {
+            if (event.which === keyCode.Enter) {
+                $(this).blur();
+            }
+        });
+
+        $cartArea.on("change", ".tableNameEdit", function() {
+            var tableName = $.trim($(this).val());
+            var dsName = $(this).closest(".selectedTable").attr("id")
+                            .split("selectedTable-")[1];
+            var cart = filterCarts(dsName, tableName);
+            cart.tableName = tableName;
+        });
     }
     // add column to cart
     DataCart.addItem = function(dsName, $colInput) {
         var colNum = xcHelper.parseColNum($colInput);
         var val    = $colInput.val();
-        var $li    = appendCartItem(dsName, colNum, val);
+        var $li    = appendCartItem(dsName, dsName, colNum, val);
 
         $cartArea.find(".colSelected").removeClass("colSelected");
         $li.addClass("colSelected"); // focus on this li
@@ -632,7 +698,7 @@ window.DataCart = (function($, DataCart) {
         overflowShadow();
         // remove the cart
         for (var i = 0; i < innerCarts.length; i ++) {
-            if (innerCarts[i].name === dsName) {
+            if (innerCarts[i].dsName === dsName) {
                 innerCarts.splice(i, 1);
                 break;
             }
@@ -646,10 +712,11 @@ window.DataCart = (function($, DataCart) {
     DataCart.restore = function(carts) {
         innerCarts = carts;
         innerCarts.forEach(function(cart) {
-            var dsName = cart.name;
+            var dsName = cart.dsName;
+            var tableName = cart.tableName;
             var items = cart.items;
             items.forEach(function(item) {
-                appendCartItem(dsName, item.colNum, item.value);
+                appendCartItem(dsName, tableName, item.colNum, item.value);
             });
         });
     }
@@ -674,16 +741,19 @@ window.DataCart = (function($, DataCart) {
         // );
     }
 
-    function appendCartItem(dsName, colNum, val) {
+    function appendCartItem(dsName, tableName, colNum, val) {
+
         var $cart = $("#selectedTable-" + dsName);
         // this ds's cart not exists yet
         if ($cart.length === 0) {
             $cart =  $('<div id="selectedTable-' + dsName + '" \
                             class="selectedTable">\
-                            <h3>' + dsName + '</h3>\
+                            <input class="tableNameEdit" \
+                                type="text" value="'+tableName+'">\
                             <ul></ul>\
                         </div>');
             $cartArea.prepend($cart);
+            $cart.find('.tableNameEdit').focus().select();
         }
 
         var $li = $('<li style="font-size:13px;" class="colWrap" \
@@ -738,18 +808,21 @@ window.DataCart = (function($, DataCart) {
         innerCarts = [];
     }
 
-    function filterCarts(dsName) {
+    function filterCarts(dsName, tableName) {
         var cart;
         var res = innerCarts.filter(function(curCart) {
-            return curCart.name === dsName;
+            return curCart.dsName === dsName;
         });
 
         if (res.length === 0) {
-            cart = {"name": dsName};
+            cart = {"dsName": dsName, "tableName" : dsName};
             cart.items = [];
             innerCarts.push(cart);
         } else {
             cart = res[0];
+            if (tableName) {
+                cart.tableName = tableName;
+            }    
         }
 
         return (cart);
@@ -757,8 +830,8 @@ window.DataCart = (function($, DataCart) {
 
 
     function triggerScrollToDatasetColumn($li) {
-        var datasetName = $li.closest('ul').siblings('h3').text();
-        var $datasetIcon = $('#dataset-'+datasetName);
+        var tableName = $li.closest('ul').siblings('.tableNameEdit').val();
+        var $datasetIcon = $('#dataset-'+tableName);
         if($datasetIcon.hasClass('active')) {
             DataCart.scrollToDatasetColumn();
         } else {
@@ -791,7 +864,8 @@ window.DataCart = (function($, DataCart) {
                 var startIndex = 0;
                 var datasetName = $cart.attr("id").split("selectedTable-")[1];
 
-                var tableName = xcHelper.randName(datasetName + "-");
+                // var tableName = xcHelper.randName(datasetName + "-");
+                var tableName = $.trim($cart.find('.tableNameEdit').val());
 
                 // add sql
                 var sqlOptions = {
