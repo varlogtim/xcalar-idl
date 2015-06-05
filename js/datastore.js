@@ -594,29 +594,29 @@ window.DataCart = (function($, DataCart) {
                     tableNamesArray.push(tables.tables[i].tableName);
                 }
                 var nameIsValid = true;
+                var errorMsg = "";
+                var $input;
                 $cartArea.find(".selectedTable").each(function(){
-                    $cart = $(this);
+                    var $cart = $(this);
                     $input = $cart.find('.tableNameEdit');
                     var dsName = $cart.attr("id").split("selectedTable-")[1];
                     var tableName = $.trim($input.val());
                     if (tableName === "") {
-                        var text = 'Please give your new table a name.';
-                        StatusBox.show(text, $input, true, 0, {side : 'left'});
+                        errorMsg = 'Please give your new table a name.';
                         nameIsValid = false;
                         return (false);
-                    } else if (datasetNamesArray.indexOf(tableName) != -1) {
-                        var text = 'A dataset with the name "' + tableName +
+                    } else if (datasetNamesArray.indexOf(tableName) !== -1) {
+                        errorMsg = 'A dataset with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
-                        StatusBox.show(text, $input, true, 0, {side : 'left'});
                         nameIsValid = false;
                         return (false);
-                    } else if (tableNamesArray.indexOf(tableName) != -1) {
-                        var text = 'A table with the name "' + tableName +
+                    } else if (tableNamesArray.indexOf(tableName) !== -1) {
+                        errorMsg = 'A table with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
-                        StatusBox.show(text, $input, true, 0, {side : 'left'});
                         nameIsValid = false;
                         return (false);
                     }
+                   
                 });
 
                 if (nameIsValid) {
@@ -629,12 +629,35 @@ window.DataCart = (function($, DataCart) {
                         emptyAllCarts();
                         Alert.error("Create work sheet fails", error);
                     });
+                } else {
+                    var cartRect = $('#dataCartWrap')[0]
+                                      .getBoundingClientRect()
+                    var cartBottom = cartRect.bottom;
+                    var cartTop = cartRect.top;
+                    var inputTop = $input.offset().top;
+                    var inputHeight = $input.height();
+                    var hiddenDistance = (inputTop + inputHeight) - cartBottom;
+                    var distFromTop = inputTop  - cartTop;
+                    if (hiddenDistance > -10) {
+                        var scrollTop = $("#dataCartWrap").scrollTop();
+                        $('#dataCartWrap').scrollTop(scrollTop +
+                                                     hiddenDistance + 10);
+                    } else if (distFromTop < 0) {
+                        var scrollTop = $("#dataCartWrap").scrollTop();
+                        $('#dataCartWrap').scrollTop(scrollTop + distFromTop 
+                                                     - 10);
+                    }
+                    StatusBox.show(errorMsg, $input, true, 0, {side : 'left'});
+                    
+                    
+                    return (false);
                 }
             }). fail(function(error) {
                 emptyAllCarts();
                 Alert.error("Create work sheet fails", error);
             });
         });
+
 
         $("#clearDataCart").click(function() {
             $(this).blur();

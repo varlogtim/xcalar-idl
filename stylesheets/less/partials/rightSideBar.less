@@ -20,8 +20,6 @@
         bottom: 46px;
         left: ~"calc(75% - 15px)";
         .transition (left 0s);
-        overflow: hidden;
-        resize: both;
 
         .popOut {
             .transform (rotate(180deg));
@@ -29,9 +27,8 @@
 
         #rightSideBarBtns {
             position: absolute;
-            .size (@width: 200px);
             bottom: 0px;
-            right: 17px;
+            right: 12px;
             padding: 0;
             white-space: nowrap;
         }
@@ -216,7 +213,6 @@
         overflow-x: hidden;
         overflow-y: auto;
         height: ~"calc(100% - 35px)";
-        max-width: 500px;
         margin: 0 auto;
 
         .tableListSection {
@@ -225,6 +221,17 @@
             &:first-child {
                 display: block;
             }
+        }
+
+        #tableList, #archivedTableList {
+            max-width: 490px;
+            margin: 0 auto;
+        }
+
+        #inactiveTablesList {
+            li.timeLine:first-child {
+                border-top: 1px solid @color-background-sidebar;
+            } 
         }
 
         ul {
@@ -238,7 +245,6 @@
             margin-top: -1px;
             color: @color-text-darkGray;
             .font(@line-height: 25px, @size: 13px);
-            border-top: 1px solid @color-background-sidebar;
             padding-top: 4px;
         }
 
@@ -405,7 +411,7 @@
         }
 
         .tableName {
-            max-width: 150px !important;
+            max-width: ~"calc(100% - 60px)" !important;
         }
 
         .buttonWrap {
