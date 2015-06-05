@@ -34,7 +34,7 @@ function getIndex(tName) {
         gTableIndicesLookup = {};
     }
     if (tName in gTableIndicesLookup) {
-        return (gTableIndicesLookup[tName]['columns']);
+        return (gTableIndicesLookup[tName].columns);
     } else {
         console.log("No such table has been saved before");
         return (null);
@@ -58,29 +58,29 @@ function getDirection(tName) {
 
 function setIndex(tName, index, dsName, tableProperties, backTableName) {
     gTableIndicesLookup[tName] = {};
-    gTableIndicesLookup[tName]['columns'] = index;
-    gTableIndicesLookup[tName]['active'] = true;
-    gTableIndicesLookup[tName]['timeStamp'] = xcHelper.getTimeInMS();
+    gTableIndicesLookup[tName].columns = index;
+    gTableIndicesLookup[tName].active = true;
+    gTableIndicesLookup[tName].timeStamp = xcHelper.getTimeInMS();
     if (dsName) {
-        gTableIndicesLookup[tName]['datasetName'] = dsName;
-        gTableIndicesLookup[tName]['isTable'] = false;
+        gTableIndicesLookup[tName].datasetName = dsName;
+        gTableIndicesLookup[tName].isTable = false;
     } else {
-        gTableIndicesLookup[tName]['isTable'] = true;
+        gTableIndicesLookup[tName].isTable = true;
     }
 
     if (tableProperties) {
-        gTableIndicesLookup[tName]['bookmarks'] = tableProperties.bookmarks;
-        gTableIndicesLookup[tName]['rowHeights'] = tableProperties.rowHeights;
+        gTableIndicesLookup[tName].bookmarks = tableProperties.bookmarks;
+        gTableIndicesLookup[tName].rowHeights = tableProperties.rowHeights;
         
     } else {
-        gTableIndicesLookup[tName]['bookmarks'] = [];
-        gTableIndicesLookup[tName]['rowHeights'] = {};
+        gTableIndicesLookup[tName].bookmarks = [];
+        gTableIndicesLookup[tName].rowHeights = {};
     }
 
     if (backTableName) {
-        gTableIndicesLookup[tName]['backTableName'] = backTableName;
+        gTableIndicesLookup[tName].backTableName = backTableName;
     } else {
-        gTableIndicesLookup[tName]['backTableName'] = tName;
+        gTableIndicesLookup[tName].backTableName = tName;
     }
 }
 
@@ -94,17 +94,17 @@ function commitToStorage(atStartup) {
 
     setTableOrder(atStartup);
     // basic thing to store
-    storage = {"TILookup": gTableIndicesLookup,
-                "TDLookup": gTableDirectionLookup,
-                "worksheets": WSManager.getWorksheets(),
-                "TOLookup": gTableOrderLookup,
-                "gDSObj": DS.getHomeDir(),
-                "holdStatus": KVStore.isHold(),
-                "sql": SQL.getHistory(),
-                "scratchPad": scratchPadText,
-                "datacarts": DataCart.getCarts(),
+    storage = { "TILookup"     : gTableIndicesLookup,
+                "TDLookup"     : gTableDirectionLookup,
+                "worksheets"   : WSManager.getWorksheets(),
+                "TOLookup"     : gTableOrderLookup,
+                "gDSObj"       : DS.getHomeDir(),
+                "holdStatus"   : KVStore.isHold(),
+                "sql"          : SQL.getHistory(),
+                "scratchPad"   : scratchPadText,
+                "datacarts"    : DataCart.getCarts(),
                 "helpStatusOff": HelpController.isOff(),
-                "udfLookup": UDF.get(),
+                "udfLookup"    : UDF.get()
             };
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
@@ -127,35 +127,35 @@ function readFromStorage() {
     KVStore.hold()
     .then(function(gInfos) {
         if (gInfos) {
-            if (gInfos["TILookup"]) {
-                gTableIndicesLookup = gInfos["TILookup"];
+            if (gInfos.TILookup) {
+                gTableIndicesLookup = gInfos.TILookup;
             }
-            if (gInfos["TDLookup"]) {
-                gTableDirectionLookup = gInfos["TDLookup"];
+            if (gInfos.TDLookup) {
+                gTableDirectionLookup = gInfos.TDLookup;
             }
-            if (gInfos["worksheets"]) {
-                WSManager.restoreWS(gInfos["worksheets"]);
+            if (gInfos.worksheets) {
+                WSManager.restoreWS(gInfos.worksheets);
             }
-            if (gInfos["TOLookup"]) {
-                gTableOrderLookup = gInfos["TOLookup"];
+            if (gInfos.TOLookup) {
+                gTableOrderLookup = gInfos.TOLookup;
             }
-            if (gInfos["gDSObj"]) {
-                gDSObjFolder = gInfos["gDSObj"];
+            if (gInfos.gDSObj) {
+                gDSObjFolder = gInfos.gDSObj;
             }
-            if (gInfos["sql"]) {
-                SQL.restoreFromHistory(gInfos["sql"]);
+            if (gInfos.sql) {
+                SQL.restoreFromHistory(gInfos.sql);
             }
-            if (gInfos["scratchPad"]) {
-                $("#scratchPadSection textarea").val(gInfos["scratchPad"]);
+            if (gInfos.scratchPad) {
+                $("#scratchPadSection textarea").val(gInfos.scratchPad);
             }
-            if (gInfos["datacarts"]) {
-                DataCart.restore(gInfos["datacarts"]);
+            if (gInfos.datacarts) {
+                DataCart.restore(gInfos.datacarts);
             }
-            if (gInfos["helpStatusOff"]) {
+            if (gInfos.helpStatusOff) {
                 HelpController.tooltipOff();
             }
-            if (gInfos["udfLookup"]) {
-                UDF.restore(gInfos["udfLookup"]);
+            if (gInfos.udfLookup) {
+                UDF.restore(gInfos.udfLookup);
             }
         } else {
             emptyAllStorage(true);
@@ -166,7 +166,7 @@ function readFromStorage() {
     .then(function(datasets) {
         var numDatasets = datasets.numDatasets;
         // clear KVStore if no datasets are loaded
-        if (numDatasets == 0 || numDatasets == null) {
+        if (numDatasets === 0 || numDatasets == null) {
             gTableIndicesLookup = {};
             gTableDirectionLookup = {};
             gTableOrderLookup = [];
@@ -200,12 +200,12 @@ window.KVStore = (function($, KVStore) {
     var isHold = false;
 
     KVStore.setup = function(usrname, gStorageKey, gLogKey) {
-        KVStore.user        = usrname;
+        KVStore.user = usrname;
         KVStore.gStorageKey = gStorageKey;
-        KVStore.gLogKey     = gLogKey;
+        KVStore.gLogKey = gLogKey;
 
         console.log("You are assigned keys", gStorageKey, gLogKey);
-    }
+    };
 
     KVStore.get = function(key) {
         var deferred = jQuery.Deferred();
@@ -224,7 +224,7 @@ window.KVStore = (function($, KVStore) {
         });
 
         return (deferred.promise());
-    }
+    };
 
     KVStore.getAndParse = function(key) {
         var deferred = jQuery.Deferred();
@@ -251,7 +251,7 @@ window.KVStore = (function($, KVStore) {
         });
 
         return (deferred.promise());
-    }
+    };
 
     KVStore.put = function(key, value, persist) {
         var deferred = jQuery.Deferred();
@@ -265,7 +265,7 @@ window.KVStore = (function($, KVStore) {
         });
 
         return (deferred.promise());
-    }
+    };
 
     KVStore.delete = function(key) {
         var deferred = jQuery.Deferred();
@@ -281,7 +281,7 @@ window.KVStore = (function($, KVStore) {
         });
 
         return (deferred.promise());
-    }
+    };
 
     KVStore.hold = function() {
         var deferred = jQuery.Deferred();
@@ -292,7 +292,7 @@ window.KVStore = (function($, KVStore) {
                 isHold = true;
                 deferred.resolve(null);
             } else {
-                if (gInfos["holdStatus"] === true && 
+                if (gInfos.holdStatus === true &&
                     sessionStorage.getItem(KVStore.user) !== "hold") {
                     Alert.show({
                         "title"  : "Signed on elsewhere!",
@@ -310,7 +310,7 @@ window.KVStore = (function($, KVStore) {
                     });
                     deferred.reject("Already in use!");
                 } else {
-                    if (gInfos["holdStatus"] === true) {
+                    if (gInfos.holdStatus === true) {
                         console.error("KVStore not release last time...");
                     }
                     isHold = true;
@@ -322,7 +322,7 @@ window.KVStore = (function($, KVStore) {
         .fail(deferred.reject);
 
         return (deferred.promise());
-    }
+    };
 
     KVStore.release = function() {
         if (!isHold) {
@@ -331,7 +331,7 @@ window.KVStore = (function($, KVStore) {
         isHold = false;
 
         return (commitToStorage());
-    }
+    };
 
     // XXX in case you are hold forever
     KVStore.forceRelease = function() {
@@ -340,8 +340,8 @@ window.KVStore = (function($, KVStore) {
         .then(function(output) {
             if (output) {
                 var gInfos = JSON.parse(output.value);
-                gInfos["holdStatus"] = false;
-                return (XcalarKeyPut(KVStore.gStorageKey, 
+                gInfos.holdStatus = false;
+                return (XcalarKeyPut(KVStore.gStorageKey,
                                      JSON.stringify(gInfos), false));
             } else {
                 console.error("Output is empty");
@@ -351,17 +351,17 @@ window.KVStore = (function($, KVStore) {
         .then(function() {
             location.reload();
         });
-    }
+    };
 
     KVStore.isHold = function() {
         return (isHold);
-    }
+    };
 
     KVStore.log = function(error) {
         var log = {};
         log.error = error;
         KVStore.put(KVStore.gLogKey, JSON.stringify(log));
-    }
+    };
 
     return (KVStore);
 }(jQuery, {}));

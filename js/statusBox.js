@@ -13,16 +13,18 @@ window.StatusBox = (function($, StatusBox){
         if (offset) {
             right = right + offset;
         }
-        if (options && options.side == 'left') {
-            var side = options.side;
+
+        var side;
+        if (options && options.side === 'left') {
+            side = options.side;
             $statusBox.css({top: top, left: left, right: 'auto'});
         } else {
-            var side = 'right';
+            side = 'right';
             $statusBox.css({top: top, right: right, left: 'auto'});
         }
        
 
-        $statusBox.addClass('error '+side);
+        $statusBox.addClass('error ' + side);
         $statusBox.find('.titleText').text('Error');
         $statusBox.find('.message').text(text);
 
@@ -34,15 +36,15 @@ window.StatusBox = (function($, StatusBox){
             $doc.mousedown(hideStatusBox);
             $doc.keydown(hideStatusBox);
         }
-    }
+    };
 
     function hideStatusBox(event) {
         if (event.data && event.data.target) {
             var id = $(event.target).attr('id');
 
             if (id === "statusBoxClose" ||
-                id != event.data.target.attr('id') ||
-                event.type == "keydown")
+                id !== event.data.target.attr('id') ||
+                event.type === "keydown")
             {
                 $doc.off('mousedown', hideStatusBox);
                 event.data.target.off('keydown', hideStatusBox)

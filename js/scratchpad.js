@@ -20,7 +20,7 @@ function attachScratchpadTabListener() {
         $("#scratchpadArea").toggle();
         $("#scratchpadTab").toggleClass("tabSelected");        
     });
-    if ($(".scratchpad").has(gFnBarOrigin).length != 0) {
+    if ($(".scratchpad").has(gFnBarOrigin).length !== 0) {
         gFnBarOrigin = undefined;
     }
 }
@@ -28,14 +28,14 @@ function attachScratchpadTabListener() {
 function generateScratchpad(row, col) {
     $("#scratchpadTitle").attr("colspan", col);
     var spHTML = "";
-    for (var i = 0; i<row; i++) {
-        spHTML += ("<tr class=row"+i+">");
+    for (var i = 0; i < row; i++) {
+        spHTML += ("<tr class=row" + i + ">");
         equations[i] = [];
         affectedCells[i] = [];
-        for (var j = 0; j<col; j++) {
+        for (var j = 0; j < col; j++) {
             equations[i][j] = "";
             affectedCells[i][j] = [];
-            spHTML += "<td class=col"+j+">";
+            spHTML += "<td class=col" + j + ">";
             spHTML += "<input class='editableHead' type='text'></input>";
             spHTML += "</td>";
         }
@@ -55,12 +55,12 @@ function attachEqualsListener() {
         $(this).keyup(function(e) {
             switch (e.which) {
             case (keyCode.Equal):
-                if (equationCellRow != undefined ||
-                    equationCellCol != undefined) {
+                if (equationCellRow != null ||
+                    equationCellCol != null) {
                     console.log("double equals!");
                     return;
                 }
-                if ($(this).val().indexOf("=") != 0) {
+                if ($(this).val().indexOf("=") !== 0) {
                     console.log("equal not at start of equation");
                     return;
                 }
@@ -69,27 +69,27 @@ function attachEqualsListener() {
                 equationMode();
                 break;
             case (keyCode.Enter):
-                if (equationCellRow == undefined &&
-                    equationCellCol == undefined) {
+                if (equationCellRow == null &&
+                    equationCellCol == null) {
                     $(".scratchpad .editableHead").blur();
                     return;
                 }
                 undoEquationMode();
                 executeFunction();
-                equationCellRow = undefined;
-                equationCellCol = undefined;
+                equationCellRow = null;
+                equationCellCol = null;
                 break;
             case (keyCode.Delete):
-                if (equationCellRow == undefined &&
-                    equationCellCol == undefined) {
-                   $(this).val("");
-                   $("#fnBar").val("");
-                   var cellRow = $(this).parent().parent().attr("class");
-                   var cellCol = $(this).parent().attr("class");
-                   equations[parseInt(cellRow.substring(3))]
+                if (equationCellRow == null &&
+                    equationCellCol == null) {
+                    $(this).val("");
+                    $("#fnBar").val("");
+                    var cellRow = $(this).parent().parent().attr("class");
+                    var cellCol = $(this).parent().attr("class");
+                    equations[parseInt(cellRow.substring(3))]
                             [parseInt(cellCol.substring(3))] = "";
-                   $(this).prop("readonly", false);
-                   $(this).blur();
+                    $(this).prop("readonly", false);
+                    $(this).blur();
                 }
                 break;
             default:
@@ -99,8 +99,8 @@ function attachEqualsListener() {
     });
     $(".scratchpad .editableHead").each(function() {
         $(this).click(function() {
-            if (equationCellRow == undefined &&
-                equationCellCol == undefined) {
+            if (equationCellRow == null &&
+                equationCellCol == null) {
                 $(".scratchpad .editableHead").each(function() {
                     $(this).removeClass("selected");
                     $(this).removeClass("connected");
@@ -111,11 +111,11 @@ function attachEqualsListener() {
                 var cellCol = $(this).parent().attr("class");
                 var affected = affectedCells[parseInt(cellRow.substring(3))]
                                             [parseInt(cellCol.substring(3))];
-                for (var i = 0; i<affected.length; i++) {
+                for (var i = 0; i < affected.length; i++) {
                     var temp1 = affected[i].indexOf("col");
                     var affectedRow = parseInt(affected[i].substring(3, temp1));
-                    var affectedCol = parseInt(affected[i].substring(temp1+3));
-                    $(".scratchpad .row"+affectedRow+" .col"+affectedCol+
+                    var affectedCol = parseInt(affected[i].substring(temp1 + 3));
+                    $(".scratchpad .row" + affectedRow + " .col" + affectedCol +
                       " .editableHead").addClass("connected");
                 }
                 var value = equations[parseInt(cellRow.substring(3))]
@@ -129,8 +129,8 @@ function attachEqualsListener() {
                 console.log(value);
                 $("#fnBar").val(value);
                 gFnBarOrigin = $(this);
-                if (value && value.indexOf("=") == 0) {
-                }
+                // if (value && value.indexOf("=") === 0) {
+                // }
             }
         });
         $(this).change(function() {
@@ -148,11 +148,11 @@ function attachEqualsListener() {
 }
 
 function clickToAppendCell() {
-    var selector = $(".scratchpad ." + equationCellRow+" ."
+    var selector = $(".scratchpad ." + equationCellRow + " ."
                      + equationCellCol + " .editableHead");
     selector.val(selector.val() + $(this).parent().attr("class") +
                  $(this).attr("class"));
-    $(".scratchpad ."+equationCellRow+" ."+equationCellCol+
+    $(".scratchpad ." + equationCellRow + " ." + equationCellCol +
     " .editableHead").focus();
     $("#fnBar").val(selector.val());
 }
@@ -160,40 +160,40 @@ function clickToAppendCell() {
 function equationMode() {
     console.log("EquationMode!");
     $(".scratchpad td")
-        .not(".scratchpad ."+equationCellRow+" ."+equationCellCol)
+        .not(".scratchpad ." + equationCellRow + " ." + equationCellCol)
         .children(".editableHead").each(function() {
             $(this).prop('readonly', true);
         });
     $(".scratchpad td")
-        .not(".scratchpad ."+equationCellRow+" ."+equationCellCol)
+        .not(".scratchpad ." + equationCellRow + " ." + equationCellCol)
         .click(clickToAppendCell);
 }
 
 function undoEquationMode() {
     console.log("No EquationMode!");
     $(".scratchpad td")
-        .not(".scratchpad ."+equationCellRow+" ."+equationCellCol)
+        .not(".scratchpad ." + equationCellRow + " ." + equationCellCol)
         .children(".editableHead").each(function() {
             $(this).prop('readonly', false);
         });
     $(".scratchpad td")
-        .not(".scratchpad ."+equationCellRow+" ."+equationCellCol)
+        .not(".scratchpad ." + equationCellRow + " ." + equationCellCol)
         .unbind("click", clickToAppendCell);
     $(".scratchpad .editableHead").blur();
 }
 
 function replaceValuesInEvalString(str, row, col) {
     affectedCells[row][col] = [];
-    while (str.indexOf("row") != -1) {
+    while (str.indexOf("row") !== -1) {
         var regExp = /(row\d*col\d*)/;
         var matches = regExp.exec(str);
         var regExp2 = /row(\d*)col(\d*)/;
         var matches2 = regExp2.exec(matches[1]);
         var cellRow = matches2[1];
         var cellCol = matches2[2];
-        var cellVal = $(".scratchpad .row"+cellRow+" .col"+cellCol
-                      +" .editableHead").val();
-        if (cellVal == "") {
+        var cellVal = $(".scratchpad .row" + cellRow + " .col" + cellCol
+                        + " .editableHead").val();
+        if (cellVal === "") {
             cellVal = "(0)";
         }
         str = str.replace(matches[1], cellVal);
@@ -203,15 +203,15 @@ function replaceValuesInEvalString(str, row, col) {
 }
 
 function executeFunction() {
-    var selector = $(".scratchpad ." + equationCellRow+" ."
+    var selector = $(".scratchpad ." + equationCellRow + " ."
                      + equationCellCol + " .editableHead");
     console.log("executing function");
     try {
         var row = parseInt(equationCellRow.substring(3));
         var col = parseInt(equationCellCol.substring(3));
         equations[row][col] = selector.val();
-   clickevalString = replaceValuesInEvalString(selector.val().substring(1),
-                                                   row, col);
+        clickevalString = replaceValuesInEvalString(selector.val().substring(1),
+                                                    row, col);
         var value = eval(evalString);
         selector.val(value);
         selector.prop("readonly", true);

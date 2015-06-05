@@ -18,15 +18,16 @@ window.StatusMessage = (function() {
         if ($('#statusSuccess').length > 0) {
             return;
         }
-        var msg = msg || StatusMessageTStr.Loading;
+        msg = msg || StatusMessageTStr.Loading;
         messages.push(msg);
 
-        if (messages.length == 1) {
-            $statusText.append('<span>'+msg+'</span><span>'+msg+'</span>');
+        if (messages.length === 1) {
+            $statusText.append('<span>' + msg + '</span><span>' +
+                                msg + '</span>');
             // we append twice in order to make a full cycle for the carousel
         } else {
             $statusText.children('span:last-child')
-                .before('<span>'+msg+'</span>');
+                .before('<span>' + msg + '</span>');
         }
 
         inScroll = scrollToMessage().then(function() {
@@ -34,8 +35,8 @@ window.StatusMessage = (function() {
 
             if (isFailed) {
                 $('.statusFail').remove();
-                isFailed = false; 
-            } 
+                isFailed = false;
+            }
             
             if (rotatePosition >= messages.length) {
                 $statusText.scrollTop(0);
@@ -51,11 +52,10 @@ window.StatusMessage = (function() {
         
         isLoading = true;
         return (self);
-    }
+    };
 
-    //XX we need a good way to queue messages 
+    //XX we need a good way to queue messages
     // and keep track of which message to show.
-
 
     Message.prototype.success = function(msg) {
         inScroll.then(function() {
@@ -67,8 +67,8 @@ window.StatusMessage = (function() {
                 clearInterval(rotateInterval);
             } else {
                 finishWaiting(msg);
-                var successHTML = '<span id="statusSuccess">'+
-                                  StatusMessageTStr.Completed+
+                var successHTML = '<span id="statusSuccess">' +
+                                    StatusMessageTStr.Completed +
                                   '</span>';
                 $statusText.children('span')
                            .eq(rotatePosition)
@@ -85,10 +85,10 @@ window.StatusMessage = (function() {
     };
 
     Message.prototype.fail = function(failMessage, msg) {
-        var failMessage = failMessage || StatusMessageTStr.Error;
-        var failHTML = '<span class="statusFail">'+
-                       '<span class="text">'+failMessage+'</span>'+
-                       '<span class="icon close"></span>'+
+        failMessage = failMessage || StatusMessageTStr.Error;
+        var failHTML = '<span class="statusFail">' +
+                       '<span class="text">' + failMessage + '</span>' +
+                       '<span class="icon close"></span>' +
                        '</span>';
         
         inScroll.then(function() {
@@ -103,21 +103,21 @@ window.StatusMessage = (function() {
         });
         
         return (self);
-    }
+    };
 
     Message.prototype.isFailed = function(){
         return isFailed;
-    }
+    };
 
     Message.prototype.updateLocation = function() {
         if (!isLoading) {
             var currentPanel = $.trim($('.mainMenuTab.active').text());
             var locationHTML = '<span id="viewLocation">' +
-                               StatusMessageTStr.Viewing + " " + 
-                               currentPanel+'</span>';
+                               StatusMessageTStr.Viewing + " " +
+                               currentPanel + '</span>';
             $statusText.html(locationHTML);
         }
-    }
+    };
 
     function rotateMessages() {
         rotatePosition = 0;
@@ -143,7 +143,7 @@ window.StatusMessage = (function() {
         }, 2000);
 
         return (self);
-    };
+    }
 
     function finishWaiting(msg) {
         isLoading = false;
@@ -156,7 +156,7 @@ window.StatusMessage = (function() {
 
     function scrollToMessage() {
         var scrollAnimation = $statusText.animate({
-            scrollTop : 20 * (++rotatePosition)
+            scrollTop: 20 * (++rotatePosition)
         }, scrollSpeed).promise();
         return (scrollAnimation);
     }

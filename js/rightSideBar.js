@@ -5,12 +5,12 @@ window.RightSideBar = (function($, RightSideBar) {
         setupUDF();
         setupHelpSection();
         setupSQL();
-    }
+    };
 
     RightSideBar.initialize = function() {
         RightSideBar.addTables(gTables, IsActive.Active);
         RightSideBar.addTables(gHiddenTables, IsActive.Inactive);
-    }
+    };
 
     RightSideBar.addTables = function(tables, active) {
         // XXX tables is an array of metaTables;
@@ -19,12 +19,12 @@ window.RightSideBar = (function($, RightSideBar) {
         if (!active) {
             $('#archivedTableList').find('.btnLarge').show();
         }
-    }
+    };
 
     // move table to inactive list
     RightSideBar.moveTable = function(table) {
         var tableName  = table.frontTableName;
-        var $tableList = $('#activeTablesList .tableInfo[data-tablename="' + 
+        var $tableList = $('#activeTablesList .tableInfo[data-tablename="' +
                             tableName + '"]');
         var $timeLine  = $tableList.closest(".timeLine");
 
@@ -39,19 +39,19 @@ window.RightSideBar = (function($, RightSideBar) {
         $tableList.remove();
 
         // clear time line
-        if ($timeLine.find(".tableInfo").length == 0) {
+        if ($timeLine.find(".tableInfo").length === 0) {
             $timeLine.remove();
         }
-    }
+    };
 
     RightSideBar.updateTableInfo = function(table) {
         var tableName  = table.frontTableName;
-        var $tableList = $('#activeTablesList .tableInfo[data-tablename="' + 
+        var $tableList = $('#activeTablesList .tableInfo[data-tablename="' +
                             tableName + '"]');
 
         $tableList.remove();
         RightSideBar.addTables([table], IsActive.Active);
-    }
+    };
 
     RightSideBar.tableBulkAction = function(action) {
         var deferred    = jQuery.Deferred();
@@ -76,13 +76,12 @@ window.RightSideBar = (function($, RightSideBar) {
         $tablesSelected.each(function(index, ele) {
 
             promises.push((function() {
-
                 var innerDeferred = jQuery.Deferred();
                 var $li = $(ele);
                 var tableName = $li.data("tablename");
                 var tableNum = xcHelper.getTableIndexFromName(tableName, true);
 
-                if (tableNum == undefined) {
+                if (tableNum == null) {
                     console.error("Error: do not find the table");
                     innerDeferred.reject();
                     return (innerDeferred.promise());
@@ -95,7 +94,7 @@ window.RightSideBar = (function($, RightSideBar) {
                     table.active = true;
                     table.timeStamp = xcHelper.getTimeInMS();
 
-                    addTable(backTableName, gTables.length, AfterStartup.After, 
+                    addTable(backTableName, gTables.length, AfterStartup.After,
                              null, tableName)
                     .then(function() {
                         // already add the table
@@ -149,7 +148,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 $('#archivedTableList .secondButtonWrap').hide();
             }
             // add sql
-            if (action == "add") {
+            if (action === "add") {
                 SQL.add('Send To WorkSheet', {
                     "operation": "addTable",
                     "tableName": tableName
@@ -167,7 +166,7 @@ window.RightSideBar = (function($, RightSideBar) {
                             .removeClass("selected");
             failures.push(tableName + ": {" + error.error + "}");
         }
-    }
+    };
 
     // setup buttons to open right side bar
     function setupButtons() {
@@ -195,7 +194,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 $sliderBtns.removeClass("active");
                 $sliderBtn.addClass("active");
 
-                $rightBarSections.removeClass("active")
+                $rightBarSections.removeClass("active");
                 $rightBarSections.removeClass("lastOpen");
                 // mark the section and open the right side bar
                 $section.addClass("active");
@@ -256,15 +255,15 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $rightSideBar.draggable({
-            handle: '.heading',
+            handle     : '.heading',
             containment: 'window',
-            cursor: '-webkit-grabbing'
+            cursor     : '-webkit-grabbing'
         });
 
         $rightSideBar.resizable({
-            handles: "n, e, s, w, se",
-            minHeight: 500,
-            minWidth: 264,
+            handles    : "n, e, s, w, se",
+            minHeight  : 500,
+            minWidth   : 264,
             containment: "document"
         });
 
@@ -277,7 +276,7 @@ window.RightSideBar = (function($, RightSideBar) {
             var index    = 0;
 
             if (!$rightSideBar.hasClass("open")) {
-                if ($section.length == 0) {
+                if ($section.length === 0) {
                      // first time open right side bar
                     $section = $rightBarSections.eq(0);
                 } else {
@@ -383,9 +382,10 @@ window.RightSideBar = (function($, RightSideBar) {
         $("#deleteTablesBtn").click(function() {
             Alert.show({
                 "title": "DELETE ARCHIEVED TABLES",
-                "msg": "Are you sure you want to delete selected tables?",
+                "msg"  : "Are you sure you want to delete " +
+                         "selected tables?",
                 "isCheckBox": true,
-                "confirm": function() {
+                "confirm"   : function() {
                     RightSideBar.tableBulkAction("delete")
                     .then(function() {
                         commitToStorage();
@@ -404,12 +404,12 @@ window.RightSideBar = (function($, RightSideBar) {
         var textArea = document.getElementById("udf-codeArea");
         var editor   = CodeMirror.fromTextArea(textArea, {
             "mode": {
-                "name": "python",
-                "version": 3,
+                "name"                  : "python",
+                "version"               : 3,
                 "singleLineStringErrors": false
             },
-            "lineNumbers": true,
-            "indentUnit": 4,
+            "lineNumbers"  : true,
+            "indentUnit"   : 4,
             "matchBrackets": true
         });
 
@@ -458,8 +458,8 @@ window.RightSideBar = (function($, RightSideBar) {
             console.log(path, file);
             var moduleName = path.substring(0, path.indexOf("."));
             var functionName = moduleName;
-            if (path == "") {
-                var text = "File Path is empty," + 
+            if (path === "") {
+                var text = "File Path is empty," +
                            " please choose a file you want to upload";
 
                 StatusBox.show(text, $filePath, true, 150);
@@ -476,7 +476,8 @@ window.RightSideBar = (function($, RightSideBar) {
                         $filePath.val("");
                         uploadSuccess();
                     });
-                }
+                };
+
                 reader.readAsText(file);
             }
         });
@@ -526,7 +527,7 @@ window.RightSideBar = (function($, RightSideBar) {
         $("#udf-fnUpload").click(function() {
             var fileName = $fnName.val();
 
-            if (fileName == "") {
+            if (fileName === "") {
                 var text = "Module name is empty, please input a module name!";
 
                 StatusBox.show(text, $fnName, true, 50);
@@ -537,17 +538,17 @@ window.RightSideBar = (function($, RightSideBar) {
             var entireString = editor.getValue();
             var moduleName;
             if (fileName.indexOf(".") >= 0) {
-                moduleName = fileName.substring(0,fileName.indexOf("."));
+                moduleName = fileName.substring(0, fileName.indexOf("."));
             } else {
                 moduleName = fileName;
             }
             var functionName = moduleName;
             var lines = entireString.split('\n');
             var found = false;
-            for (var i = 0; i<lines.length; i++) {
+            for (var i = 0; i < lines.length; i++) {
                 var line = lines[i];
                 line = jQuery.trim(line);
-                if (line.indexOf("#") != 0 && line.indexOf("def") === 0) {
+                if (line.indexOf("#") !== 0 && line.indexOf("def") === 0) {
                     // This is the function definition
                     var regex = new RegExp('def *([^( ]*)', "g");
                     var matches = regex.exec(line);
@@ -583,7 +584,7 @@ window.RightSideBar = (function($, RightSideBar) {
         alertOptions.isCheckBox = false;
         alertOptions.confirm = function() {
             $("#udfBtn").parent().click();
-        }
+        };
         Alert.show(alertOptions);
     }
 
@@ -601,7 +602,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 console.log("Shut Down Successfully!");
                 return (XcalarStartNodes(2));
             }, function(error) {
-                console.log("Failed to write! Commencing shutdown");
+                console.error("Failed to write! Commencing shutdown", error);
                 return (XcalarStartNodes(2));
             })
             .then(function() {
@@ -635,10 +636,10 @@ window.RightSideBar = (function($, RightSideBar) {
                                               .closest(".tableInfo");
         var $noSheetTables = $tables.filter(function() {
             return $(this).find(".worksheetInfo").hasClass("inactive");
-        })
+        });
 
         if ($noSheetTables.length > 0) {
-            var instr = "You have tables that are not in any worksheet," + 
+            var instr = "You have tables that are not in any worksheet," +
                         " please choose a worksheet to send for those tables!";
 
             $noSheetTables.addClass("highlight");
@@ -655,7 +656,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 "instr"  : instr,
                 "optList": {
                     "label": "Worksheet to send:",
-                    "list" : WSManager.getWSLists(true),
+                    "list" : WSManager.getWSLists(true)
                 },
                 "confirm": function() {
                     $noSheetTables.removeClass("highlight");
@@ -664,8 +665,8 @@ window.RightSideBar = (function($, RightSideBar) {
                     var wsName  = Alert.getOptionVal();
                     var wsIndex = WSManager.getWSByName(wsName);
 
-                    if (wsIndex == undefined) {
-                        Alert.error("Invalid worksheet name", 
+                    if (wsIndex == null) {
+                        Alert.error("Invalid worksheet name",
                                     "please input a valid name!");
                     } else {
                         $noSheetTables.each(function() {
@@ -706,10 +707,10 @@ window.RightSideBar = (function($, RightSideBar) {
 
         var dates = xcHelper.getTwoWeeksDate();
         var p     = dates.length - 1;    // the length should be 8
-        var days  = ["Sunday",    "Monday",  "Tuesday", "Wednesday", 
-                     "Thursday",  "Friday",  "Saturday"];
+        var days  = ["Sunday", "Monday", "Tuesday", "Wednesday",
+                     "Thursday", "Friday", "Saturday"];
 
-        var $tableList = (active === true) ? $("#activeTablesList") : 
+        var $tableList = (active === true) ? $("#activeTablesList") :
                                              $("#inactiveTablesList");
 
         for (var i = 0; i < sortedTables.length; i++) {
@@ -726,14 +727,15 @@ window.RightSideBar = (function($, RightSideBar) {
             // when no such date exists
             if ($tableList.find("> li.date" + p).length === 0) {
                 var date = "";
+                var d;
 
                 switch (dateIndex) {
                     case 0:
-                        var d = dates[dateIndex];
+                        d = dates[dateIndex];
                         date = "Today " + xcHelper.getDate("/", d);
                         break;
                     case 1:
-                        var d = dates[dateIndex];
+                        d = dates[dateIndex];
                         date = "Yesterday " + xcHelper.getDate("/", d);
                         break;
                     // Other days in the week
@@ -742,9 +744,9 @@ window.RightSideBar = (function($, RightSideBar) {
                     case 4:
                     case 5:
                     case 6:
-                        var d = dates[dateIndex];
-                        date = days[d.getDay()] + " " 
-                                                + xcHelper.getDate("/", d);
+                        d = dates[dateIndex];
+                        date = days[d.getDay()] + " " +
+                               xcHelper.getDate("/", d);
                         break;
                     case 7:
                         date = "Last week";
@@ -756,13 +758,13 @@ window.RightSideBar = (function($, RightSideBar) {
                         break;
                 }
 
-                var html = 
+                var timeLineHTML =
                     '<li class="clearfix timeLine date' + p + '">' +
-                        '<div class="timeStamp">' + date + '</div>' + 
-                        '<ul class="tableList"></ul>'
+                        '<div class="timeStamp">' + date + '</div>' +
+                        '<ul class="tableList"></ul>' +
                     '</li>';
 
-                $tableList.prepend(html);
+                $tableList.prepend(timeLineHTML);
             }
 
             var $dateDivider = $tableList.find(".date" + p + " .tableList");
@@ -779,37 +781,37 @@ window.RightSideBar = (function($, RightSideBar) {
             var wsIndex   = WSManager.getWSFromTable(tableName);
             var wsInfo;
 
-            if (wsIndex == undefined) {
+            if (wsIndex == null) {
                 wsInfo = '<div class="worksheetInfo inactive">No sheet</div>';
             } else {
-                wsInfo = 
-                    '<div class="worksheetInfo worksheet-' + wsIndex + '">' + 
-                        WSManager.getWSName(wsIndex) + 
+                wsInfo =
+                    '<div class="worksheetInfo worksheet-' + wsIndex + '">' +
+                        WSManager.getWSName(wsIndex) +
                     '</div>';
             }
 
-            var html = 
-                '<li class="clearfix tableInfo" ' + 
+            var html =
+                '<li class="clearfix tableInfo" ' +
                     'data-tablename="' + tableName + '">' +
                     '<div class="timeStampWrap">' +
-                        '<div class="timeStamp">' + 
+                        '<div class="timeStamp">' +
                             '<span class="time">' + time + '</span>' +
-                        '</div>' + 
-                        wsInfo + 
+                        '</div>' +
+                        wsInfo +
                     '</div>' +
                     '<div class="tableListBox">' +
-                        '<div class="iconWrap">' + 
-                            '<span class="icon"></span>'+
-                        '</div>'+
-                        '<span class="tableName">' + tableName + '</span>' + 
-                        '<span class="addArchivedBtn"></span>' + 
-                        '<span class="numCols">' + numCols + '</span>' + 
-                    '</div>' + 
+                        '<div class="iconWrap">' +
+                            '<span class="icon"></span>' +
+                        '</div>' +
+                        '<span class="tableName">' + tableName + '</span>' +
+                        '<span class="addArchivedBtn"></span>' +
+                        '<span class="numCols">' + numCols + '</span>' +
+                    '</div>' +
                     '<ol>';
 
             for (var j = 0; j < numCols; j++) {
                 // if (table.tableCols[j].name != 'DATA') {
-                html += '<li>' + table.tableCols[j].name + '</li>'
+                html += '<li>' + table.tableCols[j].name + '</li>';
                 // }
             }
 
@@ -820,28 +822,29 @@ window.RightSideBar = (function($, RightSideBar) {
                 $('#archivedTableList .secondButtonWrap').show();
             }
         }
+    }
 
-        function sortTableByTime(tables) {
-            var sortedTables = [];
+    function sortTableByTime(tables) {
+        var sortedTables = [];
 
-            tables.forEach(function(table) {
-                var tableName = table.frontTableName;
-                var timeStamp = gTableIndicesLookup[tableName].timeStamp;
+        tables.forEach(function(table) {
+            var tableName = table.frontTableName;
+            var timeStamp = gTableIndicesLookup[tableName].timeStamp;
 
-                if (timeStamp === undefined) {
-                    console.error("Time Stamp undefined");
-                    timeStamp = xcHelper.getTimeInMS(null, "2014-02-14");
-                }
+            if (timeStamp === undefined) {
+                console.error("Time Stamp undefined");
+                timeStamp = xcHelper.getTimeInMS(null, "2014-02-14");
+            }
 
-                sortedTables.push([table, timeStamp]);
-            });
+            sortedTables.push([table, timeStamp]);
+        });
 
-            // sort by time, from the oldest to newset
-            sortedTables.sort(function(a, b) {return a[1] - b[1]});
+        // sort by time, from the oldest to newset
+        sortedTables.sort(function(a, b) {
+            return (a[1] - b[1]);
+        });
 
-            return (sortedTables);
-        }
-
+        return (sortedTables);
     }
 
     function popOutModal($rightSideBar) {
@@ -880,7 +883,7 @@ window.HelpController = (function($, HelpController){
 
     HelpController.isOff = function() {
         return ($('body').hasClass('tooltipOff'));
-    }
+    };
 
     return (HelpController);
 
@@ -895,34 +898,37 @@ window.UDF = (function($, UDF) {
 
     UDF.get = function() {
         return (UDFLookup);
-    }
+    };
 
     UDF.set = function(moduleName, functionName) {
         UDFLookup[moduleName] = UDFLookup[moduleName] || [];
         UDFLookup[moduleName].push(functionName);
-    }
+    };
     
     UDF.restore = function(oldUDFS) {
         UDFLookup = oldUDFS;
 
+        // for test
         if (testMode) {
-            UDFLookup = {"module1": ["function1", "function2", 
-                "function3", "function4", "function5"],
-                "modlue2": ["func1", "func2"]};
+            UDFLookup = {
+                "module1": ["function1", "function2", "function3",
+                            "function4", "function5"],
+                "modlue2": ["func1", "func2"]
+            };
         }
-    }
+    };
 
     UDF.getDropdownList = function($moduleList, $funcList) {
-        var moduleList  = "";
-        var funcList    = "";
-        var udfs        = UDFLookup;
+        var moduleList = "";
+        var funcList   = "";
+        var udfs       = UDFLookup;
 
         for (var module in udfs) {
             moduleList += '<li class="openli textNoCap">' + module + '</li>';
             udfs[module].forEach(function(func) {
-                funcList += '<li data-module="' + module + '" '+
-                             'class="textNoCap">' + 
-                                func + "()" + 
+                funcList += '<li data-module="' + module + '" ' +
+                             'class="textNoCap">' +
+                                func + "()" +
                             '</li>';
             });
         }
@@ -930,43 +936,43 @@ window.UDF = (function($, UDF) {
         $funcList.find(".list").html(funcList);
         // choose first li
         $moduleList.find(".list li:first-child").click();
-    }
+    };
 
     UDF.dropdownEvent = function($moduleList, $funcList, container) {
         xcHelper.dropdownList($moduleList, {
-            "onSelect" : function($li) {
+            "onSelect": function($li) {
                 var module = $li.text();
 
                 $moduleList.find(".text").val(module);
                 // refresh function list
                 var isFirst = true;
                 $funcList.find(".list li").each(function() {
-                    var $li = $(this);
+                    var $curli = $(this);
 
-                    if ($li.data("module") === module) {
-                        $li.show().addClass("openli");
+                    if ($curli.data("module") === module) {
+                        $curli.show().addClass("openli");
                         if (isFirst) {
-                            $li.click();
+                            $curli.click();
                             // default is to choose first one
                             isFirst = false;
                         }
                     } else {
-                        $li.hide().removeClass("openli");
+                        $curli.hide().removeClass("openli");
                     }
                 });
             },
-            "container": container,
+            "container"    : container,
             "onlyClickIcon": true
         });
 
         xcHelper.dropdownList($funcList, {
-            "onSelect" : function($li) {
+            "onSelect": function($li) {
                 $funcList.find(".text").val($li.text());
             },
-            "container": container,
+            "container"    : container,
             "onlyClickIcon": true
         });
-    }
+    };
 
     return (UDF);
 }(jQuery, {}));
