@@ -238,6 +238,8 @@
             margin-top: -1px;
             color: @color-text-darkGray;
             .font(@line-height: 25px, @size: 13px);
+            border-top: 1px solid @color-background-sidebar;
+            padding-top: 4px;
         }
 
         li.tableInfo {
@@ -428,6 +430,38 @@
                 &#deleteTablesBtn .icon {
                     .image("/images/garbageThick.png", 50%, 50%);
                 }
+            }
+        }
+        .secondButtonWrap {
+            margin-right: 21px;
+            margin-top: 4px;
+            height: 24px;
+            float: right;
+            position: relative;
+            z-index: 2;
+            display: none;
+            .btn {
+                .size (23px, 23px);
+                float: right;
+                margin: 0 4px;
+                box-shadow: -1px 1px 1px 0px rgba(0, 0, 0, 0.3);
+                border-bottom: 1px solid rgba(0,0,0,0.3);
+                border-left: 1px solid rgba(0,0,0,0.3);
+
+                &:active {
+                    box-shadow: inset 0px 1px 1px 0px rgba(0, 0, 0, 0.5), 
+                                0px 1px 1px 0 rgba(255, 255, 255, 0.3);
+                }
+            }
+            .selectAll .icon {
+                margin-left: 1px;
+                width: 20px;
+                .image("/images/select-all-white.png", 50%, 50%);
+            }
+            .clearAll .icon {
+                margin-left: 1px;
+                width: 20px;
+                .image("/images/select-none-white.png", 50%, 50%);
             }
         }
     }

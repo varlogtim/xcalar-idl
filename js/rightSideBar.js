@@ -146,6 +146,7 @@ window.RightSideBar = (function($, RightSideBar) {
             $li.remove();
             if ($timeLine.find('.tableInfo').length === 0) {
                 $timeLine.remove();
+                $('#archivedTableList .secondButtonWrap').hide();
             }
             // add sql
             if (action == "add") {
@@ -321,6 +322,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var $tabsSection       = $("#tableListSectionTabs");
         var $tableListSections = $("#tableListSections .tableListSection");
         var $listBtns          = $("#archivedTableList .buttonWrap .btnLarge");
+        var $selectBtns        = $('#archivedTableList .secondButtonWrap');
 
         $tabsSection.on("click", ".tableListSectionTab", function() {
             var $tab  = $(this);
@@ -346,6 +348,19 @@ window.RightSideBar = (function($, RightSideBar) {
                 $ol.slideDown(200).addClass("open");
             }
         });
+
+        $selectBtns.find('.selectAll').click(function() {
+            $listBtns.removeClass('btnInactive');
+            $('#inactiveTablesList').find('.addArchivedBtn')
+                                    .addClass("selected");
+        });
+
+        $selectBtns.find('.clearAll').click(function() {
+            $listBtns.addClass('btnInactive');
+            $('#inactiveTablesList').find('.addArchivedBtn')
+                                    .removeClass("selected");
+        });
+
 
         $("#inactiveTablesList").on("click", ".addArchivedBtn", function() {
             var $btn = $(this);
@@ -801,6 +816,9 @@ window.RightSideBar = (function($, RightSideBar) {
             html += '</ol></li>';
 
             $dateDivider.prepend(html);
+            if ($('#archivedTableList').find('.tableInfo').length !== 0) {
+                $('#archivedTableList .secondButtonWrap').show();
+            }
         }
 
         function sortTableByTime(tables) {
