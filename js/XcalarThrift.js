@@ -6,27 +6,36 @@ function THandleDoesntExistError() {
 }
 THandleDoesntExistError.prototype = Error.prototype;
 
-function thriftLog(action, status) {
+function thriftLog(title, errRes) {
     var thriftError = {};
-    var msg;
+    var status;
     var error;
+    var type = typeof errRes;
 
-    if (action == undefined) {
-        action = "thrift call";
+    if (title == null) {
+        title = "thrift call";
     }
-    if (typeof status === "number") {
-        thriftError.statusCode = status;
-        msg = action + " failed with status " + status;
+
+    if (type === "number") {
+        status = errRes;
         error = StatusTStr[status];
-        if (status) {
-            msg += ": " + error;
-        }
-        console.log(msg);
+    } else if (type === "object") {
+        status = errRes.status;
+        error = StatusTStr[status];
     } else {
-        error = status;
+        error = errRes;
+    }
+
+    var msg = title + " failed with status " + status;
+
+    if (status) {
+        msg += ": " + error;
+        thriftError.status = status;
     }
 
     thriftError.error = "Error: " + error;
+    console.error(msg);
+
     return (thriftError);
 }
 
@@ -47,22 +56,22 @@ function sleep(val) {
         var type = (match[2] || "ms").toLowerCase();
         var duration = null;
 
-        switch(type) {
-        case "ms":
-            duration = n;
-            break;
-        case "s":
-            duration = s * n;
-            break;
-        case "m":
-            duration = m * n;
-            break;
-        case "h":
-            duration = h * n;
-            break;
-        default:
-            duration = 0;
-            break;
+        switch (type) {
+            case "ms":
+                duration = n;
+                break;
+            case "s":
+                duration = s * n;
+                break;
+            case "m":
+                duration = m * n;
+                break;
+            case "h":
+                duration = h * n;
+                break;
+            default:
+                duration = 0;
+                break;
         }
         return (duration);
     }
@@ -73,9 +82,9 @@ function sleep(val) {
 }
 
 // Should check if the function returns a promise
-// but that would require an extra function call 
+// but that would require an extra function call
 Function.prototype.log = function() {
-    var fn = this
+    var fn = this;
     var args = Array.prototype.slice.call(arguments);
     if (fn && typeof fn === "function") {
         var ret = fn.apply(fn, args);
@@ -87,15 +96,15 @@ Function.prototype.log = function() {
             console.log(ret);
         }
     }
-}
+};
 
 Function.prototype.bind = function() {
     var fn = this;
     var args = Array.prototype.slice.call(arguments);
     var obj = args.shift();
     return (function() {
-        return (fn.apply(obj, 
-            args.concat(Array.prototype.slice.call(arguments))));
+        return (fn.apply(obj,
+                args.concat(Array.prototype.slice.call(arguments))));
     });
 };
 
@@ -119,7 +128,7 @@ function atos(func, args) {
             console.log(retObj);
         }
     );
-} 
+}
 
 function promiseWrapper(value) {
     var deferred = jQuery.Deferred();
@@ -138,7 +147,7 @@ function XcalarGetVersion() {
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarGetVersion()", error));
-    })
+    });
 
     return (deferred.promise());
 }
@@ -158,32 +167,33 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     loadArgs.csv.isCRLF = true;
     loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
     loadArgs.pyLoadArgs.moduleName = "";
-    loadArgs.pyLoadArgs.funcName = ""; 
-    
+    loadArgs.pyLoadArgs.funcName = "";
+
     var formatType;
     switch (format) {
-    case ("JSON"):
-        formatType = DfFormatTypeT.DfFormatJson;
-        break;
-    case ("rand"):
-        formatType = DfFormatTypeT.DfFormatRandom;
-        break;
-    case ("UDF"):
-        formatType = DfFormatTypeT.DfFormatCsv;
-        loadArgs.csv.recordDelim = "\n";
-        loadArgs.csv.fieldDelim = "\t";
-        loadArgs.pyLoadArgs.moduleName = moduleName;
-        loadArgs.pyLoadArgs.funcName = funcName.substring(0, funcName.length-2);
-        break;
-    case ("raw"):
-        loadArgs.csv.fieldDelim = ""; // No Field delim
-        // fallthrough
-    case ("CSV"):
-        formatType = DfFormatTypeT.DfFormatCsv;
-        break;
-    default:
-        formatType = DfFormatTypeT.DfFormatUnknown;
-    } 
+        case ("JSON"):
+            formatType = DfFormatTypeT.DfFormatJson;
+            break;
+        case ("rand"):
+            formatType = DfFormatTypeT.DfFormatRandom;
+            break;
+        case ("UDF"):
+            formatType = DfFormatTypeT.DfFormatCsv;
+            loadArgs.csv.recordDelim = "\n";
+            loadArgs.csv.fieldDelim = "\t";
+            loadArgs.pyLoadArgs.moduleName = moduleName;
+            loadArgs.pyLoadArgs.funcName = funcName.substring(0,
+                                                        funcName.length - 2);
+            break;
+        case ("raw"):
+            loadArgs.csv.fieldDelim = ""; // No Field delim
+            // fallthrough
+        case ("CSV"):
+            formatType = DfFormatTypeT.DfFormatCsv;
+            break;
+        default:
+            formatType = DfFormatTypeT.DfFormatUnknown;
+    }
     xcalarLoad(tHandle, url, datasetName, formatType, 0, loadArgs)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -281,8 +291,8 @@ function XcalarEditColumn(datasetName, currFieldName, newFieldName,
 
     var deferred = jQuery.Deferred();
 
-    xcalarEditColumn(tHandle, datasetName, "", true, 
-                        currFieldName, newFieldName, newFieldType)
+    xcalarEditColumn(tHandle, datasetName, "", true,
+                     currFieldName, newFieldName, newFieldType)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarEditColumn", error));
@@ -393,7 +403,7 @@ function XcalarShutdown(force) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    if (force == undefined) {
+    if (force == null) {
         force = false;
     }
     var deferred = jQuery.Deferred();
@@ -531,51 +541,50 @@ function XcalarSetFree(resultSetId) {
 function generateFilterString(operator, value1, value2, value3) {
     var filterStr = "";
     switch (operator) {
-    case ("Greater Than"):
-        filterStr = "gt("+value1+", "+value2+")";
-        break;
-    case ("Greater Than Equal To"):
-        filterStr = "ge("+value1+", "+value2+")";
-        break;
-    case ("Equals"):
-        filterStr = "eq("+value1+", "+value2+")";
-         break;
-    case ("Less Than"):
-        filterStr = "lt("+value1+", "+value2+")";
-        break;
-    case ("Less Than Equal To"):
-        filterStr = "le("+value1+", "+value2+")";
-        break;
-    case ("Exclude number"):
-        filterStr = "not(eq("+value1+", "+value2+"))";
-        break;
-    case ("Exclude string"):
-        filterStr = "not(like("+value1+', "'+value2+'"))';
-        break;
-    case ("Regex"):
-        filterStr = "regex("+value1+', "'+value2+'")';
-        break;
-    case ("Like"):
-        filterStr = "like("+value1+', "'+value2+'")';
-        break;
-    case ("Custom"):
-        filterStr = value1;
-        break;
-    default:
-        if (value3 != undefined) {
-            filterStr = operator+ "("+value1+", "+value2+", "+value3+")";
-        }else if (value2 == undefined) {
-            filterStr = operator+ "("+value1+")";
-        } else {
-            if (isNaN(value2)) {
-                filterStr = operator+'('+value1+', "'+value2+'")';
+        case ("Greater Than"):
+            filterStr = "gt(" + value1 + ", " + value2 + ")";
+            break;
+        case ("Greater Than Equal To"):
+            filterStr = "ge(" + value1 + ", " + value2 + ")";
+            break;
+        case ("Equals"):
+            filterStr = "eq(" + value1 + ", " + value2 + ")";
+             break;
+        case ("Less Than"):
+            filterStr = "lt(" + value1 + ", " + value2 + ")";
+            break;
+        case ("Less Than Equal To"):
+            filterStr = "le(" + value1 + ", " + value2 + ")";
+            break;
+        case ("Exclude number"):
+            filterStr = "not(eq(" + value1 + ", " + value2 + "))";
+            break;
+        case ("Exclude string"):
+            filterStr = "not(like(" + value1 + ', "' + value2 + '"))';
+            break;
+        case ("Regex"):
+            filterStr = "regex(" + value1 + ', "' + value2 + '")';
+            break;
+        case ("Like"):
+            filterStr = "like(" + value1 + ', "' + value2 + '")';
+            break;
+        case ("Custom"):
+            filterStr = value1;
+            break;
+        default:
+            if (value3 != null) {
+                filterStr = operator + "(" + value1 + ", " + value2 +
+                            ", " + value3 + ")";
+            } else if (value2 == null) {
+                filterStr = operator + "(" + value1 + ")";
             } else {
-                filterStr = operator+'('+value1+', '+value2+')';
+                if (isNaN(value2)) {
+                    filterStr = operator + '(' + value1 + ', "' + value2 + '")';
+                } else {
+                    filterStr = operator + '(' + value1 + ', ' + value2 + ')';
+                }
             }
-            
-        }
-        
-        break;
+            break;
     }
 
     return (filterStr);
@@ -595,8 +604,8 @@ function XcalarFilterHelper(filterStr, srcTablename, dstTablename) {
     var deferred = jQuery.Deferred();
 
     if (filterStr === "") {
-        console.log("Unknown op "+filterStr);
-        deferred.reject("Unknown op "+filterStr);
+        console.error("Unknown op " + filterStr);
+        deferred.reject("Unknown op " + filterStr);
         return (deferred.promise());
     }
 
@@ -653,7 +662,7 @@ function generateAggregateString(fieldName, op) {
         evalStr += "sumInteger(";
         break;
     default:
-        console.log("bug!:"+op);
+        console.log("bug!:" + op);
     }
     
     evalStr += fieldName;
@@ -673,7 +682,7 @@ function XcalarAggregateHelper(srcTablename, evalStr) {
 
     var deferred = jQuery.Deferred();
     if (evalStr === "") {
-        deferred.reject("bug!:"+op);
+        deferred.reject("bug!:" + op);
         return (deferred.promise());
     }
     xcalarAggregate(tHandle, srcTablename, evalStr)
@@ -706,7 +715,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     var deferred = jQuery.Deferred();
     var evalStr = generateAggregateString(oldColName, operator);
     if (evalStr === "") {
-        deferred.reject("Wrong operator! "+operator);
+        deferred.reject("Wrong operator! " + operator);
         return (deferred.promise());
     }
 
@@ -721,11 +730,11 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
 
 function XcalarQuery(query) {
     // XXX Now only have a simple output
-    /* some test case : 
+    /* some test case :
         "load --url file:///var/tmp/gdelt --format csv --name test"
         "filter yelpUsers 'regex(user_id,\"--O\")'"
         
-     */ 
+     */
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
@@ -774,8 +783,8 @@ function XcalarListFiles(url) {
 }
 
 function XcalarMakeRetina(retName, tableName) {
-    if (retName == "" || retName === undefined ||
-        tableName == "" || tableName === undefined ||
+    if (retName === "" || retName == null ||
+        tableName === "" || tableName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -793,7 +802,7 @@ function XcalarMakeRetina(retName, tableName) {
         
 function XcalarListRetinas() {
     // XXX This function is wrong because it does not take in a tablename even
-    // though it should. Hence we just assume that all retinas belong to the 
+    // though it should. Hence we just assume that all retinas belong to the
     // leftmost table.
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -829,7 +838,7 @@ function XcalarUpdateRetina(retName, dagNodeId, funcApiEnum,
 }
 
 function XcalarGetRetina(retName) {
-    if (retName == "" || retName === undefined ||
+    if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -846,8 +855,8 @@ function XcalarGetRetina(retName) {
 }
 
 function XcalarAddParameterToRetina(retName, varName, defaultVal) {
-    if (retName == "" || retName === undefined ||
-        varName == "" || varName === undefined ||
+    if (retName === "" || retName == null ||
+        varName === "" || varName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -880,16 +889,16 @@ function XcalarListParametersInRetina(retName) {
 }
 
 function XcalarExecuteRetina(retName, params) {
-    if (retName == "" || retName === undefined ||
+    if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
 
     var deferred = jQuery.Deferred();
-    var randomTableName = "table"+Math.floor(Math.random()*1000000000 + 1);
+    var randomTableName = "table" + Math.floor(Math.random() * 1000000000 + 1);
 
     xcalarExecuteRetina(tHandle, retName, randomTableName,
-                        retName+".csv", params)
+                        retName + ".csv", params)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarExecuteRetina", error));
@@ -908,11 +917,12 @@ function XcalarKeyLookup(key) {
     xcalarKeyLookup(tHandle, key)
     .then(deferred.resolve)
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarKeyLookup", error);
         // it's normal to find an unexisted key.
-        if (thriftError.statusCode === StatusT.StatusKvEntryNotFound) {
+        if (error === StatusT.StatusKvEntryNotFound) {
+            console.warn("Stataus", error, "Key, not found");
             deferred.resolve(null);
         } else {
+            var thriftError = thriftLog("XcalarKeyLookup", error);
             deferred.reject(thriftError);
         }
     });
@@ -927,7 +937,7 @@ function XcalarKeyPut(key, value, persist) {
 
     var deferred = jQuery.Deferred();
 
-    if (persist == undefined || persist == null) {
+    if (persist == null || persist == null) {
         persist = false;
     }
     xcalarKeyAddOrReplace(tHandle, key, value, persist)
@@ -950,7 +960,7 @@ function XcalarKeyDelete(key) {
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarKeyDelete", error);
-        if (thriftError.statusCode === StatusT.StatusKvEntryNotFound) {
+        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
             deferred.resolve();
         } else {
             deferred.reject(thriftError);
@@ -968,12 +978,12 @@ function XcalarGetStats(numNodes) {
     // XXX This is fako hacked up random code
 
     var nodeStruct = [];
-    for (var i = 0; i<numNodes; i++) {
+    for (var i = 0; i < numNodes; i++) {
         nodeStruct[i] = {};
 
-        var totFlash = Math.floor(Math.random()*1000)*GB;
+        var totFlash = Math.floor(Math.random() * 1000) * GB;
         var usedFlash = Math.floor(Math.random() * totFlash);
-        var totDisk = Math.floor(Math.random()*30*1000)*GB;
+        var totDisk = Math.floor(Math.random() * 30 * 1000) * GB;
         var usedDisk = Math.floor(Math.random() * totDisk);
         nodeStruct[i].totFlash = totFlash;
         nodeStruct[i].usedFlash = usedFlash;
@@ -984,7 +994,7 @@ function XcalarGetStats(numNodes) {
 }
 
 function XcalarApiTop(measureIntervalInMs) {
-     if ([null, undefined].indexOf(tHandle) !== -1) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
@@ -998,7 +1008,7 @@ function XcalarApiTop(measureIntervalInMs) {
 }
 
 function XcalarListXdfs(fnNamePattern, categoryPattern) {
-     if ([null, undefined].indexOf(tHandle) !== -1) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
