@@ -484,6 +484,11 @@ function documentReadyGeneralFunction() {
         $(this).scrollLeft(0);
     });
 
+    //XXX using this to keep window from scrolling up and down;
+    $('#container').scroll(function() {
+        $(this).scrollTop(0);
+    });
+
     $('#mainFrame').scroll(function() {
         $(this).scrollTop(0);
         

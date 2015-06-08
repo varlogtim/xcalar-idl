@@ -1362,7 +1362,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             "$selector": $input,
             "check"    : function() {
                 var $headers = $table.find(".editableHead");
-                return (ColManager.checkColDup($headers, $input));
+                return (ColManager.checkColDup($input, $headers));
             },
             "noWarn": true
         });

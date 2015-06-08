@@ -665,7 +665,8 @@ window.OperationsModal = (function($, OperationsModal) {
                         return ($(this).closest('tr').css('display') !== 'none');
                     });
         $argInputs.each(function(index) {
-            if ($(this).val() === "") {
+            var val = $.trim($(this).val());
+            if (val === "") {
                 allInputsFilled = false;
                 if (!blankOK) {
                     showErrorMessage(inputIndex + index);
@@ -827,7 +828,8 @@ window.OperationsModal = (function($, OperationsModal) {
         console.log("operator:", operator, "newColName:", newColName,
                     "colNum:", colNum, "tableNum:", tableNum);
 
-        var isDuplicate = ColManager.checkColDup($theadInputs, $input);
+        // var isDuplicate = ColManager.checkColDup($theadInputs, $input);
+        var isDuplicate = ColManager.checkColDup($input, null, tableNum);
 
         if (!isDuplicate) {
             xcFunction.groupBy(colIndex, frontName, backName, tableNum,
@@ -843,9 +845,10 @@ window.OperationsModal = (function($, OperationsModal) {
                                                .length;
         var $nameInput   = $operationsModal.find('.argument')
                                            .eq(numVisibleInputs - 1);
+        var newColName = $.trim($nameInput.val());
         var $theadInputs = $('#xcTable' + tableNum).find('.editableHead');
-        var isDuplicate  = ColManager.checkColDup($theadInputs, $nameInput);
-        
+        // var isDuplicate  = ColManager.checkColDup($theadInputs, $nameInput);
+        var isDuplicate = ColManager.checkColDup($nameInput, null, tableNum);
         if (isDuplicate) {
             return (false);
         }
@@ -871,9 +874,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 argums.push(argValue);
             }
         }
-        
-        // var switched  = false;
-        var newColName = $.trim($nameInput.val());
+       
         var mapStr = "";
 
         if (operator.toLowerCase() === "udf") {

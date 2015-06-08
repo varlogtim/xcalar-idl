@@ -1188,7 +1188,9 @@ function addColMenuBehaviors($colMenu) {
     }, 'input');
 
     $colMenu.on('click', 'li', function(event) {
-        if ($(this).children('.subColMenu, input').length === 0 ) {
+        if ($(this).children('.subColMenu, input').length === 0 &&
+            !$(this).hasClass('unavailable')) {
+            
             // hide li if doesnt have a submenu or an input field
             $colMenu.hide();
         }
@@ -1355,6 +1357,9 @@ function addColMenuActions($colMenu, $thead) {
     });
 
     $colMenu.on('click', '.functions', function() {
+        if ($(this).hasClass('unavailable')) {
+            return;
+        }
         var colNum = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var func = $(this).text().replace(/\./g,'');

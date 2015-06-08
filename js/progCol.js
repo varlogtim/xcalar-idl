@@ -286,26 +286,13 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     }
 
-    ColManager.checkColDup = function ($inputs, $input) {
-        // $inputs are the inputs to check names against
-        // $input is the target input
+    ColManager.checkColDup = function ($input, $inputs, tableNum) {
+        // $inputs checks the names of $inputs, tableNum is used to check
+        // back column names. You do not need both
         var name        = jQuery.trim($input.val());
         var isDuplicate = false;
         var title       = "Name already exists, please use another name.";
-
-        $inputs.each(function() {
-            if (isDuplicate) {
-                return;
-            }
-
-            var $checkedInput = $(this);
-
-            if (name === $checkedInput.val() && 
-                $checkedInput[0] != $input[0]) {
-                isDuplicate = true;
-            }
-        });
-
+        
         $(".tooltip").hide();
         // temporarily use, will be removed when backend allow name with space
         if (/ +/.test(name) === true) {
@@ -314,8 +301,35 @@ window.ColManager = (function($, ColManager) {
         } else if (name == 'DATA') {
             title = "The name \'DATA\' is reserved.";
             isDuplicate = true;
+        } 
+
+        if (!isDuplicate && $inputs) {
+            $inputs.each(function() {
+                var $checkedInput = $(this);
+                if (name === $checkedInput.val() && 
+                    $checkedInput[0] != $input[0]) {
+                    isDuplicate = true;
+                    return (false);
+                }
+            });
         }
 
+        if (!isDuplicate && tableNum > -1) {
+            var tableCols   = gTables[tableNum].tableCols;
+            var numCols = tableCols.length;
+            for (var i = 0; i < numCols; i ++) {
+                if (tableCols[i].func.args) {
+                    var backName = tableCols[i].func.args[0];
+                    if (name === backName) {
+                        title = "A column is already using this name, "+
+                                "please use another name.";
+                                isDuplicate = true;
+                        break;
+                    }
+                }   
+            }
+        }
+        
         if (isDuplicate) {
             var container      = $input.closest('.mainPanel').attr('id');
             var $toolTipTarget = $input.parent();
@@ -347,6 +361,7 @@ window.ColManager = (function($, ColManager) {
 
         return (isDuplicate);
     }
+
 
     ColManager.delDupCols = function(index, tableNum, forwardCheck) {
         var index   = index - 1;
