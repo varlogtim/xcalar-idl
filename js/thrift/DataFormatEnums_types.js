@@ -20,7 +20,8 @@ DfFieldTypeT = {
   'DfNull' : 11,
   'DfMixed' : 12,
   'DfFatptr' : 13,
-  'DfScalarPtr' : 14
+  'DfScalarPtr' : 14,
+  'DfScalarObj' : 15
 };
 DfFormatTypeT = {
   'DfFormatUnknown' : 0,
@@ -43,7 +44,8 @@ DfFieldTypeTStr = {0 : 'DfUnknown',
 11 : 'DfNull',
 12 : 'DfMixed',
 13 : 'DfFatptr',
-14 : 'DfScalarPtr'
+14 : 'DfScalarPtr',
+15 : 'DfScalarObj'
 };
 DfFormatTypeTStr = {0 : 'unknown',
 1 : 'json',

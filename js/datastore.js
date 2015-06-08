@@ -772,7 +772,7 @@ window.DataCart = (function($, DataCart) {
             $cart =  $('<div id="selectedTable-' + dsName + '" \
                             class="selectedTable">\
                             <input class="tableNameEdit" \
-                                type="text" value="'+tableName+'">\
+                                type="text" value="'+tableName+'Table">\
                             <ul></ul>\
                         </div>');
             $cartArea.prepend($cart);
