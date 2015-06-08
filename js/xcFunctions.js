@@ -341,6 +341,7 @@ window.xcFunction = (function ($, xcFunction) {
         var frontName    = table.frontTableName;
         var srcName      = table.backTableName;
         var newTableName = xcHelper.randName("tempGroupByTable-");
+        var tablCols     = xcHelper.deepCopy(table.tableCols);
 
         if (colNum === -1) {
             colNum = undefined;
@@ -353,8 +354,28 @@ window.xcFunction = (function ($, xcFunction) {
         XcalarGroupBy(operator, newColName, backFieldName, srcName,
                       newTableName)
         .then(function() {
-            // TODO Create new gTables entry
-            // setIndex(newTableName, newTableCols);
+            var escapedName = newColName;
+            if (newColName.indexOf('.') > -1) {
+                escapedName = newColName.replace(/\./g, "\\\.");
+            }
+            var newProgCol = ColManager.newCol({
+                "index"   : 1,
+                "name"    : newColName,
+                "width"   : gNewCellWidth,
+                "isNewCol"  : false,
+                "userStr" : '"'+newColName+'" = pull('+escapedName+')',
+                "func"    : {
+                    "func": "pull",
+                    "args": [escapedName]
+                }
+            });
+            for (var i = tablCols.length - 1; i >= 0; i--) {
+                tablCols[i].index += 1;
+                tablCols[i + 1] = tablCols[i];
+            }
+            tablCols[0] = newProgCol;
+            setIndex(newTableName, tablCols);
+
             return (refreshTable(newTableName, tableNum,
                     KeepOriginalTables.Keep));
         })

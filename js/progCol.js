@@ -460,6 +460,7 @@ window.ColManager = (function($, ColManager) {
         var numCols   = tableCols.length;
 
         var secondPull = gTableIndicesLookup[frontName].isSortedArray || false;
+        // var secondPull  = false;
         var jsonData   = secondPull ? jsonObj.withKey : jsonObj.normal;
         var numRows    = jsonData.length;
 
@@ -827,6 +828,18 @@ window.ColManager = (function($, ColManager) {
         return (value);
     }
     // End Of Help Functon for pullAllCols and pullCOlHelper
+
+    ColManager.insertColHelper = function(index, tableNum, progCol) {
+         // tableCols is an array of ProgCol obj
+        var tableCols = gTables[tableNum].tableCols;
+
+        for (var i = tableCols.length - 1; i >= index; i--) {
+            tableCols[i].index += 1;
+            tableCols[i + 1] = tableCols[i];
+        }
+
+        tableCols[index] = progCol;
+    };
 
     function insertColHelper(index, tableNum, progCol) {
          // tableCols is an array of ProgCol obj

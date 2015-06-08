@@ -94,11 +94,12 @@ function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
             $('#mainFrame').removeClass('empty');
             documentReadyxcTableFunction(); 
         }
-        if (!getIndex(frontName)) {
-            console.log("This table has never been stored before. " + 
-                        "Storing it now");
-            setIndex(frontName, gTables[tableNum].tableCols, null, null, table);
-        }
+        // XX I don't think we need this anymore since group by has changed
+        // if (!getIndex(frontName)) {
+        //     console.log("This table has never been stored before. " + 
+        //                 "Storing it now");
+        //     setIndex(frontName, gTables[tableNum].tableCols, null, null, table);
+        // }
         if (AfterStartup) {
             RightSideBar.addTables([gTables[tableNum]], IsActive.Active);
         }
