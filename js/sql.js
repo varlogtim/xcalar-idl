@@ -127,11 +127,12 @@ window.SQL = (function($, SQL) {
                 break;
             default:
                 console.warn("XXX! Operation unexpected", options.operation);
-            }
-            if (string.length > 0) {
-                // string += ";";
-                string += "\r\n";
-            }
+        }
+
+        if (string.length > 0) {
+            string += ";";
+        }
+
         return (string);
     }
 
