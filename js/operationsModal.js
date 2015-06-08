@@ -129,6 +129,18 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
+        $operationsModal.on('blur', '.argument', function(event) {
+            var $el = $(this);
+            setTimeout(function() {
+                var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
+                if ($mouseTarget.hasClass('editableHead') && 
+                    $mouseTarget.closest('.xcTable').length !== 0) {
+                    var colName = $mouseTarget.val();
+                    $el.focus().val(colName);
+                }
+            },0);
+        })
+
         $operationsModal.find('.cancel, .close').on('click', function(e, data) {
             var time;
             if (data && data.slow) {
@@ -141,22 +153,12 @@ window.OperationsModal = (function($, OperationsModal) {
                 modalHelper.clear();
                 $functionsMenu.data('category', 'null');
             });
-            $('#opModalBackground').fadeOut(time, function() {
-                $(this).removeClass('light');
-            });
-            $('#sideBarModal').fadeOut(time, function() {
-                $(this).removeClass('light');
-                $('#rightSideBar').removeClass('modalOpen');
-            });
-            
-            
-            $('.modalHighlighted').removeClass('modalHighlighted');
+            $('#xcTable'+tableNum).removeClass('opModalOpen');
+
             $functionInput.attr('placeholder', "");
+            $('#xcTable'+tableNum).find('.editableHead').attr('disabled', false);
             
-            $(document).mousedown(); // hides any error boxes;
-            $('#highlightOffset').remove();
-            $(window).off('resize', moveHighlightedColumn);
-             
+            $(document).mousedown(); // hides any error boxes;    
         });
 
         $operationsModal.on('click', function() {
@@ -203,11 +205,11 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         
         highlightOperationColumn(tableNum, colNum);
+        $('#xcTable'+tableNum).addClass('opModalOpen');
+        $('#xcTable'+tableNum).find('.editableHead').attr('disabled', true);
         $operationsModal = $('#operationsModal');
         $operationsModal.fadeIn(200);
-        $('#opModalBackground').addClass('light').fadeIn(200);
-        $('#sideBarModal').addClass('light').fadeIn(200);
-        $('#rightSideBar').addClass('modalOpen');
+
         $operationsModal.find('.operationsModalHeader .text').text(operator);
         operatorName = $.trim(operator.toLowerCase());
         operatorNoSpace = operatorName.replace(/\s+/g, ''); // remove spaces;
@@ -336,7 +338,6 @@ window.OperationsModal = (function($, OperationsModal) {
         var $visibleLis = $list.find('li').filter(function() {
             return ($(this).text().toLowerCase().indexOf(value) !== -1);
         }).show();
-
 
 
         $visibleLis.sort(sortHTML).prependTo($list);
@@ -491,9 +492,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function isOperationValid(inputNum) {
         var category = $.trim($categoryInput.val().toLowerCase());
-        // var categoryNoSpace = category.replace(/\s+/g, ''); // remove spaces;
         var func = $.trim($functionInput.val().toLowerCase());
-        // var funcNoSpace = func.replace(/\s+/g, ''); // remove spaces;
         if (inputNum === 0) {
             return (categoryNames.indexOf(category) > -1 );
         } else if (inputNum === 1) {
@@ -569,7 +568,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if (opIndex > -1) {
             // var defaultValue;
             var firstDefaultValue;
-            var defaultValue = backColName;
+            var defaultValue = colName;
             if (!firstArgExceptions[category]) {
                 defaultValue = "";
             } else if (firstArgExceptions[category].indexOf(func) != -1) {
@@ -635,9 +634,35 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
+    function checkArgumentParams(blankOK) {
+        var allInputsFilled = true;
+        var inputIndex = 2;
+        var $argInputs = $operationsModal.find('.argumentSection input')
+                                        .filter(function() {
+                        return ($(this).closest('tr').css('display') !== 'none');
+                    });
+        $argInputs.each(function(index) {
+            if ($(this).val() === "") {
+                allInputsFilled = false;
+                if (!blankOK) {
+                    showErrorMessage(inputIndex + index);
+                }
+                return (false);
+            }
+        });
+
+        if (allInputsFilled) {
+            var noFocus = true;
+            enterInput(2, noFocus);
+            return (true);
+        } else {
+            clearInput(2);
+            return (false);
+        }
+    }
+
     function submitForm() {
         // XXX This is a time bomb! We have to fix this
-        // var category = $.trim($categoryInput.val().toLowerCase());
         var func =  $.trim($functionInput.val());
         var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var isPassing = false;
@@ -681,42 +706,16 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function checkArgumentParams(blankOK) {
-        var allInputsFilled = true;
-        var inputIndex = 2;
-        var $argInputs = $operationsModal.find('.argumentSection input')
-                                        .filter(function() {
-                        return ($(this).closest('tr').css('display') !== 'none');
-                    });
-        $argInputs.each(function(index) {
-            if ($(this).val() === "") {
-                allInputsFilled = false;
-                if (!blankOK) {
-                    showErrorMessage(inputIndex + index);
-                }
-                return (false);
-            }
-        });
-
-        if (allInputsFilled) {
-            var noFocus = true;
-            enterInput(2, noFocus);
-            return (true);
-        } else {
-            clearInput(2);
-            return (false);
-        }
-    }
-
     function aggregate(aggrOp) {
-        var colIndex = -1;
-        var columns = gTables[tableNum].tableCols;
-        var numCols = columns.length;
+        
         if (aggrOp === "Udf") {
             Alert.error("Aggregate Failed",
                         "UDF currently not available for aggregates");
             return (false);
         } else {
+            var colIndex = -1;
+            var columns = gTables[tableNum].tableCols;
+            var numCols = columns.length;
             var frontName = $.trim($operationsModal.find('.argument').val());
             var backName = frontName;
             for (var i = 0; i < numCols; i++) {
@@ -746,7 +745,7 @@ window.OperationsModal = (function($, OperationsModal) {
             value3 = $.trim($operationsModal.find('.argument').eq(2).val());
         }   
         console.log(operator, 'operator');
-        
+        var colIndex = colNum;
         if (operator === "udf") {
             // value2 is in the form of fnCall(arg1, arg2, ...) and I need to
             // break it into "fnCall", arg1, arg2, arg3
@@ -759,20 +758,34 @@ window.OperationsModal = (function($, OperationsModal) {
             fltStr += args + "))";
             options = {"filterString": fltStr};
         } else {
+            if (operator !== 'not') {
+                var frontName = value1;
+                var backName = frontName;
+                var columns = gTables[tableNum].tableCols;
+                var numCols = columns.length;
+                for (var i = 0; i < numCols; i++) {
+                    if (columns[i].name === frontName) {
+                        if (columns[i].func.args) {
+                            backName = columns[i].func.args[0];
+                            colIndex = i;
+                        }
+                    }
+                }
+                value1 = backName;
+            }
             options = {"operator": operator,
                        "value1"  : value1,
                        "value2"  : value2,
                        "value3"  : value3};
         }
 
-        return (xcFunction.filter(colNum, tableNum, options));
+        return (xcFunction.filter(colIndex, tableNum, options));
     }
 
     function groupBy(operator) {
         var colIndex = -1;
         var columns = gTables[tableNum].tableCols;
         var numCols = columns.length;
-        // var args = $operationsModal.find('.argument');
         var frontName = $.trim($operationsModal.find('.argument').eq(0).val());
         var backName = frontName;
         for (var i = 0; i < numCols; i++) {
@@ -818,6 +831,16 @@ window.OperationsModal = (function($, OperationsModal) {
         var $firstVal  = $operationsModal.find('.argument').eq(0);
         var firstValue = $.trim($firstVal.val());
         var secondValue;
+        var columns = gTables[tableNum].tableCols;
+        var numCols = columns.length;
+        var backName = firstValue;
+        for (var i = 0; i < numCols; i++) {
+            if (columns[i].name === firstValue) {
+                if (columns[i].func.args) {
+                    backName = columns[i].func.args[0];
+                }
+            }
+        }
         if (numVisibleInputs === 3) {
             var $secondVal  = $operationsModal.find('.argument').eq(1);
             secondValue = $.trim($secondVal.val());
@@ -839,7 +862,7 @@ window.OperationsModal = (function($, OperationsModal) {
             mapStr += funcName + "\",";
             mapStr += args + "))";
         } else {
-            mapStr = formulateMapString(operator, firstValue, secondValue);
+            mapStr = formulateMapString(operator, backName, secondValue);
         }
         console.log(operator, mapStr);
 
@@ -899,33 +922,20 @@ window.OperationsModal = (function($, OperationsModal) {
     function highlightOperationColumn(tableNum, colNum) {
         $th = $('#xcTable' + tableNum).find('th.' + 'col' + colNum);
         $th.addClass('modalHighlighted');
-        var left = $th.offset().left;
-        var style = '<style id="highlightOffset">' +
-                    '.modalHighlighted .header{left:' + left +
-                    'px;}</style>';
-        $(document.body).append(style);
-
         $('#xcTable' + tableNum).find('td.' + 'col' + colNum)
                               .addClass('modalHighlighted');
-        $(window).resize(moveHighlightedColumn);
-    }
-
-    function moveHighlightedColumn() {
-        var left = $th.offset().left;
-        $('#highlightOffset').text('.modalHighlighted .header{left:' + left +
-                                    'px;}');
     }
 
     // empty array means the first argument will always be the column name
     // value of false means the first argument will never be the column name
-    // any functions in the array will not have column name as first argument
+    // any function names in the array will not have column name as first argument
     var firstArgExceptions = {
         'aggregate functions' : [],
         'arithmetic functions' : [],
         'bitwise functions' : [],
         'conditional functions' : ['not'],
-        'conversion functions' : false,
-        'miscellaneous functions' : false,
+        'conversion functions' : [],
+        'miscellaneous functions' : [],
         'trigonometric functions' : []
     }
 
