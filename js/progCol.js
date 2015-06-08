@@ -452,22 +452,17 @@ window.ColManager = (function($, ColManager) {
 
 
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
-                                      tableNum, direction, secondPull)
+                                      tableNum, direction)
     {
         var table     = gTables[tableNum];
+        var frontName = table.frontTableName;
         var tableCols = table.tableCols;
+        var numCols   = tableCols.length;
 
-        // check if already indexed on array and stored the info in gTables
-        for (var i = 0; i < tableCols.length; i++) {
-            if (tableCols[i].isSortedArray) {
-                secondPull = true;
-                break;
-            }
-        }
+        var secondPull = gTableIndicesLookup[frontName].isSortedArray || false;
+        var jsonData   = secondPull ? jsonObj.withKey : jsonObj.normal;
+        var numRows    = jsonData.length;
 
-        var jsonData       = secondPull ? jsonObj.withKey : jsonObj.normal;
-        var numCols        = tableCols.length;
-        var numRows        = jsonData.length;
         var indexedColNums = [];
         var nestedVals     = [];
         var columnTypes    = [];
@@ -562,11 +557,11 @@ window.ColManager = (function($, ColManager) {
                     }
 
                     // if it's the index array field, pull indexed one instead
-                    if (tableCols[col].isSortedArray) {
+                    if (secondPull && tableCols[col].isSortedArray) {
                         var $input  = $table.find('th.col' + (col + 1) +
                                           '> .header input');
                         var key = table.keyName + "_indexed";
-                        $input.val(key + "_indexed");
+                        $input.val(key);
                         tdValue = dataValue[key];
                     }
 
@@ -631,12 +626,12 @@ window.ColManager = (function($, ColManager) {
         // This only run once,  check if it's a indexed array, mark on gTables
         // and redo the pull column thing
         if (!secondPull && columnTypes[indexedColNums[0]] === "array") {
+            gTableIndicesLookup[frontName].isSortedArray = true;
             for (var i = 0; i < indexedColNums.length; i++) {
                 tableCols[indexedColNums[i]].isSortedArray = true;
             }
             return ColManager.pullAllCols(startIndex, jsonObj,
-                                              dataIndex, tableNum,
-                                              direction, true);
+                                          dataIndex, tableNum, direction);
         }
 
         var $tBody = $(tBodyHTML);
@@ -645,8 +640,6 @@ window.ColManager = (function($, ColManager) {
         } else {
             $table.find('tbody').append($tBody);
         }
-
-        // var needSecondPull = false;
 
         for (var i = 0; i < numCols; i++) {
             var $currentTh = $table.find('th.col' + (i + 1));
