@@ -154,6 +154,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $functionsMenu.data('category', 'null');
             });
             $('#xcTable'+tableNum).removeClass('opModalOpen');
+            $('.modalHighlighted').removeClass('modalHighlighted');
 
             $functionInput.attr('placeholder', "");
             $('#xcTable'+tableNum).find('.editableHead').attr('disabled', false);
