@@ -250,7 +250,6 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.addClass('numArgs4');
         }
 
-
         centerPositionElement($operationsModal);
         modalHelper.setup();
 
@@ -270,9 +269,11 @@ window.OperationsModal = (function($, OperationsModal) {
         functionsMap = {};
         categoryNames = [];
         var html = "";
-
         if (operator === "map") {
-            for (var i = 0; i < 6; i++) {
+            for (var i = 0; i < operatorsMap.length; i++) {
+                if (FunctionCategoryTStr[i] === 'Aggregate functions') {
+                    continue;
+                }
                 var categoryName = FunctionCategoryTStr[i].toLowerCase();
                 categoryNames.push(categoryName);
                 functionsMap[i] = operatorsMap[i];
@@ -323,6 +324,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
             i++;
         }
+        operatorsMap.length = i;
     }
 
     function sortHTML(a, b){
@@ -563,8 +565,6 @@ window.OperationsModal = (function($, OperationsModal) {
                 operObj = ops[i];
             }
         }
-
-        console.log(func);
 
         if (opIndex > -1) {
             // var defaultValue;
@@ -937,6 +937,7 @@ window.OperationsModal = (function($, OperationsModal) {
         'conditional functions' : ['not'],
         'conversion functions' : [],
         'miscellaneous functions' : [],
+        'string functions' : [],
         'trigonometric functions' : []
     }
 
