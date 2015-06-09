@@ -2,43 +2,43 @@ window.DataStore = (function($, DataStore) {
     DataStore.setup = function() {
         DS.setup();
         GridView.setup();
-        DatastoreForm.setup()
+        DatastoreForm.setup();
         DataSampleTable.setup();
         DataCart.setup();
-    }
+    };
 
     DataStore.updateInfo = function(numDatasets) {
         $("#worksheetInfo").find(".numDataStores").text(numDatasets);
         $("#datasetExplore").find(".numDataStores").text(numDatasets);
-    }
+    };
 
     DataStore.updateNumDatasets = function() {
         XcalarGetDatasets()
         .then(function(datasets) {
             DataStore.updateInfo(datasets.numDatasets);
         })
-        .fail(function(result) {
-            console.error("Fail to update ds nums");
+        .fail(function(error) {
+            console.error("Fail to update ds nums". error);
         });
-    }
+    };
 
     return (DataStore);
 
 }(jQuery, {}));
 
 window.DatastoreForm = (function($, DatastoreForm) {
-    var $filePath        = $("#filePath");
-    var $fileName        = $("#fileName");
+    var $filePath = $("#filePath");
+    var $fileName = $("#fileName");
 
-    var $formatSection   = $("#fileFormatList");
-    var $formatText      = $formatSection.find(".text");
-    var $formatDropdown  = $("#fileFormatMenu");
+    var $formatSection  = $("#fileFormatList");
+    var $formatText     = $formatSection.find(".text");
+    var $formatDropdown = $("#fileFormatMenu");
 
-    var $csvDelim        = $("#csvDelim");
-    var $fieldDelim      = $("#fieldDelim");
+    var $csvDelim   = $("#csvDelim");
+    var $fieldDelim = $("#fieldDelim");
 
-    var $udfArgs         = $("#udfArgs");
-    var $udfCheckbox     = $("#udfCheckbox");
+    var $udfArgs     = $("#udfArgs");
+    var $udfCheckbox = $("#udfCheckbox");
     // constants
     var formatTranslater = {
         "JSON"  : "JSON",
@@ -71,6 +71,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         }
                         $input.removeClass("nullVal");
                         return false;
+                    case "comma":
+                        $input.val(",");
+                        $input.removeClass("nullVal");
+                        return false;
                     case "null":
                         $input.val("Null");
                         $input.addClass("nullVal");
@@ -91,7 +95,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
                 event.stopPropagation();
 
-                if (val != "") {
+                if (val !== "") {
                     $input.closest(".listSection").find(".text").val(val)
                                                 .removeClass("nullVal");
                     $input.val("");
@@ -155,17 +159,17 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 {
                     "$selector": $fileName,
                     "check"    : DS.has,
-                    "text"     : "Dataset with the name " +  dsName +
-                                 " already exits. Please choose another name.",
-                    "formMode" : true
+                    "formMode" : true,
+                    "text"     : "Dataset with the name " + dsName +
+                                 " already exits. Please choose another name."
                 },
                 {
                     "$selector": $formatText,
                     "check"    : function() {
                         return (dsFormat == null);
                     },
-                    "text"     : "No file format is selected," +
-                                 " please choose a file format!"
+                    "text": "No file format is selected," +
+                            " please choose a file format!"
                 }
             ]);
 
@@ -195,7 +199,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 var text;
 
                 if (result.statusCode === StatusT.StatusDsInvalidUrl) {
-                    text = "Could not retrieve dataset from file path: " 
+                    text = "Could not retrieve dataset from file path: "
                             + loadURL;
                 } else {
                     text = result.error;
@@ -211,7 +215,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // XXX This should be removed in production
         $filePath.keyup(function() {
             var val = $(this).val();
-            if (val.length == 2) {
+            if (val.length === 2) {
                 var file = null;
                 switch (val) {
                     case ("za"):
@@ -288,7 +292,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             $fileName.val(file);
 
-            if (file == "sp500" || file == "gdelt") {
+            if (file === "sp500" || file === "gdelt") {
                 $formatDropdown.find('li[name="CSV"]').click();
             } else {
                 $formatDropdown.find('li[name="JSON"]').click();
@@ -297,9 +301,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $fileName.focus();
         }
 
-        UDF.dropdownEvent($("#udfArgs-moduleList"), $("#udfArgs-funcList"), 
-                     "#importDataView");
-    }
+        UDF.dropdownEvent($("#udfArgs-moduleList"), $("#udfArgs-funcList"),
+                          "#importDataView");
+    };
 
     function delimiterTranslate($input) {
         if ($input.hasClass("nullVal")) {
