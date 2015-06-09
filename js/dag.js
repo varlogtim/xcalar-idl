@@ -1,12 +1,11 @@
 window.DagPanel = (function($, DagPanel) {
     var $dagPanel = $('#dagPanel');
-    var $dagModal = $('#dagParameterModal');
 
     DagPanel.setup = function() {
         setupDagPanelSliding();
         DagModal.setup();
         setupRetina();
-    }
+    };
 
     function setupDagPanelSliding() {
         $("#worksheetTabs").on("click", ".dagTab", function(event) {
@@ -90,7 +89,7 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var retName = jQuery.trim($input.val());
-            if (retName == "") {
+            if (retName === "") {
                 retName = $retTab.data('retname');
             }
 
@@ -105,7 +104,8 @@ window.DagPanel = (function($, DagPanel) {
                 if (retName === name) {
                     isNameConflict = true;
                 }
-            })
+            });
+
             if (isNameConflict === true) {
                 var text = "Retina " + retName + " already exists!";
                 StatusBox.show(text, $input, true);
@@ -122,7 +122,7 @@ window.DagPanel = (function($, DagPanel) {
                 $input.blur();
                 $input.val(retName);
                 if ($retTabSection.find('.retTitle[disabled="disabled"]')
-                                  .length == 0) {
+                                  .length === 0) {
                     $input.attr('disabled', 'disabled');
                 }
             })
@@ -162,10 +162,11 @@ window.DagPanel = (function($, DagPanel) {
             var $btn = $(this);
             var $input = $btn.prev('.newParam');
             var paramName = jQuery.trim($input.val());
+            var text;
 
             // empty input
-            if (paramName == "") {
-                var text = "Please input a valid parameter name!";
+            if (paramName === "") {
+                text = "Please input a valid parameter name!";
                 StatusBox.show(text, $input, true);
                 $input.val("");
                 return;
@@ -191,7 +192,7 @@ window.DagPanel = (function($, DagPanel) {
                 }
             });
             if (isNameConflict === true) {
-                var text = "Parameter " + paramName + " already exists!";
+                text = "Parameter " + paramName + " already exists!";
                 StatusBox.show(text, $input, true);
                 return;
             }
@@ -202,15 +203,15 @@ window.DagPanel = (function($, DagPanel) {
             // XXX currently, it is useless code
             // else {
             //     var html = '<tr>' +
-            //                     '<td class="paramName">' + 
-            //                             paramName +  
-            //                     '</td>' + 
-            //                     '<td>' + 
-            //                         '<div class="paramVal"></div>' + 
+            //                     '<td class="paramName">' +
+            //                             paramName +
+            //                     '</td>' +
+            //                     '<td>' +
+            //                         '<div class="paramVal"></div>' +
             //                         '<div class="delete paramDelete">' +
-            //                             '<span class="icon"></span>' + 
-            //                         '</div>' + 
-            //                     '</td>' + 
+            //                             '<span class="icon"></span>' +
+            //                         '</div>' +
+            //                     '</td>' +
             //                '</tr>';
             //     $tbody.append(html);
             // }
@@ -225,15 +226,16 @@ window.DagPanel = (function($, DagPanel) {
             var paramName = $tr.find('.paramName').text();
             var options = {};
             options.title = 'DELETE RETINA PARAMETER';
-            options.msg = 'Are you sure you want to delete parameter ' 
-                          + paramName + '?';
+            options.msg = 'Are you sure you want to delete parameter ' +
+                           paramName + '?';
             options.isCheckBox = true;
             options.confirm = function() {
                 $tr.find('.paramName').empty();
                 $tr.find('.paramVal').empty();
                 $tr.addClass('unfilled');
                 $tbody.append($tr);
-            }
+            };
+
             Alert.show(options);
         });
     }
@@ -244,41 +246,72 @@ window.DagPanel = (function($, DagPanel) {
 
 
 window.Dag = (function($, Dag) {
+    var dagApiMap = {
+        2 : 'loadInput',
+        3 : 'indexInput',
+        6 : 'statInput',
+        7 : 'statByGroupIdInput',
+        10: 'listTablesInput',
+        13: 'makeResultSetInput',
+        14: 'resultSetNextInput',
+        15: 'joinInput',
+        16: 'filterInput',
+        17: 'groupByInput',
+        19: 'editColInput',
+        20: 'resultSetAbsoluteInput',
+        21: 'freeResultSetInput',
+        22: 'deleteTableInput',
+        23: 'getTableRefCountInput',
+        23: 'tableInput',
+        24: 'bulkDeleteTablesInput',
+        25: 'destroyDsInput',
+        26: 'mapInput',
+        27: 'aggregateInput',
+        28: 'queryInput',
+        29: 'queryStateInput',
+        30: 'exportInput',
+        31: 'dagTableNameInput',
+        32: 'listFilesInput'
+    };
+
     Dag.construct = function(tableName, tableNum) {
         var deferred = jQuery.Deferred();
 
         drawDag(tableName, tableNum)
         .then(function(dagDrawing) {
-            var outerDag = '<div class="dagWrap" id="dagWrap'+tableNum+'">'+
-                '<div class="header clearfix">'+
-                    '<div class="btn btnSmall infoIcon">'+
-                        '<div class="icon"></div>'+
-                    '</div>'+
-                    '<div class="tableTitleArea">'+
-                        'Table: <span class="tableName">'+tableName+'</span>'+
-                    '</div>'+
-                    '<div class="retinaArea" data-tablename="' + 
-                        tableName + '">' + 
-                        '<div data-toggle="tooltip" data-container="body" '+
-                        'data-placement="top" title="Create New Retina" '+
-                        'class="btn addRet">' + 
-                            '<span class="icon"></span>' + 
-                        '</div>' + 
+            var outerDag =
+                '<div class="dagWrap" id="dagWrap' + tableNum + '">' +
+                '<div class="header clearfix">' +
+                    '<div class="btn btnSmall infoIcon">' +
+                        '<div class="icon"></div>' +
+                    '</div>' +
+                    '<div class="tableTitleArea">' +
+                        'Table: <span class="tableName">' +
+                        tableName +
+                        '</span>' +
+                    '</div>' +
+                    '<div class="retinaArea" data-tablename="' +
+                        tableName + '">' +
+                        '<div data-toggle="tooltip" data-container="body" ' +
+                        'data-placement="top" title="Create New Retina" ' +
+                        'class="btn addRet">' +
+                            '<span class="icon"></span>' +
+                        '</div>' +
                         '<div class="retTabSection"></div>' +
                     '</div>' +
-                '</div>'+
+                '</div>' +
                 '</div>';
 
-            var innerDag = '<div class="dagImageWrap"><div class="dagImage">'+
-                            dagDrawing+'</div></div>';
+            var innerDag = '<div class="dagImageWrap"><div class="dagImage">' +
+                            dagDrawing + '</div></div>';
 
-            if (tableNum == 0) {
+            if (tableNum === 0) {
                 $('.dagArea').prepend(outerDag);
             } else {
-                $('#dagWrap'+(tableNum-1)).after(outerDag);
+                $('#dagWrap' + (tableNum - 1)).after(outerDag);
             }
 
-            var $dagWrap = $('#dagWrap'+tableNum);
+            var $dagWrap = $('#dagWrap' + tableNum);
             $dagWrap.append(innerDag);
             var canvas = createCanvas($dagWrap);
             var ctx = canvas.getContext('2d');
@@ -297,76 +330,76 @@ window.Dag = (function($, Dag) {
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log('dag failed');
+            console.error('dag failed', error);
             deferred.reject(error);
         });
 
         return (deferred.promise());
-    }
+    };
 
     Dag.createRetina = function($retTabSection, retName) {
         var deferred = jQuery.Deferred();
         var retClass = "retTab";
-        var inputVal = "";
+        // var inputVal = "";
         var isNewRetina = false;
-        if (retName == undefined) {
+        if (retName == null) {
             var len = $retTabSection.children().length;
             retName = 'Retina ' + (len + 1);
             retClass += " unconfirmed";
             isNewRetina = true;
-            intputHTML = '<input type="text" class="retTitle"' +  
+            intputHTML = '<input type="text" class="retTitle"' +
                          '" placeholder="' + retName + '">';
         } else {
-            intputHTML = '<input type="text" class="retTitle">'; 
+            intputHTML = '<input type="text" class="retTitle">';
         }
 
-        var html = 
-            '<div class="' + retClass + '">' + 
-                '<div class="tabWrap">' + 
-                    intputHTML + 
-                    '<div class="caret">' + 
-                        '<span class="icon"></span>' + 
-                    '</div>' + 
-                '</div>' + 
-                '<div class="retPopUp">' + 
-                    '<div class="divider"></div>' + 
-                    '<div class="inputSection">' + 
-                        '<input class="newParam" type="text"' + 
-                        ' placeholder="Input New Parameter">' + 
-                        '<div class="btn addParam">' + 
-                            '<span class="icon"></span>' + 
-                            '<span class="label">' + 
-                                'CREATE NEW PARAMETER' + 
-                            '</span>' + 
+        var html =
+            '<div class="' + retClass + '">' +
+                '<div class="tabWrap">' +
+                    intputHTML +
+                    '<div class="caret">' +
+                        '<span class="icon"></span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="retPopUp">' +
+                    '<div class="divider"></div>' +
+                    '<div class="inputSection">' +
+                        '<input class="newParam" type="text"' +
+                        ' placeholder="Input New Parameter">' +
+                        '<div class="btn addParam">' +
+                            '<span class="icon"></span>' +
+                            '<span class="label">' +
+                                'CREATE NEW PARAMETER' +
+                            '</span>' +
                         '</div>' +
-                    '</div>' + 
-                    '<div class="tableContainer">' + 
-                        '<div class="tableWrapper">' + 
-                            '<table>' + 
-                                '<thead>' + 
+                    '</div>' +
+                    '<div class="tableContainer">' +
+                        '<div class="tableWrapper">' +
+                            '<table>' +
+                                '<thead>' +
                                     '<tr>' +
-                                        '<th>' + 
-                                            '<div class="thWrap">' + 
-                                                'Current Parameter' + 
-                                            '</div>' + 
-                                        '</th>' + 
-                                        '<th>' + 
-                                            '<div class="thWrap">' + 
-                                                'Default Value' + 
-                                            '</div>' + 
-                                        '</th>' + 
-                                    '</tr>' + 
+                                        '<th>' +
+                                            '<div class="thWrap">' +
+                                                'Current Parameter' +
+                                            '</div>' +
+                                        '</th>' +
+                                        '<th>' +
+                                            '<div class="thWrap">' +
+                                                'Default Value' +
+                                            '</div>' +
+                                        '</th>' +
+                                    '</tr>' +
                                 '</thead>' +
                                 '<tbody>';
         for (var i = 0; i < 7; i++) {
             html += '<tr class="unfilled">' +
-                        '<td class="paramName"></td>' + 
-                        '<td>' + 
-                            '<div class="paramVal"></div>' + 
+                        '<td class="paramName"></td>' +
+                        '<td>' +
+                            '<div class="paramVal"></div>' +
                             '<div class="delete paramDelete">' +
-                                '<span class="icon"></span>' + 
-                            '</div>' + 
-                        '</td>' + 
+                                '<span class="icon"></span>' +
+                            '</div>' +
+                        '</td>' +
                    '</tr>';
         }
 
@@ -383,7 +416,7 @@ window.Dag = (function($, Dag) {
             var $input = $retTab.find('.retTitle');
             $input.val(retName);
             if ($retTabSection.find('.retTitle[disabled="disabled"]')
-                              .length == 0) {
+                              .length === 0) {
                 $input.attr('disabled', 'disabled');
             }
             var $tbody = $retTab.find('tbody');
@@ -392,7 +425,7 @@ window.Dag = (function($, Dag) {
             .then(function(output) {
                 var num = output.numParameters;
                 var params = output.parameters;
-                for (var i = 0; i < num; i ++) {
+                for (var i = 0; i < num; i++) {
                     var param = params[i];
                     var paramName = param.parameterName;
                     var paramVal = param.parameterValue;
@@ -406,7 +439,7 @@ window.Dag = (function($, Dag) {
             });
         }
         return (deferred.promise());
-    }
+    };
 
     Dag.addParamToRetina = function($tbody, name, val) {
         var $trs = $tbody.find('.unfilled');
@@ -419,11 +452,10 @@ window.Dag = (function($, Dag) {
             }
             $tr.removeClass('unfilled');
         }
-    }
-
+    };
 
     function addDagEventListeners($dagWrap) {
-        var $currentIcon; 
+        var $currentIcon;
         $dagWrap.on('click', '.dagTable.dataStore, .actionType', function() {
             $('.colMenu').hide();
             $currentIcon = $(this);
@@ -434,12 +466,12 @@ window.Dag = (function($, Dag) {
             var leftMargin = 0;
             var top = el[0].getBoundingClientRect().bottom + topMargin;
             var left = el[0].getBoundingClientRect().left + leftMargin;
-            var offsetTop = $('#workspaceBar')[0].getBoundingClientRect()
-                                                 .bottom;
+            // var offsetTop = $('#workspaceBar')[0].getBoundingClientRect()
+            //                                      .bottom;
             if ($('#dagPanel').hasClass('midway')) {
                 top -= $('#dagPanel').offset().top;
             }       
-            $menu.css({'top':top, 'left':left});
+            $menu.css({'top': top, 'left': left});
             $menu.show();
 
             //positioning if dropdown menu is on the right side of screen
@@ -457,12 +489,12 @@ window.Dag = (function($, Dag) {
         });
 
         $dagWrap.find('.colMenu li')
-            .mouseenter(function() {
-                $(this).children('ul').addClass('visible');
-                $(this).addClass('selected');
-            }).mouseleave(function(event) {
-                $(this).children('ul').removeClass('visible');
-                $(this).removeClass('selected');
+        .mouseenter(function() {
+            $(this).children('ul').addClass('visible');
+            $(this).addClass('selected');
+        }).mouseleave(function() {
+            $(this).children('ul').removeClass('visible');
+            $(this).removeClass('selected');
         });
 
         $dagWrap.find('.colMenu .createParamQuery').click(function() {
@@ -483,14 +515,14 @@ window.Dag = (function($, Dag) {
             return;
         }
         var $retTabSection = $dagWrap.find('.retTabSection');
-        // List All Retinas and now append to first table 
+        // List All Retinas and now append to first table
         XcalarListRetinas()
         .then(function(listRetinasOutput) {
             console.log(listRetinasOutput);
             var len =  listRetinasOutput.numRetinas;
             var retinas = listRetinasOutput.retinaDescs;
             var promises = [];
-            for (var i = 0; i < len; i ++) {
+            for (var i = 0; i < len; i++) {
                 var name = retinas[i].retinaName;
                 promises.push(Dag.createRetina
                                  .bind(this, $retTabSection, name));
@@ -498,145 +530,146 @@ window.Dag = (function($, Dag) {
             return (chain(promises));
         })
         .fail(function(error) {
-            console.log("appendRetinas fails!");
+            console.error("appendRetinas fails!", error);
         });
     }
 
     function getDagDropDownHTML() {
-        var html = 
-        '<ul class="colMenu dagDropDown">'+
-            '<li class="createParamQuery">Create Parameterized Query</li>'+
-            '<li class="modifyParams">Modify Existing Parameters</li>'+
-            // '<li class="listParams">List of ? Parameters</li>'+
+        var html =
+        '<ul class="colMenu dagDropDown">' +
+            '<li class="createParamQuery">Create Parameterized Query</li>' +
+            '<li class="modifyParams">Modify Existing Parameters</li>' +
+            // '<li class="listParams">List of ? Parameters</li>' +
         '</ul>';
         return (html);
     }
 
     function drawDagNode(dagNode, prop, dagArray, html, index, parentChildMap) {
         var properties = {};
-        properties.x = prop.x+1;
+        properties.x = prop.x + 1;
         properties.width = prop.width;
         var numChildren = parentChildMap[index].length;
         var accumulatedDrawings = "";
 
         for (var i = 0; i < numChildren; i++) {
             var childIndex = parentChildMap[index][i];
-            properties.y = i*2 +1 - numChildren + prop.y;
-            accumulatedDrawings += drawDagNode(dagArray[childIndex], properties, 
+            properties.y = i * 2 + 1 - numChildren + prop.y;
+            accumulatedDrawings += drawDagNode(dagArray[childIndex], properties,
                                    dagArray, html, childIndex, parentChildMap);
         }
         
         var oneTable = drawDagTable(dagNode, prop, dagArray);
         var newHtml;
         if (accumulatedDrawings) {
-            newHtml = "<div class='joinWrap'><div class='childContainer'>"+
-                      accumulatedDrawings+"</div>"+oneTable+"</div>";
+            newHtml = "<div class='joinWrap'><div class='childContainer'>" +
+                      accumulatedDrawings + "</div>" + oneTable + "</div>";
         }
 
         if (newHtml) {
             return (newHtml);
         } else {
-            return (accumulatedDrawings+oneTable);
+            return (accumulatedDrawings + oneTable);
         }
     }
 
     function drawDagTable(dagNode, prop, dagArray) {
-        var top = 200 + (prop.y*60);
-        var right = 100 + (prop.x*170);
+        // var top = 200 + (prop.y * 60);
+        // var right = 100 + (prop.x * 170);
         var dagOrigin = drawDagOrigin(dagNode, prop, dagArray);
         var dagTable = '<div class="dagTableWrap clearfix">' +
                         dagOrigin;
-        if (dagOrigin == "") {
+        if (dagOrigin === "") {
             var key = dagApiMap[dagNode.api];
             var dagInfo = getDagNodeInfo(dagNode, key);
             var url = dagInfo.url;
             var id = dagInfo.id;
-            dagTable += '<div class="dagTable dataStore" '+
-                        'data-type="dataStore" '+
-                        'data-id="'+id+'" '+
-                        'data-url="'+url+'">'+
-                            '<div class="dataStoreIcon"></div>'+
-                            '<div class="icon"></div>'+
-                            '<span class="tableTitle" '+
-                            'data-toggle="tooltip" '+
-                            'data-placement="bottom" '+
-                            'data-container="body" '+
-                            'title="'+getDagName(dagNode)+'">'+
-                            'Dataset '+
-                                getDagName(dagNode)+
+            dagTable += '<div class="dagTable dataStore" ' +
+                        'data-type="dataStore" ' +
+                        'data-id="' + id + '" ' +
+                        'data-url="' + url + '">' +
+                            '<div class="dataStoreIcon"></div>' +
+                            '<div class="icon"></div>' +
+                            '<span class="tableTitle" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="bottom" ' +
+                            'data-container="body" ' +
+                            'title="' + getDagName(dagNode) + '">' +
+                            'Dataset ' +
+                                getDagName(dagNode) +
                             '</span>';
         } else {
             dagTable += '<div class="dagTable">' +
-                            '<div class="dagTableIcon"></div>'+
-                            '<div class="icon"></div>'+
-                            '<span class="tableTitle" '+
-                            'data-toggle="tooltip" '+
-                            'data-placement="bottom" '+
-                            'data-container="body" '+
-                            'title="'+getDagName(dagNode)+'">'+
-                                getDagName(dagNode)+
+                            '<div class="dagTableIcon"></div>' +
+                            '<div class="icon"></div>' +
+                            '<span class="tableTitle" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="bottom" ' +
+                            'data-container="body" ' +
+                            'title="' + getDagName(dagNode) + '">' +
+                                getDagName(dagNode) +
                             '</span>';
         }
         dagTable += '</div></div>';
         return (dagTable);
     }
 
-    function drawDagOrigin(dagNode, prop, dagArray) {
+    function drawDagOrigin(dagNode) {
         var originHTML = "";
         var numChildren = getDagNumChildren(dagNode);
 
         if (numChildren > 0) {
             var children = getDagChildrenNames(dagNode.api, dagNode);
             var additionalInfo = "";
-            if (numChildren == 2) {
-                additionalInfo += " & "+children[1];
+            if (numChildren === 2) {
+                additionalInfo += " & " + children[1];
             }
             var key = dagApiMap[dagNode.api];
             var name = key.substring(0, key.length - 5);
             var info = getDagNodeInfo(dagNode, key, children);
-            if (info.type == "sort") {
+            if (info.type === "sort") {
                 name = "sort";
             }
 
-            var top = 210 + (prop.y*60);
-            var right = 180 + (prop.x*170);
-            originHTML += '<div class="actionType '+name+'" '+
-                        'style="top:'+0+'px; right:'+0+'px;" '+
-                        'data-type="'+name+'" '+
-                        'data-info="'+info.text+'" '+
-                        'data-column="'+info.column+'" '+
-                        'data-id="'+info.id+'" '+
-                        'data-toggle="tooltip" '+
-                        'data-placement="top" '+
-                        'data-container="body" '+
-                        'title="'+info.tooltip+'">'+
-                            '<div class="actionTypeWrap" >'+
-                                '<div class="dagIcon '+name+' '+info.type+'">'+
+            // var top = 210 + (prop.y * 60);
+            // var right = 180 + (prop.x * 170);
+            originHTML += '<div class="actionType ' + name + '" ' +
+                        'style="top:' + 0 + 'px; right:' + 0 + 'px;" ' +
+                        'data-type="' + name + '" ' +
+                        'data-info="' + info.text + '" ' +
+                        'data-column="' + info.column + '" ' +
+                        'data-id="' + info.id + '" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'title="' + info.tooltip + '">' +
+                            '<div class="actionTypeWrap" >' +
+                                '<div class="dagIcon ' + name + ' ' +
+                                    info.type + '">' +
                                     '<div class="icon"></div>';
-            if (name == 'groupBy') {
-                originHTML +=   '<div class="icon icon2 '+info.type+'"></div>';
+            if (name === 'groupBy') {
+                originHTML += '<div class="icon icon2 ' + info.type + '"></div>';
             }
-            originHTML +=           '</div>'+
-                                '<span class="typeTitle">'+name+
-                                '</span>'+
-                                '<span class="childrenTitle">'+
-                                    children[0]+additionalInfo+
-                                '</span>'+
-                            '</div>'+
+            originHTML +=
+                        '</div>' +
+                            '<span class="typeTitle">' + name + '</span>' +
+                            '<span class="childrenTitle">' +
+                                children[0] + additionalInfo +
+                            '</span>' +
+                        '</div>' +
                         '</div>';
         }
-        
+
         return (originHTML);
     }
 
     function drawDag(tableName, tableNum) {
         var deferred = jQuery.Deferred();
         if (!gTables[tableNum].isTable) {
-            var dagObj = {node: [{}], numNodes:1};
+            var dagObj = {node: [{}], numNodes: 1};
             var node = dagObj.node[0];
             var datasetName = gTableIndicesLookup[tableName].datasetName;
             node.api = 2;
-            node.dagNodeId = Math.ceil(Math.random()*10000);
+            node.dagNodeId = Math.ceil(Math.random() * 10000);
             node.input = {loadInput: {}};
             node.input.loadInput.dataset = {};
             node.input.loadInput.dataset.datasetId = 0;
@@ -646,8 +679,8 @@ window.Dag = (function($, Dag) {
             .then(function(datasets) {
 
                 for (var i = 0; i < datasets.numDatasets; i++) {
-                    if (datasetName == datasets.datasets[i].name) {
-                        node.input.loadInput.dataset.url = 
+                    if (datasetName === datasets.datasets[i].name) {
+                        node.input.loadInput.dataset.url =
                                                 datasets.datasets[i].url;
                         drawDagHelper(dagObj);
                         break;
@@ -659,9 +692,9 @@ window.Dag = (function($, Dag) {
             });
             return (deferred.promise());
         } else {
-            XcalarGetDag(tableName).then(function(dagObj) {
-
-               return (drawDagHelper(dagObj));
+            XcalarGetDag(tableName)
+            .then(function(dagObj) {
+                return (drawDagHelper(dagObj));
             })
             .fail(function(error) {
                 console.log("drawDag fail!");
@@ -672,15 +705,15 @@ window.Dag = (function($, Dag) {
 
         function drawDagHelper(dagObj) {
             var prop = {
-                x:0, 
-                y:0, 
+                x: 0,
+                y: 0,
                 childCount: 0
             };
             var index = 0;
             var dagArray = dagObj.node;
             var parentChildMap = getParentChildDagMap(dagObj);
             // console.log(dagObj);
-            deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "", 
+            deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "",
                              index, parentChildMap));
         }
         return (deferred.promise());
@@ -694,7 +727,7 @@ window.Dag = (function($, Dag) {
         for (var i = 0; i < numNodes; i++) {
             var dagNode = dagArray[i];
             var numChildren = getDagNumChildren(dagNode);
-            map[i] = []; 
+            map[i] = [];
             for (var j = 0; j < numChildren; j++) {
                 map[i].push(++childIndex);
             }
@@ -704,11 +737,11 @@ window.Dag = (function($, Dag) {
 
     function getDagNumChildren(dagNode) {
         var numChildren = 0;
-        if (dagNode.api == XcalarApisT.XcalarApiJoin) {
-            var numChildren = 2;
-        } else if (dagNode.api != XcalarApisT.XcalarApiBulkLoad) {
-            var numChildren = 1;
-        } 
+        if (dagNode.api === XcalarApisT.XcalarApiJoin) {
+            numChildren = 2;
+        } else if (dagNode.api !== XcalarApisT.XcalarApiBulkLoad) {
+            numChildren = 1;
+        }
         return (numChildren);
     }
 
@@ -716,20 +749,20 @@ window.Dag = (function($, Dag) {
         var children = [];
         var key = dagApiMap[api];
         var value = dagNode.input[key];
-        if (key == 'filterInput') {
+        if (key === 'filterInput') {
             children.push(value.srcTable.tableName);
-        } else if (key == 'groupByInput') {
+        } else if (key === 'groupByInput') {
             children.push(value.table.tableName);
-        } else if (key == 'indexInput') {
-            if (value.source.name == "") {
+        } else if (key === 'indexInput') {
+            if (value.source.name === "") {
                 children.push(value.dstTable.tableName);
             } else {
                 children.push(value.source.name);
             }
-        } else if (key == 'joinInput') {
+        } else if (key === 'joinInput') {
             children.push(value.leftTable.tableName);
             children.push(value.rightTable.tableName);
-        } else if (key == 'mapInput') {
+        } else if (key === 'mapInput') {
             children.push(value.srcTable.tableName);
         }
         return (children);
@@ -739,23 +772,26 @@ window.Dag = (function($, Dag) {
         var key = dagApiMap[dagNode.api];
         var value = dagNode.input[key];
         var childName;
-        if (key == 'filterInput') {
+        if (key === 'filterInput') {
             childName = value.dstTable.tableName;
-        } else if (key == 'groupByInput') {
+        } else if (key === 'groupByInput') {
             childName = value.groupByTable.tableName;
-        } else if (key == 'indexInput') {
+        } else if (key === 'indexInput') {
             childName = value.dstTable.tableName;
-        } else if (key == 'joinInput') {
+        } else if (key === 'joinInput') {
             childName = value.joinTable.tableName;
-        } else if (key == 'loadInput') {
+        } else if (key === 'loadInput') {
             childName = value.dataset.name;
-        } else if (key = 'mapInput') {
+        } else if (key === 'mapInput') {
             childName = value.dstTable.tableName;
         }
         return (childName);
     }
 
     function getDagNodeInfo(dagNode, key, children) {
+        var parenIndex;
+        var filterType;
+        var evalStr;
         var value = dagNode.input[key];
         var info = {};
         info.type = "";
@@ -770,68 +806,70 @@ window.Dag = (function($, Dag) {
                 break;
             case ('filterInput'):
                 var filterStr = value.filterStr;
-                var parenIndex = filterStr.indexOf("(");
+                parenIndex = filterStr.indexOf("(");
                 var abbrFilterType = filterStr.slice(0, parenIndex);
                 
-                info.type = "filter"+abbrFilterType;
+                info.type = "filter" + abbrFilterType;
                 info.text = filterStr;
-                var filterType = "";
+                filterType = "";
                 var filterTypeMap = {
-                    "gt" : "greater than",
-                    "ge" : "reater than or equal to",
-                    "eq" : "equal to",
-                    "lt" : "less than",
-                    "le" : "less than or equal to",
-                    "regex" : "regex",
+                    "gt"   : "greater than",
+                    "ge"   : "reater than or equal to",
+                    "eq"   : "equal to",
+                    "lt"   : "less than",
+                    "le"   : "less than or equal to",
+                    "regex": "regex",
                     "like" : "like",
-                    "not" : "not"
+                    "not"  : "not"
                 };
 
                 if (filterTypeMap[abbrFilterType]) {
-                    var filteredOn = filterStr.slice(parenIndex+1, 
+                    var filteredOn = filterStr.slice(parenIndex + 1,
                                                      filterStr.indexOf(','));
-                    var filterType = filterTypeMap[abbrFilterType];
-                    var filterValue = filterStr.slice(filterStr.indexOf(',')+2, 
+                    filterType = filterTypeMap[abbrFilterType];
+                    var filterValue = filterStr.slice(filterStr.indexOf(',') + 2,
                                                       filterStr.indexOf(')'));
                     info.column = filteredOn;
-                    if (filterType == "regex") {
-                        info.tooltip = "Filtered table &quot;" + children[0] + 
-                                       "&quot; using regex: &quot;" + filterValue + 
-                                       "&quot; " + "on " + filteredOn + ".";
-                    } else if (filterType == "not") {
-                        filteredOn = filteredOn.slice(filteredOn.indexOf("(")+1);
+                    if (filterType === "regex") {
+                        info.tooltip = "Filtered table &quot;" + children[0] +
+                                       "&quot; using regex: &quot;" +
+                                       filterValue + "&quot; " + "on " +
+                                       filteredOn + ".";
+                    } else if (filterType === "not") {
+                        filteredOn = filteredOn.slice(filteredOn.indexOf("(") + 1);
                         info.column = filteredOn;
                         info.tooltip = "Filtered table &quot;" + children[0] +
-                                       "&quot; excluding " + filterValue + 
+                                       "&quot; excluding " + filterValue +
                                        " from " + filteredOn + ".";
                     } else {
-                        info.tooltip = "Filtered table &quot;" + children[0] + 
-                                       "&quot; where "+ filteredOn + 
-                                       " is " + filterType + " "+ filterValue + ".";
+                        info.tooltip = "Filtered table &quot;" + children[0] +
+                                       "&quot; where " + filteredOn +
+                                       " is " + filterType + " " +
+                                       filterValue + ".";
                     }
                     
                 } else {
-                    info.tooltip = "Filtered table &quot;"+children[0]+
-                                    "&quot;: "+filterStr;
+                    info.tooltip = "Filtered table &quot;" + children[0] +
+                                    "&quot;: " + filterStr;
                 }
                 break;
             case ('groupByInput'):
-                var evalStr = value.evalStr;
-                var parenIndex = evalStr.indexOf("(");
+                evalStr = value.evalStr;
+                parenIndex = evalStr.indexOf("(");
                 var type = evalStr.substr(0, parenIndex);
-                info.type = "groupBy"+type;
+                info.type = "groupBy" + type;
                 info.text = evalStr;
-                info.tooltip = "Grouped by "+ evalStr;
-                info.column = evalStr.slice(evalStr.indexOf('(')+1, 
+                info.tooltip = "Grouped by " + evalStr;
+                info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(')'));
                 break;
             case ('indexInput'):
                 if (value.source.isTable) {
                     info.type = "sort";
-                    info.tooltip = "Sorted by "+value.keyName;
+                    info.tooltip = "Sorted by " + value.keyName;
                 } else {
-                    info.type = "sort"
-                    info.tooltip = "Sorted on "+value.keyName;
+                    info.type = "sort";
+                    info.tooltip = "Sorted on " + value.keyName;
                 }
                 info.text = "sorted on " + value.keyName;
                 info.column = value.keyName;
@@ -849,73 +887,46 @@ window.Dag = (function($, Dag) {
                     joinText = joinType[0].toUpperCase() + joinType.slice(1);
                 }
                 
-                info.tooltip = joinText + " Join between table &quot;"+children[0]+
-                               "&quot; and table &quot;"+children[1]+"&quot;";
-                info.column = children[0] +", "+children[1];
+                info.tooltip = joinText + " Join between table &quot;" +
+                               children[0] + "&quot; and table &quot;" +
+                               children[1] + "&quot;";
+                info.column = children[0] + ", " + children[1];
                 break;
             case ('mapInput'):
-                //XX there is a "newFieldName" property that stores the name of 
-                // the new column. Currently, we are not using or displaying 
+                //XX there is a "newFieldName" property that stores the name of
+                // the new column. Currently, we are not using or displaying
                 // the name of this new column anywhere.
-                var evalStr = value.evalStr;
-                info.type = "map"+evalStr.slice(0,evalStr.indexOf('('));
+                evalStr = value.evalStr;
+                info.type = "map" + evalStr.slice(0, evalStr.indexOf('('));
                 info.text = evalStr;
-                info.tooltip = "Map: "+evalStr;
-                info.column = evalStr.slice(evalStr.indexOf('(')+1, 
+                info.tooltip = "Map: " + evalStr;
+                info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(')'));
             default: // do nothing
                 break;
-            }
+        }
         return (info);
     }
-
-    var dagApiMap = {
-        2 : 'loadInput', 
-        3 : 'indexInput',
-        6 : 'statInput', 
-        7 : 'statByGroupIdInput', 
-        10 : 'listTablesInput', 
-        13 : 'makeResultSetInput', 
-        14 : 'resultSetNextInput', 
-        15 : 'joinInput', 
-        16 : 'filterInput', 
-        17 : 'groupByInput', 
-        19 : 'editColInput', 
-        20 : 'resultSetAbsoluteInput', 
-        21 : 'freeResultSetInput', 
-        22 : 'deleteTableInput', 
-        23 : 'getTableRefCountInput', 
-        23 : 'tableInput', 
-        24 : 'bulkDeleteTablesInput', 
-        25 : 'destroyDsInput', 
-        26 : 'mapInput', 
-        27 : 'aggregateInput', 
-        28 : 'queryInput', 
-        29 : 'queryStateInput', 
-        30 : 'exportInput', 
-        31 : 'dagTableNameInput', 
-        32 : 'listFilesInput'
-    };
 
     /* Generation of dag elements and canvas lines */
 
     function createCanvas($dagWrap) {
         var dagWidth = $dagWrap.find('.dagImage > div').width();
         var dagHeight = $dagWrap.find('.dagImage > div').height();
-        var canvasHTML = $('<canvas class="canvas" width="'+dagWidth+
-                         '" height="'+dagHeight+'"></canvas>');
+        var canvasHTML = $('<canvas class="canvas" width="' + dagWidth +
+                         '" height="' + dagHeight + '"></canvas>');
         $dagWrap.find('.dagImage').append(canvasHTML);
         return (canvasHTML[0]);
     }
 
     // this function draws all the lines going into a blue table icon and its
-    // corresponding gray origin rectangle 
+    // corresponding gray origin rectangle
     function drawDagLines(dagTable, ctx) {
-        if (dagTable.prev().children().length != 2 ) { // exclude joins
-            if (dagTable.children('.dataStore').length == 0) { 
+        if (dagTable.prev().children().length !== 2 ) { // exclude joins
+            if (dagTable.children('.dataStore').length === 0) {
                 //exclude datasets
                 drawStraightDagConnectionLine(dagTable, ctx);
-            } 
+            }
         } else { // draw lines for joins
 
             var origin1 = dagTable.prev().children().eq(0)
@@ -923,24 +934,24 @@ window.Dag = (function($, Dag) {
             var origin2 = dagTable.prev().children().eq(1)
                           .children().eq(1).find('.dagTable');
 
-            var desiredY = (origin1.position().top + origin2.position().top)/2;
+            var desiredY = (origin1.position().top + origin2.position().top) / 2;
             var currentY = dagTable.find('.dagTable').position().top;
-            var yAdjustment = (desiredY - currentY)*2;
-            dagTable.css({'margin-top': yAdjustment}); 
+            var yAdjustment = (desiredY - currentY) * 2;
+            dagTable.css({'margin-top': yAdjustment});
 
             var tableX = dagTable.find('.dagTable').position().left;
             var tableY = dagTable.find('.dagTable').position().top +
-                         dagTable.height()/2;
+                         dagTable.height() / 2;
             drawLine(ctx, tableX, tableY); // line entering table
 
             curvedLineCoor = {
                 x1: origin1.position().left + origin1.width(),
-                y1: origin1.position().top + origin1.height()/2,
+                y1: origin1.position().top + origin1.height() / 2,
                 x2: Math.floor(dagTable.find('.actionTypeWrap')
-                                        .position().left+12),
+                                        .position().left + 12),
                 y2: Math.floor(dagTable.find('.actionTypeWrap').position().top)
-            }
-            drawCurve(ctx, curvedLineCoor); 
+            };
+            drawCurve(ctx, curvedLineCoor);
         }
     }
 
@@ -949,18 +960,19 @@ window.Dag = (function($, Dag) {
         var tableX = dagTable.find('.dagTable').position().left;
         var farLeftX = dagTable.position().left;
         var currentY = dagTable.offset().top;
+        var desiredY;
+
         if (dagTable.prev().children().children('.dagTableWrap').length > 0) {
-            var desiredY = dagTable.prev().children()
-                                          .children('.dagTableWrap')
-                                          .offset().top;
+            desiredY = dagTable.prev().children()
+                                        .children('.dagTableWrap')
+                                        .offset().top;
         } else {
-             var desiredY = dagTable.prev().children('.dagTableWrap')
-                                           .offset().top;
+            desiredY = dagTable.prev().children('.dagTableWrap').offset().top;
         }
-        var yAdjustment = (desiredY - currentY)*2;
+        var yAdjustment = (desiredY - currentY) * 2;
         dagTable.css({'margin-top': yAdjustment});
-        var tableCenterY = dagTable.find('.dagTable').position().top + 
-                     dagTable.height()/2;
+        var tableCenterY = dagTable.find('.dagTable').position().top +
+                     dagTable.height() / 2;
         drawLine(ctx, tableX, tableCenterY, (tableX - farLeftX + 20));
     }
 
@@ -978,13 +990,13 @@ window.Dag = (function($, Dag) {
        
         ctx.beginPath();
         ctx.moveTo(x1 + xoffset, y1);
-        ctx.bezierCurveTo( x2+50, y1,
-                            x2+50, y1 + (vertDist + 16)*2,
-                            x1 + xoffset, y1 + (vertDist + 16)*2 + 1);
+        ctx.bezierCurveTo( x2 + 50, y1,
+                            x2 + 50, y1 + (vertDist + 16) * 2,
+                            x1 + xoffset, y1 + (vertDist + 16) * 2 + 1);
         ctx.moveTo(x1 - 10, y1);
         ctx.lineTo(x1 + xoffset, y1);
-        ctx.moveTo(x1 - 10, y1 + (vertDist + 17)*2);
-        ctx.lineTo(x1 + xoffset, y1 + (vertDist + 16)*2 +1);
+        ctx.moveTo(x1 - 10, y1 + (vertDist + 17) * 2);
+        ctx.lineTo(x1 + xoffset, y1 + (vertDist + 16) * 2 + 1);
         ctx.stroke();
     }
 
@@ -992,21 +1004,21 @@ window.Dag = (function($, Dag) {
     function drawLine(ctx, x, y, length) {
         // draw a horizontal line
         var dist = 30;
-        if (length != undefined) {
+        if (length != null) {
             dist = length;
         }
         ctx.beginPath();
-        ctx.moveTo(x,y);
+        ctx.moveTo(x, y);
         ctx.lineTo(x - dist, y);
         ctx.stroke();
     }
 
-    function drawDot(x, y) {
-        var html = '<div style="font-size: 8px; width:3px;height:3px;'+
-                   'background-color:green;position:absolute; left:'+x+
-                   'px;top:'+y+'px;">'+x+','+y+'</div>';
-        $('.dagImage').append(html);
-    }
+    // function drawDot(x, y) {
+    //     var html = '<div style="font-size: 8px; width:3px;height:3px;' +
+    //                'background-color:green;position:absolute; left:' + x +
+    //                'px;top:' + y + 'px;">' + x + ',' + y + '</div>';
+    //     $('.dagImage').append(html);
+    // }
 
 
     return (Dag);
@@ -1046,7 +1058,7 @@ window.DagModal = (function($, DagModal){
                         $('.dagWrap').eq(dagNum).find('.retTabSection tbody')
                             .find('tr:not(".unfilled")').filter(function() {
                                 return ($(this).find(".paramName")
-                                               .text() == name);
+                                               .text() === name);
                             }).find(".paramVal").text(val);
                     });
             })();
@@ -1059,7 +1071,7 @@ window.DagModal = (function($, DagModal){
                     .not(".unfilled").each(function() {
                         var name = $(this).find(".paramName").text();       
                         var val = $(this).find(".paramVal").val();
-                        console.log("Name: "+name+", val: "+val);
+                        console.log("Name: " + name + ", val: " + val);
                         promises.push(XcalarAddParameterToRetina
                                             .bind(this, retName, name, val));
                     });
@@ -1073,7 +1085,7 @@ window.DagModal = (function($, DagModal){
                 // XXX: HACK!!!
                 var dagId = $dagModal.data('id');
                 console.log(dagId);
-                if (retName == "") {
+                if (retName === "") {
                     // XXX: Insert hack in case demo fail
                 }
                 switch ($table.find("td:first").text()) {
@@ -1149,7 +1161,7 @@ window.DagModal = (function($, DagModal){
 
             var duplicates = $dagModal.find('.editableRow .value')
                                     .filter(function() {
-                                        return ($(this).text() == value);
+                                        return ($(this).text() === value);
                                     });
 
             if (duplicates.length > 0) {
@@ -1157,19 +1169,19 @@ window.DagModal = (function($, DagModal){
             }
 
             $('.defaultListSection').find('.paramName').filter(function() {
-                return ($(this).text() == value);
+                return ($(this).text() === value);
             }).closest('tr').remove();
 
             var newRow = '<tr class="unfilled">' +
-                            '<td class="paramName"></td>' + 
-                            '<td>' + 
+                            '<td class="paramName"></td>' +
+                            '<td>' +
                                 '<input class="paramVal" />' +
                                 '<div class="options">' +
                                      '<div class="option paramEdit">' +
-                                        '<span class="icon"></span>' + 
-                                    '</div>' + 
-                                '</div>'+
-                            '</td>' + 
+                                        '<span class="icon"></span>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</td>' +
                        '</tr>';
             $('.defaultListSection').find('tr:last').after(newRow);
         });
@@ -1177,7 +1189,7 @@ window.DagModal = (function($, DagModal){
         $('#addNewParameterizedQuery').click(function() {
             $(this).addClass('btnInactive');
             showEditableParamQuery();
-        }); 
+        });
 
         $dagModal.on('focus', '.paramVal', function() {
             $(this).next().find('.paramEdit').addClass('selected');
@@ -1188,15 +1200,15 @@ window.DagModal = (function($, DagModal){
         });
 
         $dagModal.on('keypress', '.editableParamDiv', function(event) {
-            return (event.which != keyCode.Enter);
+            return (event.which !== keyCode.Enter);
         });
 
         $dagModal.draggable({
-            handle: '.modalHeader',
+            handle     : '.modalHeader',
             containment: 'window',
-            cursor: '-webkit-grabbing'
+            cursor     : '-webkit-grabbing'
         });
-    }
+    };
 
     DagModal.show = function($currentIcon) {
         $dagModal.show();
@@ -1211,53 +1223,53 @@ window.DagModal = (function($, DagModal){
         var editableText = ""; // The html corresponding to Parameterized Query:
         if ($currentIcon.hasClass('dataStore')) {
             defaultText += '<td>Load</td>';
-            defaultText += '<td><div class="boxed large">'+
-                            $currentIcon.data('url')+
+            defaultText += '<td><div class="boxed large">' +
+                            $currentIcon.data('url') +
                             '</div></td>';
             editableText += "<td class='static'>Load</td>";
-            editableText += '<td>'+
-                                '<div class="editableParamDiv boxed '+
-                                'large load" '+
-                                'ondragover="DagModal.allowParamDrop(event)"'+ 
-                                'ondrop="DagModal.paramDrop(event)" '+
-                                'data-target="0" '+
-                                'contenteditable="true" '+
-                                'spellcheck="false"></div>'+
+            editableText += '<td>' +
+                                '<div class="editableParamDiv boxed ' +
+                                'large load" ' +
+                                'ondragover="DagModal.allowParamDrop(event)"' +
+                                'ondrop="DagModal.paramDrop(event)" ' +
+                                'data-target="0" ' +
+                                'contenteditable="true" ' +
+                                'spellcheck="false"></div>' +
                             '</td>';
         } else { // not a datastore but a table
-            defaultText += "<td>"+type+"</td>";
-            defaultText += "<td><div class='boxed medium'>"+
-                            $currentIcon.data('column')+
+            defaultText += "<td>" + type + "</td>";
+            defaultText += "<td><div class='boxed medium'>" +
+                            $currentIcon.data('column') +
                             "</div></td>";
-            editableText += "<td class='static'>"+type+"</td>";
+            editableText += "<td class='static'>" + type + "</td>";
         }
         
-        if (type == "filter") {
-            var filterInfo = $currentIcon.data('info')+" ";
+        if (type === "filter") {
+            var filterInfo = $currentIcon.data('info') + " ";
             var parenIndex = filterInfo.indexOf("(");
-            var abbrFilterType = filterInfo.slice(0,parenIndex);
-            var filterValue = filterInfo.slice(filterInfo.indexOf(',')+2, 
+            var abbrFilterType = filterInfo.slice(0, parenIndex);
+            var filterValue = filterInfo.slice(filterInfo.indexOf(',') + 2,
                                                   filterInfo.indexOf(')'));
             var filterTypeMap = {
-                "gt" : ">",
-                "ge" : "&ge;",
-                "eq" : "=",
-                "lt" : "<",
-                "le" : "&le;",
-                "regex" : "regex",
+                "gt"   : ">",
+                "ge"   : "&ge;",
+                "eq"   : "=",
+                "lt"   : "<",
+                "le"   : "&le;",
+                "regex": "regex",
                 "like" : "like",
-                "not" : "not"
+                "not"  : "not"
             };
             
             defaultText += "<td class='static'>by</td>";
-            defaultText += "<td><div class='boxed small'>"+
-                            filterTypeMap[abbrFilterType]+"</div></td>";
-            defaultText += "<td><div class='boxed medium'>"+
-                            filterValue+"</div></td>";
+            defaultText += "<td><div class='boxed small'>" +
+                            filterTypeMap[abbrFilterType] + "</div></td>";
+            defaultText += "<td><div class='boxed medium'>" +
+                            filterValue + "</div></td>";
            
-            editableText += getParameterInputHTML(0)+
-                            '<td class="static">by</td>'+
-                            getParameterInputHTML(1)+
+            editableText += getParameterInputHTML(0) +
+                            '<td class="static">by</td>' +
+                            getParameterInputHTML(1) +
                             getParameterInputHTML(2);
             
         } else if ($currentIcon.hasClass('dataStore')) {
@@ -1267,10 +1279,10 @@ window.DagModal = (function($, DagModal){
         }
         $dagModal.find('.template').html(defaultText);
         $dagModal.find('.editableRow').html(editableText);
-        var $dagWrap = $currentIcon.closest('.dagWrap')
+        var $dagWrap = $currentIcon.closest('.dagWrap');
         var draggableInputs = generateDraggableParams($dagWrap);
         $dagModal.find('.draggableParams').append(draggableInputs);
-        if ($('.draggableDiv').length == 0) {
+        if ($('.draggableDiv').length === 0) {
             $dagModal.addClass('minimized');
         } else {
             $dagModal.removeClass('minimized');
@@ -1278,11 +1290,11 @@ window.DagModal = (function($, DagModal){
 
         generateParameterDefaultList();
         populateSavedFields();
-    }
+    };
 
     DagModal.paramDragStart = function(event) {
         event.dataTransfer.effectAllowed = "copyMove";
-        event.dataTransfer.dropEffect = "copy"; 
+        event.dataTransfer.dropEffect = "copy";
         event.dataTransfer.setData("text", event.target.id);
         event.stopPropagation();
         var origin;
@@ -1293,29 +1305,29 @@ window.DagModal = (function($, DagModal){
         }
 
         $('.editableRow').data('origin', origin);
-    }
+    };
 
     DagModal.paramDragEnd = function (event) {
         event.stopPropagation();
         $('.editableRow').data('copying', false);
-    }
+    };
 
     DagModal.paramDrop = function(event) {
         event.stopPropagation();
-        var $dropTarget = $(event.target)
+        var $dropTarget = $(event.target);
         var paramId = event.dataTransfer.getData("text");
         if (!$dropTarget.hasClass('editableParamDiv')) {
             return; // only allow dropping into the appropriate boxes
         }
         
-        var $draggableParam = $('#'+paramId).clone();
-        if ($('.editableRow').data('origin') != 'home') {
-            // the drag origin is from another box, therefore we're moving the 
+        var $draggableParam = $('#' + paramId).clone();
+        if ($('.editableRow').data('origin') !== 'home') {
+            // the drag origin is from another box, therefore we're moving the
             // div so we have to remove it from its old location
             $('.editableRow .editableParamDiv').filter(function() {
-                return ($(this).data('target') == 
+                return ($(this).data('target') ===
                         $('.editableRow').data('origin'));
-            }).find('#'+paramId+':first').remove();
+            }).find('#' + paramId + ':first').remove();
             // we remove the dragging div from its source
         }
 
@@ -1324,35 +1336,35 @@ window.DagModal = (function($, DagModal){
 
         var paramRow = $('.defaultListSection').find('.paramName')
                         .filter(function() {
-                            return ($(this).text() == value);
+                            return ($(this).text() === value);
                         });
-        if (paramRow.length == 0) {
+        if (paramRow.length === 0) {
             var $row = $('.defaultListSection').find('.unfilled:first');
             $row.find('.paramName').text(value);
             $row.removeClass('unfilled');
         }
-    }
+    };
 
     DagModal.allowParamDrop = function(event) {
         event.preventDefault();
-    }
+    };
 
     function getParameterInputHTML(inputNum) {
-         var td = '<td>'+
-                    '<div class="editableParamDiv boxed medium" '+
-                    'ondragover="DagModal.allowParamDrop(event)"'+ 
-                    'ondrop="DagModal.paramDrop(event)" '+
-                    'data-target="'+inputNum+'" '+
-                    'contenteditable="true" '+
-                    'spellcheck="false"></div>'+
+        var td = '<td>' +
+                    '<div class="editableParamDiv boxed medium" ' +
+                    'ondragover="DagModal.allowParamDrop(event)"' +
+                    'ondrop="DagModal.paramDrop(event)" ' +
+                    'data-target="' + inputNum + '" ' +
+                    'contenteditable="true" ' +
+                    'spellcheck="false"></div>' +
                 '</td>';
 
         return (td);
     }
 
     function populateSavedFields() {
-        var $dagModal = $('#dagParameterModal');
-        var id = $dagModal.data('id')
+        var id = $dagModal.data('id');
+
         if (!gRetinaObj[id]) {
             return;
         }
@@ -1377,37 +1389,37 @@ window.DagModal = (function($, DagModal){
     }
 
     function generateParameterDefaultList() {
-        var html = '<div class="tableContainer">' + 
-                        '<div class="tableWrapper">' + 
-                            '<table>' + 
-                                '<thead>' + 
+        var html = '<div class="tableContainer">' +
+                        '<div class="tableWrapper">' +
+                            '<table>' +
+                                '<thead>' +
                                     '<tr>' +
-                                        '<th>' +  
-                                            '<div class="thWrap">' + 
-                                                'Parameter' + 
-                                            '</div>' + 
-                                        '</th>' +  
-                                        '<th>' +  
-                                            '<div class="thWrap">' + 
-                                                'Default' + 
-                                            '</div>' + 
-                                        '</th>' +   
-                                    '</tr>' + 
+                                        '<th>' +
+                                            '<div class="thWrap">' +
+                                                'Parameter' +
+                                            '</div>' +
+                                        '</th>' +
+                                        '<th>' +
+                                            '<div class="thWrap">' +
+                                                'Default' +
+                                            '</div>' +
+                                        '</th>' +
+                                    '</tr>' +
                                 '</thead>' +
                                 '<tbody>';
-            for (var i = 0; i < 6; i ++) {
-                html += '<tr class="unfilled">' +
-                            '<td class="paramName"></td>' + 
-                            '<td>' + 
-                                '<input class="paramVal" />' +
-                                '<div class="options">' +
-                                     '<div class="option paramEdit">' +
-                                        '<span class="icon"></span>' + 
-                                    '</div>' + 
-                                '</div>'+
-                            '</td>' + 
-                       '</tr>';
-            }
+        for (var i = 0; i < 6; i++) {
+            html += '<tr class="unfilled">' +
+                        '<td class="paramName"></td>' +
+                        '<td>' +
+                            '<input class="paramVal" />' +
+                            '<div class="options">' +
+                                 '<div class="option paramEdit">' +
+                                    '<span class="icon"></span>' +
+                                '</div>' +
+                            '</div>' +
+                        '</td>' +
+                   '</tr>';
+        }
         html += '</tbody></table></div></div>';
 
         $dagModal = $('#dagParameterModal');
@@ -1424,19 +1436,19 @@ window.DagModal = (function($, DagModal){
         $dagWrap.find('.retTabSection tbody')
                 .find('tr:not(".unfilled")').each(function() {
                     var value = $(this).find('.paramName').text();
-                    html += '<div id="draggableParam'+value+
-                        '" class="draggableDiv" '+
-                        'draggable="true" '+
-                        'ondragstart="DagModal.paramDragStart(event)" '+
-                        'ondragend="DagModal.paramDragEnd(event)" '+
-                        'ondrop="return false" '+
-                        'title="click and hold to drag" '+
-                        'contenteditable="false">'+
-                            '<div class="icon"></div>'+
-                            '<span class="delim"><</span>'+
-                            '<span class="value">'+value+'</span>'+
-                            '<span class="delim">></span>'+
-                            '<div class="close"><span>+</span></div>'+
+                    html += '<div id="draggableParam' + value +
+                        '" class="draggableDiv" ' +
+                        'draggable="true" ' +
+                        'ondragstart="DagModal.paramDragStart(event)" ' +
+                        'ondragend="DagModal.paramDragEnd(event)" ' +
+                        'ondrop="return false" ' +
+                        'title="click and hold to drag" ' +
+                        'contenteditable="false">' +
+                            '<div class="icon"></div>' +
+                            '<span class="delim"><</span>' +
+                            '<span class="value">' + value + '</span>' +
+                            '<span class="delim">></span>' +
+                            '<div class="close"><span>+</span></div>' +
                         '</div>';
                 });
         return (html);
