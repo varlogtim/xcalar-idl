@@ -365,49 +365,11 @@
 
     &::after {
         content: "";
-        width: 100%;
         position: absolute;
         height: 5px;
         background-color: white;
         width: ~"calc(100% - 5px)";
     }
-
-    &.opModalOpen {
-        .dragArea, .colGrab {
-            display: none;
-        }
-
-        th.modalHighlighted {
-            .flexContainer{
-                .action-gradient;
-                .flexWrap.flex-left {
-                    .colIcon-active-gradient();
-                }
-                input {
-                    color: @color-white !important;
-                }
-            }
-        }
-
-        tbody tr {
-            &:nth-child(odd) {
-                td.modalHighlighted {
-                    background-color: @color-selectedCell-dark;
-                }
-                td.modalHighlighted {
-                    background-color: @color-selectedCell-dark;
-                }
-            }
-            &:nth-child(even) {
-                td.modalHighlighted {
-                    background-color: @color-selectedCell-light;
-                }
-                td.modalHighlighted {
-                    background-color: @color-selectedCell-light;
-                }
-            }
-        }
-    }  
 }
 
 .xcTableWrap {
@@ -511,6 +473,79 @@
                 height: 35px;
             }
         }    
+    }
+
+    .xcTbodyWrap::after {
+        content: "";
+        display: block;
+        .transition(background-color 0.2s);
+    }
+
+    &.opModalOpen {
+        .dragArea {
+            display: none;
+        }
+
+        .tableTitle {
+            pointer-events: none;
+        }
+
+        th.modalHighlighted {
+            .flexContainer{
+                .action-gradient;
+                .flexWrap.flex-left {
+                    .colIcon-active-gradient();
+                }
+                input {
+                    color: @color-white !important;
+                }
+            }
+        }
+
+        tbody tr {
+            &:nth-child(odd) {
+                td.modalHighlighted {
+                    background-color: @color-selectedCell-dark;
+                }
+                td.modalHighlighted {
+                    background-color: @color-selectedCell-dark;
+                }
+            }
+            &:nth-child(even) {
+                td.modalHighlighted {
+                    background-color: @color-selectedCell-light;
+                }
+                td.modalHighlighted {
+                    background-color: @color-selectedCell-light;
+                }
+            }
+        }
+
+        .xcTbodyWrap::after {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 20;
+            margin-top: 5px;
+        }
+    }  
+    &::before {
+        content: "";
+        display: block;
+        .transition (background-color 0.2s);
+    }
+
+    &.modalDarkened::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 20;
     }
 }
 

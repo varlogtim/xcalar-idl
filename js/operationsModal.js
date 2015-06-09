@@ -4,13 +4,10 @@ window.OperationsModal = (function($, OperationsModal) {
     var $categoryMenu = $('#categoryMenu');
     var $functionInput = $('#functionList').find('.autocomplete');
     var $functionsMenu = $('#functionsMenu');
-    var $th = ""; // the head of the selected column
     var colNum = "";
     var tableNum = "";
     var colName = "";
-    var backColName = "";
     var operatorName = "";
-    var operatorNoSpace = operatorName.replace(/\s+/g, ''); // remove spaces;
     var operatorsMap = {};
     var categoryNames = [];
     var functionsMap = {};
@@ -115,8 +112,6 @@ window.OperationsModal = (function($, OperationsModal) {
             $list.children().show();
         });
 
-        var $argumentInputs = $operationsModal.find('.argumentSection input');
-
         $operationsModal.on('blur', '.argument', function() {
             var blankOK = true;
             checkArgumentParams(blankOK);
@@ -129,17 +124,17 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
-        $operationsModal.on('blur', '.argument', function(event) {
+        $operationsModal.on('blur', '.argument', function() {
             var $el = $(this);
             setTimeout(function() {
                 var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
                 if ($mouseTarget.hasClass('editableHead') && 
                     $mouseTarget.closest('.xcTable').length !== 0) {
-                    var colName = $mouseTarget.val();
-                    $el.focus().val(colName);
+                    var newColName = $mouseTarget.val();
+                    $el.focus().val(newColName);
                 }
-            },0);
-        })
+            }, 0);
+        });
 
         $operationsModal.find('.cancel, .close').on('click', function(e, data) {
             var time;
@@ -153,11 +148,27 @@ window.OperationsModal = (function($, OperationsModal) {
                 modalHelper.clear();
                 $functionsMenu.data('category', 'null');
             });
-            $('#xcTable'+tableNum).removeClass('opModalOpen');
+
+            $('#opModalBackground').fadeOut(time, function() {
+                $(this).removeClass('light');
+                $('#mainFrame').removeClass('opModalOpen');
+            });
+            $('#sideBarModal').fadeOut(time, function() {
+                $(this).removeClass('light');
+                $('#rightSideBar').removeClass('opModalOpen');
+            });
+
+            $('.xcTableWrap').not('#xcTableWrap' + tableNum)
+                             .removeClass('modalDarkened');
+
+            $('#xcTableWrap' + tableNum).removeClass('opModalOpen');
             $('.modalHighlighted').removeClass('modalHighlighted');
 
             $functionInput.attr('placeholder', "");
-            $('#xcTable'+tableNum).find('.editableHead').attr('disabled', false);
+            $('#xcTableWrap' + tableNum).find('.editableHead')
+                                        .attr('disabled', false);
+            $('#xcTable' + tableNum).find('.colGrab')
+                                    .off('mouseup', disableTableEditing);
             
             $(document).mousedown(); // hides any error boxes;    
         });
@@ -199,21 +210,22 @@ window.OperationsModal = (function($, OperationsModal) {
         tableNum = newTableNum;
         colNum = newColNum;
         colName = gTables[tableNum].tableCols[colNum - 1].name;
-        if (gTables[tableNum].tableCols[colNum - 1].func.args) {
-            backColName = gTables[tableNum].tableCols[colNum - 1].func.args[0];
-        } else {
-            backColName = gTables[tableNum].tableCols[colNum - 1].name;
-        }
         
-        highlightOperationColumn(tableNum, colNum);
-        $('#xcTable'+tableNum).addClass('opModalOpen');
-        $('#xcTable'+tableNum).find('.editableHead').attr('disabled', true);
+        highlightOperationColumn();
+        $('#xcTableWrap' + tableNum).addClass('opModalOpen');
+        $('.xcTableWrap').not('#xcTableWrap' + tableNum)
+                         .addClass('modalDarkened');
+        $('#xcTable' + tableNum).find('.editableHead').attr('disabled', true);
+        $('#xcTable' + tableNum).find('.colGrab').mouseup(disableTableEditing);
         $operationsModal = $('#operationsModal');
         $operationsModal.fadeIn(200);
+        $('#opModalBackground').addClass('light').fadeIn(200);
+        $('#sideBarModal').addClass('light').fadeIn(200);
+        $('#rightSideBar').addClass('opModalOpen');
+        $('#mainFrame').addClass('opModalOpen');
 
         $operationsModal.find('.operationsModalHeader .text').text(operator);
         operatorName = $.trim(operator.toLowerCase());
-        operatorNoSpace = operatorName.replace(/\s+/g, ''); // remove spaces;
 
         var colTypes = [gTables[tableNum].tableCols[colNum - 1].type];
         
@@ -263,6 +275,17 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.find('.circle1').addClass('filled');
             $functionInput.focus();
         }
+    };
+
+    var firstArgExceptions = {
+        'aggregate functions'    : [],
+        'arithmetic functions'   : [],
+        'bitwise functions'      : [],
+        'conditional functions'  : ['not'],
+        'conversion functions'   : [],
+        'miscellaneous functions': [],
+        'string functions'       : [],
+        'trigonometric functions': []
     };
 
     function populateInitialCategoryField(operator) {
@@ -567,12 +590,10 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (opIndex > -1) {
-            // var defaultValue;
-            var firstDefaultValue;
             var defaultValue = colName;
             if (!firstArgExceptions[category]) {
                 defaultValue = "";
-            } else if (firstArgExceptions[category].indexOf(func) != -1) {
+            } else if (firstArgExceptions[category].indexOf(func) !== -1) {
                 defaultValue = "";
             }
 
@@ -606,7 +627,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 if (func !== "udf") {
                     
-                    if (i == 0) {
+                    if (i === 0) {
                         $rows.eq(i).find('input').val(defaultValue);
                     } else {
                         $rows.eq(i).find('input').val("");
@@ -895,17 +916,6 @@ window.OperationsModal = (function($, OperationsModal) {
         return (mapString);
     }
 
-    function ascSort() {
-        xcFunction.sort(colNum, tableNum, SortDirection.Forward);
-    }
-
-    function capitalize(string) {
-        return (string.replace(/\w\S*/g, function(text) {
-                    return (text.charAt(0).toUpperCase() +
-                            text.substr(1).toLowerCase());
-                }));
-    }
-
     function fillInputPlaceholder(inputNum) {
         var placeholderText = "";
         $operationsModal.find('.list').eq(inputNum)
@@ -920,26 +930,24 @@ window.OperationsModal = (function($, OperationsModal) {
                         .attr('placeholder', placeholderText);
     }
 
-    function highlightOperationColumn(tableNum, colNum) {
-        $th = $('#xcTable' + tableNum).find('th.' + 'col' + colNum);
+    function highlightOperationColumn() {
+        var $th = $('#xcTable' + tableNum).find('th.col' + colNum);
         $th.addClass('modalHighlighted');
         $('#xcTable' + tableNum).find('td.' + 'col' + colNum)
                               .addClass('modalHighlighted');
     }
 
+    function disableTableEditing() {
+        // setTimeout to act after resize column width's mouseup
+        setTimeout(function() {
+            $('#xcTable' + tableNum).find('.editableHead')
+                                    .attr('disabled', true);
+        }, 0);
+    }
+
     // empty array means the first argument will always be the column name
     // value of false means the first argument will never be the column name
     // any function names in the array will not have column name as first argument
-    var firstArgExceptions = {
-        'aggregate functions' : [],
-        'arithmetic functions' : [],
-        'bitwise functions' : [],
-        'conditional functions' : ['not'],
-        'conversion functions' : [],
-        'miscellaneous functions' : [],
-        'string functions' : [],
-        'trigonometric functions' : []
-    }
 
     return (OperationsModal);
 }(jQuery, {}));

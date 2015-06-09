@@ -2161,7 +2161,7 @@
     display: none;
     z-index: 35;
     &.light {
-        opacity: 0.25;
+        opacity: 0.4;
     }
 }
 
@@ -2173,8 +2173,14 @@
     }
 }
 
+#mainFrame {
+    &.opModalOpen {
+        position: relative;
+        z-index: 36;
+    }
+}
 #rightSideBar {
-    &.modalOpen {
+    &.opModalOpen {
         z-index: 38;
         #sideBarModal {
             display: block;
@@ -2191,7 +2197,7 @@
     display: none;
 
     &.light {
-        opacity: 0.3;
+        opacity: 0.4;
     }
 
     &::after {
