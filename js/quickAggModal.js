@@ -59,7 +59,7 @@ window.AggModal = (function($, AggModal) {
         });
     };
 
-    AggModal.show = function (tableNum) {
+    AggModal.show = function (tableNum, type) {
         $modalBackground.on("click", hideAggOpSelect);
         $aggTableName.val(gTables[tableNum].frontTableName);
 
@@ -71,6 +71,17 @@ window.AggModal = (function($, AggModal) {
 
         aggColumns(tableNum, $("#mainAgg1"));
         aggColumns(tableNum, $("#mainAgg2"));
+
+        console.log(type)
+        if (type === 'aggregates') {
+            $aggDropdown.find('li').filter(function() {
+                return ($(this).text() === "Aggregate Functions");
+            }).click();
+        } else if (type === 'correlation') {
+            $aggDropdown.find('li').filter(function() {
+                return ($(this).text() === "Correlation Coefficient");
+            }).click();
+        }
         
         xcFunction.checkSorted(tableNum)
         .then(function(tableName) {

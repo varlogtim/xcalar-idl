@@ -549,6 +549,7 @@ function generateColDropDown(tableNum) {
                     '<li class="textAlign leftAlign">Left Align</li>'+
                     '<li class="textAlign centerAlign">Center Align</li>'+
                     '<li class="textAlign rightAlign">Right Align</li>'+
+                    '<div class="subColMenuArea"></div>'+
                 '</ul>'+
                 '<div class="dropdownBox"></div>'+
             '</li>'+
