@@ -452,7 +452,7 @@ window.ColManager = (function($, ColManager) {
 
 
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
-                                      tableNum, direction)
+                                      tableNum, direction, rowToPrependTo)
     {
         var table     = gTables[tableNum];
         var frontName = table.frontTableName;
@@ -637,7 +637,11 @@ window.ColManager = (function($, ColManager) {
 
         var $tBody = $(tBodyHTML);
         if (direction === 1) {
-            $table.find('tbody').prepend($tBody);
+            if (rowToPrependTo > -1) {
+                $table.find('.row'+rowToPrependTo).before($tBody);
+            } else {
+                $table.find('tbody').prepend($tBody);
+            }
         } else {
             $table.find('tbody').append($tBody);
         }

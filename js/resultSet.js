@@ -37,11 +37,12 @@ function freeAllResultSetsSync() {
     return (chain(promises));
 }
 
-function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
+function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
+                  rowToPrependTo) {
     // rowNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();
     info = info || {};
-
+    var tableNum = info.tableNum;
     if (rowNumber >= gTables[tableNum].resultSetMax) {
         console.log("Already at last page!");
         return (promiseWrapper(null));
@@ -55,7 +56,6 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
 
     var prepullTableHeight;
     var numRowsBefore;
-
     XcalarSetAbsolute(gTables[tableNum].resultSetId, rowPosition)
     .then(function(){
         return (generateDataColumnJson(gTables[tableNum].resultSetId,
@@ -73,9 +73,11 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
         var position = rowNumber + jsonLen;
         numRowsBefore = $table.find('tbody tr').length;
 
-        pullRowsBulk(tableNum, jsonObj, rowPosition, null, direction);
+        pullRowsBulk(tableNum, jsonObj, rowPosition, null, direction, 
+                     rowToPrependTo);
         var numRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
         if (numRowsStillNeeded > 0) {
+            showWaitCursor();
             info.looped = true;
             if (!info.missingRows) {
                 info.missingRows = [];
@@ -89,8 +91,10 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
                         Math.min(numRowsStillNeeded,
                                 (gTables[tableNum].resultSetMax -
                                  newRowToGoTo));
-                    return (goToPage(newRowToGoTo, numRowsToFetch,
-                                     direction, tableNum, true, info));
+
+                    return (goToPage(newRowToGoTo, numRowsToFetch, 
+                                     direction, true, info));
+
                 } else if (info.bulk) {
                     var newRowToGoTo = (info.targetRow - info.numRowsToAdd) -
                                         numRowsStillNeeded;
@@ -108,13 +112,13 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
                                                .remove();
                     }
                     info.reverseLooped = true;
-                    return (goToPage(newRowToGoTo, numRowsStillNeeded,
-                                     RowDirection.Top, tableNum, true, info));
+                    return (goToPage(newRowToGoTo, numRowsStillNeeded, 
+                                     RowDirection.Top, true, info));
                 } else {
                     deferred2.resolve();
                     return (deferred2.promise());
                 }
-            } else {
+            } else { // scrolling up
                 var newRowToGoTo = position + 1;
                 var numRowsToFetch = numRowsLacking - 1;
 
@@ -127,16 +131,15 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
                     if (numRowsStillNeeded > 0 && info.targetRow !== 0) {
                         info.targetRow -= numRowsStillNeeded;
                         newRowToGoTo = Math.max(info.targetRow, 0);
-
-                        return (goToPage(newRowToGoTo, numRowsStillNeeded,
-                                         direction, tableNum, true, info));
+                        return (goToPage(newRowToGoTo, numRowsStillNeeded, 
+                                         direction, true, info));
                     } else {
                         deferred2.resolve();
                         return (deferred2.promise());
                     }       
                 } else {
-                    return (goToPage(newRowToGoTo, numRowsToFetch,
-                                     direction, tableNum, true, info));
+                    return (goToPage(newRowToGoTo, numRowsToFetch, direction, 
+                                     true, info, newRowToGoTo+numRowsToFetch));
                 }  
             }
         } else {
@@ -145,6 +148,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, tableNum, loop, info) {
         }
     }).
     then(function() {
+        removeWaitCursor();
         if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
             removeOldRows($table, tableNum, info, direction,
                             prepullTableHeight, numRowsBefore, numRowsToAdd);
@@ -168,28 +172,20 @@ function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
     var postpullTableHeight = $table.height();
     if (direction === RowDirection.Top) {
         $table.find("tbody tr").slice(60).remove();
-        $('#xcTbodyWrap' + tableNum).scrollTop(postpullTableHeight -
-                                             prepullTableHeight);
+        var scrollTop = Math.max(2, postpullTableHeight - prepullTableHeight);
+        $('#xcTbodyWrap'+tableNum).scrollTop(scrollTop);
     } else {
         var preScrollTop = $('#xcTbodyWrap' + tableNum).scrollTop();
-        // if (info.bulk) {
-        //     var numRowsToRemove = numRowsBefore;
-        // } else {
-        //     var numRowsToRemove = numRowsToAdd;
-        // }
-        // var numRowsNotAdded = info.numRowsToAdd - info.numRowsAdded;
         if (info.numRowsAdded === 0) {
             gTables[tableNum].resultSetMax = info.lastRowToDisplay -
                                              info.numRowsToAdd;
             gTables[tableNum].currentRowNumber = gTables[tableNum].resultSetMax;
         }
         $table.find("tbody tr").slice(0, info.numRowsAdded).remove();
-        // var numRows = $table.find('tbody tr').length;
-        // var numExtraRows = Math.max(0, numRows - 60);
         var postRowRemovalHeight = $table.height();
-        var newScrollTop = preScrollTop - (postpullTableHeight -
-                                            postRowRemovalHeight);
-        $('#xcTbodyWrap' + tableNum).scrollTop(newScrollTop - 1);
+        var scrollTop = Math.max(2, preScrollTop - (postpullTableHeight -
+                                                    postRowRemovalHeight));
+        $('#xcTbodyWrap'+tableNum).scrollTop(scrollTop - 1);
     }
     var lastRow = $table.find('tbody tr:last');
     var bottomRowNum = parseInt(lastRow.attr('class').substr(3));
@@ -201,16 +197,12 @@ function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
     }
 }
 
-// function resetAutoIndex() {
-//     gTableRowIndex = 1;
-// }
 
 function getFirstPage(resultSetId, tableNum, notIndexed) {
     if (resultSetId === 0) {
         return (promiseWrapper(null));
     }
 
-    // var numPagesToAdd = Math.min(3, gTables[tableNum].numPages);
     var numRowsToAdd = Math.min(60, gTables[tableNum].resultSetCount);
     return (generateDataColumnJson(resultSetId, null, tableNum, notIndexed,
                                     numRowsToAdd));
@@ -224,7 +216,6 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
     if (resultSetId === 0) {
         return (promiseWrapper(null));
     }
-    // var tdHeights = getTdHeights();
    
     XcalarGetNextPage(resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {

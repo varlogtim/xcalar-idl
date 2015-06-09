@@ -352,7 +352,8 @@ function buildInitialTable(index, tableNum, jsonObj, keyName) {
     }
 }
 
-function pullRowsBulk(tableNum, jsonObj, startIndex, dataIndex, direction) {
+function pullRowsBulk(tableNum, jsonObj, startIndex, dataIndex, direction, 
+                        rowToPrependTo) {
     // this function does some preparation for ColManager.pullAllCols()
     var startIndex = startIndex || 0;
     var $table = $('#xcTable'+tableNum);
@@ -362,7 +363,7 @@ function pullRowsBulk(tableNum, jsonObj, startIndex, dataIndex, direction) {
                                             .find('tr:first .dataCol')) - 1;
     }
     var newCells = ColManager.pullAllCols(startIndex, jsonObj, dataIndex,
-                                          tableNum, direction);
+                                          tableNum, direction, rowToPrependTo);
     addRowListeners(newCells);
     adjustRowHeights(newCells, startIndex, tableNum);
 

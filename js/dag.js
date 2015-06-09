@@ -712,7 +712,7 @@ window.Dag = (function($, Dag) {
             var index = 0;
             var dagArray = dagObj.node;
             var parentChildMap = getParentChildDagMap(dagObj);
-            // console.log(dagObj);
+            console.log(dagObj);
             deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "",
                              index, parentChildMap));
         }

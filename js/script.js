@@ -51,10 +51,10 @@ var TableMeta = function() {
     this.bookmarks = [];
     this.rowHeights = {};
 }
-var scrollCount = 0;
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
     var $rowScroller = $('#rowScrollerArea');
+    var scrollCount = 0;
     $("#xcTbodyWrap"+tableNum).scroll(function(e) {
         if (gMouseStatus == "movingTable") {
             return;
@@ -92,11 +92,11 @@ function infScrolling(tableNum) {
                     numRowsAdded: 0,
                     targetRow: rowNumber,
                     lastRowToDisplay: lastRowToDisplay,
-                    bulk: false
+                    bulk: false,
+                    tableNum: dynTableNum
                 }
 
-                goToPage(rowNumber, numRowsToAdd, RowDirection.Top, 
-                         dynTableNum, false, info)
+                goToPage(rowNumber, numRowsToAdd, RowDirection.Top, false, info)
                 .then(function() {
 
                     scrollCount--;
@@ -125,11 +125,12 @@ function infScrolling(tableNum) {
                                numRowsToAdd,
                     lastRowToDisplay: gTables[dynTableNum].currentRowNumber+
                                       numRowsToAdd,
-                    bulk: false
+                    bulk: false,
+                    tableNum : dynTableNum
                 }
                 
                 goToPage(gTables[dynTableNum].currentRowNumber, numRowsToAdd,
-                         RowDirection.Bottom, dynTableNum, false, info)
+                         RowDirection.Bottom, false, info)
                 .then(function() {
                     scrollCount--;
                     innerDeferred.resolve();
@@ -429,10 +430,10 @@ function documentReadyxcTableFunction() {
             numRowsAdded: 0,
             lastRowToDisplay: backRow+60,
             targetRow: targetRow,
-            bulk: true
+            bulk: true,
+            tableNum: gActiveTableNum
         }
-        goToPage(backRow, numRowsToAdd, RowDirection.Bottom,
-                 gActiveTableNum, false, info)
+        goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
         .then(function() {
             adjustColGrabHeight(gActiveTableNum);
             var rowToScrollTo = Math.min(targetRow, 
@@ -624,10 +625,11 @@ function documentReadyCatFunction(tableNum, tableNumsToRemove) {
                 lastRowToDisplay: gTables[tableNum].currentRowNumber+
                                   numRowsStillNeeded,
                 bulk: false,
-                dontRemoveRows : true
+                dontRemoveRows : true,
+                tableNum : tableNum
             };
             goToPage(gTables[tableNum].currentRowNumber, numRowsStillNeeded,
-                         RowDirection.Bottom, tableNum, false, info)
+                         RowDirection.Bottom, false, info)
             .then(function() {
                 var lastRow = $('#xcTable'+tableNum+' tr:last');
                 var lastRowNum = parseInt(lastRow.attr('class').substr(3));
