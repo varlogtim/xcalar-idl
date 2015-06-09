@@ -64,7 +64,6 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     .then(function(jsonObj, keyName) {
         var deferred2 = jQuery.Deferred();
         var jsonLen   = jsonObj.normal.length;
-
         $table = $('#xcTable' + tableNum);
         prepullTableHeight = $table.height();
 

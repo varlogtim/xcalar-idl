@@ -482,7 +482,7 @@ function documentReadyGeneralFunction() {
                 generateFirstVisibleRowNum();
             }
             moveTableDropdownBoxes();
-        }, 100 );
+        }, 100);
     });
 
     //XXX using this to keep window from scrolling on dragdrop
