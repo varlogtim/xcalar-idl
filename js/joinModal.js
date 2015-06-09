@@ -1,16 +1,18 @@
 window.JoinModal = (function($, JoinModal) {
     var $modalBackground = $("#modalBackground");
-    var $joinModal       = $("#joinDialog");
 
-    var $joinSelect      = $("#joinType");
-    var $joinDropdown    = $("#joinTypeSelect");
+    var $joinModal = $("#joinModal");
+    var $joinInstr = $("#joinInstr");
 
-    var $joinTableName   = $("#joinRoundedInput");
+    var $joinSelect   = $("#joinType");
+    var $joinDropdown = $("#joinTypeSelect");
 
-    var $leftJoinTable   = $("#leftJoin");
-    var $rightJoinTable  = $("#rightJoin");
+    var $joinTableName  = $("#joinRoundedInput");
+    var $leftJoinTable  = $("#leftJoin");
+    var $rightJoinTable = $("#rightJoin");
 
-    var modalHelper      = new xcHelper.Modal($joinModal);
+    var modalHelper = new xcHelper.Modal($joinModal);
+    var isOpenTime;
 
     JoinModal.setup = function () {
         $("#closeJoin, #cancelJoin").click(function() {
@@ -56,7 +58,12 @@ window.JoinModal = (function($, JoinModal) {
             }
 
             if ($("#mainJoin th.colSelected").length !== 2) {
-                alert("Select 2 columns to join by");
+                Alert.show({
+                    "title"  : "Cannot Join",
+                    "msg"    : "Select 2 columns to join by",
+                    "modal"  : $joinModal,
+                    "isAlert": true
+                });
                 return;
             }
 
@@ -90,23 +97,29 @@ window.JoinModal = (function($, JoinModal) {
             containment: "document"
         });
 
-        addModalTabListeners($leftJoinTable);
-        addModalTabListeners($rightJoinTable);
+        addModalTabListeners($leftJoinTable, true);
+        addModalTabListeners($rightJoinTable, false);
     };
 
     JoinModal.show = function (tableNum, colNum) {
+        isOpenTime = true;
         $("body").on("keypress", joinTableKeyPress);
         $modalBackground.on("click", hideJoinTypeSelect);
         updateJoinTableName();
         centerPositionElement($joinModal);
-        $joinModal.show();
-        $modalBackground.fadeIn(300);
 
-        modalHelper.setup();
-
-        joinModalTabs($leftJoinTable, (tableNum + 1), colNum);
         // here tableNum start from 1;
         joinModalTabs($rightJoinTable, -1, -1);
+        joinModalTabs($leftJoinTable, (tableNum + 1), colNum, $rightJoinTable);
+
+        $joinModal.show();
+        $modalBackground.fadeIn(200);
+
+        modalHelper.setup();
+        scrolleToColumn($leftJoinTable.find("th.colSelected"));
+        // this is the case when right table has suggested col
+        scrolleToColumn($rightJoinTable.find("th.colSelected"));
+        isOpenTime = false;
     };
 
     function resetJoinTables() {
@@ -116,7 +129,7 @@ window.JoinModal = (function($, JoinModal) {
         modalHelper.clear();
 
         $joinModal.hide();
-        $modalBackground.fadeOut(300, function() {
+        $modalBackground.fadeOut(200, function() {
             Tips.refresh();
         });
 
@@ -149,14 +162,40 @@ window.JoinModal = (function($, JoinModal) {
         }
     }
     // build left join table and right join table
-    function joinModalTabs($modal, tableNum, colNum) {
+    function joinModalTabs($modal, tableNum, colNum, $sibling) {
         $modal.find('.tableLabel').remove();
         $modal.find('.joinTable').remove();
 
-        var tabHtml     = "";
+        if ($sibling) {
+            $modal.find(".tableTabs").html($sibling.find(".tableTabs").html());
+            $modal.find(".joinTableArea").html(
+                    $sibling.find(".joinTableArea").html());
+        } else {
+            joinModalHTMLHelper($modal);
+        }
+        // trigger click of table and column
+        if (tableNum >= 0) {
+            $modal.find('.tableLabel:nth-child(' + tableNum + ')').click();
+        } else {
+            $modal.find('.tableLabel:first').click();
+        }
+
+        // this is only for left join
+        if (colNum > 0) {
+            var dataColNum = $('#xcTable' + (tableNum - 1) + ' tbody .jsonElement')
+                                .index();
+            if (colNum >= dataColNum) {
+                colNum--;
+            }
+            $thToClick = $modal.find('.joinTable:nth-of-type(' + tableNum
+                         + ') th:nth-child(' + colNum + ')');
+            $thToClick.click();
+        }
+    }
+
+    function joinModalHTMLHelper($modal) {
+        var tabHtml = "";
         var $columnArea = $modal.find('.joinTableArea');
-        var dataColNum = $('#xcTable'+(tableNum-1)+' tbody .jsonElement')
-                                                                .index();
         for (var i = 0; i < gTables.length; i++) {
             var table = gTables[i];
 
@@ -164,7 +203,8 @@ window.JoinModal = (function($, JoinModal) {
                             table.frontTableName +
                        '</div>';
 
-            var colHtml = '<table class="dataTable joinTable">' +
+            var colHtml = '<table class="dataTable joinTable" ' +
+                            'data-tablename="' + table.frontTableName + '">' +
                             '<thead>' +
                                 '<tr>';
 
@@ -207,38 +247,15 @@ window.JoinModal = (function($, JoinModal) {
         }
 
         $modal.find('.tableTabs').append(tabHtml);
-
-        // trigger click of table and column
-        if (tableNum >= 0) {
-            $modal.find('.tableLabel:nth-child(' + tableNum + ')').click();
-        } else {
-            $modal.find('.tableLabel:first').click();
-        }
-
-        if (colNum > 0) {
-            if (colNum >= dataColNum) {
-                colNum--;
-            }
-            $thToClick = $modal.find('.joinTable:nth-of-type(' + tableNum
-                         + ') th:nth-child(' + colNum + ')');
-            $thToClick.click();
-            var $tableArea = $('#leftJoin').find('.joinTableArea');
-            var tableOffset = $tableArea.offset().left;
-            var tableAreaWidth = $tableArea.width();
-            var thWidth = $thToClick.width();
-            var thOffset = $thToClick.offset().left;
-            var position = (thOffset - tableOffset) - (tableAreaWidth * 0.5) +
-                           (thWidth * 0.5);
-            $tableArea.scrollLeft(position);
-        }
     }
 
-    function addModalTabListeners($modal) {
+    function addModalTabListeners($modal, isLeft) {
         $modal.on('click', '.tableLabel', function() {
             var $tableLabel = $(this);
             var index       = $tableLabel.index();
 
             $modal.find('.tableLabel.active').removeClass('active');
+
             $tableLabel.addClass('active');
 
             $modal.find('.joinTable').hide();
@@ -276,16 +293,108 @@ window.JoinModal = (function($, JoinModal) {
 
             var colNum = xcHelper.parseColNum($th);
             var $table = $th.closest('table');
-            console.log(colNum);
+
+            var tableName = $table.data("tablename");
+            var colName   = $th.find(".columnTab").text();
+
+            var $tableInfo = isLeft ? $joinInstr.find(".leftTable") :
+                                      $joinInstr.find(".rightTable");
+            // console.log(colNum);
 
             if ($th.hasClass('colSelected')) {
+                 // unselect column
                 $th.removeClass('colSelected');
                 $table.find('.col' + colNum).removeClass('colSelected');
+                $tableInfo.find(".joinKey .text").text("");
             } else {
+                // select column
                 $modal.find('.colSelected').removeClass('colSelected');
                 $table.find('.col' + colNum).addClass('colSelected');
+                $tableInfo.find(".tableName .text").text(tableName);
+                $tableInfo.find(".joinKey .text").text(colName);
+
+                if (isLeft) {
+                    var cols = [];
+                    $table.find(".columnTab").each(function() {
+                        cols.push($(this).text());
+                    });
+                    suggestJoinKey(tableName, colName, getType($th),
+                                   new xcHelper.Corrector(cols));
+                }
             }
         });
+    }
+
+    function scrolleToColumn($th) {
+        var $tableArea = $th.closest('.joinTableArea');
+        var tableOffset = $tableArea.offset().left;
+        var tableAreaWidth = $tableArea.width();
+        var thWidth = $th.width();
+        var thOffset = $th.offset().left;
+        var position = (thOffset - tableOffset) - (tableAreaWidth * 0.5) +
+                           (thWidth * 0.5);
+        $tableArea.scrollLeft(position);
+    }
+
+    function suggestJoinKey(tableName, colName, type, corrector) {
+        var isFound = false;
+        var $thToClick;
+        var $suggTableName = $joinInstr.find(".suggTable .tableName .text");
+        var $suggColName = $joinInstr.find(".suggTable .joinKey .text");
+
+        var curTableName;
+        var curColName;
+
+        $suggTableName.text("");
+        $suggColName.text("");
+
+        $rightJoinTable.find("table").each(function() {
+            var $table = $(this);
+
+            if (isFound) {
+                return;
+            }
+
+            curTableName = $table.data("tablename");
+
+            if (curTableName === tableName) {
+                return;
+            }
+
+            var $ths = $table.find("th");
+            for (var i = 0, len = $ths.length; i < len; i++) {
+                var $th = $ths.eq(i);
+
+                if (getType($th) === type) {
+                    curColName = $th.find(".columnTab").text();
+
+                    if (curColName === colName ||
+                        corrector.correct(curColName) === colName)
+                    {
+                        isFound = true;
+                        $suggTableName.text(curTableName);
+                        $suggColName.text(curColName);
+                        $thToClick = $th;
+                        break;
+                    }
+                }
+            }
+        });
+
+        if (isFound && isOpenTime) {
+            $rightJoinTable.find(".tableLabel").filter(function() {
+                return ($(this).text() === curTableName);
+            }).click();
+            $thToClick.click();
+            scrolleToColumn($thToClick);
+        }
+    }
+
+    function getType($th) {
+        // match "abc type-XXX abc" and "abc type-XXX"
+        var match = $th.attr("class").match(/type-(.*)/)[1];
+        // match = "type-XXX" or "type-XXX abc"
+        return (match.split(" ")[0]);
     }
 
     return (JoinModal);

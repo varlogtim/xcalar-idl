@@ -1056,9 +1056,8 @@
   </div>
   <!-- End Of Quick Aggregates Modal -->
 
-  <div id="joinModal"></div>
   <!-- Join Modal -->
-  <div id="joinDialog" class="modalContainer">
+  <div id="joinModal" class="modalContainer">
     <!-- Join Modal Header -->
     <header id="joinHeader" class="modalHeader">
       <span class="text">Join Tables</span>
@@ -1067,13 +1066,39 @@
       </div>
     </header>
     <!-- Jonin Modal Instrunction Section -->
-    <section id="instructions" class="modalInstruction">
+    <section id="joinInstr" class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
-        First, select the column from the left table that you would like to join
+        <!-- First, select the column from the left table that you would like to join
         on. <br>
         Next, select the table followed by the column from the right that you 
-        would like to join on.
+        would like to join on. -->
+        <div class="leftTable tableInfo">
+          <div class="tableName">
+            Left table: <span class="text"></span>
+          </div>
+          <div class="joinKey">
+            Join Key: <span class="text"></span>
+          </div>
+        </div>
+
+        <div class="rightTable tableInfo">
+          <div class="tableName">
+            Right Table: <span class="text"></span>
+          </div>
+          <div class="joinKey">
+              Join Key: <span class="text"></span>
+          </div>
+        </div>
+
+        <div class="suggTable tableInfo">
+          <div class="tableName">
+            Suggest Right Table: <span class="text"></span>
+          </div>
+          <div class="joinKey">
+            Suggest Key: <span class="text"></span>
+          </div>
+        </div>
       </div>
     </section>
     <!-- Join Modal Input Section -->

@@ -472,5 +472,138 @@ window.xcHelper = (function($, xcHelper) {
         return (this.$modal.find(".btn:focus").length > 0);
     };
 
+
+    xcHelper.Corrector = function(words) {
+        // traing texts
+        // words = ["pull", "sort", "join", "filter", "aggreagte", "map"];
+        this.model = transformAndTrain(words);
+
+        return (this);
+        // convert words to lowercase and train the word
+        function transformAndTrain(features) {
+            var res = {};
+            var word;
+
+            for (var i = 0, len = features.length; i < len; i++) {
+                word = features[i].toLowerCase();
+                if (word in res) {
+                    res[word] += 1;
+                } else {
+                    res[word] = 2; // start with 2
+                }
+            }
+            return (res);
+        }
+    };
+
+
+    xcHelper.Corrector.prototype.correct = function(word, isEdits2) {
+        var model = this.model;
+
+        var edits1Res = edits1(word);
+        var candidate;
+
+        if (isEdits2) {
+            candidate = known({word: true}) || known(edits1Res) ||
+                        knownEdits2(edits1Res) || {word: true};
+        } else {
+            candidate = known({word: true}) || known(edits1Res) || {word: true};
+        }
+
+        var max = 0;
+        var result;
+
+        for (var key in candidate) {
+            var count = getWordCount(key);
+
+            if (count > max) {
+                max = count;
+                result = key;
+            }
+        }
+
+        return (result);
+
+        function getWordCount(w) {
+            // smooth for no-exist word, model[word_not_here] = 1
+            return (model[w] || 1);
+        }
+
+        function known(words) {
+            var res = {};
+
+            for (var w in words) {
+                if (w in model) {
+                    res[w] = true;
+                }
+            }
+
+            return ($.isEmptyObject(res) ? null : res);
+        }
+
+        // edit distabnce of word;
+        function edits1(w) {
+            var splits = {};
+            var part1;
+            var part2;
+            var wrongWord;
+
+            for (var i = 0, len = w.length; i <= len; i++) {
+                part1 = w.slice(0, i);
+                part2 = w.slice(i, len);
+                splits[part1] = part2;
+            }
+
+            var deletes    = {};
+            var transposes = {};
+            var replaces   = {};
+            var inserts    = {};
+            var alphabets  = "abcdefghijklmnopqrstuvwxyz".split("");
+
+            for (part1 in splits) {
+                part2 = splits[part1];
+
+                if (part2) {
+                    wrongWord = part1 + part2.substring(1);
+                    deletes[wrongWord] = true;
+                }
+
+                if (part2.length > 1) {
+                    wrongWord = part1 + part2.charAt(1) + part2.charAt(0) +
+                                part2.substring(2);
+                    transposes[wrongWord] = true;
+                }
+
+                for (var i = 0, len = alphabets.length; i < len; i++) {
+                    if (part2) {
+                        wrongWord = part1 + alphabets[i] + part2.substring(1);
+                        replaces[wrongWord] = true;
+                    }
+
+                    wrongWord = part1 + alphabets[i] + part2;
+                    inserts[wrongWord] = true;
+                }
+            }
+
+            return $.extend({}, splits, deletes,
+                            transposes, replaces, inserts);
+        }
+
+        function knownEdits2(e1Sets) {
+            var res = {};
+
+            for (var e1 in e1Sets) {
+                var e2Sets = edits1(e1);
+                for (var e2 in e2Sets) {
+                    if (e2 in model) {
+                        res[e2] = true;
+                    }
+                }
+            }
+
+            return ($.isEmptyObject() ? null : res);
+        }
+    };
+
     return (xcHelper);
 }(jQuery, {}));

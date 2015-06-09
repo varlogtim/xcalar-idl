@@ -107,7 +107,7 @@
     }
 }
 
-#joinModal, #modalBackground {
+#modalBackground {
     .position(fixed, @top: 0, @left: 0);
     .size(100%, 100%);
     background-color: #000000;
@@ -470,7 +470,7 @@
 }
 
 /* Join Modal */
-#joinDialog {
+#joinModal {
     .modalBuilder(920px, 670px);
     overflow: hidden;
     resize: both;
@@ -478,6 +478,28 @@
 
     .modalHeader {
         .cursor-move;
+    }
+
+    .modalInstruction {
+        padding-bottom: 0px;
+        .text {
+            padding-left: 5px;
+            .position(relative);
+
+            .tableInfo {
+                .position(relative);
+                .size(@width: 33%);
+                float: left;
+
+                .text {
+                    color: @color-text-blue;
+                }
+
+                &.hidden {
+                    display: none;
+                }
+            }
+        }
     }
 
     .modalTopMain {

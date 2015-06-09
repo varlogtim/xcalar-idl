@@ -28,7 +28,7 @@ window.Alert = (function($, Alert){
             msg: alert cnotent
             isAlert: if it is an alert or a confirm
             isCheckBox: if checkbox is enabled  or disabled
-            unclosable: if set true, will on close the modal when close
+            modal: an modal element that trigger the alert
             optList: an object to setup datalist in alert modal, it contains:
                 label: label to show
                 list: options in the datalist
@@ -76,13 +76,18 @@ window.Alert = (function($, Alert){
         return (jQuery.trim(val));
     };
 
-    function closeAlertModal() {
+    function closeAlertModal($modalContainer) {
         $btnSection.find(".funcBtn").remove();
         // remove all event listener
         $alertModal.off();
         $alertModal.hide();
 
         modalHelper.clear();
+
+        if ($modalContainer) {
+            $modalContainer.css("z-index", 40);
+            return;
+        }
 
         if (!$modalBackground.hasClass("open")) {
             $modalBackground.fadeOut(200, function(){
@@ -144,12 +149,17 @@ window.Alert = (function($, Alert){
         $alertModal.on("click", ".close, .cancel", function(event) {
             event.stopPropagation();
 
-            closeAlertModal();
+            closeAlertModal(options.modal);
 
             if (options.cancel) {
                 options.cancel();
             }
         });
+
+        if (options.modal) {
+            var $container = options.modal;
+            $container.css("z-index", 0);
+        }
 
         // set confirm button
         var $confirmBtn = $btnSection.find(".confirm");
