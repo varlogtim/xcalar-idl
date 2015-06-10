@@ -211,18 +211,8 @@ window.OperationsModal = (function($, OperationsModal) {
         colNum = newColNum;
         colName = gTables[tableNum].tableCols[colNum - 1].name;
         
-        highlightOperationColumn();
-        $('#xcTableWrap' + tableNum).addClass('opModalOpen');
-        $('.xcTableWrap').not('#xcTableWrap' + tableNum)
-                         .addClass('modalDarkened');
         $('#xcTable' + tableNum).find('.editableHead').attr('disabled', true);
         $('#xcTable' + tableNum).find('.colGrab').mouseup(disableTableEditing);
-        $operationsModal = $('#operationsModal');
-        $operationsModal.fadeIn(200);
-        $('#opModalBackground').addClass('light').fadeIn(200);
-        $('#sideBarModal').addClass('light').fadeIn(200);
-        $('#rightSideBar').addClass('opModalOpen');
-        $('#mainFrame').addClass('opModalOpen');
 
         $operationsModal.find('.operationsModalHeader .text').text(operator);
         operatorName = $.trim(operator.toLowerCase());
@@ -230,7 +220,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var colTypes = [gTables[tableNum].tableCols[colNum - 1].type];
         
         if ($('#xcTable' + tableNum).find('th.col' + colNum)
-                                  .hasClass('indexedColumn')) {
+                                    .hasClass('indexedColumn')) {
             colTypes.push('indexed');
         }
 
@@ -264,6 +254,17 @@ window.OperationsModal = (function($, OperationsModal) {
 
         centerPositionElement($operationsModal);
         modalHelper.setup();
+
+        highlightOperationColumn();
+        $('#xcTableWrap' + tableNum).addClass('opModalOpen');
+        $('.xcTableWrap').not('#xcTableWrap' + tableNum)
+                         .addClass('modalDarkened');
+        $operationsModal = $('#operationsModal');
+        $operationsModal.fadeIn(200);
+        $('#opModalBackground').addClass('light').fadeIn(200);
+        $('#sideBarModal').addClass('light').fadeIn(200);
+        $('#rightSideBar').addClass('opModalOpen');
+        $('#mainFrame').addClass('opModalOpen');
 
         fillInputPlaceholder(0);
 

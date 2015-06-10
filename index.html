@@ -64,193 +64,6 @@
     <div id="insight"></div>
     <div id="mainFrame"></div>
 
-    <!-- Start OPERATIONS MODAL -->
-    <div id="opModalBackground"></div>
-    <div id="operationsModal" class="modalContainer">
-      <div class="modalHeader operationsModalHeader ">
-        <span class="text">Select Your Operation</span>
-        <div class="close">
-          <span class="icon"></span>
-        </div>
-      </div> 
-
-      <div class="modalInstruction">
-        <div class="icon"></div>
-        <div class="text"> Select a category (e.g Arithmetic Functions).
-        Then select a specific function, e.g. add. <br />
-        Finally, enter in any arguments if applicable.
-        </div>
-      </div> 
-      <div class="stepChain">
-        <div class="stepChainImg"></div>
-        <div class="outerCircle circle0 filled">
-          <div class="innerCircle "></div>
-          <div class="circleContent">
-            <span class="text">1</span>
-            <span class="icon tick"></span>
-          </div>
-        </div>
-        <div class="outerLink">
-          <div class="innerLink link0"></div>
-        </div>
-        <div class="outerCircle circle1">
-          <div class="innerCircle"></div>
-          <div class="circleContent">
-            <span class="text">2</span>
-            <span class="icon tick"></span>
-          </div>
-        </div>
-        <div class="outerLink">
-          <div class="innerLink link1"></div>
-        </div>
-        <div class="outerCircle circle2">
-          <div class="innerCircle"></div>
-          <div class="circleContent">
-            <span class="text">3</span>
-            <span class="icon tick"></span>
-          </div>
-        </div>
-      </div>
-      <div class="modalTopMain clearfix">
-        <section class="step">
-          <b>Category: </b>
-          <div id="categoryList" class="listSection">
-              <input class="text autocomplete" placeholder="aggregate" required tabindex="10">
-              <div class="iconWrapper dropdown">
-                <span class="icon"></span>
-              </div>
-              <ul id="categoryMenu" class="list">
-                <li class="all">all</li>
-              </ul>
-          </div>
-        </section>
-        <div class="border"></div>
-        <section class="step inactive">
-          <b>Function: </b>
-          <div id="functionList" class="listSection">
-              <input class="text autocomplete" disabled required tabindex="10">
-              <div class="iconWrapper dropdown">
-                <span class="icon"></span>
-              </div>
-              <ul id="functionsMenu" class="list">
-              </ul>
-          </div>
-        </section>
-        <div class="border"></div>
-      </div>
-      <div class="modalMain step inactive">
-        <b>Description of Function:</b>
-        <div class="argumentSection">
-          <p class="descriptionText">N/A</p>
-          <b class="argumentListTitle">Argument List:</b>
-          <div class="tableContainer">
-            <div class="tableWrapper">
-              <table class="argumentTable">
-                <thead>
-                  <tr>
-                    <th> 
-                      <div class="thWrap"> 
-                        Argument
-                      </div> 
-                    </th> 
-                    <th> 
-                      <div class="thWrap"> 
-                          Description
-                      </div> 
-                    </th> 
-                  </tr> 
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <div class="inputWrap">
-                        <input class="argument" type="text" tabindex="10" spellcheck="false">
-                      </div>
-                    </td> 
-                    <td> 
-                      <div class="description"></div>
-                    </td> 
-                  </tr>
-
-                  <tr>
-                    <td>
-                      <div class="inputWrap">
-                        <input class="argument" type="text" tabindex="10" spellcheck="false">
-                      </div>
-                    </td> 
-                    <td> 
-                      <div class="description"></div>
-                    </td> 
-                  </tr>
-
-                  <tr>
-                    <td>
-                      <div class="inputWrap">
-                        <input class="argument" type="text" tabindex="10" spellcheck="false">
-                      </div>
-                    </td> 
-                    <td> 
-                      <div class="description"></div>
-                    </td> 
-                  </tr>
-
-                  <tr>
-                    <td>
-                      <div class="inputWrap">
-                        <input class="argument" type="text" tabindex="10" spellcheck="false">
-                      </div>
-                    </td> 
-                    <td> 
-                      <div class="description"></div>
-                    </td>
-                  </tr>
-                  <!-- for udf module -->
-                  <tr id="agrTable-udfModule">
-                    <td>
-                      <div class="inputWrap">
-                        <div class="listSection">
-                          <input class="argument text textNoCap" type="text" 
-                           spellcheck="false" disabled="disabled">
-                          <div class="iconWrapper">
-                            <span class="icon"></span>
-                          </div>
-                          <ul class="list"></ul>
-                        </div>
-                      </div>
-                    </td>
-                    <td> 
-                      <div class="description"></div>
-                    </td>
-                  </tr>
-                  <!-- for udf function -->
-                  <tr id="agrTable-udfFunc">
-                    <td>
-                      <div class="inputWrap">
-                        <div class="listSection">
-                          <input class="argument text textNoCap" type="text" tabindex="10" spellcheck="false">
-                          <div class="iconWrapper">
-                            <span class="icon"></span>
-                          </div>
-                          <ul class="list"></ul>
-                        </div>
-                      </div>
-                    </td> 
-                    <td> 
-                      <div class="description"></div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modalBottom clearfix">
-        <button class="btn btnMid confirm" tabindex="11">APPLY</button>
-        <button class="btn btnMid cancel" tabindex="10">CANCEL</button>
-      </div>
-    </div>
-    <!-- END OPERATIONS MODAL -->
     <!-- Dag Panel -->
     <div id="dagPanel" class="hidden full">
       <div class="topBorder">
@@ -992,6 +805,194 @@
     </div>
   </div>
   <!-- End Of StatusBox -->
+
+  <!-- Start OPERATIONS MODAL -->
+  <div id="opModalBackground"></div>
+  <div id="operationsModal" class="modalContainer">
+    <div class="modalHeader operationsModalHeader ">
+      <span class="text">Select Your Operation</span>
+      <div class="close">
+        <span class="icon"></span>
+      </div>
+    </div> 
+
+    <div class="modalInstruction">
+      <div class="icon"></div>
+      <div class="text"> Select a category (e.g Arithmetic Functions).
+      Then select a specific function, e.g. add. <br />
+      Finally, enter in any arguments if applicable.
+      </div>
+    </div> 
+    <div class="stepChain">
+      <div class="stepChainImg"></div>
+      <div class="outerCircle circle0 filled">
+        <div class="innerCircle "></div>
+        <div class="circleContent">
+          <span class="text">1</span>
+          <span class="icon tick"></span>
+        </div>
+      </div>
+      <div class="outerLink">
+        <div class="innerLink link0"></div>
+      </div>
+      <div class="outerCircle circle1">
+        <div class="innerCircle"></div>
+        <div class="circleContent">
+          <span class="text">2</span>
+          <span class="icon tick"></span>
+        </div>
+      </div>
+      <div class="outerLink">
+        <div class="innerLink link1"></div>
+      </div>
+      <div class="outerCircle circle2">
+        <div class="innerCircle"></div>
+        <div class="circleContent">
+          <span class="text">3</span>
+          <span class="icon tick"></span>
+        </div>
+      </div>
+    </div>
+    <div class="modalTopMain clearfix">
+      <section class="step">
+        <b>Category: </b>
+        <div id="categoryList" class="listSection">
+            <input class="text autocomplete" placeholder="aggregate" required tabindex="10">
+            <div class="iconWrapper dropdown">
+              <span class="icon"></span>
+            </div>
+            <ul id="categoryMenu" class="list">
+              <li class="all">all</li>
+            </ul>
+        </div>
+      </section>
+      <div class="border"></div>
+      <section class="step inactive">
+        <b>Function: </b>
+        <div id="functionList" class="listSection">
+            <input class="text autocomplete" disabled required tabindex="10">
+            <div class="iconWrapper dropdown">
+              <span class="icon"></span>
+            </div>
+            <ul id="functionsMenu" class="list">
+            </ul>
+        </div>
+      </section>
+      <div class="border"></div>
+    </div>
+    <div class="modalMain step inactive">
+      <b>Description of Function:</b>
+      <div class="argumentSection">
+        <p class="descriptionText">N/A</p>
+        <b class="argumentListTitle">Argument List:</b>
+        <div class="tableContainer">
+          <div class="tableWrapper">
+            <table class="argumentTable">
+              <thead>
+                <tr>
+                  <th> 
+                    <div class="thWrap"> 
+                      Argument
+                    </div> 
+                  </th> 
+                  <th> 
+                    <div class="thWrap"> 
+                        Description
+                    </div> 
+                  </th> 
+                </tr> 
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="inputWrap">
+                      <input class="argument" type="text" tabindex="10" spellcheck="false">
+                    </div>
+                  </td> 
+                  <td> 
+                    <div class="description"></div>
+                  </td> 
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="inputWrap">
+                      <input class="argument" type="text" tabindex="10" spellcheck="false">
+                    </div>
+                  </td> 
+                  <td> 
+                    <div class="description"></div>
+                  </td> 
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="inputWrap">
+                      <input class="argument" type="text" tabindex="10" spellcheck="false">
+                    </div>
+                  </td> 
+                  <td> 
+                    <div class="description"></div>
+                  </td> 
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="inputWrap">
+                      <input class="argument" type="text" tabindex="10" spellcheck="false">
+                    </div>
+                  </td> 
+                  <td> 
+                    <div class="description"></div>
+                  </td>
+                </tr>
+                <!-- for udf module -->
+                <tr id="agrTable-udfModule">
+                  <td>
+                    <div class="inputWrap">
+                      <div class="listSection">
+                        <input class="argument text textNoCap" type="text" 
+                         spellcheck="false" disabled="disabled">
+                        <div class="iconWrapper">
+                          <span class="icon"></span>
+                        </div>
+                        <ul class="list"></ul>
+                      </div>
+                    </div>
+                  </td>
+                  <td> 
+                    <div class="description"></div>
+                  </td>
+                </tr>
+                <!-- for udf function -->
+                <tr id="agrTable-udfFunc">
+                  <td>
+                    <div class="inputWrap">
+                      <div class="listSection">
+                        <input class="argument text textNoCap" type="text" tabindex="10" spellcheck="false">
+                        <div class="iconWrapper">
+                          <span class="icon"></span>
+                        </div>
+                        <ul class="list"></ul>
+                      </div>
+                    </div>
+                  </td> 
+                  <td> 
+                    <div class="description"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modalBottom clearfix">
+      <button class="btn btnMid confirm" tabindex="11">APPLY</button>
+      <button class="btn btnMid cancel" tabindex="10">CANCEL</button>
+    </div>
+  </div>
+  <!-- END OPERATIONS MODAL -->
 
   <!-- Quick Aggregates Modal -->
   <div id="quickAggDialog" class="modalContainer">
