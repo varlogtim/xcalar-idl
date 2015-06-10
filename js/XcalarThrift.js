@@ -540,6 +540,7 @@ function XcalarSetFree(resultSetId) {
 
 function generateFilterString(operator, value1, value2, value3) {
     var filterStr = "";
+    //XX change this so it accepts any number of values
     switch (operator) {
         case ("Greater Than"):
             filterStr = "gt(" + value1 + ", " + value2 + ")";

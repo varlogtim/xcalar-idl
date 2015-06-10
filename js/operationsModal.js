@@ -58,7 +58,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 if ($(this).val() === $functionsMenu.data('category')) {
                     return;
                 }
-                enterInput(index);  
+                enterInput(index);
             } else {
                 closeListIfNeeded($(this));
             }
@@ -844,28 +844,31 @@ window.OperationsModal = (function($, OperationsModal) {
                                            .eq(numVisibleInputs - 1);
         var $theadInputs = $('#xcTable' + tableNum).find('.editableHead');
         var isDuplicate  = ColManager.checkColDup($theadInputs, $nameInput);
-
-
+        
         if (isDuplicate) {
             return (false);
         }
 
+        var argums = [];
         var $firstVal  = $operationsModal.find('.argument').eq(0);
         var firstValue = $.trim($firstVal.val());
-        var secondValue;
+
         var columns = gTables[tableNum].tableCols;
         var numCols = columns.length;
-        var backName = firstValue;
         for (var i = 0; i < numCols; i++) {
             if (columns[i].name === firstValue) {
                 if (columns[i].func.args) {
-                    backName = columns[i].func.args[0];
+                    firstValue = columns[i].func.args[0];
                 }
             }
         }
-        if (numVisibleInputs === 3) {
-            var $secondVal  = $operationsModal.find('.argument').eq(1);
-            secondValue = $.trim($secondVal.val());
+        argums.push(firstValue);
+        if (numVisibleInputs >= 3) {
+            for (var i = 1; i < numVisibleInputs - 1; i++) {
+                var $argVal  = $operationsModal.find('.argument').eq(i);
+                var argValue = $.trim($argVal.val());
+                argums.push(argValue);
+            }
         }
         
         // var switched  = false;
@@ -874,7 +877,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (operator.toLowerCase() === "udf") {
             var moduleName = firstValue;
-            var funcString = secondValue;
+            var funcString = argums[1];
             var regex = new RegExp('(.*)[(](.*)[)]', "g");
             var match = regex.exec(funcString);
             var funcName = match[1];
@@ -884,7 +887,7 @@ window.OperationsModal = (function($, OperationsModal) {
             mapStr += funcName + "\",";
             mapStr += args + "))";
         } else {
-            mapStr = formulateMapString(operator, backName, secondValue);
+            mapStr = formulateMapString(operator, argums);
         }
         console.log(operator, mapStr);
 
@@ -903,15 +906,14 @@ window.OperationsModal = (function($, OperationsModal) {
         return (true);
     }
 
-    function formulateMapString(operator, value1, value2) {
+    function formulateMapString(operator, args) {
         // we're assuming the operator was picked from a list of valid operators
-        console.log(arguments);
         var mapString = '=map(';
         mapString += operator + "(";
-        mapString += value1;
-        if (value2 != null) {
-            mapString += ", " + value2;
+        for (var i = 0; i < args.length; i++) {
+            mapString += args[i] + ", ";
         }
+        mapString = mapString.slice(0, -2);
         mapString += "))";
         return (mapString);
     }

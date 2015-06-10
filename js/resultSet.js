@@ -151,9 +151,9 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
             removeOldRows($table, tableNum, info, direction,
                             prepullTableHeight, numRowsBefore, numRowsToAdd);
-        } else if (!loop) {
+        } else if (!loop && info.missingRows) {
             console.log('some rows were too large to be retrieved, rows: ' +
-                        info.missingRows);
+                        info.missingRows, tableNum);
         }
         deferred.resolve();
     })
