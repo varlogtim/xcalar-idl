@@ -195,7 +195,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
     function updateOneDonut(el, val, total) {
         var duration = 750;
-        var index = $(el).closest('.donutSection').attr('id').substring(5);
+        var index = parseInt($(el).closest('.donutSection')
+                                  .attr('id').substring(5));
         var pie = d3.layout.pie().sort(null);
         var data = [val, total - val];
         var donut = d3.select(el);
