@@ -1184,15 +1184,23 @@
                     .rounded;
                     .action-gradient;
                     cursor: pointer;
+
                     &:active {
                         .action-inverse-gradient;
                     }
+
                     .icon {
                         .size(25px, 25px);
                     }
-                    &.icon-up .icon{
+
+                    &.icon-refresh .icon {
+                        .image("/images/fileBrowserModal/refresh.png", 50%, 50%);
+                    }
+
+                    &.icon-up .icon {
                         .image("/images/fileBrowserModal/up.png", 50%, 50%);
                     }
+
                     &.icon-sort {
                         position: relative;
                         > .icon {

@@ -365,7 +365,7 @@ window.xcFunction = (function ($, xcFunction) {
                 "name"    : newColName,
                 "width"   : gNewCellWidth,
                 "isNewCol"  : false,
-                "userStr" : '"'+newColName+'" = pull('+escapedName+')',
+                "userStr" : '"' + newColName + '" = pull(' + escapedName + ')',
                 "func"    : {
                     "func": "pull",
                     "args": [escapedName]

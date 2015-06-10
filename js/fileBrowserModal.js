@@ -22,6 +22,7 @@ window.FileBrowser = (function($, FileBrowser) {
     var validFormats   = ["JSON", "CSV"];
     var defaultSortKey = "type"; // default is sort by type;
     /* End Of Contants */
+    var historyPath;
     var curFiles    = [];
     var allFiles    = [];
     var sortKey     = defaultSortKey;
@@ -113,6 +114,14 @@ window.FileBrowser = (function($, FileBrowser) {
         // close file browser
         $fileBrowser.on("click", ".close, .cancel", function() {
             closeAll();
+        });
+
+        $("#fileBrowserRefresh").click(function(event){
+            // the first option in pathLists
+            var $curPath = $pathLists.find("li").eq(0);
+
+            event.stopPropagation();
+            goToPath($curPath);
         });
 
         // Up to parent folder
@@ -340,9 +349,9 @@ window.FileBrowser = (function($, FileBrowser) {
         var oldPath = getCurrentPath();
         var path    = $newPath.text();
 
-        if (oldPath === path) {
-            return;
-        }
+        // if (oldPath === path) {
+        //     return;
+        // }
 
         listFiles(path)
         .then(function() {
@@ -383,11 +392,14 @@ window.FileBrowser = (function($, FileBrowser) {
         //     }
         //     $filePath.val(path);
         // } else {
+
         // load dataset
         var dsName = getGridUnitName($ds);
-        var path   = getCurrentPath() + dsName;
+        var curDir = getCurrentPath();
+        var path   = curDir + dsName;
         var ext    = getFormat(dsName);
 
+        historyPath = curDir;
         if (ext != null) {
             $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]')
                 .click();
@@ -613,22 +625,21 @@ window.FileBrowser = (function($, FileBrowser) {
         var paths    = [];
 
         if (!path) {
-            paths.push(defaultPath);
-        } else {
-            // parse path
-            for (var i = path.length - 1; i >= (defaultPath.length - 1); i--) {
-                if (path.charAt(i) === "/") {
-                    paths.push(path.substring(0, i + 1));
-                }
-            }
-            // cannot parse the path
-            if (paths.length === 0) {
-                var error = "Invalid Path, please input a valid one";
+            path = historyPath || defaultPath;
+        }
 
-                deferred.reject({"error": error});
-
-                return (deferred.promise());
+        // parse path
+        for (var i = path.length - 1; i >= (defaultPath.length - 1); i--) {
+            if (path.charAt(i) === "/") {
+                paths.push(path.substring(0, i + 1));
             }
+        }
+        // cannot parse the path
+        if (paths.length === 0) {
+            var error = "Invalid Path, please input a valid one";
+            deferred.reject({"error": error});
+
+            return (deferred.promise());
         }
 
         listFiles(paths[0])
