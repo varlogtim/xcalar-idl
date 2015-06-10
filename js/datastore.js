@@ -577,33 +577,61 @@ window.DataCart = (function($, DataCart) {
             $(this).blur();
 
             if ($cartArea.find(".selectedTable").length === 0) {
-                return false;
+                return (false);
             }
             
             var datasetsList;
             var datasetNamesArray = [];
             var tableNamesArray = [];
+            var nameIsValid = true;
+            var errorMsg = "";
+            var $input;
+            var numGTables = gTables.length;
+            var numGHiddenTables = gHiddenTables.length;
+            $cartArea.find(".selectedTable").each(function() {
+                var $cart = $(this);
+                $input = $cart.find('.tableNameEdit');
+                var tableName = $.trim($input.val());
+                for (var i = 0; i < numGTables; i++) {
+                    if (tableName == gTables[i].backTableName) {
+                        errorMsg = 'A table with the name "' + tableName +
+                                '" already exists. Please use a unique name.';
+                        nameIsValid = false;
+                        return (false);
+                    }
+                }
+                for (var i = 0; i < numGHiddenTables; i++) {
+                    if (tableName == gHiddenTables[i].backTableName) {
+                        errorMsg = 'A table with the name "' + tableName +
+                                '" already exists. Please use a unique name.';
+                        nameIsValid = false;
+                        return (false);
+                    }
+                }
+            });
+
+            if (!nameIsValid) {
+                scrollToTableName($input);
+                StatusBox.show(errorMsg, $input, true, 0, {side : 'left'});
+                return;
+            }
+            
             XcalarGetDatasets()
             .then(function(datasets) {
                 datasetsList = datasets;
             })
             .then(XcalarGetTables)
             .then(function(tables) {
-                 var deferred = jQuery.Deferred();
-                
                 for (var i = 0; i < datasetsList.numDatasets; i ++) {
                     datasetNamesArray.push(datasetsList.datasets[i].name);
                 }
                 for (var i = 0; i < tables.numTables; i++) {
                     tableNamesArray.push(tables.tables[i].tableName);
                 }
-                var nameIsValid = true;
-                var errorMsg = "";
-                var $input;
+                
                 $cartArea.find(".selectedTable").each(function(){
                     var $cart = $(this);
                     $input = $cart.find('.tableNameEdit');
-                    var dsName = $cart.attr("id").split("selectedTable-")[1];
                     var tableName = $.trim($input.val());
                     if (tableName === "") {
                         errorMsg = 'Please give your new table a name.';
@@ -620,7 +648,6 @@ window.DataCart = (function($, DataCart) {
                         nameIsValid = false;
                         return (false);
                     }
-                   
                 });
 
                 if (nameIsValid) {
@@ -634,29 +661,12 @@ window.DataCart = (function($, DataCart) {
                         Alert.error("Create work sheet fails", error);
                     });
                 } else {
-                    var cartRect = $('#dataCartWrap')[0]
-                                      .getBoundingClientRect()
-                    var cartBottom = cartRect.bottom;
-                    var cartTop = cartRect.top;
-                    var inputTop = $input.offset().top;
-                    var inputHeight = $input.height();
-                    var hiddenDistance = (inputTop + inputHeight) - cartBottom;
-                    var distFromTop = inputTop  - cartTop;
-                    if (hiddenDistance > -10) {
-                        var scrollTop = $("#dataCartWrap").scrollTop();
-                        $('#dataCartWrap').scrollTop(scrollTop +
-                                                     hiddenDistance + 10);
-                    } else if (distFromTop < 0) {
-                        var scrollTop = $("#dataCartWrap").scrollTop();
-                        $('#dataCartWrap').scrollTop(scrollTop + distFromTop 
-                                                     - 10);
-                    }
+                    scrollToTableName($input);
                     StatusBox.show(errorMsg, $input, true, 0, {side : 'left'});
-                    
-                    
                     return (false);
                 }
-            }). fail(function(error) {
+            })
+            .fail(function(error) {
                 emptyAllCarts();
                 Alert.error("Create work sheet fails", error);
             });
@@ -855,6 +865,24 @@ window.DataCart = (function($, DataCart) {
         return (cart);
     }
 
+    function scrollToTableName($input) {
+        var cartRect = $('#dataCartWrap')[0].getBoundingClientRect();
+        var cartBottom = cartRect.bottom;
+        var cartTop = cartRect.top;
+        var inputTop = $input.offset().top;
+        var inputHeight = $input.height();
+        var hiddenDistance = (inputTop + inputHeight) - cartBottom;
+        var distFromTop = inputTop  - cartTop;
+        if (hiddenDistance > -10) {
+            var scrollTop = $("#dataCartWrap").scrollTop();
+            $('#dataCartWrap').scrollTop(scrollTop +
+                                         hiddenDistance + 10);
+        } else if (distFromTop < 0) {
+            var scrollTop = $("#dataCartWrap").scrollTop();
+            $('#dataCartWrap').scrollTop(scrollTop + distFromTop 
+                                         - 10);
+        }
+    }
 
     function triggerScrollToDatasetColumn($li) {
         var tableName = $li.closest('ul').siblings('.tableNameEdit').val();
