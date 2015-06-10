@@ -294,7 +294,8 @@ StatusT = {
   'StatusPyFailedToImportModule' : 285,
   'StatusPyFilterFunctionNotCallable' : 286,
   'StatusPyFilterRecordInvalidParameter' : 287,
-  'StatusPyEmptyValueReturnedFromFilterFunction' : 288
+  'StatusPyEmptyValueReturnedFromFilterFunction' : 288,
+  'StatusPyExecUnsupportedType' : 289
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -584,5 +585,6 @@ StatusTStr = {0 : 'Success',
 285 : 'Failed to import the module file being provided',
 286 : 'The filter function being provided is not callable',
 287 : 'Parameter being passed into the filter function is not valid',
-288 : 'The return value from filter function is empty'
+288 : 'The return value from filter function is empty',
+289 : 'The input type is not supported by pyExec'
 };
