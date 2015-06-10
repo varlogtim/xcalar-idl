@@ -18,7 +18,7 @@ window.DataStore = (function($, DataStore) {
             DataStore.updateInfo(datasets.numDatasets);
         })
         .fail(function(error) {
-            console.error("Fail to update ds nums". error);
+            console.error("Fail to update ds nums", error);
         });
     };
 
@@ -378,7 +378,7 @@ window.GridView = (function($, GridView) {
         // initial gDSObj
         setupGridViewButton();
         setupGridViewIcons();
-    }
+    };
 
     function setupGridViewButton() {
         // $("#searchButton").parent().on("click", function() {
@@ -399,7 +399,7 @@ window.GridView = (function($, GridView) {
         $("#importDataButton").click(function() {
             var $importForm = $("#importDataView");
             $("#filePath").focus();
-            if ($importForm.css('display') != "block") {
+            if ($importForm.css('display') !== "block") {
                 $importForm.show();
                 $("#filePath").focus();
                 $gridView.find("grid-unit.active").removeClass("active");
@@ -416,7 +416,7 @@ window.GridView = (function($, GridView) {
             var $btn = $(this);
             $(".dataViewBtn").removeClass("selected").addClass("btnDeselected");
             $btn.addClass("selected").removeClass("btnDeselected");
-            if ($btn.attr("id") == "dataListView") {
+            if ($btn.attr("id") === "dataListView") {
                 $gridView.removeClass("gridView").addClass("listView");
             } else {
                 $gridView.removeClass("listView").addClass("gridView");
@@ -426,23 +426,23 @@ window.GridView = (function($, GridView) {
          // click "Add New Folder" button to add new folder
         $("#addFolderBtn").click(function() {
             DS.create({
-                "name": "New Folder",
+                "name"    : "New Folder",
                 "isFolder": true
-            })
+            });
             commitToStorage();
         });
 
         // click "Back Up" button to go back to parent folder
         $("#backFolderBtn").click(function() {
             if (!$(this).hasClass("disabled")) {
-                 DS.upDir();
+                DS.upDir();
             }
         });
 
         // click "Delete Folder" button to delete folder
         $deleteFolderBtn.click(function() {
             if ($(this).hasClass("disabled")) {
-                 return;
+                return;
             }
 
             DS.remove($("grid-unit.active"));
@@ -483,17 +483,17 @@ window.GridView = (function($, GridView) {
                 Tips.refresh();
             })
             .fail(function(error) {
-                var errorHTML = "<div class='loadError'>"+
-                                "Loading dataset failed: "+error.error+"</div>";
-                console.log(error)
+                var errorHTML = "<div class='loadError'>" +
+                                    "Loading dataset failed: " + error.error +
+                                "</div>";
+                console.error(error);
                 $('#dataSetTableWrap').html(errorHTML);
-                // Alert.error("Load Dataset fails", error);
             });
 
             function releaseDatasetPointer() {
                 var deferred = jQuery.Deferred();
 
-                if (gDatasetBrowserResultSetId == 0) {
+                if (gDatasetBrowserResultSetId === 0) {
                     deferred.resolve();
                 } else {
                     XcalarSetFree(gDatasetBrowserResultSetId)
@@ -543,24 +543,26 @@ window.GridView = (function($, GridView) {
         }, ".folder .label");
 
         // dbclick grid view folder
-        $gridView.on("dblclick", ".folder > .gridIcon, .folder > .dsCount", 
-            function(event) {
+        $gridView.on("dblclick", ".folder > .gridIcon, .folder > .dsCount",
+            function() {
                 var $grid = $(this).closest(".folder");
                 $gridView.find(".active").removeClass("active");
                 $deleteFolderBtn.addClass("disabled");
                 if ($gridView.hasClass("gridView")) {
                     DS.goToDir($grid.data("dsid"));
+                }
             }
-        });
+        );
 
         // click list view folder
         $gridView.on("click", ".folder > .listIcon, .folder > .dsCount",
-            function(event) {
+            function() {
                 var $grid = $(this).closest(".folder");
                 if ($gridView.hasClass("listView")) {
                     $grid.toggleClass("collapse");
                 }
-        });
+            }
+        );
     }
 
     return (GridView);
@@ -569,9 +571,11 @@ window.GridView = (function($, GridView) {
 window.DataCart = (function($, DataCart) {
     var innerCarts = [];
     var $cartArea = $("#dataCart");
+
     DataCart.innershow = function() {
         return innerCarts;
-    }
+    };
+
     DataCart.setup = function() {
         $("#submitDSTablesBtn").click(function() {
             $(this).blur();
@@ -588,12 +592,13 @@ window.DataCart = (function($, DataCart) {
             var $input;
             var numGTables = gTables.length;
             var numGHiddenTables = gHiddenTables.length;
+
             $cartArea.find(".selectedTable").each(function() {
                 var $cart = $(this);
                 $input = $cart.find('.tableNameEdit');
                 var tableName = $.trim($input.val());
                 for (var i = 0; i < numGTables; i++) {
-                    if (tableName == gTables[i].backTableName) {
+                    if (tableName === gTables[i].backTableName) {
                         errorMsg = 'A table with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
                         nameIsValid = false;
@@ -601,7 +606,7 @@ window.DataCart = (function($, DataCart) {
                     }
                 }
                 for (var i = 0; i < numGHiddenTables; i++) {
-                    if (tableName == gHiddenTables[i].backTableName) {
+                    if (tableName === gHiddenTables[i].backTableName) {
                         errorMsg = 'A table with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
                         nameIsValid = false;
@@ -612,8 +617,8 @@ window.DataCart = (function($, DataCart) {
 
             if (!nameIsValid) {
                 scrollToTableName($input);
-                StatusBox.show(errorMsg, $input, true, 0, {side : 'left'});
-                return;
+                StatusBox.show(errorMsg, $input, true, 0, {side: 'left'});
+                return (false);
             }
             
             XcalarGetDatasets()
@@ -622,7 +627,7 @@ window.DataCart = (function($, DataCart) {
             })
             .then(XcalarGetTables)
             .then(function(tables) {
-                for (var i = 0; i < datasetsList.numDatasets; i ++) {
+                for (var i = 0; i < datasetsList.numDatasets; i++) {
                     datasetNamesArray.push(datasetsList.datasets[i].name);
                 }
                 for (var i = 0; i < tables.numTables; i++) {
@@ -662,7 +667,7 @@ window.DataCart = (function($, DataCart) {
                     });
                 } else {
                     scrollToTableName($input);
-                    StatusBox.show(errorMsg, $input, true, 0, {side : 'left'});
+                    StatusBox.show(errorMsg, $input, true, 0, {side: 'left'});
                     return (false);
                 }
             })
@@ -707,7 +712,8 @@ window.DataCart = (function($, DataCart) {
             var cart = filterCarts(dsName, tableName);
             cart.tableName = tableName;
         });
-    }
+    };
+
     // add column to cart
     DataCart.addItem = function(dsName, $colInput) {
         var colNum = xcHelper.parseColNum($colInput);
@@ -720,7 +726,8 @@ window.DataCart = (function($, DataCart) {
         var cart = filterCarts(dsName);
 
         cart.items.push({"colNum": colNum, "value": val});
-    }
+    };
+
     // remove one column from cart
     DataCart.removeItem = function (dsName, $colInput) {
         var colNum = xcHelper.parseColNum($colInput);
@@ -728,23 +735,24 @@ window.DataCart = (function($, DataCart) {
                         .find("li[data-colnum=" + colNum + "]");
 
         removeCartItem(dsName, $li);
-    }
+    };
+
     // remove one cart
     DataCart.removeCart = function(dsName) {
         $("#selectedTable-" + dsName).remove();
         overflowShadow();
         // remove the cart
-        for (var i = 0; i < innerCarts.length; i ++) {
+        for (var i = 0; i < innerCarts.length; i++) {
             if (innerCarts[i].dsName === dsName) {
                 innerCarts.splice(i, 1);
                 break;
             }
         }
-    }
+    };
 
     DataCart.getCarts = function() {
         return (innerCarts);
-    }
+    };
 
     DataCart.restore = function(carts) {
         innerCarts = carts;
@@ -756,50 +764,47 @@ window.DataCart = (function($, DataCart) {
                 appendCartItem(dsName, tableName, item.colNum, item.value);
             });
         });
-    }
+    };
 
     DataCart.clear = function() {
         emptyAllCarts();
-    }
+    };
 
     DataCart.scrollToDatasetColumn = function() {
         var $table = $("#worksheetTable");
         var $datasetWrap = $('#datasetWrap');
         var colNum = $cartArea.find(".colSelected").data("colnum");
-        var $column = $table.find("th.col" + colNum )
+        var $column = $table.find("th.col" + colNum);
         var position = $column.position().left;
         var columnWidth = $column.width();
         var dataWrapWidth = $datasetWrap.width();
 
-        $datasetWrap.scrollLeft(position-(dataWrapWidth/2)+(columnWidth/2));
-
-        // $datasetWrap.animate(
-        //     {scrollLeft : position-(dataWrapWidth/2)+(columnWidth/2)}
-        // );
-    }
+        $datasetWrap.scrollLeft(position - (dataWrapWidth / 2) +
+                                (columnWidth / 2));
+    };
 
     function appendCartItem(dsName, tableName, colNum, val) {
 
         var $cart = $("#selectedTable-" + dsName);
         // this ds's cart not exists yet
         if ($cart.length === 0) {
-            $cart =  $('<div id="selectedTable-' + dsName + '" \
-                            class="selectedTable">\
-                            <input class="tableNameEdit" \
-                                type="text" value="'+tableName+'Table">\
-                            <ul></ul>\
-                        </div>');
+            $cart = $('<div id="selectedTable-' + dsName + '"' +
+                            'class="selectedTable">' +
+                            '<input class="tableNameEdit" ' +
+                                'type="text" value="' + tableName + 'Table">' +
+                            '<ul></ul>' +
+                        '</div>');
             $cartArea.prepend($cart);
             $cart.find('.tableNameEdit').focus().select();
         }
 
-        var $li = $('<li style="font-size:13px;" class="colWrap" \
-                        data-colnum="' + colNum + '">\
-                        <span class="colName">' +  val + '</span>\
-                        <div class="removeCol">\
-                            <span class="closeIcon"></span>\
-                        </div>\
-                    </li>');
+        var $li = $('<li style="font-size:13px;" class="colWrap" ' +
+                        'data-colnum="' + colNum + '">' +
+                        '<span class="colName">' + val + '</span>' +
+                        '<div class="removeCol">' +
+                            '<span class="closeIcon"></span>' +
+                        '</div>' +
+                    '</li>');
 
         $cart.find("ul").append($li);
         overflowShadow();
@@ -826,7 +831,7 @@ window.DataCart = (function($, DataCart) {
         overflowShadow();
 
         var items = filterCarts(dsname).items;
-        for (var i = 0; i < items.length; i ++) {
+        for (var i = 0; i < items.length; i++) {
             if (items[i].colNum === colNum) {
                 items.splice(i, 1);
                 break;
@@ -852,7 +857,7 @@ window.DataCart = (function($, DataCart) {
         });
 
         if (res.length === 0) {
-            cart = {"dsName": dsName, "tableName" : dsName};
+            cart = {"dsName": dsName, "tableName": dsName};
             cart.items = [];
             innerCarts.push(cart);
         } else {
@@ -872,26 +877,28 @@ window.DataCart = (function($, DataCart) {
         var inputTop = $input.offset().top;
         var inputHeight = $input.height();
         var hiddenDistance = (inputTop + inputHeight) - cartBottom;
-        var distFromTop = inputTop  - cartTop;
+        var distFromTop = inputTop - cartTop;
+        var scrollTop;
+
         if (hiddenDistance > -10) {
-            var scrollTop = $("#dataCartWrap").scrollTop();
+            scrollTop = $("#dataCartWrap").scrollTop();
             $('#dataCartWrap').scrollTop(scrollTop +
                                          hiddenDistance + 10);
         } else if (distFromTop < 0) {
-            var scrollTop = $("#dataCartWrap").scrollTop();
-            $('#dataCartWrap').scrollTop(scrollTop + distFromTop 
-                                         - 10);
+            scrollTop = $("#dataCartWrap").scrollTop();
+            $('#dataCartWrap').scrollTop(scrollTop + distFromTop - 10);
         }
     }
 
     function triggerScrollToDatasetColumn($li) {
-        var tableName = $li.closest('ul').siblings('.tableNameEdit').val();
-        var $datasetIcon = $('#dataset-'+tableName);
-        if($datasetIcon.hasClass('active')) {
+        var tableName = $li.closest('.selectedTable').attr('id').split("-")[1];
+        var $datasetIcon = $('#dataset-' + tableName);
+
+        if ($datasetIcon.hasClass('active')) {
             DataCart.scrollToDatasetColumn();
         } else {
             var clickEvent = $.Event('click');
-            clickEvent['scrollToColumn'] = true;
+            clickEvent.scrollToColumn = true;
             $datasetIcon.trigger(clickEvent);
         }
     }
@@ -926,10 +933,10 @@ window.DataCart = (function($, DataCart) {
                 var sqlOptions = {
                     "operation": "createTable",
                     "tableName": tableName,
-                    "col": []
+                    "col"      : []
                 };
                 // add status message
-                var msg = StatusMessageTStr.CreatingTable+': '+tableName;
+                var msg = StatusMessageTStr.CreatingTable + ': ' + tableName;
                 StatusMessage.show(msg);
 
                 $cart.find('.colName').each(function() {
@@ -944,9 +951,10 @@ window.DataCart = (function($, DataCart) {
                         "index"   : ++startIndex,
                         "name"    : colname,
                         "width"   : gNewCellWidth,
-                        "isNewCol"  : false,
-                        "userStr" : '"'+colname+'" = pull('+escapedName+')',
-                        "func"    : {
+                        "isNewCol": false,
+                        "userStr" : '"' + colname + '" = pull(' +
+                                    escapedName + ')',
+                        "func": {
                             "func": "pull",
                             "args": [escapedName]
                         }
@@ -958,11 +966,11 @@ window.DataCart = (function($, DataCart) {
                     sqlOptions.col.push(colname);
                 });
                 // new "DATA" column
-                newTableCols[startIndex] = ColManager.newDATACol(startIndex+1);
+                newTableCols[startIndex] = ColManager.newDATACol(startIndex + 1);
 
                 sqlOptions.col.push("DATA");
 
-                var tableProperties = {bookmarks:[], rowHeights:{}};
+                var tableProperties = {bookmarks: [], rowHeights: {}};
                 setIndex(tableName, newTableCols, datasetName, tableProperties);
 
                 refreshTable(tableName, gTables.length, true, false)
@@ -1002,7 +1010,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $menu.append(getDropdownMenuHTML());
         setupSampleTable();
         setupColumnDropdownMenu();
-    }
+    };
 
     DataSampleTable.getTableFromDS = function(dsId) {
         var deferred = jQuery.Deferred();
@@ -1026,7 +1034,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var jsons = [];  // store all jsons
 
             try {
-                for (var i = 0; i < numKvPairs; i ++) {
+                for (var i = 0; i < numKvPairs; i++) {
                     value = kvPairs[i].value;
                     json = jQuery.parseJSON(value);
 
@@ -1037,14 +1045,14 @@ window.DataSampleTable = (function($, DataSampleTable) {
                     }
                 }
 
-                for (var key in uniqueJsonKey) {
-                    jsonKeys.push(key);
+                for (var uniquekey in uniqueJsonKey) {
+                    jsonKeys.push(uniquekey);
                 }
 
                 getSampleTable(datasetName, jsonKeys, jsons);
                 deferred.resolve();
-             } catch(err) {
-                console.log(err, value);
+            } catch(err) {
+                console.error(err, value);
                 getSampleTable(datasetName);
                 deferred.reject({"error": "Cannot parse the dataset."});
             }
@@ -1052,13 +1060,14 @@ window.DataSampleTable = (function($, DataSampleTable) {
         .fail(deferred.reject);
 
         return (deferred.promise());
-    }
+    };
 
-   function getSampleTable(dsName, jsonKeys, jsons) {
+    function getSampleTable(dsName, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsName, jsonKeys, jsons);
         $tableWrap.empty().append(html);
-        $(".datasetTbodyWrap").scroll(function(event) {
-            dataStoreTableScroll($(this), event)
+
+        $(".datasetTbodyWrap").scroll(function() {
+            dataStoreTableScroll($(this));
         });
         var $table = $("#worksheetTable");
         var tableHeight = $table.height();
@@ -1081,21 +1090,21 @@ window.DataSampleTable = (function($, DataSampleTable) {
         totalRows = parseInt($('#dsInfo-records').text().replace(/\,/g, ""));
     }
 
-    function dataStoreTableScroll($tableWrap, event) {
+    function dataStoreTableScroll($tableWrap) {
         var numRowsToFetch = 20;
         if (currentRow + 20 >= totalRows) {
             return;
         }
         if ($tableWrap[0].scrollHeight - $tableWrap.scrollTop() -
                    $tableWrap.outerHeight() <= 1) {
-            if (currentRow == 0) {
+            if (currentRow === 0) {
                 currentRow += 40;
             } else {
                 currentRow += numRowsToFetch;
             }
             XcalarSetAbsolute(gDatasetBrowserResultSetId, currentRow)
             .then(function() {
-                return (XcalarGetNextPage(gDatasetBrowserResultSetId, 
+                return (XcalarGetNextPage(gDatasetBrowserResultSetId,
                         numRowsToFetch));
             })
             .then(function(result) {
@@ -1109,7 +1118,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 var jsons = [];  // store all jsons
 
                 try {
-                    for (var i = 0; i < numKvPairs; i ++) {
+                    for (var i = 0; i < numKvPairs; i++) {
                         value = kvPairs[i].value;
                         json = jQuery.parseJSON(value);
                         jsons.push(json);
@@ -1119,8 +1128,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
                         }
                     }
 
-                    for (var key in uniqueJsonKey) {
-                        jsonKeys.push(key);
+                    for (var uniquekey in uniqueJsonKey) {
+                        jsonKeys.push(uniquekey);
                     }
 
                     var selectedCols = {};
@@ -1131,7 +1140,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                         }
                     );
 
-                    var tr = getTableRowsHTML(jsonKeys, jsons, false, 
+                    var tr = getTableRowsHTML(jsonKeys, jsons, false,
                                               selectedCols);
                     $('#worksheetTable').append(tr);
 
@@ -1172,8 +1181,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var $input = $(this);
             var $table = $("#worksheetTable");
 
-            if (event.shiftKey && 
-                gLastClickTarget.closest(".datasetTable")[0] == $table[0]) {
+            if (event.shiftKey &&
+                gLastClickTarget.closest(".datasetTable")[0] === $table[0]) {
 
                 var startIndex = gLastClickTarget.closest("th").index();
                 var highlight = gLastClickTarget.closest("th")
@@ -1189,10 +1198,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 var $ths = $table.find('th');
                 for (var i = startIndex; i <= endIndex; i++) {
                     var $th = $ths.eq(i);
-                    if ($th[0] != gLastClickTarget.closest('th')[0]) {
+                    if ($th[0] !== gLastClickTarget.closest('th')[0]) {
                         if ($th.hasClass('selectedCol') !== highlight) {
-                             selectColumn($th.find(".editableHead"), 
-                                        SelectUnit.Single);
+                            selectColumn($th.find(".editableHead"),
+                                            SelectUnit.Single);
                         }
                     }
                 }
@@ -1206,7 +1215,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         });
         // resize
         $tableWrap.on("mousedown", ".colGrab", function(event) {
-            if (event.which != 1) {
+            if (event.which !== 1) {
                 return;
             }
             gRescolMouseDown($(this), event, {target: "datastore"});
@@ -1245,8 +1254,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 $input.parents('li').addClass('inputSelected')
                         .parents('.subColMenu').addClass('inputSelected');
 
-                if (event.which == keyCode.Enter) {
-                     renameColumn($input);
+                if (event.which === keyCode.Enter) {
+                    renameColumn($input);
                 }
             },
             "blur": function() {
@@ -1284,7 +1293,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
     // select a column
     function selectColumn($input, selectAll) {
         var dsName  = $("#worksheetTable").data("dsname");
-        var $cart   = $("#selectedTable-" + dsName);
+        // var $cart   = $("#selectedTable-" + dsName);
         var $header = $input.closest(".header");
         // unselect the column
         if ($header.hasClass("colAdded") && !selectAll) {
@@ -1327,7 +1336,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var isValid    = xcHelper.validate({  // check validation
             "$selector": $input,
             "formMode" : true
-        })
+        });
 
         if (!isValid) {
             return;
@@ -1340,7 +1349,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var oldColName = $headInput.val();
         var dsName     = $table.data("dsname");
         var type       = $th.find(".header").data('type');
-        var typeId      = getTypeId(type);
+        var typeId     = getTypeId(type);
 
         $input.blur();
         // in this case, no need to have thrift call
@@ -1355,7 +1364,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 var $headers = $table.find(".editableHead");
                 return (ColManager.checkColDup($headers, $input));
             },
-            "noWarn"   : true
+            "noWarn": true
         });
 
         if (!isValid) {
@@ -1446,41 +1455,42 @@ window.DataSampleTable = (function($, DataSampleTable) {
             default:
                 return -1; // Invalid type
         }
-    };
+    }
+
     // table menu html
     function getDropdownMenuHTML() {
         // XXX Now Array, Object and Unknown are invalid type to change
         var types = ['Boolean', 'Integer', 'Decimal', 'String', 'Mixed'];
-        var html  = 
-        '<li class="renameCol">' + 
-            '<span>Rename Column</span>' + 
-            '<ul class="subColMenu">' + 
-                '<li style="text-align: center" class="clickable">' + 
-                    '<span>New Column Name</span>' + 
-                    '<input type="text" width="100px" spellcheck="false" />' + 
-                '</li>' + 
-                '<div class="subColMenuArea"></div>' + 
-            '</ul>' + 
-            '<div class="dropdownBox"></div>' + 
-        '</li>' + 
-        '<li class="changeDataType">' + 
-            '<span>Change Data Type</span>' + 
+        var html  =
+        '<li class="renameCol">' +
+            '<span>Rename Column</span>' +
+            '<ul class="subColMenu">' +
+                '<li style="text-align: center" class="clickable">' +
+                    '<span>New Column Name</span>' +
+                    '<input type="text" width="100px" spellcheck="false" />' +
+                '</li>' +
+                '<div class="subColMenuArea"></div>' +
+            '</ul>' +
+            '<div class="dropdownBox"></div>' +
+        '</li>' +
+        '<li class="changeDataType">' +
+            '<span>Change Data Type</span>' +
             '<ul class="subColMenu">';
 
         types.forEach(function(type) {
-            html += 
-                '<li class="flexContainer flexRow typeList type-' 
-                    + type.toLowerCase() + '">' + 
-                    '<div class="flexWrap flex-left">' +  
-                        '<span class="type icon"></span>' + 
-                    '</div>' + 
-                    '<div class="flexWrap flex-right">' + 
-                        '<span class="label">' + type + '</span>' + 
-                    '</div>' + 
+            html +=
+                '<li class="flexContainer flexRow typeList type-' +
+                    type.toLowerCase() + '">' +
+                    '<div class="flexWrap flex-left">' +
+                        '<span class="type icon"></span>' +
+                    '</div>' +
+                    '<div class="flexWrap flex-right">' +
+                        '<span class="label">' + type + '</span>' +
+                    '</div>' +
                 '</li>';
         });
 
-        html +=  '</ul><div class="dropdownBox"></div>';
+        html += '</ul><div class="dropdownBox"></div>';
         return (html);
     }
     // sample table html
@@ -1490,9 +1500,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
             return "";
         }
 
-        var html        = "";
-        var tr          = "";
-        var th          = "";
+        var tr   = "";
+        var th   = "";
+
         var columnsType = [];  // track column type
 
         currentRow = 0;
@@ -1509,52 +1519,52 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // table header
         for (var i = 0; i < jsonKeys.length; i++) {
             var key     = jsonKeys[i];
-            var thClass = "th col" + (i+1);
+            var thClass = "th col" + (i + 1);
             var type    = columnsType[i];
-            th += 
-                '<th title="' + key + '" class="' + thClass + '">' + 
-                    '<div class="header type-' + type + '" ' + 
-                         'data-type=' + type + '>' + 
-                        '<div class="colGrab" ' + 
-                            'title="Double click to auto resize" ' + 
-                            'data-toggle="tooltip" ' + 
-                            'data-placement="left">' + 
-                        '</div>' + 
-                        '<div class="flexContainer flexRow">' + 
+            th +=
+                '<th title="' + key + '" class="' + thClass + '">' +
+                    '<div class="header type-' + type + '" ' +
+                         'data-type=' + type + '>' +
+                        '<div class="colGrab" ' +
+                            'title="Double click to auto resize" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="left">' +
+                        '</div>' +
+                        '<div class="flexContainer flexRow">' +
                             '<div class="flexWrap flex-left" ' +
                                 'data-toggle="tooltip" ' +
-                                'data-placement="top" ' + 
+                                'data-placement="top" ' +
                                 'data-container="body" ' +
-                                'title="'+ type +'">' + 
+                                'title="' + type + '">' +
                                 '<span class="iconHidden"></span>' +
-                                '<span class="type icon"></span>' + 
-                            '</div>' + 
-                            '<div class="flexWrap flex-mid">' + 
-                                '<input spellcheck="false"' + 
-                                    'class="editableHead shoppingCartCol ' + 
-                                    thClass + '" value="' + key + '" ' + 
-                                    'readonly="true">' + 
-                            '</div>' + 
-                            '<div class="flexWrap flex-right">' + 
-                                '<span class="tick icon"></span>' + 
-                                '<div class="dropdownBox">' + 
-                                    '<span class="innerBox"></span>' + 
-                                '</div>' + 
-                            '</div>' + 
-                        '</div>' + 
-                    '</div>' + 
+                                '<span class="type icon"></span>' +
+                            '</div>' +
+                            '<div class="flexWrap flex-mid">' +
+                                '<input spellcheck="false"' +
+                                    'class="editableHead shoppingCartCol ' +
+                                    thClass + '" value="' + key + '" ' +
+                                    'readonly="true">' +
+                            '</div>' +
+                            '<div class="flexWrap flex-right">' +
+                                '<span class="tick icon"></span>' +
+                                '<div class="dropdownBox">' +
+                                    '<span class="innerBox"></span>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
                 '</th>';
         }
 
-        var html = 
-            '<div class="datasetTbodyWrap">' + 
-                '<table id="worksheetTable" class="datasetTable dataTable" ' + 
-                        'data-dsname="' + dsName + '">' + 
-                    '<thead>' + 
-                        '<tr>' + th + '</tr>' + 
-                    '</thead>' + 
-                    '<tbody>' + tr + '</tbody>' + 
-                '</table>' + 
+        var html =
+            '<div class="datasetTbodyWrap">' +
+                '<table id="worksheetTable" class="datasetTable dataTable" ' +
+                        'data-dsname="' + dsName + '">' +
+                    '<thead>' +
+                        '<tr>' + th + '</tr>' +
+                    '</thead>' +
+                    '<tbody>' + tr + '</tbody>' +
+                '</table>' +
             '</div>';
 
         return (html);
@@ -1569,8 +1579,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             tr += '<td>' + (currentRow + i + 1) + '</td>';
             // loop through each td, parse object, and add to table cell
             for (var j = 0; j < jsonKeys.length; j++) {
-                var key       = jsonKeys[j];
-                var val       = json[key];
+                var key = jsonKeys[j];
+                var val = json[key];
                 // Check type
                 columnsType[j] = xcHelper.parseColType(val, columnsType[j]);
 
@@ -1627,13 +1637,13 @@ window.DS = (function ($, DS) {
      * Initialization DS module
      */
     DS.setup = function () {
-        curDirId      = homeDirId;
-        dsObjId       = 0;
+        curDirId = homeDirId;
+        dsObjId = 0;
         dsLookUpTable = {};
 
         homeFolder = new DSObj(dsObjId++, "", -1, true);
         dsLookUpTable[homeFolder.id] = homeFolder;
-    }
+    };
 
     /**
      * Get dsObj by dsId
@@ -1642,7 +1652,7 @@ window.DS = (function ($, DS) {
      */
     DS.getDSObj = function (dsId) {
         return (dsLookUpTable[dsId]);
-    }
+    };
 
     /**
      * Get grid element(folder/datasets) by dsId
@@ -1655,7 +1665,7 @@ window.DS = (function ($, DS) {
         } else {
             return ($('grid-unit[data-dsId="' + dsId + '"]'));
         }
-    }
+    };
 
     /**
      * Get datasets element by dsName
@@ -1673,7 +1683,7 @@ window.DS = (function ($, DS) {
         } else {
             return (null);
         }
-    }
+    };
 
     /**
      * Create datasets or folder
@@ -1688,17 +1698,17 @@ window.DS = (function ($, DS) {
     DS.create = function (options) {
         // validation check
         if (!options || !options.name) {
-            return;
+            return (null);
         }
 
-        var id        = options.id || (dsObjId++);
-        var name      = jQuery.trim(options.name);
-        var parentId  = options.parentId || curDirId;
-        var isFolder  = options.isFolder ? true : false;
-        var attrs     = options.attrs || {};
+        var id       = options.id || (dsObjId++);
+        var name     = jQuery.trim(options.name);
+        var parentId = options.parentId || curDirId;
+        var isFolder = options.isFolder ? true : false;
+        var attrs    = options.attrs || {};
 
-        var parent    = DS.getDSObj(parentId);
-        var $parent   = DS.getGrid(parentId);
+        var parent  = DS.getDSObj(parentId);
+        var $parent = DS.getGrid(parentId);
 
         // XXX the way to rename could be imporved
         var i         = 1;
@@ -1721,7 +1731,7 @@ window.DS = (function ($, DS) {
         }
 
         return (ds);
-    }
+    };
 
     /**
      * Load dataset
@@ -1737,17 +1747,18 @@ window.DS = (function ($, DS) {
     DS.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                         moduleName, funcName) {
         var deferred = jQuery.Deferred();
-        console.log(dsName, dsFormat, loadURL, 
+
+        console.log(dsName, dsFormat, loadURL,
                     fieldDelim, lineDelim,
                     moduleName, funcName);
 
         $("#gridView").append(getTempDSHTML(dsName));
         $("#waitingIcon").fadeIn(200);
 
-        XcalarLoad(loadURL, dsFormat, dsName, 
+        XcalarLoad(loadURL, dsFormat, dsName,
                    fieldDelim, lineDelim,
                    moduleName, funcName)
-        .then(function(result) {
+        .then(function() {
             $("#tempDSIcon").remove();
             // add sql
             SQL.add("Load dataset", {
@@ -1763,22 +1774,27 @@ window.DS = (function ($, DS) {
         })
         .then(function() {
             var urlLen = loadURL.length;
-            console.log(loadURL[urlLen-1], loadURL);
+            console.log(loadURL[urlLen - 1], loadURL);
+
             var slashIndex = loadURL.lastIndexOf('/');
-            var dotIndex = loadURL.lastIndexOf('.');
+            var dotIndex   = loadURL.lastIndexOf('.');
+
             if (dotIndex > slashIndex) {
-                loadURL = loadURL.substr(0, slashIndex+1);
+                loadURL = loadURL.substr(0, slashIndex + 1);
             }
             return (XcalarListFiles(loadURL));
         })
         .then(function(files) {
             // display new dataset
-            console.log('files', files)
+            console.log('files', files);
             var fileSize = getFileSize(files);
             DS.create({
                 "name"    : dsName,
                 "isFolder": false,
-                "attrs"   : {"format": dsFormat, "fileSize" : fileSize}
+                "attrs"   : {
+                    "format"  : dsFormat,
+                    "fileSize": fileSize
+                }
             });
             DS.refresh();
             DS.getGridByName(dsName).click(); // lodat this dataset
@@ -1792,14 +1808,14 @@ window.DS = (function ($, DS) {
         });
 
         return (deferred.promise());
-    }
+    };
 
     /**
      * Get home folder
      */
     DS.getHomeDir = function () {
         return (homeFolder);
-    }
+    };
 
     /**
      * Restore dsObj from KVStore
@@ -1826,7 +1842,7 @@ window.DS = (function ($, DS) {
             }
         }
         DS.refresh();
-    }
+    };
 
     /**
      * Rename dsObj
@@ -1840,7 +1856,7 @@ window.DS = (function ($, DS) {
 
         $label.text(ds.name);
         commitToStorage();
-    }
+    };
 
     /**
      * Check if ds with dsName already exists
@@ -1849,26 +1865,26 @@ window.DS = (function ($, DS) {
      */
     DS.has = function (dsName) {
         // now only check dataset name conflict
-        if (DS.getGridByName(dsName) !== null) {
+        if (DS.getGridByName(dsName) != null) {
             return true;
         } else {
             return false;
         }
-    }
+    };
 
     /**
      * Remove datasset/folder
      * @param {JQuery} $grid The element to be removed
      */
     DS.remove = function ($grid) {
-        if ($grid == undefined || $grid.length === 0) {
+        if ($grid == null || $grid.length === 0) {
             return;
         }
 
         if ($grid.hasClass("ds")) {
             // delete a ds
             var dsName = $grid.attr("id").split("dataset-")[1];
-            var msg    = "Are you sure you want to delete dataset " + 
+            var msg    = "Are you sure you want to delete dataset " +
                           dsName + "?";
             // add alert
             Alert.show({
@@ -1883,7 +1899,7 @@ window.DS = (function ($, DS) {
             // delete a folder
             $grid.remove();
         }
-    }
+    };
 
     /**
      * Change directory to parent folder
@@ -1891,7 +1907,7 @@ window.DS = (function ($, DS) {
     DS.upDir = function () {
         var parentId = DS.getDSObj(curDirId).parentId;
         DS.goToDir(parentId);
-    }
+    };
 
     /**
      * Change directory to another folder
@@ -1907,7 +1923,7 @@ window.DS = (function ($, DS) {
         }
 
         DS.refresh();
-    }
+    };
 
     /**
      * Refresh dataset/folder display in gridView area
@@ -1916,7 +1932,7 @@ window.DS = (function ($, DS) {
         $("#gridView grid-unit").removeClass("display").addClass("hidden");
         $('#gridView grid-unit[data-dsParentId="' + curDirId + '"]')
             .removeClass("hidden").addClass("display");
-    }
+    };
 
     /**
      * Clear dataset/folder in gridView area
@@ -1924,7 +1940,7 @@ window.DS = (function ($, DS) {
     DS.clear = function () {
         $("#gridView grid-unit").remove();
         DS.setup();
-    }
+    };
 
     /* Drag and Drop API */
 
@@ -1933,7 +1949,7 @@ window.DS = (function ($, DS) {
      */
     DS.getDragDS = function () {
         return ($dragDS);
-    }
+    };
 
     /**
      * Set current dataset/folder in drag
@@ -1941,21 +1957,21 @@ window.DS = (function ($, DS) {
      */
     DS.setDragDS = function($ds) {
         $dragDS = $ds;
-    }
+    };
 
     /**
      * Reset drag dataset/folder
      */
     DS.resetDragDS = function () {
         $dragDS = undefined;
-    }
+    };
 
     /**
      * Get drop target
      */
     DS.getDropTarget = function () {
         return ($dropTarget);
-    }
+    };
 
     /**
      * Set drap target
@@ -1963,14 +1979,14 @@ window.DS = (function ($, DS) {
      */
     DS.setDropTraget = function ($target) {
         $dropTarget = $target;
-    }
+    };
 
     /**
      * Reset drop target
      */
     DS.resetDropTarget = function () {
         $dropTarget = undefined;
-    }
+    };
 
     /* End of Drag and Drop API */
 
@@ -2022,7 +2038,7 @@ window.DS = (function ($, DS) {
             // add sql
             SQL.add("Delete DateSet", {
                 "operation": "destroyDataSet",
-                "dsName": dsName
+                "dsName"   : dsName
             });
 
             $("#waitingIcon").remove();
@@ -2048,17 +2064,17 @@ window.DS = (function ($, DS) {
 
         if (ds.isFolder && ds.eles.length > 0) {
             var instr = "Please remove all the datasets in the folder first.";
-            var msg  = 
+            var msg  =
                 "Unable to delete non-empty folders. Please ensure\r\n" +
                 " that all datasets have been removed from folders prior" +
                 " to deletion.";
             // add alert
             Alert.show({
-                "title": "DELETE FOLDER",
-                "instr": instr,
-                "msg": msg,
+                "title"     : "DELETE FOLDER",
+                "instr"     : instr,
+                "msg"       : msg,
                 "isCheckBox": true,
-                "isAlert": true
+                "isAlert"   : true
             });
 
             return false;
@@ -2116,14 +2132,14 @@ window.DS = (function ($, DS) {
             } else {
                 if (obj.name in searchHash) {
                     DS.create(obj);
-                    dsCount ++;
+                    dsCount++;
                 } else {
                     // stored data not fit backend data, abort restore
                     DS.clear();
                     return false;
                 }
             }
-            if (obj.eles != undefined) {
+            if (obj.eles != null) {
                 jQuery.merge(cache, obj.eles);
             }
             // update id count
@@ -2131,7 +2147,7 @@ window.DS = (function ($, DS) {
         }
 
         // stored data not fit backend data, abort restore
-        if (dsCount != numDatasets) {
+        if (dsCount !== numDatasets) {
             DS.clear();
             return false;
         }
@@ -2171,65 +2187,65 @@ window.DS = (function ($, DS) {
         var html;
 
         if (isFolder) {
-            html = 
-            '<grid-unit class="folder display collapse" draggable="true"' + 
-                ' ondragstart="dsDragStart(event)"' + 
-                ' ondragend="dsDragEnd(event)"' + 
-                ' data-dsId=' + id + 
-                ' data-dsParentId=' + parentId + '>'+
+            html =
+            '<grid-unit class="folder display collapse" draggable="true"' +
+                ' ondragstart="dsDragStart(event)"' +
+                ' ondragend="dsDragEnd(event)"' +
+                ' data-dsId=' + id +
+                ' data-dsParentId=' + parentId + '>' +
                 '<div id=' + (id + "leftWarp") +
                     ' class="dragWrap leftTopDragWrap"' +
                     ' ondragenter="dsDragEnter(event)"' +
-                    ' ondragover="allowDSDrop(event)"' + 
-                    ' ondrop="dsDrop(event)">' + 
+                    ' ondragover="allowDSDrop(event)"' +
+                    ' ondrop="dsDrop(event)">' +
                 '</div>' +
-                '<div  id=' + (id + "midWarp") + 
+                '<div  id=' + (id + "midWarp") +
                     ' class="dragWrap midDragWrap"' +
-                    ' ondragenter="dsDragEnter(event)"' + 
-                    ' ondragover="allowDSDrop(event)"' + 
-                    ' ondrop="dsDrop(event)">' + 
+                    ' ondragenter="dsDragEnter(event)"' +
+                    ' ondragover="allowDSDrop(event)"' +
+                    ' ondrop="dsDrop(event)">' +
                 '</div>' +
-                '<div  id=' + (id + "rightWarp") + 
+                '<div  id=' + (id + "rightWarp") +
                     ' class="dragWrap rightBottomDragWrap"' +
-                    ' ondragenter="dsDragEnter(event)"' + 
-                    ' ondragover="allowDSDrop(event)"' + 
-                    ' ondrop="dsDrop(event)">' + 
+                    ' ondragenter="dsDragEnter(event)"' +
+                    ' ondragover="allowDSDrop(event)"' +
+                    ' ondrop="dsDrop(event)">' +
                 '</div>' +
                 '<div class="gridIcon"></div>' +
                 '<div class="listIcon">' +
                     '<span class="icon"></span>' +
                 '</div>' +
-                '<div class="dsCount">0</div>' + 
-                '<div title="Click to rename"' + 
-                    ' class="label" contentEditable="true">' + 
-                    name + 
-                '</div>' + 
+                '<div class="dsCount">0</div>' +
+                '<div title="Click to rename"' +
+                    ' class="label" contentEditable="true">' +
+                    name +
+                '</div>' +
             '</grid-unit>';
         } else {
-            html = 
-            '<grid-unit id="dataset-' + name + '" class="ds" draggable="true"' + 
-                ' ondragstart="dsDragStart(event)"' + 
+            html =
+            '<grid-unit id="dataset-' + name + '" class="ds" draggable="true"' +
+                ' ondragstart="dsDragStart(event)"' +
                 ' ondragend="dsDragEnd(event)"' +
-                ' data-dsId=' + id + 
-                ' data-dsParentId=' + parentId + '>'+
-                '<div  id=' + (id + "leftWarp") + 
-                    ' class="dragWrap leftTopDragWrap"' + 
-                    ' ondragenter="dsDragEnter(event)"' + 
-                    ' ondragover="allowDSDrop(event)"' + 
-                    ' ondrop="dsDrop(event)">' + 
+                ' data-dsId=' + id +
+                ' data-dsParentId=' + parentId + '>' +
+                '<div  id=' + (id + "leftWarp") +
+                    ' class="dragWrap leftTopDragWrap"' +
+                    ' ondragenter="dsDragEnter(event)"' +
+                    ' ondragover="allowDSDrop(event)"' +
+                    ' ondrop="dsDrop(event)">' +
                 '</div>' +
-                '<div id=' + (id + "rightWarp") + 
-                    ' class="dragWrap rightBottomDragWrap"' + 
-                    ' ondragenter="dsDragEnter(event)"' + 
-                    ' ondragover="allowDSDrop(event)"' + 
-                    ' ondrop="dsDrop(event)">' + 
+                '<div id=' + (id + "rightWarp") +
+                    ' class="dragWrap rightBottomDragWrap"' +
+                    ' ondragenter="dsDragEnter(event)"' +
+                    ' ondragover="allowDSDrop(event)"' +
+                    ' ondrop="dsDrop(event)">' +
                 '</div>' +
-                '<div class="gridIcon"></div>' + 
-                '<div class="listIcon">' + 
-                    '<span class="icon"></span>' + 
+                '<div class="gridIcon"></div>' +
+                '<div class="listIcon">' +
+                    '<span class="icon"></span>' +
                 '</div>' +
-                '<div class="label" data-dsname=' + name + '>' + 
-                    name + 
+                '<div class="label" data-dsname=' + name + '>' +
+                    name +
                 '</div>' +
             '</grid-unit>';
         }
@@ -2242,14 +2258,14 @@ window.DS = (function ($, DS) {
      * @param {string} dsName The loading dataset's name
      */
     function getTempDSHTML(dsName) {
-        var html = 
+        var html =
             '<grid-unit id="tempDSIcon" class="ds display inactive">' +
-                '<div class="gridIcon"></div>' + 
-                '<div class="listIcon">' + 
-                    '<span class="icon"></span>' + 
-                '</div>' + 
-                '<div id="waitingIcon" class="waitingIcon"></div>' + 
-                '<div class="label">' + dsName + '</div>' + 
+                '<div class="gridIcon"></div>' +
+                '<div class="listIcon">' +
+                    '<span class="icon"></span>' +
+                '</div>' +
+                '<div id="waitingIcon" class="waitingIcon"></div>' +
+                '<div class="label">' + dsName + '</div>' +
             '</grid-unit>';
 
         return (html);
@@ -2271,11 +2287,11 @@ window.DS = (function ($, DS) {
      * @property {Object} [attrs] extra attribute to be stored
      */
     function DSObj (id, name, parentId, isFolder, attrs) {
-        this.id       = id;
-        this.name     = name;
+        this.id = id;
+        this.name = name;
         this.parentId = parentId;     // parent directory
         this.isFolder = isFolder;
-        this.attrs    = attrs || {};
+        this.attrs = attrs || {};
 
         /* initially, dataset count itself as one child,
            folder has no child;
@@ -2303,16 +2319,17 @@ window.DS = (function ($, DS) {
      * @return {DSObj} this
      */
     DSObj.prototype.rename = function (newName) {
-        var self    = this;
-        var parent  = DS.getDSObj(self.parentId);
+        var self   = this;
+        var parent = DS.getDSObj(self.parentId);
         //check name confliction
         var isValid = xcHelper.validate({
             "$selector": DS.getGrid(self.id),
-            "check"    : function() {
-                return (parent.checkNameConflict(self.id, newName, self.isFolder));
-            },
-            "text"     : 'Folder "' + newName + 
-                         '" already exists, please use another name!'
+            "text"     : 'Folder "' + newName +
+                         '" already exists, please use another name!',
+            "check": function() {
+                return (parent.checkNameConflict(self.id, newName,
+                                                 self.isFolder));
+            }
         });
 
         if (isValid) {
@@ -2320,7 +2337,7 @@ window.DS = (function ($, DS) {
         }
 
         return (this);
-    }
+    };
 
     /**
      * Remove dsObj from parent
@@ -2336,8 +2353,7 @@ window.DS = (function ($, DS) {
         this.parentId = -1;
 
         return (this);
-    }
-
+    };
 
     /**
      * Move dsObj to new parent (insert or append)
@@ -2370,10 +2386,10 @@ window.DS = (function ($, DS) {
         if (newParent.checkNameConflict(this.id, this.name, this.isFolder)) {
             var msg;
             if (this.isFolder) {
-                msg = 'Folder "' + this.name + 
+                msg = 'Folder "' + this.name +
                       '" already exists, cannot move!';
             } else {
-                msg = 'Data Set "' + this.name + 
+                msg = 'Data Set "' + this.name +
                       '" already exists, cannot move!';
             }
             StatusBox.show(msg, $grid);
@@ -2383,7 +2399,7 @@ window.DS = (function ($, DS) {
         this.removeFromParent();
         this.parentId = newParent.id;
 
-        if ((index != undefined) && (index >= 0)) {
+        if ((index != null) && (index >= 0)) {
             newParent.eles.splice(index, 0, this);  // insert to parent
         } else {
             newParent.eles.push(this);  // append to parent
@@ -2394,7 +2410,7 @@ window.DS = (function ($, DS) {
         // update totalChildren of all ancestors
         updateDSCount(this);
         return true;
-    }
+    };
 
     /**
      * Check if a dsObj's name has conflict in current folder
@@ -2414,19 +2430,19 @@ window.DS = (function ($, DS) {
 
         var eles = this.eles;
 
-        for (var i = 0; i <  eles.length; i ++) {
+        for (var i = 0; i < eles.length; i++) {
             var dsObj = eles[i];
 
-            if (dsObj.isFolder && 
-                dsObj.name === name && 
-                dsObj.id !== id && 
+            if (dsObj.isFolder &&
+                dsObj.name === name &&
+                dsObj.id !== id &&
                 dsObj.isFolder === isFolder) {
                 return true;
             }
         }
 
         return false;
-    }
+    };
     /*** End of DSObj ***/
 
     return (DS);
@@ -2499,10 +2515,10 @@ function dsDragEnter(event) {
     event.stopPropagation();
 
     // back up button
-    if (targetId == "backFolderBtn") {
+    if (targetId === "backFolderBtn") {
         var $bacnFolderBtn = $("#backFolderBtn");
 
-        if ($("#gridView").hasClass('listView') || 
+        if ($("#gridView").hasClass('listView') ||
             $bacnFolderBtn.hasClass("disabled")) {
             return;
         }
@@ -2536,7 +2552,7 @@ function dsDrop(event) {
 
     event.stopPropagation();
 
-    if ($div != undefined) {
+    if ($div != null) {
         if ($div.hasClass('midDragWrap')) {
             dsDropIn($grid, $target);
         } else if ($div.hasClass('leftTopDragWrap')) {
@@ -2572,7 +2588,7 @@ function dsDropIn($grid, $target) {
     var targetDS = DS.getDSObj(targetId);
 
     if (ds.moveTo(targetDS, -1)) {
-        $grid.attr("data-dsParentId",targetId);
+        $grid.attr("data-dsParentId", targetId);
         $target.append($grid);
         DS.refresh();
         commitToStorage();
@@ -2590,7 +2606,7 @@ function dsInsert($grid, $sibling, isBefore) {
     var ds = DS.getDSObj(dragDsId);
 
     var siblingId = $sibling.attr("data-dsId");
-    if (dragDsId == siblingId) {
+    if (dragDsId === siblingId) {
         return;
     }
     var siblingDs = DS.getDSObj(siblingId);
@@ -2598,7 +2614,6 @@ function dsInsert($grid, $sibling, isBefore) {
     // parent
     var parentId = siblingDs.parentId;
     var parentDs = DS.getDSObj(parentId);
-    var $parent = DS.getGrid(parentId);
 
     var insertIndex = parentDs.eles.indexOf(siblingDs);
     var isMoveTo;
