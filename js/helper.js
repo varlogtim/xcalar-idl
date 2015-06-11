@@ -53,7 +53,7 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.parseColType = function(val, oldType) {
         var type = oldType;
 
-        if (val !== "" && oldType !== "mixed") {
+        if (val != null && val !== "" && oldType !== "mixed") {
             var valType = typeof val;
             type = valType;
             // get specific type
@@ -611,16 +611,26 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.Corrector.prototype.suggest = function(word, isEdits2) {
         word = word.toLowerCase();
 
-        var candidate = [];
+        var startStrCandidate = [];
+        var subStrCandidate   = [];
+
         for (var w in this.model) {
-            if (w.indexOf(word) > -1) {
-                candidate.push(w);
+            if (w.startsWith(word)) {
+                startStrCandidate.push(w);
+            } else if (w.indexOf(word) > -1) {
+                subStrCandidate.push(w);
             }
         }
 
-        // only suggest the only candidate
-        if (candidate.length === 1) {
-            return (this.modelMap[candidate[0]]);
+        if (startStrCandidate.length >= 1) {
+            // suggest the only candidate that start with word
+            if (startStrCandidate.length === 1) {
+                return (this.modelMap[startStrCandidate[0]]);
+            }
+        } else if (subStrCandidate.length === 1) {
+            // no candidate start with word
+            // but has only one substring with word
+            return (this.modelMap[subStrCandidate[0]]);
         }
 
         var res = this.correct(word, isEdits2);
