@@ -566,7 +566,7 @@ function generateFilterString(operator, value1, value2, value3) {
         case ("regex"):
             filterStr = "regex(" + value1 + ', "' + value2 + '")';
             break;
-        case ("Like"):
+        case ("like"):
             filterStr = "like(" + value1 + ', "' + value2 + '")';
             break;
         case ("Custom"):

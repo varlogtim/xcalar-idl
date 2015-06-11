@@ -25,7 +25,9 @@ window.xcFunction = (function ($, xcFunction) {
                 SQL.add("Index From Dataset", {
                     "operation"   : "index",
                     "newTableName": srcName,
-                    "dsName"      : datasetName
+                    "dsName"      : datasetName,
+                    "key"         : "recordNum"
+                    
                 });
                 gTables[tableNum].isTable = true;
 
