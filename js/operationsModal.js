@@ -137,8 +137,13 @@ window.OperationsModal = (function($, OperationsModal) {
             }, 0);
         });
 
+        var argumentTimer;
         $operationsModal.on('input', '.argument', function() {
-            argSuggest($(this));
+            var $input = $(this);
+            clearTimeout(argumentTimer);
+            argumentTimer = setTimeout(function() {
+                argSuggest($input);
+            }, 300);
         });
 
         $operationsModal.on('click', '.hint li', function() {
@@ -316,12 +321,15 @@ window.OperationsModal = (function($, OperationsModal) {
         functionsMap = {};
         categoryNames = [];
         var html = "";
+        var categoryName;
+
         if (operator === "map") {
             for (var i = 0; i < operatorsMap.length; i++) {
                 if (FunctionCategoryTStr[i] === 'Aggregate functions') {
                     continue;
                 }
-                var categoryName = FunctionCategoryTStr[i].toLowerCase();
+
+                categoryName = FunctionCategoryTStr[i].toLowerCase();
                 categoryNames.push(categoryName);
                 functionsMap[i] = operatorsMap[i];
                 html += '<li class="category' + i + '">' +
@@ -335,8 +343,8 @@ window.OperationsModal = (function($, OperationsModal) {
             } else if (operator === "filter") {
                 categoryIndex = FunctionCategoryT.FunctionCategoryCondition;
             }
-            var categoryName = FunctionCategoryTStr[categoryIndex]
-                               .toLowerCase();
+
+            categoryName = FunctionCategoryTStr[categoryIndex].toLowerCase();
             categoryNames.push(categoryName);
             functionsMap[0] = operatorsMap[categoryIndex];
             html += '<li class="category' + categoryIndex + '">' +
@@ -358,13 +366,13 @@ window.OperationsModal = (function($, OperationsModal) {
         var i = 0;
         for (var category in FunctionCategoryT) {
             var custom = {
-                argDescs: [{'argDesc': 'Module Name'},
-                             {'argDesc': 'Function String'}],
-                category  : i,
-                fnDesc    : "Enter a user defined function",
-                fnName    : "udf",
-                numArgs   : 2,
-                outputType: -1
+                "category"  : i,
+                "fnDesc"    : "Enter a user defined function",
+                "fnName"    : "udf",
+                "numArgs"   : 2,
+                "outputType": -1,
+                "argDescs"  : [{'argDesc': 'Module Name'},
+                               {'argDesc': 'Function String'}]
             };
 
             operatorsMap[i].push(custom);
@@ -864,7 +872,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var $input       = $operationsModal.find('.argument').eq(1);
         var newColName   = $.trim($operationsModal.find('.argument')
                                                    .eq(1).val());
-        var $theadInputs = $('#xcTable' + tableNum).find('.editableHead');
+        // var $theadInputs = $('#xcTable' + tableNum).find('.editableHead');
 
         console.log("operator:", operator, "newColName:", newColName,
                     "colNum:", colNum, "tableNum:", tableNum);
@@ -887,7 +895,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var $nameInput   = $operationsModal.find('.argument')
                                            .eq(numVisibleInputs - 1);
         var newColName = $.trim($nameInput.val());
-        var $theadInputs = $('#xcTable' + tableNum).find('.editableHead');
+        // var $theadInputs = $('#xcTable' + tableNum).find('.editableHead');
         // var isDuplicate  = ColManager.checkColDup($theadInputs, $nameInput);
         var isDuplicate = ColManager.checkColDup($nameInput, null, tableNum);
         if (isDuplicate) {
