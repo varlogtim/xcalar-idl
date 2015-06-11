@@ -456,6 +456,7 @@ function documentReadyxcTableFunction() {
     }
 }
 
+
 function documentReadyGeneralFunction() {
     window.onbeforeunload = function() {
         KVStore.release();
@@ -496,7 +497,11 @@ function documentReadyGeneralFunction() {
         timer = setTimeout(function () { 
            moveTableDropdownBoxes();
         }, 300 );
+
+        moveFirstColumn();
     });
+
+   
 
     var $rowInput = $('#rowInput');
     $rowInput.val("").data("");

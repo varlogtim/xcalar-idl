@@ -619,6 +619,14 @@
                 background-color: @color-table-lightGray;     
             }
 
+            tr:nth-child(odd):hover  td:first-child {
+                background-color: #D7D7D7;
+            }
+
+            tr:nth-child(even):hover td:first-child {
+                background-color: #DDDDDD;    
+            }
+
             .addedBarText {
                 word-break: break-all;
             }
@@ -694,11 +702,11 @@
         }
 
         tr:nth-child(odd) td.colSelected {
-            background-color: @color-selectedCell-dark !important;
+            background-color: @color-selectedCell-dark;
         }
 
         tr:nth-child(even) td.colSelected {
-            background-color: @color-selectedCell-light !important;
+            background-color: @color-selectedCell-light;
         }
 
         .colSelected {

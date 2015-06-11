@@ -433,9 +433,11 @@
                     .header {
                         width: 30px;
                         height: 40px;
+                        border-left: none;
                     }
                     input {
                         background: @color-table-darkGray;
+                        left: 0px !important;
                     }
                 }
             }
@@ -451,12 +453,12 @@
             .idWrap::after {
                 content: "";
                 position: absolute;
-                width: 30px;
+                width: 31px;
                 z-index: 0;
                 background-color: @color-table-lightGray;
                 top: -2px;
-                left: -7px;
-                height: 35px;
+                left: -5px;
+                height: 105%;
             }
         }    
     }
@@ -693,11 +695,66 @@ th:last-child .colGrab{
     display: table;
 }
 
+
 .idSpan {
-    .size(@width: 100%);
-    display: table-cell;
-    vertical-align: middle;
-    text-align: center;
+    .size(@width: ~"calc(100% + 10px)", @height: ~"calc(100% + 5px)");
+    position: absolute;
+    top: 0px;
+    z-index: 0;
+    margin-left: -5px;
+    .flex-display;
+    .justify-content (center);
+    .align-items (center);
 }
+
+.xcTable {
+    th.rowNumHead {
+        input {
+            .size(@width: ~"calc(100% + 10px)", @height: 40px);
+            position: absolute;
+            background: linear-gradient(to bottom, #cccccc, #aeaeae);
+            border: 5px solid #e6e6e6;
+            left: 0;
+            margin-left: -5px;
+            margin-top: -5px;
+            z-index: 3;
+            &::after {
+                content: "";
+                position: absolute;
+                bottom: 0px;
+                height: 5px;
+                background-color: black;
+                width: ~"calc(100% - 5px)";
+            }
+        }
+    }
+}
+
+tbody tr {
+    td:first-child {
+        padding: 0 !important;
+        
+    }
+    &:nth-child(odd) {
+        td:first-child {
+            .idSpan {
+                background-color: #cfcfcf;
+                border-right: 5px solid @color-table-lightGray;
+                border-left: 5px solid @color-white;
+            }
+        }
+    }
+    &:nth-child(even) {
+        td:first-child {
+           .idSpan {
+                background-color: #dbdbdb;
+                border-right: 5px solid @color-table-lightGray;
+                border-left: 5px solid @color-white;
+            } 
+        }
+    }
+}
+
+
 /* END VERTICAL RESIZING */
 /* ========== End Of Main Frame ========== */

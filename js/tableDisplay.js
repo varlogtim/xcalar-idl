@@ -392,7 +392,7 @@ function generateTableShell(columns, tableNum) {
         'style="width:0px;">' +
           '<thead>' +
           '<tr>' +
-            '<th style="width: 50px;" class="col0 th">' +
+            '<th style="width: 50px;" class="col0 th rowNumHead">' +
               '<div class="header">' +
                 '<input value="" readonly="" tabindex="-1">' +
               '</div>' +

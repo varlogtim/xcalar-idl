@@ -757,6 +757,7 @@ function createTableHeader(tableNum) {
 
         $('#xcTableWrap' + tableNum).addClass('tableHidden');
         moveTableDropdownBoxes();
+        moveFirstColumn();
     });
 
     $tableMenu.on('click', '.unhideTable', function() {
@@ -766,6 +767,9 @@ function createTableHeader(tableNum) {
         $('#xcTableWrap' + tableNum).removeClass('tableHidden');
         WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableNum);
         moveTableDropdownBoxes();
+        moveFirstColumn();
+        var $table = $('#xcTable' + tableNum);
+        $table.find('.rowGrab').width($table.width());
     });
 
     $tableMenu.on('click', '.deleteTable', function() {
@@ -1919,19 +1923,20 @@ function resizeRowInput() {
 }
     
 function dragTableMouseDown(el, e) {
+    var dragObj = gDragObj;
     gMouseStatus = "movingTable"
-    gDragObj.mouseX = e.pageX;
-    gDragObj.table = el.closest('.xcTableWrap');
-    gDragObj.tableIndex = parseInt(gDragObj.table.attr('id').substring(11));
-    gDragObj.originalIndex = gDragObj.tableIndex;
-    gDragObj.mainFrame = $('#mainFrame');
-    var rect = gDragObj.table[0].getBoundingClientRect();
+    dragObj.mouseX = e.pageX;
+    dragObj.table = el.closest('.xcTableWrap');
+    dragObj.tableIndex = parseInt(dragObj.table.attr('id').substring(11));
+    dragObj.originalIndex = dragObj.tableIndex;
+    dragObj.mainFrame = $('#mainFrame');
+    var rect = dragObj.table[0].getBoundingClientRect();
 
-    gDragObj.offsetLeft = gDragObj.table.offset().left;
-    gDragObj.prevTable = gDragObj.table.prev();
-    gDragObj.mouseOffset = gDragObj.mouseX - rect.left;
-    gDragObj.docHeight = $(document).height();
-    gDragObj.tableScrollTop = gDragObj.table.scrollTop();
+    dragObj.offsetLeft = dragObj.table.offset().left;
+    dragObj.prevTable = dragObj.table.prev();
+    dragObj.mouseOffset = dragObj.mouseX - rect.left;
+    dragObj.docHeight = $(document).height();
+    dragObj.tableScrollTop = dragObj.table.scrollTop();
 
     var cursorStyle = '<style id="moveCursor" type="text/css">*' + 
     '{cursor:move !important; cursor: -webkit-grabbing !important;' +
@@ -1939,37 +1944,42 @@ function dragTableMouseDown(el, e) {
     $(document.head).append(cursorStyle);
     createShadowTable();
     sizeTableForDragging();
-    gDragObj.table.addClass('tableDragging');
-    gDragObj.table.css('left', gDragObj.offsetLeft + 'px');
-    gDragObj.windowWidth = $(window).width();
-    gDragObj.pageX = e.pageX;
-    gDragObj.table.scrollTop(gDragObj.tableScrollTop);
+    dragObj.table.addClass('tableDragging');
+    dragObj.table.css('left', dragObj.offsetLeft + 'px');
+    dragObj.windowWidth = $(window).width();
+    dragObj.pageX = e.pageX;
+    dragObj.table.scrollTop(dragObj.tableScrollTop);
+    dragObj.table.find('.idSpan').css('left', 0);
+    dragObj.table.find('th.rowNumHead input').css('left', 0);
     createTableDropTargets();
     dragdropMoveMainFrame();
     disableTextSelection();
 }
     
 function dragTableMouseMove(e) {
-    var left =  e.pageX - gDragObj.mouseOffset;
-    gDragObj.table.css('left',left + 'px');
-    gDragObj.pageX = e.pageX;
+    var dragObj = gDragObj;
+    var left =  e.pageX - dragObj.mouseOffset;
+    dragObj.table.css('left',left + 'px');
+    dragObj.pageX = e.pageX;
 }
 
 function dragTableMouseUp() {
+    var dragObj = gDragObj;
     gMouseStatus = null;
-    gDragObj.table.removeClass('tableDragging')
+    dragObj.table.removeClass('tableDragging')
                     .css({'left':'0px', 'height':'100%'});
     $('#shadowTable, #moveCursor, #dropTargets').remove();
     $('#mainFrame').off('scroll', mainFrameScrollTableTargets);
-    gDragObj.table.scrollTop(gDragObj.tableScrollTop);
-    gActiveTableNum = gDragObj.tableIndex;
+    dragObj.table.scrollTop(dragObj.tableScrollTop);
+    gActiveTableNum = dragObj.tableIndex;
     reenableTextSelection(); 
 
-    if (gDragObj.tableIndex != gDragObj.originalIndex) {
+    if (dragObj.tableIndex != dragObj.originalIndex) {
         // reorder only if order changed
         reorderAfterTableDrop();
     }
     moveTableDropdownBoxes();
+    moveFirstColumn();
 }
 
 function createShadowTable() {
@@ -2118,6 +2128,44 @@ function reorderAfterTableDrop() {
         $(rowScrollers[i]).attr('id', 'rowScroller' + i);
         $(rowScrollers[i]).find('.rowMarker').attr('id','rowMarker' + i);
         $($dagWraps[i]).attr('id', 'dagWrap' + i);
+    }
+}
+
+function moveFirstColumn() {
+    var $startingTable;
+    var rightOffset;
+    $('.xcTableWrap:not(".inActive")').each(function() {
+        rightOffset = $(this)[0].getBoundingClientRect().right;
+        if (rightOffset > 0) {
+            $startingTable = $(this);
+            return false;
+        }
+    });
+
+    if ($startingTable && $startingTable.length > 0) {
+        var $idCol =  $startingTable.find('.idSpan');
+        var cellWidth = $idCol.width();
+        var scrollLeft = -$startingTable.offset().left;
+        var rightDiff = rightOffset - (cellWidth+17);
+        if (rightDiff < 0) {
+            scrollLeft += rightDiff;
+        }
+        $idCol.css('left', scrollLeft);
+        $startingTable.find('th.rowNumHead input').css('left', scrollLeft);
+        var adjustNext = true;
+        while (adjustNext) {
+            $startingTable = $startingTable.next();
+            if ($startingTable.length === 0) {
+                return;
+            }
+            rightOffset = $startingTable[0].getBoundingClientRect().right;
+            if (rightOffset > $(window).width()) {
+                adjustNext = false;
+            }
+            $startingTable.find('.idSpan').css('left', 0);
+            $startingTable.find('th.rowNumHead input').css('left', 0);
+        }
+        
     }
 }
 

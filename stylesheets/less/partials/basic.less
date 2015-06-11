@@ -392,6 +392,9 @@ input {
                 }
                 &:first-child {
                     background-color: @color-table-col-darkestGray;
+                    .idSpan {
+                        background-color: @color-table-col-darkestGray;
+                    }
                 }
                 &.indexedColumn {
                     background-color: @color-table-indexed-blue !important;
@@ -419,6 +422,9 @@ input {
                 }
                 &:first-child {
                     background-color: @color-table-col-darkGray;
+                    .idSpan {
+                        background-color: @color-table-col-darkGray;
+                    }
                 }
                 &.indexedColumn {
                     background-color: @color-table-indexed-lightBlue !important;
@@ -447,15 +453,15 @@ input {
             }
             &:first-child {
                 background-color: #BDBDBD;
+                .idSpan {
+                    background-color: #BDBDBD;
+                }
             }
             &.indexedColumn {
                 background-color: #CBD1D6 !important;
             } 
-            &.selectedCell {
-                background-color: #BFCCD4;
-            }
-            &.selectedCol {
-                background-color: #BFCCD4;
+            &.selectedCell, &.colSelected, &.selectedCol {
+                background-color: #BFCCD4 !important;
             }
             &.jsonElement, &.dataCol {
                 background-color: #CCD7CC !important;
@@ -489,7 +495,7 @@ input {
     thead th:first-child {
         background-color: @color-background-darkGray;
         .header {
-            z-index: 1;
+            z-index: 3;
         }
     }
 
@@ -513,6 +519,16 @@ input {
         .header::after {
             width: ~"calc(100% + 10px)";
             left: -5px;
+        }
+        input {
+            box-shadow: 0px 1px 0px 0px #B8B8B8;
+        }
+        &.rowNumHead {
+            .header::after {
+                z-index: 3;
+                box-shadow: none;
+                border: none;
+            }
         }
     }
 
@@ -597,7 +613,9 @@ input {
     }
 
     .rowBookmarked {
-        background-color:@color-background-topAction !important;
+        .idSpan {
+            background-color:@color-background-topAction !important;
+        }
     }
 }
 

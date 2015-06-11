@@ -164,6 +164,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     })
     .then(function() {
         removeWaitCursor();
+        moveFirstColumn();
         if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
             removeOldRows($table, tableNum, info, direction,
                             prepullTableHeight, numRowsBefore, numRowsToAdd);

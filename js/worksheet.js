@@ -267,6 +267,9 @@ window.WSManager = (function($, WSManager) {
         $dags.addClass("inActive");
         $dags.filter(".worksheet-" + wsIndex).removeClass("inActive");
 
+        // position sticky row column
+        moveFirstColumn();
+
         // refresh table and scrollbar
         var $curActiveTable = $tables.filter(".worksheet-" + wsIndex);
         if (notfocusTable || $curActiveTable.length === 0) {
