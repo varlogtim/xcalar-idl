@@ -117,6 +117,9 @@ function gResrowMouseDown(el, event) {
         '{cursor: ns-resize !important;}</style>';
     $(document.head).append(style);
     $('body').addClass('hideScroll');
+    gResrow.targetTd.closest('tr').addClass('dragging')
+    $('#xcTable' + gResrow.tableNum + ' tr:not(.dragging)')
+                                   .addClass('notDragging');
 }
 
 function gResrowMouseMove(event) {
@@ -147,6 +150,7 @@ function gResrowMouseUp() {
     $('#ns-resizeCursor').remove();
     reenableTextSelection();
     $('body').removeClass('hideScroll'); 
+    $('#xcTable' + gResrow.tableNum + ' tr').removeClass('notDragging dragging');
     if (gTables[gActiveTableNum].resultSetCount != 0) {  
         generateFirstVisibleRowNum();
     }
@@ -1565,6 +1569,27 @@ function addRowListeners(newCells) {
             JSONModal.show($(this));
         }
     );
+    // var timeout;
+    // var activeRowGrab;
+
+    // newCells.find('.rowGrab').mouseenter(function(event) {
+    //     var $el = $(this);
+    //     activeRowGrab = this;
+    //     timeout = setTimeout(function() {
+    //         $el.addClass('rowGrabCursor');
+    //         $el.closest('table').addClass('rowGrabCursor');
+    //     }, 200);
+    // });
+
+    // newCells.find('.rowGrab').mouseleave(function(event) {
+    //     if (this == activeRowGrab) {
+    //         clearTimeout(timeout);
+    //     }
+    //     activeRowGrab = null;
+    //     $(this).removeClass('rowGrabCursor');
+    //     $(this).closest('table').removeClass('rowGrabCursor');
+    // });
+
     newCells.find('.rowGrab').mousedown(function(event) {
          if (event.which === 1) {
             gResrowMouseDown($(this), event);

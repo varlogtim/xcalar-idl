@@ -436,59 +436,32 @@ input {
         }
     }
 
-    tbody tr {
-        &:nth-child(odd):hover {
-            td {
-                border-right: 5px solid #D7D7D7;
-                &:nth-child(odd) {
-                    background-color: #C8C8C8;
-                }
-                &:nth-child(even) {
-                    background-color: #DADADA;
-                }
-                &:first-child {
-                    background-color: #B1B1B1;
-                }
-                &.indexedColumn {
-                    background-color: #C3C9C8 !important;
-                }
-                &.selectedCell {
-                    background-color: #B3C0C8;
-                }
-                &.selectedCol {
-                    background-color: #B3C0C8;
-                }
-                &.jsonElement, &.dataCol {
-                    background-color: #C5CFC4 !important;
-                }
+    tbody tr:not(.notDragging):hover, tbody tr.dragging {
+        td {
+            border-right: 5px solid #E1E1E1; 
+            &:nth-child(odd) {
+                background-color: #D7D7D7;
+            }
+            &:nth-child(even) {
+                background-color: #DDDDDD;
+            }
+            &:first-child {
+                background-color: #BDBDBD;
+            }
+            &.indexedColumn {
+                background-color: #CBD1D6 !important;
+            } 
+            &.selectedCell {
+                background-color: #BFCCD4;
+            }
+            &.selectedCol {
+                background-color: #BFCCD4;
+            }
+            &.jsonElement, &.dataCol {
+                background-color: #CCD7CC !important;
             }
         }
-        &:nth-child(even):hover {
-            td {
-                border-right: 5px solid #E1E1E1; 
-                &:nth-child(odd) {
-                    background-color: #D7D7D7;
-                }
-                &:nth-child(even) {
-                    background-color: #DDDDDD;
-                }
-                &:first-child {
-                    background-color: #BDBDBD;
-                }
-                &.indexedColumn {
-                    background-color: #CBD1D6 !important;
-                } 
-                &.selectedCell {
-                    background-color: #BFCCD4;
-                }
-                &.selectedCol {
-                    background-color: #BFCCD4;
-                }
-                &.jsonElement, &.dataCol {
-                    background-color: #CCD7CC !important;
-                }
-            }
-        }
+
     }
     
     th.unusedCell {
