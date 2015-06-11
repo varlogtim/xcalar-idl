@@ -343,7 +343,6 @@ window.xcFunction = (function ($, xcFunction) {
         var frontName    = table.frontTableName;
         var srcName      = table.backTableName;
         var newTableName = xcHelper.randName("tempGroupByTable-");
-        var tablCols     = xcHelper.deepCopy(table.tableCols);
 
         if (colNum === -1) {
             colNum = undefined;
@@ -371,11 +370,14 @@ window.xcFunction = (function ($, xcFunction) {
                     "args": [escapedName]
                 }
             });
-            for (var i = tablCols.length - 1; i >= 0; i--) {
-                tablCols[i].index += 1;
-                tablCols[i + 1] = tablCols[i];
-            }
+
+            var dataColNum = xcHelper.parseColNum($('#xcTable'+tableNum)
+                                                 .find('th.dataCol')) - 1;
+            var tablCols = [];
             tablCols[0] = newProgCol;
+            tablCols[1] = xcHelper.deepCopy(table.tableCols[colNum]);
+            tablCols[2] = xcHelper.deepCopy(table.tableCols[dataColNum]);
+
             setIndex(newTableName, tablCols);
 
             return (refreshTable(newTableName, tableNum,
