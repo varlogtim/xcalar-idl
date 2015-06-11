@@ -215,7 +215,15 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
     if (resultSetId === 0) {
         return (promiseWrapper(null));
     }
-   
+    if (numRowsToFetch === 0) {
+        var jsonObj = {
+            "normal" : [],
+            "withKey": []
+        }; 
+        deferred.resolve(jsonObj);
+        return (deferred.promise());
+    }
+
     XcalarGetNextPage(resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {
         var keyName = gTables[tableNum].keyName;

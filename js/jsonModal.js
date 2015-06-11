@@ -28,6 +28,9 @@ window.JSONModal = (function($, JSONModal) {
     };
 
     JSONModal.show = function ($jsonTd) {
+        if ($.trim($jsonTd.text()).length === 0) {
+            return;
+        }
         var tableTitle = $jsonTd.closest(".xcTableWrap")
                                 .find(".xcTheadWrap .tableTitle input")
                                 .data("title");

@@ -1101,6 +1101,9 @@ function addColListeners($table, tableNum) {;
             // column is hidden
             options.classes += " type-hidden";
         }
+        if ($(this).closest('.xcTable').hasClass('emptyTable')) {
+             options.classes += " type-emptyTable";
+        }
 
         dropdownClick($(this), null, options);
     });

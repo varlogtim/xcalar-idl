@@ -325,10 +325,10 @@ function buildInitialTable(index, tableNum, jsonObj, keyName) {
     var startIndex = 0;
     var $table = $('#xcTable' + tableNum);
     addRowScroller(tableNum);
-
     if (numRows === 0) {
         console.log('no rows found, ERROR???');
         $('#rowScroller' + tableNum).addClass('hidden');
+        $table.addClass('emptyTable');
         jsonObj = {
             "normal" : [""],
             "withKey": [""]
