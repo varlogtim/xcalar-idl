@@ -57,9 +57,14 @@ window.WorkbookModal = (function($, WorkbookModal) {
     WorkbookModal.forceShow = function() {
         addWorkbookEvents();
         $workbookModal.find(".cancel, .close").hide();
+
         getUserLists(true)
         .then(function() {
             WorkbookModal.show();
+            // deafult value for new workbook
+            $workbookInput.val("untitled");
+            var input = $workbookInput.get(0);
+            input.setSelectionRange(0, input.value.length);
         });
     };
 
