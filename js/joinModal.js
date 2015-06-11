@@ -2,7 +2,7 @@ window.JoinModal = (function($, JoinModal) {
     var $modalBackground = $("#modalBackground");
 
     var $joinModal = $("#joinModal");
-    var $joinInstr = $("#joinInstr");
+    // var $joinInstr = $("#joinInstr");
 
     var $joinSelect   = $("#joinType");
     var $joinDropdown = $("#joinTypeSelect");
@@ -297,21 +297,21 @@ window.JoinModal = (function($, JoinModal) {
             var tableName = $table.data("tablename");
             var colName   = $th.find(".columnTab").text();
 
-            var $tableInfo = isLeft ? $joinInstr.find(".leftTable") :
-                                      $joinInstr.find(".rightTable");
+            // var $tableInfo = isLeft ? $joinInstr.find(".leftTable") :
+            //                           $joinInstr.find(".rightTable");
             // console.log(colNum);
 
             if ($th.hasClass('colSelected')) {
                  // unselect column
                 $th.removeClass('colSelected');
                 $table.find('.col' + colNum).removeClass('colSelected');
-                $tableInfo.find(".joinKey .text").text("");
+                // $tableInfo.find(".joinKey .text").text("");
             } else {
                 // select column
                 $modal.find('.colSelected').removeClass('colSelected');
                 $table.find('.col' + colNum).addClass('colSelected');
-                $tableInfo.find(".tableName .text").text(tableName);
-                $tableInfo.find(".joinKey .text").text(colName);
+                // $tableInfo.find(".tableName .text").text(tableName);
+                // $tableInfo.find(".joinKey .text").text(colName);
 
                 if (isLeft) {
                     var cols = [];
@@ -342,14 +342,14 @@ window.JoinModal = (function($, JoinModal) {
     function suggestJoinKey(tableName, colName, type, corrector) {
         var isFound = false;
         var $thToClick;
-        var $suggTableName = $joinInstr.find(".suggTable .tableName .text");
-        var $suggColName = $joinInstr.find(".suggTable .joinKey .text");
+        // var $suggTableName = $joinInstr.find(".suggTable .tableName .text");
+        // var $suggColName = $joinInstr.find(".suggTable .joinKey .text");
 
         var curTableName;
         var curColName;
 
-        $suggTableName.text("");
-        $suggColName.text("");
+        // $suggTableName.text("");
+        // $suggColName.text("");
 
         $rightJoinTable.find("table").each(function() {
             var $table = $(this);
@@ -375,8 +375,8 @@ window.JoinModal = (function($, JoinModal) {
                         corrector.correct(curColName) === colName)
                     {
                         isFound = true;
-                        $suggTableName.text(curTableName);
-                        $suggColName.text(curColName);
+                        // $suggTableName.text(curTableName);
+                        // $suggColName.text(curColName);
                         $thToClick = $th;
                         break;
                     }
