@@ -498,6 +498,7 @@ window.xcHelper = (function($, xcHelper) {
 
 
     xcHelper.Corrector.prototype.correct = function(word, isEdits2) {
+        word = word.toLowerCase();
         var model = this.model;
 
         var edits1Res = edits1(word);

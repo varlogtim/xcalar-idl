@@ -326,6 +326,9 @@ window.JoinModal = (function($, JoinModal) {
     }
 
     function scrolleToColumn($th) {
+        if (!$th || $th.length === 0) {
+            return;
+        }
         var $tableArea = $th.closest('.joinTableArea');
         var tableOffset = $tableArea.offset().left;
         var tableAreaWidth = $tableArea.width();
@@ -368,7 +371,7 @@ window.JoinModal = (function($, JoinModal) {
                 if (getType($th) === type) {
                     curColName = $th.find(".columnTab").text();
 
-                    if (curColName === colName ||
+                    if (curColName.toLowerCase() === colName.toLowerCase() ||
                         corrector.correct(curColName) === colName)
                     {
                         isFound = true;
