@@ -457,7 +457,6 @@ window.RightSideBar = (function($, RightSideBar) {
             var path = file.name;
             console.log(path, file);
             var moduleName = path.substring(0, path.indexOf("."));
-            var functionName = moduleName;
             if (path === "") {
                 var text = "File Path is empty," +
                            " please choose a file you want to upload";
@@ -467,6 +466,12 @@ window.RightSideBar = (function($, RightSideBar) {
                 var reader = new FileReader();
                 reader.onload = function(event) {
                     console.log(event.target.result);
+                    var wholeFile = event.target.result;
+                    functionName = findFunctionName(wholeFile); 
+                    if (functionName === "") {
+                        functionName = moduleName;
+                        console.log("XXX no function definition");
+                    }
                     // XXX: Change cursor, handle failure
                     XcalarUploadPython(moduleName, functionName,
                                        event.target.result)
@@ -474,6 +479,8 @@ window.RightSideBar = (function($, RightSideBar) {
                         // clearance
                         $inputFile.val("");
                         $filePath.val("");
+                        UDF.set(moduleName, functionName);
+                        commitToStorage();
                         uploadSuccess();
                     });
                 };
@@ -524,6 +531,21 @@ window.RightSideBar = (function($, RightSideBar) {
         /* upload written function section */
         var $fnName = $("#udf-fnName");
 
+        function findFunctionName(entireString) {
+            var lines = entireString.split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                line = jQuery.trim(line);
+                if (line.indexOf("#") !== 0 && line.indexOf("def") === 0) {
+                    // This is the function definition
+                    var regex = new RegExp('def *([^( ]*)', "g");
+                    var matches = regex.exec(line);
+                    return(matches[1]);
+                }
+            }
+            return "";
+        }
+
         $("#udf-fnUpload").click(function() {
             var fileName = $fnName.val();
 
@@ -542,24 +564,11 @@ window.RightSideBar = (function($, RightSideBar) {
             } else {
                 moduleName = fileName;
             }
-            var functionName = moduleName;
-            var lines = entireString.split('\n');
-            var found = false;
-            for (var i = 0; i < lines.length; i++) {
-                var line = lines[i];
-                line = jQuery.trim(line);
-                if (line.indexOf("#") !== 0 && line.indexOf("def") === 0) {
-                    // This is the function definition
-                    var regex = new RegExp('def *([^( ]*)', "g");
-                    var matches = regex.exec(line);
-                    functionName = matches[1];
-                    console.log(matches);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
+            var functionName = findFunctionName(entireString);
+            
+            if (functionName === "") {
                 console.log("XXX no function definition");
+                functionName = moduleName;
             }
 
             // XXX: Change cursor, handle failure
