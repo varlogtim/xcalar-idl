@@ -388,7 +388,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function argSuggest($input) {
         var curVal    = $input.val();
-        var corrected = corrector.suggest(curVal, true);
+        var corrected = corrector.suggest(curVal);
         var $ul       = $input.siblings(".list");
 
         // should not suggest if the input val is already a column name
