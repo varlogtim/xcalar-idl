@@ -372,7 +372,7 @@ window.JoinModal = (function($, JoinModal) {
                     curColName = $th.find(".columnTab").text();
 
                     if (curColName.toLowerCase() === colName.toLowerCase() ||
-                        corrector.correct(curColName) === colName)
+                        corrector.correct(curColName) === colName.toLowerCase())
                     {
                         isFound = true;
                         // $suggTableName.text(curTableName);

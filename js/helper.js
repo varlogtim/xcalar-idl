@@ -476,9 +476,11 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.Corrector = function(words) {
         // traing texts
         // words = ["pull", "sort", "join", "filter", "aggreagte", "map"];
-        this.model = transformAndTrain(words);
+        var self = this;
+        self.modelMap = {};
+        self.model = transformAndTrain(words);
 
-        return (this);
+        return (self);
         // convert words to lowercase and train the word
         function transformAndTrain(features) {
             var res = {};
@@ -490,12 +492,12 @@ window.xcHelper = (function($, xcHelper) {
                     res[word] += 1;
                 } else {
                     res[word] = 2; // start with 2
+                    self.modelMap[word] = features[i];
                 }
             }
             return (res);
         }
     };
-
 
     xcHelper.Corrector.prototype.correct = function(word, isEdits2) {
         word = word.toLowerCase();
@@ -604,6 +606,25 @@ window.xcHelper = (function($, xcHelper) {
 
             return ($.isEmptyObject() ? null : res);
         }
+    };
+
+    xcHelper.Corrector.prototype.suggest = function(word, isEdits2) {
+        word = word.toLowerCase();
+
+        var candidate = [];
+        for (var w in this.model) {
+            if (w.indexOf(word) > -1) {
+                candidate.push(w);
+            }
+        }
+
+        // only suggest the only candidate
+        if (candidate.length === 1) {
+            return (this.modelMap[candidate[0]]);
+        }
+
+        var res = this.correct(word, isEdits2);
+        return (this.modelMap[res]);
     };
 
     return (xcHelper);

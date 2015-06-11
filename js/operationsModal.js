@@ -13,6 +13,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var functionsMap = {};
     
     var modalHelper = new xcHelper.Modal($operationsModal);
+    var corrector;
 
     OperationsModal.setup = function() {
         var allowInputChange = true;
@@ -128,12 +129,24 @@ window.OperationsModal = (function($, OperationsModal) {
             var $el = $(this);
             setTimeout(function() {
                 var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
-                if ($mouseTarget.hasClass('editableHead') && 
+                if ($mouseTarget.hasClass('editableHead') &&
                     $mouseTarget.closest('.xcTable').length !== 0) {
                     var newColName = $mouseTarget.val();
                     $el.focus().val(newColName);
                 }
             }, 0);
+        });
+
+        $operationsModal.on('input', '.argument', function() {
+            argSuggest($(this));
+        });
+
+        $operationsModal.on('click', '.hint li', function() {
+            var $li = $(this);
+            $li.removeClass("openli")
+                .closest(".hint").removeClass("openList").hide()
+                .siblings(".argument").val($li.text())
+                .closest(".listSection").removeClass("open");
         });
 
         $operationsModal.find('.cancel, .close').on('click', function(e, data) {
@@ -216,6 +229,16 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.find('.operationsModalHeader .text').text(operator);
         operatorName = $.trim(operator.toLowerCase());
+
+        var colNames = [];
+        gTables[tableNum].tableCols.forEach(function(colObj) {
+            // skip data column
+            if (colObj.name !== "DATA") {
+                colNames.push(colObj.name);
+            }
+        });
+
+        corrector = new xcHelper.Corrector(colNames);
 
         var colTypes = [gTables[tableNum].tableCols[colNum - 1].type];
         
@@ -353,6 +376,24 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function sortHTML(a, b){
         return ($(b).text()) < ($(a).text()) ? 1 : -1;    
+    }
+
+    function argSuggest($input) {
+        var curVal    = $input.val();
+        var corrected = corrector.suggest(curVal, true);
+        var $ul       = $input.siblings(".list");
+
+        // should not suggest if the input val is already a column name
+        if (corrected && corrected !== curVal) {
+            $ul.empty()
+                .append('<li class="openli">' + corrected + '</li>')
+                .addClass("openList")
+                .show();
+            $input.closest('.listSection').addClass('open');
+        } else {
+            $ul.empty().removeClass("openList").hide()
+                .closest(".listSection").removeClass("open");
+        }
     }
 
     function suggest($input) {
