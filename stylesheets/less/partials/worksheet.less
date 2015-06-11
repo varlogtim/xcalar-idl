@@ -265,20 +265,6 @@
 .xcTable {
     .size(@width: 520px, @height: 0);
 
-   
-    tbody tr {
-        &:nth-child(odd) {
-            td.jsonElement, td.dataCol {
-                background-color: @color-table-col-green !important;
-            }
-        }
-        &:nth-child(even) {
-            td.jsonElement, td.dataCol {
-                background-color: @color-table-col-lightGreen !important;
-            }
-        }
-    }
-
     td:first-child {
         cursor: pointer;
     }
@@ -573,7 +559,7 @@
         border-bottom: 1px solid @color-table-borderGray;
         .tableGrab {
             .position(absolute, @top: 0);
-            .size(@width: ~"calc(100% - 15px)", @height: 40px);
+            .size(@width: ~"calc(100% - 15px)", @height: 35px);
             z-index: 2;
             .cursor-move;
         }
@@ -641,13 +627,14 @@
 }
 
 .colGrab {
-    .position(absolute, @top: 0, @right: -8px);
-    .size(@width: 8px);
+    .position(absolute, @top: -5px, @right: -14px);
+    .size(@width: 22px);
     display: inline-block;
     cursor: ew-resize;
-    z-index: 4;
+    z-index: 2;
     background-color: rgba(0,0,0,0); //ie hack
     border-left: 6px solid rgba(0, 0, 0, 0) !important;
+    height: 42px !important;
     .noSelection;
 }
 
@@ -667,7 +654,7 @@ th:last-child .colGrab{
 
 /* VERTICAL RESIZING */
 .rowGrab {
-    .position(absolute, @bottom: -6px, @left: -2px);
+    .position(absolute, @bottom: -3px, @left: -2px);
     .size(@width: 1000px, @height: 7px);
     z-index: 0;
     cursor: ns-resize;

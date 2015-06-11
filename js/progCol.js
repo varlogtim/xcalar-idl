@@ -163,7 +163,6 @@ window.ColManager = (function($, ColManager) {
 
         updateTableHeader(tableNum);
         RightSideBar.updateTableInfo(table);
-        adjustColGrabHeight(tableNum);
         matchHeaderSizes(newColid, $table);
     }
 

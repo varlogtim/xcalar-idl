@@ -435,7 +435,6 @@ function documentReadyxcTableFunction() {
         }
         goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
         .then(function() {
-            adjustColGrabHeight(gActiveTableNum);
             var rowToScrollTo = Math.min(targetRow, 
                                 gTables[gActiveTableNum].resultSetMax);
             positionScrollbar(rowToScrollTo, gActiveTableNum);
@@ -471,11 +470,6 @@ function documentReadyGeneralFunction() {
         $('#mainFrame').find('.colGrab').height(30);
         clearTimeout(timer);
         timer = setTimeout(function () { 
-            var i = 0;
-            $('.xcTable').each(function() {
-                adjustColGrabHeight(i);
-                i++;
-            });
 
             if (gTables[gActiveTableNum] && 
                 gTables[gActiveTableNum].resultSetCount != 0) {  

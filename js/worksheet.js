@@ -276,7 +276,6 @@ window.WSManager = (function($, WSManager) {
             if ($curActiveTable.length > 0) {
                 for (var i = 0; i < gTables.length; i++) {
                     // update table width and height
-                    adjustColGrabHeight(i);
                     matchHeaderSizes(null, $("#xcTable" + i));
                 }
             }
@@ -290,7 +289,6 @@ window.WSManager = (function($, WSManager) {
             
             for (var i = 0; i < gTables.length; i++) {
                 // update table width and height
-                adjustColGrabHeight(i);
                 matchHeaderSizes(null, $("#xcTable" + i));
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {

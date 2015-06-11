@@ -133,7 +133,6 @@ function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
                 infScrolling(tableNum);
             }
 
-            adjustColGrabHeight(tableNum);
             resizeRowInput();
 
             return (Dag.construct(gTables[tableNum].backTableName, tableNum));
