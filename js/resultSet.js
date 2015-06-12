@@ -64,12 +64,19 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     .then(function(jsonObj, keyName) {
         var deferred2 = jQuery.Deferred();
         var jsonLen   = jsonObj.normal.length;
+        if (jsonLen == 0) {
+            if (!info.missingRows) {
+                info.missingRows = [];
+            }
+            info.missingRows.push(position);
+        }
         $table = $('#xcTable' + tableNum);
         prepullTableHeight = $table.height();
 
         info.numRowsAdded += jsonLen;
         var numRowsLacking = numRowsToAdd - jsonLen;
-        var position = rowNumber + jsonLen;
+        var numRowsToIncrement = Math.max(1, jsonLen);
+        var position = rowNumber + numRowsToIncrement;
         numRowsBefore = $table.find('tbody tr').length;
 
         pullRowsBulk(tableNum, jsonObj, rowPosition, null, direction, 
@@ -78,14 +85,11 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         if (numRowsStillNeeded > 0) {
             showWaitCursor();
             info.looped = true;
-            if (!info.missingRows) {
-                info.missingRows = [];
-            }
-            info.missingRows.push(position + 1);
             if (direction === RowDirection.Bottom) {
-                if (position < gTables[tableNum].resultSetMax - 1) {
+                if (position < gTables[tableNum].resultSetMax) {
                     var newRowToGoTo =
-                        Math.min(position + 1, gTables[tableNum].resultSetMax);
+                        // Math.min(position + 1, gTables[tableNum].resultSetMax);
+                        Math.min(position, gTables[tableNum].resultSetMax);
                     var numRowsToFetch =
                         Math.min(numRowsStillNeeded,
                                 (gTables[tableNum].resultSetMax -
@@ -118,8 +122,9 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                     return (deferred2.promise());
                 }
             } else { // scrolling up
-                var newRowToGoTo = position + 1;
-                var numRowsToFetch = numRowsLacking - 1;
+                // var newRowToGoTo = position + 1;
+                var newRowToGoTo = position;
+                var numRowsToFetch = numRowsLacking;
 
                 if (numRowsToFetch <= 0) {
                     var firstRow = $table.find('tbody tr:first');
@@ -153,7 +158,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                             prepullTableHeight, numRowsBefore, numRowsToAdd);
         } else if (!loop && info.missingRows) {
             console.log('some rows were too large to be retrieved, rows: ' +
-                        info.missingRows, tableNum);
+                        info.missingRows);
         }
         deferred.resolve();
     })
@@ -190,7 +195,7 @@ function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
     var bottomRowNum = parseInt(lastRow.attr('class').substr(3));
     gTables[tableNum].currentRowNumber = bottomRowNum + 1;
 
-    if (info.looped) {
+    if (info.missingRows) {
         console.warn('some rows were too large to be retrieved, rows: ' +
                     info.missingRows);
     }
