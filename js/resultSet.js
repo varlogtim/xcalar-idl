@@ -1,12 +1,13 @@
 function freeAllResultSets() {
     // var promises = [];
     // XXX use promise is not reliable to send all reqeust to backend
-    for (var i = 0; i < gTables.length; i++) {
+    var i;
+    for (i = 0; i < gTables.length; i++) {
         // promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
         XcalarSetFree(gTables[i].resultSetId);
     }
 
-    for (var i = 0; i < gHiddenTables.length; i++) {
+    for (i = 0; i < gHiddenTables.length; i++) {
         // promises.push(XcalarSetFree.bind(this, gHiddenTables[i].resultSetId));
         XcalarSetFree(gHiddenTables[i].resultSetId);
     }
@@ -64,42 +65,52 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     .then(function(jsonObj, keyName) {
         var deferred2 = jQuery.Deferred();
         var jsonLen   = jsonObj.normal.length;
-        if (jsonLen == 0) {
+
+        var numRowsLacking     = numRowsToAdd - jsonLen;
+        var numRowsToIncrement = Math.max(1, jsonLen);
+
+        var position = rowNumber + numRowsToIncrement;
+
+        if (jsonLen === 0) {
             if (!info.missingRows) {
                 info.missingRows = [];
             }
+
             info.missingRows.push(position);
         }
+
         $table = $('#xcTable' + tableNum);
         prepullTableHeight = $table.height();
 
         info.numRowsAdded += jsonLen;
-        var numRowsLacking = numRowsToAdd - jsonLen;
-        var numRowsToIncrement = Math.max(1, jsonLen);
-        var position = rowNumber + numRowsToIncrement;
         numRowsBefore = $table.find('tbody tr').length;
 
-        pullRowsBulk(tableNum, jsonObj, rowPosition, null, direction, 
-                     rowToPrependTo);
+        pullRowsBulk(tableNum, jsonObj, rowPosition, null,
+                     direction, rowToPrependTo);
+
         var numRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
+
         if (numRowsStillNeeded > 0) {
             showWaitCursor();
             info.looped = true;
+            var newRowToGoTo;
+            var numRowsToFetch;
+
             if (direction === RowDirection.Bottom) {
                 if (position < gTables[tableNum].resultSetMax) {
-                    var newRowToGoTo =
+                    newRowToGoTo =
                         // Math.min(position + 1, gTables[tableNum].resultSetMax);
                         Math.min(position, gTables[tableNum].resultSetMax);
-                    var numRowsToFetch =
+                    numRowsToFetch =
                         Math.min(numRowsStillNeeded,
                                 (gTables[tableNum].resultSetMax -
                                  newRowToGoTo));
 
-                    return (goToPage(newRowToGoTo, numRowsToFetch, 
+                    return (goToPage(newRowToGoTo, numRowsToFetch,
                                      direction, true, info));
 
                 } else if (info.bulk) {
-                    var newRowToGoTo = (info.targetRow - info.numRowsToAdd) -
+                    newRowToGoTo = (info.targetRow - info.numRowsToAdd) -
                                         numRowsStillNeeded;
 
                     numRowsStillNeeded = Math.min(info.targetRow -
@@ -115,7 +126,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                                                .remove();
                     }
                     info.reverseLooped = true;
-                    return (goToPage(newRowToGoTo, numRowsStillNeeded, 
+                    return (goToPage(newRowToGoTo, numRowsStillNeeded,
                                      RowDirection.Top, true, info));
                 } else {
                     deferred2.resolve();
@@ -123,8 +134,8 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                 }
             } else { // scrolling up
                 // var newRowToGoTo = position + 1;
-                var newRowToGoTo = position;
-                var numRowsToFetch = numRowsLacking;
+                newRowToGoTo = position;
+                numRowsToFetch = numRowsLacking;
 
                 if (numRowsToFetch <= 0) {
                     var firstRow = $table.find('tbody tr:first');
@@ -135,23 +146,23 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                     if (numRowsStillNeeded > 0 && info.targetRow !== 0) {
                         info.targetRow -= numRowsStillNeeded;
                         newRowToGoTo = Math.max(info.targetRow, 0);
-                        return (goToPage(newRowToGoTo, numRowsStillNeeded, 
+                        return (goToPage(newRowToGoTo, numRowsStillNeeded,
                                          direction, true, info));
                     } else {
                         deferred2.resolve();
                         return (deferred2.promise());
                     }       
                 } else {
-                    return (goToPage(newRowToGoTo, numRowsToFetch, direction, 
-                                     true, info, newRowToGoTo+numRowsToFetch));
+                    return (goToPage(newRowToGoTo, numRowsToFetch, direction,
+                                     true, info, newRowToGoTo + numRowsToFetch));
                 }  
             }
         } else {
             deferred2.resolve();
             return (deferred2.promise());
         }
-    }).
-    then(function() {
+    })
+    .then(function() {
         removeWaitCursor();
         if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
             removeOldRows($table, tableNum, info, direction,
@@ -163,7 +174,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         deferred.resolve();
     })
     .fail(function(error) {
-        console.log("goToPage fails!");
+        console.error("goToPage fails!", error);
         deferred.reject(error);
     });
 
@@ -173,11 +184,13 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
 function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
                         numRowsBefore, numRowsToAdd) {
     // also handles the scroll position
+    var scrollTop;
     var postpullTableHeight = $table.height();
+
     if (direction === RowDirection.Top) {
         $table.find("tbody tr").slice(60).remove();
-        var scrollTop = Math.max(2, postpullTableHeight - prepullTableHeight);
-        $('#xcTbodyWrap'+tableNum).scrollTop(scrollTop);
+        scrollTop = Math.max(2, postpullTableHeight - prepullTableHeight);
+        $('#xcTbodyWrap' + tableNum).scrollTop(scrollTop);
     } else {
         var preScrollTop = $('#xcTbodyWrap' + tableNum).scrollTop();
         if (info.numRowsAdded === 0) {
@@ -187,10 +200,11 @@ function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
         }
         $table.find("tbody tr").slice(0, info.numRowsAdded).remove();
         var postRowRemovalHeight = $table.height();
-        var scrollTop = Math.max(2, preScrollTop - (postpullTableHeight -
+        scrollTop = Math.max(2, preScrollTop - (postpullTableHeight -
                                                     postRowRemovalHeight));
-        $('#xcTbodyWrap'+tableNum).scrollTop(scrollTop - 1);
+        $('#xcTbodyWrap' + tableNum).scrollTop(scrollTop - 1);
     }
+
     var lastRow = $table.find('tbody tr:last');
     var bottomRowNum = parseInt(lastRow.attr('class').substr(3));
     gTables[tableNum].currentRowNumber = bottomRowNum + 1;
@@ -216,15 +230,15 @@ function getFirstPage(resultSetId, tableNum, notIndexed) {
 function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
                                 numRowsToFetch) {
     var deferred = jQuery.Deferred();
+    var jsonObj = {
+        "normal" : [],
+        "withKey": []
+    };
 
     if (resultSetId === 0) {
         return (promiseWrapper(null));
     }
     if (numRowsToFetch === 0) {
-        var jsonObj = {
-            "normal" : [],
-            "withKey": []
-        }; 
         deferred.resolve(jsonObj);
         return (deferred.promise());
     }
@@ -263,7 +277,7 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
             jsonWithKey.push(newValue);
         }
 
-        var jsonObj = {
+        jsonObj = {
             "normal" : jsonNormal,
             "withKey": jsonWithKey
         };

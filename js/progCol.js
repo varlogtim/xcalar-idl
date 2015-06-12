@@ -12,33 +12,36 @@ window.ColManager = (function($, ColManager) {
 
         // constructor
         function ProgCol() {
-            this.index     = -1;
-            this.name      = "New heading";
-            this.type      = "undefined";
-            this.func      = {};
-            this.width     = 0;
-            this.userStr   = "";
-            this.isNewCol    = true;
+            this.index = -1;
+            this.name = "New heading";
+            this.type = "undefined";
+            this.func = {};
+            this.width = 0;
+            this.userStr = "";
+            this.isNewCol = true;
             this.textAlign = "Center";
-        };
-    }
+
+            return (this);
+        }
+    };
+
     // special case, specifically for DATA col
     ColManager.newDATACol = function(index) {
         var progCol = ColManager.newCol({
-            "index"   : index,
-            "name"    : "DATA",
-            "type"    : "object",
-            "width"   : 500,    // copy from CSS
-            "userStr" : "DATA = raw()",
-            "func"    : {
-                "func":  "raw",
+            "index"  : index,
+            "name"   : "DATA",
+            "type"   : "object",
+            "width"  : 500,    // copy from CSS
+            "userStr": "DATA = raw()",
+            "func"   : {
+                "func": "raw",
                 "args": []
             },
-            "isNewCol"  : false
+            "isNewCol": false
         });
 
         return (progCol);
-    }
+    };
 
     ColManager.setupProgCols = function(tableNum) {
         var keyName = gTables[tableNum].keyName;
@@ -46,24 +49,23 @@ window.ColManager = (function($, ColManager) {
         // add col relies on gTableCol entry to determine whether or not to add
         // the menus specific to the main key
         var newProgCol = ColManager.newCol({
-            "index"   : 1,
-            "name"    : keyName,
-            "width"   : gNewCellWidth,
-            "userStr" : '"' + keyName + '" = pull(' + keyName + ')',
-            "func"    : {
-                "func":  "pull",
+            "index"  : 1,
+            "name"   : keyName,
+            "width"  : gNewCellWidth,
+            "userStr": '"' + keyName + '" = pull(' + keyName + ')',
+            "func"   : {
+                "func": "pull",
                 "args": [keyName]
             },
-            "isNewCol"  : false
+            "isNewCol": false
         });
 
         insertColHelper(0, tableNum, newProgCol);
         // is this where we add the indexed column??
         insertColHelper(1, tableNum, ColManager.newDATACol(2));
-    }
+    };
 
     ColManager.addCol = function(colId, tableId, name, options) {
-        console.log('addCol');
         // colId will be the column class ex. col2
         // tableId will be the table name  ex. xcTable0
         var tableNum    = parseInt(tableId.substring(7));
@@ -74,9 +76,10 @@ window.ColManager = (function($, ColManager) {
         var colIndex    = parseInt(colId.substring(3));
         var newColid    = colIndex;
 
-        var options     = options || {};
+        // options
+        options = options || {};
         var width       = options.width || gNewCellWidth;
-        var resize      = options.resize || false;
+        // var resize      = options.resize || false;
         var isNewCol    = options.isNewCol || false;
         var select      = options.select || false;
         var inFocus     = options.inFocus || false;
@@ -85,7 +88,7 @@ window.ColManager = (function($, ColManager) {
         var columnClass;
         var color;
 
-        if (options.direction != "L") {
+        if (options.direction !== "L") {
             newColid += 1;
         }
 
@@ -93,7 +96,7 @@ window.ColManager = (function($, ColManager) {
             name = "";
             select = true;
             columnClass = " newColumn";
-        } else if (name == table.keyName) {
+        } else if (name === table.keyName) {
             columnClass = " indexedColumn";
         } else {
             columnClass = "";
@@ -116,7 +119,7 @@ window.ColManager = (function($, ColManager) {
                 "name"    : name,
                 "width"   : width,
                 "userStr" : '"' + name + '" = ',
-                "isNewCol"  : isNewCol
+                "isNewCol": isNewCol
             });
 
             insertColHelper(newColid - 1, tableNum, newProgCol);
@@ -128,7 +131,8 @@ window.ColManager = (function($, ColManager) {
                       .addClass('col' + (i + 1));
         }
         // insert new th column
-        var options = {name: name, width: width};
+        options = {"name" : name,
+                   "width": width};
         var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
                                                     newColid, options);
         $tableWrap.find('.th.col' + (newColid - 1)).after(columnHeadHTML);
@@ -137,20 +141,20 @@ window.ColManager = (function($, ColManager) {
         var numRow        = $table.find("tbody tr").length;
         var idOfFirstRow  = $table.find("tbody tr:first").attr("class");
         var idOfLastRow  = $table.find("tbody tr:last").attr("class");
-        var startingIndex = idOfFirstRow ? 
+        var startingIndex = idOfFirstRow ?
                                 parseInt(idOfFirstRow.substring(3)) : 1;
         var endingIndex = parseInt(idOfLastRow.substring(3));
 
-        if (columnClass != " indexedColumn") {
+        if (columnClass !== " indexedColumn") {
             columnClass = ""; // we don't need to add class to td otherwise
         }
 
-        var newCellHTML = '<td '+ 'class="' + color + ' ' + columnClass + 
-                          ' col' + newColid + '">' + 
-                            '&nbsp;' + 
+        var newCellHTML = '<td ' + 'class="' + color + ' ' + columnClass +
+                          ' col' + newColid + '">' +
+                            '&nbsp;' +
                           '</td>';
 
-        var i = startingIndex; 
+        var i = startingIndex;
         while (i <= endingIndex) {
             $table.find(".row" + i + " .col" + (newColid - 1))
                   .after(newCellHTML);
@@ -164,7 +168,7 @@ window.ColManager = (function($, ColManager) {
         updateTableHeader(tableNum);
         RightSideBar.updateTableInfo(table);
         matchHeaderSizes(newColid, $table);
-    }
+    };
 
     ColManager.delCol = function(colNum, tableNum) {
         var table     = gTables[tableNum];
@@ -179,25 +183,23 @@ window.ColManager = (function($, ColManager) {
             "colName"  : colName,
             "colIndex" : colNum
         });
-    }
+    };
 
     ColManager.reorderCol = function(tableNum, oldIndex, newIndex) {
         var progCol  = removeColHelper(oldIndex, tableNum);
 
         insertColHelper(newIndex, tableNum, progCol);
         progCol.index = newIndex + 1;
-    }
+    };
 
     ColManager.execCol = function(progCol, tableNum, args) {
         var deferred = jQuery.Deferred();
 
-        switch(progCol.func.func) {
+        switch (progCol.func.func) {
             case ("pull"):
                 if (!parsePullColArgs(progCol)) {
-                    var error = "Arg parsing failed";
-
                     console.error("Arg parsing failed");
-                    deferred.reject(error);
+                    deferred.reject("Arg parsing failed");
                     break;
                 }
 
@@ -229,62 +231,62 @@ window.ColManager = (function($, ColManager) {
                 deferred.resolve();
                 break;
             case ("map"):
-                var userStr   = progCol.userStr;
+                var userStr = progCol.userStr;
                 var regex = new RegExp(' *" *(.*) *" *= *map *[(] *(.*) *[)]',
                                        "g");
                 var matches = regex.exec(userStr);
                 var mapString = matches[2];
                 var fieldName = matches[1];
 
-                progCol.func.func    = "pull";
+                progCol.func.func = "pull";
                 progCol.func.args[0] = fieldName;
                 progCol.func.args.splice(1, progCol.func.args.length - 1);
-                progCol.isNewCol       = false;
+                progCol.isNewCol = false;
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
 
                 xcFunction.map(progCol.index, tableNum, fieldName, mapString)
                 .then(deferred.resolve)
                 .fail(function(error) {
-                    console.log("execCol fails!");
+                    console.error("execCol fails!", error);
                     deferred.reject(error);
                 });
                 break;
             case ("filter"):
-                var userStr   = progCol.userStr;
+                var userStr = progCol.userStr;
                 var regex = new RegExp(' *" *(.*) *" *= *filter *[(] *(.*) *[)]'
                                        , "g");
                 var matches = regex.exec(userStr);
                 var fltString = matches[2];
                 var fieldName = matches[1];
 
-                progCol.func.func    = "pull";
+                progCol.func.func = "pull";
                 progCol.func.args[0] = fieldName;
                 progCol.func.args.splice(1, progCol.func.args.length - 1);
-                progCol.isNewCol     = false;
+                progCol.isNewCol = false;
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
-                xcFunction.filter(progCol.index, tableNum, {"filterString": 
+                xcFunction.filter(progCol.index, tableNum, {"filterString":
                                   fltString})
                 .then(deferred.resolve)
                 .fail(function(error) {
-                    console.log("execCol fails!");
+                    console.error("execCol fails!", error);
                     deferred.reject(error);
                 });
                 break;
 
             case (undefined):
-                console.log("Blank col?");
+                console.warn("Blank col?");
                 deferred.resolve();
                 break;
             default:
-                console.log("No such function yet!", progCol);
+                console.warn("No such function yet!", progCol);
                 deferred.resolve();
                 break;
         }
 
         return (deferred.promise());
-    }
+    };
 
     ColManager.checkColDup = function ($input, $inputs, tableNum) {
         // $inputs checks the names of $inputs, tableNum is used to check
@@ -298,16 +300,17 @@ window.ColManager = (function($, ColManager) {
         if (/ +/.test(name) === true) {
             title = "Invalid name, cannot contain spaces between characters.";
             isDuplicate = true;
-        } else if (name == 'DATA') {
+        } else if (name === 'DATA') {
             title = "The name \'DATA\' is reserved.";
             isDuplicate = true;
-        } 
+        }
 
         if (!isDuplicate && $inputs) {
             $inputs.each(function() {
                 var $checkedInput = $(this);
-                if (name === $checkedInput.val() && 
-                    $checkedInput[0] != $input[0]) {
+                if (name === $checkedInput.val() &&
+                    $checkedInput[0] !== $input[0])
+                {
                     isDuplicate = true;
                     return (false);
                 }
@@ -317,13 +320,13 @@ window.ColManager = (function($, ColManager) {
         if (!isDuplicate && tableNum > -1) {
             var tableCols   = gTables[tableNum].tableCols;
             var numCols = tableCols.length;
-            for (var i = 0; i < numCols; i ++) {
+            for (var i = 0; i < numCols; i++) {
                 if (tableCols[i].func.args) {
                     var backName = tableCols[i].func.args[0];
                     if (name === backName) {
-                        title = "A column is already using this name, "+
+                        title = "A column is already using this name, " +
                                 "please use another name.";
-                                isDuplicate = true;
+                        isDuplicate = true;
                         break;
                     }
                 }   
@@ -339,9 +342,9 @@ window.ColManager = (function($, ColManager) {
                 "placement": "top",
                 "trigger"  : "manual",
                 "container": "#" + container,
-                "template" : '<div class="tooltip error" role="tooltip">' + 
-                                '<div class="tooltip-arrow"></div>' + 
-                                '<div class="tooltip-inner"></div>' + 
+                "template" : '<div class="tooltip error" role="tooltip">' +
+                                '<div class="tooltip-arrow"></div>' +
+                                '<div class="tooltip-inner"></div>' +
                              '</div>'
             });
 
@@ -360,11 +363,10 @@ window.ColManager = (function($, ColManager) {
         }
 
         return (isDuplicate);
-    }
-
+    };
 
     ColManager.delDupCols = function(index, tableNum, forwardCheck) {
-        var index   = index - 1;
+        index = index - 1;
         var columns = gTables[tableNum].tableCols;
         var numCols = columns.length;
         var args    = columns[index].func.args;
@@ -376,29 +378,29 @@ window.ColManager = (function($, ColManager) {
         }
 
         for (var i = start; i < numCols; i++) {
-            if (i == index) {
+            if (i === index) {
                 continue;
             }
             if (columns[i].func.args) {
-                if (columns[i].func.args[0] == args
-                    && columns[i].func.func != "raw") {
-
+                if (columns[i].func.args[0] === args &&
+                    columns[i].func.func !== "raw")
+                {
                     delColandAdjustLoop();
                 }
-            } else if (operation == undefined) {
+            } else if (operation == null) {
                 delColandAdjustLoop();
             }
         }
 
         function delColandAdjustLoop() {
-            delColHelper((i+1), tableNum);
+            delColHelper((i + 1), tableNum);
             if (i < index) {
                 index--;
             }
             numCols--;
             i--;
         }
-    }
+    };
 
     ColManager.hideCol = function(colNum, tableNum) {
         var $table   = $("#xcTable" + tableNum);
@@ -411,18 +413,18 @@ window.ColManager = (function($, ColManager) {
         // and class for tbody is different
         if ($thInput.hasClass("dataCol")) {
             // the padding pixel may be chosen again
-            $thInput.css("padding-left","10px");
-            $cols.find(".elementText").css("padding-left","15px");
+            $thInput.css("padding-left", "10px");
+            $cols.find(".elementText").css("padding-left", "15px");
         } else {
-            $thInput.css("padding-left","6px");
-            $cols.find(".addedBarText").css("padding-left","10px");
+            $thInput.css("padding-left", "6px");
+            $cols.find(".addedBarText").css("padding-left", "10px");
         }
 
         $table.find("td.col" + colNum).width(10);
-        $cols.find(".dropdownBox").css("right","-6px");
+        $cols.find(".dropdownBox").css("right", "-6px");
 
         matchHeaderSizes(colNum, $table);
-    }
+    };
 
     ColManager.unhideCol = function(colNum, tableNum, options) {
         var $table   = $("#xcTable" + tableNum);
@@ -431,11 +433,13 @@ window.ColManager = (function($, ColManager) {
         var $cols    = $table.find(".col" + colNum);
 
         if (options && options.autoResize) {
-            autosizeCol($th, {"resizeFirstRow": true, 
-                              "includeHeader" : true});
+            autosizeCol($th, {
+                "resizeFirstRow": true,
+                "includeHeader" : true
+            });
         }
 
-        if($thInput.hasClass("dataCol"))  {
+        if ($thInput.hasClass("dataCol")) {
             $cols.find(".elementText").css("padding-left", "0px");
         } else {
             $cols.find(".addedBarText").css("padding-left", "0px");
@@ -444,7 +448,7 @@ window.ColManager = (function($, ColManager) {
         $thInput.css("padding-left", "4px");
         $cols.find(".dropdownBox").css("right", "-3px");
 
-    }
+    };
 
     ColManager.textAlign = function(colNum, tableNum, alignment) {
         if (alignment.indexOf("leftAlign") > -1) {
@@ -462,8 +466,7 @@ window.ColManager = (function($, ColManager) {
                                 .removeClass('textAlignRight')
                                 .removeClass('textAlignCenter')
                                 .addClass('textAlign' + alignment);
-    }
-
+    };
 
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
                                       tableNum, direction, rowToPrependTo)
@@ -472,25 +475,25 @@ window.ColManager = (function($, ColManager) {
         var frontName = table.frontTableName;
         var tableCols = table.tableCols;
         var numCols   = tableCols.length;
-
+        // jsonData based on if it's indexed on array or not
         var secondPull = gTableIndicesLookup[frontName].isSortedArray || false;
-        // var secondPull  = false;
         var jsonData   = secondPull ? jsonObj.withKey : jsonObj.normal;
         var numRows    = jsonData.length;
 
         var indexedColNums = [];
         var nestedVals     = [];
-        var columnTypes    = [];
+        var columnTypes    = []; // track column type
         var childArrayVals = [];
 
         var $table     = $('#xcTable' + tableNum);
         var tBodyHTML  = "";
-        var startIndex = startIndex || 0;
+
+        startIndex = startIndex || 0;
 
         for (var i = 0; i < numCols; i++) {
-            if ((i != dataIndex) && 
-                tableCols[i].func.args && 
-                tableCols[i].func.args != "")
+            if ((i !== dataIndex) &&
+                tableCols[i].func.args &&
+                tableCols[i].func.args !== "")
             {
                 var nested = parseColFuncArgs(tableCols[i].func.args[0]);
                 if (tableCols[i].func.args[0] !== "" &&
@@ -507,15 +510,14 @@ window.ColManager = (function($, ColManager) {
 
                 nestedVals.push(nested);
                 // get the column number of the column the table was indexed on
-                if (tableCols[i].func.args && 
+                if (tableCols[i].func.args &&
                     (tableCols[i].func.args[0] === table.keyName)) {
                     indexedColNums.push(i);
                 }
             } else { // this is the data Column
                 nestedVals.push([""]);
             }
-            // track column type
-            columnTypes.push(undefined);
+
             childArrayVals.push(false);
         }
 
@@ -525,22 +527,24 @@ window.ColManager = (function($, ColManager) {
             var rowNum    = row + startIndex;
 
             tBodyHTML += '<tr class="row' + rowNum + '">';
+
             // add bookmark
             if (table.bookmarks.indexOf(rowNum) > -1) {
                 tBodyHTML += '<td align="center" class="col0 rowBookmarked">';
             } else {
                 tBodyHTML += '<td align="center" class="col0">';
             }
-            // the line marker column
-            tBodyHTML += '<div class="idWrap">'+
-                            '<span class="idSpan" '+
-                                'data-toggle="tooltip" '+
-                                'data-placement="bottom" '+
-                                'data-container="body" '+
-                                'title="click to add bookmark">'+
+
+            // Line Marker Column
+            tBodyHTML += '<div class="idWrap">' +
+                            '<span class="idSpan" ' +
+                                'data-toggle="tooltip" ' +
+                                'data-placement="bottom" ' +
+                                'data-container="body" ' +
+                                'title="click to add bookmark">' +
                                     (rowNum + 1) +
-                            '</span>'+
-                            '<div class="rowGrab"></div>'+
+                            '</span>' +
+                            '<div class="rowGrab"></div>' +
                           '</div></td>';
 
             // loop through table tr's tds
@@ -550,14 +554,14 @@ window.ColManager = (function($, ColManager) {
                 var childOfArray = childArrayVals[col];
 
                 if (col !== dataIndex) {
-                    if (nested == undefined) {
+                    if (nested == null) {
                         console.error('Error this value should not be empty');
                     }
 
                     var nestedLength = nested.length;
                     for (var i = 0; i < nestedLength; i++) {
-                        if (jQuery.isEmptyObject(tdValue) || 
-                            tdValue[nested[i]] == undefined) 
+                        if (jQuery.isEmptyObject(tdValue) ||
+                            tdValue[nested[i]] == null)
                         {
                             tdValue = "";
                             break;
@@ -565,8 +569,9 @@ window.ColManager = (function($, ColManager) {
 
                         tdValue = tdValue[nested[i]];
 
-                        if (!childOfArray && i < nestedLength - 1 && 
-                            xcHelper.isArray(tdValue)) {
+                        if (!childOfArray && i < nestedLength - 1 &&
+                            xcHelper.isArray(tdValue))
+                        {
                             childArrayVals[col] = true;
                         }
                     }
@@ -594,24 +599,24 @@ window.ColManager = (function($, ColManager) {
                         tdClass += " textAlignRight";
                     }
 
-                    tBodyHTML += '<td class="' + tdClass + '">' + 
+                    tBodyHTML += '<td class="' + tdClass + '">' +
                                     '<div class="addedBarTextWrap">' +
                                         '<div class="addedBarText">';
                 } else {
                     // make data td;
-                    tdValue   = jsonData[row];
-                    tBodyHTML += 
-                        '<td class="col' + (col + 1) + ' jsonElement">' + 
-                            '<div data-toggle="tooltip" ' + 
-                                'data-placement="bottom" ' + 
-                                'data-container="body" ' + 
-                                'title="double-click to view" ' + 
-                                'class="elementTextWrap">' + 
+                    tdValue = jsonData[row];
+                    tBodyHTML +=
+                        '<td class="col' + (col + 1) + ' jsonElement">' +
+                            '<div data-toggle="tooltip" ' +
+                                'data-placement="bottom" ' +
+                                'data-container="body" ' +
+                                'title="double-click to view" ' +
+                                'class="elementTextWrap">' +
                                 '<div class="elementText">';
                 }
 
                 //define type of the column
-                columnTypes[col] = xcHelper.parseColType(tdValue, 
+                columnTypes[col] = xcHelper.parseColType(tdValue,
                                                          columnTypes[col]);
                 // XXX This part try to detect edge case of decimal, doese not
                 // need it right now
@@ -642,6 +647,7 @@ window.ColManager = (function($, ColManager) {
         // and redo the pull column thing
         if (!secondPull && columnTypes[indexedColNums[0]] === "array") {
             gTableIndicesLookup[frontName].isSortedArray = true;
+
             for (var i = 0; i < indexedColNums.length; i++) {
                 tableCols[indexedColNums[i]].isSortedArray = true;
             }
@@ -652,7 +658,7 @@ window.ColManager = (function($, ColManager) {
         var $tBody = $(tBodyHTML);
         if (direction === 1) {
             if (rowToPrependTo > -1) {
-                $table.find('.row'+rowToPrependTo).before($tBody);
+                $table.find('.row' + rowToPrependTo).before($tBody);
             } else {
                 $table.find('tbody').prepend($tBody);
             }
@@ -663,11 +669,8 @@ window.ColManager = (function($, ColManager) {
         for (var i = 0; i < numCols; i++) {
             var $currentTh = $table.find('th.col' + (i + 1));
             var $header    = $currentTh.find('> .header');
-            var columnType = columnTypes[i];
+            var columnType = columnTypes[i] || "undefined";
 
-            if (columnType == undefined) {
-                columnType = "undefined";
-            }
             // XXX Fix me if DATA column should not be type object
             if (tableCols[i].name === "DATA") {
                 columnType = "object";
@@ -688,7 +691,7 @@ window.ColManager = (function($, ColManager) {
             $header.addClass('type-' + columnType);
             $header.find('.iconHelper').attr('title', columnType);
 
-            if (tableCols[i].name == "recordNum") {
+            if (tableCols[i].name === "recordNum") {
                 $header.addClass('recordNum');
             }
             if (childArrayVals[i]) {
@@ -700,10 +703,10 @@ window.ColManager = (function($, ColManager) {
         }
 
         return ($tBody);
-    }
+    };
 
     function pullColHelper(key, newColid, tableNum, startIndex, numberOfRows) {
-        if (key != "" & key != undefined) {
+        if (key !== "" & key != null) {
             if (/\\.([0-9])/.test(key)) {
                 // slash followed by dot followed by number is ok
             } else if (/\.([0-9])/.test(key)) {
@@ -714,20 +717,21 @@ window.ColManager = (function($, ColManager) {
 
         var $table   = $("#xcTable" + tableNum);
         var $dataCol = $table.find("tr:first th").filter(function() {
-                return $(this).find("input").val() == "DATA";
+            return $(this).find("input").val() === "DATA";
         });
 
-        var colid         = xcHelper.parseColNum($dataCol);
+        var colid = xcHelper.parseColNum($dataCol);
+
         var numRow        = -1;
         var startingIndex = -1;
-        var endingIndex = -1;
+        var endingIndex   = -1;
 
         if (!startIndex) {
             startingIndex = parseInt($table.find("tbody tr:first")
                                            .attr('class').substring(3));
             numRow = $table.find("tbody tr").length;
             endingIndex = parseInt($table.find("tbody tr:last")
-                                           .attr('class').substring(3))+1;
+                                           .attr('class').substring(3)) + 1;
         } else {
             startingIndex = startIndex;
             numRow = numberOfRows || gNumEntriesPerPage;
@@ -735,24 +739,24 @@ window.ColManager = (function($, ColManager) {
         }
 
         var nested       = parseColFuncArgs(key);
-        var columnType   = undefined;  // track column type
         var childOfArray = false;
+        var columnType;  // track column type, initial is undefined
 
         for (var i = startingIndex; i < endingIndex; i++) {
-            var jsonStr = $table.find('.row'+i+' .col'+colid+' .elementText')
-                                .text();
+            var jsonStr = $table.find('.row' + i + ' .col' +
+                                     colid + ' .elementText').text();
             var value = parseRowJSON(jsonStr);
 
             for (var j = 0; j < nested.length; j++) {
-                if (jQuery.isEmptyObject(value) || 
-                    value[nested[j]] == undefined) 
+                if (jQuery.isEmptyObject(value) ||
+                    value[nested[j]] == null)
                 {
                     value = "";
                     break;
                 }
                 value = value[nested[j]];
 
-                if (!childOfArray && j < nested.length - 1 && 
+                if (!childOfArray && j < nested.length - 1 &&
                     xcHelper.isArray(value)) {
                     childOfArray = true;
                 }
@@ -761,7 +765,7 @@ window.ColManager = (function($, ColManager) {
             //define type of the column
             columnType = xcHelper.parseColType(value, columnType);
             // if (columnType === "integer" || columnType === "decimal") {
-            //     var str = '"' + gTables[tableNum].tableCols[newColid - 1].name 
+            //     var str = '"' + gTables[tableNum].tableCols[newColid - 1].name
             //                 + '":' + value;
             //     var index = jsonStr.indexOf(str) + str.length;
             //     var next = jsonStr.charAt(index);
@@ -774,13 +778,13 @@ window.ColManager = (function($, ColManager) {
             // }
 
             value = xcHelper.parseJsonValue(value);
-            value = '<div class="addedBarTextWrap">' + 
-                        '<div class="addedBarText">' + value + '</div>' + 
+            value = '<div class="addedBarTextWrap">' +
+                        '<div class="addedBarText">' + value + '</div>' +
                     '</div>';
-            $table.find('.row'+i+' .col'+newColid).html(value);
+            $table.find('.row' + i + ' .col' + newColid).html(value);
         }
 
-        if (columnType == undefined) {
+        if (columnType === undefined) {
             columnType = "undefined";
         }
 
@@ -803,7 +807,7 @@ window.ColManager = (function($, ColManager) {
         $header.addClass('type-' + columnType);
         $header.find('.iconHelper').attr('title', columnType);
 
-        if (key == "recordNum") {
+        if (key === "recordNum") {
             $header.addClass('recordNum');
         }
         if (childOfArray) {
@@ -830,7 +834,7 @@ window.ColManager = (function($, ColManager) {
     function parseRowJSON(jsonStr) {
         var value;
 
-        if (jsonStr == "") {
+        if (jsonStr === "") {
             // console.error("Error in pullCol, jsonStr is empty");
             value = "";
         } else {
@@ -906,12 +910,13 @@ window.ColManager = (function($, ColManager) {
     }
 
     function parsePullColArgs(progCol) {
-        if (progCol.func.func != "pull") {
-            console.log("Wrong function!");
+        if (progCol.func.func !== "pull") {
+            console.warn("Wrong function!");
             return (false);
         }
-        if (progCol.func.args.length != 1) {
-            console.log("Wrong number of arguments!");
+
+        if (progCol.func.args.length !== 1) {
+            console.warn("Wrong number of arguments!");
             return (false);
         }
         return (true);

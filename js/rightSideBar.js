@@ -455,7 +455,6 @@ window.RightSideBar = (function($, RightSideBar) {
         $("#udf-fileUpload").click(function() {
             var file = $inputFile[0].files[0];
             var path = file.name;
-            console.log(path, file);
             var moduleName = path.substring(0, path.indexOf("."));
             if (path === "") {
                 var text = "File Path is empty," +
@@ -465,9 +464,9 @@ window.RightSideBar = (function($, RightSideBar) {
             } else {
                 var reader = new FileReader();
                 reader.onload = function(event) {
-                    console.log(event.target.result);
+                    // console.log(event.target.result);
                     var wholeFile = event.target.result;
-                    functionName = findFunctionName(wholeFile); 
+                    functionName = findFunctionName(wholeFile);
                     if (functionName === "") {
                         functionName = moduleName;
                         console.log("XXX no function definition");
@@ -540,7 +539,7 @@ window.RightSideBar = (function($, RightSideBar) {
                     // This is the function definition
                     var regex = new RegExp('def *([^( ]*)', "g");
                     var matches = regex.exec(line);
-                    return(matches[1]);
+                    return (matches[1]);
                 }
             }
             return "";
@@ -857,7 +856,6 @@ window.RightSideBar = (function($, RightSideBar) {
     }
 
     function popOutModal($rightSideBar) {
-        console.log('popping out');
         $rightSideBar.addClass('poppedOut');
         $('#rightSideBarBtns').appendTo($rightSideBar);
         $rightSideBar.find('.popOut')

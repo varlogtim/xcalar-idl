@@ -1,7 +1,7 @@
-var mode = SPMode.Normal; 
+var mode = SPMode.Normal;
 var equations = [];
 var affectedCells = [];
-var focusedCell = undefined;
+var focusedCell;
 
 function scratchpadStartup() {
     generateScratchpad(20, 4);
@@ -10,7 +10,7 @@ function scratchpadStartup() {
 }
 
 function attachScratchpadEmptySpaceListeners() {
-    $(".scratchpad").mouseup(function(e) {
+    $(".scratchpad").mouseup(function() {
         if (document.activeElement.tagName !== "INPUT") {
             switch (mode) {
             case (SPMode.Selected):
@@ -31,14 +31,14 @@ function attachScratchpadEmptySpaceListeners() {
 function generateScratchpad(row, col) {
     $("#scratchpadTitle").attr("colspan", col);
     var spHTML = "";
-    for (var i = 0; i<row; i++) {
-        spHTML += ("<tr class=row"+i+">");
+    for (var i = 0; i < row; i++) {
+        spHTML += ("<tr class=row" + i + ">");
         equations[i] = [];
         affectedCells[i] = [];
-        for (var j = 0; j<col; j++) {
+        for (var j = 0; j < col; j++) {
             equations[i][j] = "";
-             affectedCells[i][j] = [];
-            spHTML += "<td class=col"+j+">";
+            affectedCells[i][j] = [];
+            spHTML += "<td class=col" + j + ">";
             spHTML += "<input class='editableHead' type='text'></input>";
             spHTML += "</td>";
         }
@@ -48,13 +48,13 @@ function generateScratchpad(row, col) {
 }
 
 function attachCellListeners() {
-     $(".scratchpad .editableHead").each(function() {
-         $(this).keyup(function(e) {
-             cellKeyUpListener(e);
-         });
-         $(this).mousedown(function(e) {
-             cellMouseDownListener($(this), e);
-         });
+    $(".scratchpad .editableHead").each(function() {
+        $(this).keyup(function(e) {
+            cellKeyUpListener(e);
+        });
+        $(this).mousedown(function(e) {
+            cellMouseDownListener($(this), e);
+        });
     });
     $("#functionBar").keyup(function(e) {
         barKeyUpListener(e);
@@ -74,7 +74,7 @@ function cellKeyUpListener(e) {
         mode = SPMode.Type;
         switch (e.which) {
         case (keyCode.Equal):
-            if (focusedCell.val().indexOf("=") == 0) {
+            if (focusedCell.val().indexOf("=") === 0) {
                 mode = SPMode.Equation;
             }
             break;
@@ -92,7 +92,7 @@ function cellKeyUpListener(e) {
             reevaluateAffectedCells();
             break;
         default:
-            if (focusedCell.val().indexOf("=") != 0) {
+            if (focusedCell.val().indexOf("=") !== 0) {
                 deEquationCell();
             }
         }
@@ -104,7 +104,7 @@ function cellKeyUpListener(e) {
             focusedCell.blur();
             break;
         case (keyCode.Equal):
-            if (focusedCell.val().indexOf("=") == 0) {
+            if (focusedCell.val().indexOf("=") === 0) {
                 mode = SPMode.Equation;
             }
             break;
@@ -145,22 +145,23 @@ function changeAffectedCells(action) {
     var cellCol = focusedCell.parent().attr("class");
     var affected = affectedCells[parseInt(cellRow.substring(3))]
                                 [parseInt(cellCol.substring(3))];
-    for (var i = 0; i<affected.length; i++) {
+    for (var i = 0; i < affected.length; i++) {
         var temp1 = affected[i].indexOf("col");
         var affectedRow = parseInt(affected[i].substring(3, temp1));
-        var affectedCol = parseInt(affected[i].substring(temp1+3))
-        if (action == AffectedEntryAction.DelConnected ||
-            action == AffectedEntryAction.DelConnectedRemoveEntry) {
-            $(".scratchpad .row"+affectedRow+" .col"+affectedCol+
+        var affectedCol = parseInt(affected[i].substring(temp1 + 3));
+
+        if (action === AffectedEntryAction.DelConnected ||
+            action === AffectedEntryAction.DelConnectedRemoveEntry) {
+            $(".scratchpad .row" + affectedRow + " .col" + affectedCol +
               " .editableHead").removeClass("connected");
-        } else if (action == AffectedEntryAction.AddConnected) {
-            $(".scratchpad .row"+affectedRow+" .col"+affectedCol+
+        } else if (action === AffectedEntryAction.AddConnected) {
+            $(".scratchpad .row" + affectedRow + " .col" + affectedCol +
               " .editableHead").addClass("connected");
         } else {
-            console.log("XXX Illegal action!"+action);
+            console.log("XXX Illegal action!", action);
         }
     }
-    if (action == AffectedEntryAction.DelConnectedRemoveEntry) {
+    if (action === AffectedEntryAction.DelConnectedRemoveEntry) {
         affectedCells[parseInt(cellRow.substring(3))]
                      [parseInt(cellCol.substring(3))] = [];
     }
@@ -169,16 +170,16 @@ function changeAffectedCells(action) {
 function replaceValuesInEvalString(str, row, col) {
     // XXX: TODO: Over here, add all the aggr functions!
     affectedCells[row][col] = [];
-    while (str.indexOf("row") != -1) {
+    while (str.indexOf("row") !== -1) {
         var regExp = /(row\d*col\d*)/;
         var matches = regExp.exec(str);
         var regExp2 = /row(\d*)col(\d*)/;
         var matches2 = regExp2.exec(matches[1]);
         var cellRow = matches2[1];
         var cellCol = matches2[2];
-        var cellVal = $(".scratchpad .row"+cellRow+" .col"+cellCol
-                      +" .editableHead").val();
-        if (cellVal == "") {
+        var cellVal = $(".scratchpad .row" + cellRow + " .col" + cellCol +
+                        " .editableHead").val();
+        if (cellVal === "") {
             cellVal = "(0)";
         }
         str = str.replace(matches[1], cellVal);
@@ -188,8 +189,8 @@ function replaceValuesInEvalString(str, row, col) {
 }
 
 function executeFunction(action) {
-    if (mode != SPMode.Equation && action == ExecuteAction.Eval) {
-        console.log("XXX Wrong mode!"+mode);
+    if (mode !== SPMode.Equation && action === ExecuteAction.Eval) {
+        console.log("XXX Wrong mode!" + mode);
         return;
     }
     
@@ -198,18 +199,20 @@ function executeFunction(action) {
         var cellCol = focusedCell.parent().attr("class");
         var row = parseInt(cellRow.substring(3));
         var col = parseInt(cellCol.substring(3));
-        if (action == ExecuteAction.Eval) {
-            var evalString = replaceValuesInEvalString(
+        var evalString;
+
+        if (action === ExecuteAction.Eval) {
+            evalString = replaceValuesInEvalString(
                                 focusedCell.val().substring(1),
                                 row, col);
         } else {
-            var evalString = replaceValuesInEvalString(
+            evalString = replaceValuesInEvalString(
                                 equations[row][col].substring(1),
                                 row, col);
         }
         console.log(evalString);
         var value = eval(evalString);
-        if (action == ExecuteAction.Eval) {
+        if (action === ExecuteAction.Eval) {
             equations[row][col] = focusedCell.val();
         }
         focusedCell.val(value);
@@ -227,11 +230,13 @@ function deEquationCell() {
         console.log("XXX No focused cell to deEquation!");
         return;
     }
-    if (mode != SPMode.Equation) {
-        console.log("XXX Wrong mode!"+mode);
+
+    if (mode !== SPMode.Equation) {
+        console.log("XXX Wrong mode!" + mode);
         return;
     }
-    if (focusedCell.val().indexOf("=") == 0) {
+
+    if (focusedCell.val().indexOf("=") === 0) {
         console.log("Still should be in equation mode");
         return;
     } else {
@@ -250,14 +255,14 @@ function reevaluateAffectedCells() {
     var numCols = affectedCells[0].length;
     var currRow = focusedCell.parent().parent().attr("class");
     var currCol = focusedCell.parent().attr("class");
-    var cellName = currRow+currCol;
+    var cellName = currRow + currCol;
     var oldFocusedCell = focusedCell;
     console.log(cellName);
     var rerun = false;
     var numEqns = 0;
-    for (var i = 0; i<numRows; i++) {
-        for (var j = 0; j<numCols; j++) {
-            if (equations[i][j] != "") {
+    for (var i = 0; i < numRows; i++) {
+        for (var j = 0; j < numCols; j++) {
+            if (equations[i][j] !== "") {
                 numEqns++;
             }
         }
@@ -273,20 +278,20 @@ function reevaluateAffectedCells() {
             break;
         }
         rerun = false;
-        for (var i = 0; i<numRows; i++) {
-            for (var j = 0; j<numCols; j++) {
-                if (equations[i][j] != "") {
-                        focusedCell = $(".scratchpad .row"+i+" .col"+j+
-                                        " .editableHead");
-                        var oldValue = focusedCell.val();
-                        executeFunction(ExecuteAction.Update);
-                        changeAffectedCells(AffectedEntryAction.DelConnected);
-                        var newValue = focusedCell.val();
-                        if (oldValue != newValue) {
-                            // Reeval everything
-                            // XXX Use more efficient method
-                            rerun = true;
-                        }
+        for (var i = 0; i < numRows; i++) {
+            for (var j = 0; j < numCols; j++) {
+                if (equations[i][j] !== "") {
+                    focusedCell = $(".scratchpad .row" + i + " .col" + j +
+                                    " .editableHead");
+                    var oldValue = focusedCell.val();
+                    executeFunction(ExecuteAction.Update);
+                    changeAffectedCells(AffectedEntryAction.DelConnected);
+                    var newValue = focusedCell.val();
+                    if (oldValue !== newValue) {
+                        // Reeval everything
+                        // XXX Use more efficient method
+                        rerun = true;
+                    }
                 }
             }
         }
@@ -300,7 +305,7 @@ function cellMouseDownListener(cell, e) {
     case (SPMode.Normal):
         mode = SPMode.Selected;
         // Fall through
-    case (SPMode.Selected): 
+    case (SPMode.Selected):
         changeAffectedCells(AffectedEntryAction.DelConnected);
         focusedCell = cell;
         changeAffectedCells(AffectedEntryAction.AddConnected);
@@ -309,8 +314,8 @@ function cellMouseDownListener(cell, e) {
         if (cell.get(0) !== focusedCell.get(0)) {
             var oldROProp = cell.prop("readonly");
             cell.prop("readonly", true);
-            focusedCell.val(focusedCell.val() + 
-                            cell.parent().parent().attr("class")+
+            focusedCell.val(focusedCell.val() +
+                            cell.parent().parent().attr("class") +
                             cell.parent().attr("class"));
             focusedCell.click();
             e.preventDefault();
@@ -318,15 +323,14 @@ function cellMouseDownListener(cell, e) {
         }
         break;
     case (SPMode.Type):
-        if (cell.get(0) === focusedCell.get(0)) {
-        } else {
+        if (cell.get(0) !== focusedCell.get(0)) {
             focusedCell = cell;
             changeAffectedCells(AffectedEntryAction.AddConnected);
         }
         mode = SPMode.Selected;
         break;
     default:
-        console.log("Illegal mode!"+mode);
+        console.log("Illegal mode!" + mode);
     }
 }
 
@@ -336,18 +340,18 @@ function barKeyUpListener(e) {
         $("#functionBar").blur();
         return;
     }
-    switch(mode) {
-    case (SPMode.Normal):
-        console.log("XXX FocusedCell non null but mode is normal");
-        return;
-    case (SPMode.Selected):
-    case (SPMode.Equation):
-    case (SPMode.Type):
-        focusedCell.trigger("keyup", {keyCode: e.which});
-        focusedCell.val(focusedCell.val()+String.fromCharCode(e.which)); 
-        break;
-    default:
-        console.log("XXX Illegal mode."+mode);
+    switch (mode) {
+        case (SPMode.Normal):
+            console.log("XXX FocusedCell non null but mode is normal");
+            return;
+        case (SPMode.Selected):
+        case (SPMode.Equation):
+        case (SPMode.Type):
+            focusedCell.trigger("keyup", {keyCode: e.which});
+            focusedCell.val(focusedCell.val() + String.fromCharCode(e.which));
+            break;
+        default:
+            console.log("XXX Illegal mode." + mode);
     }
 }
 

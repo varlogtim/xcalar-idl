@@ -175,13 +175,15 @@ window.xcFunction = (function ($, xcFunction) {
         var tablCols  = xcHelper.deepCopy(table.tableCols);
         var pCol      = table.tableCols[colNum - 1];
 
-        if (!isTable) {
-            var newTableName = table.backTableName;
-        } else {
-            var newTableName = xcHelper.randName("tempSortTable-");
-        }
+        var newTableName;
         var backFieldName;
         var frontFieldName;
+
+        if (!isTable) {
+            newTableName = table.backTableName;
+        } else {
+            newTableName = xcHelper.randName("tempSortTable-");
+        }
 
         switch (pCol.func.func) {
             case ("pull"):
@@ -194,7 +196,6 @@ window.xcFunction = (function ($, xcFunction) {
                               "from unsupported func");
                 return;
         }
-
 
         var direction = (order === SortDirection.Forward) ? "ASC" : "DESC";
         var msg       = StatusMessageTStr.Sort + " " + frontFieldName;
@@ -363,7 +364,7 @@ window.xcFunction = (function ($, xcFunction) {
                 "index"   : 1,
                 "name"    : newColName,
                 "width"   : gNewCellWidth,
-                "isNewCol"  : false,
+                "isNewCol": false,
                 "userStr" : '"' + newColName + '" = pull(' + escapedName + ')',
                 "func"    : {
                     "func": "pull",
@@ -371,7 +372,7 @@ window.xcFunction = (function ($, xcFunction) {
                 }
             });
 
-            var dataColNum = xcHelper.parseColNum($('#xcTable'+tableNum)
+            var dataColNum = xcHelper.parseColNum($('#xcTable' + tableNum)
                                                  .find('th.dataCol')) - 1;
             var tablCols = [];
             tablCols[0] = newProgCol;
@@ -535,14 +536,14 @@ window.xcFunction = (function ($, xcFunction) {
             // XXX In the future,we can check if there are other tables that
             // are indexed on this key. But for now, we reindex a new table
            
-            var isTable      = table.isTable;
-            var srcName      = isTable ?
-                                    backTableName :
+            var isTable = table.isTable;
+            var srcName = isTable ? backTableName :
                                     gTableIndicesLookup[frontName].datasetName;
+            var newTableName;
             if (!isTable) {
-                var newTableName = backTableName;
+                newTableName = backTableName;
             } else {
-                var newTableName = xcHelper.randName(backTableName);
+                newTableName = xcHelper.randName(backTableName);
             }
 
             getIndexedTable(srcName, colName, newTableName, isTable)
