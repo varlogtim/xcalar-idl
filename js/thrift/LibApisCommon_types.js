@@ -2351,6 +2351,72 @@ XcalarApiEditColInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiRenameNodeInputT = function(args) {
+  this.oldName = null;
+  this.newName = null;
+  if (args) {
+    if (args.oldName !== undefined) {
+      this.oldName = args.oldName;
+    }
+    if (args.newName !== undefined) {
+      this.newName = args.newName;
+    }
+  }
+};
+XcalarApiRenameNodeInputT.prototype = {};
+XcalarApiRenameNodeInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.oldName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.newName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiRenameNodeInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiRenameNodeInputT');
+  if (this.oldName !== null && this.oldName !== undefined) {
+    output.writeFieldBegin('oldName', Thrift.Type.STRING, 1);
+    output.writeString(this.oldName);
+    output.writeFieldEnd();
+  }
+  if (this.newName !== null && this.newName !== undefined) {
+    output.writeFieldBegin('newName', Thrift.Type.STRING, 2);
+    output.writeString(this.newName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiResultSetNextInputT = function(args) {
   this.resultSetId = null;
   this.numRecords = null;
@@ -3741,10 +3807,10 @@ XcalarApiMapInputT.prototype.write = function(output) {
 };
 
 XcalarApiQueryStateInputT = function(args) {
-  this.queryId = null;
+  this.queryName = null;
   if (args) {
-    if (args.queryId !== undefined) {
-      this.queryId = args.queryId;
+    if (args.queryName !== undefined) {
+      this.queryName = args.queryName;
     }
   }
 };
@@ -3763,8 +3829,8 @@ XcalarApiQueryStateInputT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.I64) {
-        this.queryId = input.readI64().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.queryName = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -3783,9 +3849,9 @@ XcalarApiQueryStateInputT.prototype.read = function(input) {
 
 XcalarApiQueryStateInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiQueryStateInputT');
-  if (this.queryId !== null && this.queryId !== undefined) {
-    output.writeFieldBegin('queryId', Thrift.Type.I64, 1);
-    output.writeI64(this.queryId);
+  if (this.queryName !== null && this.queryName !== undefined) {
+    output.writeFieldBegin('queryName', Thrift.Type.STRING, 1);
+    output.writeString(this.queryName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -4534,8 +4600,8 @@ XcalarApiBulkDeleteTablesOutputT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.numTables = input.readI32().value;
+      if (ftype == Thrift.Type.I64) {
+        this.numTables = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -4580,8 +4646,8 @@ XcalarApiBulkDeleteTablesOutputT.prototype.read = function(input) {
 XcalarApiBulkDeleteTablesOutputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiBulkDeleteTablesOutputT');
   if (this.numTables !== null && this.numTables !== undefined) {
-    output.writeFieldBegin('numTables', Thrift.Type.I32, 1);
-    output.writeI32(this.numTables);
+    output.writeFieldBegin('numTables', Thrift.Type.I64, 1);
+    output.writeI64(this.numTables);
     output.writeFieldEnd();
   }
   if (this.status !== null && this.status !== undefined) {
@@ -4742,17 +4808,13 @@ XcalarApiGetTableRefCountOutputT.prototype.write = function(output) {
 
 XcalarApiQueryOutputT = function(args) {
   this.status = null;
-  this.queryId = null;
-  this.nodeId = null;
+  this.queryName = null;
   if (args) {
     if (args.status !== undefined) {
       this.status = args.status;
     }
-    if (args.queryId !== undefined) {
-      this.queryId = args.queryId;
-    }
-    if (args.nodeId !== undefined) {
-      this.nodeId = args.nodeId;
+    if (args.queryName !== undefined) {
+      this.queryName = args.queryName;
     }
   }
 };
@@ -4778,15 +4840,8 @@ XcalarApiQueryOutputT.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.I64) {
-        this.queryId = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.I64) {
-        this.nodeId = input.readI64().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.queryName = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -4807,14 +4862,9 @@ XcalarApiQueryOutputT.prototype.write = function(output) {
     output.writeI32(this.status);
     output.writeFieldEnd();
   }
-  if (this.queryId !== null && this.queryId !== undefined) {
-    output.writeFieldBegin('queryId', Thrift.Type.I64, 2);
-    output.writeI64(this.queryId);
-    output.writeFieldEnd();
-  }
-  if (this.nodeId !== null && this.nodeId !== undefined) {
-    output.writeFieldBegin('nodeId', Thrift.Type.I64, 3);
-    output.writeI64(this.nodeId);
+  if (this.queryName !== null && this.queryName !== undefined) {
+    output.writeFieldBegin('queryName', Thrift.Type.STRING, 2);
+    output.writeString(this.queryName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -5560,6 +5610,417 @@ XcalarApiTopOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiMemoryInputT = function(args) {
+  this.tagName = null;
+  if (args) {
+    if (args.tagName !== undefined) {
+      this.tagName = args.tagName;
+    }
+  }
+};
+XcalarApiMemoryInputT.prototype = {};
+XcalarApiMemoryInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.tagName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiMemoryInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiMemoryInputT');
+  if (this.tagName !== null && this.tagName !== undefined) {
+    output.writeFieldBegin('tagName', Thrift.Type.STRING, 1);
+    output.writeString(this.tagName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiMemoryUsagePerTagT = function(args) {
+  this.memUsageInBytes = null;
+  this.tagName = null;
+  this.locName = null;
+  if (args) {
+    if (args.memUsageInBytes !== undefined) {
+      this.memUsageInBytes = args.memUsageInBytes;
+    }
+    if (args.tagName !== undefined) {
+      this.tagName = args.tagName;
+    }
+    if (args.locName !== undefined) {
+      this.locName = args.locName;
+    }
+  }
+};
+XcalarApiMemoryUsagePerTagT.prototype = {};
+XcalarApiMemoryUsagePerTagT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.memUsageInBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.tagName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.locName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiMemoryUsagePerTagT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiMemoryUsagePerTagT');
+  if (this.memUsageInBytes !== null && this.memUsageInBytes !== undefined) {
+    output.writeFieldBegin('memUsageInBytes', Thrift.Type.I64, 1);
+    output.writeI64(this.memUsageInBytes);
+    output.writeFieldEnd();
+  }
+  if (this.tagName !== null && this.tagName !== undefined) {
+    output.writeFieldBegin('tagName', Thrift.Type.STRING, 2);
+    output.writeString(this.tagName);
+    output.writeFieldEnd();
+  }
+  if (this.locName !== null && this.locName !== undefined) {
+    output.writeFieldBegin('locName', Thrift.Type.STRING, 3);
+    output.writeString(this.locName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiMemoryUsagePerNodeT = function(args) {
+  this.nodeId = null;
+  this.numTags = null;
+  this.memOutputPerTag = null;
+  if (args) {
+    if (args.nodeId !== undefined) {
+      this.nodeId = args.nodeId;
+    }
+    if (args.numTags !== undefined) {
+      this.numTags = args.numTags;
+    }
+    if (args.memOutputPerTag !== undefined) {
+      this.memOutputPerTag = args.memOutputPerTag;
+    }
+  }
+};
+XcalarApiMemoryUsagePerNodeT.prototype = {};
+XcalarApiMemoryUsagePerNodeT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I64) {
+        this.nodeId = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.numTags = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.LIST) {
+        var _size120 = 0;
+        var _rtmp3124;
+        this.memOutputPerTag = [];
+        var _etype123 = 0;
+        _rtmp3124 = input.readListBegin();
+        _etype123 = _rtmp3124.etype;
+        _size120 = _rtmp3124.size;
+        for (var _i125 = 0; _i125 < _size120; ++_i125)
+        {
+          var elem126 = null;
+          elem126 = new XcalarApiMemoryUsagePerTagT();
+          elem126.read(input);
+          this.memOutputPerTag.push(elem126);
+        }
+        input.readListEnd();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiMemoryUsagePerNodeT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiMemoryUsagePerNodeT');
+  if (this.nodeId !== null && this.nodeId !== undefined) {
+    output.writeFieldBegin('nodeId', Thrift.Type.I64, 1);
+    output.writeI64(this.nodeId);
+    output.writeFieldEnd();
+  }
+  if (this.numTags !== null && this.numTags !== undefined) {
+    output.writeFieldBegin('numTags', Thrift.Type.I64, 2);
+    output.writeI64(this.numTags);
+    output.writeFieldEnd();
+  }
+  if (this.memOutputPerTag !== null && this.memOutputPerTag !== undefined) {
+    output.writeFieldBegin('memOutputPerTag', Thrift.Type.LIST, 3);
+    output.writeListBegin(Thrift.Type.STRUCT, this.memOutputPerTag.length);
+    for (var iter127 in this.memOutputPerTag)
+    {
+      if (this.memOutputPerTag.hasOwnProperty(iter127))
+      {
+        iter127 = this.memOutputPerTag[iter127];
+        iter127.write(output);
+      }
+    }
+    output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiMemoryOutputT = function(args) {
+  this.status = null;
+  this.numNodes = null;
+  this.memOutputPerNode = null;
+  if (args) {
+    if (args.status !== undefined) {
+      this.status = args.status;
+    }
+    if (args.numNodes !== undefined) {
+      this.numNodes = args.numNodes;
+    }
+    if (args.memOutputPerNode !== undefined) {
+      this.memOutputPerNode = args.memOutputPerNode;
+    }
+  }
+};
+XcalarApiMemoryOutputT.prototype = {};
+XcalarApiMemoryOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I32) {
+        this.status = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.numNodes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.LIST) {
+        var _size128 = 0;
+        var _rtmp3132;
+        this.memOutputPerNode = [];
+        var _etype131 = 0;
+        _rtmp3132 = input.readListBegin();
+        _etype131 = _rtmp3132.etype;
+        _size128 = _rtmp3132.size;
+        for (var _i133 = 0; _i133 < _size128; ++_i133)
+        {
+          var elem134 = null;
+          elem134 = new XcalarApiMemoryUsagePerNodeT();
+          elem134.read(input);
+          this.memOutputPerNode.push(elem134);
+        }
+        input.readListEnd();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiMemoryOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiMemoryOutputT');
+  if (this.status !== null && this.status !== undefined) {
+    output.writeFieldBegin('status', Thrift.Type.I32, 1);
+    output.writeI32(this.status);
+    output.writeFieldEnd();
+  }
+  if (this.numNodes !== null && this.numNodes !== undefined) {
+    output.writeFieldBegin('numNodes', Thrift.Type.I64, 2);
+    output.writeI64(this.numNodes);
+    output.writeFieldEnd();
+  }
+  if (this.memOutputPerNode !== null && this.memOutputPerNode !== undefined) {
+    output.writeFieldBegin('memOutputPerNode', Thrift.Type.LIST, 3);
+    output.writeListBegin(Thrift.Type.STRUCT, this.memOutputPerNode.length);
+    for (var iter135 in this.memOutputPerNode)
+    {
+      if (this.memOutputPerNode.hasOwnProperty(iter135))
+      {
+        iter135 = this.memOutputPerNode[iter135];
+        iter135.write(output);
+      }
+    }
+    output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiQueryInputT = function(args) {
+  this.queryName = null;
+  this.queryStr = null;
+  if (args) {
+    if (args.queryName !== undefined) {
+      this.queryName = args.queryName;
+    }
+    if (args.queryStr !== undefined) {
+      this.queryStr = args.queryStr;
+    }
+  }
+};
+XcalarApiQueryInputT.prototype = {};
+XcalarApiQueryInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.queryName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.queryStr = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiQueryInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiQueryInputT');
+  if (this.queryName !== null && this.queryName !== undefined) {
+    output.writeFieldBegin('queryName', Thrift.Type.STRING, 1);
+    output.writeString(this.queryName);
+    output.writeFieldEnd();
+  }
+  if (this.queryStr !== null && this.queryStr !== undefined) {
+    output.writeFieldBegin('queryStr', Thrift.Type.STRING, 2);
+    output.writeString(this.queryStr);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiInputT = function(args) {
   this.loadInput = null;
   this.indexInput = null;
@@ -5600,6 +6061,8 @@ XcalarApiInputT = function(args) {
   this.shutdownInput = null;
   this.listXdfsInput = null;
   this.uploadPythonInput = null;
+  this.renameNodeInput = null;
+  this.memoryInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -5717,6 +6180,12 @@ XcalarApiInputT = function(args) {
     }
     if (args.uploadPythonInput !== undefined) {
       this.uploadPythonInput = args.uploadPythonInput;
+    }
+    if (args.renameNodeInput !== undefined) {
+      this.renameNodeInput = args.renameNodeInput;
+    }
+    if (args.memoryInput !== undefined) {
+      this.memoryInput = args.memoryInput;
     }
   }
 };
@@ -5853,8 +6322,9 @@ XcalarApiInputT.prototype.read = function(input) {
       }
       break;
       case 17:
-      if (ftype == Thrift.Type.STRING) {
-        this.queryInput = input.readString().value;
+      if (ftype == Thrift.Type.STRUCT) {
+        this.queryInput = new XcalarApiQueryInputT();
+        this.queryInput.read(input);
       } else {
         input.skip(ftype);
       }
@@ -6036,6 +6506,22 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 41:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.renameNodeInput = new XcalarApiRenameNodeInputT();
+        this.renameNodeInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 42:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.memoryInput = new XcalarApiMemoryInputT();
+        this.memoryInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -6123,8 +6609,8 @@ XcalarApiInputT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.queryInput !== null && this.queryInput !== undefined) {
-    output.writeFieldBegin('queryInput', Thrift.Type.STRING, 17);
-    output.writeString(this.queryInput);
+    output.writeFieldBegin('queryInput', Thrift.Type.STRUCT, 17);
+    this.queryInput.write(output);
     output.writeFieldEnd();
   }
   if (this.destroyDsInput !== null && this.destroyDsInput !== undefined) {
@@ -6242,16 +6728,84 @@ XcalarApiInputT.prototype.write = function(output) {
     this.uploadPythonInput.write(output);
     output.writeFieldEnd();
   }
+  if (this.renameNodeInput !== null && this.renameNodeInput !== undefined) {
+    output.writeFieldBegin('renameNodeInput', Thrift.Type.STRUCT, 41);
+    this.renameNodeInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.memoryInput !== null && this.memoryInput !== undefined) {
+    output.writeFieldBegin('memoryInput', Thrift.Type.STRUCT, 42);
+    this.memoryInput.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiDagNameT = function(args) {
+  this.name = null;
+  if (args) {
+    if (args.name !== undefined) {
+      this.name = args.name;
+    }
+  }
+};
+XcalarApiDagNameT.prototype = {};
+XcalarApiDagNameT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.name = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiDagNameT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiDagNameT');
+  if (this.name !== null && this.name !== undefined) {
+    output.writeFieldBegin('name', Thrift.Type.STRING, 1);
+    output.writeString(this.name);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
 };
 
 XcalarApiDagNodeT = function(args) {
+  this.name = null;
   this.dagNodeId = null;
   this.api = null;
   this.input = null;
+  this.state = null;
   if (args) {
+    if (args.name !== undefined) {
+      this.name = args.name;
+    }
     if (args.dagNodeId !== undefined) {
       this.dagNodeId = args.dagNodeId;
     }
@@ -6260,6 +6814,9 @@ XcalarApiDagNodeT = function(args) {
     }
     if (args.input !== undefined) {
       this.input = args.input;
+    }
+    if (args.state !== undefined) {
+      this.state = args.state;
     }
   }
 };
@@ -6278,23 +6835,38 @@ XcalarApiDagNodeT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.name = new XcalarApiDagNameT();
+        this.name.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
       if (ftype == Thrift.Type.I64) {
         this.dagNodeId = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 2:
+      case 3:
       if (ftype == Thrift.Type.I32) {
         this.api = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 3:
+      case 4:
       if (ftype == Thrift.Type.STRUCT) {
         this.input = new XcalarApiInputT();
         this.input.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.I32) {
+        this.state = input.readI32().value;
       } else {
         input.skip(ftype);
       }
@@ -6310,19 +6882,29 @@ XcalarApiDagNodeT.prototype.read = function(input) {
 
 XcalarApiDagNodeT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiDagNodeT');
+  if (this.name !== null && this.name !== undefined) {
+    output.writeFieldBegin('name', Thrift.Type.STRUCT, 1);
+    this.name.write(output);
+    output.writeFieldEnd();
+  }
   if (this.dagNodeId !== null && this.dagNodeId !== undefined) {
-    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 1);
+    output.writeFieldBegin('dagNodeId', Thrift.Type.I64, 2);
     output.writeI64(this.dagNodeId);
     output.writeFieldEnd();
   }
   if (this.api !== null && this.api !== undefined) {
-    output.writeFieldBegin('api', Thrift.Type.I32, 2);
+    output.writeFieldBegin('api', Thrift.Type.I32, 3);
     output.writeI32(this.api);
     output.writeFieldEnd();
   }
   if (this.input !== null && this.input !== undefined) {
-    output.writeFieldBegin('input', Thrift.Type.STRUCT, 3);
+    output.writeFieldBegin('input', Thrift.Type.STRUCT, 4);
     this.input.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.state !== null && this.state !== undefined) {
+    output.writeFieldBegin('state', Thrift.Type.I32, 5);
+    output.writeI32(this.state);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -6376,19 +6958,19 @@ XcalarApiDagOutputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size120 = 0;
-        var _rtmp3124;
+        var _size136 = 0;
+        var _rtmp3140;
         this.node = [];
-        var _etype123 = 0;
-        _rtmp3124 = input.readListBegin();
-        _etype123 = _rtmp3124.etype;
-        _size120 = _rtmp3124.size;
-        for (var _i125 = 0; _i125 < _size120; ++_i125)
+        var _etype139 = 0;
+        _rtmp3140 = input.readListBegin();
+        _etype139 = _rtmp3140.etype;
+        _size136 = _rtmp3140.size;
+        for (var _i141 = 0; _i141 < _size136; ++_i141)
         {
-          var elem126 = null;
-          elem126 = new XcalarApiDagNodeT();
-          elem126.read(input);
-          this.node.push(elem126);
+          var elem142 = null;
+          elem142 = new XcalarApiDagNodeT();
+          elem142.read(input);
+          this.node.push(elem142);
         }
         input.readListEnd();
       } else {
@@ -6419,12 +7001,12 @@ XcalarApiDagOutputT.prototype.write = function(output) {
   if (this.node !== null && this.node !== undefined) {
     output.writeFieldBegin('node', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRUCT, this.node.length);
-    for (var iter127 in this.node)
+    for (var iter143 in this.node)
     {
-      if (this.node.hasOwnProperty(iter127))
+      if (this.node.hasOwnProperty(iter143))
       {
-        iter127 = this.node[iter127];
-        iter127.write(output);
+        iter143 = this.node[iter143];
+        iter143.write(output);
       }
     }
     output.writeListEnd();
@@ -6602,19 +7184,19 @@ XcalarApiListRetinasOutputT.prototype.read = function(input) {
       break;
       case 3:
       if (ftype == Thrift.Type.LIST) {
-        var _size128 = 0;
-        var _rtmp3132;
+        var _size144 = 0;
+        var _rtmp3148;
         this.retinaDescs = [];
-        var _etype131 = 0;
-        _rtmp3132 = input.readListBegin();
-        _etype131 = _rtmp3132.etype;
-        _size128 = _rtmp3132.size;
-        for (var _i133 = 0; _i133 < _size128; ++_i133)
+        var _etype147 = 0;
+        _rtmp3148 = input.readListBegin();
+        _etype147 = _rtmp3148.etype;
+        _size144 = _rtmp3148.size;
+        for (var _i149 = 0; _i149 < _size144; ++_i149)
         {
-          var elem134 = null;
-          elem134 = new XcalarApiRetinaDescT();
-          elem134.read(input);
-          this.retinaDescs.push(elem134);
+          var elem150 = null;
+          elem150 = new XcalarApiRetinaDescT();
+          elem150.read(input);
+          this.retinaDescs.push(elem150);
         }
         input.readListEnd();
       } else {
@@ -6645,12 +7227,12 @@ XcalarApiListRetinasOutputT.prototype.write = function(output) {
   if (this.retinaDescs !== null && this.retinaDescs !== undefined) {
     output.writeFieldBegin('retinaDescs', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRUCT, this.retinaDescs.length);
-    for (var iter135 in this.retinaDescs)
+    for (var iter151 in this.retinaDescs)
     {
-      if (this.retinaDescs.hasOwnProperty(iter135))
+      if (this.retinaDescs.hasOwnProperty(iter151))
       {
-        iter135 = this.retinaDescs[iter135];
-        iter135.write(output);
+        iter151 = this.retinaDescs[iter151];
+        iter151.write(output);
       }
     }
     output.writeListEnd();
@@ -6758,6 +7340,7 @@ XcalarApiOutputT = function(args) {
   this.keyLookupOutput = null;
   this.topOutput = null;
   this.listXdfsOutput = null;
+  this.memoryOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -6845,6 +7428,9 @@ XcalarApiOutputT = function(args) {
     }
     if (args.listXdfsOutput !== undefined) {
       this.listXdfsOutput = args.listXdfsOutput;
+    }
+    if (args.memoryOutput !== undefined) {
+      this.memoryOutput = args.memoryOutput;
     }
   }
 };
@@ -7093,6 +7679,14 @@ XcalarApiOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 30:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.memoryOutput = new XcalarApiMemoryOutputT();
+        this.memoryOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -7247,6 +7841,11 @@ XcalarApiOutputT.prototype.write = function(output) {
   if (this.listXdfsOutput !== null && this.listXdfsOutput !== undefined) {
     output.writeFieldBegin('listXdfsOutput', Thrift.Type.STRUCT, 29);
     this.listXdfsOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.memoryOutput !== null && this.memoryOutput !== undefined) {
+    output.writeFieldBegin('memoryOutput', Thrift.Type.STRUCT, 30);
+    this.memoryOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

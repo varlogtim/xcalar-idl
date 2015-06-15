@@ -295,6 +295,23 @@ function XcalarEditColumn(datasetName, currFieldName, newFieldName,
     return (deferred.promise());
 }
 
+function XcalarRenameTable(oldTableName, newTableName) {
+    if (tHandle == null || oldTableName == undefined || oldTableName == "" ||
+        newTableName == undefined || newTableName == "") {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    
+    xcalarRenameTable(tHandle, oldTableName, newTableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarEditColumn", error));
+    });
+
+    return(deferred.promise());
+}
+
 function XcalarSample(datasetName, numEntries) {
     var deferred = jQuery.Deferred();
     var totalEntries = 0;
@@ -727,7 +744,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     return (deferred.promise());
 }
 
-function XcalarQuery(query) {
+function XcalarQuery(queryName, queryString) {
     // XXX Now only have a simple output
     /* some test case :
         "load --url file:///var/tmp/gdelt --format csv --name test"
@@ -740,7 +757,7 @@ function XcalarQuery(query) {
 
     var deferred = jQuery.Deferred();
 
-    xcalarQuery(tHandle, query)
+    xcalarQuery(tHandle, queryName, queryString)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarQuery", error));
@@ -1030,6 +1047,22 @@ function XcalarUploadPython(moduleName, funcName, pythonStr) {
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarUploadPython", error));
+    });
+    return (deferred.promise());
+}
+
+function XcalarMemory() {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+
+    xcalarApiMemory(tHandle, null)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarMemory", error));
     });
     return (deferred.promise());
 }
