@@ -132,7 +132,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 if ($mouseTarget.hasClass('editableHead') &&
                     $mouseTarget.closest('.xcTable').length !== 0) {
                     var newColName = $mouseTarget.val();
-                    $el.focus().val(newColName);
+                    insertText($el, newColName) 
+                    $el.focus();
+                    gMouseEvents.setMouseDownTarget($el);
                 }
             }, 0);
         });
@@ -1000,6 +1002,23 @@ window.OperationsModal = (function($, OperationsModal) {
             $('#xcTable' + tableNum).find('.editableHead')
                                     .attr('disabled', true);
         }, 0);
+    }
+
+    function insertText($input, textToInsert) {
+        var value = $input.val();
+        var currentPos = $input[0].selectionStart;
+        var selectionEnd = $input[0].selectionEnd;
+        var numCharSelected = selectionEnd - currentPos;
+        if (numCharSelected !== 0) {
+            var begin = value.substr(0, currentPos);
+            var end = value.substr(currentPos + numCharSelected, value.length);
+            value = begin + end;
+        }
+        var strLeft = value.substring(0, currentPos);
+        var strRight = value.substring(currentPos, value.length);
+        $input.val(strLeft + textToInsert + strRight);
+        currentPos += textToInsert.length;
+        $input[0].setSelectionRange(currentPos , currentPos);
     }
 
     return (OperationsModal);
