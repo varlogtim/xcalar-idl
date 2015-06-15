@@ -11,15 +11,15 @@ var gNewCellWidth = 125;
 var gMouseStatus = null;
 var gDragObj = {};
 var gRescol = {
-    minCellHeight: 30,
-    cellMinWidth: 20,
-    first: true,
-    clicks: 0,
-    delay: 500,
-    timer: null,
-    lastCellGrabbed: false,
-    minNumRows: 60,
-    maxNumRows: 80
+    "minCellHeight"  : 30,
+    "cellMinWidth"   : 20,
+    "first"          : true,
+    "clicks"         : 0,
+    "delay"          : 500,
+    "timer"          : null,
+    "lastCellGrabbed": false,
+    "minNumRows"     : 60,
+    "maxNumRows"     : 80
 };
 var gResrow = {};
 var gMinTableWidth = 30;
@@ -31,70 +31,63 @@ var gActiveTableNum = 0; // The table that is currently in focus
 var gDSObj = {};    //obj for DS folder structure
 var gRetinaObj = {}; //obj for retina modal
 var gLastClickTarget = $(window); // track which element was last clicked
-var gDatasetBrowserResultSetId = 0; // resultSetId for currently viewed 
+var gDatasetBrowserResultSetId = 0; // resultSetId for currently viewed
 var KB = 1024;
 var MB = 1024 * KB;
 var GB = 1024 * MB;
 var TB = 1024 * GB;
 var PB = 1024 * TB;
 
-// ================================= Classes ==================================
-var TableMeta = function() {
-    this.tableCols = undefined;
-    this.currentRowNumber = -1;
-    this.resultSetId = -1;
-    this.keyName = "";
-    this.backTableName = "";
-    this.frontTableName = "";
-    this.resultSetCount = -1;
-    this.numPages = -1;
-    this.bookmarks = [];
-    this.rowHeights = {};
-}
 // ================================ Misc ======================================
 function infScrolling(tableNum) {
     var $rowScroller = $('#rowScrollerArea');
     var scrollCount = 0;
-    $("#xcTbodyWrap"+tableNum).scroll(function(e) {
-        if (gMouseStatus == "movingTable") {
+
+    $("#xcTbodyWrap" + tableNum).scroll(function() {
+        if (gMouseStatus === "movingTable") {
             return;
         }
         if ($rowScroller.hasClass('autoScroll')) {
             $rowScroller.removeClass('autoScroll');
             return;
-        } 
+        }
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("xcTbodyWrap".length));
         focusTable(dynTableNum);
-        var table = $('#xcTable'+dynTableNum);
+        var table = $('#xcTable' + dynTableNum);
         if (table.height() < $('#mainFrame').height()) {
             // prevent scrolling on a short table
-           $(this).scrollTop(0);
+            $(this).scrollTop(0);
         }
 
         var innerDeferred = jQuery.Deferred();
         var firstRow = table.find('tbody tr:first');
         var topRowNum = parseInt(firstRow.attr('class').substr(3));
+        var info;
+        var numRowsToAdd;
+
         if (firstRow.length === 0) {
             innerDeferred.resolve();
-        } else if ($(this).scrollTop() === 0 && 
-            firstRow.attr('class') != 'row0') {
+        } else if ($(this).scrollTop() === 0 &&
+            firstRow.attr('class') !== 'row0')
+        {
             scrollCount++;
             
             if (scrollCount < 2) {
-                var initialTop = firstRow.offset().top;
-                var numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum);
+                // var initialTop = firstRow.offset().top;
+                numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum);
+
                 var rowNumber = topRowNum - numRowsToAdd;
                 var lastRowToDisplay = table.find('tbody tr:lt(40)');
 
-                var info = {
-                    numRowsToAdd: numRowsToAdd,
-                    numRowsAdded: 0,
-                    targetRow: rowNumber,
-                    lastRowToDisplay: lastRowToDisplay,
-                    bulk: false,
-                    tableNum: dynTableNum
-                }
+                info = {
+                    "numRowsToAdd"    : numRowsToAdd,
+                    "numRowsAdded"    : 0,
+                    "targetRow"       : rowNumber,
+                    "lastRowToDisplay": lastRowToDisplay,
+                    "bulk"            : false,
+                    "tableNum"        : dynTableNum
+                };
 
                 goToPage(rowNumber, numRowsToAdd, RowDirection.Top, false, info)
                 .then(function() {
@@ -115,19 +108,19 @@ function infScrolling(tableNum) {
             scrollCount++;
 
             if (scrollCount < 2) {
-                var numRowsToAdd = Math.min(gNumEntriesPerPage, 
-                                  gTables[dynTableNum].resultSetMax - 
-                                  gTables[dynTableNum].currentRowNumber);
-                var info = {
-                    numRowsToAdd: numRowsToAdd,
-                    numRowsAdded: 0,
-                    targetRow: gTables[dynTableNum].currentRowNumber+
-                               numRowsToAdd,
-                    lastRowToDisplay: gTables[dynTableNum].currentRowNumber+
-                                      numRowsToAdd,
-                    bulk: false,
-                    tableNum : dynTableNum
-                }
+                numRowsToAdd = Math.min(gNumEntriesPerPage,
+                                gTables[dynTableNum].resultSetMax -
+                                gTables[dynTableNum].currentRowNumber);
+                info = {
+                    "numRowsToAdd": numRowsToAdd,
+                    "numRowsAdded": 0,
+                    "targetRow"   : gTables[dynTableNum].currentRowNumber +
+                                    numRowsToAdd,
+                    "lastRowToDisplay": gTables[dynTableNum].currentRowNumber +
+                                        numRowsToAdd,
+                    "bulk"    : false,
+                    "tableNum": dynTableNum
+                };
                 
                 goToPage(gTables[dynTableNum].currentRowNumber, numRowsToAdd,
                          RowDirection.Bottom, false, info)
@@ -153,7 +146,7 @@ function infScrolling(tableNum) {
             generateFirstVisibleRowNum(rowScrollerMove);
         })
         .fail(function(error) {
-            console.log("Scroll Fails!");
+            console.error("Scroll Fails!", error);
         });
     });
 }
@@ -164,20 +157,20 @@ var MouseEvents = function() {
 
     this.setMouseDownTarget = function($element) {
         lastMouseDownTarget = $element;
-    }
+    };
 
     this.setClickTarget = function($element) {
         lastClickTarget = $element;
-    }
+    };
 
     this.getLastMouseDownTarget = function() {
         return (lastMouseDownTarget);
-    }
+    };
 
     this.getLastClickTarget = function() {
         return (lastClickTarget);
-    }
-}
+    };
+};
 
 var gMouseEvents = new MouseEvents();
 
@@ -188,8 +181,8 @@ function getUrlVars() {
     if (window.location.href.indexOf("?") < 0) {
         return [];
     }
-    for(var i = 0; i < hashes.length; i++)
-    {
+
+    for (var i = 0; i < hashes.length; i++) {
         hash = hashes[i].split('=');
         vars.push(hash[0]);
         vars[hash[0]] = hash[1];
@@ -197,140 +190,163 @@ function getUrlVars() {
     return vars;
 }
 
-function setTableMeta(table, frontName) {
-    var deferred = jQuery.Deferred();
-
-    var urlTableName = getUrlVars()["tablename"];
-    var tableName = urlTableName || table;
-    var newTable = new TableMeta();
-    var isTable = true;
-    if (gTableIndicesLookup[tableName] && 
-        !gTableIndicesLookup[tableName].isTable) {
-        isTable = false;
-    }
-
-    newTable.tableCols = [];
-    newTable.currentRowNumber = 0;
-    if (gTableIndicesLookup[tableName]) {
-        newTable.rowHeights = gTableIndicesLookup[tableName].rowHeights;
-        newTable.bookmarks = gTableIndicesLookup[tableName].bookmarks;
-    }
-
-    getResultSet(isTable, tableName)
-    .then(function(resultSet) {
-        newTable.isTable = isTable;
-        newTable.resultSetId = resultSet.resultSetId;
-
-        newTable.resultSetCount = resultSet.numEntries;
-        newTable.resultSetMax = resultSet.numEntries;
-        newTable.numPages = Math.ceil(newTable.resultSetCount /
-                                      gNumEntriesPerPage);
-        newTable.backTableName = tableName;
-        newTable.frontTableName = frontName == null ? tableName : frontName;
-        newTable.keyName = resultSet.keyAttrHeader.name;
-
-        deferred.resolve(newTable);
-    })
-    .fail(function(error){
-        console.log("setTableMeta Fails!");
-        deferred.reject(error);
-    });
-        
-    return (deferred.promise());
-}
-
-function getResultSet(isTable, tableName) {
-    if (isTable) {
-        return (XcalarMakeResultSetFromTable(tableName));
-    } else {
-        return (XcalarMakeResultSetFromDataset(gTableIndicesLookup[tableName]
-                                                .datasetName));
-    }
+function setupMenuBar() {
+    setupRowScroller();
+    setupMainPanelsTab();
+    setupFunctionBar();
 }
 
 function setupFunctionBar() {
-    var $fnBar = $('#fnBar');
-
-    $fnBar.on({
+    $("#fnBar").on({
         "input": function() {
-            if ($(".scratchpad").has(gFnBarOrigin).length != 0 &&
-                $(this).val().indexOf("=") == 0) {
+            if ($(".scratchpad").has(gFnBarOrigin).length !== 0 &&
+                $(this).val().indexOf("=") === 0) {
                 enterEquationMode();
             }
         },
         "keyup": function(event) {
-            if (event.which == keyCode.Enter) {
+            if (event.which === keyCode.Enter) {
                 functionBarEnter(gFnBarOrigin);
-                $(this).blur().addClass('entered');
+                $(this).blur().addClass("entered");
             }
         },
         "mousedown": function() {
-            $(this).addClass('inFocus');
+            $(this).addClass("inFocus");
         },
         "blur": function() {
-            $(this).removeClass('inFocus');
+            $(this).removeClass("inFocus");
         }
     });
+}
+
+function setupRowScroller() {
+    // entuer row num to go to that row
+    var $rowInput = $("#rowInput");
+    $rowInput.keypress(function(event) {
+        if (event.which !== keyCode.Enter) {
+            return;
+        }
+
+        var targetRow = parseInt($rowInput.val());
+        var backRow   = targetRow;
+
+        if (isNaN(targetRow) || targetRow % 1 !== 0) {
+            return;
+        }
+
+        if (gTables[gActiveTableNum].resultSetCount === 0) {
+            $rowInput.val("0");
+            $rowInput.data("val", 0);
+            return;
+        } else if (targetRow < 1) {
+            targetRow = 1;
+            backRow = 0;
+        } else if (targetRow > gTables[gActiveTableNum].resultSetCount) {
+            targetRow = gTables[gActiveTableNum].resultSetCount;
+            backRow = gTables[gActiveTableNum].resultSetCount - 20;
+        }
+
+        $rowInput.data('val', targetRow);
+        $rowInput.val(targetRow);
+
+        backRow = Math.min(gTables[gActiveTableNum].resultSetMax - 60,
+                            backRow - 20);
+
+        if (backRow < 0) {
+            backRow = 0;
+        }
+
+        var numRowsToAdd = 60;
+        var info = {
+            "numRowsToAdd"    : numRowsToAdd,
+            "numRowsAdded"    : 0,
+            "lastRowToDisplay": backRow + 60,
+            "targetRow"       : targetRow,
+            "bulk"            : true,
+            "tableNum"        : gActiveTableNum
+        };
+
+        goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
+        .then(function() {
+            var rowToScrollTo = Math.min(targetRow,
+                                gTables[gActiveTableNum].resultSetMax);
+            positionScrollbar(rowToScrollTo, gActiveTableNum);
+            generateFirstVisibleRowNum();
+            if (!event.rowScrollerMousedown) {
+                moverowScroller($('#rowInput').val(),
+                                 gTables[gActiveTableNum].resultSetCount);
+            } else {
+                $('#rowScrollerArea').addClass('autoScroll');
+            }
+        });
+    });
+}
+
+function setupMainPanelsTab() {
+    var $tabs = $(".mainMenuTab");
+
+    $tabs.click(function() {
+        var $curTab = $(this);
+
+        if ($curTab.hasClass("active")) {
+            return;
+        }
+
+        $tabs.removeClass("active");
+        $('.mainPanel').removeClass('active');
+        $curTab.addClass("active");
+
+        switch ($curTab.attr("id")) {
+            case ("workspaceTab"):
+                    $("#workspacePanel").addClass("active");
+                    MonitorGraph.clear();
+                    WSManager.focusOnWorksheet();
+                break;
+            case ("dataStoresTab"):
+                $("#datastoreView").addClass("active");
+                MonitorGraph.clear();
+                break;
+            case ("monitorTab"):
+                $('#monitorPanel').addClass("active");
+                MonitorPanel.updateDonuts();
+                MonitorGraph.start();
+                break;
+            default:
+                $(".underConstruction").addClass("active");
+        }
+        StatusMessage.updateLocation();
+    });
+
+    // $("#workspaceTab").click();
+    StatusMessage.updateLocation();
 }
 
 function setupHiddenTable(table, frontName) {
     var deferred = jQuery.Deferred();
 
-    if (frontName == undefined) {
+    if (frontName == null) {
         frontName = table;
     }
 
     setTableMeta(table, frontName)
     .then(function(newTableMeta) {
-        gHiddenTables.push(newTableMeta); 
+        gHiddenTables.push(newTableMeta);
         var lastIndex = gHiddenTables.length - 1;
         var index = getIndex(gHiddenTables[lastIndex].frontTableName);
         if (index && index.length > 0) {
             gHiddenTables[lastIndex].tableCols = index;
         } else {
-            console.log("Not stored "+gHiddenTables[lastIndex].frontTableName);
+            console.log("Not stored", gHiddenTables[lastIndex].frontTableName);
         }  
 
         deferred.resolve();
     })
     .fail(function(error) {
-        console.log("setupHiddenTable fails!");
+        console.error("setupHiddenTable fails!", error);
         deferred.reject(error);
     });
 
     return (deferred.promise());
-}
-
-function mainPanelsTabbing() {
-    $(".mainMenuTab").click(function() {
-        if ($(this).hasClass('active')) {
-            return;
-        }
-        $(".mainMenuTab").removeClass("active");
-        $('.mainPanel').removeClass('active');
-        $(this).addClass("active");
-        switch ($(this).attr("id")) {
-        case ("workspaceTab"):
-                $("#workspacePanel").addClass("active");
-                MonitorGraph.clear();
-                WSManager.focusOnWorksheet();
-            break;
-        case ("dataStoresTab"):
-            $("#datastoreView").addClass("active");
-            MonitorGraph.clear();
-            break;
-        case ("monitorTab"):
-            $('#monitorPanel').addClass("active");
-            MonitorPanel.updateDonuts();
-            MonitorGraph.start();
-            break;
-        default:
-            $(".underConstruction").addClass("active");
-        }
-        StatusMessage.updateLocation();
-    });
-    // $("#workspaceTab").click();
-    StatusMessage.updateLocation();
 }
 
 function setupLogout() {
@@ -345,7 +361,7 @@ function setupLogout() {
 
     $userName.click(function(event) {
         var top  = $userName.position().top + $userName.height();
-        var left =  $userName.position().left + $userName.width()/2 -
+        var left = $userName.position().left + $userName.width() / 2 -
                     $popOut.width() / 2;
 
         event.stopPropagation();
@@ -378,7 +394,10 @@ function setupLogout() {
 function setupTooltips() {
     $("body").tooltip({
         selector: '[data-toggle="tooltip"]',
-        delay: {"show" : 200, "hide" : 100}
+        delay   : {
+            "show": 200,
+            "hide": 100
+        }
     });
 
     $("body").on('mouseenter', '[data-toggle="tooltip"]', function() {
@@ -390,63 +409,6 @@ function setupTooltips() {
 
 function documentReadyxcTableFunction() {
     resizeRowInput();
-
-    var $rowInput = $('#rowInput');
-
-    $rowInput.keypress(function(e) {
-        if (e.which !== keyCode.Enter) {
-            return;
-        }
-        var targetRow = $('#rowInput').val();
-        var backRow = parseInt(targetRow);
-
-        if (targetRow == "" || targetRow%1 != 0) {
-            return;
-        }
-        if (gTables[gActiveTableNum].resultSetCount == 0) {
-            $rowInput.val('0');
-            $rowInput.data('val', 0);
-            return;
-        } else if (targetRow < 1) {
-            targetRow = 1;
-            backRow = 0;
-        } else if (targetRow > gTables[gActiveTableNum].resultSetCount) {
-            targetRow = gTables[gActiveTableNum].resultSetCount;
-            backRow = gTables[gActiveTableNum].resultSetCount - 20;
-        }
-        $rowInput.data('val', targetRow);
-        $rowInput.val(targetRow);
-
-        backRow = Math.min(gTables[gActiveTableNum].resultSetMax-60, 
-                            backRow-20);
-
-        if (backRow < 0) {
-            backRow = 0;
-        }
-
-        var numRowsToAdd = 60;
-        var info = {
-            numRowsToAdd: numRowsToAdd,
-            numRowsAdded: 0,
-            lastRowToDisplay: backRow+60,
-            targetRow: targetRow,
-            bulk: true,
-            tableNum: gActiveTableNum
-        }
-        goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
-        .then(function() {
-            var rowToScrollTo = Math.min(targetRow, 
-                                gTables[gActiveTableNum].resultSetMax);
-            positionScrollbar(rowToScrollTo, gActiveTableNum);
-            generateFirstVisibleRowNum();
-            if (!e.rowScrollerMousedown) {
-                moverowScroller($('#rowInput').val(), 
-                                 gTables[gActiveTableNum].resultSetCount);
-            } else {
-                $('#rowScrollerArea').addClass('autoScroll');
-            }
-        });
-    });
     
     if (gActiveTableNum >= 0) {
         var num = Number(gTables[gActiveTableNum].resultSetCount)
@@ -470,10 +432,9 @@ function documentReadyGeneralFunction() {
     $(window).resize(function() {
         $('#mainFrame').find('.colGrab').height(30);
         clearTimeout(timer);
-        timer = setTimeout(function () { 
-
-            if (gTables[gActiveTableNum] && 
-                gTables[gActiveTableNum].resultSetCount != 0) {  
+        timer = setTimeout(function() {
+            if (gTables[gActiveTableNum] &&
+                gTables[gActiveTableNum].resultSetCount !== 0) {
                 generateFirstVisibleRowNum();
             }
             moveTableDropdownBoxes();
@@ -494,9 +455,9 @@ function documentReadyGeneralFunction() {
         $(this).scrollTop(0);
         
         clearTimeout(timer);
-        timer = setTimeout(function () { 
-           moveTableDropdownBoxes();
-        }, 300 );
+        timer = setTimeout(function() {
+            moveTableDropdownBoxes();
+        }, 300);
 
         moveFirstColumn();
     });
@@ -523,7 +484,7 @@ function documentReadyGeneralFunction() {
             if (index > -1) {
                 $('.selectedCell').removeClass('selectedCell');
                 if (gFnBarOrigin) {
-                    displayShortenedHeaderName(gFnBarOrigin, 
+                    displayShortenedHeaderName(gFnBarOrigin,
                                                gActiveTableNum, index);
                 }
             }
@@ -552,12 +513,14 @@ function documentReadyGeneralFunction() {
             // case ("movingJson"):
             //     JSONModal.mouseMove(event);
             //     break;
-            case ("rowScroller"): 
+            case ("rowScroller"):
                 rowScrollerMouseMove(event);
+                break;
             default:  // do nothing
         }
     });
-    $(document).mouseup(function(event) {
+
+    $(document).mouseup(function() {
         if (gMouseStatus == null) {
             return;
         }
@@ -579,6 +542,7 @@ function documentReadyGeneralFunction() {
             //     break;
             case ("rowScroller"):
                 rowScrollerMouseUp();
+                break;
             default: // do nothing
         }
     });
@@ -595,67 +559,6 @@ function loadMonitorPanel() {
     });
 }
 
-function documentReadyCatFunction(tableNum, tableNumsToRemove) {
-    var deferred = jQuery.Deferred();
-    var index = getIndex(gTables[tableNum].frontTableName);
-    var notIndexed = !(index && index.length > 0);
-    getFirstPage(gTables[tableNum].resultSetId, tableNum, notIndexed)
-    .then(function(jsonObj, keyName) {
-        if (notIndexed) { // getNextPage will ColManager.setupProgCols()
-            index = gTables[tableNum].tableCols;
-        }
-        if (tableNumsToRemove && tableNumsToRemove.length > 0) {
-            for (var i = 0; i < tableNumsToRemove.length; i++) {
-                $('#tablesToRemove'+tableNumsToRemove[i]).remove();
-                $('#rowScrollerToRemove'+tableNumsToRemove[i]).remove();
-                $('#dagWrapToRemove'+tableNumsToRemove[i]).remove();
-            }
-        }
-        gTables[tableNum].currentRowNumber = jsonObj.normal.length;
-        buildInitialTable(index, tableNum, jsonObj, keyName);
-        deferred.resolve();
-    })
-    .then(function() {
-        var deferred2 = jQuery.Deferred();
-        var requiredNumRows = Math.min(60, gTables[tableNum].resultSetCount);
-        var numRowsStillNeeded = requiredNumRows - 
-                                 $('#xcTable'+tableNum+' tbody tr').length;
-        if (numRowsStillNeeded > 0) {
-            var info = {
-                numRowsToAdd: numRowsStillNeeded,
-                numRowsAdded: 0,
-                targetRow: gTables[tableNum].currentRowNumber+
-                           numRowsStillNeeded,
-                lastRowToDisplay: gTables[tableNum].currentRowNumber+
-                                  numRowsStillNeeded,
-                bulk: false,
-                dontRemoveRows : true,
-                tableNum : tableNum
-            };
-            goToPage(gTables[tableNum].currentRowNumber, numRowsStillNeeded,
-                         RowDirection.Bottom, false, info)
-            .then(function() {
-                var lastRow = $('#xcTable'+tableNum+' tr:last');
-                var lastRowNum = parseInt(lastRow.attr('class').substr(3));
-                gTables[tableNum].currentRowNumber = lastRowNum + 1;
-                deferred2.resolve();
-            })
-            .fail(function(error) {
-                deferred2.reject(error);
-            });
-        } else {
-            deferred2.resolve();
-        }
-        return (deferred2.promise());      
-    })
-    .fail(function(error) {
-        console.log("documentReadyCatFunction fails!");
-        deferred.reject(error);
-    });
-    
-    return (deferred.promise());
-}
-
 function startupFunctions() {
     var deferred = jQuery.Deferred();
 
@@ -670,9 +573,8 @@ function startupFunctions() {
         documentReadyGeneralFunction();
         JSONModal.setup();
         setupTooltips();
-        mainPanelsTabbing();
-        setupFunctionBar();
-        scratchpadStartup(); 
+        setupMenuBar();
+        scratchpadStartup();
         setupBookmarkArea();
         WSManager.setup();
         loadMonitorPanel();
@@ -681,7 +583,7 @@ function startupFunctions() {
         deferred.resolve();
     })
     .fail(function(error) {
-        console.log("startupFunctions fails!");
+        console.error("startupFsetupBookmarkAreaunctions fails!", error);
         deferred.reject(error);
     });
 
@@ -689,37 +591,56 @@ function startupFunctions() {
 }
 
 function documentReadyIndexFunction() {
+    $(document).ready(function() {
+        startupFunctions()
+        .then(initializeTable)
+        .then(function() {
+            RightSideBar.initialize();
+            Alert.setup();
+            JoinModal.setup();
+            AggModal.setup();
+            OperationsModal.setup();
+            WorkbookModal.setup();
+            WSManager.focusOnWorksheet();
+        })
+        .fail(function(error) {
+            console.error("Initialization fails!", error);
+        });
+    });
+
     function initializeTable() {
         var deferred = jQuery.Deferred();
 
         if ($.isEmptyObject(gTableIndicesLookup)) {
             $('#mainFrame').addClass('empty');
-
             deferred.resolve();
         } else {
             var promises = [];
+            var frontName;
+            var backName;
 
             for (var i = 0; i < gTableOrderLookup.length; i++) {
-                var frontName = gTableOrderLookup[i];
-                var backName = gTableIndicesLookup[frontName].backTableName;
+                frontName = gTableOrderLookup[i];
+                backName = gTableIndicesLookup[frontName].backTableName;
 
-                if (backName == undefined) {
+                if (backName == null) {
                     backName = frontName;
                 }
-                promises.push(addTable.bind(this, backName, i, 
+                promises.push(addTable.bind(this, backName, i,
                                             null, null, frontName));
             }
-            for (var frontName in gTableIndicesLookup) {
+
+            for (frontName in gTableIndicesLookup) {
                 var table = gTableIndicesLookup[frontName];
 
                 if (!table.active) {
-                    var backName = table.backTableName;
+                    backName = table.backTableName;
 
-                    if (backName == undefined) {
+                    if (backName == null) {
                         backName = frontName;
                     }
 
-                    promises.push(setupHiddenTable.bind(this, 
+                    promises.push(setupHiddenTable.bind(this,
                                                         backName, frontName));
                 }
             }
@@ -734,27 +655,11 @@ function documentReadyIndexFunction() {
                 deferred.resolve();
             })
             .fail(function(error) {
-                console.log("initializeTable fails!");
+                console.error("initializeTable fails!", error);
                 deferred.reject(error);
             });
         }
-        return (deferred.promise());
-    }  
 
-    $(document).ready(function() {
-        startupFunctions()
-        .then(initializeTable)
-        .then(function() {
-            RightSideBar.initialize();
-            Alert.setup();
-            JoinModal.setup();
-            AggModal.setup();
-            OperationsModal.setup();
-            WorkbookModal.setup();
-            WSManager.focusOnWorksheet();
-        })
-        .fail(function(error) {
-            console.log("Initialization fails!");
-        });
-    });
+        return (deferred.promise());
+    }
 }

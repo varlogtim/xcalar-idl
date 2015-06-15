@@ -38,6 +38,15 @@ function freeAllResultSetsSync() {
     return (chain(promises));
 }
 
+function getResultSet(isTable, tableName) {
+    if (isTable) {
+        return (XcalarMakeResultSetFromTable(tableName));
+    } else {
+        return (XcalarMakeResultSetFromDataset(gTableIndicesLookup[tableName]
+                                                .datasetName));
+    }
+}
+
 function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                   rowToPrependTo) {
     // rowNumber is checked for validity before calling goToPage()

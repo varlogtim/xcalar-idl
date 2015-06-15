@@ -76,21 +76,43 @@ function refreshTable(newTableName, tableNum,
     }
     return (deferred.promise());
 }
+
 // Adds a table to the display
 // Shifts all the ids and everything
 function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
     var deferred  = jQuery.Deferred();
-    // default ws if no other specified
-    var wsIndex   = WSManager.getActiveWS();
-
-    if (frontName == null) {
-        frontName = table;
-    }
+    var wsIndex  = WSManager.getActiveWS(); // default ws if no other specified
 
     reorderTables(tableNum);
-    tableStartupFunctions(table, tableNum, tableNumsToRemove, frontName)
+    frontName = frontName || table;
+
+    setTableMeta(table, frontName)
+    .then(function(newTableMeta) {
+        gTables[tableNum] = newTableMeta;
+
+        return (startBuildTable(tableNum, tableNumsToRemove));
+    })
     .then(function() {
+        // not have the flick, must refresh immediately after create table
+        wsIndex = WSManager.addTable(frontName, wsIndex);
+        $("#xcTableWrap" + tableNum).addClass("worksheet-" + wsIndex);
+        WSManager.focusOnWorksheet();
+
+        if (gTables[tableNum].resultSetCount !== 0) {
+            infScrolling(tableNum);
+        }
+
+        resizeRowInput();
+
+        return (Dag.construct(gTables[tableNum].backTableName, tableNum));
+    })
+    .then(function() {
+        // refresh dag
+        $("#dagWrap" + tableNum).addClass("worksheet-" + wsIndex);
+        WSManager.focusOnWorksheet();
+
         if ($('#mainFrame').hasClass('empty')) {
+            // first time to create table
             $('#mainFrame').removeClass('empty');
             documentReadyxcTableFunction();
         }
@@ -100,57 +122,15 @@ function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
         if ($('.xcTable').length === 1) {
             focusTable(tableNum);
         }
+
         deferred.resolve();
     })
     .fail(function(error) {
-        console.log("Add Table Fails!");
+        console.error("Add Table Fails!", error);
         deferred.reject(error);
     });
 
     return (deferred.promise());
-
-    function tableStartupFunctions(table, tableNum, tableNumsToRemove,
-                                   frontName) {
-        var deferred = jQuery.Deferred();
-
-        if (frontName == null) {
-            frontName = table;
-        }
-
-        setTableMeta(table, frontName)
-        .then(function(newTableMeta) {
-            gTables[tableNum] = newTableMeta;
-
-            return (documentReadyCatFunction(tableNum, tableNumsToRemove));
-        })
-        .then(function(val) {
-            // not have the flick, must refresh immediately after create table
-            wsIndex = WSManager.addTable(frontName, wsIndex);
-            $("#xcTableWrap" + tableNum).addClass("worksheet-" + wsIndex);
-            WSManager.focusOnWorksheet();
-
-            if (gTables[tableNum].resultSetCount !== 0) {
-                infScrolling(tableNum);
-            }
-
-            resizeRowInput();
-
-            return (Dag.construct(gTables[tableNum].backTableName, tableNum));
-        })
-        .then(function() {
-            // refresh dag
-            $("#dagWrap" + tableNum).addClass("worksheet-" + wsIndex);
-            WSManager.focusOnWorksheet();
-
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.log("tableStartupFunctions Fails!");
-            deferred.reject(error);
-        });
-
-        return (deferred.promise());
-    }
 }
 
 // Removes a table from the display
@@ -310,6 +290,125 @@ function deleteTable(tableNum, deleteArchived) {
         deferred.resolve();
     })
     .fail(function(error){
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+// get meta data about table
+function setTableMeta(table, frontName) {
+    var deferred = jQuery.Deferred();
+
+    var urlTableName = getUrlVars().tablename;
+    var tableName    = urlTableName || table;
+    var newTable     = new TableMeta();
+    var isTable      = true;
+    var lookupTable  = gTableIndicesLookup[tableName];
+
+    if (lookupTable && !lookupTable.isTable) {
+        isTable = false;
+    }
+
+    newTable.tableCols = [];
+    newTable.currentRowNumber = 0;
+
+    if (lookupTable) {
+        newTable.rowHeights = lookupTable.rowHeights;
+        newTable.bookmarks = lookupTable.bookmarks;
+    }
+
+    getResultSet(isTable, tableName)
+    .then(function(resultSet) {
+        newTable.isTable = isTable;
+        newTable.resultSetId = resultSet.resultSetId;
+
+        newTable.resultSetCount = resultSet.numEntries;
+        newTable.resultSetMax = resultSet.numEntries;
+        newTable.numPages = Math.ceil(newTable.resultSetCount /
+                                      gNumEntriesPerPage);
+        newTable.backTableName = tableName;
+        newTable.frontTableName = frontName || tableName;
+        newTable.keyName = resultSet.keyAttrHeader.name;
+
+        deferred.resolve(newTable);
+    })
+    .fail(function(error){
+        console.error("setTableMeta Fails!", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+
+    // Constructor for table meata data
+    function TableMeta() {
+        this.tableCols = null;
+        this.currentRowNumber = -1;
+        this.resultSetId = -1;
+        this.keyName = "";
+        this.backTableName = "";
+        this.frontTableName = "";
+        this.resultSetCount = -1;
+        this.numPages = -1;
+        this.bookmarks = [];
+        this.rowHeights = {};
+        return (this);
+    }
+}
+
+// start the process of building table
+function startBuildTable(tableNum, tableNumsToRemove) {
+    var deferred   = jQuery.Deferred();
+    var table      = gTables[tableNum];
+    var index      = getIndex(table.frontTableName);
+    var notIndexed = !(index && index.length > 0);
+
+    getFirstPage(table.resultSetId, tableNum, notIndexed)
+    .then(function(jsonObj, keyName) {
+        if (notIndexed) { // getNextPage will ColManager.setupProgCols()
+            index = table.tableCols;
+        }
+
+        if (tableNumsToRemove) {
+            for (var i = 0, len = tableNumsToRemove.length; i < len; i++) {
+                $('#tablesToRemove' + tableNumsToRemove[i]).remove();
+                $('#rowScrollerToRemove' + tableNumsToRemove[i]).remove();
+                $('#dagWrapToRemove' + tableNumsToRemove[i]).remove();
+            }
+        }
+
+        table.currentRowNumber = jsonObj.normal.length;
+        buildInitialTable(index, tableNum, jsonObj, keyName);
+        deferred.resolve();
+    })
+    .then(function() {
+        var requiredNumRows    = Math.min(60, table.resultSetCount);
+        var numRowsStillNeeded = requiredNumRows -
+                                 $('#xcTable' + tableNum + ' tbody tr').length;
+
+        if (numRowsStillNeeded > 0) {
+            var info = {
+                "numRowsToAdd"    : numRowsStillNeeded,
+                "numRowsAdded"    : 0,
+                "targetRow"       : table.currentRowNumber + numRowsStillNeeded,
+                "lastRowToDisplay": table.currentRowNumber + numRowsStillNeeded,
+                "bulk"            : false,
+                "dontRemoveRows"  : true,
+                "tableNum"        : tableNum
+            };
+
+            return goToPage(table.currentRowNumber, numRowsStillNeeded,
+                            RowDirection.Bottom, false, info)
+                    .then(function() {
+                        var lastRow = $('#xcTable' + tableNum + ' tr:last');
+                        var lastRowNum = parseInt(lastRow.attr('class')
+                                                         .substr(3));
+                        table.currentRowNumber = lastRowNum + 1;
+                    });
+        }
+    })
+    .fail(function(error) {
+        console.error("startBuildTable fails!", error);
         deferred.reject(error);
     });
 
