@@ -1,4 +1,4 @@
-function refreshTable(newTableName, tableNum, 
+function refreshTable(newTableName, tableNum,
                       keepOriginal, additionalTableNum) {
     var deferred = jQuery.Deferred();
 
@@ -83,7 +83,7 @@ function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
     // default ws if no other specified
     var wsIndex   = WSManager.getActiveWS();
 
-    if (frontName == undefined) {
+    if (frontName == null) {
         frontName = table;
     }
 
@@ -113,7 +113,7 @@ function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
                                    frontName) {
         var deferred = jQuery.Deferred();
 
-        if (frontName == undefined) {
+        if (frontName == null) {
             frontName = table;
         }
 
@@ -349,7 +349,7 @@ function buildInitialTable(index, tableNum, jsonObj, keyName) {
 function pullRowsBulk(tableNum, jsonObj, startIndex, dataIndex, direction,
                         rowToPrependTo) {
     // this function does some preparation for ColManager.pullAllCols()
-    var startIndex = startIndex || 0;
+    startIndex = startIndex || 0;
     var $table = $('#xcTable' + tableNum);
     // get the column number of the datacolumn
     if (dataIndex == null) {
@@ -467,7 +467,8 @@ function reorderTables(tableNum) {
 }
 
 function generateColumnHeadHTML(columnClass, color, newColid, option) {
-    var option = option || {};
+    option = option || {};
+
     var columnName = option.name || "newCol";
     var width      = option.width || 0;
     var tooltip    = columnClass.indexOf("indexedColumn") < 0 ? "" :

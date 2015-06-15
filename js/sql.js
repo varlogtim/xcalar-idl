@@ -185,16 +185,16 @@ window.SQL = (function($, SQL) {
         string += " " + options.dsFormat.toLowerCase();
         string += " --name";
         string += " " + options.dsName;
-        if (options.fieldDelim && options.fieldDelim != "Null") {
+        if (options.fieldDelim && options.fieldDelim !== "Null") {
             var fd = JSON.stringify(options.fieldDelim);
-            if (fd.indexOf("\\") != 1) {
+            if (fd.indexOf("\\") !== 1) {
                 string += " --fielddelim";
                 string += " " + fd;
             }
         }
-        if (options.lineDelim && options.lineDelim != "Null") {
+        if (options.lineDelim && options.lineDelim !== "Null") {
             var rd = JSON.stringify(options.lineDelim);
-            if (rd.indexOf("\\") != 1) {
+            if (rd.indexOf("\\") !== 1) {
                 string += " --recorddelim";
                 string += " " + rd;
             }

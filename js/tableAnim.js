@@ -1,16 +1,11 @@
 function generateFirstVisibleRowNum(rowScrollerMove) {
-    // if ($('#xcTableWrap'+gActiveTableNum).length == 0) {
-    //     return;
-    // }
-
-    if (! document.elementFromPoint) {
+    if (!document.elementFromPoint) {
         return;
     }
 
     var tableLeft = $('#xcTable' + gActiveTableNum).offset().left;
-    var tdXCoor = Math.max(0, tableLeft);; 
+    var tdXCoor = Math.max(0, tableLeft);
     var tdYCoor = 168; //top rows's distance from top of window
-    var firstRowNum;
     var firstEl = document.elementFromPoint(tdXCoor, tdYCoor);
     var firstId = $(firstEl).closest('tr').attr('class');
 
@@ -19,7 +14,7 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
         if (!isNaN(firstRowNum)) {
             $('#rowInput').val(firstRowNum).data('val', firstRowNum);
             if (rowScrollerMove && isTableScrollable(gActiveTableNum)) {
-                moverowScroller(firstRowNum, 
+                moverowScroller(firstRowNum,
                     gTables[gActiveTableNum].resultSetCount);
             }
         }
@@ -28,10 +23,12 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
 
 function disableTextSelection() {
     xcHelper.removeSelectionRange();
-    var style = '<style id="disableSelection" type="text/css">*' + 
-        '{ -ms-user-select:none;-moz-user-select:-moz-none;' +
-        '-khtml-user-select:none;' +
-        '-webkit-user-select:none;user-select:none; }</style>';
+    var style =
+        '<style id="disableSelection" type="text/css">*' +
+            '{ -ms-user-select:none;-moz-user-select:-moz-none;' +
+            '-khtml-user-select:none;' +
+            '-webkit-user-select:none;user-select:none; }' +
+        '</style>';
     $(document.head).append(style);
     $('input').prop('disabled', true);
 }
@@ -47,9 +44,9 @@ function gRescolMouseDown(el, event, options) {
     var tableNum = xcHelper.parseTableNum($table);
     var colNum   = xcHelper.parseColNum(el.parent().parent());
 
-    if (options && options.target == "datastore") {
-        rescol.isDatastore = true; 
-    } 
+    if (options && options.target === "datastore") {
+        rescol.isDatastore = true;
+    }
 
     if (el.parent().width() === 10) {
         // This is a hidden column! we need to unhide it
@@ -59,21 +56,21 @@ function gRescolMouseDown(el, event, options) {
     gMouseStatus = "resizingCol";
     event.preventDefault();
     rescol.mouseStart = event.pageX;
-    rescol.grabbedCell = el.parent().parent();  // the th 
+    rescol.grabbedCell = el.parent().parent();  // the th
     rescol.index = colNum;
     rescol.startWidth = rescol.grabbedCell.outerWidth();
     rescol.tableNum = tableNum;
     rescol.table = $table;
-    rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap'); 
+    rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
     rescol.tableHeadInput = rescol.tableHead.find('input');
     rescol.headerDiv = el.parent(); // the .header div
     
-    rescol.tempCellMinWidth = rescol.cellMinWidth-5;
-    rescol.leftDragMax =  rescol.tempCellMinWidth - rescol.startWidth;
+    rescol.tempCellMinWidth = rescol.cellMinWidth - 5;
+    rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
 
     disableTextSelection();
-    $(document.head).append('<style id="ew-resizeCursor" type="text/css">*' + 
-        '{cursor: ew-resize !important;}</style>');
+    $(document.head).append('<style id="ew-resizeCursor" type="text/css">*' +
+                            '{cursor: ew-resize !important;}</style>');
 }
 
 function gRescolMouseMove(event) {
@@ -97,7 +94,7 @@ function gRescolMouseUp() {
     reenableTextSelection();
     gRescol.table.find('.rowGrab').width(gRescol.table.width());
     if (!gRescol.isDatastore) {
-        var progCol = gTables[gRescol.tableNum].tableCols[gRescol.index-1];
+        var progCol = gTables[gRescol.tableNum].tableCols[gRescol.index - 1];
         progCol.width = gRescol.grabbedCell.outerWidth();
     } else {
         gRescol.isDatastore = false;
@@ -113,11 +110,12 @@ function gResrowMouseDown(el, event) {
     gResrow.startHeight = gResrow.targetTd.outerHeight();
     gResrow.rowIndex = gResrow.targetTd.closest('tr').index();
     disableTextSelection();
-    var style = '<style id="ns-resizeCursor" type="text/css">*' + 
-        '{cursor: ns-resize !important;}</style>';
+    var style = '<style id="ns-resizeCursor" type="text/css">*' +
+                    '{cursor: ns-resize !important;}' +
+                '</style>';
     $(document.head).append(style);
     $('body').addClass('hideScroll');
-    gResrow.targetTd.closest('tr').addClass('dragging')
+    gResrow.targetTd.closest('tr').addClass('dragging');
     $('#xcTable' + gResrow.tableNum + ' tr:not(.dragging)')
                                    .addClass('notDragging');
 }
@@ -129,12 +127,12 @@ function gResrowMouseMove(event) {
     var padding = 4; // top + bottom padding in td
     if (newHeight < gRescol.minCellHeight) {
         gResrow.targetTd.outerHeight(gRescol.minCellHeight);
-        $('#xcTable' + gResrow.tableNum + ' tbody tr:eq(' + row + ') td > div').
-            css('max-height', gRescol.minCellHeight-padding);
+        $('#xcTable' + gResrow.tableNum + ' tbody tr:eq(' + row + ') td > div')
+            .css('max-height', gRescol.minCellHeight - padding);
     } else {
         gResrow.targetTd.outerHeight(newHeight);
-        $('#xcTable' + gResrow.tableNum + ' tbody tr:eq(' + row + ') td > div').
-            css('max-height', newHeight-padding);
+        $('#xcTable' + gResrow.tableNum + ' tbody tr:eq(' + row + ') td > div')
+            .css('max-height', newHeight - padding);
     }
 }
 
@@ -145,25 +143,25 @@ function gResrowMouseUp() {
     var rowNum = parseInt(classNames.substring(index + 3)) + 1;
     var rowObj = gTables[gResrow.tableNum].rowHeights;
     // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
-    var pageNum = Math.floor((rowNum-1) / gNumEntriesPerPage);
+    var pageNum = Math.floor((rowNum - 1) / gNumEntriesPerPage);
     gMouseStatus = null;
     $('#ns-resizeCursor').remove();
     reenableTextSelection();
-    $('body').removeClass('hideScroll'); 
+    $('body').removeClass('hideScroll');
     $('#xcTable' + gResrow.tableNum + ' tr').removeClass('notDragging dragging');
-    if (gTables[gActiveTableNum].resultSetCount != 0) {  
+    if (gTables[gActiveTableNum].resultSetCount !== 0) {
         generateFirstVisibleRowNum();
     }
 
-    if (newRowHeight != gRescol.minCellHeight) {
-        if (rowObj[pageNum] == undefined) {
+    if (newRowHeight !== gRescol.minCellHeight) {
+        if (rowObj[pageNum] == null) {
             rowObj[pageNum] = {};
         }
         rowObj[pageNum][rowNum] = newRowHeight;
     } else {
-        // remove this rowNumber from gTables and 
+        // remove this rowNumber from gTables and
         //if no other rows exist in the page, remove the pageNumber as well
-        if (rowObj[pageNum] != undefined) {
+        if (rowObj[pageNum] != null) {
             delete rowObj[pageNum][rowNum];
             if ($.isEmptyObject(rowObj[pageNum])) {
                 delete rowObj[pageNum];
@@ -175,9 +173,11 @@ function gResrowMouseUp() {
 function dragdropMouseDown(el, event) {
     gMouseStatus = "movingCol";
     var dragObj = gDragObj;
-    var cursorStyle = '<style id="moveCursor" type="text/css">*' + 
-        '{cursor:move !important; cursor: -webkit-grabbing !important;' +
-        'cursor: -moz-grabbing !important;}</style>';
+    var cursorStyle =
+        '<style id="moveCursor" type="text/css">*' +
+            '{cursor:move !important; cursor: -webkit-grabbing !important;' +
+            'cursor: -moz-grabbing !important;}' +
+        '</style>';
     $(document.head).append(cursorStyle);
 
     dragObj.mouseX = event.pageX;
@@ -196,10 +196,11 @@ function dragdropMouseDown(el, event) {
 
     dragObj.docHeight = $(document).height();
     dragObj.val = el.find('.editableHead').val();
-    var tableTitleHeight = tableWrap.find('.tableTitle').height();
+    // var tableTitleHeight = tableWrap.find('.tableTitle').height();
     var shadowDivHeight = $tbodyWrap.height();
     var shadowTop = tableWrap.find('.header').position().top - 5;
-    dragObj.inFocus =  el.find('.editableHead').is(':focus');
+
+    dragObj.inFocus = el.find('.editableHead').is(':focus');
     dragObj.selected = el.hasClass('selectedCell');
     dragObj.colWidth = el.width();
     dragObj.windowWidth = $(window).width();
@@ -212,7 +213,7 @@ function dragdropMouseDown(el, event) {
                             (dragObj.element.position().left) +
                             'px;top:' + shadowTop + 'px;"></div>');
 
-    // create a fake transparent column by cloning 
+    // create a fake transparent column by cloning
     createTransparentDragDropCol();
     disableTextSelection();
     $tbodyWrap.addClass('hideScroll');
@@ -230,7 +231,7 @@ function dragdropMouseMove(event) {
 function dragdropMouseUp() {
     gMouseStatus = null;
     var dragObj = gDragObj;
-    $('#shadowDiv, #fauxCol, #dropTargets, #moveCursor').remove(); 
+    $('#shadowDiv, #fauxCol, #dropTargets, #moveCursor').remove();
     $('#mainFrame').off('scroll', mainFrameScrollDropTargets)
                    .scrollTop(0);
     reenableTextSelection();
@@ -240,14 +241,14 @@ function dragdropMouseUp() {
     }
     
     // only pull col if column is dropped in new location
-    if ((dragObj.colIndex) != dragObj.colNum) {
+    if ((dragObj.colIndex) !== dragObj.colNum) {
         // add sql
         var table = gTables[dragObj.tableNum];
 
         SQL.add("Change Column Order", {
-            "operation": "changeColOrder",
-            "tablename": table.frontTableName,
-            "colName": table.tableCols[dragObj.colNum - 1].name,
+            "operation"  : "changeColOrder",
+            "tablename"  : table.frontTableName,
+            "colName"    : table.tableCols[dragObj.colNum - 1].name,
             "oldColIndex": dragObj.colNum,
             "newColIndex": dragObj.colIndex
         });
@@ -279,7 +280,7 @@ function reorderAfterColumnDrop() {
         for (var i = dragObj.colNum; i <= dragObj.colIndex; i++) {
             dragObj.table.find('.col' + i)
                    .removeClass('col' + i)
-                   .addClass('col' + (i-1));
+                   .addClass('col' + (i - 1));
         }
     }
 
@@ -289,18 +290,18 @@ function reorderAfterColumnDrop() {
 }
 
 function dragdropMoveMainFrame() {
-    // essentially moving the horizontal mainframe scrollbar if the mouse is 
+    // essentially moving the horizontal mainframe scrollbar if the mouse is
     // near the edge of the viewport
     var dragObj = gDragObj;
-    if (gMouseStatus == 'movingCol' || gMouseStatus == 'movingTable') {
-        if (dragObj.pageX > dragObj.windowWidth-2) {
+    if (gMouseStatus === 'movingCol' || gMouseStatus === 'movingTable') {
+        if (dragObj.pageX > dragObj.windowWidth - 2) {
             $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft() + 50));
-        } else if (dragObj.pageX > dragObj.windowWidth-20) {
+        } else if (dragObj.pageX > dragObj.windowWidth - 20) {
             $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft() + 20));
         } else if (dragObj.pageX < 2) {
-            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft()-50));
+            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft() - 50));
         } else if (dragObj.pageX < 20) {
-            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft()-20));
+            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft() - 20));
         }
         setTimeout(function() {
             dragdropMoveMainFrame();
@@ -317,7 +318,7 @@ function cloneCellHelper(obj) {
     var cloneHeight = td.eq(dragObj.colIndex).outerHeight();
     var cloneColor = td.eq(dragObj.colIndex).css('background-color');
     row.css('background-color', rowColor);
-    clone.css('height', cloneHeight+'px');
+    clone.css('height', cloneHeight + 'px');
     clone.outerWidth(dragObj.colWidth);
     clone.css('background-color', cloneColor);
     row.append(clone).appendTo($("#fauxTable"));
@@ -328,10 +329,10 @@ function createTransparentDragDropCol() {
     $('#mainFrame').append('<div id="fauxCol" style="left:' +
                     dragObj.mouseX + 'px;' +
                     'width:' + (dragObj.colWidth) + 'px;' +
-                    'margin-left:' + (-dragObj.grabOffset) +'px;">' +
+                    'margin-left:' + (-dragObj.grabOffset) + 'px;">' +
                         '<table id="fauxTable" ' +
                         'class="dataTable xcTable" ' +
-                        'style="width:' + (dragObj.colWidth) +'px">' +
+                        'style="width:' + (dragObj.colWidth) + 'px">' +
                         '</table>' +
                     '</div>');
     dragObj.fauxCol = $('#fauxCol');
@@ -340,7 +341,7 @@ function createTransparentDragDropCol() {
     // turn this into binary search later
     var topPx = dragObj.table.find('.header').offset().top - rowHeight;
     var topRowIndex = -1;
-    var topRowTd = null;
+    // var topRowTd = null;
     dragObj.table.find('tbody tr').each(function() {
         if ($(this).offset().top > topPx) {
             topRowIndex = $(this).index();
@@ -350,7 +351,7 @@ function createTransparentDragDropCol() {
     });
 
     //XXX check to see if topRowEl was found;
-    if (topRowIndex == -1) {
+    if (topRowIndex === -1) {
         console.log("BUG! Cannot find first visible row??");
         // Clone entire shit and be.then.
         dragObj.table.find('tr').each(function(i, ele) {
@@ -368,35 +369,35 @@ function createTransparentDragDropCol() {
     });
 
     var totalRowHeight = dragObj.element
-            .closest('#xcTableWrap' + dragObj.tableNum).height()-
-            dragObj.table.find('th:first').outerHeight();
-    var numRows = Math.ceil(totalRowHeight/rowHeight);
+            .closest('#xcTableWrap' + dragObj.tableNum).height() -
+                     dragObj.table.find('th:first').outerHeight();
+    var numRows = Math.ceil(totalRowHeight / rowHeight);
     var count = 0;
-    dragObj.table.find('tr:gt(' + (topRowIndex) + ')')
-        .each(function(i, ele) {
-            cloneCellHelper(ele);
-            count++;
-            if (count >= numRows + topRowIndex) {
-                return (false);
-            }
+
+    dragObj.table.find('tr:gt(' + (topRowIndex) + ')').each(function(i, ele) {
+        cloneCellHelper(ele);
+        count++;
+        if (count >= numRows + topRowIndex) {
+            return (false);
+        }
     });
 
     // Ensure rows are offset correctly
     var fauxTableHeight = $('#fauxTable').height() +
-                        $('#fauxTable tr:first').outerHeight();
+                            $('#fauxTable tr:first').outerHeight();
 
     var xcTableWrap0Height = $('#xcTableWrap' + dragObj.tableNum).height();
     var fauxColHeight = Math.min(fauxTableHeight, xcTableWrap0Height - 36);
     dragObj.fauxCol.height(fauxColHeight);
-    var firstRowOffset = $(topRowEl).offset().top - topPx-rowHeight;
+    var firstRowOffset = $(topRowEl).offset().top - topPx - rowHeight;
     $('#fauxTable').css('margin-top', firstRowOffset);
-    $('#fauxTable tr:first-child').css({'margin-top': 
-            -($('#fauxTable tr:first').outerHeight() + firstRowOffset- 5)});
+    $('#fauxTable tr:first-child').css({'margin-top':
+            -($('#fauxTable tr:first').outerHeight() + firstRowOffset - 5)});
 }
 
 function createDropTargets(dropTargetIndex, swappedColIndex) {
     var dragObj = gDragObj;
-    var dragMargin = 30; 
+    var dragMargin = 30;
     // targets extend this many pixels to left of each column
    
     if (!dropTargetIndex) {
@@ -404,23 +405,27 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
         var dropTargets = "";
         var i = 0;
         dragObj.table.find('tr:first th').each(function() {
-            if (i == 0 || i == dragObj.colIndex) {
+            if (i === 0 || i === dragObj.colIndex) {
                 i++;
                 return true;  
             }
             var colLeft = $(this).position().left;
-            if ((dragObj.colWidth-dragMargin) < 
-                Math.round(0.5*$(this).width())) {
-                var targetWidth = dragObj.colWidth;
+            var targetWidth;
+
+            if ((dragObj.colWidth - dragMargin) <
+                Math.round(0.5 * $(this).width()))
+            {
+                targetWidth = dragObj.colWidth;
             } else {
-                var targetWidth = Math.round(0.5*$(this).outerWidth()) +
-                                  dragMargin;
+                targetWidth = Math.round(0.5 * $(this).outerWidth()) +
+                                dragMargin;
             }
             dropTargets += '<div id="dropTarget' + i + '" class="dropTarget"' +
                             'style="left:' +
-                            (colLeft-dragMargin + dragObj.grabOffset) + 'px;' +
-                            'width:' + targetWidth + 'px;height:'
-                            + (dragObj.docHeight) + 'px;">' + i +
+                            (colLeft - dragMargin + dragObj.grabOffset) + 'px;' +
+                            'width:' + targetWidth + 'px;height:' +
+                            (dragObj.docHeight) + 'px;">' +
+                                i +
                             '</div>';
             i++;
         });
@@ -429,7 +434,7 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
         var tableLeft = dragObj.table[0].getBoundingClientRect().left +
             scrollLeft;
         $('body').append('<div id="dropTargets" style="' +
-                'margin-left:' + tableLeft +'px;' +
+                'margin-left:' + tableLeft + 'px;' +
                 'left:' + (-scrollLeft) + 'px;"></div>');
         $('#dropTargets').append(dropTargets);
         $('.dropTarget').mouseenter(function() {
@@ -438,14 +443,14 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
         $('#mainFrame').scroll(mainFrameScrollDropTargets);
        
     } else {
-        // targets have already been created, so just adjust the one 
+        // targets have already been created, so just adjust the one
         // corresponding to the column that was swapped
         var swappedCol = dragObj.table.find('th:eq(' + swappedColIndex + ')');
         var colLeft = swappedCol.position().left;
-        $('#dropTarget' + dropTargetIndex)
-            .attr('id', 'dropTarget' + swappedColIndex);
+        $('#dropTarget' + dropTargetIndex).attr('id',
+                                                'dropTarget' + swappedColIndex);
         var dropTarget = $('#dropTarget' + swappedColIndex);
-        dropTarget.css({'left': (colLeft-dragMargin + dragObj.grabOffset) +
+        dropTarget.css({'left': (colLeft - dragMargin + dragObj.grabOffset) +
                         'px'});
     }
 }
@@ -458,18 +463,18 @@ function mainFrameScrollDropTargets(event) {
 function dragdropSwapColumns(el) {
     var dragObj = gDragObj;
     var dropTargetId = parseInt((el.attr('id')).substring(10));
-    var nextCol = dropTargetId - Math.abs(dropTargetId-dragObj.colIndex);
-    var prevCol = dropTargetId + Math.abs(dropTargetId-dragObj.colIndex);
+    var nextCol = dropTargetId - Math.abs(dropTargetId - dragObj.colIndex);
+    var prevCol = dropTargetId + Math.abs(dropTargetId - dragObj.colIndex);
     var movedCol;
-    if (dropTargetId>dragObj.colIndex) {
-        dragObj.table.find('tr').each(function() { 
+    if (dropTargetId > dragObj.colIndex) {
+        dragObj.table.find('tr').each(function() {
             $(this).children(':eq(' + dropTargetId + ')').after(
                 $(this).children(':eq(' + nextCol + ')')
             );
         });
         movedCol = nextCol;
     } else {
-        dragObj.table.find('tr').each(function() { 
+        dragObj.table.find('tr').each(function() {
             $(this).children(':eq(' + dropTargetId + ')').before(
                 $(this).children(':eq(' + prevCol + ')')
             );
@@ -480,11 +485,11 @@ function dragdropSwapColumns(el) {
     // XXX weird hack hide show or else .header won't reposition itself
     dragObj.table.find('.header').css('height', '39px');
     setTimeout(function() {
-         dragObj.table.find('.header').css('height', '40px');
+        dragObj.table.find('.header').css('height', '40px');
     }, 0);
     
     var left = dragObj.element.position().left;
-    $('#shadowDiv').css('left', left); 
+    $('#shadowDiv').css('left', left);
     dragObj.colIndex = dropTargetId;
     createDropTargets(dropTargetId, movedCol);
 }
@@ -493,49 +498,55 @@ function gRescolDelWidth(colNum, tableNum) {
     var table = $('#xcTable' + tableNum);
     var oldTableWidth = table.width();
     if (oldTableWidth < gMinTableWidth) {
-        var lastTd = table.find('tr:first th').length-1;
+        var lastTd = table.find('tr:first th').length - 1;
         var lastTdWidth = table.find('.th.col' + lastTd).width();
+
         table.find('thead:last .th.col' + lastTd).
-            width(lastTdWidth + (gMinTableWidth - oldTableWidth)); 
+            width(lastTdWidth + (gMinTableWidth - oldTableWidth));
     }
     matchHeaderSizes(colNum, $('#xcTable' + tableNum));
 }
 
 function getTextWidth(el) {
     var width;
+    var text;
+
     if (el.is('input')) {
-        var text = $.trim(el.val() + " ");
+        text = $.trim(el.val() + " ");
     } else {
-        var text = $.trim(el.text());
+        text = $.trim(el.text());
     }
+
     tempDiv = $('<div>' + text + '</div>');
-    tempDiv.css({'font-family': el.css('font-family'), 
-        'font-size': el.css('font-size'),
-        'font-weight': el.css('font-weight'), 
-        'position': 'absolute', 
-        'display': 'inline-block', 
-        'white-space': 'pre'})
-        .appendTo($('body'));
+    tempDiv.css({
+        'font-family': el.css('font-family'),
+        'font-size'  : el.css('font-size'),
+        'font-weight': el.css('font-weight'),
+        'position'   : 'absolute',
+        'display'    : 'inline-block',
+        'white-space': 'pre'
+    }).appendTo($('body'));
+
     width = tempDiv.width();
     tempDiv.remove();
     return (width);
 }
 
 function autosizeCol(el, options) {
+    options = options || {};
+
     var index = xcHelper.parseColNum(el);
     var $table = el.closest('.dataTable');
     var tableNum = xcHelper.parseTableNum($table);
-    var options = options || {};
     var includeHeader = options.includeHeader || false;
-    var resizeFirstRow = options.resizeFirstRow || false;
+    // var resizeFirstRow = options.resizeFirstRow || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 10);
-    var oldTableWidth = $table.width();
+    // var oldTableWidth = $table.width();
     var maxWidth = 700;
     var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
     var newWidth = Math.max(widestTdWidth, minWidth);
-    var dbClick = options && options.dbClick;
     // dbClick is autoSized to a fixed width
-    if (!dbClick) {
+    if (!options.dbClick) {
         var originalWidth = gTables[tableNum].tableCols[index - 1].width;
         newWidth = Math.max(newWidth, originalWidth);
     }
@@ -548,7 +559,8 @@ function autosizeCol(el, options) {
 }
 
 function getWidestTdWidth(el, options) {
-    var options = options || {};
+    options = options || {};
+
     var includeHeader = options.includeHeader || false;
     var id = xcHelper.parseColNum(el);
     var $table = el.closest('.dataTable');
@@ -565,7 +577,7 @@ function getWidestTdWidth(el, options) {
         var td = $(this).children(':eq(' + (id) + ')');
         textLength = $.trim(td.text()).length;
         if (textLength > longestText) {
-            longestText = textLength; 
+            longestText = textLength;
             largestTd = td;
         }
     });
@@ -600,19 +612,24 @@ function dblClickResize(el, options) {
     } else {
         gMouseStatus = null;
         reenableTextSelection();
-        if (el.closest('tHead').index() == 0) {
-            var resize = true;
+
+        var resize;
+        if (el.closest('tHead').index() === 0) {
+            resize = true;
         } else {
-            var resize = false;
+            resize = false;
         }
+
+        var minWidth;
         if (options && options.minWidth) {
-            var minWidth = options.minWidth
+            minWidth = options.minWidth;
         } else {
-            var minWidth = 17;
+            minWidth = 17;
         }
-        autosizeCol(el.parent().parent(), {resizeFirstRow: resize,
-                                            dbClick: true,
-                                            minWidth: minWidth});
+        autosizeCol(el.parent().parent(), {
+            "resizeFirstRow": resize,
+            "dbClick"       : true,
+            "minWidth"      : minWidth});
         $('#ew-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
@@ -620,24 +637,24 @@ function dblClickResize(el, options) {
 }
 
 function createTableHeader(tableNum) {
-    var $xcTheadWrap = $('<div id="xcTheadWrap' + tableNum + 
-                         '" class="xcTheadWrap dataTable" ' + 
+    var $xcTheadWrap = $('<div id="xcTheadWrap' + tableNum +
+                         '" class="xcTheadWrap dataTable" ' +
                          'style="top:0px;"></div>');
 
     $('#xcTableWrap' + tableNum).prepend($xcTheadWrap);
 
     var tableName = "";
     // XXX build this table title somewhere else
-    if (gTables[tableNum] != undefined) {
+    if (gTables[tableNum] != null) {
         tableName = gTables[tableNum].backTableName;
     }
 
-    var html = '<div class="tableTitle">' + 
-                    '<div class="tableGrab"></div>' + 
-                    '<input type="text">' + 
-                    '<div class="dropdownBox">' + 
-                        '<span class="innerBox"></span>' + 
-                    '</div>' + 
+    var html = '<div class="tableTitle">' +
+                    '<div class="tableGrab"></div>' +
+                    '<input type="text">' +
+                    '<div class="dropdownBox">' +
+                        '<span class="innerBox"></span>' +
+                    '</div>' +
                 '</div>';
 
     $xcTheadWrap.prepend(html);
@@ -645,70 +662,70 @@ function createTableHeader(tableNum) {
     updateTableHeader(tableNum);
 
     var newTableName = xcHelper.randName(tableName, undefined, true);
-    var tableMenuHTML = 
-        '<ul id="tableMenu' + tableNum + 
-            '" class="colMenu tableMenu" >' + 
-            '<li class="archiveTable">Archive Table</li>' + 
-            '<li class="hideTable">Hide Table</li>' + 
-            '<li class="unhideTable">Unhide Table</li>' + 
-            '<li class="deleteTable">Delete Table</li>' + 
-            '<li class="exportTable">Export Table</li>' + 
-            '<li class="delAllDuplicateCols">Delete All Duplicates</li>' + 
-            '<li class="quickAgg"> Quick Aggregates'+
-                '<ul class="subColMenu">'+
-                    '<li class="aggregates">Aggregate Functions</li>'+
-                    '<li class="correlation">Correlation Coefficient</li>'+
-                    '<div class="subColMenuArea"></div>'+
-                '</ul>'+
-                '<div class="dropdownBox"></div>'+
-            '</li>'+
-            '<li class="moveToWorksheet" data-toggle="tooltip" '+
-                'data-placement="top" title="no worksheet to move to">' + 
-                'Move to worksheet' + 
-                '<ul class="subColMenu">' + 
-                    '<li style="text-align: center" class="clickable">'+
-                        '<span>Worksheet Name</span>' + 
-                        '<div class="listSection">' + 
-                            '<input class="wsName" type="text" width="100px" '+ 
+    var tableMenuHTML =
+        '<ul id="tableMenu' + tableNum +
+            '" class="colMenu tableMenu" >' +
+            '<li class="archiveTable">Archive Table</li>' +
+            '<li class="hideTable">Hide Table</li>' +
+            '<li class="unhideTable">Unhide Table</li>' +
+            '<li class="deleteTable">Delete Table</li>' +
+            '<li class="exportTable">Export Table</li>' +
+            '<li class="delAllDuplicateCols">Delete All Duplicates</li>' +
+            '<li class="quickAgg"> Quick Aggregates' +
+                '<ul class="subColMenu">' +
+                    '<li class="aggregates">Aggregate Functions</li>' +
+                    '<li class="correlation">Correlation Coefficient</li>' +
+                    '<div class="subColMenuArea"></div>' +
+                '</ul>' +
+                '<div class="dropdownBox"></div>' +
+            '</li>' +
+            '<li class="moveToWorksheet" data-toggle="tooltip" ' +
+                'data-placement="top" title="no worksheet to move to">' +
+                'Move to worksheet' +
+                '<ul class="subColMenu">' +
+                    '<li style="text-align: center" class="clickable">' +
+                        '<span>Worksheet Name</span>' +
+                        '<div class="listSection">' +
+                            '<input class="wsName" type="text" width="100px" ' +
                                 'placeholder="click to see options"/>' +
-                            '<ul class="list"></ul>' + 
-                        '</div>' + 
+                            '<ul class="list"></ul>' +
+                        '</div>' +
                     '</li>' +
-                    '<div class="subColMenuArea"></div>'+
-                '</ul>' + 
-                '<div class="dropdownBox"></div>' + 
-            '</li>' + 
-            '<li class="dupToWorksheet">' + 
-                '<span class="label">Copy to worksheet</span>' + 
-                '<ul class="subColMenu">' + 
-                    '<li style="text-align: center" class="clickable">'+
-                        '<span>Worksheet Name</span>' + 
-                        '<div class="listSection">' + 
-                            '<input class="wsName" type="text" width="100px" '+ 
+                    '<div class="subColMenuArea"></div>' +
+                '</ul>' +
+                '<div class="dropdownBox"></div>' +
+            '</li>' +
+            '<li class="dupToWorksheet">' +
+                '<span class="label">Copy to worksheet</span>' +
+                '<ul class="subColMenu">' +
+                    '<li style="text-align: center" class="clickable">' +
+                        '<span>Worksheet Name</span>' +
+                        '<div class="listSection">' +
+                            '<input class="wsName" type="text" width="100px" ' +
                                 'placeholder="click to see options"/>' +
-                            '<ul class="list"></ul>' + 
-                        '</div>' + 
+                            '<ul class="list"></ul>' +
+                        '</div>' +
                     '</li>' +
-                    '<li style="text-align: center" class="clickable">'+
-                        '<span>New Table Name</span>' + 
-                        '<input class="tableName" type="text" width="100px" ' + 
-                                'placeholder="Enter a new table name" ' + 
-                                'value="' + newTableName + '"/>' + 
+                    '<li style="text-align: center" class="clickable">' +
+                        '<span>New Table Name</span>' +
+                        '<input class="tableName" type="text" width="100px" ' +
+                                'placeholder="Enter a new table name" ' +
+                                'value="' + newTableName + '"/>' +
                     '</li>' +
-                    '<div class="subColMenuArea"></div>'+
-                '</ul>' + 
-                '<div class="dropdownBox"></div>' + 
-            '</li>' + 
+                    '<div class="subColMenuArea"></div>' +
+                '</ul>' +
+                '<div class="dropdownBox"></div>' +
+            '</li>' +
         '</ul>';
 
-    $('#xcTableWrap'+ tableNum).append(tableMenuHTML);
+    $('#xcTableWrap' + tableNum).append(tableMenuHTML);
 
     addColMenuBehaviors($("#tableMenu" + tableNum));
 
     // Event Listener for table title
     $xcTheadWrap.on({
         "keyup": function(event) {
-            if (event.which == keyCode.Enter) {
+            if (event.which === keyCode.Enter) {
                 $(this).blur();
             }
         },
@@ -727,7 +744,7 @@ function createTableHeader(tableNum) {
     // Change from $xcTheadWrap.find('.tableGrab').mosedown...
     $xcTheadWrap.on('mousedown', '.tableGrab', function(event) {
         // Not Mouse down
-        if (event.which != 1) {
+        if (event.which !== 1) {
             return;
         }
         dragTableMouseDown($(this).parent(), event);
@@ -774,29 +791,26 @@ function createTableHeader(tableNum) {
 
     $tableMenu.on('click', '.deleteTable', function() {
         var $menu = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id')
-                                     .substring(9));
+        var tableNum = parseInt($menu.attr('id').substring(9));
         var tableName = gTables[tableNum].frontTableName;
-        var alertOptions = {};
 
         $menu.hide();
 
-        // add alert
-        alertOptions.title = "DELETE TABLE";
-        alertOptions.msg = "Are you sure you want to delete table " 
-                            + tableName + "?";
-        alertOptions.isCheckBox = true;
-        alertOptions.confirm = function() {
-            deleteActiveTable(tableNum)
-            .then(function() {
-                commitToStorage();
-            })
-            .fail(function(error) {
-                Alert.error("Delete Table Fails", error);
-            });
-        }
-
-        Alert.show(alertOptions);
+        var msg = "Are you sure you want to delete table " + tableName + "?";
+        Alert.show({
+            "title"     : "DELETE TABLE",
+            "msg"       : msg,
+            "isCheckBox": true,
+            "confirm"   : function() {
+                deleteActiveTable(tableNum)
+                .then(function() {
+                    commitToStorage();
+                })
+                .fail(function(error) {
+                    Alert.error("Delete Table Fails", error);
+                });
+            }
+        });
     });
 
     $tableMenu.on('click', '.exportTable', function() {
@@ -804,7 +818,7 @@ function createTableHeader(tableNum) {
         var tableNum = parseInt($menu.attr('id').substring(9));
 
         $menu.hide();
-        xcFunction.exportTable(tableNum)
+        xcFunction.exportTable(tableNum);
     });
 
     $tableMenu.on('click', '.delAllDuplicateCols', function() {
@@ -815,7 +829,7 @@ function createTableHeader(tableNum) {
         // var numCols = columns.length;
 
         for (var i = 0; i < columns.length; i++) {
-            if (columns[i].func.func && columns[i].func.func == "raw") {
+            if (columns[i].func.func && columns[i].func.func === "raw") {
                 continue;
             } else {
                 var forwardCheck = true;
@@ -852,49 +866,43 @@ function createTableHeader(tableNum) {
     // opeartion for move to worksheet and copy to worksheet
     $tableMenu.on('mouseenter', '.moveToWorksheet', function() {
         var $list = $(this).find(".list");
-        var html  = WSManager.getWSLists(false);
-
-        $list.empty().append(html);
+        $list.empty().append(WSManager.getWSLists(false));
     });
 
 
     $tableMenu.on('mouseenter', '.dupToWorksheet', function() {
         var $list = $(this).find(".list");
-        var html  = WSManager.getWSLists(true);
-
-        $list.empty().append(html);
+        $list.empty().append( WSManager.getWSLists(true));
     });
 
     xcHelper.dropdownList($tableMenu.find(".listSection"), {
-        "onSelect" : function($li) {
+        "onSelect": function($li) {
             var $input = $li.closest(".listSection").find(".wsName");
             $input.val($li.text()).focus();
         }
     });
 
     $tableMenu.on('keypress', '.moveToWorksheet input', function(event) {
-        if (event.which == keyCode.Enter) {
-            var $input   = $(this);
-            var wsName   = jQuery.trim($input.val());
-            var $option  = $input.siblings(".list").find("li")
-                                 .filter(function() 
-            {
-                return $(this).text() === wsName;
-            });
+        if (event.which === keyCode.Enter) {
+            var $input  = $(this);
+            var wsName  = jQuery.trim($input.val());
+            var $option =
+                $input.siblings(".list").find("li").filter(function() {
+                    return ($(this).text() === wsName); });
 
             var isValid  = xcHelper.validate([
                 {
                     "$selector": $input,
-                    "forMode"  : true,
+                    "forMode"  : true
                 },
                 {
                     "$selector": $input,
                     "check"    : function () {
                         return ($option.length === 0);
                     },
-                    "text"     : "Invalid worksheet name, please choose a " + 
+                    "text": "Invalid worksheet name, please choose a " +
                                  "worksheet in the pop up list!",
-                    "forMode"  : true
+                    "forMode": true
                 }
             ]);
 
@@ -934,11 +942,11 @@ function createTableHeader(tableNum) {
                 return false;
             }
 
-            var wsName        = jQuery.trim($wsInput.val());
-            var newTableName  = jQuery.trim($tableNameInput.val());
+            var wsName       = jQuery.trim($wsInput.val());
+            var newTableName = jQuery.trim($tableNameInput.val());
 
-            var $option       = $li.find(".list li").filter(function() {
-                return $(this).text() === wsName;
+            var $option = $li.find(".list li").filter(function() {
+                return ($(this).text() === wsName);
             });
             // XXX also need to check table name conflict
             isValid = xcHelper.validate({
@@ -946,9 +954,9 @@ function createTableHeader(tableNum) {
                 "check"    : function() {
                     return ($option.length === 0);
                 },
-                "text"     : "Invalid worksheet name, " + 
+                "text": "Invalid worksheet name, " +
                              "please choose a worksheet in the pop up list!",
-                "formMode" : true
+                "formMode": true
             });
 
             if (!isValid) {
@@ -965,7 +973,7 @@ function createTableHeader(tableNum) {
             $wsInput.val("");
             $wsInput.blur();
 
-            $tableNameInput.val(xcHelper.randName(table.backTableName, 
+            $tableNameInput.val(xcHelper.randName(table.backTableName,
                                                   undefined, true));
             $tableNameInput.blur();
             $menu.hide();
@@ -982,7 +990,7 @@ function updateTableHeader(tableNum, $tHead, isFocus) {
     var tableName = "";
     var cols = 0;
 
-    var $tHead = $tHead || $("#xcTheadWrap" + tableNum + " .tableTitle input");
+    $tHead = $tHead || $("#xcTheadWrap" + tableNum + " .tableTitle input");
     // for blur and focus on table header
     if (tableNum == null) {
         cols = $tHead.data("cols");
@@ -994,7 +1002,7 @@ function updateTableHeader(tableNum, $tHead, isFocus) {
         }
     } else {
         // for update table header
-        if (gTables[tableNum] != undefined) {
+        if (gTables[tableNum] != null) {
             tableName = gTables[tableNum].frontTableName;
             cols = gTables[tableNum].tableCols.length;
         }
@@ -1005,19 +1013,23 @@ function updateTableHeader(tableNum, $tHead, isFocus) {
 }
 
 function matchHeaderSizes(colNum, $table, matchAllHeaders) {
+    var $header;
+    var headerWidth;
+
     if (matchAllHeaders) {
         var numCols = $table.find('th').length;
         var $theadRow = $table.find('thead tr');
         for (var i = 0; i < numCols; i++) {
-            var $header = $theadRow.find('th.col' + i);
-            var headerWidth = $header.outerWidth();
+            $header = $theadRow.find('th.col' + i);
+            headerWidth = $header.outerWidth();
             $header.children().outerWidth(headerWidth);
         }
     } else {
-        var $header = $table.find('th.col' + colNum);
-        var headerWidth = $header.outerWidth();
+        $header = $table.find('th.col' + colNum);
+        headerWidth = $header.outerWidth();
         $header.children().outerWidth(headerWidth);
     }
+
     var tableNum = $table.attr('id').slice(7);
     var tableWidth = $table.width();
     $theadWrap = $('#xcTheadWrap' + tableNum);
@@ -1028,12 +1040,12 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
 }
 
 function displayShortenedHeaderName($el, tableNum, colNum) {
-    if (gTables[tableNum].tableCols[colNum-1].name.length > 0) {
-        $el.val(gTables[tableNum].tableCols[colNum-1].name);
+    if (gTables[tableNum].tableCols[colNum - 1].name.length > 0) {
+        $el.val(gTables[tableNum].tableCols[colNum - 1].name);
     }
 }
 
-function addColListeners($table, tableNum) {;
+function addColListeners($table, tableNum) {
     var $thead = $table.find('thead tr');
     var $colMenu = $('#colMenu' + tableNum);
     $thead.on({
@@ -1049,7 +1061,7 @@ function addColListeners($table, tableNum) {;
             }
             gFnBarOrigin = $(this);
             if (!$('#fnBar').hasClass('entered')) {
-                if (oldFnBarOrigin == gFnBarOrigin[0]) {
+                if (oldFnBarOrigin === gFnBarOrigin[0]) {
                     // the function bar origin hasn't changed so just return
                     // and do not rehighlight or update any text
                     return;
@@ -1059,7 +1071,7 @@ function addColListeners($table, tableNum) {;
             }
             var index = xcHelper.parseColNum($(this));
 
-            var userStr = gTables[dynTableNum].tableCols[index-1].userStr;
+            var userStr = gTables[dynTableNum].tableCols[index - 1].userStr;
             userStr = userStr.substring(userStr.indexOf('='));
             $('#fnBar').val(userStr);
 
@@ -1070,17 +1082,18 @@ function addColListeners($table, tableNum) {;
             var $el         = $(this);
             var dynTableNum = parseInt($el.closest('.dataTable').attr('id')
                                         .substring(7));
-            var index       = xcHelper.parseColNum($el);
+
+            var index = xcHelper.parseColNum($el);
 
             if (!$('#fnBar').hasClass('inFocus')) {
                 displayShortenedHeaderName($el, dynTableNum, index);
             }
- 
+
             $el.parent().siblings('.dropdownBox').removeClass('hidden');
             $('#fnBar').removeClass('active');
         },
         "keyup": function(event) {
-            if (event.which == keyCode.Enter) {
+            if (event.which === keyCode.Enter) {
                 functionBarEnter($(this));
                 return;
             }
@@ -1105,12 +1118,12 @@ function addColListeners($table, tableNum) {;
             options.classes.indexOf('type') === -1) {
             options.classes += " type-newColumn";
         }
-        if ($(this).closest('th').width() == 10) {
+        if ($(this).closest('th').width() === 10) {
             // column is hidden
             options.classes += " type-hidden";
         }
         if ($(this).closest('.xcTable').hasClass('emptyTable')) {
-             options.classes += " type-emptyTable";
+            options.classes += " type-emptyTable";
         }
 
         dropdownClick($(this), null, options);
@@ -1129,7 +1142,7 @@ function addColListeners($table, tableNum) {;
     }, ".dropdownBox");
 
     $thead.on('mousedown', '.colGrab', function(event) {
-        if (event.which != 1) {
+        if (event.which !== 1) {
             return;
         }
         gRescolMouseDown($(this), event);
@@ -1137,12 +1150,12 @@ function addColListeners($table, tableNum) {;
     });
 
     $thead.on('mousedown', '.dragArea', function(event) {
-        if (event.which != 1) {
+        if (event.which !== 1) {
             return;
         }
         var headCol = $(this).parent().parent();
         dragdropMouseDown(headCol, event);
-    }); 
+    });
 
     addColMenuBehaviors($colMenu);
     addColMenuActions($colMenu, $thead);
@@ -1195,9 +1208,10 @@ function addColMenuBehaviors($colMenu) {
         }
     }, 'input');
 
-    $colMenu.on('click', 'li', function(event) {
+    $colMenu.on('click', 'li', function() {
         if ($(this).children('.subColMenu, input').length === 0 &&
-            !$(this).hasClass('unavailable')) {
+            !$(this).hasClass('unavailable'))
+        {
             
             // hide li if doesnt have a submenu or an input field
             $colMenu.hide();
@@ -1213,17 +1227,17 @@ function addColMenuActions($colMenu, $thead) {
 
     $colMenu.on('click', '.addColumns', function() {
         var colNum = $colMenu.data('colNum');
-        var index = 'col'+ colNum;
+        var index = 'col' + colNum;
         var tableNum = parseInt($colMenu.attr('id').substring(7));
-        var tableId = "xcTable"+ tableNum;
+        var tableId = "xcTable" + tableNum;
 
         // add sql
         var table = gTables[tableNum];
         var sqlOptions = {
-            "operation": "addCol",
-            "tableName": table.frontTableName,
-            "newColName": "",
-            "siblColName": table.tableCols[colNum - 1].name,
+            "operation"   : "addCol",
+            "tableName"   : table.frontTableName,
+            "newColName"  : "",
+            "siblColName" : table.tableCols[colNum - 1].name,
             "siblColIndex": colNum
         };
 
@@ -1236,15 +1250,15 @@ function addColMenuActions($colMenu, $thead) {
         }
         $colMenu.hide();
 
-        ColManager.addCol(index, tableId, null, 
+        ColManager.addCol(index, tableId, null,
                          {direction: direction, isNewCol: true, inFocus: true});
 
         SQL.add("Add Column", sqlOptions);
-    })
+    });
 
     $colMenu.on('click', '.deleteColumn', function() {
         var colNum   = $colMenu.data('colNum');
-        var tableNum = parseInt($colMenu.attr('id').substring(7)); 
+        var tableNum = parseInt($colMenu.attr('id').substring(7));
 
         ColManager.delCol(colNum, tableNum);
     });
@@ -1261,7 +1275,7 @@ function addColMenuActions($colMenu, $thead) {
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var index = $colMenu.data('colNum');
         $('#xcTable' + tableNum).find('.editableHead.col' + index)
-            .focus().select();
+                                .focus().select();
     });
 
     $colMenu.on('click', '.duplicate', function() {
@@ -1272,28 +1286,29 @@ function addColMenuActions($colMenu, $thead) {
         var width = table.find('th.col' + index).outerWidth();
         var isNewCol = table.find('th.col' + index).hasClass('unusedCell');
 
-        ColManager.addCol('col' + index, table.attr('id'),name, 
-                          {width: width, isNewCol: isNewCol});
+        ColManager.addCol('col' + index, table.attr('id'), name, {
+                          "width"   : width,
+                          "isNewCol": isNewCol});
         // add sql
         SQL.add("Duplicate Column", {
             "operation": "duplicateCol",
             "tableName": gTables[tableNum].frontTableName,
-            "colName": name,
-            "colIndex": index
+            "colName"  : name,
+            "colIndex" : index
         });
 
-        gTables[tableNum].tableCols[index].func.func = 
-            gTables[tableNum].tableCols[index-1].func.func;
-        gTables[tableNum].tableCols[index].func.args = 
-            gTables[tableNum].tableCols[index-1].func.args;
-        gTables[tableNum].tableCols[index].userStr = 
-            gTables[tableNum].tableCols[index-1].userStr;
+        gTables[tableNum].tableCols[index].func.func =
+            gTables[tableNum].tableCols[index - 1].func.func;
+        gTables[tableNum].tableCols[index].func.args =
+            gTables[tableNum].tableCols[index - 1].func.args;
+        gTables[tableNum].tableCols[index].userStr =
+            gTables[tableNum].tableCols[index - 1].userStr;
 
         ColManager.execCol(gTables[tableNum].tableCols[index], tableNum)
         .then(function() {
             updateTableHeader(tableNum);
             RightSideBar.updateTableInfo(gTables[tableNum]);
-        }); 
+        });
     });
 
     $colMenu.on('click', '.hide', function() {
@@ -1315,7 +1330,7 @@ function addColMenuActions($colMenu, $thead) {
         var colNum   = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
 
-        ColManager.textAlign(colNum, tableNum, $(this).attr("class")); 
+        ColManager.textAlign(colNum, tableNum, $(this).attr("class"));
     });
 
     /// added back in
@@ -1323,13 +1338,13 @@ function addColMenuActions($colMenu, $thead) {
         var index = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         xcFunction.sort(index, tableNum, SortDirection.Forward);
-    }); 
+    });
     
     $colMenu.on('click', '.sort .revSort', function() {
         var index = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         xcFunction.sort(index, tableNum, SortDirection.Backward);
-    }); 
+    });
     
     // $colMenu.on('click', '.aggrOp', function() {
     //     var index = $colMenu.data('colNum');
@@ -1370,7 +1385,7 @@ function addColMenuActions($colMenu, $thead) {
         }
         var colNum = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
-        var func = $(this).text().replace(/\./g,'');
+        var func = $(this).text().replace(/\./g, '');
         OperationsModal.show(tableNum, colNum, func);
     });
 
@@ -1383,18 +1398,20 @@ function addColMenuActions($colMenu, $thead) {
 
 function functionBarEnter($colInput) {
     gFnBarOrigin = $colInput;
+
     var index = xcHelper.parseColNum($colInput);
     var $table = $colInput.closest('.dataTable');
     var tableNum = parseInt($table.attr('id').substring(7));
-    var tableCol = gTables[tableNum].tableCols[index-1];
+    var tableCol = gTables[tableNum].tableCols[index - 1];
     var newName = $.trim($colInput.val());
     var oldName = tableCol.name;
     var newFuncStr = $.trim($('#fnBar').val());
     var progStr = '"' + newName + '" ' + newFuncStr;
     var oldUsrStr = tableCol.userStr;
+
     $('#fnBar').removeClass('inFocus');
   
-    if (progStr == oldUsrStr || newName == "") {
+    if (progStr === oldUsrStr || newName === "") {
         $colInput.val(oldName);
         $colInput.blur();
         return;
@@ -1405,7 +1422,7 @@ function functionBarEnter($colInput) {
 
     //check if the function changed
     var tempFuncStr = '"' + oldName + '" ' + newFuncStr;
-    if (oldUsrStr == tempFuncStr) {
+    if (oldUsrStr === tempFuncStr) {
         // only the name has changed, not the function
         tableCol.name = newName;
         tableCol.userStr = progStr;
@@ -1418,8 +1435,8 @@ function functionBarEnter($colInput) {
     SQL.add("Pull Column", {
         "operation": "pullCol",
         "tableName": gTables[tableNum].frontTableName,
-        "colName": progCol.name,
-        "colIndex": progCol.index,
+        "colName"  : progCol.name,
+        "colIndex" : progCol.index
     });
 
     ColManager.execCol(progCol, tableNum)
@@ -1437,15 +1454,15 @@ function functionBarEnter($colInput) {
         var progCol;
 
         if (modifyCol) {
-            progCol = gTables[tableNum].tableCols[colId-1];
+            progCol = gTables[tableNum].tableCols[colId - 1];
         } else {
             progCol = ColManager.newCol();
         }
         // console.log(progCol)
         progCol.userStr = funcString;
-        progCol.name    = name;
-        progCol.func    = cleanseFunc(funcSt);
-        progCol.index   = colId;
+        progCol.name = name;
+        progCol.func = cleanseFunc(funcSt);
+        progCol.index = colId;
 
         return (progCol);
     }
@@ -1474,14 +1491,16 @@ function dropdownClick($el, outside, options) {
     var leftMargin = 5;
     var top = $el[0].getBoundingClientRect().bottom + topMargin;
     var left = $el[0].getBoundingClientRect().left + leftMargin;
+    var $menu;
+
     if (outside) {
         // for dataset dropdown
-        var $menu = $("#datasetTableMenu");
+        $menu = $("#datasetTableMenu");
     } else {
         var tableNum = parseInt($el.closest('.xcTableWrap').attr('id')
                        .substring(11));
         if ($el.parent().hasClass('tableTitle')) {
-            var $menu = $('#tableMenu' + tableNum);
+            $menu = $('#tableMenu' + tableNum);
 
             if (WSManager.getWSLen() <= 1) {
                 $menu.find(".moveToWorksheet").addClass("unavailable");
@@ -1489,19 +1508,20 @@ function dropdownClick($el, outside, options) {
                 $menu.find(".moveToWorksheet").removeClass("unavailable");
             }
         } else {
-            var $menu = $('#colMenu' + tableNum);
+            $menu = $('#colMenu' + tableNum);
         }
     }
-    var options = options || {};
+
+    options = options || {};
     if (options.colNum > -1) {
         $menu.data('colNum', options.colNum);
     }
     if (options.classes) {
         var className = options.classes.replace("header", "");
-        $menu.attr('class', 'colMenu '+ className);
+        $menu.attr('class', 'colMenu ' + className);
     }
     
-    $menu.css({'top':top, 'left':left});
+    $menu.css({'top': top, 'left': left});
     $menu.show();
 
     $menu.closest('.xcTheadWrap').css('z-index', '10');
@@ -1546,13 +1566,15 @@ function positionScrollbar(row, tableNum) {
     var table = $('#xcTable' + tableNum);
     var theadHeight = table.find('thead').height();
     function positionScrollToRow() {
-        if (!table.find('.row' + (row-1))[0]) {
+        if (!table.find('.row' + (row - 1))[0]) {
             return;
-        } 
-        var tdTop = table.find('.row' + (row-1))[0].offsetTop;
-        var scrollPos = Math.max((tdTop-theadHeight), 1);
-        if (canScroll && scrollPos > 
-                (table.height() - $('#xcTableWrap' + tableNum).height())) {
+        }
+
+        var tdTop = table.find('.row' + (row - 1))[0].offsetTop;
+        var scrollPos = Math.max((tdTop - theadHeight), 1);
+        if (canScroll && scrollPos >
+            (table.height() - $('#xcTableWrap' + tableNum).height()))
+        {
             canScroll = false;
         }
         $('#rowScrollerArea').addClass('autoScroll');
@@ -1595,7 +1617,7 @@ function addRowListeners(newCells) {
     // });
 
     newCells.find('.rowGrab').mousedown(function(event) {
-         if (event.which === 1) {
+        if (event.which === 1) {
             gResrowMouseDown($(this), event);
         }     
     });
@@ -1618,27 +1640,28 @@ function adjustRowHeights(newCells, rowIndex, tableNum) {
     var pageNum = Math.floor(rowIndex / gNumEntriesPerPage);
     var lastPageNum = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
     var padding = 4;
+
     for (var i = pageNum; i < lastPageNum; i++) {
         if (rowObj[i]) {
             for (var row in rowObj[i]) {
                 var $row = newCells.filter(function() {
-                                return ($(this).hasClass('row' + (row-1)));
-                           });
+                    return ($(this).hasClass('row' + (row - 1)));
+                });
                 
                 $row.find('td.col0')
                     .outerHeight(rowObj[i][row]);
                 $row.find('td > div')
-                    .css('max-height', rowObj[i][row]-padding);
+                    .css('max-height', rowObj[i][row] - padding);
             }
         }
     }
 }
 
 function addTableListeners(tableNum) {
-    $('#xcTableWrap'+ tableNum).mousedown(function() { 
+    $('#xcTableWrap' + tableNum).mousedown(function() {
         var dynTableNum = parseInt($(this).closest('.tableWrap').attr('id')
                        .substring(11));
-        if (gActiveTableNum == dynTableNum) {
+        if (gActiveTableNum === dynTableNum) {
             return;
         } else {
             gActiveTableNum = dynTableNum;
@@ -1669,14 +1692,15 @@ function moveTableDropdownBoxes() {
     
     var rightSideBarWidth = 10;
     var windowWidth = $(window).width();
-    if (windowWidth == $('#container').width()) {
+    if (windowWidth === $('#container').width()) {
         windowWidth -= rightSideBarWidth;
     }
     while (tablesAreVisible) {
         var tableRight = $startingTableHead[0].getBoundingClientRect().right;
         if (tableRight > windowWidth) {
             var position = tableRight - windowWidth - 3;
-            $startingTableHead.find('.dropdownBox').css('right', position+'px');
+            $startingTableHead.find('.dropdownBox')
+                                .css('right', position + 'px');
             tablesAreVisible = false;
         } else {
             $startingTableHead.find('.dropdownBox').css('right', -3 + 'px');
@@ -1692,17 +1716,18 @@ function moveTableDropdownBoxes() {
 
 function focusTable(tableNum) {
     var tableName = gTables[tableNum].frontTableName;
-    if (WSManager.getWSFromTable(tableName) !== 
-        WSManager.getActiveWS()) {
+    if (WSManager.getWSFromTable(tableName) !== WSManager.getActiveWS())
+    {
         console.log("Table not in current worksheet");
         return;
     }
+
     $('#mainFrame').find('.tableTitle').removeClass('tblTitleSelected');
-    $('#xcTheadWrap'+ tableNum).find('.tableTitle')
+    $('#xcTheadWrap' + tableNum).find('.tableTitle')
         .addClass('tblTitleSelected');
     gActiveTableNum = tableNum;
     updatePageBar(tableNum);
-    if (gTables[tableNum].resultSetCount == 0) {  
+    if (gTables[tableNum].resultSetCount === 0) {
         $('#rowInput').val(0).data('val', 0);
     } else {
         generateFirstVisibleRowNum();
@@ -1711,15 +1736,15 @@ function focusTable(tableNum) {
 }
 
 function moverowScroller(rowNum, resultSetCount) {
-    var pct = 100* ((rowNum-1)/(resultSetCount-1));
-    $('#rowMarker'+gActiveTableNum)
-        .css('transform', 'translate3d('+pct+'%, 0px, 0px)');
+    var pct = 100 * ((rowNum - 1) / (resultSetCount - 1));
+    $('#rowMarker' + gActiveTableNum).css('transform',
+                                        'translate3d(' + pct + '%, 0px, 0px)');
 
 }
 
 function setupBookmarkArea() {
     $('#rowScrollerArea').mousedown(function(event) {
-        if (event.which != 1 || $('.rowScroller').length == 0) {
+        if (event.which !== 1 || $('.rowScroller').length === 0) {
             return;
         }
         if ($(event.target).hasClass('subRowMarker')) {
@@ -1727,15 +1752,15 @@ function setupBookmarkArea() {
             return;
         }
         var tableNum = gActiveTableNum;
-        var rowScroller = $('#rowScroller' + tableNum)
+        var rowScroller = $('#rowScroller' + tableNum);
         var mouseX = event.pageX - rowScroller.offset().left;
-        var rowPercent = mouseX/$(this).width();
+        var rowPercent = mouseX / $(this).width();
 
-        var translate = Math.min(99.9, Math.max(0,rowPercent * 100));
-        $('#rowMarker'+ tableNum).css('transform', 
-                                'translate3d('+translate+'%, 0px, 0px)'); 
+        var translate = Math.min(99.9, Math.max(0, rowPercent * 100));
+        $('#rowMarker' + tableNum).css('transform',
+                                'translate3d(' + translate + '%, 0px, 0px)');
         
-        var rowNum = Math.ceil(rowPercent*gTables[tableNum].resultSetCount);
+        var rowNum = Math.ceil(rowPercent * gTables[tableNum].resultSetCount);
         if (rowScroller.find('.bookmark').length > 0) {
             // check 8 pixels around for bookmark?
             var yCoor = rowScroller.offset().top + rowScroller.height() - 5;
@@ -1754,8 +1779,7 @@ function setupBookmarkArea() {
 
         var e = $.Event("keypress");
         e.which = keyCode.Enter;
-        e['rowScrollerMousedown'] = true;
-        var el = $(this);
+        e.rowScrollerMousedown = true;
 
         setTimeout( function() {
             $("#rowInput").val(rowNum).trigger(e);
@@ -1773,19 +1797,20 @@ function isTableScrollable(tableNum) {
 }
 
 function addRowScroller(tableNum) {
-    var rowScrollerHTML = '<div id="rowScroller'+ tableNum +
-        '" class="rowScroller" data-toggle="tooltip"'+
-            'data-placement="bottom" title="scroll to a row">'+
-            '<div id="rowMarker'+ tableNum +'" class="rowMarker">'+
-            '<div class="subRowMarker top"></div>'+
-            '<div class="subRowMarker middle"></div>'+
-            '<div class="subRowMarker bottom"></div>'+
-            '</div>'+
+    var rowScrollerHTML =
+        '<div id="rowScroller' + tableNum +
+        '" class="rowScroller" data-toggle="tooltip"' +
+            'data-placement="bottom" title="scroll to a row">' +
+            '<div id="rowMarker' + tableNum + '" class="rowMarker">' +
+                '<div class="subRowMarker top"></div>' +
+                '<div class="subRowMarker middle"></div>' +
+                '<div class="subRowMarker bottom"></div>' +
+            '</div>' +
         '</div>';
-    if (tableNum == 0) {
+    if (tableNum === 0) {
         $('#rowScrollerArea').prepend(rowScrollerHTML);
     } else {
-        $('#rowScroller'+(tableNum-1)).after(rowScrollerHTML);
+        $('#rowScroller' + (tableNum - 1)).after(rowScrollerHTML);
     }
 
     var rows = gTables[tableNum].bookmarks;
@@ -1795,25 +1820,25 @@ function addRowScroller(tableNum) {
     }
     
     if ($('.xcTable').length > 1) {
-        $('#rowScroller'+ tableNum).hide();
+        $('#rowScroller' + tableNum).hide();
     }  
 }
 
 function showRowScroller(tableNum) {
     $('.rowScroller').hide();
-    if (tableNum != undefined && tableNum >= 0) {
+    if (tableNum != null && tableNum >= 0) {
         $('#rowScroller' + tableNum).show();
     }
 }
 
 function emptyScroller() {
-    $('#rowInput').val("").data('val',"");
+    $('#rowInput').val("").data('val', "");
     gActiveTableNum = -1;
     updatePageBar();
 }
 
 function bookmarkRow(rowNum, tableNum) {
-    //XXX allow user to select color in future? 
+    //XXX allow user to select color in future?
     var td = $('#xcTable' + tableNum + ' .row' + rowNum + ' .col0');
     td.addClass('rowBookmarked');
     td.find('.idSpan').attr('title', 'bookmarked');
@@ -1824,7 +1849,7 @@ function bookmarkRow(rowNum, tableNum) {
 }
 
 function appendBookmarkTick(rowNum, tableNum) {
-    var leftPos = 100*(rowNum/gTables[tableNum].resultSetCount);
+    var leftPos = 100 * (rowNum / gTables[tableNum].resultSetCount);
     var bookmark = $('<div class="bookmark bkmkRow' + rowNum + '"' +
         ' style="left:' + leftPos + '%;" data-toggle="tooltip" ' +
         ' data-placement="bottom" data-container="body" title="row ' +
@@ -1838,7 +1863,7 @@ function unbookmarkRow(rowNum, tableNum) {
     td.find('.idSpan').attr('title', '');
     $('#rowScroller' + tableNum).find('.bkmkRow' + rowNum).remove();
     var index = gTables[tableNum].bookmarks.indexOf(rowNum);
-    gTables[tableNum].bookmarks.splice(index,1);
+    gTables[tableNum].bookmarks.splice(index, 1);
 }
 
 function parseBookmarkNum(el) {
@@ -1864,18 +1889,21 @@ function rowScrollerStartDrag(event, el) {
     gResrow.el = el;
     gResrow.mouseStart = event.pageX;
     gResrow.scrollAreaOffset = el.parent().offset().left;
-    gResrow.rowScrollerWidth = el.parent().width(); 
-    var scrollerPositionStart = el.position().left;
+    gResrow.rowScrollerWidth = el.parent().width();
+    // var scrollerPositionStart = el.position().left;
     var mouseOffset = gResrow.mouseStart - el.offset().left;
     var cssLeft = parseInt(el.css('left'));
     gResrow.totalOffset = mouseOffset + cssLeft;
     gResrow.boundary = {
-        lower: gResrow.scrollAreaOffset, 
-        upper: gResrow.scrollAreaOffset + gResrow.rowScrollerWidth 
-    }
+        "lower": gResrow.scrollAreaOffset,
+        "upper": gResrow.scrollAreaOffset + gResrow.rowScrollerWidth
+    };
 
-    var cursorStyle = '<style id="moveCursor" type="text/css">*' + 
-    '{cursor:pointer !important}</style>';
+    var cursorStyle =
+        '<style id="moveCursor" type="text/css">*' +
+            '{cursor:pointer !important}' +
+        '</style>';
+
     $(document.head).append(cursorStyle);
     disableTextSelection();
 }
@@ -1883,15 +1911,17 @@ function rowScrollerStartDrag(event, el) {
 function rowScrollerMouseMove(event) {
     var mouseX = event.pageX;
     var translate;
+
     if (mouseX - gResrow.totalOffset < gResrow.boundary.lower) {
         translate = 0;
     } else if (mouseX - gResrow.totalOffset > gResrow.boundary.upper ) {
         translate = 100;
     } else {
-        translate = 100 * (mouseX - gResrow.scrollAreaOffset 
-                    - gResrow.totalOffset) / (gResrow.rowScrollerWidth - 1);
+        translate = 100 * (mouseX - gResrow.scrollAreaOffset -
+                    gResrow.totalOffset) / (gResrow.rowScrollerWidth - 1);
     }
-    gResrow.el.css('transform', 'translate3d(' + translate + '%, 0px, 0px)'); 
+
+    gResrow.el.css('transform', 'translate3d(' + translate + '%, 0px, 0px)');
 }
 
 function rowScrollerMouseUp() {
@@ -1917,14 +1947,16 @@ function resizeRowInput() {
 
     var resultTextLength = ("" + gTables[gActiveTableNum].resultSetCount).length;
     if (resultTextLength > $('#rowInput').attr('size')) {
-        $('#rowInput').attr({'maxLength': resultTextLength,
-                          'size': resultTextLength});
+        $('#rowInput').attr({
+            'maxLength': resultTextLength,
+            'size'     : resultTextLength
+        });
     }  
 }
     
 function dragTableMouseDown(el, e) {
     var dragObj = gDragObj;
-    gMouseStatus = "movingTable"
+    gMouseStatus = "movingTable";
     dragObj.mouseX = e.pageX;
     dragObj.table = el.closest('.xcTableWrap');
     dragObj.tableIndex = parseInt(dragObj.table.attr('id').substring(11));
@@ -1938,9 +1970,12 @@ function dragTableMouseDown(el, e) {
     dragObj.docHeight = $(document).height();
     dragObj.tableScrollTop = dragObj.table.scrollTop();
 
-    var cursorStyle = '<style id="moveCursor" type="text/css">*' + 
-    '{cursor:move !important; cursor: -webkit-grabbing !important;' +
-    'cursor: -moz-grabbing !important;}</style>';
+    var cursorStyle =
+        '<style id="moveCursor" type="text/css">*' +
+            '{cursor:move !important; cursor: -webkit-grabbing !important;' +
+            'cursor: -moz-grabbing !important;}' +
+        '</style>';
+
     $(document.head).append(cursorStyle);
     createShadowTable();
     sizeTableForDragging();
@@ -1959,22 +1994,25 @@ function dragTableMouseDown(el, e) {
 function dragTableMouseMove(e) {
     var dragObj = gDragObj;
     var left =  e.pageX - dragObj.mouseOffset;
-    dragObj.table.css('left',left + 'px');
+    dragObj.table.css('left', left + 'px');
     dragObj.pageX = e.pageX;
 }
 
 function dragTableMouseUp() {
     var dragObj = gDragObj;
+
     gMouseStatus = null;
-    dragObj.table.removeClass('tableDragging')
-                    .css({'left':'0px', 'height':'100%'});
+    dragObj.table.removeClass('tableDragging').css({
+        'left'  : '0px',
+        'height': '100%'
+    });
     $('#shadowTable, #moveCursor, #dropTargets').remove();
     $('#mainFrame').off('scroll', mainFrameScrollTableTargets);
     dragObj.table.scrollTop(dragObj.tableScrollTop);
     gActiveTableNum = dragObj.tableIndex;
-    reenableTextSelection(); 
+    reenableTextSelection();
 
-    if (dragObj.tableIndex != dragObj.originalIndex) {
+    if (dragObj.tableIndex !== dragObj.originalIndex) {
         // reorder only if order changed
         reorderAfterTableDrop();
     }
@@ -1983,10 +2021,10 @@ function dragTableMouseUp() {
 }
 
 function createShadowTable() {
-    var rect = gDragObj.table[0].getBoundingClientRect();
+    // var rect = gDragObj.table[0].getBoundingClientRect();
     var $mainFrame = $('#mainFrame');
     var width = gDragObj.table.children().width();
-    var tableHeight = gDragObj.table.find('.xcTheadWrap').height() + 
+    var tableHeight = gDragObj.table.find('.xcTheadWrap').height() +
                       gDragObj.table.find('.xcTbodyWrap').height();
     var mainFrameHeight = $mainFrame.height();
     if ($mainFrame[0].scrollWidth > $mainFrame.width()) {
@@ -2009,49 +2047,52 @@ function createShadowTable() {
 function createTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
     var offset = gDragObj.mouseX - gDragObj.offsetLeft;
     var dragMargin = 10;
-    
+    var tableLeft;
+
     if (!swappedTable) {
         var dropTargets = "";
         var i = 0;
         var tableWidth = gDragObj.table.width();
+
         $('#mainFrame').find('.xcTableWrap').each(function() {
-            if (i == gDragObj.tableIndex) {
+            if (i === gDragObj.tableIndex) {
                 i++;
                 return true;  
             }
 
-            if ((tableWidth-dragMargin) < 
-                    Math.round(0.5*$(this).outerWidth())) {
-                var targetWidth = tableWidth;
+            var targetWidth;
+            if ((tableWidth - dragMargin) <
+                Math.round(0.5 * $(this).outerWidth()))
+            {
+                targetWidth = tableWidth;
             } else {
-                var targetWidth = Math.round(0.5*$(this).outerWidth()) +
-                                  dragMargin;
+                targetWidth = Math.round(0.5 * $(this).outerWidth()) +
+                                dragMargin;
             }
-            var tableLeft = $(this).position().left + 
-                            $('#mainFrame').scrollLeft();
+
+            tableLeft = $(this).position().left + $('#mainFrame').scrollLeft();
             dropTargets += '<div id="dropTarget' + i + '" class="dropTarget"' +
-                            'style="left:' +
-                            (tableLeft-dragMargin + offset) + 'px;' +
-                            'width:' + targetWidth + 'px;height:'
-                            + (gDragObj.docHeight)+'px;">' + i +
+                            'style="left:' + (tableLeft - dragMargin + offset) +
+                            'px;' + 'width:' + targetWidth + 'px;height:' +
+                            (gDragObj.docHeight) + 'px;">' +
+                                i +
                             '</div>';
             i++;
         });
 
-        var tableLeft = -$('#mainFrame').scrollLeft();
+        tableLeft = -$('#mainFrame').scrollLeft();
         $('body').append('<div id="dropTargets" style="left:' +
-                tableLeft + 'px;"></div>');
+                            tableLeft + 'px;"></div>');
         $('#dropTargets').append(dropTargets);
         $('.dropTarget').mouseenter(function() {
             dragdropSwapTables($(this));
         });
         $('#mainFrame').scroll(mainFrameScrollTableTargets);
     } else {
-        var tableLeft = swappedTable.position().left + 
-                        $('#mainFrame').scrollLeft();
+        tableLeft = swappedTable.position().left + $('#mainFrame').scrollLeft();
         $('#dropTarget' + dropTargetIndex).attr('id', 'dropTarget' + oldIndex);
-        $('#dropTarget'  + oldIndex)
-            .css({'left': (tableLeft-dragMargin + offset) + 'px'});
+        $('#dropTarget' + oldIndex).css({
+            'left': (tableLeft - dragMargin + offset) + 'px'});
     }
 }
 
@@ -2063,8 +2104,9 @@ function mainFrameScrollTableTargets() {
 function dragdropSwapTables(el) {
     var dropTargetIndex = parseInt((el.attr('id')).substring(10));
     var table = $('#xcTableWrap' + dropTargetIndex);
-    var tableScrollTop = table.scrollTop();
-    if (dropTargetIndex >gDragObj.tableIndex) {
+    // var tableScrollTop = table.scrollTop();
+
+    if (dropTargetIndex > gDragObj.tableIndex) {
         table.after($('#shadowTable'));
         table.after(gDragObj.table);
     } else {
@@ -2099,7 +2141,8 @@ function reorderAfterTableDrop() {
     // reorder rowScrollers
     var rowScroller = $('#rowScroller' + gDragObj.originalIndex);
     var $dagWrap = $('#dagWrap' + gDragObj.originalIndex);
-    if (gDragObj.tableIndex == 0) {
+
+    if (gDragObj.tableIndex === 0) {
         $('#rowScrollerArea').prepend(rowScroller);
         $('.dagArea').prepend($dagWrap);
     } else if (gDragObj.originalIndex < gDragObj.tableIndex) {
@@ -2107,7 +2150,7 @@ function reorderAfterTableDrop() {
         $('#dagWrap' + gDragObj.tableIndex).after($dagWrap);
     } else if (gDragObj.originalIndex > gDragObj.tableIndex) {
         $('#rowScroller' + gDragObj.tableIndex).before(rowScroller);
-         $('#dagWrap' + gDragObj.tableIndex).before($dagWrap);
+        $('#dagWrap' + gDragObj.tableIndex).before($dagWrap);
     }
 
     // correct table and rowscroller id numbers
@@ -2120,13 +2163,13 @@ function reorderAfterTableDrop() {
         // swapping
         var tableWrap = $('#xcTableWrap' + i);
         var table = tableWrap.find('.xcTable');
-        var oldIndex = parseInt(table.attr('id').substring(7));
+        // var oldIndex = parseInt(table.attr('id').substring(7));
         table.attr('id', 'xcTable' + i);
         tableWrap.find('.xcTbodyWrap').attr('id', 'xcTbodyWrap' + i);
         tableWrap.find('.tableMenu').attr('id', 'tableMenu' + i);
         tableWrap.children('.colMenu:not(.tableMenu)').attr('id', 'colMenu' + i);
         $(rowScrollers[i]).attr('id', 'rowScroller' + i);
-        $(rowScrollers[i]).find('.rowMarker').attr('id','rowMarker' + i);
+        $(rowScrollers[i]).find('.rowMarker').attr('id', 'rowMarker' + i);
         $($dagWraps[i]).attr('id', 'dagWrap' + i);
     }
 }
@@ -2146,7 +2189,7 @@ function moveFirstColumn() {
         var $idCol =  $startingTable.find('.idSpan');
         var cellWidth = $idCol.width();
         var scrollLeft = -$startingTable.offset().left;
-        var rightDiff = rightOffset - (cellWidth+17);
+        var rightDiff = rightOffset - (cellWidth + 17);
         if (rightDiff < 0) {
             scrollLeft += rightDiff;
         }
@@ -2182,16 +2225,18 @@ function removeWaitCursor() {
 
 function centerPositionElement($target) {
     // to position elements in the center of the window i.e. for modals
-    var $window      = $(window);
-    var winHeight    = $window.height();
-    var winWidth     = $window.width();
-    var modalWidth   = $target.width();
-    var modalHeight  = $target.height();
-    var left         = ((winWidth - modalWidth) / 2);
-    var top          = ((winHeight - modalHeight) / 2);
+    var $window = $(window);
+
+    var winHeight   = $window.height();
+    var winWidth    = $window.width();
+    var modalWidth  = $target.width();
+    var modalHeight = $target.height();
+
+    var left = ((winWidth - modalWidth) / 2);
+    var top  = ((winHeight - modalHeight) / 2);
 
     $target.css({
-        "left": left, 
+        "left": left,
         "top" : top
     });
 }
