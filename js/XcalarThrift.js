@@ -165,9 +165,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     loadArgs.csv.recordDelim = recordDelim;
     loadArgs.csv.fieldDelim = fieldDelim;
     loadArgs.csv.isCRLF = true;
-    loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
-    loadArgs.pyLoadArgs.moduleName = "";
-    loadArgs.pyLoadArgs.funcName = "";
+    if (moduleName != "" && funcName != "") {
+        loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
+        loadArgs.pyLoadArgs.moduleName = moduleName;
+        loadArgs.pyLoadArgs.funcName = funcName.substring(0, funcName.length-2);
+    }
 
     var formatType;
     switch (format) {
@@ -176,14 +178,6 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             break;
         case ("rand"):
             formatType = DfFormatTypeT.DfFormatRandom;
-            break;
-        case ("UDF"):
-            formatType = DfFormatTypeT.DfFormatCsv;
-            loadArgs.csv.recordDelim = "\n";
-            loadArgs.csv.fieldDelim = "\t";
-            loadArgs.pyLoadArgs.moduleName = moduleName;
-            loadArgs.pyLoadArgs.funcName = funcName.substring(0,
-                                                        funcName.length - 2);
             break;
         case ("raw"):
             loadArgs.csv.fieldDelim = ""; // No Field delim

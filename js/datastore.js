@@ -181,8 +181,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
             var fieldDelim = delimiterTranslate($("#fieldText"));
             var lineDelim  = delimiterTranslate($("#lineText"));
 
-            var moduleName = $("#udfArgs-moduleList input").val();
-            var funcName   = $("#udfArgs-funcList input").val();
+            var moduleName = "";
+            var funcName = "";
+            if ($udfCheckbox.find(".checkbox").hasClass("checked")) {
+                moduleName = $("#udfArgs-moduleList input").val();
+                funcName   = $("#udfArgs-funcList input").val();
+            }
             var msg        = StatusMessageTStr.LoadingDataset + ": " + dsName;
 
             StatusMessage.show(msg);
