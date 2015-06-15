@@ -300,6 +300,7 @@
         text-align: center;
         line-height: 30px;
         float: right;
+        cursor: pointer;
 
         .icon {
             .position(absolute, @top: 5px, @left: 5px);
@@ -318,7 +319,6 @@
 
         &.dataStore {
             background: none;
-            cursor: pointer;
             .icon {
                 .position(@top: -1px, @left: -5px);
                 .size(100%, 100%);
@@ -620,4 +620,10 @@
 
 .dagDropDown {
     .size(@width: 200px);
+}
+
+.dagTableDropdown {
+    li.hidden {
+        display: none;
+    }
 }

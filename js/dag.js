@@ -5,6 +5,7 @@ window.DagPanel = (function($, DagPanel) {
         setupDagPanelSliding();
         DagModal.setup();
         setupRetina();
+        setupDagTableDropdown();
     };
 
     function setupDagPanelSliding() {
@@ -240,6 +241,138 @@ window.DagPanel = (function($, DagPanel) {
         });
     }
 
+    function setupDagTableDropdown() {
+        $dagPanel.append(getDagTableDropDownHTML());
+        $menu = $dagPanel.find('.dagTableDropDown');
+
+        $dagPanel.on('click', '.dagTable:not(.dataStore)', function() {
+            $('.colMenu').hide();
+            var $el = $(this);
+            var tableName = $.trim($el.text());
+            $menu.data('tablename', tableName);
+            var activeFound = false;
+            var inactiveFound = false;
+            var tableWSIndex;
+
+            $('#activeTablesList').find('.tableInfo').each(function() {
+                var $li = $(this);
+                if ($li.data('tablename') === tableName) {
+                    $menu.find('.addTable').addClass('hidden');
+                    $menu.find('.focusTable').removeClass('hidden');
+                    activeFound = true;
+                    tableWSIndex = WSManager.getWSFromTable(tableName);
+                    $menu.data('wsindex', tableWSIndex);
+                    return (false);
+                }
+            });
+
+            if (activeFound) {
+                $menu.find('.addTable').addClass('hidden');
+            } else {
+                $('#inactiveTablesList').find('.tableInfo').each(function() {
+                    var $li = $(this);
+                    if ($li.data('tablename') === tableName) {
+                        $menu.find('.addTable').removeClass('hidden');
+                        $menu.find('.focusTable').addClass('hidden');
+                        inactiveFound = true;
+                        return (false);
+                    }
+                });
+            }
+
+            if (!activeFound && !inactiveFound) {
+                $menu.find('.addTable').addClass('hidden');
+                $menu.find('.focusTable').addClass('hidden');
+            } else {
+                //position colMenu
+                var topMargin = -3;
+                var leftMargin = 0;
+                var top = $el[0].getBoundingClientRect().bottom + topMargin;
+                var left = $el[0].getBoundingClientRect().left + leftMargin;
+
+                if ($('#dagPanel').hasClass('midway')) {
+                    top -= $('#dagPanel').offset().top;
+                }
+
+                $menu.css({'top': top, 'left': left});
+                $menu.show();
+
+                var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
+                                                        .left;
+
+                if ($menu[0].getBoundingClientRect().right > leftBoundary) {
+                    left = el[0].getBoundingClientRect().right - $menu.width();
+                    $menu.css('left', left).addClass('leftColMenu');
+                }
+            }
+        });
+
+        $menu.find('li')
+        .mouseenter(function() {
+            $(this).children('ul').addClass('visible');
+            $(this).addClass('selected');
+        }).mouseleave(function() {
+            $(this).children('ul').removeClass('visible');
+            $(this).removeClass('selected');
+        });
+
+        $menu.find('.addTable').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var tableName = $menu.data('tablename');
+            $('#inactiveTablesList').find('.tableInfo').each(function() {
+                var $li = $(this);
+                if ($li.data('tablename') === tableName) {
+                    $li.find('.addArchivedBtn').click();
+                    $('#submitTablesBtn').click();
+                    return (false);
+                }
+            });
+            $menu.hide();
+        });
+
+        $menu.find('.focusTable').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var tableName = $menu.data('tablename');
+            var wsIndex = $menu.data('wsindex');
+            $('#worksheetTab-' + wsIndex).click();
+            var numTables = gTables.length;
+            var tableIndex;
+            for (var i = 0; i < numTables; i++) {
+                if (gTables[i].backTableName === tableName) {
+                    tableIndex = i;
+                    break;
+                }
+            }
+            if ($dagPanel.hasClass('full')) {
+                $('#dagPulloutTab').click();
+            }
+            var $table = $('#xcTableWrap' + tableIndex);
+            var currentScrollPosition = $('#mainFrame').scrollLeft();
+            var tableOffset = $table.offset().left;
+            $('#mainFrame').scrollLeft(currentScrollPosition + tableOffset);
+            $table.mousedown();
+            moveFirstColumn();
+            $menu.hide();
+        });
+    }
+
+    function getDagTableDropDownHTML() {
+        var html =
+        '<ul class="colMenu dagTableDropDown">' +
+            '<li class="addTable">' +
+                'Add Table To Worksheet' +
+            '</li>' +
+            '<li class="focusTable">' +
+                'Find Table In Worksheet' +
+            '</li>' +
+        '</ul>';
+        return (html);
+    }
+            
     return (DagPanel);
 
 }(jQuery, {}));
@@ -902,6 +1035,7 @@ window.Dag = (function($, Dag) {
                 info.tooltip = "Map: " + evalStr;
                 info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(')'));
+                break;
             default: // do nothing
                 break;
         }
