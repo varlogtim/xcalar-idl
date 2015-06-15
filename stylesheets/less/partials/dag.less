@@ -5,7 +5,7 @@
     z-index: 9; 
     background-color: rgb(140, 173, 181);
     .image("/images/dag-background.png", right, top, repeat);
-    .transition (~"transform 0.3s, z-index 0s .3s");
+    .transition (~"transform 0.4s linear, z-index 0.3s");
 
     .topBorder {
         .position(relative);
@@ -43,7 +43,6 @@
     &.midway {
         z-index: 9;
         .transform(translate3d(0, 50%, 0));
-        .transition (~"transform 0.3s, z-index 0s 0.3s");
 
         #dagPulloutTab {
             .transform (rotate(180deg));
@@ -56,7 +55,6 @@
 
     &.full {
         z-index: 9;
-        .transition (~"transform 0.3s, z-index 0s 0s");
     }
 
     &.hidden {
