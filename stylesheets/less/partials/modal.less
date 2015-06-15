@@ -620,11 +620,19 @@
             }
 
             tr:nth-child(odd):hover  td:first-child {
-                background-color: #D7D7D7;
+                background-color: #D7D7D7 !important;
             }
 
             tr:nth-child(even):hover td:first-child {
-                background-color: #DDDDDD;    
+                background-color: #DDDDDD !important;    
+            }
+
+            tr:nth-child(odd):hover  td.colSelected {
+                background-color: #BFCCD4 !important;
+            }
+
+            tr:nth-child(even):hover td.colSelected {
+                background-color: #BFCCD4 !important;
             }
 
             .addedBarText {
@@ -702,11 +710,11 @@
         }
 
         tr:nth-child(odd) td.colSelected {
-            background-color: @color-selectedCell-dark;
+            background-color: @color-selectedCell-dark !important;
         }
 
         tr:nth-child(even) td.colSelected {
-            background-color: @color-selectedCell-light;
+            background-color: @color-selectedCell-light !important;
         }
 
         .colSelected {
