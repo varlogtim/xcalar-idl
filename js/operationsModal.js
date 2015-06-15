@@ -306,6 +306,10 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     };
 
+    // empty array means the first argument will always be the column name
+    // value of false means the first argument will never be the column name
+    // any function names in the array will not have column name as 1st argument
+
     var firstArgExceptions = {
         'aggregate functions'    : [],
         'arithmetic functions'   : [],
@@ -997,10 +1001,6 @@ window.OperationsModal = (function($, OperationsModal) {
                                     .attr('disabled', true);
         }, 0);
     }
-
-    // empty array means the first argument will always be the column name
-    // value of false means the first argument will never be the column name
-    // any function names in the array will not have column name as first argument
 
     return (OperationsModal);
 }(jQuery, {}));

@@ -1245,10 +1245,14 @@ function addColMenuBehaviors($colMenu) {
         }
     }, 'input');
 
-    $colMenu.on('click', 'li', function(event) {
+    $colMenu.on('mouseup', 'li', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        event.stopPropagation();
         if ($(this).children('.subColMenu, input').length === 0 &&
-            !$(this).hasClass('unavailable')) {
-            
+            !$(this).hasClass('unavailable') && 
+            $(this).closest('.clickable').length === 0) {
             // hide li if doesnt have a submenu or an input field
             $colMenu.hide();
         }
@@ -1411,32 +1415,6 @@ function addColMenuActions($colMenu, $thead) {
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         xcFunction.sort(index, tableNum, SortDirection.Backward);
     });
-    
-    // $colMenu.on('click', '.aggrOp', function() {
-    //     var index = $colMenu.data('colNum');
-    //     var tableNum = parseInt($colMenu.attr('id').substring(7));
-    //     var pCol = gTables[tableNum].tableCols[index-1];
-    //     if (pCol.func.func != "pull") {
-    //         console.log(pCol);
-    //         alert("Cannot aggregate on column that does not exist in DATA.");
-    //         return;
-    //     }
-    //     console.log(index, pCol);
-    //     var colName = pCol.func.args[0];
-    //     var aggrOp = $(this).closest('.aggrOp').text();
-    //     console.log(colName+" "+gTables[tableNum].backTableName+" "+aggrOp);
-    //     var msg = StatusMessageTStr.Aggregate+' '+aggrOp+' '+
-    //                     StatusMessageTStr.OnColumn+': ' + colName;
-    //     StatusMessage.show(msg);
-
-    //     checkSorted(tableNum, index)
-    //     .then(function(tableName) {
-    //         aggregateCol(aggrOp, colName, tableName, msg);
-    //     });
-
-    // });
-
-    // // added back in
 
     $colMenu.on('mouseup', '.joinList', function(event) {
         if (event.which !== 1) {
