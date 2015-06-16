@@ -574,11 +574,7 @@ window.GridView = (function($, GridView) {
 
 window.DataCart = (function($, DataCart) {
     var innerCarts = [];
-    var $cartArea = $("#dataCart");
-
-    DataCart.innershow = function() {
-        return innerCarts;
-    };
+    var $cartArea  = $("#dataCart");
 
     DataCart.setup = function() {
         $("#submitDSTablesBtn").click(function() {
@@ -718,6 +714,11 @@ window.DataCart = (function($, DataCart) {
         });
     };
 
+    // get information about carts
+    DataCart.getCarts = function() {
+        return (innerCarts);
+    };
+
     // add column to cart
     DataCart.addItem = function(dsName, $colInput) {
         var colNum = xcHelper.parseColNum($colInput);
@@ -730,6 +731,7 @@ window.DataCart = (function($, DataCart) {
         var cart = filterCarts(dsName);
 
         cart.items.push({"colNum": colNum, "value": val});
+        refreshCart();
     };
 
     // remove one column from cart
@@ -752,10 +754,8 @@ window.DataCart = (function($, DataCart) {
                 break;
             }
         }
-    };
 
-    DataCart.getCarts = function() {
-        return (innerCarts);
+        refreshCart();
     };
 
     DataCart.restore = function(carts) {
@@ -768,6 +768,8 @@ window.DataCart = (function($, DataCart) {
                 appendCartItem(dsName, tableName, item.colNum, item.value);
             });
         });
+
+        refreshCart();
     };
 
     DataCart.clear = function() {
@@ -841,6 +843,7 @@ window.DataCart = (function($, DataCart) {
                 break;
             }
         }
+        refreshCart();
     }
 
     function emptyAllCarts() {
@@ -852,6 +855,23 @@ window.DataCart = (function($, DataCart) {
         overflowShadow();
 
         innerCarts = [];
+        refreshCart();
+    }
+
+    function refreshCart() {
+        var $submitBtn = $("#submitDSTablesBtn");
+        var $clearBtn  = $("#clearDataCart");
+        var $cartTitle = $("#dataCartTitle");
+
+        if ($cartArea.children().length === 0) {
+            $submitBtn.addClass("btnInactive");
+            $clearBtn.addClass("btnInactive");
+            $cartTitle.html("<b>No Columns Selected</b>");
+        } else {
+            $submitBtn.removeClass("btnInactive");
+            $clearBtn.removeClass("btnInactive");
+            $cartTitle.html("<b>Selected Columns</b>");
+        }
     }
 
     function filterCarts(dsName, tableName) {
