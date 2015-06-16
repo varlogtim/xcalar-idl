@@ -591,6 +591,94 @@ function startupFunctions() {
     return (deferred.promise());
 }
 
+function initializeTable() {
+    var deferred   = jQuery.Deferred();
+    var tableCount = 0;
+
+    if (jQuery.isEmptyObject(gTableIndicesLookup)) {
+        $('#mainFrame').addClass('empty');
+        deferred.resolve();
+    } else {
+        var promises = [];
+        var failures = [];
+
+        var frontName;
+        var backName;
+
+        for (var i = 0; i < gTableOrderLookup.length; i++) {
+            ++tableCount;
+            frontName = gTableOrderLookup[i];
+            backName = gTableIndicesLookup[frontName].backTableName || frontName;
+
+            promises.push((function(index, backTableName, frontTableName) {
+                var innerDeferred = jQuery.Deferred();
+
+                addTable(backTableName, index, null, null, frontTableName)
+                .then(innerDeferred.resolve)
+                .fail(function(error) {
+                    failures.add("Add table " + frontTableName +
+                                 "fails: " + error);
+                    innerDeferred.resolve(error);
+                });
+
+                return (innerDeferred.promise());
+            }).bind(this, i, backName, frontName));
+        }
+
+        for (frontName in gTableIndicesLookup) {
+            var table = gTableIndicesLookup[frontName];
+
+            if (!table.active) {
+                ++tableCount;
+                backName = table.backTableName || frontName;
+
+                promises.push((function(backTableName, frontTableName) {
+                    var innerDeferred = jQuery.Deferred();
+
+                    setupHiddenTable(backTableName, frontTableName)
+                    .then(innerDeferred.resolve)
+                    .fail(function(error) {
+                        failures.add("set hidden table " + frontTableName +
+                                     "fails: " + error);
+                        innerDeferred.resolve(error);
+                    });
+
+                    return (innerDeferred.promise());
+                }).bind(this, backName, frontName));
+            }
+        }
+
+        chain(promises)
+        .then(function() {
+            if (gTableOrderLookup.length > 0) {
+                documentReadyxcTableFunction();
+            } else {
+                $('#mainFrame').addClass('empty');
+            }
+
+            if (failures.length > 0) {
+                for (var i = 0; i < failures.length; i++) {
+                    console.error(failures[i]);
+                }
+
+                if (failures.length === tableCount) {
+                    deferred.reject("InitializeTable fails!");
+                } else {
+                    deferred.resolve();
+                }
+            } else {
+                deferred.resolve();
+            }
+        })
+        .fail(function(error) {
+            console.error("InitializeTable fails!", error);
+            deferred.reject(error);
+        });
+    }
+
+    return (deferred.promise());
+}
+
 function documentReadyIndexFunction() {
     $(document).ready(function() {
         startupFunctions()
@@ -608,59 +696,4 @@ function documentReadyIndexFunction() {
             console.error("Initialization fails!", error);
         });
     });
-
-    function initializeTable() {
-        var deferred = jQuery.Deferred();
-
-        if ($.isEmptyObject(gTableIndicesLookup)) {
-            $('#mainFrame').addClass('empty');
-            deferred.resolve();
-        } else {
-            var promises = [];
-            var frontName;
-            var backName;
-
-            for (var i = 0; i < gTableOrderLookup.length; i++) {
-                frontName = gTableOrderLookup[i];
-                backName = gTableIndicesLookup[frontName].backTableName;
-
-                if (backName == null) {
-                    backName = frontName;
-                }
-                promises.push(addTable.bind(this, backName, i,
-                                            null, null, frontName));
-            }
-
-            for (frontName in gTableIndicesLookup) {
-                var table = gTableIndicesLookup[frontName];
-
-                if (!table.active) {
-                    backName = table.backTableName;
-
-                    if (backName == null) {
-                        backName = frontName;
-                    }
-
-                    promises.push(setupHiddenTable.bind(this,
-                                                        backName, frontName));
-                }
-            }
-
-            chain(promises)
-            .then(function() {
-                if (gTableOrderLookup.length > 0) {
-                    documentReadyxcTableFunction();
-                } else {
-                    $('#mainFrame').addClass('empty');
-                }
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                console.error("initializeTable fails!", error);
-                deferred.reject(error);
-            });
-        }
-
-        return (deferred.promise());
-    }
 }
