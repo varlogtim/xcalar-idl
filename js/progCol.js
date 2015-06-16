@@ -382,7 +382,7 @@ window.ColManager = (function($, ColManager) {
                 continue;
             }
             if (columns[i].func.args) {
-                if (columns[i].func.args[0] === args &&
+                if (columns[i].func.args[0] === operation &&
                     columns[i].func.func !== "raw")
                 {
                     delColandAdjustLoop();
