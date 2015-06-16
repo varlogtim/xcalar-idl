@@ -1031,9 +1031,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
     var totalRows = 0;
 
     DataSampleTable.setup = function() {
-        $menu.append(getDropdownMenuHTML());
         setupSampleTable();
-        setupColumnDropdownMenu();
     };
 
     DataSampleTable.getTableFromDS = function(dsId) {
@@ -1194,18 +1192,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $table.find(".selectedCol").removeClass("selectedCol");
             DataCart.removeCart(dsName);
         });
-        // click on dropdown icon to open menu
-        $tableWrap.on("mousedown", ".datasetTable .dropdownBox", function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            var $dropDownBox = $(this);
-            dropdownClick($dropDownBox, true);
-            updateDropdownMenu($dropDownBox);
-        });
+
         // click to select a column
-        $tableWrap.on("click", ".editableHead", function(event) {
-            var $input = $(this);
+        $tableWrap.on("click", ".header", function(event) {
+            var $input = $(this).find('.editableHead');
             var $table = $("#worksheetTable");
 
             if (event.shiftKey &&
@@ -1251,41 +1241,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     }
 
-    function setupColumnDropdownMenu() {
-        // enter and leave the menu
-        addColMenuBehaviors($menu);
-
-        // change Data Type
-        $menu.find(".changeDataType").on("mouseup", ".typeList", function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            changeColumnType($(this));
-        });
-
-        $menu.find(".renameCol").find("input").on("keyup", function(event) {
-            if (event.which === keyCode.Enter) {
-                renameColumn($(this));
-            }
-        });
-    }
-    // update column menu
-    function updateDropdownMenu($dropDownBox) {
-        var $th     = $dropDownBox.closest("th");
-        var colNum  = xcHelper.parseColNum($th);
-        var colName = $th.find(".editableHead").val();
-
-        $menu.data("colnum", colNum);
-        $menu.find(".renameCol input").val(colName);
-
-        // XXX Just for temporary use, will change the functionality in the future
-        var type = $dropDownBox.closest(".header").data("type");
-        if (type === "undefined" || type === "array" || type === "object") {
-            $menu.find(".changeDataType").hide();
-        } else {
-            $menu.find(".changeDataType").show();
-        }
-    }
     // select a column
     function selectColumn($input, selectAll) {
         var dsName  = $("#worksheetTable").data("dsname");
@@ -1326,113 +1281,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $table.find(".col" + colNum).addClass("selectedCol");
         }
     }
-    // rename column
-    function renameColumn($input) {
-        var newColName = $.trim($input.val());
-        var isValid    = xcHelper.validate({  // check validation
-            "$selector": $input,
-            "formMode" : true
-        });
-
-        if (!isValid) {
-            return;
-        }
-
-        var colNum     = $input.closest(".colMenu").data("colnum");
-        var $table     = $("#worksheetTable");
-        var $th        = $table.find("th.col" + colNum);
-        var $headInput = $th.find(".editableHead");
-        var oldColName = $headInput.val();
-        var dsName     = $table.data("dsname");
-        var type       = $th.find(".header").data('type');
-        var typeId     = getTypeId(type);
-
-        $input.blur();
-        // in this case, no need to have thrift call
-        if (newColName === oldColName) {
-            closeMenu($menu);
-            return;
-        }
-        // check name conflict
-        isValid = xcHelper.validate({
-            "$selector": $input,
-            "check"    : function() {
-                var $headers = $table.find(".editableHead");
-                return (ColManager.checkColDup($input, $headers));
-            },
-            "noWarn": true
-        });
-
-        if (!isValid) {
-            return;
-        }
-
-        console.log("Renaming", oldColName, "to", newColName);
-
-        closeMenu($menu);
-        XcalarEditColumn(dsName, oldColName, newColName, typeId)
-        .then(function() {
-            // update column name
-            $headInput.val(newColName);
-            $th.attr("title", newColName);
-            $("#selectedTable-" + dsName)
-                .find("li[data-colnum=" + colNum + "] .colName")
-                .text(newColName);
-
-            // add sql
-            SQL.add("Rename dataset column", {
-                "operation" : "renameDatasetCol",
-                "dsName"    : dsName,
-                "colNum"    : colNum + 1,
-                "oldColName": oldColName,
-                "newColName": newColName }
-            );
-        })
-        .fail(function(error){
-            Alert.error(error);
-        });
-    }
-    // change col type
-    function changeColumnType($typeList) {
-        var newType      = $typeList.find(".label").text().toLowerCase();
-        var colNum       = $typeList.closest(".colMenu").data("colnum");
-
-        var $table       = $("#worksheetTable");
-        var $tableHeader = $table.find(" .col" + colNum + " .header");
-
-        var $headInput   = $tableHeader.find(".editableHead");
-        var dsName       = $table.data("dsname");
-        var colName      = $headInput.val();
-        var oldType      = $tableHeader.data('type');
-        var typeId       = getTypeId(newType);
-
-        closeMenu($menu);
-
-        // if (newType === oldType || typeId < 0) {
-        //     return;
-        // }
-        // XXX Change this because JS may treat 1.00 as 1 so the type is
-        // integer, while in backend the type is decimal
-        if (typeId < 0) {
-            return;
-        }
-
-        console.log("Change Type from " + oldType + " to " + newType);
-
-        XcalarEditColumn(dsName, colName, colName, typeId)
-        .then(function() {
-            // add sql
-            SQL.add("Change dataset data type", {
-                "operation": "changeDataType",
-                "dsName"   : dsName,
-                "colName"  : colName,
-                "oldType"  : oldType,
-                "newType"  : newType
-            });
-            // update the sample table
-            DS.getGridByName(dsName).click();
-        });
-    }
 
     function getTypeId(type) {
         switch (type) {
@@ -1453,42 +1301,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
     }
 
-    // table menu html
-    function getDropdownMenuHTML() {
-        // XXX Now Array, Object and Unknown are invalid type to change
-        var types = ['Boolean', 'Integer', 'Decimal', 'String', 'Mixed'];
-        var html  =
-        '<li class="renameCol">' +
-            '<span>Rename Column</span>' +
-            '<ul class="subColMenu">' +
-                '<li style="text-align: center" class="clickable">' +
-                    '<span>New Column Name</span>' +
-                    '<input type="text" width="100px" spellcheck="false" />' +
-                '</li>' +
-                '<div class="subColMenuArea"></div>' +
-            '</ul>' +
-            '<div class="dropdownBox"></div>' +
-        '</li>' +
-        '<li class="changeDataType">' +
-            '<span>Change Data Type</span>' +
-            '<ul class="subColMenu">';
-
-        types.forEach(function(type) {
-            html +=
-                '<li class="flexContainer flexRow typeList type-' +
-                    type.toLowerCase() + '">' +
-                    '<div class="flexWrap flex-left">' +
-                        '<span class="type icon"></span>' +
-                    '</div>' +
-                    '<div class="flexWrap flex-right">' +
-                        '<span class="label">' + type + '</span>' +
-                    '</div>' +
-                '</li>';
-        });
-
-        html += '</ul><div class="dropdownBox"></div>';
-        return (html);
-    }
     // sample table html
     function getSampleTableHTML(dsName, jsonKeys, jsons) {
         // validation check
@@ -1543,9 +1355,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
                             '</div>' +
                             '<div class="flexWrap flex-right">' +
                                 '<span class="tick icon"></span>' +
-                                '<div class="dropdownBox">' +
-                                    '<span class="innerBox"></span>' +
-                                '</div>' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
