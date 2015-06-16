@@ -874,7 +874,7 @@ window.WKBKManager = (function($, WKBKManager) {
         // this is just temporayily, after bakcend support, we do not need it!
         function storeHelper(table) {
             if (table.isTable) {
-                workbook.tables[table.backTableName] = true;
+                workbook.tables[table.tableName] = true;
             }
         }
 

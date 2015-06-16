@@ -98,7 +98,7 @@ window.JSONModal = (function($, JSONModal) {
 
                 var colNum      = xcHelper.parseColNum($id);
                 var table       = gTables[tableNum];
-                var frontName   = table.frontTableName;
+                var tableName   = table.tableName;
                 var siblColName = table.tableCols[colNum - 1].name;
 
                 ColManager.addCol("col" + colNum, "xcTable" + tableNum,
@@ -130,7 +130,7 @@ window.JSONModal = (function($, JSONModal) {
                     // add sql
                     SQL.add("Add Column", {
                         "operation"   : "addCol",
-                        "tableName"   : frontName,
+                        "tableName"   : tableName,
                         "newColName"  : name.name,
                         "siblColName" : siblColName,
                         "siblColIndex": colNum,

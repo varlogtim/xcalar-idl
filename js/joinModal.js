@@ -200,11 +200,11 @@ window.JoinModal = (function($, JoinModal) {
             var table = gTables[i];
 
             tabHtml += '<div class="tableLabel">' +
-                            table.frontTableName +
+                            table.tableName +
                        '</div>';
 
             var colHtml = '<table class="dataTable joinTable" ' +
-                            'data-tablename="' + table.frontTableName + '">' +
+                            'data-tablename="' + table.tableName + '">' +
                             '<thead>' +
                                 '<tr>';
 

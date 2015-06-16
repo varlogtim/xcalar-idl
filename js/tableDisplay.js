@@ -79,14 +79,13 @@ function refreshTable(newTableName, tableNum,
 
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
+function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
     var deferred  = jQuery.Deferred();
     var wsIndex  = WSManager.getActiveWS(); // default ws if no other specified
 
     reorderTables(tableNum);
-    frontName = frontName || table;
 
-    setTableMeta(table, frontName)
+    setTableMeta(tableName)
     .then(function(newTableMeta) {
         gTables[tableNum] = newTableMeta;
 
@@ -94,7 +93,7 @@ function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
     })
     .then(function() {
         // not have the flick, must refresh immediately after create table
-        wsIndex = WSManager.addTable(frontName, wsIndex);
+        wsIndex = WSManager.addTable(tableName, wsIndex);
         $("#xcTableWrap" + tableNum).addClass("worksheet-" + wsIndex);
         WSManager.focusOnWorksheet();
 
@@ -104,7 +103,7 @@ function addTable(table, tableNum, AfterStartup, tableNumsToRemove, frontName) {
 
         resizeRowInput();
 
-        return (Dag.construct(gTables[tableNum].backTableName, tableNum));
+        return (Dag.construct(gTables[tableNum].tableName, tableNum));
     })
     .then(function() {
         // refresh dag
@@ -157,7 +156,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $('#dagWrap' + tableNum).remove();
     }
     
-    var tableName = gTables[tableNum].frontTableName;
+    var tableName = gTables[tableNum].tableName;
     var deletedTable = gTables.splice(tableNum, 1);
     if (!del) {
         gHiddenTables.push(deletedTable[0]);
@@ -206,7 +205,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
 }
 
 function deleteActiveTable(tableNum) {
-    var tableName = gTables[tableNum].frontTableName;
+    var tableName = gTables[tableNum].tableName;
     var deferred = jQuery.Deferred();
 
     deleteTable(tableNum)
@@ -234,8 +233,7 @@ function deleteActiveTable(tableNum) {
 function deleteTable(tableNum, deleteArchived) {
     var deferred = jQuery.Deferred();
     var table = deleteArchived ? gHiddenTables[tableNum] : gTables[tableNum];
-    var backTableName = table.backTableName;
-    var frontTableName = table.frontTableName;
+    var tableName = table.tableName;
     var resultSetId = table.resultSetId;
     
     // Free the result set pointer that is still pointing to it
@@ -245,7 +243,7 @@ function deleteTable(tableNum, deleteArchived) {
             return (promiseWrapper(null));
         } else {
             // check if table also in other workbooks
-            return (WKBKManager.canDelTable(backTableName));
+            return (WKBKManager.canDelTable(tableName));
         }
     })
     .then(function(canDelete) {
@@ -254,7 +252,7 @@ function deleteTable(tableNum, deleteArchived) {
         } else {
             // check if it is the only table in this workbook
             for (var i = 0; i < gTables.length; i++) {
-                if (gTables[i].backTableName === backTableName &&
+                if (gTables[i].tableName === tableName &&
                     (deleteArchived || i !== tableNum)) {
                     console.log("delete copy table");
                     return (promiseWrapper(null));
@@ -262,14 +260,14 @@ function deleteTable(tableNum, deleteArchived) {
             }
 
             for (var i = 0; i < gHiddenTables.length; i++) {
-                if (gHiddenTables[i].backTableName === backTableName &&
+                if (gHiddenTables[i].tableName === tableName &&
                     (!deleteArchived || i !== tableNum)) {
                     console.log("delete copy table");
                     return (promiseWrapper(null));
                 }
             }
 
-            return (XcalarDeleteTable(backTableName));
+            return (XcalarDeleteTable(tableName));
         }
     })
     .then(function() {
@@ -280,12 +278,12 @@ function deleteTable(tableNum, deleteArchived) {
         // gHiddenTables, we just delete it from gTablesIndicesLookup
         if (deleteArchived) {
             gHiddenTables.splice((tableNum), 1);
-            delete (gTableIndicesLookup[frontTableName]);
+            delete (gTableIndicesLookup[tableName]);
         } else {
             archiveTable(tableNum, DeleteTable.Delete);
         }
 
-        WSManager.removeTable(frontTableName);
+        WSManager.removeTable(tableName);
 
         deferred.resolve();
     })
@@ -297,11 +295,9 @@ function deleteTable(tableNum, deleteArchived) {
 }
 
 // get meta data about table
-function setTableMeta(table, frontName) {
+function setTableMeta(tableName) {
     var deferred = jQuery.Deferred();
 
-    var urlTableName = getUrlVars().tablename;
-    var tableName    = urlTableName || table;
     var newTable     = new TableMeta();
     var isTable      = true;
     var lookupTable  = gTableIndicesLookup[tableName];
@@ -327,8 +323,7 @@ function setTableMeta(table, frontName) {
         newTable.resultSetMax = resultSet.numEntries;
         newTable.numPages = Math.ceil(newTable.resultSetCount /
                                       gNumEntriesPerPage);
-        newTable.backTableName = tableName;
-        newTable.frontTableName = frontName || tableName;
+        newTable.tableName = tableName;
         newTable.keyName = resultSet.keyAttrHeader.name;
 
         deferred.resolve(newTable);
@@ -346,8 +341,7 @@ function setTableMeta(table, frontName) {
         this.currentRowNumber = -1;
         this.resultSetId = -1;
         this.keyName = "";
-        this.backTableName = "";
-        this.frontTableName = "";
+        this.tableName = "";
         this.resultSetCount = -1;
         this.numPages = -1;
         this.bookmarks = [];
@@ -360,7 +354,7 @@ function setTableMeta(table, frontName) {
 function startBuildTable(tableNum, tableNumsToRemove) {
     var deferred   = jQuery.Deferred();
     var table      = gTables[tableNum];
-    var index      = getIndex(table.frontTableName);
+    var index      = getIndex(table.tableName);
     var notIndexed = !(index && index.length > 0);
 
     getFirstPage(table.resultSetId, tableNum, notIndexed)

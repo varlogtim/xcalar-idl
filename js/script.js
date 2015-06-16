@@ -321,22 +321,18 @@ function setupMainPanelsTab() {
     StatusMessage.updateLocation();
 }
 
-function setupHiddenTable(table, frontName) {
+function setupHiddenTable(tableName) {
     var deferred = jQuery.Deferred();
 
-    if (frontName == null) {
-        frontName = table;
-    }
-
-    setTableMeta(table, frontName)
+    setTableMeta(tableName)
     .then(function(newTableMeta) {
         gHiddenTables.push(newTableMeta);
         var lastIndex = gHiddenTables.length - 1;
-        var index = getIndex(gHiddenTables[lastIndex].frontTableName);
+        var index = getIndex(gHiddenTables[lastIndex].tableName);
         if (index && index.length > 0) {
             gHiddenTables[lastIndex].tableCols = index;
         } else {
-            console.log("Not stored", gHiddenTables[lastIndex].frontTableName);
+            console.log("Not stored", gHiddenTables[lastIndex].tableName);
         }  
 
         deferred.resolve();
@@ -602,49 +598,47 @@ function initializeTable() {
         var promises = [];
         var failures = [];
 
-        var frontName;
-        var backName;
+        var tableName;
 
         for (var i = 0; i < gTableOrderLookup.length; i++) {
             ++tableCount;
-            frontName = gTableOrderLookup[i];
-            backName = gTableIndicesLookup[frontName].backTableName || frontName;
+            tableName = gTableOrderLookup[i];
 
-            promises.push((function(index, backTableName, frontTableName) {
+            promises.push((function(index, tableName) {
                 var innerDeferred = jQuery.Deferred();
 
-                addTable(backTableName, index, null, null, frontTableName)
+                addTable(tableName, index, null, null)
                 .then(innerDeferred.resolve)
                 .fail(function(error) {
-                    failures.add("Add table " + frontTableName +
+                    failures.add("Add table " + tableName +
                                  "fails: " + error);
                     innerDeferred.resolve(error);
                 });
 
                 return (innerDeferred.promise());
-            }).bind(this, i, backName, frontName));
+            }).bind(this, i, tableName));
         }
 
-        for (frontName in gTableIndicesLookup) {
-            var table = gTableIndicesLookup[frontName];
+        for (tName in gTableIndicesLookup) {
+            var table = gTableIndicesLookup[tName];
 
             if (!table.active) {
                 ++tableCount;
-                backName = table.backTableName || frontName;
+                tableName = table.tableName;
 
-                promises.push((function(backTableName, frontTableName) {
+                promises.push((function(tableName) {
                     var innerDeferred = jQuery.Deferred();
 
-                    setupHiddenTable(backTableName, frontTableName)
+                    setupHiddenTable(tableName)
                     .then(innerDeferred.resolve)
                     .fail(function(error) {
-                        failures.add("set hidden table " + frontTableName +
+                        failures.add("set hidden table " + tableName +
                                      "fails: " + error);
                         innerDeferred.resolve(error);
                     });
 
                     return (innerDeferred.promise());
-                }).bind(this, backName, frontName));
+                }).bind(this, tableName));
             }
         }
 

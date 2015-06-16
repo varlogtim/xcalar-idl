@@ -598,7 +598,7 @@ window.DataCart = (function($, DataCart) {
                 $input = $cart.find('.tableNameEdit');
                 var tableName = $.trim($input.val());
                 for (var i = 0; i < numGTables; i++) {
-                    if (tableName === gTables[i].backTableName) {
+                    if (tableName === gTables[i].tableName) {
                         errorMsg = 'A table with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
                         nameIsValid = false;
@@ -606,7 +606,7 @@ window.DataCart = (function($, DataCart) {
                     }
                 }
                 for (var i = 0; i < numGHiddenTables; i++) {
-                    if (tableName === gHiddenTables[i].backTableName) {
+                    if (tableName === gHiddenTables[i].tableName) {
                         errorMsg = 'A table with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
                         nameIsValid = false;

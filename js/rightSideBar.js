@@ -23,7 +23,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
     // move table to inactive list
     RightSideBar.moveTable = function(table) {
-        var tableName  = table.frontTableName;
+        var tableName  = table.tableName;
         var $tableList = $('#activeTablesList .tableInfo[data-tablename="' +
                             tableName + '"]');
         var $timeLine  = $tableList.closest(".timeLine");
@@ -45,7 +45,7 @@ window.RightSideBar = (function($, RightSideBar) {
     };
 
     RightSideBar.updateTableInfo = function(table) {
-        var tableName  = table.frontTableName;
+        var tableName  = table.tableName;
         var $tableList = $('#activeTablesList .tableInfo[data-tablename="' +
                             tableName + '"]');
 
@@ -88,14 +88,13 @@ window.RightSideBar = (function($, RightSideBar) {
                 }
 
                 if (action === "add") {
-                    var backTableName = gHiddenTables[tableNum].backTableName;
                     var table         = gTableIndicesLookup[tableName];
                     // update gTableIndicesLookup
                     table.active = true;
                     table.timeStamp = xcHelper.getTimeInMS();
 
-                    addTable(backTableName, gTables.length, AfterStartup.After,
-                             null, tableName)
+                    addTable(tableName, gTables.length, AfterStartup.After,
+                             null)
                     .then(function() {
                         // already add the table
                         var activeTable = gHiddenTables.splice(tableNum, 1)[0];
@@ -785,7 +784,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 time = xcHelper.getTime(null, timeStamp);
             }
 
-            var tableName = table.frontTableName;
+            var tableName = table.tableName;
             var wsIndex   = WSManager.getWSFromTable(tableName);
             var wsInfo;
 
@@ -836,7 +835,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var sortedTables = [];
 
         tables.forEach(function(table) {
-            var tableName = table.frontTableName;
+            var tableName = table.tableName;
             var timeStamp = gTableIndicesLookup[tableName].timeStamp;
 
             if (timeStamp === undefined) {

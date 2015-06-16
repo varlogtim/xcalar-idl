@@ -3,20 +3,20 @@ window.xcFunction = (function ($, xcFunction) {
         var deferred  = jQuery.Deferred();
         // XXX for general case, the two names should be the same for
         // data set sample table
-        var frontName = gTables[tableNum].frontTableName;
-        var srcName   = gTables[tableNum].backTableName;
+        var tableName = gTables[tableNum].tableName;
+        var srcName   = gTables[tableNum].tableName;
 
         if (gTables[tableNum].isTable) {
             deferred.resolve(srcName);
         } else {
-            var datasetName = gTableIndicesLookup[frontName].datasetName;
+            var datasetName = gTableIndicesLookup[tableName].datasetName;
             var resultSetId = gTables[tableNum].resultSetId;
 
             XcalarSetFree(resultSetId)
             .then(function() {
                 // XXX maybe later we shall change it to delete and refresh
-                gTableIndicesLookup[frontName].datasetName = undefined;
-                gTableIndicesLookup[frontName].isTable = true;
+                gTableIndicesLookup[tableName].datasetName = undefined;
+                gTableIndicesLookup[tableName].isTable = true;
 
                 return (XcalarIndexFromDataset(datasetName, "recordNum",
                                               srcName));
@@ -52,7 +52,7 @@ window.xcFunction = (function ($, xcFunction) {
     // filter table column
     xcFunction.filter = function (colNum, tableNum, options) {
         var table        = gTables[tableNum];
-        var frontName    = table.frontTableName;
+        var tableName    = table.tableName;
         var frontColName = table.tableCols[colNum].name;
         var backColName  = table.tableCols[colNum].func.args[0];
         var tablCols     = xcHelper.deepCopy(table.tableCols);
@@ -84,7 +84,7 @@ window.xcFunction = (function ($, xcFunction) {
             // add sql
             SQL.add("Filter Table", {
                 "operation"   : "filter",
-                "tableName"   : frontName,
+                "tableName"   : tableName,
                 "colName"     : frontColName,
                 "backColName" : backColName,
                 "colIndex"    : colNum,
@@ -113,7 +113,7 @@ window.xcFunction = (function ($, xcFunction) {
     xcFunction.aggregate = function (colNum, frontColName, backColName,
                                      tableNum, aggrOp) {
         // var table     = gTables[tableNum];
-        var frontName = gTables[tableNum].frontTableName;
+        var tableName = gTables[tableNum].tableName;
         var msg       = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
                         StatusMessageTStr.OnColumn + ": " + frontColName;
         if (colNum === -1) {
@@ -145,7 +145,7 @@ window.xcFunction = (function ($, xcFunction) {
                 // add sql
                 SQL.add("Aggregate", {
                     "operation": "aggregate",
-                    "tableName": frontName,
+                    "tableName": tableName,
                     "colName"  : frontColName,
                     "colIndex" : colNum,
                     "operator" : aggrOp,
@@ -165,12 +165,12 @@ window.xcFunction = (function ($, xcFunction) {
         return (true);
     };
 
-    // sort tabe column
+    // sort table column
     xcFunction.sort = function (colNum, tableNum, order) {
         var table     = gTables[tableNum];
         var isTable   = table.isTable;
-        var tableName = table.frontTableName;
-        var srcName   = isTable ? table.backTableName :
+        var tableName = table.tableName;
+        var srcName   = isTable ? table.tableName :
                                   gTableIndicesLookup[tableName].datasetName;
         var tablCols  = xcHelper.deepCopy(table.tableCols);
         var pCol      = table.tableCols[colNum - 1];
@@ -180,7 +180,7 @@ window.xcFunction = (function ($, xcFunction) {
         var frontFieldName;
 
         if (!isTable) {
-            newTableName = table.backTableName;
+            newTableName = table.tableName;
         } else {
             newTableName = xcHelper.randName("tempSortTable-");
         }
@@ -264,12 +264,12 @@ window.xcFunction = (function ($, xcFunction) {
                     "newTableName", newTableName);
 
         var leftTable        = gTables[leftTableNum];
-        var leftFrontName    = leftTable.frontTableName;
+        var leftTableName    = leftTable.tableName;
         var leftColName      = leftTable.tableCols[leftColNum].func.args[0];
         var leftFrontColName = leftTable.tableCols[leftColNum].name;
 
         var rightTable        = gTables[rightTableNum];
-        var rightFrontName    = rightTable.frontTableName;
+        var rightTableName    = rightTable.tableName;
         var rightColName      = rightTable.tableCols[rightColNum].func.args[0];
         var rightFrontColName = rightTable.tableCols[rightColNum].name;
 
@@ -305,14 +305,12 @@ window.xcFunction = (function ($, xcFunction) {
             SQL.add("Join Table", {
                 "operation": "join",
                 "leftTable": {
-                    "name"    : leftFrontName,
-                    "backname": leftSrcName,
+                    "name"    : leftTableName,
                     "colName" : leftFrontColName,
                     "colIndex": leftColNum
                 },
                 "rightTable": {
-                    "name"    : rightFrontName,
-                    "backname": rightSrcName,
+                    "name"    : rightTableName,
                     "colName" : rightFrontColName,
                     "colIndex": rightColNum
                 },
@@ -341,8 +339,8 @@ window.xcFunction = (function ($, xcFunction) {
     xcFunction.groupBy = function (colNum, frontFieldName, backFieldName,
                                     tableNum, newColName, operator) {
         var table        = gTables[tableNum];
-        var frontName    = table.frontTableName;
-        var srcName      = table.backTableName;
+        var tableName    = table.tableName;
+        var srcName      = table.tableName;
         var newTableName = xcHelper.randName("tempGroupByTable-");
 
         if (colNum === -1) {
@@ -388,8 +386,7 @@ window.xcFunction = (function ($, xcFunction) {
             // add sql
             SQL.add("Group By", {
                 "operation"    : "groupBy",
-                "tableName"    : frontName,
-                "backname"     : srcName,
+                "tableName"    : tableName,
                 "backFieldName": backFieldName,
                 "colName"      : frontFieldName,
                 "colIndex"     : colNum,
@@ -413,7 +410,7 @@ window.xcFunction = (function ($, xcFunction) {
         var deferred = jQuery.Deferred();
 
         var table           = gTables[tableNum];
-        var frontName       = table.frontTableName;
+        var tableName       = table.tableName;
         var newTableName    = xcHelper.randName("tempMapTable-");
         var tablCols        = xcHelper.deepCopy(table.tableCols);
         var tableProperties = {
@@ -440,7 +437,7 @@ window.xcFunction = (function ($, xcFunction) {
             // add sql
             SQL.add("Map Column", {
                 "operation"   : "mapColumn",
-                "srcTableName": frontName,
+                "srcTableName": tableName,
                 "backname"    : backTableName,
                 "newTableName": newTableName,
                 "colName"     : fieldName,
@@ -465,7 +462,7 @@ window.xcFunction = (function ($, xcFunction) {
 
     // export table
     xcFunction.exportTable = function(tableNum) {
-        var frontName = gTables[tableNum].frontTableName;
+        var tableName = gTables[tableNum].tableName;
         var retName   = $(".retTitle:disabled").val();
 
         if (!retName || retName === "") {
@@ -473,7 +470,7 @@ window.xcFunction = (function ($, xcFunction) {
         }
 
         var fileName  = retName + ".csv";
-        var msg = StatusMessageTStr.ExportTable + ": " + frontName;
+        var msg = StatusMessageTStr.ExportTable + ": " + tableName;
 
         StatusMessage.show(msg);
 
@@ -486,7 +483,7 @@ window.xcFunction = (function ($, xcFunction) {
             // add sql
             SQL.add("Export Table", {
                 "operation": "exportTable",
-                "tableName": frontName,
+                "tableName": tableName,
                 "fileName" : fileName,
                 "filePath" : location
             });
@@ -526,8 +523,7 @@ window.xcFunction = (function ($, xcFunction) {
         var deferred      = jQuery.Deferred();
 
         var indexColName  = table.keyName;
-        var frontName     = table.frontTableName;
-        var backTableName = table.backTableName;
+        var tableName     = table.tableName;
 
         var text          = isLeft ? "Left Table" : "Right Table";
 
@@ -537,13 +533,13 @@ window.xcFunction = (function ($, xcFunction) {
             // are indexed on this key. But for now, we reindex a new table
            
             var isTable = table.isTable;
-            var srcName = isTable ? backTableName :
-                                    gTableIndicesLookup[frontName].datasetName;
+            var srcName = isTable ? tableName :
+                                    gTableIndicesLookup[tableName].datasetName;
             var newTableName;
             if (!isTable) {
-                newTableName = backTableName;
+                newTableName = tableName;
             } else {
-                newTableName = xcHelper.randName(backTableName);
+                newTableName = xcHelper.randName(tableName);
             }
 
             getIndexedTable(srcName, colName, newTableName, isTable)
@@ -561,8 +557,8 @@ window.xcFunction = (function ($, xcFunction) {
                     "operation"   : "index",
                     "key"         : colName,
                     "newTableName": newTableName,
-                    "dsName"      : backTableName.substring(0,
-                                     backTableName.length - 6)
+                    "dsName"      : tableName.substring(0,
+                                     tableName.length - 6)
                     });
                 }
                 var colums = xcHelper.deepCopy(getIndex(srcName));
@@ -584,7 +580,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         } else {
             console.log(text, "indexed correctly!");
-            deferred.resolve(backTableName);
+            deferred.resolve(tableName);
         }
 
         return (deferred.promise());

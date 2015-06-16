@@ -172,7 +172,7 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.delCol = function(colNum, tableNum) {
         var table     = gTables[tableNum];
-        var tableName = table.frontTableName;
+        var tableName = table.tableName;
         var colName   = table.tableCols[colNum - 1].name;
 
         delColHelper(colNum, tableNum);
@@ -472,11 +472,11 @@ window.ColManager = (function($, ColManager) {
                                       tableNum, direction, rowToPrependTo)
     {
         var table     = gTables[tableNum];
-        var frontName = table.frontTableName;
+        var tableName = table.tableName;
         var tableCols = table.tableCols;
         var numCols   = tableCols.length;
         // jsonData based on if it's indexed on array or not
-        var secondPull = gTableIndicesLookup[frontName].isSortedArray || false;
+        var secondPull = gTableIndicesLookup[tableName].isSortedArray || false;
         var jsonData   = secondPull ? jsonObj.withKey : jsonObj.normal;
         var numRows    = jsonData.length;
 
@@ -646,7 +646,7 @@ window.ColManager = (function($, ColManager) {
         // This only run once,  check if it's a indexed array, mark on gTables
         // and redo the pull column thing
         if (!secondPull && columnTypes[indexedColNums[0]] === "array") {
-            gTableIndicesLookup[frontName].isSortedArray = true;
+            gTableIndicesLookup[tableName].isSortedArray = true;
 
             for (var i = 0; i < indexedColNums.length; i++) {
                 tableCols[indexedColNums[i]].isSortedArray = true;

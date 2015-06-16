@@ -3,12 +3,12 @@ window.xcHelper = (function($, xcHelper) {
         var table = isHidden ? gHiddenTables : gTables;
 
         for (var i = 0; i < table.length; i++) {
-            if (tableName === table[i].frontTableName) {
+            if (tableName === table[i].tableName) {
                 return (i);
             }
         }
 
-        return undefined;
+        return (undefined);
     };
 
     xcHelper.parseTableNum = function($table) {

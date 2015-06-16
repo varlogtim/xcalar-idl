@@ -143,7 +143,7 @@ window.WSManager = (function($, WSManager) {
      * @param {number} newIndex The new worksheet's index
      */
     WSManager.moveTable = function(tableNum, newIndex) {
-        var tableName = gTables[tableNum].frontTableName;
+        var tableName = gTables[tableNum].tableName;
         var oldIndex  = WSManager.removeTable(tableName);
         var wsName    = WSManager.getWSName(newIndex);
 
@@ -195,10 +195,10 @@ window.WSManager = (function($, WSManager) {
         // there both src sample and the copied can change to real table using
         // its backTableName
         if (!tableCopy.isTable) {
-            tableCopy.backTableName = newTableName;
+            tableCopy.tableName = newTableName;
         }
 
-        addTable(tableCopy.backTableName, tableNum,
+        addTable(tableCopy.tableName, tableNum,
                  AfterStartup.After, null, newTableName)
         .then(function() {
             WSManager.focusOnWorksheet(wsIndex, false, tableNum);
@@ -296,7 +296,7 @@ window.WSManager = (function($, WSManager) {
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {
                     var index = WSManager.getWSFromTable(
-                                            gTables[i].frontTableName);
+                                            gTables[i].tableName);
 
                     if (index === activeWorsheet) {
                         isFocus = true;
@@ -314,7 +314,7 @@ window.WSManager = (function($, WSManager) {
         var $mainFrame = $('#mainFrame');
 
         for (var i = gTables.length - 1; i >= 0; i--) {
-            var tableName = gTables[i].frontTableName;
+            var tableName = gTables[i].tableName;
 
             if (WSManager.getWSFromTable(tableName) === activeWorsheet) {
                 var index = i;
@@ -607,7 +607,7 @@ window.WSManager = (function($, WSManager) {
         // as delete table will change tables array,
         // so should delete from last
         for (var i = gTables.length - 1; i >= 0; i--) {
-            var tableName = gTables[i].frontTableName;
+            var tableName = gTables[i].tableName;
 
             if (WSManager.getWSFromTable(tableName) === wsIndex) {
                 promises.push(deleteActiveTable.bind(this, i));
@@ -633,7 +633,7 @@ window.WSManager = (function($, WSManager) {
     function archiveTableHelper(wsIndex) {
         // archive all active tables first
         for (var i = gTables.length - 1; i >= 0; i--) {
-            var tableName = gTables[i].frontTableName;
+            var tableName = gTables[i].tableName;
 
             if (WSManager.getWSFromTable(tableName) === wsIndex) {
                 archiveTable(i, DeleteTable.Keep);

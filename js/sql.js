@@ -261,9 +261,9 @@ window.SQL = (function($, SQL) {
         // --joinTable <joinTable> --joinType <joinType>
         var string = "join";
         string += " --leftTable";
-        string += " " + options.leftTable.backname;
+        string += " " + options.leftTable.name;
         string += " --rightTable";
-        string += " " + options.rightTable.backname;
+        string += " " + options.rightTable.name;
         string += " --joinTable";
         string += " " + options.newTableName;
         string += " --joinType";

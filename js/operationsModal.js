@@ -795,18 +795,18 @@ window.OperationsModal = (function($, OperationsModal) {
             var colIndex = -1;
             var columns = gTables[tableNum].tableCols;
             var numCols = columns.length;
-            var frontName = $.trim($operationsModal.find('.argument').val());
-            var backName = frontName;
+            var frontColName = $.trim($operationsModal.find('.argument').val());
+            var backColName = frontColName;
             for (var i = 0; i < numCols; i++) {
-                if (columns[i].name === frontName) {
+                if (columns[i].name === frontColName) {
                     if (columns[i].func.args) {
-                        backName = columns[i].func.args[0];
+                        backColName = columns[i].func.args[0];
                         colIndex = i;
                     }
                 }
             }
         }
-        return (xcFunction.aggregate(colIndex, frontName, backName,
+        return (xcFunction.aggregate(colIndex, frontColName, backColName,
                                      tableNum, aggrOp));
     }
 

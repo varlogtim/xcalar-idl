@@ -247,7 +247,7 @@ function dragdropMouseUp() {
 
         SQL.add("Change Column Order", {
             "operation"  : "changeColOrder",
-            "tablename"  : table.frontTableName,
+            "tablename"  : table.tableName,
             "colName"    : table.tableCols[dragObj.colNum - 1].name,
             "oldColIndex": dragObj.colNum,
             "newColIndex": dragObj.colIndex
@@ -646,7 +646,7 @@ function createTableHeader(tableNum) {
     var tableName = "";
     // XXX build this table title somewhere else
     if (gTables[tableNum] != null) {
-        tableName = gTables[tableNum].backTableName;
+        tableName = gTables[tableNum].tableName;
     }
 
     var html = '<div class="tableTitle">' +
@@ -762,7 +762,7 @@ function createTableHeader(tableNum) {
         }
         var $menu = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
-        var tableName = gTables[tableNum].frontTableName;
+        var tableName = gTables[tableNum].tableName;
 
         archiveTable(tableNum, DeleteTable.Keep);
         // add sql
@@ -805,7 +805,7 @@ function createTableHeader(tableNum) {
         }
         var $menu = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
-        var tableName = gTables[tableNum].frontTableName;
+        var tableName = gTables[tableNum].tableName;
 
         var msg = "Are you sure you want to delete table " + tableName + "?";
         Alert.show({
@@ -986,13 +986,13 @@ function createTableHeader(tableNum) {
             var table    = gTables[tableNum];
             var wsIndex  = $option.data("worksheet");
 
-            WSManager.copyTable(table.frontTableName, newTableName, wsIndex);
+            WSManager.copyTable(table.tableName, newTableName, wsIndex);
 
             $wsInput.val("");
             $wsInput.blur();
 
-            $tableNameInput.val(xcHelper.randName(table.backTableName,
-                                                  undefined, true));
+            $tableNameInput.val(xcHelper.randName(table.tableName, undefined,
+                                                  true));
             $tableNameInput.blur();
             closeMenu($menu);
         }
@@ -1023,7 +1023,7 @@ function updateTableHeader(tableNum, $tHead, isFocus) {
     } else {
         // for update table header
         if (gTables[tableNum] != null) {
-            tableName = gTables[tableNum].frontTableName;
+            tableName = gTables[tableNum].tableName;
             cols = gTables[tableNum].tableCols.length;
         }
         $tHead.data("cols", cols);
@@ -1274,7 +1274,7 @@ function addColMenuActions($colMenu, $thead) {
         var table = gTables[tableNum];
         var sqlOptions = {
             "operation"   : "addCol",
-            "tableName"   : table.frontTableName,
+            "tableName"   : table.tableName,
             "newColName"  : "",
             "siblColName" : table.tableCols[colNum - 1].name,
             "siblColIndex": colNum
@@ -1341,7 +1341,7 @@ function addColMenuActions($colMenu, $thead) {
         // add sql
         SQL.add("Duplicate Column", {
             "operation": "duplicateCol",
-            "tableName": gTables[tableNum].frontTableName,
+            "tableName": gTables[tableNum].tableName,
             "colName"  : name,
             "colIndex" : index
         });
@@ -1474,7 +1474,7 @@ function functionBarEnter($colInput) {
     // add sql
     SQL.add("Pull Column", {
         "operation": "pullCol",
-        "tableName": gTables[tableNum].frontTableName,
+        "tableName": gTables[tableNum].tableName,
         "colName"  : progCol.name,
         "colIndex" : progCol.index
     });
@@ -1768,7 +1768,7 @@ function moveTableDropdownBoxes() {
 }
 
 function focusTable(tableNum) {
-    var tableName = gTables[tableNum].frontTableName;
+    var tableName = gTables[tableNum].tableName;
     if (WSManager.getWSFromTable(tableName) !== WSManager.getActiveWS())
     {
         console.log("Table not in current worksheet");
@@ -2242,7 +2242,7 @@ function moveFirstColumn() {
         var $idCol =  $startingTable.find('.idSpan');
         var cellWidth = $idCol.width();
         var scrollLeft = -$startingTable.offset().left;
-        var rightDiff = rightOffset - (cellWidth + 17);
+        var rightDiff = rightOffset - (cellWidth + 15);
         if (rightDiff < 0) {
             scrollLeft += rightDiff;
         }

@@ -334,7 +334,7 @@ window.DagPanel = (function($, DagPanel) {
             var numTables = gTables.length;
             var tableIndex;
             for (var i = 0; i < numTables; i++) {
-                if (gTables[i].backTableName === tableName) {
+                if (gTables[i].tableName === tableName) {
                     tableIndex = i;
                     break;
                 }

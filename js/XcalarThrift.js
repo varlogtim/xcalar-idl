@@ -261,14 +261,14 @@ function XcalarIndexFromTable(srcTablename, key, tablename) {
     return (deferred.promise());
 }
 
-function XcalarDeleteTable(backTableName) {
+function XcalarDeleteTable(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
 
     var deferred = jQuery.Deferred();
 
-    xcalarDeleteTable(tHandle, backTableName)
+    xcalarDeleteTable(tHandle, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarDeleteTable", error));

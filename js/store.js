@@ -56,7 +56,7 @@ function getDirection(tName) {
     return (null);
 }
 
-function setIndex(tName, index, dsName, tableProperties, backTableName) {
+function setIndex(tName, index, dsName, tableProperties) {
     gTableIndicesLookup[tName] = {};
     gTableIndicesLookup[tName].columns = index;
     gTableIndicesLookup[tName].active = true;
@@ -77,11 +77,7 @@ function setIndex(tName, index, dsName, tableProperties, backTableName) {
         gTableIndicesLookup[tName].rowHeights = {};
     }
 
-    if (backTableName) {
-        gTableIndicesLookup[tName].backTableName = backTableName;
-    } else {
-        gTableIndicesLookup[tName].backTableName = tName;
-    }
+    gTableIndicesLookup[tName].tableName = tName;
 }
 
 function setDirection(tName, order) {
@@ -192,7 +188,7 @@ function setTableOrder(atStartup) {
     }
     gTableOrderLookup = [];
     for (var i = 0; i < gTables.length; i++) {
-        gTableOrderLookup.push(gTables[i].frontTableName);
+        gTableOrderLookup.push(gTables[i].tableName);
     }
 }
 
