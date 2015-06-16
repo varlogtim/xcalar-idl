@@ -244,9 +244,10 @@ window.DagPanel = (function($, DagPanel) {
     function setupDagTableDropdown() {
         $dagPanel.append(getDagTableDropDownHTML());
         $menu = $dagPanel.find('.dagTableDropDown');
-
+        addColMenuBehaviors($menu);
+        
         $dagPanel.on('click', '.dagTable:not(.dataStore)', function() {
-            $('.colMenu').hide();
+            $('.colMenu').hide().removeClass('leftColMenu');
             var $el = $(this);
             var tableName = $.trim($el.text());
             $menu.data('tablename', tableName);
@@ -305,15 +306,7 @@ window.DagPanel = (function($, DagPanel) {
                     $menu.css('left', left).addClass('leftColMenu');
                 }
             }
-        });
-
-        $menu.find('li')
-        .mouseenter(function() {
-            $(this).children('ul').addClass('visible');
-            $(this).addClass('selected');
-        }).mouseleave(function() {
-            $(this).children('ul').removeClass('visible');
-            $(this).removeClass('selected');
+            $('body').addClass('noSelection');
         });
 
         $menu.find('.addTable').mouseup(function(event) {
@@ -329,7 +322,6 @@ window.DagPanel = (function($, DagPanel) {
                     return (false);
                 }
             });
-            $menu.hide();
         });
 
         $menu.find('.focusTable').mouseup(function(event) {
@@ -356,7 +348,6 @@ window.DagPanel = (function($, DagPanel) {
             $('#mainFrame').scrollLeft(currentScrollPosition + tableOffset);
             $table.mousedown();
             moveFirstColumn();
-            $menu.hide();
         });
     }
 
@@ -589,10 +580,11 @@ window.Dag = (function($, Dag) {
 
     function addDagEventListeners($dagWrap) {
         var $currentIcon;
+        var $menu = $dagWrap.find('.dagDropDown');
         $dagWrap.on('click', '.dagTable.dataStore, .actionType', function() {
             $('.colMenu').hide();
+            $('.leftColMenu').removeClass('leftColMenu');
             $currentIcon = $(this);
-            var $menu = $dagWrap.find('.dagDropDown');
             var el = $(this);
             //position colMenu
             var topMargin = 0;
@@ -619,26 +611,18 @@ window.Dag = (function($, Dag) {
                     $menu.find('.subColMenu').addClass('leftColMenu');
                 }
             });
+            $('body').addClass('noSelection');
         });
 
-        $dagWrap.find('.colMenu li')
-        .mouseenter(function() {
-            $(this).children('ul').addClass('visible');
-            $(this).addClass('selected');
-        }).mouseleave(function() {
-            $(this).children('ul').removeClass('visible');
-            $(this).removeClass('selected');
-        });
+        addColMenuBehaviors($menu);
 
-        $dagWrap.find('.colMenu .createParamQuery').click(function() {
+        $menu.find('.createParamQuery').mouseup(function() {
             DagModal.show($currentIcon);
-            $('.dagDropDown').hide();
         });
 
         //XX both dropdown options will do the same thing
-        $dagWrap.find('.colMenu .modifyParams').click(function() {
+        $menu.find('.modifyParams').mouseup(function() {
             DagModal.show($currentIcon);
-            $('.dagDropDown').hide();
         });
     }
 
@@ -716,7 +700,7 @@ window.Dag = (function($, Dag) {
             var dagInfo = getDagNodeInfo(dagNode, key);
             var url = dagInfo.url;
             var id = dagInfo.id;
-            dagTable += '<div class="dagTable dataStore" ' +
+            dagTable += '<div class="dagTable dataStore dropdownBox" ' +
                         'data-type="dataStore" ' +
                         'data-id="' + id + '" ' +
                         'data-url="' + url + '">' +
@@ -731,7 +715,7 @@ window.Dag = (function($, Dag) {
                                 getDagName(dagNode) +
                             '</span>';
         } else {
-            dagTable += '<div class="dagTable">' +
+            dagTable += '<div class="dagTable dropdownBox">' +
                             '<div class="dagTableIcon"></div>' +
                             '<div class="icon"></div>' +
                             '<span class="tableTitle" ' +
@@ -765,7 +749,7 @@ window.Dag = (function($, Dag) {
 
             // var top = 210 + (prop.y * 60);
             // var right = 180 + (prop.x * 170);
-            originHTML += '<div class="actionType ' + name + '" ' +
+            originHTML += '<div class="actionType dropdownBox ' + name + '" ' +
                         'style="top:' + 0 + 'px; right:' + 0 + 'px;" ' +
                         'data-type="' + name + '" ' +
                         'data-info="' + info.text + '" ' +

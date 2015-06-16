@@ -764,8 +764,6 @@ function createTableHeader(tableNum) {
         var tableNum = parseInt($menu.attr('id').substring(9));
         var tableName = gTables[tableNum].frontTableName;
 
-        $menu.hide();
-
         archiveTable(tableNum, DeleteTable.Keep);
         // add sql
         SQL.add('Archive Table', {
@@ -809,8 +807,6 @@ function createTableHeader(tableNum) {
         var tableNum = parseInt($menu.attr('id').substring(9));
         var tableName = gTables[tableNum].frontTableName;
 
-        $menu.hide();
-
         var msg = "Are you sure you want to delete table " + tableName + "?";
         Alert.show({
             "title"     : "DELETE TABLE",
@@ -835,7 +831,6 @@ function createTableHeader(tableNum) {
         var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
 
-        $menu.hide();
         xcFunction.exportTable(tableNum);
     });
 
@@ -845,9 +840,7 @@ function createTableHeader(tableNum) {
         }
         var $menu = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
-        $menu.hide();
         var columns = gTables[tableNum].tableCols;
-        // var numCols = columns.length;
 
         for (var i = 0; i < columns.length; i++) {
             if (columns[i].func.func && columns[i].func.func === "raw") {
@@ -874,7 +867,6 @@ function createTableHeader(tableNum) {
         var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
 
-        $menu.hide();
         AggModal.show(tableNum, 'aggregates');
     });
 
@@ -885,7 +877,6 @@ function createTableHeader(tableNum) {
         var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
 
-        $menu.hide();
         AggModal.show(tableNum, 'correlation');
     });
 
@@ -945,7 +936,7 @@ function createTableHeader(tableNum) {
 
             $input.val("");
             $input.blur();
-            $menu.hide();
+            closeMenu($menu);
         }
     });
 
@@ -1003,7 +994,7 @@ function createTableHeader(tableNum) {
             $tableNameInput.val(xcHelper.randName(table.backTableName,
                                                   undefined, true));
             $tableNameInput.blur();
-            $menu.hide();
+            closeMenu($menu);
         }
     });
 
@@ -1193,19 +1184,22 @@ function addColListeners($table, tableNum) {
 }
 
 function addColMenuBehaviors($colMenu) {
+    // enter and leave the menu
     $colMenu.on({
         "mouseenter": function() {
-            $(this).children('ul').addClass('visible');
-            $(this).addClass('selected');
-            if (!$(this).hasClass('inputSelected')) {
-                $('.inputSelected').removeClass('inputSelected');
+            var $li = $(this);
+            $li.children('ul').addClass('visible');
+            $li.addClass('selected');
+            if (!$li.hasClass('inputSelected')) {
+                $colMenu.find('.inputSelected').removeClass('inputSelected');
             }
         },
         "mouseleave": function() {
-            $(this).children('ul').removeClass('visible');
-            $(this).find('.listSection').removeClass("open")
-                    .find('.list').hide();
-            $(this).removeClass('selected');
+            var $li = $(this);
+            $li.children('ul').removeClass('visible');
+            $li.find('.listSection').removeClass("open")
+                .find('.list').hide();
+            $li.removeClass('selected');
             $('.tooltip').remove();
         }
     }, "li");
@@ -1214,7 +1208,7 @@ function addColMenuBehaviors($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        $colMenu.hide();
+        closeMenu($colMenu);
     });
 
     $colMenu.on('mousedown', '.inputMenu span', function(event) {
@@ -1230,20 +1224,21 @@ function addColMenuBehaviors($colMenu) {
     
     // prevents input from closing unless you hover over a different li
     // on the main column menu
-    $colMenu.on({
+    $colMenu.find('input').on({
         "focus": function() {
             $(this).parents('li').addClass('inputSelected')
-            .parents('.subColMenu').addClass('inputSelected');
+                   .parents('.subColMenu').addClass('inputSelected');
         },
         "blur": function() {
             $(this).parents('li').removeClass('inputSelected')
-            .parents('.subColMenu').removeClass('inputSelected');
+                   .parents('.subColMenu').removeClass('inputSelected');
         },
         "keyup": function() {
-            $(this).parents('li').addClass('inputSelected')
+            var $input = $(this);
+            $input.parents('li').addClass('inputSelected')
             .parents('.subColMenu').addClass('inputSelected');
         }
-    }, 'input');
+    });
 
     $colMenu.on('mouseup', 'li', function(event) {
         if (event.which !== 1) {
@@ -1254,13 +1249,14 @@ function addColMenuBehaviors($colMenu) {
             !$(this).hasClass('unavailable') && 
             $(this).closest('.clickable').length === 0) {
             // hide li if doesnt have a submenu or an input field
-            $colMenu.hide();
+            closeMenu($colMenu);
         }
     });
 
-    $colMenu.on('mouseup', 'input', function() {
-        $(this).select();
-    });
+    // the following behavior isn't great...
+    // $colMenu.on('mouseup', 'input', function() {
+    //     $(this).select();
+    // });
 }
 
 function addColMenuActions($colMenu, $thead) {
@@ -1291,7 +1287,6 @@ function addColMenuActions($colMenu, $thead) {
         } else {
             sqlOptions.direction = "R";
         }
-        $colMenu.hide();
 
         ColManager.addCol(index, tableId, null,
                          {direction: direction, isNewCol: true, inFocus: true});
@@ -1317,7 +1312,6 @@ function addColMenuActions($colMenu, $thead) {
         var tableNum = parseInt($colMenu.attr('id').substring(7));
 
         ColManager.delDupCols(index, tableNum);
-
     });
 
     $colMenu.on('mouseup', '.renameCol', function(event) {
@@ -1435,6 +1429,11 @@ function addColMenuActions($colMenu, $thead) {
         var func = $(this).text().replace(/\./g, '');
         OperationsModal.show(tableNum, colNum, func);
     });
+}
+
+function closeMenu($menu) {
+    $menu.hide();
+    $('body').removeClass('noSelection');
 }
 
 function functionBarEnter($colInput) {
@@ -1579,6 +1578,8 @@ function dropdownClick($el, outside, options) {
             $menu.find('.subColMenu').addClass('leftColMenu');
         }
     });
+
+    $('body').addClass('noSelection');
 }
 
 function resetColMenuInputs($el) {

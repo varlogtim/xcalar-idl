@@ -1253,54 +1253,20 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     function setupColumnDropdownMenu() {
         // enter and leave the menu
-        $menu.on({
-            "mouseenter": function() {
-                var $li = $(this);
-                $li.children("ul").addClass("visible");
-                $li.addClass("selected");
-                if (!$li.hasClass("inputSelected")) {
-                    $menu.find(".inputSelected").removeClass("inputSelected");
-                }
-            },
-            "mouseleave": function() {
-                var $li = $(this);
-                $li.children('ul').removeClass('visible');
-                $li.removeClass('selected');
-                $('.tooltip').remove();
-            }
-        }, "li");
-        // input on menu
-        $menu.find("input").on({
-            "focus": function() {
-                $(this).parents('li').addClass('inputSelected')
-                        .parents('.subColMenu').addClass('inputSelected');
-            },
-            "keyup": function(event) {
-                var $input = $(this);
+        addColMenuBehaviors($menu);
 
-                $input.parents('li').addClass('inputSelected')
-                        .parents('.subColMenu').addClass('inputSelected');
-
-                if (event.which === keyCode.Enter) {
-                    renameColumn($input);
-                }
-            },
-            "blur": function() {
-                $(this).parents('li').removeClass('inputSelected')
-                    .parents('.subColMenu').removeClass('inputSelected');
-            }
-
-        });
-        // mouse down on subColMenuArea to hide menu
-        $menu.find(".subColMenuArea").mousedown(function() {
-            $menu.hide();
-        });
         // change Data Type
         $menu.find(".changeDataType").on("mouseup", ".typeList", function(event) {
             if (event.which !== 1) {
                 return;
             }
             changeColumnType($(this));
+        });
+
+        $menu.find(".renameCol").find("input").on("keyup", function(event) {
+            if (event.which === keyCode.Enter) {
+                renameColumn($(this));
+            }
         });
     }
     // update column menu
@@ -1384,7 +1350,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $input.blur();
         // in this case, no need to have thrift call
         if (newColName === oldColName) {
-            $menu.hide();
+            closeMenu($menu);
             return;
         }
         // check name conflict
@@ -1403,7 +1369,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         console.log("Renaming", oldColName, "to", newColName);
 
-        $menu.hide();
+        closeMenu($menu);
         XcalarEditColumn(dsName, oldColName, newColName, typeId)
         .then(function() {
             // update column name
@@ -1440,7 +1406,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var oldType      = $tableHeader.data('type');
         var typeId       = getTypeId(newType);
 
-        $menu.hide();
+        closeMenu($menu);
 
         // if (newType === oldType || typeId < 0) {
         //     return;

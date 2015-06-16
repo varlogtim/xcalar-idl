@@ -477,6 +477,7 @@ function documentReadyGeneralFunction() {
         var clickable = $target.closest('.colMenu').length > 0;
         if (!clickable && $target.closest('.dropdownBox').length === 0) {
             $('.colMenu').hide();
+            $('body').removeClass('noSelection');
         }
 
         if (!$target.is('.editableHead') && !$target.is('#fnBar')) {
