@@ -1148,7 +1148,7 @@ function addColListeners($table, tableNum) {
         }
 
         var $el = $(this);
-        dropdownClick($el, null, options);
+        dropdownClick($el, options);
     });
 
     $thead.on({
@@ -1523,45 +1523,55 @@ function functionBarEnter($colInput) {
 
 }
 
-function dropdownClick($el, outside, options) {
-    $('.colMenu').hide();
-    $('.leftColMenu').removeClass('leftColMenu');
-    //position colMenu
-    var topMargin = -4;
-    var leftMargin = 5;
-    var top = $el[0].getBoundingClientRect().bottom + topMargin;
-    var left = $el[0].getBoundingClientRect().left + leftMargin;
+function dropdownClick($el, options) {
+    var tableNum = parseInt($el.closest(".xcTableWrap").attr("id")
+                            .substring(11));
     var $menu;
 
-    if (outside) {
-        // for dataset dropdown
-        $menu = $("#datasetTableMenu");
-    } else {
-        var tableNum = parseInt($el.closest('.xcTableWrap').attr('id')
-                       .substring(11));
-        if ($el.parent().hasClass('tableTitle')) {
-            $menu = $('#tableMenu' + tableNum);
+    if ($el.parent().hasClass("tableTitle")) {
+        $menu = $("#tableMenu" + tableNum);
 
-            if (WSManager.getWSLen() <= 1) {
-                $menu.find(".moveToWorksheet").addClass("unavailable");
-            } else {
-                $menu.find(".moveToWorksheet").removeClass("unavailable");
-            }
+        if (WSManager.getWSLen() <= 1) {
+            $menu.find(".moveToWorksheet").addClass("unavailable");
         } else {
-            $menu = $('#colMenu' + tableNum);
+            $menu.find(".moveToWorksheet").removeClass("unavailable");
+        }
+
+        // case that should close table menu
+        if ($menu.is(":visible")) {
+            $menu.hide();
+            return;
+        }
+    } else {
+        $menu = $("#colMenu" + tableNum);
+        // case that should close column menu
+        if ($menu.is(":visible") && $menu.data("colNum") === options.colNum) {
+            $menu.hide();
+            return;
         }
     }
 
+    $(".colMenu:visible").hide();
+    $(".leftColMenu").removeClass("leftColMenu");
+    // case that should open the menu
     options = options || {};
-    if (options.colNum > -1) {
-        $menu.data('colNum', options.colNum);
+
+    if (options.colNum && options.colNum > -1) {
+        $menu.data("colNum", options.colNum);
     }
+
     if (options.classes) {
         var className = options.classes.replace("header", "");
-        $menu.attr('class', 'colMenu ' + className);
+        $menu.attr("class", "colMenu " + className);
     }
-    
-    $menu.css({'top': top, 'left': left});
+
+    //position menu
+    var topMargin  = -4;
+    var leftMargin = 5;
+    var top  = $el[0].getBoundingClientRect().bottom + topMargin;
+    var left = $el[0].getBoundingClientRect().left + leftMargin;
+
+    $menu.css({"top": top, "left": left});
     $menu.show();
 
     $menu.closest('.xcTheadWrap').css('z-index', '10');
@@ -1573,6 +1583,7 @@ function dropdownClick($el, outside, options) {
         left = $el[0].getBoundingClientRect().right - $menu.width();
         $menu.css('left', left).addClass('leftColMenu');
     }
+
     $menu.find('.subColMenu').each(function() {
         if ($(this)[0].getBoundingClientRect().right > leftBoundary) {
             $menu.find('.subColMenu').addClass('leftColMenu');
