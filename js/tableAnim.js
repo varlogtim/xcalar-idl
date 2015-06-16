@@ -69,8 +69,8 @@ function gRescolMouseDown(el, event, options) {
     rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
 
     disableTextSelection();
-    $(document.head).append('<style id="ew-resizeCursor" type="text/css">*' +
-                            '{cursor: ew-resize !important;}</style>');
+    $(document.head).append('<style id="col-resizeCursor" type="text/css">*' +
+                            '{cursor: col-resize !important;}</style>');
 }
 
 function gRescolMouseMove(event) {
@@ -90,7 +90,7 @@ function gRescolMouseMove(event) {
 
 function gRescolMouseUp() {
     gMouseStatus = null;
-    $('#ew-resizeCursor').remove();
+    $('#col-resizeCursor').remove();
     reenableTextSelection();
     gRescol.table.find('.rowGrab').width(gRescol.table.width());
     if (!gRescol.isDatastore) {
@@ -110,8 +110,8 @@ function gResrowMouseDown(el, event) {
     gResrow.startHeight = gResrow.targetTd.outerHeight();
     gResrow.rowIndex = gResrow.targetTd.closest('tr').index();
     disableTextSelection();
-    var style = '<style id="ns-resizeCursor" type="text/css">*' +
-                    '{cursor: ns-resize !important;}' +
+    var style = '<style id="row-resizeCursor" type="text/css">*' +
+                    '{cursor: row-resize !important;}' +
                 '</style>';
     $(document.head).append(style);
     $('body').addClass('hideScroll');
@@ -145,7 +145,7 @@ function gResrowMouseUp() {
     // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
     var pageNum = Math.floor((rowNum - 1) / gNumEntriesPerPage);
     gMouseStatus = null;
-    $('#ns-resizeCursor').remove();
+    $('#row-resizeCursor').remove();
     reenableTextSelection();
     $('body').removeClass('hideScroll');
     $('#xcTable' + gResrow.tableNum + ' tr').removeClass('notDragging dragging');
@@ -630,7 +630,7 @@ function dblClickResize(el, options) {
             "resizeFirstRow": resize,
             "dbClick"       : true,
             "minWidth"      : minWidth});
-        $('#ew-resizeCursor').remove();
+        $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
     }
