@@ -217,10 +217,42 @@ input {
                     }
                 }
 
+                #csvPromoteCheckbox {
+                    .size(@width: 100px, @height: 30px);
+                    .font(@weight: 700, @size: 13px);
+                    margin-left: 0px;
+                    cursor: pointer;
+
+                    &.hidden {
+                        display: none;
+                    }
+
+                    .iconWrapper {
+                        float: left;
+                        .size(@width: 16px, @height: 100%);
+                        .position(relative);
+
+                        .icon {
+                            .size(@width: 100%, @height: 100%);
+                            .image("/images/alertModal/checkbox-unchecked.png", 50%, 50%);
+                        }
+
+                        &.checked .icon {
+                            .image("/images/alertModal/checkbox-checked.png", 50%, 50%);
+                        }
+                    }
+
+                    .text {
+                        color: @color-text-lightGray;
+                        float: left;
+                        margin-left: 10px;
+                    }
+                }
+ 
                 #udfCheckbox {
                     .size(@width: 100px, @height: 30px);
                     .font(@weight: 700, @size: 13px);
-                    margin-left: 5%;
+                    margin-left: 20px;
                     cursor: pointer;
 
                     &.hidden {

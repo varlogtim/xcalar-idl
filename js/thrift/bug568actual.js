@@ -12767,6 +12767,7 @@ XcalarApiDfCsvLoadArgsT = function(args) {
   this.recordDelim = null;
   this.fieldDelim = null;
   this.isCRLF = null;
+  this.hasHeader = null;
   if (args) {
     if (args.recordDelim !== undefined) {
       this.recordDelim = args.recordDelim;
@@ -12776,6 +12777,9 @@ XcalarApiDfCsvLoadArgsT = function(args) {
     }
     if (args.isCRLF !== undefined) {
       this.isCRLF = args.isCRLF;
+    }
+    if (args.hasHeader !== undefined) {
+      this.hasHeader = args.hasHeader;
     }
   }
 };
@@ -12814,6 +12818,13 @@ XcalarApiDfCsvLoadArgsT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 4:
+      if (ftype == Thrift.Type.BOOL) {
+        this.hasHeader = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -12838,6 +12849,11 @@ XcalarApiDfCsvLoadArgsT.prototype.write = function(output) {
   if (this.isCRLF !== null && this.isCRLF !== undefined) {
     output.writeFieldBegin('isCRLF', Thrift.Type.BOOL, 3);
     output.writeBool(this.isCRLF);
+    output.writeFieldEnd();
+  }
+  if (this.hasHeader !== null && this.hasHeader !== undefined) {
+    output.writeFieldBegin('hasHeader', Thrift.Type.BOOL, 4);
+    output.writeBool(this.hasHeader);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

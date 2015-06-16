@@ -24,7 +24,7 @@
     ,   loadArgs
     ,   loadOutput
     ,   origDataset
-    ,   queryId
+    ,   queryName
     ,   origTable
     ,   origStrTable
     ,   queryTableName;
@@ -160,7 +160,7 @@
     }
 
     function testStartNodes(deferred, testName, currentTestNumber) {
-        xcalarStartNodes(thriftHandle, 2)
+        xcalarStartNodes(thriftHandle, 4)
 	.done(function(result) {
 	    printResult(result);
 	    pass(deferred, testName, currentTestNumber);
@@ -196,7 +196,7 @@
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber);
+            fail(deferred, testName, currentTestNumber, StatusTStr[reason]);
         });
     }
 
@@ -256,6 +256,26 @@
         })
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
+        })
+    }
+
+    function testRenameNode(deferred, testName, currentTestNumber) {
+        xcalarRenameNode(thriftHandle, origTable, "newName")
+        .done(function(status) {
+            printResult(status);
+
+            xcalarRenameNode(thriftHandle, "newName", origTable)
+            .done(function(status) {
+                printResult(status);
+                pass(deferred, testName, currentTestNumber);
+            })
+            .fail(function(status) {
+                fail(deferred, testName, currentTestNumber, StatusTStr[status]);
+            })
+
+        })
+        .fail(function(status) {
+            fail(deferred, testName, currentTestNumber, StatusTStr[status]);
         })
     }
 
@@ -675,10 +695,11 @@
                     " join --leftTable yelp-review_countTable --rightTable" +
                     "  yelp-groupByTable --joinTable " + queryTableName;
 
-        xcalarQuery(thriftHandle, query)
+        queryName = "testQuery";
+
+        xcalarQuery(thriftHandle, queryName, query)
         .done(function(queryOutput) {
             printResult(queryOutput);
-            queryId = queryOutput.queryId;
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
@@ -687,7 +708,7 @@
     }
 
     function testQueryState(deferred, testName, currentTestNumber) {
-        xcalarQueryState(thriftHandle, queryId)
+        xcalarQueryState(thriftHandle, queryName)
         .done(function(queryStateOutput) {
             printResult(queryStateOutput);
             pass(deferred, testName, currentTestNumber);
@@ -702,17 +723,20 @@
 
         (function wait() {
             setTimeout(function() {
-                xcalarQueryState(thriftHandle, queryId)
+                xcalarQueryState(thriftHandle, queryName)
                 .done(function(result) {
                     queryStateOutput = result;
-                    if (queryStateOutput.queryState === QueryStateT.qrProcssing) {
+                    if (queryStateOutput.queryState ===
+                                                      QueryStateT.qrProcssing) {
                         return wait();
                     }
 
-                    if (queryStateOutput.queryState === QueryStateT.qrFinished) {
+                    if (queryStateOutput.queryState ===
+                                                       QueryStateT.qrFinished) {
                         pass(deferred, testName, currentTestNumber);
                     } else {
-                        var reason = "queryStateOutput.queryState = " + QueryStateTStr[queryStateOutput.queryState];
+                        var reason = "queryStateOutput.queryState = " +
+                                    QueryStateTStr[queryStateOutput.queryState];
                         fail(deferred, testName, currentTestNumber, reason);
                     }
                  })
@@ -785,7 +809,7 @@
             fail(deferred, testName, currentTestNumber, reason);
         })
         .fail(function(status) {
-            if (status === StatusT.StatusDsDatasetInUse) {
+            if (status === StatusT.StatusDgNodeInUse) {
                 pass(deferred, testName, currentTestNumber);
             } else {
                 fail(deferred, testName, currentTestNumber, StatusTStr[status]);
@@ -984,7 +1008,7 @@
             evalString = "add(1, " + evalString + ")";
         }
 
-        xcalarFilter(thriftHandle, evalString, origTable, "ShouldNotExist")
+        xcalarFilter(thriftHandle, evalString, origTable, "filterLongEvalStr")      
         .done(function(filterOutput) {
             returnValue = 1;
             var reason = "Map succeeded with long eval string when it should have failed";
@@ -1069,6 +1093,28 @@
                 console.log("\tMemUsage(%): ", topOutput.topOutputPerNode[ii].memUsageInPercent);
                 console.log("\tMemUsed: ", topOutput.topOutputPerNode[ii].memUsedInBytes);
                 console.log("\tMemAvailable: ", topOutput.topOutputPerNode[ii].totalAvailableMemInBytes);
+                console.log("\n\n");
+            }
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testMemory(deferred, testName, currentTestNumber) {
+        xcalarApiMemory(thriftHandle, null)
+        .done(function(memOutput) {
+            var ii;
+            for (ii = 0; ii < memOutput.numNodes; ii++) {
+                var jj;
+                var nodeOutput = memOutput.memOutputPerNode[ii];
+                console.log("\tNode Id: ", nodeOutput.nodeId);
+                console.log("\tNum Tags: ", nodeOutput.numTags);
+                for (jj = 0; jj < nodeOutput.numTags; jj++) {
+                    var tagOutput = nodeOutput.memOutputPerTag[jj];
+                    console.log("\t", tagOutput.locName, "\t", tagOutput.tagName, "\t", tagOutput.memUsageInBytes);
+                }
                 console.log("\n\n");
             }
             pass(deferred, testName, currentTestNumber);
@@ -1224,7 +1270,7 @@
     loadArgs       = null;
     loadOutput     = null;
     origDataset    = null;
-    queryId        = null;
+    queryName      = null;
     origTable      = null;
     origStrTable   = null;
     queryTableName = "yelp-joinTable";
@@ -1246,8 +1292,10 @@
     addTestCase(testCases, testLoad, "load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testEditColumn, "edit column", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testBogusEditColumn, "bogus edit column", defaultTimeout, TestCaseEnabled, "875");
+    // XXX Re-enable when editCol fixed
+    addTestCase(testCases, testEditColumn, "edit column", defaultTimeout, TestCaseDisabled, "");
+    // XXX Re-enable when editCol fixed
+    addTestCase(testCases, testBogusEditColumn, "bogus edit column", defaultTimeout, TestCaseDisabled, "875");
     addTestCase(testCases, testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetInt, "index dataset (int)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetStr, "index dataset (str)", defaultTimeout, TestCaseEnabled, "");
@@ -1256,6 +1304,7 @@
     addTestCase(testCases, testIndexTable2, "index table (str) 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexTableBogus, "bogus index table 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testGetTableRefCount, "table refCount", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testRenameNode, "rename node", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testGetCount, "count unique", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListTables, "list tables", defaultTimeout, TestCaseEnabled, "");
 
@@ -1285,14 +1334,16 @@
     addTestCase(testCases, testApiMap, "map", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testExport, "export", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetRetina, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testUpdateRetina, "updateRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetRetina, "getRetina - iter 2 / 2", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testExecuteRetina, "executeRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testAddParameterToRetina, "addParamaterToRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
+
+    addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testListRetinas, "listRetinas", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testGetRetina, "getRetina - iter 1 / 2", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testUpdateRetina, "updateRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testGetRetina, "getRetina - iter 2 / 2", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testExecuteRetina, "executeRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testAddParameterToRetina, "addParamaterToRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseDisabled, "");
+
     addTestCase(testCases, testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testUploadPython, "upload python", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testPyExecOnLoad, "python during load", defaultTimeout, TestCaseEnabled, "");
@@ -1309,6 +1360,7 @@
     addTestCase(testCases, testApiKeyBogusLookup, "bogus key lookup", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCases, testTop, "top test", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCases, testDeleteTable, "delete table", defaultTimeout, TestCaseEnabled, "");

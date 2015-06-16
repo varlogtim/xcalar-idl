@@ -153,7 +153,7 @@ function XcalarGetVersion() {
 }
 
 function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
-                    moduleName, funcName) {
+                    hasHeader, moduleName, funcName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -165,6 +165,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     loadArgs.csv.recordDelim = recordDelim;
     loadArgs.csv.fieldDelim = fieldDelim;
     loadArgs.csv.isCRLF = true;
+    if (hasHeader) {
+        loadArgs.csv.hasHeader = true;
+    } else {
+        loadArgs.csv.hasHeader = false;
+    }
     if (moduleName != "" && funcName != "") {
         loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
         loadArgs.pyLoadArgs.moduleName = moduleName;

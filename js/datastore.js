@@ -128,6 +128,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
             }
         });
 
+        // csv promote checkbox
+        $("#csvPromoteCheckbox").click(function() {
+            var $checkbox = $(this).find(".checkbox");
+            $checkbox.toggleClass("checked");
+        });
+
+
         // reset form
         $("#importDataReset").click(function() {
             $(this).blur();
@@ -138,6 +145,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $csvDelim.addClass("hidden");
             $udfArgs.addClass("hidden");
             $udfCheckbox.addClass("hidden");
+            $("#csvPromoteCheckbox").addClass("hidden");
             $udfCheckbox.find(".checkbox").removeClass("checked");
         });
 
@@ -187,12 +195,16 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 moduleName = $("#udfArgs-moduleList input").val();
                 funcName   = $("#udfArgs-funcList input").val();
             }
+            var header = false;
+            if ($("#csvPromoteCheckbox .checkbox").hasClass("checked")) {
+                header = true;
+            }
             var msg        = StatusMessageTStr.LoadingDataset + ": " + dsName;
 
             StatusMessage.show(msg);
 
             DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                    moduleName, funcName)
+                    header, moduleName, funcName)
             .then(function() {
                 DataStore.updateNumDatasets();
                 $("#importDataReset").click();
@@ -338,19 +350,21 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $formatText.removeClass("hint");
         $formatText.val(text);
         $udfCheckbox.removeClass("hidden");
-
         switch (text.toLowerCase()) {
             case "csv":
+                $("#csvPromoteCheckbox").removeClass("hidden");
                 resetDelimiter();
                 $fieldDelim.show();
                 $csvDelim.removeClass("hidden");
                 break;
             case "raw":
+                $("#csvPromoteCheckbox").removeClass("hidden");
                 resetDelimiter();
                 $fieldDelim.hide();
                 $csvDelim.removeClass("hidden");
                 break;
             default:
+                $("#csvPromoteCheckbox").addClass("hidden");
                 $csvDelim.addClass("hidden");
                 break;
         }
@@ -1554,7 +1568,7 @@ window.DS = (function ($, DS) {
      * @return {Promise} deferred
      */
     DS.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                        moduleName, funcName) {
+                        hasHeader, moduleName, funcName) {
         var deferred = jQuery.Deferred();
 
         console.log(dsName, dsFormat, loadURL,
@@ -1565,7 +1579,7 @@ window.DS = (function ($, DS) {
         $("#waitingIcon").fadeIn(200);
 
         XcalarLoad(loadURL, dsFormat, dsName,
-                   fieldDelim, lineDelim,
+                   fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName)
         .then(function() {
             $("#tempDSIcon").remove();
@@ -1575,6 +1589,7 @@ window.DS = (function ($, DS) {
                 "dsPath"    : loadURL,
                 "dsName"    : dsName,
                 "dsFormat"  : dsFormat,
+                "hasHeader" : hasHeader,
                 "fieldDelim": fieldDelim || "Null",
                 "lineDelim" : lineDelim || "Null",
                 "moduleName": moduleName || null,
