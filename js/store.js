@@ -61,12 +61,7 @@ function setIndex(tName, index, dsName, tableProperties) {
     gTableIndicesLookup[tName].columns = index;
     gTableIndicesLookup[tName].active = true;
     gTableIndicesLookup[tName].timeStamp = xcHelper.getTimeInMS();
-    if (dsName) {
-        gTableIndicesLookup[tName].datasetName = dsName;
-        gTableIndicesLookup[tName].isTable = false;
-    } else {
-        gTableIndicesLookup[tName].isTable = true;
-    }
+    gTableIndicesLookup[tName].isTable = true;
 
     if (tableProperties) {
         gTableIndicesLookup[tName].bookmarks = tableProperties.bookmarks;

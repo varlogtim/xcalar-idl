@@ -158,6 +158,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
     
     var tableName = gTables[tableNum].tableName;
     var deletedTable = gTables.splice(tableNum, 1);
+    console.log(deletedTable)
     if (!del) {
         gHiddenTables.push(deletedTable[0]);
         gTableIndicesLookup[tableName].active = false;

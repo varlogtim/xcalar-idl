@@ -14,6 +14,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
     RightSideBar.addTables = function(tables, active) {
         // XXX tables is an array of metaTables;
+        console.info('generatingTablelist', tables)
         generateTableLists(tables, active);
 
         if (!active) {
@@ -43,6 +44,14 @@ window.RightSideBar = (function($, RightSideBar) {
             $timeLine.remove();
         }
     };
+
+    RightSideBar.renameTable = function(oldTableName, newTableName) {
+        var $tableList = $('#activeTablesList .tableInfo[data-tablename="' +
+                            oldTableName + '"]');
+        $tableList.data('tablename', newTableName);
+        $tableList.attr('data-tablename', newTableName);
+        $tableList.find('.tableName').text(newTableName);
+    }
 
     RightSideBar.updateTableInfo = function(table) {
         var tableName  = table.tableName;

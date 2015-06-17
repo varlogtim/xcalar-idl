@@ -311,7 +311,7 @@ function XcalarRenameTable(oldTableName, newTableName) {
     xcalarRenameNode(tHandle, oldTableName, newTableName)
     .then(deferred.resolve)
     .fail(function(error) {
-        deferred.reject(thriftLog("XcalarEditColumn", error));
+        deferred.reject(thriftLog("XcalarRenameTable", error));
     });
 
     return(deferred.promise());

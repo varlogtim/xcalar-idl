@@ -138,6 +138,19 @@ window.WSManager = (function($, WSManager) {
     };
 
     /**
+     * rename a table
+     * @param {string} oldTableName The original table's name
+     * @param {string} newTableName The new table's name
+     */
+    WSManager.renameTable = function(oldTableName, newTableName) {
+        var wsIndex = WSManager.getWSFromTable(oldTableName);
+        wsIndexLookUp[newTableName] = wsIndexLookUp[oldTableName];
+        var tableIndex = worksheets[wsIndex].tables.indexOf(oldTableName);
+        worksheets[wsIndex].tables[tableIndex] = newTableName;
+        delete wsIndexLookUp[oldTableName];
+    }
+
+    /**
      * Move table to another worksheet
      * @param {number} tableNum The table's index in gTables
      * @param {number} newIndex The new worksheet's index
@@ -195,7 +208,7 @@ window.WSManager = (function($, WSManager) {
         // there both src sample and the copied can change to real table using
         // its backTableName
         if (!tableCopy.isTable) {
-            tableCopy.tableName = newTableName;
+        tableCopy.tableName = newTableName;
         }
 
         addTable(tableCopy.tableName, tableNum,

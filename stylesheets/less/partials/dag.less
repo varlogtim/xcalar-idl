@@ -310,10 +310,17 @@
         .dagTableIcon {
             .position(absolute, @top: 5px);
             .size(@width: 40px, @height: 30px);
-            background-color: lightblue;
             .action-gradient;
             .rounded(15px);
         }
+
+    &.DgDagStateCleaned, &.DgDagStateDropped {
+        .dagTableIcon {
+            .gray-gradient;
+            // .dag-gradient;
+            // .darkGray-gradient;
+        }
+    }
 
         &.dataStore {
             background: none;

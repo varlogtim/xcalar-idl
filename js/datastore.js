@@ -1010,9 +1010,12 @@ window.DataCart = (function($, DataCart) {
                 sqlOptions.col.push("DATA");
 
                 var tableProperties = {bookmarks: [], rowHeights: {}};
-                setIndex(tableName, newTableCols, datasetName, tableProperties);
-
-                refreshTable(tableName, gTables.length, true, false)
+                XcalarIndexFromDataset(datasetName, "recordNum", tableName)
+                .then(function() {
+                    setIndex(tableName, newTableCols, datasetName, tableProperties);
+                    return (refreshTable(tableName, gTables.length, true,
+                                         false));
+                })
                 .then(function() {
                     SQL.add("Send To Worksheet", sqlOptions);
                     StatusMessage.success(msg);

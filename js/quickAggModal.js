@@ -64,7 +64,8 @@ window.AggModal = (function($, AggModal) {
 
     AggModal.show = function (tableNum, type) {
         $modalBackground.on("click", hideAggOpSelect);
-        $aggTableName.val(gTables[tableNum].tableName);
+        var tableName = gTables[tableNum].tableName
+        $aggTableName.val(tableName);
 
         $aggModal.show();
         $modalBackground.fadeIn(300, function() {
@@ -86,11 +87,8 @@ window.AggModal = (function($, AggModal) {
             }).click();
         }
 
-        xcFunction.checkSorted(tableNum)
-        .then(function(tableName) {
-            calcAgg(tableNum, tableName);
-            calcCorr(tableNum, tableName);
-        });
+        calcAgg(tableNum, tableName);
+        calcCorr(tableNum, tableName);
     };
 
     function aggColsInitialize(tableNum) {
@@ -295,7 +293,6 @@ window.AggModal = (function($, AggModal) {
         // First we need to determine if this is a dataset-table
         // or just a regular table
         var dupCols = [];
-
         for (var j = 0; j < colLen; j++) {
             var cols   = aggCols[j].col;
             var colNum = aggCols[j].colNum;

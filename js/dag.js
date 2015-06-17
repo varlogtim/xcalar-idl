@@ -578,6 +578,52 @@ window.Dag = (function($, Dag) {
         }
     };
 
+    Dag.getSrcTableName = function(tableName, tableNum) {
+        // uses dag image to find the source table name
+        var $tableTitles = $('#dagWrap' + tableNum).find('.tableTitle');
+        if ($tableTitles.length < 3) {
+            return (tableName + '0');
+        }
+        var $dagTableTitle = $tableTitles.filter(function() {
+                                return ($(this).text() === tableName);
+                             });
+
+        var srcTableText = $dagTableTitle.closest('.dagTableWrap')
+                              .find('.actionType')
+                              .find('.childrenTitle')
+                              .text();
+        return (srcTableText);
+    }
+
+    Dag.renameAllOccurrences = function(oldTableName, newTableName) {
+        var $dagPanel = $('#dagPanel');
+        var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
+            return ($(this).text() === oldTableName);
+        });
+        $dagTableTitles.text(newTableName)
+                       .attr('data-original-title', newTableName)
+                       .attr('title', newTableName);
+        var $dagChildrenTitles = $dagPanel.find('.childrenTitle')
+                                          .filter(function() {
+                                    return ($(this).text() === oldTableName);
+                                });
+
+        $dagChildrenTitles.text(newTableName);
+        var $actionTypes = $dagChildrenTitles.closest('.actionType');
+        $actionTypes.each(function() {
+            var tooltipText = $(this).attr('data-original-title');
+            if (tooltipText) {
+                var newText = tooltipText.replace(oldTableName, newTableName);
+                $(this).attr('data-original-title', newText);
+            }
+            var title = $(this).attr('title');
+            if (title) {
+                var newText = title.replace(oldTableName, newTableName);
+                $(this).attr('title', newText);
+            }
+        });
+    }
+
     function addDagEventListeners($dagWrap) {
         var $currentIcon;
         var $menu = $dagWrap.find('.dagDropDown');
@@ -675,7 +721,7 @@ window.Dag = (function($, Dag) {
                                    dagArray, html, childIndex, parentChildMap);
         }
         
-        var oneTable = drawDagTable(dagNode, prop, dagArray);
+        var oneTable = drawDagTable(dagNode, prop, dagArray, parentChildMap, index);
         var newHtml;
         if (accumulatedDrawings) {
             newHtml = "<div class='joinWrap'><div class='childContainer'>" +
@@ -689,18 +735,21 @@ window.Dag = (function($, Dag) {
         }
     }
 
-    function drawDagTable(dagNode, prop, dagArray) {
-        // var top = 200 + (prop.y * 60);
-        // var right = 100 + (prop.x * 170);
-        var dagOrigin = drawDagOrigin(dagNode, prop, dagArray);
+    function drawDagTable(dagNode, prop, dagArray, parentChildMap, index) {
+        var top = 200 + (prop.y*60);
+        var right = 100 + (prop.x*170);
+        var dagOrigin = drawDagOrigin(dagNode, prop, dagArray, parentChildMap, index);
         var dagTable = '<div class="dagTableWrap clearfix">' +
                         dagOrigin;
-        if (dagOrigin === "") {
-            var key = dagApiMap[dagNode.api];
-            var dagInfo = getDagNodeInfo(dagNode, key);
+        var key = dagApiMap[dagNode.api];
+        var children = getDagChildrenNames(parentChildMap, index, dagArray);
+        var dagInfo = getDagNodeInfo(dagNode, key, children);
+        var state = dagInfo.state;
+        if (dagOrigin == "") {
             var url = dagInfo.url;
             var id = dagInfo.id;
-            dagTable += '<div class="dagTable dataStore dropdownBox" ' +
+            
+            dagTable += '<div class="dagTable dataStore" ' +
                         'data-type="dataStore" ' +
                         'data-id="' + id + '" ' +
                         'data-url="' + url + '">' +
@@ -710,12 +759,12 @@ window.Dag = (function($, Dag) {
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
-                            'title="' + getDagName(dagNode) + '">' +
+                            'title="' + getDagName(dagNode)+'">' +
                             'Dataset ' +
                                 getDagName(dagNode) +
                             '</span>';
         } else {
-            dagTable += '<div class="dagTable dropdownBox">' +
+            dagTable += '<div class="dagTable ' + state + '">' +
                             '<div class="dagTableIcon"></div>' +
                             '<div class="icon"></div>' +
                             '<span class="tableTitle" ' +
@@ -730,12 +779,12 @@ window.Dag = (function($, Dag) {
         return (dagTable);
     }
 
-    function drawDagOrigin(dagNode) {
+    function drawDagOrigin(dagNode, prop, dagArray, parentChildMap, index) {
         var originHTML = "";
         var numChildren = getDagNumChildren(dagNode);
 
         if (numChildren > 0) {
-            var children = getDagChildrenNames(dagNode.api, dagNode);
+            var children = getDagChildrenNames(parentChildMap, index, dagArray);
             var additionalInfo = "";
             if (numChildren === 2) {
                 additionalInfo += " & " + children[1];
@@ -787,6 +836,8 @@ window.Dag = (function($, Dag) {
             var datasetName = gTableIndicesLookup[tableName].datasetName;
             node.api = 2;
             node.dagNodeId = Math.ceil(Math.random() * 10000);
+            node.name = {};
+            node.name.name = datasetName;
             node.input = {loadInput: {}};
             node.input.loadInput.dataset = {};
             node.input.loadInput.dataset.datasetId = 0;
@@ -828,9 +879,11 @@ window.Dag = (function($, Dag) {
             };
             var index = 0;
             var dagArray = dagObj.node;
+            //XX TEMPORARY
+            // tempModifyDagArray(dagArray);
             var parentChildMap = getParentChildDagMap(dagObj);
             console.log(dagObj);
-            deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "",
+            deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "", 
                              index, parentChildMap));
         }
         return (deferred.promise());
@@ -862,47 +915,18 @@ window.Dag = (function($, Dag) {
         return (numChildren);
     }
 
-    function getDagChildrenNames(api, dagNode) {
-        var children = [];
-        var key = dagApiMap[api];
-        var value = dagNode.input[key];
-        if (key === 'filterInput') {
-            children.push(value.srcTable.tableName);
-        } else if (key === 'groupByInput') {
-            children.push(value.table.tableName);
-        } else if (key === 'indexInput') {
-            if (value.source.name === "") {
-                children.push(value.dstTable.tableName);
-            } else {
-                children.push(value.source.name);
-            }
-        } else if (key === 'joinInput') {
-            children.push(value.leftTable.tableName);
-            children.push(value.rightTable.tableName);
-        } else if (key === 'mapInput') {
-            children.push(value.srcTable.tableName);
+    function getDagChildrenNames(parentChildMap, index, dagArray) {
+        var childrenNames = [];
+        for (var i = 0; i < parentChildMap[index].length; i++) {
+            var childIndex = parentChildMap[index][i];
+            var childName = dagArray[childIndex].name.name;
+            childrenNames.push(childName);
         }
-        return (children);
+        return (childrenNames);
     }
 
     function getDagName(dagNode) {
-        var key = dagApiMap[dagNode.api];
-        var value = dagNode.input[key];
-        var childName;
-        if (key === 'filterInput') {
-            childName = value.dstTable.tableName;
-        } else if (key === 'groupByInput') {
-            childName = value.groupByTable.tableName;
-        } else if (key === 'indexInput') {
-            childName = value.dstTable.tableName;
-        } else if (key === 'joinInput') {
-            childName = value.joinTable.tableName;
-        } else if (key === 'loadInput') {
-            childName = value.dataset.name;
-        } else if (key === 'mapInput') {
-            childName = value.dstTable.tableName;
-        }
-        return (childName);
+        return (dagNode.name.name);
     }
 
     function getDagNodeInfo(dagNode, key, children) {
@@ -916,6 +940,7 @@ window.Dag = (function($, Dag) {
         info.tooltip = "";
         info.column = "";
         info.id = dagNode.dagNodeId;
+        info.state = DgDagStateTStr[dagNode.state];
 
         switch (key) {
             case ('loadInput'):

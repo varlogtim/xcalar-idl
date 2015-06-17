@@ -695,27 +695,30 @@ function createTableHeader(tableNum) {
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +
             '</li>' +
-            '<li class="dupToWorksheet">' +
-                '<span class="label">Copy to worksheet</span>' +
-                '<ul class="subColMenu">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<span>Worksheet Name</span>' +
-                        '<div class="listSection">' +
-                            '<input class="wsName" type="text" width="100px" ' +
-                                'placeholder="click to see options"/>' +
-                            '<ul class="list"></ul>' +
-                        '</div>' +
-                    '</li>' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<span>New Table Name</span>' +
-                        '<input class="tableName" type="text" width="100px" ' +
-                                'placeholder="Enter a new table name" ' +
-                                'value="' + newTableName + '"/>' +
-                    '</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
-            '</li>' +
+            // XX copy to worksheet is temporarily disabled until we can do 
+            // an actual copy of a table
+            
+            // '<li class="dupToWorksheet">' +
+            //     '<span class="label">Copy to worksheet</span>' +
+            //     '<ul class="subColMenu">' +
+            //         '<li style="text-align: center" class="clickable">' +
+            //             '<span>Worksheet Name</span>' +
+            //             '<div class="listSection">' +
+            //                 '<input class="wsName" type="text" width="100px" ' +
+            //                     'placeholder="click to see options"/>' +
+            //                 '<ul class="list"></ul>' +
+            //             '</div>' +
+            //         '</li>' +
+            //         '<li style="text-align: center" class="clickable">' +
+            //             '<span>New Table Name</span>' +
+            //             '<input class="tableName" type="text" width="100px" ' +
+            //                     'placeholder="Enter a new table name" ' +
+            //                     'value="' + newTableName + '"/>' +
+            //         '</li>' +
+            //         '<div class="subColMenuArea"></div>' +
+            //     '</ul>' +
+            //     '<div class="dropdownBox"></div>' +
+            // '</li>' +
         '</ul>';
 
     $('#xcTableWrap' + tableNum).append(tableMenuHTML);
