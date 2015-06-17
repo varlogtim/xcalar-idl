@@ -610,7 +610,7 @@ function initializeTable() {
                 addTable(tableName, index, null, null)
                 .then(innerDeferred.resolve)
                 .fail(function(error) {
-                    failures.add("Add table " + tableName +
+                    failures.push("Add table " + tableName +
                                  "fails: " + error);
                     innerDeferred.resolve(error);
                 });
