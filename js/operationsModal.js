@@ -354,7 +354,7 @@ window.OperationsModal = (function($, OperationsModal) {
             categoryName = FunctionCategoryTStr[categoryIndex].toLowerCase();
             categoryNames.push(categoryName);
             functionsMap[0] = operatorsMap[categoryIndex];
-            html += '<li data-category="' + i + '">' +
+            html += '<li data-category="' + 0 + '">' +
                         categoryName +
                     '</li>';
         }
