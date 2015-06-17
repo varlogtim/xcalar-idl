@@ -1628,42 +1628,11 @@ function changeColumnType($typeList) {
     }
 
     mapStr += colName + ")";
-    xcFunction.map(colNum, tableNum, newColName, mapStr)
-    .then(function() { 
-       ColManager.delCol(colNum, tableNum);
-       ColManager.addCol("col" + colNum, "xcTable" + tableNum,
-                         newColName, {"direction": "L", "select": true});
-
-       // now the column is different as we add a new column
-       var col = gTables[tableNum].tableCols[colNum - 1];
-       col.func.func = "pull";
-       col.func.args = [newColName];
-       col.userStr = usrStr;
-       
-       ColManager.execCol(col, tableNum)
-       .then(function() {
-           updateTableHeader(tableNum);
-           var table = gTables[tableNum];
-           RightSideBar.updateTableInfo(table);
-
-           autosizeCol($('#xcTable' + tableNum + ' th.col' + (colNum)),
-                       {"includeHeader" : true,
-                        "resizeFirstRow": true});
-
-           $('#xcTable' + tableNum + ' tr:first th.col' + (colNum + 1)
-             + ' .editableHead').focus();
-
-           // add sql
-           SQL.add("Add Column", {
-                   "operation"   : "addCol",
-                   "tableName"   : tableName,
-                   "newColName"  : newColName,
-                   "direction"   : "L"
-            });
-
-        })
-
-    });
+    mapStr = "=map(" + mapStr + ")";
+    var $colInput = $('#xcTable' + tableNum).find('.editableHead.col' + colNum);
+    $colInput.val(newColName);
+    $("#fnBar").val(mapStr);
+    functionBarEnter($colInput);
 }
 
 
