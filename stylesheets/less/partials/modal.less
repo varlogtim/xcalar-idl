@@ -2210,14 +2210,14 @@
                 width: 100%;
 
                 .thWrap {
-                    .size(@width: ~"calc(70% - 0px)");
+                    .size(@width: 60%);
                 }
                 th:first-of-type {
-                    .size(@width: 30%);
+                    .size(@width: 40%);
                     border-right: 1px solid @color-white;
                     background-color: #a8a8a8;
                     .thWrap {
-                        width: ~"calc(30% + 1px)" !important;
+                        width: ~"calc(40% + 1px)" !important;
                         padding-left: 12px;
                     }
                 }
@@ -2226,8 +2226,13 @@
                     height: 40px;
                     .font(@weight: 600);
                     padding: 0px;
+                    width: 60%;
+                    &:first-of-type {
+                        width: 40%;
+                    }
                 }
                 .inputWrap {
+                    width: 100%;
                     padding: 7px 8px 4px 8px;
                     float: left;
                     height: 40px;
@@ -2262,6 +2267,20 @@
                                 padding-left: 0;
                             }
                         }
+                        .argIconWrap {
+                            .position(absolute, @top: 5px, @right: 3px);
+                            .size (20px, 20px);
+                            .rounded;
+                            .gray-gradient;
+                            cursor: pointer;
+                            &:active {
+                                .gray-inverse-gradient;
+                            }
+                            .icon {
+                                .size(20px, 20px);
+                                .image("/images/columnSelect.png", 50%, 50%);
+                            }
+                        }
                     }
                 }
 
@@ -2280,6 +2299,18 @@
          border-radius: 0 0 3px 3px;
         .btn {
              margin-left: 20px;
+        }
+    }
+
+    .minimized {
+        display: none !important;
+        &.argumentSection {
+            display: block !important;
+            height: auto;
+        }
+        &.modalMain {
+            display: block !important;
+            padding-left: 15px;
         }
     }
 

@@ -120,15 +120,29 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.on('keypress', '.argument', function(event) {
             if (event.which === keyCode.Enter && !modalHelper.checkBtnFocus()) {
+                if ($operationsModal.find('.argumentSection').hasClass('minimized')) {
+                    return;
+                }
                 $(this).blur();
                 submitForm();
             }
+        });
+
+        var $lastArgumentInputFocused = $operationsModal.find('.argument:first');
+        $operationsModal.on('focus', '.argument', function() {
+            $lastArgumentInputFocused = $(this);
         });
 
         $operationsModal.on('blur', '.argument', function() {
             var $el = $(this);
             setTimeout(function() {
                 var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
+                if ($operationsModal.find('.argumentSection')
+                                    .hasClass('minimized') &&
+                    $mouseTarget.closest('input').length === 0) {
+                    $el.focus();
+                    return;
+                }
                 if ($mouseTarget.hasClass('editableHead') &&
                     $mouseTarget.closest('.xcTable').length !== 0) {
                     var newColName = $mouseTarget.val();
@@ -138,6 +152,63 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             }, 0);
         });
+
+        $operationsModal.on('click', '.argIconWrap', function() {
+            
+            if ($operationsModal.find('.argumentSection')
+                                .hasClass('minimized')) {
+                unminimizeTable();
+            } else {
+                // we want to target only headers that have editableheads
+                var $input = $(this).siblings('input');
+                minimizeTableAndFocusInput($input);
+                $lastArgumentInputFocused = $input;
+            }
+            
+        });
+
+        function minimizeTableAndFocusInput($input) {
+            // is there a better way????
+            $operationsModal.find('div, p, b, thead').addClass('minimized');
+            $operationsModal.find('.modalHeader, .close, .tableContainer,' +
+                                  '.tableWrapper')
+                            .removeClass('minimized');
+            $input.closest('tbody').find('div').removeClass('minimized');
+            $input.focus();
+            $('#xcTable' + tableNum).find('.editableHead')
+                                        .closest('.header')
+                                        .mousedown(fillInputFromColumn);
+            $('body').on('keyup', opModalKeyListener);
+            centerPositionElement($operationsModal);
+        }
+
+        function unminimizeTable() {
+            $operationsModal.find('.minimized').removeClass('minimized');
+            $('#xcTable' + tableNum).find('.header')
+                                    .off('mousedown', fillInputFromColumn);
+            $('body').off('keyup', opModalKeyListener);
+            centerPositionElement($operationsModal);
+        }
+
+        function opModalKeyListener(event) {
+            if (event.which === keyCode.Enter ||
+                event.which === keyCode.Escape) {
+                setTimeout(function() {
+                    unminimizeTable();
+                }, 0);
+            }
+        }
+
+        function fillInputFromColumn(event) {
+            if ($(event.target).hasClass('.argument')) {
+                var $input = $lastArgumentInputFocused;
+                var $target = $(event.target).closest('.header');
+                $target = $target.find('.editableHead');
+                var newColName = $target.val();
+                insertText($input, newColName) 
+                gMouseEvents.setMouseDownTarget($input);
+            }
+        }
 
         var argumentTimer;
         $operationsModal.on('input', '.argument', function() {
@@ -167,6 +238,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 clearInput(0);
                 modalHelper.clear();
                 $functionsMenu.data('category', 'null');
+                unminimizeTable();
             });
 
             $('#opModalBackground').fadeOut(time, function() {
@@ -189,6 +261,9 @@ window.OperationsModal = (function($, OperationsModal) {
                                         .attr('disabled', false);
             $('#xcTable' + tableNum).find('.colGrab')
                                     .off('mouseup', disableTableEditing);
+
+            $('#xcTable' + tableNum).find('.header')
+                                    .off('mousedown', fillInputFromColumn);
             
             $(document).mousedown(); // hides any error boxes;    
         });
@@ -1014,13 +1089,12 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function insertText($input, textToInsert) {
         var value = $input.val();
-
         // for udf section
         if ($input.closest(".listSection").hasClass("udfSection")) {
-            var brackedIndex = value.lastIndexOf(")");
-            if (brackedIndex >= 1) {
+            var bracketIndex = value.lastIndexOf(")");
+            if (bracketIndex >= 1) {
                 var stringBeforeBracket = value.substring(0, brackedIndex);
-                if (value.charAt(brackedIndex - 1) === '(') {
+                if (value.charAt(bracketIndex - 1) === '(') {
                     $input.val(stringBeforeBracket + textToInsert + ')');
                 } else {
                     $input.val(stringBeforeBracket + ', ' + textToInsert + ')');
@@ -1028,7 +1102,9 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             return;
         }
-
+       
+        var firstBracketIndex = value.lastIndexOf("(");
+        var lastBracketIndex = value.indexOf(")");
         var currentPos = $input[0].selectionStart;
         var selectionEnd = $input[0].selectionEnd;
         var numCharSelected = selectionEnd - currentPos;
@@ -1036,7 +1112,48 @@ window.OperationsModal = (function($, OperationsModal) {
             var begin = value.substr(0, currentPos);
             var end = value.substr(currentPos + numCharSelected, value.length);
             value = begin + end;
+        } else if ((firstBracketIndex >= 0 &&
+                    lastBracketIndex > firstBracketIndex) &&
+                    (currentPos > firstBracketIndex &&
+                    currentPos <= lastBracketIndex)) {
+            var textBetweenBrackets =
+                $.trim(value.substring(firstBracketIndex + 1,
+                                       lastBracketIndex));
+            if (value[lastBracketIndex - 1] === "(" ||
+                textBetweenBrackets === "") {
+                // fall through
+            } else if (currentPos !== lastBracketIndex) {
+                if ((currentPos - 1) === firstBracketIndex) {
+                    if (value[currentPos] !== " "
+                        && value[currentPos] !== ",") {
+                        textToInsert += ", ";
+                    }
+                } else if (value[currentPos - 2] === ","
+                    && value[currentPos - 1] === " ") {
+                    if (value[currentPos] !== " ") {
+                        textToInsert += ", ";
+                    }
+                }
+                else if (value[currentPos - 1] === ",") {
+                    textToInsert = " " + textToInsert;
+                    if (value[currentPos] !== " ") {
+                        textToInsert += ", ";
+                    } else if (value[currentPos + 1] !== " ") {
+                        textToInsert += ",";
+                    }
+                } else if (value[currentPos] === ",") {
+                    textToInsert = ", " + textToInsert;
+                }
+            } else if (value[currentPos - 2] !== ",") {
+                if (value[currentPos - 1] !== ','
+                    && value[currentPos] !== " ") {
+                    textToInsert = ", " + textToInsert;
+                } else if (value[currentPos - 1] === ',') {
+                    textToInsert = " " + textToInsert;
+                }
+            }  
         }
+
         var strLeft = value.substring(0, currentPos);
         var strRight = value.substring(currentPos, value.length);
         $input.val(strLeft + textToInsert + strRight);
