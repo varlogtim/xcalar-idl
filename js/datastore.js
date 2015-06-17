@@ -488,7 +488,7 @@ window.GridView = (function($, GridView) {
             })
             .fail(function(error) {
                 var errorHTML = "<div class='loadError'>" +
-                                    "Loading dataset failed: " + error.error +
+                                    "Loading dataset failed. " + error.error +
                                 "</div>";
                 console.error(error);
                 $('#dataSetTableWrap').html(errorHTML);
@@ -1044,6 +1044,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // XcalarSample sets gDatasetBrowserResultSetId
         XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
+            if (!result) {
+                deferred.reject({"error": "Cannot parse the dataset."});
+                return (deferred.promise());
+            }
             var kvPairs    = result.kvPair;
             var numKvPairs = result.numKvPairs;
 

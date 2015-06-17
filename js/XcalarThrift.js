@@ -303,7 +303,11 @@ function XcalarSample(datasetName, numEntries) {
         var resultSetId = result.resultSetId;
         totalEntries = result.numEntries;
         gDatasetBrowserResultSetId = resultSetId;
-        return (XcalarGetNextPage(resultSetId, numEntries));
+        if (totalEntries === 0) {
+            return (deferred.resolve());
+        } else {
+            return (XcalarGetNextPage(resultSetId, numEntries));
+        }
     })
     .then(function(tableOfEntries) {
         deferred.resolve(tableOfEntries, totalEntries);
