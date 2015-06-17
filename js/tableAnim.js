@@ -1605,9 +1605,65 @@ function changeColumnType($typeList) {
     var $colMenu = $typeList.closest('.colMenu');
     var colNum   = $colMenu.data('colNum');
     var tableNum = parseInt($colMenu.attr('id').substring(7));
+    var colName = gTables[tableNum].tableCols[colNum-1].func.args[0];
+    var mapStr = "";
+    var newColName = colName + "_" + newType;
+    var tableName = gTables[tableNum].tableName;
+    switch (newType) {
+    case ("boolean"):
+        mapStr += "bool(";
+        break;
+    case ("decimal"):
+        mapStr += "float(";
+        break;
+    case ("integer"):
+        mapStr += "int(";
+        break;
+    case ("string"):
+        mapStr += "string(";
+        break;
+    default:
+        console.log("XXX no such operator! Will guess");
+        mapStr += newType+"(";
+    }
 
-    // XX we have newType, column number, and tableNum
-    // You do the rest Jerene!
+    mapStr += colName + ")";
+    xcFunction.map(colNum, tableNum, newColName, mapStr)
+    .then(function() { 
+       ColManager.delCol(colNum, tableNum);
+       ColManager.addCol("col" + colNum, "xcTable" + tableNum,
+                         newColName, {"direction": "L", "select": true});
+
+       // now the column is different as we add a new column
+       var col = gTables[tableNum].tableCols[colNum - 1];
+       col.func.func = "pull";
+       col.func.args = [newColName];
+       col.userStr = usrStr;
+       
+       ColManager.execCol(col, tableNum)
+       .then(function() {
+           updateTableHeader(tableNum);
+           var table = gTables[tableNum];
+           RightSideBar.updateTableInfo(table);
+
+           autosizeCol($('#xcTable' + tableNum + ' th.col' + (colNum)),
+                       {"includeHeader" : true,
+                        "resizeFirstRow": true});
+
+           $('#xcTable' + tableNum + ' tr:first th.col' + (colNum + 1)
+             + ' .editableHead').focus();
+
+           // add sql
+           SQL.add("Add Column", {
+                   "operation"   : "addCol",
+                   "tableName"   : tableName,
+                   "newColName"  : newColName,
+                   "direction"   : "L"
+            });
+
+        })
+
+    });
 }
 
 
