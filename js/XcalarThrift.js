@@ -308,7 +308,7 @@ function XcalarRenameTable(oldTableName, newTableName) {
 
     var deferred = jQuery.Deferred();
     
-    xcalarRenameTable(tHandle, oldTableName, newTableName)
+    xcalarRenameNode(tHandle, oldTableName, newTableName)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarEditColumn", error));
