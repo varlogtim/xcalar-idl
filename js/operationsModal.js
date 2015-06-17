@@ -320,7 +320,8 @@ window.OperationsModal = (function($, OperationsModal) {
         'conversion functions'   : [],
         'miscellaneous functions': [],
         'string functions'       : [],
-        'trigonometric functions': []
+        'trigonometric functions': [],
+        'type-casting functions' : []
     };
 
     function populateInitialCategoryField(operator) {
@@ -338,7 +339,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 categoryName = FunctionCategoryTStr[i].toLowerCase();
                 categoryNames.push(categoryName);
                 functionsMap[i] = operatorsMap[i];
-                html += '<li class="category' + i + '">' +
+                html += '<li data-category="' + i + '">' +
                             categoryName +
                         '</li>';
             }
@@ -353,7 +354,7 @@ window.OperationsModal = (function($, OperationsModal) {
             categoryName = FunctionCategoryTStr[categoryIndex].toLowerCase();
             categoryNames.push(categoryName);
             functionsMap[0] = operatorsMap[categoryIndex];
-            html += '<li class="category' + categoryIndex + '">' +
+            html += '<li data-category="' + i + '">' +
                         categoryName +
                     '</li>';
         }
@@ -612,7 +613,12 @@ window.OperationsModal = (function($, OperationsModal) {
         if (index < 0) {
             return;
         }
-        var ops = functionsMap[index];
+
+        var $categoryLi = $categoryMenu.find('li').filter(function() {
+            return ($(this).text() === categoryNames[index]);
+        });
+        var categoryNum = $categoryLi.data('category');
+        var ops = functionsMap[categoryNum];
         var numOps = ops.length;
         var html = "";
         for (var i = 0; i < numOps; i++) {
@@ -633,7 +639,12 @@ window.OperationsModal = (function($, OperationsModal) {
         if (categoryIndex < 0) {
             return;
         }
-        var ops = functionsMap[categoryIndex];
+
+        var $categoryLi = $categoryMenu.find('li').filter(function() {
+            return ($(this).text() === categoryNames[categoryIndex]);
+        });
+        var categoryNum = $categoryLi.data('category');
+        var ops = functionsMap[categoryNum];
         var numOps = ops.length;
         // var html = "";
         var opIndex = -1;
