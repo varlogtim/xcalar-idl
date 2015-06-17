@@ -613,6 +613,7 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
 }
 
 function generateColDropDown(tableNum) {
+    var types = ['Boolean', 'Integer', 'Decimal', 'String']
     var dropDownHTML =
         '<ul id="colMenu' + tableNum + '" class="colMenu">' +
             '<li>' +
@@ -636,6 +637,25 @@ function generateColDropDown(tableNum) {
                     '<li class="textAlign leftAlign">Left Align</li>' +
                     '<li class="textAlign centerAlign">Center Align</li>' +
                     '<li class="textAlign rightAlign">Right Align</li>' +
+                    '<div class="subColMenuArea"></div>' +
+                '</ul>' +
+                '<div class="dropdownBox"></div>' +
+            '</li>' +
+            '<li class="changeDataType">Change data type' +
+                '<ul class="subColMenu">';
+        types.forEach(function(type) {
+            dropDownHTML +=
+                '<li class="flexContainer flexRow typeList type-' +
+                    type.toLowerCase() + '">' +
+                    '<div class="flexWrap flex-left">' +
+                        '<span class="type icon"></span>' +
+                    '</div>' +
+                    '<div class="flexWrap flex-right">' +
+                        '<span class="label">' + type + '</span>' +
+                    '</div>' +
+                '</li>';
+        });
+        dropDownHTML +=
                     '<div class="subColMenuArea"></div>' +
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +

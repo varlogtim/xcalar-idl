@@ -762,6 +762,29 @@ ul.colMenu {
         background-color: @color-selectedCell-green;
     }
 
+    .changeDataType {
+        li.flexContainer {
+            height: 30px;
+            padding: 0;
+            // see common.less
+            .typeIcon;
+
+            .flexWrap.flex-left {
+                .flex(0 0 24px);
+                padding: 6px 5px;
+                position: relative;
+                height: 30px;
+                .gray-gradient;
+                overflow:hidden;
+                
+            }
+            .flexWrap.flex-right {
+                .flex(1 1 auto);
+                padding: 6px 8px;
+            }
+        }
+    }
+
     .sort, .aggregate, .groupBy, .filter {
         span {
             .size(@width: 24px, @height: 16px);
@@ -883,7 +906,7 @@ ul.colMenu {
         }
     }
 
-    &.emptyTable .map {
+    &.type-emptyTable .map {
         display: none !important;
     }
 
@@ -897,6 +920,13 @@ ul.colMenu {
     &.type-newColumn, &.type-undefined {
         .operations, .map {
             display: list-item;
+        }
+    }
+
+    &.type-object, &.type-array, &.type-newColumn, &.type-undefined,
+    &.recordNum {
+        .changeDataType {
+            display: none;
         }
     }
 
@@ -917,7 +947,8 @@ ul.colMenu {
 
     &.type-data {
         .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
-        .deleteDuplicates, .duplicate, .renameCol, .map, .operations {
+        .deleteDuplicates, .duplicate, .renameCol, .map, .operations,
+        .changeDataType {
             display: none;
         }
     }

@@ -1391,6 +1391,13 @@ function addColMenuActions($colMenu, $thead) {
         ColManager.textAlign(colNum, tableNum, $(this).attr("class"));
     });
 
+    $colMenu.on('mouseup', '.typeList', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        changeColumnType($(this));
+    });
+
     /// added back in
     $colMenu.on('mouseup', '.sort .sort', function(event) {
         if (event.which !== 1) {
@@ -1592,6 +1599,17 @@ function dropdownClick($el, options) {
 
     $('body').addClass('noSelection');
 }
+
+function changeColumnType($typeList) {
+    var newType      = $typeList.find(".label").text().toLowerCase();
+    var $colMenu = $typeList.closest('.colMenu');
+    var colNum   = $colMenu.data('colNum');
+    var tableNum = parseInt($colMenu.attr('id').substring(7));
+
+    // XX we have newType, column number, and tableNum
+    // You do the rest Jerene!
+}
+
 
 function resetColMenuInputs($el) {
     var tableNum = parseInt($el.closest('.xcTableWrap').attr('id')
