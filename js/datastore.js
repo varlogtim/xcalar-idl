@@ -978,7 +978,7 @@ window.DataCart = (function($, DataCart) {
                 StatusMessage.show(msg);
 
                 $cart.find('.colName').each(function() {
-                    var colname = $.trim($(this).text());
+                    var colname = $(this).text();
                     var escapedName = colname;
 
                     if (colname.indexOf('.') > -1) {
