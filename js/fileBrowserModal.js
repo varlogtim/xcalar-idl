@@ -283,6 +283,16 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
+    function getShortName(name) {
+        var index = name.lastIndexOf(".");
+
+        if (index < 0) {
+            return (name);
+        } else {
+            return (name.substring(0, index));
+        }
+    }
+
     function appendPath(path) {
         $pathLabel.text(path);
         $pathLists.prepend('<li>' + path + '</li>');
@@ -405,6 +415,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 .click();
         }
         $filePath.val(path);
+        $("#fileName").val(getShortName(dsName));
         // }
         closeAll();
     }
