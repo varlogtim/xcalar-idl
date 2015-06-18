@@ -140,8 +140,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
             $formatText.val("Format");
             $formatText.addClass("hint");
-            // visbility 0 csvDelim and hide udfArgs
-            $csvDelim.show();
+
             $csvDelim.addClass("hidden");
             $udfArgs.addClass("hidden");
             $udfCheckbox.addClass("hidden");
@@ -190,17 +189,19 @@ window.DatastoreForm = (function($, DatastoreForm) {
             var lineDelim  = delimiterTranslate($("#lineText"));
 
             var moduleName = "";
-            var funcName = "";
+            var funcName   = "";
+
             if ($udfCheckbox.find(".checkbox").hasClass("checked")) {
                 moduleName = $("#udfArgs-moduleList input").val();
-                funcName   = $("#udfArgs-funcList input").val();
+                funcName = $("#udfArgs-funcList input").val();
             }
+
             var header = false;
             if ($("#csvPromoteCheckbox .checkbox").hasClass("checked")) {
                 header = true;
             }
-            var msg        = StatusMessageTStr.LoadingDataset + ": " + dsName;
 
+            var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
             StatusMessage.show(msg);
 
             DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
@@ -215,8 +216,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 var text;
 
                 if (result.statusCode === StatusT.StatusDsInvalidUrl) {
-                    text = "Could not retrieve dataset from file path: "
-                            + loadURL;
+                    text = "Could not retrieve dataset from file path: " +
+                            loadURL;
                 } else {
                     text = result.error;
                 }
@@ -1040,7 +1041,6 @@ window.DataCart = (function($, DataCart) {
 
 window.DataSampleTable = (function($, DataSampleTable) {
     var $tableWrap = $("#dataSetTableWrap");
-    var $menu = $("#datasetTableMenu");
     var currentRow = 0;
     var totalRows = 0;
 
@@ -1300,24 +1300,24 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
     }
 
-    function getTypeId(type) {
-        switch (type) {
-            case "undefined":
-                return DfFieldTypeT.DfUnknown;
-            case "string":
-                return DfFieldTypeT.DfString;
-            case "integer":
-                return DfFieldTypeT.DfInt64;
-            case "decimal":
-                return DfFieldTypeT.DfFloat64;
-            case "boolean":
-                return DfFieldTypeT.DfBoolean;
-            case "mixed":
-                return DfFieldTypeT.DfMixed;
-            default:
-                return -1; // Invalid type
-        }
-    }
+    // function getTypeId(type) {
+    //     switch (type) {
+    //         case "undefined":
+    //             return DfFieldTypeT.DfUnknown;
+    //         case "string":
+    //             return DfFieldTypeT.DfString;
+    //         case "integer":
+    //             return DfFieldTypeT.DfInt64;
+    //         case "decimal":
+    //             return DfFieldTypeT.DfFloat64;
+    //         case "boolean":
+    //             return DfFieldTypeT.DfBoolean;
+    //         case "mixed":
+    //             return DfFieldTypeT.DfMixed;
+    //         default:
+    //             return -1; // Invalid type
+    //     }
+    // }
 
     // sample table html
     function getSampleTableHTML(dsName, jsonKeys, jsons) {
@@ -1610,7 +1610,6 @@ window.DS = (function ($, DS) {
         })
         .then(function(files) {
             // display new dataset
-            console.log('files', files);
             var fileSize = getFileSize(files);
             DS.create({
                 "name"    : dsName,
