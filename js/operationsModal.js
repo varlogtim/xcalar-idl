@@ -132,7 +132,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 if ($mouseTarget.hasClass('editableHead') &&
                     $mouseTarget.closest('.xcTable').length !== 0) {
                     var newColName = $mouseTarget.val();
-                    insertText($el, newColName) 
+                    insertText($el, newColName);
                     $el.focus();
                     gMouseEvents.setMouseDownTarget($el);
                 }
@@ -1017,6 +1017,21 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function insertText($input, textToInsert) {
         var value = $input.val();
+
+        // for udf section
+        if ($input.closest(".listSection").hasClass("udfSection")) {
+            var brackedIndex = value.lastIndexOf(")");
+            if (brackedIndex >= 1) {
+                var stringBeforeBracket = value.substring(0, brackedIndex);
+                if (value.charAt(brackedIndex - 1) === '(') {
+                    $input.val(stringBeforeBracket + textToInsert + ')');
+                } else {
+                    $input.val(stringBeforeBracket + ', ' + textToInsert + ')');
+                }
+            }
+            return;
+        }
+
         var currentPos = $input[0].selectionStart;
         var selectionEnd = $input[0].selectionEnd;
         var numCharSelected = selectionEnd - currentPos;
@@ -1029,7 +1044,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var strRight = value.substring(currentPos, value.length);
         $input.val(strLeft + textToInsert + strRight);
         currentPos += textToInsert.length;
-        $input[0].setSelectionRange(currentPos , currentPos);
+        $input[0].setSelectionRange(currentPos, currentPos);
     }
 
     return (OperationsModal);
