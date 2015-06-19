@@ -158,7 +158,6 @@ function archiveTable(tableNum, del, delayTableRemoval) {
     
     var tableName = gTables[tableNum].tableName;
     var deletedTable = gTables.splice(tableNum, 1);
-    console.log(deletedTable)
     if (!del) {
         gHiddenTables.push(deletedTable[0]);
         gTableIndicesLookup[tableName].active = false;
@@ -240,12 +239,8 @@ function deleteTable(tableNum, deleteArchived) {
     // Free the result set pointer that is still pointing to it
     XcalarSetFree(resultSetId)
     .then(function() {
-        if (table.isTable === false) {
-            return (promiseWrapper(null));
-        } else {
-            // check if table also in other workbooks
-            return (WKBKManager.canDelTable(tableName));
-        }
+        // check if table also in other workbooks
+        return (WKBKManager.canDelTable(tableName));
     })
     .then(function(canDelete) {
         if (!canDelete) {
@@ -300,12 +295,8 @@ function setTableMeta(tableName) {
     var deferred = jQuery.Deferred();
 
     var newTable     = new TableMeta();
-    var isTable      = true;
     var lookupTable  = gTableIndicesLookup[tableName];
 
-    if (lookupTable && !lookupTable.isTable) {
-        isTable = false;
-    }
 
     newTable.tableCols = [];
     newTable.currentRowNumber = 0;
@@ -315,9 +306,8 @@ function setTableMeta(tableName) {
         newTable.bookmarks = lookupTable.bookmarks;
     }
 
-    getResultSet(isTable, tableName)
+    getResultSet(tableName)
     .then(function(resultSet) {
-        newTable.isTable = isTable;
         newTable.resultSetId = resultSet.resultSetId;
 
         newTable.resultSetCount = resultSet.numEntries;
@@ -672,18 +662,8 @@ function generateColDropDown(tableNum) {
                 '<div class="dropdownBox"></div>' +
             '</li>' +
             '<li class="functions aggregate">Aggregate...</li>' +
-            '<li class="functions filter">Filter...</li>';
-    if (gTables[tableNum].isTable) {
-        dropDownHTML += '<li class="functions groupby">Group By...</li>';
-    } else {
-        dropDownHTML += '<li class="functions groupby unavailable" ' +
-                         'title="table needs to be indexed" ' +
-                         'data-toggle="tooltip" ' +
-                         'data-placement="top" ' +
-                         'data-container="body">' +
-                        'Group By...</li>';
-    }
-    dropDownHTML +=       
+            '<li class="functions filter">Filter...</li>' +
+            '<li class="functions groupby">Group By...</li>' +     
             '<li class="functions map">Map...</li>' +
             '<li class="joinList">' + 'Join...</li>';
 

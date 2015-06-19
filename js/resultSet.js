@@ -38,13 +38,8 @@ function freeAllResultSetsSync() {
     return (chain(promises));
 }
 
-function getResultSet(isTable, tableName) {
-    if (isTable) {
-        return (XcalarMakeResultSetFromTable(tableName));
-    } else {
-        return (XcalarMakeResultSetFromDataset(gTableIndicesLookup[tableName]
-                                                .datasetName));
-    }
+function getResultSet(tableName) {
+    return (XcalarMakeResultSetFromTable(tableName));
 }
 
 function goToPage(rowNumber, numRowsToAdd, direction, loop, info,

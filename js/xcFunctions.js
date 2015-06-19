@@ -23,7 +23,7 @@ window.xcFunction = (function ($, xcFunction) {
             renameHelper(tableNum, previousTableName, tableName);
             renamePassed = true;
             if (fltStr) {
-                return (XcalarFilterHelper(fltStr, previousTableName, 
+                return (XcalarFilterHelper(fltStr, previousTableName,
                                            tableName));
             } else {
                 return (XcalarFilter(operator, value1, value2, value3,
@@ -158,7 +158,7 @@ window.xcFunction = (function ($, xcFunction) {
         .then(function(){
             renamePassed = true;
             renameHelper(tableNum, previousTableName, tableName);
-            return (XcalarIndexFromTable(previousTableName, backFieldName, 
+            return (XcalarIndexFromTable(previousTableName, backFieldName,
                                          tableName));
         })
         .then(function() {
@@ -199,7 +199,7 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // join two tables
-    xcFunction.join = function (leftColNum, leftTableNum, rightColNum, 
+    xcFunction.join = function (leftColNum, leftTableNum, rightColNum,
                                 rightTableNum, joinStr, newTableName) {
         var deferred = jQuery.Deferred();
         var isLeft   = true;
@@ -257,7 +257,7 @@ window.xcFunction = (function ($, xcFunction) {
             leftTableResult = result;
             leftSrcName = result.tableName;
             // check right table index
-            return (checkJoinTableIndex(rightColName, rightTable, isRight, 
+            return (checkJoinTableIndex(rightColName, rightTable, isRight,
                                         rightTableNum));
         })
         .then(function(result) {
@@ -398,7 +398,6 @@ window.xcFunction = (function ($, xcFunction) {
             "bookmarks" : xcHelper.deepCopy(table.bookmarks),
             "rowHeights": xcHelper.deepCopy(table.rowHeights)
         };
-        var backTableName;
         var msg = StatusMessageTStr.Map + " " + fieldName;
 
         StatusMessage.show(msg);
@@ -410,10 +409,10 @@ window.xcFunction = (function ($, xcFunction) {
         .then(function() {
             renamePassed = true;
             renameHelper(tableNum, previousTableName, tableName);
-            return (XcalarMap(fieldName, mapString, previousTableName, 
+            return (XcalarMap(fieldName, mapString, previousTableName,
                               tableName));
         })
-        .then(function() { 
+        .then(function() {
             
             setIndex(tableName, tablCols, null, tableProperties);
             return (refreshTable(tableName, tableNum));
@@ -515,8 +514,6 @@ window.xcFunction = (function ($, xcFunction) {
             console.log(text, "not indexed correctly!");
             // XXX In the future,we can check if there are other tables that
             // are indexed on this key. But for now, we reindex a new table
-           
-            var srcName = tableName;
 
             var previousTableName = getNewName(tableNum, tableName);
             var renamePassed = false;
@@ -527,7 +524,7 @@ window.xcFunction = (function ($, xcFunction) {
                 renameHelper(tableNum, previousTableName, tableName);
                 renamePassed = true;
                 return (XcalarIndexFromTable(previousTableName, colName,
-                                             tableName))
+                                             tableName));
             })
             .then(function() {
                 SQL.add("Index From Dataset", {
@@ -552,7 +549,7 @@ window.xcFunction = (function ($, xcFunction) {
                     newTableCreated : true,
                     tableName : tableName,
                     previousTableName : previousTableName
-                }
+                };
                 deferred.resolve(result);
             })
             .fail(function(error) {
@@ -575,7 +572,7 @@ window.xcFunction = (function ($, xcFunction) {
             var result = {
                 newTableCreated : false,
                 tableName : tableName
-            }
+            };
             deferred.resolve(result);
         }
 
@@ -627,7 +624,7 @@ window.xcFunction = (function ($, xcFunction) {
     }
 
     // does renames for gTables, worksheet, rightsidebar, dag
-    function renameHelper(tableNum, newTableName, oldTableName, options) {
+    function renameHelper(tableNum, newTableName, oldTableName) {
         gTables[tableNum].tableName = newTableName;
         gTableIndicesLookup[newTableName] = gTableIndicesLookup[oldTableName];
         gTableIndicesLookup[newTableName].tableName = newTableName;

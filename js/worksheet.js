@@ -207,9 +207,9 @@ window.WSManager = (function($, WSManager) {
         // XXX for sample table, should sync frontName with backName since
         // there both src sample and the copied can change to real table using
         // its backTableName
-        if (!tableCopy.isTable) {
-        tableCopy.tableName = newTableName;
-        }
+        // if (!tableCopy.isTable) {
+        //     tableCopy.tableName = newTableName;
+        // }
 
         addTable(tableCopy.tableName, tableNum,
                  AfterStartup.After, null, newTableName)

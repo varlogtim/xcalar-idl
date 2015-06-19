@@ -873,9 +873,7 @@ window.WKBKManager = (function($, WKBKManager) {
         // XXX Cheng: store real table for delete table use
         // this is just temporayily, after bakcend support, we do not need it!
         function storeHelper(table) {
-            if (table.isTable) {
-                workbook.tables[table.tableName] = true;
-            }
+            workbook.tables[table.tableName] = true;
         }
 
         workbook.modified = xcHelper.getTimeInMS();  // store modified data

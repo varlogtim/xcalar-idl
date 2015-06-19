@@ -268,9 +268,6 @@ window.OperationsModal = (function($, OperationsModal) {
         for (var i = 0; i < colTypes.length; i++) {
             $operationsModal.addClass('type-' + colTypes[i]);
         }
-        if (!gTables[tableNum].isTable) {
-            $operationsModal.addClass('type-dataset');
-        }
         if (gTables[tableNum].tableCols[colNum - 1].isNewCol) {
             $operationsModal.addClass('type-newColumn');
         }

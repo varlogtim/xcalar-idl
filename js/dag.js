@@ -401,7 +401,7 @@ window.Dag = (function($, Dag) {
     Dag.construct = function(tableName, tableNum) {
         var deferred = jQuery.Deferred();
 
-        drawDag(tableName, tableNum)
+        drawDag(tableName)
         .then(function(dagDrawing) {
             var outerDag =
                 '<div class="dagWrap" id="dagWrap' + tableNum + '">' +
@@ -593,7 +593,7 @@ window.Dag = (function($, Dag) {
                               .find('.childrenTitle')
                               .text();
         return (srcTableText);
-    }
+    };
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
         var $dagPanel = $('#dagPanel');
@@ -612,17 +612,18 @@ window.Dag = (function($, Dag) {
         var $actionTypes = $dagChildrenTitles.closest('.actionType');
         $actionTypes.each(function() {
             var tooltipText = $(this).attr('data-original-title');
+            var newText;
             if (tooltipText) {
-                var newText = tooltipText.replace(oldTableName, newTableName);
+                newText = tooltipText.replace(oldTableName, newTableName);
                 $(this).attr('data-original-title', newText);
             }
             var title = $(this).attr('title');
             if (title) {
-                var newText = title.replace(oldTableName, newTableName);
+                newText = title.replace(oldTableName, newTableName);
                 $(this).attr('title', newText);
             }
         });
-    }
+    };
 
     function addDagEventListeners($dagWrap) {
         var $currentIcon;
@@ -736,16 +737,15 @@ window.Dag = (function($, Dag) {
     }
 
     function drawDagTable(dagNode, prop, dagArray, parentChildMap, index) {
-        var top = 200 + (prop.y*60);
-        var right = 100 + (prop.x*170);
-        var dagOrigin = drawDagOrigin(dagNode, prop, dagArray, parentChildMap, index);
+        var dagOrigin = drawDagOrigin(dagNode, prop, dagArray, parentChildMap,
+                                      index);
         var dagTable = '<div class="dagTableWrap clearfix">' +
                         dagOrigin;
         var key = dagApiMap[dagNode.api];
         var children = getDagChildrenNames(parentChildMap, index, dagArray);
         var dagInfo = getDagNodeInfo(dagNode, key, children);
         var state = dagInfo.state;
-        if (dagOrigin == "") {
+        if (dagOrigin === "") {
             var url = dagInfo.url;
             var id = dagInfo.id;
             
@@ -759,7 +759,7 @@ window.Dag = (function($, Dag) {
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
-                            'title="' + getDagName(dagNode)+'">' +
+                            'title="' + getDagName(dagNode) + '">' +
                             'Dataset ' +
                                 getDagName(dagNode) +
                             '</span>';
@@ -828,54 +828,22 @@ window.Dag = (function($, Dag) {
         return (originHTML);
     }
 
-    function drawDag(tableName, tableNum) {
+    function drawDag(tableName) {
         var deferred = jQuery.Deferred();
-        if (!gTables[tableNum].isTable) {
-            var dagObj = {node: [{}], numNodes: 1};
-            var node = dagObj.node[0];
-            var datasetName = gTableIndicesLookup[tableName].datasetName;
-            node.api = 2;
-            node.dagNodeId = Math.ceil(Math.random() * 10000);
-            node.name = {};
-            node.name.name = datasetName;
-            node.input = {loadInput: {}};
-            node.input.loadInput.dataset = {};
-            node.input.loadInput.dataset.datasetId = 0;
-            node.input.loadInput.dataset.name = datasetName;
-            // return (deferred.promise());
-            XcalarGetDatasets()
-            .then(function(datasets) {
-
-                for (var i = 0; i < datasets.numDatasets; i++) {
-                    if (datasetName === datasets.datasets[i].name) {
-                        node.input.loadInput.dataset.url =
-                                                datasets.datasets[i].url;
-                        drawDagHelper(dagObj);
-                        break;
-                    }
-                }
-            })
-            .fail(function() {
-                Alert.error("getDatasetSets for Dag fails", error);
-            });
-            return (deferred.promise());
-        } else {
-            XcalarGetDag(tableName)
-            .then(function(dagObj) {
-                return (drawDagHelper(dagObj));
-            })
-            .fail(function(error) {
-                console.log("drawDag fail!");
-                deferred.reject(error);
-            });
-        }
+        XcalarGetDag(tableName)
+        .then(function(dagObj) {
+            return (drawDagHelper(dagObj));
+        })
+        .fail(function(error) {
+            console.log("drawDag fail!");
+            deferred.reject(error);
+        });
         
-
         function drawDagHelper(dagObj) {
             var prop = {
-                x: 0,
-                y: 0,
-                childCount: 0
+                x : 0,
+                y : 0,
+                childCount : 0
             };
             var index = 0;
             var dagArray = dagObj.node;
@@ -883,7 +851,7 @@ window.Dag = (function($, Dag) {
             // tempModifyDagArray(dagArray);
             var parentChildMap = getParentChildDagMap(dagObj);
             console.log(dagObj);
-            deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "", 
+            deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "",
                              index, parentChildMap));
         }
         return (deferred.promise());

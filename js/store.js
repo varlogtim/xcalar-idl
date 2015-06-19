@@ -61,7 +61,6 @@ function setIndex(tName, index, dsName, tableProperties) {
     gTableIndicesLookup[tName].columns = index;
     gTableIndicesLookup[tName].active = true;
     gTableIndicesLookup[tName].timeStamp = xcHelper.getTimeInMS();
-    gTableIndicesLookup[tName].isTable = true;
 
     if (tableProperties) {
         gTableIndicesLookup[tName].bookmarks = tableProperties.bookmarks;
