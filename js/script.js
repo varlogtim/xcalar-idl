@@ -609,9 +609,9 @@ function initializeTable() {
 
                 addTable(tableName, index, null, null)
                 .then(innerDeferred.resolve)
-                .fail(function(error) {
+                .fail(function(thriftError) {
                     failures.push("Add table " + tableName +
-                                 "fails: " + error);
+                                 "fails: " + thriftError.error);
                     innerDeferred.resolve(error);
                 });
 
@@ -631,9 +631,9 @@ function initializeTable() {
 
                     setupHiddenTable(tableName)
                     .then(innerDeferred.resolve)
-                    .fail(function(error) {
-                        failures.add("set hidden table " + tableName +
-                                     "fails: " + error);
+                    .fail(function(thriftError) {
+                        failures.push("set hidden table " + tableName +
+                                     "fails: " + thriftError.error);
                         innerDeferred.resolve(error);
                     });
 

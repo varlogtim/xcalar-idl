@@ -1157,16 +1157,24 @@
           <li>Full Outer Join</li>
         </ul>
       </div>
+      <div id="multiJoinBtn">
+        <div class="offOnBox offBox active">
+          <span class="icon"></span>
+        </div>
+        <div class="offOnBox onBox">
+          <span class="icon"></span>
+        </div>
+      </div>
     </section>
     <!-- Join Modal Main Section -->
     <section id="mainJoin" class="clearfix modalMain">
       <!-- left join -->
-      <div id="leftJoin">
+      <div id="leftJoin" class="joinContainer">
         <div class="tableText">Left Table</div>
         <div class="mainTable">
           <div class="tabArea">
-            <div class="tableTabs">
-            </div>
+            <div class="worksheetTabs"></div>
+            <div class="tableTabs"></div>
             <div class="joinTableArea">
               <div class="background"></div>
               <div class="outline"></div>
@@ -1174,12 +1182,38 @@
           </div>
         </div>
       </div>
-      <div class="divider"></div>
+      <!-- multi clause -->
+      <div id="multiJoin" class="joinContainer">
+        <div class="tableText"></div>
+        <div class="mainTable">
+          <div class="title">Multi Clause Join</div>
+          <div class="clauseArea">
+             <div class="joinClause placeholder">
+              <div class="clause leftClause">
+                <div class="iconWrapper">
+                  <span class="icon"></span>
+                </div>
+              </div>
+              <div class="middleIcon">
+                <div class="iconWrapper">
+                  <span class="icon"></span>
+                </div>
+              </div>
+              <div class="clause rightClause">
+                <div class="iconWrapper">
+                  <span class="icon"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- right join -->
-      <div id="rightJoin">
+      <div id="rightJoin" class="joinContainer">
         <div class="tableText">Right Table</div>
         <div class="mainTable">
           <div class="tabArea">
+            <div class="worksheetTabs"></div>
             <div class="tableTabs"></div>
             <div class="joinTableArea">
               <div class="background"></div>

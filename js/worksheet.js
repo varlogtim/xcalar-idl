@@ -97,6 +97,15 @@ window.WSManager = (function($, WSManager) {
         return (worksheets[wsIndex].name);
     };
 
+    WSManager.getTableByName = function(tableName, isHidden) {
+        var tables = isHidden ? gHiddenTables : gTables;
+        for (var i = 0, len = tables.length; i < len; i++) {
+            if (tables[i].tableName === tableName) {
+                return (tables[i]);
+            }
+        }
+    }
+
     /**
      * Get current active worksheet
      * @return {number} activeWorsheet The index of current active worksheet
