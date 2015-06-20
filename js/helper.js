@@ -353,6 +353,36 @@ window.xcHelper = (function($, xcHelper) {
 
         return true;
     };
+
+    xcHelper.checkDuplicateTableName = function(tableName) {
+        var deferred = jQuery.Deferred();
+        XcalarGetDatasets()
+        .then(function(result) {
+            var datasets = result.datasets;
+            for (var i = 0; i < result.numDatasets; i++) {
+                if (datasets[i].name === tableName) {
+                    return (deferred.reject('dataset'));
+                }
+            }
+        })
+        .then(XcalarGetTables)
+        .then(function(result) {
+            var tables = result.tables;
+            for (var i = 0; i < result.numTables; i++) {
+                if (tables[i].tableName === tableName) {
+                    return (deferred.reject('table'));
+                }
+            }
+           deferred.resolve('success');
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    }
+
+
     // an object used for global Modal Actions
     xcHelper.Modal = function($modal, options) {
         /* options incluade:

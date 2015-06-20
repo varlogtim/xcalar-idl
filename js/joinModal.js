@@ -51,7 +51,8 @@ window.JoinModal = (function($, JoinModal) {
         $("#joinTables").click(function() {
             $(this).blur();
             // check validation
-            if ($joinTableName.val() === "") {
+            var newTableName  = $.trim($joinTableName.val());
+            if (newTableName === "") {
                 var text = "Table name is empty! Please name your new table";
                 StatusBox.show(text, $joinTableName, true);
                 return;
@@ -67,21 +68,28 @@ window.JoinModal = (function($, JoinModal) {
                 return;
             }
 
-            var newTableName  = $.trim($joinTableName.val());
-            var joinType      = $joinSelect.find(".text").text();
-            var leftTableNum  = $leftJoinTable.find('.tableLabel.active')
-                                              .index();
-            var leftColNum    = xcHelper.parseColNum($leftJoinTable
-                                            .find('th.colSelected')) - 1;
+            xcHelper.checkDuplicateTableName(newTableName)
+            .then(function() {
+                var joinType      = $joinSelect.find(".text").text();
+                var leftTableNum  = $leftJoinTable.find('.tableLabel.active')
+                                                  .index();
+                var leftColNum    = xcHelper.parseColNum($leftJoinTable
+                                                .find('th.colSelected')) - 1;
 
-            var rightTableNum = $rightJoinTable.find('.tableLabel.active')
-                                               .index();
-            var rightColNum   = xcHelper.parseColNum($rightJoinTable
-                                             .find('th.colSelected')) - 1;
+                var rightTableNum = $rightJoinTable.find('.tableLabel.active')
+                                                   .index();
+                var rightColNum   = xcHelper.parseColNum($rightJoinTable
+                                                 .find('th.colSelected')) - 1;
 
-            xcFunction.join(leftColNum, leftTableNum, rightColNum,
-                            rightTableNum, joinType, newTableName)
-            .always(resetJoinTables);
+                xcFunction.join(leftColNum, leftTableNum, rightColNum,
+                                rightTableNum, joinType, newTableName)
+                .always(resetJoinTables);
+            })
+            .fail(function(error) {
+                var text = 'The name "' + newTableName + '" is already ' +
+                           ' in use. Please select a unique name.';
+                StatusBox.show(text, $joinTableName, true);
+            });
         });
 
         $joinModal.draggable({
