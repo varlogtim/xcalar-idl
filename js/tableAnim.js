@@ -729,7 +729,7 @@ function createTableHeader(tableNum) {
     $xcTheadWrap.on({
         "keyup": function(event) {
             if (event.which === keyCode.Enter) {
-                $(this).blur();
+                renameTableHead($(this));
             }
         },
         "focus": function() {
@@ -1007,7 +1007,34 @@ function createTableHeader(tableNum) {
     matchHeaderSizes(null, $table, matchAllHeaders);
 }
 
+function renameTableHead($input) {
+    var newTableName = $.trim($input.val());
+    var tableNum = parseInt($input.closest('.xcTheadWrap')
+                                  .attr('id').substr(11));
+    var oldTableName = gTables[tableNum].tableName;
+    if (newTableName === oldTableName) {
+        $input.blur();
+        return;
+    }
 
+    xcHelper.checkDuplicateTableName(newTableName)
+    .then(function() {
+        return (XcalarRenameTable(oldTableName, newTableName));
+    })
+    .then(function() {
+       
+        xcFunction.getNewName(tableNum, oldTableName, {name: newTableName});
+        xcFunction.renameHelper(tableNum, newTableName, oldTableName);
+        updateTableHeader(null, $(this)); 
+        $input.blur();
+    })
+    .fail(function() {
+        $input.val(oldTableName);
+        var text = 'The name "' + newTableName + '" is already ' +
+                           ' in use. Please select a unique name.';
+        StatusBox.show(text, $input, false);
+    });
+}
 
 function updateTableHeader(tableNum, $tHead, isFocus) {
     var tableName = "";

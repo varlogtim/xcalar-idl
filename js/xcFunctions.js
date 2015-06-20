@@ -15,12 +15,12 @@ window.xcFunction = (function ($, xcFunction) {
 
         StatusMessage.show(msg);
         
-        var previousTableName = getNewName(tableNum, tableName);
+        var previousTableName = xcFunction.getNewName(tableNum, tableName);
         WSManager.addTable(tableName);
         var renamePassed = false;
         XcalarRenameTable(tableName, previousTableName)
         .then(function() {
-            renameHelper(tableNum, previousTableName, tableName);
+            xcFunction.renameHelper(tableNum, previousTableName, tableName);
             renamePassed = true;
             if (fltStr) {
                 return (XcalarFilterHelper(fltStr, previousTableName,
@@ -60,7 +60,8 @@ window.xcFunction = (function ($, xcFunction) {
             if (renamePassed) {
                 XcalarRenameTable(previousTableName, tableName)
                 .then(function() {
-                    renameHelper(tableNum, tableName, previousTableName);
+                    xcFunction.renameHelper(tableNum, tableName,
+                                            previousTableName);
                 })
                 .fail(function() {
                     // XX Not sure how to handle this;
@@ -151,13 +152,13 @@ window.xcFunction = (function ($, xcFunction) {
 
         StatusMessage.show(msg);
 
-        var previousTableName = getNewName(tableNum, tableName);
+        var previousTableName = xcFunction.getNewName(tableNum, tableName);
         WSManager.addTable(tableName);
         var renamePassed = false;
         XcalarRenameTable(tableName, previousTableName)
         .then(function(){
             renamePassed = true;
-            renameHelper(tableNum, previousTableName, tableName);
+            xcFunction.renameHelper(tableNum, previousTableName, tableName);
             return (XcalarIndexFromTable(previousTableName, backFieldName,
                                          tableName));
         })
@@ -187,7 +188,8 @@ window.xcFunction = (function ($, xcFunction) {
             if (renamePassed) {
                 XcalarRenameTable(previousTableName, tableName)
                 .then(function() {
-                    renameHelper(tableNum, tableName, previousTableName);
+                    xcFunction.renameHelper(tableNum, tableName,
+                                            previousTableName);
                 })
                 .fail(function() {
                     // XX Not sure how to handle this;
@@ -401,14 +403,14 @@ window.xcFunction = (function ($, xcFunction) {
         var msg = StatusMessageTStr.Map + " " + fieldName;
 
         StatusMessage.show(msg);
-        var previousTableName = getNewName(tableNum, tableName);
+        var previousTableName = xcFunction.getNewName(tableNum, tableName);
         var renamePassed = false;
         WSManager.addTable(tableName);
 
         XcalarRenameTable(tableName, previousTableName)
         .then(function() {
             renamePassed = true;
-            renameHelper(tableNum, previousTableName, tableName);
+            xcFunction.renameHelper(tableNum, previousTableName, tableName);
             return (XcalarMap(fieldName, mapString, previousTableName,
                               tableName));
         })
@@ -439,7 +441,8 @@ window.xcFunction = (function ($, xcFunction) {
             if (renamePassed) {
                 XcalarRenameTable(previousTableName, tableName)
                 .then(function() {
-                    renameHelper(tableNum, tableName, previousTableName);
+                    xcFunction.renameHelper(tableNum, tableName,
+                                            previousTableName);
                 })
                 .fail(function() {
                     // XX Not sure how to handle this;
@@ -501,6 +504,37 @@ window.xcFunction = (function ($, xcFunction) {
         });
     };
 
+    xcFunction.getNewName = function(tableNum, tableName, options) {
+        var newTableName;
+        if (options && options.name) {
+            newTableName = options.name;
+        } else {
+            var srcTableName = Dag.getSrcTableName(tableName, tableNum);
+            var srcTableNum = srcTableName.substr(tableName.length + 1);
+            if (srcTableNum.length === 0 || isNaN(tableNum)) {
+                srcTableNum = -1;
+            } else {
+                srcTableNum = parseInt(srcTableNum);
+            }
+            newTableName = tableName + "_" + (srcTableNum + 1);
+        }
+        WSManager.renameTable(tableName, newTableName);
+        return (newTableName);
+    };
+    
+    // does renames for gTables, worksheet, rightsidebar, dag
+    xcFunction.renameHelper = function(tableNum, newTableName, oldTableName) {
+        gTables[tableNum].tableName = newTableName;
+        gTableIndicesLookup[newTableName] = gTableIndicesLookup[oldTableName];
+        gTableIndicesLookup[newTableName].tableName = newTableName;
+        delete gTableIndicesLookup[oldTableName];
+        RightSideBar.renameTable(oldTableName, newTableName);  
+        Dag.renameAllOccurrences(oldTableName, newTableName);
+        $('#xcTheadWrap' + tableNum + ' .tableTitle input')
+                                        .data('title', newTableName);
+        return (newTableName);
+    };
+
     // For xcFunction.join, check if table has correct index
     function checkJoinTableIndex(colName, table, isLeft, tableNum) {
         var deferred      = jQuery.Deferred();
@@ -515,13 +549,13 @@ window.xcFunction = (function ($, xcFunction) {
             // XXX In the future,we can check if there are other tables that
             // are indexed on this key. But for now, we reindex a new table
 
-            var previousTableName = getNewName(tableNum, tableName);
+            var previousTableName = xcFunction.getNewName(tableNum, tableName);
             var renamePassed = false;
             WSManager.addTable(tableName);
 
             XcalarRenameTable(tableName, previousTableName)
             .then(function() {
-                renameHelper(tableNum, previousTableName, tableName);
+                xcFunction.renameHelper(tableNum, previousTableName, tableName);
                 renamePassed = true;
                 return (XcalarIndexFromTable(previousTableName, colName,
                                              tableName));
@@ -556,7 +590,8 @@ window.xcFunction = (function ($, xcFunction) {
                 if (renamePassed) {
                     XcalarRenameTable(previousTableName, tableName)
                     .then(function() {
-                        renameHelper(tableNum, tableName, previousTableName);
+                        xcFunction.renameHelper(tableNum, tableName,
+                                                previousTableName);
                     })
                     .fail(function() {
                         // XX Not sure how to handle this;
@@ -623,36 +658,6 @@ window.xcFunction = (function ($, xcFunction) {
         return (newTableCols);
     }
 
-    // does renames for gTables, worksheet, rightsidebar, dag
-    function renameHelper(tableNum, newTableName, oldTableName) {
-        gTables[tableNum].tableName = newTableName;
-        gTableIndicesLookup[newTableName] = gTableIndicesLookup[oldTableName];
-        gTableIndicesLookup[newTableName].tableName = newTableName;
-        delete gTableIndicesLookup[oldTableName];
-        RightSideBar.renameTable(oldTableName, newTableName);  
-        Dag.renameAllOccurrences(oldTableName, newTableName);
-        
-        return (newTableName);
-    }
-
-    function getNewName(tableNum, tableName, options) {
-        var newTableName;
-        if (options && options.name) {
-            newTableName = options.name;
-        } else {
-            var srcTableName = Dag.getSrcTableName(tableName, tableNum);
-            var srcTableNum = srcTableName.substr(tableName.length + 1);
-            if (srcTableNum.length === 0 || isNaN(tableNum)) {
-                srcTableNum = -1;
-            } else {
-                srcTableNum = parseInt(srcTableNum);
-            }
-            newTableName = tableName + "_" + (srcTableNum + 1);
-        }
-        WSManager.renameTable(tableName, newTableName);
-        return (newTableName);
-    }
-
     // this function is called when a new table is created during a join because
     // the previous table wasn't correctly index, but the join failed so we have
     // to delete the new table and rename the old one back
@@ -677,7 +682,7 @@ window.xcFunction = (function ($, xcFunction) {
         .then(function() {
             // WSManager.removeTable(previousTableName);
             WSManager.renameTable(previousTableName, tableName);
-            renameHelper(tableNum, tableName, previousTableName);
+            xcFunction.renameHelper(tableNum, tableName, previousTableName);
             deferred.resolve();
         })
         .fail(function(error) {

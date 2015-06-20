@@ -380,7 +380,7 @@ window.xcHelper = (function($, xcHelper) {
         });
 
         return (deferred.promise());
-    }
+    };
 
 
     // an object used for global Modal Actions
