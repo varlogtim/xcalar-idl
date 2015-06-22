@@ -268,13 +268,10 @@
 .xcTable {
     .size(@width: 520px, @height: 0);
 
-    td:first-child {
-        cursor: pointer;
-    }
-
     .header {
         .position(absolute, @top: 35px);
         .dataTableHeader;
+        z-index: 1;
             
         > input {
             .gray-gradient;
@@ -358,6 +355,21 @@
         height: 5px;
         background-color: white;
         width: ~"calc(100% - 5px)";
+    }
+
+    tbody td {
+        position: relative;
+        .dropDown;
+
+        &:first-child {
+            cursor: pointer; // for bookmark
+        }
+
+        &:hover {
+            .dropdownBox {
+                opacity: 1.0;
+            }
+        }
     }
 }
 

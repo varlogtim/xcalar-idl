@@ -599,12 +599,13 @@ window.ColManager = (function($, ColManager) {
                         tdClass += " textAlignRight";
                     }
 
+                    tdValue = xcHelper.parseJsonValue(tdValue);
                     tBodyHTML += '<td class="' + tdClass + '">' +
-                                    '<div class="addedBarTextWrap">' +
-                                        '<div class="addedBarText">';
+                                    getTableCellHtml(tdValue) +
+                                '</td>';
                 } else {
                     // make data td;
-                    tdValue = jsonData[row];
+                    tdValue = xcHelper.parseJsonValue(jsonData[row]);
                     tBodyHTML +=
                         '<td class="col' + (col + 1) + ' jsonElement">' +
                             '<div data-toggle="tooltip" ' +
@@ -612,7 +613,11 @@ window.ColManager = (function($, ColManager) {
                                 'data-container="body" ' +
                                 'title="double-click to view" ' +
                                 'class="elementTextWrap">' +
-                                '<div class="elementText">';
+                                '<div class="elementText">' +
+                                    tdValue +
+                                '</div>' +
+                            '</div>' +
+                        '</td>';
                 }
 
                 //define type of the column
@@ -633,8 +638,6 @@ window.ColManager = (function($, ColManager) {
                 //         columnTypes[col] = "decimal";
                 //     }
                 // }
-                tdValue = xcHelper.parseJsonValue(tdValue);
-                tBodyHTML += tdValue + '</div></div></td>';
             }
             // end of loop through table tr's tds
             tBodyHTML += '</tr>';
@@ -690,6 +693,11 @@ window.ColManager = (function($, ColManager) {
 
             $header.addClass('type-' + columnType);
             $header.find('.iconHelper').attr('title', columnType);
+
+            // these type should not have td dropdown
+            if (columnType === "object" || columnType === "array") {
+                $tBody.find("td.col" + (i + 1) + " .dropdownBox").remove();
+            }
 
             if (tableCols[i].name === "recordNum") {
                 $header.addClass('recordNum');
@@ -778,10 +786,9 @@ window.ColManager = (function($, ColManager) {
             // }
 
             value = xcHelper.parseJsonValue(value);
-            value = '<div class="addedBarTextWrap">' +
-                        '<div class="addedBarText">' + value + '</div>' +
-                    '</div>';
-            $table.find('.row' + i + ' .col' + newColid).html(value);
+
+            $table.find('.row' + i + ' .col' + newColid)
+                    .html(getTableCellHtml(value));
         }
 
         if (columnType === undefined) {
@@ -807,6 +814,10 @@ window.ColManager = (function($, ColManager) {
         $header.addClass('type-' + columnType);
         $header.find('.iconHelper').attr('title', columnType);
 
+        if (columnType === "object" || columnType === "array") {
+            $table.find("tbody td.col" + newColid + " .dropdownBox").remove();
+        }
+
         if (key === "recordNum") {
             $header.addClass('recordNum');
         }
@@ -816,6 +827,7 @@ window.ColManager = (function($, ColManager) {
 
         $table.find('th.col' + newColid).removeClass('newColumn');
     }
+
     // Help Functon for pullAllCols and pullCOlHelper
     // parse tableCol.func.args
     function parseColFuncArgs(key) {
@@ -849,18 +861,6 @@ window.ColManager = (function($, ColManager) {
         return (value);
     }
     // End Of Help Functon for pullAllCols and pullCOlHelper
-
-    ColManager.insertColHelper = function(index, tableNum, progCol) {
-         // tableCols is an array of ProgCol obj
-        var tableCols = gTables[tableNum].tableCols;
-
-        for (var i = tableCols.length - 1; i >= index; i--) {
-            tableCols[i].index += 1;
-            tableCols[i + 1] = tableCols[i];
-        }
-
-        tableCols[index] = progCol;
-    };
 
     function insertColHelper(index, tableNum, progCol) {
          // tableCols is an array of ProgCol obj
@@ -919,6 +919,21 @@ window.ColManager = (function($, ColManager) {
             return (false);
         }
         return (true);
+    }
+
+    function getTableCellHtml(value) {
+        var html =
+            '<div class="addedBarTextWrap">' +
+                '<div class="addedBarText">' + value + '</div>' +
+            '</div>' +
+            '<div class="dropdownBox" ' +
+                'data-toggle="tooltip" ' +
+                'data-placement="bottom" ' +
+                'data-container="body" ' +
+                'title="view column options">' +
+                '<div class="innerBox"></div>' +
+            '</div>';
+        return (html);
     }
 
     return (ColManager);

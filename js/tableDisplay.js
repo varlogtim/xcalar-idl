@@ -604,10 +604,10 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
 }
 
 function generateColDropDown(tableNum) {
-    var types = ['Boolean', 'Integer', 'Decimal', 'String']
+    var types = ['Boolean', 'Integer', 'Decimal', 'String'];
     var dropDownHTML =
         '<ul id="colMenu' + tableNum + '" class="colMenu">' +
-            '<li>' +
+            '<li class="thDropdown">' +
                 'Add a column' +
                 '<ul class="subColMenu">' +
                     '<li class="addColumns addColLeft">' +
@@ -617,13 +617,15 @@ function generateColDropDown(tableNum) {
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +
             '</li>' +
-            '<li class="deleteColumn">Delete column</li>' +
-            '<li class="duplicate">Duplicate column</li>' +
-            '<li class="deleteDuplicates">Delete other duplicates</li>' +
-            '<li class="renameCol">Rename column</li>' +
-            '<li class="hide">Hide column</li>' +
-            '<li class="unhide">Unhide column</li>' +
-            '<li>Text align' +
+            '<li class="deleteColumn thDropdown">Delete column</li>' +
+            '<li class="duplicate thDropdown">Duplicate column</li>' +
+            '<li class="deleteDuplicates thDropdown">' +
+                'Delete other duplicates' +
+            '</li>' +
+            '<li class="renameCol thDropdown">Rename column</li>' +
+            '<li class="hide thDropdown">Hide column</li>' +
+            '<li class="unhide thDropdown">Unhide column</li>' +
+            '<li class="thDropdown">Text align' +
                 '<ul class="subColMenu">' +
                     '<li class="textAlign leftAlign">Left Align</li>' +
                     '<li class="textAlign centerAlign">Center Align</li>' +
@@ -632,40 +634,44 @@ function generateColDropDown(tableNum) {
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +
             '</li>' +
-            '<li class="changeDataType">Change data type' +
+            '<li class="changeDataType thDropdown">Change data type' +
                 '<ul class="subColMenu">';
-        types.forEach(function(type) {
-            dropDownHTML +=
-                '<li class="flexContainer flexRow typeList type-' +
-                    type.toLowerCase() + '">' +
-                    '<div class="flexWrap flex-left">' +
-                        '<span class="type icon"></span>' +
-                    '</div>' +
-                    '<div class="flexWrap flex-right">' +
-                        '<span class="label">' + type + '</span>' +
-                    '</div>' +
-                '</li>';
-        });
+
+    types.forEach(function(type) {
         dropDownHTML +=
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
-            '</li>' +
-            '<li class="sort">Sort' +
-                '<ul class="subColMenu">' +
-                    '<li class="sort">' +
-                    '<span class="sortUp"></span>A-Z</li>' +
-                    '<li class="revSort unavailable">' +
-                    '<span class="sortDown"></span>Z-A</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
-            '</li>' +
-            '<li class="functions aggregate">Aggregate...</li>' +
-            '<li class="functions filter">Filter...</li>' +
-            '<li class="functions groupby">Group By...</li>' +     
-            '<li class="functions map">Map...</li>' +
-            '<li class="joinList">' + 'Join...</li>';
+            '<li class="flexContainer flexRow typeList type-' +
+                type.toLowerCase() + '">' +
+                '<div class="flexWrap flex-left">' +
+                    '<span class="type icon"></span>' +
+                '</div>' +
+                '<div class="flexWrap flex-right">' +
+                    '<span class="label">' + type + '</span>' +
+                '</div>' +
+            '</li>';
+    });
+
+    dropDownHTML +=
+            '<div class="subColMenuArea"></div>' +
+        '</ul>' +
+        '<div class="dropdownBox"></div>' +
+    '</li>' +
+    '<li class="sort thDropdown">Sort' +
+        '<ul class="subColMenu">' +
+            '<li class="sort">' +
+            '<span class="sortUp"></span>A-Z</li>' +
+            '<li class="revSort unavailable">' +
+            '<span class="sortDown"></span>Z-A</li>' +
+            '<div class="subColMenuArea"></div>' +
+        '</ul>' +
+        '<div class="dropdownBox"></div>' +
+    '</li>' +
+    '<li class="functions aggregate thDropdown">Aggregate...</li>' +
+    '<li class="functions filter thDropdown">Filter...</li>' +
+    '<li class="functions groupby thDropdown">Group By...</li>' +
+    '<li class="functions map thDropdown">Map...</li>' +
+    '<li class="joinList thDropdown">Join...</li>' +
+    '<li class="tdFilter tdDropdown">Filter this value</li>' +
+    '<li class="tdExclude tdDropdown">Exclude this value</li>';
 
 
     // XXX: HACK: I removed the check for the main col. Also, I should check for

@@ -744,7 +744,7 @@ function createTableHeader(tableNum) {
         if (event.which !== 1) {
             return;
         }
-        dropdownClick($(this));
+        dropdownClick($(this), {"type": "tableDropdown"});
     });
 
     // Change from $xcTheadWrap.find('.tableGrab').mosedown...
@@ -1025,7 +1025,7 @@ function renameTableHead($input) {
        
         xcFunction.getNewName(tableNum, oldTableName, {name: newTableName});
         xcFunction.renameHelper(tableNum, newTableName, oldTableName);
-        updateTableHeader(null, $(this)); 
+        updateTableHeader(null, $(this));
         $input.blur();
     })
     .fail(function() {
@@ -1097,7 +1097,10 @@ function displayShortenedHeaderName($el, tableNum, colNum) {
 
 function addColListeners($table, tableNum) {
     var $thead = $table.find('thead tr');
+    var $tbody = $table.find("tbody");
     var $colMenu = $('#colMenu' + tableNum);
+
+    // listeners on thead
     $thead.on({
         "focus": function() {
             $('#fnBar').addClass('active');
@@ -1153,31 +1156,37 @@ function addColListeners($table, tableNum) {
         }
     }, ".editableHead");
 
-    $thead.on('mousedown', '.header .flex-right > .dropdownBox', function() {
-        $('.tooltip').hide();
-        var options = {};
-        var colNum  = xcHelper.parseColNum($(this).closest('th'));
-        resetColMenuInputs($(this));
+    $thead.on("mousedown", ".header .flex-right > .dropdownBox", function() {
+        var options = {"type": "thDropdown"};
+
+        var $el = $(this);
+        var $th = $el.closest("th");
+
+        var colNum = xcHelper.parseColNum($th);
+
+        $(".tooltip").hide();
+        resetColMenuInputs($el);
 
         options.colNum = colNum;
-        options.classes = $(this).closest('.header').attr('class');
-        if ($(this).closest('th').hasClass('indexedColumn')) {
+        options.classes = $el.closest('.header').attr('class');
+
+        if ($th.hasClass('indexedColumn')) {
             options.classes += " type-indexed";
         }
-        if ($(this).closest('th').hasClass('newColumn') ||
+
+        if ($th.hasClass('newColumn') ||
             options.classes.indexOf('type') === -1) {
             options.classes += " type-newColumn";
         }
-        if ($(this).closest('th').width() === 10) {
+        if ($th.width() === 10) {
             // column is hidden
             options.classes += " type-hidden";
         }
 
-        if ($(this).closest('.xcTable').hasClass('emptyTable')) {
+        if ($el.closest('.xcTable').hasClass('emptyTable')) {
             options.classes += " type-emptyTable";
         }
 
-        var $el = $(this);
         dropdownClick($el, options);
     });
 
@@ -1207,6 +1216,24 @@ function addColListeners($table, tableNum) {
         }
         var headCol = $(this).parent().parent();
         dragdropMouseDown(headCol, event);
+    });
+
+    //listeners on tbody
+    $tbody.on("mousedown", "td > .dropdownBox", function() {
+        var options = {"type": "tdDropdown"};
+
+        var $el = $(this);
+        var $td = $el.closest("td");
+        var colNum = xcHelper.parseColNum($td);
+        var rowNum = xcHelper.parseRowNum($td.closest("tr"));
+
+        $(".tooltip").hide();
+        resetColMenuInputs($el);
+
+        options.colNum = colNum;
+        options.rowNum = rowNum;
+
+        dropdownClick($el, options);
     });
 
     addColMenuBehaviors($colMenu);
@@ -1276,7 +1303,7 @@ function addColMenuBehaviors($colMenu) {
         }
         event.stopPropagation();
         if ($(this).children('.subColMenu, input').length === 0 &&
-            !$(this).hasClass('unavailable') && 
+            !$(this).hasClass('unavailable') &&
             $(this).closest('.clickable').length === 0) {
             // hide li if doesnt have a submenu or an input field
             closeMenu($colMenu);
@@ -1466,6 +1493,42 @@ function addColMenuActions($colMenu, $thead) {
         var func = $(this).text().replace(/\./g, '');
         OperationsModal.show(tableNum, colNum, func);
     });
+
+    $colMenu.on('mouseup', '.tdFilter, .tdExclude', function(event) {
+        var $li =  $(this);
+
+        if (event.which !== 1 || $li.hasClass('unavailable')) {
+            return;
+        }
+
+        var tableNum = parseInt($colMenu.attr('id').substring(7));
+        var rowNum   = $colMenu.data('rowNum');
+        var colNum   = $colMenu.data('colNum');
+
+        var $table  = $("#xcTable" + tableNum);
+        var $header = $table.find("th.col" + colNum + " .header");
+        var $td     = $table.find(".row" + rowNum + " .col" + colNum);
+
+        var colName = gTables[tableNum].tableCols[colNum - 1].func.args[0];
+        var colVal  = $td.find(".addedBarText").text();
+
+        if ($header.hasClass("type-integer")) {
+            colVal = parseInt(colVal);
+        } else if ($header.hasClass("type-string")){
+            colVal = '\"' + colVal + '\"';
+        } else {
+            return;
+        }
+
+        var filterStr = $li.hasClass("tdFilter") ?
+                            'eq(' + colName + ', ' + colVal + ')' :
+                            'not(eq(' + colName + ', ' + colVal + '))';
+
+        var options = {"operator"    : "eq",
+                       "filterString": filterStr};
+
+        xcFunction.filter(colNum - 1, tableNum, options);
+    });
 }
 
 function closeMenu($menu) {
@@ -1561,11 +1624,18 @@ function functionBarEnter($colInput) {
 }
 
 function dropdownClick($el, options) {
+    options = options || {};
+
+    if (!options.type) {
+        console.error("Wrong dropdownClick call");
+        return;
+    }
+
     var tableNum = parseInt($el.closest(".xcTableWrap").attr("id")
                             .substring(11));
     var $menu;
 
-    if ($el.parent().hasClass("tableTitle")) {
+    if (options.type === "tableDropdown") {
         $menu = $("#tableMenu" + tableNum);
 
         if (WSManager.getWSLen() <= 1) {
@@ -1579,22 +1649,49 @@ function dropdownClick($el, options) {
             $menu.hide();
             return;
         }
-    } else {
+    } else if (options.type === "thDropdown") {
         $menu = $("#colMenu" + tableNum);
         // case that should close column menu
         if ($menu.is(":visible") && $menu.data("colNum") === options.colNum) {
             $menu.hide();
             return;
         }
+
+        // for open case, only show options for th
+        $menu.children().hide()
+            .end()
+            .children(".thDropdown").show();
+
+    } else if (options.type === "tdDropdown") {
+        $menu = $("#colMenu" + tableNum);
+        // case that should close column menu
+        if ($menu.is(":visible") &&
+            $menu.data("colNum") === options.colNum &&
+            $menu.data("rowNum") === options.rowNum)
+        {
+            $menu.hide();
+            return;
+        }
+
+        // for open case, only show options for td
+        $menu.children().hide()
+            .end()
+            .children(".tdDropdown").show();
     }
 
     $(".colMenu:visible").hide();
     $(".leftColMenu").removeClass("leftColMenu");
-    // case that should open the menu
-    options = options || {};
-
-    if (options.colNum && options.colNum > -1) {
+    // case that should open the menu (note that colNum = 0 may make it false!)
+    if (options.colNum != null && options.colNum > -1) {
         $menu.data("colNum", options.colNum);
+    } else {
+        $menu.removeData("colNum");
+    }
+
+    if (options.colNum != null && options.rowNum > -1) {
+        $menu.data("rowNum", options.rowNum);
+    } else {
+        $menu.removeData("rowNum");
     }
 
     if (options.classes) {
@@ -1603,7 +1700,7 @@ function dropdownClick($el, options) {
     }
 
     //position menu
-    var topMargin  = -4;
+    var topMargin  = options.type === "tdDropdown" ? 2 : -4;
     var leftMargin = 5;
     var top  = $el[0].getBoundingClientRect().bottom + topMargin;
     var left = $el[0].getBoundingClientRect().left + leftMargin;
@@ -1635,7 +1732,7 @@ function changeColumnType($typeList) {
     var $colMenu = $typeList.closest('.colMenu');
     var colNum   = $colMenu.data('colNum');
     var tableNum = parseInt($colMenu.attr('id').substring(7));
-    var colName = gTables[tableNum].tableCols[colNum-1].func.args[0];
+    var colName = gTables[tableNum].tableCols[colNum - 1].func.args[0];
     var mapStr = "";
     var newColName = colName + "_" + newType;
     var tableName = gTables[tableNum].tableName;
@@ -1654,7 +1751,7 @@ function changeColumnType($typeList) {
         break;
     default:
         console.log("XXX no such operator! Will guess");
-        mapStr += newType+"(";
+        mapStr += newType + "(";
     }
 
     mapStr += colName + ")";

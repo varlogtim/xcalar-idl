@@ -20,10 +20,20 @@ window.xcHelper = (function($, xcHelper) {
         return (tableNum);
     };
 
+    xcHelper.parseRowNum = function($el) {
+        var keyword    = "row";
+        var classNames = $el.attr("class");
+        var index      = classNames.indexOf(keyword);
+        var substring  = classNames.substring(index + keyword.length);
+
+        return (parseInt(substring));
+    };
+
     xcHelper.parseColNum = function($el) {
-        var classNames = $el.attr('class');
-        var index      = classNames.indexOf('col');
-        var substring  = classNames.substring(index + 'col'.length);
+        var keyword    = "col";
+        var classNames = $el.attr("class");
+        var index      = classNames.indexOf(keyword);
+        var substring  = classNames.substring(index + keyword.length);
 
         return (parseInt(substring));
     };
