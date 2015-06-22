@@ -14,7 +14,6 @@ window.RightSideBar = (function($, RightSideBar) {
 
     RightSideBar.addTables = function(tables, active) {
         // XXX tables is an array of metaTables;
-        console.info('generatingTablelist', tables)
         generateTableLists(tables, active);
 
         if (!active) {

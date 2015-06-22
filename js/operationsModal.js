@@ -77,7 +77,8 @@ window.OperationsModal = (function($, OperationsModal) {
             allowInputChange = false;
         });
 
-        $operationsModal.find('.list').on('mouseup', 'li', function(event) {
+        $operationsModal.find('.modalTopMain .list')
+                        .on('mouseup', 'li', function(event) {
             allowInputChange = true;
             event.stopPropagation();
             var $el = $(this);
@@ -104,7 +105,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $(this).removeClass('highlighted');
         });
 
-        $operationsModal.find('.dropdown').on('click', function() {
+        $operationsModal.find('.modalTopMain .dropdown').on('click', function() {
 
             $operationsModal.find('.list').hide();
             var $list = $(this).siblings('.list');
@@ -113,14 +114,10 @@ window.OperationsModal = (function($, OperationsModal) {
             $list.children().show();
         });
 
-        $operationsModal.on('blur', '.argument', function() {
-            var blankOK = true;
-            checkArgumentParams(blankOK);
-        });
-
         $operationsModal.on('keypress', '.argument', function(event) {
             if (event.which === keyCode.Enter && !modalHelper.checkBtnFocus()) {
-                if ($operationsModal.find('.argumentSection').hasClass('minimized')) {
+                if ($operationsModal.find('.argumentSection')
+                                    .hasClass('minimized')) {
                     return;
                 }
                 $(this).blur();
@@ -139,15 +136,16 @@ window.OperationsModal = (function($, OperationsModal) {
                 var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
                 if ($operationsModal.find('.argumentSection')
                                     .hasClass('minimized') &&
-                    $mouseTarget.closest('input').length === 0) {
-                    $el.focus();
+                    $mouseTarget.closest('.editableHead').length === 0) {
+                    $lastArgumentInputFocused.focus();
                     return;
                 }
+                console.info('here?')
                 if ($mouseTarget.hasClass('editableHead') &&
                     $mouseTarget.closest('.xcTable').length !== 0) {
                     var newColName = $mouseTarget.val();
                     insertText($el, newColName);
-                    $el.focus();
+                    $lastArgumentInputFocused.focus();
                     gMouseEvents.setMouseDownTarget($el);
                 }
             }, 0);
@@ -221,6 +219,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.on('click', '.hint li', function() {
             var $li = $(this);
+
             $li.removeClass("openli")
                 .closest(".hint").removeClass("openList").hide()
                 .siblings(".argument").val($li.text())
