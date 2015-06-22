@@ -714,18 +714,32 @@ window.DataCart = (function($, DataCart) {
             removeCartItem(dsname, $li);
         });
 
-        $cartArea.on("keypress", ".tableNameEdit", function(event) {
-            if (event.which === keyCode.Enter) {
-                $(this).blur();
-            }
-        });
+        // table name edit input box
+        $cartArea.on({
+            "keypress": function(event) {
+                if (event.which === keyCode.Enter) {
+                    $(this).blur();
+                }
+            },
+            "change": function() {
+                var tableName = $.trim($(this).val());
+                var dsName = $(this).closest(".selectedTable").attr("id")
+                                .split("selectedTable-")[1];
+                var cart = filterCarts(dsName, tableName);
 
-        $cartArea.on("change", ".tableNameEdit", function() {
-            var tableName = $.trim($(this).val());
-            var dsName = $(this).closest(".selectedTable").attr("id")
-                            .split("selectedTable-")[1];
-            var cart = filterCarts(dsName, tableName);
-            cart.tableName = tableName;
+                cart.tableName = tableName;
+            },
+            "focus": function() {
+                $(this).closest(".cartTitleArea").addClass("focus");
+            },
+            "blur": function() {
+                $(this).closest(".cartTitleArea").removeClass("focus");
+            }
+        }, ".tableNameEdit");
+
+        // click edit icon to edit table
+        $cartArea.on("click", ".cartTitleArea .iconWrapper", function() {
+            $(this).siblings(".tableNameEdit").focus();
         });
     };
 
@@ -809,12 +823,20 @@ window.DataCart = (function($, DataCart) {
         var $cart = $("#selectedTable-" + dsName);
         // this ds's cart not exists yet
         if ($cart.length === 0) {
-            $cart = $('<div id="selectedTable-' + dsName + '"' +
-                            'class="selectedTable">' +
-                            '<input class="tableNameEdit" ' +
+            var cartHtml =
+                '<div id="selectedTable-' + dsName + '"' +
+                    'class="selectedTable">' +
+                    '<div class="cartTitleArea">' +
+                        '<input class="tableNameEdit" ' +
                                 'type="text" value="' + tableName + 'Table">' +
-                            '<ul></ul>' +
-                        '</div>');
+                        '<div class="iconWrapper">' +
+                            '<span class="icon"></span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<ul></ul>' +
+                '</div>';
+
+            $cart = $(cartHtml);
             $cartArea.prepend($cart);
             $cart.find('.tableNameEdit').focus().select();
         }
