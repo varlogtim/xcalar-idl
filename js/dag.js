@@ -245,14 +245,15 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel.append(getDagTableDropDownHTML());
         $menu = $dagPanel.find('.dagTableDropDown');
         addColMenuBehaviors($menu);
+        dagTableDropDownActions($menu);
         
         $dagPanel.on('click', '.dagTable:not(.dataStore)', function() {
             $('.colMenu').hide().removeClass('leftColMenu');
             var $el = $(this);
             var tableName = $.trim($el.text());
             $menu.data('tablename', tableName);
+            $menu.data('tableelement', $el);
             var activeFound = false;
-            var inactiveFound = false;
             var tableWSIndex;
 
             $('#activeTablesList').find('.tableInfo').each(function() {
@@ -275,40 +276,72 @@ window.DagPanel = (function($, DagPanel) {
                     if ($li.data('tablename') === tableName) {
                         $menu.find('.addTable').removeClass('hidden');
                         $menu.find('.focusTable').addClass('hidden');
-                        inactiveFound = true;
                         return (false);
                     }
                 });
             }
 
-            if (!activeFound && !inactiveFound) {
-                $menu.find('.addTable').addClass('hidden');
-                $menu.find('.focusTable').addClass('hidden');
+            if ($el.hasClass('locked')) {
+                $menu.find('.lockTable').hide();
+                $menu.find('.unlockTable').show();
+                $menu.find('.deleteTable').hide();
             } else {
-                //position colMenu
-                var topMargin = -3;
-                var leftMargin = 0;
-                var top = $el[0].getBoundingClientRect().bottom + topMargin;
-                var left = $el[0].getBoundingClientRect().left + leftMargin;
-
-                if ($('#dagPanel').hasClass('midway')) {
-                    top -= $('#dagPanel').offset().top;
-                }
-
-                $menu.css({'top': top, 'left': left});
-                $menu.show();
-
-                var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
-                                                        .left;
-
-                if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-                    left = el[0].getBoundingClientRect().right - $menu.width();
-                    $menu.css('left', left).addClass('leftColMenu');
-                }
+                $menu.find('.lockTable').show();
+                $menu.find('.unlockTable').hide();
+                $menu.find('.deleteTable').show();
             }
+
+
+            var topMargin = -3;
+            var leftMargin = 0;
+            var top = $el[0].getBoundingClientRect().bottom + topMargin;
+            var left = $el[0].getBoundingClientRect().left + leftMargin;
+
+            if ($('#dagPanel').hasClass('midway')) {
+                top -= $('#dagPanel').offset().top;
+            }
+
+            $menu.css({'top': top, 'left': left});
+            $menu.show();
+
+            var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
+                                                    .left;
+
+            if ($menu[0].getBoundingClientRect().right > leftBoundary) {
+                left = $el[0].getBoundingClientRect().right - $menu.width();
+                $menu.css('left', left).addClass('leftColMenu');
+            }
+
             $('body').addClass('noSelection');
         });
+    }
 
+    function getDagTableDropDownHTML() {
+        var html =
+        '<ul class="colMenu dagTableDropDown">' +
+            '<li class="addTable">' +
+                'Add Table To Worksheet' +
+            '</li>' +
+            '<li class="focusTable">' +
+                'Find Table In Worksheet' +
+            '</li>' +
+            '<li class="lockTable" title="Prevents table from being deleted">' +
+                'Lock Table' +
+            '</li>' +
+            '<li class="unlockTable" ' +
+                'title="Allow table to be deleted">' +
+                'Unlock Table' +
+            '</li>' +
+            '<li class="deleteTable unavailable" data-toggle="tooltip" ' +
+                'data-placement="bottom" data-container="body" ' +
+                'title="Coming Soon">' +
+                'Delete Table & Descendents' +
+            '</li>' +
+        '</ul>';
+        return (html);
+    }
+
+    function dagTableDropDownActions($menu) {
         $menu.find('.addTable').mouseup(function(event) {
             if (event.which !== 1) {
                 return;
@@ -349,19 +382,24 @@ window.DagPanel = (function($, DagPanel) {
             $table.mousedown();
             moveFirstColumn();
         });
-    }
 
-    function getDagTableDropDownHTML() {
-        var html =
-        '<ul class="colMenu dagTableDropDown">' +
-            '<li class="addTable">' +
-                'Add Table To Worksheet' +
-            '</li>' +
-            '<li class="focusTable">' +
-                'Find Table In Worksheet' +
-            '</li>' +
-        '</ul>';
-        return (html);
+        $menu.find('.lockTable').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var $tableIcon = $menu.data('tableelement');
+            var lockHTML = '<div class="lockIcon"></div>';
+            $tableIcon.addClass('locked').append(lockHTML);
+        });
+
+        $menu.find('.unlockTable').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var $tableIcon = $menu.data('tableelement');
+            $tableIcon.removeClass('locked')
+                      .find('.lockIcon').remove();
+        });
     }
             
     return (DagPanel);

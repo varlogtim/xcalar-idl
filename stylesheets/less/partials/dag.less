@@ -309,6 +309,12 @@
             background-size: contain;
         }
 
+        .lockIcon {
+            .position(absolute, @top: 0px, @right: 0px);
+            .size(17px, 20px);
+            .image("/images/lock-white.png", 50%, 50%);
+        }
+
         .dagTableIcon {
             .position(absolute, @top: 5px);
             .size(@width: 40px, @height: 30px);
@@ -629,7 +635,8 @@
     .size(@width: 200px);
 }
 
-.dagTableDropdown {
+.dagTableDropDown {
+    width: 185px;
     li.hidden {
         display: none;
     }
