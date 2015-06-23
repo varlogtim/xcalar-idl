@@ -503,13 +503,14 @@ window.xcFunction = (function ($, xcFunction) {
         } else {
             var srcTableName = Dag.getSrcTableName(tableName, tableNum);
             var srcTableNum = srcTableName.substr(tableName.length + 1);
-            if (srcTableNum.length === 0 || isNaN(tableNum)) {
+            if (srcTableNum.length === 0 || isNaN(srcTableNum)) {
                 srcTableNum = -1;
             } else {
                 srcTableNum = parseInt(srcTableNum);
             }
             newTableName = tableName + "_" + (srcTableNum + 1);
         }
+
         WSManager.renameTable(tableName, newTableName);
         return (newTableName);
     };
