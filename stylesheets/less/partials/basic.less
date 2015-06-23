@@ -380,6 +380,10 @@ input {
     }
 
     tbody tr {
+        td:first-child {
+            padding: 0 !important;
+        }
+
         &:nth-child(odd) {
             background-color: @color-table-lightGray;
             td {
@@ -392,9 +396,6 @@ input {
                 }
                 &:first-child {
                     background-color: @color-table-col-darkestGray;
-                    .idSpan {
-                        background-color: @color-table-col-darkestGray;
-                    }
                 }
                 &.indexedColumn {
                     background-color: @color-table-indexed-blue !important;
@@ -422,9 +423,6 @@ input {
                 }
                 &:first-child {
                     background-color: @color-table-col-darkGray;
-                    .idSpan {
-                        background-color: @color-table-col-darkGray;
-                    }
                 }
                 &.indexedColumn {
                     background-color: @color-table-indexed-lightBlue !important;
