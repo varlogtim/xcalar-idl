@@ -552,6 +552,7 @@ window.ColManager = (function($, ColManager) {
                 var nested       = nestedVals[col];
                 var tdValue      = dataValue;
                 var childOfArray = childArrayVals[col];
+                var parsedVal;
 
                 if (col !== dataIndex) {
                     if (nested == null) {
@@ -599,13 +600,14 @@ window.ColManager = (function($, ColManager) {
                         tdClass += " textAlignRight";
                     }
 
-                    tdValue = xcHelper.parseJsonValue(tdValue);
+                    parsedVal = xcHelper.parseJsonValue(tdValue);
                     tBodyHTML += '<td class="' + tdClass + '">' +
-                                    getTableCellHtml(tdValue) +
+                                    getTableCellHtml(parsedVal) +
                                 '</td>';
                 } else {
                     // make data td;
-                    tdValue = xcHelper.parseJsonValue(jsonData[row]);
+                    tdValue = jsonData[row];
+                    parsedVal = xcHelper.parseJsonValue(tdValue);
                     tBodyHTML +=
                         '<td class="col' + (col + 1) + ' jsonElement">' +
                             '<div data-toggle="tooltip" ' +
@@ -614,7 +616,7 @@ window.ColManager = (function($, ColManager) {
                                 'title="double-click to view" ' +
                                 'class="elementTextWrap">' +
                                 '<div class="elementText">' +
-                                    tdValue +
+                                    parsedVal +
                                 '</div>' +
                             '</div>' +
                         '</td>';
