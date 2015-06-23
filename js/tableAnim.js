@@ -1219,7 +1219,7 @@ function addColListeners($table, tableNum) {
     });
 
     //listeners on tbody
-    $tbody.on("mousedown", "td > .dropdownBox", function() {
+    $tbody.on("mousedown", "td .dropdownBox", function() {
         var $el = $(this);
         var $td = $el.closest("td");
 

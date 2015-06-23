@@ -695,18 +695,10 @@
 
     tbody tr {
         td {
-            .position(relative);
             .size(@height: 30px);
-            .dropDown;
 
             &:first-child {
                 cursor: pointer; // for bookmark
-            }
-
-            &:hover {
-                .dropdownBox {
-                    opacity: 1.0;
-                }
             }
 
             .idWrap {
@@ -715,7 +707,7 @@
                 display: table;
 
                 .idSpan {
-                    .size(@width: ~"calc(100% + 10px)", @height: ~"calc(100% + 5px)");
+                    .size(@width: ~"calc(100% + 10px)", @height: ~"calc(100% + 2px)");
                     position: absolute;
                     top: 0px;
                     z-index: 0;
@@ -723,6 +715,38 @@
                     .flex-display;
                     .justify-content (center);
                     .align-items (center);
+                }
+            }
+
+            .flexContainer {
+                .flex-display;
+                height: 100%;
+
+                .dropdownPadding {
+                    .flex(0 0 16px);
+                }
+
+                .addedBarTextWrap {
+                    .flex(1 1 ~"calc(100% - 32px)");
+                    .vertical-align;
+                }
+
+                .dropdownWrapper {
+                    .flex(0 0 16px);
+                    .position(relative);
+                    z-index: 0;
+
+                    .dropDown;
+
+                    .dropdownBox {
+                        .position(@right: 1px, @bottom: 0px);
+                    }
+                }
+
+                &:hover {
+                    .dropdownBox {
+                        opacity: 1.0;
+                    }
                 }
             }
         }

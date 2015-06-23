@@ -701,7 +701,8 @@ window.ColManager = (function($, ColManager) {
                 columnType !== "decimal" &&
                 columnType !== "integer")
             {
-                $tBody.find("td.col" + (i + 1) + " .dropdownBox").remove();
+                $tBody.find("td.col" + (i + 1))
+                        .find(".dropdownWrapper,.dropdownPadding").remove();
             }
 
             if (tableCols[i].name === "recordNum") {
@@ -823,7 +824,8 @@ window.ColManager = (function($, ColManager) {
             columnType !== "decimal" &&
             columnType !== "integer")
         {
-            $table.find("tbody td.col" + newColid + " .dropdownBox").remove();
+            $table.find("tbody td.col" + newColid)
+                   .find(".dropdownWrapper, .dropdownPadding").remove();
         }
 
         if (key === "recordNum") {
@@ -931,15 +933,20 @@ window.ColManager = (function($, ColManager) {
 
     function getTableCellHtml(value) {
         var html =
-            '<div class="addedBarTextWrap">' +
-                '<div class="addedBarText">' + value + '</div>' +
-            '</div>' +
-            '<div class="dropdownBox" ' +
-                'data-toggle="tooltip" ' +
-                'data-placement="bottom" ' +
-                'data-container="body" ' +
-                'title="view column options">' +
-                '<div class="innerBox"></div>' +
+            '<div class="flexContainer">' +
+                '<div class="flex-left dropdownPadding"></div>' +
+                '<div class="flex-mid addedBarTextWrap">' +
+                    '<div class="addedBarText">' + value + '</div>' +
+                '</div>' +
+                '<div class="flex-right dropdownWrapper">' +
+                    '<div class="dropdownBox" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="bottom" ' +
+                        'data-container="body" ' +
+                        'title="view column options">' +
+                        '<div class="innerBox"></div>' +
+                    '</div>' +
+                '</div>' +
             '</div>';
         return (html);
     }
