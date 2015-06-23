@@ -899,15 +899,21 @@ window.DataCart = (function($, DataCart) {
         var $submitBtn = $("#submitDSTablesBtn");
         var $clearBtn  = $("#clearDataCart");
         var $cartTitle = $("#dataCartTitle");
+        var $dataCart = $('#dataCart');
 
         if ($cartArea.children().length === 0) {
             $submitBtn.addClass("btnInactive");
             $clearBtn.addClass("btnInactive");
             $cartTitle.html("<b>No Columns Selected</b>");
+            var helpText = '<span class="helpText">To add a column to the' +
+                                ' data cart, select a data set and click' +
+                                ' on the column name.</span>';
+            $dataCart.html(helpText);
         } else {
             $submitBtn.removeClass("btnInactive");
             $clearBtn.removeClass("btnInactive");
             $cartTitle.html("<b>Selected Columns</b>");
+            $dataCart.find('.helpText').remove();
         }
     }
 
