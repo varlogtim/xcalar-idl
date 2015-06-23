@@ -51,6 +51,9 @@ function infScrolling(tableNum) {
             $rowScroller.removeClass('autoScroll');
             return;
         }
+
+        $(".colMenu:visible").hide();
+
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("xcTbodyWrap".length));
         focusTable(dynTableNum);
@@ -449,7 +452,6 @@ function documentReadyGeneralFunction() {
 
     $('#mainFrame').scroll(function() {
         $(this).scrollTop(0);
-        
         clearTimeout(timer);
         timer = setTimeout(function() {
             moveTableDropdownBoxes();

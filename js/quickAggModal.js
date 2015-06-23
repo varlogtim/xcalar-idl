@@ -64,7 +64,7 @@ window.AggModal = (function($, AggModal) {
 
     AggModal.show = function (tableNum, type) {
         $modalBackground.on("click", hideAggOpSelect);
-        var tableName = gTables[tableNum].tableName
+        var tableName = gTables[tableNum].tableName;
         $aggTableName.val(tableName);
 
         $aggModal.show();

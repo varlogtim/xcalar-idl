@@ -51,6 +51,7 @@
         .dagArea {
             height: ~"calc(50% - 10px)";
         }
+        .transition (~"transform 0.3s, z-index 0.3s");
     }
 
     &.full {
@@ -59,6 +60,7 @@
 
     &.hidden {
         .transform(translate3d(0, 100%, 0));
+        .transition (~"transform 0.4s linear, z-index 0.3s");
     }
 
     #closeDag {

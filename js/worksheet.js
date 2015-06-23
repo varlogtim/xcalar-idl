@@ -104,7 +104,7 @@ window.WSManager = (function($, WSManager) {
                 return (tables[i]);
             }
         }
-    }
+    };
 
     /**
      * Get current active worksheet
@@ -157,7 +157,7 @@ window.WSManager = (function($, WSManager) {
         var tableIndex = worksheets[wsIndex].tables.indexOf(oldTableName);
         worksheets[wsIndex].tables[tableIndex] = newTableName;
         delete wsIndexLookUp[oldTableName];
-    }
+    };
 
     /**
      * Move table to another worksheet

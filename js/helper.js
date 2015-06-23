@@ -383,7 +383,7 @@ window.xcHelper = (function($, xcHelper) {
                     return (deferred.reject('table'));
                 }
             }
-           deferred.resolve('success');
+            deferred.resolve('success');
         })
         .fail(function(error) {
             deferred.reject(error);

@@ -834,10 +834,12 @@ input {
         background-position: center;
         position: relative;
         height: 100%;
+
         .datasetTitleWrap {
             height: 60px;
             margin-left: 0px;
         }
+
         .dsInfo {
             float: left;
             .size(@width: ~"calc(100% - 120px)", @height: 60px);
@@ -851,6 +853,7 @@ input {
                 font-size: 13px;
             }
         }
+
         .buttonGroup {
             display: inline-block;
             float: right;
@@ -874,50 +877,6 @@ input {
                 .image("/images/select-none.png", 50%, 50%);
             }
         }
-
-        .colMenu {
-            width: 160px;
-            ul {
-                left: 145px;
-            }
-            span {
-                display: block;
-                text-align: left;
-            }
-            input {
-                font: 13px @font-base;
-            }
-
-            .changeDataType {
-                .subColMenu {
-                    width: 140px;
-                    li.flexContainer {
-                        height: 30px;
-                        padding: 0;
-                        // see common.less
-                        .typeIcon;
-
-                        .flexWrap.flex-left {
-                            .flex(0 0 24px);
-                            padding: 6px 5px;
-                            position: relative;
-                            height: 30px;
-                            .gray-gradient;
-                            overflow:hidden;
-                            
-                        }
-                        .flexWrap.flex-right {
-                            .flex(1 1 auto);
-                            padding: 6px 8px;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    .datasetTitleWrap {
-        margin-left: 15px;
     }
 
     #datasetWrap {
@@ -1012,16 +971,17 @@ input {
             .flexWrap.flex-right {
                 .flex(0 0 24px);
                 position: relative;
+
                 .tick.icon {
-                    .position(absolute, @top: 2px, @right: 2px);
-                    .background("/images/datastore/tick.png", 15px, 12px);
+                    .size(15px, 30px);
+                    .image("/images/datastore/tick.png", 50%, 50%);
                     opacity: 0.5;
                 }
             }
 
             &:hover {
                 .flexWrap.flex-right {
-                    > .dropdownBox, > .tick.icon {
+                    > .tick.icon {
                         opacity: 1.0;
                     }
                 }

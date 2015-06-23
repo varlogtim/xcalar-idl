@@ -1270,9 +1270,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
             }
         });
 
-        $tableWrap.on("click", ".tick, .type", function(){
-            $(this).closest(".header").find(".editableHead").click();
-        });
         // resize
         $tableWrap.on("mousedown", ".colGrab", function(event) {
             if (event.which !== 1) {

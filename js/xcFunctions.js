@@ -572,9 +572,9 @@ window.xcFunction = (function ($, xcFunction) {
                 RightSideBar.addTables([gHiddenTables[index]],
                                         IsActive.Inactive);
                 var result = {
-                    newTableCreated : true,
-                    tableName : tableName,
-                    previousTableName : previousTableName
+                    newTableCreated  : true,
+                    tableName        : tableName,
+                    previousTableName: previousTableName
                 };
                 deferred.resolve(result);
             })
@@ -597,8 +597,8 @@ window.xcFunction = (function ($, xcFunction) {
         } else {
             console.log(text, "indexed correctly!");
             var result = {
-                newTableCreated : false,
-                tableName : tableName
+                newTableCreated: false,
+                tableName      : tableName
             };
             deferred.resolve(result);
         }
