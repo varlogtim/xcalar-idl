@@ -465,6 +465,10 @@
                     left: -5px;
                     height: 105%;
                 }
+
+                .idSpan {
+                    z-index: 0;
+                }
             }
         }    
     }
@@ -710,7 +714,7 @@
                     .size(@width: ~"calc(100% + 10px)", @height: ~"calc(100% + 2px)");
                     position: absolute;
                     top: 0px;
-                    z-index: 0;
+                    z-index: 1;
                     margin-left: -5px;
                     .flex-display;
                     .justify-content (center);
