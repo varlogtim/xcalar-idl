@@ -697,7 +697,10 @@ window.ColManager = (function($, ColManager) {
             $header.find('.iconHelper').attr('title', columnType);
 
             // these type should not have td dropdown
-            if (columnType === "object" || columnType === "array") {
+            if (columnType !== "string" &&
+                columnType !== "decimal" &&
+                columnType !== "integer")
+            {
                 $tBody.find("td.col" + (i + 1) + " .dropdownBox").remove();
             }
 
@@ -816,7 +819,10 @@ window.ColManager = (function($, ColManager) {
         $header.addClass('type-' + columnType);
         $header.find('.iconHelper').attr('title', columnType);
 
-        if (columnType === "object" || columnType === "array") {
+        if (columnType !== "string" &&
+            columnType !== "decimal" &&
+            columnType !== "integer")
+        {
             $table.find("tbody td.col" + newColid + " .dropdownBox").remove();
         }
 

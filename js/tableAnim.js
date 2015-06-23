@@ -1220,24 +1220,25 @@ function addColListeners($table, tableNum) {
 
     //listeners on tbody
     $tbody.on("mousedown", "td > .dropdownBox", function() {
-        var options = {"type": "tdDropdown"};
-
         var $el = $(this);
         var $td = $el.closest("td");
+
         var colNum = xcHelper.parseColNum($td);
         var rowNum = xcHelper.parseRowNum($td.closest("tr"));
 
         $(".tooltip").hide();
         resetColMenuInputs($el);
 
-        options.colNum = colNum;
-        options.rowNum = rowNum;
-
-        dropdownClick($el, options);
+        dropdownClick($el, {
+            "type"   : "tdDropdown",
+            "colNum" : colNum,
+            "rowNum" : rowNum,
+            "classes": "tdMenu" // specify classes to update colmenu's class attr
+        });
     });
 
     addColMenuBehaviors($colMenu);
-    addColMenuActions($colMenu, $thead);
+    addColMenuActions($colMenu);
 }
 
 function addColMenuBehaviors($colMenu) {
@@ -1316,7 +1317,7 @@ function addColMenuBehaviors($colMenu) {
     // });
 }
 
-function addColMenuActions($colMenu, $thead) {
+function addColMenuActions($colMenu) {
 
     $colMenu.on('mouseup', '.addColumns', function(event) {
         if (event.which !== 1) {
@@ -1657,10 +1658,7 @@ function dropdownClick($el, options) {
             return;
         }
 
-        // for open case, only show options for th
-        $menu.children().hide()
-            .end()
-            .children(".thDropdown").show();
+        // XXX Use CSS to show the options
 
     } else if (options.type === "tdDropdown") {
         $menu = $("#colMenu" + tableNum);
@@ -1672,11 +1670,6 @@ function dropdownClick($el, options) {
             $menu.hide();
             return;
         }
-
-        // for open case, only show options for td
-        $menu.children().hide()
-            .end()
-            .children(".tdDropdown").show();
     }
 
     $(".colMenu:visible").hide();
@@ -1694,7 +1687,7 @@ function dropdownClick($el, options) {
         $menu.removeData("rowNum");
     }
 
-    if (options.classes) {
+    if (options.classes != null) {
         var className = options.classes.replace("header", "");
         $menu.attr("class", "colMenu " + className);
     }
@@ -1702,6 +1695,7 @@ function dropdownClick($el, options) {
     //position menu
     var topMargin  = options.type === "tdDropdown" ? 2 : -4;
     var leftMargin = 5;
+
     var top  = $el[0].getBoundingClientRect().bottom + topMargin;
     var left = $el[0].getBoundingClientRect().left + leftMargin;
 
@@ -1735,7 +1729,7 @@ function changeColumnType($typeList) {
     var colName = gTables[tableNum].tableCols[colNum - 1].func.args[0];
     var mapStr = "";
     var newColName = colName + "_" + newType;
-    var tableName = gTables[tableNum].tableName;
+    // var tableName = gTables[tableNum].tableName;
     switch (newType) {
     case ("boolean"):
         mapStr += "bool(";
