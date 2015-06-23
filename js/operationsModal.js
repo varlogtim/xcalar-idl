@@ -11,6 +11,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var operatorsMap = {};
     var categoryNames = [];
     var functionsMap = {};
+    var $lastInputFocused;
     
     var modalHelper = new xcHelper.Modal($operationsModal);
     var corrector;
@@ -125,27 +126,19 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
-        var $lastArgumentInputFocused = $operationsModal.find('.argument:first');
-        $operationsModal.on('focus', '.argument', function() {
-            $lastArgumentInputFocused = $(this);
+        $operationsModal.on('focus', 'input', function() {
+            $lastInputFocused = $(this);
         });
 
         $operationsModal.on('blur', '.argument', function() {
-            var $el = $(this);
             setTimeout(function() {
                 var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
                 if ($operationsModal.find('.argumentSection')
-                                    .hasClass('minimized') &&
-                    $mouseTarget.closest('.editableHead').length === 0) {
-                    $lastArgumentInputFocused.focus();
+                                    .hasClass('minimized') ) {
+                    if ($mouseTarget.closest('.editableHead').length === 0) {
+                        $lastInputFocused.focus();
+                    }
                     return;
-                }
-                if ($mouseTarget.hasClass('editableHead') &&
-                    $mouseTarget.closest('.xcTable').length !== 0) {
-                    var newColName = $mouseTarget.val();
-                    insertText($el, newColName);
-                    $lastArgumentInputFocused.focus();
-                    gMouseEvents.setMouseDownTarget($el);
                 }
             }, 0);
         });
@@ -159,7 +152,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 // we want to target only headers that have editableheads
                 var $input = $(this).siblings('input');
                 minimizeTableAndFocusInput($input);
-                $lastArgumentInputFocused = $input;
+                $lastInputFocused = $input;
             }
             
         });
@@ -172,17 +165,12 @@ window.OperationsModal = (function($, OperationsModal) {
                             .removeClass('minimized');
             $input.closest('tbody').find('div').removeClass('minimized');
             $input.focus();
-            $('#xcTable' + tableNum).find('.editableHead')
-                                        .closest('.header')
-                                        .mousedown(fillInputFromColumn);
             $('body').on('keyup', opModalKeyListener);
             centerPositionElement($operationsModal);
         }
 
         function unminimizeTable() {
             $operationsModal.find('.minimized').removeClass('minimized');
-            $('#xcTable' + tableNum).find('.header')
-                                    .off('mousedown', fillInputFromColumn);
             $('body').off('keyup', opModalKeyListener);
             centerPositionElement($operationsModal);
         }
@@ -193,17 +181,6 @@ window.OperationsModal = (function($, OperationsModal) {
                 setTimeout(function() {
                     unminimizeTable();
                 }, 0);
-            }
-        }
-
-        function fillInputFromColumn(event) {
-            if ($(event.target).hasClass('.argument')) {
-                var $input = $lastArgumentInputFocused;
-                var $target = $(event.target).closest('.header');
-                $target = $target.find('.editableHead');
-                var newColName = $target.val();
-                insertText($input, newColName) 
-                gMouseEvents.setMouseDownTarget($input);
             }
         }
 
@@ -261,9 +238,9 @@ window.OperationsModal = (function($, OperationsModal) {
                                     .off('mouseup', disableTableEditing);
 
             $('#xcTable' + tableNum).find('.header')
-                                    .off('mousedown', fillInputFromColumn);
+                                    .off('click', fillInputFromColumn);
             
-            $(document).mousedown(); // hides any error boxes;    
+            $(document).mousedown(); // hides any error boxes;   
         });
 
         $operationsModal.on('click', function() {
@@ -288,6 +265,7 @@ window.OperationsModal = (function($, OperationsModal) {
         // added dynamically.
         XcalarListXdfs("*", "*")
         .done(function(listXdfsObj) {
+            console.info(listXdfsObj);
             setupOperatorsMap(listXdfsObj.fnDescs);
         });
 
@@ -320,11 +298,13 @@ window.OperationsModal = (function($, OperationsModal) {
 
         corrector = new xcHelper.Corrector(colNames);
 
-        var colTypes = [gTables[tableNum].tableCols[colNum - 1].type];
+        var columnType = gTables[tableNum].tableCols[colNum - 1].type;
+        var colClasses = [columnType];
+        $operationsModal.data('coltype', columnType);
         
         if ($('#xcTable' + tableNum).find('th.col' + colNum)
                                     .hasClass('indexedColumn')) {
-            colTypes.push('indexed');
+            colClasses.push('indexed');
         }
 
         var classes = $operationsModal.attr('class').split(' ');
@@ -338,8 +318,8 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
         $operationsModal.attr('class', classes.join(' '));
-        for (var i = 0; i < colTypes.length; i++) {
-            $operationsModal.addClass('type-' + colTypes[i]);
+        for (var i = 0; i < colClasses.length; i++) {
+            $operationsModal.addClass('type-' + colClasses[i]);
         }
         if (gTables[tableNum].tableCols[colNum - 1].isNewCol) {
             $operationsModal.addClass('type-newColumn');
@@ -365,6 +345,9 @@ window.OperationsModal = (function($, OperationsModal) {
         $('#sideBarModal').addClass('light').fadeIn(200);
         $('#rightSideBar').addClass('opModalOpen');
         $('#mainFrame').addClass('opModalOpen');
+        $('#xcTable' + tableNum).find('.editableHead')
+                                        .closest('.header')
+                                        .click(fillInputFromColumn);
 
         fillInputPlaceholder(0);
 
@@ -393,6 +376,16 @@ window.OperationsModal = (function($, OperationsModal) {
         'trigonometric functions': [],
         'type-casting functions' : []
     };
+
+    function fillInputFromColumn(event) {
+        var $input = $lastInputFocused;
+        var $target = $(event.target).closest('.header');
+        $target = $target.find('.editableHead');
+        var newColName = $target.val();
+        insertText($input, newColName);
+        gMouseEvents.setMouseDownTarget($input);
+        $lastInputFocused.focus();
+    }
 
     function populateInitialCategoryField(operator) {
         functionsMap = {};
@@ -483,7 +476,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function suggest($input) {
         var value = $.trim($input.val()).toLowerCase();
-        // var valLen = value.length;
         var $list = $input.siblings('.list');
         $list.show();
         $list.find('li').hide();
@@ -716,7 +708,6 @@ window.OperationsModal = (function($, OperationsModal) {
         var categoryNum = $categoryLi.data('category');
         var ops = functionsMap[categoryNum];
         var numOps = ops.length;
-        // var html = "";
         var opIndex = -1;
         var operObj;
         for (var i = 0; i < numOps; i++) {
@@ -727,7 +718,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (opIndex > -1) {
-            var defaultValue = colName;
+            var defaultValue = "col:" + colName;
             if (!firstArgExceptions[category]) {
                 defaultValue = "";
             } else if (firstArgExceptions[category].indexOf(func) !== -1) {
@@ -837,15 +828,39 @@ window.OperationsModal = (function($, OperationsModal) {
         if (!isPassing) {
             return;
         }
+        var colType = $operationsModal.data('coltype');
+        var args = [];
+
+        var $argInputs = $operationsModal.find('.argumentTable tbody tr')
+                                        .filter(function() {
+                                return ($(this).css('display') != "none");
+
+                        }).find('.argument');
+
+        var numArgs = $argInputs.length;
+        $argInputs.each(function(index) {
+            var arg;
+            // if map or groupby, last argument will always represent the new
+            // column name
+            if (index === (numArgs - 1) && (operatorName === "map" ||
+                                            operatorName === "group by")) {
+                arg = $.trim($(this).val()).replace(/["']/g, '');
+                arg = arg.replace(/col:/g, '');
+            } else {
+                arg = formatArgumentInput($(this).val(), colType);
+            }
+            
+            args.push(arg);
+        });
 
         funcCapitalized = func.substr(0, 1).toUpperCase() + func.substr(1);
 
         switch (operatorName) {
             case ('aggregate'):
-                isPassing = aggregate(funcCapitalized);
+                isPassing = aggregate(funcCapitalized, args);
                 break;
             case ('filter'):
-                filter(func).
+                filter(func, args).
                 then(function() {
                     $operationsModal.find('.close')
                                     .trigger('click', {slow: true});
@@ -855,10 +870,10 @@ window.OperationsModal = (function($, OperationsModal) {
                 });
                 break;
             case ('group by'):
-                isPassing = groupBy(funcCapitalized);
+                isPassing = groupBy(funcCapitalized, args);
                 break;
             case ('map'):
-                isPassing = map(funcLower);
+                isPassing = map(funcLower, args);
                 break;
             default:
                 showErrorMessage(0);
@@ -873,7 +888,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function aggregate(aggrOp) {
+    function aggregate(aggrOp, args) {
         
         if (aggrOp === "Udf") {
             Alert.error("Aggregate Failed",
@@ -883,7 +898,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var colIndex = -1;
             var columns = gTables[tableNum].tableCols;
             var numCols = columns.length;
-            var frontColName = $.trim($operationsModal.find('.argument').val());
+            var frontColName = args[0];
             var backColName = frontColName;
             for (var i = 0; i < numCols; i++) {
                 if (columns[i].name === frontColName) {
@@ -898,36 +913,26 @@ window.OperationsModal = (function($, OperationsModal) {
                                      tableNum, aggrOp));
     }
 
-    function filter(operator) {
+    function filter(operator, args) {
         var deferred = jQuery.Deferred();
-        var numVisibleInputs = $operationsModal.find('.argument:visible')
-                                               .length;
-        var value1 = $.trim($operationsModal.find('.argument').eq(0).val());
-        var value2;
-        var value3;
+
         var options = {};
-        if (numVisibleInputs === 2) {
-            value2 = $.trim($operationsModal.find('.argument').eq(1).val());
-        } else if (numVisibleInputs === 3) {
-            value2 = $.trim($operationsModal.find('.argument').eq(1).val());
-            value3 = $.trim($operationsModal.find('.argument').eq(2).val());
-        }   
         console.log(operator, 'operator');
         var colIndex = colNum;
         if (operator === "udf") {
-            // value2 is in the form of fnCall(arg1, arg2, ...) and I need to
+            // args[1] is in the form of fnCall(arg1, arg2, ...) and I need to
             // break it into "fnCall", arg1, arg2, arg3
             var regex = new RegExp('(.*)[(](.*)[)]', "g");
-            var match = regex.exec(value2);
+            var match = regex.exec(args[1]);
             var funcName = match[1];
-            var args = match[2];
-            var fltStr = "filter(pyExec(\"" + value1 + "\",\"";
+            var argums = match[2];
+            var fltStr = "filter(pyExec(\"" + args[0] + "\",\"";
             fltStr += funcName + "\",";
-            fltStr += args + "))";
+            fltStr += argums + "))";
             options = {"filterString": fltStr};
         } else {
             if (operator !== 'not') {
-                var frontName = value1;
+                var frontName = args[0];
                 var backName = frontName;
                 var columns = gTables[tableNum].tableCols;
                 var numCols = columns.length;
@@ -939,12 +944,11 @@ window.OperationsModal = (function($, OperationsModal) {
                         }
                     }
                 }
-                value1 = backName;
+                args[0] = backName;
             }
-            options = {"operator": operator,
-                       "value1"  : value1,
-                       "value2"  : value2,
-                       "value3"  : value3};
+            var colType = $operationsModal.data('coltype');
+            var filterString = formulateFilterString(operator, colType, args); 
+            options = {"filterString" : filterString};
         }
 
         xcFunction.filter(colIndex, tableNum, options)
@@ -953,15 +957,16 @@ window.OperationsModal = (function($, OperationsModal) {
         })
         .fail(function() {
             deferred.reject();
-        })
+        });
+
         return (deferred.promise());
     }
 
-    function groupBy(operator) {
+    function groupBy(operator, args) {
         var colIndex = -1;
         var columns = gTables[tableNum].tableCols;
         var numCols = columns.length;
-        var frontName = $.trim($operationsModal.find('.argument').eq(0).val());
+        var frontName = args[0];
         var backName = frontName;
         for (var i = 0; i < numCols; i++) {
             if (columns[i].name === frontName) {
@@ -971,15 +976,13 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             }
         }
-        var $input       = $operationsModal.find('.argument').eq(1);
-        var newColName   = $.trim($operationsModal.find('.argument')
-                                                   .eq(1).val());
-        // var $theadInputs = $('#xcTable' + tableNum).find('.editableHead');
+        var numArgs      = args.length;
+        var $input       = $operationsModal.find('.argument').eq((numArgs - 1));
+        var newColName   = args[numArgs - 1];
 
         console.log("operator:", operator, "newColName:", newColName,
                     "colNum:", colNum, "tableNum:", tableNum);
 
-        // var isDuplicate = ColManager.checkColDup($theadInputs, $input);
         var isDuplicate = ColManager.checkColDup($input, null, tableNum);
 
         if (!isDuplicate) {
@@ -991,22 +994,17 @@ window.OperationsModal = (function($, OperationsModal) {
         }
     }
 
-    function map(operator) {
-        var numVisibleInputs = $operationsModal.find('.argument:visible')
-                                               .length;
+    function map(operator, args) {
+        var numArgs = args.length;
         var $nameInput   = $operationsModal.find('.argument')
-                                           .eq(numVisibleInputs - 1);
-        var newColName = $.trim($nameInput.val());
-        // var $theadInputs = $('#xcTable' + tableNum).find('.editableHead');
-        // var isDuplicate  = ColManager.checkColDup($theadInputs, $nameInput);
+                                           .eq(numArgs - 1);
+        var newColName = args.splice(numArgs - 1, 1)[0];
         var isDuplicate = ColManager.checkColDup($nameInput, null, tableNum);
         if (isDuplicate) {
             return (false);
         }
 
-        var argums = [];
-        var $firstVal  = $operationsModal.find('.argument').eq(0);
-        var firstValue = $.trim($firstVal.val());
+        var firstValue = args[0];
 
         var columns = gTables[tableNum].tableCols;
         var numCols = columns.length;
@@ -1017,30 +1015,22 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             }
         }
-        argums.push(firstValue);
-        if (numVisibleInputs >= 3) {
-            for (var i = 1; i < numVisibleInputs - 1; i++) {
-                var $argVal  = $operationsModal.find('.argument').eq(i);
-                var argValue = $.trim($argVal.val());
-                argums.push(argValue);
-            }
-        }
-       
+        args[0] = firstValue;
         var mapStr = "";
 
         if (operator.toLowerCase() === "udf") {
             var moduleName = firstValue;
-            var funcString = argums[1];
+            var funcString = args[1];
             var regex = new RegExp('(.*)[(](.*)[)]', "g");
             var match = regex.exec(funcString);
             var funcName = match[1];
-            var args = match[2];
+            var argums = match[2];
 
             mapStr = "=map(pyExec(\"" + moduleName + "\",\"";
             mapStr += funcName + "\",";
-            mapStr += args + "))";
+            mapStr += argums + "))";
         } else {
-            mapStr = formulateMapString(operator, argums);
+            mapStr = formulateMapString(operator, args);
         }
         console.log(operator, mapStr);
 
@@ -1051,7 +1041,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var $th       = $('#xcTable' + tableNum).find('th.col' + colNum);
         var $colInput = $th.find('.editableHead.col' + colNum);
-
         $colInput.val(newColName);
         $("#fnBar").val(mapStr);
         functionBarEnter($colInput);
@@ -1059,8 +1048,19 @@ window.OperationsModal = (function($, OperationsModal) {
         return (true);
     }
 
+    function formatArgumentInput(value, colType) {
+        value = $.trim(value);
+        value = value.replace(/["']/g, '');
+        if (value.indexOf("col:") !== -1) {
+            value = value.replace(/col:/g, '');
+        } else if (colType === "string") {
+            value = '"' + value + '"';
+        }
+
+        return (value);
+    }
+
     function formulateMapString(operator, args) {
-        // we're assuming the operator was picked from a list of valid operators
         var mapString = '=map(';
         mapString += operator + "(";
         for (var i = 0; i < args.length; i++) {
@@ -1069,6 +1069,16 @@ window.OperationsModal = (function($, OperationsModal) {
         mapString = mapString.slice(0, -2);
         mapString += "))";
         return (mapString);
+    }
+
+    function formulateFilterString(operator, colType, args) {
+        var filterString = operator + "(";
+        for (var i = 0; i < args.length; i++) {
+            filterString += args[i] + ", ";
+        }
+        filterString = filterString.slice(0, -2);
+        filterString += ")";
+        return (filterString);
     }
 
     function fillInputPlaceholder(inputNum) {
@@ -1102,11 +1112,12 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function insertText($input, textToInsert) {
         var value = $input.val();
+        textToInsert = "col:" + textToInsert;
         // for udf section
         if ($input.closest(".listSection").hasClass("udfSection")) {
             var bracketIndex = value.lastIndexOf(")");
             if (bracketIndex >= 1) {
-                var stringBeforeBracket = value.substring(0, brackedIndex);
+                var stringBeforeBracket = value.substring(0, bracketIndex);
                 if (value.charAt(bracketIndex - 1) === '(') {
                     $input.val(stringBeforeBracket + textToInsert + ')');
                 } else {

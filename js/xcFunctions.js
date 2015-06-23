@@ -10,11 +10,8 @@ window.xcFunction = (function ($, xcFunction) {
         var tablCols     = xcHelper.deepCopy(table.tableCols);
         var msg          = StatusMessageTStr.Filter + ': ' + frontColName;
         var operator = options.operator;
-        var value1 = options.value1;
-        var value2 = options.value2;
-        var value3 = options.value3;
+        var args = options.args;
         var fltStr = options.filterString;
-
         StatusMessage.show(msg);
         
         var previousTableName = xcFunction.getNewName(tableNum, tableName);
@@ -24,13 +21,7 @@ window.xcFunction = (function ($, xcFunction) {
         .then(function() {
             xcFunction.renameHelper(tableNum, previousTableName, tableName);
             renamePassed = true;
-            if (fltStr) {
-                return (XcalarFilterHelper(fltStr, previousTableName,
-                                           tableName));
-            } else {
-                return (XcalarFilter(operator, value1, value2, value3,
-                                     previousTableName, tableName));
-            }
+            return (XcalarFilterHelper(fltStr, previousTableName, tableName));
         })
         .then(function() {
             setIndex(tableName, tablCols);
@@ -45,11 +36,10 @@ window.xcFunction = (function ($, xcFunction) {
                 "backColName" : backColName,
                 "colIndex"    : colNum,
                 "operator"    : operator,
-                "value"       : value2,
+                "value"       : fltStr,
                 "newTableName": tableName,
                 "filterString": fltStr
             });
-            
             StatusMessage.success(msg);
             commitToStorage();
             deferred.resolve();

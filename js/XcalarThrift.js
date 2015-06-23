@@ -607,12 +607,6 @@ function generateFilterString(operator, value1, value2, value3) {
     return (filterStr);
 }
 
-function XcalarFilter(operator, value1, value2, value3,
-                      srcTablename, dstTablename) {
-    var filterStr = generateFilterString(operator, value1, value2, value3);
-    return (XcalarFilterHelper(filterStr, srcTablename, dstTablename));
-}
-
 function XcalarFilterHelper(filterStr, srcTablename, dstTablename) {
     if (tHandle == null) {
         return (promiseWrapper(null));
