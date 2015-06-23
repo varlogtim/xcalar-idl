@@ -599,11 +599,7 @@ function generateFilterString(operator, value1, value2, value3) {
             } else if (value2 == null) {
                 filterStr = operator + "(" + value1 + ")";
             } else {
-                if (isNaN(value2)) {
-                    filterStr = operator + '(' + value1 + ', "' + value2 + '")';
-                } else {
-                    filterStr = operator + '(' + value1 + ', ' + value2 + ')';
-                }
+                filterStr = operator + '(' + value1 + ', ' + value2 + ')';
             }
             break;
     }

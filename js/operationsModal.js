@@ -140,7 +140,6 @@ window.OperationsModal = (function($, OperationsModal) {
                     $lastArgumentInputFocused.focus();
                     return;
                 }
-                console.info('here?')
                 if ($mouseTarget.hasClass('editableHead') &&
                     $mouseTarget.closest('.xcTable').length !== 0) {
                     var newColName = $mouseTarget.val();
@@ -846,7 +845,14 @@ window.OperationsModal = (function($, OperationsModal) {
                 isPassing = aggregate(funcCapitalized);
                 break;
             case ('filter'):
-                isPassing = filter(func);
+                filter(func).
+                then(function() {
+                    $operationsModal.find('.close')
+                                    .trigger('click', {slow: true});
+                })
+                .fail(function() {
+                    // we're already handling this
+                });
                 break;
             case ('group by'):
                 isPassing = groupBy(funcCapitalized);
@@ -893,6 +899,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function filter(operator) {
+        var deferred = jQuery.Deferred();
         var numVisibleInputs = $operationsModal.find('.argument:visible')
                                                .length;
         var value1 = $.trim($operationsModal.find('.argument').eq(0).val());
@@ -940,7 +947,14 @@ window.OperationsModal = (function($, OperationsModal) {
                        "value3"  : value3};
         }
 
-        return (xcFunction.filter(colIndex, tableNum, options));
+        xcFunction.filter(colIndex, tableNum, options)
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        })
+        return (deferred.promise());
     }
 
     function groupBy(operator) {

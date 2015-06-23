@@ -1,6 +1,8 @@
 window.xcFunction = (function ($, xcFunction) {
     // filter table column
     xcFunction.filter = function (colNum, tableNum, options) {
+        var deferred = jQuery.Deferred();
+
         var table        = gTables[tableNum];
         var tableName    = table.tableName;
         var frontColName = table.tableCols[colNum].name;
@@ -50,7 +52,7 @@ window.xcFunction = (function ($, xcFunction) {
             
             StatusMessage.success(msg);
             commitToStorage();
-            
+            deferred.resolve();
         })
         .fail(function(error) {
             console.log("failed here");
@@ -69,9 +71,9 @@ window.xcFunction = (function ($, xcFunction) {
             }
             WSManager.renameTable(previousTableName, tableName);
             WSManager.removeTable(tableName);
-            return (false);
+            deferred.reject();
         });
-        return (true);
+        return (deferred.promise());
     };
 
     // aggregate table column
