@@ -833,7 +833,7 @@ window.DataCart = (function($, DataCart) {
     };
 
     function appendCartItem(dsName, tableName, colNum, val) {
-
+        tableName = tableName + 'Table'
         var $cart = $("#selectedTable-" + dsName);
         // this ds's cart not exists yet
         if ($cart.length === 0) {
@@ -842,7 +842,7 @@ window.DataCart = (function($, DataCart) {
                     'class="selectedTable">' +
                     '<div class="cartTitleArea">' +
                         '<input class="tableNameEdit" ' +
-                                'type="text" value="' + tableName + 'Table">' +
+                                'type="text" value="' + tableName + '">' +
                         '<div class="iconWrapper">' +
                             '<span class="icon"></span>' +
                         '</div>' +
@@ -851,8 +851,21 @@ window.DataCart = (function($, DataCart) {
                 '</div>';
 
             $cart = $(cartHtml);
+
+            getUnusedTableName(tableName)
+            .then(function(newTableName) {
+                $cart.find('.tableNameEdit').val(newTableName);
+            })
+            .fail(function() {
+                // keep the current name
+            });
+
             $cartArea.prepend($cart);
-            $cart.find('.tableNameEdit').focus().select();
+            var $tableNameEdit = $cart.find('.tableNameEdit');
+            $tableNameEdit.focus();
+            var valLength = $tableNameEdit.val().length;
+            $tableNameEdit[0].selectionStart = valLength;
+            $tableNameEdit[0].selectionEnd = valLength;
         }
 
         var $li = $('<li style="font-size:13px;" class="colWrap" ' +
@@ -866,7 +879,56 @@ window.DataCart = (function($, DataCart) {
         $cart.find("ul").append($li);
         overflowShadow();
 
+        
+
         return ($li);
+    }
+
+    function getUnusedTableName(datasetName) {
+        // checks dataset names and tablenames and tries to create a table
+        // called dataset1 if it doesnt already exist or dataset2 etc...
+        var deferred = jQuery.Deferred();
+        var tableNames = {};
+        XcalarGetDatasets()
+        .then(function(result){
+            var datasets = result.datasets;
+            for (var i = 0; i < result.numDatasets; i++) {
+                tableNames[datasets[i].name] = 1;
+
+            }
+        })
+        .then(XcalarGetTables)
+        .then(function(result) {
+            var tables = result.tables;
+            for (var i = 0; i < result.numTables; i++) {
+                tableNames[tables[i].tableName] = 1;
+            }
+            var validNameFound = false;
+            var limit = 2; // we won't try more than 20 times
+            var newName = datasetName;
+            if (tableNames.hasOwnProperty(newName)) {
+                for (var i = 0; i < limit; i++) {
+                    newName = datasetName + i;
+                    if (!tableNames.hasOwnProperty(newName)) {
+                        validNameFound = true;
+                        break;
+                    }
+                }
+                if (!validNameFound) {
+                    var tries = 0;
+                    while (tableNames.hasOwnProperty(newName) && tries < 100) {
+                        newName = xcHelper.randName(datasetName, 4);
+                        tries++;
+                    }
+                }
+            }
+            
+            deferred.resolve(newName);
+        })
+        .fail(function(error) {
+            deferred.reject(error);
+        })
+        return (deferred.promise());
     }
 
     function removeCartItem(dsname, $li) {
