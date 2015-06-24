@@ -71,6 +71,7 @@ function gRescolMouseDown(el, event, options) {
     disableTextSelection();
     $(document.head).append('<style id="col-resizeCursor" type="text/css">*' +
                             '{cursor: col-resize !important;}</style>');
+    HelpController.tooltipOff();
 }
 
 function gRescolMouseMove(event) {
@@ -100,6 +101,9 @@ function gRescolMouseUp() {
         gRescol.isDatastore = false;
     }
     moveTableDropdownBoxes();
+    setTimeout(function() {
+        HelpController.tooltipOn();
+    }, 300);
 }
 
 function gResrowMouseDown(el, event) {
@@ -2129,6 +2133,7 @@ function rowScrollerStartDrag(event, el) {
 
     $(document.head).append(cursorStyle);
     disableTextSelection();
+    HelpController.tooltipOff();
 }
 
 function rowScrollerMouseMove(event) {
@@ -2161,6 +2166,7 @@ function rowScrollerMouseUp() {
         e.pageX -= 2;
     }
     $("#rowScrollerArea").trigger(e);
+    HelpController.tooltipOn();
 }
 
 function resizeRowInput() {
