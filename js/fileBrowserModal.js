@@ -89,6 +89,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
                 if ($grid.hasClass('ds')) {
                     // dblclick a dataset to import
+                    xcHelper.disableSubmit($fileBrowser.find('.confirm'));
                     importDataset($grid);
                 } else {       // dblclick a folder
                     var path = getCurrentPath() + getGridUnitName($grid) + '/';
@@ -107,7 +108,7 @@ window.FileBrowser = (function($, FileBrowser) {
         // confirm to open a ds
         $fileBrowser.on("click", ".confirm", function() {
             var $grid = $container.find("grid-unit.active");
-
+            xcHelper.disableSubmit($(this));
             importDataset($grid);
         });
 
@@ -328,6 +329,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $modalBackground.removeClass("open");
         $modalBackground.fadeOut(200, function() {
             Tips.refresh();
+            xcHelper.enableSubmit($fileBrowser.find('.confirm'));
         });
     }
 
@@ -383,11 +385,13 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function importDataset($ds) {
+
         if ($ds == null || $ds.length === 0) {
             var text = "Invalid file name!" +
                         " Please choose a file or folder to import!";
 
             StatusBox.show(text, $fileName, true);
+            xcHelper.enableSubmit($fileBrowser.find('.confirm'));
             return;
         }
         // reset import data form

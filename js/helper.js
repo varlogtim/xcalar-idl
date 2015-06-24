@@ -502,16 +502,32 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.Modal.prototype.submit = function() {
+         xcHelper.enableSubmit(this.$modal.find(".confirm"));
+    }
+
+    xcHelper.Modal.prototype.enableSubmit = function() {
+        xcHelper.enableSubmit(this.$modal.find(".confirm"));
+    }
+
     xcHelper.Modal.prototype.clear = function() {
         $(document).off("keydown.xcModal" + this.id);
         this.$modal.find(".focusable").off(".xcModal")
                                       .removeClass("focusable");
+        this.enableSubmit();
     };
     // check if any button is on focus
     xcHelper.Modal.prototype.checkBtnFocus = function() {
         return (this.$modal.find(".btn:focus").length > 0);
     };
 
+    xcHelper.disableSubmit = function($submitBtn) {
+        $submitBtn.prop('disabled', true);
+    }
+
+    xcHelper.enableSubmit = function($submitBtn) {
+        $submitBtn.prop('disabled', false);
+    }
 
     xcHelper.Corrector = function(words) {
         // traing texts

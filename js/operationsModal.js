@@ -276,7 +276,6 @@ window.OperationsModal = (function($, OperationsModal) {
         // added dynamically.
         XcalarListXdfs("*", "*")
         .done(function(listXdfsObj) {
-            console.info(listXdfsObj);
             setupOperatorsMap(listXdfsObj.fnDescs);
         });
 
@@ -817,6 +816,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function submitForm() {
         // XXX This is a time bomb! We have to fix this
+        modalHelper.submit();
         var func =  $.trim($functionInput.val());
         var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var isPassing = false;
@@ -829,6 +829,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (!isPassing) {
+            modalHelper.enableSubmit();
             return;
         }
         var colType = $operationsModal.data('coltype');
@@ -872,8 +873,9 @@ window.OperationsModal = (function($, OperationsModal) {
                 isPassing = aggregate(funcCapitalized, args);
                 break;
             case ('filter'):
-                filter(func, args).
-                then(function() {
+                // filter(func, args).
+                filter(func, args)
+                .then(function() {
                     $operationsModal.find('.close')
                                     .trigger('click', {slow: true});
                 })
@@ -896,7 +898,8 @@ window.OperationsModal = (function($, OperationsModal) {
         if (isPassing) {
             $operationsModal.find('.close').trigger('click', {slow: true});
         } else {
-            // show some kidddna error message
+            // show some kinda error message
+            modalHelper.enableSubmit();
         }
     }
 
@@ -1135,6 +1138,14 @@ window.OperationsModal = (function($, OperationsModal) {
             $('#xcTable' + tableNum).find('.editableHead')
                                     .attr('disabled', true);
         }, 0);
+    }
+
+    function disableSubmit() {
+        $operationsModal.find('.confirm').prop("disabled", true);
+    }
+
+    function enableSubmit() {
+        $operationsModal.find('.confirm').prop("disabled", false);
     }
 
     function insertText($input, textToInsert) {

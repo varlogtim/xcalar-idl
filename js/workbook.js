@@ -143,13 +143,16 @@ window.WorkbookModal = (function($, WorkbookModal) {
             if (activeActionNo === 0) {
                 // create new workbook part
                 console.log("Start Creating new Workbook...");
-
+                modalHelper.submit();
                 WKBKManager.newWKBK(workbookName)
                 .then(function(id) {
-                    WKBKManager.switchWKBK(id);
+                    WKBKManager.switchWKBK(id, modalHelper);
                 })
                 .fail(function(error) {
                     Alert.error("Create New Workbook Fails", error);
+                })
+                .always(function() {
+                    modalHelper.enableSubmit();
                 });
                 return;
             }
@@ -166,13 +169,16 @@ window.WorkbookModal = (function($, WorkbookModal) {
             if (activeActionNo === 2) {
                 // copy workbook part
                 console.log("Copy workbook", workbookId, "...");
-
+                modalHelper.submit();
                 WKBKManager.copyWKBK(workbookId, workbookName)
                 .then(function(id) {
                     WKBKManager.switchWKBK(id);
                 })
                 .fail(function(error) {
                     Alert.error("Copy Session Fails", error);
+                })
+                .always(function() {
+                    modalHelper.enableSubmit();
                 });
 
                 return;
@@ -624,14 +630,16 @@ window.WKBKManager = (function($, WKBKManager) {
     };
 
     // swtich to another workbook
-    WKBKManager.switchWKBK = function(wkbkId) {
+    WKBKManager.switchWKBK = function(wkbkId, modalHelper) {
         var gUserInfos;
 
         if (wkbkId == null) {
             console.error("Invalid wookbook Id!");
             return;
         }
-
+        if (modalHelper) {
+            modalHelper.submit();
+        }
         WKBKManager.getUsersInfo()
         .then(function(userInfo) {
             var innerDeferred = jQuery.Deferred();
@@ -664,6 +672,11 @@ window.WKBKManager = (function($, WKBKManager) {
         })
         .fail(function(error) {
             console.error("Switch Workbook Fails", error);
+        })
+        .always(function() {
+            if (modalHelper) {
+                modalHelper.enableSubmit();
+            }       
         });
     };
 

@@ -158,6 +158,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $("#importDataForm").submit(function(event) {
             event.preventDefault();
             $(this).blur();
+            var $submitBtn = $(this);
+            xcHelper.disableSubmit($submitBtn);
 
             var dsName   = jQuery.trim($fileName.val());
             var dsFormat = formatTranslater[$formatText.val()];
@@ -181,6 +183,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             ]);
 
             if (!isValid) {
+                xcHelper.enableSubmit($(this))
                 return false;
             }
 
@@ -226,6 +229,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 StatusMessage.fail(StatusMessageTStr.LoadFailed, msg);
 
                 return false;
+            })
+            .always(function() {
+                xcHelper.enableSubmit($submitBtn);
             });
         });
 
@@ -593,12 +599,12 @@ window.DataCart = (function($, DataCart) {
 
     DataCart.setup = function() {
         $("#submitDSTablesBtn").click(function() {
-            $(this).blur();
-
+            var $submitBtn = $(this);
+            $submitBtn.blur();
+            
             if ($cartArea.find(".selectedTable").length === 0) {
                 return (false);
             }
-            
             var datasetsList;
             var datasetNamesArray = [];
             var tableNamesArray = [];
@@ -635,13 +641,14 @@ window.DataCart = (function($, DataCart) {
                 StatusBox.show(errorMsg, $input, true, 0, {side: 'left'});
                 return (false);
             }
-            
+            xcHelper.disableSubmit($submitBtn);
             XcalarGetDatasets()
             .then(function(datasets) {
                 datasetsList = datasets;
             })
             .then(XcalarGetTables)
             .then(function(tables) {
+                var deferred = jQuery.Deferred();
                 for (var i = 0; i < datasetsList.numDatasets; i++) {
                     datasetNamesArray.push(datasetsList.datasets[i].name);
                 }
@@ -675,20 +682,27 @@ window.DataCart = (function($, DataCart) {
                     .then(function() {
                         emptyAllCarts();
                         commitToStorage();
+                        deferred.resolve();
                     })
                     .fail(function(error) {
                         emptyAllCarts();
                         Alert.error("Create work sheet fails", error);
+                        deferred.reject();
                     });
                 } else {
                     scrollToTableName($input);
                     StatusBox.show(errorMsg, $input, true, 0, {side: 'left'});
-                    return (false);
+                    xcHelper.enableSubmit($submitBtn);
+                    deferred.resolve();
                 }
+                return (deferred.promise());
             })
             .fail(function(error) {
                 emptyAllCarts();
                 Alert.error("Create work sheet fails", error);
+            })
+            .always(function() {
+                xcHelper.enableSubmit($submitBtn);
             });
         });
 

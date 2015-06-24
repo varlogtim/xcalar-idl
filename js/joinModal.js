@@ -63,6 +63,7 @@ window.JoinModal = (function($, JoinModal) {
         // This submits the joined tables
         $("#joinTables").click(function() {
             $(this).blur();
+            
             // check validation
             var newTableName = $.trim($joinTableName.val());
             if (newTableName === "") {
@@ -80,6 +81,8 @@ window.JoinModal = (function($, JoinModal) {
                 });
                 return;
             }
+            
+            modalHelper.submit();
 
             xcHelper.checkDuplicateTableName(newTableName)
             .then(function() {
@@ -103,6 +106,7 @@ window.JoinModal = (function($, JoinModal) {
                 var error = 'The name "' + newTableName + '" is already ' +
                            ' in use. Please select a unique name.';
                 StatusBox.show(error, $joinTableName, true);
+                modalHelper.enableSubmit();
             });
         });
 
@@ -225,6 +229,7 @@ window.JoinModal = (function($, JoinModal) {
         $multiJoin.find(".placeholder").siblings().remove();
 
         modalHelper.clear();
+        modalHelper.enableSubmit();
 
         $joinModal.hide();
         $modalBackground.fadeOut(200, function() {

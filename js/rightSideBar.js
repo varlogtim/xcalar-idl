@@ -463,6 +463,7 @@ window.RightSideBar = (function($, RightSideBar) {
             var file = $inputFile[0].files[0];
             var path = file.name;
             var moduleName = path.substring(0, path.indexOf("."));
+            var $submitBtn = $(this);
             if (path === "") {
                 var text = "File Path is empty," +
                            " please choose a file you want to upload";
@@ -478,6 +479,7 @@ window.RightSideBar = (function($, RightSideBar) {
                         functionName = moduleName;
                         console.log("XXX no function definition");
                     }
+                    xcHelper.disableSubmit($submitBtn);
                     // XXX: Change cursor, handle failure
                     XcalarUploadPython(moduleName, functionName,
                                        event.target.result)
@@ -488,6 +490,9 @@ window.RightSideBar = (function($, RightSideBar) {
                         UDF.set(moduleName, functionName);
                         commitToStorage();
                         uploadSuccess();
+                    })
+                    .always(function() {
+                        xcHelper.enableSubmit($submitBtn);
                     });
                 };
 

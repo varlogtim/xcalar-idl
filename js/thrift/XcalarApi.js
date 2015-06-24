@@ -1460,8 +1460,8 @@ function xcalarKeyLookup(thriftHandle, key) {
 
 function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
-        "persist = " + persist.toString() + ")");
+    // console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
+    //     "persist = " + persist.toString() + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
