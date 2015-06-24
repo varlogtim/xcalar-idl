@@ -709,7 +709,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (opIndex > -1) {
-            var defaultValue = "col:" + colName;
+            var defaultValue = "$" + colName;
 
             if (firstArgExceptions[category]) {
                 if (firstArgExceptions[category].indexOf(func) !== -1) {
@@ -834,7 +834,7 @@ window.OperationsModal = (function($, OperationsModal) {
             // if map or groupby, last argument will always represent the new
             // column name
             var arg = $.trim($(this).val());
-            if (index === 0 && arg.indexOf('col:') !== -1) {
+            if (index === 0 && arg.indexOf('$') !== -1) {
                 var tempType = getColumnTypeFromArg(arg);
                 if (tempType) {
                     colType = tempType;
@@ -843,10 +843,10 @@ window.OperationsModal = (function($, OperationsModal) {
             if (index === (numArgs - 1) && (operatorName === "map" ||
                                             operatorName === "group by")) {
                 arg = arg.replace(/["']/g, '');
-                arg = arg.replace(/col:/g, '');
+                arg = arg.replace(/\$/g, '');
             } else if ($(this).closest('.udfSection').length !== 0) {
                 arg = arg.replace(/["']/g, '');
-                arg = arg.replace(/col:/g, '');
+                arg = arg.replace(/\$/g, '');
             } else {
                 arg = formatArgumentInput(arg, colType);
             }
@@ -1050,7 +1050,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function getColumnTypeFromArg(value) {
         var colType;
-        var colNameIndex = value.indexOf('col:');
+        var colNameIndex = value.indexOf('$');
         value = value.substr(colNameIndex + 4);
         value = value.split(/[,) ]/)[0];
         var columns = gTables[tableNum].tableCols;
@@ -1067,8 +1067,8 @@ window.OperationsModal = (function($, OperationsModal) {
     function formatArgumentInput(value, colType) {
         value = $.trim(value);
         value = value.replace(/["']/g, '');
-        if (value.indexOf("col:") !== -1) {
-            value = value.replace(/col:/g, '');
+        if (value.indexOf("$") !== -1) {
+            value = value.replace(/\$/g, '');
         } else if (colType === "string") {
             value = '"' + value + '"';
         }
@@ -1128,7 +1128,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function insertText($input, textToInsert) {
         var value = $input.val();
-        textToInsert = "col:" + textToInsert;
+        textToInsert = "$" + textToInsert;
         // for udf section
         if ($input.closest(".listSection").hasClass("udfSection")) {
             var bracketIndex = value.lastIndexOf(")");
