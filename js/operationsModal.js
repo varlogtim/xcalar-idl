@@ -187,10 +187,21 @@ window.OperationsModal = (function($, OperationsModal) {
         var argumentTimer;
         $operationsModal.on('input', '.argument', function() {
             var $input = $(this);
+            // udf section should not enable suggest
+            if ($input.closest(".udfSection").length > 0) {
+                return;
+            }
             clearTimeout(argumentTimer);
             argumentTimer = setTimeout(function() {
                 argSuggest($input);
             }, 300);
+        });
+
+        $operationsModal.on('focus', '.udfSection .argument', function() {
+            var $udfSection = $(this).closest(".udfSection");
+
+            $udfSection.removeClass("open")
+                        .find(".list").removeClass("openList").hide();
         });
 
         $operationsModal.on('click', '.hint li', function() {
