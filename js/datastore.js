@@ -906,8 +906,10 @@ window.DataCart = (function($, DataCart) {
             $clearBtn.addClass("btnInactive");
             $cartTitle.html("<b>No Columns Selected</b>");
             var helpText = '<span class="helpText">To add a column to the' +
-                                ' data cart, select a data set and click' +
-                                ' on the column name.</span>';
+                                ' data cart, select a data set on the left' +
+                                ' and click' +
+                                ' on the column names that you are interested'+
+                                ' in inside the center panel.</span>';
             $dataCart.html(helpText);
         } else {
             $submitBtn.removeClass("btnInactive");
