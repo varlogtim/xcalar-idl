@@ -6,6 +6,7 @@ window.JoinModal = (function($, JoinModal) {
 
     var $joinSelect   = $("#joinType");
     var $joinDropdown = $("#joinTypeSelect");
+    var $mainJoin     = $("#mainJoin");
 
     var $joinTableName  = $("#joinRoundedInput");
     var $leftJoinTable  = $("#leftJoin");
@@ -66,13 +67,16 @@ window.JoinModal = (function($, JoinModal) {
             
             // check validation
             var newTableName = $.trim($joinTableName.val());
+
             if (newTableName === "") {
                 var text = "Table name is empty! Please name your new table";
                 StatusBox.show(text, $joinTableName, true);
                 return;
             }
 
-            if ($("#mainJoin th.colSelected").length !== 2) {
+            var isMultiJoin = $mainJoin.hasClass("multiClause");
+
+            if (!isMultiJoin && $mainJoin.find("th.colSelected").length !== 2) {
                 Alert.show({
                     "title"  : "Cannot Join",
                     "msg"    : "Select 2 columns to join by",
@@ -88,19 +92,11 @@ window.JoinModal = (function($, JoinModal) {
             .then(function() {
                 var joinType = $joinSelect.find(".text").text();
 
-                var $leftCol     = $leftJoinTable.find("th.colSelected");
-                var leftTableNum = $leftCol.closest(".joinTable")
-                                            .data("tablenum");
-                var leftColNum   = xcHelper.parseColNum($leftCol) - 1;
-
-                var $rightCol     = $rightJoinTable.find('th.colSelected');
-                var rightTableNum = $rightCol.closest(".joinTable")
-                                                .data("tablenum");
-                var rightColNum   = xcHelper.parseColNum($rightCol) - 1;
-
-                xcFunction.join(leftColNum, leftTableNum, rightColNum,
-                                rightTableNum, joinType, newTableName)
-                .always(resetJoinTables);
+                if (isMultiJoin) {
+                    multiJoinHelper(joinType, newTableName);
+                } else {
+                    singleJoinHelper(joinType, newTableName);
+                }
             })
             .fail(function() {
                 var error = 'The name "' + newTableName + '" is already ' +
@@ -118,13 +114,19 @@ window.JoinModal = (function($, JoinModal) {
                 // case to open multi clause
                 $activeBox.removeClass("active")
                             .siblings(".onBox").addClass("active");
-                $("#mainJoin").addClass("multiClause");
+                $mainJoin.addClass("multiClause");
+                multiClauseOpener();
+
+                $mainJoin.find(".colSelected").removeClass("colSelected");
+                $mainJoin.find(".columnTab").prop("draggable", true);
             } else {
                 // case to close multi clause
                 $activeBox.removeClass("active")
                             .siblings(".offBox").addClass("active");
-                $("#mainJoin").removeClass("multiClause");
+                $mainJoin.removeClass("multiClause");
+
                 $multiJoin.find(".joinClause.placeholder").siblings().remove();
+                $mainJoin.find(".columnTab").prop("draggable", false);
             }
         });
 
@@ -217,12 +219,176 @@ window.JoinModal = (function($, JoinModal) {
         isOpenTime = false;
     };
 
+    function multiClauseOpener() {
+        var leftClause  = "";
+        var rightClause = "";
+
+        var $leftSelectedCol  = $leftJoinTable.find("th.colSelected");
+        var $rightSelectedCol = $rightJoinTable.find("th.colSelected");
+
+        if ($leftSelectedCol.length > 0) {
+            leftClause = $leftSelectedCol.text();
+        }
+
+        if ($rightSelectedCol.length > 0) {
+            rightClause = $rightSelectedCol.text();
+        }
+
+        var $multiClause = $(multiClauseTemplate);
+
+        $multiClause.find(".leftClause").val(leftClause);
+        $multiClause.find(".rightClause").val(rightClause);
+
+        $multiJoin.find(".joinClause.placeholder").before($multiClause);
+    }
+
+    function singleJoinHelper(joinType, newTableName) {
+        var $leftCol     = $leftJoinTable.find("th.colSelected");
+        var leftColNum   = xcHelper.parseColNum($leftCol) - 1;
+        var leftTableNum = $leftCol.closest(".joinTable").data("tablenum");
+
+        var $rightCol     = $rightJoinTable.find('th.colSelected');
+        var rightColNum   = xcHelper.parseColNum($rightCol) - 1;
+        var rightTableNum = $rightCol.closest(".joinTable").data("tablenum");
+
+        xcFunction.join(leftColNum, leftTableNum, rightColNum,
+                        rightTableNum, joinType, newTableName)
+        .always(resetJoinTables);
+    }
+
+    function multiJoinHelper(joinType, newTableName) {
+        var leftCols  = [];
+        var rightCols = [];
+        var notValid  = false;
+
+        // check validation
+        $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
+            if (notValid) {
+                return;
+            }
+
+            var $joinClause = $(this);
+            var leftClause  = $.trim($joinClause.find(".leftClause").val());
+            var rightClause = $.trim($joinClause.find(".rightClause").val());
+
+            if (leftClause !== "" && rightClause !== "") {
+                leftCols.push(leftClause);
+                rightCols.push(rightClause);
+            } else if (!(leftClause === "" && rightClause === "")){
+                notValid = true;
+            }
+        });
+
+        if (notValid || leftCols.length === 0) {
+            Alert.show({
+                "title"  : "Cannot Join",
+                "msg"    : "Invalid Multi Clause",
+                "modal"  : $joinModal,
+                "isAlert": true
+            });
+
+            return;
+        }
+
+        // left table
+        var leftTableName = $leftJoinTable.find(".tableLabel.active").text();
+        var $leftTable    = $leftJoinTable.find('.joinTable[data-tablename="' +
+                                leftTableName + '"]');
+        var leftTableNum  = $leftTable.data('tablenum');
+        var leftColNum;
+
+        var rightTableName = $rightJoinTable.find(".tableLabel.active").text();
+        var $rightTable    =  $rightJoinTable.find('.joinTable[data-tablename="' +
+                                rightTableName + '"]');
+        var rightTableNum  = $rightTable.data('tablenum');
+        var rightColNum;
+
+        // Only one clause, use same with single join
+        if (leftCols.length === 1) {
+            leftColNum = getColumnNum($leftTable, leftCols[0]) - 1;
+            rightColNum = getColumnNum($rightTable, rightCols[0]) - 1;
+
+            xcFunction.join(leftColNum, leftTableNum, rightColNum,
+                        rightTableNum, joinType, newTableName)
+            .always(resetJoinTables);
+
+            return;
+        }
+
+        var leftString  = '=map(pyExec("multiJoinModule","multiJoin"';
+        var leftColName = xcHelper.randName("leftJoinCol");
+
+        leftColNum = gTables[leftTableNum].tableCols.length;
+
+        for (var i = 0; i < leftCols.length; i++) {
+            leftString += ', ' + leftCols[i];
+        }
+
+        leftString += '))';
+
+        ColManager.addCol('col' + leftColNum, 'xcTable' + leftTableNum, null,
+                          {direction: 'L', isNewCol: true});
+
+        var $leftColInput = $('#xcTable' + leftTableNum)
+                                .find('th.col' + leftColNum)
+                                .find('.editableHead.col' + leftColNum);
+        $leftColInput.val(leftColName);
+
+        // right table
+        var rightString  = '=map(pyExec("multiJoinModule","multiJoin"';
+        var rightColName = xcHelper.randName("rightJoinCol");
+
+        rightColNum = gTables[rightTableNum].tableCols.length;
+
+        for (var i = 0; i < rightCols.length; i++) {
+            rightString += ', ' + rightCols[i];
+        }
+
+        rightString += '))';
+
+
+        ColManager.addCol('col' + rightColNum, 'xcTable' + rightTableNum, null,
+                          {direction: 'L', isNewCol: true});
+        var $rightColInput = $('#xcTable' + rightTableNum).find('th.col' + rightColNum)
+                            .find('.editableHead.col' + rightColNum);
+        $rightColInput.val(rightColName);
+
+
+        $("#fnBar").val(leftString);
+        functionBarEnter($leftColInput)
+        .then(function() {
+            $("#fnBar").val(rightString);
+            return (functionBarEnter($rightColInput));
+        })
+        .then(function() {
+            var leftRemoved = {};
+            var righRemoved = {};
+
+            leftRemoved[leftColName] = true;
+            righRemoved[rightColName] = true;
+
+            return xcFunction.join(leftColNum - 1, leftTableNum,
+                                    rightColNum - 1, rightTableNum,
+                                    joinType, newTableName,
+                                    leftRemoved, righRemoved);
+        })
+        .always(resetJoinTables);
+    }
+
+    function getColumnNum($table, colName) {
+        var $colTab = $table.find(".columnTab").filter(function() {
+                            return ($(this).text() === colName);
+                        });
+
+        return xcHelper.parseColNum($colTab.closest("th"));
+    }
+
     function resetJoinTables() {
         $("body").off("keypress", joinTableKeyPress);
         $modalBackground.off("click", hideJoinTypeSelect);
 
         // clean up multi clause section
-        $("#mainJoin").removeClass("multiClause");
+        $mainJoin.removeClass("multiClause");
         $multiJoinBtn.find(".active").removeClass("active")
                     .end()  // back to $("#multiJoinBtn")
                     .find(".offBox").addClass("active");
@@ -359,7 +525,7 @@ window.JoinModal = (function($, JoinModal) {
                 }
 
                 colHtml += '<th class="' + thClass + '">' +
-                                '<div class="columnTab" draggable="true">' +
+                                '<div class="columnTab">' +
                                     colName +
                                 '</div>' +
                             '</th>';
@@ -373,6 +539,7 @@ window.JoinModal = (function($, JoinModal) {
             $tbody.find('.col0').remove();
             $tbody.find('.jsonElement').remove();
             $tbody.find('.indexedColumn').removeClass('indexedColumn');
+            $tbody.find(".dropdownWrapper").remove();
 
             colHtml += $tbody.html();
             colHtml += '</table>';
@@ -383,6 +550,11 @@ window.JoinModal = (function($, JoinModal) {
 
     function addModalTabListeners($modal, isLeft) {
         $modal.on('click', '.tableLabel', function() {
+            // in multiClause mode, not allow switching table
+            if ($mainJoin.hasClass("multiClause")) {
+                return;
+            }
+
             var $tableLabel = $(this);
             var tableName   = $tableLabel.text();
 
@@ -397,6 +569,10 @@ window.JoinModal = (function($, JoinModal) {
 
         $modal.on('click', 'th', function() {
             var $th = $(this);
+
+            if ($mainJoin.hasClass("multiClause")) {
+                return;
+            }
 
             if ($th.hasClass("unselectable")) {
                 if ($th.hasClass('clicked')) {

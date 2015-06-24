@@ -50,7 +50,7 @@ window.RightSideBar = (function($, RightSideBar) {
         $tableList.data('tablename', newTableName);
         $tableList.attr('data-tablename', newTableName);
         $tableList.find('.tableName').text(newTableName);
-    }
+    };
 
     RightSideBar.updateTableInfo = function(table) {
         var tableName  = table.tableName;
@@ -367,7 +367,6 @@ window.RightSideBar = (function($, RightSideBar) {
                                     .removeClass("selected");
         });
 
-
         $("#inactiveTablesList").on("click", ".addArchivedBtn", function() {
             var $btn = $(this);
 
@@ -595,6 +594,20 @@ window.RightSideBar = (function($, RightSideBar) {
             });
         });
         /* end of upload written function section */
+
+        multiJonUDFUpload();
+    }
+
+    function multiJonUDFUpload() {
+        var moduleName = "multiJoinModule";
+        var functionName = "multiJoin";
+        var entireString =
+            'def multiJoin(*arg):\n' +
+                '\tstri = ""\n' +
+                '\tfor a in arg:\n' +
+                    '\t\tstri = stri + str(a)\n' +
+                '\treturn stri\n';
+        XcalarUploadPython(moduleName, functionName, entireString);
     }
 
     function uploadSuccess() {

@@ -158,7 +158,7 @@ window.Alert = (function($, Alert){
 
         if (options.modal) {
             var $container = options.modal;
-            $container.css("z-index", 0);
+            $container.css("z-index", 10);
         }
 
         // set confirm button

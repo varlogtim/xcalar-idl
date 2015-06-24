@@ -194,7 +194,8 @@ window.xcFunction = (function ($, xcFunction) {
 
     // join two tables
     xcFunction.join = function (leftColNum, leftTableNum, rightColNum,
-                                rightTableNum, joinStr, newTableName) {
+                                rightTableNum, joinStr, newTableName,
+                                leftRemoved, rightRemoved) {
         var deferred = jQuery.Deferred();
         var isLeft   = true;
         var isRight  = false;
@@ -237,11 +238,13 @@ window.xcFunction = (function ($, xcFunction) {
 
         var leftSrcName;
         var rightSrcName;
-        var newTableCols = createJoinedColumns(rightTable, leftTable);
+        var newTableCols = createJoinedColumns(leftTable, rightTable,
+                                                leftRemoved, rightRemoved);
 
         var msg = StatusMessageTStr.Join;
         var leftTableResult;
         var rightTableResult;
+
         StatusMessage.show(msg);
         WSManager.addTable(newTableName);
         showWaitCursor();
@@ -608,46 +611,44 @@ window.xcFunction = (function ($, xcFunction) {
     }
 
     // For xcFuncion.join, deepy copy of right table and left table columns
-    function createJoinedColumns(rightTable, leftTable) {
+    function createJoinedColumns(leftTable, rightTable, leftRemoved, rightRemoved) {
         // Combine the columns from the 2 current tables
         // Note that we have to create deep copies!!
-        var newTableCols      = xcHelper.deepCopy(leftTable.tableCols);
-        var len               = newTableCols.length;
-        var newRightTableCols = xcHelper.deepCopy(rightTable.tableCols);
-        var removed           = false;
+        var newTableCols = [];
+        var leftCols = xcHelper.deepCopy(leftTable.tableCols);
+        var rightCols = xcHelper.deepCopy(rightTable.tableCols);
+        var index = 0;
         var dataCol;
+        var colName;
 
-        for (var i = 0; i < len; i++) {
-            if (!removed) {
-                if (newTableCols[i].name === "DATA") {
-                    dataCol = newTableCols.splice(i, 1);
-                    removed = true;
-                }
-            } else {
-                newTableCols[i].index--;
+        leftRemoved = leftRemoved || {};
+        rightRemoved = rightRemoved || {};
+
+        for (var i = 0; i < leftCols.length; i++) {
+            colName = leftCols[i].name;
+
+            if (colName === "DATA") {
+                dataCol = leftCols[i];
+            } else if (!(colName in leftRemoved)) {
+                newTableCols[index] = leftCols[i];
+                newTableCols[index].index = index + 1;
+                ++index;
             }
         }
 
-        removed = false;
+        for (var i = 0; i < rightCols.length; i++) {
+            colName = rightCols[i].name;
 
-        for (var i = 0; i < newRightTableCols.length; i++) {
-            newRightTableCols[i].index += len;
-
-            if (!removed) {
-                if (newRightTableCols[i].name === "DATA") {
-                    newRightTableCols.splice(i, 1);
-                    removed = true;
-                }
-            } else {
-                newRightTableCols[i].index--;
-
+            if (colName !== "DATA" && !(colName in rightRemoved)) {
+                newTableCols[index] = rightCols[i];
+                newTableCols[index].index = index + 1;
+                ++index;
             }
         }
 
-        newTableCols = newTableCols.concat(newRightTableCols);
         // now newTablCols.length is differenet from len
-        dataCol[0].index = newTableCols.length + 1;
-        newTableCols = newTableCols.concat(dataCol);
+        dataCol.index = newTableCols.length + 1;
+        newTableCols.push(dataCol);
         return (newTableCols);
     }
 

@@ -507,7 +507,7 @@
                     .rounded(3px 0 0 3px);
 
                     .icon {
-                        .image("/images/joinModal/singlejoin.png", 50%, 50%);
+                        .image("/images/joinModal/singlejoin_gray.png", 50%, 50%);
                     }
                 }
 
@@ -516,12 +516,24 @@
                     margin-left: -1px;
 
                     .icon {
-                        .image("/images/joinModal/multijoin.png", 50%, 50%);
+                        .image("/images/joinModal/multijoin_gray.png", 50%, 50%);
                     }
                 }
 
                 &.active {
                     .action-gradient;
+
+                    &.offBox {
+                        .icon {
+                            .image("/images/joinModal/singlejoin_white.png", 50%, 50%);
+                        }
+                    }
+
+                    &.onBox {
+                        .icon {
+                            .image("/images/joinModal/multijoin_white.png", 50%, 50%);
+                        }
+                    }
                 }
             }
         }
@@ -667,7 +679,7 @@
 
         &.multiClause {
             #multiJoin {
-                .flex(0 0 30%);
+                .flex(0 0 275px);
                 background-color: transparent;
                 .transition(flex 0.5s linear);
 
@@ -676,6 +688,17 @@
                         visibility: visible;
                         .transition(~"visibility 0s linear 0.6s");
                     }
+                }
+            }
+
+            .mainTable {
+                .tableLabel {
+                    opacity: 0.7;
+                    pointer-events: none;
+                }
+
+                .columnTab {
+                    .cursor-move;
                 }
             }
         }

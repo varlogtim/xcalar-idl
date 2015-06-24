@@ -701,7 +701,7 @@ window.ColManager = (function($, ColManager) {
                 columnType !== "integer")
             {
                 $tBody.find("td.col" + (i + 1))
-                        .find(".dropdownWrapper,.dropdownPadding").remove();
+                        .find(".dropdownWrapper").remove();
             }
 
             if (tableCols[i].name === "recordNum") {
@@ -824,7 +824,7 @@ window.ColManager = (function($, ColManager) {
             columnType !== "integer")
         {
             $table.find("tbody td.col" + newColid)
-                   .find(".dropdownWrapper, .dropdownPadding").remove();
+                   .find(".dropdownWrapper").remove();
         }
 
         if (key === "recordNum") {

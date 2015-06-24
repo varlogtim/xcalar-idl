@@ -1538,6 +1538,8 @@ function closeMenu($menu) {
 }
 
 function functionBarEnter($colInput) {
+    var deferred = jQuery.Deferred();
+
     gFnBarOrigin = $colInput;
 
     var index = xcHelper.parseColNum($colInput);
@@ -1584,7 +1586,11 @@ function functionBarEnter($colInput) {
     .then(function() {
         updateTableHeader(tableNum);
         RightSideBar.updateTableInfo(gTables[tableNum]);
-    });
+        deferred.resolve();
+    })
+    .fail(deferred.reject);
+
+    return (deferred.promise());
 
     function parseFunc(funcString, colId, tableNum, modifyCol) {
         // Everything must be in a "name" = function(args) format
