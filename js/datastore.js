@@ -904,7 +904,7 @@ window.DataCart = (function($, DataCart) {
                 tableNames[tables[i].tableName] = 1;
             }
             var validNameFound = false;
-            var limit = 2; // we won't try more than 20 times
+            var limit = 20; // we won't try more than 20 times
             var newName = datasetName;
             if (tableNames.hasOwnProperty(newName)) {
                 for (var i = 0; i < limit; i++) {

@@ -380,6 +380,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function fillInputFromColumn(event) {
         var $input = $lastInputFocused;
+        if (!$lastInputFocused.hasClass('argument') ||
+            $lastInputFocused.closest('.colNameSection').length !== 0) {
+            return;
+        }
         var $target = $(event.target).closest('.header');
         $target = $target.find('.editableHead');
         var newColName = $target.val();
@@ -750,7 +754,7 @@ window.OperationsModal = (function($, OperationsModal) {
             // as rows order may change, update it here
             var $rows = $tbody.find('tr');
             $rows.show();
-
+            $rows.find('.colNameSection').removeClass('colNameSection');
             var description;
             for (var i = 0; i < operObj.numArgs; i++) {
                 description = operObj.argDescs[i].argDesc;
@@ -767,13 +771,19 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             if (operatorName === 'map') {
                 description = 'New Resultant Column Name';
-                $rows.eq(numArgs).find('input').val('mappedCol');
+                $rows.eq(numArgs).find('.listSection')
+                                 .addClass('colNameSection');
+                var autoGenColName = getAutoGenColName('mappedCol');
+                $rows.eq(numArgs).find('input').val(autoGenColName);
                 $rows.eq(numArgs).find('.description').text(description);
                 numArgs++;
             } else if (operatorName === 'group by') {
                 description = 'New Column Name for the groupBy' +
                                 ' resultant column';
-                $rows.eq(numArgs).find('input').val('groupBy');
+                $rows.eq(numArgs).find('.listSection')
+                                 .addClass('colNameSection');
+                var autoColGenName = getAutoGenColName('groupBy');
+                $rows.eq(numArgs).find('input').val(autoGenColName);
                 $rows.eq(numArgs).find('.description').text(description);
                 numArgs++;
             }   
@@ -1146,6 +1156,40 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function enableSubmit() {
         $operationsModal.find('.confirm').prop("disabled", false);
+    }
+
+    function getAutoGenColName(name) {
+        var takenNames = {};
+        var tableCols   = gTables[tableNum].tableCols;
+        var numCols = tableCols.length;
+        for (var i = 0; i < numCols; i++) {
+            takenNames[tableCols[i].name] = 1;
+            if (tableCols[i].func.args) {
+                var backName = tableCols[i].func.args[0];
+                takenNames[backName] = 1;
+            }  
+        }
+
+        var validNameFound = false;
+        var limit = 20; // we won't try more than 20 times
+        var newName = name;
+        if (newName in takenNames) {
+            for (var i = 1; i < limit; i++) {
+                newName = name + i;
+                if (!(newName in takenNames)) {
+                    validNameFound = true;
+                    break;
+                }
+            }
+            if (!validNameFound) {
+                var tries = 0;
+                while (newName in takenNames && tries < 20) {
+                    newName = xcHelper.randName(name, 4);
+                    tries++;
+                }
+            }
+        }
+        return (newName);
     }
 
     function insertText($input, textToInsert) {
