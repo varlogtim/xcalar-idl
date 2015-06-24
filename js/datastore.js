@@ -1124,7 +1124,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 for (var i = 0; i < numKvPairs; i++) {
                     value = kvPairs[i].value;
                     json = jQuery.parseJSON(value);
-
+                    // XXX Cheng this is based on the assumption no other
+                    // fields called recordNum, if more than one recordNum in
+                    // json, only one recordNum will be in the parsed obj,
+                    // which is incorrect behavior
+                    delete json.recordNum;
                     jsons.push(json);
                     // get unique keys
                     for (var key in json) {
