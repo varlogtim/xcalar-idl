@@ -725,10 +725,7 @@
             .flexContainer {
                 .flex-display;
                 height: 100%;
-
-                .dropdownPadding {
-                    .flex(0 0 16px);
-                }
+                position: relative;
 
                 .addedBarTextWrap {
                     .flex(1 1 ~"calc(100% - 32px)");
@@ -737,13 +734,12 @@
 
                 .dropdownWrapper {
                     .flex(0 0 16px);
-                    .position(relative);
+                    .position(absolute);
                     z-index: 0;
-
+                    bottom: 0;
                     .dropDown;
-
                     .dropdownBox {
-                        .position(@right: 1px, @bottom: 0px);
+                        .position(@right: -1px, @bottom: 0px);
                     }
                 }
 

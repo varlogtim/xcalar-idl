@@ -1382,8 +1382,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
                     '<div class="header type-' + type + '" ' +
                          'data-type=' + type + '>' +
                         '<div class="colGrab" ' +
-                            'title="Double click to auto resize" ' +
+                            'title="Double click to <br />auto resize" ' +
                             'data-toggle="tooltip" ' +
+                            'data-container="body" ' +
                             'data-placement="left">' +
                         '</div>' +
                         '<div class="flexContainer flexRow">' +

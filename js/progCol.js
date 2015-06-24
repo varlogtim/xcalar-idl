@@ -933,7 +933,6 @@ window.ColManager = (function($, ColManager) {
     function getTableCellHtml(value) {
         var html =
             '<div class="flexContainer">' +
-                '<div class="flex-left dropdownPadding"></div>' +
                 '<div class="flex-mid addedBarTextWrap">' +
                     '<div class="addedBarText">' + value + '</div>' +
                 '</div>' +

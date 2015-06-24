@@ -396,7 +396,8 @@ function setupTooltips() {
         delay   : {
             "show": 200,
             "hide": 100
-        }
+        },
+        html : true
     });
 
     $("body").on('mouseenter', '[data-toggle="tooltip"]', function() {

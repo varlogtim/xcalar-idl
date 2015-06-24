@@ -570,8 +570,9 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
                     '</div>' +
                 '</div>' +
                 '<div class="colGrab" ' +
-                     'title="Double click to auto resize" ' +
+                     'title="Double click to <br />auto resize" ' +
                      'data-toggle="tooltip" ' +
+                     'data-container="body" ' +
                      'data-placement="left">' +
                 '</div>' +
                 '<div class="flexContainer flexRow">' +
