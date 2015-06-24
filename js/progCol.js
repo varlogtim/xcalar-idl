@@ -244,7 +244,6 @@ window.ColManager = (function($, ColManager) {
                 progCol.isNewCol = false;
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
-
                 xcFunction.map(progCol.index, tableNum, fieldName, mapString)
                 .then(deferred.resolve)
                 .fail(function(error) {

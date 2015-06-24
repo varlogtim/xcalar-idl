@@ -362,19 +362,10 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     // empty array means the first argument will always be the column name
-    // value of false means the first argument will never be the column name
     // any function names in the array will not have column name as 1st argument
 
     var firstArgExceptions = {
-        'aggregate functions'    : [],
-        'arithmetic functions'   : [],
-        'bitwise functions'      : [],
         'conditional functions'  : ['not'],
-        'conversion functions'   : [],
-        'miscellaneous functions': [],
-        'string functions'       : [],
-        'trigonometric functions': [],
-        'type-casting functions' : []
     };
 
     function fillInputFromColumn(event) {
@@ -719,10 +710,11 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (opIndex > -1) {
             var defaultValue = "col:" + colName;
-            if (!firstArgExceptions[category]) {
-                defaultValue = "";
-            } else if (firstArgExceptions[category].indexOf(func) !== -1) {
-                defaultValue = "";
+
+            if (firstArgExceptions[category]) {
+                if (firstArgExceptions[category].indexOf(func) !== -1) {
+                    defaultValue = "";
+                }
             }
 
             var numArgs = operObj.numArgs;
@@ -839,15 +831,24 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var numArgs = $argInputs.length;
         $argInputs.each(function(index) {
-            var arg;
             // if map or groupby, last argument will always represent the new
             // column name
+            var arg = $.trim($(this).val());
+            if (index === 0 && arg.indexOf('col:') !== -1) {
+                var tempType = getColumnTypeFromArg(arg);
+                if (tempType) {
+                    colType = tempType;
+                }
+            }
             if (index === (numArgs - 1) && (operatorName === "map" ||
                                             operatorName === "group by")) {
-                arg = $.trim($(this).val()).replace(/["']/g, '');
+                arg = arg.replace(/["']/g, '');
+                arg = arg.replace(/col:/g, '');
+            } else if ($(this).closest('.udfSection').length !== 0) {
+                arg = arg.replace(/["']/g, '');
                 arg = arg.replace(/col:/g, '');
             } else {
-                arg = formatArgumentInput($(this).val(), colType);
+                arg = formatArgumentInput(arg, colType);
             }
             
             args.push(arg);
@@ -917,7 +918,6 @@ window.OperationsModal = (function($, OperationsModal) {
         var deferred = jQuery.Deferred();
 
         var options = {};
-        console.log(operator, 'operator');
         var colIndex = colNum;
         if (operator === "udf") {
             // args[1] is in the form of fnCall(arg1, arg2, ...) and I need to
@@ -947,7 +947,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 args[0] = backName;
             }
             var colType = $operationsModal.data('coltype');
-            var filterString = formulateFilterString(operator, colType, args); 
+            var filterString = formulateFilterString(operator, args); 
             options = {"filterString" : filterString};
         }
 
@@ -1048,6 +1048,22 @@ window.OperationsModal = (function($, OperationsModal) {
         return (true);
     }
 
+    function getColumnTypeFromArg(value) {
+        var colType;
+        var colNameIndex = value.indexOf('col:');
+        value = value.substr(colNameIndex + 4);
+        value = value.split(/[,) ]/)[0];
+        var columns = gTables[tableNum].tableCols;
+        var numCols = columns.length;
+        for (var i = 0; i < numCols; i++) {
+            if (columns[i].name === value) {
+                colType = columns[i].type;
+                break;
+            }
+        }
+        return (colType);
+    }
+
     function formatArgumentInput(value, colType) {
         value = $.trim(value);
         value = value.replace(/["']/g, '');
@@ -1071,7 +1087,7 @@ window.OperationsModal = (function($, OperationsModal) {
         return (mapString);
     }
 
-    function formulateFilterString(operator, colType, args) {
+    function formulateFilterString(operator, args) {
         var filterString = operator + "(";
         for (var i = 0; i < args.length; i++) {
             filterString += args[i] + ", ";
