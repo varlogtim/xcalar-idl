@@ -1108,12 +1108,9 @@ function renameTableHead($input) {
 
     xcHelper.checkDuplicateTableName(newTableName)
     .then(function() {
-        return (XcalarRenameTable(oldTableName, newTableName));
+        return (xcFunction.rename(tableNum, oldTableName, newTableName));
     })
     .then(function() {
-       
-        xcFunction.getNewName(tableNum, oldTableName, {name: newTableName});
-        xcFunction.renameHelper(tableNum, newTableName, oldTableName);
         updateTableHeader(null, $(this));
         $input.blur();
     })

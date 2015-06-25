@@ -16,29 +16,46 @@ window.xcFunction = (function ($, xcFunction) {
         var backColName  = table.tableCols[colNum].func.args[0];
         var tablCols     = xcHelper.deepCopy(table.tableCols);
         var msg          = StatusMessageTStr.Filter + ': ' + frontColName;
-        var operator = options.operator;
-        // var args = options.args;
-        var fltStr = options.filterString;
+        var operator     = options.operator;
+        var fltStr       = options.filterString;
+        var oldTableName;
+
         StatusMessage.show(msg);
         
-        var previousTableName = xcFunction.getNewName(tableNum, tableName);
-        WSManager.addTable(tableName);
-        var renamePassed = false;
-        XcalarRenameTable(tableName, previousTableName)
-        .then(function() {
-            xcFunction.renameHelper(tableNum, previousTableName, tableName);
-            renamePassed = true;
-            return (XcalarFilterHelper(fltStr, previousTableName, tableName));
-        })
-        .then(function() {
-            setIndex(tableName, tablCols);
-            return (refreshTable(tableName, tableNum));
+        // XXX Cheng must get ws index before async call
+        var wsIndex = WSManager.getWSFromTable(tableName);
+
+        xcFunction.rename(tableNum)
+        .then(function(previousTableName) {
+            var innerDeferred = jQuery.Deferred();
+
+            oldTableName = previousTableName;
+            // this is for table after filter
+            WSManager.addTable(tableName, wsIndex);
+
+            XcalarFilterHelper(fltStr, previousTableName, tableName)
+            .then(function() {
+                setIndex(tableName, tablCols);
+                return (refreshTable(tableName, tableNum));
+            })
+            .then(innerDeferred.resolve)
+            .fail(function(error) {
+                // we call WSManager.addTable(tableName, wsIndex)
+                // before the filter
+                WSManager.removeTable(tableName);
+                // rename the old table back to tableName
+                xcFunction.rename(tableNum, previousTableName, tableName);
+
+                innerDeferred.reject(error);
+            });
+
+            return (innerDeferred.promise());
         })
         .then(function() {
             // add sql
             SQL.add("Filter Table", {
                 "operation"   : "filter",
-                "tableName"   : previousTableName,
+                "tableName"   : oldTableName,
                 "colName"     : frontColName,
                 "backColName" : backColName,
                 "colIndex"    : colNum,
@@ -47,29 +64,18 @@ window.xcFunction = (function ($, xcFunction) {
                 "newTableName": tableName,
                 "filterString": fltStr
             });
+
             StatusMessage.success(msg);
             commitToStorage();
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("failed here");
             Alert.error("Filter Columns Fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
-            
-            if (renamePassed) {
-                XcalarRenameTable(previousTableName, tableName)
-                .then(function() {
-                    xcFunction.renameHelper(tableNum, tableName,
-                                            previousTableName);
-                })
-                .fail(function() {
-                    // XX Not sure how to handle this;
-                });
-            }
-            WSManager.renameTable(previousTableName, tableName);
-            WSManager.removeTable(tableName);
-            deferred.reject();
+
+            deferred.reject(error);
         });
+
         return (deferred.promise());
     };
 
@@ -130,9 +136,11 @@ window.xcFunction = (function ($, xcFunction) {
         var table     = gTables[tableNum];
         var tableName = table.tableName;
         var tablCols  = xcHelper.deepCopy(table.tableCols);
-        var pCol      = table.tableCols[colNum - 1];
+        var pCol      = tablCols[colNum - 1];
+        var direction = (order === SortDirection.Forward) ? "ASC" : "DESC";
         var backFieldName;
         var frontFieldName;
+        var oldTableName;
 
         switch (pCol.func.func) {
             case ("pull"):
@@ -146,33 +154,45 @@ window.xcFunction = (function ($, xcFunction) {
                 return;
         }
 
-        var direction = (order === SortDirection.Forward) ? "ASC" : "DESC";
-        var msg       = StatusMessageTStr.Sort + " " + frontFieldName;
-
+        var msg = StatusMessageTStr.Sort + " " + frontFieldName;
         StatusMessage.show(msg);
 
-        var previousTableName = xcFunction.getNewName(tableNum, tableName);
-        WSManager.addTable(tableName);
-        var renamePassed = false;
-        XcalarRenameTable(tableName, previousTableName)
-        .then(function(){
-            renamePassed = true;
-            xcFunction.renameHelper(tableNum, previousTableName, tableName);
-            return (XcalarIndexFromTable(previousTableName, backFieldName,
-                                         tableName));
-        })
-        .then(function() {
-            setDirection(tableName, order);
-            setIndex(tableName, tablCols);
+        // XXX Cheng must get ws index before async call
+        var wsIndex = WSManager.getWSFromTable(tableName);
 
-            return (refreshTable(tableName, tableNum,
-                    KeepOriginalTables.DontKeep));
+        xcFunction.rename(tableNum)
+        .then(function(previousTableName) {
+            var innerDeferred = jQuery.Deferred();
+
+            oldTableName = previousTableName;
+            // this is for table after filter
+            WSManager.addTable(tableName, wsIndex);
+
+            XcalarIndexFromTable(previousTableName, backFieldName, tableName)
+            .then(function() {
+                setDirection(tableName, order);
+                setIndex(tableName, tablCols);
+
+                return (refreshTable(tableName, tableNum));
+            })
+            .then(innerDeferred.resolve)
+            .fail(function(error) {
+                // we call WSManager.addTable(tableName, wsIndex)
+                // before the filter
+                WSManager.removeTable(tableName);
+                // rename the old table back to tableName
+                xcFunction.rename(tableNum, previousTableName, tableName);
+
+                innerDeferred.reject(error);
+            });
+
+            return (innerDeferred.promise());
         })
         .then(function() {
             // add sql
             SQL.add("Sort Table", {
                 "operation"   : "sort",
-                "tableName"   : tableName,
+                "tableName"   : oldTableName,
                 "key"         : frontFieldName,
                 "direction"   : direction,
                 "newTableName": tableName
@@ -183,19 +203,7 @@ window.xcFunction = (function ($, xcFunction) {
         })
         .fail(function(error) {
             Alert.error("Sort Rows Fails", error);
-            StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
-            if (renamePassed) {
-                XcalarRenameTable(previousTableName, tableName)
-                .then(function() {
-                    xcFunction.renameHelper(tableNum, tableName,
-                                            previousTableName);
-                })
-                .fail(function() {
-                    // XX Not sure how to handle this;
-                });
-            }
-            WSManager.renameTable(previousTableName, tableName);
-            WSManager.removeTable(tableName);
+            StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
         });
     };
 
@@ -327,15 +335,15 @@ window.xcFunction = (function ($, xcFunction) {
                                     tableNum, newColName, operator) {
         var table        = gTables[tableNum];
         var tableName    = table.tableName;
-        var newTableName = tableName + "-GroupBy";
-        newTableName = xcHelper.randName(newTableName);
+        var newTableName = xcHelper.randName(tableName + "-GroupBy");
+
         if (colNum === -1) {
             colNum = undefined;
         }
 
         var msg = StatusMessageTStr.GroupBy + " " + operator;
         StatusMessage.show(msg);
-        
+
         WSManager.addTable(newTableName);
 
         XcalarGroupBy(operator, newColName, backFieldName, tableName,
@@ -396,57 +404,73 @@ window.xcFunction = (function ($, xcFunction) {
     xcFunction.map = function (colNum, tableNum, fieldName, mapString, options) {
         var deferred = jQuery.Deferred();
 
-        var table           = gTables[tableNum];
-        var tableName       = table.tableName;
-        var tablCols        = xcHelper.deepCopy(table.tableCols);
+        var table     = gTables[tableNum];
+        var tableName = table.tableName;
+        var tablCols  = xcHelper.deepCopy(table.tableCols);
         var tableProperties = {
             "bookmarks" : xcHelper.deepCopy(table.bookmarks),
             "rowHeights": xcHelper.deepCopy(table.rowHeights)
         };
+        var oldTableName;
+
         var msg = StatusMessageTStr.Map + " " + fieldName;
 
         StatusMessage.show(msg);
-        var previousTableName = xcFunction.getNewName(tableNum, tableName);
-        var renamePassed = false;
-        WSManager.addTable(tableName);
 
-        XcalarRenameTable(tableName, previousTableName)
-        .then(function() {
-            renamePassed = true;
-            xcFunction.renameHelper(tableNum, previousTableName, tableName);
-            return (XcalarMap(fieldName, mapString, previousTableName,
-                              tableName));
-        })
-        .then(function() {
-            if (colNum > -1) {
-                var numColsRemoved = 0;
-                var cellWidth = gNewCellWidth;
-                if (options && options.replaceColumn) {
-                    numColsRemoved = 1;
-                    cellWidth = tablCols[colNum - 1].width;
+        // XXX Cheng must get ws index before async call
+        var wsIndex = WSManager.getWSFromTable(tableName);
+
+        xcFunction.rename(tableNum)
+        .then(function(previousTableName) {
+            var innerDeferred = jQuery.Deferred();
+
+            oldTableName = previousTableName;
+            // this is for table after filter
+            WSManager.addTable(tableName, wsIndex);
+
+            XcalarMap(fieldName, mapString, previousTableName, tableName)
+            .then(function() {
+                if (colNum > -1) {
+                    var numColsRemoved = 0;
+                    var cellWidth = gNewCellWidth;
+                    if (options && options.replaceColumn) {
+                        numColsRemoved = 1;
+                        cellWidth = tablCols[colNum - 1].width;
+                    }
+                    var newProgCol = ColManager.newCol({
+                        "index"   : colNum,
+                        "name"    : fieldName,
+                        "width"   : cellWidth,
+                        "userStr" : '"' + fieldName + '" =map(' + mapString + ')',
+                        "isNewCol": false
+                    });
+                    newProgCol.func.func = "pull";
+                    newProgCol.func.args = [];
+                    newProgCol.func.args[0] = fieldName;
+                    tablCols.splice(colNum - 1, numColsRemoved, newProgCol);
+
                 }
-                var newProgCol = ColManager.newCol({
-                    "index"   : colNum,
-                    "name"    : fieldName,
-                    "width"   : cellWidth,
-                    "userStr" : '"' + fieldName + '" =map(' + mapString + ')',
-                    "isNewCol": false
-                });
-                newProgCol.func.func = "pull";
-                newProgCol.func.args = [];
-                newProgCol.func.args[0] = fieldName;
-                tablCols.splice(colNum - 1, numColsRemoved, newProgCol);
+                setIndex(tableName, tablCols, null, tableProperties);
+                return (refreshTable(tableName, tableNum));
+            })
+            .then(innerDeferred.resolve)
+            .fail(function(error) {
+                // we call WSManager.addTable(tableName, wsIndex)
+                // before the filter
+                WSManager.removeTable(tableName);
+                // rename the old table back to tableName
+                xcFunction.rename(tableNum, previousTableName, tableName);
 
-            }
-            setIndex(tableName, tablCols, null, tableProperties);
-            return (refreshTable(tableName, tableNum));
+                innerDeferred.reject(error);
+            });
+
+            return (innerDeferred.promise());
         })
         .then(function() {
             // add sql
             SQL.add("Map Column", {
                 "operation"   : "mapColumn",
-                "srcTableName": previousTableName,
-                "backname"    : tableName,
+                "srcTableName": oldTableName,
                 "newTableName": tableName,
                 "colName"     : fieldName,
                 "mapString"   : mapString
@@ -457,21 +481,9 @@ window.xcFunction = (function ($, xcFunction) {
 
             deferred.resolve();
         })
-        .fail(function(error){
+        .fail(function(error) {
             Alert.error("mapColumn fails", error);
-            StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
-            if (renamePassed) {
-                XcalarRenameTable(previousTableName, tableName)
-                .then(function() {
-                    xcFunction.renameHelper(tableNum, tableName,
-                                            previousTableName);
-                })
-                .fail(function() {
-                    // XX Not sure how to handle this;
-                });
-            }
-            WSManager.renameTable(previousTableName, tableName);
-            WSManager.removeTable(tableName);
+            StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
 
             deferred.reject(error);
         });
@@ -544,43 +556,88 @@ window.xcFunction = (function ($, xcFunction) {
         WSManager.renameTable(tableName, newTableName);
         return (newTableName);
     };
-    
-    // does renames for gTables, worksheet, rightsidebar, dag
-    xcFunction.renameHelper = function(tableNum, newTableName, oldTableName) {
-        gTables[tableNum].tableName = newTableName;
-        gTableIndicesLookup[newTableName] = gTableIndicesLookup[oldTableName];
-        gTableIndicesLookup[newTableName].tableName = newTableName;
-        delete gTableIndicesLookup[oldTableName];
-        RightSideBar.renameTable(oldTableName, newTableName);  
-        Dag.renameAllOccurrences(oldTableName, newTableName);
-        $('#xcTheadWrap' + tableNum + ' .tableTitle input')
-                                        .data('title', newTableName);
-        return (newTableName);
-    };
+
+    xcFunction.rename = function(tableNum, oldTableName, newTableName) {
+        var deferred = jQuery.Deferred();
+        var table    = gTables[tableNum];
+
+        if (oldTableName == null) {
+            oldTableName = table.tableName;
+        }
+
+        // WSManager.renameTable is in xcFunction.getNewName
+        if (newTableName == null) {
+            newTableName = xcFunction.getNewName(tableNum, oldTableName);
+        } else {
+            xcFunction.getNewName(tableNum, oldTableName, {"name": newTableName});
+        }
+
+        XcalarRenameTable(oldTableName, newTableName)
+        .then(function() {
+            // does renames for gTables, worksheet, rightsidebar, dag
+            table.tableName = newTableName;
+            gTableIndicesLookup[newTableName] = gTableIndicesLookup[oldTableName];
+            gTableIndicesLookup[newTableName].tableName = newTableName;
+            delete gTableIndicesLookup[oldTableName];
+
+            RightSideBar.renameTable(oldTableName, newTableName);
+            Dag.renameAllOccurrences(oldTableName, newTableName);
+            $('#xcTheadWrap' + tableNum + ' .tableTitle input')
+                                            .data('title', newTableName);
+            deferred.resolve(newTableName);
+        })
+        .fail(function(error) {
+            console.error("Rename Fails!". error);
+
+            WSManager.renameTable(newTableName, oldTableName);
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    }
 
     // For xcFunction.join, check if table has correct index
     function checkJoinTableIndex(colName, table, tableNum) {
         var deferred = jQuery.Deferred();
 
         var tableName = table.tableName;
+        var oldTableName;
 
         if (colName !== table.keyName) {
             console.log(tableName, "not indexed correctly!");
             // XXX In the future,we can check if there are other tables that
             // are indexed on this key. But for now, we reindex a new table
 
-            var previousTableName = xcFunction.getNewName(tableNum, tableName);
-            var renamePassed = false;
+            // XXX Cheng must get ws index before async call
+            var wsIndex = WSManager.getWSFromTable(tableName);
 
-            WSManager.addTable(tableName);
+            xcFunction.rename(tableNum)
+            .then(function(previousTableName) {
+                var innerDeferred = jQuery.Deferred();
 
-            XcalarRenameTable(tableName, previousTableName)
-            .then(function() {
-                xcFunction.renameHelper(tableNum, previousTableName, tableName);
-                renamePassed = true;
+                oldTableName = previousTableName;
+                // this is for table after filter
+                WSManager.addTable(tableName, wsIndex);
 
-                return (XcalarIndexFromTable(previousTableName, colName,
-                                             tableName));
+                XcalarIndexFromTable(previousTableName, colName, tableName)
+                .then(function() {
+                    var tablCols = xcHelper.deepCopy(table.tableCols);
+                    setIndex(tableName, tablCols);
+                    gTableIndicesLookup[tableName].active = false;
+
+                    innerDeferred.resolve();
+                })
+                .fail(function(error) {
+                    // we call WSManager.addTable(tableName, wsIndex)
+                    // before the filter
+                    WSManager.removeTable(tableName);
+                    // rename the old table back to tableName
+                    xcFunction.rename(tableNum, previousTableName, tableName);
+
+                    innerDeferred.reject(error);
+                });
+
+                return (innerDeferred.promise());
             })
             .then(function() {
                 SQL.add("Index From Dataset", {
@@ -590,34 +647,15 @@ window.xcFunction = (function ($, xcFunction) {
                 "dsName"      : tableName.substring(0,
                                  tableName.length - 6)
                 });
-                
-                var columns = xcHelper.deepCopy(getIndex(previousTableName));
-                setIndex(tableName, columns);
-                gTableIndicesLookup[tableName].active = false;
 
                 deferred.resolve({
                     "newTableCreated"  : true,
                     "setMeta"          : false,
                     "tableName"        : tableName,
-                    "previousTableName": previousTableName
+                    "previousTableName": oldTableName
                 });
             })
-            .fail(function(error) {
-                if (renamePassed) {
-                    XcalarRenameTable(previousTableName, tableName)
-                    .then(function() {
-                        xcFunction.renameHelper(tableNum, tableName,
-                                                previousTableName);
-                    })
-                    .fail(function() {
-                        // XX Not sure how to handle this;
-                    });
-                }
-
-                WSManager.renameTable(previousTableName, tableName);
-                WSManager.removeTable(tableName); // not sure if it's right
-                deferred.reject(error);
-            });
+            .fail(deferred.reject);
 
         } else {
             console.log(tableName, "indexed correctly!");
@@ -717,23 +755,17 @@ window.xcFunction = (function ($, xcFunction) {
 
             RightSideBar.tableBulkAction("delete")
             .then(function() {
-                return (XcalarRenameTable(previousTableName, tableName));
+                return (xcFunction.rename(tableNum, previousTableName, tableName));
             })
             .then(function() {
-                // WSManager.removeTable(previousTableName);
-                WSManager.renameTable(previousTableName, tableName);
-                xcFunction.renameHelper(tableNum, tableName, previousTableName);
                 deferred.resolve();
             })
             .fail(function(error) {
                 deferred.reject(error);
             });
         } else {
-            XcalarRenameTable(previousTableName, tableName)
+            xcFunction.rename(tableNum, previousTableName, tableName)
             .then(function() {
-                // WSManager.removeTable(previousTableName);
-                WSManager.renameTable(previousTableName, tableName);
-                xcFunction.renameHelper(tableNum, tableName, previousTableName);
                 deferred.resolve();
             })
             .fail(function(error) {
