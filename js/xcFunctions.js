@@ -393,7 +393,7 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // map a column
-    xcFunction.map = function (colNum, tableNum, fieldName, mapString) {
+    xcFunction.map = function (colNum, tableNum, fieldName, mapString, options) {
         var deferred = jQuery.Deferred();
 
         var table           = gTables[tableNum];
@@ -418,7 +418,26 @@ window.xcFunction = (function ($, xcFunction) {
                               tableName));
         })
         .then(function() {
-            
+            if (colNum > -1) {
+                var numColsRemoved = 0;
+                var cellWidth = gNewCellWidth;
+                if (options && options.replaceColumn) {
+                    numColsRemoved = 1;
+                    cellWidth = tablCols[colNum - 1].width;
+                }
+                var newProgCol = ColManager.newCol({
+                    "index"   : colNum,
+                    "name"    : fieldName,
+                    "width"   : cellWidth,
+                    "userStr" : '"' + fieldName + '" =map(' + mapString + ')',
+                    "isNewCol": false
+                });
+                newProgCol.func.func = "pull";
+                newProgCol.func.args = [];
+                newProgCol.func.args[0] = fieldName;
+                tablCols.splice(colNum - 1, numColsRemoved, newProgCol);
+
+            }
             setIndex(tableName, tablCols, null, tableProperties);
             return (refreshTable(tableName, tableNum));
         })

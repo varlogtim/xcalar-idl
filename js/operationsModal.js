@@ -1056,18 +1056,8 @@ window.OperationsModal = (function($, OperationsModal) {
         } else {
             mapStr = formulateMapString(operator, args);
         }
-        console.log(operator, mapStr);
 
-        if (!$operationsModal.hasClass('type-newColumn')) {
-            ColManager.addCol('col' + colNum, 'xcTable' + tableNum, null,
-                          {direction: 'L', isNewCol: true});
-        }
-
-        var $th       = $('#xcTable' + tableNum).find('th.col' + colNum);
-        var $colInput = $th.find('.editableHead.col' + colNum);
-        $colInput.val(newColName);
-        $("#fnBar").val(mapStr);
-        functionBarEnter($colInput);
+        xcFunction.map(colNum, tableNum, newColName, mapStr);
 
         return (true);
     }
@@ -1101,13 +1091,12 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function formulateMapString(operator, args) {
-        var mapString = '=map(';
-        mapString += operator + "(";
+        var mapString = operator + "(";
         for (var i = 0; i < args.length; i++) {
             mapString += args[i] + ", ";
         }
         mapString = mapString.slice(0, -2);
-        mapString += "))";
+        mapString += ")";
         return (mapString);
     }
 

@@ -244,7 +244,9 @@ window.ColManager = (function($, ColManager) {
                 progCol.isNewCol = false;
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
-                xcFunction.map(progCol.index, tableNum, fieldName, mapString)
+                var options = {replaceColumn : true};
+                xcFunction.map(progCol.index, tableNum, fieldName, mapString,
+                               options)
                 .then(deferred.resolve)
                 .fail(function(error) {
                     console.error("execCol fails!", error);

@@ -1759,11 +1759,8 @@ function changeColumnType($typeList) {
     }
 
     mapStr += colName + ")";
-    mapStr = "=map(" + mapStr + ")";
-    var $colInput = $('#xcTable' + tableNum).find('.editableHead.col' + colNum);
-    $colInput.val(newColName);
-    $("#fnBar").val(mapStr);
-    functionBarEnter($colInput);
+    var options = {replaceColumn : true};
+    xcFunction.map(colNum, tableNum, newColName, mapStr, options);
 }
 
 

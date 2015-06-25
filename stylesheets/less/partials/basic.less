@@ -902,6 +902,9 @@ ul.colMenu {
         .aggregate {
             display: none;
         }
+        .type-string {
+            display: none;
+        }
     }
 
     &.type-emptyTable .map {
@@ -934,6 +937,21 @@ ul.colMenu {
         }
         .gb:first-child, .aggregate .aggrOp:nth-child(4) {
             display: list-item;
+        }
+        .type-boolean {
+            display: none;
+        }
+    }
+
+    &.type-integer {
+        .type-integer {
+            display: none;
+        }
+    }
+
+    &.type-decimal {
+        .type-decimal {
+            display: none;
         }
     }
 
