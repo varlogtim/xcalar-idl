@@ -353,13 +353,9 @@ window.JoinModal = (function($, JoinModal) {
                             .find('.editableHead.col' + rightColNum);
         $rightColInput.val(rightColName);
 
-
-        $("#fnBar").val(leftString);
-        functionBarEnter($leftColInput)
-        .then(function() {
-            $("#fnBar").val(rightString);
-            return (functionBarEnter($rightColInput));
-        })
+        jQuery.when(mapHelper(leftString, $leftColInput),
+                    mapHelper(rightString, $rightColInput)
+        )
         .then(function() {
             var leftRemoved = {};
             var righRemoved = {};
@@ -373,6 +369,11 @@ window.JoinModal = (function($, JoinModal) {
                                     leftRemoved, righRemoved);
         })
         .always(resetJoinTables);
+
+        function mapHelper(str, $col) {
+            $("#fnBar").val(str);
+            return (functionBarEnter($col));
+        }
     }
 
     function getColumnNum($table, colName) {

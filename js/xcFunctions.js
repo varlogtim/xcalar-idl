@@ -1,4 +1,11 @@
 window.xcFunction = (function ($, xcFunction) {
+    var joinLookUp = {
+        "Inner Join"      : JoinOperatorT.InnerJoin,
+        "Left Outer Join" : JoinOperatorT.LeftOuterJoin,
+        "Right Outer Join": JoinOperatorT.RightOuterJoin,
+        "Full Outer Join" : JoinOperatorT.FullOuterJoin
+    };
+
     // filter table column
     xcFunction.filter = function (colNum, tableNum, options) {
         var deferred = jQuery.Deferred();
@@ -10,7 +17,7 @@ window.xcFunction = (function ($, xcFunction) {
         var tablCols     = xcHelper.deepCopy(table.tableCols);
         var msg          = StatusMessageTStr.Filter + ': ' + frontColName;
         var operator = options.operator;
-        var args = options.args;
+        // var args = options.args;
         var fltStr = options.filterString;
         StatusMessage.show(msg);
         
@@ -193,33 +200,23 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // join two tables
-    xcFunction.join = function (leftColNum, leftTableNum, rightColNum,
-                                rightTableNum, joinStr, newTableName,
-                                leftRemoved, rightRemoved) {
+    xcFunction.join = function (leftColNum, leftTableNum,
+                                rightColNum, rightTableNum,
+                                joinStr, newTableName,
+                                leftRemoved, rightRemoved)
+    {
         var deferred = jQuery.Deferred();
-        var isLeft   = true;
-        var isRight  = false;
-        var joinType;
+        // var isLeft   = true;
+        // var isRight  = false;
+        var joinType = joinLookUp[joinStr];
 
-        switch (joinStr) {
-            case ("Inner Join"):
-                joinType = JoinOperatorT.InnerJoin;
-                break;
-            case ("Left Outer Join"):
-                joinType = JoinOperatorT.LeftOuterJoin;
-                break;
-            case ("Right Outer Join"):
-                joinType = JoinOperatorT.RightOuterJoin;
-                break;
-            case ("Full Outer Join"):
-                joinType = JoinOperatorT.FullOuterJoin;
-                break;
-            default:
-                console.warn("Incorrect join type!");
-                break;
+        if (joinType == null) {
+            console.error("Incorrect join type!");
+            deferred.reject("Incorrect join type!");
+            return (deferred.promise());
         }
 
-        console.log("leftColNum", leftColNum,
+        console.info("leftColNum", leftColNum,
                     "leftTableNum", leftTableNum,
                     "rightColNum", rightColNum,
                     "rightTableNum", rightTableNum,
@@ -248,20 +245,30 @@ window.xcFunction = (function ($, xcFunction) {
         StatusMessage.show(msg);
         WSManager.addTable(newTableName);
         showWaitCursor();
-        // check left table lName"])index
-        checkJoinTableIndex(leftColName, leftTable, isLeft, leftTableNum)
+
+        // check left table index
+        jQuery.when(checkJoinTableIndex(leftColName, leftTable, leftTableNum),
+                    checkJoinTableIndex(rightColName, rightTable, rightTableNum)
+        )
+        .then(function(leftResult, rightResult) {
+            leftTableResult = leftResult;
+            leftSrcName = leftResult.tableName;
+
+            rightTableResult = rightResult;
+            rightSrcName = rightResult.tableName;
+
+            return setIndexedTableMeta(leftTableResult.tableName,
+                                        leftTableResult.previousTableName);
+        })
         .then(function(result) {
             leftTableResult = result;
-            leftSrcName = result.tableName;
-            // check right table index
-            return (checkJoinTableIndex(rightColName, rightTable, isRight,
-                                        rightTableNum));
+            return setIndexedTableMeta(rightTableResult.tableName,
+                                        rightTableResult.previousTableName);
         })
         .then(function(result) {
             rightTableResult = result;
-            rightSrcName = result.tableName;
             // join indexed table
-            console.log(leftSrcName, rightSrcName);
+            // console.log(leftSrcName, rightSrcName);
             return (XcalarJoin(leftSrcName, rightSrcName,
                                 newTableName, joinType));
         })
@@ -296,6 +303,7 @@ window.xcFunction = (function ($, xcFunction) {
         .fail(function(error) {
             Alert.error("Join Table Fails", error);
             StatusMessage.fail(StatusMessageTStr.JoinFailed, msg);
+
             WSManager.removeTable(newTableName);
             
             renameTableJoinFailure(leftTableNum, leftTableResult)
@@ -532,27 +540,26 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // For xcFunction.join, check if table has correct index
-    function checkJoinTableIndex(colName, table, isLeft, tableNum) {
-        var deferred      = jQuery.Deferred();
+    function checkJoinTableIndex(colName, table, tableNum) {
+        var deferred = jQuery.Deferred();
 
-        var indexColName  = table.keyName;
-        var tableName     = table.tableName;
+        var tableName = table.tableName;
 
-        var text          = isLeft ? "Left Table" : "Right Table";
-
-        if (colName !== indexColName) {
-            console.log(text, "not indexed correctly!");
+        if (colName !== table.keyName) {
+            console.log(tableName, "not indexed correctly!");
             // XXX In the future,we can check if there are other tables that
             // are indexed on this key. But for now, we reindex a new table
 
             var previousTableName = xcFunction.getNewName(tableNum, tableName);
             var renamePassed = false;
+
             WSManager.addTable(tableName);
 
             XcalarRenameTable(tableName, previousTableName)
             .then(function() {
                 xcFunction.renameHelper(tableNum, previousTableName, tableName);
                 renamePassed = true;
+
                 return (XcalarIndexFromTable(previousTableName, colName,
                                              tableName));
             })
@@ -569,18 +576,12 @@ window.xcFunction = (function ($, xcFunction) {
                 setIndex(tableName, columns);
                 gTableIndicesLookup[tableName].active = false;
 
-                return (setupHiddenTable(tableName));
-            })
-            .then(function() {
-                var index = gHiddenTables.length - 1;
-                RightSideBar.addTables([gHiddenTables[index]],
-                                        IsActive.Inactive);
-                var result = {
-                    newTableCreated  : true,
-                    tableName        : tableName,
-                    previousTableName: previousTableName
-                };
-                deferred.resolve(result);
+                deferred.resolve({
+                    "newTableCreated"  : true,
+                    "setMeta"          : false,
+                    "tableName"        : tableName,
+                    "previousTableName": previousTableName
+                });
             })
             .fail(function(error) {
                 if (renamePassed) {
@@ -593,19 +594,44 @@ window.xcFunction = (function ($, xcFunction) {
                         // XX Not sure how to handle this;
                     });
                 }
+
                 WSManager.renameTable(previousTableName, tableName);
-                WSManager.removeTable(tableName);
+                WSManager.removeTable(tableName); // not sure if it's right
                 deferred.reject(error);
             });
 
         } else {
-            console.log(text, "indexed correctly!");
-            var result = {
-                newTableCreated: false,
-                tableName      : tableName
-            };
-            deferred.resolve(result);
+            console.log(tableName, "indexed correctly!");
+
+            deferred.resolve({
+                "newTableCreated": false,
+                "tableName"      : tableName
+            });
         }
+
+        return (deferred.promise());
+    }
+
+    function setIndexedTableMeta(tableName, oldTableName) {
+        var deferred = jQuery.Deferred();
+
+        setupHiddenTable(tableName)
+        .then(function() {
+            var index = gHiddenTables.length - 1;
+            RightSideBar.addTables([gHiddenTables[index]],
+                                    IsActive.Inactive);
+
+            deferred.resolve({
+                "newTableCreated"  : true,
+                "setMeta"          : true,
+                "tableName"        : tableName,
+                "previousTableName": oldTableName
+            });
+        })
+        .fail(function(error) {
+            console.error("Setup Indexed Table in join fails", error);
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     }
@@ -664,24 +690,37 @@ window.xcFunction = (function ($, xcFunction) {
         var tableName = result.tableName;
         var previousTableName = result.previousTableName;
 
-        $('#inactiveTablesList').find('.tableInfo[data-tableName="' +
-                                      tableName + '"]')
-                                .find('.addArchivedBtn')
-                                .click();
+        if (result.setMeta) {
+            $('#inactiveTablesList').find('.tableInfo[data-tableName="' +
+                                          tableName + '"]')
+                                    .find('.addArchivedBtn')
+                                    .click();
 
-        RightSideBar.tableBulkAction("delete")
-        .then(function() {
-            return (XcalarRenameTable(previousTableName, tableName));
-        })
-        .then(function() {
-            // WSManager.removeTable(previousTableName);
-            WSManager.renameTable(previousTableName, tableName);
-            xcFunction.renameHelper(tableNum, tableName, previousTableName);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            deferred.reject(error);
-        });
+            RightSideBar.tableBulkAction("delete")
+            .then(function() {
+                return (XcalarRenameTable(previousTableName, tableName));
+            })
+            .then(function() {
+                // WSManager.removeTable(previousTableName);
+                WSManager.renameTable(previousTableName, tableName);
+                xcFunction.renameHelper(tableNum, tableName, previousTableName);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                deferred.reject(error);
+            });
+        } else {
+            XcalarRenameTable(previousTableName, tableName)
+            .then(function() {
+                // WSManager.removeTable(previousTableName);
+                WSManager.renameTable(previousTableName, tableName);
+                xcFunction.renameHelper(tableNum, tableName, previousTableName);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                deferred.reject(error);
+            });
+        }
 
         return (deferred.promise());
     }
