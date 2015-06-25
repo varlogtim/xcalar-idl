@@ -699,6 +699,16 @@ function createTableHeader(tableNum) {
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +
             '</li>' +
+            '<li class="sort">Sort Columns' +
+                '<ul class="subColMenu">' +
+                    '<li class="sortForward">' +
+                        '<span class="sortUp"></span>A-Z</li>' +
+                    '<li class="sortReverse">' +
+                        '<span class="sortDown"></span>Z-A</li>' +
+                    '<div class="subColMenuArea"></div>' +
+                '</ul>' +
+                '<div class="dropdownBox"></div>' +
+            '</li>' +
             // XX copy to worksheet is temporarily disabled until we can do 
             // an actual copy of a table
             
@@ -726,9 +736,10 @@ function createTableHeader(tableNum) {
         '</ul>';
 
     $('#xcTableWrap' + tableNum).append(tableMenuHTML);
-
-    addColMenuBehaviors($("#tableMenu" + tableNum));
-
+    var $tableMenu = $('#tableMenu' + tableNum);
+    addColMenuBehaviors($tableMenu);
+    // Event Listener for table dropdown menu
+    addTableMenuActions($tableMenu);
     // Event Listener for table title
     $xcTheadWrap.on({
         "keyup": function(event) {
@@ -760,8 +771,13 @@ function createTableHeader(tableNum) {
         dragTableMouseDown($(this).parent(), event);
     });
 
-    // Event Listener for table dropdown menu
-    var $tableMenu = $('#tableMenu' + tableNum);
+    var $table = $('#xcTable' + tableNum);
+    $table.width(0);
+    var matchAllHeaders = true;
+    matchHeaderSizes(null, $table, matchAllHeaders);
+}
+
+function addTableMenuActions($tableMenu) {
 
     $tableMenu.on('mouseup', '.archiveTable', function(event) {
         if (event.which !== 1) {
@@ -858,14 +874,6 @@ function createTableHeader(tableNum) {
             }     
         }
     });
-
-    // $tableMenu.on('click', '.quickAgg', function() {
-    //     var $menu    = $(this).closest('.tableMenu');
-    //     var tableNum = parseInt($menu.attr('id').substring(9));
-
-    //     $menu.hide();
-    //     AggModal.show(tableNum);
-    // });
 
     $tableMenu.on('mouseup', '.aggregates', function(event) {
         if (event.which !== 1) {
@@ -1005,10 +1013,87 @@ function createTableHeader(tableNum) {
         }
     });
 
+    $tableMenu.on('mouseup', '.sortForward', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        var $menu    = $(this).closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id').substring(9));
+        // could be long process so we allow the menu to close first
+        setTimeout(function() {
+           sortAllTableColumns(tableNum, "forward"); 
+        }, 0);
+        
+    });
+
+    $tableMenu.on('mouseup', '.sortReverse', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        var $menu    = $(this).closest('.tableMenu');
+        var tableNum = parseInt($menu.attr('id').substring(9));
+        // could be long process so we allow the menu to close first
+        setTimeout(function() {
+           sortAllTableColumns(tableNum, "reverse"); 
+        }, 0);
+        
+    });
+}
+
+function sortAllTableColumns(tableNum, direction) {
+    var tableCols = gTables[tableNum].tableCols;
+    var order;
+    if (direction === "reverse") {
+        order = 1
+    } else {
+        order = -1;
+    }
+
+    var sortedCols = tableCols.sort(function(a, b) {
+         var a = a.name.toLowerCase();
+         var b = b.name.toLowerCase();
+         if (a < b) {
+            return (order); 
+        } else if (a > b) {
+            return (-order);
+        } else {
+            return (0);
+        }
+    });
     var $table = $('#xcTable' + tableNum);
-    $table.width(0);
-    var matchAllHeaders = true;
-    matchHeaderSizes(null, $table, matchAllHeaders);
+    var numCols = tableCols.length;
+    var $rows = $table.find('tbody tr');
+    var numRows = $rows.length;
+    // loop through each column
+    for (var i = 0; i < numCols; i++) {
+        var oldColIndex = tableCols[i].index;
+        var newColIndex = i + 1;
+        var $thToMove = $table.find('th.col' + oldColIndex);
+        $thToMove.find('.col' + oldColIndex).removeClass('col' + oldColIndex)
+                                            .addClass('col' + newColIndex);
+        var oldPos = $thToMove.index();
+        $table.find('th').eq(i).after($thToMove);
+        // loop through each row and order each td
+        for (var j = 0; j < numRows; j++) {
+            var $row = $rows.eq(j);
+            var $tdToMove = $row.find('td').eq(oldPos);
+            $tdToMove.removeClass('col' + oldColIndex)
+                     .addClass('col' + newColIndex);
+            $row.find('td').eq(i).after($tdToMove);
+        }
+    }
+
+    // correct gTable tableCols index and th col class number
+    var $ths = $table.find('th');
+    for (var i = 0; i < numCols; i++) {
+        var oldColIndex = tableCols[i].index;
+        var newIndex = i + 1;
+        $ths.eq(newIndex).removeClass('col' + oldColIndex)
+                                   .addClass('col' + newIndex);
+        tableCols[i].index = newIndex;
+    }
+
+    RightSideBar.updateTableInfo(gTables[tableNum]);
 }
 
 function renameTableHead($input) {
