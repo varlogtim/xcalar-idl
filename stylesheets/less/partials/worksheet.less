@@ -442,6 +442,9 @@
                             left: 0px !important;
                         }
                     }
+                    &:not(:first-child) {
+                        display: none;
+                    }
                 }
             }
 
@@ -450,6 +453,10 @@
                 border-color: @color-table-lightGray !important;
             }
 
+            td:not(:first-child) {
+                display: none;
+            }
+            
             .idWrap {
                 overflow: hidden;
                 pointer-events: none;
