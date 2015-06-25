@@ -631,7 +631,6 @@ function xcalarListDatasets(thriftHandle) {
 
 function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
     var deferred = jQuery.Deferred();
-
     console.log("xcalarMakeResultSetFromTable(tableName = " + tableName + ")");
 
     var workItem = new XcalarApiWorkItemT();

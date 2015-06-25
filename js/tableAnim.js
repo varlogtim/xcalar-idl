@@ -1600,7 +1600,8 @@ function addColMenuActions($colMenu) {
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
 
         var colName = gTables[tableNum].tableCols[colNum - 1].func.args[0];
-        var colVal  = $td.find(".addedBarText").text();
+        var colVal  = $td.find(".addedBarTextWrap").text();
+        console.info(colVal)
 
         if ($header.hasClass("type-integer")) {
             colVal = parseInt(colVal);

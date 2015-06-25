@@ -576,14 +576,33 @@ input {
 
     .textAlignLeft {
         text-align: left !important;
+        .elementText {
+            text-align: left;
+        }
+        .flexContainer {
+            .justify-content(flex-start);
+        }
+
     }
 
     .textAlignRight {
         text-align: right !important;
+        .elementText {
+            text-align: right;
+        }
+        .flexContainer {
+            .justify-content(flex-end);
+        }
     }
 
     .textAlignCenter {
         text-align: center !important;
+        .elementText {
+            text-align: center;
+        }
+        .flexContainer {
+            .justify-content(center);
+        }
     }
 
     .elementText{ 
@@ -592,7 +611,7 @@ input {
         white-space: normal;
     }
 
-    .elementTextWrap, .addedBarTextWrap {
+    .elementTextWrap {
         max-height: 16px;
         overflow: hidden;
     }

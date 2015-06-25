@@ -422,7 +422,10 @@ window.ColManager = (function($, ColManager) {
         }
 
         $table.find("td.col" + colNum).width(10);
-        $cols.find(".dropdownBox").css("right", "-6px");
+        // $cols.find(".dropdownBox").css("right", "-6px");
+        //  hide the dropdown icon
+        // $cols.find(".dropdownBox").css("right", "-10px");
+        $cols.find(".dropdownBox").hide();
 
         matchHeaderSizes(colNum, $table);
     };
@@ -447,7 +450,9 @@ window.ColManager = (function($, ColManager) {
         }
 
         $thInput.css("padding-left", "4px");
-        $cols.find(".dropdownBox").css("right", "-3px");
+        // unhide dropdown icon
+        // $cols.find(".dropdownBox").css("right", "-1px");
+        $cols.find(".dropdownBox").show();
 
     };
 
@@ -703,7 +708,7 @@ window.ColManager = (function($, ColManager) {
                 columnType !== "integer")
             {
                 $tBody.find("td.col" + (i + 1))
-                        .find(".dropdownWrapper").remove();
+                        .find(".dropdownBox").remove();
             }
 
             if (tableCols[i].name === "recordNum") {
@@ -826,7 +831,7 @@ window.ColManager = (function($, ColManager) {
             columnType !== "integer")
         {
             $table.find("tbody td.col" + newColid)
-                   .find(".dropdownWrapper").remove();
+                   .find(".dropdownBox").remove();
         }
 
         if (key === "recordNum") {
@@ -934,18 +939,9 @@ window.ColManager = (function($, ColManager) {
 
     function getTableCellHtml(value) {
         var html =
-            '<div class="flexContainer">' +
-                '<div class="flex-mid addedBarTextWrap">' +
-                    '<div class="addedBarText">' + value + '</div>' +
-                '</div>' +
-                '<div class="flex-right dropdownWrapper">' +
-                    '<div class="dropdownBox" ' +
-                        'data-toggle="tooltip" ' +
-                        'data-placement="bottom" ' +
-                        'data-container="body" ' +
-                        'title="view column options">' +
-                        '<div class="innerBox"></div>' +
-                    '</div>' +
+            '<div class="flexContainer addedBarTextWrap">' +
+                value +   
+                '<div class="flex-right dropdownBox">' +
                 '</div>' +
             '</div>';
         return (html);
