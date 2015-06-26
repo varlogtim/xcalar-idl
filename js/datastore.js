@@ -763,17 +763,31 @@ window.DataCart = (function($, DataCart) {
     };
 
     // add column to cart
-    DataCart.addItem = function(dsName, $colInput) {
-        var colNum = xcHelper.parseColNum($colInput);
-        var val    = $colInput.val();
-        var $li    = appendCartItem(dsName, dsName, colNum, val);
+    DataCart.addItem = function(dsName, colInputs) {
+        if (!(colInputs instanceof Array)) {
+            colInputs = [colInputs];
+        }
+        var cart = filterCarts(dsName);
+        var $colInput;
+        var colNum;
+        var val;
+        var $li;
+
+        for (var i = 0, len = colInputs.length; i < len; i++) {
+            $colInput = colInputs[i];
+            colNum = xcHelper.parseColNum($colInput);
+            val = $colInput.val();
+            $li = appendCartItem(dsName, dsName, colNum, val);
+
+            cart.items.push({"colNum": colNum, "value": val});
+        }
 
         $cartArea.find(".colSelected").removeClass("colSelected");
-        $li.addClass("colSelected"); // focus on this li
+        $li.addClass("colSelected"); // focus on last li
 
-        var cart = filterCarts(dsName);
-
-        cart.items.push({"colNum": colNum, "value": val});
+        setTimeout(function() {
+            overflowShadow();
+        }, 10);
         refreshCart();
     };
 
@@ -811,6 +825,8 @@ window.DataCart = (function($, DataCart) {
                 appendCartItem(dsName, tableName, item.colNum, item.value);
             });
         });
+
+        overflowShadow();
 
         refreshCart();
     };
@@ -877,9 +893,6 @@ window.DataCart = (function($, DataCart) {
                     '</li>');
 
         $cart.find("ul").append($li);
-        overflowShadow();
-
-        
 
         return ($li);
     }
@@ -1308,12 +1321,17 @@ window.DataSampleTable = (function($, DataSampleTable) {
     function setupSampleTable() {
         // select all columns
         $("#selectDSCols").click(function() {
+            var inputs = [];
+            var dsName = $("#worksheetTable").data("dsname");
+
             $("#worksheetTable .editableHead").each(function() {
                 var $input = $(this);
                 if (!$input.closest(".header").hasClass("colAdded")) {
-                    selectColumn($input, SelectUnit.All);
+                   inputs.push($input);
+                   highlightColumn($input);
                 }
             });
+            DataCart.addItem(dsName, inputs);
         });
         // clear all columns
         $("#clearDsCols").click(function() {
@@ -1383,6 +1401,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             DataCart.addItem(dsName, $input);
         }
     }
+
     // re-selecte columns that are in data carts
     function restoreSelectedColumns() {
         var $table = $("#worksheetTable");
