@@ -486,7 +486,6 @@ window.RightSideBar = (function($, RightSideBar) {
                         // clearance
                         $inputFile.val("");
                         $filePath.val("");
-                        UDF.set(moduleName, functionName);
                         commitToStorage();
                         uploadSuccess();
                     })
@@ -588,17 +587,16 @@ window.RightSideBar = (function($, RightSideBar) {
                 $fnName.val("");
                 $template.val("");
                 $downloadBtn.addClass("hidden");
-                UDF.set(moduleName, functionName);
                 commitToStorage();
                 uploadSuccess();
             });
         });
         /* end of upload written function section */
 
-        multiJonUDFUpload();
+        multiJoinUDFUpload();
     }
 
-    function multiJonUDFUpload() {
+    function multiJoinUDFUpload() {
         var moduleName = "multiJoinModule";
         var functionName = "multiJoin";
         var entireString =
@@ -919,92 +917,4 @@ window.HelpController = (function($, HelpController){
 
     return (HelpController);
 
-}(jQuery, {}));
-
-// module for UDF
-window.UDF = (function($, UDF) {
-     // Temporary Obj to store UDF
-    // structure: {"moduleName": [func1, func2...]};
-    var UDFLookup = {};
-    var testMode = false; // For testing
-
-    UDF.get = function() {
-        return (UDFLookup);
-    };
-
-    UDF.set = function(moduleName, functionName) {
-        UDFLookup[moduleName] = UDFLookup[moduleName] || [];
-        UDFLookup[moduleName].push(functionName);
-    };
-    
-    UDF.restore = function(oldUDFS) {
-        UDFLookup = oldUDFS;
-
-        // for test
-        if (testMode) {
-            UDFLookup = {
-                "module1": ["function1", "function2", "function3",
-                            "function4", "function5"],
-                "modlue2": ["func1", "func2"]
-            };
-        }
-    };
-
-    UDF.getDropdownList = function($moduleList, $funcList) {
-        var moduleList = "";
-        var funcList   = "";
-        var udfs       = UDFLookup;
-
-        for (var module in udfs) {
-            moduleList += '<li class="openli textNoCap">' + module + '</li>';
-            udfs[module].forEach(function(func) {
-                funcList += '<li data-module="' + module + '" ' +
-                             'class="textNoCap">' +
-                                func + "()" +
-                            '</li>';
-            });
-        }
-        $moduleList.find(".list").html(moduleList);
-        $funcList.find(".list").html(funcList);
-        // choose first li
-        $moduleList.find(".list li:first-child").click();
-    };
-
-    UDF.dropdownEvent = function($moduleList, $funcList, container) {
-        xcHelper.dropdownList($moduleList, {
-            "onSelect": function($li) {
-                var module = $li.text();
-
-                $moduleList.find(".text").val(module);
-                // refresh function list
-                var isFirst = true;
-                $funcList.find(".list li").each(function() {
-                    var $curli = $(this);
-
-                    if ($curli.data("module") === module) {
-                        $curli.show().addClass("openli");
-                        if (isFirst) {
-                            $curli.click();
-                            // default is to choose first one
-                            isFirst = false;
-                        }
-                    } else {
-                        $curli.hide().removeClass("openli");
-                    }
-                });
-            },
-            "container"    : container,
-            "onlyClickIcon": true
-        });
-
-        xcHelper.dropdownList($funcList, {
-            "onSelect": function($li) {
-                $funcList.find(".text").val($li.text());
-            },
-            "container"    : container,
-            "onlyClickIcon": true
-        });
-    };
-
-    return (UDF);
 }(jQuery, {}));

@@ -187,21 +187,10 @@ window.OperationsModal = (function($, OperationsModal) {
         var argumentTimer;
         $operationsModal.on('input', '.argument', function() {
             var $input = $(this);
-            // udf section should not enable suggest
-            if ($input.closest(".udfSection").length > 0) {
-                return;
-            }
             clearTimeout(argumentTimer);
             argumentTimer = setTimeout(function() {
                 argSuggest($input);
             }, 300);
-        });
-
-        $operationsModal.on('focus', '.udfSection .argument', function() {
-            var $udfSection = $(this).closest(".udfSection");
-
-            $udfSection.removeClass("open")
-                        .find(".list").removeClass("openList").hide();
         });
 
         $operationsModal.on('click', '.hint li', function() {
@@ -278,11 +267,6 @@ window.OperationsModal = (function($, OperationsModal) {
         .done(function(listXdfsObj) {
             setupOperatorsMap(listXdfsObj.fnDescs);
         });
-
-        // XXX Cheng for udf dropdown list
-        UDF.dropdownEvent($("#agrTable-udfModule").find(".listSection"),
-                          $("#agrTable-udfFunc").find(".listSection"),
-                          "#operationsModal");
     };
 
     OperationsModal.show = function(newTableNum, newColNum, operator) {
@@ -399,7 +383,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var categoryName;
 
         if (operator === "map") {
-            for (var i = 0; i < operatorsMap.length; i++) {
+            for (var i = 0; i < Object.keys(operatorsMap).length; i++) {
                 if (FunctionCategoryTStr[i] === 'Aggregate functions') {
                     continue;
                 }
@@ -438,23 +422,6 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             operatorsMap[opArray[i].category].push(opArray[i]);
         }
-        var i = 0;
-        for (var category in FunctionCategoryT) {
-            var custom = {
-                "category"  : i,
-                "fnDesc"    : "Enter a user defined function",
-                "fnName"    : "udf",
-                "numArgs"   : 2,
-                "outputType": -1,
-                "argDescs"  : [{'argDesc': 'Module Name'},
-                               {'argDesc': 'Function String'}]
-            };
-
-            operatorsMap[i].push(custom);
-
-            i++;
-        }
-        operatorsMap.length = i;
     }
 
     function sortHTML(a, b){
@@ -734,23 +701,6 @@ window.OperationsModal = (function($, OperationsModal) {
             var numArgs = operObj.numArgs;
             var $tbody = $operationsModal.find('.argumentTable tbody');
 
-            var $moduleRow = $("#agrTable-udfModule");
-            var $funcRow   = $("#agrTable-udfFunc");
-            // specifically for udf section
-            if (func === "udf") {
-                // make module row and func row as first row and second row
-                $tbody.prepend($funcRow ).prepend($moduleRow);
-                UDF.getDropdownList($moduleRow.find(".listSection"),
-                                    $funcRow.find(".listSection"));
-                // XXX Cheng handle dropdown list overflow issue
-                $operationsModal.find(".tableContainer")
-                                    .addClass("udfMode");
-            } else {
-                $tbody.append($moduleRow).append($funcRow);
-                $operationsModal.find(".tableContainer")
-                                    .removeClass("udfMode");
-            }
-
             // as rows order may change, update it here
             var $rows = $tbody.find('tr');
             $rows.show();
@@ -758,14 +708,10 @@ window.OperationsModal = (function($, OperationsModal) {
             var description;
             for (var i = 0; i < operObj.numArgs; i++) {
                 description = operObj.argDescs[i].argDesc;
-
-                if (func !== "udf") {
-                    
-                    if (i === 0) {
-                        $rows.eq(i).find('input').val(defaultValue);
-                    } else {
-                        $rows.eq(i).find('input').val("");
-                    }
+                if (i === 0) {
+                    $rows.eq(i).find('input').val(defaultValue);
+                } else {
+                    $rows.eq(i).find('input').val("");
                 }
                 $rows.eq(i).find('.description').text(description);
             }
@@ -866,9 +812,6 @@ window.OperationsModal = (function($, OperationsModal) {
                                             operatorName === "group by")) {
                 arg = arg.replace(/["']/g, '');
                 arg = arg.replace(/\$/g, '');
-            } else if ($(this).closest('.udfSection').length !== 0) {
-                arg = arg.replace(/["']/g, '');
-                arg = arg.replace(/\$/g, '');
             } else {
                 arg = formatArgumentInput(arg, colType);
             }
@@ -915,22 +858,16 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function aggregate(aggrOp, args) {
         
-        if (aggrOp === "Udf") {
-            Alert.error("Aggregate Failed",
-                        "UDF currently not available for aggregates");
-            return (false);
-        } else {
-            var colIndex = -1;
-            var columns = gTables[tableNum].tableCols;
-            var numCols = columns.length;
-            var frontColName = args[0];
-            var backColName = frontColName;
-            for (var i = 0; i < numCols; i++) {
-                if (columns[i].name === frontColName) {
-                    if (columns[i].func.args) {
-                        backColName = columns[i].func.args[0];
-                        colIndex = i;
-                    }
+        var colIndex = -1;
+        var columns = gTables[tableNum].tableCols;
+        var numCols = columns.length;
+        var frontColName = args[0];
+        var backColName = frontColName;
+        for (var i = 0; i < numCols; i++) {
+            if (columns[i].name === frontColName) {
+                if (columns[i].func.args) {
+                    backColName = columns[i].func.args[0];
+                    colIndex = i;
                 }
             }
         }
@@ -943,37 +880,24 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var options = {};
         var colIndex = colNum;
-        if (operator === "udf") {
-            // args[1] is in the form of fnCall(arg1, arg2, ...) and I need to
-            // break it into "fnCall", arg1, arg2, arg3
-            var regex = new RegExp('(.*)[(](.*)[)]', "g");
-            var match = regex.exec(args[1]);
-            var funcName = match[1];
-            var argums = match[2];
-            var fltStr = "filter(pyExec(\"" + args[0] + "\",\"";
-            fltStr += funcName + "\",";
-            fltStr += argums + "))";
-            options = {"filterString": fltStr};
-        } else {
-            if (operator !== 'not') {
-                var frontName = args[0];
-                var backName = frontName;
-                var columns = gTables[tableNum].tableCols;
-                var numCols = columns.length;
-                for (var i = 0; i < numCols; i++) {
-                    if (columns[i].name === frontName) {
-                        if (columns[i].func.args) {
-                            backName = columns[i].func.args[0];
-                            colIndex = i;
-                        }
+        if (operator !== 'not') {
+            var frontName = args[0];
+            var backName = frontName;
+            var columns = gTables[tableNum].tableCols;
+            var numCols = columns.length;
+            for (var i = 0; i < numCols; i++) {
+                if (columns[i].name === frontName) {
+                    if (columns[i].func.args) {
+                        backName = columns[i].func.args[0];
+                        colIndex = i;
                     }
                 }
-                args[0] = backName;
             }
-            var colType = $operationsModal.data('coltype');
-            var filterString = formulateFilterString(operator, args); 
-            options = {"filterString" : filterString};
+            args[0] = backName;
         }
+        var colType = $operationsModal.data('coltype');
+        var filterString = formulateFilterString(operator, args); 
+        options = {"filterString" : filterString};
 
         xcFunction.filter(colIndex, tableNum, options)
         .then(function() {
@@ -1042,20 +966,7 @@ window.OperationsModal = (function($, OperationsModal) {
         args[0] = firstValue;
         var mapStr = "";
 
-        if (operator.toLowerCase() === "udf") {
-            var moduleName = firstValue;
-            var funcString = args[1];
-            var regex = new RegExp('(.*)[(](.*)[)]', "g");
-            var match = regex.exec(funcString);
-            var funcName = match[1];
-            var argums = match[2];
-
-            mapStr = "=map(pyExec(\"" + moduleName + "\",\"";
-            mapStr += funcName + "\",";
-            mapStr += argums + "))";
-        } else {
-            mapStr = formulateMapString(operator, args);
-        }
+        mapStr = formulateMapString(operator, args);
 
         xcFunction.map(colNum, tableNum, newColName, mapStr);
 
@@ -1184,19 +1095,6 @@ window.OperationsModal = (function($, OperationsModal) {
     function insertText($input, textToInsert) {
         var value = $input.val();
         textToInsert = "$" + textToInsert;
-        // for udf section
-        if ($input.closest(".listSection").hasClass("udfSection")) {
-            var bracketIndex = value.lastIndexOf(")");
-            if (bracketIndex >= 1) {
-                var stringBeforeBracket = value.substring(0, bracketIndex);
-                if (value.charAt(bracketIndex - 1) === '(') {
-                    $input.val(stringBeforeBracket + textToInsert + ')');
-                } else {
-                    $input.val(stringBeforeBracket + ', ' + textToInsert + ')');
-                }
-            }
-            return;
-        }
        
         var firstBracketIndex = value.lastIndexOf("(");
         var lastBracketIndex = value.indexOf(")");

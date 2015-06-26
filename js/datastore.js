@@ -119,9 +119,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
             if ($udfArgs.hasClass("hidden")) {
                 $checkbox.addClass("checked");
                 $udfArgs.removeClass("hidden").slideDown(200);
-                // trigger it event click to make it in update
-                UDF.getDropdownList($("#udfArgs-moduleList"),
-                                $("#udfArgs-funcList"));
             } else {
                 $checkbox.removeClass("checked");
                 $udfArgs.addClass("hidden").slideUp(200);
@@ -324,8 +321,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $fileName.focus();
         }
 
-        UDF.dropdownEvent($("#udfArgs-moduleList"), $("#udfArgs-funcList"),
-                          "#importDataView");
     };
 
     function delimiterTranslate($input) {
