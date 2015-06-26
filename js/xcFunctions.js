@@ -214,8 +214,6 @@ window.xcFunction = (function ($, xcFunction) {
                                 leftRemoved, rightRemoved)
     {
         var deferred = jQuery.Deferred();
-        // var isLeft   = true;
-        // var isRight  = false;
         var joinType = joinLookUp[joinStr];
 
         if (joinType == null) {
@@ -243,28 +241,26 @@ window.xcFunction = (function ($, xcFunction) {
 
         var leftSrcName;
         var rightSrcName;
-        var newTableCols = createJoinedColumns(leftTable, rightTable,
-                                                leftRemoved, rightRemoved);
 
-        var msg = StatusMessageTStr.Join;
         var leftTableResult;
         var rightTableResult;
 
+        var msg = StatusMessageTStr.Join;
+
         StatusMessage.show(msg);
-        WSManager.addTable(newTableName);
         showWaitCursor();
 
+        WSManager.addTable(newTableName);
         // check left table index
-        jQuery.when(checkJoinTableIndex(leftColName, leftTable, leftTableNum),
-                    checkJoinTableIndex(rightColName, rightTable, rightTableNum)
-        )
+        parallelIndex(leftColName, leftTableNum, rightColName, rightTableNum)
         .then(function(leftResult, rightResult) {
             leftTableResult = leftResult;
             leftSrcName = leftResult.tableName;
 
             rightTableResult = rightResult;
             rightSrcName = rightResult.tableName;
-
+            // checkJoinTable index only created backend table,
+            // here we get the info to set the indexed table as hidden table
             return setIndexedTableMeta(leftTableResult.tableName,
                                         leftTableResult.previousTableName);
         })
@@ -276,11 +272,12 @@ window.xcFunction = (function ($, xcFunction) {
         .then(function(result) {
             rightTableResult = result;
             // join indexed table
-            // console.log(leftSrcName, rightSrcName);
             return (XcalarJoin(leftSrcName, rightSrcName,
                                 newTableName, joinType));
         })
         .then(function() {
+            var newTableCols = createJoinedColumns(leftTable, rightTable,
+                                                    leftRemoved, rightRemoved);
             setIndex(newTableName, newTableCols);
 
             return (refreshTable(newTableName, leftTableNum,
@@ -318,10 +315,7 @@ window.xcFunction = (function ($, xcFunction) {
             .then(function() {
                 renameTableJoinFailure(rightTableNum, rightTableResult);
             })
-            .then(function() {
-                deferred.reject(error);
-            })
-            .fail(function() {
+            .always(function() {
                 deferred.reject(error);
             });
         })
@@ -597,9 +591,10 @@ window.xcFunction = (function ($, xcFunction) {
     }
 
     // For xcFunction.join, check if table has correct index
-    function checkJoinTableIndex(colName, table, tableNum) {
+    function checkJoinTableIndex(colName, tableNum) {
         var deferred = jQuery.Deferred();
 
+        var table = gTables[tableNum];
         var tableName = table.tableName;
         var oldTableName;
 
@@ -640,12 +635,11 @@ window.xcFunction = (function ($, xcFunction) {
                 return (innerDeferred.promise());
             })
             .then(function() {
-                SQL.add("Index From Dataset", {
-                "operation"   : "index",
-                "key"         : colName,
-                "newTableName": tableName,
-                "dsName"      : tableName.substring(0,
-                                 tableName.length - 6)
+                SQL.add("Index Table", {
+                    "operation"   : "index",
+                    "key"         : colName,
+                    "tableName"   : oldTableName,
+                    "newTableName": tableName
                 });
 
                 deferred.resolve({
@@ -669,6 +663,146 @@ window.xcFunction = (function ($, xcFunction) {
         return (deferred.promise());
     }
 
+    function parallelIndex(leftColName, leftTableNum, rightColName, rightTableNum) {
+        var deferred = jQuery.Deferred();
+
+        var deferred1 = checkJoinTableIndex(leftColName, leftTableNum);
+        var deferred2 = checkJoinTableIndex(rightColName, rightTableNum);
+
+        var status1 = status2 = "waiting";
+        var leftResult, rightResult;
+        var leftError, rightError;
+
+        deferred1
+        .then(function(res) {
+            status1 = "done";
+            leftResult = res;
+
+            switch (status2) {
+                case "done":
+                    // when both done
+                    deferred.resolve(leftResult, rightResult);
+                    break;
+                case "waiting":
+                    // when deferred2 not finish, wait for it
+                    break;
+                case "fail":
+                    // when deferred2 already fail, delete this table:
+                    XcalarDeleteTable(res.tableName)
+                    .then(function() {
+                        return xcFunction.rename(leftTableNum,
+                                                 res.previousTableName,
+                                                 res.tableName);
+                    })
+                    .always(function() {
+                        console.error("Parrel index fails in rightTable",
+                                      rightError);
+                        deferred.reject(rightError);
+                    });
+                default:
+                    console.error("Wrong Status!");
+                    break;
+            }
+        })
+        .fail(function(error) {
+            status1 = "fail";
+            leftError = error;
+
+            switch (status2) {
+                case "done":
+                    // when deferred2 done, delete right table
+                    XcalarDeleteTable(rightResult.tableName)
+                    .then(function() {
+                        return xcFunction.rename(rightTableNum,
+                                                 rightResult.previousTableName,
+                                                 rightResult.tableName);
+                    })
+                    .always(function() {
+                        console.error("Parrel index fails in leftTable", error);
+                        deferred.reject(error);
+                    });
+                    break;
+                case "waiting":
+                    // when deferred2 not finish, wait for it
+                    break;
+                case "fail":
+                    // both fail
+                    console.error("Parrel index all fails",
+                                    leftError, rightError);
+                    deferred.reject(leftError, rightError);
+                default:
+                    console.error("Wrong Status!");
+                    break;
+            }
+        });
+
+        deferred2
+        .then(function(res) {
+            status2 = "done";
+            rightResult = res;
+
+            switch (status1) {
+                case "done":
+                    // when both done
+                    deferred.resolve(leftResult, rightResult);
+                    break;
+                case "waiting":
+                    // when deferred1 not finish, wait for it
+                    break;
+                case "fail":
+                    // when deferred2 already fail:
+                    XcalarDeleteTable(res.tableName)
+                    .then(function() {
+                        return xcFunction.rename(rightTableNum,
+                                                 res.previousTableName,
+                                                 res.tableName);
+                    })
+                    .always(function() {
+                        console.error("Parrel index fails in leftTable",
+                                      leftError);
+                        deferred.reject(leftError);
+                    });
+                    break;
+                default:
+                    console.error("Wrong Status!");
+                    break;
+            }
+        })
+        .fail(function(error) {
+            status2 = "fail";
+            rightError = error;
+
+            switch (status1) {
+                case "done":
+                    // when deferred1 done, delete left table
+                    XcalarDeleteTable(leftResult.tableName)
+                    .then(function() {
+                        return xcFunction.rename(leftTableNum,
+                                                 leftResult.previousTableName,
+                                                 leftResult.tableName);
+                    })
+                    .always(function() {
+                        console.error("Parrel index fails in rightTable", error);
+                        deferred.reject(error);
+                    });
+                case "waiting":
+                    // when deferred1 not finish, wait for it
+                    break;
+                case "fail":
+                    // both fail
+                    console.error("Parrel index all fails",
+                                    leftError, rightError);
+                    deferred.reject(leftError, rightError);
+                    break;
+                default:
+                    console.error("Wrong Status!");
+                    break;
+            }
+        })
+
+        return (deferred.promise());
+    }
+
     function setIndexedTableMeta(tableName, oldTableName) {
         var deferred = jQuery.Deferred();
 
@@ -686,7 +820,6 @@ window.xcFunction = (function ($, xcFunction) {
             });
         })
         .fail(function(error) {
-            console.error("Setup Indexed Table in join fails", error);
             deferred.reject(error);
         });
 
@@ -732,6 +865,7 @@ window.xcFunction = (function ($, xcFunction) {
         // now newTablCols.length is differenet from len
         dataCol.index = newTableCols.length + 1;
         newTableCols.push(dataCol);
+
         return (newTableCols);
     }
 
@@ -740,10 +874,14 @@ window.xcFunction = (function ($, xcFunction) {
     // to delete the new table and rename the old one back
     function renameTableJoinFailure(tableNum, result) {
         var deferred = jQuery.Deferred();
+
+        result = result || {};
+        // when no new table created
         if (!result.newTableCreated) {
             deferred.resolve();
             return (deferred.promise());
         }
+
         var tableName = result.tableName;
         var previousTableName = result.previousTableName;
 
@@ -757,20 +895,15 @@ window.xcFunction = (function ($, xcFunction) {
             .then(function() {
                 return (xcFunction.rename(tableNum, previousTableName, tableName));
             })
-            .then(function() {
-                deferred.resolve();
-            })
-            .fail(function(error) {
-                deferred.reject(error);
-            });
+            .then(deferred.resolve)
+            .fail(deferred.reject);
         } else {
-            xcFunction.rename(tableNum, previousTableName, tableName)
+            XcalarDeleteTable(tableName)
             .then(function() {
-                deferred.resolve();
+                return xcFunction.rename(tableNum, previousTableName, tableName);
             })
-            .fail(function(error) {
-                deferred.reject(error);
-            });
+            .then(deferred.resolve)
+            .fail(deferred.reject);
         }
 
         return (deferred.promise());

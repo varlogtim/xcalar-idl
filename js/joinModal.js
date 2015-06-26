@@ -371,6 +371,8 @@ window.JoinModal = (function($, JoinModal) {
         .always(resetJoinTables);
 
         function mapHelper(str, $col) {
+            // XXX map function should handle the failure case,
+            // so here no handling of the failure
             $("#fnBar").val(str);
             return (functionBarEnter($col));
         }
