@@ -80,8 +80,8 @@ function refreshTable(newTableName, tableNum,
 // Adds a table to the display
 // Shifts all the ids and everything
 function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
-    var deferred  = jQuery.Deferred();
-    var wsIndex  = WSManager.getActiveWS(); // default ws if no other specified
+    var deferred = jQuery.Deferred();
+    var wsIndex  = WSManager.addTable(tableName);
 
     reorderTables(tableNum);
 
@@ -89,47 +89,55 @@ function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
     .then(function(newTableMeta) {
         gTables[tableNum] = newTableMeta;
 
-        return (startBuildTable(tableNum, tableNumsToRemove));
+        return (parallelConstruct());
     })
     .then(function() {
-        // not have the flick, must refresh immediately after create table
-        wsIndex = WSManager.addTable(tableName, wsIndex);
-        $("#xcTableWrap" + tableNum).addClass("worksheet-" + wsIndex);
-        WSManager.focusOnWorksheet();
-
-        if (gTables[tableNum].resultSetCount !== 0) {
-            infScrolling(tableNum);
-        }
-
-        resizeRowInput();
-
-        return (Dag.construct(gTables[tableNum].tableName, tableNum));
-    })
-    .then(function() {
-        // refresh dag
-        $("#dagWrap" + tableNum).addClass("worksheet-" + wsIndex);
-        WSManager.focusOnWorksheet();
-
-        if ($('#mainFrame').hasClass('empty')) {
-            // first time to create table
-            $('#mainFrame').removeClass('empty');
-            documentReadyxcTableFunction();
-        }
-        if (AfterStartup) {
-            RightSideBar.addTables([gTables[tableNum]], IsActive.Active);
-        }
-        if ($('.xcTable').length === 1) {
-            focusTable(tableNum);
-        }
-
         deferred.resolve();
     })
     .fail(function(error) {
+        WSManager.removeTable(tableName);
         console.error("Add Table Fails!", error);
         deferred.reject(error);
     });
 
     return (deferred.promise());
+
+    function parallelConstruct() {
+        var deferred  = jQuery.Deferred();
+        var deferred1 = startBuildTable(tableNum, tableNumsToRemove);
+        var deferred2 = Dag.construct(gTables[tableNum].tableName, tableNum);
+
+        jQuery.when(deferred1, deferred2)
+        .then(function() {
+            $("#xcTableWrap" + tableNum).addClass("worksheet-" + wsIndex);
+            $("#dagWrap" + tableNum).addClass("worksheet-" + wsIndex);
+
+            WSManager.focusOnWorksheet();
+
+            if (gTables[tableNum].resultSetCount !== 0) {
+                infScrolling(tableNum);
+            }
+
+            resizeRowInput();
+
+            if ($('#mainFrame').hasClass('empty')) {
+                // first time to create table
+                $('#mainFrame').removeClass('empty');
+                documentReadyxcTableFunction();
+            }
+            if (AfterStartup) {
+                RightSideBar.addTables([gTables[tableNum]], IsActive.Active);
+            }
+            if ($('.xcTable').length === 1) {
+                focusTable(tableNum);
+            }
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
 }
 
 // Removes a table from the display

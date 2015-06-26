@@ -1124,6 +1124,9 @@ window.DataCart = (function($, DataCart) {
                 sqlOptions.col.push("DATA");
 
                 var tableProperties = {bookmarks: [], rowHeights: {}};
+
+                WSManager.addTable(tableName);
+
                 XcalarIndexFromDataset(datasetName, "recordNum", tableName)
                 .then(function() {
                     setIndex(tableName, newTableCols, datasetName, tableProperties);
@@ -1136,6 +1139,7 @@ window.DataCart = (function($, DataCart) {
                     innerDeferred.resolve();
                 })
                 .fail(function(error) {
+                    WSManager.removeTable(tableName);
                     StatusMessage.fail(StatusMessageTStr.TableCreationFailed, msg);
                     innerDeferred.reject(error);
                 });

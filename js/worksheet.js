@@ -134,13 +134,13 @@ window.WSManager = (function($, WSManager) {
      * @param {number} [wsIndex=activeWorksheet] The worksheet's index
      */
     WSManager.addTable = function(tableName, wsIndex) {
-        if (wsIndex == null) {
-            wsIndex = activeWorsheet;
-        }
-
         if (tableName in wsIndexLookUp) {
             return (wsIndexLookUp[tableName]);
         } else {
+            if (wsIndex == null) {
+                wsIndex = activeWorsheet;
+            }
+
             setWorksheet(wsIndex, {"tables": tableName});
             return (wsIndex);
         }
