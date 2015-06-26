@@ -1325,7 +1325,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         });
 
         // click to select a column
-        $tableWrap.on("click", ".header", function(event) {
+        $tableWrap.on("click", ".header > .flexContainer", function(event) {
             var $input = $(this).find('.editableHead');
             var $table = $("#worksheetTable");
 
