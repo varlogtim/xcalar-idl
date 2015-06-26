@@ -53,6 +53,7 @@ function infScrolling(tableNum) {
         }
 
         $(".colMenu:visible").hide();
+        $('#highlightBox').remove();
 
         var dynTableNum = parseInt($(this).attr("id")
                            .substring("xcTbodyWrap".length));
@@ -476,6 +477,7 @@ function documentReadyGeneralFunction() {
         var clickable = $target.closest('.colMenu').length > 0;
         if (!clickable && $target.closest('.dropdownBox').length === 0) {
             $('.colMenu').hide();
+            $('#highlightBox').remove();
             $('body').removeClass('noSelection');
         }
 

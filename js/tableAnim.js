@@ -1305,10 +1305,12 @@ function addColListeners($table, tableNum) {
     });
 
     //listeners on tbody
-    $tbody.on("mousedown", "td .addedBarTextWrap.clickable", function(event) {
-        var $el = $(this);
-        var $td = $el.closest("td");
-
+    $tbody.on("mousedown", "td", function(event) {
+        var $td = $(this);
+        if (event.which !== 1 || $td.children('.clickable').length === 0) {
+            return;
+        }
+        var $el = $td.children('.clickable');
         var colNum = xcHelper.parseColNum($td);
         var rowNum = xcHelper.parseRowNum($td.closest("tr"));
 
@@ -1316,17 +1318,39 @@ function addColListeners($table, tableNum) {
 
         $(".tooltip").hide();
         resetColMenuInputs($el);
+        
 
         dropdownClick($el, {
             "type"   : "tdDropdown",
             "colNum" : colNum,
             "rowNum" : rowNum,
-            "classes": "tdMenu" // specify classes to update colmenu's class attr
+            "classes": "tdMenu", // specify classes to update colmenu's class attr
+            "mouseCoors" : {x: event.pageX, y: event.pageY}
         });
+        highlightCell($td);
     });
 
     addColMenuBehaviors($colMenu);
     addColMenuActions($colMenu);
+}
+
+function highlightCell($td) {
+    // draws a new div positioned where the cell is, intead of highlighting
+    // the actual cell
+    var border = 5;
+    var width = $td.outerWidth() - border;
+    var height = $td.outerHeight();
+    var left = $td.offset().left;
+    var top = $td.offset().top;
+    var styling = 'width:' + width + 'px;' +
+                  'height:' + height + 'px;' +
+                  'left:' + left + 'px;' +
+                  'top:' + top + 'px;';
+    var highlightBox = '<div id="highlightBox" class="highlightBox" ' +
+                            'style="' + styling + '">' +
+                        '</div>';
+    $td.append(highlightBox);
+    $('#highlightBox').mousedown(function(){$('.highlightBox').remove()});
 }
 
 function addColMenuBehaviors($colMenu) {
@@ -1768,6 +1792,7 @@ function dropdownClick($el, options) {
     }
 
     $(".colMenu:visible").hide();
+    $('#highlightBox').remove();
     $(".leftColMenu").removeClass("leftColMenu");
     // case that should open the menu (note that colNum = 0 may make it false!)
     if (options.colNum != null && options.colNum > -1) {
@@ -1788,11 +1813,18 @@ function dropdownClick($el, options) {
     }
 
     //position menu
-    var topMargin  = options.type === "tdDropdown" ? 2 : -4;
+    var topMargin  = options.type === "tdDropdown" ? 15 : -4;
     var leftMargin = 5;
 
-    var top  = $el[0].getBoundingClientRect().bottom + topMargin;
-    var left = $el[0].getBoundingClientRect().left + leftMargin;
+    if (options.mouseCoors) {
+        var left = options.mouseCoors.x - 5;
+        var top = options.mouseCoors.y + topMargin;
+    } else {
+        var top  = $el[0].getBoundingClientRect().bottom + topMargin;
+        var left = $el[0].getBoundingClientRect().left + leftMargin;
+    }
+
+    
 
     $menu.css({"top": top, "left": left});
     $menu.show();
