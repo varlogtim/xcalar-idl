@@ -839,13 +839,14 @@ window.Dag = (function($, Dag) {
             originHTML += '<div class="actionType dropdownBox ' + name + '" ' +
                         'style="top:' + 0 + 'px; right:' + 0 + 'px;" ' +
                         'data-type="' + name + '" ' +
-                        'data-info="' + info.text + '" ' +
-                        'data-column="' + info.column + '" ' +
+                        'data-info="' + info.text.replace(/"/g, "'") + '" ' +
+                        'data-column="' + info.column.replace(/"/g, "'")
+                                        + '" ' +
                         'data-id="' + info.id + '" ' +
                         'data-toggle="tooltip" ' +
                         'data-placement="top" ' +
                         'data-container="body" ' +
-                        'title="' + info.tooltip + '">' +
+                        'title="' + info.tooltip.replace(/"/g, "'") + '">' +
                             '<div class="actionTypeWrap" >' +
                                 '<div class="dagIcon ' + name + ' ' +
                                     info.type + '">' +
