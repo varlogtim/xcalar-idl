@@ -540,7 +540,7 @@ window.JoinModal = (function($, JoinModal) {
             $tbody.find('.col0').remove();
             $tbody.find('.jsonElement').remove();
             $tbody.find('.indexedColumn').removeClass('indexedColumn');
-            $tbody.find(".dropdownWrapper").remove();
+            $tbody.find(".addedBarTextWrap.clickable").removeClass("clickable");
 
             colHtml += $tbody.html();
             colHtml += '</table>';

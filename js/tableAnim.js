@@ -1305,12 +1305,14 @@ function addColListeners($table, tableNum) {
     });
 
     //listeners on tbody
-    $tbody.on("mousedown", "td .dropdownBox", function() {
+    $tbody.on("mousedown", "td .addedBarTextWrap.clickable", function(event) {
         var $el = $(this);
         var $td = $el.closest("td");
 
         var colNum = xcHelper.parseColNum($td);
         var rowNum = xcHelper.parseRowNum($td.closest("tr"));
+
+        event.stopPropagation();
 
         $(".tooltip").hide();
         resetColMenuInputs($el);

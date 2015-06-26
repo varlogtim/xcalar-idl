@@ -730,25 +730,8 @@
                 }
             }
 
-            .flexContainer {
-                .flex-display;
-                .justify-content(center);
-                .align-items(center);
-                height: 100%;
-                position: relative;
-
-                .dropDown;
-                .dropdownBox {
-                    .position(absolute, @right: -1px, @bottom: -1px);
-                    width: 20px;
-                    z-index: 0;
-                }
-
-                &:hover {
-                    .dropdownBox {
-                        opacity: 1.0;
-                    }
-                }
+            .addedBarTextWrap.clickable {
+                cursor: pointer;
             }
         }
 

@@ -707,8 +707,8 @@ window.ColManager = (function($, ColManager) {
                 columnType !== "decimal" &&
                 columnType !== "integer")
             {
-                $tBody.find("td.col" + (i + 1))
-                        .find(".dropdownBox").remove();
+                $tBody.find("td.col" + (i + 1) + " .addedBarTextWrap")
+                    .removeClass("clickable");
             }
 
             if (tableCols[i].name === "recordNum") {
@@ -830,8 +830,8 @@ window.ColManager = (function($, ColManager) {
             columnType !== "decimal" &&
             columnType !== "integer")
         {
-            $table.find("tbody td.col" + newColid)
-                   .find(".dropdownBox").remove();
+            $table.find("tbody td.col" + newColid + " .addedBarTextWrap")
+                    .removeClass("clickable");
         }
 
         if (key === "recordNum") {
@@ -939,10 +939,8 @@ window.ColManager = (function($, ColManager) {
 
     function getTableCellHtml(value) {
         var html =
-            '<div class="flexContainer addedBarTextWrap">' +
+            '<div class="addedBarTextWrap clickable">' +
                 value +   
-                '<div class="flex-right dropdownBox">' +
-                '</div>' +
             '</div>';
         return (html);
     }
