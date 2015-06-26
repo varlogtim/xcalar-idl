@@ -90,6 +90,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case ("createTable"):
                 // fallthrough
+            case ("addTable"):
+                // fallthrough
             case ("exportTable"):
                 // XXX should export tables have an effect?
                 break;
