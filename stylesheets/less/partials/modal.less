@@ -907,6 +907,7 @@
     bottom: auto !important;
     margin-top: 10% !important;
     z-index: 100 !important;
+
     #alertHeader {
         text-transform: uppercase;
         .cursor-move;
@@ -918,10 +919,11 @@
         overflow-y: scroll;
         display: table-cell;
         vertical-align: middle;
+
         .text {
             .size(@max-height: 65px);
             text-align: center;
-            white-space: pre;
+            white-space: pre-line;
         }
 
         .options {
