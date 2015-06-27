@@ -1176,6 +1176,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var datasetName = dsObj.name;
         var format = dsObj.attrs.format;
         var fileSize = dsObj.attrs.fileSize || 'N/A';
+        var path = dsObj.attrs.path || 'N/A';
         // XcalarSample sets gDatasetBrowserResultSetId
         XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
@@ -1186,7 +1187,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var kvPairs    = result.kvPair;
             var numKvPairs = result.numKvPairs;
 
-            updateTableInfo(datasetName, format, totalEntries, fileSize);
+            updateTableInfo(datasetName, format, totalEntries, fileSize, path);
 
             var value;
             var json;
@@ -1240,7 +1241,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         restoreSelectedColumns();
     }
 
-    function updateTableInfo(dsName, dsFormat, totalEntries, fileSize) {
+    function updateTableInfo(dsName, dsFormat, totalEntries, fileSize, path) {
         $("#schema-title").text(dsName);
         $("#dsInfo-title").text(dsName);
         // XXX these info should be changed after better backend support
@@ -1249,6 +1250,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $("#dsInfo-updateDate").text(xcHelper.getDate());
         $("#dsInfo-records").text(Number(totalEntries).toLocaleString('en'));
         $("#dsInfo-size").text(fileSize);
+        $("#dsInfo-path").text(path);
+
         if (dsFormat) {
             $("#schema-format").text(dsFormat);
         }
@@ -1745,6 +1748,7 @@ window.DS = (function ($, DS) {
                 "isFolder": false,
                 "attrs"   : {
                     "format"  : dsFormat,
+                    "path"    : loadURL,
                     "fileSize": fileSize
                 }
             });
