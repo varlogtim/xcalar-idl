@@ -308,6 +308,7 @@
                 .flex-flow(row);
                 overflow-x: scroll;
 
+                .flex(1 1 auto); // has flex width
                 &::-webkit-scrollbar-track {
                     background: transparent;
                 }
@@ -317,13 +318,16 @@
                     .flex(0 0 120px); // has width 120px
                     padding-right: 5px;
                     padding-bottom: 5px;
-                    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
 
                     .flex-display;
                     .flex-flow(column);
 
+                    &:last-child {
+                        padding-right: 3px;
+                    }
+
                     .aggTableField {
-                        .flex(1 1 22px);    // row has flex height with 22px
+                        .flex(1 0 50px);    // row has flex height with 50px
                         .rounded;
                         background-color: @color-selectedCell-light;
                         margin-top: 10px;
@@ -343,42 +347,21 @@
                         &.aggTableFlex {
                             background-color: @color-background-colIcon-lightBlue;
                         }
-                    }
-                }
-                // label rows (rows in first column)
-                &.labelContainer {
-                    .flex(0 0 100px);
 
-                    .aggCol {
-                        .flex(0 0 100px); // has fixed width 100px
-                    }
-
-                    .aggTableField {
-                        &.blankSpace {
+                         &.blankSpace {
                             background: @color-join-background !important;
                             box-shadow: none !important;
                         }
                     }
                 }
-                // argument rows
-                &.argsContainer {
-                    .flex(1 1 auto); // has flex width
 
-                    .aggCol {
-                        background: white;
-
-                        &:last-child {
-                            padding-right: 3px;
-                        }
-                    }
-
-                    .divider {
-                        .size(@width: 100%, @height: 1px);
-                        border-top: 1px solid #a8a8a8;
-                        .position(absolute, @top: 28px, @left: 0);
-                        z-index: 2;
-                    }
+                .divider {
+                    .size(@width: 100%, @height: 1px);
+                    border-top: 1px solid #a8a8a8;
+                    .position(absolute, @top: 28px, @left: 0);
+                    z-index: 2;
                 }
+
                 // column label
                 .colLabel {
                     .flex(0 0 22px) !important;
