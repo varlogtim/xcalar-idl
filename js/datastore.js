@@ -491,6 +491,16 @@ window.GridView = (function($, GridView) {
             }
             $("#importDataView").hide();
 
+            if ($grid.find('.waitingIcon').length !== 0) {
+                var loading = true;
+                var dsId = $grid.data("dsid");
+                DataSampleTable.getTableFromDS(dsId, loading);
+                var loadingMsg = '<div class="loadingMsg">' +
+                                 'Data set is loading...</div>';
+                $('#dataSetTableWrap').html(loadingMsg);
+                return;
+            }
+
             releaseDatasetPointer()
             .then(function() {
                 var dsId = $grid.data("dsid");
@@ -1169,7 +1179,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         setupSampleTable();
     };
 
-    DataSampleTable.getTableFromDS = function(dsId) {
+    DataSampleTable.getTableFromDS = function(dsId, isLoading) {
         var deferred = jQuery.Deferred();
 
         var dsObj = DS.getDSObj(dsId);
@@ -1177,6 +1187,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var format = dsObj.attrs.format;
         var fileSize = dsObj.attrs.fileSize || 'N/A';
         var path = dsObj.attrs.path || 'N/A';
+
+        if (isLoading) {
+            updateTableInfo(datasetName, format, 'N/A', fileSize, path);
+            return;
+        }
         // XcalarSample sets gDatasetBrowserResultSetId
         XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
@@ -1248,10 +1263,15 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $("#dsInfo-author").text(WKBKManager.getUser());
         $("#dsInfo-createDate").text(xcHelper.getDate());
         $("#dsInfo-updateDate").text(xcHelper.getDate());
-        $("#dsInfo-records").text(Number(totalEntries).toLocaleString('en'));
+        
         $("#dsInfo-size").text(fileSize);
         $("#dsInfo-path").text(path);
-
+        var numEntries = 'N/A';
+        if (typeof totalEntries === "number") {
+            numEntries = Number(totalEntries).toLocaleString('en');
+        }
+        $("#dsInfo-records").text(numEntries);
+        
         if (dsFormat) {
             $("#schema-format").text(dsFormat);
         }
@@ -1677,6 +1697,7 @@ window.DS = (function ($, DS) {
         var ds = new DSObj(id, validName, parentId, isFolder, attrs);
 
         $parent.append(getDSHTML(ds));
+        
         dsLookUpTable[ds.id] = ds;  // cached in lookup table
 
         if (isFolder) {
@@ -1707,14 +1728,26 @@ window.DS = (function ($, DS) {
                     fieldDelim, lineDelim,
                     moduleName, funcName);
 
-        $("#gridView").append(getTempDSHTML(dsName));
-        $("#waitingIcon").fadeIn(200);
+        var ds = DS.create({
+            "name"    : dsName,
+            "isFolder": false,
+            "attrs"   : {
+                "format"  : dsFormat,
+                "path" : loadURL,
+                "fileSize": 'N/A'
+            }
+        });
+        var $grid = DS.getGridByName(dsName);
+        $grid.addClass('display inactive');
+        $grid.append('<div class="waitingIcon"></div>');
+        $grid.find('.waitingIcon').fadeIn(200);
 
         XcalarLoad(loadURL, dsFormat, dsName,
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName)
         .then(function() {
-            $("#tempDSIcon").remove();
+            $grid.removeClass('inactive')
+                 .find('.waitingIcon').remove();
             // add sql
             SQL.add("Load dataset", {
                 "operation" : "loadDataSet",
@@ -1742,29 +1775,22 @@ window.DS = (function ($, DS) {
         })
         .then(function(files) {
             // display new dataset
-            var fileSize = getFileSize(files);
-            DS.create({
-                "name"    : dsName,
-                "isFolder": false,
-                "attrs"   : {
-                    "format"  : dsFormat,
-                    "path"    : loadURL,
-                    "fileSize": fileSize
-                }
-            });
             DS.refresh();
-            DS.getGridByName(dsName).click(); // lodat this dataset
+            if ($grid.hasClass('active')) {
+                $grid.click();
+            }
 
             commitToStorage();
             deferred.resolve();
         })
         .fail(function(error) {
-            $('#tempDSIcon').remove();
+            delDSHelper($grid, dsName);
             deferred.reject(error);
         });
 
         return (deferred.promise());
     };
+
 
     /**
      * Get home folder
@@ -1973,9 +1999,9 @@ window.DS = (function ($, DS) {
     function delDSHelper ($grid, dsName) {
         $grid.removeClass("active");
         $grid.addClass("inactive");
-        $grid.append('<div id="waitingIcon" class="waitingIcon"></div>');
+        $grid.append('<div class="waitingIcon"></div>');
 
-        $("#waitingIcon").fadeIn(200);
+        $grid.find(".waitingIcon").fadeIn(200);
 
         XcalarSetFree(gDatasetBrowserResultSetId)
         .then(function() {
@@ -1997,14 +2023,12 @@ window.DS = (function ($, DS) {
                 "dsName"   : dsName
             });
 
-            $("#waitingIcon").remove();
-
             DataStore.updateNumDatasets();
             focusOnFirstDS();
             commitToStorage();
         })
         .fail(function(error) {
-            $("#waitingIcon").remove();
+            $grid.find('.waitingIcon').remove();
             $grid.removeClass("inactive");
             Alert.error("Delete Dataset Fails", error);
         });
