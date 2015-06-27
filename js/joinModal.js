@@ -209,8 +209,9 @@ window.JoinModal = (function($, JoinModal) {
         joinModalTabs($rightJoinTable, -1, -1);
         joinModalTabs($leftJoinTable, (tableNum + 1), colNum, $rightJoinTable);
 
-        $joinModal.show();
-        $modalBackground.fadeIn(200);
+        $modalBackground.fadeIn(150, function() {
+            $joinModal.fadeIn(300);
+        });
 
         modalHelper.setup();
         scrolleToColumn($leftJoinTable.find("th.colSelected"));
@@ -401,7 +402,7 @@ window.JoinModal = (function($, JoinModal) {
         modalHelper.enableSubmit();
 
         $joinModal.hide();
-        $modalBackground.fadeOut(200, function() {
+        $modalBackground.fadeOut(300, function() {
             Tips.refresh();
         });
 

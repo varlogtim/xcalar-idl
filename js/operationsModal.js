@@ -333,12 +333,14 @@ window.OperationsModal = (function($, OperationsModal) {
         $('#xcTableWrap' + tableNum).addClass('opModalOpen');
         $('.xcTableWrap').not('#xcTableWrap' + tableNum)
                          .addClass('modalDarkened');
-        $operationsModal = $('#operationsModal');
-        $operationsModal.fadeIn(200);
-        $('#opModalBackground').addClass('light').fadeIn(200);
-        $('#sideBarModal').addClass('light').fadeIn(200);
+
         $('#rightSideBar').addClass('opModalOpen');
         $('#mainFrame').addClass('opModalOpen');
+        $('#sideBarModal').addClass('light').fadeIn(150);
+        $('#opModalBackground').addClass('light').fadeIn(150, function() {
+            $operationsModal.fadeIn(300);
+        });
+
         $('#xcTable' + tableNum).find('.editableHead')
                                         .closest('.header')
                                         .click(fillInputFromColumn);

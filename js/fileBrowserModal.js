@@ -32,11 +32,6 @@ window.FileBrowser = (function($, FileBrowser) {
     FileBrowser.show = function() {
         retrievePaths($filePath.val())
         .then(function() {
-            // set modal background
-            $modalBackground.fadeIn(100, function() {
-                Tips.refresh();
-            });
-            $modalBackground.addClass("open");
             xcHelper.removeSelectionRange();
 
             $fileBrowser.css({
@@ -45,8 +40,15 @@ window.FileBrowser = (function($, FileBrowser) {
                 "top"   : 0,
                 "bottom": 0
             });
-            $fileBrowser.show();
-            $fileBrowser.focus();
+
+            // set modal background
+            $modalBackground.fadeIn(150, function() {
+                Tips.refresh();
+
+                $modalBackground.addClass("open");
+                $fileBrowser.fadeIn(200).focus();
+            });
+
             // press enter to import a dataset
             // XXX use time out beacuse if you press browser button to open the
             // modal, it will trigger keyup event, so delay the event here
@@ -326,8 +328,7 @@ window.FileBrowser = (function($, FileBrowser) {
         modalHelper.clear();
         $(document).off('keyup', fileBrowserKeyUp);
         $fileBrowser.hide();
-        $modalBackground.removeClass("open");
-        $modalBackground.fadeOut(200, function() {
+        $modalBackground.removeClass("open").fadeOut(300, function() {
             Tips.refresh();
             xcHelper.enableSubmit($fileBrowser.find('.confirm'));
         });

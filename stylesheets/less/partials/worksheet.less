@@ -275,6 +275,16 @@
     margin-bottom: 0px;
     overflow: hidden;
 
+    &.opModalOpen {
+        .dropdownBox {
+            display: none;
+        }
+
+        td {
+            pointer-events: none;
+        }
+    }
+
     &:only-child {
         .tableGrab {
             display: none;
