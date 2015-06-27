@@ -189,6 +189,7 @@ function dragdropMouseDown(el, event) {
     var tableWrap = el.closest('.xcTableWrap');
     var $table = el.closest('.xcTable');
     var $tbodyWrap = $table.parent();
+    var $editableHead = el.find('.editableHead');
     dragObj.table = tableWrap;
     dragObj.tableNum = parseInt(tableWrap.attr('id').substring(11));
     dragObj.element = el;
@@ -199,30 +200,40 @@ function dragdropMouseDown(el, event) {
     // to the point that was grabbed
 
     dragObj.docHeight = $(document).height();
-    dragObj.val = el.find('.editableHead').val();
+    dragObj.val = $editableHead.val();
     // var tableTitleHeight = tableWrap.find('.tableTitle').height();
     var shadowDivHeight = $tbodyWrap.height();
     var shadowTop = tableWrap.find('.header').position().top - 5;
 
-    dragObj.inFocus = el.find('.editableHead').is(':focus');
+    dragObj.inFocus = $editableHead.is(':focus');
     dragObj.selected = el.hasClass('selectedCell');
     dragObj.colWidth = el.width();
     dragObj.windowWidth = $(window).width();
     
-    // create a replica shadow with same column width, height,
-    // and starting position
-    tableWrap.append('<div id="shadowDiv" style="width:' +
-                            dragObj.colWidth +
-                            'px;height:' + (shadowDivHeight) + 'px;left:' +
-                            (dragObj.element.position().left) +
-                            'px;top:' + shadowTop + 'px;"></div>');
 
     // create a fake transparent column by cloning
     createTransparentDragDropCol();
-    disableTextSelection();
+    
     $tbodyWrap.addClass('hideScroll');
-    createDropTargets();
-    dragdropMoveMainFrame();
+
+    // settimeout for performance
+    setTimeout(function() {
+        // create a replica shadow with same column width, height,
+        // and starting position
+        disableTextSelection();
+        tableWrap.append('<div id="shadowDiv" style="width:' +
+                        dragObj.colWidth +
+                        'px;height:' + (shadowDivHeight) + 'px;left:' +
+                        (dragObj.element.position().left) +
+                        'px;top:' + shadowTop + 'px;"></div>');
+        createDropTargets();
+        if (gTables[dragObj.tableNum].tableCols.length > 50) {
+            var timer = 100;
+        } else {
+            var timer = 40;
+        }
+        dragdropMoveMainFrame(dragObj, timer);
+    }, 0);
 }
 
 function dragdropMouseMove(event) {
@@ -293,39 +304,43 @@ function reorderAfterColumnDrop() {
                  .removeClass('colNumToChange');
 }
 
-function dragdropMoveMainFrame() {
+function dragdropMoveMainFrame(dragObj, timer) {
     // essentially moving the horizontal mainframe scrollbar if the mouse is
     // near the edge of the viewport
-    var dragObj = gDragObj;
     if (gMouseStatus === 'movingCol' || gMouseStatus === 'movingTable') {
-        if (dragObj.pageX > dragObj.windowWidth - 2) {
-            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft() + 50));
-        } else if (dragObj.pageX > dragObj.windowWidth - 20) {
-            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft() + 20));
-        } else if (dragObj.pageX < 2) {
-            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft() - 50));
+        if (dragObj.pageX > dragObj.windowWidth - 20) {
+            var $mainFrame = $('#mainFrame');
+            var left = $mainFrame.scrollLeft() + 40;
+            $mainFrame.scrollLeft(left); 
         } else if (dragObj.pageX < 20) {
-            $('#mainFrame').scrollLeft(($('#mainFrame').scrollLeft() - 20));
+            var $mainFrame = $('#mainFrame');
+            var left = $mainFrame.scrollLeft() - 40;
+            $mainFrame.scrollLeft(left); 
         }
         setTimeout(function() {
-            dragdropMoveMainFrame();
-        }, 40);
+            dragdropMoveMainFrame(dragObj, timer);
+        }, timer);
     }
 }
 
 function cloneCellHelper(obj) {
     var dragObj = gDragObj;
     var td = $(obj).children();
-    var row = $("<tr></tr>");
-    var rowColor = $(obj).css('background-color');
+    // var row = $("<tr></tr>");
+
+    // var rowColor = $(obj).css('background-color');
     var clone = td.eq(dragObj.colIndex).clone();
     var cloneHeight = td.eq(dragObj.colIndex).outerHeight();
     var cloneColor = td.eq(dragObj.colIndex).css('background-color');
-    row.css('background-color', rowColor);
+    // row.css('background-color', rowColor);
     clone.css('height', cloneHeight + 'px');
     clone.outerWidth(dragObj.colWidth);
     clone.css('background-color', cloneColor);
-    row.append(clone).appendTo($("#fauxTable"));
+    var cloneHTML = clone[0].outerHTML;
+    cloneHTML = '<tr>' + cloneHTML + '</tr>';
+    return cloneHTML;
+    // row.append(clone).appendTo($("#fauxTable"));
+    // $('#fauxTable').append(cloneHTML);
 }
 
 function createTransparentDragDropCol() {
@@ -340,6 +355,7 @@ function createTransparentDragDropCol() {
                         '</table>' +
                     '</div>');
     dragObj.fauxCol = $('#fauxCol');
+    $fauxTable = $('#fauxTable');
     
     var rowHeight = 30;
     // turn this into binary search later
@@ -353,50 +369,54 @@ function createTransparentDragDropCol() {
             return (false);
         }
     });
-
+     
+    var cloneHTML = "";
     //XXX check to see if topRowEl was found;
     if (topRowIndex === -1) {
         console.log("BUG! Cannot find first visible row??");
         // Clone entire shit and be.then.
         dragObj.table.find('tr').each(function(i, ele) {
-            cloneCellHelper(ele);
+            cloneHTML += cloneCellHelper(ele);
         });
+        $fauxTable.append(cloneHTML);
         return;
     }
 
     // Clone head
+   
     dragObj.table.find('tr:first').each(function(i, ele) {
-        cloneCellHelper(ele);
-        if (dragObj.selected) {
-            $('#fauxTable').addClass('selectedCol');
-        }
+        cloneHTML += cloneCellHelper(ele); 
     });
+   
+    if (dragObj.selected) {
+        $fauxTable.addClass('selectedCol');
+    }
 
     var totalRowHeight = dragObj.element
-            .closest('#xcTableWrap' + dragObj.tableNum).height() -
-                     dragObj.table.find('th:first').outerHeight();
+                                .closest('#xcTableWrap' + dragObj.tableNum)
+                                .height() -
+                                dragObj.table.find('th:first').outerHeight();
     var numRows = Math.ceil(totalRowHeight / rowHeight);
-    var count = 0;
 
     dragObj.table.find('tr:gt(' + (topRowIndex) + ')').each(function(i, ele) {
-        cloneCellHelper(ele);
-        count++;
-        if (count >= numRows + topRowIndex) {
+        cloneHTML += cloneCellHelper(ele);
+        if (i >= numRows + topRowIndex) {
             return (false);
         }
     });
+    $fauxTable.append(cloneHTML);
 
     // Ensure rows are offset correctly
-    var fauxTableHeight = $('#fauxTable').height() +
-                            $('#fauxTable tr:first').outerHeight();
+    var fauxTableHeight = $fauxTable.height() +
+                          $fauxTable.find('tr:first').outerHeight();
 
     var xcTableWrap0Height = $('#xcTableWrap' + dragObj.tableNum).height();
     var fauxColHeight = Math.min(fauxTableHeight, xcTableWrap0Height - 36);
     dragObj.fauxCol.height(fauxColHeight);
     var firstRowOffset = $(topRowEl).offset().top - topPx - rowHeight;
-    $('#fauxTable').css('margin-top', firstRowOffset);
-    $('#fauxTable tr:first-child').css({'margin-top':
-            -($('#fauxTable tr:first').outerHeight() + firstRowOffset - 5)});
+    $fauxTable.css('margin-top', firstRowOffset);
+    $fauxTable.find('tr:first-child').css({'margin-top':
+            -($fauxTable.find('tr:first').outerHeight() + firstRowOffset - 5)});
 }
 
 function createDropTargets(dropTargetIndex, swappedColIndex) {
@@ -2296,7 +2316,7 @@ function resizeRowInput() {
         });
     }  
 }
-    
+
 function dragTableMouseDown(el, e) {
     var dragObj = gDragObj;
     gMouseStatus = "movingTable";
@@ -2330,7 +2350,7 @@ function dragTableMouseDown(el, e) {
     dragObj.table.find('.idSpan').css('left', 0);
     dragObj.table.find('th.rowNumHead input').css('left', 0);
     createTableDropTargets();
-    dragdropMoveMainFrame();
+    dragdropMoveMainFrame(dragObj, 50);
     disableTextSelection();
 }
     
