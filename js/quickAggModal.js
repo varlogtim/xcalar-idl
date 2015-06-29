@@ -388,10 +388,16 @@ window.AggModal = (function($, AggModal) {
 
             if (jQuery.isNumeric(val)) {
                 val = parseFloat(val);
-
-                $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
+                if (val > 0) {
+                    $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(val)
                     .css("background-color", "rgba(66, 158, 212," + val + ")");
+                } else {
+                    $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
+                    .find(".aggTableField:not(.colLabel)").eq(row).html(val)
+                    .css("background-color", "rgba(200, 200, 200," + (-1 * val)
+                     + ")");
+                }
             }
 
             dups.forEach(function(colNum) {
@@ -402,8 +408,13 @@ window.AggModal = (function($, AggModal) {
                 $container.html(val);
 
                 if (jQuery.isNumeric(val)) {
-                    $container.css("background-color",
-                                    "rgba(66, 158, 212," + val + ")");
+                    if (val > 0) {
+                        $container.css("background-color",
+                                        "rgba(66, 158, 212," + val + ")");
+                    } else {
+                        $container.css("background-color",
+                                        "rgba(66, 158, 212," + (-1*val) + ")");
+                    }
                 }
             });
         });
