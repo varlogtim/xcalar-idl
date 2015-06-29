@@ -200,6 +200,7 @@ window.xcHelper = (function($, xcHelper) {
 
         return (d.toLocaleTimeString());
     };
+
     // time in million seconds
     xcHelper.getTimeInMS = function(d, timeStamp) {
         if (d == null) {

@@ -32,7 +32,7 @@ window.JSONModal = (function($, JSONModal) {
             return;
         }
         var tableTitle = $jsonTd.closest(".xcTableWrap")
-                                .find(".xcTheadWrap .tableTitle input")
+                                .find(".xcTheadWrap .tableTitle .text")
                                 .data("title");
 
         $jsonModal.find(".jsonDragArea").text(tableTitle);

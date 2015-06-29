@@ -21,6 +21,9 @@ function emptyAllStorage(localEmpty) {
         deferred.resolve();
     } else {
         WKBKManager.emptyAll()
+        .then(function() {
+            return (Authentication.clear());
+        })
         .then(deferred.resolve)
         .fail(deferred.reject);
     }
@@ -216,7 +219,8 @@ window.KVStore = (function($, KVStore) {
         var deferred = jQuery.Deferred();
         XcalarKeyLookup(key)
         .then(function(value) {
-            if (value != null && value.value != null) {
+            // "" can not be JSO.parse
+            if (value != null && value.value != null && value.value !== "") {
                 try {
                     value = JSON.parse(value.value);
                     console.log("Parsed result", value);

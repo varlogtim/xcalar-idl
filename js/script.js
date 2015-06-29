@@ -573,6 +573,7 @@ function startupFunctions() {
     })
     .then(function() {
         documentReadyGeneralFunction();
+        Authentication.setup();
         JSONModal.setup();
         setupTooltips();
         setupMenuBar();

@@ -320,7 +320,7 @@
                 color: @color-white;
                 border-bottom: 1px solid @color-table-borderBlue;
 
-                input {
+                .text {
                     color: @color-white;
                 }
 
@@ -357,23 +357,36 @@
                 }
             }
 
-            input {
+            .text {
                 .position(relative);
-                .size(@width: 100%, @height: 20px);
-                .font(@weight: 600, @size: 15px, @family: @font-base);
+                .size(@width: 75%, @height: 25px);
+                .font(@weight: 600, @size: 15px, @line-height: 25px, @family: @font-base);
+                .rounded;
                 text-align: center;
                 background-color: transparent;
                 padding: 0 2px;
-                margin-top: 7px;
                 z-index: 2;
+                white-space: nowrap;
+                margin: 0 auto;
+                .vertical-align;
+
+                .hashName {
+                    color: #dddddd;
+                    opacity: 0.7;
+                    .noSelection;
+                    font-weight: 200;
+                }
 
                 &:focus {
                     background-color: @color-white;
                     color: @color-text-darkGray;
-                    width: auto !important;
-                    max-width: 90%;
-                    .size(@height: 25px);
-                    margin-top: 5px;
+                    // width: auto !important;
+                    max-width: 75%;
+                    outline: none;
+
+                    .hashName {
+                        color: @color-text-darkGray;
+                    }
                 }
             }
         }

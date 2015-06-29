@@ -311,11 +311,11 @@ function dragdropMoveMainFrame(dragObj, timer) {
         if (dragObj.pageX > dragObj.windowWidth - 20) {
             var $mainFrame = $('#mainFrame');
             var left = $mainFrame.scrollLeft() + 40;
-            $mainFrame.scrollLeft(left); 
+            $mainFrame.scrollLeft(left);
         } else if (dragObj.pageX < 20) {
             var $mainFrame = $('#mainFrame');
             var left = $mainFrame.scrollLeft() - 40;
-            $mainFrame.scrollLeft(left); 
+            $mainFrame.scrollLeft(left);
         }
         setTimeout(function() {
             dragdropMoveMainFrame(dragObj, timer);
@@ -385,7 +385,7 @@ function createTransparentDragDropCol() {
     // Clone head
    
     dragObj.table.find('tr:first').each(function(i, ele) {
-        cloneHTML += cloneCellHelper(ele); 
+        cloneHTML += cloneCellHelper(ele);
     });
    
     if (dragObj.selected) {
@@ -675,7 +675,7 @@ function createTableHeader(tableNum) {
 
     var html = '<div class="tableTitle">' +
                     '<div class="tableGrab"></div>' +
-                    '<input type="text">' +
+                    '<div class="text" spellcheck="false" contenteditable></div>' +
                     '<div class="dropdownBox">' +
                         '<span class="innerBox"></span>' +
                     '</div>' +
@@ -729,7 +729,7 @@ function createTableHeader(tableNum) {
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +
             '</li>' +
-            // XX copy to worksheet is temporarily disabled until we can do 
+            // XX copy to worksheet is temporarily disabled until we can do
             // an actual copy of a table
             
             // '<li class="dupToWorksheet">' +
@@ -762,8 +762,11 @@ function createTableHeader(tableNum) {
     addTableMenuActions($tableMenu);
     // Event Listener for table title
     $xcTheadWrap.on({
-        "keyup": function(event) {
+        // must use keypress to prevent contenteditable behavior
+        "keypress": function(event) {
             if (event.which === keyCode.Enter) {
+                event.preventDefault();
+                event.stopPropagation();
                 renameTableHead($(this));
             }
         },
@@ -772,8 +775,23 @@ function createTableHeader(tableNum) {
         },
         "blur": function() {
             updateTableHeader(null, $(this));
+        },
+        "click": function() {
+            // when cursor is at hashName part. move to tableName part
+            if (window.getSelection) {
+                var sel = window.getSelection();
+                if (sel.rangeCount) {
+                    var range = sel.getRangeAt(0);
+                    var $parent = $(range.commonAncestorContainer.parentNode);
+                    if ($parent.hasClass("hashName") ||
+                        $parent.hasClass("tableTitle"))
+                    {
+                        createSelection($(this).find(".tableName")[0], true);
+                    }
+                }
+            }
         }
-    }, ".tableTitle input");
+    }, ".tableTitle .text");
 
     $xcTheadWrap.on('mousedown', '.tableTitle > .dropdownBox', function(event) {
         if (event.which !== 1) {
@@ -1041,7 +1059,7 @@ function addTableMenuActions($tableMenu) {
         var tableNum = parseInt($menu.attr('id').substring(9));
         // could be long process so we allow the menu to close first
         setTimeout(function() {
-           sortAllTableColumns(tableNum, "forward"); 
+            sortAllTableColumns(tableNum, "forward");
         }, 0);
         
     });
@@ -1054,7 +1072,7 @@ function addTableMenuActions($tableMenu) {
         var tableNum = parseInt($menu.attr('id').substring(9));
         // could be long process so we allow the menu to close first
         setTimeout(function() {
-           sortAllTableColumns(tableNum, "reverse"); 
+            sortAllTableColumns(tableNum, "reverse");
         }, 0);
         
     });
@@ -1064,16 +1082,17 @@ function sortAllTableColumns(tableNum, direction) {
     var tableCols = gTables[tableNum].tableCols;
     var order;
     if (direction === "reverse") {
-        order = 1
+        order = 1;
     } else {
         order = -1;
     }
 
     var sortedCols = tableCols.sort(function(a, b) {
-         var a = a.name.toLowerCase();
-         var b = b.name.toLowerCase();
-         if (a < b) {
-            return (order); 
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+
+        if (a < b) {
+            return (order);
         } else if (a > b) {
             return (-order);
         } else {
@@ -1116,14 +1135,21 @@ function sortAllTableColumns(tableNum, direction) {
     RightSideBar.updateTableInfo(gTables[tableNum]);
 }
 
-function renameTableHead($input) {
-    var newTableName = $.trim($input.val());
-    var tableNum = parseInt($input.closest('.xcTheadWrap')
+function renameTableHead($div) {
+    var newTableName = jQuery.trim($div.text());
+    var tableNum = parseInt($div.closest('.xcTheadWrap')
                                   .attr('id').substr(11));
     var oldTableName = gTables[tableNum].tableName;
     if (newTableName === oldTableName) {
-        $input.blur();
+        $div.blur();
         return;
+    }
+
+    // in case hash tag is deleted
+    var oldHashIndex = oldTableName.indexOf("#");
+    if (oldHashIndex >= 0 && newTableName.indexOf("#") < 0) {
+        newTableName = $div.find(".tableName").text();
+        newTableName += oldTableName.substring(oldHashIndex);
     }
 
     xcHelper.checkDuplicateTableName(newTableName)
@@ -1131,40 +1157,81 @@ function renameTableHead($input) {
         return (xcFunction.rename(tableNum, oldTableName, newTableName));
     })
     .then(function() {
-        updateTableHeader(null, $(this));
-        $input.blur();
+        updateTableHeader(null, $div);
+        $div.blur();
     })
     .fail(function() {
-        $input.val(oldTableName);
+        $div.text(oldTableName);
         var text = 'The name "' + newTableName + '" is already ' +
                            ' in use. Please select a unique name.';
-        StatusBox.show(text, $input, false);
+        StatusBox.show(text, $div, false);
     });
 }
 
 function updateTableHeader(tableNum, $tHead, isFocus) {
-    var tableName = "";
+    var wholeTableName = "";
     var cols = 0;
 
-    $tHead = $tHead || $("#xcTheadWrap" + tableNum + " .tableTitle input");
+    $tHead = $tHead || $("#xcTheadWrap" + tableNum + " .tableTitle .text");
     // for blur and focus on table header
     if (tableNum == null) {
         cols = $tHead.data("cols");
-        tableName = $tHead.data("title");
-        if (isFocus) {
-            $tHead.val(tableName);
-        } else {
-            $tHead.val(tableName + "  [" + cols + "]");
-        }
+        wholeTableName = $tHead.data("title");
     } else {
         // for update table header
         if (gTables[tableNum] != null) {
-            tableName = gTables[tableNum].tableName;
+            wholeTableName = gTables[tableNum].tableName;
             cols = gTables[tableNum].tableCols.length;
         }
+        isFocus = false;
         $tHead.data("cols", cols);
-        $tHead.data("title", tableName);
-        $tHead.val(tableName + "  [" + cols + "]");
+        $tHead.data("title", wholeTableName);
+    }
+
+    wholeTableName = wholeTableName.split("#");
+
+    var tableName = wholeTableName[0];
+
+    if (wholeTableName.length === 2) {
+        tableName =
+            '<span class="tableName">' + tableName + '</span>' +
+            '<span class="hashName" contenteditable="false">#' +
+                wholeTableName[1] +
+            '</span>';
+    }
+
+    if (isFocus) {
+        $tHead.html(tableName);
+        createSelection($tHead.find(".tableName")[0]);
+    } else {
+        $tHead.html(tableName + "  [" + cols + "]");
+    }
+}
+
+function createSelection(field, atEnd) {
+    if (!field) {
+        return;
+    }
+
+    var range;
+    var selection;
+
+    if (window.getSelection && document.createRange) {
+        range = document.createRange();
+        range.selectNodeContents(field);
+        if (atEnd) {
+            range.collapse(false);
+        }
+        sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    } else if (document.body.createTextRange) {
+        range = document.body.createTextRange();
+        range.moveToElementText(field);
+        if (atEnd) {
+            range.collapse(false);
+        }
+        range.select();
     }
 }
 
@@ -1191,7 +1258,7 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
     $theadWrap = $('#xcTheadWrap' + tableNum);
     $theadWrap.width(tableWidth);
 
-    $theadWrap.find('input').width(tableWidth - 30);
+    $theadWrap.find('.text').width(tableWidth - 30);
     moveTableDropdownBoxes();
 }
 
@@ -1341,11 +1408,11 @@ function addColListeners($table, tableNum) {
         
 
         dropdownClick($el, {
-            "type"   : "tdDropdown",
-            "colNum" : colNum,
-            "rowNum" : rowNum,
-            "classes": "tdMenu", // specify classes to update colmenu's class attr
-            "mouseCoors" : {x: event.pageX, y: event.pageY}
+            "type"      : "tdDropdown",
+            "colNum"    : colNum,
+            "rowNum"    : rowNum,
+            "classes"   : "tdMenu", // specify classes to update colmenu's class attr
+            "mouseCoors": {x: event.pageX, y: event.pageY}
         });
         highlightCell($td);
     });
@@ -1370,7 +1437,9 @@ function highlightCell($td) {
                             'style="' + styling + '">' +
                         '</div>';
     $td.append(highlightBox);
-    $('#highlightBox').mousedown(function(){$('.highlightBox').remove()});
+    $('#highlightBox').mousedown(function()
+        {$('.highlightBox').remove();
+    });
 }
 
 function addColMenuBehaviors($colMenu) {
@@ -1644,7 +1713,6 @@ function addColMenuActions($colMenu) {
 
         var colName = gTables[tableNum].tableCols[colNum - 1].func.args[0];
         var colVal  = $td.find(".addedBarTextWrap").text();
-        console.info(colVal)
 
         if ($header.hasClass("type-integer")) {
             colVal = parseInt(colVal);
@@ -1690,7 +1758,8 @@ function functionBarEnter($colInput) {
     if (progStr === oldUsrStr || newName === "") {
         $colInput.val(oldName);
         $colInput.blur();
-        return;
+        deferred.resolve();
+        return (deferred.promise());
     }
 
     $colInput.closest('th').removeClass('unusedCell');
@@ -1703,7 +1772,8 @@ function functionBarEnter($colInput) {
         tableCol.name = newName;
         tableCol.userStr = progStr;
         $colInput.blur();
-        return;
+        deferred.resolve();
+        return (deferred.promise());
     }
 
     var progCol = parseFunc(progStr, index, tableNum, true);
