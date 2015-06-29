@@ -24,11 +24,12 @@ window.xcFunction = (function ($, xcFunction) {
         
         // XXX Cheng must add table to worksheet before async call
         WSManager.addTable(newTableName);
+        xcHelper.lockTable(tableNum);
 
         XcalarFilterHelper(fltStr, tableName, newTableName)
         .then(function() {
             setIndex(newTableName, tablCols);
-            return (refreshTable(newTableName, tableNum));
+            return (refreshTable(newTableName, tableName));
         })
         .then(function() {
             // add sql
@@ -43,14 +44,14 @@ window.xcFunction = (function ($, xcFunction) {
                 "newTableName": newTableName,
                 "filterString": fltStr
             });
-
+            xcHelper.unlockTable(tableName, true);
             StatusMessage.success(msg);
             commitToStorage();
             deferred.resolve();
         })
         .fail(function(error) {
             WSManager.removeTable(newTableName);
-
+            xcHelper.unlockTable(tableName);
             Alert.error("Filter Columns Fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
 
@@ -142,13 +143,14 @@ window.xcFunction = (function ($, xcFunction) {
 
         // XXX Cheng must add to worksheet before async call
         WSManager.addTable(newTableName);
+        xcHelper.lockTable(tableNum);
 
         XcalarIndexFromTable(tableName, backFieldName, newTableName)
         .then(function() {
             setDirection(newTableName, order);
             setIndex(newTableName, tablCols);
 
-            return (refreshTable(newTableName, tableNum));
+            return (refreshTable(newTableName, tableName));
         })
         .then(function() {
             // add sql
@@ -159,13 +161,13 @@ window.xcFunction = (function ($, xcFunction) {
                 "direction"   : direction,
                 "newTableName": newTableName
             });
-
+            xcHelper.unlockTable(tableName, true);
             StatusMessage.success(msg);
             commitToStorage();
         })
         .fail(function(error) {
             WSManager.removeTable(newTableName);
-
+            xcHelper.unlockTable(tableName);
             Alert.error("Sort Rows Fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
         });
@@ -212,8 +214,8 @@ window.xcFunction = (function ($, xcFunction) {
         var msg = StatusMessageTStr.Join;
 
         StatusMessage.show(msg);
-        showWaitCursor();
-
+        xcHelper.lockTable(leftTableNum);
+        xcHelper.lockTable(rightTableNum);
         WSManager.addTable(newTableName);
         // check left table index
         parallelIndex(leftColName, leftTableNum, rightColName, rightTableNum)
@@ -241,9 +243,10 @@ window.xcFunction = (function ($, xcFunction) {
             var newTableCols = createJoinedColumns(leftTable, rightTable,
                                                     leftRemoved, rightRemoved);
             setIndex(newTableName, newTableCols);
-
-            return (refreshTable(newTableName, leftTableNum,
-                                 KeepOriginalTables.DontKeep, rightTableNum));
+            console.log('pause');
+            return (refreshTable(newTableName, leftTableName,
+                                 KeepOriginalTables.DontKeep,
+                                 rightTableName));
         })
         .then(function() {
             SQL.add("Join Table", {
@@ -261,6 +264,8 @@ window.xcFunction = (function ($, xcFunction) {
                 "joinType"    : joinStr,
                 "newTableName": newTableName
             });
+            xcHelper.unlockTable(leftTableName, true);
+            xcHelper.unlockTable(rightTableName, true);
 
             StatusMessage.success(msg);
             commitToStorage();
@@ -269,19 +274,19 @@ window.xcFunction = (function ($, xcFunction) {
         })
         .fail(function(error) {
             WSManager.removeTable(newTableName);
-
+            xcHelper.unlockTable(leftTableName);
+            xcHelper.unlockTable(rightTableName);
             Alert.error("Join Table Fails", error);
             StatusMessage.fail(StatusMessageTStr.JoinFailed, msg);
             
-            joinFailHanlder(leftTableNum, leftTableResult)
+            joinFailHandler(leftTableNum, leftTableResult)
             .then(function() {
-                joinFailHanlder(rightTableNum, rightTableResult);
+                joinFailHandler(rightTableNum, rightTableResult);
             })
             .always(function() {
                 deferred.reject(error);
             });
-        })
-        .always(removeWaitCursor);
+        });
 
         return (deferred.promise());
     };
@@ -299,7 +304,6 @@ window.xcFunction = (function ($, xcFunction) {
 
         var msg = StatusMessageTStr.GroupBy + " " + operator;
         StatusMessage.show(msg);
-
         WSManager.addTable(newTableName);
 
         XcalarGroupBy(operator, newColName, backFieldName, tableName,
@@ -330,8 +334,10 @@ window.xcFunction = (function ($, xcFunction) {
 
             setIndex(newTableName, tablCols);
 
-            return (refreshTable(newTableName, tableNum,
-                    KeepOriginalTables.Keep));
+            // return (refreshTable(newTableName, tableName,
+            //         KeepOriginalTables.Keep));
+            return (refreshTable(newTableName, null,
+                                KeepOriginalTables.Keep));
         })
         .then(function() {
             // add sql
@@ -374,7 +380,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         // XXX Cheng must add to worksheet before async call
         WSManager.addTable(newTableName);
-
+        xcHelper.lockTable(tableNum);
         XcalarMap(fieldName, mapString, tableName, newTableName)
         .then(function() {
             if (colNum > -1) {
@@ -395,10 +401,9 @@ window.xcFunction = (function ($, xcFunction) {
                 newProgCol.func.args = [];
                 newProgCol.func.args[0] = fieldName;
                 tablCols.splice(colNum - 1, numColsRemoved, newProgCol);
-
             }
             setIndex(newTableName, tablCols, null, tableProperties);
-            return (refreshTable(newTableName, tableNum));
+            return (refreshTable(newTableName, tableName));
         })
         .then(function() {
             // add sql
@@ -409,7 +414,9 @@ window.xcFunction = (function ($, xcFunction) {
                 "colName"     : fieldName,
                 "mapString"   : mapString
             });
-
+            if (options.nextJoin) {
+                xcHelper.unlockTable(tableName, true);
+            }
             StatusMessage.success(msg);
             commitToStorage();
 
@@ -417,7 +424,7 @@ window.xcFunction = (function ($, xcFunction) {
         })
         .fail(function(error) {
             WSManager.removeTable(newTableName);
-
+            xcHelper.unlockTable(tableName);
             Alert.error("mapColumn fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
 
@@ -513,7 +520,7 @@ window.xcFunction = (function ($, xcFunction) {
         });
 
         return (deferred.promise());
-    }
+    };
 
     function getNewTableName(tableName) {
         return (tableName.split("#")[0] + Authentication.fetchHashTag());
@@ -564,7 +571,8 @@ window.xcFunction = (function ($, xcFunction) {
 
             deferred.resolve({
                 "newTableCreated": false,
-                "tableName"      : tableName
+                "tableName"      : tableName,
+                "newTableName"   : tableName
             });
         }
 
@@ -602,6 +610,7 @@ window.xcFunction = (function ($, xcFunction) {
                                       rightError);
                         deferred.reject(rightError);
                     });
+                    break;
                 default:
                     console.error("Wrong Status!");
                     break;
@@ -673,6 +682,7 @@ window.xcFunction = (function ($, xcFunction) {
                         console.error("Parrel index fails in rightTable", error);
                         deferred.reject(error);
                     });
+                    break;
                 case "waiting":
                     // when deferred1 not finish, wait for it
                     break;
@@ -757,7 +767,7 @@ window.xcFunction = (function ($, xcFunction) {
     // this function is called when a new table is created during a join because
     // the previous table wasn't correctly index, but the join failed so we have
     // to delete the new table
-    function joinFailHanlder(tableNum, result) {
+    function joinFailHandler(tableNum, result) {
         var deferred = jQuery.Deferred();
 
         result = result || {};

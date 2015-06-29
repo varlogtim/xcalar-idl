@@ -101,7 +101,7 @@ window.RightSideBar = (function($, RightSideBar) {
                     table.active = true;
                     table.timeStamp = xcHelper.getTimeInMS();
 
-                    addTable(tableName, gTables.length, AfterStartup.After,
+                    addTable(tableName, null, AfterStartup.After,
                              null)
                     .then(function() {
                         // already add the table

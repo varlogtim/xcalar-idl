@@ -422,6 +422,39 @@ window.xcHelper = (function($, xcHelper) {
         return (deferred.promise());
     };
 
+    xcHelper.lockTable = function(tableNum) {
+        var $tableWrap = $('#xcTableWrap' + tableNum);
+        var $lockedIcon = $('<div class="lockedIcon">' +
+                            '<img src="/images/biglocklight.png" /></div>');
+        var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
+        var mainFrameHeight = $('#mainFrame').height();
+        var topPos = 100 * ((tableHeight / mainFrameHeight) / 2);
+        topPos = Math.min(topPos, 40);
+        $lockedIcon.css('top', topPos + '%');
+
+        $tableWrap.addClass('tableLocked').append($lockedIcon);
+        gTables[tableNum].isLocked = true;
+        var tableName = gTables[tableNum].tableName;
+        var lookupTable = gTableIndicesLookup[tableName];
+        lookupTable.isLocked = true;
+    }
+
+    xcHelper.unlockTable = function(tableName, isHidden) {
+        var tableNum = xcHelper.getTableIndexFromName(tableName, isHidden);
+        if (isHidden) {
+            gHiddenTables[tableNum].isLocked = false;
+        } else {
+            gTables[tableNum].isLocked = false;
+            var $tableWrap = $('#xcTableWrap' + tableNum);
+            $tableWrap.find('.lockedIcon').remove();
+            $tableWrap.removeClass('tableLocked');
+        }
+        var lookupTable = gTableIndicesLookup[tableName];
+        if (lookupTable) {
+            lookupTable.isLocked = true;
+        }
+    }
+
 
     // an object used for global Modal Actions
     xcHelper.Modal = function($modal, options) {

@@ -83,14 +83,14 @@ function infScrolling(tableNum) {
 
                 var rowNumber = topRowNum - numRowsToAdd;
                 var lastRowToDisplay = table.find('tbody tr:lt(40)');
-
+                var tableName = gTables[dynTableNum].tableName;
                 info = {
                     "numRowsToAdd"    : numRowsToAdd,
                     "numRowsAdded"    : 0,
                     "targetRow"       : rowNumber,
                     "lastRowToDisplay": lastRowToDisplay,
                     "bulk"            : false,
-                    "tableNum"        : dynTableNum
+                    "tableName"        : tableName
                 };
 
                 goToPage(rowNumber, numRowsToAdd, RowDirection.Top, false, info)
@@ -115,6 +115,7 @@ function infScrolling(tableNum) {
                 numRowsToAdd = Math.min(gNumEntriesPerPage,
                                 gTables[dynTableNum].resultSetMax -
                                 gTables[dynTableNum].currentRowNumber);
+                var tableName = gTables[dynTableNum].tableName;
                 info = {
                     "numRowsToAdd": numRowsToAdd,
                     "numRowsAdded": 0,
@@ -123,7 +124,7 @@ function infScrolling(tableNum) {
                     "lastRowToDisplay": gTables[dynTableNum].currentRowNumber +
                                         numRowsToAdd,
                     "bulk"    : false,
-                    "tableNum": dynTableNum
+                    "tableName": tableName
                 };
                 
                 goToPage(gTables[dynTableNum].currentRowNumber, numRowsToAdd,
@@ -259,7 +260,7 @@ function setupRowScroller() {
         if (backRow < 0) {
             backRow = 0;
         }
-
+        var tableName = gTables[gActiveTableNum].tableName;
         var numRowsToAdd = 60;
         var info = {
             "numRowsToAdd"    : numRowsToAdd,
@@ -267,18 +268,19 @@ function setupRowScroller() {
             "lastRowToDisplay": backRow + 60,
             "targetRow"       : targetRow,
             "bulk"            : true,
-            "tableNum"        : gActiveTableNum
+            "tableName"       : tableName
         };
 
         goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
         .then(function() {
+            var tableNum = xcHelper.getTableIndexFromName(tableName);
             var rowToScrollTo = Math.min(targetRow,
-                                gTables[gActiveTableNum].resultSetMax);
-            positionScrollbar(rowToScrollTo, gActiveTableNum);
+                                gTables[tableNum].resultSetMax);
+            positionScrollbar(rowToScrollTo, tableNum);
             generateFirstVisibleRowNum();
             if (!event.rowScrollerMousedown) {
                 moverowScroller($('#rowInput').val(),
-                                 gTables[gActiveTableNum].resultSetCount);
+                                 gTables[tableNum].resultSetCount);
             } else {
                 $('#rowScrollerArea').addClass('autoScroll');
             }
@@ -477,7 +479,6 @@ function documentReadyGeneralFunction() {
         var clickable = $target.closest('.colMenu').length > 0 ||
                         $target.closest('.clickable').length > 0;
         if (!clickable && $target.closest('.dropdownBox').length === 0) {
-            console.log('close')
             $('.colMenu').hide();
             $('#highlightBox').remove();
             $('body').removeClass('noSelection');
@@ -514,9 +515,6 @@ function documentReadyGeneralFunction() {
             case ("movingCol"):
                 dragdropMouseMove(event);
                 break;
-            // case ("movingJson"):
-            //     JSONModal.mouseMove(event);
-            //     break;
             case ("rowScroller"):
                 rowScrollerMouseMove(event);
                 break;
@@ -609,13 +607,18 @@ function initializeTable() {
         var tableName;
 
         for (var i = 0; i < gTableOrderLookup.length; i++) {
-            ++tableCount;
             tableName = gTableOrderLookup[i];
-
+            var lookupTable = gTableIndicesLookup[tableName];
+            if (lookupTable.isLocked) {
+                lookupTable.isLocked = false;
+                lookupTable.active = false;
+                continue;
+            }
+            ++tableCount;
             promises.push((function(index, tableName) {
                 var innerDeferred = jQuery.Deferred();
 
-                addTable(tableName, index, null, null)
+                addTable(tableName, null, null, null)
                 .then(innerDeferred.resolve)
                 .fail(function(thriftError) {
                     failures.push("Add table " + tableName +

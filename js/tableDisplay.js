@@ -1,5 +1,5 @@
-function refreshTable(newTableName, tableNum,
-                      keepOriginal, additionalTableNum) {
+function refreshTable(newTableName, oldTableName,
+                      keepOriginal, additionalTableName) {
     var deferred = jQuery.Deferred();
 
     if (!$('#workspaceTab').hasClass('active')) {
@@ -12,12 +12,12 @@ function refreshTable(newTableName, tableNum,
     }
 
     // $("#workspaceTab").trigger('click');
-    var newTableNum;
     if (keepOriginal === KeepOriginalTables.Keep) {
         // append newly created table to the back
-        newTableNum = gTables.length;
-        addTable(newTableName, newTableNum, AfterStartup.After)
+       
+        addTable(newTableName, oldTableName, AfterStartup.After)
         .then(function() {
+            var newTableNum = xcHelper.getTableIndexFromName(newTableName);
             focusTable(newTableNum);
             var leftPos = $('#xcTableWrap' + newTableNum).position().left +
                             $('#mainFrame').scrollLeft();
@@ -34,38 +34,44 @@ function refreshTable(newTableName, tableNum,
         });
     } else {
         // default
-        newTableNum = tableNum;
+        // newTableNum = tableNum;
+        var targetTable = oldTableName;
         var savedScrollLeft;
         var tablesToRemove    = [];
         var delayTableRemoval = true;
 
-        if (additionalTableNum > -1) {
-            var largerTableNum  = Math.max(additionalTableNum, tableNum);
-            var smallerTableNum = Math.min(additionalTableNum, tableNum);
+        if (additionalTableName) {
+            var firstTableNum = xcHelper.getTableIndexFromName(oldTableName);
+            var secondTableNum = 
+                            xcHelper.getTableIndexFromName(additionalTableName);
+            var tableToRemove;
+            var tableNumsToRemove;
+            if (firstTableNum > secondTableNum) {
+                targetTable = additionalTableName;
+                tableToRemove = oldTableName;
+            } else {
+                targetTable = oldTableName;
+                tableToRemove = additionalTableName;
 
-            tablesToRemove.push(largerTableNum);
-            archiveTable(largerTableNum, DeleteTable.Keep, delayTableRemoval);
-            if (largerTableNum !== smallerTableNum) {
-                // excludes self join
-                tablesToRemove.push(smallerTableNum);
-                archiveTable(smallerTableNum, DeleteTable.Keep,
-                             delayTableRemoval);
             }
-            if (newTableNum > gTables.length) {
-                // edge case
-                newTableNum = gTables.length;
+
+            tablesToRemove.push(tableToRemove);
+
+            if (targetTable !== tableToRemove) {
+                // excludes self join
+                tablesToRemove.push(targetTable);
             }
         } else {
             savedScrollLeft = $('#mainFrame').scrollLeft();
-            tablesToRemove.push(tableNum);
-            archiveTable(tableNum, DeleteTable.Keep, delayTableRemoval);
+            tablesToRemove.push(oldTableName);
         }
 
-        addTable(newTableName, newTableNum, AfterStartup.After, tablesToRemove)
+        addTable(newTableName, targetTable, AfterStartup.After, tablesToRemove)
         .then(function() {
             if (savedScrollLeft) {
                 $('#mainFrame').scrollLeft(savedScrollLeft);
             }
+            var newTableNum = xcHelper.getTableIndexFromName(newTableName);
             focusTable(newTableNum);
             deferred.resolve();
         })
@@ -79,17 +85,34 @@ function refreshTable(newTableName, tableNum,
 
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
+function addTable(tableName, location, AfterStartup, tablesToRemove) {
     var deferred = jQuery.Deferred();
     var wsIndex  = WSManager.addTable(tableName);
-
-    reorderTables(tableNum);
+    var tableNum;
+    var tableNumsToRemove = [];
 
     setTableMeta(tableName)
     .then(function(newTableMeta) {
-        gTables[tableNum] = newTableMeta;
 
-        return (parallelConstruct());
+        if (location == null) {
+            tableNum = gTables.length;
+        } else {
+            tableNum = xcHelper.getTableIndexFromName(location);
+        }
+
+        if (tablesToRemove) {
+            var delayTableRemoval = true;
+            for (var i = 0; i < tablesToRemove.length; i++) {
+                var tableNumber =
+                            xcHelper.getTableIndexFromName(tablesToRemove[i]);
+                tableNumsToRemove.push(tableNumber);
+                archiveTable(tableNumber, DeleteTable.Keep, delayTableRemoval);
+            }
+        }
+        reorderTables(tableNum);
+
+        gTables[tableNum] = newTableMeta;
+        return (parallelConstruct(tableNum));
     })
     .then(function() {
         deferred.resolve();
@@ -102,13 +125,14 @@ function addTable(tableName, tableNum, AfterStartup, tableNumsToRemove) {
 
     return (deferred.promise());
 
-    function parallelConstruct() {
+    function parallelConstruct(tableNum) {
         var deferred  = jQuery.Deferred();
         var deferred1 = startBuildTable(tableNum, tableNumsToRemove);
         var deferred2 = Dag.construct(gTables[tableNum].tableName, tableNum);
 
         jQuery.when(deferred1, deferred2)
         .then(function() {
+            tableNum = xcHelper.getTableIndexFromName(tableName);
             $("#xcTableWrap" + tableNum).addClass("worksheet-" + wsIndex);
             $("#dagWrap" + tableNum).addClass("worksheet-" + wsIndex);
 
@@ -353,25 +377,27 @@ function setTableMeta(tableName) {
 function startBuildTable(tableNum, tableNumsToRemove) {
     var deferred   = jQuery.Deferred();
     var table      = gTables[tableNum];
-    var index      = getIndex(table.tableName);
-    var notIndexed = !(index && index.length > 0);
+    var tableName = table.tableName;
+    var progCols   = getIndex(tableName);
+    var notIndexed = !(progCols && progCols.length > 0);
 
-    getFirstPage(table.resultSetId, tableNum, notIndexed)
+    getFirstPage(table.resultSetId, tableName, notIndexed)
     .then(function(jsonObj, keyName) {
         if (notIndexed) { // getNextPage will ColManager.setupProgCols()
-            index = table.tableCols;
+            progCols = table.tableCols;
         }
 
         if (tableNumsToRemove) {
             for (var i = 0, len = tableNumsToRemove.length; i < len; i++) {
-                $('#tablesToRemove' + tableNumsToRemove[i]).remove();
-                $('#rowScrollerToRemove' + tableNumsToRemove[i]).remove();
-                $('#dagWrapToRemove' + tableNumsToRemove[i]).remove();
+                var tableNumber = tableNumsToRemove[i];
+                $('#tablesToRemove' + tableNumber).remove();
+                $('#rowScrollerToRemove' + tableNumber).remove();
+                $('#dagWrapToRemove' + tableNumber).remove();
             }
         }
-
+        tableNum = xcHelper.getTableIndexFromName(tableName) || 0;
         table.currentRowNumber = jsonObj.normal.length;
-        buildInitialTable(index, tableNum, jsonObj, keyName);
+        buildInitialTable(progCols, tableNum, jsonObj, keyName);
         deferred.resolve();
     })
     .then(function() {
@@ -387,12 +413,13 @@ function startBuildTable(tableNum, tableNumsToRemove) {
                 "lastRowToDisplay": table.currentRowNumber + numRowsStillNeeded,
                 "bulk"            : false,
                 "dontRemoveRows"  : true,
-                "tableNum"        : tableNum
+                "tableName"       : tableName
             };
 
             return goToPage(table.currentRowNumber, numRowsStillNeeded,
                             RowDirection.Bottom, false, info)
                     .then(function() {
+                        tableNum = xcHelper.getTableIndexFromName(tableName);
                         var lastRow = $('#xcTable' + tableNum + ' tr:last');
                         var lastRowNum = parseInt(lastRow.attr('class')
                                                          .substr(3));
@@ -408,9 +435,9 @@ function startBuildTable(tableNum, tableNumsToRemove) {
     return (deferred.promise());
 }
 
-function buildInitialTable(index, tableNum, jsonObj, keyName) {
+function buildInitialTable(progCols, tableNum, jsonObj, keyName) {
     var table = gTables[tableNum];
-    table.tableCols = index;
+    table.tableCols = progCols;
     table.keyName = keyName;
     var dataIndex = generateTableShell(table.tableCols, tableNum);
     var numRows = jsonObj.normal.length;
@@ -456,9 +483,6 @@ function pullRowsBulk(tableNum, jsonObj, startIndex, dataIndex, direction,
     var idColWidth = getTextWidth($table.find('tr:last td:first'));
     var newWidth = Math.max(idColWidth, 22);
     var padding = 12;
-    if ($table.find('.fauxTHead').length !== 0) {
-        padding += 5;
-    }
     $table.find('th:first-child').width(newWidth + padding);
     var colNum = 0;
     matchHeaderSizes(colNum, $table);

@@ -2,8 +2,11 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
     if (!document.elementFromPoint) {
         return;
     }
-
-    var tableLeft = $('#xcTable' + gActiveTableNum).offset().left;
+    var $table = $('#xcTable' + gActiveTableNum);
+    if ($table.length === 0) {
+        return;
+    }
+    var tableLeft = $table.offset().left;
     var tdXCoor = Math.max(0, tableLeft);
     var tdYCoor = 168; //top rows's distance from top of window
     var firstEl = document.elementFromPoint(tdXCoor, tdYCoor);
@@ -1378,7 +1381,7 @@ function addColListeners($table, tableNum) {
         var $el = $td.children('.clickable');
         var colNum = xcHelper.parseColNum($td);
         var rowNum = xcHelper.parseRowNum($td.closest("tr"));
-
+        
         $(".tooltip").hide();
         resetColMenuInputs($el);
 

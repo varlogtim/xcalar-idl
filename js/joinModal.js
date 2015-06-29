@@ -251,10 +251,9 @@ window.JoinModal = (function($, JoinModal) {
         var $rightCol     = $rightJoinTable.find('th.colSelected');
         var rightColNum   = xcHelper.parseColNum($rightCol) - 1;
         var rightTableNum = $rightCol.closest(".joinTable").data("tablenum");
-
+        resetJoinTables();
         xcFunction.join(leftColNum, leftTableNum, rightColNum,
-                        rightTableNum, joinType, newTableName)
-        .always(resetJoinTables);
+                        rightTableNum, joinType, newTableName);
     }
 
     function multiJoinHelper(joinType, newTableName) {
@@ -308,10 +307,9 @@ window.JoinModal = (function($, JoinModal) {
         if (leftCols.length === 1) {
             leftColNum = getColumnNum($leftTable, leftCols[0]) - 1;
             rightColNum = getColumnNum($rightTable, rightCols[0]) - 1;
-
+            resetJoinTables();
             xcFunction.join(leftColNum, leftTableNum, rightColNum,
-                        rightTableNum, joinType, newTableName)
-            .always(resetJoinTables);
+                        rightTableNum, joinType, newTableName);
 
             return;
         }
@@ -338,11 +336,12 @@ window.JoinModal = (function($, JoinModal) {
         }
 
         rightString += ')';
-
+        resetJoinTables();
+        var options = {'joinNext': true};
         var deferred1 = xcFunction.map(leftColNum, leftTableNum,
-                                        leftColName, leftString);
+                                        leftColName, leftString, options);
         var deferred2 = xcFunction.map(rightColNum, rightTableNum,
-                                        rightColName, rightString);
+                                        rightColName, rightString, options);
 
         jQuery.when(deferred1, deferred2)
         .then(function() {
@@ -351,13 +350,12 @@ window.JoinModal = (function($, JoinModal) {
 
             leftRemoved[leftColName] = true;
             righRemoved[rightColName] = true;
-
+            
             return xcFunction.join(leftColNum - 1, leftTableNum,
                                     rightColNum - 1, rightTableNum,
                                     joinType, newTableName,
                                     leftRemoved, righRemoved);
-        })
-        .always(resetJoinTables);
+        });
     }
 
     function getColumnNum($table, colName) {

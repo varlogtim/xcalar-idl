@@ -47,7 +47,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     // rowNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();
     info = info || {};
-    var tableNum = info.tableNum;
+    var tableNum = xcHelper.getTableIndexFromName(info.tableName);
     if (rowNumber >= gTables[tableNum].resultSetMax) {
         console.log("Already at last page!");
         return (promiseWrapper(null));
@@ -61,13 +61,15 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
 
     var prepullTableHeight;
     var numRowsBefore;
-    XcalarSetAbsolute(gTables[tableNum].resultSetId, rowPosition)
+    var resultSetId = gTables[tableNum].resultSetId;
+    XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function(){
-        return (generateDataColumnJson(gTables[tableNum].resultSetId,
-                                        null, tableNum, false, numRowsToAdd));
+        return (generateDataColumnJson(resultSetId,null, info.tableName,
+                                       false, numRowsToAdd));
     })
     .then(function(jsonObj, keyName) {
         var deferred2 = jQuery.Deferred();
+        tableNum = xcHelper.getTableIndexFromName(info.tableName);
         var jsonLen   = jsonObj.normal.length;
 
         var numRowsLacking     = numRowsToAdd - jsonLen;
@@ -167,6 +169,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         }
     })
     .then(function() {
+        tableNum = xcHelper.getTableIndexFromName(info.tableName);
         removeWaitCursor();
         moveFirstColumn();
         if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
@@ -221,18 +224,18 @@ function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
 }
 
 
-function getFirstPage(resultSetId, tableNum, notIndexed) {
+function getFirstPage(resultSetId, tableName, notIndexed) {
     if (resultSetId === 0) {
         return (promiseWrapper(null));
     }
-
+    var tableNum = xcHelper.getTableIndexFromName(tableName);
     var numRowsToAdd = Math.min(60, gTables[tableNum].resultSetCount);
-    return (generateDataColumnJson(resultSetId, null, tableNum, notIndexed,
+    return (generateDataColumnJson(resultSetId, null, tableName, notIndexed,
                                     numRowsToAdd));
 }
 
  // produces an array of all the td values that will go into the DATA column
-function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
+function generateDataColumnJson(resultSetId, direction, tableName, notIndexed,
                                 numRowsToFetch) {
     var deferred = jQuery.Deferred();
     var jsonObj = {
@@ -250,6 +253,7 @@ function generateDataColumnJson(resultSetId, direction, tableNum, notIndexed,
 
     XcalarGetNextPage(resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {
+        var tableNum = xcHelper.getTableIndexFromName(tableName);
         var keyName = gTables[tableNum].keyName;
         var kvPairs = tableOfEntries.kvPair;
         var numKvPairs = tableOfEntries.numKvPairs;

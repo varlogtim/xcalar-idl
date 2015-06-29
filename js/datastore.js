@@ -1135,9 +1135,9 @@ window.DataCart = (function($, DataCart) {
 
                 XcalarIndexFromDataset(datasetName, "recordNum", tableName)
                 .then(function() {
+                    var keepOriginal = true;
                     setIndex(tableName, newTableCols, datasetName, tableProperties);
-                    return (refreshTable(tableName, gTables.length, true,
-                                         false));
+                    return (refreshTable(tableName, null, keepOriginal, false));
                 })
                 .then(function() {
                     SQL.add("Send To Worksheet", sqlOptions);
@@ -1267,7 +1267,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             numEntries = Number(totalEntries).toLocaleString('en');
         }
         $("#dsInfo-records").text(numEntries);
-        
+
         if (dsFormat) {
             $("#schema-format").text(dsFormat);
         }

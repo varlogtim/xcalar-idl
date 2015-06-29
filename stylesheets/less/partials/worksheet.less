@@ -542,13 +542,13 @@
         }
     }  
 
-    &.tableDarkened {
+    &.tableDarkened, &.tableLocked {
         &::before {
             content: "";
             .position(absolute);
             .size(100%, 100%);
             display: block;
-            z-index: 20;
+            z-index: 21;
         }
 
         .xcTheadWrap {
@@ -591,6 +591,27 @@
 
             tbody {
                 opacity: 0.7;
+            }
+        }
+    }
+    &.tableLocked {
+        cursor: wait;
+        &:before {
+            display: none;
+        }
+        .tableTitle, .header, td {
+            pointer-events: none;
+        }
+        .lockedIcon {
+            position: absolute;
+            display: inline-block;
+            z-index: 10;
+            height: 60px;
+            top: 40%;
+            left: 50%;
+            .transform(translateX(-50%));
+            img {
+                height: 100%;
             }
         }
     }
