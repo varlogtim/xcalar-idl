@@ -450,9 +450,9 @@ input {
                 background-color: #DDDDDD;
             }
             &:first-child {
-                background-color: #BDBDBD !important;
+                background-color: #BDBDBD;
                 .idSpan {
-                    background-color: #BDBDBD !important;
+                    background-color: #BDBDBD;
                 }
             }
             &.indexedColumn {
@@ -465,7 +465,18 @@ input {
                 background-color: #CCD7CC !important;
             }
         }
+    }
 
+    tbody tr.dragging td:not(.rowBookmarked) {
+        &:first-child .idSpan {
+            background-color: #BDBDBD !important;
+        }
+    }
+
+    &.xcTable {
+        tbody tr td:first-child {
+            border-right: 5px solid white;
+        }
     }
     
     th.unusedCell {
@@ -630,6 +641,7 @@ input {
     }
 
     .rowBookmarked {
+        background-color:@color-background-topAction !important;
         .idSpan {
             background-color:@color-background-topAction !important;
         }
