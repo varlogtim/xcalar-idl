@@ -112,6 +112,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var $grid = $container.find("grid-unit.active");
             xcHelper.disableSubmit($(this));
             importDataset($grid);
+            return false;
         });
 
         // close file browser
@@ -386,8 +387,9 @@ window.FileBrowser = (function($, FileBrowser) {
     }
 
     function importDataset($ds) {
+        var fileName = $fileName.val();
 
-        if ($ds == null || $ds.length === 0) {
+        if (($ds == null || $ds.length === 0) && fileName !== "") {
             var text = "Invalid file name!" +
                         " Please choose a file or folder to import!";
 
@@ -395,33 +397,35 @@ window.FileBrowser = (function($, FileBrowser) {
             xcHelper.enableSubmit($fileBrowser.find('.confirm'));
             return;
         }
+
         // reset import data form
         $("#importDataReset").click();
 
-        // no selected dataset, load the directory
-        // if ($ds == null || $ds.length == 0) {
-        //     var path = getCurrentPath();
-        //     // remove the last slash
-        //     if (path !== defaultPath) {
-        //         path = path.substring(0, path.length - 1);
-        //     }
-        //     $filePath.val(path);
-        // } else {
-
         // load dataset
-        var dsName = getGridUnitName($ds);
         var curDir = getCurrentPath();
-        var path   = curDir + dsName;
-        var ext    = getFormat(dsName);
+        var ext    = getFormat(fileName);
 
         historyPath = curDir;
+
+        if (fileName === "" && curDir !== defaultPath) {
+            // load the whole dataset
+
+            // last char for curDir is "/"
+            curDir = curDir.substring(0, curDir.length - 1);
+            var slashIndex = curDir.lastIndexOf("/");
+            fileName = curDir.substring(slashIndex + 1) + "/";
+            curDir = curDir.substring(0, slashIndex + 1);
+        }
+
+
         if (ext != null) {
             $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]')
                 .click();
         }
+
+        var path = curDir + fileName;
         $filePath.val(path);
-        $("#fileName").val(getShortName(dsName));
-        // }
+        $("#fileName").val(getShortName(fileName));
         closeAll();
     }
 
