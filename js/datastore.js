@@ -497,7 +497,7 @@ window.GridView = (function($, GridView) {
                 DataSampleTable.getTableFromDS(dsId, loading);
                 
                 var animatedDots = '<div class="animatedEllipsis">' +
-                                      '<div>.</div>' + 
+                                      '<div>.</div>' +
                                       '<div>.</div>' +
                                       '<div>.</div>' +
                                     '</div>';
@@ -555,21 +555,10 @@ window.GridView = (function($, GridView) {
             },
             // select all on focus
             "focus": function() {
-            // Jerene: may need another way to inplement(jquery)
                 var div = $(this).get(0);
+                // without setTimeout cannot select all for some unknow reasons
                 window.setTimeout(function() {
-                    var sel, range;
-                    if (window.getSelection && document.createRange) {
-                        range = document.createRange();
-                        range.selectNodeContents(div);
-                        sel = window.getSelection();
-                        sel.removeAllRanges();
-                        sel.addRange(range);
-                    } else if (document.body.createTextRange) {
-                        range = document.body.createTextRange();
-                        range.moveToElementText(div);
-                        range.select();
-                    }
+                   xcHelper.createSelection(div);
                 }, 1);
             },
             "blur": function() {

@@ -163,6 +163,35 @@ window.xcHelper = (function($, xcHelper) {
         return (name + rand);
     };
 
+    xcHelper.createSelection = function(element, atEnd) {
+        if (element == null) {
+            return;
+        }
+
+        var range;
+        var selection;
+
+        if (window.getSelection && document.createRange) {
+            range = document.createRange();
+            range.selectNodeContents(element);
+            // move the cursor to end, else select all
+            if (atEnd) {
+                range.collapse(false);
+            }
+            selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } else if (document.body.createTextRange) {
+            range = document.body.createTextRange();
+            range.moveToElementText(element);
+
+            if (atEnd) {
+                range.collapse(false);
+            }
+            range.select();
+        }
+    };
+
     xcHelper.removeSelectionRange = function() {
         if (window.getSelection) {
             window.getSelection().removeAllRanges();
@@ -406,129 +435,132 @@ window.xcHelper = (function($, xcHelper) {
         return (this);
     };
 
-    xcHelper.Modal.prototype.setup = function() {
-        // XXX to find the visiable btn, must show the modal first
-        var $modal      = this.$modal;
-        var eleLists    = [
-            $modal.find(".btn"),                // buttons
-            $modal.find("input")                // input
-        ];
+    xcHelper.Modal.prototype = {
+        setup: function() {
+            // XXX to find the visiable btn, must show the modal first
+            var $modal   = this.$modal;
+            var eleLists = [
+                $modal.find(".btn"),                // buttons
+                $modal.find("input")                // input
+            ];
 
-        var focusIndex  = 0;
-        var $focusables = [];
+            var focusIndex  = 0;
+            var $focusables = [];
 
-        // make an array for all focusable element
-        eleLists.forEach(function($eles) {
-            $eles.each(function() {
-                $focusables.push($(this));
+            // make an array for all focusable element
+            eleLists.forEach(function($eles) {
+                $eles.each(function() {
+                    $focusables.push($(this));
+                });
             });
-        });
 
-        for (var i = 0, len = $focusables.length; i < len; i++) {
-            addFocusEvent($focusables[i], i);
-        }
+            for (var i = 0, len = $focusables.length; i < len; i++) {
+                addFocusEvent($focusables[i], i);
+            }
 
-        // for switch between modal tab using tab key
-        $(document).on("keydown.xcModal" + this.id, function(event) {
-            if (event.which === keyCode.Tab) {
-                event.preventDefault();
+            // for switch between modal tab using tab key
+            $(document).on("keydown.xcModal" + this.id, function(event) {
+                if (event.which === keyCode.Tab) {
+                    event.preventDefault();
+                    getEleToFocus();
+
+                    return false;
+                }
+            });
+
+            // for when mouse move on other buttons
+            var $btns = eleLists[0];
+            $btns.on("mouseenter.xcModal", function() {
+                var $btn = $(this);
+                $btns.blur();
+                $btn.focus();
+            });
+
+            $btns.on("mouseleave.xcModal", function() {
+                $(this).blur();
+            });
+
+            // focus on the right most button
+            if (this.options.focusOnOpen) {
                 getEleToFocus();
-
-                return false;
             }
-        });
 
-        // for when mouse move on other buttons
-        var $btns = eleLists[0];
-        $btns.on("mouseenter.xcModal", function() {
-            var $btn = $(this);
-            $btns.blur();
-            $btn.focus();
-        });
+            function addFocusEvent($focusable, index) {
+                $focusable.addClass("focusable").data("tabid", index);
+                $focusable.on("focus.xcModal", function() {
+                    var $ele = $(this);
+                    if (!isActive($ele)) {
+                        return;
+                    }
+                    focusOn($ele.data("tabid"));
+                });
+            }
 
-        $btns.on("mouseleave.xcModal", function() {
-            $(this).blur();
-        });
-
-        // focus on the right most button
-        if (this.options.focusOnOpen) {
-            getEleToFocus();
-        }
-
-        function addFocusEvent($focusable, index) {
-            $focusable.addClass("focusable").data("tabid", index);
-            $focusable.on("focus.xcModal", function() {
-                var $ele = $(this);
-                if (!isActive($ele)) {
-                    return;
-                }
-                focusOn($ele.data("tabid"));
-            });
-        }
-
-        // find the input or button that is visible and not disabled to focus
-        function getEleToFocus() {
-            // the current ele is not active, should no by aocused
-            if (!isActive($focusables[focusIndex])) {
-                var start  = focusIndex;
-                focusIndex = (focusIndex + 1) % len;
-
-                while (focusIndex !== start &&
-                        !isActive($focusables[focusIndex]))
-                {
+            // find the input or button that is visible and not disabled to focus
+            function getEleToFocus() {
+                // the current ele is not active, should no by aocused
+                if (!isActive($focusables[focusIndex])) {
+                    var start  = focusIndex;
                     focusIndex = (focusIndex + 1) % len;
+
+                    while (focusIndex !== start &&
+                            !isActive($focusables[focusIndex]))
+                    {
+                        focusIndex = (focusIndex + 1) % len;
+                    }
+                    // not find any active ele that could be focused
+                    if (focusIndex === start) {
+                        focusIndex = -1;
+                    }
                 }
-                // not find any active ele that could be focused
-                if (focusIndex === start) {
-                    focusIndex = -1;
+
+                if (focusIndex >= 0) {
+                    $focusables[focusIndex].focus();
                 }
             }
 
-            if (focusIndex >= 0) {
-                $focusables[focusIndex].focus();
+            function focusOn(index) {
+                focusIndex = index;
+                // go to next index
+                focusIndex = (focusIndex + 1) % len;
             }
-        }
 
-        function focusOn(index) {
-            focusIndex = index;
-            // go to next index
-            focusIndex = (focusIndex + 1) % len;
-        }
-
-        function isActive($ele) {
-            if ($ele == null) {
-                console.error("undefined element!");
+            function isActive($ele) {
+                if ($ele == null) {
+                    console.error("undefined element!");
+                }
+                return ($ele.is(":visible") && !$ele.is("[disabled]"));
             }
-            return ($ele.is(":visible") && !$ele.is("[disabled]"));
-        }
-    };
+        },
 
-    xcHelper.Modal.prototype.submit = function() {
-         xcHelper.enableSubmit(this.$modal.find(".confirm"));
-    }
+        checkBtnFocus: function() {
+            // check if any button is on focus
+            return (this.$modal.find(".btn:focus").length > 0);
+        },
 
-    xcHelper.Modal.prototype.enableSubmit = function() {
-        xcHelper.enableSubmit(this.$modal.find(".confirm"));
-    }
+        submit: function() {
+            xcHelper.disableSubmit(this.$modal.find(".confirm"));
+        },
 
-    xcHelper.Modal.prototype.clear = function() {
-        $(document).off("keydown.xcModal" + this.id);
-        this.$modal.find(".focusable").off(".xcModal")
+        enableSubmit: function() {
+            xcHelper.enableSubmit(this.$modal.find(".confirm"));
+        },
+
+        clear: function() {
+            $(document).off("keydown.xcModal" + this.id);
+            this.$modal.find(".focusable").off(".xcModal")
                                       .removeClass("focusable");
-        this.enableSubmit();
-    };
-    // check if any button is on focus
-    xcHelper.Modal.prototype.checkBtnFocus = function() {
-        return (this.$modal.find(".btn:focus").length > 0);
+            this.enableSubmit();
+        }
     };
 
     xcHelper.disableSubmit = function($submitBtn) {
         $submitBtn.prop('disabled', true);
-    }
+    };
 
     xcHelper.enableSubmit = function($submitBtn) {
         $submitBtn.prop('disabled', false);
-    }
+    };
 
     xcHelper.Corrector = function(words) {
         // traing texts

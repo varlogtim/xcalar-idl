@@ -786,7 +786,8 @@ function createTableHeader(tableNum) {
                     if ($parent.hasClass("hashName") ||
                         $parent.hasClass("tableTitle"))
                     {
-                        createSelection($(this).find(".tableName")[0], true);
+                        xcHelper.createSelection($(this).find(".tableName")[0],
+                                                 true);
                     }
                 }
             }
@@ -1202,36 +1203,9 @@ function updateTableHeader(tableNum, $tHead, isFocus) {
 
     if (isFocus) {
         $tHead.html(tableName);
-        createSelection($tHead.find(".tableName")[0]);
+        xcHelper.createSelection($tHead.find(".tableName")[0]);
     } else {
         $tHead.html(tableName + "  [" + cols + "]");
-    }
-}
-
-function createSelection(field, atEnd) {
-    if (!field) {
-        return;
-    }
-
-    var range;
-    var selection;
-
-    if (window.getSelection && document.createRange) {
-        range = document.createRange();
-        range.selectNodeContents(field);
-        if (atEnd) {
-            range.collapse(false);
-        }
-        sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-    } else if (document.body.createTextRange) {
-        range = document.body.createTextRange();
-        range.moveToElementText(field);
-        if (atEnd) {
-            range.collapse(false);
-        }
-        range.select();
     }
 }
 

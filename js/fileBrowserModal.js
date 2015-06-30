@@ -224,7 +224,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     retrievePaths(path)
                     .then(function() {
                         $input.focus();
-                        setEndOfContenteditable($input[0]);
+                        xcHelper.createSelection($input[0], true);
                     });
                 }, 400);
 
@@ -711,28 +711,6 @@ window.FileBrowser = (function($, FileBrowser) {
         });
 
         $container.empty().append(html);
-    }
-
-    // this function is from http://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity
-    function setEndOfContenteditable(contentEditableElement) {
-        var range;
-        var selection;
-
-        if (document.createRange) {
-            //Firefox, Chrome, Opera, Safari, IE 9+
-            range = document.createRange();
-            range.selectNodeContents(contentEditableElement);
-            range.collapse(false);
-            selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-        } else if (document.selection) {
-            //IE 8 and lower
-            range = document.body.createTextRange();
-            range.moveToElementText(contentEditableElement);
-            range.collapse(false);
-            range.select();
-        }
     }
 
     return (FileBrowser);
