@@ -1401,11 +1401,8 @@ function addColListeners($table, tableNum) {
         var colNum = xcHelper.parseColNum($td);
         var rowNum = xcHelper.parseRowNum($td.closest("tr"));
 
-        event.stopPropagation();
-
         $(".tooltip").hide();
         resetColMenuInputs($el);
-        
 
         dropdownClick($el, {
             "type"      : "tdDropdown",

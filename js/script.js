@@ -474,8 +474,10 @@ function documentReadyGeneralFunction() {
     $(document).mousedown(function(event) {
         var $target = $(event.target);
         gMouseEvents.setMouseDownTarget($target);
-        var clickable = $target.closest('.colMenu').length > 0;
+        var clickable = $target.closest('.colMenu').length > 0 ||
+                        $target.closest('.clickable').length > 0;
         if (!clickable && $target.closest('.dropdownBox').length === 0) {
+            console.log('close')
             $('.colMenu').hide();
             $('#highlightBox').remove();
             $('body').removeClass('noSelection');
