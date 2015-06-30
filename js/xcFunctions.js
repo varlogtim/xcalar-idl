@@ -516,7 +516,7 @@ window.xcFunction = (function ($, xcFunction) {
     }
 
     function getNewTableName(tableName) {
-        return (tableName + Authentication.fetchHashTag());
+        return (tableName.split("#")[0] + Authentication.fetchHashTag());
     }
 
     // For xcFunction.join, check if table has correct index
