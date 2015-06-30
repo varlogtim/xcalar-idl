@@ -495,8 +495,15 @@ window.GridView = (function($, GridView) {
                 var loading = true;
                 var dsId = $grid.data("dsid");
                 DataSampleTable.getTableFromDS(dsId, loading);
+                
+                var animatedDots = '<div class="animatedEllipsis">' +
+                                      '<div>.</div>' + 
+                                      '<div>.</div>' +
+                                      '<div>.</div>' +
+                                    '</div>';
                 var loadingMsg = '<div class="loadingMsg">' +
-                                 'Data set is loading...</div>';
+                                 'Data set is loading' + animatedDots +
+                                 '</div>';
                 $('#dataSetTableWrap').html(loadingMsg);
                 return;
             }
@@ -1741,7 +1748,8 @@ window.DS = (function ($, DS) {
         $grid.addClass('display inactive');
         $grid.append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
-
+        $grid.click();
+        
         XcalarLoad(loadURL, dsFormat, dsName,
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName)

@@ -1417,6 +1417,32 @@ ul.inputMenu {
     }
 }
 
+.animatedEllipsis {
+    animation: ellipsis 2s steps(4, end) infinite;
+    -webkit-animation: ellipsis 2s steps(4, end) infinite;
+    text-align: left;
+    overflow: hidden;
+    width: 0px;
+    display: inline-block;
+    float: right;
+    > div {
+        display: inline;
+        margin-left: 1px;
+    }
+}
+
+@-webkit-keyframes ellipsis {
+    to {
+        width: 20px;
+    }
+}
+
+@keyframes ellipsis {
+    to {
+        width: 20px;
+    }
+}
+
 #worksheetInfo {
     .size(@width: ~"calc(100% - 215px)", @height: 100%);
     float: left;
