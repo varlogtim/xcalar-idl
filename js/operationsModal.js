@@ -226,7 +226,7 @@ window.OperationsModal = (function($, OperationsModal) {
             });
 
             $('.xcTableWrap').not('#xcTableWrap' + tableNum)
-                             .removeClass('modalDarkened');
+                             .removeClass('tableDarkened');
 
             $('#xcTableWrap' + tableNum).removeClass('opModalOpen');
             $('.modalHighlighted').removeClass('modalHighlighted');
@@ -332,7 +332,7 @@ window.OperationsModal = (function($, OperationsModal) {
         highlightOperationColumn();
         $('#xcTableWrap' + tableNum).addClass('opModalOpen');
         $('.xcTableWrap').not('#xcTableWrap' + tableNum)
-                         .addClass('modalDarkened');
+                         .addClass('tableDarkened');
 
         $('#rightSideBar').addClass('opModalOpen');
         $('#mainFrame').addClass('opModalOpen');

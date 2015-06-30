@@ -543,7 +543,7 @@
         }
     }  
 
-    &.modalDarkened {
+    &.tableDarkened {
         &::before {
             content: "";
             .position(absolute);
@@ -570,14 +570,16 @@
             th {
                 &:first-child {
                     .header::before {
-                        left: -5px;
-                        width: ~"calc(100% + 10px)";
+                        display: none;
+                    }
+                    input {
+                        .linear-gradient(top, #8D8D8D, #7A7A7A);
+                        border: 5px solid #A0A0A0;
+                        box-shadow: -1px 0px 0px 1px #888888;
                     }
                 }
 
                 .header {
-                    z-index: 20;
-
                     &::before {
                         content: "";
                         .position(absolute, @top: -5px, @left: 0px);
@@ -651,6 +653,7 @@
                     margin-left: -5px;
                     margin-top: -5px;
                     z-index: 3;
+                    border-radius: 0;
 
                     &::after {
                         content: "";
