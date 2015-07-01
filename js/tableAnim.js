@@ -1393,6 +1393,10 @@ function addColListeners($table, tableNum) {
             "classes"   : "tdMenu", // specify classes to update colmenu's class attr
             "mouseCoors": {x: event.pageX, y: yCoor}
         });
+        if ($td.children('.highlightBox').length != 0) {
+            $('.highlightBox').remove();
+            return;
+        }
         highlightCell($td);
     });
 
@@ -1416,8 +1420,8 @@ function highlightCell($td) {
                             'style="' + styling + '">' +
                         '</div>';
     $td.append(highlightBox);
-    $('#highlightBox').mousedown(function()
-        {$('.highlightBox').remove();
+    $('#highlightBox').mousedown(function(){
+        $('.highlightBox').remove();
     });
 }
 
@@ -1832,7 +1836,7 @@ function dropdownClick($el, options) {
         } else {
             $menu.find(".moveToWorksheet").removeClass("unavailable");
         }
-
+    
         // case that should close table menu
         if ($menu.is(":visible")) {
             $menu.hide();
@@ -1841,7 +1845,8 @@ function dropdownClick($el, options) {
     } else if (options.type === "thDropdown") {
         $menu = $("#colMenu" + tableNum);
         // case that should close column menu
-        if ($menu.is(":visible") && $menu.data("colNum") === options.colNum) {
+        if ($menu.is(":visible") && $menu.data("colNum") === options.colNum
+            && !$menu.hasClass('tdMenu')) {
             $menu.hide();
             return;
         }
@@ -1859,9 +1864,8 @@ function dropdownClick($el, options) {
             return;
         }
     }
-
+    $('.highlightBox').remove();
     $(".colMenu:visible").hide();
-    $('#highlightBox').remove();
     $(".leftColMenu").removeClass("leftColMenu");
     // case that should open the menu (note that colNum = 0 may make it false!)
     if (options.colNum != null && options.colNum > -1) {
