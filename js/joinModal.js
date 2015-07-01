@@ -316,7 +316,7 @@ window.JoinModal = (function($, JoinModal) {
             return;
         }
 
-        var leftString  = '=map(pyExec("multiJoinModule","multiJoin"';
+        var leftString  = 'pyExec("multiJoinModule","multiJoin"';
         var leftColName = xcHelper.randName("leftJoinCol");
 
         leftColNum = gTables[leftTableNum].tableCols.length;
@@ -325,18 +325,10 @@ window.JoinModal = (function($, JoinModal) {
             leftString += ', ' + leftCols[i];
         }
 
-        leftString += '))';
-
-        ColManager.addCol('col' + leftColNum, 'xcTable' + leftTableNum, null,
-                          {direction: 'L', isNewCol: true});
-
-        var $leftColInput = $('#xcTable' + leftTableNum)
-                                .find('th.col' + leftColNum)
-                                .find('.editableHead.col' + leftColNum);
-        $leftColInput.val(leftColName);
+        leftString += ')';
 
         // right table
-        var rightString  = '=map(pyExec("multiJoinModule","multiJoin"';
+        var rightString  = 'pyExec("multiJoinModule","multiJoin"';
         var rightColName = xcHelper.randName("rightJoinCol");
 
         rightColNum = gTables[rightTableNum].tableCols.length;
@@ -345,18 +337,14 @@ window.JoinModal = (function($, JoinModal) {
             rightString += ', ' + rightCols[i];
         }
 
-        rightString += '))';
+        rightString += ')';
 
+        var deferred1 = xcFunction.map(leftColNum, leftTableNum,
+                                        leftColName, leftString);
+        var deferred2 = xcFunction.map(rightColNum, rightTableNum,
+                                        rightColName, rightString);
 
-        ColManager.addCol('col' + rightColNum, 'xcTable' + rightTableNum, null,
-                          {direction: 'L', isNewCol: true});
-        var $rightColInput = $('#xcTable' + rightTableNum).find('th.col' + rightColNum)
-                            .find('.editableHead.col' + rightColNum);
-        $rightColInput.val(rightColName);
-
-        jQuery.when(mapHelper(leftString, $leftColInput),
-                    mapHelper(rightString, $rightColInput)
-        )
+        jQuery.when(deferred1, deferred2)
         .then(function() {
             var leftRemoved = {};
             var righRemoved = {};
@@ -370,13 +358,6 @@ window.JoinModal = (function($, JoinModal) {
                                     leftRemoved, righRemoved);
         })
         .always(resetJoinTables);
-
-        function mapHelper(str, $col) {
-            // XXX map function should handle the failure case,
-            // so here no handling of the failure
-            $("#fnBar").val(str);
-            return (functionBarEnter($col));
-        }
     }
 
     function getColumnNum($table, colName) {

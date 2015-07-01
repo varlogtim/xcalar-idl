@@ -1210,6 +1210,10 @@ function updateTableHeader(tableNum, $tHead, isFocus) {
 }
 
 function matchHeaderSizes(colNum, $table, matchAllHeaders) {
+    // concurrent build table may make some $table be []
+    if ($table.length === 0) {
+        return;
+    }
     var $header;
     var headerWidth;
 
