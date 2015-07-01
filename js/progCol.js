@@ -607,7 +607,7 @@ window.ColManager = (function($, ColManager) {
                     }
 
                     parsedVal = xcHelper.parseJsonValue(tdValue);
-                    tBodyHTML += '<td class="' + tdClass + '">' +
+                    tBodyHTML += '<td class="' + tdClass + ' clickable">' +
                                     getTableCellHtml(parsedVal) +
                                 '</td>';
                 } else {
@@ -707,8 +707,9 @@ window.ColManager = (function($, ColManager) {
                 columnType !== "decimal" &&
                 columnType !== "integer")
             {
-                $tBody.find("td.col" + (i + 1) + " .addedBarTextWrap")
-                    .removeClass("clickable");
+                $tBody.find("td.col" + (i + 1)).removeClass("clickable")
+                      .find(".addedBarTextWrap")
+                      .removeClass("clickable");
             }
 
             if (tableCols[i].name === "recordNum") {
@@ -800,7 +801,8 @@ window.ColManager = (function($, ColManager) {
             value = xcHelper.parseJsonValue(value);
 
             $table.find('.row' + i + ' .col' + newColid)
-                    .html(getTableCellHtml(value));
+                    .html(getTableCellHtml(value))
+                    .addClass('clickable');
         }
 
         if (columnType === undefined) {
@@ -830,7 +832,8 @@ window.ColManager = (function($, ColManager) {
             columnType !== "decimal" &&
             columnType !== "integer")
         {
-            $table.find("tbody td.col" + newColid + " .addedBarTextWrap")
+            $table.find("tbody td.col" + newColid)
+                    .removeClass("clickable").find('.addedBarTextWrap')
                     .removeClass("clickable");
         }
 

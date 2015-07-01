@@ -1379,6 +1379,7 @@ function addColListeners($table, tableNum) {
             return;
         }
         var $el = $td.children('.clickable');
+        var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
         var colNum = xcHelper.parseColNum($td);
         var rowNum = xcHelper.parseRowNum($td.closest("tr"));
         
@@ -1390,7 +1391,7 @@ function addColListeners($table, tableNum) {
             "colNum"    : colNum,
             "rowNum"    : rowNum,
             "classes"   : "tdMenu", // specify classes to update colmenu's class attr
-            "mouseCoors": {x: event.pageX, y: event.pageY}
+            "mouseCoors": {x: event.pageX, y: yCoor}
         });
         highlightCell($td);
     });
