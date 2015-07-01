@@ -169,7 +169,7 @@ window.xcFunction = (function ($, xcFunction) {
             WSManager.removeTable(newTableName);
             xcHelper.unlockTable(tableName);
             Alert.error("Sort Rows Fails", error);
-            StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
         });
     };
 
@@ -409,7 +409,7 @@ window.xcFunction = (function ($, xcFunction) {
             WSManager.removeTable(newTableName);
 
             Alert.error("mapColumn fails", error);
-            StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
 
             deferred.reject(error);
         });
@@ -521,40 +521,12 @@ window.xcFunction = (function ($, xcFunction) {
             WSManager.removeTable(lNewName);
             WSManager.removeTable(rNewName);
 
-            StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
             deferred.reject(error);
         });
 
         return (deferred.promise());
     };
-
-    function mapColGenerate(colNum, colName, mapStr, tableCols, isReplace) {
-        var copiedCols = xcHelper.deepCopy(tableCols);
-
-        if (colNum > -1) {
-            var numColsRemoved = 0;
-            var cellWidth = gNewCellWidth;
-
-            if (isReplace) {
-                numColsRemoved = 1;
-                cellWidth = copiedCols[colNum - 1].width;
-            }
-
-            var newProgCol = ColManager.newCol({
-                "index"   : colNum,
-                "name"    : colName,
-                "width"   : cellWidth,
-                "userStr" : '"' + colName + '" =map(' + mapStr + ')',
-                "isNewCol": false
-            });
-            newProgCol.func.func = "pull";
-            newProgCol.func.args = [];
-            newProgCol.func.args[0] = colName;
-            copiedCols.splice(colNum - 1, numColsRemoved, newProgCol);
-        }
-
-        return (copiedCols);
-    }
 
     // export table
     xcFunction.exportTable = function(tableNum) {
@@ -915,6 +887,34 @@ window.xcFunction = (function ($, xcFunction) {
         }
 
         return (deferred.promise());
+    }
+
+    function mapColGenerate(colNum, colName, mapStr, tableCols, isReplace) {
+        var copiedCols = xcHelper.deepCopy(tableCols);
+
+        if (colNum > -1) {
+            var numColsRemoved = 0;
+            var cellWidth = gNewCellWidth;
+
+            if (isReplace) {
+                numColsRemoved = 1;
+                cellWidth = copiedCols[colNum - 1].width;
+            }
+
+            var newProgCol = ColManager.newCol({
+                "index"   : colNum,
+                "name"    : colName,
+                "width"   : cellWidth,
+                "userStr" : '"' + colName + '" =map(' + mapStr + ')',
+                "isNewCol": false
+            });
+            newProgCol.func.func = "pull";
+            newProgCol.func.args = [];
+            newProgCol.func.args[0] = colName;
+            copiedCols.splice(colNum - 1, numColsRemoved, newProgCol);
+        }
+
+        return (copiedCols);
     }
 
     return (xcFunction);
