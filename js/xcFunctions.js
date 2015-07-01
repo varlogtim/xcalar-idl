@@ -366,42 +366,26 @@ window.xcFunction = (function ($, xcFunction) {
     xcFunction.map = function (colNum, tableNum, fieldName, mapString, options) {
         var deferred = jQuery.Deferred();
 
-        var table     = gTables[tableNum];
-        var tableName = table.tableName;
-        var tablCols  = xcHelper.deepCopy(table.tableCols);
-        var tableProperties = {
-            "bookmarks" : xcHelper.deepCopy(table.bookmarks),
-            "rowHeights": xcHelper.deepCopy(table.rowHeights)
-        };
+        var table        = gTables[tableNum];
+        var tableName    = table.tableName;
         var newTableName = getNewTableName(tableName);
 
         var msg = StatusMessageTStr.Map + " " + fieldName;
         StatusMessage.show(msg);
 
+        options = options || {};
         // XXX Cheng must add to worksheet before async call
         WSManager.addTable(newTableName);
         xcHelper.lockTable(tableNum);
         XcalarMap(fieldName, mapString, tableName, newTableName)
         .then(function() {
-            if (colNum > -1) {
-                var numColsRemoved = 0;
-                var cellWidth = gNewCellWidth;
-                if (options && options.replaceColumn) {
-                    numColsRemoved = 1;
-                    cellWidth = tablCols[colNum - 1].width;
-                }
-                var newProgCol = ColManager.newCol({
-                    "index"   : colNum,
-                    "name"    : fieldName,
-                    "width"   : cellWidth,
-                    "userStr" : '"' + fieldName + '" =map(' + mapString + ')',
-                    "isNewCol": false
-                });
-                newProgCol.func.func = "pull";
-                newProgCol.func.args = [];
-                newProgCol.func.args[0] = fieldName;
-                tablCols.splice(colNum - 1, numColsRemoved, newProgCol);
-            }
+            var tablCols = mapColGenerate(colNum, fieldName, mapString,
+                                        table.tableCols, options.replaceColumn);
+            var tableProperties = {
+                "bookmarks" : xcHelper.deepCopy(table.bookmarks),
+                "rowHeights": xcHelper.deepCopy(table.rowHeights)
+            };
+
             setIndex(newTableName, tablCols, null, tableProperties);
             return (refreshTable(newTableName, tableName));
         })
@@ -414,17 +398,16 @@ window.xcFunction = (function ($, xcFunction) {
                 "colName"     : fieldName,
                 "mapString"   : mapString
             });
-            if (options.nextJoin) {
-                xcHelper.unlockTable(tableName, true);
-            }
+            xcHelper.unlockTable(tableName, true);
             StatusMessage.success(msg);
             commitToStorage();
 
             deferred.resolve();
         })
         .fail(function(error) {
-            WSManager.removeTable(newTableName);
             xcHelper.unlockTable(tableName);
+            WSManager.removeTable(newTableName);
+
             Alert.error("mapColumn fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
 
@@ -433,6 +416,145 @@ window.xcFunction = (function ($, xcFunction) {
 
         return (deferred.promise());
     };
+
+    // map two tables at the same time, now specifically for multi clause join
+    xcFunction.twoMap = function(lOptions, rOptions, loclNewTable, msg) {
+        var deferred = jQuery.Deferred();
+
+        if (lOptions == null || rOptions == null) {
+            deferred.reject("Invalid map parameters");
+            return (deferred.promise());
+        }
+
+        var lColNum    = lOptions.colNum;
+        var lTableNum  = lOptions.tableNum;
+        var lTable     = gTables[lTableNum];
+        var lTableName = lTable.tableName;
+        var lNewName   = getNewTableName(lTableName);
+        var lFieldName = lOptions.fieldName;
+        var lMapString = lOptions.mapString;
+
+        var rColNum    = rOptions.colNum;
+        var rTableNum  = rOptions.tableNum;
+        var rTable     = gTables[rTableNum];
+        var rTableName = rTable.tableName;
+        var rNewName   = getNewTableName(rTableName);
+        var rFieldName = rOptions.fieldName;
+        var rMapString = rOptions.mapString;
+
+
+        msg = msg || StatusMessageTStr.Map + " " + lTableName +
+                        " and " + rTableName;
+        StatusMessage.show(msg);
+
+        WSManager.addTable(lNewName);
+        xcHelper.lockTable(lTableNum);
+
+        WSManager.addTable(rNewName);
+        xcHelper.lockTable(rTableNum);
+
+        var deferred1 = XcalarMap(lFieldName, lMapString,
+                                    lTableName, lNewName);
+        var deferred2 = XcalarMap(rFieldName, rMapString,
+                                    rTableName, rNewName);
+
+        // XXX note that the current $.when cannot handle the failure gracefully
+        $.when(deferred1, deferred2)
+        .then(function() {
+            var tablCols = mapColGenerate(lColNum, lFieldName, lMapString,
+                                    lTable.tableCols, lOptions.replaceColumn);
+            var tableProperties = {
+                "bookmarks" : xcHelper.deepCopy(lTable.bookmarks),
+                "rowHeights": xcHelper.deepCopy(lTable.rowHeights)
+            };
+
+            setIndex(lNewName, tablCols, null, tableProperties);
+            return (refreshTable(lNewName, lTableName));
+        })
+        .then(function() {
+            if (loclNewTable) {
+                xcHelper.lockTable(lTableNum);
+            }
+
+            var tablCols = mapColGenerate(rColNum, rFieldName, rMapString,
+                                    rTable.tableCols, rOptions.replaceColumn);
+            var tableProperties = {
+                "bookmarks" : xcHelper.deepCopy(rTable.bookmarks),
+                "rowHeights": xcHelper.deepCopy(rTable.rowHeights)
+            };
+
+            setIndex(rNewName, tablCols, null, tableProperties);
+            return (refreshTable(rNewName, rTableName));
+        })
+        .then(function() {
+            if (loclNewTable) {
+                xcHelper.lockTable(rTableNum);
+            }
+
+            SQL.add("Map Column", {
+                "operation"   : "mapColumn",
+                "srcTableName": lTableName,
+                "newTableName": lNewName,
+                "colName"     : lFieldName,
+                "mapString"   : lMapString
+            });
+
+            SQL.add("Map Column", {
+                "operation"   : "mapColumn",
+                "srcTableName": rTableName,
+                "newTableName": rNewName,
+                "colName"     : rFieldName,
+                "mapString"   : rMapString
+            });
+
+            xcHelper.unlockTable(lTableName, true);
+            xcHelper.unlockTable(rTableName, true);
+
+            StatusMessage.success(msg);
+
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            xcHelper.unlockTable(lTableName);
+            xcHelper.unlockTable(rTableName);
+
+            WSManager.removeTable(lNewName);
+            WSManager.removeTable(rNewName);
+
+            StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+    };
+
+    function mapColGenerate(colNum, colName, mapStr, tableCols, isReplace) {
+        var copiedCols = xcHelper.deepCopy(tableCols);
+
+        if (colNum > -1) {
+            var numColsRemoved = 0;
+            var cellWidth = gNewCellWidth;
+
+            if (isReplace) {
+                numColsRemoved = 1;
+                cellWidth = copiedCols[colNum - 1].width;
+            }
+
+            var newProgCol = ColManager.newCol({
+                "index"   : colNum,
+                "name"    : colName,
+                "width"   : cellWidth,
+                "userStr" : '"' + colName + '" =map(' + mapStr + ')',
+                "isNewCol": false
+            });
+            newProgCol.func.func = "pull";
+            newProgCol.func.args = [];
+            newProgCol.func.args[0] = colName;
+            copiedCols.splice(colNum - 1, numColsRemoved, newProgCol);
+        }
+
+        return (copiedCols);
+    }
 
     // export table
     xcFunction.exportTable = function(tableNum) {
@@ -485,9 +607,9 @@ window.xcFunction = (function ($, xcFunction) {
         var deferred = jQuery.Deferred();
 
         if (tableNum == null || oldTableName == null || newTableName == null) {
-           console.error("Invalid Parameters for renaming!");
-           deferred.reject("Invalid renaming parameters");
-           return (deferred.promise());
+            console.error("Invalid Parameters for renaming!");
+            deferred.reject("Invalid renaming parameters");
+            return (deferred.promise());
         }
 
         var table = gTables[tableNum];
@@ -548,7 +670,7 @@ window.xcFunction = (function ($, xcFunction) {
                 setIndex(newTableName, tablCols);
                 gTableIndicesLookup[newTableName].active = false;
 
-                 SQL.add("Index Table", {
+                SQL.add("Index Table", {
                     "operation"   : "index",
                     "key"         : colName,
                     "tableName"   : tableName,
@@ -637,6 +759,7 @@ window.xcFunction = (function ($, xcFunction) {
                     console.error("Parrel index all fails",
                                     leftError, rightError);
                     deferred.reject(leftError, rightError);
+                    break;
                 default:
                     console.error("Wrong Status!");
                     break;
@@ -696,7 +819,7 @@ window.xcFunction = (function ($, xcFunction) {
                     console.error("Wrong Status!");
                     break;
             }
-        })
+        });
 
         return (deferred.promise());
     }

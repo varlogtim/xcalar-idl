@@ -337,13 +337,24 @@ window.JoinModal = (function($, JoinModal) {
 
         rightString += ')';
         resetJoinTables();
-        var options = {'joinNext': true};
-        var deferred1 = xcFunction.map(leftColNum, leftTableNum,
-                                        leftColName, leftString, options);
-        var deferred2 = xcFunction.map(rightColNum, rightTableNum,
-                                        rightColName, rightString, options);
 
-        jQuery.when(deferred1, deferred2)
+        var leftMapOptions = {
+            "colNum"   : leftColNum,
+            "tableNum" : leftTableNum,
+            "fieldName": leftColName,
+            "mapString": leftString
+        };
+
+        var rightMapOptions = {
+            "colNum"   : rightColNum,
+            "tableNum" : rightTableNum,
+            "fieldName": rightColName,
+            "mapString": rightString
+        };
+
+        var mapMsg = StatusMessageTStr.Map + " for multiClause Join";
+
+        xcFunction.twoMap(leftMapOptions, rightMapOptions, true, mapMsg)
         .then(function() {
             var leftRemoved = {};
             var righRemoved = {};
