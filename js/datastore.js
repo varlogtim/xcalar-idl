@@ -180,7 +180,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             ]);
 
             if (!isValid) {
-                xcHelper.enableSubmit($(this))
+                xcHelper.enableSubmit($(this));
                 return false;
             }
 
@@ -222,7 +222,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
                     text = result.error;
                 }
 
-                StatusBox.show(text, $filePath, true);
+                Alert.error("Load Dataset Fails", text);
+                // StatusBox.show(text, $filePath, true);
                 StatusMessage.fail(StatusMessageTStr.LoadFailed, msg);
 
                 return false;
@@ -493,8 +494,7 @@ window.GridView = (function($, GridView) {
 
             if ($grid.find('.waitingIcon').length !== 0) {
                 var loading = true;
-                var dsId = $grid.data("dsid");
-                DataSampleTable.getTableFromDS(dsId, loading);
+                DataSampleTable.getTableFromDS($grid.data("dsid"), loading);
                 
                 var animatedDots = '<div class="animatedEllipsis">' +
                                       '<div>.</div>' +
@@ -510,8 +510,7 @@ window.GridView = (function($, GridView) {
 
             releaseDatasetPointer()
             .then(function() {
-                var dsId = $grid.data("dsid");
-                return (DataSampleTable.getTableFromDS(dsId));
+                return (DataSampleTable.getTableFromDS($grid.data("dsid")));
             })
             .then(function() {
                 if (event.scrollToColumn) {
@@ -557,8 +556,8 @@ window.GridView = (function($, GridView) {
             "focus": function() {
                 var div = $(this).get(0);
                 // without setTimeout cannot select all for some unknow reasons
-                window.setTimeout(function() {
-                   xcHelper.createSelection(div);
+                setTimeout(function() {
+                    xcHelper.createSelection(div);
                 }, 1);
             },
             "blur": function() {
@@ -850,7 +849,7 @@ window.DataCart = (function($, DataCart) {
     };
 
     function appendCartItem(dsName, tableName, colNum, val) {
-        tableName = tableName + 'Table'
+        tableName = tableName + 'Table';
         var $cart = $("#selectedTable-" + dsName);
         // this ds's cart not exists yet
         if ($cart.length === 0) {
@@ -941,7 +940,8 @@ window.DataCart = (function($, DataCart) {
         })
         .fail(function(error) {
             deferred.reject(error);
-        })
+        });
+
         return (deferred.promise());
     }
 
@@ -998,7 +998,7 @@ window.DataCart = (function($, DataCart) {
             var helpText = '<span class="helpText">To add a column to the' +
                                 ' data cart, select a data set on the left' +
                                 ' and click' +
-                                ' on the column names that you are interested'+
+                                ' on the column names that you are interested' +
                                 ' in inside the center panel.</span>';
             $dataCart.html(helpText);
         } else {
@@ -1186,7 +1186,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         if (isLoading) {
             updateTableInfo(datasetName, format, 'N/A', fileSize, path);
-            return;
+            deferred.resolve();
+
+            return (deferred.promise());
         }
         // XcalarSample sets gDatasetBrowserResultSetId
         XcalarSample(datasetName, 40)
@@ -1345,8 +1347,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $("#worksheetTable .editableHead").each(function() {
                 var $input = $(this);
                 if (!$input.closest(".header").hasClass("colAdded")) {
-                   inputs.push($input);
-                   highlightColumn($input);
+                    inputs.push($input);
+                    highlightColumn($input);
                 }
             });
             DataCart.addItem(dsName, inputs);
@@ -1729,7 +1731,7 @@ window.DS = (function ($, DS) {
             "isFolder": false,
             "attrs"   : {
                 "format"  : dsFormat,
-                "path" : loadURL,
+                "path"    : loadURL,
                 "fileSize": 'N/A'
             }
         });
@@ -1771,6 +1773,7 @@ window.DS = (function ($, DS) {
             return (XcalarListFiles(loadURL));
         })
         .then(function(files) {
+            ds.attrs.fileSize = getFileSize(files);
             // display new dataset
             DS.refresh();
             if ($grid.hasClass('active')) {
@@ -1781,7 +1784,9 @@ window.DS = (function ($, DS) {
             deferred.resolve();
         })
         .fail(function(error) {
-            delDSHelper($grid, dsName);
+            rmDSObjHelper(ds.id);
+            $grid.remove();
+            $("#importDataButton").click();
             deferred.reject(error);
         });
 
@@ -2059,7 +2064,7 @@ window.DS = (function ($, DS) {
             ds.removeFromParent();
             // delete ds
             delete dsLookUpTable[ds.id];
-            delete ds;
+            // delete ds;
 
             return true;
         }
