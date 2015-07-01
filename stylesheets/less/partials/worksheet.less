@@ -428,6 +428,10 @@
             display: none !important;
         }
 
+        .lockedIcon {
+            display: none !important;
+        }
+
         .xcTheadWrap {
             width: 30px !important;
 
@@ -593,6 +597,11 @@
                 opacity: 0.7;
             }
         }
+        &.tableHidden {
+            th:first-child input {
+                background: #A0A0A0 !important;
+            }
+        }
     }
     &.tableLocked {
         cursor: wait;
@@ -605,7 +614,7 @@
         .lockedIcon {
             position: absolute;
             display: inline-block;
-            z-index: 10;
+            z-index: 9;
             height: 60px;
             top: 40%;
             left: 50%;
