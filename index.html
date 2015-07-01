@@ -178,7 +178,8 @@
         <section class="step">
           <b>Category: </b>
           <div id="categoryList" class="listSection">
-              <input class="text autocomplete" placeholder="aggregate" required tabindex="10">
+              <input class="text autocomplete" placeholder="aggregate"
+                spellcheck="false" required tabindex="10">
               <div class="iconWrapper dropdown">
                 <span class="icon"></span>
               </div>
@@ -391,8 +392,8 @@
             <!-- file path -->
             <div id="filePathSelector" class="importFormRow">
               <label>File Path:</label>
-              <input type="text" name="filePath" id="filePath"
-               autocomplete="on" placeholder="Enter File Directory" required> 
+              <input type="text" name="filePath" id="filePath" spellcheck="false"
+               autocomplete="on" placeholder="Enter File Directory" required>
               <button id="fileBrowserBtn" class="btn btnMid" type="button">
                 BROWSE
               </button>
@@ -402,13 +403,13 @@
               <label>File Name:</label>
               <input id="fileName" name="fileName" type="text" 
                placeholder="Enter Dataset Name" autocomplete="on" 
-               pattern="^\w+$" 
+               pattern="^\w+$"  spellcheck="false"
                title="A valid name with no special characters" required>
                <!-- file formt -->
                <div id="fileFormat">
                 <div id="fileFormatList" class="listSection">
                   <input class="text hint" type="text" value="Format"
-                        disabled/>
+                        disabled>
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
@@ -456,7 +457,7 @@
                     <li name="null" class="nullVal">Null</li>
                     <li name="other" class="other">
                       <span>Other</span>
-                      <input class="delimVal" type="text">
+                      <input class="delimVal" type="text" spellcheck="false">
                     </li>
                   </ul>
                 </div>
@@ -475,7 +476,7 @@
                     <li name="null" class="nullVal">Null</li>
                     <li name="other" class="other">
                       <span>Other</span>
-                      <input class="delimVal" type="text">
+                      <input class="delimVal" type="text" spellcheck="false">
                     </li>
                   </ul>
                 </div>
@@ -782,7 +783,7 @@
             </div>
             <!-- file path part -->
             <div class="pathSection">
-              <input id="udf-filePath" type="text">
+              <input id="udf-filePath" type="text" spellcheck="false">
               <div id="udf-clearPath" class="iconWrap">
                 <span class="icon"></span>
               </div>
@@ -792,7 +793,7 @@
               <button id="udf-browseBtn" class="btn btnMid" type="button">
                 BROWSE
               </button>
-              <input id="udf-fileBrowser"  type="file" style="display: none;" />
+              <input id="udf-fileBrowser"  type="file" style="display: none;">
               <button id="udf-fileUpload" 
                       class="btn btnMid upload" type="button">
                 <span class="icon"></span>
@@ -809,7 +810,7 @@
                 <!-- template dropdown menu -->
                 <div id="udf-fnList" class="listSection">
                   <input id="udf-fnTemplate" class="text" 
-                         placeholder="Choose your template" disabled/>
+                         placeholder="Choose your template" disabled>
                   <div class="iconWrapper">
                     <span class="icon"></span>
                   </div>
@@ -844,7 +845,7 @@
                   <span class="label">
                     <label for="udf-fnName">Module Name:</label>
                   </span>
-                  <input id="udf-fnName" type="text" />
+                  <input id="udf-fnName" type="text" spellcheck="false">
                 </div>
                 <div class="btnSection">
                   <button id="udf-fnUpload" 
@@ -1143,7 +1144,7 @@
     <!-- Join Modal Input Section -->
     <section class="modalTopMain">
       <div class="text">New Table Name:</div>
-      <input id="joinRoundedInput" type="textbox" required></input>
+      <input id="joinRoundedInput" type="textbox" required spellcheck="false">
       <div id="joinType" class="listSection">
         <div class="text">Inner Join</div>
         <div class="iconWrapper">
@@ -1289,8 +1290,8 @@
       <div class="options">
         <span id="alertOptionLabel" class="label"></span>
         <div class="listSection">
-            <input id="alertOptionInput" type="text"
-                   placeholder="click to see options"/>
+            <input id="alertOptionInput" type="text" spellcheck="false"
+                   placeholder="click to see options">
             <ul id="alertlist" class="list"></ul>
         </div>
       </div>
@@ -1353,7 +1354,7 @@
       <!-- input section for new workbook name -->
       <div class="inputSection">
         <span class="label">New Workbook Name:</span>
-        <input id="workbookInput" type="text"/>
+        <input id="workbookInput" type="text" spellcheck="false">
       </div>
     </section>
     <!-- Workbook Modal Main Section -->
@@ -1368,7 +1369,7 @@
         <div class="userLists">
           <!-- search area -->
           <div class="searchArea">
-            <input id="workbookUserSearch" type="text" 
+            <input id="workbookUserSearch" type="text" spellcheck="false"
                   placeholder="Search keyword...">
             <div class="iconWrap clear">
               <span class="icon"></span>
@@ -1537,7 +1538,7 @@
         <div class="label">
           <label for="fileBrowserInputName">file name:</label>
         </div>
-        <input id="fileBrowserInputName" type="text" value="">
+        <input id="fileBrowserInputName" type="text" value="" spellcheck="false">
       </section>
       <!-- Input for file format -->
       <section class="inputSection">
