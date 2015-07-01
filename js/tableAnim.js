@@ -1091,6 +1091,12 @@ function sortAllTableColumns(tableNum, direction) {
         order = -1;
     }
 
+    var numCols = tableCols.length;
+    var dataCol;
+    if (tableCols[numCols - 1].name === 'DATA') {
+        dataCol = tableCols.splice(numCols - 1, 1)[0]; 
+    }
+
     var sortedCols = tableCols.sort(function(a, b) {
         a = a.name.toLowerCase();
         b = b.name.toLowerCase();
@@ -1103,8 +1109,11 @@ function sortAllTableColumns(tableNum, direction) {
             return (0);
         }
     });
+    if (dataCol) {
+        tableCols.push(dataCol);
+        numCols--;
+    }
     var $table = $('#xcTable' + tableNum);
-    var numCols = tableCols.length;
     var $rows = $table.find('tbody tr');
     var numRows = $rows.length;
     // loop through each column
