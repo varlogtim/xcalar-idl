@@ -289,12 +289,13 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function getShortName(name) {
         var index = name.lastIndexOf(".");
+        // Also, we need to strip special characters. For now,
+        // we only keeo a-zA-Z0-9. They can always add it back if they want
 
-        if (index < 0) {
-            return (name);
-        } else {
-            return (name.substring(0, index));
+        if (index >= 0) {
+            name = name.substring(0, index);
         }
+        return (name.replace(/[^a-zA-Z0-9]/g, ""));
     }
 
     function appendPath(path) {
