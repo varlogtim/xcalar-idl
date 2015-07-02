@@ -90,7 +90,7 @@ function infScrolling(tableNum) {
                     "targetRow"       : rowNumber,
                     "lastRowToDisplay": lastRowToDisplay,
                     "bulk"            : false,
-                    "tableName"        : tableName
+                    "tableName"       : tableName
                 };
 
                 goToPage(rowNumber, numRowsToAdd, RowDirection.Top, false, info)
@@ -400,7 +400,7 @@ function setupTooltips() {
             "show": 200,
             "hide": 100
         },
-        html : true
+        html: true
     });
 
     $("body").on('mouseenter', '[data-toggle="tooltip"]', function() {
@@ -420,7 +420,6 @@ function documentReadyxcTableFunction() {
         $("#numPages").text("of " + num);
     }
 }
-
 
 function documentReadyGeneralFunction() {
     window.onbeforeunload = function() {
@@ -464,7 +463,9 @@ function documentReadyGeneralFunction() {
         moveFirstColumn();
     });
 
-   
+    // winbdow.onresize = function() {
+
+    // };
 
     var $rowInput = $('#rowInput');
     $rowInput.val("").data("");

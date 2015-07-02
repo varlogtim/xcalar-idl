@@ -166,7 +166,6 @@ input {
                 display: inline-block;
                 max-width: 100px;
                 min-width: 80px;
-                width: 15%;
                 font-weight: 700;
                 float: left;
             }
@@ -392,7 +391,6 @@ input {
     }
 
     .btn {
-        .size (@min-width: 150px);
         margin-left: 20px;
         padding: 0;
         float: right;
@@ -403,6 +401,251 @@ input {
         font-style: italic;
     }
 }
+
+#importDataForm {
+
+    #previewBtn {
+        display: none;
+    }
+
+    &.browseMode {
+        #previewBtn {
+            display: block;
+        }
+    }
+
+    &.previewMode {
+        #importDataBottomForm, #fileBrowserBtn, #fileFormat,
+        #udfCheckbox, #csvPromoteCheckbox {
+            display: none;
+        }
+
+        #previewBtn {
+            min-width: 220px;
+        }
+
+        #filePath {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        #fileName {
+            min-width: ~"calc(100% - 300px)" !important;
+        }
+
+        #importDataForm {
+            height: 151px !important;
+        }
+    }
+}
+
+
+#dsPreviewWrap {
+    padding: 10px 10px 0 10px;
+    background-color: @color-background-topForm;
+    height: ~"calc(100% - 244px)";
+
+    &.hidden {
+        display: none;
+    }
+
+    .container {
+        .size(@height: 100%);
+        white-space: nowrap;
+        background-color: @color-white;
+        padding: 10px;
+        box-shadow: 0px 2px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .infoSection {
+        .size(@height: 50px);
+
+        section > div {
+            height: 25px;
+            line-height: 25px;
+        }
+
+        .titleSection {
+            .size(@width: 50%);
+            float: left;
+        }
+
+        .iconSection {
+            .size(@width: 50%);
+            float: right;
+
+            > div {
+                clear: both;
+                float: right;
+            }
+
+            .iconWrapper {
+                .size(@width: 20px);
+                .position(relative);
+                cursor: pointer;
+                float: right;
+
+                .icon {
+                    .size(@width: 100%, @height: 25px);
+                }
+            }
+
+            .close .icon {
+                .image("/images/datastore/preview-close.png", 50%, 50%);
+            }
+
+            .group {
+                .iconWrapper {
+                    pointer-events: none;
+                    &.highlight {
+                        margin-right: 15px;
+                        .icon {
+                            .image("/images/datastore/preview-highlight-gray.png", 50%, 50%);
+                        }
+
+                        &.active .icon {
+                            .image("/images/datastore/preview-highlight.png", 50%, 50%);
+                        }
+                    }
+
+                    &.rmHightLight {
+                        .icon {
+                            .image("/images/datastore/preview-rmHeightLight-gray.png", 50%, 50%);
+                        }
+
+                        &.active .icon {
+                            .image("/images/datastore/preview-rmHeightLight.png", 50%, 50%);
+                        }
+                    }
+
+                    &.active {
+                        pointer-events: all;
+                    }
+                }
+            }
+        }
+    }
+
+    .previewSection {
+        .size(@width: 100%, @height: ~"calc(100% - 50px)",
+                @max-height: ~"calc(100% - 50px)");
+        overflow-y: hidden;
+        overflow-x: auto;
+
+        .waitSection {
+            .loadingMsg {
+                margin-left: 0;
+            }
+
+            .animatedEllipsis {
+                float: none;
+            }
+
+            &.hidden {
+                display: none;
+            }
+        }
+    }
+
+    .datasetTable {
+        width: 100%;
+        white-space: pre-wrap;
+
+        // for both th and td
+        .td {
+            display: inline-block;
+            tab-size: 4;
+
+            &.has-margin {
+                margin-right: 1px;
+            }
+
+            &.highlight {
+                background: rgba(91, 178, 233, 0.5);
+            }
+
+            &::selection, &::-moz-selection {
+                color: rgba(91, 178, 233, 0.5);
+            }
+        }
+
+        th {
+            cursor: default;
+            &:not(:first-child) {
+                width: auto;
+
+                .header {
+                    width: ~"calc(100% - 40px)";
+                    cursor: text;
+
+                    .text {
+                        height: 100%;
+                        .gray-gradient;
+                        .rounded;
+                        line-height: 30px;
+                        padding: 0 3px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+        }
+
+        tbody {
+            td {
+                text-align: left;
+
+                &.lineMarker {
+                    text-align: center;
+                }
+            }
+        }
+
+        &.has-delimiter {
+            width: 0;
+            white-space: nowrap;
+            text-align: center;
+
+            tbody td {
+                text-align: center;
+            }
+
+            th:not(:first-child) {
+                width: 130px;
+
+                .header {
+                    width: 130px;
+                }
+            }
+        }
+    }
+
+    .undo-promote {
+        pointer-events: all;
+
+        .header {
+            background: #5bb2e9;
+            cursor: pointer;
+
+            .icon {
+                .size(@width: 100%, @height: 100%);
+                .image("/images/datastore/undo-promote.png", 50%, 50%);
+            }
+        }
+    }
+
+    .promote {
+        background: #5bb2e9;
+        cursor: pointer;
+
+        .icon {
+            .size(@width: 100%, @max-height: 25px, @min-height: 20px);
+            .image("/images/datastore/promote.png", 50%, 50%);
+        }
+    }
+
+}
+
 /* End Of Import Data View Section */
 
 /* Main Content */
@@ -880,8 +1123,9 @@ input {
             }
         }
     }
+}
 
-    #datasetWrap {
+#datasetWrap {
         .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 68px)",
               @max-width: 100%);
         white-space: nowrap;
@@ -890,8 +1134,6 @@ input {
         position: absolute;
         margin-left: 10px;
         overflow-x: auto;
-
-       
     }
 
     .datasetTbodyWrap {
@@ -1037,7 +1279,6 @@ input {
             }
         }
     }
-}
 /* End Of Content Mid */
 
 /* Content Right */

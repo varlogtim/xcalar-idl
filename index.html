@@ -385,17 +385,20 @@
         </div>
       </div>
       <!-- Data Form -->
-      <form target="_blank" id="importDataForm">
+      <form id="importDataForm" target="_blank">
         <!-- Top Form -->
         <div id="importDataTopForm">
           <div class="contentViewMidWrap">
             <!-- file path -->
             <div id="filePathSelector" class="importFormRow">
               <label>File Path:</label>
-              <input type="text" name="filePath" id="filePath" spellcheck="false"
+              <input id="filePath" type="text" name="filePath" spellcheck="false"
                autocomplete="on" placeholder="Enter File Directory" required>
               <button id="fileBrowserBtn" class="btn btnMid" type="button">
                 BROWSE
+              </button>
+              <button id="previewBtn" class="btn btnMid" type="button">
+                PREVIEW
               </button>
             </div>
             <!-- file name -->
@@ -512,7 +515,60 @@
           </div>
         </div>
       </form> 
-      <div id="importDataOverlay"></div>
+
+      <section id="dsPreviewWrap" class="hidden">
+        <div class="container">
+          <div class="infoSection">
+            <section class="titleSection">
+              <div class="title"><h2>Data Preview</h2></div>
+              <div class="format">Format: raw</div>
+            </section>
+
+            <section class="iconSection">
+              <div id="preview-close" class="close iconWrapper"
+                title="Close preview window without saving"
+                data-toggle="tooltip" data-placement="top"
+                data-container="body">
+                <span class="icon"></span>
+              </div>
+
+              <div class="group">
+                <div id="preview-rmHightlight"
+                  class="rmHightLight iconWrapper" title="Remove highlights"
+                  data-toggle="tooltip" data-placement="top"
+                  data-container="body">
+                  <span class="icon"></span>
+                </div>
+
+                <div id="preview-highlight" class="highlight iconWrapper"
+                title="Apply highlighted text as delimiter"
+                data-toggle="tooltip" data-placement="top" data-container="body">
+                  <span class="icon"></span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="previewSection">
+            <div id="dsPreviewTableWrap" class="datasetTableWrap">
+                <div class="waitSection hidden">
+                  <div class="loadingMsg">
+                    Data set is loading
+                    <div class="animatedEllipsis">
+                        <div>.</div>
+                        <div>.</div>
+                        <div>.</div>
+                    </div>
+                  </div>
+                </div>
+
+              <div class="datasetTbodyWrap">
+                <table id="previewTable" class="datasetTable dataTable"></table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
     <!-- Main Content -->
     <div id="mainContent">

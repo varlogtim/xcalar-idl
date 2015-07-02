@@ -3,6 +3,7 @@ window.DataStore = (function($, DataStore) {
         DS.setup();
         GridView.setup();
         DatastoreForm.setup();
+        DataPreview.setup();
         DataSampleTable.setup();
         DataCart.setup();
     };
@@ -135,6 +136,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // reset form
         $("#importDataReset").click(function() {
             $(this).blur();
+            $("#importDataForm").removeClass();
             $formatText.val("Format");
             $formatText.addClass("hint");
 
@@ -149,6 +151,23 @@ window.DatastoreForm = (function($, DatastoreForm) {
         $("#fileBrowserBtn").click(function() {
             $(this).blur();
             FileBrowser.show();
+        });
+
+        // preview dataset
+        $("#previewBtn").click(function() {
+            $(this).blur();
+            if ($filePath.val().endsWith("json")) {
+                var text = "Canot Preview JSON files";
+                StatusBox.show(text, $filePath, true);
+                return;
+            }
+
+            if ($("#dsPreviewWrap").hasClass("hidden")) {
+                DataPreview.show();
+            } else {
+                // when the button is apply change and exit
+                DataPreview.load();
+            }
         });
 
         // submit the form
@@ -201,31 +220,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 header = true;
             }
 
-            var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
-            var msgId = StatusMessage.addMsg(msg);
-
-            DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+            DatastoreForm.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                     header, moduleName, funcName)
-            .then(function() {
-                DataStore.updateNumDatasets();
-                StatusMessage.success(msgId);
-            })
-            .fail(function(result) {
-                var text;
-
-                if (result.statusCode === StatusT.StatusDsInvalidUrl) {
-                    text = "Could not retrieve dataset from file path: " +
-                            loadURL;
-                } else {
-                    text = result.error;
-                }
-
-                Alert.error("Load Dataset Fails", text);
-                // StatusBox.show(text, $filePath, true);
-                StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
-
-                return false;
-            })
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);
             });
@@ -322,6 +318,61 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     };
 
+    DatastoreForm.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim, header, moduleName, funcName) {
+        var deferred = jQuery.Deferred();
+
+        var isValid  = xcHelper.validate([
+            {
+                "$selector": $fileName,
+                "check"    : DS.has,
+                "formMode" : true,
+                "text"     : "Dataset with the name " + dsName +
+                             " already exits. Please choose another name."
+            },
+            {
+                "$selector": $formatText,
+                "check"    : function() {
+                    return (dsFormat == null);
+                },
+                "text": "No file format is selected," +
+                        " please choose a file format!"
+            }
+        ]);
+
+        if (!isValid) {
+            deferred.reject("Invalid Parameters");
+            return deferred.promise();
+        }
+
+        var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
+        var msgId = StatusMessage.addMsg(msg);
+
+        DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+                header, moduleName, funcName)
+        .then(function() {
+            DataStore.updateNumDatasets();
+            StatusMessage.success(msgId);
+            deferred.resolve();
+        })
+        .fail(function(result) {
+            var text;
+
+            if (result.statusCode === StatusT.StatusDsInvalidUrl) {
+                text = "Could not retrieve dataset from file path: " +
+                        loadURL;
+            } else {
+                text = result.error;
+            }
+
+            Alert.error("Load Dataset Fails", text);
+            // StatusBox.show(text, $filePath, true);
+            StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
+            deferred.reject(result);
+        });
+
+        return (deferred.promise());
+    };
+
     function delimiterTranslate($input) {
         if ($input.hasClass("nullVal")) {
             return "";
@@ -342,7 +393,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var text = $li.text();
 
         if ($li.hasClass("hint")) {
-            $udfCheckbox.addClass("hidden");
+            // $udfCheckbox.addClass("hidden");
             return;
         } else if ($formatText.val() === text) {
             return;
@@ -1165,6 +1216,418 @@ window.DataCart = (function($, DataCart) {
     return (DataCart);
 }(jQuery, {}));
 
+window.DataPreview = (function($, DataPreview) {
+    var $previewTable = $("#previewTable");
+    var tableName;
+    var rawData;
+    var hasHeader = false;
+    var delimiter = "";
+    var highlighter = "";
+
+    var promoteHeader =
+            '<div class="header"' +
+                'title="Undo Promote Header" ' +
+                'data-toggle="tooltip" ' +
+                'data-placement="top" data-container="body">' +
+                '<span class="icon"></span>' +
+            '</div>';
+    var promoteTd =
+            '<td class="lineMarker promote" ' +
+                'title="Promote Header" data-toggle="tooltip" ' +
+                'data-placement="top" data-container="body">' +
+                '<span class="icon"></span>' +
+            '</td>';
+
+
+    DataPreview.setup = function() {
+        $previewTable.on("click", ".promote, .undo-promote", function() {
+            togglePromote();
+        });
+
+        $previewTable.mouseup(function() {
+            if ($previewTable.hasClass("has-delimiter")) {
+                return;
+            }
+
+            var selection;
+            if (window.getSelection) {
+                selection = window.getSelection();
+            } else if (document.selection) {
+                selection = document.selection.createRange();
+            }
+
+            highlightDelimiter(selection.toString());
+        });
+
+        $("#preview-close").click(function() {
+            clearAll();
+        });
+
+        $("#preview-highlight").click(function() {
+            if (highlighter === "") {
+                return;
+            }
+
+            delimiter = highlighter;
+            highlighter = "";
+            $("#preview-highlight").removeClass("active");
+            $("#preview-rmHightlight").addClass("active")
+                .attr("data-original-title", "Remove Delimiter");
+            getPreviewTable(true);
+        });
+
+        $("#preview-rmHightlight").click(function() {
+            if (delimiter !== "") {
+                delimiter = "";
+                $("#preview-highlight").removeClass("active");
+                $("#preview-rmHightlight").removeClass("active")
+                    .attr("data-original-title", "Remove highlights");
+                getPreviewTable();
+            } else {
+                highlighter = "";
+                toggleHighLight();
+            }
+        });
+
+        // resize
+        $previewTable.on("mousedown", ".colGrab", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            gRescolMouseDown($(this), event, {target: "datastore"});
+            dblClickResize($(this), {minWidth: 25});
+        });
+
+    };
+
+    DataPreview.show = function() {
+        $("#importDataForm").addClass("previewMode");
+        $("#previewBtn").text("APPLY CHANGES & EXIT PREVIEW");
+
+        $("#dsPreviewWrap").removeClass("hidden")
+                            .find(".waitSection").removeClass("hidden");
+
+        var deferred = jQuery.Deferred();
+        var loadURL  = $.trim($("#filePath").val());
+
+        if (loadURL == null) {
+            deferred.reject("Invalid loadURL");
+            return (deferred.promise());
+        }
+
+        tableName = $.trim($("#fileName").val());
+        tableName = xcHelper.randName(tableName) ||   // when table name is empty
+                    xcHelper.randName("previewTable");
+        tableName += ".preview";
+
+        XcalarLoad(loadURL, "raw", tableName,
+                    "", "\n", hasHeader,
+                    "", "")
+        .then(function() {
+            return (XcalarSample(tableName, 20));
+        })
+        .then(function(result) {
+            if (!result) {
+                deferred.reject({"error": "Cannot parse the dataset."});
+                return (promiseWrapper(null));
+            }
+
+            var kvPairs    = result.kvPair;
+            var numKvPairs = result.numKvPairs;
+
+            rawData = [];
+
+            var value;
+            var json;
+
+            try {
+                for (var i = 0; i < numKvPairs; i++) {
+                    value = kvPairs[i].value;
+                    json = $.parseJSON(value);
+
+                    // get unique keys
+                    for (var key in json) {
+                        if (key === "recordNum") {
+                            continue;
+                        }
+                        rawData.push(json[key].split(""));
+                    }
+                }
+
+                getPreviewTable();
+                $("#dsPreviewWrap").find(".waitSection").addClass("hidden");
+                deferred.resolve();
+            } catch(err) {
+                console.error(err, value);
+                $("#dsPreviewWrap").find(".waitSection").addClass("hidden");
+                // getPreviewTable();
+                deferred.reject({"error": "Cannot parse the dataset."});
+            }
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    };
+
+    DataPreview.load = function() {
+        var loadURL = $.trim($("#filePath").val());
+        var dsName  = $.trim($("#fileName").val());
+
+        DatastoreForm.load(dsName, "CSV", loadURL,
+                            delimiter, "\n", hasHeader,
+                            "", "")
+        .then(function() {
+            clearAll();
+        })
+        .fail(function(error) {
+            if (error.status !== null) {
+                clearAll();
+            }
+        });
+    };
+
+    function clearAll() {
+        $("#previewBtn").text("PREVIEW");
+        $("#dsPreviewWrap").addClass("hidden");
+        $("#importDataForm").removeClass("previewMode");
+        $previewTable.removeClass("has-delimiter").empty();
+
+        rawData = null;
+        hasHeader = false;
+        delimiter = "";
+        highlighter = "";
+        toggleHighLight();
+
+        XcalarDestroyDataset(tableName);
+    }
+
+    function getPreviewTable(hasDelimiter) {
+        var $tbody = $(getTbodyHTML());
+        var $trs = $tbody.find("tr");
+        var maxTdLen = 0;
+        // find the length of td and fill up empty space
+        $trs.each(function() {
+            maxTdLen = Math.max(maxTdLen, $(this).find("td").length);
+        });
+
+        $trs.each(function() {
+            var $tr = $(this);
+            var $tds = $tr.find("td");
+
+            for (var i = 0, len = maxTdLen - $tds.length; i < len; i++) {
+                $tr.append("<td></td>");
+            }
+        });
+
+        var $tHead = $(getTheadHTML(maxTdLen));
+        var $tr = $tHead.find("tr");
+        var thLen = $tHead.find("th").length;
+
+        for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
+            $tr.append('<th><div class="header"><div class="text">' +
+                        '</div></div></th>');
+        }
+
+        var count = 0;
+        $tr.find("th").each(function() {
+            $(this).addClass("col" + count);
+            ++count;
+        });
+
+        $previewTable.empty().append($tHead).append($tbody);
+
+        if (hasDelimiter) {
+            $previewTable.addClass("has-delimiter");
+            var tableHeight = $previewTable.height();
+            $previewTable.find(".colGrab").height(tableHeight);
+        } else {
+            $previewTable.removeClass("has-delimiter");
+        }
+    }
+
+    function togglePromote() {
+        $(".tooltip").hide();
+        hasHeader = !hasHeader;
+
+        var $trs = $previewTable.find("tbody tr");
+        var $tds = $trs.eq(0).find("td");
+        var $headers = $previewTable.find("thead tr .header");
+        var html;
+
+        if (hasHeader) {
+            // promote header
+            for (var i = 1, len = $tds.length; i < len; i++) {
+                $headers.eq(i).find(".text").html($tds.eq(i).html());
+            }
+
+            for (var i = 1, len = $trs.length; i < len; i++) {
+                $trs.eq(i).find(".lineMarker").text(i);
+            }
+
+            $trs.eq(0).remove();
+            $previewTable.find("th.col0").html(promoteHeader)
+                        .addClass("undo-promote");
+        } else {
+            // undo promote
+            html = '<tr>' + promoteTd;
+
+            for (var i = 1, len = $headers.length; i < len; i++) {
+                var $text = $headers.eq(i).find(".text");
+                html += '<td>' + $text.html() + '</td>';
+                $text.html("Column" + (i - 1));
+            }
+
+            html += '</tr>';
+            
+            $trs.eq(0).before(html);
+            $headers.eq(0).empty()
+                    .closest("th").removeClass("undo-promote");
+        }
+    }
+
+    function highlightDelimiter(str) {
+        highlighter = str.charAt(0);
+        xcHelper.removeSelectionRange();
+        toggleHighLight();
+    }
+
+    function toggleHighLight() {
+        $previewTable.find(".highlight").removeClass("highlight");
+
+        if (highlighter === "") {
+            $("#preview-highlight").removeClass("active");
+            $("#preview-rmHightlight").removeClass("active");
+        } else {
+            $("#preview-highlight").addClass("active");
+            $("#preview-rmHightlight").addClass("active");
+
+            $previewTable.find(".td").each(function() {
+                        var $td = $(this);
+                        if ($td.text() === highlighter) {
+                            $td.addClass("highlight");
+                        }
+                    });
+        }
+    }
+
+    function getTheadHTML(tdLen) {
+        var thead = "<thead><tr>";
+        var colGrab = (delimiter === "") ? "" : '<div class="colGrab"></div>';
+
+        if (hasHeader) {
+            thead +=
+                '<th class="undo-promote">' +
+                    promoteHeader +
+                '</th>' +
+                tdHelper(rawData[0], true);
+        } else {
+            thead +=
+               '<th>' +
+                    '<div class="header"></div>' +
+                '</th>';
+
+            for (var i = 0; i < tdLen - 1; i++) {
+                thead +=
+                    '<th>' +
+                        '<div class="header">' +
+                            colGrab +
+                            '<div class="text">Column' + i + '</div>' +
+                        '</div>' +
+                    '</th>';
+            }
+        }
+
+        thead += "</thead></tr>";
+
+        return (thead);
+    }
+
+    function getTbodyHTML() {
+        var tbody = "<tbody>";
+        var i  = hasHeader ? 1 : 0;
+
+        for (j = 0, len = rawData.length; i < len; i++, j++) {
+            tbody += '<tr>';
+
+            if (i === 0) {
+                // when the header has not promoted
+                tbody += promoteTd;
+            } else {
+                tbody +=
+                    '<td class="lineMarker">' +
+                        (j + 1) +
+                    '</td>';
+            }
+
+            tbody += tdHelper(rawData[i]) + '</tr>';
+        }
+
+        tbody += "</tbody>";
+
+        return (tbody);
+    }
+
+    function tdHelper(data, isTh) {
+        var hasQuote = false;
+        var hasBackSlash = false;
+        var del = delimiter;
+        var hasDelimiter = (del !== "");
+        var cellClass;
+        var colGrab = hasDelimiter ? '<div class="colGrab"></div>' : "";
+        var html = isTh ? '<th><div class="header">' + colGrab +
+                            '<div class="text">'
+                            : '<td>';
+
+        data.forEach(function(d) {
+            if (hasDelimiter && !hasBackSlash && !hasQuote && d === del) {
+                if (isTh) {
+                    html += '</div></div></th>' +
+                            '<th>' +
+                                '<div class="header">' +
+                                colGrab +
+                                '<div class="text">';
+                } else {
+                    html += '</td><td>';
+                }
+            } else {
+                if (hasDelimiter) {
+                    if (hasBackSlash) {
+                        // when previous char is \. espace this one
+                        hasBackSlash = false;
+                    } else {
+                        if (d === '\\') {
+                            hasBackSlash = true;
+                        } else if (d === '"') {
+                            // toggle escape of quote
+                            hasQuote = !hasQuote;
+                        }
+                    }
+
+                    html += d;
+                } else {
+                    cellClass = "td";
+
+                    if (d === "\t") {
+                        cellClass += " has-margin";
+                    }
+
+                    html += '<span class="' + cellClass + '">' + d + '</span>';
+                }
+            }
+        });
+
+        if (isTh) {
+            html += '</div></div></th>';
+        } else {
+            html += '</td>';
+        }
+
+        return (html);
+    }
+
+    return (DataPreview);
+}(jQuery, {}));
+
 window.DataSampleTable = (function($, DataSampleTable) {
     var $tableWrap = $("#dataSetTableWrap");
     var currentRow = 0;
@@ -1242,14 +1705,17 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     function getSampleTable(dsName, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsName, jsonKeys, jsons);
+
         $tableWrap.empty().append(html);
 
-        $(".datasetTbodyWrap").scroll(function() {
-            dataStoreTableScroll($(this));
-        });
         var $table = $("#worksheetTable");
         var tableHeight = $table.height();
         $table.find(".colGrab").height(tableHeight);
+
+        $("#worksheetTable .datasetTbodyWrap").scroll(function() {
+            dataStoreTableScroll($(this));
+        });
+
         restoreSelectedColumns();
     }
 
@@ -1403,7 +1869,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
             gRescolMouseDown($(this), event, {target: "datastore"});
             dblClickResize($(this), {minWidth: 25});
         });
-
     }
 
     // select a column
@@ -1474,8 +1939,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             return "";
         }
 
-        var tr   = "";
-        var th   = "";
+        var tr = "";
+        var th = "";
 
         var columnsType = [];  // track column type
 
@@ -1548,7 +2013,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         jsons.forEach(function(json) {
             tr += '<tr>';
-            tr += '<td>' + (currentRow + i + 1) + '</td>';
+            tr += '<td class="lineMarker">' + (currentRow + i + 1) + '</td>';
             // loop through each td, parse object, and add to table cell
             for (var j = 0; j < jsonKeys.length; j++) {
                 var key = jsonKeys[j];
@@ -2064,7 +2529,6 @@ window.DS = (function ($, DS) {
             ds.removeFromParent();
             // delete ds
             delete dsLookUpTable[ds.id];
-            // delete ds;
 
             return true;
         }
@@ -2097,10 +2561,17 @@ window.DS = (function ($, DS) {
         }
 
         var numDatasets = datasets.numDatasets;
+        var totolDS = 0;
         var searchHash = {};
         // store all data set name to searchHash for lookup
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
+            // XXX Cheng data preview ds is deleted here
+            if (dsName.endsWith(".preview")) {
+                XcalarDestroyDataset(dsName);
+                continue;
+            }
+            ++totolDS;
             searchHash[dsName] = true;
         }
 
@@ -2129,7 +2600,7 @@ window.DS = (function ($, DS) {
         }
 
         // stored data not fit backend data, abort restore
-        if (dsCount !== numDatasets) {
+        if (dsCount !== totolDS) {
             DS.clear();
             return false;
         }
