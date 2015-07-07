@@ -62,6 +62,19 @@
         
     }
 
+    &.modalOpen {
+        z-index: 40;
+        .ui-resizable-handle {
+            display: none !important;
+        }
+        
+        &.poppedOut {
+            #sideBarModal:after {
+                display: none;
+            }
+        }
+    }
+
     .ui-resizable-handle {
         display: none !important;
     }
