@@ -208,8 +208,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
                     header, moduleName, funcName)
             .then(function() {
                 DataStore.updateNumDatasets();
-                $("#importDataReset").click();
-
                 StatusMessage.success(msgId);
             })
             .fail(function(result) {
@@ -1741,6 +1739,7 @@ window.DS = (function ($, DS) {
         $grid.append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.click();
+        $("#importDataReset").click();
         
         XcalarLoad(loadURL, dsFormat, dsName,
                    fieldDelim, lineDelim, hasHeader,
