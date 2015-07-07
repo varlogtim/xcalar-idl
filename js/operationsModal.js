@@ -66,13 +66,21 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
-        $autocompleteInputs.on('keydown', function(event) {
-            if (event.which === keyCode.Down) {
-                listHighlight($(this), keyCode.Down);
-            } else if (event.which === keyCode.Up) {
-                listHighlight($(this), keyCode.Up);
-            }
-        });
+
+
+        // $('body').on('keydown', function(event) {
+        //     var $list = $operationsModal.find('.modalTopMain')
+        //                                 .find('.list:visible');
+        //     if ($list.length !== 0) {
+        //         var $input = $list.siblings('input');
+        //         if (event.which === keyCode.Down) {
+        //             listHighlight($input, keyCode.Down);
+        //         } else if (event.which === keyCode.Up) {
+        //             listHighlight($input, keyCode.Up);
+        //         }
+        //     }
+            
+        // });
 
         $operationsModal.find('.list').on('mousedown', 'li', function() {
             allowInputChange = false;
@@ -240,7 +248,8 @@ window.OperationsModal = (function($, OperationsModal) {
             $('#xcTable' + tableNum).find('.header')
                                     .off('click', fillInputFromColumn);
             
-            $(document).mousedown(); // hides any error boxes;   
+            $(document).mousedown(); // hides any error boxes; 
+            $('body').off('keydown', listHighlightListener);  
         });
 
         $operationsModal.on('click', function() {
@@ -355,6 +364,8 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.find('.circle1').addClass('filled');
             $functionInput.focus();
         }
+
+        $('body').on('keydown', listHighlightListener);
     };
 
     // empty array means the first argument will always be the column name
@@ -1092,6 +1103,19 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
         return (newName);
+    }
+
+    function listHighlightListener(event) {
+        var $list = $operationsModal.find('.modalTopMain')
+                                    .find('.list:visible');
+        if ($list.length !== 0) {
+            var $input = $list.siblings('input');
+            if (event.which === keyCode.Down) {
+                listHighlight($input, keyCode.Down);
+            } else if (event.which === keyCode.Up) {
+                listHighlight($input, keyCode.Up);
+            }
+        }
     }
 
     function insertText($input, textToInsert) {
