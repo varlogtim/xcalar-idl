@@ -10,6 +10,7 @@ window.RightSideBar = (function($, RightSideBar) {
     RightSideBar.initialize = function() {
         RightSideBar.addTables(gTables, IsActive.Active);
         RightSideBar.addTables(gHiddenTables, IsActive.Inactive);
+        generateOrphanList(gOrphanTables);
     };
 
     RightSideBar.addTables = function(tables, active) {
@@ -61,26 +62,29 @@ window.RightSideBar = (function($, RightSideBar) {
         RightSideBar.addTables([table], IsActive.Active);
     };
 
-    RightSideBar.tableBulkAction = function(action) {
+    RightSideBar.tableBulkAction = function(action, type) {
         var deferred    = jQuery.Deferred();
-        var validAtcion = ["add", "delete"];
+        var validAction = ["add", "delete"];
 
         // validation check
-        if (validAtcion.indexOf(action) < 0) {
+        if (validAction.indexOf(action) < 0) {
             console.error("Invalid action!");
             deferred.reject("Invalid action!");
             return (deferred.promise());
         }
-
-        var $tablesSelected = $("#inactiveTablesList")
-                                    .find(".addArchivedBtn.selected")
-                                    .closest(".tableInfo");
-        var $buttons = $('#archivedTableList').find('.btnLarge');
+        var $tableList;
+        if (type === 'inactive') {
+            $tableList = $('#archivedTableList');
+        } else if (type === 'orphan') {
+            $tableList = $('#orphanedTableList');
+        }
+        var $tablesSelected = $tableList.find(".addTableBtn.selected")
+                                        .closest(".tableInfo");
+        var $buttons = $tableList.find('.btnLarge');
         var promises = [];
         var failures = [];
 
         $buttons.addClass('btnInactive');
-
         $tablesSelected.each(function(index, ele) {
 
             promises.push((function() {
@@ -89,39 +93,54 @@ window.RightSideBar = (function($, RightSideBar) {
                 var tableName = $li.data("tablename");
                 var tableNum = xcHelper.getTableIndexFromName(tableName, true);
 
-                if (tableNum == null) {
+                if (tableNum == null && type !== 'orphan') {
                     console.error("Error: do not find the table");
                     innerDeferred.reject();
                     return (innerDeferred.promise());
                 }
 
                 if (action === "add") {
-                    var table         = gTableIndicesLookup[tableName];
-                    // update gTableIndicesLookup
-                    table.active = true;
-                    table.timeStamp = xcHelper.getTimeInMS();
-
-                    addTable(tableName, null, AfterStartup.After,
+                    if (type === 'orphan') {
+                        prepareOrphanForActive(tableName)
+                        .then(function() {
+                            doneHandler($li, tableName);
+                            return (addTable(tableName, null,
+                                    AfterStartup.After, null));
+                        })
+                        .then(innerDeferred.resolve)
+                        .fail(function(error) {
+                            failHandler($li, tableName, error);
+                            innerDeferred.resolve(error);
+                        });
+                    } else {
+                        var table = gTableIndicesLookup[tableName];
+                        // update gTableIndicesLookup
+                        table.active = true;
+                        table.timeStamp = xcHelper.getTimeInMS();
+                        addTable(tableName, null, AfterStartup.After,
                              null)
-                    .then(function() {
-                        // already add the table
-                        var activeTable = gHiddenTables.splice(tableNum, 1)[0];
-
-                        doneHandler($li, tableName);
-                        return (XcalarSetFree(activeTable.resultSetId));
-                    })
-                    .then(function() {
-                        innerDeferred.resolve();
-                    })
-                    .fail(function(error) {
-                        failHandler($li, tableName, error);
-                        innerDeferred.resolve(error);
-                    });
+                        .then(function() {
+                            doneHandler($li, tableName);
+                            // already add the table
+                            var activeTable = gHiddenTables
+                                             .splice(tableNum, 1)[0];
+                            return (XcalarSetFree(activeTable.resultSetId));
+                        })
+                        .then(function() {
+                            innerDeferred.resolve();
+                        })
+                        .fail(function(error) {
+                            failHandler($li, tableName, error);
+                            innerDeferred.resolve(error);
+                        });
+                    }
                 } else if (action === "delete") {
+                    console.log('trying to delete')
                     var sqlOptions = {"operation": "deleteTable",
                                       "tableName": tableName
                                      };
-                    deleteTable(tableNum, DeleteTable.Delete, sqlOptions)
+                    deleteTable(tableNum, tableName, DeleteTable.Delete,
+                                sqlOptions)
                     .then(function() {
                         doneHandler($li, tableName);
                         innerDeferred.resolve();
@@ -151,11 +170,13 @@ window.RightSideBar = (function($, RightSideBar) {
 
         function doneHandler($li, tableName) {
             var $timeLine = $li.closest(".timeLine");
-
             $li.remove();
             if ($timeLine.find('.tableInfo').length === 0) {
                 $timeLine.remove();
-                $('#archivedTableList .secondButtonWrap').hide();
+                if ($tableList.find('.tableInfo').length === 0) {
+                    $tableList.find('.secondButtonWrap').hide();
+                }
+                
             }
             // add sql
             if (action === "add") {
@@ -167,11 +188,47 @@ window.RightSideBar = (function($, RightSideBar) {
         }
 
         function failHandler($li, tableName, error) {
-            $li.find(".addArchivedBtn.selected")
+            $li.find(".addTableBtn.selected")
                             .removeClass("selected");
             failures.push(tableName + ": {" + error.error + "}");
         }
     };
+
+    function prepareOrphanForActive(tableName) {
+        var deferred = jQuery.Deferred();
+        XcalarMakeResultSetFromTable(tableName)
+        .then(function(result) {
+            var newTableCols = [];
+            var colName = result.keyAttrHeader.name;
+            var index = 1;
+            if (colName !== 'recordNum') {
+                var progCol = ColManager.newCol({
+                            "index"   : 1,
+                            "name"    : colName,
+                            "width"   : gNewCellWidth,
+                            "isNewCol": false,
+                            "userStr" : '"' + colName + '" = pull(' +
+                                        colName + ')',
+                            "func": {
+                                "func": "pull",
+                                "args": [colName]
+                            }
+                        });
+
+                newTableCols.push(progCol);
+                index++;
+            }
+            // new "DATA" column
+            newTableCols.push(ColManager.newDATACol(index));
+            setIndex(tableName, newTableCols);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error(error);
+            deferred.reject();
+        });
+        return (deferred.promise());
+    }
 
     // setup buttons to open right side bar
     function setupButtons() {
@@ -325,8 +382,8 @@ window.RightSideBar = (function($, RightSideBar) {
     function setuptableListSection() {
         var $tabsSection       = $("#tableListSectionTabs");
         var $tableListSections = $("#tableListSections .tableListSection");
-        var $listBtns          = $("#archivedTableList .buttonWrap .btnLarge");
-        var $selectBtns        = $('#archivedTableList .secondButtonWrap');
+        var $selectBtns        = $('#archivedTableList .secondButtonWrap,' +
+                                   '#orphanedTableList .secondButtonWrap');
 
         $tabsSection.on("click", ".tableListSectionTab", function() {
             var $tab  = $(this);
@@ -348,29 +405,40 @@ window.RightSideBar = (function($, RightSideBar) {
                 $box.removeClass("active");
                 $ol.slideUp(200).removeClass("open");
             } else {
+                if ($ol.children().length === 0) {
+                    return;
+                }
                 $box.addClass("active");
                 $ol.slideDown(200).addClass("open");
             }
         });
 
         $selectBtns.find('.selectAll').click(function() {
+            var $tableListSection = $(this).closest('.tableListSection');
+            var $listBtns = $tableListSection.find('.buttonWrap')
+                                             .find('.btnLarge');
             $listBtns.removeClass('btnInactive');
-            $('#inactiveTablesList').find('.addArchivedBtn')
-                                    .addClass("selected");
+            $tableListSection.find('.addTableBtn').addClass("selected");
         });
 
         $selectBtns.find('.clearAll').click(function() {
+            var $tableListSection = $(this).closest('.tableListSection');
+            var $listBtns = $tableListSection.find('.buttonWrap')
+                                             .find('.btnLarge');
             $listBtns.addClass('btnInactive');
-            $('#inactiveTablesList').find('.addArchivedBtn')
-                                    .removeClass("selected");
+            $tableListSection.find('.addTableBtn').removeClass("selected");
         });
 
-        $("#inactiveTablesList").on("click", ".addArchivedBtn", function() {
+        $("#inactiveTablesList, #orphanedTablesList").on("click",
+                                                    ".addTableBtn", function() {
             var $btn = $(this);
 
             $btn.toggleClass("selected");
+            var $tableListSection = $btn.closest('.tableListSection');
+            var $listBtns = $tableListSection.find('.buttonWrap')
+                                             .find('.btnLarge');
 
-            if ($("#archivedTableList .addArchivedBtn.selected").length === 0) {
+            if ($tableListSection.find(".addTableBtn.selected").length === 0) {
                 $listBtns.addClass('btnInactive');
             } else {
                 $listBtns.removeClass('btnInactive');
@@ -383,14 +451,27 @@ window.RightSideBar = (function($, RightSideBar) {
             addBulkTableHelper();
         });
 
-        $("#deleteTablesBtn").click(function() {
+        $('#submitOrphanedTablesBtn').click(function() {
+            addBulkTable('orphan');
+        });
+
+        $("#deleteTablesBtn, #deleteOrphanedTablesBtn").click(function() {
+            var text;
+            var type;
+            if ($(this).is('#deleteTablesBtn')) {
+                type = "inactive";
+                text = "ARCHIVED";
+            } else {
+                type = "orphan";
+                text = "ORPHANED";
+            }
             Alert.show({
-                "title": "DELETE ARCHIEVED TABLES",
-                "msg"  : "Are you sure you want to delete " +
+                "title": "DELETE " + type + " TABLES",
+                "msg"  : "Are you sure you want to delete the " +
                          "selected tables?",
                 "isCheckBox": true,
                 "confirm"   : function() {
-                    RightSideBar.tableBulkAction("delete")
+                    RightSideBar.tableBulkAction("delete", type)
                     .then(function() {
                         commitToStorage();
                     })
@@ -657,11 +738,10 @@ window.RightSideBar = (function($, RightSideBar) {
                 // HelpController.tooltipOff();
             }
         }
-
     }
 
     function addBulkTableHelper() {
-        var $tables = $("#inactiveTablesList").find(".addArchivedBtn.selected")
+        var $tables = $("#inactiveTablesList").find(".addTableBtn.selected")
                                               .closest(".tableInfo");
         var $noSheetTables = $tables.filter(function() {
             return $(this).find(".worksheetInfo").hasClass("inactive");
@@ -703,7 +783,7 @@ window.RightSideBar = (function($, RightSideBar) {
                             WSManager.addTable(tableName, wsIndex);
                         });
 
-                        addBulkTable();
+                        addBulkTable('inactive');
                     }
                 },
                 "cancel": function() {
@@ -713,27 +793,33 @@ window.RightSideBar = (function($, RightSideBar) {
             });
 
         } else {
-            addBulkTable();
+            addBulkTable('inactive');
         }
+    }
 
-        function addBulkTable() {
-            RightSideBar.tableBulkAction("add")
-            .then(function() {
-                if (!$("#workspaceTab").hasClass("active")) {
-                    $("#workspaceTab").click();
-                }
-                WSManager.focusOnLastTable();
-                commitToStorage();
-            })
-            .fail(function(error) {
-                Alert.error("Error In Adding Archieved Table", error);
-            });
-        }
+    function addBulkTable(type) {
+        RightSideBar.tableBulkAction("add", type)
+        .then(function() {
+            if (!$("#workspaceTab").hasClass("active")) {
+                $("#workspaceTab").click();
+            }
+            WSManager.focusOnLastTable();
+            commitToStorage();
+        })
+        .fail(function(error) {
+            var tableType;
+            if (type === 'inactive') {
+                tableType = 'Archived';
+            } else if (type === 'orphan') {
+                tableType = 'Orphaned';
+            }
+            Alert.error("Error In Adding " + tableType + " Table", error);
+        });
     }
 
     function generateTableLists(tables, active) {
         var sortedTables = sortTableByTime(tables); // from oldest to newest
-
+        
         var dates = xcHelper.getTwoWeeksDate();
         var p     = dates.length - 1;    // the length should be 8
         var days  = ["Sunday", "Monday", "Tuesday", "Wednesday",
@@ -797,7 +883,12 @@ window.RightSideBar = (function($, RightSideBar) {
             }
 
             var $dateDivider = $tableList.find(".date" + p + " .tableList");
-            var numCols      = table.tableCols.length;
+            var numCols;
+            if (table.tableCols) {
+                numCols = table.tableCols.length;
+            } else {
+                numCols = 0;
+            }
             var time;
 
             if (dateIndex >= 7) {
@@ -833,7 +924,7 @@ window.RightSideBar = (function($, RightSideBar) {
                             '<span class="icon"></span>' +
                         '</div>' +
                         '<span class="tableName">' + tableName + '</span>' +
-                        '<span class="addArchivedBtn"></span>' +
+                        '<span class="addTableBtn"></span>' +
                         '<span class="numCols">' + numCols + '</span>' +
                     '</div>' +
                     '<ol>';
@@ -853,16 +944,42 @@ window.RightSideBar = (function($, RightSideBar) {
         }
     }
 
+    function generateOrphanList(tables) {
+        var numTables = tables.length;
+        var html = "";
+        for (var i = 0; i < numTables; i++) {
+            var tableName = tables[i].tableName;
+            html += '<li class="clearfix tableInfo" ' +
+                     'data-tablename="' + tableName + '">' +
+                        '<div class="tableListBox">' +
+                            '<div class="iconWrap">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
+                            '<span class="tableName">' + tableName + '</span>' +
+                            '<span class="addTableBtn"></span>' +
+                        '</div>' +
+                     '</li>';
+        }
+        $('#orphanedTablesList').html(html);
+        if (numTables > 0) {
+            $('#orphanedTableList').find('.btnLarge').show();
+            $('#orphanedTableList .secondButtonWrap').show();
+        }
+    }
+
     function sortTableByTime(tables) {
         var sortedTables = [];
 
         tables.forEach(function(table) {
             var tableName = table.tableName;
-            var timeStamp = gTableIndicesLookup[tableName].timeStamp;
-
+            var timeStamp;
+            if (gTableIndicesLookup[tableName]) {
+                timeStamp = gTableIndicesLookup[tableName].timeStamp;
+            }
             if (timeStamp === undefined) {
                 console.error("Time Stamp undefined");
                 timeStamp = xcHelper.getTimeInMS(null, "2014-02-14");
+                timeStamp = "";
             }
 
             sortedTables.push([table, timeStamp]);

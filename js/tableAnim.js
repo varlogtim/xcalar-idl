@@ -2024,27 +2024,7 @@ function addRowListeners(newCells) {
             JSONModal.show($(this));
         }
     );
-    // var timeout;
-    // var activeRowGrab;
-
-    // newCells.find('.rowGrab').mouseenter(function(event) {
-    //     var $el = $(this);
-    //     activeRowGrab = this;
-    //     timeout = setTimeout(function() {
-    //         $el.addClass('rowGrabCursor');
-    //         $el.closest('table').addClass('rowGrabCursor');
-    //     }, 200);
-    // });
-
-    // newCells.find('.rowGrab').mouseleave(function(event) {
-    //     if (this == activeRowGrab) {
-    //         clearTimeout(timeout);
-    //     }
-    //     activeRowGrab = null;
-    //     $(this).removeClass('rowGrabCursor');
-    //     $(this).closest('table').removeClass('rowGrabCursor');
-    // });
-
+    
     newCells.find('.rowGrab').mousedown(function(event) {
         if (event.which === 1) {
             gResrowMouseDown($(this), event);

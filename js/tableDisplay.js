@@ -241,7 +241,7 @@ function deleteActiveTable(tableNum) {
     var sqlOptions = {"operation": "deleteTable",
                       "tableName": tableName};
 
-    deleteTable(tableNum, null, sqlOptions)
+    deleteTable(tableNum, null, null, sqlOptions)
     .then(function() {
         setTimeout(function() {
             if (gTables[gActiveTableNum] &&
@@ -257,11 +257,16 @@ function deleteActiveTable(tableNum) {
     return (deferred.promise());
 }
 
-function deleteTable(tableNum, deleteArchived, sqlOptions) {
+function deleteTable(tableNum, tableName, deleteArchived, sqlOptions) {
     var deferred = jQuery.Deferred();
     var table = deleteArchived ? gHiddenTables[tableNum] : gTables[tableNum];
-    var tableName = table.tableName;
-    var resultSetId = table.resultSetId;
+    var tableName = tableName || table.tableName;
+    var resultSetId;
+    if (tableNum === undefined) {
+        resultSetId = -1;
+    } else {
+        resultSetId = table.resultSetId;
+    }
     
     // Free the result set pointer that is still pointing to it
     XcalarSetFree(resultSetId)

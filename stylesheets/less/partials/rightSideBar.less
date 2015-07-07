@@ -236,7 +236,7 @@
             }
         }
 
-        #tableList, #archivedTableList {
+        #tableList, #archivedTableList, #orphanedTableList {
             max-width: 490px;
             margin: 0 auto;
         }
@@ -395,14 +395,14 @@
             }
         }
 
-        .addArchivedBtn {
+        .addTableBtn {
             display: none;
         }
     }
 
-    #archivedTableList {
+    #archivedTableList, #orphanedTableList {
 
-        .addArchivedBtn {
+        .addTableBtn {
             display: inline-block;
             float: right;
             .size(@width: 24px, @height: 100%);
@@ -437,17 +437,23 @@
                 margin: 0px 5px 9px;
                 display: none;
                 .flex(1 0 170px);
+                white-space: nowrap;
+                text-indent: 2px;
 
                 .icon {
                     .size(@width: 25px, @height: 100%);
                 }
 
-                &#submitTablesBtn .icon {
-                    .image("/images/send-single.png", 50%, 50%);
+                &#submitTablesBtn, &#submitOrphanedTablesBtn {
+                    .icon {
+                        .image("/images/send-single.png", 50%, 50%);
+                    }
                 }
 
-                &#deleteTablesBtn .icon {
-                    .image("/images/garbageThick.png", 50%, 50%);
+                &#deleteTablesBtn, &#deleteOrphanedTablesBtn {
+                    .icon {
+                        .image("/images/garbageThick.png", 50%, 50%);
+                    }
                 }
             }
         }
@@ -482,6 +488,17 @@
                 width: 20px;
                 .image("/images/select-none-white.png", 50%, 50%);
             }
+        }
+    }
+
+    #orphanedTableList {
+        .tableListBox {
+            margin-left: 12%;
+        }
+        .tableInfo:first-child {
+            padding-top: 34px;
+            margin-top: -1px;
+            border-top: 1px solid @color-background-sidebar;
         }
     }
 }

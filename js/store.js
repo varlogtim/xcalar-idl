@@ -68,7 +68,6 @@ function setIndex(tName, index, dsName, tableProperties) {
     if (tableProperties) {
         gTableIndicesLookup[tName].bookmarks = tableProperties.bookmarks;
         gTableIndicesLookup[tName].rowHeights = tableProperties.rowHeights;
-        
     } else {
         gTableIndicesLookup[tName].bookmarks = [];
         gTableIndicesLookup[tName].rowHeights = {};

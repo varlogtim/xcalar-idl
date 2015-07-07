@@ -26,6 +26,7 @@ var gMinTableWidth = 30;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
 var gHiddenTables = [];
+var gOrphanTables = [];
 var gFnBarOrigin;
 var gActiveTableNum = 0; // The table that is currently in focus
 var gDSObj = {};    //obj for DS folder structure
@@ -539,9 +540,6 @@ function documentReadyGeneralFunction() {
             case ("movingCol"):
                 dragdropMouseUp();
                 break;
-            // case ("movingJson"):
-            //     JSONModal.mouseUp();
-            //     break;
             case ("rowScroller"):
                 rowScrollerMouseUp();
                 break;
@@ -598,15 +596,22 @@ function initializeTable() {
     var deferred   = jQuery.Deferred();
     var tableCount = 0;
 
-    if (jQuery.isEmptyObject(gTableIndicesLookup)) {
-        $('#mainFrame').addClass('empty');
-        deferred.resolve();
-    } else {
+    XcalarGetTables()
+    .then(function(backEndTables) {
+        var backTables = backEndTables.tables;
+        var numBackTables = backTables.length;
+        var tableMap = {};
+        for (var i = 0; i < numBackTables; i++) {
+            tableMap[backTables[i].tableName] = backTables[i];
+        }
+
+        if (jQuery.isEmptyObject(gTableIndicesLookup)) {
+            $('#mainFrame').addClass('empty');
+        }
+
         var promises = [];
         var failures = [];
-
         var tableName;
-
         for (var i = 0; i < gTableOrderLookup.length; i++) {
             tableName = gTableOrderLookup[i];
             var lookupTable = gTableIndicesLookup[tableName];
@@ -615,6 +620,8 @@ function initializeTable() {
                 lookupTable.active = false;
                 continue;
             }
+
+            delete tableMap[tableName];
             ++tableCount;
             promises.push((function(index, tableName) {
                 var innerDeferred = jQuery.Deferred();
@@ -631,20 +638,20 @@ function initializeTable() {
             }).bind(this, i, tableName));
         }
 
-        for (tName in gTableIndicesLookup) {
+        for (var tName in gTableIndicesLookup) {
             var table = gTableIndicesLookup[tName];
+            tableName = table.tableName;
+            if (tableMap[tableName]) {
+                delete tableMap[tableName];
 
-            if (!table.active) {
                 ++tableCount;
-                tableName = table.tableName;
-
-                promises.push((function(tableName) {
+                promises.push((function(tablName) {
                     var innerDeferred = jQuery.Deferred();
 
-                    setupHiddenTable(tableName)
+                    setupHiddenTable(tablName)
                     .then(innerDeferred.resolve)
                     .fail(function(thriftError) {
-                        failures.push("set hidden table " + tableName +
+                        failures.push("set hidden table " + tablName +
                                      "fails: " + thriftError.error);
                         innerDeferred.resolve(error);
                     });
@@ -653,6 +660,8 @@ function initializeTable() {
                 }).bind(this, tableName));
             }
         }
+
+        setupOrphanedList(tableMap);
 
         chain(promises)
         .then(function() {
@@ -680,9 +689,21 @@ function initializeTable() {
             console.error("InitializeTable fails!", error);
             deferred.reject(error);
         });
-    }
+    })
+    .fail(function(error) {
+        console.error("InitializeTable fails!", error);
+        deferred.reject(error);
+    });
 
     return (deferred.promise());
+}
+
+function setupOrphanedList(tableMap) {
+    var tables = [];
+    for (var table in tableMap) {
+        tables.push(tableMap[table]);
+    }
+    gOrphanTables = tables;
 }
 
 function documentReadyIndexFunction() {

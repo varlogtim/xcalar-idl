@@ -877,8 +877,7 @@ window.xcFunction = (function ($, xcFunction) {
         setupHiddenTable(tableName)
         .then(function() {
             var index = gHiddenTables.length - 1;
-            RightSideBar.addTables([gHiddenTables[index]],
-                                    IsActive.Inactive);
+            RightSideBar.addTables([gHiddenTables[index]], IsActive.Inactive);
 
             deferred.resolve({
                 "newTableCreated": true,

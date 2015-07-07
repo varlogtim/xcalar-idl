@@ -754,7 +754,7 @@
         <section id="tableListSectionTabs">
           <div class="tableListSectionTab active">Active</div>
           <div class="tableListSectionTab">Inactive</div>
-          <div class="tableListSectionTab">Users</div>
+          <div class="tableListSectionTab">Orphaned</div>
         </section>
         <!-- Sections -->
         <section id="tableListSections">
@@ -786,8 +786,30 @@
             </div>
             <ul id="inactiveTablesList"></ul>
           </div>
-          <!-- user list -->
-          <div class="tableListSection"></div>
+          <!-- orphaned table list -->
+          <div id="orphanedTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <button id="submitOrphanedTablesBtn" type="button" 
+                        class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>ADD TO WORKSHEET
+              </button>
+              <button id="deleteOrphanedTablesBtn" type="button" 
+                      class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>DELETE TABLES
+              </button>
+            </div>
+            <div class="secondButtonWrap">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
+                </span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
+                </span>
+              </div>
+            </div>
+            <ul id="orphanedTablesList"></ul>
+          </div>
         </section>
         <!-- End Of Sections -->
       </div>
