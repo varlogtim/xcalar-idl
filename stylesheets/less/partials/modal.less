@@ -1301,6 +1301,8 @@
 /* File Browser Modal */
 #fileBrowserModal {
     .modalBuilder(800px, 670px);
+    max-width: none !important;
+    max-height: none !important;
     text-transform: capitalize;
 
     .modalHeader {
@@ -1333,10 +1335,14 @@
 
             .listSection {
                 text-transform: none;
+                width: 60%;
                 .text {
                     .size(@width: ~"calc(100% - 25px)");
                     cursor: text;
                     outline: none;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
                 .list {
                     top: 26px;
@@ -1348,8 +1354,8 @@
             }
 
             .iconSection {
-                float: left;
-                margin-left: 50px;
+                float: right;
+                margin-left: 5px;
 
                 .iconWrapper {
                     display: inline-block;
@@ -1431,12 +1437,12 @@
 
     .modalMain {
         .position(relative);
-        .size(@height: 370px);
+        .size(@height: ~"calc(100% - 300px)");
         padding: 5px 0;
         .noSelection;
 
         .titleSection {
-            .size(@width: 778px, @height: 40px);
+            .size(@width: ~"calc(100% - 22px)", @height: 40px);
             padding: 5px 0;
             margin: 0 auto;
             background: @color-background-darkGray;
@@ -1456,13 +1462,13 @@
                 color: #5e5e5e;
                 cursor: default;
                 &.fileName {
-                    .size(@width: 400px);
+                    .size(@width: ~"calc(50% - 10px)");
                 }
                 &.fileDate {
-                    .size(@width: 160px);
+                    .size(@width: ~"calc(25% - 18px)");
                 }
                 &.fileSize {
-                    .size(@width: 170px);
+                    .size(@width: ~"calc(25% - 18px)");
                 }
                 &.clickable {
                     .icon {
@@ -1489,7 +1495,7 @@
         }
 
         .mainSection {
-            .size(@width: 778px, @height: 100%);
+            .size(@width: ~"calc(100% - 22px)", @height: 100%);
             overflow-y: auto;
             background: lighten(@color-background-darkGray, 3%);
             .rounded(3px 3px 0px 0px);
@@ -1521,6 +1527,7 @@
                 .rounded(0);
                 .size(@height: ~"calc(100% - 40px)");
                 box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
+                overflow-y: scroll;
             }
 
             grid-unit {
@@ -1535,10 +1542,11 @@
                     .font(@weight: bold, @size: 12px, @line-height: 30px);
                     border: 1px solid transparent;
                     color: #8b8b8b;
+                    overflow: hidden;
                 }
 
                 .label {
-                    .size(@width: ~"calc(400px - 25px)");
+                    .size(@width: ~"calc(50% - 30px)");
                     padding-left: 5px;
                 }
                 .fileSize, .fileDate {
@@ -1546,10 +1554,10 @@
                     padding-left: 15px;
                 }
                 .fileDate {
-                    .size(@width: 160px);
+                    .size(@width: ~"calc(25% - 15px)");
                 }
                 .fileSize {
-                    .size(@width: 170px);
+                    .size(@width: ~"calc(25% - 16px)");
                 }
                 .gridIcon {
                     display: none;
@@ -1594,10 +1602,10 @@
         .size(@height: 90px);
         padding: 5px 0;
         .inputSection {
-            .size(@width: 600px, @height: 25px);
+            .size(@width: 70%, @height: 25px);
             margin: 10px auto 5px auto;
             input {
-                .size(@width: 450px, @height: 25px);
+                .size(@width: ~"calc(100% - 110px)", @height: 25px);
                 line-height: 25px;
                 .rounded;
                 box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5);
@@ -1608,6 +1616,7 @@
             }
             .listSection {
                 text-transform: uppercase;
+                .size(@width: ~"calc(100% - 110px)");
                 .list {
                     .size(@height: 75px);
                     overflow-y: auto;

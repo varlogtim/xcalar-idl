@@ -34,11 +34,19 @@ window.FileBrowser = (function($, FileBrowser) {
         .then(function() {
             xcHelper.removeSelectionRange();
 
+            var minWidth = 590;
+            var minHeight = 400;
+            var width = $fileBrowser.width();
+            var height = $fileBrowser.height();
+            var maxWidth = Math.min(width, $(window).width());
+            var maxHeight = Math.min(height, $(window).height());
+            maxWidth = Math.max(minWidth, maxWidth);
+            maxHeight = Math.max(minHeight, maxHeight);
+            console.log(maxHeight, maxWidth)
             $fileBrowser.css({
-                "left"  : 0,
-                "right" : 0,
-                "top"   : 0,
-                "bottom": 0
+                "margin": 0,
+                "width": maxWidth,
+                "height": maxHeight
             });
 
             // set modal background
@@ -47,7 +55,9 @@ window.FileBrowser = (function($, FileBrowser) {
 
                 $modalBackground.addClass("open");
                 $fileBrowser.fadeIn(200).focus();
+
             });
+            centerPositionElement($fileBrowser);
 
             // press enter to import a dataset
             // XXX use time out beacuse if you press browser button to open the
@@ -65,10 +75,22 @@ window.FileBrowser = (function($, FileBrowser) {
     };
 
     FileBrowser.setup = function() {
+        var minWidth = 590;
+        var minHeight = 400;
         $fileBrowser.draggable({
-                "handle": ".modalHeader",
-                "cursor": "-webkit-grabbing"
+            "handle": ".modalHeader",
+            "cursor": "-webkit-grabbing",
+            "containment": "window"
         });
+
+        $fileBrowser.resizable({
+            handles    : "n, e, s, w, se",
+            minHeight  : minHeight,
+            minWidth   : minWidth,
+            containment: "document"
+        });
+
+
         // click blank space to remove foucse on folder/dsds
         $fileBrowser.on("click", function() {
             clear();
