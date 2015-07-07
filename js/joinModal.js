@@ -211,12 +211,13 @@ window.JoinModal = (function($, JoinModal) {
 
         $modalBackground.fadeIn(150, function() {
             $joinModal.fadeIn(300);
+            scrollToColumn($leftJoinTable.find("th.colSelected"));
+            // this is the case when right table has suggested col
+            scrollToColumn($rightJoinTable.find("th.colSelected"));
         });
 
         modalHelper.setup();
-        scrolleToColumn($leftJoinTable.find("th.colSelected"));
-        // this is the case when right table has suggested col
-        scrolleToColumn($rightJoinTable.find("th.colSelected"));
+        
         isOpenTime = false;
     };
 
@@ -647,7 +648,7 @@ window.JoinModal = (function($, JoinModal) {
         });
     }
 
-    function scrolleToColumn($th) {
+    function scrollToColumn($th) {
         if (!$th || $th.length === 0) {
             return;
         }
@@ -711,7 +712,7 @@ window.JoinModal = (function($, JoinModal) {
                 return ($(this).text() === curTableName);
             }).click();
             $thToClick.click();
-            scrolleToColumn($thToClick);
+            scrollToColumn($thToClick);
         }
     }
 
