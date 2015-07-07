@@ -20,7 +20,7 @@ window.xcFunction = (function ($, xcFunction) {
         var newTableName = getNewTableName(tableName);
 
         var msg = StatusMessageTStr.Filter + ': ' + frontColName;
-        StatusMessage.show(msg);
+        var msgId = StatusMessage.addMsg(msg);
         
         // XXX Cheng must add table to worksheet before async call
         WSManager.addTable(newTableName);
@@ -45,7 +45,7 @@ window.xcFunction = (function ($, xcFunction) {
                 "filterString": fltStr
             });
             xcHelper.unlockTable(tableName, true);
-            StatusMessage.success(msg);
+            StatusMessage.success(msgId);
             commitToStorage();
             deferred.resolve();
         })
@@ -53,7 +53,7 @@ window.xcFunction = (function ($, xcFunction) {
             WSManager.removeTable(newTableName);
             xcHelper.unlockTable(tableName);
             Alert.error("Filter Columns Fails", error);
-            StatusMessage.fail(StatusMessageTStr.FilterFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.FilterFailed, msgId);
 
             deferred.reject(error);
         });
@@ -72,7 +72,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
                     StatusMessageTStr.OnColumn + ": " + frontColName;
-        StatusMessage.show(msg);
+        var msgId = StatusMessage.addMsg(msg);
         showWaitCursor();
 
         XcalarAggregate(backColName, tableName, aggrOp)
@@ -104,11 +104,11 @@ window.xcFunction = (function ($, xcFunction) {
             } catch(error) {
                 console.error(error, val);
             }
-            StatusMessage.success(msg);
+            StatusMessage.success(msgId);
         })
         .fail(function(error) {
             Alert.error("Aggregate fails", error);
-            StatusMessage.fail(StatusMessageTStr.AggregateFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.AggregateFailed, msgId);
         })
         .always(removeWaitCursor);
 
@@ -139,7 +139,7 @@ window.xcFunction = (function ($, xcFunction) {
         }
 
         var msg = StatusMessageTStr.Sort + " " + frontFieldName;
-        StatusMessage.show(msg);
+        var msgId = StatusMessage.addMsg(msg);
 
         // XXX Cheng must add to worksheet before async call
         WSManager.addTable(newTableName);
@@ -162,14 +162,14 @@ window.xcFunction = (function ($, xcFunction) {
                 "newTableName": newTableName
             });
             xcHelper.unlockTable(tableName, true);
-            StatusMessage.success(msg);
+            StatusMessage.success(msgId);
             commitToStorage();
         })
         .fail(function(error) {
             WSManager.removeTable(newTableName);
             xcHelper.unlockTable(tableName);
             Alert.error("Sort Rows Fails", error);
-            StatusMessage.fail(StatusMessageTStr.SortFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.SortFailed, msgId);
         });
     };
 
@@ -212,8 +212,8 @@ window.xcFunction = (function ($, xcFunction) {
         var rightTableResult;
 
         var msg = StatusMessageTStr.Join;
+        var msgId = StatusMessage.addMsg(msg);
 
-        StatusMessage.show(msg);
         xcHelper.lockTable(leftTableNum);
         xcHelper.lockTable(rightTableNum);
         WSManager.addTable(newTableName);
@@ -267,7 +267,7 @@ window.xcFunction = (function ($, xcFunction) {
             xcHelper.unlockTable(leftTableName, true);
             xcHelper.unlockTable(rightTableName, true);
 
-            StatusMessage.success(msg);
+            StatusMessage.success(msgId);
             commitToStorage();
 
             deferred.resolve();
@@ -277,7 +277,7 @@ window.xcFunction = (function ($, xcFunction) {
             xcHelper.unlockTable(leftTableName);
             xcHelper.unlockTable(rightTableName);
             Alert.error("Join Table Fails", error);
-            StatusMessage.fail(StatusMessageTStr.JoinFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.JoinFailed, msgId);
             
             joinFailHandler(leftTableNum, leftTableResult)
             .then(function() {
@@ -303,7 +303,7 @@ window.xcFunction = (function ($, xcFunction) {
         }
 
         var msg = StatusMessageTStr.GroupBy + " " + operator;
-        StatusMessage.show(msg);
+        var msgId = StatusMessage.addMsg(msg);
         WSManager.addTable(newTableName);
 
         XcalarGroupBy(operator, newColName, backFieldName, tableName,
@@ -352,12 +352,12 @@ window.xcFunction = (function ($, xcFunction) {
                 "newColumnName": newColName
             });
 
-            StatusMessage.success(msg);
+            StatusMessage.success(msgId);
             commitToStorage();
         })
         .fail(function(error) {
             Alert.error("GroupBy fails", error);
-            StatusMessage.fail(StatusMessageTStr.GroupByFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.GroupByFailed, msgId);
             WSManager.removeTable(newTableName);
         });
     };
@@ -371,7 +371,7 @@ window.xcFunction = (function ($, xcFunction) {
         var newTableName = getNewTableName(tableName);
 
         var msg = StatusMessageTStr.Map + " " + fieldName;
-        StatusMessage.show(msg);
+        var msgId = StatusMessage.addMsg(msg);
 
         options = options || {};
         // XXX Cheng must add to worksheet before async call
@@ -399,7 +399,7 @@ window.xcFunction = (function ($, xcFunction) {
                 "mapString"   : mapString
             });
             xcHelper.unlockTable(tableName, true);
-            StatusMessage.success(msg);
+            StatusMessage.success(msgId);
             commitToStorage();
 
             deferred.resolve();
@@ -409,7 +409,7 @@ window.xcFunction = (function ($, xcFunction) {
             WSManager.removeTable(newTableName);
 
             Alert.error("mapColumn fails", error);
-            StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
 
             deferred.reject(error);
         });
@@ -445,7 +445,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         msg = msg || StatusMessageTStr.Map + " " + lTableName +
                         " and " + rTableName;
-        StatusMessage.show(msg);
+        var msgId = StatusMessage.addMsg(msg);
 
         WSManager.addTable(lNewName);
         xcHelper.lockTable(lTableNum);
@@ -510,7 +510,7 @@ window.xcFunction = (function ($, xcFunction) {
             xcHelper.unlockTable(lTableName, true);
             xcHelper.unlockTable(rTableName, true);
 
-            StatusMessage.success(msg);
+            StatusMessage.success(msgId);
 
             deferred.resolve();
         })
@@ -521,7 +521,7 @@ window.xcFunction = (function ($, xcFunction) {
             WSManager.removeTable(lNewName);
             WSManager.removeTable(rNewName);
 
-            StatusMessage.fail(StatusMessageTStr.MapFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
             deferred.reject(error);
         });
 
@@ -539,8 +539,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         var fileName = retName + ".csv";
         var msg = StatusMessageTStr.ExportTable + ": " + tableName;
-
-        StatusMessage.show(msg);
+        var msgId = StatusMessage.addMsg(msg);
 
         XcalarExport(tableName, fileName)
         .then(function() {
@@ -564,11 +563,11 @@ window.xcFunction = (function ($, xcFunction) {
                 "isAlert"   : true,
                 "isCheckBox": true
             });
-            StatusMessage.success(msg);
+            StatusMessage.success(msgId);
         })
         .fail(function(error) {
             Alert.error("Export Table Fails", error);
-            StatusMessage.fail(StatusMessageTStr.ExportFailed, msg);
+            StatusMessage.fail(StatusMessageTStr.ExportFailed, msgId);
         })
         .always(function() {
             // removeWaitCursor();

@@ -202,7 +202,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             }
 
             var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
-            StatusMessage.show(msg);
+            var msgId = StatusMessage.addMsg(msg);
 
             DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                     header, moduleName, funcName)
@@ -210,7 +210,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 DataStore.updateNumDatasets();
                 $("#importDataReset").click();
 
-                StatusMessage.success(msg);
+                StatusMessage.success(msgId);
             })
             .fail(function(result) {
                 var text;
@@ -224,7 +224,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
                 Alert.error("Load Dataset Fails", text);
                 // StatusBox.show(text, $filePath, true);
-                StatusMessage.fail(StatusMessageTStr.LoadFailed, msg);
+                StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
 
                 return false;
             })
@@ -1096,7 +1096,7 @@ window.DataCart = (function($, DataCart) {
                 };
                 // add status message
                 var msg = StatusMessageTStr.CreatingTable + ': ' + tableName;
-                StatusMessage.show(msg);
+                var msgId = StatusMessage.addMsg(msg);
 
                 $cart.find('.colName').each(function() {
                     var colname = $(this).text();
@@ -1141,12 +1141,13 @@ window.DataCart = (function($, DataCart) {
                 })
                 .then(function() {
                     SQL.add("Send To Worksheet", sqlOptions);
-                    StatusMessage.success(msg);
+                    StatusMessage.success(msgId);
                     innerDeferred.resolve();
                 })
                 .fail(function(error) {
                     WSManager.removeTable(tableName);
-                    StatusMessage.fail(StatusMessageTStr.TableCreationFailed, msg);
+                    StatusMessage.fail(StatusMessageTStr.TableCreationFailed,
+                                       msgId);
                     innerDeferred.reject(error);
                 });
                 return (innerDeferred.promise());
