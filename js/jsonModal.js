@@ -2,6 +2,12 @@ window.JSONModal = (function($, JSONModal) {
     var $jsonModal = $("#jsonModal");
     var $jsonWrap = $("#jsonWrap");
     var $modalBackground = $("#modalBackground");
+    var $searchInput = $('#jsonSearch').find('input');
+    var $jsonText = $('#jsonObj');
+    var $counter = $('#jsonSearch').find('.counter');
+    var $matches;
+    var numMatches = 0;
+    var matchIndex;
 
     JSONModal.setup = function() {
         $('#jsonModal .closeJsonModal, #modalBackground').click(function() {
@@ -9,10 +15,6 @@ window.JSONModal = (function($, JSONModal) {
                 closeJSONModal();
             }
         });
-
-        // $('#jsonModal .jsonDragArea').mousedown(function(event) {
-        //     JSONModal.mouseDown(event);
-        // });
 
         $jsonModal.draggable({
             handle: '.jsonDragArea',
@@ -25,6 +27,13 @@ window.JSONModal = (function($, JSONModal) {
             minWidth   : 300,
             containment: "document"
         });
+
+        $searchInput.on('input', function() {
+            searchText($(this));
+        });
+        $jsonModal.find('.closeBox').click(clearSearch);
+        $jsonModal.find('.upArrow').click(cycleMatchUp);
+        $jsonModal.find('.downArrow').click(cycleMatchDown);
     };
 
     JSONModal.show = function ($jsonTd) {
@@ -38,6 +47,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonModal.find(".jsonDragArea").text(tableTitle);
         xcHelper.removeSelectionRange();
 
+        $searchInput.val("");
         fillJsonModal($jsonTd);
         centerPositionElement($jsonModal);
         jsonModalEvent($jsonTd);
@@ -144,6 +154,109 @@ window.JSONModal = (function($, JSONModal) {
                 });
             }
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
+
+        $('body').on('keydown', cycleMatches);
+    }
+
+    function searchText($input) {
+        $jsonText.find('.highlightedText').contents().unwrap();
+        var text = $input.val().toLowerCase();
+        if (text === "") {
+            $counter.find('.position, .total').html('');
+            numMatches = 0;
+            $searchInput.css("padding-right", 25);
+            return;
+        }
+        $targets = $jsonText.find('.text').filter(function() {
+            return ($(this).text().toLowerCase().indexOf(text) !== -1);
+        });
+        var regex = new RegExp(text, "gi");
+
+        $targets.each(function() {
+            var foundText = $(this).text();
+            foundText = foundText.replace(regex, function (match) {
+                return ('<span class="highlightedText">' + match +
+                        '</span>');
+            });
+            $(this).html(foundText);
+        });
+        $matches = $jsonText.find('.highlightedText');
+        numMatches = $matches.length;
+        matchIndex = 0;
+        var position = Math.min(1, numMatches);
+        $counter.find('.position').text(position);
+        $counter.find('.total').text('of ' + numMatches);
+        $searchInput.css("padding-right", $counter.width() + 25);
+
+        $matches.eq(0).addClass('selected');
+        if (numMatches !== 0) {
+            scrollMatchIntoView($matches.eq(0));
+        }
+    }
+
+    function clearSearch() {
+        $jsonText.find('.highlightedText').contents().unwrap();
+        $searchInput.val("");
+        $searchInput.focus();
+        $counter.find('.position, .total').html('');
+        numMatches = 0;
+        $searchInput.css("padding-right", 25);
+    }
+
+    function cycleMatches(event) {
+        var $lastMousedownTarget = gMouseEvents.getLastMouseDownTarget();
+        if (numMatches === 0 ||
+            $lastMousedownTarget.closest('#jsonSearch').length === 0) {
+            return;
+        }
+        if (event.which === keyCode.Up || event.which === keyCode.Down) {
+            if (event.which === keyCode.Up) {
+                matchIndex--;
+                if (matchIndex < 0) {
+                    matchIndex = numMatches - 1;
+                }
+                var val = $searchInput.val();
+                // doesn't work unless we use settimeout, dunno why
+                setTimeout(function() {
+                    $searchInput[0].selectionStart =
+                    $searchInput[0].selectionEnd = val.length;
+                }, 0);
+                
+            } else if (event.which === keyCode.Down) {
+                matchIndex++;
+                if (matchIndex >= numMatches) {
+                    matchIndex = 0;
+                }
+            }
+            $jsonText.find('.selected').removeClass('selected');
+            var $selectedMatch = $matches.eq(matchIndex);
+            $selectedMatch.addClass('selected');
+            $counter.find('.position').text(matchIndex + 1);
+            scrollMatchIntoView($selectedMatch);
+        }
+    }
+
+    function cycleMatchDown() {
+        var evt = {which: keyCode.Down};
+        cycleMatches(evt);
+    }
+
+    function cycleMatchUp() {
+        var evt = {which: keyCode.Up};
+        cycleMatches(evt);
+    }
+
+    function scrollMatchIntoView($match) {
+        var $modalWindow = $jsonWrap.find('.prettyJson')
+        var modalHeight = $modalWindow.height();
+        var scrollTop = $modalWindow.scrollTop();
+        var matchOffsetTop = $match.position().top;
+        if (matchOffsetTop > (scrollTop + modalHeight - 35)) {
+            // $modalWindow.scrollTop(matchOffsetTop - (modalHeight / 2));
+            $modalWindow.scrollTop(matchOffsetTop + 40 - (modalHeight / 2));
+        } else if (matchOffsetTop < (scrollTop - 25)) {
+            $modalWindow.scrollTop(matchOffsetTop + 30 - (modalHeight / 2));
+        }
     }
 
     function closeJSONModal() {
@@ -157,22 +270,10 @@ window.JSONModal = (function($, JSONModal) {
         });
         $('.modalHighlighted').removeClass('modalHighlighted');
         $("body").removeClass("hideScroll");
+        clearSearch();
+        $('body').off('keydown', cycleMatches);
+        $matches = [];
     }
-
-    // function positionJsonModal() {
-    //     var $window      = $(window);
-    //     var winHeight    = $window.height();
-    //     var winWidth     = $window.width();
-    //     var modalWidth   = $jsonModal.width();
-    //     var modalHeight  = $jsonModal.height();
-    //     var left = ((winWidth - modalWidth) / 2);
-    //     var top = ((winHeight - modalHeight) / 2);
-
-    //     $jsonModal.css({
-    //         "left": left,
-    //         "top" : top
-    //     });
-    // }
 
     function fillJsonModal($jsonTd) {
         var text = $jsonTd.find(".elementText").text();
@@ -211,7 +312,7 @@ window.JSONModal = (function($, JSONModal) {
 
             switch (typeof value) {
                 case ('string'):
-                    value = '"<span class="jString">' + value + '</span>"';
+                    value = '"<span class="jString text">' + value + '</span>"';
 
                     if (options.inarray) {
                         value =
@@ -223,7 +324,7 @@ window.JSONModal = (function($, JSONModal) {
 
                     break;
                 case ('number'):
-                    value = '<span class="jNum">' + value + '</span>';
+                    value = '<span class="jNum text">' + value + '</span>';
 
                     if (options.inarray) {
                         value =
@@ -235,7 +336,7 @@ window.JSONModal = (function($, JSONModal) {
 
                     break;
                 case ('boolean'):
-                    value = '<span class="jBool">' + value + '</span>';
+                    value = '<span class="jBool text">' + value + '</span>';
 
                     if (options.inarray) {
                         value += ',';
@@ -244,7 +345,7 @@ window.JSONModal = (function($, JSONModal) {
                     break;
                 case ('object'):
                     if (value == null) {
-                        value = '<span class="jNull">' + value + '</span>';
+                        value = '<span class="jNull text">' + value + '</span>';
                         if (options.inarray) {
                             value += ',';
                         }
@@ -272,7 +373,7 @@ window.JSONModal = (function($, JSONModal) {
 
                     break;
                 default:
-                    value = '<span class="jUndf">' + value + '</span>';
+                    value = '<span class="jUndf text">' + value + '</span>';
                     if (options.inarray) {
                         value += ',';
                     }
@@ -287,7 +388,7 @@ window.JSONModal = (function($, JSONModal) {
                 result +=
                     '<div class="jsonBlock jInfo" data-key="' + key + '">' +
                         indent +
-                        '"<span class="jKey">' + key + '</span>": ' +
+                        '"<span class="jKey text">' + key + '</span>": ' +
                         value + ',' +
                     '</div>';
             }

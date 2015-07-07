@@ -42,7 +42,6 @@ window.FileBrowser = (function($, FileBrowser) {
             var maxHeight = Math.min(height, $(window).height());
             maxWidth = Math.max(minWidth, maxWidth);
             maxHeight = Math.max(minHeight, maxHeight);
-            console.log(maxHeight, maxWidth)
             $fileBrowser.css({
                 "margin": 0,
                 "width": maxWidth,
