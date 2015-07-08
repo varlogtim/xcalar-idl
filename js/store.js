@@ -216,6 +216,7 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.getAndParse = function(key) {
+        console.log("getting "+key);
         var deferred = jQuery.Deferred();
         XcalarKeyLookup(key)
         .then(function(value) {

@@ -1187,14 +1187,14 @@ window.DataCart = (function($, DataCart) {
 
                 WSManager.addTable(tableName);
 
-                XcalarIndexFromDataset(datasetName, "recordNum", tableName)
+                XcalarIndexFromDataset(datasetName, "recordNum", tableName,
+                                       sqlOptions)
                 .then(function() {
                     var keepOriginal = true;
                     setIndex(tableName, newTableCols, datasetName, tableProperties);
                     return (refreshTable(tableName, null, keepOriginal, false));
                 })
                 .then(function() {
-                    SQL.add("Send To Worksheet", sqlOptions);
                     StatusMessage.success(msgId);
                     innerDeferred.resolve();
                 })
@@ -2422,25 +2422,24 @@ window.DS = (function ($, DS) {
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.click();
         $("#importDataReset").click();
+        
+        var sqlOptions = {"operation" : "loadDataSet",
+                          "dsPath"    : loadURL,
+                          "dsName"    : dsName,
+                          "dsFormat"  : dsFormat,
+                          "hasHeader" : hasHeader,
+                          "fieldDelim": fieldDelim || "Null",
+                          "lineDelim" : lineDelim || "Null",
+                          "moduleName": moduleName || null,
+                          "funcName"  : funcName || null
+                         };
 
         XcalarLoad(loadURL, dsFormat, dsName,
                    fieldDelim, lineDelim, hasHeader,
-                   moduleName, funcName)
+                   moduleName, funcName, sqlOptions)
         .then(function() {
             $grid.removeClass('inactive')
                  .find('.waitingIcon').remove();
-            // add sql
-            SQL.add("Load dataset", {
-                "operation" : "loadDataSet",
-                "dsPath"    : loadURL,
-                "dsName"    : dsName,
-                "dsFormat"  : dsFormat,
-                "hasHeader" : hasHeader,
-                "fieldDelim": fieldDelim || "Null",
-                "lineDelim" : lineDelim || "Null",
-                "moduleName": moduleName || null,
-                "funcName"  : funcName || null
-            });
         })
         .then(function() {
             var urlLen = loadURL.length;
@@ -2687,10 +2686,12 @@ window.DS = (function ($, DS) {
 
         $grid.find(".waitingIcon").fadeIn(200);
 
+        var sqlOptions = {"operation": "destroyDataSet",
+                          "dsName"   : dsName};
         XcalarSetFree(gDatasetBrowserResultSetId)
         .then(function() {
             gDatasetBrowserResultSetId = 0;
-            return (XcalarDestroyDataset(dsName));
+            return (XcalarDestroyDataset(dsName, sqlOptions));
         })
         .then(function() {
             //clear data cart
@@ -2700,12 +2701,6 @@ window.DS = (function ($, DS) {
             // remove ds obj
             rmDSObjHelper($grid.data("dsid"));
             $grid.remove();
-
-            // add sql
-            SQL.add("Delete DateSet", {
-                "operation": "destroyDataSet",
-                "dsName"   : dsName
-            });
 
             DataStore.updateNumDatasets();
             focusOnFirstDS();

@@ -3,10 +3,11 @@ window.SQL = (function($, SQL) {
     var $textarea = $('#rightBarTextArea');
     var $machineTextarea = $('#rightBarMachineTextArea');
 
-    SQL.add = function(title, options) {
-        history.push({"title": title, "options": options});
+    SQL.add = function(title, options, cli) {
+        history.push({"title": title, "options": options, "cli": cli}
+                    );
         $textarea.append(getCliHTML(title, options));
-        $machineTextarea.append(getCliMachine(title, options));
+        $machineTextarea.append(getCliMachine(title, options, cli));
         // scroll to bottom
         SQL.scrollToBottom($textarea);
         SQL.scrollToBottom($machineTextarea);
@@ -21,7 +22,8 @@ window.SQL = (function($, SQL) {
         history.forEach(function(record) {
             $textarea.append(getCliHTML(record.title, record.options));
             $machineTextarea.append(getCliMachine(record.title,
-                                                      record.options));
+                                                  record.options,
+                                                  record.cli));
             SQL.scrollToBottom($textarea);
             SQL.scrollToBottom($machineTextarea);
         });
@@ -69,7 +71,7 @@ window.SQL = (function($, SQL) {
         return (html);
     }
 
-    function getCliMachine(title, options) {
+    function getCliMachine(title, options, cli) {
         var string = "";
 
         // Here's the real code
@@ -95,37 +97,25 @@ window.SQL = (function($, SQL) {
             case ("exportTable"):
                 // XXX should export tables have an effect?
                 break;
-            // Here are all the ops that need to be replicated
-            case ("renameDatasetCol"):
-                string += cliRenameColHelper(options);
-                break;
-            case ("changeDataType"):
-                string += cliRetypeColHelper(options);
-                break;
-            case ("loadDataSet"):
-                string += cliLoadHelper(options);
-                break;
+            // Here are all the ops that have yet to be completed by
+            // reverse parser
             case ("destroyDataSet"):
                 // fallthrough
             case ("deleteTable"):
                 string += cliDeleteHelper(options);
                 break;
+            // Use reverse parser
+            case ("renameDatasetCol"):
+            case ("changeDataType"):
+            case ("loadDataSet"):
             case ("filter"):
-                string += cliFilterHelper(options);
-                break;
             case ("sort"):
-                // fallthrough
             case ("index"):
-                string += cliIndexHelper(options);
-                break;
             case ("join"):
-                string += cliJoinHelper(options);
-                break;
             case ("groupBy"):
-                string += cliGroupByHelper(options);
-                break;
             case ("mapColumn"):
-                string += cliMapHelper(options);
+            case ("renameTable"):
+                string += cli;
                 break;
             default:
                 console.warn("XXX! Operation unexpected", options.operation);

@@ -26,14 +26,7 @@ window.xcFunction = (function ($, xcFunction) {
         WSManager.addTable(newTableName);
         xcHelper.lockTable(tableNum);
 
-        XcalarFilterHelper(fltStr, tableName, newTableName)
-        .then(function() {
-            setIndex(newTableName, tablCols);
-            return (refreshTable(newTableName, tableName));
-        })
-        .then(function() {
-            // add sql
-            SQL.add("Filter Table", {
+        var sqlOptions = {
                 "operation"   : "filter",
                 "tableName"   : tableName,
                 "colName"     : frontColName,
@@ -42,8 +35,14 @@ window.xcFunction = (function ($, xcFunction) {
                 "operator"    : operator,
                 "value"       : fltStr,
                 "newTableName": newTableName,
-                "filterString": fltStr
-            });
+                "filterString": fltStr};
+
+        XcalarFilterHelper(fltStr, tableName, newTableName, sqlOptions)
+        .then(function() {
+            setIndex(newTableName, tablCols);
+            return (refreshTable(newTableName, tableName));
+        })
+        .then(function() {
             xcHelper.unlockTable(tableName, true);
             StatusMessage.success(msgId);
             commitToStorage();
@@ -75,7 +74,14 @@ window.xcFunction = (function ($, xcFunction) {
         var msgId = StatusMessage.addMsg(msg);
         showWaitCursor();
 
-        XcalarAggregate(backColName, tableName, aggrOp)
+        var sqlOptions = {"operation": "aggregate",
+                          "tableName": tableName,
+                          "colName"  : frontColName,
+                          "colIndex" : colNum,
+                          "operator" : aggrOp,
+                          "value"    : val.Value
+                         };
+        XcalarAggregate(backColName, tableName, aggrOp, sqlOptions)
         .then(function(value){
             // show result in alert modal
             var instr = 'This is the aggregate result for column "' +
@@ -92,15 +98,6 @@ window.xcFunction = (function ($, xcFunction) {
 
             try {
                 var val = JSON.parse(value);
-                // add sql
-                SQL.add("Aggregate", {
-                    "operation": "aggregate",
-                    "tableName": tableName,
-                    "colName"  : frontColName,
-                    "colIndex" : colNum,
-                    "operator" : aggrOp,
-                    "value"    : val.Value
-                });
             } catch(error) {
                 console.error(error, val);
             }
@@ -145,7 +142,14 @@ window.xcFunction = (function ($, xcFunction) {
         WSManager.addTable(newTableName);
         xcHelper.lockTable(tableNum);
 
-        XcalarIndexFromTable(tableName, backFieldName, newTableName)
+        var sqlOptions = {
+                "operation"   : "sort",
+                "tableName"   : tableName,
+                "key"         : frontFieldName,
+                "direction"   : direction,
+                "newTableName": newTableName};
+                 
+        XcalarIndexFromTable(tableName, backFieldName, newTableName, sqlOptions)
         .then(function() {
             setDirection(newTableName, order);
             setIndex(newTableName, tablCols);
@@ -153,14 +157,6 @@ window.xcFunction = (function ($, xcFunction) {
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
-            // add sql
-            SQL.add("Sort Table", {
-                "operation"   : "sort",
-                "tableName"   : tableName,
-                "key"         : frontFieldName,
-                "direction"   : direction,
-                "newTableName": newTableName
-            });
             xcHelper.unlockTable(tableName, true);
             StatusMessage.success(msgId);
             commitToStorage();
@@ -236,20 +232,7 @@ window.xcFunction = (function ($, xcFunction) {
         .then(function(result) {
             rightTableResult = result;
             // join indexed table
-            return (XcalarJoin(leftSrcName, rightSrcName,
-                                newTableName, joinType));
-        })
-        .then(function() {
-            var newTableCols = createJoinedColumns(leftTable, rightTable,
-                                                    leftRemoved, rightRemoved);
-            setIndex(newTableName, newTableCols);
-            console.log('pause');
-            return (refreshTable(newTableName, leftTableName,
-                                 KeepOriginalTables.DontKeep,
-                                 rightTableName));
-        })
-        .then(function() {
-            SQL.add("Join Table", {
+            var sqlOptions = {
                 "operation": "join",
                 "leftTable": {
                     "name"    : leftTableName,
@@ -262,8 +245,20 @@ window.xcFunction = (function ($, xcFunction) {
                     "colIndex": rightColNum
                 },
                 "joinType"    : joinStr,
-                "newTableName": newTableName
-            });
+                "newTableName": newTableName};
+            return (XcalarJoin(leftSrcName, rightSrcName,
+                               newTableName, joinType, sqlOptions));
+        })
+        .then(function() {
+            var newTableCols = createJoinedColumns(leftTable, rightTable,
+                                                    leftRemoved, rightRemoved);
+            setIndex(newTableName, newTableCols);
+            console.log('pause');
+            return (refreshTable(newTableName, leftTableName,
+                                 KeepOriginalTables.DontKeep,
+                                 rightTableName));
+        })
+        .then(function() {
             xcHelper.unlockTable(leftTableName, true);
             xcHelper.unlockTable(rightTableName, true);
 
@@ -306,8 +301,18 @@ window.xcFunction = (function ($, xcFunction) {
         var msgId = StatusMessage.addMsg(msg);
         WSManager.addTable(newTableName);
 
+        var sqlOptions = {
+                "operation"    : "groupBy",
+                "tableName"    : tableName,
+                "backFieldName": backFieldName,
+                "colName"      : frontFieldName,
+                "colIndex"     : colNum,
+                "operator"     : operator,
+                "newTableName" : newTableName,
+                "newColumnName": newColName};
+
         XcalarGroupBy(operator, newColName, backFieldName, tableName,
-                      newTableName)
+                      newTableName, sqlOptions)
         .then(function() {
             var escapedName = newColName;
             if (newColName.indexOf('.') > -1) {
@@ -340,18 +345,6 @@ window.xcFunction = (function ($, xcFunction) {
                                 KeepOriginalTables.Keep));
         })
         .then(function() {
-            // add sql
-            SQL.add("Group By", {
-                "operation"    : "groupBy",
-                "tableName"    : tableName,
-                "backFieldName": backFieldName,
-                "colName"      : frontFieldName,
-                "colIndex"     : colNum,
-                "operator"     : operator,
-                "newTableName" : newTableName,
-                "newColumnName": newColName
-            });
-
             StatusMessage.success(msgId);
             commitToStorage();
         })
@@ -374,10 +367,19 @@ window.xcFunction = (function ($, xcFunction) {
         var msgId = StatusMessage.addMsg(msg);
 
         options = options || {};
-        // XXX Cheng must add to worksheet before async call
+        // must add to worksheet before async call or will end up adding to th
+        // wrong worksheet
         WSManager.addTable(newTableName);
         xcHelper.lockTable(tableNum);
-        XcalarMap(fieldName, mapString, tableName, newTableName)
+        
+        var sqlOptions = {
+                "operation"   : "mapColumn",
+                "srcTableName": tableName,
+                "newTableName": newTableName,
+                "colName"     : fieldName,
+                "mapString"   : mapString};
+
+        XcalarMap(fieldName, mapString, tableName, newTableName, sqlOptions)
         .then(function() {
             var tablCols = mapColGenerate(colNum, fieldName, mapString,
                                         table.tableCols, options.replaceColumn);
@@ -390,14 +392,6 @@ window.xcFunction = (function ($, xcFunction) {
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
-            // add sql
-            SQL.add("Map Column", {
-                "operation"   : "mapColumn",
-                "srcTableName": tableName,
-                "newTableName": newTableName,
-                "colName"     : fieldName,
-                "mapString"   : mapString
-            });
             xcHelper.unlockTable(tableName, true);
             StatusMessage.success(msgId);
             commitToStorage();
@@ -452,11 +446,26 @@ window.xcFunction = (function ($, xcFunction) {
 
         WSManager.addTable(rNewName);
         xcHelper.lockTable(rTableNum);
+        var sqlOptions1 = {
+                "operation"   : "mapColumn",
+                "srcTableName": lTableName,
+                "newTableName": lNewName,
+                "colName"     : lFieldName,
+                "mapString"   : lMapString
+            };
+
+        var sqlOptions2 = {
+                "operation"   : "mapColumn",
+                "srcTableName": rTableName,
+                "newTableName": rNewName,
+                "colName"     : rFieldName,
+                "mapString"   : rMapString
+            }
 
         var deferred1 = XcalarMap(lFieldName, lMapString,
-                                    lTableName, lNewName);
+                                    lTableName, lNewName, sqlOptions1);
         var deferred2 = XcalarMap(rFieldName, rMapString,
-                                    rTableName, rNewName);
+                                    rTableName, rNewName, sqlOptions2);
 
         // XXX note that the current $.when cannot handle the failure gracefully
         $.when(deferred1, deferred2)
@@ -491,22 +500,6 @@ window.xcFunction = (function ($, xcFunction) {
                 xcHelper.lockTable(rTableNum);
             }
 
-            SQL.add("Map Column", {
-                "operation"   : "mapColumn",
-                "srcTableName": lTableName,
-                "newTableName": lNewName,
-                "colName"     : lFieldName,
-                "mapString"   : lMapString
-            });
-
-            SQL.add("Map Column", {
-                "operation"   : "mapColumn",
-                "srcTableName": rTableName,
-                "newTableName": rNewName,
-                "colName"     : rFieldName,
-                "mapString"   : rMapString
-            });
-
             xcHelper.unlockTable(lTableName, true);
             xcHelper.unlockTable(rTableName, true);
 
@@ -540,18 +533,17 @@ window.xcFunction = (function ($, xcFunction) {
         // var fileName = retName + ".csv";
         var msg = StatusMessageTStr.ExportTable + ": " + tableName;
         var msgId = StatusMessage.addMsg(msg);
-
-        XcalarExport(tableName, exportName)
-        .then(function() {
-            var location = hostname + ":/var/tmp/xcalar/" + exportName;
-            // add sql
-            SQL.add("Export Table", {
+        
+        var sqlOptions = {
                 "operation": "exportTable",
                 "tableName": tableName,
                 "fileName" : exportName,
                 "filePath" : location
-            });
+                         };
 
+        XcalarExport(tableName, fileName, sqlOptions)
+        .then(function() {
+            var location = hostname + ":/var/tmp/xcalar/" + fileName;
             // add alert
             var ins   = "Widget location: " +
                         "http://schrodinger/dogfood/widget/main.html?" +
@@ -584,13 +576,18 @@ window.xcFunction = (function ($, xcFunction) {
         }
 
         var table = gTables[tableNum];
-
-        XcalarRenameTable(oldTableName, newTableName)
+        var sqlOptions = {
+                    "operation": "renameTable",
+                    "oldName": oldTableName,
+                    "newName": newTableName};
+        XcalarRenameTable(oldTableName, newTableName, sqlOptions)
         .then(function() {
+
             WSManager.renameTable(oldTableName, newTableName);
             // does renames for gTables, worksheet, rightsidebar, dag
             table.tableName = newTableName;
-            gTableIndicesLookup[newTableName] = gTableIndicesLookup[oldTableName];
+            gTableIndicesLookup[newTableName] = 
+                                              gTableIndicesLookup[oldTableName];
             gTableIndicesLookup[newTableName].tableName = newTableName;
             delete gTableIndicesLookup[oldTableName];
 
@@ -634,19 +631,17 @@ window.xcFunction = (function ($, xcFunction) {
 
             // XXX Cheng must add to worksheet before async call
             WSManager.addTable(newTableName);
-
-            XcalarIndexFromTable(tableName, colName, newTableName)
-            .then(function() {
-                var tablCols = xcHelper.deepCopy(table.tableCols);
-                setIndex(newTableName, tablCols);
-                gTableIndicesLookup[newTableName].active = false;
-
-                SQL.add("Index Table", {
+            var sqlOptions = {
                     "operation"   : "index",
                     "key"         : colName,
                     "tableName"   : tableName,
                     "newTableName": newTableName
-                });
+                };
+            XcalarIndexFromTable(tableName, colName, newTableName, sqlOptions)
+            .then(function() {
+                var tablCols = xcHelper.deepCopy(table.tableCols);
+                setIndex(newTableName, tablCols);
+                gTableIndicesLookup[newTableName].active = false;
 
                 deferred.resolve({
                     "newTableCreated": true,
@@ -697,9 +692,11 @@ window.xcFunction = (function ($, xcFunction) {
                     break;
                 case "fail":
                     // when deferred2 already fail, delete this table:
-                    XcalarDeleteTable(res.tableName)
+                    var sqlOptions = {"operation": "deleteTable",
+                                      "tableName": res.tableName}
+                    XcalarDeleteTable(res.tableName, sqlOptions)
                     .always(function() {
-                        console.error("Parrel index fails in rightTable",
+                        console.error("Parallel index fails in rightTable",
                                       rightError);
                         deferred.reject(rightError);
                     });
@@ -716,9 +713,11 @@ window.xcFunction = (function ($, xcFunction) {
             switch (status2) {
                 case "done":
                     // when deferred2 done, delete right table
-                    XcalarDeleteTable(rightResult.tableName)
+                    var sqlOptions = {"operation": "deleteTable",
+                                      "tableName": rightResult.tableName}
+                    XcalarDeleteTable(rightResult.tableName, sqlOptions)
                     .always(function() {
-                        console.error("Parrel index fails in leftTable", error);
+                        console.error("Parallel index fails in leftTable", error);
                         deferred.reject(error);
                     });
                     break;
@@ -745,16 +744,18 @@ window.xcFunction = (function ($, xcFunction) {
             switch (status1) {
                 case "done":
                     // when both done
-                    deferred.resolve(leftResult, rightResult);
+                    dMaeferred.resolve(leftResult, rightResult);
                     break;
                 case "waiting":
                     // when deferred1 not finish, wait for it
                     break;
                 case "fail":
                     // when deferred2 already fail:
-                    XcalarDeleteTable(res.tableName)
+                    var sqlOptions = {"operation": "deleteTable",
+                                      "tableName": res.tableName};
+                    XcalarDeleteTable(res.tableName, sqlOptions)
                     .always(function() {
-                        console.error("Parrel index fails in leftTable",
+                        console.error("Parallel index fails in leftTable",
                                       leftError);
                         deferred.reject(leftError);
                     });
@@ -771,9 +772,11 @@ window.xcFunction = (function ($, xcFunction) {
             switch (status1) {
                 case "done":
                     // when deferred1 done, delete left table
+                    var sqlOptions = {"operation": "deleteTable",
+                                      "tableName": leftResult.tableName};
                     XcalarDeleteTable(leftResult.tableName)
                     .always(function() {
-                        console.error("Parrel index fails in rightTable", error);
+                        console.error("Parallel index fails in rightTable", error);
                         deferred.reject(error);
                     });
                     break;

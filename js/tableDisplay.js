@@ -240,14 +240,11 @@ function deleteActiveTable(tableNum) {
     var tableName = gTables[tableNum].tableName;
     var deferred = jQuery.Deferred();
 
-    deleteTable(tableNum)
-    .then(function() {
-        // add sql
-        SQL.add("Delete Table", {
-            "operation": "deleteTable",
-            "tableName": tableName
-        });
+    var sqlOptions = {"operation": "deleteTable",
+                      "tableName": tableName};
 
+    deleteTable(tableNum, sqlOptions)
+    .then(function() {
         setTimeout(function() {
             if (gTables[gActiveTableNum] &&
                 gTables[gActiveTableNum].resultSetCount !== 0) {  
@@ -262,7 +259,7 @@ function deleteActiveTable(tableNum) {
     return (deferred.promise());
 }
 
-function deleteTable(tableNum, deleteArchived) {
+function deleteTable(tableNum, deleteArchived, sqlOptions) {
     var deferred = jQuery.Deferred();
     var table = deleteArchived ? gHiddenTables[tableNum] : gTables[tableNum];
     var tableName = table.tableName;
@@ -295,7 +292,7 @@ function deleteTable(tableNum, deleteArchived) {
                 }
             }
 
-            return (XcalarDeleteTable(tableName));
+            return (XcalarDeleteTable(tableName, sqlOptions));
         }
     })
     .then(function() {

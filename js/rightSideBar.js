@@ -118,7 +118,10 @@ window.RightSideBar = (function($, RightSideBar) {
                         innerDeferred.resolve(error);
                     });
                 } else if (action === "delete") {
-                    deleteTable(tableNum, DeleteTable.Delete)
+                    var sqlOptions = {"operation": "deleteTable",
+                                      "tableName": tableName
+                                     };
+                    deleteTable(tableNum, DeleteTable.Delete, sqlOptions)
                     .then(function() {
                         doneHandler($li, tableName);
                         innerDeferred.resolve();
@@ -156,13 +159,8 @@ window.RightSideBar = (function($, RightSideBar) {
             }
             // add sql
             if (action === "add") {
-                SQL.add('Send To WorkSheet', {
+                SQL.add('Send To Worksheet', {
                     "operation": "addTable",
-                    "tableName": tableName
-                });
-            } else {
-                SQL.add("Delete Table", {
-                    "operation": "deleteTable",
                     "tableName": tableName
                 });
             }
