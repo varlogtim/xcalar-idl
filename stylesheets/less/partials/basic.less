@@ -833,6 +833,9 @@ ul.colMenu {
         .sortDown {
             .image("/images/arrowDown.png", 0, 50%);
         }
+        .tooltip {
+            display: none !important;
+        }
     }
 
     .aggregate, .groupBy {
@@ -988,8 +991,17 @@ ul.colMenu {
 
     &.type-indexed {
         .sort {
-            display: none;
+            .sort {
+                cursor: default !important;
+                opacity: 0.4;
+            }
+            
+            .tooltip {
+                display: block !important;
+                white-space: nowrap;
+            }
         }
+
     }
 
     &.type-data {

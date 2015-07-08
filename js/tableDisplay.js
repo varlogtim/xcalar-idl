@@ -690,7 +690,11 @@ function generateColDropDown(tableNum) {
     '</li>' +
     '<li class="sort thDropdown">Sort' +
         '<ul class="subColMenu">' +
-            '<li class="sort">' +
+            '<li class="sort" ' +
+                'title="Table is already sorted <br/> on this column" ' +
+                'data-toggle="tooltip" ' +
+                'data-container="#colMenu' + tableNum + ' .sort.thDropdown" ' +
+                'data-placement="top">' +
             '<span class="sortUp"></span>A-Z</li>' +
             '<li class="revSort unavailable">' +
             '<span class="sortDown"></span>Z-A</li>' +

@@ -219,24 +219,21 @@ function dragdropMouseDown(el, event) {
     
     $tbodyWrap.addClass('hideScroll');
 
-    // settimeout for performance
-    setTimeout(function() {
-        // create a replica shadow with same column width, height,
-        // and starting position
-        disableTextSelection();
-        tableWrap.append('<div id="shadowDiv" style="width:' +
-                        dragObj.colWidth +
-                        'px;height:' + (shadowDivHeight) + 'px;left:' +
-                        (dragObj.element.position().left) +
-                        'px;top:' + shadowTop + 'px;"></div>');
-        createDropTargets();
-        if (gTables[dragObj.tableNum].tableCols.length > 50) {
-            var timer = 100;
-        } else {
-            var timer = 40;
-        }
-        dragdropMoveMainFrame(dragObj, timer);
-    }, 0);
+    // create a replica shadow with same column width, height,
+    // and starting position
+    disableTextSelection();
+    tableWrap.append('<div id="shadowDiv" style="width:' +
+                    dragObj.colWidth +
+                    'px;height:' + (shadowDivHeight) + 'px;left:' +
+                    (dragObj.element.position().left) +
+                    'px;top:' + shadowTop + 'px;"></div>');
+    createDropTargets();
+    if (gTables[dragObj.tableNum].tableCols.length > 50) {
+        var timer = 100;
+    } else {
+        var timer = 40;
+    }
+    dragdropMoveMainFrame(dragObj, timer);
 }
 
 function dragdropMouseMove(event) {
