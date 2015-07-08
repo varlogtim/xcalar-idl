@@ -30,7 +30,8 @@ window.FileBrowser = (function($, FileBrowser) {
     var reverseSort = false;
 
     FileBrowser.show = function() {
-        retrievePaths($filePath.val())
+        var openingBrowser = true;
+        retrievePaths($filePath.val(), openingBrowser)
         .then(function() {
             xcHelper.removeSelectionRange();
 
@@ -363,9 +364,8 @@ window.FileBrowser = (function($, FileBrowser) {
         $fileName.val(name);
     }
 
-    function listFiles(path) {
+    function listFiles(path, openingBrowser) {
         var deferred = jQuery.Deferred();
-
         XcalarListFiles(path)
         .then(function(listFilesOutput) {
             clear();
@@ -373,7 +373,19 @@ window.FileBrowser = (function($, FileBrowser) {
             sortFilesBy(sortKey, sortRegEx);
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            if (openingBrowser) {
+                listFiles(defaultPath)
+                .then(function() {
+                    deferred.resolve('useDefaultPath');
+                })
+                .fail(function(err) {
+                    deferred.reject(err);
+                });
+            } else {
+                deferred.reject(error);
+            }
+        });
 
         return (deferred.promise());
     }
@@ -670,14 +682,12 @@ window.FileBrowser = (function($, FileBrowser) {
         return (grid);
     }
 
-    function retrievePaths(path) {
+    function retrievePaths(path, openingBrowser) {
         var deferred = jQuery.Deferred();
         var paths    = [];
-
         if (!path) {
             path = historyPath || defaultPath;
         }
-
         // parse path
         for (var i = path.length - 1; i >= (defaultPath.length - 1); i--) {
             if (path.charAt(i) === "/") {
@@ -686,14 +696,22 @@ window.FileBrowser = (function($, FileBrowser) {
         }
         // cannot parse the path
         if (paths.length === 0) {
-            var error = "Invalid Path, please input a valid one";
-            deferred.reject({"error": error});
+            if (openingBrowser) {
+                paths.push(defaultPath);
+            } else {
+                var error = "Invalid Path, please input a valid one";
+                deferred.reject({"error": error});
 
-            return (deferred.promise());
+                return (deferred.promise());
+            }
         }
 
-        listFiles(paths[0])
-        .then(function() {
+        listFiles(paths[0], openingBrowser)
+        .then(function(result) {
+            if (result === 'useDefaultPath') {
+                path = defaultPath;
+                paths = [path];
+            }
             $pathLists.empty();
 
             for (var j = paths.length - 1; j >= 0; j--) {
