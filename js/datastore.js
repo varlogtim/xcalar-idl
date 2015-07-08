@@ -219,9 +219,27 @@ window.DatastoreForm = (function($, DatastoreForm) {
             if ($("#csvPromoteCheckbox .checkbox").hasClass("checked")) {
                 header = true;
             }
+            var validURL = false;
+            XcalarListFiles(loadURL)
+            .then(function() {
+                validURL = true;
+                return (DatastoreForm.load(dsName, dsFormat, loadURL,
+                                           fieldDelim, lineDelim, header,
+                                           moduleName, funcName));
+            })
+            .fail(function(result) {
+                var text;
 
-            DatastoreForm.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                    header, moduleName, funcName)
+                if (result.statusCode === StatusT.StatusDsInvalidUrl) {
+                    text = "Could not retrieve dataset from file path: " +
+                            loadURL;
+                } else {
+                    text = result.error;
+                }
+                if (!validURL) {
+                    StatusBox.show(text, $filePath, true);
+                }
+            })
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);
             });
@@ -1301,11 +1319,7 @@ window.DataPreview = (function($, DataPreview) {
     };
 
     DataPreview.show = function() {
-        $("#importDataForm").addClass("previewMode");
-        $("#previewBtn").text("APPLY CHANGES & EXIT PREVIEW");
-
-        $("#dsPreviewWrap").removeClass("hidden")
-                            .find(".waitSection").removeClass("hidden");
+        
 
         var deferred = jQuery.Deferred();
         var loadURL  = $.trim($("#filePath").val());
@@ -1319,10 +1333,23 @@ window.DataPreview = (function($, DataPreview) {
         tableName = xcHelper.randName(tableName) ||   // when table name is empty
                     xcHelper.randName("previewTable");
         tableName += ".preview";
+        var validURL = false;
 
-        XcalarLoad(loadURL, "raw", tableName,
+        XcalarListFiles(loadURL)
+        .then(function() {
+            validURL = true;
+            $("#importDataForm").addClass("previewMode");
+            $("#previewBtn").text("APPLY CHANGES & EXIT PREVIEW");
+
+            $("#dsPreviewWrap").removeClass("hidden")
+                               .find(".waitSection")
+                               .removeClass("hidden");
+            
+            return (XcalarLoad(loadURL, "raw", tableName,
                     "", "\n", hasHeader,
-                    "", "")
+                    "", ""));
+        })
+        
         .then(function() {
             return (XcalarSample(tableName, 20));
         })
@@ -1364,7 +1391,19 @@ window.DataPreview = (function($, DataPreview) {
                 deferred.reject({"error": "Cannot parse the dataset."});
             }
         })
-        .fail(deferred.reject);
+        .fail(function(result) {
+            var text;
+            if (result.statusCode === StatusT.StatusDsInvalidUrl) {
+                text = "Could not retrieve dataset from file path: " +
+                        loadURL;
+            } else {
+                text = result.error;
+            }
+            if (!validURL) {
+                StatusBox.show(text, $("#filePath"), true);
+            }
+            deferred.reject(result);
+        });
 
         return (deferred.promise());
     };
