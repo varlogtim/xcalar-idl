@@ -1712,7 +1712,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var tableHeight = $table.height();
         $table.find(".colGrab").height(tableHeight);
 
-        $("#worksheetTable .datasetTbodyWrap").scroll(function() {
+        $("#dataSetTableWrap .datasetTbodyWrap").scroll(function() {
             dataStoreTableScroll($(this));
         });
 
