@@ -624,6 +624,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function focusOn(grid, isAll) {
         if (grid == null) {
+            $fileName.val("");
             return;
         }
 
@@ -635,6 +636,8 @@ window.FileBrowser = (function($, FileBrowser) {
             } else {
                 str = 'grid-unit.folder .label[data-name="' + grid + '"]';
             }
+
+            $fileName.val(grid);
         } else {
             var name = grid.name;
             var type = grid.type;
@@ -644,10 +647,14 @@ window.FileBrowser = (function($, FileBrowser) {
             } else {
                 str = 'grid-unit.' + type + ' .label[data-name="' + name + '"]';
             }
+
+            $fileName.val(name);
         }
 
         $container.find("grid-unit").removeClass("active");
-        $container.find(str).eq(0).closest('grid-unit').addClass('active');
+        var $grid = $container.find(str).eq(0).closest('grid-unit')
+        $grid.addClass('active');
+        updateFileName($grid);
     }
 
     function getFocusGrid() {
