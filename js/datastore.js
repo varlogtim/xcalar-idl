@@ -1,3 +1,6 @@
+/*
+ * Controller Module for DataStore Section
+ */
 window.DataStore = (function($, DataStore) {
     DataStore.setup = function() {
         DS.setup();
@@ -9,57 +12,102 @@ window.DataStore = (function($, DataStore) {
     };
 
     DataStore.updateInfo = function(numDatasets) {
-        $("#worksheetInfo").find(".numDataStores").text(numDatasets);
-        $("#datasetExplore").find(".numDataStores").text(numDatasets);
-    };
-
-    DataStore.updateNumDatasets = function() {
-        XcalarGetDatasets()
-        .then(function(datasets) {
-            DataStore.updateInfo(datasets.numDatasets);
-        })
-        .fail(function(error) {
-            console.error("Fail to update ds nums", error);
-        });
+        if (numDatasets != null) {
+            $(".numDataStores").text(numDatasets);
+        } else {
+            // XXX Cheng: Here sync with backend beause other user
+            // can also add/rm dataset, but now we have now way to
+            // show others' ds except refreshing the browser
+            XcalarGetDatasets()
+            .then(function(datasets) {
+                $(".numDataStores").text(datasets.numDatasets);
+            })
+            .fail(function(error) {
+                console.error("Fail to update ds nums", error);
+            });
+        }
     };
 
     return (DataStore);
 
 }(jQuery, {}));
 
+/*
+ * Module for the datastore form part
+ */
 window.DatastoreForm = (function($, DatastoreForm) {
     var $filePath = $("#filePath");
     var $fileName = $("#fileName");
 
-    var $formatSection  = $("#fileFormatList");
-    var $formatText     = $formatSection.find(".text");
-    var $formatDropdown = $("#fileFormatMenu");
+    var $formatLists = $("#fileFormatList");
+    var $formatText  = $formatLists.find(".text");
 
-    var $csvDelim   = $("#csvDelim");
-    var $fieldDelim = $("#fieldDelim");
-
-    var $udfArgs     = $("#udfArgs");
-    var $udfCheckbox = $("#udfCheckbox");
-    // constants
-    var formatTranslater = {
-        "JSON"  : "JSON",
-        "CSV"   : "CSV",
-        "Random": "rand",
-        "Raw"   : "raw",
-        "UDF"   : "UDF"
-    };
+    var $csvDelim = $("#csvDelim"); // csv delimiter args
 
     DatastoreForm.setup = function() {
+        var $csvCheckBox = $("#csvPromoteCheckbox"); // promote header checkbox
+        var $udfCheckbox = $("#udfCheckbox"); // udf checkbox
+
         $("#importDataView").click(function(event){
             event.stopPropagation();
             hideDropdownMenu();
         });
 
-        xcHelper.dropdownList($formatSection, {
-            "onSelect" : formatSectionHandler,
+        // udf checkbox
+        $udfCheckbox.click(function() {
+            var $checkbox = $(this).find(".checkbox");
+            var $udfArgs  = $("#udfArgs");
+
+            if ($udfArgs.hasClass("hidden")) {
+                $checkbox.addClass("checked");
+                $udfArgs.removeClass("hidden");
+            } else {
+                $checkbox.removeClass("checked");
+                $udfArgs.addClass("hidden");
+            }
+        });
+
+        // csv promote checkbox
+        $csvCheckBox.click(function() {
+            $(this).find(".checkbox").toggleClass("checked");
+        });
+
+        // set up dropdown list for formats
+        xcHelper.dropdownList($formatLists, {
+            "onSelect": function($li) {
+                var text = $li.text();
+
+                if ($li.hasClass("hint") || $formatText.val() === text) {
+                    return;
+                }
+
+                $formatText.val(text).removeClass("hint");
+                $udfCheckbox.removeClass("hidden");
+
+                var $fieldDelim = $("#fieldDelim");
+                switch (text.toLowerCase()) {
+                    case "csv":
+                        $csvCheckBox.removeClass("hidden");
+                        resetDelimiter();
+                        $fieldDelim.show();
+                        $csvDelim.removeClass("hidden");
+                        break;
+                    case "raw":
+                        $csvCheckBox.removeClass("hidden");
+                        resetDelimiter();
+                        $fieldDelim.hide();
+                        $csvDelim.removeClass("hidden");
+                        break;
+                    default:
+                        $csvCheckBox.addClass("hidden");
+                        $csvDelim.addClass("hidden");
+                        break;
+                }
+            },
             "container": "#importDataView"
         });
 
+        // set up dropdown list for csv args
         xcHelper.dropdownList($csvDelim.find(".listSection"), {
             "onSelect": function($li) {
                 var $input = $li.closest(".listSection").find(".text");
@@ -81,71 +129,38 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         $input.addClass("nullVal");
                         return false;
                     default:
-                    // keep list open
+                        // keep list open
                         return true;
                 }
             },
             "container": "#importDataView"
         });
 
-        // input other delimiters
-        $csvDelim.on("keyup", ".delimVal", function(event) {
-            if (event.which === keyCode.Enter) {
-                var $input = $(this);
-                var val    = $input.val();
+        // Input event on csv args input box
+        $csvDelim.on({
+            "keypress": function(event) {
+                // prevent form to be submitted
+                if (event.which === keyCode.Enter) {
+                    return false;
+                }
+            },
+            "keyup": function(event) {
+                // input other delimiters
+                if (event.which === keyCode.Enter) {
+                    var $input = $(this);
+                    var val    = $input.val();
 
-                event.stopPropagation();
+                    event.stopPropagation();
 
-                if (val !== "") {
-                    $input.closest(".listSection").find(".text").val(val)
-                                                .removeClass("nullVal");
-                    $input.val("");
-                    $input.blur();
-                    hideDropdownMenu();
+                    if (val !== "") {
+                        $input.closest(".listSection")
+                            .find(".text").val(val).removeClass("nullVal");
+                        $input.val("").blur();
+                        hideDropdownMenu();
+                    }
                 }
             }
-        });
-
-        // prevent form to be submitted
-        $csvDelim.on("keypress", ".delimVal", function(event) {
-            if (event.which === keyCode.Enter) {
-                return false;
-            }
-        });
-
-        // udf checkbox
-        $udfCheckbox.click(function() {
-            var $checkbox = $(this).find(".checkbox");
-
-            if ($udfArgs.hasClass("hidden")) {
-                $checkbox.addClass("checked");
-                $udfArgs.removeClass("hidden").slideDown(200);
-            } else {
-                $checkbox.removeClass("checked");
-                $udfArgs.addClass("hidden").slideUp(200);
-            }
-        });
-
-        // csv promote checkbox
-        $("#csvPromoteCheckbox").click(function() {
-            var $checkbox = $(this).find(".checkbox");
-            $checkbox.toggleClass("checked");
-        });
-
-
-        // reset form
-        $("#importDataReset").click(function() {
-            $(this).blur();
-            $("#importDataForm").removeClass();
-            $formatText.val("Format");
-            $formatText.addClass("hint");
-
-            $csvDelim.addClass("hidden");
-            $udfArgs.addClass("hidden");
-            $udfCheckbox.addClass("hidden");
-            $("#csvPromoteCheckbox").addClass("hidden");
-            $udfCheckbox.find(".checkbox").removeClass("checked");
-        });
+        }, ".delimVal");
 
         // open file browser
         $("#fileBrowserBtn").click(function() {
@@ -172,17 +187,37 @@ window.DatastoreForm = (function($, DatastoreForm) {
             }
         });
 
-        // submit the form
-        $("#importDataForm").submit(function(event) {
-            event.preventDefault();
+        var $form = $("#importDataForm");
+        // reset form
+        $("#importDataReset").click(function() {
             $(this).blur();
-            var $submitBtn = $(this);
+
+            $formatText.val("Format").addClass("hint");
+            $form.removeClass()
+                    .find(".default-hidden").addClass("hidden");
+
+            // keep header to be checked
+            $udfCheckbox.find(".checkbox").removeClass("checked");
+        });
+
+        // submit the form
+        var formatTranslater = {
+            "JSON"  : "JSON",
+            "CSV"   : "CSV",
+            "Random": "rand",
+            "Raw"   : "raw",
+            "UDF"   : "UDF"
+        };
+        $form.submit(function(event) {
+            event.preventDefault();
+
+            var $submitBtn = $(this).blur();
             xcHelper.disableSubmit($submitBtn);
 
-            var dsName   = jQuery.trim($fileName.val());
+            var dsName   = $fileName.val().trim();
             var dsFormat = formatTranslater[$formatText.val()];
 
-            var loadURL    = jQuery.trim($filePath.val());
+            var loadURL    = $filePath.val().trim();
             var fieldDelim = delimiterTranslate($("#fieldText"));
             var lineDelim  = delimiterTranslate($("#lineText"));
 
@@ -195,30 +230,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
             }
 
             var header = false;
-            if ($("#csvPromoteCheckbox .checkbox").hasClass("checked")) {
+            if ($csvCheckBox.find(".checkbox").hasClass("checked")) {
                 header = true;
             }
-            var validURL = false;
-            XcalarListFiles(loadURL)
-            .then(function() {
-                validURL = true;
-                return (DatastoreForm.load(dsName, dsFormat, loadURL,
-                                           fieldDelim, lineDelim, header,
-                                           moduleName, funcName));
-            })
-            .fail(function(result) {
-                var text;
 
-                if (result.statusCode === StatusT.StatusDsInvalidUrl) {
-                    text = "Could not retrieve dataset from file path: " +
-                            loadURL;
-                } else {
-                    text = result.error;
-                }
-                if (!validURL) {
-                    StatusBox.show(text, $filePath, true);
-                }
-            })
+            DatastoreForm.load(dsName, dsFormat, loadURL,
+                                fieldDelim, lineDelim, header,
+                                moduleName, funcName)
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);
             });
@@ -268,6 +286,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
         function secretForm(file) {
             var filePath = "";
+            var $formatDropdown = $("#fileFormatMenu");
             switch (file) {
                 case ("yelpUsers"):
                     filePath = "yelp/user";
@@ -319,13 +338,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var deferred = jQuery.Deferred();
 
         var isValid  = xcHelper.validate([
-            {
-                "$selector": $fileName,
-                "check"    : DS.has,
-                "formMode" : true,
-                "text"     : "Dataset with the name " + dsName +
-                             " already exits. Please choose another name."
-            },
+            // check for "" should be keep for preview mode
+            // since it does't submit the form
             {
                 "$selector": $fileName,
                 "check"    : function() {
@@ -341,6 +355,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 },
                 "text": "No file format is selected," +
                         " please choose a file format!"
+            },
+            {
+                "$selector": $fileName,
+                "check"    : DS.has,
+                "formMode" : true,
+                "text"     : "Dataset with the name " + dsName +
+                             " already exits. Please choose another name."
             }
         ]);
 
@@ -349,30 +370,30 @@ window.DatastoreForm = (function($, DatastoreForm) {
             return deferred.promise();
         }
 
-        var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
-        var msgId = StatusMessage.addMsg(msg);
-
-        DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
-                header, moduleName, funcName)
+        // validation check of loadURL
+        XcalarListFiles(loadURL)
         .then(function() {
-            DataStore.updateNumDatasets();
-            StatusMessage.success(msgId);
-            deferred.resolve();
+            var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
+            var msgId = StatusMessage.addMsg(msg);
+
+            DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
+                header, moduleName, funcName)
+            .then(function() {
+                DataStore.updateInfo();
+                StatusMessage.success(msgId);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                Alert.error("Load Dataset Fails", error.error);
+                // StatusBox.show(text, $filePath, true);
+                StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
+                deferred.reject(error);
+            });
         })
-        .fail(function(result) {
-            var text;
-
-            if (result.statusCode === StatusT.StatusDsInvalidUrl) {
-                text = "Could not retrieve dataset from file path: " +
-                        loadURL;
-            } else {
-                text = result.error;
-            }
-
-            Alert.error("Load Dataset Fails", text);
-            // StatusBox.show(text, $filePath, true);
-            StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
-            deferred.reject(result);
+        .fail(function(error) {
+            // result.statusCode === StatusT.StatusDsInvalidUrl
+            StatusBox.show(error.error, $filePath, true);
+            deferred.reject(error);
         });
 
         return (deferred.promise());
@@ -394,50 +415,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
     }
 
-    function formatSectionHandler($li) {
-        var text = $li.text();
-
-        if ($li.hasClass("hint")) {
-            // $udfCheckbox.addClass("hidden");
-            return;
-        } else if ($formatText.val() === text) {
-            return;
-        }
-
-        $formatText.removeClass("hint");
-        $formatText.val(text);
-        $udfCheckbox.removeClass("hidden");
-        switch (text.toLowerCase()) {
-            case "csv":
-                $("#csvPromoteCheckbox").removeClass("hidden");
-                resetDelimiter();
-                $fieldDelim.show();
-                $csvDelim.removeClass("hidden");
-                break;
-            case "raw":
-                $("#csvPromoteCheckbox").removeClass("hidden");
-                resetDelimiter();
-                $fieldDelim.hide();
-                $csvDelim.removeClass("hidden");
-                break;
-            default:
-                $("#csvPromoteCheckbox").addClass("hidden");
-                $csvDelim.addClass("hidden");
-                break;
-        }
-    }
-
     function hideDropdownMenu() {
-        var $sections = $("#importDataView").find(".listSection");
-
-        $sections.find(".list").hide();
-        $sections.removeClass("open");
-
-        $("#csvDelim").find(".delimVal").val("");
+        $("#importDataView .listSection").removeClass("open")
+                            .find(".list").hide();
+        $csvDelim.find(".delimVal").val("");
     }
 
     function resetDelimiter() {
-        // XXX to show \t, \ should be escaped
+        // to show \t, \ should be escaped
         $("#fieldText").val("\\t").removeClass("nullVal");
         $("#lineText").val("\\n").removeClass("nullVal");
     }
@@ -452,39 +437,21 @@ window.GridView = (function($, GridView) {
     GridView.setup = function() {
         // initial gDSObj
         setupGridViewButton();
-        setupGridViewIcons();
+        setupGrids();
     };
 
     function setupGridViewButton() {
-        // $("#searchButton").parent().on("click", function() {
-        //     $("#exploreButton").parent().removeAttr("active");
-        //     $("#searchButton").parent().attr("active", "active");
-
-        //     $("#searchView").show();
-        //     $("#exploreView").hide();
-        // });
-        // $("#exploreButton").parent().on("click", function() {
-        //     $("#searchButton").parent().removeAttr("active");
-        //     $("#exploreButton").parent().attr("active", "active");
-
-        //     $("#exploreView").show();
-        //     $("#searchView").hide();
-        // });
-
+        // click to go to form section
         $("#importDataButton").click(function() {
             var $importForm = $("#importDataView");
-            $("#filePath").focus();
-            if ($importForm.css('display') !== "block") {
+
+            if (!$importForm.is(":visible")) {
                 $importForm.show();
                 $("#filePath").focus();
-                $gridView.find("grid-unit.active").removeClass("active");
+                $gridView.find(".active").removeClass("active");
+                // empty table section to have smooth switch
                 $("#dataSetTableWrap").empty();
-                $(".dbText h2").text("");
             }
-        });
-
-        $("grid-unit .label").each(function() {
-            $(this).dotdotdot({ellipsis: "..."});
         });
 
         $(".dataViewBtn").click(function() {
@@ -524,7 +491,7 @@ window.GridView = (function($, GridView) {
         });
     }
 
-    function setupGridViewIcons() {
+    function setupGrids() {
         // click empty area on gridView
         $("#gridViewWrapper").on("click", function() {
             // this hanlder is called before the following one
@@ -544,27 +511,18 @@ window.GridView = (function($, GridView) {
             if ($grid.hasClass("folder")) {
                 return;
             }
+
             $("#importDataView").hide();
 
             if ($grid.find('.waitingIcon').length !== 0) {
                 var loading = true;
-                DataSampleTable.getTableFromDS($grid.data("dsid"), loading);
-                
-                var animatedDots = '<div class="animatedEllipsis">' +
-                                      '<div>.</div>' +
-                                      '<div>.</div>' +
-                                      '<div>.</div>' +
-                                    '</div>';
-                var loadingMsg = '<div class="loadingMsg">' +
-                                 'Data set is loading' + animatedDots +
-                                 '</div>';
-                $('#dataSetTableWrap').html(loadingMsg);
+                DataSampleTable.show($grid.data("dsid"), loading);
                 return;
             }
 
             releaseDatasetPointer()
             .then(function() {
-                return (DataSampleTable.getTableFromDS($grid.data("dsid")));
+                return (DataSampleTable.show($grid.data("dsid")));
             })
             .then(function() {
                 if (event.scrollToColumn) {
@@ -627,6 +585,7 @@ window.GridView = (function($, GridView) {
                 var $grid = $(this).closest(".folder");
                 $gridView.find(".active").removeClass("active");
                 $deleteFolderBtn.addClass("disabled");
+
                 if ($gridView.hasClass("gridView")) {
                     DS.goToDir($grid.data("dsid"));
                 }
@@ -652,41 +611,48 @@ window.DataCart = (function($, DataCart) {
     var $cartArea  = $("#dataCart");
 
     DataCart.setup = function() {
+        // send to worksheet button
         $("#submitDSTablesBtn").click(function() {
             var $submitBtn = $(this);
             $submitBtn.blur();
-            
+
             if ($cartArea.find(".selectedTable").length === 0) {
                 return (false);
             }
-            var datasetsList;
-            var datasetNamesArray = [];
-            var tableNamesArray = [];
+
             var nameIsValid = true;
             var errorMsg = "";
             var $input;
-            var numGTables = gTables.length;
-            var numGHiddenTables = gHiddenTables.length;
 
+            var gTableNames = {};
+            var gHiddenNames = {};
+
+            gTables.forEach(function(table) {
+                gTableNames[table.tableName] = true;
+            });
+
+            gHiddenTables.forEach(function(table) {
+                gHiddenNames[table.tableName] = true;
+            });
+
+            // check table name conflict in gTables and gHidden
             $cartArea.find(".selectedTable").each(function() {
                 var $cart = $(this);
+
                 $input = $cart.find('.tableNameEdit');
-                var tableName = $.trim($input.val());
-                for (var i = 0; i < numGTables; i++) {
-                    if (tableName === gTables[i].tableName) {
-                        errorMsg = 'A table with the name "' + tableName +
-                                '" already exists. Please use a unique name.';
-                        nameIsValid = false;
-                        return (false);
-                    }
+                var tableName = $input.val().trim();
+
+                if (tableName === "") {
+                    errorMsg = 'Please give your new table a name.';
+                    nameIsValid = false;
+                    return (false);
                 }
-                for (var i = 0; i < numGHiddenTables; i++) {
-                    if (tableName === gHiddenTables[i].tableName) {
-                        errorMsg = 'A table with the name "' + tableName +
+
+                if (gTableNames[tableName] || gHiddenNames[tableName]) {
+                    errorMsg = 'A table with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
-                        nameIsValid = false;
-                        return (false);
-                    }
+                    nameIsValid = false;
+                    return (false);
                 }
             });
 
@@ -695,35 +661,25 @@ window.DataCart = (function($, DataCart) {
                 StatusBox.show(errorMsg, $input, true, 0, {side: 'left'});
                 return (false);
             }
+
+            var tableNames = {};
             xcHelper.disableSubmit($submitBtn);
-            XcalarGetDatasets()
-            .then(function(datasets) {
-                datasetsList = datasets;
-            })
-            .then(XcalarGetTables)
+
+            // check backend table name to see if has conflict
+            XcalarGetTables()
             .then(function(tables) {
-                var deferred = jQuery.Deferred();
-                for (var i = 0; i < datasetsList.numDatasets; i++) {
-                    datasetNamesArray.push(datasetsList.datasets[i].name);
-                }
-                for (var i = 0; i < tables.numTables; i++) {
-                    tableNamesArray.push(tables.tables[i].tableName);
+                var innerDeferred = jQuery.Deferred();
+
+                for (var i = 0, len = tables.numTables; i < len; i++) {
+                    tableNames[tables.tables[i].tableName] = true;
                 }
                 
                 $cartArea.find(".selectedTable").each(function(){
                     var $cart = $(this);
                     $input = $cart.find('.tableNameEdit');
-                    var tableName = $.trim($input.val());
-                    if (tableName === "") {
-                        errorMsg = 'Please give your new table a name.';
-                        nameIsValid = false;
-                        return (false);
-                    } else if (datasetNamesArray.indexOf(tableName) !== -1) {
-                        errorMsg = 'A dataset with the name "' + tableName +
-                                '" already exists. Please use a unique name.';
-                        nameIsValid = false;
-                        return (false);
-                    } else if (tableNamesArray.indexOf(tableName) !== -1) {
+                    var tableName = $input.val().trim();
+
+                    if (tableNames[tableName]) {
                         errorMsg = 'A table with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
                         nameIsValid = false;
@@ -736,31 +692,29 @@ window.DataCart = (function($, DataCart) {
                     .then(function() {
                         emptyAllCarts();
                         commitToStorage();
-                        deferred.resolve();
+                        innerDeferred.resolve();
                     })
                     .fail(function(error) {
                         emptyAllCarts();
                         Alert.error("Create work sheet fails", error);
-                        deferred.reject();
+                        innerDeferred.reject(error);
                     });
                 } else {
                     scrollToTableName($input);
                     StatusBox.show(errorMsg, $input, true, 0, {side: 'left'});
-                    xcHelper.enableSubmit($submitBtn);
-                    deferred.resolve();
+                    innerDeferred.resolve();
                 }
-                return (deferred.promise());
+                return (innerDeferred.promise());
             })
             .fail(function(error) {
-                emptyAllCarts();
-                Alert.error("Create work sheet fails", error);
+                console.error(error);
             })
             .always(function() {
                 xcHelper.enableSubmit($submitBtn);
             });
         });
 
-
+        // clear cart
         $("#clearDataCart").click(function() {
             $(this).blur();
             emptyAllCarts();
@@ -790,11 +744,12 @@ window.DataCart = (function($, DataCart) {
                 }
             },
             "change": function() {
-                var tableName = $.trim($(this).val());
-                var dsName = $(this).closest(".selectedTable").attr("id")
+                var $input = $(this);
+                var dsName = $input.closest(".selectedTable").attr("id")
                                 .split("selectedTable-")[1];
-                var cart = filterCarts(dsName, tableName);
-
+                var tableName = $input.val().trim();
+                // update
+                var cart = filterCarts(dsName);
                 cart.tableName = tableName;
             },
             "focus": function() {
@@ -821,28 +776,28 @@ window.DataCart = (function($, DataCart) {
         if (!(colInputs instanceof Array)) {
             colInputs = [colInputs];
         }
+
         var cart = filterCarts(dsName);
         var $colInput;
         var colNum;
         var val;
-        var $li;
 
         for (var i = 0, len = colInputs.length; i < len; i++) {
             $colInput = colInputs[i];
             colNum = xcHelper.parseColNum($colInput);
             val = $colInput.val();
-            $li = appendCartItem(dsName, dsName, colNum, val);
+            appendCartItem(dsName, dsName, colNum, val);
 
             cart.items.push({"colNum": colNum, "value": val});
         }
 
-        $cartArea.find(".colSelected").removeClass("colSelected");
-        $li.addClass("colSelected"); // focus on last li
+        // it's an old code
+        // $cartArea.find(".colSelected").removeClass("colSelected");
+        // $li.addClass("colSelected"); // focus on last li
 
         setTimeout(function() {
-            overflowShadow();
+            refreshCart();
         }, 10);
-        refreshCart();
     };
 
     // remove one column from cart
@@ -857,15 +812,7 @@ window.DataCart = (function($, DataCart) {
     // remove one cart
     DataCart.removeCart = function(dsName) {
         $("#selectedTable-" + dsName).remove();
-        overflowShadow();
-        // remove the cart
-        for (var i = 0; i < innerCarts.length; i++) {
-            if (innerCarts[i].dsName === dsName) {
-                innerCarts.splice(i, 1);
-                break;
-            }
-        }
-
+        removeCart(dsName);    // remove the cart
         refreshCart();
     };
 
@@ -875,12 +822,11 @@ window.DataCart = (function($, DataCart) {
             var dsName = cart.dsName;
             var tableName = cart.tableName;
             var items = cart.items;
+
             items.forEach(function(item) {
                 appendCartItem(dsName, tableName, item.colNum, item.value);
             });
         });
-
-        overflowShadow();
 
         refreshCart();
     };
@@ -931,11 +877,8 @@ window.DataCart = (function($, DataCart) {
             });
 
             $cartArea.prepend($cart);
-            var $tableNameEdit = $cart.find('.tableNameEdit');
-            $tableNameEdit.focus();
-            var valLength = $tableNameEdit.val().length;
-            $tableNameEdit[0].selectionStart = valLength;
-            $tableNameEdit[0].selectionEnd = valLength;
+            var $tableNameEdit = $cart.find('.tableNameEdit').focus();
+            xcHelper.createSelection($tableNameEdit[0], true);
         }
 
         var $li = $('<li style="font-size:13px;" class="colWrap" ' +
@@ -999,32 +942,42 @@ window.DataCart = (function($, DataCart) {
         return (deferred.promise());
     }
 
-    function removeCartItem(dsname, $li) {
+    function removeCartItem(dsName, $li) {
         var colNum = $li.data("colnum");
         var $table = $("#worksheetTable");
         // if the table is displayed
-        if ($table.data("dsname") === dsname) {
+        if ($table.data("dsname") === dsName) {
             $table.find("th.col" + colNum + " .header")
                         .removeClass('colAdded');
             $table.find(".col" + colNum).removeClass('selectedCol');
         }
 
         if ($li.siblings().length === 0) {
+            // empty this cart
             $li.closest(".selectedTable").remove();
+            removeCart(dsName);
         } else {
             $li.remove();
-        }
 
-        overflowShadow();
-
-        var items = filterCarts(dsname).items;
-        for (var i = 0; i < items.length; i++) {
-            if (items[i].colNum === colNum) {
-                items.splice(i, 1);
-                break;
+            var items = filterCarts(dsName).items;
+            for (var i = 0, len = items.length; i < len; i++) {
+                if (items[i].colNum === colNum) {
+                    items.splice(i, 1);
+                    break;
+                }
             }
         }
+
         refreshCart();
+    }
+
+    function removeCart(dsName) {
+        for (var i = 0, len = innerCarts.length; i < len; i++) {
+            if (innerCarts[i].dsName === dsName) {
+                innerCarts.splice(i, 1);
+            }
+            break;
+        }
     }
 
     function emptyAllCarts() {
@@ -1033,13 +986,14 @@ window.DataCart = (function($, DataCart) {
         $cartArea.empty();
         $table.find('.colAdded').removeClass("colAdded");
         $table.find('.selectedCol').removeClass("selectedCol");
-        overflowShadow();
 
         innerCarts = [];
         refreshCart();
     }
 
     function refreshCart() {
+        overflowShadow();
+
         var $submitBtn = $("#submitDSTablesBtn");
         var $clearBtn  = $("#clearDataCart");
         var $cartTitle = $("#dataCartTitle");
@@ -1063,21 +1017,21 @@ window.DataCart = (function($, DataCart) {
         }
     }
 
-    function filterCarts(dsName, tableName) {
+    function filterCarts(dsName) {
         var cart;
         var res = innerCarts.filter(function(curCart) {
             return curCart.dsName === dsName;
         });
 
         if (res.length === 0) {
-            cart = {"dsName": dsName, "tableName": dsName};
-            cart.items = [];
+            cart = {
+                "dsName"   : dsName,
+                "tableName": dsName,
+                "items"    : []
+            };
             innerCarts.push(cart);
         } else {
             cart = res[0];
-            if (tableName) {
-                cart.tableName = tableName;
-            }    
         }
 
         return (cart);
@@ -1383,7 +1337,7 @@ window.DataPreview = (function($, DataPreview) {
             
             tableName = $("#fileName").val().trim();
             tableName = xcHelper.randName(tableName) ||   // when table name is empty
-                    xcHelper.randName("previewTable");
+                        xcHelper.randName("previewTable");
             tableName += ".preview"; // specific format for preview table
             
             XcalarLoad(loadURL, "raw", tableName, "", "\n", hasHeader, "", "")
@@ -1429,7 +1383,6 @@ window.DataPreview = (function($, DataPreview) {
                 $suggBtn.show();
             })
             .fail(function(error) {
-                // tableName = "";
                 clearAll();
                 deferred.reject(error);
             })
@@ -1437,17 +1390,9 @@ window.DataPreview = (function($, DataPreview) {
                 $waitSection.addClass("hidden");
             });
         })
-        .fail(function(result) {
-            var text;
-            if (result.statusCode === StatusT.StatusDsInvalidUrl) {
-                text = "Could not retrieve dataset from file path: " +
-                        loadURL;
-            } else {
-                text = result.error;
-            }
-            
-            StatusBox.show(text, $("#filePath"), true);
-            deferred.reject(result);
+        .fail(function(error) {
+            StatusBox.show(error.error, $("#filePath"), true);
+            deferred.reject(error);
         });
 
         return (deferred.promise());
@@ -1542,7 +1487,7 @@ window.DataPreview = (function($, DataPreview) {
         hasHeader = !hasHeader;
 
         var $trs = $previewTable.find("tbody tr");
-        var $tds = $trs.eq(0).find("td");
+        var $tds = $trs.eq(0).find("td"); // first row tds
         var $headers = $previewTable.find("thead tr .header");
         var html;
 
@@ -1552,6 +1497,7 @@ window.DataPreview = (function($, DataPreview) {
                 $headers.eq(i).find(".text").html($tds.eq(i).html());
             }
 
+            // change line marker
             for (var i = 1, len = $trs.length; i < len; i++) {
                 $trs.eq(i).find(".lineMarker").text(i);
             }
@@ -1854,7 +1800,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         setupSampleTable();
     };
 
-    DataSampleTable.getTableFromDS = function(dsId, isLoading) {
+    DataSampleTable.show = function(dsId, isLoading) {
         var deferred = jQuery.Deferred();
 
         var dsObj = DS.getDSObj(dsId);
@@ -1863,12 +1809,26 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var fileSize = dsObj.attrs.fileSize || 'N/A';
         var path = dsObj.attrs.path || 'N/A';
 
+        // update date part of the table info first to make UI smooth
+        updateTableInfo(datasetName, format, 'N/A', fileSize, path);
+
         if (isLoading) {
-            updateTableInfo(datasetName, format, 'N/A', fileSize, path);
+            var animatedDots =
+                '<div class="animatedEllipsis">' +
+                  '<div>.</div>' +
+                  '<div>.</div>' +
+                  '<div>.</div>' +
+                '</div>';
+            var loadingMsg =
+                '<div class="loadingMsg">' +
+                        'Data set is loading' + animatedDots +
+                '</div>';
+            $tableWrap.html(loadingMsg);
             deferred.resolve();
 
             return (deferred.promise());
         }
+
         // XcalarSample sets gDatasetBrowserResultSetId
         XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
@@ -1890,7 +1850,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             try {
                 for (var i = 0; i < numKvPairs; i++) {
                     value = kvPairs[i].value;
-                    json = jQuery.parseJSON(value);
+                    json = $.parseJSON(value);
                     // XXX Cheng this is based on the assumption no other
                     // fields called recordNum, if more than one recordNum in
                     // json, only one recordNum will be in the parsed obj,
@@ -1923,17 +1883,13 @@ window.DataSampleTable = (function($, DataSampleTable) {
     function getSampleTable(dsName, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsName, jsonKeys, jsons);
 
-        $tableWrap.empty().append(html);
+        $tableWrap.html(html);
+        restoreSelectedColumns();
 
-        var $table = $("#worksheetTable");
-        var tableHeight = $table.height();
-        $table.find(".colGrab").height(tableHeight);
-
+        // scroll cannot use event bubble
         $("#dataSetTableWrap .datasetTbodyWrap").scroll(function() {
             dataStoreTableScroll($(this));
         });
-
-        restoreSelectedColumns();
     }
 
     function updateTableInfo(dsName, dsFormat, totalEntries, fileSize, path) {
@@ -1958,13 +1914,13 @@ window.DataSampleTable = (function($, DataSampleTable) {
         totalRows = parseInt($('#dsInfo-records').text().replace(/\,/g, ""));
     }
 
-    function dataStoreTableScroll($tableWrap) {
+    function dataStoreTableScroll($tableWrapper) {
         var numRowsToFetch = 20;
         if (currentRow + 20 >= totalRows) {
             return;
         }
-        if ($tableWrap[0].scrollHeight - $tableWrap.scrollTop() -
-                   $tableWrap.outerHeight() <= 1) {
+        if ($tableWrapper[0].scrollHeight - $tableWrapper.scrollTop() -
+                   $tableWrapper.outerHeight() <= 1) {
             if (currentRow === 0) {
                 currentRow += 40;
             } else {
@@ -2015,7 +1971,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 } catch(err) {
                     console.log(err, value);
                 }
-                
             });
         }   
     }
@@ -2109,8 +2064,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var dsName = $table.data("dsname");
 
         $("#selectedTable-" + dsName).find("li").each(function() {
-            var $li = $(this);
-            var colNum = $li.data("colnum");
+            var colNum = $(this).data("colnum");
             var $input = $table.find(".editableHead.col" + colNum);
             highlightColumn($input);
         });
@@ -2488,14 +2442,15 @@ window.DS = (function ($, DS) {
      * @param {object[]} datasets The datasets in backend
      */
     DS.restore = function (oldHomeFolder, datasets) {
-        var isRestore = restoreDSObjHelper(oldHomeFolder, datasets);
+        var totolDS = restoreDSObjHelper(oldHomeFolder, datasets);
 
-        if (!isRestore) {
-            var numDatasets = datasets.numDatasets;
+        if (totolDS < 0) {
+            // when restore fails
+            totolDS = datasets.numDatasets;
 
             console.log("Construct directly from backend");
 
-            for (var i = 0; i < numDatasets; i++) {
+            for (var i = 0; i < totolDS; i++) {
                 var dataset = datasets.datasets[i];
                 var format  = DfFormatTypeTStr[dataset.formatType]
                                     .toUpperCase();
@@ -2507,6 +2462,8 @@ window.DS = (function ($, DS) {
             }
         }
         DS.refresh();
+
+        return (totolDS);
     };
 
     /**
@@ -2702,7 +2659,13 @@ window.DS = (function ($, DS) {
             rmDSObjHelper($grid.data("dsid"));
             $grid.remove();
 
-            DataStore.updateNumDatasets();
+            // add sql
+            SQL.add("Delete DateSet", {
+                "operation": "destroyDataSet",
+                "dsName"   : dsName
+            });
+
+            DataStore.updateInfo();
             focusOnFirstDS();
             commitToStorage();
         })
@@ -2768,8 +2731,8 @@ window.DS = (function ($, DS) {
      */
     function restoreDSObjHelper (oldHomeFolder, datasets) {
         // no oldHomeFolder from backend
-        if (jQuery.isEmptyObject(oldHomeFolder)) {
-            return false;
+        if ($.isEmptyObject(oldHomeFolder)) {
+            return -1;
         }
 
         var numDatasets = datasets.numDatasets;
@@ -2801,7 +2764,7 @@ window.DS = (function ($, DS) {
                 } else {
                     // stored data not fit backend data, abort restore
                     DS.clear();
-                    return false;
+                    return -1;
                 }
             }
             if (obj.eles != null) {
@@ -2814,10 +2777,10 @@ window.DS = (function ($, DS) {
         // stored data not fit backend data, abort restore
         if (dsCount !== totolDS) {
             DS.clear();
-            return false;
+            return -1;
         }
 
-        return true;
+        return totolDS;
     }
 
     /**
@@ -2918,24 +2881,6 @@ window.DS = (function ($, DS) {
         return (html);
     }
 
-    /**
-     * Helper function for DS.load()
-     * @param {string} dsName The loading dataset's name
-     */
-    function getTempDSHTML(dsName) {
-        var html =
-            '<grid-unit id="tempDSIcon" class="ds display inactive">' +
-                '<div class="gridIcon"></div>' +
-                '<div class="listIcon">' +
-                    '<span class="icon"></span>' +
-                '</div>' +
-                '<div id="waitingIcon" class="waitingIcon"></div>' +
-                '<div class="label">' + dsName + '</div>' +
-            '</grid-unit>';
-
-        return (html);
-    }
-
     /*** Start of DSObj ***/
 
     /**
@@ -2978,135 +2923,137 @@ window.DS = (function ($, DS) {
         return (this);
     }
 
-    /**
-     * Change name of the dsObj
-     * @param {string} newName The new name
-     * @return {DSObj} this
-     */
-    DSObj.prototype.rename = function (newName) {
-        var self   = this;
-        var parent = DS.getDSObj(self.parentId);
-        //check name confliction
-        var isValid = xcHelper.validate({
-            "$selector": DS.getGrid(self.id),
-            "text"     : 'Folder "' + newName +
-                         '" already exists, please use another name!',
-            "check": function() {
-                return (parent.checkNameConflict(self.id, newName,
-                                                 self.isFolder));
+    DSObj.prototype = {
+        /**
+         * Change name of the dsObj
+         * @param {string} newName The new name
+         * @return {DSObj} this
+         */
+        rename: function(newName) {
+            var self   = this;
+            var parent = DS.getDSObj(self.parentId);
+            //check name confliction
+            var isValid = xcHelper.validate({
+                "$selector": DS.getGrid(self.id),
+                "text"     : 'Folder "' + newName +
+                             '" already exists, please use another name!',
+                "check": function() {
+                    return (parent.checkNameConflict(self.id, newName,
+                                                     self.isFolder));
+                }
+            });
+
+            if (isValid) {
+                this.name = newName;
             }
-        });
 
-        if (isValid) {
-            this.name = newName;
-        }
+            return (this);
+        },
 
-        return (this);
-    };
+        /**
+         * Remove dsObj from parent
+         * @return {DSObj} this
+         */
+        removeFromParent: function() {
+            var parent = DS.getDSObj(this.parentId);
+            var index  = parent.eles.indexOf(this);
 
-    /**
-     * Remove dsObj from parent
-     * @return {DSObj} this
-     */
-    DSObj.prototype.removeFromParent = function () {
-        var parent = DS.getDSObj(this.parentId);
-        var index  = parent.eles.indexOf(this);
+            parent.eles.splice(index, 1);    // remove from parent
+            // update totalChildren count of all ancestors
+            updateDSCount(this, true);
+            this.parentId = -1;
 
-        parent.eles.splice(index, 1);    // remove from parent
-        // update totalChildren count of all ancestors
-        updateDSCount(this, true);
-        this.parentId = -1;
+            return (this);
+        },
 
-        return (this);
-    };
+        /**
+         * Move dsObj to new parent (insert or append)
+         * @param {DSObj} newParent The new parent
+         * @param {number} index The index where to insert or append when index < 0
+         * @return {boolean} true/false Whether move succeed
+         */
+        moveTo: function(newParent, index) {
+            // not append to itself
+            if (this.id === newParent.id) {
+                return false;
+            }
 
-    /**
-     * Move dsObj to new parent (insert or append)
-     * @param {DSObj} newParent The new parent
-     * @param {number} index The index where to insert or append when index < 0
-     * @return {boolean} true/false Whether move succeed
-     */
-    DSObj.prototype.moveTo = function (newParent, index) {
-        // not append to itself
-        if (this.id === newParent.id) {
-            return false;
-        }
+            // not append to same parent again, but can insert
+            if (index < 0 && this.parentId === newParent.id) {
+                return false;
+            }
 
-        // not append to same parent again, but can insert
-        if (index < 0 && this.parentId === newParent.id) {
-            return false;
-        }
+            // not append or insert to its own child
+            var ele = newParent;
+            while (ele != null && ele !== this) {
+                ele = DS.getDSObj(ele.parentId);
+            }
+            if (ele === this) {
+                return false;
+            }
 
-        // not append or insert to its own child
-        var ele = newParent;
-        while (ele != null && ele !== this) {
-            ele = DS.getDSObj(ele.parentId);
-        }
-        if (ele === this) {
-            return false;
-        }
+            var $grid = DS.getGrid(this.id);
+            // check name conflict
+            if (newParent.checkNameConflict(this.id, this.name, this.isFolder)) {
+                var msg;
+                if (this.isFolder) {
+                    msg = 'Folder "' + this.name +
+                          '" already exists, cannot move!';
+                } else {
+                    msg = 'Data Set "' + this.name +
+                          '" already exists, cannot move!';
+                }
+                StatusBox.show(msg, $grid);
+                return false;
+            }
 
-        var $grid = DS.getGrid(this.id);
-        // check name conflict
-        if (newParent.checkNameConflict(this.id, this.name, this.isFolder)) {
-            var msg;
-            if (this.isFolder) {
-                msg = 'Folder "' + this.name +
-                      '" already exists, cannot move!';
+            this.removeFromParent();
+            this.parentId = newParent.id;
+
+            if ((index != null) && (index >= 0)) {
+                newParent.eles.splice(index, 0, this);  // insert to parent
             } else {
-                msg = 'Data Set "' + this.name +
-                      '" already exists, cannot move!';
+                newParent.eles.push(this);  // append to parent
             }
-            StatusBox.show(msg, $grid);
+
+            $grid.attr('data-dsParentId', newParent.id);
+
+            // update totalChildren of all ancestors
+            updateDSCount(this);
+            return true;
+        },
+
+        /**
+         * Check if a dsObj's name has conflict in current folder
+         * @param {number} id The dsObj's id
+         * @param {string} name The dsObj's name
+         * @param (boolean) isFolder Whether the dsObj is a folder
+         * @return {boolean} true/false Whether move succeed
+         */
+        checkNameConflict: function(id, name, isFolder) {
+            // now only support check of folder
+
+            // when this is not a folder
+            if (!this.isFolder) {
+                console.error("Error call", "only folder can call this function");
+                return false;
+            }
+
+            var eles = this.eles;
+
+            for (var i = 0; i < eles.length; i++) {
+                var dsObj = eles[i];
+
+                if (dsObj.isFolder &&
+                    dsObj.name === name &&
+                    dsObj.id !== id &&
+                    dsObj.isFolder === isFolder) {
+                    return true;
+                }
+            }
+
             return false;
         }
-
-        this.removeFromParent();
-        this.parentId = newParent.id;
-
-        if ((index != null) && (index >= 0)) {
-            newParent.eles.splice(index, 0, this);  // insert to parent
-        } else {
-            newParent.eles.push(this);  // append to parent
-        }
-
-        $grid.attr('data-dsParentId', newParent.id);
-
-        // update totalChildren of all ancestors
-        updateDSCount(this);
-        return true;
-    };
-
-    /**
-     * Check if a dsObj's name has conflict in current folder
-     * @param {number} id The dsObj's id
-     * @param {string} name The dsObj's name
-     * @param (boolean) isFolder Whether the dsObj is a folder
-     * @return {boolean} true/false Whether move succeed
-     */
-    DSObj.prototype.checkNameConflict = function(id, name, isFolder) {
-        // now only support check of folder
-
-        // when this is not a folder
-        if (!this.isFolder) {
-            console.error("Error call", "only folder can call this function");
-            return false;
-        }
-
-        var eles = this.eles;
-
-        for (var i = 0; i < eles.length; i++) {
-            var dsObj = eles[i];
-
-            if (dsObj.isFolder &&
-                dsObj.name === name &&
-                dsObj.id !== id &&
-                dsObj.isFolder === isFolder) {
-                return true;
-            }
-        }
-
-        return false;
     };
     /*** End of DSObj ***/
 

@@ -227,6 +227,7 @@ input {
                     .font(@weight: 700, @size: 13px);
                     margin-left: 0px;
                     cursor: pointer;
+                    .noSelection;
 
                     &.hidden {
                         display: none;
@@ -259,6 +260,7 @@ input {
                     .font(@weight: 700, @size: 13px);
                     margin-left: 20px;
                     cursor: pointer;
+                    .noSelection;
 
                     &.hidden {
                         display: none;
@@ -415,6 +417,8 @@ input {
     }
 
     &.previewMode {
+        height: 151px !important;
+
         #importDataBottomForm, #fileBrowserBtn, #fileFormat,
         #udfCheckbox, #csvPromoteCheckbox {
             display: none;
@@ -431,10 +435,6 @@ input {
 
         #fileName {
             min-width: ~"calc(100% - 300px)" !important;
-        }
-
-        #importDataForm {
-            height: 151px !important;
         }
     }
 }

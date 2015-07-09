@@ -160,8 +160,8 @@ function readFromStorage() {
             gTableDirectionLookup = {};
             gTableOrderLookup = [];
         }
-        DS.restore(gDSObjFolder, datasets);
-        DataStore.updateInfo(numDatasets);
+        var totalDS = DS.restore(gDSObjFolder, datasets);
+        DataStore.updateInfo(totalDS);
         return (commitToStorage(AfterStartup.After));
     })
     .then(function() {
