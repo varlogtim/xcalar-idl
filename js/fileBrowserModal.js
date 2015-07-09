@@ -32,7 +32,7 @@ window.FileBrowser = (function($, FileBrowser) {
     FileBrowser.show = function() {
         var openingBrowser = true;
         retrievePaths($filePath.val(), openingBrowser)
-        .then(function() {
+        .then(function(result) {
             xcHelper.removeSelectionRange();
 
             var minWidth = 590;
@@ -55,7 +55,15 @@ window.FileBrowser = (function($, FileBrowser) {
 
                 $modalBackground.addClass("open");
                 $fileBrowser.fadeIn(200).focus();
-
+                if (result.defaultPath) {
+                    var msg = result.path + ' was not found. ' +
+                            'Redirected to the root directory.';
+                    setTimeout(function() {
+                        StatusBox.show(msg, $pathSection, false, 0,
+                                       {side: 'top'});
+                    }, 40);
+                    
+                }
             });
             centerPositionElement($fileBrowser);
 
@@ -685,6 +693,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function retrievePaths(path, openingBrowser) {
         var deferred = jQuery.Deferred();
         var paths    = [];
+        var status = {};
         if (!path) {
             path = historyPath || defaultPath;
         }
@@ -698,6 +707,8 @@ window.FileBrowser = (function($, FileBrowser) {
         if (paths.length === 0) {
             if (openingBrowser) {
                 paths.push(defaultPath);
+                status.path = path;
+                status.defaultPath = true;
             } else {
                 var error = "Invalid Path, please input a valid one";
                 deferred.reject({"error": error});
@@ -709,6 +720,8 @@ window.FileBrowser = (function($, FileBrowser) {
         listFiles(paths[0], openingBrowser)
         .then(function(result) {
             if (result === 'useDefaultPath') {
+                status.defaultPath = true;
+                status.path = path;
                 path = defaultPath;
                 paths = [path];
             }
@@ -724,7 +737,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 focusOn({"name": name});
             }
 
-            deferred.resolve();
+            deferred.resolve(status);
         })
         .fail(deferred.reject);
 

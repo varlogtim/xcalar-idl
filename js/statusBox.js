@@ -15,18 +15,26 @@ window.StatusBox = (function($, StatusBox){
         }
 
         var side;
-        if (options && options.side === 'left') {
+        if (options && options.side) {
             side = options.side;
-            $statusBox.css({top: top, left: left, right: 'auto'});
         } else {
             side = 'right';
-            $statusBox.css({top: top, right: right, left: 'auto'});
         }
-       
 
         $statusBox.addClass('error ' + side);
         $statusBox.find('.titleText').text('Error');
         $statusBox.find('.message').text(text);
+
+        if (side === 'left') {
+            $statusBox.css({top: top, left: left, right: 'auto'});
+        } else if (side === 'top') {
+            left = bound.left + ($target.width() / 2) - 100;
+            var statusBoxHeight = $statusBox.height();
+            top = bound.top - statusBoxHeight - 15;
+            $statusBox.css({top: top, left: left, right: 'auto'});
+        } else {
+            $statusBox.css({top: top, right: right, left: 'auto'});
+        }
 
         if (isFormMode) {
             $doc.mousedown({target: $target}, hideStatusBox);

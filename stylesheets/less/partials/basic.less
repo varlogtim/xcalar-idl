@@ -1754,6 +1754,8 @@ ul.inputMenu {
         color: @color-text-darkGray;
         .font(@size: 12px, @line-height: 18px);
         white-space: normal;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
     &.error {
         display: inline-block;
@@ -1823,6 +1825,27 @@ ul.inputMenu {
                 &:after {
                     border-left: 9px solid @color-background-white;
                     margin-right: 2px;
+                }
+            }
+        }
+        &.top {
+            .arrow {
+                .position(absolute, @left: 96px, @bottom: 0);
+            }
+            .boxInnerWrap {
+                &:before, &:after {
+                    .position(absolute, @left: 99px, @bottom: -18px);
+                    border-left: 7px solid transparent;
+                    border-right: 7px solid transparent;
+                }
+                &:before {
+                    border-top: 10px solid @color-error-border;
+                }
+                &:after {
+                    border-top: 9px solid @color-background-white;
+                    margin-right: 2px;
+                    bottom: -15px;
+                    left: 97px;
                 }
             }
         }

@@ -1319,8 +1319,6 @@ window.DataPreview = (function($, DataPreview) {
     };
 
     DataPreview.show = function() {
-        
-
         var deferred = jQuery.Deferred();
         var loadURL  = $.trim($("#filePath").val());
 
