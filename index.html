@@ -520,8 +520,10 @@
         <div class="container">
           <div class="infoSection">
             <section class="titleSection">
-              <div class="title"><h2>Data Preview</h2></div>
-              <div class="format">Format: raw</div>
+              <div class="title">
+                <h2>Data Preview</h2>
+                <button id="previewSuggBtn" class="btn btnMid">Show Suggestions</button>
+              </div>
             </section>
 
             <section class="iconSection">
@@ -549,16 +551,21 @@
             </section>
           </div>
 
+          <div id="previewSugg" class="suggestSection hidden">
+            <div class="title">Suggestion:</div>
+            <div class="content"></div>
+          </div>
+
           <div class="previewSection">
             <div id="dsPreviewTableWrap" class="datasetTableWrap">
                 <div class="waitSection hidden">
                   <div class="loadingMsg">
                     Data set is loading
-                    <div class="animatedEllipsis">
-                        <div>.</div>
-                        <div>.</div>
-                        <div>.</div>
-                    </div>
+                  </div>
+                  <div class="animatedEllipsis">
+                      <div>.</div>
+                      <div>.</div>
+                      <div>.</div>
                   </div>
                 </div>
 

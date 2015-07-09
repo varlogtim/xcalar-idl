@@ -156,6 +156,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // preview dataset
         $("#previewBtn").click(function() {
             $(this).blur();
+
+            // Invalid json preview
             if ($filePath.val().endsWith("json")) {
                 var text = "Canot Preview JSON files";
                 StatusBox.show(text, $filePath, true);
@@ -179,29 +181,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             var dsName   = jQuery.trim($fileName.val());
             var dsFormat = formatTranslater[$formatText.val()];
-            // check name conflict
-            var isValid  = xcHelper.validate([
-                {
-                    "$selector": $fileName,
-                    "check"    : DS.has,
-                    "formMode" : true,
-                    "text"     : "Dataset with the name " + dsName +
-                                 " already exits. Please choose another name."
-                },
-                {
-                    "$selector": $formatText,
-                    "check"    : function() {
-                        return (dsFormat == null);
-                    },
-                    "text": "No file format is selected," +
-                            " please choose a file format!"
-                }
-            ]);
-
-            if (!isValid) {
-                xcHelper.enableSubmit($(this));
-                return false;
-            }
 
             var loadURL    = jQuery.trim($filePath.val());
             var fieldDelim = delimiterTranslate($("#fieldText"));
@@ -346,6 +325,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 "formMode" : true,
                 "text"     : "Dataset with the name " + dsName +
                              " already exits. Please choose another name."
+            },
+            {
+                "$selector": $fileName,
+                "check"    : function() {
+                    return (dsName === "");
+                },
+                "formMode": true,
+                "text"    : "Please fill out this field"
             },
             {
                 "$selector": $formatText,
@@ -1253,15 +1240,22 @@ window.DataPreview = (function($, DataPreview) {
             '<td class="lineMarker promote" ' +
                 'title="Promote Header" data-toggle="tooltip" ' +
                 'data-placement="top" data-container="body">' +
-                '<span class="icon"></span>' +
+                '<div class="promoteWrap">' +
+                    '<div class="iconWrapper">' +
+                        '<span class="icon"></span>' +
+                    '</div>' +
+                    '<div class="divider"></div>' +
+                '</div>' +
             '</td>';
 
 
     DataPreview.setup = function() {
+        // promot header
         $previewTable.on("click", ".promote, .undo-promote", function() {
             togglePromote();
         });
 
+        // select a char as candidate delimiter
         $previewTable.mouseup(function() {
             if ($previewTable.hasClass("has-delimiter")) {
                 return;
@@ -1277,31 +1271,37 @@ window.DataPreview = (function($, DataPreview) {
             highlightDelimiter(selection.toString());
         });
 
+        // close preview
         $("#preview-close").click(function() {
             clearAll();
         });
 
-        $("#preview-highlight").click(function() {
+        // hightlight and remove highlight button
+        var $highLightBtn    = $("#preview-highlight");
+        var $rmHightLightBtn = $("#preview-rmHightlight");
+
+        $highLightBtn.click(function() {
             if (highlighter === "") {
                 return;
             }
 
             delimiter = highlighter;
             highlighter = "";
-            $("#preview-highlight").removeClass("active");
-            $("#preview-rmHightlight").addClass("active")
-                .attr("data-original-title", "Remove Delimiter");
-            getPreviewTable(true);
+
+            applyDelim();
         });
 
-        $("#preview-rmHightlight").click(function() {
+        $rmHightLightBtn.click(function() {
             if (delimiter !== "") {
+                // case of remove delimiter
                 delimiter = "";
-                $("#preview-highlight").removeClass("active");
-                $("#preview-rmHightlight").removeClass("active")
-                    .attr("data-original-title", "Remove highlights");
+
+                $highLightBtn.removeClass("active");
+                $rmHightLightBtn.removeClass("active")
+                        .attr("data-original-title", "Remove highlights");
                 getPreviewTable();
             } else {
+                // case of remove highlighter
                 highlighter = "";
                 toggleHighLight();
             }
@@ -1316,78 +1316,126 @@ window.DataPreview = (function($, DataPreview) {
             dblClickResize($(this), {minWidth: 25});
         });
 
+        var $suggSection = $("#previewSugg");
+
+        $("#previewSuggBtn").click(function() {
+            if ($suggSection.hasClass("hidden")) {
+                toggleSuggest(true);
+            } else {
+                toggleSuggest(false);
+            }
+        });
+
+        $suggSection.on("click", ".apply-highlight", function() {
+            $highLightBtn.click();
+        });
+
+        $suggSection.on("click", ".rm-highlight", function() {
+            $rmHightLightBtn.click();
+        });
+
+        $suggSection.on("click", ".promote", function() {
+            togglePromote();
+        });
+
+        $suggSection.on("click", ".commaDelim", function() {
+            delimiter = ",";
+            highlighter = "";
+            applyDelim();
+        });
+
+        $suggSection.on("click", ".tabDelim", function() {
+            delimiter = "\t";
+            highlighter = "";
+            applyDelim();
+        });
+
+        $suggSection.on("click", ".apply-all", function() {
+            $("#previewBtn").click();
+        });
+
+        function applyDelim() {
+            $highLightBtn.removeClass("active");
+            $rmHightLightBtn.addClass("active")
+                            .attr("data-original-title", "Remove Delimiter");
+            getPreviewTable();
+        }
     };
 
     DataPreview.show = function() {
         var deferred = jQuery.Deferred();
-        var loadURL  = $.trim($("#filePath").val());
+        var loadURL  = $("#filePath").val().trim();
 
         if (loadURL == null) {
             deferred.reject("Invalid loadURL");
             return (deferred.promise());
         }
 
-        tableName = $.trim($("#fileName").val());
-        tableName = xcHelper.randName(tableName) ||   // when table name is empty
-                    xcHelper.randName("previewTable");
-        tableName += ".preview";
-        var validURL = false;
-
         XcalarListFiles(loadURL)
         .then(function() {
-            validURL = true;
             $("#importDataForm").addClass("previewMode");
             $("#previewBtn").text("APPLY CHANGES & EXIT PREVIEW");
 
-            $("#dsPreviewWrap").removeClass("hidden")
-                               .find(".waitSection")
-                               .removeClass("hidden");
+            var $previeWrap  = $("#dsPreviewWrap").removeClass("hidden");
+            var $waitSection = $previeWrap.find(".waitSection")
+                                                    .removeClass("hidden");
+            var $suggBtn = $("#previewSuggBtn").hide();
             
-            return (XcalarLoad(loadURL, "raw", tableName,
-                    "", "\n", hasHeader,
-                    "", ""));
-        })
-        
-        .then(function() {
-            return (XcalarSample(tableName, 20));
-        })
-        .then(function(result) {
-            if (!result) {
-                deferred.reject({"error": "Cannot parse the dataset."});
-                return (promiseWrapper(null));
-            }
-
-            var kvPairs    = result.kvPair;
-            var numKvPairs = result.numKvPairs;
-
-            rawData = [];
-
-            var value;
-            var json;
-
-            try {
-                for (var i = 0; i < numKvPairs; i++) {
-                    value = kvPairs[i].value;
-                    json = $.parseJSON(value);
-
-                    // get unique keys
-                    for (var key in json) {
-                        if (key === "recordNum") {
-                            continue;
-                        }
-                        rawData.push(json[key].split(""));
-                    }
+            tableName = $("#fileName").val().trim();
+            tableName = xcHelper.randName(tableName) ||   // when table name is empty
+                    xcHelper.randName("previewTable");
+            tableName += ".preview"; // specific format for preview table
+            
+            XcalarLoad(loadURL, "raw", tableName, "", "\n", hasHeader, "", "")
+            .then(function() {
+                return (XcalarSample(tableName, 20));
+            })
+            .then(function(result) {
+                if (!result) {
+                    deferred.reject({"error": "Cannot parse the dataset."});
+                    return (promiseWrapper(null));
                 }
 
-                getPreviewTable();
-                $("#dsPreviewWrap").find(".waitSection").addClass("hidden");
-                deferred.resolve();
-            } catch(err) {
-                console.error(err, value);
-                $("#dsPreviewWrap").find(".waitSection").addClass("hidden");
-                // getPreviewTable();
-                deferred.reject({"error": "Cannot parse the dataset."});
-            }
+                var kvPairs    = result.kvPair;
+                var numKvPairs = result.numKvPairs;
+
+                rawData = [];
+
+                var value;
+                var json;
+
+                try {
+                    for (var i = 0; i < numKvPairs; i++) {
+                        value = kvPairs[i].value;
+                        json = $.parseJSON(value);
+
+                        // get unique keys
+                        for (var key in json) {
+                            if (key === "recordNum") {
+                                continue;
+                            }
+                            rawData.push(json[key].split(""));
+                        }
+                    }
+
+                    getPreviewTable();
+                    deferred.resolve();
+                } catch(err) {
+                    console.error(err, value);
+                    // getPreviewTable();
+                    deferred.reject({"error": "Cannot parse the dataset."});
+                }
+
+                $suggBtn.show();
+            })
+            .fail(function(error) {
+                // tableName = "";
+                clearAll();
+                deferred.reject(error);
+            })
+            .always(function() {
+                $waitSection.addClass("hidden");
+            });
         })
         .fail(function(result) {
             var text;
@@ -1397,9 +1445,8 @@ window.DataPreview = (function($, DataPreview) {
             } else {
                 text = result.error;
             }
-            if (!validURL) {
-                StatusBox.show(text, $("#filePath"), true);
-            }
+            
+            StatusBox.show(text, $("#filePath"), true);
             deferred.reject(result);
         });
 
@@ -1407,8 +1454,8 @@ window.DataPreview = (function($, DataPreview) {
     };
 
     DataPreview.load = function() {
-        var loadURL = $.trim($("#filePath").val());
-        var dsName  = $.trim($("#fileName").val());
+        var loadURL = $("#filePath").val().trim();
+        var dsName  = $("#fileName").val().trim();
 
         DatastoreForm.load(dsName, "CSV", loadURL,
                             delimiter, "\n", hasHeader,
@@ -1417,7 +1464,7 @@ window.DataPreview = (function($, DataPreview) {
             clearAll();
         })
         .fail(function(error) {
-            if (error.status !== null) {
+            if (error.status != null) {
                 clearAll();
             }
         });
@@ -1428,6 +1475,7 @@ window.DataPreview = (function($, DataPreview) {
         $("#dsPreviewWrap").addClass("hidden");
         $("#importDataForm").removeClass("previewMode");
         $previewTable.removeClass("has-delimiter").empty();
+        toggleSuggest(false, true);
 
         rawData = null;
         hasHeader = false;
@@ -1435,10 +1483,13 @@ window.DataPreview = (function($, DataPreview) {
         highlighter = "";
         toggleHighLight();
 
-        XcalarDestroyDataset(tableName);
+        if (tableName !== "") {
+            XcalarDestroyDataset(tableName);
+        }
+        tableName = "";
     }
 
-    function getPreviewTable(hasDelimiter) {
+    function getPreviewTable() {
         var $tbody = $(getTbodyHTML());
         var $trs = $tbody.find("tr");
         var maxTdLen = 0;
@@ -1448,37 +1499,41 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         $trs.each(function() {
-            var $tr = $(this);
+            var $tr  = $(this);
             var $tds = $tr.find("td");
+            var html = "";
 
             for (var i = 0, len = maxTdLen - $tds.length; i < len; i++) {
-                $tr.append("<td></td>");
+                html += "<td></td>";
             }
+
+            $tr.append(html);
         });
 
         var $tHead = $(getTheadHTML(maxTdLen));
         var $tr = $tHead.find("tr");
         var thLen = $tHead.find("th").length;
+        var html = "";
 
         for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
-            $tr.append('<th><div class="header"><div class="text">' +
-                        '</div></div></th>');
+            html += '<th><div class="header"><div class="text">' +
+                        '</div></div></th>';
         }
+        $tr.append(html);
 
-        var count = 0;
-        $tr.find("th").each(function() {
-            $(this).addClass("col" + count);
-            ++count;
+        // add class
+        $tr.find("th").each(function(index) {
+            $(this).addClass("col" + index);
         });
 
-        $previewTable.empty().append($tHead).append($tbody);
+        $previewTable.empty().append($tHead, $tbody);
 
-        if (hasDelimiter) {
+        if (delimiter !== "") {
             $previewTable.addClass("has-delimiter");
-            var tableHeight = $previewTable.height();
-            $previewTable.find(".colGrab").height(tableHeight);
+            suggestHelper("toRemoveDelim");
         } else {
             $previewTable.removeClass("has-delimiter");
+            suggestHelper("toHighLight");
         }
     }
 
@@ -1520,6 +1575,8 @@ window.DataPreview = (function($, DataPreview) {
             $headers.eq(0).empty()
                     .closest("th").removeClass("undo-promote");
         }
+
+        suggestHelper("toRemoveDelim");
     }
 
     function highlightDelimiter(str) {
@@ -1531,19 +1588,27 @@ window.DataPreview = (function($, DataPreview) {
     function toggleHighLight() {
         $previewTable.find(".highlight").removeClass("highlight");
 
+        var $highLightBtn    = $("#preview-highlight");
+        var $rmHightLightBtn = $("#preview-rmHightlight");
+
         if (highlighter === "") {
-            $("#preview-highlight").removeClass("active");
-            $("#preview-rmHightlight").removeClass("active");
+            // when remove highlight
+            $highLightBtn.removeClass("active");
+            $rmHightLightBtn.removeClass("active");
+            suggestHelper("toHighLight");
         } else {
-            $("#preview-highlight").addClass("active");
-            $("#preview-rmHightlight").addClass("active");
+            // valid highLighted char
+            $highLightBtn.addClass("active");
+            $rmHightLightBtn.addClass("active");
 
             $previewTable.find(".td").each(function() {
-                        var $td = $(this);
-                        if ($td.text() === highlighter) {
-                            $td.addClass("highlight");
-                        }
-                    });
+                var $td = $(this);
+                if ($td.text() === highlighter) {
+                    $td.addClass("highlight");
+                }
+            });
+
+            suggestHelper("toApplyDelim");
         }
     }
 
@@ -1609,49 +1674,50 @@ window.DataPreview = (function($, DataPreview) {
         var hasBackSlash = false;
         var del = delimiter;
         var hasDelimiter = (del !== "");
-        var cellClass;
         var colGrab = hasDelimiter ? '<div class="colGrab"></div>' : "";
         var html = isTh ? '<th><div class="header">' + colGrab +
                             '<div class="text">'
                             : '<td>';
 
-        data.forEach(function(d) {
-            if (hasDelimiter && !hasBackSlash && !hasQuote && d === del) {
-                if (isTh) {
-                    html += '</div></div></th>' +
-                            '<th>' +
-                                '<div class="header">' +
-                                colGrab +
-                                '<div class="text">';
+        if (hasDelimiter) {
+            // when has deliliter
+            data.forEach(function(d) {
+                if (!hasBackSlash && !hasQuote && d === del) {
+                    if (isTh) {
+                        html += '</div></div></th>' +
+                                '<th>' +
+                                    '<div class="header">' +
+                                        colGrab +
+                                        '<div class="text">';
+                    } else {
+                        html += '</td><td>';
+                    }
                 } else {
-                    html += '</td><td>';
-                }
-            } else {
-                if (hasDelimiter) {
                     if (hasBackSlash) {
                         // when previous char is \. espace this one
                         hasBackSlash = false;
-                    } else {
-                        if (d === '\\') {
-                            hasBackSlash = true;
-                        } else if (d === '"') {
-                            // toggle escape of quote
-                            hasQuote = !hasQuote;
-                        }
+                    } else if (d === '\\') {
+                        hasBackSlash = true;
+                    } else if (d === '"') {
+                        // toggle escape of quote
+                        hasQuote = !hasQuote;
                     }
 
                     html += d;
-                } else {
-                    cellClass = "td";
-
-                    if (d === "\t") {
-                        cellClass += " has-margin";
-                    }
-
-                    html += '<span class="' + cellClass + '">' + d + '</span>';
                 }
-            }
-        });
+            });
+        } else {
+            // when not apply delimiter
+            data.forEach(function(d) {
+                var cellClass = "td";
+                if (d === "\t") {
+                    cellClass += " has-margin has-tab";
+                } else if (d === ",") {
+                    cellClass += " has-margin has-comma";
+                }
+                html += '<span class="' + cellClass + '">' + d + '</span>';
+            });
+        }
 
         if (isTh) {
             html += '</div></div></th>';
@@ -1660,6 +1726,120 @@ window.DataPreview = (function($, DataPreview) {
         }
 
         return (html);
+    }
+
+    function toggleSuggest(showSuggest, clear) {
+        var $suggSection = $("#previewSugg");
+        var $btn = $("#previewSuggBtn");
+        var $previewWrap = $("#dsPreviewWrap");
+
+        if (clear) {
+            $suggSection.addClass("hidden");
+            $btn.text("Show Suggestion");
+            $previewWrap.removeClass("has-suggest");
+            return;
+        }
+
+        if (showSuggest) {
+            $suggSection.removeClass("hidden");
+            $btn.text("Hide Suggestions");
+            $previewWrap.addClass("has-suggest");
+        } else {
+            $suggSection.addClass("hidden");
+            $btn.text("Show Suggestions");
+            $previewWrap.removeClass("has-suggest");
+        }
+    }
+
+    function suggestHelper(command) {
+        var $suggSection = $("#previewSugg");
+        var $content = $suggSection.find(".content");
+        var html = "";
+
+        switch (command) {
+            case "toHighLight":
+                var commaLen = $previewTable.find(".has-comma").length;
+                var tabLen   = $previewTable.find(".has-tab").length;
+                var commaHtml =
+                    '<span class="action active commaDelim">' +
+                        'Apply comma as delimiter' +
+                    '</span>';
+                var tabHtml =
+                    '<span class="action active tabDelim">' +
+                        'Apply tab as delimiter' +
+                    '</span>';
+
+                if (commaLen > 0 && tabLen > 0) {
+                    if (commaLen >= tabLen) {
+                        html = commaHtml + tabHtml;
+                    } else {
+                        html = tabHtml + commaHtml;
+                    }
+                } else {
+                    if (commaLen > 0) {
+                        html = commaHtml;
+                    }
+
+                    if (tabLen > 0) {
+                        html = tabHtml;
+                    }
+                }
+
+
+                if (html === "") {
+                    // select char
+                    html =
+                        '<span class="action">' +
+                            'Select a character as delimiter' +
+                        '</span>';
+                } else {
+                    // select another char
+                    html +=
+                        '<span class="action">' +
+                            'Select another character as delimiter' +
+                        '</span>';
+                }
+
+                break;
+            case "toApplyDelim":
+            // when highlight a delim
+                html =
+                    '<span class="action active apply-highlight">' +
+                        'Apply hightlighted character as delimiter' +
+                    '</span>' +
+                    '<span class="action active rm-highlight">' +
+                        'Remove Highlights' +
+                    '</span>';
+                break;
+            case "toRemoveDelim":
+            // when already apply delimiter
+                if (hasHeader) {
+                    html +=
+                        '<span class="action active promote">' +
+                            'Undo promote header' +
+                        '</span>';
+                } else {
+                    html +=
+                        '<span class="action active promote">' +
+                            'Promote first row as header' +
+                        '</span>';
+                }
+
+                html +=
+                    '<span class="action active rm-highlight">' +
+                        'Remove Delimiter' +
+                    '</span>';
+
+                html +=
+                    '<span class="action active apply-all">' +
+                        'Apply changes& Exit preview' +
+                    '</span>';
+                break;
+            default:
+                html = "";
+                break;
+        }
+        $content.html(html);
     }
 
     return (DataPreview);
@@ -2242,7 +2422,7 @@ window.DS = (function ($, DS) {
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.click();
         $("#importDataReset").click();
-        
+
         XcalarLoad(loadURL, dsFormat, dsName,
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName)
