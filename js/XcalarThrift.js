@@ -232,6 +232,7 @@ function XcalarDestroyDataset(dsName, sqlOptions) {
     }
 
     var deferred = jQuery.Deferred();
+    dsName = ".XcalarDS." + dsName;
     var workItem = xcalarDestroyDatasetWorkItem(dsName);
 
     var def1 = xcalarDestroyDataset(tHandle, dsName);

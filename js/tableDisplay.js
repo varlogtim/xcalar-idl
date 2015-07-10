@@ -243,7 +243,7 @@ function deleteActiveTable(tableNum) {
     var sqlOptions = {"operation": "deleteTable",
                       "tableName": tableName};
 
-    deleteTable(tableNum, sqlOptions)
+    deleteTable(tableNum, null, sqlOptions)
     .then(function() {
         setTimeout(function() {
             if (gTables[gActiveTableNum] &&
