@@ -1446,28 +1446,28 @@ window.DataPreview = (function($, DataPreview) {
         $trs.each(function() {
             var $tr  = $(this);
             var $tds = $tr.find("td");
-            var html = "";
+            var trs = "";
 
-            for (var i = 0, len = maxTdLen - $tds.length; i < len; i++) {
-                html += "<td></td>";
+            for (var j = 0, l = maxTdLen - $tds.length; j < l; j++) {
+                trs += "<td></td>";
             }
 
-            $tr.append(html);
+            $tr.append(trs);
         });
 
         var $tHead = $(getTheadHTML(maxTdLen));
-        var $tr = $tHead.find("tr");
-        var thLen = $tHead.find("th").length;
-        var html = "";
+        var $tHrow = $tHead.find("tr");
+        var thLen  = $tHead.find("th").length;
+        var ths = "";
 
         for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
-            html += '<th><div class="header"><div class="text">' +
+            ths += '<th><div class="header"><div class="text">' +
                         '</div></div></th>';
         }
-        $tr.append(html);
+        $tHrow.append(ths);
 
         // add class
-        $tr.find("th").each(function(index) {
+        $tHrow.find("th").each(function(index) {
             $(this).addClass("col" + index);
         });
 
@@ -1969,7 +1969,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                     $('#worksheetTable').append(tr);
 
                 } catch(err) {
-                    console.log(err, value);
+                    console.error(err, value);
                 }
             });
         }   
@@ -2397,7 +2397,7 @@ window.DS = (function ($, DS) {
         })
         .then(function() {
             var urlLen = loadURL.length;
-            console.log(loadURL[urlLen - 1], loadURL);
+            // console.log(loadURL[urlLen - 1], loadURL);
 
             var slashIndex = loadURL.lastIndexOf('/');
             var dotIndex   = loadURL.lastIndexOf('.');

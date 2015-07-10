@@ -233,7 +233,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $('#xcTable' + tableNum).find('.header')
                                     .off('click', fillInputFromColumn);
             
-            $(document).mousedown(); // hides any error boxes; 
+            $(document).mousedown(); // hides any error boxes;
             $('body').off('keydown', listHighlightListener);  
         });
 
@@ -357,7 +357,7 @@ window.OperationsModal = (function($, OperationsModal) {
     // any function names in the array will not have column name as 1st argument
 
     var firstArgExceptions = {
-        'conditional functions'  : ['not'],
+        'conditional functions': ['not']
     };
 
     function fillInputFromColumn(event) {
@@ -462,17 +462,13 @@ window.OperationsModal = (function($, OperationsModal) {
             return;
         }
 
-        var strongMatchArray = [];
         var numVisibleLis = $visibleLis.length;
         for (var i = 0; i < numVisibleLis; i++) {
             var $li = $visibleLis.eq(i);
             var liText = $li.text();
             if (liText.indexOf(value) === 0) {
-                strongMatchArray.push($li);
+                $list.prepend($li);
             }
-        }
-        for (var i = 0; i < strongMatchArray.length; i++) {
-            $list.prepend(strongMatchArray[i]);
         }
     }
 
@@ -704,6 +700,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $rows.show();
             $rows.find('.colNameSection').removeClass('colNameSection');
             var description;
+
             for (var i = 0; i < operObj.numArgs; i++) {
                 description = operObj.argDescs[i].argDesc;
                 if (i === 0) {
@@ -727,7 +724,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $rows.eq(numArgs).find('.listSection')
                                  .addClass('colNameSection');
                 var autoColGenName = getAutoGenColName('groupBy');
-                $rows.eq(numArgs).find('input').val(autoGenColName);
+                $rows.eq(numArgs).find('input').val(autoColGenName);
                 $rows.eq(numArgs).find('.description').text(description);
                 numArgs++;
             }   
@@ -789,11 +786,10 @@ window.OperationsModal = (function($, OperationsModal) {
         var colType = $operationsModal.data('coltype');
         var args = [];
 
-        var $argInputs = $operationsModal.find('.argumentTable tbody tr')
-                                        .filter(function() {
-                                return ($(this).css('display') != "none");
-
-                        }).find('.argument');
+        var $argInputs =
+            $operationsModal.find('.argumentTable tbody tr').filter(function() {
+                return ($(this).css('display') !== "none");
+            }).find('.argument');
 
         var numArgs = $argInputs.length;
         $argInputs.each(function(index) {
@@ -893,9 +889,9 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             args[0] = backName;
         }
-        var colType = $operationsModal.data('coltype');
-        var filterString = formulateFilterString(operator, args); 
-        options = {"filterString" : filterString};
+        // var colType = $operationsModal.data('coltype');
+        var filterString = formulateFilterString(operator, args);
+        options = {"filterString": filterString};
 
         xcFunction.filter(colIndex, tableNum, options)
         .then(function() {
@@ -1046,14 +1042,6 @@ window.OperationsModal = (function($, OperationsModal) {
             $('#xcTable' + tableNum).find('.editableHead')
                                     .attr('disabled', true);
         }, 0);
-    }
-
-    function disableSubmit() {
-        $operationsModal.find('.confirm').prop("disabled", true);
-    }
-
-    function enableSubmit() {
-        $operationsModal.find('.confirm').prop("disabled", false);
     }
 
     function getAutoGenColName(name) {

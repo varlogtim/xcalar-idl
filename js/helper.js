@@ -437,7 +437,7 @@ window.xcHelper = (function($, xcHelper) {
         var tableName = gTables[tableNum].tableName;
         var lookupTable = gTableIndicesLookup[tableName];
         lookupTable.isLocked = true;
-    }
+    };
 
     xcHelper.unlockTable = function(tableName, isHidden) {
         var tableNum = xcHelper.getTableIndexFromName(tableName, isHidden);
@@ -453,8 +453,7 @@ window.xcHelper = (function($, xcHelper) {
         if (lookupTable) {
             lookupTable.isLocked = true;
         }
-    }
-
+    };
 
     // an object used for global Modal Actions
     xcHelper.Modal = function($modal, options) {
@@ -561,6 +560,7 @@ window.xcHelper = (function($, xcHelper) {
             function isActive($ele) {
                 if ($ele == null) {
                     console.error("undefined element!");
+                    return;
                 }
                 return ($ele.is(":visible") && !$ele.is("[disabled]"));
             }

@@ -117,7 +117,7 @@ window.DagPanel = (function($, DagPanel) {
 
             XcalarMakeRetina(retName, tableName)
             .then(function() {
-                console.log('Create New Retina', retName, 'for', tableName);
+                // console.log('Create New Retina', retName, 'for', tableName);
                 $retTab.data('retname', retName);
                 $retTab.removeClass('unconfirmed');
                 $input.blur();
@@ -596,7 +596,7 @@ window.Dag = (function($, Dag) {
                 deferred.resolve();
             })
             .fail(function(error) {
-                console.log("list retina parameters fails!");
+                console.error("list retina parameters fails!");
                 deferred.reject(error);
             });
         }
@@ -623,8 +623,8 @@ window.Dag = (function($, Dag) {
             return (tableName + '0');
         }
         var $dagTableTitle = $tableTitles.filter(function() {
-                                return ($(this).text() === tableName);
-                             });
+            return ($(this).text() === tableName);
+        });
 
         var srcTableText = $dagTableTitle.closest('.dagTableWrap')
                               .find('.actionType')
@@ -720,7 +720,7 @@ window.Dag = (function($, Dag) {
         // List All Retinas and now append to first table
         XcalarListRetinas()
         .then(function(listRetinasOutput) {
-            console.log(listRetinasOutput);
+            // console.log(listRetinasOutput);
             var len =  listRetinasOutput.numRetinas;
             var retinas = listRetinasOutput.retinaDescs;
             var promises = [];
@@ -874,15 +874,15 @@ window.Dag = (function($, Dag) {
             return (drawDagHelper(dagObj));
         })
         .fail(function(error) {
-            console.log("drawDag fail!");
+            console.error("drawDag fail!");
             deferred.reject(error);
         });
         
         function drawDagHelper(dagObj) {
             var prop = {
-                x : 0,
-                y : 0,
-                childCount : 0
+                x         : 0,
+                y         : 0,
+                childCount: 0
             };
             var index = 0;
             var dagArray = dagObj.node;
@@ -1221,7 +1221,7 @@ window.DagModal = (function($, DagModal){
                     .not(".unfilled").each(function() {
                         var name = $(this).find(".paramName").text();       
                         var val = $(this).find(".paramVal").val();
-                        console.log("Name: " + name + ", val: " + val);
+                        // console.log("Name: " + name + ", val: " + val);
                         promises.push(XcalarAddParameterToRetina
                                             .bind(this, retName, name, val));
                     });
@@ -1238,6 +1238,7 @@ window.DagModal = (function($, DagModal){
                 if (retName === "") {
                     // XXX: Insert hack in case demo fail
                 }
+                var str;
                 switch ($table.find("td:first").text()) {
                     case ("filter"):
                         var $editableDivs = $table.find('.editableParamDiv');
@@ -1269,9 +1270,9 @@ window.DagModal = (function($, DagModal){
                                 break;
                             default:
                                 console.log("currently not supported filter");
-                                return;
+                                return (promiseWrapper(null));
                         }
-                        var str = filter + "(" + str1 + "," + str2 + ")";
+                        str = filter + "(" + str1 + "," + str2 + ")";
                         console.log("Filter String:", str);
                         paramInput.paramFilter = new XcalarApiParamFilterT();
                         paramInput.paramFilter.filterStr = str;
@@ -1279,9 +1280,8 @@ window.DagModal = (function($, DagModal){
                                                    dagId,
                                                    XcalarApisT.XcalarApiFilter,
                                                    paramInput));
-                        break;
                     case ("Load"):
-                        var str = $(".editableParamDiv").text();
+                        str = $(".editableParamDiv").text();
                         str = str.replace(/\+/g, "");
                         console.log(str);
                         paramInput.paramLoad = new XcalarApiParamLoadT();
@@ -1290,7 +1290,6 @@ window.DagModal = (function($, DagModal){
                                                    dagId,
                                                    XcalarApisT.XcalarApiBulkLoad,
                                                    paramInput));
-                        break;
                     default:
                         console.log("currently not supported");
                         break;
@@ -1519,20 +1518,21 @@ window.DagModal = (function($, DagModal){
             return;
         }
 
-        var paramQueryLen = gRetinaObj[id]['paramQuery'].length;
-        for (var i = 0; i < paramQueryLen; i++) {
+        var i;
+        var paramQueryLen = gRetinaObj[id].paramQuery.length;
+        for (i = 0; i < paramQueryLen; i++) {
             $dagModal.find('.editableParamDiv').eq(i)
-                .html(gRetinaObj[id]['paramQuery'][i]);
+                .html(gRetinaObj[id].paramQuery[i]);
         }
 
         var $tbody = $dagModal.find(".tableWrapper tbody");
-        var paramListLen = gRetinaObj[id]['params'].length;
-        for (var i = 0; i < paramListLen; i++) {
+        var paramListLen = gRetinaObj[id].params.length;
+        for (i = 0; i < paramListLen; i++) {
             $tbody.find(".unfilled:first")
                 .removeClass("unfilled")
-                .find(".paramName").text(gRetinaObj[id]['params'][i]['name'])
+                .find(".paramName").text(gRetinaObj[id].params[i].name)
                 .next().find(".paramVal")
-                .val(gRetinaObj[id]['params'][i]['val']);
+                .val(gRetinaObj[id].params[i].val);
         }
 
         $('#addNewParameterizedQuery').trigger("click");

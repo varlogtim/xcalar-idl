@@ -247,7 +247,7 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function scrollMatchIntoView($match) {
-        var $modalWindow = $jsonWrap.find('.prettyJson')
+        var $modalWindow = $jsonWrap.find('.prettyJson');
         var modalHeight = $modalWindow.height();
         var scrollTop = $modalWindow.scrollTop();
         var matchOffsetTop = $match.position().top;

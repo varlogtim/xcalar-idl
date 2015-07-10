@@ -228,10 +228,12 @@ function dragdropMouseDown(el, event) {
                     (dragObj.element.position().left) +
                     'px;top:' + shadowTop + 'px;"></div>');
     createDropTargets();
+
+    var timer;
     if (gTables[dragObj.tableNum].tableCols.length > 50) {
-        var timer = 100;
+        timer = 100;
     } else {
-        var timer = 40;
+        timer = 40;
     }
     dragdropMoveMainFrame(dragObj, timer);
 }
@@ -307,14 +309,15 @@ function reorderAfterColumnDrop() {
 function dragdropMoveMainFrame(dragObj, timer) {
     // essentially moving the horizontal mainframe scrollbar if the mouse is
     // near the edge of the viewport
+    var $mainFrame = $('#mainFrame');
+    var left;
+
     if (gMouseStatus === 'movingCol' || gMouseStatus === 'movingTable') {
         if (dragObj.pageX > dragObj.windowWidth - 20) {
-            var $mainFrame = $('#mainFrame');
-            var left = $mainFrame.scrollLeft() + 40;
+            left = $mainFrame.scrollLeft() + 40;
             $mainFrame.scrollLeft(left);
         } else if (dragObj.pageX < 20) {
-            var $mainFrame = $('#mainFrame');
-            var left = $mainFrame.scrollLeft() - 40;
+            left = $mainFrame.scrollLeft() - 40;
             $mainFrame.scrollLeft(left);
         }
         setTimeout(function() {
@@ -422,6 +425,7 @@ function createTransparentDragDropCol() {
 function createDropTargets(dropTargetIndex, swappedColIndex) {
     var dragObj = gDragObj;
     var dragMargin = 30;
+    var colLeft;
     // targets extend this many pixels to left of each column
    
     if (!dropTargetIndex) {
@@ -433,7 +437,7 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
                 i++;
                 return true;  
             }
-            var colLeft = $(this).position().left;
+            colLeft = $(this).position().left;
             var targetWidth;
 
             if ((dragObj.colWidth - dragMargin) <
@@ -470,7 +474,7 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
         // targets have already been created, so just adjust the one
         // corresponding to the column that was swapped
         var swappedCol = dragObj.table.find('th:eq(' + swappedColIndex + ')');
-        var colLeft = swappedCol.position().left;
+        colLeft = swappedCol.position().left;
         $('#dropTarget' + dropTargetIndex).attr('id',
                                                 'dropTarget' + swappedColIndex);
         var dropTarget = $('#dropTarget' + swappedColIndex);
@@ -1093,10 +1097,10 @@ function sortAllTableColumns(tableNum, direction) {
     var numCols = tableCols.length;
     var dataCol;
     if (tableCols[numCols - 1].name === 'DATA') {
-        dataCol = tableCols.splice(numCols - 1, 1)[0]; 
+        dataCol = tableCols.splice(numCols - 1, 1)[0];
     }
 
-    var sortedCols = tableCols.sort(function(a, b) {
+    tableCols.sort(function(a, b) {
         a = a.name.toLowerCase();
         b = b.name.toLowerCase();
 
@@ -1108,6 +1112,7 @@ function sortAllTableColumns(tableNum, direction) {
             return (0);
         }
     });
+
     if (dataCol) {
         tableCols.push(dataCol);
         numCols--;
@@ -1401,7 +1406,7 @@ function addColListeners($table, tableNum) {
             "classes"   : "tdMenu", // specify classes to update colmenu's class attr
             "mouseCoors": {x: event.pageX, y: yCoor}
         });
-        if ($td.children('.highlightBox').length != 0) {
+        if ($td.children('.highlightBox').length !== 0) {
             $('.highlightBox').remove();
             return;
         }
@@ -1785,43 +1790,42 @@ function functionBarEnter($colInput) {
     .fail(deferred.reject);
 
     return (deferred.promise());
+}
 
-    function parseFunc(funcString, colId, tableNum, modifyCol) {
-        // Everything must be in a "name" = function(args) format
-        var open   = funcString.indexOf("\"");
-        var close  = (funcString.substring(open + 1)).indexOf("\"") + open + 1;
-        var name   = funcString.substring(open + 1, close);
-        var funcSt = funcString.substring(funcString.indexOf("=") + 1);
-        var progCol;
+function parseFunc(funcString, colId, tableNum, modifyCol) {
+    // Everything must be in a "name" = function(args) format
+    var open   = funcString.indexOf("\"");
+    var close  = (funcString.substring(open + 1)).indexOf("\"") + open + 1;
+    var name   = funcString.substring(open + 1, close);
+    var funcSt = funcString.substring(funcString.indexOf("=") + 1);
+    var progCol;
 
-        if (modifyCol) {
-            progCol = gTables[tableNum].tableCols[colId - 1];
-        } else {
-            progCol = ColManager.newCol();
-        }
-        // console.log(progCol)
-        progCol.userStr = funcString;
-        progCol.name = name;
-        progCol.func = cleanseFunc(funcSt);
-        progCol.index = colId;
+    if (modifyCol) {
+        progCol = gTables[tableNum].tableCols[colId - 1];
+    } else {
+        progCol = ColManager.newCol();
+    }
+    // console.log(progCol)
+    progCol.userStr = funcString;
+    progCol.name = name;
+    progCol.func = cleanseFunc(funcSt);
+    progCol.index = colId;
 
-        return (progCol);
+    return (progCol);
+}
+
+function cleanseFunc(funcString) {
+    // funcString should be: function(args)
+    var open     = funcString.indexOf("(");
+    var close    = funcString.lastIndexOf(")");
+    var funcName = jQuery.trim(funcString.substring(0, open));
+    var args     = (funcString.substring(open + 1, close)).split(",");
+
+    for (var i = 0; i < args.length; i++) {
+        args[i] = jQuery.trim(args[i]);
     }
 
-    function cleanseFunc(funcString) {
-        // funcString should be: function(args)
-        var open     = funcString.indexOf("(");
-        var close    = funcString.lastIndexOf(")");
-        var funcName = jQuery.trim(funcString.substring(0, open));
-        var args     = (funcString.substring(open + 1, close)).split(",");
-
-        for (var i = 0; i < args.length; i++) {
-            args[i] = jQuery.trim(args[i]);
-        }
-
-        return ({func: funcName, args: args});
-    }
-
+    return ({func: funcName, args: args});
 }
 
 function dropdownClick($el, options) {
@@ -1897,18 +1901,18 @@ function dropdownClick($el, options) {
     var topMargin  = options.type === "tdDropdown" ? 15 : -4;
     var leftMargin = 5;
 
+    var left;
+    var top;
     if (options.mouseCoors) {
-        var left = options.mouseCoors.x - 5;
-        var top = options.mouseCoors.y + topMargin;
+        left = options.mouseCoors.x - 5;
+        top = options.mouseCoors.y + topMargin;
     } else {
-        var top  = $el[0].getBoundingClientRect().bottom + topMargin;
-        var left = $el[0].getBoundingClientRect().left + leftMargin;
+        top = $el[0].getBoundingClientRect().bottom + topMargin;
+        left = $el[0].getBoundingClientRect().left + leftMargin;
     }
 
-    
-
-    $menu.css({"top": top, "left": left});
-    $menu.show();
+    $menu.css({"top": top, "left": left})
+        .show();
 
     $menu.closest('.xcTheadWrap').css('z-index', '10');
 
@@ -1957,7 +1961,7 @@ function changeColumnType($typeList) {
     }
 
     mapStr += colName + ")";
-    var options = {replaceColumn : true};
+    var options = {replaceColumn: true};
     xcFunction.map(colNum, tableNum, newColName, mapStr, options);
 }
 
@@ -1973,7 +1977,7 @@ function resetColMenuInputs($el) {
     $menu.find('.regex').next().find('input').val("*");
 }
 
-function highlightColumn(el, keepHighlighted) {
+function highlightColumn(el) {
     var index    = xcHelper.parseColNum(el);
     var tableNum = parseInt(el.closest('.dataTable').attr('id').
                        substring(7));

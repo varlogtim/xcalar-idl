@@ -74,12 +74,13 @@ window.xcFunction = (function ($, xcFunction) {
         var msgId = StatusMessage.addMsg(msg);
         showWaitCursor();
 
-        var sqlOptions = {"operation": "aggregate",
-                          "tableName": tableName,
-                          "colName"  : frontColName,
-                          "colIndex" : colNum,
-                          "operator" : aggrOp,
-                         };
+        var sqlOptions = {
+            "operation": "aggregate",
+            "tableName": tableName,
+            "colName"  : frontColName,
+            "colIndex" : colNum,
+            "operator" : aggrOp
+        };
         XcalarAggregate(backColName, tableName, aggrOp, sqlOptions)
         .then(function(value){
             // show result in alert modal
@@ -446,20 +447,20 @@ window.xcFunction = (function ($, xcFunction) {
         WSManager.addTable(rNewName);
         xcHelper.lockTable(rTableNum);
         var sqlOptions1 = {
-                "operation"   : "mapColumn",
-                "srcTableName": lTableName,
-                "newTableName": lNewName,
-                "colName"     : lFieldName,
-                "mapString"   : lMapString
-            };
+            "operation"   : "mapColumn",
+            "srcTableName": lTableName,
+            "newTableName": lNewName,
+            "colName"     : lFieldName,
+            "mapString"   : lMapString
+        };
 
         var sqlOptions2 = {
-                "operation"   : "mapColumn",
-                "srcTableName": rTableName,
-                "newTableName": rNewName,
-                "colName"     : rFieldName,
-                "mapString"   : rMapString
-            }
+            "operation"   : "mapColumn",
+            "srcTableName": rTableName,
+            "newTableName": rNewName,
+            "colName"     : rFieldName,
+            "mapString"   : rMapString
+        };
 
         var deferred1 = XcalarMap(lFieldName, lMapString,
                                     lTableName, lNewName, sqlOptions1);
@@ -576,16 +577,17 @@ window.xcFunction = (function ($, xcFunction) {
 
         var table = gTables[tableNum];
         var sqlOptions = {
-                    "operation": "renameTable",
-                    "oldName": oldTableName,
-                    "newName": newTableName};
+            "operation": "renameTable",
+            "oldName"  : oldTableName,
+            "newName"  : newTableName
+        };
         XcalarRenameTable(oldTableName, newTableName, sqlOptions)
         .then(function() {
 
             WSManager.renameTable(oldTableName, newTableName);
             // does renames for gTables, worksheet, rightsidebar, dag
             table.tableName = newTableName;
-            gTableIndicesLookup[newTableName] = 
+            gTableIndicesLookup[newTableName] =
                                               gTableIndicesLookup[oldTableName];
             gTableIndicesLookup[newTableName].tableName = newTableName;
             delete gTableIndicesLookup[oldTableName];
@@ -691,8 +693,10 @@ window.xcFunction = (function ($, xcFunction) {
                     break;
                 case "fail":
                     // when deferred2 already fail, delete this table:
-                    var sqlOptions = {"operation": "deleteTable",
-                                      "tableName": res.tableName}
+                    var sqlOptions = {
+                        "operation": "deleteTable",
+                        "tableName": res.tableName
+                    };
                     XcalarDeleteTable(res.tableName, sqlOptions)
                     .always(function() {
                         console.error("Parallel index fails in rightTable",
@@ -712,8 +716,10 @@ window.xcFunction = (function ($, xcFunction) {
             switch (status2) {
                 case "done":
                     // when deferred2 done, delete right table
-                    var sqlOptions = {"operation": "deleteTable",
-                                      "tableName": rightResult.tableName}
+                    var sqlOptions = {
+                        "operation": "deleteTable",
+                        "tableName": rightResult.tableName
+                    };
                     XcalarDeleteTable(rightResult.tableName, sqlOptions)
                     .always(function() {
                         console.error("Parallel index fails in leftTable", error);
@@ -771,8 +777,10 @@ window.xcFunction = (function ($, xcFunction) {
             switch (status1) {
                 case "done":
                     // when deferred1 done, delete left table
-                    var sqlOptions = {"operation": "deleteTable",
-                                      "tableName": leftResult.tableName};
+                    var sqlOptions = {
+                        "operation": "deleteTable",
+                        "tableName": leftResult.tableName
+                    };
                     XcalarDeleteTable(leftResult.tableName)
                     .always(function() {
                         console.error("Parallel index fails in rightTable", error);

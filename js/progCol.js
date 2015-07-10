@@ -112,7 +112,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         if (!newProgCol) {
-            var name = name || "newCol";
+            name = name || "newCol";
 
             newProgCol = ColManager.newCol({
                 "index"   : newColid,
@@ -138,7 +138,7 @@ window.ColManager = (function($, ColManager) {
         $tableWrap.find('.th.col' + (newColid - 1)).after(columnHeadHTML);
 
         // get the first row in UI and start to add td to each row
-        var numRow        = $table.find("tbody tr").length;
+        // var numRow = $table.find("tbody tr").length;
         var idOfFirstRow  = $table.find("tbody tr:first").attr("class");
         var idOfLastRow  = $table.find("tbody tr:last").attr("class");
         var startingIndex = idOfFirstRow ?
@@ -194,6 +194,10 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.execCol = function(progCol, tableNum, args) {
         var deferred = jQuery.Deferred();
+        var userStr;
+        var regex;
+        var matches;
+        var fieldName;
 
         switch (progCol.func.func) {
             case ("pull"):
@@ -231,12 +235,12 @@ window.ColManager = (function($, ColManager) {
                 deferred.resolve();
                 break;
             case ("map"):
-                var userStr = progCol.userStr;
-                var regex = new RegExp(' *" *(.*) *" *= *map *[(] *(.*) *[)]',
+                userStr = progCol.userStr;
+                regex = new RegExp(' *" *(.*) *" *= *map *[(] *(.*) *[)]',
                                        "g");
-                var matches = regex.exec(userStr);
+                matches = regex.exec(userStr);
                 var mapString = matches[2];
-                var fieldName = matches[1];
+                fieldName = matches[1];
 
                 progCol.func.func = "pull";
                 progCol.func.args[0] = fieldName;
@@ -244,7 +248,7 @@ window.ColManager = (function($, ColManager) {
                 progCol.isNewCol = false;
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
-                var options = {replaceColumn : true};
+                var options = {replaceColumn: true};
                 xcFunction.map(progCol.index, tableNum, fieldName, mapString,
                                options)
                 .then(deferred.resolve)
@@ -254,12 +258,12 @@ window.ColManager = (function($, ColManager) {
                 });
                 break;
             case ("filter"):
-                var userStr = progCol.userStr;
-                var regex = new RegExp(' *" *(.*) *" *= *filter *[(] *(.*) *[)]'
+                userStr = progCol.userStr;
+                regex = new RegExp(' *" *(.*) *" *= *filter *[(] *(.*) *[)]'
                                        , "g");
-                var matches = regex.exec(userStr);
+                matches = regex.exec(userStr);
                 var fltString = matches[2];
-                var fieldName = matches[1];
+                fieldName = matches[1];
 
                 progCol.func.func = "pull";
                 progCol.func.args[0] = fieldName;

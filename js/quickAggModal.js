@@ -260,19 +260,20 @@ window.AggModal = (function($, AggModal) {
             if (cols.type === "integer" || cols.type === "decimal") {
                 // for duplicated columns, no need to trigger thrift call
                 if (dupCols[j]) {
-                    console.log("Duplicated column", j);
+                    // console.log("Duplicated column", j);
                     continue;
                 }
 
                 var dups = checkDupCols(j);
-                dups.forEach(function(dupColNum) {
+                for (var t = 0; t < dups.length; t++) {
+                    var dupColNum = dups[t];
                     dupCols[dupColNum] = true;
                     if (dupColNum > j) {
                         $("#mainAgg2").find(".aggCol:not(.labels)").eq(dupColNum)
                             .find(".aggTableField:not(.colLabel)").eq(j)
                                 .html("1").css("background-color", "");
                     }
-                });
+                }
 
                 var $colHeader = $("#xcTable" + tableNum + " .th.col" +
                                     colNum + " .header");
@@ -312,14 +313,15 @@ window.AggModal = (function($, AggModal) {
             if (cols.type === "integer" || cols.type === "decimal") {
                 // for duplicated columns, no need to trigger thrift call
                 if (dupCols[j]) {
-                    console.log("Duplicated column", j);
+                    // console.log("Duplicated column", j);
                     continue;
                 }
 
                 var dups = checkDupCols(j);
-                dups.forEach(function(dupColNum) {
+                for (var t = 0; t < dups.length; t++) {
+                    var dupColNum = dups[t];
                     dupCols[dupColNum] = true;
-                });
+                }
 
                 var $colHeader = $("#xcTable" + tableNum + " .th.col" +
                                     colNum + " .header");
@@ -413,7 +415,7 @@ window.AggModal = (function($, AggModal) {
                                         "rgba(66, 158, 212," + val + ")");
                     } else {
                         $container.css("background-color",
-                                        "rgba(66, 158, 212," + (-1*val) + ")");
+                                        "rgba(66, 158, 212," + (-1 * val) + ")");
                     }
                 }
             });

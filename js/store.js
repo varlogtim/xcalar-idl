@@ -96,7 +96,7 @@ function commitToStorage(atStartup) {
                 "sql"          : SQL.getHistory(),
                 "scratchPad"   : scratchPadText,
                 "datacarts"    : DataCart.getCarts(),
-                "helpStatusOff": HelpController.isOff(),
+                "helpStatusOff": HelpController.isOff()
             };
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
@@ -216,7 +216,6 @@ window.KVStore = (function($, KVStore) {
     };
 
     KVStore.getAndParse = function(key) {
-        console.log("getting "+key);
         var deferred = jQuery.Deferred();
         XcalarKeyLookup(key)
         .then(function(value) {
@@ -224,7 +223,7 @@ window.KVStore = (function($, KVStore) {
             if (value != null && value.value != null && value.value !== "") {
                 try {
                     value = JSON.parse(value.value);
-                    console.log("Parsed result", value);
+                    // console.log("Parsed result", value);
                     deferred.resolve(value);
                 } catch(err) {
                     console.error(err, value);
@@ -251,7 +250,7 @@ window.KVStore = (function($, KVStore) {
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("Put to KV Store fails!");
+            console.error("Put to KV Store fails!");
             deferred.reject(error);
         });
 
@@ -263,11 +262,11 @@ window.KVStore = (function($, KVStore) {
 
         XcalarKeyDelete(key)
         .then(function() {
-            console.log("Delete in KV Store succeed!");
+            // console.log("Delete in KV Store succeed!");
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("Delete in KV Store fails!");
+            console.error("Delete in KV Store fails!");
             deferred.reject(error);
         });
 

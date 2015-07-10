@@ -21,12 +21,13 @@ function freeAllResultSets() {
 
 function freeAllResultSetsSync() {
     var promises = [];
+    var i, len;
 
-    for (var i = 0; i < gTables.length; i++) {
+    for (i = 0, len = gTables.length; i < len; i++) {
         promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
     }
 
-    for (var i = 0; i < gHiddenTables.length; i++) {
+    for (i = 0, len = gHiddenTables.length; i < len; i++) {
         promises.push(XcalarSetFree.bind(this, gHiddenTables[i].resultSetId));
     }
 
@@ -64,7 +65,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     var resultSetId = gTables[tableNum].resultSetId;
     XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function(){
-        return (generateDataColumnJson(resultSetId,null, info.tableName,
+        return (generateDataColumnJson(resultSetId, null, info.tableName,
                                        false, numRowsToAdd));
     })
     .then(function(jsonObj, keyName) {

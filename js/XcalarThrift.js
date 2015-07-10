@@ -78,12 +78,12 @@ function sleep(val) {
 
     var end = Date.now() + parse(val);
 
-    while(Date.now() < end);
+    while (Date.now() < end) {}
 }
 
 // Should check if the function returns a promise
 // but that would require an extra function call
-Function.prototype.log = function() {
+window.Function.prototype.log = function() {
     var fn = this;
     var args = Array.prototype.slice.call(arguments);
     if (fn && typeof fn === "function") {
@@ -98,7 +98,7 @@ Function.prototype.log = function() {
     }
 };
 
-Function.prototype.bind = function() {
+window.Function.prototype.bind = function() {
     var fn = this;
     var args = Array.prototype.slice.call(arguments);
     var obj = args.shift();
@@ -170,10 +170,10 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     } else {
         loadArgs.csv.hasHeader = false;
     }
-    if (moduleName != "" && funcName != "") {
+    if (moduleName !== "" && funcName !== "") {
         loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
         loadArgs.pyLoadArgs.moduleName = moduleName;
-        loadArgs.pyLoadArgs.funcName = funcName.substring(0, funcName.length-2);
+        loadArgs.pyLoadArgs.funcName = funcName.substring(0, funcName.length - 2);
     }
 
     var formatType;
@@ -192,10 +192,11 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             break;
         default:
             formatType = DfFormatTypeT.DfFormatUnknown;
+            break;
     }
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType, 0,
                                       loadArgs);
- 
+
     var def1 = xcalarLoad(tHandle, url, datasetName, formatType, 0, loadArgs);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
@@ -214,7 +215,7 @@ function XcalarExport(tablename, filename, isBQ, sqlOptions) {
 
     var deferred = jQuery.Deferred();
     var workItem = xcalarExportWorkItem(tablename, filename, isBQ);
- 
+
     var def1 = xcalarExport(tHandle, tablename, filename, isBQ);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
@@ -306,8 +307,8 @@ function XcalarDeleteTable(tableName, sqlOptions) {
 }
 
 function XcalarRenameTable(oldTableName, newTableName, sqlOptions) {
-    if (tHandle == null || oldTableName == undefined || oldTableName == "" ||
-        newTableName == undefined || newTableName == "") {
+    if (tHandle == null || oldTableName == null || oldTableName === "" ||
+        newTableName == null || newTableName === "") {
         return (promiseWrapper(null));
     }
 
@@ -322,7 +323,7 @@ function XcalarRenameTable(oldTableName, newTableName, sqlOptions) {
         deferred.reject(thriftLog("XcalarRenameTable", error));
     });
 
-    return(deferred.promise());
+    return (deferred.promise());
 }
 
 function XcalarSample(datasetName, numEntries) {
@@ -748,7 +749,7 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
 
     var deferred = jQuery.Deferred();
     var workItem = xcalarJoinWorkItem(left, right, dst, joinType);
- 
+
     var def1 = xcalarJoin(tHandle, left, right, dst, joinType);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)

@@ -267,13 +267,13 @@ window.WSManager = (function($, WSManager) {
 
         activeWorsheet = wsIndex;
 
-        var date    = worksheets[activeWorsheet].date || xcHelper.getDate();
+        // update worksheet created date
+        var date = worksheets[activeWorsheet].date || xcHelper.getDate();
+        $workspaceDateSection.text(date);
+
         var $tabs   = $workSheetTabSection.find(".worksheetTab");
         var $tables = $("#mainFrame .xcTableWrap");
         var $dags   = $("#dagPanel .dagWrap");
-
-        // update worksheet created date
-        $workspaceDateSection.text(date);
 
         // refresh worksheet tab
         xcHelper.removeSelectionRange();
@@ -334,21 +334,25 @@ window.WSManager = (function($, WSManager) {
      */
     WSManager.focusOnLastTable = function() {
         var $mainFrame = $('#mainFrame');
+        var index = -1;
 
         for (var i = gTables.length - 1; i >= 0; i--) {
             var tableName = gTables[i].tableName;
 
             if (WSManager.getWSFromTable(tableName) === activeWorsheet) {
-                var index = i;
-                var leftPos = $('#xcTableWrap' + index).position().left +
-                                $mainFrame.scrollLeft();
-                $mainFrame.animate({scrollLeft: leftPos})
-                          .promise()
-                           .then(function(){
-                                focusTable(index);
-                            });
+                index = i;
                 break;
             }
+        }
+
+        if (index >= 0) {
+            var leftPos = $('#xcTableWrap' + index).position().left +
+                            $mainFrame.scrollLeft();
+            $mainFrame.animate({scrollLeft: leftPos})
+                        .promise()
+                        .then(function(){
+                            focusTable(index);
+                        });
         }
     };
 

@@ -45,7 +45,7 @@ window.FileBrowser = (function($, FileBrowser) {
             maxHeight = Math.max(minHeight, maxHeight);
             $fileBrowser.css({
                 "margin": 0,
-                "width": maxWidth,
+                "width" : maxWidth,
                 "height": maxHeight
             });
 
@@ -86,8 +86,8 @@ window.FileBrowser = (function($, FileBrowser) {
         var minWidth = 590;
         var minHeight = 400;
         $fileBrowser.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
             "containment": "window"
         });
 
@@ -671,7 +671,7 @@ window.FileBrowser = (function($, FileBrowser) {
         }
 
         $container.find("grid-unit").removeClass("active");
-        var $grid = $container.find(str).eq(0).closest('grid-unit')
+        var $grid = $container.find(str).eq(0).closest('grid-unit');
         $grid.addClass('active');
         updateFileName($grid);
     }

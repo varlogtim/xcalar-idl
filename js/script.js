@@ -83,14 +83,14 @@ function infScrolling(tableNum) {
 
                 var rowNumber = topRowNum - numRowsToAdd;
                 var lastRowToDisplay = table.find('tbody tr:lt(40)');
-                var tableName = gTables[dynTableNum].tableName;
+
                 info = {
                     "numRowsToAdd"    : numRowsToAdd,
                     "numRowsAdded"    : 0,
                     "targetRow"       : rowNumber,
                     "lastRowToDisplay": lastRowToDisplay,
                     "bulk"            : false,
-                    "tableName"       : tableName
+                    "tableName"       : gTables[dynTableNum].tableName
                 };
 
                 goToPage(rowNumber, numRowsToAdd, RowDirection.Top, false, info)
@@ -115,7 +115,6 @@ function infScrolling(tableNum) {
                 numRowsToAdd = Math.min(gNumEntriesPerPage,
                                 gTables[dynTableNum].resultSetMax -
                                 gTables[dynTableNum].currentRowNumber);
-                var tableName = gTables[dynTableNum].tableName;
                 info = {
                     "numRowsToAdd": numRowsToAdd,
                     "numRowsAdded": 0,
@@ -123,8 +122,8 @@ function infScrolling(tableNum) {
                                     numRowsToAdd,
                     "lastRowToDisplay": gTables[dynTableNum].currentRowNumber +
                                         numRowsToAdd,
-                    "bulk"    : false,
-                    "tableName": tableName
+                    "bulk"     : false,
+                    "tableName": gTables[dynTableNum].tableName
                 };
                 
                 goToPage(gTables[dynTableNum].currentRowNumber, numRowsToAdd,
@@ -664,8 +663,8 @@ function initializeTable() {
             }
 
             if (failures.length > 0) {
-                for (var i = 0; i < failures.length; i++) {
-                    console.error(failures[i]);
+                for (var j = 0; j < failures.length; j++) {
+                    console.error(failures[j]);
                 }
 
                 if (failures.length === tableCount) {

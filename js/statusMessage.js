@@ -39,7 +39,7 @@ window.StatusMessage = (function() {
                 $('#viewLocation').remove();
                 $statusText.scrollTop(0);
             }).promise();
-        } 
+        }
         
         $waitingIcon.fadeIn(100);
         if (messages.length === 2) {
@@ -71,10 +71,10 @@ window.StatusMessage = (function() {
                 $secondSpan.addClass('success');
             }
             var messageToRemove = {
-                $span : $successSpan,
-                msgId : msgId,
-                msg : $successSpan.text(),
-                desiredRotations : numRotations + 1
+                $span           : $successSpan,
+                msgId           : msgId,
+                msg             : $successSpan.text(),
+                desiredRotations: numRotations + 1
             };
             messagesToBeRemoved.push(messageToRemove);
             if (!inRotation) {

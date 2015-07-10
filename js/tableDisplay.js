@@ -42,17 +42,15 @@ function refreshTable(newTableName, oldTableName,
 
         if (additionalTableName) {
             var firstTableNum = xcHelper.getTableIndexFromName(oldTableName);
-            var secondTableNum = 
+            var secondTableNum =
                             xcHelper.getTableIndexFromName(additionalTableName);
             var tableToRemove;
-            var tableNumsToRemove;
             if (firstTableNum > secondTableNum) {
                 targetTable = additionalTableName;
                 tableToRemove = oldTableName;
             } else {
                 targetTable = oldTableName;
                 tableToRemove = additionalTableName;
-
             }
 
             tablesToRemove.push(tableToRemove);
