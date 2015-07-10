@@ -207,15 +207,15 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     return (deferred.promise());
 }
 
-function XcalarExport(tablename, filename, sqlOptions) {
+function XcalarExport(tablename, filename, isBQ, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
 
     var deferred = jQuery.Deferred();
-    var workItem = xcalarExportWorkItem(tablename, filename);
+    var workItem = xcalarExportWorkItem(tablename, filename, isBQ);
  
-    var def1 = xcalarExport(tHandle, tablename, filename);
+    var def1 = xcalarExport(tHandle, tablename, filename, isBQ);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(deferred.resolve)

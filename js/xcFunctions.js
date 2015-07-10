@@ -541,7 +541,7 @@ window.xcFunction = (function ($, xcFunction) {
                 "filePath" : location
                          };
 
-        XcalarExport(tableName, fileName, sqlOptions)
+        XcalarExport(tableName, fileName, false, sqlOptions)
         .then(function() {
             var location = hostname + ":/var/tmp/xcalar/" + fileName;
             // add alert

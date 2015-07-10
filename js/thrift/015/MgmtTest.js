@@ -12,6 +12,7 @@
     var TestCaseDisabled = false;
 
     // Test related variables
+    var datasetPrefix = ".XcalarDS.";
     var passes
     ,   fails
     ,   skips
@@ -247,18 +248,6 @@
         })
     }
 
-    function testEditColumn(deferred, testName, currentTestNumber) {
-        xcalarEditColumn(thriftHandle, loadOutput.dataset.name, "", true,
-                         "votes.cool", "votes.cool2", DfFieldTypeT.DfString)
-        .done(function(status) {
-            printResult(status);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        })
-    }
-
     function testRenameNode(deferred, testName, currentTestNumber) {
         xcalarRenameNode(thriftHandle, origTable, "newName")
         .done(function(status) {
@@ -276,18 +265,6 @@
         })
         .fail(function(status) {
             fail(deferred, testName, currentTestNumber, StatusTStr[status]);
-        })
-    }
-
-    function testBogusEditColumn(deferred, testName, currentTestNumber) {
-        xcalarEditColumn(thriftHandle, loadOutput.dataset.name, "", true,
-                         "votes.funny", "votes.funny", DfFieldTypeT.DfMixed)
-        .done(function(status) {
-            printResult(status);
-            fail(deferred, testName, currentTestNumber, status);
-        })
-        .fail(function(reason) {
-            pass(deferred, testName, currentTestNumber);
         })
     }
 
@@ -335,6 +312,31 @@
                          "name", "yelp/user-name")
         .done(function(indexStrOutput) {
             printResult(indexStrOutput);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        })
+    }
+
+    function testGetQuery(deferred, testName, currentTestNumber) {
+        var workItem = new WorkItem();
+        workItem.input = new XcalarApiInputT();
+        workItem.input.indexInput = new XcalarApiIndexInputT();
+        workItem.input.indexInput.source = new XcalarApiNamedInputT();
+        workItem.input.indexInput.dstTable = new XcalarApiTableT();
+
+        workItem.api = XcalarApisT.XcalarApiIndex;
+        workItem.input.indexInput.source.isTable = false;
+        workItem.input.indexInput.source.name = "dataset";
+        workItem.input.indexInput.source.xid = XcalarApiXidInvalidT;
+        workItem.input.indexInput.dstTable.tableName = "dstTable";
+        workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
+        workItem.input.indexInput.keyName = "keyName";
+
+        xcalarApiGetQuery(thriftHandle, workItem)
+        .done(function(getQueryOutput) {
+            console.log("\tquery =" + getQueryOutput.query.toString());
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
@@ -610,6 +612,23 @@
         }
     }
 
+    function testResultSetAbsoluteBogus(deferred, testName, currentTestNumber) {
+        if (makeResultSetOutput2.status === StatusT.StatusOk) {
+            xcalarResultSetAbsolute(thriftHandle,
+                                    makeResultSetOutput2.resultSetId,
+				    281474976710655)
+            .done(function(status) {
+                fail(deferred, testName, currentTestNumber, reason);
+            })
+            .fail(function(reason) {
+                pass(deferred, testName, currentTestNumber);
+            })
+        } else {
+            var reason = "No resultSetId";
+            fail(deferred, testName, currentTestNumber, reason);
+        }
+    }
+
     function testResultSetNextTable(deferred, testName, currentTestNumber) {
         if (makeResultSetOutput2.status === StatusT.StatusOk) {
             xcalarResultSetNext(thriftHandle,
@@ -685,13 +704,13 @@
     }
 
     function testQuery(deferred, testName, currentTestNumber) {
-        var query = "index --key votes.funny --dataset yelp" +
-                    " --dsttable yelp-votesFunnyTable; index --key review_count" +
+        var query = "index --key votes.funny --dataset " + datasetPrefix +
+                    "yelp" + " --dsttable yelp-votesFunnyTable; index --key review_count" +
                     " --srctable yelp-votesFunnyTable --dsttable yelp-review_countTable;" +
                     "  map --eval \"add(1,2)\"  --srctable yelp-votesFunnyTable" +
                     " --fieldName newField --dsttable yelp-mapTable;" +
                     " filter yelp-mapTable \" sub(2,1)\" yelp-filterTable;" +
-                    " groupBy yelp-filterTable \"avg(votes.cool)\" avgCool yelp-groupByTable;" +
+                    " groupBy --srctable yelp-filterTable --eval \"avg(votes.cool)\" --fieldName avgCool --dsttable yelp-groupByTable;" +
                     " join --leftTable yelp-review_countTable --rightTable" +
                     "  yelp-groupByTable --joinTable " + queryTableName;
 
@@ -750,8 +769,13 @@
     function testDag(deferred, testName, currentTestNumber) {
         xcalarDag(thriftHandle,  queryTableName)
         .done(function(dagOutput) {
-            printResult(dagOutput);
-            pass(deferred, testName, currentTestNumber);
+            console.log("dagOutput.numNodes = " + dagOutput.numNodes);
+            if (dagOutput.numNodes != 9) {
+                var reason = "the number of dag node returned is incorrect";
+                fail(deferred, testName, currentTestNumber, reason);
+            } else {
+                pass(deferred, testName, currentTestNumber);
+            }
         })
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
@@ -761,7 +785,7 @@
     function testGroupBy(deferred, testName, currentTestNumber) {
         xcalarGroupBy(thriftHandle, "yelp/user-votes.funny-gt900",
                       "yelp/user-votes.funny-gt900-average",
-                      "avg(votes.funny)", "averageVotesFunny")
+                      "avg(votes.funny)", "averageVotesFunny", true)
         .done(function(groupByOutput) {
             printResult(groupByOutput);
             pass(deferred, testName, currentTestNumber);
@@ -1153,7 +1177,7 @@
     }
 
     function testUploadPython(deferred, testName, currentTestNumber) {
-        xcalarApiUploadPython(thriftHandle, "levi", "strLength",
+        xcalarApiUploadPython(thriftHandle, "MgmtTest", "strLength",
             "def strLength( strVal ):\n  return \"%d\" % len(strVal)\n")
         .done(function(uploadPythonOutput) {
             if (status == StatusT.StatusOk) {
@@ -1217,6 +1241,73 @@
         });
     }
 
+/** None of these tests really work yet. It's just stubs for later
+    function testSessionNew(deferred, testName, currentTestNumber) {
+        xcalarApiSessionNew(thriftHandle, "testSession", false, "")
+        .done(function(status) {
+            printResult(status);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testSessionDelete(deferred, testName, currentTestNumber) {
+        xcalarApiSessionDelete(thriftHandle, "*")
+        .done(function(status) {
+            printResult(status);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testSessionInact(deferred, testName, currentTestNumber) {
+        xcalarApiSessionInact(thriftHandle, "*")
+        .done(function(status) {
+            printResult(status);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testSessionList(deferred, testName, currentTestNumber) {
+        xcalarApiSessionList(thriftHandle, "*")
+        .done(function(sessionListOutput) {
+            printResult(sessionListOutput);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testSessionRename(deferred, testName, currentTestNumber) {
+        xcalarApiSessionRename(thriftHandle, "testSession", "testSession2")
+        .done(function(status) {
+            printResult(status);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
+    function testSessionSwitch(deferred, testName, currentTestNumber) {
+        xcalarApiSessionSwitch(thriftHandle, "testSession2", "testSession3")
+        .done(function(status) {
+            printResult(status);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+*/
     // Witness to bug 103
     function testBulkDeleteTables(deferred, testName, currentTestNumber) {
         xcalarBulkDeleteTables(thriftHandle, "yelp*")
@@ -1292,10 +1383,7 @@
     addTestCase(testCases, testLoad, "load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
-    // XXX Re-enable when editCol fixed
-    addTestCase(testCases, testEditColumn, "edit column", defaultTimeout, TestCaseDisabled, "");
-    // XXX Re-enable when editCol fixed
-    addTestCase(testCases, testBogusEditColumn, "bogus edit column", defaultTimeout, TestCaseDisabled, "875");
+    addTestCase(testCases, testGetQuery, "test get query", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetInt, "index dataset (int)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetStr, "index dataset (str)", defaultTimeout, TestCaseEnabled, "");
@@ -1320,6 +1408,7 @@
     addTestCase(testCases, testMakeResultSetFromTable, "result set (via tables)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testResultSetNextDataset, "result set next (dataset)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testResultSetAbsolute, "result set absolute", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testResultSetAbsoluteBogus, "result set absolute bogus", defaultTimeout, TestCaseEnabled, "95");
     addTestCase(testCases, testResultSetNextTable, "result set next (table)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testFreeResultSetDataset, "free result set (dataset)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testFreeResultSetTable, "free result set (table)", defaultTimeout, TestCaseEnabled, "");
