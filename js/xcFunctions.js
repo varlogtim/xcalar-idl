@@ -312,7 +312,7 @@ window.xcFunction = (function ($, xcFunction) {
                 "newColumnName": newColName};
 
         XcalarGroupBy(operator, newColName, backFieldName, tableName,
-                      newTableName, sqlOptions)
+                      newTableName, true, sqlOptions)
         .then(function() {
             var escapedName = newColName;
             if (newColName.indexOf('.') > -1) {

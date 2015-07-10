@@ -760,7 +760,7 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
 }
 
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
-                       newTableName, sqlOptions) {
+                       newTableName, incSample, sqlOptions) {
     var deferred = jQuery.Deferred();
     var evalStr = generateAggregateString(oldColName, operator);
     if (evalStr === "") {
@@ -768,9 +768,9 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         return (deferred.promise());
     }
     var workItem = xcalarGroupByWorkItem(tableName, newTableName, evalStr,
-                                         newColName);
+                                         newColName, incSample);
     var def1 = xcalarGroupBy(tHandle, tableName, newTableName, evalStr,
-                             newColName);
+                             newColName, incSample);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(deferred.resolve)
