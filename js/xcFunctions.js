@@ -743,7 +743,7 @@ window.xcFunction = (function ($, xcFunction) {
             switch (status1) {
                 case "done":
                     // when both done
-                    dMaeferred.resolve(leftResult, rightResult);
+                    deferred.resolve(leftResult, rightResult);
                     break;
                 case "waiting":
                     // when deferred1 not finish, wait for it
