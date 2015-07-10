@@ -79,7 +79,6 @@ window.xcFunction = (function ($, xcFunction) {
                           "colName"  : frontColName,
                           "colIndex" : colNum,
                           "operator" : aggrOp,
-                          "value"    : val.Value
                          };
         XcalarAggregate(backColName, tableName, aggrOp, sqlOptions)
         .then(function(value){
