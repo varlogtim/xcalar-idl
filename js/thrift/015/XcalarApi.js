@@ -631,7 +631,6 @@ function xcalarListDatasets(thriftHandle) {
 
 function xcalarMakeResultSetFromTable(thriftHandle, tableName) {
     var deferred = jQuery.Deferred();
-
     console.log("xcalarMakeResultSetFromTable(tableName = " + tableName + ")");
 
     var workItem = new XcalarApiWorkItemT();
@@ -1460,8 +1459,8 @@ function xcalarKeyLookup(thriftHandle, key) {
 
 function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
-        "persist = " + persist.toString() + ")");
+    // console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
+    //     "persist = " + persist.toString() + ")");
 
     var workItem = new XcalarApiWorkItemT();
     workItem.input = new XcalarApiInputT();
