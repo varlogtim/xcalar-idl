@@ -400,7 +400,6 @@ window.StatusMessage = (function() {
     function tableVisibility(tableName) {
         var wsNum = WSManager.getWSFromTable(tableName);
         var activeWS = WSManager.getActiveWS();
-
         if (wsNum !== activeWS) {
             return (wsNum);
         }

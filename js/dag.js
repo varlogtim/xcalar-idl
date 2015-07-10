@@ -247,15 +247,19 @@ window.DagPanel = (function($, DagPanel) {
         addColMenuBehaviors($menu);
         dagTableDropDownActions($menu);
         
-        $dagPanel.on('click', '.dagTable:not(.dataStore)', function() {
+        $dagPanel.on('click', '.dagTable:not(.dataStore) .dagTableIcon,'+
+            '.dagTable:not(.dataStore) .icon', function() {
+
             $('.colMenu').hide().removeClass('leftColMenu');
-            var $el = $(this);
-            var tableName = $.trim($el.text());
+            $('#dagSchema').hide();
+            var $dagTable = $(this).closest('.dagTable');
+            var tableName = $.trim($dagTable.find('.tableTitle').text());
             $menu.data('tablename', tableName);
-            $menu.data('tableelement', $el);
+            $menu.data('tableelement', $dagTable);
             var activeFound = false;
             var tableWSIndex;
 
+            // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
                 if ($li.data('tablename') === tableName) {
@@ -281,7 +285,7 @@ window.DagPanel = (function($, DagPanel) {
                 });
             }
 
-            if ($el.hasClass('locked')) {
+            if ($dagTable.hasClass('locked')) {
                 $menu.find('.lockTable').hide();
                 $menu.find('.unlockTable').show();
                 $menu.find('.deleteTable').hide();
@@ -291,29 +295,34 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.find('.deleteTable').show();
             }
 
-
-            var topMargin = -3;
-            var leftMargin = 0;
-            var top = $el[0].getBoundingClientRect().bottom + topMargin;
-            var left = $el[0].getBoundingClientRect().left + leftMargin;
-
-            if ($('#dagPanel').hasClass('midway')) {
-                top -= $('#dagPanel').offset().top;
-            }
-
-            $menu.css({'top': top, 'left': left});
-            $menu.show();
-
-            var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
-                                                    .left;
-
-            if ($menu[0].getBoundingClientRect().right > leftBoundary) {
-                left = $el[0].getBoundingClientRect().right - $menu.width();
-                $menu.css('left', left).addClass('leftColMenu');
-            }
-
+            positionAndShowDagTableDropdown($dagTable, $menu);
+            
             $('body').addClass('noSelection');
         });
+    }
+
+    function positionAndShowDagTableDropdown($dagTable, $menu) {
+        var topMargin = -3;
+        var leftMargin = 0;
+        var top = $dagTable[0].getBoundingClientRect().bottom + topMargin;
+        var left = $dagTable[0].getBoundingClientRect().left + leftMargin;
+
+        // if dagpanel is open halfway we have to change the top position
+        // of colmenu
+        if ($('#dagPanel').hasClass('midway')) {
+            top -= $('#dagPanel').offset().top;
+        }
+
+        $menu.css({'top': top, 'left': left});
+        $menu.show();
+
+        var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
+                                                .left;
+
+        if ($menu[0].getBoundingClientRect().right > leftBoundary) {
+            left = $dagTable[0].getBoundingClientRect().right - $menu.width();
+            $menu.css('left', left).addClass('leftColMenu');
+        }
     }
 
     function getDagTableDropDownHTML() {
@@ -350,7 +359,7 @@ window.DagPanel = (function($, DagPanel) {
             $('#inactiveTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
                 if ($li.data('tablename') === tableName) {
-                    $li.find('.addArchivedBtn').click();
+                    $li.find('.addTableBtn').click();
                     $('#submitTablesBtn').click();
                     return (false);
                 }
@@ -620,6 +629,8 @@ window.Dag = (function($, Dag) {
         $dagTableTitles.text(newTableName)
                        .attr('data-original-title', newTableName)
                        .attr('title', newTableName);
+
+        $dagTableTitles.parent().data('tablename', newTableName);
         var $dagChildrenTitles = $dagPanel.find('.childrenTitle')
                                           .filter(function() {
                                     return ($(this).text() === oldTableName);
@@ -678,6 +689,14 @@ window.Dag = (function($, Dag) {
             $('body').addClass('noSelection');
         });
 
+        $dagWrap.on('mouseenter', '.dagTable', function() {
+            showDagSchema($(this));
+        });
+
+        $dagWrap.on('mouseleave', '.dagTable', function() {
+            $('#dagSchema').remove();
+        });
+
         addColMenuBehaviors($menu);
 
         $menu.find('.createParamQuery').mouseup(function() {
@@ -688,6 +707,55 @@ window.Dag = (function($, Dag) {
         $menu.find('.modifyParams').mouseup(function() {
             DagModal.show($currentIcon);
         });
+    }
+
+   function showDagSchema($dagTable) {
+        $('#dagSchema').remove();
+        var tableName = $dagTable.data('tablename');
+        var table = gTableIndicesLookup[tableName];
+        if (table) {
+            var numCols = table.columns.length;
+            var html = '<div id="dagSchema">' +
+                       '<span class="title">' + tableName +
+                       ' &nbsp;[' + (numCols - 1) + ']</span>' +
+                        '<div class="heading">' +
+                            '<div class="field">field</div>' +
+                            '<div class="type">type</div>' +
+                            '<div class="sample"></div>' +
+                        '</div>';
+            html += '<ul>';
+           
+            for (var i = 0; i < numCols; i++) {
+                if (table.columns[i].name === 'DATA') {
+                    continue;
+                }
+                html += '<li>' +
+                            '<div>' +
+                            table.columns[i].name +
+                            '</div>' +
+                            '<div>' +
+                            table.columns[i].type +
+                            '</div>' +
+                            '<div>' +
+                            // XX SAMPLE DATA GOES HERE
+                            '</div>' +
+                        '</li>';
+            }
+            html += '</ul></div>';
+            var $schema = $(html);
+            $dagTable.append($schema);
+            var height = $schema.height();
+            var top = $dagTable[0].getBoundingClientRect().top - height;
+            top = Math.max(2, top);
+            if ($('#dagPanel').hasClass('midway')) {
+                top -= $('#dagPanel').offset().top;
+            }
+            var left = $dagTable[0].getBoundingClientRect().left + 10;
+            left = Math.min($('#rightSideBar').offset().left -
+                            $schema.width() - 5, left);
+            $schema.css('top', top);
+            $schema.css('left', left);
+        }
     }
 
     function getInputType(api) {
@@ -711,7 +779,7 @@ window.Dag = (function($, Dag) {
         return (inputVal);
     }
 
-    function appendRetinas(){
+    function appendRetinas() {
         var $dagWrap = $('#dagPanel').find('.dagWrap');
         if ($dagWrap.length > 1) {
             return;
@@ -792,6 +860,7 @@ window.Dag = (function($, Dag) {
             }
             
             dagTable += '<div class="dagTable dataStore" ' +
+                        'data-tablename="' + tableName + '" '+
                         'data-type="dataStore" ' +
                         'data-id="' + id + '" ' +
                         'data-url="' + url + '">' +
@@ -806,7 +875,8 @@ window.Dag = (function($, Dag) {
                                 tableName +
                             '</span>';
         } else {
-            dagTable += '<div class="dagTable ' + state + '">' +
+            dagTable += '<div class="dagTable ' + state + '" ' +
+                            'data-tablename="' + tableName + '">' +
                             '<div class="dagTableIcon"></div>' +
                             '<div class="icon"></div>' +
                             '<span class="tableTitle" ' +

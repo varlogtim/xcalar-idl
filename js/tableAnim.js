@@ -2211,7 +2211,8 @@ function isTableScrollable(tableNum) {
 function addRowScroller(tableNum) {
     var rowScrollerHTML =
         '<div id="rowScroller' + tableNum +
-        '" class="rowScroller" data-toggle="tooltip"' +
+        '" class="rowScroller" data-toggle="tooltip" ' +
+            'data-container="body" '+
             'data-placement="bottom" title="scroll to a row">' +
             '<div id="rowMarker' + tableNum + '" class="rowMarker">' +
                 '<div class="subRowMarker top"></div>' +

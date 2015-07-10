@@ -2,10 +2,10 @@
 #dagPanel {
     .position(absolute, @top: 78px);
     .size(@width: 100%, @height: ~"calc(100% - 152px)");
-    z-index: 9; 
+    z-index: 15;
     background-color: rgb(140, 173, 181);
     .image("/images/dag-background.png", right, top, repeat);
-    .transition (~"transform 0.4s linear, z-index 0.3s");
+    .transition (~"transform 0.4s linear");
 
     .topBorder {
         .position(relative);
@@ -22,7 +22,7 @@
             border: 1px solid @color-bar-border;
             border-top: none;
             .rounded(0 0 3px 3px);
-            z-index: 10;                                                 
+            z-index: 15;                                               
         }
 
         .tabShadow {
@@ -41,7 +41,7 @@
     }
 
     &.midway {
-        z-index: 9;
+        z-index: 15;
         .transform(translate3d(0, 50%, 0));
 
         #dagPulloutTab {
@@ -51,21 +51,22 @@
         .dagArea {
             height: ~"calc(50% - 10px)";
         }
-        .transition (~"transform 0.3s, z-index 0.3s");
+        .transition (~"transform 0.3s");
     }
 
     &.full {
         z-index: 9;
+        z-index: 15;
     }
 
     &.hidden {
         .transform(translate3d(0, 100%, 0));
-        .transition (~"transform 0.4s linear, z-index 0.3s");
+        .transition (~"transform 0.4s linear");
     }
 
     #closeDag {
         .position(absolute, @top: 16px, @right: 18px);
-        z-index: 50;
+        z-index: 20;
         .iconClose {
             background-image: url(/images/close-icon.png);
         }
@@ -543,7 +544,123 @@
             }
         }
     }
+
+    #dagSchema {
+        position: fixed;
+        top: 100px;
+        display: inline-block;
+        background-color: white;
+        z-index: 21;
+        box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.3);
+        cursor: initial;
+        .noSelection;
+        border-radius: 2px;
+
+        .title {
+            display: block;
+            text-align: center;
+            font-size: 13px;
+            color: white;
+            line-height: 22px;
+            height: 24px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 600;
+            .action-gradient;
+            border-top-left-radius: 2px;
+            border-top-right-radius: 2px;
+            width: 160px;
+            padding: 0 4px;
+        }
+
+        .heading {
+            font-size: 11px;
+            font-weight: bold;
+            border-bottom: 1px solid @color-text-graySoft;
+            margin-top: -1px;
+            height: 20px;
+            &> div {
+                display: inline-block;
+                float: left;
+                margin: 0 5px;
+                white-space: nowrap;
+                text-align: left;
+                width: 60px;
+                line-height: 20px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+
+                &:nth-child(2) {
+                    text-align: center;
+                }
+
+                &:last-child {
+                    display: none; //sample title
+                }
+            }
+        }
+
+        &:after {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: -40px;
+            height: 40px;
+            width: 44px;
+            left: 30px;
+            // background-color: gray;
+        }
+
+        // &:before {
+        //     content: "";
+        //     width: 180px;
+        //     top: -5px;
+        //     height: ~"calc(100% + 5px)";
+        //     z-index: -1;
+        //     display: block;
+        //     position: absolute;
+        //     left: -20px;
+        // }
+
+        ul {
+            overflow-y: auto;
+            max-height: 180px;
+            min-width: 160px;
+            padding: 0px;
+            padding-top: 0px;
+
+            li {
+                height: 20px;
+                // .clearfix;
+                white-space: nowrap;
+                overflow: hidden;
+
+                &> div {
+                    display: inline-block;
+                    float: left;
+                    font-size: 11px;
+                    margin: 0 5px;
+                    white-space: nowrap;
+                    text-align: left;
+                    width: 60px;
+                    line-height: 20px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+
+                    &:nth-child(2) {
+                        text-align: center;
+                    }
+                    &:last-child {
+                        // temporarily hidding the sample data
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
 }
+
 
 .parameterTable() {
     .tableContainer {

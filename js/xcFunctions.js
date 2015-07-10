@@ -391,8 +391,8 @@ window.xcFunction = (function ($, xcFunction) {
             return (refreshTable(newTableName, null, KeepOriginalTables.Keep));
         })
         .then(function() {
-            StatusMessage.success(msgId);
             commitToStorage();
+            StatusMessage.success(msgId);
         })
         .fail(function(error) {
             Alert.error("GroupBy fails", error);
