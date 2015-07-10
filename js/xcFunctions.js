@@ -529,26 +529,26 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // export table
-    xcFunction.exportTable = function(tableNum) {
-        var tableName = gTables[tableNum].tableName;
+    xcFunction.exportTable = function(tableName, exportName) {
         var retName   = $(".retTitle:disabled").val();
 
         if (!retName || retName === "") {
             retName = "testing";
         }
 
-        var fileName = retName + ".csv";
+        // now disable retName
+        // var fileName = retName + ".csv";
         var msg = StatusMessageTStr.ExportTable + ": " + tableName;
         var msgId = StatusMessage.addMsg(msg);
 
-        XcalarExport(tableName, fileName)
+        XcalarExport(tableName, exportName)
         .then(function() {
-            var location = hostname + ":/var/tmp/xcalar/" + fileName;
+            var location = hostname + ":/var/tmp/xcalar/" + exportName;
             // add sql
             SQL.add("Export Table", {
                 "operation": "exportTable",
                 "tableName": tableName,
-                "fileName" : fileName,
+                "fileName" : exportName,
                 "filePath" : location
             });
 

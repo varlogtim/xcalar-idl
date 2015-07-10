@@ -584,6 +584,7 @@ function startupFunctions() {
         loadMonitorPanel();
         DagPanel.setup();
         FileBrowser.setup();
+        ExportModal.setup();
         deferred.resolve();
     })
     .fail(function(error) {

@@ -1643,6 +1643,61 @@
     </section>
   </div>
   <!-- End File Browser Modal -->
+
+  <!-- Export Modal -->
+  <div id="exportModal" class="modalContainer">
+    <!-- Export Modal Header -->
+    <header class="modalHeader">
+      <span class="text">Export Table</span>
+      <div class="close">
+        <span class="icon"></span>
+      </div>
+    </header>
+    <!-- Export Modal Instruction -->
+    <section class="modalInstruction">
+      <div class="icon"></div>
+      <div class="text">
+        Please fill in the file name and choose where to export
+      </div>
+    </section>
+    <!-- Export Modal Top Section-->
+    <section class="modalTopMain">
+      <!-- export name section -->
+      <div class="exportNameSection">
+          <span class="label">Export As:</span>
+          <input id="exportName" class="text" type="text" spellcheck="false">
+      </div>
+      <!-- export path section -->
+      <div class="exportPathSection">
+        <span class="label">Where:</span>
+        <div id="exportLists" class="listSection">
+            <input id="exportPath" class="text" type="text" value="Local Filesystem" spellcheck="false" readonly>
+            <div class="iconWrapper">
+                <span class="icon"></span>
+            </div>
+            <ul class="list">
+               <li class="hint">Choose a connector</li>
+               <li>Google BigQuery</li>
+               <li>Amazon RedShift</li>
+               <li>Amazon S3</li>
+               <li>HDFS</li>
+               <li>Local Filesystem</li>
+               <li>Oracle Exadata</li>
+               <li>HP Vertica</li>
+               <li>Teradata</li>
+            </ul>
+          </div>
+      </div>
+    </section>
+    <!-- Export Modal Main Section -->
+    <section class="modalMain"></section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+      <button type="button" class="btn btnMid confirm">EXPORT</button>
+      <button type="button" class="btn btnMid cancel">CANCEL</button>
+    </section>
+  </div>
+  <!-- End of Export Modal -->
 </div>
 <!-- END CONTAINER -->
 <script src="3rd/d3.min.js" charset="utf-8"></script>
@@ -1709,6 +1764,7 @@
 <script src="/js/statusMessage.js" type="text/javascript"></script>
 <script src="/js/englishStrings.js" type="text/javascript"></script>
 <script src="/js/operationsModal.js" type="text/javascript"></script>
+<script src="/js/exportModal.js" type="text/javascript"></script>
 <script src="/js/authentication.js" type="text/javascript"></script>
 <!-- Start up script -->
 <script>

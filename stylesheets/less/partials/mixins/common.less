@@ -242,6 +242,7 @@
     .noSelection;
     .text {
         color: @color-text-darkGray;
+        .size(@height: @h);
         .font(@line-height: @h);
         padding-left: 10px;
         float: left;
@@ -332,7 +333,7 @@
 }
 
 //style for input box
-.input-box(@w, @h: 25px) {
+.input-box(@w, @h: 25px, @focus: false) {
     input {
         .size(@width: @w, @height: @h);
         .rounded;
@@ -341,8 +342,12 @@
         padding: 0 10px;
 
         &:focus {
-            outline: none;
+            ._focus;
         }
+    }
+
+    ._focus() when (@focus = false) {
+        outline: none;
     }
 }
 

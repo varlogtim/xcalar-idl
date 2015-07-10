@@ -892,8 +892,10 @@ function addTableMenuActions($tableMenu) {
         }
         var $menu    = $(this).closest('.tableMenu');
         var tableNum = parseInt($menu.attr('id').substring(9));
+        var tableName = gTables[tableNum].tableName;
 
-        xcFunction.exportTable(tableNum);
+        ExportModal.show(tableName);
+        // xcFunction.exportTable(tableNum);
     });
 
     $tableMenu.on('mouseup', '.delAllDuplicateCols', function(event) {

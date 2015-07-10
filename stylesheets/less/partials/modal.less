@@ -1057,6 +1057,7 @@
 }
 /* End Of Alert Modal */
 
+/* Workbook Modal */
 #workbookModal {
     .modalBuilder(1000px, 625px);
 
@@ -1371,6 +1372,7 @@
         }
     }
 }
+/* End of Workbook Modal */
 
 /* File Browser Modal */
 #fileBrowserModal {
@@ -1705,6 +1707,73 @@
     }
 }
 // End Of File Browser Modal
+
+/* Export Modal */
+#exportModal {
+    .modalBuilder(520px, 260px);
+    overflow: visible !important;
+
+    .modalHeader {
+        .cursor-move;
+    }
+
+    .modalTopMain {
+        .size(@height: 100px);
+        font-size: 12px;
+        padding: 15px 0;
+
+        .exportNameSection, .exportPathSection {
+            .size(@width: 75%, @height: 35px);
+            .position(relative);
+            margin: 0 auto;
+            padding: 5px 0;
+        }
+
+        .label {
+           .size(@width: 70px, @height: 25px);
+            margin-right: 5px;
+            float: left;
+            .font(@size: 13px, @weight: 700, @line-height: 25px);
+        }
+
+        .exportNameSection {
+            .input-box(@w: ~"calc(100% - 115px)", @h: 25px, @focus: true);
+        }
+
+        .exportPathSection {
+            .listSection {
+                .dropDownList(~"calc(100% - 115px)", 25px);
+                .text {
+                    .size(@width: ~"calc(100% - 30px)");
+                    .font(@size: 13px);
+                    .rounded(3px 0 0 3px);
+                    cursor: default;
+                    .noSelection;
+                }
+                .list {
+                    .rounded(3px 0 0 3px);
+                    .position(@top: 0px);
+                    .font(@size: 13px);
+                }
+                &.open {
+                    box-shadow: none;
+                }
+
+                .hint {
+                    color: @color-text-lightGray;
+                }
+            }
+        }
+    }
+
+    .modalBottom {
+        .btn {
+            margin: 15px 15px 0 0;
+        }
+    }
+}
+/* End Of Export Modal */
+
 #dagParameterModal {
     .modalBuilder(920px, 300px);
 
