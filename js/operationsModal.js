@@ -66,22 +66,6 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
-
-
-        // $('body').on('keydown', function(event) {
-        //     var $list = $operationsModal.find('.modalTopMain')
-        //                                 .find('.list:visible');
-        //     if ($list.length !== 0) {
-        //         var $input = $list.siblings('input');
-        //         if (event.which === keyCode.Down) {
-        //             listHighlight($input, keyCode.Down);
-        //         } else if (event.which === keyCode.Up) {
-        //             listHighlight($input, keyCode.Up);
-        //         }
-        //     }
-            
-        // });
-
         $operationsModal.find('.list').on('mousedown', 'li', function() {
             allowInputChange = false;
         });
@@ -134,6 +118,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         });
 
+        $lastInputFocused = $operationsModal.find('.argument:first');
         $operationsModal.on('focus', 'input', function() {
             $lastInputFocused = $(this);
         });
