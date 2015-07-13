@@ -81,6 +81,10 @@ function sleep(val) {
     while (Date.now() < end) {}
 }
 
+function parseDS(dsName) {
+    return (".XcalarDS." + dsName);
+}
+
 // Should check if the function returns a promise
 // but that would require an extra function call
 window.Function.prototype.log = function() {
@@ -233,7 +237,7 @@ function XcalarDestroyDataset(dsName, sqlOptions) {
     }
 
     var deferred = jQuery.Deferred();
-    dsName = ".XcalarDS." + dsName;
+    dsName = parseDS(dsName);
     var workItem = xcalarDestroyDatasetWorkItem(dsName);
 
     var def1 = xcalarDestroyDataset(tHandle, dsName);
@@ -254,7 +258,7 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     }
 
     var deferred = jQuery.Deferred();
-    datasetName = ".XcalarDS." + datasetName;
+    datasetName = parseDS(datasetName);
     var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename);
     
     var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename);
@@ -330,7 +334,7 @@ function XcalarSample(datasetName, numEntries) {
     var deferred = jQuery.Deferred();
     var totalEntries = 0;
 
-    datasetName = ".XcalarDS." + datasetName;
+    datasetName = parseDS(datasetName);
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
     .then(function(result) {
         console.log(result);
@@ -520,7 +524,7 @@ function XcalarMakeResultSetFromDataset(datasetName) {
     }
 
     var deferred = jQuery.Deferred();
-    datasetName += ".XcalarDS." + datasetName;
+    datasetName = parseDS(datasetName);
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
     .then(deferred.resolve)
     .fail(function(error) {
