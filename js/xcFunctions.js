@@ -20,7 +20,12 @@ window.xcFunction = (function ($, xcFunction) {
         var newTableName = getNewTableName(tableName);
 
         var msg = StatusMessageTStr.Filter + ': ' + frontColName;
-        var msgId = StatusMessage.addMsg(msg);
+        var msgObj = {
+            msg: msg,
+            operation: 'filter',
+            tableName: newTableName
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
         
         // XXX Cheng must add table to worksheet before async call
         WSManager.addTable(newTableName);
@@ -71,8 +76,13 @@ window.xcFunction = (function ($, xcFunction) {
 
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
                     StatusMessageTStr.OnColumn + ": " + frontColName;
-        var msgId = StatusMessage.addMsg(msg);
-        showWaitCursor();
+        var msgObj = {
+            msg: msg,
+            operation: 'aggregate',
+            tableName: tableName
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
+        xcHelper.lockTable(tableNum);
 
         var sqlOptions = {
             "operation": "aggregate",
@@ -107,7 +117,9 @@ window.xcFunction = (function ($, xcFunction) {
             Alert.error("Aggregate fails", error);
             StatusMessage.fail(StatusMessageTStr.AggregateFailed, msgId);
         })
-        .always(removeWaitCursor);
+        .always(function(){
+            xcHelper.unlockTable(tableName);
+        });
 
         return (true);
     };
@@ -136,7 +148,12 @@ window.xcFunction = (function ($, xcFunction) {
         }
 
         var msg = StatusMessageTStr.Sort + " " + frontFieldName;
-        var msgId = StatusMessage.addMsg(msg);
+        var msgObj = {
+            msg: msg,
+            operation: 'sort',
+            tableName: newTableName
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
 
         // XXX Cheng must add to worksheet before async call
         WSManager.addTable(newTableName);
@@ -153,12 +170,12 @@ window.xcFunction = (function ($, xcFunction) {
         .then(function() {
             setDirection(newTableName, order);
             setIndex(newTableName, tablCols);
-
+            
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
-            xcHelper.unlockTable(tableName, true);
             StatusMessage.success(msgId);
+            xcHelper.unlockTable(tableName, true);
             commitToStorage();
         })
         .fail(function(error) {
@@ -208,7 +225,12 @@ window.xcFunction = (function ($, xcFunction) {
         var rightTableResult;
 
         var msg = StatusMessageTStr.Join;
-        var msgId = StatusMessage.addMsg(msg);
+        var msgObj = {
+            msg: msg,
+            operation: 'join',
+            tableName: newTableName
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
 
         xcHelper.lockTable(leftTableNum);
         xcHelper.lockTable(rightTableNum);
@@ -298,7 +320,12 @@ window.xcFunction = (function ($, xcFunction) {
         }
 
         var msg = StatusMessageTStr.GroupBy + " " + operator;
-        var msgId = StatusMessage.addMsg(msg);
+        var msgObj = {
+            msg: msg,
+            operation: 'group by',
+            tableName: newTableName
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
         WSManager.addTable(newTableName);
 
         var sqlOptions = {
@@ -364,7 +391,12 @@ window.xcFunction = (function ($, xcFunction) {
         var newTableName = getNewTableName(tableName);
 
         var msg = StatusMessageTStr.Map + " " + fieldName;
-        var msgId = StatusMessage.addMsg(msg);
+        var msgObj = {
+            msg: msg,
+            operation: 'map',
+            tableName: newTableName
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
 
         options = options || {};
         // must add to worksheet before async call or will end up adding to th
@@ -439,7 +471,12 @@ window.xcFunction = (function ($, xcFunction) {
 
         msg = msg || StatusMessageTStr.Map + " " + lTableName +
                         " and " + rTableName;
-        var msgId = StatusMessage.addMsg(msg);
+        var msgObj = {
+            msg: msg,
+            operation: 'map',
+            tableName: lNewName
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
 
         WSManager.addTable(lNewName);
         xcHelper.lockTable(lTableNum);
@@ -532,7 +569,12 @@ window.xcFunction = (function ($, xcFunction) {
         // now disable retName
         // var fileName = retName + ".csv";
         var msg = StatusMessageTStr.ExportTable + ": " + tableName;
-        var msgId = StatusMessage.addMsg(msg);
+        var msgObj = {
+            msg: msg,
+            operation: 'export',
+            tableName: newTableName
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
         
         var sqlOptions = {
                 "operation": "exportTable",

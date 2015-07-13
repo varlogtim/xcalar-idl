@@ -374,7 +374,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
         XcalarListFiles(loadURL)
         .then(function() {
             var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
-            var msgId = StatusMessage.addMsg(msg);
+            var msgObj = {
+                msg: msg,
+                operation: 'data set load'
+            };
+            var msgId = StatusMessage.addMsg(msgObj);
 
             DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                 header, moduleName, funcName)
@@ -1104,7 +1108,12 @@ window.DataCart = (function($, DataCart) {
                 };
                 // add status message
                 var msg = StatusMessageTStr.CreatingTable + ': ' + tableName;
-                var msgId = StatusMessage.addMsg(msg);
+                var msgObj = {
+                    msg: msg,
+                    operation: 'table creation',
+                    tableName: tableName
+                };
+                var msgId = StatusMessage.addMsg(msgObj);
 
                 $cart.find('.colName').each(function() {
                     var colname = $(this).text();
