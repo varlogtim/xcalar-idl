@@ -11,6 +11,7 @@
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
 <script src="3rd/runtime.js"></script>
 <link href="stylesheets/css/login.css" rel="stylesheet" type="text/css">
+<script src="js/thrift/XcalarApiVersionSignature_types.js"></script>
 </head>
 <body>
     <script>
@@ -46,8 +47,14 @@
     </form>
   </div>
 </div>
+<div id="insightVersion" style="position: absolute; bottom: 10px; left: 10px;
+                                color: white; height: 10px; width: 200px;
+                                font-size: 10pt; opacity: 0.5">
+  Version: Current
+</div>
 <script>
 $(document).ready(function() {
+    $("#insightVersion").hide();
     $("#loginContainer").hide();
     var stage = new swiffy.Stage(document.getElementById('swiffycontainer'),
                                  swiffyobject, {  });
@@ -56,6 +63,7 @@ $(document).ready(function() {
         $('#swiffycontainer').fadeOut(1000, function() {
             $("#loginContainer").fadeIn(200);
             $('#loginNameBox').focus();
+            $("#insightVersion").fadeIn(200);
         });
     }, 4500);
     
@@ -70,6 +78,9 @@ $(document).ready(function() {
         // XXX this redirect is only for temporary use
         window.location = "index.html";
     });
+    $("#insightVersion").html("Version SHA: "+
+        XcalarApiVersionTStr[XcalarApiVersionT.XcalarApiVersionSignature].
+        substring(0, 6));
 });
 </script>
 </body>
