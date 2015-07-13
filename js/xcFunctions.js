@@ -541,9 +541,9 @@ window.xcFunction = (function ($, xcFunction) {
                 "filePath" : location
                          };
 
-        XcalarExport(tableName, fileName, false, sqlOptions)
+        XcalarExport(tableName, exportName, false, sqlOptions)
         .then(function() {
-            var location = hostname + ":/var/tmp/xcalar/" + fileName;
+            var location = hostname + ":/var/tmp/xcalar/" + exportName;
             // add alert
             var ins   = "Widget location: " +
                         "http://schrodinger/dogfood/widget/main.html?" +
