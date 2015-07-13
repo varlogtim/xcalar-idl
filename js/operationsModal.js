@@ -318,6 +318,8 @@ window.OperationsModal = (function($, OperationsModal) {
             $operationsModal.addClass('numArgs0');
         } else if (operatorName === 'map') {
             $operationsModal.addClass('numArgs4');
+        } else if (operatorName === 'group by') {
+            $operationsModal.addClass('numArgs4');
         }
 
         centerPositionElement($operationsModal);
@@ -660,10 +662,11 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function produceArgumentTable() {
-        var category = $.trim($categoryInput.val().toLowerCase());
-        var func = $.trim($functionInput.val().toLowerCase());
+        var category = $categoryInput.val().toLowerCase().trim();
+        var func = $functionInput.val().toLowerCase().trim();
 
         var categoryIndex = categoryNames.indexOf(category);
+
         if (categoryIndex < 0) {
             return;
         }
@@ -673,23 +676,22 @@ window.OperationsModal = (function($, OperationsModal) {
         });
         var categoryNum = $categoryLi.data('category');
         var ops = functionsMap[categoryNum];
-        var numOps = ops.length;
-        var opIndex = -1;
-        var operObj;
-        for (var i = 0; i < numOps; i++) {
+        var operObj = null;
+
+        for (var i = 0, numOps = ops.length; i < numOps; i++) {
             if (func === ops[i].fnName.toLowerCase()) {
-                opIndex = i;
                 operObj = ops[i];
+                break;
             }
         }
 
-        if (opIndex > -1) {
+        if (operObj != null) {
             var defaultValue = "$" + colName;
 
-            if (firstArgExceptions[category]) {
-                if (firstArgExceptions[category].indexOf(func) !== -1) {
-                    defaultValue = "";
-                }
+            if (firstArgExceptions[category] &&
+                firstArgExceptions[category].indexOf(func) !== -1)
+            {
+                defaultValue = "";
             }
 
             var numArgs = operObj.numArgs;
@@ -697,11 +699,17 @@ window.OperationsModal = (function($, OperationsModal) {
 
             // as rows order may change, update it here
             var $rows = $tbody.find('tr');
-            $rows.show();
-            $rows.find('.colNameSection').removeClass('colNameSection');
-            var description;
+            $rows.find('.colNameSection').removeClass('colNameSection')
+                    .end()
+                    .find('.checkboxSection').removeClass('checkboxSection')
+                        .find('input').attr('type', 'text')
+                        .end()
+                        .find('.checkBoxText').remove();
 
-            for (var i = 0; i < operObj.numArgs; i++) {
+            var description;
+            var autoGenColName;
+
+            for (var i = 0; i < numArgs; i++) {
                 description = operObj.argDescs[i].argDesc;
                 if (i === 0) {
                     $rows.eq(i).find('input').val(defaultValue);
@@ -710,42 +718,80 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
                 $rows.eq(i).find('.description').text(description);
             }
+
             if (operatorName === 'map') {
                 description = 'New Resultant Column Name';
-                $rows.eq(numArgs).find('.listSection')
-                                 .addClass('colNameSection');
-                var autoGenColName = getAutoGenColName('mappedCol');
-                $rows.eq(numArgs).find('input').val(autoGenColName);
-                $rows.eq(numArgs).find('.description').text(description);
-                numArgs++;
+                autoGenColName = getAutoGenColName('mappedCol');
+
+                $rows.eq(numArgs).find('.listSection').addClass('colNameSection')
+                                .end()
+                                .find('input').val(autoGenColName)
+                                .end()
+                                .find('.description').text(description);
+                ++numArgs;
             } else if (operatorName === 'group by') {
+                // group by sort col field
+                description = 'Field name to group by';
+                var sortedCol = gTables[tableNum].keyName;
+                if (sortedCol === "recordNum") {
+                    sortedCol = "";
+                } else {
+                    sortedCol = "$" + sortedCol;
+                }
+
+                $rows.eq(numArgs).find('input').val(sortedCol)
+                                .end()
+                                .find('.description').text(description);
+                ++numArgs;
+
+                // new col name field
                 description = 'New Column Name for the groupBy' +
                                 ' resultant column';
+                autoGenColName = getAutoGenColName('groupBy');
+
                 $rows.eq(numArgs).find('.listSection')
-                                 .addClass('colNameSection');
-                var autoColGenName = getAutoGenColName('groupBy');
-                $rows.eq(numArgs).find('input').val(autoColGenName);
-                $rows.eq(numArgs).find('.description').text(description);
-                numArgs++;
+                                    .addClass('colNameSection')
+                                .end()
+                                .find('input').val(autoGenColName)
+                                .end()
+                                .find('.description').text(description);
+                ++numArgs;
+                // check box for include sample
+                description = 'If include other fileds(result is sampled) or not';
+                var checkboxText =
+                    '<span class="checkBoxText">Include Sample</span>';
+
+                $rows.eq(numArgs)
+                        .find('.listSection').addClass('checkboxSection')
+                        .end()
+                        .find('input').val("").attr("type", "checkbox")
+                            .after(checkboxText)
+                        .end()
+                        .find('.description').text(description);
+                ++numArgs;
             }   
 
-            $rows.filter(":gt(" + (numArgs - 1) + ")").hide();
+            $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
 
             $operationsModal.find('.descriptionText').text(operObj.fnDesc);
-        } else {
-            // $operationsModal.find('.descriptionText').text(operObj.fnDesc);
         }
     }
 
     function checkArgumentParams(blankOK) {
         var allInputsFilled = true;
         var inputIndex = 2;
-        var $argInputs = $operationsModal.find('.argumentSection input')
-                                        .filter(function() {
-                        return ($(this).closest('tr').css('display') !== 'none');
-                    });
+        var $argInputs =
+            $operationsModal.find('.argumentSection input').filter(function() {
+                return ($(this).closest('tr').css('display') !== 'none');
+            });
         $argInputs.each(function(index) {
-            var val = $.trim($(this).val());
+            var $input = $(this);
+
+            if ($input.closest('.listSection').hasClass('checkboxSection')) {
+                return (true);
+            }
+
+            var val = $(this).val().trim();
             if (val === "") {
                 allInputsFilled = false;
                 if (!blankOK) {
@@ -768,9 +814,10 @@ window.OperationsModal = (function($, OperationsModal) {
     function submitForm() {
         // XXX This is a time bomb! We have to fix this
         modalHelper.submit();
-        var func =  $.trim($functionInput.val());
+        var func = $functionInput.val().trim();
         var funcLower = func.substring(0, 1).toLowerCase() + func.substring(1);
         var isPassing = false;
+
         if (!isOperationValid(0)) {
             showErrorMessage(0);
         } else if (!isOperationValid(1)) {
@@ -783,6 +830,7 @@ window.OperationsModal = (function($, OperationsModal) {
             modalHelper.enableSubmit();
             return;
         }
+
         var colType = $operationsModal.data('coltype');
         var args = [];
 
@@ -792,24 +840,26 @@ window.OperationsModal = (function($, OperationsModal) {
             }).find('.argument');
 
         var numArgs = $argInputs.length;
+
         $argInputs.each(function(index) {
             // if map or groupby, last argument will always represent the new
             // column name
-            var arg = $.trim($(this).val());
+            var $input = $(this);
+            var arg = $input.val().trim();
             if (index === 0 && arg.indexOf('$') !== -1) {
                 var tempType = getColumnTypeFromArg(arg);
                 if (tempType) {
                     colType = tempType;
                 }
             }
-            if (index === (numArgs - 1) && (operatorName === "map" ||
-                                            operatorName === "group by")) {
+            // col name do not add quote
+            if ($input.closest(".listSection").hasClass("colNameSection")) {
                 arg = arg.replace(/["']/g, '');
                 arg = arg.replace(/\$/g, '');
             } else {
                 arg = formatArgumentInput(arg, colType);
             }
-            
+
             args.push(arg);
         });
 
@@ -905,35 +955,71 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function groupBy(operator, args) {
-        var colIndex = -1;
+        // Current groupBy has 4 arguments:
+        // 1. grouby col
+        // 2. indexed col
+        // 3. is include sample
+        // 4. new col name
+
+        var errorText  = 'Invalid column name';
+        var isFormMode = false;
+
         var columns = gTables[tableNum].tableCols;
         var numCols = columns.length;
-        var frontName = args[0];
-        var backName = frontName;
-        for (var i = 0; i < numCols; i++) {
-            if (columns[i].name === frontName) {
-                if (columns[i].func.args) {
-                    backName = columns[i].func.args[0];
-                    colIndex = i;
-                }
+        var i;
+
+        var $argInputs = $operationsModal.find('.argument');
+
+        var groupbyCol  = args[0];
+        var groupbyColNum = -1;
+        // check if groubyCol is valid
+        for (i = 0; i < numCols; i++) {
+            if (columns[i].name === groupbyCol && columns[i].func.args) {
+                groupbyColNum = i;
+                break;
             }
         }
-        var numArgs      = args.length;
-        var $input       = $operationsModal.find('.argument').eq((numArgs - 1));
-        var newColName   = args[numArgs - 1];
 
-        console.log("operator:", operator, "newColName:", newColName,
-                    "colNum:", colNum, "tableNum:", tableNum);
-
-        var isDuplicate = ColManager.checkColDup($input, null, tableNum);
-
-        if (!isDuplicate) {
-            xcFunction.groupBy(colIndex, frontName, backName, tableNum,
-                                newColName, operator);
-            return (true);
-        } else {
+        if (groupbyColNum < 0) {
+            StatusBox.show(errorText, $argInputs.eq(0), isFormMode);
             return (false);
         }
+
+        var indexedCol    = args[1];
+        var indexedColNum = -1;
+        // check if indexCol is valid
+        for (i = 0; i < numCols; i++) {
+            if (columns[i].name === indexedCol && columns[i].func.args) {
+                indexedColNum = i;
+                break;
+            }
+        }
+
+        if (indexedColNum < 0) {
+            StatusBox.show(errorText, $argInputs.eq(1), isFormMode);
+            return (false);
+        }
+
+        // check new col name
+        var newColName  = args[2];
+        var isDuplicate = ColManager.checkColDup($argInputs.eq(2), null, tableNum);
+        if (isDuplicate) {
+            return (false);
+        }
+
+        var isIncSample = $argInputs.eq(3).is(':checked');
+
+
+        console.log("operator:", operator,
+                        "tableNum:", tableNum,
+                        "indexedColNum:", indexedColNum,
+                        "groupbyColNum:", groupbyColNum,
+                        "isIncSample:", isIncSample,
+                        "newColName:", newColName);
+
+        xcFunction.groupBy(operator, tableNum, indexedColNum, groupbyColNum,
+                            isIncSample, newColName);
+        return (true);
     }
 
     function map(operator, args) {

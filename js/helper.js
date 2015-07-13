@@ -451,7 +451,7 @@ window.xcHelper = (function($, xcHelper) {
         }
         var lookupTable = gTableIndicesLookup[tableName];
         if (lookupTable) {
-            lookupTable.isLocked = true;
+            lookupTable.isLocked = false;
         }
     };
 

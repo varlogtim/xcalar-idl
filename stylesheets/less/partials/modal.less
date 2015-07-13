@@ -2453,9 +2453,24 @@
                             }
                         }
 
-                        &.colNameSection {
+                        &.colNameSection, &.checkboxSection {
                             .argIconWrap {
                                 display: none;
+                            }
+                        }
+
+                        &.checkboxSection {
+                            padding-left: 20%;
+
+                            input {
+                                width: 25px;
+                                box-shadow: none;
+                            }
+
+                            .checkBoxText {
+                                .position(relative, @top: -5px);
+                                .size(@height: 25px);
+                                .font(@size: 14px, @line-height: 25px);
                             }
                         }
                     }

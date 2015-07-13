@@ -309,76 +309,107 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // group by on a column
-    xcFunction.groupBy = function (colNum, frontFieldName, backFieldName,
-                                    tableNum, newColName, operator) {
-        var table        = gTables[tableNum];
-        var tableName    = table.tableName;
-        var newTableName = xcHelper.randName(tableName + "-GroupBy");
-
-        if (colNum === -1) {
-            colNum = undefined;
+    xcFunction.groupBy = function (operator, tableNum,
+                                    indexedColNum, aggColNum,
+                                    isIncSample, newColName)
+    {
+        // Validation
+        if (tableNum < 0 || indexedColNum < 0 || aggColNum < 0) {
+            console.error("Invalid Parameters!");
+            return;
         }
 
-        var msg = StatusMessageTStr.GroupBy + " " + operator;
-        var msgObj = {
-            msg: msg,
-            operation: 'group by',
-            tableName: newTableName
-        };
-        var msgId = StatusMessage.addMsg(msgObj);
-        WSManager.addTable(newTableName);
+        var table        = gTables[tableNum];
+        var tableName    = table.tableName;
 
-        var sqlOptions = {
+        var columns = table.tableCols;
+
+        var frontIndexCol = columns[indexedColNum].name;
+        var backIndexCol  = columns[indexedColNum].func.args[0];
+
+        var frontAggCol = columns[aggColNum].name;
+        var backAggCol  = columns[aggColNum].func.args[0];
+
+        var wsIndex = WSManager.getWSFromTable(tableName);
+
+        xcHelper.lockTable(tableNum);
+
+        checkTableIndex(backIndexCol, tableNum)
+        .then(function(result) {
+            var innerDeferred = jQuery.Deferred();
+
+            var msgObj = {
+                msg: StatusMessageTStr.GroupBy + " " + operator,
+                operation: 'group by',
+                tableName: newTableName
+            };
+            var msgId = StatusMessage.addMsg(msgObj);
+
+            xcHelper.unlockTable(tableName);
+            // table name may change after sort!
+            tableName = result.tableName;
+
+            var newTableName = xcHelper.randName(tableName + "-GroupBy");
+            var sqlOptions = {
                 "operation"    : "groupBy",
                 "tableName"    : tableName,
-                "backFieldName": backFieldName,
-                "colName"      : frontFieldName,
-                "colIndex"     : colNum,
+                "groupbyCol"   : frontIndexCol,
+                "groupbyNum"   : indexedColNum,
+                "aggCol"       : frontAggCol,
+                "aggColNum"    : aggColNum,
                 "operator"     : operator,
                 "newTableName" : newTableName,
-                "newColumnName": newColName};
+                "newColumnName": newColName,
+                "includeSample": isIncSample
+            };
 
-        XcalarGroupBy(operator, newColName, backFieldName, tableName,
-                      newTableName, true, sqlOptions)
-        .then(function() {
-            var escapedName = newColName;
-            if (newColName.indexOf('.') > -1) {
-                escapedName = newColName.replace(/\./g, "\\\.");
-            }
-            var newProgCol = ColManager.newCol({
-                "index"   : 1,
-                "name"    : newColName,
-                "width"   : gNewCellWidth,
-                "isNewCol": false,
-                "userStr" : '"' + newColName + '" = pull(' + escapedName + ')',
-                "func"    : {
-                    "func": "pull",
-                    "args": [escapedName]
+            WSManager.addTable(newTableName, wsIndex);
+
+            XcalarGroupBy(operator, newColName, backAggCol,
+                        tableName, newTableName,
+                        isIncSample, sqlOptions)
+            .then(function() {
+                var escapedName = newColName;
+                if (newColName.indexOf('.') > -1) {
+                    escapedName = newColName.replace(/\./g, "\\\.");
                 }
+                var newProgCol = ColManager.newCol({
+                    "index"   : 1,
+                    "name"    : newColName,
+                    "width"   : gNewCellWidth,
+                    "isNewCol": false,
+                    "userStr" : '"' + newColName + '" = pull(' + escapedName + ')',
+                    "func"    : {
+                        "func": "pull",
+                        "args": [escapedName]
+                    }
+                });
+
+                var dataColNum = xcHelper.parseColNum($('#xcTable' + tableNum)
+                                                     .find('th.dataCol')) - 1;
+                var tablCols = [];
+                tablCols[0] = newProgCol;
+                tablCols[1] = xcHelper.deepCopy(table.tableCols[indexedColNum]);
+                tablCols[2] = xcHelper.deepCopy(table.tableCols[dataColNum]);
+
+                setIndex(newTableName, tablCols);
+
+                return (refreshTable(newTableName, null,
+                                    KeepOriginalTables.Keep));
+            })
+            .then(function() {
+                StatusMessage.success(msgId);
+                commitToStorage();
+                innerDeferred.resolve();
+            })
+            .fail(function(error) {
+                innerDeferred.reject(error);
+                Alert.error("GroupBy fails", error);
+                WSManager.removeTable(newTableName);
+                StatusMessage.fail(StatusMessageTStr.GroupByFailed, msgId);
             });
 
-            var dataColNum = xcHelper.parseColNum($('#xcTable' + tableNum)
-                                                 .find('th.dataCol')) - 1;
-            var tablCols = [];
-            tablCols[0] = newProgCol;
-            tablCols[1] = xcHelper.deepCopy(table.tableCols[colNum]);
-            tablCols[2] = xcHelper.deepCopy(table.tableCols[dataColNum]);
-
-            setIndex(newTableName, tablCols);
-
-            // return (refreshTable(newTableName, tableName,
-            //         KeepOriginalTables.Keep));
-            return (refreshTable(newTableName, null,
-                                KeepOriginalTables.Keep));
-        })
-        .then(function() {
-            StatusMessage.success(msgId);
-            commitToStorage();
-        })
-        .fail(function(error) {
-            Alert.error("GroupBy fails", error);
-            StatusMessage.fail(StatusMessageTStr.GroupByFailed, msgId);
-            WSManager.removeTable(newTableName);
+            return (innerDeferred);
         });
     };
 
@@ -659,8 +690,8 @@ window.xcFunction = (function ($, xcFunction) {
         return (tableName.split("#")[0] + Authentication.fetchHashTag());
     }
 
-    // For xcFunction.join, check if table has correct index
-    function checkJoinTableIndex(colName, tableNum) {
+    // check if table has correct index
+    function checkTableIndex(colName, tableNum) {
         var deferred = jQuery.Deferred();
 
         var table = gTables[tableNum];
@@ -713,8 +744,8 @@ window.xcFunction = (function ($, xcFunction) {
     function parallelIndex(leftColName, leftTableNum, rightColName, rightTableNum) {
         var deferred = jQuery.Deferred();
 
-        var deferred1 = checkJoinTableIndex(leftColName, leftTableNum);
-        var deferred2 = checkJoinTableIndex(rightColName, rightTableNum);
+        var deferred1 = checkTableIndex(leftColName, leftTableNum);
+        var deferred2 = checkTableIndex(rightColName, rightTableNum);
 
         var status1 = status2 = "waiting";
         var leftResult, rightResult;
