@@ -280,7 +280,8 @@ window.OperationsModal = (function($, OperationsModal) {
         gTables[tableNum].tableCols.forEach(function(colObj) {
             // skip data column
             if (colObj.name !== "DATA") {
-                colNames.push(colObj.name);
+                // Add $ since this is the current format of column
+                colNames.push('$' + colObj.name);
             }
         });
 
