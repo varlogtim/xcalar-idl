@@ -1,31 +1,37 @@
 function refreshTable(newTableName, oldTableName,
-                      keepOriginal, additionalTableName) {
+                      keepOriginal, additionalTableName, focusWorkspace) {
     var deferred = jQuery.Deferred();
 
-    if (!$('#workspaceTab').hasClass('active')) {
-        $("#workspaceTab").trigger('click');
-        if ($('#dagPanel').hasClass('full') &&
-            !$('#dagPanel').hasClass('hidden')) {
-            $('#compSwitch').trigger('click');
-            $('#mainFrame').removeClass('midway');
+    
+    if (focusWorkspace) {
+        if (!$('#workspaceTab').hasClass('active')) {
+            $("#workspaceTab").trigger('click');
+            if ($('#dagPanel').hasClass('full') &&
+                !$('#dagPanel').hasClass('hidden')) {
+                $('#compSwitch').trigger('click');
+                $('#mainFrame').removeClass('midway');
+            }
         }
+        $("#workspaceTab").trigger('click');
     }
 
-    // $("#workspaceTab").trigger('click');
     if (keepOriginal === KeepOriginalTables.Keep) {
         // append newly created table to the back
        
         addTable(newTableName, oldTableName, AfterStartup.After)
         .then(function() {
-            var newTableNum = xcHelper.getTableIndexFromName(newTableName);
-            focusTable(newTableNum);
-            var leftPos = $('#xcTableWrap' + newTableNum).position().left +
-                            $('#mainFrame').scrollLeft();
-            $('#mainFrame').animate({scrollLeft: leftPos})
-                           .promise()
-                           .then(function() {
-                                focusTable(newTableNum);
-                            });
+            if (focusWorkspace) {
+                var newTableNum = xcHelper.getTableIndexFromName(newTableName);
+                focusTable(newTableNum);
+                var leftPos = $('#xcTableWrap' + newTableNum).position().left +
+                                $('#mainFrame').scrollLeft();
+                $('#mainFrame').animate({scrollLeft: leftPos})
+                               .promise()
+                               .then(function() {
+                                    focusTable(newTableNum);
+                                });
+            }
+            
             deferred.resolve();
         })
         .fail(function(error) {
@@ -34,9 +40,7 @@ function refreshTable(newTableName, oldTableName,
         });
     } else {
         // default
-        // newTableNum = tableNum;
         var targetTable = oldTableName;
-        var savedScrollLeft;
         var tablesToRemove    = [];
         var delayTableRemoval = true;
 
@@ -60,17 +64,15 @@ function refreshTable(newTableName, oldTableName,
                 tablesToRemove.push(targetTable);
             }
         } else {
-            savedScrollLeft = $('#mainFrame').scrollLeft();
             tablesToRemove.push(oldTableName);
         }
 
         addTable(newTableName, targetTable, AfterStartup.After, tablesToRemove)
         .then(function() {
-            if (savedScrollLeft) {
-                $('#mainFrame').scrollLeft(savedScrollLeft);
+            if ($('.tblTitleSelected').length === 0) {
+                var newTableNum = xcHelper.getTableIndexFromName(newTableName);
+                focusTable(newTableNum);
             }
-            var newTableNum = xcHelper.getTableIndexFromName(newTableName);
-            focusTable(newTableNum);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -133,8 +135,6 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
             tableNum = xcHelper.getTableIndexFromName(tableName);
             $("#xcTableWrap" + tableNum).addClass("worksheet-" + wsIndex);
             $("#dagWrap" + tableNum).addClass("worksheet-" + wsIndex);
-
-            WSManager.focusOnWorksheet();
 
             if (gTables[tableNum].resultSetCount !== 0) {
                 infScrolling(tableNum);
@@ -491,9 +491,15 @@ function pullRowsBulk(tableNum, jsonObj, startIndex, dataIndex, direction,
 
 function generateTableShell(columns, tableNum) {
     var table = gTables[tableNum];
+    var activeWS = WSManager.getActiveWS();
+    var tableWS = WSManager.getWSFromTable(table.tableName);
+    var activeClass = "";
+    if (activeWS !== tableWS) {
+        activeClass = 'inActive';
+    }
     var wrapper =
         '<div id="xcTableWrap' + tableNum + '"' +
-            ' class="xcTableWrap tableWrap">' +
+            ' class="xcTableWrap tableWrap ' + activeClass + '">' +
             '<div id="xcTbodyWrap' + tableNum + '" class="xcTbodyWrap"></div>' +
         '</div>';
     // creates a new table, completed thead, and empty tbody

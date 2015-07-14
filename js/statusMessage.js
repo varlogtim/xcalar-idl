@@ -253,10 +253,12 @@ window.StatusMessage = (function() {
         var popupWrapExists = false;
         var popupNearTab = false;
         var popupBottom = false;
-        var left = 'auto';
-        var right = 'auto';
-        var bottom = 'auto';
-        var top = 'auto';
+        var pos = {
+            left: 'auto',
+            right: 'auto',
+            top: 'auto',
+            bottom: 'auto',
+        }
         var arrow = '';
         var classes = '';
         var status;
@@ -300,47 +302,47 @@ window.StatusMessage = (function() {
             popupNeeded = true;
         } else {
             var tableName = msgObjs[msgId].tableName;
-            var direction = isTableVisible(tableName);
+            var visibility = tableVisibility(tableName);
             
-            if (direction !== 'visible') {
+            if (visibility !== 'visible') {
                 popupNeeded = true;
                 var $popups;
                 var $popupWrap;
-                if (direction === 'left') {
+                if (visibility === 'left') {
                     $popups = $('.tableDonePopup.leftSide');
                     if ($popups.length !== 0) {
                         $popupWrap = $popups.parent();
                         $popupWrap.append($tableDonePopup);
                         popupWrapExists = true;
                     } else {
-                        left = 6;
-                        top = Math.max(200, ($(window).height() / 2) - 150);
+                        pos.left = 6;
+                        pos.top = Math.max(200, ($(window).height() / 2) - 150);
                     }
                     classes += ' leftSide';
-                } else if (direction === 'right') {
+                } else if (visibility === 'right') {
                     $popups = $('.tableDonePopup.rightSide');
                     if ($popups.length !== 0) {
                         $popupWrap = $popups.parent();
                         $popupWrap.append($tableDonePopup);
                         popupWrapExists = true;
                     } else {
-                        right = 15;
-                        top = Math.max(200, ($(window).height() / 2) - 150);
+                        pos.right = 15;
+                        pos.top = Math.max(200, ($(window).height() / 2) - 150);
                         arrow = 'rightArrow';
                     }
                     classes += ' rightSide';
                 } else {
-                    $popups = $('.tableDonePopup.worksheetNotify' + direction);
+                    $popups = $('.tableDonePopup.worksheetNotify' + visibility);
                     if ($popups.length !== 0) {
                         $popupWrap = $popups.parent();
                         $popupWrap.prepend($tableDonePopup);
                         popupWrapExists = true;
                     } else {
-                        popupNearTab = $('#worksheetTab-' + direction);
+                        popupNearTab = $('#worksheetTab-' + visibility);
                         popupBottom = true;
                     }
                     classes += ' worksheetNotify';
-                    classes += ' worksheetNotify' + direction;
+                    classes += ' worksheetNotify' + visibility;
                 }
             }
         }
@@ -349,22 +351,25 @@ window.StatusMessage = (function() {
             $tableDonePopup.addClass(arrow + ' ' + classes);
 
             if (!popupWrapExists) {
+                // we need to create a new container div for the popup 
+                // and position it, otherwise we would have just appeneded
+                // the popup to an already existing container  
                 if (popupNearTab) {
-                    left = popupNearTab.offset().left +
+                    pos.left = popupNearTab.offset().left +
                        popupNearTab.outerWidth() + 6;
-                    top = 4;
+                    pos.top = 4;
                 }
 
                 if (popupBottom) {
-                    bottom = 3;
-                    top = 'auto';
+                    pos.bottom = 3;
+                    pos.top = 'auto';
                 }
                 var $popupWrap = $('<div class="tableDonePopupWrap"></div>');
                 $popupWrap.css({
-                    top: top,
-                    bottom: bottom,
-                    left: left,
-                    right: right
+                    top: pos.top,
+                    bottom: pos.bottom,
+                    left: pos.left,
+                    right: pos.right
                 });
                 $('body').append($popupWrap);
                 $popupWrap.append($tableDonePopup);
@@ -391,44 +396,41 @@ window.StatusMessage = (function() {
         
         delete msgObjs[msgId];
     }
+
+    function tableVisibility(tableName) {
+        var wsNum = WSManager.getWSFromTable(tableName);
+        var activeWS = WSManager.getActiveWS();
+
+        if (wsNum !== activeWS) {
+            return (wsNum);
+        }
+
+        var numTables = gTables.length;
+        var tableNum = 0;
+        for (var i = 0; i < numTables; i++) {
+            if (gTables[i].tableName === tableName) {
+                tableNum = i;
+                break;
+            }
+        }
+        var $table = $('#xcTable' + tableNum);
+        var rect = $table[0].getBoundingClientRect();
+        var windowWidth = $('#rightSideBar').offset().left - 10;
+        var position;
+        if (rect.left < 40) {
+            if (rect.right > 40) {
+                position = 'visible';
+            } else {
+                position = 'left';
+            }
+        } else if (rect.left > windowWidth) {
+            position = 'right';
+        } else {
+            position = 'visible';
+        }
+
+        return (position);
+    }
     
     return (self);
 })();
-
-
-function isTableVisible(tableName) {
-    var wsNum = WSManager.getWSFromTable(tableName);
-    var activeWS = WSManager.getActiveWS();
-
-    if (wsNum !== activeWS) {
-        return (wsNum);
-    }
-
-    var numTables = gTables.length;
-    var tableNum = 0;
-    for (var i = 0; i < numTables; i++) {
-        if (gTables[i].tableName === tableName) {
-            tableNum = i;
-            break;
-        }
-    }
-    var $table = $('#xcTable' + tableNum);
-    var rect = $table[0].getBoundingClientRect();
-    var windowWidth = $(window).width() - $('#rightSideBar').offset().left - 10;
-    var position;
-    if (rect.left < 40) {
-        // console.log('here')
-        if (rect.right > 40) {
-            position = 'visible';
-        } else {
-            position = 'left';
-        }
-    } else if (rect.left > windowWidth) {
-        position = 'right';
-    } else {
-        // console.log('ah', rect.left)
-        position = 'visible';
-    }
-
-    return (position);
-}

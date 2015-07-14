@@ -314,7 +314,9 @@ window.WSManager = (function($, WSManager) {
             
             for (var i = 0; i < gTables.length; i++) {
                 // update table width and height
-                matchHeaderSizes(null, $("#xcTable" + i));
+                var $table = $('#xcTable' + i);
+                matchHeaderSizes(null, $table);
+                $table.find('.rowGrab').width($table.width());
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {
                     var index = WSManager.getWSFromTable(

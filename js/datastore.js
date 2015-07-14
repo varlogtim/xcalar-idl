@@ -1155,7 +1155,9 @@ window.DataCart = (function($, DataCart) {
                 .then(function() {
                     var keepOriginal = true;
                     setIndex(tableName, newTableCols, datasetName, tableProperties);
-                    return (refreshTable(tableName, null, keepOriginal, false));
+                    var focusWorkspace = true;
+                    return (refreshTable(tableName, null, keepOriginal,
+                            false, focusWorkspace));
                 })
                 .then(function() {
                     StatusMessage.success(msgId);
