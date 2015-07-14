@@ -122,7 +122,11 @@ function gResrowMouseDown(el, event) {
                 '</style>';
     $(document.head).append(style);
     $('body').addClass('hideScroll');
-    gResrow.targetTd.closest('tr').addClass('dragging');
+    gResrow.targetTd.closest('tr').addClass('dragging changedHeight')
+                                 .find('td > div')
+                                 .css('max-height', gResrow.startHeight - 4);
+    gResrow.targetTd.outerHeight(gResrow.startHeight);
+
     $('#xcTable' + gResrow.tableNum + ' tr:not(.dragging)')
                                    .addClass('notDragging');
 }
@@ -145,9 +149,7 @@ function gResrowMouseMove(event) {
 
 function gResrowMouseUp() {
     var newRowHeight = gResrow.targetTd.outerHeight();
-    var classNames = gResrow.targetTd.parent().attr('class');
-    var index = classNames.indexOf('row');
-    var rowNum = parseInt(classNames.substring(index + 3)) + 1;
+    var rowNum = xcHelper.parseRowNum(gResrow.targetTd.parent()) + 1;
     var rowObj = gTables[gResrow.tableNum].rowHeights;
     // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
     var pageNum = Math.floor((rowNum - 1) / gNumEntriesPerPage);
@@ -174,6 +176,7 @@ function gResrowMouseUp() {
                 delete rowObj[pageNum];
             }
         }
+        gResrow.targetTd.parent().removeClass('changedHeight');
     }
 }
 
@@ -2066,11 +2069,12 @@ function adjustRowHeights(newCells, rowIndex, tableNum) {
     var pageNum = Math.floor(rowIndex / gNumEntriesPerPage);
     var lastPageNum = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
     var padding = 4;
+    var $row;
 
     for (var i = pageNum; i < lastPageNum; i++) {
         if (rowObj[i]) {
             for (var row in rowObj[i]) {
-                var $row = newCells.filter(function() {
+                $row = newCells.filter(function() {
                     return ($(this).hasClass('row' + (row - 1)));
                 });
                 
@@ -2078,6 +2082,7 @@ function adjustRowHeights(newCells, rowIndex, tableNum) {
                     .outerHeight(rowObj[i][row]);
                 $row.find('td > div')
                     .css('max-height', rowObj[i][row] - padding);
+                $row.addClass('changedHeight');
             }
         }
     }
