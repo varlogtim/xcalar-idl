@@ -377,13 +377,13 @@ window.StatusMessage = (function() {
                         displayTime = 4000;
                     }
                     setTimeout(function() {
-                        // $tableDonePopup.fadeOut(200, function(){
-                        //     if ($tableDonePopup.siblings().length === 0) {
-                        //         $tableDonePopup.parent().remove();
-                        //     } else {
-                        //         $tableDonePopup.remove();
-                        //     }                           
-                        // });
+                        $tableDonePopup.fadeOut(200, function(){
+                            if ($tableDonePopup.siblings().length === 0) {
+                                $tableDonePopup.parent().remove();
+                            } else {
+                                $tableDonePopup.remove();
+                            }                           
+                        });
                     }, displayTime);
                 });
             }, 400);
