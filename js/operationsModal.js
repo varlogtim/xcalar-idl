@@ -704,6 +704,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     .end()
                     .find('.checkboxSection').removeClass('checkboxSection')
                         .find('input').attr('type', 'text')
+                        .removeAttr('id')
                         .end()
                         .find('.checkBoxText').remove();
 
@@ -758,15 +759,18 @@ window.OperationsModal = (function($, OperationsModal) {
                                 .find('.description').text(description);
                 ++numArgs;
                 // check box for include sample
-                description = 'If include other fileds(result is sampled) or not';
+                description = 'If include other fields(result is sampled) or not';
+                description = 'If checked, a sample of all fields will be included';
                 var checkboxText =
-                    '<span class="checkBoxText">Include Sample</span>';
+                    '<label class="checkBoxText" for="incSample">' +
+                    'Include Sample</span>';
 
                 $rows.eq(numArgs)
                         .find('.listSection').addClass('checkboxSection')
                         .end()
                         .find('input').val("").attr("type", "checkbox")
                                                 .attr("checked", false)
+                                                .attr("id", "incSample")
                             .after(checkboxText)
                         .end()
                         .find('.description').text(description);
