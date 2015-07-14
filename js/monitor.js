@@ -98,7 +98,6 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var ramTot =
                 apiTopResult.topOutputPerNode[i].totalAvailableMemInBytes;
             ramUsed = ramUsed;
-            // console.log(ramUsed)
             ramTot = ramTot;
             ram.used.push(ramUsed);
             ram.tot.push(ramTot);
@@ -198,6 +197,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var index = parseInt($(el).closest('.donutSection')
                                   .attr('id').substring(5));
         var pie = d3.layout.pie().sort(null);
+        var userSize = val;
+        if (index === 0) {
+            val = Math.min(100, val); // cpu percentage may be over 100%
+        }
         var data = [val, total - val];
         var donut = d3.select(el);
         var paths = donut.selectAll("path").data(pie(data));
@@ -211,7 +214,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
              .duration(duration)
              .attrTween("d", arcTween);
 
-        updateDonutNums('#donut' + index + ' .userSize .num', data[0], duration,
+        updateDonutNums('#donut' + index + ' .userSize .num', userSize, duration,
                         index);
         updateDonutNums('#donut' + index + ' .totalSize .num', total, duration,
                         index);
@@ -234,9 +237,9 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 .tween("text", function() {
                     var startNum = this.textContent;
                     var size = xcHelper.sizeTranslater(num, true);
-                    var i;
+                    var i;         
 
-                    if (index !== 3) {
+                    if (index === 1 || index === 2) {
                         startNum = xcHelper.textToBytesTranslator(startNum +
                                                                   type);
                         i = d3.interpolate(startNum, num);
@@ -497,6 +500,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         graphCycle = setInterval(getStatsAndUpdateGraph, interval);
 
         function getStatsAndUpdateGraph(firstTime) {
+            var numNodes;
             if (count % 10 === 0) {
                 xGridVals.push(numXGridMarks * gridWidth);
                 numXGridMarks++;    
@@ -520,6 +524,10 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 var numGraphs = 2;
                 for (var i = 0; i < numGraphs; i++) {
                     var xVal = allStats[i].sumUsed;
+                    if (i == 0) { // cpu %
+                        xVal /= numNodes;
+                        xVal = Math.min(100, xVal);
+                    }
                     if (i === 1) {
                         xVal = xcHelper.sizeTranslater(xVal, true)[0];
                     }
