@@ -30,7 +30,8 @@ function disableTextSelection() {
         '<style id="disableSelection" type="text/css">*' +
             '{ -ms-user-select:none;-moz-user-select:-moz-none;' +
             '-khtml-user-select:none;' +
-            '-webkit-user-select:none;user-select:none; }' +
+            '-webkit-user-select:none;user-select:none;}' +
+            'div[contenteditable]{pointer-events:none;}' +
         '</style>';
     $(document.head).append(style);
     $('input').prop('disabled', true);
@@ -207,7 +208,6 @@ function dragdropMouseDown(el, event) {
 
     dragObj.docHeight = $(document).height();
     dragObj.val = $editableHead.val();
-    // var tableTitleHeight = tableWrap.find('.tableTitle').height();
     var shadowDivHeight = $tbodyWrap.height();
     var shadowTop = tableWrap.find('.header').position().top - 5;
 
