@@ -1154,6 +1154,7 @@ function XcalarGetQuery(workItem) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
+
     var deferred = jQuery.Deferred();
     xcalarApiGetQuery(tHandle, workItem)
     .then(function(output) {

@@ -394,7 +394,7 @@ window.xcFunction = (function ($, xcFunction) {
             StatusMessage.success(msgId);
             commitToStorage();
         })
-        .fail(function() {
+        .fail(function(error) {
             Alert.error("GroupBy fails", error);
             WSManager.removeTable(newTableName);
             StatusMessage.fail(StatusMessageTStr.GroupByFailed, msgId);

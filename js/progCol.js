@@ -293,13 +293,17 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     };
 
-    ColManager.checkColDup = function ($input, $inputs, tableNum) {
+    ColManager.checkColDup = function ($input, $inputs, tableNum, parseCol) {
         // $inputs checks the names of $inputs, tableNum is used to check
         // back column names. You do not need both
-        var name        = jQuery.trim($input.val());
+        var name        = $input.val().trim();
         var isDuplicate = false;
         var title       = "Name already exists, please use another name.";
         
+        if (parseCol) {
+            name = name.replace(/^\$/, '');
+        }
+
         $(".tooltip").hide();
         // temporarily use, will be removed when backend allow name with space
         if (/ +/.test(name) === true) {
