@@ -765,6 +765,7 @@ window.OperationsModal = (function($, OperationsModal) {
                         .find('.listSection').addClass('checkboxSection')
                         .end()
                         .find('input').val("").attr("type", "checkbox")
+                                                .attr("checked", false)
                             .after(checkboxText)
                         .end()
                         .find('.description').text(description);
