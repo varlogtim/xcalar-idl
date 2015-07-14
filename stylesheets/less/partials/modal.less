@@ -1730,10 +1730,12 @@
         }
 
         .label {
-           .size(@width: 70px, @height: 25px);
+            .size(@width: 70px, @height: 25px);
             margin-right: 5px;
             float: left;
             .font(@size: 13px, @weight: 700, @line-height: 25px);
+            cursor: default;
+            .noSelection;
         }
 
         .exportNameSection {
@@ -1751,12 +1753,15 @@
                     .noSelection;
                 }
                 .list {
-                    .rounded(3px 0 0 3px);
-                    .position(@top: 0px);
+                    .rounded(0 0 3px 3px);
+                    .position(@top: 26px);
                     .font(@size: 13px);
                 }
+
                 &.open {
-                    box-shadow: none;
+                    .text {
+                        .rounded(3px 0 0 0);
+                    }
                 }
 
                 .hint {

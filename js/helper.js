@@ -337,6 +337,12 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.hideDropdowns = function($container) {
+        var $sections = $(".listSection");
+        $sections.find(".list").hide().removeClass("openList");
+        $sections.removeClass("open");
+    };
+
     xcHelper.validate = function(eles) {
         /*
          * eles is an object or an array of object, each object includes:

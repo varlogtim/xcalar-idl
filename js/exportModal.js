@@ -53,6 +53,10 @@ window.ExportModal = (function($, ExportModal) {
             "bottom": 0
         });
 
+        $(document).on("click.exportModal", function() {
+            xcHelper.hideDropdowns($exportModal);
+        });
+
         $exportModal.show();
 
         modalHelper.setup();
@@ -66,6 +70,7 @@ window.ExportModal = (function($, ExportModal) {
         exportTable = null;
         $exportPath.val("Local Filesystem");
 
+        $(document).off("click.exportModal");
         modalHelper.clear();
 
         $exportModal.hide();
