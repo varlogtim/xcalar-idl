@@ -66,7 +66,7 @@ function gRescolMouseDown(el, event, options) {
     rescol.tableNum = tableNum;
     rescol.table = $table;
     rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
-    rescol.tableHeadInput = rescol.tableHead.find('input');
+    rescol.tableHeadInput = rescol.tableHead.find('.text');
     rescol.headerDiv = el.parent(); // the .header div
     
     rescol.tempCellMinWidth = rescol.cellMinWidth - 5;
@@ -89,7 +89,7 @@ function gRescolMouseMove(event) {
         rescol.headerDiv.outerWidth(rescol.tempCellMinWidth);
     }
     var tableWidth = rescol.table.width();
-    rescol.tableHeadInput.width(tableWidth - 30);
+    rescol.tableHeadInput.width('75%');
     rescol.tableHead.width(tableWidth);
 }
 
@@ -190,6 +190,7 @@ function dragdropMouseDown(el, event) {
             'cursor: -moz-grabbing !important;}' +
         '</style>';
     $(document.head).append(cursorStyle);
+    $('.highlightBox').remove();
 
     dragObj.mouseX = event.pageX;
     dragObj.colNum = xcHelper.parseColNum(el);
