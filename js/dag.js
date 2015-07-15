@@ -408,34 +408,6 @@ window.DagPanel = (function($, DagPanel) {
 
 
 window.Dag = (function($, Dag) {
-    var dagApiMap = {
-        2 : 'loadInput',
-        3 : 'indexInput',
-        6 : 'statInput',
-        7 : 'statByGroupIdInput',
-        10: 'listTablesInput',
-        13: 'makeResultSetInput',
-        14: 'resultSetNextInput',
-        15: 'joinInput',
-        16: 'filterInput',
-        17: 'groupByInput',
-        19: 'editColInput',
-        20: 'resultSetAbsoluteInput',
-        21: 'freeResultSetInput',
-        22: 'deleteTableInput',
-        23: 'getTableRefCountInput',
-        23: 'tableInput',
-        24: 'bulkDeleteTablesInput',
-        25: 'destroyDsInput',
-        26: 'mapInput',
-        27: 'aggregateInput',
-        28: 'queryInput',
-        29: 'queryStateInput',
-        30: 'exportInput',
-        31: 'dagTableNameInput',
-        32: 'listFilesInput'
-    };
-
     Dag.construct = function(tableName, tableNum) {
         var deferred = jQuery.Deferred();
 
@@ -711,6 +683,27 @@ window.Dag = (function($, Dag) {
         });
     }
 
+    function getInputType(api) {
+        var val = api.substr('XcalarApi'.length);
+        var inputVal = "";
+        switch (val) {
+            case ('BulkLoad'):
+                inputVal = 'load';
+                break;
+            case ('GetStat'):
+                inputVal = 'stat';
+                break;
+            case ('GetStatByGroupId'):
+                inputVal = 'statByGroupId';
+                break;
+            default:
+                inputVal = val[0].toLowerCase() + val.substr(1);
+                break;
+        }
+        inputVal += 'Input';
+        return (inputVal);
+    }
+
     function appendRetinas(){
         var $dagWrap = $('#dagPanel').find('.dagWrap');
         if ($dagWrap.length > 1) {
@@ -779,13 +772,17 @@ window.Dag = (function($, Dag) {
                                       index);
         var dagTable = '<div class="dagTableWrap clearfix">' +
                         dagOrigin;
-        var key = dagApiMap[dagNode.api];
+        var key = getInputType(XcalarApisTStr[dagNode.api]);
         var children = getDagChildrenNames(parentChildMap, index, dagArray);
         var dagInfo = getDagNodeInfo(dagNode, key, children);
         var state = dagInfo.state;
+        var tableName = getDagName(dagNode);
         if (dagOrigin === "") {
             var url = dagInfo.url;
             var id = dagInfo.id;
+            if (tableName.indexOf('.XcalarDS.') === 0) {
+                tableName = tableName.substr('.XcalarDS.'.length);
+            }
             
             dagTable += '<div class="dagTable dataStore" ' +
                         'data-type="dataStore" ' +
@@ -797,9 +794,9 @@ window.Dag = (function($, Dag) {
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
-                            'title="' + getDagName(dagNode) + '">' +
+                            'title="' + tableName + '">' +
                             'Dataset ' +
-                                getDagName(dagNode) +
+                                tableName +
                             '</span>';
         } else {
             dagTable += '<div class="dagTable ' + state + '">' +
@@ -809,8 +806,8 @@ window.Dag = (function($, Dag) {
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
-                            'title="' + getDagName(dagNode) + '">' +
-                                getDagName(dagNode) +
+                            'title="' + tableName + '">' +
+                                tableName +
                             '</span>';
         }
         dagTable += '</div></div>';
@@ -824,21 +821,20 @@ window.Dag = (function($, Dag) {
         if (numChildren > 0) {
             var children = getDagChildrenNames(parentChildMap, index, dagArray);
             var additionalInfo = "";
+            var firstChild = children[0];
             if (numChildren === 2) {
                 additionalInfo += " & " + children[1];
             }
-            var key = dagApiMap[dagNode.api];
-            var name = key.substring(0, key.length - 5);
+            var key = getInputType(XcalarApisTStr[dagNode.api]);
+            var operation = key.substring(0, key.length - 5);
             var info = getDagNodeInfo(dagNode, key, children);
             if (info.type === "sort") {
-                name = "sort";
+                operation = "sort";
             }
 
-            // var top = 210 + (prop.y * 60);
-            // var right = 180 + (prop.x * 170);
-            originHTML += '<div class="actionType dropdownBox ' + name + '" ' +
-                        'style="top:' + 0 + 'px; right:' + 0 + 'px;" ' +
-                        'data-type="' + name + '" ' +
+            originHTML += '<div class="actionType dropdownBox ' + operation +
+                        '" style="top:' + 0 + 'px; right:' + 0 + 'px;" ' +
+                        'data-type="' + operation + '" ' +
                         'data-info="' + info.text.replace(/"/g, "'") + '" ' +
                         'data-column="' + info.column.replace(/"/g, "'")
                                         + '" ' +
@@ -848,17 +844,21 @@ window.Dag = (function($, Dag) {
                         'data-container="body" ' +
                         'title="' + info.tooltip.replace(/"/g, "'") + '">' +
                             '<div class="actionTypeWrap" >' +
-                                '<div class="dagIcon ' + name + ' ' +
+                                '<div class="dagIcon ' + operation + ' ' +
                                     info.type + '">' +
                                     '<div class="icon"></div>';
-            if (name === 'groupBy') {
-                originHTML += '<div class="icon icon2 ' + info.type + '"></div>';
+            if (operation === 'groupBy') {
+                originHTML += '<div class="icon icon2 ' + info.type + '">' +
+                              '</div>';
+            }
+            if (firstChild.indexOf('.XcalarDS.') === 0) {
+                firstChild = firstChild.substr('.XcalarDS.'.length);
             }
             originHTML +=
                         '</div>' +
-                            '<span class="typeTitle">' + name + '</span>' +
+                            '<span class="typeTitle">' + operation + '</span>' +
                             '<span class="childrenTitle">' +
-                                children[0] + additionalInfo +
+                                firstChild + additionalInfo +
                             '</span>' +
                         '</div>' +
                         '</div>';
