@@ -206,7 +206,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Load Dataset", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         deferred.reject(thriftLog("XcalarLoad", error1, error2));
@@ -228,7 +228,7 @@ function XcalarExport(tablename, filename, isBQ, sqlOptions) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Export Table", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarExport", error));
@@ -252,7 +252,7 @@ function XcalarDestroyDataset(dsName, sqlOptions) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Destroy Dataset", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error1, error2) {
         deferred.reject(thriftLog("XcalarDestroyDataset", error1, error2));
@@ -275,7 +275,7 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Index Dataset", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarIndexFromDataset", error));
@@ -297,7 +297,7 @@ function XcalarIndexFromTable(srcTablename, key, tablename, sqlOptions) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Index Table", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarIndexFromTable", error));
@@ -319,7 +319,7 @@ function XcalarDeleteTable(tableName, sqlOptions) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Delete Table", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarDeleteTable", error));
@@ -342,7 +342,7 @@ function XcalarRenameTable(oldTableName, newTableName, sqlOptions) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Rename Table", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarRenameTable", error));
@@ -674,7 +674,7 @@ function XcalarFilterHelper(filterStr, srcTablename, dstTablename,
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Filter", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarFilter", error));
@@ -699,7 +699,7 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Map", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarMap", error));
@@ -767,7 +767,7 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Aggregate", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarAggregate", error));
@@ -789,7 +789,7 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Join", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarJoin", error));
@@ -814,7 +814,7 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Group By", sqlOptions, ret2);
-        deferred.resolve();
+        deferred.resolve(ret1);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarGroupBy", error));

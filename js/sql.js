@@ -4,6 +4,7 @@ window.SQL = (function($, SQL) {
     var $machineTextarea = $('#rightBarMachineTextArea');
 
     SQL.add = function(title, options, cli) {
+        options = options || {};
         history.push({"title": title, "options": options, "cli": cli}
                     );
         $textarea.append(getCliHTML(title, options));
@@ -20,6 +21,7 @@ window.SQL = (function($, SQL) {
     SQL.restoreFromHistory = function(oldCliHistory) {
         history = oldCliHistory;
         history.forEach(function(record) {
+            record.options = record.options || {};
             $textarea.append(getCliHTML(record.title, record.options));
             $machineTextarea.append(getCliMachine(record.title,
                                                   record.options,
@@ -73,7 +75,6 @@ window.SQL = (function($, SQL) {
 
     function getCliMachine(title, options, cli) {
         var string = "";
-
         // Here's the real code
         switch (options.operation) {
             case ("duplicateCol"):

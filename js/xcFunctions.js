@@ -106,11 +106,6 @@ window.xcFunction = (function ($, xcFunction) {
                 "isCheckBox": true
             });
 
-            try {
-                var val = JSON.parse(value);
-            } catch(error) {
-                console.error(error, val);
-            }
             StatusMessage.success(msgId);
         })
         .fail(function(error) {
