@@ -319,7 +319,7 @@
         })
     }
 
-    function testGetQuery(deferred, testName, currentTestNumber) {
+    function testGetQueryIndex(deferred, testName, currentTestNumber) {
         var workItem = new WorkItem();
         workItem.input = new XcalarApiInputT();
         workItem.input.indexInput = new XcalarApiIndexInputT();
@@ -333,6 +333,39 @@
         workItem.input.indexInput.dstTable.tableName = "dstTable";
         workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
         workItem.input.indexInput.keyName = "keyName";
+
+        xcalarApiGetQuery(thriftHandle, workItem)
+        .done(function(getQueryOutput) {
+            console.log("\tquery =" + getQueryOutput.query.toString());
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        })
+    }
+
+    function testGetQueryLoad(deferred, testName, currentTestNumber) {
+        var workItem = new WorkItem();
+        workItem.input = new XcalarApiInputT();
+        workItem.input.loadInput = new XcalarApiBulkLoadInputT();
+        workItem.input.loadInput.dataset = new XcalarApiDatasetT();
+        workItem.input.loadInput.loadArgs = new XcalarApiDfLoadArgsT();
+        workItem.input.loadInput.loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+
+        workItem.api = XcalarApisT.XcalarApiBulkLoad;
+        workItem.input.loadInput.maxSize = 1024;
+        workItem.input.loadInput.dagNodeId = 9;
+        workItem.input.loadInput.loadArgs.csv.recordDelim = ",";
+        workItem.input.loadInput.loadArgs.csv.fieldDelim = "\n";
+        workItem.input.loadInput.loadArgs.csv.isCRLF = false;
+        workItem.input.loadInput.loadArgs.csv.hasHeader = false;
+        workItem.input.loadInput.dataset.url = "url";
+        workItem.input.loadInput.dataset.datasetId = 2;
+        workItem.input.loadInput.dataset.formatType =
+                                                     DfFormatTypeT.DfFormatJson;
+        workItem.input.loadInput.dataset.name = "datasetName";
+        workItem.input.loadInput.dataset.loadIsComplete = false;
+        workItem.input.loadInput.dataset.refCount = 32;
 
         xcalarApiGetQuery(thriftHandle, workItem)
         .done(function(getQueryOutput) {
@@ -1383,7 +1416,8 @@
     addTestCase(testCases, testLoad, "load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetQuery, "test get query", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testGetQueryLoad, "test get query Load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetInt, "index dataset (int)", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testIndexDatasetStr, "index dataset (str)", defaultTimeout, TestCaseEnabled, "");

@@ -1119,14 +1119,13 @@ function XcalarGetQuery(workItem) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-    /**
     xcalarApiGetQuery(tHandle, workItem)
     .then(function(output) {
         deferred.resolve(output.query);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarGetQuery", error));
-    });*/
+    });
     deferred.resolve("");
     return (deferred.promise());
 }

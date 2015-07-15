@@ -937,7 +937,7 @@ function xcalarGroupByWorkItem(srcTableName, dstTableName, groupByEvalStr,
     workItem.input.groupByInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.groupByInput.evalStr = groupByEvalStr;
     workItem.input.groupByInput.newFieldName = newFieldName;
-    workItem.input.groupByInput.includeSrcSample = includeSrcSample;
+    workItem.input.groupByInput.includeSrcSample = includeSrcTableSample;
     return (workItem);
 }
 
@@ -1283,11 +1283,12 @@ function xcalarAggregate(thriftHandle, srcTableName, aggregateEvalStr) {
     return (deferred.promise());
 }
 
-function xcalarExportWorkItem(tableName, fileName) {
+function xcalarExportWorkItem(tableName, fileName, isBQ) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.exportInput = new XcalarApiExportInputT();
     workItem.input.exportInput.srcTable = new XcalarApiTableT();
+    workItem.input.exportInput.isBQ = isBQ;
 
     workItem.api = XcalarApisT.XcalarApiExport;
     workItem.input.exportInput.srcTable.tableName = tableName;
@@ -1295,12 +1296,12 @@ function xcalarExportWorkItem(tableName, fileName) {
     return (workItem);
 }
 
-function xcalarExport(thriftHandle, tableName, fileName) {
+function xcalarExport(thriftHandle, tableName, fileName, isBQ) {
     var deferred = jQuery.Deferred();
     console.log("xcalarExport(tableName = " + tableName + ", fileName = " +
                 fileName + ")");
 
-    var workItem = xcalarExportWorkItem(tableName, fileName);
+    var workItem = xcalarExportWorkItem(tableName, fileName, isBQ);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
