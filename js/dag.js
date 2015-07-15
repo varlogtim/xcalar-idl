@@ -413,8 +413,15 @@ window.Dag = (function($, Dag) {
 
         drawDag(tableName)
         .then(function(dagDrawing) {
+            var activeWS = WSManager.getActiveWS();
+            var tableWS = WSManager.getWSFromTable(tableName);
+            var activeClass = "";
+            if (activeWS !== tableWS) {
+                activeClass = 'inActive';
+            }
             var outerDag =
-                '<div class="dagWrap" id="dagWrap' + tableNum + '">' +
+                '<div class="dagWrap ' + activeClass + '" id="dagWrap' +
+                    tableNum + '">' +
                 '<div class="header clearfix">' +
                     '<div class="btn btnSmall infoIcon">' +
                         '<div class="icon"></div>' +
