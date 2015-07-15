@@ -1350,8 +1350,19 @@ window.DataPreview = (function($, DataPreview) {
             tableName = xcHelper.randName(tableName) ||   // when table name is empty
                         xcHelper.randName("previewTable");
             tableName += ".preview"; // specific format for preview table
-            
-            XcalarLoad(loadURL, "raw", tableName, "", "\n", hasHeader, "", "")
+           
+            var sqlOptions = {"operation" : "previewDataSet",
+                              "dsPath"    : loadURL,
+                              "dsName"    : tableName,
+                              "dsFormat"  : "raw",
+                              "hasHeader" : hasHeader,
+                              "fieldDelim": "Null",
+                              "lineDelim" : "Null",
+                              "moduleName": "Null",
+                              "funcName"  : "Null"
+                             };
+            XcalarLoad(loadURL, "raw", tableName, "", "\n", hasHeader, "", "",
+                       sqlOptions)
             .then(function() {
                 return (XcalarSample(tableName, 20));
             })

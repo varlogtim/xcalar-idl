@@ -76,6 +76,9 @@ window.SQL = (function($, SQL) {
     function getCliMachine(title, options, cli) {
         var string = "";
         // Here's the real code
+        if (!options) {
+            return ("");
+        }
         switch (options.operation) {
             case ("duplicateCol"):
                 // fallthrough
@@ -95,17 +98,15 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case ("addTable"):
                 // fallthrough
-            case ("exportTable"):
+            case ("previewDataSet"):
+                // fallthrough
                 // XXX should export tables have an effect?
                 break;
-            // Here are all the ops that have yet to be completed by
-            // reverse parser
-            case ("destroyDataSet"):
-                // fallthrough
-            case ("deleteTable"):
-                string += cliDeleteHelper(options);
-                break;
+
             // Use reverse parser
+            case ("destroyDataSet"):
+            case ("deleteTable"):
+            case ("exportTable"):
             case ("renameDatasetCol"):
             case ("changeDataType"):
             case ("loadDataSet"):
