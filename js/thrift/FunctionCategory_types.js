@@ -14,8 +14,7 @@ FunctionCategoryT = {
   'FunctionCategoryMisc' : 5,
   'FunctionCategoryCondition' : 6,
   'FunctionCategoryAggregate' : 7,
-  'FunctionCategoryCast' : 8,
-  'FunctionCategoryUdf' : 9
+  'FunctionCategoryCast' : 8
 };
 FunctionCategoryTStr = {0 : 'Arithmetic functions',
 1 : 'Bitwise functions',
@@ -25,6 +24,5 @@ FunctionCategoryTStr = {0 : 'Arithmetic functions',
 5 : 'Miscellaneous functions',
 6 : 'Conditional functions',
 7 : 'Aggregate functions',
-8 : 'Type-casting functions',
-9 : 'User-defined functions'
+8 : 'Type-casting functions'
 };

@@ -230,6 +230,7 @@ window.TestSuite = (function($, TestSuite) {
                             '    if int(day) < 10:\n'+
                             '        day = "0" + day\n'+
                             '    return year + month + day');
+            $(".submitSection #udf-fnName").val("ymd");
 
             TestSuite.pass(deferred, testName, currentTestNumber);
         }

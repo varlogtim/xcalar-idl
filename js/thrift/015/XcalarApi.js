@@ -937,19 +937,20 @@ function xcalarGroupByWorkItem(srcTableName, dstTableName, groupByEvalStr,
     workItem.input.groupByInput.dstTable.tableId = XcalarApiTableIdInvalidT;
     workItem.input.groupByInput.evalStr = groupByEvalStr;
     workItem.input.groupByInput.newFieldName = newFieldName;
-    workItem.input.groupByInput.includeSrcSample = includeSrcTableSample;
+    workItem.input.groupByInput.includeSrcTableSample = includeSrcSample;
     return (workItem);
 }
 
 function xcalarGroupBy(thriftHandle, srcTableName, dstTableName, groupByEvalStr,
-                       newFieldName) {
+                       newFieldName, includeSrcSample) {
     var deferred = jQuery.Deferred();
     console.log("xcalarGroupBy(srcTableName = " + srcTableName +
                 ", dstTableName = " + dstTableName + ", groupByEvalStr = " +
                 groupByEvalStr + ", newFieldName = " + newFieldName + ")");
 
     var workItem = xcalarGroupByWorkItem(srcTableName, dstTableName,
-                                         groupByEvalStr, newFieldName);
+                                         groupByEvalStr, newFieldName,
+                                         includeSrcSample);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1679,8 +1680,8 @@ function xcalarKeyAddOrReplaceWorkItem(persist, key, value) {
 
 function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
-        "persist = " + persist.toString() + ")");
+    // console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
+    //     "persist = " + persist.toString() + ")");
 
     var workItem = xcalarKeyAddOrReplaceWorkItem(persist, key, value);
 

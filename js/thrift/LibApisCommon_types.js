@@ -703,13 +703,17 @@ XcalarApiListXdfsInputT.prototype.write = function(output) {
 
 XcalarApiUploadPythonInputT = function(args) {
   this.moduleName = null;
-  this.pythonSrc = null;
+  this.funcName = null;
+  this.pythonStr = null;
   if (args) {
     if (args.moduleName !== undefined) {
       this.moduleName = args.moduleName;
     }
-    if (args.pythonSrc !== undefined) {
-      this.pythonSrc = args.pythonSrc;
+    if (args.funcName !== undefined) {
+      this.funcName = args.funcName;
+    }
+    if (args.pythonStr !== undefined) {
+      this.pythonStr = args.pythonStr;
     }
   }
 };
@@ -736,7 +740,14 @@ XcalarApiUploadPythonInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.pythonSrc = input.readString().value;
+        this.funcName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.pythonStr = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -757,75 +768,14 @@ XcalarApiUploadPythonInputT.prototype.write = function(output) {
     output.writeString(this.moduleName);
     output.writeFieldEnd();
   }
-  if (this.pythonSrc !== null && this.pythonSrc !== undefined) {
-    output.writeFieldBegin('pythonSrc', Thrift.Type.STRING, 2);
-    output.writeString(this.pythonSrc);
+  if (this.funcName !== null && this.funcName !== undefined) {
+    output.writeFieldBegin('funcName', Thrift.Type.STRING, 2);
+    output.writeString(this.funcName);
     output.writeFieldEnd();
   }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-XcalarApiUploadPythonOutputT = function(args) {
-  this.status = null;
-  this.errorMsg = null;
-  if (args) {
-    if (args.status !== undefined) {
-      this.status = args.status;
-    }
-    if (args.errorMsg !== undefined) {
-      this.errorMsg = args.errorMsg;
-    }
-  }
-};
-XcalarApiUploadPythonOutputT.prototype = {};
-XcalarApiUploadPythonOutputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.status = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.errorMsg = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiUploadPythonOutputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiUploadPythonOutputT');
-  if (this.status !== null && this.status !== undefined) {
-    output.writeFieldBegin('status', Thrift.Type.I32, 1);
-    output.writeI32(this.status);
-    output.writeFieldEnd();
-  }
-  if (this.errorMsg !== null && this.errorMsg !== undefined) {
-    output.writeFieldBegin('errorMsg', Thrift.Type.STRING, 2);
-    output.writeString(this.errorMsg);
+  if (this.pythonStr !== null && this.pythonStr !== undefined) {
+    output.writeFieldBegin('pythonStr', Thrift.Type.STRING, 3);
+    output.writeString(this.pythonStr);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -1432,10 +1382,14 @@ XcalarApiDfCsvLoadArgsT.prototype.write = function(output) {
 };
 
 XcalarApiPyLoadArgsT = function(args) {
-  this.fullyQualifiedFnName = null;
+  this.moduleName = null;
+  this.funcName = null;
   if (args) {
-    if (args.fullyQualifiedFnName !== undefined) {
-      this.fullyQualifiedFnName = args.fullyQualifiedFnName;
+    if (args.moduleName !== undefined) {
+      this.moduleName = args.moduleName;
+    }
+    if (args.funcName !== undefined) {
+      this.funcName = args.funcName;
     }
   }
 };
@@ -1455,14 +1409,18 @@ XcalarApiPyLoadArgsT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRING) {
-        this.fullyQualifiedFnName = input.readString().value;
+        this.moduleName = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.funcName = input.readString().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1474,9 +1432,14 @@ XcalarApiPyLoadArgsT.prototype.read = function(input) {
 
 XcalarApiPyLoadArgsT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiPyLoadArgsT');
-  if (this.fullyQualifiedFnName !== null && this.fullyQualifiedFnName !== undefined) {
-    output.writeFieldBegin('fullyQualifiedFnName', Thrift.Type.STRING, 1);
-    output.writeString(this.fullyQualifiedFnName);
+  if (this.moduleName !== null && this.moduleName !== undefined) {
+    output.writeFieldBegin('moduleName', Thrift.Type.STRING, 1);
+    output.writeString(this.moduleName);
+    output.writeFieldEnd();
+  }
+  if (this.funcName !== null && this.funcName !== undefined) {
+    output.writeFieldBegin('funcName', Thrift.Type.STRING, 2);
+    output.writeString(this.funcName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -7883,7 +7846,6 @@ XcalarApiOutputResultT = function(args) {
   this.memoryOutput = null;
   this.sessionListOutput = null;
   this.getQueryOutput = null;
-  this.uploadPythonOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -7980,9 +7942,6 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.getQueryOutput !== undefined) {
       this.getQueryOutput = args.getQueryOutput;
-    }
-    if (args.uploadPythonOutput !== undefined) {
-      this.uploadPythonOutput = args.uploadPythonOutput;
     }
   }
 };
@@ -8255,14 +8214,6 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 33:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.uploadPythonOutput = new XcalarApiUploadPythonOutputT();
-        this.uploadPythonOutput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
       default:
         input.skip(ftype);
     }
@@ -8434,17 +8385,12 @@ XcalarApiOutputResultT.prototype.write = function(output) {
     this.getQueryOutput.write(output);
     output.writeFieldEnd();
   }
-  if (this.uploadPythonOutput !== null && this.uploadPythonOutput !== undefined) {
-    output.writeFieldBegin('uploadPythonOutput', Thrift.Type.STRUCT, 33);
-    this.uploadPythonOutput.write(output);
-    output.writeFieldEnd();
-  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
 };
 
-XcalarApiOutputHeaderT = function(args) {
+XcalarApiOuptHeaderT = function(args) {
   this.status = null;
   if (args) {
     if (args.status !== undefined) {
@@ -8452,8 +8398,8 @@ XcalarApiOutputHeaderT = function(args) {
     }
   }
 };
-XcalarApiOutputHeaderT.prototype = {};
-XcalarApiOutputHeaderT.prototype.read = function(input) {
+XcalarApiOuptHeaderT.prototype = {};
+XcalarApiOuptHeaderT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -8485,8 +8431,8 @@ XcalarApiOutputHeaderT.prototype.read = function(input) {
   return;
 };
 
-XcalarApiOutputHeaderT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiOutputHeaderT');
+XcalarApiOuptHeaderT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiOuptHeaderT');
   if (this.status !== null && this.status !== undefined) {
     output.writeFieldBegin('status', Thrift.Type.I32, 1);
     output.writeI32(this.status);
@@ -8525,7 +8471,7 @@ XcalarApiOutputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.hdr = new XcalarApiOutputHeaderT();
+        this.hdr = new XcalarApiOuptHeaderT();
         this.hdr.read(input);
       } else {
         input.skip(ftype);
