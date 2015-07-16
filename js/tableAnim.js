@@ -1265,70 +1265,46 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
     moveTableDropdownBoxes();
 }
 
-function displayShortenedHeaderName($el, tableNum, colNum) {
-    if (gTables[tableNum].tableCols[colNum - 1].name.length > 0) {
-        $el.val(gTables[tableNum].tableCols[colNum - 1].name);
-    }
-}
-
 function addColListeners($table, tableNum) {
     var $thead = $table.find('thead tr');
     var $tbody = $table.find("tbody");
     var $colMenu = $('#colMenu' + tableNum);
 
     // listeners on thead
+    var $fnBar = $('#fnBar');
     $thead.on({
         "focus": function() {
-            $('#fnBar').addClass('active');
-            var dynTableNum = parseInt($(this).closest('.dataTable').attr('id')
-                          .substring(7));
-            focusTable(dynTableNum);
-            
-            var oldFnBarOrigin;
-            if (gFnBarOrigin) {
-                oldFnBarOrigin = gFnBarOrigin[0];
-            }
-            gFnBarOrigin = $(this);
-            if (!$('#fnBar').hasClass('entered')) {
-                if (oldFnBarOrigin === gFnBarOrigin[0]) {
-                    // the function bar origin hasn't changed so just return
-                    // and do not rehighlight or update any text
-                    return;
-                }
-            } else {
-                $('#fnBar').removeClass('entered');
-            }
-            var index = xcHelper.parseColNum($(this));
-
-            var userStr = gTables[dynTableNum].tableCols[index - 1].userStr;
-            userStr = userStr.substring(userStr.indexOf('='));
-            $('#fnBar').val(userStr);
-
-            highlightColumn(gFnBarOrigin);
-            $(this).parent().siblings('.dropdownBox').addClass('hidden');
-        },
-        "blur": function() {
-            var $el         = $(this);
-            var dynTableNum = parseInt($el.closest('.dataTable').attr('id')
+            var $colInput = $(this);
+            var tableNum  = parseInt($colInput.closest('.dataTable').attr('id')
                                         .substring(7));
 
-            var index = xcHelper.parseColNum($el);
+            $fnBar.addClass('active');
+            focusTable(tableNum);
 
-            if (!$('#fnBar').hasClass('inFocus')) {
-                displayShortenedHeaderName($el, dynTableNum, index);
+            var oldFnBarOrigin;
+            if (gFnBarOrigin) {
+                // gFnBarOrigin could be null
+                oldFnBarOrigin = gFnBarOrigin.get(0);
             }
+            gFnBarOrigin = $colInput;
 
-            $el.parent().siblings('.dropdownBox').removeClass('hidden');
-            $('#fnBar').removeClass('active');
-        },
-        "keyup": function(event) {
-            if (event.which === keyCode.Enter) {
-                functionBarEnter($(this));
+            if ($fnBar.hasClass('entered')) {
+                $fnBar.removeClass('entered');
+            } else if (oldFnBarOrigin === gFnBarOrigin.get(0)) {
+                // the function bar origin hasn't changed so just return
+                // and do not rehighlight or update any text
                 return;
             }
+
+            var colNum = xcHelper.parseColNum($colInput);
+            var userStr = gTables[tableNum].tableCols[colNum - 1].userStr;
+            userStr = userStr.substring(userStr.indexOf('='));
+            $fnBar.val(userStr);
+
+            highlightColumn(gFnBarOrigin);
         },
-        "input": function() {
-            gFnBarOrigin = $(this);
+        "blur": function() {
+            $fnBar.removeClass('active');
         }
     }, ".editableHead");
 
@@ -1365,18 +1341,6 @@ function addColListeners($table, tableNum) {
 
         dropdownClick($el, options);
     });
-
-    $thead.on({
-        "mouseenter": function() {
-            $(this).removeClass('hidden');
-        },
-        "mouseout": function() {
-            var input = $(this).siblings('.editableHead');
-            if (input.is(':focus')) {
-                $(this).addClass('hidden');
-            }
-        }
-    }, ".dropdownBox");
 
     $thead.on('mousedown', '.colGrab', function(event) {
         if (event.which !== 1) {
@@ -1578,14 +1542,22 @@ function addColMenuActions($colMenu) {
         ColManager.delDupCols(index, tableNum);
     });
 
-    $colMenu.on('mouseup', '.renameCol', function(event) {
-        if (event.which !== 1) {
-            return;
+    $colMenu.on('keypress', '.renameCol input', function(event) {
+        if (event.which === keyCode.Enter) {
+            var $input  = $(this);
+            var colName  = $input.val().trim();
+
+            if (colName === "") {
+                return false;
+            }
+
+            var tableNum = parseInt($colMenu.attr('id').substring(7));
+            var colNum   = $colMenu.data('colNum');
+
+            renameColumn(tableNum, colNum, colName);
+            $input.val("").blur();
+            closeMenu($colMenu);
         }
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-        var index = $colMenu.data('colNum');
-        $('#xcTable' + tableNum).find('.editableHead.col' + index)
-                                .focus().select();
     });
 
     $colMenu.on('mouseup', '.duplicate', function(event) {
@@ -1743,45 +1715,36 @@ function closeMenu($menu) {
     $('body').removeClass('noSelection');
 }
 
-function functionBarEnter($colInput) {
-    var deferred = jQuery.Deferred();
+function renameColumn(tableNum, colNum, newName) {
+    gTables[tableNum].tableCols[colNum - 1].name = newName;
+    $('#xcTable' + tableNum).find('.editableHead.col' + colNum).val(newName);
+}
 
+function functionBarEnter($colInput) {
     gFnBarOrigin = $colInput;
 
-    var index = xcHelper.parseColNum($colInput);
+    var $fnBar = $('#fnBar').removeClass('inFocus');
+
     var $table = $colInput.closest('.dataTable');
     var tableNum = parseInt($table.attr('id').substring(7));
-    var tableCol = gTables[tableNum].tableCols[index - 1];
-    var newName = $.trim($colInput.val());
-    var oldName = tableCol.name;
-    var newFuncStr = $.trim($('#fnBar').val());
-    var progStr = '"' + newName + '" ' + newFuncStr;
-    var oldUsrStr = tableCol.userStr;
+    var colNum = xcHelper.parseColNum($colInput);
+    var tableCol = gTables[tableNum].tableCols[colNum - 1];
 
-    $('#fnBar').removeClass('inFocus');
-  
-    if (progStr === oldUsrStr || newName === "") {
-        $colInput.val(oldName);
-        $colInput.blur();
-        deferred.resolve();
-        return (deferred.promise());
+    var colName = tableCol.name;
+
+    var newFuncStr = '"' + colName + '" ' + $fnBar.val().trim();
+    var oldUsrStr  = tableCol.userStr;
+
+    $colInput.blur();
+    // when usrStr not change
+    if (newFuncStr === oldUsrStr) {
+        return;
     }
 
     $colInput.closest('th').removeClass('unusedCell');
-    $table.find('td:nth-child(' + index + ')').removeClass('unusedCell');
+    $table.find('td:nth-child(' + colNum + ')').removeClass('unusedCell');
 
-    //check if the function changed
-    var tempFuncStr = '"' + oldName + '" ' + newFuncStr;
-    if (oldUsrStr === tempFuncStr) {
-        // only the name has changed, not the function
-        tableCol.name = newName;
-        tableCol.userStr = progStr;
-        $colInput.blur();
-        deferred.resolve();
-        return (deferred.promise());
-    }
-
-    var progCol = parseFunc(progStr, index, tableNum, true);
+    var progCol = parseFunc(newFuncStr, colNum, tableNum, true);
     // add sql
     SQL.add("Pull Column", {
         "operation": "pullCol",
@@ -1794,11 +1757,7 @@ function functionBarEnter($colInput) {
     .then(function() {
         updateTableHeader(tableNum);
         RightSideBar.updateTableInfo(gTables[tableNum]);
-        deferred.resolve();
-    })
-    .fail(deferred.reject);
-
-    return (deferred.promise());
+    });
 }
 
 function parseFunc(funcString, colId, tableNum, modifyCol) {
@@ -1943,7 +1902,7 @@ function dropdownClick($el, options) {
 }
 
 function changeColumnType($typeList) {
-    var newType      = $typeList.find(".label").text().toLowerCase();
+    var newType  = $typeList.find(".label").text().toLowerCase();
     var $colMenu = $typeList.closest('.colMenu');
     var colNum   = $colMenu.data('colNum');
     var tableNum = parseInt($colMenu.attr('id').substring(7));
@@ -2217,7 +2176,7 @@ function addRowScroller(tableNum) {
     var rowScrollerHTML =
         '<div id="rowScroller' + tableNum +
         '" class="rowScroller" data-toggle="tooltip" ' +
-            'data-container="body" '+
+            'data-container="body" ' +
             'data-placement="bottom" title="scroll to a row">' +
             '<div id="rowMarker' + tableNum + '" class="rowMarker">' +
                 '<div class="subRowMarker top"></div>' +

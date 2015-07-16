@@ -21,9 +21,9 @@ window.xcFunction = (function ($, xcFunction) {
 
         var msg = StatusMessageTStr.Filter + ': ' + frontColName;
         var msgObj = {
-            msg: msg,
-            operation: 'filter',
-            tableName: newTableName
+            "msg"      : msg,
+            "operation": "filter",
+            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
         
@@ -77,9 +77,9 @@ window.xcFunction = (function ($, xcFunction) {
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
                     StatusMessageTStr.OnColumn + ": " + frontColName;
         var msgObj = {
-            msg: msg,
-            operation: 'aggregate',
-            tableName: tableName
+            "msg"      : msg,
+            "operation": "aggregate",
+            "tableName": tableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
         xcHelper.lockTable(tableNum);
@@ -144,9 +144,9 @@ window.xcFunction = (function ($, xcFunction) {
 
         var msg = StatusMessageTStr.Sort + " " + frontFieldName;
         var msgObj = {
-            msg: msg,
-            operation: 'sort',
-            tableName: newTableName
+            "msg"      : msg,
+            "operation": "sort",
+            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -221,9 +221,9 @@ window.xcFunction = (function ($, xcFunction) {
 
         var msg = StatusMessageTStr.Join;
         var msgObj = {
-            msg: msg,
-            operation: 'join',
-            tableName: newTableName
+            "msg"      : msg,
+            "operation": "join",
+            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -329,9 +329,9 @@ window.xcFunction = (function ($, xcFunction) {
         // the indexed table, in the assume that is OK to do so.
         var newTableName = xcHelper.randName(tableName + "-GroupBy");
         var msgObj = {
-            msg: StatusMessageTStr.GroupBy + " " + operator,
-            operation: 'group by',
-            tableName: newTableName
+            "msg"      : StatusMessageTStr.GroupBy + " " + operator,
+            "operation": "group by",
+            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -411,9 +411,9 @@ window.xcFunction = (function ($, xcFunction) {
 
         var msg = StatusMessageTStr.Map + " " + fieldName;
         var msgObj = {
-            msg: msg,
-            operation: 'map',
-            tableName: newTableName
+            "msg"      : msg,
+            "operation": "map",
+            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -491,9 +491,9 @@ window.xcFunction = (function ($, xcFunction) {
         msg = msg || StatusMessageTStr.Map + " " + lTableName +
                         " and " + rTableName;
         var msgObj = {
-            msg: msg,
-            operation: 'map',
-            tableName: lNewName
+            "msg"      : msg,
+            "operation": "map",
+            "tableName": lNewName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -589,9 +589,9 @@ window.xcFunction = (function ($, xcFunction) {
         // var fileName = retName + ".csv";
         var msg = StatusMessageTStr.ExportTable + ": " + tableName;
         var msgObj = {
-            msg: msg,
-            operation: 'export',
-            tableName: newTableName
+            "msg"      : msg,
+            "operation": "export",
+            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
         

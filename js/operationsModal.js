@@ -15,9 +15,6 @@ window.OperationsModal = (function($, OperationsModal) {
     
     var modalHelper = new xcHelper.Modal($operationsModal);
     var corrector;
-    OperationsModal.getOperatorsMap = function() {
-        return (operatorsMap);
-    }
 
     OperationsModal.setup = function() {
         var allowInputChange = true;

@@ -203,12 +203,12 @@ function setupMenuBar() {
 
 function setupFunctionBar() {
     $("#fnBar").on({
-        "input": function() {
-            if ($(".scratchpad").has(gFnBarOrigin).length !== 0 &&
-                $(this).val().indexOf("=") === 0) {
-                enterEquationMode();
-            }
-        },
+        // "input": function() {
+        //     if ($(".scratchpad").has(gFnBarOrigin).length !== 0 &&
+        //         $(this).val().indexOf("=") === 0) {
+        //         enterEquationMode();
+        //     }
+        // },
         "keyup": function(event) {
             if (event.which === keyCode.Enter) {
                 functionBarEnter(gFnBarOrigin);
@@ -486,14 +486,7 @@ function documentReadyGeneralFunction() {
         }
 
         if (!$target.is('.editableHead') && !$target.is('#fnBar')) {
-            var index = $('th.selectedCell').index();
-            if (index > -1) {
-                $('.selectedCell').removeClass('selectedCell');
-                if (gFnBarOrigin) {
-                    displayShortenedHeaderName(gFnBarOrigin,
-                                               gActiveTableNum, index);
-                }
-            }
+            $('.selectedCell').removeClass('selectedCell');
             gFnBarOrigin = undefined;
             $('#fnBar').val("");
         }

@@ -620,11 +620,9 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
                         '<span class="type icon"></span>' +
                     '</div>' +
                     '<div class="flexWrap flex-mid"' + tooltip + '>' +
-                        '<input autocomplete="on" spellcheck="false" ' +
-                            'type="text" class="editableHead col' + newColid +
-                            '" data-toggle="tooltip" data-placement="bottom" ' +
-                            'title="click to edit" value="' + columnName +
-                            '" size="15" placeholder=""/>' +
+                        '<input class="editableHead col' + newColid + '"' +
+                            ' type="text"  value="' + columnName + '"' +
+                            ' size="15" readonly/>' +
                     '</div>' +
                     '<div class="flexWrap flex-right">' +
                         '<div class="dropdownBox" ' +
@@ -661,7 +659,20 @@ function generateColDropDown(tableNum) {
             '<li class="deleteDuplicates thDropdown">' +
                 'Delete other duplicates' +
             '</li>' +
-            '<li class="renameCol thDropdown">Rename column</li>' +
+            '<li class="renameCol thDropdown">' +
+                'Rename column' +
+                '<ul class="subColMenu">' +
+                    '<li style="text-align: center" class="clickable">' +
+                        '<span>New Column Name</span>' +
+                        '<div class="listSection">' +
+                            '<input class="colName" type="text" width="100px"' +
+                                ' autocomplete="on" spellcheck="false"/>' +
+                        '</div>' +
+                    '</li>' +
+                    '<div class="subColMenuArea"></div>' +
+                '</ul>' +
+                '<div class="dropdownBox"></div>' +
+            '</li>' +
             '<li class="hide thDropdown">Hide column</li>' +
             '<li class="unhide thDropdown">Unhide column</li>' +
             '<li class="thDropdown">Text align' +
