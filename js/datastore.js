@@ -2681,12 +2681,6 @@ window.DS = (function ($, DS) {
             rmDSObjHelper($grid.data("dsid"));
             $grid.remove();
 
-            // add sql
-            SQL.add("Delete DateSet", {
-                "operation": "destroyDataSet",
-                "dsName"   : dsName
-            });
-
             DataStore.updateInfo();
             focusOnFirstDS();
             commitToStorage();
