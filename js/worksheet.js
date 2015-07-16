@@ -296,7 +296,7 @@ window.WSManager = (function($, WSManager) {
         var $curActiveTable = $tables.filter(".worksheet-" + wsIndex);
         if (notfocusTable || $curActiveTable.length === 0) {
             // no table to focus
-            emptyScroller();
+            RowScroller.empty();
 
             if ($curActiveTable.length > 0) {
                 for (var i = 0; i < gTables.length; i++) {

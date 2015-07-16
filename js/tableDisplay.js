@@ -140,12 +140,11 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
                 infScrolling(tableNum);
             }
 
-            resizeRowInput();
+            RowScroller.resize();
 
             if ($('#mainFrame').hasClass('empty')) {
                 // first time to create table
                 $('#mainFrame').removeClass('empty');
-                documentReadyxcTableFunction();
             }
             if (AfterStartup) {
                 RightSideBar.addTables([gTables[tableNum]], IsActive.Active);
@@ -229,7 +228,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         focusTable(gActiveTableNum);
     }
     if ($('.xcTableWrap.active').length === 0) {
-        emptyScroller();
+        RowScroller.empty();
     }
     moveTableDropdownBoxes();
 }
@@ -443,7 +442,7 @@ function buildInitialTable(progCols, tableNum, jsonObj, keyName) {
     var numRows = jsonObj.normal.length;
     var startIndex = 0;
     var $table = $('#xcTable' + tableNum);
-    addRowScroller(tableNum);
+    RowScroller.add(tableNum);
     if (numRows === 0) {
         console.log('no rows found, ERROR???');
         $('#rowScroller' + tableNum).addClass('hidden');

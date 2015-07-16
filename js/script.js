@@ -196,7 +196,7 @@ function getUrlVars() {
 }
 
 function setupMenuBar() {
-    setupRowScroller();
+    RowScroller.setup();
     setupMainPanelsTab();
     setupFunctionBar();
 }
@@ -221,70 +221,6 @@ function setupFunctionBar() {
         "blur": function() {
             $(this).removeClass("inFocus");
         }
-    });
-}
-
-function setupRowScroller() {
-    // entuer row num to go to that row
-    var $rowInput = $("#rowInput");
-    $rowInput.keypress(function(event) {
-        if (event.which !== keyCode.Enter) {
-            return;
-        }
-
-        var targetRow = parseInt($rowInput.val());
-        var backRow   = targetRow;
-
-        if (isNaN(targetRow) || targetRow % 1 !== 0) {
-            return;
-        }
-
-        if (gTables[gActiveTableNum].resultSetCount === 0) {
-            $rowInput.val("0");
-            $rowInput.data("val", 0);
-            return;
-        } else if (targetRow < 1) {
-            targetRow = 1;
-            backRow = 0;
-        } else if (targetRow > gTables[gActiveTableNum].resultSetCount) {
-            targetRow = gTables[gActiveTableNum].resultSetCount;
-            backRow = gTables[gActiveTableNum].resultSetCount - 20;
-        }
-
-        $rowInput.data('val', targetRow);
-        $rowInput.val(targetRow);
-
-        backRow = Math.min(gTables[gActiveTableNum].resultSetMax - 60,
-                            backRow - 20);
-
-        if (backRow < 0) {
-            backRow = 0;
-        }
-        var tableName = gTables[gActiveTableNum].tableName;
-        var numRowsToAdd = 60;
-        var info = {
-            "numRowsToAdd"    : numRowsToAdd,
-            "numRowsAdded"    : 0,
-            "lastRowToDisplay": backRow + 60,
-            "targetRow"       : targetRow,
-            "bulk"            : true,
-            "tableName"       : tableName
-        };
-
-        goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
-        .then(function() {
-            var tableNum = xcHelper.getTableIndexFromName(tableName);
-            var rowToScrollTo = Math.min(targetRow,
-                                gTables[tableNum].resultSetMax);
-            positionScrollbar(rowToScrollTo, tableNum);
-            generateFirstVisibleRowNum();
-            if (!event.rowScrollerMousedown) {
-                moverowScroller($('#rowInput').val(),
-                                 gTables[tableNum].resultSetCount);
-            } else {
-                $('#rowScrollerArea').addClass('autoScroll');
-            }
-        });
     });
 }
 
@@ -409,18 +345,6 @@ function setupTooltips() {
 }
 
 // ========================== Document Ready ==================================
-
-function documentReadyxcTableFunction() {
-    resizeRowInput();
-    
-    if (gActiveTableNum >= 0) {
-        var num = Number(gTables[gActiveTableNum].resultSetCount)
-                    .toLocaleString('en');
-
-        $("#numPages").text("of " + num);
-    }
-}
-
 function documentReadyGeneralFunction() {
     window.onbeforeunload = function() {
         KVStore.release();
@@ -510,7 +434,7 @@ function documentReadyGeneralFunction() {
                 dragdropMouseMove(event);
                 break;
             case ("rowScroller"):
-                rowScrollerMouseMove(event);
+                RowScroller.mouseMove(event);
                 break;
             default:  // do nothing
         }
@@ -534,7 +458,7 @@ function documentReadyGeneralFunction() {
                 dragdropMouseUp();
                 break;
             case ("rowScroller"):
-                rowScrollerMouseUp();
+                RowScroller.mouseUp();
                 break;
             default: // do nothing
         }
@@ -569,7 +493,6 @@ function startupFunctions() {
         setupTooltips();
         setupMenuBar();
         scratchpadStartup();
-        setupBookmarkArea();
         WSManager.setup();
         loadMonitorPanel();
         DagPanel.setup();
@@ -578,7 +501,7 @@ function startupFunctions() {
         deferred.resolve();
     })
     .fail(function(error) {
-        console.error("startupFsetupBookmarkAreaunctions fails!", error);
+        console.error("startupFunctions fails!", error);
         deferred.reject(error);
     });
 
@@ -659,7 +582,7 @@ function initializeTable() {
         chain(promises)
         .then(function() {
             if (gTableOrderLookup.length > 0) {
-                documentReadyxcTableFunction();
+                RowScroller.resize();
             } else {
                 $('#mainFrame').addClass('empty');
             }
