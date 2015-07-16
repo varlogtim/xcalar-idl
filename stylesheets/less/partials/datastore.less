@@ -44,61 +44,67 @@ input {
         margin: 8px 0 0 3px;
         text-shadow: 1px 1px @color-text-drop-shadow;
     }
+}
 
-    #contentHeaderLeft {
-        .flex(0 0 255px);
-        .flex-order(1);
+#contentHeaderLeft {
+    .flex(0 0 255px);
+    .flex-order(1);
 
-        background-color: white;
+    background-color: white;
 
-        .flex-display;
-        .flex-flow(row);
+    .flex-display;
+    .flex-flow(row);
 
-        .buttonArea {
-            .flex(1 1 127px);
-            .linear-gradient(top, rgb(163, 163, 163), rgb(140, 140, 140));
-            border-right: 1px solid @color-bar-border;
-            &.active {
-                .linear-gradient(top, rgb(96, 179, 230), rgb(60, 141, 178));
-            }
-        }
+    .buttonArea {
+        .flex(1 1 127px);
+        .linear-gradient(top, rgb(163, 163, 163), rgb(140, 140, 140));
+        border-right: 1px solid @color-bar-border;
 
-        #exploreButton {
-            margin: 6px 2px 0 8px;
-            float: left;
-            .background("/images/datastore/explore.png", 24px, 24px);
-        }
-        #searchButton {
-            margin: 6px 0 0 8px;
-            float: left;
-            .background("/images/datastore/search.png", 26px, 24px);
-        }
-    }
-    #contentHeaderMid {
-        .flex(1 1 auto);
-        .flex-order(2);
-        background-repeat: no-repeat;
-        background-position: 19px 12px;
-    }
-    #contentHeaderRight {
-        .flex(0 0 255px);
-        .flex-order(3);
-        background: linear-gradient(@color-bar-darkGray-top,
-                                    @color-bar-darkGray-bot);
-        border-left: 1px solid black;
         .icon {
-            margin: 9px 0 0 8px;
-            .background("/images/db-icon-white.png", 19px, 19px);
             float: left;
         }
 
-        color: white;
+        &.active {
+            .linear-gradient(top, rgb(96, 179, 230), rgb(60, 141, 178));
+        }
     }
+}
+
+// two icons in #contentHeaderLeft
+#exploreButton {
+    margin: 6px 2px 0 8px;
+    .background("/images/datastore/explore.png", 24px, 24px);
+}
+
+#searchButton {
+    margin: 6px 0 0 8px;
+    .background("/images/datastore/search.png", 26px, 24px);
+}
+
+#contentHeaderMid {
+    .flex(1 1 auto);
+    .flex-order(2);
+    background-repeat: no-repeat;
+    background-position: 19px 12px;
+}
+
+#contentHeaderRight {
+    .flex(0 0 255px);
+    .flex-order(3);
+    background: linear-gradient(@color-bar-darkGray-top,
+                                @color-bar-darkGray-bot);
+    border-left: 1px solid black;
+    .icon {
+        margin: 9px 0 0 8px;
+        .background("/images/db-icon-white.png", 19px, 19px);
+        float: left;
+    }
+
+    color: white;
 }
 /* End Of Content Header */
 
 /* Import Data View Section */
-
 #importDataView {
     display: block;
     .position(fixed, @top: 78px, @left: 255px);
@@ -115,187 +121,6 @@ input {
         padding: 0 0px;
     }
 
-    #importHelp {
-        .position(relative);
-        .size(@height: 93px);
-        padding: 15px 10px 5px 10px;
-        font-weight: 700;
-        box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
-        text-align: left;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        .contentViewMidWrap {
-            width: 85%;
-            .size (@width: 90%, @max-width: 960px);
-        }
-
-        h2 {
-            font-size: 18px;
-            color: @color-text-blue;
-            display: block;
-            margin-bottom: 10px;
-        }
-        p {
-            .size(@width: ~"calc(100% - 50px)", @height: 30px);
-            .font(@weight: 700, @size: 12px);
-            color: @color-text-lightGray;
-            overflow: hidden;
-            display: inline-block;
-            white-space: normal;
-            float: left;
-        }
-        .icon {
-            .background("/images/info-icon-large.png", 28px, 28px);
-            display: inline-block;
-            float: left;
-            margin-right: 10px;
-        }
-    }
-
-    #importDataTopForm {
-        background-color: @color-background-topForm;
-        padding: 30px 20px 1px 20px;
-
-        .importFormRow {
-            height: 30px;
-            line-height: 30px;
-            margin-bottom: 30px;
-            .flex-display;
-            label {
-                display: inline-block;
-                max-width: 100px;
-                min-width: 80px;
-                font-weight: 700;
-                float: left;
-            }
-            input {
-                max-width: 620px;
-                min-width: ~"calc(100% - 300px)";
-                width: ~"calc(100% - 260px)";
-                box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-                float: left;
-                // .flex(2 0 180px);
-            }
-            .input-placeholder(@color-text-instructions);
-
-            &#fileNameSelector {
-                input {
-                    max-width: 485px;
-                    min-width: ~"calc(100% - 440px)";
-                    width: ~"calc(100% - 400px)";
-                }
-
-                #fileFormat {
-                    margin-left: 20px;
-                    .size(@height: 30px);
-                    .position(relative);
-                    outline: none;
-
-                    input {
-                        .noSelection;
-                    }
-
-                    .listSection {
-                        .dropDownList(115px, 30px);
-                        .text {
-                            .size(@width: ~"calc(100% - 30px)");
-                            .font(@size: 13px);
-                            .rounded(3px 0 0 3px);
-                            cursor: default;
-                            .noSelection;
-                        }
-                        .list {
-                            .rounded(3px 0 0 3px);
-                            .position(@top: 0px);
-                            .font(@size: 13px);
-                        }
-                        &.open {
-                            box-shadow: none;
-                        }
-
-                        .hint {
-                            color: @color-text-lightGray;
-                        }
-                    }
-
-
-                }
-
-                #csvPromoteCheckbox {
-                    .size(@width: 100px, @height: 30px);
-                    .font(@weight: 700, @size: 13px);
-                    margin-left: 0px;
-                    cursor: pointer;
-                    .noSelection;
-
-                    &.hidden {
-                        display: none;
-                    }
-
-                    .iconWrapper {
-                        float: left;
-                        .size(@width: 16px, @height: 100%);
-                        .position(relative);
-
-                        .icon {
-                            .size(@width: 100%, @height: 100%);
-                            .image("/images/alertModal/checkbox-unchecked.png", 50%, 50%);
-                        }
-
-                        &.checked .icon {
-                            .image("/images/alertModal/checkbox-checked.png", 50%, 50%);
-                        }
-                    }
-
-                    .text {
-                        color: @color-text-lightGray;
-                        float: left;
-                        margin-left: 10px;
-                    }
-                }
- 
-                #udfCheckbox {
-                    .size(@width: 100px, @height: 30px);
-                    .font(@weight: 700, @size: 13px);
-                    margin-left: 20px;
-                    cursor: pointer;
-                    .noSelection;
-
-                    &.hidden {
-                        display: none;
-                    }
-
-                    .iconWrapper {
-                        float: left;
-                        .size(@width: 16px, @height: 100%);
-                        .position(relative);
-
-                        .icon {
-                            .size(@width: 100%, @height: 100%);
-                            .image("/images/alertModal/checkbox-unchecked.png", 50%, 50%);
-                        }
-
-                        &.checked .icon {
-                            .image("/images/alertModal/checkbox-checked.png", 50%, 50%);
-                        }
-                    }
-
-                    .text {
-                        color: @color-text-lightGray;
-                        float: left;
-                        margin-left: 10px;
-                    }
-                }
-            }
-        }
-
-    }
-
-    #importDataBottomForm {
-        padding: 30px 20px 1px 20px;
-    }
-
     .label {
         display: inline-block;
         float: left;
@@ -304,108 +129,54 @@ input {
         cursor: default;
     }
 
-    #csvDelim, #udfArgs {
-        visibility: visible;
-        opacity: 1;
-         .transition(opacity 0.3s);
-
-        &.hidden {
-            visibility: hidden;
-            opacity: 0;
-            display: none;
-        }
-
-        .size(@min-height: 50px; @max-height: 95px);
-        .position(relative);
-        margin-bottom: 15px;
-        // margin-right: -30px;
-        .font(@weight: 700, @size: 12px);
-
-        .wrapper {
-            .size(@height: 50px);
-            .position(relative);
-            float: left;
-            .size(@width: 50%);
-            &:first-child {
-                margin-right: 30px;
-                .size(@width: ~"calc(50% - 30px)");
-            }
-        }
-
-        .label {
-            .size(@width: 110px, @height: 30px);
-            .font(@size: 13px);
-        }
-
-        .listSection {
-            .dropDownList(~"calc(100% - 110px)", 30px);
-
-             .text {
-                .size(@width: ~"calc(100% - 30px)");
-                .font(@size: 13px);
-                .rounded(3px 0 0 3px);
-                .noSelection;
-                box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-                cursor: default;
-            }
-
-            .list {
-                .rounded(0 0 3px 3px);
-                .position(@top: 31px);
-                .font(@size: 13px, @weight: 600);
-
-                li {
-                    padding: 0 7px;
-
-                    &:hover {
-                        background-color: @color-white;
-                    }
-
-                    &.hover {
-                        background-color: @color-selectedCell-light;
-                    }
-                }
-
-                .other {
-                    .size(@height: 60px);
-                    .position(relative);
-                    span {
-                        display: block;
-                    }
-                    input {
-                        display: block;
-                        .size(@width: 100%, @height: 20px);
-                        .font(@line-height: 20px);
-                        box-shadow: 0px 0px 0px 1px #d1dee6;
-                        .rounded;
-                        outline: none;
-                    }
-                }
-            }
-
-            &.open {
-                .rounded(3px 3px 0 0);
-                .text {
-                    .rounded(3px 0 0 0);
-                }
-            }
-        }
-    }
-
     .btn {
         margin-left: 20px;
         padding: 0;
         float: right;
         text-shadow: 1px 1px rgba(0,0,0,.2);
     }
+}
 
-    .nullVal {
-        font-style: italic;
+#importHelp {
+    .position(relative);
+    .size(@height: 93px);
+    padding: 15px 10px 5px 10px;
+    font-weight: 700;
+    box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    .contentViewMidWrap {
+        .size (@width: 90%, @max-width: 960px);
+    }
+
+    h2 {
+        font-size: 18px;
+        color: @color-text-blue;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    p {
+        .size(@width: ~"calc(100% - 50px)", @height: 30px);
+        .font(@weight: 700, @size: 12px);
+        color: @color-text-lightGray;
+        overflow: hidden;
+        display: inline-block;
+        white-space: normal;
+        float: left;
+    }
+    .icon {
+        .background("/images/info-icon-large.png", 28px, 28px);
+        display: inline-block;
+        float: left;
+        margin-right: 10px;
     }
 }
 
+// Data Form Section
 #importDataForm {
-
     #previewBtn {
         display: none;
     }
@@ -438,8 +209,220 @@ input {
         }
     }
 }
+// Top Form Section
+#importDataTopForm {
+    background-color: @color-background-topForm;
+    padding: 30px 20px 1px 20px;
 
+    .importFormRow {
+        height: 30px;
+        line-height: 30px;
+        margin-bottom: 30px;
+        .flex-display;
 
+        label {
+            display: inline-block;
+            max-width: 100px;
+            min-width: 80px;
+            font-weight: 700;
+            float: left;
+        }
+        input {
+            max-width: 620px;
+            min-width: ~"calc(100% - 300px)";
+            width: ~"calc(100% - 260px)";
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+            float: left;
+            // .flex(2 0 180px);
+        }
+        .input-placeholder(@color-text-instructions);
+
+        &#fileNameSelector {
+            input {
+                max-width: 485px;
+                min-width: ~"calc(100% - 440px)";
+                width: ~"calc(100% - 400px)";
+            }
+
+            #fileFormat {
+                margin-left: 20px;
+                .size(@height: 30px);
+                .position(relative);
+                outline: none;
+
+                input {
+                    .noSelection;
+                }
+
+                .listSection {
+                    .dropDownList(115px, 30px);
+                    .text {
+                        .size(@width: ~"calc(100% - 30px)");
+                        .font(@size: 13px);
+                        .rounded(3px 0 0 3px);
+                        cursor: default;
+                        .noSelection;
+                    }
+                    .list {
+                        .rounded(3px 0 0 3px);
+                        .position(@top: 0px);
+                        .font(@size: 13px);
+                    }
+                    &.open {
+                        box-shadow: none;
+                    }
+
+                    .hint {
+                        color: @color-text-lightGray;
+                    }
+                }
+            }
+        }
+    }
+
+    .checkbox {
+        .size(@width: 100px, @height: 30px);
+        .font(@weight: 700, @size: 13px);
+        margin-left: 0px;
+        cursor: pointer;
+        .noSelection;
+
+        &.hidden {
+            display: none;
+        }
+
+        .iconWrapper {
+            float: left;
+            .size(@width: 16px, @height: 100%);
+            .position(relative);
+
+            .icon {
+                .size(@width: 100%, @height: 100%);
+                .image("/images/alertModal/checkbox-unchecked.png", 50%, 50%);
+            }
+
+            &.checked .icon {
+                .image("/images/alertModal/checkbox-checked.png", 50%, 50%);
+            }
+        }
+
+        .text {
+            color: @color-text-lightGray;
+            float: left;
+            margin-left: 10px;
+        }
+
+        &#csvPromoteCheckbox {
+            margin-left: 0px;
+        }
+
+        &#udfCheckbox {
+            margin-left: 20px;
+        }
+    }
+}
+// End of Top Form Section
+
+// Bottom Form Section
+#importDataBottomForm {
+    padding: 30px 20px 1px 20px;
+}
+
+#csvDelim, #udfArgs {
+    visibility: visible;
+    opacity: 1;
+     .transition(opacity 0.3s);
+
+    &.hidden {
+        visibility: hidden;
+        opacity: 0;
+        display: none;
+    }
+
+    .size(@min-height: 50px; @max-height: 95px);
+    .position(relative);
+    margin-bottom: 15px;
+    // margin-right: -30px;
+    .font(@weight: 700, @size: 12px);
+
+    .wrapper {
+        .size(@height: 50px);
+        .position(relative);
+        float: left;
+        .size(@width: 50%);
+        &:first-child {
+            margin-right: 30px;
+            .size(@width: ~"calc(50% - 30px)");
+        }
+    }
+
+    .label {
+        .size(@width: 110px, @height: 30px);
+        .font(@size: 13px);
+    }
+
+    .nullVal {
+        font-style: italic;
+    }
+
+    .listSection {
+        .dropDownList(~"calc(100% - 110px)", 30px);
+
+         .text {
+            .size(@width: ~"calc(100% - 30px)");
+            .font(@size: 13px);
+            .rounded(3px 0 0 3px);
+            .noSelection;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+            cursor: default;
+        }
+
+        .list {
+            .rounded(0 0 3px 3px);
+            .position(@top: 31px);
+            .font(@size: 13px, @weight: 600);
+
+            li {
+                padding: 0 7px;
+
+                &:hover {
+                    background-color: @color-white;
+                }
+
+                &.hover {
+                    background-color: @color-selectedCell-light;
+                }
+            }
+
+            .other {
+                .size(@height: 60px);
+                .position(relative);
+                span {
+                    display: block;
+                }
+                input {
+                    display: block;
+                    .size(@width: 100%, @height: 20px);
+                    .font(@line-height: 20px);
+                    box-shadow: 0px 0px 0px 1px #d1dee6;
+                    .rounded;
+                    outline: none;
+                }
+            }
+        }
+
+        &.open {
+            .rounded(3px 3px 0 0);
+            .text {
+                .rounded(3px 0 0 0);
+            }
+        }
+    }
+}
+// End of Bottom Form Section
+// End of Data Form Section
+
+// Preview Table Section
 #dsPreviewWrap {
     padding: 10px 10px 0 10px;
     background-color: @color-background-topForm;
@@ -725,6 +708,7 @@ input {
         }
     }
 }
+// End Of Preview Table Section
 
 /* End Of Import Data View Section */
 
@@ -839,7 +823,8 @@ input {
         background-color: @color-background-bottomGrayMed;
         border-right: 1px solid rgba(0, 0, 0, 0.25);
 
-        .gridViewButton(@order, @url) {
+        // inner function
+        ._gridViewButton(@order, @url) {
             .flex(1 1 auto);
             .flex-order(@order);
             height: 100%;
@@ -872,7 +857,7 @@ input {
         }
 
         #backFolderBtn {
-            .gridViewButton(1, "/images/datastore/btn-upper-folder.png");
+            ._gridViewButton(1, "/images/datastore/btn-upper-folder.png");
             .label {
                 font-size: 12px;
             }
@@ -882,12 +867,12 @@ input {
             }
         }
         #addFolderBtn {
-            .gridViewButton(2, "/images/datastore/btn-add-folder.png");
+            ._gridViewButton(2, "/images/datastore/btn-add-folder.png");
             border-left: 1px solid rgba(118, 118, 118, 0.5);
             border-right: 1px solid rgba(118, 118, 118, 0.5);
         }
         #deleteFolderBtn {
-            .gridViewButton(3, "/images/datastore/btn-delete-folder.png");
+            ._gridViewButton(3, "/images/datastore/btn-delete-folder.png");
         }
     }
 
@@ -906,191 +891,191 @@ input {
             overflow-x: hidden;
             overflow-y: scroll;
             .size(@width: ~"calc(100% + 20px)", @height: 100%);
+            &::-webkit-scrollbar {
+                display: none;
+            }
         }
-        #gridViewScrollbarWrapper::-webkit-scrollbar {
-            display: none;
+    }
+}
+
+#gridView {
+    &.gridView {
+        overflow: auto;
+        grid-unit.hidden {
+            > .gridIcon, > .listIcon, > .label, > .dsCount, 
+            > .dragWrap {
+                display: none !important;
+            }
         }
 
-        #gridView {
-            &.gridView {
-                overflow: auto;
-                grid-unit.hidden {
-                    > .gridIcon, > .listIcon, > .label, > .dsCount, 
-                    > .dragWrap {
-                        display: none !important;
-                    }
-                }
+        grid-unit:first-of-type {
+            clear: left;
+        }
 
-                grid-unit:first-of-type {
-                    clear: left;
-                }
+        grid-unit.display {
+            .gridViewForGrid;
+        }
 
-                grid-unit.display {
-                    .gridViewForGrid;
-                }
-
-                grid-unit.ds.display > .dragWrap {
-                    .size(@width: ~"calc(50% + 7px)", @height: 100%);
-                    position: absolute;
-                    background: transparent;
-                    &.leftTopDragWrap {
-                        // background-color: blue;
-                        left: -7px;
-                        &.active {
-                            box-shadow: inset 2px 0px 0px @color-background-topAction;
-                        }
-                    }
-
-                    &.rightBottomDragWrap {
-                        // background-color: green;
-                        left: 50%;
-                        &.active {
-                            box-shadow: 2px 0px 0px @color-background-topAction;
-                        }
-                    }
-                }
-
-                grid-unit.folder.display {
-                    .label {
-                        cursor: text;
-                        &:focus {
-                            .position(absolute, @left: -10px);
-                            box-shadow: inset 0px 0px 3px black;
-                            background: @color-background-white;
-                            outline: none;
-                            white-space: nowrap;
-                            overflow-y: hidden;
-                            width: 150%;
-                            text-overflow: initial;
-                        }
-                    }
-
-                    .dsCount {
-                        .position(absolute, 11px, 0, 0, -3px);
-                        .size(@width: 50px, @height: 20px);
-                        color: @color-text-blue;
-                        font-weight: 700;
-                    }
-
-                    > .dragWrap {
-                        height: 100%;
-                        position: absolute;
-                        background: transparent;
-
-                        &.leftTopDragWrap {
-                            left: -7px;
-                            width: ~"calc(16.5% + 7px)";
-                            &.active {
-                                box-shadow: inset 2px 0px 0px @color-background-topAction;
-                            }
-                        }
-
-                        &.rightBottomDragWrap {
-                            left: 82.5%;
-                            width: ~"calc(16.5% + 7px)";
-                            &.active {
-                                box-shadow: 2px 0px 0px @color-background-topAction;
-                            }
-                        }
-
-                        &.midDragWrap {
-                            width: 66%;
-                            left: 16.5%;
-                        }
-                    }
+        grid-unit.ds.display > .dragWrap {
+            .size(@width: ~"calc(50% + 7px)", @height: 100%);
+            position: absolute;
+            background: transparent;
+            &.leftTopDragWrap {
+                // background-color: blue;
+                left: -7px;
+                &.active {
+                    box-shadow: inset 2px 0px 0px @color-background-topAction;
                 }
             }
 
-            & .dragWrap {
-                z-index: -1;
+            &.rightBottomDragWrap {
+                // background-color: green;
+                left: 50%;
+                &.active {
+                    box-shadow: 2px 0px 0px @color-background-topAction;
+                }
+            }
+        }
+
+        grid-unit.folder.display {
+            .label {
+                cursor: text;
+                &:focus {
+                    .position(absolute, @left: -10px);
+                    box-shadow: inset 0px 0px 3px black;
+                    background: @color-background-white;
+                    outline: none;
+                    white-space: nowrap;
+                    overflow-y: hidden;
+                    width: 150%;
+                    text-overflow: initial;
+                }
             }
 
-            &.drag .dragWrap {
-                z-index: 99;
+            .dsCount {
+                .position(absolute, 11px, 0, 0, -3px);
+                .size(@width: 50px, @height: 20px);
+                color: @color-text-blue;
+                font-weight: 700;
             }
-        
-            &.listView {
-                padding: 4px 0;
-                overflow-y: scroll;
 
-                grid-unit {
-                    .listViewForGrid;
-                }
+            > .dragWrap {
+                height: 100%;
+                position: absolute;
+                background: transparent;
 
-                grid-unit.ds > .dragWrap {
-                    .position(absolute);
-                    .size(@width: 100%, @height: 17.5px);
-                    background: transparent;
-                    &.leftTopDragWrap {
-                        top: -5px;
-                        &.active {
-                            box-shadow: inset 0px 2px 0px @color-background-topAction;
-                        }
-                    }
-
-                    &.rightBottomDragWrap {
-                        top: 12.5px;
-                        &.active {
-                            box-shadow: 0px 2px 0px @color-background-topAction;
-                        }
+                &.leftTopDragWrap {
+                    left: -7px;
+                    width: ~"calc(16.5% + 7px)";
+                    &.active {
+                        box-shadow: inset 2px 0px 0px @color-background-topAction;
                     }
                 }
 
-                grid-unit.folder {
-                    grid-unit {
-                        .size(@width: 95%, @max-width: 230px);
-                        margin-left: 5%;
-                        display: block;
-                    }
-
-                    .label:focus {
-                        outline: none;
-                    }
-
-                    .dsCount {
-                        .position(absolute, @top: 3px, @right: 8px, @bottom: 0);
-                        .size(@width: 45px, @height: 25px);
-                        color: @color-text-blue;
-                        font-weight: 900;
-                        text-align: right;
-                    }
-
-                    > .dragWrap {
-                        width: 100%;
-                        position: absolute;
-                        background: transparent;
-
-                        &.leftTopDragWrap {
-                            top: -5px;
-                            height: 9.17px;
-                             &.active {
-                                box-shadow: inset 0px 2px 0px @color-background-topAction;
-                            }
-                        }
-
-                        &.rightBottomDragWrap {
-                            top: 20.84px;
-                            height: 9.16px;
-                            &.active {
-                                box-shadow: 0px 2px 0px @color-background-topAction;
-                            }
-                        }
-
-                        &.midDragWrap {
-                            height: 16.67px;
-                            top: 4.17px;
-                        }
+                &.rightBottomDragWrap {
+                    left: 82.5%;
+                    width: ~"calc(16.5% + 7px)";
+                    &.active {
+                        box-shadow: 2px 0px 0px @color-background-topAction;
                     }
                 }
 
-                grid-unit.collapse {
-                    grid-unit {
-                        display: none !important;
-                    }
-                    &.folder > .listIcon .icon {
-                        .image("/images/datastore/folder-sm.png", 50%, 50%)
+                &.midDragWrap {
+                    width: 66%;
+                    left: 16.5%;
+                }
+            }
+        }
+    }
+
+    & .dragWrap {
+        z-index: -1;
+    }
+
+    &.drag .dragWrap {
+        z-index: 99;
+    }
+
+    &.listView {
+        padding: 4px 0;
+        overflow-y: scroll;
+
+        grid-unit {
+            .listViewForGrid;
+        }
+
+        grid-unit.ds > .dragWrap {
+            .position(absolute);
+            .size(@width: 100%, @height: 17.5px);
+            background: transparent;
+            &.leftTopDragWrap {
+                top: -5px;
+                &.active {
+                    box-shadow: inset 0px 2px 0px @color-background-topAction;
+                }
+            }
+
+            &.rightBottomDragWrap {
+                top: 12.5px;
+                &.active {
+                    box-shadow: 0px 2px 0px @color-background-topAction;
+                }
+            }
+        }
+
+        grid-unit.folder {
+            grid-unit {
+                .size(@width: 95%, @max-width: 230px);
+                margin-left: 5%;
+                display: block;
+            }
+
+            .label:focus {
+                outline: none;
+            }
+
+            .dsCount {
+                .position(absolute, @top: 3px, @right: 8px, @bottom: 0);
+                .size(@width: 45px, @height: 25px);
+                color: @color-text-blue;
+                font-weight: 900;
+                text-align: right;
+            }
+
+            > .dragWrap {
+                width: 100%;
+                position: absolute;
+                background: transparent;
+
+                &.leftTopDragWrap {
+                    top: -5px;
+                    height: 9.17px;
+                     &.active {
+                        box-shadow: inset 0px 2px 0px @color-background-topAction;
                     }
                 }
+
+                &.rightBottomDragWrap {
+                    top: 20.84px;
+                    height: 9.16px;
+                    &.active {
+                        box-shadow: 0px 2px 0px @color-background-topAction;
+                    }
+                }
+
+                &.midDragWrap {
+                    height: 16.67px;
+                    top: 4.17px;
+                }
+            }
+        }
+
+        grid-unit.collapse {
+            grid-unit {
+                display: none !important;
+            }
+            &.folder > .listIcon .icon {
+                .image("/images/datastore/folder-sm.png", 50%, 50%)
             }
         }
     }
@@ -1206,159 +1191,159 @@ input {
 }
 
 #datasetWrap {
-        .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 68px)",
+    .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 68px)",
               @max-width: 100%);
-        white-space: nowrap;
-        overflow: hidden;
-        float: left;
-        position: absolute;
-        margin-left: 10px;
-        overflow-x: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    float: left;
+    position: absolute;
+    margin-left: 10px;
+    overflow-x: auto;
+}
+
+.datasetTbodyWrap {
+    max-height: 100%;
+    overflow-x: visible;
+    overflow-y: scroll;
+    display: inline-block;
+    outline: 1px solid #DDDDDD;
+    outline-offset: -1px;
+    margin-top: -1px;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+table.datasetTable {
+    margin: 0;
+}
+
+.datasetTableWrap {
+    .size(@height: ~"calc(100% - 10px)", @max-height: ~"calc(100% - 10px)");
+    margin: 10px 0px 0px;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    .datasetTable {
+        width: 0px;
     }
 
-    .datasetTbodyWrap {
-        max-height: 100%;
-        overflow-x: visible;
-        overflow-y: scroll;
-        display: inline-block;
-        outline: 1px solid #DDDDDD;
-        outline-offset: -1px;
-        margin-top: -1px;
-        &::-webkit-scrollbar {
-            display: none;
-        }
+    .loadError {
+        color: @color-table-red;
+        margin-left: 15px;
     }
 
-    table.datasetTable {
-        margin: 0;
+    .loadingMsg {
+        margin-left: 15px;
     }
 
-    .datasetTableWrap {
-        .size(@height: ~"calc(100% - 10px)", @max-height: ~"calc(100% - 10px)");
-        margin: 10px 0px 0px;
-        position: relative;
-        display: inline-block;
-        overflow: hidden;
-        .datasetTable {
-            width: 0px;
-        }
+    .header {
+        .position(absolute, @top: 0);
+        .size(@width: 130px, @height: 40px);
+        cursor: pointer;
 
-        .loadError {
-            color: @color-table-red;
-            margin-left: 15px;
-        }
-
-        .loadingMsg {
-            margin-left: 15px;
-        }
-
-        .header {
-            .position(absolute, @top: 0);
-            .size(@width: 130px, @height: 40px);
+       .dataTableHeader;
+       .editableHead {
+            .noSelection();
             cursor: pointer;
+       }
 
-           .dataTableHeader;
-           .editableHead {
-                .noSelection();
-                cursor: pointer;
-           }
-           
-           .colGrab:hover + div {
-                .dropdownBox {
-                    display: none;
-                }
-           }
-
-           .flexContainer {
-                overflow: hidden;
-                .gray-gradient;
-                .rounded;
-           }
-
-            .flexWrap.flex-left {
-                .flex(0 0 24px);
-                margin: 0px 0 0 0px;
-                overflow: hidden;
-                cursor: default;
-                .size(@height: 30px);
-                .colIcon-gray-gradient();
-                position: relative;
-                .iconHidden {
-                    .size(@width: 1px, @height: 30px);
-                    display: inline-block;
-                }
-                .icon {
-                    margin-left: 3px;
-                }
+       .colGrab:hover + div {
+            .dropdownBox {
+                display: none;
             }
+       }
 
-            .flexWrap.flex-mid {
-                .flex(1 1 auto);
+       .flexContainer {
+            overflow: hidden;
+            .gray-gradient;
+            .rounded;
+       }
+
+        .flexWrap.flex-left {
+            .flex(0 0 24px);
+            margin: 0px 0 0 0px;
+            overflow: hidden;
+            cursor: default;
+            .size(@height: 30px);
+            .colIcon-gray-gradient();
+            position: relative;
+            .iconHidden {
+                .size(@width: 1px, @height: 30px);
+                display: inline-block;
             }
+            .icon {
+                margin-left: 3px;
+            }
+        }
 
+        .flexWrap.flex-mid {
+            .flex(1 1 auto);
+        }
+
+        .flexWrap.flex-right {
+            .flex(0 0 24px);
+            position: relative;
+
+            .tick.icon {
+                .size(@width: 15px, @height: 27px);
+                .image("/images/datastore/tick.png", 50%, 50%);
+                opacity: 0.5;
+            }
+        }
+
+        &:hover {
             .flexWrap.flex-right {
-                .flex(0 0 24px);
-                position: relative;
-
-                .tick.icon {
-                    .size(@width: 15px, @height: 27px);
-                    .image("/images/datastore/tick.png", 50%, 50%);
-                    opacity: 0.5;
-                }
-            }
-
-            &:hover {
-                .flexWrap.flex-right {
-                    > .tick.icon {
-                        opacity: 1.0;
-                    }
-                }
-            }
-        }
-
-        th {
-            width: 130px;
-            &:first-child {
-                width: 40px;
-                cursor: default;
-                pointer-events: none;
-                .header {
-                    border-left: 5px solid @color-background-tableBorders;
-                    width: 40px;
-                    cursor: default;
-                    .gray-gradient;
-                }
-            }
-        }
-        .selectedCell {
-            .editableHead {
-                background: none !important;
-                background-color: @color-background-white !important;
-                color: @color-text-darkGray !important;
-            }
-        }
-        .selectedCol {
-            .header {
-                .editableHead {
-                    color: @color-background-white;
-                }
-                .tick.icon {
+                > .tick.icon {
                     opacity: 1.0;
                 }
-                .flexContainer {
-                    .action-gradient;
-                }
-            }
-            .flexWrap.flex-left {
-                .colIcon-active-gradient(); 
-            }
-            .type-boolean .flexWrap.flex-left {
-                &:after {
-                    border-top: 30px solid @color-triangle-colIcon-blue;
-                }
             }
         }
     }
+
+    th {
+        width: 130px;
+        &:first-child {
+            width: 40px;
+            cursor: default;
+            pointer-events: none;
+            .header {
+                border-left: 5px solid @color-background-tableBorders;
+                width: 40px;
+                cursor: default;
+                .gray-gradient;
+            }
+        }
+    }
+    .selectedCell {
+        .editableHead {
+            background: none !important;
+            background-color: @color-background-white !important;
+            color: @color-text-darkGray !important;
+        }
+    }
+    .selectedCol {
+        .header {
+            .editableHead {
+                color: @color-background-white;
+            }
+            .tick.icon {
+                opacity: 1.0;
+            }
+            .flexContainer {
+                .action-gradient;
+            }
+        }
+        .flexWrap.flex-left {
+            .colIcon-active-gradient();
+        }
+        .type-boolean .flexWrap.flex-left {
+            &:after {
+                border-top: 30px solid @color-triangle-colIcon-blue;
+            }
+        }
+    }
+}
 /* End Of Content Mid */
 
 /* Content Right */
@@ -1419,6 +1404,7 @@ input {
     }
 }
 
+// Data Cart Section
 #dataCartWrap {
     .size(@width: 100%, @height: ~"calc(100% - 125px)");
     overflow: auto;
@@ -1529,3 +1515,5 @@ input {
         }
     }
 }
+// End of Data Cart Section
+
