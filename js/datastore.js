@@ -388,7 +388,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 deferred.resolve();
             })
             .fail(function(error) {
-                Alert.error("Load Dataset Fails", error.error);
+                Alert.error("Load Dataset Failed", error.error);
                 // StatusBox.show(text, $filePath, true);
                 StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
                 deferred.reject(error);
@@ -538,7 +538,7 @@ window.GridView = (function($, GridView) {
                 var errorHTML = "<div class='loadError'>" +
                                     "Loading dataset failed. " + error.error +
                                 "</div>";
-                console.error(error);
+                console.error(error.error);
                 $('#dataSetTableWrap').html(errorHTML);
             });
 
@@ -2414,8 +2414,17 @@ window.DS = (function ($, DS) {
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName, sqlOptions)
         .then(function() {
-            $grid.removeClass('inactive')
-                 .find('.waitingIcon').remove();
+            return (XcalarSample(dsName, 1));
+        })
+        .then(function(result) {
+            if (!result) {
+                var innerDeferred = jQuery.Deferred();
+                return (innerDeferred.reject({error:
+                                             'Cannot parse the data set.'}));
+            } else {
+                $grid.removeClass('inactive')
+                     .find('.waitingIcon').remove();
+            }
         })
         .then(function() {
             var urlLen = loadURL.length;
