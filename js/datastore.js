@@ -1102,7 +1102,7 @@ window.DataCart = (function($, DataCart) {
 
                 // add sql
                 var sqlOptions = {
-                    "operation": "createTable",
+                    "operation": "index",
                     "tableName": tableName,
                     "col"      : []
                 };

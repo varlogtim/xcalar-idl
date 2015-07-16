@@ -94,8 +94,6 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case ("aggregate"):
                 // fallthrough
-            case ("createTable"):
-                // fallthrough
             case ("addTable"):
                 // fallthrough
             case ("previewDataSet"):
