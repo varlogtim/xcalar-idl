@@ -450,6 +450,7 @@ window.GridView = (function($, GridView) {
             var $importForm = $("#importDataView");
 
             if (!$importForm.is(":visible")) {
+                $('#importDataReset').click();
                 $importForm.show();
                 $("#filePath").focus();
                 $gridView.find(".active").removeClass("active");
@@ -2397,7 +2398,6 @@ window.DS = (function ($, DS) {
         $grid.append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.click();
-        $("#importDataReset").click();
         
         var sqlOptions = {"operation" : "loadDataSet",
                           "dsPath"    : loadURL,
@@ -2414,13 +2414,17 @@ window.DS = (function ($, DS) {
                    fieldDelim, lineDelim, hasHeader,
                    moduleName, funcName, sqlOptions)
         .then(function() {
+            // sample the dataset to see if it can be parsed
             return (XcalarSample(dsName, 1));
         })
         .then(function(result) {
             if (!result) {
-                var innerDeferred = jQuery.Deferred();
-                return (innerDeferred.reject({error:
-                                             'Cannot parse the data set.'}));
+                // if dataset cannot be parsed produce a load fail 
+                var msg = {
+                    error: 'Cannot parse data set "' + dsName + '".',
+                    dsCreated: true
+                };
+                return (jQuery.Deferred().reject(msg));
             } else {
                 $grid.removeClass('inactive')
                      .find('.waitingIcon').remove();
@@ -2452,7 +2456,26 @@ window.DS = (function ($, DS) {
         .fail(function(error) {
             rmDSObjHelper(ds.id);
             $grid.remove();
-            $("#importDataButton").click();
+            if ($('#dsInfo-title').text() === dsName) {
+                // if loading page is showing, remove and go to import form
+                $("#importDataView").show();
+                $("#gridView").find(".active").removeClass("active");
+                $("#dataSetTableWrap").empty();
+            }
+            if (error.dsCreated) {
+                // if a data set was loaded but cannot be parsed, destroy it
+                XcalarSetFree(gDatasetBrowserResultSetId)
+                .then(function() {
+                    gDatasetBrowserResultSetId = 0;
+                    var sqlOptions = {"operation": "destroyDataSet",
+                          "dsName"   : dsName};
+                    return (XcalarDestroyDataset(dsName, sqlOptions));
+                })
+                .fail(function(error) {
+                    Alert.error("Delete Dataset Fails", error);
+                });
+            }
+            
             deferred.reject(error);
         });
 
