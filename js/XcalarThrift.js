@@ -1120,13 +1120,13 @@ function XcalarListXdfs(fnNamePattern, categoryPattern) {
     return (deferred.promise());
 }
 
-function XcalarUploadPython(moduleName, funcName, pythonStr) {
+function XcalarUploadPython(moduleName, pythonStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
 
-    xcalarApiUploadPython(tHandle, moduleName, funcName, pythonStr)
+    xcalarApiUploadPython(tHandle, moduleName, pythonStr)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarUploadPython", error));

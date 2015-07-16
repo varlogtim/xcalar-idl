@@ -15,6 +15,9 @@ window.OperationsModal = (function($, OperationsModal) {
     
     var modalHelper = new xcHelper.Modal($operationsModal);
     var corrector;
+    OperationsModal.getOperatorsMap = function() {
+        return (operatorsMap);
+    }
 
     OperationsModal.setup = function() {
         var allowInputChange = true;
@@ -227,10 +230,7 @@ window.OperationsModal = (function($, OperationsModal) {
             cursor     : '-webkit-grabbing'
         });
 
-        // Populate the XDFs list on setup so that we don't have to keep calling
-        // the listXdfs call. However we must keep calling listUdfs because user
-        // defined functions are populated on run. However, Xdfs will not be
-        // added dynamically.
+        // XXX FIXME GUI-1627 Technically, we don't need this call right now
         XcalarListXdfs("*", "*")
         .done(function(listXdfsObj) {
             setupOperatorsMap(listXdfsObj.fnDescs);
@@ -238,62 +238,67 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     OperationsModal.show = function(newTableNum, newColNum, operator) {
-        var tableCols  = gTables[newTableNum].tableCols;
-        var currentCol = tableCols[newColNum - 1];
-        // groupby and aggregates stick to num 6,
-        // filter and map use 0-5;
-        tableNum = newTableNum;
-        colNum = newColNum;
-        colName = currentCol.name;
-        operatorName = operator.toLowerCase().trim();
+        XcalarListXdfs("*", "*")
+        .done(function(listXdfsObj) {
+            setupOperatorsMap(listXdfsObj.fnDescs);
 
-        $operationsModal.find('.operationsModalHeader .text').text(operator);
+            var tableCols  = gTables[newTableNum].tableCols;
+            var currentCol = tableCols[newColNum - 1];
+            // groupby and aggregates stick to num 6,
+            // filter and map use 0-5;
+            tableNum = newTableNum;
+            colNum = newColNum;
+            colName = currentCol.name;
+            operatorName = operator.toLowerCase().trim();
 
-        var colNames = [];
-        tableCols.forEach(function(col) {
-            // skip data column
-            if (col.name !== "DATA") {
-                // Add $ since this is the current format of column
-                colNames.push('$' + col.name);
+            $operationsModal.find('.operationsModalHeader .text').text(operator);
+
+            var colNames = [];
+            tableCols.forEach(function(col) {
+                // skip data column
+                if (col.name !== "DATA") {
+                    // Add $ since this is the current format of column
+                    colNames.push('$' + col.name);
+                }
+            });
+
+            corrector = new xcHelper.Corrector(colNames);
+
+            // get modal's origin classes
+            var classes = $operationsModal.attr('class').split(' ');
+            for (var i = 0; i < classes.length; i++) {
+                if (classes[i].startsWith('numArgs')){
+                    classes.splice(i, 1);
+                    i--;
+                }
+            }
+
+            $operationsModal.attr('class', classes.join(' '));
+
+            populateInitialCategoryField(operatorName);
+
+            if (operatorName === 'aggregate') {
+                $operationsModal.addClass('numArgs0');
+            } else if (operatorName === 'map') {
+                $operationsModal.addClass('numArgs4');
+            } else if (operatorName === 'group by') {
+                $operationsModal.addClass('numArgs4');
+            }
+
+            centerPositionElement($operationsModal);
+            modalHelper.setup();
+
+            toggleModalDisplay(false);
+
+            $categoryInput.focus();
+            if ($categoryMenu.find('li').length === 1) {
+                var val = $categoryMenu.find('li').text();
+                $categoryInput.val(val).change();
+                enterInput(0);
+                $operationsModal.find('.circle1').addClass('filled');
+                $functionInput.focus();
             }
         });
-
-        corrector = new xcHelper.Corrector(colNames);
-
-        // get modal's origin classes
-        var classes = $operationsModal.attr('class').split(' ');
-        for (var i = 0; i < classes.length; i++) {
-            if (classes[i].startsWith('numArgs')){
-                classes.splice(i, 1);
-                i--;
-            }
-        }
-
-        $operationsModal.attr('class', classes.join(' '));
-
-        populateInitialCategoryField(operatorName);
-
-        if (operatorName === 'aggregate') {
-            $operationsModal.addClass('numArgs0');
-        } else if (operatorName === 'map') {
-            $operationsModal.addClass('numArgs4');
-        } else if (operatorName === 'group by') {
-            $operationsModal.addClass('numArgs4');
-        }
-
-        centerPositionElement($operationsModal);
-        modalHelper.setup();
-
-        toggleModalDisplay(false);
-
-        $categoryInput.focus();
-        if ($categoryMenu.find('li').length === 1) {
-            var val = $categoryMenu.find('li').text();
-            $categoryInput.val(val).change();
-            enterInput(0);
-            $operationsModal.find('.circle1').addClass('filled');
-            $functionInput.focus();
-        }
     };
 
     function toggleModalDisplay(isHide, time) {
@@ -410,12 +415,16 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function setupOperatorsMap(opArray) {
         var arrayLen = opArray.length;
+        // XXX Speed up available. Only fetch for category 9, all the rest
+        // should remain the same since they are XDFs.
+        operatorsMap = [];
+
         for (var i = 0; i < arrayLen; i++) {
             if (!operatorsMap[opArray[i].category]) {
                 operatorsMap[opArray[i].category] = [];
             }
             operatorsMap[opArray[i].category].push(opArray[i]);
-        }
+        } 
     }
 
     function sortHTML(a, b){
@@ -589,6 +598,7 @@ window.OperationsModal = (function($, OperationsModal) {
             $highlightedLi = $lis.eq(index);
         }
 
+
         var val = $highlightedLi.text();
         $highlightedLi.addClass('highlighted');
         $input.val(val);
@@ -692,6 +702,9 @@ window.OperationsModal = (function($, OperationsModal) {
             }
 
             var numArgs = operObj.numArgs;
+            if (numArgs < 0) {
+                numArgs = 1; // Refer to operObj.numArgs for min number
+            }
             var $tbody = $operationsModal.find('.argumentTable tbody');
 
             // as rows order may change, update it here
@@ -711,8 +724,13 @@ window.OperationsModal = (function($, OperationsModal) {
             var typeId;
 
             for (var i = 0; i < numArgs; i++) {
-                description = operObj.argDescs[i].argDesc;
-                typeId = operObj.argDescs[i].typesAccepted;
+                if (operObj.argDescs[i]) {
+                    description = operObj.argDescs[i].argDesc;
+                    typeId = operObj.argDescs[i].typesAccepted;
+                } else {
+                    description = "";
+                    typeId = Math.pow(2, Object.keys(DfFieldTypeT).length+1)-1; 
+                }
 
                 var $input = $rows.eq(i).find('input');
                 if (i === 0) {
@@ -863,20 +881,27 @@ window.OperationsModal = (function($, OperationsModal) {
                 // if it contains a column name
                 // note that field like pythonExc can have more than one $col
                 arg = arg.replace(/\$/g, '');
-                colType = getColumnTypeFromArg(arg);
 
-                if (colType != null) {
-                    var types = paresType(typeid);
+                // Since there is currently no way for users to specify what
+                // col types they are expecting in the python functions, we will
+                // skip this type check if the function category is user defined
+                // function.
+                if ($("#categoryList input").val().indexOf("user") !== 0) {
+                    colType = getColumnTypeFromArg(arg);
 
-                    if (types.indexOf(colType) < 0) {
-                        isPassing = false;
-                        var text = "Invalid type for the field, wanted: " +
+                    if (colType != null) {
+                        var types = paresType(typeid);
+
+                        if (types.indexOf(colType) < 0) {
+                            isPassing = false;
+                            var text = "Invalid type for the field, wanted: " +
                                     types.join("/") + ", but gives: " + colType;
-                        StatusBox.show(text, $input);
-                        return (false);
+                            StatusBox.show(text, $input);
+                            return (false);
+                        }
+                    } else {
+                        console.error("colType is null!");
                     }
-                } else {
-                    console.error("colTpye is null!");
                 }
             } else {
                 arg = formatArgumentInput(arg, typeid);
@@ -1136,7 +1161,7 @@ window.OperationsModal = (function($, OperationsModal) {
         // mixed
         typeShift = 1 << DfFieldTypeT.DfMixed;
         if ((typeId & typeShift) > 0) {
-            types.push("boolean");
+            types.push("mixed");
         }
 
         // undefined/unknown

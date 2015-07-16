@@ -579,8 +579,7 @@ window.RightSideBar = (function($, RightSideBar) {
                     }
                     xcHelper.disableSubmit($submitBtn);
                     // XXX: Change cursor, handle failure
-                    XcalarUploadPython(moduleName, functionName,
-                                       event.target.result)
+                    XcalarUploadPython(moduleName, event.target.result)
                     .then(function() {
                         // clearance
                         $inputFile.val("");
@@ -680,7 +679,7 @@ window.RightSideBar = (function($, RightSideBar) {
             }
 
             // XXX: Change cursor, handle failure
-            XcalarUploadPython(moduleName, functionName, entireString)
+            XcalarUploadPython(moduleName, entireString)
             .then(function() {
                 // clearance
                 $fnName.val("");
@@ -704,7 +703,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 '\tfor a in arg:\n' +
                     '\t\tstri = stri + str(a)\n' +
                 '\treturn stri\n';
-        XcalarUploadPython(moduleName, functionName, entireString);
+        XcalarUploadPython(moduleName, entireString);
     }
 
     function uploadSuccess() {
