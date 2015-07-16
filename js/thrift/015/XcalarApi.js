@@ -115,7 +115,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
 
 }
 
-function xcalarIndexDatasetWorkItem(datasetName, dstTableName, keyName) {
+function xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
@@ -139,8 +139,7 @@ function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName) {
                 ", keyName = " + keyName + ", dstTableName = " +
                 dstTableName + ")");
 
-    var workItem = xcalarIndexDatasetWorkItem(datasetName, dstTableName,
-                                              keyName);
+    var workItem = xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1680,8 +1679,8 @@ function xcalarKeyAddOrReplaceWorkItem(persist, key, value) {
 
 function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
-    // console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
-    //     "persist = " + persist.toString() + ")");
+    console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
+        "persist = " + persist.toString() + ")");
 
     var workItem = xcalarKeyAddOrReplaceWorkItem(persist, key, value);
 
@@ -2079,26 +2078,23 @@ function xcalarApiListXdfs(thriftHandle, fnNamePattern, categoryPattern) {
     return (deferred.promise());
 }
 
-function xcalarApiUploadPythonWorkItem(moduleName, funcName, pythonStr) {
+function xcalarApiUploadPythonWorkItem(moduleName, pythonSrc) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.uploadPythonInput = new XcalarApiUploadPythonInputT();
 
     workItem.api = XcalarApisT.XcalarApiUploadPython;
     workItem.input.uploadPythonInput.moduleName = moduleName;
-    workItem.input.uploadPythonInput.funcName = funcName;
-    workItem.input.uploadPythonInput.pythonStr = pythonStr;
+    workItem.input.uploadPythonInput.pythonSrc = pythonSrc;
     return (workItem);
 }
 
-function xcalarApiUploadPython(thriftHandle, moduleName, funcName, pythonStr) {
+function xcalarApiUploadPython(thriftHandle, moduleName, pythonSrc) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarApiUploadPython(pythonStr = ", pythonStr, ", ",
-                "moduleName = ", moduleName, ", ",
-                "funcName = ", funcName, ")");
+    console.log("xcalarApiUploadPython(pythonSrc = ", pythonSrc, ", ",
+                "moduleName = ", moduleName, ")");
 
-    var workItem = xcalarApiUploadPythonWorkItem(moduleName, funcName,
-                                                 pythonStr);
+    var workItem = xcalarApiUploadPythonWorkItem(moduleName, pythonSrc);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
