@@ -573,8 +573,8 @@ function autosizeCol(el, options) {
     var includeHeader = options.includeHeader || false;
     // var resizeFirstRow = options.resizeFirstRow || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 10);
-    // var oldTableWidth = $table.width();
-    var maxWidth = 700;
+
+    
     var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
     var newWidth = Math.max(widestTdWidth, minWidth);
     // dbClick is autoSized to a fixed width
@@ -582,7 +582,11 @@ function autosizeCol(el, options) {
         var originalWidth = gTables[tableNum].tableCols[index - 1].width;
         newWidth = Math.max(newWidth, originalWidth);
     }
-    newWidth = Math.min(newWidth, maxWidth);
+    if (!options.unlimitedWidth) {
+        var maxWidth = 700;
+        newWidth = Math.min(newWidth, maxWidth);
+    }
+    
     el.outerWidth(newWidth);
     if ($table.attr('id').indexOf('xc') > -1) {
         gTables[tableNum].tableCols[index - 1].width = el.outerWidth();
@@ -661,7 +665,8 @@ function dblClickResize(el, options) {
         autosizeCol(el.parent().parent(), {
             "resizeFirstRow": resize,
             "dbClick"       : true,
-            "minWidth"      : minWidth});
+            "minWidth"      : minWidth,
+            "unlimitedWidth" : true});
         $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
