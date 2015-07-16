@@ -1831,9 +1831,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var format = dsObj.attrs.format;
         var fileSize = dsObj.attrs.fileSize || 'N/A';
         var path = dsObj.attrs.path || 'N/A';
+        var numEntries = dsObj.attrs.numEntries || 'N/A';
 
         // update date part of the table info first to make UI smooth
-        updateTableInfo(datasetName, format, 'N/A', fileSize, path);
+        updateTableInfo(datasetName, format, numEntries, fileSize, path);
 
         if (isLoading) {
             var animatedDots =
@@ -2388,9 +2389,10 @@ window.DS = (function ($, DS) {
             "name"    : dsName,
             "isFolder": false,
             "attrs"   : {
-                "format"  : dsFormat,
-                "path"    : loadURL,
-                "fileSize": 'N/A'
+                "format"    : dsFormat,
+                "path"      : loadURL,
+                "fileSize"  : 'N/A',
+                "numEntries": 'N/A'
             }
         });
         var $grid = DS.getGridByName(dsName);
@@ -2417,7 +2419,7 @@ window.DS = (function ($, DS) {
             // sample the dataset to see if it can be parsed
             return (XcalarSample(dsName, 1));
         })
-        .then(function(result) {
+        .then(function(result, totalEntries) {
             if (!result) {
                 // if dataset cannot be parsed produce a load fail 
                 var msg = {
@@ -2426,6 +2428,7 @@ window.DS = (function ($, DS) {
                 };
                 return (jQuery.Deferred().reject(msg));
             } else {
+                ds.attrs.numEntries = totalEntries;
                 $grid.removeClass('inactive')
                      .find('.waitingIcon').remove();
             }
