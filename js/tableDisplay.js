@@ -540,9 +540,15 @@ function generateTableShell(columns, tableNum) {
         if (backName === "DATA") {
             dataIndex = i;
             var newColid = i + 1;
+            var width;
+            if (columns[i].isHidden) {
+                width = 15;
+            } else {
+                width = columns[i].width;
+            }
             newTable +=
                 '<th class="col' + newColid + ' th dataCol" ' +
-                    'style="width:' + columns[i].width + 'px;">' +
+                    'style="width:' + width + 'px;">' +
                     '<div class="header type-data">' +
                         '<div class="dragArea"></div>' +
                         '<div class="colGrab"></div>' +
@@ -592,6 +598,9 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
 
     var columnName = option.name || "newCol";
     var width      = option.width || 0;
+    if (option.isHidden) {
+        width = 15;
+    } 
     var tooltip    = columnClass.indexOf("indexedColumn") < 0 ? "" :
                      ' title="Indexed Column" data-toggle="tooltip" ' +
                      'data-placement="top" data-container="body"';

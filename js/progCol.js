@@ -430,10 +430,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         $table.find("td.col" + colNum).width(10);
-        // $cols.find(".dropdownBox").css("right", "-6px");
-        //  hide the dropdown icon
-        // $cols.find(".dropdownBox").css("right", "-10px");
-        $cols.find(".dropdownBox").hide();
+        gTables[tableNum].tableCols[colNum - 1].isHidden = true;
 
         matchHeaderSizes(colNum, $table);
     };
@@ -458,9 +455,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         $thInput.css("padding-left", "4px");
-        // unhide dropdown icon
-        // $cols.find(".dropdownBox").css("right", "-1px");
-        $cols.find(".dropdownBox").show();
+        gTables[tableNum].tableCols[colNum - 1].isHidden = false;
 
     };
 

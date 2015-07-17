@@ -624,7 +624,8 @@ function getWidestTdWidth(el, options) {
 
     if (includeHeader) {
         var th = $table.find('.col' + id + ' .editableHead');
-        headerWidth = getTextWidth(th);
+        var extraPadding = 48;
+        headerWidth = getTextWidth(th) + extraPadding;
         if (headerWidth > largestWidth) {
             largestWidth = headerWidth;
         }
