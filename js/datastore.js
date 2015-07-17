@@ -1340,9 +1340,11 @@ window.DataPreview = (function($, DataPreview) {
             $("#importDataForm").addClass("previewMode");
             $("#previewBtn").text("APPLY CHANGES & EXIT PREVIEW");
 
-            var $previeWrap  = $("#dsPreviewWrap").removeClass("hidden");
-            var $waitSection = $previeWrap.find(".waitSection")
+            var $previeWrap   = $("#dsPreviewWrap").removeClass("hidden");
+            var $waitSection  = $previeWrap.find(".waitSection")
                                                     .removeClass("hidden");
+            var $errorSection = $previeWrap.find(".errorSection")
+                                                    .addClass("hidden");
             var $suggBtn = $("#previewSuggBtn").hide();
             
             tableName = $("#fileName").val().trim();
@@ -1367,6 +1369,8 @@ window.DataPreview = (function($, DataPreview) {
             })
             .then(function(result) {
                 if (!result) {
+                    $errorSection.html("Cannot parse the dataset.")
+                                .removeClass("hidden");
                     deferred.reject({"error": "Cannot parse the dataset."});
                     return (promiseWrapper(null));
                 }
@@ -1397,6 +1401,8 @@ window.DataPreview = (function($, DataPreview) {
                     deferred.resolve();
                 } catch(err) {
                     console.error(err, value);
+                    $errorSection.html("Cannot parse the dataset.")
+                                .removeClass("hidden");
                     // getPreviewTable();
                     deferred.reject({"error": "Cannot parse the dataset."});
                 }
