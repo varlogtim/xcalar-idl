@@ -1828,13 +1828,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         var dsObj = DS.getDSObj(dsId);
         var datasetName = dsObj.name;
-        var format = dsObj.attrs.format;
-        var fileSize = dsObj.attrs.fileSize || 'N/A';
-        var path = dsObj.attrs.path || 'N/A';
-        var numEntries = dsObj.attrs.numEntries || 'N/A';
 
         // update date part of the table info first to make UI smooth
-        updateTableInfo(datasetName, format, numEntries, fileSize, path);
+        updateTableInfo(dsObj);
 
         if (isLoading) {
             var animatedDots =
@@ -1862,8 +1858,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
             }
             var kvPairs    = result.kvPair;
             var numKvPairs = result.numKvPairs;
-
-            updateTableInfo(datasetName, format, totalEntries, fileSize, path);
+            // update info here
+            dsObj.attrs.numEntries = totalEntries;
+            updateTableInfo(dsObj);
 
             var value;
             var json;
@@ -1916,24 +1913,34 @@ window.DataSampleTable = (function($, DataSampleTable) {
         });
     }
 
-    function updateTableInfo(dsName, dsFormat, totalEntries, fileSize, path) {
+    function updateTableInfo(dsObj) {
+        var dsName = dsObj.name;
+        var format = dsObj.attrs.format;
+        var path = dsObj.attrs.path || 'N/A';
+        var numEntries = dsObj.attrs.numEntries || 'N/A';
+
         $("#schema-title").text(dsName);
         $("#dsInfo-title").text(dsName);
         // XXX these info should be changed after better backend support
         $("#dsInfo-author").text(WKBKManager.getUser());
         $("#dsInfo-createDate").text(xcHelper.getDate());
         $("#dsInfo-updateDate").text(xcHelper.getDate());
-        
-        $("#dsInfo-size").text(fileSize);
+
+        // file size is special size it needs to be calculated
+        DS.getFileSize(dsObj)
+        .then(function(fileSize) {
+            $("#dsInfo-size").text(fileSize);
+        });
+
         $("#dsInfo-path").text(path);
-        var numEntries = 'N/A';
+
         if (typeof totalEntries === "number") {
             numEntries = Number(totalEntries).toLocaleString('en');
         }
         $("#dsInfo-records").text(numEntries);
 
-        if (dsFormat) {
-            $("#schema-format").text(dsFormat);
+        if (format) {
+            $("#schema-format").text(format);
         }
         totalRows = parseInt($('#dsInfo-records').text().replace(/\,/g, ""));
     }
@@ -2385,14 +2392,16 @@ window.DS = (function ($, DS) {
                     fieldDelim, lineDelim,
                     moduleName, funcName);
 
+        // Here null means the attr is a placeholder, will
+        // be update when the sample table is loaded
         var ds = DS.create({
             "name"    : dsName,
             "isFolder": false,
             "attrs"   : {
                 "format"    : dsFormat,
                 "path"      : loadURL,
-                "fileSize"  : 'N/A',
-                "numEntries": 'N/A'
+                "fileSize"  : null,
+                "numEntries": null
             }
         });
         var $grid = DS.getGridByName(dsName);
@@ -2428,25 +2437,10 @@ window.DS = (function ($, DS) {
                 };
                 return (jQuery.Deferred().reject(msg));
             } else {
-                ds.attrs.numEntries = totalEntries;
                 $grid.removeClass('inactive')
                      .find('.waitingIcon').remove();
             }
-        })
-        .then(function() {
-            var urlLen = loadURL.length;
-            // console.log(loadURL[urlLen - 1], loadURL);
-
-            var slashIndex = loadURL.lastIndexOf('/');
-            var dotIndex   = loadURL.lastIndexOf('.');
-
-            if (dotIndex > slashIndex) {
-                loadURL = loadURL.substr(0, slashIndex + 1);
-            }
-            return (XcalarListFiles(loadURL));
-        })
-        .then(function(files) {
-            ds.attrs.fileSize = getFileSize(files);
+            // ds.attrs.fileSize = getFileSize(files);
             // display new dataset
             DS.refresh();
             if ($grid.hasClass('active')) {
@@ -2514,7 +2508,10 @@ window.DS = (function ($, DS) {
                 DS.create({
                     "name"    : dataset.name,
                     "isFolder": false,
-                    "attrs"   : {"format": format}
+                    "attrs"   : {
+                        "format": format,
+                        "path"  : dataset.url
+                    }
                 });
             }
         }
@@ -2669,9 +2666,40 @@ window.DS = (function ($, DS) {
 
     /* End of Drag and Drop API */
 
+    DS.getFileSize = function(ds) {
+        var deferred = jQuery.Deferred();
 
+        if (ds.attrs.fileSize != null) {
+            deferred.resolve(ds.attrs.fileSize);
+            return (deferred.promise());
+        }
 
-    function getFileSize(files) {
+        var loadURL = ds.attrs.path;
+        var urlLen  = loadURL.length;
+        // console.log(loadURL[urlLen - 1], loadURL);
+
+        var slashIndex = loadURL.lastIndexOf('/');
+        var dotIndex   = loadURL.lastIndexOf('.');
+
+        if (dotIndex > slashIndex) {
+            loadURL = loadURL.substr(0, slashIndex + 1);
+        }
+
+        XcalarListFiles(loadURL)
+        .then(function(files) {
+            ds.attrs.fileSize = getFileSizeHelper(files);
+            deferred.resolve(ds.attrs.fileSize);
+        })
+        .fail(function(error) {
+            console.error(error);
+            ds.attrs.fileSize = null;
+            deferred.resolve(null);
+        });
+
+        return (deferred.promise());
+    }
+
+    function getFileSizeHelper(files) {
         var size = 'N/A';
         var numFiles = 0;
         for (var i = 0; i < files.numFiles; i++) {
