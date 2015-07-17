@@ -375,7 +375,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         .then(function() {
             var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
             var msgObj = {
-                msg: msg,
+                msg      : msg,
                 operation: 'data set load'
             };
             var msgId = StatusMessage.addMsg(msgObj);
@@ -854,7 +854,6 @@ window.DataCart = (function($, DataCart) {
     };
 
     function appendCartItem(dsName, tableName, colNum, val) {
-        tableName = tableName + 'Table';
         var $cart = $("#selectedTable-" + dsName);
         // this ds's cart not exists yet
         if ($cart.length === 0) {
@@ -904,20 +903,15 @@ window.DataCart = (function($, DataCart) {
         // called dataset1 if it doesnt already exist or dataset2 etc...
         var deferred = jQuery.Deferred();
         var tableNames = {};
-        XcalarGetDatasets()
-        .then(function(result){
-            var datasets = result.datasets;
-            for (var i = 0; i < result.numDatasets; i++) {
-                tableNames[datasets[i].name] = 1;
 
-            }
-        })
-        .then(XcalarGetTables)
+        // datasets has it's unique format, no need to check
+        XcalarGetTables()
         .then(function(result) {
             var tables = result.tables;
             for (var i = 0; i < result.numTables; i++) {
                 tableNames[tables[i].tableName] = 1;
             }
+
             var validNameFound = false;
             var limit = 20; // we won't try more than 20 times
             var newName = datasetName;
@@ -1110,7 +1104,7 @@ window.DataCart = (function($, DataCart) {
                 // add status message
                 var msg = StatusMessageTStr.CreatingTable + ': ' + tableName;
                 var msgObj = {
-                    msg: msg,
+                    msg      : msg,
                     operation: 'table creation',
                     tableName: tableName
                 };
@@ -2430,9 +2424,9 @@ window.DS = (function ($, DS) {
         })
         .then(function(result, totalEntries) {
             if (!result) {
-                // if dataset cannot be parsed produce a load fail 
+                // if dataset cannot be parsed produce a load fail
                 var msg = {
-                    error: 'Cannot parse data set "' + dsName + '".',
+                    error    : 'Cannot parse data set "' + dsName + '".',
                     dsCreated: true
                 };
                 return (jQuery.Deferred().reject(msg));
@@ -2464,12 +2458,14 @@ window.DS = (function ($, DS) {
                 XcalarSetFree(gDatasetBrowserResultSetId)
                 .then(function() {
                     gDatasetBrowserResultSetId = 0;
-                    var sqlOptions = {"operation": "destroyDataSet",
-                          "dsName"   : dsName};
+                    var sqlOptions = {
+                        "operation": "destroyDataSet",
+                        "dsName"   : dsName
+                    };
                     return (XcalarDestroyDataset(dsName, sqlOptions));
                 })
-                .fail(function(error) {
-                    Alert.error("Delete Dataset Fails", error);
+                .fail(function(deferredError) {
+                    Alert.error("Delete Dataset Fails", deferredError);
                 });
             }
             
@@ -2680,7 +2676,7 @@ window.DS = (function ($, DS) {
         }
 
         var loadURL = ds.attrs.path;
-        var urlLen  = loadURL.length;
+        // var urlLen  = loadURL.length;
         // console.log(loadURL[urlLen - 1], loadURL);
 
         var slashIndex = loadURL.lastIndexOf('/');
@@ -2702,7 +2698,7 @@ window.DS = (function ($, DS) {
         });
 
         return (deferred.promise());
-    }
+    };
 
     function getFileSizeHelper(files) {
         var size = 'N/A';
