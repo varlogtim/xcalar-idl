@@ -2311,7 +2311,7 @@ function reorderAfterTableDrop() {
 
     if (gDragObj.tableIndex === 0) {
         $('#rowScrollerArea').prepend(rowScroller);
-        $('.dagArea').prepend($dagWrap);
+        $('.dagArea').find('.legendArea').after($dagWrap);
     } else if (gDragObj.originalIndex < gDragObj.tableIndex) {
         $('#rowScroller' + gDragObj.tableIndex).after(rowScroller);
         $('#dagWrap' + gDragObj.tableIndex).after($dagWrap);
