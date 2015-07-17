@@ -34,6 +34,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonModal.find('.closeBox').click(clearSearch);
         $jsonModal.find('.upArrow').click(cycleMatchUp);
         $jsonModal.find('.downArrow').click(cycleMatchDown);
+        $jsonModal.find('.searchIcon').click(toggleSearch);
     };
 
     JSONModal.show = function ($jsonTd) {
@@ -256,6 +257,15 @@ window.JSONModal = (function($, JSONModal) {
             $modalWindow.scrollTop(matchOffsetTop + 40 - (modalHeight / 2));
         } else if (matchOffsetTop < (scrollTop - 25)) {
             $modalWindow.scrollTop(matchOffsetTop + 30 - (modalHeight / 2));
+        }
+    }
+
+    function toggleSearch() {
+        var $searchBar = $('#jsonSearch');
+        if ($searchBar.hasClass('closed')) {
+            $searchBar.removeClass('closed');
+        } else {
+            $searchBar.addClass('closed');
         }
     }
 
