@@ -629,23 +629,20 @@ window.DataCart = (function($, DataCart) {
             var errorMsg = "";
             var $input;
 
-            var gTableNames = {};
-            var gHiddenNames = {};
+            var tableNames = {};
 
             gTables.forEach(function(table) {
-                gTableNames[table.tableName] = true;
+                tableNames[table.tableName] = true;
             });
 
             gHiddenTables.forEach(function(table) {
-                gHiddenNames[table.tableName] = true;
+                tableNames[table.tableName] = true;
             });
 
             // check table name conflict in gTables and gHidden
-            $cartArea.find(".selectedTable").each(function() {
-                var $cart = $(this);
-
-                $input = $cart.find('.tableNameEdit');
-                var tableName = $input.val().trim();
+            innerCarts.forEach(function(cart) {
+                var tableName = cart.tableName;
+                $input = $('#selectedTable-' + cart.dsName + ' .tableNameEdit');
 
                 if (tableName === "") {
                     errorMsg = 'Please give your new table a name.';
@@ -653,7 +650,7 @@ window.DataCart = (function($, DataCart) {
                     return (false);
                 }
 
-                if (gTableNames[tableName] || gHiddenNames[tableName]) {
+                if (tableNames.hasOwnProperty(tableName)) {
                     errorMsg = 'A table with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
                     nameIsValid = false;
@@ -667,7 +664,7 @@ window.DataCart = (function($, DataCart) {
                 return (false);
             }
 
-            var tableNames = {};
+            tableNames = {};
             xcHelper.disableSubmit($submitBtn);
 
             // check backend table name to see if has conflict
@@ -678,13 +675,12 @@ window.DataCart = (function($, DataCart) {
                 for (var i = 0, len = tables.numTables; i < len; i++) {
                     tableNames[tables.tables[i].tableName] = true;
                 }
-                
-                $cartArea.find(".selectedTable").each(function(){
-                    var $cart = $(this);
-                    $input = $cart.find('.tableNameEdit');
-                    var tableName = $input.val().trim();
 
-                    if (tableNames[tableName]) {
+                innerCarts.forEach(function(cart) {
+                    var tableName = cart.tableName;
+                    $input = $('#selectedTable-' + cart.dsName + ' .tableNameEdit');
+
+                    if (tableNames.hasOwnProperty(tableName)) {
                         errorMsg = 'A table with the name "' + tableName +
                                 '" already exists. Please use a unique name.';
                         nameIsValid = false;
@@ -695,12 +691,10 @@ window.DataCart = (function($, DataCart) {
                 if (nameIsValid) {
                     createWorksheet()
                     .then(function() {
-                        emptyAllCarts();
                         commitToStorage();
                         innerDeferred.resolve();
                     })
                     .fail(function(error) {
-                        emptyAllCarts();
                         Alert.error("Create work sheet fails", error);
                         innerDeferred.reject(error);
                     });
@@ -783,6 +777,11 @@ window.DataCart = (function($, DataCart) {
         }
 
         var cart = filterCarts(dsName);
+
+        if (cart == null) {
+            cart = addCart(dsName);
+        }
+
         var $colInput;
         var colNum;
         var val;
@@ -791,14 +790,8 @@ window.DataCart = (function($, DataCart) {
             $colInput = colInputs[i];
             colNum = xcHelper.parseColNum($colInput);
             val = $colInput.val();
-            appendCartItem(dsName, dsName, colNum, val);
-
-            cart.items.push({"colNum": colNum, "value": val});
+            appendCartItem(cart, colNum, val);
         }
-
-        // it's an old code
-        // $cartArea.find(".colSelected").removeClass("colSelected");
-        // $li.addClass("colSelected"); // focus on last li
 
         setTimeout(function() {
             refreshCart();
@@ -822,16 +815,16 @@ window.DataCart = (function($, DataCart) {
     };
 
     DataCart.restore = function(carts) {
-        innerCarts = carts;
-        innerCarts.forEach(function(cart) {
-            var dsName = cart.dsName;
-            var tableName = cart.tableName;
-            var items = cart.items;
+        var noNameCheck = true;
+        for (var i = carts.length - 1; i >= 0; i--) {
+            // add cart use Array.unshift, so here should restore from end to 0
+            var cart = carts[i];
+            var resotredCart = addCart(cart.dsName, cart.tableName, noNameCheck);
 
-            items.forEach(function(item) {
-                appendCartItem(dsName, tableName, item.colNum, item.value);
+            cart.items.forEach(function(item) {
+                appendCartItem(resotredCart, item.colNum, item.value);
             });
-        });
+        };
 
         refreshCart();
     };
@@ -853,38 +846,62 @@ window.DataCart = (function($, DataCart) {
                                 (columnWidth / 2));
     };
 
-    function appendCartItem(dsName, tableName, colNum, val) {
-        var $cart = $("#selectedTable-" + dsName);
-        // this ds's cart not exists yet
-        if ($cart.length === 0) {
-            var cartHtml =
-                '<div id="selectedTable-' + dsName + '"' +
-                    'class="selectedTable">' +
-                    '<div class="cartTitleArea">' +
-                        '<input class="tableNameEdit" ' +
-                                'type="text" value="' + tableName + '">' +
-                        '<div class="iconWrapper">' +
-                            '<span class="icon"></span>' +
-                        '</div>' +
+    function filterCarts(dsName) {
+        for (var i = 0, len = innerCarts.length; i < len; i++) {
+            if (innerCarts[i].dsName === dsName) {
+                return (innerCarts[i]);
+            }
+        }
+
+        return (null);
+    }
+
+    function addCart(dsName, tableName, noNameCheck) {
+        tableName = tableName || dsName;
+        var cart = {
+            "dsName"   : dsName,
+            "tableName": tableName,
+            "items"    : []
+        };
+
+        // new cart should be prepended, sync with UI
+        innerCarts.unshift(cart);
+
+        var cartHtml =
+            '<div id="selectedTable-' + dsName + '"' +
+                'class="selectedTable">' +
+                '<div class="cartTitleArea">' +
+                    '<input class="tableNameEdit" type="text" ' +
+                        'spellcheck="false" value="' + tableName + '">' +
+                    '<div class="iconWrapper">' +
+                        '<span class="icon"></span>' +
                     '</div>' +
-                    '<ul></ul>' +
-                '</div>';
+                '</div>' +
+                '<ul></ul>' +
+            '</div>';
 
-            $cart = $(cartHtml);
+        var $cart = $(cartHtml);
+        $cartArea.prepend($cart);
 
+        if (!noNameCheck) {
             getUnusedTableName(tableName)
             .then(function(newTableName) {
                 $cart.find('.tableNameEdit').val(newTableName);
+                cart.tableName = newTableName;
             })
             .fail(function() {
                 // keep the current name
             });
 
-            $cartArea.prepend($cart);
             var $tableNameEdit = $cart.find('.tableNameEdit').focus();
             xcHelper.createSelection($tableNameEdit[0], true);
         }
 
+        return (cart);
+    }
+
+    function appendCartItem(cart, colNum, val) {
+        var $cart = $("#selectedTable-" + cart.dsName);
         var $li = $('<li style="font-size:13px;" class="colWrap" ' +
                         'data-colnum="' + colNum + '">' +
                         '<span class="colName">' + val + '</span>' +
@@ -894,6 +911,8 @@ window.DataCart = (function($, DataCart) {
                     '</li>');
 
         $cart.find("ul").append($li);
+
+        cart.items.push({"colNum": colNum, "value": val});
 
         return ($li);
     }
@@ -916,7 +935,7 @@ window.DataCart = (function($, DataCart) {
             var limit = 20; // we won't try more than 20 times
             var newName = datasetName;
             if (tableNames.hasOwnProperty(newName)) {
-                for (var i = 0; i < limit; i++) {
+                for (var i = 1; i <= limit; i++) {
                     newName = datasetName + i;
                     if (!tableNames.hasOwnProperty(newName)) {
                         validNameFound = true;
@@ -939,6 +958,15 @@ window.DataCart = (function($, DataCart) {
         });
 
         return (deferred.promise());
+    }
+
+    function removeCart(dsName) {
+        for (var i = 0, len = innerCarts.length; i < len; i++) {
+            if (innerCarts[i].dsName === dsName) {
+                innerCarts.splice(i, 1);
+                break;
+            }
+        }
     }
 
     function removeCartItem(dsName, $li) {
@@ -970,15 +998,6 @@ window.DataCart = (function($, DataCart) {
         refreshCart();
     }
 
-    function removeCart(dsName) {
-        for (var i = 0, len = innerCarts.length; i < len; i++) {
-            if (innerCarts[i].dsName === dsName) {
-                innerCarts.splice(i, 1);
-            }
-            break;
-        }
-    }
-
     function emptyAllCarts() {
         var $table = $("#worksheetTable");
 
@@ -996,7 +1015,7 @@ window.DataCart = (function($, DataCart) {
         var $submitBtn = $("#submitDSTablesBtn");
         var $clearBtn  = $("#clearDataCart");
         var $cartTitle = $("#dataCartTitle");
-        var $dataCart = $('#dataCart');
+        var $dataCart  = $('#dataCart');
 
         if ($cartArea.children().length === 0) {
             $submitBtn.addClass("btnInactive");
@@ -1014,26 +1033,6 @@ window.DataCart = (function($, DataCart) {
             $cartTitle.html("<b>Selected Columns</b>");
             $dataCart.find('.helpText').remove();
         }
-    }
-
-    function filterCarts(dsName) {
-        var cart;
-        var res = innerCarts.filter(function(curCart) {
-            return curCart.dsName === dsName;
-        });
-
-        if (res.length === 0) {
-            cart = {
-                "dsName"   : dsName,
-                "tableName": dsName,
-                "items"    : []
-            };
-            innerCarts.push(cart);
-        } else {
-            cart = res[0];
-        }
-
-        return (cart);
     }
 
     function scrollToTableName($input) {
@@ -1083,17 +1082,18 @@ window.DataCart = (function($, DataCart) {
         var deferred = jQuery.Deferred();
         var promises = [];
 
-        $cartArea.find(".selectedTable").each(function() {
+        // reference innerCarts here since innerCarts needs
+        // to be clear at end
+        var carts = innerCarts;
+
+        carts.forEach(function(cart) {
             promises.push((function() {
-                var $cart = $(this);
                 var innerDeferred = jQuery.Deferred();
                 // store columns in localstorage using setIndex()
                 var newTableCols = [];
                 var startIndex = 0;
-                var datasetName = $cart.attr("id").split("selectedTable-")[1];
-
-                // var tableName = xcHelper.randName(datasetName + "-");
-                var tableName = $.trim($cart.find('.tableNameEdit').val());
+                var datasetName = cart.dsName;
+                var tableName = cart.tableName;
 
                 // add sql
                 var sqlOptions = {
@@ -1110,8 +1110,9 @@ window.DataCart = (function($, DataCart) {
                 };
                 var msgId = StatusMessage.addMsg(msgObj);
 
-                $cart.find('.colName').each(function() {
-                    var colname = $(this).text();
+                var items = cart.items;
+                for (var i = 0, len = items.length; i < len; i++) {
+                    var colname     = items[i].value;
                     var escapedName = colname;
 
                     if (colname.indexOf('.') > -1) {
@@ -1135,7 +1136,7 @@ window.DataCart = (function($, DataCart) {
 
                     newTableCols[currentIndex] = progCol;
                     sqlOptions.col.push(colname);
-                });
+                }
                 // new "DATA" column
                 newTableCols[startIndex] = ColManager.newDATACol(startIndex + 1);
 
@@ -1169,6 +1170,7 @@ window.DataCart = (function($, DataCart) {
         });
 
         showWaitCursor();
+        emptyAllCarts();
 
         chain(promises)
         .then(deferred.resolve)
@@ -2422,7 +2424,7 @@ window.DS = (function ($, DS) {
             // sample the dataset to see if it can be parsed
             return (XcalarSample(dsName, 1));
         })
-        .then(function(result, totalEntries) {
+        .then(function(result) {
             if (!result) {
                 // if dataset cannot be parsed produce a load fail
                 var msg = {
@@ -2434,7 +2436,7 @@ window.DS = (function ($, DS) {
                 $grid.removeClass('inactive')
                      .find('.waitingIcon').remove();
             }
-            // ds.attrs.fileSize = getFileSize(files);
+
             // display new dataset
             DS.refresh();
             if ($grid.hasClass('active')) {
@@ -2827,7 +2829,7 @@ window.DS = (function ($, DS) {
                 continue;
             }
             ++totolDS;
-            searchHash[dsName] = true;
+            searchHash[dsName] = datasets.datasets[i];
         }
 
         var dsCount = 0;
@@ -2838,7 +2840,15 @@ window.DS = (function ($, DS) {
             if (obj.isFolder) {
                 DS.create(obj);
             } else {
-                if (obj.name in searchHash) {
+                if (searchHash.hasOwnProperty(obj.name)) {
+                    var ds     = searchHash[obj.name];
+                    var format = DfFormatTypeTStr[ds.formatType].toUpperCase();
+
+                    obj.attrs = $.extend(obj.attrs, {
+                        "path"  : ds.url,
+                        "format": format
+                    });
+
                     DS.create(obj);
                     dsCount++;
                 } else {
