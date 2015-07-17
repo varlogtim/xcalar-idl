@@ -591,7 +591,7 @@ window.xcFunction = (function ($, xcFunction) {
         var msgObj = {
             "msg"      : msg,
             "operation": "export",
-            "tableName": newTableName
+            "tableName": tableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
         
