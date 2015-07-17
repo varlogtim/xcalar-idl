@@ -792,10 +792,8 @@ window.DataCart = (function($, DataCart) {
             val = $colInput.val();
             appendCartItem(cart, colNum, val);
         }
-
-        setTimeout(function() {
-            refreshCart();
-        }, 10);
+        var delay = true;
+        refreshCart(delay);
     };
 
     // remove one column from cart
@@ -1009,9 +1007,8 @@ window.DataCart = (function($, DataCart) {
         refreshCart();
     }
 
-    function refreshCart() {
+    function refreshCart(delay) {
         overflowShadow();
-
         var $submitBtn = $("#submitDSTablesBtn");
         var $clearBtn  = $("#clearDataCart");
         var $cartTitle = $("#dataCartTitle");
@@ -1032,6 +1029,11 @@ window.DataCart = (function($, DataCart) {
             $clearBtn.removeClass("btnInactive");
             $cartTitle.html("<b>Selected Columns</b>");
             $dataCart.find('.helpText').remove();
+        }
+        if (delay) {
+            setTimeout(overflowShadow, 10);
+        } else {
+            overflowShadow();
         }
     }
 
