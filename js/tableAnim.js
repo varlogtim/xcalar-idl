@@ -178,6 +178,8 @@ function gResrowMouseUp() {
             }
         }
         gResrow.targetTd.parent().removeClass('changedHeight');
+        gResrow.targetTd.parent().find('.jsonElement >  div')
+                                 .css('max-height', 16);
     }
 }
 
