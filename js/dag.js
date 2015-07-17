@@ -385,9 +385,8 @@ window.DagPanel = (function($, DagPanel) {
                 $('#dagPulloutTab').click();
             }
             var $table = $('#xcTableWrap' + tableIndex);
-            var currentScrollPosition = $('#mainFrame').scrollLeft();
-            var tableOffset = $table.offset().left;
-            $('#mainFrame').scrollLeft(currentScrollPosition + tableOffset);
+            centerFocusedTable($table);
+           
             $table.mousedown();
             moveFirstColumn();
         });
@@ -409,6 +408,16 @@ window.DagPanel = (function($, DagPanel) {
             $tableIcon.removeClass('locked')
                       .find('.lockIcon').remove();
         });
+    }
+
+    function centerFocusedTable($table) {
+        var windowWidth = $(window).width();
+        var tableWidth = $table.width();
+        var currentScrollPosition = $('#mainFrame').scrollLeft();
+        var tableOffset = $table.offset().left;
+        var leftPosition = currentScrollPosition + tableOffset;
+        var scrollPosition = leftPosition - ((windowWidth - tableWidth) / 2);
+        $('#mainFrame').scrollLeft(scrollPosition);
     }
             
     return (DagPanel);
