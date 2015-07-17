@@ -580,16 +580,7 @@ window.WSManager = (function($, WSManager) {
 
         if (worsheet.tables.length === 0) {
             // delete empty worksheet
-            msg = "Are you sure you want to delete the worksheet?";
-            Alert.show({
-                "title"     : title,
-                "msg"       : msg,
-                "isCheckBox": true,
-                "confirm"   : function() {
-                    rmWorksheet(wsIndex);
-                }
-            });
-
+            rmWorksheet(wsIndex);
             return;
         } else {
             // delete worksheet with tables

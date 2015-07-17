@@ -1956,35 +1956,6 @@ function highlightColumn(el) {
     $table.find('td.col' + index).addClass('selectedCell');
 }
 
-function positionScrollbar(row, tableNum) {
-    var canScroll = true;
-    var table = $('#xcTable' + tableNum);
-    var theadHeight = table.find('thead').height();
-    function positionScrollToRow() {
-        if (!table.find('.row' + (row - 1))[0]) {
-            return;
-        }
-
-        var tdTop = table.find('.row' + (row - 1))[0].offsetTop;
-        var scrollPos = Math.max((tdTop - theadHeight), 1);
-        if (canScroll && scrollPos >
-            (table.height() - $('#xcTableWrap' + tableNum).height()))
-        {
-            canScroll = false;
-        }
-        $('#rowScrollerArea').addClass('autoScroll');
-        $('#xcTbodyWrap' + tableNum).scrollTop(scrollPos);
-    }
-    
-    positionScrollToRow();
-    if (!canScroll) {
-        // this means we can't scroll to page without moving scrollbar all the
-        // way to the bottom, which triggers another getpage and thus we must
-        // try to position the scrollbar to the proper row again
-        setTimeout(positionScrollToRow, 1);
-    }
-}
-
 function addRowListeners(newCells) {
     newCells.find('.jsonElement').dblclick(function() {
             JSONModal.show($(this));
@@ -2666,6 +2637,36 @@ window.RowScroller = (function($, RowScroller) {
         $(".rowScroller").hide();
         if (tableNum != null && tableNum >= 0) {
             $("#rowScroller" + tableNum).show();
+        }
+    }
+
+    function positionScrollbar(row, tableNum) {
+        var canScroll = true;
+        var table = $('#xcTable' + tableNum);
+        var theadHeight = table.find('thead').height();
+
+        function positionScrollToRow() {
+            if (!table.find('.row' + (row - 1))[0]) {
+                return;
+            }
+
+            var tdTop = table.find('.row' + (row - 1))[0].offsetTop;
+            var scrollPos = Math.max((tdTop - theadHeight), 1);
+            if (canScroll && scrollPos >
+                (table.height() - $('#xcTableWrap' + tableNum).height()))
+            {
+                canScroll = false;
+            }
+            $rowScrollerArea.addClass('autoScroll');
+            $('#xcTbodyWrap' + tableNum).scrollTop(scrollPos);
+        }
+
+        positionScrollToRow();
+        if (!canScroll) {
+            // this means we can't scroll to page without moving scrollbar all the
+            // way to the bottom, which triggers another getpage and thus we must
+            // try to position the scrollbar to the proper row again
+            setTimeout(positionScrollToRow, 1);
         }
     }
 
