@@ -492,7 +492,7 @@ window.GridView = (function($, GridView) {
                 return;
             }
 
-            DS.remove($("grid-unit.active"));
+            DS.remove($(".grid-unit.active"));
         });
     }
 
@@ -504,7 +504,7 @@ window.GridView = (function($, GridView) {
             $deleteFolderBtn.addClass("disabled");
         });
 
-        $gridView.on("click", "grid-unit", function(event) {
+        $gridView.on("click", ".grid-unit", function(event) {
             event.stopPropagation(); // stop event bubbling
             var $grid = $(this);
 
@@ -2311,7 +2311,7 @@ window.DS = (function ($, DS) {
         if (dsId === homeDirId) {
             return ($("#gridView"));
         } else {
-            return ($('grid-unit[data-dsId="' + dsId + '"]'));
+            return ($('.grid-unit[data-dsId="' + dsId + '"]'));
         }
     };
 
@@ -2589,7 +2589,7 @@ window.DS = (function ($, DS) {
     DS.rename = function ($label) {
         // now only for folders (later also rename datasets?)
         var newName = jQuery.trim($label.text());
-        var dsId    = $label.closest("grid-unit").data("dsid");
+        var dsId    = $label.closest(".grid-unit").data("dsid");
         var ds      = DS.getDSObj(dsId).rename(newName);
 
         $label.text(ds.name);
@@ -2667,8 +2667,8 @@ window.DS = (function ($, DS) {
      * Refresh dataset/folder display in gridView area
      */
     DS.refresh = function () {
-        $("#gridView grid-unit").removeClass("display").addClass("hidden");
-        $('#gridView grid-unit[data-dsParentId="' + curDirId + '"]')
+        $("#gridView .grid-unit").removeClass("display").addClass("hidden");
+        $('#gridView .grid-unit[data-dsParentId="' + curDirId + '"]')
             .removeClass("hidden").addClass("display");
     };
 
@@ -2676,7 +2676,7 @@ window.DS = (function ($, DS) {
      * Clear dataset/folder in gridView area
      */
     DS.clear = function () {
-        $("#gridView grid-unit").remove();
+        $("#gridView .grid-unit").remove();
         DS.setup();
     };
 
@@ -2860,7 +2860,7 @@ window.DS = (function ($, DS) {
      */
     function focusOnFirstDS () {
         var $curFolder = DS.getGrid(curDirId);
-        var $datasets = $curFolder.find("> grid-unit.ds");
+        var $datasets = $curFolder.find("> .grid-unit.ds");
 
         if ($datasets.length > 0) {
             $datasets.eq(0).click();
@@ -2902,7 +2902,7 @@ window.DS = (function ($, DS) {
 
         if (isFolder) {
             html =
-            '<grid-unit class="folder display collapse" draggable="true"' +
+            '<div class="folder display collapse grid-unit" draggable="true"' +
                 ' ondragstart="dsDragStart(event)"' +
                 ' ondragend="dsDragEnd(event)"' +
                 ' data-dsId=' + id +
@@ -2934,10 +2934,10 @@ window.DS = (function ($, DS) {
                     ' class="label" contentEditable="true">' +
                     name +
                 '</div>' +
-            '</grid-unit>';
+            '</div>';
         } else {
             html =
-            '<grid-unit id="dataset-' + name + '" class="ds" draggable="true"' +
+            '<div id="dataset-' + name + '" class="ds grid-unit" draggable="true"' +
                 ' ondragstart="dsDragStart(event)"' +
                 ' ondragend="dsDragEnd(event)"' +
                 ' data-dsId=' + id +
@@ -2961,7 +2961,7 @@ window.DS = (function ($, DS) {
                 '<div class="label" data-dsname=' + name + '>' +
                     name +
                 '</div>' +
-            '</grid-unit>';
+            '</div>';
         }
 
         return (html);
@@ -3153,7 +3153,7 @@ window.DS = (function ($, DS) {
  * @param {Object} event The event object
  */
 function dsDragStart(event) {
-    var $grid = $(event.target).closest("grid-unit");
+    var $grid = $(event.target).closest(".grid-unit");
     var $gridView = $("#gridView");
 
     event.stopPropagation();
@@ -3185,7 +3185,7 @@ function dsDragStart(event) {
  */
 function dsDragEnd(event) {
     var $gridView = $("#gridView");
-    var $grid = $(event.target).closest("grid-unit");
+    var $grid = $(event.target).closest(".grid-unit");
 
     event.stopPropagation();
 
@@ -3224,12 +3224,12 @@ function dsDragEnter(event) {
 
     } else if (!$dropTarget || targetId !== $dropTarget.attr("id")) {
         // change drop target
-        $("grid-unit").removeClass("active");
+        $(".grid-unit").removeClass("active");
         $(".dragWrap").removeClass("active");
 
         if ($dragWrap.hasClass("midDragWrap")) {
             // drop in folder case
-            $dragWrap.closest("grid-unit").addClass("active");
+            $dragWrap.closest(".grid-unit").addClass("active");
         } else {
             // insert case
             $dragWrap.addClass("active");
@@ -3245,7 +3245,7 @@ function dsDragEnter(event) {
  */
 function dsDrop(event) {
     var $div = DS.getDropTarget();
-    var $target = $div.closest('grid-unit');
+    var $target = $div.closest('.grid-unit');
     var $grid = DS.getDragDS();
 
     event.stopPropagation();

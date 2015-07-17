@@ -901,22 +901,22 @@ input {
 #gridView {
     &.gridView {
         overflow: auto;
-        grid-unit.hidden {
+        .grid-unit.hidden {
             > .gridIcon, > .listIcon, > .label, > .dsCount, 
             > .dragWrap {
                 display: none !important;
             }
         }
 
-        grid-unit:first-of-type {
+        .grid-unit:first-of-type {
             clear: left;
         }
 
-        grid-unit.display {
+        .grid-unit.display {
             .gridViewForGrid;
         }
 
-        grid-unit.ds.display > .dragWrap {
+        .grid-unit.ds.display > .dragWrap {
             .size(@width: ~"calc(50% + 7px)", @height: 100%);
             position: absolute;
             background: transparent;
@@ -937,7 +937,7 @@ input {
             }
         }
 
-        grid-unit.folder.display {
+        .grid-unit.folder.display {
             .label {
                 cursor: text;
                 &:focus {
@@ -1000,11 +1000,11 @@ input {
         padding: 4px 0;
         overflow-y: scroll;
 
-        grid-unit {
+        .grid-unit {
             .listViewForGrid;
         }
 
-        grid-unit.ds > .dragWrap {
+        .grid-unit.ds > .dragWrap {
             .position(absolute);
             .size(@width: 100%, @height: 17.5px);
             background: transparent;
@@ -1023,8 +1023,8 @@ input {
             }
         }
 
-        grid-unit.folder {
-            grid-unit {
+        .grid-unit.folder {
+            .grid-unit {
                 .size(@width: 95%, @max-width: 230px);
                 margin-left: 5%;
                 display: block;
@@ -1070,8 +1070,8 @@ input {
             }
         }
 
-        grid-unit.collapse {
-            grid-unit {
+        .grid-unit.collapse {
+            .grid-unit {
                 display: none !important;
             }
             &.folder > .listIcon .icon {

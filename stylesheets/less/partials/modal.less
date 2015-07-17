@@ -1118,7 +1118,7 @@
                 background: @color-background-columnList !important;
             }
 
-            grid-unit {
+            .grid-unit {
                 > div {
                     border: 1px solid transparent !important;
                     color: #8b8b8b !important;
@@ -1264,7 +1264,7 @@
             .flex-display;
             .flex-flow(column);
 
-            .titleSection, .listSection grid-unit {
+            .titleSection, .listSection .grid-unit {
                 .flex-display;
 
                 > div {
@@ -1331,7 +1331,7 @@
                 padding: 0 10px;
                 box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
 
-                grid-unit {
+                .grid-unit {
                     > div {
                         color: #808080;
                         padding-right: 5px;
@@ -1576,7 +1576,7 @@
             .titleSection, .fileDate, .fileSize {
                 display: none;
             }
-            grid-unit {
+            .grid-unit {
                 .gridViewForGrid;
                 cursor: default;
                 .label {
@@ -1598,7 +1598,7 @@
                 overflow-y: scroll;
             }
 
-            grid-unit {
+            .grid-unit {
                 .size(@height: 30px);
                 margin: 0 auto;
                 display: block;

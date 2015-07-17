@@ -139,11 +139,11 @@ window.FileBrowser = (function($, FileBrowser) {
                     });
                 }
             }
-        }, "grid-unit");
+        }, ".grid-unit");
 
         // confirm to open a ds
         $fileBrowser.on("click", ".confirm", function() {
-            var $grid = $container.find("grid-unit.active");
+            var $grid = $container.find(".grid-unit.active");
             xcHelper.disableSubmit($(this));
             importDataset($grid);
             return false;
@@ -290,7 +290,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function fileBrowserKeyUp(event) {
         event.preventDefault();
         if (event.which === keyCode.Enter && !modalHelper.checkBtnFocus()) {
-            var $grid = $container.find('grid-unit.active');
+            var $grid = $container.find('.grid-unit.active');
             importDataset($grid);
         }
 
@@ -657,9 +657,9 @@ window.FileBrowser = (function($, FileBrowser) {
 
         if (typeof grid === "string") {
             if (isAll) {
-                str = 'grid-unit .label[data-name="' + grid + '"]';
+                str = '.grid-unit .label[data-name="' + grid + '"]';
             } else {
-                str = 'grid-unit.folder .label[data-name="' + grid + '"]';
+                str = '.grid-unit.folder .label[data-name="' + grid + '"]';
             }
 
             $fileName.val(grid);
@@ -668,22 +668,22 @@ window.FileBrowser = (function($, FileBrowser) {
             var type = grid.type;
 
             if (type == null) {
-                str = 'grid-unit' + ' .label[data-name="' + name + '"]';
+                str = '.grid-unit' + ' .label[data-name="' + name + '"]';
             } else {
-                str = 'grid-unit.' + type + ' .label[data-name="' + name + '"]';
+                str = '.grid-unit.' + type + ' .label[data-name="' + name + '"]';
             }
 
             $fileName.val(name);
         }
 
-        $container.find("grid-unit").removeClass("active");
-        var $grid = $container.find(str).eq(0).closest('grid-unit');
+        $container.find(".grid-unit").removeClass("active");
+        var $grid = $container.find(str).eq(0).closest('.grid-unit');
         $grid.addClass('active');
         updateFileName($grid);
     }
 
     function getFocusGrid() {
-        var $grid = $container.find('grid-unit.active');
+        var $grid = $container.find('.grid-unit.active');
         var grid;
 
         if ($grid.length > 0) {
@@ -768,7 +768,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var date      = "00:00:00 01-01-2015";
 
             html +=
-                '<grid-unit title="' + name + '" class="' + gridClass + '">' +
+                '<div title="' + name + '" class="' + gridClass + ' grid-unit">' +
                     '<div class="gridIcon"></div>' +
                     '<div class="listIcon">' +
                         '<span class="icon"></span>' +
@@ -778,7 +778,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     '</div>' +
                     '<div class="fileDate">' + date + '</div>' +
                     '<div class="fileSize">' + size + '</div>' +
-                '</grid-unit>';
+                '</div>';
         });
 
         $container.empty().append(html);
