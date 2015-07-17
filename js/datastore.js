@@ -1934,8 +1934,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         $("#dsInfo-path").text(path);
 
-        if (typeof totalEntries === "number") {
-            numEntries = Number(totalEntries).toLocaleString('en');
+        if (typeof numEntries === "number") {
+            numEntries = Number(numEntries).toLocaleString('en');
         }
         $("#dsInfo-records").text(numEntries);
 
@@ -2666,6 +2666,11 @@ window.DS = (function ($, DS) {
 
     /* End of Drag and Drop API */
 
+    /**
+     * Get file size, if not exist, fetch from backend and update it
+     * @param {DSObj} ds The dsObj object
+     * return {Promise} deferred
+     */
     DS.getFileSize = function(ds) {
         var deferred = jQuery.Deferred();
 
