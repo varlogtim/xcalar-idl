@@ -2337,7 +2337,7 @@ window.DS = (function ($, DS) {
         }
 
         var id       = options.id || (dsObjId++);
-        var name     = jQuery.trim(options.name);
+        var name     = options.name.trim();
         var parentId = options.parentId || curDirId;
         var isFolder = options.isFolder ? true : false;
         var attrs    = options.attrs || {};
@@ -2491,28 +2491,79 @@ window.DS = (function ($, DS) {
      * @param {object[]} datasets The datasets in backend
      */
     DS.restore = function (oldHomeFolder, datasets) {
-        var totolDS = restoreDSObjHelper(oldHomeFolder, datasets);
+        var numDatasets = datasets.numDatasets;
+        var totolDS = 0;
+        var searchHash = {};
+        var ds;
+        var format;
 
-        if (totolDS < 0) {
-            // when restore fails
-            totolDS = datasets.numDatasets;
+        // store all data set name to searchHash for lookup
+        // and filter out preview ds
+        for (var i = 0; i < numDatasets; i++) {
+            var dsName = datasets.datasets[i].name;
+            // preview ds is deleted here!!
+            if (dsName.endsWith(".preview")) {
+                XcalarDestroyDataset(dsName);
+                continue;
+            }
+            ++totolDS;
+            searchHash[dsName] = datasets.datasets[i];
+        }
 
-            console.log("Construct directly from backend");
+        var cache;
 
-            for (var i = 0; i < totolDS; i++) {
-                var dataset = datasets.datasets[i];
-                var format  = DfFormatTypeTStr[dataset.formatType]
-                                    .toUpperCase();
+        if ($.isEmptyObject(oldHomeFolder)) {
+            cache = [];
+        } else {
+            cache = oldHomeFolder.eles;
+        }
+        // restore the ds and folder this user stored
+        while (cache.length > 0) {
+            var obj = cache.shift();
+            if (obj.isFolder) {
+                DS.create(obj);
+            } else {
+                if (searchHash.hasOwnProperty(obj.name)) {
+                    ds     = searchHash[obj.name];
+                    format = DfFormatTypeTStr[ds.formatType].toUpperCase();
+
+                    obj.attrs = $.extend(obj.attrs, {
+                        "format": format,
+                        "path"  : ds.url
+                    });
+
+                    DS.create(obj);
+                    // mark the ds has been restored
+                    searchHash[obj.name] = null;
+                } else {
+                    // some ds is deleted by other users oldHomeFolder
+                    continue;
+                }
+            }
+
+            if (obj.eles != null) {
+                jQuery.merge(cache, obj.eles);
+            }
+            // update id count
+            dsObjId = Math.max(dsObjId, obj.id + 1);
+        }
+
+        // restore rest ds that is not in
+        for (dsName in searchHash) {
+            ds = searchHash[dsName];
+            if (ds != null) {
+                format = DfFormatTypeTStr[ds.formatType].toUpperCase();
                 DS.create({
-                    "name"    : dataset.name,
+                    "name"    : ds.name,
                     "isFolder": false,
                     "attrs"   : {
                         "format": format,
-                        "path"  : dataset.url
+                        "path"  : ds.url
                     }
                 });
             }
         }
+
         DS.refresh();
 
         return (totolDS);
@@ -2803,74 +2854,6 @@ window.DS = (function ($, DS) {
         } else {
             $("#importDataButton").click();
         }
-    }
-
-    /**
-     * Helper function for DS.restore()
-     * @param {Object} oldHomFolder The folder to be restored
-     * @param {Object[]} datasets The dataset arrays
-     * @return {boolean} true/fase Whether restore succeed
-     */
-    function restoreDSObjHelper (oldHomeFolder, datasets) {
-        // no oldHomeFolder from backend
-        if ($.isEmptyObject(oldHomeFolder)) {
-            return -1;
-        }
-
-        var numDatasets = datasets.numDatasets;
-        var totolDS = 0;
-        var searchHash = {};
-        // store all data set name to searchHash for lookup
-        for (var i = 0; i < numDatasets; i++) {
-            var dsName = datasets.datasets[i].name;
-            // XXX Cheng data preview ds is deleted here
-            if (dsName.endsWith(".preview")) {
-                XcalarDestroyDataset(dsName);
-                continue;
-            }
-            ++totolDS;
-            searchHash[dsName] = datasets.datasets[i];
-        }
-
-        var dsCount = 0;
-        var cache = oldHomeFolder.eles;
-        // restore
-        while (cache.length > 0) {
-            var obj = cache.shift();
-            if (obj.isFolder) {
-                DS.create(obj);
-            } else {
-                if (searchHash.hasOwnProperty(obj.name)) {
-                    var ds     = searchHash[obj.name];
-                    var format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-
-                    obj.attrs = $.extend(obj.attrs, {
-                        "path"  : ds.url,
-                        "format": format
-                    });
-
-                    DS.create(obj);
-                    dsCount++;
-                } else {
-                    // stored data not fit backend data, abort restore
-                    DS.clear();
-                    return -1;
-                }
-            }
-            if (obj.eles != null) {
-                jQuery.merge(cache, obj.eles);
-            }
-            // update id count
-            dsObjId = Math.max(dsObjId, obj.id + 1);
-        }
-
-        // stored data not fit backend data, abort restore
-        if (dsCount !== totolDS) {
-            DS.clear();
-            return -1;
-        }
-
-        return totolDS;
     }
 
     /**
