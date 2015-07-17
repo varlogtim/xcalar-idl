@@ -685,7 +685,7 @@ function createTableHeader(tableNum) {
     $('#xcTableWrap' + tableNum).prepend($xcTheadWrap);
 
     var tableName = "";
-    // XXX build this table title somewhere else
+    // build this table title somewhere else
     if (gTables[tableNum] != null) {
         tableName = gTables[tableNum].tableName;
     }
@@ -699,7 +699,7 @@ function createTableHeader(tableNum) {
                 '</div>';
 
     $xcTheadWrap.prepend(html);
-    // XXX Format is tablename  [cols]
+    //  title's Format is tablename  [cols]
     updateTableHeader(tableNum);
 
     var newTableName = xcHelper.randName(tableName, undefined, true);
@@ -1550,13 +1550,15 @@ function addColMenuActions($colMenu) {
         if (event.which === keyCode.Enter) {
             var $input  = $(this);
             var colName  = $input.val().trim();
+            var tableNum = parseInt($colMenu.attr('id').substring(7));
 
-            if (colName === "") {
+            if (colName === "" ||
+                ColManager.checkColDup($input, null, tableNum))
+            {
                 return false;
             }
 
-            var tableNum = parseInt($colMenu.attr('id').substring(7));
-            var colNum   = $colMenu.data('colNum');
+            var colNum = $colMenu.data('colNum');
 
             renameColumn(tableNum, colNum, colName);
             $input.val("").blur();
@@ -2025,7 +2027,6 @@ function addTableListeners(tableNum) {
 }
 
 function moveTableDropdownBoxes() {
-    var mainFrameScrollLeft = $('#mainFrame').scrollLeft();
     var $startingTableHead;
 
     $('.xcTableWrap:not(".inActive")').each(function() {
