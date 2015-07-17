@@ -1017,7 +1017,7 @@ window.DataCart = (function($, DataCart) {
         var $cartTitle = $("#dataCartTitle");
         var $dataCart  = $('#dataCart');
 
-        if ($cartArea.children().length === 0) {
+        if ($cartArea.children('.selectedTable').length === 0) {
             $submitBtn.addClass("btnInactive");
             $clearBtn.addClass("btnInactive");
             $cartTitle.html("<b>No Columns Selected</b>");
