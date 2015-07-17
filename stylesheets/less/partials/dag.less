@@ -71,15 +71,104 @@
             background-image: url(/images/close-icon.png);
         }
     }
+}
 
-    .dagArea {
-        .size(~"calc(100% - 10px)", ~"calc(100% - 10px)");
-        overflow: auto;
+.dagArea {
+    .size(~"calc(100% - 10px)", ~"calc(100% - 10px)");
+    overflow: auto;
+
+    .legendArea {
+        display: inline-block;
+        .size(auto, 50px);
+        box-shadow: 0px 1px 2px 2px rgba(0,0,0,0.4);
+        margin-top: 15px;
+        margin-left: 44px;
+        padding: 10px;     
+    }
+
+    .descriptionArea {
+        position: relative;
+        display: inline-block;
+        height: 100%;
+        float: left;
+        margin-right: 25px;
+
+        &:last-child {
+            margin-right: 0px;
+        }
+
+        .icon {
+            .position(absolute, @top: 4px, @left: 5px);
+            .size(19px, 19px);
+            .image("/images/db-icon-white.png", 50%, 50%);
+        }
+        .legendIcon {
+            float: left;
+        }
+
+        .text {
+            margin-left: 6px;
+            line-height: 30px;
+        }
+    }
+
+    .datasetArea {
+        .text {
+            margin-left: 11px;
+        }
+    }
+
+    .tableArea {
+        .icon {
+            .position(@top: 0px, @left: 5px);
+            .image("/images/table-icon.png", 50%, 50%);
+            background-size: 30px 26px;
+            .size(30px, 30px);
+        }
+    }
+
+    .operationArea {
+        .actionTypeWrap {
+            position: static;
+        }
+    }
+
+    .dataStoreIcon {
+        display: inline-block;
+        .size(28px, 28px);
+        .transform (rotate(-45deg));
+        .rounded;
+        .action-gradient;
+    }
+
+    .dagTableIcon {
+        .size(@width: 40px, @height: 30px);
+        .action-gradient;
+        .rounded(15px);
+    }
+
+    .dagIcon {
+        .size(@width: 22px, @height: 100%);
+        .dagDark-gradient;
+        float: left;
+    }
+
+    .actionTypeWrap {
+        .position(absolute);
+        .size(@width: 100px, @height: 32px, 
+              @max-width: 119px, @max-height: 70px);
+        .dag-gradient;
+        line-height: 30px;
+        margin: 0;
+        border: 1px solid rgb(135, 132, 132);
+        .rounded;
+        overflow: hidden;
+        cursor: pointer;
     }
 }
 
 .dagWrap {
-    .position(relative);
+    // .position(relative); // not sure if we need it to be relative
     margin-bottom: 10px;
 
     &.inActive {
@@ -318,26 +407,16 @@
 
         .dagTableIcon {
             .position(absolute, @top: 5px);
-            .size(@width: 40px, @height: 30px);
-            .action-gradient;
-            .rounded(15px);
         }
 
-    &.DgDagStateCleaned, &.DgDagStateDropped {
-        .dagTableIcon {
-            .gray-gradient;
-            // .dag-gradient;
-            // .darkGray-gradient;
+        &.DgDagStateCleaned, &.DgDagStateDropped {
+            .dagTableIcon {
+                .gray-gradient;
+            }
         }
-    }
 
         &.dataStore {
             background: none;
-            .icon {
-                .position(@top: -1px, @left: -5px);
-                .size(100%, 100%);
-                .image("/images/db-icon-white.png", 50%, 50%);
-            }
             .tableTitle {
                 .position(@top: 38px);
                 .transform (translateX(-55%));
@@ -345,12 +424,13 @@
                 text-align: center;
 
             }
+            .icon {
+                .position(@top: -1px, @left: -5px);
+                .size(100%, 100%);
+                .image("/images/db-icon-white.png", 50%, 50%);
+            }
             .dataStoreIcon {
                 .position(absolute, @top: 6px, @left: 2px);
-                .size(28px, 28px);
-                .transform (rotate(-45deg));
-                .rounded;
-                .action-gradient;
             }
         }
 
@@ -390,19 +470,6 @@
         margin: auto 20px;
         margin-right: 30px;
 
-        .actionTypeWrap {
-            .position(absolute);
-            .size(@width: 100px, @height: 32px, 
-                  @max-width: 119px, @max-height: 70px);
-            .dag-gradient;
-            line-height: 30px;
-            margin: 0;
-            border: 1px solid rgb(135, 132, 132);
-            .rounded;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
         span {
             .size(@width: 70%);
             display: block;
@@ -420,12 +487,6 @@
             overflow: hidden;
             // word-break: break-all;
             text-overflow: ellipsis;
-        }
-
-        .dagIcon {
-            .size(@width: 22px, @height: 100%);
-            .dagDark-gradient;
-            float: left;
         }
 
         .icon {

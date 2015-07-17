@@ -465,7 +465,7 @@ window.Dag = (function($, Dag) {
                             dagDrawing + '</div></div>';
 
             if (tableNum === 0) {
-                $('.dagArea').prepend(outerDag);
+                $('.dagArea').find('.legendArea').after(outerDag);
             } else {
                 $('#dagWrap' + (tableNum - 1)).after(outerDag);
             }
