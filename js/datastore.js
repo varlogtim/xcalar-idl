@@ -822,7 +822,7 @@ window.DataCart = (function($, DataCart) {
             cart.items.forEach(function(item) {
                 appendCartItem(resotredCart, item.colNum, item.value);
             });
-        };
+        }
 
         refreshCart();
     };
@@ -1827,6 +1827,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
         var dsObj = DS.getDSObj(dsId);
         var datasetName = dsObj.name;
 
+        // only show select all and clear all option when table can be disablyed
+        var $dsColsBtn = $("#dsColsBtn");
+
         // update date part of the table info first to make UI smooth
         updateTableInfo(dsObj);
 
@@ -1842,6 +1845,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                         'Data set is loading' + animatedDots +
                 '</div>';
             $tableWrap.html(loadingMsg);
+            $dsColsBtn.hide();
             deferred.resolve();
 
             return (deferred.promise());
@@ -1851,6 +1855,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         XcalarSample(datasetName, 40)
         .then(function(result, totalEntries) {
             if (!result) {
+                $dsColsBtn.hide();
                 deferred.reject({"error": "Cannot parse the dataset."});
                 return (deferred.promise());
             }
@@ -1887,14 +1892,20 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 }
 
                 getSampleTable(datasetName, jsonKeys, jsons);
+                $dsColsBtn.show();
                 deferred.resolve();
             } catch(err) {
                 console.error(err, value);
+                // XXX still show the table?
                 getSampleTable(datasetName);
+                $dsColsBtn.show();
                 deferred.reject({"error": "Cannot parse the dataset."});
             }
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            $dsColsBtn.hide();
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     };
@@ -2526,7 +2537,7 @@ window.DS = (function ($, DS) {
                 DS.create(obj);
             } else {
                 if (searchHash.hasOwnProperty(obj.name)) {
-                    ds     = searchHash[obj.name];
+                    ds = searchHash[obj.name];
                     format = DfFormatTypeTStr[ds.formatType].toUpperCase();
 
                     obj.attrs = $.extend(obj.attrs, {
