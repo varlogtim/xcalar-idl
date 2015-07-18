@@ -13,8 +13,12 @@ window.TestSuite = (function($, TestSuite) {
     var testCases = new Array();
     var disableIsPass = true;
 
-    var fakeClick = {type: "mouseup",
+    var fakeMouseup = {type: "mouseup",
                      which: 1};
+    var fakeClick = {type: "click",
+                     which: 1};
+    var fakeMousedown = {type: "mousedown",
+                         which: 1};
     var fakeEnter = {type: "keypress",
                      which: 13};
 
@@ -124,7 +128,7 @@ window.TestSuite = (function($, TestSuite) {
     function flightTest(deferred, testName, currentTestNumber) {
         /** This test replicates a simple version of Cheng's flight demo
         This tests all major functionality
-        TEST MUST BE DONE ON A CLEAN WORKSHEET!
+        TEST MUST BE DONE ON A CLEAN BACKEND!
         It does the following:
         2. Loads 2 datasets (flight and airports)
         3. Maps flight:delay str to int
@@ -196,7 +200,7 @@ window.TestSuite = (function($, TestSuite) {
             $header.parent().parent().find(".flex-right .innerBox").mousedown();
             var $colMenu = $("#colMenu0 .changeDataType");
             $colMenu.mouseover();
-            $colMenu.find(".type-integer").trigger(fakeClick);
+            $colMenu.find(".type-integer").trigger(fakeMouseup);
             setTimeout(function() {
                 flightTestPart4();
             }, 4000);
@@ -207,7 +211,7 @@ window.TestSuite = (function($, TestSuite) {
                               " input[value='ArrDelay_integer']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").mousedown();
             var $colMenu = $("#colMenu0 .filter");
-            $colMenu.trigger(fakeClick);
+            $colMenu.trigger(fakeMouseup);
             setTimeout(function() {
                 $("#functionList input").val("gt");
                 $("#functionList input").trigger(fakeEnter);
@@ -223,7 +227,7 @@ window.TestSuite = (function($, TestSuite) {
             $("#udfBtn").click();
             $("#udf-tabs div[data-tab='udf-fnSection'] .label").click();
             var textArea = $("#udf-codeArea")[0];
-            var editor = CodeMirror.fromTextArea(textArea);
+            var editor = RightSideBar.getEditor();
             editor.setValue('def ymd(year, month, day):\n'+
                             '    if int(month) < 10:\n'+
                             '        month = "0" + month\n'+
@@ -231,8 +235,85 @@ window.TestSuite = (function($, TestSuite) {
                             '        day = "0" + day\n'+
                             '    return year + month + day');
             $(".submitSection #udf-fnName").val("ymd");
+            $("#udf-fnUpload").click();
+            setTimeout(function() {
+                flightTestPart6();
+            }, 1000);
+        }
 
-            TestSuite.pass(deferred, testName, currentTestNumber);
+        function flightTestPart6() {
+            $("#alertActions .confirm").click();
+            var $header = $($(".flexWrap.flex-mid"+
+                              " input[value='Year']")[0]);
+            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            var $colMenu = $("#colMenu0 .map");
+            $colMenu.trigger(fakeMouseup);
+            setTimeout(function() {
+                $("#categoryList .dropdown .icon").trigger(fakeClick);
+                $("#categoryMenu li[data-category='3']").trigger(fakeMouseup);
+                $("#functionList .dropdown .icon").trigger(fakeClick);
+                $($("#functionsMenu li")[2]).trigger(fakeMouseup);
+                $($(".argumentTable .argument")[0]).val("ymd");
+                $($(".argumentTable .argument")[1]).val("ymd");
+                $($(".argumentTable .argument")[2])
+                    .val("$Year,$Month,$DayofMonth");
+                $($(".argumentTable .argument")[3]).val("YearMonthDay");
+                $("#operationsModal .modalBottom .confirm").click();
+                setTimeout(function() {
+                    flightTestPart7();
+                }, 2000);
+            }, 1000);
+
+        }
+
+        function flightTestPart7() {
+            var $header = $($(".flexWrap.flex-mid"+
+                              " input[value='Dest']")[0]);
+            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            var $colMenu = $("#colMenu0 .joinList");
+            $colMenu.trigger(fakeMouseup);
+            $("#rightJoin .tableLabel:contains('airport')").trigger(fakeClick);
+            $("#rightJoin .columnTab:contains('iata')").trigger(fakeClick);
+            setTimeout(function() {
+                $("#joinTables").click();
+                setTimeout(function() {
+                    flightTestPart8();
+                }, 2000);
+            }, 500);
+        }
+
+        function flightTestPart8() {
+            var $header = $($(".flexWrap.flex-mid"+
+                              " input[value='ArrDelay_integer']")[0]);
+            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            var $colMenu = $("#colMenu0 .groupby");
+            $colMenu.trigger(fakeMouseup);
+            $("#functionList .dropdown .icon").trigger(fakeClick);
+            $($("#functionsMenu li")[0]).trigger(fakeMouseup);
+            $($(".argumentTable .argument")[0]).val("$ArrDelay_integer");
+            $($(".argumentTable .argument")[1]).val("$UniqueCarrier");
+            $($(".argumentTable .argument")[2]).val("AvgDelay");
+            setTimeout(function() {
+                $("#operationsModal .modalBottom .confirm").click();
+                setTimeout(function() {
+                    flightTestPart9();
+                }, 2000);
+            }, 100);
+
+        }
+
+        function flightTestPart9() {
+            var $header = $($("#xcTbodyWrap1 .flexWrap.flex-mid"+
+                            " input[value='ArrDelay_integer']")[0]);
+            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            var $colMenu = $("#colMenu0 .aggregate");
+            $colMenu.trigger(fakeMouseup);
+            $("#functionList .dropdown .icon").trigger(fakeClick);
+            $($("#functionsMenu li")[1]).trigger(fakeMouseup);
+            setTimeout(function() {
+                $("#operationsModal .modalBottom .confirm").click();
+                TestSuite.pass(deferred, testName, currentTestNumber);
+            }, 100);
         }
     }
 

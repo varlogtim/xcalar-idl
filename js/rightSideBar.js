@@ -1,4 +1,6 @@
 window.RightSideBar = (function($, RightSideBar) {
+    var editor;
+    
     RightSideBar.setup = function() {
         setupButtons();
         setuptableListSection();
@@ -484,10 +486,14 @@ window.RightSideBar = (function($, RightSideBar) {
     }
 
     // setup UDF section
+    RightSideBar.getEditor = function() {
+        return (editor);
+    }
+
     function setupUDF() {
         
         var textArea = document.getElementById("udf-codeArea");
-        var editor   = CodeMirror.fromTextArea(textArea, {
+        editor = CodeMirror.fromTextArea(textArea, {
             "mode": {
                 "name"                  : "python",
                 "version"               : 3,
