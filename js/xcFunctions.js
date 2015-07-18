@@ -314,8 +314,8 @@ window.xcFunction = (function ($, xcFunction) {
             return;
         }
 
-        var table        = gTables[tableNum];
-        var tableName    = table.tableName;
+        var table     = gTables[tableNum];
+        var tableName = table.tableName;
 
         var columns = table.tableCols;
 
@@ -384,13 +384,14 @@ window.xcFunction = (function ($, xcFunction) {
             var tablCols = [];
             tablCols[0] = newProgCol;
             tablCols[1] = xcHelper.deepCopy(table.tableCols[indexedColNum]);
-            if (tablCols[1].name.indexOf('.') > -1) {
+            // Note that if inculde sample a.b should not be escaped to a\.b
+            if (!isIncSample && tablCols[1].name.indexOf('.') > -1) {
                 var newEscapedName = tablCols[1].name.replace(/\./g, "\\\.");
                 tablCols[1].userStr = tablCols[1].name + '" = pull(' +
                                        newEscapedName + ')';
                 tablCols[1].func.args = [newEscapedName];
             }
-            
+
             tablCols[2] = xcHelper.deepCopy(table.tableCols[dataColNum]);
 
             setIndex(newTableName, tablCols);
@@ -849,7 +850,7 @@ window.xcFunction = (function ($, xcFunction) {
                         "operation": "deleteTable",
                         "tableName": leftResult.tableName
                     };
-                    XcalarDeleteTable(leftResult.tableName)
+                    XcalarDeleteTable(leftResult.tableName, sqlOptions)
                     .always(function() {
                         console.error("Parallel index fails in rightTable", error);
                         deferred.reject(error);
