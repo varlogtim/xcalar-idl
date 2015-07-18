@@ -384,6 +384,13 @@ window.xcFunction = (function ($, xcFunction) {
             var tablCols = [];
             tablCols[0] = newProgCol;
             tablCols[1] = xcHelper.deepCopy(table.tableCols[indexedColNum]);
+            if (tablCols[1].name.indexOf('.') > -1) {
+                var newEscapedName = tablCols[1].name.replace(/\./g, "\\\.");
+                tablCols[1].userStr = tablCols[1].name + '" = pull(' +
+                                       newEscapedName + ')';
+                tablCols[1].func.args = [newEscapedName];
+            }
+            
             tablCols[2] = xcHelper.deepCopy(table.tableCols[dataColNum]);
 
             setIndex(newTableName, tablCols);
