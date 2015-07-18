@@ -316,10 +316,6 @@ window.OperationsModal = (function($, OperationsModal) {
             $functionInput.attr('placeholder', "");
 
             $('#xcTable' + tableNum)
-                .find('.editableHead').attr('disabled', false)
-                .end()
-                .find('.colGrab').off('mouseup', disableTableEditing)
-                .end()
                 .find('.header').off('click', fillInputFromColumn)
                 .end()
                 .find('.modalHighlighted').removeClass('modalHighlighted');
@@ -339,10 +335,6 @@ window.OperationsModal = (function($, OperationsModal) {
             });
 
             $('#xcTable' + tableNum)
-                .find('.editableHead').attr('disabled', true)
-                .end()
-                .find('.colGrab').mouseup(disableTableEditing)
-                .end()
                 .find('.header').click(fillInputFromColumn)
                 .end()
                 .find('.col' + colNum).addClass('modalHighlighted');
@@ -1209,14 +1201,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
         $operationsModal.find('.autocomplete').eq(inputNum)
                         .attr('placeholder', placeholderText);
-    }
-
-    function disableTableEditing() {
-        // setTimeout to act after resize column width's mouseup
-        setTimeout(function() {
-            $('#xcTable' + tableNum).find('.editableHead')
-                                    .attr('disabled', true);
-        }, 0);
     }
 
     function getAutoGenColName(name) {
