@@ -253,6 +253,10 @@ window.DagPanel = (function($, DagPanel) {
             $('.colMenu').hide().removeClass('leftColMenu');
             $('#dagSchema').hide();
             var $dagTable = $(this).closest('.dagTable');
+            if (!$dagTable.hasClass(DgDagStateTStr[5])) {
+                // if dag does not have ready state, don't show dropdown
+                return;
+            }
             var tableName = $.trim($dagTable.find('.tableTitle').text());
             $menu.data('tablename', tableName);
             $menu.data('tableelement', $dagTable);
