@@ -197,7 +197,7 @@ window.TestSuite = (function($, TestSuite) {
 
         function flightTestPart3() {
             var $header = $($(".flexWrap.flex-mid input[value='ArrDelay']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $("#colMenu0 .changeDataType");
             $colMenu.mouseover();
             $colMenu.find(".type-integer").trigger(fakeMouseup);
@@ -209,7 +209,7 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart4() {
             var $header = $($(".flexWrap.flex-mid"+
                               " input[value='ArrDelay_integer']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $("#colMenu0 .filter");
             $colMenu.trigger(fakeMouseup);
             setTimeout(function() {
@@ -245,7 +245,7 @@ window.TestSuite = (function($, TestSuite) {
             $("#alertActions .confirm").click();
             var $header = $($(".flexWrap.flex-mid"+
                               " input[value='Year']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $("#colMenu0 .map");
             $colMenu.trigger(fakeMouseup);
             setTimeout(function() {
@@ -269,7 +269,7 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart7() {
             var $header = $($(".flexWrap.flex-mid"+
                               " input[value='Dest']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $("#colMenu0 .joinList");
             $colMenu.trigger(fakeMouseup);
             $("#rightJoin .tableLabel:contains('airport')").trigger(fakeClick);
@@ -285,7 +285,7 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart8() {
             var $header = $($(".flexWrap.flex-mid"+
                               " input[value='ArrDelay_integer']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $("#colMenu0 .groupby");
             $colMenu.trigger(fakeMouseup);
             $("#functionList .dropdown .icon").trigger(fakeClick);
@@ -305,7 +305,7 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart9() {
             var $header = $($("#xcTbodyWrap1 .flexWrap.flex-mid"+
                             " input[value='ArrDelay_integer']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").mousedown();
+            $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $("#colMenu0 .aggregate");
             $colMenu.trigger(fakeMouseup);
             $("#functionList .dropdown .icon").trigger(fakeClick);

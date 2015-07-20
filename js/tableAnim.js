@@ -811,10 +811,7 @@ function createTableHeader(tableNum) {
         }
     }, ".tableTitle .text");
 
-    $xcTheadWrap.on('mousedown', '.tableTitle > .dropdownBox', function(event) {
-        if (event.which !== 1) {
-            return;
-        }
+    $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function(event) {
         dropdownClick($(this), {"type": "tableDropdown"});
     });
 
@@ -1312,7 +1309,7 @@ function addColListeners($table, tableNum) {
         }
     }, ".editableHead");
 
-    $thead.on("mousedown", ".header .flex-right > .dropdownBox", function() {
+    $thead.on("click", ".header .flex-right > .dropdownBox", function() {
         var options = {"type": "thDropdown"};
 
         var $el = $(this);
