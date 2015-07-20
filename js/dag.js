@@ -890,9 +890,18 @@ window.Dag = (function($, Dag) {
         } else {
             dagTable += '<div class="dagTable ' + state + '" ' +
                             'data-tablename="' + tableName + '">' +
-                            '<div class="dagTableIcon"></div>' +
-                            '<div class="icon"></div>' +
-                            '<span class="tableTitle" ' +
+                            '<div class="dagTableIcon"></div>';
+            if (dagInfo.state === 'DgDagStateDropped') {
+                dagTable += '<div class="icon" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-placement="top" ' +
+                            'data-container="body" ' +
+                            'title="Table \'' + tableName +
+                            '\' has been dropped"></div>';
+            } else {
+                dagTable += '<div class="icon"></div>';
+            }
+            dagTable +=     '<span class="tableTitle" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
