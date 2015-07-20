@@ -1533,6 +1533,11 @@ window.DataPreview = (function($, DataPreview) {
             $previewTable.find("th.col0").html(promoteHeader)
                         .addClass("undo-promote");
         } else {
+            // change line marker
+            for (var i = 0, j = 2, len = $trs.length; i < len; i++, j++) {
+                $trs.eq(i).find(".lineMarker").text(j);
+            }
+
             // undo promote
             html = '<tr>' + promoteTd;
 
