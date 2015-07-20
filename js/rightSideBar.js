@@ -137,7 +137,6 @@ window.RightSideBar = (function($, RightSideBar) {
                         });
                     }
                 } else if (action === "delete") {
-                    console.log('trying to delete')
                     var sqlOptions = {"operation": "deleteTable",
                                       "tableName": tableName
                                      };

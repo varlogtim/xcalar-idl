@@ -1477,9 +1477,10 @@ function addColMenuBehaviors($colMenu) {
             return;
         }
         event.stopPropagation();
-        if ($(this).children('.subColMenu, input').length === 0 &&
-            !$(this).hasClass('unavailable') &&
-            $(this).closest('.clickable').length === 0) {
+        var $li = $(this);
+        if ($li.children('.subColMenu, input').length === 0 &&
+            !$li.hasClass('unavailable') &&
+            $li.closest('.clickable').length === 0) {
             // hide li if doesnt have a submenu or an input field
             closeMenu($colMenu);
         }
@@ -1640,10 +1641,12 @@ function addColMenuActions($colMenu) {
         changeColumnType($(this));
     });
 
-    /// added back in
     $colMenu.on('mouseup', '.sort .sort', function(event) {
         if (event.which !== 1) {
             return;
+        }
+        if ($colMenu.hasClass('type-indexed')) {
+            return; // do not allow sorting on a sorted column
         }
         var index = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
@@ -1651,6 +1654,7 @@ function addColMenuActions($colMenu) {
     });
     
     $colMenu.on('mouseup', '.sort .revSort', function(event) {
+        return; //XX revSort is currently unavailable
         if (event.which !== 1) {
             return;
         }
@@ -1836,9 +1840,7 @@ function dropdownClick($el, options) {
             $menu.hide();
             return;
         }
-
         // XXX Use CSS to show the options
-
     } else if (options.type === "tdDropdown") {
         $menu = $("#colMenu" + tableNum);
         // case that should close column menu
@@ -1871,6 +1873,14 @@ function dropdownClick($el, options) {
         $menu.attr("class", "colMenu " + className);
     }
 
+    if (options.type === 'thDropdown') {
+        if ($menu.hasClass('type-indexed')) {
+            $menu.find('.sort .sort').addClass('unavailable');
+        } else {
+            $menu.find('.sort .sort').removeClass('unavailable');
+        }
+    }
+    
     //position menu
     var topMargin  = options.type === "tdDropdown" ? 15 : -4;
     var leftMargin = 5;
