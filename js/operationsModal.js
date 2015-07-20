@@ -297,22 +297,11 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     function toggleModalDisplay(isHide, time) {
+        xcHelper.toggleModal(tableNum, isHide, {
+            "fadeOutTime": time
+        });
+
         if (isHide) {
-            $('#opModalBackground').fadeOut(time, function() {
-                $(this).removeClass('light');
-                $('#mainFrame').removeClass('opModalOpen');
-            });
-
-            $('#sideBarModal').fadeOut(time, function() {
-                $(this).removeClass('light');
-                $('#rightSideBar').removeClass('opModalOpen');
-            });
-
-            $('.xcTableWrap').not('#xcTableWrap' + tableNum)
-                             .removeClass('tableDarkened');
-
-            $('#xcTableWrap' + tableNum).removeClass('opModalOpen');
-
             $functionInput.attr('placeholder', "");
 
             $('#xcTable' + tableNum)
@@ -322,18 +311,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
             $('body').off('keydown', listHighlightListener);
         } else {
-            $('#xcTableWrap' + tableNum).addClass('opModalOpen');
-            $('.xcTableWrap').not('#xcTableWrap' + tableNum)
-                             .addClass('tableDarkened');
-
-            $('#rightSideBar').addClass('opModalOpen');
-            $('#mainFrame').addClass('opModalOpen');
-
-            $('#sideBarModal').addClass('light').fadeIn(150);
-            $('#opModalBackground').addClass('light').fadeIn(150, function() {
-                $operationsModal.fadeIn(300);
-            });
-
+            $operationsModal.fadeIn(300);
             $('#xcTable' + tableNum)
                 .find('.header').click(fillInputFromColumn)
                 .end()

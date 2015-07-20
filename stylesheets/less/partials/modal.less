@@ -115,8 +115,9 @@
     opacity: 0.6;
     display: none;
     z-index: 35;
+
     &.light {
-        opacity: 0.25;
+        opacity: 0.4;
     }
 }
 
@@ -2576,18 +2577,6 @@
     }
 }
 
-#opModalBackground {
-    .position(fixed, @top: 0, @left: 0);
-    .size(100%, 100%);
-    background-color: #000000;
-    opacity: 0.6;
-    display: none;
-    z-index: 35;
-    &.light {
-        opacity: 0.4;
-    }
-}
-
 .ui-draggable-dragging {
     .cursor-grabbing;
 
@@ -2597,13 +2586,14 @@
 }
 
 #mainFrame {
-    &.opModalOpen {
+    &.modalOpen {
         position: relative;
         z-index: 36;
     }
 }
+
 #rightSideBar {
-    &.opModalOpen {
+    &.modalOpen {
         z-index: 38;
         #sideBarModal {
             display: block;

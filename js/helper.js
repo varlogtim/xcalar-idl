@@ -138,6 +138,45 @@ window.xcHelper = (function($, xcHelper) {
         return (bytes);
     };
 
+    xcHelper.toggleModal = function(tableNum, isHide, options) {
+        var $modalBackground = $("#modalBackground");
+        var $mainFrame    = $("#mainFrame");
+        var $sideBarModal = $("#sideBarModal")
+        var $rightSideBar = $("#rightSideBar");
+
+        options = options || {};
+
+        if (isHide) {
+            var fadeOutTime = options.time || 150;
+            // when close the modal
+            $modalBackground.fadeOut(fadeOutTime, function() {
+                $(this).removeClass('light');
+                $mainFrame.removeClass('modalOpen');
+            });
+
+            $sideBarModal.fadeOut(fadeOutTime, function() {
+                $(this).removeClass('light');
+                $rightSideBar.removeClass('modalOpen');
+            });
+
+            $('.xcTableWrap').not('#xcTableWrap' + tableNum)
+                             .removeClass('tableDarkened');
+
+            $('#xcTableWrap' + tableNum).removeClass('modalOpen');
+        } else {
+            // when open the modal
+            $('#xcTableWrap' + tableNum).addClass('modalOpen');
+            $('.xcTableWrap').not('#xcTableWrap' + tableNum)
+                             .addClass('tableDarkened');
+
+            $rightSideBar.addClass('modalOpen');
+            $mainFrame.addClass('modalOpen');
+
+            $sideBarModal.addClass('light').fadeIn(150);
+            $modalBackground.addClass('light').fadeIn(150);
+        }
+    }
+
     xcHelper.randName = function(name, digits, strip) {
         if (digits == null) {
             digits = 5; // default
