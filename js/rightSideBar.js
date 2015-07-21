@@ -7,6 +7,7 @@ window.RightSideBar = (function($, RightSideBar) {
         setupUDF();
         setupHelpSection();
         setupSQL();
+        CLIBox.setup();
     };
 
     RightSideBar.initialize = function() {
@@ -271,6 +272,9 @@ window.RightSideBar = (function($, RightSideBar) {
                 } else {
                     $("#sqlButtonWrap").hide();
                 }
+                if ($section.attr("id") === "scratchPadSection") {
+                    CLIBox.realignNl();
+                }
             } else {
                 // section is active, close right side bar
                 if (!$rightSideBar.hasClass('poppedOut')) {
@@ -330,6 +334,10 @@ window.RightSideBar = (function($, RightSideBar) {
             containment: "document"
         });
 
+        $rightSideBar.on("resize", function() {
+            CLIBox.realignNl();
+        });
+
         $("#pulloutTab").click(function() {
             if (!clickable) {
                 return;
@@ -354,6 +362,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
                 $rightSideBar.addClass("open");
             } else {
+
                 closeRightSidebar();
             }
 
@@ -1009,6 +1018,7 @@ window.RightSideBar = (function($, RightSideBar) {
         $rightSideBar.find('.popOut')
                      .attr('data-original-title', 'pop out');
         $('.tooltip').hide();
+        CLIBox.realignNl();
     }
 
     return (RightSideBar);

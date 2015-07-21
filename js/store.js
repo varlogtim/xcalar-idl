@@ -15,7 +15,7 @@ function emptyAllStorage(localEmpty) {
     DS.clear();
     SQL.clear();
     DataCart.clear();
-    $("#scratchPadSection textarea").val("");
+    CLIBox.clear();
 
     if (localEmpty) {
         deferred.resolve();
@@ -94,7 +94,7 @@ function commitToStorage(atStartup) {
         "gDSObj"    : DS.getHomeDir(),
         "holdStatus": KVStore.isHold(),
         "sql"       : SQL.getHistory(),
-        "scratchPad": scratchPadText,
+        "scratchPad": CLIBox.getCli(),
         "datacarts" : DataCart.getCarts()
     };
 
@@ -137,7 +137,7 @@ function readFromStorage() {
                 SQL.restoreFromHistory(gInfos.sql);
             }
             if (gInfos.scratchPad) {
-                $("#scratchPadSection textarea").val(gInfos.scratchPad);
+                CLIBox.restore(gInfos.scratchPad);
             }
             if (gInfos.datacarts) {
                 DataCart.restore(gInfos.datacarts);
