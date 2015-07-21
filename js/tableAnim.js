@@ -50,9 +50,7 @@ function gRescolMouseDown(el, event, options) {
 
     if (options && options.target === "datastore") {
         rescol.isDatastore = true;
-    }
-
-    if (el.parent().width() === 10) {
+    } else if (el.parent().width() === 10) {
         // This is a hidden column! we need to unhide it
         // return;
         ColManager.unhideCol(colNum, tableNum, {autoResize: false});
