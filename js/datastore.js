@@ -456,6 +456,7 @@ window.GridView = (function($, GridView) {
                 $gridView.find(".active").removeClass("active");
                 // empty table section to have smooth switch
                 $("#dataSetTableWrap").empty();
+                $("#preview-close").click();
             }
         });
 
