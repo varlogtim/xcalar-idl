@@ -2,39 +2,39 @@
   font-family: 'Open Sans';
   font-weight: 400;
   font-style: normal;
-  src: url('http://fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3fY6323mHUZFJMgTvxaG2iE.eot?#iefix') format('embedded-opentype'),
+  src: url('Open-Sans-regular.eot') format('embedded-opentype'),
        local('Open Sans'),
        local('Open-Sans-regular'),
-       url('http://fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3ZBw1xU1rKptJj_0jans920.woff2') format('woff2'),
-       url('http://fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3bO3LdcAZYWl9Si6vvxL-qU.woff') format('woff'),
-       url('http://fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3aCWcynf_cDxXwCLxiixG1c.ttf') format('truetype'),
-       url('http://fonts.gstatic.com/l/font?kit=cJZKeOuBrn4kERxqtaUH3Zbd9NUM7myrQQz30yPaGQ4#OpenSans') format('svg');
+       url('Open-Sans-regular.woff2') format('woff2'),
+       url('Open-Sans-regular.woff') format('woff'),
+       url('Open-Sans-regular.ttf') format('truetype'),
+       url('Open-Sans-regular.svg') format('svg');
 }
 
 @font-face {
   font-family: 'Open Sans';
   font-weight: 700;
   font-style: normal;
-  src: url('http://fonts.gstatic.com/s/opensans/v13/k3k702ZOKiLJc3WVjuplzHZ2MAKAc2x4R1uOSeegc5U.eot');
-  src: url('http://fonts.gstatic.com/s/opensans/v13/k3k702ZOKiLJc3WVjuplzHZ2MAKAc2x4R1uOSeegc5U.eot?#iefix') format('embedded-opentype'),
+  src: url('Open-Sans-700.eot');
+  src: url('Open-Sans-700.eot') format('embedded-opentype'),
        local('Open Sans Bold'),
        local('Open-Sans-700'),
-       url('http://fonts.gstatic.com/s/opensans/v13/k3k702ZOKiLJc3WVjuplzBampu5_7CjHW5spxoeN3Vs.woff2') format('woff2'),
-       url('http://fonts.gstatic.com/s/opensans/v13/k3k702ZOKiLJc3WVjuplzKRDOzjiPcYnFooOUGCOsRk.woff') format('woff'),
-       url('http://fonts.gstatic.com/s/opensans/v13/k3k702ZOKiLJc3WVjuplzInF5uFdDttMLvmWuJdhhgs.ttf') format('truetype'),
-       url('http://fonts.gstatic.com/l/font?kit=k3k702ZOKiLJc3WVjuplzFlIn5tFQcqMuf-jhyJP0ps#OpenSans') format('svg');
+       url('Open-Sans-700.woff2') format('woff2'),
+       url('Open-Sans-700.woff') format('woff'),
+       url('Open-Sans-700.ttf') format('truetype'),
+       url('Open-Sans-700.svg') format('svg');
 }
 
 @font-face {
   font-family: 'Open Sans';
   font-weight: 600;
   font-style: normal;
-  src: url('http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSnZ2MAKAc2x4R1uOSeegc5U.eot');
-  src: url('http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSnZ2MAKAc2x4R1uOSeegc5U.eot?#iefix') format('embedded-opentype'),
+  src: url('Open-Sans-600http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSnZ2MAKAc2x4R1uOSeegc5U.eot');
+  src: url('Open-Sans-600http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSnZ2MAKAc2x4R1uOSeegc5U.eot?#iefix') format('embedded-opentype'),
        local('Open Sans Semibold'),
        local('Open-Sans-600'),
-       url('http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNShampu5_7CjHW5spxoeN3Vs.woff2') format('woff2'),
-       url('http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSqRDOzjiPcYnFooOUGCOsRk.woff') format('woff'),
-       url('http://fonts.gstatic.com/s/opensans/v13/MTP_ySUJH_bn48VBG8sNSonF5uFdDttMLvmWuJdhhgs.ttf') format('truetype'),
-       url('http://fonts.gstatic.com/l/font?kit=MTP_ySUJH_bn48VBG8sNSllIn5tFQcqMuf-jhyJP0ps#OpenSans') format('svg');
+       url('Open-Sans-600.woff2') format('woff2'),
+       url('Open-Sans-600.woff') format('woff'),
+       url('Open-Sans-600.ttf') format('truetype'),
+       url('Open-Sans-600.svg') format('svg');
 }
