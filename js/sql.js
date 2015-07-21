@@ -5,8 +5,17 @@ window.SQL = (function($, SQL) {
 
     SQL.add = function(title, options, cli) {
         options = options || {};
-        history.push({"title": title, "options": options, "cli": cli}
-                    );
+        if ($.isEmptyObject(options)) {
+            console.warn("Options for", title, "is empty!");
+            return;
+        }
+
+        history.push({
+            "title"  : title,
+            "options": options,
+            "cli"    : cli
+        });
+
         $textarea.append(getCliHTML(title, options));
         $machineTextarea.append(getCliMachine(title, options, cli));
         // scroll to bottom
@@ -98,6 +107,7 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case ("previewDataSet"):
                 // fallthrough
+            case ("destroyPreviewDataSet"):
                 // XXX should export tables have an effect?
                 break;
 

@@ -1352,16 +1352,18 @@ window.DataPreview = (function($, DataPreview) {
                         xcHelper.randName("previewTable");
             tableName += ".preview"; // specific format for preview table
            
-            var sqlOptions = {"operation" : "previewDataSet",
-                              "dsPath"    : loadURL,
-                              "dsName"    : tableName,
-                              "dsFormat"  : "raw",
-                              "hasHeader" : hasHeader,
-                              "fieldDelim": "Null",
-                              "lineDelim" : "Null",
-                              "moduleName": "Null",
-                              "funcName"  : "Null"
-                             };
+            var sqlOptions = {
+                "operation" : "previewDataSet",
+                "dsPath"    : loadURL,
+                "dsName"    : tableName,
+                "dsFormat"  : "raw",
+                "hasHeader" : hasHeader,
+                "fieldDelim": "Null",
+                "lineDelim" : "\n",
+                "moduleName": "Null",
+                "funcName"  : "Null"
+            };
+
             XcalarLoad(loadURL, "raw", tableName, "", "\n", hasHeader, "", "",
                        sqlOptions)
             .then(function() {
@@ -1456,7 +1458,12 @@ window.DataPreview = (function($, DataPreview) {
         toggleHighLight();
 
         if (tableName !== "") {
-            XcalarDestroyDataset(tableName);
+            var sqlOptions = {
+                "operation": "destroyPreviewDataSet",
+                "dsName"   : tableName
+            };
+
+            XcalarDestroyDataset(tableName, sqlOptions);
         }
         tableName = "";
     }
@@ -2430,16 +2437,17 @@ window.DS = (function ($, DS) {
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.click();
         
-        var sqlOptions = {"operation" : "loadDataSet",
-                          "dsPath"    : loadURL,
-                          "dsName"    : dsName,
-                          "dsFormat"  : dsFormat,
-                          "hasHeader" : hasHeader,
-                          "fieldDelim": fieldDelim || "Null",
-                          "lineDelim" : lineDelim || "Null",
-                          "moduleName": moduleName || null,
-                          "funcName"  : funcName || null
-                         };
+        var sqlOptions = {
+            "operation" : "loadDataSet",
+            "dsPath"    : loadURL,
+            "dsName"    : dsName,
+            "dsFormat"  : dsFormat,
+            "hasHeader" : hasHeader,
+            "fieldDelim": fieldDelim || "Null",
+            "lineDelim" : lineDelim || "Null",
+            "moduleName": moduleName || null,
+            "funcName"  : funcName || null
+        };
 
         XcalarLoad(loadURL, dsFormat, dsName,
                    fieldDelim, lineDelim, hasHeader,
@@ -2484,11 +2492,10 @@ window.DS = (function ($, DS) {
                 XcalarSetFree(gDatasetBrowserResultSetId)
                 .then(function() {
                     gDatasetBrowserResultSetId = 0;
-                    var sqlOptions = {
+                    return (XcalarDestroyDataset(dsName, {
                         "operation": "destroyDataSet",
                         "dsName"   : dsName
-                    };
-                    return (XcalarDestroyDataset(dsName, sqlOptions));
+                    }));
                 })
                 .fail(function(deferredError) {
                     Alert.error("Delete Dataset Fails", deferredError);
@@ -2500,7 +2507,6 @@ window.DS = (function ($, DS) {
 
         return (deferred.promise());
     };
-
 
     /**
      * Get home folder
@@ -2527,7 +2533,11 @@ window.DS = (function ($, DS) {
             var dsName = datasets.datasets[i].name;
             // preview ds is deleted here!!
             if (dsName.endsWith(".preview")) {
-                XcalarDestroyDataset(dsName);
+                var sqlOptions = {
+                    "operation": "destroyPreviewDataSet",
+                    "dsName"   : tableName
+                };
+                XcalarDestroyDataset(dsName, sqlOptions);
                 continue;
             }
             ++totolDS;
@@ -2806,8 +2816,11 @@ window.DS = (function ($, DS) {
 
         $grid.find(".waitingIcon").fadeIn(200);
 
-        var sqlOptions = {"operation": "destroyDataSet",
-                          "dsName"   : dsName};
+        var sqlOptions = {
+            "operation": "destroyDataSet",
+            "dsName"   : dsName
+        };
+
         XcalarSetFree(gDatasetBrowserResultSetId)
         .then(function() {
             gDatasetBrowserResultSetId = 0;
