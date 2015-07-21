@@ -202,7 +202,7 @@ window.Tips = (function($, Tips) {
             "placement": "right"
         });
 
-        setTooltip($("#gridView grid-unit:last-child"), {
+        setTooltip($("#gridView .grid-unit:last-child"), {
             "title"    : TipsTStr.DragGrid,
             "container": dataView,
             "placement": "right"

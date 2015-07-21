@@ -198,7 +198,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         // select a workbook
-        $workbookLists.on("click", "grid-unit", function(event) {
+        $workbookLists.on("click", ".grid-unit", function(event) {
             event.stopPropagation();
             $workbookLists.find(".active").removeClass("active");
             $(this).addClass("active");
@@ -418,7 +418,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
             var modified = workbook.modified;
 
             html +=
-                 '<grid-unit data-wkbkid="' + workbook.id + '">' +
+                 '<div class="grid-unit" data-wkbkid="' + workbook.id + '">' +
                     '<div>' + workbook.name + '</div>' +
                     '<div>' +
                         xcHelper.getTime(null, created) + ' ' +
@@ -430,7 +430,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                     '</div>' +
                     '<div>' + workbook.srcUser + '</div>' +
                     '<div>' + workbook.curUser + '</div>' +
-                '</grid-unit>';
+                '</div>';
         });
 
         $workbookLists.empty().append(html);
