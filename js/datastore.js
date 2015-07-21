@@ -2535,7 +2535,7 @@ window.DS = (function ($, DS) {
             if (dsName.endsWith(".preview")) {
                 var sqlOptions = {
                     "operation": "destroyPreviewDataSet",
-                    "dsName"   : tableName
+                    "dsName"   : dsName
                 };
                 XcalarDestroyDataset(dsName, sqlOptions);
                 continue;

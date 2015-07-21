@@ -1197,22 +1197,26 @@ window.OperationsModal = (function($, OperationsModal) {
         var validNameFound = false;
         var limit = 20; // we won't try more than 20 times
         var newName = name;
-        if (newName in takenNames) {
-            for (var i = 1; i < limit; i++) {
-                newName = name + i;
-                if (!(newName in takenNames)) {
-                    validNameFound = true;
-                    break;
-                }
-            }
-            if (!validNameFound) {
-                var tries = 0;
-                while (newName in takenNames && tries < 20) {
-                    newName = xcHelper.randName(name, 4);
-                    tries++;
-                }
+        // if (newName in takenNames) {
+            // for (var i = 1; i < limit; i++) {
+            //     newName = name + i;
+            //     if (!(newName in takenNames)) {
+            //         validNameFound = true;
+            //         break;
+            //     }
+            // }
+
+        // XXX Now just rand a name since check in gTabls cannot include
+        // all cols of the table... May need better way in the future
+        if (!validNameFound) {
+            var tries = 0;
+            newName = xcHelper.randName(name, 5);
+            while (newName in takenNames && tries < 20) {
+                newName = xcHelper.randName(name, 5);
+                tries++;
             }
         }
+        // }
         return (newName);
     }
 

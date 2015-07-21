@@ -247,9 +247,9 @@ window.DagPanel = (function($, DagPanel) {
         addColMenuBehaviors($menu);
         dagTableDropDownActions($menu);
         
-        $dagPanel.on('click', '.dagTable:not(.dataStore) .dagTableIcon,'+
-            '.dagTable:not(.dataStore) .icon', function() {
-
+        var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
+                        '.dagTable:not(.dataStore) .icon';
+        $dagPanel.on('click', selection, function() {
             $('.colMenu').hide().removeClass('leftColMenu');
             $('#dagSchema').hide();
             var $dagTable = $(this).closest('.dagTable');
@@ -722,7 +722,7 @@ window.Dag = (function($, Dag) {
         });
     }
 
-   function showDagSchema($dagTable) {
+    function showDagSchema($dagTable) {
         $('#dagSchema').remove();
         var tableName = $dagTable.data('tablename');
         var table = gTableIndicesLookup[tableName];
@@ -873,7 +873,7 @@ window.Dag = (function($, Dag) {
             }
             
             dagTable += '<div class="dagTable dataStore" ' +
-                        'data-tablename="' + tableName + '" '+
+                        'data-tablename="' + tableName + '" ' +
                         'data-type="dataStore" ' +
                         'data-id="' + id + '" ' +
                         'data-url="' + url + '">' +
@@ -901,13 +901,13 @@ window.Dag = (function($, Dag) {
             } else {
                 dagTable += '<div class="icon"></div>';
             }
-            dagTable +=     '<span class="tableTitle" ' +
+            dagTable += '<span class="tableTitle" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="bottom" ' +
                             'data-container="body" ' +
                             'title="' + tableName + '">' +
-                                tableName +
-                            '</span>';
+                            tableName +
+                        '</span>';
         }
         dagTable += '</div></div>';
         return (dagTable);
