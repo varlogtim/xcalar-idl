@@ -99,11 +99,10 @@ window.xcFunction = (function ($, xcFunction) {
                         aggrOp + '".';
             // add alert
             Alert.show({
-                "title"     : "Aggregate: " + aggrOp,
-                "instr"     : instr,
-                "msg"       : value,
-                "isAlert"   : true,
-                "isCheckBox": true
+                "title"  : "Aggregate: " + aggrOp,
+                "instr"  : instr,
+                "msg"    : value,
+                "isAlert": true
             });
 
             StatusMessage.success(msgId);

@@ -27,7 +27,7 @@ window.Alert = (function($, Alert){
             instr: instruction information
             msg: alert cnotent
             isAlert: if it is an alert or a confirm
-            isCheckBox: if checkbox is enabled  or disabled
+            isCheckBox: if checkbox is enabled or disabled
             modal: an modal element that trigger the alert
             optList: an object to setup datalist in alert modal, it contains:
                 label: label to show

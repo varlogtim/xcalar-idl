@@ -1810,7 +1810,7 @@ window.DataPreview = (function($, DataPreview) {
 
                 html +=
                     '<span class="action active apply-all">' +
-                        'Apply changes& Exit preview' +
+                        'Apply changes & Exit preview' +
                     '</span>';
                 break;
             default:
