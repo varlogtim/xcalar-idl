@@ -1235,6 +1235,12 @@ window.DataPreview = (function($, DataPreview) {
             highlightDelimiter(selection.toString());
         });
 
+        // this is to prevent the case that
+        // select text and move make the table scroll
+        $previewTable.closest(".datasetTbodyWrap").scroll(function() {
+            $(this).scrollLeft(0);
+        });
+
         // close preview
         $("#preview-close").click(function() {
             clearAll();
