@@ -387,10 +387,6 @@ function documentReadyGeneralFunction() {
         moveFirstColumn();
     });
 
-    // winbdow.onresize = function() {
-
-    // };
-
     var $rowInput = $('#rowInput');
     $rowInput.val("").data("");
     $rowInput.blur(function() {

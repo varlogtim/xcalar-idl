@@ -2342,43 +2342,56 @@ function reorderAfterTableDrop() {
     }
 }
 
-function moveFirstColumn() {
-    var $startingTable;
+function moveFirstColumn($targetTable) {
     var rightOffset;
-    $('.xcTableWrap:not(".inActive")').each(function() {
-        rightOffset = $(this)[0].getBoundingClientRect().right;
-        if (rightOffset > 0) {
-            $startingTable = $(this);
-            return false;
-        }
-    });
-
-    if ($startingTable && $startingTable.length > 0) {
-        var $idCol =  $startingTable.find('.idSpan');
+    if (!$targetTable) {
+        var datasetPreview = false;
+        $('.xcTableWrap:not(".inActive")').each(function() {
+            rightOffset = $(this)[0].getBoundingClientRect().right;
+            if (rightOffset > 0) {
+                $targetTable = $(this);
+                return false;
+            }
+        });
+    } else {
+        var datasetPreview = true;
+    }
+    
+    if ($targetTable && $targetTable.length > 0) {
+        var $idCol =  $targetTable.find('.idSpan');
         var cellWidth = $idCol.width();
-        var scrollLeft = -$startingTable.offset().left;
+        if (datasetPreview) {
+            var scrollLeft = -($targetTable.offset().left -
+                              $('#datasetWrap').offset().left);
+        } else {
+            var scrollLeft = -$targetTable.offset().left;
+        }
+        
         var rightDiff = rightOffset - (cellWidth + 15);
         if (rightDiff < 0) {
             scrollLeft += rightDiff;
         }
+        scrollLeft = Math.max(0, scrollLeft);
         $idCol.css('left', scrollLeft);
-        $startingTable.find('th.rowNumHead input').css('left', scrollLeft);
-        var adjustNext = true;
-        while (adjustNext) {
-            $startingTable = $startingTable.next();
-            if ($startingTable.length === 0) {
-                return;
+        $targetTable.find('th.rowNumHead > div').css('left', scrollLeft);
+        if (!datasetPreview) {
+            var adjustNext = true;
+            while (adjustNext) {
+                $targetTable = $targetTable.next();
+                if ($targetTable.length === 0) {
+                    return;
+                }
+                rightOffset = $targetTable[0].getBoundingClientRect().right;
+                if (rightOffset > $(window).width()) {
+                    adjustNext = false;
+                }
+                $targetTable.find('.idSpan').css('left', 0);
+                $targetTable.find('th.rowNumHead > div').css('left', 0);
             }
-            rightOffset = $startingTable[0].getBoundingClientRect().right;
-            if (rightOffset > $(window).width()) {
-                adjustNext = false;
-            }
-            $startingTable.find('.idSpan').css('left', 0);
-            $startingTable.find('th.rowNumHead input').css('left', 0);
         }
-        
     }
 }
+
 
 function showWaitCursor() {
     var waitCursor = '<style id="waitCursor" type="text/css">' +

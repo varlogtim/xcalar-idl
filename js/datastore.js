@@ -2032,6 +2032,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                     var tr = getTableRowsHTML(jsonKeys, jsons, false,
                                               selectedCols);
                     $('#worksheetTable').append(tr);
+                    moveFirstColumn($('#worksheetTable'));
 
                 } catch(err) {
                     console.error(err, value);
@@ -2106,6 +2107,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
             gRescolMouseDown($(this), event, {target: "datastore"});
             dblClickResize($(this), {minWidth: 25});
         });
+        $('#datasetWrap').scroll(function(){
+            moveFirstColumn($('#worksheetTable'));
+        });
+        
     }
 
     // select a column
@@ -2189,7 +2194,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // table rows
         tr = getTableRowsHTML(jsonKeys, jsons, columnsType);
         if (jsonKeys.length > 0) {
-            th += '<th><div class="header"></th>';
+            th += '<th class="rowNumHead"><div class="header">' +
+                  '</div></th>';
         }
         // table header
         for (var i = 0; i < jsonKeys.length; i++) {
@@ -2249,7 +2255,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         jsons.forEach(function(json) {
             tr += '<tr>';
-            tr += '<td class="lineMarker">' + (currentRow + i + 1) + '</td>';
+            tr += '<td class="lineMarker"><div class="idSpan">' +
+                    (currentRow + i + 1) + '</div></td>';
             // loop through each td, parse object, and add to table cell
             for (var j = 0; j < jsonKeys.length; j++) {
                 var key = jsonKeys[j];

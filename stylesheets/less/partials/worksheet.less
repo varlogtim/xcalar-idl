@@ -689,13 +689,6 @@
                     margin-top: -5px;
                     z-index: 3;
                     border-radius: 0;
-
-                    &::after {
-                        content: "";
-                        .position(absolute, @bottom: 0px);
-                        .size(@width: ~"calc(100% - 5px)", @height: 5px);
-                        background-color: black;
-                    }
                 }
             }
         }
@@ -784,7 +777,7 @@
                     .size(@width: ~"calc(100% + 10px)", @height: ~"calc(100% + 2px)");
                     position: absolute;
                     top: 0px;
-                    z-index: 1;
+                    z-index: 2;
                     margin-left: -5px;
                     .flex-display;
                     .justify-content (center);
@@ -811,7 +804,7 @@
             td:first-child {
                .idSpan {
                     background-color: @color-table-col-darkGray;
-                    border-right: 5px solid @color-table-lightGray;
+                    border-right: 5px solid @color-white;
                     border-left: 5px solid @color-white;
                 }
             }
