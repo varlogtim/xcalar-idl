@@ -682,7 +682,8 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (operObj != null) {
-            var defaultValue = "$" + colName;
+            var colPrefix = "$";
+            var defaultValue = colPrefix + colName;
 
             if (firstArgExceptions[category] &&
                 firstArgExceptions[category].indexOf(func) !== -1)
@@ -740,7 +741,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 if (sortedCol === "recordNum") {
                     sortedCol = "";
                 } else {
-                    sortedCol = "$" + sortedCol;
+                    sortedCol = colPrefix + sortedCol;
                 }
 
                 $rows.eq(numArgs).find('input').val(sortedCol)

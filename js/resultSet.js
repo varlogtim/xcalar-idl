@@ -146,7 +146,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
 
                 if (numRowsToFetch <= 0) {
                     var firstRow = $table.find('tbody tr:first');
-                    var topRowNum = parseInt(firstRow.attr('class').substr(3));
+                    var topRowNum = xcHelper.parseRowNum(firstRow);
 
                     numRowsStillNeeded =
                                 Math.min(numRowsStillNeeded, topRowNum);

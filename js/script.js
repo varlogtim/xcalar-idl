@@ -67,14 +67,14 @@ function infScrolling(tableNum) {
 
         var innerDeferred = jQuery.Deferred();
         var firstRow = table.find('tbody tr:first');
-        var topRowNum = parseInt(firstRow.attr('class').substr(3));
+        var topRowNum = xcHelper.parseRowNum(firstRow);
         var info;
         var numRowsToAdd;
 
         if (firstRow.length === 0) {
             innerDeferred.resolve();
         } else if ($(this).scrollTop() === 0 &&
-            firstRow.attr('class') !== 'row0')
+            !firstRow.hasClass('row0'))
         {
             scrollCount++;
             
