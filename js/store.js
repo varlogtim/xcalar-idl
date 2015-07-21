@@ -86,25 +86,25 @@ function commitToStorage(atStartup) {
 
     setTableOrder(atStartup);
     // basic thing to store
-    storage = { "TILookup"     : gTableIndicesLookup,
-                "TDLookup"     : gTableDirectionLookup,
-                "worksheets"   : WSManager.getWorksheets(),
-                "TOLookup"     : gTableOrderLookup,
-                "gDSObj"       : DS.getHomeDir(),
-                "holdStatus"   : KVStore.isHold(),
-                "sql"          : SQL.getHistory(),
-                "scratchPad"   : scratchPadText,
-                "datacarts"    : DataCart.getCarts(),
-                "helpStatusOff": HelpController.isOff()
-            };
+    storage = {
+        "TILookup"  : gTableIndicesLookup,
+        "TDLookup"  : gTableDirectionLookup,
+        "worksheets": WSManager.getWorksheets(),
+        "TOLookup"  : gTableOrderLookup,
+        "gDSObj"    : DS.getHomeDir(),
+        "holdStatus": KVStore.isHold(),
+        "sql"       : SQL.getHistory(),
+        "scratchPad": scratchPadText,
+        "datacarts" : DataCart.getCarts()
+    };
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
     .then(function() {
-        console.log("commitToStorage done!");
+        // console.log("commitToStorage done!");
         deferred.resolve();
     })
     .fail(function(error) {
-        console.log("commitToStorage fails!");
+        console.error("commitToStorage fails!", error);
         deferred.reject(error);
     });
 
@@ -142,9 +142,6 @@ function readFromStorage() {
             if (gInfos.datacarts) {
                 DataCart.restore(gInfos.datacarts);
             }
-            if (gInfos.helpStatusOff) {
-                HelpController.tooltipOff();
-            }
         } else {
             emptyAllStorage(true);
         }
@@ -167,7 +164,7 @@ function readFromStorage() {
         deferred.resolve();
     })
     .fail(function(error) {
-        console.log("readFromStorage fails!");
+        console.error("readFromStorage fails!", error);
         deferred.reject(error);
     });
 
@@ -192,7 +189,7 @@ window.KVStore = (function($, KVStore) {
         KVStore.gStorageKey = gStorageKey;
         KVStore.gLogKey = gLogKey;
 
-        console.log("You are assigned keys", gStorageKey, gLogKey);
+        // console.log("You are assigned keys", gStorageKey, gLogKey);
     };
 
     KVStore.get = function(key) {
@@ -235,7 +232,7 @@ window.KVStore = (function($, KVStore) {
             }
         })
         .fail(function(error) {
-            console.log("Get And Parse from KV Store fails!");
+            console.error("Get And Parse from KV Store fails!", error);
             deferred.reject(error);
         });
 

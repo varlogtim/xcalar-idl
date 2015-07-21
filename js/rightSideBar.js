@@ -457,14 +457,11 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $("#deleteTablesBtn, #deleteOrphanedTablesBtn").click(function() {
-            var text;
             var type;
             if ($(this).is('#deleteTablesBtn')) {
                 type = "inactive";
-                text = "ARCHIVED";
             } else {
                 type = "orphan";
-                text = "ORPHANED";
             }
             Alert.show({
                 "title": "DELETE " + type + " TABLES",
@@ -487,7 +484,7 @@ window.RightSideBar = (function($, RightSideBar) {
     // setup UDF section
     RightSideBar.getEditor = function() {
         return (editor);
-    }
+    };
 
     function setupUDF() {
         
@@ -736,11 +733,9 @@ window.RightSideBar = (function($, RightSideBar) {
             if ($target.hasClass('off')) {
                 $('#helpOnOff').removeClass('off');
                 Tips.display();
-                // HelpController.tooltipOn();
             } else {
                 $('#helpOnOff').addClass('off');
                 Tips.destroy();
-                // HelpController.tooltipOff();
             }
         }
     }
