@@ -493,6 +493,7 @@ function startupFunctions() {
         setupTooltips();
         setupMenuBar();
         scratchpadStartup();
+        StatusMessage.setup();
         WSManager.setup();
         loadMonitorPanel();
         DagPanel.setup();

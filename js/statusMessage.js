@@ -1,11 +1,9 @@
 // displays load message and animated waiting icon near CLI button
-window.StatusMessage = (function() {
+window.StatusMessage = (function($, StatusMessage) {
     var $statusText = $('#pageStatusText');
     var $waitingIcon = $('#loadingIconWrap').children();
     var isLoading = false;
 
-    var Message = function() {};
-    var self = new Message();
     var rotateInterval;
     var messages = [];
     var msgObjs = {};
@@ -19,9 +17,28 @@ window.StatusMessage = (function() {
     var msgIdCount = 0;
     var inRotation = false;
 
-    Message.prototype.addMsg = function(msg) {
-        var msgObj = msg || {};
-        msg = msgObj.msg || StatusMessageTStr.Loading;
+    StatusMessage.setup = function() {
+        $statusText.on('click', '.close', function() {
+            var $statusSpan = $(this).parent();
+            var msgId = parseInt($statusSpan.attr('id').substr(7));
+            var msgIndex = messages.indexOf(msgId);
+            messages.splice(msgIndex, 1);
+            $statusSpan.remove();
+            $('#stsMsg-' + msgId).remove(); // remove duplicate if exists
+            if (msgIndex === 0) {
+                var $firstSpan = $statusText.find('span').eq(0).clone();
+                $statusText.append($firstSpan);
+                $statusText.scrollTop(0);
+                rotatePosition = 0;
+            }
+            messageRemoveHelper();
+        });
+    };
+
+    StatusMessage.addMsg = function(msgObj) {
+        msgObj = msgObj || {};
+
+        var msg = msgObj.msg || StatusMessageTStr.Loading;
         msgIdCount++;
         messages.push(msgIdCount);
         msgObjs[msgIdCount] = msgObj;
@@ -43,26 +60,26 @@ window.StatusMessage = (function() {
                 $statusText.scrollTop(0);
             }).promise();
         }
-        
+
         $waitingIcon.fadeIn(100);
         if (messages.length === 2) {
             stopRotation();
             rotateMessages();
         }
-        
+
         isLoading = true;
         return (msgIdCount);
     };
 
-    Message.prototype.getPos = function() {
-        return rotatePosition;
+    StatusMessage.getPos = function() {
+        return (rotatePosition);
     };
 
-    Message.prototype.stop = function() {
+    StatusMessage.stop = function() {
         stopRotation();
     };
 
-    Message.prototype.success = function(msgId) {
+    StatusMessage.success = function(msgId) {
         showDoneNotification(msgId);
 
         inScroll.then(function() {
@@ -90,11 +107,9 @@ window.StatusMessage = (function() {
                 $waitingIcon.hide();
             }
         });
-        
-        return (self);
     };
 
-    Message.prototype.fail = function(failMessage, msgId) {
+    StatusMessage.fail = function(failMessage, msgId) {
         var fail = true;
         showDoneNotification(msgId, fail);
         failMessage = failMessage || StatusMessageTStr.Error;
@@ -109,30 +124,29 @@ window.StatusMessage = (function() {
         if (messages.length <= $statusText.find('.fail').length) {
             $waitingIcon.hide();
         }
-        
-        return (self);
     };
 
-    Message.prototype.reset = function() {
+    StatusMessage.reset = function() {
         msgIdCount = 0;
         stopRotation();
-        self.updateLocation(true);
+        StatusMessage.updateLocation(true);
         isFailed = false;
         messages = [];
         numRotations = 0;
         messagesToBeRemoved = [];
     };
 
-    Message.prototype.isFailed = function(){
+    StatusMessage.isFailed = function(){
         return isFailed;
     };
 
-    Message.prototype.updateLocation = function(force) {
+    StatusMessage.updateLocation = function(force) {
         if (!isLoading || force) {
-            var currentPanel = $.trim($('.mainMenuTab.active').text());
-            var locationHTML = '<span id="viewLocation">' +
-                               StatusMessageTStr.Viewing + " " +
-                               currentPanel + '</span>';
+            var currentPanel = $('.mainMenuTab.active').text().trim();
+            var locationHTML =
+                '<span id="viewLocation">' +
+                    StatusMessageTStr.Viewing + " " + currentPanel +
+                '</span>';
             $statusText.html(locationHTML);
         }
     };
@@ -149,11 +163,12 @@ window.StatusMessage = (function() {
                 }
                 checkForMessageRemoval();
             });
-            
         }, rotationTime);
     }
 
     function checkForMessageRemoval() {
+        var currIndex;
+
         for (var i = 0; i < messagesToBeRemoved.length; i++) {
             var msg = messagesToBeRemoved[i];
             var msgIndex = messages.indexOf(msg.msgId);
@@ -162,7 +177,7 @@ window.StatusMessage = (function() {
                 var numTotalMessages = messages.length;
                 
                 if (numTotalMessages === 1) {
-                    var currIndex = i;
+                    currIndex = i;
                     setTimeout(function() {
                         removeSuccessMessage(msg.$span, msgIndex, currIndex,
                                              msg.msgId);
@@ -178,7 +193,7 @@ window.StatusMessage = (function() {
                     i--;
                 }
             } else if (!inRotation) {
-                var currIndex = i;
+                currIndex = i;
                 setTimeout(function() {
                     removeSuccessMessage(msg.$span, msgIndex, currIndex,
                                          msg.msgId);
@@ -220,27 +235,11 @@ window.StatusMessage = (function() {
         }, rotationTime);
     }
 
-    $statusText.on('click', '.close', function() {
-        var $statusSpan = $(this).parent();
-        var msgId = parseInt($statusSpan.attr('id').substr(7));
-        var msgIndex = messages.indexOf(msgId);
-        messages.splice(msgIndex, 1);
-        $statusSpan.remove();
-        $('#stsMsg-' + msgId).remove(); // remove duplicate if exists
-        if (msgIndex === 0) {
-            var $firstSpan = $statusText.find('span').eq(0).clone();
-            $statusText.append($firstSpan);
-            $statusText.scrollTop(0);
-            rotatePosition = 0;
-        }
-        messageRemoveHelper();
-    });
-
     function messageRemoveHelper() {
         if (messages.length === 0) {
             isLoading = false;
             $waitingIcon.hide();
-            self.updateLocation();
+            StatusMessage.updateLocation();
             stopRotation();
         } else if (messages.length < 2) {
             stopRotation();
@@ -249,28 +248,29 @@ window.StatusMessage = (function() {
 
     function showDoneNotification(msgId, failed) {
         var operation = msgObjs[msgId].operation;
-        var popupNeeded = false;
+
+        var popupNeeded     = false;
         var popupWrapExists = false;
-        var popupNearTab = false;
-        var popupBottom = false;
+        var popupNearTab    = false;
+        var popupBottom     = false;
+
         var pos = {
-            left: 'auto',
-            right: 'auto',
-            top: 'auto',
-            bottom: 'auto',
-        }
+            left  : 'auto',
+            right : 'auto',
+            top   : 'auto',
+            bottom: 'auto'
+        };
         var arrow = '';
         var classes = '';
-        var status;
-        if (failed) {
-            status = ' failed';
-        } else {
-            status = ' completed';
-        }
+        var status = failed ? ' failed' : ' completed';
+        var $popups;
+        var $popupWrap;
 
-        var $tableDonePopup = $('<div class="tableDonePopup' + status + '"' +
-                                'id="tableDonePopup' + msgId + '" >' +
-                                operation + status + '</div>');
+        var $tableDonePopup =
+                $('<div class="tableDonePopup' + status + '"' +
+                    'id="tableDonePopup' + msgId + '" >' +
+                            operation + status +
+                    '</div>');
 
         if (operation === 'table creation') {
             return;
@@ -278,9 +278,9 @@ window.StatusMessage = (function() {
         if (operation === 'data set load') {
             if (!$('#dataStoresTab').hasClass('active')) {
                 
-                var $popups = $('.tableDonePopup.datastoreNotify');
+                $popups = $('.tableDonePopup.datastoreNotify');
                 if ($popups.length !== 0) {
-                    var $popupWrap = $popups.parent();
+                    $popupWrap = $popups.parent();
                     $popupWrap.append($tableDonePopup);
                     popupWrapExists = true;
                 } else {
@@ -290,9 +290,9 @@ window.StatusMessage = (function() {
                 popupNeeded = true;
             }
         } else if (!$('#workspaceTab').hasClass('active')) {
-            var $popups = $('.tableDonePopup.workspaceNotify');
+            $popups = $('.tableDonePopup.workspaceNotify');
             if ($popups.length !== 0) {
-                var $popupWrap = $popups.parent();
+                $popupWrap = $popups.parent();
                 $popupWrap.append($tableDonePopup);
                 popupWrapExists = true;
             } else {
@@ -303,11 +303,9 @@ window.StatusMessage = (function() {
         } else {
             var tableName = msgObjs[msgId].tableName;
             var visibility = tableVisibility(tableName);
-            
+
             if (visibility !== 'visible') {
                 popupNeeded = true;
-                var $popups;
-                var $popupWrap;
                 if (visibility === 'left') {
                     $popups = $('.tableDonePopup.leftSide');
                     if ($popups.length !== 0) {
@@ -351,7 +349,7 @@ window.StatusMessage = (function() {
             $tableDonePopup.addClass(arrow + ' ' + classes);
 
             if (!popupWrapExists) {
-                // we need to create a new container div for the popup 
+                // we need to create a new container div for the popup
                 // and position it, otherwise we would have just appeneded
                 // the popup to an already existing container  
                 if (popupNearTab) {
@@ -364,12 +362,13 @@ window.StatusMessage = (function() {
                     pos.bottom = 3;
                     pos.top = 'auto';
                 }
-                var $popupWrap = $('<div class="tableDonePopupWrap"></div>');
+
+                $popupWrap = $('<div class="tableDonePopupWrap"></div>');
                 $popupWrap.css({
-                    top: pos.top,
-                    bottom: pos.bottom,
-                    left: pos.left,
-                    right: pos.right
+                    "top"   : pos.top,
+                    "bottom": pos.bottom,
+                    "left"  : pos.left,
+                    "right" : pos.right
                 });
                 $('body').append($popupWrap);
                 $popupWrap.append($tableDonePopup);
@@ -393,7 +392,7 @@ window.StatusMessage = (function() {
                 });
             }, 400);
         }
-        
+
         delete msgObjs[msgId];
     }
 
@@ -430,6 +429,6 @@ window.StatusMessage = (function() {
 
         return (position);
     }
-    
-    return (self);
-})();
+
+    return (StatusMessage);
+}(jQuery, {}));

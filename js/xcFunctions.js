@@ -269,7 +269,7 @@ window.xcFunction = (function ($, xcFunction) {
             var newTableCols = createJoinedColumns(leftTable, rightTable,
                                                     leftRemoved, rightRemoved);
             setIndex(newTableName, newTableCols);
-            console.log('pause');
+            // console.log('pause');
             return (refreshTable(newTableName, leftTableName,
                                  KeepOriginalTables.DontKeep,
                                  rightTableName));
@@ -280,7 +280,6 @@ window.xcFunction = (function ($, xcFunction) {
 
             StatusMessage.success(msgId);
             commitToStorage();
-
             deferred.resolve();
         })
         .fail(function(error) {
@@ -567,7 +566,6 @@ window.xcFunction = (function ($, xcFunction) {
             xcHelper.unlockTable(rTableName, true);
 
             StatusMessage.success(msgId);
-
             deferred.resolve();
         })
         .fail(function(error) {
@@ -613,7 +611,7 @@ window.xcFunction = (function ($, xcFunction) {
         .then(function() {
             var location = hostname + ":/var/tmp/xcalar/" + exportName;
             // add alert
-            var ins   = "Widget location: " +
+            var ins = "Widget location: " +
                         "http://schrodinger/dogfood/widget/main.html?" +
                         "rid=" + retName;
             Alert.show({
