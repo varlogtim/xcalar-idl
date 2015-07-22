@@ -84,6 +84,24 @@ window.CLIBox = (function($, CLIBox) {
                 commitToStorage();
             }
         });
+
+        // ctrl+L to clean up the cli
+        var ctrlPressed = false;
+        $cliBox.on({
+            "keydown": function(event) {
+                if (event.which === keyCode.Ctrl) {
+                    ctrlPressed = true;
+                } else if (ctrlPressed && event.which === 76) { // 76 = key L
+                    CLIBox.clear();
+                    $cliBox.children().focus();
+                }
+            },
+            "keyup": function(event) {
+                if (event.which === keyCode.Ctrl) {
+                    ctrlPressed = false;
+                }
+            }
+        });
     }
 
     return (CLIBox);
