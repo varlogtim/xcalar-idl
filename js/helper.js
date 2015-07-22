@@ -141,7 +141,7 @@ window.xcHelper = (function($, xcHelper) {
     xcHelper.toggleModal = function(tableNum, isHide, options) {
         var $modalBackground = $("#modalBackground");
         var $mainFrame    = $("#mainFrame");
-        var $sideBarModal = $("#sideBarModal")
+        var $sideBarModal = $("#sideBarModal");
         var $rightSideBar = $("#rightSideBar");
 
         options = options || {};
@@ -175,7 +175,7 @@ window.xcHelper = (function($, xcHelper) {
             $sideBarModal.addClass('light').fadeIn(150);
             $modalBackground.addClass('light').fadeIn(150);
         }
-    }
+    };
 
     xcHelper.randName = function(name, digits, strip) {
         if (digits == null) {
@@ -376,7 +376,7 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.hideDropdowns = function($container) {
+    xcHelper.hideDropdowns = function() {
         var $sections = $(".listSection");
         $sections.find(".list").hide().removeClass("openList");
         $sections.removeClass("open");
@@ -605,7 +605,7 @@ window.xcHelper = (function($, xcHelper) {
             function isActive($ele) {
                 if ($ele == null) {
                     console.error("undefined element!");
-                    return;
+                    return (false);
                 }
                 return ($ele.is(":visible") && !$ele.is("[disabled]"));
             }
