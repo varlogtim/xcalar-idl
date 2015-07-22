@@ -1,25 +1,23 @@
  // ========== Modal CSS ==========
 .modalBuilder(@w, @h) {
-    &.modalContainer {
-        display: none;
-        .position(absolute, 0, 0, 0, 0);
-        .size(@width: @w, @height: @h, @max-width: 99%, @max-height: 99%);
-        margin: auto;
-        .rounded;
-        z-index: 40;
-        box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
-        background-color: @color-white;
-        overflow: hidden;
-    }
+    display: none;
+    .position(absolute, 0, 0, 0, 0);
+    .size(@width: @w, @height: @h, @max-width: 99%, @max-height: 99%);
+    .rounded;
+    z-index: 40;
+    box-shadow: 0px 0px 10px 3px rgba(0,0,0, .4);
+    background-color: @color-white;
+    overflow: hidden;
 
     .modalHeader {
         .action-gradient;
         .size(@width: 100%, @height: 36px);
         .noSelection;
-        cursor: default;
+        .cursor-move;
         line-height: 36px;
         text-align: center;
         text-shadow: 1px 1px rgba(0,0,0,0.2);
+
         .text {
             color: @color-text-white;
             .font(@weight: bold, @size: 18px);
@@ -317,13 +315,7 @@
 /* Quick Aggregate Modal */
 #quickAggDialog {
     .modalBuilder(920px, 670px);
-    overflow: hidden;
     resize: horizontal;
-    margin: 0 !important;
-
-    .modalHeader {
-        .cursor-move;
-    }
 
     #aggInputSection {
         .size(@height: 57px);
@@ -487,13 +479,7 @@
 /* Join Modal */
 #joinModal {
     .modalBuilder(920px, 670px);
-    overflow: hidden;
     resize: both;
-    margin: 0 !important;
-
-    .modalHeader {
-        .cursor-move;
-    }
 
     .modalTopMain {
         .size(@height: 57px);
@@ -954,13 +940,12 @@
 /* Alert Modal */
 #alertModal {
     .modalBuilder(500px, auto);
-    bottom: auto !important;
-    margin-top: 10% !important;
-    z-index: 100 !important;
+    bottom: auto;
+    margin: 10% auto auto auto;
+    z-index: 100;
 
     #alertHeader {
         text-transform: uppercase;
-        .cursor-move;
     }
 
     #alertContent {
@@ -1370,13 +1355,9 @@
 /* File Browser Modal */
 #fileBrowserModal {
     .modalBuilder(800px, 670px);
-    max-width: none !important;
-    max-height: none !important;
+    max-width: none;
+    max-height: none;
     text-transform: capitalize;
-
-    .modalHeader {
-        .cursor-move;
-    }
 
     .listSection {
         .dropDownList(450px, 25px);
@@ -1704,11 +1685,7 @@
 /* Export Modal */
 #exportModal {
     .modalBuilder(520px, 260px);
-    overflow: visible !important;
-
-    .modalHeader {
-        .cursor-move;
-    }
+    overflow: visible;
 
     .modalTopMain {
         .size(@height: 100px);
@@ -1776,11 +1753,6 @@
     .modalBuilder(920px, 300px);
 
     .transition(height 0.5s);
-    margin: 0 !important;
-
-    .modalHeader {
-        .cursor-move;
-    }
 
     &.minimized {
         height: 265px;
@@ -2079,13 +2051,11 @@
 }
 
 #operationsModal {
-    .modalBuilder(720px, auto); 
-    margin: 0 !important;
-    overflow: visible !important;
-    bottom: auto !important;
+    .modalBuilder(720px, auto);
+    overflow: visible;
+    bottom: auto;
 
     .modalHeader {
-        .cursor-move;
         border-radius: 3px 3px 0 0;
     }
 
