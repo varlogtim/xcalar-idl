@@ -175,8 +175,13 @@ window.RightSideBar = (function($, RightSideBar) {
             $li.remove();
             if ($timeLine.find('.tableInfo').length === 0) {
                 $timeLine.remove();
-                if ($tableList.find('.tableInfo').length === 0) {
-                    $tableList.find('.secondButtonWrap').hide();
+                if ($tableList.find('.tableInfo').length === 0 ) {
+                    if ($tableList.closest('#orphanedTableList').length !== 0) {
+                        $tableList.find('.selectAll, .clearAll').hide();
+                    } else {
+                        $tableList.find('.secondButtonWrap').hide();
+                    }
+                    
                 }
                 
             }
@@ -437,6 +442,10 @@ window.RightSideBar = (function($, RightSideBar) {
                                              .find('.btnLarge');
             $listBtns.addClass('btnInactive');
             $tableListSection.find('.addTableBtn').removeClass("selected");
+        });
+
+        $selectBtns.find('.refresh').click(function() {
+            refreshOrphanList();
         });
 
         $("#inactiveTablesList, #orphanedTablesList").on("click",
@@ -969,11 +978,45 @@ window.RightSideBar = (function($, RightSideBar) {
                         '</div>' +
                      '</li>';
         }
+        var $orphanedTableList = $('#orphanedTableList');
         $('#orphanedTablesList').html(html);
         if (numTables > 0) {
-            $('#orphanedTableList').find('.btnLarge').show();
-            $('#orphanedTableList .secondButtonWrap').show();
+            $orphanedTableList.find('.btnLarge').show();
+            $orphanedTableList.find('.selectAll, .clearAll').show();
         }
+        $orphanedTableList.find('.secondButtonWrap').show();
+    }
+
+    function refreshOrphanList() {
+        XcalarGetTables()
+        .then(function(backEndTables) {
+            var backTables = backEndTables.tables;
+            var numBackTables = backTables.length;
+            var tableMap = {};
+            for (var i = 0; i < numBackTables; i++) {
+                tableMap[backTables[i].tableName] = backTables[i];
+            }
+            for (var tName in gTableIndicesLookup) {
+                var tableName = gTableIndicesLookup[tName].tableName;
+                if (tableMap[tableName]) {
+                    delete tableMap[tableName];
+                }
+            }
+            setupOrphanedList(tableMap);
+            setTimeout(function() {
+                generateOrphanList(gOrphanTables);
+            }, 400);
+            
+            var $waitingIcon = $('<div class="waitingIcon" '+
+                              'style="top:50%; width:100%; display:block;' +
+                              'background-position-x: 50%"></div>');
+            $('#orphanedTableList').append($waitingIcon);
+            setTimeout(function(){
+                $waitingIcon.fadeOut(100, function() {
+                    $waitingIcon.remove();
+                });
+            }, 1400);
+        });
     }
 
     function sortTableByTime(tables) {

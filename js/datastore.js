@@ -2110,7 +2110,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $('#datasetWrap').scroll(function(){
             moveFirstColumn($('#worksheetTable'));
         });
-        
     }
 
     // select a column
