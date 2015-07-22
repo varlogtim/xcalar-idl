@@ -10,7 +10,6 @@ window.WSManager = (function($, WSManager) {
     var nameSuffix     = 1;
 
     var $workSheetTabSection  = $("#worksheetTabs");
-    var $workspaceDateSection = $("#workspaceDate").find(".date");
 
     /**
      * Setup function fpr WSManager
@@ -266,10 +265,6 @@ window.WSManager = (function($, WSManager) {
         }
 
         activeWorsheet = wsIndex;
-
-        // update worksheet created date
-        var date = worksheets[activeWorsheet].date || xcHelper.getDate();
-        $workspaceDateSection.text(date);
 
         var $tabs   = $workSheetTabSection.find(".worksheetTab");
         var $tables = $("#mainFrame .xcTableWrap");

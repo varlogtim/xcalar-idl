@@ -321,9 +321,16 @@ window.WorkbookModal = (function($, WorkbookModal) {
                     'current workbook is <b>' + workbooks[i].name + '</b>' +
                     ' created by <b>' + srcUser + '</b>';
                 $workbookModal.find(".modalInstruction .text").html(html);
+                updateWorksheetBar(workbooks[i]);
                 break;
             }
         }
+    }
+
+    function updateWorksheetBar(workbook) {
+        $("#worksheetInfo .wkbkName").text(workbook.name);
+        $("#workspaceDate .date").text(xcHelper.getDate("-", null,
+                                                        workbook.created));
     }
 
     // helper function for toggle in option section
@@ -535,7 +542,7 @@ window.WKBKManager = (function($, WKBKManager) {
     };
 
     // get info about all users and their workbooks
-    // XXX this is only for super users
+    // Note: this is only for super users
     WKBKManager.getUsersInfo = function() {
         return (KVStore.getAndParse(gUserInfoKey));
     };
