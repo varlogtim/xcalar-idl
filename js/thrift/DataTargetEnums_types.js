@@ -10,6 +10,11 @@ DsTargetTypeT = {
   'DsTargetODBCType' : 1,
   'DsTargetSFType' : 2
 };
+DsTargetTypeTStr = {
+    0 : 'unknown',
+    1 : 'odbc',
+    2 : 'file'
+};
 DsExportCreateRuleT = {
   'DsExportUnknownRule' : 0,
   'DsExportCreateOnly' : 1,
@@ -17,13 +22,11 @@ DsExportCreateRuleT = {
   'DsExportAppendOnly' : 3,
   'DsExportDeleteAndReplace' : 4
 };
-DsTargetTypeTStr = {0 : 'unknown',
-1 : 'odbc',
-2 : 'file'
-};
-DsExportCreateRuleTStr = {0 : 'unknown',
-1 : 'createOnly',
-2 : 'createOrAppend',
-3 : 'appendOnly',
-4 : 'deleteAndReplace'
+
+DsExportCreateRuleTStr = {
+    0 : 'unknown',
+    1 : 'createOnly',
+    2 : 'createOrAppend',
+    3 : 'appendOnly',
+    4 : 'deleteAndReplace'
 };

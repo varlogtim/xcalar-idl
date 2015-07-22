@@ -994,6 +994,16 @@ html.microsoft {
             text-align: center;
             white-space: pre-line;
         }
+        &.leftAlign {
+            .text {
+                padding-left: 52px;
+                text-align: left;
+                max-height: 62px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 90%;
+            }
+        }
 
         .options {
             .size(@width: 325px, @height: 30px);
@@ -2030,14 +2040,32 @@ html.microsoft {
 
     .modalTopMain {
         // .size(@height: 100px);
-        font-size: 12px;
+        font-size: 13px;
         padding: 15px 0;
 
-        .exportNameSection, .exportPathSection {
+        .formRow {
             .size(@width: 75%, @height: 35px);
             .position(relative);
             margin: 0 auto;
             padding: 5px 0;
+
+            .clearInput {
+                .size(20px, 20px);
+                .rounded();
+                position: absolute;
+                right: 43px;
+                top: 8px;
+                .gray-gradient;
+                cursor: pointer;
+
+                &:active {
+                    .gray-inverse-gradient;
+                }
+                .icon {
+                    .size(20px, 20px);
+                    .image("/images/close-med.png", 50%, 50%);
+                }
+            }
         }
 
         .label {
@@ -2049,7 +2077,7 @@ html.microsoft {
             .noSelection;
         }
 
-        .exportNameSection {
+        .exportNameSection, .exportColumnsSection {
             .input-box(@w: ~"calc(100% - 115px)", @h: 25px, @focus: true);
         }
 

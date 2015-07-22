@@ -339,7 +339,7 @@ function XcalarAddODBCExportTarget(targetName, connStr) {
     var target = new DsExportTargetT();
     var specInput = new DsAddTargetSpecificInputT();
     target.name = targetName;
-    target.type = DsTargetTypeT.DsTargetSFType;
+    target.type = DsTargetTypeT.DsTargetODBCType;
     specInput.odbcInput = new DsAddTargetODBCInputT();
     specInput.odbcInput.connectionString = connStr;
          
@@ -420,7 +420,8 @@ function XcalarListExportTargets(typePattern, namePattern) {
     return (deferred.promise());
 }
 
-function XcalarExport(tableName, targetName, numColumns, columns, sqlOptions) {
+function XcalarExport(tableName, exportName, targetName, numColumns, columns,
+                      sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -455,11 +456,11 @@ function XcalarExport(tableName, targetName, numColumns, columns, sqlOptions) {
         switch(target.type) {
             case (DsTargetTypeT.DsTargetODBCType):
                 specInput.odbcInput = new DsInitExportODBCInputT();
-                specInput.odbcInput.tableName = tableName.split("#")[0];
+                specInput.odbcInput.tableName = exportName;
                 break;
             case (DsTargetTypeT.DsTargetSFType):
                 specInput.sfInput = new DsInitExportSFInputT();
-                specInput.sfInput.fileName = tableName + ".csv";
+                specInput.sfInput.fileName = exportName + ".csv";
                 specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
                 specInput.sfInput.formatArgs = new
                                             DsInitExportFormatSpecificArgsT();

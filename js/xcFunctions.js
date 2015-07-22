@@ -817,7 +817,8 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // export table
-    xcFunction.exportTable = function(tableName, exportName) {
+    xcFunction.exportTable = function(tableName, exportName, targetName,
+                                        numCols, columns) {
         var deferred = jQuery.Deferred();
         var retName  = $(".retTitle:disabled").val();
 
@@ -833,34 +834,50 @@ window.xcFunction = (function($, xcFunction) {
             "operation": "export"
         };
         var msgId = StatusMessage.addMsg(msgObj);
-        var location = hostname + ":/var/tmp/xcalar/" + exportName;
+        // var location = hostname + ":/var/tmp/xcalar/" + exportName;
 
         var sqlOptions = {
             "operation" : SQLOps.ExportTable,
             "tableName" : tableName,
             "exportName": exportName,
-            "exportPath": location
+            "exportPath": targetName
         };
 
-        XcalarExport(tableName, exportName, false, sqlOptions)
+        XcalarExport(tableName, exportName, targetName, numCols, columns,
+                     sqlOptions)
         .then(function() {
             // add alert
             var ins = "Widget location: " +
                         "http://schrodinger/dogfood/widget/main.html?" +
                         "rid=" + retName;
+            var ins = "Table \"" + tableName + "\" was succesfully exported " +
+                      "to " + exportName + " under the name: " + exportName +
+                      ".";
             Alert.show({
                 "title"     : "Successful Export",
-                "msg"       : "File location: " + location,
+                "msg"       : "File Name: " + exportName + "\n" +
+                                "File location: " + targetName,
                 "instr"     : ins,
                 "isAlert"   : true,
-                "isCheckBox": true
+                "isCheckBox": true,
+                "onClose"   : function() {
+                                $('#alertContent').removeClass('leftalign');
+                            }
             });
+            $('#alertContent').addClass('leftAlign');
             StatusMessage.success(msgId, false, xcHelper.getTableId(tableName));
             commitToStorage();
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error("Export Table Fails", error);
+            console.log(error)
+            if (error.status === StatusT.StatusDsODBCTableExists) {
+                var text = "Name is in use. Please choose a unique name."
+                StatusBox.show(text, $('#exportName'), true);
+            } else {
+                Alert.error("Export Table Failed", error);
+            }
+            
             StatusMessage.fail(StatusMessageTStr.ExportFailed, msgId);
             deferred.reject(error);
         });

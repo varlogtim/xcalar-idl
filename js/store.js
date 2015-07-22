@@ -118,7 +118,7 @@ function commitToStorage(atStartUp) {
 
     storage[KVKeys.STATS] = STATSManager.getStatsCols();
     storage[KVKeys.UDF] = RightSideBar.getUDFs();
-
+ 
     if (atStartUp) {
         storage[KVKeys.USER] = UserSettings.getSettings();
     } else {

@@ -167,6 +167,9 @@ window.Alert = (function($, Alert){
             if (options.cancel) {
                 options.cancel();
             }
+            if (options.onClose) {
+                options.onClose();
+            }
         });
 
         if (options.modal) {

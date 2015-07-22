@@ -952,9 +952,7 @@ function addTableMenuActions($tableMenu) {
             return;
         }
 
-        var tableName = xcHelper.getTableFromId(tableId).tableName;
-
-        ExportModal.show(tableName);
+        ExportModal.show(tableId);
     });
 
     $tableMenu.on('mouseup', '.delAllDuplicateCols', function(event) {

@@ -387,7 +387,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var $target = $(event.target).closest('.header');
         $target = $target.find('.editableHead');
         var newColName = $target.val();
-        insertText($input, newColName);
+        xcHelper.insertText($input, newColName, "$");
         gMouseEvents.setMouseDownTarget($input);
         $lastInputFocused.focus();
     }
@@ -1324,68 +1324,6 @@ window.OperationsModal = (function($, OperationsModal) {
                 listHighlight($input, keyCode.Up);
             }
         }
-    }
-
-    function insertText($input, textToInsert) {
-        var value  = $input.val();
-        var valLen = value.length;
-        var newVal;
-       
-        var currentPos = $input[0].selectionStart;
-        var selectionEnd = $input[0].selectionEnd;
-        var numCharSelected = selectionEnd - currentPos;
-        var strLeft;
-
-        textToInsert = "$" + textToInsert;
-
-        if (valLen === 0) {
-            // add to empty input box
-            newVal = textToInsert;
-            currentPos = newVal.length;
-        } else if (numCharSelected > 0) {
-            // replace a column
-            strLeft = value.substring(0, currentPos);
-            newVal = textToInsert;
-            currentPos = strLeft.length + newVal.length;
-        } else if (currentPos === valLen) {
-            // append a column
-            if (value.endsWith(",")) {
-                // value ends with ",""
-                newVal = " " + textToInsert;
-            } else if (value.trimRight().endsWith(",")) {
-                // value ends with sth like ",  "
-                newVal = textToInsert;
-            } else {
-                newVal = ", " + textToInsert;
-            }
-
-            currentPos = value.length + newVal.length;
-        } else if (currentPos === 0) {
-            // prepend a column
-            if (value.startsWith(",")) {
-                // value starts with ",""
-                newVal = textToInsert + " ";
-            } else if (value.trimLeft().startsWith(",")) {
-                // value start with sth like "  ,"
-                newVal = textToInsert;
-            } else {
-                newVal = textToInsert + ", ";
-            }
-
-            currentPos = newVal.length; // cursor at the start of value
-        } else {
-            // insert a column. numCharSelected == 0
-            strLeft = value.substring(0, currentPos);
-
-            newVal = textToInsert + ", ";
-            currentPos = strLeft.length + newVal.length;
-        }
-
-        $input.focus();
-        if (!document.execCommand("insertText", false, newVal)) {
-            $input.val($input.val() + newVal);
-        }
-        $input[0].setSelectionRange(currentPos, currentPos);
     }
 
     return (OperationsModal);

@@ -4,10 +4,13 @@
 window.DataStore = (function($, DataStore) {
     DataStore.setup = function() {
         GridView.setup();
+        setupViews();
         DatastoreForm.setup();
         DataPreview.setup();
         DataSampleTable.setup();
         DataCart.setup();
+        ExportTarget.setup();
+        ExportTarget.restore();
     };
 
     DataStore.updateInfo = function(numDatasets) {
@@ -45,6 +48,29 @@ window.DataStore = (function($, DataStore) {
 
         return (deferred.promise());
     };
+
+    function setupViews() {
+        $exploreView = $('#exploreView');
+        $exportView = $('#exportView');
+        $contentHeaderRight = $('#contentHeaderRight');
+        $contentHeaderMidText = $('#contentHeaderMid').find('.text');
+        $('#contentHeaderLeft').find('.buttonArea').click(function() {
+            var $button = $(this);
+            if ($button.attr('id') === "outButton") {
+                $exploreView.hide();
+                $contentHeaderRight.hide();
+                $exportView.show();
+                $contentHeaderMidText.text('EXPORT FORM');
+            } else {
+                $exploreView.show();
+                $contentHeaderRight.show();
+                $exportView.hide();
+                $contentHeaderMidText.text('DATA SET');
+            }
+            $button.siblings().removeClass('active');
+            $button.addClass('active');
+        });
+    } 
 
     return (DataStore);
 
@@ -94,11 +120,10 @@ window.DatastoreForm = (function($, DatastoreForm) {
         xcHelper.dropdownList($formatLists, {
             "onSelect": function($li) {
                 var text = $li.text();
-
                 if ($li.hasClass("hint") || $formatText.val() === text) {
                     return;
                 }
-
+                
                 $formatText.val(text).removeClass("hint");
                 $udfCheckbox.removeClass("hidden");
                 $('#fileNameSelector').addClass("optionsOpen");
@@ -476,17 +501,20 @@ window.GridView = (function($, GridView) {
 
     // toggle between list view and grid view
     GridView.toggle = function(isListView) {
-        var $btn = $("#dataViewBtn");
-
+        var $btn = $("#dataViewBtn, #exportViewBtn");
+        var $allGrids = $gridView.add($('#exportView').find('.gridItems'));
+        // includes import and export grids
         if (isListView) {
             // show list view
             $btn.removeClass("gridView").addClass("listView");
-            $gridView.removeClass("gridView").addClass("listView");
+            $allGrids.removeClass("gridView").addClass("listView");
             $btn.attr('data-original-title', 'Switch to Grid view');
+            $allGrids.find('.label').removeAttr('data-toggle');
         } else {
             $btn.removeClass("listView").addClass("gridView");
-            $gridView.removeClass("listView").addClass("gridView");
+            $allGrids.removeClass("listView").addClass("gridView");
             $btn.attr('data-original-title', 'Switch to List view');
+            $allGrids.find('.label').attr('data-toggle', 'tooltip');
         }
 
         // refresh tooltip
@@ -512,7 +540,7 @@ window.GridView = (function($, GridView) {
         });
 
         // click to toggle list view and grid view
-        $("#dataViewBtn").click(function() {
+        $("#dataViewBtn, #exportViewBtn").click(function() {
             var $btn = $(this);
             var isListView;
 
@@ -2118,7 +2146,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             scrollBarPadding = 10;
         }
         $('#datasetWrap').height(tableHeight + scrollBarPadding);
-    }
+    };
 
     function updateTableInfo(dsObj) {
         var dsName = dsObj.name;
@@ -3584,3 +3612,241 @@ function dsDropBack(event) {
     dsBack($grid);
 }
 /*** End of Drag and Drop Function for DSCart ***/
+
+
+window.ExportTarget = (function($, ExportTarget) {
+    var exportTargets = [];
+    var $exportView = $('#exportView');
+    var $form = $('#exportDataForm');
+    var $gridView = $exportView.find('.gridItems');
+    var $targetTypeList = $('#targetTypeList');
+    var $targetTypeInput = $targetTypeList.find('.text');
+    var $nameInput = $('#targetName');
+
+    ExportTarget.setup = function() {
+
+        $form.click(function(event){
+            event.stopPropagation();
+            hideDropdownMenu();
+        });
+
+        xcHelper.dropdownList($targetTypeList, {
+            "onSelect": function($li) {
+                if ($li.hasClass("hint")) {
+                    return;
+                }
+                if ($li.hasClass("unavailable")) {
+                    return true; // return true to keep dropdown open
+                }
+
+                $targetTypeInput.val($li.text()).removeClass('hint');
+            },
+            "container": "#exportDataForm"
+        });
+
+        $gridView.on("click", ".grid-unit", function(event) {
+            event.stopPropagation(); // stop event bubbling
+            var $grid = $(this);
+
+            $gridView.find(".active").removeClass("active");
+            $grid.addClass("active");
+        });
+
+        $form.submit(function(event) {
+            event.preventDefault();
+            $form.find('input').blur();
+
+            var $submitBtn = $("#exportFormSubmit").blur();
+            xcHelper.disableSubmit($submitBtn);
+
+            var targetType = $targetTypeInput.val();
+            var name = $nameInput.val().trim();
+
+            ExportTarget.submitForm(targetType, name)
+            .then(function() {
+                commitToStorage();
+            })  
+            .fail(function(error) {
+                // XX fail case being handled in ExportTarget.submitForm
+            })
+            .always(function() {
+                xcHelper.enableSubmit($submitBtn);
+            });
+        });
+
+        $('#exportFormReset').click(function() {
+            $targetTypeInput.addClass('hidden');
+        });
+
+        // xxx TEMPORARILY DISABLE THE ENTIRE FORM
+        $form.find('input, button').prop('readonly', true)
+                                   .attr('disabled', true)
+                                   .css({'cursor': 'not-allowed'});
+        $form.find('button').css('pointer-events', 'none')
+                            .addClass('btn-cancel');  
+        $form.find('.iconWrapper').css('background', '#AEAEAE');
+        $('#targetTypeList').css('pointer-events', 'none');                     
+    };
+
+    ExportTarget.getTargets = function() {
+        return exportTargets;
+    };
+
+    ExportTarget.restore = function() {
+        XcalarListExportTargets("*", "*")
+        .then(function(targs) {
+            var targets = targs.targets;
+            var numTargs = targs.numTargets;
+            var types = [];
+            for (var i = 0; i < numTargs; i++) {
+                var type = DsTargetTypeTStr[targets[i].type];
+                if (type === "file") {
+                    type = "Local Filesystem";
+                } else if (type === "odbc") {
+                    type = "ODBC";
+                }
+                var typeIndex = types.indexOf(type);
+                if (typeIndex === -1) {
+                    types.push(type);
+                    typeIndex = types.length - 1;
+                    exportTargets.push({name: type, targets: []});
+                }
+                exportTargets[typeIndex].targets.push(targets[i].name);
+            }
+            restoreGrids();
+        })
+        .fail(function(error) {
+            Alert.error("Export Target Restoration Failed", error.error);
+        });   
+    };
+
+    ExportTarget.submitForm = function(targetType, name) {
+        var deferred = jQuery.Deferred();
+        var isValid  = xcHelper.validate([
+            {
+                "$selector": $targetTypeInput,
+                "check"    : function() {
+                    return (targetType === "");
+                },
+                // "formMode": true,
+                "text"    : "Please choose a target type."
+            },
+            {
+                "$selector": $nameInput,
+                "check"    : function() {
+                    return (name === "");
+                },
+                "text": "Please enter a valid name."
+            }
+        ]);
+
+        if (!isValid) {
+            deferred.reject("Invalid Parameters");
+            return deferred.promise();
+        }
+        
+        if (targetType === "Local Filesystem") {
+            var path = hostname + ":/var/tmp/xcalar/export/blah.csv";
+            XcalarAddLocalFSExportTarget(name, path)
+            .then(function() {
+                addGridIcon(targetType, name);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                Alert.error("Failed to add export target", error.error);
+                deferred.reject();
+            });
+        } else {
+            var error = {error: 'Please select a valid target type'};
+            Alert.error("Invalid Target Type", error.error);
+            deferred.reject();
+        }
+        
+        return (deferred.promise());
+    };
+
+    function hideDropdownMenu() {
+        $form.find(".listSection").removeClass("open")
+                                  .find(".list").hide();
+    }
+
+    function restoreGrids() {
+        // return;
+        var numTypes = exportTargets.length;
+        var gridHtml = "";
+        for (var i = 0; i < numTypes; i++) {
+            var name = exportTargets[i].name;
+            var targetTypeId = name.replace(/\s/g, '');
+            gridHtml += '<div class="gridIconSection clearfix"' +
+                            'id="gridTarget-' + targetTypeId + '">';
+            if (i > 0) {
+                gridHtml += '<div class="divider clearfix"></div>';
+            }
+            gridHtml +=    '<div class="title">' + name +
+                              '</div>' +
+                              '<div class="gridArea">';
+            var numGrids = exportTargets[i].targets.length;
+            for (var j = 0; j < numGrids; j++) {
+                gridHtml += getGridHtml(exportTargets[i].targets[j]);
+            }    
+            gridHtml += '</div>' +
+                        '</div>';
+        }
+        $exportView.find('.gridItems').html(gridHtml);
+        var numGrids = $exportView.find('.grid-unit').length;
+        $exportView.find('.numExportTargets').html(numGrids);
+
+    }
+
+    function getGridHtml(name) {
+        var gridHtml = '<div class="ds grid-unit display">' +
+                            '<div class="gridIcon"></div>' +
+                            '<div class="listIcon">' +
+                                '<span class="icon"></span>' +
+                            '</div>' +
+                            '<div class="label" data-dsname="' + name + 
+                            '" data-toggle="tooltip" data-container="body"' +
+                            ' data-placement="right" title="' + name + '">' +
+                                name +
+                            '</div>' +
+                        '</div>';
+        return (gridHtml);
+    }
+
+    function addGridIcon(targetType, name, restoring) {
+        var $gridItems = $exportView.find('.gridItems');
+        var $grid = $(getGridHtml(name));
+        var targetTypeId = targetType.replace(/\s/g, '');
+        // $grid.append('<div class="waitingIcon"></div>');
+        if ($('#gridTarget-' + targetTypeId).length === 0) {
+            
+            var gridSectionHtml = '<div class="gridIconSection clearfix"' +
+                                      'id="gridTarget-' + targetTypeId + '">';
+
+            if ($gridItems.children().length > 0) {
+                gridSectionHtml +=    '<div class="divider clearfix"></div>';
+            }            
+                gridSectionHtml +=    '<div class="title">' + targetType +
+                                      '</div>' +
+                                      '<div class="gridArea"></div>' +
+                                  '</div>';
+            $gridItems.append(gridSectionHtml);
+
+            var targetGroup = {name: targetType, targets: []};
+            exportTargets.push(targetGroup);
+        }
+
+        var $gridTarget = $('#gridTarget-' + targetTypeId).find('.gridArea');
+        $gridTarget.append($grid);
+        var groupIndex = $gridTarget.parent().index();
+        exportTargets[groupIndex].targets.push(name);
+
+        var numGrids = $exportView.find('.grid-unit').length;
+        $exportView.find('.numExportTargets').html(numGrids);
+    }
+
+    return (ExportTarget);
+
+}(jQuery, {}));
+
+
