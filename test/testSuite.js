@@ -220,7 +220,7 @@ window.TestSuite = (function($, TestSuite) {
                 setTimeout(function() {
                     flightTestPart5();
                 }, 5000);
-            }, 1000);
+            }, 1000); 
         }
 
        function flightTestPart5() {
@@ -287,17 +287,19 @@ window.TestSuite = (function($, TestSuite) {
             $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $("#colMenu0 .groupby");
             $colMenu.trigger(fakeMouseup);
+            setTimeout(function() {
             $("#functionList .dropdown .icon").trigger(fakeClick);
             $($("#functionsMenu li")[0]).trigger(fakeMouseup);
             $($(".argumentTable .argument")[0]).val("$ArrDelay_integer");
             $($(".argumentTable .argument")[1]).val("$UniqueCarrier");
             $($(".argumentTable .argument")[2]).val("AvgDelay");
             setTimeout(function() {
-                $("#operationsModal .modalBottom .confirm").click();
-                setTimeout(function() {
-                    flightTestPart9();
-                }, 2000);
-            }, 100);
+                    $("#operationsModal .modalBottom .confirm").click();
+                    setTimeout(function() {
+                        flightTestPart9();
+                    }, 2000);
+                }, 100);
+            }, 1000);
 
         }
 
@@ -307,12 +309,14 @@ window.TestSuite = (function($, TestSuite) {
             $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $("#colMenu0 .aggregate");
             $colMenu.trigger(fakeMouseup);
-            $("#functionList .dropdown .icon").trigger(fakeClick);
-            $($("#functionsMenu li")[1]).trigger(fakeMouseup);
             setTimeout(function() {
-                $("#operationsModal .modalBottom .confirm").click();
-                TestSuite.pass(deferred, testName, currentTestNumber);
-            }, 100);
+                $("#functionList .dropdown .icon").trigger(fakeClick);
+                $($("#functionsMenu li")[1]).trigger(fakeMouseup);
+                setTimeout(function() {
+                    $("#operationsModal .modalBottom .confirm").click();
+                    TestSuite.pass(deferred, testName, currentTestNumber);
+                }, 100);
+            }, 1000);
         }
     }
 
