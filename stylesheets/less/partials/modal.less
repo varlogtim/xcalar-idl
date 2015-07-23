@@ -322,7 +322,7 @@
         .font(@weight: bold, @size: 14px, @line-height: 57px);
         padding-left: 17px;
 
-        .text {
+        > .text {
             float: left;
             margin-right: 10px;
         }
@@ -350,13 +350,7 @@
             }
 
             .list {
-                .position(@top: 24px);
-                .rounded(0 0 3px 3px);
                 overflow: hidden;
-            }
-
-            &.open {
-                .rounded(3px 3px 3px 0);
             }
         }
     }
@@ -486,7 +480,7 @@
         .font(@weight: bold, @size: 14px, @line-height: 57px);
         padding-left: 17px;
 
-        .text {
+        > .text {
             float: left;
             margin-right: 10px;
         }
@@ -1716,26 +1710,8 @@
             .listSection {
                 .dropDownList(~"calc(100% - 115px)", 25px);
                 .text {
-                    .size(@width: ~"calc(100% - 30px)");
-                    .font(@size: 13px);
-                    .rounded(3px 0 0 3px);
                     cursor: default;
                     .noSelection;
-                }
-                .list {
-                    .rounded(0 0 3px 3px);
-                    .position(@top: 26px);
-                    .font(@size: 13px);
-                }
-
-                &.open {
-                    .text {
-                        .rounded(3px 0 0 0);
-                    }
-                }
-
-                .hint {
-                    color: @color-text-lightGray;
                 }
             }
         }
