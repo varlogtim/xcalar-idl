@@ -1210,7 +1210,7 @@
     }
 
     function testUploadPython(deferred, testName, currentTestNumber) {
-        xcalarApiUploadPython(thriftHandle, "MgmtTest", "strLength",
+        xcalarApiUploadPython(thriftHandle, "MgmtTest",
             "def strLength( strVal ):\n  return \"%d\" % len(strVal)\n")
         .done(function(uploadPythonOutput) {
             if (status == StatusT.StatusOk) {
@@ -1230,8 +1230,7 @@
 
 	var content = fs.read('PyExecOnLoadTest.py');
 
-        xcalarApiUploadPython(thriftHandle, "PyExecOnLoadTest",
-			      "poorManCsvToJson", content)
+        xcalarApiUploadPython(thriftHandle, "PyExecOnLoadTest", content)
         .done(function(uploadPythonOutput) {
             if (status == StatusT.StatusOk) {
 		loadArgs = new XcalarApiDfLoadArgsT();
@@ -1240,8 +1239,7 @@
 		loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
 		loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
 		loadArgs.csv.isCRLF = false;
-		loadArgs.pyLoadArgs.moduleName = "PyExecOnLoadTest";
-		loadArgs.pyLoadArgs.funcName = "poorManCsvToJson";
+		loadArgs.pyLoadArgs.fullyQualifiedFnName = "PyExecOnLoadTest:poorManCsvToJson";
 
 		xcalarLoad(thriftHandle, "file:///var/tmp/qa/operatorsTest/movies/movies.csv", "movies", DfFormatTypeT.DfFormatJson, 0, loadArgs)
 	        .done(function(result) {

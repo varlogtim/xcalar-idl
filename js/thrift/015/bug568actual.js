@@ -20594,7 +20594,7 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
 
 }
 
-function xcalarIndexDatasetWorkItem(datasetName, dstTableName, keyName) {
+function xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
@@ -20618,8 +20618,7 @@ function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName) {
                 ", keyName = " + keyName + ", dstTableName = " +
                 dstTableName + ")");
 
-    var workItem = xcalarIndexDatasetWorkItem(datasetName, dstTableName,
-                                              keyName);
+    var workItem = xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

@@ -1679,8 +1679,8 @@ function xcalarKeyAddOrReplaceWorkItem(persist, key, value) {
 
 function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
-        "persist = " + persist.toString() + ")");
+    // console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value +
+    //     "persist = " + persist.toString() + ")");
 
     var workItem = xcalarKeyAddOrReplaceWorkItem(persist, key, value);
 
@@ -2078,23 +2078,26 @@ function xcalarApiListXdfs(thriftHandle, fnNamePattern, categoryPattern) {
     return (deferred.promise());
 }
 
-function xcalarApiUploadPythonWorkItem(moduleName, pythonSrc) {
+function xcalarApiUploadPythonWorkItem(moduleName, funcName, pythonStr) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.uploadPythonInput = new XcalarApiUploadPythonInputT();
 
     workItem.api = XcalarApisT.XcalarApiUploadPython;
     workItem.input.uploadPythonInput.moduleName = moduleName;
-    workItem.input.uploadPythonInput.pythonSrc = pythonSrc;
+    workItem.input.uploadPythonInput.funcName = funcName;
+    workItem.input.uploadPythonInput.pythonStr = pythonStr;
     return (workItem);
 }
 
-function xcalarApiUploadPython(thriftHandle, moduleName, pythonSrc) {
+function xcalarApiUploadPython(thriftHandle, moduleName, funcName, pythonStr) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarApiUploadPython(pythonSrc = ", pythonSrc, ", ",
-                "moduleName = ", moduleName, ")");
+    console.log("xcalarApiUploadPython(pythonStr = ", pythonStr, ", ",
+                "moduleName = ", moduleName, ", ",
+                "funcName = ", funcName, ")");
 
-    var workItem = xcalarApiUploadPythonWorkItem(moduleName, pythonSrc);
+    var workItem = xcalarApiUploadPythonWorkItem(moduleName, funcName,
+                                                 pythonStr);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
