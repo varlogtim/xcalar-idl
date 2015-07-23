@@ -190,7 +190,7 @@ window.TestSuite = (function($, TestSuite) {
                     $("#submitDSTablesBtn").click();
                     setTimeout(function() {
                         flightTestPart3();
-                    }, 2000); // Index should be <2s
+                    }, 5000); // Index should be <2s
                 }, 1000);
             }, 1000);
         }
@@ -250,13 +250,12 @@ window.TestSuite = (function($, TestSuite) {
             $colMenu.trigger(fakeMouseup);
             setTimeout(function() {
                 $("#categoryList .dropdown .icon").trigger(fakeClick);
-                $("#categoryMenu li[data-category='3']").trigger(fakeMouseup);
+                $("#categoryMenu li[data-category='9']").trigger(fakeMouseup);
                 $("#functionList .dropdown .icon").trigger(fakeClick);
-                $($("#functionsMenu li")[2]).trigger(fakeMouseup);
-                $($(".argumentTable .argument")[0]).val("ymd");
-                $($(".argumentTable .argument")[1]).val("ymd");
-                $($(".argumentTable .argument")[2])
-                    .val("$Year,$Month,$DayofMonth");
+                $("#functionsMenu li:contains('ymd:ymd')").trigger(fakeMouseup);
+                $($(".argumentTable .argument")[0]).val("$Year");
+                $($(".argumentTable .argument")[1]).val("$Month");
+                $($(".argumentTable .argument")[2]).val("$DayofMonth");
                 $($(".argumentTable .argument")[3]).val("YearMonthDay");
                 $("#operationsModal .modalBottom .confirm").click();
                 setTimeout(function() {

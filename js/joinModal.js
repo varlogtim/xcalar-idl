@@ -315,27 +315,28 @@ window.JoinModal = (function($, JoinModal) {
             return;
         }
 
-        var leftString  = 'pyExec("multiJoinModule","multiJoin"';
+        var leftString  = 'multiJoinModule:multiJoin(';
         var leftColName = xcHelper.randName("leftJoinCol");
 
         leftColNum = gTables[leftTableNum].tableCols.length;
 
         for (var i = 0; i < leftCols.length; i++) {
-            leftString += ', ' + leftCols[i];
+            leftString += leftCols[i] + ", ";
         }
-
+        leftString = leftString.substring(0, leftString.length-2);
         leftString += ')';
 
         // right table
-        var rightString  = 'pyExec("multiJoinModule","multiJoin"';
+        var rightString  = 'multiJoinModule:multiJoin(';
         var rightColName = xcHelper.randName("rightJoinCol");
 
         rightColNum = gTables[rightTableNum].tableCols.length;
 
         for (var i = 0; i < rightCols.length; i++) {
-            rightString += ', ' + rightCols[i];
+            rightString += rightCols[i] + ", ";
         }
 
+        rightString = rightString.substring(0, rightString.length-2);
         rightString += ')';
         resetJoinTables();
 
