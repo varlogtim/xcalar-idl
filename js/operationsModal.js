@@ -230,7 +230,6 @@ window.OperationsModal = (function($, OperationsModal) {
             cursor     : '-webkit-grabbing'
         });
 
-        // XXX FIXME GUI-1627 Technically, we don't need this call right now
         XcalarListXdfs("*", "*")
         .done(function(listXdfsObj) {
             setupOperatorsMap(listXdfsObj.fnDescs);
@@ -238,9 +237,9 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     OperationsModal.show = function(newTableNum, newColNum, operator) {
-        XcalarListXdfs("*", "*")
+        XcalarListXdfs("*", "User*")
         .done(function(listXdfsObj) {
-            setupOperatorsMap(listXdfsObj.fnDescs);
+            udfUpdateOperatorsMap(listXdfsObj.fnDescs);
 
             var tableCols  = gTables[newTableNum].tableCols;
             var currentCol = tableCols[newColNum - 1];
@@ -415,8 +414,6 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function setupOperatorsMap(opArray) {
         var arrayLen = opArray.length;
-        // XXX Speed up available. Only fetch for category 9, all the rest
-        // should remain the same since they are XDFs.
         operatorsMap = [];
 
         for (var i = 0; i < arrayLen; i++) {
@@ -425,6 +422,20 @@ window.OperationsModal = (function($, OperationsModal) {
             }
             operatorsMap[opArray[i].category].push(opArray[i]);
         } 
+    }
+
+    function udfUpdateOperatorsMap(opArray) {
+        var arrayLen = opArray.length;
+        var udfCategoryNum = FunctionCategoryT['FunctionCategoryUdf'];
+        if (opArray.length === 0) {
+            delete operatorsMap[udfCategoryNum];
+            return;
+        }
+        
+        operatorsMap[udfCategoryNum] = [];
+        for (var i = 0; i < arrayLen; i++) {
+            operatorsMap[udfCategoryNum].push(opArray[i]);
+        }
     }
 
     function sortHTML(a, b){
