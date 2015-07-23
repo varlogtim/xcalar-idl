@@ -99,6 +99,7 @@ window.JSONModal = (function($, JSONModal) {
                 var tableNum = parseInt($jsonTd.closest('table').attr('id')
                                         .substring(7));
                 var name     = createJsonSelectionExpression($(this));
+                var newName  = getUniqueColName(name.name, tableNum);
                 var usrStr   = '"' + name.name + '" = pull(' +
                                 name.escapedName + ')';
                 var $id      = $("#xcTable" + tableNum + " tr:first th")
@@ -113,7 +114,7 @@ window.JSONModal = (function($, JSONModal) {
                 var siblColName = table.tableCols[colNum - 1].name;
 
                 ColManager.addCol("col" + colNum, "xcTable" + tableNum,
-                                name.name, {"direction": "L", "select": true});
+                                newName, {"direction": "L", "select": true});
 
                 // now the column is different as we add a new column
                 var col = table.tableCols[colNum - 1];
@@ -157,6 +158,29 @@ window.JSONModal = (function($, JSONModal) {
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
 
         $('body').on('keydown', cycleMatches);
+    }
+
+    function getUniqueColName(name, tableNum, nameIndex, scanIndex) {
+        var index = nameIndex || 0;
+        var newName;
+        if (index) {
+            newName = name + index;
+        } else {
+            newName = name;
+        }
+        
+        var tableCols   = gTables[tableNum].tableCols;
+        var numCols = tableCols.length;
+        var scanIndex = scanIndex || 0;
+        for (var i = scanIndex; i < numCols; i++) {
+            if (tableCols[i].name.indexOf(newName) !== -1) {
+                if (newName === tableCols[i].name) {
+                    newName = getUniqueColName(name, tableNum, ++index, i);
+                    break;
+                } 
+            }
+        }
+        return newName;
     }
 
     function searchText($input) {
@@ -264,6 +288,10 @@ window.JSONModal = (function($, JSONModal) {
         var $searchBar = $('#jsonSearch');
         if ($searchBar.hasClass('closed')) {
             $searchBar.removeClass('closed');
+            setTimeout(function() {
+               $searchBar.find('input').focus();
+            }, 310);
+            
         } else {
             $searchBar.addClass('closed');
         }
