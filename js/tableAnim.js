@@ -1679,6 +1679,16 @@ function addColMenuActions($colMenu) {
         OperationsModal.show(tableNum, colNum, func);
     });
 
+    $colMenu.on('mouseup', '.statistics', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        var tableNum = parseInt($colMenu.attr('id').substring(7));
+        var colNum   = $colMenu.data('colNum');
+
+        STATSManager.run(tableNum, colNum);
+    });
+
     $colMenu.on('mouseup', '.tdFilter, .tdExclude', function(event) {
         var $li =  $(this);
 

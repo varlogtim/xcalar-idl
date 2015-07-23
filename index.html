@@ -1684,6 +1684,68 @@
   </div>
   <!-- End File Browser Modal -->
 
+  <!-- Statistics Modal -->
+  <div id="statsModal" class="modalContainer hidden">
+    <!-- Statistics Modal Header -->
+    <header class="modalHeader">
+      <span class="text">Statistics</span>
+      <div class="close">
+        <span class="icon"></span>
+      </div>
+    </header>
+    <!-- Statistics Modal Instruction -->
+    <section class="modalInstruction">
+      <div class="icon"></div>
+      <div class="text"></div>
+    </section>
+    <!-- Statistics Modal Top Section, for statistics groupby info-->
+    <section class="modalTopMain">
+      <div class="loadingSection hidden">
+        <div class="waitingIcon"></div>
+      </div>
+      <div class="groubyInfoSection loadHidden">
+        <svg class="groupbyChart">
+          <g transform="translate(0, 0)"></g>
+        </svg>
+      </div>
+      <div class="scrollSection loadHidden">
+        <div class="min-range">
+          <input class="text" val="1">
+        </div>
+        <svg class="scrollChart"></svg>
+        <div class="max-range"><p></p></div>
+      </div>
+    </section>
+    <!-- Statistics Modal Main Section, for agg info -->
+    <section class="modalMain aggInfoSection">
+      <div class="aggInfoGroup">
+        <div class="aggInfo">
+          <p>min: <span class="text min"></span></p>
+        </div>
+        <div class="aggInfo">
+          <p>average: <span class="text average"></span></p>
+        </div>
+        <div class="aggInfo">
+          <p>max: <span class="text max"></span></p>
+        </div>
+      </div>
+      <div class="aggInfoGroup">
+        <div class="aggInfo">
+          <p>count: <span class="text count"></span></p>
+        </div>
+        <div class="aggInfo blank"></div>
+        <div class="aggInfo">
+          <p>sum: <span class="text sum"></span></p>
+        </div>
+      </div>
+    </section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+      <button type="button" class="btn btnMid cancel">CLOSE</button>
+    </section>
+  </div>
+  <!-- End of Statistics Modal -->
+
   <!-- Export Modal -->
   <div id="exportModal" class="modalContainer">
     <!-- Export Modal Header -->
@@ -1805,6 +1867,7 @@
 <script src="/js/tips.js" type="text/javascript"></script>
 <script src="/js/statusMessage.js" type="text/javascript"></script>
 <script src="/js/englishStrings.js" type="text/javascript"></script>
+<script src="/js/statisticsModal.js" type="text/javascript"></script>
 <script src="/js/operationsModal.js" type="text/javascript"></script>
 <script src="/js/exportModal.js" type="text/javascript"></script>
 <script src="/js/authentication.js" type="text/javascript"></script>

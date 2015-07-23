@@ -335,6 +335,7 @@ function setTableMeta(tableName) {
     if (lookupTable) {
         newTable.rowHeights = lookupTable.rowHeights;
         newTable.bookmarks = lookupTable.bookmarks;
+        newTable.statsCols = lookupTable.statsCols;
     }
 
     getResultSet(tableName)
@@ -732,6 +733,7 @@ function generateColDropDown(tableNum) {
     '<li class="functions groupby thDropdown">Group By...</li>' +
     '<li class="functions map thDropdown">Map...</li>' +
     '<li class="joinList thDropdown">Join...</li>' +
+    '<li class="statistics thDropdown">Statistics Analysis...</li>' +
     '<li class="tdFilter tdDropdown">Filter this value</li>' +
     '<li class="tdExclude tdDropdown">Exclude this value</li>';
 

@@ -163,7 +163,12 @@ window.xcFunction = (function ($, xcFunction) {
         XcalarIndexFromTable(tableName, backFieldName, newTableName, sqlOptions)
         .then(function() {
             setDirection(newTableName, order);
-            setIndex(newTableName, tablCols);
+            // sort do not change groupby stats of the table
+            var statsCols;
+            if (table.statsCols) {
+                statsCols = xcHelper.deepCopy(table.statsCols);
+            }
+            setIndex(newTableName, tablCols, null, null, statsCols);
             
             return (refreshTable(newTableName, tableName));
         })
@@ -445,7 +450,13 @@ window.xcFunction = (function ($, xcFunction) {
                 "rowHeights": xcHelper.deepCopy(table.rowHeights)
             };
 
-            setIndex(newTableName, tablCols, null, tableProperties);
+            // map do not change groupby stats of the table
+            var statsCols;
+            if (table.statsCols) {
+                statsCols = xcHelper.deepCopy(table.statsCols);
+            }
+
+            setIndex(newTableName, tablCols, null, tableProperties, statsCols);
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
