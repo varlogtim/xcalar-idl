@@ -702,7 +702,7 @@ window.Dag = (function($, Dag) {
             $('body').addClass('noSelection');
         });
 
-        $dagWrap.on('mouseenter', '.dagTable', function() {
+        $dagWrap.on('mouseenter', '.dagTable:not(.dataStore)', function() {
             showDagSchema($(this));
         });
 
@@ -753,6 +753,9 @@ window.Dag = (function($, Dag) {
                             // XX SAMPLE DATA GOES HERE
                             '</div>' +
                         '</li>';
+            }
+            if (numCols === 1) {
+                html += '<span class="noFields">No fields present</span>';
             }
             html += '</ul></div>';
             var $schema = $(html);
