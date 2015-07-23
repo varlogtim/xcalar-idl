@@ -475,6 +475,9 @@ function loadMonitorPanel() {
 function startupFunctions() {
     var deferred = jQuery.Deferred();
 
+    // Shut up the console logs
+    verbose = false;
+
     setupLogout();
     RightSideBar.setup();
     DataStore.setup();
