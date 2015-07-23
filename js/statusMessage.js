@@ -19,19 +19,7 @@ window.StatusMessage = (function($, StatusMessage) {
 
     StatusMessage.setup = function() {
         $statusText.on('click', '.close', function() {
-            var $statusSpan = $(this).parent();
-            var msgId = parseInt($statusSpan.attr('id').substr(7));
-            var msgIndex = messages.indexOf(msgId);
-            messages.splice(msgIndex, 1);
-            $statusSpan.remove();
-            $('#stsMsg-' + msgId).remove(); // remove duplicate if exists
-            if (msgIndex === 0) {
-                var $firstSpan = $statusText.find('span').eq(0).clone();
-                $statusText.append($firstSpan);
-                $statusText.scrollTop(0);
-                rotatePosition = 0;
-            }
-            messageRemoveHelper();
+            removeFailedMsg($(this).parent());
         });
     };
 
@@ -124,6 +112,9 @@ window.StatusMessage = (function($, StatusMessage) {
         if (messages.length <= $statusText.find('.fail').length) {
             $waitingIcon.hide();
         }
+        setTimeout(function(){
+            removeFailedMsg($statusSpan);
+        }, 30000);
     };
 
     StatusMessage.reset = function() {
@@ -217,6 +208,21 @@ window.StatusMessage = (function($, StatusMessage) {
         if (messages.length <= $statusText.find('.fail').length) {
             $waitingIcon.hide();
         }
+    }
+
+    function removeFailedMsg($statusSpan) {
+        var msgId = parseInt($statusSpan.attr('id').substr(7));
+        var msgIndex = messages.indexOf(msgId);
+        messages.splice(msgIndex, 1);
+        $statusSpan.remove();
+        $('#stsMsg-' + msgId).remove(); // remove duplicate if exists
+        if (msgIndex === 0) {
+            var $firstSpan = $statusText.find('span').eq(0).clone();
+            $statusText.append($firstSpan);
+            $statusText.scrollTop(0);
+            rotatePosition = 0;
+        }
+        messageRemoveHelper();
     }
 
     function scrollToMessage() {
