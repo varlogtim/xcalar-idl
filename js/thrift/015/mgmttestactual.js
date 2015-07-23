@@ -10893,77 +10893,85 @@ StatusT = {
   'StatusKvNotFound' : 239,
   'StatusXdbSlotPrettyVacant' : 240,
   'StatusNoDataInXdb' : 241,
-  'StatusXdbNotFound' : 242,
-  'StatusXdbUninitializedCursor' : 243,
-  'StatusQrTaskFailed' : 244,
-  'StatusQrIdNonExist' : 245,
-  'StatusQrJobNonExist' : 246,
-  'StatusApiTaskFailed' : 247,
-  'StatusAlreadyIndexed' : 248,
-  'StatusEvalUnsubstitutedVariables' : 249,
-  'StatusKvDstFull' : 250,
-  'StatusModuleNotInit' : 251,
-  'StatusMaxJoinFieldsExceeded' : 252,
-  'StatusXdbKeyTypeAlreadySet' : 253,
-  'StatusJoinTypeMismatch' : 254,
-  'StatusFailed' : 255,
-  'StatusIllegalFileName' : 256,
-  'StatusEmptyFile' : 257,
-  'StatusEvalStringTooLong' : 258,
-  'StatusTableDeleted' : 259,
-  'StatusFailOpenFile' : 260,
-  'StatusQueryFailed' : 261,
-  'StatusCreateDagNodeFailed' : 262,
-  'StatusDeleteDagNodeFailed' : 263,
-  'StatusRenameDagNodeFailed' : 264,
-  'StatusChangeDagNodeStateFailed' : 265,
-  'StatusAggregateNoSuchField' : 266,
-  'StatusAggregateLocalFnNeedArgument' : 267,
-  'StatusAggregateAccNotInited' : 268,
-  'StatusAggregateReturnValueNotScalar' : 269,
-  'StatusNsMaximumObjectsReached' : 270,
-  'StatusNsObjInUse' : 271,
-  'StatusNsInvalidObjName' : 272,
-  'StatusNsNotFound' : 273,
-  'StatusDagNodeNotFound' : 274,
-  'StatusUpdateDagNodeOperationNotSupported' : 275,
-  'StatusMsgMaxPayloadExceeded' : 276,
-  'StatusKvEntryNotFound' : 277,
-  'StatusStatsCouldNotGetMemUsedInfo' : 278,
-  'StatusStatusFieldNotInited' : 279,
-  'StatusAggNoSuchFunction' : 280,
-  'StatusPyExecFailure' : 281,
-  'StatusPyExecNotEnoughMem' : 282,
-  'StatusWaitKeyTimeout' : 283,
-  'StatusVariableNameTooLong' : 284,
-  'StatusPyExecNotEnoughArguments' : 285,
-  'StatusPyExecFunctionNotCallable' : 286,
-  'StatusPyExecInvalidParameter' : 287,
-  'StatusPyExecNameError' : 288,
-  'StatusPyEmptyValueReturnedFromPyExecFunction' : 289,
-  'StatusPyInterpreterNotInitialized' : 290,
-  'StatusPyInterpreterAlreadyInitialized' : 291,
-  'StatusPyFailedToImportModule' : 292,
-  'StatusPyFilterFunctionNotCallable' : 293,
-  'StatusPyFilterRecordInvalidParameter' : 294,
-  'StatusPyEmptyValueReturnedFromFilterFunction' : 295,
-  'StatusPyExecUnsupportedType' : 296,
-  'StatusDgDagHandleNotFound' : 297,
-  'StatusDgInvalidDagName' : 298,
-  'StatusDgDagNameTooLong' : 299,
-  'StatusDgDagAlreadyExists' : 300,
-  'StatusDgDagEmpty' : 301,
-  'StatusDgDagNoMore' : 302,
-  'StatusDgDagHandleReserved' : 303,
-  'StatusDgNodeInUse' : 304,
-  'StatusDgDagNodeError' : 305,
-  'StatusDsDatasetLoaded' : 306,
-  'StatusSessionNotFound' : 307,
-  'StatusSessionExists' : 308,
-  'StatusSessionNotInact' : 309,
-  'StatusSessionNameInvalid' : 310,
-  'StatusSessionError' : 311,
-  'StatusDgDeleteOperationNotPermitted' : 312
+  'StatusXdbLoadInProgress' : 242,
+  'StatusXdbNotFound' : 243,
+  'StatusXdbUninitializedCursor' : 244,
+  'StatusQrTaskFailed' : 245,
+  'StatusQrIdNonExist' : 246,
+  'StatusQrJobNonExist' : 247,
+  'StatusApiTaskFailed' : 248,
+  'StatusAlreadyIndexed' : 249,
+  'StatusEvalUnsubstitutedVariables' : 250,
+  'StatusKvDstFull' : 251,
+  'StatusModuleNotInit' : 252,
+  'StatusMaxJoinFieldsExceeded' : 253,
+  'StatusXdbKeyTypeAlreadySet' : 254,
+  'StatusJoinTypeMismatch' : 255,
+  'StatusFailed' : 256,
+  'StatusIllegalFileName' : 257,
+  'StatusEmptyFile' : 258,
+  'StatusEvalStringTooLong' : 259,
+  'StatusTableDeleted' : 260,
+  'StatusFailOpenFile' : 261,
+  'StatusQueryFailed' : 262,
+  'StatusCreateDagNodeFailed' : 263,
+  'StatusDeleteDagNodeFailed' : 264,
+  'StatusRenameDagNodeFailed' : 265,
+  'StatusChangeDagNodeStateFailed' : 266,
+  'StatusAggregateNoSuchField' : 267,
+  'StatusAggregateLocalFnNeedArgument' : 268,
+  'StatusAggregateAccNotInited' : 269,
+  'StatusAggregateReturnValueNotScalar' : 270,
+  'StatusNsMaximumObjectsReached' : 271,
+  'StatusNsObjInUse' : 272,
+  'StatusNsInvalidObjName' : 273,
+  'StatusNsNotFound' : 274,
+  'StatusDagNodeNotFound' : 275,
+  'StatusUpdateDagNodeOperationNotSupported' : 276,
+  'StatusMsgMaxPayloadExceeded' : 277,
+  'StatusKvEntryNotFound' : 278,
+  'StatusStatsCouldNotGetMemUsedInfo' : 279,
+  'StatusStatusFieldNotInited' : 280,
+  'StatusAggNoSuchFunction' : 281,
+  'StatusWaitKeyTimeout' : 282,
+  'StatusVariableNameTooLong' : 283,
+  'StatusDgDagHandleNotFound' : 284,
+  'StatusDgInvalidDagName' : 285,
+  'StatusDgDagNameTooLong' : 286,
+  'StatusDgDagAlreadyExists' : 287,
+  'StatusDgDagEmpty' : 288,
+  'StatusDgDagNoMore' : 289,
+  'StatusDgDagHandleReserved' : 290,
+  'StatusDgNodeInUse' : 291,
+  'StatusDgDagNodeError' : 292,
+  'StatusDsDatasetLoaded' : 293,
+  'StatusSessionNotFound' : 294,
+  'StatusSessionExists' : 295,
+  'StatusSessionNotInact' : 296,
+  'StatusSessionNameInvalid' : 297,
+  'StatusSessionError' : 298,
+  'StatusDgDeleteOperationNotPermitted' : 299,
+  'StatusPyExecFailure' : 300,
+  'StatusPyExecFailedToCompile' : 301,
+  'StatusPyExecFailedToImportModule' : 302,
+  'StatusPyExecFailedToGetModuleDict' : 303,
+  'StatusPyExecFailedToGetFnName' : 304,
+  'StatusPyExecNoSuchFunction' : 305,
+  'StatusPyExecFailedToAllocTuple' : 306,
+  'StatusPyExecFailedToGetPyString' : 307,
+  'StatusPyExecFailedToGetPySignedLong' : 308,
+  'StatusPyExecFailedToGetPyUnsignedLong' : 309,
+  'StatusPyExecFailedToGetPyFloat' : 310,
+  'StatusPyExecFailedToSetTuple' : 311,
+  'StatusPyExecFunctionCallFailed' : 312,
+  'StatusPyExecFailedToGetArgCount' : 313,
+  'StatusPyExecTooManyArgs' : 314,
+  'StatusPyExecFailedToGetCodeObject' : 315,
+  'StatusPyExecFailedToGetArgNames' : 316,
+  'StatusPyExecUnsupportedType' : 317,
+  'StatusPyExecFunctionNotCallable' : 318,
+  'StatusPyExecFailedToGetCoFlags' : 319,
+  'StatusPyExecFailedToGetCString' : 320
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -11207,77 +11215,85 @@ StatusTStr = {0 : 'Success',
 239 : 'KV not found in table',
 240 : 'Listen to: Pretty Vacant by Sex Pistols',
 241 : 'Xdb is vacant',
-242 : 'Stale XdbHandle, Xdb not found',
-243 : 'Xdb cursor is uninitialized',
-244 : 'Task(s) failed',
-245 : 'The query ID is not existed',
-246 : 'There is no query job associate with this ID',
-247 : 'API Task Failed',
-248 : 'The source table is already indexed by the specified key',
-249 : 'Some variables are undefined during evaluation',
-250 : 'The destination key/value buffer was full',
-251 : 'The module is not initialized yet',
-252 : 'Maximum number of joined values exceeded',
-253 : 'Xdb key type is already set',
-254 : 'Joins may only be performed on tables with the same key type',
-255 : 'Failed',
-256 : 'FileName entered is illegal',
-257 : 'File contents are empty',
-258 : 'Eval string entered is too long',
-259 : 'Table has been deleted',
-260 : 'Cant open the file',
-261 : 'Query failed',
-262 : 'Failed to create a DAG node',
-263 : 'Failed to delete a DAG node',
-264 : 'Failed to rename a DAG node',
-265 : 'Failed to change the state of DAG node',
-266 : 'No such field found while running aggregate',
-267 : 'Local function requires argument',
-268 : 'Accumulator is not inited',
-269 : 'Return value of aggregate is not a scalar',
-270 : 'Maximum number of tables and datasets reached',
-271 : 'Table or dataset is in use',
-272 : 'Bad table or dataset name',
-273 : 'Table or dataset not found',
-274 : 'Could not find dag node',
-275 : 'Update operation not supported',
-276 : 'Message response size would exceed maximum message payload size',
-277 : 'The requested key was not found',
-278 : 'Could not get amount of memory consumed',
-279 : 'No valid status received!',
-280 : 'No such aggregate operator!',
-281 : 'Some weird pyexec failure',
-282 : 'ran out of memory',
-283 : 'timed out waiting for table key type to resolve',
-284 : 'Variable name in evalString too long',
-285 : 'Not enough arguments for pyExec',
-286 : 'The pyExec function being provided is not callable',
-287 : 'Parameter being passed into the pyExec function is not valid',
-288 : 'Name was not found within function execution',
-289 : 'The return value from pyExec function is empty',
-290 : 'Python interpreter has not initialized yet',
-291 : 'Python interpreter has already initialized',
-292 : 'Failed to import the module file being provided',
-293 : 'The filter function being provided is not callable',
-294 : 'Parameter being passed into the filter function is not valid',
-295 : 'The return value from filter function is empty',
-296 : 'The input type is not supported by pyExec',
-297 : 'DAG handle not found',
-298 : 'DAG name is invalid',
-299 : 'DAG name is too long',
-300 : 'DAG name already exists',
-301 : 'DAG is empty',
-302 : 'No more DAG nodes available',
-303 : 'DAG handle is not available',
-304 : 'DAG Node is currently in use',
-305 : 'DAG Node is in error state',
-306 : 'Dataset has been loaded',
-307 : 'Session does not exist',
-308 : 'The session already exists',
-309 : 'The target session was not inactive',
-310 : 'The name or pattern supplied is not allowed',
-311 : 'The session has an unrecoverable error',
-312 : 'The delete operation is not permitted'
+242 : 'Xdb is loading data',
+243 : 'Stale XdbHandle, Xdb not found',
+244 : 'Xdb cursor is uninitialized',
+245 : 'Task(s) failed',
+246 : 'The query ID is not existed',
+247 : 'There is no query job associate with this ID',
+248 : 'API Task Failed',
+249 : 'The source table is already indexed by the specified key',
+250 : 'Some variables are undefined during evaluation',
+251 : 'The destination key/value buffer was full',
+252 : 'The module is not initialized yet',
+253 : 'Maximum number of joined values exceeded',
+254 : 'Xdb key type is already set',
+255 : 'Joins may only be performed on tables with the same key type',
+256 : 'Failed',
+257 : 'FileName entered is illegal',
+258 : 'File contents are empty',
+259 : 'Eval string entered is too long',
+260 : 'Table has been deleted',
+261 : 'Cant open the file',
+262 : 'Query failed',
+263 : 'Failed to create a DAG node',
+264 : 'Failed to delete a DAG node',
+265 : 'Failed to rename a DAG node',
+266 : 'Failed to change the state of DAG node',
+267 : 'No such field found while running aggregate',
+268 : 'Local function requires argument',
+269 : 'Accumulator is not inited',
+270 : 'Return value of aggregate is not a scalar',
+271 : 'Maximum number of tables and datasets reached',
+272 : 'Table or dataset is in use',
+273 : 'Bad table or dataset name',
+274 : 'Table or dataset not found',
+275 : 'Could not find dag node',
+276 : 'Update operation not supported',
+277 : 'Message response size would exceed maximum message payload size',
+278 : 'The requested key was not found',
+279 : 'Could not get amount of memory consumed',
+280 : 'No valid status received!',
+281 : 'No such aggregate operator!',
+282 : 'timed out waiting for table key type to resolve',
+283 : 'Variable name in evalString too long',
+284 : 'DAG handle not found',
+285 : 'DAG name is invalid',
+286 : 'DAG name is too long',
+287 : 'DAG name already exists',
+288 : 'DAG is empty',
+289 : 'No more DAG nodes available',
+290 : 'DAG handle is not available',
+291 : 'DAG Node is currently in use',
+292 : 'DAG Node is in error state',
+293 : 'Dataset has been loaded',
+294 : 'Session does not exist',
+295 : 'The session already exists',
+296 : 'The target session was not inactive',
+297 : 'The name or pattern supplied is not allowed',
+298 : 'The session has an unrecoverable error',
+299 : 'The delete operation is not permitted',
+300 : 'Unknown python error occurred.',
+301 : 'Could not compile python script',
+302 : 'Could not import compiled python object as module',
+303 : 'Could not retrieve module dictionary',
+304 : 'Could not get name of python function',
+305 : 'User-defined function no longer available. Might have been deleted',
+306 : 'Could not allocate python tuple',
+307 : 'Failed to get python string from C string',
+308 : 'Failed to get python signed long from C ssize_t',
+309 : 'Failed to get python unsigned long from C size_t',
+310 : 'Failed to get python float from C double',
+311 : 'Could not set python tuple',
+312 : 'Error occurred while invoking python function',
+313 : 'Could not determine how many arguments function takes',
+314 : 'Function takes in too many arguments',
+315 : 'Could not retrieve python bytecode for function',
+316 : 'Could not determine argument names to function',
+317 : 'Type not supported',
+318 : 'Function name provided is not of a valid python function',
+319 : 'Could not retrieve code object flags',
+320 : 'Failed to get c string from python string'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11287,9 +11303,9 @@ StatusTStr = {0 : 'Success',
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 41111894
+  'XcalarApiVersionSignature' : 66155739
 };
-XcalarApiVersionTStr = {41111894 : '2735156bd6eefd31b475b97f766d89ab'
+XcalarApiVersionTStr = {66155739 : '3f174dbf9ecd6364148c51b47400a2f9'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11521,14 +11537,16 @@ XcalarApisConstantsT = {
   'XcalarApiDefaultTopIntervalInMs' : 100,
   'XcalarApiMaxPythonStringLen' : 4096,
   'XcalarApiMaxPyModuleNameLen' : 255,
-  'XcalarApiMaxPyFuncNameLen' : 255
+  'XcalarApiMaxPyFuncNameLen' : 255,
+  'XcalarApiMaxPyErrorMsgLen' : 255
 };
 XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
 100 : 'XcalarApiDefaultTopIntervalInMs',
 4096 : 'XcalarApiMaxPythonStringLen',
 255 : 'XcalarApiMaxPyModuleNameLen',
-255 : 'XcalarApiMaxPyFuncNameLen'
+255 : 'XcalarApiMaxPyFuncNameLen',
+255 : 'XcalarApiMaxPyErrorMsgLen'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -12253,17 +12271,13 @@ XcalarApiListXdfsInputT.prototype.write = function(output) {
 
 XcalarApiUploadPythonInputT = function(args) {
   this.moduleName = null;
-  this.funcName = null;
-  this.pythonStr = null;
+  this.pythonSrc = null;
   if (args) {
     if (args.moduleName !== undefined) {
       this.moduleName = args.moduleName;
     }
-    if (args.funcName !== undefined) {
-      this.funcName = args.funcName;
-    }
-    if (args.pythonStr !== undefined) {
-      this.pythonStr = args.pythonStr;
+    if (args.pythonSrc !== undefined) {
+      this.pythonSrc = args.pythonSrc;
     }
   }
 };
@@ -12290,14 +12304,7 @@ XcalarApiUploadPythonInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.funcName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.STRING) {
-        this.pythonStr = input.readString().value;
+        this.pythonSrc = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -12318,14 +12325,75 @@ XcalarApiUploadPythonInputT.prototype.write = function(output) {
     output.writeString(this.moduleName);
     output.writeFieldEnd();
   }
-  if (this.funcName !== null && this.funcName !== undefined) {
-    output.writeFieldBegin('funcName', Thrift.Type.STRING, 2);
-    output.writeString(this.funcName);
+  if (this.pythonSrc !== null && this.pythonSrc !== undefined) {
+    output.writeFieldBegin('pythonSrc', Thrift.Type.STRING, 2);
+    output.writeString(this.pythonSrc);
     output.writeFieldEnd();
   }
-  if (this.pythonStr !== null && this.pythonStr !== undefined) {
-    output.writeFieldBegin('pythonStr', Thrift.Type.STRING, 3);
-    output.writeString(this.pythonStr);
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiUploadPythonOutputT = function(args) {
+  this.status = null;
+  this.errorMsg = null;
+  if (args) {
+    if (args.status !== undefined) {
+      this.status = args.status;
+    }
+    if (args.errorMsg !== undefined) {
+      this.errorMsg = args.errorMsg;
+    }
+  }
+};
+XcalarApiUploadPythonOutputT.prototype = {};
+XcalarApiUploadPythonOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.I32) {
+        this.status = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.errorMsg = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiUploadPythonOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiUploadPythonOutputT');
+  if (this.status !== null && this.status !== undefined) {
+    output.writeFieldBegin('status', Thrift.Type.I32, 1);
+    output.writeI32(this.status);
+    output.writeFieldEnd();
+  }
+  if (this.errorMsg !== null && this.errorMsg !== undefined) {
+    output.writeFieldBegin('errorMsg', Thrift.Type.STRING, 2);
+    output.writeString(this.errorMsg);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -12932,14 +13000,10 @@ XcalarApiDfCsvLoadArgsT.prototype.write = function(output) {
 };
 
 XcalarApiPyLoadArgsT = function(args) {
-  this.moduleName = null;
-  this.funcName = null;
+  this.fullyQualifiedFnName = null;
   if (args) {
-    if (args.moduleName !== undefined) {
-      this.moduleName = args.moduleName;
-    }
-    if (args.funcName !== undefined) {
-      this.funcName = args.funcName;
+    if (args.fullyQualifiedFnName !== undefined) {
+      this.fullyQualifiedFnName = args.fullyQualifiedFnName;
     }
   }
 };
@@ -12959,18 +13023,14 @@ XcalarApiPyLoadArgsT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRING) {
-        this.moduleName = input.readString().value;
+        this.fullyQualifiedFnName = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.funcName = input.readString().value;
-      } else {
+      case 0:
         input.skip(ftype);
-      }
-      break;
+        break;
       default:
         input.skip(ftype);
     }
@@ -12982,14 +13042,9 @@ XcalarApiPyLoadArgsT.prototype.read = function(input) {
 
 XcalarApiPyLoadArgsT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiPyLoadArgsT');
-  if (this.moduleName !== null && this.moduleName !== undefined) {
-    output.writeFieldBegin('moduleName', Thrift.Type.STRING, 1);
-    output.writeString(this.moduleName);
-    output.writeFieldEnd();
-  }
-  if (this.funcName !== null && this.funcName !== undefined) {
-    output.writeFieldBegin('funcName', Thrift.Type.STRING, 2);
-    output.writeString(this.funcName);
+  if (this.fullyQualifiedFnName !== null && this.fullyQualifiedFnName !== undefined) {
+    output.writeFieldBegin('fullyQualifiedFnName', Thrift.Type.STRING, 1);
+    output.writeString(this.fullyQualifiedFnName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -19396,6 +19451,7 @@ XcalarApiOutputResultT = function(args) {
   this.memoryOutput = null;
   this.sessionListOutput = null;
   this.getQueryOutput = null;
+  this.uploadPythonOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -19492,6 +19548,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.getQueryOutput !== undefined) {
       this.getQueryOutput = args.getQueryOutput;
+    }
+    if (args.uploadPythonOutput !== undefined) {
+      this.uploadPythonOutput = args.uploadPythonOutput;
     }
   }
 };
@@ -19764,6 +19823,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 33:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.uploadPythonOutput = new XcalarApiUploadPythonOutputT();
+        this.uploadPythonOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -19935,12 +20002,17 @@ XcalarApiOutputResultT.prototype.write = function(output) {
     this.getQueryOutput.write(output);
     output.writeFieldEnd();
   }
+  if (this.uploadPythonOutput !== null && this.uploadPythonOutput !== undefined) {
+    output.writeFieldBegin('uploadPythonOutput', Thrift.Type.STRUCT, 33);
+    this.uploadPythonOutput.write(output);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
 };
 
-XcalarApiOuptHeaderT = function(args) {
+XcalarApiOutputHeaderT = function(args) {
   this.status = null;
   if (args) {
     if (args.status !== undefined) {
@@ -19948,8 +20020,8 @@ XcalarApiOuptHeaderT = function(args) {
     }
   }
 };
-XcalarApiOuptHeaderT.prototype = {};
-XcalarApiOuptHeaderT.prototype.read = function(input) {
+XcalarApiOutputHeaderT.prototype = {};
+XcalarApiOutputHeaderT.prototype.read = function(input) {
   input.readStructBegin();
   while (true)
   {
@@ -19981,8 +20053,8 @@ XcalarApiOuptHeaderT.prototype.read = function(input) {
   return;
 };
 
-XcalarApiOuptHeaderT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiOuptHeaderT');
+XcalarApiOutputHeaderT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiOutputHeaderT');
   if (this.status !== null && this.status !== undefined) {
     output.writeFieldBegin('status', Thrift.Type.I32, 1);
     output.writeI32(this.status);
@@ -20021,7 +20093,7 @@ XcalarApiOutputT.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRUCT) {
-        this.hdr = new XcalarApiOuptHeaderT();
+        this.hdr = new XcalarApiOutputHeaderT();
         this.hdr.read(input);
       } else {
         input.skip(ftype);
@@ -20274,9 +20346,9 @@ XcalarApiDefaultFieldDelimT = '\t';
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 41111894
+  'XcalarApiVersionSignature' : 66155739
 };
-XcalarApiVersionTStr = {41111894 : '2735156bd6eefd31b475b97f766d89ab'
+XcalarApiVersionTStr = {66155739 : '3f174dbf9ecd6364148c51b47400a2f9'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -22601,26 +22673,23 @@ function xcalarApiListXdfs(thriftHandle, fnNamePattern, categoryPattern) {
     return (deferred.promise());
 }
 
-function xcalarApiUploadPythonWorkItem(moduleName, funcName, pythonStr) {
+function xcalarApiUploadPythonWorkItem(moduleName, pythonSrc) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.uploadPythonInput = new XcalarApiUploadPythonInputT();
 
     workItem.api = XcalarApisT.XcalarApiUploadPython;
     workItem.input.uploadPythonInput.moduleName = moduleName;
-    workItem.input.uploadPythonInput.funcName = funcName;
-    workItem.input.uploadPythonInput.pythonStr = pythonStr;
+    workItem.input.uploadPythonInput.pythonSrc = pythonSrc;
     return (workItem);
 }
 
-function xcalarApiUploadPython(thriftHandle, moduleName, funcName, pythonStr) {
+function xcalarApiUploadPython(thriftHandle, moduleName, pythonSrc) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarApiUploadPython(pythonStr = ", pythonStr, ", ",
-                "moduleName = ", moduleName, ", ",
-                "funcName = ", funcName, ")");
+    console.log("xcalarApiUploadPython(pythonSrc = ", pythonSrc, ", ",
+                "moduleName = ", moduleName, ")");
 
-    var workItem = xcalarApiUploadPythonWorkItem(moduleName, funcName,
-                                                 pythonStr);
+    var workItem = xcalarApiUploadPythonWorkItem(moduleName, pythonSrc);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -23882,7 +23951,7 @@ function xcalarApiGetQuery(thriftHandle, workItem) {
     }
 
     function testUploadPython(deferred, testName, currentTestNumber) {
-        xcalarApiUploadPython(thriftHandle, "MgmtTest", "strLength",
+        xcalarApiUploadPython(thriftHandle, "MgmtTest",
             "def strLength( strVal ):\n  return \"%d\" % len(strVal)\n")
         .done(function(uploadPythonOutput) {
             if (status == StatusT.StatusOk) {
@@ -23902,8 +23971,7 @@ function xcalarApiGetQuery(thriftHandle, workItem) {
 
 	var content = fs.read('PyExecOnLoadTest.py');
 
-        xcalarApiUploadPython(thriftHandle, "PyExecOnLoadTest",
-			      "poorManCsvToJson", content)
+        xcalarApiUploadPython(thriftHandle, "PyExecOnLoadTest", content)
         .done(function(uploadPythonOutput) {
             if (status == StatusT.StatusOk) {
 		loadArgs = new XcalarApiDfLoadArgsT();
@@ -23912,8 +23980,7 @@ function xcalarApiGetQuery(thriftHandle, workItem) {
 		loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
 		loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
 		loadArgs.csv.isCRLF = false;
-		loadArgs.pyLoadArgs.moduleName = "PyExecOnLoadTest";
-		loadArgs.pyLoadArgs.funcName = "poorManCsvToJson";
+		loadArgs.pyLoadArgs.fullyQualifiedFnName = "PyExecOnLoadTest:poorManCsvToJson";
 
 		xcalarLoad(thriftHandle, "file:///var/tmp/qa/operatorsTest/movies/movies.csv", "movies", DfFormatTypeT.DfFormatJson, 0, loadArgs)
 	        .done(function(result) {
