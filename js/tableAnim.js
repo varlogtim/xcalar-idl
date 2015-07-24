@@ -2579,7 +2579,6 @@ window.RowScroller = (function($, RowScroller) {
             var numDigits = ("" + rowCount).length;
             inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
         }
-        console.log(inputWidth)
         $rowInput.width(inputWidth);
     };
 

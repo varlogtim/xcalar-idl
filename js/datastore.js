@@ -1841,6 +1841,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
     var $tableWrap = $("#dataSetTableWrap");
     var currentRow = 0;
     var totalRows = 0;
+    var previousColSelected; // used for shift clicking columns
 
     DataSampleTable.setup = function() {
         setupSampleTable();
@@ -2070,12 +2071,13 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var $input = $(this).find('.editableHead');
             var $table = $("#worksheetTable");
 
-            if (event.shiftKey &&
-                gLastClickTarget.closest(".datasetTable")[0] === $table[0]) {
+            if (event.shiftKey && previousColSelected) {
 
-                var startIndex = gLastClickTarget.closest("th").index();
+                var startIndex = previousColSelected.closest("th").index();
                 var highlight = gLastClickTarget.closest("th")
                                 .hasClass('selectedCol');
+                var isHighlighted = $input.closest('th')
+                                          .hasClass('selectedCol');
 
                 var endIndex = $input.closest('th').index();
                 if (startIndex > endIndex) {
@@ -2087,16 +2089,15 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 var $ths = $table.find('th');
                 for (var i = startIndex; i <= endIndex; i++) {
                     var $th = $ths.eq(i);
-                    if ($th[0] !== gLastClickTarget.closest('th')[0]) {
-                        if ($th.hasClass('selectedCol') !== highlight) {
-                            selectColumn($th.find(".editableHead"),
+                    if (isHighlighted === $th.hasClass('selectedCol')) {
+                        selectColumn($th.find(".editableHead"),
                                             SelectUnit.Single);
-                        }
                     }
                 }
             } else {
                 selectColumn($input, SelectUnit.Single);
             }
+            previousColSelected = $input.closest('th');
         });
 
         // resize
@@ -2137,6 +2138,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var $input = $table.find(".editableHead.col" + colNum);
             highlightColumn($input);
         });
+        previousColSelected = null;
     }
     // hightligt the column
     function highlightColumn($input, active) {
