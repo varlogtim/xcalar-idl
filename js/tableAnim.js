@@ -2569,13 +2569,18 @@ window.RowScroller = (function($, RowScroller) {
     RowScroller.update = function(tableNum) {
         var $numPages = $("#numPages");
         showRowScroller(tableNum);
+        var inputWidth = 50;
         if (gActiveTableNum < 0 || $.isEmptyObject(gTables[gActiveTableNum])) {
             $numPages.text("");
         } else {
-            var num = Number(gTables[gActiveTableNum].resultSetCount).
-                                toLocaleString("en");
+            var rowCount = gTables[gActiveTableNum].resultSetCount;
+            var num = Number(rowCount).toLocaleString("en");
             $numPages.text("of " + num);
+            var numDigits = ("" + rowCount).length;
+            inputWidth = Math.max(inputWidth, 10 + (numDigits * 8));
         }
+        console.log(inputWidth)
+        $rowInput.width(inputWidth);
     };
 
     RowScroller.empty = function() {
