@@ -804,5 +804,39 @@ window.xcHelper = (function($, xcHelper) {
         return (this.modelMap[res]);
     };
 
+    xcHelper.when = function() {
+        var numProm = arguments.length;
+        var mainDeferred = jQuery.Deferred();
+        
+        var numDone = 0;
+        var returns = [];
+        var argument = arguments;
+        for (var i = 0; i<numProm; i++) {
+            (function(i) {
+                argument[i].then(function(ret) {
+                    console.log("Promise "+i+" done!");
+                    numDone++;
+                    returns[i] = ret;
+                    if (numDone === numProm) {
+                        console.log("All done!");
+                        mainDeferred.resolve.apply($, returns);
+                    }
+                }, function(ret) {
+                    console.warn("Promise "+i+" failed!");
+                    numDone++;
+                    returns[i] = ret;
+                    if (numDone === numProm) {
+                        console.log("All done!");
+                        mainDeferred.reject.apply($, returns);
+                    }
+
+                });
+            })(i);
+        }
+
+        return (mainDeferred.promise());
+    }
+
     return (xcHelper);
 }(jQuery, {}));
+
