@@ -703,10 +703,19 @@ window.Dag = (function($, Dag) {
         });
 
         $dagWrap.on('mouseenter', '.dagTable:not(.dataStore)', function() {
-            showDagSchema($(this));
+            var $dagTable = $(this);
+            var timer = setTimeout(function(){
+                            showDagSchema($dagTable);
+                        }, 100);
+            $dagTable.data('hover', timer);
         });
 
         $dagWrap.on('mouseleave', '.dagTable', function() {
+            var $dagTable = $(this);
+            var timer = $dagTable.data('hover');
+            if (timer) {
+                clearTimeout(timer);
+            } 
             $('#dagSchema').remove();
         });
 
