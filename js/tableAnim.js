@@ -106,39 +106,41 @@ function gRescolMouseUp() {
 
 function gResrowMouseDown(el, event) {
     gMouseStatus = "resizingRow";
-    gResrow.mouseStart = event.pageY;
-    gResrow.targetTd = el.closest('td');
-    gResrow.tableNum = parseInt(el.closest('table').attr('id').substring(7));
-    gResrow.startHeight = gResrow.targetTd.outerHeight();
-    gResrow.rowIndex = gResrow.targetTd.closest('tr').index();
+    var resrow = gResrow;
+    var $table = el.closest('table')
+    resrow.mouseStart = event.pageY;
+    resrow.targetTd = el.closest('td');
+    resrow.tableNum = parseInt($table.attr('id').substring(7));
+    resrow.startHeight = resrow.targetTd.outerHeight();
+    resrow.rowIndex = resrow.targetTd.closest('tr').index();
+    resrow.$divs = $table.find('tbody tr:eq(' + resrow.rowIndex + ') td > div');
     disableTextSelection();
     var style = '<style id="row-resizeCursor" type="text/css">*' +
                     '{cursor: row-resize !important;}' +
                 '</style>';
     $(document.head).append(style);
     $('body').addClass('hideScroll');
-    gResrow.targetTd.closest('tr').addClass('dragging changedHeight')
-                                 .find('td > div')
-                                 .css('max-height', gResrow.startHeight - 4);
-    gResrow.targetTd.outerHeight(gResrow.startHeight);
+    resrow.targetTd.closest('tr').addClass('dragging changedHeight');
+    resrow.$divs.css('max-height', resrow.startHeight - 4);
+    resrow.$divs.eq(0).css('max-height', resrow.startHeight);
+    resrow.targetTd.outerHeight(resrow.startHeight);
 
-    $('#xcTable' + gResrow.tableNum + ' tr:not(.dragging)')
-                                   .addClass('notDragging');
+    $table.find('tr:not(.dragging)').addClass('notDragging');
 }
 
 function gResrowMouseMove(event) {
-    var mouseDistance = event.pageY - gResrow.mouseStart;
-    var newHeight = gResrow.startHeight + mouseDistance;
-    var row = gResrow.rowIndex;
+    var resrow = gResrow;
+    var mouseDistance = event.pageY - resrow.mouseStart;
+    var newHeight = resrow.startHeight + mouseDistance;
     var padding = 4; // top + bottom padding in td
     if (newHeight < gRescol.minCellHeight) {
-        gResrow.targetTd.outerHeight(gRescol.minCellHeight);
-        $('#xcTable' + gResrow.tableNum + ' tbody tr:eq(' + row + ') td > div')
-            .css('max-height', gRescol.minCellHeight - padding);
+        resrow.targetTd.outerHeight(gRescol.minCellHeight);
+        resrow.$divs.css('max-height', gRescol.minCellHeight - padding);
+        resrow.$divs.eq(0).css('max-height', gRescol.minCellHeight);
     } else {
-        gResrow.targetTd.outerHeight(newHeight);
-        $('#xcTable' + gResrow.tableNum + ' tbody tr:eq(' + row + ') td > div')
-            .css('max-height', newHeight - padding);
+        resrow.targetTd.outerHeight(newHeight);
+        resrow.$divs.css('max-height', newHeight - padding);
+        resrow.$divs.eq(0).css('max-height', newHeight);
     }
 }
 
@@ -2000,11 +2002,11 @@ function adjustRowHeights(newCells, rowIndex, tableNum) {
                 $row = newCells.filter(function() {
                     return ($(this).hasClass('row' + (row - 1)));
                 });
-                
-                $row.find('td.col0')
-                    .outerHeight(rowObj[i][row]);
+                $firstTd = $row.find('td.col0');
+                $firstTd.outerHeight(rowObj[i][row]);
                 $row.find('td > div')
                     .css('max-height', rowObj[i][row] - padding);
+                $firstTd.children('div').css('max-height', rowObj[i][row]);
                 $row.addClass('changedHeight');
             }
         }

@@ -168,6 +168,7 @@ window.ColManager = (function($, ColManager) {
         updateTableHeader(tableNum);
         RightSideBar.updateTableInfo(table);
         matchHeaderSizes(newColid, $table);
+        $table.find('.rowGrab').width($table.width());
     };
 
     ColManager.delCol = function(colNum, tableNum) {
@@ -928,6 +929,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         gRescolDelWidth(colNum, tableNum);
+        $tableWrap.find('.rowGrab').width($tableWrap.find('table').width());
     }
 
     function parsePullColArgs(progCol) {

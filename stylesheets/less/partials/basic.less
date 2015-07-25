@@ -477,9 +477,12 @@ input {
         }
     }
 
-    tbody tr.dragging td:not(.rowBookmarked) {
-        &:first-child .idSpan {
+    tbody tr.dragging {
+        td:first-child:not(.rowBookmarked) .idSpan {
             background-color: #BDBDBD !important;
+        }
+        td:first-child .idSpan {
+            border-right-color: #E1E1E1 !important;
         }
     }
 
