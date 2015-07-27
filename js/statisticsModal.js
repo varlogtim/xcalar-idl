@@ -12,9 +12,10 @@ window.STATSManager = (function($, STATSManager) {
         "sum"    : "Sum"
     };
     var tooltipOptions = {
-        "trigger"  : "manual",
+        "trigger"  : "hover",
         "placement": "top",
         "container": "body",
+        "animation": false,
         "template" : '<div class="bartip tooltip" role="tooltip">' +
                         '<div class="tooltip-arrow"></div>' +
                         '<div class="tooltip-inner"></div>' +
@@ -74,7 +75,6 @@ window.STATSManager = (function($, STATSManager) {
 
     function showStats(statsCol) {
         centerPositionElement($statsModal);
-        $statsModal.find(".loadHidden").addClass("hidden");
         $modalBg.fadeIn(300);
         $statsModal.removeClass("hidden").data("id", statsCol.modalId);
 
@@ -108,8 +108,11 @@ window.STATSManager = (function($, STATSManager) {
     function refreshStats(statsCol) {
         var $aggInfoSection = $statsModal.find(".aggInfoSection");
         var $loadingSection = $statsModal.find(".loadingSection");
+        var $loadHiddens    = $statsModal.find(".loadHidden");
         var instruction;
 
+        $loadHiddens.addClass("hidden");
+        $loadingSection.removeClass("hidden");
         // update agg info
         aggKeys.forEach(function(aggkey) {
             var aggVal = statsCol.aggInfo[aggkey];
@@ -125,20 +128,19 @@ window.STATSManager = (function($, STATSManager) {
 
         // update groupby info
         if (statsCol.groupByInfo.isComplete) {
+            // data is ready
             statsCol.groupByInfo.data = [];
             fetchGroupbyData(statsCol.groupByInfo, 0, numRowsToFetch)
             .then(function() {
                 $loadingSection.addClass("hidden");
-                $statsModal.find(".loadHidden").removeClass("hidden");
+                $loadHiddens.removeClass("hidden");
                 buildGroupGraphs(statsCol, false, true);
             });
 
             instruction = "Hover on the bar to see details. " +
                 "Use scroll bar and input box to view more data";
         } else {
-            $loadingSection.removeClass("hidden");
-            $statsModal.find(".loadHidden").addClass("hidden");
-
+            // the data is loading, show loadingSection and hide groupby section
             instruction = "Please wait for the data preparation, " +
                             "you can close the modal and view it later";
         }
@@ -390,13 +392,6 @@ window.STATSManager = (function($, STATSManager) {
                     return ("barArea");
                 });
 
-        // tool tip event on bar area
-        newbars.on("mouseover", function() {
-            $(this).tooltip("show");
-        }).on("mouseout", function() {
-            $(this).tooltip("hide");
-        });
-
         // gray area
         newbars.append("rect")
                 .attr("class", "bar-extra")
@@ -443,7 +438,7 @@ window.STATSManager = (function($, STATSManager) {
 
         var $minRange = $section.find(".min-range");
         var $maxRange = $section.find(".max-range");
-        var $input    = $minRange.find(".text").val(1);
+        var $input    = $minRange.find(".text").val(1).data("rowNum", 1);
 
         var totalNum = statsCol.groupByInfo.numEntries;
 
@@ -480,15 +475,23 @@ window.STATSManager = (function($, STATSManager) {
         // move scroll bar event
         svg.on("click", function() {
             positionScrollBar(this);
+            $input.data("rowNum", $input.val());
         });
 
+        var timer;
         $input.on("keypress", function(event) {
             if (event.which === keyCode.Enter) {
                 var $e = $(this);
                 var num = Number($e.val());
 
                 if (!isNaN(num) && num >= 1 && num <= totalNum) {
-                    positionScrollBar(null, num);
+                    clearTimeout(timer);
+                    timer = setTimeout(function() {
+                        positionScrollBar(null, num);
+                        $e.data("rowNum", $e.val());
+                    }, 100);
+                } else {
+                    $e.val($e.data("rowNum"));
                 }
                 $e.blur();
             }
@@ -513,8 +516,6 @@ window.STATSManager = (function($, STATSManager) {
                 return;
             }
 
-            rect.attr("x", x);
-
             var rowPosition = Math.floor(x / width * totalNum);
             var rowNum   = rowPosition + 1;
             var rowsToFetch = totalNum - rowNum + 1;
@@ -531,24 +532,41 @@ window.STATSManager = (function($, STATSManager) {
                     rowPosition = 0;
                     rowsToFetch = totalNum;
                 }
-
+                var oldX = x;
                 x = (rowNum - 1) / totalNum * width;
-                rect.transition()
+                rect.attr("x", oldX)
+                    .transition()
                     .attr("x", x);
             } else {
+                rect.transition()
+                    .attr("x", x);
                 rowsToFetch = numRowsToFetch;
             }
 
             $input.val(rowNum);
 
             statsCol.groupByInfo.data = [];
+            // disable another fetching data event till this one done
+            $section.addClass("disabled");
+
+            var $loadingSection = $statsModal.find(".loadingSection");
+            var loadTimer = setTimeout(function() {
+                // if the loading time is long, show the waiting icon
+                $loadingSection.removeClass("hidden");
+            }, 500);
+
             fetchGroupbyData(statsCol.groupByInfo, rowPosition, rowsToFetch)
             .then(function() {
                 var notDrawScrollBar = true;
                 buildGroupGraphs(statsCol, notDrawScrollBar);
+                $loadingSection.addClass("hidden");
+                clearTimeout(loadTimer);
             })
             .fail(function(error) {
                 console.error(error);
+            })
+            .always(function() {
+                $section.removeClass("disabled");
             });
         }
     }
