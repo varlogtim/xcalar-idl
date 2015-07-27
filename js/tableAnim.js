@@ -72,7 +72,8 @@ function gRescolMouseDown(el, event, options) {
 
     disableTextSelection();
     $(document.head).append('<style id="col-resizeCursor" type="text/css">*' +
-                            '{cursor: col-resize !important;}</style>');
+                            '{cursor: col-resize !important;}' +
+                            '.tooltip{display: none !important;}</style>');
 }
 
 function gRescolMouseMove(event) {
@@ -117,6 +118,7 @@ function gResrowMouseDown(el, event) {
     disableTextSelection();
     var style = '<style id="row-resizeCursor" type="text/css">*' +
                     '{cursor: row-resize !important;}' +
+                    '.tooltip{display: none !important;}' +
                 '</style>';
     $(document.head).append(style);
     $('body').addClass('hideScroll');
@@ -186,6 +188,7 @@ function dragdropMouseDown(el, event) {
         '<style id="moveCursor" type="text/css">*' +
             '{cursor:move !important; cursor: -webkit-grabbing !important;' +
             'cursor: -moz-grabbing !important;}' +
+            '.tooltip{display: none !important;}' +
         '</style>';
     $(document.head).append(cursorStyle);
     $('.highlightBox').remove();
@@ -2144,6 +2147,7 @@ function dragTableMouseDown(el, e) {
         '<style id="moveCursor" type="text/css">*' +
             '{cursor:move !important; cursor: -webkit-grabbing !important;' +
             'cursor: -moz-grabbing !important;}' +
+            '.tooltip{display: none !important;}' +
         '</style>';
 
     $(document.head).append(cursorStyle);
@@ -2712,6 +2716,7 @@ window.RowScroller = (function($, RowScroller) {
         var cursorStyle =
             '<style id="moveCursor" type="text/css">*' +
                 '{cursor:pointer !important}' +
+                '.tooltip{display: none !important;}' +
             '</style>';
 
         $(document.head).append(cursorStyle);
