@@ -4,6 +4,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
         initializeDonuts();
         populateNodeInformation();
+        $monitorPanel = $('#monitorPanel');
 
         $("#monitorTopBar").on("click", ".buttonArea", function() {
             var $btn = $(this);
@@ -12,10 +13,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 return;
             }
 
-            if ($btn.attr("id") === "setupButton") {
-                // XXX TODO: enable it when this feature complete
-                return;
-            }
+            // if ($btn.attr("id") === "setupButton") {
+            //     // XXX TODO: enable it when this feature complete
+            //     return;
+            // }
 
             $btn.siblings(".active").removeClass("active");
             $monitorPanel.find(".monitorSection.active").removeClass("active");
@@ -31,6 +32,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     break;
                 case ("setupButton"):
                     // coming soon
+                    $("#monitor-setup").addClass("active");
                     break;
                 default:
                     break;
@@ -100,6 +102,20 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 MonitorPanel.updateDonuts();
             }, refreshTime);
         }
+
+        // $monitorPanel.find('.buttonArea').click(function() {
+        //     var $tab = $(this);
+        //     var tabName = $(this).attr('id');
+        //     if (tabName === 'queriesButton') return;
+        //     tabName = tabName.substr(0, tabName.indexOf('Button'));
+        //     var $panel = $('#' + tabName + 'Panel');
+        //     if (!$panel.hasClass('active')) {
+        //         $monitorPanel.find('.buttonArea').removeClass('active');
+        //         $monitorPanel.find('.monitorSubPanel').removeClass('active');
+        //         $tab.addClass('active');
+        //         $panel.addClass('active');
+        //     }
+        // });
 
         MonitorGraph.setup();
     };

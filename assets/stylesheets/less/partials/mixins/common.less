@@ -91,6 +91,17 @@
     background-size: @w @h;
 }
 
+.iconAndGradient (@url, @pX: 50%, @pY: 50%, @startColor, @endColor) {
+    background: url(@url) @pX @pY no-repeat; /* fallback */
+    background: url(@url) @pX @pY no-repeat, -webkit-gradient(linear, left top, left bottom, from(@startColor) @pX @pY no-repeat, to(@endColor)); /* Saf4+, Chrome */
+    background: url(@url) @pX @pY no-repeat, -webkit-linear-gradient(top, @startColor, @endColor); /* Chrome 10+, Saf5.1+ */
+    background: url(@url) @pX @pY no-repeat,    -moz-linear-gradient(top, @startColor, @endColor); /* FF3.6+ */
+    background: url(@url) @pX @pY no-repeat,     -ms-linear-gradient(top, @startColor, @endColor); /* IE10 */
+    background: url(@url) @pX @pY no-repeat,      -o-linear-gradient(top, @startColor, @endColor); /* Opera 11.10+ */
+    background: url(@url) @pX @pY no-repeat,         linear-gradient(top, @startColor, @endColor); /* W3C */
+}
+
+
 .rounded(@radius: 3px) {
   -webkit-border-radius: @radius;
   -moz-border-radius: @radius;
