@@ -467,7 +467,19 @@ window.xcHelper = (function($, xcHelper) {
         return (deferred.promise());
     };
 
-    xcHelper.lockTable = function(tableNum) {
+    xcHelper.lockTable = function(tableNum, tableName) {
+        if (tableNum == null && tableName == null) {
+            console.error("Invalid Parameters!");
+            return;
+        }
+
+        if (tableNum != null) {
+            tableName = gTables[tableNum].tableName;
+        } else {
+            // tableNum == null, talbeName != null
+            tableNum = xcHelper.getTableIndexFromName(tableName, false);
+        }
+
         var $tableWrap = $('#xcTableWrap' + tableNum);
         var $lockedIcon = $('<div class="lockedIcon">' +
                             '<img src="/images/biglocklight.png" /></div>');
@@ -479,7 +491,6 @@ window.xcHelper = (function($, xcHelper) {
 
         $tableWrap.addClass('tableLocked').append($lockedIcon);
         gTables[tableNum].isLocked = true;
-        var tableName = gTables[tableNum].tableName;
         var lookupTable = gTableIndicesLookup[tableName];
         lookupTable.isLocked = true;
     };

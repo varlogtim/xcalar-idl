@@ -159,7 +159,8 @@ window.STATSManager = (function($, STATSManager) {
             .then(function() {
                 $loadingSection.addClass("hidden");
                 $loadHiddens.removeClass("hidden");
-                buildGroupGraphs(statsCol, false, true);
+                drawScrollBar(statsCol);
+                buildGroupGraphs(statsCol, true);
             });
 
             instruction = "Hover on the bar to see details. " +
@@ -265,11 +266,16 @@ window.STATSManager = (function($, STATSManager) {
             deferred.resolve(tableName);
         } else {
             var newTableName = xcHelper.randName(tableName + ".stats.index");
+            // lock the table when do index
+            xcHelper.lockTable(null, tableName);
             XcalarIndexFromTable(tableName, colName, newTableName)
             .then(function() {
                 deferred.resolve(newTableName);
             })
-            .fail(deferred.reject);
+            .fail(deferred.reject)
+            .always(function() {
+                xcHelper.unlockTable(tableName, false);
+            });
         }
 
         return (deferred.promise());
@@ -330,14 +336,13 @@ window.STATSManager = (function($, STATSManager) {
         return (deferred.promise());
     }
 
-    function buildGroupGraphs(statsCol, notDrawScrollBar, initial) {
+    function buildGroupGraphs(statsCol, initial) {
         var xName = statsCol.colName;
         var yName = statsColName;
         var groupByInfo = statsCol.groupByInfo;
 
         var $section = $statsModal.find(".groubyInfoSection");
         var data = groupByInfo.data;
-
         var chartWidth  = $section.width();
         var chartHeight = $section.height();
 
@@ -451,10 +456,6 @@ window.STATSManager = (function($, STATSManager) {
             });
 
         barAreas.exit().remove();
-
-        if (!notDrawScrollBar) {
-            drawScrollBar(statsCol);
-        }
     }
 
     function drawScrollBar(statsCol) {
@@ -582,8 +583,7 @@ window.STATSManager = (function($, STATSManager) {
 
             fetchGroupbyData(statsCol.groupByInfo, rowPosition, rowsToFetch)
             .then(function() {
-                var notDrawScrollBar = true;
-                buildGroupGraphs(statsCol, notDrawScrollBar);
+                buildGroupGraphs(statsCol);
                 $loadingSection.addClass("hidden");
                 clearTimeout(loadTimer);
             })
