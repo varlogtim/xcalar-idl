@@ -1720,34 +1720,41 @@
       <div class="groubyInfoSection loadHidden">
         <svg class="groupbyChart"></svg>
       </div>
-      <div class="scrollSection loadHidden">
-        <div class="min-range">
-          <input class="text" val="1">
-        </div>
-        <svg class="scrollChart"></svg>
-        <div class="max-range"><p></p></div>
-      </div>
     </section>
     <!-- Statistics Modal Main Section, for agg info -->
-    <section class="modalMain aggInfoSection">
-      <div class="aggInfoGroup">
+    <section class="modalMain">
+      <div class="scrollSection loadHidden">
+        <div class="rowInput">
+           <input id="stats-rowInput" class="min-range" val="1">
+           <label>of </label>
+           <label for="stats-rowInput" class="max-range"></label>
+        </div>
+        <div class="rowScrollArea">
+          <div class="scrollBar">
+            <div class="scroller">
+              <!-- for cursor pointer -->
+              <div class="subRowMarker top"></div>
+              <div class="subRowMarker middle"></div>
+              <div class="subRowMarker bottom"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="aggInfoSection">
         <div class="aggInfo">
           <p>min: <span class="text min"></span></p>
+        </div>
+        <div class="aggInfo">
+          <p>count: <span class="text count"></span></p>
         </div>
         <div class="aggInfo">
           <p>average: <span class="text average"></span></p>
         </div>
         <div class="aggInfo">
-          <p>max: <span class="text max"></span></p>
-        </div>
-      </div>
-      <div class="aggInfoGroup">
-        <div class="aggInfo">
-          <p>count: <span class="text count"></span></p>
-        </div>
-        <div class="aggInfo blank"></div>
-        <div class="aggInfo">
           <p>sum: <span class="text sum"></span></p>
+        </div>
+        <div class="aggInfo">
+          <p>max: <span class="text max"></span></p>
         </div>
       </div>
     </section>

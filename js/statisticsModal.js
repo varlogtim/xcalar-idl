@@ -91,6 +91,12 @@ window.STATSManager = (function($, STATSManager) {
         $statsModal.addClass("hidden").removeData("id");
         $statsModal.find(".min-range .text").off();
         $modalBg.off("mouseover.statsModal");
+        // turn off scroll bar event
+        $statsModal.find(".scrollBar").off();
+        $(document).off(".statsModal");
+        $("#stats-rowInput").off();
+        // reset scroller's position
+        $statsModal.find(".scroller").css("transform", "");
     }
 
     function showStats(statsCol) {
@@ -159,7 +165,7 @@ window.STATSManager = (function($, STATSManager) {
             .then(function() {
                 $loadingSection.addClass("hidden");
                 $loadHiddens.removeClass("hidden");
-                drawScrollBar(statsCol);
+                setupScrollBar(statsCol);
                 buildGroupGraphs(statsCol, true);
             });
 
@@ -458,118 +464,131 @@ window.STATSManager = (function($, STATSManager) {
         barAreas.exit().remove();
     }
 
-    function drawScrollBar(statsCol) {
-        var $section = $statsModal.find(".scrollSection");
-        $section.find(".scrollChart").empty();
-
-        var $minRange = $section.find(".min-range");
-        var $maxRange = $section.find(".max-range");
-        var $input    = $minRange.find(".text").val(1).data("rowNum", 1);
-
+    function setupScrollBar(statsCol) {
         var totalNum = statsCol.groupByInfo.numEntries;
 
+        var $section = $statsModal.find(".scrollSection");
+        var $scrollerArea = $section.find(".rowScrollArea");
+        
+        var $maxRange = $section.find(".max-range");
+        var $rowInput = $("#stats-rowInput").val(1).data("rowNum", 1);
+
+        // set width of elements
         $maxRange.text(totalNum.toLocaleString("en"));
-        $minRange.width($maxRange.width() + 5); // 5 is for input padding
+        $rowInput.width($maxRange.width() + 5); // 5 is for input padding
 
-        var includeMargin = true;
         var width = $section.width() -
-                        $minRange.outerWidth(includeMargin) -
-                        $maxRange.outerWidth(includeMargin);
-        var height = $section.height();
-        var gHeight = height / 2;
-        var barWidth = 10;
+                    $section.find(".rowInput").outerWidth() - 1;
+        $scrollerArea.outerWidth(width);
 
-        var svg = d3.select("#statsModal .scrollSection .scrollChart")
-                        .attr("width", width)
-                        .attr("height", height);
-        var chart = svg.append("g");
+        // move scroll bar event, setup it here since we need statsCol info
+        var $scrollerBar = $scrollerArea.find(".scrollBar");
+        var $scroller = $scrollerArea.find(".scroller");
+        var isDragging = false;
 
-        chart.append("line")
-                .attr("class", "scroll-bar")
-                .attr("x1", 0)
-                .attr("y1", gHeight)
-                .attr("x2", width)
-                .attr("y2", gHeight);
+        // this use mousedown and mouseup to mimic click
+        $scrollerBar.on("mousedown", function() {
+            isDragging = true;
+        });
 
-        var rect = chart.append("rect")
-                .attr("class", "scroll-thumb")
-                .attr("width", barWidth)
-                .attr("height", 15)
-                .attr("x", 0)
-                .attr("y", 2);
+        // mimic move of scroller
+        $scrollerBar.on("mousedown", ".scroller", function(event) {
+            event.stopPropagation();
+            isDragging = true;
+            $scroller.addClass("scrolling");
+        });
 
-        // move scroll bar event
-        svg.on("click", function() {
-            positionScrollBar(this);
-            $input.data("rowNum", $input.val());
+        $(document).on({
+            "mouseup.statsModal": function() {
+                isDragging = false;
+                $scroller.removeClass("scrolling");
+                var mouseX = event.pageX - $scrollerBar.offset().left;
+                var rowPercent = mouseX / $scrollerBar.width();
+
+                // make sure rowPercent in [0, 1]
+                rowPercent = Math.min(1, Math.max(0, rowPercent));
+                positionScrollBar(rowPercent);
+            },
+            "mousemove.statsModal": function(event) {
+                if (isDragging) {
+                    var mouseX = event.pageX - $scrollerBar.offset().left;
+                    var rowPercent = mouseX / $scrollerBar.width();
+                    // make sure rowPercent in [0, 1]
+                    rowPercent = Math.min(1, Math.max(0, rowPercent));
+                    var translate = getTranslate(rowPercent);
+                    $scroller.css("transform", "translate(" + translate + "%, 0)");
+                }
+            }
         });
 
         var timer;
-        $input.on("keypress", function(event) {
+        $rowInput.on("keypress", function(event) {
             if (event.which === keyCode.Enter) {
-                var $e = $(this);
-                var num = Number($e.val());
+                var $input = $(this);
+                var num = Number($input.val());
 
                 if (!isNaN(num) && num >= 1 && num <= totalNum) {
                     clearTimeout(timer);
                     timer = setTimeout(function() {
                         positionScrollBar(null, num);
-                        $e.data("rowNum", $e.val());
                     }, 100);
                 } else {
-                    $e.val($e.data("rowNum"));
+                    // when input is invalid
+                    $input.val($input.data("rowNum"));
                 }
-                $e.blur();
+                $input.blur();
             }
         });
 
-        function positionScrollBar(e, num) {
-            var x;
-            if (num != null) {
-                x = (num - 1) / totalNum * width;
+        function positionScrollBar(rowPercent, rowNum) {
+            var translate;
+
+            if (rowNum != null) {
+                rowPercent = (totalNum === 1) ?
+                                            0 : (rowNum - 1) / (totalNum - 1);
             } else {
-                var m = d3.mouse(e);
-                // make mouse at the middle of rect
-                x = m[0] - barWidth / 2;
-                if (x < 0) {
-                    x = 0;
-                } else if (x + barWidth > width) {
-                    x = width - barWidth;
-                }
+                rowNum = Math.ceil(rowPercent * (totalNum - 1)) + 1;
             }
 
-            if (rect.attr("x") === x) {
+            if ($rowInput.data("rowNum") === rowNum) {
+                // go to same row
                 return;
             }
 
-            var rowPosition = Math.floor(x / width * totalNum);
-            var rowNum   = rowPosition + 1;
             var rowsToFetch = totalNum - rowNum + 1;
 
             if (rowsToFetch < numRowsToFetch) {
                 if (numRowsToFetch < totalNum) {
                     // when can fetch numRowsToFetch
                     rowNum = totalNum - numRowsToFetch + 1;
-                    rowPosition = rowNum - 1;
                     rowsToFetch = numRowsToFetch;
                 } else {
                     // when can only fetch totalNum
                     rowNum = 1;
-                    rowPosition = 0;
                     rowsToFetch = totalNum;
                 }
-                var oldX = x;
-                x = (rowNum - 1) / totalNum * width;
-                rect.attr("x", oldX)
-                    .transition()
-                    .attr("x", x);
+
+                var oldTranslate = getTranslate(rowPercent);
+                rowPercent = (totalNum === 1) ?
+                                            0 : (rowNum - 1) / (totalNum - 1);
+
+                translate = getTranslate(rowPercent);
+                $scroller.addClass("scrolling")
+                    .css("transform", "translate(" + oldTranslate + "%, 0)");
+
+                // use setTimout to have the animation
+                setTimeout(function() {
+                    $scroller.removeClass("scrolling")
+                        .css("transform", "translate(" + translate + "%, 0)");
+                }, 1);
             } else {
-                rect.transition()
-                    .attr("x", x);
+                translate = getTranslate(rowPercent);
+                $scroller.css("transform", "translate(" + translate + "%, 0)");
+
                 rowsToFetch = numRowsToFetch;
             }
 
-            $input.val(rowNum);
+            $rowInput.val(rowNum).data("rowNum", rowNum);
 
             statsCol.groupByInfo.data = [];
             // disable another fetching data event till this one done
@@ -581,6 +600,7 @@ window.STATSManager = (function($, STATSManager) {
                 $loadingSection.removeClass("hidden");
             }, 500);
 
+            var rowPosition = rowNum - 1;
             fetchGroupbyData(statsCol.groupByInfo, rowPosition, rowsToFetch)
             .then(function() {
                 buildGroupGraphs(statsCol);
@@ -593,6 +613,10 @@ window.STATSManager = (function($, STATSManager) {
             .always(function() {
                 $section.removeClass("disabled");
             });
+        }
+
+        function getTranslate(percent) {
+            return (Math.min(99.9, Math.max(0, percent * 100)));
         }
     }
 
