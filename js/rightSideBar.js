@@ -277,7 +277,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 } else {
                     $("#sqlButtonWrap").hide();
                 }
-                if ($section.attr("id") === "scratchPadSection") {
+                if ($section.attr("id") === "cliSection") {
                     CLIBox.realignNl();
                 }
             } else {

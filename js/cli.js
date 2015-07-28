@@ -1,7 +1,7 @@
 // CLI right side bar for users to talk to the backend
 window.CLIBox = (function($, CLIBox) {
-    var $cliBox  = $("#scratchPadSection .cliArea");
-    var $lineBox = $("#scratchPadSection .lineArea");
+    var $cliBox  = $("#cliSection .cliArea");
+    var $lineBox = $("#cliSection .lineArea");
 
     var nl = "> ";
     var cliUnit = "<div contenteditable='true' spellcheck='false'" +
