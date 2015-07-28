@@ -12,10 +12,9 @@ window.STATSManager = (function($, STATSManager) {
         "sum"    : "Sum"
     };
     var tooltipOptions = {
-        "trigger"  : "hover",
+        "trigger"  : "manual",
         "placement": "top",
         "container": "body",
-        "animation": false,
         "template" : '<div class="bartip tooltip" role="tooltip">' +
                         '<div class="tooltip-arrow"></div>' +
                         '<div class="tooltip-inner"></div>' +
@@ -32,6 +31,26 @@ window.STATSManager = (function($, STATSManager) {
         $statsModal.draggable({
             "handle": ".modalHeader",
             "cursor": "-webkit-grabbing"
+        });
+
+        // show tootip in barArea and do not let in blink in padding
+        $statsModal.on("mouseover", ".barArea", function(event) {
+            event.stopPropagation();
+            $(".barArea").tooltip("hide")
+                        .attr("class", "barArea");
+            // XXX g tag can not use addClass, fix it if it's not true
+            $(this).attr("class", "barArea hover")
+                    .tooltip("show");
+        });
+
+        // only trigger in padding area btw bars
+        $statsModal.on("mouseover", ".groupbyChart", function(event) {
+            event.stopPropagation();
+        });
+
+        $statsModal.on("mouseover", function() {
+            $(".barArea").tooltip("hide")
+                        .attr("class", "barArea");
         });
     };
 
@@ -71,12 +90,18 @@ window.STATSManager = (function($, STATSManager) {
         $modalBg.fadeOut(300);
         $statsModal.addClass("hidden").removeData("id");
         $statsModal.find(".min-range .text").off();
+        $modalBg.off("mouseover.statsModal");
     }
 
     function showStats(statsCol) {
         centerPositionElement($statsModal);
         $modalBg.fadeIn(300);
         $statsModal.removeClass("hidden").data("id", statsCol.modalId);
+
+        $modalBg.on("mouseover.statsModal", function() {
+            $(".barArea").tooltip("hide")
+                        .attr("class", "barArea");
+        });
 
         refreshStats(statsCol);
     }
@@ -321,7 +346,7 @@ window.STATSManager = (function($, STATSManager) {
         var width  = chartWidth;
         // x range and y range
         var x = d3.scale.ordinal()
-                        .rangeRoundBands([0, width], .1)
+                        .rangeRoundBands([0, width], .1, 0)
                         .domain(data.map(function(d) { return d[xName]; }));
         var y = d3.scale.linear()
                         .range([height, 0])
