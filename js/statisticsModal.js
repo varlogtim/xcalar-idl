@@ -496,18 +496,22 @@ window.STATSManager = (function($, STATSManager) {
             event.stopPropagation();
             isDragging = true;
             $scroller.addClass("scrolling");
+            $statsModal.addClass("dragging");
         });
 
         $(document).on({
             "mouseup.statsModal": function() {
-                isDragging = false;
-                $scroller.removeClass("scrolling");
-                var mouseX = event.pageX - $scrollerBar.offset().left;
-                var rowPercent = mouseX / $scrollerBar.width();
+                if (isDragging === true) {
+                    $scroller.removeClass("scrolling");
+                    var mouseX = event.pageX - $scrollerBar.offset().left;
+                    var rowPercent = mouseX / $scrollerBar.width();
 
-                // make sure rowPercent in [0, 1]
-                rowPercent = Math.min(1, Math.max(0, rowPercent));
-                positionScrollBar(rowPercent);
+                    // make sure rowPercent in [0, 1]
+                    rowPercent = Math.min(1, Math.max(0, rowPercent));
+                    positionScrollBar(rowPercent);
+                    $statsModal.removeClass("dragging");
+                }
+                isDragging = false;
             },
             "mousemove.statsModal": function(event) {
                 if (isDragging) {
