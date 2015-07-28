@@ -64,7 +64,6 @@ function gRescolMouseDown(el, event, options) {
     rescol.tableNum = tableNum;
     rescol.table = $table;
     rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
-    rescol.tableHeadInput = rescol.tableHead.find('.text');
     rescol.headerDiv = el.parent(); // the .header div
     
     rescol.tempCellMinWidth = rescol.cellMinWidth - 5;
@@ -87,8 +86,8 @@ function gRescolMouseMove(event) {
         rescol.headerDiv.outerWidth(rescol.tempCellMinWidth);
     }
     var tableWidth = rescol.table.width();
-    rescol.tableHeadInput.width('75%');
     rescol.tableHead.width(tableWidth);
+    moveTableTitles();
 }
 
 function gRescolMouseUp() {
@@ -784,13 +783,18 @@ function createTableHeader(tableNum) {
                 event.preventDefault();
                 event.stopPropagation();
                 renameTableHead($(this));
-            }
+            }        
+        },
+        "input": function() {
+            moveTableTitles();
         },
         "focus": function() {
             updateTableHeader(null, $(this), true);
+            moveTableTitles();
         },
         "blur": function() {
             updateTableHeader(null, $(this));
+            moveTableTitles();
         },
         "click": function() {
             // when cursor is at hashName part. move to tableName part
@@ -857,6 +861,7 @@ function addTableMenuActions($tableMenu) {
         $('#xcTableWrap' + tableNum).addClass('tableHidden');
         moveTableDropdownBoxes();
         moveFirstColumn();
+        moveTableTitles();
     });
 
     $tableMenu.on('mouseup', '.unhideTable', function(event) {
@@ -870,6 +875,7 @@ function addTableMenuActions($tableMenu) {
         WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableNum);
         moveTableDropdownBoxes();
         moveFirstColumn();
+        moveTableTitles();
         var $table = $('#xcTable' + tableNum);
         $table.find('.rowGrab').width($table.width());
     });
@@ -1260,9 +1266,8 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
     var tableWidth = $table.width();
     $theadWrap = $('#xcTheadWrap' + tableNum);
     $theadWrap.width(tableWidth);
-
-    $theadWrap.find('.text').width(tableWidth - 30);
     moveTableDropdownBoxes();
+    moveTableTitles();
 }
 
 function addColListeners($table, tableNum) {
@@ -2082,6 +2087,47 @@ function moveTableDropdownBoxes() {
     }
 }
 
+function moveTableTitles() {
+    var viewWidth = $('#mainFrame').width();
+    $('.xcTableWrap:not(".inActive"):not(.tableHidden)').each(function(i) {
+        var $table = $(this);
+        var $thead = $table.find('.xcTheadWrap');
+        if ($thead.length === 0) {
+            return;
+        }
+        var rect = $thead[0].getBoundingClientRect();
+        if (rect.right > 0) {
+            if (rect.left < viewWidth) {
+                var $tableTitle = $table.find('.tableTitle .text');
+                var titleWidth = $tableTitle.outerWidth();
+                var tableWidth = $thead.width();
+                var center;
+                if (rect.left < 0) { 
+                    // left side of table is offscreen to the left
+                    if (rect.right > viewWidth) { // table spans the whole screen
+                        center = -rect.left +  ((viewWidth - titleWidth)/ 2);
+                    } else { // right side of table is visible
+                        center = tableWidth - ((rect.right + titleWidth)/2);
+                        center = Math.min(center, tableWidth - titleWidth - 6);
+                    }
+                } else { // the left side of the table is visible
+                    if (rect.right < viewWidth) { 
+                        // the right side of the table is visible
+                        center = (tableWidth - titleWidth) / 2;
+                    } else { // the right side of the table isn't visible
+                        center = (viewWidth - rect.left - titleWidth) / 2;
+                        center = Math.max(10, center);
+                    }
+                }
+                center = Math.floor(center);
+                $tableTitle.css('left', center);
+            } else {
+                return false;
+            }
+        }
+    });
+}
+
 function focusTable(tableNum) {
     var tableName = gTables[tableNum].tableName;
     if (WSManager.getWSFromTable(tableName) !== WSManager.getActiveWS())
@@ -2202,6 +2248,7 @@ function dragTableMouseUp() {
     }
     moveTableDropdownBoxes();
     moveFirstColumn();
+    moveTableTitles();
 }
 
 function createShadowTable() {

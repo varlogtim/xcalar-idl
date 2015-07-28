@@ -231,6 +231,7 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         RowScroller.empty();
     }
     moveTableDropdownBoxes();
+    moveTableTitles();
 }
 
 function deleteActiveTable(tableNum) {

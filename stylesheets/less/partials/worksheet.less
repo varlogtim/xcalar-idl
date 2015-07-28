@@ -311,6 +311,7 @@
             display: block;
             .gray-gradient;
             border-bottom: 1px solid @color-table-borderGray;
+            overflow: hidden;
 
             .tableGrab {
                 .position(absolute, @top: 0);
@@ -363,17 +364,19 @@
 
             .text {
                 .position(relative);
-                .size(@width: 75%, @height: 25px);
-                .font(@weight: 600, @size: 15px, @line-height: 25px, @family: @font-base);
+                .size(@width: auto, @height: 25px);
+                .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
                 .rounded;
                 text-align: center;
                 background-color: transparent;
-                padding: 0 2px;
+                padding: 0 4px;
                 z-index: 2;
                 white-space: nowrap;
-                margin: 0 auto;
-                .vertical-align;
+                margin-top: 5px;
                 overflow: hidden;
+                display: inline-block;
+                top: 0;
+                position: absolute;
 
                 .hashName {
                     opacity: 0.7;
@@ -384,8 +387,7 @@
                 &:focus {
                     background-color: @color-white;
                     color: @color-text-darkGray;
-                    // width: auto !important;
-                    max-width: 75%;
+                    padding: 0 10px;
                     outline: none;
 
                     .hashName {
@@ -401,6 +403,7 @@
         .size(@width: ~"calc(100% + 17px)", @max-height: ~"calc(100% - 31px)");
         .font(@size: 11px);
         margin-bottom: 0;
+        margin-top: -3px;
         padding: 0;
         overflow-x: hidden;
         overflow-y: auto;

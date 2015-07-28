@@ -365,6 +365,7 @@ function documentReadyGeneralFunction() {
             }
             moveTableDropdownBoxes();
         }, 100);
+         moveTableTitles();
     });
 
     //XXX using this to keep window from scrolling on dragdrop
@@ -385,6 +386,7 @@ function documentReadyGeneralFunction() {
         }, 300);
 
         moveFirstColumn();
+        moveTableTitles();
     });
 
     var $rowInput = $('#rowInput');
