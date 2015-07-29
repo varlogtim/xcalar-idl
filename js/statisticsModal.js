@@ -11,6 +11,11 @@ window.STATSManager = (function($, STATSManager) {
         "count"  : "Count",
         "sum"    : "Sum"
     };
+    var sortMap = {
+        "asc"   : "asc",
+        "origin": "origin",
+        "desc"  : "desc"
+    };
     var tooltipOptions = {
         "trigger"  : "manual",
         "placement": "top",
@@ -79,7 +84,8 @@ window.STATSManager = (function($, STATSManager) {
                     // XcalarSetFree(statsCol.groupByInfo.resultSetId);
                     statsCol.groupByInfo = {
                         "data"      : [],
-                        "isComplete": false
+                        "isComplete": false,
+                        "order"     : sortMap.origin
                     };
 
                     generateStats(table.tableName, table.statsCols[colName],
@@ -99,7 +105,8 @@ window.STATSManager = (function($, STATSManager) {
                 "aggInfo"    : {},
                 "groupByInfo": {
                     "data"      : [],
-                    "isComplete": false
+                    "isComplete": false,
+                    "order"     : sortMap.origin
                 }
             };
             generateStats(table.tableName, table.statsCols[colName],
@@ -116,8 +123,9 @@ window.STATSManager = (function($, STATSManager) {
         $statsModal.find(".scrollBar").off();
         $(document).off(".statsModal");
         $("#stats-rowInput").off();
-        // reset scroller's position
-        $statsModal.find(".scroller").css("transform", "");
+        resetScrollBar();
+        // turn off sort section event
+        $statsModal.find(".sortSection").off();
     }
 
     function showStats(statsCol) {
@@ -157,13 +165,18 @@ window.STATSManager = (function($, STATSManager) {
     }
 
     // refresh stats
-    function refreshStats(statsCol) {
+    function refreshStats(statsCol, sortRefresh) {
         var $aggInfoSection = $statsModal.find(".aggInfoSection");
         var $loadingSection = $statsModal.find(".loadingSection");
         var $loadHiddens    = $statsModal.find(".loadHidden");
         var instruction;
 
-        $loadHiddens.addClass("hidden");
+        if (sortRefresh) {
+            $loadHiddens.addClass("disabled");
+        } else {
+            $loadHiddens.addClass("hidden");
+        }
+
         $loadingSection.removeClass("hidden");
         // update agg info
         aggKeys.forEach(function(aggkey) {
@@ -186,8 +199,14 @@ window.STATSManager = (function($, STATSManager) {
             fetchGroupbyData(statsCol.groupByInfo, 0, numRowsToFetch)
             .then(function() {
                 $loadingSection.addClass("hidden");
-                $loadHiddens.removeClass("hidden");
-                setupScrollBar(statsCol);
+                $loadHiddens.removeClass("hidden").removeClass("disabled");
+
+                if (sortRefresh) {
+                    resetScrollBar();
+                } else {
+                    setupScrollBar(statsCol);
+                }
+                setupSortSection(statsCol, sortRefresh);
                 buildGroupGraphs(statsCol, true);
             });
 
@@ -253,8 +272,6 @@ window.STATSManager = (function($, STATSManager) {
                                     isIncSample));
         })
         .then(function() {
-            statsCol.groupByInfo.groupbyTable = groupbyTable;
-
             return (XcalarAggregate(statsColName, groupbyTable, aggMap.max));
         })
         .then(function(value) {
@@ -272,6 +289,7 @@ window.STATSManager = (function($, STATSManager) {
             }
         })
         .then(function(resultSet) {
+            statsCol.groupByInfo.groupbyTable = groupbyTable;
             statsCol.groupByInfo.resultSetId = resultSet.resultSetId;
             statsCol.groupByInfo.numEntries = resultSet.numEntries;
             statsCol.groupByInfo.isComplete = true;
@@ -311,7 +329,16 @@ window.STATSManager = (function($, STATSManager) {
 
     function fetchGroupbyData(groupByInfo, rowPosition, rowsToFetch) {
         var deferred = jQuery.Deferred();
-        var resultSetId = groupByInfo.resultSetId;
+        var resultSetId;
+        var order = groupByInfo.order;
+
+        if (order === sortMap.asc) {
+            resultSetId = groupByInfo.ascId;
+        } else if (order === sortMap.desc) {
+            resultSetId = groupByInfo.descId;
+        } else {
+            resultSetId = groupByInfo.resultSetId;
+        }
 
         XcalarSetAbsolute(resultSetId, rowPosition)
         .then(function() {
@@ -486,6 +513,12 @@ window.STATSManager = (function($, STATSManager) {
         barAreas.exit().remove();
     }
 
+    function resetScrollBar() {
+        // reset scroller's position
+        $("#stats-rowInput").val(1).data("rowNum", 1);
+        $statsModal.find(".scroller").css("transform", "");
+    }
+
     function setupScrollBar(statsCol) {
         var totalNum = statsCol.groupByInfo.numEntries;
 
@@ -644,6 +677,86 @@ window.STATSManager = (function($, STATSManager) {
         function getTranslate(percent) {
             return (Math.min(99.9, Math.max(0, percent * 100)));
         }
+    }
+
+    function setupSortSection(statsCol, sortRefresh) {
+        var $section = $statsModal.find(".sortSection");
+
+        $section.find(".active").removeClass("active")
+                .end()
+                .find("." + statsCol.groupByInfo.order + " .iconWrapper")
+                    .addClass("active");
+
+        if (!sortRefresh) {
+            $section.on("click", ".asc .iconWrapper", function() {
+                sortData(statsCol, sortMap.asc);
+            });
+
+            $section.on("click", ".origin .iconWrapper", function() {
+                sortData(statsCol, sortMap.origin);
+            });
+
+            $section.on("click", ".desc .iconWrapper", function() {
+                sortData(statsCol, sortMap.desc);
+            });
+        }
+    }
+
+    function sortData(statsCol, order) {
+        if (statsCol.groupByInfo.order === order) {
+            return;
+        }
+
+        statsCol.groupByInfo.isComplete = false;
+
+        runSort(statsCol, order)
+        .then(function() {
+            statsCol.groupByInfo.order = order;
+            statsCol.groupByInfo.isComplete = true;
+            refreshStats(statsCol, true);
+        })
+        .fail(function(error) {
+            statsCol.groupByInfo.isComplete = true;
+            console.error(error);
+        });
+    }
+
+    function runSort(statsCol, order) {
+        var deferred = jQuery.Deferred();
+        var groupByInfo = statsCol.groupByInfo;
+        var tableName;
+        var newTableName;
+
+        if (order === sortMap.asc) {
+            if (groupByInfo.ascId != null) {
+                deferred.resolve();
+            } else {
+                // get a sort table
+                tableName = groupByInfo.groupbyTable;
+                newTableName = tableName + ".asc";
+
+                XcalarIndexFromTable(tableName, statsColName, newTableName)
+                .then(function() {
+                    return (getResultSet(newTableName));
+                })
+                .then(function(resultSet) {
+                    groupByInfo.ascTable = newTableName;
+                    groupByInfo.ascId = resultSet.resultSetId;
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
+            }
+        } else if (order === sortMap.desc) {
+            if (groupByInfo.descId != null) {
+                deferred.resolve();
+            } else {
+                // get a reverse sort table
+            }
+        } else {
+            deferred.resolve();
+        }
+
+        return (deferred.promise());
     }
 
     return (STATSManager);

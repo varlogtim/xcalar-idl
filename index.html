@@ -1723,6 +1723,27 @@
     </section>
     <!-- Statistics Modal Main Section, for agg info -->
     <section class="modalMain">
+      <div class="sortSection loadHidden">
+        <div class="sort asc">
+          <div class="iconWrapper" title="ASC Sort"
+          data-toggle="tooltip" data-placement="top" data-container="body">
+            <span class="icon"></span>
+          </div>
+        </div>
+        <div class="sort origin">
+          <div class="iconWrapper" title="Original Data"
+          data-toggle="tooltip" data-placement="top" data-container="body">
+            <span class="icon"></span>
+          </div>
+        </div>
+        <div class="sort desc">
+          <div class="iconWrapper" title="DESC Sort"
+          data-toggle="tooltip" data-placement="top" data-container="body">
+            <span class="icon"></span>
+          </div>
+        </div>
+      </div>
+      <!-- scroller section -->
       <div class="scrollSection loadHidden">
         <div class="rowInput">
            <input id="stats-rowInput" class="min-range" val="1">
@@ -1740,6 +1761,7 @@
           </div>
         </div>
       </div>
+      <!-- aggregate info section -->
       <div class="aggInfoSection">
         <div class="aggInfo">
           <p>min: <span class="text min"></span></p>
