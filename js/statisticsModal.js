@@ -69,7 +69,28 @@ window.STATSManager = (function($, STATSManager) {
         var statsCol = table.statsCols[colName];
 
         if (statsCol != null) {
-            showStats(statsCol);
+            // check if the groupbyTable is not deleted
+            // XXX use XcalarGetTables because XcalarSetAbsolute cannot
+            // return fail if resultSetId is not free
+            XcalarGetTables(statsCol.groupByInfo.groupbyTable)
+            .then(function(tableInfo) {
+                if (tableInfo == null || tableInfo.numTables === 0) {
+                    // XXX use XcalarSetFree will crash backend...
+                    // XcalarSetFree(statsCol.groupByInfo.resultSetId);
+                    statsCol.groupByInfo = {
+                        "data"      : [],
+                        "isComplete": false
+                    };
+
+                    generateStats(table.tableName, table.statsCols[colName],
+                            table.keyName);
+                } else {
+                    showStats(statsCol);
+                }
+            })
+            .fail(function(error) {
+                console.error(error);
+            });
         } else {
             table.statsCols[colName] = {
                 "modalId"    : xcHelper.randName("stats"),
@@ -161,6 +182,7 @@ window.STATSManager = (function($, STATSManager) {
         if (statsCol.groupByInfo.isComplete) {
             // data is ready
             statsCol.groupByInfo.data = [];
+
             fetchGroupbyData(statsCol.groupByInfo, 0, numRowsToFetch)
             .then(function() {
                 $loadingSection.addClass("hidden");
