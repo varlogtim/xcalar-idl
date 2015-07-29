@@ -2176,6 +2176,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     // sample table html
     function getSampleTableHTML(dsName, jsonKeys, jsons) {
+        console.log(jsonKeys);
         // validation check
         if (!dsName || !jsonKeys || !jsons) {
             return "";
@@ -2204,7 +2205,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             var thClass = "th col" + (i + 1);
             var type    = columnsType[i];
             th +=
-                '<th title="' + key + '" class="' + thClass + '">' +
+                '<th title=\'' + key + '\' class="' + thClass + '">' +
                     '<div class="header type-' + type + '" ' +
                          'data-type=' + type + '>' +
                         '<div class="colGrab" ' +
@@ -2225,7 +2226,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                             '<div class="flexWrap flex-mid">' +
                                 '<input spellcheck="false"' +
                                     'class="editableHead shoppingCartCol ' +
-                                    thClass + '" value="' + key + '" ' +
+                                    thClass + '" value=\'' + key + '\' ' +
                                     'readonly="true">' +
                             '</div>' +
                             '<div class="flexWrap flex-right">' +

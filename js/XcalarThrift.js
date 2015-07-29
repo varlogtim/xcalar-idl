@@ -1,4 +1,7 @@
 var tHandle = xcalarConnectThrift(hostname, portNumber.toString());
+var funcFailPercentage = {};
+var defaultFuncFailPercentage = 0.5;
+var errorInjection = false;
 
 function THandleDoesntExistError() {
     this.name = "THandleDoesntExistError";
@@ -59,6 +62,7 @@ function sleep(val) {
         switch (type) {
             case "ms":
                 duration = n;
+
                 break;
             case "s":
                 duration = s * n;
@@ -140,13 +144,37 @@ function promiseWrapper(value) {
     return (deferred.promise());
 }
 
+// ======================== ERROR INJECTION TESTING =========================//
+function getFailPercentage(funcName) {
+    if (!funcFailPercentage[funcName]) {
+        return (defaultFuncFailPercentage);
+    } else {
+        return (funcFailPercentage[funcName]);
+    }
+}
+
 function XcalarGetVersion() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarGetVersion(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -164,7 +192,22 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
 
     var deferred = jQuery.Deferred();
     var loadArgs = new XcalarApiDfLoadArgsT();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
     loadArgs.csv.recordDelim = recordDelim;
     loadArgs.csv.fieldDelim = fieldDelim;
@@ -222,7 +265,22 @@ function XcalarExport(tablename, filename, isBQ, sqlOptions) {
 
     var deferred = jQuery.Deferred();
     var workItem = xcalarExportWorkItem(tablename, filename, isBQ);
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var def1 = xcalarExport(tHandle, tablename, filename, isBQ);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
@@ -245,7 +303,22 @@ function XcalarDestroyDataset(dsName, sqlOptions) {
     var deferred = jQuery.Deferred();
     dsName = parseDS(dsName);
     var workItem = xcalarDestroyDatasetWorkItem(dsName);
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var def1 = xcalarDestroyDataset(tHandle, dsName);
     var def2 = XcalarGetQuery(workItem);
 
@@ -269,7 +342,22 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     var deferred = jQuery.Deferred();
     datasetName = parseDS(datasetName);
     var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename);
-    
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
@@ -291,9 +379,26 @@ function XcalarIndexFromTable(srcTablename, key, tablename, sqlOptions) {
 
     var deferred = jQuery.Deferred();
     var workItem = xcalarIndexTableWorkItem(srcTablename, tablename, key);
-
+    
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var def1 = xcalarIndexTable(tHandle, srcTablename, key, tablename);
     var def2 = XcalarGetQuery(workItem);
+
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Index Table", sqlOptions, ret2);
@@ -313,7 +418,22 @@ function XcalarDeleteTable(tableName, sqlOptions) {
 
     var deferred = jQuery.Deferred();
     var workItem = xcalarDeleteTableWorkItem(tableName);
-
+     if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var def1 = xcalarDeleteTable(tHandle, tableName);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
@@ -336,7 +456,22 @@ function XcalarRenameTable(oldTableName, newTableName, sqlOptions) {
 
     var deferred = jQuery.Deferred();
     var workItem = xcalarRenameNodeWorkItem(oldTableName, newTableName);
-    
+     if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }   
     var def1 = xcalarRenameNode(tHandle, oldTableName, newTableName);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
@@ -354,7 +489,22 @@ function XcalarRenameTable(oldTableName, newTableName, sqlOptions) {
 function XcalarSample(datasetName, numEntries) {
     var deferred = jQuery.Deferred();
     var totalEntries = 0;
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     datasetName = parseDS(datasetName);
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
     .then(function(result) {
@@ -399,7 +549,22 @@ function XcalarSample(datasetName, numEntries) {
 
 function XcalarGetCount(tableName) {
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     if (tHandle == null) {
         deferred.resolve(0);
     } else {
@@ -426,7 +591,22 @@ function XcalarGetDatasets() {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarListDatasets(tHandle)
     .then(function(listDatasetsOutput) {
         var len = listDatasetsOutput.numDatasets;
@@ -449,7 +629,22 @@ function XcalarGetTables(tableName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var deferred = jQuery.Deferred();
     if (tableName == null) {
         var patternMatch = "*";
@@ -473,7 +668,22 @@ function XcalarShutdown(force) {
         force = false;
     }
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarShutdown(tHandle, force)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -487,7 +697,30 @@ function XcalarStartNodes(numNodes) {
     if (tHandle == null) {
         return (promiseWrapper(null));
     }
-    return (xcalarStartNodes(tHandle, numNodes));
+    var deferred = jQuery.Deferred();
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
+    
+    xcalarStartNodes(tHandle, numNodes)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarStartNodes", error));
+    });
+    return (deferred.promise());
 }
 
 function XcalarGetStats(nodeId) {
@@ -497,7 +730,22 @@ function XcalarGetStats(nodeId) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarGetStats(tHandle, nodeId)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -513,7 +761,22 @@ function XcalarGetTableRefCount(tableName) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarGetTableRefCount(tHandle, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -529,7 +792,22 @@ function XcalarMakeResultSetFromTable(tableName) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarMakeResultSetFromTable(tHandle, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -545,6 +823,22 @@ function XcalarMakeResultSetFromDataset(datasetName) {
     }
 
     var deferred = jQuery.Deferred();
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     datasetName = parseDS(datasetName);
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
     .then(deferred.resolve)
@@ -562,7 +856,22 @@ function XcalarSetAbsolute(resultSetId, position) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarResultSetAbsolute(tHandle, resultSetId, position)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -578,7 +887,22 @@ function XcalarGetNextPage(resultSetId, numEntries) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarResultSetNext(tHandle, resultSetId, numEntries)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -594,7 +918,22 @@ function XcalarSetFree(resultSetId) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarFreeResultSet(tHandle, resultSetId)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -660,7 +999,22 @@ function XcalarFilterHelper(filterStr, srcTablename, dstTablename,
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     if (filterStr === "") {
         console.error("Unknown op " + filterStr);
         deferred.reject("Unknown op " + filterStr);
@@ -690,6 +1044,22 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
     }
 
     var deferred = jQuery.Deferred();
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var workItem = xcalarApiMapWorkItem(evalStr, srcTablename, dstTablename,
                                         newFieldName);
 
@@ -756,6 +1126,22 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
     }
 
     var deferred = jQuery.Deferred();
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     if (evalStr === "") {
         deferred.reject("bug!:" + op);
         return (deferred.promise());
@@ -782,6 +1168,22 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
     }
 
     var deferred = jQuery.Deferred();
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var workItem = xcalarJoinWorkItem(left, right, dst, joinType);
 
     var def1 = xcalarJoin(tHandle, left, right, dst, joinType);
@@ -801,6 +1203,22 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
 function XcalarGroupBy(operator, newColName, oldColName, tableName,
                        newTableName, incSample, sqlOptions) {
     var deferred = jQuery.Deferred();
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var evalStr = generateAggregateString(oldColName, operator);
     if (evalStr === "") {
         deferred.reject("Wrong operator! " + operator);
@@ -835,7 +1253,22 @@ function XcalarQuery(queryName, queryString) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarQuery(tHandle, queryName, queryString)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -851,7 +1284,22 @@ function XcalarGetDag(tableName) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarDag(tHandle, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -867,7 +1315,22 @@ function XcalarListFiles(url) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarListFiles(tHandle, url)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -886,7 +1349,22 @@ function XcalarMakeRetina(retName, tableName) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarMakeRetina(tHandle, retName, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -905,7 +1383,22 @@ function XcalarListRetinas() {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarListRetinas(tHandle)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -923,7 +1416,22 @@ function XcalarUpdateRetina(retName, dagNodeId, funcApiEnum,
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarUpdateRetina(tHandle, retName, dagNodeId, funcApiEnum,
                         parameterizedInput)
     .then(deferred.resolve)
@@ -941,7 +1449,22 @@ function XcalarGetRetina(retName) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarGetRetina(retName)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -960,7 +1483,22 @@ function XcalarAddParameterToRetina(retName, varName, defaultVal) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarAddParameterToRetina(tHandle, retName, varName, defaultVal)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -976,7 +1514,22 @@ function XcalarListParametersInRetina(retName) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarListParametersInRetina(tHandle, retName)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -994,6 +1547,22 @@ function XcalarExecuteRetina(retName, params) {
     }
 
     var deferred = jQuery.Deferred();
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     var randomTableName = "table" + Math.floor(Math.random() * 1000000000 + 1);
 
     xcalarExecuteRetina(tHandle, retName, randomTableName,
@@ -1012,7 +1581,22 @@ function XcalarKeyLookup(key) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarKeyLookup(tHandle, key)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -1035,7 +1619,22 @@ function XcalarKeyPut(key, value, persist) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     if (persist == null || persist == null) {
         persist = false;
     }
@@ -1054,7 +1653,22 @@ function XcalarKeyDelete(key) {
     }
 
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarKeyDelete(tHandle, key)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -1074,6 +1688,22 @@ function XcalarGetStats(numNodes) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     // XXX This is fako hacked up random code
 
     var nodeStruct = [];
@@ -1097,7 +1727,22 @@ function XcalarApiTop(measureIntervalInMs) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarApiTop(tHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -1111,7 +1756,22 @@ function XcalarListXdfs(fnNamePattern, categoryPattern) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarApiListXdfs(tHandle, fnNamePattern, categoryPattern)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -1125,7 +1785,22 @@ function XcalarUploadPython(moduleName, pythonStr) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarApiUploadPython(tHandle, moduleName, pythonStr)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -1139,7 +1814,22 @@ function XcalarMemory() {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
-
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarApiMemory(tHandle, null)
     .then(function(output) {
         deferred.resolve(output);
@@ -1155,6 +1845,22 @@ function XcalarGetQuery(workItem) {
         return (promiseWrapper(null));
     }
     var deferred = jQuery.Deferred();
+    if (errorInjection) {
+        var functionName = arguments.callee.toString()
+                           .substr('function '.length);
+        functionName = functionName.substr(0, functionName.indexOf('('));
+        var failPercent = getFailPercentage(functionName);
+        if (Math.random() < failPercent) {
+            // FAILED!
+            var waitTime = Math.floor(Math.random() * 10000);
+            console.log("WaitTime is "+waitTime+"ms");
+            setTimeout(function() {
+                deferred.reject(thriftLog("XcalarIndexFromTable",
+                                          "Error Injection"));
+            }, waitTime);
+            return (deferred.promise());
+        }
+    }
     xcalarApiGetQuery(tHandle, workItem)
     .then(function(output) {
         deferred.resolve(output.query);

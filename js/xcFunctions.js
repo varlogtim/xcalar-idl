@@ -745,140 +745,58 @@ window.xcFunction = (function ($, xcFunction) {
         return (deferred.promise());
     }
 
-    function parallelIndex(leftColName, leftTableNum, rightColName, rightTableNum) {
+    function parallelIndex(leftColName, leftTableNum, rightColName,
+                           rightTableNum) {
         var deferred = jQuery.Deferred();
 
         var deferred1 = checkTableIndex(leftColName, leftTableNum);
         var deferred2 = checkTableIndex(rightColName, rightTableNum);
 
-        var status1 = status2 = "waiting";
-        var leftResult, rightResult;
-        var leftError, rightError;
-
-        deferred1
-        .then(function(res) {
-            status1 = "done";
-            leftResult = res;
-
-            switch (status2) {
-                case "done":
-                    // when both done
-                    deferred.resolve(leftResult, rightResult);
-                    break;
-                case "waiting":
-                    // when deferred2 not finish, wait for it
-                    break;
-                case "fail":
-                    // when deferred2 already fail, delete this table:
-                    var sqlOptions = {
-                        "operation": "deleteTable",
-                        "tableName": res.tableName
-                    };
-                    XcalarDeleteTable(res.tableName, sqlOptions)
-                    .always(function() {
-                        console.error("Parallel index fails in rightTable",
-                                      rightError);
-                        deferred.reject(rightError);
-                    });
-                    break;
-                default:
-                    console.error("Wrong Status!");
-                    break;
-            }
+        xcHelper.when(deferred1, deferred2)
+        .then(function(ret1, ret2) {
+            deferred.resolve(ret1, ret2);
         })
-        .fail(function(error) {
-            status1 = "fail";
-            leftError = error;
-
-            switch (status2) {
-                case "done":
-                    // when deferred2 done, delete right table
-                    var sqlOptions = {
-                        "operation": "deleteTable",
-                        "tableName": rightResult.tableName
-                    };
-                    XcalarDeleteTable(rightResult.tableName, sqlOptions)
-                    .always(function() {
-                        console.error("Parallel index fails in leftTable", error);
-                        deferred.reject(error);
-                    });
-                    break;
-                case "waiting":
-                    // when deferred2 not finish, wait for it
-                    break;
-                case "fail":
-                    // both fail
-                    console.error("Parrel index all fails",
-                                    leftError, rightError);
-                    deferred.reject(leftError, rightError);
-                    break;
-                default:
-                    console.error("Wrong Status!");
-                    break;
+        .fail(function(ret1, ret2) {
+            // If one fails, we abort entire transaction. This means that we
+            // delete even the operation that has completed and rewind to prev
+            // good state
+            var del1 = false;
+            var del2 = false;
+            if (ret1 && ret1.error != undefined &&
+                !(ret2 && (ret2.error != undefined))) {
+                // This one has an error
+                del2 = true;
+            }
+            if (ret2 && ret2.error != undefined &&
+                !(ret1 && (ret1.error != undefined))) {
+                // This one has an error
+                del1 = true;
+            }
+            if (del1) {
+                var res = ret1;
+                var failed = ret2;
+                var sqlOptions = {"operation": "deleteTable",
+                                  "tableName": res.tableName};
+                XcalarDeleteTable(res.tableName, sqlOptions)
+                .always(function() {
+                    console.error("Parallel index fails in rightTable",
+                                  failed);
+                    deferred.reject(failed);
+                });
+            }
+            if (del2) {
+                var res = ret2;
+                var failed = ret1;
+                var sqlOptions = {"operation": "deleteTable",
+                                  "tableName": res.tableName};
+                XcalarDeleteTable(res.tableName, sqlOptions)
+                .always(function() {
+                    console.error("Parallel index fails in leftTable",
+                                  failed);
+                    deferred.reject(failed);
+                });
             }
         });
-
-        deferred2
-        .then(function(res) {
-            status2 = "done";
-            rightResult = res;
-
-            switch (status1) {
-                case "done":
-                    // when both done
-                    deferred.resolve(leftResult, rightResult);
-                    break;
-                case "waiting":
-                    // when deferred1 not finish, wait for it
-                    break;
-                case "fail":
-                    // when deferred2 already fail:
-                    var sqlOptions = {"operation": "deleteTable",
-                                      "tableName": res.tableName};
-                    XcalarDeleteTable(res.tableName, sqlOptions)
-                    .always(function() {
-                        console.error("Parallel index fails in leftTable",
-                                      leftError);
-                        deferred.reject(leftError);
-                    });
-                    break;
-                default:
-                    console.error("Wrong Status!");
-                    break;
-            }
-        })
-        .fail(function(error) {
-            status2 = "fail";
-            rightError = error;
-
-            switch (status1) {
-                case "done":
-                    // when deferred1 done, delete left table
-                    var sqlOptions = {
-                        "operation": "deleteTable",
-                        "tableName": leftResult.tableName
-                    };
-                    XcalarDeleteTable(leftResult.tableName, sqlOptions)
-                    .always(function() {
-                        console.error("Parallel index fails in rightTable", error);
-                        deferred.reject(error);
-                    });
-                    break;
-                case "waiting":
-                    // when deferred1 not finish, wait for it
-                    break;
-                case "fail":
-                    // both fail
-                    console.error("Parrel index all fails",
-                                    leftError, rightError);
-                    deferred.reject(leftError, rightError);
-                    break;
-                default:
-                    console.error("Wrong Status!");
-                    break;
-            }
-        });
-
         return (deferred.promise());
     }
 
