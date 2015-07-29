@@ -164,11 +164,13 @@ window.xcFunction = (function ($, xcFunction) {
         .then(function() {
             setDirection(newTableName, order);
             // sort do not change groupby stats of the table
-            var statsCols;
+            var tableProperties = null;
             if (table.statsCols) {
-                statsCols = xcHelper.deepCopy(table.statsCols);
+                tableProperties = {
+                    "statsCols": xcHelper.deepCopy(table.statsCols)
+                };
             }
-            setIndex(newTableName, tablCols, null, null, statsCols);
+            setIndex(newTableName, tablCols, null, tableProperties);
             
             return (refreshTable(newTableName, tableName));
         })
@@ -451,12 +453,11 @@ window.xcFunction = (function ($, xcFunction) {
             };
 
             // map do not change groupby stats of the table
-            var statsCols;
             if (table.statsCols) {
-                statsCols = xcHelper.deepCopy(table.statsCols);
+                tableProperties.statsCols = xcHelper.deepCopy(table.statsCols)
             }
 
-            setIndex(newTableName, tablCols, null, tableProperties, statsCols);
+            setIndex(newTableName, tablCols, null, tableProperties);
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {

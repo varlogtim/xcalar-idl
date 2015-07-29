@@ -59,23 +59,19 @@ function getDirection(tName) {
     return (null);
 }
 
-function setIndex(tName, index, dsName, tableProperties, statsCols) {
+function setIndex(tName, index, dsName, tableProperties) {
     gTableIndicesLookup[tName] = {};
     gTableIndicesLookup[tName].columns = index;
     gTableIndicesLookup[tName].active = true;
     gTableIndicesLookup[tName].timeStamp = xcHelper.getTimeInMS();
 
     if (tableProperties) {
-        gTableIndicesLookup[tName].bookmarks = tableProperties.bookmarks;
-        gTableIndicesLookup[tName].rowHeights = tableProperties.rowHeights;
+        gTableIndicesLookup[tName].bookmarks = tableProperties.bookmarks || [];
+        gTableIndicesLookup[tName].rowHeights = tableProperties.rowHeights || {};
+        gTableIndicesLookup[tName].statsCols = tableProperties.statsCols || {};
     } else {
         gTableIndicesLookup[tName].bookmarks = [];
         gTableIndicesLookup[tName].rowHeights = {};
-    }
-
-    if (statsCols) {
-        gTableIndicesLookup[tName].statsCols = statsCols;
-    } else {
         gTableIndicesLookup[tName].statsCols = {};
     }
 
