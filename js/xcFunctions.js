@@ -481,7 +481,7 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // map two tables at the same time, now specifically for multi clause join
-    xcFunction.twoMap = function(lOptions, rOptions, loclNewTable, msg) {
+    xcFunction.twoMap = function(lOptions, rOptions, lockNewTable, msg) {
         var deferred = jQuery.Deferred();
 
         if (lOptions == null || rOptions == null) {
@@ -541,38 +541,37 @@ window.xcFunction = (function ($, xcFunction) {
         var deferred2 = XcalarMap(rFieldName, rMapString,
                                     rTableName, rNewName, sqlOptions2);
 
-        // XXX note that the current $.when cannot handle the failure gracefully
-        $.when(deferred1, deferred2)
-        .then(function() {
-            var tablCols = mapColGenerate(lColNum, lFieldName, lMapString,
+        xcHelper.when(deferred1, deferred2)
+        .then(function(ret1, ret2) {
+            // XXX: You can check whether deferred1 or deferred2 has an error
+            // by using if (ret1 && ret1.error != undefined) // deferred1 failed
+            if (lockNewTable) {
+                xcHelper.lockTable(lTableNum);
+                xcHelper.lockTable(rTableNum);
+            }
+
+            var lTableCols = mapColGenerate(lColNum, lFieldName, lMapString,
                                     lTable.tableCols, lOptions.replaceColumn);
-            var tableProperties = {
+            var lTableProperties = {
                 "bookmarks" : xcHelper.deepCopy(lTable.bookmarks),
                 "rowHeights": xcHelper.deepCopy(lTable.rowHeights)
             };
 
-            setIndex(lNewName, tablCols, null, tableProperties);
-            return (refreshTable(lNewName, lTableName));
-        })
-        .then(function() {
-            if (loclNewTable) {
-                xcHelper.lockTable(lTableNum);
-            }
+            setIndex(lNewName, lTableCols, null, lTableProperties);
 
-            var tablCols = mapColGenerate(rColNum, rFieldName, rMapString,
+            var rTableCols = mapColGenerate(rColNum, rFieldName, rMapString,
                                     rTable.tableCols, rOptions.replaceColumn);
-            var tableProperties = {
+            var rTableProperties = {
                 "bookmarks" : xcHelper.deepCopy(rTable.bookmarks),
                 "rowHeights": xcHelper.deepCopy(rTable.rowHeights)
             };
 
-            setIndex(rNewName, tablCols, null, tableProperties);
-            return (refreshTable(rNewName, rTableName));
+            setIndex(rNewName, rTableCols, null, rTableProperties);
+ 
+            return (xcHelper.when(refreshTable(lNewName, lTableName),
+                                  refreshTable(rNewName, rTableName)));
         })
-        .then(function() {
-            if (loclNewTable) {
-                xcHelper.lockTable(rTableNum);
-            }
+        .then(function(ret1, ret2) {
 
             xcHelper.unlockTable(lTableName, true);
             xcHelper.unlockTable(rTableName, true);
@@ -580,7 +579,7 @@ window.xcFunction = (function ($, xcFunction) {
             StatusMessage.success(msgId);
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail(function(err1, err2) {
             xcHelper.unlockTable(lTableName);
             xcHelper.unlockTable(rTableName);
 
@@ -588,7 +587,9 @@ window.xcFunction = (function ($, xcFunction) {
             WSManager.removeTable(rNewName);
 
             StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
-            deferred.reject(error);
+            var ret1 = thriftLog("DualMap", err1);
+            var ret2 = thriftLog("DualMap", err2);
+            deferred.reject(ret1+", "+ret2);
         });
 
         return (deferred.promise());
