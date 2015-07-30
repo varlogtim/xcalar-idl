@@ -1,5 +1,10 @@
 var tHandle = xcalarConnectThrift(hostname, portNumber.toString());
-var funcFailPercentage = {};
+// for convenience, add the function list here and make them
+// comment in deafult
+var funcFailPercentage = {
+    // "XcalarGetDatasets": -1,
+    // "XcalarGetTables": -1
+};
 var defaultFuncFailPercentage = 0.5;
 var errorInjection = false;
 
@@ -151,10 +156,10 @@ function promiseWrapper(value) {
 
 // ======================== ERROR INJECTION TESTING =========================//
 function getFailPercentage(funcName) {
-    if (!funcFailPercentage[funcName]) {
-        return (defaultFuncFailPercentage);
-    } else {
+    if (funcFailPercentage.hasOwnProperty(funcName)) {
         return (funcFailPercentage[funcName]);
+    } else {
+        return (defaultFuncFailPercentage);
     }
 }
 

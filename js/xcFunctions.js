@@ -766,19 +766,28 @@ window.xcFunction = (function ($, xcFunction) {
             var del2 = false;
             if (ret1 && ret1.error != null &&
                 !(ret2 && (ret2.error != null))) {
-                // This one has an error
+                // Left table has an error, should del right table
                 del2 = true;
             }
             if (ret2 && ret2.error != null &&
                 !(ret1 && (ret1.error != null))) {
-                // This one has an error
+                // Right table has an error, should del left table
                 del1 = true;
             }
+
+            var res;
+            var failed;
+            var sqlOptions;
+
             if (del1) {
-                var res = ret1;
-                var failed = ret2;
-                var sqlOptions = {"operation": "deleteTable",
-                                  "tableName": res.tableName};
+                // delete left table (rigt table error)
+                res = ret1;
+                failed = ret2;
+                sqlOptions = {
+                    "operation": "deleteTable",
+                    "tableName": res.tableName
+                };
+
                 XcalarDeleteTable(res.tableName, sqlOptions)
                 .always(function() {
                     console.error("Parallel index fails in rightTable",
@@ -786,17 +795,27 @@ window.xcFunction = (function ($, xcFunction) {
                     deferred.reject(failed);
                 });
             }
+
             if (del2) {
-                var res = ret2;
-                var failed = ret1;
-                var sqlOptions = {"operation": "deleteTable",
-                                  "tableName": res.tableName};
+                // delete right table (left table error)
+                res = ret2;
+                failed = ret1;
+                sqlOptions = {
+                    "operation": "deleteTable",
+                    "tableName": res.tableName
+                };
+
                 XcalarDeleteTable(res.tableName, sqlOptions)
                 .always(function() {
                     console.error("Parallel index fails in leftTable",
                                   failed);
                     deferred.reject(failed);
                 });
+            }
+
+            if (!del1 && !de2) {
+                // when both fails, nothing need to delete
+                deferred.reject(ret1, ret2);
             }
         });
         return (deferred.promise());
