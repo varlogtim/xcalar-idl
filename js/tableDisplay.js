@@ -35,14 +35,14 @@ function refreshTable(newTableName, oldTableName,
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("refreshTable fails!");
+            console.error("refreshTable fails!");
             deferred.reject(error);
         });
     } else {
         // default
         var targetTable = oldTableName;
         var tablesToRemove    = [];
-        var delayTableRemoval = true;
+        // var delayTableRemoval = true;
 
         if (additionalTableName) {
             var firstTableNum = xcHelper.getTableIndexFromName(oldTableName);
@@ -76,7 +76,7 @@ function refreshTable(newTableName, oldTableName,
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("refreshTable fails!");
+            console.error("refreshTable fails!");
             deferred.reject(error);
         });
     }
@@ -262,7 +262,7 @@ function deleteTable(tableNum, tableName, deleteArchived, sqlOptions) {
     var table = deleteArchived ? gHiddenTables[tableNum] : gTables[tableNum];
     var tableName = tableName || table.tableName;
     var resultSetId;
-    if (tableNum === undefined) {
+    if (tableNum == null) {
         resultSetId = -1;
     } else {
         resultSetId = table.resultSetId;
@@ -602,8 +602,9 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
     var width      = option.width || 0;
     if (option.isHidden) {
         width = 15;
-    } 
-    var tooltip    = columnClass.indexOf("indexedColumn") < 0 ? "" :
+    }
+
+    var tooltip = columnClass.indexOf("indexedColumn") < 0 ? "" :
                      ' title="Indexed Column" data-toggle="tooltip" ' +
                      'data-placement="top" data-container="body"';
     var columnHeadTd =

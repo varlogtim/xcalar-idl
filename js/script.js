@@ -274,7 +274,7 @@ function setupHiddenTable(tableName) {
         if (index && index.length > 0) {
             gHiddenTables[lastIndex].tableCols = index;
         } else {
-            console.log("Not stored", gHiddenTables[lastIndex].tableName);
+            console.warn("Not stored", gHiddenTables[lastIndex].tableName);
         }  
 
         deferred.resolve();
@@ -605,7 +605,6 @@ function initializeTable() {
             }
         })
         .fail(function(error) {
-            console.error("InitializeTable fails!", error);
             deferred.reject(error);
         });
     })
@@ -639,11 +638,11 @@ function documentReadyIndexFunction() {
             WSManager.focusOnWorksheet();
         })
         .fail(function(error) {
-            if (typeof(error) === "string" && error.indexOf("No workb") >= 0) {
-                return;
+            if (error === WKBKManager.noWkBkError) {
+                WorkbookModal.forceShow();
+            } else {
+                Alert.error("Setup fails", error);
             }
-            Alert.error("Setup fails", error);
-            console.error("Initialization fails!", error);
         });
     });
 }

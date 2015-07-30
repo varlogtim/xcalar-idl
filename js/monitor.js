@@ -70,8 +70,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
                                                          numNodes);
             updateDonutSection(allStats, numNodes);
         })
-        .fail(function() {
-            console.log('XcalarGetStats failed');
+        .fail(function(error) {
+            console.error('XcalarGetStats failed', error);
         });
     };
 
@@ -524,7 +524,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 var numGraphs = 2;
                 for (var i = 0; i < numGraphs; i++) {
                     var xVal = allStats[i].sumUsed;
-                    if (i == 0) { // cpu %
+                    if (i === 0) { // cpu %
                         xVal /= numNodes;
                         xVal = Math.min(100, xVal);
                     }
@@ -553,8 +553,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 }
                 
             })
-            .fail(function() {
-                console.log('XcalarGetStats failed');
+            .fail(function(error) {
+                console.error('XcalarGetStats failed', error);
             });
 
             count++;

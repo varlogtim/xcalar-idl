@@ -501,6 +501,8 @@ window.WKBKManager = (function($, WKBKManager) {
     var activeWKBKKey = generateKey(username, "activeWorkbook");
     var activeWKBKId;
 
+    WKBKManager.noWkBkError = "No workbook for the user";
+
     // initial setup
     WKBKManager.setup = function() {
         var deferred = jQuery.Deferred();
@@ -510,8 +512,7 @@ window.WKBKManager = (function($, WKBKManager) {
             var innerDeferred = jQuery.Deferred();
             // if no any workbook, force displaying the workbook modal
             if (wkbkId == null) {
-                innerDeferred.reject("No workbook for the user");
-                WorkbookModal.forceShow();
+                innerDeferred.reject(WKBKManager.noWkBkError);
             } else {
                 innerDeferred.resolve(wkbkId);
             }
@@ -529,7 +530,7 @@ window.WKBKManager = (function($, WKBKManager) {
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log("KVStore setup fails", error);
+            console.error("KVStore setup fails", error);
             deferred.reject(error);
         });
 

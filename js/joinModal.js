@@ -323,7 +323,7 @@ window.JoinModal = (function($, JoinModal) {
         for (var i = 0; i < leftCols.length; i++) {
             leftString += leftCols[i] + ", ";
         }
-        leftString = leftString.substring(0, leftString.length-2);
+        leftString = leftString.substring(0, leftString.length - 2);
         leftString += ')';
 
         // right table
@@ -336,7 +336,7 @@ window.JoinModal = (function($, JoinModal) {
             rightString += rightCols[i] + ", ";
         }
 
-        rightString = rightString.substring(0, rightString.length-2);
+        rightString = rightString.substring(0, rightString.length - 2);
         rightString += ')';
         resetJoinTables();
 

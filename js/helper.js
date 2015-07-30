@@ -823,12 +823,14 @@ window.xcHelper = (function($, xcHelper) {
         var returns = [];
         var argument = arguments;
         var hasFailures = false;
-        for (var i = 0; i<numProm; i++) {
+
+        for (var i = 0; i < numProm; i++) {
             (function(i) {
                 argument[i].then(function(ret) {
-                    console.log("Promise "+i+" done!");
+                    console.log("Promise", i, "done!");
                     numDone++;
                     returns[i] = ret;
+
                     if (numDone === numProm) {
                         console.log("All done!");
                         if (hasFailures) {
@@ -838,7 +840,7 @@ window.xcHelper = (function($, xcHelper) {
                         }
                     }
                 }, function(ret) {
-                    console.warn("Promise "+i+" failed!");
+                    console.warn("Promise", i, "failed!");
                     numDone++;
                     returns[i] = ret;
                     hasFailures = true;
@@ -852,7 +854,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return (mainDeferred.promise());
-    }
+    };
 
     return (xcHelper);
 }(jQuery, {}));

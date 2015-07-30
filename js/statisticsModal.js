@@ -365,7 +365,7 @@ window.STATSManager = (function($, STATSManager) {
                     value = $.parseJSON(kvPairs[i].value);
                     groupByInfo.data.push(value);
                 } catch (error) {
-                    console.log(error, kvPairs[i].value);
+                    console.error(error, kvPairs[i].value);
                     deferred.reject(error);
                     return (null);
                 }

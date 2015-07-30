@@ -276,7 +276,7 @@ window.xcFunction = (function ($, xcFunction) {
             var newTableCols = createJoinedColumns(leftTable, rightTable,
                                                     leftRemoved, rightRemoved);
             setIndex(newTableName, newTableCols);
-            // console.log('pause');
+
             return (refreshTable(newTableName, leftTableName,
                                  KeepOriginalTables.DontKeep,
                                  rightTableName));
@@ -454,7 +454,7 @@ window.xcFunction = (function ($, xcFunction) {
 
             // map do not change groupby stats of the table
             if (table.statsCols) {
-                tableProperties.statsCols = xcHelper.deepCopy(table.statsCols)
+                tableProperties.statsCols = xcHelper.deepCopy(table.statsCols);
             }
 
             setIndex(newTableName, tablCols, null, tableProperties);
@@ -589,7 +589,7 @@ window.xcFunction = (function ($, xcFunction) {
             StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
             var ret1 = thriftLog("DualMap", err1);
             var ret2 = thriftLog("DualMap", err2);
-            deferred.reject(ret1+", "+ret2);
+            deferred.reject(ret1 + ", " + ret2);
         });
 
         return (deferred.promise());
@@ -764,13 +764,13 @@ window.xcFunction = (function ($, xcFunction) {
             // good state
             var del1 = false;
             var del2 = false;
-            if (ret1 && ret1.error != undefined &&
-                !(ret2 && (ret2.error != undefined))) {
+            if (ret1 && ret1.error != null &&
+                !(ret2 && (ret2.error != null))) {
                 // This one has an error
                 del2 = true;
             }
-            if (ret2 && ret2.error != undefined &&
-                !(ret1 && (ret1.error != undefined))) {
+            if (ret2 && ret2.error != null &&
+                !(ret1 && (ret1.error != null))) {
                 // This one has an error
                 del1 = true;
             }

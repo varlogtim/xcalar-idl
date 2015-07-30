@@ -15,9 +15,10 @@ window.OperationsModal = (function($, OperationsModal) {
     
     var modalHelper = new xcHelper.Modal($operationsModal);
     var corrector;
+
     OperationsModal.getOperatorsMap = function() {
         return (operatorsMap);
-    }
+    };
 
     OperationsModal.setup = function() {
         var allowInputChange = true;
@@ -421,12 +422,12 @@ window.OperationsModal = (function($, OperationsModal) {
                 operatorsMap[opArray[i].category] = [];
             }
             operatorsMap[opArray[i].category].push(opArray[i]);
-        } 
+        }
     }
 
     function udfUpdateOperatorsMap(opArray) {
         var arrayLen = opArray.length;
-        var udfCategoryNum = FunctionCategoryT['FunctionCategoryUdf'];
+        var udfCategoryNum = FunctionCategoryT.FunctionCategoryUdf;
         if (opArray.length === 0) {
             delete operatorsMap[udfCategoryNum];
             return;
@@ -740,7 +741,8 @@ window.OperationsModal = (function($, OperationsModal) {
                     typeId = operObj.argDescs[i].typesAccepted;
                 } else {
                     description = "";
-                    typeId = Math.pow(2, Object.keys(DfFieldTypeT).length+1)-1; 
+                    var keyLen = Object.keys(DfFieldTypeT).length;
+                    typeId = Math.pow(2, keyLen + 1) - 1;
                 }
 
                 var $input = $rows.eq(i).find('input');
@@ -1231,7 +1233,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         var validNameFound = false;
-        var limit = 20; // we won't try more than 20 times
+        // var limit = 20; // we won't try more than 20 times
         var newName = name;
         // if (newName in takenNames) {
             // for (var i = 1; i < limit; i++) {

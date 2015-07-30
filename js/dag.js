@@ -715,7 +715,7 @@ window.Dag = (function($, Dag) {
             var timer = $dagTable.data('hover');
             if (timer) {
                 clearTimeout(timer);
-            } 
+            }
             $('#dagSchema').remove();
         });
 
@@ -1332,7 +1332,7 @@ window.DagModal = (function($, DagModal){
                     .not(".unfilled").each(function() {
                         var name = $(this).find(".paramName").text();       
                         var val = $(this).find(".paramVal").val();
-                        // console.log("Name: " + name + ", val: " + val);
+
                         promises.push(XcalarAddParameterToRetina
                                             .bind(this, retName, name, val));
                     });
@@ -1345,7 +1345,7 @@ window.DagModal = (function($, DagModal){
                 var paramInput = new XcalarApiParamInputT();
                 // XXX: HACK!!!
                 var dagId = $dagModal.data('id');
-                console.log(dagId);
+                // console.log(dagId);
                 if (retName === "") {
                     // XXX: Insert hack in case demo fail
                 }
@@ -1380,11 +1380,11 @@ window.DagModal = (function($, DagModal){
                                 filter = "eq";
                                 break;
                             default:
-                                console.log("currently not supported filter");
+                                console.warn("currently not supported filter");
                                 return (promiseWrapper(null));
                         }
                         str = filter + "(" + str1 + "," + str2 + ")";
-                        console.log("Filter String:", str);
+                        // console.log("Filter String:", str);
                         paramInput.paramFilter = new XcalarApiParamFilterT();
                         paramInput.paramFilter.filterStr = str;
                         return (XcalarUpdateRetina(retName,
@@ -1394,7 +1394,7 @@ window.DagModal = (function($, DagModal){
                     case ("Load"):
                         str = $(".editableParamDiv").text();
                         str = str.replace(/\+/g, "");
-                        console.log(str);
+                        // console.log(str);
                         paramInput.paramLoad = new XcalarApiParamLoadT();
                         paramInput.paramLoad.datasetUrl = str;
                         return (XcalarUpdateRetina(retName,
@@ -1402,7 +1402,7 @@ window.DagModal = (function($, DagModal){
                                                    XcalarApisT.XcalarApiBulkLoad,
                                                    paramInput));
                     default:
-                        console.log("currently not supported");
+                        console.warn("currently not supported");
                         break;
                 }
             })

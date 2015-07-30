@@ -71,7 +71,6 @@ window.RightSideBar = (function($, RightSideBar) {
 
         // validation check
         if (validAction.indexOf(action) < 0) {
-            console.error("Invalid action!");
             deferred.reject("Invalid action!");
             return (deferred.promise());
         }
@@ -232,7 +231,7 @@ window.RightSideBar = (function($, RightSideBar) {
         })
         .fail(function(error) {
             console.error(error);
-            deferred.reject();
+            deferred.reject(error);
         });
         return (deferred.promise());
     }
@@ -570,13 +569,6 @@ window.RightSideBar = (function($, RightSideBar) {
             } else {
                 var reader = new FileReader();
                 reader.onload = function(event) {
-                    // console.log(event.target.result);
-                    var wholeFile = event.target.result;
-                    functionName = findFunctionName(wholeFile);
-                    if (functionName === "") {
-                        functionName = moduleName;
-                        console.log("XXX no function definition");
-                    }
                     xcHelper.disableSubmit($submitBtn);
                     // XXX: Change cursor, handle failure
                     XcalarUploadPython(moduleName, event.target.result)
@@ -671,12 +663,6 @@ window.RightSideBar = (function($, RightSideBar) {
             } else {
                 moduleName = fileName;
             }
-            var functionName = findFunctionName(entireString);
-            
-            if (functionName === "") {
-                console.log("XXX no function definition");
-                functionName = moduleName;
-            }
 
             // XXX: Change cursor, handle failure
             XcalarUploadPython(moduleName, entireString)
@@ -696,7 +682,6 @@ window.RightSideBar = (function($, RightSideBar) {
 
     function multiJoinUDFUpload() {
         var moduleName = "multiJoinModule";
-        var functionName = "multiJoin";
         var entireString =
             'def multiJoin(*arg):\n' +
                 '\tstri = ""\n' +
@@ -725,17 +710,17 @@ window.RightSideBar = (function($, RightSideBar) {
     function setupHelpSection() {
         // XXX !!! landmine section to restart node
         $("#helpSubmit").click(function() {
-            console.log('Reset Fired!');
+            console.info('Reset Fired!');
             emptyAllStorage()
             .then(function() {
-                console.log("Shut Down Successfully!");
+                console.info("Shut Down Successfully!");
                 return (XcalarStartNodes(2));
             }, function(error) {
                 console.error("Failed to write! Commencing shutdown", error);
                 return (XcalarStartNodes(2));
             })
             .then(function() {
-                console.log("Restart Successfully!");
+                console.info("Restart Successfully!");
                 // refresh page
                 location.reload();
             });
@@ -1006,7 +991,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 generateOrphanList(gOrphanTables);
             }, 400);
             
-            var $waitingIcon = $('<div class="waitingIcon" '+
+            var $waitingIcon = $('<div class="waitingIcon" ' +
                               'style="top:50%; width:100%; display:block;' +
                               'background-position-x: 50%"></div>');
             $('#orphanedTableList').append($waitingIcon);

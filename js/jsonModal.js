@@ -171,13 +171,14 @@ window.JSONModal = (function($, JSONModal) {
         
         var tableCols   = gTables[tableNum].tableCols;
         var numCols = tableCols.length;
-        var scanIndex = scanIndex || 0;
+
+        scanIndex = scanIndex || 0;
         for (var i = scanIndex; i < numCols; i++) {
             if (tableCols[i].name.indexOf(newName) !== -1) {
                 if (newName === tableCols[i].name) {
                     newName = getUniqueColName(name, tableNum, ++index, i);
                     break;
-                } 
+                }
             }
         }
         return newName;
@@ -289,7 +290,7 @@ window.JSONModal = (function($, JSONModal) {
         if ($searchBar.hasClass('closed')) {
             $searchBar.removeClass('closed');
             setTimeout(function() {
-               $searchBar.find('input').focus();
+                $searchBar.find('input').focus();
             }, 310);
             
         } else {

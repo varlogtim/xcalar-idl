@@ -22,8 +22,6 @@ window.Authentication = (function($, Authentication) {
             }
 
             user = users[username];
-
-            // console.warn("user", user);
         })
         .fail(function(error) {
             console.error("Authentication setup fails", error);
@@ -59,7 +57,7 @@ window.Authentication = (function($, Authentication) {
     };
 
     function generateHashId(id) {
-        var str =  "0123456789" +
+        var str = "0123456789" +
                     "abcedfghijklmnopqrstuvwxyz" +
                     "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 

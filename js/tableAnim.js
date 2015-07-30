@@ -107,7 +107,8 @@ function gRescolMouseUp() {
 function gResrowMouseDown(el, event) {
     gMouseStatus = "resizingRow";
     var resrow = gResrow;
-    var $table = el.closest('table')
+    var $table = el.closest('table');
+
     resrow.mouseStart = event.pageY;
     resrow.targetTd = el.closest('td');
     resrow.tableNum = parseInt($table.attr('id').substring(7));
@@ -380,7 +381,7 @@ function createTransparentDragDropCol() {
     var cloneHTML = "";
     //XXX check to see if topRowEl was found;
     if (topRowIndex === -1) {
-        console.log("BUG! Cannot find first visible row??");
+        console.error("BUG! Cannot find first visible row??");
         // Clone entire shit and be.then.
         dragObj.table.find('tr').each(function(i, ele) {
             cloneHTML += cloneCellHelper(ele);
@@ -814,7 +815,7 @@ function createTableHeader(tableNum) {
         }
     }, ".tableTitle .text");
 
-    $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function(event) {
+    $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function() {
         dropdownClick($(this), {"type": "tableDropdown"});
     });
 
@@ -1794,7 +1795,7 @@ function parseFunc(funcString, colId, tableNum, modifyCol) {
     } else {
         progCol = ColManager.newCol();
     }
-    // console.log(progCol)
+
     progCol.userStr = funcString;
     progCol.name = name;
     progCol.func = cleanseFunc(funcSt);
@@ -1951,7 +1952,7 @@ function changeColumnType($typeList) {
         mapStr += "string(";
         break;
     default:
-        console.log("XXX no such operator! Will guess");
+        console.warn("XXX no such operator! Will guess");
         mapStr += newType + "(";
     }
 
@@ -2057,10 +2058,11 @@ function moveTableDropdownBoxes() {
         }
     });
 
+    var tablesAreVisible;
     if ($startingTableHead && $startingTableHead.length > 0) {
-        var tablesAreVisible = true;
+        tablesAreVisible = true;
     } else {
-        var tablesAreVisible = false;
+        tablesAreVisible = false;
     }
     
     var rightSideBarWidth = 10;
@@ -2089,11 +2091,11 @@ function moveTableDropdownBoxes() {
 
 function moveTableTitles() {
     var viewWidth = $('#mainFrame').width();
-    $('.xcTableWrap:not(".inActive"):not(.tableHidden)').each(function(i) {
+    $('.xcTableWrap:not(".inActive"):not(.tableHidden)').each(function() {
         var $table = $(this);
         var $thead = $table.find('.xcTheadWrap');
         if ($thead.length === 0) {
-            return;
+            return null;
         }
         var rect = $thead[0].getBoundingClientRect();
         if (rect.right > 0) {
@@ -2102,16 +2104,16 @@ function moveTableTitles() {
                 var titleWidth = $tableTitle.outerWidth();
                 var tableWidth = $thead.width();
                 var center;
-                if (rect.left < 0) { 
+                if (rect.left < 0) {
                     // left side of table is offscreen to the left
                     if (rect.right > viewWidth) { // table spans the whole screen
-                        center = -rect.left +  ((viewWidth - titleWidth)/ 2);
+                        center = -rect.left + ((viewWidth - titleWidth) / 2);
                     } else { // right side of table is visible
-                        center = tableWidth - ((rect.right + titleWidth)/2);
+                        center = tableWidth - ((rect.right + titleWidth) / 2);
                         center = Math.min(center, tableWidth - titleWidth - 6);
                     }
                 } else { // the left side of the table is visible
-                    if (rect.right < viewWidth) { 
+                    if (rect.right < viewWidth) {
                         // the right side of the table is visible
                         center = (tableWidth - titleWidth) / 2;
                     } else { // the right side of the table isn't visible
@@ -2132,7 +2134,7 @@ function focusTable(tableNum) {
     var tableName = gTables[tableNum].tableName;
     if (WSManager.getWSFromTable(tableName) !== WSManager.getActiveWS())
     {
-        console.log("Table not in current worksheet");
+        console.error("Table not in current worksheet");
         return;
     }
 
@@ -2407,8 +2409,10 @@ function reorderAfterTableDrop() {
 
 function moveFirstColumn($targetTable) {
     var rightOffset;
+    var datasetPreview;
+
     if (!$targetTable) {
-        var datasetPreview = false;
+        datasetPreview = false;
         $('.xcTableWrap:not(".inActive")').each(function() {
             rightOffset = $(this)[0].getBoundingClientRect().right;
             if (rightOffset > 0) {
@@ -2417,17 +2421,19 @@ function moveFirstColumn($targetTable) {
             }
         });
     } else {
-        var datasetPreview = true;
+        datasetPreview = true;
     }
     
     if ($targetTable && $targetTable.length > 0) {
         var $idCol =  $targetTable.find('.idSpan');
         var cellWidth = $idCol.width();
+        var scrollLeft;
+
         if (datasetPreview) {
-            var scrollLeft = -($targetTable.offset().left -
+            scrollLeft = -($targetTable.offset().left -
                               $('#datasetWrap').offset().left);
         } else {
-            var scrollLeft = -$targetTable.offset().left;
+            scrollLeft = -$targetTable.offset().left;
         }
         
         var rightDiff = rightOffset - (cellWidth + 15);

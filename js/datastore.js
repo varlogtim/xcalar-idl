@@ -16,7 +16,7 @@ window.DataStore = (function($, DataStore) {
             $(".numDataStores").text(numDatasets);
         } else {
             // XXX Cheng: Here sync with backend beause other user
-            // can also add/rm dataset, but now we have now way to
+            // can also add/rm dataset, but now we have no way to
             // show others' ds except refreshing the browser
             XcalarGetDatasets()
             .then(function(datasets) {
@@ -2074,8 +2074,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
             if (event.shiftKey && previousColSelected) {
 
                 var startIndex = previousColSelected.closest("th").index();
-                var highlight = gLastClickTarget.closest("th")
-                                .hasClass('selectedCol');
+                // var highlight = gLastClickTarget.closest("th")
+                //                 .hasClass('selectedCol');
                 var isHighlighted = $input.closest('th')
                                           .hasClass('selectedCol');
 
@@ -2176,7 +2176,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     // sample table html
     function getSampleTableHTML(dsName, jsonKeys, jsons) {
-        console.log(jsonKeys);
         // validation check
         if (!dsName || !jsonKeys || !jsons) {
             return "";
@@ -2779,8 +2778,6 @@ window.DS = (function ($, DS) {
         }
 
         var loadURL = ds.attrs.path;
-        // var urlLen  = loadURL.length;
-        // console.log(loadURL[urlLen - 1], loadURL);
 
         var slashIndex = loadURL.lastIndexOf('/');
         var dotIndex   = loadURL.lastIndexOf('.');
@@ -2795,7 +2792,7 @@ window.DS = (function ($, DS) {
             deferred.resolve(ds.attrs.fileSize);
         })
         .fail(function(error) {
-            console.error(error);
+            console.error("List file fails", error);
             ds.attrs.fileSize = null;
             deferred.resolve(null);
         });
@@ -3161,7 +3158,7 @@ window.DS = (function ($, DS) {
 
             // when this is not a folder
             if (!this.isFolder) {
-                console.error("Error call", "only folder can call this function");
+                console.error("Error call, only folder can call this function");
                 return false;
             }
 
