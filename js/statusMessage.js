@@ -25,6 +25,7 @@ window.StatusMessage = (function($, StatusMessage) {
 
     StatusMessage.addMsg = function(msgObj) {
         msgObj = msgObj || {};
+        msgObj.worksheetNum = WSManager.getActiveWS();
 
         var msg = msgObj.msg || StatusMessageTStr.Loading;
         msgIdCount++;
@@ -282,8 +283,8 @@ window.StatusMessage = (function($, StatusMessage) {
             return;
         }
         if (operation === 'data set load') {
+            // only display notification if not on data store tab
             if (!$('#dataStoresTab').hasClass('active')) {
-                
                 $popups = $('.tableDonePopup.datastoreNotify');
                 if ($popups.length !== 0) {
                     $popupWrap = $popups.parent();
@@ -307,48 +308,58 @@ window.StatusMessage = (function($, StatusMessage) {
             classes += ' workspaceNotify';
             popupNeeded = true;
         } else {
-            var tableName = msgObjs[msgId].tableName;
-            var visibility = tableVisibility(tableName);
-
-            if (visibility !== 'visible') {
+            var wsNum = msgObjs[msgId].worksheetNum;
+            var activeWS = WSManager.getActiveWS() || 0;
+            if (wsNum !== activeWS || failed) { 
+                // we're on a different worksheet than the table is on
+                // so position the popup next to the worksheet tab
                 popupNeeded = true;
-                if (visibility === 'left') {
-                    $popups = $('.tableDonePopup.leftSide');
-                    if ($popups.length !== 0) {
-                        $popupWrap = $popups.parent();
-                        $popupWrap.append($tableDonePopup);
-                        popupWrapExists = true;
-                    } else {
-                        pos.left = 6;
-                        pos.top = Math.max(200, ($(window).height() / 2) - 150);
-                    }
-                    classes += ' leftSide';
-                } else if (visibility === 'right') {
-                    $popups = $('.tableDonePopup.rightSide');
-                    if ($popups.length !== 0) {
-                        $popupWrap = $popups.parent();
-                        $popupWrap.append($tableDonePopup);
-                        popupWrapExists = true;
-                    } else {
-                        pos.right = 15;
-                        pos.top = Math.max(200, ($(window).height() / 2) - 150);
-                        arrow = 'rightArrow';
-                    }
-                    classes += ' rightSide';
+                $popups = $('.tableDonePopup.worksheetNotify' + wsNum);
+                if ($popups.length !== 0) {
+                    $popupWrap = $popups.parent();
+                    $popupWrap.prepend($tableDonePopup);
+                    popupWrapExists = true;
                 } else {
-                    $popups = $('.tableDonePopup.worksheetNotify' + visibility);
-                    if ($popups.length !== 0) {
-                        $popupWrap = $popups.parent();
-                        $popupWrap.prepend($tableDonePopup);
-                        popupWrapExists = true;
-                    } else {
-                        popupNearTab = $('#worksheetTab-' + visibility);
-                        popupBottom = true;
-                    }
-                    classes += ' worksheetNotify';
-                    classes += ' worksheetNotify' + visibility;
+                    popupNearTab = $('#worksheetTab-' + wsNum);
+                    popupBottom = true;
                 }
-            }
+                classes += ' worksheetNotify';
+                classes += ' worksheetNotify' + wsNum;
+            } else { 
+                // we're on the correct worksheet, now find if table is visible
+                var tableName = msgObjs[msgId].tableName;
+                var visibility = tableVisibility(tableName);
+
+                if (visibility !== 'visible') {
+                    popupNeeded = true;
+                    if (visibility === 'left') {
+                        $popups = $('.tableDonePopup.leftSide');
+                        if ($popups.length !== 0) {
+                            $popupWrap = $popups.parent();
+                            $popupWrap.append($tableDonePopup);
+                            popupWrapExists = true;
+                        } else {
+                            pos.left = 6;
+                            pos.top = Math.max(200, ($(window).height() / 2)
+                                                     - 150);
+                        }
+                        classes += ' leftSide';
+                    } else if (visibility === 'right') {
+                        $popups = $('.tableDonePopup.rightSide');
+                        if ($popups.length !== 0) {
+                            $popupWrap = $popups.parent();
+                            $popupWrap.append($tableDonePopup);
+                            popupWrapExists = true;
+                        } else {
+                            pos.right = 15;
+                            pos.top = Math.max(200, ($(window).height() / 2)
+                                                      - 150);
+                            arrow = 'rightArrow';
+                        }
+                        classes += ' rightSide';
+                    } 
+                }
+            }            
         }
 
         if (popupNeeded) {
@@ -384,7 +395,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 $tableDonePopup.fadeIn(200, function() {
                     var displayTime = 2500;
                     if (failed) {
-                        displayTime = 4000;
+                        displayTime = 5000;
                     }
                     setTimeout(function() {
                         $tableDonePopup.fadeOut(200, function(){
