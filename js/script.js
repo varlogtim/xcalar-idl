@@ -639,6 +639,9 @@ function documentReadyIndexFunction() {
             WSManager.focusOnWorksheet();
         })
         .fail(function(error) {
+            if (typeof(error) === "string" && error.indexOf("No workb") >= 0) {
+                return;
+            }
             Alert.error("Setup fails", error);
             console.error("Initialization fails!", error);
         });
