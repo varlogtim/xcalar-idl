@@ -252,6 +252,13 @@ window.STATSManager = (function($, STATSManager) {
         var groupbyTable;
         var colName = statsCol.colName;
         var tableToDelete;
+        var msg = StatusMessageTStr.Statistics + ' for ' + colName;
+        var msgObj = {
+            "msg"      : msg,
+            "operation": "Statistical analysis",
+            "tableName"  : tableName
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
 
         checkTableIndex(tableName, colName, keyName)
         .then(function(indexedTableName) {
@@ -285,7 +292,7 @@ window.STATSManager = (function($, STATSManager) {
                 return (getResultSet(groupbyTable));
             } catch (error) {
                 console.error(error, val);
-                deferred.reject(error);
+                return (jQuery.Deferred().reject(error));
             }
         })
         .then(function(resultSet) {
@@ -300,8 +307,12 @@ window.STATSManager = (function($, STATSManager) {
                 // delete the indexed table if exist
                 XcalarDeleteTable(tableToDelete);
             }
+            var noNotification = true;
+            StatusMessage.success(msgId, noNotification);
         })
         .fail(function(error) {
+            // XX The modal shows a waiting icon forever, need to update it status
+            StatusMessage.fail(StatusMessageTStr.StatisticsFailed, msgId);
             console.error(error);
         });
     }

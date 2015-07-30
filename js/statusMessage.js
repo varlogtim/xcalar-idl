@@ -23,6 +23,7 @@ window.StatusMessage = (function($, StatusMessage) {
         });
     };
 
+    // msgObj should have these properties: msg, operation, tableName
     StatusMessage.addMsg = function(msgObj) {
         msgObj = msgObj || {};
         msgObj.worksheetNum = WSManager.getActiveWS();
@@ -68,8 +69,12 @@ window.StatusMessage = (function($, StatusMessage) {
         stopRotation();
     };
 
-    StatusMessage.success = function(msgId) {
-        showDoneNotification(msgId);
+    StatusMessage.success = function(msgId, noNotification) {
+        if (!noNotification) {
+            showDoneNotification(msgId);
+        } else {
+            delete msgObjs[msgId];
+        }
 
         inScroll.then(function() {
             var $successSpan = $statusText.find('#stsMsg-' + msgId);

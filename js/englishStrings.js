@@ -24,7 +24,9 @@ StatusMessageTStr = {
 'GroupBy' : 'Performing Group By',
 'GroupByFailed' : 'Group By failed',
 'Filter' : 'Filtering column',
-'FilterFailed' : 'Filter failed'
+'FilterFailed' : 'Filter failed',
+'Statistics' : 'Generating statistical analysis',
+'StatisticsFailed' : 'Statistical analysis failed'
 }
 
 TooltipTStr = {
