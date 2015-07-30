@@ -638,9 +638,11 @@ function documentReadyIndexFunction() {
             WSManager.focusOnWorksheet();
         })
         .fail(function(error) {
-            if (error === WKBKManager.noWkBkError) {
-                WorkbookModal.forceShow();
+            if (typeof error === "string"){
+                // when it's a front end error, already has handler
+                console.error("Setup fails", error)
             } else {
+                // when it's an error from backend we cannot handle
                 Alert.error("Setup fails", error);
             }
         });

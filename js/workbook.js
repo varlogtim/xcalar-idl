@@ -501,8 +501,6 @@ window.WKBKManager = (function($, WKBKManager) {
     var activeWKBKKey = generateKey(username, "activeWorkbook");
     var activeWKBKId;
 
-    WKBKManager.noWkBkError = "No workbook for the user";
-
     // initial setup
     WKBKManager.setup = function() {
         var deferred = jQuery.Deferred();
@@ -512,7 +510,8 @@ window.WKBKManager = (function($, WKBKManager) {
             var innerDeferred = jQuery.Deferred();
             // if no any workbook, force displaying the workbook modal
             if (wkbkId == null) {
-                innerDeferred.reject(WKBKManager.noWkBkError);
+                innerDeferred.reject("No workbook for the user");
+                WorkbookModal.forceShow();
             } else {
                 innerDeferred.resolve(wkbkId);
             }
