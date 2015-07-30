@@ -29,6 +29,11 @@ function thriftLog(title, errRes) {
         error = errRes;
     }
 
+    // special case when error is Success
+    if (status === StatusT.StatusOk) {
+        error = "Unknown Error";
+    }
+
     var msg = title + " failed with status " + status;
 
     if (status) {
@@ -903,6 +908,7 @@ function XcalarGetNextPage(resultSetId, numEntries) {
             return (deferred.promise());
         }
     }
+
     xcalarResultSetNext(tHandle, resultSetId, numEntries)
     .then(deferred.resolve)
     .fail(function(error) {

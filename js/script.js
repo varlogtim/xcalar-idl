@@ -365,7 +365,7 @@ function documentReadyGeneralFunction() {
             }
             moveTableDropdownBoxes();
         }, 100);
-         moveTableTitles();
+        moveTableTitles();
     });
 
     //XXX using this to keep window from scrolling on dragdrop
@@ -639,6 +639,7 @@ function documentReadyIndexFunction() {
             WSManager.focusOnWorksheet();
         })
         .fail(function(error) {
+            Alert.error("Setup fails", error);
             console.error("Initialization fails!", error);
         });
     });
