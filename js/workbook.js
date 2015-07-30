@@ -793,9 +793,10 @@ window.WKBKManager = (function($, WKBKManager) {
         var newLogKey     = generateKey(newId, "gLog");
 
         // copy all info to new key
-        KVStore.get(oldStorageKey)
-        .then(function(value) {
-            return KVStore.put(newStorageKey, value);
+        KVStore.getAndParse(oldStorageKey)
+        .then(function(gInfos) {
+            gInfos.holdStatus = false;
+            return KVStore.put(newStorageKey, JSON.stringify(gInfos));
         })
         .then(function() {
             return (KVStore.get(oldLogKey));
