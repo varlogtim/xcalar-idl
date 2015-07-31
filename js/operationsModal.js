@@ -886,7 +886,6 @@ window.OperationsModal = (function($, OperationsModal) {
             var arg = $input.val().trim();
 
             typeid = $input.data('typeid');
-            arg = arg.replace(/["']/g, '');
             // col name field, do not add quote
             if ($input.closest(".listSection").hasClass("colNameSection")) {
                 arg = arg.replace(/\$/g, '');
@@ -1133,7 +1132,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         // add quote if the field support string
         if ((typeid & strShift) > 0) {
-            value = '"' + value + '"';
+            value = JSON.stringify(value);
         }
         return (value);
     }

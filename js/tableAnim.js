@@ -1715,8 +1715,8 @@ function addColMenuActions($colMenu) {
 
         if ($header.hasClass("type-integer")) {
             colVal = parseInt(colVal);
-        } else if ($header.hasClass("type-string")){
-            colVal = '\"' + colVal + '\"';
+        } else if ($header.hasClass("type-string")) {
+            colVal = JSON.stringify(colVal);
         } else {
             return;
         }
