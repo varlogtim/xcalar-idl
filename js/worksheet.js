@@ -624,7 +624,7 @@ window.WSManager = (function($, WSManager) {
             var tableName = gTables[i].tableName;
 
             if (WSManager.getWSFromTable(tableName) === wsIndex) {
-                promises.push(deleteActiveTable.bind(this, i));
+                promises.push(deleteActiveTable.bind(this, tableName));
             }
         }
 

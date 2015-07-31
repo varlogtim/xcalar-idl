@@ -11,6 +11,16 @@ window.xcHelper = (function($, xcHelper) {
         return (undefined);
     };
 
+    xcHelper.getTableMeta = function(tableName, isHidden) {
+        var table = isHidden ? gHiddenTables : gTables;
+        for (var i = 0; i < table.length; i++) {
+            if (tableName === table[i].tableName) {
+                return (table[i]);
+            }
+        }
+        return (undefined);
+    }
+
     xcHelper.parseTableNum = function($table) {
         // assumes we are passing in a table with an ID
         // that contains the string 'Table' ex. #xcTable2 or #worksheetTable2

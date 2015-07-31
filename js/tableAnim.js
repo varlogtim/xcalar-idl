@@ -895,7 +895,7 @@ function addTableMenuActions($tableMenu) {
             "msg"       : msg,
             "isCheckBox": true,
             "confirm"   : function() {
-                deleteActiveTable(tableNum)
+                deleteActiveTable(tableName)
                 .then(function() {
                     commitToStorage();
                 })

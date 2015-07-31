@@ -234,14 +234,12 @@ function archiveTable(tableNum, del, delayTableRemoval) {
     moveTableTitles();
 }
 
-function deleteActiveTable(tableNum) {
-    var tableName = gTables[tableNum].tableName;
+function deleteActiveTable(tableName) {
     var deferred = jQuery.Deferred();
 
     var sqlOptions = {"operation": "deleteTable",
                       "tableName": tableName};
-
-    deleteTable(tableNum, null, null, sqlOptions)
+    deleteTable(tableName, null, sqlOptions)
     .then(function() {
         setTimeout(function() {
             if (gTables[gActiveTableNum] &&
@@ -257,13 +255,14 @@ function deleteActiveTable(tableNum) {
     return (deferred.promise());
 }
 
-function deleteTable(tableNum, tableName, deleteArchived, sqlOptions) {
+function deleteTable(tableName, deleteArchived, sqlOptions) {
     var deferred = jQuery.Deferred();
-    var table = deleteArchived ? gHiddenTables[tableNum] : gTables[tableNum];
-    var tableName = tableName || table.tableName;
+    var table = xcHelper.getTableMeta(tableName, deleteArchived);
+    var tableName = tableName;
     var resultSetId;
-    if (tableNum == null) {
-        resultSetId = -1;
+    if (tableName == undefined) {
+        console.warn("DeleteTable: Table Name cannot be null!");
+        return (promiseWrapper(null));
     } else {
         resultSetId = table.resultSetId;
     }
@@ -279,22 +278,31 @@ function deleteTable(tableNum, tableName, deleteArchived, sqlOptions) {
             return (promiseWrapper(null));
         } else {
             // check if it is the only table in this workbook
+            // The following logic can be uncommented when we reenable copy
+            // to worksheet. However, this time, we should have # after the
+            // table name to distinguish between the two tables. This removes
+            // our need to rely on tableNum
+            /**
             for (var i = 0; i < gTables.length; i++) {
-                if (gTables[i].tableName === tableName &&
-                    (deleteArchived || i !== tableNum)) {
+                if (getTNPrefix(gTables[i].tableName) === 
+                    getTNPrefix(tableName) &&
+                    (deleteArchived || getTNSuffix(gTables[i].tableName) !==
+                                       getTNSuffix(tableName))) {
                     console.log("delete copy table");
                     return (promiseWrapper(null));
                 }
             }
 
             for (var i = 0; i < gHiddenTables.length; i++) {
-                if (gHiddenTables[i].tableName === tableName &&
-                    (!deleteArchived || i !== tableNum)) {
+                if (getTNPrefix(gHiddenTables[i].tableName) === 
+                    getTNPrefix(tableName) &&
+                    (deleteArchived || getTNSuffix(gTables[i].tableName) !==
+                                       getTNSuffix(tableName))) {
                     console.log("delete copy table");
                     return (promiseWrapper(null));
                 }
             }
-
+            */
             return (XcalarDeleteTable(tableName, sqlOptions));
         }
     })
@@ -304,8 +312,9 @@ function deleteTable(tableNum, tableName, deleteArchived, sqlOptions) {
 
         // Basically the same as archive table, but instead of moving to
         // gHiddenTables, we just delete it from gTablesIndicesLookup
+        var tableNum = xcHelper.getTableIndexFromName(tableName);
         if (deleteArchived) {
-            gHiddenTables.splice((tableNum), 1);
+            gHiddenTables.splice(tableNum, 1);
             delete (gTableIndicesLookup[tableName]);
         } else {
             archiveTable(tableNum, DeleteTable.Delete);
