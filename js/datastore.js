@@ -670,11 +670,12 @@ window.DataCart = (function($, DataCart) {
 
             // check backend table name to see if has conflict
             XcalarGetTables()
-            .then(function(tables) {
+            .then(function(results) {
                 var innerDeferred = jQuery.Deferred();
-
-                for (var i = 0, len = tables.numTables; i < len; i++) {
-                    tableNames[tables.tables[i].tableName] = true;
+                var tables = results.tables;
+                for (var i = 0, len = results.numTables; i < len; i++) {
+                    var name = xcHelper.unwrapTableName(tables[i].tableName);
+                    tableNames[name] = true;
                 }
 
                 innerCarts.forEach(function(cart) {
@@ -927,7 +928,8 @@ window.DataCart = (function($, DataCart) {
         .then(function(result) {
             var tables = result.tables;
             for (var i = 0; i < result.numTables; i++) {
-                tableNames[tables[i].tableName] = 1;
+                var name = xcHelper.unwrapTableName(tables[i].tableName);
+                tableNames[name] = 1;
             }
 
             var validNameFound = false;
@@ -1096,7 +1098,7 @@ window.DataCart = (function($, DataCart) {
                 var newTableCols = [];
                 var startIndex = 0;
                 var datasetName = cart.dsName;
-                var tableName = cart.tableName;
+                var tableName = cart.tableName + Authentication.fetchHashTag();
 
                 // add sql
                 var sqlOptions = {

@@ -1178,16 +1178,13 @@ function renameTableHead($div) {
         return;
     }
 
-    // in case hash tag is deleted
-    var oldHashIndex = oldTableName.indexOf("#");
-    if (oldHashIndex >= 0 && newTableName.indexOf("#") < 0) {
-        newTableName = $div.find(".tableName").text();
-        newTableName += oldTableName.substring(oldHashIndex);
-    }
+    var hahsId = xcHelper.unwrapHashId(newTableName)
+    newTableName = xcHelper.unwrapTableName(newTableName);
 
     xcHelper.checkDuplicateTableName(newTableName)
     .then(function() {
-        return (xcFunction.rename(tableNum, oldTableName, newTableName));
+        var wholeName = newTableName + "#" + hahsId;
+        return (xcFunction.rename(tableNum, oldTableName, wholeName));
     })
     .then(function() {
         updateTableHeader(null, $div);

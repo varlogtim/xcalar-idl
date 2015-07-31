@@ -91,11 +91,11 @@ window.JoinModal = (function($, JoinModal) {
             xcHelper.checkDuplicateTableName(newTableName)
             .then(function() {
                 var joinType = $joinSelect.find(".text").text();
-
+                var tabeName = newTableName + Authentication.fetchHashTag();
                 if (isMultiJoin) {
-                    multiJoinHelper(joinType, newTableName);
+                    multiJoinHelper(joinType, tabeName);
                 } else {
-                    singleJoinHelper(joinType, newTableName);
+                    singleJoinHelper(joinType, tabeName);
                 }
             })
             .fail(function() {

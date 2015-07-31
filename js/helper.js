@@ -449,22 +449,27 @@ window.xcHelper = (function($, xcHelper) {
         return true;
     };
 
+    xcHelper.unwrapTableName = function(wholeName) {
+        // get out tableName from tableName + hashId
+        var tableName = wholeName.split("#")[0];
+        return (tableName);
+    }
+
+    xcHelper.unwrapHashId = function(wholeName) {
+        // get out hashId from tableName + hashId
+        var hashId = wholeName.split("#")[1];
+        return (hashId);
+    }
+
     xcHelper.checkDuplicateTableName = function(tableName) {
         var deferred = jQuery.Deferred();
-        XcalarGetDatasets()
-        .then(function(result) {
-            var datasets = result.datasets;
-            for (var i = 0; i < result.numDatasets; i++) {
-                if (datasets[i].name === tableName) {
-                    return (deferred.reject('dataset'));
-                }
-            }
-        })
-        .then(XcalarGetTables)
+
+        XcalarGetTables()
         .then(function(result) {
             var tables = result.tables;
             for (var i = 0; i < result.numTables; i++) {
-                if (tables[i].tableName === tableName) {
+                var name = xcHelper.unwrapTableName(tables[i].tableName);
+                if (name === tableName) {
                     return (deferred.reject('table'));
                 }
             }
