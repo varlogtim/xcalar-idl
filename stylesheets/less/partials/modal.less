@@ -652,7 +652,6 @@
 
                             &.inActive {
                                 opacity: 0.5;
-                                pointer-events: none;
                             }
                         }
 
@@ -703,6 +702,9 @@
                             &:hover {
                                 opacity: 1.0;
                             }
+                            &.hovering {
+                                opacity: 1.0;
+                            }
                         }
                     }
                 }
@@ -728,11 +730,6 @@
             }
 
             .mainTable {
-                .tableLabel {
-                    opacity: 0.7;
-                    pointer-events: none;
-                }
-
                 .columnTab {
                     .cursor-move;
                 }

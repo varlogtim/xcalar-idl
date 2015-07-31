@@ -149,21 +149,37 @@ window.JoinModal = (function($, JoinModal) {
         });
 
         // drag over for input box
-        $joinModal.on("dragover", "input", function(event) {
+        $joinModal.on("dragover", "input, div.clause", function(event) {
             var originEvent = event.originalEvent;
 
-            if ($(this).hasClass("clause")){
+            if ($(this).hasClass("clause") && !$(this).hasClass("inActive")) {
                 originEvent.dataTransfer.dropEffect = "copy";
             } else {
                 // other input is non-droppable
                 originEvent.dataTransfer.dropEffect = "none";
             }
-
+            var $parent = $(this).parent();
+            if ($parent.hasClass('placeholder')) {
+                $parent.addClass('hovering');
+            }
             return false;
         });
 
+        $joinModal.on("dragover", ".joinClause.placeholder", function(event) {
+            $(this).addClass('hovering');
+        });
+
+        $joinModal.on("dragleave", ".joinClause.placeholder", function(event) {
+            $(this).removeClass('hovering');
+        });
+
+        $("#mainJoin").on("dragover", function(event) {
+            event.preventDefault(); 
+            // this allows the cursor to not have disallowed appearance
+        });
+
         // drop for input box
-        $joinModal.on("drop", "input", function(event) {
+        $joinModal.on("drop", "input, div.clause", function(event) {
             var $input = $(this);
             var originEvent = event.originalEvent;
 
@@ -174,7 +190,21 @@ window.JoinModal = (function($, JoinModal) {
                 if (clause === "left" && $input.hasClass("leftClause") ||
                     clause === "right" && $input.hasClass("rightClause"))
                 {
-                    $input.val(text);
+                    var $parent = $input.parent();
+                    if ($parent.hasClass('placeholder')) {
+                        $parent.click();
+                        if ($input.hasClass("leftClause")) {
+                            $(".joinClause.placeholder").prev()
+                                                        .find(".leftClause")
+                                                        .val(text);
+                        } else {
+                            $(".joinClause.placeholder").prev()
+                                                        .find(".rightClause")
+                                                        .val(text);
+                        }
+                    } else {
+                        $input.val(text);
+                    }
                 }
             }
 
@@ -201,6 +231,7 @@ window.JoinModal = (function($, JoinModal) {
     JoinModal.show = function (tableNum, colNum) {
         isOpenTime = true;
         $("body").on("keypress", joinTableKeyPress);
+        $("body").on("mouseup", removeCursors);
         $modalBackground.on("click", hideJoinTypeSelect);
         updateJoinTableName();
         centerPositionElement($joinModal);
@@ -381,6 +412,7 @@ window.JoinModal = (function($, JoinModal) {
 
     function resetJoinTables() {
         $("body").off("keypress", joinTableKeyPress);
+        $("body").off("mouseup", removeCursors);
         $modalBackground.off("click", hideJoinTypeSelect);
 
         // clean up multi clause section
@@ -425,6 +457,10 @@ window.JoinModal = (function($, JoinModal) {
             default:
                 break;
         }
+    }
+
+    function removeCursors() {
+        $('#moveCursor').remove();
     }
     // build left join table and right join table
     function joinModalTabs($modal, tableNum, colNum, $sibling) {
@@ -546,19 +582,26 @@ window.JoinModal = (function($, JoinModal) {
 
     function addModalTabListeners($modal, isLeft) {
         $modal.on('click', '.tableLabel', function() {
-            // in multiClause mode, not allow switching table
-            if ($mainJoin.hasClass("multiClause")) {
-                return;
-            }
 
             var $tableLabel = $(this);
             var tableName   = $tableLabel.text();
-
+            if ($tableLabel.hasClass('active')) {
+                return;
+            }
             $modal.find(".tableLabel.active").removeClass("active");
 
             $tableLabel.addClass("active");
 
             $modal.find(".colSelected").removeClass("colSelected");
+
+            // when multijoin, empty left or right inputs if new table
+            // selected
+            if ($tableLabel.closest('.joinContainer').attr('id')
+                 === 'rightJoin') {
+                $joinModal.find('.rightClause').val("");
+            } else {
+                $joinModal.find('.leftClause').val("");
+            }
 
             $modal.find(".joinTable").hide();
             $modal.find('.joinTable[data-tablename="' + tableName + '"]')
@@ -632,23 +675,35 @@ window.JoinModal = (function($, JoinModal) {
             }
         });
 
+        $modal.on("mousedown", ".columnTab", function(event) {
+            if ($mainJoin.hasClass('multiClause')) {
+                var cursorStyle =
+                    '<style id="moveCursor" type="text/css">*' +
+                        '{cursor:move !important; cursor: -webkit-grabbing !important;' +
+                        'cursor: -moz-grabbing !important;}' +
+                        '.tooltip{display: none !important;}' +
+                    '</style>';
+                $(document.head).append(cursorStyle);
+            }
+        });
+
         $modal.on("dragstart", ".columnTab", function(event) {
             var originEvent = event.originalEvent;
             var clause = isLeft ? "left" : "right";
-
             originEvent.dataTransfer.setData("clause", clause);
             originEvent.dataTransfer.effectAllowed = "copy";
             originEvent.dataTransfer.setData("text/plain", $(this).text());
 
             if (isLeft) {
-                $multiJoin.find("input.rightClause").addClass("inActive");
+                $multiJoin.find(".clause.rightClause").addClass("inActive");
             } else {
-                $multiJoin.find("input.leftClause").addClass("inActive");
+                $multiJoin.find(".clause.leftClause").addClass("inActive");
             }
         });
 
         $modal.on("dragend", ".columnTab", function() {
-            $multiJoin.find("input.clause.inActive").removeClass("inActive");
+            $multiJoin.find(".clause.inActive").removeClass("inActive");
+            $('#moveCursor').remove();
         });
     }
 
