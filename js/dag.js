@@ -428,8 +428,8 @@ window.DagPanel = (function($, DagPanel) {
 
 }(jQuery, {}));
 
-
 window.Dag = (function($, Dag) {
+    $dagPanel = $('#dagPanel');
     Dag.construct = function(tableName, tableNum) {
         var deferred = jQuery.Deferred();
 
@@ -437,13 +437,15 @@ window.Dag = (function($, Dag) {
         .then(function(dagDrawing) {
             var activeWS = WSManager.getActiveWS();
             var tableWS = WSManager.getWSFromTable(tableName);
+            var tableId = xcHelper.unwrapHashId(tableName);
+            var tableNum = xcHelper.getTableIndexFromName(tableName);
             var activeClass = "";
             if (activeWS !== tableWS) {
                 activeClass = 'inActive';
             }
             var outerDag =
-                '<div class="dagWrap ' + activeClass + '" id="dagWrap' +
-                    tableNum + '">' +
+                '<div class="dagWrap ' + activeClass + '" id="dagWrap-' +
+                    tableId + '">' +
                 '<div class="header clearfix">' +
                     '<div class="btn btnSmall infoIcon">' +
                         '<div class="icon"></div>' +
@@ -471,10 +473,10 @@ window.Dag = (function($, Dag) {
             if (tableNum === 0) {
                 $('.dagArea').find('.legendArea').after(outerDag);
             } else {
-                $('#dagWrap' + (tableNum - 1)).after(outerDag);
+                $dagPanel.find('.dagWrap').eq(tableNum - 1).after(outerDag);
             }
 
-            var $dagWrap = $('#dagWrap' + tableNum);
+            var $dagWrap = $('#dagWrap-' + tableId);
             $dagWrap.append(innerDag);
             var canvas = createCanvas($dagWrap);
             var ctx = canvas.getContext('2d');
@@ -615,23 +617,6 @@ window.Dag = (function($, Dag) {
             }
             $tr.removeClass('unfilled');
         }
-    };
-
-    Dag.getSrcTableName = function(tableName, tableNum) {
-        // uses dag image to find the source table name
-        var $tableTitles = $('#dagWrap' + tableNum).find('.tableTitle');
-        if ($tableTitles.length < 3) {
-            return (tableName + '0');
-        }
-        var $dagTableTitle = $tableTitles.filter(function() {
-            return ($(this).text() === tableName);
-        });
-
-        var srcTableText = $dagTableTitle.closest('.dagTableWrap')
-                              .find('.actionType')
-                              .find('.childrenTitle')
-                              .text();
-        return (srcTableText);
     };
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {

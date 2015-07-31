@@ -112,7 +112,7 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
         reorderTables(tableNum);
 
         gTables[tableNum] = newTableMeta;
-        return (parallelConstruct(tableNum));
+        return (parallelConstruct(tableNum, tableName));
     })
     .then(function() {
         deferred.resolve();
@@ -125,7 +125,7 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
 
     return (deferred.promise());
 
-    function parallelConstruct(tableNum) {
+    function parallelConstruct(tableNum, tableName) {
         var deferred  = jQuery.Deferred();
         var deferred1 = startBuildTable(tableNum, tableNumsToRemove);
         var deferred2 = Dag.construct(gTables[tableNum].tableName, tableNum);
@@ -133,8 +133,9 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
         jQuery.when(deferred1, deferred2)
         .then(function() {
             tableNum = xcHelper.getTableIndexFromName(tableName);
+            var tableId = gTables[tableNum].tableId;
             $("#xcTableWrap" + tableNum).addClass("worksheet-" + wsIndex);
-            $("#dagWrap" + tableNum).addClass("worksheet-" + wsIndex);
+            $("#dagWrap-" + tableId).addClass("worksheet-" + wsIndex);
 
             if (gTables[tableNum].resultSetCount !== 0) {
                 infScrolling(tableNum);
@@ -165,6 +166,7 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
 // Shifts all the ids
 // Does not delete the table from backend!
 function archiveTable(tableNum, del, delayTableRemoval) {
+    var tableId = gTables[tableNum].tableId;
     if (delayTableRemoval) {
         // if we're delaying the deletion of this table, we need to remove
         // these element's IDs so they don't interfere with other elements
@@ -178,11 +180,11 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $("#rowScroller" + tableNum).attr("id", "rowScrollerToRemove" + tableNum);
         $("#rowMarker" + tableNum).attr("id", "");
         $("#colMenu" + tableNum).attr("id", "");
-        $("#dagWrap" + tableNum).attr("id", "dagWrapToRemove" + tableNum);
+        $("#dagWrap-" + tableId).attr("id", "dagWrapToRemove" + tableNum);
     } else {
         $("#xcTableWrap" + tableNum).remove();
         $("#rowScroller" + tableNum).remove();
-        $('#dagWrap' + tableNum).remove();
+        $('#dagWrap-' + tableId).remove();
     }
     
     var tableName = gTables[tableNum].tableName;
@@ -213,7 +215,6 @@ function archiveTable(tableNum, del, delayTableRemoval) {
         $("#rowScroller" + i).attr("id", "rowScroller" + (i - 1));
         $("#rowMarker" + i).attr("id", "rowMarker" + (i - 1));
         $("#colMenu" + i).attr("id", "colMenu" + (i - 1));
-        $("#dagWrap" + i).attr("id", "dagWrap" + (i - 1));
     }
     // $('#rowInput').val("").data('val',"");
     // XXX: Think about gActiveTableNum
@@ -603,7 +604,6 @@ function reorderTables(tableNum) {
         $("#rowScroller" + i).attr("id", "rowScroller" + (i + 1));
         $("#rowMarker" + i).attr("id", "rowMarker" + (i + 1));
         $("#colMenu" + i).attr("id", "colMenu" + (i + 1));
-        $("#dagWrap" + i).attr("id", "dagWrap" + (i + 1));
         gTables[i + 1] = gTables[i];
     }
 }

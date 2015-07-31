@@ -2190,6 +2190,7 @@ function dragTableMouseDown(el, e) {
     dragObj.mouseX = e.pageX;
     dragObj.table = el.closest('.xcTableWrap');
     dragObj.tableIndex = parseInt(dragObj.table.attr('id').substring(11));
+    dragObj.tableId = gTables[dragObj.tableIndex].tableId;
     dragObj.originalIndex = dragObj.tableIndex;
     dragObj.mainFrame = $('#mainFrame');
     var rect = dragObj.table[0].getBoundingClientRect();
@@ -2372,22 +2373,24 @@ function reorderAfterTableDrop() {
     
     // reorder rowScrollers
     var rowScroller = $('#rowScroller' + gDragObj.originalIndex);
-    var $dagWrap = $('#dagWrap' + gDragObj.originalIndex);
+    var $dagWrap = $('#dagWrap-' + gDragObj.tableId);
+    var $dagWraps = $('.dagWrap');
+    var tableIndex = gDragObj.tableIndex;
+    
 
     if (gDragObj.tableIndex === 0) {
         $('#rowScrollerArea').prepend(rowScroller);
         $('.dagArea').find('.legendArea').after($dagWrap);
-    } else if (gDragObj.originalIndex < gDragObj.tableIndex) {
-        $('#rowScroller' + gDragObj.tableIndex).after(rowScroller);
-        $('#dagWrap' + gDragObj.tableIndex).after($dagWrap);
-    } else if (gDragObj.originalIndex > gDragObj.tableIndex) {
-        $('#rowScroller' + gDragObj.tableIndex).before(rowScroller);
-        $('#dagWrap' + gDragObj.tableIndex).before($dagWrap);
+    } else if (gDragObj.originalIndex < tableIndex) {
+        $('#rowScroller' + tableIndex).after(rowScroller);
+        $dagWraps.eq(tableIndex).after($dagWrap);
+    } else if (gDragObj.originalIndex > tableIndex) {
+        $('#rowScroller' + tableIndex).before(rowScroller);
+        $dagWraps.eq(tableIndex).before($dagWrap);
     }
 
     // correct table and rowscroller id numbers
     var rowScrollers = $('.rowScroller');
-    var $dagWraps = $('.dagWrap');
     var start = Math.min(gDragObj.originalIndex, gDragObj.tableIndex);
     var end = Math.max(gDragObj.originalIndex, gDragObj.tableIndex);
     for (var i = start; i <= end; i++) {
@@ -2402,7 +2405,6 @@ function reorderAfterTableDrop() {
         tableWrap.children('.colMenu:not(.tableMenu)').attr('id', 'colMenu' + i);
         $(rowScrollers[i]).attr('id', 'rowScroller' + i);
         $(rowScrollers[i]).find('.rowMarker').attr('id', 'rowMarker' + i);
-        $($dagWraps[i]).attr('id', 'dagWrap' + i);
     }
 }
 
