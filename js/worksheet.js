@@ -1,13 +1,13 @@
 window.WSManager = (function($, WSManager) {
-    var worksheets     = [];  // {name, tables}, tables=[name1, name2...]
+    var worksheets = [];  // {name, tables}, tables=[name1, name2...]
 
-    var wsIndexLookUp  = {};  // find wsIndex by table name
-    var wsNameLookUp   = {};  // find wsIndex by wsName
+    var wsIndexLookUp = {};  // find wsIndex by table name
+    var wsNameLookUp  = {};  // find wsIndex by wsName
 
     var activeWorsheet = 0;
     // var for naming worksheet automatically
-    var defaultName    = "Sheet ";
-    var nameSuffix     = 1;
+    var defaultName = "Sheet ";
+    var nameSuffix  = 1;
 
     var $workSheetTabSection  = $("#worksheetTabs");
 

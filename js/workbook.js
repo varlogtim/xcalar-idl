@@ -795,7 +795,7 @@ window.WKBKManager = (function($, WKBKManager) {
         // copy all info to new key
         KVStore.getAndParse(oldStorageKey)
         .then(function(gInfos) {
-            gInfos.holdStatus = false;
+            gInfos[KVKeys.HOLD] = false;
             return KVStore.put(newStorageKey, JSON.stringify(gInfos));
         })
         .then(function() {

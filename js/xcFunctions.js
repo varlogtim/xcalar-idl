@@ -162,7 +162,6 @@ window.xcFunction = (function ($, xcFunction) {
                  
         XcalarIndexFromTable(tableName, backFieldName, newTableName, sqlOptions)
         .then(function() {
-            setDirection(newTableName, order);
             // sort do not change groupby stats of the table
             var tableProperties = null;
             if (table.statsCols) {

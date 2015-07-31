@@ -2,14 +2,12 @@
 // be holding
 
 var gTableIndicesLookup = {};
-var gTableDirectionLookup = {};
 var gTableOrderLookup = [];
 
 function emptyAllStorage(localEmpty) {
     var deferred = jQuery.Deferred();
 
     gTableIndicesLookup = {};
-    gTableDirectionLookup = {};
     gTableOrderLookup = [];
     WSManager.clear();
     DS.clear();
@@ -45,20 +43,6 @@ function getIndex(tName) {
     return (null);
 }
 
-function getDirection(tName) {
-    if (!gTableDirectionLookup) {
-        console.log("Nothing has ever been stored ever!");
-        gTableDirectionLookup = {};
-    }
-    if (tName in gTableDirectionLookup) {
-        return (gTableDirectionLookup[tName]);
-    } else {
-        console.log("No such table has been saved before");
-        return (null);
-    }
-    return (null);
-}
-
 function setIndex(tName, index, dsName, tableProperties) {
     gTableIndicesLookup[tName] = {};
     gTableIndicesLookup[tName].columns = index;
@@ -78,9 +62,19 @@ function setIndex(tName, index, dsName, tableProperties) {
     gTableIndicesLookup[tName].tableName = tName;
 }
 
-function setDirection(tName, order) {
-    gTableDirectionLookup[tName] = order;
-}
+// the key should be as short as possible
+// and when change the store key, change it here, it will
+// apply to all places
+var KVKeys = {
+    "TI"  : "TILookup",
+    "WS"  : "worksheets",
+    "TO"  : "TOLookup",
+    "DS"  : "gDSObj",
+    "HOLD": "holdStatus",
+    "SQL" : "sql",
+    "CLI" : "scratchPad",
+    "CART": "datacarts"
+};
 
 function commitToStorage(atStartup) {
     var deferred = jQuery.Deferred();
@@ -88,17 +82,18 @@ function commitToStorage(atStartup) {
 
     setTableOrder(atStartup);
     // basic thing to store
-    storage = {
-        "TILookup"  : gTableIndicesLookup,
-        "TDLookup"  : gTableDirectionLookup,
-        "worksheets": WSManager.getWorksheets(),
-        "TOLookup"  : gTableOrderLookup,
-        "gDSObj"    : DS.getHomeDir(),
-        "holdStatus": KVStore.isHold(),
-        "sql"       : SQL.getHistory(),
-        "scratchPad": CLIBox.getCli(),
-        "datacarts" : DataCart.getCarts()
-    };
+    var storage = {};
+
+    storage[KVKeys.TI] = gTableIndicesLookup;
+    storage[KVKeys.WS] = WSManager.getWorksheets();
+    storage[KVKeys.TO] = gTableOrderLookup;
+
+    storage[KVKeys.DS] = DS.getHomeDir();
+    storage[KVKeys.SQL] = SQL.getHistory();
+    storage[KVKeys.CLI] = CLIBox.getCli();
+
+    storage[KVKeys.CART] = DataCart.getCarts();
+    storage[KVKeys.HOLD] = KVStore.isHold();
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
     .then(function() {
@@ -119,29 +114,26 @@ function readFromStorage() {
     KVStore.hold()
     .then(function(gInfos) {
         if (gInfos) {
-            if (gInfos.TILookup) {
-                gTableIndicesLookup = gInfos.TILookup;
+            if (gInfos[KVKeys.TI]) {
+                gTableIndicesLookup = gInfos[KVKeys.TI];
             }
-            if (gInfos.TDLookup) {
-                gTableDirectionLookup = gInfos.TDLookup;
+            if (gInfos[KVKeys.WS]) {
+                WSManager.restoreWS(gInfos[KVKeys.WS]);
             }
-            if (gInfos.worksheets) {
-                WSManager.restoreWS(gInfos.worksheets);
+            if (gInfos[KVKeys.TO]) {
+                gTableOrderLookup = gInfos[KVKeys.TO];
             }
-            if (gInfos.TOLookup) {
-                gTableOrderLookup = gInfos.TOLookup;
+            if (gInfos[KVKeys.DS]) {
+                gDSObjFolder = gInfos[KVKeys.DS];
             }
-            if (gInfos.gDSObj) {
-                gDSObjFolder = gInfos.gDSObj;
+            if (gInfos[KVKeys.SQL]) {
+                SQL.restoreFromHistory(gInfos[KVKeys.SQL]);
             }
-            if (gInfos.sql) {
-                SQL.restoreFromHistory(gInfos.sql);
+            if (gInfos[KVKeys.CLI]) {
+                CLIBox.restore(gInfos[KVKeys.CLI]);
             }
-            if (gInfos.scratchPad) {
-                CLIBox.restore(gInfos.scratchPad);
-            }
-            if (gInfos.datacarts) {
-                DataCart.restore(gInfos.datacarts);
+            if (gInfos[KVKeys.CART]) {
+                DataCart.restore(gInfos[KVKeys.CART]);
             }
         } else {
             emptyAllStorage(true);
@@ -154,7 +146,6 @@ function readFromStorage() {
         // clear KVStore if no datasets are loaded
         if (numDatasets === 0 || numDatasets == null) {
             gTableIndicesLookup = {};
-            gTableDirectionLookup = {};
             gTableOrderLookup = [];
         }
         var totalDS = DS.restore(gDSObjFolder, datasets);
@@ -277,7 +268,7 @@ window.KVStore = (function($, KVStore) {
                 isHold = true;
                 deferred.resolve(null);
             } else {
-                if (gInfos.holdStatus === true &&
+                if (gInfos[KVKeys.HOLD] === true &&
                     sessionStorage.getItem(KVStore.user) !== "hold") {
                     Alert.show({
                         "title"  : "Signed on elsewhere!",
@@ -295,7 +286,7 @@ window.KVStore = (function($, KVStore) {
                     });
                     deferred.reject("Already in use!");
                 } else {
-                    if (gInfos.holdStatus === true) {
+                    if (gInfos[KVKeys.HOLD] === true) {
                         console.error("KVStore not release last time...");
                     }
                     isHold = true;
