@@ -238,7 +238,8 @@ window.WSManager = (function($, WSManager) {
         var wsIndex = wsIndexLookUp[tableName];
 
         if (wsIndex == null) {
-            console.error("Table not exist in worksheet");
+            // that could be an orphaned
+            console.warn("Table not exist in worksheet");
             return (null);
         }
 

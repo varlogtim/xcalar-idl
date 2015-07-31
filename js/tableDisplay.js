@@ -258,11 +258,14 @@ function deleteActiveTable(tableName) {
 function deleteTable(tableName, deleteArchived, sqlOptions) {
     var deferred = jQuery.Deferred();
     var table = xcHelper.getTableMeta(tableName, deleteArchived);
-    var tableName = tableName;
     var resultSetId;
-    if (tableName == undefined) {
+
+    if (tableName == null) {
         console.warn("DeleteTable: Table Name cannot be null!");
         return (promiseWrapper(null));
+    } else if (table == null) {
+        // orphaned table
+        resultSetId = -1;
     } else {
         resultSetId = table.resultSetId;
     }
@@ -284,7 +287,7 @@ function deleteTable(tableName, deleteArchived, sqlOptions) {
             // our need to rely on tableNum
             /**
             for (var i = 0; i < gTables.length; i++) {
-                if (getTNPrefix(gTables[i].tableName) === 
+                if (getTNPrefix(gTables[i].tableName) ===
                     getTNPrefix(tableName) &&
                     (deleteArchived || getTNSuffix(gTables[i].tableName) !==
                                        getTNSuffix(tableName))) {
@@ -294,7 +297,7 @@ function deleteTable(tableName, deleteArchived, sqlOptions) {
             }
 
             for (var i = 0; i < gHiddenTables.length; i++) {
-                if (getTNPrefix(gHiddenTables[i].tableName) === 
+                if (getTNPrefix(gHiddenTables[i].tableName) ===
                     getTNPrefix(tableName) &&
                     (deleteArchived || getTNSuffix(gTables[i].tableName) !==
                                        getTNSuffix(tableName))) {
@@ -312,7 +315,7 @@ function deleteTable(tableName, deleteArchived, sqlOptions) {
 
         // Basically the same as archive table, but instead of moving to
         // gHiddenTables, we just delete it from gTablesIndicesLookup
-        var tableNum = xcHelper.getTableIndexFromName(tableName);
+        var tableNum = xcHelper.getTableIndexFromName(tableName, deleteArchived);
         if (deleteArchived) {
             gHiddenTables.splice(tableNum, 1);
             delete (gTableIndicesLookup[tableName]);
