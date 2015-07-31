@@ -194,17 +194,18 @@ window.JoinModal = (function($, JoinModal) {
                     if ($parent.hasClass('placeholder')) {
                         $parent.click();
                         if ($input.hasClass("leftClause")) {
-                            $(".joinClause.placeholder").prev()
+                            $joinModal.find(".joinClause.placeholder").prev()
                                                         .find(".leftClause")
                                                         .val(text);
                         } else {
-                            $(".joinClause.placeholder").prev()
+                            $joinModal.find(".joinClause.placeholder").prev()
                                                         .find(".rightClause")
                                                         .val(text);
                         }
                     } else {
                         $input.val(text);
                     }
+                    $parent.removeClass('hovering');
                 }
             }
 
