@@ -1190,8 +1190,8 @@ window.DataCart = (function($, DataCart) {
 
 window.DataPreview = (function($, DataPreview) {
     var $previewTable = $("#previewTable");
-    var tableName;
-    var rawData;
+    var tableName = "";
+    var rawData = null;
     var hasHeader = false;
     var delimiter = "";
     var highlighter = "";
@@ -1466,7 +1466,7 @@ window.DataPreview = (function($, DataPreview) {
         highlighter = "";
         toggleHighLight();
 
-        if (tableName !== "") {
+        if (tableName !== "" && tableName != null) {
             var sqlOptions = {
                 "operation": "destroyPreviewDataSet",
                 "dsName"   : tableName
