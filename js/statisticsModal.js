@@ -409,8 +409,11 @@ window.STATSManager = (function($, STATSManager) {
 
         var $section = $statsModal.find(".groubyInfoSection");
         var data = groupByInfo.data;
-        var chartWidth  = $section.width();
-        var chartHeight = $section.height();
+        var maxRectW = 70;
+
+        var sectionWidth = $section.width();
+        var chartWidth   = Math.min(sectionWidth, maxRectW * data.length);
+        var chartHeight  = $section.height();
 
         var marginBottom = 10;
         var height = chartHeight - marginBottom;
@@ -426,9 +429,12 @@ window.STATSManager = (function($, STATSManager) {
         var chart;
         if (initial) {
             $statsModal.find(".groupbyChart").empty();
+
+            var left = (sectionWidth - chartWidth) / 2;
             chart = d3.select("#statsModal .groupbyChart")
                 .attr("width", chartWidth)
                 .attr("height", chartHeight)
+                .attr("style", "position:relative; left:" + left + "px;")
             .append("g")
                 .attr("class", "barChart")
                 .attr("transform", "translate(0, 0)");
