@@ -558,9 +558,12 @@ window.JoinModal = (function($, JoinModal) {
 
             $tableLabel.addClass("active");
 
+            $modal.find(".colSelected").removeClass("colSelected");
+
             $modal.find(".joinTable").hide();
             $modal.find('.joinTable[data-tablename="' + tableName + '"]')
                     .show();
+
         });
 
         $modal.on('click', 'th', function() {

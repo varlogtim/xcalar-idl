@@ -582,11 +582,13 @@
         }
 
         #leftJoin {
-            .flex(1 1 50%);
+            .flex(0 0 50%);
+            .transition(flex 0.5s linear);
         }
 
         #rightJoin {
-            .flex(1 1 50%);
+            .flex(0 0 50%);
+            .transition(flex 0.5s linear);
             .tableText {
                 padding-left: 20px;
             }
@@ -719,6 +721,10 @@
                         .transition(~"visibility 0s linear 0.6s");
                     }
                 }
+            }
+
+            #leftJoin, #rightJoin {
+                .flex(0 0 ~"calc(50% - 138px)");
             }
 
             .mainTable {
