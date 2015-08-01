@@ -52,11 +52,9 @@ function setIndex(tName, index, dsName, tableProperties) {
     if (tableProperties) {
         gTableIndicesLookup[tName].bookmarks = tableProperties.bookmarks || [];
         gTableIndicesLookup[tName].rowHeights = tableProperties.rowHeights || {};
-        gTableIndicesLookup[tName].statsCols = tableProperties.statsCols || {};
     } else {
         gTableIndicesLookup[tName].bookmarks = [];
         gTableIndicesLookup[tName].rowHeights = {};
-        gTableIndicesLookup[tName].statsCols = {};
     }
 
     gTableIndicesLookup[tName].tableName = tName;

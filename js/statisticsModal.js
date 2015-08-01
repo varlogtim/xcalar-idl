@@ -28,6 +28,8 @@ window.STATSManager = (function($, STATSManager) {
     var statsColName = "statsGroupBy";
     var numRowsToFetch = 20;
 
+    var statsInfos = {};
+
     STATSManager.setup = function() {
         $statsModal.on("click", ".cancel, .close", function() {
             closeStats();
@@ -59,8 +61,23 @@ window.STATSManager = (function($, STATSManager) {
         });
     };
 
-    STATSManager.run = function(tableNum, colNum) {
-        var table = gTables[tableNum];
+    STATSManager.getStatsInfos = function() {
+        return (statsInfos);
+    };
+
+    STATSManager.copy = function(oldTableId, newTableId) {
+        if (statsInfos[oldTableId] == null) {
+            return;
+        }
+
+        // XXX it reference to the same statsInfo obj, fix me if
+        // the shallow copy is wrong and should do a deep copy
+        // (in that case modal id should change!)
+        statsInfos[newTableId] = statsInfos[oldTableId];
+    };
+
+    STATSManager.run = function(tableId, colNum) {
+        var table = xcHelper.getTableFromId(tableId);
         var col   = table.tableCols[colNum - 1];
 
         if (!col.func.args) {
@@ -69,9 +86,9 @@ window.STATSManager = (function($, STATSManager) {
         }
 
         var colName = col.func.args[0];
-        table.statsCols = table.statsCols || {};
+        statsInfos[tableId] = statsInfos[tableId] || {};
 
-        var statsCol = table.statsCols[colName];
+        var statsCol = statsInfos[tableId][colName];
 
         if (statsCol != null) {
             // check if the groupbyTable is not deleted
@@ -98,7 +115,7 @@ window.STATSManager = (function($, STATSManager) {
                 console.error(error);
             });
         } else {
-            table.statsCols[colName] = {
+            statsInfos[tableId][colName] = {
                 "modalId"    : xcHelper.randName("stats"),
                 "colName"    : colName,
                 "type"       : col.type,
@@ -109,8 +126,10 @@ window.STATSManager = (function($, STATSManager) {
                     "order"     : sortMap.origin
                 }
             };
-            generateStats(table.tableName, table.statsCols[colName],
-                            table.keyName);
+
+            statsCol = statsInfos[tableId][colName];
+
+            generateStats(table.tableName, statsCol, table.keyName);
         }
     };
 
@@ -256,7 +275,7 @@ window.STATSManager = (function($, STATSManager) {
         var msgObj = {
             "msg"      : msg,
             "operation": "Statistical analysis",
-            "tableName"  : tableName
+            "tableName": tableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -300,7 +319,13 @@ window.STATSManager = (function($, STATSManager) {
             statsCol.groupByInfo.resultSetId = resultSet.resultSetId;
             statsCol.groupByInfo.numEntries = resultSet.numEntries;
             statsCol.groupByInfo.isComplete = true;
-            refreshStats(statsCol);
+
+            // modal is open and is for that column
+            if (!$statsModal.hasClass("hidden") &&
+                $statsModal.data("id") === statsCol.modalId)
+            {
+                refreshStats(statsCol);
+            }
 
             // XXX this can be removed if we do not want indexed table to be del
             if (tableToDelete != null) {

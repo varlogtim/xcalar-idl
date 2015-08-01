@@ -1686,10 +1686,12 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
+        // XXX fix it when we remove tableNum
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var colNum   = $colMenu.data('colNum');
+        var tableId  = gTables[tableNum].tableId;
 
-        STATSManager.run(tableNum, colNum);
+        STATSManager.run(tableId, colNum);
     });
 
     $colMenu.on('mouseup', '.tdFilter, .tdExclude', function(event) {
