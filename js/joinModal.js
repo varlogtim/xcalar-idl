@@ -66,7 +66,7 @@ window.JoinModal = (function($, JoinModal) {
             $(this).blur();
             
             // check validation
-            var newTableName = $.trim($joinTableName.val());
+            var newTableName = $joinTableName.val().trim();
 
             if (newTableName === "") {
                 var text = "Table name is empty! Please name your new table";
@@ -165,16 +165,16 @@ window.JoinModal = (function($, JoinModal) {
             return false;
         });
 
-        $joinModal.on("dragover", ".joinClause.placeholder", function(event) {
+        $joinModal.on("dragover", ".joinClause.placeholder", function() {
             $(this).addClass('hovering');
         });
 
-        $joinModal.on("dragleave", ".joinClause.placeholder", function(event) {
+        $joinModal.on("dragleave", ".joinClause.placeholder", function() {
             $(this).removeClass('hovering');
         });
 
         $("#mainJoin").on("dragover", function(event) {
-            event.preventDefault(); 
+            event.preventDefault();
             // this allows the cursor to not have disallowed appearance
         });
 
@@ -229,7 +229,7 @@ window.JoinModal = (function($, JoinModal) {
         addModalTabListeners($rightJoinTable, false);
     };
 
-    JoinModal.show = function (tableNum, colNum) {
+    JoinModal.show = function(tableId, colNum) {
         isOpenTime = true;
         $("body").on("keypress", joinTableKeyPress);
         $("body").on("mouseup", removeCursors);
@@ -237,9 +237,8 @@ window.JoinModal = (function($, JoinModal) {
         updateJoinTableName();
         centerPositionElement($joinModal);
 
-        // here tableNum start from 1;
-        joinModalTabs($rightJoinTable, -1, -1);
-        joinModalTabs($leftJoinTable, (tableNum + 1), colNum, $rightJoinTable);
+        joinModalTabs($rightJoinTable, null, -1);
+        joinModalTabs($leftJoinTable, tableId, colNum, $rightJoinTable);
 
         $modalBackground.fadeIn(150, function() {
             $joinModal.fadeIn(300);
@@ -277,22 +276,23 @@ window.JoinModal = (function($, JoinModal) {
     }
 
     function singleJoinHelper(joinType, newTableName) {
-        var $leftCol     = $leftJoinTable.find("th.colSelected");
-        var leftColNum   = xcHelper.parseColNum($leftCol) - 1;
-        var leftTableNum = $leftCol.closest(".joinTable").data("tablenum");
+        var $leftCol = $leftJoinTable.find("th.colSelected");
+        var lColNum  = xcHelper.parseColNum($leftCol) - 1;
+        var lTableId = $leftCol.closest(".joinTable").data("id");
 
-        var $rightCol     = $rightJoinTable.find('th.colSelected');
-        var rightColNum   = xcHelper.parseColNum($rightCol) - 1;
-        var rightTableNum = $rightCol.closest(".joinTable").data("tablenum");
+        var $rightCol = $rightJoinTable.find('th.colSelected');
+        var rColNum   = xcHelper.parseColNum($rightCol) - 1;
+        var rTableId  = $rightCol.closest(".joinTable").data("id");
+
         resetJoinTables();
-        xcFunction.join(leftColNum, leftTableNum, rightColNum,
-                        rightTableNum, joinType, newTableName);
+        xcFunction.join(lColNum, lTableId, rColNum, rTableId,
+                        joinType, newTableName);
     }
 
     function multiJoinHelper(joinType, newTableName) {
-        var leftCols  = [];
-        var rightCols = [];
-        var notValid  = false;
+        var lCols = [];
+        var rCols = [];
+        var notValid = false;
 
         // check validation
         $multiJoin.find(".joinClause:not(.placeholder)").each(function() {
@@ -301,18 +301,18 @@ window.JoinModal = (function($, JoinModal) {
             }
 
             var $joinClause = $(this);
-            var leftClause  = $.trim($joinClause.find(".leftClause").val());
-            var rightClause = $.trim($joinClause.find(".rightClause").val());
+            var lClause = $joinClause.find(".leftClause").val().trim();
+            var rClause = $joinClause.find(".rightClause").val().trim();
 
-            if (leftClause !== "" && rightClause !== "") {
-                leftCols.push(leftClause);
-                rightCols.push(rightClause);
-            } else if (!(leftClause === "" && rightClause === "")){
+            if (lClause !== "" && rClause !== "") {
+                lCols.push(lClause);
+                rCols.push(rClause);
+            } else if (!(lClause === "" && rClause === "")){
                 notValid = true;
             }
         });
 
-        if (notValid || leftCols.length === 0) {
+        if (notValid || lCols.length === 0) {
             Alert.show({
                 "title"  : "Cannot Join",
                 "msg"    : "Invalid Multi Clause",
@@ -324,91 +324,97 @@ window.JoinModal = (function($, JoinModal) {
         }
 
         // left table
-        var leftTableName = $leftJoinTable.find(".tableLabel.active").text();
-        var $leftTable    = $leftJoinTable.find('.joinTable[data-tablename="' +
-                                leftTableName + '"]');
-        var leftTableNum  = $leftTable.data('tablenum');
-        var leftColNum;
+        var $lTLabel = $leftJoinTable.find(".tableLabel.active");
+        var lTableId = $lTLabel.data('id');
+        var $lTable  = $leftJoinTable.find('.joinTable[data-id="' +
+                                            lTableId + '"]');
+        var lColNum;
 
-        var rightTableName = $rightJoinTable.find(".tableLabel.active").text();
-        var $rightTable    =  $rightJoinTable.find('.joinTable[data-tablename="' +
-                                rightTableName + '"]');
-        var rightTableNum  = $rightTable.data('tablenum');
-        var rightColNum;
+        // right table
+        var $rTLabel = $rightJoinTable.find(".tableLabel.active");
+        var rTableId = $rTLabel.data('id');
+        var $rTable  = $rightJoinTable.find('.joinTable[data-id="' +
+                                                rTableId + '"]');
+        var rColNum;
 
         // Only one clause, use same with single join
-        if (leftCols.length === 1) {
-            leftColNum = getColumnNum($leftTable, leftCols[0]) - 1;
-            rightColNum = getColumnNum($rightTable, rightCols[0]) - 1;
+        if (lCols.length === 1) {
+            lColNum = getColNum($lTable, lCols[0]);
+            rColNum = getColNum($rTable, rCols[0]);
             resetJoinTables();
-            xcFunction.join(leftColNum, leftTableNum, rightColNum,
-                        rightTableNum, joinType, newTableName);
-
+            xcFunction.join(lColNum, lTableId, rColNum, rTableId,
+                            joinType, newTableName);
             return;
         }
 
-        var leftString  = 'multiJoinModule:multiJoin(';
-        var leftColName = xcHelper.randName("leftJoinCol");
+        // left cols
+        var lString  = 'multiJoinModule:multiJoin(';
+        var lColName = xcHelper.randName("leftJoinCol");
 
-        leftColNum = gTables[leftTableNum].tableCols.length;
+        lColNum = xcHelper.getTableFromId(lTableId).tableCols.length;
 
-        for (var i = 0; i < leftCols.length; i++) {
-            leftString += leftCols[i] + ", ";
+        var len = lCols.length;
+        for (var i = 0; i <= len - 2; i++) {
+            lString += lCols[i] + ", ";
         }
-        leftString = leftString.substring(0, leftString.length - 2);
-        leftString += ')';
+        lString += lCols[len - 1] + ")";
 
-        // right table
-        var rightString  = 'multiJoinModule:multiJoin(';
-        var rightColName = xcHelper.randName("rightJoinCol");
+        // right cols
+        var rString  = 'multiJoinModule:multiJoin(';
+        var rColName = xcHelper.randName("rightJoinCol");
 
-        rightColNum = gTables[rightTableNum].tableCols.length;
+        rColNum = xcHelper.getTableFromId(rTableId).tableCols.length;
 
-        for (var i = 0; i < rightCols.length; i++) {
-            rightString += rightCols[i] + ", ";
+        len = rCols.length;
+        for (var i = 0; i <= len - 2; i++) {
+            rString += rCols[i] + ", ";
         }
 
-        rightString = rightString.substring(0, rightString.length - 2);
-        rightString += ')';
-        resetJoinTables();
+        rString += rCols[len - 1] + ")";
 
-        var leftMapOptions = {
-            "colNum"   : leftColNum,
-            "tableNum" : leftTableNum,
-            "fieldName": leftColName,
-            "mapString": leftString
+        var lMapOptions = {
+            "colNum"   : lColNum,
+            "tableId"  : lTableId,
+            "fieldName": lColName,
+            "mapString": lString
         };
 
-        var rightMapOptions = {
-            "colNum"   : rightColNum,
-            "tableNum" : rightTableNum,
-            "fieldName": rightColName,
-            "mapString": rightString
+        var rMapOptions = {
+            "colNum"   : rColNum,
+            "tableId"  : rTableId,
+            "fieldName": rColName,
+            "mapString": rString
         };
 
         var mapMsg = StatusMessageTStr.Map + " for multiClause Join";
 
-        xcFunction.twoMap(leftMapOptions, rightMapOptions, true, mapMsg)
-        .then(function() {
-            var leftRemoved = {};
-            var righRemoved = {};
+        resetJoinTables();
+        xcFunction.twoMap(lMapOptions, rMapOptions, true, mapMsg)
+        .then(function(lNewName, rNewName) {
+            var lRemoved = {};
+            var rRemoved = {};
 
-            leftRemoved[leftColName] = true;
-            righRemoved[rightColName] = true;
+            lRemoved[lColName] = true;
+            rRemoved[rColName] = true;
+
+            var lNewId = xcHelper.getTableId(lNewName);
+            var rNewId = xcHelper.getTableId(rNewName);
             
-            return xcFunction.join(leftColNum - 1, leftTableNum,
-                                    rightColNum - 1, rightTableNum,
+            return xcFunction.join(lColNum - 1, lNewId,
+                                    rColNum - 1, rNewId,
                                     joinType, newTableName,
-                                    leftRemoved, righRemoved);
+                                    lRemoved, rRemoved);
         });
     }
 
-    function getColumnNum($table, colName) {
+    function getColNum($table, colName) {
         var $colTab = $table.find(".columnTab").filter(function() {
-                            return ($(this).text() === colName);
-                        });
+            return ($(this).text() === colName);
+        });
 
-        return xcHelper.parseColNum($colTab.closest("th"));
+        var colNum = xcHelper.parseColNum($colTab.closest("th")) - 1;
+
+        return (colNum);
     }
 
     function resetJoinTables() {
@@ -442,7 +448,7 @@ window.JoinModal = (function($, JoinModal) {
     }
 
     function updateJoinTableName() {
-        var joinTableName = xcHelper.randName("tempJoinTable-");
+        var joinTableName = xcHelper.randName("joinTable-");
         $joinTableName.val(joinTableName);
     }
 
@@ -464,8 +470,8 @@ window.JoinModal = (function($, JoinModal) {
         $('#moveCursor').remove();
     }
     // build left join table and right join table
-    function joinModalTabs($modal, tableNum, colNum, $sibling) {
-        if ($sibling) {
+    function joinModalTabs($modal, tableId, colNum, $sibling) {
+        if ($sibling != null) {
             $modal.find(".tabArea").html($sibling.find(".tabArea").html());
             $modal.find(".joinTableArea").html(
                     $sibling.find(".joinTableArea").html());
@@ -473,23 +479,21 @@ window.JoinModal = (function($, JoinModal) {
             joinModalHTMLHelper($modal);
         }
         // trigger click of table and column
-        if (tableNum >= 0) {
-            var tablename = gTables[tableNum - 1].tableName;
+        if (tableId != null) {
             $modal.find(".tableLabel").filter(function() {
-                return ($(this).text() === tablename);
+                return ($(this).data("id") === tableId);
             }).click();
 
             // this is only for left join
             if (colNum > 0) {
-                var dataColNum = $('#xcTable' + (tableNum - 1) + ' tbody .jsonElement')
-                                    .index();
+                var $table = xcHelper.getElementByTableId(tableId, "xcTable");
+                var dataColNum = $table.find('tbody .jsonElement').index();
                 if (colNum >= dataColNum) {
                     colNum--;
                 }
 
-                $modal.find('.joinTable[data-tablename="' +
-                                    tablename + '"]' + ' th:nth-child(' +
-                                colNum + ')').click();
+                $modal.find('.joinTable[data-id="' + tableId + '"]' +
+                            ' th:nth-child(' + colNum + ')').click();
             }
         } else {
             $modal.find('.tableLabel:first').click();
@@ -503,11 +507,16 @@ window.JoinModal = (function($, JoinModal) {
 
         // group table tab by worksheet (only show active table)
         for (var i = 0; i < gTables.length; i++) {
+            // XXX this should be fixed when no WSManager.getWSFromTable()
+            var tableId   = gTables[i].tableId;
             var tableName = gTables[i].tableName;
             var wsIndex   = WSManager.getWSFromTable(tableName);
 
             worksheets[wsIndex] = worksheets[wsIndex] || [];
-            worksheets[wsIndex].push(tableName);
+            worksheets[wsIndex].push({
+                "name": tableName,
+                "id"  : tableId
+            });
         }
 
         for (var i = 0, len = worksheets.length; i < len; i++) {
@@ -522,9 +531,10 @@ window.JoinModal = (function($, JoinModal) {
                 wsTabHtml += '<div class="worksheetLabel">' +
                                 wsName +
                             '</div>';
-                tabHtml += '<div class="tableLabel">' +
-                                wsTables[j] +
-                            '</div>';
+                tabHtml +=
+                    '<div class="tableLabel" data-id="' + wsTables[j].id + '">' +
+                        wsTables[j].name +
+                    '</div>';
             }
         }
 
@@ -536,8 +546,7 @@ window.JoinModal = (function($, JoinModal) {
         for (var i = 0; i < gTables.length; i++) {
             var table = gTables[i];
             var colHtml = '<table class="dataTable joinTable" ' +
-                            'data-tablename="' + table.tableName + '"' +
-                            'data-tablenum="' + i + '">' +
+                            'data-id="' + table.tableId + '">' +
                             '<thead>' +
                                 '<tr>';
 
@@ -585,7 +594,7 @@ window.JoinModal = (function($, JoinModal) {
         $modal.on('click', '.tableLabel', function() {
 
             var $tableLabel = $(this);
-            var tableName   = $tableLabel.text();
+            var tableId = $tableLabel.data("id");
             if ($tableLabel.hasClass('active')) {
                 return;
             }
@@ -605,8 +614,7 @@ window.JoinModal = (function($, JoinModal) {
             }
 
             $modal.find(".joinTable").hide();
-            $modal.find('.joinTable[data-tablename="' + tableName + '"]')
-                    .show();
+            $modal.find('.joinTable[data-id="' + tableId + '"]').show();
 
         });
 
@@ -646,12 +654,8 @@ window.JoinModal = (function($, JoinModal) {
             var colNum = xcHelper.parseColNum($th);
             var $table = $th.closest('table');
 
-            var tableName = $table.data("tablename");
-            var colName   = $th.find(".columnTab").text();
-
-            // var $tableInfo = isLeft ? $joinInstr.find(".leftTable") :
-            //                           $joinInstr.find(".rightTable");
-            // console.log(colNum);
+            var tableId = $table.data("id");
+            var colName = $th.find(".columnTab").text();
 
             if ($th.hasClass('colSelected')) {
                  // unselect column
@@ -670,13 +674,13 @@ window.JoinModal = (function($, JoinModal) {
                     $table.find(".columnTab").each(function() {
                         cols.push($(this).text());
                     });
-                    suggestJoinKey(tableName, colName, getType($th),
+                    suggestJoinKey(tableId, colName, getType($th),
                                    new xcHelper.Corrector(cols));
                 }
             }
         });
 
-        $modal.on("mousedown", ".columnTab", function(event) {
+        $modal.on("mousedown", ".columnTab", function() {
             if ($mainJoin.hasClass('multiClause')) {
                 var cursorStyle =
                     '<style id="moveCursor" type="text/css">*' +
@@ -722,17 +726,10 @@ window.JoinModal = (function($, JoinModal) {
         $tableArea.scrollLeft(position);
     }
 
-    function suggestJoinKey(tableName, colName, type, corrector) {
+    function suggestJoinKey(tableId, colName, type, corrector) {
         var isFound = false;
         var $thToClick;
-        // var $suggTableName = $joinInstr.find(".suggTable .tableName .text");
-        // var $suggColName = $joinInstr.find(".suggTable .joinKey .text");
-
-        var curTableName;
         var curColName;
-
-        // $suggTableName.text("");
-        // $suggColName.text("");
 
         $rightJoinTable.find("table").each(function() {
             var $table = $(this);
@@ -741,9 +738,9 @@ window.JoinModal = (function($, JoinModal) {
                 return;
             }
 
-            curTableName = $table.data("tablename");
+            curTableId = $table.data("id");
 
-            if (curTableName === tableName) {
+            if (curTableId === tableId) {
                 return;
             }
 
@@ -758,8 +755,6 @@ window.JoinModal = (function($, JoinModal) {
                         corrector.correct(curColName) === colName.toLowerCase())
                     {
                         isFound = true;
-                        // $suggTableName.text(curTableName);
-                        // $suggColName.text(curColName);
                         $thToClick = $th;
                         break;
                     }
@@ -769,7 +764,7 @@ window.JoinModal = (function($, JoinModal) {
 
         if (isFound && isOpenTime) {
             $rightJoinTable.find(".tableLabel").filter(function() {
-                return ($(this).text() === curTableName);
+                return ($(this).data("id") === curTableId);
             }).click();
             $thToClick.click();
             scrollToColumn($thToClick);

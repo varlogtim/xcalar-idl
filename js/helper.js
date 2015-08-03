@@ -179,11 +179,18 @@ window.xcHelper = (function($, xcHelper) {
         return (bytes);
     };
 
-    xcHelper.toggleModal = function(tableNum, isHide, options) {
+    xcHelper.toggleModal = function(tableId, isHide, options) {
         var $modalBackground = $("#modalBackground");
         var $mainFrame    = $("#mainFrame");
         var $sideBarModal = $("#sideBarModal");
         var $rightSideBar = $("#rightSideBar");
+        var $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
+
+        // XXX fix it when tableId attaches to DOM's id
+        var $otherWraps = $('.xcTableWrap').filter(function() {
+            var curTableId = xcHelper.parseTableId($(this).data("id"));
+            return (curTableId !== tableId);
+        });
 
         options = options || {};
 
@@ -200,15 +207,18 @@ window.xcHelper = (function($, xcHelper) {
                 $rightSideBar.removeClass('modalOpen');
             });
 
-            $('.xcTableWrap').not('#xcTableWrap' + tableNum)
-                             .removeClass('tableDarkened');
+            // $('.xcTableWrap').not('#xcTableWrap' + tableNum)
+            //                  .removeClass('tableDarkened');
 
-            $('#xcTableWrap' + tableNum).removeClass('modalOpen');
+            $otherWraps.removeClass('tableDarkened');
+
+            $tableWrap.removeClass('modalOpen');
         } else {
             // when open the modal
-            $('#xcTableWrap' + tableNum).addClass('modalOpen');
-            $('.xcTableWrap').not('#xcTableWrap' + tableNum)
-                             .addClass('tableDarkened');
+            $tableWrap.addClass('modalOpen');
+            // $('.xcTableWrap').not('#xcTableWrap' + tableNum)
+            //                  .addClass('tableDarkened');
+            $otherWraps.addClass('tableDarkened');
 
             $rightSideBar.addClass('modalOpen');
             $mainFrame.addClass('modalOpen');
@@ -514,7 +524,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.lockTable = function(tableId) {
-        if (tableId == null && tableName == null) {
+        if (tableId == null) {
             console.error("Invalid Parameters!");
             return;
         }

@@ -303,11 +303,9 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     function toggleModalDisplay(isHide, time) {
-        // XXX fix it when remove tableNum!
-
-        // xcHelper.toggleModal(tableNum, isHide, {
-        //     "fadeOutTime": time
-        // });
+        xcHelper.toggleModal(tableId, isHide, {
+            "fadeOutTime": time
+        });
 
         var $table = xcHelper.getElementByTableId(tableId, "xcTable");
         if (isHide) {

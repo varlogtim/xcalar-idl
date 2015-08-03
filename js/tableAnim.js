@@ -1182,7 +1182,7 @@ function renameTableHead($div) {
         return;
     }
 
-    var hashId = xcHelper.getTableId(newTableName)
+    var hashId = xcHelper.getTableId(newTableName);
     newTableName = xcHelper.getTableName(newTableName);
 
     xcHelper.checkDuplicateTableName(newTableName)
@@ -1670,10 +1670,11 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-        var colNum   = $colMenu.data('colNum');
 
-        JoinModal.show(tableNum, colNum);
+        var tableId = xcHelper.parseTableId($colMenu.data("id"));
+        var colNum  = $colMenu.data('colNum');
+
+        JoinModal.show(tableId, colNum);
     });
 
     $colMenu.on('mouseup', '.functions', function(event) {
