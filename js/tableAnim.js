@@ -677,8 +677,10 @@ function dblClickResize(el, options) {
 }
 
 function createTableHeader(tableNum) {
+    var tableId = gTables[tableNum].tableId;
     var $xcTheadWrap = $('<div id="xcTheadWrap' + tableNum +
                          '" class="xcTheadWrap dataTable" ' +
+                         '" data-id="xcTheadWrap-' + tableId + '" ' +
                          'style="top:0px;"></div>');
 
     $('#xcTableWrap' + tableNum).prepend($xcTheadWrap);
@@ -704,7 +706,8 @@ function createTableHeader(tableNum) {
     var newTableName = xcHelper.randName(tableName, undefined, true);
     var tableMenuHTML =
         '<ul id="tableMenu' + tableNum +
-            '" class="colMenu tableMenu" >' +
+            '" class="colMenu tableMenu" ' +
+            'data-id="tableMenu-' + tableId + '">' +
             '<li class="archiveTable">Archive Table</li>' +
             '<li class="hideTable">Hide Table</li>' +
             '<li class="unhideTable">Unhide Table</li>' +
@@ -2396,13 +2399,13 @@ function reorderAfterTableDrop() {
     for (var i = start; i <= end; i++) {
         // tablewrap and xcTheadWrap IDs were already changed during table
         // swapping
-        var tableWrap = $('#xcTableWrap' + i);
-        var table = tableWrap.find('.xcTable');
+        var $tableWrap = $('#xcTableWrap' + i);
+        var $table = tableWrap.find('.xcTable');
         // var oldIndex = parseInt(table.attr('id').substring(7));
-        table.attr('id', 'xcTable' + i);
-        tableWrap.find('.xcTbodyWrap').attr('id', 'xcTbodyWrap' + i);
-        tableWrap.find('.tableMenu').attr('id', 'tableMenu' + i);
-        tableWrap.children('.colMenu:not(.tableMenu)').attr('id', 'colMenu' + i);
+        $table.attr('id', 'xcTable' + i);
+        $tableWrap.find('.xcTbodyWrap').attr('id', 'xcTbodyWrap' + i);
+        $tableWrap.find('.tableMenu').attr('id', 'tableMenu' + i);
+        $tableWrap.children('.colMenu:not(.tableMenu)').attr('id', 'colMenu' + i);
         $(rowScrollers[i]).attr('id', 'rowScroller' + i);
         $(rowScrollers[i]).find('.rowMarker').attr('id', 'rowMarker' + i);
     }
@@ -2602,12 +2605,15 @@ window.RowScroller = (function($, RowScroller) {
     };
 
     RowScroller.add = function(tableNum) {
+        var tableId = gTables[tableNum].tableId;
         var rowScrollerHTML =
             '<div id="rowScroller' + tableNum +
-            '" class="rowScroller" data-toggle="tooltip" ' +
+            '" class="rowScroller" data-id="rowScroller-' + tableId + '" ' +
+            'data-toggle="tooltip" ' +
                 'data-container="body" ' +
                 'data-placement="bottom" title="scroll to a row">' +
-                '<div id="rowMarker' + tableNum + '" class="rowMarker">' +
+                '<div id="rowMarker' + tableNum + '" class="rowMarker" ' +
+                'data-id="rowMarker-' + tableId + '">' +
                     '<div class="subRowMarker top"></div>' +
                     '<div class="subRowMarker middle"></div>' +
                     '<div class="subRowMarker bottom"></div>' +

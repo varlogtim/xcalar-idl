@@ -506,6 +506,7 @@ function pullRowsBulk(tableNum, jsonObj, startIndex, dataIndex, direction,
 
 function generateTableShell(columns, tableNum) {
     var table = gTables[tableNum];
+    var tableId = table.tableId;
     var activeWS = WSManager.getActiveWS();
     var tableWS = WSManager.getWSFromTable(table.tableName);
     var activeClass = "";
@@ -514,8 +515,10 @@ function generateTableShell(columns, tableNum) {
     }
     var wrapper =
         '<div id="xcTableWrap' + tableNum + '"' +
-            ' class="xcTableWrap tableWrap ' + activeClass + '">' +
-            '<div id="xcTbodyWrap' + tableNum + '" class="xcTbodyWrap"></div>' +
+            ' class="xcTableWrap tableWrap ' + activeClass + '" ' +
+            'data-id="xcTableWrap-' + tableId + '">' +
+            '<div id="xcTbodyWrap' + tableNum + '" class="xcTbodyWrap" ' +
+            'data-id="xcTbodyWrap-' + tableId + '"></div>' +
         '</div>';
     // creates a new table, completed thead, and empty tbody
     if (tableNum === 0) {
@@ -526,7 +529,7 @@ function generateTableShell(columns, tableNum) {
 
     var newTable =
         '<table id="xcTable' + tableNum + '" class="xcTable dataTable" ' +
-        'style="width:0px;">' +
+        'style="width:0px;" data-id=xcTable-' + tableId + '">' +
           '<thead>' +
           '<tr>' +
             '<th style="width: 50px;" class="col0 th rowNumHead">' +
@@ -665,9 +668,11 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
 }
 
 function generateColDropDown(tableNum) {
+    var tableId = gTables[tableNum].tableId;
     var types = ['Boolean', 'Integer', 'Decimal', 'String'];
     var dropDownHTML =
-        '<ul id="colMenu' + tableNum + '" class="colMenu">' +
+        '<ul id="colMenu' + tableNum + '" class="colMenu" '+
+        'data-id="colMenu-' + tableId + '">' +
             '<li class="thDropdown">' +
                 'Add a column' +
                 '<ul class="subColMenu">' +
