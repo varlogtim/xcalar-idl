@@ -29,6 +29,15 @@ window.xcHelper = (function($, xcHelper) {
         return (null);
     };
 
+    xcHelper.getElementByTableId = function(tableId, prefix) {
+        var $ele = $("[data-id=" + prefix + "-" + tableId + "]");
+        if ($ele.length === 0) {
+            return (null);
+        } else {
+            return ($ele);
+        }
+    };
+
     xcHelper.getTableMeta = function(tableName, isHidden) {
         var table = isHidden ? gHiddenTables : gTables;
         for (var i = 0; i < table.length; i++) {
@@ -37,7 +46,7 @@ window.xcHelper = (function($, xcHelper) {
             }
         }
         return (undefined);
-    }
+    };
 
     xcHelper.parseTableNum = function($table) {
         // assumes we are passing in a table with an ID
@@ -471,13 +480,13 @@ window.xcHelper = (function($, xcHelper) {
         // get out tableName from tableName + hashId
         var tableName = wholeName.split("#")[0];
         return (tableName);
-    }
+    };
 
     xcHelper.unwrapHashId = function(wholeName) {
         // get out hashId from tableName + hashId
         var hashId = wholeName.split("#")[1];
         return (hashId);
-    }
+    };
 
     xcHelper.checkDuplicateTableName = function(tableName) {
         var deferred = jQuery.Deferred();
