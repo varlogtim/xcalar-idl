@@ -2379,7 +2379,10 @@ function reorderAfterTableDrop() {
     var $dagWrap = $('#dagWrap-' + gDragObj.tableId);
     var $dagWraps = $('.dagWrap');
     var tableIndex = gDragObj.tableIndex;
-    
+    var tableId = gDragObj.tableId;
+
+    WSManager.reorderTable(tableId, gDragObj.originalIndex,
+                                    gDragObj.tableIndex);
 
     if (gDragObj.tableIndex === 0) {
         $('#rowScrollerArea').prepend(rowScroller);

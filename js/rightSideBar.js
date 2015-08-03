@@ -744,6 +744,15 @@ window.RightSideBar = (function($, RightSideBar) {
     function addBulkTableHelper() {
         var $tables = $("#inactiveTablesList").find(".addTableBtn.selected")
                                               .closest(".tableInfo");
+        var $sheetTables = $tables.filter(function() {
+            return !$(this).find(".worksheetInfo").hasClass("inactive");
+        });
+
+        $sheetTables.each(function() {
+            var tableName = $(this).data("tablename");
+            WSManager.activeTable(tableName);
+        });
+
         var $noSheetTables = $tables.filter(function() {
             return $(this).find(".worksheetInfo").hasClass("inactive");
         });

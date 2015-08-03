@@ -709,7 +709,7 @@ window.xcFunction = (function ($, xcFunction) {
             var newTableName = getNewTableName(tableName);
 
             // XXX Cheng must add to worksheet before async call
-            WSManager.addTable(newTableName);
+            WSManager.addTable(newTableName, null, true);
             var sqlOptions = {
                     "operation"   : "index",
                     "key"         : colName,

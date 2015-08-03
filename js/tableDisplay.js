@@ -231,6 +231,8 @@ function archiveTable(tableNum, del, delayTableRemoval) {
     if ($('.xcTableWrap.active').length === 0) {
         RowScroller.empty();
     }
+
+    WSManager.archiveTable(tableName);
     moveTableDropdownBoxes();
     moveTableTitles();
 }

@@ -66,8 +66,63 @@ window.WSManager = (function($, WSManager) {
             for (var j = 0; j < tables.length; j++) {
                 wsIndexLookUp[tables[j]] = i;
             }
+
+            var hiddenTables = worksheets[i].hiddenTables;
+
+            for (var j = 0; j < hiddenTables.length; j++) {
+                wsIndexLookUp[hiddenTables[j]] = i;
+            }
         }
     };
+
+    WSManager.reorderTable = function(tableId, scrIndex, desIndex) {
+        // XXX need to refine when tableId replace tableName!!!
+
+        var table = xcHelper.getTableFromId(tableId);
+        var tableName = table.tableName;
+        var wsIndex = WSManager.getWSFromTable(tableName);
+        var worksheet = worksheets[wsIndex];
+
+        var t = worksheet.tables[scrIndex];
+        worksheet.tables.splice(scrIndex, 1);
+        worksheet.tables.splice(desIndex, 0, t);
+    };
+
+    WSManager.archiveTable = function(tableName) {
+        var wsIndex   = WSManager.getWSFromTable(tableName);
+        var worksheet = worksheets[wsIndex];
+
+        var srcTables = worksheet.tables;
+        var desTables = worksheet.hiddenTables;
+
+        toggleTableArchieve(tableName, srcTables, desTables);
+    };
+
+    WSManager.activeTable = function(tableName) {
+        var wsIndex   = WSManager.getWSFromTable(tableName);
+        var worksheet = worksheets[wsIndex];
+
+        var srcTables = worksheet.hiddenTables;
+        var desTables = worksheet.tables;
+
+        toggleTableArchieve(tableName, srcTables, desTables);
+    };
+
+    function toggleTableArchieve(tableName, srcTables, desTables, index) {
+        var tableIndex = srcTables.indexOf(tableName);
+
+        if (tableIndex < 0) {
+            console.error("Do not find the table");
+        }
+
+        if (index == null) {
+            index = desTables.length;
+        }
+
+        // move from scrTables to desTables
+        srcTables.splice(tableIndex, 1);
+        desTables.splice(index, 0, tableName);
+    }
 
     /**
      * Get worksheet index from table name
@@ -132,7 +187,7 @@ window.WSManager = (function($, WSManager) {
      * @param {string} tableName The table's name
      * @param {number} [wsIndex=activeWorksheet] The worksheet's index
      */
-    WSManager.addTable = function(tableName, wsIndex) {
+    WSManager.addTable = function(tableName, wsIndex, isHidden) {
         if (tableName in wsIndexLookUp) {
             return (wsIndexLookUp[tableName]);
         } else {
@@ -140,7 +195,11 @@ window.WSManager = (function($, WSManager) {
                 wsIndex = activeWorsheet;
             }
 
-            setWorksheet(wsIndex, {"tables": tableName});
+            if (isHidden) {
+                setWorksheet(wsIndex, {"hiddenTables": tableName});
+            } else {
+                setWorksheet(wsIndex, {"tables": tableName});
+            }
             return (wsIndex);
         }
     };
@@ -246,7 +305,14 @@ window.WSManager = (function($, WSManager) {
         var tables     = worksheets[wsIndex].tables;
         var tableIndex = tables.indexOf(tableName);
 
-        tables.splice(tableIndex, 1);
+        if (tableIndex > 0) {
+            tables.splice(tableIndex, 1);
+        } else {
+            // when the table is hidden
+            tables = worksheets[wsIndex].hiddenTables;
+            tableIndex = tables.indexOf(tableName);
+            tables.splice(tableIndex, 1);
+        }
 
         delete wsIndexLookUp[tableName];
 
@@ -541,13 +607,16 @@ window.WSManager = (function($, WSManager) {
      */
     function setWorksheet(wsIndex, options) {
         if (worksheets[wsIndex] == null) {
-            worksheets[wsIndex] = {"tables": []};
+            worksheets[wsIndex] = {
+                "tables"      : [],
+                "hiddenTables": []
+            };
         }
 
         for (var key in options) {
             var val = options[key];
 
-            if (key === "tables") {
+            if (key === "tables" || key === "hiddenTables") {
                 if (val in wsIndexLookUp) {
                     console.error(val, "already in worksheets!");
                     return;
