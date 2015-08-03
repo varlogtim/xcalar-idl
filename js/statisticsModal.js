@@ -1,4 +1,4 @@
-window.STATSManager = (function($, STATSManager) {
+window.STATSManager = (function($, STATSManager, d3) {
     var $statsModal = $("#statsModal");
     var $modalBg    = $("#modalBackground");
 
@@ -30,6 +30,13 @@ window.STATSManager = (function($, STATSManager) {
 
     var statsInfos = {};
 
+    // data with initial value
+    var resultSetId = null;
+    var totalRows = null;
+    var groupByData = [];
+    var order = sortMap.origin;
+    var statsCol = null;
+
     STATSManager.setup = function() {
         $statsModal.on("click", ".cancel, .close", function() {
             closeStats();
@@ -58,6 +65,21 @@ window.STATSManager = (function($, STATSManager) {
         $statsModal.on("mouseover", function() {
             $(".barArea").tooltip("hide")
                         .attr("class", "barArea");
+        });
+
+        // event on sort section
+        var $sortSection = $statsModal.find(".sortSection");
+
+        $sortSection.on("click", ".asc .iconWrapper", function() {
+            sortData(sortMap.asc);
+        });
+
+        $sortSection.on("click", ".origin .iconWrapper", function() {
+            sortData(sortMap.origin);
+        });
+
+        $sortSection.on("click", ".desc .iconWrapper", function() {
+            sortData(sortMap.desc);
         });
     };
 
@@ -88,49 +110,21 @@ window.STATSManager = (function($, STATSManager) {
         var colName = col.func.args[0];
         statsInfos[tableId] = statsInfos[tableId] || {};
 
-        var statsCol = statsInfos[tableId][colName];
+        statsCol = statsInfos[tableId][colName];
 
-        if (statsCol != null) {
-            // check if the groupbyTable is not deleted
-            // XXX use XcalarGetTables because XcalarSetAbsolute cannot
-            // return fail if resultSetId is not free
-            XcalarGetTables(statsCol.groupByInfo.groupbyTable)
-            .then(function(tableInfo) {
-                if (tableInfo == null || tableInfo.numTables === 0) {
-                    // XXX use XcalarSetFree will crash backend...
-                    // XcalarSetFree(statsCol.groupByInfo.resultSetId);
-                    statsCol.groupByInfo = {
-                        "data"      : [],
-                        "isComplete": false,
-                        "order"     : sortMap.origin
-                    };
-
-                    generateStats(table.tableName, table.statsCols[colName],
-                            table.keyName);
-                } else {
-                    showStats(statsCol);
-                }
-            })
-            .fail(function(error) {
-                console.error(error);
-            });
-        } else {
-            statsInfos[tableId][colName] = {
+        if (statsCol == null) {
+            statsCol = statsInfos[tableId][colName] = {
                 "modalId"    : xcHelper.randName("stats"),
                 "colName"    : colName,
                 "type"       : col.type,
                 "aggInfo"    : {},
                 "groupByInfo": {
-                    "data"      : [],
-                    "isComplete": false,
-                    "order"     : sortMap.origin
+                    "isComplete": false
                 }
             };
-
-            statsCol = statsInfos[tableId][colName];
-
-            generateStats(table.tableName, statsCol, table.keyName);
         }
+
+        generateStats(table);
     };
 
     function closeStats() {
@@ -143,11 +137,64 @@ window.STATSManager = (function($, STATSManager) {
         $(document).off(".statsModal");
         $("#stats-rowInput").off();
         resetScrollBar();
-        // turn off sort section event
-        $statsModal.find(".sortSection").off();
+
+        resultSetId = null;
+        totalRows = null;
+        groupByData = [];
+        order = sortMap.origin;
+        statsCol = null;
+
+        freePointer();
     }
 
-    function showStats(statsCol) {
+    function generateStats(table) {
+        var type = statsCol.type;
+        var tableName = table.tableName;
+        var keyName = table.keyName;
+
+        // do aggreagte
+        statsCol.aggInfo = statsCol.aggInfo || {};
+
+        for (var i = 0, len = aggKeys.length; i < len; i++) {
+            var aggkey = aggKeys[i];
+            if (statsCol.aggInfo[aggkey] == null) {
+                // should do aggreagte
+                if (type === "integer" || type === "decimal") {
+                    runAgg(tableName, aggkey);
+                } else {
+                    statsCol.aggInfo[aggkey] = "N/A";
+                }
+            }
+        }
+
+        // do group by
+        if (statsCol.groupByInfo.isComplete) {
+            // check if the groupbyTable is not deleted
+            // XXX use XcalarGetTables because XcalarSetAbsolute cannot
+            // return fail if resultSetId is not free
+            XcalarGetTables(statsCol.groupByInfo.groupbyTable)
+            .then(function(tableInfo) {
+                if (tableInfo == null || tableInfo.numTables === 0) {
+                    // XXX use XcalarSetFree will crash backend...
+                    statsCol.groupByInfo = {
+                        "isComplete": false,
+                        "order"     : sortMap.origin
+                    };
+
+                    runGroupby(tableName, keyName);
+                }
+            })
+            .fail(function(error) {
+                console.error(error);
+            });
+        } else {
+            runGroupby(tableName, keyName);
+        }
+
+        showStats();
+    }
+
+    function showStats() {
         centerPositionElement($statsModal);
         $modalBg.fadeIn(300);
         $statsModal.removeClass("hidden").data("id", statsCol.modalId);
@@ -157,34 +204,11 @@ window.STATSManager = (function($, STATSManager) {
                         .attr("class", "barArea");
         });
 
-        refreshStats(statsCol);
-    }
-
-    function generateStats(tableName, statsCol, keyName) {
-        var type = statsCol.type;
-
-        // do aggreagte
-        if (type === "integer" || type === "decimal") {
-            // should do aggreagte
-            aggKeys.forEach(function(aggkey) {
-                runAgg(tableName, statsCol, aggkey);
-            });
-        } else {
-            var aggs = {};
-            for (var i = 0, len = aggKeys.length; i < len; i++) {
-                aggs[aggKeys[i]] = "N/A";
-            }
-            statsCol.aggInfo = aggs;
-        }
-
-        // do group by
-        runGroupby(tableName, statsCol, keyName);
-
-        showStats(statsCol);
+        refreshStats();
     }
 
     // refresh stats
-    function refreshStats(statsCol, sortRefresh) {
+    function refreshStats(sortRefresh) {
         var $aggInfoSection = $statsModal.find(".aggInfoSection");
         var $loadingSection = $statsModal.find(".loadingSection");
         var $loadHiddens    = $statsModal.find(".loadHidden");
@@ -210,12 +234,31 @@ window.STATSManager = (function($, STATSManager) {
             }
         });
 
+        var groupByInfo = statsCol.groupByInfo;
         // update groupby info
-        if (statsCol.groupByInfo.isComplete) {
+        if (groupByInfo.isComplete) {
             // data is ready
-            statsCol.groupByInfo.data = [];
+            groupByData = [];
 
-            fetchGroupbyData(statsCol.groupByInfo, 0, numRowsToFetch)
+            freePointer()
+            .then(function() {
+                var table;
+
+                if (order === sortMap.asc) {
+                    table = groupByInfo.ascTable;
+                } else if (order === sortMap.desc) {
+                    table = groupByInfo.descTable;
+                } else {
+                    table = groupByInfo.groupbyTable;
+                }
+                return getResultSet(table);
+            })
+            .then(function(resultSet) {
+                resultSetId = resultSet.resultSetId;
+                totalRows = resultSet.numEntries;
+
+                return (fetchGroupbyData(0, numRowsToFetch));
+            })
             .then(function() {
                 $loadingSection.addClass("hidden");
                 $loadHiddens.removeClass("hidden").removeClass("disabled");
@@ -223,10 +266,10 @@ window.STATSManager = (function($, STATSManager) {
                 if (sortRefresh) {
                     resetScrollBar();
                 } else {
-                    setupScrollBar(statsCol);
+                    setupScrollBar();
                 }
-                setupSortSection(statsCol, sortRefresh);
-                buildGroupGraphs(statsCol, true);
+                resetSortSection();
+                buildGroupGraphs(true);
             });
 
             instruction = "Hover on the bar to see details. " +
@@ -240,7 +283,24 @@ window.STATSManager = (function($, STATSManager) {
         $statsModal.find(".modalInstruction .text").text(instruction);
     }
 
-    function runAgg(tableName, statsCol, aggkey) {
+    function freePointer() {
+        var deferred = jQuery.Deferred();
+
+        if (resultSetId == null) {
+            deferred.resolve();
+        } else {
+            XcalarSetFree(resultSetId)
+            .then(function() {
+                resultSetId = null;
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+        }
+
+        return (deferred.promise());
+    }
+
+    function runAgg(tableName, aggkey) {
         var fieldName = statsCol.colName;
         var opString  = aggMap[aggkey];
 
@@ -267,7 +327,7 @@ window.STATSManager = (function($, STATSManager) {
         });
     }
 
-    function runGroupby(tableName, statsCol, keyName) {
+    function runGroupby(tableName, keyName) {
         var groupbyTable;
         var colName = statsCol.colName;
         var tableToDelete;
@@ -307,24 +367,19 @@ window.STATSManager = (function($, STATSManager) {
                 val = obj.Value;
 
                 statsCol.groupByInfo.max = val;
-
-                return (getResultSet(groupbyTable));
             } catch (error) {
                 console.error(error, val);
                 return (jQuery.Deferred().reject(error));
             }
-        })
-        .then(function(resultSet) {
+
             statsCol.groupByInfo.groupbyTable = groupbyTable;
-            statsCol.groupByInfo.resultSetId = resultSet.resultSetId;
-            statsCol.groupByInfo.numEntries = resultSet.numEntries;
             statsCol.groupByInfo.isComplete = true;
 
             // modal is open and is for that column
             if (!$statsModal.hasClass("hidden") &&
                 $statsModal.data("id") === statsCol.modalId)
             {
-                refreshStats(statsCol);
+                refreshStats();
             }
 
             // XXX this can be removed if we do not want indexed table to be del
@@ -363,18 +418,8 @@ window.STATSManager = (function($, STATSManager) {
         return (deferred.promise());
     }
 
-    function fetchGroupbyData(groupByInfo, rowPosition, rowsToFetch) {
+    function fetchGroupbyData(rowPosition, rowsToFetch) {
         var deferred = jQuery.Deferred();
-        var resultSetId;
-        var order = groupByInfo.order;
-
-        if (order === sortMap.asc) {
-            resultSetId = groupByInfo.ascId;
-        } else if (order === sortMap.desc) {
-            resultSetId = groupByInfo.descId;
-        } else {
-            resultSetId = groupByInfo.resultSetId;
-        }
 
         XcalarSetAbsolute(resultSetId, rowPosition)
         .then(function() {
@@ -386,7 +431,7 @@ window.STATSManager = (function($, STATSManager) {
             var numStillNeeds = 0;
 
             if (numKvPairs < rowsToFetch) {
-                if (rowPosition + numKvPairs >= groupByInfo.numEntries) {
+                if (rowPosition + numKvPairs >= totalRows) {
                     numStillNeeds = 0;
                 } else {
                     numStillNeeds = rowsToFetch - numKvPairs;
@@ -399,7 +444,7 @@ window.STATSManager = (function($, STATSManager) {
             for (var i = 0; i < numRows; i++) {
                 try {
                     value = $.parseJSON(kvPairs[i].value);
-                    groupByInfo.data.push(value);
+                    groupByData.push(value);
                 } catch (error) {
                     console.error(error, kvPairs[i].value);
                     deferred.reject(error);
@@ -417,8 +462,7 @@ window.STATSManager = (function($, STATSManager) {
                     newPosition = rowPosition + numRows;
                 }
 
-                return (fetchGroupbyData(groupByInfo, newPosition,
-                                            numStillNeeds));
+                return (fetchGroupbyData(newPosition, numStillNeeds));
             }
         })
         .then(deferred.resolve)
@@ -427,13 +471,13 @@ window.STATSManager = (function($, STATSManager) {
         return (deferred.promise());
     }
 
-    function buildGroupGraphs(statsCol, initial) {
+    function buildGroupGraphs(initial) {
         var xName = statsCol.colName;
         var yName = statsColName;
         var groupByInfo = statsCol.groupByInfo;
 
         var $section = $statsModal.find(".groubyInfoSection");
-        var data = groupByInfo.data;
+        var data = groupByData;
         var maxRectW = 70;
 
         var sectionWidth = $section.width();
@@ -561,8 +605,8 @@ window.STATSManager = (function($, STATSManager) {
         $statsModal.find(".scroller").css("transform", "");
     }
 
-    function setupScrollBar(statsCol) {
-        var totalNum = statsCol.groupByInfo.numEntries;
+    function setupScrollBar() {
+        var totalNum = totalRows;
 
         var $section = $statsModal.find(".scrollSection");
         var $scrollerArea = $section.find(".rowScrollArea");
@@ -691,7 +735,6 @@ window.STATSManager = (function($, STATSManager) {
 
             $rowInput.val(rowNum).data("rowNum", rowNum);
 
-            statsCol.groupByInfo.data = [];
             // disable another fetching data event till this one done
             $section.addClass("disabled");
 
@@ -702,9 +745,10 @@ window.STATSManager = (function($, STATSManager) {
             }, 500);
 
             var rowPosition = rowNum - 1;
-            fetchGroupbyData(statsCol.groupByInfo, rowPosition, rowsToFetch)
+            groupByData = [];
+            fetchGroupbyData(rowPosition, rowsToFetch)
             .then(function() {
-                buildGroupGraphs(statsCol);
+                buildGroupGraphs();
                 $loadingSection.addClass("hidden");
                 clearTimeout(loadTimer);
             })
@@ -721,41 +765,24 @@ window.STATSManager = (function($, STATSManager) {
         }
     }
 
-    function setupSortSection(statsCol, sortRefresh) {
-        var $section = $statsModal.find(".sortSection");
-
-        $section.find(".active").removeClass("active")
-                .end()
-                .find("." + statsCol.groupByInfo.order + " .iconWrapper")
-                    .addClass("active");
-
-        if (!sortRefresh) {
-            $section.on("click", ".asc .iconWrapper", function() {
-                sortData(statsCol, sortMap.asc);
-            });
-
-            $section.on("click", ".origin .iconWrapper", function() {
-                sortData(statsCol, sortMap.origin);
-            });
-
-            $section.on("click", ".desc .iconWrapper", function() {
-                sortData(statsCol, sortMap.desc);
-            });
-        }
+    function resetSortSection() {
+        $statsModal.find(".sortSection").find(".active").removeClass("active")
+                    .end()
+                    .find("." + order + " .iconWrapper").addClass("active");
     }
 
-    function sortData(statsCol, order) {
-        if (statsCol.groupByInfo.order === order) {
+    function sortData(newOrder) {
+        if (order === newOrder) {
             return;
         }
 
         statsCol.groupByInfo.isComplete = false;
 
-        runSort(statsCol, order)
+        runSort(newOrder)
         .then(function() {
-            statsCol.groupByInfo.order = order;
+            order = newOrder;
             statsCol.groupByInfo.isComplete = true;
-            refreshStats(statsCol, true);
+            refreshStats(true);
         })
         .fail(function(error) {
             statsCol.groupByInfo.isComplete = true;
@@ -763,14 +790,14 @@ window.STATSManager = (function($, STATSManager) {
         });
     }
 
-    function runSort(statsCol, order) {
+    function runSort(newOrder) {
         var deferred = jQuery.Deferred();
         var groupByInfo = statsCol.groupByInfo;
         var tableName;
         var newTableName;
 
-        if (order === sortMap.asc) {
-            if (groupByInfo.ascId != null) {
+        if (newOrder === sortMap.asc) {
+            if (groupByInfo.ascTable != null) {
                 deferred.resolve();
             } else {
                 // get a sort table
@@ -779,17 +806,13 @@ window.STATSManager = (function($, STATSManager) {
 
                 XcalarIndexFromTable(tableName, statsColName, newTableName)
                 .then(function() {
-                    return (getResultSet(newTableName));
-                })
-                .then(function(resultSet) {
                     groupByInfo.ascTable = newTableName;
-                    groupByInfo.ascId = resultSet.resultSetId;
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
             }
-        } else if (order === sortMap.desc) {
-            if (groupByInfo.descId != null) {
+        } else if (newOrder === sortMap.desc) {
+            if (groupByInfo.descTable != null) {
                 deferred.resolve();
             } else {
                 // get a reverse sort table
@@ -802,4 +825,4 @@ window.STATSManager = (function($, STATSManager) {
     }
 
     return (STATSManager);
-}(jQuery, {}));
+}(jQuery, {}, d3));
