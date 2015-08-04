@@ -1181,12 +1181,12 @@ function renameTableHead($div) {
         return;
     }
 
-    var hahsId = xcHelper.unwrapHashId(newTableName)
-    newTableName = xcHelper.unwrapTableName(newTableName);
+    var hashId = xcHelper.getTableId(newTableName)
+    newTableName = xcHelper.getTableName(newTableName);
 
     xcHelper.checkDuplicateTableName(newTableName)
     .then(function() {
-        var wholeName = newTableName + "#" + hahsId;
+        var wholeName = newTableName + "#" + hashId;
         return (xcFunction.rename(tableNum, oldTableName, wholeName));
     })
     .then(function() {

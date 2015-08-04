@@ -674,7 +674,7 @@ window.DataCart = (function($, DataCart) {
                 var innerDeferred = jQuery.Deferred();
                 var tables = results.tables;
                 for (var i = 0, len = results.numTables; i < len; i++) {
-                    var name = xcHelper.unwrapTableName(tables[i].tableName);
+                    var name = xcHelper.getTableName(tables[i].tableName);
                     tableNames[name] = true;
                 }
 
@@ -928,7 +928,7 @@ window.DataCart = (function($, DataCart) {
         .then(function(result) {
             var tables = result.tables;
             for (var i = 0; i < result.numTables; i++) {
-                var name = xcHelper.unwrapTableName(tables[i].tableName);
+                var name = xcHelper.getTableName(tables[i].tableName);
                 tableNames[name] = 1;
             }
 

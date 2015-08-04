@@ -437,7 +437,7 @@ window.Dag = (function($, Dag) {
         .then(function(dagDrawing) {
             var activeWS = WSManager.getActiveWS();
             var tableWS = WSManager.getWSFromTable(tableName);
-            var tableId = xcHelper.unwrapHashId(tableName);
+            var tableId = xcHelper.getTableId(tableName);
             var tableNum = xcHelper.getTableIndexFromName(tableName);
             var activeClass = "";
             if (activeWS !== tableWS) {

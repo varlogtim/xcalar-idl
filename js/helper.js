@@ -480,13 +480,13 @@ window.xcHelper = (function($, xcHelper) {
         return true;
     };
 
-    xcHelper.unwrapTableName = function(wholeName) {
+    xcHelper.getTableName = function(wholeName) {
         // get out tableName from tableName + hashId
         var tableName = wholeName.split("#")[0];
         return (tableName);
     };
 
-    xcHelper.unwrapHashId = function(wholeName) {
+    xcHelper.getTableId = function(wholeName) {
         // get out hashId from tableName + hashId
         var hashId = wholeName.split("#")[1];
         return (hashId);
@@ -499,7 +499,7 @@ window.xcHelper = (function($, xcHelper) {
         .then(function(result) {
             var tables = result.tables;
             for (var i = 0; i < result.numTables; i++) {
-                var name = xcHelper.unwrapTableName(tables[i].tableName);
+                var name = xcHelper.getTableName(tables[i].tableName);
                 if (name === tableName) {
                     return (deferred.reject('table'));
                 }

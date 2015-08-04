@@ -362,7 +362,7 @@ function setTableMeta(tableName) {
         newTable.numPages = Math.ceil(newTable.resultSetCount /
                                       gNumEntriesPerPage);
         newTable.tableName = tableName;
-        newTable.tableId = xcHelper.unwrapHashId(tableName);
+        newTable.tableId = xcHelper.getTableId(tableName);
         newTable.keyName = resultSet.keyAttrHeader.name;
 
         deferred.resolve(newTable);
