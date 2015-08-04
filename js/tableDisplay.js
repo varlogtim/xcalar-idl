@@ -531,7 +531,7 @@ function generateTableShell(columns, tableNum) {
 
     var newTable =
         '<table id="xcTable' + tableNum + '" class="xcTable dataTable" ' +
-        'style="width:0px;" data-id=xcTable-' + tableId + '">' +
+        'style="width:0px;" data-id="xcTable-' + tableId + '">' +
           '<thead>' +
           '<tr>' +
             '<th style="width: 50px;" class="col0 th rowNumHead">' +
