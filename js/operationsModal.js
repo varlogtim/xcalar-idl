@@ -906,7 +906,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     colType = getColumnTypeFromArg(arg);
 
                     if (colType != null) {
-                        var types = paresType(typeid);
+                        var types = parseType(typeid);
 
                         if (types.indexOf(colType) < 0) {
                             isPassing = false;
@@ -916,7 +916,7 @@ window.OperationsModal = (function($, OperationsModal) {
                             return (false);
                         }
                     } else {
-                        console.error("colType is null!");
+                        console.error("colType is null/col not pulled!");
                     }
                 }
             } else {
@@ -1026,47 +1026,19 @@ window.OperationsModal = (function($, OperationsModal) {
         var i;
 
         var $argInputs = $operationsModal.find('.argument');
-
-        var groupbyCol    = args[0];
-        var groupbyColNum = -1;
-        // check if groubyCol is valid
-        for (i = 0; i < numCols; i++) {
-            if (columns[i].name === groupbyCol && columns[i].func.args) {
-                groupbyColNum = i;
-                break;
-            }
-        }
-
-        if (groupbyColNum < 0) {
-            StatusBox.show(errorText, $argInputs.eq(0), isFormMode);
-            return (false);
-        }
-
-        var indexedCol    = args[1];
-        var indexedColNum = -1;
-        // check if indexCol is valid
-        for (i = 0; i < numCols; i++) {
-            if (columns[i].name === indexedCol && columns[i].func.args) {
-                indexedColNum = i;
-                break;
-            }
-        }
-
-        if (indexedColNum < 0) {
-            StatusBox.show(errorText, $argInputs.eq(1), isFormMode);
-            return (false);
-        }
-
+        var groupbyColName = args[0];
+        var indexedColName = args[1];
         // check new col name
         var newColName  = args[2];
-        var isDuplicate = ColManager.checkColDup($argInputs.eq(2), null, tableId);
+        var isDuplicate = ColManager.checkColDup($argInputs.eq(2), null,
+                                                 tableId);
         if (isDuplicate) {
             return (false);
         }
 
         var isIncSample = $argInputs.eq(3).is(':checked');
 
-        xcFunction.groupBy(operator, tableId, indexedColNum, groupbyColNum,
+        xcFunction.groupBy(operator, tableId, indexedColName, groupbyColName,
                             isIncSample, newColName);
         return (true);
     }
@@ -1115,6 +1087,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 break;
             }
         }
+
         return (colType);
     }
 
@@ -1140,7 +1113,7 @@ window.OperationsModal = (function($, OperationsModal) {
         return (value);
     }
 
-    function paresType(typeId) {
+    function parseType(typeId) {
         var types = [];
         var typeShift;
 
