@@ -200,6 +200,9 @@ window.ColManager = (function($, ColManager) {
         var matches;
         var fieldName;
 
+        // XXX Fix it when we remove tableNum
+        var tableId = gTables[tableNum].tableId;
+
         switch (progCol.func.func) {
             case ("pull"):
                 if (!parsePullColArgs(progCol)) {
@@ -250,8 +253,8 @@ window.ColManager = (function($, ColManager) {
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
                 var options = {replaceColumn: true};
-                xcFunction.map(progCol.index, tableNum, fieldName, mapString,
-                               options)
+                xcFunction.map(progCol.index, tableId, fieldName,
+                                mapString, options)
                 .then(deferred.resolve)
                 .fail(function(error) {
                     console.error("execCol fails!", error);
@@ -272,8 +275,9 @@ window.ColManager = (function($, ColManager) {
                 progCol.isNewCol = false;
                 // progCol.userStr = '"' + progCol.name + '"' + " = pull(" +
                 //                   fieldName + ")";
-                xcFunction.filter(progCol.index, tableNum, {"filterString":
-                                  fltString})
+                xcFunction.filter(progCol.index, tableId, {
+                    "filterString": fltString
+                })
                 .then(deferred.resolve)
                 .fail(function(error) {
                     console.error("execCol fails!", error);
@@ -294,8 +298,8 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     };
 
-    ColManager.checkColDup = function ($input, $inputs, tableNum, parseCol) {
-        // $inputs checks the names of $inputs, tableNum is used to check
+    ColManager.checkColDup = function ($input, $inputs, tableId, parseCol) {
+        // $inputs checks the names of $inputs, tableId is used to check
         // back column names. You do not need both
         var name        = $input.val().trim();
         var isDuplicate = false;
@@ -327,8 +331,8 @@ window.ColManager = (function($, ColManager) {
             });
         }
 
-        if (!isDuplicate && tableNum > -1) {
-            var tableCols   = gTables[tableNum].tableCols;
+        if (!isDuplicate && tableId != null) {
+            var tableCols = xcHelper.getTableFromId(tableId).tableCols;
             var numCols = tableCols.length;
             for (var i = 0; i < numCols; i++) {
                 if (tableCols[i].func.args) {

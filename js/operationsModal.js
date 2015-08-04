@@ -16,6 +16,8 @@ window.OperationsModal = (function($, OperationsModal) {
     var modalHelper = new xcHelper.Modal($operationsModal);
     var corrector;
 
+    var tableId;
+
     OperationsModal.getOperatorsMap = function() {
         return (operatorsMap);
     };
@@ -247,6 +249,8 @@ window.OperationsModal = (function($, OperationsModal) {
             // groupby and aggregates stick to num 6,
             // filter and map use 0-5;
             tableNum = newTableNum;
+            // XXX Remove it when tableId replaces tableNum
+            tableId = gTables[tableNum].tableId;
             colNum = newColNum;
             colName = currentCol.name;
             operatorName = operator.toLowerCase().trim();
@@ -960,7 +964,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function aggregate(aggrOp, args) {
         var colIndex = -1;
-        var columns = gTables[tableNum].tableCols;
+        var columns = xcHelper.getTableFromId(tableId).tableCols;
         var frontColName = args[0];
         var backColName = frontColName;
 
@@ -976,8 +980,7 @@ window.OperationsModal = (function($, OperationsModal) {
             return (false);
         }
 
-        xcFunction.aggregate(colIndex, frontColName, backColName,
-                            tableNum, aggrOp);
+        xcFunction.aggregate(colIndex, tableId, aggrOp);
         return (true);
     }
 
@@ -987,7 +990,7 @@ window.OperationsModal = (function($, OperationsModal) {
         if (operator !== 'not') {
             var frontName = args[0];
             var backName = frontName;
-            var columns = gTables[tableNum].tableCols;
+            var columns = xcHelper.getTableFromId(tableId).tableCols;
             var numCols = columns.length;
             for (var i = 0; i < numCols; i++) {
                 if (columns[i].name === frontName) {
@@ -1003,7 +1006,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var filterString = formulateFilterString(operator, args);
         options = {"filterString": filterString};
 
-        xcFunction.filter(colIndex, tableNum, options);
+        xcFunction.filter(colIndex, tableId, options);
 
         return (true);
     }
@@ -1018,13 +1021,13 @@ window.OperationsModal = (function($, OperationsModal) {
         var errorText  = 'Invalid column name';
         var isFormMode = false;
 
-        var columns = gTables[tableNum].tableCols;
+        var columns = xcHelper.getTableFromId(tableId).tableCols;
         var numCols = columns.length;
         var i;
 
         var $argInputs = $operationsModal.find('.argument');
 
-        var groupbyCol  = args[0];
+        var groupbyCol    = args[0];
         var groupbyColNum = -1;
         // check if groubyCol is valid
         for (i = 0; i < numCols; i++) {
@@ -1056,14 +1059,14 @@ window.OperationsModal = (function($, OperationsModal) {
 
         // check new col name
         var newColName  = args[2];
-        var isDuplicate = ColManager.checkColDup($argInputs.eq(2), null, tableNum);
+        var isDuplicate = ColManager.checkColDup($argInputs.eq(2), null, tableId);
         if (isDuplicate) {
             return (false);
         }
 
         var isIncSample = $argInputs.eq(3).is(':checked');
 
-        xcFunction.groupBy(operator, tableNum, indexedColNum, groupbyColNum,
+        xcFunction.groupBy(operator, tableId, indexedColNum, groupbyColNum,
                             isIncSample, newColName);
         return (true);
     }
@@ -1076,14 +1079,14 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var parseCol    = true;
         var isDuplicate = ColManager.checkColDup($nameInput, null,
-                                                tableNum, parseCol);
+                                                tableId, parseCol);
         if (isDuplicate) {
             return (false);
         }
 
         var firstValue = args[0];
 
-        var columns = gTables[tableNum].tableCols;
+        var columns = xcHelper.getTableFromId(tableId).tableCols;
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             if (columns[i].name === firstValue && columns[i].func.args) {
                 firstValue = columns[i].func.args[0];
@@ -1095,7 +1098,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         mapStr = formulateMapString(operator, args);
 
-        xcFunction.map(colNum, tableNum, newColName, mapStr);
+        xcFunction.map(colNum, tableId, newColName, mapStr);
 
         return (true);
     }

@@ -1172,10 +1172,11 @@ function sortAllTableColumns(tableNum, direction) {
 }
 
 function renameTableHead($div) {
-    var newTableName = jQuery.trim($div.text());
-    var tableNum = parseInt($div.closest('.xcTheadWrap')
-                                  .attr('id').substr(11));
-    var oldTableName = gTables[tableNum].tableName;
+    var newTableName = $div.text().trim();
+    var $th = $div.closest('.xcTheadWrap');
+    var tableId = xcHelper.parseTableId($th.data("id"));
+    var oldTableName = xcHelper.getTableFromId(tableId).tableName;
+
     if (newTableName === oldTableName) {
         $div.blur();
         return;
@@ -1187,7 +1188,7 @@ function renameTableHead($div) {
     xcHelper.checkDuplicateTableName(newTableName)
     .then(function() {
         var wholeName = newTableName + "#" + hashId;
-        return (xcFunction.rename(tableNum, oldTableName, wholeName));
+        return (xcFunction.rename(tableId, oldTableName, wholeName));
     })
     .then(function() {
         updateTableHeader(null, $div);
@@ -1552,18 +1553,18 @@ function addColMenuActions($colMenu) {
     $colMenu.on('keypress', '.renameCol input', function(event) {
         if (event.which === keyCode.Enter) {
             var $input  = $(this);
-            var colName  = $input.val().trim();
-            var tableNum = parseInt($colMenu.attr('id').substring(7));
+            var colName = $input.val().trim();
+            var tableId = xcHelper.parseTableId($colMenu.data("id"));
 
             if (colName === "" ||
-                ColManager.checkColDup($input, null, tableNum))
+                ColManager.checkColDup($input, null, tableId))
             {
                 return false;
             }
 
             var colNum = $colMenu.data('colNum');
 
-            renameColumn(tableNum, colNum, colName);
+            renameColumn(tableId, colNum, colName);
             $input.val("").blur();
             closeMenu($colMenu);
         }
@@ -1650,9 +1651,9 @@ function addColMenuActions($colMenu) {
         if ($colMenu.hasClass('type-indexed')) {
             return; // do not allow sorting on a sorted column
         }
-        var index = $colMenu.data('colNum');
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-        xcFunction.sort(index, tableNum, SortDirection.Forward);
+        var colNum = $colMenu.data('colNum');
+        var tableId = xcHelper.parseTableId($colMenu.data("id"));
+        xcFunction.sort(colNum, tableId, SortDirection.Forward);
     });
     
     $colMenu.on('mouseup', '.sort .revSort', function(event) {
@@ -1660,9 +1661,9 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        var index = $colMenu.data('colNum');
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-        xcFunction.sort(index, tableNum, SortDirection.Backward);
+        var colNum = $colMenu.data('colNum');
+        var tableId = xcHelper.parseTableId($colMenu.data("id"));
+        xcFunction.sort(colNum, tableId, SortDirection.Backward);
     });
 
     $colMenu.on('mouseup', '.joinList', function(event) {
@@ -1704,15 +1705,16 @@ function addColMenuActions($colMenu) {
             return;
         }
 
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-        var rowNum   = $colMenu.data('rowNum');
-        var colNum   = $colMenu.data('colNum');
+        var tableId = xcHelper.parseTableId($colMenu.data("id"));
+        var rowNum  = $colMenu.data('rowNum');
+        var colNum  = $colMenu.data('colNum');
 
-        var $table  = $("#xcTable" + tableNum);
+        var $table  = xcHelper.getElementByTableId(tableId, "xcTable");
         var $header = $table.find("th.col" + colNum + " .header");
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
 
-        var colName = gTables[tableNum].tableCols[colNum - 1].func.args[0];
+        var colName = xcHelper.getTableFromId(tableId).tableCols[colNum - 1]
+                                                        .func.args[0];
         var colVal  = $td.find(".addedBarTextWrap").text();
 
         if ($header.hasClass("type-integer")) {
@@ -1730,7 +1732,7 @@ function addColMenuActions($colMenu) {
         var options = {"operator"    : "eq",
                        "filterString": filterStr};
 
-        xcFunction.filter(colNum - 1, tableNum, options);
+        xcFunction.filter(colNum - 1, tableId, options);
     });
 }
 
@@ -1739,9 +1741,12 @@ function closeMenu($menu) {
     $('body').removeClass('noSelection');
 }
 
-function renameColumn(tableNum, colNum, newName) {
-    gTables[tableNum].tableCols[colNum - 1].name = newName;
-    $('#xcTable' + tableNum).find('.editableHead.col' + colNum).val(newName);
+function renameColumn(tableId, colNum, newName) {
+    var table  = xcHelper.getTableFromId(tableId);
+    var $table = xcHelper.getElementByTableId(tableId, "xcTable");
+
+    table.tableCols[colNum - 1].name = newName;
+    $table.find('.editableHead.col' + colNum).val(newName);
 }
 
 function functionBarEnter($colInput) {
@@ -1935,8 +1940,10 @@ function changeColumnType($typeList) {
     var newType  = $typeList.find(".label").text().toLowerCase();
     var $colMenu = $typeList.closest('.colMenu');
     var colNum   = $colMenu.data('colNum');
-    var tableNum = parseInt($colMenu.attr('id').substring(7));
-    var colName = gTables[tableNum].tableCols[colNum - 1].func.args[0];
+    var tableId  = xcHelper.parseTableId($colMenu.data("id"));
+    var table    = xcHelper.getTableFromId(tableId);
+    var colName  = table.tableCols[colNum - 1].func.args[0];
+
     var mapStr = "";
     var newColName = colName + "_" + newType;
     // var tableName = gTables[tableNum].tableName;
@@ -1959,8 +1966,8 @@ function changeColumnType($typeList) {
     }
 
     mapStr += colName + ")";
-    var options = {replaceColumn: true};
-    xcFunction.map(colNum, tableNum, newColName, mapStr, options);
+    var options = {"replaceColumn": true};
+    xcFunction.map(colNum, tableId, newColName, mapStr, options);
 }
 
 

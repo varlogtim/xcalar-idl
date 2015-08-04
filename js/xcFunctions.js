@@ -7,10 +7,10 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // filter table column
-    xcFunction.filter = function (colNum, tableNum, options) {
+    xcFunction.filter = function (colNum, tableId, options) {
         var deferred = jQuery.Deferred();
 
-        var table        = gTables[tableNum];
+        var table        = xcHelper.getTableFromId(tableId);
         var tableName    = table.tableName;
         var frontColName = table.tableCols[colNum].name;
         var backColName  = table.tableCols[colNum].func.args[0];
@@ -27,9 +27,10 @@ window.xcFunction = (function ($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
         
-        // XXX Cheng must add table to worksheet before async call
+        // must add table to worksheet before async call
         WSManager.addTable(newTableName);
-        xcHelper.lockTable(tableNum);
+
+        xcHelper.lockTable(tableId);
 
         var sqlOptions = {
                 "operation"   : "filter",
@@ -48,14 +49,14 @@ window.xcFunction = (function ($, xcFunction) {
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
-            xcHelper.unlockTable(tableName, true);
+            xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId);
             commitToStorage();
             deferred.resolve();
         })
         .fail(function(error) {
             WSManager.removeTable(newTableName);
-            xcHelper.unlockTable(tableName);
+            xcHelper.unlockTable(tableId);
             Alert.error("Filter Columns Fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msgId);
 
@@ -66,9 +67,11 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // aggregate table column
-    xcFunction.aggregate = function (colNum, frontColName, backColName,
-                                     tableNum, aggrOp) {
-        var tableName = gTables[tableNum].tableName;
+    xcFunction.aggregate = function (colNum, tableId, aggrOp) {
+        var table        = xcHelper.getTableFromId(tableId);
+        var tableName    = table.tableName;
+        var frontColName = table.tableCols[colNum].name;
+        var backColName  = table.tableCols[colNum].func.args[0];
 
         if (colNum === -1) {
             colNum = undefined;
@@ -82,7 +85,7 @@ window.xcFunction = (function ($, xcFunction) {
             "tableName": tableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
-        xcHelper.lockTable(tableNum);
+        xcHelper.lockTable(tableId);
 
         var sqlOptions = {
             "operation": "aggregate",
@@ -112,15 +115,15 @@ window.xcFunction = (function ($, xcFunction) {
             StatusMessage.fail(StatusMessageTStr.AggregateFailed, msgId);
         })
         .always(function(){
-            xcHelper.unlockTable(tableName);
+            xcHelper.unlockTable(tableId);
         });
 
         return (true);
     };
 
     // sort table column
-    xcFunction.sort = function (colNum, tableNum, order) {
-        var table     = gTables[tableNum];
+    xcFunction.sort = function (colNum, tableId, order) {
+        var table     = xcHelper.getTableFromId(tableId);
         var tableName = table.tableName;
         var tablCols  = xcHelper.deepCopy(table.tableCols);
         var pCol      = tablCols[colNum - 1];
@@ -151,7 +154,7 @@ window.xcFunction = (function ($, xcFunction) {
 
         // XXX Cheng must add to worksheet before async call
         WSManager.addTable(newTableName);
-        xcHelper.lockTable(tableNum);
+        xcHelper.lockTable(tableId);
 
         var sqlOptions = {
                 "operation"   : "sort",
@@ -163,9 +166,8 @@ window.xcFunction = (function ($, xcFunction) {
         XcalarIndexFromTable(tableName, backFieldName, newTableName, sqlOptions)
         .then(function() {
             // sort do not change groupby stats of the table
-            var oldTableId = xcHelper.getTableId(tableName);
             var newTableId = xcHelper.getTableId(newTableName);
-            STATSManager.copy(oldTableId, newTableId);
+            STATSManager.copy(tableId, newTableId);
 
             setIndex(newTableName, tablCols, null, null);
             
@@ -173,22 +175,20 @@ window.xcFunction = (function ($, xcFunction) {
         })
         .then(function() {
             StatusMessage.success(msgId);
-            xcHelper.unlockTable(tableName, true);
+            xcHelper.unlockTable(tableId, true);
             commitToStorage();
         })
         .fail(function(error) {
             WSManager.removeTable(newTableName);
-            xcHelper.unlockTable(tableName);
+            xcHelper.unlockTable(tableId);
             Alert.error("Sort Rows Fails", error);
             StatusMessage.fail(StatusMessageTStr.SortFailed, msgId);
         });
     };
 
     // join two tables
-    xcFunction.join = function (leftColNum, leftTableNum,
-                                rightColNum, rightTableNum,
-                                joinStr, newTableName,
-                                leftRemoved, rightRemoved)
+    xcFunction.join = function (lColNum, lTableNum, rColNum, rTableNum,
+                                joinStr, newTableName, lRemoved, rRemoved)
     {
         var deferred = jQuery.Deferred();
         var joinType = joinLookUp[joinStr];
@@ -199,28 +199,33 @@ window.xcFunction = (function ($, xcFunction) {
             return (deferred.promise());
         }
 
-        console.info("leftColNum", leftColNum,
-                    "leftTableNum", leftTableNum,
-                    "rightColNum", rightColNum,
-                    "rightTableNum", rightTableNum,
+        console.info("leftColNum", lColNum,
+                    "leftTableNum", lTableNum,
+                    "rightColNum", rColNum,
+                    "rightTableNum", rTableNum,
                     "joinStr", joinStr,
                     "newTableName", newTableName);
 
-        var leftTable        = gTables[leftTableNum];
-        var leftTableName    = leftTable.tableName;
-        var leftColName      = leftTable.tableCols[leftColNum].func.args[0];
-        var leftFrontColName = leftTable.tableCols[leftColNum].name;
+        var lTable        = gTables[lTableNum];
+        var lTableName    = lTable.tableName;
+        var lColName      = lTable.tableCols[lColNum].func.args[0];
+        var lFrontColName = lTable.tableCols[lColNum].name;
 
-        var rightTable        = gTables[rightTableNum];
-        var rightTableName    = rightTable.tableName;
-        var rightColName      = rightTable.tableCols[rightColNum].func.args[0];
-        var rightFrontColName = rightTable.tableCols[rightColNum].name;
+        var rTable        = gTables[rTableNum];
+        var rTableName    = rTable.tableName;
+        var rColName      = rTable.tableCols[rColNum].func.args[0];
+        var rFrontColName = rTable.tableCols[rColNum].name;
 
-        var leftSrcName;
-        var rightSrcName;
+        var lSrcName;
+        var rSrcName;
 
-        var leftTableResult;
-        var rightTableResult;
+        var lTableResult;
+        var rTableResult;
+
+
+        // XXX fix it later when remove table num
+        var lTableId = lTable.tableId;
+        var rTableId = rTable.tableId;
 
         var msg = StatusMessageTStr.Join;
         var msgObj = {
@@ -230,57 +235,59 @@ window.xcFunction = (function ($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
-        xcHelper.lockTable(leftTableNum);
-        xcHelper.lockTable(rightTableNum);
+        xcHelper.lockTable(lTableId);
+        xcHelper.lockTable(rTableId);
+
         WSManager.addTable(newTableName);
         // check left table index
-        parallelIndex(leftColName, leftTableNum, rightColName, rightTableNum)
-        .then(function(leftResult, rightResult) {
-            leftTableResult = leftResult;
-            leftSrcName = leftResult.tableName;
+        parallelIndex(lColName, lTableId, rColName, rTableId)
+        .then(function(lResult, rResult) {
+            lTableResult = lResult;
+            lSrcName = lResult.tableName;
 
-            rightTableResult = rightResult;
-            rightSrcName = rightResult.tableName;
+            rTableResult = rResult;
+            rSrcName = rResult.tableName;
             // checkJoinTable index only created backend table,
             // here we get the info to set the indexed table as hidden table
-            return setIndexedTableMeta(leftTableResult.tableName);
+            return (setIndexedTableMeta(lTableResult.tableName));
         })
         .then(function(result) {
-            leftTableResult = result;
-            return setIndexedTableMeta(rightTableResult.tableName);
+            lTableResult = result;
+            return (setIndexedTableMeta(rTableResult.tableName));
         })
         .then(function(result) {
-            rightTableResult = result;
+            rTableResult = result;
             // join indexed table
             var sqlOptions = {
                 "operation": "join",
                 "leftTable": {
-                    "name"    : leftTableName,
-                    "colName" : leftFrontColName,
-                    "colIndex": leftColNum
+                    "name"    : lTableName,
+                    "colName" : lFrontColName,
+                    "colIndex": lColNum
                 },
                 "rightTable": {
-                    "name"    : rightTableName,
-                    "colName" : rightFrontColName,
-                    "colIndex": rightColNum
+                    "name"    : rTableName,
+                    "colName" : rFrontColName,
+                    "colIndex": rColNum
                 },
                 "joinType"    : joinStr,
-                "newTableName": newTableName};
-            return (XcalarJoin(leftSrcName, rightSrcName,
-                               newTableName, joinType, sqlOptions));
+                "newTableName": newTableName
+            };
+            return (XcalarJoin(lSrcName, rSrcName, newTableName,
+                                joinType, sqlOptions));
         })
         .then(function() {
-            var newTableCols = createJoinedColumns(leftTable, rightTable,
-                                                    leftRemoved, rightRemoved);
+            var newTableCols = createJoinedColumns(lTable, rTable,
+                                                    lRemoved, rRemoved);
             setIndex(newTableName, newTableCols);
 
-            return (refreshTable(newTableName, leftTableName,
+            return (refreshTable(newTableName, lTableName,
                                  KeepOriginalTables.DontKeep,
-                                 rightTableName));
+                                 rTableName));
         })
         .then(function() {
-            xcHelper.unlockTable(leftTableName, true);
-            xcHelper.unlockTable(rightTableName, true);
+            xcHelper.unlockTable(lTableId, true);
+            xcHelper.unlockTable(rTableId, true);
 
             StatusMessage.success(msgId);
             commitToStorage();
@@ -288,14 +295,14 @@ window.xcFunction = (function ($, xcFunction) {
         })
         .fail(function(error) {
             WSManager.removeTable(newTableName);
-            xcHelper.unlockTable(leftTableName);
-            xcHelper.unlockTable(rightTableName);
+            xcHelper.unlockTable(lTableId);
+            xcHelper.unlockTable(rTableId);
             Alert.error("Join Table Fails", error);
             StatusMessage.fail(StatusMessageTStr.JoinFailed, msgId);
-            
-            joinFailHandler(leftTableNum, leftTableResult)
+
+            joinFailHandler(lTableResult)
             .then(function() {
-                joinFailHandler(rightTableNum, rightTableResult);
+                joinFailHandler(rTableResult);
             })
             .always(function() {
                 deferred.reject(error);
@@ -306,17 +313,17 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // group by on a column
-    xcFunction.groupBy = function (operator, tableNum,
+    xcFunction.groupBy = function (operator, tableId,
                                     indexedColNum, aggColNum,
                                     isIncSample, newColName)
     {
         // Validation
-        if (tableNum < 0 || indexedColNum < 0 || aggColNum < 0) {
+        if (tableId < 0 || indexedColNum < 0 || aggColNum < 0) {
             console.error("Invalid Parameters!");
             return;
         }
 
-        var table     = gTables[tableNum];
+        var table     = xcHelper.getTableFromId(tableId);
         var tableName = table.tableName;
 
         var columns = table.tableCols;
@@ -341,11 +348,11 @@ window.xcFunction = (function ($, xcFunction) {
 
         WSManager.addTable(newTableName);
 
-        xcHelper.lockTable(tableNum);
+        xcHelper.lockTable(tableId);
 
-        checkTableIndex(backIndexCol, tableNum)
+        checkTableIndex(backIndexCol, tableId)
         .then(function(result) {
-            xcHelper.unlockTable(tableName);
+            xcHelper.unlockTable(tableId);
             // table name may change after sort!
             tableName = result.tableName;
 
@@ -383,8 +390,10 @@ window.xcFunction = (function ($, xcFunction) {
                 }
             });
 
-            var dataColNum = xcHelper.parseColNum($('#xcTable' + tableNum)
-                                                 .find('th.dataCol')) - 1;
+            var $table     = xcHelper.getElementByTableId(tableId, "xcTable");
+            var $dataCol   = $table.find('th.dataCol');
+            var dataColNum = xcHelper.parseColNum($dataCol) - 1;
+
             var tablCols = [];
             tablCols[0] = newProgCol;
             tablCols[1] = xcHelper.deepCopy(table.tableCols[indexedColNum]);
@@ -414,10 +423,10 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // map a column
-    xcFunction.map = function (colNum, tableNum, fieldName, mapString, options) {
+    xcFunction.map = function (colNum, tableId, fieldName, mapString, options) {
         var deferred = jQuery.Deferred();
 
-        var table        = gTables[tableNum];
+        var table        = xcHelper.getTableFromId(tableId);
         var tableName    = table.tableName;
         var newTableName = getNewTableName(tableName);
 
@@ -433,14 +442,15 @@ window.xcFunction = (function ($, xcFunction) {
         // must add to worksheet before async call or will end up adding to th
         // wrong worksheet
         WSManager.addTable(newTableName);
-        xcHelper.lockTable(tableNum);
+        xcHelper.lockTable(tableId);
         
         var sqlOptions = {
                 "operation"   : "mapColumn",
                 "srcTableName": tableName,
                 "newTableName": newTableName,
                 "colName"     : fieldName,
-                "mapString"   : mapString};
+                "mapString"   : mapString
+        };
 
         XcalarMap(fieldName, mapString, tableName, newTableName, sqlOptions)
         .then(function() {
@@ -460,14 +470,14 @@ window.xcFunction = (function ($, xcFunction) {
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
-            xcHelper.unlockTable(tableName, true);
+            xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId);
             commitToStorage();
 
             deferred.resolve();
         })
         .fail(function(error) {
-            xcHelper.unlockTable(tableName);
+            xcHelper.unlockTable(tableId);
             WSManager.removeTable(newTableName);
 
             Alert.error("mapColumn fails", error);
@@ -504,6 +514,9 @@ window.xcFunction = (function ($, xcFunction) {
         var rFieldName = rOptions.fieldName;
         var rMapString = rOptions.mapString;
 
+        // XXX fix it later when remove table num
+        var lTableId = lTable.tableId;
+        var rTableId = rTable.tableId;
 
         msg = msg || StatusMessageTStr.Map + " " + lTableName +
                         " and " + rTableName;
@@ -515,10 +528,11 @@ window.xcFunction = (function ($, xcFunction) {
         var msgId = StatusMessage.addMsg(msgObj);
 
         WSManager.addTable(lNewName);
-        xcHelper.lockTable(lTableNum);
+        xcHelper.lockTable(lTableId);
 
         WSManager.addTable(rNewName);
-        xcHelper.lockTable(rTableNum);
+        xcHelper.lockTable(rTableId);
+
         var sqlOptions1 = {
             "operation"   : "mapColumn",
             "srcTableName": lTableName,
@@ -545,8 +559,8 @@ window.xcFunction = (function ($, xcFunction) {
             // XXX: You can check whether deferred1 or deferred2 has an error
             // by using if (ret1 && ret1.error != undefined) // deferred1 failed
             if (lockNewTable) {
-                xcHelper.lockTable(lTableNum);
-                xcHelper.lockTable(rTableNum);
+                xcHelper.lockTable(lTableId);
+                xcHelper.lockTable(rTableId);
             }
 
             var lTableCols = mapColGenerate(lColNum, lFieldName, lMapString,
@@ -572,15 +586,15 @@ window.xcFunction = (function ($, xcFunction) {
         })
         .then(function(ret1, ret2) {
 
-            xcHelper.unlockTable(lTableName, true);
-            xcHelper.unlockTable(rTableName, true);
+            xcHelper.unlockTable(lTableId, true);
+            xcHelper.unlockTable(rTableId, true);
 
             StatusMessage.success(msgId);
             deferred.resolve();
         })
         .fail(function(err1, err2) {
-            xcHelper.unlockTable(lTableName);
-            xcHelper.unlockTable(rTableName);
+            xcHelper.unlockTable(lTableId);
+            xcHelper.unlockTable(rTableId);
 
             WSManager.removeTable(lNewName);
             WSManager.removeTable(rNewName);
@@ -595,7 +609,7 @@ window.xcFunction = (function ($, xcFunction) {
     };
 
     // export table
-    xcFunction.exportTable = function(tableName, exportName) {
+    xcFunction.exportTable = function (tableName, exportName) {
         var retName   = $(".retTitle:disabled").val();
 
         if (!retName || retName === "") {
@@ -644,21 +658,24 @@ window.xcFunction = (function ($, xcFunction) {
         });
     };
 
-    xcFunction.rename = function(tableNum, oldTableName, newTableName) {
+    xcFunction.rename = function (tableId, oldTableName, newTableName) {
         var deferred = jQuery.Deferred();
 
-        if (tableNum == null || oldTableName == null || newTableName == null) {
+        if (tableId == null || oldTableName == null || newTableName == null) {
             console.error("Invalid Parameters for renaming!");
             deferred.reject("Invalid renaming parameters");
             return (deferred.promise());
         }
 
-        var table = gTables[tableNum];
+        var table = xcHelper.getTableFromId(tableId);
         var sqlOptions = {
             "operation": "renameTable",
             "oldName"  : oldTableName,
             "newName"  : newTableName
         };
+
+        xcHelper.lockTable(tableId);
+
         XcalarRenameTable(oldTableName, newTableName, sqlOptions)
         .then(function() {
 
@@ -679,27 +696,32 @@ window.xcFunction = (function ($, xcFunction) {
 
             RightSideBar.renameTable(oldTableName, newTableName);
             Dag.renameAllOccurrences(oldTableName, newTableName);
-            $('#xcTheadWrap' + tableNum + ' .tableTitle .text')
-                                            .data('title', newTableName);
+
+            var $th = xcHelper.getElementByTableId(tableId, "xcTheadWrap");
+            $th.find(".tableTitle .text").data('title', newTableName);
+
             deferred.resolve(newTableName);
         })
         .fail(function(error) {
             console.error("Rename Fails!". error);
             deferred.reject(error);
+        })
+        .always(function() {
+            xcHelper.unlockTable(tableId);
         });
 
         return (deferred.promise());
     };
 
-    function getNewTableName(tableName) {
+    function getNewTableName (tableName) {
         return (tableName.split("#")[0] + Authentication.fetchHashTag());
     }
 
     // check if table has correct index
-    function checkTableIndex(colName, tableNum) {
+    function checkTableIndex (colName, tableId) {
         var deferred = jQuery.Deferred();
 
-        var table = gTables[tableNum];
+        var table     = xcHelper.getTableFromId(tableId);
         var tableName = table.tableName;
 
         if (colName !== table.keyName) {
@@ -746,12 +768,11 @@ window.xcFunction = (function ($, xcFunction) {
         return (deferred.promise());
     }
 
-    function parallelIndex(leftColName, leftTableNum, rightColName,
-                           rightTableNum) {
+    function parallelIndex (lColName, lTableId, rColName, rTableId) {
         var deferred = jQuery.Deferred();
 
-        var deferred1 = checkTableIndex(leftColName, leftTableNum);
-        var deferred2 = checkTableIndex(rightColName, rightTableNum);
+        var deferred1 = checkTableIndex(lColName, lTableId);
+        var deferred2 = checkTableIndex(rColName, rTableId);
 
         xcHelper.when(deferred1, deferred2)
         .then(function(ret1, ret2) {
@@ -820,7 +841,7 @@ window.xcFunction = (function ($, xcFunction) {
         return (deferred.promise());
     }
 
-    function setIndexedTableMeta(tableName) {
+    function setIndexedTableMeta (tableName) {
         var deferred = jQuery.Deferred();
 
         setupHiddenTable(tableName)
@@ -840,36 +861,36 @@ window.xcFunction = (function ($, xcFunction) {
     }
 
     // For xcFuncion.join, deepy copy of right table and left table columns
-    function createJoinedColumns(leftTable, rightTable, leftRemoved, rightRemoved) {
+    function createJoinedColumns (lTable, rTable, lRemoved, rRemoved) {
         // Combine the columns from the 2 current tables
         // Note that we have to create deep copies!!
         var newTableCols = [];
-        var leftCols = xcHelper.deepCopy(leftTable.tableCols);
-        var rightCols = xcHelper.deepCopy(rightTable.tableCols);
+        var lCols = xcHelper.deepCopy(lTable.tableCols);
+        var rCols = xcHelper.deepCopy(rTable.tableCols);
         var index = 0;
         var dataCol;
         var colName;
 
-        leftRemoved = leftRemoved || {};
-        rightRemoved = rightRemoved || {};
+        lRemoved = lRemoved || {};
+        rRemoved = rRemoved || {};
 
-        for (var i = 0; i < leftCols.length; i++) {
-            colName = leftCols[i].name;
+        for (var i = 0; i < lCols.length; i++) {
+            colName = lCols[i].name;
 
             if (colName === "DATA") {
-                dataCol = leftCols[i];
-            } else if (!(colName in leftRemoved)) {
-                newTableCols[index] = leftCols[i];
+                dataCol = lCols[i];
+            } else if (!(colName in lRemoved)) {
+                newTableCols[index] = lCols[i];
                 newTableCols[index].index = index + 1;
                 ++index;
             }
         }
 
-        for (var i = 0; i < rightCols.length; i++) {
-            colName = rightCols[i].name;
+        for (var i = 0; i < rCols.length; i++) {
+            colName = rCols[i].name;
 
-            if (colName !== "DATA" && !(colName in rightRemoved)) {
-                newTableCols[index] = rightCols[i];
+            if (colName !== "DATA" && !(colName in rRemoved)) {
+                newTableCols[index] = rCols[i];
                 newTableCols[index].index = index + 1;
                 ++index;
             }
@@ -885,7 +906,7 @@ window.xcFunction = (function ($, xcFunction) {
     // this function is called when a new table is created during a join because
     // the previous table wasn't correctly index, but the join failed so we have
     // to delete the new table
-    function joinFailHandler(tableNum, result) {
+    function joinFailHandler (result) {
         var deferred = jQuery.Deferred();
 
         result = result || {};
@@ -912,7 +933,7 @@ window.xcFunction = (function ($, xcFunction) {
         return (deferred.promise());
     }
 
-    function mapColGenerate(colNum, colName, mapStr, tableCols, isReplace) {
+    function mapColGenerate (colNum, colName, mapStr, tableCols, isReplace) {
         var copiedCols = xcHelper.deepCopy(tableCols);
 
         if (colNum > -1) {
