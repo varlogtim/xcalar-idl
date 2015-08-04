@@ -494,7 +494,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
 
 window.WKBKManager = (function($, WKBKManager) {
-    var username      = sessionStorage.getItem("xcalar-username") || 
+    var username = sessionStorage.getItem("xcalar-username") || 
                         generateKey(hostname, portNumber);
 
     var gUserInfoKey  = generateKey("gUserInfos");
@@ -835,8 +835,10 @@ window.WKBKManager = (function($, WKBKManager) {
 
     // first time to save this user
     function newUser(name) {
-        return { "username" : name,
-                 "workbooks": [] };
+        return { 
+            "username" : name,
+            "workbooks": []
+        };
     }
 
     // generate key for KVStore use

@@ -943,20 +943,20 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var $menu    = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
+        var $menu   = $(this).closest('.tableMenu');
+        var tableId = xcHelper.parseTableId($menu.data('id'));
 
-        AggModal.show(tableNum, 'aggregates');
+        AggModal.show(tableId, 'aggregates');
     });
 
     $tableMenu.on('mouseup', '.correlation', function(event) {
         if (event.which !== 1) {
             return;
         }
-        var $menu    = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
+        var $menu   = $(this).closest('.tableMenu');
+        var tableId = xcHelper.parseTableId($menu.data('id'));
 
-        AggModal.show(tableNum, 'correlation');
+        AggModal.show(tableId, 'correlation');
     });
 
 

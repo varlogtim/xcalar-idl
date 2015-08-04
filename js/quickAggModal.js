@@ -62,9 +62,13 @@ window.AggModal = (function($, AggModal) {
         });
     };
 
-    AggModal.show = function (tableNum, type) {
+    AggModal.show = function (tableId, type) {
         $modalBackground.on("click", hideAggOpSelect);
-        var tableName = gTables[tableNum].tableName;
+
+        var table     = xcHelper.getTableFromId(tableId);
+        var tableName = table.tableName;
+        var $table    = xcHelper.getElementByTableId(tableId, "xcTable");
+
         $aggTableName.val(tableName);
 
         $aggModal.show();
@@ -73,9 +77,9 @@ window.AggModal = (function($, AggModal) {
         });
         centerPositionElement($aggModal);
 
-        aggColsInitialize(tableNum);
-        aggTableInitialize(tableNum);
-        corrTableInitialize(tableNum);
+        aggColsInitialize(table);
+        aggTableInitialize($table);
+        corrTableInitialize($table);
 
         if (type === 'aggregates') {
             $aggDropdown.find('li').filter(function() {
@@ -87,17 +91,17 @@ window.AggModal = (function($, AggModal) {
             }).click();
         }
 
-        calcAgg(tableNum, tableName);
-        calcCorr(tableNum, tableName);
+        calcAgg($table, tableName);
+        calcCorr($table, tableName);
     };
 
-    function aggColsInitialize(tableNum) {
+    function aggColsInitialize(table) {
         aggCols = [];
 
-        var tableCols = gTables[tableNum].tableCols;
+        var tableCols = table.tableCols;
 
         for (var i = 0, colLen = tableCols.length; i < colLen; i++) {
-            // XXX Skip DATA!
+            // Skip DATA!
             if (tableCols[i].name === "DATA") {
                 continue;
             } else {
@@ -109,7 +113,7 @@ window.AggModal = (function($, AggModal) {
         }
     }
 
-    function aggTableInitialize(tableNum) {
+    function aggTableInitialize($table) {
         var $mainAgg1 = $("#mainAgg1");
 
         var colLen = aggCols.length;
@@ -127,8 +131,8 @@ window.AggModal = (function($, AggModal) {
                                 cols.name +
                             '</div>';
 
-            var isChildOfArray = $("#xcTable" + tableNum + " .th.col" +
-                                    colNum + " .header").hasClass("childOfArray");
+            var isChildOfArray = $table.find(".th.col" + colNum + " .header")
+                                        .hasClass("childOfArray");
 
             for (var i = 0; i < funLen; i++) {
                 wholeTable += '<div class="aggTableField">';
@@ -154,7 +158,7 @@ window.AggModal = (function($, AggModal) {
                                                 wholeTable);
     }
 
-    function corrTableInitialize(tableNum) {
+    function corrTableInitialize($table) {
         var $mainAgg2 = $("#mainAgg2");
 
         var colLen = aggCols.length;
@@ -171,8 +175,8 @@ window.AggModal = (function($, AggModal) {
                                 cols.name +
                             '</div>';
 
-            var isChildOfArray = $("#xcTable" + tableNum + " .th.col" +
-                                colNum + " .header").hasClass("childOfArray");
+            var isChildOfArray = $table.find(" .th.col" + colNum + " .header")
+                                        .hasClass("childOfArray");
 
             for (var i = 0; i < colLen; i++) {
                 var vertCols = aggCols[i].col;
@@ -242,7 +246,7 @@ window.AggModal = (function($, AggModal) {
     }
 
 
-    function calcCorr(tableNum, tableName) {
+    function calcCorr($table, tableName) {
         var colLen  = aggCols.length;
         var dupCols = [];
         // First we need to determine if this is a dataset-table
@@ -275,8 +279,7 @@ window.AggModal = (function($, AggModal) {
                     }
                 }
 
-                var $colHeader = $("#xcTable" + tableNum + " .th.col" +
-                                    colNum + " .header");
+                var $colHeader = $table.find(".th.col" + colNum + " .header");
                 // XXX now agg on child of array is not supported
                 if (!$colHeader.hasClass("childOfArray")) {
                     for (var i = 0; i < j; i++) {
@@ -300,7 +303,7 @@ window.AggModal = (function($, AggModal) {
         }
     }
 
-    function calcAgg(tableNum, tableName) {
+    function calcAgg($table, tableName) {
         var colLen = aggCols.length;
         var funLen = aggrFunctions.length;
         // First we need to determine if this is a dataset-table
@@ -309,7 +312,7 @@ window.AggModal = (function($, AggModal) {
         for (var j = 0; j < colLen; j++) {
             var cols   = aggCols[j].col;
             var colNum = aggCols[j].colNum;
-            // XXX Skip DATA!
+            // Skip DATA!
             if (cols.type === "integer" || cols.type === "decimal") {
                 // for duplicated columns, no need to trigger thrift call
                 if (dupCols[j]) {
@@ -323,8 +326,7 @@ window.AggModal = (function($, AggModal) {
                     dupCols[dupColNum] = true;
                 }
 
-                var $colHeader = $("#xcTable" + tableNum + " .th.col" +
-                                    colNum + " .header");
+                var $colHeader = $table.find(".th.col" + colNum + " .header");
                 // XXX now agg on child of array is not supported
                 if (!$colHeader.hasClass("childOfArray")) {
                     for (var i = 0; i < funLen; i++) {

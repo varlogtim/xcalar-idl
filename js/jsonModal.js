@@ -442,7 +442,7 @@ window.JSONModal = (function($, JSONModal) {
         var name        = "";
         var escapedName = "";
 
-        // XXX .parents() is different with .closest()
+        // .parents() is different with .closest()
         $el.parents(".jInfo").each(function(){
             var $jInfo     = $(this);
             var key        = "";

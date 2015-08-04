@@ -455,7 +455,7 @@ window.JoinModal = (function($, JoinModal) {
     function joinTableKeyPress(event) {
         switch (event.which) {
             case keyCode.Enter:
-                // XXX when focus on a button, no trigger
+                // when focus on a button, no trigger
                 if (modalHelper.checkBtnFocus()) {
                     break;
                 }
@@ -642,7 +642,7 @@ window.JoinModal = (function($, JoinModal) {
                         .removeAttr("data-placement")
                         .removeAttr("data-original-title")
                         .removeAttr("data-container");
-                    // XXX the reason for this time out is it will created more
+                    // the reason for this time out is it will created more
                     // than one tooltip if you click on th too quick
                     setTimeout(function() {
                         $th.removeClass("clicked");
