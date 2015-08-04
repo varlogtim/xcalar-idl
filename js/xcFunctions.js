@@ -712,7 +712,7 @@ window.xcFunction = (function ($, xcFunction) {
                 }
             }
 
-            RightSideBar.renameTable(oldTableName, newTableName);
+            RightSideBar.renameTable(tableId, newTableName);
             Dag.renameAllOccurrences(oldTableName, newTableName);
 
             var $th = xcHelper.getElementByTableId(tableId, "xcTheadWrap");

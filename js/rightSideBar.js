@@ -27,9 +27,9 @@ window.RightSideBar = (function($, RightSideBar) {
 
     // move table to inactive list
     RightSideBar.moveTable = function(table) {
-        var tableName  = table.tableName;
-        var $tableList = $('#activeTablesList .tableInfo[data-tablename="' +
-                            tableName + '"]');
+        var tableId    = table.tableId;
+        var $tableList = $('#activeTablesList .tableInfo[data-id="' +
+                            tableId + '"]');
         var $timeLine  = $tableList.closest(".timeLine");
 
         RightSideBar.addTables([table], IsActive.Inactive);
@@ -48,18 +48,16 @@ window.RightSideBar = (function($, RightSideBar) {
         }
     };
 
-    RightSideBar.renameTable = function(oldTableName, newTableName) {
-        var $tableList = $('#activeTablesList .tableInfo[data-tablename="' +
-                            oldTableName + '"]');
-        $tableList.data('tablename', newTableName);
-        $tableList.attr('data-tablename', newTableName);
-        $tableList.find('.tableName').text(newTableName);
+    RightSideBar.renameTable = function(tableId, newTableName) {
+        var $tableList = $('#activeTablesList .tableInfo[data-id="' +
+                            tableId + '"]');
+        $tableList.find(".tableName").text(newTableName);
     };
 
     RightSideBar.updateTableInfo = function(table) {
-        var tableName  = table.tableName;
-        var $tableList = $('#activeTablesList .tableInfo[data-tablename="' +
-                            tableName + '"]');
+        var tableId    = table.tableId;
+        var $tableList = $('#activeTablesList .tableInfo[data-id="' +
+                            tableId + '"]');
 
         $tableList.remove();
         RightSideBar.addTables([table], IsActive.Active);
@@ -87,18 +85,25 @@ window.RightSideBar = (function($, RightSideBar) {
         var failures = [];
 
         $buttons.addClass('btnInactive');
-        $tablesSelected.each(function(index, ele) {
 
+        $tablesSelected.each(function(index, ele) {
             promises.push((function() {
                 var innerDeferred = jQuery.Deferred();
                 var $li = $(ele);
-                var tableName = $li.data("tablename");
-                var tableNum = xcHelper.getTableIndexFromName(tableName, true);
+                var tableId = $li.data("id");
+                var table = xcHelper.getTableFromId(tableId);
+                var tableName;
 
-                if (tableNum == null && type !== 'orphan') {
+                if (table == null && type !== 'orphan') {
                     console.error("Error: do not find the table");
                     innerDeferred.reject();
                     return (innerDeferred.promise());
+                }
+
+                if (type === "orphan") {
+                    tableName = $li.data("tablename");
+                } else {
+                    tableName = table.tableName;
                 }
 
                 if (action === "add") {
@@ -115,17 +120,20 @@ window.RightSideBar = (function($, RightSideBar) {
                             innerDeferred.resolve(error);
                         });
                     } else {
-                        var table = gTableIndicesLookup[tableName];
+                        var lookupTable = gTableIndicesLookup[tableName];
                         // update gTableIndicesLookup
-                        table.active = true;
-                        table.timeStamp = xcHelper.getTimeInMS();
-                        addTable(tableName, null, AfterStartup.After,
-                             null)
+                        lookupTable.active = true;
+                        lookupTable.timeStamp = xcHelper.getTimeInMS();
+
+                        addTable(tableName, null, AfterStartup.After, null)
                         .then(function() {
                             doneHandler($li, tableName);
                             // already add the table
+
+                            // XXX fix it when remove tableNum
+                            var tableNum = gHiddenTables.indexOf(table);
                             var activeTable = gHiddenTables
-                                             .splice(tableNum, 1)[0];
+                                                .splice(tableNum, 1)[0];
                             return (XcalarSetFree(activeTable.resultSetId));
                         })
                         .then(function() {
@@ -137,9 +145,10 @@ window.RightSideBar = (function($, RightSideBar) {
                         });
                     }
                 } else if (action === "delete") {
-                    var sqlOptions = {"operation": "deleteTable",
-                                      "tableName": tableName
-                                     };
+                    var sqlOptions = {
+                        "operation": "deleteTable",
+                        "tableName": tableName
+                    };
                     deleteTable(tableName, DeleteTable.Delete, sqlOptions)
                     .then(function() {
                         doneHandler($li, tableName);
@@ -749,7 +758,8 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $sheetTables.each(function() {
-            var tableName = $(this).data("tablename");
+            var tableId = $(this).data("id");
+            var tableName = xcHelper.getTableFromId(tableId).tableName;
             WSManager.activeTable(tableName);
         });
 
@@ -789,7 +799,9 @@ window.RightSideBar = (function($, RightSideBar) {
                                     "please input a valid name!");
                     } else {
                         $noSheetTables.each(function() {
-                            var tableName = $(this).data("tablename");
+                            var tableId = $(this).data("id");
+                            var tableName = xcHelper.getTableFromId(tableId)
+                                                    .tableName;
                             WSManager.addTable(tableName, wsIndex);
                         });
 
@@ -908,6 +920,7 @@ window.RightSideBar = (function($, RightSideBar) {
             }
 
             var tableName = table.tableName;
+            var tableId   = table.tableId;
             var wsIndex   = WSManager.getWSFromTable(tableName);
             var wsInfo;
 
@@ -922,7 +935,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
             var html =
                 '<li class="clearfix tableInfo" ' +
-                    'data-tablename="' + tableName + '">' +
+                    'data-id="' + tableId + '">' +
                     '<div class="timeStampWrap">' +
                         '<div class="timeStamp">' +
                             '<span class="time">' + time + '</span>' +
@@ -959,7 +972,9 @@ window.RightSideBar = (function($, RightSideBar) {
         var html = "";
         for (var i = 0; i < numTables; i++) {
             var tableName = tables[i].tableName;
+            var tableId   = xcHelper.getTableId(tableName);
             html += '<li class="clearfix tableInfo" ' +
+                     'data-id="' + tableId + '"' +
                      'data-tablename="' + tableName + '">' +
                         '<div class="tableListBox">' +
                             '<div class="iconWrap">' +
