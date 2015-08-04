@@ -65,16 +65,15 @@ window.ColManager = (function($, ColManager) {
         insertColHelper(1, tableNum, ColManager.newDATACol(2));
     };
 
-    ColManager.addCol = function(colId, tableId, name, options) {
-        // colId will be the column class ex. col2
-        // tableId will be the table name  ex. xcTable0
-        var tableNum    = parseInt(tableId.substring(7));
-        var $table      = $('#' + tableId);
-        var $tableWrap  = $("#xcTableWrap" + tableNum);
-        var table       = gTables[tableNum];
-        var numCols     = table.tableCols.length;
-        var colIndex    = parseInt(colId.substring(3));
-        var newColid    = colIndex;
+    ColManager.addCol = function(colNum, tableId, name, options) {
+        var $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
+        var $table     = $tableWrap.find(".xcTable");
+        var table      = xcHelper.getTableFromId(tableId);
+        var numCols    = table.tableCols.length;
+        var newColid   = colNum;
+
+        // XXX Fix it when remove tableNum
+        var tableNum = gTables.indexOf(table);
 
         // options
         options = options || {};
@@ -131,8 +130,10 @@ window.ColManager = (function($, ColManager) {
                       .addClass('col' + (i + 1));
         }
         // insert new th column
-        options = {"name" : name,
-                   "width": width};
+        options = {
+            "name" : name,
+            "width": width
+        };
         var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
                                                     newColid, options);
         $tableWrap.find('.th.col' + (newColid - 1)).after(columnHeadHTML);
@@ -165,18 +166,18 @@ window.ColManager = (function($, ColManager) {
             $table.find('tr:first .editableHead.col' + newColid).focus();
         }
 
-        updateTableHeader(tableNum);
+        updateTableHeader(tableId);
         RightSideBar.updateTableInfo(table);
         matchHeaderSizes(newColid, $table);
         $table.find('.rowGrab').width($table.width());
     };
 
-    ColManager.delCol = function(colNum, tableNum) {
-        var table     = gTables[tableNum];
+    ColManager.delCol = function(colNum, tableId) {
+        var table     = xcHelper.getTableFromId(tableId);
         var tableName = table.tableName;
         var colName   = table.tableCols[colNum - 1].name;
 
-        delColHelper(colNum, tableNum);
+        delColHelper(colNum, tableId);
         // add SQL
         SQL.add("Delete Column", {
             "operation": "delCol",
@@ -193,15 +194,12 @@ window.ColManager = (function($, ColManager) {
         progCol.index = newIndex + 1;
     };
 
-    ColManager.execCol = function(progCol, tableNum, args) {
+    ColManager.execCol = function(progCol, tableId, args) {
         var deferred = jQuery.Deferred();
         var userStr;
         var regex;
         var matches;
         var fieldName;
-
-        // XXX Fix it when we remove tableNum
-        var tableId = gTables[tableNum].tableId;
 
         switch (progCol.func.func) {
             case ("pull"):
@@ -230,7 +228,7 @@ window.ColManager = (function($, ColManager) {
                 }
 
                 pullColHelper(progCol.func.args[0], progCol.index,
-                              tableNum, startIndex, numberOfRows);
+                              tableId, startIndex, numberOfRows);
 
                 deferred.resolve();
                 break;
@@ -379,9 +377,9 @@ window.ColManager = (function($, ColManager) {
         return (isDuplicate);
     };
 
-    ColManager.delDupCols = function(index, tableNum, forwardCheck) {
+    ColManager.delDupCols = function(index, tableId, forwardCheck) {
         index = index - 1;
-        var columns = gTables[tableNum].tableCols;
+        var columns = xcHelper.getTableFromId(tableId).tableCols;
         var numCols = columns.length;
         var args    = columns[index].func.args;
         var start   = forwardCheck ? index : 0;
@@ -407,7 +405,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         function delColandAdjustLoop() {
-            delColHelper((i + 1), tableNum);
+            delColHelper((i + 1), tableId);
             if (i < index) {
                 index--;
             }
@@ -734,7 +732,7 @@ window.ColManager = (function($, ColManager) {
         return ($tBody);
     };
 
-    function pullColHelper(key, newColid, tableNum, startIndex, numberOfRows) {
+    function pullColHelper(key, newColid, tableId, startIndex, numberOfRows) {
         if (key !== "" & key != null) {
             if (/\\.([0-9])/.test(key)) {
                 // slash followed by dot followed by number is ok
@@ -744,7 +742,7 @@ window.ColManager = (function($, ColManager) {
             }
         }
 
-        var $table   = $("#xcTable" + tableNum);
+        var $table   = xcHelper.getElementByTableId(tableId, "xcTable");
         var $dataCol = $table.find("tr:first th").filter(function() {
             return $(this).find("input").val() === "DATA";
         });
@@ -817,7 +815,8 @@ window.ColManager = (function($, ColManager) {
             columnType = "undefined";
         }
 
-        gTables[tableNum].tableCols[newColid - 1].type = columnType;
+        var table = xcHelper.getTableFromId(tableId);
+        table.tableCols[newColid - 1].type = columnType;
 
         // add class to th
         var $header = $table.find('th.col' + newColid + ' div.header');
@@ -914,16 +913,18 @@ window.ColManager = (function($, ColManager) {
         return (removed);
     }
 
-    function delColHelper(colNum, tableNum) {
-        var table      = gTables[tableNum];
+    function delColHelper(colNum, tableId) {
+        var table      = xcHelper.getTableFromId(tableId);
         var numCols    = table.tableCols.length;
-        var $tableWrap = $("#xcTableWrap" + tableNum);
+        var $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
 
         $tableWrap.find(".col" + colNum).remove();
 
+        // XXX fix it when remove tableNum
+        var tableNum = gTables.indexOf(table);
         removeColHelper(colNum - 1, tableNum);
 
-        updateTableHeader(tableNum);
+        updateTableHeader(tableId);
         RightSideBar.updateTableInfo(table);
 
         for (var i = colNum + 1; i <= numCols; i++) {

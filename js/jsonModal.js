@@ -96,25 +96,28 @@ window.JSONModal = (function($, JSONModal) {
     function jsonModalEvent($jsonTd) {
         $jsonWrap.on({
             "click": function() {
-                var tableNum = parseInt($jsonTd.closest('table').attr('id')
-                                        .substring(7));
-                var name     = createJsonSelectionExpression($(this));
-                var newName  = getUniqueColName(name.name, tableNum);
-                var usrStr   = '"' + name.name + '" = pull(' +
+                var $table  = $jsonTd.closest('table');
+                var tableId = xcHelper.parseTableId($table.data("id"));
+
+                var name    = createJsonSelectionExpression($(this));
+                var usrStr  = '"' + name.name + '" = pull(' +
                                 name.escapedName + ')';
-                var $id      = $("#xcTable" + tableNum + " tr:first th")
-                                    .filter(function() {
-                                        var val = $(this).find("input").val();
-                                        return (val === "DATA");
-                                    });
+
+                var $id = $table.find("tr:first th").filter(function() {
+                    var val = $(this).find("input").val();
+                    return (val === "DATA");
+                });
 
                 var colNum      = xcHelper.parseColNum($id);
-                var table       = gTables[tableNum];
+                var table       = xcHelper.getTableFromId(tableId);
                 var tableName   = table.tableName;
                 var siblColName = table.tableCols[colNum - 1].name;
+                var newName     = getUniqueColName(name.name, table.tableCols);
 
-                ColManager.addCol("col" + colNum, "xcTable" + tableNum,
-                                newName, {"direction": "L", "select": true});
+                ColManager.addCol(colNum, tableId, newName, {
+                    "direction": "L",
+                    "select"   : true
+                });
 
                 // now the column is different as we add a new column
                 var col = table.tableCols[colNum - 1];
@@ -122,22 +125,18 @@ window.JSONModal = (function($, JSONModal) {
                 col.func.args = [name.escapedName];
                 col.userStr = usrStr;
 
-                ColManager.execCol(col, tableNum)
+                ColManager.execCol(col, tableId)
                 .then(function() {
-                    updateTableHeader(tableNum);
+                    updateTableHeader(tableId);
                     RightSideBar.updateTableInfo(table);
 
-                    autosizeCol($('#xcTable' + tableNum + ' th.col' + (colNum)),
-                                {"includeHeader" : true,
-                                 "resizeFirstRow": true});
+                    autosizeCol($table.find("th.col" + colNum), {
+                        "includeHeader" : true,
+                        "resizeFirstRow": true
+                    });
 
-                    $('#xcTable' + tableNum + ' tr:first th.col' + (colNum + 1)
-                        + ' .editableHead').focus();
-                    // XXX call autosizeCol after focus if you want to make
-                    // column wide enough to show the entire
-                    // function in the header
-                    // autosizeCol($('#xcTable' + tableNum + ' th.col' + (colNum + 1)),
-                    //             {includeHeader: true, resizeFirstRow: true});
+                    $table.find("tr:first th.col" + (colNum + 1) +
+                                " .editableHead").focus();
 
                     // add sql
                     SQL.add("Add Column", {
@@ -160,7 +159,7 @@ window.JSONModal = (function($, JSONModal) {
         $('body').on('keydown', cycleMatches);
     }
 
-    function getUniqueColName(name, tableNum, nameIndex, scanIndex) {
+    function getUniqueColName(name, tableCols, nameIndex, scanIndex) {
         var index = nameIndex || 0;
         var newName;
         if (index) {
@@ -169,19 +168,18 @@ window.JSONModal = (function($, JSONModal) {
             newName = name;
         }
         
-        var tableCols   = gTables[tableNum].tableCols;
         var numCols = tableCols.length;
 
         scanIndex = scanIndex || 0;
         for (var i = scanIndex; i < numCols; i++) {
             if (tableCols[i].name.indexOf(newName) !== -1) {
                 if (newName === tableCols[i].name) {
-                    newName = getUniqueColName(name, tableNum, ++index, i);
+                    newName = getUniqueColName(name, tableCols, ++index, i);
                     break;
                 }
             }
         }
-        return newName;
+        return (newName);
     }
 
     function searchText($input) {
