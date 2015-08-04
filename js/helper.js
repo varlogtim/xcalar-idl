@@ -11,21 +11,21 @@ window.xcHelper = (function($, xcHelper) {
         return (undefined);
     };
 
-    xcHelper.getTableFromId = function(tablId) {
+    xcHelper.getTableFromId = function(tableId) {
         // XXX after gTables change to object, the implementation should change
         for (var i = 0; i < gTables.length; i++) {
-            if (tablId === gTables[i].tableId) {
+            if (tableId === gTables[i].tableId) {
                 return (gTables[i]);
             }
         }
 
         for (var i = 0; i < gHiddenTables.length; i++) {
-            if (tablId === gHiddenTables[i].tableId) {
+            if (tableId === gHiddenTables[i].tableId) {
                 return (gHiddenTables[i]);
             }
         }
 
-        console.error("do not find the table with id", tablId);
+        console.error("do not find the table with id", tableId);
         return (null);
     };
 
