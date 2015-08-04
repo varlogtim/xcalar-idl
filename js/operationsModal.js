@@ -5,7 +5,6 @@ window.OperationsModal = (function($, OperationsModal) {
     var $functionInput = $('#functionList').find('.autocomplete');
     var $functionsMenu = $('#functionsMenu');
     var colNum = "";
-    var tableNum = "";
     var colName = "";
     var operatorName = "";
     var operatorsMap = {};
@@ -239,10 +238,12 @@ window.OperationsModal = (function($, OperationsModal) {
         });
     };
 
-    OperationsModal.show = function(tableId, newColNum, operator) {
+    OperationsModal.show = function(newTableId, newColNum, operator) {
         XcalarListXdfs("*", "User*")
         .done(function(listXdfsObj) {
             udfUpdateOperatorsMap(listXdfsObj.fnDescs);
+
+            tableId = newTableId;
             var tableCols = xcHelper.getTableFromId(tableId).tableCols;
             var currentCol = tableCols[newColNum - 1];
             // groupby and aggregates stick to num 6,
@@ -302,25 +303,26 @@ window.OperationsModal = (function($, OperationsModal) {
     };
 
     function toggleModalDisplay(isHide, time) {
-        xcHelper.toggleModal(tableNum, isHide, {
-            "fadeOutTime": time
-        });
+        // XXX fix it when remove tableNum!
 
+        // xcHelper.toggleModal(tableNum, isHide, {
+        //     "fadeOutTime": time
+        // });
+
+        var $table = xcHelper.getElementByTableId(tableId, "xcTable");
         if (isHide) {
             $functionInput.attr('placeholder', "");
 
-            $('#xcTable' + tableNum)
-                .find('.header').off('click', fillInputFromColumn)
-                .end()
-                .find('.modalHighlighted').removeClass('modalHighlighted');
+            $table.find('.header').off('click', fillInputFromColumn)
+                    .end()
+                    .find('.modalHighlighted').removeClass('modalHighlighted');
 
             $('body').off('keydown', listHighlightListener);
         } else {
             $operationsModal.fadeIn(300);
-            $('#xcTable' + tableNum)
-                .find('.header').click(fillInputFromColumn)
-                .end()
-                .find('.col' + colNum).addClass('modalHighlighted');
+            $table.find('.header').click(fillInputFromColumn)
+                    .end()
+                    .find('.col' + colNum).addClass('modalHighlighted');
 
             $('body').on('keydown', listHighlightListener);
             fillInputPlaceholder(0);
@@ -768,7 +770,7 @@ window.OperationsModal = (function($, OperationsModal) {
             } else if (operatorName === 'group by') {
                 // group by sort col field
                 description = 'Field name to group by';
-                var sortedCol = gTables[tableNum].keyName;
+                var sortedCol = xcHelper.getTableFromId(tableId).keyName;
                 if (sortedCol === "recordNum") {
                     sortedCol = "";
                 } else {
@@ -962,11 +964,9 @@ window.OperationsModal = (function($, OperationsModal) {
         var colIndex = -1;
         var columns = xcHelper.getTableFromId(tableId).tableCols;
         var frontColName = args[0];
-        var backColName = frontColName;
 
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             if (columns[i].name === frontColName && columns[i].func.args) {
-                backColName = columns[i].func.args[0];
                 colIndex = i;
                 break;
             }
@@ -1076,7 +1076,7 @@ window.OperationsModal = (function($, OperationsModal) {
         value = value.split(/[,) ]/)[0];
 
         var colType;
-        var columns = gTables[tableNum].tableCols;
+        var columns = xcHelper.getTableFromId(tableId).tableCols;
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             if (columns[i].name === value) {
                 colType = columns[i].type;
@@ -1193,7 +1193,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function getAutoGenColName(name) {
         var takenNames = {};
-        var tableCols   = gTables[tableNum].tableCols;
+        var tableCols  = xcHelper.getTableFromId(tableId).tableCols;
         var numCols = tableCols.length;
         for (var i = 0; i < numCols; i++) {
             takenNames[tableCols[i].name] = 1;
@@ -1215,7 +1215,7 @@ window.OperationsModal = (function($, OperationsModal) {
             //     }
             // }
 
-        // XXX Now just rand a name since check in gTabls cannot include
+        // XXX Now just rand a name since check in gTables cannot include
         // all cols of the table... May need better way in the future
         if (!validNameFound) {
             var tries = 0;
