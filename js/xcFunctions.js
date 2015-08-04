@@ -957,7 +957,7 @@ window.xcFunction = (function ($, xcFunction) {
         return (deferred.promise());
     }
 
-    function mapColGenerate (colNum, colName, mapStr, tableCols, isReplace) {
+    function mapColGenerate(colNum, colName, mapStr, tableCols, isReplace) {
         var copiedCols = xcHelper.deepCopy(tableCols);
 
         if (colNum > -1) {

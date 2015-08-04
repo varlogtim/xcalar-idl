@@ -239,18 +239,14 @@ window.OperationsModal = (function($, OperationsModal) {
         });
     };
 
-    OperationsModal.show = function(newTableNum, newColNum, operator) {
+    OperationsModal.show = function(tableId, newColNum, operator) {
         XcalarListXdfs("*", "User*")
         .done(function(listXdfsObj) {
             udfUpdateOperatorsMap(listXdfsObj.fnDescs);
-
-            var tableCols  = gTables[newTableNum].tableCols;
+            var tableCols = xcHelper.getTableFromId(tableId).tableCols;
             var currentCol = tableCols[newColNum - 1];
             // groupby and aggregates stick to num 6,
             // filter and map use 0-5;
-            tableNum = newTableNum;
-            // XXX Remove it when tableId replaces tableNum
-            tableId = gTables[tableNum].tableId;
             colNum = newColNum;
             colName = currentCol.name;
             operatorName = operator.toLowerCase().trim();

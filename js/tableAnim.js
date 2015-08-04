@@ -1683,7 +1683,9 @@ function addColMenuActions($colMenu) {
         var colNum = $colMenu.data('colNum');
         var tableNum = parseInt($colMenu.attr('id').substring(7));
         var func = $(this).text().replace(/\./g, '');
-        OperationsModal.show(tableNum, colNum, func);
+        // XXX Remove it when tableId replaces tableNum
+        var tableId = gTables[tableNum].tableId;
+        OperationsModal.show(tableId, colNum, func);
     });
 
     $colMenu.on('mouseup', '.statistics', function(event) {
