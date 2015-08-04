@@ -631,14 +631,10 @@ window.DataCart = (function($, DataCart) {
             var $input;
 
             var tableNames = {};
-
-            gTables.forEach(function(table) {
-                tableNames[table.tableName] = true;
-            });
-
-            gHiddenTables.forEach(function(table) {
-                tableNames[table.tableName] = true;
-            });
+            // XX this can be improved by using worksheet table names;
+            for (var tbl in gTables2) {
+                tableNames[tbl.tableName] = true;
+            }
 
             // check table name conflict in gTables and gHidden
             innerCarts.forEach(function(cart) {

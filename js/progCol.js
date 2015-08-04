@@ -43,8 +43,8 @@ window.ColManager = (function($, ColManager) {
         return (progCol);
     };
 
-    ColManager.setupProgCols = function(tableNum) {
-        var keyName = gTables[tableNum].keyName;
+    ColManager.setupProgCols = function(tableNum, tableId) {
+        var keyName = xcHelper.getTableFromId(tableId).keyName;
         // We cannot rely on addCol to create a new progCol object because
         // add col relies on gTableCol entry to determine whether or not to add
         // the menus specific to the main key
@@ -60,20 +60,17 @@ window.ColManager = (function($, ColManager) {
             "isNewCol": false
         });
 
-        insertColHelper(0, tableNum, newProgCol);
+        insertColHelper(0, tableId, newProgCol);
         // is this where we add the indexed column??
-        insertColHelper(1, tableNum, ColManager.newDATACol(2));
+        insertColHelper(1, tableid, ColManager.newDATACol(2));
     };
 
     ColManager.addCol = function(colNum, tableId, name, options) {
-        var $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
+        var $tableWrap = $("#xcTableWrap-" + tableId);
         var $table     = $tableWrap.find(".xcTable");
         var table      = xcHelper.getTableFromId(tableId);
         var numCols    = table.tableCols.length;
         var newColid   = colNum;
-
-        // XXX Fix it when remove tableNum
-        var tableNum = gTables.indexOf(table);
 
         // options
         options = options || {};
@@ -121,7 +118,7 @@ window.ColManager = (function($, ColManager) {
                 "isNewCol": isNewCol
             });
 
-            insertColHelper(newColid - 1, tableNum, newProgCol);
+            insertColHelper(newColid - 1, tableId, newProgCol);
         }
         // change table class before insert a new column
         for (var i = numCols; i >= newColid; i--) {
@@ -187,10 +184,10 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.reorderCol = function(tableNum, oldIndex, newIndex) {
-        var progCol  = removeColHelper(oldIndex, tableNum);
+    ColManager.reorderCol = function(tableId, oldIndex, newIndex) {
+        var progCol = removeColHelper(oldIndex, tableId);
 
-        insertColHelper(newIndex, tableNum, progCol);
+        insertColHelper(newIndex, tableId, progCol);
         progCol.index = newIndex + 1;
     };
 
@@ -414,8 +411,8 @@ window.ColManager = (function($, ColManager) {
         }
     };
 
-    ColManager.hideCol = function(colNum, tableNum) {
-        var $table   = $("#xcTable" + tableNum);
+    ColManager.hideCol = function(colNum, tableId) {
+        var $table   = $('#xcTable-' + tableId);
         var $th      = $table.find(".th.col" + colNum);
         var $thInput = $th.find("input");
         var $cols    = $table.find(".col" + colNum);
@@ -433,13 +430,13 @@ window.ColManager = (function($, ColManager) {
         }
 
         $table.find("td.col" + colNum).width(10);
-        gTables[tableNum].tableCols[colNum - 1].isHidden = true;
+        xcHelper.getTableFromId(tableId).tableCols[colNum - 1].isHidden = true;
 
         matchHeaderSizes(colNum, $table);
     };
 
-    ColManager.unhideCol = function(colNum, tableNum, options) {
-        var $table   = $("#xcTable" + tableNum);
+    ColManager.unhideCol = function(colNum, tableId, options) {
+        var $table   = $('#xcTable-' + tableId);
         var $th      = $table.find(".th.col" + colNum);
         var $thInput = $th.find("input");
         var $cols    = $table.find(".col" + colNum);
@@ -458,11 +455,11 @@ window.ColManager = (function($, ColManager) {
         }
 
         $thInput.css("padding-left", "4px");
-        gTables[tableNum].tableCols[colNum - 1].isHidden = false;
+        xcHelper.getTableFromId(tableId).tableCols[colNum - 1].isHidden = false;
 
     };
 
-    ColManager.textAlign = function(colNum, tableNum, alignment) {
+    ColManager.textAlign = function(colNum, tableId, alignment) {
         if (alignment.indexOf("leftAlign") > -1) {
             alignment = "Left";
         } else if (alignment.indexOf("rightAlign") > -1) {
@@ -470,20 +467,21 @@ window.ColManager = (function($, ColManager) {
         } else {
             alignment = "Center";
         }
+        var table = xcHelper.getTableFromId(tableId);
+        table.tableCols[colNum - 1].textAlign = alignment;
+        var $table = $('#xcTable-' + tableId);
 
-        gTables[tableNum].tableCols[colNum - 1].textAlign = alignment;
-
-        $("#xcTable" + tableNum).find('td.col' + colNum)
-                                .removeClass('textAlignLeft')
-                                .removeClass('textAlignRight')
-                                .removeClass('textAlignCenter')
-                                .addClass('textAlign' + alignment);
+        $table.find('td.col' + colNum)
+                .removeClass('textAlignLeft')
+                .removeClass('textAlignRight')
+                .removeClass('textAlignCenter')
+                .addClass('textAlign' + alignment);
     };
 
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
-                                      tableNum, direction, rowToPrependTo)
+                                      tableId, direction, rowToPrependTo)
     {
-        var table     = gTables[tableNum];
+        var table     = xcHelper.getTableFromId(tableId);
         var tableName = table.tableName;
         var tableCols = table.tableCols;
         var numCols   = tableCols.length;
@@ -497,7 +495,7 @@ window.ColManager = (function($, ColManager) {
         var columnTypes    = []; // track column type
         var childArrayVals = [];
 
-        var $table     = $('#xcTable' + tableNum);
+        var $table     = $('#xcTable-' + tableId);
         var tBodyHTML  = "";
 
         startIndex = startIndex || 0;
@@ -669,7 +667,7 @@ window.ColManager = (function($, ColManager) {
                 tableCols[indexedColNums[i]].isSortedArray = true;
             }
             return ColManager.pullAllCols(startIndex, jsonObj,
-                                          dataIndex, tableNum, direction);
+                                          dataIndex, tableId, direction);
         }
 
         var $tBody = $(tBodyHTML);
@@ -742,7 +740,7 @@ window.ColManager = (function($, ColManager) {
             }
         }
 
-        var $table   = xcHelper.getElementByTableId(tableId, "xcTable");
+        var $table   = $("#xcTable-" + tableId);
         var $dataCol = $table.find("tr:first th").filter(function() {
             return $(this).find("input").val() === "DATA";
         });
@@ -888,9 +886,9 @@ window.ColManager = (function($, ColManager) {
     }
     // End Of Help Functon for pullAllCols and pullCOlHelper
 
-    function insertColHelper(index, tableNum, progCol) {
+    function insertColHelper(index, tableId, progCol) {
          // tableCols is an array of ProgCol obj
-        var tableCols = gTables[tableNum].tableCols;
+        var tableCols = xcHelper.getTableFromId(tableId).tableCols;
 
         for (var i = tableCols.length - 1; i >= index; i--) {
             tableCols[i].index += 1;
@@ -900,8 +898,8 @@ window.ColManager = (function($, ColManager) {
         tableCols[index] = progCol;
     }
 
-    function removeColHelper(index, tableNum) {
-        var tableCols = gTables[tableNum].tableCols;
+    function removeColHelper(index, tableId) {
+        var tableCols = xcHelper.getTableFromId(tableId).tableCols;
         var removed   = tableCols[index];
 
         for (var i = index + 1; i < tableCols.length; i++) {
@@ -916,13 +914,10 @@ window.ColManager = (function($, ColManager) {
     function delColHelper(colNum, tableId) {
         var table      = xcHelper.getTableFromId(tableId);
         var numCols    = table.tableCols.length;
-        var $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
+        var $tableWrap = $("#xcTableWrap-" + tableId);
 
         $tableWrap.find(".col" + colNum).remove();
-
-        // XXX fix it when remove tableNum
-        var tableNum = gTables.indexOf(table);
-        removeColHelper(colNum - 1, tableNum);
+        removeColHelper(colNum - 1, tableId);
 
         updateTableHeader(tableId);
         RightSideBar.updateTableInfo(table);
@@ -933,7 +928,7 @@ window.ColManager = (function($, ColManager) {
                       .addClass("col" + (i - 1));
         }
 
-        gRescolDelWidth(colNum, tableNum);
+        gRescolDelWidth(colNum, tableId);
         $tableWrap.find('.rowGrab').width($tableWrap.find('table').width());
     }
 

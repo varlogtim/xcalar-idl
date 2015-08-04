@@ -506,10 +506,13 @@ window.JoinModal = (function($, JoinModal) {
         var worksheets = [];
 
         // group table tab by worksheet (only show active table)
-        for (var i = 0; i < gTables.length; i++) {
+        for (var tbl in gTables2) {
             // XXX this should be fixed when no WSManager.getWSFromTable()
-            var tableId   = gTables[i].tableId;
-            var tableName = gTables[i].tableName;
+            if (!gTables2[tbl].active) {
+                continue;
+            }
+            var tableId   = gTables2[tbl].tableId;
+            var tableName = gTables2[tbl].tableName;
             var wsIndex   = WSManager.getWSFromTable(tableName);
 
             worksheets[wsIndex] = worksheets[wsIndex] || [];
@@ -544,9 +547,15 @@ window.JoinModal = (function($, JoinModal) {
         var $columnArea = $modal.find('.joinTableArea');
 
         for (var i = 0; i < gTables.length; i++) {
-            var table = gTables[i];
+            // XX We will not be looping through a gTables Array in the future
+        // for (var tbl in gTables2) {    
+            // if (!gTables2[tbl].active) {
+            //     continue;
+            // }
+            var tableId = gTables[i].tableId;
+            var table = gTables2[tableId];
             var colHtml = '<table class="dataTable joinTable" ' +
-                            'data-id="' + table.tableId + '">' +
+                            'data-id="' + tableId + '">' +
                             '<thead>' +
                                 '<tr>';
 
@@ -575,7 +584,9 @@ window.JoinModal = (function($, JoinModal) {
 
             colHtml += '</tr></thead>';
 
-            var $tbody = $('#xcTable' + i).find('tbody').clone(true);
+            var $table = $('#xcTable-' + tableId);
+
+            var $tbody = $table.find('tbody').clone(true);
 
             $tbody.find('tr:gt(14)').remove();
             $tbody.find('.col0').remove();

@@ -885,8 +885,7 @@ window.WKBKManager = (function($, WKBKManager) {
     function storeWKBKInfo(workbook) {
         workbook.tables = {};
 
-        gTables.forEach(storeHelper);
-        gHiddenTables.forEach(storeHelper);
+        gTables2.forEach(storeHelper);
 
         // XXX Cheng: store real table for delete table use
         // this is just temporayily, after bakcend support, we do not need it!

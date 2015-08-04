@@ -12,25 +12,11 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.getTableFromId = function(tableId) {
-        // XXX after gTables change to object, the implementation should change
-        for (var i = 0; i < gTables.length; i++) {
-            if (tableId === gTables[i].tableId) {
-                return (gTables[i]);
-            }
-        }
-
-        for (var i = 0; i < gHiddenTables.length; i++) {
-            if (tableId === gHiddenTables[i].tableId) {
-                return (gHiddenTables[i]);
-            }
-        }
-
-        console.error("do not find the table with id", tableId);
-        return (null);
+        return (gTables2[tableId]);
     };
 
     xcHelper.getElementByTableId = function(tableId, prefix) {
-        var $ele = $("[data-id=" + prefix + "-" + tableId + "]");
+        var $ele = $('#' + prefix + '-' + tableId);
         if ($ele.length === 0) {
             return (null);
         } else {
@@ -38,23 +24,23 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.parseTableId = function(id) {
-        return (id.split("-")[1]);
-    };
-
-    xcHelper.getTableMeta = function(tableName, isHidden) {
-        var table = isHidden ? gHiddenTables : gTables;
-        for (var i = 0; i < table.length; i++) {
-            if (tableName === table[i].tableName) {
-                return (table[i]);
-            }
+    xcHelper.parseTableId = function(idOrEl) {
+        // can pass in a string or jQuery element
+        var id;
+        if (idOrEl instanceof jQuery) {
+            id = idOrEl.attr('id');
+        } else {
+            id = idOrEl;
         }
-        return (undefined);
+        return (id.split("-")[1]);
     };
 
     xcHelper.parseTableNum = function($table) {
         // assumes we are passing in a table with an ID
         // that contains the string 'Table' ex. #xcTable2 or #worksheetTable2
+        if (!$table || $.isEmptyObject($table)) {
+            return (null);
+        }
         var id       = $table.attr('id');
         var numIndex = id.indexOf('Table') + 5;  // where tableNum is located
         var tableNum = parseInt(id.substring(numIndex));
@@ -188,7 +174,7 @@ window.xcHelper = (function($, xcHelper) {
 
         // XXX fix it when tableId attaches to DOM's id
         var $otherWraps = $('.xcTableWrap').filter(function() {
-            var curTableId = xcHelper.parseTableId($(this).data("id"));
+            var curTableId = $(this).data("id");
             return (curTableId !== tableId);
         });
 

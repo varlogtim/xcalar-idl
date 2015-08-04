@@ -97,7 +97,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonWrap.on({
             "click": function() {
                 var $table  = $jsonTd.closest('table');
-                var tableId = xcHelper.parseTableId($table.data("id"));
+                var tableId = $table.data('id');
 
                 var name    = createJsonSelectionExpression($(this));
                 var usrStr  = '"' + name.name + '" = pull(' +

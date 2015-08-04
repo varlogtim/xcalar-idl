@@ -172,6 +172,7 @@ function setTableOrder(atStartup) {
         return;
     }
     gTableOrderLookup = [];
+    // XX we need to get the order from the worksheet
     for (var i = 0; i < gTables.length; i++) {
         gTableOrderLookup.push(gTables[i].tableName);
     }

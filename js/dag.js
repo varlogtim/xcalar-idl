@@ -258,6 +258,7 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableName = $.trim($dagTable.find('.tableTitle').text());
+            var tableId = xcHelper.getTableId(tableName);
             $menu.data('tablename', tableName);
             $menu.data('tableelement', $dagTable);
             var activeFound = false;
@@ -266,7 +267,7 @@ window.DagPanel = (function($, DagPanel) {
             // if active table, hide "addTable" and show "focusTable"
             $('#activeTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
-                if ($li.data('tablename') === tableName) {
+                if ($li.data('id') === tableId) {
                     $menu.find('.addTable').addClass('hidden');
                     $menu.find('.focusTable').removeClass('hidden');
                     activeFound = true;
@@ -281,7 +282,7 @@ window.DagPanel = (function($, DagPanel) {
             } else {
                 $('#inactiveTablesList').find('.tableInfo').each(function() {
                     var $li = $(this);
-                    if ($li.data('tablename') === tableName) {
+                    if ($li.data('id') === tableId) {
                         $menu.find('.addTable').removeClass('hidden');
                         $menu.find('.focusTable').addClass('hidden');
                         return (false);
@@ -360,9 +361,10 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableName = $menu.data('tablename');
+            var tableId = xcHelper.getTableId(tableName);
             $('#inactiveTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
-                if ($li.data('tablename') === tableName) {
+                if ($li.data('id') === tableId) {
                     $li.find('.addTableBtn').click();
                     $('#submitTablesBtn').click();
                     return (false);
@@ -375,20 +377,15 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableName = $menu.data('tablename');
+            // XX instead of storing data tablename we can store id
+            var tableId = xcHelper.getTableId(tableName);
             var wsIndex = $menu.data('wsindex');
             $('#worksheetTab-' + wsIndex).click();
-            var numTables = gTables.length;
-            var tableIndex;
-            for (var i = 0; i < numTables; i++) {
-                if (gTables[i].tableName === tableName) {
-                    tableIndex = i;
-                    break;
-                }
-            }
+            
             if ($dagPanel.hasClass('full')) {
                 $('#dagPulloutTab').click();
             }
-            var $table = $('#xcTableWrap' + tableIndex);
+            $table = $('#xcTableWrap-' + tableId);
             centerFocusedTable($table);
            
             $table.mousedown();
@@ -430,14 +427,14 @@ window.DagPanel = (function($, DagPanel) {
 
 window.Dag = (function($, Dag) {
     $dagPanel = $('#dagPanel');
-    Dag.construct = function(tableName, tableNum) {
+    Dag.construct = function(tableId) {
         var deferred = jQuery.Deferred();
-
+        var table = xcHelper.getTableFromId(tableId);
+        var tableName = table.tableName;
         drawDag(tableName)
         .then(function(dagDrawing) {
             var activeWS = WSManager.getActiveWS();
             var tableWS = WSManager.getWSFromTable(tableName);
-            var tableId = xcHelper.getTableId(tableName);
             var tableNum = xcHelper.getTableIndexFromName(tableName);
             var activeClass = "";
             if (activeWS !== tableWS) {
@@ -445,7 +442,7 @@ window.Dag = (function($, Dag) {
             }
             var outerDag =
                 '<div class="dagWrap ' + activeClass + '" id="dagWrap-' +
-                    tableId + '">' +
+                    tableId + '" data-id="' + tableId + '">' +
                 '<div class="header clearfix">' +
                     '<div class="btn btnSmall infoIcon">' +
                         '<div class="icon"></div>' +
@@ -472,8 +469,16 @@ window.Dag = (function($, Dag) {
 
             if (tableNum === 0) {
                 $('.dagArea').find('.legendArea').after(outerDag);
+            } else if (tableNum == null) {
+                $('.dagArea').append(outerDag);
             } else {
-                $dagPanel.find('.dagWrap').eq(tableNum - 1).after(outerDag);
+                $prevDag = $dagPanel.find('.dagWrap').eq(tableNum - 1);
+                if ($prevDag.length === 0) {
+                    console.error('dag order is incorrect! This is a bug!');
+                    $('.dagArea').append(outerDag);
+                } else {
+                    $prevDag.after(outerDag);
+                }
             }
 
             var $dagWrap = $('#dagWrap-' + tableId);
@@ -718,10 +723,11 @@ window.Dag = (function($, Dag) {
 
     function showDagSchema($dagTable) {
         $('#dagSchema').remove();
-        var tableName = $dagTable.data('tablename');
-        var table = gTableIndicesLookup[tableName];
+        var tableName = $dagTable.data('tablename'); //XX todo grab tableId instead
+        var tableId = xcHelper.getTableId(tableName); 
+        var table = gTables2[tableId];
         if (table) {
-            var numCols = table.columns.length;
+            var numCols = table.tableCols.length;
             var html = '<div id="dagSchema">' +
                        '<span class="title">' + tableName +
                        ' &nbsp;[' + (numCols - 1) + ']</span>' +
@@ -733,15 +739,15 @@ window.Dag = (function($, Dag) {
             html += '<ul>';
            
             for (var i = 0; i < numCols; i++) {
-                if (table.columns[i].name === 'DATA') {
+                if (table.tableCols[i].name === 'DATA') {
                     continue;
                 }
                 html += '<li>' +
                             '<div>' +
-                            table.columns[i].name +
+                            table.tableCols[i].name +
                             '</div>' +
                             '<div>' +
-                            table.columns[i].type +
+                            table.tableCols[i].type +
                             '</div>' +
                             '<div>' +
                             // XX SAMPLE DATA GOES HERE

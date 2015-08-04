@@ -424,16 +424,8 @@ window.StatusMessage = (function($, StatusMessage) {
         if (wsNum !== activeWS) {
             return (wsNum);
         }
-
-        var numTables = gTables.length;
-        var tableNum = 0;
-        for (var i = 0; i < numTables; i++) {
-            if (gTables[i].tableName === tableName) {
-                tableNum = i;
-                break;
-            }
-        }
-        var $table = $('#xcTable' + tableNum);
+        var tableId = xcHelper.getTableId(tableName);
+        var $table = $("#xcTable-" + tableId);
         var rect = $table[0].getBoundingClientRect();
         var windowWidth = $('#rightSideBar').offset().left - 10;
         var position;

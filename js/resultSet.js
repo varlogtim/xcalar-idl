@@ -1,15 +1,9 @@
 function freeAllResultSets() {
     // var promises = [];
     // XXX use promise is not reliable to send all reqeust to backend
-    var i;
-    for (i = 0; i < gTables.length; i++) {
-        // promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
-        XcalarSetFree(gTables[i].resultSetId);
-    }
-
-    for (i = 0; i < gHiddenTables.length; i++) {
-        // promises.push(XcalarSetFree.bind(this, gHiddenTables[i].resultSetId));
-        XcalarSetFree(gHiddenTables[i].resultSetId);
+    var table;
+    for (table in gTables2) {
+        XcalarSetFree(gTables2[table].resultSetId);
     }
 
     // Free datasetBrowser resultSetId
@@ -21,14 +15,10 @@ function freeAllResultSets() {
 
 function freeAllResultSetsSync() {
     var promises = [];
-    var i, len;
+    var table;
 
-    for (i = 0, len = gTables.length; i < len; i++) {
-        promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
-    }
-
-    for (i = 0, len = gHiddenTables.length; i < len; i++) {
-        promises.push(XcalarSetFree.bind(this, gHiddenTables[i].resultSetId));
+    for (table in gTables2) {
+         promises.push(XcalarSetFree.bind(this, gTables2[table].resultSetId));
     }
 
     // Free datasetBrowser resultSetId
@@ -48,8 +38,11 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     // rowNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();
     info = info || {};
-    var tableNum = xcHelper.getTableIndexFromName(info.tableName);
-    if (rowNumber >= gTables[tableNum].resultSetMax) {
+    var tableNum;
+    var tableId = info.tableId;
+    var table = xcHelper.getTableFromId(tableId);
+    var $table;
+    if (rowNumber >= table.resultSetMax) {
         console.log("Already at last page!");
         return (promiseWrapper(null));
     }
@@ -62,15 +55,13 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
 
     var prepullTableHeight;
     var numRowsBefore;
-    var resultSetId = gTables[tableNum].resultSetId;
+    var resultSetId = table.resultSetId;
     XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function(){
-        return (generateDataColumnJson(resultSetId, null, info.tableName,
-                                       false, numRowsToAdd));
+        return (generateDataColumnJson(table, null, false, numRowsToAdd));
     })
     .then(function(jsonObj, keyName) {
         var deferred2 = jQuery.Deferred();
-        tableNum = xcHelper.getTableIndexFromName(info.tableName);
         var jsonLen   = jsonObj.normal.length;
 
         var numRowsLacking     = numRowsToAdd - jsonLen;
@@ -86,13 +77,13 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
             info.missingRows.push(position);
         }
 
-        $table = $('#xcTable' + tableNum);
+        $table =$('#xcTable-' + tableId);
         prepullTableHeight = $table.height();
 
         info.numRowsAdded += jsonLen;
         numRowsBefore = $table.find('tbody tr').length;
 
-        pullRowsBulk(tableNum, jsonObj, rowPosition, null,
+        pullRowsBulk(tableId, jsonObj, rowPosition, null,
                      direction, rowToPrependTo);
 
         var numRowsStillNeeded = info.numRowsToAdd - info.numRowsAdded;
@@ -104,14 +95,10 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
             var numRowsToFetch;
 
             if (direction === RowDirection.Bottom) {
-                if (position < gTables[tableNum].resultSetMax) {
-                    newRowToGoTo =
-                        // Math.min(position + 1, gTables[tableNum].resultSetMax);
-                        Math.min(position, gTables[tableNum].resultSetMax);
-                    numRowsToFetch =
-                        Math.min(numRowsStillNeeded,
-                                (gTables[tableNum].resultSetMax -
-                                 newRowToGoTo));
+                if (position < table.resultSetMax) {
+                    newRowToGoTo = Math.min(position, table.resultSetMax);
+                    numRowsToFetch = Math.min(numRowsStillNeeded,
+                                        (table.resultSetMax - newRowToGoTo));
 
                     return (goToPage(newRowToGoTo, numRowsToFetch,
                                      direction, true, info));
@@ -124,9 +111,8 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
                                         info.numRowsToAdd, numRowsStillNeeded);
                     info.targetRow = newRowToGoTo;
                     if (!info.reverseLooped) {
-                        gTables[tableNum].resultSetMax = jsonLen + rowPosition;
-                        gTables[tableNum].currentRowNumber =
-                                            gTables[tableNum].resultSetMax;
+                        table.resultSetMax = jsonLen + rowPosition;
+                        table.currentRowNumber = table.resultSetMax;
                         var numRowsToRemove = $table.find("tbody tr").length -
                                               info.numRowsAdded;
                         $table.find("tbody tr").slice(0, numRowsToRemove)
@@ -170,11 +156,10 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         }
     })
     .then(function() {
-        tableNum = xcHelper.getTableIndexFromName(info.tableName);
         removeWaitCursor();
         moveFirstColumn();
         if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
-            removeOldRows($table, tableNum, info, direction,
+            removeOldRows($table, tableId, info, direction,
                             prepullTableHeight, numRowsBefore, numRowsToAdd);
         } else if (!loop && info.missingRows) {
             console.log('some rows were too large to be retrieved, rows: ' +
@@ -190,33 +175,35 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     return (deferred.promise());
 }
 
-function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
+function removeOldRows($table, tableId, info, direction, prepullTableHeight,
                         numRowsBefore, numRowsToAdd) {
     // also handles the scroll position
     var scrollTop;
     var postpullTableHeight = $table.height();
-
+    var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
+    var table = xcHelper.getTableFromId(tableId);
     if (direction === RowDirection.Top) {
         $table.find("tbody tr").slice(60).remove();
         scrollTop = Math.max(2, postpullTableHeight - prepullTableHeight);
-        $('#xcTbodyWrap' + tableNum).scrollTop(scrollTop);
+
+        $xcTbodyWrap.scrollTop(scrollTop);
     } else {
-        var preScrollTop = $('#xcTbodyWrap' + tableNum).scrollTop();
+        var preScrollTop = $xcTbodyWrap.scrollTop();
         if (info.numRowsAdded === 0) {
-            gTables[tableNum].resultSetMax = info.lastRowToDisplay -
+            table.resultSetMax = info.lastRowToDisplay -
                                              info.numRowsToAdd;
-            gTables[tableNum].currentRowNumber = gTables[tableNum].resultSetMax;
+            table.currentRowNumber = table.resultSetMax;
         }
         $table.find("tbody tr").slice(0, info.numRowsAdded).remove();
         var postRowRemovalHeight = $table.height();
         scrollTop = Math.max(2, preScrollTop - (postpullTableHeight -
                                                     postRowRemovalHeight));
-        $('#xcTbodyWrap' + tableNum).scrollTop(scrollTop - 1);
+        $xcTbodyWrap.scrollTop(scrollTop - 1);
     }
 
     var lastRow = $table.find('tbody tr:last');
     var bottomRowNum = parseInt(lastRow.attr('class').substr(3));
-    gTables[tableNum].currentRowNumber = bottomRowNum + 1;
+    table.currentRowNumber = bottomRowNum + 1;
 
     if (info.missingRows) {
         console.warn('some rows were too large to be retrieved, rows: ' +
@@ -225,26 +212,24 @@ function removeOldRows($table, tableNum, info, direction, prepullTableHeight,
 }
 
 
-function getFirstPage(resultSetId, tableName, notIndexed) {
-    if (resultSetId === 0) {
+function getFirstPage(table, notIndexed) {
+    if (table.resultSetId === 0) {
         return (promiseWrapper(null));
     }
-    var tableNum = xcHelper.getTableIndexFromName(tableName);
-    var numRowsToAdd = Math.min(60, gTables[tableNum].resultSetCount);
-    return (generateDataColumnJson(resultSetId, null, tableName, notIndexed,
-                                    numRowsToAdd));
+    var tableNum = xcHelper.getTableIndexFromName(table.tableName);
+    var numRowsToAdd = Math.min(60, table.resultSetCount);
+    return (generateDataColumnJson(table, null, notIndexed, numRowsToAdd));
 }
 
  // produces an array of all the td values that will go into the DATA column
-function generateDataColumnJson(resultSetId, direction, tableName, notIndexed,
-                                numRowsToFetch) {
+function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch) {
     var deferred = jQuery.Deferred();
     var jsonObj = {
         "normal" : [],
         "withKey": []
     };
 
-    if (resultSetId === 0) {
+    if (table.resultSetId === 0) {
         return (promiseWrapper(null));
     }
     if (numRowsToFetch === 0) {
@@ -252,10 +237,11 @@ function generateDataColumnJson(resultSetId, direction, tableName, notIndexed,
         return (deferred.promise());
     }
 
-    XcalarGetNextPage(resultSetId, numRowsToFetch)
+    XcalarGetNextPage(table.resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {
-        var tableNum = xcHelper.getTableIndexFromName(tableName);
-        var keyName = gTables[tableNum].keyName;
+        var tableNum = xcHelper.getTableIndexFromName(table.tableName);
+        var tableId = table.tableId;
+        var keyName = table.keyName;
         var kvPairs = tableOfEntries.kvPair;
         var numKvPairs = tableOfEntries.numKvPairs;
 
@@ -263,7 +249,7 @@ function generateDataColumnJson(resultSetId, direction, tableName, notIndexed,
             resultSetId = 0;
         }
         if (notIndexed) {
-            ColManager.setupProgCols(tableNum);
+            ColManager.setupProgCols(tableNum, tableid);
         }
 
         var numRows     = Math.min(numRowsToFetch, numKvPairs);

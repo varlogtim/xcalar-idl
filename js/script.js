@@ -25,10 +25,11 @@ var gResrow = {};
 var gMinTableWidth = 30;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
+var gTables2 = {};
 var gHiddenTables = [];
 var gOrphanTables = [];
 var gFnBarOrigin;
-var gActiveTableNum = 0; // The table that is currently in focus
+var gActiveTableId = ""; 
 var gDSObj = {};    //obj for DS folder structure
 var gRetinaObj = {}; //obj for retina modal
 var gLastClickTarget = $(window); // track which element was last clicked
@@ -40,11 +41,12 @@ var TB = 1024 * GB;
 var PB = 1024 * TB;
 
 // ================================ Misc ======================================
-function infScrolling(tableNum) {
+function infScrolling(tableId) {
     var $rowScroller = $('#rowScrollerArea');
     var scrollCount = 0;
+    var $xcTbodyWrap = xcHelper.getElementByTableId(tableId, 'xcTbodyWrap');
 
-    $("#xcTbodyWrap" + tableNum).scroll(function() {
+    $xcTbodyWrap.scroll(function() {
         if (gMouseStatus === "movingTable") {
             return;
         }
@@ -56,17 +58,17 @@ function infScrolling(tableNum) {
         $(".colMenu:visible").hide();
         $('#highlightBox').remove();
 
-        var dynTableNum = parseInt($(this).attr("id")
-                           .substring("xcTbodyWrap".length));
-        focusTable(dynTableNum);
-        var table = $('#xcTable' + dynTableNum);
-        if (table.height() < $('#mainFrame').height()) {
+        var table = xcHelper.getTableFromId(tableId);
+        focusTable(tableId);
+        var $table = xcHelper.getElementByTableId(tableId, 'xcTable');
+
+        if ($table.height() < $('#mainFrame').height()) {
             // prevent scrolling on a short table
             $(this).scrollTop(0);
         }
 
         var innerDeferred = jQuery.Deferred();
-        var firstRow = table.find('tbody tr:first');
+        var firstRow = $table.find('tbody tr:first');
         var topRowNum = xcHelper.parseRowNum(firstRow);
         var info;
         var numRowsToAdd;
@@ -83,7 +85,7 @@ function infScrolling(tableNum) {
                 numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum);
 
                 var rowNumber = topRowNum - numRowsToAdd;
-                var lastRowToDisplay = table.find('tbody tr:lt(40)');
+                var lastRowToDisplay = $table.find('tbody tr:lt(40)');
 
                 info = {
                     "numRowsToAdd"    : numRowsToAdd,
@@ -91,7 +93,8 @@ function infScrolling(tableNum) {
                     "targetRow"       : rowNumber,
                     "lastRowToDisplay": lastRowToDisplay,
                     "bulk"            : false,
-                    "tableName"       : gTables[dynTableNum].tableName
+                    "tableName"       : table.tableName,
+                    "tableId"         : tableId
                 };
 
                 goToPage(rowNumber, numRowsToAdd, RowDirection.Top, false, info)
@@ -114,20 +117,21 @@ function infScrolling(tableNum) {
 
             if (scrollCount < 2) {
                 numRowsToAdd = Math.min(gNumEntriesPerPage,
-                                gTables[dynTableNum].resultSetMax -
-                                gTables[dynTableNum].currentRowNumber);
+                                table.resultSetMax -
+                                table.currentRowNumber);
                 info = {
                     "numRowsToAdd": numRowsToAdd,
                     "numRowsAdded": 0,
-                    "targetRow"   : gTables[dynTableNum].currentRowNumber +
+                    "targetRow"   : table.currentRowNumber +
                                     numRowsToAdd,
-                    "lastRowToDisplay": gTables[dynTableNum].currentRowNumber +
+                    "lastRowToDisplay": table.currentRowNumber +
                                         numRowsToAdd,
                     "bulk"     : false,
-                    "tableName": gTables[dynTableNum].tableName
+                    "tableName": table.tableName,
+                    "tableId"  : tableId
                 };
                 
-                goToPage(gTables[dynTableNum].currentRowNumber, numRowsToAdd,
+                goToPage(table.currentRowNumber, numRowsToAdd,
                          RowDirection.Bottom, false, info)
                 .then(function() {
                     scrollCount--;
@@ -269,10 +273,16 @@ function setupHiddenTable(tableName) {
     setTableMeta(tableName)
     .then(function(newTableMeta) {
         gHiddenTables.push(newTableMeta);
+        var tableId = xcHelper.getTableId(tableName);
+        gTables2[tableId] = newTableMeta;
+        var table = gTables2[tableId];
+        table.active = false;
+
         var lastIndex = gHiddenTables.length - 1;
-        var index = getIndex(gHiddenTables[lastIndex].tableName);
+        var index = getIndex(gTables2[tableId].tableName);
         if (index && index.length > 0) {
             gHiddenTables[lastIndex].tableCols = index;
+            table.tableCols = index;
         } else {
             console.warn("Not stored", gHiddenTables[lastIndex].tableName);
         }  
@@ -359,8 +369,8 @@ function documentReadyGeneralFunction() {
         $('#mainFrame').find('.colGrab').height(30);
         clearTimeout(timer);
         timer = setTimeout(function() {
-            if (gTables[gActiveTableNum] &&
-                gTables[gActiveTableNum].resultSetCount !== 0) {
+            var table = xcHelper.getTableFromId(gActiveTableId);
+            if (table && table.resultSetCount !== 0) {
                 generateFirstVisibleRowNum();
             }
             moveTableDropdownBoxes();

@@ -2,7 +2,8 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
     if (!document.elementFromPoint) {
         return;
     }
-    var $table = $('#xcTable' + gActiveTableNum);
+    var activeTableId = gActiveTableId;
+    var $table = $('#xcTable-' + activeTableId);
     if ($table.length === 0) {
         return;
     }
@@ -16,9 +17,9 @@ function generateFirstVisibleRowNum(rowScrollerMove) {
         var firstRowNum = parseInt(firstId.substring(3)) + 1;
         if (!isNaN(firstRowNum)) {
             $('#rowInput').val(firstRowNum).data('val', firstRowNum);
-            if (rowScrollerMove && isTableScrollable(gActiveTableNum)) {
+            if (rowScrollerMove && isTableScrollable(activeTableId)) {
                 RowScroller.move(firstRowNum,
-                    gTables[gActiveTableNum].resultSetCount);
+                    xcHelper.getTableFromId(activeTableId).resultSetCount);
             }
         }
     }
@@ -45,15 +46,14 @@ function reenableTextSelection() {
 function gRescolMouseDown(el, event, options) {
     var rescol   = gRescol;
     var $table   = el.closest('.dataTable');
-    var tableNum = xcHelper.parseTableNum($table);
     var colNum   = xcHelper.parseColNum(el.parent().parent());
-
+    rescol.tableId = xcHelper.parseTableId($table);
     if (options && options.target === "datastore") {
         rescol.isDatastore = true;
     } else if (el.parent().width() === 10) {
         // This is a hidden column! we need to unhide it
         // return;
-        ColManager.unhideCol(colNum, tableNum, {autoResize: false});
+        ColManager.unhideCol(colNum, rescol.tableId, {autoResize: false});
     }
     gMouseStatus = "resizingCol";
     event.preventDefault();
@@ -61,7 +61,6 @@ function gRescolMouseDown(el, event, options) {
     rescol.grabbedCell = el.parent().parent();  // the th
     rescol.index = colNum;
     rescol.startWidth = rescol.grabbedCell.outerWidth();
-    rescol.tableNum = tableNum;
     rescol.table = $table;
     rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
     rescol.headerDiv = el.parent(); // the .header div
@@ -96,7 +95,8 @@ function gRescolMouseUp() {
     reenableTextSelection();
     gRescol.table.find('.rowGrab').width(gRescol.table.width());
     if (!gRescol.isDatastore) {
-        var progCol = gTables[gRescol.tableNum].tableCols[gRescol.index - 1];
+        var table = xcHelper.getTableFromId(gRescol.tableId);
+        var progCol = table.tableCols[gRescol.index - 1];
         progCol.width = gRescol.grabbedCell.outerWidth();
     } else {
         gRescol.isDatastore = false;
@@ -111,7 +111,7 @@ function gResrowMouseDown(el, event) {
 
     resrow.mouseStart = event.pageY;
     resrow.targetTd = el.closest('td');
-    resrow.tableNum = parseInt($table.attr('id').substring(7));
+    resrow.tableId = xcHelper.parseTableId($table);
     resrow.startHeight = resrow.targetTd.outerHeight();
     resrow.rowIndex = resrow.targetTd.closest('tr').index();
     resrow.$divs = $table.find('tbody tr:eq(' + resrow.rowIndex + ') td > div');
@@ -149,15 +149,16 @@ function gResrowMouseMove(event) {
 function gResrowMouseUp() {
     var newRowHeight = gResrow.targetTd.outerHeight();
     var rowNum = xcHelper.parseRowNum(gResrow.targetTd.parent()) + 1;
-    var rowObj = gTables[gResrow.tableNum].rowHeights;
+    var rowObj = xcHelper.getTableFromId(gResrow.tableId).rowHeights;
     // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
     var pageNum = Math.floor((rowNum - 1) / gNumEntriesPerPage);
     gMouseStatus = null;
     $('#row-resizeCursor').remove();
     reenableTextSelection();
     $('body').removeClass('hideScroll');
-    $('#xcTable' + gResrow.tableNum + ' tr').removeClass('notDragging dragging');
-    if (gTables[gActiveTableNum].resultSetCount !== 0) {
+    $table = $('#xcTable-' + gResrow.tableId);
+    $table.find('tr').removeClass('notDragging dragging');
+    if (xcHelper.getTableFromId(gActiveTableId).resultSetCount !== 0) {
         generateFirstVisibleRowNum();
     }
 
@@ -200,7 +201,7 @@ function dragdropMouseDown(el, event) {
     var $tbodyWrap = $table.parent();
     var $editableHead = el.find('.editableHead');
     dragObj.table = tableWrap;
-    dragObj.tableNum = parseInt(tableWrap.attr('id').substring(11));
+    dragObj.tableId = xcHelper.parseTableId($table);
     dragObj.element = el;
     dragObj.colIndex = parseInt(el.index());
     dragObj.offsetTop = el.offset().top;
@@ -235,7 +236,7 @@ function dragdropMouseDown(el, event) {
     createDropTargets();
 
     var timer;
-    if (gTables[dragObj.tableNum].tableCols.length > 50) {
+    if (xcHelper.getTableFromId(dragObj.tableId).tableCols.length > 50) {
         timer = 100;
     } else {
         timer = 40;
@@ -265,7 +266,7 @@ function dragdropMouseUp() {
     // only pull col if column is dropped in new location
     if ((dragObj.colIndex) !== dragObj.colNum) {
         // add sql
-        var table = gTables[dragObj.tableNum];
+        var table = xcHelper.getTableFromId(dragObj.tableId);
 
         SQL.add("Change Column Order", {
             "operation"  : "changeColOrder",
@@ -282,11 +283,11 @@ function dragdropMouseUp() {
 
 function reorderAfterColumnDrop() {
     var dragObj  = gDragObj;
-    var tableNum = dragObj.tableNum;
+    var tableId  = dragObj.tableId;
     var oldIndex = dragObj.colNum - 1;
     var newIndex = dragObj.colIndex - 1;
 
-    ColManager.reorderCol(tableNum, oldIndex, newIndex);
+    ColManager.reorderCol(tableId, oldIndex, newIndex);
 
     dragObj.table.find('.col' + dragObj.colNum)
                  .removeClass('col' + dragObj.colNum)
@@ -401,7 +402,7 @@ function createTransparentDragDropCol() {
     }
 
     var totalRowHeight = dragObj.element
-                                .closest('#xcTableWrap' + dragObj.tableNum)
+                                .closest('.xcTableWrap')
                                 .height() -
                                 dragObj.table.find('th:first').outerHeight();
     var numRows = Math.ceil(totalRowHeight / rowHeight);
@@ -417,8 +418,8 @@ function createTransparentDragDropCol() {
     // Ensure rows are offset correctly
     var fauxTableHeight = $fauxTable.height() +
                           $fauxTable.find('tr:first').outerHeight();
-
-    var xcTableWrap0Height = $('#xcTableWrap' + dragObj.tableNum).height();
+    var $tableWrap = $('#xcTableWrap-' + dragObj.tableId);
+    var xcTableWrap0Height = $tableWrap.height();
     var fauxColHeight = Math.min(fauxTableHeight, xcTableWrap0Height - 36);
     dragObj.fauxCol.height(fauxColHeight);
     var firstRowOffset = $(topRowEl).offset().top - topPx - rowHeight;
@@ -527,17 +528,17 @@ function dragdropSwapColumns(el) {
     createDropTargets(dropTargetId, movedCol);
 }
 
-function gRescolDelWidth(colNum, tableNum) {
-    var table = $('#xcTable' + tableNum);
-    var oldTableWidth = table.width();
+function gRescolDelWidth(colNum, tableId) {
+    var $table = $('#xcTable-' + tableId);
+    var oldTableWidth = $table.width();
     if (oldTableWidth < gMinTableWidth) {
-        var lastTd = table.find('tr:first th').length - 1;
-        var lastTdWidth = table.find('.th.col' + lastTd).width();
+        var lastTd = $table.find('tr:first th').length - 1;
+        var lastTdWidth = $table.find('.th.col' + lastTd).width();
 
-        table.find('thead:last .th.col' + lastTd).
+        $table.find('thead:last .th.col' + lastTd).
             width(lastTdWidth + (gMinTableWidth - oldTableWidth));
     }
-    matchHeaderSizes(colNum, $('#xcTable' + tableNum));
+    matchHeaderSizes(colNum, $table);
 }
 
 function getTextWidth(el) {
@@ -570,7 +571,8 @@ function autosizeCol(el, options) {
 
     var index = xcHelper.parseColNum(el);
     var $table = el.closest('.dataTable');
-    var tableNum = xcHelper.parseTableNum($table);
+    var tableId = xcHelper.parseTableId($table);
+    var table = xcHelper.getTableFromId(tableId);
     var includeHeader = options.includeHeader || false;
     // var resizeFirstRow = options.resizeFirstRow || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 10);
@@ -580,7 +582,7 @@ function autosizeCol(el, options) {
     var newWidth = Math.max(widestTdWidth, minWidth);
     // dbClick is autoSized to a fixed width
     if (!options.dbClick) {
-        var originalWidth = gTables[tableNum].tableCols[index - 1].width;
+        var originalWidth = table.tableCols[index - 1].width;
         newWidth = Math.max(newWidth, originalWidth);
     }
     if (!options.unlimitedWidth) {
@@ -590,7 +592,7 @@ function autosizeCol(el, options) {
     
     el.outerWidth(newWidth);
     if ($table.attr('id').indexOf('xc') > -1) {
-        gTables[tableNum].tableCols[index - 1].width = el.outerWidth();
+        table.tableCols[index - 1].width = el.outerWidth();
     }
     matchHeaderSizes(index, $table);
 }
@@ -676,19 +678,19 @@ function dblClickResize(el, options) {
     }
 }
 
-function createTableHeader(tableNum) {
-    var tableId = gTables[tableNum].tableId;
-    var $xcTheadWrap = $('<div id="xcTheadWrap' + tableNum +
+function createTableHeader(tableId) {
+    var $xcTheadWrap = $('<div id="xcTheadWrap-' + tableId +
                          '" class="xcTheadWrap dataTable" ' +
-                         '" data-id="xcTheadWrap-' + tableId + '" ' +
+                         '" data-id="' + tableId + '" ' +
                          'style="top:0px;"></div>');
 
-    $('#xcTableWrap' + tableNum).prepend($xcTheadWrap);
+    $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
 
     var tableName = "";
     // build this table title somewhere else
-    if (gTables[tableNum] != null) {
-        tableName = gTables[tableNum].tableName;
+    var table = xcHelper.getTableFromId(tableId);
+    if (table != null) {
+        tableName = table.tableName;
     }
 
     var html = '<div class="tableTitle">' +
@@ -705,9 +707,9 @@ function createTableHeader(tableNum) {
 
     var newTableName = xcHelper.randName(tableName, undefined, true);
     var tableMenuHTML =
-        '<ul id="tableMenu' + tableNum +
+        '<ul id="tableMenu-' + tableId +
             '" class="colMenu tableMenu" ' +
-            'data-id="tableMenu-' + tableId + '">' +
+            'data-id="' + tableId + '">' +
             '<li class="archiveTable">Archive Table</li>' +
             '<li class="hideTable">Hide Table</li>' +
             '<li class="unhideTable">Unhide Table</li>' +
@@ -774,8 +776,8 @@ function createTableHeader(tableNum) {
             // '</li>' +
         '</ul>';
 
-    $('#xcTableWrap' + tableNum).append(tableMenuHTML);
-    var $tableMenu = $('#tableMenu' + tableNum);
+    $('#xcTableWrap-' + tableId).append(tableMenuHTML);
+    var $tableMenu = $('#tableMenu-' + tableId);
     addColMenuBehaviors($tableMenu);
     // Event Listener for table dropdown menu
     addTableMenuActions($tableMenu);
@@ -831,23 +833,22 @@ function createTableHeader(tableNum) {
         dragTableMouseDown($(this).parent(), event);
     });
 
-    var $table = $('#xcTable' + tableNum);
+    var $table = $('#xcTable-' + tableId);
     $table.width(0);
     var matchAllHeaders = true;
     matchHeaderSizes(null, $table, matchAllHeaders);
 }
 
 function addTableMenuActions($tableMenu) {
-
+    var tableId = xcHelper.parseTableId($tableMenu);
     $tableMenu.on('mouseup', '.archiveTable', function(event) {
         if (event.which !== 1) {
             return;
         }
-        var $menu = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
-        var tableName = gTables[tableNum].tableName;
+        var tableNum = $tableMenu.closest('.xcTableWrap').index();
+        var tableName = xcHelper.getTableFromId(tableId).tableName;
 
-        archiveTable(tableNum, DeleteTable.Keep);
+        archiveTable(tableNum, tableId, DeleteTable.Keep);
         // add sql
         SQL.add('Archive Table', {
             "operation": "archiveTable",
@@ -859,10 +860,9 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var $menu    = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
 
-        $('#xcTableWrap' + tableNum).addClass('tableHidden');
+        var $xcTableWrap = $('#xcTableWrap-' + tableId);
+        $xcTableWrap.addClass('tableHidden');
         moveTableDropdownBoxes();
         moveFirstColumn();
         moveTableTitles();
@@ -872,15 +872,13 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var $menu    = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
-
-        $('#xcTableWrap' + tableNum).removeClass('tableHidden');
-        WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableNum);
+        var $xcTableWrap = $('#xcTableWrap-' + tableId);
+        $xcTableWrap.removeClass('tableHidden');
+        WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableId);
         moveTableDropdownBoxes();
         moveFirstColumn();
         moveTableTitles();
-        var $table = $('#xcTable' + tableNum);
+        var $table = $('#xcTable-' + tableId);
         $table.find('.rowGrab').width($table.width());
     });
 
@@ -888,9 +886,7 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var $menu = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
-        var tableName = gTables[tableNum].tableName;
+        var tableName = xcHelper.getTableFromId(tableId).tableName;
 
         var msg = "Are you sure you want to delete table " + tableName + "?";
         Alert.show({
@@ -898,7 +894,7 @@ function addTableMenuActions($tableMenu) {
             "msg"       : msg,
             "isCheckBox": true,
             "confirm"   : function() {
-                deleteActiveTable(tableName)
+                deleteActiveTable(tableId)
                 .then(function() {
                     commitToStorage();
                 })
@@ -912,21 +908,16 @@ function addTableMenuActions($tableMenu) {
     $tableMenu.on('mouseup', '.exportTable', function(event) {
         if (event.which !== 1) {
             return;
-        }
-        var $menu    = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
-        var tableName = gTables[tableNum].tableName;
+        };
+        var tableName =xcHelper.getTableFromId(tableId).tableName;
 
-        ExportModal.show(tableName);
-        // xcFunction.exportTable(tableNum);
+        ExportModal.show(tableName);;
     });
 
     $tableMenu.on('mouseup', '.delAllDuplicateCols', function(event) {
         if (event.which !== 1) {
             return;
         }
-        var $menu = $(this).closest('.tableMenu');
-        var tableId = xcHelper.parseTableId($menu.data('id'));
         var columns = xcHelper.getTableFromId(tableId).tableCols;
 
         for (var i = 0; i < columns.length; i++) {
@@ -943,9 +934,6 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var $menu   = $(this).closest('.tableMenu');
-        var tableId = xcHelper.parseTableId($menu.data('id'));
-
         AggModal.show(tableId, 'aggregates');
     });
 
@@ -953,9 +941,6 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var $menu   = $(this).closest('.tableMenu');
-        var tableId = xcHelper.parseTableId($menu.data('id'));
-
         AggModal.show(tableId, 'correlation');
     });
 
@@ -1008,10 +993,9 @@ function addTableMenuActions($tableMenu) {
             }
 
             var $menu    = $input.closest('.tableMenu');
-            var tableNum = parseInt($menu.attr('id').substring(9));
             var wsIndex  = $option.data("worksheet");
 
-            WSManager.moveTable(tableNum, wsIndex);
+            WSManager.moveTable(tableId, wsIndex);
 
             $input.val("");
             $input.blur();
@@ -1061,8 +1045,7 @@ function addTableMenuActions($tableMenu) {
             }
 
             var $menu    = $li.closest('.tableMenu');
-            var tableNum = parseInt($menu.attr('id').substring(9));
-            var table    = gTables[tableNum];
+            var table    = xcHelper.getTableFromId(tableId);
             var wsIndex  = $option.data("worksheet");
 
             WSManager.copyTable(table.tableName, newTableName, wsIndex);
@@ -1081,31 +1064,25 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var $menu    = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
         // could be long process so we allow the menu to close first
         setTimeout(function() {
-            sortAllTableColumns(tableNum, "forward");
+            sortAllTableColumns(tableId, "forward");
         }, 0);
-        
     });
 
     $tableMenu.on('mouseup', '.sortReverse', function(event) {
         if (event.which !== 1) {
             return;
         }
-        var $menu    = $(this).closest('.tableMenu');
-        var tableNum = parseInt($menu.attr('id').substring(9));
         // could be long process so we allow the menu to close first
         setTimeout(function() {
-            sortAllTableColumns(tableNum, "reverse");
+            sortAllTableColumns(tableId, "reverse");
         }, 0);
-        
     });
 }
 
-function sortAllTableColumns(tableNum, direction) {
-    var tableCols = gTables[tableNum].tableCols;
+function sortAllTableColumns(tableId, direction) {
+    var tableCols = xcHelper.getTableFromId(tableId).tableCols;
     var order;
     if (direction === "reverse") {
         order = 1;
@@ -1136,7 +1113,7 @@ function sortAllTableColumns(tableNum, direction) {
         tableCols.push(dataCol);
         numCols--;
     }
-    var $table = $('#xcTable' + tableNum);
+    var $table = $('#xcTable-' + tableId);
     var $rows = $table.find('tbody tr');
     var numRows = $rows.length;
     // loop through each column
@@ -1168,13 +1145,13 @@ function sortAllTableColumns(tableNum, direction) {
         tableCols[i].index = newIndex;
     }
 
-    RightSideBar.updateTableInfo(gTables[tableNum]);
+    RightSideBar.updateTableInfo(xcHelper.getTableFromId(tableId));
 }
 
 function renameTableHead($div) {
     var newTableName = $div.text().trim();
     var $th = $div.closest('.xcTheadWrap');
-    var tableId = xcHelper.parseTableId($th.data("id"));
+    var tableId = xcHelper.parseTableId($th);
     var oldTableName = xcHelper.getTableFromId(tableId).tableName;
 
     if (newTableName === oldTableName) {
@@ -1212,8 +1189,7 @@ function updateTableHeader(tableId, $tHead, isFocus) {
         fullTableName = $tHead.data("title");
     } else {
         // for update table header
-        $tHead = xcHelper.getElementByTableId(tableId, "xcTheadWrap")
-                        .find(".tableTitle .text");
+        $tHead = $("#xcTheadWrap-" + tableId).find(".tableTitle .text");
         var table = xcHelper.getTableFromId(tableId);
 
         if (table != null) {
@@ -1267,29 +1243,30 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
         $header.children().outerWidth(headerWidth);
     }
 
-    var tableNum = $table.attr('id').slice(7);
+    var tableId = xcHelper.parseTableId($table);
     var tableWidth = $table.width();
-    $theadWrap = $('#xcTheadWrap' + tableNum);
-    $theadWrap.width(tableWidth);
+    var $theadWrap = $('#xcTheadWrap-' + tableId);
+    if ($theadWrap) {
+        $theadWrap.width(tableWidth);
+    }
+    
     moveTableDropdownBoxes();
     moveTableTitles();
 }
 
-function addColListeners($table, tableNum) {
+function addColListeners($table, tableId) {
     var $thead = $table.find('thead tr');
     var $tbody = $table.find("tbody");
-    var $colMenu = $('#colMenu' + tableNum);
+    var $colMenu = $("#colMenu-" + tableId);
 
     // listeners on thead
     var $fnBar = $('#fnBar');
     $thead.on({
         "focus": function() {
             var $colInput   = $(this);
-            var dynTableNum = parseInt($colInput.closest('.dataTable').attr('id')
-                                        .substring(7));
 
             $fnBar.addClass('active');
-            focusTable(dynTableNum);
+            focusTable(tableId);
 
             var oldFnBarOrigin;
             if (gFnBarOrigin) {
@@ -1307,7 +1284,8 @@ function addColListeners($table, tableNum) {
             }
 
             var colNum = xcHelper.parseColNum($colInput);
-            var userStr = gTables[dynTableNum].tableCols[colNum - 1].userStr;
+            var table = xcHelper.getTableFromId(tableId);
+            var userStr = table.tableCols[colNum - 1].userStr;
             userStr = userStr.substring(userStr.indexOf('='));
             $fnBar.val(userStr);
 
@@ -1499,13 +1477,12 @@ function addColMenuBehaviors($colMenu) {
 }
 
 function addColMenuActions($colMenu) {
-
+    var tableId = xcHelper.parseTableId($colMenu);
     $colMenu.on('mouseup', '.addColumns', function(event) {
         if (event.which !== 1) {
             return;
         }
         var colNum = $colMenu.data('colNum');
-        var tableId = xcHelper.parseTableId($colMenu.data("id"));
 
         // add sql
         var table = xcHelper.getTableFromId(tableId);
@@ -1539,8 +1516,6 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum  = $colMenu.data('colNum');
-        var tableId = xcHelper.parseTableId($colMenu.data('id'));
-
         ColManager.delCol(colNum, tableId);
     });
 
@@ -1549,8 +1524,6 @@ function addColMenuActions($colMenu) {
             return;
         }
         var index   = $colMenu.data('colNum');
-        var tableId = xcHelper.parseTableId($colMenu.data('id'));
-
         ColManager.delDupCols(index, tableId);
     });
 
@@ -1558,7 +1531,6 @@ function addColMenuActions($colMenu) {
         if (event.which === keyCode.Enter) {
             var $input  = $(this);
             var colName = $input.val().trim();
-            var tableId = xcHelper.parseTableId($colMenu.data("id"));
 
             if (colName === "" ||
                 ColManager.checkColDup($input, null, tableId))
@@ -1580,8 +1552,7 @@ function addColMenuActions($colMenu) {
         }
 
         var colNum  = $colMenu.data('colNum');
-        var tableId = xcHelper.parseTableId($colMenu.data("id"));
-        var $table  = xcHelper.getElementByTableId(tableId, "xcTable");
+        var $table  = $("#xcTable-" + tableId);
         var table   = xcHelper.getTableFromId(tableId);
 
         var name = $table.find('.editableHead.col' + colNum).val();
@@ -1618,9 +1589,7 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum   = $colMenu.data('colNum');
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-
-        ColManager.hideCol(colNum, tableNum);
+        ColManager.hideCol(colNum, tableId);
         
     });
 
@@ -1629,9 +1598,7 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum   = $colMenu.data('colNum');
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-
-        ColManager.unhideCol(colNum, tableNum, {autoResize: true});
+        ColManager.unhideCol(colNum, tableId, {autoResize: true});
     });
 
     $colMenu.on('mouseup', '.textAlign', function(event) {
@@ -1639,9 +1606,7 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum   = $colMenu.data('colNum');
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-
-        ColManager.textAlign(colNum, tableNum, $(this).attr("class"));
+        ColManager.textAlign(colNum, tableId, $(this).attr("class"));
     });
 
     $colMenu.on('mouseup', '.typeList', function(event) {
@@ -1659,7 +1624,6 @@ function addColMenuActions($colMenu) {
             return; // do not allow sorting on a sorted column
         }
         var colNum = $colMenu.data('colNum');
-        var tableId = xcHelper.parseTableId($colMenu.data("id"));
         xcFunction.sort(colNum, tableId, SortDirection.Forward);
     });
     
@@ -1669,7 +1633,6 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum = $colMenu.data('colNum');
-        var tableId = xcHelper.parseTableId($colMenu.data("id"));
         xcFunction.sort(colNum, tableId, SortDirection.Backward);
     });
 
@@ -1678,9 +1641,7 @@ function addColMenuActions($colMenu) {
             return;
         }
 
-        var tableId = xcHelper.parseTableId($colMenu.data("id"));
         var colNum  = $colMenu.data('colNum');
-
         JoinModal.show(tableId, colNum);
     });
 
@@ -1689,10 +1650,7 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum = $colMenu.data('colNum');
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
         var func = $(this).text().replace(/\./g, '');
-        // XXX Remove it when tableId replaces tableNum
-        var tableId = gTables[tableNum].tableId;
         OperationsModal.show(tableId, colNum, func);
     });
 
@@ -1700,11 +1658,7 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        // XXX fix it when we remove tableNum
-        var tableNum = parseInt($colMenu.attr('id').substring(7));
-        var colNum   = $colMenu.data('colNum');
-        var tableId  = gTables[tableNum].tableId;
-
+        var colNum = $colMenu.data('colNum');
         STATSManager.run(tableId, colNum);
     });
 
@@ -1714,12 +1668,10 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1 || $li.hasClass('unavailable')) {
             return;
         }
-
-        var tableId = xcHelper.parseTableId($colMenu.data("id"));
         var rowNum  = $colMenu.data('rowNum');
         var colNum  = $colMenu.data('colNum');
 
-        var $table  = xcHelper.getElementByTableId(tableId, "xcTable");
+        var $table  = $("#xcTable-" + tableId);
         var $header = $table.find("th.col" + colNum + " .header");
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
 
@@ -1753,23 +1705,25 @@ function closeMenu($menu) {
 
 function renameColumn(tableId, colNum, newName) {
     var table  = xcHelper.getTableFromId(tableId);
-    var $table = xcHelper.getElementByTableId(tableId, "xcTable");
+    var $table = $("#xcTable-" + tableId);
 
     table.tableCols[colNum - 1].name = newName;
     $table.find('.editableHead.col' + colNum).val(newName);
 }
 
 function functionBarEnter($colInput) {
+    if (!$colInput) {
+        return;
+    }
     gFnBarOrigin = $colInput;
 
     var $fnBar = $('#fnBar').removeClass('inFocus');
 
     var $table   = $colInput.closest('.dataTable');
-    var tableId  = xcHelper.parseTableId($table.data("id"));
+    var tableId  = xcHelper.parseTableId($table);
     var colNum   = xcHelper.parseColNum($colInput);
     var table    = xcHelper.getTableFromId(tableId);
     var tableCol = table.tableCols[colNum - 1];
-
     var colName = tableCol.name;
 
     var newFuncStr = '"' + colName + '" ' + $fnBar.val().trim();
@@ -1844,12 +1798,11 @@ function dropdownClick($el, options) {
         return;
     }
 
-    var tableNum = parseInt($el.closest(".xcTableWrap").attr("id")
-                            .substring(11));
+    var tableId = xcHelper.parseTableId($el.closest(".xcTableWrap"));
     var $menu;
 
     if (options.type === "tableDropdown") {
-        $menu = $("#tableMenu" + tableNum);
+        $menu = $('#tableMenu-' + tableId);
 
         if (WSManager.getWSLen() <= 1) {
             $menu.find(".moveToWorksheet").addClass("unavailable");
@@ -1863,7 +1816,7 @@ function dropdownClick($el, options) {
             return;
         }
     } else if (options.type === "thDropdown") {
-        $menu = $("#colMenu" + tableNum);
+        $menu = $('#colMenu-' + tableId);
         // case that should close column menu
         if ($menu.is(":visible") && $menu.data("colNum") === options.colNum
             && !$menu.hasClass('tdMenu')) {
@@ -1872,7 +1825,7 @@ function dropdownClick($el, options) {
         }
         // XXX Use CSS to show the options
     } else if (options.type === "tdDropdown") {
-        $menu = $("#colMenu" + tableNum);
+         $menu = $('#colMenu-' + tableId);
         // case that should close column menu
         if ($menu.is(":visible") &&
             $menu.data("colNum") === options.colNum &&
@@ -1951,13 +1904,12 @@ function changeColumnType($typeList) {
     var newType  = $typeList.find(".label").text().toLowerCase();
     var $colMenu = $typeList.closest('.colMenu');
     var colNum   = $colMenu.data('colNum');
-    var tableId  = xcHelper.parseTableId($colMenu.data("id"));
+    var tableId  = xcHelper.parseTableId($colMenu);
     var table    = xcHelper.getTableFromId(tableId);
     var colName  = table.tableCols[colNum - 1].func.args[0];
 
     var mapStr = "";
     var newColName = colName + "_" + newType;
-    // var tableName = gTables[tableNum].tableName;
     switch (newType) {
     case ("boolean"):
         mapStr += "bool(";
@@ -1983,9 +1935,8 @@ function changeColumnType($typeList) {
 
 
 function resetColMenuInputs($el) {
-    var tableNum = parseInt($el.closest('.xcTableWrap').attr('id')
-                       .substring(11));
-    var $menu = $('#colMenu' + tableNum);
+    var tableId = xcHelper.parseTableId($el.closest('.xcTableWrap'));
+    var $menu = $('#colMenu-' + tableId);
     $menu.find('.gb input').val("groupBy");
     $menu.find('.numFilter input').val(0);
     $menu.find('.strFilter input').val("");
@@ -1993,11 +1944,10 @@ function resetColMenuInputs($el) {
     $menu.find('.regex').next().find('input').val("*");
 }
 
-function highlightColumn(el) {
-    var index    = xcHelper.parseColNum(el);
-    var tableNum = parseInt(el.closest('.dataTable').attr('id').
-                       substring(7));
-    var $table   = $('#xcTable' + tableNum);
+function highlightColumn($el) {
+    var index    = xcHelper.parseColNum($el);
+    var tableId = xcHelper.parseTableId($el.closest('.dataTable'));
+    var $table = $('#xcTable-' + tableId);
     $('.selectedCell').removeClass('selectedCell');
     $table.find('th.col' + index).addClass('selectedCell');
     $table.find('td.col' + index).addClass('selectedCell');
@@ -2016,19 +1966,18 @@ function addRowListeners(newCells) {
     });
 
     newCells.find('.idSpan').click(function() {
-        var tableNum = parseInt($(this).closest('table').attr('id')
-                .substring(7));
+        var tableId = xcHelper.parseTableId($(this).closest('table'));
         var rowNum = parseInt($(this).closest('tr').attr('class').substring(3));
-        if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
-            bookmarkRow(rowNum, tableNum);
+        if (xcHelper.getTableFromId(tableId).bookmarks.indexOf(rowNum) < 0) {
+            bookmarkRow(rowNum, tableId);
         } else {
-            unbookmarkRow(rowNum, tableNum);
+            unbookmarkRow(rowNum, tableId);
         }
     });
 }
 
-function adjustRowHeights(newCells, rowIndex, tableNum) {
-    var rowObj = gTables[tableNum].rowHeights;
+function adjustRowHeights(newCells, rowIndex, tableId) {
+    var rowObj = xcHelper.getTableFromId(tableId).rowHeights;
     var numRows = newCells.length;
     var pageNum = Math.floor(rowIndex / gNumEntriesPerPage);
     var lastPageNum = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
@@ -2052,15 +2001,15 @@ function adjustRowHeights(newCells, rowIndex, tableNum) {
     }
 }
 
-function addTableListeners(tableNum) {
-    $('#xcTableWrap' + tableNum).mousedown(function() {
-        var dynTableNum = parseInt($(this).closest('.tableWrap').attr('id')
-                       .substring(11));
-        if (gActiveTableNum === dynTableNum) {
+function addTableListeners(tableId) {
+    var $xcTableWrap = $('#xcTableWrap-' + tableId);
+    $xcTableWrap.mousedown(function() {
+        var tableId = xcHelper.parseTableId($(this));
+        if (gActiveTableId === tableId) {
             return;
         } else {
-            gActiveTableNum = dynTableNum;
-            focusTable(dynTableNum);
+            gActiveTableId = tableId;
+            focusTable(tableId);
         }
     }).scroll(function() {
         $(this).scrollLeft(0); // prevent scrolling when colmenu is open
@@ -2150,8 +2099,8 @@ function moveTableTitles() {
     });
 }
 
-function focusTable(tableNum) {
-    var tableName = gTables[tableNum].tableName;
+function focusTable(tableId) {
+    var tableName = xcHelper.getTableFromId(tableId).tableName;
     if (WSManager.getWSFromTable(tableName) !== WSManager.getActiveWS())
     {
         console.error("Table not in current worksheet");
@@ -2159,11 +2108,11 @@ function focusTable(tableNum) {
     }
 
     $('#mainFrame').find('.tableTitle').removeClass('tblTitleSelected');
-    $('#xcTheadWrap' + tableNum).find('.tableTitle')
-        .addClass('tblTitleSelected');
-    gActiveTableNum = tableNum;
-    RowScroller.update(tableNum);
-    if (gTables[tableNum].resultSetCount === 0) {
+    var $xcTheadWrap = $('#xcTheadWrap-' + tableId);
+    $xcTheadWrap.find('.tableTitle').addClass('tblTitleSelected');
+    gActiveTableId = tableId;
+    RowScroller.update(tableId);
+    if (xcHelper.getTableFromId(tableId).resultSetCount === 0) {
         $('#rowInput').val(0).data('val', 0);
     } else {
         generateFirstVisibleRowNum();
@@ -2171,32 +2120,36 @@ function focusTable(tableNum) {
     Tips.refresh();
 }
 
-function isTableScrollable(tableNum) {
-    var tHeadHeight = $('#xcTheadWrap' + tableNum).height();
-    var tBodyHeight = $('#xcTable' + tableNum).height();
-    var tableWrapHeight = $('#xcTableWrap' + tableNum).height();
+function isTableScrollable(tableId) {
+    var tHeadHeight = $('#xcTheadWrap-' + tableId).height();
+    var tBodyHeight = $('#xcTable-' + tableId).height();
+    var tableWrapHeight = $('#xcTableWrap-' + tableId).height();
 
     return ((tHeadHeight + tBodyHeight) >= (tableWrapHeight));
 }
 
-function bookmarkRow(rowNum, tableNum) {
+function bookmarkRow(rowNum, tableId) {
     //XXX allow user to select color in future?
-    var td = $('#xcTable' + tableNum + ' .row' + rowNum + ' .col0');
+    var $table = $('#xcTable-' + tableId);
+    var td = $table.find('.row' + rowNum + ' .col0');
     td.addClass('rowBookmarked');
     td.find('.idSpan').attr('title', 'bookmarked');
-    RowScroller.addBookMark(rowNum, tableNum);
-    if (gTables[tableNum].bookmarks.indexOf(rowNum) < 0) {
-        gTables[tableNum].bookmarks.push(rowNum);
+    RowScroller.addBookMark(rowNum, tableId);
+    var table = xcHelper.getTableFromId(tableId);
+    if (table.bookmarks.indexOf(rowNum) < 0) {
+        table.bookmarks.push(rowNum);
     }
 }
 
-function unbookmarkRow(rowNum, tableNum) {
-    var td = $('#xcTable' + tableNum + ' .row' + rowNum + ' .col0');
+function unbookmarkRow(rowNum, tableId) {
+    var $table = $('#xcTable-' + tableId);
+    var td = $table.find('.row' + rowNum + ' .col0');
     td.removeClass('rowBookmarked');
     td.find('.idSpan').attr('title', '');
-    RowScroller.removeBookMark(rowNum, tableNum);
-    var index = gTables[tableNum].bookmarks.indexOf(rowNum);
-    gTables[tableNum].bookmarks.splice(index, 1);
+    RowScroller.removeBookMark(rowNum, tableId);
+    var table = xcHelper.getTableFromId(tableId);
+    var index = table.bookmarks.indexOf(rowNum);
+    table.bookmarks.splice(index, 1);
 }
 
 function parseBookmarkNum(el) {
@@ -2210,8 +2163,8 @@ function dragTableMouseDown(el, e) {
     gMouseStatus = "movingTable";
     dragObj.mouseX = e.pageX;
     dragObj.table = el.closest('.xcTableWrap');
-    dragObj.tableIndex = parseInt(dragObj.table.attr('id').substring(11));
-    dragObj.tableId = gTables[dragObj.tableIndex].tableId;
+    dragObj.tableIndex = dragObj.table.index();
+    dragObj.tableId = xcHelper.parseTableId(dragObj.table);
     dragObj.originalIndex = dragObj.tableIndex;
     dragObj.mainFrame = $('#mainFrame');
     var rect = dragObj.table[0].getBoundingClientRect();
@@ -2262,7 +2215,7 @@ function dragTableMouseUp() {
     $('#shadowTable, #moveCursor, #dropTargets').remove();
     $('#mainFrame').off('scroll', mainFrameScrollTableTargets);
     dragObj.table.scrollTop(dragObj.tableScrollTop);
-    gActiveTableNum = dragObj.tableIndex;
+    gActiveTableId = dragObj.tableId;
     reenableTextSelection();
 
     if (dragObj.tableIndex !== dragObj.originalIndex) {
@@ -2357,29 +2310,22 @@ function mainFrameScrollTableTargets() {
 
 function dragdropSwapTables(el) {
     var dropTargetIndex = parseInt((el.attr('id')).substring(10));
-    var table = $('#xcTableWrap' + dropTargetIndex);
+    var $table = $('.xcTableWrap').eq(dropTargetIndex);
     // var tableScrollTop = table.scrollTop();
 
     if (dropTargetIndex > gDragObj.tableIndex) {
-        table.after($('#shadowTable'));
-        table.after(gDragObj.table);
+        $table.after($('#shadowTable'));
+        $table.after(gDragObj.table);
     } else {
-        table.before($('#shadowTable'));
-        table.before(gDragObj.table);
+        $table.before($('#shadowTable'));
+        $table.before(gDragObj.table);
     }
 
     gDragObj.table.scrollTop(gDragObj.tableScrollTop);
-
-    gDragObj.table.attr('id', 'xcTableWrap' + dropTargetIndex);
-    gDragObj.table.find('.xcTheadWrap').attr('id',
-                                             'xcTheadWrap' + dropTargetIndex);
-     
-    table.attr('id', 'xcTableWrap' + gDragObj.tableIndex);
-    table.find('.xcTheadWrap').attr('id', 'xcTheadWrap' + gDragObj.tableIndex);
     
     var oldIndex = gDragObj.tableIndex;
     gDragObj.tableIndex = dropTargetIndex;
-    createTableDropTargets(dropTargetIndex, oldIndex, table);
+    createTableDropTargets(dropTargetIndex, oldIndex, $table);
 }
 
 function sizeTableForDragging() {
@@ -2393,7 +2339,6 @@ function reorderAfterTableDrop() {
     gTables.splice(gDragObj.tableIndex, 0, tempTable);
     
     // reorder rowScrollers
-    var rowScroller = $('#rowScroller' + gDragObj.originalIndex);
     var $dagWrap = $('#dagWrap-' + gDragObj.tableId);
     var $dagWraps = $('.dagWrap');
     var tableIndex = gDragObj.tableIndex;
@@ -2403,32 +2348,11 @@ function reorderAfterTableDrop() {
                                     gDragObj.tableIndex);
 
     if (gDragObj.tableIndex === 0) {
-        $('#rowScrollerArea').prepend(rowScroller);
         $('.dagArea').find('.legendArea').after($dagWrap);
     } else if (gDragObj.originalIndex < tableIndex) {
-        $('#rowScroller' + tableIndex).after(rowScroller);
         $dagWraps.eq(tableIndex).after($dagWrap);
     } else if (gDragObj.originalIndex > tableIndex) {
-        $('#rowScroller' + tableIndex).before(rowScroller);
         $dagWraps.eq(tableIndex).before($dagWrap);
-    }
-
-    // correct table and rowscroller id numbers
-    var rowScrollers = $('.rowScroller');
-    var start = Math.min(gDragObj.originalIndex, gDragObj.tableIndex);
-    var end = Math.max(gDragObj.originalIndex, gDragObj.tableIndex);
-    for (var i = start; i <= end; i++) {
-        // tablewrap and xcTheadWrap IDs were already changed during table
-        // swapping
-        var $tableWrap = $('#xcTableWrap' + i);
-        var $table = tableWrap.find('.xcTable');
-        // var oldIndex = parseInt(table.attr('id').substring(7));
-        $table.attr('id', 'xcTable' + i);
-        $tableWrap.find('.xcTbodyWrap').attr('id', 'xcTbodyWrap' + i);
-        $tableWrap.find('.tableMenu').attr('id', 'tableMenu' + i);
-        $tableWrap.children('.colMenu:not(.tableMenu)').attr('id', 'colMenu' + i);
-        $(rowScrollers[i]).attr('id', 'rowScroller' + i);
-        $(rowScrollers[i]).find('.rowMarker').attr('id', 'rowMarker' + i);
     }
 }
 
@@ -2529,19 +2453,24 @@ window.RowScroller = (function($, RowScroller) {
                 rowScrollerStartDrag(event, $(event.target).parent());
                 return;
             }
-            var tableNum = gActiveTableNum;
-            var rowScroller = $("#rowScroller" + tableNum);
-            var mouseX = event.pageX - rowScroller.offset().left;
+            if (!gActiveTableId) {
+                return;
+            }
+            var tableId = gActiveTableId;
+
+            var table = xcHelper.getTableFromId(tableId);
+            var $rowScroller = $('#rowScroller-' + tableId);
+            var mouseX = event.pageX - $rowScroller.offset().left;
             var rowPercent = mouseX / $(this).width();
 
             var translate = Math.min(99.9, Math.max(0, rowPercent * 100));
-            $("#rowMarker" + tableNum).css("transform",
+            var $rowMarker = $('#rowMarker-' + tableId);
+            $rowMarker.css("transform",
                                 "translate3d(" + translate + "%, 0px, 0px)");
-
-            var rowNum = Math.ceil(rowPercent * gTables[tableNum].resultSetCount);
-            if (rowScroller.find(".bookmark").length > 0) {
+            var rowNum = Math.ceil(rowPercent * table.resultSetCount);
+            if ($rowScroller.find(".bookmark").length > 0) {
                 // check 8 pixels around for bookmark?
-                var yCoor = rowScroller.offset().top + rowScroller.height() - 5;
+                var yCoor = $rowScroller.offset().top + $rowScroller.height() - 5;
                 for (var x = (event.pageX - 4); x < (event.pageX + 4); x++) {
                     var element = $(document.elementFromPoint(x, yCoor));
                     if (element.hasClass("bookmark")) {
@@ -2551,7 +2480,7 @@ window.RowScroller = (function($, RowScroller) {
                 }
             }
 
-            if (!isTableScrollable(tableNum)) {
+            if (!isTableScrollable(tableId)) {
                 return;
             }
 
@@ -2568,6 +2497,10 @@ window.RowScroller = (function($, RowScroller) {
             if (event.which !== keyCode.Enter) {
                 return;
             }
+            var table = xcHelper.getTableFromId(gActiveTableId);
+            if (!table) {
+                return;
+            }
 
             var targetRow = parseInt($rowInput.val());
             var backRow   = targetRow;
@@ -2576,28 +2509,28 @@ window.RowScroller = (function($, RowScroller) {
                 return;
             }
 
-            if (gTables[gActiveTableNum].resultSetCount === 0) {
+            if (table.resultSetCount === 0) {
                 $rowInput.val("0");
                 $rowInput.data("val", 0);
                 return;
             } else if (targetRow < 1) {
                 targetRow = 1;
                 backRow = 0;
-            } else if (targetRow > gTables[gActiveTableNum].resultSetCount) {
-                targetRow = gTables[gActiveTableNum].resultSetCount;
-                backRow = gTables[gActiveTableNum].resultSetCount - 20;
+            } else if (targetRow > table.resultSetCount) {
+                targetRow = table.resultSetCount;
+                backRow = table.resultSetCount - 20;
             }
 
             $rowInput.data("val", targetRow);
             $rowInput.val(targetRow);
 
-            backRow = Math.min(gTables[gActiveTableNum].resultSetMax - 60,
+            backRow = Math.min(table.resultSetMax - 60,
                                 backRow - 20);
 
             if (backRow < 0) {
                 backRow = 0;
             }
-            var tableName = gTables[gActiveTableNum].tableName;
+            var tableName = table.tableName;
             var numRowsToAdd = 60;
             var info = {
                 "numRowsToAdd"    : numRowsToAdd,
@@ -2605,19 +2538,17 @@ window.RowScroller = (function($, RowScroller) {
                 "lastRowToDisplay": backRow + 60,
                 "targetRow"       : targetRow,
                 "bulk"            : true,
-                "tableName"       : tableName
+                "tableName"       : tableName,
+                "tableId"         : gActiveTableId
             };
 
             goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
             .then(function() {
-                var tableNum = xcHelper.getTableIndexFromName(tableName);
-                var rowToScrollTo = Math.min(targetRow,
-                                    gTables[tableNum].resultSetMax);
-                positionScrollbar(rowToScrollTo, tableNum);
+                var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
+                positionScrollbar(rowToScrollTo, table.tableId);
                 generateFirstVisibleRowNum();
                 if (!event.rowScrollerMousedown) {
-                    RowScroller.move($rowInput.val(),
-                                     gTables[tableNum].resultSetCount);
+                    RowScroller.move($rowInput.val(), table.resultSetCount);
                 } else {
                     $rowScrollerArea.addClass("autoScroll");
                 }
@@ -2625,52 +2556,49 @@ window.RowScroller = (function($, RowScroller) {
         });
     };
 
-    RowScroller.add = function(tableNum) {
-        var tableId = gTables[tableNum].tableId;
+    RowScroller.add = function(tableId) {
         var rowScrollerHTML =
-            '<div id="rowScroller' + tableNum +
-            '" class="rowScroller" data-id="rowScroller-' + tableId + '" ' +
+            '<div id="rowScroller-' + tableId +
+            '" class="rowScroller" data-id="' + tableId + '" ' +
             'data-toggle="tooltip" ' +
                 'data-container="body" ' +
                 'data-placement="bottom" title="scroll to a row">' +
-                '<div id="rowMarker' + tableNum + '" class="rowMarker" ' +
-                'data-id="rowMarker-' + tableId + '">' +
+                '<div id="rowMarker-' + tableId + '" class="rowMarker" ' +
+                'data-id="' + tableId + '">' +
                     '<div class="subRowMarker top"></div>' +
                     '<div class="subRowMarker middle"></div>' +
                     '<div class="subRowMarker bottom"></div>' +
                 '</div>' +
             '</div>';
 
-        if (tableNum === 0) {
-            $rowScrollerArea.prepend(rowScrollerHTML);
-        } else {
-            $("#rowScroller" + (tableNum - 1)).after(rowScrollerHTML);
-        }
+        $rowScrollerArea.append(rowScrollerHTML);
 
-        var rows = gTables[tableNum].bookmarks;
+        var rows = xcHelper.getTableFromId(tableId).bookmarks;
         for (var i = 0, numRows = rows.length; i < numRows; i++) {
-            RowScroller.addBookMark(rows[i], tableNum);
+            RowScroller.addBookMark(rows[i], tableId);
         }
 
         if ($(".xcTable").length > 1) {
-            $("#rowScroller" + tableNum).hide();
+            $(".rowScroller").last().hide();
         }
     };
 
     RowScroller.move = function (rowNum, resultSetCount) {
         var pct = 100 * ((rowNum - 1) / (resultSetCount - 1));
-        $("#rowMarker" + gActiveTableNum).css("transform",
-                                        "translate3d(" + pct + "%, 0px, 0px)");
+        var $rowMarker = $('#rowMarker-' + gActiveTableId);
+        $rowMarker.css("transform", "translate3d(" + pct + "%, 0px, 0px)");
     };
 
-    RowScroller.update = function(tableNum) {
+    RowScroller.update = function(tableId) {
         var $numPages = $("#numPages");
-        showRowScroller(tableNum);
+        var $table = $('#xcTable-' + tableId);
+        var table = xcHelper.getTableFromId(gActiveTableId);
+        showRowScroller(tableId);
         var inputWidth = 50;
-        if (gActiveTableNum < 0 || $.isEmptyObject(gTables[gActiveTableNum])) {
+        if (!gActiveTableId || $.isEmptyObject(table)) {
             $numPages.text("");
         } else {
-            var rowCount = gTables[gActiveTableNum].resultSetCount;
+            var rowCount = table.resultSetCount;
             var num = Number(rowCount).toLocaleString("en");
             $numPages.text("of " + num);
             var numDigits = ("" + rowCount).length;
@@ -2681,33 +2609,36 @@ window.RowScroller = (function($, RowScroller) {
 
     RowScroller.empty = function() {
         $rowInput.val("").data("val", "");
-        gActiveTableNum = -1;
+        gActiveTableId = null;
         RowScroller.update();
     };
 
     // for book mark tick
-    RowScroller.addBookMark = function(rowNum, tableNum) {
-        var leftPos = 100 * (rowNum / gTables[tableNum].resultSetCount);
+    RowScroller.addBookMark = function(rowNum, tableId) {
+        var table = xcHelper.getTableFromId(tableId);
+        var leftPos = 100 * (rowNum / table.resultSetCount);
         var bookmark =
             '<div class="bookmark bkmkRow' + rowNum + '"' +
                 ' style="left:' + leftPos + '%;" data-toggle="tooltip" ' +
                 ' data-placement="bottom" data-container="body" title="row ' +
                 (rowNum + 1) + '">' +
             '</div>';
-        $('#rowScroller' + tableNum).append(bookmark);
+        var $rowScroller = $('#rowScroller-' + tableId);
+        $rowScroller.append(bookmark);
     };
 
-    RowScroller.removeBookMark = function(rowNum, tableNum) {
-        $('#rowScroller' + tableNum).find('.bkmkRow' + rowNum).remove();
+    RowScroller.removeBookMark = function(rowNum, tableId) {
+        var $rowScroller = $('#rowScroller-' + tableId);
+        $rowScroller.find('.bkmkRow' + rowNum).remove();
     };
 
     RowScroller.resize = function() {
         // resize the lenght of #rowInput
-        if (gActiveTableNum < 0) {
+        if (!gActiveTableId) {
             return;
         }
-
-        var resultSetCount   = gTables[gActiveTableNum].resultSetCount;
+        var table = xcHelper.getTableFromId(gActiveTableId);
+        var resultSetCount   = table.resultSetCount;
         var resultTextLength = ("" + resultSetCount).length;
 
         if (resultTextLength > $rowInput.attr('size')) {
@@ -2751,32 +2682,35 @@ window.RowScroller = (function($, RowScroller) {
         $rowScrollerArea.trigger(e);
     };
 
-    function showRowScroller(tableNum) {
+    function showRowScroller(tableId) {
         $(".rowScroller").hide();
-        if (tableNum != null && tableNum >= 0) {
-            $("#rowScroller" + tableNum).show();
+        if (tableId != null) {
+            var $rowScroller = $('#rowScroller-' + tableId);
+            $rowScroller.show();
         }
     }
 
-    function positionScrollbar(row, tableNum) {
+    function positionScrollbar(row, tableId) {
         var canScroll = true;
-        var table = $('#xcTable' + tableNum);
-        var theadHeight = table.find('thead').height();
+        var $table = $('#xcTable-' + tableId);
+        var theadHeight = $table.find('thead').height();
 
         function positionScrollToRow() {
-            if (!table.find('.row' + (row - 1))[0]) {
+            if (!$table.find('.row' + (row - 1))[0]) {
                 return;
             }
+            var $tableWrap = $('#xcTableWrap-' + tableId);
+            var $tbodyWrap = $('#xcTbodyWrap-' + tableId);
 
-            var tdTop = table.find('.row' + (row - 1))[0].offsetTop;
+            var tdTop = $table.find('.row' + (row - 1))[0].offsetTop;
             var scrollPos = Math.max((tdTop - theadHeight), 1);
             if (canScroll && scrollPos >
-                (table.height() - $('#xcTableWrap' + tableNum).height()))
+                ($table.height() - $tableWrap.height()))
             {
                 canScroll = false;
             }
             $rowScrollerArea.addClass('autoScroll');
-            $('#xcTbodyWrap' + tableNum).scrollTop(scrollPos);
+            $tbodyWrap.scrollTop(scrollPos);
         }
 
         positionScrollToRow();

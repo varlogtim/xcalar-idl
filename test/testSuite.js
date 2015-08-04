@@ -198,7 +198,8 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart3() {
             var $header = $($(".flexWrap.flex-mid input[value='ArrDelay']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $("#colMenu0 .changeDataType");
+            var $colMenu = $(".xcTableWrap").eq(0)
+                            .find(".colMenu:not(.tableMenu) .changeDataType");
             $colMenu.mouseover();
             $colMenu.find(".type-integer").trigger(fakeMouseup);
             setTimeout(function() {
@@ -210,7 +211,8 @@ window.TestSuite = (function($, TestSuite) {
             var $header = $($(".flexWrap.flex-mid"+
                               " input[value='ArrDelay_integer']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $("#colMenu0 .filter");
+            var $colMenu = $(".xcTableWrap").eq(0)
+                            .find(".colMenu:not(.tableMenu) .filter");
             $colMenu.trigger(fakeMouseup);
             setTimeout(function() {
                 $("#functionList input").val("gt");
@@ -246,7 +248,8 @@ window.TestSuite = (function($, TestSuite) {
             var $header = $($(".flexWrap.flex-mid"+
                               " input[value='Year']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $("#colMenu0 .map");
+            var $colMenu = $(".xcTableWrap").eq(0)
+                            .find(".colMenu:not(.tableMenu) .map");
             $colMenu.trigger(fakeMouseup);
             setTimeout(function() {
                 $("#categoryList .dropdown .icon").trigger(fakeClick);
@@ -269,7 +272,8 @@ window.TestSuite = (function($, TestSuite) {
             var $header = $($(".flexWrap.flex-mid"+
                               " input[value='Dest']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $("#colMenu0 .joinList");
+            var $colMenu = $(".xcTableWrap").eq(0)
+                            .find(".colMenu:not(.tableMenu) .joinList");
             $colMenu.trigger(fakeMouseup);
             $("#rightJoin .tableLabel:contains('airport')").trigger(fakeClick);
             $("#rightJoin .columnTab:contains('iata')").trigger(fakeClick);
@@ -285,7 +289,8 @@ window.TestSuite = (function($, TestSuite) {
             var $header = $($(".flexWrap.flex-mid"+
                               " input[value='ArrDelay_integer']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $("#colMenu0 .groupby");
+            var $colMenu = $(".xcTableWrap").eq(0)
+                            .find(".colMenu:not(.tableMenu) .groupBy");
             $colMenu.trigger(fakeMouseup);
             setTimeout(function() {
             $("#functionList .dropdown .icon").trigger(fakeClick);
@@ -307,7 +312,8 @@ window.TestSuite = (function($, TestSuite) {
             var $header = $($("#xcTbodyWrap1 .flexWrap.flex-mid"+
                             " input[value='ArrDelay_integer']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $("#colMenu0 .aggregate");
+            var $colMenu = $(".xcTableWrap").eq(0)
+                            .find(".colMenu:not(.tableMenu) .aggregate");
             $colMenu.trigger(fakeMouseup);
             setTimeout(function() {
                 $("#functionList .dropdown .icon").trigger(fakeClick);

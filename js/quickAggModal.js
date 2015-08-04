@@ -174,8 +174,7 @@ window.AggModal = (function($, AggModal) {
                             '<div class="aggTableField colLabel">' +
                                 cols.name +
                             '</div>';
-
-            var isChildOfArray = $table.find(" .th.col" + colNum + " .header")
+            var isChildOfArray = $table.find(".th.col" + colNum + " .header")
                                         .hasClass("childOfArray");
 
             for (var i = 0; i < colLen; i++) {

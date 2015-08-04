@@ -151,15 +151,6 @@ window.WSManager = (function($, WSManager) {
         return (worksheets[wsIndex].name);
     };
 
-    WSManager.getTableByName = function(tableName, isHidden) {
-        var tables = isHidden ? gHiddenTables : gTables;
-        for (var i = 0, len = tables.length; i < len; i++) {
-            if (tables[i].tableName === tableName) {
-                return (tables[i]);
-            }
-        }
-    };
-
     /**
      * Get current active worksheet
      * @return {number} activeWorsheet The index of current active worksheet
@@ -222,15 +213,16 @@ window.WSManager = (function($, WSManager) {
      * @param {number} tableNum The table's index in gTables
      * @param {number} newIndex The new worksheet's index
      */
-    WSManager.moveTable = function(tableNum, newIndex) {
-        var tableName = gTables[tableNum].tableName;
+    WSManager.moveTable = function(tableId, newIndex) {
+        var tableName = xcHelper.getTableFromId(tableId).tableName;
         var oldIndex  = WSManager.removeTable(tableName);
         var wsName    = WSManager.getWSName(newIndex);
 
         setWorksheet(newIndex, {"tables": tableName});
 
-        $("#xcTableWrap" + tableNum).removeClass("worksheet-" + oldIndex)
-                                    .addClass("worksheet-" + newIndex);
+        var $xcTablewrap = $('#xcTableWrap-' + tableId);
+        $xcTablewrap.removeClass("worksheet-" + oldIndex)
+                    .addClass("worksheet-" + newIndex);
         // refresh right side bar
         $("#activeTablesList .tableInfo").each(function() {
             var $li = $(this);
@@ -253,7 +245,7 @@ window.WSManager = (function($, WSManager) {
             }
         });
 
-        WSManager.focusOnWorksheet(newIndex, false, tableNum);
+        WSManager.focusOnWorksheet(newIndex, false, tableId);
         commitToStorage();
     };
 
@@ -263,6 +255,7 @@ window.WSManager = (function($, WSManager) {
      * @param {string} newTableName The name of new table
      * @param {number} wsIndex The index of worksheet that new table belongs to
      */
+     // XX THIS IS CURRENTLY DISABLED , tablename/tableId needs to be fixed
     WSManager.copyTable = function(srcTableName, newTableName, wsIndex) {
         var tableNum   = gTables.length;
         // do a deep copy
@@ -282,6 +275,7 @@ window.WSManager = (function($, WSManager) {
                  AfterStartup.After, null, newTableName)
         .then(function() {
             WSManager.focusOnWorksheet(wsIndex, false, tableNum);
+            // xx focusonworksheet expects tableid
         })
         .fail(function(error) {
             delete gTableIndicesLookup[newTableName];
@@ -325,7 +319,7 @@ window.WSManager = (function($, WSManager) {
      * @param {boolean} [notfocusTable] Whether table should be focused on
      * @param {number} [tableNum] The index of table to be focused on
      */
-    WSManager.focusOnWorksheet = function(wsIndex, notfocusTable, tableNum) {
+    WSManager.focusOnWorksheet = function(wsIndex, notfocusTable, tableId) {
         // update activeWorksheet first
         if (wsIndex == null) {
             wsIndex = activeWorsheet;
@@ -361,32 +355,36 @@ window.WSManager = (function($, WSManager) {
             RowScroller.empty();
 
             if ($curActiveTable.length > 0) {
-                for (var i = 0; i < gTables.length; i++) {
-                    // update table width and height
-                    matchHeaderSizes(null, $("#xcTable" + i));
+                for (var tbl in gTables2) {
+                    if (!gTables2[tbl].active) {
+                        continue;
+                    }
+                    var $table = $('#xcTable-' + tbl);
+                    matchHeaderSizes(null, $("#xcTable-" + tbl));
                 }
             }
         } else {
             var isFocus = false;
 
-            if (tableNum != null) {
+            if (tableId != null) {
                 isFocus = true;
-                focusTable(tableNum);
+                focusTable(tableId);
             }
-            
-            for (var i = 0; i < gTables.length; i++) {
-                // update table width and height
-                var $table = $('#xcTable' + i);
+
+            for (var tbl in gTables2) {
+                if (!gTables2[tbl].active) {
+                    continue;
+                }
+                var $table = $('#xcTable-' + tbl);
                 matchHeaderSizes(null, $table);
                 $table.find('.rowGrab').width($table.width());
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {
-                    var index = WSManager.getWSFromTable(
-                                            gTables[i].tableName);
+                    var index = WSManager.getWSFromTable(gTables2[tbl].tableName);
 
                     if (index === activeWorsheet) {
                         isFocus = true;
-                        focusTable(i);
+                        focusTable(tbl);
                     }
                 }
             }
@@ -398,24 +396,16 @@ window.WSManager = (function($, WSManager) {
      */
     WSManager.focusOnLastTable = function() {
         var $mainFrame = $('#mainFrame');
-        var index = -1;
+        // XX temporary fix to find last table
+        var $lastTable = $('.xcTableWrap:not(.inActive)').last();
 
-        for (var i = gTables.length - 1; i >= 0; i--) {
-            var tableName = gTables[i].tableName;
-
-            if (WSManager.getWSFromTable(tableName) === activeWorsheet) {
-                index = i;
-                break;
-            }
-        }
-
-        if (index >= 0) {
-            var leftPos = $('#xcTableWrap' + index).position().left +
-                            $mainFrame.scrollLeft();
+        if ($lastTable.length > 0) {
+            var leftPos = $lastTable.position().left + $mainFrame.scrollLeft();
+            var tableId = xcHelper.parseTableId($lastTable);
             $mainFrame.animate({scrollLeft: leftPos})
                         .promise()
                         .then(function(){
-                            focusTable(index);
+                            focusTable(tableId);
                         });
         }
     };
@@ -688,13 +678,22 @@ window.WSManager = (function($, WSManager) {
                     .closest(".tableInfo")
                     .find(".addArchivedBtn").click();
 
+        // XX remove this old gtable code
+
         // as delete table will change tables array,
         // so should delete from last
-        for (var i = gTables.length - 1; i >= 0; i--) {
-            var tableName = gTables[i].tableName;
+        // for (var i = gTables.length - 1; i >= 0; i--) {
+        //     var tableName = gTables[i].tableName;
 
+        //     if (WSManager.getWSFromTable(tableName) === wsIndex) {
+        //         promises.push(deleteActiveTable.bind(this, tableName));
+        //     }
+        // }
+        // XX not sure if the order matters
+        for (var tableId in gTables2) {
+            var tableName = gTables2[tableId].tableName;
             if (WSManager.getWSFromTable(tableName) === wsIndex) {
-                promises.push(deleteActiveTable.bind(this, tableName));
+                promises.push(deleteActiveTable.bind(this, tableId));
             }
         }
 
@@ -716,6 +715,7 @@ window.WSManager = (function($, WSManager) {
      */
     function archiveTableHelper(wsIndex) {
         // archive all active tables first
+        // XX should use worksheet instead of gtables
         for (var i = gTables.length - 1; i >= 0; i--) {
             var tableName = gTables[i].tableName;
 
