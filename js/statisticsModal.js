@@ -150,7 +150,6 @@ window.STATSManager = (function($, STATSManager, d3) {
     function generateStats(table) {
         var type = statsCol.type;
         var tableName = table.tableName;
-        var keyName = table.keyName;
 
         // do aggreagte
         statsCol.aggInfo = statsCol.aggInfo || {};
@@ -181,14 +180,14 @@ window.STATSManager = (function($, STATSManager, d3) {
                         "order"     : sortMap.origin
                     };
 
-                    runGroupby(tableName, keyName);
+                    runGroupby(table);
                 }
             })
             .fail(function(error) {
                 console.error(error);
             });
         } else {
-            runGroupby(tableName, keyName);
+            runGroupby(table);
         }
 
         showStats();
@@ -327,7 +326,11 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
     }
 
-    function runGroupby(tableName, keyName) {
+    function runGroupby(table) {
+        var tableName = table.tableName;
+        var keyName   = table.keyName;
+        var tableId   = table.tableId;
+
         var groupbyTable;
         var colName = statsCol.colName;
         var tableToDelete;
@@ -339,7 +342,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
-        checkTableIndex(tableName, colName, keyName)
+        checkTableIndex(tableId, tableName, colName, keyName)
         .then(function(indexedTableName) {
             var operator    = "Count";
             var newColName  = statsColName;
@@ -397,21 +400,21 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
     }
 
-    function checkTableIndex(tableName, colName, keyName) {
+    function checkTableIndex(tableId, tableName, colName, keyName) {
         var deferred = jQuery.Deferred();
         if (colName === keyName) {
             deferred.resolve(tableName);
         } else {
             var newTableName = xcHelper.randName(tableName + ".stats.index");
             // lock the table when do index
-            xcHelper.lockTable(null, tableName);
+            xcHelper.lockTable(tableId);
             XcalarIndexFromTable(tableName, colName, newTableName)
             .then(function() {
                 deferred.resolve(newTableName);
             })
             .fail(deferred.reject)
             .always(function() {
-                xcHelper.unlockTable(tableName, false);
+                xcHelper.unlockTable(tableId, false);
             });
         }
 
