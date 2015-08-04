@@ -38,6 +38,10 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.parseTableId = function(id) {
+        return (id.split("-")[1]);
+    };
+
     xcHelper.getTableMeta = function(tableName, isHidden) {
         var table = isHidden ? gHiddenTables : gTables;
         for (var i = 0; i < table.length; i++) {
