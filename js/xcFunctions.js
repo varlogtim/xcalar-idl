@@ -596,8 +596,11 @@ window.xcFunction = (function ($, xcFunction) {
 
             setIndex(rNewName, rTableCols, null, rTableProperties);
 
-            return (xcHelper.when(refreshTable(lNewName, lTableName),
-                                  refreshTable(rNewName, rTableName)));
+            // XXX should change to xcHelper.when after fix async bug in refresh
+            return (refreshTable(lNewName, lTableName));
+        })
+        .then(function() {
+            return (refreshTable(rNewName, rTableName));
         })
         .then(function(ret1, ret2) {
 
