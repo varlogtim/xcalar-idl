@@ -71,15 +71,15 @@ window.STATSManager = (function($, STATSManager, d3) {
         var $sortSection = $statsModal.find(".sortSection");
 
         $sortSection.on("click", ".asc .iconWrapper", function() {
-            sortData(sortMap.asc);
+            sortData(sortMap.asc, statsCol);
         });
 
         $sortSection.on("click", ".origin .iconWrapper", function() {
-            sortData(sortMap.origin);
+            sortData(sortMap.origin, statsCol);
         });
 
         $sortSection.on("click", ".desc .iconWrapper", function() {
-            sortData(sortMap.desc);
+            sortData(sortMap.desc, statsCol);
         });
     };
 
@@ -159,7 +159,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             if (statsCol.aggInfo[aggkey] == null) {
                 // should do aggreagte
                 if (type === "integer" || type === "decimal") {
-                    runAgg(tableName, aggkey);
+                    runAgg(tableName, aggkey, statsCol);
                 } else {
                     statsCol.aggInfo[aggkey] = "N/A";
                 }
@@ -180,14 +180,14 @@ window.STATSManager = (function($, STATSManager, d3) {
                         "order"     : sortMap.origin
                     };
 
-                    runGroupby(table);
+                    runGroupby(table, statsCol);
                 }
             })
             .fail(function(error) {
                 console.error(error);
             });
         } else {
-            runGroupby(table);
+            runGroupby(table, statsCol);
         }
 
         showStats();
@@ -299,8 +299,9 @@ window.STATSManager = (function($, STATSManager, d3) {
         return (deferred.promise());
     }
 
-    function runAgg(tableName, aggkey) {
-        var fieldName = statsCol.colName;
+    function runAgg(tableName, aggkey, curStatsCol) {
+        // pass in statsCol beacuse close modal may clear the global statsCol
+        var fieldName = curStatsCol.colName;
         var opString  = aggMap[aggkey];
 
         XcalarAggregate(fieldName, tableName, opString)
@@ -310,11 +311,11 @@ window.STATSManager = (function($, STATSManager, d3) {
                 var obj = jQuery.parseJSON(value);
                 val = obj.Value;
 
-                statsCol.aggInfo[aggkey] = val;
+                curStatsCol.aggInfo[aggkey] = val;
 
                 // modal is open and is for that column
                 if (!$statsModal.hasClass("hidden") &&
-                    $statsModal.data("id") === statsCol.modalId)
+                    $statsModal.data("id") === curStatsCol.modalId)
                 {
                     $statsModal.find(".aggInfoSection ." + aggkey)
                             .removeClass("animatedEllipsis").text(val);
@@ -326,13 +327,13 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
     }
 
-    function runGroupby(table) {
+    function runGroupby(table, curStatsCol) {
         var tableName = table.tableName;
         var keyName   = table.keyName;
         var tableId   = table.tableId;
 
         var groupbyTable;
-        var colName = statsCol.colName;
+        var colName = curStatsCol.colName;
         var tableToDelete;
         var msg = StatusMessageTStr.Statistics + ' for ' + colName;
         var msgObj = {
@@ -369,18 +370,18 @@ window.STATSManager = (function($, STATSManager, d3) {
                 var obj = jQuery.parseJSON(value);
                 val = obj.Value;
 
-                statsCol.groupByInfo.max = val;
+                curStatsCol.groupByInfo.max = val;
             } catch (error) {
                 console.error(error, val);
                 return (jQuery.Deferred().reject(error));
             }
 
-            statsCol.groupByInfo.groupbyTable = groupbyTable;
-            statsCol.groupByInfo.isComplete = true;
+            curStatsCol.groupByInfo.groupbyTable = groupbyTable;
+            curStatsCol.groupByInfo.isComplete = true;
 
             // modal is open and is for that column
             if (!$statsModal.hasClass("hidden") &&
-                $statsModal.data("id") === statsCol.modalId)
+                $statsModal.data("id") === curStatsCol.modalId)
             {
                 refreshStats();
             }
@@ -774,7 +775,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                     .find("." + order + " .iconWrapper").addClass("active");
     }
 
-    function sortData(newOrder) {
+    function sortData(newOrder, curStatsCol) {
         if (order === newOrder) {
             return;
         }
@@ -784,11 +785,11 @@ window.STATSManager = (function($, STATSManager, d3) {
         runSort(newOrder)
         .then(function() {
             order = newOrder;
-            statsCol.groupByInfo.isComplete = true;
+            curStatsCol.groupByInfo.isComplete = true;
             refreshStats(true);
         })
         .fail(function(error) {
-            statsCol.groupByInfo.isComplete = true;
+            curStatsCol.groupByInfo.isComplete = true;
             console.error(error);
         });
     }
