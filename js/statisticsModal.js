@@ -354,7 +354,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             }
 
             // here user old table name to generate table name
-            groupbyTable = xcHelper.randName(tableName + ".stats.groupby");
+            groupbyTable = getNewName(tableName, ".stats.groupby", true);
 
 
             return (XcalarGroupBy(operator, newColName, colName,
@@ -406,7 +406,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         if (colName === keyName) {
             deferred.resolve(tableName);
         } else {
-            var newTableName = xcHelper.randName(tableName + ".stats.index");
+            var newTableName = getNewName(tableName, ".stats.index", true);
             // lock the table when do index
             xcHelper.lockTable(tableId);
             XcalarIndexFromTable(tableName, colName, newTableName)
@@ -806,7 +806,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             } else {
                 // get a sort table
                 tableName = groupByInfo.groupbyTable;
-                newTableName = tableName + ".asc";
+                newTableName = getNewName(tableName, ".asc");
 
                 XcalarIndexFromTable(tableName, statsColName, newTableName)
                 .then(function() {
@@ -826,6 +826,21 @@ window.STATSManager = (function($, STATSManager, d3) {
         }
 
         return (deferred.promise());
+    }
+
+    function getNewName(tableName, affix, rand) {
+        // XXX Should simplify it when gTables store short tName
+        var name = xcHelper.getTableName(tableName);
+
+        name = name + affix;
+
+        if (rand) {
+            name = xcHelper.randName(name);
+        }
+
+        name += Authentication.fetchHashTag();
+
+        return (name);
     }
 
     return (STATSManager);
