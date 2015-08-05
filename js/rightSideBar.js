@@ -694,7 +694,7 @@ window.RightSideBar = (function($, RightSideBar) {
             'def multiJoin(*arg):\n' +
                 '\tstri = ""\n' +
                 '\tfor a in arg:\n' +
-                    '\t\tstri = stri + str(a)\n' +
+                    '\t\tstri = stri + str(a) + ".Xc."\n' +
                 '\treturn stri\n';
         XcalarUploadPython(moduleName, entireString);
     }
