@@ -83,8 +83,12 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
     };
 
-    STATSManager.getStatsInfos = function() {
+    STATSManager.getStatsCols = function() {
         return (statsInfos);
+    };
+
+    STATSManager.restore = function(oldInfos) {
+        statsInfos = oldInfos;
     };
 
     STATSManager.copy = function(oldTableId, newTableId) {
@@ -176,8 +180,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                 if (tableInfo == null || tableInfo.numTables === 0) {
                     // XXX use XcalarSetFree will crash backend...
                     statsCol.groupByInfo = {
-                        "isComplete": false,
-                        "order"     : sortMap.origin
+                        "isComplete": false
                     };
 
                     runGroupby(table, statsCol);

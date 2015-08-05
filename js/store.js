@@ -71,7 +71,8 @@ var KVKeys = {
     "HOLD": "holdStatus",
     "SQL" : "sql",
     "CLI" : "scratchPad",
-    "CART": "datacarts"
+    "CART": "datacarts",
+    "STATS": "statsCols"
 };
 
 function commitToStorage(atStartup) {
@@ -92,6 +93,8 @@ function commitToStorage(atStartup) {
 
     storage[KVKeys.CART] = DataCart.getCarts();
     storage[KVKeys.HOLD] = KVStore.isHold();
+
+    storage[KVKeys.STATS] = STATSManager.getStatsCols();
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
     .then(function() {
@@ -132,6 +135,9 @@ function readFromStorage() {
             }
             if (gInfos[KVKeys.CART]) {
                 DataCart.restore(gInfos[KVKeys.CART]);
+            }
+            if (gInfos[KVKeys.STATS]) {
+                STATSManager.restore(gInfos[KVKeys.STATS]);
             }
         } else {
             emptyAllStorage(true);
