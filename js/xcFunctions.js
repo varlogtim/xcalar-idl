@@ -934,12 +934,13 @@ window.xcFunction = (function ($, xcFunction) {
         if (!result.newTableCreated) {
             deferred.resolve();
         } else if (result.setMeta) {
-            $('#inactiveTablesList').find('.tableInfo[data-tableName="' +
-                                          tableName + '"]')
-                                    .find('.addArchivedBtn')
+            var tableId = xcHelper.getTableId(tableName);
+            $('#inactiveTablesList').find('.tableInfo[data-id="' +
+                                        tableId + '"]')
+                                    .find('.addTableBtn')
                                     .click();
 
-            RightSideBar.tableBulkAction("delete")
+            RightSideBar.tableBulkAction("delete", "inactive")
             .then(deferred.resolve)
             .fail(deferred.reject);
         } else {
