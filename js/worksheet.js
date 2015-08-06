@@ -104,6 +104,25 @@ window.WSManager = (function($, WSManager) {
         toggleTableArchieve(tableId, srcTables, desTables);
     };
 
+    WSManager.getTableIndex = function(tableId) {
+        // it only find the table index in active tables
+        // since hidden table's order does not matter
+        var wsIndex = wsIndexLookUp[tableId];
+
+        if (wsIndex == null) {
+            console.error("Not find the table in worksheet!");
+            return (null);
+        }
+
+        var tableIndex = worksheets[wsIndex].tables.indexOf(tableId);
+        if (tableIndex < 0) {
+            console.error("Table is not in active tables array!");
+            return (null);
+        }
+
+        return (tableIndex);
+    };
+
     /**
      * Get worksheet index from table id
      * @param {string} taleId The table's id
