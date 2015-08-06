@@ -92,23 +92,30 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
     var deferred = jQuery.Deferred();
     var tableId  = xcHelper.getTableId(tableName);
     var wsIndex  = WSManager.addTable(tableId);
-    var tableNumsToRemove = [];
 
     setTableMeta(tableName)
     .then(function(newTableMeta) {
+        var tableNum = xcHelper.getTableIndexFromName(location);
         if (tablesToRemove) {
             var delayTableRemoval = true;
             for (var i = 0; i < tablesToRemove.length; i++) {
-                archiveTable(tablesToRemove[i], DeleteTable.Keep, delayTableRemoval);
+                if (gTables2[tablesToRemove[i]].active) {
+                    archiveTable(tablesToRemove[i], DeleteTable.Keep, delayTableRemoval);
+                }
             }
         }
         
         if (location == null) {
             gTables.push(newTableMeta);
         } else {
-            var tableNum = xcHelper.getTableIndexFromName(location);
-            gTables.splice(tableNum, 0, newTableMeta);
-            gTables[tableNum] = newTableMeta;
+            if (tableNum > -1) {
+                gTables.splice(tableNum, 0, newTableMeta);
+                gTables[tableNum] = newTableMeta;
+            } else {
+                gTables.push(newTableMeta);
+            }
+            
+            
         }
         gTables2[tableId] = newTableMeta;
         return (parallelConstruct(tableName, tableId));
