@@ -647,6 +647,10 @@ function documentReadyIndexFunction() {
             WorkbookModal.setup();
             WSManager.focusOnWorksheet();
         })
+        .then(function() {
+            // this should come in last!
+            KVStore.safeSetup();
+        })
         .fail(function(error) {
             if (typeof error === "string"){
                 // when it's a front end error, already has handler

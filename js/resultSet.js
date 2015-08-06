@@ -14,19 +14,43 @@ function freeAllResultSets() {
 }
 
 function freeAllResultSetsSync() {
+    var deferred = jQuery.Deferred();
     var promises = [];
-    var table;
 
-    for (table in gTables2) {
-         promises.push(XcalarSetFree.bind(this, gTables2[table].resultSetId));
-    }
+    var tableNames = {};
 
-    // Free datasetBrowser resultSetId
-    if (gDatasetBrowserResultSetId !== 0) {
-        promises.push(XcalarSetFree.bind(this, gDatasetBrowserResultSetId));
-    }
+    // if table does not exist and free the resultSetId, it crash the backend
 
-    return (chain(promises));
+    // check backend table name to see if it exists
+    XcalarGetTables()
+    .then(function(results) {
+        var tables = results.tables;
+        for (var i = 0, len = results.numTables; i < len; i++) {
+            tableNames[tables[i].tableName] = true;
+        }
+
+        for (table in gTables2) {
+            if (!tableNames.hasOwnProperty(gTables2.tableName)) {
+                continue;
+            }
+            promises.push(XcalarSetFree.bind(this, gTables2[i].resultSetId));
+        }
+
+        // Free datasetBrowser resultSetId
+        if (gDatasetBrowserResultSetId !== 0) {
+            promises.push(XcalarSetFree.bind(this, gDatasetBrowserResultSetId));
+        }
+
+        return (chain(promises))
+
+    })
+    .then(deferred.resolve)
+    .fail(function(error) {
+        console.error(error);
+        deferred.reject(error);
+    })
+
+    return (deferred.promise());
 }
 
 function getResultSet(tableName) {

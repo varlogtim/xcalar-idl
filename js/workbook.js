@@ -524,6 +524,13 @@ window.WKBKManager = (function($, WKBKManager) {
             var gStorageKey = generateKey(wkbkId, "gInfo");
             var gLogKey     = generateKey(wkbkId, "gLog");
 
+            if (sessionStorage.getItem("xcalar.safe") != null) {
+                wkbkId = sessionStorage.getItem("xcalar.safe");
+                gStorageKey = generateKey(wkbkId, "gInfo");
+                gLogKey = generateKey(wkbkId, "gLog");
+                console.warn("Entering in safe mode of", wkbkId);
+            }
+
             KVStore.setup(username, gStorageKey, gLogKey);
 
             deferred.resolve();
