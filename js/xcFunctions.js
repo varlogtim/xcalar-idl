@@ -28,7 +28,8 @@ window.xcFunction = (function($, xcFunction) {
         var msgId = StatusMessage.addMsg(msgObj);
         
         // must add table to worksheet before async call
-        WSManager.addTable(newTableName);
+        var newTableId = xcHelper.getTableId(newTableName);
+        WSManager.addTable(newTableId);
 
         xcHelper.lockTable(tableId);
 
@@ -55,7 +56,7 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            WSManager.removeTable(newTableName);
+            WSManager.removeTable(newTableId);
             xcHelper.unlockTable(tableId);
             Alert.error("Filter Columns Fails", error);
             StatusMessage.fail(StatusMessageTStr.FilterFailed, msgId);
@@ -152,8 +153,9 @@ window.xcFunction = (function($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
-        // XXX Cheng must add to worksheet before async call
-        WSManager.addTable(newTableName);
+        // Cheng must add to worksheet before async call
+        var newTableId = xcHelper.getTableId(newTableName);
+        WSManager.addTable(newTableId);
         xcHelper.lockTable(tableId);
 
         var sqlOptions = {
@@ -179,7 +181,7 @@ window.xcFunction = (function($, xcFunction) {
             commitToStorage();
         })
         .fail(function(error) {
-            WSManager.removeTable(newTableName);
+            WSManager.removeTable(newTableId);
             xcHelper.unlockTable(tableId);
             Alert.error("Sort Rows Fails", error);
             StatusMessage.fail(StatusMessageTStr.SortFailed, msgId);
@@ -233,7 +235,8 @@ window.xcFunction = (function($, xcFunction) {
         xcHelper.lockTable(lTableId);
         xcHelper.lockTable(rTableId);
 
-        WSManager.addTable(newTableName);
+        var newTableId = xcHelper.getTableId(newTableName);
+        WSManager.addTable(newTableId);
         // check left table index
         parallelIndex(lColName, lTableId, rColName, rTableId)
         .then(function(lResult, rResult) {
@@ -289,7 +292,7 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            WSManager.removeTable(newTableName);
+            WSManager.removeTable(newTableId);
             xcHelper.unlockTable(lTableId);
             xcHelper.unlockTable(rTableId);
             Alert.error("Join Table Fails", error);
@@ -336,7 +339,8 @@ window.xcFunction = (function($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
-        WSManager.addTable(newTableName);
+        var newTableId = xcHelper.getTableId(newTableId);
+        WSManager.addTable(newTableId);
 
         xcHelper.lockTable(tableId);
         
@@ -462,7 +466,7 @@ window.xcFunction = (function($, xcFunction) {
         .fail(function(error) {
             // XXX need to clean up all the tables if it's a multiGB
             Alert.error("GroupBy fails", error);
-            WSManager.removeTable(newTableName);
+            WSManager.removeTable(newTableId);
             StatusMessage.fail(StatusMessageTStr.GroupByFailed, msgId);
         });
     };
@@ -486,7 +490,8 @@ window.xcFunction = (function($, xcFunction) {
         options = options || {};
         // must add to worksheet before async call or will end up adding to th
         // wrong worksheet
-        WSManager.addTable(newTableName);
+        var newTableId = xcHelper.getTableId(newTableName);
+        WSManager.addTable(newTableId);
         xcHelper.lockTable(tableId);
         
         var sqlOptions = {
@@ -523,7 +528,7 @@ window.xcFunction = (function($, xcFunction) {
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
-            WSManager.removeTable(newTableName);
+            WSManager.removeTable(newTableId);
 
             Alert.error("mapColumn fails", error);
             StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
@@ -568,10 +573,13 @@ window.xcFunction = (function($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
-        WSManager.addTable(lNewName);
+        var lNewId = xcHelper.getTableId(lNewName);
+        var rNewId = xcHelper.getTableId(rNewName);
+
+        WSManager.addTable(lNewId);
         xcHelper.lockTable(lTableId);
 
-        WSManager.addTable(rNewName);
+        WSManager.addTable(rNewId);
         xcHelper.lockTable(rTableId);
 
         var sqlOptions1 = {
@@ -640,8 +648,8 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(lTableId);
             xcHelper.unlockTable(rTableId);
 
-            WSManager.removeTable(lNewName);
-            WSManager.removeTable(rNewName);
+            WSManager.removeTable(lNewId);
+            WSManager.removeTable(rNewId);
 
             StatusMessage.fail(StatusMessageTStr.MapFailed, msgId);
             var ret1 = thriftLog("DualMap", err1);
@@ -722,8 +730,6 @@ window.xcFunction = (function($, xcFunction) {
 
         XcalarRenameTable(oldTableName, newTableName, sqlOptions)
         .then(function() {
-
-            WSManager.renameTable(oldTableName, newTableName);
             // does renames for gTables, worksheet, rightsidebar, dag
             table.tableName = newTableName;
             gTableIndicesLookup[newTableName] =
@@ -773,9 +779,9 @@ window.xcFunction = (function($, xcFunction) {
             // XXX In the future,we can check if there are other tables that
             // are indexed on this key. But for now, we reindex a new table
             var newTableName = getNewTableName(tableName);
-
-            // XXX Cheng must add to worksheet before async call
-            WSManager.addTable(newTableName, null, true);
+            var newTableId   = xcHelper.getTableId(newTableName);
+            // Cheng must add to worksheet before async call
+            WSManager.addTable(newTableId, null, true);
             var sqlOptions = {
                     "operation"   : "index",
                     "key"         : colName,
@@ -795,7 +801,7 @@ window.xcFunction = (function($, xcFunction) {
                 });
             })
             .fail(function(error) {
-                WSManager.removeTable(newTableName);
+                WSManager.removeTable(newTableId);
                 deferred.reject(error);
             });
 

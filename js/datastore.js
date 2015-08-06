@@ -1105,9 +1105,9 @@ window.DataCart = (function($, DataCart) {
                 // add status message
                 var msg = StatusMessageTStr.CreatingTable + ': ' + tableName;
                 var msgObj = {
-                    msg      : msg,
-                    operation: 'table creation',
-                    tableName: tableName
+                    "msg"      : msg,
+                    "operation": 'table creation',
+                    "tableName": tableName
                 };
                 var msgId = StatusMessage.addMsg(msgObj);
 
@@ -1143,9 +1143,13 @@ window.DataCart = (function($, DataCart) {
 
                 sqlOptions.col.push("DATA");
 
-                var tableProperties = {bookmarks: [], rowHeights: {}};
+                var tableProperties = {
+                    "bookmarks" : [],
+                    "rowHeights": {}
+                };
 
-                WSManager.addTable(tableName);
+                var tableId = xcHelper.getTableId(tableName);
+                WSManager.addTable(tableId);
 
                 XcalarIndexFromDataset(datasetName, "recordNum", tableName,
                                        sqlOptions)
@@ -1161,7 +1165,7 @@ window.DataCart = (function($, DataCart) {
                     innerDeferred.resolve();
                 })
                 .fail(function(error) {
-                    WSManager.removeTable(tableName);
+                    WSManager.removeTable(tableId);
                     StatusMessage.fail(StatusMessageTStr.TableCreationFailed,
                                        msgId);
                     innerDeferred.reject(error);

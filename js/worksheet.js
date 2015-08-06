@@ -76,61 +76,41 @@ window.WSManager = (function($, WSManager) {
     };
 
     WSManager.reorderTable = function(tableId, scrIndex, desIndex) {
-        // XXX need to refine when tableId replace tableName!!!
+        var wsIndex = WSManager.getWSFromTable(tableId);
+        var tables  = worksheets[wsIndex].tables;
 
-        var table = xcHelper.getTableFromId(tableId);
-        var tableName = table.tableName;
-        var wsIndex = WSManager.getWSFromTable(tableName);
-        var worksheet = worksheets[wsIndex];
-
-        var t = worksheet.tables[scrIndex];
-        worksheet.tables.splice(scrIndex, 1);
-        worksheet.tables.splice(desIndex, 0, t);
+        var t = tables[scrIndex];
+        tables.splice(scrIndex, 1);
+        tables.splice(desIndex, 0, t);
     };
 
-    WSManager.archiveTable = function(tableName) {
-        var wsIndex   = WSManager.getWSFromTable(tableName);
+    WSManager.archiveTable = function(tableId) {
+        var wsIndex   = WSManager.getWSFromTable(tableId);
         var worksheet = worksheets[wsIndex];
 
         var srcTables = worksheet.tables;
         var desTables = worksheet.hiddenTables;
 
-        toggleTableArchieve(tableName, srcTables, desTables);
+        toggleTableArchieve(tableId, srcTables, desTables);
     };
 
-    WSManager.activeTable = function(tableName) {
-        var wsIndex   = WSManager.getWSFromTable(tableName);
+    WSManager.activeTable = function(tableId) {
+        var wsIndex   = WSManager.getWSFromTable(tableId);
         var worksheet = worksheets[wsIndex];
 
         var srcTables = worksheet.hiddenTables;
         var desTables = worksheet.tables;
 
-        toggleTableArchieve(tableName, srcTables, desTables);
+        toggleTableArchieve(tableId, srcTables, desTables);
     };
 
-    function toggleTableArchieve(tableName, srcTables, desTables, index) {
-        var tableIndex = srcTables.indexOf(tableName);
-
-        if (tableIndex < 0) {
-            console.error("Do not find the table");
-        }
-
-        if (index == null) {
-            index = desTables.length;
-        }
-
-        // move from scrTables to desTables
-        srcTables.splice(tableIndex, 1);
-        desTables.splice(index, 0, tableName);
-    }
-
     /**
-     * Get worksheet index from table name
-     * @param {string} tableName The table's name
+     * Get worksheet index from table id
+     * @param {string} taleId The table's id
      * @return {number} index The worksheet's index
      */
-    WSManager.getWSFromTable = function(tableName) {
-        return (wsIndexLookUp[tableName]);
+    WSManager.getWSFromTable = function(taleId) {
+        return (wsIndexLookUp[taleId]);
     };
 
     /**
@@ -175,50 +155,37 @@ window.WSManager = (function($, WSManager) {
 
     /**
      * Add table to worksheet
-     * @param {string} tableName The table's name
+     * @param {string} tableId The table's id
      * @param {number} [wsIndex=activeWorksheet] The worksheet's index
+     * @param {boolen} [isHidden] if the table is hidden
      */
-    WSManager.addTable = function(tableName, wsIndex, isHidden) {
-        if (tableName in wsIndexLookUp) {
-            return (wsIndexLookUp[tableName]);
+    WSManager.addTable = function(tableId, wsIndex, isHidden) {
+        if (tableId in wsIndexLookUp) {
+            return (wsIndexLookUp[tableId]);
         } else {
             if (wsIndex == null) {
                 wsIndex = activeWorsheet;
             }
 
             if (isHidden) {
-                setWorksheet(wsIndex, {"hiddenTables": tableName});
+                setWorksheet(wsIndex, {"hiddenTables": tableId});
             } else {
-                setWorksheet(wsIndex, {"tables": tableName});
+                setWorksheet(wsIndex, {"tables": tableId});
             }
             return (wsIndex);
         }
     };
 
     /**
-     * rename a table
-     * @param {string} oldTableName The original table's name
-     * @param {string} newTableName The new table's name
-     */
-    WSManager.renameTable = function(oldTableName, newTableName) {
-        var wsIndex = WSManager.getWSFromTable(oldTableName);
-        wsIndexLookUp[newTableName] = wsIndexLookUp[oldTableName];
-        var tableIndex = worksheets[wsIndex].tables.indexOf(oldTableName);
-        worksheets[wsIndex].tables[tableIndex] = newTableName;
-        delete wsIndexLookUp[oldTableName];
-    };
-
-    /**
      * Move table to another worksheet
-     * @param {number} tableNum The table's index in gTables
+     * @param {string} tableId  The table's id
      * @param {number} newIndex The new worksheet's index
      */
     WSManager.moveTable = function(tableId, newIndex) {
-        var tableName = xcHelper.getTableFromId(tableId).tableName;
-        var oldIndex  = WSManager.removeTable(tableName);
-        var wsName    = WSManager.getWSName(newIndex);
+        var oldIndex = WSManager.removeTable(tableId);
+        var wsName   = WSManager.getWSName(newIndex);
 
-        setWorksheet(newIndex, {"tables": tableName});
+        setWorksheet(newIndex, {"tables": tableId});
 
         var $xcTablewrap = $('#xcTableWrap-' + tableId);
         $xcTablewrap.removeClass("worksheet-" + oldIndex)
@@ -226,7 +193,7 @@ window.WSManager = (function($, WSManager) {
         // refresh right side bar
         $("#activeTablesList .tableInfo").each(function() {
             var $li = $(this);
-            if ($li.data("tablename") === tableName) {
+            if ($li.data("id") === tableId) {
                 var $workhseetInfo = $li.find(".worksheetInfo");
 
                 $workhseetInfo.removeClass("worksheet-" + oldIndex)
@@ -239,7 +206,7 @@ window.WSManager = (function($, WSManager) {
         $("#dagPanel .dagWrap.worksheet-" + oldIndex).each(function() {
             var $dagWrap = $(this);
 
-            if ($dagWrap.find(".tableName").text() === tableName) {
+            if ($dagWrap.data("id") === tableId) {
                 $dagWrap.removeClass("worksheet-" + oldIndex)
                         .addClass("worksheet-" + newIndex);
             }
@@ -285,10 +252,10 @@ window.WSManager = (function($, WSManager) {
 
     /**
      * Remove table from worksheet
-     * @param {string} tableName The table's name
+     * @param {string} tableId The table's id
      */
-    WSManager.removeTable = function(tableName) {
-        var wsIndex = wsIndexLookUp[tableName];
+    WSManager.removeTable = function(tableId) {
+        var wsIndex = wsIndexLookUp[tableId];
 
         if (wsIndex == null) {
             // that could be an orphaned
@@ -296,19 +263,27 @@ window.WSManager = (function($, WSManager) {
             return (null);
         }
 
-        var tables     = worksheets[wsIndex].tables;
-        var tableIndex = tables.indexOf(tableName);
+        var isActive;
 
-        if (tableIndex > 0) {
-            tables.splice(tableIndex, 1);
+        if (gTables2[tableId] == null) {
+            // the case when do FASJ, tableId not in gTables yet
+            // but already in worksheet.table
+            isActive = true;
         } else {
-            // when the table is hidden
-            tables = worksheets[wsIndex].hiddenTables;
-            tableIndex = tables.indexOf(tableName);
-            tables.splice(tableIndex, 1);
+            isActive = gTables2[tableId].active;
         }
 
-        delete wsIndexLookUp[tableName];
+        var tables = isActive ? worksheets[wsIndex].tables :
+                                worksheets[wsIndex].hiddenTables;
+        var tableIndex = tables.indexOf(tableId);
+
+        if (tableIndex < 0) {
+            console.error("Not find table in worksheet");
+            return (null);
+        }
+
+        tables.splice(tableIndex, 1);
+        delete wsIndexLookUp[tableId];
 
         return (wsIndex);
     };
@@ -380,7 +355,7 @@ window.WSManager = (function($, WSManager) {
                 $table.find('.rowGrab').width($table.width());
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {
-                    var index = WSManager.getWSFromTable(gTables2[tbl].tableName);
+                    var index = WSManager.getWSFromTable(tbl);
 
                     if (index === activeWorsheet) {
                         isFocus = true;
@@ -568,8 +543,12 @@ window.WSManager = (function($, WSManager) {
      * @param {number} wsIndex The worksheet's index
      */
     function rmWorksheet(wsIndex) {
-        worksheets[wsIndex].tables.forEach(function(table) {
-            delete wsIndexLookUp[table];
+        worksheets[wsIndex].tables.forEach(function(tableId) {
+            delete wsIndexLookUp[tableId];
+        });
+
+        worksheets[wsIndex].hiddenTables.forEach(function(tableId) {
+            delete wsIndexLookUp[tableId];
         });
 
         delete wsNameLookUp[worksheets[wsIndex].name];
@@ -633,7 +612,9 @@ window.WSManager = (function($, WSManager) {
         var worsheet = worksheets[wsIndex];
         var msg;
 
-        if (worsheet.tables.length === 0) {
+        if (worsheet.tables.length === 0 &&
+            worsheet.hiddenTables.length === 0)
+        {
             // delete empty worksheet
             rmWorksheet(wsIndex);
             return;
@@ -673,33 +654,22 @@ window.WSManager = (function($, WSManager) {
         var $tableLists = $("#inactiveTablesList");
 
         // click all inactive table in this worksheet
-        $tableLists.find(".addArchivedBtn.selected").click();
+        $tableLists.find(".addTableBtn.selected").click();
         $tableLists.find(".worksheet-" + wsIndex)
                     .closest(".tableInfo")
-                    .find(".addArchivedBtn").click();
+                    .find(".addTableBtn").click();
 
-        // XX remove this old gtable code
 
-        // as delete table will change tables array,
-        // so should delete from last
-        // for (var i = gTables.length - 1; i >= 0; i--) {
-        //     var tableName = gTables[i].tableName;
-
-        //     if (WSManager.getWSFromTable(tableName) === wsIndex) {
-        //         promises.push(deleteActiveTable.bind(this, tableName));
-        //     }
-        // }
-        // XX not sure if the order matters
-        for (var tableId in gTables2) {
-            var tableName = gTables2[tableId].tableName;
-            if (WSManager.getWSFromTable(tableName) === wsIndex) {
-                promises.push(deleteActiveTable.bind(this, tableId));
-            }
+        // for active table, use this to delete
+        var activeTables = worksheets[wsIndex].tables;
+        for (var i = 0, len = activeTables.length; i < len; i++) {
+            var tableId = activeTables[i];
+            promises.push(deleteActiveTable.bind(this, tableId));
         }
 
         chain(promises)
         .then(function() {
-            return (RightSideBar.tableBulkAction("delete"));
+            return (RightSideBar.tableBulkAction("delete", "inactive"));
         })
         .then(function() {
             rmWorksheet(wsIndex);
@@ -715,18 +685,30 @@ window.WSManager = (function($, WSManager) {
      */
     function archiveTableHelper(wsIndex) {
         // archive all active tables first
-        // XX should use worksheet instead of gtables
-        for (var i = gTables.length - 1; i >= 0; i--) {
-            var tableName = gTables[i].tableName;
-
-            if (WSManager.getWSFromTable(tableName) === wsIndex) {
-                archiveTable(i, DeleteTable.Keep);
-            }
+        var tables = worksheets[wsIndex].tables;
+        for (var i = 0, len = tables.length; i < len; i++) {
+            archiveTable(tables[i], DeleteTable.Keep);
         }
 
         $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsIndex)
                                 .addClass("inactive").text("No Sheet");
         rmWorksheet(wsIndex);
+    }
+
+    function toggleTableArchieve(tableId, srcTables, desTables, index) {
+        var tableIndex = srcTables.indexOf(tableId);
+
+        if (tableIndex < 0) {
+            console.error("Do not find the table");
+        }
+
+        if (index == null) {
+            index = desTables.length;
+        }
+
+        // move from scrTables to desTables
+        srcTables.splice(tableIndex, 1);
+        desTables.splice(index, 0, tableId);
     }
 
     /**

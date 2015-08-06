@@ -419,12 +419,13 @@ window.StatusMessage = (function($, StatusMessage) {
     }
 
     function tableVisibility(tableName) {
-        var wsNum = WSManager.getWSFromTable(tableName);
+        var tableId = xcHelper.getTableId(tableName);
+        var wsNum = WSManager.getWSFromTable(tableId);
         var activeWS = WSManager.getActiveWS();
+
         if (wsNum !== activeWS) {
             return (wsNum);
         }
-        var tableId = xcHelper.getTableId(tableName);
         var $table = $("#xcTable-" + tableId);
         var rect = $table[0].getBoundingClientRect();
         var windowWidth = $('#rightSideBar').offset().left - 10;

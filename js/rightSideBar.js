@@ -766,8 +766,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
         $sheetTables.each(function() {
             var tableId = $(this).data("id");
-            var tableName = xcHelper.getTableFromId(tableId).tableName;
-            WSManager.activeTable(tableName);
+            WSManager.activeTable(tableId);
         });
 
         var $noSheetTables = $tables.filter(function() {
@@ -807,9 +806,7 @@ window.RightSideBar = (function($, RightSideBar) {
                     } else {
                         $noSheetTables.each(function() {
                             var tableId = $(this).data("id");
-                            var tableName = xcHelper.getTableFromId(tableId)
-                                                    .tableName;
-                            WSManager.addTable(tableName, wsIndex);
+                            WSManager.addTable(tableId, wsIndex);
                         });
 
                         addBulkTable('inactive');
@@ -928,7 +925,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
             var tableName = table.tableName;
             var tableId   = table.tableId;
-            var wsIndex   = WSManager.getWSFromTable(tableName);
+            var wsIndex   = WSManager.getWSFromTable(tableId);
             var wsInfo;
 
             if (wsIndex == null) {

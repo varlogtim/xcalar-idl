@@ -257,6 +257,8 @@ window.DagPanel = (function($, DagPanel) {
                 // if dag does not have ready state, don't show dropdown
                 return;
             }
+
+            // XXX Fix it!! $dagTable has data-tablename, should chagne to tableId
             var tableName = $.trim($dagTable.find('.tableTitle').text());
             var tableId = xcHelper.getTableId(tableName);
             $menu.data('tablename', tableName);
@@ -271,7 +273,7 @@ window.DagPanel = (function($, DagPanel) {
                     $menu.find('.addTable').addClass('hidden');
                     $menu.find('.focusTable').removeClass('hidden');
                     activeFound = true;
-                    tableWSIndex = WSManager.getWSFromTable(tableName);
+                    tableWSIndex = WSManager.getWSFromTable(tableId);
                     $menu.data('wsindex', tableWSIndex);
                     return (false);
                 }
@@ -434,7 +436,7 @@ window.Dag = (function($, Dag) {
         drawDag(tableName)
         .then(function(dagDrawing) {
             var activeWS = WSManager.getActiveWS();
-            var tableWS = WSManager.getWSFromTable(tableName);
+            var tableWS = WSManager.getWSFromTable(tableId);
             var tableNum = xcHelper.getTableIndexFromName(tableName);
             var activeClass = "";
             if (activeWS !== tableWS) {

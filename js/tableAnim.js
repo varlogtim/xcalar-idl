@@ -2098,8 +2098,7 @@ function moveTableTitles() {
 }
 
 function focusTable(tableId) {
-    var tableName = xcHelper.getTableFromId(tableId).tableName;
-    if (WSManager.getWSFromTable(tableName) !== WSManager.getActiveWS())
+    if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS())
     {
         console.error("Table not in current worksheet");
         return;
@@ -2110,6 +2109,7 @@ function focusTable(tableId) {
     $xcTheadWrap.find('.tableTitle').addClass('tblTitleSelected');
     gActiveTableId = tableId;
     RowScroller.update(tableId);
+
     if (xcHelper.getTableFromId(tableId).resultSetCount === 0) {
         $('#rowInput').val(0).data('val', 0);
     } else {

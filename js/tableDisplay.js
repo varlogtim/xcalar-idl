@@ -90,8 +90,9 @@ function refreshTable(newTableName, oldTableName,
 // Shifts all the ids and everything
 function addTable(tableName, location, AfterStartup, tablesToRemove) {
     var deferred = jQuery.Deferred();
-    var wsIndex  = WSManager.addTable(tableName);
-    var tableId = xcHelper.getTableId(tableName);
+    var tableId  = xcHelper.getTableId(tableName);
+    var wsIndex  = WSManager.addTable(tableId);
+    var tableNumsToRemove = [];
 
     setTableMeta(tableName)
     .then(function(newTableMeta) {
@@ -116,7 +117,7 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
         deferred.resolve();
     })
     .fail(function(error) {
-        WSManager.removeTable(tableName);
+        WSManager.removeTable(tableId);
         console.error("Add Table Fails!", error);
         deferred.reject(error);
     });
@@ -177,14 +178,16 @@ function archiveTable(tableId, del, delayTableRemoval) {
     var tableName = gTables2[tableId].tableName;
     var tableNum = xcHelper.getTableIndexFromName(tableName);
     var deletedTable = gTables.splice(tableNum, 1)[0];
-    gTables2[tableId].active = false;
 
     if (!del) {
         gHiddenTables.push(deletedTable);
         gTableIndicesLookup[tableName].active = false;
         gTableIndicesLookup[tableName].timeStamp = xcHelper.getTimeInMS();
+        gTables2[tableId].active = false;
         RightSideBar.moveTable(deletedTable);
+        WSManager.archiveTable(tableId);
     } else {
+        WSManager.removeTable(tableId);
         delete (gTableIndicesLookup[tableName]);
         delete gTables2[tableId];
         var $li = $("#activeTablesList").find('.tableName').filter(
@@ -203,7 +206,6 @@ function archiveTable(tableId, del, delayTableRemoval) {
         RowScroller.empty();
     }
 
-    WSManager.archiveTable(tableName);
     moveTableDropdownBoxes();
     moveTableTitles();
 }
@@ -292,15 +294,15 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
         // Basically the same as archive table, but instead of moving to
         // gHiddenTables, we just delete it from gTablesIndicesLookup
         var tableNum = xcHelper.getTableIndexFromName(tableName, deleteArchived);
+
         if (deleteArchived) {
+            WSManager.removeTable(tableId);
             gHiddenTables.splice(tableNum, 1);
             delete gTables2[tableId];
             delete (gTableIndicesLookup[tableName]);
         } else {
             archiveTable(tableId, DeleteTable.Delete);
         }
-
-        WSManager.removeTable(tableName);
 
         deferred.resolve();
     })
@@ -484,7 +486,7 @@ function pullRowsBulk(tableId, jsonObj, startIndex, dataIndex, direction,
 function generateTableShell(columns, tableId) {
     var table = gTables2[tableId];
     var activeWS = WSManager.getActiveWS();
-    var tableWS = WSManager.getWSFromTable(table.tableName);
+    var tableWS = WSManager.getWSFromTable(tableId);
     var activeClass = "";
     if (activeWS !== tableWS) {
         activeClass = 'inActive';

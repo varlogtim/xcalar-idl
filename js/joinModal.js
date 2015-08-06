@@ -507,13 +507,12 @@ window.JoinModal = (function($, JoinModal) {
 
         // group table tab by worksheet (only show active table)
         for (var tbl in gTables2) {
-            // XXX this should be fixed when no WSManager.getWSFromTable()
             if (!gTables2[tbl].active) {
                 continue;
             }
             var tableId   = gTables2[tbl].tableId;
             var tableName = gTables2[tbl].tableName;
-            var wsIndex   = WSManager.getWSFromTable(tableName);
+            var wsIndex   = WSManager.getWSFromTable(tableId);
 
             worksheets[wsIndex] = worksheets[wsIndex] || [];
             worksheets[wsIndex].push({
