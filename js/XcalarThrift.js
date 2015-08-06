@@ -225,8 +225,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     }
     if (moduleName !== "" && funcName !== "") {
         loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
-        loadArgs.pyLoadArgs.moduleName = moduleName;
-        loadArgs.pyLoadArgs.funcName = funcName.substring(0, funcName.length - 2);
+        loadArgs.pyLoadArgs.fullyQualifiedFnName = moduleName + ":" + funcName;
     }
 
     var formatType;

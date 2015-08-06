@@ -89,7 +89,6 @@ function xcalarLoadWorkItem(url, name, format, maxSampleSize, loadArgs) {
 
 function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
     var deferred = jQuery.Deferred();
-
     if (verbose) {
         console.log("xcalarLoad(url = " + url + ", name = " + name +
                     ", format = " +
