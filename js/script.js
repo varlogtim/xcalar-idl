@@ -323,14 +323,12 @@ function setupLogout() {
     });
 
     $("#signout").click(function() {
-        // window.location = "dologout.html";
-        // XXX this redirect is only for temporary use
         freeAllResultSetsSync()
         .then(function() {
             return (KVStore.release());
         })
         .then(function() {
-            window.location = "login.html";
+            window.location = "dologout.html";
         })
         .fail(function(error) {
             Alert.error("Signout fails", error);
