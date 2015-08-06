@@ -294,6 +294,7 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
         var tableNum = xcHelper.getTableIndexFromName(tableName, deleteArchived);
         if (deleteArchived) {
             gHiddenTables.splice(tableNum, 1);
+            delete gTables2[tableId];
             delete (gTableIndicesLookup[tableName]);
         } else {
             archiveTable(tableId, DeleteTable.Delete);

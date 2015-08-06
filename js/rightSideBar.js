@@ -149,7 +149,7 @@ window.RightSideBar = (function($, RightSideBar) {
                         "operation": "deleteTable",
                         "tableName": tableName
                     };
-                    deleteTable(tableName, DeleteTable.Delete, sqlOptions)
+                    deleteTable(tableId, DeleteTable.Delete, sqlOptions)
                     .then(function() {
                         doneHandler($li, tableName);
                         innerDeferred.resolve();
