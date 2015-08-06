@@ -35,18 +35,6 @@ window.xcHelper = (function($, xcHelper) {
         return (id.split("-")[1]);
     };
 
-    xcHelper.parseTableNum = function($table) {
-        // assumes we are passing in a table with an ID
-        // that contains the string 'Table' ex. #xcTable2 or #worksheetTable2
-        if (!$table || $.isEmptyObject($table)) {
-            return (null);
-        }
-        var id       = $table.attr('id');
-        var numIndex = id.indexOf('Table') + 5;  // where tableNum is located
-        var tableNum = parseInt(id.substring(numIndex));
-        return (tableNum);
-    };
-
     xcHelper.parseRowNum = function($el) {
         var keyword    = "row";
         var classNames = $el.attr("class");
@@ -172,12 +160,6 @@ window.xcHelper = (function($, xcHelper) {
         var $rightSideBar = $("#rightSideBar");
         var $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
 
-        // XXX fix it when tableId attaches to DOM's id
-        var $otherWraps = $('.xcTableWrap').filter(function() {
-            var curTableId = $(this).data("id");
-            return (curTableId !== tableId);
-        });
-
         options = options || {};
 
         if (isHide) {
@@ -193,18 +175,15 @@ window.xcHelper = (function($, xcHelper) {
                 $rightSideBar.removeClass('modalOpen');
             });
 
-            // $('.xcTableWrap').not('#xcTableWrap' + tableNum)
-            //                  .removeClass('tableDarkened');
-
-            $otherWraps.removeClass('tableDarkened');
+            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                             .removeClass('tableDarkened');
 
             $tableWrap.removeClass('modalOpen');
         } else {
             // when open the modal
             $tableWrap.addClass('modalOpen');
-            // $('.xcTableWrap').not('#xcTableWrap' + tableNum)
-            //                  .addClass('tableDarkened');
-            $otherWraps.addClass('tableDarkened');
+            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                             .addClass('tableDarkened');
 
             $rightSideBar.addClass('modalOpen');
             $mainFrame.addClass('modalOpen');

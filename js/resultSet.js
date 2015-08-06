@@ -16,7 +16,6 @@ function freeAllResultSets() {
 function freeAllResultSetsSync() {
     var deferred = jQuery.Deferred();
     var promises = [];
-
     var tableNames = {};
 
     // if table does not exist and free the resultSetId, it crash the backend
@@ -62,10 +61,11 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     // rowNumber is checked for validity before calling goToPage()
     var deferred = jQuery.Deferred();
     info = info || {};
-    var tableNum;
+
     var tableId = info.tableId;
     var table = xcHelper.getTableFromId(tableId);
     var $table;
+
     if (rowNumber >= table.resultSetMax) {
         console.log("Already at last page!");
         return (promiseWrapper(null));
@@ -101,7 +101,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
             info.missingRows.push(position);
         }
 
-        $table =$('#xcTable-' + tableId);
+        $table = xcHelper.getElementByTableId(tableId, "xcTable");
         prepullTableHeight = $table.height();
 
         info.numRowsAdded += jsonLen;
@@ -240,7 +240,6 @@ function getFirstPage(table, notIndexed) {
     if (table.resultSetId === 0) {
         return (promiseWrapper(null));
     }
-    var tableNum = xcHelper.getTableIndexFromName(table.tableName);
     var numRowsToAdd = Math.min(60, table.resultSetCount);
     return (generateDataColumnJson(table, null, notIndexed, numRowsToAdd));
 }
@@ -263,7 +262,6 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch) {
 
     XcalarGetNextPage(table.resultSetId, numRowsToFetch)
     .then(function(tableOfEntries) {
-        var tableNum = xcHelper.getTableIndexFromName(table.tableName);
         var tableId = table.tableId;
         var keyName = table.keyName;
         var kvPairs = tableOfEntries.kvPair;
@@ -273,7 +271,7 @@ function generateDataColumnJson(table, direction, notIndexed, numRowsToFetch) {
             resultSetId = 0;
         }
         if (notIndexed) {
-            ColManager.setupProgCols(tableNum, tableid);
+            ColManager.setupProgCols(tableId);
         }
 
         var numRows     = Math.min(numRowsToFetch, numKvPairs);

@@ -329,7 +329,7 @@ window.KVStore = (function($, KVStore) {
             return (emptyAllStorage(true));
         })
         .then(function() {
-            gActiveTableNum = -1;
+            gActiveTableId = "";
             gLastClickTarget = $(window);
             // clear all tables
             $("#mainFrame").empty();
@@ -349,6 +349,7 @@ window.KVStore = (function($, KVStore) {
 
             // XXX this should be changed after the gTable structure change
             gTables = [];
+            gTables2 = [];
             gHiddenTables = [];
 
             return (readFromStorage());

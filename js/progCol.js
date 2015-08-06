@@ -43,7 +43,7 @@ window.ColManager = (function($, ColManager) {
         return (progCol);
     };
 
-    ColManager.setupProgCols = function(tableNum, tableId) {
+    ColManager.setupProgCols = function(tableId) {
         var keyName = xcHelper.getTableFromId(tableId).keyName;
         // We cannot rely on addCol to create a new progCol object because
         // add col relies on gTableCol entry to determine whether or not to add
@@ -789,18 +789,6 @@ window.ColManager = (function($, ColManager) {
 
             //define type of the column
             columnType = xcHelper.parseColType(value, columnType);
-            // if (columnType === "integer" || columnType === "decimal") {
-            //     var str = '"' + gTables[tableNum].tableCols[newColid - 1].name
-            //                 + '":' + value;
-            //     var index = jsonStr.indexOf(str) + str.length;
-            //     var next = jsonStr.charAt(index);
-            //     // if it's like 123.000, find it and output the right format
-            //     if (next === ".") {
-            //         var end = jsonStr.indexOf(",", index);
-            //         value += jsonStr.substring(index, end);
-            //         columnType = "decimal";
-            //     }
-            // }
 
             value = xcHelper.parseJsonValue(value);
 
