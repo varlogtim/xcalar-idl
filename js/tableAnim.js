@@ -845,10 +845,8 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var tableNum = $tableMenu.closest('.xcTableWrap').index();
         var tableName = xcHelper.getTableFromId(tableId).tableName;
-
-        archiveTable(tableNum, tableId, DeleteTable.Keep);
+        archiveTable(tableId, DeleteTable.Keep);
         // add sql
         SQL.add('Archive Table', {
             "operation": "archiveTable",
