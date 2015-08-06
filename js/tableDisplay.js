@@ -107,7 +107,7 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
             var delayTableRemoval = true;
             for (var i = 0; i < tablesToRemove.length; i++) {
                 var tableNumber =
-                            xcHelper.getTableIndexFromName(tablesToRemove[i]);
+                             xcHelper.getTableIndexFromName(tablesToRemove[i]);
                 tableNumsToRemove.push(tableNumber);
                 var tblId = xcHelper.getTableId(tablesToRemove[i]);
                 archiveTable(tableNumber, tblId, DeleteTable.Keep, delayTableRemoval);
