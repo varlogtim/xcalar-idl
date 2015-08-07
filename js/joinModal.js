@@ -501,74 +501,54 @@ window.JoinModal = (function($, JoinModal) {
     }
 
     function joinModalHTMLHelper($modal) {
-        var wsTabHtml  = "";
-        var tabHtml    = "";
-        var worksheets = [];
+        var wsTabHtml   = "";
+        var tabHtml     = "";
+        var worksheets  = WSManager.getWorksheets();
+        var $columnArea = $modal.find(".joinTableArea");
 
         // group table tab by worksheet (only show active table)
-        for (var tbl in gTables2) {
-            if (!gTables2[tbl].active) {
-                continue;
-            }
-            var tableId   = gTables2[tbl].tableId;
-            var tableName = gTables2[tbl].tableName;
-            var wsIndex   = WSManager.getWSFromTable(tableId);
-
-            worksheets[wsIndex] = worksheets[wsIndex] || [];
-            worksheets[wsIndex].push({
-                "name": tableName,
-                "id"  : tableId
-            });
-        }
-
         for (var i = 0, len = worksheets.length; i < len; i++) {
-            var wsTables = worksheets[i];
-            if (wsTables == null) {
+            if (worksheets[i] == null) {
                 // case that ws is deleted
                 continue;
             }
 
+            var wsTables = worksheets[i].tables;
+
             for (var j = 0; j < wsTables.length; j++) {
-                var wsName = (j === 0) ? WSManager.getWSName(i) : "";
+                var wsName = (j === 0) ? worksheets[i].name : "";
+                var tableId = wsTables[j];
+                var table = xcHelper.getTableFromId(tableId);
+
                 wsTabHtml += '<div class="worksheetLabel">' +
                                 wsName +
                             '</div>';
-                tabHtml +=
-                    '<div class="tableLabel" data-id="' + wsTables[j].id + '">' +
-                        wsTables[j].name +
-                    '</div>';
+                tabHtml += '<div class="tableLabel" data-id="' + tableId + '">' +
+                                table.tableName +
+                            '</div>';
+
+                appendColHTML(tableId, table.tableCols);
             }
         }
 
         $modal.find(".worksheetTabs").html(wsTabHtml);
         $modal.find(".tableTabs").html(tabHtml);
 
-        var $columnArea = $modal.find('.joinTableArea');
-
-        for (var i = 0; i < gTables.length; i++) {
-            // XX We will not be looping through a gTables Array in the future
-        // for (var tbl in gTables2) {    
-            // if (!gTables2[tbl].active) {
-            //     continue;
-            // }
-            var tableId = gTables[i].tableId;
-            var table = gTables2[tableId];
+        function appendColHTML(id, tableCols) {
             var colHtml = '<table class="dataTable joinTable" ' +
-                            'data-id="' + tableId + '">' +
+                            'data-id="' + id + '">' +
                             '<thead>' +
                                 '<tr>';
 
-            for (var j = 0; j < table.tableCols.length; j++) {
-                var colName = table.tableCols[j].name;
+            for (var t = 0; t < tableCols.length; t++) {
+                var colName = tableCols[t].name;
 
                 if (colName === "DATA") {
                     continue;
                 }
 
-                var thClass = "col" + (j + 1);
-                var type    = table.tableCols[j].type;
-
-                thClass += " type-" + type;
+                var type    = tableCols[t].type;
+                var thClass = "col" + (t + 1) + " type-" + type;
 
                 if (type === "object" || type === "undefined") {
                     thClass += " unselectable";
@@ -583,9 +563,7 @@ window.JoinModal = (function($, JoinModal) {
 
             colHtml += '</tr></thead>';
 
-            var $table = $('#xcTable-' + tableId);
-
-            var $tbody = $table.find('tbody').clone(true);
+            var $tbody = $('#xcTable-' + id).find('tbody').clone(true);
 
             $tbody.find('tr:gt(14)').remove();
             $tbody.find('.col0').remove();
