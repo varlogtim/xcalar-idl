@@ -2,12 +2,13 @@ function refreshTable(newTableName, oldTableName,
                       keepOriginal, additionalTableName, focusWorkspace) {
     var deferred = jQuery.Deferred();
 
-    
     if (focusWorkspace) {
         if (!$('#workspaceTab').hasClass('active')) {
             $("#workspaceTab").trigger('click');
+
             if ($('#dagPanel').hasClass('full') &&
-                !$('#dagPanel').hasClass('hidden')) {
+                !$('#dagPanel').hasClass('hidden'))
+            {
                 $('#compSwitch').trigger('click');
                 $('#mainFrame').removeClass('midway');
             }
@@ -17,7 +18,6 @@ function refreshTable(newTableName, oldTableName,
 
     if (keepOriginal === KeepOriginalTables.Keep) {
         // append newly created table to the back
-       
         addTable(newTableName, oldTableName, AfterStartup.After)
         .then(function() {
             if (focusWorkspace) {
@@ -41,14 +41,15 @@ function refreshTable(newTableName, oldTableName,
     } else {
         // default
         var targetTable = oldTableName;
-        var tablesToRemove    = [];
+        var tablesToRemove = [];
         // var delayTableRemoval = true;
+        var tableToRemove;
 
         if (additionalTableName) {
             var firstTableNum = xcHelper.getTableIndexFromName(oldTableName);
             var secondTableNum =
                             xcHelper.getTableIndexFromName(additionalTableName);
-            var tableToRemove;
+
             if (firstTableNum > secondTableNum) {
                 targetTable = additionalTableName;
                 tableToRemove = oldTableName;
@@ -66,7 +67,7 @@ function refreshTable(newTableName, oldTableName,
                 tablesToRemove.push(secondTableToRemove);
             }
         } else {
-            var tableToRemove = xcHelper.getTableId(oldTableName);
+            tableToRemove = xcHelper.getTableId(oldTableName);
             tablesToRemove.push(tableToRemove);
         }
 
@@ -88,14 +89,36 @@ function refreshTable(newTableName, oldTableName,
 
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(tableName, location, AfterStartup, tablesToRemove) {
+function addTable(tableName, oldTableName, AfterStartup, tablesToRemove) {
     var deferred = jQuery.Deferred();
     var tableId  = xcHelper.getTableId(tableName);
-    var wsIndex  = WSManager.addTable(tableId);
 
     setTableMeta(tableName)
     .then(function(newTableMeta) {
-        var tableNum = xcHelper.getTableIndexFromName(location);
+        var tableNum = xcHelper.getTableIndexFromName(oldTableName);
+        
+        if (oldTableName == null) {
+            gTables.push(newTableMeta);
+            WSManager.replaceTable(tableId);
+        } else {
+            if (tableNum > -1) {
+                gTables.splice(tableNum, 0, newTableMeta);
+                gTables[tableNum] = newTableMeta;
+
+                var oldTableId = xcHelper.getTableId(oldTableName);
+                WSManager.replaceTable(tableId, oldTableId, tablesToRemove);
+            } else {
+                gTables.push(newTableMeta);
+                WSManager.replaceTable(tableId);
+            }
+            
+            
+        }
+        gTables2[tableId] = newTableMeta;
+
+
+        // WSManager.replaceTable need to know oldTable's location
+        // so remove table after that
         if (tablesToRemove) {
             var delayTableRemoval = true;
             for (var i = 0; i < tablesToRemove.length; i++) {
@@ -104,20 +127,7 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
                 }
             }
         }
-        
-        if (location == null) {
-            gTables.push(newTableMeta);
-        } else {
-            if (tableNum > -1) {
-                gTables.splice(tableNum, 0, newTableMeta);
-                gTables[tableNum] = newTableMeta;
-            } else {
-                gTables.push(newTableMeta);
-            }
-            
-            
-        }
-        gTables2[tableId] = newTableMeta;
+
         return (parallelConstruct(tableName, tableId));
     })
     .then(function() {
@@ -139,6 +149,7 @@ function addTable(tableName, location, AfterStartup, tablesToRemove) {
 
         jQuery.when(deferred1, deferred2)
         .then(function() {
+            var wsIndex = WSManager.getWSFromTable(tableId);
             var $xcTableWrap = $('#xcTableWrap-' + tableId);
             $xcTableWrap.addClass("worksheet-" + wsIndex);
             $("#dagWrap-" + tableId).addClass("worksheet-" + wsIndex);
@@ -318,8 +329,8 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
 function setTableMeta(tableName) {
     var deferred = jQuery.Deferred();
 
-    var newTable     = new TableMeta();
-    var lookupTable  = gTableIndicesLookup[tableName];
+    var newTable    = new TableMeta();
+    var lookupTable = gTableIndicesLookup[tableName];
 
     newTable.tableCols = [];
     newTable.currentRowNumber = 0;
@@ -465,7 +476,6 @@ function pullRowsBulk(tableId, jsonObj, startIndex, dataIndex, direction,
     // this function does some preparation for ColManager.pullAllCols()
     startIndex = startIndex || 0;
     var $table = $('#xcTable-' + tableId);
-    var tableId = xcHelper.parseTableId($table);
     // get the column number of the datacolumn
     if (dataIndex == null) {
         dataIndex = xcHelper.parseColNum($table.find('tr:first .dataCol')) - 1;
@@ -661,7 +671,7 @@ function generateColDropDown(tableId) {
     // XX need to get rid of tableNum here
     var types = ['Boolean', 'Integer', 'Decimal', 'String'];
     var dropDownHTML =
-        '<ul id="colMenu-' + tableId + '" class="colMenu" '+
+        '<ul id="colMenu-' + tableId + '" class="colMenu" ' +
         'data-id="' + tableId + '">' +
             '<li class="thDropdown">' +
                 'Add a column' +

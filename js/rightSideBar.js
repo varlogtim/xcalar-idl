@@ -710,7 +710,7 @@ window.RightSideBar = (function($, RightSideBar) {
         XcalarUploadPython(moduleName, entireString);
 
         var moduleName2 = "getNthColModule";
-        var entireString2 = 
+        var entireString2 =
             'def getNth(colVal, n):\n' +
                 '\tarr = colVal.split(".Xc.")\n' +
                 '\treturn arr[n]\n';
@@ -771,14 +771,14 @@ window.RightSideBar = (function($, RightSideBar) {
     function addBulkTableHelper() {
         var $tables = $("#inactiveTablesList").find(".addTableBtn.selected")
                                               .closest(".tableInfo");
-        var $sheetTables = $tables.filter(function() {
-            return !$(this).find(".worksheetInfo").hasClass("inactive");
-        });
+        // var $sheetTables = $tables.filter(function() {
+        //     return !$(this).find(".worksheetInfo").hasClass("inactive");
+        // });
 
-        $sheetTables.each(function() {
-            var tableId = $(this).data("id");
-            WSManager.activeTable(tableId);
-        });
+        // $sheetTables.each(function() {
+        //     var tableId = $(this).data("id");
+        //     WSManager.activeTable(tableId);
+        // });
 
         var $noSheetTables = $tables.filter(function() {
             return $(this).find(".worksheetInfo").hasClass("inactive");

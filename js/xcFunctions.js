@@ -339,7 +339,7 @@ window.xcFunction = (function($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
-        var newTableId = xcHelper.getTableId(newTableId);
+        var newTableId = xcHelper.getTableId(newTableName);
         WSManager.addTable(newTableId);
 
         xcHelper.lockTable(tableId);

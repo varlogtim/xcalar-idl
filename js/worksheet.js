@@ -178,7 +178,9 @@ window.WSManager = (function($, WSManager) {
      * @param {number} [wsIndex=activeWorksheet] The worksheet's index
      * @param {boolen} [isHidden] if the table is hidden
      */
-    WSManager.addTable = function(tableId, wsIndex, isHidden) {
+    WSManager.addTable = function(tableId, wsIndex) {
+        // it only add to hiddenTables first, since later we
+        // need to call WSManager.replaceTable()
         if (tableId in wsIndexLookUp) {
             return (wsIndexLookUp[tableId]);
         } else {
@@ -186,12 +188,41 @@ window.WSManager = (function($, WSManager) {
                 wsIndex = activeWorsheet;
             }
 
-            if (isHidden) {
-                setWorksheet(wsIndex, {"hiddenTables": tableId});
-            } else {
-                setWorksheet(wsIndex, {"tables": tableId});
-            }
+            setWorksheet(wsIndex, {"hiddenTables": tableId});
+
             return (wsIndex);
+        }
+    };
+
+    WSManager.replaceTable = function(tableId, locationId, tablesToRm) {
+        var ws;
+
+        // append table to the last of active tables
+        if (locationId == null) {
+            ws = worksheets[wsIndexLookUp[tableId]];
+            toggleTableArchieve(tableId, ws.hiddenTables, ws.tables);
+            return;
+        }
+
+        // replace with locationId and put other tables into hiddenTables
+        var wsIndex = wsIndexLookUp[locationId];
+        var tables  = worksheets[wsIndex].tables;
+        var insertIndex = tables.indexOf(locationId);
+        var rmTableId;
+
+        // XXX remove from original table, may have better way
+        WSManager.removeTable(tableId);
+        tables.splice(insertIndex, 0, tableId);
+        wsIndexLookUp[tableId] = wsIndex;
+
+        if (tablesToRm == null) {
+            tablesToRm = [locationId];
+        }
+
+        for (var i = 0, len = tablesToRm.length; i < len; i++) {
+            rmTableId = tablesToRm[i];
+            ws = worksheets[wsIndexLookUp[rmTableId]];
+            toggleTableArchieve(rmTableId, ws.tables, ws.hiddenTables);
         }
     };
 
@@ -282,22 +313,16 @@ window.WSManager = (function($, WSManager) {
             return (null);
         }
 
-        var isActive;
-
-        if (gTables2[tableId] == null) {
-            // the case when do FASJ, tableId not in gTables yet
-            // but already in worksheet.table
-            isActive = true;
-        } else {
-            isActive = gTables2[tableId].active;
-        }
-
-        var tables = isActive ? worksheets[wsIndex].tables :
-                                worksheets[wsIndex].hiddenTables;
+        var tables = worksheets[wsIndex].tables;
         var tableIndex = tables.indexOf(tableId);
 
         if (tableIndex < 0) {
-            console.error("Not find table in worksheet");
+            tables = worksheets[wsIndex].hiddenTables;
+            tableIndex = tables.indexOf(tableId);
+        }
+
+        if (tableIndex < 0) {
+            console.error("Not find the table!");
             return (null);
         }
 
@@ -718,7 +743,8 @@ window.WSManager = (function($, WSManager) {
         var tableIndex = srcTables.indexOf(tableId);
 
         if (tableIndex < 0) {
-            console.error("Do not find the table");
+            // console.warn("Do not find the table, add it to desTables");
+            return;
         }
 
         if (index == null) {
