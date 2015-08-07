@@ -104,6 +104,30 @@ window.WSManager = (function($, WSManager) {
         toggleTableArchieve(tableId, srcTables, desTables);
     };
 
+    WSManager.getTablePosition = function(tableId) {
+        var wsIndex    = wsIndexLookUp[tableId];
+        var tableIndex = worksheets[wsIndex].tables.indexOf(tableId);
+
+        if (tableIndex < 0) {
+            console.error("Table is not in active tables array!");
+            return (-1);
+        }
+
+        var position = 0;
+        for (var i = 0; i < wsIndex; i++) {
+            if (worksheets[wsIndex] == null) {
+                // this worksheet is deleted
+                continue;
+            } else {
+                position += worksheets[i].tables.length;
+            }
+        }
+
+        position += tableIndex;
+
+        return (position);
+    };
+
     WSManager.getTableIndex = function(tableId) {
         // it only find the table index in active tables
         // since hidden table's order does not matter

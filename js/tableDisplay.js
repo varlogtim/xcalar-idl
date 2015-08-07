@@ -1,11 +1,12 @@
 function refreshTable(newTableName, oldTableName, options) {
     var deferred = jQuery.Deferred();
+    options = options || {};
 
-    var options = options || {};
     var focusWorkspace = options.focusWorkspace;
     var additionalTableName = options.additionalTableName;
     var keepOriginal = options.keepOriginal;
     var lockTable = options.lockTable;
+
     if (focusWorkspace) {
         if (!$('#workspaceTab').hasClass('active')) {
             $("#workspaceTab").trigger('click');
@@ -45,38 +46,37 @@ function refreshTable(newTableName, oldTableName, options) {
     } else {
         // default
         var targetTable = oldTableName;
+        var targetTableId = xcHelper.getTableId(oldTableName);
         var tablesToRemove = [];
         // var delayTableRemoval = true;
         var tableToRemove;
 
         if (additionalTableName) {
-            var firstTableNum = xcHelper.getTableIndexFromName(oldTableName);
-            var secondTableNum =
-                            xcHelper.getTableIndexFromName(additionalTableName);
+            var addTableId = xcHelper.getTableId(additionalTableName);
+            var firstTablePos  = WSManager.getTablePosition(targetTableId);
+            var secondTablePos = WSManager.getTablePosition(addTableId);
 
-            if (firstTableNum > secondTableNum) {
+            if (firstTablePos > secondTablePos) {
                 targetTable = additionalTableName;
-                tableToRemove = oldTableName;
+                tableToRemove = targetTableId;
             } else {
                 targetTable = oldTableName;
-                tableToRemove = additionalTableName;
+                tableToRemove = addTableId;
             }
-            tableToRemove = xcHelper.getTableId(tableToRemove);
 
             tablesToRemove.push(tableToRemove);
-            var targetTableId = xcHelper.getTableId(targetTable);
+
             if (targetTableId !== tableToRemove) {
-                // excludes self join
-                var secondTableToRemove = xcHelper.getTableId(targetTable);
-                tablesToRemove.push(secondTableToRemove);
+                // if targetTableId == tableToRemove, it's self, join
+                // no need to push the secondTableToRemove
+                tablesToRemove.push(targetTableId);
             }
         } else {
-            tableToRemove = xcHelper.getTableId(oldTableName);
-            tablesToRemove.push(tableToRemove);
+            tablesToRemove.push(targetTableId);
         }
 
-        addTable(newTableName, targetTable, AfterStartup.After, tablesToRemove,
-                 lockTable)
+        addTable(newTableName, targetTable, AfterStartup.After,
+                tablesToRemove, lockTable)
         .then(function() {
             if ($('.tblTitleSelected').length === 0) {
                 var tableId = xcHelper.getTableId(newTableName);
@@ -146,7 +146,7 @@ function addTable(tableName, oldTableName, AfterStartup, tablesToRemove, lockTab
             RightSideBar.addTables([table], IsActive.Active);
             return (promiseWrapper(null));
         } else {
-            return (parallelConstruct(tableName, tableId));
+            return (parallelConstruct(tableId, tablesToRemove));
         }
         
     })
@@ -160,43 +160,43 @@ function addTable(tableName, oldTableName, AfterStartup, tablesToRemove, lockTab
     });
 
     return (deferred.promise());
+}
 
-    function parallelConstruct(tableName) {
-        var table = xcHelper.getTableFromId(tableId);
-        var deferred  = jQuery.Deferred();
-        var deferred1 = startBuildTable(tableId, tablesToRemove);
-        var deferred2 = Dag.construct(tableId);
+function parallelConstruct(tableId, tablesToRemove) {
+    var table = xcHelper.getTableFromId(tableId);
+    var deferred  = jQuery.Deferred();
+    var deferred1 = startBuildTable(tableId, tablesToRemove);
+    var deferred2 = Dag.construct(tableId);
 
-        jQuery.when(deferred1, deferred2)
-        .then(function() {
-            var wsIndex = WSManager.getWSFromTable(tableId);
-            var $xcTableWrap = $('#xcTableWrap-' + tableId);
-            $xcTableWrap.addClass("worksheet-" + wsIndex);
-            $("#dagWrap-" + tableId).addClass("worksheet-" + wsIndex);
+    jQuery.when(deferred1, deferred2)
+    .then(function() {
+        var wsIndex = WSManager.getWSFromTable(tableId);
+        var $xcTableWrap = $('#xcTableWrap-' + tableId);
+        $xcTableWrap.addClass("worksheet-" + wsIndex);
+        $("#dagWrap-" + tableId).addClass("worksheet-" + wsIndex);
 
-            if (table.resultSetCount !== 0) {
-                infScrolling(tableId);
-            }
+        if (table.resultSetCount !== 0) {
+            infScrolling(tableId);
+        }
 
-            RowScroller.resize();
+        RowScroller.resize();
 
-            if ($('#mainFrame').hasClass('empty')) {
-                // first time to create table
-                $('#mainFrame').removeClass('empty');
-            }
-            if (AfterStartup) {
-                RightSideBar.addTables([table], IsActive.Active);
-            }
-            if ($('.xcTable').length === 1) {
-                focusTable(tableId);
-            }
+        if ($('#mainFrame').hasClass('empty')) {
+            // first time to create table
+            $('#mainFrame').removeClass('empty');
+        }
+        if (AfterStartup) {
+            RightSideBar.addTables([table], IsActive.Active);
+        }
+        if ($('.xcTable').length === 1) {
+            focusTable(tableId);
+        }
 
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
+        deferred.resolve();
+    })
+    .fail(deferred.reject);
 
-        return (deferred.promise());
-    }
+    return (deferred.promise());
 }
 
 // Removes a table from the display
@@ -530,12 +530,7 @@ function generateTableShell(columns, tableId) {
             'data-id="' + tableId + '"></div>' +
         '</div>';
     // creates a new table, completed thead, and empty tbody
-    var worksheets = WSManager.getWorksheets();
-    var tableIndex = WSManager.getTableIndex(tableId); // index in worksheet
-    var position = tableIndex;
-    for (var i = 0; i < tableWS; i++) {
-        position += worksheets[i].tables.length;
-    }
+    position = WSManager.getTablePosition(tableId);
 
     if (position === 0) {
         $('#mainFrame').prepend(wrapper);
@@ -619,16 +614,6 @@ function generateTableShell(columns, tableId) {
     newTable += '</tr></thead><tbody></tbody></table>';
     $('#xcTbodyWrap-' + tableId).append(newTable);
     return (dataIndex);
-}
-
-function reorderTables(tableNum) {
-    for (var i = gTables.length - 1; i >= tableNum; i--) {
-        // $("#xcTableWrap" + i).attr("id", "xcTableWrap" + (i + 1));
-        // $("#xcTheadWrap" + i).attr("id", "xcTheadWrap" + (i + 1));
-        // $("#xcTbodyWrap" + i).attr("id", "xcTbodyWrap" + (i + 1));
-        // $("#xcTable" + i).attr("id", "xcTable" + (i + 1));
-        gTables[i + 1] = gTables[i];
-    }
 }
 
 function generateColumnHeadHTML(columnClass, color, newColid, option) {

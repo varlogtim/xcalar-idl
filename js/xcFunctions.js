@@ -279,9 +279,9 @@ window.xcFunction = (function($, xcFunction) {
                                                    lRemoved, rRemoved);
             setIndex(newTableName, newTableCols);
             var refreshOptions = {
-                keepOriginal : false,
-                additionalTableName : rTableName
-            }
+                "keepOriginal"       : false,
+                "additionalTableName": rTableName
+            };
 
             return (refreshTable(newTableName, lTableName, refreshOptions));
         })
@@ -347,7 +347,8 @@ window.xcFunction = (function($, xcFunction) {
         xcHelper.lockTable(tableId);
         
         var groupByCols = indexedColName.split(",");
-        for (var i = 0; i<groupByCols.length; i++) {
+
+        for (var i = 0; i < groupByCols.length; i++) {
             groupByCols[i] = groupByCols[i].trim();
         }
         multiGroupBy(groupByCols, tableId)
@@ -402,7 +403,7 @@ window.xcFunction = (function($, xcFunction) {
 
             var indexedColNum = -1;
             if (groupByCols.length === 1) {
-                for (i = 0; i < numCols; i++) {
+                for (var i = 0; i < numCols; i++) {
                     if (columns[i].name === indexedColName && columns[i].func.args) {
                         indexedColNum = i;
                         break;
@@ -426,10 +427,10 @@ window.xcFunction = (function($, xcFunction) {
                     });
                 } else {
                     // Pull out each individual one by doing maps
-                    for (var i = 0; i<groupByCols.length; i++) {
-                        var colName = groupByCols[i]
-                        tablCols[1+i] = ColManager.newCol({
-                        "index"   : 2+i,
+                    for (var i = 0; i < groupByCols.length; i++) {
+                        var colName = groupByCols[i];
+                        tablCols[1 + i] = ColManager.newCol({
+                        "index"   : 2 + i,
                         "name"    : colName,
                         "width"   : gNewCellWidth,
                         "isNewCol": false,
@@ -453,7 +454,7 @@ window.xcFunction = (function($, xcFunction) {
                 tablCols[1].func.args = [newEscapedName];
             }
 
-            tablCols[1+groupByCols.length] =
+            tablCols[1 + groupByCols.length] =
                                  xcHelper.deepCopy(table.tableCols[dataColNum]);
 
             setIndex(nTableName, tablCols);
@@ -461,8 +462,8 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(tableId);
             finalTableName = nTableName;
             var refreshOptions = {
-                keepOriginal : true,
-            }
+                "keepOriginal": true
+            };
             return (refreshTable(nTableName, null, refreshOptions));
         })
         .then(function() {
@@ -636,16 +637,16 @@ window.xcFunction = (function($, xcFunction) {
 
             setIndex(rNewName, rTableCols, null, rTableProperties);
             var refreshOptions = {
-                lockTable : true
-            }
+                "lockTable": true
+            };
 
             // XXX should change to xcHelper.when after fix async bug in refresh
             return (refreshTable(lNewName, lTableName, refreshOptions));
         })
         .then(function() {
             var refreshOptions = {
-                lockTable : true
-            }
+                "lockTable": true
+            };
             return (refreshTable(rNewName, rTableName, refreshOptions));
         })
         .then(function(ret1, ret2) {
@@ -792,8 +793,11 @@ window.xcFunction = (function($, xcFunction) {
             // are indexed on this key. But for now, we reindex a new table
             var newTableName = getNewTableName(tableName);
             var newTableId   = xcHelper.getTableId(newTableName);
-            // Cheng must add to worksheet before async call
-            WSManager.addTable(newTableId, null, true);
+
+            // append new table to the same ws as the old table
+            var wsIndex = WSManager.getWSFromTable(tableId);
+            // must add to worksheet before async call
+            WSManager.addTable(newTableId, wsIndex, true);
             var sqlOptions = {
                     "operation"   : "index",
                     "key"         : colName,
@@ -844,35 +848,35 @@ window.xcFunction = (function($, xcFunction) {
             groupByField = xcHelper.randName("multiGroupBy", 5);
             var originTable = xcHelper.getTableFromId(tableId).tableName;
             newTableName = getNewTableName(originTable);
-            for (var i = 0; i<groupByCols.length; i++) {
+            for (var i = 0; i < groupByCols.length; i++) {
                 mapStr += groupByCols[i] + ", ";
             }
-            mapStr = mapStr.substring(0, mapStr.length-2);
+            mapStr = mapStr.substring(0, mapStr.length - 2);
             mapStr += ")";
             console.log(mapStr);
-            XcalarMap(groupByField, mapStr, originTable, 
+            XcalarMap(groupByField, mapStr, originTable,
                       newTableName, {
-                          "operation": "mapColumn",
+                          "operation"   : "mapColumn",
                           "srcTableName": originTable,
                           "newTableName": newTableName,
-                          "colName": groupByField,
-                          "mapString": mapStr
+                          "colName"     : groupByField,
+                          "mapString"   : mapStr
             })
             .then(function(ret) {
                 var reindexedTableName = getNewTableName(newTableName);
                 XcalarIndexFromTable(newTableName, groupByField,
                                      reindexedTableName, {
-                          "operation": "sort",
-                          "tableName": newTableName,
-                          "key": groupByField,
-                          "newTableName": reindexedTableName,
+                          "operation"   : "sort",
+                          "tableName"   : newTableName,
+                          "key"         : groupByField,
+                          "newTableName": reindexedTableName
                 })
                 .then(function(ret) {
                     deferred.resolve({
                         "newTableCreated": true,
-                        "setMeta": false, 
-                        "tableName": reindexedTableName,
-                        "indexCol": groupByField
+                        "setMeta"        : false,
+                        "tableName"      : reindexedTableName,
+                        "indexCol"       : groupByField
                     });
                 });
             });
@@ -893,7 +897,7 @@ window.xcFunction = (function($, xcFunction) {
             var mapStrStarter = "getNthColModule:getNth(" + colName + ", ";
             var currTableName = tableName;
             var currExec = 0;
-            for (var i = 0; i<colArray.length; i++) {
+            for (var i = 0; i < colArray.length; i++) {
                 var mapStr = mapStrStarter + i + ")";
                 var newTableName = getNewTableName(currTableName);
                 var sqlOptions = {
