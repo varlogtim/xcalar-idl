@@ -69,9 +69,9 @@ window.StatusMessage = (function($, StatusMessage) {
         stopRotation();
     };
 
-    StatusMessage.success = function(msgId, noNotification) {
+    StatusMessage.success = function(msgId, noNotification, newTableName) {
         if (!noNotification) {
-            showDoneNotification(msgId);
+            showDoneNotification(msgId, newTableName);
         } else {
             delete msgObjs[msgId];
         }
@@ -258,7 +258,7 @@ window.StatusMessage = (function($, StatusMessage) {
         }
     }
 
-    function showDoneNotification(msgId, failed) {
+    function showDoneNotification(msgId, failed, newTableName) {
         var operation = msgObjs[msgId].operation;
 
         var popupNeeded     = false;
@@ -332,7 +332,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 classes += ' worksheetNotify' + wsNum;
             } else { 
                 // we're on the correct worksheet, now find if table is visible
-                var tableName = msgObjs[msgId].tableName;
+                var tableName = newTableName || msgObjs[msgId].tableName;
                 var visibility = tableVisibility(tableName);
 
                 if (visibility !== 'visible') {
