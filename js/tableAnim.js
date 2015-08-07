@@ -2161,7 +2161,10 @@ function dragTableMouseDown(el, e) {
     gMouseStatus = "movingTable";
     dragObj.mouseX = e.pageX;
     dragObj.table = el.closest('.xcTableWrap');
-    dragObj.tableIndex = dragObj.table.index();
+    var $activeTables = $('.xcTableWrap:not(.inActive)');
+    var tableIndex = $activeTables.index(dragObj.table);
+    dragObj.$activeTables = $activeTables;
+    dragObj.tableIndex = tableIndex;
     dragObj.tableId = xcHelper.parseTableId(dragObj.table);
     dragObj.originalIndex = dragObj.tableIndex;
     dragObj.mainFrame = $('#mainFrame');
@@ -2253,63 +2256,62 @@ function createTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
     var offset = gDragObj.mouseX - gDragObj.offsetLeft;
     var dragMargin = 10;
     var tableLeft;
+    var $mainFrame = gDragObj.mainFrame;
+    var dropTargets = "";
+    var tableWidth = gDragObj.table.width();
 
-    if (!swappedTable) {
-        var dropTargets = "";
-        var i = 0;
-        var tableWidth = gDragObj.table.width();
+    gDragObj.$activeTables.each(function(i) {
+        if (i === gDragObj.tableIndex) {
+            return true;  
+        }
 
-        $('#mainFrame').find('.xcTableWrap').each(function() {
-            if (i === gDragObj.tableIndex) {
-                i++;
-                return true;  
-            }
+        var targetWidth;
+        if ((tableWidth - dragMargin) < Math.round(0.5 * $(this).outerWidth()))
+        {
+            targetWidth = tableWidth;
+        } else {
+            targetWidth = Math.round(0.5 * $(this).outerWidth()) +
+                            dragMargin;
+        }
 
-            var targetWidth;
-            if ((tableWidth - dragMargin) <
-                Math.round(0.5 * $(this).outerWidth()))
-            {
-                targetWidth = tableWidth;
-            } else {
-                targetWidth = Math.round(0.5 * $(this).outerWidth()) +
-                                dragMargin;
-            }
+        tableLeft = $(this).position().left + $mainFrame.scrollLeft();
+        dropTargets += '<div id="dropTarget' + i + '" class="dropTarget"' +
+                        'style="left:' + (tableLeft - dragMargin + offset) +
+                        'px;' + 'width:' + targetWidth + 'px;height:' +
+                        (gDragObj.docHeight) + 'px;">' +
+                            i +
+                        '</div>';
+    });
 
-            tableLeft = $(this).position().left + $('#mainFrame').scrollLeft();
-            dropTargets += '<div id="dropTarget' + i + '" class="dropTarget"' +
-                            'style="left:' + (tableLeft - dragMargin + offset) +
-                            'px;' + 'width:' + targetWidth + 'px;height:' +
-                            (gDragObj.docHeight) + 'px;">' +
-                                i +
-                            '</div>';
-            i++;
-        });
+    tableLeft = -$mainFrame.scrollLeft();
+    $('body').append('<div id="dropTargets" style="left:' +
+                        tableLeft + 'px;"></div>');
+    $('#dropTargets').append(dropTargets);
+    $('.dropTarget').mouseenter(function() {
+        dragdropSwapTables($(this));
+    });
+    $mainFrame.scroll(mainFrameScrollTableTargets);
+}
 
-        tableLeft = -$('#mainFrame').scrollLeft();
-        $('body').append('<div id="dropTargets" style="left:' +
-                            tableLeft + 'px;"></div>');
-        $('#dropTargets').append(dropTargets);
-        $('.dropTarget').mouseenter(function() {
-            dragdropSwapTables($(this));
-        });
-        $('#mainFrame').scroll(mainFrameScrollTableTargets);
-    } else {
-        tableLeft = swappedTable.position().left + $('#mainFrame').scrollLeft();
-        $('#dropTarget' + dropTargetIndex).attr('id', 'dropTarget' + oldIndex);
-        $('#dropTarget' + oldIndex).css({
-            'left': (tableLeft - dragMargin + offset) + 'px'});
-    }
+function moveTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
+    var offset = gDragObj.mouseX - gDragObj.offsetLeft;
+    var dragMargin = 10;
+    var $mainFrame = gDragObj.mainFrame;
+    var tableLeft = swappedTable.position().left + $mainFrame.scrollLeft();
+    $('#dropTarget' + dropTargetIndex).attr('id', 'dropTarget' + oldIndex);
+    $('#dropTarget' + oldIndex).css({
+        'left': (tableLeft - dragMargin + offset) + 'px'});
 }
 
 function mainFrameScrollTableTargets() {
-    var left = $('#mainFrame').scrollLeft();
+    var left = gDragObj.mainFrame.scrollLeft();
     $("#dropTargets").css('left', '-' + left + 'px');
 }
 
 function dragdropSwapTables(el) {
     var dropTargetIndex = parseInt((el.attr('id')).substring(10));
-    var $table = $('.xcTableWrap').eq(dropTargetIndex);
-    // var tableScrollTop = table.scrollTop();
+    var $activeTables = $('.xcTableWrap:not(.inActive)');
+    var $table = $activeTables.eq(dropTargetIndex);
 
     if (dropTargetIndex > gDragObj.tableIndex) {
         $table.after($('#shadowTable'));
@@ -2318,12 +2320,15 @@ function dragdropSwapTables(el) {
         $table.before($('#shadowTable'));
         $table.before(gDragObj.table);
     }
+    for (var i = 0; i < $('.xcTable').length; i++) {
+        console.log($('.xcTable').eq(i).data('id'));
+    }
 
     gDragObj.table.scrollTop(gDragObj.tableScrollTop);
     
     var oldIndex = gDragObj.tableIndex;
     gDragObj.tableIndex = dropTargetIndex;
-    createTableDropTargets(dropTargetIndex, oldIndex, $table);
+    moveTableDropTargets(dropTargetIndex, oldIndex, $table);
 }
 
 function sizeTableForDragging() {
@@ -2338,7 +2343,7 @@ function reorderAfterTableDrop() {
     
     // reorder rowScrollers
     var $dagWrap = $('#dagWrap-' + gDragObj.tableId);
-    var $dagWraps = $('.dagWrap');
+    var $dagWraps = $('.dagWrap:not(.inActive)');
     var tableIndex = gDragObj.tableIndex;
     var tableId = gDragObj.tableId;
 
