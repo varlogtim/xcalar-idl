@@ -26,7 +26,6 @@ var gMinTableWidth = 30;
 var gTables = []; // This is the main global array containing structures
                   // Stores TableMeta structs
 var gTables2 = {};
-var gHiddenTables = [];
 var gOrphanTables = [];
 var gFnBarOrigin;
 var gActiveTableId = ""; 
@@ -272,19 +271,16 @@ function setupHiddenTable(tableName) {
 
     setTableMeta(tableName)
     .then(function(newTableMeta) {
-        gHiddenTables.push(newTableMeta);
         var tableId = xcHelper.getTableId(tableName);
         gTables2[tableId] = newTableMeta;
         var table = gTables2[tableId];
         table.active = false;
 
-        var lastIndex = gHiddenTables.length - 1;
         var index = getIndex(gTables2[tableId].tableName);
         if (index && index.length > 0) {
-            gHiddenTables[lastIndex].tableCols = index;
             table.tableCols = index;
         } else {
-            console.warn("Not stored", gHiddenTables[lastIndex].tableName);
+            console.warn("Not stored", tableName);
         }  
 
         deferred.resolve();
@@ -528,6 +524,7 @@ function initializeTable() {
         var backTables = backEndTables.tables;
         var numBackTables = backTables.length;
         var tableMap = {};
+
         for (var i = 0; i < numBackTables; i++) {
             tableMap[backTables[i].tableName] = backTables[i];
         }
@@ -539,6 +536,7 @@ function initializeTable() {
         var promises = [];
         var failures = [];
         var tableName;
+
         for (var i = 0; i < gTableOrderLookup.length; i++) {
             tableName = gTableOrderLookup[i];
             var lookupTable = gTableIndicesLookup[tableName];

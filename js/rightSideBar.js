@@ -11,13 +11,26 @@ window.RightSideBar = (function($, RightSideBar) {
     };
 
     RightSideBar.initialize = function() {
-        RightSideBar.addTables(gTables, IsActive.Active);
-        RightSideBar.addTables(gHiddenTables, IsActive.Inactive);
+        var activeTables = [];
+        var hiddenTables = [];
+
+        for (var tableId in gTables2) {
+            var table = gTables2[tableId];
+            if (table.active) {
+                activeTables.push(table);
+            } else {
+                hiddenTables.push(table);
+            }
+        }
+
+        RightSideBar.addTables(activeTables, IsActive.Active);
+        RightSideBar.addTables(hiddenTables, IsActive.Inactive);
+
         generateOrphanList(gOrphanTables);
     };
 
     RightSideBar.addTables = function(tables, active) {
-        // XXX tables is an array of metaTables;
+        // tables is an array of metaTables;
         generateTableLists(tables, active);
 
         if (!active) {
@@ -125,18 +138,16 @@ window.RightSideBar = (function($, RightSideBar) {
                         lookupTable.active = true;
                         lookupTable.timeStamp = xcHelper.getTimeInMS();
 
-                        addTable(tableName, null, AfterStartup.After, null)
-                        .then(function() {
-                            doneHandler($li, tableName);
-                            // already add the table
+                        // should release the old resultSetId and than add
 
-                            // XXX fix it when remove tableNum
-                            var tableNum = gHiddenTables.indexOf(table);
-                            var activeTable = gHiddenTables
-                                                .splice(tableNum, 1)[0];
-                            return (XcalarSetFree(activeTable.resultSetId));
+                        XcalarSetFree(table.resultSetId)
+                        .then(function() {
+                            table.resultSetId = -1;
+                            return (addTable(tableName, null,
+                                             AfterStartup.After, null));
                         })
                         .then(function() {
+                            doneHandler($li, tableName);
                             innerDeferred.resolve();
                         })
                         .fail(function(error) {
@@ -1039,7 +1050,7 @@ window.RightSideBar = (function($, RightSideBar) {
             if (gTableIndicesLookup[tableName]) {
                 timeStamp = gTableIndicesLookup[tableName].timeStamp;
             }
-            if (timeStamp === undefined) {
+            if (timeStamp == null) {
                 console.error("Time Stamp undefined");
                 timeStamp = xcHelper.getTimeInMS(null, "2014-02-14");
                 timeStamp = "";

@@ -350,7 +350,6 @@ window.KVStore = (function($, KVStore) {
             // XXX this should be changed after the gTable structure change
             gTables = [];
             gTables2 = {};
-            gHiddenTables = [];
 
             return (readFromStorage());
         })

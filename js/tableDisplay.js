@@ -187,7 +187,6 @@ function archiveTable(tableId, del, delayTableRemoval) {
     var deletedTable = gTables.splice(tableNum, 1)[0];
 
     if (!del) {
-        gHiddenTables.push(deletedTable);
         gTableIndicesLookup[tableName].active = false;
         gTableIndicesLookup[tableName].timeStamp = xcHelper.getTimeInMS();
         gTables2[tableId].active = false;
@@ -298,13 +297,8 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
         // XXX if we'd like to hide the cannot delete bug,
         // copy it to the fail function
 
-        // Basically the same as archive table, but instead of moving to
-        // gHiddenTables, we just delete it from gTablesIndicesLookup
-        var tableNum = xcHelper.getTableIndexFromName(tableName, deleteArchived);
-
         if (deleteArchived) {
             WSManager.removeTable(tableId);
-            gHiddenTables.splice(tableNum, 1);
             delete gTables2[tableId];
             delete (gTableIndicesLookup[tableName]);
         } else {

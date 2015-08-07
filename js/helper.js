@@ -1,6 +1,6 @@
 window.xcHelper = (function($, xcHelper) {
-    xcHelper.getTableIndexFromName = function(tableName, isHidden) {
-        var table = isHidden ? gHiddenTables : gTables;
+    xcHelper.getTableIndexFromName = function(tableName) {
+        var table = gTables;
 
         for (var i = 0; i < table.length; i++) {
             if (tableName === table[i].tableName) {

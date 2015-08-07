@@ -247,11 +247,11 @@ window.xcFunction = (function($, xcFunction) {
             rSrcName = rResult.tableName;
             // checkJoinTable index only created backend table,
             // here we get the info to set the indexed table as hidden table
-            return (setIndexedTableMeta(lTableResult.tableName));
+            return (setIndexedTableMeta(lTableResult));
         })
         .then(function(result) {
             lTableResult = result;
-            return (setIndexedTableMeta(rTableResult.tableName));
+            return (setIndexedTableMeta(rTableResult));
         })
         .then(function(result) {
             rTableResult = result;
@@ -797,7 +797,8 @@ window.xcFunction = (function($, xcFunction) {
                 deferred.resolve({
                     "newTableCreated": true,
                     "setMeta"        : false,
-                    "tableName"      : newTableName
+                    "tableName"      : newTableName,
+                    "tableId"        : newTableId
                 });
             })
             .fail(function(error) {
@@ -811,7 +812,8 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve({
                 "newTableCreated": false,
                 "tableName"      : tableName,
-                "newTableName"   : tableName
+                "newTableName"   : tableName,
+                "tableId"        : tableId
             });
         }
 
@@ -1005,18 +1007,19 @@ window.xcFunction = (function($, xcFunction) {
         return (deferred.promise());
     }
 
-    function setIndexedTableMeta(tableName) {
+    function setIndexedTableMeta(tableResult) {
         var deferred = jQuery.Deferred();
 
-        setupHiddenTable(tableName)
+        setupHiddenTable(tableResult.tableName)
         .then(function() {
-            var index = gHiddenTables.length - 1;
-            RightSideBar.addTables([gHiddenTables[index]], IsActive.Inactive);
+            var table = gTables2[tableResult.tableId];
+            RightSideBar.addTables([table], IsActive.Inactive);
 
             deferred.resolve({
                 "newTableCreated": true,
                 "setMeta"        : true,
-                "tableName"      : tableName
+                "tableName"      : tableResult.tableName,
+                "tableId"        : tableResult.tableId
             });
         })
         .fail(deferred.reject);
