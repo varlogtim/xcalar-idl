@@ -2320,9 +2320,6 @@ function dragdropSwapTables(el) {
         $table.before($('#shadowTable'));
         $table.before(gDragObj.table);
     }
-    for (var i = 0; i < $('.xcTable').length; i++) {
-        console.log($('.xcTable').eq(i).data('id'));
-    }
 
     gDragObj.table.scrollTop(gDragObj.tableScrollTop);
     
@@ -2337,26 +2334,32 @@ function sizeTableForDragging() {
 }
 
 function reorderAfterTableDrop() {
-
-    var tempTable = gTables.splice(gDragObj.originalIndex, 1)[0];
-    gTables.splice(gDragObj.tableIndex, 0, tempTable);
-    
-    // reorder rowScrollers
-    var $dagWrap = $('#dagWrap-' + gDragObj.tableId);
-    var $dagWraps = $('.dagWrap:not(.inActive)');
-    var tableIndex = gDragObj.tableIndex;
     var tableId = gDragObj.tableId;
-
+    var tableWS = WSManager.getWSFromTable(tableId);
+    var worksheets = WSManager.getWorksheets();
+    var position = 0;
+    for (var i = 0; i < tableWS; i++) {
+        position += worksheets[i].tables.length;
+    }
+    var originalIndex = position + gDragObj.originalIndex;
+    var newIndex = position + gDragObj.tableIndex;
+    var tempTable = gTables.splice(originalIndex, 1)[0];
+    gTables.splice(newIndex, 0, tempTable);
+    
+    var $dagWrap = $('#dagWrap-' + gDragObj.tableId);
+    var $dagWraps = $('.dagWrap:not(.tableToRemove)');
+    var tableIndex = gDragObj.tableIndex;
+    
     WSManager.reorderTable(tableId, gDragObj.originalIndex,
                                     gDragObj.tableIndex);
 
-    if (gDragObj.tableIndex === 0) {
+    if (newIndex === 0) {
         $('.dagArea').find('.legendArea').after($dagWrap);
     } else if (gDragObj.originalIndex < tableIndex) {
-        $dagWraps.eq(tableIndex).after($dagWrap);
+        $dagWraps.eq(newIndex).after($dagWrap);
     } else if (gDragObj.originalIndex > tableIndex) {
-        $dagWraps.eq(tableIndex).before($dagWrap);
-    }
+        $dagWraps.eq(newIndex).before($dagWrap);
+    } 
 }
 
 function moveFirstColumn($targetTable) {

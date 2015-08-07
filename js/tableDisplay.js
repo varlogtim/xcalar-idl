@@ -500,15 +500,19 @@ function generateTableShell(columns, tableId) {
             'data-id="' + tableId + '"></div>' +
         '</div>';
     // creates a new table, completed thead, and empty tbody
-    var location = xcHelper.getTableIndexFromName(table.tableName);
-    if (location === 0) {
+    var worksheets = WSManager.getWorksheets();
+    var tableIndex = WSManager.getTableIndex(tableId); // index in worksheet
+    var position = tableIndex;
+    for (var i = 0; i < tableWS; i++) {
+        position += worksheets[i].tables.length;
+    }
+
+    if (position === 0) {
         $('#mainFrame').prepend(wrapper);
-    } else if (location == null) {
-        $('#mainFrame').append(wrapper);
     } else {
-        var $prevTable = $('.xcTableWrap:not(.tableToRemove)').eq(location - 1);
+        var $prevTable = $('.xcTableWrap:not(.tableToRemove)').eq(position - 1);
         if ($prevTable.length !== 0) {
-            $('.xcTableWrap:not(.tableToRemove)').eq(location - 1).after(wrapper);
+            $prevTable.after(wrapper);
         } else {
             console.error('Table not appended to the right spot, big problem!');
             $('#mainFrame').append(wrapper);

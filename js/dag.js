@@ -437,7 +437,6 @@ window.Dag = (function($, Dag) {
         .then(function(dagDrawing) {
             var activeWS = WSManager.getActiveWS();
             var tableWS = WSManager.getWSFromTable(tableId);
-            var tableNum = xcHelper.getTableIndexFromName(tableName);
             var activeClass = "";
             if (activeWS !== tableWS) {
                 activeClass = 'inActive';
@@ -469,17 +468,23 @@ window.Dag = (function($, Dag) {
             var innerDag = '<div class="dagImageWrap"><div class="dagImage">' +
                             dagDrawing + '</div></div>';
 
-            if (tableNum === 0) {
+            var worksheets = WSManager.getWorksheets();
+            var tableIndex = WSManager.getTableIndex(tableId); // index in worksheet
+            var position = tableIndex;
+            for (var i = 0; i < tableWS; i++) {
+                position += worksheets[i].tables.length;
+            }
+
+            if (position === 0) {
                 $('.dagArea').find('.legendArea').after(outerDag);
-            } else if (tableNum == null) {
-                $('.dagArea').append(outerDag);
             } else {
-                $prevDag = $dagPanel.find('.dagWrap').eq(tableNum - 1);
-                if ($prevDag.length === 0) {
+                $prevDag = $dagPanel.find('.dagWrap:not(.dagWrapToRemove)')
+                                    .eq(position - 1);
+                if ($prevDag.length !== 0) {
+                    $prevDag.after(outerDag);
+                } else {
                     console.error('dag order is incorrect! This is a bug!');
                     $('.dagArea').append(outerDag);
-                } else {
-                    $prevDag.after(outerDag);
                 }
             }
 
