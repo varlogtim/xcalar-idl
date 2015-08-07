@@ -10,14 +10,12 @@ window.Authentication = (function($, Authentication) {
             users = users || {};
 
             if (!users[username]) {
-                // 3844 = 62 * 62, see Authentication.getHashId
                 users[username] = {
                     "username": username,
-                    "userId"  : Math.floor(Math.random() * 3844),
                     "pointer" : 0
                 };
 
-                users[username].hashId = generateHashId(users[username].userId);
+                users[username].hashId = generateHashId();
                 KVStore.put(authectionKey, JSON.stringify(users));
             }
 
@@ -56,12 +54,17 @@ window.Authentication = (function($, Authentication) {
         return (KVStore.delete(authectionKey));
     };
 
-    function generateHashId(id) {
+    function generateHashId() {
+        // 3844 = 52 * 62, possibility
         var str = "0123456789" +
                     "abcedfghijklmnopqrstuvwxyz" +
                     "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        // index1 should not include number
+        // (if hashId="12", bind to data-id, it may return number 12)
+        var index1 = Math.floor(Math.random() * 52) + 10;
+        var index2 = Math.floor(Math.random() * 62);
 
-        return (str.charAt(id / 62) + str.charAt(id % 62));
+        return (str.charAt(index1) + str.charAt(index2));
     }
 
     return (Authentication);
