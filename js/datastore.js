@@ -1154,11 +1154,12 @@ window.DataCart = (function($, DataCart) {
                 XcalarIndexFromDataset(datasetName, "recordNum", tableName,
                                        sqlOptions)
                 .then(function() {
-                    var keepOriginal = true;
                     setIndex(tableName, newTableCols, datasetName, tableProperties);
-                    var focusWorkspace = true;
-                    return (refreshTable(tableName, null, keepOriginal,
-                            false, focusWorkspace));
+                    var options = {
+                        keepOriginal : true,
+                        focusWorkspace : true
+                    }
+                    return (refreshTable(tableName, null, options));
                 })
                 .then(function() {
                     StatusMessage.success(msgId);

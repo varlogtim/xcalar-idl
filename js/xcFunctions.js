@@ -278,10 +278,12 @@ window.xcFunction = (function($, xcFunction) {
             var newTableCols = createJoinedColumns(lTable, rTable,
                                                    lRemoved, rRemoved);
             setIndex(newTableName, newTableCols);
+            var refreshOptions = {
+                keepOriginal : false,
+                additionalTableName : rTableName
+            }
 
-            return (refreshTable(newTableName, lTableName,
-                                 KeepOriginalTables.DontKeep,
-                                 rTableName));
+            return (refreshTable(newTableName, lTableName, refreshOptions));
         })
         .then(function() {
             xcHelper.unlockTable(lTableId, true);
@@ -458,7 +460,10 @@ window.xcFunction = (function($, xcFunction) {
 
             xcHelper.unlockTable(tableId);
             finalTableName = nTableName;
-            return (refreshTable(nTableName, null, KeepOriginalTables.Keep));
+            var refreshOptions = {
+                keepOriginal : true,
+            }
+            return (refreshTable(nTableName, null, refreshOptions));
         })
         .then(function() {
             commitToStorage();
@@ -630,12 +635,18 @@ window.xcFunction = (function($, xcFunction) {
             };
 
             setIndex(rNewName, rTableCols, null, rTableProperties);
+            var refreshOptions = {
+                lockTable : true
+            }
 
             // XXX should change to xcHelper.when after fix async bug in refresh
-            return (refreshTable(lNewName, lTableName));
+            return (refreshTable(lNewName, lTableName, refreshOptions));
         })
         .then(function() {
-            return (refreshTable(rNewName, rTableName));
+            var refreshOptions = {
+                lockTable : true
+            }
+            return (refreshTable(rNewName, rTableName, refreshOptions));
         })
         .then(function(ret1, ret2) {
 

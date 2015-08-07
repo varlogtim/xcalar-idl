@@ -1,7 +1,11 @@
-function refreshTable(newTableName, oldTableName,
-                      keepOriginal, additionalTableName, focusWorkspace) {
+function refreshTable(newTableName, oldTableName, options) {
     var deferred = jQuery.Deferred();
 
+    var options = options || {};
+    var focusWorkspace = options.focusWorkspace;
+    var additionalTableName = options.additionalTableName;
+    var keepOriginal = options.keepOriginal;
+    var lockTable = options.lockTable;
     if (focusWorkspace) {
         if (!$('#workspaceTab').hasClass('active')) {
             $("#workspaceTab").trigger('click');
@@ -71,7 +75,8 @@ function refreshTable(newTableName, oldTableName,
             tablesToRemove.push(tableToRemove);
         }
 
-        addTable(newTableName, targetTable, AfterStartup.After, tablesToRemove)
+        addTable(newTableName, targetTable, AfterStartup.After, tablesToRemove,
+                 lockTable)
         .then(function() {
             if ($('.tblTitleSelected').length === 0) {
                 var tableId = xcHelper.getTableId(newTableName);
@@ -89,7 +94,7 @@ function refreshTable(newTableName, oldTableName,
 
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(tableName, oldTableName, AfterStartup, tablesToRemove) {
+function addTable(tableName, oldTableName, AfterStartup, tablesToRemove, lockTable) {
     var deferred = jQuery.Deferred();
     var tableId  = xcHelper.getTableId(tableName);
 
@@ -111,10 +116,9 @@ function addTable(tableName, oldTableName, AfterStartup, tablesToRemove) {
                 gTables.push(newTableMeta);
                 WSManager.replaceTable(tableId);
             }
-            
-            
         }
         gTables2[tableId] = newTableMeta;
+
 
 
         // WSManager.replaceTable need to know oldTable's location
@@ -128,7 +132,23 @@ function addTable(tableName, oldTableName, AfterStartup, tablesToRemove) {
             }
         }
 
-        return (parallelConstruct(tableName, tableId));
+        if (lockTable) {
+            // replace just the ids instead of the entire table so we won't
+            // see the flicker of intermediate tables
+            var oldId = xcHelper.getTableId(oldTableName);
+            $("#xcTableWrap-" + oldId).attr('id', 'xcTableWrap-' + tableId);
+            $("#xcTable-" + oldId).attr('id', 'xcTable-' + tableId);
+            $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId);
+            $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId);
+            var table      = xcHelper.getTableFromId(tableId);
+            var progCols   = getIndex(table.tableName);
+            table.tableCols = progCols;
+            RightSideBar.addTables([table], IsActive.Active);
+            return (promiseWrapper(null));
+        } else {
+            return (parallelConstruct(tableName, tableId));
+        }
+        
     })
     .then(function() {
         deferred.resolve();

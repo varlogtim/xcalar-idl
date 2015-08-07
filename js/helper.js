@@ -495,15 +495,18 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         var $tableWrap  = xcHelper.getElementByTableId(tableId, "xcTableWrap");
-        var $lockedIcon = $('<div class="lockedIcon">' +
+        if ($tableWrap != null && $tableWrap.length !== 0) {
+            // tableWrap may not exist during multijoin on self
+            var $lockedIcon = $('<div class="lockedIcon">' +
                             '<img src="/images/biglocklight.png" /></div>');
-        var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
-        var mainFrameHeight = $('#mainFrame').height();
-        var topPos = 100 * ((tableHeight / mainFrameHeight) / 2);
-        topPos = Math.min(topPos, 40);
-        $lockedIcon.css('top', topPos + '%');
+            var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
+            var mainFrameHeight = $('#mainFrame').height();
+            var topPos = 100 * ((tableHeight / mainFrameHeight) / 2);
+            topPos = Math.min(topPos, 40);
+            $lockedIcon.css('top', topPos + '%');
 
-        $tableWrap.addClass('tableLocked').append($lockedIcon);
+            $tableWrap.addClass('tableLocked').append($lockedIcon);
+        }
         
         var table = xcHelper.getTableFromId(tableId);
         table.isLocked = true;
