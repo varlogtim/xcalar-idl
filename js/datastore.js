@@ -1107,7 +1107,6 @@ window.DataCart = (function($, DataCart) {
                 var msgObj = {
                     "msg"      : msg,
                     "operation": 'table creation',
-                    "tableName": tableName
                 };
                 var msgId = StatusMessage.addMsg(msgObj);
 
@@ -1162,7 +1161,8 @@ window.DataCart = (function($, DataCart) {
                     return (refreshTable(tableName, null, options));
                 })
                 .then(function() {
-                    StatusMessage.success(msgId);
+                    StatusMessage.success(msgId, false,
+                                          xcHelper.getTableId(tableName));
                     innerDeferred.resolve();
                 })
                 .fail(function(error) {

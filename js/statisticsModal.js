@@ -342,7 +342,6 @@ window.STATSManager = (function($, STATSManager, d3) {
         var msgObj = {
             "msg"      : msg,
             "operation": "Statistical analysis",
-            "tableName": tableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 

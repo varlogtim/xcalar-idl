@@ -23,7 +23,6 @@ window.xcFunction = (function($, xcFunction) {
         var msgObj = {
             "msg"      : msg,
             "operation": "filter",
-            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
         
@@ -51,7 +50,7 @@ window.xcFunction = (function($, xcFunction) {
         })
         .then(function() {
             xcHelper.unlockTable(tableId, true);
-            StatusMessage.success(msgId);
+            StatusMessage.success(msgId, false, newTableId);
             commitToStorage();
             deferred.resolve();
         })
@@ -83,7 +82,6 @@ window.xcFunction = (function($, xcFunction) {
         var msgObj = {
             "msg"      : msg,
             "operation": "aggregate",
-            "tableName": tableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
         xcHelper.lockTable(tableId);
@@ -109,7 +107,7 @@ window.xcFunction = (function($, xcFunction) {
                 "isAlert": true
             });
 
-            StatusMessage.success(msgId);
+            StatusMessage.success(msgId, false, tableId);
         })
         .fail(function(error) {
             Alert.error("Aggregate fails", error);
@@ -149,7 +147,6 @@ window.xcFunction = (function($, xcFunction) {
         var msgObj = {
             "msg"      : msg,
             "operation": "sort",
-            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -176,7 +173,7 @@ window.xcFunction = (function($, xcFunction) {
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
-            StatusMessage.success(msgId);
+            StatusMessage.success(msgId, false, newTableId);
             xcHelper.unlockTable(tableId, true);
             commitToStorage();
         })
@@ -228,7 +225,6 @@ window.xcFunction = (function($, xcFunction) {
         var msgObj = {
             "msg"      : msg,
             "operation": "join",
-            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -289,7 +285,7 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(lTableId, true);
             xcHelper.unlockTable(rTableId, true);
 
-            StatusMessage.success(msgId);
+            StatusMessage.success(msgId, false, newTableId);
             commitToStorage();
             deferred.resolve();
         })
@@ -337,7 +333,6 @@ window.xcFunction = (function($, xcFunction) {
         var msgObj = {
             "msg"      : StatusMessageTStr.GroupBy + " " + operator,
             "operation": "group by",
-            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -468,7 +463,8 @@ window.xcFunction = (function($, xcFunction) {
         })
         .then(function() {
             commitToStorage();
-            StatusMessage.success(msgId, finalTableName);
+            StatusMessage.success(msgId, false,
+                                  xcHelper.getTableId(finalTableName));
         })
         .fail(function(error) {
             // XXX need to clean up all the tables if it's a multiGB
@@ -485,12 +481,11 @@ window.xcFunction = (function($, xcFunction) {
         var table        = xcHelper.getTableFromId(tableId);
         var tableName    = table.tableName;
         var newTableName = getNewTableName(tableName);
-
+        var newTableId;
         var msg = StatusMessageTStr.Map + " " + fieldName;
         var msgObj = {
             "msg"      : msg,
             "operation": "map",
-            "tableName": newTableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -520,7 +515,7 @@ window.xcFunction = (function($, xcFunction) {
 
             // map do not change groupby stats of the table
             var oldTableId = xcHelper.getTableId(tableName);
-            var newTableId = xcHelper.getTableId(newTableName);
+            newTableId = xcHelper.getTableId(newTableName);
             STATSManager.copy(oldTableId, newTableId);
 
             setIndex(newTableName, tablCols, null, tableProperties);
@@ -528,7 +523,7 @@ window.xcFunction = (function($, xcFunction) {
         })
         .then(function() {
             xcHelper.unlockTable(tableId, true);
-            StatusMessage.success(msgId);
+            StatusMessage.success(msgId, false, newTableId);
             commitToStorage();
 
             deferred.resolve();
@@ -576,7 +571,6 @@ window.xcFunction = (function($, xcFunction) {
         var msgObj = {
             "msg"      : msg,
             "operation": "map",
-            "tableName": lNewName
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -654,7 +648,7 @@ window.xcFunction = (function($, xcFunction) {
             xcHelper.unlockTable(lTableId, true);
             xcHelper.unlockTable(rTableId, true);
 
-            StatusMessage.success(msgId);
+            StatusMessage.success(msgId, false, lNewId);
             deferred.resolve(lNewName, rNewName);
         })
         .fail(function(err1, err2) {
@@ -687,7 +681,6 @@ window.xcFunction = (function($, xcFunction) {
         var msgObj = {
             "msg"      : msg,
             "operation": "export",
-            "tableName": tableName
         };
         var msgId = StatusMessage.addMsg(msgObj);
         
@@ -712,7 +705,7 @@ window.xcFunction = (function($, xcFunction) {
                 "isAlert"   : true,
                 "isCheckBox": true
             });
-            StatusMessage.success(msgId);
+            StatusMessage.success(msgId, false, xcHelper.getTableId(tableName));
         })
         .fail(function(error) {
             Alert.error("Export Table Fails", error);

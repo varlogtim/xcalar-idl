@@ -713,7 +713,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var entireString2 =
             'def getNth(colVal, n):\n' +
                 '\tarr = colVal.split(".Xc.")\n' +
-                '\treturn arr[n]\n';
+                '\treturn str(arr[n])\n';
         XcalarUploadPython(moduleName2, entireString2);
     }
 

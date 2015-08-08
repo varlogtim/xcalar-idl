@@ -23,7 +23,7 @@ window.StatusMessage = (function($, StatusMessage) {
         });
     };
 
-    // msgObj should have these properties: msg, operation, tableName
+    // msgObj should have these properties: msg, operation 
     StatusMessage.addMsg = function(msgObj) {
         msgObj = msgObj || {};
         msgObj.worksheetNum = WSManager.getActiveWS();
@@ -69,9 +69,9 @@ window.StatusMessage = (function($, StatusMessage) {
         stopRotation();
     };
 
-    StatusMessage.success = function(msgId, noNotification, newTableName) {
+    StatusMessage.success = function(msgId, noNotification, newTableId) {
         if (!noNotification) {
-            showDoneNotification(msgId, newTableName);
+            showDoneNotification(msgId, false, newTableId);
         } else {
             delete msgObjs[msgId];
         }
@@ -258,7 +258,7 @@ window.StatusMessage = (function($, StatusMessage) {
         }
     }
 
-    function showDoneNotification(msgId, failed, newTableName) {
+    function showDoneNotification(msgId, failed, newTableId) {
         var operation = msgObjs[msgId].operation;
 
         var popupNeeded     = false;
@@ -332,8 +332,8 @@ window.StatusMessage = (function($, StatusMessage) {
                 classes += ' worksheetNotify' + wsNum;
             } else { 
                 // we're on the correct worksheet, now find if table is visible
-                var tableName = newTableName || msgObjs[msgId].tableName;
-                var visibility = tableVisibility(tableName);
+                var tableId = newTableId;
+                var visibility = tableVisibility(tableId);
 
                 if (visibility !== 'visible') {
                     popupNeeded = true;
@@ -418,8 +418,7 @@ window.StatusMessage = (function($, StatusMessage) {
         delete msgObjs[msgId];
     }
 
-    function tableVisibility(tableName) {
-        var tableId = xcHelper.getTableId(tableName);
+    function tableVisibility(tableId) {
         var wsNum = WSManager.getWSFromTable(tableId);
         var activeWS = WSManager.getActiveWS();
 
