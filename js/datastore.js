@@ -631,12 +631,11 @@ window.DataCart = (function($, DataCart) {
             var $input;
 
             var tableNames = {};
-            // XX this can be improved by using worksheet table names;
             for (var tbl in gTables2) {
                 tableNames[tbl.tableName] = true;
             }
 
-            // check table name conflict in gTables and gHidden
+            // check table name conflict in gTables
             innerCarts.forEach(function(cart) {
                 var tableName = cart.tableName;
                 $input = $('#selectedTable-' + cart.dsName + ' .tableNameEdit');

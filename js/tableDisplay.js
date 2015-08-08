@@ -100,26 +100,19 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
 
     setTableMeta(tableName)
     .then(function(newTableMeta) {
-        var tableNum = xcHelper.getTableIndexFromName(oldTableName);
-        
         if (oldTableName == null) {
-            gTables.push(newTableMeta);
             WSManager.replaceTable(tableId);
         } else {
-            if (tableNum > -1) {
-                gTables.splice(tableNum, 0, newTableMeta);
-                gTables[tableNum] = newTableMeta;
+            var oldTableId = xcHelper.getTableId(oldTableName);
+            var tablePosition = WSManager.getTablePosition(oldTableId);
 
-                var oldTableId = xcHelper.getTableId(oldTableName);
+            if (tablePosition > -1) {
                 WSManager.replaceTable(tableId, oldTableId, tablesToRemove);
             } else {
-                gTables.push(newTableMeta);
                 WSManager.replaceTable(tableId);
             }
         }
         gTables2[tableId] = newTableMeta;
-
-
 
         // WSManager.replaceTable need to know oldTable's location
         // so remove table after that
@@ -214,15 +207,13 @@ function archiveTable(tableId, del, delayTableRemoval) {
     }
     
     var tableName = gTables2[tableId].tableName;
-    var tableNum = xcHelper.getTableIndexFromName(tableName);
-    var deletedTable = gTables.splice(tableNum, 1)[0];
 
     if (!del) {
         gTableIndicesLookup[tableId].active = false;
         gTableIndicesLookup[tableId].timeStamp = xcHelper.getTimeInMS();
         gTables2[tableId].active = false;
-        RightSideBar.moveTable(deletedTable);
         WSManager.archiveTable(tableId);
+        RightSideBar.moveTable(tableId);
     } else {
         WSManager.removeTable(tableId);
         delete (gTableIndicesLookup[tableId]);

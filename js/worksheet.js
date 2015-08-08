@@ -297,35 +297,35 @@ window.WSManager = (function($, WSManager) {
      * @param {number} wsIndex The index of worksheet that new table belongs to
      */
      // XX THIS IS CURRENTLY DISABLED , tablename/tableId needs to be fixed
-    WSManager.copyTable = function(srcTableName, newTableName, wsIndex) {
-        var tableNum   = gTables.length;
-        var tableId = xcHelper.getTableId(srcTableName);
-        // do a deep copy
-        var srcTable   = gTableIndicesLookup[tableId];
-        var tableCopy  = xcHelper.deepCopy(srcTable);
-        var newTableId = xcHelper.getTableId(newTableName);
+    // WSManager.copyTable = function(srcTableName, newTableName, wsIndex) {
+    //     var tableNum   = gTables.length;
+    //     var tableId = xcHelper.getTableId(srcTableName);
+    //     // do a deep copy
+    //     var srcTable   = gTableIndicesLookup[tableId];
+    //     var tableCopy  = xcHelper.deepCopy(srcTable);
+    //     var newTableId = xcHelper.getTableId(newTableName);
 
-        activeWorsheet = wsIndex;
-        gTableIndicesLookup[newTableId] = tableCopy;
-        // XXX for sample table, should sync frontName with backName since
-        // there both src sample and the copied can change to real table using
-        // its backTableName
-        // if (!tableCopy.isTable) {
-        //     tableCopy.tableName = newTableName;
-        // }
+    //     activeWorsheet = wsIndex;
+    //     gTableIndicesLookup[newTableId] = tableCopy;
+    //     // XXX for sample table, should sync frontName with backName since
+    //     // there both src sample and the copied can change to real table using
+    //     // its backTableName
+    //     // if (!tableCopy.isTable) {
+    //     //     tableCopy.tableName = newTableName;
+    //     // }
 
-        addTable(tableCopy.tableName, tableNum,
-                 AfterStartup.After, null, newTableName)
-        .then(function() {
-            WSManager.focusOnWorksheet(wsIndex, false, tableNum);
-            // xx focusonworksheet expects tableid
-        })
-        .fail(function(error) {
-            var newTableId = 
-            delete gTableIndicesLookup[newTableId];
-            Alert.error(error);
-        });
-    };
+    //     addTable(tableCopy.tableName, tableNum,
+    //              AfterStartup.After, null, newTableName)
+    //     .then(function() {
+    //         WSManager.focusOnWorksheet(wsIndex, false, tableNum);
+    //         // xx focusonworksheet expects tableid
+    //     })
+    //     .fail(function(error) {
+    //         var newTableId = 
+    //         delete gTableIndicesLookup[newTableId];
+    //         Alert.error(error);
+    //     });
+    // };
 
     /**
      * Remove table from worksheet

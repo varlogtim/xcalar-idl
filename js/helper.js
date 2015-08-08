@@ -1,15 +1,4 @@
 window.xcHelper = (function($, xcHelper) {
-    xcHelper.getTableIndexFromName = function(tableName) {
-        var table = gTables;
-
-        for (var i = 0; i < table.length; i++) {
-            if (tableName === table[i].tableName) {
-                return (i);
-            }
-        }
-
-        return (undefined);
-    };
 
     xcHelper.getTableFromId = function(tableId) {
         return (gTables2[tableId]);

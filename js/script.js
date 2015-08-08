@@ -23,9 +23,8 @@ var gRescol = {
 };
 var gResrow = {};
 var gMinTableWidth = 30;
-var gTables = []; // This is the main global array containing structures
-                  // Stores TableMeta structs
-var gTables2 = {};
+var gTables2 = {}; // This is the main global array containing structures
+                    // Stores TableMeta structs
 var gOrphanTables = [];
 var gFnBarOrigin;
 var gActiveTableId = ""; 
@@ -529,15 +528,21 @@ function initializeTable() {
             tableMap[backTables[i].tableName] = backTables[i];
         }
 
+        var hasTable = false;
         var promises = [];
         var failures = [];
         var tableName;
         var tableId;
         var worksheets = WSManager.getWorksheets();
         var numWorksheets = worksheets.length;
+
         for (var i = 0; i < numWorksheets; i++) {
             var wsTables = worksheets[i].tables;
-            var numWsTables = wsTables.length;            
+            var numWsTables = wsTables.length;
+
+            if (!hasTable && numWsTables > 0) {
+                hasTable = true;
+            }
 
             // create active tables
             for (var j = 0; j < numWsTables; j++) {
@@ -599,7 +604,7 @@ function initializeTable() {
 
         chain(promises)
         .then(function() {
-            if (gTableOrderLookup.length > 0) {
+            if (hasTable) {
                 RowScroller.resize();
             } else {
                 $('#mainFrame').addClass('empty');

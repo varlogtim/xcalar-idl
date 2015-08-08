@@ -2,13 +2,11 @@
 // be holding
 
 var gTableIndicesLookup = {};
-var gTableOrderLookup = [];
 
 function emptyAllStorage(localEmpty) {
     var deferred = jQuery.Deferred();
 
     gTableIndicesLookup = {};
-    gTableOrderLookup = [];
     WSManager.clear();
     DS.clear();
     SQL.clear();
@@ -68,7 +66,6 @@ function setIndex(tName, index, dsName, tableProperties) {
 var KVKeys = {
     "TI"   : "TILookup",
     "WS"   : "worksheets",
-    "TO"   : "TOLookup",
     "DS"   : "gDSObj",
     "HOLD" : "holdStatus",
     "SQL"  : "sql",
@@ -81,13 +78,11 @@ function commitToStorage(atStartup) {
     var deferred = jQuery.Deferred();
     var scratchPadText = $("#scratchPadSection textarea").val();
 
-    setTableOrder(atStartup);
     // basic thing to store
     var storage = {};
 
     storage[KVKeys.TI] = gTableIndicesLookup;
     storage[KVKeys.WS] = WSManager.getWorksheets();
-    storage[KVKeys.TO] = gTableOrderLookup;
 
     storage[KVKeys.DS] = DS.getHomeDir();
     storage[KVKeys.SQL] = SQL.getHistory();
@@ -123,9 +118,6 @@ function readFromStorage() {
             if (gInfos[KVKeys.WS]) {
                 WSManager.restoreWS(gInfos[KVKeys.WS]);
             }
-            if (gInfos[KVKeys.TO]) {
-                gTableOrderLookup = gInfos[KVKeys.TO];
-            }
             if (gInfos[KVKeys.DS]) {
                 gDSObjFolder = gInfos[KVKeys.DS];
             }
@@ -152,7 +144,6 @@ function readFromStorage() {
         // clear KVStore if no datasets are loaded
         if (numDatasets === 0 || numDatasets == null) {
             gTableIndicesLookup = {};
-            gTableOrderLookup = [];
         }
         var totalDS = DS.restore(gDSObjFolder, datasets);
         DataStore.updateInfo(totalDS);
@@ -220,17 +211,6 @@ function readFromStorage() {
     });
 
     return (deferred.promise());
-}
-
-function setTableOrder(atStartup) {
-    if (atStartup) {
-        return;
-    }
-    gTableOrderLookup = [];
-    // XX we need to get the order from the worksheet
-    for (var i = 0; i < gTables.length; i++) {
-        gTableOrderLookup.push(gTables[i].tableName);
-    }
 }
 
 window.KVStore = (function($, KVStore) {
@@ -403,7 +383,6 @@ window.KVStore = (function($, KVStore) {
             $("#gridView").empty();
 
             // XXX this should be changed after the gTable structure change
-            gTables = [];
             gTables2 = {};
 
             return (readFromStorage());

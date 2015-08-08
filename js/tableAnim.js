@@ -2335,23 +2335,15 @@ function sizeTableForDragging() {
 
 function reorderAfterTableDrop() {
     var tableId = gDragObj.tableId;
-    var tableWS = WSManager.getWSFromTable(tableId);
-    var worksheets = WSManager.getWorksheets();
-    var position = 0;
-    for (var i = 0; i < tableWS; i++) {
-        position += worksheets[i].tables.length;
-    }
-    var originalIndex = position + gDragObj.originalIndex;
-    var newIndex = position + gDragObj.tableIndex;
-    var tempTable = gTables.splice(originalIndex, 1)[0];
-    gTables.splice(newIndex, 0, tempTable);
-    
-    var $dagWrap = $('#dagWrap-' + gDragObj.tableId);
-    var $dagWraps = $('.dagWrap:not(.tableToRemove)');
     var tableIndex = gDragObj.tableIndex;
-    
-    WSManager.reorderTable(tableId, gDragObj.originalIndex,
-                                    gDragObj.tableIndex);
+
+    var originalIndex = WSManager.getTablePosition(tableId);
+    WSManager.reorderTable(tableId, gDragObj.originalIndex, tableIndex);
+
+    var newIndex = WSManager.getTablePosition(tableId);
+
+    var $dagWrap = $('#dagWrap-' + tableId);
+    var $dagWraps = $('.dagWrap:not(.tableToRemove)');
 
     if (newIndex === 0) {
         $('.dagArea').find('.legendArea').after($dagWrap);

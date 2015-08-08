@@ -39,11 +39,11 @@ window.RightSideBar = (function($, RightSideBar) {
     };
 
     // move table to inactive list
-    RightSideBar.moveTable = function(table) {
-        var tableId    = table.tableId;
+    RightSideBar.moveTable = function(tableId) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
-        var $timeLine  = $tableList.closest(".timeLine");
+        var $timeLine = $tableList.closest(".timeLine");
+        var table = xcHelper.getTableFromId(tableId);
 
         RightSideBar.addTables([table], IsActive.Inactive);
 
