@@ -299,12 +299,14 @@ window.WSManager = (function($, WSManager) {
      // XX THIS IS CURRENTLY DISABLED , tablename/tableId needs to be fixed
     WSManager.copyTable = function(srcTableName, newTableName, wsIndex) {
         var tableNum   = gTables.length;
+        var tableId = xcHelper.getTableId(srcTableName);
         // do a deep copy
-        var srcTable   = gTableIndicesLookup[srcTableName];
+        var srcTable   = gTableIndicesLookup[tableId];
         var tableCopy  = xcHelper.deepCopy(srcTable);
+        var newTableId = xcHelper.getTableId(newTableName);
 
         activeWorsheet = wsIndex;
-        gTableIndicesLookup[newTableName] = tableCopy;
+        gTableIndicesLookup[newTableId] = tableCopy;
         // XXX for sample table, should sync frontName with backName since
         // there both src sample and the copied can change to real table using
         // its backTableName
@@ -319,7 +321,8 @@ window.WSManager = (function($, WSManager) {
             // xx focusonworksheet expects tableid
         })
         .fail(function(error) {
-            delete gTableIndicesLookup[newTableName];
+            var newTableId = 
+            delete gTableIndicesLookup[newTableId];
             Alert.error(error);
         });
     };

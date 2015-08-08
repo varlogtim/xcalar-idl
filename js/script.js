@@ -522,54 +522,63 @@ function initializeTable() {
     XcalarGetTables()
     .then(function(backEndTables) {
         var backTables = backEndTables.tables;
-        var numBackTables = backTables.length;
+        var numBackTables = backEndTables.numTables;
         var tableMap = {};
 
         for (var i = 0; i < numBackTables; i++) {
             tableMap[backTables[i].tableName] = backTables[i];
         }
 
-        if (jQuery.isEmptyObject(gTableIndicesLookup)) {
-            $('#mainFrame').addClass('empty');
-        }
-
         var promises = [];
         var failures = [];
         var tableName;
+        var tableId;
+        var worksheets = WSManager.getWorksheets();
+        var numWorksheets = worksheets.length;
+        for (var i = 0; i < numWorksheets; i++) {
+            var wsTables = worksheets[i].tables;
+            var numWsTables = wsTables.length;            
 
-        for (var i = 0; i < gTableOrderLookup.length; i++) {
-            tableName = gTableOrderLookup[i];
-            var lookupTable = gTableIndicesLookup[tableName];
-            if (lookupTable.isLocked) {
-                lookupTable.isLocked = false;
-                lookupTable.active = false;
-                continue;
+            // create active tables
+            for (var j = 0; j < numWsTables; j++) {
+                tableId = wsTables[j];
+                var lookupTable = gTableIndicesLookup[tableId];
+                if (lookupTable.isLocked) {
+                    lookupTable.isLocked = false;
+                    lookupTable.active = false;
+                    continue;
+                }
+
+                tableName = lookupTable.tableName;
+                delete tableMap[tableName];
+                ++tableCount;
+
+                promises.push((function(tablName) {
+                    var innerDeferred = jQuery.Deferred();
+
+                    addTable(tablName, null, null, null)
+                    .then(innerDeferred.resolve)
+                    .fail(function(thriftError) {
+                        failures.push("Add table " + tablName +
+                                     "fails: " + thriftError.error);
+                        innerDeferred.resolve(error);
+                    });
+
+                    return (innerDeferred.promise());
+                }).bind(this, tableName));
             }
 
-            delete tableMap[tableName];
-            ++tableCount;
-            promises.push((function(index, tableName) {
-                var innerDeferred = jQuery.Deferred();
+            // create hidden tables
+            var wsHiddenTables = worksheets[i].hiddenTables;
+            var numHiddenWsTables = wsHiddenTables.length;
+            for (var j = 0; j < numHiddenWsTables; j++) {
+                tableId = wsHiddenTables[j];
+                var lookupTable = gTableIndicesLookup[tableId];
 
-                addTable(tableName, null, null, null)
-                .then(innerDeferred.resolve)
-                .fail(function(thriftError) {
-                    failures.push("Add table " + tableName +
-                                 "fails: " + thriftError.error);
-                    innerDeferred.resolve(error);
-                });
-
-                return (innerDeferred.promise());
-            }).bind(this, i, tableName));
-        }
-
-        for (var tName in gTableIndicesLookup) {
-            var table = gTableIndicesLookup[tName];
-            tableName = table.tableName;
-            if (tableMap[tableName]) {
+                tableName = lookupTable.tableName;
                 delete tableMap[tableName];
-
                 ++tableCount;
+
                 promises.push((function(tablName) {
                     var innerDeferred = jQuery.Deferred();
 
@@ -585,7 +594,7 @@ function initializeTable() {
                 }).bind(this, tableName));
             }
         }
-
+        // setup leftover tables
         setupOrphanedList(tableMap);
 
         chain(promises)

@@ -94,7 +94,7 @@ function refreshTable(newTableName, oldTableName, options) {
 
 // Adds a table to the display
 // Shifts all the ids and everything
-function addTable(tableName, oldTableName, AfterStartup, tablesToRemove, lockTable) {
+function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTable) {
     var deferred = jQuery.Deferred();
     var tableId  = xcHelper.getTableId(tableName);
 
@@ -146,7 +146,7 @@ function addTable(tableName, oldTableName, AfterStartup, tablesToRemove, lockTab
             RightSideBar.addTables([table], IsActive.Active);
             return (promiseWrapper(null));
         } else {
-            return (parallelConstruct(tableId, tablesToRemove));
+            return (parallelConstruct(tableId, tablesToRemove, afterStartup));
         }
         
     })
@@ -162,7 +162,7 @@ function addTable(tableName, oldTableName, AfterStartup, tablesToRemove, lockTab
     return (deferred.promise());
 }
 
-function parallelConstruct(tableId, tablesToRemove) {
+function parallelConstruct(tableId, tablesToRemove, afterStartup) {
     var table = xcHelper.getTableFromId(tableId);
     var deferred  = jQuery.Deferred();
     var deferred1 = startBuildTable(tableId, tablesToRemove);
@@ -185,7 +185,7 @@ function parallelConstruct(tableId, tablesToRemove) {
             // first time to create table
             $('#mainFrame').removeClass('empty');
         }
-        if (AfterStartup) {
+        if (afterStartup) {
             RightSideBar.addTables([table], IsActive.Active);
         }
         if ($('.xcTable').length === 1) {
@@ -218,14 +218,14 @@ function archiveTable(tableId, del, delayTableRemoval) {
     var deletedTable = gTables.splice(tableNum, 1)[0];
 
     if (!del) {
-        gTableIndicesLookup[tableName].active = false;
-        gTableIndicesLookup[tableName].timeStamp = xcHelper.getTimeInMS();
+        gTableIndicesLookup[tableId].active = false;
+        gTableIndicesLookup[tableId].timeStamp = xcHelper.getTimeInMS();
         gTables2[tableId].active = false;
         RightSideBar.moveTable(deletedTable);
         WSManager.archiveTable(tableId);
     } else {
         WSManager.removeTable(tableId);
-        delete (gTableIndicesLookup[tableName]);
+        delete (gTableIndicesLookup[tableId]);
         delete gTables2[tableId];
         var $li = $("#activeTablesList").find('.tableName').filter(
                     function() {
@@ -331,7 +331,7 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
         if (deleteArchived) {
             WSManager.removeTable(tableId);
             delete gTables2[tableId];
-            delete (gTableIndicesLookup[tableName]);
+            delete (gTableIndicesLookup[tableId]);
         } else {
             archiveTable(tableId, DeleteTable.Delete);
         }
@@ -348,9 +348,9 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
 // get meta data about table
 function setTableMeta(tableName) {
     var deferred = jQuery.Deferred();
-
+    var tableId = xcHelper.getTableId(tableName);
     var newTable    = new TableMeta();
-    var lookupTable = gTableIndicesLookup[tableName];
+    var lookupTable = gTableIndicesLookup[tableId];
 
     newTable.tableCols = [];
     newTable.currentRowNumber = 0;

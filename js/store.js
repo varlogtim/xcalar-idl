@@ -30,12 +30,13 @@ function emptyAllStorage(localEmpty) {
 }
 
 function getIndex(tName) {
+    var tableIndex = xcHelper.getTableId(tName);
     if (!gTableIndicesLookup) {
         console.log("Nothing has ever been stored ever!");
         gTableIndicesLookup = {};
     }
-    if (tName in gTableIndicesLookup) {
-        return (gTableIndicesLookup[tName].columns);
+    if (tableIndex in gTableIndicesLookup) {
+        return (gTableIndicesLookup[tableIndex].columns);
     } else {
         console.log("No such table has been saved before");
         return (null);
@@ -44,20 +45,21 @@ function getIndex(tName) {
 }
 
 function setIndex(tName, index, dsName, tableProperties) {
-    gTableIndicesLookup[tName] = {};
-    gTableIndicesLookup[tName].columns = index;
-    gTableIndicesLookup[tName].active = true;
-    gTableIndicesLookup[tName].timeStamp = xcHelper.getTimeInMS();
+    var tableId = xcHelper.getTableId(tName);
+    gTableIndicesLookup[tableId] = {};
+    gTableIndicesLookup[tableId].columns = index;
+    gTableIndicesLookup[tableId].active = true;
+    gTableIndicesLookup[tableId].timeStamp = xcHelper.getTimeInMS();
 
     if (tableProperties) {
-        gTableIndicesLookup[tName].bookmarks = tableProperties.bookmarks || [];
-        gTableIndicesLookup[tName].rowHeights = tableProperties.rowHeights || {};
+        gTableIndicesLookup[tableId].bookmarks = tableProperties.bookmarks || [];
+        gTableIndicesLookup[tableId].rowHeights = tableProperties.rowHeights || {};
     } else {
-        gTableIndicesLookup[tName].bookmarks = [];
-        gTableIndicesLookup[tName].rowHeights = {};
+        gTableIndicesLookup[tableId].bookmarks = [];
+        gTableIndicesLookup[tableId].rowHeights = {};
     }
 
-    gTableIndicesLookup[tName].tableName = tName;
+    gTableIndicesLookup[tableId].tableName = tName;
 }
 
 // the key should be as short as possible
@@ -156,6 +158,59 @@ function readFromStorage() {
         DataStore.updateInfo(totalDS);
         return (commitToStorage(AfterStartup.After));
     })
+    // .then(function() {
+        // var deferred2 = jQuery.Deferred();
+        // var promises = [];
+        // var failures = [];
+        // var tableCount = 0;
+        // var orphanedTables = {};
+        // for (var table in gTableIndicesLookup) {
+        //     promises.push((function(index, tableName) {
+        //         var innerDeferred = jQuery.Deferred();
+        //         setTableMeta(tableName)
+        //         .then(function() {
+        //             var lookupTable = gTableIndicesLookup[tableName];
+        //             if (lookupTable.isLocked) {
+        //                 lookupTable.isLocked = false;
+        //                 lookupTable.active = false;
+        //                 orphanedTables[newTableMeta.tableId] = newTableMeta;
+        //             } else {
+        //                 gTables2[newTableMeta.tableId] = newTableMeta;
+        //             }
+        //             innerDeferred.resolve();
+        //         })
+        //         .fail(function(thriftError) {
+        //             failures.push("gTables initialization failed on " + tableName +
+        //                          "fails: " + thriftError.error);
+        //             innerDeferred.resolve(error);
+        //         });
+
+        //         return (innerDeferred.promise());
+        //     }).bind(this, i, tableName));
+        // }
+       
+        // chain(promises)
+        // .then(function() {
+        //     if (failures.length > 0) {
+        //         for (var j = 0; j < failures.length; j++) {
+        //             console.error(failures[j]);
+        //         }
+
+        //         if (failures.length === tableCount) {
+        //             deferred2.reject("gTables setup fails!");
+        //         } else {
+        //             deferred2.resolve());
+        //         }
+        //     } else {
+        //         return deferred2.resolve();
+        //     }
+        // })
+        // .fail(function(error) {
+        //     deferred2.reject(error);
+        // });
+
+        // return (deferred2.promise());
+    // })
     .then(function() {
         deferred.resolve();
     })

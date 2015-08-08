@@ -744,11 +744,13 @@ window.xcFunction = (function($, xcFunction) {
         XcalarRenameTable(oldTableName, newTableName, sqlOptions)
         .then(function() {
             // does renames for gTables, worksheet, rightsidebar, dag
+            var oldTableId = xcHelper.getTableId(oldTableName);
+            var newTableId = xcHelper.getTableId(newTableName);
             table.tableName = newTableName;
-            gTableIndicesLookup[newTableName] =
-                                              gTableIndicesLookup[oldTableName];
-            gTableIndicesLookup[newTableName].tableName = newTableName;
-            delete gTableIndicesLookup[oldTableName];
+            gTableIndicesLookup[newTableId] =
+                                              gTableIndicesLookup[oldTableId];
+            gTableIndicesLookup[newTableId].tableName = newTableName;
+            delete gTableIndicesLookup[oldTableId];
 
             for (var i = 0, len = gTableOrderLookup.length; i < len; i++) {
                 if (gTableOrderLookup[i] === oldTableName) {
@@ -808,7 +810,8 @@ window.xcFunction = (function($, xcFunction) {
             .then(function() {
                 var tablCols = xcHelper.deepCopy(table.tableCols);
                 setIndex(newTableName, tablCols);
-                gTableIndicesLookup[newTableName].active = false;
+                var newTableId = xcHelper.getTableId(newTableName);
+                gTableIndicesLookup[newTableId].active = false;
 
                 deferred.resolve({
                     "newTableCreated": true,
