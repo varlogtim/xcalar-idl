@@ -831,7 +831,6 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve({
                 "newTableCreated": false,
                 "tableName"      : tableName,
-                "newTableName"   : tableName,
                 "tableId"        : tableId
             });
         }
@@ -1028,6 +1027,17 @@ window.xcFunction = (function($, xcFunction) {
 
     function setIndexedTableMeta(tableResult) {
         var deferred = jQuery.Deferred();
+
+        if (tableResult.newTableCreated === false) {
+            deferred.resolve({
+                "newTableCreated": false,
+                "setMeta"        : true,
+                "tableName"      : tableResult.tableName,
+                "tableId"        : tableResult.tableId
+            });
+
+            return (deferred.promise());
+        }
 
         setupHiddenTable(tableResult.tableName)
         .then(function() {
