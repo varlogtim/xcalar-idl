@@ -535,6 +535,7 @@ function initializeTable() {
         var tableId;
         var worksheets = WSManager.getWorksheets();
         var numWorksheets = worksheets.length;
+        var lookupTable;
 
         for (var i = 0; i < numWorksheets; i++) {
             var wsTables = worksheets[i].tables;
@@ -547,7 +548,8 @@ function initializeTable() {
             // create active tables
             for (var j = 0; j < numWsTables; j++) {
                 tableId = wsTables[j];
-                var lookupTable = gTableIndicesLookup[tableId];
+                lookupTable = gTableIndicesLookup[tableId];
+
                 if (lookupTable.isLocked) {
                     lookupTable.isLocked = false;
                     lookupTable.active = false;
@@ -578,7 +580,7 @@ function initializeTable() {
             var numHiddenWsTables = wsHiddenTables.length;
             for (var j = 0; j < numHiddenWsTables; j++) {
                 tableId = wsHiddenTables[j];
-                var lookupTable = gTableIndicesLookup[tableId];
+                lookupTable = gTableIndicesLookup[tableId];
 
                 tableName = lookupTable.tableName;
                 delete tableMap[tableName];
@@ -599,6 +601,34 @@ function initializeTable() {
                 }).bind(this, tableName));
             }
         }
+
+        // create no worksheet tables
+        var noSheetTables = WSManager.getNoSheetTables();
+        var numNoSheetTables = noSheetTables.length;
+
+        for (var i = 0; i < numNoSheetTables; i++) {
+            tableId = noSheetTables[i];
+            lookupTable = gTableIndicesLookup[tableId];
+
+            tableName = lookupTable.tableName;
+            delete tableMap[tableName];
+            ++tableCount;
+
+            promises.push((function(tablName) {
+                var innerDeferred = jQuery.Deferred();
+
+                setupHiddenTable(tablName)
+                .then(innerDeferred.resolve)
+                .fail(function(thriftError) {
+                    failures.push("set no sheet table " + tablName +
+                                    "fails: " + thriftError.error);
+                    innerDeferred.resolve(error);
+                });
+
+                return (innerDeferred.promise());
+            }).bind(this, tableName));
+        }
+
         // setup leftover tables
         setupOrphanedList(tableMap);
 

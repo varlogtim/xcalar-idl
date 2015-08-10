@@ -723,7 +723,7 @@ window.WKBKManager = (function($, WKBKManager) {
 
             // delete all workbooks
             for (wkbkId in userInfo.wkbkLookup) {
-                promises.push(delWKBKHelper.bind(this, wkbkId.id));
+                promises.push(delWKBKHelper.bind(this, wkbkId));
             }
 
             // delete all active work book key

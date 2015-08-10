@@ -817,6 +817,7 @@ window.RightSideBar = (function($, RightSideBar) {
                     } else {
                         $noSheetTables.each(function() {
                             var tableId = $(this).data("id");
+                            WSManager.rmNoSheetTable(tableId);
                             WSManager.addTable(tableId, wsIndex);
                         });
 

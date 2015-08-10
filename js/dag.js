@@ -468,12 +468,7 @@ window.Dag = (function($, Dag) {
             var innerDag = '<div class="dagImageWrap"><div class="dagImage">' +
                             dagDrawing + '</div></div>';
 
-            var worksheets = WSManager.getWorksheets();
-            var tableIndex = WSManager.getTableIndex(tableId); // index in worksheet
-            var position = tableIndex;
-            for (var i = 0; i < tableWS; i++) {
-                position += worksheets[i].tables.length;
-            }
+            var position = WSManager.getTablePosition(tableId);
 
             if (position === 0) {
                 $('.dagArea').find('.legendArea').after(outerDag);

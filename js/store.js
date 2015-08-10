@@ -82,7 +82,10 @@ function commitToStorage(atStartup) {
     var storage = {};
 
     storage[KVKeys.TI] = gTableIndicesLookup;
-    storage[KVKeys.WS] = WSManager.getWorksheets();
+    storage[KVKeys.WS] =  {
+        "wsInfos"      : WSManager.getWorksheets(),
+        "noSheetTables": WSManager.getNoSheetTables()
+    }
 
     storage[KVKeys.DS] = DS.getHomeDir();
     storage[KVKeys.SQL] = SQL.getHistory();

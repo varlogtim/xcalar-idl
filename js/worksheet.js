@@ -1,5 +1,6 @@
 window.WSManager = (function($, WSManager) {
-    var worksheets = [];  // {name, tables}, tables=[name1, name2...]
+    var worksheets    = []; // {id, date, tables, hiddenTables}
+    var noSheetTables = [];
 
     var wsIndexLookUp = {};  // find wsIndex by table name
     var wsNameLookUp  = {};  // find wsIndex by wsName
@@ -27,6 +28,10 @@ window.WSManager = (function($, WSManager) {
         return (worksheets);
     };
 
+    WSManager.getNoSheetTables = function() {
+        return (noSheetTables);
+    };
+
     /**
      * Get number of worksheets that exist
      * @return {number} len The number ofreal worksheet
@@ -48,7 +53,11 @@ window.WSManager = (function($, WSManager) {
      * Restore worksheet structure from backend
      * @param {Object[]} oldSheets The old array of worksheet to be restored
      */
-    WSManager.restoreWS = function(oldSheets) {
+    WSManager.restoreWS = function(sheetInfos) {
+        noSheetTables = sheetInfos.noSheetTables || [];
+
+        var oldSheets = sheetInfos.wsInfos || [];
+
         for (var i = 0, j = 0; i < oldSheets.length; i++) {
             // remove the deleted worksheets
             var sheet = oldSheets[i];
@@ -115,7 +124,7 @@ window.WSManager = (function($, WSManager) {
 
         var position = 0;
         for (var i = 0; i < wsIndex; i++) {
-            if (worksheets[wsIndex] == null) {
+            if (worksheets[i] == null) {
                 // this worksheet is deleted
                 continue;
             } else {
@@ -187,6 +196,7 @@ window.WSManager = (function($, WSManager) {
      */
     WSManager.clear = function() {
         worksheets = [];
+        noSheetTables = [];
         wsIndexLookUp = {};
         wsNameLookUp = {};
 
@@ -290,6 +300,17 @@ window.WSManager = (function($, WSManager) {
         commitToStorage();
     };
 
+    WSManager.rmNoSheetTable = function(tableId) {
+        var index = noSheetTables.indexOf(tableId);
+
+        if (index < 0) {
+            console.error("Not find table in no sheet tables");
+            return;
+        }
+
+        noSheetTables.splice(index, 1);
+    };
+
     /**
      * Copy one table to a worksheet
      * @param {string} srcTableName The name of source table
@@ -333,15 +354,23 @@ window.WSManager = (function($, WSManager) {
      */
     WSManager.removeTable = function(tableId) {
         var wsIndex = wsIndexLookUp[tableId];
+        var tableIndex;
 
         if (wsIndex == null) {
+            // table that has no worksheet
+            tableIndex = noSheetTables.indexOf(tableId);
+            if (tableIndex > -1) {
+                noSheetTables.splice(tableIndex, 1);
+                return (null);
+            }
+
             // that could be an orphaned
             console.warn("Table not exist in worksheet");
             return (null);
         }
 
         var tables = worksheets[wsIndex].tables;
-        var tableIndex = tables.indexOf(tableId);
+        tableIndex = tables.indexOf(tableId);
 
         if (tableIndex < 0) {
             tables = worksheets[wsIndex].hiddenTables;
@@ -755,10 +784,18 @@ window.WSManager = (function($, WSManager) {
      * @param {number} wsIndex The worksheet's index
      */
     function archiveTableHelper(wsIndex) {
-        // archive all active tables first
+        // archive all active tables (save it in a temp array because
+        // archiveTable will change the structure of worksheets[].tables)
+        var tableIds = [];
         var tables = worksheets[wsIndex].tables;
         for (var i = 0, len = tables.length; i < len; i++) {
-            archiveTable(tables[i], DeleteTable.Keep);
+            tableIds[i] = tables[i];
+        }
+
+        for (var i = 0, len = tableIds.length; i < len; i++) {
+            var tableId = tableIds[i];
+            archiveTable(tableId, DeleteTable.Keep);
+            noSheetTables.push(tableId);
         }
 
         $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsIndex)
