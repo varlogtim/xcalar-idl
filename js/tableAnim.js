@@ -1681,6 +1681,12 @@ function addColMenuActions($colMenu) {
             colVal = parseInt(colVal);
         } else if ($header.hasClass("type-string")) {
             colVal = JSON.stringify(colVal);
+        } else if ($header.hasClass("type-boolean")) {
+            if (colVal === "true") {
+                colVal = true;
+            } else {
+                colVal = false;
+            }
         } else {
             return;
         }

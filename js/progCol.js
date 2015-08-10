@@ -824,7 +824,8 @@ window.ColManager = (function($, ColManager) {
 
         if (columnType !== "string" &&
             columnType !== "decimal" &&
-            columnType !== "integer")
+            columnType !== "integer" &&
+            columnType !== "boolean")
         {
             $table.find("tbody td.col" + newColid)
                     .removeClass("clickable").find('.addedBarTextWrap')
