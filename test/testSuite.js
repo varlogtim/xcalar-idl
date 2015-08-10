@@ -14,7 +14,7 @@ window.TestSuite = (function($, TestSuite) {
     var disableIsPass = true;
 
     var fakeMouseup = {type: "mouseup",
-                     which: 1};
+                       which: 1};
     var fakeClick = {type: "click",
                      which: 1};
     var fakeMousedown = {type: "mousedown",
@@ -290,7 +290,7 @@ window.TestSuite = (function($, TestSuite) {
                               " input[value='ArrDelay_integer']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $(".xcTableWrap").eq(0)
-                            .find(".colMenu:not(.tableMenu) .groupBy");
+                            .find(".colMenu:not(.tableMenu) .groupby");
             $colMenu.trigger(fakeMouseup);
             setTimeout(function() {
             $("#functionList .dropdown .icon").trigger(fakeClick);
