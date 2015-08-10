@@ -98,17 +98,18 @@ function refreshTable(newTableName, oldTableName, options) {
 function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTable) {
     var deferred = jQuery.Deferred();
     var tableId  = xcHelper.getTableId(tableName);
+    var oldId;
 
     setTableMeta(tableName)
     .then(function(newTableMeta) {
         if (oldTableName == null) {
             WSManager.replaceTable(tableId);
         } else {
-            var oldTableId = xcHelper.getTableId(oldTableName);
-            var tablePosition = WSManager.getTablePosition(oldTableId);
+            oldId = xcHelper.getTableId(oldTableName);
+            var tablePosition = WSManager.getTablePosition(oldId);
 
             if (tablePosition > -1) {
-                WSManager.replaceTable(tableId, oldTableId, tablesToRemove);
+                WSManager.replaceTable(tableId, oldId, tablesToRemove);
             } else {
                 WSManager.replaceTable(tableId);
             }
@@ -129,12 +130,19 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
         if (lockTable) {
             // replace just the ids instead of the entire table so we won't
             // see the flicker of intermediate tables
-            var oldId = xcHelper.getTableId(oldTableName);
+
+            if (oldId == null) {
+                oldId = xcHelper.getTableId(oldTableName);
+            }
+
             $("#xcTableWrap-" + oldId).attr('id', 'xcTableWrap-' + tableId)
+                                .removeClass("tableToRemove")
                                 .find(".tableTitle .hashName").text(tableId);
             $("#xcTable-" + oldId).attr('id', 'xcTable-' + tableId);
-            $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId);
-            $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId);
+            $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId)
+                                    .removeClass("rowScrollerToRemove");
+            $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId)
+                                .removeClass("dagWrapToRemove");
 
             var table    = xcHelper.getTableFromId(tableId);
             var progCols = getIndex(table.tableName);
