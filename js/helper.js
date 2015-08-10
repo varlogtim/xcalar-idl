@@ -496,6 +496,7 @@ window.xcHelper = (function($, xcHelper) {
             $lockedIcon.css('top', topPos + '%');
 
             $tableWrap.addClass('tableLocked').append($lockedIcon);
+            $('#rowScroller-' + tableId).addClass('locked');
         }
         
         var table = xcHelper.getTableFromId(tableId);
@@ -518,6 +519,7 @@ window.xcHelper = (function($, xcHelper) {
             var $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
             $tableWrap.find('.lockedIcon').remove();
             $tableWrap.removeClass('tableLocked');
+            $('#rowScroller-' + tableId).removeClass('locked');
         }
 
         // XXX Remove it when use tableId replae tableName

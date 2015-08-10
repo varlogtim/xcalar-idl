@@ -821,7 +821,12 @@ function createTableHeader(tableId) {
     }, ".tableTitle .text");
 
     $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function() {
-        dropdownClick($(this), {"type": "tableDropdown"});
+        var classes = "";
+        var $xcTableWrap = $(this).closest('.xcTableWrap');
+        if ($xcTableWrap.hasClass('tableLocked')) {
+            classes += "locked";
+        }
+        dropdownClick($(this), {"type": "tableDropdown", "classes": classes});
     });
 
     // Change from $xcTheadWrap.find('.tableGrab').mosedown...
@@ -1867,6 +1872,7 @@ function dropdownClick($el, options) {
             $menu.find('.sort .sort').removeClass('unavailable');
         }
     }
+
     
     //position menu
     var topMargin  = options.type === "tdDropdown" ? 15 : -4;
@@ -2453,17 +2459,21 @@ window.RowScroller = (function($, RowScroller) {
             if (event.which !== 1 || $(".rowScroller").length === 0) {
                 return;
             }
+            if (!gActiveTableId) {
+                return;
+            }
             if ($(event.target).hasClass("subRowMarker")) {
                 rowScrollerStartDrag(event, $(event.target).parent());
                 return;
             }
-            if (!gActiveTableId) {
+            
+            var tableId = gActiveTableId;
+            var $rowScroller = $('#rowScroller-' + tableId);
+            if ($rowScroller.hasClass('locked')) {
                 return;
             }
-            var tableId = gActiveTableId;
-
             var table = xcHelper.getTableFromId(tableId);
-            var $rowScroller = $('#rowScroller-' + tableId);
+            
             var mouseX = event.pageX - $rowScroller.offset().left;
             var rowPercent = mouseX / $(this).width();
 

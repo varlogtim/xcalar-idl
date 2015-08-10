@@ -620,6 +620,12 @@
         .tableTitle, .header, td {
             pointer-events: none;
         }
+        .tableTitle .dropdownBox {
+            pointer-events: initial;
+        }
+        .xcTbodyWrap {
+            pointer-events: none;
+        }
         .lockedIcon {
             position: absolute;
             display: inline-block;
@@ -631,6 +637,22 @@
             img {
                 height: 100%;
             }
+        }
+        .colMenu {
+            cursor: initial;
+            li {
+                opacity: 0.4;
+                cursor: default;
+                pointer-events: none;
+            }
+            li.hideTable, li.unhideTable  {
+                opacity: 1;
+                cursor: pointer;
+                pointer-events: initial;
+            }
+        }
+        .colMenu.locked {
+            cursor: initial;
         }
     }
 }
