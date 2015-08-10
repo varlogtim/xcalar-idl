@@ -129,12 +129,15 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
             // replace just the ids instead of the entire table so we won't
             // see the flicker of intermediate tables
             var oldId = xcHelper.getTableId(oldTableName);
-            $("#xcTableWrap-" + oldId).attr('id', 'xcTableWrap-' + tableId);
+            $("#xcTableWrap-" + oldId).attr('id', 'xcTableWrap-' + tableId)
+                                .find(".tableTitle .hashName").text(tableId);
             $("#xcTable-" + oldId).attr('id', 'xcTable-' + tableId);
             $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId);
             $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId);
-            var table      = xcHelper.getTableFromId(tableId);
-            var progCols   = getIndex(table.tableName);
+
+            var table    = xcHelper.getTableFromId(tableId);
+            var progCols = getIndex(table.tableName);
+
             table.tableCols = progCols;
             RightSideBar.addTables([table], IsActive.Active);
             return (promiseWrapper(null));
