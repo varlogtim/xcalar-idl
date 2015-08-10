@@ -66,7 +66,7 @@ function refreshTable(newTableName, oldTableName, options) {
 
             tablesToRemove.push(tableToRemove);
 
-            if (firstTablePos != secondTablePos) {
+            if (firstTablePos !== secondTablePos) {
                 // if targetTableId == tableToRemove, it's self, join
                 // no need to push the secondTableToRemove
                 var secondTableId = xcHelper.getTableId(targetTable);
@@ -135,10 +135,10 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
                 oldId = xcHelper.getTableId(oldTableName);
             }
 
-            $("#xcTableWrap-" + oldId).attr('id', 'xcTableWrap-' + tableId)
-                                .removeClass("tableToRemove")
+
+            changeTableId(oldId, tableId);
+            $("#xcTableWrap-" + oldId).removeClass("tableToRemove")
                                 .find(".tableTitle .hashName").text(tableId);
-            $("#xcTable-" + oldId).attr('id', 'xcTable-' + tableId);
             $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId)
                                     .removeClass("rowScrollerToRemove");
             $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId)
@@ -165,6 +165,21 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
     });
 
     return (deferred.promise());
+}
+
+function changeTableId(oldId, newId) {
+    $("#xcTableWrap-" + oldId).attr('id', 'xcTableWrap-' + newId)
+                                .attr("data-id", newId);
+    $("#xcTheadWrap-" + oldId).attr('id', 'xcTheadWrap-' + newId)
+                                .attr("data-id", newId);
+    $("#xcTbodyWrap-" + oldId).attr('id', 'xcTbodyWrap-' + newId)
+                                .attr("data-id", newId);
+    $("#xcTable-" + oldId).attr('id', 'xcTable-' + newId)
+                            .attr("data-id", newId);
+    $("#tableMenu-" + oldId).attr('id', 'tableMenu-' + newId)
+                            .attr("data-id", newId);
+    $("#colMenu-" + oldId).attr('id', 'colMenu-' + newId)
+                            .attr("data-id", newId);
 }
 
 function parallelConstruct(tableId, tablesToRemove, afterStartup) {
