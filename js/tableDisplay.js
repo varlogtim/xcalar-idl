@@ -135,14 +135,13 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
                 oldId = xcHelper.getTableId(oldTableName);
             }
 
-
-            changeTableId(oldId, tableId);
             $("#xcTableWrap-" + oldId).removeClass("tableToRemove")
                                 .find(".tableTitle .hashName").text(tableId);
             $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId)
                                     .removeClass("rowScrollerToRemove");
             $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId)
                                 .removeClass("dagWrapToRemove");
+            changeTableId(oldId, tableId);
 
             var table    = xcHelper.getTableFromId(tableId);
             var progCols = getIndex(table.tableName);
