@@ -61,8 +61,8 @@ window.WSManager = (function($, WSManager) {
         for (var i = 0, j = 0; i < oldSheets.length; i++) {
             // remove the deleted worksheets
             var sheet = oldSheets[i];
-
             if (sheet != null) {
+                sheet.lockedTables = [];
                 worksheets[j] = sheet;
                 wsNameLookUp[sheet.name] = j;
                 ++j;
@@ -510,6 +510,29 @@ window.WSManager = (function($, WSManager) {
         return (html);
     };
 
+    WSManager.lockTable = function(tableId) {
+        var worksheetNum = WSManager.getWSFromTable(tableId);
+        var worksheet = worksheets[worksheetNum];
+        if (worksheet) {
+            if (worksheet.lockedTables.indexOf(tableId) === -1) {
+                worksheet.lockedTables.push(tableId)
+            }
+            $('#worksheetTab-' + worksheetNum).addClass('locked');
+        }
+    }
+
+    WSManager.unlockTable = function(tableId) {
+        var worksheetNum = WSManager.getWSFromTable(tableId);
+        var worksheet = worksheets[worksheetNum];
+        if (worksheet && worksheet.lockedTables.length > 0) {
+            var tableIndex = worksheet.lockedTables.indexOf(tableId);
+            worksheet.lockedTables.splice(tableIndex, 1);
+            if (worksheet.lockedTables.length === 0) {
+                $('#worksheetTab-' + worksheetNum).removeClass('locked');
+            }
+        }
+    }
+
     /**
      * Initialize worksheet, helper function for WSManager.setup()
      */
@@ -584,9 +607,10 @@ window.WSManager = (function($, WSManager) {
      * Create a new worksheet
      */
     function newWorksheet() {
-        var wsIndex = worksheets.length;
-        var name    = defaultName + (nameSuffix++);
-        var date    = xcHelper.getDate();
+        var wsIndex         = worksheets.length;
+        var name            = defaultName + (nameSuffix++);
+        var date            = xcHelper.getDate();
+        var lockedTables = [];
 
         while (wsNameLookUp[name] != null) {
             name = defaultName + (nameSuffix++);
@@ -594,7 +618,8 @@ window.WSManager = (function($, WSManager) {
 
         setWorksheet(wsIndex, {
             "name": name,
-            "date": date
+            "date": date,
+            "lockedTables" : []
         });
 
         makeWorksheet(wsIndex);

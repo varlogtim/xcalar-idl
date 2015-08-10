@@ -709,7 +709,8 @@ window.ColManager = (function($, ColManager) {
             // these type should not have td dropdown
             if (columnType !== "string" &&
                 columnType !== "decimal" &&
-                columnType !== "integer")
+                columnType !== "integer" &&
+                columnType !== "boolean")
             {
                 $tBody.find("td.col" + (i + 1)).removeClass("clickable")
                       .find(".addedBarTextWrap")

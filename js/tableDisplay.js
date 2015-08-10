@@ -66,10 +66,11 @@ function refreshTable(newTableName, oldTableName, options) {
 
             tablesToRemove.push(tableToRemove);
 
-            if (targetTableId !== tableToRemove) {
+            if (firstTablePos != secondTablePos) {
                 // if targetTableId == tableToRemove, it's self, join
                 // no need to push the secondTableToRemove
-                tablesToRemove.push(targetTableId);
+                var secondTableId = xcHelper.getTableId(targetTable);
+                tablesToRemove.push(secondTableId);
             }
         } else {
             tablesToRemove.push(targetTableId);

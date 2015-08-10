@@ -152,59 +152,6 @@ function readFromStorage() {
         DataStore.updateInfo(totalDS);
         return (commitToStorage(AfterStartup.After));
     })
-    // .then(function() {
-        // var deferred2 = jQuery.Deferred();
-        // var promises = [];
-        // var failures = [];
-        // var tableCount = 0;
-        // var orphanedTables = {};
-        // for (var table in gTableIndicesLookup) {
-        //     promises.push((function(index, tableName) {
-        //         var innerDeferred = jQuery.Deferred();
-        //         setTableMeta(tableName)
-        //         .then(function() {
-        //             var lookupTable = gTableIndicesLookup[tableName];
-        //             if (lookupTable.isLocked) {
-        //                 lookupTable.isLocked = false;
-        //                 lookupTable.active = false;
-        //                 orphanedTables[newTableMeta.tableId] = newTableMeta;
-        //             } else {
-        //                 gTables2[newTableMeta.tableId] = newTableMeta;
-        //             }
-        //             innerDeferred.resolve();
-        //         })
-        //         .fail(function(thriftError) {
-        //             failures.push("gTables initialization failed on " + tableName +
-        //                          "fails: " + thriftError.error);
-        //             innerDeferred.resolve(error);
-        //         });
-
-        //         return (innerDeferred.promise());
-        //     }).bind(this, i, tableName));
-        // }
-       
-        // chain(promises)
-        // .then(function() {
-        //     if (failures.length > 0) {
-        //         for (var j = 0; j < failures.length; j++) {
-        //             console.error(failures[j]);
-        //         }
-
-        //         if (failures.length === tableCount) {
-        //             deferred2.reject("gTables setup fails!");
-        //         } else {
-        //             deferred2.resolve());
-        //         }
-        //     } else {
-        //         return deferred2.resolve();
-        //     }
-        // })
-        // .fail(function(error) {
-        //     deferred2.reject(error);
-        // });
-
-        // return (deferred2.promise());
-    // })
     .then(function() {
         deferred.resolve();
     })

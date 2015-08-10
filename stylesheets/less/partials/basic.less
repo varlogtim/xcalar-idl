@@ -1721,6 +1721,14 @@ ul.inputMenu {
                 border: 1px solid @color-table-borderGray;
             }
         }
+
+        &.locked {
+            .delete {
+                pointer-events: none !important;
+                cursor: initial !important;
+                opacity: 0.5;
+            }
+        }
     }
 }
 /* End Of Bottom Section */

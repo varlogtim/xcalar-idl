@@ -478,6 +478,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.lockTable = function(tableId) {
+        // lock worksheet as well
         if (tableId == null) {
             console.error("Invalid Parameters!");
             return;
@@ -503,6 +504,8 @@ window.xcHelper = (function($, xcHelper) {
         // XXX Remove it when use tableId replae tableName
         var lookupTable = gTableIndicesLookup[tableId];
         lookupTable.isLocked = true;
+
+        WSManager.lockTable(tableId);
     };
 
     xcHelper.unlockTable = function(tableId, isHidden) {
@@ -522,6 +525,8 @@ window.xcHelper = (function($, xcHelper) {
         if (lookupTable) {
             lookupTable.isLocked = false;
         }
+
+        WSManager.unlockTable(tableId);
     };
 
     // an object used for global Modal Actions
