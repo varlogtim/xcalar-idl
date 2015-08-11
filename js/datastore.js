@@ -1089,7 +1089,7 @@ window.DataCart = (function($, DataCart) {
         carts.forEach(function(cart) {
             promises.push((function() {
                 var innerDeferred = jQuery.Deferred();
-                // store columns in localstorage using setIndex()
+                // store columns in localstorage using setgTable()
                 var newTableCols = [];
                 var startIndex = 0;
                 var datasetName = cart.dsName;
@@ -1152,7 +1152,9 @@ window.DataCart = (function($, DataCart) {
                 XcalarIndexFromDataset(datasetName, "recordNum", tableName,
                                        sqlOptions)
                 .then(function() {
-                    setIndex(tableName, newTableCols, datasetName, tableProperties);
+                    return (setgTable(tableName, newTableCols, datasetName, tableProperties));
+                })
+                .then(function() {
                     var options = {
                         "keepOriginal"  : true,
                         "focusWorkspace": true

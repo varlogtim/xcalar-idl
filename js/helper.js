@@ -503,8 +503,7 @@ window.xcHelper = (function($, xcHelper) {
         table.isLocked = true;
 
         // XXX Remove it when use tableId replae tableName
-        var lookupTable = gTableIndicesLookup[tableId];
-        lookupTable.isLocked = true;
+
 
         WSManager.lockTable(tableId);
     };
@@ -523,10 +522,6 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         // XXX Remove it when use tableId replae tableName
-        var lookupTable = gTableIndicesLookup[tableId];
-        if (lookupTable) {
-            lookupTable.isLocked = false;
-        }
 
         WSManager.unlockTable(tableId);
     };

@@ -133,7 +133,7 @@ window.RightSideBar = (function($, RightSideBar) {
                             innerDeferred.resolve(error);
                         });
                     } else {
-                        var lookupTable = gTableIndicesLookup[tableId];
+                        var lookupTable = gTables2[tableId];
                         // update gTableIndicesLookup
                         lookupTable.active = true;
                         lookupTable.timeStamp = xcHelper.getTimeInMS();
@@ -143,6 +143,9 @@ window.RightSideBar = (function($, RightSideBar) {
                         XcalarSetFree(table.resultSetId)
                         .then(function() {
                             table.resultSetId = -1;
+                            return (setTableMeta(tableName));
+                        })
+                        .then(function() {
                             return (addTable(tableName, null,
                                              AfterStartup.After, null));
                         })
@@ -258,7 +261,9 @@ window.RightSideBar = (function($, RightSideBar) {
             }
             // new "DATA" column
             newTableCols.push(ColManager.newDATACol(index));
-            setIndex(tableName, newTableCols);
+            return (setgTable(tableName, newTableCols));
+        })
+        .then(function() {
             deferred.resolve();
         })
         .fail(function(error) {
@@ -1017,8 +1022,8 @@ window.RightSideBar = (function($, RightSideBar) {
             for (var i = 0; i < numBackTables; i++) {
                 tableMap[backTables[i].tableName] = backTables[i];
             }
-            for (var tId in gTableIndicesLookup) {
-                var tableName = gTableIndicesLookup[tId].tableName;
+            for (var tId in gTables2) {
+                var tableName = gTables2[tId].tableName;
                 if (tableMap[tableName]) {
                     delete tableMap[tableName];
                 }
@@ -1046,8 +1051,8 @@ window.RightSideBar = (function($, RightSideBar) {
         tables.forEach(function(table) {
             var tableId = table.tableId;
             var timeStamp;
-            if (gTableIndicesLookup[tableId]) {
-                timeStamp = gTableIndicesLookup[tableId].timeStamp;
+            if (gTables2[tableId]) {
+                timeStamp = gTables2[tableId].timeStamp;
             }
             if (timeStamp == null) {
                 console.error("Time Stamp undefined");

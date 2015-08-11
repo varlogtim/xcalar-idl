@@ -322,12 +322,12 @@ window.WSManager = (function($, WSManager) {
     //     var tableNum   = gTables.length;
     //     var tableId = xcHelper.getTableId(srcTableName);
     //     // do a deep copy
-    //     var srcTable   = gTableIndicesLookup[tableId];
+    //     var srcTable   = gTables2[tableId];
     //     var tableCopy  = xcHelper.deepCopy(srcTable);
     //     var newTableId = xcHelper.getTableId(newTableName);
 
     //     activeWorsheet = wsIndex;
-    //     gTableIndicesLookup[newTableId] = tableCopy;
+    //     gTables2[newTableId] = tableCopy;
     //     // XXX for sample table, should sync frontName with backName since
     //     // there both src sample and the copied can change to real table using
     //     // its backTableName
@@ -343,7 +343,7 @@ window.WSManager = (function($, WSManager) {
     //     })
     //     .fail(function(error) {
     //         var newTableId = 
-    //         delete gTableIndicesLookup[newTableId];
+    //         delete gTables2[newTableId];
     //         Alert.error(error);
     //     });
     // };

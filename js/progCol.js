@@ -62,7 +62,7 @@ window.ColManager = (function($, ColManager) {
 
         insertColHelper(0, tableId, newProgCol);
         // is this where we add the indexed column??
-        insertColHelper(1, tableid, ColManager.newDATACol(2));
+        insertColHelper(1, tableId, ColManager.newDATACol(2));
     };
 
     ColManager.addCol = function(colNum, tableId, name, options) {
@@ -486,7 +486,7 @@ window.ColManager = (function($, ColManager) {
         var tableCols = table.tableCols;
         var numCols   = tableCols.length;
         // jsonData based on if it's indexed on array or not
-        var secondPull = gTableIndicesLookup[tableId].isSortedArray || false;
+        var secondPull = gTables2[tableId].isSortedArray || false;
         var jsonData   = secondPull ? jsonObj.withKey : jsonObj.normal;
         var numRows    = jsonData.length;
 
@@ -661,7 +661,7 @@ window.ColManager = (function($, ColManager) {
         // This only run once,  check if it's a indexed array, mark on gTables
         // and redo the pull column thing
         if (!secondPull && columnTypes[indexedColNums[0]] === "array") {
-            gTableIndicesLookup[tableId].isSortedArray = true;
+            gTables2[tableId].isSortedArray = true;
 
             for (var i = 0; i < indexedColNums.length; i++) {
                 tableCols[indexedColNums[i]].isSortedArray = true;

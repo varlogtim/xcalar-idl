@@ -96,74 +96,59 @@ function refreshTable(newTableName, oldTableName, options) {
 // Adds a table to the display
 // Shifts all the ids and everything
 function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTable) {
-    var deferred = jQuery.Deferred();
+    // var deferred = jQuery.Deferred();
     var tableId  = xcHelper.getTableId(tableName);
     var oldId;
 
-    setTableMeta(tableName)
-    .then(function(newTableMeta) {
-        if (oldTableName == null) {
+    if (oldTableName == null) {
+        WSManager.replaceTable(tableId);
+    } else {
+        oldId = xcHelper.getTableId(oldTableName);
+        var tablePosition = WSManager.getTablePosition(oldId);
+
+        if (tablePosition > -1) {
+            WSManager.replaceTable(tableId, oldId, tablesToRemove);
+        } else {
             WSManager.replaceTable(tableId);
-        } else {
+        }
+    }
+
+    // WSManager.replaceTable need to know oldTable's location
+    // so remove table after that
+    if (tablesToRemove) {
+        var delayTableRemoval = true;
+        for (var i = 0; i < tablesToRemove.length; i++) {
+            if (gTables2[tablesToRemove[i]].active) {
+                archiveTable(tablesToRemove[i], DeleteTable.Keep, delayTableRemoval);
+            }
+        }
+    }
+
+    if (lockTable) {
+        // replace just the ids instead of the entire table so we won't
+        // see the flicker of intermediate tables
+
+        if (oldId == null) {
             oldId = xcHelper.getTableId(oldTableName);
-            var tablePosition = WSManager.getTablePosition(oldId);
-
-            if (tablePosition > -1) {
-                WSManager.replaceTable(tableId, oldId, tablesToRemove);
-            } else {
-                WSManager.replaceTable(tableId);
-            }
-        }
-        gTables2[tableId] = newTableMeta;
-
-        // WSManager.replaceTable need to know oldTable's location
-        // so remove table after that
-        if (tablesToRemove) {
-            var delayTableRemoval = true;
-            for (var i = 0; i < tablesToRemove.length; i++) {
-                if (gTables2[tablesToRemove[i]].active) {
-                    archiveTable(tablesToRemove[i], DeleteTable.Keep, delayTableRemoval);
-                }
-            }
         }
 
-        if (lockTable) {
-            // replace just the ids instead of the entire table so we won't
-            // see the flicker of intermediate tables
+        $("#xcTableWrap-" + oldId).removeClass("tableToRemove")
+                            .find(".tableTitle .hashName").text(tableId);
+        $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId)
+                                .removeClass("rowScrollerToRemove");
+        $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId)
+                            .removeClass("dagWrapToRemove");
+        changeTableId(oldId, tableId);
 
-            if (oldId == null) {
-                oldId = xcHelper.getTableId(oldTableName);
-            }
+        var table    = xcHelper.getTableFromId(tableId);
+        var progCols = getIndex(table.tableName);
 
-            $("#xcTableWrap-" + oldId).removeClass("tableToRemove")
-                                .find(".tableTitle .hashName").text(tableId);
-            $("#rowScroller-" + oldId).attr('id', 'rowScroller-' + tableId)
-                                    .removeClass("rowScrollerToRemove");
-            $('#dagWrap-' + oldId).attr('id', 'dagWrap-' + tableId)
-                                .removeClass("dagWrapToRemove");
-            changeTableId(oldId, tableId);
-
-            var table    = xcHelper.getTableFromId(tableId);
-            var progCols = getIndex(table.tableName);
-
-            table.tableCols = progCols;
-            RightSideBar.addTables([table], IsActive.Active);
-            return (promiseWrapper(null));
-        } else {
-            return (parallelConstruct(tableId, tablesToRemove, afterStartup));
-        }
-        
-    })
-    .then(function() {
-        deferred.resolve();
-    })
-    .fail(function(error) {
-        WSManager.removeTable(tableId);
-        console.error("Add Table Fails!", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
+        table.tableCols = progCols;
+        RightSideBar.addTables([table], IsActive.Active);
+        return (promiseWrapper(null));
+    } else {
+        return (parallelConstruct(tableId, tablesToRemove, afterStartup));
+    }
 }
 
 function changeTableId(oldId, newId) {
@@ -235,14 +220,14 @@ function archiveTable(tableId, del, delayTableRemoval) {
     var tableName = gTables2[tableId].tableName;
 
     if (!del) {
-        gTableIndicesLookup[tableId].active = false;
-        gTableIndicesLookup[tableId].timeStamp = xcHelper.getTimeInMS();
+        gTables2[tableId].active = false;
+        gTables2[tableId].timeStamp = xcHelper.getTimeInMS();
         gTables2[tableId].active = false;
         WSManager.archiveTable(tableId);
         RightSideBar.moveTable(tableId);
     } else {
         WSManager.removeTable(tableId);
-        delete (gTableIndicesLookup[tableId]);
+        delete (gTables2[tableId]);
         delete gTables2[tableId];
         var $li = $("#activeTablesList").find('.tableName').filter(
                     function() {
@@ -348,7 +333,7 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
         if (deleteArchived) {
             WSManager.removeTable(tableId);
             delete gTables2[tableId];
-            delete (gTableIndicesLookup[tableId]);
+            delete (gTables2[tableId]);
         } else {
             archiveTable(tableId, DeleteTable.Delete);
         }
@@ -366,17 +351,9 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
 function setTableMeta(tableName) {
     var deferred = jQuery.Deferred();
     var tableId = xcHelper.getTableId(tableName);
-    var newTable    = new TableMeta();
-    var lookupTable = gTableIndicesLookup[tableId];
+    var newTable    = gTables2[tableId];
 
-    newTable.tableCols = [];
     newTable.currentRowNumber = 0;
-
-    if (lookupTable) {
-        newTable.rowHeights = lookupTable.rowHeights;
-        newTable.bookmarks = lookupTable.bookmarks;
-        newTable.statsCols = lookupTable.statsCols;
-    }
 
     getResultSet(tableName)
     .then(function(resultSet) {
@@ -398,22 +375,22 @@ function setTableMeta(tableName) {
     });
 
     return (deferred.promise());
+}
 
-    // Constructor for table meata data
-    function TableMeta() {
-        this.tableCols = null;
-        this.currentRowNumber = -1;
-        this.resultSetId = -1;
-        this.keyName = "";
-        this.tableName = "";
-        this.tableId = "";
-        this.resultSetCount = -1;
-        this.numPages = -1;
-        this.bookmarks = [];
-        this.rowHeights = {};
-        this.active = true;
-        return (this);
-    }
+ // Constructor for table meata data
+function TableMeta() {
+    this.tableCols = null;
+    this.currentRowNumber = -1;
+    this.resultSetId = -1;
+    this.keyName = "";
+    this.tableName = "";
+    this.tableId = "";
+    this.resultSetCount = -1;
+    this.numPages = -1;
+    this.bookmarks = [];
+    this.rowHeights = {};
+    this.active = true;
+    return (this);
 }
 
 // start the process of building table
@@ -421,7 +398,7 @@ function startBuildTable(tableId, tablesToRemove) {
     var deferred   = jQuery.Deferred();
     var table      = xcHelper.getTableFromId(tableId);
     var tableName  = table.tableName;
-    var progCols   = getIndex(tableName);
+    var progCols   = gTables2[tableId].tableCols;
     var notIndexed = !(progCols && progCols.length > 0);
 
     getFirstPage(table, notIndexed)
@@ -547,7 +524,7 @@ function generateTableShell(columns, tableId) {
             'data-id="' + tableId + '"></div>' +
         '</div>';
     // creates a new table, completed thead, and empty tbody
-    position = WSManager.getTablePosition(tableId);
+    var position = WSManager.getTablePosition(tableId);
 
     if (position === 0) {
         $('#mainFrame').prepend(wrapper);

@@ -45,7 +45,9 @@ window.xcFunction = (function($, xcFunction) {
 
         XcalarFilterHelper(fltStr, tableName, newTableName, sqlOptions)
         .then(function() {
-            setIndex(newTableName, tablCols);
+            return (setgTable(newTableName, tablCols));
+        })
+        .then(function() {
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
@@ -168,8 +170,9 @@ window.xcFunction = (function($, xcFunction) {
             var newTableId = xcHelper.getTableId(newTableName);
             STATSManager.copy(tableId, newTableId);
 
-            setIndex(newTableName, tablCols, null, null);
-            
+            return (setgTable(newTableName, tablCols, null, null));
+        })
+        .then(function() {
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
@@ -273,12 +276,13 @@ window.xcFunction = (function($, xcFunction) {
         .then(function() {
             var newTableCols = createJoinedColumns(lTable, rTable,
                                                    lRemoved, rRemoved);
-            setIndex(newTableName, newTableCols);
+            return (setgTable(newTableName, newTableCols));
+        })
+        .then(function() {
             var refreshOptions = {
                 "keepOriginal"       : false,
                 "additionalTableName": rTableName
             };
-
             return (refreshTable(newTableName, lTableName, refreshOptions));
         })
         .then(function() {
@@ -451,15 +455,17 @@ window.xcFunction = (function($, xcFunction) {
 
             tablCols[1 + groupByCols.length] =
                                  xcHelper.deepCopy(table.tableCols[dataColNum]);
-
-            setIndex(nTableName, tablCols);
-
-            xcHelper.unlockTable(tableId);
             finalTableName = nTableName;
+            return(setgTable(nTableName, tablCols));
+            
+        })
+        .then(function() {
+            xcHelper.unlockTable(tableId);
+        
             var refreshOptions = {
                 "keepOriginal": true
             };
-            return (refreshTable(nTableName, null, refreshOptions));
+            return (refreshTable(finalTableName, null, refreshOptions));
         })
         .then(function() {
             commitToStorage();
@@ -518,7 +524,9 @@ window.xcFunction = (function($, xcFunction) {
             newTableId = xcHelper.getTableId(newTableName);
             STATSManager.copy(oldTableId, newTableId);
 
-            setIndex(newTableName, tablCols, null, tableProperties);
+            return (setgTable(newTableName, tablCols, null, tableProperties));
+        })
+        .then(function() {
             return (refreshTable(newTableName, tableName));
         })
         .then(function() {
@@ -620,8 +628,17 @@ window.xcFunction = (function($, xcFunction) {
                 "rowHeights": xcHelper.deepCopy(lTable.rowHeights)
             };
 
-            setIndex(lNewName, lTableCols, null, lTableProperties);
-
+            return (setgTable(lNewName, lTableCols, null, lTableProperties));
+            // XXX should change to xcHelper.when after fix async bug in refresh
+           
+        })
+        .then(function() {
+            var refreshOptions = {
+                "lockTable": true
+            };
+             return (refreshTable(lNewName, lTableName, refreshOptions));
+        })
+        .then(function() {
             var rTableCols = mapColGenerate(rColNum, rFieldName, rMapString,
                                     rTable.tableCols, rOptions.replaceColumn);
             var rTableProperties = {
@@ -629,13 +646,7 @@ window.xcFunction = (function($, xcFunction) {
                 "rowHeights": xcHelper.deepCopy(rTable.rowHeights)
             };
 
-            setIndex(rNewName, rTableCols, null, rTableProperties);
-            var refreshOptions = {
-                "lockTable": true
-            };
-
-            // XXX should change to xcHelper.when after fix async bug in refresh
-            return (refreshTable(lNewName, lTableName, refreshOptions));
+            return (setgTable(rNewName, rTableCols, null, rTableProperties));
         })
         .then(function() {
             var refreshOptions = {
@@ -643,7 +654,7 @@ window.xcFunction = (function($, xcFunction) {
             };
             return (refreshTable(rNewName, rTableName, refreshOptions));
         })
-        .then(function(ret1, ret2) {
+        .then(function() {
 
             xcHelper.unlockTable(lTableId, true);
             xcHelper.unlockTable(rTableId, true);
@@ -738,7 +749,7 @@ window.xcFunction = (function($, xcFunction) {
         .then(function() {
             // does renames for gTables, worksheet, rightsidebar, dag
             table.tableName = newTableName;
-            gTableIndicesLookup[tableId].tableName = newTableName;
+            gTables2[tableId].tableName = newTableName;
 
             RightSideBar.renameTable(tableId, newTableName);
             Dag.renameAllOccurrences(oldTableName, newTableName);
@@ -790,9 +801,9 @@ window.xcFunction = (function($, xcFunction) {
             XcalarIndexFromTable(tableName, colName, newTableName, sqlOptions)
             .then(function() {
                 var tablCols = xcHelper.deepCopy(table.tableCols);
-                setIndex(newTableName, tablCols);
+                setgTable(newTableName, tablCols);
                 var newTableId = xcHelper.getTableId(newTableName);
-                gTableIndicesLookup[newTableId].active = false;
+                gTables2[newTableId].active = false;
 
                 deferred.resolve({
                     "newTableCreated": true,

@@ -1,12 +1,9 @@
 // Lookup table that translates between tablename and the indices that it should
 // be holding
 
-var gTableIndicesLookup = {};
-
 function emptyAllStorage(localEmpty) {
     var deferred = jQuery.Deferred();
-
-    gTableIndicesLookup = {};
+    gTables2 = {};
     WSManager.clear();
     DS.clear();
     SQL.clear();
@@ -29,12 +26,13 @@ function emptyAllStorage(localEmpty) {
 
 function getIndex(tName) {
     var tableIndex = xcHelper.getTableId(tName);
-    if (!gTableIndicesLookup) {
+    if (!gTables2) {
         console.log("Nothing has ever been stored ever!");
-        gTableIndicesLookup = {};
+        gTables2 = {};
     }
-    if (tableIndex in gTableIndicesLookup) {
-        return (gTableIndicesLookup[tableIndex].columns);
+
+    if (tableIndex in gTables2) {
+        return (gTables2[tableIndex].tableCols);
     } else {
         console.log("No such table has been saved before");
         return (null);
@@ -42,22 +40,30 @@ function getIndex(tName) {
     return (null);
 }
 
-function setIndex(tName, index, dsName, tableProperties) {
+function setgTable(tName, index, dsName, tableProperties) {
+    var deferred = jQuery.Deferred();
     var tableId = xcHelper.getTableId(tName);
-    gTableIndicesLookup[tableId] = {};
-    gTableIndicesLookup[tableId].columns = index;
-    gTableIndicesLookup[tableId].active = true;
-    gTableIndicesLookup[tableId].timeStamp = xcHelper.getTimeInMS();
+    gTables2[tableId] = new TableMeta;
+    gTables2[tableId].tableCols = index;
+    gTables2[tableId].timeStamp = xcHelper.getTimeInMS();
 
     if (tableProperties) {
-        gTableIndicesLookup[tableId].bookmarks = tableProperties.bookmarks || [];
-        gTableIndicesLookup[tableId].rowHeights = tableProperties.rowHeights || {};
-    } else {
-        gTableIndicesLookup[tableId].bookmarks = [];
-        gTableIndicesLookup[tableId].rowHeights = {};
-    }
+        gTables2[tableId].bookmarks = tableProperties.bookmarks || [];
+        gTables2[tableId].rowHeights = tableProperties.rowHeights || {};
+    } 
 
-    gTableIndicesLookup[tableId].tableName = tName;
+    gTables2[tableId].tableName = tName;
+
+    setTableMeta(tName)
+    .then(function(newTableMeta){
+        deferred.resolve();
+    })
+    .fail(function(error) {
+        console.error("setTableMetaFails!", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
 }
 
 // the key should be as short as possible
@@ -81,7 +87,7 @@ function commitToStorage(atStartup) {
     // basic thing to store
     var storage = {};
 
-    storage[KVKeys.TI] = gTableIndicesLookup;
+    storage[KVKeys.TI] = gTables2;
     storage[KVKeys.WS] =  {
         "wsInfos"      : WSManager.getWorksheets(),
         "noSheetTables": WSManager.getNoSheetTables()
@@ -111,12 +117,13 @@ function commitToStorage(atStartup) {
 function readFromStorage() {
     var deferred = jQuery.Deferred();
     var gDSObjFolder;
+    var tableIndicesLookup;
 
     KVStore.hold()
     .then(function(gInfos) {
         if (gInfos) {
             if (gInfos[KVKeys.TI]) {
-                gTableIndicesLookup = gInfos[KVKeys.TI];
+                tableIndicesLookup = gInfos[KVKeys.TI];
             }
             if (gInfos[KVKeys.WS]) {
                 WSManager.restoreWS(gInfos[KVKeys.WS]);
@@ -146,11 +153,72 @@ function readFromStorage() {
         var numDatasets = datasets.numDatasets;
         // clear KVStore if no datasets are loaded
         if (numDatasets === 0 || numDatasets == null) {
-            gTableIndicesLookup = {};
+            tableIndicesLookup = {};
         }
         var totalDS = DS.restore(gDSObjFolder, datasets);
         DataStore.updateInfo(totalDS);
         return (commitToStorage(AfterStartup.After));
+    })
+    .then(function() {
+        var deferred2 = jQuery.Deferred();
+        var promises = [];
+        var failures = [];
+        var tableCount = 0;
+        for (var table in tableIndicesLookup) {
+            var tableId = table;
+            promises.push((function(tableId) {
+                var innerDeferred = jQuery.Deferred();
+                var table = tableIndicesLookup[tableId];
+                var tableName = table.tableName;
+                getResultSet(tableName)
+                .then(function(resultSet) {
+                    table.resultSetId = resultSet.resultSetId;
+
+                    table.resultSetCount = resultSet.numEntries;
+                    table.resultSetMax = resultSet.numEntries;
+                    table.numPages = Math.ceil(table.resultSetCount /
+                                                  gNumEntriesPerPage);
+                    table.keyName = resultSet.keyAttrHeader.name;
+
+                    if (table.isLocked) {
+                        lookupTable.isLocked = false;
+                        lookupTable.active = false;
+                    } else {
+                        gTables2[tableId] = table;
+                    }
+                    innerDeferred.resolve();
+                })
+                .fail(function(thriftError) {
+                    failures.push("gTables initialization failed on " + tableName +
+                                 "fails: " + thriftError.error);
+                    innerDeferred.resolve(error);
+                });
+
+                return (innerDeferred.promise());
+            }).bind(this, tableId));
+        }
+       
+        chain(promises)
+        .then(function() {
+            if (failures.length > 0) {
+                for (var j = 0; j < failures.length; j++) {
+                    console.error(failures[j]);
+                }
+
+                if (failures.length === tableCount) {
+                    deferred2.reject("gTables setup fails!");
+                } else {
+                    deferred2.resolve();
+                }
+            } else {
+                return deferred2.resolve();
+            }
+        })
+        .fail(function(error) {
+            deferred2.reject(error);
+        });
+
+        return (deferred2.promise());
     })
     .then(function() {
         deferred.resolve();

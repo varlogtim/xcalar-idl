@@ -271,7 +271,6 @@ function setupHiddenTable(tableName) {
     setTableMeta(tableName)
     .then(function(newTableMeta) {
         var tableId = xcHelper.getTableId(tableName);
-        gTables2[tableId] = newTableMeta;
         var table = gTables2[tableId];
         table.active = false;
 
@@ -535,7 +534,6 @@ function initializeTable() {
         var tableId;
         var worksheets = WSManager.getWorksheets();
         var numWorksheets = worksheets.length;
-        var lookupTable;
 
         for (var i = 0; i < numWorksheets; i++) {
             var wsTables = worksheets[i].tables;
@@ -548,22 +546,25 @@ function initializeTable() {
             // create active tables
             for (var j = 0; j < numWsTables; j++) {
                 tableId = wsTables[j];
-                lookupTable = gTableIndicesLookup[tableId];
+                var currentTable = gTables2[tableId];
 
-                if (lookupTable.isLocked) {
-                    lookupTable.isLocked = false;
-                    lookupTable.active = false;
+                if (currentTable.isLocked) {
+                    currentTable.isLocked = false;
+                    currentTable.active = false;
                     continue;
                 }
 
-                tableName = lookupTable.tableName;
+                tableName = currentTable.tableName;
                 delete tableMap[tableName];
                 ++tableCount;
 
-                promises.push((function(tablName) {
+                promises.push((function(tablName, tableId) {
                     var innerDeferred = jQuery.Deferred();
 
-                    addTable(tablName, null, null, null)
+                    // addTable(tablName, null, null, null)
+                    WSManager.replaceTable(tableId);
+
+                    parallelConstruct(tableId)
                     .then(innerDeferred.resolve)
                     .fail(function(thriftError) {
                         failures.push("Add table " + tablName +
@@ -572,7 +573,7 @@ function initializeTable() {
                     });
 
                     return (innerDeferred.promise());
-                }).bind(this, tableName));
+                }).bind(this, tableName, tableId));
             }
 
             // create hidden tables
@@ -580,9 +581,9 @@ function initializeTable() {
             var numHiddenWsTables = wsHiddenTables.length;
             for (var j = 0; j < numHiddenWsTables; j++) {
                 tableId = wsHiddenTables[j];
-                lookupTable = gTableIndicesLookup[tableId];
+                var currentTable = gTables2[tableId];
 
-                tableName = lookupTable.tableName;
+                tableName = currentTable.tableName;
                 delete tableMap[tableName];
                 ++tableCount;
 
@@ -608,9 +609,9 @@ function initializeTable() {
 
         for (var i = 0; i < numNoSheetTables; i++) {
             tableId = noSheetTables[i];
-            lookupTable = gTableIndicesLookup[tableId];
+            var currentTable = gTables2[tableId];
 
-            tableName = lookupTable.tableName;
+            tableName = currentTable.tableName;
             delete tableMap[tableName];
             ++tableCount;
 
