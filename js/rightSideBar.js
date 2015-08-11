@@ -160,15 +160,28 @@ window.RightSideBar = (function($, RightSideBar) {
                         "operation": "deleteTable",
                         "tableName": tableName
                     };
-                    deleteTable(tableId, DeleteTable.Delete, sqlOptions)
-                    .then(function() {
-                        doneHandler($li, tableName);
-                        innerDeferred.resolve();
-                    })
-                    .fail(function(error) {
-                        failHandler($li, tableName, error);
-                        innerDeferred.resolve(error);
-                    });
+
+                    if (type === 'orphan') {
+                        XcalarDeleteTable(tableName, sqlOptions)
+                        .then(function() {
+                            doneHandler($li, tableName);
+                            innerDeferred.resolve();
+                        })
+                        .fail(function(error) {
+                            failHandler($li, tableName, error);
+                            innerDeferred.resolve(error);
+                        });
+                    } else {
+                        deleteTable(tableId, DeleteTable.Delete, sqlOptions)
+                        .then(function() {
+                            doneHandler($li, tableName);
+                            innerDeferred.resolve();
+                        })
+                        .fail(function(error) {
+                            failHandler($li, tableName, error);
+                            innerDeferred.resolve(error);
+                        });
+                    }
                 }
 
                 return (innerDeferred.promise());
@@ -649,21 +662,6 @@ window.RightSideBar = (function($, RightSideBar) {
         /* upload written function section */
         var $fnName = $("#udf-fnName");
 
-        function findFunctionName(entireString) {
-            var lines = entireString.split('\n');
-            for (var i = 0; i < lines.length; i++) {
-                var line = lines[i];
-                line = jQuery.trim(line);
-                if (line.indexOf("#") !== 0 && line.indexOf("def") === 0) {
-                    // This is the function definition
-                    var regex = new RegExp('def *([^( ]*)', "g");
-                    var matches = regex.exec(line);
-                    return (matches[1]);
-                }
-            }
-            return "";
-        }
-
         $("#udf-fnUpload").click(function() {
             var fileName = $fnName.val();
 
@@ -1046,7 +1044,6 @@ window.RightSideBar = (function($, RightSideBar) {
         var sortedTables = [];
 
         tables.forEach(function(table) {
-            var tableName = table.tableName;
             var tableId = table.tableId;
             var timeStamp;
             if (gTableIndicesLookup[tableId]) {

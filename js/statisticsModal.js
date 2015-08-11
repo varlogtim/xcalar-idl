@@ -184,6 +184,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                     };
 
                     runGroupby(table, statsCol);
+                    showStats();
                 }
             })
             .fail(function(error) {
@@ -191,9 +192,8 @@ window.STATSManager = (function($, STATSManager, d3) {
             });
         } else {
             runGroupby(table, statsCol);
+            showStats();
         }
-
-        showStats();
     }
 
     function showStats() {
@@ -341,7 +341,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         var msg = StatusMessageTStr.Statistics + ' for ' + colName;
         var msgObj = {
             "msg"      : msg,
-            "operation": "Statistical analysis",
+            "operation": "Statistical analysis"
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
