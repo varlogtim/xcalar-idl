@@ -1272,7 +1272,12 @@ function addColListeners($table, tableId) {
     var $fnBar = $('#fnBar');
     $thead.on({
         "focus": function() {
-            var $colInput   = $(this);
+            if ($("#mainFrame").hasClass("modalOpen")) {
+                // not focus when in modal
+                return;
+            }
+
+            var $colInput = $(this);
 
             $fnBar.addClass('active');
             focusTable(tableId);

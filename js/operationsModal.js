@@ -307,7 +307,8 @@ window.OperationsModal = (function($, OperationsModal) {
             "fadeOutTime": time
         });
 
-        var $table = xcHelper.getElementByTableId(tableId, "xcTable");
+        var $table = $("#xcTable-" + tableId);
+
         if (isHide) {
             $functionInput.attr('placeholder', "");
 
@@ -1012,12 +1013,12 @@ window.OperationsModal = (function($, OperationsModal) {
         // 3. is include sample
         // 4. new col name
 
-        var errorText  = 'Invalid column name';
-        var isFormMode = false;
+        // var errorText  = 'Invalid column name';
+        // var isFormMode = false;
 
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
-        var numCols = columns.length;
-        var i;
+        // var columns = xcHelper.getTableFromId(tableId).tableCols;
+        // var numCols = columns.length;
+        // var i;
 
         var $argInputs = $operationsModal.find('.argument');
         var groupbyColName = args[0];
@@ -1241,64 +1242,50 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function insertText($input, textToInsert) {
-        var value = $input.val();
-        textToInsert = "$" + textToInsert;
+        var value  = $input.val();
+        var valLen = value.length;
+        var newVal;
        
-        var firstBracketIndex = value.lastIndexOf("(");
-        var lastBracketIndex = value.indexOf(")");
         var currentPos = $input[0].selectionStart;
         var selectionEnd = $input[0].selectionEnd;
         var numCharSelected = selectionEnd - currentPos;
-        if (numCharSelected !== 0) {
-            var begin = value.substr(0, currentPos);
-            var end = value.substr(currentPos + numCharSelected, value.length);
-            value = begin + end;
-        } else if ((firstBracketIndex >= 0 &&
-                    lastBracketIndex > firstBracketIndex) &&
-                    (currentPos > firstBracketIndex &&
-                    currentPos <= lastBracketIndex)) {
-            var textBetweenBrackets =
-                $.trim(value.substring(firstBracketIndex + 1,
-                                       lastBracketIndex));
-            if (value[lastBracketIndex - 1] === "(" ||
-                textBetweenBrackets === "") {
-                // fall through
-            } else if (currentPos !== lastBracketIndex) {
-                if ((currentPos - 1) === firstBracketIndex) {
-                    if (value[currentPos] !== " "
-                        && value[currentPos] !== ",") {
-                        textToInsert += ", ";
-                    }
-                } else if (value[currentPos - 2] === ","
-                    && value[currentPos - 1] === " ") {
-                    if (value[currentPos] !== " ") {
-                        textToInsert += ", ";
-                    }
-                }
-                else if (value[currentPos - 1] === ",") {
-                    textToInsert = " " + textToInsert;
-                    if (value[currentPos] !== " ") {
-                        textToInsert += ", ";
-                    } else if (value[currentPos + 1] !== " ") {
-                        textToInsert += ",";
-                    }
-                } else if (value[currentPos] === ",") {
-                    textToInsert = ", " + textToInsert;
-                }
-            } else if (value[currentPos - 2] !== ",") {
-                if (value[currentPos - 1] !== ','
-                    && value[currentPos] !== " ") {
-                    textToInsert = ", " + textToInsert;
-                } else if (value[currentPos - 1] === ',') {
-                    textToInsert = " " + textToInsert;
-                }
-            }  
+        var strLeft;
+        var strRight;
+
+        textToInsert = "$" + textToInsert;
+
+        if (valLen === "") {
+            // add to empty input box
+            newVal = textToInsert;
+            currentPos = newVal.length;
+        } else if (numCharSelected > 0) {
+            // replace a column
+            strLeft = value.substring(0, currentPos);
+            strRight = value.substring(selectionEnd, value.length);
+
+            newVal = strLeft + textToInsert;
+            currentPos = newVal.length;
+            newVal += strRight;
+        } else if (currentPos === valLen) {
+            // append a column
+            newVal = value + ", " + textToInsert;
+            currentPos = newVal.length;
+        } else if (currentPos === 0) {
+            // prepend a column
+            newVal = textToInsert + ", ";
+            currentPos = newVal.length; // cursor at the start of value
+            newVal += value;
+        } else {
+            // insert a column. numCharSelected =0= 0
+            strLeft = value.substring(0, currentPos);
+            strRight = value.substring(currentPos, value.length);
+
+            newVal = strLeft + textToInsert + ", ";
+            currentPos = newVal.length;
+            newVal += strRight;
         }
 
-        var strLeft = value.substring(0, currentPos);
-        var strRight = value.substring(currentPos, value.length);
-        $input.val(strLeft + textToInsert + strRight);
-        currentPos += textToInsert.length;
+        $input.trigger('focus').val(newVal);
         $input[0].setSelectionRange(currentPos, currentPos);
     }
 
