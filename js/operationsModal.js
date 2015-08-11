@@ -1254,7 +1254,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         textToInsert = "$" + textToInsert;
 
-        if (valLen === "") {
+        if (valLen === 0) {
             // add to empty input box
             newVal = textToInsert;
             currentPos = newVal.length;
