@@ -43,21 +43,20 @@ function getIndex(tName) {
 function setgTable(tName, index, dsName, tableProperties) {
     var deferred = jQuery.Deferred();
     var tableId = xcHelper.getTableId(tName);
-    gTables2[tableId] = new TableMeta;
+
+    gTables2[tableId] = new TableMeta();
     gTables2[tableId].tableCols = index;
     gTables2[tableId].timeStamp = xcHelper.getTimeInMS();
 
     if (tableProperties) {
         gTables2[tableId].bookmarks = tableProperties.bookmarks || [];
         gTables2[tableId].rowHeights = tableProperties.rowHeights || {};
-    } 
+    }
 
     gTables2[tableId].tableName = tName;
 
     setTableMeta(tName)
-    .then(function(newTableMeta){
-        deferred.resolve();
-    })
+    .then(deferred.resolve)
     .fail(function(error) {
         console.error("setTableMetaFails!", error);
         deferred.reject(error);
@@ -80,18 +79,18 @@ var KVKeys = {
     "STATS": "statsCols"
 };
 
-function commitToStorage(atStartup) {
+function commitToStorage() {
     var deferred = jQuery.Deferred();
-    var scratchPadText = $("#scratchPadSection textarea").val();
+    // var scratchPadText = $("#scratchPadSection textarea").val();
 
     // basic thing to store
     var storage = {};
 
     storage[KVKeys.TI] = gTables2;
-    storage[KVKeys.WS] =  {
+    storage[KVKeys.WS] = {
         "wsInfos"      : WSManager.getWorksheets(),
         "noSheetTables": WSManager.getNoSheetTables()
-    }
+    };
 
     storage[KVKeys.DS] = DS.getHomeDir();
     storage[KVKeys.SQL] = SQL.getHistory();
@@ -157,19 +156,19 @@ function readFromStorage() {
         }
         var totalDS = DS.restore(gDSObjFolder, datasets);
         DataStore.updateInfo(totalDS);
-        return (commitToStorage(AfterStartup.After));
     })
     .then(function() {
         var deferred2 = jQuery.Deferred();
         var promises = [];
         var failures = [];
         var tableCount = 0;
-        for (var table in tableIndicesLookup) {
-            var tableId = table;
+
+        for (var id in tableIndicesLookup) {
             promises.push((function(tableId) {
                 var innerDeferred = jQuery.Deferred();
                 var table = tableIndicesLookup[tableId];
                 var tableName = table.tableName;
+
                 getResultSet(tableName)
                 .then(function(resultSet) {
                     table.resultSetId = resultSet.resultSetId;
@@ -181,21 +180,22 @@ function readFromStorage() {
                     table.keyName = resultSet.keyAttrHeader.name;
 
                     if (table.isLocked) {
-                        lookupTable.isLocked = false;
-                        lookupTable.active = false;
+                        table.isLocked = false;
+                        table.active = false;
                     } else {
                         gTables2[tableId] = table;
                     }
                     innerDeferred.resolve();
                 })
                 .fail(function(thriftError) {
-                    failures.push("gTables initialization failed on " + tableName +
-                                 "fails: " + thriftError.error);
+                    var error = "gTables initialization failed on " +
+                                tableName + "fails: " + thriftError.error;
+                    failures.push(error);
                     innerDeferred.resolve(error);
                 });
 
                 return (innerDeferred.promise());
-            }).bind(this, tableId));
+            }).bind(this, id));
         }
        
         chain(promises)
@@ -220,12 +220,13 @@ function readFromStorage() {
 
         return (deferred2.promise());
     })
-    .then(function() {
-        deferred.resolve();
-    })
+    .then(deferred.resolve)
     .fail(function(error) {
         console.error("readFromStorage fails!", error);
         deferred.reject(error);
+    })
+    .always(function() {
+        commitToStorage(AfterStartup.After);
     });
 
     return (deferred.promise());

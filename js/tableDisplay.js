@@ -350,8 +350,8 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
 // get meta data about table
 function setTableMeta(tableName) {
     var deferred = jQuery.Deferred();
-    var tableId = xcHelper.getTableId(tableName);
-    var newTable    = gTables2[tableId];
+    var tableId  = xcHelper.getTableId(tableName);
+    var newTable = gTables2[tableId];
 
     newTable.currentRowNumber = 0;
 
