@@ -706,18 +706,6 @@ window.ColManager = (function($, ColManager) {
 
             $header.addClass('type-' + columnType);
             $header.find('.iconHelper').attr('title', columnType);
-
-            // these type should not have td dropdown
-            if (columnType !== "string" &&
-                columnType !== "decimal" &&
-                columnType !== "integer" &&
-                columnType !== "boolean")
-            {
-                $tBody.find("td.col" + (i + 1)).removeClass("clickable")
-                      .find(".addedBarTextWrap")
-                      .removeClass("clickable");
-            }
-
             if (tableCols[i].name === "recordNum") {
                 $header.addClass('recordNum');
             }
@@ -822,16 +810,6 @@ window.ColManager = (function($, ColManager) {
 
         $header.addClass('type-' + columnType);
         $header.find('.iconHelper').attr('title', columnType);
-
-        if (columnType !== "string" &&
-            columnType !== "decimal" &&
-            columnType !== "integer" &&
-            columnType !== "boolean")
-        {
-            $table.find("tbody td.col" + newColid)
-                    .removeClass("clickable").find('.addedBarTextWrap')
-                    .removeClass("clickable");
-        }
 
         if (key === "recordNum") {
             $header.addClass('recordNum');

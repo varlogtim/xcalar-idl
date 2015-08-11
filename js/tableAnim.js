@@ -1774,6 +1774,31 @@ function addColMenuActions($colMenu) {
 
         xcFunction.filter(colNum - 1, tableId, options);
     });
+
+    $colMenu.on('mouseup', '.tdCopy', function(event) {
+        var $li = $(this);
+        if (event.which !== 1 || $li.hasClass('unavailable')) {
+            return;
+        }
+        var rowNum  = $colMenu.data('rowNum');
+        var colNum  = $colMenu.data('colNum');
+
+        var $table  = $("#xcTable-" + tableId);
+        var $header = $table.find("th.col" + colNum + " .header");
+        var $td     = $table.find(".row" + rowNum + " .col" + colNum);
+        var $tdVal = $td.find(".addedBarTextWrap");
+
+        copyToClipboard($tdVal);
+    });
+        
+}
+
+function copyToClipboard($selector) {
+    var $hiddenInput = $("<input>");
+    $("body").append($hiddenInput);
+    $hiddenInput.val($selector.text()).select();
+    document.execCommand("copy");
+    $hiddenInput.remove();
 }
 
 function closeMenu($menu) {
@@ -1912,6 +1937,21 @@ function dropdownClick($el, options) {
             $menu.hide();
             return;
         }
+
+        // If the tdDropdown is on a non-filterable value, we need to make the
+        // filter options unavailable
+        var columnType = gTables2[tableId].tableCols[options.colNum-1].type;
+        if (columnType !== "string" &&
+            columnType !== "decimal" &&
+            columnType !== "integer" &&
+            columnType !== "boolean")
+        {
+            $menu.find(".tdFilter").addClass("unavailable");
+            $menu.find(".tdExclude").addClass("unavailable");
+        } else {
+            $menu.find(".tdFilter").removeClass("unavailable");
+            $menu.find(".tdExclude").removeClass("unavailable");
+        } 
     }
     $('.highlightBox').remove();
     $(".colMenu:visible").hide();
@@ -1941,7 +1981,6 @@ function dropdownClick($el, options) {
             $menu.find('.sort .sort').removeClass('unavailable');
         }
     }
-
     
     //position menu
     var topMargin  = options.type === "tdDropdown" ? 15 : -4;
@@ -1957,8 +1996,7 @@ function dropdownClick($el, options) {
         left = $el[0].getBoundingClientRect().left + leftMargin;
     }
 
-    $menu.css({"top": top, "left": left})
-        .show();
+    $menu.css({"top": top, "left": left}).show();
 
     $menu.closest('.xcTheadWrap').css('z-index', '10');
 
