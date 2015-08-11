@@ -821,12 +821,16 @@ function createTableHeader(tableId) {
     }, ".tableTitle .text");
 
     $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function() {
-        var classes = "";
-        var $xcTableWrap = $(this).closest('.xcTableWrap');
-        if ($xcTableWrap.hasClass('tableLocked')) {
+        var classes = "tableMenu";
+        var $dropdown = $(this);
+        if ($(this).closest('.xcTableWrap').hasClass('tableLocked')) {
             classes += "locked";
         }
-        dropdownClick($(this), {"type": "tableDropdown", "classes": classes});
+
+        dropdownClick($dropdown, {
+            "type"   : "tableDropdown",
+            "classes": classes
+        });
     });
 
     // Change from $xcTheadWrap.find('.tableGrab').mosedown...
@@ -911,10 +915,11 @@ function addTableMenuActions($tableMenu) {
     $tableMenu.on('mouseup', '.exportTable', function(event) {
         if (event.which !== 1) {
             return;
-        };
-        var tableName =xcHelper.getTableFromId(tableId).tableName;
+        }
 
-        ExportModal.show(tableName);;
+        var tableName = xcHelper.getTableFromId(tableId).tableName;
+
+        ExportModal.show(tableName);
     });
 
     $tableMenu.on('mouseup', '.delAllDuplicateCols', function(event) {
@@ -1834,7 +1839,7 @@ function dropdownClick($el, options) {
         }
         // XXX Use CSS to show the options
     } else if (options.type === "tdDropdown") {
-         $menu = $('#colMenu-' + tableId);
+        $menu = $('#colMenu-' + tableId);
         // case that should close column menu
         if ($menu.is(":visible") &&
             $menu.data("colNum") === options.colNum &&
@@ -2264,7 +2269,7 @@ function createShadowTable() {
     }
 }
 
-function createTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
+function createTableDropTargets() {
     var offset = gDragObj.mouseX - gDragObj.offsetLeft;
     var dragMargin = 10;
     var tableLeft;
@@ -2349,7 +2354,6 @@ function reorderAfterTableDrop() {
     var tableId = gDragObj.tableId;
     var tableIndex = gDragObj.tableIndex;
 
-    var originalIndex = WSManager.getTablePosition(tableId);
     WSManager.reorderTable(tableId, gDragObj.originalIndex, tableIndex);
 
     var newIndex = WSManager.getTablePosition(tableId);
@@ -2363,7 +2367,7 @@ function reorderAfterTableDrop() {
         $dagWraps.eq(newIndex).after($dagWrap);
     } else if (gDragObj.originalIndex > tableIndex) {
         $dagWraps.eq(newIndex).before($dagWrap);
-    } 
+    }
 }
 
 function moveFirstColumn($targetTable) {
@@ -2605,7 +2609,6 @@ window.RowScroller = (function($, RowScroller) {
 
     RowScroller.update = function(tableId) {
         var $numPages = $("#numPages");
-        var $table = $('#xcTable-' + tableId);
         var table = xcHelper.getTableFromId(gActiveTableId);
         showRowScroller(tableId);
         var inputWidth = 50;
