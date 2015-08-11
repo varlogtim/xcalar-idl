@@ -121,6 +121,9 @@ window.RightSideBar = (function($, RightSideBar) {
 
                 if (action === "add") {
                     if (type === 'orphan') {
+
+                        tableId = xcHelper.getTableId(tableName);
+                        WSManager.addTable(tableId);
                         prepareOrphanForActive(tableName)
                         .then(function() {
                             doneHandler($li, tableName);
@@ -129,6 +132,7 @@ window.RightSideBar = (function($, RightSideBar) {
                         })
                         .then(innerDeferred.resolve)
                         .fail(function(error) {
+                            WSManager.removeTable(tableId);
                             failHandler($li, tableName, error);
                             innerDeferred.resolve(error);
                         });
@@ -237,6 +241,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
     function prepareOrphanForActive(tableName) {
         var deferred = jQuery.Deferred();
+
         XcalarMakeResultSetFromTable(tableName)
         .then(function(result) {
             var newTableCols = [];
