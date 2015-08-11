@@ -588,13 +588,16 @@ function autosizeCol(el, options) {
     var $table = el.closest('.dataTable');
     var tableId = xcHelper.parseTableId($table);
     var table = xcHelper.getTableFromId(tableId);
+
     var includeHeader = options.includeHeader || false;
     // var resizeFirstRow = options.resizeFirstRow || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 10);
 
     
-    var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader,
-                                              target: options.target});
+    var widestTdWidth = getWidestTdWidth(el, {
+        "includeHeader": includeHeader,
+        "target"       : options.target
+    });
     var newWidth = Math.max(widestTdWidth, minWidth);
     // dbClick is autoSized to a fixed width
     if (!options.dbClick) {
@@ -674,7 +677,8 @@ function dblClickResize($el, options) {
         $el.tooltip('destroy');
         gMouseStatus = null;
         reenableTextSelection();
-        var options = options || {};
+        options = options || {};
+
         var $th = $el.parent().parent();
         var colNum = xcHelper.parseColNum($th);
         var $table = $th.closest('.dataTable');
@@ -694,7 +698,8 @@ function dblClickResize($el, options) {
         } else {
             var tableId = $table.data('id');
             var column =  gTables2[tableId].tableCols[colNum - 1];
-            var includeHeader = column.sizeToHeader;
+
+            includeHeader = column.sizeToHeader;
             if (includeHeader) {
                 column.sizeToHeader = false;
             } else {
@@ -2077,8 +2082,9 @@ function adjustRowHeights(newCells, rowIndex, tableId) {
 
 function addTableListeners(tableId) {
     var $xcTableWrap = $('#xcTableWrap-' + tableId);
+
     $xcTableWrap.mousedown(function() {
-        var tableId = xcHelper.parseTableId($(this));
+        // var tableId = xcHelper.parseTableId($(this));
         if (gActiveTableId === tableId) {
             return;
         } else {

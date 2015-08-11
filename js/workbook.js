@@ -842,7 +842,7 @@ window.WKBKManager = (function($, WKBKManager) {
 
     // first time to save this user
     function newUser(name) {
-        return { 
+        return {
             "username" : name,
             "workbooks": []
         };

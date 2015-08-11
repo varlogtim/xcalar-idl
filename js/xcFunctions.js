@@ -155,6 +155,7 @@ window.xcFunction = (function($, xcFunction) {
         // Cheng must add to worksheet before async call
         var newTableId = xcHelper.getTableId(newTableName);
         WSManager.addTable(newTableId);
+
         xcHelper.lockTable(tableId);
 
         var sqlOptions = {
@@ -167,7 +168,6 @@ window.xcFunction = (function($, xcFunction) {
         XcalarIndexFromTable(tableName, backFieldName, newTableName, sqlOptions)
         .then(function() {
             // sort do not change groupby stats of the table
-            var newTableId = xcHelper.getTableId(newTableName);
             STATSManager.copy(tableId, newTableId);
 
             return (setgTable(newTableName, tablCols, null, null));
@@ -350,6 +350,7 @@ window.xcFunction = (function($, xcFunction) {
         for (var i = 0; i < groupByCols.length; i++) {
             groupByCols[i] = groupByCols[i].trim();
         }
+
         multiGroupBy(groupByCols, tableId)
         .then(function(result) {
             // table name may change after sort!
@@ -448,26 +449,26 @@ window.xcFunction = (function($, xcFunction) {
             }
             // Note that if include sample a.b should not be escaped to a\.b
             if (!isIncSample && tablCols[1].name.indexOf('.') > -1) {
-                for (var i = 0; i<tablCols.length-1; i++) {
-                    if (tablCols[i+1].name.indexOf('.') === -1) {
+                for (var i = 0; i < tablCols.length - 1; i++) {
+                    if (tablCols[i + 1].name.indexOf('.') === -1) {
                         continue;
                     }
-                    var newEscapedName = tablCols[i+1].name.replace(/\./g,
+                    var newEscapedName = tablCols[i + 1].name.replace(/\./g,
                                                                     "\\\.");
-                    tablCols[i+1].userStr = tablCols[i+1].name + '" = pull(' +
-                                            newEscapedName + ')';
-                    tablCols[i+1].func.args = [newEscapedName];
+                    tablCols[i + 1].userStr = tablCols[i + 1].name +
+                                            '" = pull(' + newEscapedName + ')';
+                    tablCols[i + 1].func.args = [newEscapedName];
                 }
             }
 
             tablCols[1 + groupByCols.length] =
                                  xcHelper.deepCopy(table.tableCols[dataColNum]);
-            WSManager.addTable(xcHelper.getTableId(nTableName), 
-                               currWorksheetIdx); 
+            WSManager.addTable(xcHelper.getTableId(nTableName),
+                                currWorksheetIdx);
 
             xcHelper.unlockTable(tableId);
             finalTableName = nTableName;
-            return(setgTable(nTableName, tablCols));
+            return (setgTable(nTableName, tablCols));
             
         })
         .then(function() {
@@ -647,7 +648,7 @@ window.xcFunction = (function($, xcFunction) {
             var refreshOptions = {
                 "lockTable": true
             };
-             return (refreshTable(lNewName, lTableName, refreshOptions));
+            return (refreshTable(lNewName, lTableName, refreshOptions));
         })
         .then(function() {
             var rTableCols = mapColGenerate(rColNum, rFieldName, rMapString,
@@ -754,20 +755,23 @@ window.xcFunction = (function($, xcFunction) {
             "newName"  : newTableName
         };
 
-        xcHelper.lockTable(tableId);
+        // not lock table is the operation is short
+        var lockTimer = setTimeout(function() {
+            xcHelper.lockTable(tableId);
+        }, 500);
 
         XcalarRenameTable(oldTableName, newTableName, sqlOptions)
         .then(function() {
-            // does renames for gTables, worksheet, rightsidebar, dag
+            // does renames for gTables, rightsidebar, dag
             table.tableName = newTableName;
-            gTables2[tableId].tableName = newTableName;
 
             RightSideBar.renameTable(tableId, newTableName);
             Dag.renameAllOccurrences(oldTableName, newTableName);
 
-            var $th = xcHelper.getElementByTableId(tableId, "xcTheadWrap");
-            $th.find(".tableTitle .text").data('title', newTableName);
+            $("#xcTheadWrap-" + tableId).find(".tableTitle .text")
+                                        .data('title', newTableName);
 
+            commitToStorage();
             deferred.resolve(newTableName);
         })
         .fail(function(error) {
@@ -775,6 +779,7 @@ window.xcFunction = (function($, xcFunction) {
             deferred.reject(error);
         })
         .always(function() {
+            clearTimeout(lockTimer);
             xcHelper.unlockTable(tableId);
         });
 
@@ -803,6 +808,7 @@ window.xcFunction = (function($, xcFunction) {
             var wsIndex = WSManager.getWSFromTable(tableId);
             // must add to worksheet before async call
             WSManager.addTable(newTableId, wsIndex);
+
             var sqlOptions = {
                     "operation"   : "index",
                     "key"         : colName,
@@ -812,8 +818,8 @@ window.xcFunction = (function($, xcFunction) {
             XcalarIndexFromTable(tableName, colName, newTableName, sqlOptions)
             .then(function() {
                 var tablCols = xcHelper.deepCopy(table.tableCols);
+
                 setgTable(newTableName, tablCols);
-                var newTableId = xcHelper.getTableId(newTableName);
                 gTables2[newTableId].active = false;
 
                 deferred.resolve({
@@ -914,7 +920,7 @@ window.xcFunction = (function($, xcFunction) {
             var currTableName = tableName;
             var currExec = 0;
             for (var i = 0; i < colArray.length; i++) {
-                var mapStr = mapStrStarter + (i+1) + ", " + '".Xc."' + ")";
+                var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
                 var newTableName = getNewTableName(currTableName);
                 var sqlOptions = {
                         "operation"   : "mapColumn",
@@ -945,16 +951,16 @@ window.xcFunction = (function($, xcFunction) {
             }
             var starter = jQuery.Deferred();
             var chain = starter.promise();
-            for (var i = 0; i<colArray.length; i++) {
-                chain = chain.then((function(i) {
-                    return (deferredArray[i]);
+            for (var i = 0; i < colArray.length; i++) {
+                chain = chain.then((function(index) {
+                    return (deferredArray[index]);
                 })(i));
             }
             starter.resolve();
             chain
             .then(function() {
                 WSManager.addTable(xcHelper.getTableId(lastTableName),
-                                   currWorksheetIdx); 
+                                   currWorksheetIdx);
                 console.log(lastTableName);
                 deferred.resolve(lastTableName);
             })

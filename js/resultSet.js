@@ -40,14 +40,14 @@ function freeAllResultSetsSync() {
             promises.push(XcalarSetFree.bind(this, gDatasetBrowserResultSetId));
         }
 
-        return (chain(promises))
+        return (chain(promises));
 
     })
     .then(deferred.resolve)
     .fail(function(error) {
         console.error(error);
         deferred.reject(error);
-    })
+    });
 
     return (deferred.promise());
 }

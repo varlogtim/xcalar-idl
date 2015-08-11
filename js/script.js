@@ -27,7 +27,7 @@ var gTables2 = {}; // This is the main global array containing structures
                     // Stores TableMeta structs
 var gOrphanTables = [];
 var gFnBarOrigin;
-var gActiveTableId = ""; 
+var gActiveTableId = "";
 var gDSObj = {};    //obj for DS folder structure
 var gRetinaObj = {}; //obj for retina modal
 var gLastClickTarget = $(window); // track which element was last clicked
@@ -269,7 +269,7 @@ function setupHiddenTable(tableName) {
     var deferred = jQuery.Deferred();
 
     setTableMeta(tableName)
-    .then(function(newTableMeta) {
+    .then(function() {
         var tableId = xcHelper.getTableId(tableName);
         var table = gTables2[tableId];
         table.active = false;
@@ -532,6 +532,7 @@ function initializeTable() {
         var failures = [];
         var tableName;
         var tableId;
+        var currentTable;
         var worksheets = WSManager.getWorksheets();
         var numWorksheets = worksheets.length;
 
@@ -546,11 +547,10 @@ function initializeTable() {
             // create active tables
             for (var j = 0; j < numWsTables; j++) {
                 tableId = wsTables[j];
-                var currentTable = gTables2[tableId];
+                currentTable = gTables2[tableId];
 
-                if (currentTable.isLocked) {
-                    currentTable.isLocked = false;
-                    currentTable.active = false;
+                if (!currentTable) {
+                    console.error("not find table", tableId);
                     continue;
                 }
 
@@ -558,16 +558,13 @@ function initializeTable() {
                 delete tableMap[tableName];
                 ++tableCount;
 
-                promises.push((function(tablName, tableId) {
+                promises.push((function(tName, tId) {
                     var innerDeferred = jQuery.Deferred();
 
-                    // addTable(tablName, null, null, null)
-                    WSManager.replaceTable(tableId);
-
-                    parallelConstruct(tableId)
+                    parallelConstruct(tId)
                     .then(innerDeferred.resolve)
                     .fail(function(thriftError) {
-                        failures.push("Add table " + tablName +
+                        failures.push("Add table " + tName +
                                      "fails: " + thriftError.error);
                         innerDeferred.resolve(error);
                     });
@@ -581,19 +578,24 @@ function initializeTable() {
             var numHiddenWsTables = wsHiddenTables.length;
             for (var j = 0; j < numHiddenWsTables; j++) {
                 tableId = wsHiddenTables[j];
-                var currentTable = gTables2[tableId];
+                currentTable = gTables2[tableId];
+
+                if (!currentTable) {
+                    console.error("not find table", tableId);
+                    continue;
+                }
 
                 tableName = currentTable.tableName;
                 delete tableMap[tableName];
                 ++tableCount;
 
-                promises.push((function(tablName) {
+                promises.push((function(tName) {
                     var innerDeferred = jQuery.Deferred();
 
-                    setupHiddenTable(tablName)
+                    setupHiddenTable(tName)
                     .then(innerDeferred.resolve)
                     .fail(function(thriftError) {
-                        failures.push("set hidden table " + tablName +
+                        failures.push("set hidden table " + tName +
                                      "fails: " + thriftError.error);
                         innerDeferred.resolve(error);
                     });
@@ -609,19 +611,24 @@ function initializeTable() {
 
         for (var i = 0; i < numNoSheetTables; i++) {
             tableId = noSheetTables[i];
-            var currentTable = gTables2[tableId];
+            currentTable = gTables2[tableId];
+
+            if (!currentTable) {
+                console.error("not find table", tableId);
+                continue;
+            }
 
             tableName = currentTable.tableName;
             delete tableMap[tableName];
             ++tableCount;
 
-            promises.push((function(tablName) {
+            promises.push((function(tName) {
                 var innerDeferred = jQuery.Deferred();
 
-                setupHiddenTable(tablName)
+                setupHiddenTable(tName)
                 .then(innerDeferred.resolve)
                 .fail(function(thriftError) {
-                    failures.push("set no sheet table " + tablName +
+                    failures.push("set no sheet table " + tName +
                                     "fails: " + thriftError.error);
                     innerDeferred.resolve(error);
                 });
@@ -695,7 +702,7 @@ function documentReadyIndexFunction() {
         .fail(function(error) {
             if (typeof error === "string"){
                 // when it's a front end error, already has handler
-                console.error("Setup fails", error)
+                console.error("Setup fails", error);
             } else {
                 // when it's an error from backend we cannot handle
                 Alert.error("Setup fails", error);

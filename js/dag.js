@@ -726,7 +726,7 @@ window.Dag = (function($, Dag) {
     function showDagSchema($dagTable) {
         $('#dagSchema').remove();
         var tableName = $dagTable.data('tablename'); //XX todo grab tableId instead
-        var tableId = xcHelper.getTableId(tableName); 
+        var tableId = xcHelper.getTableId(tableName);
         var table = gTables2[tableId];
         if (table) {
             var numCols = table.tableCols.length;

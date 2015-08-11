@@ -23,7 +23,7 @@ window.StatusMessage = (function($, StatusMessage) {
         });
     };
 
-    // msgObj should have these properties: msg, operation 
+    // msgObj should have these properties: msg, operation
     StatusMessage.addMsg = function(msgObj) {
         msgObj = msgObj || {};
         msgObj.worksheetNum = WSManager.getActiveWS();
@@ -315,7 +315,7 @@ window.StatusMessage = (function($, StatusMessage) {
         } else {
             var wsNum = msgObjs[msgId].worksheetNum;
             var activeWS = WSManager.getActiveWS() || 0;
-            if (wsNum !== activeWS || failed) { 
+            if (wsNum !== activeWS || failed) {
                 // we're on a different worksheet than the table is on
                 // so position the popup next to the worksheet tab
                 popupNeeded = true;
@@ -330,7 +330,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 }
                 classes += ' worksheetNotify';
                 classes += ' worksheetNotify' + wsNum;
-            } else { 
+            } else {
                 // we're on the correct worksheet, now find if table is visible
                 var tableId = newTableId;
                 var visibility = tableVisibility(tableId);
@@ -362,7 +362,7 @@ window.StatusMessage = (function($, StatusMessage) {
                             arrow = 'rightArrow';
                         }
                         classes += ' rightSide';
-                    } 
+                    }
                 }
             }            
         }
