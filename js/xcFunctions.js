@@ -464,7 +464,6 @@ window.xcFunction = (function($, xcFunction) {
                                  xcHelper.deepCopy(table.tableCols[dataColNum]);
             WSManager.addTable(xcHelper.getTableId(nTableName), 
                                currWorksheetIdx); 
-            setIndex(nTableName, tablCols);
 
             xcHelper.unlockTable(tableId);
             finalTableName = nTableName;
