@@ -61,6 +61,7 @@ function gRescolMouseDown(el, event, options) {
     rescol.grabbedCell = el.parent().parent();  // the th
     rescol.index = colNum;
     rescol.startWidth = rescol.grabbedCell.outerWidth();
+    rescol.newWidth = rescol.startWidth;
     rescol.table = $table;
     rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
     rescol.headerDiv = el.parent(); // the .header div
@@ -77,13 +78,15 @@ function gRescolMouseDown(el, event, options) {
 function gRescolMouseMove(event) {
     var rescol = gRescol;
     var dragDist = (event.pageX - rescol.mouseStart);
+    var newWidth;
     if (dragDist > rescol.leftDragMax) {
-        rescol.grabbedCell.outerWidth(rescol.startWidth + dragDist);
-        rescol.headerDiv.outerWidth(rescol.startWidth + dragDist);
+        newWidth = rescol.startWidth + dragDist;
     } else if (dragDist < rescol.leftDragMax ) {
-        rescol.grabbedCell.outerWidth(rescol.tempCellMinWidth);
-        rescol.headerDiv.outerWidth(rescol.tempCellMinWidth);
+        newWidth = rescol.tempCellMinWidth;
     }
+    rescol.grabbedCell.outerWidth(newWidth);
+    rescol.headerDiv.outerWidth(newWidth);
+    rescol.newWidth = newWidth;
     var tableWidth = rescol.table.width();
     rescol.tableHead.width(tableWidth);
     moveTableTitles();
@@ -91,6 +94,7 @@ function gRescolMouseMove(event) {
 
 function gRescolMouseUp() {
     gMouseStatus = null;
+    var rescol = gRescol;
     $('#col-resizeCursor').remove();
     reenableTextSelection();
     gRescol.table.find('.rowGrab').width(gRescol.table.width());
@@ -98,8 +102,19 @@ function gRescolMouseUp() {
         var table = xcHelper.getTableFromId(gRescol.tableId);
         var progCol = table.tableCols[gRescol.index - 1];
         progCol.width = gRescol.grabbedCell.outerWidth();
+        if (rescol.newWidth - 1 > rescol.startWidth ||
+            rescol.newWidth + 1 < rescol.startWidth) {
+            // set autoresize to header only if column moved at least 2 pixels
+            var column = gTables2[rescol.tableId].tableCols[rescol.index - 1];
+            column.sizeToHeader = true;
+        }
     } else {
-        gRescol.isDatastore = false;
+        rescol.isDatastore = false;
+        if (rescol.newWidth - 1 > rescol.startWidth ||
+            rescol.newWidth + 1 < rescol.startWidth) {
+            // set autoresize to header only if column moved at least 2 pixels
+            rescol.grabbedCell.find('.colGrab').data('sizetoheader', true);
+        }
     }
     moveTableDropdownBoxes();
 }
@@ -578,7 +593,8 @@ function autosizeCol(el, options) {
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 10);
 
     
-    var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader});
+    var widestTdWidth = getWidestTdWidth(el, {includeHeader: includeHeader,
+                                              target: options.target});
     var newWidth = Math.max(widestTdWidth, minWidth);
     // dbClick is autoSized to a fixed width
     if (!options.dbClick) {
@@ -626,6 +642,9 @@ function getWidestTdWidth(el, options) {
     if (includeHeader) {
         var th = $table.find('.col' + id + ' .editableHead');
         var extraPadding = 48;
+        if (options.target === "datastore") {
+            extraPadding += 4;
+        }
         headerWidth = getTextWidth(th) + extraPadding;
         if (headerWidth > largestWidth) {
             largestWidth = headerWidth;
@@ -643,38 +662,72 @@ function getTdHeights() {
     return (tdHeights);  
 }
 
-function dblClickResize(el, options) {
+function dblClickResize($el, options) {
+    // $el is the colGrab div inside the header
     gRescol.clicks++;  //count clicks
     if (gRescol.clicks === 1) {
         gRescol.timer = setTimeout(function() {   
             gRescol.clicks = 0; //after action performed, reset counter
         }, gRescol.delay);
     } else {
+        $('#col-resizeCursor').remove();
+        $el.tooltip('destroy');
         gMouseStatus = null;
         reenableTextSelection();
+        var options = options || {};
+        var $th = $el.parent().parent();
+        var colNum = xcHelper.parseColNum($th);
+        var $table = $th.closest('.dataTable');
+        $table.find('.colGrab')
+              .removeAttr('data-toggle data-original-title title');
 
+        var includeHeader;
+        var target = options.target;
+        if (target === "datastore") {
+            if ($el.data('sizetoheader')) {
+                includeHeader = true;
+                $el.data('sizetoheader', false);
+            } else {
+                includeHeader = false;
+                $el.data('sizetoheader', true);
+            }
+        } else {
+            var tableId = $table.data('id');
+            var column =  gTables2[tableId].tableCols[colNum - 1];
+            var includeHeader = column.sizeToHeader;
+            if (includeHeader) {
+                column.sizeToHeader = false;
+            } else {
+                column.sizeToHeader = true;
+            }
+        }
+        
         var resize;
-        if (el.closest('tHead').index() === 0) {
+        if ($el.closest('tHead').index() === 0) {
             resize = true;
         } else {
             resize = false;
         }
 
         var minWidth;
-        if (options && options.minWidth) {
+        if (options.minWidth) {
             minWidth = options.minWidth;
         } else {
             minWidth = 17;
         }
-        autosizeCol(el.parent().parent(), {
+       
+        autosizeCol($th, {
             "resizeFirstRow": resize,
             "dbClick"       : true,
             "minWidth"      : minWidth,
-            "unlimitedWidth": true
+            "unlimitedWidth": true,
+            "includeHeader" : includeHeader,
+            "target"        : target
         });
         $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
         gRescol.clicks = 0;      //after action performed, reset counter
+        
     }
 }
 

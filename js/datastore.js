@@ -1288,7 +1288,7 @@ window.DataPreview = (function($, DataPreview) {
                 return;
             }
             gRescolMouseDown($(this), event, {target: "datastore"});
-            dblClickResize($(this), {minWidth: 25});
+            dblClickResize($(this), {minWidth: 25, target: "datastore"});
         });
 
         var $suggSection = $("#previewSugg");
@@ -1610,7 +1610,8 @@ window.DataPreview = (function($, DataPreview) {
 
     function getTheadHTML(tdLen) {
         var thead = "<thead><tr>";
-        var colGrab = (delimiter === "") ? "" : '<div class="colGrab"></div>';
+        var colGrab = (delimiter === "") ? "" : '<div class="colGrab" ' +
+                                            'data-sizetoheader="true"></div>';
 
         if (hasHeader) {
             thead +=
@@ -1670,7 +1671,8 @@ window.DataPreview = (function($, DataPreview) {
         var hasBackSlash = false;
         var del = delimiter;
         var hasDelimiter = (del !== "");
-        var colGrab = hasDelimiter ? '<div class="colGrab"></div>' : "";
+        var colGrab = hasDelimiter ? '<div class="colGrab" ' +
+                                     'data-sizetoheader="true"></div>' : "";
         var html = isTh ? '<th><div class="header">' + colGrab +
                             '<div class="text">'
                             : '<td>';
@@ -2110,7 +2112,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 return;
             }
             gRescolMouseDown($(this), event, {target: "datastore"});
-            dblClickResize($(this), {minWidth: 25});
+            dblClickResize($(this), {minWidth: 25, target: "datastore"});
         });
         $('#datasetWrap').scroll(function(){
             moveFirstColumn($('#worksheetTable'));
@@ -2215,7 +2217,8 @@ window.DataSampleTable = (function($, DataSampleTable) {
                             'title="Double click to <br />auto resize" ' +
                             'data-toggle="tooltip" ' +
                             'data-container="body" ' +
-                            'data-placement="left">' +
+                            'data-placement="left" ' +
+                            'data-sizetoheader="true">' +
                         '</div>' +
                         '<div class="flexContainer flexRow">' +
                             '<div class="flexWrap flex-left" ' +

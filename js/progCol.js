@@ -17,6 +17,7 @@ window.ColManager = (function($, ColManager) {
             this.type = "undefined";
             this.func = {};
             this.width = 0;
+            this.sizeToHeader = true;
             this.userStr = "";
             this.isNewCol = true;
             this.textAlign = "Center";
