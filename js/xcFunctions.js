@@ -325,7 +325,7 @@ window.xcFunction = (function($, xcFunction) {
 
         var table     = xcHelper.getTableFromId(tableId);
         var tableName = table.tableName;
-
+        var currWorksheetIdx = WSManager.getWSFromTable(tableId);
         var columns = table.tableCols;
         var numCols = columns.length;
         var finalTableName;
@@ -403,7 +403,8 @@ window.xcFunction = (function($, xcFunction) {
             var indexedColNum = -1;
             if (groupByCols.length === 1) {
                 for (var i = 0; i < numCols; i++) {
-                    if (columns[i].name === indexedColName && columns[i].func.args) {
+                    if (columns[i].name === indexedColName &&
+                        columns[i].func.args) {
                         indexedColNum = i;
                         break;
                     }
@@ -411,6 +412,7 @@ window.xcFunction = (function($, xcFunction) {
             }
 
             if (indexedColNum === -1) {
+                // XXX HANDLE votes.funny cleanly!
                 if (groupByCols.length === 1) {
                     tablCols[1] = ColManager.newCol({
                         "index"   : 2,
@@ -445,16 +447,27 @@ window.xcFunction = (function($, xcFunction) {
             } else {
                 tablCols[1] = xcHelper.deepCopy(table.tableCols[indexedColNum]);
             }
-            // Note that if inculde sample a.b should not be escaped to a\.b
+            // Note that if include sample a.b should not be escaped to a\.b
             if (!isIncSample && tablCols[1].name.indexOf('.') > -1) {
-                var newEscapedName = tablCols[1].name.replace(/\./g, "\\\.");
-                tablCols[1].userStr = tablCols[1].name + '" = pull(' +
-                                      newEscapedName + ')';
-                tablCols[1].func.args = [newEscapedName];
+                for (var i = 0; i<tablCols.length-1; i++) {
+                    if (tablCols[i+1].name.indexOf('.') === -1) {
+                        continue;
+                    }
+                    var newEscapedName = tablCols[i+1].name.replace(/\./g,
+                                                                    "\\\.");
+                    tablCols[i+1].userStr = tablCols[i+1].name + '" = pull(' +
+                                            newEscapedName + ')';
+                    tablCols[i+1].func.args = [newEscapedName];
+                }
             }
 
             tablCols[1 + groupByCols.length] =
                                  xcHelper.deepCopy(table.tableCols[dataColNum]);
+            WSManager.addTable(xcHelper.getTableId(nTableName), 
+                               currWorksheetIdx); 
+            setIndex(nTableName, tablCols);
+
+            xcHelper.unlockTable(tableId);
             finalTableName = nTableName;
             return(setgTable(nTableName, tablCols));
             
@@ -791,7 +804,7 @@ window.xcFunction = (function($, xcFunction) {
             // append new table to the same ws as the old table
             var wsIndex = WSManager.getWSFromTable(tableId);
             // must add to worksheet before async call
-            WSManager.addTable(newTableId, wsIndex, true);
+            WSManager.addTable(newTableId, wsIndex);
             var sqlOptions = {
                     "operation"   : "index",
                     "key"         : colName,
@@ -833,6 +846,7 @@ window.xcFunction = (function($, xcFunction) {
     function multiGroupBy(groupByCols, tableId) {
         var deferred = jQuery.Deferred();
         console.log(arguments);
+                // XXX TODO WSManager.delTable
         var groupByField;
         var newTableName;
         if (groupByCols.length === 1) {
@@ -842,6 +856,7 @@ window.xcFunction = (function($, xcFunction) {
             groupByField = xcHelper.randName("multiGroupBy", 5);
             var originTable = xcHelper.getTableFromId(tableId).tableName;
             newTableName = getNewTableName(originTable);
+
             for (var i = 0; i < groupByCols.length; i++) {
                 mapStr += groupByCols[i] + ", ";
             }
@@ -872,7 +887,13 @@ window.xcFunction = (function($, xcFunction) {
                         "tableName"      : reindexedTableName,
                         "indexCol"       : groupByField
                     });
+                })
+                .fail(function() {
+                    // XXX TODO HANDLE ME
                 });
+            })
+            .fail(function() {
+                // XXX TODO HANDLE ME
             });
         }
         return (deferred.promise());
@@ -881,18 +902,21 @@ window.xcFunction = (function($, xcFunction) {
     function extractColFromMap(tableName, colArray, colName) {
         var deferred = jQuery.Deferred();
         var lastTableName = tableName;
+        var currWorksheetIdx =
+                       WSManager.getWSFromTable(xcHelper.getTableId(tableName));
         if (colArray.length === 1) {
             deferred.resolve(tableName);
         } else {
+            WSManager.removeTable(xcHelper.getTableId(tableName));
             var deferredArray = []; // Array for deferred
             var argArray = [];
             // XXX Okay this is really dumb, but we have to keep mapping
             // XXX TODO FIXME When Mike fixes cut, this should use cut
-            var mapStrStarter = "getNthColModule:getNth(" + colName + ", ";
+            var mapStrStarter = "cut(" + colName + ", ";
             var currTableName = tableName;
             var currExec = 0;
             for (var i = 0; i < colArray.length; i++) {
-                var mapStr = mapStrStarter + i + ")";
+                var mapStr = mapStrStarter + (i+1) + ", " + '".Xc."' + ")";
                 var newTableName = getNewTableName(currTableName);
                 var sqlOptions = {
                         "operation"   : "mapColumn",
@@ -931,6 +955,8 @@ window.xcFunction = (function($, xcFunction) {
             starter.resolve();
             chain
             .then(function() {
+                WSManager.addTable(xcHelper.getTableId(lastTableName),
+                                   currWorksheetIdx); 
                 console.log(lastTableName);
                 deferred.resolve(lastTableName);
             })

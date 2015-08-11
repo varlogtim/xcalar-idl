@@ -716,13 +716,6 @@ window.RightSideBar = (function($, RightSideBar) {
                     '\t\tstri = stri + str(a) + ".Xc."\n' +
                 '\treturn stri\n';
         XcalarUploadPython(moduleName, entireString);
-
-        var moduleName2 = "getNthColModule";
-        var entireString2 =
-            'def getNth(colVal, n):\n' +
-                '\tarr = colVal.split(".Xc.")\n' +
-                '\treturn str(arr[n])\n';
-        XcalarUploadPython(moduleName2, entireString2);
     }
 
     function uploadSuccess() {
