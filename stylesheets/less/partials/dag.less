@@ -647,29 +647,44 @@
             .action-gradient;
             border-top-left-radius: 2px;
             border-top-right-radius: 2px;
-            width: 160px;
+            width: 170px;
             padding: 0 4px;
+        }
+
+        .background {
+            width: 90px;
+            height: 100%;
+            border-radius: 3px;
+            background-color: #F4F4F4;
+            top: 0px;
+            left: 80px;
+            position: absolute;
+            z-index: -1;
         }
 
         .heading {
             font-size: 11px;
             font-weight: bold;
-            border-bottom: 1px solid @color-text-graySoft;
             margin-top: -1px;
             height: 20px;
             &> div {
                 display: inline-block;
                 float: left;
-                margin: 0 5px;
+                margin: 0 4px;
                 white-space: nowrap;
                 text-align: left;
-                width: 60px;
+                width: 70px;
                 line-height: 20px;
                 overflow: hidden;
                 text-overflow: ellipsis;
 
+                &:first-child {
+                    text-indent: 21px;
+                    color: #4499C5;
+                }
+
                 &:nth-child(2) {
-                    text-align: center;
+                    text-indent: 4px;
                 }
 
                 &:last-child {
@@ -690,8 +705,9 @@
 
         ul {
             overflow-y: auto;
-            max-height: 180px;
-            min-width: 160px;
+            overflow-x: hidden;
+            max-height: 200px;
+            width: 170px;
             padding: 0px;
             padding-top: 0px;
 
@@ -699,21 +715,25 @@
                 height: 20px;
                 white-space: nowrap;
                 overflow: hidden;
+                width: 180px !important;
 
                 &> div {
                     display: inline-block;
                     float: left;
                     font-size: 11px;
+                    font-weight: bold;
                     margin: 0 5px;
                     white-space: nowrap;
                     text-align: left;
-                    width: 60px;
+                    width: 72px;
                     line-height: 20px;
                     overflow: hidden;
                     text-overflow: ellipsis;
 
-                    &:nth-child(2) {
-                        text-align: center;
+                    &:first-child {
+                        color: #4499C5;
+                        margin-left: 2px;
+                        width: 75px;
                     }
                     &:last-child {
                         // temporarily hidding the sample data
@@ -727,6 +747,58 @@
                 float: left;
                 width: 100%;
                 line-height: 24px;
+            }
+        }
+
+        .iconWrap {
+            width: 20px;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .sprite-typeIcon(@x: 0, @y: 0, @width: 0, @height: 0, @top: 0) {
+            background-position: @x @y;
+            width: @width;
+            height: @height;
+            top: @top;
+        }
+
+        .typeIcon {
+            background-image: url(/images/sprites/typeIcons.png);    background-repeat: no-repeat;
+            display: block;
+            position: relative;
+            margin: 0 auto;
+
+            &.typeIcon-array {
+                .sprite-typeIcon(-5px, -5px, 12px, 14px, 2px);
+            }
+
+            &.typeIcon-boolean {
+                .sprite-typeIcon(-27px, -5px, 18px, 16px, 2px);
+            }
+
+            &.typeIcon-mixed {
+                .sprite-typeIcon(-55px, -5px, 15px, 15px, 2px);
+            }
+
+            &.typeIcon-integer {
+                .sprite-typeIcon(-80px, -5px, 10px, 12px, 1px);
+            }
+
+            &.typeIcon-decimal {
+                .sprite-typeIcon(-80px, -5px, 10px, 12px, 1px);
+            }
+
+            &.typeIcon-object {
+                .sprite-typeIcon(-100px, -5px, 14px, 14px, 3px);
+            }
+
+            &.typeIcon-string {
+                .sprite-typeIcon(-124px, -5px, 16px, 10px);
+            }
+
+            &.typeIcon-unknown {
+                .sprite-typeIcon(-150px, -5px, 10px, 14px, 2px);
             }
         }
     }
@@ -829,3 +901,6 @@
         display: none;
     }
 }
+
+
+

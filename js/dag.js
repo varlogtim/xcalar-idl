@@ -733,9 +733,10 @@ window.Dag = (function($, Dag) {
             var html = '<div id="dagSchema">' +
                        '<span class="title">' + tableName +
                        ' &nbsp;[' + (numCols - 1) + ']</span>' +
+                       '<span class="background"></span>' +
                         '<div class="heading">' +
-                            '<div class="field">field</div>' +
                             '<div class="type">type</div>' +
+                            '<div class="field">field</div>' +
                             '<div class="sample"></div>' +
                         '</div>';
             html += '<ul>';
@@ -744,13 +745,17 @@ window.Dag = (function($, Dag) {
                 if (table.tableCols[i].name === 'DATA') {
                     continue;
                 }
+                var type = table.tableCols[i].type;
+                var name = table.tableCols[i].name;
                 html += '<li>' +
                             '<div>' +
-                            table.tableCols[i].name +
+                            '<span class="iconWrap">' +
+                                '<span class="typeIcon ' +
+                                'typeIcon-' + type + '"></span>' +
+                            '</span>' +
+                            '<span class="text">' + type + '</span>' +
                             '</div>' +
-                            '<div>' +
-                            table.tableCols[i].type +
-                            '</div>' +
+                            '<div>' + name + '</div>' +
                             '<div>' +
                             // XX SAMPLE DATA GOES HERE
                             '</div>' +
