@@ -515,11 +515,11 @@ window.WSManager = (function($, WSManager) {
         var worksheet = worksheets[worksheetNum];
         if (worksheet) {
             if (worksheet.lockedTables.indexOf(tableId) === -1) {
-                worksheet.lockedTables.push(tableId)
+                worksheet.lockedTables.push(tableId);
             }
             $('#worksheetTab-' + worksheetNum).addClass('locked');
         }
-    }
+    };
 
     WSManager.unlockTable = function(tableId) {
         var worksheetNum = WSManager.getWSFromTable(tableId);
@@ -531,7 +531,7 @@ window.WSManager = (function($, WSManager) {
                 $('#worksheetTab-' + worksheetNum).removeClass('locked');
             }
         }
-    }
+    };
 
     /**
      * Initialize worksheet, helper function for WSManager.setup()
@@ -607,19 +607,18 @@ window.WSManager = (function($, WSManager) {
      * Create a new worksheet
      */
     function newWorksheet() {
-        var wsIndex         = worksheets.length;
-        var name            = defaultName + (nameSuffix++);
-        var date            = xcHelper.getDate();
-        var lockedTables = [];
+        var wsIndex = worksheets.length;
+        var name    = defaultName + (nameSuffix++);
+        var date    = xcHelper.getDate();
 
         while (wsNameLookUp[name] != null) {
             name = defaultName + (nameSuffix++);
         }
 
         setWorksheet(wsIndex, {
-            "name": name,
-            "date": date,
-            "lockedTables" : []
+            "name"        : name,
+            "date"        : date,
+            "lockedTables": []
         });
 
         makeWorksheet(wsIndex);

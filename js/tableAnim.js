@@ -821,9 +821,10 @@ function createTableHeader(tableId) {
     }, ".tableTitle .text");
 
     $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function() {
-        var classes = "tableMenu";
+        var classes   = "tableMenu";
         var $dropdown = $(this);
-        if ($(this).closest('.xcTableWrap').hasClass('tableLocked')) {
+
+        if ($dropdown.closest('.xcTableWrap').hasClass('tableLocked')) {
             classes += "locked";
         }
 

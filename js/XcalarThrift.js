@@ -172,7 +172,7 @@ function insertError(argCallee, deferred) {
         if (Math.random() < failPercent) {
             // FAILED!
             var waitTime = Math.floor(Math.random() * 10000);
-            console.log("WaitTime is "+waitTime+"ms");
+            console.log("WaitTime is ", waitTime, "ms");
             setTimeout(function() {
                 deferred.reject(thriftLog(functionName,
                                           "Error Injection"));
@@ -425,7 +425,7 @@ function XcalarSample(datasetName, numEntries) {
     datasetName = parseDS(datasetName);
     xcalarMakeResultSetFromDataset(tHandle, datasetName)
     .then(function(result) {
-        console.log(result);
+        // console.log(result);
         var resultSetId = result.resultSetId;
         totalEntries = result.numEntries;
         gDatasetBrowserResultSetId = resultSetId;

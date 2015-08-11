@@ -22,7 +22,7 @@ window.xcFunction = (function($, xcFunction) {
         var msg = StatusMessageTStr.Filter + ': ' + frontColName;
         var msgObj = {
             "msg"      : msg,
-            "operation": "filter",
+            "operation": "filter"
         };
         var msgId = StatusMessage.addMsg(msgObj);
         
@@ -81,7 +81,7 @@ window.xcFunction = (function($, xcFunction) {
                     StatusMessageTStr.OnColumn + ": " + frontColName;
         var msgObj = {
             "msg"      : msg,
-            "operation": "aggregate",
+            "operation": "aggregate"
         };
         var msgId = StatusMessage.addMsg(msgObj);
         xcHelper.lockTable(tableId);
@@ -146,7 +146,7 @@ window.xcFunction = (function($, xcFunction) {
         var msg = StatusMessageTStr.Sort + " " + frontFieldName;
         var msgObj = {
             "msg"      : msg,
-            "operation": "sort",
+            "operation": "sort"
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -224,7 +224,7 @@ window.xcFunction = (function($, xcFunction) {
         var msg = StatusMessageTStr.Join;
         var msgObj = {
             "msg"      : msg,
-            "operation": "join",
+            "operation": "join"
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -332,7 +332,7 @@ window.xcFunction = (function($, xcFunction) {
                         Authentication.fetchHashTag();
         var msgObj = {
             "msg"      : StatusMessageTStr.GroupBy + " " + operator,
-            "operation": "group by",
+            "operation": "group by"
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -481,11 +481,11 @@ window.xcFunction = (function($, xcFunction) {
         var table        = xcHelper.getTableFromId(tableId);
         var tableName    = table.tableName;
         var newTableName = getNewTableName(tableName);
-        var newTableId;
+
         var msg = StatusMessageTStr.Map + " " + fieldName;
         var msgObj = {
             "msg"      : msg,
-            "operation": "map",
+            "operation": "map"
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -570,7 +570,7 @@ window.xcFunction = (function($, xcFunction) {
                         " and " + rTableName;
         var msgObj = {
             "msg"      : msg,
-            "operation": "map",
+            "operation": "map"
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
@@ -680,7 +680,7 @@ window.xcFunction = (function($, xcFunction) {
         var msg = StatusMessageTStr.ExportTable + ": " + tableName;
         var msgObj = {
             "msg"      : msg,
-            "operation": "export",
+            "operation": "export"
         };
         var msgId = StatusMessage.addMsg(msgObj);
         

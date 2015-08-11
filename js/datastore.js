@@ -1105,7 +1105,7 @@ window.DataCart = (function($, DataCart) {
                 var msg = StatusMessageTStr.CreatingTable + ': ' + tableName;
                 var msgObj = {
                     "msg"      : msg,
-                    "operation": 'table creation',
+                    "operation": 'table creation'
                 };
                 var msgId = StatusMessage.addMsg(msgObj);
 
@@ -1154,9 +1154,9 @@ window.DataCart = (function($, DataCart) {
                 .then(function() {
                     setIndex(tableName, newTableCols, datasetName, tableProperties);
                     var options = {
-                        keepOriginal : true,
-                        focusWorkspace : true
-                    }
+                        "keepOriginal"  : true,
+                        "focusWorkspace": true
+                    };
                     return (refreshTable(tableName, null, options));
                 })
                 .then(function() {
