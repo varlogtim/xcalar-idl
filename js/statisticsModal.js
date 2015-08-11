@@ -184,8 +184,9 @@ window.STATSManager = (function($, STATSManager, d3) {
                     };
 
                     runGroupby(table, statsCol);
-                    showStats();
                 }
+
+                showStats();
             })
             .fail(function(error) {
                 console.error(error);
