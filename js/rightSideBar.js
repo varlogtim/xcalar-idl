@@ -121,10 +121,14 @@ window.RightSideBar = (function($, RightSideBar) {
 
                 if (action === "add") {
                     if (type === 'orphan') {
+                        renameOrphanIfNeeded(tableName)
+                        .then(function(newTableName) {
+                            tableName = newTableName;
+                            tableId = xcHelper.getTableId(tableName);
 
-                        tableId = xcHelper.getTableId(tableName);
-                        WSManager.addTable(tableId);
-                        prepareOrphanForActive(tableName)
+                            WSManager.addTable(tableId);
+                            return (prepareOrphanForActive(tableName));
+                        })
                         .then(function() {
                             doneHandler($li, tableName);
                             return (addTable(tableName, null,
@@ -138,7 +142,6 @@ window.RightSideBar = (function($, RightSideBar) {
                         });
                     } else {
                         var lookupTable = gTables2[tableId];
-                        // update gTableIndicesLookup
                         lookupTable.active = true;
                         lookupTable.timeStamp = xcHelper.getTimeInMS();
 
@@ -238,6 +241,33 @@ window.RightSideBar = (function($, RightSideBar) {
             failures.push(tableName + ": {" + error.error + "}");
         }
     };
+
+    function renameOrphanIfNeeded(tableName) {
+        var deferred = jQuery.Deferred();
+        tableId = xcHelper.getTableId(tableName);
+        var newTableName;
+        if (!tableId) {
+            newTableName = tableName + Authentication.fetchHashTag();
+            var sqlOptions = {
+                "operation": "renameTable",
+                "oldName"  : tableName,
+                "newName"  : newTableName
+            };
+            XcalarRenameTable(tableName, newTableName, sqlOptions)
+            .then(function() {
+                console.log('renamed')
+                deferred.resolve(newTableName);
+            })
+            .fail(function(error) {
+                deferred.reject(error);
+            })
+        } else {
+            deferred.resolve(tableName);
+        }
+
+        return (deferred.promise());
+    }
+    
 
     function prepareOrphanForActive(tableName) {
         var deferred = jQuery.Deferred();

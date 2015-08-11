@@ -446,13 +446,26 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.getTableName = function(wholeName) {
         // get out tableName from tableName + hashId
-        var tableName = wholeName.split("#")[0];
+        var hashIndex = wholeName.lastIndexOf('#');
+        var tableName;
+        if (hashIndex > -1) {
+            tableName = wholeName.substring(0, hashIndex);
+        } else {
+            tableName = wholeName;
+        }
         return (tableName);
     };
 
     xcHelper.getTableId = function(wholeName) {
         // get out hashId from tableName + hashId
-        var hashId = wholeName.split("#")[1];
+        var hashIndex = wholeName.lastIndexOf('#');
+        var hashId;
+        if (hashIndex > -1) {
+            hashId = wholeName.substring(hashIndex + 1);
+        } else {
+            hashId = null;
+            console.warn('Table name does not contain hashId');
+        }
         return (hashId);
     };
 
