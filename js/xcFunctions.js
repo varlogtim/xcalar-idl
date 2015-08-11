@@ -412,7 +412,6 @@ window.xcFunction = (function($, xcFunction) {
             }
 
             if (indexedColNum === -1) {
-                // XXX HANDLE votes.funny cleanly!
                 if (groupByCols.length === 1) {
                     tablCols[1] = ColManager.newCol({
                         "index"   : 2,
