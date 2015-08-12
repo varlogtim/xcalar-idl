@@ -36,6 +36,7 @@ window.STATSManager = (function($, STATSManager, d3) {
     var groupByData = [];
     var order = sortMap.origin;
     var statsCol = null;
+    var percentageLabel = false;
 
     STATSManager.setup = function() {
         $statsModal.on("click", ".cancel, .close", function() {
@@ -65,6 +66,11 @@ window.STATSManager = (function($, STATSManager, d3) {
         $statsModal.on("mouseover", function() {
             $(".barArea").tooltip("hide")
                         .attr("class", "barArea");
+        });
+
+        $statsModal.on("click", ".groupbyChart .label", function() {
+            percentageLabel = !percentageLabel;
+            buildGroupGraphs();
         });
 
         // event on sort section
@@ -147,6 +153,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         groupByData = [];
         order = sortMap.origin;
         statsCol = null;
+        percentageLabel = false;
 
         freePointer();
     }
@@ -374,6 +381,20 @@ window.STATSManager = (function($, STATSManager, d3) {
                 val = obj.Value;
 
                 curStatsCol.groupByInfo.max = val;
+                return (XcalarAggregate(statsColName, groupbyTable,
+                        aggMap.count));
+            } catch (error) {
+                console.error(error, val);
+                return (jQuery.Deferred().reject(error));
+            }
+        })
+        .then(function(value) {
+            var val;
+            try {
+                var obj = jQuery.parseJSON(value);
+                val = obj.Value;
+
+                curStatsCol.groupByInfo.count = val;
             } catch (error) {
                 console.error(error, val);
                 return (jQuery.Deferred().reject(error));
@@ -396,6 +417,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             }
             var noNotification = true;
             StatusMessage.success(msgId, noNotification);
+            commitToStorage();
         })
         .fail(function(error) {
             // XX The modal shows a waiting icon forever, need to update it status
@@ -525,8 +547,18 @@ window.STATSManager = (function($, STATSManager, d3) {
         barAreas.attr("class", function(d) {
                     // a little weird method to setup tooltip
                     // may have better way
-                    var title = xName + ": " + d[xName] + "\r\n" +
+                    var title;
+
+                    if (percentageLabel && groupByInfo.count !== 0) {
+                        var per = String(d[yName] / groupByInfo.count * 100)
+                                        .substring(0, 4) + "%";
+                        title = xName + ": " + d[xName] + "\r\n" +
+                                "Percentage: " + per;
+                    } else {
+                        title = xName + ": " + d[xName] + "\r\n" +
                                 "Frequency: " + d[yName];
+                    }
+
                     var options = $.extend({}, tooltipOptions, {
                         "title": title
                     });
@@ -547,11 +579,34 @@ window.STATSManager = (function($, STATSManager, d3) {
                     return x(d[xName]) + x.rangeBand() / 2;
                 })
                 .text(function(d) {
-                    var name =  d[xName];
+                    var name = d[xName];
                     if (name.length > 4) {
                         return (name.substring(0, 4) + "..");
                     } else {
                         return name;
+                    }
+                });
+
+        barAreas.select(".label")
+                .attr("width", x.rangeBand())
+                .attr("x", function(d) {
+                    return x(d[xName]) + x.rangeBand() / 2;
+                })
+                .text(function(d) {
+                    var num = d[yName];
+
+                    if (percentageLabel && groupByInfo.count !== 0) {
+                        // show percentage
+                        num = num / groupByInfo.count * 100;
+                        num = String(num).substring(0, 4) + "%";
+                        return (num);
+                    } else {
+                        num = String(d[yName]);
+                        if (num.length > 4) {
+                            return (num.substring(0, 4) + "..");
+                        } else {
+                            return num;
+                        }
                     }
                 });
 
@@ -595,11 +650,37 @@ window.STATSManager = (function($, STATSManager, d3) {
             })
             .attr("y", chartHeight)
             .text(function(d) {
-                var name =  d[xName];
+                var name = d[xName];
                 if (name.length > 4) {
                     return (name.substring(0, 4) + "..");
                 } else {
                     return name;
+                }
+            });
+
+        // label
+        newbars.append("text")
+            .attr("class", "label")
+            .attr("width", x.rangeBand())
+            .attr("x", function(d) {
+                return x(d[xName]) + x.rangeBand() / 2;
+            })
+            .attr("y", 11)
+            .text(function(d) {
+                var num = d[yName];
+
+                if (percentageLabel && groupByInfo.count !== 0) {
+                    // show percentage
+                    num = num / groupByInfo.count * 100;
+                    num = String(num).substring(0, 4) + "%";
+                    return (num);
+                } else {
+                    num = String(d[yName]);
+                    if (num.length > 4) {
+                        return (num.substring(0, 4) + "..");
+                    } else {
+                        return num;
+                    }
                 }
             });
 
