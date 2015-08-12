@@ -133,7 +133,11 @@ window.RightSideBar = (function($, RightSideBar) {
                             return (addTable(tableName, null,
                                     AfterStartup.After, null));
                         })
-                        .then(innerDeferred.resolve)
+                        .then(function(){
+                            var index = gOrphanTables.indexOf(tableName);
+                            gOrphanTables.splice(index, 1);
+                            innerDeferred.resolve();
+                        })
                         .fail(function(error) {
                             WSManager.removeTable(tableId);
                             failHandler($li, tableName, error);
@@ -174,6 +178,9 @@ window.RightSideBar = (function($, RightSideBar) {
                         XcalarDeleteTable(tableName, sqlOptions)
                         .then(function() {
                             doneHandler($li, tableName);
+                            var index = gOrphanTables.indexOf(tableName);
+                            gOrphanTables.splice(index, 1);
+                            Dag.makeInactive(tableName, true);
                             innerDeferred.resolve();
                         })
                         .fail(function(error) {
@@ -1033,7 +1040,7 @@ window.RightSideBar = (function($, RightSideBar) {
         var numTables = tables.length;
         var html = "";
         for (var i = 0; i < numTables; i++) {
-            var tableName = tables[i].tableName;
+            var tableName = tables[i];
             var tableId   = xcHelper.getTableId(tableName);
             html += '<li class="clearfix tableInfo" ' +
                      'data-id="' + tableId + '"' +

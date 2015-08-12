@@ -677,7 +677,7 @@ function initializeTable() {
 function setupOrphanedList(tableMap) {
     var tables = [];
     for (var table in tableMap) {
-        tables.push(tableMap[table]);
+        tables.push(tableMap[table].tableName);
     }
     gOrphanTables = tables;
 }

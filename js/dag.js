@@ -349,10 +349,13 @@ window.DagPanel = (function($, DagPanel) {
                 'title="Allow table to be deleted">' +
                 'Unlock Table' +
             '</li>' +
-            '<li class="deleteTable unavailable" data-toggle="tooltip" ' +
+            '<li class="deleteTable">' +
+                'Delete Table' +
+            '</li>' +
+            '<li class="deleteTableDescendants unavailable" data-toggle="tooltip" ' +
                 'data-placement="bottom" data-container="body" ' +
                 'title="Coming Soon">' +
-                'Delete Table & Descendents' +
+                'Delete Table & Descendants' +
             '</li>' +
         '</ul>';
         return (html);
@@ -408,6 +411,57 @@ window.DagPanel = (function($, DagPanel) {
             var $tableIcon = $menu.data('tableelement');
             $tableIcon.removeClass('locked')
                       .find('.lockIcon').remove();
+        });
+
+        $menu.find('.deleteTable').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var tableId = $menu.data('tableId');
+            var tableName = $menu.data('tablename');
+            var table = gTables2[tableId];
+            if (table && table.isLocked) {
+                return;
+            }
+            var $table = $('#xcTableWrap-' + tableId);
+
+            // check if table visibile, else check if its in the inactivelist,
+            // else check if its in the orphan list, else just delete the table
+            if ($table.length !== 0 && !$table.hasClass('locked')) {
+                var mouseup = {type: "mouseup", which: 1};
+                $('#tableMenu-' + tableId).find('.deleteTable')
+                                          .trigger(mouseup);
+            } else if (table) {
+                $('#inactiveTablesList').find('.tableInfo').each(function() {
+                    var $li = $(this);
+                    if ($li.data('id') === tableId) {
+                        $li.find('.addTableBtn').click();
+                        $('#deleteTablesBtn').click();
+                        return (false);
+                    }
+                });
+            } else if (gOrphanTables.indexOf(tableName) !== -1) {
+                $('#orphanedTablesList').find('.tableInfo').each(function() {
+                    var $li = $(this);
+                    if ($li.data('tablename') === tableName) {
+                        $li.find('.addTableBtn').click();
+                        $('#deleteOrphanedTablesBtn').click();
+                        return (false);
+                    }
+                });
+            } else {
+                var sqlOptions = {
+                    "operation": "deleteTable",
+                    "tableName": tableName
+                };
+                XcalarDeleteTable(tableName, sqlOptions)
+                .then(function() {
+                    Dag.makeInactive(tableName, true);
+                })
+                .fail(function(error) {
+                    Alert.error("Table Deletion Failed", error);
+                });
+            } 
         });
     }
 
@@ -656,9 +710,17 @@ window.Dag = (function($, Dag) {
         });
     };
 
-    Dag.makeInactive = function(tableId) {
-        var tableName = gTables2[tableId].tableName;
-        var $dags = $('.dagTable[data-id=' + tableId + ']');
+    Dag.makeInactive = function(tableId, nameProvided) {
+        var tableName;
+        var dags;
+        if (nameProvided) {
+            tableName = tableId;
+            $dags = $('.dagTable[data-tableName=' + tableName + ']');
+        } else {
+            tableName = gTables2[tableId].tableName;
+            $dags = $('.dagTable[data-id=' + tableId + ']');
+        }
+        
         $dags.removeClass('DgDagStateReady')
              .addClass('DgDagStateDropped');
         $dags.find('.icon').attr({"data-toggle": "tooltip",
@@ -738,6 +800,9 @@ window.Dag = (function($, Dag) {
         $('#dagSchema').remove();
         var tableId = $dagTable.data('id');
         var table = gTables2[tableId];
+        if (!table) {
+            return;
+        }
         var tableName = table.tableName;
         if (table) {
             var numCols = table.tableCols.length;
@@ -974,8 +1039,9 @@ window.Dag = (function($, Dag) {
                               '</div>';
             }
             if (firstChild.indexOf('.XcalarDS.') === 0) {
-                firstChild = firstChild.substr('.XcalarDS.'.length);
+                firstChild = info.column;
             }
+
             originHTML +=
                         '</div>' +
                             '<span class="typeTitle">' + operation + '</span>' +
