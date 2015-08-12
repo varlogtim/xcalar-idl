@@ -959,7 +959,7 @@ ul.colMenu {
 
     &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
     &.recordNum, &.childOfArray {
-        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations {
+        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations, .statistics {
             display: none;
         }
     }
@@ -972,7 +972,7 @@ ul.colMenu {
 
     &.type-object, &.type-array, &.type-newColumn, &.type-undefined,
     &.recordNum {
-        .changeDataType {
+        .changeDataType, .statistics {
             display: none;
         }
     }
@@ -1019,7 +1019,7 @@ ul.colMenu {
     &.type-data {
         .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
         .deleteDuplicates, .duplicate, .renameCol, .map, .operations,
-        .changeDataType {
+        .changeDataType, .statistics {
             display: none;
         }
     }

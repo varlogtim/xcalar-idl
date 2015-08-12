@@ -753,7 +753,7 @@ function generateColDropDown(tableId) {
     '<li class="functions groupby thDropdown">Group By...</li>' +
     '<li class="functions map thDropdown">Map...</li>' +
     '<li class="joinList thDropdown">Join...</li>' +
-    '<li class="statistics thDropdown">Statistics Analysis...</li>' +
+    '<li class="statistics thDropdown">Statistical Analysis...</li>' +
     '<li class="tdFilter tdDropdown">Filter this value</li>' +
     '<li class="tdExclude tdDropdown">Exclude this value</li>' +
     '<li class="tdCopy tdDropdown">Copy to clipboard</li>';
