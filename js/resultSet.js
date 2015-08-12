@@ -2,8 +2,8 @@ function freeAllResultSets() {
     // var promises = [];
     // XXX use promise is not reliable to send all reqeust to backend
     var table;
-    for (table in gTables2) {
-        XcalarSetFree(gTables2[table].resultSetId);
+    for (table in gTables) {
+        XcalarSetFree(gTables[table].resultSetId);
     }
 
     // Free datasetBrowser resultSetId
@@ -28,11 +28,11 @@ function freeAllResultSetsSync() {
             tableNames[tables[i].tableName] = true;
         }
 
-        for (table in gTables2) {
-            if (!tableNames.hasOwnProperty(gTables2.tableName)) {
+        for (table in gTables) {
+            if (!tableNames.hasOwnProperty(gTables.tableName)) {
                 continue;
             }
-            promises.push(XcalarSetFree.bind(this, gTables2[i].resultSetId));
+            promises.push(XcalarSetFree.bind(this, gTables[i].resultSetId));
         }
 
         // Free datasetBrowser resultSetId

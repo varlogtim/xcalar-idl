@@ -3,7 +3,7 @@
 
 function emptyAllStorage(localEmpty) {
     var deferred = jQuery.Deferred();
-    gTables2 = {};
+    gTables = {};
     WSManager.clear();
     DS.clear();
     SQL.clear();
@@ -26,13 +26,13 @@ function emptyAllStorage(localEmpty) {
 
 function getIndex(tName) {
     var tableIndex = xcHelper.getTableId(tName);
-    if (!gTables2) {
+    if (!gTables) {
         console.log("Nothing has ever been stored ever!");
-        gTables2 = {};
+        gTables = {};
     }
 
-    if (tableIndex in gTables2) {
-        return (gTables2[tableIndex].tableCols);
+    if (tableIndex in gTables) {
+        return (gTables[tableIndex].tableCols);
     } else {
         console.log("No such table has been saved before");
         return (null);
@@ -44,16 +44,16 @@ function setgTable(tName, index, dsName, tableProperties) {
     var deferred = jQuery.Deferred();
     var tableId = xcHelper.getTableId(tName);
 
-    gTables2[tableId] = new TableMeta();
-    gTables2[tableId].tableCols = index;
-    gTables2[tableId].timeStamp = xcHelper.getTimeInMS();
+    gTables[tableId] = new TableMeta();
+    gTables[tableId].tableCols = index;
+    gTables[tableId].timeStamp = xcHelper.getTimeInMS();
 
     if (tableProperties) {
-        gTables2[tableId].bookmarks = tableProperties.bookmarks || [];
-        gTables2[tableId].rowHeights = tableProperties.rowHeights || {};
+        gTables[tableId].bookmarks = tableProperties.bookmarks || [];
+        gTables[tableId].rowHeights = tableProperties.rowHeights || {};
     }
 
-    gTables2[tableId].tableName = tName;
+    gTables[tableId].tableName = tName;
 
     setTableMeta(tName)
     .then(deferred.resolve)
@@ -86,7 +86,7 @@ function commitToStorage() {
     // basic thing to store
     var storage = {};
 
-    storage[KVKeys.TI] = gTables2;
+    storage[KVKeys.TI] = gTables;
     storage[KVKeys.WS] = {
         "wsInfos"      : WSManager.getWorksheets(),
         "noSheetTables": WSManager.getNoSheetTables()
@@ -183,7 +183,7 @@ function readFromStorage() {
                         table.isLocked = false;
                         table.active = false;
                     } else {
-                        gTables2[tableId] = table;
+                        gTables[tableId] = table;
                     }
                     innerDeferred.resolve();
                 })
@@ -402,7 +402,7 @@ window.KVStore = (function($, KVStore) {
             $("#gridView").empty();
 
             // XXX this should be changed after the gTable structure change
-            gTables2 = {};
+            gTables = {};
 
             return (readFromStorage());
         })

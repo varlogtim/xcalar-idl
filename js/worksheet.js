@@ -322,12 +322,12 @@ window.WSManager = (function($, WSManager) {
     //     var tableNum   = gTables.length;
     //     var tableId = xcHelper.getTableId(srcTableName);
     //     // do a deep copy
-    //     var srcTable   = gTables2[tableId];
+    //     var srcTable   = gTables[tableId];
     //     var tableCopy  = xcHelper.deepCopy(srcTable);
     //     var newTableId = xcHelper.getTableId(newTableName);
 
     //     activeWorsheet = wsIndex;
-    //     gTables2[newTableId] = tableCopy;
+    //     gTables[newTableId] = tableCopy;
     //     // XXX for sample table, should sync frontName with backName since
     //     // there both src sample and the copied can change to real table using
     //     // its backTableName
@@ -343,7 +343,7 @@ window.WSManager = (function($, WSManager) {
     //     })
     //     .fail(function(error) {
     //         var newTableId = 
-    //         delete gTables2[newTableId];
+    //         delete gTables[newTableId];
     //         Alert.error(error);
     //     });
     // };
@@ -430,8 +430,8 @@ window.WSManager = (function($, WSManager) {
             RowScroller.empty();
 
             if ($curActiveTable.length > 0) {
-                for (var tbl in gTables2) {
-                    if (!gTables2[tbl].active) {
+                for (var tbl in gTables) {
+                    if (!gTables[tbl].active) {
                         continue;
                     }
                     var $table = $('#xcTable-' + tbl);
@@ -446,8 +446,8 @@ window.WSManager = (function($, WSManager) {
                 focusTable(tableId);
             }
 
-            for (var tbl in gTables2) {
-                if (!gTables2[tbl].active) {
+            for (var tbl in gTables) {
+                if (!gTables[tbl].active) {
                     continue;
                 }
                 var $table = $('#xcTable-' + tbl);

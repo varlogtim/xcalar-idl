@@ -118,7 +118,7 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
     if (tablesToRemove) {
         var delayTableRemoval = true;
         for (var i = 0; i < tablesToRemove.length; i++) {
-            if (gTables2[tablesToRemove[i]].active) {
+            if (gTables[tablesToRemove[i]].active) {
                 archiveTable(tablesToRemove[i], DeleteTable.Keep, delayTableRemoval);
             }
         }
@@ -217,18 +217,18 @@ function archiveTable(tableId, del, delayTableRemoval) {
         $('#dagWrap-' + tableId).remove();
     }
     
-    var tableName = gTables2[tableId].tableName;
+    var tableName = gTables[tableId].tableName;
 
     if (!del) {
-        gTables2[tableId].active = false;
-        gTables2[tableId].timeStamp = xcHelper.getTimeInMS();
-        gTables2[tableId].active = false;
+        gTables[tableId].active = false;
+        gTables[tableId].timeStamp = xcHelper.getTimeInMS();
+        gTables[tableId].active = false;
         WSManager.archiveTable(tableId);
         RightSideBar.moveTable(tableId);
     } else {
         WSManager.removeTable(tableId);
-        delete (gTables2[tableId]);
-        delete gTables2[tableId];
+        delete (gTables[tableId]);
+        delete gTables[tableId];
         var $li = $("#activeTablesList").find('.tableName').filter(
                     function() {
                         return ($(this).text() === tableName);
@@ -333,8 +333,8 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
         if (deleteArchived) {
             WSManager.removeTable(tableId);
             Dag.makeInactive(tableId);
-            delete gTables2[tableId];
-            delete (gTables2[tableId]);
+            delete gTables[tableId];
+            delete (gTables[tableId]);
         } else {
             archiveTable(tableId, DeleteTable.Delete);
         }
@@ -352,7 +352,7 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
 function setTableMeta(tableName) {
     var deferred = jQuery.Deferred();
     var tableId  = xcHelper.getTableId(tableName);
-    var newTable = gTables2[tableId];
+    var newTable = gTables[tableId];
 
     newTable.currentRowNumber = 0;
 
@@ -399,7 +399,7 @@ function startBuildTable(tableId, tablesToRemove) {
     var deferred   = jQuery.Deferred();
     var table      = xcHelper.getTableFromId(tableId);
     var tableName  = table.tableName;
-    var progCols   = gTables2[tableId].tableCols;
+    var progCols   = gTables[tableId].tableCols;
     var notIndexed = !(progCols && progCols.length > 0);
 
     getFirstPage(table, notIndexed)
@@ -510,7 +510,7 @@ function pullRowsBulk(tableId, jsonObj, startIndex, dataIndex, direction,
 }
 
 function generateTableShell(columns, tableId) {
-    var table = gTables2[tableId];
+    var table = gTables[tableId];
     var activeWS = WSManager.getActiveWS();
     var tableWS = WSManager.getWSFromTable(tableId);
     var activeClass = "";

@@ -14,8 +14,8 @@ window.RightSideBar = (function($, RightSideBar) {
         var activeTables = [];
         var hiddenTables = [];
 
-        for (var tableId in gTables2) {
-            var table = gTables2[tableId];
+        for (var tableId in gTables) {
+            var table = gTables[tableId];
             if (table.active) {
                 activeTables.push(table);
             } else {
@@ -144,7 +144,7 @@ window.RightSideBar = (function($, RightSideBar) {
                             innerDeferred.resolve(error);
                         });
                     } else {
-                        var lookupTable = gTables2[tableId];
+                        var lookupTable = gTables[tableId];
                         lookupTable.active = true;
                         lookupTable.timeStamp = xcHelper.getTimeInMS();
 
@@ -1072,8 +1072,8 @@ window.RightSideBar = (function($, RightSideBar) {
             for (var i = 0; i < numBackTables; i++) {
                 tableMap[backTables[i].tableName] = backTables[i];
             }
-            for (var tId in gTables2) {
-                var tableName = gTables2[tId].tableName;
+            for (var tId in gTables) {
+                var tableName = gTables[tId].tableName;
                 if (tableMap[tableName]) {
                     delete tableMap[tableName];
                 }
@@ -1101,8 +1101,8 @@ window.RightSideBar = (function($, RightSideBar) {
         tables.forEach(function(table) {
             var tableId = table.tableId;
             var timeStamp;
-            if (gTables2[tableId]) {
-                timeStamp = gTables2[tableId].timeStamp;
+            if (gTables[tableId]) {
+                timeStamp = gTables[tableId].timeStamp;
             }
             if (timeStamp == null) {
                 console.error("Time Stamp undefined");

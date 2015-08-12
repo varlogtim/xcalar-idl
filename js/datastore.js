@@ -631,7 +631,7 @@ window.DataCart = (function($, DataCart) {
             var $input;
 
             var tableNames = {};
-            for (var tbl in gTables2) {
+            for (var tbl in gTables) {
                 tableNames[tbl.tableName] = true;
             }
 

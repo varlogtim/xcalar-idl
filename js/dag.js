@@ -419,7 +419,7 @@ window.DagPanel = (function($, DagPanel) {
             }
             var tableId = $menu.data('tableId');
             var tableName = $menu.data('tablename');
-            var table = gTables2[tableId];
+            var table = gTables[tableId];
             if (table && table.isLocked) {
                 return;
             }
@@ -717,7 +717,7 @@ window.Dag = (function($, Dag) {
             tableName = tableId;
             $dags = $('.dagTable[data-tableName=' + tableName + ']');
         } else {
-            tableName = gTables2[tableId].tableName;
+            tableName = gTables[tableId].tableName;
             $dags = $('.dagTable[data-id=' + tableId + ']');
         }
         
@@ -799,7 +799,7 @@ window.Dag = (function($, Dag) {
     function showDagSchema($dagTable) {
         $('#dagSchema').remove();
         var tableId = $dagTable.data('id');
-        var table = gTables2[tableId];
+        var table = gTables[tableId];
         if (!table) {
             return;
         }

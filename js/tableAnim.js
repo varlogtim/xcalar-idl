@@ -105,7 +105,7 @@ function gRescolMouseUp() {
         if (rescol.newWidth - 1 > rescol.startWidth ||
             rescol.newWidth + 1 < rescol.startWidth) {
             // set autoresize to header only if column moved at least 2 pixels
-            var column = gTables2[rescol.tableId].tableCols[rescol.index - 1];
+            var column = gTables[rescol.tableId].tableCols[rescol.index - 1];
             column.sizeToHeader = true;
         }
     } else {
@@ -697,7 +697,7 @@ function dblClickResize($el, options) {
             }
         } else {
             var tableId = $table.data('id');
-            var column =  gTables2[tableId].tableCols[colNum - 1];
+            var column =  gTables[tableId].tableCols[colNum - 1];
 
             includeHeader = column.sizeToHeader;
             if (includeHeader) {
@@ -1940,7 +1940,7 @@ function dropdownClick($el, options) {
 
         // If the tdDropdown is on a non-filterable value, we need to make the
         // filter options unavailable
-        var columnType = gTables2[tableId].tableCols[options.colNum-1].type;
+        var columnType = gTables[tableId].tableCols[options.colNum-1].type;
         if (columnType !== "string" &&
             columnType !== "decimal" &&
             columnType !== "integer" &&

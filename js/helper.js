@@ -1,7 +1,7 @@
 window.xcHelper = (function($, xcHelper) {
 
     xcHelper.getTableFromId = function(tableId) {
-        return (gTables2[tableId]);
+        return (gTables[tableId]);
     };
 
     xcHelper.getElementByTableId = function(tableId, prefix) {

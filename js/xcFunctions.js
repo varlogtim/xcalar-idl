@@ -820,7 +820,7 @@ window.xcFunction = (function($, xcFunction) {
                 var tablCols = xcHelper.deepCopy(table.tableCols);
 
                 setgTable(newTableName, tablCols);
-                gTables2[newTableId].active = false;
+                gTables[newTableId].active = false;
 
                 deferred.resolve({
                     "newTableCreated": true,
@@ -1063,7 +1063,7 @@ window.xcFunction = (function($, xcFunction) {
 
         setupHiddenTable(tableResult.tableName)
         .then(function() {
-            var table = gTables2[tableResult.tableId];
+            var table = gTables[tableResult.tableId];
             RightSideBar.addTables([table], IsActive.Inactive);
 
             deferred.resolve({

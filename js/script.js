@@ -23,7 +23,7 @@ var gRescol = {
 };
 var gResrow = {};
 var gMinTableWidth = 30;
-var gTables2 = {}; // This is the main global array containing structures
+var gTables = {}; // This is the main global array containing structures
                     // Stores TableMeta structs
 var gOrphanTables = [];
 var gFnBarOrigin;
@@ -271,10 +271,10 @@ function setupHiddenTable(tableName) {
     setTableMeta(tableName)
     .then(function() {
         var tableId = xcHelper.getTableId(tableName);
-        var table = gTables2[tableId];
+        var table = gTables[tableId];
         table.active = false;
 
-        var index = getIndex(gTables2[tableId].tableName);
+        var index = getIndex(gTables[tableId].tableName);
         if (index && index.length > 0) {
             table.tableCols = index;
         } else {
@@ -547,7 +547,7 @@ function initializeTable() {
             // create active tables
             for (var j = 0; j < numWsTables; j++) {
                 tableId = wsTables[j];
-                currentTable = gTables2[tableId];
+                currentTable = gTables[tableId];
 
                 if (!currentTable) {
                     console.error("not find table", tableId);
@@ -578,7 +578,7 @@ function initializeTable() {
             var numHiddenWsTables = wsHiddenTables.length;
             for (var j = 0; j < numHiddenWsTables; j++) {
                 tableId = wsHiddenTables[j];
-                currentTable = gTables2[tableId];
+                currentTable = gTables[tableId];
 
                 if (!currentTable) {
                     console.error("not find table", tableId);
@@ -611,7 +611,7 @@ function initializeTable() {
 
         for (var i = 0; i < numNoSheetTables; i++) {
             tableId = noSheetTables[i];
-            currentTable = gTables2[tableId];
+            currentTable = gTables[tableId];
 
             if (!currentTable) {
                 console.error("not find table", tableId);

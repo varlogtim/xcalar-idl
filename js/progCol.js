@@ -487,7 +487,7 @@ window.ColManager = (function($, ColManager) {
         var tableCols = table.tableCols;
         var numCols   = tableCols.length;
         // jsonData based on if it's indexed on array or not
-        var secondPull = gTables2[tableId].isSortedArray || false;
+        var secondPull = gTables[tableId].isSortedArray || false;
         var jsonData   = secondPull ? jsonObj.withKey : jsonObj.normal;
         var numRows    = jsonData.length;
 
@@ -662,7 +662,7 @@ window.ColManager = (function($, ColManager) {
         // This only run once,  check if it's a indexed array, mark on gTables
         // and redo the pull column thing
         if (!secondPull && columnTypes[indexedColNums[0]] === "array") {
-            gTables2[tableId].isSortedArray = true;
+            gTables[tableId].isSortedArray = true;
 
             for (var i = 0; i < indexedColNums.length; i++) {
                 tableCols[indexedColNums[i]].isSortedArray = true;
