@@ -376,78 +376,86 @@
             border: 1px solid @color-join-border;
             .flex-display;
 
-            .aggContainer {
+            .aggContainer, .labelContainer {
                 .position(relative);
                 .size(@height: 100%);
                 .flex-display;
                 .flex-flow(row);
                 overflow-x: scroll;
 
-                .flex(1 1 auto); // has flex width
                 &::-webkit-scrollbar-track {
                     background: transparent;
                 }
+            }
 
-                .aggCol {
-                    .position(relative);
-                    .flex(0 0 120px); // has width 120px
-                    padding-right: 5px;
-                    padding-bottom: 5px;
+            .aggContainer {
+                .flex(1 1 auto); // has flex width
+            }
 
+            .labelContainer {
+                .flex(0 0 120px); // has width 120px
+                overflow-y: hidden;
+            }
+
+            .aggCol {
+                .position(relative);
+                .flex(0 0 120px); // has width 120px
+                padding-right: 5px;
+                padding-bottom: 5px;
+
+                .flex-display;
+                .flex-flow(column);
+
+                &:last-child {
+                    padding-right: 3px;
+                }
+
+                .aggTableField {
+                    .flex(1 0 50px);    // row has flex height with 50px
+                    .rounded;
+                    background-color: @color-selectedCell-light;
+                    margin-top: 10px;
+                    padding: 0 2px;
+                    color: @color-text-midGray;
+                    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, .1);
+                    // for text vertical align
                     .flex-display;
-                    .flex-flow(column);
+                    .justify-content(center);
+                    align-items: center;
 
-                    &:last-child {
-                        padding-right: 3px;
+                    .font(@weight: bold, @size: 14px);
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+
+                    &.aggTableFlex {
+                        background-color: @color-background-colIcon-lightBlue;
                     }
 
-                    .aggTableField {
-                        .flex(1 0 50px);    // row has flex height with 50px
-                        .rounded;
-                        background-color: @color-selectedCell-light;
-                        margin-top: 10px;
-                        padding: 0 2px;
-                        color: @color-text-midGray;
-                        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, .1);
-                        // for text vertical align
-                        .flex-display;
-                        .justify-content(center);
-                        align-items: center;
-
-                        .font(@weight: bold, @size: 14px);
-                        text-overflow: ellipsis;
-                        overflow: hidden;
-                        white-space: nowrap;
-
-                        &.aggTableFlex {
-                            background-color: @color-background-colIcon-lightBlue;
-                        }
-
-                         &.blankSpace {
-                            background: @color-join-background !important;
-                            box-shadow: none !important;
-                        }
+                     &.blankSpace {
+                        background: @color-join-background !important;
+                        box-shadow: none !important;
                     }
                 }
+            }
 
-                .divider {
-                    .size(@width: 100%, @height: 1px);
-                    border-top: 1px solid #a8a8a8;
-                    .position(absolute, @top: 28px, @left: 0);
-                    z-index: 2;
-                }
+            .divider {
+                .size(@width: 100%, @height: 1px);
+                border-top: 1px solid #a8a8a8;
+                .position(absolute, @top: 28px, @left: 0);
+                z-index: 2;
+            }
 
-                // column label
-                .colLabel {
-                    .flex(0 0 22px) !important;
-                    margin-top: 0px !important;
-                    margin-bottom: 5px !important;
-                    line-height: 22px !important;
-                }
+            // column label
+            .colLabel {
+                .flex(0 0 22px) !important;
+                margin-top: 0px !important;
+                margin-bottom: 5px !important;
+                line-height: 22px !important;
+            }
 
-                .rowLabel, .colLabel {
-                    .gray-gradient;
-                }
+            .rowLabel, .colLabel {
+                .gray-gradient;
             }
         }
 

@@ -60,6 +60,18 @@ window.AggModal = (function($, AggModal) {
             minWidth   : 580,
             containment: "document"
         });
+
+        var $mainAgg1 = $("#mainAgg2");
+        $mainAgg1.find(".aggContainer").scroll(function() {
+            var scrollTop = $(this).scrollTop();
+            $mainAgg1.find(".labelContainer").scrollTop(scrollTop);
+        });
+
+        var $mainAgg2 = $("#mainAgg2");
+        $mainAgg2.find(".aggContainer").scroll(function() {
+            var scrollTop = $(this).scrollTop();
+            $mainAgg2.find(".labelContainer").scrollTop(scrollTop);
+        });
     };
 
     AggModal.show = function (tableId, type) {
@@ -154,8 +166,8 @@ window.AggModal = (function($, AggModal) {
             wholeTable += "</div>";
         }
 
-        $mainAgg1.find(".aggContainer").html(getRowLabelHTML(aggrFunctions) +
-                                                wholeTable);
+        $mainAgg1.find(".labelContainer").html(getRowLabelHTML(aggrFunctions));
+        $mainAgg1.find(".aggContainer").html(wholeTable);
     }
 
     function corrTableInitialize($table) {
@@ -220,8 +232,8 @@ window.AggModal = (function($, AggModal) {
             vertLabels.push(colInfo.col.name);
         });
 
-        $mainAgg2.find(".aggContainer").html(getRowLabelHTML(vertLabels) +
-                                                wholeTable);
+        $mainAgg2.find(".labelContainer").html(getRowLabelHTML(vertLabels));
+        $mainAgg2.find(".aggContainer").html(wholeTable);
     }
 
     function getRowLabelHTML(operations) {
