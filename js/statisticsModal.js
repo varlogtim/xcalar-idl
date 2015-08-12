@@ -68,7 +68,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                         .attr("class", "barArea");
         });
 
-        $statsModal.on("click", ".groupbyChart .label", function() {
+        $statsModal.on("click", ".bar-extra, .bar, .xlabel", function() {
             percentageLabel = !percentageLabel;
             buildGroupGraphs();
         });
@@ -392,7 +392,7 @@ window.STATSManager = (function($, STATSManager, d3) {
 
                 curStatsCol.groupByInfo.max = val;
                 return (XcalarAggregate(statsColName, groupbyTable,
-                        aggMap.count));
+                        aggMap.sum));
             } catch (error) {
                 console.error(error, val);
                 return (jQuery.Deferred().reject(error));
@@ -404,7 +404,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                 var obj = jQuery.parseJSON(value);
                 val = obj.Value;
 
-                curStatsCol.groupByInfo.count = val;
+                curStatsCol.groupByInfo.sum = val;
             } catch (error) {
                 console.error(error, val);
                 return (jQuery.Deferred().reject(error));
@@ -534,6 +534,9 @@ window.STATSManager = (function($, STATSManager, d3) {
         var y = d3.scale.linear()
                         .range([height, 0])
                         .domain([-(groupByInfo.max * .02), groupByInfo.max]);
+        var xWidth = x.rangeBand();
+        // 5.1 is the width of a char in .xlabel
+        var charLenToFit = Math.floor(xWidth / 5.1);
 
         var chart;
         if (initial) {
@@ -551,32 +554,12 @@ window.STATSManager = (function($, STATSManager, d3) {
             chart = d3.select("#statsModal .groupbyChart .barChart");
         }
 
+
         // rect bars
         var barAreas = chart.selectAll(".barArea").data(data);
 
         // update
-        barAreas.attr("class", function(d) {
-                    // a little weird method to setup tooltip
-                    // may have better way
-                    var title;
-
-                    if (percentageLabel && groupByInfo.count !== 0) {
-                        var per = String(d[yName] / groupByInfo.count * 100)
-                                        .substring(0, 4) + "%";
-                        title = xName + ": " + d[xName] + "\r\n" +
-                                "Percentage: " + per;
-                    } else {
-                        title = xName + ": " + d[xName] + "\r\n" +
-                                "Frequency: " + d[yName];
-                    }
-
-                    var options = $.extend({}, tooltipOptions, {
-                        "title": title
-                    });
-                    $(this).tooltip("destroy");
-                    $(this).tooltip(options);
-                    return ("barArea");
-                });
+        barAreas.attr("class", getTooltipAndClass);
 
         barAreas.select(".bar")
                 .transition()
@@ -585,64 +568,22 @@ window.STATSManager = (function($, STATSManager, d3) {
                 .attr("height", function(d) { return height - y(d[yName]); });
 
         barAreas.select(".tick")
-                .attr("width", x.rangeBand())
-                .attr("x", function(d) {
-                    return x(d[xName]) + x.rangeBand() / 2;
-                })
-                .text(function(d) {
-                    var name = d[xName];
-                    if (name.length > 4) {
-                        return (name.substring(0, 4) + "..");
-                    } else {
-                        return name;
-                    }
-                });
+                .text(getXAxis);
 
-        barAreas.select(".label")
-                .attr("width", x.rangeBand())
-                .attr("x", function(d) {
-                    return x(d[xName]) + x.rangeBand() / 2;
-                })
-                .text(function(d) {
-                    var num = d[yName];
-
-                    if (percentageLabel && groupByInfo.count !== 0) {
-                        // show percentage
-                        num = num / groupByInfo.count * 100;
-                        num = String(num).substring(0, 4) + "%";
-                        return (num);
-                    } else {
-                        num = String(d[yName]);
-                        if (num.length > 4) {
-                            return (num.substring(0, 4) + "..");
-                        } else {
-                            return num;
-                        }
-                    }
-                });
+        barAreas.select(".xlabel")
+                .text(getLabel);
 
         // enter
-        var newbars = barAreas
-            .enter().append("g")
-                .attr("class", function(d) {
-                    // a little weird method to setup tooltip
-                    // may have better way
-                    var title = xName + ": " + d[xName] + "\r\n" +
-                                "Frequency: " + d[yName];
-                    var options = $.extend({}, tooltipOptions, {
-                        "title": title
-                    });
-                    $(this).tooltip(options);
-                    return ("barArea");
-                });
+        var newbars = barAreas.enter().append("g")
+                        .attr("class", getTooltipAndClass);
 
         // gray area
         newbars.append("rect")
-                .attr("class", "bar-extra")
-                .attr("x", function(d) { return x(d[xName]); })
-                .attr("y", 0)
-                .attr("height", height)
-                .attr("width", x.rangeBand());
+            .attr("class", "bar-extra")
+            .attr("x", function(d) { return x(d[xName]); })
+            .attr("y", 0)
+            .attr("height", height)
+            .attr("width", xWidth);
 
         // bar area
         newbars.append("rect")
@@ -650,52 +591,82 @@ window.STATSManager = (function($, STATSManager, d3) {
             .attr("x", function(d) { return x(d[xName]); })
             .attr("y", function(d) { return y(d[yName]); })
             .attr("height", function(d) { return height - y(d[yName]); })
-            .attr("width", x.rangeBand());
+            .attr("width", xWidth);
 
         // xAxis
         newbars.append("text")
             .attr("class", "tick")
-            .attr("width", x.rangeBand())
-            .attr("x", function(d) {
-                return x(d[xName]) + x.rangeBand() / 2;
-            })
+            .attr("width", xWidth)
+            .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
             .attr("y", chartHeight)
-            .text(function(d) {
-                var name = d[xName];
-                if (name.length > 4) {
-                    return (name.substring(0, 4) + "..");
-                } else {
-                    return name;
-                }
-            });
+            .text(getXAxis);
 
         // label
         newbars.append("text")
-            .attr("class", "label")
-            .attr("width", x.rangeBand())
-            .attr("x", function(d) {
-                return x(d[xName]) + x.rangeBand() / 2;
-            })
+            .attr("class", "xlabel")
+            .attr("width", xWidth)
+            .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
             .attr("y", 11)
-            .text(function(d) {
-                var num = d[yName];
+            .text(getLabel);
 
-                if (percentageLabel && groupByInfo.count !== 0) {
-                    // show percentage
-                    num = num / groupByInfo.count * 100;
-                    num = String(num).substring(0, 4) + "%";
-                    return (num);
-                } else {
-                    num = String(d[yName]);
-                    if (num.length > 4) {
-                        return (num.substring(0, 4) + "..");
-                    } else {
-                        return num;
-                    }
-                }
-            });
-
+        // exit
         barAreas.exit().remove();
+
+        function getXAxis(d) {
+            var name = d[xName];
+            if (name.length > 4) {
+                return (name.substring(0, 4) + "..");
+            } else {
+                return name;
+            }
+        }
+
+        function getLabel(d) {
+            var num = d[yName];
+
+            if (percentageLabel && groupByInfo.sum !== 0) {
+                // show percentage
+                num = (num / groupByInfo.sum * 100).toFixed(1) + "%";
+                return (num);
+            } else {
+                num = d[yName].toLocaleString("en");
+                if (num.length > charLenToFit) {
+                    return (num.substring(0, charLenToFit) + "..");
+                } else {
+                    return num;
+                }
+            }
+        }
+
+        function getTooltipAndClass(d) {
+            // a little weird method to setup tooltip
+            // may have better way
+            var title;
+
+            if (percentageLabel && groupByInfo.sum !== 0) {
+                var num = d[yName] / groupByInfo.sum * 100;
+                var per = num.toFixed(2);
+
+                if (per === "0.00") {
+                    // when the percentage is too small
+                    per = num.toExponential(2) + "%";
+                } else {
+                    per += "%";
+                }
+                title = xName + ": " + d[xName] + "\r\n" +
+                        "Percentage: " + per;
+            } else {
+                title = xName + ": " + d[xName] + "\r\n" +
+                    "Frequency: " + d[yName].toLocaleString("en");
+            }
+
+            var options = $.extend({}, tooltipOptions, {
+                "title": title
+            });
+            $(this).tooltip("destroy");
+            $(this).tooltip(options);
+            return ("barArea");
+        }
     }
 
     function resetScrollBar() {
