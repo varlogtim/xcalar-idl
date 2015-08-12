@@ -146,6 +146,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         $statsModal.find(".scrollBar").off();
         $(document).off(".statsModal");
         $("#stats-rowInput").off();
+        $statsModal.find(".groupbyChart").empty();
         resetScrollBar();
 
         resultSetId = null;
@@ -224,13 +225,6 @@ window.STATSManager = (function($, STATSManager, d3) {
         var $loadHiddens    = $statsModal.find(".loadHidden");
         var instruction;
 
-        if (sortRefresh) {
-            $loadHiddens.addClass("disabled");
-        } else {
-            $loadHiddens.addClass("hidden");
-        }
-
-        $loadingSection.removeClass("hidden");
         // update agg info
         aggKeys.forEach(function(aggkey) {
             var aggVal = statsCol.aggInfo[aggkey];
@@ -290,6 +284,14 @@ window.STATSManager = (function($, STATSManager, d3) {
             instruction = "Hover on the bar to see details. " +
                 "Use scroll bar and input box to view more data";
         } else {
+            if (sortRefresh) {
+                $loadHiddens.addClass("disabled");
+            } else {
+                $loadHiddens.addClass("hidden");
+            }
+
+            $loadingSection.removeClass("hidden");
+
             // the data is loading, show loadingSection and hide groupby section
             instruction = "Please wait for the data preparation, " +
                             "you can close the modal and view it later";
@@ -851,13 +853,23 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         statsCol.groupByInfo.isComplete = false;
 
+        var refreshTimer = setTimeout(function() {
+            // refresh if not complete
+            if (curStatsCol.groupByInfo.isComplete === false) {
+                refreshStats(true);
+            }
+        }, 500);
+
         runSort(newOrder)
         .then(function() {
+            // remove timer as first thing
+            clearTimeout(refreshTimer);
             order = newOrder;
             curStatsCol.groupByInfo.isComplete = true;
             refreshStats(true);
         })
         .fail(function(error) {
+            clearTimeout(refreshTimer);
             curStatsCol.groupByInfo.isComplete = true;
             closeStats();
             Alert.error("Stats Analysis Fails", error);
