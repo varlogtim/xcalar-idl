@@ -320,6 +320,7 @@ window.DagPanel = (function($, DagPanel) {
         if ($('#dagPanel').hasClass('midway')) {
             top -= $('#dagPanel').offset().top;
         }
+        $menu.removeClass('leftColMenu');
 
         $menu.css({'top': top, 'left': left});
         $menu.show();
@@ -330,6 +331,14 @@ window.DagPanel = (function($, DagPanel) {
         if ($menu[0].getBoundingClientRect().right > leftBoundary) {
             left = $dagTable[0].getBoundingClientRect().right - $menu.width();
             $menu.css('left', left).addClass('leftColMenu');
+        }
+
+        // ensure dropdown menu is above the bottom of the dag panel
+        var dagPanelBottom = $('#workspacePanel')[0].getBoundingClientRect()
+                                                    .bottom;
+        var menuBottom = $menu[0].getBoundingClientRect().bottom;
+        if (menuBottom > dagPanelBottom) {
+            $menu.css('top', '-=' + ($menu.height() + 35));
         }
     }
 
@@ -770,7 +779,14 @@ window.Dag = (function($, Dag) {
         $dagWrap.on('mouseenter', '.dagTable.DgDagStateReady', function() {
             var $dagTable = $(this);
             var timer = setTimeout(function(){
-                            showDagSchema($dagTable);
+                            var $dropdown = $('.dagTableDropDown:visible');
+                            if ($dropdown.length !== 0 && 
+                                $dropdown.data('tableelement').is($dagTable)) {
+                                    return;
+                            } else {
+                                showDagSchema($dagTable);
+                            }
+                            
                         }, 100);
             $dagTable.data('hover', timer);
         });
@@ -786,12 +802,18 @@ window.Dag = (function($, Dag) {
 
         addColMenuBehaviors($menu);
 
-        $menu.find('.createParamQuery').mouseup(function() {
+        $menu.find('.createParamQuery').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             DagModal.show($currentIcon);
         });
 
         //XX both dropdown options will do the same thing
-        $menu.find('.modifyParams').mouseup(function() {
+        $menu.find('.modifyParams').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             DagModal.show($currentIcon);
         });
     }
@@ -1077,7 +1099,7 @@ window.Dag = (function($, Dag) {
             //XX TEMPORARY
             // tempModifyDagArray(dagArray);
             var parentChildMap = getParentChildDagMap(dagObj);
-            console.log(dagObj);
+            // console.log(dagObj);
             deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "",
                              index, parentChildMap));
         }
