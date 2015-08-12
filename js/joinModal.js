@@ -57,10 +57,6 @@ window.JoinModal = (function($, JoinModal) {
 
         $joinModal.click(hideJoinTypeSelect);
 
-        $("#mainJoin .joinTableArea").scroll(function(){
-            $(this).scrollTop(0);
-        });
-
         // This submits the joined tables
         $("#joinTables").click(function() {
             $(this).blur();
@@ -245,6 +241,14 @@ window.JoinModal = (function($, JoinModal) {
             scrollToColumn($leftJoinTable.find("th.colSelected"));
             // this is the case when right table has suggested col
             scrollToColumn($rightJoinTable.find("th.colSelected"));
+
+            // have to reattach scroll listener each time modal is opened
+            // because it is lost for some reason
+            $("#mainJoin .joinTableArea").off('scroll');
+            $("#mainJoin .joinTableArea").scroll(function(){
+                $(this).scrollTop(0);
+            });
+
         });
 
         modalHelper.setup();
