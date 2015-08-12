@@ -67,12 +67,13 @@ window.RightSideBar = (function($, RightSideBar) {
         $tableList.find(".tableName").text(newTableName);
     };
 
-    RightSideBar.updateTableInfo = function(table) {
-        var tableId    = table.tableId;
+    RightSideBar.updateTableInfo = function(tableId) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
 
         $tableList.remove();
+
+        var table = gTables[tableId];
         RightSideBar.addTables([table], IsActive.Active);
     };
 
@@ -261,12 +262,12 @@ window.RightSideBar = (function($, RightSideBar) {
             };
             XcalarRenameTable(tableName, newTableName, sqlOptions)
             .then(function() {
-                console.log('renamed')
+                // console.log('renamed');
                 deferred.resolve(newTableName);
             })
             .fail(function(error) {
                 deferred.reject(error);
-            })
+            });
         } else {
             deferred.resolve(tableName);
         }
@@ -710,10 +711,10 @@ window.RightSideBar = (function($, RightSideBar) {
 
         $("#udf-fnUpload").click(function() {
             var fileName = $fnName.val();
+            var text;
 
             if (fileName === "") {
-                var text = "Module name is empty, please input a module name!";
-
+                text = "Module name is empty, please input a module name!";
                 StatusBox.show(text, $fnName, true, 50);
                 return;
             }
@@ -721,9 +722,9 @@ window.RightSideBar = (function($, RightSideBar) {
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
             if (entireString.trim() === "") {
-                var text = "Function field is empty, please input a function.";
+                text = "Function field is empty, please input a function.";
                 StatusBox.show(text, $('.CodeMirror'), false, 30,
-                               {side: 'left'});
+                                { "side": "left" });
                 return;
             }
 
@@ -746,7 +747,7 @@ window.RightSideBar = (function($, RightSideBar) {
             })
             .fail(function(error) {
                 var title = "Error";
-                if (error.status === 301) {
+                if (error.status === StatusT.StatusPyExecFailedToCompile) {
                     // XX might not actually be a syntax error
                     title = "Syntax Error";
                 }
@@ -771,14 +772,14 @@ window.RightSideBar = (function($, RightSideBar) {
     }
 
     function uploadSuccess() {
-        var alertOptions = {};
-        alertOptions.title = "UPLOAD SUCCESS";
-        alertOptions.msg = "Your python script has been successfully uploaded!";
-        alertOptions.isCheckBox = false;
-        alertOptions.confirm = function() {
-            $("#udfBtn").parent().click();
-        };
-        Alert.show(alertOptions);
+        Alert.show({
+            "title"     : "UPLOAD SUCCESS",
+            "msg"       : "Your python script has been successfully uploaded!",
+            "isCheckBox": false,
+            "confirm"   : function() {
+                $("#udfBtn").parent().click();
+            }
+        });
     }
 
     function setupSQL() {

@@ -165,7 +165,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         updateTableHeader(tableId);
-        RightSideBar.updateTableInfo(table);
+        RightSideBar.updateTableInfo(tableId);
         matchHeaderSizes(newColid, $table);
         $table.find('.rowGrab').width($table.width());
     };
@@ -483,7 +483,7 @@ window.ColManager = (function($, ColManager) {
                                       tableId, direction, rowToPrependTo)
     {
         var table     = xcHelper.getTableFromId(tableId);
-        var tableName = table.tableName;
+        // var tableName = table.tableName;
         var tableCols = table.tableCols;
         var numCols   = tableCols.length;
         // jsonData based on if it's indexed on array or not
@@ -889,7 +889,7 @@ window.ColManager = (function($, ColManager) {
         removeColHelper(colNum - 1, tableId);
 
         updateTableHeader(tableId);
-        RightSideBar.updateTableInfo(table);
+        RightSideBar.updateTableInfo(tableId);
 
         for (var i = colNum + 1; i <= numCols; i++) {
             $tableWrap.find(".col" + i)

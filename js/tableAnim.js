@@ -1212,7 +1212,7 @@ function sortAllTableColumns(tableId, direction) {
         tableCols[i].index = newIndex;
     }
 
-    RightSideBar.updateTableInfo(xcHelper.getTableFromId(tableId));
+    RightSideBar.updateTableInfo(tableId);
 }
 
 function renameTableHead($div) {
@@ -1665,7 +1665,7 @@ function addColMenuActions($colMenu) {
         ColManager.execCol(tableCols[colNum], tableId)
         .then(function() {
             updateTableHeader(tableId);
-            RightSideBar.updateTableInfo(table);
+            RightSideBar.updateTableInfo(tableId);
         });
     });
 
@@ -1866,7 +1866,7 @@ function functionBarEnter($colInput) {
     ColManager.execCol(progCol, tableId)
     .then(function() {
         updateTableHeader(tableId);
-        RightSideBar.updateTableInfo(table);
+        RightSideBar.updateTableInfo(tableId);
     });
 }
 

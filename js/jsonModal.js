@@ -129,7 +129,7 @@ window.JSONModal = (function($, JSONModal) {
                 ColManager.execCol(col, tableId)
                 .then(function() {
                     updateTableHeader(tableId);
-                    RightSideBar.updateTableInfo(table);
+                    RightSideBar.updateTableInfo(tableId);
 
                     autosizeCol($table.find("th.col" + colNum), {
                         "includeHeader" : true,
