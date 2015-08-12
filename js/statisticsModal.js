@@ -280,6 +280,11 @@ window.STATSManager = (function($, STATSManager, d3) {
                 }
                 resetSortSection();
                 buildGroupGraphs(true);
+            })
+            .fail(function(error) {
+                closeStats();
+                Alert.error("Stats Analysis Fails", error);
+                console.error(error);
             });
 
             instruction = "Hover on the bar to see details. " +
@@ -316,7 +321,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         var opString  = aggMap[aggkey];
 
         XcalarAggregate(fieldName, tableName, opString)
-        .done(function(value) {
+        .then(function(value) {
             var val;
             try {
                 var obj = jQuery.parseJSON(value);
@@ -335,6 +340,11 @@ window.STATSManager = (function($, STATSManager, d3) {
                 console.error(error, obj);
                 val = "";
             }
+        })
+        .fail(function(error) {
+            closeStats();
+            Alert.error("Stats Analysis Fails", error);
+            console.error(error);
         });
     }
 
@@ -420,7 +430,8 @@ window.STATSManager = (function($, STATSManager, d3) {
             commitToStorage();
         })
         .fail(function(error) {
-            // XX The modal shows a waiting icon forever, need to update it status
+            closeStats();
+            Alert.error("Stats Analysis Fails", error);
             StatusMessage.fail(StatusMessageTStr.StatisticsFailed, msgId);
             console.error(error);
         });
@@ -834,6 +845,7 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             var rowPosition = rowNum - 1;
             groupByData = [];
+
             fetchGroupbyData(rowPosition, rowsToFetch)
             .then(function() {
                 buildGroupGraphs();
@@ -841,6 +853,8 @@ window.STATSManager = (function($, STATSManager, d3) {
                 clearTimeout(loadTimer);
             })
             .fail(function(error) {
+                closeStats();
+                Alert.error("Stats Analysis Fails", error);
                 console.error(error);
             })
             .always(function() {
@@ -874,6 +888,8 @@ window.STATSManager = (function($, STATSManager, d3) {
         })
         .fail(function(error) {
             curStatsCol.groupByInfo.isComplete = true;
+            closeStats();
+            Alert.error("Stats Analysis Fails", error);
             console.error(error);
         });
     }
