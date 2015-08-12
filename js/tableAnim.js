@@ -1284,7 +1284,13 @@ function updateTableHeader(tableId, $tHead, isFocus) {
         $tHead.html(tableName);
         xcHelper.createSelection($tHead.find(".tableName")[0]);
     } else {
-        $tHead.html(tableName + "  [" + cols + "]");
+        var colsHTML = '<span class="colNumBracket" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'title="number of fields">' +
+                        ' [' + cols + ']</span>';
+        $tHead.html(tableName + colsHTML);
     }
 }
 
