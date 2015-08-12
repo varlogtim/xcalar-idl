@@ -748,6 +748,9 @@ function generateColDropDown(tableId) {
     '<li class="functions map thDropdown">Map...</li>' +
     '<li class="joinList thDropdown">Join...</li>' +
     '<li class="profile thDropdown">Profile...</li>' +
+    '<li class="multiColumn hideColumns thDropdown">Hide Columns</li>' +
+    '<li class="multiColumn unhideColumns thDropdown">Unhide Columns</li>' +
+    '<li class="multiColumn deleteColumns thDropdown">Delete Columns</li>' +
     '<li class="tdFilter tdDropdown">Filter this value</li>' +
     '<li class="tdExclude tdDropdown">Exclude this value</li>' +
     '<li class="tdCopy tdDropdown">Copy to clipboard</li>';

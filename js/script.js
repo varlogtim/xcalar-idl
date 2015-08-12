@@ -410,6 +410,14 @@ function documentReadyGeneralFunction() {
         }
 
         if (!$target.is('.editableHead') && !$target.is('#fnBar')) {
+            if ($target.closest('.selectedCell').length !== 0) {
+                return;
+            } else if ($target.attr('id') === 'mainFrame') {
+                return;
+            } else if ($target.closest('.colMenu').length !== 0 &&
+                        $target.closest('.xcTableWrap').length !== 0) {
+                return;
+            }
             $('.selectedCell').removeClass('selectedCell');
             gFnBarOrigin = undefined;
             $('#fnBar').val("");

@@ -915,7 +915,10 @@ ul.colMenu {
                 opacity: 1.0;
             }
         }
+    }
 
+    .multiColumn {
+        display: none;
     }
 
     .unhide {
@@ -944,6 +947,21 @@ ul.colMenu {
         }
     }
 
+    &.type-multiColumn {
+        li {
+            display: none !important;
+        }
+        .deleteColumns, .hideColumns {
+            display: list-item !important;
+        }
+
+        &.type-hidden {
+            .unhideColumns {
+                display: list-item !important;
+            }
+        }
+    }
+
     &.type-string, &.type-array {
         .aggregate {
             display: none;
@@ -959,7 +977,7 @@ ul.colMenu {
 
     &.type-object, &.type-newColumn, &.type-undefined, &.type-mixed, 
     &.recordNum, &.childOfArray {
-        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations, .statistics {
+        .sort, .aggregate, .groupby, .filter, .joinList, .map, .operations, .profile {
             display: none;
         }
     }
@@ -972,7 +990,7 @@ ul.colMenu {
 
     &.type-object, &.type-array, &.type-newColumn, &.type-undefined,
     &.recordNum {
-        .changeDataType, .statistics {
+        .changeDataType, .profile {
             display: none;
         }
     }
@@ -1019,7 +1037,7 @@ ul.colMenu {
     &.type-data {
         .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
         .deleteDuplicates, .duplicate, .renameCol, .map, .operations,
-        .changeDataType, .statistics {
+        .changeDataType, .profile {
             display: none;
         }
     }
