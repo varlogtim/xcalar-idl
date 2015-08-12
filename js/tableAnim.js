@@ -1732,7 +1732,7 @@ function addColMenuActions($colMenu) {
         OperationsModal.show(tableId, colNum, func);
     });
 
-    $colMenu.on('mouseup', '.statistics', function(event) {
+    $colMenu.on('mouseup', '.profile', function(event) {
         if (event.which !== 1) {
             return;
         }
