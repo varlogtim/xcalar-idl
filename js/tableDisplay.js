@@ -216,8 +216,6 @@ function archiveTable(tableId, del, delayTableRemoval) {
         $("#rowScroller-" + tableId).remove();
         $('#dagWrap-' + tableId).remove();
     }
-    
-    var tableName = gTables[tableId].tableName;
 
     if (!del) {
         gTables[tableId].active = false;
@@ -226,14 +224,10 @@ function archiveTable(tableId, del, delayTableRemoval) {
         WSManager.archiveTable(tableId);
         RightSideBar.moveTable(tableId);
     } else {
-        WSManager.removeTable(tableId);
-        delete (gTables[tableId]);
-        delete gTables[tableId];
-        var $li = $("#activeTablesList").find('.tableName').filter(
-                    function() {
-                        return ($(this).text() === tableName);
-                    }).closest("li");
-        var $timeLine = $li.parent().parent();
+        var $li = $("#activeTablesList").find('.tableInfo[data-id="'
+                                                + tableId + '"]')
+        var $timeLine = $li.closest(".timeLine");
+
         $li.remove();
         if ($timeLine.find('.tableInfo').length === 0) {
             $timeLine.remove();
@@ -250,11 +244,12 @@ function archiveTable(tableId, del, delayTableRemoval) {
 }
 
 function deleteActiveTable(tableId) {
-    var deferred = jQuery.Deferred();
-    var table = xcHelper.getTableFromId(tableId);
-    var tableName = table.tableName;
-    var sqlOptions = {"operation": "deleteTable",
-                      "tableName": tableName};
+    var deferred   = jQuery.Deferred();
+    var sqlOptions = {
+        "operation": "deleteTable",
+        "tableName": gTables[tableId].tableName
+    };
+
     deleteTable(tableId, null, sqlOptions)
     .then(function() {
         setTimeout(function() {
@@ -329,13 +324,12 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
     .then(function() {
         // XXX if we'd like to hide the cannot delete bug,
         // copy it to the fail function
+        WSManager.removeTable(tableId);
+        Dag.makeInactive(tableId);
+        delete gTables[tableId];
 
-        if (deleteArchived) {
-            WSManager.removeTable(tableId);
-            Dag.makeInactive(tableId);
-            delete gTables[tableId];
-            delete (gTables[tableId]);
-        } else {
+        if (!deleteArchived) {
+            // when delete active table
             archiveTable(tableId, DeleteTable.Delete);
         }
 
