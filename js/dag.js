@@ -260,8 +260,9 @@ window.DagPanel = (function($, DagPanel) {
 
             // XXX Fix it!! $dagTable has data-tablename, should chagne to tableId
             var tableName = $.trim($dagTable.find('.tableTitle').text());
-            var tableId = xcHelper.getTableId(tableName);
+            var tableId = $dagTable.data('id');
             $menu.data('tablename', tableName);
+            $menu.data('tableId', tableId);
             $menu.data('tableelement', $dagTable);
             var activeFound = false;
             var tableWSIndex;
@@ -362,8 +363,7 @@ window.DagPanel = (function($, DagPanel) {
             if (event.which !== 1) {
                 return;
             }
-            var tableName = $menu.data('tablename');
-            var tableId = xcHelper.getTableId(tableName);
+            var tableId = $menu.data('tableId');
             $('#inactiveTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
                 if ($li.data('id') === tableId) {
@@ -378,9 +378,7 @@ window.DagPanel = (function($, DagPanel) {
             if (event.which !== 1) {
                 return;
             }
-            var tableName = $menu.data('tablename');
-            // XX instead of storing data tablename we can store id
-            var tableId = xcHelper.getTableId(tableName);
+            var tableId = $menu.data('tableId');
             var wsIndex = $menu.data('wsindex');
             $('#worksheetTab-' + wsIndex).click();
             
@@ -658,6 +656,19 @@ window.Dag = (function($, Dag) {
         });
     };
 
+    Dag.makeInactive = function(tableId) {
+        var tableName = gTables2[tableId].tableName;
+        var $dags = $('.dagTable[data-id=' + tableId + ']');
+        $dags.removeClass('DgDagStateReady')
+             .addClass('DgDagStateDropped');
+        $dags.find('.icon').attr({"data-toggle": "tooltip",
+                                  "data-placement":"top",
+                                  "data-container":"body",
+                                  "data-original-title":"Table '" + tableName +
+                                  "' has been dropped"});
+
+    }
+
     function addDagEventListeners($dagWrap) {
         var $currentIcon;
         var $menu = $dagWrap.find('.dagDropDown');
@@ -694,7 +705,7 @@ window.Dag = (function($, Dag) {
             $('body').addClass('noSelection');
         });
 
-        $dagWrap.on('mouseenter', '.dagTable:not(.dataStore)', function() {
+        $dagWrap.on('mouseenter', '.dagTable.DgDagStateReady', function() {
             var $dagTable = $(this);
             var timer = setTimeout(function(){
                             showDagSchema($dagTable);
@@ -725,9 +736,9 @@ window.Dag = (function($, Dag) {
 
     function showDagSchema($dagTable) {
         $('#dagSchema').remove();
-        var tableName = $dagTable.data('tablename'); //XX todo grab tableId instead
-        var tableId = xcHelper.getTableId(tableName);
+        var tableId = $dagTable.data('id');
         var table = gTables2[tableId];
+        var tableName = table.tableName;
         if (table) {
             var numCols = table.tableCols.length;
             var html = '<div id="dagSchema">' +
@@ -898,8 +909,10 @@ window.Dag = (function($, Dag) {
                                 tableName +
                             '</span>';
         } else {
+            var tableId = xcHelper.getTableId(tableName);
             dagTable += '<div class="dagTable ' + state + '" ' +
-                            'data-tablename="' + tableName + '">' +
+                            'data-tablename="' + tableName + '" ' +
+                            'data-id="' + tableId + '">' +
                             '<div class="dagTableIcon"></div>';
             if (dagInfo.state === 'DgDagStateDropped') {
                 dagTable += '<div class="icon" ' +

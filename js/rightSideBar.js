@@ -125,7 +125,6 @@ window.RightSideBar = (function($, RightSideBar) {
                         .then(function(newTableName) {
                             tableName = newTableName;
                             tableId = xcHelper.getTableId(tableName);
-
                             WSManager.addTable(tableId);
                             return (prepareOrphanForActive(tableName));
                         })

@@ -332,6 +332,7 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
 
         if (deleteArchived) {
             WSManager.removeTable(tableId);
+            Dag.makeInactive(tableId);
             delete gTables2[tableId];
             delete (gTables2[tableId]);
         } else {
