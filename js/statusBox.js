@@ -9,16 +9,19 @@ window.StatusBox = (function($, StatusBox){
         var top   = bound.top - 30;
         var right = $(window).width() - bound.right - 200;
         var left = bound.left - 200;
-
-        if (offset) {
-            right = right + offset;
-        }
-
         var side;
         if (options && options.side) {
             side = options.side;
         } else {
             side = 'right';
+        }
+
+        if (offset) {
+            if (side === 'right') {
+                right += offset;
+            } else {
+                left += offset;
+            }
         }
 
         $statusBox.addClass('error ' + side);

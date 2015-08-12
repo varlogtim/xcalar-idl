@@ -714,6 +714,13 @@ window.RightSideBar = (function($, RightSideBar) {
             
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
+            if (entireString.trim() === "") {
+                var text = "Function field is empty, please input a function.";
+                StatusBox.show(text, $('.CodeMirror'), false, 30,
+                               {side: 'left'});
+                return;
+            }
+
             var moduleName;
             if (fileName.indexOf(".") >= 0) {
                 moduleName = fileName.substring(0, fileName.indexOf("."));
@@ -730,6 +737,15 @@ window.RightSideBar = (function($, RightSideBar) {
                 $downloadBtn.addClass("hidden");
                 commitToStorage();
                 uploadSuccess();
+            })
+            .fail(function(error) {
+                var title = "Error";
+                if (error.status === 301) {
+                    // XX might not actually be a syntax error
+                    title = "Syntax Error";
+                }
+                
+                Alert.error(title, error);
             });
         });
         /* end of upload written function section */
