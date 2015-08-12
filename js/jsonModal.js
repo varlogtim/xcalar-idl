@@ -112,7 +112,8 @@ window.JSONModal = (function($, JSONModal) {
                 var table       = xcHelper.getTableFromId(tableId);
                 var tableName   = table.tableName;
                 var siblColName = table.tableCols[colNum - 1].name;
-                var newName     = getUniqueColName(name.name, table.tableCols);
+                var newName     = xcHelper.getUniqColName(name.name,
+                                                            table.tableCols);
 
                 ColManager.addCol(colNum, tableId, newName, {
                     "direction": "L",
@@ -157,29 +158,6 @@ window.JSONModal = (function($, JSONModal) {
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
 
         $('body').on('keydown', cycleMatches);
-    }
-
-    function getUniqueColName(name, tableCols, nameIndex, scanIndex) {
-        var index = nameIndex || 0;
-        var newName;
-        if (index) {
-            newName = name + index;
-        } else {
-            newName = name;
-        }
-        
-        var numCols = tableCols.length;
-
-        scanIndex = scanIndex || 0;
-        for (var i = scanIndex; i < numCols; i++) {
-            if (tableCols[i].name.indexOf(newName) !== -1) {
-                if (newName === tableCols[i].name) {
-                    newName = getUniqueColName(name, tableCols, ++index, i);
-                    break;
-                }
-            }
-        }
-        return (newName);
     }
 
     function searchText($input) {

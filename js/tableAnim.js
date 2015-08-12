@@ -1629,13 +1629,22 @@ function addColMenuActions($colMenu) {
             return;
         }
 
-        var colNum  = $colMenu.data('colNum');
-        var $table  = $("#xcTable-" + tableId);
-        var table   = xcHelper.getTableFromId(tableId);
+        var colNum = $colMenu.data('colNum');
+        var $table = $("#xcTable-" + tableId);
+        var table  = gTables[tableId];
 
-        var name = $table.find('.editableHead.col' + colNum).val();
-        var width = $table.find('th.col' + colNum).outerWidth();
+        var width    = $table.find('th.col' + colNum).outerWidth();
         var isNewCol = $table.find('th.col' + colNum).hasClass('unusedCell');
+
+        var tableCols = table.tableCols;
+        var name;
+        if (tableCols[colNum - 1].func.args) {
+            name = tableCols[colNum - 1].func.args[0];
+        } else {
+            name = tableCols[colNum - 1].name;
+        }
+
+        name = xcHelper.getUniqColName(name, tableCols);
 
         ColManager.addCol(colNum, tableId, name, {
             "width"   : width,
@@ -1648,8 +1657,6 @@ function addColMenuActions($colMenu) {
             "colName"  : name,
             "colIndex" : colNum
         });
-
-        var tableCols = table.tableCols;
 
         tableCols[colNum].func.func = tableCols[colNum - 1].func.func;
         tableCols[colNum].func.args = tableCols[colNum - 1].func.args;
@@ -1790,7 +1797,7 @@ function addColMenuActions($colMenu) {
         var colNum  = $colMenu.data('colNum');
 
         var $table  = $("#xcTable-" + tableId);
-        var $header = $table.find("th.col" + colNum + " .header");
+        // var $header = $table.find("th.col" + colNum + " .header");
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
         var $tdVal = $td.find(".addedBarTextWrap");
 
@@ -1946,7 +1953,7 @@ function dropdownClick($el, options) {
 
         // If the tdDropdown is on a non-filterable value, we need to make the
         // filter options unavailable
-        var columnType = gTables[tableId].tableCols[options.colNum-1].type;
+        var columnType = gTables[tableId].tableCols[options.colNum - 1].type;
         if (columnType !== "string" &&
             columnType !== "decimal" &&
             columnType !== "integer" &&
@@ -1957,7 +1964,7 @@ function dropdownClick($el, options) {
         } else {
             $menu.find(".tdFilter").removeClass("unavailable");
             $menu.find(".tdExclude").removeClass("unavailable");
-        } 
+        }
     }
     $('.highlightBox').remove();
     $(".colMenu:visible").hide();

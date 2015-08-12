@@ -97,6 +97,24 @@ window.xcHelper = (function($, xcHelper) {
         return (type);
     };
 
+    // get unique column name
+    xcHelper.getUniqColName = function(name, tableCols) {
+        var colNames = {};
+        for (var i = 0, numCols = tableCols.length; i < numCols; i++) {
+            colNames[tableCols[i].name] = true;
+        }
+
+        var suffix  = 1;
+        var newName = name;
+
+        while (colNames.hasOwnProperty(newName)) {
+            newName = name + "" + suffix;
+            ++suffix;
+        }
+
+        return (newName);
+    };
+
     // get a deep copy
     xcHelper.deepCopy = function(obj) {
         var string = JSON.stringify(obj);
