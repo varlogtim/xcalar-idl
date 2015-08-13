@@ -172,6 +172,8 @@ window.JSONModal = (function($, JSONModal) {
         $targets = $jsonText.find('.text').filter(function() {
             return ($(this).text().toLowerCase().indexOf(text) !== -1);
         });
+        
+        text = escapeRegExp(text);
         var regex = new RegExp(text, "gi");
 
         $targets.each(function() {
@@ -196,6 +198,10 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
+    function escapeRegExp(str) {
+        return (str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+    }
+
     function clearSearch() {
         $jsonText.find('.highlightedText').contents().unwrap();
         $searchInput.val("");
@@ -211,7 +217,8 @@ window.JSONModal = (function($, JSONModal) {
             $lastMousedownTarget.closest('#jsonSearch').length === 0) {
             return;
         }
-        if (event.which === keyCode.Up || event.which === keyCode.Down) {
+        if (event.which === keyCode.Up || event.which === keyCode.Down ||
+            event.which === keyCode.Enter) {
             if (event.which === keyCode.Up) {
                 matchIndex--;
                 if (matchIndex < 0) {
@@ -224,7 +231,8 @@ window.JSONModal = (function($, JSONModal) {
                     $searchInput[0].selectionEnd = val.length;
                 }, 0);
                 
-            } else if (event.which === keyCode.Down) {
+            } else if (event.which === keyCode.Down ||
+                       event.which === keyCode.Enter) {
                 matchIndex++;
                 if (matchIndex >= numMatches) {
                     matchIndex = 0;
