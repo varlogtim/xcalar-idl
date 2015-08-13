@@ -647,27 +647,18 @@ window.JoinModal = (function($, JoinModal) {
             var $table = $th.closest('table');
 
             var tableId = $table.data("id");
-            var colName = $th.find(".columnTab").text();
 
             if ($th.hasClass('colSelected')) {
                  // unselect column
                 $th.removeClass('colSelected');
                 $table.find('.col' + colNum).removeClass('colSelected');
-                // $tableInfo.find(".joinKey .text").text("");
             } else {
                 // select column
                 $modal.find('.colSelected').removeClass('colSelected');
                 $table.find('.col' + colNum).addClass('colSelected');
-                // $tableInfo.find(".tableName .text").text(tableName);
-                // $tableInfo.find(".joinKey .text").text(colName);
 
-                if (isLeft) {
-                    var cols = [];
-                    $table.find(".columnTab").each(function() {
-                        cols.push($(this).text());
-                    });
-                    suggestJoinKey(tableId, colName, getType($th),
-                                   new xcHelper.Corrector(cols));
+                if (isLeft && isOpenTime) {
+                    suggestJoinKey(tableId, $th);
                 }
             }
         });
@@ -718,56 +709,244 @@ window.JoinModal = (function($, JoinModal) {
         $tableArea.scrollLeft(position);
     }
 
-    function suggestJoinKey(tableId, colName, type, corrector) {
-        var isFound = false;
+    function getType($th) {
+        // match "abc type-XXX abc" and "abc type-XXX"
+        var match = $th.attr("class").match(/type-(.*)/)[1];
+        // match = "type-XXX" or "type-XXX abc"
+        return (match.split(" ")[0]);
+    }
+
+    function suggestJoinKey(tableId, $th) {
+        var type     = getType($th);
+        var colNum   = xcHelper.parseColNum($th);
+        var colName  = $th.find(".columnTab").text();
+        var lContext = contextCheck($th.closest('table'), colNum, type);
+
         var $thToClick;
-        var curColName;
+        var tableIdToClick;
+
+        // XXX the limit score valid as suggest key, can be modified
+        var maxScore = -50;
 
         $rightJoinTable.find("table").each(function() {
-            var $table = $(this);
+            var $rTable  = $(this);
+            var rTableId = $rTable.data("id");
 
-            if (isFound) {
-                return;
+            if (rTableId === tableId) {
+                return;  // skip same table
             }
 
-            curTableId = $table.data("id");
+            $rTable.find("th").each(function(index) {
+                var $rTh = $(this);
 
-            if (curTableId === tableId) {
-                return;
-            }
+                if (getType($rTh) === type) {
+                    var rContext = contextCheck($rTable, index + 1, type);
 
-            var $ths = $table.find("th");
-            for (var i = 0, len = $ths.length; i < len; i++) {
-                var $th = $ths.eq(i);
+                    var curColName = $rTh.find(".columnTab").text();
+                    var dist = getTitleDistance(colName, curColName);
 
-                if (getType($th) === type) {
-                    curColName = $th.find(".columnTab").text();
+                    var score = getScore(lContext, rContext, dist, type);
 
-                    if (curColName.toLowerCase() === colName.toLowerCase() ||
-                        corrector.correct(curColName) === colName.toLowerCase())
-                    {
-                        isFound = true;
-                        $thToClick = $th;
-                        break;
+                    if (score > maxScore) {
+                        maxScore = score;
+                        $thToClick = $rTh;
+                        tableIdToClick = rTableId;
                     }
                 }
-            }
+            });
         });
 
-        if (isFound && isOpenTime) {
+        if (tableIdToClick != null) {
+            // if find the suggeest join key
             $rightJoinTable.find(".tableLabel").filter(function() {
-                return ($(this).data("id") === curTableId);
+                return ($(this).data("id") === tableIdToClick);
             }).click();
             $thToClick.click();
             scrollToColumn($thToClick);
         }
     }
 
-    function getType($th) {
-        // match "abc type-XXX abc" and "abc type-XXX"
-        var match = $th.attr("class").match(/type-(.*)/)[1];
-        // match = "type-XXX" or "type-XXX abc"
-        return (match.split(" ")[0]);
+    function getScore(context1, context2, titleDist, type) {
+        // max: 1,
+        // min: 1,
+        // avg: 2
+        // sig2(variance): 5
+        // dist: 7
+        // hash match: 3?
+
+        // the two value of max, min, sig2, avg..closer, score is better,
+        // also, shorter distance, higher score. So those socres are negative
+
+        var score   = 0;
+        var bucket  = {};
+        var bucket2 = {};
+        var match   = 0;
+
+        if (type === "string") {
+            // XXX current way is hash each char and count frequency
+            // change it if you have better way!
+            context1.vals.forEach(function(value) {
+                for (var i = 0; i < value.length; i++) {
+                    bucket[value.charAt(i)] = true;
+                }
+            });
+
+            context2.vals.forEach(function(value) {
+                for (var i = 0; i < value.length; i++) {
+                    bucket2[value.charAt(i)] = true;
+                }
+            });
+
+            for (var c in bucket2) {
+                if (bucket.hasOwnProperty(c)) {
+                    if (/\W/.test(c)) {
+                        // special char, high weight
+                        match += 10;
+                    } else {
+                        match += 1;
+                    }
+                }
+            }
+
+            if (match === 0) {
+                // no match
+                return (-Number.MAX_VALUE);
+            }
+        } else {
+            // a base score for number,
+            // since limit score to pass is -50
+            match = 20;
+        }
+
+        score += match * 3;
+        score += Math.abs(context1.max - context2.max) * -1;
+        score += Math.abs(context1.min - context2.min) * -1;
+        score += Math.abs(context1.avg - context2.avg) * -2;
+        score += Math.abs(context1.sig2 - context2.sig2) * -5;
+        score += titleDist * -7;
+        return (score);
+    }
+
+    function contextCheck($table, colNum, type) {
+        // only check number and string
+        if (type !== "integer" && type !== "decimal" && type !== "string") {
+            return {"max": 0, "min": 0, "total": 0, "variance": 0};
+        }
+
+        var max   = Number.MIN_VALUE;
+        var min   = Number.MAX_VALUE;
+        var total = 0;
+        var datas = [];
+        var values = [];
+
+        $table.find("td.col" + colNum).each(function() {
+            var val = $(this).find(".addedBarTextWrap").text();
+            var d;
+
+            if (type === "string") {
+                if (val == null || val === "") {
+                    // skip empty value
+                    return;
+                }
+                d = val.length; // for string, use its length as metrics
+            } else {
+                d = Number(val);
+            }
+
+            values.push(val);
+            datas.push(d);
+            max = Math.max(d, max);
+            min = Math.min(d, min);
+            total += d;
+        });
+
+        var count = datas.length;
+        var avg = total / count;
+        var sig2 = 0;
+
+        for (var i = 0; i < count; i++) {
+            sig2 += Math.pow((datas[i] - avg), 2);
+        }
+
+        return {
+            "max" : max,
+            "min" : min,
+            "avg" : avg,
+            "sig2": sig2,
+            "vals": values
+        };
+    }
+
+    function getTitleDistance(name1, name2) {
+        if (name1.startsWith("column") || name2.startsWith("column")) {
+            // any column has auto-generate column name, then do not check
+            return 0;
+        }
+
+        name1 = name1.toLowerCase();
+        name2 = name2.toLowerCase();
+
+        if (name1 === name2) {
+            // same name
+            return 0;
+        }
+
+        var distArray = levenshteinenator(name1, name2);
+        var len = distArray.length;
+        var dist = distArray[len - 1][distArray[len - 1].length - 1];
+
+        return (dist);
+
+        // http://andrew.hedges.name/experiments/levenshtein/levenshtein.js
+        /**
+         * @param String a
+         * @param String b
+         * @return Array
+         */
+        function levenshteinenator(a, b) {
+            var cost;
+            var m = a.length;
+            var n = b.length;
+
+            // make sure a.length >= b.length to use O(min(n,m)) space, whatever that is
+            if (m < n) {
+                var c = a; a = b; b = c;
+                var o = m; m = n; n = o;
+            }
+
+            var r = []; r[0] = [];
+            for (var c = 0; c < n + 1; ++c) {
+                r[0][c] = c;
+            }
+
+            for (var i = 1; i < m + 1; ++i) {
+                r[i] = []; r[i][0] = i;
+                for ( var j = 1; j < n + 1; ++j ) {
+                    cost = a.charAt( i - 1 ) === b.charAt( j - 1 ) ? 0 : 1;
+                    r[i][j] = minimator(r[i - 1][j] + 1, r[i][j - 1] + 1,
+                                        r[i - 1][j - 1] + cost);
+                }
+            }
+
+            return r;
+        }
+
+        /**
+         * Return the smallest of the three numbers passed in
+         * @param Number x
+         * @param Number y
+         * @param Number z
+         * @return Number
+         */
+        function minimator(x, y, z) {
+            if (x < y && x < z) {
+                return x;
+            }
+            if (y < x && y < z) {
+                return y;
+            }
+            return z;
+        }
     }
 
     return (JoinModal);
