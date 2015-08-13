@@ -17,7 +17,6 @@ window.xcFunction = (function($, xcFunction) {
         var tablCols     = xcHelper.deepCopy(table.tableCols);
         var operator     = options.operator;
         var fltStr       = options.filterString;
-        var newTableName = getNewTableName(tableName);
 
         var msg = StatusMessageTStr.Filter + ': ' + frontColName;
         var msgObj = {
@@ -26,10 +25,13 @@ window.xcFunction = (function($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
         
-        // must add table to worksheet before async call
-        var newTableId = xcHelper.getTableId(newTableName);
-        WSManager.addTable(newTableId);
+        var newTableInfo = getNewTableInfo(tableName);
+        var newTableName = newTableInfo.tableName;
+        var newTableId   = newTableInfo.tableId;
 
+        // must add to worksheet before async call or will end up adding to th
+        // wrong worksheet
+        WSManager.addTable(newTableId);
         xcHelper.lockTable(tableId);
 
         var sqlOptions = {
@@ -131,7 +133,6 @@ window.xcFunction = (function($, xcFunction) {
         var direction = (order === SortDirection.Forward) ? "ASC" : "DESC";
         var backFieldName;
         var frontFieldName;
-        var newTableName = getNewTableName(tableName);
 
         switch (pCol.func.func) {
             case ("pull"):
@@ -152,10 +153,13 @@ window.xcFunction = (function($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
-        // Cheng must add to worksheet before async call
-        var newTableId = xcHelper.getTableId(newTableName);
-        WSManager.addTable(newTableId);
+        var newTableInfo = getNewTableInfo(tableName);
+        var newTableName = newTableInfo.tableName;
+        var newTableId   = newTableInfo.tableId;
 
+        // must add to worksheet before async call or will end up adding to th
+        // wrong worksheet
+        WSManager.addTable(newTableId);
         xcHelper.lockTable(tableId);
 
         var sqlOptions = {
@@ -498,7 +502,6 @@ window.xcFunction = (function($, xcFunction) {
 
         var table        = xcHelper.getTableFromId(tableId);
         var tableName    = table.tableName;
-        var newTableName = getNewTableName(tableName);
 
         var msg = StatusMessageTStr.Map + " " + fieldName;
         var msgObj = {
@@ -508,9 +511,13 @@ window.xcFunction = (function($, xcFunction) {
         var msgId = StatusMessage.addMsg(msgObj);
 
         options = options || {};
+
+        var newTableInfo = getNewTableInfo(tableName);
+        var newTableName = newTableInfo.tableName;
+        var newTableId   = newTableInfo.tableId;
+
         // must add to worksheet before async call or will end up adding to th
         // wrong worksheet
-        var newTableId = xcHelper.getTableId(newTableName);
         WSManager.addTable(newTableId);
         xcHelper.lockTable(tableId);
         
@@ -574,7 +581,6 @@ window.xcFunction = (function($, xcFunction) {
         var lTableId   = lOptions.tableId;
         var lTable     = xcHelper.getTableFromId(lTableId);
         var lTableName = lTable.tableName;
-        var lNewName   = getNewTableName(lTableName);
         var lFieldName = lOptions.fieldName;
         var lMapString = lOptions.mapString;
 
@@ -582,7 +588,6 @@ window.xcFunction = (function($, xcFunction) {
         var rTableId   = rOptions.tableId;
         var rTable     = xcHelper.getTableFromId(rTableId);
         var rTableName = rTable.tableName;
-        var rNewName   = getNewTableName(rTableName);
         var rFieldName = rOptions.fieldName;
         var rMapString = rOptions.mapString;
 
@@ -594,9 +599,16 @@ window.xcFunction = (function($, xcFunction) {
         };
         var msgId = StatusMessage.addMsg(msgObj);
 
-        var lNewId = xcHelper.getTableId(lNewName);
-        var rNewId = xcHelper.getTableId(rNewName);
+        var lNewInfo = getNewTableInfo(lTableName);
+        var lNewName = lNewInfo.tableName;
+        var lNewId   = lNewInfo.tableId;
 
+        var rNewInfo = getNewTableInfo(rTableName);
+        var rNewName = rNewInfo.tableName;
+        var rNewId   = rNewInfo.tableId;
+
+        // must add to worksheet before async call or will end up adding to th
+        // wrong worksheet
         WSManager.addTable(lNewId);
         xcHelper.lockTable(lTableId);
 
@@ -786,8 +798,11 @@ window.xcFunction = (function($, xcFunction) {
         return (deferred.promise());
     };
 
-    function getNewTableName(tableName) {
-        return (tableName.split("#")[0] + Authentication.fetchHashTag());
+    function getNewTableInfo(tableName) {
+        var newId = Authentication.fetchHashTag().split("#")[1];
+        var newName = tableName.split("#")[0] + "#" + newId;
+
+        return { "tableName": newName, "tableId": newId };
     }
 
     // check if table has correct index
@@ -801,8 +816,10 @@ window.xcFunction = (function($, xcFunction) {
             console.log(tableName, "not indexed correctly!");
             // XXX In the future,we can check if there are other tables that
             // are indexed on this key. But for now, we reindex a new table
-            var newTableName = getNewTableName(tableName);
-            var newTableId   = xcHelper.getTableId(newTableName);
+            var newTableInfo = getNewTableInfo(tableName);
+            var newTableName = newTableInfo.tableName;
+            var newTableId   = newTableInfo.tableId;
+
 
             // append new table to the same ws as the old table
             var wsIndex = WSManager.getWSFromTable(tableId);
@@ -850,7 +867,7 @@ window.xcFunction = (function($, xcFunction) {
     function multiGroupBy(groupByCols, tableId) {
         var deferred = jQuery.Deferred();
         console.log(arguments);
-                // XXX TODO WSManager.delTable
+        // XXX TODO WSManager.delTable
         var groupByField;
         var newTableName;
         if (groupByCols.length === 1) {
@@ -859,7 +876,7 @@ window.xcFunction = (function($, xcFunction) {
             var mapStr = "multiJoinModule:multiJoin(";
             groupByField = xcHelper.randName("multiGroupBy", 5);
             var originTable = xcHelper.getTableFromId(tableId).tableName;
-            newTableName = getNewTableName(originTable);
+            newTableName = getNewTableInfo(originTable).tableName;
 
             for (var i = 0; i < groupByCols.length; i++) {
                 mapStr += groupByCols[i] + ", ";
@@ -876,7 +893,7 @@ window.xcFunction = (function($, xcFunction) {
                           "mapString"   : mapStr
             })
             .then(function(ret) {
-                var reindexedTableName = getNewTableName(newTableName);
+                var reindexedTableName = getNewTableInfo(newTableName).tableName;
                 XcalarIndexFromTable(newTableName, groupByField,
                                      reindexedTableName, {
                           "operation"   : "sort",
@@ -921,7 +938,7 @@ window.xcFunction = (function($, xcFunction) {
             var currExec = 0;
             for (var i = 0; i < colArray.length; i++) {
                 var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
-                var newTableName = getNewTableName(currTableName);
+                var newTableName = getNewTableInfo(currTableName).tableName;
                 var sqlOptions = {
                         "operation"   : "mapColumn",
                         "srcTableName": currTableName,
