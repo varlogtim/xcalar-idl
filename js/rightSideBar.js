@@ -911,7 +911,6 @@ window.RightSideBar = (function($, RightSideBar) {
 
     function generateTableLists(tables, active) {
         var sortedTables = sortTableByTime(tables); // from oldest to newest
-        
         var dates = xcHelper.getTwoWeeksDate();
         var p     = dates.length - 1;    // the length should be 8
         var days  = ["Sunday", "Monday", "Tuesday", "Wednesday",
@@ -970,7 +969,6 @@ window.RightSideBar = (function($, RightSideBar) {
                         '<div class="timeStamp">' + date + '</div>' +
                         '<ul class="tableList"></ul>' +
                     '</li>';
-
                 $tableList.prepend(timeLineHTML);
             }
 

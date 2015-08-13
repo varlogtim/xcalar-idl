@@ -547,19 +547,6 @@ function dragdropSwapColumns(el) {
     createDropTargets(dropTargetId, movedCol);
 }
 
-function gRescolDelWidth(colNum, tableId) {
-    var $table = $('#xcTable-' + tableId);
-    var oldTableWidth = $table.width();
-    if (oldTableWidth < gMinTableWidth) {
-        var lastTd = $table.find('tr:first th').length - 1;
-        var lastTdWidth = $table.find('.th.col' + lastTd).width();
-
-        $table.find('thead:last .th.col' + lastTd).
-            width(lastTdWidth + (gMinTableWidth - oldTableWidth));
-    }
-    matchHeaderSizes(colNum, $table);
-}
-
 function getTextWidth(el) {
     var width;
     var text;
@@ -617,7 +604,9 @@ function autosizeCol(el, options) {
     if ($table.attr('id').indexOf('xc') > -1) {
         table.tableCols[index - 1].width = el.outerWidth();
     }
-    matchHeaderSizes(index, $table);
+    if (!options.multipleCols) {
+        matchHeaderSizes(index, $table);
+    }
 }
 
 function getWidestTdWidth(el, options) {
@@ -1310,18 +1299,22 @@ function updateTableHeader(tableId, $tHead, isFocus) {
     }
 }
 
-function matchHeaderSizes(colNum, $table, matchAllHeaders) {
+function matchHeaderSizes(colNum, $table, matchAllHeaders, options) {
     // concurrent build table may make some $table be []
     if ($table.length === 0) {
         return;
     }
+
+    var options = options || {};
     var $header;
     var headerWidth;
 
     if (matchAllHeaders) {
         var numCols = $table.find('th').length;
         var $theadRow = $table.find('thead tr');
-        for (var i = 0; i < numCols; i++) {
+        var start = options.start || 0;
+        var end = (options.end + 1) || numCols;
+        for (var i = start; i < end; i++) {
             $header = $theadRow.find('th.col' + i);
             headerWidth = $header.outerWidth();
             $header.children().outerWidth(headerWidth);
@@ -1338,9 +1331,10 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders) {
     if ($theadWrap) {
         $theadWrap.width(tableWidth);
     }
-    
+
     moveTableDropdownBoxes();
     moveTableTitles();
+    $table.find('.rowGrab').width(tableWidth);
 }
 
 function addColListeners($table, tableId) {
@@ -1424,6 +1418,9 @@ function addColListeners($table, tableId) {
                 for (var i = lowNum; i <= highNum; i++) {
                     $th = $table.find('th.col' + i);
                     $col = $th.find('.editableHead');
+                    if ($col.length === 0) {
+                        continue;
+                    }
 
                     if (select) {
                         highlightColumn($col, true);
@@ -1683,7 +1680,7 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum  = $colMenu.data('colNum');
-        ColManager.delCol(colNum, tableId);
+        ColManager.delCol([colNum], tableId);
     });
 
     $colMenu.on('mouseup', '.deleteDuplicates', function(event) {
@@ -1886,7 +1883,6 @@ function addColMenuActions($colMenu) {
         var colNum  = $colMenu.data('colNum');
 
         var $table  = $("#xcTable-" + tableId);
-        // var $header = $table.find("th.col" + colNum + " .header");
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
         var $tdVal = $td.find(".addedBarTextWrap");
 
@@ -1899,11 +1895,7 @@ function addColMenuActions($colMenu) {
             return;
         }
         var columns = $colMenu.data('columns');
-        var numCols = columns.length;
-        for (var i = 0; i < numCols; i++) {
-            var colNum = columns[i] - i;
-            ColManager.delCol(colNum, tableId);
-        }
+        ColManager.delCol(columns, tableId);
     });
 
     $colMenu.on('mouseup', '.hideColumns', function(event) {
@@ -1913,26 +1905,41 @@ function addColMenuActions($colMenu) {
 
         var columns = $colMenu.data('columns');
         var numCols = columns.length;
+        var multipleCols = true;
+        var $table = $('#xcTable-' + tableId);
         for (var i = 0; i < numCols; i++) {
             var colNum = columns[i];
-            ColManager.hideCol(colNum, tableId);
+            ColManager.hideColumns(colNum, $table, tableId);
         }
+        var options = {
+            start: columns[0],
+            end: columns[columns.length - 1]
+        }
+        matchHeaderSizes(null, $table, true, options);
+        xcHelper.removeSelectionRange();
     });
 
      $colMenu.on('mouseup', '.unhideColumns', function(event) {
         if (event.which !== 1) {
             return;
         }
-        // var colNum   = $colMenu.data('colNum');
-        // ColManager.unhideCol(colNum, tableId, {autoResize: true});
+
         var columns = $colMenu.data('columns');
         var numCols = columns.length;
+        var multipleCols = true;
+        var $table = $('#xcTable-' + tableId);
         for (var i = 0; i < numCols; i++) {
             var colNum = columns[i];
-            if ($('#xcTable-' + tableId).find('th.col' + colNum).width() === 10) {
-                ColManager.unhideCol(colNum, tableId, {autoResize: true});
+            if ($table.find('th.col' + colNum).width() === 10) {
+                ColManager.unhideColumns(colNum, $table, tableId);
             }
         }
+        var options = {
+            start: columns[0],
+            end: columns[columns.length - 1]
+        }
+        matchHeaderSizes(null, $table, true, options);
+        xcHelper.removeSelectionRange();
     });
         
 }
