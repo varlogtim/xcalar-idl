@@ -1167,6 +1167,18 @@ function sortAllTableColumns(tableId, direction) {
         a = a.name.toLowerCase();
         b = b.name.toLowerCase();
 
+        // if a = "as1df12", return ["as1df12", "as1df", "12"]
+        // if a = "adfads", return null
+        var matchA = a.match(/(^.*?)([0-9]+$)/);
+        var matchB = b.match(/(^.*?)([0-9]+$)/);
+
+        if (matchA != null && matchB != null && matchA[1] === matchB[1]) {
+            // if the rest part that remove suffix number is same,
+            // compare the suffix number
+            a = parseInt(matchA[2]);
+            b = parseInt(matchB[2]);
+        }
+
         if (a < b) {
             return (order);
         } else if (a > b) {
