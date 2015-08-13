@@ -482,22 +482,20 @@ window.ColManager = (function($, ColManager) {
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
                                       tableId, direction, rowToPrependTo)
     {
-        var table     = xcHelper.getTableFromId(tableId);
-        // var tableName = table.tableName;
+        var table     = gTables[tableId];
         var tableCols = table.tableCols;
         var numCols   = tableCols.length;
         // jsonData based on if it's indexed on array or not
-        var secondPull = gTables[tableId].isSortedArray || false;
+        var secondPull = table.isSortedArray || false;
         var jsonData   = secondPull ? jsonObj.withKey : jsonObj.normal;
-        var numRows    = jsonData.length;
 
         var indexedColNums = [];
         var nestedVals     = [];
         var columnTypes    = []; // track column type
         var childArrayVals = [];
 
-        var $table     = $('#xcTable-' + tableId);
-        var tBodyHTML  = "";
+        var $table    = $('#xcTable-' + tableId);
+        var tBodyHTML = "";
 
         startIndex = startIndex || 0;
 
@@ -530,10 +528,11 @@ window.ColManager = (function($, ColManager) {
             }
 
             childArrayVals.push(false);
+            columnTypes.push(tableCols[i].type); // initial type
         }
 
         // loop through table tr and start building html
-        for (var row = 0; row < numRows; row++) {
+        for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
             var dataValue = parseRowJSON(jsonData[row]);
             var rowNum    = row + startIndex;
 
@@ -662,7 +661,7 @@ window.ColManager = (function($, ColManager) {
         // This only run once,  check if it's a indexed array, mark on gTables
         // and redo the pull column thing
         if (!secondPull && columnTypes[indexedColNums[0]] === "array") {
-            gTables[tableId].isSortedArray = true;
+            table.isSortedArray = true;
 
             for (var i = 0; i < indexedColNums.length; i++) {
                 tableCols[indexedColNums[i]].isSortedArray = true;
@@ -706,6 +705,7 @@ window.ColManager = (function($, ColManager) {
 
             $header.addClass('type-' + columnType);
             $header.find('.iconHelper').attr('title', columnType);
+
             if (tableCols[i].name === "recordNum") {
                 $header.addClass('recordNum');
             }
@@ -787,7 +787,7 @@ window.ColManager = (function($, ColManager) {
                     .addClass('clickable');
         }
 
-        if (columnType === undefined) {
+        if (columnType == null) {
             columnType = "undefined";
         }
 

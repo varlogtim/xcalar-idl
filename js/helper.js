@@ -88,7 +88,8 @@ window.xcHelper = (function($, xcHelper) {
 
             var isAllNum = (valType === "number") &&
                            ((oldType === "decimal") || (oldType === "integer"));
-            if (oldType != null && oldType !== type && !isAllNum)
+            if (oldType != null && oldType !== "undefined" &&
+                oldType !== type && !isAllNum)
             {
                 type = "mixed";
             }
@@ -108,7 +109,7 @@ window.xcHelper = (function($, xcHelper) {
         var newName = name;
 
         while (colNames.hasOwnProperty(newName)) {
-            newName = name + "" + suffix;
+            newName = name + "(" + suffix + ")";
             ++suffix;
         }
 
@@ -870,33 +871,35 @@ window.xcHelper = (function($, xcHelper) {
         var argument = arguments;
         var hasFailures = false;
 
-        for (var i = 0; i < numProm; i++) {
-            (function(i) {
-                argument[i].then(function(ret) {
-                    console.log("Promise", i, "done!");
-                    numDone++;
-                    returns[i] = ret;
+        for (var t = 0; t < numProm; t++) {
+            whenCall(t);
+        }
 
-                    if (numDone === numProm) {
-                        console.log("All done!");
-                        if (hasFailures) {
-                            mainDeferred.reject.apply($, returns);
-                        } else {
-                            mainDeferred.resolve.apply($, returns);
-                        }
-                    }
-                }, function(ret) {
-                    console.warn("Promise", i, "failed!");
-                    numDone++;
-                    returns[i] = ret;
-                    hasFailures = true;
-                    if (numDone === numProm) {
-                        console.log("All done!");
+        function whenCall(i) {
+            argument[i].then(function(ret) {
+                console.log("Promise", i, "done!");
+                numDone++;
+                returns[i] = ret;
+
+                if (numDone === numProm) {
+                    console.log("All done!");
+                    if (hasFailures) {
                         mainDeferred.reject.apply($, returns);
+                    } else {
+                        mainDeferred.resolve.apply($, returns);
                     }
+                }
+            }, function(ret) {
+                console.warn("Promise", i, "failed!");
+                numDone++;
+                returns[i] = ret;
+                hasFailures = true;
+                if (numDone === numProm) {
+                    console.log("All done!");
+                    mainDeferred.reject.apply($, returns);
+                }
 
-                });
-            })(i);
+            });
         }
 
         return (mainDeferred.promise());
