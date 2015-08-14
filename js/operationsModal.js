@@ -208,14 +208,14 @@ window.OperationsModal = (function($, OperationsModal) {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
             if ($mousedownTarget.closest('.listSection').length === 0) {
                 var dropdownHidden = false;
-                $menus.each(function(i) {
+                $menus.each(function() {
                     if ($(this).is(':visible')) {
                         var $selectedLi = $(this).find('.highlighted');
                         if ($selectedLi.length > 0) {
                             var e = $.Event("mouseup");
-                            listMouseup(event, $selectedLi);
+                            listMouseup(e, $selectedLi);
                             dropdownHidden = true;
-                        } 
+                        }
                     }
                 });
                 if (!dropdownHidden) {
@@ -640,7 +640,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function isOperationValid(inputNum) {
         var category = $.trim($categoryInput.val().toLowerCase());
-        var func = $.trim($functionInput.val().toLowerCase()); 
+        var func = $.trim($functionInput.val().toLowerCase());
 
         if (inputNum === 0) {
 

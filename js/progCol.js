@@ -205,10 +205,10 @@ window.ColManager = (function($, ColManager) {
 
          // add SQL
         SQL.add("Delete Column", {
-            "operation": "delCol",
-            "tableName": tableName,
-            "colNames"  : colNames,
-            "colIndicies" : colIndicies
+            "operation"  : "delCol",
+            "tableName"  : tableName,
+            "colNames"   : colNames,
+            "colIndicies": colIndicies
         });
     };
 
@@ -439,7 +439,7 @@ window.ColManager = (function($, ColManager) {
         }
     };
 
-    ColManager.hideCol = function(colNum, tableId, multipleCols) {
+    ColManager.hideCol = function(colNum, tableId) {
         var $table   = $('#xcTable-' + tableId);
         var $th      = $table.find(".th.col" + colNum);
         var $thInput = $th.find("input");
@@ -472,14 +472,15 @@ window.ColManager = (function($, ColManager) {
         $cols.find(".addedBarText").css("padding-left", "10px");
         $table.find("td.col" + colNum).width(10);
         xcHelper.getTableFromId(tableId).tableCols[colNum - 1].isHidden = true;
-    }
+    };
 
     ColManager.unhideCol = function(colNum, tableId, options) {
         var $table   = $('#xcTable-' + tableId);
         var $th      = $table.find(".th.col" + colNum);
         var $thInput = $th.find("input");
         var $cols    = $table.find(".col" + colNum);
-        var col = xcHelper.getTableFromId(tableId).tableCols[colNum - 1];
+        var col      = gTables[tableId].tableCols[colNum - 1];
+
         if (options && options.autoResize) {
             $th.outerWidth(col.width);
             matchHeaderSizes(colNum, $table);
@@ -495,11 +496,11 @@ window.ColManager = (function($, ColManager) {
         col.isHidden = false;
     };
 
-    ColManager.unhideColumns = function(colNum, $table, tableId, options) {
+    ColManager.unhideColumns = function(colNum, $table, tableId) {
         var $th      = $table.find(".th.col" + colNum);
         var $thInput = $th.find("input");
         var $cols    = $table.find(".col" + colNum);
-        var col = xcHelper.getTableFromId(tableId).tableCols[colNum - 1];
+        var col      = gTables[tableId].tableCols[colNum - 1];
         $th.outerWidth(col.width);
 
         $cols.find(".addedBarText").css("padding-left", "0px");

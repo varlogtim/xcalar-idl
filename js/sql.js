@@ -138,185 +138,185 @@ window.SQL = (function($, SQL) {
         return (string);
     }
 
-    function cliRenameColHelper(options) {
-        // rename <dataset> <existingColName> <newColName>
-        var string = "rename";
-        string += " " + options.dsName;
-        string += " " + options.oldColName;
-        string += " " + options.newColName;
-        return (string);
-    }
+    // function cliRenameColHelper(options) {
+    //     // rename <dataset> <existingColName> <newColName>
+    //     var string = "rename";
+    //     string += " " + options.dsName;
+    //     string += " " + options.oldColName;
+    //     string += " " + options.newColName;
+    //     return (string);
+    // }
 
-    function cliRetypeColHelper(options) {
-        // cast <dataset> <existingColName> <newColType>
-        var string = "cast";
-        string += " " + options.dsName;
-        string += " " + options.colName;
+    // function cliRetypeColHelper(options) {
+    //     // cast <dataset> <existingColName> <newColType>
+    //     var string = "cast";
+    //     string += " " + options.dsName;
+    //     string += " " + options.colName;
         
-        switch (options.newType) {
-            case ("string"):
-                string += " DfString";
-                break;
-            case ("integer"):
-                string += " DfInt64";
-                break;
-            case ("decimal"):
-                string += " DfFloat64";
-                break;
-            case ("boolean"):
-                string += " DfBoolean";
-                break;
-            case ("mixed"):
-                string += " DfMixed";
-                break;
-            case ("undefined"):
-                // fallthrough
-            default:
-                string += " DfUnknown";
-                break;
-        }
-        return (string);
-    }        
+    //     switch (options.newType) {
+    //         case ("string"):
+    //             string += " DfString";
+    //             break;
+    //         case ("integer"):
+    //             string += " DfInt64";
+    //             break;
+    //         case ("decimal"):
+    //             string += " DfFloat64";
+    //             break;
+    //         case ("boolean"):
+    //             string += " DfBoolean";
+    //             break;
+    //         case ("mixed"):
+    //             string += " DfMixed";
+    //             break;
+    //         case ("undefined"):
+    //             // fallthrough
+    //         default:
+    //             string += " DfUnknown";
+    //             break;
+    //     }
+    //     return (string);
+    // }
 
-    function cliLoadHelper(options) {
-        // load --url <url> --format <format> --name <dsName>
-        var string = "load";
-        string += " --url";
-        string += " " + options.dsPath;
-        string += " --format";
-        string += " " + options.dsFormat.toLowerCase();
-        string += " --name";
-        string += " " + options.dsName;
-        if (options.fieldDelim && options.fieldDelim !== "Null") {
-            var fd = JSON.stringify(options.fieldDelim);
-            if (fd.indexOf("\\") !== 1) {
-                string += " --fielddelim";
-                string += " " + fd;
-            }
-        }
-        if (options.lineDelim && options.lineDelim !== "Null") {
-            var rd = JSON.stringify(options.lineDelim);
-            if (rd.indexOf("\\") !== 1) {
-                string += " --recorddelim";
-                string += " " + rd;
-            }
-        }
-        return (string);
-    }
+    // function cliLoadHelper(options) {
+    //     // load --url <url> --format <format> --name <dsName>
+    //     var string = "load";
+    //     string += " --url";
+    //     string += " " + options.dsPath;
+    //     string += " --format";
+    //     string += " " + options.dsFormat.toLowerCase();
+    //     string += " --name";
+    //     string += " " + options.dsName;
+    //     if (options.fieldDelim && options.fieldDelim !== "Null") {
+    //         var fd = JSON.stringify(options.fieldDelim);
+    //         if (fd.indexOf("\\") !== 1) {
+    //             string += " --fielddelim";
+    //             string += " " + fd;
+    //         }
+    //     }
+    //     if (options.lineDelim && options.lineDelim !== "Null") {
+    //         var rd = JSON.stringify(options.lineDelim);
+    //         if (rd.indexOf("\\") !== 1) {
+    //             string += " --recorddelim";
+    //             string += " " + rd;
+    //         }
+    //     }
+    //     return (string);
+    // }
 
-    function cliDeleteHelper(options) {
-        // drop <dropWhat> <name>
-        var string    = "drop";
-        var operation = options.operation;
+    // function cliDeleteHelper(options) {
+    //     // drop <dropWhat> <name>
+    //     var string    = "drop";
+    //     var operation = options.operation;
 
-        if (operation === "destroyDataSet") {
-            string += " dataset";
-            string += " " + options.dsName;
-        } else if (operation === "deleteTable") {
-            string += " table";
-            string += " " + options.tableName;
-        }
-        return (string);
-    }
+    //     if (operation === "destroyDataSet") {
+    //         string += " dataset";
+    //         string += " " + options.dsName;
+    //     } else if (operation === "deleteTable") {
+    //         string += " table";
+    //         string += " " + options.tableName;
+    //     }
+    //     return (string);
+    // }
 
-    function cliFilterHelper(options) {
-        // filter <tableName> <"filterStr"> <filterTableName>
-        var string = "filter";
-        var flt    = options.filterString;
+    // function cliFilterHelper(options) {
+    //     // filter <tableName> <"filterStr"> <filterTableName>
+    //     var string = "filter";
+    //     var flt    = options.filterString;
 
-        string += " " + options.tableName;
-        if (!flt) {
-            flt = generateFilterString(options.operator,
-                                       options.backColName,
-                                       options.value);
-        }
-        // Now we need to escape quotes. We don't need to do it for the thrift
-        // call because that's a thrift field. However, now that everything is
-        // lumped into one string, we have to do some fun escaping
+    //     string += " " + options.tableName;
+    //     if (!flt) {
+    //         flt = generateFilterString(options.operator,
+    //                                    options.backColName,
+    //                                    options.value);
+    //     }
+    //     // Now we need to escape quotes. We don't need to do it for the thrift
+    //     // call because that's a thrift field. However, now that everything is
+    //     // lumped into one string, we have to do some fun escaping
         
-        flt = flt.replace(/["']/g, "\\$&");
-        string += " \"" + flt + "\"";
-        string += " " + options.newTableName;
-        return (string);
-    }
+    //     flt = flt.replace(/["']/g, "\\$&");
+    //     string += " \"" + flt + "\"";
+    //     string += " " + options.newTableName;
+    //     return (string);
+    // }
 
-    function cliIndexHelper(options) {
-        // index --key <keyname> --dataset <dataset> | --srctable <tableName>
-        // --dsttable <tableName>
-        var string = "index";
-        string += " --key";
-        string += " " + options.key;
-        if (options.operation === "sort") {
-            string += " --srctable";
-            string += " " + options.tableName;
-        } else if (options.operation === "index") {
-            string += " --dataset";
-            string += " " + options.dsName;
-        }
-        string += " --dsttable";
-        string += " " + options.newTableName;
-        return (string);
-    }
+    // function cliIndexHelper(options) {
+    //     // index --key <keyname> --dataset <dataset> | --srctable <tableName>
+    //     // --dsttable <tableName>
+    //     var string = "index";
+    //     string += " --key";
+    //     string += " " + options.key;
+    //     if (options.operation === "sort") {
+    //         string += " --srctable";
+    //         string += " " + options.tableName;
+    //     } else if (options.operation === "index") {
+    //         string += " --dataset";
+    //         string += " " + options.dsName;
+    //     }
+    //     string += " --dsttable";
+    //     string += " " + options.newTableName;
+    //     return (string);
+    // }
 
-    function cliJoinHelper(options) {
-        // join --leftTable <leftTable> --rightTable <rightTable>
-        // --joinTable <joinTable> --joinType <joinType>
-        var string = "join";
-        string += " --leftTable";
-        string += " " + options.leftTable.name;
-        string += " --rightTable";
-        string += " " + options.rightTable.name;
-        string += " --joinTable";
-        string += " " + options.newTableName;
-        string += " --joinType";
-        var joinType = options.joinType.replace(" ", "");
-        joinType = joinType.charAt(0).toLowerCase() + joinType.slice(1);
-        string += " " + joinType;
-        return (string);
-    }
+    // function cliJoinHelper(options) {
+    //     // join --leftTable <leftTable> --rightTable <rightTable>
+    //     // --joinTable <joinTable> --joinType <joinType>
+    //     var string = "join";
+    //     string += " --leftTable";
+    //     string += " " + options.leftTable.name;
+    //     string += " --rightTable";
+    //     string += " " + options.rightTable.name;
+    //     string += " --joinTable";
+    //     string += " " + options.newTableName;
+    //     string += " --joinType";
+    //     var joinType = options.joinType.replace(" ", "");
+    //     joinType = joinType.charAt(0).toLowerCase() + joinType.slice(1);
+    //     string += " " + joinType;
+    //     return (string);
+    // }
 
-    function cliGroupByHelper(options) {
-        // groupBy <tableName> <operator> <fieldName> <newFieldName>
-        // <groupByTableName>
-        var string = "groupBy";
-        string += " " + options.backname;
-        switch (options.operator) {
-            case ("Average"):
-                string += " " + "avg";
-                break;
-            case ("Count"):
-                string += " " + "count";
-                break;
-            case ("Sum"):
-                string += " " + "sum";
-                break;
-            case ("Max"):
-                string += " " + "max";
-                break;
-            case ("Min"):
-                string += " " + "min";
-                break;
-            default:
-                break;
-        }
-        string += " " + options.backFieldName;
-        string += " " + options.newColumnName;
-        string += " " + options.newTableName;
-        return (string);
-    }
+    // function cliGroupByHelper(options) {
+    //     // groupBy <tableName> <operator> <fieldName> <newFieldName>
+    //     // <groupByTableName>
+    //     var string = "groupBy";
+    //     string += " " + options.backname;
+    //     switch (options.operator) {
+    //         case ("Average"):
+    //             string += " " + "avg";
+    //             break;
+    //         case ("Count"):
+    //             string += " " + "count";
+    //             break;
+    //         case ("Sum"):
+    //             string += " " + "sum";
+    //             break;
+    //         case ("Max"):
+    //             string += " " + "max";
+    //             break;
+    //         case ("Min"):
+    //             string += " " + "min";
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    //     string += " " + options.backFieldName;
+    //     string += " " + options.newColumnName;
+    //     string += " " + options.newTableName;
+    //     return (string);
+    // }
     
-    function cliMapHelper(options) {
-        var string = "map";
-        string += " --eval";
-        string += " \"map(" + options.mapString + ")\"";
-        string += " --srctable";
-        string += " " + options.backname;
-        string += " --fieldName";
-        string += " " + options.colName;
-        string += " --dsttable";
-        string += " " + options.newTableName;
-        return (string);
-    }
+    // function cliMapHelper(options) {
+    //     var string = "map";
+    //     string += " --eval";
+    //     string += " \"map(" + options.mapString + ")\"";
+    //     string += " --srctable";
+    //     string += " " + options.backname;
+    //     string += " --fieldName";
+    //     string += " " + options.colName;
+    //     string += " --dsttable";
+    //     string += " " + options.newTableName;
+    //     return (string);
+    // }
 
     return (SQL);
 }(jQuery, {}));

@@ -470,7 +470,7 @@ window.DagPanel = (function($, DagPanel) {
                 .fail(function(error) {
                     Alert.error("Table Deletion Failed", error);
                 });
-            } 
+            }
         });
     }
 
@@ -624,7 +624,7 @@ window.Dag = (function($, Dag) {
                                     '</tr>' +
                                 '</thead>' +
                                 '<tbody>';
-        for (var i = 0; i < 7; i++) {
+        for (var t = 0; t < 7; t++) {
             html += '<tr class="unfilled">' +
                         '<td class="paramName"></td>' +
                         '<td>' +
@@ -721,7 +721,7 @@ window.Dag = (function($, Dag) {
 
     Dag.makeInactive = function(tableId, nameProvided) {
         var tableName;
-        var dags;
+        var $dags;
         if (nameProvided) {
             tableName = tableId;
             $dags = $('.dagTable[data-tableName=' + tableName + ']');
@@ -732,13 +732,13 @@ window.Dag = (function($, Dag) {
         
         $dags.removeClass('DgDagStateReady')
              .addClass('DgDagStateDropped');
-        $dags.find('.icon').attr({"data-toggle": "tooltip",
-                                  "data-placement":"top",
-                                  "data-container":"body",
-                                  "data-original-title":"Table '" + tableName +
-                                  "' has been dropped"});
-
-    }
+        $dags.find('.icon').attr({
+            "data-toggle"        : "tooltip",
+            "data-placement"     : "top",
+            "data-container"     : "body",
+            "data-original-title": "Table '" + tableName + "' has been dropped"
+        });
+    };
 
     function addDagEventListeners($dagWrap) {
         var $currentIcon;
@@ -780,9 +780,10 @@ window.Dag = (function($, Dag) {
             var $dagTable = $(this);
             var timer = setTimeout(function(){
                             var $dropdown = $('.dagTableDropDown:visible');
-                            if ($dropdown.length !== 0 && 
-                                $dropdown.data('tableelement').is($dagTable)) {
-                                    return;
+                            if ($dropdown.length !== 0 &&
+                                $dropdown.data('tableelement').is($dagTable))
+                            {
+                                return;
                             } else {
                                 showDagSchema($dagTable);
                             }

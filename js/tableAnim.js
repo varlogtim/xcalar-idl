@@ -1188,10 +1188,12 @@ function sortAllTableColumns(tableId, direction) {
     var $table = $('#xcTable-' + tableId);
     var $rows = $table.find('tbody tr');
     var numRows = $rows.length;
+    var oldColIndex;
+    var newColIndex;
     // loop through each column
     for (var i = 0; i < numCols; i++) {
-        var oldColIndex = tableCols[i].index;
-        var newColIndex = i + 1;
+        oldColIndex = tableCols[i].index;
+        newColIndex = i + 1;
         var $thToMove = $table.find('th.col' + oldColIndex);
         $thToMove.find('.col' + oldColIndex).removeClass('col' + oldColIndex)
                                             .addClass('col' + newColIndex);
@@ -1210,8 +1212,8 @@ function sortAllTableColumns(tableId, direction) {
     // correct gTable tableCols index and th col class number
     var $ths = $table.find('th');
     for (var i = 0; i < numCols; i++) {
-        var oldColIndex = tableCols[i].index;
-        var newIndex = i + 1;
+        oldColIndex = tableCols[i].index;
+        newIndex = i + 1;
         $ths.eq(newIndex).removeClass('col' + oldColIndex)
                                    .addClass('col' + newIndex);
         tableCols[i].index = newIndex;
@@ -1305,7 +1307,8 @@ function matchHeaderSizes(colNum, $table, matchAllHeaders, options) {
         return;
     }
 
-    var options = options || {};
+    options = options || {};
+
     var $header;
     var headerWidth;
 
@@ -1346,7 +1349,7 @@ function addColListeners($table, tableId) {
     // listeners on thead
     var $fnBar = $('#fnBar');
     $thead.on({
-        "focus": function(event) {
+        "focus": function() {
             if ($("#mainFrame").hasClass("modalOpen")) {
                 // not focus when in modal
                 return;
@@ -1905,28 +1908,28 @@ function addColMenuActions($colMenu) {
 
         var columns = $colMenu.data('columns');
         var numCols = columns.length;
-        var multipleCols = true;
+        // var multipleCols = true;
         var $table = $('#xcTable-' + tableId);
         for (var i = 0; i < numCols; i++) {
             var colNum = columns[i];
             ColManager.hideColumns(colNum, $table, tableId);
         }
         var options = {
-            start: columns[0],
-            end: columns[columns.length - 1]
-        }
+            "start": columns[0],
+            "end"  : columns[columns.length - 1]
+        };
         matchHeaderSizes(null, $table, true, options);
         xcHelper.removeSelectionRange();
     });
 
-     $colMenu.on('mouseup', '.unhideColumns', function(event) {
+    $colMenu.on('mouseup', '.unhideColumns', function(event) {
         if (event.which !== 1) {
             return;
         }
 
         var columns = $colMenu.data('columns');
         var numCols = columns.length;
-        var multipleCols = true;
+        // var multipleCols = true;
         var $table = $('#xcTable-' + tableId);
         for (var i = 0; i < numCols; i++) {
             var colNum = columns[i];
@@ -1935,9 +1938,9 @@ function addColMenuActions($colMenu) {
             }
         }
         var options = {
-            start: columns[0],
-            end: columns[columns.length - 1]
-        }
+            "start": columns[0],
+            "end"  : columns[columns.length - 1]
+        };
         matchHeaderSizes(null, $table, true, options);
         xcHelper.removeSelectionRange();
     });

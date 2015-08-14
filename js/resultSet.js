@@ -78,7 +78,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     }
 
     var prepullTableHeight;
-    var numRowsBefore;
+    // var numRowsBefore;
     var resultSetId = table.resultSetId;
     XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function(){
@@ -105,7 +105,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         prepullTableHeight = $table.height();
 
         info.numRowsAdded += jsonLen;
-        numRowsBefore = $table.find('tbody tr').length;
+        // numRowsBefore = $table.find('tbody tr').length;
 
         pullRowsBulk(tableId, jsonObj, rowPosition, null,
                      direction, rowToPrependTo);
@@ -183,8 +183,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
         removeWaitCursor();
         moveFirstColumn();
         if (!loop && !info.reverseLooped && !info.dontRemoveRows) {
-            removeOldRows($table, tableId, info, direction,
-                            prepullTableHeight, numRowsBefore, numRowsToAdd);
+            removeOldRows($table, tableId, info, direction, prepullTableHeight);
         } else if (!loop && info.missingRows) {
             console.log('some rows were too large to be retrieved, rows: ' +
                         info.missingRows);
@@ -199,8 +198,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     return (deferred.promise());
 }
 
-function removeOldRows($table, tableId, info, direction, prepullTableHeight,
-                        numRowsBefore, numRowsToAdd) {
+function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
     // also handles the scroll position
     var scrollTop;
     var postpullTableHeight = $table.height();
@@ -214,8 +212,7 @@ function removeOldRows($table, tableId, info, direction, prepullTableHeight,
     } else {
         var preScrollTop = $xcTbodyWrap.scrollTop();
         if (info.numRowsAdded === 0) {
-            table.resultSetMax = info.lastRowToDisplay -
-                                             info.numRowsToAdd;
+            table.resultSetMax = info.lastRowToDisplay - info.numRowsToAdd;
             table.currentRowNumber = table.resultSetMax;
         }
         $table.find("tbody tr").slice(0, info.numRowsAdded).remove();

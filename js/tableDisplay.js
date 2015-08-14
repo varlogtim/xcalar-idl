@@ -225,7 +225,7 @@ function archiveTable(tableId, del, delayTableRemoval) {
         RightSideBar.moveTable(tableId);
     } else {
         var $li = $("#activeTablesList").find('.tableInfo[data-id="'
-                                                + tableId + '"]')
+                                                + tableId + '"]');
         var $timeLine = $li.closest(".timeLine");
 
         $li.remove();

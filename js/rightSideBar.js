@@ -135,8 +135,8 @@ window.RightSideBar = (function($, RightSideBar) {
                                     AfterStartup.After, null));
                         })
                         .then(function(){
-                            var index = gOrphanTables.indexOf(tableName);
-                            gOrphanTables.splice(index, 1);
+                            var tableIndex = gOrphanTables.indexOf(tableName);
+                            gOrphanTables.splice(tableIndex, 1);
                             innerDeferred.resolve();
                         })
                         .fail(function(error) {
@@ -179,8 +179,8 @@ window.RightSideBar = (function($, RightSideBar) {
                         XcalarDeleteTable(tableName, sqlOptions)
                         .then(function() {
                             doneHandler($li, tableName);
-                            var index = gOrphanTables.indexOf(tableName);
-                            gOrphanTables.splice(index, 1);
+                            var tableIndex = gOrphanTables.indexOf(tableName);
+                            gOrphanTables.splice(tableIndex, 1);
                             Dag.makeInactive(tableName, true);
                             innerDeferred.resolve();
                         })
