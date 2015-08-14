@@ -293,7 +293,7 @@ window.JSONModal = (function($, JSONModal) {
         });
         $('.modalHighlighted').removeClass('modalHighlighted');
         $('.xcTable').removeClass('tableJsonModal');
-        $('.jsonModalHighlight').removeClass('jsonModalHighlight');
+        $('.darkenedCell').remove();
         $("body").removeClass("hideScroll");
         clearSearch();
         $('body').off('keydown', cycleMatches);
@@ -317,15 +317,11 @@ window.JSONModal = (function($, JSONModal) {
         $('#sideBarModal').fadeIn(100);
         $('#rightSideBar').addClass('modalOpen');
         $jsonTd.closest('.xcTable').addClass('tableJsonModal');
-        setTimeout(function() {
-          
-            $jsonTd.closest('.xcTable').find('.idSpan').addClass('jsonModalHighlight');
-        }, 0);
+        var darkenedCell= '<div class="darkenedCell"></div>';
+        $jsonTd.closest('.xcTable').find('.idSpan').append(darkenedCell);
+        $('.darkenedCell').fadeIn(100, "linear");
+        $modalBackground.fadeIn(100, "linear");
 
-        setTimeout(function() {
-              $modalBackground.fadeIn(100, "linear");
-          }, 10);
-        
         $("#jsonObj").html(prettifyJson(jsonString));
     }
 
