@@ -80,7 +80,8 @@ function infScrolling(tableId) {
             
             if (scrollCount < 2) {
                 // var initialTop = firstRow.offset().top;
-                numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum);
+                numRowsToAdd = Math.min(gNumEntriesPerPage, topRowNum,
+                                        table.resultSetMax);
 
                 var rowNumber = topRowNum - numRowsToAdd;
                 var lastRowToDisplay = $table.find('tbody tr:lt(40)');

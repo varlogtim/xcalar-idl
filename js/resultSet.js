@@ -80,6 +80,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     var prepullTableHeight;
     // var numRowsBefore;
     var resultSetId = table.resultSetId;
+
     XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function(){
         return (generateDataColumnJson(table, null, false, numRowsToAdd));
@@ -97,7 +98,6 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
             if (!info.missingRows) {
                 info.missingRows = [];
             }
-
             info.missingRows.push(position);
         }
 

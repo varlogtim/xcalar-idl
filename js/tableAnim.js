@@ -2821,7 +2821,7 @@ window.RowScroller = (function($, RowScroller) {
                 backRow = 0;
             }
             var tableName = table.tableName;
-            var numRowsToAdd = 60;
+            var numRowsToAdd = Math.min(60, table.resultSetMax);
             var info = {
                 "numRowsToAdd"    : numRowsToAdd,
                 "numRowsAdded"    : 0,
