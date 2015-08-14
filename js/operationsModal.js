@@ -4,6 +4,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var $categoryMenu = $('#categoryMenu');
     var $functionInput = $('#functionList').find('.autocomplete');
     var $functionsMenu = $('#functionsMenu');
+    var $menus = $('#categoryMenu, #functionsMenu');
     var colNum = "";
     var colName = "";
     var operatorName = "";
@@ -101,22 +102,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 allowInputChange = false;
             },
             'mouseup': function(event) {
-                allowInputChange = true;
-                event.stopPropagation();
-
-                var $li = $(this);
-                var value = $li.text();
-                var $input = $li.parent().siblings('.autocomplete');
-
-                hideDropdowns();
-                $input.val(value);
-
-                if (value === $functionsMenu.data('category')) {
-                    return;
-                }
-
-                var inputNum = $autocompleteInputs.index($input);
-                enterInput(inputNum);
+                listMouseup(event, $(this));
             }
         }, 'li');
 
@@ -221,7 +207,20 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsModal.on('click', function() {
             var $mousedownTarget = gMouseEvents.getLastMouseDownTarget();
             if ($mousedownTarget.closest('.listSection').length === 0) {
-                hideDropdowns();
+                var dropdownHidden = false;
+                $menus.each(function(i) {
+                    if ($(this).is(':visible')) {
+                        var $selectedLi = $(this).find('.highlighted');
+                        if ($selectedLi.length > 0) {
+                            var e = $.Event("mouseup");
+                            listMouseup(event, $selectedLi);
+                            dropdownHidden = true;
+                        } 
+                    }
+                });
+                if (!dropdownHidden) {
+                    hideDropdowns();
+                }
             }
             allowInputChange = true;
         });
@@ -236,6 +235,23 @@ window.OperationsModal = (function($, OperationsModal) {
         .done(function(listXdfsObj) {
             setupOperatorsMap(listXdfsObj.fnDescs);
         });
+
+        function listMouseup(event, $li) {
+            allowInputChange = true;
+            event.stopPropagation();
+            var value = $li.text();
+            var $input = $li.parent().siblings('.autocomplete');
+
+            hideDropdowns();
+            $input.val(value);
+
+            if (value === $functionsMenu.data('category')) {
+                return;
+            }
+
+            var inputNum = $autocompleteInputs.index($input);
+            enterInput(inputNum);
+        }
     };
 
     OperationsModal.show = function(newTableId, newColNum, operator) {
@@ -624,8 +640,10 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function isOperationValid(inputNum) {
         var category = $.trim($categoryInput.val().toLowerCase());
-        var func = $.trim($functionInput.val().toLowerCase());
+        var func = $.trim($functionInput.val().toLowerCase()); 
+
         if (inputNum === 0) {
+
             return (categoryNames.indexOf(category) > -1 );
         } else if (inputNum === 1) {
             var categoryIndex = categoryNames.indexOf(category);
