@@ -872,9 +872,16 @@ window.Dag = (function($, Dag) {
             if ($('#dagPanel').hasClass('midway')) {
                 top -= $('#dagPanel').offset().top;
             }
-            var left = $dagTable[0].getBoundingClientRect().left + 10;
-            left = Math.min($('#rightSideBar').offset().left -
-                            $schema.width() - 5, left);
+            var tableLeft = $dagTable[0].getBoundingClientRect().left + 10;
+            var schemaLeft = $('#rightSideBar').offset().left -
+                             $schema.width() - 5;
+            var left;
+            if (tableLeft > schemaLeft) {
+                left = schemaLeft;
+                $schema.addClass('shiftLeft');
+            } else {
+                left = tableLeft;
+            }
             $schema.css('top', top);
             $schema.css('left', left);
         }
