@@ -292,6 +292,8 @@ window.JSONModal = (function($, JSONModal) {
             $('#rightSideBar').removeClass('modalOpen');
         });
         $('.modalHighlighted').removeClass('modalHighlighted');
+        $('.xcTable').removeClass('tableJsonModal');
+        $('.jsonModalHighlight').removeClass('jsonModalHighlight');
         $("body").removeClass("hideScroll");
         clearSearch();
         $('body').off('keydown', cycleMatches);
@@ -312,10 +314,18 @@ window.JSONModal = (function($, JSONModal) {
 
         $jsonModal.height(500).width(500);
         $jsonModal.show();
-        $modalBackground.fadeIn(100);
         $('#sideBarModal').fadeIn(100);
         $('#rightSideBar').addClass('modalOpen');
+        $jsonTd.closest('.xcTable').addClass('tableJsonModal');
+        setTimeout(function() {
+          
+            $jsonTd.closest('.xcTable').find('.idSpan').addClass('jsonModalHighlight');
+        }, 0);
 
+        setTimeout(function() {
+              $modalBackground.fadeIn(100, "linear");
+          }, 10);
+        
         $("#jsonObj").html(prettifyJson(jsonString));
     }
 
