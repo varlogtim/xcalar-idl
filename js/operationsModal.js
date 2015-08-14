@@ -1268,7 +1268,6 @@ window.OperationsModal = (function($, OperationsModal) {
         var selectionEnd = $input[0].selectionEnd;
         var numCharSelected = selectionEnd - currentPos;
         var strLeft;
-        var strRight;
 
         textToInsert = "$" + textToInsert;
 
@@ -1279,31 +1278,26 @@ window.OperationsModal = (function($, OperationsModal) {
         } else if (numCharSelected > 0) {
             // replace a column
             strLeft = value.substring(0, currentPos);
-            strRight = value.substring(selectionEnd, value.length);
-
-            newVal = strLeft + textToInsert;
-            currentPos = newVal.length;
-            newVal += strRight;
+            newVal = textToInsert;
+            currentPos = strLeft.length + newVal.length;
         } else if (currentPos === valLen) {
             // append a column
-            newVal = value + ", " + textToInsert;
-            currentPos = newVal.length;
+            newVal = ", " + textToInsert;
+            currentPos = value.length + newVal.length;
         } else if (currentPos === 0) {
             // prepend a column
             newVal = textToInsert + ", ";
             currentPos = newVal.length; // cursor at the start of value
-            newVal += value;
         } else {
-            // insert a column. numCharSelected =0= 0
+            // insert a column. numCharSelected == 0
             strLeft = value.substring(0, currentPos);
-            strRight = value.substring(currentPos, value.length);
 
-            newVal = strLeft + textToInsert + ", ";
-            currentPos = newVal.length;
-            newVal += strRight;
+            newVal = textToInsert + ", ";
+            currentPos = strLeft.length + newVal.length;
         }
 
-        $input.trigger('focus').val(newVal);
+        $input.focus();
+        document.execCommand("insertText", false, newVal);
         $input[0].setSelectionRange(currentPos, currentPos);
     }
 
