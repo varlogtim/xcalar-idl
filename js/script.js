@@ -692,6 +692,7 @@ function setupOrphanedList(tableMap) {
 
 function documentReadyIndexFunction() {
     $(document).ready(function() {
+        Compitable.check();
         startupFunctions()
         .then(initializeTable)
         .then(function() {
