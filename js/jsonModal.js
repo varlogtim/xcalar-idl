@@ -37,7 +37,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonModal.find('.searchIcon').click(toggleSearch);
     };
 
-    JSONModal.show = function ($jsonTd) {
+    JSONModal.show = function ($jsonTd, isArray) {
         if ($.trim($jsonTd.text()).length === 0) {
             return;
         }
@@ -49,10 +49,9 @@ window.JSONModal = (function($, JSONModal) {
         xcHelper.removeSelectionRange();
 
         $searchInput.val("");
-        fillJsonModal($jsonTd);
+        fillJsonModal($jsonTd, isArray);
         centerPositionElement($jsonModal);
-        jsonModalEvent($jsonTd);
-        $jsonTd.addClass('modalHighlighted');
+        jsonModalEvent($jsonTd, isArray);
         $("body").addClass("hideScroll");
     };
 
@@ -93,37 +92,61 @@ window.JSONModal = (function($, JSONModal) {
         $("#moveCursor").remove();
     };
 
-    function jsonModalEvent($jsonTd) {
+    function jsonModalEvent($jsonTd, isArray) {
         $jsonWrap.on({
             "click": function() {
                 var $table  = $jsonTd.closest('table');
                 var tableId = $table.data('id');
-
+                var isDataTd = $jsonTd.hasClass('jsonElement');
+                var colNum      = xcHelper.parseColNum($jsonTd);
+                var table       = xcHelper.getTableFromId(tableId);
                 var name    = createJsonSelectionExpression($(this));
-                var usrStr  = '"' + name.name + '" = pull(' +
-                                name.escapedName + ')';
+                var fullName = name.name;
+                var escapedName = name.escapedName;
+                if (!isDataTd) {
+                    var symbol = "";
+                    if (!isArray) {
+                        symbol = ".";
+                    }
+                    escapedName = table.tableCols[colNum - 1].func.args[0] +
+                                  symbol + escapedName;
+                    fullName = table.tableCols[colNum - 1].func.args[0] +
+                               symbol + fullName;
+                }
+                var usrStr  = '"' + fullName + '" = pull(' +
+                                escapedName + ')';
 
                 var $id = $table.find("tr:first th").filter(function() {
                     var val = $(this).find("input").val();
                     return (val === "DATA");
                 });
 
-                var colNum      = xcHelper.parseColNum($id);
-                var table       = xcHelper.getTableFromId(tableId);
+                
+                // var colNum      = xcHelper.parseColNum($id);
+                
                 var tableName   = table.tableName;
                 var siblColName = table.tableCols[colNum - 1].name;
-                var newName     = xcHelper.getUniqColName(name.name,
-                                                            table.tableCols);
-
+                var newName     = xcHelper.getUniqColName(fullName,
+                                                            table.tableCols);   
+                var direction;
+                if (isDataTd) {
+                    direction = "L";
+                } else {
+                    direction = "R";
+                }
                 ColManager.addCol(colNum, tableId, newName, {
-                    "direction": "L",
+                    "direction": direction,
                     "select"   : true
                 });
+
+                if (direction === "R") {
+                    colNum++;
+                }
 
                 // now the column is different as we add a new column
                 var col = table.tableCols[colNum - 1];
                 col.func.func = "pull";
-                col.func.args = [name.escapedName];
+                col.func.args = [escapedName];
                 col.userStr = usrStr;
 
                 ColManager.execCol(col, tableId)
@@ -143,7 +166,7 @@ window.JSONModal = (function($, JSONModal) {
                     SQL.add("Add Column", {
                         "operation"   : "addCol",
                         "tableName"   : tableName,
-                        "newColName"  : name.name,
+                        "newColName"  : fullName,
                         "siblColName" : siblColName,
                         "siblColIndex": colNum,
                         "direction"   : "L"
@@ -300,8 +323,12 @@ window.JSONModal = (function($, JSONModal) {
         $matches = [];
     }
 
-    function fillJsonModal($jsonTd) {
-        var text = $jsonTd.find(".elementText").text();
+    function fillJsonModal($jsonTd, isArray) {
+        var text = $jsonTd.find("div").eq(0).text();
+        if (isArray) {
+            text = text.split(', ')
+            text = JSON.stringify(text);
+        }
         var jsonString;
 
         try {
@@ -321,8 +348,18 @@ window.JSONModal = (function($, JSONModal) {
         $jsonTd.closest('.xcTable').find('.idSpan').append(darkenedCell);
         $('.darkenedCell').fadeIn(100, "linear");
         $modalBackground.fadeIn(100, "linear");
+        $jsonTd.addClass('modalHighlighted');
 
-        $("#jsonObj").html(prettifyJson(jsonString));
+        var prettyJson = prettifyJson(jsonString, null, {inarray: isArray});
+        prettyJson = '<div id="jsonObj" class="jObject"><span class="jArray jInfo">' +
+                         prettyJson +
+                         '</span></div>';
+        if (isArray) {
+            prettyJson = '[' + prettyJson + ']';
+        } else {
+            prettyJson = '{' + prettyJson + '}';
+        }
+        $(".prettyJson").html(prettyJson);
     }
 
     function prettifyJson(obj, indent, options) {

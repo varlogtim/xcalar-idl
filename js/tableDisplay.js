@@ -753,6 +753,7 @@ function generateColDropDown(tableId) {
     '<li class="multiColumn deleteColumns thDropdown">Delete Columns</li>' +
     '<li class="tdFilter tdDropdown">Filter this value</li>' +
     '<li class="tdExclude tdDropdown">Exclude this value</li>' +
+    '<li class="tdJsonModal tdDropdown">Examine</li>' +
     '<li class="tdCopy tdDropdown">Copy to clipboard</li>';
 
 

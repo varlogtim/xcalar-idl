@@ -1877,6 +1877,19 @@ function addColMenuActions($colMenu) {
         xcFunction.filter(colNum - 1, tableId, options);
     });
 
+    $colMenu.on('mouseup', '.tdJsonModal', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        var rowNum  = $colMenu.data('rowNum');
+        var colNum  = $colMenu.data('colNum');
+        var $table  = $("#xcTable-" + tableId);
+        var $td     = $table.find(".row" + rowNum + " .col" + colNum);
+        var isArray = $table.find("th.col" + colNum + " > div")
+                            .hasClass('type-array');
+        JSONModal.show($td, isArray);
+    });
+
     $colMenu.on('mouseup', '.tdCopy', function(event) {
         var $li = $(this);
         if (event.which !== 1 || $li.hasClass('unavailable')) {
@@ -2111,7 +2124,19 @@ function dropdownClick($el, options) {
             $menu.find(".tdFilter").removeClass("unavailable");
             $menu.find(".tdExclude").removeClass("unavailable");
         }
+        if (columnType === "object" ||
+            columnType === "array" ) {
+            if ($el.text().trim() === "") {
+                $menu.find(".tdJsonModal").addClass("hidden");
+            } else {
+                $menu.find(".tdJsonModal").removeClass("hidden");
+            }
+            
+        } else {
+            $menu.find(".tdJsonModal").addClass("hidden");
+        }
     }
+
     $('.highlightBox').remove();
     $(".colMenu:visible").hide();
     $(".leftColMenu").removeClass("leftColMenu");
