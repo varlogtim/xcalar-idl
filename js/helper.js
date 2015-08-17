@@ -230,7 +230,6 @@ window.xcHelper = (function($, xcHelper) {
         if (element == null) {
             return;
         }
-
         var range;
         var selection;
 
@@ -243,7 +242,12 @@ window.xcHelper = (function($, xcHelper) {
             }
             selection = window.getSelection();
             selection.removeAllRanges();
-            selection.addRange(range);
+            try {
+                selection.addRange(range);
+            } catch(error) {
+                console.log(error)
+            }
+            
         } else if (document.body.createTextRange) {
             range = document.body.createTextRange();
             range.moveToElementText(element);

@@ -318,6 +318,15 @@ input {
     line-height: 30px;
     padding: 0 4px;
     background-color: @color-white;
+    &:-ms-input-placeholder {
+        color: #B0B0B0;
+    }
+    &::-webkit-input-placeholder {
+        color: #B0B0B0;
+    }
+    &[type=number] {
+        -moz-appearance: textfield;
+    }
 }
 
 .icon {

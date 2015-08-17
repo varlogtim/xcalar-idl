@@ -363,7 +363,7 @@
             }
 
             .text {
-                .position(relative);
+                .position(absolute);
                 .size(@width: auto, @height: 25px);
                 .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
                 .rounded;
@@ -376,7 +376,6 @@
                 overflow: hidden;
                 display: inline-block;
                 top: 0;
-                position: absolute;
 
                 .hashName {
                     opacity: 0.7;
@@ -632,6 +631,7 @@
         }
         .xcTbodyWrap {
             pointer-events: none;
+            // background-color: black;
         }
         .lockedIcon {
             position: absolute;
@@ -661,7 +661,6 @@
         .colMenu.locked {
             cursor: initial;
         }
-
         .tableCover {
             position: absolute;
             height: auto;
@@ -673,6 +672,7 @@
         tbody {
             opacity: 1 !important;
         }
+
         th:first-child input {
             box-shadow: none !important;
         }
@@ -697,6 +697,12 @@
             display: none;
             // jquery fades in display
         }
+    }
+}
+
+html.microsoft {
+    .xcTableWrap .text {
+        .position(relative) !important;
     }
 }
 
@@ -794,7 +800,7 @@
             }
 
             .flexWrap.flex-mid {
-                .flex(1 0 0);
+                .flex(1 0 0px);
                 .editableHead {
                     padding-right: 24px;
                     .noSelection;

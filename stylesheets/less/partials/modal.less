@@ -422,7 +422,7 @@
                     // for text vertical align
                     .flex-display;
                     .justify-content(center);
-                    align-items: center;
+                    .align-items(center);
 
                     .font(@weight: bold, @size: 14px);
                     text-overflow: ellipsis;
@@ -940,6 +940,31 @@
         height: 40px !important;
         .btn {
             margin: 0 20px 10px 0;
+        }
+    }
+}
+
+html.microsoft {
+    #leftJoin, #rightJoin {
+        .flex(none) !important;
+        width: 50%;
+        float: left;
+    }
+    #multiJoin {
+        .flex(none) !important;
+        width: 0px;
+    }
+    .multiClause {
+        #leftJoin, #rightJoin {
+            .flex(none) !important;
+            width: ~"calc(50% - 138px)";
+        }
+        #multiJoin {
+            .flex(none) !important;
+            width: 275px;
+            .title, .clauseArea {
+                .transition(visibility 0s linear 0s) !important;
+            }
         }
     }
 }

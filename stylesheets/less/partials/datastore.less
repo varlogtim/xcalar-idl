@@ -716,6 +716,7 @@ input {
         .flex-display;
         .flex-flow(row);
         background-color: @color-background-white;
+        overflow: hidden;
     }
 }
 
@@ -1166,10 +1167,11 @@ input {
 
 .datasetTbodyWrap {
     max-height: 100%;
+    width: ~"calc(100% + 17px)";
     overflow-x: visible;
     overflow-y: scroll;
     display: inline-block;
-    outline: 1px solid #DDDDDD;
+    outline: 1px solid #FFFFFF; // ie bug if we dont use this outline
     outline-offset: -1px;
     margin-top: -1px;
     &::-webkit-scrollbar {
@@ -1179,6 +1181,9 @@ input {
 
 table.datasetTable {
     margin: 0;
+    border-right: 1px solid #DDDDDD;
+    border-bottom: 1px solid #DDDDDD;
+
 }
 
 .datasetTableWrap {

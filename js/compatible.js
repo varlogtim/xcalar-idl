@@ -1,9 +1,10 @@
 window.Compitable = (function($, Compitable) {
     // XXX check if those functions are already
     // support by all browsers frequently
-
+    window.isBrowserMicrosoft = false;
     Compitable.check = function() {
         stringCheck();
+        browserCheck();
     };
 
     function stringCheck() {
@@ -33,6 +34,26 @@ window.Compitable = (function($, Compitable) {
             String.prototype.includes = function() {'use strict';
                 return String.prototype.indexOf.apply(this, arguments) !== -1;
             };
+        }
+    }
+
+    function browserCheck() {
+        if (/MSIE 10/i.test(navigator.userAgent)) {
+           // this is internet explorer 10
+            window.isBrowserMicrosoft = true;
+        }
+
+        if(/MSIE 9/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent)) {
+            // this is internet explorer 9 and 11
+             window.isBrowserMicrosoft = true;
+        }
+
+        if (/Edge\/12./i.test(navigator.userAgent)) {
+           // this is Microsoft Edge
+            window.isBrowserMicrosoft = true;
+        }
+        if (isBrowserMicrosoft) {
+            $('html').addClass('microsoft');
         }
     }
 

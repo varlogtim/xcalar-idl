@@ -3,7 +3,7 @@ window.JSONModal = (function($, JSONModal) {
     var $jsonWrap = $("#jsonWrap");
     var $modalBackground = $("#modalBackground");
     var $searchInput = $('#jsonSearch').find('input');
-    var $jsonText = $('#jsonObj');
+    var $jsonText = $('.prettyJson');
     var $counter = $('#jsonSearch').find('.counter');
     var $matches;
     var numMatches = 0;

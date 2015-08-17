@@ -1297,7 +1297,9 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         $input.focus();
-        document.execCommand("insertText", false, newVal);
+        if (!document.execCommand("insertText", false, newVal)) {
+            $input.val($input.val() + newVal);
+        }
         $input[0].setSelectionRange(currentPos, currentPos);
     }
 

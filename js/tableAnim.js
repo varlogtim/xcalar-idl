@@ -2336,6 +2336,9 @@ function moveTableDropdownBoxes() {
 }
 
 function moveTableTitles() {
+    if (isBrowserMicrosoft) {
+        return;
+    }
     var viewWidth = $('#mainFrame').width();
     $('.xcTableWrap:not(".inActive"):not(.tableHidden)').each(function() {
         var $table = $(this);
@@ -2635,6 +2638,9 @@ function reorderAfterTableDrop() {
 function moveFirstColumn($targetTable) {
     var rightOffset;
     var datasetPreview;
+    if (isBrowserMicrosoft) {
+        return;
+    }
 
     if (!$targetTable) {
         datasetPreview = false;
