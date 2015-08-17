@@ -119,7 +119,7 @@ function addTable(tableName, oldTableName, afterStartup, tablesToRemove, lockTab
         var delayTableRemoval = true;
         for (var i = 0; i < tablesToRemove.length; i++) {
             if (gTables[tablesToRemove[i]].active) {
-                archiveTable(tablesToRemove[i], DeleteTable.Keep, delayTableRemoval);
+                archiveTable(tablesToRemove[i], ArchiveTable.Keep, delayTableRemoval);
             }
         }
     }
@@ -243,22 +243,20 @@ function archiveTable(tableId, del, delayTableRemoval) {
     moveTableTitles();
 }
 
-function deleteActiveTable(tableId) {
-    var deferred   = jQuery.Deferred();
+function deleteOrphaned(tableName) {
+    var deferred = jQuery.Deferred();
+
     var sqlOptions = {
         "operation": "deleteTable",
-        "tableName": gTables[tableId].tableName
+        "tableName": tableName,
+        "tableType": TableType.Orphan
     };
 
-    deleteTable(tableId, null, sqlOptions)
+    XcalarDeleteTable(tableName, sqlOptions)
     .then(function() {
-        setTimeout(function() {
-            var activeTable = xcHelper.getTableFromId(gActiveTableId);
-            if (activeTable && activeTable.resultSetCount !== 0) {  
-                generateFirstVisibleRowNum();
-            }
-        }, 300);
-
+        var tableIndex = gOrphanTables.indexOf(tableName);
+        gOrphanTables.splice(tableIndex, 1);
+        Dag.makeInactive(tableName, true);
         deferred.resolve();
     })
     .fail(deferred.reject);
@@ -266,21 +264,30 @@ function deleteActiveTable(tableId) {
     return (deferred.promise());
 }
 
-function deleteTable(tableId, deleteArchived, sqlOptions) {
-    var deferred = jQuery.Deferred();
-    var table = xcHelper.getTableFromId(tableId);
-    var tableName = table.tableName;
-    var resultSetId;
+function deleteTable(tableIdOrName, tableType) {
+    if (tableType === TableType.Orphan) {
+        // delete orphaned
+        return (deleteOrphaned(tableIdOrName));
+    }
+
+    // delete active or inactive table;
+    var tableId = tableIdOrName;
 
     if (tableId == null) {
-        console.warn("DeleteTable: Table Name cannot be null!");
+        console.warn("DeleteTable: Table Id cannot be null!");
         return (promiseWrapper(null));
-    } else if (table == null) {
-        // orphaned table
-        resultSetId = -1;
-    } else {
-        resultSetId = table.resultSetId;
     }
+
+    var deferred    = jQuery.Deferred();
+    var table       = gTables[tableId];
+    var tableName   = table.tableName;
+    var resultSetId = table.resultSetId;
+
+    var sqlOptions = {
+        "operation": "deleteTable",
+        "tableName": tableName,
+        "tableType": tableType
+    };
     
     // Free the result set pointer that is still pointing to it
     XcalarSetFree(resultSetId)
@@ -328,9 +335,16 @@ function deleteTable(tableId, deleteArchived, sqlOptions) {
         Dag.makeInactive(tableId);
         delete gTables[tableId];
 
-        if (!deleteArchived) {
+        if (tableType === TableType.Active) {
             // when delete active table
-            archiveTable(tableId, DeleteTable.Delete);
+            archiveTable(tableId, ArchiveTable.Delete);
+
+            setTimeout(function() {
+                var activeTable = gTables[gActiveTableId];
+                if (activeTable && activeTable.resultSetCount !== 0) { 
+                    generateFirstVisibleRowNum();
+                }
+            }, 300);
         }
 
         deferred.resolve();

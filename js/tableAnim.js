@@ -907,7 +907,7 @@ function addTableMenuActions($tableMenu) {
             return;
         }
         var tableName = xcHelper.getTableFromId(tableId).tableName;
-        archiveTable(tableId, DeleteTable.Keep);
+        archiveTable(tableId, ArchiveTable.Keep);
         // add sql
         SQL.add('Archive Table', {
             "operation": "archiveTable",
@@ -953,7 +953,7 @@ function addTableMenuActions($tableMenu) {
             "msg"       : msg,
             "isCheckBox": true,
             "confirm"   : function() {
-                deleteActiveTable(tableId)
+                deleteTable(tableId, TableType.Active)
                 .then(function() {
                     commitToStorage();
                 })

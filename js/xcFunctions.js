@@ -1157,7 +1157,7 @@ window.xcFunction = (function($, xcFunction) {
                                     .find('.addTableBtn')
                                     .click();
 
-            RightSideBar.tableBulkAction("delete", "inactive")
+            RightSideBar.tableBulkAction("delete", TableType.InActive)
             .then(deferred.resolve)
             .fail(deferred.reject);
         } else {

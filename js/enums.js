@@ -51,10 +51,16 @@ var SyncOrAsync = {
     Async: false
 }
 
-var DeleteTable = {
+var ArchiveTable = {
     Delete: true,
     Keep: false
 }
+
+var TableType = {
+    "InActive": "inactive",
+    "Active"  : "ctive",
+    "Orphan"  : "orphaned"
+};
 
 var keyCode = {
     Backspace: 8,

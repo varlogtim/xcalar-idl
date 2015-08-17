@@ -788,12 +788,12 @@ window.WSManager = (function($, WSManager) {
         var activeTables = worksheets[wsIndex].tables;
         for (var i = 0, len = activeTables.length; i < len; i++) {
             var tableId = activeTables[i];
-            promises.push(deleteActiveTable.bind(this, tableId));
+            promises.push(deleteTable.bind(this, tableId, TableType.Active));
         }
 
         chain(promises)
         .then(function() {
-            return (RightSideBar.tableBulkAction("delete", "inactive"));
+            return (RightSideBar.tableBulkAction("delete", TableType.InActive));
         })
         .then(function() {
             rmWorksheet(wsIndex);
@@ -818,7 +818,7 @@ window.WSManager = (function($, WSManager) {
 
         for (var i = 0, len = tableIds.length; i < len; i++) {
             var tableId = tableIds[i];
-            archiveTable(tableId, DeleteTable.Keep);
+            archiveTable(tableId, ArchiveTable.Keep);
             noSheetTables.push(tableId);
         }
 

@@ -77,7 +77,7 @@ window.RightSideBar = (function($, RightSideBar) {
         RightSideBar.addTables([table], IsActive.Active);
     };
 
-    RightSideBar.tableBulkAction = function(action, type) {
+    RightSideBar.tableBulkAction = function(action, tableType) {
         var deferred    = jQuery.Deferred();
         var validAction = ["add", "delete"];
 
@@ -87,9 +87,9 @@ window.RightSideBar = (function($, RightSideBar) {
             return (deferred.promise());
         }
         var $tableList;
-        if (type === 'inactive') {
+        if (tableType === TableType.InActive) {
             $tableList = $('#archivedTableList');
-        } else if (type === 'orphan') {
+        } else if (tableType === TableType.Orphan) {
             $tableList = $('#orphanedTableList');
         }
         var $tablesSelected = $tableList.find(".addTableBtn.selected")
@@ -103,25 +103,26 @@ window.RightSideBar = (function($, RightSideBar) {
         $tablesSelected.each(function(index, ele) {
             promises.push((function() {
                 var innerDeferred = jQuery.Deferred();
-                var $li = $(ele);
+
+                var $li     = $(ele);
                 var tableId = $li.data("id");
-                var table = xcHelper.getTableFromId(tableId);
+                var table   = gTables[tableId];
                 var tableName;
 
-                if (table == null && type !== 'orphan') {
+                if (table == null && tableType !== TableType.Orphan) {
                     console.error("Error: do not find the table");
                     innerDeferred.reject();
                     return (innerDeferred.promise());
                 }
 
-                if (type === "orphan") {
+                if (tableType === TableType.Orphan) {
                     tableName = $li.data("tablename");
                 } else {
                     tableName = table.tableName;
                 }
 
                 if (action === "add") {
-                    if (type === 'orphan') {
+                    if (tableType === TableType.Orphan) {
                         renameOrphanIfNeeded(tableName)
                         .then(function(newTableName) {
                             tableName = newTableName;
@@ -170,35 +171,23 @@ window.RightSideBar = (function($, RightSideBar) {
                         });
                     }
                 } else if (action === "delete") {
-                    var sqlOptions = {
-                        "operation": "deleteTable",
-                        "tableName": tableName
-                    };
+                    var tableIdOrName;
 
-                    if (type === 'orphan') {
-                        XcalarDeleteTable(tableName, sqlOptions)
-                        .then(function() {
-                            doneHandler($li, tableName);
-                            var tableIndex = gOrphanTables.indexOf(tableName);
-                            gOrphanTables.splice(tableIndex, 1);
-                            Dag.makeInactive(tableName, true);
-                            innerDeferred.resolve();
-                        })
-                        .fail(function(error) {
-                            failHandler($li, tableName, error);
-                            innerDeferred.resolve(error);
-                        });
+                    if (tableType === TableType.Orphan) {
+                        tableIdOrName = tableName;
                     } else {
-                        deleteTable(tableId, DeleteTable.Delete, sqlOptions)
-                        .then(function() {
-                            doneHandler($li, tableName);
-                            innerDeferred.resolve();
-                        })
-                        .fail(function(error) {
-                            failHandler($li, tableName, error);
-                            innerDeferred.resolve(error);
-                        });
+                        tableIdOrName = tableId;
                     }
+
+                    deleteTable(tableIdOrName, tableType)
+                    .then(function() {
+                        doneHandler($li, tableName);
+                        innerDeferred.resolve();
+                    })
+                    .fail(function(error) {
+                        failHandler($li, tableName, error);
+                        innerDeferred.resolve(error);
+                    });
                 }
 
                 return (innerDeferred.promise());
@@ -231,15 +220,15 @@ window.RightSideBar = (function($, RightSideBar) {
                     }
                     
                 }
-                
             }
-            // add sql
-            if (action === "add") {
-                SQL.add('Send To Worksheet', {
-                    "operation": "addTable",
-                    "tableName": tableName
-                });
-            }
+
+            // Should add table id/tableName!
+            SQL.add("RightSideBar Table Actions", {
+                "operation": "tableBulkActions",
+                "action"   : action,
+                "tableName": tableName,
+                "tableType": tableType
+            });
         }
 
         function failHandler($li, tableName, error) {
@@ -549,23 +538,23 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $('#submitOrphanedTablesBtn').click(function() {
-            addBulkTable('orphan');
+            addBulkTable(TableType.Orphan);
         });
 
         $("#deleteTablesBtn, #deleteOrphanedTablesBtn").click(function() {
-            var type;
+            var tableType;
             if ($(this).is('#deleteTablesBtn')) {
-                type = "inactive";
+                tableType = TableType.InActive;
             } else {
-                type = "orphan";
+                tableType = TableType.Orphan;
             }
             Alert.show({
-                "title": "DELETE " + type + " TABLES",
+                "title": "DELETE " + tableType + " TABLES",
                 "msg"  : "Are you sure you want to delete the " +
                          "selected tables?",
                 "isCheckBox": true,
                 "confirm"   : function() {
-                    RightSideBar.tableBulkAction("delete", type)
+                    RightSideBar.tableBulkAction("delete", tableType)
                     .then(function() {
                         commitToStorage();
                     })
@@ -875,7 +864,7 @@ window.RightSideBar = (function($, RightSideBar) {
                             WSManager.addTable(tableId, wsIndex);
                         });
 
-                        addBulkTable('inactive');
+                        addBulkTable(TableType.InActive);
                     }
                 },
                 "cancel": function() {
@@ -885,12 +874,12 @@ window.RightSideBar = (function($, RightSideBar) {
             });
 
         } else {
-            addBulkTable('inactive');
+            addBulkTable(TableType.InActive);
         }
     }
 
-    function addBulkTable(type) {
-        RightSideBar.tableBulkAction("add", type)
+    function addBulkTable(tableType) {
+        RightSideBar.tableBulkAction("add", tableType)
         .then(function() {
             if (!$("#workspaceTab").hasClass("active")) {
                 $("#workspaceTab").click();
@@ -899,13 +888,13 @@ window.RightSideBar = (function($, RightSideBar) {
             commitToStorage();
         })
         .fail(function(error) {
-            var tableType;
-            if (type === 'inactive') {
-                tableType = 'Archived';
-            } else if (type === 'orphan') {
-                tableType = 'Orphaned';
+            var type;
+            if (tableType === TableType.InActive) {
+                type = 'Archived';
+            } else if (tableType === TableType.Orphan) {
+                type = 'Orphaned';
             }
-            Alert.error("Error In Adding " + tableType + " Table", error);
+            Alert.error("Error In Adding " + type + " Table", error);
         });
     }
 
