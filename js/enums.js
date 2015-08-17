@@ -59,7 +59,8 @@ var ArchiveTable = {
 var TableType = {
     "InActive": "inactive",
     "Active"  : "ctive",
-    "Orphan"  : "orphaned"
+    "Orphan"  : "orphaned",
+    "Unknown" : "unknown source"
 };
 
 var keyCode = {

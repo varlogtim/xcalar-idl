@@ -172,22 +172,21 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.delCol = function(colNums, tableId) {
         // deletes an array of columns
-        var table     = xcHelper.getTableFromId(tableId);
+        var table     = gTables[tableId];
         var tableName = table.tableName;
-        var $table = $('#xcTable-' + tableId);
-        var numCols = colNums.length;
+        var $table    = $('#xcTable-' + tableId);
+        var numCols   = colNums.length;
         var colNum;
         var colIndex;
         var colNames = [];
-        var colIndicies = [];
 
         for (var i = 0; i < numCols; i++) {
             colNum = colNums[i];
             colIndex = colNum - i;
             colNames.push(table.tableCols[colIndex - 1].name);
-            colIndicies.push(colNum);
             delColHelper(colNum, tableId, true, colIndex);
         }
+
         var numAllCols = table.tableCols.length;
         updateTableHeader(tableId);
         RightSideBar.updateTableInfo(tableId);
@@ -201,14 +200,32 @@ window.ColManager = (function($, ColManager) {
         matchHeaderSizes(null, $table, true);
         xcHelper.removeSelectionRange();
         colNames = colNames.join(", ");
-        colIndicies = colIndicies.join(", ");
+        colNums = colNums.join(", ");
 
          // add SQL
         SQL.add("Delete Column", {
-            "operation"  : "delCol",
-            "tableName"  : tableName,
-            "colNames"   : colNames,
-            "colIndicies": colIndicies
+            "operation": "delCol",
+            "tableName": tableName,
+            "colNames" : colNames,
+            "colNums"  : colNums
+        });
+    };
+
+    ColManager.renameCol = function(colNum, tableId, newName) {
+        var table   = gTables[tableId];
+        var $table  = $("#xcTable-" + tableId);
+        var curCol  = table.tableCols[colNum - 1];
+        var oldName = curCol.name;
+
+        curCol.name = newName;
+        $table.find('.editableHead.col' + colNum).val(newName);
+
+        SQL.add("Rename Column", {
+            "operation" : "renameCol",
+            "tableName" : table.tableName,
+            "colName"   : oldName,
+            "newColName": newName,
+            "colNum"    : colNum
         });
     };
 
@@ -404,7 +421,7 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.delDupCols = function(index, tableId, forwardCheck) {
         index = index - 1;
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         var args    = columns[index].func.args;
         var start   = forwardCheck ? index : 0;
@@ -549,8 +566,9 @@ window.ColManager = (function($, ColManager) {
         } else {
             alignment = "Center";
         }
-        var table = xcHelper.getTableFromId(tableId);
-        table.tableCols[colNum - 1].textAlign = alignment;
+
+        var table  = gTables[tableId];
+        var curCol = table.tableCols[colNum - 1];
         var $table = $('#xcTable-' + tableId);
 
         $table.find('td.col' + colNum)
@@ -558,6 +576,16 @@ window.ColManager = (function($, ColManager) {
                 .removeClass('textAlignRight')
                 .removeClass('textAlignCenter')
                 .addClass('textAlign' + alignment);
+
+        curCol.textAlign = alignment;
+
+        SQL.add("Text Align", {
+            "operation": "textAlign",
+            "tableName": table.tableName,
+            "colName"  : curCol.name,
+            "colNum"   : colNum,
+            "alignment": alignment
+        });
     };
 
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,

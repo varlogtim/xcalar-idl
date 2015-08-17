@@ -95,14 +95,15 @@ window.JSONModal = (function($, JSONModal) {
     function jsonModalEvent($jsonTd, isArray) {
         $jsonWrap.on({
             "click": function() {
-                var $table  = $jsonTd.closest('table');
-                var tableId = $table.data('id');
+                var $table   = $jsonTd.closest('table');
+                var tableId  = $table.data('id');
                 var isDataTd = $jsonTd.hasClass('jsonElement');
-                var colNum      = xcHelper.parseColNum($jsonTd);
-                var table       = xcHelper.getTableFromId(tableId);
-                var name    = createJsonSelectionExpression($(this));
+                var colNum   = xcHelper.parseColNum($jsonTd);
+                var table    = gTables[tableId];
+                var name     = createJsonSelectionExpression($(this));
                 var fullName = name.name;
                 var escapedName = name.escapedName;
+
                 if (!isDataTd) {
                     var symbol = "";
                     if (!isArray) {
@@ -113,16 +114,12 @@ window.JSONModal = (function($, JSONModal) {
                     fullName = table.tableCols[colNum - 1].func.args[0] +
                                symbol + fullName;
                 }
-                var usrStr  = '"' + fullName + '" = pull(' +
+                var usrStr = '"' + fullName + '" = pull(' +
                                 escapedName + ')';
 
                 var $id = $table.find("tr:first th").filter(function() {
-                    var val = $(this).find("input").val();
-                    return (val === "DATA");
+                    return ($(this).find("input").val() === "DATA");
                 });
-
-                
-                // var colNum      = xcHelper.parseColNum($id);
                 
                 var tableName   = table.tableName;
                 var siblColName = table.tableCols[colNum - 1].name;
@@ -163,13 +160,13 @@ window.JSONModal = (function($, JSONModal) {
                                 " .editableHead").focus();
 
                     // add sql
-                    SQL.add("Add Column", {
-                        "operation"   : "addCol",
-                        "tableName"   : tableName,
-                        "newColName"  : fullName,
-                        "siblColName" : siblColName,
-                        "siblColIndex": colNum,
-                        "direction"   : "L"
+                    SQL.add("Pull Column", {
+                        "operation"  : "pullCol",
+                        "tableName"  : tableName,
+                        "colName"    : fullName,
+                        "siblColName": siblColName,
+                        "siblColNum" : colNum,
+                        "direction"  : direction
                     });
 
                     closeJSONModal();

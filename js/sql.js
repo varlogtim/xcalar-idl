@@ -95,7 +95,7 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case ("changeColOrder"):
                 // fallthrough
-            case ("addCol"):
+            case ("addNewCol"):
                 // fallthrough
             case ("pullCol"):
                 // fallthrough
@@ -104,6 +104,10 @@ window.SQL = (function($, SQL) {
             case ("aggregate"):
                 // fallthrough
             case ("addTable"):
+                // fallthrough
+            case ("renameCol"):
+                // fallthrough
+            case ("textAlign"):
                 // fallthrough
             case ("hideCols"):
                 // fallthrough
@@ -124,7 +128,7 @@ window.SQL = (function($, SQL) {
             case ("loadDataSet"):
             case ("filter"):
             case ("sort"):
-            case ("index"):
+            case ("indexFromDataset"):
             case ("join"):
             case ("groupBy"):
             case ("mapColumn"):

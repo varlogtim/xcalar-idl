@@ -281,16 +281,16 @@ function dragdropMouseUp() {
     // only pull col if column is dropped in new location
     if ((dragObj.colIndex) !== dragObj.colNum) {
         // add sql
-        var table = xcHelper.getTableFromId(dragObj.tableId);
+        var table = gTables[dragObj.tableId];
 
         SQL.add("Change Column Order", {
-            "operation"  : "changeColOrder",
-            "tablename"  : table.tableName,
-            "colName"    : table.tableCols[dragObj.colNum - 1].name,
-            "oldColIndex": dragObj.colNum,
-            "newColIndex": dragObj.colIndex
+            "operation": "changeColOrder",
+            "tablename": table.tableName,
+            "colName"  : table.tableCols[dragObj.colNum - 1].name,
+            "oldColNum": dragObj.colNum,
+            "newColNum": dragObj.colIndex
         });
-        
+
         reorderAfterColumnDrop();
         Tips.refresh();
     }
@@ -1654,11 +1654,10 @@ function addColMenuActions($colMenu) {
         // add sql
         var table = xcHelper.getTableFromId(tableId);
         var sqlOptions = {
-            "operation"   : "addCol",
-            "tableName"   : table.tableName,
-            "newColName"  : "",
-            "siblColName" : table.tableCols[colNum - 1].name,
-            "siblColIndex": colNum
+            "operation"  : "addNewCol",
+            "tableName"  : table.tableName,
+            "siblColName": table.tableCols[colNum - 1].name,
+            "siblColNum" : colNum
         };
 
         var direction;
@@ -1675,7 +1674,7 @@ function addColMenuActions($colMenu) {
             "inFocus"  : true
         });
 
-        SQL.add("Add Column", sqlOptions);
+        SQL.add("Add New Column", sqlOptions);
     });
 
     $colMenu.on('mouseup', '.deleteColumn', function(event) {
@@ -1707,7 +1706,7 @@ function addColMenuActions($colMenu) {
 
             var colNum = $colMenu.data('colNum');
 
-            renameColumn(tableId, colNum, colName);
+            ColManager.renameCol(colNum, tableId, colName);
             $input.val("").blur();
             closeMenu($colMenu);
         }
@@ -1733,7 +1732,7 @@ function addColMenuActions($colMenu) {
             name = tableCols[colNum - 1].name;
         }
 
-        name = xcHelper.getUniqColName(name, tableCols);
+        var name = xcHelper.getUniqColName(name, tableCols);
 
         ColManager.addCol(colNum, tableId, name, {
             "width"   : width,
@@ -1741,10 +1740,11 @@ function addColMenuActions($colMenu) {
         });
         // add sql
         SQL.add("Duplicate Column", {
-            "operation": "duplicateCol",
-            "tableName": table.tableName,
-            "colName"  : name,
-            "colIndex" : colNum
+            "operation" : "duplicateCol",
+            "tableName" : table.tableName,
+            "colName"   : tableCols[colNum - 1].name,
+            "newColName": name,
+            "colNum"    : colNum
         });
 
         tableCols[colNum].func.func = tableCols[colNum - 1].func.func;
@@ -1778,7 +1778,7 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        var colNum   = $colMenu.data('colNum');
+        var colNum = $colMenu.data('colNum');
         ColManager.textAlign(colNum, tableId, $(this).attr("class"));
     });
 
@@ -1944,14 +1944,6 @@ function copyToClipboard($selector) {
 function closeMenu($menu) {
     $menu.hide();
     $('body').removeClass('noSelection');
-}
-
-function renameColumn(tableId, colNum, newName) {
-    var table  = xcHelper.getTableFromId(tableId);
-    var $table = $("#xcTable-" + tableId);
-
-    table.tableCols[colNum - 1].name = newName;
-    $table.find('.editableHead.col' + colNum).val(newName);
 }
 
 function functionBarEnter($colInput) {

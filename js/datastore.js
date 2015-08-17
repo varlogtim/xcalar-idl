@@ -1097,9 +1097,10 @@ window.DataCart = (function($, DataCart) {
 
                 // add sql
                 var sqlOptions = {
-                    "operation": "index",
+                    "operation": "indexFromDataset",
+                    "dsName"   : datasetName,
                     "tableName": tableName,
-                    "col"      : []
+                    "columns"  : []
                 };
                 // add status message
                 var msg = StatusMessageTStr.CreatingTable + ': ' + tableName;
@@ -1134,12 +1135,12 @@ window.DataCart = (function($, DataCart) {
                     var currentIndex = startIndex - 1;
 
                     newTableCols[currentIndex] = progCol;
-                    sqlOptions.col.push(colname);
+                    sqlOptions.columns.push(colname);
                 }
                 // new "DATA" column
                 newTableCols[startIndex] = ColManager.newDATACol(startIndex + 1);
 
-                sqlOptions.col.push("DATA");
+                sqlOptions.columns.push("DATA");
 
                 var tableProperties = {
                     "bookmarks" : [],

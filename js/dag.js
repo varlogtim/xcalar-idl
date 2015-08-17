@@ -459,9 +459,13 @@ window.DagPanel = (function($, DagPanel) {
                     }
                 });
             } else {
+                // this is the case when user pull out a backend table A, then
+                // delete another table in the dag node of A but that table is
+                // not in orphaned list
                 var sqlOptions = {
                     "operation": "deleteTable",
-                    "tableName": tableName
+                    "tableName": tableName,
+                    "tableType": TableType.Unknown
                 };
                 XcalarDeleteTable(tableName, sqlOptions)
                 .then(function() {
