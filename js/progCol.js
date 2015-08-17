@@ -439,73 +439,106 @@ window.ColManager = (function($, ColManager) {
         }
     };
 
-    ColManager.hideCol = function(colNum, tableId) {
-        var $table   = $('#xcTable-' + tableId);
-        var $th      = $table.find(".th.col" + colNum);
-        var $thInput = $th.find("input");
-        var $cols    = $table.find(".col" + colNum);
-
-        $th.width(10);
-        // data column should have more padding
-        // and class for tbody is different
-        if ($thInput.hasClass("dataCol")) {
-            // the padding pixel may be chosen again
-            $thInput.css("padding-left", "10px");
-            $cols.find(".elementText").css("padding-left", "15px");
-        } else {
-            $thInput.css("padding-left", "6px");
-            $cols.find(".addedBarText").css("padding-left", "10px");
-        }
-
-        $table.find("td.col" + colNum).width(10);
-        xcHelper.getTableFromId(tableId).tableCols[colNum - 1].isHidden = true;
-        matchHeaderSizes(colNum, $table);
-    };
-
-    ColManager.hideColumns = function(colNum, $table, tableId) {
+    ColManager.hideCols = function(columns, tableId) {
         // for multiple columns
-        var $th      = $table.find(".th.col" + colNum);
-        var $thInput = $th.find("input");
-        var $cols    = $table.find(".col" + colNum);
-        $th.width(10);
-        $thInput.css("padding-left", "6px");
-        $cols.find(".addedBarText").css("padding-left", "10px");
-        $table.find("td.col" + colNum).width(10);
-        xcHelper.getTableFromId(tableId).tableCols[colNum - 1].isHidden = true;
-    };
-
-    ColManager.unhideCol = function(colNum, tableId, options) {
         var $table   = $('#xcTable-' + tableId);
-        var $th      = $table.find(".th.col" + colNum);
-        var $thInput = $th.find("input");
-        var $cols    = $table.find(".col" + colNum);
-        var col      = gTables[tableId].tableCols[colNum - 1];
+        var numCols  = columns.length;
+        var table    = gTables[tableId];
+        var colNames = [];
 
-        if (options && options.autoResize) {
-            $th.outerWidth(col.width);
-            matchHeaderSizes(colNum, $table);
+        for (var i = 0; i < numCols; i++) {
+            var colNum   = columns[i];
+            var $th      = $table.find(".th.col" + colNum);
+            var $thInput = $th.find("input");
+            var $cols    = $table.find(".col" + colNum);
+
+            $th.width(10);
+            // data column should have more padding
+            // and class for tbody is different
+            if ($thInput.hasClass("dataCol")) {
+                // the padding pixel may be chosen again
+                $thInput.css("padding-left", "10px");
+                $cols.find(".elementText").css("padding-left", "15px");
+            } else {
+                $thInput.css("padding-left", "6px");
+                $cols.find(".addedBarText").css("padding-left", "10px");
+            }
+
+            $table.find("td.col" + colNum).width(10);
+
+            var curCol = table.tableCols[colNum - 1];
+            curCol.isHidden = true;
+            colNames.push(curCol.name);
         }
 
-        if ($thInput.hasClass("dataCol")) {
-            $cols.find(".elementText").css("padding-left", "0px");
+        if (numCols > 1) {
+            var matchOptions = {
+                "start": columns[0],
+                "end"  : columns[numCols - 1]
+            };
+            matchHeaderSizes(null, $table, true, matchOptions);
+            xcHelper.removeSelectionRange();
         } else {
-            $cols.find(".addedBarText").css("padding-left", "0px");
+            matchHeaderSizes(columns[0], $table);
         }
 
-        $thInput.css("padding-left", "4px");
-        col.isHidden = false;
+        SQL.add("Hide Columns", {
+            "operation": "hideCols",
+            "tableName": table.tableName,
+            "colNames" : colNames.join(","),
+            "colNums"  : columns.join(",")
+        });
     };
 
-    ColManager.unhideColumns = function(colNum, $table, tableId) {
-        var $th      = $table.find(".th.col" + colNum);
-        var $thInput = $th.find("input");
-        var $cols    = $table.find(".col" + colNum);
-        var col      = gTables[tableId].tableCols[colNum - 1];
-        $th.outerWidth(col.width);
+    ColManager.unhideCols = function(columns, tableId, options) {
+        var $table     = $('#xcTable-' + tableId);
+        var table      = gTables[tableId];
+        var numCols    = columns.length;
+        var colNames   = [];
+        var autoResize = options && options.autoResize;
 
-        $cols.find(".addedBarText").css("padding-left", "0px");
-        $thInput.css("padding-left", "4px");
-        col.isHidden = false;
+        for (var i = 0; i < numCols; i++) {
+            var colNum   = columns[i];
+            var $th      = $table.find(".th.col" + colNum);
+            var $thInput = $th.find("input");
+            var $cols    = $table.find(".col" + colNum);
+            var curCol   = table.tableCols[colNum - 1];
+
+            if (autoResize) {
+                $th.outerWidth(curCol.width);
+            }
+
+            if ($thInput.hasClass("dataCol")) {
+                $cols.find(".elementText").css("padding-left", "0px");
+            } else {
+                $cols.find(".addedBarText").css("padding-left", "0px");
+            }
+
+            $thInput.css("padding-left", "4px");
+            curCol.isHidden = false;
+            colNames.push(curCol.name);
+        }
+
+        if (autoResize) {
+            if (numCols > 1) {
+                var matchOptions = {
+                    "start": columns[0],
+                    "end"  : columns[numCols - 1]
+                };
+                matchHeaderSizes(null, $table, true, matchOptions);
+                xcHelper.removeSelectionRange();
+            } else {
+                matchHeaderSizes(columns[0], $table);
+            }
+        }
+
+        SQL.add("Unhide Columns", {
+            "operation" : "unHideCols",
+            "tableName" : table.tableName,
+            "colNames"  : colNames.join(","),
+            "colNums"   : columns.join(","),
+            "autoResize": autoResize
+        });
     };
 
     ColManager.textAlign = function(colNum, tableId, alignment) {

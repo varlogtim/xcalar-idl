@@ -53,7 +53,7 @@ function gRescolMouseDown(el, event, options) {
     } else if (el.parent().width() === 10) {
         // This is a hidden column! we need to unhide it
         // return;
-        ColManager.unhideCol(colNum, rescol.tableId, {autoResize: false});
+        ColManager.unhideCols([colNum], rescol.tableId, {"autoResize": false});
     }
     gMouseStatus = "resizingCol";
     event.preventDefault();
@@ -1762,17 +1762,16 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        var colNum   = $colMenu.data('colNum');
-        ColManager.hideCol(colNum, tableId);
-        
+        var colNum = $colMenu.data('colNum');
+        ColManager.hideCols([colNum], tableId);
     });
 
     $colMenu.on('mouseup', '.unhide', function(event) {
         if (event.which !== 1) {
             return;
         }
-        var colNum   = $colMenu.data('colNum');
-        ColManager.unhideCol(colNum, tableId, {autoResize: true});
+        var colNum = $colMenu.data('colNum');
+        ColManager.unhideCols([colNum], tableId, {"autoResize": true});
     });
 
     $colMenu.on('mouseup', '.textAlign', function(event) {
@@ -1920,19 +1919,8 @@ function addColMenuActions($colMenu) {
         }
 
         var columns = $colMenu.data('columns');
-        var numCols = columns.length;
-        // var multipleCols = true;
-        var $table = $('#xcTable-' + tableId);
-        for (var i = 0; i < numCols; i++) {
-            var colNum = columns[i];
-            ColManager.hideColumns(colNum, $table, tableId);
-        }
-        var options = {
-            "start": columns[0],
-            "end"  : columns[columns.length - 1]
-        };
-        matchHeaderSizes(null, $table, true, options);
-        xcHelper.removeSelectionRange();
+
+        ColManager.hideCols(columns, tableId);
     });
 
     $colMenu.on('mouseup', '.unhideColumns', function(event) {
@@ -1941,23 +1929,8 @@ function addColMenuActions($colMenu) {
         }
 
         var columns = $colMenu.data('columns');
-        var numCols = columns.length;
-        // var multipleCols = true;
-        var $table = $('#xcTable-' + tableId);
-        for (var i = 0; i < numCols; i++) {
-            var colNum = columns[i];
-            if ($table.find('th.col' + colNum).width() === 10) {
-                ColManager.unhideColumns(colNum, $table, tableId);
-            }
-        }
-        var options = {
-            "start": columns[0],
-            "end"  : columns[columns.length - 1]
-        };
-        matchHeaderSizes(null, $table, true, options);
-        xcHelper.removeSelectionRange();
+        ColManager.unhideCols(columns, tableId, {"autoResize": true});
     });
-        
 }
 
 function copyToClipboard($selector) {

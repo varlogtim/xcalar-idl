@@ -105,6 +105,10 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case ("addTable"):
                 // fallthrough
+            case ("hideCols"):
+                // fallthrough
+            case ("unHideCols"):
+                // fallthrough
             case ("previewDataSet"):
                 // fallthrough
             case ("destroyPreviewDataSet"):
