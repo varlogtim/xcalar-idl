@@ -3,12 +3,21 @@
 
 function emptyAllStorage(localEmpty) {
     var deferred = jQuery.Deferred();
+
+    // hide modal
+    $("#modalBackground").hide();
+    $(".modalContainer:visible").hide();
+
     gTables = {};
     WSManager.clear();
-    DS.clear();
     SQL.clear();
-    DataCart.clear();
     CLIBox.clear();
+    DataStore.clear();
+
+    RightSideBar.clear();
+    DagPanel.clear();
+    // clear all table
+    $("#mainFrame").empty();
 
     if (localEmpty) {
         deferred.resolve();

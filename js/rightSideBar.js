@@ -10,6 +10,16 @@ window.RightSideBar = (function($, RightSideBar) {
         CLIBox.setup();
     };
 
+    RightSideBar.clear = function() {
+        $("#activeTablesList").empty();
+        $("#archivedTableList").empty();
+        $("#orphanedTableList").empty();
+
+        // clear CodeMirror
+        editor.setValue("");
+        editor.clearHistory();
+    };
+
     RightSideBar.initialize = function() {
         var activeTables = [];
         var hiddenTables = [];

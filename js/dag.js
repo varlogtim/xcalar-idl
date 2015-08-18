@@ -8,6 +8,11 @@ window.DagPanel = (function($, DagPanel) {
         setupDagTableDropdown();
     };
 
+    DagPanel.clear = function() {
+        $(".closeDag").click();
+        $(".dagWrap").remove();
+    };
+
     function setupDagPanelSliding() {
         $("#worksheetTabs").on("click", ".dagTab", function(event) {
             var $compSwitch = $("#worksheetTabs .dagTab");

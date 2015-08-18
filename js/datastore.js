@@ -28,6 +28,22 @@ window.DataStore = (function($, DataStore) {
         }
     };
 
+    DataStore.clear = function() {
+        var deferred = jQuery.Deferred();
+
+        DS.clear();
+        DataSampleTable.clear();
+        DataCart.clear();
+        DatastoreForm.clear();
+        DataStore.updateInfo(0);
+
+        GridView.clear()
+        .then(deferred.resolve)
+        .then(deferred.reject);
+
+        return (deferred.promise());
+    };
+
     return (DataStore);
 
 }(jQuery, {}));
@@ -331,7 +347,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             $fileName.focus();
         }
-
     };
 
     DatastoreForm.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim, header, moduleName, funcName) {
@@ -403,6 +418,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
         return (deferred.promise());
     };
 
+    DatastoreForm.clear = function() {
+        $("#importDataButton").click();
+        $("#importDataReset").click();
+    };
+
     function delimiterTranslate($input) {
         if ($input.hasClass("nullVal")) {
             return "";
@@ -442,6 +462,10 @@ window.GridView = (function($, GridView) {
         // initial gDSObj
         setupGridViewButton();
         setupGrids();
+    };
+
+    GridView.clear = function() {
+        return (releaseDatasetPointer());
     };
 
     function setupGridViewButton() {
@@ -543,23 +567,6 @@ window.GridView = (function($, GridView) {
                 console.error(error.error);
                 $('#dataSetTableWrap').html(errorHTML);
             });
-
-            function releaseDatasetPointer() {
-                var deferred = jQuery.Deferred();
-
-                if (gDatasetBrowserResultSetId === 0) {
-                    deferred.resolve();
-                } else {
-                    XcalarSetFree(gDatasetBrowserResultSetId)
-                    .then(function() {
-                        gDatasetBrowserResultSetId = 0;
-                        deferred.resolve();
-                    })
-                    .fail(deferred.reject);
-                }
-
-                return (deferred.promise());
-            }
         });
 
         $gridView.on({
@@ -607,6 +614,23 @@ window.GridView = (function($, GridView) {
                 }
             }
         );
+    }
+
+    function releaseDatasetPointer() {
+        var deferred = jQuery.Deferred();
+
+        if (gDatasetBrowserResultSetId === 0) {
+            deferred.resolve();
+        } else {
+            XcalarSetFree(gDatasetBrowserResultSetId)
+            .then(function() {
+                gDatasetBrowserResultSetId = 0;
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+        }
+
+        return (deferred.promise());
     }
 
     return (GridView);
@@ -1941,6 +1965,10 @@ window.DataSampleTable = (function($, DataSampleTable) {
         });
 
         return (deferred.promise());
+    };
+
+    DataSampleTable.clear = function() {
+        $tableWrap.html("");
     };
 
     function getSampleTable(dsName, jsonKeys, jsons) {
