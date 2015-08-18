@@ -661,6 +661,21 @@
         .colMenu.locked {
             cursor: initial;
         }
+
+        .tableCover {
+            position: absolute;
+            height: auto;
+            width: ~"calc(100% - 5px)";
+            background-color: rgba(0,0,0,0.3);
+            z-index: 5;
+            top: 75px;
+        }
+        tbody {
+            opacity: 1 !important;
+        }
+        th:first-child input {
+            box-shadow: none !important;
+        }
     }
 
     .xcTable.tableJsonModal {

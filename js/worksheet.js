@@ -399,7 +399,6 @@ window.WSManager = (function($, WSManager) {
         if (wsIndex == null) {
             wsIndex = activeWorsheet;
         }
-
         activeWorsheet = wsIndex;
 
         var $tabs   = $workSheetTabSection.find(".worksheetTab");
@@ -422,6 +421,17 @@ window.WSManager = (function($, WSManager) {
 
         // position sticky row column
         moveFirstColumn();
+
+        //vertically align any locked table icons
+        var mainFrameHeight = $('#mainFrame').height();
+        $('.tableLocked:visible').each(function() {
+            var $tableWrap = $(this);
+            var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
+            var topPos = 100 * ((tableHeight / mainFrameHeight) / 2);
+            topPos = Math.min(topPos, 40);
+            $tableWrap.find('.lockedIcon').css('top', topPos + '%');
+            $tableWrap.find('.tableCover').height(tableHeight - 40);
+        });
 
         // refresh table and scrollbar
         var $curActiveTable = $tables.filter(".worksheet-" + wsIndex);
