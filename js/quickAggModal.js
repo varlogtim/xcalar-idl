@@ -9,7 +9,7 @@ window.AggModal = (function($, AggModal) {
     var aggrFunctions = ["Sum", "Avg", "Min", "Max", "Count"];
     var aggCols = [];
 
-    AggModal.setup = function () {
+    AggModal.setup = function() {
         $("#closeAgg").click(function() {
             resetAggTables();
         });
@@ -74,7 +74,9 @@ window.AggModal = (function($, AggModal) {
         });
     };
 
-    AggModal.show = function (tableId, type) {
+    AggModal.show = function(tableId, type) {
+        var deferred = jQuery.Deferred();
+
         $modalBackground.on("click", hideAggOpSelect);
 
         var table     = xcHelper.getTableFromId(tableId);
@@ -103,8 +105,24 @@ window.AggModal = (function($, AggModal) {
             }).click();
         }
 
-        calcAgg($table, tableName);
-        calcCorr($table, tableName);
+        var def1 = calcAgg($table, tableName);
+        var def2 = calcCorr($table, tableName);
+
+        xcHelper.when(def1, def2)
+        .then(function() {
+            SQL.add("Quick Aggregate", {
+                "operation": SQLOps.QuickAgg,
+                "tableId"  : tableId,
+                "tableName": tableName,
+                "type"     : type
+            });
+
+            commitToStorage();
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     };
 
     function aggColsInitialize(table) {
@@ -258,6 +276,8 @@ window.AggModal = (function($, AggModal) {
 
 
     function calcCorr($table, tableName) {
+        var promises = [];
+
         var colLen  = aggCols.length;
         var dupCols = [];
         // First we need to determine if this is a dataset-table
@@ -304,18 +324,23 @@ window.AggModal = (function($, AggModal) {
                         {
                             continue;
                         }
-                        var sub = corrString.replace(/[$]arg1/g, 
+                        var sub = corrString.replace(/[$]arg1/g,
                                                      cols.func.args[0]);
                         sub = sub.replace(/[$]arg2/g, vertCols.func.args[0]);
                         // Run correlation function
-                        runCorr(tableName, sub, i, j, dups);
+                        var promise = runCorr(tableName, sub, i, j, dups);
+                        promises.push(promise);
                     }
                 }
             }
         }
+
+        return (xcHelper.when.apply(window, promises));
     }
 
     function calcAgg($table, tableName) {
+        var promises = [];
+
         var colLen = aggCols.length;
         var funLen = aggrFunctions.length;
         // First we need to determine if this is a dataset-table
@@ -342,12 +367,15 @@ window.AggModal = (function($, AggModal) {
                 // XXX now agg on child of array is not supported
                 if (!$colHeader.hasClass("childOfArray")) {
                     for (var i = 0; i < funLen; i++) {
-                        runAggregate(tableName, cols.func.args[0],
-                                    aggrFunctions[i], i, j, dups);
+                        var promise = runAggregate(tableName, cols.func.args[0],
+                                                aggrFunctions[i], i, j, dups);
+                        promises.push(promise);
                     }
                 }
             }
         }
+
+        return (xcHelper.when.apply(window, promises));
     }
 
     function checkDupCols(colNo) {
@@ -367,8 +395,16 @@ window.AggModal = (function($, AggModal) {
     }
 
     function runAggregate(tableName, fieldName, opString, row, col, dups) {
-        XcalarAggregate(fieldName, tableName, opString)
-        .done(function(value) {
+        var deferred   = jQuery.Deferred();
+        var sqlOptions = {
+            "operation": SQLOps.QuickAggAction,
+            "type"     : "aggreagte",
+            "fieldName": fieldName,
+            "aggrOp"   : opString
+        };
+
+        XcalarAggregate(fieldName, tableName, opString, sqlOptions)
+        .then(function(value) {
             var val;
 
             try {
@@ -386,12 +422,24 @@ window.AggModal = (function($, AggModal) {
                 $("#mainAgg1").find(".aggCol:not(.labels)").eq(colNum)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(val);
             });
-        });
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     }
 
     function runCorr(tableName, evalStr, row, col, dups) {
-        XcalarAggregateHelper(tableName, evalStr)
-        .done(function(value) {
+        var deferred   = jQuery.Deferred();
+        var sqlOptions = {
+            "operation": SQLOps.QuickAggAction,
+            "type"     : "correlation",
+            "evalStr"  : evalStr
+        };
+
+        XcalarAggregateHelper(tableName, evalStr, sqlOptions)
+        .then(function(value) {
             var val;
 
             try {
@@ -433,7 +481,12 @@ window.AggModal = (function($, AggModal) {
                     }
                 }
             });
-        });
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     }
 
     function resetAggTables() {

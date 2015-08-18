@@ -56,7 +56,7 @@ window.SQL = (function($, SQL) {
 
     function getCliHTML(title, options) {
         var html =  '<div class="sqlContentWrap">' +
-                        '<div class="title"> >>' + title + ' :</div>' +
+                        '<div class="title"> >>' + title + ':</div>' +
                         '<div class="content">{';
         var count = 0;
 
@@ -70,7 +70,8 @@ window.SQL = (function($, SQL) {
             }
             var val = JSON.stringify(options[key]);
             html += '<span class="' + key + '">' +
-                        '<span class="sqlKey">' + key + '</span> : ' +
+                        '<span class="sqlKey">' + key + '</span>' +
+                        '<span class="sqlColon">:</span>' +
                         '<span class="sqlVal">' + val + '</span>' +
                     '</span>';
             count++;
@@ -89,50 +90,102 @@ window.SQL = (function($, SQL) {
             return ("");
         }
         switch (options.operation) {
-            case ("duplicateCol"):
+            case (SQLOps.DupCol):
                 // fallthrough
-            case ("delCol"):
+            case (SQLOps.DelDupCol):
                 // fallthrough
-            case ("changeColOrder"):
+            case (SQLOps.DelAllDupCols):
                 // fallthrough
-            case ("addNewCol"):
+            case (SQLOps.DeleteCol):
                 // fallthrough
-            case ("pullCol"):
+            case (SQLOps.ReorderCol):
                 // fallthrough
-            case ("archiveTable"):
+            case (SQLOps.ReorderTable):
                 // fallthrough
-            case ("aggregate"):
+            case (SQLOps.AddNewCol):
                 // fallthrough
-            case ("addTable"):
+            case (SQLOps.PullCol):
                 // fallthrough
-            case ("renameCol"):
+            case (SQLOps.ArchiveTable):
                 // fallthrough
-            case ("textAlign"):
+            case (SQLOps.TableBulkActions):
                 // fallthrough
-            case ("hideCols"):
+            case (SQLOps.Aggr):
                 // fallthrough
-            case ("unHideCols"):
+            case (SQLOps.RenameCol):
                 // fallthrough
-            case ("previewDataSet"):
+            case (SQLOps.TextAlign):
                 // fallthrough
-            case ("destroyPreviewDataSet"):
+            case (SQLOps.HideCols):
+                // fallthrough
+            case (SQLOps.UnHideCols):
+                // fallthrough
+            case (SQLOps.PreviewDS):
+                // fallthrough
+            case (SQLOps.DestroyPreviewDS):
+                // fallthrough
+            case (SQLOps.SortTableCols):
+                // fallthrough
+            case (SQLOps.HideTable):
+                // fallthrough
+            case (SQLOps.UnhideTable):
+                // fallthrough
+            case (SQLOps.AddWS):
+                // fallthrough
+            case (SQLOps.SwitchWS):
+                // fallthrough
+            case (SQLOps.DelWS):
+                // fallthrough
+            case (SQLOps.MoveTableToWS):
+                // fallthrough
+            case (SQLOps.AddNoSheetTables):
+                // fallthrough
+            case (SQLOps.CreateFolder):
+                // fallthrough
+            case (SQLOps.DSRename):
+                // fallthrough
+            case (SQLOps.DSDropIn):
+                // fallthrough
+            case (SQLOps.DSInsert):
+                // fallthrough
+            case (SQLOps.DSToDir):
+                // fallthrough
+            case (SQLOps.DSDropBack):
+                // fallthrough
+            case (SQLOps.DelFolder):
+                // fallthrough
+            case (SQLOps.Profile):
+                // fallthrough
+            case (SQLOps.ProfileSort):
+                // fallthrough
+            case (SQLOps.ProfileClose):
+                // fallthrough
+            case (SQLOps.QuickAgg):
+                // fallthrough
                 // XXX should export tables have an effect?
                 break;
 
             // Use reverse parser
-            case ("destroyDataSet"):
-            case ("deleteTable"):
+            case (SQLOps.DestroyDS):
+            // XXX not fully finished
+            case (SQLOps.DeleteTable):
+            // XXX hang on as export table's api will change
             case ("exportTable"):
-            case ("renameDatasetCol"):
-            case ("changeDataType"):
-            case ("loadDataSet"):
-            case ("filter"):
-            case ("sort"):
-            case ("indexFromDataset"):
-            case ("join"):
-            case ("groupBy"):
-            case ("mapColumn"):
-            case ("renameTable"):
+            case (SQLOps.DSLoad):
+            case (SQLOps.Filter):
+            case (SQLOps.Sort):
+            case (SQLOps.IndexDS):
+            case (SQLOps.Join):
+            case (SQLOps.CheckIndex):
+            case (SQLOps.GroupBy):
+            case (SQLOps.GroupByIndex):
+            case (SQLOps.Map):
+            case (SQLOps.JoinMap):
+            case (SQLOps.GroupbyMap):
+            case (SQLOps.RenameTable):
+            case (SQLOps.RenameOrphanTable):
+            case (SQLOps.ProfileAction):
+            case (SQLOps.QuickAggAction):
                 string += cli;
                 break;
             default:

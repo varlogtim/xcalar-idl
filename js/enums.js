@@ -58,7 +58,7 @@ var ArchiveTable = {
 
 var TableType = {
     "InActive": "inactive",
-    "Active"  : "ctive",
+    "Active"  : "active",
     "Orphan"  : "orphaned",
     "Unknown" : "unknown source"
 };
@@ -102,4 +102,63 @@ var keyCode = {
     Period: 190,
     SingleQuote: 222,
 };
- 
+
+var SQLType = {
+    Fail: "fail handler"
+};
+
+var SQLOps = {
+    DSLoad : "loadDataSet",
+    IndexDS: "indexFromDataset",
+    Sort: "sort",
+    Filter: "filter",
+    Aggr: "aggregate",
+    Map: "map",
+    JoinMap: "multiJoinMap",
+    GroupbyMap: "groupbyMap",
+    CheckIndex: "checkIndex",
+    Join: "join",
+    GroupBy: "groupBy",
+    GroupByIndex: "groupByIndex",
+    RenameTable: "renameTable",
+    RenameOrphanTable: "renameOrphanTable",
+    DeleteTable: "deleteTable",
+    DestroyPreviewDS: "destroyPreviewDataSet",
+    DestroyDS: "destroyDataSet",
+    // XI operation
+    AddNewCol: "addNewCol",
+    DeleteCol: "deleteCol",
+    HideCols: "hideCols",
+    UnHideCols: "unHideCols",
+    TextAlign: "textAlign",
+    DupCol: "duplicateCol",
+    DelDupCol: "delDupCol",
+    DelAllDupCols: "delAllDupCols",
+    ReorderCol: "reorderCol",
+    ReorderTable: "reorderTable",
+    RenameCol: "renameCol",
+    PullCol: "pullCol",
+    ArchiveTable: "archiveTable",
+    TableBulkActions: "tableBulkActions",
+    SortTableCols: "sortTableCols",
+    HideTable: "hideTable",
+    UnhideTable: "unhideTable",
+    AddWS: "addWorksheet",
+    SwitchWS: "switchWorksheet",
+    DelWS: "deleteWorksheet",
+    MoveTableToWS: "moveTableToWorkSheet",
+    AddNoSheetTables: "addNoSheetTables",
+    CreateFolder: "createFolder",
+    DSRename: "dsRename",
+    DSDropIn: "dsDropIn",
+    DSInsert: "dsInsert",
+    DSToDir: "goToDir",
+    DSDropBack: "dsBack",
+    DelFolder: "deleteFolder",
+    ProfileAction: "profileAction",
+    Profile: "profile",
+    ProfileSort: "profileSort",
+    ProfileClose: "profileClose",
+    QuickAggAction: "quickAggAction",
+    QuickAgg: "quickAgg"
+};

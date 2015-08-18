@@ -245,7 +245,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
             // Should add table id/tableName!
             SQL.add("RightSideBar Table Actions", {
-                "operation": "tableBulkActions",
+                "operation": SQLOps.TableBulkActions,
                 "action"   : action,
                 "tableName": tableName,
                 "tableType": tableType
@@ -266,7 +266,7 @@ window.RightSideBar = (function($, RightSideBar) {
         if (!tableId) {
             newTableName = tableName + Authentication.fetchHashTag();
             var sqlOptions = {
-                "operation": "renameTable",
+                "operation": SQLOps.RenameOrphanTable,
                 "oldName"  : tableName,
                 "newName"  : newTableName
             };
@@ -412,6 +412,14 @@ window.RightSideBar = (function($, RightSideBar) {
             $(this).addClass("machineSQL");
             $("#rightBarMachineTextArea").show();
             $("#rightBarTextArea").hide();
+        });
+
+        $rightSideBar.on("click", ".copySQL", function() {
+            var $hiddenInput = $("<input>");
+            $("body").append($hiddenInput);
+            $hiddenInput.val(JSON.stringify(SQL.getHistory())).select();
+            document.execCommand("copy");
+            $hiddenInput.remove();
         });
 
         $rightSideBar.draggable({
@@ -910,11 +918,13 @@ window.RightSideBar = (function($, RightSideBar) {
                         Alert.error("Invalid worksheet name",
                                     "please input a valid name!");
                     } else {
+                        var tableIds = [];
                         $noSheetTables.each(function() {
                             var tableId = $(this).data("id");
-                            WSManager.rmNoSheetTable(tableId);
-                            WSManager.addTable(tableId, wsIndex);
+                            tableIds.push(tableId);
                         });
+
+                        WSManager.addNoSheetTables(tableIds, wsIndex);
 
                         addBulkTable(TableType.InActive);
                     }

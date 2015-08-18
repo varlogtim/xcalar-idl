@@ -94,12 +94,12 @@ window.WSManager = (function($, WSManager) {
         }
     };
 
-    WSManager.reorderTable = function(tableId, scrIndex, desIndex) {
+    WSManager.reorderTable = function(tableId, srcIndex, desIndex) {
         var wsIndex = WSManager.getWSFromTable(tableId);
         var tables  = worksheets[wsIndex].tables;
 
-        var t = tables[scrIndex];
-        tables.splice(scrIndex, 1);
+        var t = tables[srcIndex];
+        tables.splice(srcIndex, 1);
         tables.splice(desIndex, 0, t);
     };
 
@@ -308,12 +308,12 @@ window.WSManager = (function($, WSManager) {
 
         WSManager.focusOnWorksheet(newIndex, false, tableId);
         SQL.add("Move Table to worksheet", {
-            "operation"        : "moveTableToWorSheet",
+            "operation"        : SQLOps.MoveTableToWS,
             "tableName"        : gTables[tableId].tableName,
             "tableId"          : tableId,
             "oldWorksheetIndex": oldIndex,
             "oldWorksheetName" : worksheets[oldIndex].name,
-            "worksheetIndex"   : newIndex,
+            "newIndex"         : newIndex,
             "worksheetName"    : wsName
         });
 
@@ -563,6 +563,21 @@ window.WSManager = (function($, WSManager) {
         }
     };
 
+    WSManager.addNoSheetTables = function(tableIds, wsIndex) {
+        for (var i = 0, len = tableIds.length; i < len; i++) {
+            var tableId = tableIds[i];
+            WSManager.rmNoSheetTable(tableId);
+            WSManager.addTable(tableId, wsIndex);
+        }
+
+        SQL.add("Add no sheet tables", {
+            "operation"    : SQLOps.AddNoSheetTables,
+            "tableIds"     : tableIds,
+            "worksheetName": worksheets[wsIndex].name,
+            "wsIndex"      : wsIndex
+        });
+    };
+
     /**
      * Initialize worksheet, helper function for WSManager.setup()
      */
@@ -598,7 +613,7 @@ window.WSManager = (function($, WSManager) {
             var wsIndex = newWorksheet();
 
             SQL.add("Create Worksheet", {
-                "operation"     : "addWorksheet",
+                "operation"     : SQLOps.AddWS,
                 "worksheetName" : worksheets[wsIndex].name,
                 "worksheetIndex": wsIndex
             });
@@ -638,7 +653,7 @@ window.WSManager = (function($, WSManager) {
                 WSManager.focusOnWorksheet(wsIndex);
 
                 SQL.add("Switch Worksheet", {
-                    "operation"        : "switchWorksheet",
+                    "operation"        : SQLOps.SwitchWS,
                     "oldWorksheetIndex": curWS,
                     "oldWorksheetName" : worksheets[curWS].name,
                     "newWorksheetIndex": wsIndex,
@@ -799,7 +814,7 @@ window.WSManager = (function($, WSManager) {
         var worsheet = worksheets[wsIndex];
         var msg;
         var sqlOptions = {
-            "operation"     : "deleteWorksheet",
+            "operation"     : SQLOps.DelWS,
             "worksheetIndex": wsIndex,
             "worksheetName" : worsheet.name
         };

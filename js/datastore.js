@@ -398,7 +398,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
             DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                 header, moduleName, funcName)
             .then(function() {
-                DataStore.updateInfo();
                 StatusMessage.success(msgId);
                 deferred.resolve();
             })
@@ -497,17 +496,7 @@ window.GridView = (function($, GridView) {
 
          // click "Add New Folder" button to add new folder
         $("#addFolderBtn").click(function() {
-            var ds = DS.create({
-                "name"    : "New Folder",
-                "isFolder": true
-            });
-
-            SQL.add("Create folder", {
-                "operation": "createFolder",
-                "dsName"   : ds.name,
-                "dsId"     : ds.id
-            });
-            commitToStorage();
+            DS.newFolder();
         });
 
         // click "Back Up" button to go back to parent folder
@@ -1131,7 +1120,7 @@ window.DataCart = (function($, DataCart) {
 
                 // add sql
                 var sqlOptions = {
-                    "operation": "indexFromDataset",
+                    "operation": SQLOps.IndexDS,
                     "dsName"   : datasetName,
                     "tableName": tableName,
                     "columns"  : []
@@ -1505,7 +1494,7 @@ window.DataPreview = (function($, DataPreview) {
 
         if (tableName !== "" && tableName != null) {
             var sqlOptions = {
-                "operation": "destroyPreviewDataSet",
+                "operation": SQLOps.DestroyPreviewDS,
                 "dsName"   : tableName
             };
 
@@ -2412,6 +2401,20 @@ window.DS = (function ($, DS) {
         }
     };
 
+    DS.newFolder = function() {
+        var ds = DS.create({
+            "name"    : "New Folder",
+            "isFolder": true
+        });
+
+        SQL.add("Create folder", {
+            "operation": SQLOps.CreateFolder,
+            "dsName"   : ds.name,
+            "dsId"     : ds.id
+        });
+        commitToStorage();
+    };
+
     /**
      * Create datasets or folder
      * @param options
@@ -2499,15 +2502,15 @@ window.DS = (function ($, DS) {
         $grid.click();
         
         var sqlOptions = {
-            "operation" : "loadDataSet",
-            "dsPath"    : loadURL,
+            "operation" : SQLOps.DSLoad,
+            "loadURL"   : loadURL,
             "dsName"    : dsName,
             "dsFormat"  : dsFormat,
             "hasHeader" : hasHeader,
-            "fieldDelim": fieldDelim || "Null",
-            "lineDelim" : lineDelim || "Null",
-            "moduleName": moduleName || null,
-            "funcName"  : funcName || null
+            "fieldDelim": fieldDelim,
+            "lineDelim" : lineDelim,
+            "moduleName": moduleName,
+            "funcName"  : funcName
         };
 
         XcalarLoad(loadURL, dsFormat, dsName,
@@ -2555,7 +2558,8 @@ window.DS = (function ($, DS) {
                     gDatasetBrowserResultSetId = 0;
                     return (XcalarDestroyDataset(dsName, {
                         "operation": "destroyDataSet",
-                        "dsName"   : dsName
+                        "dsName"   : dsName,
+                        "sqlType"  : SQLType.Fail
                     }));
                 })
                 .fail(function(deferredError) {
@@ -2564,6 +2568,9 @@ window.DS = (function ($, DS) {
             }
             
             deferred.reject(error);
+        })
+        .always(function() {
+            DataStore.updateInfo();
         });
 
         return (deferred.promise());
@@ -2595,7 +2602,7 @@ window.DS = (function ($, DS) {
             // preview ds is deleted here!!
             if (dsName.endsWith(".preview")) {
                 var sqlOptions = {
-                    "operation": "destroyPreviewDataSet",
+                    "operation": SQLOps.DestroyPreviewDS,
                     "dsName"   : dsName
                 };
                 XcalarDestroyDataset(dsName, sqlOptions);
@@ -2691,7 +2698,7 @@ window.DS = (function ($, DS) {
             if (ds.name === newName) {
                 // valid rename
                 SQL.add("Rename Folder", {
-                    "operation": "dsRename",
+                    "operation": SQLOps.DSRename,
                     "dsId"     : dsId,
                     "oldName"  : oldName,
                     "newName"  : newName
@@ -2747,7 +2754,7 @@ window.DS = (function ($, DS) {
             $grid.remove();
 
             SQL.add("Delete Folder", {
-                "operation": "deleteFolder",
+                "operation": SQLOps.DelFolder,
                 "dsName"   : ds.name,
                 "dsId"     : ds.id
             });
@@ -2778,7 +2785,7 @@ window.DS = (function ($, DS) {
         DS.refresh();
 
         SQL.add("Go to folder", {
-            "operation" : "goToDir",
+            "operation" : SQLOps.DSToDir,
             "folderId"  : folderId,
             "folderName": DS.getDSObj(folderId).name
         });
@@ -2907,7 +2914,7 @@ window.DS = (function ($, DS) {
      * @param {JQuery} $grid The element to be removed
      * @param {string} dsName The dataset's name
      */
-    function delDSHelper ($grid, dsName) {
+    function delDSHelper($grid, dsName) {
         $grid.removeClass("active");
         $grid.addClass("inactive");
         $grid.append('<div class="waitingIcon"></div>');
@@ -2915,7 +2922,7 @@ window.DS = (function ($, DS) {
         $grid.find(".waitingIcon").fadeIn(200);
 
         var sqlOptions = {
-            "operation": "destroyDataSet",
+            "operation": SQLOps.DestroyDS,
             "dsName"   : dsName
         };
 
@@ -3413,7 +3420,7 @@ function dsDropIn($grid, $target) {
         DS.refresh();
 
         SQL.add("Drop dataset/folder", {
-            "operation"   : "dsDropIn",
+            "operation"   : SQLOps.DSDropIn,
             "dsId"        : dragDsId,
             "dsName"      : ds.name,
             "targetDSId"  : targetId,
@@ -3462,7 +3469,7 @@ function dsInsert($grid, $sibling, isBefore) {
         DS.refresh();
 
         SQL.add("Insert dataset/folder", {
-            "operation"    : "dsInsert",
+            "operation"    : SQLOps.DSInsert,
             "dsId"         : dragDsId,
             "dsName"       : ds.name,
             "siblingDSId"  : siblingId,
@@ -3486,7 +3493,7 @@ function dsBack($grid) {
         DS.refresh();
 
         SQL.add("Drop dataset/folder back", {
-            "operation"    : "dsBack",
+            "operation"    : SQLOps.DSDropBack,
             "dsId"         : ds.id,
             "dsName"       : ds.name,
             "newFolderId"  : grandPaId,

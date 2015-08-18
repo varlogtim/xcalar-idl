@@ -199,13 +199,12 @@ window.ColManager = (function($, ColManager) {
             
         matchHeaderSizes(null, $table, true);
         xcHelper.removeSelectionRange();
-        colNames = colNames.join(", ");
-        colNums = colNums.join(", ");
 
          // add SQL
         SQL.add("Delete Column", {
-            "operation": "delCol",
+            "operation": SQLOps.DeleteCol,
             "tableName": tableName,
+            "tableId"  : tableId,
             "colNames" : colNames,
             "colNums"  : colNums
         });
@@ -276,7 +275,7 @@ window.ColManager = (function($, ColManager) {
 
             // add sql
             SQL.add("Pull Column", {
-                "operation"     : "pullCol",
+                "operation"     : SQLOps.PullCol,
                 "tableName"     : tableName,
                 "tableId"       : tableId,
                 "siblColName"   : siblColName,
@@ -292,7 +291,7 @@ window.ColManager = (function($, ColManager) {
         .fail(deferred.reject);
 
         return (deferred.promise());
-    }
+    };
 
     ColManager.renameCol = function(colNum, tableId, newName) {
         var table   = gTables[tableId];
@@ -304,11 +303,12 @@ window.ColManager = (function($, ColManager) {
         $table.find('.editableHead.col' + colNum).val(newName);
 
         SQL.add("Rename Column", {
-            "operation" : "renameCol",
-            "tableName" : table.tableName,
-            "colName"   : oldName,
-            "newColName": newName,
-            "colNum"    : colNum
+            "operation": SQLOps.RenameCol,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colName"  : oldName,
+            "colNum"   : colNum,
+            "newName"  : newName
         });
     };
 
@@ -342,13 +342,13 @@ window.ColManager = (function($, ColManager) {
             }
         }
 
-       $table.find('.colNumToChange')
+        $table.find('.colNumToChange')
             .addClass('col' + newColNum)
             .removeClass('colNumToChange');
 
         // add sql
         SQL.add("Change Column Order", {
-            "operation": "reorderCol",
+            "operation": SQLOps.ReorderCol,
             "tableName": table.tableName,
             "tableId"  : tableId,
             "colName"  : colName,
@@ -565,7 +565,7 @@ window.ColManager = (function($, ColManager) {
         });
         // add sql
         SQL.add("Duplicate Column", {
-            "operation" : "duplicateCol",
+            "operation" : SQLOps.DupCol,
             "tableName" : table.tableName,
             "tableId"   : tableId,
             "colName"   : tableCols[colNum - 1].name,
@@ -588,72 +588,50 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     };
 
-    ColManager.delDupCols = function(colNum, tableId, forwardCheck) {
-        var index   = colNum - 1;
-        var columns = gTables[tableId].tableCols;
-        var numCols = columns.length;
-        var args    = columns[index].func.args;
-        var start   = forwardCheck ? index : 0;
-        var operation;
+    ColManager.delDupCols = function(colNum, tableId) {
+        // col Name will change after delete the col
+        var table = gTables[tableId];
+        var colName = table.tableCols[colNum - 1].name;
 
-        if (args) {
-            operation = args[0];
-        }
-
-        for (var i = start; i < numCols; i++) {
-            if (i === index) {
-                continue;
-            }
-            if (columns[i].func.args) {
-                if (columns[i].func.args[0] === operation &&
-                    columns[i].func.func !== "raw")
-                {
-                    delColandAdjustLoop();
-                }
-            } else if (operation == null) {
-                delColandAdjustLoop();
-            }
-        }
-
-        function delColandAdjustLoop() {
-            delColHelper((i + 1), tableId);
-            if (i < index) {
-                index--;
-            }
-            numCols--;
-            i--;
-        }
+        delDupColHelper(colNum, tableId);
+        SQL.add("Delete Duplicate Columns", {
+            "operation": SQLOps.DelDupCol,
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colNum"   : colNum,
+            "colName"  : colName
+        });
     };
 
     ColManager.delAllDupCols = function(tableId) {
         var table   = gTables[tableId];
         var columns = table.tableCols;
+        var forwardCheck = true;
 
         for (var i = 0; i < columns.length; i++) {
             if (columns[i].func.func && columns[i].func.func === "raw") {
                 continue;
             } else {
-                var forwardCheck = true;
-                ColManager.delDupCols(i + 1, tableId, forwardCheck);
+                delDupColHelper(i + 1, tableId, forwardCheck);
             }
         }
 
         SQL.add("Delete All Duplicate Columns", {
-            "operation": "delAllDupCols",
+            "operation": SQLOps.DelAllDupCols,
             "tableName": table.tableName,
             "tableId"  : tableId
         });
     };
 
-    ColManager.hideCols = function(columns, tableId) {
+    ColManager.hideCols = function(colNums, tableId) {
         // for multiple columns
         var $table   = $('#xcTable-' + tableId);
-        var numCols  = columns.length;
+        var numCols  = colNums.length;
         var table    = gTables[tableId];
         var colNames = [];
 
         for (var i = 0; i < numCols; i++) {
-            var colNum   = columns[i];
+            var colNum   = colNums[i];
             var $th      = $table.find(".th.col" + colNum);
             var $thInput = $th.find("input");
             var $cols    = $table.find(".col" + colNum);
@@ -679,32 +657,33 @@ window.ColManager = (function($, ColManager) {
 
         if (numCols > 1) {
             var matchOptions = {
-                "start": columns[0],
-                "end"  : columns[numCols - 1]
+                "start": colNums[0],
+                "end"  : colNums[numCols - 1]
             };
             matchHeaderSizes(null, $table, true, matchOptions);
             xcHelper.removeSelectionRange();
         } else {
-            matchHeaderSizes(columns[0], $table);
+            matchHeaderSizes(colNums[0], $table);
         }
 
         SQL.add("Hide Columns", {
-            "operation": "hideCols",
+            "operation": SQLOps.HideCols,
             "tableName": table.tableName,
-            "colNames" : colNames.join(","),
-            "colNums"  : columns.join(",")
+            "tableId"  : tableId,
+            "colNames" : colNames,
+            "colNums"  : colNums
         });
     };
 
-    ColManager.unhideCols = function(columns, tableId, options) {
+    ColManager.unhideCols = function(colNums, tableId, hideOptions) {
         var $table     = $('#xcTable-' + tableId);
         var table      = gTables[tableId];
-        var numCols    = columns.length;
+        var numCols    = colNums.length;
         var colNames   = [];
-        var autoResize = options && options.autoResize;
+        var autoResize = hideOptions && hideOptions.autoResize;
 
         for (var i = 0; i < numCols; i++) {
-            var colNum   = columns[i];
+            var colNum   = colNums[i];
             var $th      = $table.find(".th.col" + colNum);
             var $thInput = $th.find("input");
             var $cols    = $table.find(".col" + colNum);
@@ -728,22 +707,23 @@ window.ColManager = (function($, ColManager) {
         if (autoResize) {
             if (numCols > 1) {
                 var matchOptions = {
-                    "start": columns[0],
-                    "end"  : columns[numCols - 1]
+                    "start": colNums[0],
+                    "end"  : colNums[numCols - 1]
                 };
                 matchHeaderSizes(null, $table, true, matchOptions);
                 xcHelper.removeSelectionRange();
             } else {
-                matchHeaderSizes(columns[0], $table);
+                matchHeaderSizes(colNums[0], $table);
             }
         }
 
         SQL.add("Unhide Columns", {
-            "operation" : "unHideCols",
-            "tableName" : table.tableName,
-            "colNames"  : colNames.join(","),
-            "colNums"   : columns.join(","),
-            "autoResize": autoResize
+            "operation"  : SQLOps.UnHideCols,
+            "tableName"  : table.tableName,
+            "tableId"    : tableId,
+            "colNames"   : colNames,
+            "colNums"    : colNums,
+            "hideOptions": hideOptions
         });
     };
 
@@ -771,6 +751,7 @@ window.ColManager = (function($, ColManager) {
         SQL.add("Text Align", {
             "operation": "textAlign",
             "tableName": table.tableName,
+            "tableId"  : tableId,
             "colName"  : curCol.name,
             "colNum"   : colNum,
             "alignment": alignment
@@ -1117,6 +1098,43 @@ window.ColManager = (function($, ColManager) {
         }
 
         $table.find('th.col' + newColid).removeClass('newColumn');
+    }
+
+    function delDupColHelper(colNum, tableId, forwardCheck) {
+        var index   = colNum - 1;
+        var columns = gTables[tableId].tableCols;
+        var numCols = columns.length;
+        var args    = columns[index].func.args;
+        var start   = forwardCheck ? index : 0;
+        var operation;
+
+        if (args) {
+            operation = args[0];
+        }
+
+        for (var i = start; i < numCols; i++) {
+            if (i === index) {
+                continue;
+            }
+            if (columns[i].func.args) {
+                if (columns[i].func.args[0] === operation &&
+                    columns[i].func.func !== "raw")
+                {
+                    delColandAdjustLoop();
+                }
+            } else if (operation == null) {
+                delColandAdjustLoop();
+            }
+        }
+
+        function delColandAdjustLoop() {
+            delColHelper((i + 1), tableId);
+            if (i < index) {
+                index--;
+            }
+            numCols--;
+            i--;
+        }
     }
 
     // Help Functon for pullAllCols and pullCOlHelper

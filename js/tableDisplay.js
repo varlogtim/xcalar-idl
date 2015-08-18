@@ -284,7 +284,8 @@ function deleteTable(tableIdOrName, tableType) {
     var resultSetId = table.resultSetId;
 
     var sqlOptions = {
-        "operation": "deleteTable",
+        "operation": SQLOps.DeleteTable,
+        "tableId"  : tableId,
         "tableName": tableName,
         "tableType": tableType
     };
@@ -341,7 +342,7 @@ function deleteTable(tableIdOrName, tableType) {
 
             setTimeout(function() {
                 var activeTable = gTables[gActiveTableId];
-                if (activeTable && activeTable.resultSetCount !== 0) { 
+                if (activeTable && activeTable.resultSetCount !== 0) {
                     generateFirstVisibleRowNum();
                 }
             }, 300);
@@ -687,7 +688,7 @@ function generateColDropDown(tableId) {
                 '<ul class="subColMenu">' +
                     '<li class="addColumns addColLeft">' +
                     'On the left</li>' +
-                    '<li class="addColumns">On the right</li>' +
+                    '<li class="addColumns addColRight">On the right</li>' +
                     '<div class="subColMenuArea"></div>' +
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +

@@ -403,11 +403,15 @@ window.JoinModal = (function($, JoinModal) {
 
             var lNewId = xcHelper.getTableId(lNewName);
             var rNewId = xcHelper.getTableId(rNewName);
+
+            var joinOptions = {
+                "lRemoved": lRemoved,
+                "rRemoved": rRemoved
+            };
             
             return xcFunction.join(lColNum - 1, lNewId,
                                     rColNum - 1, rNewId,
-                                    joinType, newTableName,
-                                    lRemoved, rRemoved);
+                                    joinType, newTableName, joinOptions);
         });
     }
 

@@ -869,11 +869,12 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var tableName = xcHelper.getTableFromId(tableId).tableName;
+        var tableName = gTables[tableId].tableName;
         archiveTable(tableId, ArchiveTable.Keep);
         // add sql
         SQL.add('Archive Table', {
-            "operation": "archiveTable",
+            "operation": SQLOps.ArchiveTable,
+            "tableId"  : tableId,
             "tableName": tableName
         });
     });
@@ -890,7 +891,7 @@ function addTableMenuActions($tableMenu) {
         moveTableTitles();
 
         SQL.add("Hide Table", {
-            "operation": "hideTable",
+            "operation": SQLOps.HideTable,
             "tableName": gTables[tableId].tableName,
             "tableId"  : tableId
         });
@@ -909,8 +910,8 @@ function addTableMenuActions($tableMenu) {
         var $table = $('#xcTable-' + tableId);
         $table.find('.rowGrab').width($table.width());
 
-         SQL.add("UnHide Table", {
-            "operation": "hideTable",
+        SQL.add("UnHide Table", {
+            "operation": SQLOps.UnhideTable,
             "tableName": gTables[tableId].tableName,
             "tableId"  : tableId
         });
@@ -1189,7 +1190,7 @@ function sortAllTableColumns(tableId, direction) {
     RightSideBar.updateTableInfo(tableId);
 
     SQL.add("Sort Table Columns", {
-        "operation": "sortTableCols",
+        "operation": SQLOps.SortTableCols,
         "tableName": table.tableName,
         "tableId"  : tableId,
         "direction": direction
@@ -1624,10 +1625,11 @@ function addColMenuActions($colMenu) {
         var colNum = $colMenu.data('colNum');
 
         // add sql
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
         var sqlOptions = {
-            "operation"  : "addNewCol",
+            "operation"  : SQLOps.AddNewCol,
             "tableName"  : table.tableName,
+            "tableId"    : tableId,
             "siblColName": table.tableCols[colNum - 1].name,
             "siblColNum" : colNum
         };
@@ -1647,6 +1649,7 @@ function addColMenuActions($colMenu) {
         });
 
         SQL.add("Add New Column", sqlOptions);
+        commitToStorage();
     });
 
     $colMenu.on('mouseup', '.deleteColumn', function(event) {
@@ -1663,16 +1666,6 @@ function addColMenuActions($colMenu) {
         }
         var colNum = $colMenu.data('colNum');
         ColManager.delDupCols(colNum, tableId);
-        // Add sql here because ColManager.delDupCols() also used by
-        // ColManager.delAllDupCols()
-        var table = gTables[tableId];
-        SQL.add("Delete Duplicate Columns", {
-            "operation": "delDupCol",
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colNum"   : colNum,
-            "colName"  : table.tableCols[colNum - 1].name
-        });
     });
 
     $colMenu.on('keypress', '.renameCol input', function(event) {
@@ -2448,7 +2441,8 @@ function dragTableMouseUp() {
 
     if (dragObj.tableIndex !== dragObj.originalIndex) {
         // reorder only if order changed
-        reorderAfterTableDrop();
+        reorderAfterTableDrop(gDragObj.tableId, gDragObj.originalIndex,
+                                gDragObj.tableIndex);
     }
     moveTableDropdownBoxes();
     moveFirstColumn();
@@ -2560,11 +2554,8 @@ function sizeTableForDragging() {
     gDragObj.table.height(tableHeight);
 }
 
-function reorderAfterTableDrop() {
-    var tableId = gDragObj.tableId;
-    var tableIndex = gDragObj.tableIndex;
-
-    WSManager.reorderTable(tableId, gDragObj.originalIndex, tableIndex);
+function reorderAfterTableDrop(tableId, srcIndex, desIndex) {
+    WSManager.reorderTable(tableId, srcIndex, desIndex);
 
     var newIndex = WSManager.getTablePosition(tableId);
 
@@ -2573,11 +2564,19 @@ function reorderAfterTableDrop() {
 
     if (newIndex === 0) {
         $('.dagArea').find('.legendArea').after($dagWrap);
-    } else if (gDragObj.originalIndex < tableIndex) {
+    } else if (srcIndex < desIndex) {
         $dagWraps.eq(newIndex).after($dagWrap);
-    } else if (gDragObj.originalIndex > tableIndex) {
+    } else if (srcIndex > desIndex) {
         $dagWraps.eq(newIndex).before($dagWrap);
     }
+
+    SQL.add("Change Table Order", {
+        "operation": "reorderTable",
+        "tableId"  : tableId,
+        "tableName": gTables[tableId].tableName,
+        "srcIndex" : srcIndex,
+        "desIndex" : desIndex
+    });
 }
 
 function moveFirstColumn($targetTable) {

@@ -41,6 +41,9 @@ window.STATSManager = (function($, STATSManager, d3) {
     STATSManager.setup = function() {
         $statsModal.on("click", ".cancel, .close", function() {
             closeStats();
+            SQL.add("Close Profile", {
+                "operation": SQLOps.ProfileClose
+            });
         });
 
         $statsModal.draggable({
@@ -111,12 +114,15 @@ window.STATSManager = (function($, STATSManager, d3) {
     };
 
     STATSManager.run = function(tableId, colNum) {
-        var table = xcHelper.getTableFromId(tableId);
+        var deferred = jQuery.Deferred();
+
+        var table = gTables[tableId];
         var col   = table.tableCols[colNum - 1];
 
         if (!col.func.args) {
             console.error("No backend col name!");
-            return;
+            deferred.reject("No backend col name!");
+            return (deferred.promise());
         }
 
         var colName = col.func.args[0];
@@ -136,7 +142,23 @@ window.STATSManager = (function($, STATSManager, d3) {
             };
         }
 
-        generateStats(table);
+        generateStats(table)
+        .then(function() {
+            SQL.add("Profile", {
+                "operation": SQLOps.Profile,
+                "tableName": table.tableName,
+                "tableId"  : tableId,
+                "colNum"   : colNum,
+                "colName"  : colName
+            });
+
+            deferred.resolve();
+            commitToStorage();
+
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     };
 
     function closeStats() {
@@ -162,8 +184,11 @@ window.STATSManager = (function($, STATSManager, d3) {
     }
 
     function generateStats(table) {
-        var type = statsCol.type;
+        var deferred  = jQuery.Deferred();
+        var type      = statsCol.type;
         var tableName = table.tableName;
+        var promises  = [];
+        var promise;
 
         // do aggreagte
         statsCol.aggInfo = statsCol.aggInfo || {};
@@ -173,7 +198,8 @@ window.STATSManager = (function($, STATSManager, d3) {
             if (statsCol.aggInfo[aggkey] == null) {
                 // should do aggreagte
                 if (type === "integer" || type === "decimal") {
-                    runAgg(tableName, aggkey, statsCol);
+                    promise = runAgg(tableName, aggkey, statsCol);
+                    promises.push(promise);
                 } else {
                     statsCol.aggInfo[aggkey] = "N/A";
                 }
@@ -185,6 +211,8 @@ window.STATSManager = (function($, STATSManager, d3) {
             // check if the groupbyTable is not deleted
             // XXX use XcalarGetTables because XcalarSetAbsolute cannot
             // return fail if resultSetId is not free
+            var innerDeferred = jQuery.Deferred();
+
             XcalarGetTables(statsCol.groupByInfo.groupbyTable)
             .then(function(tableInfo) {
                 if (tableInfo == null || tableInfo.numNodes === 0) {
@@ -193,18 +221,32 @@ window.STATSManager = (function($, STATSManager, d3) {
                         "isComplete": false
                     };
 
-                    runGroupby(table, statsCol);
+                    runGroupby(table, statsCol)
+                    .then(innerDeferred.resolve)
+                    .fail(innerDeferred.reject);
+                } else {
+                    innerDeferred.resolve();
                 }
 
                 showStats();
             })
             .fail(function(error) {
                 console.error(error);
+                innerDeferred.reject(error);
             });
+
+            promises.push(innerDeferred.promise());
         } else {
-            runGroupby(table, statsCol);
+            promise = runGroupby(table, statsCol);
+            promises.push(promise);
             showStats();
         }
+
+        xcHelper.when.apply(window, promises)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     }
 
     function showStats() {
@@ -321,10 +363,18 @@ window.STATSManager = (function($, STATSManager, d3) {
 
     function runAgg(tableName, aggkey, curStatsCol) {
         // pass in statsCol beacuse close modal may clear the global statsCol
-        var fieldName = curStatsCol.colName;
-        var opString  = aggMap[aggkey];
+        var deferred   = jQuery.Deferred();
+        var fieldName  = curStatsCol.colName;
+        var opString   = aggMap[aggkey];
+        var sqlOptions = {
+            "operation": SQLOps.ProfileAction,
+            "action"   : "aggregate",
+            "tableName": tableName,
+            "colName"  : fieldName,
+            "aggrOp"   : opString
+        };
 
-        XcalarAggregate(fieldName, tableName, opString)
+        XcalarAggregate(fieldName, tableName, opString, sqlOptions)
         .then(function(value) {
             var val;
             try {
@@ -340,19 +390,26 @@ window.STATSManager = (function($, STATSManager, d3) {
                     $statsModal.find(".aggInfoSection ." + aggkey)
                             .removeClass("animatedEllipsis").text(val);
                 }
+
+                deferred.resolve();
             } catch (error) {
                 console.error(error, obj);
                 val = "";
+                deferred.reject(error);
             }
         })
         .fail(function(error) {
             closeStats();
             Alert.error("Stats Analysis Fails", error);
             console.error(error);
+            deferred.reject(error);
         });
+
+        return (deferred.promise());
     }
 
     function runGroupby(table, curStatsCol) {
+        var deferred  = jQuery.Deferred();
         var tableName = table.tableName;
         var keyName   = table.keyName;
         var tableId   = table.tableId;
@@ -366,6 +423,13 @@ window.STATSManager = (function($, STATSManager, d3) {
             "operation": "Statistical analysis"
         };
         var msgId = StatusMessage.addMsg(msgObj);
+
+        var sqlOptions = {
+            "operation": SQLOps.ProfileAction,
+            "action"   : "groupby",
+            "tableName": tableName,
+            "colName"  : colName
+        };
 
         checkTableIndex(tableId, tableName, colName, keyName)
         .then(function(indexedTableName) {
@@ -383,10 +447,16 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             return (XcalarGroupBy(operator, newColName, colName,
                                     indexedTableName, groupbyTable,
-                                    isIncSample));
+                                    isIncSample, sqlOptions));
         })
         .then(function() {
-            return (XcalarAggregate(statsColName, groupbyTable, aggMap.max));
+            return XcalarAggregate(statsColName, groupbyTable, aggMap.max, {
+                "operation": SQLOps.ProfileAction,
+                "action"   : "aggregate",
+                "tableName": groupbyTable,
+                "colName"  : statsColName,
+                "aggrOp"   : aggMap.max
+            });
         })
         .then(function(value) {
             var val;
@@ -395,8 +465,14 @@ window.STATSManager = (function($, STATSManager, d3) {
                 val = obj.Value;
 
                 curStatsCol.groupByInfo.max = val;
-                return (XcalarAggregate(statsColName, groupbyTable,
-                        aggMap.sum));
+                return XcalarAggregate(statsColName, groupbyTable,
+                        aggMap.sum, {
+                            "operation": SQLOps.ProfileAction,
+                            "action"   : "aggregate",
+                            "tableName": groupbyTable,
+                            "colName"  : statsColName,
+                            "aggrOp"   : aggMap.sum
+                        });
             } catch (error) {
                 console.error(error, val);
                 return (jQuery.Deferred().reject(error));
@@ -427,18 +503,25 @@ window.STATSManager = (function($, STATSManager, d3) {
             // XXX this can be removed if we do not want indexed table to be del
             if (tableToDelete != null) {
                 // delete the indexed table if exist
-                XcalarDeleteTable(tableToDelete);
+                XcalarDeleteTable(tableToDelete, {
+                    "operation": SQLOps.ProfileAction,
+                    "action"   : "delete",
+                    "tableName": tableToDelete
+                });
             }
             var noNotification = true;
             StatusMessage.success(msgId, noNotification);
-            commitToStorage();
+            deferred.resolve();
         })
         .fail(function(error) {
             closeStats();
             Alert.error("Stats Analysis Fails", error);
             StatusMessage.fail(StatusMessageTStr.StatisticsFailed, msgId);
             console.error(error);
+            deferred.reject(error);
         });
+
+        return (deferred.promise());
     }
 
     function checkTableIndex(tableId, tableName, colName, keyName) {
@@ -447,9 +530,17 @@ window.STATSManager = (function($, STATSManager, d3) {
             deferred.resolve(tableName);
         } else {
             var newTableName = getNewName(tableName, ".stats.index", true);
+            var sqlOptions = {
+                "operation"   : SQLOps.ProfileAction,
+                "action"      : "index",
+                "tableName"   : tableName,
+                "tableId"     : tableId,
+                "colName"     : colName,
+                "newTableName": newTableName
+            };
             // lock the table when do index
             xcHelper.lockTable(tableId);
-            XcalarIndexFromTable(tableName, colName, newTableName)
+            XcalarIndexFromTable(tableName, colName, newTableName, sqlOptions)
             .then(function() {
                 deferred.resolve(newTableName);
             })
@@ -869,6 +960,10 @@ window.STATSManager = (function($, STATSManager, d3) {
             order = newOrder;
             curStatsCol.groupByInfo.isComplete = true;
             refreshStats(true);
+            SQL.add("Profile Sort", {
+                "operation": SQLOps.ProfileSort,
+                "order"    : newOrder
+            });
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
@@ -893,7 +988,15 @@ window.STATSManager = (function($, STATSManager, d3) {
                 tableName = groupByInfo.groupbyTable;
                 newTableName = getNewName(tableName, ".asc");
 
-                XcalarIndexFromTable(tableName, statsColName, newTableName)
+                var sqlOptions = {
+                    "operation"   : SQLOps.ProfileAction,
+                    "action"      : "sort",
+                    "tableName"   : tableName,
+                    "colName"     : statsColName,
+                    "newTableName": newTableName
+                };
+
+                XcalarIndexFromTable(tableName, statsColName, newTableName, sqlOptions)
                 .then(function() {
                     groupByInfo.ascTable = newTableName;
                     deferred.resolve();

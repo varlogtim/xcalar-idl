@@ -712,7 +712,7 @@ function checkXcalarVersionMatch() {
     })
     .fail(function() {
         deferred.reject({error: 'Connection could not be established.'});
-    })
+    });
 
     return (deferred.promise());
 }
@@ -731,6 +731,7 @@ function documentReadyIndexFunction() {
             AggModal.setup();
             OperationsModal.setup();
             WorkbookModal.setup();
+            WSManager.focusOnWorksheet();
             WSManager.focusOnWorksheet();
         })
         .then(function() {
