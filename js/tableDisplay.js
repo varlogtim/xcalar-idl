@@ -696,6 +696,18 @@ function generateColDropDown(tableId) {
             '<li class="deleteDuplicates thDropdown">' +
                 'Delete other duplicates' +
             '</li>' +
+            '<li class="hide thDropdown">Hide column</li>' +
+            '<li class="unhide thDropdown">Unhide column</li>' +
+            '<li class="thDropdown">Text align' +
+                '<ul class="subColMenu">' +
+                    '<li class="textAlign leftAlign">Left Align</li>' +
+                    '<li class="textAlign centerAlign">Center Align</li>' +
+                    '<li class="textAlign rightAlign">Right Align</li>' +
+                    '<div class="subColMenuArea"></div>' +
+                '</ul>' +
+                '<div class="dropdownBox"></div>' +
+            '</li>' +
+            '<div class="divider identityDivider thDropdown"></div>' +
             '<li class="renameCol thDropdown">' +
                 'Rename column' +
                 '<ul class="subColMenu">' +
@@ -706,17 +718,6 @@ function generateColDropDown(tableId) {
                                 ' autocomplete="on" spellcheck="false"/>' +
                         '</div>' +
                     '</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
-            '</li>' +
-            '<li class="hide thDropdown">Hide column</li>' +
-            '<li class="unhide thDropdown">Unhide column</li>' +
-            '<li class="thDropdown">Text align' +
-                '<ul class="subColMenu">' +
-                    '<li class="textAlign leftAlign">Left Align</li>' +
-                    '<li class="textAlign centerAlign">Center Align</li>' +
-                    '<li class="textAlign rightAlign">Right Align</li>' +
                     '<div class="subColMenuArea"></div>' +
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +
@@ -742,6 +743,7 @@ function generateColDropDown(tableId) {
         '</ul>' +
         '<div class="dropdownBox"></div>' +
     '</li>' +
+    '<div class="divider functionsDivider thDropdown"></div>' +
     '<li class="sort thDropdown">Sort' +
         '<ul class="subColMenu">' +
             '<li class="sort" ' +

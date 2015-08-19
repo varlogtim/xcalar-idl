@@ -771,6 +771,10 @@ ul.colMenu {
         background-color: @color-white;
     }
 
+    .divider {
+        border-top: 1px solid @color-background-lightLightGray;
+    }
+
     input[type=text] {
         .position(relative, @top: -1px, @right: 0);
         .size(@width: 160px, @height: 20px);
@@ -1004,6 +1008,12 @@ ul.colMenu {
         }
     }
 
+    &.type-object, &.childOfArray {
+        .functionsDivider {
+            display: none;
+        }
+    }
+
     &.type-boolean {
         .aggregate, .groupby, .filter{
             display: none;
@@ -1046,7 +1056,7 @@ ul.colMenu {
     &.type-data {
         .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
         .deleteDuplicates, .duplicate, .renameCol, .map, .operations,
-        .changeDataType, .profile {
+        .changeDataType, .profile, .divider {
             display: none;
         }
     }
