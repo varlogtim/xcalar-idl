@@ -1295,7 +1295,7 @@ function updateTableHeader(tableId, $tHead, isFocus) {
                         'data-toggle="tooltip" ' +
                         'data-placement="top" ' +
                         'data-container="body" ' +
-                        'title="number of fields">' +
+                        'title="number of columns">' +
                         ' [' + cols + ']</span>';
         $tHead.html(tableName + colsHTML);
     }
