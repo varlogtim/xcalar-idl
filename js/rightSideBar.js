@@ -37,6 +37,7 @@ window.RightSideBar = (function($, RightSideBar) {
         RightSideBar.addTables(hiddenTables, IsActive.Inactive);
 
         generateOrphanList(gOrphanTables);
+        setLastRightSidePanel();
     };
 
     RightSideBar.addTables = function(tables, active) {
@@ -1136,6 +1137,13 @@ window.RightSideBar = (function($, RightSideBar) {
                      .attr('data-original-title', 'pop out');
         $('.tooltip').hide();
         CLIBox.realignNl();
+    }
+
+    function setLastRightSidePanel() {
+        var settings = UserSettings.getSettings();
+        if (settings.lastRightSideBar) {
+            $('#' + settings.lastRightSideBar).addClass('lastOpen');
+        }
     }
 
     return (RightSideBar);

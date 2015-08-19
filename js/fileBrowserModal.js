@@ -182,14 +182,18 @@ window.FileBrowser = (function($, FileBrowser) {
                 $btn.removeClass('listView').addClass('gridView');
                 $btn.attr('data-original-title', 'Switch to List view');
             } else {
-                $fileBrowserMain.removeClass('gridView').addClass('listView');
-                $btn.removeClass('gridView').addClass('listView');
-                $btn.attr('data-original-title', 'Switch to Grid view');
+                selectListView();
             }
             // refresh tooltip
             $btn.mouseenter();
             $btn.mouseover();
         });
+
+        // restore list view if saved
+        var settings = UserSettings.getSettings();
+        if (settings.browserListView) {
+            selectListView();
+        }
 
         // click on title to sort
         $fileBrowserMain.on("click", ".title.clickable", function(event) {
@@ -285,6 +289,13 @@ window.FileBrowser = (function($, FileBrowser) {
             return false;
         });
     };
+
+    function selectListView() {
+        var $btn = $("#fileBrowserGridView");
+        $fileBrowserMain.removeClass('gridView').addClass('listView');
+        $btn.removeClass('gridView').addClass('listView');
+        $btn.attr('data-original-title', 'Switch to Grid view');
+    }
 
     // key up event
     function fileBrowserKeyUp(event) {

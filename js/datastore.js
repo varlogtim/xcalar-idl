@@ -2649,6 +2649,12 @@ window.DS = (function ($, DS) {
             }
         }
 
+        // restore list view if saved
+        var settings = UserSettings.getSettings();
+        if (settings.datasetListView) {
+            $('#dataListView').click();
+        }
+
         DS.refresh();
 
         return (totolDS);

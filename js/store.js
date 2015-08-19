@@ -13,7 +13,7 @@ function emptyAllStorage(localEmpty) {
     SQL.clear();
     CLIBox.clear();
     DataStore.clear();
-
+    UserSettings.clear();
     RightSideBar.clear();
     DagPanel.clear();
     // clear all table
@@ -85,10 +85,11 @@ var KVKeys = {
     "SQL"  : "sql",
     "CLI"  : "scratchPad",
     "CART" : "datacarts",
-    "STATS": "statsCols"
+    "STATS": "statsCols",
+    "USER" : "userSettings"
 };
 
-function commitToStorage() {
+function commitToStorage(atStartUp) {
     var deferred = jQuery.Deferred();
     // var scratchPadText = $("#scratchPadSection textarea").val();
 
@@ -109,6 +110,12 @@ function commitToStorage() {
     storage[KVKeys.HOLD] = KVStore.isHold();
 
     storage[KVKeys.STATS] = STATSManager.getStatsCols();
+
+    if (atStartUp) {
+        storage[KVKeys.USER] = UserSettings.getSettings();
+    } else {
+        storage[KVKeys.USER] = UserSettings.setSettings();
+    }
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
     .then(function() {
@@ -150,6 +157,9 @@ function readFromStorage() {
             }
             if (gInfos[KVKeys.STATS]) {
                 STATSManager.restore(gInfos[KVKeys.STATS]);
+            }
+            if (gInfos[KVKeys.USER]) {
+                UserSettings.restore(gInfos[KVKeys.USER]);
             }
         } else {
             emptyAllStorage(true);
@@ -235,7 +245,8 @@ function readFromStorage() {
         deferred.reject(error);
     })
     .always(function() {
-        commitToStorage(AfterStartup.After);
+        var atStartUp = true;
+        commitToStorage(atStartUp);
     });
 
     return (deferred.promise());
