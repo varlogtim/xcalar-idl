@@ -109,7 +109,7 @@ window.xcHelper = (function($, xcHelper) {
         var newName = name;
 
         while (colNames.hasOwnProperty(newName)) {
-            newName = name + "(" + suffix + ")";
+            newName = name + "_" + suffix;
             ++suffix;
         }
 
