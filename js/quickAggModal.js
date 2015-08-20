@@ -304,8 +304,9 @@ window.AggModal = (function($, AggModal) {
                         {
                             continue;
                         }
-                        var sub = corrString.replace(/[$]arg1/g, cols.name);
-                        sub = sub.replace(/[$]arg2/g, vertCols.name);
+                        var sub = corrString.replace(/[$]arg1/g, 
+                                                     cols.func.args[0]);
+                        sub = sub.replace(/[$]arg2/g, vertCols.func.args[0]);
                         // Run correlation function
                         runCorr(tableName, sub, i, j, dups);
                     }
