@@ -38,6 +38,7 @@ window.Alert = (function($, Alert){
                 func: callback to trigger when click
             confirm: callback to trigger when click confirm button
             cancel:  callback to trigger when click cancel button
+            lockScreen: if screen should be frozen
         */
         configAlertModal(options);
 
@@ -118,6 +119,12 @@ window.Alert = (function($, Alert){
             $alretInstr.show();
         } else {
             $alretInstr.hide();
+        }
+
+        // lock screen if necessary
+        if (options.lockScreen) {
+            $btnSection.css('visibility', 'hidden');
+            $('#alertHeader').find('.close').css('pointer-events', 'none');
         }
 
         // set checkbox,  default is unchecked

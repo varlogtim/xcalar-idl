@@ -691,10 +691,33 @@ function setupOrphanedList(tableMap) {
     gOrphanTables = tables;
 }
 
+function checkXcalarVersionMatch() {
+    var deferred = jQuery.Deferred();
+
+    XcalarGetVersion()
+    .then(function(result) {
+        var versionNum = result.output.outputResult.getVersionOutput
+                                                   .apiVersionSignatureShort;
+        if (versionNum !== XcalarApiVersionT.XcalarApiVersionSignature) {
+
+            deferred.reject({error: 'Update required.'});
+        } else {
+            deferred.resolve();
+        }
+    })
+    .fail(function() {
+        deferred.reject({error: 'Connection could not be established.'});
+    })
+
+    return (deferred.promise());
+}
+
 function documentReadyIndexFunction() {
     $(document).ready(function() {
         Compitable.check();
-        startupFunctions()
+
+        checkXcalarVersionMatch()
+        .then(startupFunctions)
         .then(initializeTable)
         .then(function() {
             RightSideBar.initialize();
@@ -715,8 +738,18 @@ function documentReadyIndexFunction() {
                 console.error("Setup fails", error);
             } else {
                 // when it's an error from backend we cannot handle
-                Alert.error("Setup fails", error);
+                var title;
+                var options = {lockScreen: true};
+                if (error.error.indexOf('Update required') !== -1) {
+                    title = "Xcalar version mismatch";
+                } else if (error.error.indexOf('Connection') !== -1) {
+                    title = "Connection error";
+                } else {
+                    title = "Setup fails";
+                }
+                Alert.error(title, error, options);
             }
         });
     });
 }
+
