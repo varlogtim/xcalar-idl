@@ -2808,18 +2808,18 @@ window.RowScroller = (function($, RowScroller) {
             $rowInput.data("val", targetRow);
             $rowInput.val(targetRow);
 
-            backRow = Math.min(table.resultSetMax - 60,
+            backRow = Math.min(table.resultSetMax - gMaxEntriesPerPage,
                                 backRow - 20);
 
             if (backRow < 0) {
                 backRow = 0;
             }
             var tableName = table.tableName;
-            var numRowsToAdd = Math.min(60, table.resultSetMax);
+            var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetMax);
             var info = {
                 "numRowsToAdd"    : numRowsToAdd,
                 "numRowsAdded"    : 0,
-                "lastRowToDisplay": backRow + 60,
+                "lastRowToDisplay": backRow + gMaxEntriesPerPage,
                 "targetRow"       : targetRow,
                 "bulk"            : true,
                 "tableName"       : tableName,

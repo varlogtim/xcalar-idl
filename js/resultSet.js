@@ -205,7 +205,7 @@ function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
     var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
     var table = xcHelper.getTableFromId(tableId);
     if (direction === RowDirection.Top) {
-        $table.find("tbody tr").slice(60).remove();
+        $table.find("tbody tr").slice(gMaxEntriesPerPage).remove();
         scrollTop = Math.max(2, postpullTableHeight - prepullTableHeight);
 
         $xcTbodyWrap.scrollTop(scrollTop);
@@ -237,7 +237,7 @@ function getFirstPage(table, notIndexed) {
     if (table.resultSetId === 0) {
         return (promiseWrapper(null));
     }
-    var numRowsToAdd = Math.min(60, table.resultSetCount);
+    var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetCount);
     return (generateDataColumnJson(table, null, notIndexed, numRowsToAdd));
 }
 

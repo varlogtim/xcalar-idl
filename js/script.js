@@ -7,6 +7,7 @@
 
 // =================================== Globals =================================
 var gNumEntriesPerPage = 20;
+var gMaxEntriesPerPage = 50;
 var gNewCellWidth = 125;
 var gMouseStatus = null;
 var gDragObj = {};
@@ -84,7 +85,7 @@ function infScrolling(tableId) {
                                         table.resultSetMax);
 
                 var rowNumber = topRowNum - numRowsToAdd;
-                var lastRowToDisplay = $table.find('tbody tr:lt(40)');
+                var lastRowToDisplay = $table.find('tbody tr:lt(30)');
 
                 info = {
                     "numRowsToAdd"    : numRowsToAdd,

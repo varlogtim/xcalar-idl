@@ -430,7 +430,8 @@ function startBuildTable(tableId, tablesToRemove) {
     })
     .then(function() {
         var $table = $('#xcTable-' + tableId);
-        var requiredNumRows    = Math.min(60, table.resultSetCount);
+        var requiredNumRows    = Math.min(gMaxEntriesPerPage,
+                                          table.resultSetCount);
         var numRowsStillNeeded = requiredNumRows -
                                  $table.find('tbody tr').length;
 
