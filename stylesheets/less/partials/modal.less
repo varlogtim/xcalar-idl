@@ -1820,9 +1820,18 @@ html.microsoft {
                     .flex(0 0 20px);
                     height: 20px;
                     cursor: pointer;
+                    opacity: 0.7;
 
                     .icon {
                         .size(100%, 100%);
+                    }
+
+                    &:hover {
+                        opacity: 1;
+                    }
+
+                    &.active {
+                        opacity: 1;
                     }
                 }
 
@@ -1866,9 +1875,6 @@ html.microsoft {
                             .image("/images/statsModal/descC.png", 50%, 50%);
                         }
                     }
-                    // XXX invalid it now!
-                    pointer-events: none;
-                    opacity: 0.7;
                 }
             }
         }

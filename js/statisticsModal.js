@@ -85,6 +85,8 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
 
         $sortSection.on("click", ".desc .iconWrapper", function() {
+            // XXX invalid it now, coming soon!
+            return;
             sortData(sortMap.desc, statsCol);
         });
     };
