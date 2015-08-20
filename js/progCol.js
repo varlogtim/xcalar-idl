@@ -419,8 +419,56 @@ window.ColManager = (function($, ColManager) {
         return (isDuplicate);
     };
 
-    ColManager.delDupCols = function(index, tableId, forwardCheck) {
-        index = index - 1;
+    ColManager.dupCol = function(colNum, tableId) {
+        var deferred = jQuery.Deferred();
+
+        var $table = $("#xcTable-" + tableId);
+        var table  = gTables[tableId];
+
+        var width    = $table.find('th.col' + colNum).outerWidth();
+        var isNewCol = $table.find('th.col' + colNum).hasClass('unusedCell');
+
+        var tableCols = table.tableCols;
+        var name;
+        if (tableCols[colNum - 1].func.args) {
+            name = tableCols[colNum - 1].func.args[0];
+        } else {
+            name = tableCols[colNum - 1].name;
+        }
+
+        var name = xcHelper.getUniqColName(name, tableCols);
+
+        ColManager.addCol(colNum, tableId, name, {
+            "width"   : width,
+            "isNewCol": isNewCol
+        });
+        // add sql
+        SQL.add("Duplicate Column", {
+            "operation" : "duplicateCol",
+            "tableName" : table.tableName,
+            "tableId"   : tableId,
+            "colName"   : tableCols[colNum - 1].name,
+            "newColName": name,
+            "colNum"    : colNum
+        });
+
+        tableCols[colNum].func.func = tableCols[colNum - 1].func.func;
+        tableCols[colNum].func.args = tableCols[colNum - 1].func.args;
+        tableCols[colNum].userStr = tableCols[colNum - 1].userStr;
+
+        ColManager.execCol(tableCols[colNum], tableId)
+        .then(function() {
+            updateTableHeader(tableId);
+            RightSideBar.updateTableInfo(tableId);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    };
+
+    ColManager.delDupCols = function(colNum, tableId, forwardCheck) {
+        var index   = colNum - 1;
         var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         var args    = columns[index].func.args;
@@ -454,6 +502,26 @@ window.ColManager = (function($, ColManager) {
             numCols--;
             i--;
         }
+    };
+
+    ColManager.delAllDupCols = function(tableId) {
+        var table   = gTables[tableId];
+        var columns = table.tableCols;
+
+        for (var i = 0; i < columns.length; i++) {
+            if (columns[i].func.func && columns[i].func.func === "raw") {
+                continue;
+            } else {
+                var forwardCheck = true;
+                ColManager.delDupCols(i + 1, tableId, forwardCheck);
+            }
+        }
+
+        SQL.add("Delete All Duplicate Columns", {
+            "operation": "delAllDupCols",
+            "tableName": table.tableName,
+            "tableId"  : tableId
+        });
     };
 
     ColManager.hideCols = function(columns, tableId) {

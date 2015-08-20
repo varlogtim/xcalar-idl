@@ -978,16 +978,7 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
-
-        for (var i = 0; i < columns.length; i++) {
-            if (columns[i].func.func && columns[i].func.func === "raw") {
-                continue;
-            } else {
-                var forwardCheck = true;
-                ColManager.delDupCols(i + 1, tableId, forwardCheck);
-            }     
-        }
+        ColManager.delAllDupCols(tableId);
     });
 
     $tableMenu.on('mouseup', '.aggregates', function(event) {
@@ -1687,8 +1678,18 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        var index   = $colMenu.data('colNum');
-        ColManager.delDupCols(index, tableId);
+        var colNum = $colMenu.data('colNum');
+        ColManager.delDupCols(colNum, tableId);
+        // Add sql here because ColManager.delDupCols() also used by
+        // ColManager.delAllDupCols()
+        var table = gTables[tableId];
+        SQL.add("Delete Duplicate Columns", {
+            "operation": "delDupCol",
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colNum"   : colNum,
+            "colName"  : table.tableCols[colNum - 1].name
+        });
     });
 
     $colMenu.on('keypress', '.renameCol input', function(event) {
@@ -1716,44 +1717,7 @@ function addColMenuActions($colMenu) {
         }
 
         var colNum = $colMenu.data('colNum');
-        var $table = $("#xcTable-" + tableId);
-        var table  = gTables[tableId];
-
-        var width    = $table.find('th.col' + colNum).outerWidth();
-        var isNewCol = $table.find('th.col' + colNum).hasClass('unusedCell');
-
-        var tableCols = table.tableCols;
-        var name;
-        if (tableCols[colNum - 1].func.args) {
-            name = tableCols[colNum - 1].func.args[0];
-        } else {
-            name = tableCols[colNum - 1].name;
-        }
-
-        var name = xcHelper.getUniqColName(name, tableCols);
-
-        ColManager.addCol(colNum, tableId, name, {
-            "width"   : width,
-            "isNewCol": isNewCol
-        });
-        // add sql
-        SQL.add("Duplicate Column", {
-            "operation" : "duplicateCol",
-            "tableName" : table.tableName,
-            "colName"   : tableCols[colNum - 1].name,
-            "newColName": name,
-            "colNum"    : colNum
-        });
-
-        tableCols[colNum].func.func = tableCols[colNum - 1].func.func;
-        tableCols[colNum].func.args = tableCols[colNum - 1].func.args;
-        tableCols[colNum].userStr = tableCols[colNum - 1].userStr;
-
-        ColManager.execCol(tableCols[colNum], tableId)
-        .then(function() {
-            updateTableHeader(tableId);
-            RightSideBar.updateTableInfo(tableId);
-        });
+        ColManager.dupCol(colNum, tableId);
     });
 
     $colMenu.on('mouseup', '.hide', function(event) {
