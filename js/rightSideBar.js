@@ -12,8 +12,14 @@ window.RightSideBar = (function($, RightSideBar) {
 
     RightSideBar.clear = function() {
         $("#activeTablesList").empty();
-        $("#archivedTableList").empty();
-        $("#orphanedTableList").empty();
+        $("#submitTablesBtn").addClass('btnInactive');
+        $("#deleteTablesBtn").addClass('btnInactive');
+        $('#archivedTableList .secondButtonWrap').hide();
+        $('#inactiveTablesList').empty();
+        $("#orphanedTablesList").empty();
+        $("#submitOrphanedTablesBtn").hide();
+        $("#deleteOrphanedTablesBtn").hide();
+        $("#orphanedTableList").find('.clearAll, .selectAll').hide();
 
         // clear CodeMirror
         editor.setValue("");
