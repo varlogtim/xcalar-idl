@@ -1,5 +1,6 @@
 window.RightSideBar = (function($, RightSideBar) {
     var editor;
+    var storedPython = {};
     
     RightSideBar.setup = function() {
         setupButtons();
@@ -24,6 +25,8 @@ window.RightSideBar = (function($, RightSideBar) {
         // clear CodeMirror
         editor.setValue("");
         editor.clearHistory();
+        storedPython = {};
+        $('#udf-fnMenu').empty().append('<li name="blank">Blank Function</li>');
     };
 
     RightSideBar.initialize = function() {
@@ -44,6 +47,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
         generateOrphanList(gOrphanTables);
         setLastRightSidePanel();
+        setupUDFList();
     };
 
     RightSideBar.addTables = function(tables, active) {
@@ -656,11 +660,13 @@ window.RightSideBar = (function($, RightSideBar) {
                 reader.onload = function(event) {
                     xcHelper.disableSubmit($submitBtn);
                     // XXX: Change cursor, handle failure
-                    XcalarUploadPython(moduleName, event.target.result)
+                    var result = event.target.result;
+                    XcalarUploadPython(moduleName, result)
                     .then(function() {
                         // clearance
                         $inputFile.val("");
                         $filePath.val("");
+                        storePython(moduleName, result);
                         commitToStorage();
                         uploadSuccess();
                     })
@@ -696,18 +702,20 @@ window.RightSideBar = (function($, RightSideBar) {
         // select one option
         $listSection.on("click", ".list li", function(event) {
             var $li = $(this);
-
+            var val = $li.text();
             event.stopPropagation();
 
             $listSection.removeClass('open');
             $listDropdown.hide();
 
-            $template.val($li.text());
+            $template.val(val);
 
             if ($li.attr("name") === "blank") {
                 $downloadBtn.addClass("hidden");
+                editor.setValue("");
             } else {
                 $downloadBtn.removeClass("hidden");
+                editor.setValue(storedPython[val]);
             }
         });
         /* end of function input section */
@@ -748,6 +756,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 $fnName.val("");
                 $template.val("");
                 $downloadBtn.addClass("hidden");
+                storePython(moduleName, entireString);
                 commitToStorage();
                 uploadSuccess();
             })
@@ -765,6 +774,32 @@ window.RightSideBar = (function($, RightSideBar) {
 
         multiJoinUDFUpload();
     }
+
+    function storePython(moduleName, entireString) {
+        var $listDropdown = $("#udf-fnMenu");
+        var $blankFunc = $listDropdown.find('li[name=blank]');
+        var li = '<li>' + moduleName + '</li>';
+        $blankFunc.after(li);
+        storedPython[moduleName] = entireString;
+    }
+
+    function setupUDFList() {
+        var $listDropdown = $("#udf-fnMenu");
+        var li;
+        var $blankFunc = $listDropdown.find('li[name=blank]');
+        for (var udf in storedPython) {
+            li = '<li>' + udf + '</li>';
+            $blankFunc.after(li);
+        }
+    }
+
+    RightSideBar.getUDFs = function() {
+        return (storedPython);
+    };
+
+    RightSideBar.restoreUDFs = function(udfs) {
+        storedPython = udfs;
+    };
 
     function multiJoinUDFUpload() {
         var moduleName = "multiJoinModule";

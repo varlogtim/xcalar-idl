@@ -86,7 +86,8 @@ var KVKeys = {
     "CLI"  : "scratchPad",
     "CART" : "datacarts",
     "STATS": "statsCols",
-    "USER" : "userSettings"
+    "USER" : "userSettings",
+    "UDF"   : "udfs"
 };
 
 function commitToStorage(atStartUp) {
@@ -110,6 +111,7 @@ function commitToStorage(atStartUp) {
     storage[KVKeys.HOLD] = KVStore.isHold();
 
     storage[KVKeys.STATS] = STATSManager.getStatsCols();
+    storage[KVKeys.UDF] = RightSideBar.getUDFs();
 
     if (atStartUp) {
         storage[KVKeys.USER] = UserSettings.getSettings();
@@ -160,6 +162,9 @@ function readFromStorage() {
             }
             if (gInfos[KVKeys.USER]) {
                 UserSettings.restore(gInfos[KVKeys.USER]);
+            }
+            if (gInfos[KVKeys.UDF]) {
+                RightSideBar.restoreUDFs(gInfos[KVKeys.UDF]);
             }
         } else {
             emptyAllStorage(true);
