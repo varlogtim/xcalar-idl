@@ -118,7 +118,8 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
 
-            var tableName = $input.closest('.retinaArea').data('tablename');
+            var tableId= $input.closest('.retinaArea').data('tableid');
+            var tableName = gTables[tableId].tableName;
 
             XcalarMakeRetina(retName, tableName)
             .then(function() {
@@ -263,7 +264,6 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
 
-            // XXX Fix it!! $dagTable has data-tablename, should chagne to tableId
             var tableName = $.trim($dagTable.find('.tableTitle').text());
             var tableId = $dagTable.data('id');
             $menu.data('tablename', tableName);
@@ -523,8 +523,8 @@ window.Dag = (function($, Dag) {
                         tableName +
                         '</span>' +
                     '</div>' +
-                    '<div class="retinaArea" data-tablename="' +
-                        tableName + '">' +
+                    '<div class="retinaArea" data-tableid="' +
+                        tableId + '">' +
                         '<div data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" title="Create New Retina" ' +
                         'class="btn addRet">' +
@@ -966,7 +966,7 @@ window.Dag = (function($, Dag) {
                                    dagArray, html, childIndex, parentChildMap);
         }
         
-        var oneTable = drawDagTable(dagNode, prop, dagArray, parentChildMap, index);
+        var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index);
         var newHtml;
         if (accumulatedDrawings) {
             newHtml = "<div class='joinWrap'><div class='childContainer'>" +
@@ -980,9 +980,8 @@ window.Dag = (function($, Dag) {
         }
     }
 
-    function drawDagTable(dagNode, prop, dagArray, parentChildMap, index) {
-        var dagOrigin = drawDagOrigin(dagNode, prop, dagArray, parentChildMap,
-                                      index);
+    function drawDagTable(dagNode, dagArray, parentChildMap, index) {
+        var dagOrigin = drawDagOrigin(dagNode, dagArray, parentChildMap, index);
         var dagTable = '<div class="dagTableWrap clearfix">' +
                         dagOrigin;
         var key = getInputType(XcalarApisTStr[dagNode.api]);
@@ -1040,7 +1039,7 @@ window.Dag = (function($, Dag) {
         return (dagTable);
     }
 
-    function drawDagOrigin(dagNode, prop, dagArray, parentChildMap, index) {
+    function drawDagOrigin(dagNode, dagArray, parentChildMap, index) {
         var originHTML = "";
         var numChildren = getDagNumChildren(dagNode);
 
