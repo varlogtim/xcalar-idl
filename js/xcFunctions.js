@@ -751,20 +751,22 @@ window.xcFunction = (function($, xcFunction) {
         });
     };
 
-    xcFunction.rename = function(tableId, oldTableName, newTableName) {
+    xcFunction.rename = function(tableId, newTableName) {
         var deferred = jQuery.Deferred();
 
-        if (tableId == null || oldTableName == null || newTableName == null) {
+        if (tableId == null || newTableName == null) {
             console.error("Invalid Parameters for renaming!");
             deferred.reject("Invalid renaming parameters");
             return (deferred.promise());
         }
 
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
+        var oldTableName = table.tableName;
         var sqlOptions = {
-            "operation": "renameTable",
-            "oldName"  : oldTableName,
-            "newName"  : newTableName
+            "operation"   : "renameTable",
+            "tableId"     : tableId,
+            "oldTableName": oldTableName,
+            "newTableName": newTableName
         };
 
         // not lock table is the operation is short
@@ -780,8 +782,7 @@ window.xcFunction = (function($, xcFunction) {
             RightSideBar.renameTable(tableId, newTableName);
             Dag.renameAllOccurrences(oldTableName, newTableName);
 
-            $("#xcTheadWrap-" + tableId).find(".tableTitle .text")
-                                        .data('title', newTableName);
+            updateTableHeader(tableId);
 
             commitToStorage();
             deferred.resolve(newTableName);

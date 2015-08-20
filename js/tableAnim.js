@@ -1226,29 +1226,27 @@ function renameTableHead($div) {
     var newTableName = $div.text().trim();
     var $th = $div.closest('.xcTheadWrap');
     var tableId = xcHelper.parseTableId($th);
-    var oldTableName = xcHelper.getTableFromId(tableId).tableName;
+    var oldTableName = gTables[tableId].tableName;
 
     if (newTableName === oldTableName) {
         $div.blur();
         return;
     }
 
-    var hashId = xcHelper.getTableId(newTableName);
-    newTableName = xcHelper.getTableName(newTableName);
+    var newName = xcHelper.getTableName(newTableName);
 
-    xcHelper.checkDuplicateTableName(newTableName)
+    // XXX Shall we really check if the name part has conflict?
+    xcHelper.checkDuplicateTableName(newName)
     .then(function() {
-        var wholeName = newTableName + "#" + hashId;
-        return (xcFunction.rename(tableId, oldTableName, wholeName));
+        return (xcFunction.rename(tableId, newTableName));
     })
     .then(function() {
-        updateTableHeader(null, $div);
         $div.blur();
     })
     .fail(function() {
         $div.text(oldTableName);
-        var text = 'The name "' + newTableName + '" is already ' +
-                           ' in use. Please select a unique name.';
+        var text = 'The name "' + newName + '" is already ' +
+                    ' in use. Please select a unique name.';
         StatusBox.show(text, $div, false);
     });
 }
@@ -1264,7 +1262,7 @@ function updateTableHeader(tableId, $tHead, isFocus) {
     } else {
         // for update table header
         $tHead = $("#xcTheadWrap-" + tableId).find(".tableTitle .text");
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
 
         if (table != null) {
             fullTableName = table.tableName;
