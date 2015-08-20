@@ -49,6 +49,15 @@ function thriftLog(title, errRes) {
     thriftError.error = "Error: " + error;
     console.error(msg);
 
+    if (status === StatusT.StatusConnReset) {
+        // The shit has hit the fan
+        var title = "Connection error";
+        var error = {error: 'Connection could not be established.'};
+        var options = {lockScreen: true};
+
+        Alert.error(title, error, options);
+    }
+
     return (thriftError);
 }
 

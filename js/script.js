@@ -112,6 +112,7 @@ function infScrolling(tableId) {
                 innerDeferred.resolve();
             }
         } else if ($(this)[0].scrollHeight - $(this).scrollTop() -
+                   // $(this).outerHeight() <= 1) {
                    $(this).outerHeight() <= 1) {
             scrollCount++;
 

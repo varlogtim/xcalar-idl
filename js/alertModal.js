@@ -40,6 +40,11 @@ window.Alert = (function($, Alert){
             cancel:  callback to trigger when click cancel button
             lockScreen: if screen should be frozen
         */
+        if ($alertModal.hasClass('locked')) {
+            // alert modal is already opened and locked due to connection error
+            return;
+        }
+
         configAlertModal(options);
 
         $alertModal.show();
@@ -125,6 +130,7 @@ window.Alert = (function($, Alert){
         if (options.lockScreen) {
             $btnSection.css('visibility', 'hidden');
             $('#alertHeader').find('.close').css('pointer-events', 'none');
+            $alertModal.addClass('locked');
         }
 
         // set checkbox,  default is unchecked
