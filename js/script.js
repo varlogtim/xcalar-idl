@@ -535,7 +535,7 @@ function initializeTable() {
         var tableMap = {};
 
         for (var i = 0; i < numBackTables; i++) {
-            tableMap[backTables[i].tableName] = backTables[i].name;
+            tableMap[backTables[i].name] = backTables[i].name;
         }
 
         var hasTable = false;
