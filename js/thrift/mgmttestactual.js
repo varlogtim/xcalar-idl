@@ -20864,7 +20864,8 @@ function xcalarLoad(thriftHandle, url, name, format, maxSampleSize, loadArgs) {
 
 }
 
-function xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName, dhtName) {
+function xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName,
+                                    dhtName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.indexInput = new XcalarApiIndexInputT();
@@ -20882,7 +20883,8 @@ function xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName, dhtName)
     return (workItem);
 }
 
-function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName) {
+function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName,
+                            dhtName) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -20891,7 +20893,8 @@ function xcalarIndexDataset(thriftHandle, datasetName, keyName, dstTableName) {
                     dstTableName + ")");
     }
 
-    var workItem = xcalarIndexDatasetWorkItem(datasetName, keyName, dstTableName);
+    var workItem = xcalarIndexDatasetWorkItem(datasetName, keyName,
+                                              dstTableName, dhtName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
