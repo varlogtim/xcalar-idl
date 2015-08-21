@@ -169,30 +169,45 @@ window.TestSuite = (function($, TestSuite) {
             $("#fieldDelim .icon").click();
             $("#fieldDelim .list li[name='comma']").click();
             $("#importDataSubmit").click();
-            setTimeout(function() {
+            var ds1Icon = '#dataset-'+dsName1+':not(.inactive)';
+            var ds2Icon = '#dataset-'+dsName2+':not(.inactive)';
+            checkExists([ds1Icon, ds2Icon])
+            .then(function() {
                 flightTestPart2(dsName1, dsName2);
-            }, 6000); // Load should be <2s
+            })
+            .fail(function(error) {
+                console.error(error, 'flightTestPart1');
+            });
          }
         
-         function flightTestPart2(dsName1, dsName2) {
+        function flightTestPart2(dsName1, dsName2) {
             $("#dataset-"+dsName2+" .gridIcon").click();
-            setTimeout(function() {
+            checkExists('#worksheetTable[data-dsname=' + dsName2)
+            .then(function() {
                 $("#selectDSCols .icon").click();
                 $("#dataset-"+dsName1+" .gridIcon").click();
-                setTimeout(function() {
-                    $("#selectDSCols .icon").click();
-                    console.log(dsName1);
-                    $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
-                    $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
-                    $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
-                    $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
-                    $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
-                    $("#submitDSTablesBtn").click();
-                    setTimeout(function() {
-                        flightTestPart3();
-                    }, 5000); // Index should be <2s
-                }, 1000);
-            }, 1000);
+                return (checkExists('#worksheetTable[data-dsname=' +
+                                     dsName1));
+            })
+            .then(function() {
+                $("#selectDSCols .icon").click();
+                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
+                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
+                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
+                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
+                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
+                $("#submitDSTablesBtn").click();
+
+                var header = ".xcTable .flexWrap.flex-mid" +
+                             " input[value='ArrDelay']:eq(0)";
+                return(checkExists(header));
+            })
+            .then(function() {
+                flightTestPart3();
+            })
+            .fail(function(error) {
+                console.error(error, 'flightTestPart2');
+            });
         }
 
         function flightTestPart3() {
@@ -202,9 +217,14 @@ window.TestSuite = (function($, TestSuite) {
                             .find(".colMenu:not(.tableMenu) .changeDataType");
             $colMenu.mouseover();
             $colMenu.find(".type-integer").trigger(fakeMouseup);
-            setTimeout(function() {
+            checkExists(".flexWrap.flex-mid"+
+                              " input[value='ArrDelay_integer']:eq(0)")
+            .then(function() {
                 flightTestPart4();
-            }, 4000);
+            })
+            .fail(function(error) {
+                console.error(error, 'flightTestPart3');
+            });
         }
 
         function flightTestPart4() {
@@ -214,15 +234,22 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $(".xcTableWrap").eq(0)
                             .find(".colMenu:not(.tableMenu) .filter");
             $colMenu.trigger(fakeMouseup);
-            setTimeout(function() {
+            checkExists("#operationsModal:visible")
+            .then(function() {
                 $("#functionList input").val("gt");
                 $("#functionList input").trigger(fakeEnter);
                 $($(".argumentTable tr")[2]).find("input").val("0");
                 $("#operationsModal .modalBottom .confirm").click();
-                setTimeout(function() {
-                    flightTestPart5();
-                }, 5000);
-            }, 1000); 
+                var tableId = $('.xcTable:eq(0)').data('id');
+                return (checkExists("#xcTable-" + tableId, null,
+                                    {notExist: true}));
+            })
+            .then(function() {
+                flightTestPart5();
+            })
+            .fail(function(error) {
+                console.error(error, 'flightTestPart4');
+            });
         }
 
        function flightTestPart5() {
@@ -238,9 +265,13 @@ window.TestSuite = (function($, TestSuite) {
                             '    return year + month + day');
             $(".submitSection #udf-fnName").val("ymd");
             $("#udf-fnUpload").click();
-            setTimeout(function() {
+            checkExists("#alertHeader:visible .text:contains('SUCCESS')")
+            .then(function() {
                 flightTestPart6();
-            }, 1000);
+            })
+            .fail(function(error) {
+                 console.error(error, 'flightTestPart5');
+            });
         }
 
         function flightTestPart6() {
@@ -251,7 +282,8 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $(".xcTableWrap").eq(0)
                             .find(".colMenu:not(.tableMenu) .map");
             $colMenu.trigger(fakeMouseup);
-            setTimeout(function() {
+            checkExists("#operationsModal:visible")
+            .then(function() {
                 $("#categoryList .dropdown .icon").trigger(fakeClick);
                 $("#categoryMenu li[data-category='9']").trigger(fakeMouseup);
                 $("#functionList .dropdown .icon").trigger(fakeClick);
@@ -261,11 +293,17 @@ window.TestSuite = (function($, TestSuite) {
                 $($(".argumentTable .argument")[2]).val("$DayofMonth");
                 $($(".argumentTable .argument")[3]).val("YearMonthDay");
                 $("#operationsModal .modalBottom .confirm").click();
-                setTimeout(function() {
-                    flightTestPart7();
-                }, 2000);
-            }, 1000);
 
+                var tableId = $('.xcTable:eq(0)').data('id');
+                return (checkExists("#xcTable-" + tableId, null,
+                                    {notExist: true}));
+            })
+            .then(function() {
+                flightTestPart7();
+            })
+            .fail(function(error) {
+                console.error(error, 'flightTestPart6');
+            });
         }
 
         function flightTestPart7() {
@@ -277,11 +315,16 @@ window.TestSuite = (function($, TestSuite) {
             $colMenu.trigger(fakeMouseup);
             $("#rightJoin .tableLabel:contains('airport')").trigger(fakeClick);
             $("#rightJoin .columnTab:contains('iata')").trigger(fakeClick);
+
             setTimeout(function() {
                 $("#joinTables").click();
-                setTimeout(function() {
+                checkExists(".xcTableWrap .tableTitle:contains(join)")
+                .then(function() {
                     flightTestPart8();
-                }, 2000);
+                })
+                .fail(function(error) {
+                    console.error(error, 'flightTestPart7');
+                });
             }, 500);
         }
 
@@ -292,20 +335,25 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $(".xcTableWrap").eq(0)
                             .find(".colMenu:not(.tableMenu) .groupby");
             $colMenu.trigger(fakeMouseup);
-            setTimeout(function() {
-            $("#functionList .dropdown .icon").trigger(fakeClick);
-            $($("#functionsMenu li")[0]).trigger(fakeMouseup);
-            $($(".argumentTable .argument")[0]).val("$ArrDelay_integer");
-            $($(".argumentTable .argument")[1]).val("$UniqueCarrier");
-            $($(".argumentTable .argument")[2]).val("AvgDelay");
-            setTimeout(function() {
-                    $("#operationsModal .modalBottom .confirm").click();
-                    setTimeout(function() {
-                        flightTestPart9();
-                    }, 2000);
-                }, 100);
-            }, 1000);
+            checkExists("#operationsModal:visible")
+            .then(function() {
+                $("#functionList .dropdown .icon").trigger(fakeClick);
+                $($("#functionsMenu li")[0]).trigger(fakeMouseup);
+                $($(".argumentTable .argument")[0]).val("$ArrDelay_integer");
+                $($(".argumentTable .argument")[1]).val("$UniqueCarrier");
+                $($(".argumentTable .argument")[2]).val("AvgDelay");
+                $("#operationsModal .modalBottom .confirm").click();
 
+                var tableId = $('.xcTable:eq(0)').data('id');
+                return (checkExists(".xcTableWrap " +
+                                    ".tableTitle:contains(GroupBy)"));
+            })
+            .then(function() {
+                flightTestPart9();
+            })
+            .fail(function(error) {
+                console.error(error, 'flightTestPart8');
+            });
         }
 
         function flightTestPart9() {
@@ -315,15 +363,64 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $(".xcTableWrap").eq(0)
                             .find(".colMenu:not(.tableMenu) .aggregate");
             $colMenu.trigger(fakeMouseup);
-            setTimeout(function() {
+            checkExists("#operationsModal:visible")
+            .then(function() {
                 $("#functionList .dropdown .icon").trigger(fakeClick);
                 $($("#functionsMenu li")[1]).trigger(fakeMouseup);
-                setTimeout(function() {
-                    $("#operationsModal .modalBottom .confirm").click();
-                    TestSuite.pass(deferred, testName, currentTestNumber);
-                }, 100);
-            }, 1000);
+                $("#operationsModal .modalBottom .confirm").click();
+
+                return(checkExists("#alertHeader:visible .text:contains(Agg)"));
+            })
+            .then(function() {
+                 TestSuite.pass(deferred, testName, currentTestNumber);
+            })
+            .fail(function(error) {
+                console.error(error, 'flightTestPart9');
+            });
         }
+    }
+
+    // elemSelectors can be a string or array of element selectors 
+    // example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
+    function checkExists(elemSelectors, timeLimit, options) {
+        var deferred = jQuery.Deferred();
+        var intervalTime = 200;
+        var timeLimit = timeLimit || 10000;
+        var timeElapsed = 0;
+        if (typeof elemSelectors === "string") {
+            var elemSelectors = [elemSelectors];
+        }
+
+        var interval = setInterval(function() {
+            var numItems = elemSelectors.length;
+            var allElemsPresent = true;
+            var $elem;
+            for (var i = 0; i < numItems; i++) {
+                $elem = $(elemSelectors[i]);
+                if (options && options.notExist) {
+                    if ($elem.length !== 0) {
+                        allElemsPresent = false;
+                        break;
+                    }
+                } else if ($elem.length === 0) {
+                    allElemsPresent = false;
+                    break;
+                }
+            }
+            if (allElemsPresent) {
+                clearInterval(interval);
+                deferred.resolve();
+            } else if (timeElapsed >= timeLimit) {
+                var error = 'time limit of ' + timeLimit +
+                            'ms exceeded';
+                console.warn(error);
+                clearInterval(interval);
+                deferred.reject(error);
+            }
+            timeElapsed += intervalTime;
+        }, intervalTime);
+
+        return (deferred.promise());
     }
 
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
