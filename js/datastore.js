@@ -691,15 +691,17 @@ window.DataCart = (function($, DataCart) {
             XcalarGetTables()
             .then(function(results) {
                 var innerDeferred = jQuery.Deferred();
-                var tables = results.tables;
-                for (var i = 0, len = results.numTables; i < len; i++) {
-                    var name = xcHelper.getTableName(tables[i].tableName);
+                // var tables = results.tables;
+                var tables = results.nodeInfo;
+                for (var i = 0, len = results.numNodes; i < len; i++) {
+                    var name = xcHelper.getTableName(tables[i].name);
                     tableNames[name] = true;
                 }
 
                 innerCarts.forEach(function(cart) {
                     var tableName = cart.tableName;
-                    $input = $('#selectedTable-' + cart.dsName + ' .tableNameEdit');
+                    $input = $('#selectedTable-' + cart.dsName +
+                               ' .tableNameEdit');
 
                     if (tableNames.hasOwnProperty(tableName)) {
                         errorMsg = 'A table with the name "' + tableName +
@@ -945,9 +947,9 @@ window.DataCart = (function($, DataCart) {
         // datasets has it's unique format, no need to check
         XcalarGetTables()
         .then(function(result) {
-            var tables = result.tables;
-            for (var i = 0; i < result.numTables; i++) {
-                var name = xcHelper.getTableName(tables[i].tableName);
+            var tables = result.nodeInfo;
+            for (var i = 0; i < result.numNodes; i++) {
+                var name = xcHelper.getTableName(tables[i].name);
                 tableNames[name] = 1;
             }
 
@@ -961,7 +963,7 @@ window.DataCart = (function($, DataCart) {
                         validNameFound = true;
                         break;
                     }
-                }
+                }n
                 if (!validNameFound) {
                     var tries = 0;
                     while (tableNames.hasOwnProperty(newName) && tries < 100) {

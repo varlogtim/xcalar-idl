@@ -335,8 +335,11 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
         return (deferred.promise());
     }
     datasetName = parseDS(datasetName);
-    var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename);
-    var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename);
+    var dhtName = ""; // XXX TODO fill in later
+    var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename,
+                                              dhtName);
+    var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename,
+                                  dhtName);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
@@ -359,9 +362,12 @@ function XcalarIndexFromTable(srcTablename, key, tablename, sqlOptions) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    var workItem = xcalarIndexTableWorkItem(srcTablename, tablename, key);
+    var dhtName = ""; // XXX TODO fill in later
+    var workItem = xcalarIndexTableWorkItem(srcTablename, tablename, key,
+                                            dhtName);
     
-    var def1 = xcalarIndexTable(tHandle, srcTablename, key, tablename);
+    var def1 = xcalarIndexTable(tHandle, srcTablename, key, tablename,
+                                dhtName);
     var def2 = XcalarGetQuery(workItem);
 
     jQuery.when(def1, def2)
@@ -522,7 +528,7 @@ function XcalarGetTables(tableName) {
     } else {
         var patternMatch = tableName;
     }
-    xcalarListTables(tHandle, patternMatch)
+    xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcTable)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarGetTables", error));
@@ -871,9 +877,13 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
         deferred.reject("bug!:" + op);
         return (deferred.promise());
     }
-    var workItem = xcalarAggregateWorkItem(srcTablename, evalStr);
 
-    var def1 = xcalarAggregate(tHandle, srcTablename, evalStr);
+    var dstDagName = srcTablename.split("#")[0] + "#" +
+                     Authentication.fetchHashTag().split("#")[1];
+
+    var workItem = xcalarAggregateWorkItem(srcTablename, dstDagName, evalStr);
+
+    var def1 = xcalarAggregate(tHandle, srcTablename, dstDagName, evalStr);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
@@ -958,7 +968,7 @@ function XcalarQuery(queryName, queryString) {
         return (deferred.promise());
     }
 
-    xcalarQuery(tHandle, queryName, queryString)
+    xcalarQuery(tHandle, queryName, queryString, false, "")
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarQuery", error));

@@ -530,12 +530,12 @@ function initializeTable() {
 
     XcalarGetTables()
     .then(function(backEndTables) {
-        var backTables = backEndTables.tables;
-        var numBackTables = backEndTables.numTables;
+        var backTables = backEndTables.nodeInfo;
+        var numBackTables = backEndTables.numNodes;
         var tableMap = {};
 
         for (var i = 0; i < numBackTables; i++) {
-            tableMap[backTables[i].tableName] = backTables[i];
+            tableMap[backTables[i].tableName] = backTables[i].name;
         }
 
         var hasTable = false;

@@ -1106,11 +1106,11 @@ window.RightSideBar = (function($, RightSideBar) {
     function refreshOrphanList() {
         XcalarGetTables()
         .then(function(backEndTables) {
-            var backTables = backEndTables.tables;
+            var backTables = backEndTables.nodeInfo;
             var numBackTables = backTables.length;
             var tableMap = {};
             for (var i = 0; i < numBackTables; i++) {
-                tableMap[backTables[i].tableName] = backTables[i];
+                tableMap[backTables[i].name] = backTables[i].name;
             }
             for (var tId in gTables) {
                 var tableName = gTables[tId].tableName;

@@ -23,9 +23,9 @@ function freeAllResultSetsSync() {
     // check backend table name to see if it exists
     XcalarGetTables()
     .then(function(results) {
-        var tables = results.tables;
-        for (var i = 0, len = results.numTables; i < len; i++) {
-            tableNames[tables[i].tableName] = true;
+        var tables = results.nodeInfo;
+        for (var i = 0, len = results.numNodes; i < len; i++) {
+            tableNames[tables[i].name] = true;
         }
 
         for (table in gTables) {

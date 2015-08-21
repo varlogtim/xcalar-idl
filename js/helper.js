@@ -497,9 +497,9 @@ window.xcHelper = (function($, xcHelper) {
 
         XcalarGetTables()
         .then(function(result) {
-            var tables = result.tables;
-            for (var i = 0; i < result.numTables; i++) {
-                var name = xcHelper.getTableName(tables[i].tableName);
+            var tables = result.nodeInfo;
+            for (var i = 0; i < result.numNodes; i++) {
+                var name = xcHelper.getTableName(tables[i].name);
                 if (name === tableName) {
                     return (deferred.reject('table'));
                 }

@@ -187,7 +187,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             // return fail if resultSetId is not free
             XcalarGetTables(statsCol.groupByInfo.groupbyTable)
             .then(function(tableInfo) {
-                if (tableInfo == null || tableInfo.numTables === 0) {
+                if (tableInfo == null || tableInfo.numNodes === 0) {
                     // XXX use XcalarSetFree will crash backend...
                     statsCol.groupByInfo = {
                         "isComplete": false
