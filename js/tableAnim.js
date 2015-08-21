@@ -280,51 +280,14 @@ function dragdropMouseUp() {
     
     // only pull col if column is dropped in new location
     if ((dragObj.colIndex) !== dragObj.colNum) {
-        // add sql
-        var table = gTables[dragObj.tableId];
+        var tableId  = dragObj.tableId;
+        var oldColNum = dragObj.colNum;
+        var newColNum = dragObj.colIndex;
 
-        SQL.add("Change Column Order", {
-            "operation": "changeColOrder",
-            "tablename": table.tableName,
-            "colName"  : table.tableCols[dragObj.colNum - 1].name,
-            "oldColNum": dragObj.colNum,
-            "newColNum": dragObj.colIndex
-        });
+        ColManager.reorderCol(tableId, oldColNum, newColNum);
 
-        reorderAfterColumnDrop();
         Tips.refresh();
     }
-}
-
-function reorderAfterColumnDrop() {
-    var dragObj  = gDragObj;
-    var tableId  = dragObj.tableId;
-    var oldIndex = dragObj.colNum - 1;
-    var newIndex = dragObj.colIndex - 1;
-
-    ColManager.reorderCol(tableId, oldIndex, newIndex);
-
-    dragObj.table.find('.col' + dragObj.colNum)
-                 .removeClass('col' + dragObj.colNum)
-                 .addClass('colNumToChange');
-
-    if (dragObj.colNum > dragObj.colIndex) {
-        for (var i = dragObj.colNum; i >= dragObj.colIndex; i--) {
-            dragObj.table.find('.col' + i)
-                   .removeClass('col' + i)
-                   .addClass('col' + (i + 1));
-        }
-    } else {
-        for (var i = dragObj.colNum; i <= dragObj.colIndex; i++) {
-            dragObj.table.find('.col' + i)
-                   .removeClass('col' + i)
-                   .addClass('col' + (i - 1));
-        }
-    }
-
-    dragObj.table.find('.colNumToChange')
-                 .addClass('col' + dragObj.colIndex)
-                 .removeClass('colNumToChange');
 }
 
 function dragdropMoveMainFrame(dragObj, timer) {

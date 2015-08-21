@@ -229,11 +229,49 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.reorderCol = function(tableId, oldIndex, newIndex) {
+    ColManager.reorderCol = function(tableId, oldColNum, newColNum) {
+        var oldIndex = oldColNum - 1;
+        var newIndex = newColNum - 1;
+        var $table   = $("#xcTable-" + tableId);
+        var table    = gTables[tableId];
+        var colName  = table.tableCols[oldIndex].name;
+
         var progCol = removeColHelper(oldIndex, tableId);
 
         insertColHelper(newIndex, tableId, progCol);
         progCol.index = newIndex + 1;
+
+        $table.find('.col' + oldColNum)
+                 .removeClass('col' + oldColNum)
+                 .addClass('colNumToChange');
+
+        if (oldColNum > newColNum) {
+            for (var i = oldColNum; i >= newColNum; i--) {
+                $table.find('.col' + i)
+                       .removeClass('col' + i)
+                       .addClass('col' + (i + 1));
+            }
+        } else {
+            for (var i = oldColNum; i <= newColNum; i++) {
+                $table.find('.col' + i)
+                       .removeClass('col' + i)
+                       .addClass('col' + (i - 1));
+            }
+        }
+
+       $table.find('.colNumToChange')
+            .addClass('col' + newColNum)
+            .removeClass('colNumToChange');
+
+        // add sql
+        SQL.add("Change Column Order", {
+            "operation": "reorderCol",
+            "tableName": table.tableName,
+            "tableId"  : tableId,
+            "colName"  : colName,
+            "oldColNum": oldColNum,
+            "newColNum": newColNum
+        });
     };
 
     ColManager.execCol = function(progCol, tableId, args) {
