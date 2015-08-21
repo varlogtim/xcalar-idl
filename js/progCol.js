@@ -211,6 +211,89 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
+    // specifically used for json modal
+    ColManager.pullCol = function(colNum, tableId, nameInfo, pullColOptions) {
+        var deferred = jQuery.Deferred();
+
+        pullColOptions = pullColOptions || {};
+
+        var isDataTd = pullColOptions.isDataTd || false;
+        var isArray  = pullColOptions.isArray || false;
+
+        var $table   = $("#xcTable-" + tableId);
+        var table    = gTables[tableId];
+        var tableCols = table.tableCols;
+        var col      = tableCols[colNum - 1];
+        var fullName = nameInfo.name;
+        var escapedName = nameInfo.escapedName;
+
+        if (!isDataTd) {
+            var symbol = "";
+            if (!isArray) {
+                symbol = ".";
+            }
+            escapedName = col.func.args[0] + symbol + escapedName;
+            fullName = col.func.args[0] + symbol + fullName;
+        }
+        var usrStr = '"' + fullName + '" = pull(' + escapedName + ')';
+        
+        var tableName   = table.tableName;
+        var siblColName = table.tableCols[colNum - 1].name;
+        var newColName  = xcHelper.getUniqColName(fullName, tableCols);   
+        var direction;
+        if (isDataTd) {
+            direction = "L";
+        } else {
+            direction = "R";
+        }
+        ColManager.addCol(colNum, tableId, newColName, {
+            "direction": direction,
+            "select"   : true
+        });
+
+        if (direction === "R") {
+            colNum++;
+        }
+
+        // now the column is different as we add a new column
+        var newCol = table.tableCols[colNum - 1];
+        newCol.func.func = "pull";
+        newCol.func.args = [escapedName];
+        newCol.userStr = usrStr;
+
+        ColManager.execCol(newCol, tableId)
+        .then(function() {
+            updateTableHeader(tableId);
+            RightSideBar.updateTableInfo(tableId);
+
+            autosizeCol($table.find("th.col" + colNum), {
+                "includeHeader" : true,
+                "resizeFirstRow": true
+            });
+
+            $table.find("tr:first th.col" + (colNum + 1) +
+                        " .editableHead").focus();
+
+            // add sql
+            SQL.add("Pull Column", {
+                "operation"     : "pullCol",
+                "tableName"     : tableName,
+                "tableId"       : tableId,
+                "siblColName"   : siblColName,
+                "newColName"    : newColName,
+                "colNum"        : colNum,
+                "direction"     : direction,
+                "nameInfo"      : nameInfo,
+                "pullColOptions": pullColOptions
+            });
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
     ColManager.renameCol = function(colNum, tableId, newName) {
         var table   = gTables[tableId];
         var $table  = $("#xcTable-" + tableId);

@@ -95,84 +95,19 @@ window.JSONModal = (function($, JSONModal) {
     function jsonModalEvent($jsonTd, isArray) {
         $jsonWrap.on({
             "click": function() {
-                var $table   = $jsonTd.closest('table');
-                var tableId  = $table.data('id');
+                var tableId  = $jsonTd.closest('table').data('id');
                 var isDataTd = $jsonTd.hasClass('jsonElement');
                 var colNum   = xcHelper.parseColNum($jsonTd);
-                var table    = gTables[tableId];
-                var name     = createJsonSelectionExpression($(this));
-                var fullName = name.name;
-                var escapedName = name.escapedName;
+                var nameInfo = createJsonSelectionExpression($(this));
 
-                if (!isDataTd) {
-                    var symbol = "";
-                    if (!isArray) {
-                        symbol = ".";
-                    }
-                    escapedName = table.tableCols[colNum - 1].func.args[0] +
-                                  symbol + escapedName;
-                    fullName = table.tableCols[colNum - 1].func.args[0] +
-                               symbol + fullName;
-                }
-                var usrStr = '"' + fullName + '" = pull(' +
-                                escapedName + ')';
+                var pullColOptions = {
+                    "isDataTd": isDataTd,
+                    "isArray" : isArray
+                };
 
-                var $id = $table.find("tr:first th").filter(function() {
-                    return ($(this).find("input").val() === "DATA");
-                });
-                
-                var tableName   = table.tableName;
-                var siblColName = table.tableCols[colNum - 1].name;
-                var newName     = xcHelper.getUniqColName(fullName,
-                                                            table.tableCols);   
-                var direction;
-                if (isDataTd) {
-                    direction = "L";
-                } else {
-                    direction = "R";
-                }
-                ColManager.addCol(colNum, tableId, newName, {
-                    "direction": direction,
-                    "select"   : true
-                });
-
-                if (direction === "R") {
-                    colNum++;
-                }
-
-                // now the column is different as we add a new column
-                var col = table.tableCols[colNum - 1];
-                col.func.func = "pull";
-                col.func.args = [escapedName];
-                col.userStr = usrStr;
-
-                ColManager.execCol(col, tableId)
-                .then(function() {
-                    updateTableHeader(tableId);
-                    RightSideBar.updateTableInfo(tableId);
-
-                    autosizeCol($table.find("th.col" + colNum), {
-                        "includeHeader" : true,
-                        "resizeFirstRow": true
-                    });
-
-                    $table.find("tr:first th.col" + (colNum + 1) +
-                                " .editableHead").focus();
-
-                    // add sql
-                    SQL.add("Pull Column", {
-                        "operation"  : "pullCol",
-                        "tableName"  : tableName,
-                        "colName"    : fullName,
-                        "siblColName": siblColName,
-                        "siblColNum" : colNum,
-                        "direction"  : direction
-                    });
-
+                ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
+                .always(function() {
                     closeJSONModal();
-                })
-                .fail(function(error) {
-                    console.error("execCol fails!", error);
                 });
             }
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
@@ -323,7 +258,7 @@ window.JSONModal = (function($, JSONModal) {
     function fillJsonModal($jsonTd, isArray) {
         var text = $jsonTd.find("div").eq(0).text();
         if (isArray) {
-            text = text.split(', ')
+            text = text.split(', ');
             text = JSON.stringify(text);
         }
         var jsonString;
@@ -341,7 +276,7 @@ window.JSONModal = (function($, JSONModal) {
         $('#sideBarModal').fadeIn(100);
         $('#rightSideBar').addClass('modalOpen');
         $jsonTd.closest('.xcTable').addClass('tableJsonModal');
-        var darkenedCell= '<div class="darkenedCell"></div>';
+        var darkenedCell = '<div class="darkenedCell"></div>';
         $jsonTd.closest('.xcTable').find('.idSpan').append(darkenedCell);
         $('.darkenedCell').fadeIn(100, "linear");
         $modalBackground.fadeIn(100, "linear");
