@@ -15,12 +15,12 @@ DgDagStateT = {
   'DgDagStateDropped' : 6,
   'DgDagStateError' : 7
 };
-DgDagStateTStr = {0 : 'DgDagStateUnknown',
-1 : 'DgDagStateCreated',
-2 : 'DgDagStateQueued',
-3 : 'DgDagStateProcessing',
-4 : 'DgDagStateCleaned',
-5 : 'DgDagStateReady',
-6 : 'DgDagStateDropped',
-7 : 'DgDagStateError'
+DgDagStateTStr = {0 : 'Unknown state',
+1 : 'Created',
+2 : 'Queued',
+3 : 'Processing',
+4 : 'Cleaned',
+5 : 'Ready',
+6 : 'Dropped',
+7 : 'Error'
 };

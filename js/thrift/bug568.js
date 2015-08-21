@@ -339,7 +339,7 @@
 
         printTestBegin();
 
-        xcalarBulkDeleteTables(thriftHandle, "*")
+        xcalarBulkDeleteNodes(thriftHandle, "*", SourceTypeT.SrcTable)
         .done(function(deleteTablesOutput) {
             printResult(deleteTablesOutput);
 
