@@ -963,7 +963,7 @@ window.DataCart = (function($, DataCart) {
                         validNameFound = true;
                         break;
                     }
-                }n
+                }
                 if (!validNameFound) {
                     var tries = 0;
                     while (tableNames.hasOwnProperty(newName) && tries < 100) {
