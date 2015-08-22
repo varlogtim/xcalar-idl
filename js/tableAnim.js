@@ -888,6 +888,12 @@ function addTableMenuActions($tableMenu) {
         moveTableDropdownBoxes();
         moveFirstColumn();
         moveTableTitles();
+
+        SQL.add("Hide Table", {
+            "operation": "hideTable",
+            "tableName": gTables[tableId].tableName,
+            "tableId"  : tableId
+        });
     });
 
     $tableMenu.on('mouseup', '.unhideTable', function(event) {
@@ -902,6 +908,12 @@ function addTableMenuActions($tableMenu) {
         moveTableTitles();
         var $table = $('#xcTable-' + tableId);
         $table.find('.rowGrab').width($table.width());
+
+         SQL.add("UnHide Table", {
+            "operation": "hideTable",
+            "tableName": gTables[tableId].tableName,
+            "tableId"  : tableId
+        });
     });
 
     $tableMenu.on('mouseup', '.deleteTable', function(event) {
@@ -1096,7 +1108,8 @@ function addTableMenuActions($tableMenu) {
 }
 
 function sortAllTableColumns(tableId, direction) {
-    var tableCols = xcHelper.getTableFromId(tableId).tableCols;
+    var table = gTables[tableId];
+    var tableCols = table.tableCols;
     var order;
     if (direction === "reverse") {
         order = 1;
@@ -1174,6 +1187,13 @@ function sortAllTableColumns(tableId, direction) {
     }
 
     RightSideBar.updateTableInfo(tableId);
+
+    SQL.add("Sort Table Columns", {
+        "operation": "sortTableCols",
+        "tableName": table.tableName,
+        "tableId"  : tableId,
+        "direction": direction
+    });
 }
 
 function renameTableHead($div) {
