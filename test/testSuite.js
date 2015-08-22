@@ -21,6 +21,8 @@ window.TestSuite = (function($, TestSuite) {
                          which: 1};
     var fakeEnter = {type: "keypress",
                      which: 13};
+    var fakeMouseenter = {type: "mouseenter",
+                          which: 1};
 
     TestSuite.start = function(deferred, testNameLocal, currentTestNumberLocal,
                                timeout) {
@@ -124,6 +126,51 @@ window.TestSuite = (function($, TestSuite) {
         // This starts the entire chain
         initialDeferred.resolve();
     }
+
+    // elemSelectors can be a string or array of element selectors 
+    // example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
+    function checkExists(elemSelectors, timeLimit, options) {
+        var deferred = jQuery.Deferred();
+        var intervalTime = 200;
+        var timeLimit = timeLimit || 10000;
+        var timeElapsed = 0;
+        if (typeof elemSelectors === "string") {
+            var elemSelectors = [elemSelectors];
+        }
+
+        var interval = setInterval(function() {
+            var numItems = elemSelectors.length;
+            var allElemsPresent = true;
+            var $elem;
+            for (var i = 0; i < numItems; i++) {
+                $elem = $(elemSelectors[i]);
+                if (options && options.notExist) {
+                    if ($elem.length !== 0) {
+                        allElemsPresent = false;
+                        break;
+                    }
+                } else if ($elem.length === 0) {
+                    allElemsPresent = false;
+                    break;
+                }
+            }
+            if (allElemsPresent) {
+                clearInterval(interval);
+                deferred.resolve();
+            } else if (timeElapsed >= timeLimit) {
+                var error = 'time limit of ' + timeLimit +
+                            'ms exceeded';
+                console.warn(error);
+                clearInterval(interval);
+                deferred.reject(error);
+            }
+            timeElapsed += intervalTime;
+        }, intervalTime);
+
+        return (deferred.promise());
+    }
+
+
 // ==================== TEST DEFINITIONS GO HERE =========================== //
     function flightTest(deferred, testName, currentTestNumber) {
         /** This test replicates a simple version of Cheng's flight demo
@@ -366,13 +413,21 @@ window.TestSuite = (function($, TestSuite) {
             checkExists("#operationsModal:visible")
             .then(function() {
                 $("#functionList .dropdown .icon").trigger(fakeClick);
-                $($("#functionsMenu li")[1]).trigger(fakeMouseup);
+                $($("#functionsMenu li")[0]).trigger(fakeMouseup);
                 $("#operationsModal .modalBottom .confirm").click();
 
                 return(checkExists("#alertHeader:visible .text:contains(Agg)"));
             })
             .then(function() {
-                 TestSuite.pass(deferred, testName, currentTestNumber);
+                 if ($("#alertContent .text").html().split(": ")[1]
+                     .indexOf("31.229") > -1) {
+                     $("#alertActions .cancel").click();
+                     TestSuite.pass(deferred, testName, currentTestNumber);
+                 } else {
+                     console.log(error, 'Average value wrong');
+                     TestSuite.fail(deferred, testName, currentTestNumber,
+                                    "Average value wrong");
+                 }
             })
             .fail(function(error) {
                 console.error(error, 'flightTestPart9');
@@ -380,52 +435,44 @@ window.TestSuite = (function($, TestSuite) {
         }
     }
 
-    // elemSelectors can be a string or array of element selectors 
-    // example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
-    function checkExists(elemSelectors, timeLimit, options) {
-        var deferred = jQuery.Deferred();
-        var intervalTime = 200;
-        var timeLimit = timeLimit || 10000;
-        var timeElapsed = 0;
-        if (typeof elemSelectors === "string") {
-            var elemSelectors = [elemSelectors];
-        }
+    function newWorksheetTest(deferred, testName, currentTestNumber) {
+        // Tests add worksheet and rename new worksheet
+        $("#addWorksheet .icon").click();
+        checkExists("#worksheetTab-1")
+        .then(function() {
+            $("#worksheetTab-1 .text").text("Multi group by");
+            $("#tableListBtn").click();
+            $(".tableListSectionTab").eq(1).click();
+            return (checkExists("#inactiveTablesList"))
+        })
+        .then(function() {
+            $("#inactiveTablesList .addTableBtn").eq(0).click();
+            $("#submitTablesBtn").click();
+            $("#rightSideBar .iconClose").click();
+            $("#worksheetTab-0 .label").click();
+            return (checkExists(".xcTableWrap .tableTitle .dropdownBox "+
+                                ".innerBox"));
+        })
+        .then(function() {
+            $("#mainFrame").scrollLeft("10000");
+            $(".xcTableWrap .tableTitle .dropdownBox .innerBox").eq(2).click();
+            $(".xcTableWrap .moveToWorksheet").eq(2).trigger(fakeMouseenter);
+            $(".xcTableWrap .moveToWorksheet .wsName").eq(2).click();
+            $(".xcTableWrap .moveToWorksheet .list li").click();
+            $(".xcTableWrap .moveToWorksheet .wsName").eq(2).trigger(fakeEnter);
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        });
+    }
 
-        var interval = setInterval(function() {
-            var numItems = elemSelectors.length;
-            var allElemsPresent = true;
-            var $elem;
-            for (var i = 0; i < numItems; i++) {
-                $elem = $(elemSelectors[i]);
-                if (options && options.notExist) {
-                    if ($elem.length !== 0) {
-                        allElemsPresent = false;
-                        break;
-                    }
-                } else if ($elem.length === 0) {
-                    allElemsPresent = false;
-                    break;
-                }
-            }
-            if (allElemsPresent) {
-                clearInterval(interval);
-                deferred.resolve();
-            } else if (timeElapsed >= timeLimit) {
-                var error = 'time limit of ' + timeLimit +
-                            'ms exceeded';
-                console.warn(error);
-                clearInterval(interval);
-                deferred.reject(error);
-            }
-            timeElapsed += intervalTime;
-        }, intervalTime);
-
-        return (deferred.promise());
+    function multiGroupByTest(deferred, testName, currentTestNumber) {
+                 
     }
 
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
     TestSuite.add(testCases, flightTest, "FlightTest", defaultTimeout,
                   TestCaseEnabled);
+    TestSuite.add(testCases, newWorksheetTest, "NewWorksheetTest",
+                  defaultTimeout, TestCaseEnabled);
 
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
     return (TestSuite);
