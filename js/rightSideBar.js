@@ -1107,7 +1107,7 @@ window.RightSideBar = (function($, RightSideBar) {
         XcalarGetTables()
         .then(function(backEndTables) {
             var backTables = backEndTables.nodeInfo;
-            var numBackTables = backTables.length;
+            var numBackTables = backEndTables.numNodes;
             var tableMap = {};
             for (var i = 0; i < numBackTables; i++) {
                 tableMap[backTables[i].name] = backTables[i].name;
