@@ -892,13 +892,16 @@ window.WKBKManager = (function($, WKBKManager) {
     function storeWKBKInfo(workbook) {
         workbook.tables = {};
 
-        gTables.forEach(storeHelper);
+        for (var tableId in gTables) {
+            var table = gTables[tableId];
+            workbook.tables[table.tableName] = true;
+        }
 
         // XXX Cheng: store real table for delete table use
         // this is just temporayily, after bakcend support, we do not need it!
-        function storeHelper(table) {
-            workbook.tables[table.tableName] = true;
-        }
+        // function storeHelper(table) {
+        //     workbook.tables[table.tableName] = true;
+        // }
 
         workbook.modified = xcHelper.getTimeInMS();  // store modified data
         workbook.curUser = username;  // store current user
