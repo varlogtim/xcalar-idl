@@ -497,9 +497,15 @@ window.GridView = (function($, GridView) {
 
          // click "Add New Folder" button to add new folder
         $("#addFolderBtn").click(function() {
-            DS.create({
+            var ds = DS.create({
                 "name"    : "New Folder",
                 "isFolder": true
+            });
+
+            SQL.add("Create folder", {
+                "operation": "createFolder",
+                "dsName"   : ds.name,
+                "dsId"     : ds.id
             });
             commitToStorage();
         });
@@ -586,8 +592,10 @@ window.GridView = (function($, GridView) {
                 }, 1);
             },
             "blur": function() {
-                var $label = $(this);
-                DS.rename($label);
+                var $label  = $(this);
+                var dsId    = $label.closest(".grid-unit").data("dsid");
+                var newName = $label.text().trim();
+                DS.rename(dsId, newName);
                 this.scrollLeft = 0;    //scroll to the start of text;
             }
         }, ".folder .label");
@@ -2360,7 +2368,7 @@ window.DS = (function ($, DS) {
         dsObjId = 0;
         dsLookUpTable = {};
 
-        homeFolder = new DSObj(dsObjId++, "", -1, true);
+        homeFolder = new DSObj(dsObjId++, ".", -1, true);
         dsLookUpTable[homeFolder.id] = homeFolder;
     };
 
@@ -2666,14 +2674,33 @@ window.DS = (function ($, DS) {
      * Rename dsObj
      * @param {JQuery} $label label emelent which has new name
      */
-    DS.rename = function ($label) {
+    DS.rename = function(dsId, newName) {
         // now only for folders (later also rename datasets?)
-        var newName = jQuery.trim($label.text());
-        var dsId    = $label.closest(".grid-unit").data("dsid");
-        var ds      = DS.getDSObj(dsId).rename(newName);
+        var ds      = DS.getDSObj(dsId);
+        var $label  = DS.getGrid(dsId).find("> .label");
+        var oldName = ds.name;
 
-        $label.text(ds.name);
-        commitToStorage();
+        if (newName === "") {
+            // when new name is invalid
+            $label.text(oldName);
+        } else if (newName === oldName) {
+            return;
+        } else {
+            ds = ds.rename(newName);
+
+            if (ds.name === newName) {
+                // valid rename
+                SQL.add("Rename Folder", {
+                    "operation": "dsRename",
+                    "dsId"     : dsId,
+                    "oldName"  : oldName,
+                    "newName"  : newName
+                });
+
+                $label.text(ds.name);
+                commitToStorage();
+            }
+        }
     };
 
     /**
@@ -2699,6 +2726,8 @@ window.DS = (function ($, DS) {
             return;
         }
 
+        var ds = DS.getDSObj($grid.data("dsid"));
+
         if ($grid.hasClass("ds")) {
             // delete a ds
             var dsName = $grid.attr("id").split("dataset-")[1];
@@ -2716,6 +2745,12 @@ window.DS = (function ($, DS) {
         } else if (rmDSObjHelper($grid.data("dsid")) === true) {
             // delete a folder
             $grid.remove();
+
+            SQL.add("Delete Folder", {
+                "operation": "deleteFolder",
+                "dsName"   : ds.name,
+                "dsId"     : ds.id
+            });
         }
     };
 
@@ -2741,6 +2776,12 @@ window.DS = (function ($, DS) {
         }
 
         DS.refresh();
+
+        SQL.add("Go to folder", {
+            "operation" : "goToDir",
+            "folderId"  : folderId,
+            "folderName": DS.getDSObj(folderId).name
+        });
     };
 
     /**
@@ -2765,7 +2806,7 @@ window.DS = (function ($, DS) {
     /**
      * Get current dataset/folder in drag
      */
-    DS.getDragDS = function () {
+    DS.getDragDS = function() {
         return ($dragDS);
     };
 
@@ -3370,6 +3411,14 @@ function dsDropIn($grid, $target) {
         $grid.attr("data-dsParentId", targetId);
         $target.append($grid);
         DS.refresh();
+
+        SQL.add("Drop dataset/folder", {
+            "operation"   : "dsDropIn",
+            "dsId"        : dragDsId,
+            "dsName"      : ds.name,
+            "targetDSId"  : targetId,
+            "targetDSName": targetDS.name
+        });
         commitToStorage();
     }
 }
@@ -3411,6 +3460,38 @@ function dsInsert($grid, $sibling, isBefore) {
             $sibling.after($grid);
         }
         DS.refresh();
+
+        SQL.add("Insert dataset/folder", {
+            "operation"    : "dsInsert",
+            "dsId"         : dragDsId,
+            "dsName"       : ds.name,
+            "siblingDSId"  : siblingId,
+            "siblingDSName": siblingDs.name,
+            "isBefore"     : isBefore
+        });
+        commitToStorage();
+    }
+}
+
+function dsBack($grid) {
+    var ds = DS.getDSObj($grid.data("dsid"));
+    // target
+    var grandPaId = DS.getDSObj(ds.parentId).parentId;
+    var grandPaDs = DS.getDSObj(grandPaId);
+    var $grandPa = DS.getGrid(grandPaId);
+
+    if (ds.moveTo(grandPaDs, -1)) {
+        $grid.attr("data-dsParentId", grandPaId);
+        $grandPa.append($grid);
+        DS.refresh();
+
+        SQL.add("Drop dataset/folder back", {
+            "operation"    : "dsBack",
+            "dsId"         : ds.id,
+            "dsName"       : ds.name,
+            "newFolderId"  : grandPaId,
+            "newFolderName": grandPaDs.name
+        });
         commitToStorage();
     }
 }
@@ -3429,17 +3510,6 @@ function dsDropBack(event) {
     }
 
     var $grid = DS.getDragDS();
-    var ds = DS.getDSObj($grid.data("dsid"));
-    // target
-    var grandPaId = DS.getDSObj(ds.parentId).parentId;
-    var grandPaDs = DS.getDSObj(grandPaId);
-    var $grandPa = DS.getGrid(grandPaId);
-
-    if (ds.moveTo(grandPaDs, -1)) {
-        $grid.attr("data-dsParentId", grandPaId);
-        $grandPa.append($grid);
-        DS.refresh();
-        commitToStorage();
-    }
+    dsBack($grid);
 }
 /*** End of Drag and Drop Function for DSCart ***/
