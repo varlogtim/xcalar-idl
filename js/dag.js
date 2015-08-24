@@ -739,8 +739,8 @@ window.Dag = (function($, Dag) {
             $dags = $('.dagTable[data-id=' + tableId + ']');
         }
         
-        $dags.removeClass('DgDagStateReady')
-             .addClass('DgDagStateDropped');
+        $dags.removeClass('Ready')
+             .addClass('Dropped');
         $dags.find('.icon').attr({
             "data-toggle"        : "tooltip",
             "data-placement"     : "top",
@@ -785,7 +785,7 @@ window.Dag = (function($, Dag) {
             $('body').addClass('noSelection');
         });
 
-        $dagWrap.on('mouseenter', '.dagTable.DgDagStateReady', function() {
+        $dagWrap.on('mouseenter', '.dagTable.Ready', function() {
             var $dagTable = $(this);
             var timer = setTimeout(function(){
                             var $dropdown = $('.dagTableDropDown:visible');
@@ -1017,7 +1017,8 @@ window.Dag = (function($, Dag) {
                             'data-tablename="' + tableName + '" ' +
                             'data-id="' + tableId + '">' +
                             '<div class="dagTableIcon"></div>';
-            if (dagInfo.state === 'DgDagStateDropped') {
+            var dagDroppedState = DgDagStateT['DgDagStateDropped'];
+            if (dagInfo.state === DgDagStateTStr[dagDroppedState]) {
                 dagTable += '<div class="icon" ' +
                             'data-toggle="tooltip" ' +
                             'data-placement="top" ' +
