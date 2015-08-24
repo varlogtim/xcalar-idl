@@ -1048,7 +1048,7 @@ input {
 
 /* Content Mid */
 #contentViewMid {
-    .flex(1 1 auto);
+    .flex(1 1 255px);
     .flex-order(2);
     .flex-display;
     .flex-flow(column);
@@ -1056,10 +1056,11 @@ input {
     height: 100%;
 
     .modifyDSButton {
-        margin-bottom: 5px;
+        padding-bottom: 3px;
+        margin-bottom: 2px;
         cursor: pointer;
         text-align: right;
-        height: 20px;
+        height: 23px;
         span {
             float: right;
         }
@@ -1077,11 +1078,12 @@ input {
         .dbText {
             display: inline-block;
             float: left;
-            width: ~"calc(100% - 105px)";
+            width: 100%;
             padding-left: 25px;
+            padding-right: 25px;
             overflow: hidden;
 
-            h2 {
+            h2, p {
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
@@ -1132,7 +1134,7 @@ input {
             display: inline-block;
             float: right;
             width: 120px;
-            margin-top: 10px;
+            margin-top: 5px;
             color: @color-text-blue;
             font-weight: 600;
             text-align: right;
@@ -1140,6 +1142,10 @@ input {
         }
 
         .modifyDSButton {
+            &.selectAll {
+                padding-top: 5px;
+                height: 28px;
+            }
             &.selectAll .icon {
                 margin-top: 2px;
                 width: 19px;
