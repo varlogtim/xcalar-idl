@@ -548,6 +548,9 @@ function initializeTable() {
         var numWorksheets = worksheets.length;
 
         for (var i = 0; i < numWorksheets; i++) {
+            if (worksheets[i] == null) {
+                continue;
+            }
             var wsTables = worksheets[i].tables;
             var numWsTables = wsTables.length;
 
