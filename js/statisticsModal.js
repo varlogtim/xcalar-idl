@@ -137,7 +137,8 @@ window.STATSManager = (function($, STATSManager, d3) {
                 "type"       : col.type,
                 "aggInfo"    : {},
                 "groupByInfo": {
-                    "isComplete": false
+                    "isComplete": false,
+                    "nullCount" : 0
                 }
             };
         }
@@ -273,7 +274,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         aggKeys.forEach(function(aggkey) {
             var aggVal = statsCol.aggInfo[aggkey];
             if (aggVal == null) {
-                // when XcalarAggregate is still running
+                // when aggregate is still running
                 $aggInfoSection.find("." + aggkey).html("...")
                                     .addClass("animatedEllipsis");
             } else {
@@ -317,6 +318,9 @@ window.STATSManager = (function($, STATSManager, d3) {
                     setupScrollBar();
                 }
                 resetSortSection();
+
+                groupByData = addNullValue(groupByData, statsCol.colName,
+                                            statsColName);
                 buildGroupGraphs(true);
             })
             .fail(function(error) {
@@ -363,39 +367,20 @@ window.STATSManager = (function($, STATSManager, d3) {
 
     function runAgg(tableName, aggkey, curStatsCol) {
         // pass in statsCol beacuse close modal may clear the global statsCol
-        var deferred   = jQuery.Deferred();
-        var fieldName  = curStatsCol.colName;
-        var opString   = aggMap[aggkey];
-        var sqlOptions = {
-            "operation": SQLOps.ProfileAction,
-            "action"   : "aggregate",
-            "tableName": tableName,
-            "colName"  : fieldName,
-            "aggrOp"   : opString
-        };
+        var deferred  = jQuery.Deferred();
+        var fieldName = curStatsCol.colName;
+        var aggrOp    = aggMap[aggkey];
 
-        XcalarAggregate(fieldName, tableName, opString, sqlOptions)
-        .then(function(value) {
-            var val;
-            try {
-                var obj = jQuery.parseJSON(value);
-                val = obj.Value;
+        getAggResult(fieldName, tableName, aggrOp)
+        .then(function(val) {
+            curStatsCol.aggInfo[aggkey] = val;
 
-                curStatsCol.aggInfo[aggkey] = val;
-
-                // modal is open and is for that column
-                if (!$statsModal.hasClass("hidden") &&
-                    $statsModal.data("id") === curStatsCol.modalId)
-                {
-                    $statsModal.find(".aggInfoSection ." + aggkey)
-                            .removeClass("animatedEllipsis").text(val);
-                }
-
-                deferred.resolve();
-            } catch (error) {
-                console.error(error, obj);
-                val = "";
-                deferred.reject(error);
+            // modal is open and is for that column
+            if (!$statsModal.hasClass("hidden") &&
+                $statsModal.data("id") === curStatsCol.modalId)
+            {
+                $statsModal.find(".aggInfoSection ." + aggkey)
+                        .removeClass("animatedEllipsis").text(val);
             }
         })
         .fail(function(error) {
@@ -432,7 +417,9 @@ window.STATSManager = (function($, STATSManager, d3) {
         };
 
         checkTableIndex(tableId, tableName, colName, keyName)
-        .then(function(indexedTableName) {
+        .then(function(indexedTableName, nullCount) {
+            curStatsCol.groupByInfo.nullCount = nullCount;
+
             var operator    = "Count";
             var newColName  = statsColName;
             var isIncSample = false;
@@ -450,45 +437,13 @@ window.STATSManager = (function($, STATSManager, d3) {
                                     isIncSample, sqlOptions));
         })
         .then(function() {
-            return XcalarAggregate(statsColName, groupbyTable, aggMap.max, {
-                "operation": SQLOps.ProfileAction,
-                "action"   : "aggregate",
-                "tableName": groupbyTable,
-                "colName"  : statsColName,
-                "aggrOp"   : aggMap.max
-            });
+            var def1 = getAggResult(statsColName, groupbyTable, aggMap.max);
+            var def2 = getAggResult(statsColName, groupbyTable, aggMap.sum);
+            return (xcHelper.when(def1, def2));
         })
-        .then(function(value) {
-            var val;
-            try {
-                var obj = jQuery.parseJSON(value);
-                val = obj.Value;
-
-                curStatsCol.groupByInfo.max = val;
-                return XcalarAggregate(statsColName, groupbyTable,
-                        aggMap.sum, {
-                            "operation": SQLOps.ProfileAction,
-                            "action"   : "aggregate",
-                            "tableName": groupbyTable,
-                            "colName"  : statsColName,
-                            "aggrOp"   : aggMap.sum
-                        });
-            } catch (error) {
-                console.error(error, val);
-                return (jQuery.Deferred().reject(error));
-            }
-        })
-        .then(function(value) {
-            var val;
-            try {
-                var obj = jQuery.parseJSON(value);
-                val = obj.Value;
-
-                curStatsCol.groupByInfo.sum = val;
-            } catch (error) {
-                console.error(error, val);
-                return (jQuery.Deferred().reject(error));
-            }
+        .then(function(maxVal, sumVal) {
+            curStatsCol.groupByInfo.max = maxVal;
+            curStatsCol.groupByInfo.sum = sumVal;
 
             curStatsCol.groupByInfo.groupbyTable = groupbyTable;
             curStatsCol.groupByInfo.isComplete = true;
@@ -503,11 +458,11 @@ window.STATSManager = (function($, STATSManager, d3) {
             // XXX this can be removed if we do not want indexed table to be del
             if (tableToDelete != null) {
                 // delete the indexed table if exist
-                XcalarDeleteTable(tableToDelete, {
-                    "operation": SQLOps.ProfileAction,
-                    "action"   : "delete",
-                    "tableName": tableToDelete
-                });
+                // XcalarDeleteTable(tableToDelete, {
+                //     "operation": SQLOps.ProfileAction,
+                //     "action"   : "delete",
+                //     "tableName": tableToDelete
+                // });
             }
             var noNotification = true;
             StatusMessage.success(msgId, noNotification);
@@ -527,9 +482,12 @@ window.STATSManager = (function($, STATSManager, d3) {
     function checkTableIndex(tableId, tableName, colName, keyName) {
         var deferred = jQuery.Deferred();
         if (colName === keyName) {
-            deferred.resolve(tableName);
+            deferred.resolve(tableName, 0);
         } else {
             var newTableName = getNewName(tableName, ".stats.index", true);
+            // lock the table when do index
+            xcHelper.lockTable(tableId);
+
             var sqlOptions = {
                 "operation"   : SQLOps.ProfileAction,
                 "action"      : "index",
@@ -538,17 +496,49 @@ window.STATSManager = (function($, STATSManager, d3) {
                 "colName"     : colName,
                 "newTableName": newTableName
             };
-            // lock the table when do index
-            xcHelper.lockTable(tableId);
+
             XcalarIndexFromTable(tableName, colName, newTableName, sqlOptions)
             .then(function() {
-                deferred.resolve(newTableName);
+                // Aggregate count on origingal already remove the null value!
+                return (getAggResult(colName, tableName, aggMap.count));
+            })
+            .then(function(val) {
+                var nullCount = gTables[tableId].resultSetCount - val;
+                deferred.resolve(newTableName, nullCount);
             })
             .fail(deferred.reject)
             .always(function() {
                 xcHelper.unlockTable(tableId, false);
             });
         }
+
+        return (deferred.promise());
+    }
+
+    function getAggResult(colName, tableName, aggrOp) {
+        var deferred   = jQuery.Deferred();
+        var sqlOptions = {
+            "operation": SQLOps.ProfileAction,
+            "action"   : "aggregate",
+            "tableName": tableName,
+            "colName"  : colName,
+            "aggrOp"   : aggrOp
+        };
+
+        XcalarAggregate(colName, tableName, aggrOp, sqlOptions)
+        .then(function(value) {
+            var val;
+            try {
+                var obj = jQuery.parseJSON(value);
+                val = obj.Value;
+
+                deferred.resolve(val);
+            } catch (error) {
+                console.error(error, val);
+                deferred.reject(error);
+            }
+        })
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
@@ -606,6 +596,23 @@ window.STATSManager = (function($, STATSManager, d3) {
         return (deferred.promise());
     }
 
+    function addNullValue(data) {
+        // add col info for null value
+        var nullCount = statsCol.groupByInfo.nullCount || 0;
+
+        if (nullCount === 0) {
+            return (data);
+        }
+
+        var nullData = {};
+        nullData[statsCol.colName] = "null";
+        nullData[statsColName] = nullCount;
+        nullData.type = "nullVal";
+        data.unshift(nullData);
+
+        return (data);
+    }
+
     function buildGroupGraphs(initial) {
         var xName = statsCol.colName;
         var yName = statsColName;
@@ -613,8 +620,8 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         var $section = $statsModal.find(".groubyInfoSection");
         var data = groupByData;
-        var maxRectW = 70;
 
+        var maxRectW = 70;
         var sectionWidth = $section.width();
         var chartWidth   = Math.min(sectionWidth, maxRectW * data.length);
         var chartHeight  = $section.height();
@@ -682,7 +689,12 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         // bar area
         newbars.append("rect")
-            .attr("class", "bar")
+            .attr("class", function(d, i) {
+                if (i === 0 && d.type === "nullVal") {
+                    return "bar bar-nullVal";
+                }
+                return "bar";
+            })
             .attr("x", function(d) { return x(d[xName]); })
             .attr("y", function(d) { return y(d[yName]); })
             .attr("height", function(d) { return height - y(d[yName]); })
@@ -721,7 +733,7 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             if (percentageLabel && groupByInfo.sum !== 0) {
                 // show percentage
-                num = (num / groupByInfo.sum * 100).toFixed(1) + "%";
+                num = (num / (groupByInfo.sum + groupByInfo.nullCount) * 100).toFixed(1) + "%";
                 return (num);
             } else {
                 num = d[yName].toLocaleString("en");
@@ -739,7 +751,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             var title;
 
             if (percentageLabel && groupByInfo.sum !== 0) {
-                var num = d[yName] / groupByInfo.sum * 100;
+                var num = d[yName] / (groupByInfo.sum + groupByInfo.nullCount) * 100;
                 var per = num.toFixed(2);
 
                 if (per === "0.00") {
@@ -914,6 +926,8 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             fetchGroupbyData(rowPosition, rowsToFetch)
             .then(function() {
+                groupByData = addNullValue(groupByData, statsCol.colName,
+                                            statsColName);
                 buildGroupGraphs();
                 $loadingSection.addClass("hidden");
                 clearTimeout(loadTimer);
