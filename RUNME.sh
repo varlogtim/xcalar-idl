@@ -4,6 +4,7 @@
 echo "Set up Xcalar Insight..."
 # Get rid of abs paths 
 sed -i '/^<script src="bower/! s@/js/@js/@' *.html
+sed -i '/^<script src="bower/! s@/test/@test/@' *.html
 sed -i 's@/stylesheets/@stylesheets/@' *.html
 sed -i '/^<script src="bower/! s@/js/@js/@' widget/*.html
 sed -i 's@/stylesheets/@stylesheets/@' widget/*.html
@@ -21,6 +22,7 @@ then
     then
         echo "*** WARNING: thrift interfaces may be incompatible"
         echo "XcalarApiVersionSignature_types.js differs"
+        echo "If hosting UI from another place, ignore this message"
     fi
     diff -q "../xcalar/src/lib/libapis/XcalarApi.js" ./js/thrift/XcalarApi.js > /dev/null 2>&1
     ret=$?
@@ -28,5 +30,6 @@ then
     then
         echo "*** WARNING: thrift interfaces may be incompatible"
         echo "XcalarApi.js differs"
+        echo "If hosting UI from another place, ignore this message"
     fi
 fi
