@@ -169,9 +169,18 @@ window.TestSuite = (function($, TestSuite) {
 
         return (deferred.promise());
     }
-
-
-// ==================== TEST DEFINITIONS GO HERE =========================== //
+// ========================= COMMON ACTION TRIGGERS ======================== //
+    function trigOpModal(tableId, columnName, funcClassName) {
+        var $header = $("#xcTbodyWrap-"+tableId)
+                       .find(".flexWrap.flex-mid input[value='"+columnName+"']")
+                       .eq(0);
+        $header.parent().parent().find(".flex-right .innerBox").click();
+        var $colMenu = $("#xcTableWrap-"+tableId)
+                       .find(".colMenu:not(.tableMenu) ."+funcClassName);
+        $colMenu.trigger(fakeMouseup);
+        return (checkExists("#operationsModal:visible"));
+    }
+// ======================== TEST DEFINITIONS GO HERE ======================= //
     function flightTest(deferred, testName, currentTestNumber) {
         /** This test replicates a simple version of Cheng's flight demo
         This tests all major functionality
@@ -275,13 +284,8 @@ window.TestSuite = (function($, TestSuite) {
         }
 
         function flightTestPart4() {
-            var $header = $($(".flexWrap.flex-mid"+
-                              " input[value='ArrDelay_integer']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $(".xcTableWrap").eq(0)
-                            .find(".colMenu:not(.tableMenu) .filter");
-            $colMenu.trigger(fakeMouseup);
-            checkExists("#operationsModal:visible")
+            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            trigOpModal(tableId, "ArrDelay_integer", "filter")
             .then(function() {
                 $("#functionList input").val("gt");
                 $("#functionList input").trigger(fakeEnter);
@@ -323,13 +327,8 @@ window.TestSuite = (function($, TestSuite) {
 
         function flightTestPart6() {
             $("#alertActions .confirm").click();
-            var $header = $($(".flexWrap.flex-mid"+
-                              " input[value='Year']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $(".xcTableWrap").eq(0)
-                            .find(".colMenu:not(.tableMenu) .map");
-            $colMenu.trigger(fakeMouseup);
-            checkExists("#operationsModal:visible")
+            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            trigOpModal(tableId, "Year", "map")
             .then(function() {
                 $("#categoryList .dropdown .icon").trigger(fakeClick);
                 $("#categoryMenu li[data-category='9']").trigger(fakeMouseup);
@@ -360,29 +359,24 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $(".xcTableWrap").eq(0)
                             .find(".colMenu:not(.tableMenu) .joinList");
             $colMenu.trigger(fakeMouseup);
-            $("#rightJoin .tableLabel:contains('airport')").trigger(fakeClick);
-            $("#rightJoin .columnTab:contains('iata')").trigger(fakeClick);
-
-            setTimeout(function() {
-                $("#joinTables").click();
-                checkExists(".xcTableWrap .tableTitle:contains(join)")
-                .then(function() {
-                    flightTestPart8();
-                })
-                .fail(function(error) {
-                    console.error(error, 'flightTestPart7');
-                });
-            }, 500);
+                $("#rightJoin .tableLabel:contains('airport')")
+                .trigger(fakeClick);
+                $("#rightJoin .columnTab:contains('iata')").trigger(fakeClick);
+                setTimeout(function() {
+                    $("#joinTables").click();
+                    checkExists(".xcTableWrap .tableTitle:contains(join)")
+                    .then(function() {
+                        flightTestPart8();
+                    })
+                    .fail(function(error) {
+                        console.error(error, 'flightTestPart7');
+                    });
+                }, 500);
         }
 
         function flightTestPart8() {
-            var $header = $($(".flexWrap.flex-mid"+
-                              " input[value='ArrDelay_integer']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $(".xcTableWrap").eq(0)
-                            .find(".colMenu:not(.tableMenu) .groupby");
-            $colMenu.trigger(fakeMouseup);
-            checkExists("#operationsModal:visible")
+            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            trigOpModal(tableId, "ArrDelay_integer", "groupby")
             .then(function() {
                 $("#functionList .dropdown .icon").trigger(fakeClick);
                 $($("#functionsMenu li")[0]).trigger(fakeMouseup);
@@ -404,13 +398,8 @@ window.TestSuite = (function($, TestSuite) {
         }
 
         function flightTestPart9() {
-            var $header = $($("#xcTbodyWrap1 .flexWrap.flex-mid"+
-                            " input[value='ArrDelay_integer']")[0]);
-            $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $(".xcTableWrap").eq(0)
-                            .find(".colMenu:not(.tableMenu) .aggregate");
-            $colMenu.trigger(fakeMouseup);
-            checkExists("#operationsModal:visible")
+            var tableId = (WSManager.getWorksheets())[0].tables[0];
+            trigOpModal(tableId, "ArrDelay_integer", "aggregate")
             .then(function() {
                 $("#functionList .dropdown .icon").trigger(fakeClick);
                 $($("#functionsMenu li")[0]).trigger(fakeMouseup);
@@ -440,7 +429,6 @@ window.TestSuite = (function($, TestSuite) {
         $("#addWorksheet .icon").click();
         checkExists("#worksheetTab-1")
         .then(function() {
-            $("#worksheetTab-1 .text").text("Multi group by");
             $("#tableListBtn").click();
             $(".tableListSectionTab").eq(1).click();
             return (checkExists("#inactiveTablesList"))
@@ -460,12 +448,28 @@ window.TestSuite = (function($, TestSuite) {
             $(".xcTableWrap .moveToWorksheet .wsName").eq(2).click();
             $(".xcTableWrap .moveToWorksheet .list li").click();
             $(".xcTableWrap .moveToWorksheet .wsName").eq(2).trigger(fakeEnter);
+            $("#worksheetTab-1 .text").text("Multi group by");
             TestSuite.pass(deferred, testName, currentTestNumber);
         });
     }
 
     function multiGroupByTest(deferred, testName, currentTestNumber) {
-                 
+        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        trigOpModal(tableId, "ArrDelay_integer", "groupby")
+        .then(function() {
+            $("#functionsMenu li").eq(2).trigger(fakeMouseup);
+            $(".argumentTable .argument").eq(1).val("$Dest, $AirTime");
+            $("#operationsModal .modalBottom .confirm").click();
+            return (checkExists(".xcTableWrap "+
+                                ".tableTitle:contains(GroupBy)"));
+        })
+        .then(function() {
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function() {
+            TestSuite.fail(deferred, testName, currentTestNumber,
+                           "MultiGroupBy failed");
+        });
     }
 
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
@@ -473,6 +477,8 @@ window.TestSuite = (function($, TestSuite) {
                   TestCaseEnabled);
     TestSuite.add(testCases, newWorksheetTest, "NewWorksheetTest",
                   defaultTimeout, TestCaseEnabled);
+    TestSuite.add(testCases, multiGroupByTest, "MultiGroupByTest",
+                  defaultTimeout, TestCaseDisabled);
 
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
     return (TestSuite);
