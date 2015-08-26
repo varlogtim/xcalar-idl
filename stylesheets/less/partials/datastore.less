@@ -2,7 +2,7 @@
 #datastoreView {
     .position(relative, @top: 0);
     .size(@width: 100%, @height: ~"calc(100% - 115px)");
-    z-index: 5;
+    // z-index: 5;
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -110,7 +110,7 @@ input {
     .position(fixed, @top: 78px, @left: 255px);
     .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 152px)",
           @min-width: 513px);
-    z-index: 2;
+    // z-index: 2;
     background-color: @color-background-white;
     font-size: 13px;
     overflow: hidden;
@@ -727,6 +727,7 @@ input {
     .flex-display;
     .flex-flow(column);
     box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
+    background-color: @color-background-darkGray;
 
     #datasetExplore {
         .flex(0 0 35px);
@@ -737,6 +738,7 @@ input {
         position: relative;
         color: @color-background-darkdarkGray;
         .font(@weight: 700, @size: 15px);
+        box-shadow: inset -10px 0px 10px -10px rgba(0, 0, 0, 0.3);
 
         span {
             line-height: 22px;
@@ -773,10 +775,10 @@ input {
     #importDataArea {
         .flex(0 0 59px);
         .flex-order(1);
-        background-color: @color-background-darkGray;
+        // background-color: @color-background-darkGray;
         border-bottom: 1px solid rgba(0,0,0,0.25);
-        border-right: 1px solid rgba(0, 0, 0, 0.25);
-        z-index: 2;
+        // border-right: 1px solid rgba(0, 0, 0, 0.25);
+        // z-index: 2;
         height: 59px;
 
         #importDataButton {
@@ -796,7 +798,6 @@ input {
         .flex-display;
         position: relative;
         background-color: @color-background-bottomGrayMed;
-        border-right: 1px solid rgba(0, 0, 0, 0.25);
         cursor: default;
 
         // inner function
@@ -814,6 +815,9 @@ input {
                 background: @color-background-darkGray;
                 cursor: default;
                 pointer-events: none;
+                &#deleteFolderBtn {
+                    box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.8);
+                }
             }
             .icon {
                 display: inline-block;
@@ -849,6 +853,8 @@ input {
         }
         #deleteFolderBtn {
             ._gridViewButton(3, "/images/datastore/btn-delete-folder.png");
+            box-shadow: inset -11px 0px 8px -10px rgba(0, 0, 0, 0.3);
+            border-right: none;
         }
     }
 
@@ -858,9 +864,9 @@ input {
         padding: 9px;
         position: relative;
         overflow: hidden;
-        background-color: @color-background-darkGray;
+        // background-color: @color-background-darkGray;
         border-top: 1px solid rgba(154,154,154,1);
-        border-right: 1px solid rgba(0, 0, 0, 0.25);
+        // border-right: 1px solid rgba(0, 0, 0, 0.25);
 
         #gridViewScrollbarWrapper {
             position: absolute;
@@ -1064,8 +1070,12 @@ input {
     .flex-order(2);
     .flex-display;
     .flex-flow(column);
-    z-index: 1;
+    // z-index: 1;
     height: 100%;
+
+    &.hidden {
+        visibility: hidden;
+    }
 
     .modifyDSButton {
         padding-bottom: 3px;
@@ -1087,12 +1097,11 @@ input {
         .flex(0 0 93px);
         .flex-order(1);
         box-shadow: 0 3px 2px rgba(0,0,0,.2);
+        padding: 10px 25px 0px;
         .dbText {
             display: inline-block;
             float: left;
             width: 100%;
-            padding-left: 25px;
-            padding-right: 25px;
             overflow: hidden;
 
             h2, p {
@@ -1102,10 +1111,9 @@ input {
         }
         h2 {
             display: block;
-            height: 28px;
+            height: 26px;
             color: @color-text-blue;
-            margin-top: 8px;
-            .font(@size: 19px, @line-height: 28px);
+            .font(@size: 19px, @line-height: 25px);
         }
         p {
             display: block;
@@ -1363,7 +1371,7 @@ table.datasetTable {
         margin-top: 4px;
         padding-bottom: 0px;
         padding-left: 12px;
-        z-index: 2;
+        // z-index: 2;
         position: relative;
         cursor: default;
 

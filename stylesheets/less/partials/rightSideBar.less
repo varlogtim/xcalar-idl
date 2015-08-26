@@ -1004,7 +1004,7 @@
 
 #helpTopics {
     margin-top: 20px;
-    color: @color-text-dropMenu;
+    // color: @color-text-dropMenu;
     span {
         font-weight: 700;
     }
@@ -1016,6 +1016,16 @@
         li {
             .font(@weight: 400, @size: 12px);
             margin: 6px 0px 0px 4px;
+            list-style-type: initial;
+            margin-left: 20px;
+            cursor: pointer;
+            span {
+                color: @color-text-brightBlue;
+            }
+            &:hover span {
+                text-decoration: underline;
+            }
+        
         }
     }
 }

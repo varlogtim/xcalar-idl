@@ -493,6 +493,7 @@ window.GridView = (function($, GridView) {
             if (!$importForm.is(":visible")) {
                 $('#importDataReset').click();
                 $importForm.show();
+                $("#contentViewMid").addClass('hidden');
                 $("#filePath").focus();
                 $gridView.find(".active").removeClass("active");
                 // empty table section to have smooth switch
@@ -569,6 +570,7 @@ window.GridView = (function($, GridView) {
             }
 
             $("#importDataView").hide();
+            $("#contentViewMid").removeClass('hidden');
 
             if ($grid.find('.waitingIcon').length !== 0) {
                 var loading = true;
@@ -2587,6 +2589,7 @@ window.DS = (function ($, DS) {
             if ($('#dsInfo-title').text() === dsName) {
                 // if loading page is showing, remove and go to import form
                 $("#importDataView").show();
+                $("#contentViewMid").addClass('hidden');
                 $("#gridView").find(".active").removeClass("active");
                 $("#dataSetTableWrap").empty();
             }

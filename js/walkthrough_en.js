@@ -21,10 +21,9 @@ var w2_en = [
 var w3_en = [
 "This icon represents a dataset once it has been read. By clicking on the icon, you will be able to see its corresponding data on the right side (As in this example).",
 "This area shows you all the information regarding the selected dataset.",
-"This is the data type of the column. Possible values are, JSON, CSV, etc.",
+"This is the data type of the column. Possible values are decimal, string, etc.",
 "To select a column that you want to add to your worksheet, click on the column header. The selected column gets highlighted and added to the data cart on the right.",
-"Click this button to select all the columns in the dataset.",
-"To deselect all the selected columns in the dataset, click this button.",
+"You can choose to select or deselect all of the columns in the dataset",
 "These are all the selected columns. Deselect a column by clicking on the cross beside the column name.",
 "This is the name of the soon-to-be created table containing all the selected columns. Click on the existing name to make changes. You can create more than one table by selecting columns from different datasets. To select a different dataset, you can click on Import New Dataset and follow the same procedure or click on another already loaded dataset.",
 "Clicking this button will clear the data cart of columns previously selected.",

@@ -860,6 +860,42 @@ window.RightSideBar = (function($, RightSideBar) {
             toggleRefresh($(this));
         });
 
+        Intro.setOptions({
+            onComplete: function() {
+                $('.intro-emptybox').remove();
+                $('#demoScreen [data-introstep]').removeClass('hover');
+                $('#demoScreen').remove();
+                $('#container').show();
+            },
+            onNextStep: function(el) {
+                $('#demoScreen [data-introstep]').removeClass('hover');
+                el.addClass('hover');
+            }
+        });
+
+        $('#workbookWT').click(function() {
+            introHelper('workbookDemo', w1_en);
+        });
+
+        $('#datastoreWT1').click(function() {
+            var options = {
+                onStart: function() {
+                    var emptyBox = '<div class="intro-emptybox" style="' +
+                                        'position:absolute;height: 40px;' +
+                                        'margin-top:-5px; margin-left: 20px;' +
+                                        'width: 150px;' +
+                                    '" data-introstep="6"></div>';
+                    $('#demoScreen #fileNameSelector').append(emptyBox);
+                }
+            };
+
+            introHelper('datastoreDemo1', w2_en, options);
+        });
+
+        $('#datastoreWT2').click(function() {
+            introHelper('datastoreDemo1', w3_en);
+        });
+
         function toggleRefresh($target) {
             if ($target.hasClass('off')) {
                 $('#helpOnOff').removeClass('off');
@@ -869,6 +905,28 @@ window.RightSideBar = (function($, RightSideBar) {
                 Tips.destroy();
             }
         }
+    }
+
+    function introHelper(demoType, textArray, options) {
+        var userOptions = {popoverText: textArray};
+        if (options && typeof options === "object") {
+            $.extend(userOptions, options);
+        }
+        console.log(userOptions);
+        Intro.setOptions(userOptions);
+
+        $('body').append('<div id="demoScreen"></div>');
+
+        $('#demoScreen').load(demoType + '.html',
+            function(response, status) {
+                if (status === 'success') {
+                    $('#container:not(.demoContainer)').hide();
+                    Intro.start();
+                } else {
+                    Alert.error("Error", "Walkthrough Unavailable");
+                }
+            }
+        );
     }
 
     function addBulkTableHelper() {

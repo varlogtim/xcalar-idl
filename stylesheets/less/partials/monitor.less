@@ -5,6 +5,7 @@
     position: relative;
     .topBar {
         border-bottom-width: 2px;
+        z-index: 10;
 
         .buttonArea {
             .size(@width: 150px, @height: 100%);
@@ -361,7 +362,7 @@
 
     .bottomSection {
         .flex-display();
-        .size(@height: ~"calc(100% - 335px)");
+        .size(@height: ~"calc(100% - 337px)");
         overflow-x: hidden;
         overflow-y: scroll;
         margin-right: 10px;

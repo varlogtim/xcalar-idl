@@ -13,7 +13,7 @@
 </head>
 
 <body class="hideScroll">
-<div id="container">
+<div id="container" class="mainContainer">
   <!-- Top Menu Bar -->
   <div id="menuBar" class="clearfix no-selection">
     <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" 
@@ -22,9 +22,11 @@
     </div>
     <div id="mainMenu" class="clearfix">
       <div id="workspaceTab" class="mainMenuTab active">
+      <!-- <div id="workspaceTab" class="mainMenuTab active"> -->
         <span class="icon mountain-icon"></span>Worksheet
       </div>
       <div id="monitorTab" class="mainMenuTab">
+      <!-- <div id="monitorTab" class="mainMenuTab"> -->
         <span class="icon monitor-icon"></span>Monitor
       </div>
       <div id="dataStoresTab" class="mainMenuTab">
@@ -668,7 +670,7 @@
               </div>
             </div>
           </div>
-          <div id="contentViewMid">
+          <div id="contentViewMid" class="hidden">
             <div id="contentViewHeader">   
               <div class="dbText">
                 <h2 id="dsInfo-title">Datasets</h2>
@@ -1044,9 +1046,15 @@
         <div id="helpTopics" class="helpBox">
           <div>
             <ul>
-              <span>Help Topics:</span>
-              <li>
-                <span>This page is under construction.</span>
+              <span>Start a Walkthrough:</span>
+              <li id="workbookWT" class="walkthrough">
+                <span>Workbook Tutorial</span>
+              </li>
+              <li id="datastoreWT1" class="walkthrough">
+                <span>Data Stores Tutorial - Part 1</span>
+              </li>
+              <li id="datastoreWT2" class="walkthrough">
+                <span>Data Stores Tutorial - Part 2</span>
               </li>
             </ul>
           </div>
@@ -1125,7 +1133,8 @@
     <div id="bottomTabArea">
       <div id="addWorksheet" class="btn btnSmall" 
            title="Add Worksheet" data-toggle="tooltip"
-           data-placement="top" data-container="body">
+           data-placement="top" data-container="body"> 
+         
         <span class="icon"></span>
       </div>
       <!-- Worksheet Tabs -->
@@ -1935,6 +1944,8 @@
 <script src="/js/exportModal.js" type="text/javascript"></script>
 <script src="/js/authentication.js" type="text/javascript"></script>
 <script src="/js/userSettings.js" type="text/javascript"></script>
+<script src="/js/walkthrough_en.js" type="text/javascript"></script>
+<script src="/js/intro.js" type="text/javascript"></script>
 <script src="/test/testSuite.js" type="text/javascript"></script>
 <!-- Start up script -->
 <script>

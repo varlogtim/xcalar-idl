@@ -1,0 +1,703 @@
+<div id="demoContainer" class="mainContainer">
+  <!-- Top Menu Bar -->
+  <div id="menuBar" class="clearfix">
+    <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" data-placement="right" data-container="body" title="Workbook" data-introstep="1">
+    <span class="icon"></span>
+    </div>
+    <div id="mainMenu" class="clearfix">
+      <div id="workspaceTab" class="mainMenuTab active" data-introstep="2">
+      <!-- <div id="workspaceTab" class="mainMenuTab active"> -->
+        <span class="icon mountain-icon"></span>Worksheet
+      </div>
+      <div id="monitorTab" class="mainMenuTab" data-introstep="3">
+      <!-- <div id="monitorTab" class="mainMenuTab"> -->
+        <span class="icon monitor-icon"></span>Monitor
+      </div>
+      <div id="dataStoresTab" class="mainMenuTab" data-introstep="4">
+        <span class="icon db-icon"></span>Data Stores
+      </div>
+    </div>
+    <div id="logo"></div>
+    <div id="userNameArea" data-introstep="9">
+        <span>Welcome: </span>
+        <span id="userName" class="text">John Smith</span>
+    </div>
+    <div id="userNamePopout">
+      <div id="peri">Signed in as:</div>
+      <br>
+      <div id="name"><span class="text">Vikram Joshi</span> |</div>
+      <div id="signout">Sign out</div>
+    </div>
+  </div>
+  <!-- End of Menu Bar -->
+
+  
+  <div id="workspacePanel" class="mainPanel active">
+    <div id="workspaceBar" class="workspaceBar topBar">
+      <div id="functionArea" class="workspaceArea">
+        <label for="fnBar">f(x)</label>
+        <input id="fnBar" value="" spellcheck="false">
+      </div>
+      <div id="rowInputArea" class="workspaceArea">
+          <label for="rowInput">Skip to row:</label>
+          <!-- only allow integer -->
+          <input id="rowInput" type="number" min="0" step="1" style="width: 58px;">
+          <label id="numPages" for="rowInput"></label> 
+      </div>
+      <div id="rowScrollerArea" class="workspaceArea">
+      </div>
+    </div>
+    <div id="watermark"></div>
+    <div id="insight"></div>
+    <div id="mainFrame" class="empty"></div>
+
+    <!-- Dag Panel -->
+    <div id="dagPanel" class="hidden midway">
+      <div class="topBorder">
+        <div class="pulloutTabWrap">
+          <div id="dagPulloutTab"></div>
+        </div>
+        <div class="tabShadow"></div>
+      </div>
+      <div id="closeDag" class="btn btnSmall btnDeselected">
+          <span class="icon iconClose"></span>
+      </div>
+      <div class="dagArea">
+        <div class="legendArea">
+          <div class="datasetArea descriptionArea">
+            <div class="dataStoreIcon legendIcon"></div>
+            <div class="icon"></div>
+            <span class="text">Data set</span>
+          </div>
+          <div class="tableArea descriptionArea">
+            <div class="dagTableIcon legendIcon"></div>
+            <div class="icon"></div>
+            <span class="text">Table</span>
+          </div>
+          <div class="operationArea descriptionArea">
+            <div class="actionTypeWrap legendIcon">
+              <div class="dagIcon"></div>
+            </div>
+            <span class="text">Operation</span>
+          </div>
+        </div>
+      </div>
+    <ul class="colMenu dagTableDropDown" style="display: none;"><li class="addTable">Add Table To Worksheet</li><li class="focusTable">Find Table In Worksheet</li><li class="lockTable" title="Prevents table from being deleted">Lock Table</li><li class="unlockTable" title="Allow table to be deleted">Unlock Table</li><li class="deleteTable">Delete Table</li><li class="deleteTableDescendants unavailable" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon">Delete Table &amp; Descendants</li></ul></div>
+    <!-- End Of Dag Panel -->
+    <!-- dag Parameter Modal -->
+    <div id="dagParameterModal" class="modalContainer ui-draggable">
+      <div class="modalHeader ui-draggable-handle">
+        <span class="text">Parameterize Query</span>
+        <div class="close">
+          <span class="icon"></span>
+        </div>
+      </div> 
+      <div class="modalInstruction">
+        <div class="icon"></div>
+        <div class="text">To covert this query into a parameterized query,
+        please click the add new parameterized query button and drag and drop
+        the parameters into their appropriate places.</div>
+      </div> 
+      <div class="modalTopMain clearfix">
+        <div class="templateSection clearfix retinaModalSection">
+          <span class="heading">Current Query:</span>
+          <table class="templateTable">
+            <tbody><tr class="template"></tr>
+          </tbody></table>
+          <div id="addNewParameterizedQuery" class="btn btnLarge">
+            <span class="icon"></span>ADD NEW PARAMETERIZED QUERY
+          </div>
+        </div>
+        <div class="border"></div>
+        <div class="currentParameterList retinaModalSection">
+          <span class="heading">Current Parameter List:</span>
+          <div class="draggableParams"></div>
+        </div>
+        <div class="border"></div>
+        <div class="editableParamQuery retinaModalSection">
+          <span class="heading">Parameterized Query:</span>
+          <table class="editableTable">
+            <tbody><tr class="editableRow"></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="defaultListSection"></div>
+      <div class="modalBottom clearfix">
+        <div class="btn btnMid confirm">SAVE</div>
+        <div class="btn btnMid cancel">CANCEL</div>
+      </div>
+    </div>
+    <!-- End Of Parameter Modal -->
+
+    <!-- Start OPERATIONS MODAL -->
+    <div id="operationsModal" class="modalContainer ui-draggable">
+      <div class="modalHeader operationsModalHeader ui-draggable-handle">
+        <span class="text">Select Your Operation</span>
+        <div class="close">
+          <span class="icon"></span>
+        </div>
+      </div> 
+
+      <div class="modalInstruction">
+        <div class="icon"></div>
+        <div class="text"> Select a category (e.g Arithmetic Functions).
+        Then select a specific function, e.g. add. 
+        Finally, enter in any arguments if applicable. Column names should be 
+        preceded by a $ sign, e.g. $column1.
+        </div>
+      </div> 
+      <div class="stepChain">
+        <div class="stepChainImg"></div>
+        <div class="outerCircle circle0 filled">
+          <div class="innerCircle "></div>
+          <div class="circleContent">
+            <span class="text">1</span>
+            <span class="icon tick"></span>
+          </div>
+        </div>
+        <div class="outerLink">
+          <div class="innerLink link0"></div>
+        </div>
+        <div class="outerCircle circle1">
+          <div class="innerCircle"></div>
+          <div class="circleContent">
+            <span class="text">2</span>
+            <span class="icon tick"></span>
+          </div>
+        </div>
+        <div class="outerLink">
+          <div class="innerLink link1"></div>
+        </div>
+        <div class="outerCircle circle2">
+          <div class="innerCircle"></div>
+          <div class="circleContent">
+            <span class="text">3</span>
+            <span class="icon tick"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modalTopMain clearfix">
+        <section class="step">
+          <b>Category: </b>
+          <div id="categoryList" class="listSection">
+              <input class="text autocomplete" placeholder="aggregate" spellcheck="false" required="" tabindex="10">
+              <div class="iconWrapper dropdown">
+                <span class="icon"></span>
+              </div>
+              <ul id="categoryMenu" class="list">
+                <li class="all">all</li>
+              </ul>
+          </div>
+        </section>
+        <div class="border"></div>
+        <section class="step inactive">
+          <b>Function: </b>
+          <div id="functionList" class="listSection">
+              <input class="text autocomplete" disabled="" required="" tabindex="10">
+              <div class="iconWrapper dropdown">
+                <span class="icon"></span>
+              </div>
+              <ul id="functionsMenu" class="list">
+              </ul>
+          </div>
+        </section>
+        <div class="border"></div>
+      </div>
+      <div class="modalMain step inactive">
+        <b>Description of Function:</b>
+        <div class="argumentSection">
+          <p class="descriptionText">N/A</p>
+          <b class="argumentListTitle">Argument List:</b>
+          <div class="tableContainer">
+            <div class="tableWrapper">
+              <table class="argumentTable">
+                <thead>
+                  <tr>
+                    <th>
+                      <div class="thWrap">Argument</div>
+                    </th>
+                    <th> 
+                      <div class="thWrap">Description</div>
+                    </th> 
+                  </tr> 
+                </thead>
+                <tbody>
+                  <!-- row1 -->
+                  <tr>
+                    <td>
+                      <div class="inputWrap">
+                        <div class="listSection">
+                          <input class="argument" type="text" tabindex="10" spellcheck="false">
+                          <div class="argIconWrap">
+                            <span class="icon"></span>
+                          </div>
+                          <ul class="list hint"></ul>
+                        </div>
+                      </div>
+                    </td> 
+                    <td> 
+                      <div class="description"></div>
+                    </td> 
+                  </tr>
+                  <!-- row2 -->
+                  <tr>
+                    <td>
+                      <div class="inputWrap">
+                         <div class="listSection">
+                          <input class="argument" type="text" tabindex="10" spellcheck="false">
+                          <div class="argIconWrap">
+                            <span class="icon"></span>
+                          </div>
+                          <ul class="list hint"></ul>
+                        </div>
+                      </div>
+                    </td> 
+                    <td> 
+                      <div class="description"></div>
+                    </td> 
+                  </tr>
+                  <!-- row3 -->
+                  <tr>
+                    <td>
+                      <div class="inputWrap">
+                         <div class="listSection">
+                          <input class="argument" type="text" tabindex="10" spellcheck="false">
+                          <div class="argIconWrap">
+                            <span class="icon"></span>
+                          </div>
+                          <ul class="list hint"></ul>
+                        </div>
+                      </div>
+                    </td> 
+                    <td> 
+                      <div class="description"></div>
+                    </td> 
+                  </tr>
+                  <!-- row4 -->
+                  <tr>
+                    <td>
+                      <div class="inputWrap">
+                         <div class="listSection">
+                          <input class="argument" type="text" tabindex="10" spellcheck="false">
+                          <div class="argIconWrap">
+                            <span class="icon"></span>
+                          </div>
+                          <ul class="list hint"></ul>
+                        </div>
+                      </div>
+                    </td> 
+                    <td> 
+                      <div class="description"></div>
+                    </td>
+                  </tr>
+                  <!-- for udf module -->
+                  <tr id="agrTable-udfModule">
+                    <td>
+                      <div class="inputWrap">
+                        <div class="listSection udfSection">
+                          <input class="argument text textNoCap" type="text" spellcheck="false" disabled="">
+                          <div class="iconWrapper">
+                            <span class="icon"></span>
+                          </div>
+                          <ul class="list"></ul>
+                        </div>
+                      </div>
+                    </td>
+                    <td> 
+                      <div class="description"></div>
+                    </td>
+                  </tr>
+                  <!-- for udf function -->
+                  <tr id="agrTable-udfFunc">
+                    <td>
+                      <div class="inputWrap">
+                        <div class="listSection udfSection">
+                          <input class="argument text textNoCap" type="text" tabindex="10" spellcheck="false">
+                          <div class="iconWrapper">
+                            <span class="icon"></span>
+                          </div>
+                          <ul class="list"></ul>
+                        </div>
+                      </div>
+                    </td> 
+                    <td> 
+                      <div class="description"></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modalBottom clearfix">
+        <button class="btn btnMid confirm" tabindex="11">APPLY</button>
+        <button class="btn btnMid cancel" tabindex="10">CANCEL</button>
+      </div>
+    </div>
+    <!-- END OPERATIONS MODAL -->
+  </div>
+  
+  <!-- Right Side Bar Section -->
+  <div id="rightSideBar" class="ui-draggable ui-resizable">
+    <div class="sideBarTopButtons">
+      <div class="btn btnDeselected">
+        <span class="icon iconClose"></span>
+      </div>
+      <div class="btn btnDeselected">
+        <span class="icon popOut" data-toggle="tooltip" data-placement="top" data-container="body" title="pop out">
+        </span>
+      </div>
+      <div id="sqlButtonWrap">
+        <div class="btn btnDeselected">
+          <span class="icon humanSQL" data-toggle="tooltip" data-placement="top" data-container="body" title="toggle machine/human SQL">
+          </span>
+        </div>
+        <div class="btn btnDeselected">
+          <span class="icon copySQL" data-toggle="tooltip" data-placement="top" data-container="body" title="Copy SQL">
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- Table List Section -->
+    <section id="tableListSection" class="rightBarSection">
+      <!-- Heading -->
+      <header class="heading ui-draggable-handle">
+        <h2>Tables</h2>
+      </header>
+      <!-- Main Content -->
+      <div class="rightBarContent">
+        <!-- Tabs -->
+        <section id="tableListSectionTabs">
+          <div class="tableListSectionTab active">Active</div>
+          <div class="tableListSectionTab">Inactive</div>
+          <div class="tableListSectionTab">Orphaned</div>
+        </section>
+        <!-- Sections -->
+        <section id="tableListSections">
+          <!-- active list -->
+          <div id="tableList" class="tableListSection">
+            <ul id="activeTablesList"></ul>
+          </div>
+          <!-- inactive list -->
+          <div id="archivedTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn" style="display: inline-block;">
+                <span class="icon"></span>ADD TO WORKSHEET
+              </button>
+              <button id="deleteTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn" style="display: inline-block;">
+                <span class="icon"></span>DELETE TABLES
+              </button>
+            </div>
+            <div class="secondButtonWrap">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
+                </span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
+                </span>
+              </div>
+            </div>
+            <ul id="inactiveTablesList"></ul>
+          </div>
+          <!-- orphaned table list -->
+          <div id="orphanedTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>ADD TO WORKSHEET
+              </button>
+              <button id="deleteOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>DELETE TABLES
+              </button>
+            </div>
+            <div class="secondButtonWrap" style="display: block;">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
+                </span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
+                </span>
+              </div>
+              <div class="btn btnSmall refresh">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="refresh tables">
+                </span>
+              </div>
+            </div>
+            <ul id="orphanedTablesList"></ul>
+          </div>
+        </section>
+        <!-- End Of Sections -->
+      </div>
+    </section>
+
+    <!-- SQL Section -->
+    <section id="sqlSection" class="rightBarSection">
+      <header class="heading ui-draggable-handle">
+        <h2>SQL</h2>
+      </header>
+      <div class="rightBarContent">
+        <div id="rightBarTextScrollWrap">
+          <div id="rightBarTextArea"></div>
+          <div id="rightBarMachineTextArea" style="display: none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UDF Section -->
+    <section id="udfSection" class="rightBarSection">
+      <!-- Heading -->
+      <header class="heading ui-draggable-handle">
+        <h2>User Defined Function</h2>
+      </header>
+      <!-- Content -->
+      <div class="rightBarContent">
+        <!-- Section to switch between upload and input section -->
+        <section class="tabSectionContainer">
+          <div id="udf-tabs" class="tabSection">
+            <!-- option for upload section -->
+            <div class="select-item" data-tab="udf-uploadSection">
+              <div class="radio checked">
+                <span class="dot"></span>
+              </div>
+              <div class="label">Upload your script</div>
+            </div>
+            <!-- option for code input section -->
+            <div class="select-item" data-tab="udf-fnSection">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <div class="label">Write your function</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="mainSectionContainer">
+          <!-- Section to upload file -->
+          <section id="udf-uploadSection" class="mainSection">
+            <!-- head part -->
+            <div>
+              <h3 class="label">
+                <label for="udf-filePath">File Path:</label>
+              </h3>
+            </div>
+            <!-- file path part -->
+            <div class="pathSection">
+              <input id="udf-filePath" type="text" spellcheck="false">
+              <div id="udf-clearPath" class="iconWrap">
+                <span class="icon"></span>
+              </div>
+            </div>
+            <!-- button part -->
+            <div class="btnSection">
+              <button id="udf-browseBtn" class="btn btnMid" type="button">
+                BROWSE
+              </button>
+              <input id="udf-fileBrowser" type="file" style="display: none;">
+              <button id="udf-fileUpload" class="btn btnMid upload" type="button">
+                <span class="icon"></span>
+                <span class="text">UPLOAD</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Section to write function -->
+          <section id="udf-fnSection" class="mainSection hidden">
+            <!-- Choose File Teamplate -->
+            <section class="templateSection">
+              <div class="sectionContainer">
+                <!-- template dropdown menu -->
+                <div id="udf-fnList" class="listSection">
+                  <input id="udf-fnTemplate" class="text" placeholder="Choose your template" disabled="">
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul id="udf-fnMenu" class="list">
+                   <!--  <li>New Operator</li>
+                    <li>New Dataset</li> -->
+                    <li name="blank">Blank Function</li>
+                  </ul>
+                </div>
+                <!-- Download Teamplate -->
+                <div class="downloadSection">
+                   <div class="btnSection">
+                    <button id="udf-fnDownload" class="btn btnMid hidden" type="button">
+                      <span class="iconWrap"><span class="icon"></span></span>
+                      <span class="text">DOWNLOAD</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- Edit section -->
+            <section class="editSection">
+              <div class="editArea">
+                <textarea id="udf-codeArea" style="display: none;"></textarea><div class="CodeMirror cm-s-default"><div style="overflow: hidden; position: relative; width: 3px; height: 0px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none;" tabindex="0"></textarea></div><div class="CodeMirror-vscrollbar" cm-not-content="true"><div style="min-width: 1px;"></div></div><div class="CodeMirror-hscrollbar" cm-not-content="true"><div style="height: 100%; min-height: 1px;"></div></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; min-width: 3px;"><div style="position: relative;"><div class="CodeMirror-lines"><div style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"><pre><span style="padding-right: 0.1px;"><span cm-text="" style="display: inline-block; width: 1px; margin-right: -1px;">&nbsp;</span></span></pre></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors"></div><div class="CodeMirror-code"></div></div></div></div></div><div style="position: absolute; height: 30px; width: 1px;"></div><div class="CodeMirror-gutters"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 1px;"></div></div></div></div>
+              </div>
+            </section>
+            <!-- Submit Section -->
+            <section class="submitSection">
+              <div class="sectionContainer">
+                <div class="inputSection">
+                  <span class="label">
+                    <label for="udf-fnName">Module Name:</label>
+                  </span>
+                  <input id="udf-fnName" type="text" spellcheck="false">
+                </div>
+                <div class="btnSection">
+                  <button id="udf-fnUpload" class="btn btnMid upload" type="button">
+                    <span class="icon"></span>
+                    <span class="text">UPLOAD</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+          </section>
+          <!-- End of Write Function Section -->
+        </section>
+        <!-- End of Main Section -->
+      </div>
+    </section>
+
+    <!-- CLI Section -->
+    <section id="cliSection" class="rightBarSection">
+      <header class="heading ui-draggable-handle">
+        <h2>CLI</h2>
+      </header>
+      <div class="rightBarContent">
+        <div class="textBoxContainer">
+          <div spellcheck="false" class="lineArea"><div class="lineUnit">&gt; </div></div>
+          <div class="cliArea"><div contenteditable="true" spellcheck="false" class="cliUnit"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Help Section -->
+    <section id="helpSection" class="rightBarSection">
+      <header class="heading ui-draggable-handle">
+        <h2>Help</h2>
+      </header>
+      <div class="rightBarContent">
+        <div id="helpSearchArea" class="clearfix">
+          <input type="text" id="helpSearch" placeholder="Type in your question..." data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon" disabled="">
+          <div id="helpSubmit" class="btnInactive" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon">
+            <span class="icon iconSearch"></span>Find
+          </div>
+        </div>
+        <div class="border"></div>
+        <div id="helpResults" class="helpBox">
+          <div>
+            <span>There are no help results</span>
+          </div>
+        </div>
+        <div class="helpOnOffWrap">
+            <div id="helpOnOff" class="onOffBtn on off">
+                <div class="slider"></div>
+                <div class="text offText">OFF</div>
+                <div class="text onText">ON</div>
+            </div>
+            <div class="text">In-Page Help</div>
+        </div>
+        <div id="helpTopics" class="helpBox">
+          <div>
+            <ul>
+              <span>Help Topics:</span>
+              <li>
+                <span>This page is under construction.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="topBorder"></div>
+    <div id="pulloutTab"></div>
+    <div id="sideBarModal"></div>
+  <div class="ui-resizable-handle ui-resizable-n" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-s" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-w" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se" style="z-index: 90; display: block;"></div></div>
+  <!-- End Of Rightsidebar -->
+
+  <!-- Bottom Bar -->
+  <div id="bottomArea">
+    <!-- Worksheet Bar -->
+    <div id="worksheetBar" class="workspaceBar clearfix">
+      <section id="worksheetInfo" class="clearfix">
+        <div class="workspaceArea">Xcalar Insight</div>
+        <div class="workspaceArea">
+          Workbook: <span class="wkbkName">untitled</span>
+        </div>
+        <div id="workspaceDate" class="workspaceArea">
+          Created on <span class="date">8-27-2015</span>
+        </div>
+        <div class="workspaceArea">
+          <span>Last Saved on:</span>
+          <span id="autoSavedInfo">8-27-2015 3:35:28 PM</span>
+        </div>
+        <div class="workspaceArea">
+          <span id="pageStatusText"><span id="viewLocation">Viewing Worksheet</span></span>
+          <div id="loadingIconWrap">
+            <div class="spinner">
+              <div class="bounce1"></div>
+              <div class="bounce2"></div>
+              <div class="bounce3"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Buttons to pop out rightside bar -->
+      <section id="rightSideBarBtns" class="bottomButtonsArea">
+        <!-- tablelist -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="tableListBtn" class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="tables list"></span>
+        </div>
+        <!-- sql -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="sqlBtn" data-toggle="tooltip" data-placement="top" data-container="body" title="SQL"></span>
+        </div>
+        <!-- udf -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="udfBtn" class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="UDF"></span>
+        </div>
+        <!-- cli -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="cliBtn" class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="CLI"></span>
+        </div>
+
+        <div class="btn btnSmall sliderBtn" data-introstep="8">
+          <span id="infoBtn" data-toggle="tooltip" data-placement="top" data-container="body" title="help"></span>
+        </div>
+      </section>
+    </div>
+    <!-- Bottom Worksheet Tabs -->
+    <div id="bottomTabArea">
+      <div id="addWorksheet" class="btn btnSmall" title="Add Worksheet" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="7"> 
+        <span class="icon"></span>
+      </div>
+      <!-- Worksheet Tabs -->
+      <div id="worksheetTabs">
+        <section id="worksheetTab-0" class="worksheetTab inActive">
+          <div class="label" data-introstep="6" data-original-title="Sheet 1" data-toggle="tooltip" data-placement="top" data-container="#worksheetTab-0:not(.focus) .label">
+            <div class="iconWrapper delete"><span class="icon"></span></div><span class="wsIcon"></span><div class="text" data-title="Sheet 1" contenteditable="">Sheet 1</div>
+          </div>
+          <div id="compSwitch" class="dagTab" data-toggle="tooltip" data-placement="top" data-title="click to view DAG" data-container="body">
+            <span class="icon"></span>
+          </div>
+        </section>
+        <section id="worksheetTab-1" class="worksheetTab">
+          <div class="label" data-introstep="5" data-original-title="Sheet 2" data-toggle="tooltip" data-placement="top" data-container="#worksheetTab-1:not(.focus) .label">
+            <div class="iconWrapper delete">
+              <span class="icon"></span>
+            </div>
+            <span class="wsIcon"></span>
+            <div class="text" data-title="Sheet 2" contenteditable="">Sheet 2</div>
+          </div>
+          <div id="compSwitch-1" class="dagTab" data-toggle="tooltip" data-placement="top" data-title="click to view DAG" data-container="body">
+            <span class="icon"></span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

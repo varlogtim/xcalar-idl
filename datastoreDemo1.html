@@ -1,0 +1,724 @@
+<div id="demoContainer" class="mainContainer">
+  <!-- Top Menu Bar -->
+  <div id="menuBar" class="clearfix no-selection">
+    <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" data-placement="right" data-container="body" title="Workbook">
+    <span class="icon"></span>
+    </div>
+    <div id="mainMenu" class="clearfix">
+      <div id="workspaceTab" class="mainMenuTab">
+      <!-- <div id="workspaceTab" class="mainMenuTab active"> -->
+        <span class="icon mountain-icon"></span>Worksheet
+      </div>
+      <div id="monitorTab" class="mainMenuTab">
+      <!-- <div id="monitorTab" class="mainMenuTab"> -->
+        <span class="icon monitor-icon"></span>Monitor
+      </div>
+      <div id="dataStoresTab" class="mainMenuTab active">
+        <span class="icon db-icon"></span>Data Stores
+      </div>
+    </div>
+    <div id="logo"></div>
+    <div id="userNameArea">
+        <span>Welcome: </span>
+        <span id="userName" class="text" draggable="true" ondragstart="xcDrag(event)">John Smith</span>
+    </div>
+    <div id="userNamePopout" style="display: none;">
+      <div id="peri">Signed in as:</div>
+      <br>
+      <div id="name"><span class="text">Vikram Joshi</span> |</div>
+      <div id="signout">Sign out</div>
+    </div>
+  </div>
+  <!-- End of Menu Bar -->
+
+  
+
+  <!-- DATASTORE PANEL -->
+  <div id="datastoreView" class="mainPanel active">
+    <!-- Datastore header -->
+    <div id="contentHeader" class="topBar">
+      <div id="contentHeaderLeft" class="no-selection">
+        <div class="buttonArea active">
+          <div id="exploreButton" class="icon"></div>
+          <div class="text">EXPLORE</div>
+        </div>
+        <div class="buttonArea" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon">
+          <div id="searchButton" class="icon"></div>
+          <div class="text">SEARCH</div>
+        </div>
+      </div>
+      <div id="contentHeaderMid" class="no-selection">
+        <div class="text" style="margin-left:20px">DATA SET</div> 
+      </div>
+      <div id="contentHeaderRight" class="no-selection">
+        <div class="icon"></div>
+        <div class="text">DATA CART</div>
+      </div>
+    </div>
+    <!-- Import Data Form -->
+    <div id="importDataView" class="no-selection" style="display: block;">
+      <div id="importHelp">
+        <div class="contentViewMidWrap">
+          <h2>Import New Data Set</h2>
+          <span class="icon"></span>
+          <p>
+             INPUT FILE PATH AND FILE NAME TO IMPORT DATA SET.
+             THEN SELECT FILE FORMAT. IMPORTED DATA WILL BE LISTED ON THE LEFT.
+          </p>
+        </div>
+      </div>
+      <!-- Data Form -->
+      <form id="importDataForm" target="_blank">
+        <!-- Top Form -->
+        <div id="importDataTopForm">
+          <div class="contentViewMidWrap">
+            <!-- file path -->
+            <div id="filePathSelector" class="importFormRow">
+              <label>File Path:</label>
+              <input id="filePath" type="text" name="filePath" spellcheck="false" autocomplete="on" placeholder="Enter File Directory" required="" data-introstep="3">
+              <button id="fileBrowserBtn" class="btn btnMid" type="button" data-introstep="2">
+                BROWSE
+              </button>
+              <button id="previewBtn" class="btn btnMid" type="button">PREVIEW</button>
+            </div>
+            <!-- file name -->
+            <div id="fileNameSelector" class="importFormRow">
+              <label>File Name:</label>
+              <input id="fileName" name="fileName" type="text" placeholder="Enter Dataset Name" autocomplete="on" pattern="^\w+$" spellcheck="false" title="A valid name with no special characters" required="" data-introstep="4">
+               <!-- file formt -->
+               <div id="fileFormat" data-introstep="5">
+                <div id="fileFormatList" class="listSection">
+                  <input class="text hint" type="text" value="Format" disabled="">
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul id="fileFormatMenu" class="list" style="display: none;">
+                    <li class="hint">Format</li>
+                    <li name="CSV">CSV</li>
+                    <li name="JSON">JSON</li>
+                    <li name="RAW">Raw</li>
+                    <li name="RANDOM">Random</li>
+                  </ul>
+                </div>
+              </div>
+              <!-- udf checkbox -->
+              <div id="udfCheckbox" class="checkbox hidden default-hidden">
+                <div class="checkbox iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <div class="text">UDF</div>
+              </div>
+              <div id="csvPromoteCheckbox" class="checkbox hidden default-hidden">
+                <div class="checkbox iconWrapper">
+                  <span class="icon"></span>
+                </div>
+                <div class="text">Header</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Bottom Form -->
+        <div id="importDataBottomForm">
+          <div class="contentViewMidWrap">
+            <div id="csvDelim" class="hidden clearfix default-hidden">
+              <!-- Field Delimiter -->
+              <section id="fieldDelim" class="wrapper">
+                <span class="label">Field Delimiter:</span>
+                <div class="listSection">
+                  <input id="fieldText" class="text" type="text" disabled="">
+                  <div class="iconWrapper">
+                      <span class="icon"></span>
+                  </div>
+                  <!-- dropdown menu -->
+                  <ul class="list" style="display: none;">
+                    <li name="default">Default (\t)</li>
+                     <li name="comma">Comma (,)</li>
+                    <li name="null" class="nullVal">Null</li>
+                    <li name="other" class="other">
+                      <span>Other</span>
+                      <input class="delimVal" type="text" spellcheck="false">
+                    </li>
+                  </ul>
+                </div>
+              </section>
+              <!-- Line Delimiter -->
+              <section id="lineDelim" class="wrapper">
+                <span class="label">Line Delimiter:</span>
+                <div class="listSection">
+                  <input id="lineText" class="text" type="text" disabled="">
+                  <div class="iconWrapper">
+                      <span class="icon"></span>
+                  </div>
+                  <!-- dropdown menu -->
+                  <ul class="list" style="display: none;">
+                    <li name="default">Default (\n)</li>
+                    <li name="null" class="nullVal">Null</li>
+                    <li name="other" class="other">
+                      <span>Other</span>
+                      <input class="delimVal" type="text" spellcheck="false">
+                    </li>
+                  </ul>
+                </div>
+              </section>
+            </div>
+
+            <div id="udfArgs" class="hidden clearfix default-hidden">
+              <section class="wrapper">
+                <span class="label">Module Name:</span>
+                <div id="udfArgs-moduleList" class="listSection">
+                  <input class="text" type="text" spellcheck="false">
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul class="list" style="display: none;"></ul>
+                </div>
+              </section>
+              <section class="wrapper">
+                <span class="label">Function Name:</span>
+                <div id="udfArgs-funcList" class="listSection">
+                  <input class="text" type="text" spellcheck="false">
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul class="list" style="display: none;"></ul>
+                </div>
+              </section>
+            </div>
+            <button id="importDataSubmit" class="btn btnMid" type="submit" data-introstep="7">IMPORT DATA</button>
+            <button id="importDataReset" class="btn btnMid btn-cancel" type="reset">CANCEL</button>
+          </div>
+        </div>
+      </form> 
+
+      <section id="dsPreviewWrap" class="hidden">
+        <div class="container">
+          <div class="infoSection">
+            <section class="titleSection">
+              <div class="title">
+                <h2>Data Preview</h2>
+                <button id="previewSuggBtn" class="btn btnMid">Show Suggestion</button>
+              </div>
+            </section>
+
+            <section class="iconSection">
+              <div id="preview-close" class="close iconWrapper" title="Close preview window without saving" data-toggle="tooltip" data-placement="top" data-container="body">
+                <span class="icon"></span>
+              </div>
+
+              <div class="group">
+                <div id="preview-rmHightlight" class="rmHightLight iconWrapper" title="Remove highlights" data-toggle="tooltip" data-placement="top" data-container="body">
+                  <span class="icon"></span>
+                </div>
+
+                <div id="preview-highlight" class="highlight iconWrapper" title="Apply highlighted text as delimiter" data-toggle="tooltip" data-placement="top" data-container="body">
+                  <span class="icon"></span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div id="previewSugg" class="suggestSection hidden">
+            <div class="title">Suggestion:</div>
+            <div class="content"><span class="action">Select a character as delimiter</span></div>
+          </div>
+
+          <div class="previewSection">
+            <div id="dsPreviewTableWrap" class="datasetTableWrap">
+              <div class="waitSection hidden">
+                <div class="loadingMsg">
+                  Data set is loading
+                </div>
+                <div class="animatedEllipsis">
+                  <div>.</div>
+                  <div>.</div>
+                  <div>.</div>
+                </div>
+              </div>
+
+              <div class="errorSection loadError hidden"></div>
+
+              <div class="datasetTbodyWrap">
+                <table id="previewTable" class="datasetTable dataTable"></table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <!-- Main Content -->
+    <div id="mainContent">
+      <!-- Search View -->
+      <div id="searchView">
+        <div class="contentView">
+          <div class="contentViewLeft">
+            <div id="importDataArea"></div>
+            <div id="datasetSearch"></div>
+            <div id="listView"></div>
+          </div>
+          <div class="contentViewMid">
+            <div id="searchHeader"></div>
+            <div id="searchResult"></div>
+          </div>
+          <div class="contentViewRight"></div>
+        </div>
+      </div>
+      <!-- Explore View -->
+      <div id="exploreView">
+        <div id="contentView">
+          <div id="contentViewLeft" class="no-selection">
+            <div id="datasetExplore">
+              <span>Data Sets (<span class="numDataStores">0</span>)</span>
+              <div class="buttonGroup">
+                <div id="refreshDS" class="btn dataViewBtn">
+                  <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="Refresh Datasets"></span>
+                </div>
+
+                <div id="dataViewBtn" class="btn dataViewBtn selected gridView" data-toggle="tooltip" data-placement="top" data-original-title="Switch to List view" data-container="body">
+                  <span class="icon"></span>
+                </div>
+              </div>
+            </div>
+            <div id="importDataArea" class="no-selection">
+              <button id="importDataButton" class="btn btnLarge iconBtn" data-introstep="1">
+                <span class="icon"></span>IMPORT NEW DATA SET
+              </button>
+            </div>
+            <!-- Grid Views of ds -->
+            <div id="gridViewButtonArea" class="no-selection">
+              <div id="backFolderBtn" class="disabled" title="See previous folders" data-container="body" data-toggle="tooltip" data-placement="bottom" ondrop="dsDropBack(event)" ondragover="allowDSDrop(event)" ondragenter="dsDragEnter(event)">
+                <div class="icon"></div>
+                <div class="label">..</div>
+              </div>
+              <div id="addFolderBtn" title="Add New Folder" data-container="body" data-toggle="tooltip" data-placement="bottom">
+                <div class="icon"></div>
+                <div class="label">NEW</div>
+              </div>
+              <div id="deleteFolderBtn" class="disabled" title="" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete folder or dataset">
+                <div class="icon"></div>
+                <div class="label">DELETE</div>
+              </div>
+            </div>
+            <!-- Grid View -->
+            <div id="gridViewWrapper">
+              <div id="gridViewScrollbarWrapper">
+                <div id="gridView" class="gridView"></div>
+              </div>
+            </div>
+          </div>
+          <div id="contentViewMid" class="hidden">
+            <div id="contentViewHeader">   
+              <div class="dbText">
+                <h2 id="dsInfo-title">yelpUsers</h2>
+                <p>
+                  Created by: <span id="dsInfo-author">holmes-9090</span> | 
+                  Date Created: <span id="dsInfo-createDate">8-27-2015</span> | 
+                  Last Updated <span id="dsInfo-updateDate">8-27-2015</span>
+                </p>
+                <p>
+                  Records: <span id="dsInfo-records">70,817</span> | 
+                  Size: <span id="dsInfo-size">26MB</span> |
+                  Path: <span id="dsInfo-path">file:///var/tmp/yelp/user</span>
+                </p>
+              </div>
+            </div>
+            <!-- Datastore Table -->
+            <div id="contentViewTable">
+              <div class="datasetTitleWrap">
+                <div class="dsInfo">
+                  <h2>Dataset Preview</h2>
+                  <p>Format: <span id="schema-format">JSON</span></p>
+                </div>
+                <div id="dsColsBtn" class="buttonGroup">
+                  <div id="selectDSCols" class="selectAll modifyDSButton">
+                    <span class="icon"></span>
+                    <span>Select All</span>
+                  </div>
+                  <div id="clearDsCols" class="clear modifyDSButton">
+                    <span class="icon"></span>
+                    <span>Clear All</span>
+                  </div>
+                </div>
+              </div>
+              <div id="datasetWrap">
+                <div id="dataSetTableWrap" class="datasetTableWrap"></div>
+              </div>
+              <!-- <ul id="datasetTableMenu" class="colMenu"></ul> -->
+            </div>
+          </div>
+          <!-- End Datastore Table -->
+
+          <!-- Datastore Cart -->
+          <div id="contentViewRight" class="no-selection">
+            <div class="buttonArea">
+              <button id="submitDSTablesBtn" class="btn btnLarge iconBtn btnInactive">
+                <span class="icon"></span>SEND TO ACTIVE WORKSHEET
+              </button>
+              <!--   <button id="submitMultipleDBTablesBtn" 
+                  class="btn btnLarge btnInactive iconBtn" tabindex="-1">
+                <span class="icon"></span>SEND TO MULTIPLE WORKSHEETS
+              </button> -->
+              <button id="clearDataCart" class="btn btnLarge iconBtn btnInactive" data-introposition="left">
+                <span class="icon"></span>CLEAR DATA CART
+              </button>
+              <div id="dataCartTitle" class="title"><b>No Columns Selected</b></div>
+              <div class="border"></div>
+            </div>
+            <div id="dataCartWrap">
+              <div id="dataCart"><span class="helpText">To add a column to the data cart, select a data set on the left and click on the column names that you are interested in inside the center panel.</span></div>
+            </div>
+          </div>
+          <!-- End of Datastore Cart -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END DATASTORE PANEL -->
+
+  
+
+  <!-- Right Side Bar Section -->
+  <div id="rightSideBar" class="ui-draggable ui-resizable">
+    <div class="sideBarTopButtons">
+      <div class="btn btnDeselected">
+        <span class="icon iconClose"></span>
+      </div>
+      <div class="btn btnDeselected">
+        <span class="icon popOut" data-toggle="tooltip" data-placement="top" data-container="body" title="pop out">
+        </span>
+      </div>
+      <div id="sqlButtonWrap">
+        <div class="btn btnDeselected">
+          <span class="icon humanSQL" data-toggle="tooltip" data-placement="top" data-container="body" title="toggle machine/human SQL">
+          </span>
+        </div>
+        <div class="btn btnDeselected">
+          <span class="icon copySQL" data-toggle="tooltip" data-placement="top" data-container="body" title="Copy SQL">
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- Table List Section -->
+    <section id="tableListSection" class="rightBarSection no-selection">
+      <!-- Heading -->
+      <header class="heading ui-draggable-handle">
+        <h2>Tables</h2>
+      </header>
+      <!-- Main Content -->
+      <div class="rightBarContent">
+        <!-- Tabs -->
+        <section id="tableListSectionTabs">
+          <div class="tableListSectionTab active">Active</div>
+          <div class="tableListSectionTab">Inactive</div>
+          <div class="tableListSectionTab">Orphaned</div>
+        </section>
+        <!-- Sections -->
+        <section id="tableListSections">
+          <!-- active list -->
+          <div id="tableList" class="tableListSection">
+            <ul id="activeTablesList"></ul>
+          </div>
+          <!-- inactive list -->
+          <div id="archivedTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <button id="submitTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn" style="display: inline-block;">
+                <span class="icon"></span>ADD TO WORKSHEET
+              </button>
+              <button id="deleteTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn" style="display: inline-block;">
+                <span class="icon"></span>DELETE TABLES
+              </button>
+            </div>
+            <div class="secondButtonWrap">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
+                </span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
+                </span>
+              </div>
+            </div>
+            <ul id="inactiveTablesList"></ul>
+          </div>
+          <!-- orphaned table list -->
+          <div id="orphanedTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <button id="submitOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>ADD TO WORKSHEET
+              </button>
+              <button id="deleteOrphanedTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>DELETE TABLES
+              </button>
+            </div>
+            <div class="secondButtonWrap" style="display: block;">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
+                </span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
+                </span>
+              </div>
+              <div class="btn btnSmall refresh">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="refresh tables">
+                </span>
+              </div>
+            </div>
+            <ul id="orphanedTablesList"></ul>
+          </div>
+        </section>
+        <!-- End Of Sections -->
+      </div>
+    </section>
+
+    <!-- SQL Section -->
+    <section id="sqlSection" class="rightBarSection">
+      <header class="heading ui-draggable-handle">
+        <h2>SQL</h2>
+      </header>
+      <div class="rightBarContent">
+        <div id="rightBarTextScrollWrap">
+          <div id="rightBarTextArea"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UDF Section -->
+    <section id="udfSection" class="rightBarSection no-selection">
+      <!-- Heading -->
+      <header class="heading ui-draggable-handle">
+        <h2>User Defined Function</h2>
+      </header>
+      <!-- Content -->
+      <div class="rightBarContent">
+        <!-- Section to switch between upload and input section -->
+        <section class="tabSectionContainer">
+          <div id="udf-tabs" class="tabSection">
+            <!-- option for upload section -->
+            <div class="select-item" data-tab="udf-uploadSection">
+              <div class="radio checked">
+                <span class="dot"></span>
+              </div>
+              <div class="label">Upload your script</div>
+            </div>
+            <!-- option for code input section -->
+            <div class="select-item" data-tab="udf-fnSection">
+              <div class="radio">
+                <span class="dot"></span>
+              </div>
+              <div class="label">Write your function</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="mainSectionContainer">
+          <!-- Section to upload file -->
+          <section id="udf-uploadSection" class="mainSection">
+            <!-- head part -->
+            <div>
+              <h3 class="label">
+                <label for="udf-filePath">File Path:</label>
+              </h3>
+            </div>
+            <!-- file path part -->
+            <div class="pathSection">
+              <input id="udf-filePath" type="text" spellcheck="false">
+              <div id="udf-clearPath" class="iconWrap">
+                <span class="icon"></span>
+              </div>
+            </div>
+            <!-- button part -->
+            <div class="btnSection">
+              <button id="udf-browseBtn" class="btn btnMid" type="button">
+                BROWSE
+              </button>
+              <input id="udf-fileBrowser" type="file" style="display: none;">
+              <button id="udf-fileUpload" class="btn btnMid upload" type="button">
+                <span class="icon"></span>
+                <span class="text">UPLOAD</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Section to write function -->
+          <section id="udf-fnSection" class="mainSection hidden">
+            <!-- Choose File Teamplate -->
+            <section class="templateSection">
+              <div class="sectionContainer">
+                <!-- template dropdown menu -->
+                <div id="udf-fnList" class="listSection">
+                  <input id="udf-fnTemplate" class="text" placeholder="Choose your template" disabled="">
+                  <div class="iconWrapper">
+                    <span class="icon"></span>
+                  </div>
+                  <ul id="udf-fnMenu" class="list">
+                   <!--  <li>New Operator</li>
+                    <li>New Dataset</li> -->
+                    <li name="blank">Blank Function</li>
+                  </ul>
+                </div>
+                <!-- Download Teamplate -->
+                <div class="downloadSection">
+                   <div class="btnSection">
+                    <button id="udf-fnDownload" class="btn btnMid hidden" type="button">
+                      <span class="iconWrap"><span class="icon"></span></span>
+                      <span class="text">DOWNLOAD</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- Edit section -->
+            <section class="editSection">
+              <div class="editArea">
+                <textarea id="udf-codeArea" style="display: none;"></textarea><div class="CodeMirror cm-s-default"><div style="overflow: hidden; position: relative; width: 3px; height: 0px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none;" tabindex="0"></textarea></div><div class="CodeMirror-vscrollbar" cm-not-content="true"><div style="min-width: 1px;"></div></div><div class="CodeMirror-hscrollbar" cm-not-content="true"><div style="height: 100%; min-height: 1px;"></div></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; min-width: 3px;"><div style="position: relative;"><div class="CodeMirror-lines"><div style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"><pre><span style="padding-right: 0.1px;"><span cm-text="" style="display: inline-block; width: 1px; margin-right: -1px;">&nbsp;</span></span></pre></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors"></div><div class="CodeMirror-code"></div></div></div></div></div><div style="position: absolute; height: 30px; width: 1px;"></div><div class="CodeMirror-gutters"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 1px;"></div></div></div></div>
+              </div>
+            </section>
+            <!-- Submit Section -->
+            <section class="submitSection">
+              <div class="sectionContainer">
+                <div class="inputSection">
+                  <span class="label">
+                    <label for="udf-fnName">Module Name:</label>
+                  </span>
+                  <input id="udf-fnName" type="text" spellcheck="false">
+                </div>
+                <div class="btnSection">
+                  <button id="udf-fnUpload" class="btn btnMid upload" type="button">
+                    <span class="icon"></span>
+                    <span class="text">UPLOAD</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+          </section>
+          <!-- End of Write Function Section -->
+        </section>
+        <!-- End of Main Section -->
+      </div>
+    </section>
+
+    <!-- CLI Section -->
+    <section id="cliSection" class="rightBarSection">
+      <header class="heading ui-draggable-handle">
+        <h2>CLI</h2>
+      </header>
+      <div class="rightBarContent">
+        <div class="textBoxContainer">
+          <div spellcheck="false" class="lineArea"><div class="lineUnit">&gt; </div></div>
+          <div class="cliArea"><div contenteditable="true" spellcheck="false" class="cliUnit"></div></div>
+        </div>
+      </div>
+    </section>
+    <!-- Help Section -->
+    <section id="helpSection" class="rightBarSection no-selection lastOpen">
+      <header class="heading ui-draggable-handle">
+        <h2>Help</h2>
+      </header>
+      <div class="rightBarContent">
+        <div id="helpSearchArea" class="clearfix">
+          <input type="text" id="helpSearch" placeholder="Type in your question..." data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon" disabled="">
+          <div id="helpSubmit" class="btnInactive" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon">
+            <span class="icon iconSearch"></span>Find
+          </div>
+        </div>
+        <div class="border"></div>
+        <div id="helpResults" class="helpBox">
+          <div>
+            <span>There are no help results</span>
+          </div>
+        </div>
+        <div class="helpOnOffWrap">
+            <div id="helpOnOff" class="onOffBtn on off">
+                <div class="slider"></div>
+                <div class="text offText">OFF</div>
+                <div class="text onText">ON</div>
+            </div>
+            <div class="text">In-Page Help</div>
+        </div>
+        <div id="helpTopics" class="helpBox">
+          <div>
+            <ul>
+              <span>Start a Walkthrough:</span>
+              <li id="workbookWT" class="walkthrough">
+                <span>Go to workbook tutorial</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="topBorder"></div>
+    <div id="pulloutTab"></div>
+    <div id="sideBarModal"></div>
+  <div class="ui-resizable-handle ui-resizable-n" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-e" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-s" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-w" style="z-index: 90; display: block;"></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se" style="z-index: 90; display: block;"></div></div>
+  <!-- End Of Rightsidebar -->
+
+  <!-- Bottom Bar -->
+  <div id="bottomArea">
+    <!-- Worksheet Bar -->
+    <div id="worksheetBar" class="workspaceBar clearfix">
+      <section id="worksheetInfo" class="clearfix">
+        <div class="workspaceArea">Xcalar Insight</div>
+        <div class="workspaceArea">
+          Workbook: <span class="wkbkName">untitled</span>
+        </div>
+        <div id="workspaceDate" class="workspaceArea">
+          Created on <span class="date">8-27-2015</span>
+        </div>
+        <div class="workspaceArea">
+          <span>Last Saved on:</span>
+          <span id="autoSavedInfo">8-27-2015 6:32:57 PM</span>
+        </div>
+        <div class="workspaceArea">
+          <span id="pageStatusText"><span id="viewLocation">Viewing Data Stores</span></span>
+          <div id="loadingIconWrap">
+            <div class="spinner">
+              <div class="bounce1"></div>
+              <div class="bounce2"></div>
+              <div class="bounce3"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Buttons to pop out rightside bar -->
+      <section id="rightSideBarBtns" class="bottomButtonsArea no-selection">
+        <!-- tablelist -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="tableListBtn" class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="tables list"></span>
+        </div>
+        <!-- sql -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="sqlBtn" data-toggle="tooltip" data-placement="top" data-container="body" title="SQL"></span>
+        </div>
+        <!-- udf -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="udfBtn" class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="UDF"></span>
+        </div>
+        <!-- cli -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="cliBtn" class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="CLI"></span>
+        </div>
+        <!-- scratchpad -->
+        <!-- <div class="btn btnSmall sliderBtn">
+          <span id="scratchpadBtn" data-toggle="tooltip" 
+          data-placement="top" data-container="body" title="scratchpad"></span>
+        </div> -->
+        <!-- help section -->
+        <div class="btn btnSmall sliderBtn">
+          <span id="infoBtn" data-toggle="tooltip" data-placement="top" data-container="body" title="help"></span>
+        </div>
+      </section>
+    </div>
+    <!-- Bottom Worksheet Tabs -->
+    <div id="bottomTabArea">
+      <div id="addWorksheet" class="btn btnSmall" title="Add Worksheet" data-toggle="tooltip" data-placement="top" data-container="body"> 
+         
+        <span class="icon"></span>
+      </div>
+      <!-- Worksheet Tabs -->
+      <div id="worksheetTabs"><section id="worksheetTab-0" class="worksheetTab"><div class="label" data-original-title="Sheet 1" data-toggle="tooltip" data-placement="top" data-container="#worksheetTab-0:not(.focus) .label"><div class="iconWrapper delete"><span class="icon"></span></div><span class="wsIcon"></span><div class="text" data-title="Sheet 1" contenteditable="">Sheet 1</div></div><div id="compSwitch" class="dagTab" data-toggle="tooltip" data-placement="top" data-title="click to view DAG" data-container="body"><span class="icon"></span></div></section></div>
+    </div>
+  </div>
+</div>
