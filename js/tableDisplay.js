@@ -427,9 +427,7 @@ function startBuildTable(tableId, tablesToRemove) {
         }
         table.currentRowNumber = jsonObj.normal.length;
         buildInitialTable(progCols, tableId, jsonObj, keyName);
-        deferred.resolve();
-    })
-    .then(function() {
+
         var $table = $('#xcTable-' + tableId);
         var requiredNumRows    = Math.min(gMaxEntriesPerPage,
                                           table.resultSetCount);
@@ -457,6 +455,9 @@ function startBuildTable(tableId, tablesToRemove) {
                         table.currentRowNumber = lastRowNum + 1;
                     });
         }
+    })
+    .then(function() {
+        deferred.resolve();
     })
     .fail(function(error) {
         console.error("startBuildTable fails!", error);

@@ -2322,7 +2322,7 @@ function moveTableTitles() {
 function focusTable(tableId) {
     if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS())
     {
-        console.error("Table not in current worksheet");
+        console.warn("Table not in current worksheet");
         return;
     }
 

@@ -382,6 +382,8 @@ window.STATSManager = (function($, STATSManager, d3) {
                 $statsModal.find(".aggInfoSection ." + aggkey)
                         .removeClass("animatedEllipsis").text(val);
             }
+
+            deferred.resolve();
         })
         .fail(function(error) {
             closeStats();
@@ -958,7 +960,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             return;
         }
 
-        statsCol.groupByInfo.isComplete = false;
+        curStatsCol.groupByInfo.isComplete = false;
 
         var refreshTimer = setTimeout(function() {
             // refresh if not complete

@@ -731,7 +731,7 @@ window.WSManager = (function($, WSManager) {
         $("#tableListSections .worksheetInfo.worksheet-" + wsIndex).text(name);
 
         SQL.add("Rename Worksheet", {
-            "operation"     : "renameWorksheet",
+            "operation"     : SQLOps.RenameWS,
             "worksheetIndex": wsIndex,
             "oldName"       : oldName,
             "newName"       : name

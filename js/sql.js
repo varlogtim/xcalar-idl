@@ -132,6 +132,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.AddWS):
                 // fallthrough
+            case (SQLOps.RenameWS):
+                // fallthrough
             case (SQLOps.SwitchWS):
                 // fallthrough
             case (SQLOps.DelWS):

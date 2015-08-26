@@ -144,6 +144,7 @@ var SQLOps = {
     HideTable: "hideTable",
     UnhideTable: "unhideTable",
     AddWS: "addWorksheet",
+    RenameWS: "renameWorksheet",
     SwitchWS: "switchWorksheet",
     DelWS: "deleteWorksheet",
     MoveTableToWS: "moveTableToWorkSheet",

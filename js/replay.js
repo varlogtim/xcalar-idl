@@ -9,9 +9,9 @@ window.Replay = (function($, Replay) {
     };
 
     var fakeMouseup = {type: "mouseup", which: 1};
+    var fakeEnter   = {type: "keypress", which: 13};
     // var fakeClick = {type: "click", which: 1};
     // var fakeMousedown = {type: "mousedown", which: 1};
-    // var fakeEnter = {type: "keypress", which: 13};
 
     var outTime = 60000; // 1min for time out
     var checkTime = 500; // time interval of 500ms
@@ -155,6 +155,8 @@ window.Replay = (function($, Replay) {
                 return replayUnhideTable(options);
             case SQLOps.AddWS:
                 return replayAddWS();
+            case SQLOps.RenameWS:
+                return replayRenameWS(options);
             case SQLOps.SwitchWS:
                 return replaySwitchWS(options);
             case SQLOps.DelWS:
@@ -834,6 +836,14 @@ window.Replay = (function($, Replay) {
         }, checkTime);
 
         return (deferred.promise());
+    }
+
+    function replayRenameWS(options) {
+        var wsIndex = options.worksheetIndex;
+        var newName = options.newName;
+        $("#worksheetTab-" + wsIndex + " .text").text(newName)
+                                                .trigger(fakeEnter);
+        return (promiseWrapper(null));
     }
 
     function replaySwitchWS(options) {
