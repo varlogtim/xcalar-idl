@@ -494,7 +494,7 @@ window.TestSuite = (function($, TestSuite) {
             $(".xcTableWrap .moveToWorksheet .wsName").eq(2).click();
             $(".xcTableWrap .moveToWorksheet .list li").click();
             $(".xcTableWrap .moveToWorksheet .wsName").eq(2).trigger(fakeEnter);
-            $("#worksheetTab-1 .text").text("Multi group by");
+            $("#worksheetTab-1 .text").text("Multi group by").trigger(fakeEnter);
             return (checkExists("#worksheetTab-1 .text:contains('Multi ')"));
         })
         .then(function() {
@@ -582,7 +582,7 @@ window.TestSuite = (function($, TestSuite) {
         $colMenu.mouseover();
         $colMenu.find(".type-string").trigger(fakeMouseup);
         checkExists(".flexWrap.flex-mid"+
-                    " input[value='newclassid_integer']:eq(0)")
+                    " input[value='newclassid_string']:eq(0)")
         .then(function() {
             console.log("This test is witness to GUI-1900");
             TestSuite.pass(deferred, testName, currentTestNumber);

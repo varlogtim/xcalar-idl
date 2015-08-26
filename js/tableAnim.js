@@ -2109,11 +2109,12 @@ function changeColumnType($typeList) {
     var $colMenu = $typeList.closest('.colMenu');
     var colNum   = $colMenu.data('colNum');
     var tableId  = xcHelper.parseTableId($colMenu);
-    var table    = xcHelper.getTableFromId(tableId);
-    var colName  = table.tableCols[colNum - 1].func.args[0];
+    var col      = gTables[tableId].tableCols[colNum - 1];
+    var colName  = col.func.args[0];
 
     var mapStr = "";
-    var newColName = colName + "_" + newType;
+    // here use front col name to generate newColName
+    var newColName = col.name + "_" + newType;
     switch (newType) {
     case ("boolean"):
         mapStr += "bool(";
@@ -2130,6 +2131,7 @@ function changeColumnType($typeList) {
     default:
         console.warn("XXX no such operator! Will guess");
         mapStr += newType + "(";
+        break;
     }
 
     mapStr += colName + ")";

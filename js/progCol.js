@@ -300,7 +300,8 @@ window.ColManager = (function($, ColManager) {
         var oldName = curCol.name;
 
         curCol.name = newName;
-        $table.find('.editableHead.col' + colNum).val(newName);
+        $table.find('.editableHead.col' + colNum).val(newName)
+                                                .attr("value", newName);
 
         SQL.add("Rename Column", {
             "operation": SQLOps.RenameCol,
