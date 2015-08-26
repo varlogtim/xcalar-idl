@@ -265,6 +265,8 @@ window.STATSManager = (function($, STATSManager, d3) {
 
     // refresh stats
     function refreshStats(sortRefresh) {
+        var deferred = jQuery.Deferred();
+
         var $aggInfoSection = $statsModal.find(".aggInfoSection");
         var $loadingSection = $statsModal.find(".loadingSection");
         var $loadHiddens    = $statsModal.find(".loadHidden");
@@ -322,11 +324,13 @@ window.STATSManager = (function($, STATSManager, d3) {
                 groupByData = addNullValue(groupByData, statsCol.colName,
                                             statsColName);
                 buildGroupGraphs(true);
+                deferred.resolve();
             })
             .fail(function(error) {
                 closeStats();
                 Alert.error("Stats Analysis Fails", error);
                 console.error(error);
+                deferred.reject(error);
             });
 
             instruction = "Hover on the bar to see details. " +
@@ -343,9 +347,12 @@ window.STATSManager = (function($, STATSManager, d3) {
             // the data is loading, show loadingSection and hide groupby section
             instruction = "Please wait for the data preparation, " +
                             "you can close the modal and view it later";
+            deferred.resolve();
         }
 
         $statsModal.find(".modalInstruction .text").text(instruction);
+
+        return (deferred.promise());
     }
 
     function freePointer() {
@@ -450,22 +457,24 @@ window.STATSManager = (function($, STATSManager, d3) {
             curStatsCol.groupByInfo.groupbyTable = groupbyTable;
             curStatsCol.groupByInfo.isComplete = true;
 
+            if (tableToDelete != null) {
+                // delete the indexed table if exist
+                XcalarDeleteTable(tableToDelete, {
+                    "operation": SQLOps.ProfileAction,
+                    "action"   : "delete",
+                    "tableName": tableToDelete
+                });
+            }
+
             // modal is open and is for that column
             if (!$statsModal.hasClass("hidden") &&
                 $statsModal.data("id") === curStatsCol.modalId)
             {
-                refreshStats();
+                return (refreshStats());
             }
 
-            // XXX this can be removed if we do not want indexed table to be del
-            if (tableToDelete != null) {
-                // delete the indexed table if exist
-                // XcalarDeleteTable(tableToDelete, {
-                //     "operation": SQLOps.ProfileAction,
-                //     "action"   : "delete",
-                //     "tableName": tableToDelete
-                // });
-            }
+        })
+        .then(function() {
             var noNotification = true;
             StatusMessage.success(msgId, noNotification);
             deferred.resolve();

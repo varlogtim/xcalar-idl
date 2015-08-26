@@ -362,8 +362,8 @@ window.Replay = (function($, Replay) {
         var timer;
         var timer2;
 
-        var timeCnt;
-        var timeCnt2;
+        var timeCnt  = 0;
+        var timeCnt2 = 0;
 
         var $grid = DS.getGridByName(dsName);
         $grid.click();
@@ -532,7 +532,7 @@ window.Replay = (function($, Replay) {
         var $ds = DS.getGridByName(options.dsName);
         var dSLen = $gridView.find(".ds").length;
         var timer;
-        var timeCnt;
+        var timeCnt = 0;
 
         DS.remove($ds);
 
@@ -809,7 +809,7 @@ window.Replay = (function($, Replay) {
 
         $("#addWorksheet").click();
 
-        var timeCnt;
+        var timeCnt = 0;
 
         var timer = setInterval(function() {
             var wsLenDiff = WSManager.getWSLen() - originWSLen;
@@ -868,7 +868,7 @@ window.Replay = (function($, Replay) {
         var wsIndex     = options.worksheetIndex;
         var tableAction = options.tableAction;
         var timer;
-        var timeCnt;
+        var timeCnt = 0;
 
         var $wsTab = $("#worksheetTab-" + wsIndex);
 
@@ -990,7 +990,7 @@ window.Replay = (function($, Replay) {
         var $icon = $("#statsModal .sortSection ." + order + " .iconWrapper");
         $icon.click();
 
-        var timeCnt;
+        var timeCnt = 0;
         var timer = setInterval(function() {
             if ($icon.hasClass("active")) {
                 // when ds is deleted
