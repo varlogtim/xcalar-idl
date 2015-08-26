@@ -2687,10 +2687,7 @@ window.DS = (function ($, DS) {
         var $label  = DS.getGrid(dsId).find("> .label");
         var oldName = ds.name;
 
-        if (newName === "") {
-            // when new name is invalid
-            $label.text(oldName);
-        } else if (newName === oldName) {
+        if (newName === oldName) {
             return;
         } else {
             ds = ds.rename(newName);
@@ -2701,11 +2698,13 @@ window.DS = (function ($, DS) {
                     "operation": SQLOps.DSRename,
                     "dsId"     : dsId,
                     "oldName"  : oldName,
-                    "newName"  : newName
+                    "newName"  : ds.name
                 });
 
                 $label.text(ds.name);
                 commitToStorage();
+            } else {
+                $label.text(oldName);
             }
         }
     };
@@ -3145,18 +3144,36 @@ window.DS = (function ($, DS) {
          * @return {DSObj} this
          */
         rename: function(newName) {
+            newName = newName.trim();
+
             var self   = this;
             var parent = DS.getDSObj(self.parentId);
             //check name confliction
-            var isValid = xcHelper.validate({
-                "$selector": DS.getGrid(self.id),
-                "text"     : 'Folder "' + newName +
-                             '" already exists, please use another name!',
-                "check": function() {
-                    return (parent.checkNameConflict(self.id, newName,
-                                                     self.isFolder));
+            var isValid = xcHelper.validate([
+                {
+                    "$selector": DS.getGrid(self.id),
+                    "text"     : "Name cannot be empty",
+                    "check"    : function() {
+                        return (newName === "");
+                    }
+                },
+                {
+                    "$selector": DS.getGrid(self.id),
+                    "text"     : "Ivalid name, cannot contain speical characters",
+                    "check"    : function() {
+                        return (/[^a-zA-Z\d\s:]/.test(newName));
+                    }
+                },
+                {
+                    "$selector": DS.getGrid(self.id),
+                    "text"     : 'Folder "' + newName +
+                                 '" already exists, please use another name!',
+                    "check": function() {
+                        return (parent.checkNameConflict(self.id, newName,
+                                                         self.isFolder));
+                    }
                 }
-            });
+            ]);
 
             if (isValid) {
                 this.name = newName;
