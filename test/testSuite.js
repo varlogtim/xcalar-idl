@@ -156,8 +156,9 @@ window.TestSuite = (function($, TestSuite) {
             }
             if (allElemsPresent) {
                 clearInterval(interval);
-                deferred.resolve();
+                setTimeout(deferred.resolve, 100);
             } else if (timeElapsed >= timeLimit) {
+                console.log(elemSelectors, options);
                 var error = 'time limit of ' + timeLimit +
                             'ms exceeded';
                 console.warn(error);
@@ -169,8 +170,49 @@ window.TestSuite = (function($, TestSuite) {
 
         return (deferred.promise());
     }
+
+    function insertText($input, textToInsert) {
+        var value  = $input.val();
+        var valLen = value.length;
+        var newVal;
+       
+        var currentPos = $input[0].selectionStart;
+        var selectionEnd = $input[0].selectionEnd;
+        var numCharSelected = selectionEnd - currentPos;
+        var strLeft;
+
+        if (valLen === 0) {
+            // add to empty input box
+            newVal = textToInsert;
+            currentPos = newVal.length;
+        } else if (numCharSelected > 0) {
+            // replace a column
+            strLeft = value.substring(0, currentPos);
+            newVal = textToInsert;
+            currentPos = strLeft.length + newVal.length;
+        } else if (currentPos === valLen) {
+            // append a column
+            newVal = ", " + textToInsert;
+            currentPos = value.length + newVal.length;
+        } else if (currentPos === 0) {
+            // prepend a column
+            newVal = textToInsert + ", ";
+            currentPos = newVal.length; // cursor at the start of value
+        } else {
+            // insert a column. numCharSelected == 0
+            strLeft = value.substring(0, currentPos);
+
+            newVal = textToInsert + ", ";
+            currentPos = strLeft.length + newVal.length;
+        }
+
+        $input.focus();
+        if (!document.execCommand("insertText", false, newVal+"\n")) {
+            $input.val($input.val() + newVal);
+        }
+    }
 // ========================= COMMON ACTION TRIGGERS ======================== //
-    function trigOpModal(tableId, columnName, funcClassName) {
+    function trigOpModal(tableId, columnName, funcClassName, whichModal) {
         var $header = $("#xcTbodyWrap-"+tableId)
                        .find(".flexWrap.flex-mid input[value='"+columnName+"']")
                        .eq(0);
@@ -178,7 +220,11 @@ window.TestSuite = (function($, TestSuite) {
         var $colMenu = $("#xcTableWrap-"+tableId)
                        .find(".colMenu:not(.tableMenu) ."+funcClassName);
         $colMenu.trigger(fakeMouseup);
-        return (checkExists("#operationsModal:visible"));
+        if (whichModal === "join") {
+            return (checkExists("#joinModal:visible"));
+        } else {
+            return (checkExists("#operationsModal:visible"));
+        }
     }
 // ======================== TEST DEFINITIONS GO HERE ======================= //
     function flightTest(deferred, testName, currentTestNumber) {
@@ -449,6 +495,9 @@ window.TestSuite = (function($, TestSuite) {
             $(".xcTableWrap .moveToWorksheet .list li").click();
             $(".xcTableWrap .moveToWorksheet .wsName").eq(2).trigger(fakeEnter);
             $("#worksheetTab-1 .text").text("Multi group by");
+            return (checkExists("#worksheetTab-1 .text:contains('Multi ')"));
+        })
+        .then(function() {
             TestSuite.pass(deferred, testName, currentTestNumber);
         });
     }
@@ -472,6 +521,77 @@ window.TestSuite = (function($, TestSuite) {
         });
     }
 
+    function multiJoinTest(deferred, testName, currentTestNumber) {
+        var dsName = "schedule"+Math.floor(Math.random()*100);
+        // Import schedule dataset
+        $("#dataStoresTab").click();
+        $("#importDataButton").click();
+        $("#filePath").val("file:///var/tmp/qa/indexJoin/schedule/schedule.json"
+                          );
+        $("#fileName").val(dsName);
+        $("#fileFormat .iconWrapper .icon").click();
+        $("#fileFormat li[name='JSON']").click();
+        $("#importDataSubmit").click();
+        checkExists("#dataset-"+dsName+":not(.inactive)")
+        .then(function() {
+            $("#contentViewTable .flexContainer").eq(0).click();
+            $("#contentViewTable .flexContainer").eq(5).click();
+            $("#submitDSTablesBtn").click();
+            return (checkExists(".xcTable .flexWrap.flex-mid input[value="+
+                                "'class_id']:eq(0)"));
+        }).then(function() {
+            var tableId = (WSManager.getWorksheets())[1].tables[1];
+            return (trigOpModal(tableId, "class_id", "joinList", "join"));
+        }).then(function() {
+            $("#multiJoinBtn .onBox").click();
+            return (checkExists("#multiJoin .title"));
+        }).then(function() {
+            $("#joinRoundedInput").val("multiJoin");
+            $(".joinClause").eq(1).click();
+            $(".tableLabel").eq(6).click();
+            $(".leftClause").eq(0).val("class_id");
+            $(".leftClause").eq(1).val("teacher_id");
+            $(".rightClause").eq(0).val("DayofMonth");
+            $(".rightClause").eq(1).val("DayOfWeek");
+            $("#joinTables").click();
+            return (checkExists(".xcTableWrap .tableTitle:contains(multiJoin)"
+                               ));
+        }).then(function() {
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        });
+    }
+
+    function columnRenameTest(deferred, testName, currentTestNumber) {
+        $("#mainFrame").scrollLeft("0");
+        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        var $header = $("#xcTable-"+tableId+
+                        " .flexWrap.flex-mid input[value='class_id']");
+        $header.parent().parent().find(".flex-right .innerBox").click();
+        var $colMenu = $("#xcTableWrap-"+tableId)
+                        .find(".colMenu:not(.tableMenu) .renameCol");
+        $colMenu.mouseover();
+        // XXX TODO add check for disallowing spaces in col name
+        $colMenu.find(".colName").val("newclassid");
+        $colMenu.find(".colName").trigger(fakeEnter);
+        // Now do something with this newly renamed column
+        var $header = $("#xcTable-"+tableId+
+                        " .flexWrap.flex-mid input[value='newclassid']");
+        $header.parent().parent().find(".flex-right .innerBox").click();
+        $colMenu = $("#xcTableWrap-"+tableId)
+                    .find(".colMenu:not(.tableMenu) .changeDataType");
+        $colMenu.mouseover();
+        $colMenu.find(".type-string").trigger(fakeMouseup);
+        checkExists(".flexWrap.flex-mid"+
+                    " input[value='newclassid_integer']:eq(0)")
+        .then(function() {
+            console.log("This test is witness to GUI-1900");
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function() {
+            TestSuite.fail(deferred, testName, currentTestNumber);
+        });
+
+    }
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
     TestSuite.add(testCases, flightTest, "FlightTest", defaultTimeout,
                   TestCaseEnabled);
@@ -479,6 +599,10 @@ window.TestSuite = (function($, TestSuite) {
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(testCases, multiGroupByTest, "MultiGroupByTest",
                   defaultTimeout, TestCaseDisabled);
+    TestSuite.add(testCases, multiJoinTest, "MultiJoinTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(testCases, columnRenameTest, "TableRenameTest",
+                  defaultTimeout, TestCaseEnabled);
 
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
     return (TestSuite);

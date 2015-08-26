@@ -1305,3 +1305,4 @@ window.OperationsModal = (function($, OperationsModal) {
 
     return (OperationsModal);
 }(jQuery, {}));
+
