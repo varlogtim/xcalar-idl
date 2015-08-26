@@ -464,16 +464,18 @@ window.JoinModal = (function($, JoinModal) {
             var wsTables = worksheets[i].tables;
 
             for (var j = 0; j < wsTables.length; j++) {
-                var wsName = (j === 0) ? worksheets[i].name : "";
+                var wsName  = (j === 0) ? worksheets[i].name : "";
                 var tableId = wsTables[j];
-                var table = xcHelper.getTableFromId(tableId);
+                var table   = gTables[tableId];
 
-                wsTabHtml += '<div class="worksheetLabel">' +
-                                wsName +
-                            '</div>';
-                tabHtml += '<div class="tableLabel" data-id="' + tableId + '">' +
-                                table.tableName +
-                            '</div>';
+                wsTabHtml +=
+                    '<div class="worksheetLabel" data-id="' + tableId + '">' +
+                        wsName +
+                    '</div>';
+                tabHtml +=
+                    '<div class="tableLabel" data-id="' + tableId + '">' +
+                        table.tableName +
+                    '</div>';
 
                 appendColHTML(tableId, table.tableCols);
             }
@@ -535,8 +537,11 @@ window.JoinModal = (function($, JoinModal) {
                 return;
             }
             $modal.find(".tableLabel.active").removeClass("active");
-
             $tableLabel.addClass("active");
+
+            $modal.find(".worksheetLabel.active").removeClass("active");
+            $modal.find(".worksheetLabel[data-id=" + tableId + "]")
+                    .addClass("active");
 
             $modal.find(".colSelected").removeClass("colSelected");
 
