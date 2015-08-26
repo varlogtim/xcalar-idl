@@ -289,7 +289,7 @@ window.JoinModal = (function($, JoinModal) {
         var rTableId  = $rightCol.closest(".joinTable").data("id");
 
         resetJoinTables();
-        xcFunction.join(lColNum, lTableId, rColNum, rTableId,
+        xcFunction.join([lColNum], lTableId, [rColNum], rTableId,
                         joinType, newTableName);
     }
 
@@ -332,87 +332,27 @@ window.JoinModal = (function($, JoinModal) {
         var lTableId = $lTLabel.data('id');
         var $lTable  = $leftJoinTable.find('.joinTable[data-id="' +
                                             lTableId + '"]');
-        var lColNum;
 
         // right table
         var $rTLabel = $rightJoinTable.find(".tableLabel.active");
         var rTableId = $rTLabel.data('id');
         var $rTable  = $rightJoinTable.find('.joinTable[data-id="' +
                                                 rTableId + '"]');
-        var rColNum;
 
-        // Only one clause, use same with single join
-        if (lCols.length === 1) {
-            lColNum = getColNum($lTable, lCols[0]);
-            rColNum = getColNum($rTable, rCols[0]);
-            resetJoinTables();
-            xcFunction.join(lColNum, lTableId, rColNum, rTableId,
-                            joinType, newTableName);
-            return;
+        var lColNums = [];
+        var rColNums = [];
+
+        for (var i = 0; i < lCols.length; i++) {
+            lColNums[i] = getColNum($lTable, lCols[i]);
         }
 
-        // left cols
-        var lString  = 'multiJoinModule:multiJoin(';
-        var lColName = xcHelper.randName("leftJoinCol");
-
-        lColNum = xcHelper.getTableFromId(lTableId).tableCols.length;
-
-        var len = lCols.length;
-        for (var i = 0; i <= len - 2; i++) {
-            lString += lCols[i] + ", ";
+        for (var i = 0; i < rCols.length; i++) {
+            rColNums[i] = getColNum($rTable, rCols[i]);
         }
-        lString += lCols[len - 1] + ")";
-
-        // right cols
-        var rString  = 'multiJoinModule:multiJoin(';
-        var rColName = xcHelper.randName("rightJoinCol");
-
-        rColNum = xcHelper.getTableFromId(rTableId).tableCols.length;
-
-        len = rCols.length;
-        for (var i = 0; i <= len - 2; i++) {
-            rString += rCols[i] + ", ";
-        }
-
-        rString += rCols[len - 1] + ")";
-
-        var lMapOptions = {
-            "colNum"   : lColNum,
-            "tableId"  : lTableId,
-            "fieldName": lColName,
-            "mapString": lString
-        };
-
-        var rMapOptions = {
-            "colNum"   : rColNum,
-            "tableId"  : rTableId,
-            "fieldName": rColName,
-            "mapString": rString
-        };
-
-        var mapMsg = StatusMessageTStr.Map + " for multiClause Join";
 
         resetJoinTables();
-        xcFunction.twoMap(lMapOptions, rMapOptions, true, mapMsg)
-        .then(function(lNewName, rNewName) {
-            var lRemoved = {};
-            var rRemoved = {};
-
-            lRemoved[lColName] = true;
-            rRemoved[rColName] = true;
-
-            var lNewId = xcHelper.getTableId(lNewName);
-            var rNewId = xcHelper.getTableId(rNewName);
-
-            var joinOptions = {
-                "lRemoved": lRemoved,
-                "rRemoved": rRemoved
-            };
-            
-            return xcFunction.join(lColNum - 1, lNewId,
-                                    rColNum - 1, rNewId,
-                                    joinType, newTableName, joinOptions);
-        });
+        xcFunction.join(lColNums, lTableId, rColNums, rTableId,
+                        joinType, newTableName);
     }
 
     function getColNum($table, colName) {

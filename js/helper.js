@@ -245,7 +245,7 @@ window.xcHelper = (function($, xcHelper) {
             try {
                 selection.addRange(range);
             } catch(error) {
-                console.log(error)
+                console.log(error);
             }
             
         } else if (document.body.createTextRange) {
@@ -521,10 +521,12 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         var $tableWrap  = xcHelper.getElementByTableId(tableId, "xcTableWrap");
-        if ($tableWrap != null && $tableWrap.length !== 0) {
+        if ($tableWrap != null && $tableWrap.length !== 0 &&
+            !$tableWrap.hasClass('tableLocked'))
+        {
             // tableWrap may not exist during multijoin on self
-            var $lockedIcon = $('<div class="lockedIcon">' +
-                            '<img src="/images/biglocklight.png" /></div>');
+            // var $lockedIcon = $('<div class="lockedIcon">' +
+            //                 '<img src="/images/biglocklight.png" /></div>');
             var $lockedIcon = $('<div class="lockedIcon">' +
                             '<img src="/images/hourglass-white.png" /></div>');
             var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
@@ -551,7 +553,7 @@ window.xcHelper = (function($, xcHelper) {
     };
 
     xcHelper.unlockTable = function(tableId, isHidden) {
-        var table = xcHelper.getTableFromId(tableId);
+        var table = gTables[tableId];
 
         if (isHidden) {
             table.isLocked = false;

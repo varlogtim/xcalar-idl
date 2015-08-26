@@ -208,8 +208,8 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     // join two tables
-    xcFunction.join = function(lColNum, lTableId, rColNum, rTableId,
-                                joinStr, newTableName, joinOptions)
+    xcFunction.join = function(lColNums, lTableId, rColNums, rTableId,
+                                joinStr, newTableName)
     {
         var deferred = jQuery.Deferred();
         var joinType = joinLookUp[joinStr];
@@ -220,115 +220,117 @@ window.xcFunction = (function($, xcFunction) {
             return (deferred.promise());
         }
 
-        console.info("leftColNum", lColNum,
-                    "leftTableId", lTableId,
-                    "rightColNum", rColNum,
-                    "rightTableId", rTableId,
-                    "joinStr", joinStr,
-                    "newTableName", newTableName);
-        joinOptions = joinOptions || {};
-
-        var lTable        = xcHelper.getTableFromId(lTableId);
-        var lTableName    = lTable.tableName;
-        var lColName      = lTable.tableCols[lColNum].func.args[0];
-        var lFrontColName = lTable.tableCols[lColNum].name;
-
-        var rTable        = xcHelper.getTableFromId(rTableId);
-        var rTableName    = rTable.tableName;
-        var rColName      = rTable.tableCols[rColNum].func.args[0];
-        var rFrontColName = rTable.tableCols[rColNum].name;
-
-        var lSrcName;
-        var rSrcName;
-
-        var lTableResult;
-        var rTableResult;
-
-        var msg = StatusMessageTStr.Join;
-        var msgObj = {
-            "msg"      : msg,
-            "operation": SQLOps.Join
+        var sqlOptions = {
+            "operation"   : SQLOps.Join,
+            "lTableName"  : gTables[lTableId].name,
+            "lTableId"    : lTableId,
+            "lColNums"    : lColNums,
+            "rTableName"  : gTables[rTableId].name,
+            "rTableId"    : rTableId,
+            "rColNums"    : rColNums,
+            "newTableName": newTableName,
+            "joinStr"     : joinStr
         };
-        var msgId = StatusMessage.addMsg(msgObj);
 
-        xcHelper.lockTable(lTableId);
-        xcHelper.lockTable(rTableId);
+        joinCheck(lColNums, lTableId, rColNums, rTableId)
+        .then(function(res) {
+            lTableId = res.lTableId;
+            rTableId = res.rTableId;
 
-        var newTableId = xcHelper.getTableId(newTableName);
-        WSManager.addTable(newTableId);
-        // check left table index
-        parallelIndex(lColName, lTableId, rColName, rTableId)
-        .then(function(lResult, rResult) {
-            lTableResult = lResult;
-            lSrcName = lResult.tableName;
+            lColNum = res.lColNum;
+            rColNum = res.rColNum;
 
-            rTableResult = rResult;
-            rSrcName = rResult.tableName;
-            // checkJoinTable index only created backend table,
-            // here we get the info to set the indexed table as hidden table
-            return (setIndexedTableMeta(lTableResult));
-        })
-        .then(function(result) {
-            lTableResult = result;
-            return (setIndexedTableMeta(rTableResult));
-        })
-        .then(function(result) {
-            rTableResult = result;
-            // join indexed table
-            var sqlOptions = {
-                "operation"   : SQLOps.Join,
-                "lTableName"  : lTableName,
-                "lTableId"    : lTableId,
-                "lColName"    : lFrontColName,
-                "lColNum"     : lColNum,
-                "rTableName"  : rTableName,
-                "rTableId"    : rTableId,
-                "rColName"    : rFrontColName,
-                "rColNum"     : rColNum,
-                "newTableName": newTableName,
-                "joinStr"     : joinStr,
-                "joinOptions" : joinOptions
+            var joinOptions = res.joinOptions || {};
+
+            var lTable     = gTables[lTableId];
+            var lTableName = lTable.tableName;
+            var lColName   = lTable.tableCols[lColNum].func.args[0];
+
+            var rTable     = gTables[rTableId];
+            var rTableName = rTable.tableName;
+            var rColName   = rTable.tableCols[rColNum].func.args[0];
+
+            var lSrcName;
+            var rSrcName;
+
+            var lTableResult;
+            var rTableResult;
+
+
+            xcHelper.lockTable(lTableId);
+            xcHelper.lockTable(rTableId);
+
+            var msg = StatusMessageTStr.Join;
+            var msgObj = {
+                "msg"      : msg,
+                "operation": SQLOps.Join
             };
-            return (XcalarJoin(lSrcName, rSrcName, newTableName,
-                                joinType, sqlOptions));
-        })
-        .then(function() {
-            var lRemoved = joinOptions.lRemoved;
-            var rRemoved = joinOptions.rRemoved;
-            var newTableCols = createJoinedColumns(lTable, rTable,
-                                                   lRemoved, rRemoved);
-            return (setgTable(newTableName, newTableCols));
-        })
-        .then(function() {
-            var refreshOptions = {
-                "keepOriginal"       : false,
-                "additionalTableName": rTableName
-            };
-            return (refreshTable(newTableName, lTableName, refreshOptions));
-        })
-        .then(function() {
-            xcHelper.unlockTable(lTableId, true);
-            xcHelper.unlockTable(rTableId, true);
+            var msgId = StatusMessage.addMsg(msgObj);
 
-            StatusMessage.success(msgId, false, newTableId);
-            commitToStorage();
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            WSManager.removeTable(newTableId);
-            xcHelper.unlockTable(lTableId);
-            xcHelper.unlockTable(rTableId);
-            Alert.error("Join Table Fails", error);
-            StatusMessage.fail(StatusMessageTStr.JoinFailed, msgId);
+            var newTableId = xcHelper.getTableId(newTableName);
+            WSManager.addTable(newTableId);
 
-            joinFailHandler(lTableResult)
-            .then(function() {
-                joinFailHandler(rTableResult);
+            // check table index
+            parallelIndex(lColName, lTableId, rColName, rTableId)
+            .then(function(lResult, rResult) {
+                lTableResult = lResult;
+                lSrcName = lResult.tableName;
+
+                rTableResult = rResult;
+                rSrcName = rResult.tableName;
+                // checkJoinTable index only created backend table,
+                // here we get the info to set the indexed table as hidden table
+                return (setIndexedTableMeta(lTableResult));
             })
-            .always(function() {
-                deferred.reject(error);
+            .then(function(result) {
+                lTableResult = result;
+                return (setIndexedTableMeta(rTableResult));
+            })
+            .then(function(result) {
+                rTableResult = result;
+                // join indexed table
+                return (XcalarJoin(lSrcName, rSrcName, newTableName,
+                                    joinType, sqlOptions));
+            })
+            .then(function() {
+                var lRemoved = joinOptions.lRemoved;
+                var rRemoved = joinOptions.rRemoved;
+                var newTableCols = createJoinedColumns(lTable, rTable,
+                                                       lRemoved, rRemoved);
+                return (setgTable(newTableName, newTableCols));
+            })
+            .then(function() {
+                var refreshOptions = {
+                    "keepOriginal"       : false,
+                    "additionalTableName": rTableName
+                };
+                return (refreshTable(newTableName, lTableName, refreshOptions));
+            })
+            .then(function() {
+                xcHelper.unlockTable(lTableId, true);
+                xcHelper.unlockTable(rTableId, true);
+
+                StatusMessage.success(msgId, false, newTableId);
+                commitToStorage();
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                WSManager.removeTable(newTableId);
+                xcHelper.unlockTable(lTableId);
+                xcHelper.unlockTable(rTableId);
+                Alert.error("Join Table Fails", error);
+                StatusMessage.fail(StatusMessageTStr.JoinFailed, msgId);
+
+                joinFailHandler(lTableResult)
+                .then(function() {
+                    joinFailHandler(rTableResult);
+                })
+                .always(function() {
+                    deferred.reject(error);
+                });
             });
-        });
+        })
+        .fail(deferred.reject);
 
         return (deferred.promise());
     };
@@ -1026,6 +1028,99 @@ window.xcFunction = (function($, xcFunction) {
             });
 
         }
+        return (deferred.promise());
+    }
+
+    function joinCheck(lColNums, lTableId, rColNums, rTableId) {
+        var deferred = jQuery.Deferred();
+        var len = lColNums.length;
+
+        // validation check
+        if (len !== rColNums.length || len < 1) {
+            console.error("Invalid parameters in join");
+            deferred.reject("Invalid parameters in join");
+            return (deferred.promise());
+        }
+
+        if (len === 1) {
+            // single join
+            deferred.resolve({
+                "lColNum" : lColNums[0],
+                "lTableId": lTableId,
+                "rColNum" : rColNums[0],
+                "rTableId": rTableId
+            });
+        } else {
+            // multi join
+
+            // left cols
+            var lString  = 'multiJoinModule:multiJoin(';
+            var lColName = xcHelper.randName("leftJoinCol");
+            var lCols    = gTables[lTableId].tableCols;
+            var lColNum  = lCols.length;
+
+            for (var i = 0; i <= len - 2; i++) {
+                lString += lCols[i].func.args[0] + ", ";
+            }
+            lString += lCols[len - 1].func.args[0] + ")";
+
+            // right cols
+            var rString  = 'multiJoinModule:multiJoin(';
+            var rColName = xcHelper.randName("rightJoinCol");
+            var rCols    = gTables[rTableId].tableCols;
+            var rColNum  = rCols.length;
+
+            for (var i = 0; i <= len - 2; i++) {
+                rString += rCols[i].func.args[0] + ", ";
+            }
+
+            rString += rCols[len - 1].func.args[0] + ")";
+
+            var lMapOptions = {
+                "colNum"   : lColNum,
+                "tableId"  : lTableId,
+                "fieldName": lColName,
+                "mapString": lString
+            };
+
+            var rMapOptions = {
+                "colNum"   : rColNum,
+                "tableId"  : rTableId,
+                "fieldName": rColName,
+                "mapString": rString
+            };
+
+            var mapMsg = StatusMessageTStr.Map + " for multiClause Join";
+
+            xcFunction.twoMap(lMapOptions, rMapOptions, true, mapMsg)
+            .then(function(lNewName, rNewName) {
+                var lRemoved = {};
+                var rRemoved = {};
+
+                lRemoved[lColName] = true;
+                rRemoved[rColName] = true;
+
+                var lNewId = xcHelper.getTableId(lNewName);
+                var rNewId = xcHelper.getTableId(rNewName);
+
+                var joinOptions = {
+                    "lRemoved": lRemoved,
+                    "rRemoved": rRemoved
+                };
+
+                var res = {
+                    "lColNum"    : lColNum - 1,
+                    "lTableId"   : lNewId,
+                    "rColNum"    : rColNum - 1,
+                    "rTableId"   : rNewId,
+                    "joinOptions": joinOptions
+                };
+
+                deferred.resolve(res);
+            })
+            .fail(deferred.reject);
+        }
+
         return (deferred.promise());
     }
 
