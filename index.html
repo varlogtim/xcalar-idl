@@ -619,10 +619,12 @@
             <div id="datasetExplore">
               <span>Data Sets (<span class="numDataStores">0</span>)</span>
               <div class="buttonGroup">
-                <div id="dataListView" class="btn dataViewBtn btnDeselected">
-                  <span class="icon"></span>
+                <div id="refreshDS"class="btn dataViewBtn">
+                  <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="Refresh Datasets"></span>
                 </div>
-                <div id="dataGridView" class="btn dataViewBtn selected">
+
+                <div id="dataViewBtn" class="btn dataViewBtn selected gridView" data-toggle="tooltip" data-placement="top"
+                data-original-title="Switch to List view" data-container="body">
                   <span class="icon"></span>
                 </div>
               </div>
@@ -656,6 +658,7 @@
                 <div class="label">DELETE</div>
               </div>
             </div>
+            <!-- Grid View -->
             <div id="gridViewWrapper">
               <div id="gridViewScrollbarWrapper">
                 <div id="gridView" class="gridView"></div>

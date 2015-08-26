@@ -467,6 +467,25 @@ window.GridView = (function($, GridView) {
         return (releaseDatasetPointer());
     };
 
+    GridView.toggle = function(isListView) {
+        var $btn = $("#dataViewBtn");
+
+        if (isListView) {
+            // show list view
+            $btn.removeClass("gridView").addClass("listView");
+            $gridView.removeClass("gridView").addClass("listView");
+            $btn.attr('data-original-title', 'Switch to Grid view');
+        } else {
+            $btn.removeClass("listView").addClass("gridView");
+            $gridView.removeClass("listView").addClass("gridView");
+            $btn.attr('data-original-title', 'Switch to List view');
+        }
+
+        // refresh tooltip
+        $btn.mouseenter();
+        $btn.mouseover();
+    }
+
     function setupGridViewButton() {
         // click to go to form section
         $("#importDataButton").click(function() {
@@ -483,15 +502,17 @@ window.GridView = (function($, GridView) {
             }
         });
 
-        $(".dataViewBtn").click(function() {
+        $("#dataViewBtn").click(function() {
             var $btn = $(this);
-            $(".dataViewBtn").removeClass("selected").addClass("btnDeselected");
-            $btn.addClass("selected").removeClass("btnDeselected");
-            if ($btn.attr("id") === "dataListView") {
-                $gridView.removeClass("gridView").addClass("listView");
+            var isListView;
+
+            if ($btn.hasClass("gridView")) {
+                isListView = true;
             } else {
-                $gridView.removeClass("listView").addClass("gridView");
+                isListView = false;
             }
+
+            GridView.toggle(isListView);
         });
 
          // click "Add New Folder" button to add new folder
@@ -517,6 +538,31 @@ window.GridView = (function($, GridView) {
     }
 
     function setupGrids() {
+        // refresh ds
+        $("#refreshDS").click(function() {
+            XcalarGetDatasets()
+            .then(function(datasets) {
+                var numDatasets = datasets.numDatasets;
+                for (var i = 0; i < numDatasets; i++) {
+                    var ds = datasets.datasets[i];
+                    var dsName = ds.name;
+
+                    if (dsName.endsWith(".preview")) {
+                        // do not deal with preview ds
+                        continue;
+                    }
+
+                    if (DS.getGridByName(dsName) == null) {
+                        var format = DfFormatTypeTStr[ds.formatType].toUpperCase();
+                        DS.addDS(ds.name, format, ds.url);
+                    }
+                }
+            })
+            .fail(function(error) {
+                console.error("Refresh DS failes", error);
+            });
+        });
+
         // click empty area on gridView
         $("#gridViewWrapper").on("click", function() {
             // this hanlder is called before the following one
@@ -2464,6 +2510,27 @@ window.DS = (function ($, DS) {
         return (ds);
     };
 
+    // refresh a new dataset and add it to grid view
+    DS.addDS = function(name, format, path) {
+        DS.create({
+            "name"    : name,
+            "isFolder": false,
+            "attrs"   : {
+                "format": format,
+                "path"  : path
+            }
+        });
+
+        DS.refresh();
+
+        SQL.add("Add dataset", {
+            "operation": SQLOps.AddDS,
+            "name"     : name,
+            "format"   : format,
+            "path"     : path
+        })
+    };
+
     /**
      * Load dataset
      * @param {string} dsName The dataset name
@@ -2588,7 +2655,7 @@ window.DS = (function ($, DS) {
      * @param {obj} oldHomFolder The stored home folder
      * @param {object[]} datasets The datasets in backend
      */
-    DS.restore = function (oldHomeFolder, datasets) {
+    DS.restore = function(oldHomeFolder, datasets) {
         var numDatasets = datasets.numDatasets;
         var totolDS = 0;
         var searchHash = {};
@@ -2655,22 +2722,13 @@ window.DS = (function ($, DS) {
             ds = searchHash[dsName];
             if (ds != null) {
                 format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-                DS.create({
-                    "name"    : ds.name,
-                    "isFolder": false,
-                    "attrs"   : {
-                        "format": format,
-                        "path"  : ds.url
-                    }
-                });
+                DS.addDS(ds.name, format, ds.url);
             }
         }
 
         // restore list view if saved
         var settings = UserSettings.getSettings();
-        if (settings.datasetListView) {
-            $('#dataListView').click();
-        }
+        GridView.toggle(settings.datasetListView);
 
         DS.refresh();
 
@@ -2806,6 +2864,7 @@ window.DS = (function ($, DS) {
         $("#gridView .grid-unit").remove();
         DS.setup();
     };
+
 
     /* Drag and Drop API */
 

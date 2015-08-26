@@ -750,12 +750,23 @@ input {
                 .size(23px, 23px);
                 margin-left: 2px;
             }
-            #dataListView .icon {
-                .image("/images/ds-listView.png", 50%, 50%);
-            }
-            #dataGridView .icon {
-                .image("/images/ds-iconView.png", 50%, 50%);
-            }
+        }
+    }
+
+    #dataViewBtn {
+        &.gridView .icon {
+            .image("/images/ds-iconView.png", 50%, 50%);
+        }
+
+        &.listView .icon {
+            .image("/images/ds-listView.png", 50%, 50%);
+        }
+    }
+
+    #refreshDS {
+        .icon {
+            .image("/images/fileBrowserModal/refresh.png", 50%, 50%);
+            background-size: 18px 18px;
         }
     }
 

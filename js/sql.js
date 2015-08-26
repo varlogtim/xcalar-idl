@@ -164,6 +164,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.QuickAgg):
                 // fallthrough
+            case (SQLOps.AddDS):
+                // fallthrough
                 // XXX should export tables have an effect?
                 break;
 

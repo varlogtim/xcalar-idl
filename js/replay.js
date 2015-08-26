@@ -191,6 +191,8 @@ window.Replay = (function($, Replay) {
                 return replayQuickAgg(options);
             case SQLOps.QuickAggAction:
                 break;
+            case SQLOps.AddDS:
+                return replayAddDS(options);
             default:
                 console.error("Unknown operation", operation);
                 deferred.reject("Unknown operation");
@@ -300,6 +302,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.DSToDir] = ["folderId"];
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
         argsMap[SQLOps.QuickAgg] = ["tableId", "type"];
+        argsMap[SQLOps.AddDS] = ["name", "format", "path"];
     }
 
     function createTabMap() {
@@ -345,6 +348,7 @@ window.Replay = (function($, Replay) {
         tabMap[SQLOps.DelFolder] = Tab.DS;
         tabMap[SQLOps.Profile] = Tab.WS;
         tabMap[SQLOps.QuickAgg] = Tab.WS;
+        tabMap[SQLOps.AddDS] = Tab.DS;
     }
 
     function replayLoadDS(options) {
@@ -1031,6 +1035,12 @@ window.Replay = (function($, Replay) {
         .fail(deferred.reject);
 
         return (deferred.promise());
+    }
+
+    function replayAddDS(options) {
+        var args = getArgs(options);
+        DS.addDS.apply(window, args);
+        return (promiseWrapper(null));
     }
 
     return (Replay);

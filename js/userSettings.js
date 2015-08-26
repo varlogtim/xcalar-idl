@@ -25,7 +25,7 @@ window.UserSettings = (function($, UserSettings) {
     };
 
     function getDatasetListView() {
-        settings.datasetListView = $('#dataListView').hasClass('selected');
+        settings.datasetListView = $('#dataViewBtn').hasClass('listView');
     }
 
     function getBrowserListView() {
