@@ -87,7 +87,7 @@ var KVKeys = {
     "CART" : "datacarts",
     "STATS": "statsCols",
     "USER" : "userSettings",
-    "UDF"   : "udfs"
+    "UDF"  : "udfs"
 };
 
 function commitToStorage(atStartUp) {
@@ -121,6 +121,9 @@ function commitToStorage(atStartUp) {
 
     KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
     .then(function() {
+        var d = new Date();
+        var t = xcHelper.getDate("-", d) + " " + d.toLocaleTimeString();
+        $("#autoSavedInfo").text(t);
         deferred.resolve();
     })
     .fail(function(error) {
