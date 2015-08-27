@@ -1060,9 +1060,9 @@ window.xcFunction = (function($, xcFunction) {
             var lColNum  = lCols.length;
 
             for (var i = 0; i <= len - 2; i++) {
-                lString += lCols[i].func.args[0] + ", ";
+                lString += lCols[lColNums[i]].func.args[0] + ", ";
             }
-            lString += lCols[len - 1].func.args[0] + ")";
+            lString += lCols[lColNums[len - 1]].func.args[0] + ")";
 
             // right cols
             var rString  = 'multiJoinModule:multiJoin(';
@@ -1071,10 +1071,10 @@ window.xcFunction = (function($, xcFunction) {
             var rColNum  = rCols.length;
 
             for (var i = 0; i <= len - 2; i++) {
-                rString += rCols[i].func.args[0] + ", ";
+                rString += rCols[rColNums[i]].func.args[0] + ", ";
             }
 
-            rString += rCols[len - 1].func.args[0] + ")";
+            rString += rCols[rColNums[len - 1]].func.args[0] + ")";
 
             var lMapOptions = {
                 "colNum"   : lColNum,
