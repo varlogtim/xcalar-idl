@@ -1198,17 +1198,16 @@ function sortAllTableColumns(tableId, direction) {
 }
 
 function renameTableHead($div) {
-    var newTableName = $div.text().trim();
+    var newName = $div.find(".tableName").text().trim();
     var $th = $div.closest('.xcTheadWrap');
     var tableId = xcHelper.parseTableId($th);
+    var newTableName = newName + "#" + tableId;
     var oldTableName = gTables[tableId].tableName;
 
     if (newTableName === oldTableName) {
         $div.blur();
         return;
     }
-
-    var newName = xcHelper.getTableName(newTableName);
 
     // XXX Shall we really check if the name part has conflict?
     xcHelper.checkDuplicateTableName(newName)
