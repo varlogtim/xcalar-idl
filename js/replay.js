@@ -882,7 +882,7 @@ window.Replay = (function($, Replay) {
 
         var $wsTab = $("#worksheetTab-" + wsIndex);
 
-        if (originWSLen === 1 || $wsTab.hasClass("inActive")) {
+        if (originWSLen === 1) {
             // invalid deletion
             console.error("This worksheet should not be deleted!");
             deferred.reject();
@@ -890,7 +890,7 @@ window.Replay = (function($, Replay) {
 
         $("#worksheetTab-" + wsIndex + " .delete").click();
 
-        console.log("Show alert modal for  2s...");
+        console.log("Wait for 2s...");
         setTimeout(function() {
             if (tableAction === "delete") {
                 $("#alertActions").find(".deleteTale").click();
