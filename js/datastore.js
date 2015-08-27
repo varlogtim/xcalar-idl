@@ -617,6 +617,7 @@ window.GridView = (function($, GridView) {
                 var newName = $label.text().trim();
                 DS.rename(dsId, newName);
                 this.scrollLeft = 0;    //scroll to the start of text;
+                xcHelper.removeSelectionRange();
             }
         }, ".folder .label");
 

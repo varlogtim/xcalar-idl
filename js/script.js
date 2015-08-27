@@ -759,3 +759,7 @@ function documentReadyIndexFunction() {
     });
 }
 
+function xcDrag(event) {
+    event.dataTransfer.setData("text", $(event.target).text());
+}
+

@@ -1065,7 +1065,10 @@ window.RightSideBar = (function($, RightSideBar) {
                         '<div class="iconWrap">' +
                             '<span class="icon"></span>' +
                         '</div>' +
-                        '<span class="tableName">' + tableName + '</span>' +
+                        '<span class="tableName" draggable="true"' +
+                            ' ondragstart="xcDrag(event)">' +
+                            tableName +
+                        '</span>' +
                         '<span class="addTableBtn"></span>' +
                         '<span class="numCols">' + numCols + '</span>' +
                     '</div>' +
@@ -1073,7 +1076,10 @@ window.RightSideBar = (function($, RightSideBar) {
 
             for (var j = 0; j < numCols; j++) {
                 // if (table.tableCols[j].name != 'DATA') {
-                html += '<li>' + table.tableCols[j].name + '</li>';
+                html +=
+                    '<li draggable="true" ondragstart="xcDrag(event)">' +
+                        table.tableCols[j].name +
+                    '</li>';
                 // }
             }
 

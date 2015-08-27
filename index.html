@@ -15,7 +15,7 @@
 <body class="hideScroll">
 <div id="container">
   <!-- Top Menu Bar -->
-  <div id="menuBar" class="clearfix">
+  <div id="menuBar" class="clearfix no-selection">
     <div id="workbookBtn" class="btn btnSmall" data-toggle="tooltip" 
          data-placement="right" data-container="body" title="Workbook">
     <span class="icon"></span>
@@ -34,7 +34,10 @@
     <div id="logo"></div>
     <div id="userNameArea">
         <span>Welcome: </span>
-        <span id="userName" class="text">Vikram Joshi</span>
+        <span id="userName" class="text" draggable="true"
+              ondragstart="xcDrag(event)">
+          Vikram Joshi
+        </span>
     </div>
     <div id="userNamePopout">
       <div id="peri">Signed in as:</div>
@@ -53,12 +56,12 @@
         <input id="fnBar" value="" spellcheck="false">
       </div>
       <div id="rowInputArea" class="workspaceArea">
-          <label for="rowInput">Skip to row:</label>
+          <label for="rowInput" class="no-selection">Skip to row:</label>
           <!-- only allow integer -->
           <input id="rowInput" type="number" min="0" step="1">
           <label id="numPages" for="rowInput"></label> 
       </div>
-      <div id="rowScrollerArea" class="workspaceArea">
+      <div id="rowScrollerArea" class="workspaceArea no-selection">
       </div>
     </div>
     <div id="watermark"></div>
@@ -368,7 +371,7 @@
   <div id="datastoreView" class="mainPanel">
     <!-- Datastore header -->
     <div id="contentHeader" class="topBar">
-      <div id="contentHeaderLeft">
+      <div id="contentHeaderLeft" class="no-selection">
         <div class="buttonArea active">
           <div id="exploreButton" class="icon"></div>
           <div class="text">EXPLORE</div>
@@ -380,16 +383,16 @@
           <div class="text">SEARCH</div>
         </div>
       </div>
-      <div id="contentHeaderMid">
+      <div id="contentHeaderMid" class="no-selection">
         <div class="text" style="margin-left:20px">DATA SET</div> 
       </div>
-      <div id="contentHeaderRight">
+      <div id="contentHeaderRight" class="no-selection">
         <div class="icon"></div>
         <div class="text">DATA CART</div>
       </div>
     </div>
     <!-- Import Data Form -->
-    <div id="importDataView">
+    <div id="importDataView" class="no-selection">
       <div id="importHelp">
         <div class="contentViewMidWrap">
           <h2>Import New Data Set</h2>
@@ -615,7 +618,7 @@
       <!-- Explore View -->
       <div id="exploreView">
         <div id="contentView">
-          <div id="contentViewLeft">
+          <div id="contentViewLeft" class="no-selection">
             <div id="datasetExplore">
               <span>Data Sets (<span class="numDataStores">0</span>)</span>
               <div class="buttonGroup">
@@ -629,13 +632,13 @@
                 </div>
               </div>
             </div>
-            <div id="importDataArea">
+            <div id="importDataArea" class="no-selection">
               <button id="importDataButton" class="btn btnLarge iconBtn">
                 <span class="icon"></span>IMPORT NEW DATA SET
               </button>
             </div>
             <!-- Grid Views of ds -->
-            <div id="gridViewButtonArea">
+            <div id="gridViewButtonArea" class="no-selection">
               <div id="backFolderBtn"  class="disabled"
                   title="See previous folders" data-container="body"
                   data-toggle="tooltip" data-placement="bottom"
@@ -708,7 +711,7 @@
           <!-- End Datastore Table -->
 
           <!-- Datastore Cart -->
-          <div id="contentViewRight">
+          <div id="contentViewRight" class="no-selection">
             <div class="buttonArea">
               <button id="submitDSTablesBtn" class="btn btnLarge iconBtn">
                 <span class="icon"></span>SEND TO ACTIVE WORKSHEET
@@ -770,7 +773,7 @@
       </div>
     </div>
     <!-- Table List Section -->
-    <section id="tableListSection" class="rightBarSection">
+    <section id="tableListSection" class="rightBarSection no-selection">
       <!-- Heading -->
       <header class="heading">
         <h2>Tables</h2>
@@ -860,7 +863,7 @@
     </section>
 
     <!-- UDF Section -->
-    <section id="udfSection" class="rightBarSection">
+    <section id="udfSection" class="rightBarSection no-selection">
       <!-- Heading -->
       <header class="heading">
         <h2>User Defined Function</h2>
@@ -1008,7 +1011,7 @@
     </section> -->
 
     <!-- Help Section -->
-    <section id="helpSection" class="rightBarSection">
+    <section id="helpSection" class="rightBarSection no-selection">
       <header class="heading">
         <h2>Help</h2>
       </header>
@@ -1085,7 +1088,7 @@
         </div>
       </section>
       <!-- Buttons to pop out rightside bar -->
-      <section id="rightSideBarBtns" class="bottomButtonsArea">
+      <section id="rightSideBarBtns" class="bottomButtonsArea no-selection">
         <!-- tablelist -->
         <div class="btn btnSmall sliderBtn">
           <span id="tableListBtn" class="icon" data-toggle="tooltip" 

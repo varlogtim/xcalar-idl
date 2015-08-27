@@ -74,21 +74,29 @@
         border-top: 3px solid rgba(1, 1, 1, 0.18);
         background: @color-join-background;
         color: @color-text-darkGray;
+        .noSelection;
+        cursor: default;
     }
 
     .modalMain {
-         background-color: @color-white;
+        background-color: @color-white;
+        .noSelection;
+        cursor: default;
     }
 
     .modalSubMain {
         .size(@width: 100%);
         background: @color-join-background;
         color: @color-text-darkGray;
+        .noSelection;
+        cursor: default;
     }
 
     .modalBottom {
         .size(@width: 100%, @height: 50px);
         background-color: @color-white;
+        .noSelection;
+        cursor: default;
 
         .btn {
             float: right;
@@ -2503,6 +2511,7 @@ html.microsoft {
         .size (70px, 160px);
         position: absolute;
         top: 94px;
+        .noSelection;
 
         .stepChainImg {
             .image("/images/stepChains.png", 50%, 50%);
