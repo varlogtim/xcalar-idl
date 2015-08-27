@@ -1747,11 +1747,17 @@ ul.inputMenu {
                 color: @color-text-tab;
                 .size(@width: ~"calc(100% - 2px)");
                 .rounded;
-                .wsIcon, .delete {
+                .wsIcon {
                     display: none;
                 }
+                .delete {
+                    visibility: hidden;
+                    .icon {
+                        background-image: url(/images/worksheet/ws_close_hover.png);
+                    }
+                }
                 .text {
-                    .size(@width: 100%);
+                    .size(@width: ~"calc(100% - 40px)");
                     text-align: center;
                     pointer-events: none;
                     margin: 0;
@@ -1762,11 +1768,16 @@ ul.inputMenu {
                 display: none;
             }
 
-            &:hover .label {
-                // hover vs regular color scheme needs to be adjusted
-                background-color: rgba(255,255,255,.15);
-                color: @color-white;
-                border: 1px solid @color-table-borderGray;
+            &:hover {
+                .label {
+                    // hover vs regular color scheme needs to be adjusted
+                    background-color: rgba(255,255,255,.15);
+                    color: @color-white;
+                    border: 1px solid @color-table-borderGray;
+                }
+                .delete {
+                    visibility: visible;
+                }
             }
         }
 
