@@ -1387,8 +1387,8 @@ ul.inputMenu {
 #bottomArea {
     .position(absolute, @bottom: 0);
     .size(@width: 100%);
-    z-index: 9;
     z-index: 15;
+    .noSelection;
 }
 
 #worksheetBar {
@@ -1400,9 +1400,17 @@ ul.inputMenu {
     .lightGray-gradient;
 
     .workspaceArea {
-        .size(@height: 13px);
+        .size(@height: 15px);
         .font(@size: 13px, @line-height: 13px);
         margin-top: 8px;
+        overflow: hidden;
+        .flex(0 0 auto);
+
+        &:last-child {
+            .flex-display;
+            .flex(1 2 0px);
+            padding-right: 2px;
+        }
     }
 
     #pageStatusText {
@@ -1419,6 +1427,7 @@ ul.inputMenu {
             .size(@height: 20px);
             position: relative;
             overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .text {
@@ -1442,12 +1451,13 @@ ul.inputMenu {
         position: relative;
         display: inline-block;
         .size(@width: 30px, @height: 100%);
+        margin-left: 12px;
         float: left;
+        display: none;
         .spinner {
-            display: none;
-        }
-
-        
+            width: 30px;
+            
+        }  
     }
 }
 
@@ -1524,11 +1534,12 @@ ul.inputMenu {
 }
 
 #worksheetInfo {
-    .size(@width: ~"calc(100% - 215px)", @height: 100%);
+    .size(@width: ~"calc(100% - 180px)", @height: 100%);
     float: left;
     display: inline-block;
     white-space: nowrap;
     overflow: hidden;
+    .flex-display;
 }
 
 // .iconBtn {
