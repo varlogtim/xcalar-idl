@@ -181,8 +181,8 @@ function readFromStorage() {
         if (numDatasets === 0 || numDatasets == null) {
             tableIndicesLookup = {};
         }
-        var totalDS = DS.restore(gDSObjFolder, datasets);
-        DataStore.updateInfo(totalDS);
+        var atStartUp = true;
+        DS.restore(gDSObjFolder, datasets, atStartUp);
     })
     .then(function() {
         var deferred2 = jQuery.Deferred();

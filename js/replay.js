@@ -534,11 +534,17 @@ window.Replay = (function($, Replay) {
         var deferred = jQuery.Deferred();
         var $gridView = $("#gridView");
         var $ds = DS.getGridByName(options.dsName);
+
+        if (options.isOrphaned === true) {
+            // delete orphenaed ds
+            DS.remove($ds, true);
+            deferred.resolve();
+            return (deferred.promise());
+        }
+
         var dSLen = $gridView.find(".ds").length;
         var timer;
         var timeCnt = 0;
-
-        DS.remove($ds);
 
         console.log("Show alert modal for 5s...");
         setTimeout(function() {

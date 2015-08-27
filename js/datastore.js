@@ -3,7 +3,6 @@
  */
 window.DataStore = (function($, DataStore) {
     DataStore.setup = function() {
-        DS.setup();
         GridView.setup();
         DatastoreForm.setup();
         DataPreview.setup();
@@ -484,7 +483,7 @@ window.GridView = (function($, GridView) {
         // refresh tooltip
         $btn.mouseenter();
         $btn.mouseover();
-    }
+    };
 
     function setupGridViewButton() {
         // click to go to form section
@@ -542,21 +541,7 @@ window.GridView = (function($, GridView) {
         $("#refreshDS").click(function() {
             XcalarGetDatasets()
             .then(function(datasets) {
-                var numDatasets = datasets.numDatasets;
-                for (var i = 0; i < numDatasets; i++) {
-                    var ds = datasets.datasets[i];
-                    var dsName = ds.name;
-
-                    if (dsName.endsWith(".preview")) {
-                        // do not deal with preview ds
-                        continue;
-                    }
-
-                    if (DS.getGridByName(dsName) == null) {
-                        var format = DfFormatTypeTStr[ds.formatType].toUpperCase();
-                        DS.addDS(ds.name, format, ds.url);
-                    }
-                }
+                DS.restore(DS.getHomeDir(), datasets);
             })
             .fail(function(error) {
                 console.error("Refresh DS failes", error);
@@ -2396,18 +2381,6 @@ window.DS = (function ($, DS) {
     var $dropTarget;
 
     /**
-     * Initialization DS module
-     */
-    DS.setup = function () {
-        curDirId = homeDirId;
-        dsObjId = 0;
-        dsLookUpTable = {};
-
-        homeFolder = new DSObj(dsObjId++, ".", -1, true);
-        dsLookUpTable[homeFolder.id] = homeFolder;
-    };
-
-    /**
      * Get dsObj by dsId
      * @param {number} dsId The dsObj's id
      * @return {DSObj} dsObj The dsObj object
@@ -2458,6 +2431,10 @@ window.DS = (function ($, DS) {
             "dsName"   : ds.name,
             "dsId"     : ds.id
         });
+
+        // forcus on folder's label for renaming
+        DS.getGrid(ds.id).click()
+                    .find('.label').focus();
         commitToStorage();
     };
 
@@ -2501,12 +2478,6 @@ window.DS = (function ($, DS) {
         
         dsLookUpTable[ds.id] = ds;  // cached in lookup table
 
-        if (isFolder) {
-            // forcus on folder's label for renaming
-            DS.getGrid(id).click()
-                          .find('.label').focus();
-        }
-
         return (ds);
     };
 
@@ -2528,7 +2499,7 @@ window.DS = (function ($, DS) {
             "name"     : name,
             "format"   : format,
             "path"     : path
-        })
+        });
     };
 
     /**
@@ -2552,7 +2523,7 @@ window.DS = (function ($, DS) {
 
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
-        var ds = DS.create({
+        DS.create({
             "name"    : dsName,
             "isFolder": false,
             "attrs"   : {
@@ -2610,8 +2581,8 @@ window.DS = (function ($, DS) {
             deferred.resolve();
         })
         .fail(function(error) {
-            rmDSObjHelper(ds.id);
-            $grid.remove();
+            rmDSHelper($grid);
+
             if ($('#dsInfo-title').text() === dsName) {
                 // if loading page is showing, remove and go to import form
                 $("#importDataView").show();
@@ -2652,22 +2623,20 @@ window.DS = (function ($, DS) {
 
     /**
      * Restore dsObj from KVStore
-     * @param {obj} oldHomFolder The stored home folder
-     * @param {object[]} datasets The datasets in backend
      */
-    DS.restore = function(oldHomeFolder, datasets) {
+    DS.restore = function(oldHomeFolder, datasets, atStartUp) {
         var numDatasets = datasets.numDatasets;
         var totolDS = 0;
         var searchHash = {};
-        var ds;
-        var format;
 
-        // store all data set name to searchHash for lookup
-        // and filter out preview ds
+        DS.clear();
+
+        // put all datasets' name into searchHash for lookup
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
-            // preview ds is deleted here!!
-            if (dsName.endsWith(".preview")) {
+
+            if (dsName.endsWith(".preview") && atStartUp) {
+                // preview ds is deleted on start up time!!
                 var sqlOptions = {
                     "operation": SQLOps.DestroyPreviewDS,
                     "dsName"   : dsName
@@ -2675,6 +2644,7 @@ window.DS = (function ($, DS) {
                 XcalarDestroyDataset(dsName, sqlOptions);
                 continue;
             }
+
             ++totolDS;
             searchHash[dsName] = datasets.datasets[i];
         }
@@ -2686,13 +2656,20 @@ window.DS = (function ($, DS) {
         } else {
             cache = oldHomeFolder.eles;
         }
-        // restore the ds and folder this user stored
+
+        // restore the ds and folder
+        var ds;
+        var format;
+        var orphanedDS = [];
+
         while (cache.length > 0) {
             var obj = cache.shift();
             if (obj.isFolder) {
+                // restore a folder
                 DS.create(obj);
             } else {
                 if (searchHash.hasOwnProperty(obj.name)) {
+                    // restore a ds
                     ds = searchHash[obj.name];
                     format = DfFormatTypeTStr[ds.formatType].toUpperCase();
 
@@ -2702,22 +2679,25 @@ window.DS = (function ($, DS) {
                     });
 
                     DS.create(obj);
-                    // mark the ds has been restored
-                    searchHash[obj.name] = null;
+                    // mark the ds to be used
+                    delete searchHash[obj.name];
                 } else {
-                    // some ds is deleted by other users oldHomeFolder
-                    continue;
+                    // some ds is deleted by other users
+                    // restore it first and then delete(for Replay, need the sql)
+                    ds = DS.create(obj);
+                    orphanedDS.push(ds);
+                    delete searchHash[obj.name];
                 }
             }
 
             if (obj.eles != null) {
-                jQuery.merge(cache, obj.eles);
+                $.merge(cache, obj.eles);
             }
             // update id count
             dsObjId = Math.max(dsObjId, obj.id + 1);
         }
 
-        // restore rest ds that is not in
+        // add ds that is not in oldHomeFolder
         for (dsName in searchHash) {
             ds = searchHash[dsName];
             if (ds != null) {
@@ -2726,13 +2706,27 @@ window.DS = (function ($, DS) {
             }
         }
 
-        // restore list view if saved
-        var settings = UserSettings.getSettings();
-        GridView.toggle(settings.datasetListView);
+        // delete ds that is orphaned
+        var isOrphaned = true;
+        var $grid;
+        for (var i = 0, len = orphanedDS.length; i < len; i++) {
+            dsName = orphanedDS[i].name;
+            $grid = DS.getGridByName(dsName);
+            DS.remove($grid, isOrphaned);
+        }
 
+        // UI update
         DS.refresh();
+        DataStore.updateInfo(totolDS);
 
-        return (totolDS);
+        if (atStartUp) {
+            // restore list view if saved
+            var settings = UserSettings.getSettings();
+            GridView.toggle(settings.datasetListView);
+        } else {
+            // if user trigger the restore, save!
+            commitToStorage();
+        }
     };
 
     /**
@@ -2785,7 +2779,7 @@ window.DS = (function ($, DS) {
      * Remove datasset/folder
      * @param {JQuery} $grid The element to be removed
      */
-    DS.remove = function ($grid) {
+    DS.remove = function ($grid, isOrphaned) {
         if ($grid == null || $grid.length === 0) {
             return;
         }
@@ -2793,6 +2787,16 @@ window.DS = (function ($, DS) {
         var ds = DS.getDSObj($grid.data("dsid"));
 
         if ($grid.hasClass("ds")) {
+            if (isOrphaned) {
+                rmDSHelper($grid);
+
+                SQL.add("Delete Dataset", {
+                    "operation" : SQLOps.DestroyDS,
+                    "dsName"    : ds.name,
+                    "isOrphaned": true
+                });
+                return;
+            }
             // delete a ds
             var dsName = $grid.attr("id").split("dataset-")[1];
             var msg    = "Are you sure you want to delete dataset " +
@@ -2806,10 +2810,7 @@ window.DS = (function ($, DS) {
                     delDSHelper($grid, dsName);
                 }
             });
-        } else if (rmDSObjHelper($grid.data("dsid")) === true) {
-            // delete a folder
-            $grid.remove();
-
+        } else if (rmDSHelper($grid) === true) {
             SQL.add("Delete Folder", {
                 "operation": SQLOps.DelFolder,
                 "dsName"   : ds.name,
@@ -2862,7 +2863,7 @@ window.DS = (function ($, DS) {
      */
     DS.clear = function () {
         $("#gridView .grid-unit").remove();
-        DS.setup();
+        dsSetupHelper();
     };
 
 
@@ -2967,6 +2968,17 @@ window.DS = (function ($, DS) {
         }
         return (size);
     }
+
+
+    function dsSetupHelper() {
+        curDirId = homeDirId;
+        dsObjId = 0;
+        dsLookUpTable = {};
+
+        homeFolder = new DSObj(dsObjId++, ".", -1, true);
+        dsLookUpTable[homeFolder.id] = homeFolder;
+    }
+
     /**
      * Helper function for DS.remove()
      * @param {JQuery} $grid The element to be removed
@@ -2995,8 +3007,7 @@ window.DS = (function ($, DS) {
             // clear data table
             $("#dataSetTableWrap").empty();
             // remove ds obj
-            rmDSObjHelper($grid.data("dsid"));
-            $grid.remove();
+            rmDSHelper($grid);
 
             DataStore.updateInfo();
             focusOnFirstDS();
@@ -3010,12 +3021,11 @@ window.DS = (function ($, DS) {
     }
 
     /**
-     * Helper function to remove dsObj
-     * @param {number} dsId The dsObj's id
-     * return {boolean} true/false
+     * Helper function to remove ds
      */
-    function rmDSObjHelper (dsId) {
-        var ds = DS.getDSObj(dsId);
+    function rmDSHelper($grid) {
+        var dsId = $grid.data("dsid");
+        var ds   = DS.getDSObj(dsId);
 
         if (ds.isFolder && ds.eles.length > 0) {
             var instr = "Please remove all the datasets in the folder first.";
@@ -3037,6 +3047,7 @@ window.DS = (function ($, DS) {
             ds.removeFromParent();
             // delete ds
             delete dsLookUpTable[ds.id];
+            $grid.remove();
 
             return true;
         }
