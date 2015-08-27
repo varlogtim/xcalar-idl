@@ -12,6 +12,8 @@ window.TestSuite = (function($, TestSuite) {
     var skips = 0;
     var testCases = new Array();
     var disableIsPass = true;
+    var startTime = 0;
+    var totTime = 0;
 
     var fakeMouseup = {type: "mouseup",
                        which: 1};
@@ -38,8 +40,12 @@ window.TestSuite = (function($, TestSuite) {
     {
         if (deferred.state() == "pending") {
             passes++;
+            var d = new Date();
+            var milli = d.getTime() - startTime;
             console.log("ok " + currentTestNumber + " - Test \"" + testName +
                         "\" passed");
+            console.log("Time taken: " + milli/1000 + "s");
+            totTime += milli;
             deferred.resolve();
         }
     }
@@ -99,7 +105,8 @@ window.TestSuite = (function($, TestSuite) {
                                     TestSuite.fail(localDeferred, testCase.testName, currentTestNumber, reason);
                                 }
                             }, testCase.timeout);
-
+                            var d = new Date();
+                            startTime = d.getTime();
                             testCase.testFn(localDeferred, testCase.testName, currentTestNumber);
                         } else {
                             TestSuite.skip(localDeferred, testCase.testName, currentTestNumber);
@@ -121,6 +128,8 @@ window.TestSuite = (function($, TestSuite) {
             console.log("# skips", skips);
             console.log("==========================================");
             console.log("1.." + testCases.length + "\n");
+            alert("Passes: " + passes + ", Fails: " + fails + ", Time: "
+                  + totTime/1000 + "s");
         });
 
         // This starts the entire chain
@@ -396,10 +405,15 @@ window.TestSuite = (function($, TestSuite) {
                                     ".tableTitle:contains(GroupBy)"));
             })
             .then(function() {
-                flightTestPart9();
+                if ($("#numPages").text().indexOf("70,242") > -1) {
+                    flightTestPart9();
+                } else {
+                    TestSuite.fail(deferred, testName, currentTestNumber);
+                }
             })
             .fail(function(error) {
                 console.error(error, 'flightTestPart8');
+                TestSuite.fail(deferred, testName, currentTestNumber);
             });
         }
 
@@ -517,7 +531,13 @@ window.TestSuite = (function($, TestSuite) {
             return (checkExists(".xcTableWrap .tableTitle:contains(multiJoin)"
                                ));
         }).then(function() {
-            TestSuite.pass(deferred, testName, currentTestNumber);
+            if ($("#numPages").text().indexOf("1,953") > -1) {
+                TestSuite.pass(deferred, testName, currentTestNumber);
+            } else {
+                TestSuite.fail(deferred, testName, currentTestNumber);
+            }
+        }).fail(function() {
+            TestSuite.fail(deferred, testName, currentTestNumber);
         });
     }
 
