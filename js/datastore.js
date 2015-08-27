@@ -348,7 +348,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         }
     };
 
-    DatastoreForm.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim, header, moduleName, funcName) {
+    DatastoreForm.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim, header, moduleName, funcName) {
         var deferred = jQuery.Deferred();
 
         var isValid  = xcHelper.validate([
@@ -848,7 +848,7 @@ window.DataCart = (function($, DataCart) {
     };
 
     // remove one column from cart
-    DataCart.removeItem = function (dsName, $colInput) {
+    DataCart.removeItem = function(dsName, $colInput) {
         var colNum = xcHelper.parseColNum($colInput);
         var $li    = $("#selectedTable-" + dsName)
                         .find("li[data-colnum=" + colNum + "]");
@@ -2766,7 +2766,7 @@ window.DS = (function ($, DS) {
      * @param {string} dsName The dataset name to be checked
      * return {boolen} true/false Whether dsName already exists
      */
-    DS.has = function (dsName) {
+    DS.has = function(dsName) {
         // now only check dataset name conflict
         if (DS.getGridByName(dsName) != null) {
             return true;
@@ -2779,7 +2779,7 @@ window.DS = (function ($, DS) {
      * Remove datasset/folder
      * @param {JQuery} $grid The element to be removed
      */
-    DS.remove = function ($grid, isOrphaned) {
+    DS.remove = function($grid, isOrphaned) {
         if ($grid == null || $grid.length === 0) {
             return;
         }
@@ -2822,7 +2822,7 @@ window.DS = (function ($, DS) {
     /**
      * Change directory to parent folder
      */
-    DS.upDir = function () {
+    DS.upDir = function() {
         var parentId = DS.getDSObj(curDirId).parentId;
         DS.goToDir(parentId);
     };
@@ -2831,7 +2831,7 @@ window.DS = (function ($, DS) {
      * Change directory to another folder
      * @param {number} folder The folder to go
      */
-    DS.goToDir = function (folderId) {
+    DS.goToDir = function(folderId) {
         curDirId = folderId;
 
         if (curDirId === homeDirId) {
@@ -2852,7 +2852,7 @@ window.DS = (function ($, DS) {
     /**
      * Refresh dataset/folder display in gridView area
      */
-    DS.refresh = function () {
+    DS.refresh = function() {
         $("#gridView .grid-unit").removeClass("display").addClass("hidden");
         $('#gridView .grid-unit[data-dsParentId="' + curDirId + '"]')
             .removeClass("hidden").addClass("display");
@@ -2861,7 +2861,7 @@ window.DS = (function ($, DS) {
     /**
      * Clear dataset/folder in gridView area
      */
-    DS.clear = function () {
+    DS.clear = function() {
         $("#gridView .grid-unit").remove();
         dsSetupHelper();
     };
@@ -2887,14 +2887,14 @@ window.DS = (function ($, DS) {
     /**
      * Reset drag dataset/folder
      */
-    DS.resetDragDS = function () {
+    DS.resetDragDS = function() {
         $dragDS = undefined;
     };
 
     /**
      * Get drop target
      */
-    DS.getDropTarget = function () {
+    DS.getDropTarget = function() {
         return ($dropTarget);
     };
 
@@ -2902,14 +2902,14 @@ window.DS = (function ($, DS) {
      * Set drap target
      * @param {JQuery} $target drop target
      */
-    DS.setDropTraget = function ($target) {
+    DS.setDropTraget = function($target) {
         $dropTarget = $target;
     };
 
     /**
      * Reset drop target
      */
-    DS.resetDropTarget = function () {
+    DS.resetDropTarget = function() {
         $dropTarget = undefined;
     };
 
@@ -3056,7 +3056,7 @@ window.DS = (function ($, DS) {
     /**
      * Focus on the first dataset in the folder
      */
-    function focusOnFirstDS () {
+    function focusOnFirstDS() {
         var $curFolder = DS.getGrid(curDirId);
         var $datasets = $curFolder.find("> .grid-unit.ds");
 
@@ -3072,7 +3072,7 @@ window.DS = (function ($, DS) {
      * @param {DSObj} dsObj The dsObj to start update
      * @param {boolean} isMinus Whether to decrease or increase child count
      */
-    function updateDSCount (dsObj, isMinus) {
+    function updateDSCount(dsObj, isMinus) {
         var parentObj = DS.getDSObj(dsObj.parentId);
 
         while (parentObj != null) {
@@ -3091,7 +3091,7 @@ window.DS = (function ($, DS) {
      * Helper function for DS.create()
      * @param {DSObj} dsObj The dsObj to create
      */
-    function getDSHTML (dsObj) {
+    function getDSHTML(dsObj) {
         var id = dsObj.id;
         var parentId = dsObj.parentId;
         var name = dsObj.name;
@@ -3180,7 +3180,7 @@ window.DS = (function ($, DS) {
      * @property {number} [totalChildren] The total nummber of child
      * @property {Object} [attrs] extra attribute to be stored
      */
-    function DSObj (id, name, parentId, isFolder, attrs) {
+    function DSObj(id, name, parentId, isFolder, attrs) {
         this.id = id;
         this.name = name;
         this.parentId = parentId;     // parent directory

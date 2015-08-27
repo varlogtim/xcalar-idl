@@ -1,8 +1,8 @@
 window.UserSettings = (function($, UserSettings) {
     var settings = {
-        dataListView : false,
-        browserListView : false,
-        lastRightSideBar : null
+        "dataListView"    : false,
+        "browserListView" : false,
+        "lastRightSideBar": null
     };
 
     UserSettings.restore = function(oldSettings) {

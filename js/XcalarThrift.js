@@ -51,11 +51,10 @@ function thriftLog(title, errRes) {
 
     if (status === StatusT.StatusConnReset) {
         // The shit has hit the fan
-        var title = "Connection error";
-        var error = {error: 'Connection could not be established.'};
-        var options = {lockScreen: true};
+        var alertError = {"error": 'Connection could not be established.'};
+        var options    = {"lockScreen": true};
 
-        Alert.error(title, error, options);
+        Alert.error("Connection error", alertError, options);
     }
 
     return (thriftError);
@@ -523,10 +522,12 @@ function XcalarGetTables(tableName) {
         return (deferred.promise());
     }
 
+    var patternMatch;
+
     if (tableName == null) {
-        var patternMatch = "*";
+        patternMatch = "*";
     } else {
-        var patternMatch = tableName;
+        patternMatch = tableName;
     }
     xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcTable)
     .then(deferred.resolve)

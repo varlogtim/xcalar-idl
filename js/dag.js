@@ -118,7 +118,7 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
 
-            var tableId= $input.closest('.retinaArea').data('tableid');
+            var tableId = $input.closest('.retinaArea').data('tableid');
             var tableName = gTables[tableId].tableName;
 
             XcalarMakeRetina(retName, tableName)
@@ -1017,7 +1017,7 @@ window.Dag = (function($, Dag) {
                             'data-tablename="' + tableName + '" ' +
                             'data-id="' + tableId + '">' +
                             '<div class="dagTableIcon"></div>';
-            var dagDroppedState = DgDagStateT['DgDagStateDropped'];
+            var dagDroppedState = DgDagStateT.DgDagStateDropped;
             if (dagInfo.state === DgDagStateTStr[dagDroppedState]) {
                 dagTable += '<div class="icon" ' +
                             'data-toggle="tooltip" ' +

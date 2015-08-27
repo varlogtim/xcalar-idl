@@ -43,9 +43,9 @@ window.Compitable = (function($, Compitable) {
             window.isBrowserMicrosoft = true;
         }
 
-        if(/MSIE 9/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent)) {
+        if (/MSIE 9/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent)) {
             // this is internet explorer 9 and 11
-             window.isBrowserMicrosoft = true;
+            window.isBrowserMicrosoft = true;
         }
 
         if (/Edge\/12./i.test(navigator.userAgent)) {
