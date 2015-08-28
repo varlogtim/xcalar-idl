@@ -912,7 +912,7 @@ window.RightSideBar = (function($, RightSideBar) {
         if (options && typeof options === "object") {
             $.extend(userOptions, options);
         }
-        console.log(userOptions);
+
         Intro.setOptions(userOptions);
 
         $('body').append('<div id="demoScreen"></div>');

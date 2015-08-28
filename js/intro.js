@@ -2,13 +2,14 @@ window.Intro = (function($, Intro) {
     var options = {
         overlayOpacity    : 0.5,
         popoverPosition   : 'bottom',
-        popoverHorzPadding: 35,
+        popoverHorzPadding: 37,
         popoverVertPadding: 15,
         popoverMargin     : 10,
         highlightPadding  : 10,
         popoverText       : [],
         preventSelection  : true,
         loop              : false,
+        includeNumbering  : false,
         onStart           : "",
         onComplete        : "",
         onNextStep        : ""
@@ -105,6 +106,10 @@ window.Intro = (function($, Intro) {
                           '</div>';
         var $popover = $(popoverHtml);
         $('body').append($popover);
+        if (!options.includeNumbering) {
+            $popover.find('.intro-number').hide();
+        }
+
         $popover.find('.back').click(function() {
             nextStep({back: true});
         });
@@ -214,17 +219,15 @@ window.Intro = (function($, Intro) {
         var windowHeight = $(window).height();
         var textHeight = $popover.find('.text').outerHeight();
         var textWidth = $popover.find('.text').outerWidth();
-        var buttonHeight = $popover.find('.buttonContainer').outerHeight();
-        var popoverHeight = textHeight + buttonHeight +
-                            (options.popoverVertPadding * 2) +
+        var popoverHeight = textHeight + (options.popoverVertPadding * 2) +
                             (popoverBorderWidth * 2);
         // we can't directly calculate popover width because it has a
         // width transition that changes its width over time
         var popoverWidth = textWidth +
                            (options.popoverHorzPadding * 2) +
                            (popoverBorderWidth * 2);
-        var left = currElemRect.left;
         var rect = currElemRect;
+        var left = rect.left;
         var top = 0;
         var userPosition = $currElem.data('introposition');
         var positionIndex = validPositions.indexOf(userPosition);
