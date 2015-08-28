@@ -546,6 +546,8 @@ window.Replay = (function($, Replay) {
         var timer;
         var timeCnt = 0;
 
+        DS.remove($ds);
+
         console.log("Show alert modal for 5s...");
         setTimeout(function() {
             $("#alertModal").find(".confirm").click();
