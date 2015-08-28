@@ -22699,7 +22699,6 @@ function xcalarApiMemory(thriftHandle, tagName) {
     return (deferred.promise());
 }
 
-/**
 function xcalarApiSessionNewWorkItem(sessionName, fork, forkedSessionName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -22718,7 +22717,7 @@ function xcalarApiSessionNew(thriftHandle, sessionName, fork,
     if (verbose) {
         console.log("xcalarApiSessionNew(sessionName = ", sessionName, ", ",
                     "fork = ", fork, ", ",
-                    "origSessionName = ", origSessionName")");
+                    "origSessionName = ", origSessionName, ")");
     }
     var workItem = xcalarApiSessionNewWorkItem(sessionName, fork,
                                                forkedSessionName);
@@ -22900,7 +22899,7 @@ function xcalarApiSessionSwitch(thriftHandle, sessionName, origSessionName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSessionSwitch(sessionName = ", sessionName, ", ",
-                    "origSessionName = ", origSessionName")");
+                    "origSessionName = ", origSessionName, ")");
     }
     var workItem = xcalarApiSessionSwitchWorkItem(sessionName, origSessionName);
 
@@ -22962,7 +22961,6 @@ function xcalarApiSessionRename(thriftHandle, sessionName, origSessionName) {
 
     return (deferred.promise());
 }
-*/
 
 function xcalarApiListXdfsWorkItem(fnNamePattern, categoryPattern) {
     var workItem = new WorkItem();
