@@ -850,7 +850,16 @@ window.OperationsModal = (function($, OperationsModal) {
                 return (true);
             }
 
+            // Special case: When the user actually wants to have <space>
+            // or \n as an input, then we should not trim it.
+            var origLength = $(this).val().length;
+            
             var val = $(this).val().trim();
+            
+            var newLength = val.length;
+            if (origLength > 0 && newLength === 0) {
+                val = $(this).val();
+            }
             if (val === "") {
                 allInputsFilled = false;
                 if (!blankOK) {
@@ -902,7 +911,17 @@ window.OperationsModal = (function($, OperationsModal) {
         // XXX this part may still have potential bugs
         $argInputs.each(function() {
             var $input = $(this);
+
+            // Edge case. GUI-1929
+            var origLength = $input.val().length;
+
             var arg = $input.val().trim();
+            
+            var newLength = arg.length;
+
+            if (origLength > 0 && newLength === 0) {
+                arg = $input.val();
+            }
 
             typeid = $input.data('typeid');
             // col name field, do not add quote
