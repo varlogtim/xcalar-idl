@@ -1353,3 +1353,116 @@ function XcalarGetQuery(workItem) {
     });
     return (deferred.promise());
 }
+
+function XcalarNewWorkbook(newWorkbookName, isCopy, copyFromWhichWorkbook) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    
+    xcalarApiSessionNew(tHandle, newWorkbookName, isCopy,
+                        copyFromWhichWorkbook)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarNewWorkbook", error));
+    });
+    return (deferred.promise());
+}
+
+function XcalarDeleteWorkbook(workbookName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    
+    xcalarApiSessionDelete(tHandle, workbookName)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarDeleteWorkbook", error));
+    });
+    return (deferred.promise());
+}
+
+function XcalarForceRelease(workbookName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    
+    xcalarApiSessionInact(tHandle, workbookName)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarForceRelease", error));
+    });
+    return (deferred.promise());
+}
+
+function XcalarListWorkbooks(pattern) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    
+    xcalarApiSessionList(tHandle, pattern)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarListWorkbooks", error));
+    });
+    return (deferred.promise());
+}
+
+function XcalarSaveWorkbooks(pattern) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    
+    xcalarApiSessionPersist(tHandle, pattern)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarSaveWorkbooks", error));
+    });
+    return (deferred.promise());
+}
+
+function XcalarSwitchToWorkbook(toWhichWorkbook, fromWhichWorkbook) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    // fromWhichWorkbook can be null
+    xcalarApiSessionSwitch(tHandle, toWhichWorkbook, fromWhichWorkbook)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarSwitchToWorkbook", error));
+    });
+    return (deferred.promise());
+}
+
+function XcalarRenameWorkbook(newName, oldName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    // fromWhichWorkbook can be null
+    xcalarApiSessionRename(tHandle, newName, oldName)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarRenameWorkbook", error));
+    });
+    return (deferred.promise());
+}
