@@ -1,5 +1,5 @@
-var w1_en = ["This is your workbook browser button. Click to open if you want to switch to another workbook.", 
-"Your current workbook will be automatically saved.",
+var w1_en = [
+"This is your workbook browser button. Click to open if you want to switch to another workbook. Your current workbook will be automatically saved.",
 "This shows your current workbook. You can have multiple worksheets in a single workbook.",
 "This is your monitor button, where you will be able to view your machine’s usage statistics such as RAM, CPU etc.",
 "This is the data stores button. Click this button to import new datasets and add them to your current worksheet.",
@@ -18,7 +18,7 @@ var w2_en = [
 "Depending on the format of the dataset, there may be additional options for you to select.",
 "After you are satisfied with your selections, click import data."];
 
-var w2_en = [
+var w3_en = [
 "This icon represents a dataset once it has been read. By clicking on the icon, you will be able to see its corresponding data on the right side (As in this example).",
 "This area shows you all the information regarding the selected dataset.",
 "This is the data type of the column. Possible values are, JSON, CSV, etc.",
