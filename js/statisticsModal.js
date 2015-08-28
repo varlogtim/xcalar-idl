@@ -1051,7 +1051,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             name = xcHelper.randName(name);
         }
 
-        name += Authentication.fetchHashTag();
+        name += Authentication.getHashId();
 
         return (name);
     }

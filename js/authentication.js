@@ -1,22 +1,22 @@
 window.Authentication = (function($, Authentication) {
     var user;
-    var authectionKey = "userAuthentication";
+    var authKey = "userAuthentication";
 
     Authentication.setup = function() {
         var username = WKBKManager.getUser();
 
-        KVStore.getAndParse(authectionKey)
+        KVStore.getAndParse(authKey)
         .then(function(users) {
             users = users || {};
 
             if (!users[username]) {
                 users[username] = {
                     "username": username,
-                    "pointer" : 0
+                    "idCount" : 0
                 };
 
-                users[username].hashId = generateHashId();
-                KVStore.put(authectionKey, JSON.stringify(users));
+                users[username].hashTag = generateHashTag();
+                KVStore.put(authKey, JSON.stringify(users));
             }
 
             user = users[username];
@@ -30,31 +30,30 @@ window.Authentication = (function($, Authentication) {
         return (user);
     };
 
-    Authentication.fetchHashTag = function() {
-        var pointer = user.pointer;
+    Authentication.getHashId = function() {
+        var idCount = user.idCount;
 
-        user.pointer += 1;
+        user.idCount += 1;
 
-        KVStore.getAndParse(authectionKey)
+        KVStore.getAndParse(authKey)
         .then(function(users) {
             users[user.username] = user;
-            return (KVStore.put(authectionKey, JSON.stringify(users)));
+            return (KVStore.put(authKey, JSON.stringify(users)));
         })
         .fail(function(error) {
             console.error("Save Authentication fails", error);
         });
 
-        return ("#" + user.hashId + pointer);
+        return ("#" + user.hashTag + idCount);
     };
 
     Authentication.clear = function() {
-        userId = null;
-        hashId = null;
-
-        return (KVStore.delete(authectionKey));
+        // this clear all users' info
+        user = null;
+        return (KVStore.delete(authKey));
     };
 
-    function generateHashId() {
+    function generateHashTag() {
         // 3844 = 52 * 62, possibility
         var str = "0123456789" +
                     "abcedfghijklmnopqrstuvwxyz" +

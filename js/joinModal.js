@@ -87,7 +87,7 @@ window.JoinModal = (function($, JoinModal) {
             xcHelper.checkDuplicateTableName(newTableName)
             .then(function() {
                 var joinType = $joinSelect.find(".text").text();
-                var tabeName = newTableName + Authentication.fetchHashTag();
+                var tabeName = newTableName + Authentication.getHashId();
                 if (isMultiJoin) {
                     multiJoinHelper(joinType, tabeName);
                 } else {

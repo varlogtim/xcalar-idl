@@ -359,7 +359,7 @@ window.xcFunction = (function($, xcFunction) {
         // the indexed table, in the assume that is OK to do so.
         var newTableName = xcHelper.getTableName(tableName) + "-GroupBy";
         newTableName = xcHelper.randName(newTableName) +
-                        Authentication.fetchHashTag();
+                        Authentication.getHashId();
         var msgObj = {
             "msg"      : StatusMessageTStr.GroupBy + " " + operator,
             "operation": SQLOps.GroupBy
@@ -836,7 +836,7 @@ window.xcFunction = (function($, xcFunction) {
     };
 
     function getNewTableInfo(tableName) {
-        var newId = Authentication.fetchHashTag().split("#")[1];
+        var newId   = Authentication.getHashId().split("#")[1];
         var newName = tableName.split("#")[0] + "#" + newId;
 
         return { "tableName": newName, "tableId": newId };

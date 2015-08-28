@@ -1,7 +1,7 @@
 window.Replay = (function($, Replay) {
     var argsMap = null;
     var tabMap  = null;
-    var hashId  = null;
+    var hashTag = null;
 
     var Tab = {
         "DS": "#dataStoresTab",
@@ -27,8 +27,8 @@ window.Replay = (function($, Replay) {
             createTabMap();
         }
 
-        if (hashId == null) {
-            hashId = Authentication.getUsers().hashId;
+        if (hashTag == null) {
+            hashTag = Authentication.getUsers().hashTag;
         }
 
         // assume the usernode is empty
@@ -253,10 +253,10 @@ window.Replay = (function($, Replay) {
         return (args);
     }
 
-    // need to use the pointer, but the hasId is different
+    // need to use the idCount, but the hasId is different
     function getTableId(oldId) {
-        var pointer = oldId.substring(2);
-        return (hashId + pointer);
+        var idCount = oldId.substring(2);
+        return (hashTag + idCount);
     }
 
     function changeTableName(tableName) {
@@ -482,11 +482,11 @@ window.Replay = (function($, Replay) {
         // change tableId
         options.lTableId = getTableId(options.lTableId);
         options.rTableId = getTableId(options.rTableId);
-        // XXX this is tricky that if we do not call Authentication.fetchHashTag(),
+        // XXX this is tricky that if we do not call Authentication.getHashId(),
         // the id cursor cannt sync will original one.
         // Better way is to append hashId to newTableName in xcFunction.join()
         options.newTableName = xcHelper.getTableName(options.newTableName) +
-                                Authentication.fetchHashTag();
+                                Authentication.getHashId();
 
         var args = getArgs(options);
         return (xcFunction.join.apply(window, args));

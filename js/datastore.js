@@ -1148,7 +1148,7 @@ window.DataCart = (function($, DataCart) {
                 var newTableCols = [];
                 var startIndex = 0;
                 var datasetName = cart.dsName;
-                var tableName = cart.tableName + Authentication.fetchHashTag();
+                var tableName = cart.tableName + Authentication.getHashId();
 
                 // add sql
                 var sqlOptions = {

@@ -879,8 +879,8 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
         return (deferred.promise());
     }
 
-    var dstDagName = srcTablename.split("#")[0] + "#" +
-                     Authentication.fetchHashTag().split("#")[1];
+    var dstDagName = srcTablename.split("#")[0] +
+                     Authentication.getHashId();
 
     var workItem = xcalarAggregateWorkItem(srcTablename, dstDagName, evalStr);
 

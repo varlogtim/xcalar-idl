@@ -264,7 +264,7 @@ window.RightSideBar = (function($, RightSideBar) {
         tableId = xcHelper.getTableId(tableName);
         var newTableName;
         if (!tableId) {
-            newTableName = tableName + Authentication.fetchHashTag();
+            newTableName = tableName + Authentication.getHashId();
             var sqlOptions = {
                 "operation": SQLOps.RenameOrphanTable,
                 "oldName"  : tableName,
