@@ -15,6 +15,11 @@ window.TestSuite = (function($, TestSuite) {
     var startTime = 0;
     var totTime = 0;
 
+    // For assert to use
+    var curTestNumber;
+    var curTestName;
+    var curDeferred;
+
     var fakeMouseup = {type: "mouseup",
                        which: 1};
     var fakeClick = {type: "click",
@@ -107,6 +112,9 @@ window.TestSuite = (function($, TestSuite) {
                             }, testCase.timeout);
                             var d = new Date();
                             startTime = d.getTime();
+                            curDeferred = localDeferred;
+                            curTestName = testCase.testName;
+                            curTestNumber = currentTestNumber;
                             testCase.testFn(localDeferred, testCase.testName, currentTestNumber);
                         } else {
                             TestSuite.skip(localDeferred, testCase.testName, currentTestNumber);
@@ -135,6 +143,15 @@ window.TestSuite = (function($, TestSuite) {
         // This starts the entire chain
         initialDeferred.resolve();
     }
+
+    function assert(statement)
+    {
+        if (!statement) {
+            console.log("Assert failed!");
+            TestSuite.fail(curDeferred, curTestName, curTestNumber);
+        }
+    }
+
 
     // elemSelectors can be a string or array of element selectors 
     // example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
@@ -600,6 +617,74 @@ window.TestSuite = (function($, TestSuite) {
             TestSuite.fail(deferred, testName, currentTestNumber);
         });
     }
+
+    function profileTest(deferred, testName, currentTestNumber) {
+        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        var $header = $("#xcTable-"+tableId+
+                        " .flexWrap.flex-mid input[value='Month_integer']");
+        $header.parent().parent().find(".flex-right .innerBox").click();
+        $("#xcTableWrap-"+tableId).find(".colMenu:not(.tableMenu) .profile")
+                                  .trigger(fakeMouseup);
+        checkExists([".modalHeader .text:contains('Profile')",
+                     ".barArea .xlabel:contains('205')"],
+                     30000)
+        .then(function() {
+            assert($(".barChart .barArea").length === 8);
+            assert($(".barArea .xlabel").eq(0).text() === "205");
+            assert($(".barArea .xlabel").eq(1).text() === "207");
+            assert($(".barArea .xlabel").eq(2).text() === "193");
+            assert($(".barArea .xlabel").eq(3).text() === "626");
+            assert($(".barArea .xlabel").eq(4).text() === "163");
+            assert($(".barArea .xlabel").eq(5).text() === "134");
+            assert($(".barArea .xlabel").eq(6).text() === "153");
+            assert($(".barArea .xlabel").eq(7).text() === "272");
+            assert($(".aggInfoSection .min").text() === "1");
+            assert($(".aggInfoSection .count").text() === "1953");
+            assert($(".aggInfoSection .average").text() === "6.506912");
+            assert($(".aggInfoSection .sum").text() === "12708");
+            assert($(".aggInfoSection .max").text() === "12");
+            $(".sort.asc .icon").click();
+            setTimeout(function() {
+                assert($(".barArea .xlabel").eq(0).text() === "134");
+                assert($(".barArea .xlabel").eq(7).text() === "626");
+                $("#statsModal .modalBottom button").click();
+                TestSuite.pass(deferred, testName, currentTestNumber);
+            }, 1000);
+        })        
+    }
+
+    function corrTest(deferred, testName, currentTestNumber) {
+        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
+        $("#tableMenu-" + tableId + " .correlation").trigger(fakeMouseup);
+        checkExists(".aggTableField:contains('-0.4')")
+        .then(function() {
+            $("#quickAggHeader #closeAgg .icon").click();
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function() {
+            TestSuite.fail(deferred, testName, currentTestNumber);
+        });
+    }
+
+    function aggTest(deferred, testName, currentTestNumber) {
+        var tableId = (WSManager.getWorksheets())[1].tables[0];
+        $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
+        $("#tableMenu-" + tableId + " .aggregates").trigger(fakeMouseup);
+        checkExists(".spinny", {notExist: true})
+        .then(function() {
+            assert($(".aggTableField:contains('N/A')").not(".aggTableFlex").
+                    length === 145);
+            assert($(".aggTableField:contains('4574')"));
+            assert($(".aggTableField:contains('334')"));
+            $("#quickAggHeader #closeAgg .icon").click();
+            TestSuite.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function() {
+            TestSuite.fail(deferred, testName, currentTestNumber);
+        });
+
+    }
 // ================= ADD TESTS TO ACTIVATE THEM HERE ======================= //
     TestSuite.add(testCases, flightTest, "FlightTest", defaultTimeout,
                   TestCaseEnabled);
@@ -612,6 +697,12 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.add(testCases, columnRenameTest, "ColumnRenameTest",
                   defaultTimeout, TestCaseEnabled);
     TestSuite.add(testCases, tableRenameTest, "TableRenameTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(testCases, profileTest, "ProfileTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(testCases, corrTest, "CorrelationTest",
+                  defaultTimeout, TestCaseEnabled);
+    TestSuite.add(testCases, aggTest, "QuickAggregateTest",
                   defaultTimeout, TestCaseEnabled);
 // =========== TO RUN, OPEN UP CONSOLE AND TYPE TestSuite.run() ============ //
     return (TestSuite);
