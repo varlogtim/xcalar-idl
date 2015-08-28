@@ -893,7 +893,7 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $('#datastoreWT2').click(function() {
-            introHelper('datastoreDemo1', w3_en);
+            introHelper('datastoreDemo2', w3_en);
         });
 
         function toggleRefresh($target) {
