@@ -519,8 +519,10 @@ window.Dag = (function($, Dag) {
                         '<div class="icon"></div>' +
                     '</div>' +
                     '<div class="tableTitleArea">' +
-                        'Table: <span class="tableName">' +
-                        tableName +
+                        '<span>Table: </span>' +
+                        '<span class="tableName" draggable="true"' +
+                        ' ondragstart="xcDrag(event)">' +
+                            tableName +
                         '</span>' +
                     '</div>' +
                     '<div class="retinaArea" data-tableid="' +
