@@ -1203,7 +1203,7 @@ function XcalarKeyPut(key, value, persist) {
         return (deferred.promise());
     }
 
-    if (persist == null || persist == null) {
+    if (persist == null) {
         persist = false;
     }
     xcalarKeyAddOrReplace(tHandle, key, value, persist)

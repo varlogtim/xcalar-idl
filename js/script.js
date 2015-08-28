@@ -299,7 +299,6 @@ function setupLogout() {
     var $userName = $("#userName");
     var $popOut = $("#userNamePopout");
     var username = sessionStorage.getItem("xcalar-username");
-
     username = username || "Vikram Joshi";
 
     $userName.text(username);
@@ -507,7 +506,6 @@ function startupFunctions() {
     })
     .then(function() {
         documentReadyGeneralFunction();
-        Authentication.setup();
         JSONModal.setup();
         setupTooltips();
         setupMenuBar();
@@ -736,7 +734,6 @@ function documentReadyIndexFunction() {
             AggModal.setup();
             OperationsModal.setup();
             WorkbookModal.setup();
-            WSManager.focusOnWorksheet();
             WSManager.focusOnWorksheet();
         })
         .then(function() {

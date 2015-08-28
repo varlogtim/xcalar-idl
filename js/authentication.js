@@ -3,7 +3,9 @@ window.Authentication = (function($, Authentication) {
     var authKey = "userAuthentication";
 
     Authentication.setup = function() {
-        var username = WKBKManager.getUser();
+        var deferred = jQuery.Deferred();
+        var username = sessionStorage.getItem("xcalar-username") ||
+                        hostname + "-" + portNumber;
 
         KVStore.getAndParse(authKey)
         .then(function(users) {
@@ -16,14 +18,19 @@ window.Authentication = (function($, Authentication) {
                 };
 
                 users[username].hashTag = generateHashTag();
-                KVStore.put(authKey, JSON.stringify(users));
+                KVStore.put(authKey, JSON.stringify(users), true);
             }
 
             user = users[username];
+
+            deferred.resolve(user);
         })
         .fail(function(error) {
             console.error("Authentication setup fails", error);
+            deferred.reject(error);
         });
+
+        return (deferred.promise());
     };
 
     Authentication.getUsers = function() {
@@ -38,7 +45,8 @@ window.Authentication = (function($, Authentication) {
         KVStore.getAndParse(authKey)
         .then(function(users) {
             users[user.username] = user;
-            return (KVStore.put(authKey, JSON.stringify(users)));
+
+            return KVStore.put(authKey, JSON.stringify(users), true);
         })
         .fail(function(error) {
             console.error("Save Authentication fails", error);

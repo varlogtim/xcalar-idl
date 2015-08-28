@@ -853,7 +853,7 @@ window.RightSideBar = (function($, RightSideBar) {
         // XXX !!! landmine section to restart node
         $("#helpSubmit").click(function() {
             console.info('Reset Fired!');
-            emptyAllStorage()
+            commitToStorage()
             .then(function() {
                 console.info("Shut Down Successfully!");
                 return (XcalarStartNodes(2));

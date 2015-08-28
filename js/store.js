@@ -22,12 +22,17 @@ function emptyAllStorage(localEmpty) {
     if (localEmpty) {
         deferred.resolve();
     } else {
-        WKBKManager.emptyAll()
-        .then(function() {
-            return (Authentication.clear());
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+        // XXX beacuse session do not delete in backend,
+        // when can not delete KVStore, otherwise we lose UI infos
+        // but session is still there
+        deferred.resolve();
+
+        // WKBKManager.emptyAll()
+        // .then(function() {
+        //     return (Authentication.clear());
+        // })
+        // .then(deferred.resolve)
+        // .fail(deferred.reject);
     }
 
     return (deferred.promise());
@@ -120,11 +125,16 @@ function commitToStorage(atStartUp) {
         storage[KVKeys.USER] = UserSettings.setSettings();
     }
 
-    KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), false)
+    KVStore.put(KVStore.gStorageKey, JSON.stringify(storage), true)
     .then(function() {
         var d = new Date();
         var t = xcHelper.getDate("-", d) + " " + d.toLocaleTimeString();
         $("#autoSavedInfo").text(t);
+
+        // save workbook
+        return (XcalarSaveWorkbooks("*"));
+    })
+    .then(function() {
         deferred.resolve();
     })
     .fail(function(error) {
@@ -451,6 +461,7 @@ window.KVStore = (function($, KVStore) {
 
     KVStore.getAndParse = function(key) {
         var deferred = jQuery.Deferred();
+
         XcalarKeyLookup(key)
         .then(function(value) {
             // "" can not be JSO.parse
@@ -459,10 +470,10 @@ window.KVStore = (function($, KVStore) {
                     value = JSON.parse(value.value);
                     deferred.resolve(value);
                 } catch(err) {
-                    console.error(err, value);
+                    console.error(err, value, key);
                     // KVStore.delete(key);
-                    KVStore.log(err.message);
-                    deferred.resolve(null);
+                    // KVStore.log(err.message);
+                    deferred.reject(err);
                 }
             } else {
                 deferred.resolve(null);
@@ -576,7 +587,7 @@ window.KVStore = (function($, KVStore) {
                 var gInfos = JSON.parse(output.value);
                 gInfos.holdStatus = false;
                 return (XcalarKeyPut(KVStore.gStorageKey,
-                                     JSON.stringify(gInfos), false));
+                                     JSON.stringify(gInfos), true));
             } else {
                 console.error("Output is empty");
                 return (promiseWrapper(null));
@@ -594,7 +605,7 @@ window.KVStore = (function($, KVStore) {
     KVStore.log = function(error) {
         var log = {};
         log.error = error;
-        KVStore.put(KVStore.gLogKey, JSON.stringify(log));
+        KVStore.put(KVStore.gLogKey, JSON.stringify(log), true);
     };
 
     function getWKBKLists() {

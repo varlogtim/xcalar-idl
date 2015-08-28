@@ -299,41 +299,33 @@ function deleteTable(tableIdOrName, tableType) {
     // Free the result set pointer that is still pointing to it
     XcalarSetFree(resultSetId)
     .then(function() {
-        // check if table also in other workbooks
-        return (WKBKManager.canDelTable(tableName));
-    })
-    .then(function(canDelete) {
-        if (!canDelete) {
-            return (promiseWrapper(null));
-        } else {
-            // check if it is the only table in this workbook
-            // The following logic can be uncommented when we reenable copy
-            // to worksheet. However, this time, we should have # after the
-            // table name to distinguish between the two tables. This removes
-            // our need to rely on tableNum
-            /**
-            for (var i = 0; i < gTables.length; i++) {
-                if (getTNPrefix(gTables[i].tableName) ===
-                    getTNPrefix(tableName) &&
-                    (deleteArchived || getTNSuffix(gTables[i].tableName) !==
-                                       getTNSuffix(tableName))) {
-                    console.log("delete copy table");
-                    return (promiseWrapper(null));
-                }
+        // check if it is the only table in this workbook
+        // The following logic can be uncommented when we reenable copy
+        // to worksheet. However, this time, we should have # after the
+        // table name to distinguish between the two tables. This removes
+        // our need to rely on tableNum
+        /**
+        for (var i = 0; i < gTables.length; i++) {
+            if (getTNPrefix(gTables[i].tableName) ===
+                getTNPrefix(tableName) &&
+                (deleteArchived || getTNSuffix(gTables[i].tableName) !==
+                                   getTNSuffix(tableName))) {
+                console.log("delete copy table");
+                return (promiseWrapper(null));
             }
-
-            for (var i = 0; i < gHiddenTables.length; i++) {
-                if (getTNPrefix(gHiddenTables[i].tableName) ===
-                    getTNPrefix(tableName) &&
-                    (deleteArchived || getTNSuffix(gTables[i].tableName) !==
-                                       getTNSuffix(tableName))) {
-                    console.log("delete copy table");
-                    return (promiseWrapper(null));
-                }
-            }
-            */
-            return (XcalarDeleteTable(tableName, sqlOptions));
         }
+
+        for (var i = 0; i < gHiddenTables.length; i++) {
+            if (getTNPrefix(gHiddenTables[i].tableName) ===
+                getTNPrefix(tableName) &&
+                (deleteArchived || getTNSuffix(gTables[i].tableName) !==
+                                   getTNSuffix(tableName))) {
+                console.log("delete copy table");
+                return (promiseWrapper(null));
+            }
+        }
+        */
+        return (XcalarDeleteTable(tableName, sqlOptions));
     })
     .then(function() {
         // XXX if we'd like to hide the cannot delete bug,
