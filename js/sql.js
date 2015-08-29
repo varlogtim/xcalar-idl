@@ -170,6 +170,7 @@ window.SQL = (function($, SQL) {
                 break;
 
             // Use reverse parser
+            case (SQLOps.PreviewDS):
             case (SQLOps.DestroyDS):
             // XXX not fully finished
             case (SQLOps.DeleteTable):

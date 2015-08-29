@@ -1314,7 +1314,7 @@ window.DataPreview = (function($, DataPreview) {
         var $rmHightLightBtn = $("#preview-rmHightlight");
 
         $highLightBtn.click(function() {
-            if (highlighter === "") {
+            if (!$highLightBtn.hasClass("active") || highlighter === "") {
                 return;
             }
 
@@ -1325,7 +1325,7 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         $rmHightLightBtn.click(function() {
-            if (delimiter !== "") {
+            if (!$rmHightLightBtn.hasClass("active") || delimiter !== "") {
                 // case of remove delimiter
                 delimiter = "";
 
@@ -1422,7 +1422,7 @@ window.DataPreview = (function($, DataPreview) {
             tableName += ".preview"; // specific format for preview table
            
             var sqlOptions = {
-                "operation" : "previewDataSet",
+                "operation" : SQLOps.PreviewDS,
                 "dsPath"    : loadURL,
                 "dsName"    : tableName,
                 "dsFormat"  : "raw",
@@ -1846,13 +1846,13 @@ window.DataPreview = (function($, DataPreview) {
                     // select char
                     html =
                         '<span class="action">' +
-                            'Select a character as delimiter' +
+                            'Highlight a character as delimiter' +
                         '</span>';
                 } else {
                     // select another char
                     html +=
                         '<span class="action">' +
-                            'Select another character as delimiter' +
+                            'Highlight another character as delimiter' +
                         '</span>';
                 }
 

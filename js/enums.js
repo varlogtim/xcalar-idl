@@ -123,6 +123,7 @@ var SQLOps = {
     RenameTable: "renameTable",
     RenameOrphanTable: "renameOrphanTable",
     DeleteTable: "deleteTable",
+    PreviewDS: "previewDataSet",
     DestroyPreviewDS: "destroyPreviewDataSet",
     DestroyDS: "destroyDataSet",
     // XI operation
