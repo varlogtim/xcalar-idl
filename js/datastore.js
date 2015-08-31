@@ -352,7 +352,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
         var deferred = jQuery.Deferred();
 
         var isValid  = xcHelper.validate([
-            // check for "" should be keep for preview mode
+            // check for "" should be kept for preview mode
             // since it does't submit the form
             {
                 "$selector": $fileName,
@@ -402,13 +402,11 @@ window.DatastoreForm = (function($, DatastoreForm) {
             })
             .fail(function(error) {
                 Alert.error("Load Dataset Failed", error.error);
-                // StatusBox.show(text, $filePath, true);
                 StatusMessage.fail(StatusMessageTStr.LoadFailed, msgId);
                 deferred.reject(error);
             });
         })
         .fail(function(error) {
-            // result.statusCode === StatusT.StatusDsInvalidUrl
             StatusBox.show(error.error, $filePath, true);
             deferred.reject(error);
         });
@@ -452,12 +450,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
     return (DatastoreForm);
 }(jQuery, {}));
 
+/*
+ * Module for grid view part on the left of datastore panel
+ */
 window.GridView = (function($, GridView) {
     var $deleteFolderBtn = $("#deleteFolderBtn");
     var $gridView = $("#gridView");
 
     GridView.setup = function() {
-        // initial gDSObj
         setupGridViewButton();
         setupGrids();
     };
@@ -466,6 +466,7 @@ window.GridView = (function($, GridView) {
         return (releaseDatasetPointer());
     };
 
+    // toggle between list view and grid view
     GridView.toggle = function(isListView) {
         var $btn = $("#dataViewBtn");
 
@@ -502,6 +503,7 @@ window.GridView = (function($, GridView) {
             }
         });
 
+        // click to toggle list view and grid view
         $("#dataViewBtn").click(function() {
             var $btn = $(this);
             var isListView;
@@ -538,7 +540,7 @@ window.GridView = (function($, GridView) {
     }
 
     function setupGrids() {
-        // refresh ds
+        // refresh dataset
         $("#refreshDS").click(function() {
             XcalarGetDatasets()
             .then(function(datasets) {
@@ -556,6 +558,7 @@ window.GridView = (function($, GridView) {
             $deleteFolderBtn.addClass("disabled");
         });
 
+        // click a folder/ds
         $gridView.on("click", ".grid-unit", function(event) {
             event.stopPropagation(); // stop event bubbling
             var $grid = $(this);
@@ -597,6 +600,7 @@ window.GridView = (function($, GridView) {
             });
         });
 
+        // Input event on folder
         $gridView.on({
             // press enter to remove focus from folder label
             "keypress": function(event) {
@@ -667,6 +671,9 @@ window.GridView = (function($, GridView) {
     return (GridView);
 }(jQuery, {}));
 
+/*
+ * Module for data cart part on the right of datastore panel
+ */
 window.DataCart = (function($, DataCart) {
     var innerCarts = [];
     var $cartArea  = $("#dataCart");
@@ -773,6 +780,7 @@ window.DataCart = (function($, DataCart) {
             emptyAllCarts();
         });
 
+        // click on data cart item to focus on the related column
         $cartArea.on("click", ".colName", function() {
             var $li = $(this).parent();
             $cartArea.find(".colSelected").removeClass("colSelected");
@@ -789,7 +797,7 @@ window.DataCart = (function($, DataCart) {
             removeCartItem(dsname, $li);
         });
 
-        // table name edit input box
+        // edit table name event
         $cartArea.on({
             "keypress": function(event) {
                 if (event.which === keyCode.Enter) {
@@ -866,6 +874,7 @@ window.DataCart = (function($, DataCart) {
         refreshCart();
     };
 
+    // restore the cart
     DataCart.restore = function(carts) {
         var noNameCheck = true;
         for (var i = carts.length - 1; i >= 0; i--) {
@@ -1248,6 +1257,9 @@ window.DataCart = (function($, DataCart) {
     return (DataCart);
 }(jQuery, {}));
 
+/*
+ * Module for preview table
+ */
 window.DataPreview = (function($, DataPreview) {
     var $previewTable = $("#previewTable");
     var tableName = "";
@@ -1340,7 +1352,7 @@ window.DataPreview = (function($, DataPreview) {
             }
         });
 
-        // resize
+        // resize column
         $previewTable.on("mousedown", ".colGrab", function(event) {
             if (event.which !== 1) {
                 return;
@@ -1496,6 +1508,7 @@ window.DataPreview = (function($, DataPreview) {
         return (deferred.promise());
     };
 
+    // load a dataset
     DataPreview.load = function() {
         var loadURL = $("#filePath").val().trim();
         var dsName  = $("#fileName").val().trim();
@@ -1901,6 +1914,9 @@ window.DataPreview = (function($, DataPreview) {
     return (DataPreview);
 }(jQuery, {}));
 
+/*
+ * Module for data sample table
+ */
 window.DataSampleTable = (function($, DataSampleTable) {
     var $tableWrap = $("#dataSetTableWrap");
     var currentRow = 0;
@@ -2110,6 +2126,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }   
     }
 
+    // event set up for the module
     function setupSampleTable() {
         // select all columns
         $("#selectDSCols").click(function() {
@@ -2125,6 +2142,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             });
             DataCart.addItem(dsName, inputs);
         });
+
         // clear all columns
         $("#clearDsCols").click(function() {
             var $table = $("#worksheetTable");
@@ -2168,7 +2186,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
             previousColSelected = $input.closest('th');
         });
 
-        // resize
+        // resize column
         $tableWrap.on("mousedown", ".colGrab", function(event) {
             if (event.which !== 1) {
                 return;
@@ -2208,7 +2226,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         });
         previousColSelected = null;
     }
-    // hightligt the column
+    // hightligt column
     function highlightColumn($input, active) {
         var colNum  = xcHelper.parseColNum($input);
         var $table  = $input.closest(".datasetTable");
@@ -2222,25 +2240,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $table.find(".col" + colNum).addClass("selectedCol");
         }
     }
-
-    // function getTypeId(type) {
-    //     switch (type) {
-    //         case "undefined":
-    //             return DfFieldTypeT.DfUnknown;
-    //         case "string":
-    //             return DfFieldTypeT.DfString;
-    //         case "integer":
-    //             return DfFieldTypeT.DfInt64;
-    //         case "decimal":
-    //             return DfFieldTypeT.DfFloat64;
-    //         case "boolean":
-    //             return DfFieldTypeT.DfBoolean;
-    //         case "mixed":
-    //             return DfFieldTypeT.DfMixed;
-    //         default:
-    //             return -1; // Invalid type
-    //     }
-    // }
 
     // sample table html
     function getSampleTableHTML(dsName, jsonKeys, jsons) {
@@ -2360,44 +2359,27 @@ window.DataSampleTable = (function($, DataSampleTable) {
     return (DataSampleTable);
 }(jQuery, {}));
 
+/*
+ * Module for mamgement of dsObj
+ */
 window.DS = (function ($, DS) {
-    /**
-    * private property
-    *
-    * @property {number} homeDirId, home folder id, always be 0
-    * @property {number} curDirId, current folder id
-    * @property {number} dsObjId, dsid that assigns to DSObj
-    * @property {Object} dsLookUpTable, look up DSObj via dsid
-    * @property {DSObj} homeFolder, home folder
-    * @property {jQuery} dragDS, dragged dataset or folder element
-    * @property {jQuery} $dropTarget, target element for drop
-    */
+    var homeDirId = 0;  // home folder id, constant
 
-    var homeDirId = 0;  // constant
-
-    var curDirId;
-    var dsObjId;
-    var dsLookUpTable;
+    var curDirId;       // current folder id
+    var dsObjId;        // counter
+    var dsLookUpTable;  // find DSObj by dsId
     var homeFolder;
     // for DS drag n drop
     var $dragDS;
     var $dropTarget;
 
-    /**
-     * Get dsObj by dsId
-     * @param {number} dsId The dsObj's id
-     * @return {DSObj} dsObj The dsObj object
-     */
-    DS.getDSObj = function (dsId) {
+    // Get dsObj by dsId
+    DS.getDSObj = function(dsId) {
         return (dsLookUpTable[dsId]);
     };
 
-    /**
-     * Get grid element(folder/datasets) by dsId
-     * @param {number} dsId  The ds id
-     * @return {JQuery} gridEl The grid element
-    */
-    DS.getGrid = function (dsId) {
+    // Get grid element(folder/datasets) by dsId
+    DS.getGrid = function(dsId) {
         if (dsId === homeDirId) {
             return ($("#gridView"));
         } else {
@@ -2405,12 +2387,8 @@ window.DS = (function ($, DS) {
         }
     };
 
-    /**
-     * Get datasets element by dsName
-     * @param {string} dsName The ds name
-     * @return {JQuery/undefined} dsEl The ds element
-     */
-    DS.getGridByName = function (dsName) {
+    // Get datasets element by dsName
+    DS.getGridByName = function(dsName) {
         if (!dsName) {
             return (null);
         }
@@ -2423,6 +2401,7 @@ window.DS = (function ($, DS) {
         }
     };
 
+    // create a new folder
     DS.newFolder = function() {
         var ds = DS.create({
             "name"    : "New Folder",
@@ -2441,17 +2420,8 @@ window.DS = (function ($, DS) {
         commitToStorage();
     };
 
-    /**
-     * Create datasets or folder
-     * @param options
-     * @param {number} options.id The dsId of dsObj
-     * @param {string} options.name The name of dsObj
-     * @param {number} options.parendId Parent directory's dsId
-     * @param {boolean} options.isFolder If dsObj is a folder
-     * @param {Object} options.attrs Attributes to be stored in dsObj
-     * @return {DSObj} ds The dsObj object
-     */
-    DS.create = function (options) {
+    // Create dsObj for new dataset/folder
+    DS.create = function(options) {
         // validation check
         if (!options || !options.name) {
             return (null);
@@ -2467,7 +2437,7 @@ window.DS = (function ($, DS) {
         var $parent = DS.getGrid(parentId);
 
         // XXX the way to rename could be imporved
-        var i         = 1;
+        var i = 1;
         var validName = name;
         // only check folder name as ds name cannot confilct
         while (isFolder && parent.checkNameConflict(id, validName, isFolder)) {
@@ -2505,24 +2475,14 @@ window.DS = (function ($, DS) {
         });
     };
 
-    /**
-     * Load dataset
-     * @param {string} dsName The dataset name
-     * @param {string} dsFormat The dataset format
-     * @param {string} loadURL The load path
-     * @param {string} fieldDelim The field delimiter
-     * @param {string} lineDelim The line delimiter
-     * @param {string} moduleName The python module name
-     * @param {string} funcName  The python function name
-     * @return {Promise} deferred
-     */
+    // Load dataset
     DS.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                         hasHeader, moduleName, funcName) {
         var deferred = jQuery.Deferred();
 
-        console.log(dsName, dsFormat, loadURL,
-                    fieldDelim, lineDelim,
-                    moduleName, funcName);
+        // console.log(dsName, dsFormat, loadURL,
+        //             fieldDelim, lineDelim,
+        //             moduleName, funcName);
 
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
@@ -2536,6 +2496,7 @@ window.DS = (function ($, DS) {
                 "numEntries": null
             }
         });
+
         var $grid = DS.getGridByName(dsName);
         $grid.addClass('display inactive');
         $grid.append('<div class="waitingIcon"></div>');
@@ -2565,8 +2526,8 @@ window.DS = (function ($, DS) {
             if (!result) {
                 // if dataset cannot be parsed produce a load fail
                 var msg = {
-                    error    : 'Cannot parse data set "' + dsName + '".',
-                    dsCreated: true
+                    "error"    : 'Cannot parse data set "' + dsName + '".',
+                    "dsCreated": true
                 };
                 return (jQuery.Deferred().reject(msg));
             } else {
@@ -2618,16 +2579,12 @@ window.DS = (function ($, DS) {
         return (deferred.promise());
     };
 
-    /**
-     * Get home folder
-     */
+    // Get home folder
     DS.getHomeDir = function () {
         return (homeFolder);
     };
 
-    /**
-     * Restore dsObj from KVStore
-     */
+    // Restore dsObj
     DS.restore = function(oldHomeFolder, datasets, atStartUp) {
         var numDatasets = datasets.numDatasets;
         var totolDS = 0;
@@ -2733,10 +2690,7 @@ window.DS = (function ($, DS) {
         }
     };
 
-    /**
-     * Rename dsObj
-     * @param {JQuery} $label label emelent which has new name
-     */
+    // Rename dsObj
     DS.rename = function(dsId, newName) {
         // now only for folders (later also rename datasets?)
         var ds      = DS.getDSObj(dsId);
@@ -2765,11 +2719,7 @@ window.DS = (function ($, DS) {
         }
     };
 
-    /**
-     * Check if ds with dsName already exists
-     * @param {string} dsName The dataset name to be checked
-     * return {boolen} true/false Whether dsName already exists
-     */
+    // Check if the ds's name already exists
     DS.has = function(dsName) {
         // now only check dataset name conflict
         if (DS.getGridByName(dsName) != null) {
@@ -2779,10 +2729,7 @@ window.DS = (function ($, DS) {
         }
     };
 
-    /**
-     * Remove datasset/folder
-     * @param {JQuery} $grid The element to be removed
-     */
+    // Remove dataset/folder
     DS.remove = function($grid, isOrphaned) {
         if ($grid == null || $grid.length === 0) {
             return;
@@ -2823,18 +2770,13 @@ window.DS = (function ($, DS) {
         }
     };
 
-    /**
-     * Change directory to parent folder
-     */
+    // Change dir to parent folder
     DS.upDir = function() {
         var parentId = DS.getDSObj(curDirId).parentId;
         DS.goToDir(parentId);
     };
 
-    /**
-     * Change directory to another folder
-     * @param {number} folder The folder to go
-     */
+    // Change dir to another folder
     DS.goToDir = function(folderId) {
         curDirId = folderId;
 
@@ -2853,18 +2795,14 @@ window.DS = (function ($, DS) {
         });
     };
 
-    /**
-     * Refresh dataset/folder display in gridView area
-     */
+    // Refresh dataset/folder display in gridView area
     DS.refresh = function() {
         $("#gridView .grid-unit").removeClass("display").addClass("hidden");
         $('#gridView .grid-unit[data-dsParentId="' + curDirId + '"]')
             .removeClass("hidden").addClass("display");
     };
 
-    /**
-     * Clear dataset/folder in gridView area
-     */
+    // Clear dataset/folder in gridView area
     DS.clear = function() {
         $("#gridView .grid-unit").remove();
         dsSetupHelper();
@@ -2873,57 +2811,39 @@ window.DS = (function ($, DS) {
 
     /* Drag and Drop API */
 
-    /**
-     * Get current dataset/folder in drag
-     */
+    // Get current dataset/folder in drag
     DS.getDragDS = function() {
         return ($dragDS);
     };
 
-    /**
-     * Set current dataset/folder in drag
-     * @param {JQuery} $ds dragged element
-     */
+    // Set current dataset/folder in drag
     DS.setDragDS = function($ds) {
         $dragDS = $ds;
     };
 
-    /**
-     * Reset drag dataset/folder
-     */
+    // Reset drag dataset/folder
     DS.resetDragDS = function() {
         $dragDS = undefined;
     };
 
-    /**
-     * Get drop target
-     */
+    // Get drop target
     DS.getDropTarget = function() {
         return ($dropTarget);
     };
 
-    /**
-     * Set drap target
-     * @param {JQuery} $target drop target
-     */
+    // Set drap target
     DS.setDropTraget = function($target) {
         $dropTarget = $target;
     };
 
-    /**
-     * Reset drop target
-     */
+    // Reset drop target
     DS.resetDropTarget = function() {
         $dropTarget = undefined;
     };
 
     /* End of Drag and Drop API */
 
-    /**
-     * Get file size, if not exist, fetch from backend and update it
-     * @param {DSObj} ds The dsObj object
-     * return {Promise} deferred
-     */
+    // Get file size, if not exist, fetch from backend and update it
     DS.getFileSize = function(ds) {
         var deferred = jQuery.Deferred();
 
@@ -2974,6 +2894,7 @@ window.DS = (function ($, DS) {
     }
 
 
+    // Helper function for setup
     function dsSetupHelper() {
         curDirId = homeDirId;
         dsObjId = 0;
@@ -2983,11 +2904,7 @@ window.DS = (function ($, DS) {
         dsLookUpTable[homeFolder.id] = homeFolder;
     }
 
-    /**
-     * Helper function for DS.remove()
-     * @param {JQuery} $grid The element to be removed
-     * @param {string} dsName The dataset's name
-     */
+    // Helper function for DS.remove()
     function delDSHelper($grid, dsName) {
         $grid.removeClass("active");
         $grid.addClass("inactive");
@@ -3024,9 +2941,7 @@ window.DS = (function ($, DS) {
         });
     }
 
-    /**
-     * Helper function to remove ds
-     */
+    // Helper function to remove ds
     function rmDSHelper($grid) {
         var dsId = $grid.data("dsid");
         var ds   = DS.getDSObj(dsId);
@@ -3057,9 +2972,7 @@ window.DS = (function ($, DS) {
         }
     }
 
-    /**
-     * Focus on the first dataset in the folder
-     */
+    // Focus on the first dataset in the folder
     function focusOnFirstDS() {
         var $curFolder = DS.getGrid(curDirId);
         var $datasets = $curFolder.find("> .grid-unit.ds");
@@ -3071,11 +2984,7 @@ window.DS = (function ($, DS) {
         }
     }
 
-    /**
-     * Helper function to update totalChildren of all ancestors
-     * @param {DSObj} dsObj The dsObj to start update
-     * @param {boolean} isMinus Whether to decrease or increase child count
-     */
+    // Helper function to update totalChildren of all ancestors
     function updateDSCount(dsObj, isMinus) {
         var parentObj = DS.getDSObj(dsObj.parentId);
 
@@ -3091,10 +3000,7 @@ window.DS = (function ($, DS) {
         }
     }
 
-    /**
-     * Helper function for DS.create()
-     * @param {DSObj} dsObj The dsObj to create
-     */
+    // Helper function for DS.create()
     function getDSHTML(dsObj) {
         var id = dsObj.id;
         var parentId = dsObj.parentId;
@@ -3187,13 +3093,12 @@ window.DS = (function ($, DS) {
     function DSObj(id, name, parentId, isFolder, attrs) {
         this.id = id;
         this.name = name;
-        this.parentId = parentId;     // parent directory
+        this.parentId = parentId;
         this.isFolder = isFolder;
         this.attrs = attrs || {};
 
-        /* initially, dataset count itself as one child,
-           folder has no child;
-         */
+        // initially, dataset count itself as one child,
+        // folder has no child;
         if (isFolder) {
             this.eles = [];
             this.totalChildren = 0;
@@ -3212,11 +3117,7 @@ window.DS = (function ($, DS) {
     }
 
     DSObj.prototype = {
-        /**
-         * Change name of the dsObj
-         * @param {string} newName The new name
-         * @return {DSObj} this
-         */
+        // rename of dsObj
         rename: function(newName) {
             newName = newName.trim();
 
@@ -3256,10 +3157,7 @@ window.DS = (function ($, DS) {
             return (this);
         },
 
-        /**
-         * Remove dsObj from parent
-         * @return {DSObj} this
-         */
+        // Remove dsObj from parent
         removeFromParent: function() {
             var parent = DS.getDSObj(this.parentId);
             var index  = parent.eles.indexOf(this);
@@ -3272,12 +3170,8 @@ window.DS = (function ($, DS) {
             return (this);
         },
 
-        /**
-         * Move dsObj to new parent (insert or append)
-         * @param {DSObj} newParent The new parent
-         * @param {number} index The index where to insert or append when index < 0
-         * @return {boolean} true/false Whether move succeed
-         */
+        // Move dsObj to new parent (insert or append when index < 0)
+        // return true/false: Whether move succeed
         moveTo: function(newParent, index) {
             // not append to itself
             if (this.id === newParent.id) {
@@ -3329,13 +3223,7 @@ window.DS = (function ($, DS) {
             return true;
         },
 
-        /**
-         * Check if a dsObj's name has conflict in current folder
-         * @param {number} id The dsObj's id
-         * @param {string} name The dsObj's name
-         * @param (boolean) isFolder Whether the dsObj is a folder
-         * @return {boolean} true/false Whether move succeed
-         */
+        // Check if a dsObj's name has conflict in current folder
         checkNameConflict: function(id, name, isFolder) {
             // now only support check of folder
 
@@ -3368,10 +3256,7 @@ window.DS = (function ($, DS) {
 
 /*** Start of Drag and Drop Function for DSCart ***/
 
-/**
- * Helper function for drag start event
- * @param {Object} event The event object
- */
+// Helper function for drag start event
 function dsDragStart(event) {
     var $grid = $(event.target).closest(".grid-unit");
     var $gridView = $("#gridView");
@@ -3399,10 +3284,7 @@ function dsDragStart(event) {
 
 }
 
-/**
- * Helper function for drag end event
- * @param {Object} event The event object
- */
+// Helper function for drag end event
 function dsDragEnd(event) {
     var $gridView = $("#gridView");
     var $grid = $(event.target).closest(".grid-unit");
@@ -3420,10 +3302,7 @@ function dsDragEnd(event) {
     $("#backFolderBtn").removeClass("active");
 }
 
-/**
- * Helper function for drag enter event
- * @param {Object} event The event object
- */
+// Helper function for drag enter event
 function dsDragEnter(event) {
     var $dragWrap = $(event.target);
     var targetId = $dragWrap.attr("id");
@@ -3459,10 +3338,7 @@ function dsDragEnter(event) {
     }
 }
 
-/**
- * Helper function for drop event
- * @param {Object} event The event object
- */
+// Helper function for drop event
 function dsDrop(event) {
     var $div = DS.getDropTarget();
     var $target = $div.closest('.grid-unit');
@@ -3481,20 +3357,13 @@ function dsDrop(event) {
     }
 }
 
-/**
- * Helper function for drag over event
- * @param {Object} event The event object
- */
+// Helper function for drag over event
 function allowDSDrop(event) {
     // call the event.preventDefault() method for the ondragover allows a drop
     event.preventDefault();
 }
 
-/**
- * Helper function to drop ds into a folder
- * @param {JQuery} $grid The ds to be dropped
- * @param {JQuery} $target The target folder to drop in
- */
+// Helper function to drop ds into a folder
 function dsDropIn($grid, $target) {
     var dragDsId = $grid.data("dsid");
     var ds = DS.getDSObj(dragDsId);
@@ -3521,12 +3390,7 @@ function dsDropIn($grid, $target) {
     }
 }
 
-/**
- * Helper function to insert ds before or after another ds
- * @param {JQuery} $grid The ds to be inserted
- * @param {JQuery} $sibling The target ds
- * @param {boolean} isBefore Before or after $sibling
- */
+// Helper function to insert ds before or after another ds
 function dsInsert($grid, $sibling, isBefore) {
     var dragDsId = $grid.data("dsid");
     var ds = DS.getDSObj(dragDsId);
@@ -3571,6 +3435,7 @@ function dsInsert($grid, $sibling, isBefore) {
     }
 }
 
+// Helper function to move ds back to its parent
 function dsBack($grid) {
     var ds = DS.getDSObj($grid.data("dsid"));
     // target
@@ -3594,10 +3459,7 @@ function dsBack($grid) {
     }
 }
 
-/**
- * Helper function to drop ds back to parent folder
- * @param {Object} event The drop event
- */
+// Helper function to drop ds back to parent folder
 function dsDropBack(event) {
     event.preventDefault(); // default is open as link on drop
     event.stopPropagation();
