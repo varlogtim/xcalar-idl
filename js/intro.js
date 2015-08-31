@@ -10,6 +10,7 @@ window.Intro = (function($, Intro) {
         preventSelection  : true,
         loop              : false,
         includeNumbering  : false,
+        closeOnModalClick : false,
         onStart           : "",
         onComplete        : "",
         onNextStep        : ""
@@ -72,6 +73,9 @@ window.Intro = (function($, Intro) {
         setTimeout(function() {
             $overlay.css('opacity', options.overlayOpacity);
         }, 0);
+        if (options.closeOnModalClick) {
+            $overlay.mousedown(closeIntro);
+        }
     }
 
     function createHighlightBox() {
@@ -90,14 +94,16 @@ window.Intro = (function($, Intro) {
                                 '<div class="text"></div>' +
                             '</div>' +
                             '<div class="buttonContainer left clearfix">' +
-                                '<div class="back"></div>' +
-                                '<div class="skipBack"></div>' +
-                                '<div class="close left"></div>' +
+                                '<div class="back" title="back"></div>' +
+                                '<div class="skipBack" ' +
+                                    'title="skip to first step"></div>' +
+                                '<div class="close left" title="exit"></div>' +
                             '</div>' +
                             '<div class="buttonContainer right clearfix">' +
-                                '<div class="next"></div>' +
-                                '<div class="skip"></div>' +
-                                '<div class="close right"></div>' +
+                                '<div class="next" title="next"></div>' +
+                                '<div class="skip" title="skip to last step">' +
+                                '</div>' +
+                                '<div class="close right" title="exit"></div>' +
                             '</div>' +
                             '<div class="intro-arrow top"></div>' +
                             '<div class="intro-number">' +
@@ -106,6 +112,13 @@ window.Intro = (function($, Intro) {
                           '</div>';
         var $popover = $(popoverHtml);
         $('body').append($popover);
+
+        // fade in popover, currently 400 ms
+        $popover.css('opacity', 0);
+        setTimeout(function() {
+            $popover.css('opacity', 1);
+        });
+        
         if (!options.includeNumbering) {
             $popover.find('.intro-number').hide();
         }
@@ -123,23 +136,9 @@ window.Intro = (function($, Intro) {
             nextStep({skip: true, back: true});
         });
         $popover.find('.close').click(function() {
-            currentStep = 0;
-            $('#intro-overlay path').attr('d', pathTemplate);
-
-            $('#intro-overlay').css('opacity', 0);
-            setTimeout(function() {
-                $('#intro-overlay').remove();
-            }, 300);
-            $('#intro-popover').css('opacity', 0).remove();
-            $('#intro-highlightBox').remove();
-            $('#intro-elementLayer').remove();
-            $('.intro-highlightedElement')
-                            .removeClass('intro-highlightedElement');
-            $(window).off('resize', winResize);
-            if (typeof options.onComplete === "function") {
-                options.onComplete();
-            }
+            closeIntro();
         });
+        $('body').keydown(keypressAction);
     }
 
     /* controls nextStep whether it be forward, backwards or skipping
@@ -212,7 +211,7 @@ window.Intro = (function($, Intro) {
         $popoverNumber.find('.innerNumber').text(currentStep + 1);
         var $infoArrow = $popover.find('.intro-arrow');
         $infoArrow.removeClass('top bottom left right');
-        $infoArrow.css('left', 10);
+        $infoArrow.css({'top':0, 'bottom': 'auto'});
 
         $popover.find('.text').html(options.popoverText[currentStep]);
         var windowWidth = $(window).width();
@@ -227,11 +226,14 @@ window.Intro = (function($, Intro) {
                            (options.popoverHorzPadding * 2) +
                            (popoverBorderWidth * 2);
         var rect = currElemRect;
-        var left = rect.left;
         var top = 0;
+        var minLeft = 5;
+        var center = rect.left + (rect.width / 2);
+        var centerVert = rect.top + (rect.height / 2);
+        var tempLeft = center - (popoverWidth / 2);
+        var left = Math.max(minLeft, tempLeft);
         var userPosition = $currElem.data('introposition');
         var positionIndex = validPositions.indexOf(userPosition);
-        
         if (positionIndex !== -1 ) {
             userPosition = validPositions[positionIndex];
         } else {
@@ -239,31 +241,26 @@ window.Intro = (function($, Intro) {
         }
 
         if (userPosition === 'auto') {
-
             if (options.popoverPosition === 'bottom') {
                 var bottomOfPopover = rect.bottom + popoverHeight +
                                       options.popoverMargin + arrowHeight;
                 if (bottomOfPopover <= windowHeight) {
                     top = rect.bottom + options.popoverMargin + arrowHeight;
-                    $infoArrow.addClass('top');
+                    $infoArrow.addClass('bottom');
                 } else {
                     top = rect.top - popoverHeight -
                           options.popoverMargin - arrowHeight;
-                    $infoArrow.addClass('bottom');
+                    $infoArrow.addClass('top');
                 }
-                top = Math.max(0, top);
-
-                $popover.css('top', top);
             }
         } else {
             switch (userPosition) {
                 case ('top'):
-                    top = currElemRect.bottom + options.popoverMargin +
-                          arrowHeight;
-                    break;
-                case ('bottom'):
                     top = currElemRect.top - popoverHeight -
                           options.popoverMargin - arrowHeight;
+                    break;
+                case ('bottom'):
+                    top = rect.bottom + options.popoverMargin + arrowHeight;
                     break;
                 case ('left'):
                     top = currElemRect.top +
@@ -280,13 +277,15 @@ window.Intro = (function($, Intro) {
                          ((currElemRect.height - popoverHeight) / 2);
                     left = currElemRect.right + options.popoverMargin +
                            arrowHeight;
+                    break;
             }
           
             $infoArrow.addClass(userPosition);
-            
         }
         top = Math.max(0, top);
+        top = Math.min(windowHeight - popoverHeight, top);
         $popover.css('top', top);
+        
 
         if (left + popoverWidth > windowWidth) {
             left = windowWidth - popoverWidth - options.popoverMargin;
@@ -297,7 +296,20 @@ window.Intro = (function($, Intro) {
         $popover.css({
             'left': left
         });
-        
+
+        if (!$infoArrow.hasClass('left') && !$infoArrow.hasClass('right')) {
+            var arrowLeft = Math.max(5, center - left - arrowHeight);
+            var maxArrowLeft = popoverWidth - (arrowHeight * 2) - 5;
+            arrowLeft = Math.min(arrowLeft, maxArrowLeft);
+            $infoArrow.css('left', arrowLeft);
+        } else {
+            var currentArrowTop = top + popoverBorderWidth;
+            var vertDiff = centerVert - currentArrowTop;
+            console.log(currentArrowTop, centerVert, vertDiff);
+            $infoArrow.css('top', vertDiff - 10);
+
+        }
+       
         $popover.find('.textContainer').height(textHeight);
     }
 
@@ -350,5 +362,33 @@ window.Intro = (function($, Intro) {
         $('#intro-popover').find('.close.left').addClass('available');
     }
 
+    function closeIntro() {
+        currentStep = 0;
+        $('#intro-overlay path').attr('d', pathTemplate);
+
+        $('#intro-overlay').css('opacity', 0);
+        setTimeout(function() {
+            $('#intro-overlay').remove();
+        }, 300);
+        $('#intro-popover').css('opacity', 0).remove();
+        $('#intro-highlightBox').remove();
+        $('#intro-elementLayer').remove();
+        $('.intro-highlightedElement').removeClass('intro-highlightedElement');
+        $(window).off('resize', winResize);
+        $('body').off('keydown', keypressAction);
+        if (typeof options.onComplete === "function") {
+            options.onComplete();
+        }
+    }
+
+    function keypressAction(e) { 
+       if (e.which === 37 || e.which === 38) { // up / left to go back
+            nextStep({back: true}); 
+       } else if (e.which === 39 || e.which === 40) { // down / right for next
+            nextStep();
+       } else if (e.which === 27 || e.which === 13) { // escape / enter to exit
+            closeIntro();
+       }
+    }
     return (Intro);
 }(jQuery, {}));
