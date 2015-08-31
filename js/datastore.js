@@ -36,7 +36,10 @@ window.DataStore = (function($, DataStore) {
         DatastoreForm.clear();
         DataStore.updateInfo(0);
 
-        GridView.clear()
+        DataPreview.clear()
+        .then(function() {
+            return (GridView.clear());
+        })
         .then(deferred.resolve)
         .then(deferred.reject);
 
@@ -575,13 +578,25 @@ window.GridView = (function($, GridView) {
             $("#importDataView").hide();
             $("#contentViewMid").removeClass('hidden');
 
+            // when switch to a ds, should clear others' ref count first!!
             if ($grid.find('.waitingIcon').length !== 0) {
                 var loading = true;
-                DataSampleTable.show($grid.data("dsid"), loading);
+
+                DataPreview.clear()
+                .then(function() {
+                    return (releaseDatasetPointer());
+                })
+                .then(function() {
+                    return ( DataSampleTable.show($grid.data("dsid"), loading));
+                });
+
                 return;
             }
 
-            releaseDatasetPointer()
+            DataPreview.clear()
+            .then(function() {
+                return (releaseDatasetPointer());
+            })
             .then(function() {
                 return (DataSampleTable.show($grid.data("dsid")));
             })
@@ -1267,6 +1282,7 @@ window.DataPreview = (function($, DataPreview) {
     var hasHeader = false;
     var delimiter = "";
     var highlighter = "";
+    var previewSetId = null;
 
     var promoteHeader =
             '<div class="header"' +
@@ -1448,6 +1464,15 @@ window.DataPreview = (function($, DataPreview) {
             XcalarLoad(loadURL, "raw", tableName, "", "\n", hasHeader, "", "",
                        sqlOptions)
             .then(function() {
+                // clear ref count for datasets
+                if (gDatasetBrowserResultSetId === 0) {
+                    return (promiseWrapper(null));
+                } else {
+                    return (XcalarSetFree(gDatasetBrowserResultSetId));
+                }
+            })
+            .then(function() {
+                gDatasetBrowserResultSetId = 0;
                 return (XcalarSample(tableName, 20));
             })
             .then(function(result) {
@@ -1457,6 +1482,12 @@ window.DataPreview = (function($, DataPreview) {
                     deferred.reject({"error": "Cannot parse the dataset."});
                     return (promiseWrapper(null));
                 }
+
+                previewSetId = gDatasetBrowserResultSetId;
+                // set it to 0 because releaseDatasetPointer() use it to check
+                // if ds's ref count is cleard
+                // preiview table should use it's own clear method
+                gDatasetBrowserResultSetId = 0;
 
                 var kvPairs    = result.kvPair;
                 var numKvPairs = result.numKvPairs;
@@ -1526,7 +1557,18 @@ window.DataPreview = (function($, DataPreview) {
         });
     };
 
+    DataPreview.clear = function() {
+        if ($("#dsPreviewWrap").hasClass("hidden")) {
+            // when preview table not shows up
+            return (promiseWrapper(null));
+        } else {
+            return (clearAll());
+        }
+    };
+
     function clearAll() {
+        var deferred = jQuery.Deferred();
+
         $("#previewBtn").text("PREVIEW");
         $("#dsPreviewWrap").addClass("hidden");
         $("#importDataForm").removeClass("previewMode");
@@ -1539,15 +1581,27 @@ window.DataPreview = (function($, DataPreview) {
         highlighter = "";
         toggleHighLight();
 
-        if (tableName !== "" && tableName != null) {
+        if (previewSetId != null) {
             var sqlOptions = {
                 "operation": SQLOps.DestroyPreviewDS,
                 "dsName"   : tableName
             };
 
-            XcalarDestroyDataset(tableName, sqlOptions);
+            XcalarSetFree(previewSetId)
+            .then(function() {
+                previewSetId = null;
+                return (XcalarDestroyDataset(tableName, sqlOptions));
+            })
+            .then(function() {
+                tableName = "";
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+        } else {
+            deferred.resolve();
         }
-        tableName = "";
+
+        return (deferred.promise());
     }
 
     function getPreviewTable() {
