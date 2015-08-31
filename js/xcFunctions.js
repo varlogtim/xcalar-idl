@@ -734,7 +734,8 @@ window.xcFunction = (function($, xcFunction) {
 
     // export table
     xcFunction.exportTable = function(tableName, exportName) {
-        var retName   = $(".retTitle:disabled").val();
+        var deferred = jQuery.Deferred();
+        var retName  = $(".retTitle:disabled").val();
 
         if (!retName || retName === "") {
             retName = "testing";
@@ -748,17 +749,17 @@ window.xcFunction = (function($, xcFunction) {
             "operation": "export"
         };
         var msgId = StatusMessage.addMsg(msgObj);
-        
+        var location = hostname + ":/var/tmp/xcalar/" + exportName;
+
         var sqlOptions = {
-                "operation": "exportTable",
-                "tableName": tableName,
-                "fileName" : exportName,
-                "filePath" : location
-                         };
+            "operation" : SQLOps.ExportTable,
+            "tableName" : tableName,
+            "exportName": exportName,
+            "exportPath": location
+        };
 
         XcalarExport(tableName, exportName, false, sqlOptions)
         .then(function() {
-            var location = hostname + ":/var/tmp/xcalar/" + exportName;
             // add alert
             var ins = "Widget location: " +
                         "http://schrodinger/dogfood/widget/main.html?" +
@@ -771,14 +772,16 @@ window.xcFunction = (function($, xcFunction) {
                 "isCheckBox": true
             });
             StatusMessage.success(msgId, false, xcHelper.getTableId(tableName));
+            commitToStorage();
+            deferred.resolve();
         })
         .fail(function(error) {
             Alert.error("Export Table Fails", error);
             StatusMessage.fail(StatusMessageTStr.ExportFailed, msgId);
-        })
-        .always(function() {
-            // removeWaitCursor();
+            deferred.reject(error);
         });
+
+        return (deferred.promise());
     };
 
     xcFunction.rename = function(tableId, newTableName) {

@@ -119,6 +119,8 @@ window.Replay = (function($, Replay) {
                 break;
             case SQLOps.DestroyDS:
                 return replayDestroyDS(options);
+            case SQLOps.ExportTable:
+                return replayExportTable(options);
             case SQLOps.AddNewCol:
                 return replayAddNewCol(options);
             case SQLOps.DeleteCol:
@@ -303,6 +305,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
         argsMap[SQLOps.QuickAgg] = ["tableId", "type"];
         argsMap[SQLOps.AddDS] = ["name", "format", "path"];
+        argsMap[SQLOps.ExportTable] = ["tableName", "exportName"];
     }
 
     function createTabMap() {
@@ -332,6 +335,7 @@ window.Replay = (function($, Replay) {
         tabMap[SQLOps.RenameCol] = Tab.WS;
         tabMap[SQLOps.PullCol] = Tab.WS;
         tabMap[SQLOps.ArchiveTable] = Tab.WS;
+        tabMap[SQLOps.ExportTable] = Tab.WS;
         tabMap[SQLOps.TableBulkActions] = Tab.WS;
         tabMap[SQLOps.SortTableCols] = Tab.WS;
         tabMap[SQLOps.HideTable] = Tab.WS;
@@ -882,8 +886,6 @@ window.Replay = (function($, Replay) {
         var timer;
         var timeCnt = 0;
 
-        var $wsTab = $("#worksheetTab-" + wsIndex);
-
         if (originWSLen === 1) {
             // invalid deletion
             console.error("This worksheet should not be deleted!");
@@ -1049,6 +1051,33 @@ window.Replay = (function($, Replay) {
         var args = getArgs(options);
         DS.addDS.apply(window, args);
         return (promiseWrapper(null));
+    }
+
+    function replayExportTable(options) {
+        var deferred = jQuery.Deferred();
+        
+        options.tableName = changeTableName(options.tableName);
+        options.exportName = changeTableName(options.exportName);
+
+        var args = getArgs(options);
+
+        xcFunction.exportTable.apply(window, args)
+        .then(function() {
+            console.log("Show alert modal for 5s...");
+            setTimeout(function() {
+                $("#alertHeader .close").click();
+                deferred.resolve();
+            }, 5000);
+        })
+        .fail(function(error) {
+            console.log("Show alert modal for 5s...");
+            setTimeout(function() {
+                $("#alertHeader .close").click();
+                deferred.reject(error);
+            }, 5000);
+        });
+
+        return (deferred.promise());
     }
 
     return (Replay);

@@ -170,12 +170,10 @@ window.SQL = (function($, SQL) {
                 break;
 
             // Use reverse parser
-            case (SQLOps.PreviewDS):
             case (SQLOps.DestroyDS):
-            // XXX not fully finished
             case (SQLOps.DeleteTable):
             // XXX hang on as export table's api will change
-            case ("exportTable"):
+            case (SQLOps.ExportTable):
             case (SQLOps.DSLoad):
             case (SQLOps.Filter):
             case (SQLOps.Sort):

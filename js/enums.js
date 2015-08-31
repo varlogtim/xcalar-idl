@@ -126,6 +126,7 @@ var SQLOps = {
     PreviewDS: "previewDataSet",
     DestroyPreviewDS: "destroyPreviewDataSet",
     DestroyDS: "destroyDataSet",
+    ExportTable: "exportTable",
     // XI operation
     AddDS: "addDataset",
     AddNewCol: "addNewCol",
