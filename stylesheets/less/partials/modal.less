@@ -1134,7 +1134,7 @@ html.microsoft {
 
     .modalMain {
         .position(relative);
-        .size(@height: 370px);
+        .size(@height: ~"calc(100% - 260px)");
         padding: 10px;
         .noSelection;
         .flex-display;
@@ -1184,6 +1184,7 @@ html.microsoft {
                 .rounded(3px 0 0 0);
                 text-align: center;
                 cursor: default;
+                border-right: 1px solid #b2b2b2;
 
                 h2 {
                     .font(@size: 14px, @line-height: 42px);
@@ -1195,7 +1196,7 @@ html.microsoft {
                 .position(relative);
                 .rounded(0 0 0 3px);
                 .flex-order(2);
-                .flex(0 0 ~"calc(100% - 42px)");
+                height: ~"calc(100% - 42px)";
                 background: @color-background-darkGray;
                 padding: 10px;
                 box-shadow: inset -1px -1px 1px 1px rgba(0, 0, 0, 0.2);
@@ -1224,6 +1225,8 @@ html.microsoft {
                     .size(@width: 100%);
                     border-top: 1px solid @color-white;
                     padding-top: 11px;
+                    max-height: ~"calc(100% - 42px)";
+                    overflow: auto;
 
                     .userListBox {
                         .size(@width: 100%, @height: 25px);
@@ -1294,18 +1297,13 @@ html.microsoft {
         .workbookSection {
             .position(relative);
             .size(@width: ~"calc(100% - 170px)", @height: 100%);
-            .flex(0 0 ~"calc(100% - 170px)");
+            overflow: hidden;
 
-            .flex-display;
-            .flex-flow(column);
-
-            .titleSection, .listSection .grid-unit {
-                .flex-display;
+            .titleSection > section, .listSection .grid-unit {
 
                 > div {
                     .position(relative);
                     .size(@height: 30px);
-                    .flex(0 0 152px);
                     cursor: default;
                     margin-left: 5px;
                     padding-left: 10px;
@@ -1319,17 +1317,25 @@ html.microsoft {
 
             .titleSection {
                 .flex-order(1);
-                .flex(0 0 42px);
-                .rounded(0 3px 0 0);
-                padding: 5px 10px;
+                height: 42px;
                 background: @color-background-darkGray;
                 border: 1px solid #b2b2b2;
-                margin-left: -1px;
+                border-left: none;
+                overflow: hidden;
+
+                > section {
+                    .rounded(0 3px 0 0);
+                    padding: 5px 10px;
+                    width: 850px
+                }
 
                 .title {
                     .gray-gradient;
                     .rounded;
                     color: #5e5e5e;
+                    display: inline-block;
+                    width: 152px;
+                    float: left;
 
                     .label {
                         .size(@width: ~"calc(95% - 15px)");
@@ -1359,20 +1365,24 @@ html.microsoft {
 
             .listSection {
                 .flex-order(1);
-                .flex(0 0 ~"calc(100% - 42px)");
                 .rounded(0 0 3px 0);
                 background: #fdfdfd;
-                overflow-y: scroll;
+                overflow: auto;
                 padding: 0 10px;
                 box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
+                height: ~"calc(100% - 42px)";
 
                 .grid-unit {
+                    white-space: nowrap;
+                    width: 800px;
+                    padding-left: 1px;
                     > div {
                         color: #808080;
                         padding-right: 5px;
                         border: 1px solid transparent;
                         .font(@line-height: 28px);
                         .text-overflow;
+                        width: 152px;
                     }
 
                     &:nth-child(even) > div {
@@ -2482,7 +2492,6 @@ html.microsoft {
             color: @color-text-placeholder;
             pointer-events: none;
             .dropdown {
-                // background-color: @color-input-border-midGray;
                 .gray-gradient;
             }
             .listSection {
@@ -2524,11 +2533,8 @@ html.microsoft {
         .outerCircle {
             .size (27px, 27px);
             .rounded(27px);
-            // border: 1px solid @color-circle-border;
             margin-left:21px;
-            // background-color: @color-circle-background;
             padding: 3px;
-            // box-shadow: inset 0px 3px 4px 1px rgba(0,0,0,0.15);
             position: relative;
 
             &.circle0 {

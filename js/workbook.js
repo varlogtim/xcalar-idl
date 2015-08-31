@@ -8,6 +8,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
     var $userListBox   = $workbookModal.find(".userListBox");
     var $userLists     = $("#workbookUserLists");
     var $workbookLists = $("#workbookLists");
+    var minHeight = 400;
+    var minWidth = 750;
 
     var modalHelper = new xcHelper.Modal($workbookModal, {"focusOnOpen": true});
 
@@ -22,7 +24,15 @@ window.WorkbookModal = (function($, WorkbookModal) {
     WorkbookModal.setup = function() {
         $workbookModal.draggable({
             "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing"
+            "cursor": "-webkit-grabbing",
+            "containment": 'window'
+        });
+
+        $workbookModal.resizable({
+            handles    : "n, e, s, w, se",
+            minHeight  : minHeight,
+            minWidth   : minWidth,
+            containment: "document"
         });
 
         // open workbook modal
@@ -41,6 +51,17 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $modalBackground.fadeIn(300, function() {
             Tips.refresh();
         });
+
+        var winWidth = $(window).width();
+        var winHeight = $(window).height();
+        if ($workbookModal.width() > winWidth - 10) {
+            var updatedWidth = Math.max(winWidth - 40, minWidth);
+            $workbookModal.width(updatedWidth);
+        }
+        if ($workbookModal.height() > winHeight - 10) {
+            var updatedHeight = Math.max(winHeight - 40, minHeight);
+            $workbookModal.height(updatedHeight);
+        }
 
         centerPositionElement($workbookModal);
         $workbookModal.show();
@@ -181,7 +202,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
         });
 
         // click title to srot
-        var $titleSection = $workbookLists.siblings(".titleSection");
+        var $titleSection = $workbookLists.siblings(".titleSection")
+                                          .find('section');
         $titleSection.on("click", ".title", function() {
             var $title = $(this);
 
@@ -238,6 +260,12 @@ window.WorkbookModal = (function($, WorkbookModal) {
         // input on search area to filter user
         $searchInput.keyup(function() {
             filterUser($searchInput.val());
+        });
+
+        // scroll the title with when the body is scrolled
+        $workbookLists.scroll(function() {
+            var scrollLeft = $(this).scrollLeft();
+            $workbookLists.siblings(".titleSection").scrollLeft(scrollLeft);
         });
     }
 
