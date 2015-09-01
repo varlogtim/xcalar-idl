@@ -1860,7 +1860,7 @@ function addColMenuActions($colMenu) {
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
         var $tdVal = $td.find(".addedBarTextWrap");
 
-        copyToClipboard($tdVal);
+        copyToClipboard([$tdVal.text()]);
     });
 
     // multiple columns
@@ -1892,10 +1892,15 @@ function addColMenuActions($colMenu) {
     });
 }
 
-function copyToClipboard($selector) {
+function copyToClipboard(valArray) {
     var $hiddenInput = $("<input>");
     $("body").append($hiddenInput);
-    $hiddenInput.val($selector.text()).select();
+    var str = "";
+    for (var i = 0; i<valArray.length-1; i++) {
+        str += valArray[i]+", ";
+    }
+    str += valArray[valArray.length-1];
+    $hiddenInput.val(str).select();
     document.execCommand("copy");
     $hiddenInput.remove();
 }
