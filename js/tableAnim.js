@@ -1484,7 +1484,10 @@ function addColListeners($table, tableId) {
         dragdropMouseDown(headCol, event);
     });
 
-    //listeners on tbody
+    // listeners on tbody
+    var preSelectedColNum = null;
+    var preSelectedRowNum = null;
+
     $tbody.on("mousedown", "td", function(event) {
         var $td = $(this);
         if (event.which !== 1 || $td.children('.clickable').length === 0) {
@@ -1498,25 +1501,89 @@ function addColListeners($table, tableId) {
         $(".tooltip").hide();
         resetColMenuInputs($el);
 
+        var $highlightBoxs = $(".highlightBox");
+        // remove highlights of other tables
+        $highlightBoxs.filter(function() {
+            return (!$(this).hasClass(tableId));
+        }).remove();
+
+
+        if (event.ctrlKey || event.metaKey) {
+            // ctrl key: multi selection
+            if (preSelectedColNum != null && preSelectedColNum !== colNum) {
+                // when colNum changes
+                singleSelection();
+            } else if ($td.find('.highlightBox').length > 0) {
+                unHighlightCell($td);
+            } else {
+                highlightCell($td, tableId);
+            }
+
+            // remove shiftKey class so that next shift key selection
+            // will not remove the cells from prevopus shift key selection
+            $highlightBoxs.removeClass("shiftKey");
+        } else if (event.shiftKey) {
+            // shift key: multi selection from minIndex to maxIndex
+
+            if (preSelectedColNum != null && preSelectedColNum !== colNum) {
+                // when colNum changes
+                preSelectedRowNum = null;
+            }
+
+            // re-highlight the shift selected cells
+            $highlightBoxs.filter(function() {
+                return ($(this).hasClass("shiftKey"));
+            }).remove();
+
+            if (preSelectedRowNum == null) {
+                // select single cell
+                singleSelection();
+            } else {
+                var $curTable = $td.closest(".xcTable");
+                var minIndex = Math.min(preSelectedRowNum, rowNum);
+                var maxIndex = Math.max(preSelectedRowNum, rowNum);
+                var isShift = true;
+
+                for (var r = minIndex; r <= maxIndex; r++) {
+                    var $cell = $curTable.find(".row" + r + " .col" + colNum);
+                    // in case double added hightlight to same cell
+                    $cell.find(".highlightBox").remove();
+                    highlightCell($cell, tableId, isShift);
+                }
+            }
+        } else {
+            // select single cell
+            singleSelection();
+        }
+
+        preSelectedColNum = colNum;
+
+        if (preSelectedRowNum == null || !event.shiftKey) {
+            // this mimic the mac's shift key behavior, which make the first
+            // selected rowNum before pressing shift key be the base rowNum
+            preSelectedRowNum = rowNum;
+        }
+
         dropdownClick($el, {
             "type"      : "tdDropdown",
             "colNum"    : colNum,
             "rowNum"    : rowNum,
             "classes"   : "tdMenu", // specify classes to update colmenu's class attr
-            "mouseCoors": {x: event.pageX, y: yCoor}
+            "mouseCoors": {"x": event.pageX, "y": yCoor},
+            "shiftKey"  : event.shiftKey
         });
-        if ($td.children('.highlightBox').length !== 0) {
-            $('.highlightBox').remove();
-            return;
+
+        function singleSelection() {
+            $highlightBoxs.remove();
+            highlightCell($td, tableId);
         }
-        highlightCell($td);
     });
 
     addColMenuBehaviors($colMenu);
     addColMenuActions($colMenu);
 }
 
-function highlightCell($td) {
+function highlightCell($td, tableId, isShift) {
     // draws a new div positioned where the cell is, intead of highlighting
     // the actual cell
     var border = 5;
@@ -1528,13 +1595,20 @@ function highlightCell($td) {
                   'height:' + height + 'px;' +
                   'left:' + left + 'px;' +
                   'top:' + top + 'px;';
-    var highlightBox = '<div id="highlightBox" class="highlightBox" ' +
+    var divClass = "highlightBox " + tableId;
+
+    if (isShift) {
+        divClass += " shiftKey";
+    }
+    var $highlightBox = $('<div class="' + divClass + '" ' +
                             'style="' + styling + '">' +
-                        '</div>';
-    $td.append(highlightBox);
-    $('#highlightBox').mousedown(function(){
-        $('.highlightBox').remove();
-    });
+                        '</div>');
+
+    $td.append($highlightBox);
+}
+
+function unHighlightCell($td) {
+    $td.find(".highlightBox").remove();
 }
 
 function addColMenuBehaviors($colMenu) {
@@ -1778,61 +1852,86 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1 || $li.hasClass('unavailable')) {
             return;
         }
-        var rowNum  = $colMenu.data('rowNum');
+
         var colNum  = $colMenu.data('colNum');
 
         var $table  = $("#xcTable-" + tableId);
         var $header = $table.find("th.col" + colNum + " .header");
-        var $td     = $table.find(".row" + rowNum + " .col" + colNum);
 
-        var colName = xcHelper.getTableFromId(tableId).tableCols[colNum - 1]
+        var colName = gTables[tableId].tableCols[colNum - 1]
                                                         .func.args[0];
-        var colVal  = $td.find(".addedBarTextWrap").text();
+        var $highlightBoxs = $table.find(".highlightBox");
 
-        if ($header.hasClass("type-integer")) {
-            colVal = parseInt(colVal);
-        } else if ($header.hasClass("type-string")) {
-            colVal = JSON.stringify(colVal);
-        } else if ($header.hasClass("type-boolean")) {
-            if (colVal === "true") {
-                colVal = true;
+        var notValid = false;
+        var uniqueVals = {};
+        var colVal;
+
+        $highlightBoxs.each(function() {
+            colVal = $(this).siblings(".addedBarTextWrap").text();
+
+            if ($header.hasClass("type-integer")) {
+                colVal = parseInt(colVal);
+            } else if ($header.hasClass("type-string")) {
+                colVal = JSON.stringify(colVal);
+            } else if ($header.hasClass("type-boolean")) {
+                if (colVal === "true") {
+                    colVal = true;
+                } else {
+                    colVal = false;
+                }
             } else {
-                colVal = false;
+                notValid = true;
+                return false;
             }
-        } else {
+
+            uniqueVals[colVal] = true;
+        });
+
+        if (notValid) {
+            $highlightBoxs.remove();
             return;
         }
 
-        /**
+        var colVals = [];
+
+        for (var val in uniqueVals) {
+            colVals.push(val);
+        }
+
+        var operator;
         var str = "";
+        var len = colVals.length;
+
         if ($li.hasClass("tdFilter")) {
-            str = "";
-            for (var i = 0; i<colVal.length-1; i++) {
-                str += "or(eq("+colName+", "+colVal[i]+"), ";
+            operator = "eq";
+
+            for (var i = 0; i < len - 1; i++) {
+                str += "or(eq(" + colName + ", " + colVals[i] + "), ";
             }
-            str += "eq("+colName+", "+colVal[colVal.length-1];
-            for (var i = 0; i<colVal.length; i++) {
+            str += "eq(" + colName + ", " + colVals[len - 1];
+
+            for (var i = 0; i < len; i++) {
                 str += ")";
             }
         } else {
-            str = "";
-            for (var i = 0; i<colVal.length-1; i++) {
-                str += "and(not(eq("+colName+", "+colVal[i]+")), ";
+            operator = "exclude";
+
+            for (var i = 0; i < len - 1; i++) {
+                str += "and(not(eq(" + colName + ", " + colVals[i] + ")), ";
             }
-            str += "not(eq("+colName+", "+colVal[colVal.length-1]+")";
-            for (var i = 0; i<colVal.length; i++) {
+            str += "not(eq(" + colName + ", " + colVals[len - 1] + ")";
+
+            for (var i = 0; i < colVals.length; i++) {
                 str += ")";
             }
         }
-        var options = {"operator"    : "eq", // XXX This is wrong
-                       "filterString": str};
-        */
-        var filterStr = $li.hasClass("tdFilter") ?
-                            'eq(' + colName + ', ' + colVal + ')' :
-                            'not(eq(' + colName + ', ' + colVal + '))';
-        var options = {"operator"    : "eq",
-                       "filterString": filterStr};
+
+        var options = {
+            "operator"    : operator,
+            "filterString": str
+        };
         xcFunction.filter(colNum - 1, tableId, options);
+        $highlightBoxs.remove();
     });
 
     $colMenu.on('mouseup', '.tdJsonModal', function(event) {
@@ -1853,14 +1952,17 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1 || $li.hasClass('unavailable')) {
             return;
         }
-        var rowNum  = $colMenu.data('rowNum');
-        var colNum  = $colMenu.data('colNum');
+        var $highlightBoxs = $("#xcTable-" + tableId).find(".highlightBox");
+        var colVals = [];
+        var colVal;
 
-        var $table  = $("#xcTable-" + tableId);
-        var $td     = $table.find(".row" + rowNum + " .col" + colNum);
-        var $tdVal = $td.find(".addedBarTextWrap");
+        $highlightBoxs.each(function() {
+            colVal = $(this).siblings(".addedBarTextWrap").text();
+            colVals.push(colVal);
+        });
 
-        copyToClipboard([$tdVal.text()]);
+        copyToClipboard(colVals);
+        $highlightBoxs.remove();
     });
 
     // multiple columns
@@ -1893,13 +1995,17 @@ function addColMenuActions($colMenu) {
 }
 
 function copyToClipboard(valArray) {
-    var $hiddenInput = $("<input>");
-    $("body").append($hiddenInput);
     var str = "";
-    for (var i = 0; i<valArray.length-1; i++) {
-        str += valArray[i]+", ";
+    var $hiddenInput = $("<input>");
+    var len = valArray.length;
+
+    $("body").append($hiddenInput);
+
+    for (var i = 0; i < len - 1; i++) {
+        str += valArray[i] + ", ";
     }
-    str += valArray[valArray.length-1];
+
+    str += valArray[len - 1];
     $hiddenInput.val(str).select();
     document.execCommand("copy");
     $hiddenInput.remove();
@@ -2033,7 +2139,8 @@ function dropdownClick($el, options) {
         // case that should close column menu
         if ($menu.is(":visible") &&
             $menu.data("colNum") === options.colNum &&
-            $menu.data("rowNum") === options.rowNum)
+            $menu.data("rowNum") === options.rowNum &&
+            !options.shiftKey)
         {
             $menu.hide();
             return;
@@ -2066,7 +2173,6 @@ function dropdownClick($el, options) {
         }
     }
 
-    $('.highlightBox').remove();
     $(".colMenu:visible").hide();
     $(".leftColMenu").removeClass("leftColMenu");
     // case that should open the menu (note that colNum = 0 may make it false!)
@@ -2076,7 +2182,7 @@ function dropdownClick($el, options) {
         $menu.removeData("colNum");
     }
 
-    if (options.colNum != null && options.rowNum > -1) {
+    if (options.rowNum != null && options.rowNum > -1) {
         $menu.data("rowNum", options.rowNum);
     } else {
         $menu.removeData("rowNum");

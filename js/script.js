@@ -55,7 +55,7 @@ function infScrolling(tableId) {
         }
 
         $(".colMenu:visible").hide();
-        $('#highlightBox').remove();
+        $('.highlightBox').remove();
 
         var table = xcHelper.getTableFromId(tableId);
         focusTable(tableId);
@@ -405,10 +405,11 @@ function documentReadyGeneralFunction() {
         var $target = $(event.target);
         gMouseEvents.setMouseDownTarget($target);
         var clickable = $target.closest('.colMenu').length > 0 ||
-                        $target.closest('.clickable').length > 0;
+                        $target.closest('.clickable').length > 0 ||
+                        $target.hasClass("highlightBox");
         if (!clickable && $target.closest('.dropdownBox').length === 0) {
             $('.colMenu').hide();
-            $('#highlightBox').remove();
+            $('.highlightBox').remove();
             $('body').removeClass('noSelection');
         }
 
