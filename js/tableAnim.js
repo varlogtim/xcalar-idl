@@ -1803,13 +1803,35 @@ function addColMenuActions($colMenu) {
             return;
         }
 
+        /**
+        var str = "";
+        if ($li.hasClass("tdFilter")) {
+            str = "";
+            for (var i = 0; i<colVal.length-1; i++) {
+                str += "or(eq("+colName+", "+colVal[i]+"), ";
+            }
+            str += "eq("+colName+", "+colVal[colVal.length-1];
+            for (var i = 0; i<colVal.length; i++) {
+                str += ")";
+            }
+        } else {
+            str = "";
+            for (var i = 0; i<colVal.length-1; i++) {
+                str += "and(not(eq("+colName+", "+colVal[i]+")), ";
+            }
+            str += "not(eq("+colName+", "+colVal[colVal.length-1]+")";
+            for (var i = 0; i<colVal.length; i++) {
+                str += ")";
+            }
+        }
+        var options = {"operator"    : "eq", // XXX This is wrong
+                       "filterString": str};
+        */
         var filterStr = $li.hasClass("tdFilter") ?
                             'eq(' + colName + ', ' + colVal + ')' :
                             'not(eq(' + colName + ', ' + colVal + '))';
-
         var options = {"operator"    : "eq",
                        "filterString": filterStr};
-
         xcFunction.filter(colNum - 1, tableId, options);
     });
 
