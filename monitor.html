@@ -1,11 +1,9 @@
-<div class="topBar">
+<div id="monitorTopBar" class="topBar">
     <div id="systemButton" class="buttonArea active">
         <div class="icon"></div>
         <div class="text">SYSTEM</div>
     </div>
-    <div id="queriesButton" class="buttonArea" data-toggle="tooltip" 
-            data-placement="bottom" data-container="body" 
-            title="Coming Soon">
+    <div id="queriesButton" class="buttonArea">
         <div class="icon"></div>
         <div class="text">QUERIES</div>
     </div>
@@ -16,206 +14,343 @@
         <div class="text">SETUP</div>
     </div>
 </div>
-<div class="topSection clearfix">
-    <div class="sideTabs">
-        <div id="cpuTab" class="sideTab active">
-            <div class="icon"></div>
-            <div class="text">CPU</div>
-        </div>
-        <div id="ramTab" class="sideTab">
-            <div class="icon"></div>
-            <div class="text">RAM</div>
-        </div>
-        <div id="flashTab" class="sideTab" data-toggle="tooltip" 
-            data-placement="bottom" data-container="body" 
-            title="Coming Soon">
-            <div class="icon"></div>
-            <div class="text">FLASH</div>
-        </div>
-        <div id="diskTab" class="sideTab" data-toggle="tooltip" 
-            data-placement="bottom" data-container="body" 
-            title="Coming Soon">
-            <div class="icon"></div>
-            <div class="text">NETWORK</div>
-        </div>
-    </div>
-    <div class="graphSection">
-        <div class="graphTop">
-            <div id="connectionInfo">
-                <span class="text" id="phyNodeText">Physical Node: </span>
-                <span class="text" id="phyNode">localhost</span>
-                <span class="text" id="virNodeText">Virtual Node: </span>
-                <span class="text" id="virNode">Node 0</span>
+<!-- System Section -->
+<section id="monitor-system" class="monitorSection active">
+    <div class="topSection clearfix">
+        <div class="sideTabs">
+            <div id="cpuTab" class="sideTab active">
+                <div class="icon"></div>
+                <div class="text">CPU</div>
             </div>
-            <div id="refreshGraph">
-                <span class="text">Auto Refresh</span>
-                <!-- <div class="icon"></div> -->
+            <div id="ramTab" class="sideTab">
+                <div class="icon"></div>
+                <div class="text">RAM</div>
             </div>
-            <div id="refreshBtn" class="onOffBtn off">
-                <div class="slider"></div>
-                <div class="text offText">OFF</div>
-                <div class="text onText">ON</div>
+            <div id="flashTab" class="sideTab" data-toggle="tooltip" 
+                data-placement="bottom" data-container="body" 
+                title="Coming Soon">
+                <div class="icon"></div>
+                <div class="text">FLASH</div>
             </div>
-            <div class="time">
-                <span class="text">Last Check Time: </span>
-                <span id="graphTime"></span>
+            <div id="diskTab" class="sideTab" data-toggle="tooltip" 
+                data-placement="bottom" data-container="body" 
+                title="Coming Soon">
+                <div class="icon"></div>
+                <div class="text">NETWORK</div>
             </div>
-       </div>
+        </div>
+        <div class="graphSection">
+            <div class="graphTop">
+                <div id="connectionInfo">
+                    <span class="text" id="phyNodeText">Physical Node: </span>
+                    <span class="text" id="phyNode">localhost</span>
+                    <span class="text" id="virNodeText">Virtual Node: </span>
+                    <span class="text" id="virNode">Node 0</span>
+                </div>
+                <div id="refreshGraph">
+                    <span class="text">Auto Refresh</span>
+                    <!-- <div class="icon"></div> -->
+                </div>
+                <div id="refreshBtn" class="onOffBtn off">
+                    <div class="slider"></div>
+                    <div class="text offText">OFF</div>
+                    <div class="text onText">ON</div>
+                </div>
+                <div class="time">
+                    <span class="text">Last Check Time: </span>
+                    <span id="graphTime"></span>
+                </div>
+           </div>
 
-    <!--     <div class="graphText">
-            <div class="sampleText">SAMPLE</div>
-        </div> -->
-        <div id="graphWrap">
-            
-            <div id="graph">
-                <div id="grids"></div>
-                <div class="svgWrap"></div>
-                <div class="separator"></div>
-                <div class="xLabelsWrap">
-                    <div class="spacer"></div>
-                    <div class="xLabels"></div>
+        <!--     <div class="graphText">
+                <div class="sampleText">SAMPLE</div>
+            </div> -->
+            <div id="graphWrap">
+                
+                <div id="graph">
+                    <div id="grids"></div>
+                    <div class="svgWrap"></div>
+                    <div class="separator"></div>
+                    <div class="xLabelsWrap">
+                        <div class="spacer"></div>
+                        <div class="xLabels"></div>
+                    </div>
+                </div>
+               
+            </div>
+            <div id="graphParts">
+                <div class="yAxis left">
+                    <span>100</span>
+                    <span>80</span>
+                    <span>60</span>
+                    <span>40</span>
+                    <span>20</span>
+                    <span>0 (%)</span>
+                </div>
+                <div class="graphBackground"></div>
+                <div id="rightYAxis" class="yAxis right">
+                    <span>0 (GB)</span>
                 </div>
             </div>
-           
-        </div>
-        <div id="graphParts">
-            <div class="yAxis left">
-                <span>100</span>
-                <span>80</span>
-                <span>60</span>
-                <span>40</span>
-                <span>20</span>
-                <span>0 (%)</span>
-            </div>
-            <div class="graphBackground"></div>
-            <div id="rightYAxis" class="yAxis right">
-                <span>0 (GB)</span>
-            </div>
-        </div>
-        
-    </div>
-</div>
-<div class="bottomSection flex-container flex-row">
-    <div id="donut0" class="donutSection">
-        <div class="icon"></div>
-        <div class="donut">
-            <div class="innerCircle"></div>
-            <div class="donutInfo first">
-                <span class="percent userSize">
-                    <span class="num">0</span><sup>%</sup>
-                </span>
-            </div>
-        </div>
-        <div class="statsSection">
-            <div class="statsTopHeading">
-                <span class="global"></span>
-                <span class="user"></span>
-            </div>
-            <div class="statsHeadingBar small open">
-                <span class="arrow"></span>
-                <span class="title">CPU</span>
-                <span class="percent">%</span>
-                <span class="num avgNum">0</span>
-            </div>
-            <div class="listWrap open">
-                <ul class="small">
-                </ul>
-            </div>
+            
         </div>
     </div>
-    <div id="donut1" class="donutSection">
-        <div class="icon"></div>
-        <div class="donut">
-            <div class="innerCircle"></div>
-            <div class="donutInfo">
-                <span class="userSize">
-                    <span class="num">200</span><sup>GB</sup>
-                </span>
-                <hr/>
-                <span class="totalSize">
-                    <span class="num">293</span><sup>GB</sup>
-                </span>
+    <div class="bottomSection flex-container flex-row">
+        <div id="donut0" class="donutSection">
+            <div class="icon"></div>
+            <div class="donut">
+                <div class="innerCircle"></div>
+                <div class="donutInfo first">
+                    <span class="percent userSize">
+                        <span class="num">0</span><sup>%</sup>
+                    </span>
+                </div>
+            </div>
+            <div class="statsSection">
+                <div class="statsTopHeading">
+                    <span class="global"></span>
+                    <span class="user"></span>
+                </div>
+                <div class="statsHeadingBar small open">
+                    <span class="arrow"></span>
+                    <span class="title">CPU</span>
+                    <span class="percent">%</span>
+                    <span class="num avgNum">0</span>
+                </div>
+                <div class="listWrap open">
+                    <ul class="small">
+                    </ul>
+                </div>
             </div>
         </div>
-        <div class="statsSection">
-            <div class="statsTopHeading">
-                <span class="global">Global Total</span>
-                <span class="user">User Total</span>
+        <div id="donut1" class="donutSection">
+            <div class="icon"></div>
+            <div class="donut">
+                <div class="innerCircle"></div>
+                <div class="donutInfo">
+                    <span class="userSize">
+                        <span class="num">200</span><sup>GB</sup>
+                    </span>
+                    <hr/>
+                    <span class="totalSize">
+                        <span class="num">293</span><sup>GB</sup>
+                    </span>
+                </div>
             </div>
-            <div class="statsHeadingBar open">
-                <span class="arrow"></span>
-                <span class="title">RAM</span>
-                <span class="userSize"><span class="avgNum">45 GB</span></span>
-                <span class="totalSize"><span class="totNum">128 GB</span></span>
-            </div>
-            <div class="listWrap open">
-                <ul>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div id="donut2" class="donutSection">
-        <div class="icon"></div>
-        <div class="donut">
-            <div class="sampleText">SAMPLE</div>
-            <div class="innerCircle"></div>
-            <div class="donutInfo">
-                <span class="userSize">
-                    <span class="num">200</span><sup>GB</sup>
-                </span>
-                <hr/>
-                <span class="totalSize">
-                    <span class="num">293</span><sup>GB</sup>
-                </span>
-            </div>
-        </div>
-        <div class="statsSection">
-            <div class="statsTopHeading">
-                <span class="global">Global Total</span>
-                <span class="user">User Total</span>
-            </div>
-            <div class="statsHeadingBar open">
-                <span class="arrow"></span>
-                <span class="title">FLASH</span>
-                <span class="userSize"><span class="avgNum">45 GB</span></span>
-                <span class="totalSize"><span class="totNum">128 GB</span></span>
-            </div>
-            <div class="listWrap open">
-                <ul>
-                </ul>
+            <div class="statsSection">
+                <div class="statsTopHeading">
+                    <span class="global">Global Total</span>
+                    <span class="user">User Total</span>
+                </div>
+                <div class="statsHeadingBar open">
+                    <span class="arrow"></span>
+                    <span class="title">RAM</span>
+                    <span class="userSize"><span class="avgNum">45 GB</span></span>
+                    <span class="totalSize"><span class="totNum">128 GB</span></span>
+                </div>
+                <div class="listWrap open">
+                    <ul>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-    <div id="donut3" class="donutSection">
-        <div class="icon"></div>
-        <div class="donut">
-            <div class="sampleText">SAMPLE</div>
-            <div class="innerCircle"></div>
-            <div class="donutInfo">
-                <span class="userSize">
-                    <span class="num">100</span><sup>Mbps</sup>
-                </span>
-                <hr/>
-                <span class="totalSize">
-                    <span class="num">193</span><sup>Mbps</sup>
-                </span>
+        <div id="donut2" class="donutSection">
+            <div class="icon"></div>
+            <div class="donut">
+                <div class="sampleText">SAMPLE</div>
+                <div class="innerCircle"></div>
+                <div class="donutInfo">
+                    <span class="userSize">
+                        <span class="num">200</span><sup>GB</sup>
+                    </span>
+                    <hr/>
+                    <span class="totalSize">
+                        <span class="num">293</span><sup>GB</sup>
+                    </span>
+                </div>
+            </div>
+            <div class="statsSection">
+                <div class="statsTopHeading">
+                    <span class="global">Global Total</span>
+                    <span class="user">User Total</span>
+                </div>
+                <div class="statsHeadingBar open">
+                    <span class="arrow"></span>
+                    <span class="title">FLASH</span>
+                    <span class="userSize"><span class="avgNum">45 GB</span></span>
+                    <span class="totalSize"><span class="totNum">128 GB</span></span>
+                </div>
+                <div class="listWrap open">
+                    <ul>
+                    </ul>
+                </div>
             </div>
         </div>
-        <div class="statsSection">
-            <div class="statsTopHeading">
-                <span class="global">Global Total</span>
-                <span class="user">User Total</span>
+        <div id="donut3" class="donutSection">
+            <div class="icon"></div>
+            <div class="donut">
+                <div class="sampleText">SAMPLE</div>
+                <div class="innerCircle"></div>
+                <div class="donutInfo">
+                    <span class="userSize">
+                        <span class="num">100</span><sup>Mbps</sup>
+                    </span>
+                    <hr/>
+                    <span class="totalSize">
+                        <span class="num">193</span><sup>Mbps</sup>
+                    </span>
+                </div>
             </div>
-            <div class="statsHeadingBar open">
-                <span class="arrow"></span>
-                <span class="title">NETWORK</span>
-                <span class="userSize"><span class="avgNum">45</span> Mbps</span>
-                <span class="totalSize"><span class="totNum">128</span> Mbps</span>
-            </div>
-            <div class="listWrap open">
-                <ul>
-                </ul>
+            <div class="statsSection">
+                <div class="statsTopHeading">
+                    <span class="global">Global Total</span>
+                    <span class="user">User Total</span>
+                </div>
+                <div class="statsHeadingBar open">
+                    <span class="arrow"></span>
+                    <span class="title">NETWORK</span>
+                    <span class="userSize"><span class="avgNum">45</span> Mbps</span>
+                    <span class="totalSize"><span class="totNum">128</span> Mbps</span>
+                </div>
+                <div class="listWrap open">
+                    <ul>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+<!-- End Of System Section -->
+<!-- Queries Section -->
+<section id="monitor-queries" class="monitorSection">
+    <!-- Left Section, list of queries -->
+    <div class="leftSection">
+        <section class="titleSection">
+            <h1>Recent Queries</h1>
+        </section>
+        <!-- Queery list Section -->
+        <section class="queryListSection">
+            <!-- placeholder -->
+            <div class="queryList play">
+                <div class="headBar"></div>
+                <div class="queryInfo">
+                    <div class="name">Xcalar worksheet 01</div>
+                    <div class="date">Started 06:25:45 02-26-2015</div>
+                </div>
+                <div class="queryProgress">
+                    <div class="barIcon icon"></div>
+                    <div class="barContainer">
+                        <div class="progressBar" style="width:40%"></div>
+                    </div>
+                    <div class="pauseIcon icon"></div>
+                    <div class="refreshIcon icon"></div>
+                    <div class="deleteIcon icon"></div>
+                    <div class="divider"></div>
+                    <div class="inspectIcon icon"></div>
+                </div>
+            </div>
+
+            <div class="queryList pause">
+                <div class="headBar"></div>
+                <div class="queryInfo">
+                    <div class="name">Xcalar worksheet 02</div>
+                    <div class="date">Started 05:25:45 02-23-2015</div>
+                </div>
+                <div class="queryProgress">
+                    <div class="barIcon icon"></div>
+                    <div class="barContainer">
+                        <div class="progressBar" style="width:75%"></div>
+                    </div>
+                    <div class="pauseIcon icon"></div>
+                    <div class="refreshIcon icon"></div>
+                    <div class="deleteIcon icon"></div>
+                    <div class="divider"></div>
+                    <div class="inspectIcon icon"></div>
+                </div>
+            </div>
+
+            <div class="queryList done active">
+                <div class="headBar"></div>
+                <div class="queryInfo">
+                    <div class="name">Xcalar worksheet 03</div>
+                    <div class="date">Started 06:25:45 02-15-2015</div>
+                </div>
+                <div class="queryProgress">
+                    <div class="barIcon icon"></div>
+                    <div class="barContainer">
+                        <div class="progressBar"></div>
+                    </div>
+                    <div class="pauseIcon icon"></div>
+                    <div class="refreshIcon icon"></div>
+                    <div class="deleteIcon icon"></div>
+                    <div class="divider"></div>
+                    <div class="inspectIcon icon"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Right section, queries detatils -->
+    <div class="rightSection">
+        <section class="titleSection">
+            <h1>Detail of Xcalar worksheet 03</h1>
+        </section>
+        <!-- Status Part -->
+        <section class="statusSection">
+            <div class="title">
+                <h2>STATUS</h2>
+            </div>
+            <div class="conent">
+                <div class="status">
+                    <span class="name">Started Time:</span>
+                    <span class="text">06:25:45 02-15-2015 GMT-08:00</span>
+                </div>
+                <div class="status">
+                    <span class="name">Elapsed Time:</span>
+                    <span class="text">01:28:21</span>
+                </div>
+                <div class="status">
+                    <span class="name">Remaining Time:</span>
+                    <span class="text">00:00:00</span>
+                </div>
+                <div class="status">
+                    <span class="name">Total Time:</span>
+                    <span class="text">01:28:21</span>
+                </div>
+            </div>
+        </section>
+        <div class="divider"></div>
+        <!-- Output Detail -->
+        <section class="outputSection">
+            <div class="title">
+                <h2>OUTPUT</h2>
+            </div>
+            <div class="content">
+                <span class="text">in progress...</span>
+            </div>
+            <div class="buttonArea">
+                <button id="monitor-inspect" class="btn btnLarge iconBtn btnInactive">
+                    <span class="icon"></span>
+                    VIEW OUTPUT
+                </button>
+                <button id="monitor-export" class="btn btnLarge iconBtn btnInactive">
+                    <span class="icon"></span>
+                    EXPORT OUTPUT TO WORKSHEET
+                </button>
+            </div>
+        </section>
+        <div class="divider"></div>
+        <!-- SQL Part -->
+        <section class="operationSection">
+            <div class="title">
+                <h2>OPERATION</h2>
+            </div>
+            <div class="content">
+                <div class="sqlWrap">
+                    <div class="lineMarkerArea"></div>
+                    <div class="sqlArea"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</section>
+<!-- End Of Queries Section -->

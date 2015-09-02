@@ -1,7 +1,41 @@
 window.MonitorPanel = (function($, MonitorPanel) {
     MonitorPanel.setup = function () {
+        var $monitorPanel = $("#monitorPanel");
+
         initializeDonuts();
         populateNodeInformation();
+
+        $("#monitorTopBar").on("click", ".buttonArea", function() {
+            var $btn = $(this);
+
+            if ($btn.hasClass("active")) {
+                return;
+            }
+
+            if ($btn.attr("id") === "setupButton") {
+                // XXX just a temporary use
+                return;
+            }
+
+            $btn.siblings(".active").removeClass("active");
+            $monitorPanel.find(".monitorSection.active").removeClass("active");
+
+            $btn.addClass("active");
+
+            switch ($btn.attr("id")) {
+                case ("systemButton"):
+                    $("#monitor-system").addClass("active");
+                    break;
+                case ("queriesButton"):
+                    $("#monitor-queries").addClass("active");
+                case ("setupButton"):
+                    // comming soon
+                    break;
+                default:
+                    break;
+            }
+
+        });
 
         $('#refreshGraph').click(function() {
             toggleRefresh($('#refreshBtn'));
