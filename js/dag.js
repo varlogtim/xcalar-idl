@@ -558,13 +558,37 @@ window.Dag = (function($, Dag) {
 
             var $dagWrap = $('#dagWrap-' + tableId);
             $dagWrap.append(innerDag);
+            var $dagImage = $dagWrap.find('.dagImage');
+
             var canvas = createCanvas($dagWrap);
             var ctx = canvas.getContext('2d');
             ctx.strokeStyle = '#999999';
-            $dagWrap.find('.dagTableWrap').each(function() {
-                var el = $(this);
-                drawDagLines(el, ctx);
+            $dagImage.find('.joinWrap').eq(0).find('.dagTableWrap')
+                    .each(function() {
+                        var el = $(this);
+                        drawDagLines(el, ctx);
+                    });
+
+
+            $dagImage.find('.dagTable').each(function() {
+                var top = $(this).position().top;
+                var left = $(this).position().left;
+                var $clone = $(this).clone();
+                $dagImage.append($clone);
+                $clone.css({top: top, left: left, position: 'absolute'});
             });
+
+            $dagImage.find('.actionType').each(function() {
+                var top = $(this).position().top + 4;
+                var left = $(this).position().left;
+                var $clone = $(this).clone();
+                $dagImage.append($clone);
+                $clone.css({top: top, left: left, position: 'absolute'});
+            });
+            
+            $dagImage.height($dagImage.height());
+            $dagImage.width($dagImage.width());
+            $dagWrap.find('.joinWrap').eq(0).remove();
 
             var dropdown = getDagDropDownHTML();
             $dagWrap.append(dropdown);
@@ -755,6 +779,7 @@ window.Dag = (function($, Dag) {
     function addDagEventListeners($dagWrap) {
         var $currentIcon;
         var $menu = $dagWrap.find('.dagDropDown');
+        var scrollPosition = -1;
         $dagWrap.on('click', '.dagTable.dataStore, .actionType', function() {
             $('.colMenu').hide();
             $('.leftColMenu').removeClass('leftColMenu');
@@ -798,6 +823,7 @@ window.Dag = (function($, Dag) {
                                 return;
                             } else {
                                 showDagSchema($dagTable);
+                                scrollPosition = $('.dagArea').scrollTop();
                             }
                             
                         }, 100);
@@ -811,6 +837,7 @@ window.Dag = (function($, Dag) {
                 clearTimeout(timer);
             }
             $('#dagSchema').remove();
+            scrollPosition = -1;
         });
 
         addColMenuBehaviors($menu);
@@ -829,6 +856,12 @@ window.Dag = (function($, Dag) {
             }
             DagModal.show($currentIcon);
         });
+
+        $('.dagArea').scroll(function() {
+            if ($('#dagSchema').is(':visible') && scrollPosition > -1) {
+                $(this).scrollTop(scrollPosition);
+            }
+        });
     }
 
     function showDagSchema($dagTable) {
@@ -842,9 +875,9 @@ window.Dag = (function($, Dag) {
         var tableName = table.tableName;
         var numCols = table.tableCols.length;
         var html = '<div id="dagSchema">' +
-                   '<span class="title">' + tableName +
-                   ' &nbsp;<span title="number of columns">[' +
-                   (numCols - 1) + ']</span></span>' +
+                   '<div class="title"><span class="tableName">' + tableName +
+                   '</span><span class="numCols" title="number of columns">[' +
+                   (numCols - 1) + ']</span></div>' +
                    '<span class="background"></span>' +
                     '<div class="heading">' +
                         '<div class="type">type</div>' +
@@ -887,8 +920,13 @@ window.Dag = (function($, Dag) {
             top -= $('#dagPanel').offset().top;
         }
         var tableLeft = $dagTable[0].getBoundingClientRect().left + 10;
-        var schemaLeft = $('#rightSideBar').offset().left -
-                         $schema.width() - 5;
+        var schemaLeft;
+        if ($('#rightSideBar').hasClass('poppedOut')) {
+            schemaLeft = $(window).width() - $schema.width() - 5;
+        } else {
+            schemaLeft = $('#rightSideBar').offset().left - $schema.width() - 5;
+        }
+        
         var left;
         if (tableLeft > schemaLeft) {
             left = schemaLeft;
@@ -907,7 +945,7 @@ window.Dag = (function($, Dag) {
             var userStr;
             var backName;
             var colNum = $(this).closest('li').index();
-            var numCols = $('#dagSchema').find('.title span').text().substr(1);
+            var numCols = $('#dagSchema').find('.numCols').text().substr(1);
             numCols = parseInt(numCols);
             for (var i = colNum; i <= numCols; i++) {
                 if (cols[i].name === name) {
@@ -931,8 +969,13 @@ window.Dag = (function($, Dag) {
     }
 
     function closeDagHighlight(event) {
-        if ($(event.target).hasClass('dagImageWrap')) {
-            return;
+        var $target = $(event.target);
+        if ($target.hasClass('dagImageWrap')) {
+            var bottom = $target[0].getBoundingClientRect().bottom;
+            if (event.pageY > (bottom - 20)) {
+                // click is occuring on the scrollbar
+                return;
+            }
         }
 
         $('.columnOriginInfo').remove();
@@ -960,37 +1003,20 @@ window.Dag = (function($, Dag) {
     }
 
     function removeDuplicatedHighlightedDataStores($dagTable) {
-        if ($('.dataStore.highlighted').length > 1) {
-            var counter = 0;
-            var closest = 10000;
-            var $dataStore;
-            $('.dataStore.highlighted').each(function() {
-                $dataStore = $(this);
-                counter = 0;
-                found = false;
-                $dagTable.parents().each(function() {
-                    var $target = $(this);
-                    counter++;
-
-                    if (found || counter > closest) {
-                        return false;
-                    }
-                    $dataStore.parents().each(function() {
-                        if ($(this).is($target)) {
-                            found = true;
-                            return false;
-                        }
-                    });
-                });
-
-                if (counter > closest) {
-                    $dataStore.removeClass('highlighted');
-                } else if (counter < closest) {
-                    closest = counter;
-                    $('.dataStore.highlighted').removeClass('highlighted');
-                    $dataStore.addClass('highlighted');
+        if ($('.dagTable.highlighted').length > 1) {
+            var id = parseInt($dagTable.data('index'));
+            $('.dagTable.highlighted').each(function() {
+                var children = $(this).data('children');
+                if (typeof children === "string") {
+                    children = children.split(",");
                 } else {
-                    $dataStore.addClass('highlighted');
+                    children = [children];
+                }
+                for (var i = 0; i < children.length; i++) {
+                    children[i] = parseInt(children[i]);
+                }
+                if (children.indexOf(id) === -1) {
+                    $(this).removeClass('highlighted');
                 }
             });
         }
@@ -1151,21 +1177,31 @@ window.Dag = (function($, Dag) {
         return (html);
     }
 
-    function drawDagNode(dagNode, prop, dagArray, html, index, parentChildMap) {
+    function drawDagNode(dagNode, prop, dagArray, html, index, parentChildMap,
+                         children) {
         var properties = {};
         properties.x = prop.x + 1;
         properties.width = prop.width;
         var numParents = parentChildMap[index].length;
         var accumulatedDrawings = "";
-
+        children += "," + index;
+        if (children[0] === ",") {
+            children = children.substr(1);
+        }
+        
         for (var i = 0; i < numParents; i++) {
             var parentIndex = parentChildMap[index][i];
             properties.y = i * 2 + 1 - numParents + prop.y;
-            accumulatedDrawings += drawDagNode(dagArray[parentIndex], properties,
-                                   dagArray, html, parentIndex, parentChildMap);
+
+            accumulatedDrawings += drawDagNode(dagArray[parentIndex],
+                                                properties, dagArray, html,
+                                                parentIndex, parentChildMap,
+                                                children);
+            
         }
-        
-        var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index);
+
+        var oneTable = drawDagTable(dagNode, dagArray, parentChildMap, index,
+                                    children);
         var newHtml;
         if (accumulatedDrawings) {
             newHtml = "<div class='joinWrap'><div class='parentContainer'>" +
@@ -1179,7 +1215,7 @@ window.Dag = (function($, Dag) {
         }
     }
 
-    function drawDagTable(dagNode, dagArray, parentChildMap, index) {
+    function drawDagTable(dagNode, dagArray, parentChildMap, index, children) {
         var dagOrigin = drawDagOrigin(dagNode, dagArray, parentChildMap, index);
         var dagTable = '<div class="dagTableWrap clearfix">' +
                         dagOrigin;
@@ -1197,6 +1233,8 @@ window.Dag = (function($, Dag) {
             
             dagTable += '<div class="dagTable dataStore" ' +
                         'data-tablename="' + tableName + '" ' +
+                        'data-index="' + index + '" ' +
+                        'data-children="' + children + '" ' +
                         'data-type="dataStore" ' +
                         'data-id="' + id + '" ' +
                         'data-url="' + url + '">' +
@@ -1214,6 +1252,8 @@ window.Dag = (function($, Dag) {
             var tableId = xcHelper.getTableId(tableName);
             dagTable += '<div class="dagTable ' + state + '" ' +
                             'data-tablename="' + tableName + '" ' +
+                            'data-children="' + children + '" ' +
+                            'data-index="' + index + '" ' +
                             'data-id="' + tableId + '" ' +
                             'data-parents="' + parents + '">' +
                             '<div class="dagTableIcon"></div>';
@@ -1311,14 +1351,16 @@ window.Dag = (function($, Dag) {
                 y          : 0,
                 parentCount: 0
             };
+    
             var index = 0;
             var dagArray = dagObj.node;
+            var children = "";
             //XX TEMPORARY
             // tempModifyDagArray(dagArray);
             var parentChildMap = getParentChildDagMap(dagObj);
             // console.log(dagObj);
             deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "",
-                             index, parentChildMap));
+                             index, parentChildMap, children));
         }
         return (deferred.promise());
     }

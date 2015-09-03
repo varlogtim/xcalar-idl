@@ -193,7 +193,7 @@
     }
 
     .header {
-        margin: 15px 55px 0px 15px;
+        margin: 15px 45px 0px 15px;
         border-bottom: 1px solid #A5A5A6;
         margin-bottom: 10px;
         padding-bottom: 4px;
@@ -672,6 +672,22 @@
             border-top-right-radius: 2px;
             width: 170px;
             padding: 0 4px;
+            .flex-display;
+            .justify-content(center);
+
+            > span {
+                display: block;
+            }
+            .tableName {
+                .flex(0 1 auto);
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .numCols {
+                .flex(0 0 auto);
+                overflow: hidden;
+                margin-left: 4px;
+            }
         }
 
         .background {
