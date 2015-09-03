@@ -313,11 +313,6 @@ window.DagPanel = (function($, DagPanel) {
             
             $('body').addClass('noSelection');
         });
-
-        $dagPanel.mousedown(function() {
-            $('.columnOriginInfo').remove();
-            $dagPanel.find('.highlighted').removeClass('highlighted');
-        });
     }
 
     function positionAndShowDagTableDropdown($dagTable, $menu) {
@@ -935,7 +930,12 @@ window.Dag = (function($, Dag) {
         });
     }
 
-    function closeDagHighlight() {
+    function closeDagHighlight(event) {
+        if ($(event.target).hasClass('dagImageWrap')) {
+            return;
+        }
+
+        $('.columnOriginInfo').remove();
         $dagPanel.find('.highlighted').removeClass('highlighted');
         $(document).off('mousedown', closeDagHighlight);
     }
@@ -999,8 +999,14 @@ window.Dag = (function($, Dag) {
     function findColumnSource(name, userStr, child, tables, $dagWrap,
                               prevName) {
         for (var i = 0; i < tables.length; i++) {
-            var tableId = xcHelper.getTableId(tables[i]);
-            var table = gTables[tableId];
+            var table;
+            if (tables[i].indexOf('.XcalarDS.') === 0) {
+                table = false;
+            } else {
+                var tableId = xcHelper.getTableId(tables[i]);
+                table = gTables[tableId];
+            }
+            
             var $dagTable;
             var parents;
             if (table) {
