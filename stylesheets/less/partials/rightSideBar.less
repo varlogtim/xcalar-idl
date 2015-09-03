@@ -4,7 +4,6 @@
     .size(@width: ~"calc(25% + 10px)", @height: ~"calc(100% - 152px)");
     border-left: 1px solid @color-bar-border;
     background-color: @color-background-sidebar;
-    z-index: 11;
     z-index: 20;
     box-shadow: -2px 0px 2px 3px rgba(0,0,0,0.1), inset 0px 3px 3px rgba(0,0,0,0.4);
     .transition (right 0.3s);
@@ -15,11 +14,10 @@
 
     &.poppedOut {
         .size (@height: ~"calc(100% - 119px)");
+        .position(@right: 5px, @bottom: 46px);
         z-index: 20;
         border: 1px solid @color-bar-border;
         box-shadow: 0px 0px 3px 4px rgba(0,0,0,0.2);
-        bottom: 46px;
-        right: 5px;
         .transition (right 0s);
 
         .popOut {
@@ -27,9 +25,7 @@
         }
 
         #rightSideBarBtns {
-            position: absolute;
-            bottom: 0px;
-            right: 12px;
+            .position(absolute, @right: 12px, @bottom: 0);
             padding: 0;
             white-space: nowrap;
         }
@@ -130,12 +126,10 @@
 
         h2 {
             .size (@width: ~"calc(100% - 118px)");
+            .font(@line-height: 35px, @color: @color-text-darkGray);
             margin-left: 10px;
-            line-height: 35px;
-            color: @color-text-darkGray;
             display: inline-block;
             white-space: nowrap;
-            
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -208,9 +202,8 @@
             .size(@width: 33.3333%, @height: 100%);
             float: left;
             display: inline-block;
-            .font(@weight: 700, @line-height: 35px, @size: 13px);
+            .font(@weight: 700, @line-height: 35px, @size: 13px, @color: @color-text-darkGray);
             text-align: center;
-            color: @color-text-darkGray;
             border-right: 1px solid @color-table-borderGray;
             border-bottom: 1px solid @color-table-borderGray;
             .gray-gradient;
@@ -222,11 +215,10 @@
             }
 
             &.active {
+                .font(@size: 14px, @color: @color-white);
                 border-bottom: 1px solid @color-tab-borderBlue;
                 .action-gradient;
-                color: @color-white;
                 text-shadow: 2px 2px rgba(0,0,0,.3);
-                font-size: 14px;
             }
         }
     }
@@ -240,6 +232,7 @@
         .tableListSection {
             display: none;
             width: 100%;
+
             &:first-child {
                 display: block;
             }
@@ -265,8 +258,7 @@
             .position(relative);
             .size(@width: 100%);
             margin-top: -1px;
-            color: @color-text-darkGray;
-            .font(@line-height: 25px, @size: 13px);
+            .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
             padding-top: 4px;
         }
 
@@ -274,8 +266,7 @@
             .position(relative);
             .size(@width: 100%);
             padding: 5px 5px 0 0;
-            color: @color-text-darkGray;
-            .font(@line-height: 25px, @size: 13px);
+            .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
 
             &:hover .iconWrap {
                 .action-gradient;
@@ -328,7 +319,7 @@
 
         .tableListBox {
             .size(@width: 76%, @height: 25px);
-            border-radius: 3px;
+            .rounded;
             background-color: @color-white;
             display: inline-block;
             box-shadow: 1px 2px 1px rgba(0,0,0,.2);
@@ -383,9 +374,8 @@
                 margin-top: 5px;
                 padding-left: 10px;
                 border-radius: 3px;
-                .font(@size: 11px, @line-height: 20px);
+                .font(@size: 11px, @line-height: 20px, @color: @color-text-columnList);
                 background-color: @color-background-columnList;
-                color: @color-text-columnList;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 whitespace: nowrap;
@@ -406,17 +396,14 @@
             border-left: 1px solid @color-background-bottomGrayMed;
             border-radius: 0 3px 3px 0;
             background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
-                        linear-gradient(@color-background-topGrayMed, 
-                        @color-background-bottomGrayMed);
+                        linear-gradient(@color-background-topGrayMed, @color-background-bottomGrayMed);
             &:hover {
                 background: url(/images/checkmark-inactive.png) 50% 50% no-repeat,
-                            linear-gradient(@color-background-topGrayMed, 
-                            @color-background-midGrayMed);
+                            linear-gradient(@color-background-topGrayMed, @color-background-midGrayMed);
             }
             &.selected {
                 background: url(/images/checkmark-inactive.png) 50% 50% no-repeat, 
-                            linear-gradient(@color-background-topAction, 
-                            @color-background-bottomAction);
+                            linear-gradient(@color-background-topAction, @color-background-bottomAction);
             } 
         }
 
@@ -462,6 +449,7 @@
             position: relative;
             z-index: 2;
             display: none;
+
             .btn {
                 .size (23px, 23px);
                 float: right;
@@ -517,6 +505,7 @@
 /* ========== SQL Section in Right Side Bar ========== */
 #sqlSection {
     height: ~"calc(100% - 10px)";
+
     #rightBarTextScrollWrap {
         background-color: @color-background-white;
         height: 100%;
@@ -528,11 +517,12 @@
             .size(@width: 100%, @height: 100%);
             overflow-y: scroll;
             background-color: transparent;
+
             .sqlContentWrap {
                 padding: 2px;
                 width: 100%;
+                .font(@size: 13px, @color: @color-sql-black);
                 font-size: 13px;
-                color: @color-sql-black;
             }
         }
     }
@@ -597,6 +587,7 @@
         overflow-y: scroll !important;
         overflow-x: hidden !important;
         .position(relative);
+
         .lineArea {
             .size(@width: 20px, @height: 100%);
             padding-left: 10px;
@@ -623,11 +614,10 @@
             }
             .cliUnit {
                 .size(@width: 100%, @height: auto, @min-height: 20px);
+                .font(@size: 13px, @color: @color-white);
                 padding: 0 0 0 2px;
                 background: @color-sql-blue;
                 outline: none;
-                color: white;
-                font-size: 13px;
                 .wordwrap;
             }
         }
@@ -642,6 +632,7 @@
         .size(@width: 100%, @height: 100%);
         overflow: scroll !important;
         .position(relative);
+
         .lineArea {
             .size(@width: 20px, @height: 100%);
             padding-left: 10px;
@@ -681,7 +672,6 @@
 
 /* ========== UDF Section in Right Side Bar ========== */
 #udfSection {
-
     .tabSectionContainer {
         .size(@width: 100%, @height: 50px);
         box-shadow: 0px 2px 2px 2px rgba(153,153,153,.7);
@@ -700,7 +690,6 @@
             .position(relative);
             .size(@min-width: 160px, @height: 20px);
             .font(@size: 13px, @line-height: 20px);
-            // margin-right: 15px;
             .noSelection;
             cursor: pointer;
 
@@ -769,6 +758,7 @@
         .flex-display;
         .flex-flow (row wrap);
         .justify-content (center);
+
         .btn {
             .size(@width: 160px);
             margin: 8px 15px;
@@ -930,22 +920,23 @@
 /* ========== Help Section in Right Side Bar ========== */
 #helpSection {
     .border {
-        width: 100%;
-        height: 1px;
+        .size(@width: 100%, @height: 1px);
         border-bottom: 1px solid @color-background-midGrayMed;
     }
 }
+
 #helpSearchArea {
     padding: 6px 3% 5px 3%;
     max-width: 500px;
     margin: 0 auto;
+
     input {
         width: 70%;
         padding: 2px 2px 2px 4px;
-        .font(@weight: bold, @size: 12px);
+        .font(@weight: bold, @size: 12px, @color: @color-text-darkGray);
         background-color: @color-background-sidebar;
-        color: @color-text-darkGray;
         float: left;
+
         &:focus {
             background-color: @color-white;
             outline: none;
@@ -959,10 +950,9 @@
 #helpSubmit {
     .size(@width: 25%, @height: 30px);
     .action-gradient;
-    color: @color-text-white;
+    .font(@size: 12px, @line-height: 30px, @color: @color-text-white);
+    .rounded;
     float: right;
-    .font(@size: 12px, @line-height: 30px);
-    border-radius: 3px;
     margin-left: 5px;
     text-align: center;
     padding-right: 10px;
@@ -1004,7 +994,7 @@
 
 #helpTopics {
     margin-top: 20px;
-    // color: @color-text-dropMenu;
+
     span {
         font-weight: 700;
     }
@@ -1047,6 +1037,7 @@
         line-height: 32px;
     }
 }
+
 #pulloutTab {
     .position(absolute, @bottom: 0, @left: -9px);
     .size(@width: 18px, @height: 60px);

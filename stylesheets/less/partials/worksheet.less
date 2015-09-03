@@ -363,7 +363,7 @@
             }
 
             .text {
-                .position(absolute);
+                .position(absolute, @top: 0);
                 .size(@width: auto, @height: 25px);
                 .font(@weight: 600, @size: 15px, @line-height: 22px, @family: @font-base);
                 .rounded;
@@ -375,7 +375,6 @@
                 margin-top: 5px;
                 overflow: hidden;
                 display: inline-block;
-                top: 0;
 
                 .hashName {
                     opacity: 0.7;
@@ -461,7 +460,6 @@
             cursor: default;
 
             thead {
-                // visibility: hidden;
                 .header {
                     width: 30px !important;
                 }
@@ -504,14 +502,11 @@
                 cursor: default;
 
                 &::after {
+                    .size(@width: 31px, @height: 105%);
+                    .position(absolute, @top: -2px, @left: -5px);
                     content: "";
-                    position: absolute;
-                    width: 31px;
                     z-index: 0;
                     background-color: @color-table-lightGray;
-                    top: -2px;
-                    left: -5px;
-                    height: 105%;
                 }
 
                 .idSpan {
@@ -634,16 +629,14 @@
         }
         .xcTbodyWrap {
             pointer-events: none;
-            // background-color: black;
         }
         .lockedIcon {
-            position: absolute;
+            .position(absolute, @top: 40%, @left: 50%);
             display: inline-block;
             z-index: 9;
             height: 60px;
-            top: 40%;
-            left: 50%;
             .transform(translateX(-50%));
+
             img {
                 height: 100%;
             }
@@ -665,12 +658,10 @@
             cursor: initial;
         }
         .tableCover {
-            position: absolute;
-            height: auto;
-            width: ~"calc(100% - 5px)";
+            .position(absolute, @top: 75px);
+            .size(@width: ~"calc(100% - 5px)", @height: auto);
             background-color: rgba(0,0,0,0.3);
             z-index: 5;
-            top: 75px;
         }
         tbody {
             opacity: 1 !important;
@@ -687,15 +678,12 @@
             pointer-events: none;
         }
         .darkenedCell {
-            position: absolute;
-            width: ~"calc(100% + 10px)";
-            height: 100%;
+            .size(@width: ~"calc(100% + 10px)", @height: 100%);
+            .position(absolute, @top: 0, @left: -5px);
             display: block;
             content: "";
             background-color: rgb(0,0,0);
             z-index: 36;
-            top: 0px;
-            left: -5px;
             opacity: 0.6;
             display: none;
             // jquery fades in display
@@ -790,12 +778,12 @@ html.microsoft {
 
             .flexWrap.flex-left {
                 .flex(0 1 24px);
-                .size(@height: 30px);
+                .size(@height: 30px, @min-width: 23px);
                 margin: 0px 0 0 0px;
                 overflow: hidden;
                 white-space: normal;
-                min-width: 23px;
                 .colIcon-gray-gradient();
+
                 .iconHidden {
                     .size(@width: 1px, @height: 30px);
                     display: inline-block;
@@ -829,10 +817,9 @@ html.microsoft {
 
     &::after {
         content: "";
+        .size(@width: ~"calc(100% - 5px)", @height: 5px);
         position: absolute;
-        height: 5px;
         background-color: white;
-        width: ~"calc(100% - 5px)";
     }
 
     tbody tr {
@@ -851,8 +838,7 @@ html.microsoft {
 
                 .idSpan {
                     .size(@width: ~"calc(100% + 10px)", @height: 100%);
-                    position: absolute;
-                    top: 0px;
+                    .position(absolute, @top: 0);
                     z-index: 2;
                     margin-left: -5px;
                     .flex-display;
@@ -916,7 +902,7 @@ html.microsoft {
 .highlightBox {
     position: fixed;
     z-index: 0;
-    border-radius: 2px;
+    .rounded(2px);
     box-shadow: inset 0px 0px 0px 2px @color-background-bottomGrayMed;
 }
 

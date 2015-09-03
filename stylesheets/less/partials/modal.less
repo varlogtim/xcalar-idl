@@ -19,8 +19,7 @@
         text-shadow: 1px 1px rgba(0,0,0,0.2);
 
         .text {
-            color: @color-text-white;
-            .font(@weight: bold, @size: 18px);
+            .font(@weight: bold, @size: 18px, @color: @color-text-white);
         }
         .close {
             cursor: pointer;
@@ -63,8 +62,7 @@
         }
         .text {
             .flex(0 0 ~"calc(100% - 58px)");
-            .font(@weight: bold, @size: 12px);
-            color: @color-text-instructions;
+            .font(@weight: bold, @size: 12px, @color: @color-text-instructions);
             overflow: hidden;
         }
     }
@@ -132,13 +130,12 @@
 #jsonModal {
     display: inline-block;
     .position(fixed, @left: 0);
+    .size(@width: 500px, @height: 500px);
     opacity: 1;
     z-index: 40;
     display: none;
     .rounded(2px);
     overflow: visible;
-    height: 500px;
-    width: 500px;
     box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.2);
 
     #jsonSearchWrap {
@@ -151,7 +148,6 @@
 
     #jsonSearch {
         .size(@width: 254px, @height: 30px);
-        position: relative;
         .position(relative, @left: 3px);
         float: left;
         background-color: @color-background-topForm;
@@ -171,14 +167,14 @@
             float: left;
             cursor: pointer;
         }
+
         input {
             .size(170px, 24px);
             margin-top: 2px;
             box-shadow: inset -1px 1px 2px rgba(0, 0, 0, 0.4);
             float: left;
             outline: none;
-            line-height: 26px;
-            font-size: 13px;
+            .font(@size: 13px, @line-height: 26px);
         }
 
         .closeIcon(@topOff: 5px, @rightOff: 56px);
@@ -237,9 +233,8 @@
         .cursor-move;
         .action-gradient;
         text-align: center;
-        color: @color-text-transparentWhite;
         text-shadow: 1px 1px rgba(0,0,0,0.2);
-        .font(@size: 15px, @line-height: 28px);
+        .font(@size: 15px, @line-height: 28px, @color: @color-text-transparentWhite);
     }
 
     .closeJsonModal {
@@ -249,8 +244,7 @@
 
     .prettyJson {
         .size(@height: 100%, @min-width: 100px, @min-height: 100px);
-        .font(@size: 16px, @family: @font-code);
-        color: #FFA633;
+        .font(@size: 16px, @family: @font-code, @color: #FFA633);
         resize: none;
         overflow-y: auto;
         overflow-x: hidden;
@@ -370,8 +364,7 @@
 
         .tableText {
             .size(@height: 29px);
-            .font(@weight: bold, @line-height: 29px);
-            color: @color-text-darkGray;
+            .font(@weight: bold, @line-height: 29px, @color: @color-text-darkGray);
             padding-left: 25px;
         }
 
@@ -425,14 +418,12 @@
                     background-color: @color-selectedCell-light;
                     margin-top: 10px;
                     padding: 0 2px;
-                    color: @color-text-midGray;
                     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, .1);
                     // for text vertical align
                     .flex-display;
                     .justify-content(center);
                     .align-items(center);
-
-                    .font(@weight: bold, @size: 14px);
+                    .font(@weight: bold, @size: 14px, @color: @color-text-midGray);
                     text-overflow: ellipsis;
                     overflow: hidden;
                     white-space: nowrap;
@@ -475,9 +466,8 @@
             margin-top: 10px;
         }
         .spinner > div {
+            .position(relative, @top: -2px);
             margin: 0px 3px;
-            position: relative;
-            top: -2px;
         }
     }
 
@@ -767,12 +757,11 @@
 
             .worksheetLabel {
                 .size(@height: 100%);
-                .font(@size: 12px, @line-height: 15px);
+                .font(@size: 12px, @line-height: 15px, @color: @color-text-darkGray);
                 .flex(0 1 115px);
                 cursor: default;
                 padding-left: 5px;
                 margin-right: 5px;
-                color: @color-text-darkGray;
                 white-space: nowrap;
 
                 &.active {
@@ -792,8 +781,7 @@
                 .flex(0 1 115px);
                 .size(@height: 22px);
                 .gray-gradient;
-                color: @color-text-midGray;
-                .font(@weight: bold, @size: 14px, @line-height: 22px);
+                .font(@weight: bold, @size: 14px, @line-height: 22px, @color: @color-text-midGray);
                 text-align: center;
                 margin: 10px 5px 0 0;
                 float: left;
@@ -824,8 +812,7 @@
 
         .joinTableArea {
             .size(@width: 100%, @height: ~"calc(100% - 53px)");
-            background: @color-selectedCell-light;
-            background: white;
+            background: @color-white;
             border-top: 1px solid @color-join-border;
             box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
             overflow: auto;
@@ -904,8 +891,7 @@
         .columnTab {
             .size(@width: 100%, @height: 22px);
             .gray-gradient;
-            .font(@weight: bold, @size: 12px, @line-height: 22px);
-            color: @color-text-midGray;
+            .font(@weight: bold, @size: 12px, @line-height: 22px, @color: @color-text-midGray);
             text-align: center;
             margin-right: 1px;
             float: left;
@@ -923,10 +909,10 @@
 
         .tableText {
             .size(@height: 29px);
-            .font(@weight: bold, @line-height: 29px);
-            color: @color-text-darkGray;
+            .font(@weight: bold, @line-height: 29px, @color: @color-text-midGray);
             padding-left: 25px;
         }
+
         .mainTable {
             .size(@width: ~"calc(100% - 25px)", @height: ~"calc(100% - 55px)");
             margin-left: 15px;
@@ -1187,8 +1173,7 @@ html.microsoft {
                 border-right: 1px solid #b2b2b2;
 
                 h2 {
-                    .font(@size: 14px, @line-height: 42px);
-                    color: @color-text-columnList;
+                    .font(@size: 14px, @line-height: 42px, @color: @color-text-columnList);
                 }
             }
 
@@ -1210,8 +1195,7 @@ html.microsoft {
                     .input-box(@w: 100%, @h: 25px);
 
                     input {
-                        .font(@weight: bold);
-                        color: @color-text-midGray;
+                        .font(@weight: bold, @color: @color-text-midGray);
 
                         .input-placeholder(@color-text-midGray);
                         padding-right: 25px;
@@ -1259,8 +1243,7 @@ html.microsoft {
                         .label {
                             .flex(0 0 auto);
                             padding-left: 8px;
-                            .font(@line-height: 25px, @size: 13px);
-                            color: @color-text-darkGray;
+                            .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
                         }
                     }
 
@@ -1275,9 +1258,8 @@ html.microsoft {
                             list-style: none;
                             margin-top: 5px;
                             padding-left: 8px;
-                            .font(@line-height: 22px, @size: 12px);
+                            .font(@line-height: 22px, @size: 12px, @color: @color-text-columnList);
                             background: @color-background-columnList;
-                            color: @color-text-columnList;
                             overflow: hidden;
                             text-overflow: ellipsis;
                             white-space: nowrap;
@@ -1414,8 +1396,7 @@ html.microsoft {
 /* File Browser Modal */
 #fileBrowserModal {
     .modalBuilder(800px, 670px);
-    max-width: none;
-    max-height: none;
+    .size(@max-width: none, @max-height: none);
     text-transform: capitalize;
 
     .listSection {
@@ -1648,9 +1629,8 @@ html.microsoft {
                 > div {
                     float: left;
                     .size(@height: 30px);
-                    .font(@weight: bold, @size: 12px, @line-height: 30px);
+                    .font(@weight: bold, @size: 12px, @line-height: 30px, @color: #8b8b8b);
                     border: 1px solid transparent;
-                    color: #8b8b8b;
                     overflow: hidden;
                 }
 
@@ -2010,8 +1990,7 @@ html.microsoft {
 
                 .text {
                     margin-left: 2px;
-                    color: #489ac3;
-                    font-weight: 900;
+                    .font(@weight: 900, @color: #489ac3);
 
                     &.animatedEllipsis {
                         float: none;
@@ -2117,8 +2096,7 @@ html.microsoft {
     }
 
     .heading {
-        .font(@weight: 700, @size: 13px);
-        color: @color-text-darkGray;
+        .font(@weight: 700, @size: 13px, @color: @color-text-darkGray);
         display: block;
         margin-bottom: 5px;
     }
@@ -2156,15 +2134,15 @@ html.microsoft {
         td {
             text-align: left;
             padding: 0px 5px;
-            .font(@weight: 700, @size: 13px);
-            color: @color-text-midlightGray;
+            .font(@weight: 700, @size: 13px, @color: @color-text-midlightGray);
+
             .boxed {
                 .size(@height: 30px);
-                background-color: white;
-                line-height: 30px;
+                .font(@line-height: 30px, @color: @color-text-blue);
+                background-color: @color-white;
                 .rounded;
                 padding: 0px 4px 0px 6px;
-                color: @color-text-blue;
+
                 &.small {
                     .size(@min-width: 35px, @max-width: 50px);
                     text-align: center;
@@ -2207,17 +2185,18 @@ html.microsoft {
         .delim {
             display: none;
         }
+
         .close {
             .position(absolute, @top: 0, @right: 0);
             .size(@height: 11px);
             display: none;
             opacity: 0;
             padding: 2px 0px 2px 1px;
-            .font(@size: 16px, @line-height: 6px);
+            .font(@size: 16px, @line-height: 6px, @color: @color-text-cyan);
             .rounded(2px);
-            color: @color-text-cyan;
             cursor: pointer;
             overflow: hidden;
+
             span {
                 display: inline-block;
                .transform (rotate(45deg)); 
@@ -2313,6 +2292,7 @@ html.microsoft {
                                 .background("/images/ds-editDS.png", 15px, 15px);
 
                             }
+
                             &.selected {
                                 .icon {
                                     .background("/images/pencil-gray.png", 16px, 15px);
@@ -2359,12 +2339,14 @@ html.microsoft {
         float: right;
         color: @color-text-cyan;
         width: 240px;
+
         .icon {
             .size(@width: 20px, @height: 100%);
             .image("/images/dagIcons/plus-soft-white.png", 0, 50%);
             float: left;
             margin-left: 3px;
         }
+
         &.btnInactive {
             color: @color-white;
         }
@@ -2374,7 +2356,8 @@ html.microsoft {
         padding-right: 0px;
         right: 0px;
         .size(auto, auto);
-        padding-bottom: 15px; 
+        padding-bottom: 15px;
+
         .btn {
             margin: 15px 15px 0 0;
         }
@@ -2434,9 +2417,7 @@ html.microsoft {
             .rounded(0);
         }
         .iconWrapper {
-            top: 1px;
-            position: absolute;
-            right: 0px;
+            .position(absolute, @top: 1px, @right: 0);
             .size(@height: 23px);
         }
         &#categoryList {
@@ -2517,17 +2498,14 @@ html.microsoft {
     }
 
     .stepChain {
+        .position(absolute, @top: 94px);
         .size (70px, 160px);
-        position: absolute;
-        top: 94px;
         .noSelection;
 
         .stepChainImg {
+            .position(absolute, @top: 15px, @left: 21px);
             .image("/images/stepChains.png", 50%, 50%);
             .size(27px, 139px);
-            position: absolute;
-            top: 15px;
-            left: 21px;
         }
 
         .outerCircle {
@@ -2560,10 +2538,8 @@ html.microsoft {
 
             .circleContent {
                 display: inline-block;
+                .position(absolute, @top: 3px, @left: 0);
                 .size (100%, 100%);
-                position: absolute;
-                left: 0;
-                top: 3px;
 
                 .text {
                     display: inline-block;
@@ -2592,24 +2568,18 @@ html.microsoft {
         .outerLink {
             position: relative;
             .size (6px, 32px);
-            // border: 1px solid @color-circle-border;
             border-top: none;
             border-bottom: none;
             margin-left: 32px;
             margin-top: -2px;
             margin-bottom: -2px;
             padding: 1px 2px;
-            // .linear-gradient-center(left, @color-background-lightLightGray, 
-            //                 @color-white, @color-background-lightLightGray);
-            // box-shadow: inset 0px -1px 1px rgba(0,0,0,0.1);
             z-index: 1;
 
             .innerLink {
                 background-color: @color-innerCircle-background;
+                .position(absolute, @top: -2px, @left: 2px);
                 .size (2px, 0px);
-                position: absolute;
-                top: -2px;
-                left: 2px;
                 .transition (height 0s);
                 
                 &.filled {
@@ -2659,18 +2629,17 @@ html.microsoft {
     }
 
     .parameterTable();
+
     .tableContainer {
         z-index: 0;
         padding: 0px;
         .rounded(3px);
-        // overflow: hidden;
-
-        // &.udfMode {
         overflow: visible !important;
+
         .tableWrapper {
             overflow-y: visible !important;
         }
-        // }
+
         .tableWrapper {
             table {
                 width: 100%;
@@ -2678,10 +2647,12 @@ html.microsoft {
                 .thWrap {
                     .size(@width: 60%);
                 }
+
                 th:first-of-type {
                     .size(@width: 40%);
                     border-right: 1px solid @color-white;
                     background-color: #a8a8a8;
+
                     .thWrap {
                         width: ~"calc(40% + 1px)" !important;
                         padding-left: 12px;
@@ -2689,19 +2660,19 @@ html.microsoft {
                 }
 
                 td {
-                    height: 40px;
+                    .size(@width: 60%, @height: 40px);
                     .font(@weight: 600);
                     padding: 0px;
-                    width: 60%;
+
                     &:first-of-type {
                         width: 40%;
                     }
                 }
+
                 .inputWrap {
-                    width: 100%;
+                    .size(@width: 100%, @height: 40px);
                     padding: 7px 8px 4px 8px;
                     float: left;
-                    height: 40px;
                     border-left: 8px solid @color-join-background;
 
                     input {
@@ -2734,12 +2705,14 @@ html.microsoft {
                                 padding-left: 0;
                             }
                         }
+
                         .argIconWrap {
                             .position(absolute, @top: 5px, @right: 3px);
                             .size (20px, 20px);
                             .rounded;
                             .gray-gradient;
                             cursor: pointer;
+
                             &:active {
                                 .gray-inverse-gradient;
                             }
@@ -2763,12 +2736,10 @@ html.microsoft {
                             padding-left: 20%;
 
                             input {
+                                .size(@width: 15px, @height: 15px);
                                 box-shadow: none;
-                                height: 15px; 
-                                width: 15px;
                                 float: left;
                                 margin-top: 3px;
-                                // margin-right: 5px;
                             }
 
                             .checkBoxText {
@@ -2793,7 +2764,8 @@ html.microsoft {
 
     .modalBottom {
         padding: 0px 15px 10px 0px;
-         border-radius: 0 0 3px 3px;
+        border-radius: 0 0 3px 3px;
+
         .btn {
              margin-left: 20px;
         }

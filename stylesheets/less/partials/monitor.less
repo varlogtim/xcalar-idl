@@ -1,8 +1,7 @@
 #monitorPanel {
     background-color: white;
-    width: 100%;
-    height: ~"calc(100% - 115px)";
     position: relative;
+    .size(@width: 100%, @height: ~"calc(100% - 115px)");
 
     .topBar {
         border-bottom-width: 2px;
@@ -44,7 +43,7 @@
 
             .text {
                 float: left;
-                .font (@color: white, @size: 14px);
+                .font(@color: white, @size: 14px);
                 margin: 8px 0 0 3px;
                 text-shadow: 1px 1px #555555;
             }
@@ -65,9 +64,11 @@
             position: relative;
             z-index: 5;
             margin-top: -1px;
+
             .sideTabs {
                 display: inline-block;
                 float: left;
+
                 .sideTab {
                     display: block;
                     .size (@width: 65px, @height: 75px);
@@ -81,7 +82,7 @@
                     &.active {
                         .action-gradient;
                         .text {
-                            .font (@color: white);
+                            .font(@color: white);
                             text-shadow: 1px 1px #555555;
                         } 
                     }
@@ -137,10 +138,8 @@
                 position: relative;
 
                 #graphWrap {
-                    position: absolute;
-                    width: ~"calc(100% - 170px)";
-                    height: 260px;
-                    left: 79px;
+                    .size(@width: ~"calc(100% - 170px)", @height: 260px);
+                    .position(absolute, @left: 79px);
                     z-index: 1;
                     overflow-x: scroll;
                     overflow-y: hidden;
@@ -155,10 +154,9 @@
                     width: 100%;
 
                     .yAxis {
-                        position: absolute;
+                        .position(absolute, @top: 2px);
                         white-space: nowrap;
                         text-align: right;
-                        top: 2px;
 
                         span {
                             display: block;
@@ -193,23 +191,19 @@
                 }
 
                 #graph {
-                    width: 100%;
-                    height: 100%;
+                    .size(@width: 100%, @height: 100%);
                     z-index: 1;
                     text-align: right;
                     position: relative;
                     .noSelection;
 
                     .svgWrap {
-                        height: 212px;
-                        width: 100%;
+                        .size(@width: 100%, @height: 212px);
                         position: relative;
                     }
 
                     .mainSvg {
-                        position: relative;
-                        right: 0px;
-                        top: 10px;
+                        .position(relative, @top: 10px, @right: 0);
                         background-color: #3b4952;
                         display: inline-block;
                         overflow: hidden;
@@ -217,24 +211,19 @@
 
                     .separator {
                         display: block;
-                        width: 100%;
-                        height: 1px;
+                        .size(@width: 100%, @height: 1px);
                     }
                     .xLabelsWrap {
-                        right: 0px;
-                        bottom: 6px;
-                        top: 6px;
+                        .position(relative, @top: 6px, @right: 0, @bottom: 6px);
                         display: inline-block;
-                        position: relative;
                         white-space: nowrap;
                         text-align: left;
                         overflow: hidden;
 
                         .spacer {
-                            width: 40px;
+                            .size(@width: 40px, @height: 1px);
                             float: left;
                             display: inline-block;
-                            height: 1px;
                         }
                         .xLabels {
                             position: relative;
@@ -252,12 +241,10 @@
                 }
 
                 .graphBackground {
-                    width: ~"calc(100% - 170px)";
-                    height: 210px;
+                    .position(absolute, @left: 30px);
+                    .size(@width: ~"calc(100% - 170px)", @height: 210px);
                     margin: 10px 0px 20px -1px;
-                    left: 30px;
                     background-color: #3b4952;
-                    position: absolute;
                 }
 
                 .axis {
@@ -283,7 +270,6 @@
                 }
 
                 .area {
-                    
                     opacity: 0.2;
                     stroke-width: 0;
                     &.area0 {
@@ -340,8 +326,7 @@
                 }
 
                 .graphText {
-                    width: 100%;
-                    height: 80%;
+                    .size(@width: 100%, @height: 80%);
                     float: right;
                     position: absolute;
                     margin-top: 20px;
@@ -357,14 +342,11 @@
 
                 #grids {
                     overflow: hidden;
-                    width: 100%;
-                    height: 100%;
                     position: absolute;
-                    height: 220px;
+                    .size(@width: 100%, @height: 220px);
 
                     .gridSvg {
-                        right: 0px;
-                        top: 10px;
+                        .position(@top: 10px, @right: 0);
                     }
                 }
             }
@@ -376,11 +358,11 @@
             overflow-x: hidden;
             overflow-y: scroll;
             margin-right: 10px;
+
             .donutSection {
                 .flex(1 0 200px);
+                .size(@height: 100%, @min-height: 200px);
                 position: relative;
-                height: 100%;
-                min-height: 200px;
 
                 &:nth-child(even) {
                     background-color: #fafafa;
@@ -391,10 +373,8 @@
 
                 &> .icon {
                     .size (@width: 75px, @height: 75px);
+                    .position(absolute, @top: 0, @right: 0);
                     display: inline-block;
-                    position: absolute;
-                    top: 0;
-                    right: 0;
                     z-index: 1;
                 }
 
@@ -404,36 +384,31 @@
                     position: relative;
 
                     .sampleText {
-                        z-index: 5;
+                        .position(absolute, @top: 47px, @left: -29px);
                         .font(@size: 60px, @color: black, @weight: bold);
                         .transform(rotate(35deg));
-                        position: absolute;
-                        top: 47px;
-                        left: -29px;
                         opacity: 0.15;
+                        z-index: 5;
                     }
 
                     .innerCircle {
                         .size (@width: 130px, @height: 130px);
-                        border-radius: 130px;
+                        .position(absolute, @top: 25px, @left: 25px);
+                        .rounded(130px);
                         background-color: rgba(255,255,255,0.5);
-                        position: absolute;
-                        left: 25px;
-                        top: 25px;
                         z-index: 2;
                         box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.15);
                     }
 
                     .donutInfo {
+                        .size(@width: 100%);
+                        .position(absolute, @top: 60px);
                         display: inline-block;
-                        position: absolute;
-                        top: 60px;
-                        width: 100%;
                         text-align: center;
                         z-index: 3;
 
                         sup {
-                            .font (@size: 12px);
+                            .font(@size: 12px);
                         }
 
                         hr {
@@ -446,8 +421,7 @@
                         }
 
                         .userSize {
-                            .font (@size: 32px, @weight: bold);
-                            line-height: 36px;
+                            .font(@size: 32px, @weight: bold, @line-height: 36px);
                             margin-right: -6px;
 
                             sup {
@@ -459,11 +433,11 @@
                         }
 
                         .totalSize {
-                            .font (@size: 18px, @weight: bold, @color: @color-background-bottomGrayMed);
+                            .font(@size: 18px, @weight: bold, @color: @color-background-bottomGrayMed);
                             margin-right: 8px;
 
                             sup {
-                                .font (@size: 11px);
+                                .font(@size: 11px);
                                 position: absolute;
                             }
                         }
@@ -480,10 +454,10 @@
                     }
                     .donut {
                         .userSize {
-                            .font (@color: #20a7eb);
+                            .font(@color: #20a7eb);
                         }
                         sup {
-                            .font (@color: #20a7eb, @weight: bold);
+                            .font(@color: #20a7eb, @weight: bold);
                         }
                     }
                     .donutInfo {
@@ -497,7 +471,7 @@
                     }
                     .donut {
                         .userSize {
-                            .font (@color: #90c591);
+                            .font(@color: #90c591);
                         }
                     }
 
@@ -511,7 +485,7 @@
                     }
                     .donut {
                         .userSize {
-                            .font (@color: #bbae84);
+                            .font(@color: #bbae84);
                         }
                     }
 
@@ -525,7 +499,7 @@
                     }
                     .donut {
                         .userSize {
-                            .font (@color: #1193b8);
+                            .font(@color: #1193b8);
                         }
                     }
                     li .userSize, .statsHeadingBar .userSize {
@@ -536,8 +510,8 @@
                 .statsSection {
 
                     .statsTopHeading {
-                        .font (@weight: 600, @size: 11px, @color: @color-text-midlightGray);
-                        .size (@width: 245px, @height: 20px);
+                        .font(@weight: 600, @size: 11px, @color: @color-text-midlightGray);
+                        .size(@width: 245px, @height: 20px);
                         margin: 0 auto;
                         padding: 2px 12px 0px 2px;
                         
@@ -551,8 +525,8 @@
                     }
 
                     .statsHeadingBar {
-                        .font (@size: 13px, @color: @color-text-darkGray, @weight: bold, @line-height: 25px);
-                        .size (@width: 245px, @height: 25px);
+                        .font(@size: 13px, @color: @color-text-darkGray, @weight: bold, @line-height: 25px);
+                        .size(@width: 245px, @height: 25px);
                         background-color: #f4f4f4;
                         .rounded;
                         padding: 0 0 0 7px;
@@ -595,13 +569,12 @@
                     }
 
                     .userSize {
+                        .size(@width: 70px, @height: 100%);
                         .font (@weight: bold, @color: @color-text-darkGray);
                         text-align: right;
                         float: right;
-                        width: 70px;
                         display: inline-block;
                         padding-right: 7px;
-                        height: 100%;
                     }
 
                     .totalSize {
@@ -620,8 +593,8 @@
                             margin: 0 auto;
                             
                             li {
-                                .font (@size: 11px, @color: @color-text-midlightGray, @weight: bold);
-                                .size (@width: 225px, @height: 17px);
+                                .font(@size: 11px, @color: @color-text-midlightGray, @weight: bold);
+                                .size(@width: 225px, @height: 17px);
                                 margin-top: 6px;
                                 padding-left: 6px;
                                 .rounded;
@@ -637,6 +610,7 @@
 
                             &.small {
                                 width: 210px;
+
                                 li {
                                     width: 190px;
                                 }
@@ -671,8 +645,7 @@
 
         .titleSection {
             .size(@height: 55px);
-            line-height: 55px;
-            color: @color-text-blue;
+            .font(@line-height: 55px, @color: @color-text-blue);
 
             h1 {
                 font-size: 20px;
@@ -732,8 +705,7 @@
 
                     .date {
                         float: right;
-                        .font(@size: 12px, @weight: bold);
-                        color: @color-text-midlightGray;
+                        .font(@size: 12px, @weight: bold, @color: @color-text-midlightGray);
                     }
                 }
 
@@ -890,8 +862,7 @@
                 margin-bottom: 5px;
 
                 .status {
-                    color: @color-text-signout-lightGray;
-                    .font(@size: 12px, @weight: bold);
+                    .font(@size: 12px, @weight: bold, @color: @color-text-signout-lightGray);
 
                     .name {
                         display: inline-block;

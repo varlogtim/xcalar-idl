@@ -2,7 +2,6 @@
 #datastoreView {
     .position(relative, @top: 0);
     .size(@width: 100%, @height: ~"calc(100% - 115px)");
-    // z-index: 5;
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -14,6 +13,7 @@
     display: none;
     .image("/images/waiting-1.gif");
     z-index: 101;
+
     &.active {
         display: inline-block;
     }
@@ -35,12 +35,10 @@ input {
     .position(absolute, @top: -1px);
     z-index: 6;
     box-shadow: 0px 2px 11px 0px rgba(0,0,0, .5);
-    cursor: default;
 
     .text {
+        .font(@size: 14px, @color: @color-white);
         float: left;
-        font-size: 14px;
-        color: white;
         margin: 8px 0 0 3px;
         text-shadow: 1px 1px @color-text-drop-shadow;
     }
@@ -49,8 +47,7 @@ input {
 #contentHeaderLeft {
     .flex(0 0 255px);
     .flex-order(1);
-
-    background-color: white;
+    background-color: @color-white;
 
     .flex-display;
     .flex-flow(row);
@@ -91,16 +88,16 @@ input {
 #contentHeaderRight {
     .flex(0 0 255px);
     .flex-order(3);
-    background: linear-gradient(@color-bar-darkGray-top,
-                                @color-bar-darkGray-bot);
+    background: linear-gradient(@color-bar-darkGray-top, @color-bar-darkGray-bot);
     border-left: 1px solid black;
+
     .icon {
         margin: 9px 0 0 8px;
         .background("/images/db-icon-white.png", 19px, 19px);
         float: left;
     }
 
-    color: white;
+    color: @color-white;
 }
 /* End Of Content Header */
 
@@ -108,9 +105,7 @@ input {
 #importDataView {
     display: block;
     .position(fixed, @top: 78px, @left: 255px);
-    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 152px)",
-          @min-width: 513px);
-    // z-index: 2;
+    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 152px)", @min-width: 513px);
     background-color: @color-background-white;
     font-size: 13px;
     overflow: hidden;
@@ -152,21 +147,20 @@ input {
     }
 
     h2 {
-        font-size: 18px;
-        color: @color-text-blue;
+        .font(@size: 18px, @color: @color-text-blue);
         display: block;
         margin-bottom: 10px;
     }
 
     p {
         .size(@width: ~"calc(100% - 50px)", @height: 30px);
-        .font(@weight: 700, @size: 12px);
-        color: @color-text-lightGray;
+        .font(@weight: 700, @size: 12px, @color: @color-text-lightGray);
         overflow: hidden;
         display: inline-block;
         white-space: normal;
         float: left;
     }
+
     .icon {
         .background("/images/info-icon-large.png", 28px, 28px);
         display: inline-block;
@@ -223,8 +217,7 @@ input {
 
         label {
             display: inline-block;
-            max-width: 100px;
-            min-width: 80px;
+            .size(@max-width: 100px, @min-width: 80px);
             font-weight: 700;
             float: left;
         }
@@ -310,7 +303,6 @@ input {
 
     .size(@min-height: 50px; @max-height: 95px);
     margin-bottom: 15px;
-    // margin-right: -30px;
     .font(@weight: 700, @size: 12px);
 
     .wrapper {
@@ -335,7 +327,7 @@ input {
     .listSection {
         .dropDownList(~"calc(100% - 110px)", 30px);
 
-         .text {
+        .text {
             .noSelection;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
             cursor: default;
@@ -351,6 +343,7 @@ input {
                     background-color: @color-white;
                 }
 
+                // this use js to make hover status's color
                 &.hover {
                     background-color: @color-selectedCell-light;
                 }
@@ -359,9 +352,11 @@ input {
             .other {
                 .size(@height: 60px);
                 .position(relative);
+
                 span {
                     display: block;
                 }
+
                 input {
                     display: block;
                     .size(@width: 100%, @height: 20px);
@@ -414,7 +409,6 @@ input {
             .btn {
                 .size(@width: 120px, @height: 25px);
                 line-height: 25px;
-                // margin: 0;
                 float: left;
             }
         }
@@ -448,6 +442,7 @@ input {
 
                     &.highlight {
                         margin-right: 15px;
+
                         .icon {
                             .image("/images/datastore/preview-highlight-gray.png", 50%, 50%);
                         }
@@ -498,14 +493,12 @@ input {
 
         .action {
             .size(@height: 25px);
+            .font(@line-height: 25px, @color: @color-white);
+            .rounded;
             margin-right: 5px;
             padding: 0 5px;
             display: inline-block;
-            line-height: 25px;
             background: #b6b6b6;
-            color: @color-white;
-            .rounded;
-
 
             &.active {
                 .action-gradient;
@@ -737,18 +730,19 @@ input {
         text-align: center;
         padding-top: 6px;
         position: relative;
-        color: @color-background-darkdarkGray;
-        .font(@weight: 700, @size: 15px);
+        .font(@weight: 700, @size: 15px, @color: @color-background-darkdarkGray);
         box-shadow: inset -10px 0px 10px -10px rgba(0, 0, 0, 0.3);
 
         span {
             line-height: 22px;
         }
+
         .buttonGroup {
             .position(absolute, @right: 7px);
             display: inline-block;
             .noSelection;
             cursor: default;
+
             .btn {
                 .size(23px, 23px);
                 margin-left: 2px;
@@ -776,10 +770,7 @@ input {
     #importDataArea {
         .flex(0 0 59px);
         .flex-order(1);
-        // background-color: @color-background-darkGray;
         border-bottom: 1px solid rgba(0,0,0,0.25);
-        // border-right: 1px solid rgba(0, 0, 0, 0.25);
-        // z-index: 2;
         height: 59px;
 
         #importDataButton {
@@ -830,10 +821,9 @@ input {
             .label {
                 display: inline-block;
                 .transition (opacity 0.6s);
-                .font(@size: 11px, @line-height: 32px, @family: @font-base);
+                .font(@size: 11px, @line-height: 32px, @family: @font-base, @color: @color-text-black);
                 text-align: center;
                 float: left;
-                color: @color-text-black;
             }
         }
 
@@ -865,15 +855,14 @@ input {
         padding: 9px;
         position: relative;
         overflow: hidden;
-        // background-color: @color-background-darkGray;
         border-top: 1px solid rgba(154,154,154,1);
-        // border-right: 1px solid rgba(0, 0, 0, 0.25);
 
         #gridViewScrollbarWrapper {
             position: absolute;
             overflow-x: hidden;
             overflow-y: scroll;
             .size(@width: ~"calc(100% + 20px)", @height: 100%);
+
             &::-webkit-scrollbar {
                 display: none;
             }
@@ -903,6 +892,7 @@ input {
             .size(@width: ~"calc(50% + 7px)", @height: 100%);
             position: absolute;
             background: transparent;
+
             &.leftTopDragWrap {
                 // background-color: blue;
                 left: -7px;
@@ -923,6 +913,7 @@ input {
         .grid-unit.folder.display {
             .label {
                 cursor: text;
+
                 &:focus {
                     .position(absolute, @left: -10px);
                     box-shadow: inset 0px 0px 3px black;
@@ -938,8 +929,7 @@ input {
             .dsCount {
                 .position(absolute, 11px, 0, 0, -3px);
                 .size(@width: 50px, @height: 20px);
-                color: @color-text-blue;
-                font-weight: 700;
+                .font(@weight: 700, @color: @color-text-blue);
             }
 
             > .dragWrap {
@@ -950,6 +940,7 @@ input {
                 &.leftTopDragWrap {
                     left: -7px;
                     width: ~"calc(16.5% + 7px)";
+
                     &.active {
                         box-shadow: inset 2px 0px 0px @color-background-topAction;
                     }
@@ -958,6 +949,7 @@ input {
                 &.rightBottomDragWrap {
                     left: 82.5%;
                     width: ~"calc(16.5% + 7px)";
+
                     &.active {
                         box-shadow: 2px 0px 0px @color-background-topAction;
                     }
@@ -991,8 +983,10 @@ input {
             .position(absolute);
             .size(@width: 100%, @height: 17.5px);
             background: transparent;
+
             &.leftTopDragWrap {
                 top: -5px;
+
                 &.active {
                     box-shadow: inset 0px 2px 0px @color-background-topAction;
                 }
@@ -1000,6 +994,7 @@ input {
 
             &.rightBottomDragWrap {
                 top: 12.5px;
+
                 &.active {
                     box-shadow: 0px 2px 0px @color-background-topAction;
                 }
@@ -1020,8 +1015,7 @@ input {
             .dsCount {
                 .position(absolute, @top: 3px, @right: 8px, @bottom: 0);
                 .size(@width: 45px, @height: 25px);
-                color: @color-text-blue;
-                font-weight: 900;
+                .font(@weight: 900, @color: @color-text-blue);
                 text-align: right;
             }
 
@@ -1033,7 +1027,8 @@ input {
                 &.leftTopDragWrap {
                     top: -5px;
                     height: 9.17px;
-                     &.active {
+
+                    &.active {
                         box-shadow: inset 0px 2px 0px @color-background-topAction;
                     }
                 }
@@ -1041,6 +1036,7 @@ input {
                 &.rightBottomDragWrap {
                     top: 20.84px;
                     height: 9.16px;
+
                     &.active {
                         box-shadow: 0px 2px 0px @color-background-topAction;
                     }
@@ -1071,7 +1067,6 @@ input {
     .flex-order(2);
     .flex-display;
     .flex-flow(column);
-    // z-index: 1;
     height: 100%;
 
     &.hidden {
@@ -1084,6 +1079,7 @@ input {
         cursor: pointer;
         text-align: right;
         height: 23px;
+
         span {
             float: right;
         }
@@ -1099,6 +1095,7 @@ input {
         .flex-order(1);
         box-shadow: 0 3px 2px rgba(0,0,0,.2);
         padding: 10px 25px 0px;
+
         .dbText {
             display: inline-block;
             float: left;
@@ -1110,12 +1107,13 @@ input {
                 text-overflow: ellipsis;
             }
         }
+
         h2 {
             display: block;
             height: 26px;
-            color: @color-text-blue;
-            .font(@size: 19px, @line-height: 25px);
+            .font(@size: 19px, @line-height: 25px, @color: @color-text-blue);
         }
+
         p {
             display: block;
             font-size: 13px;
@@ -1141,11 +1139,13 @@ input {
             float: left;
             .size(@width: ~"calc(100% - 120px)", @height: 60px);
             padding-left: 25px;
+
             h2 {
                 display: block;
                 margin: 15px 0px 8px;
                 font-size: 14px;
             }
+
             p {
                 font-size: 13px;
             }
@@ -1156,8 +1156,7 @@ input {
             float: right;
             width: 120px;
             margin-top: 5px;
-            color: @color-text-blue;
-            font-weight: 600;
+            .font(@weight: 600, @color: @color-text-blue);
             text-align: right;
             padding-right: 17px;
         }
@@ -1182,8 +1181,7 @@ input {
 }
 
 #datasetWrap {
-    .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 68px)",
-              @max-width: 100%);
+    .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 68px)", @max-width: 100%);
     white-space: nowrap;
     overflow: hidden;
     float: left;
@@ -1193,14 +1191,14 @@ input {
 }
 
 .datasetTbodyWrap {
-    max-height: 100%;
-    width: ~"calc(100% + 17px)";
+    .size(@width: ~"calc(100% + 17px)", @max-height: 100%);
     overflow-x: visible;
     overflow-y: scroll;
     display: inline-block;
     outline: 1px solid #FFFFFF; // ie bug if we dont use this outline
     outline-offset: -1px;
     margin-top: -1px;
+
     &::-webkit-scrollbar {
         display: none;
     }
@@ -1210,7 +1208,6 @@ table.datasetTable {
     margin: 0;
     border-right: 1px solid #DDDDDD;
     border-bottom: 1px solid #DDDDDD;
-
 }
 
 .datasetTableWrap {
@@ -1219,6 +1216,7 @@ table.datasetTable {
     position: relative;
     display: inline-block;
     overflow: hidden;
+
     .datasetTable {
         width: 0px;
     }
@@ -1239,7 +1237,7 @@ table.datasetTable {
 
        .dataTableHeader;
        .editableHead {
-            .noSelection();
+            .noSelection;
             cursor: pointer;
             margin-left: 0px;
        }
@@ -1264,6 +1262,7 @@ table.datasetTable {
             .size(@height: 30px);
             .colIcon-gray-gradient();
             position: relative;
+
             .iconHidden {
                 .size(@width: 1px, @height: 30px);
                 display: inline-block;
@@ -1298,9 +1297,7 @@ table.datasetTable {
     }
     .idSpan {
         position: relative;
-        width: ~"calc(100% + 10px)";
-        // height: ~"calc(100% + 2px)";
-        height: 100%;
+        .size(@width: ~"calc(100% + 10px)", @height: 100%);
         background-color: gray;
         border-right: 5px solid #f5f5f5;
         border-left: 5px solid #ffffff;
@@ -1309,10 +1306,12 @@ table.datasetTable {
     }
     th {
         width: 130px;
+
         &:first-child {
             width: 40px;
             cursor: default;
             pointer-events: none;
+
             .header {
                 border-left: 5px solid @color-background-tableBorders;
                 width: 40px;
@@ -1372,7 +1371,6 @@ table.datasetTable {
         margin-top: 4px;
         padding-bottom: 0px;
         padding-left: 12px;
-        // z-index: 2;
         position: relative;
         cursor: default;
 
@@ -1498,12 +1496,15 @@ table.datasetTable {
             box-shadow: -1px 1px 1px rgba(0,0,0,.2);
             overflow: hidden;
             margin-top: 8px;
+
             &.colSelected {
                 background-color: @color-selectedCell-light;
             }
+
             &.keySelected {
                 box-shadow: 0px 0px 0px 2px @color-background-bottomAction;
             }
+
             .colName {
                 .size(@width: 200px, @height: 100%);
                 padding-left: 12px;
@@ -1513,6 +1514,7 @@ table.datasetTable {
                 overflow: hidden;
                 cursor: default;
             }
+
             .removeCol {
                 .size(@width: 25px, @height: 100%);
                 float: left;
