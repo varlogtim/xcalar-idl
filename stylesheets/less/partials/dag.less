@@ -160,12 +160,15 @@
 
     .dagTableIcon {
         .size(@width: 40px, @height: 30px);
+        // .size(@width: 45px, @height: 35px);
+        position: relative !important;
         .action-gradient;
         .rounded(15px);
+        // background-image: url(/images/rounded-rectangle.png);
     }
 
     .dagIcon {
-        .size(@width: 22px, @height: 100%);
+        .size(@width: 20px, @height: 100%);
         .dagDark-gradient;
         float: left;
     }
@@ -382,7 +385,7 @@
         display: block;
         float: left;
         margin-left: 30px;
-        padding: 0 30px 30px 0;
+        padding: 0 30px 0px 0;
     }
 
     .dagTableWrap {
@@ -429,6 +432,7 @@
             .size(75%, 75%);
             .image("/images/table-icon.png", 50%, 50%);
             background-size: contain;
+            // display: none;
         }
 
 
@@ -945,8 +949,14 @@
 }
 
 .canvas {
-    .position(absolute, @top: 0, @left: 0);
+    .position(absolute, @top: 0, @left: -40px);
     z-index: -1;
+    // background-color: white;
+}
+.canvas:nth-child(1) {
+    z-index: 0;
+    opacity: 0;
+    top: -50px;
 }
 
 .dagDropDown {
@@ -959,6 +969,3 @@
         display: none;
     }
 }
-
-
-

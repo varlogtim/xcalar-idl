@@ -493,7 +493,7 @@ window.DagPanel = (function($, DagPanel) {
         var scrollPosition = leftPosition - ((windowWidth - tableWidth) / 2);
         $('#mainFrame').scrollLeft(scrollPosition);
     }
-            
+             
     return (DagPanel);
 
 }(jQuery, {}));
@@ -559,34 +559,147 @@ window.Dag = (function($, Dag) {
             var $dagWrap = $('#dagWrap-' + tableId);
             $dagWrap.append(innerDag);
             var $dagImage = $dagWrap.find('.dagImage');
+            
 
-            var canvas = createCanvas($dagWrap);
+            var fullCanvas = true;
+            var canvas = createCanvas($dagWrap, fullCanvas);
             var ctx = canvas.getContext('2d');
+            var canvasClone = createCanvas($dagWrap);
+            var ctxClone = canvasClone.getContext('2d');
+            
             ctx.strokeStyle = '#999999';
+            ctxClone.strokeStyle = '#999999';
+
             $dagImage.find('.joinWrap').eq(0).find('.dagTableWrap')
                     .each(function() {
                         var el = $(this);
-                        drawDagLines(el, ctx);
+                        drawDagLines(el, ctxClone);
                     });
+            ctx.save();
+            
+            var img = new Image();
+            img.src = '/images/dag-background.png';
+            img.onload = function() {
+                var ptrn = ctx.createPattern(img, 'repeat');
+                ctx.fillStyle = ptrn;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);  
+                ctx.drawImage(canvasClone, 0, 50);
+                ctx.save();
+                var tableTitleText = $dagWrap.find('.tableTitleArea')
+                                             .text();
+                ctx.font = '600 15px Open Sans';
+                ctx.fillStyle = '#555555';
+                ctx.fillText(tableTitleText, 30, 22);
+                ctx.restore();
 
+                ctx.beginPath();
+                ctx.moveTo (20, 33);
+                ctx.lineTo(canvas.width - 40, 33);
+                ctx.strokeStyle = '#A5A5A5';
+                ctx.stroke();
+            };
 
             $dagImage.find('.dagTable').each(function() {
-                var top = $(this).position().top;
-                var left = $(this).position().left;
-                var $clone = $(this).clone();
+                var $dagTable = $(this);
+                var top = $dagTable.position().top;
+                var left = $dagTable.position().left;
+                var $clone = $dagTable.clone();
                 $dagImage.append($clone);
                 $clone.css({top: top, left: left, position: 'absolute'});
+
+                left += 40;
+                top += 50;
+                var iconLeft = left;
+                var iconTop = top + 6;
+                var tableImage = new Image();
+                if ($(this).hasClass('dataStore')) {
+                    tableImage.src = '/images/dbDiamond.png';
+                    iconLeft -= 2;
+                    iconTop -= 4;
+                } else {
+                    tableImage.src = '/images/dtable.png';
+                }
+                
+                tableImage.onload = function() {
+                    ctx.drawImage(tableImage, iconLeft, iconTop);
+
+                    var maxWidth = 130;
+                    var lineHeight = 12;
+                    var x = left - 45;
+                    var y = top + 38;
+                    var text = $dagTable.find('.tableTitle').text();
+            
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(x, y, 130, 26);
+                    ctx.clip();
+                    ctx.font = 'bold 10px Open Sans';
+                    ctx.fillStyle = '#6e6e6e';
+                    ctx.textAlign = 'center';
+
+                    wrapText(ctx, text, x + 65,y + 10, maxWidth, lineHeight);
+                };
             });
 
             $dagImage.find('.actionType').each(function() {
-                var top = $(this).position().top + 4;
-                var left = $(this).position().left;
-                var $clone = $(this).clone();
+                var $actionType = $(this);
+                var top = $actionType.position().top + 4;
+                var left = $actionType.position().left;
+                var $clone = $actionType.clone();
                 $dagImage.append($clone);
                 $clone.css({top: top, left: left, position: 'absolute'});
+
+                left += 40;
+                top += 50;
+                var $dagIcon = $actionType.find('.dagIcon');
+                var iconSource = $dagIcon.find('.icon').css('background-image');
+                iconSource = iconSource.replace('url(','').replace(')','');
+                var rectImage = new Image();
+                rectImage.src = '/images/rounded-rect.png';
+                rectImage.onload = function() {
+                    ctx.drawImage(rectImage, left + 20, top);
+
+                    var dagIcon = new Image();
+                    var iconLeft = left + 23;
+                    var iconTop = top + 7;
+                    dagIcon.src = iconSource;
+
+                    dagIcon.onload = function() {
+                        ctx.drawImage(dagIcon, iconLeft, iconTop);
+                    };
+
+                    // first line text
+                    var maxWidth = 78;
+                    var lineHeight = 10;
+                    var x = left + 43;
+                    var y = top + 9;
+                    var text = $actionType.find('.typeTitle').text();
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(x-3, y - 6, 76, 10);
+                    ctx.clip();
+                    ctx.font = 'bold 8px Open Sans';
+                    ctx.fillStyle = '#4D4D4D';
+
+                    wrapText(ctx, text, x, y, maxWidth, lineHeight);
+
+                    // text regarding table origin / parents
+                    y = top + 19;
+                    text = $actionType.find('.parentsTitle').text();
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(x-3, y - 6, 76, 20);
+                    ctx.clip();
+                    ctx.font = 'bold 8px Open Sans';
+                    ctx.fillStyle = '#4D4D4D';
+
+                    wrapText(ctx, text, x, y, maxWidth, lineHeight);
+
+                };
+
             });
-            
-            $dagImage.height($dagImage.height());
+
+            $dagImage.height($dagImage.height() + 40);
             $dagImage.width($dagImage.width());
             $dagWrap.find('.joinWrap').eq(0).remove();
 
@@ -594,7 +707,6 @@ window.Dag = (function($, Dag) {
             $dagWrap.append(dropdown);
             addDagEventListeners($dagWrap);
             appendRetinas();
-            // $('.dagImageWrap').scrollLeft($('.dagImage').width());
 
             deferred.resolve();
         })
@@ -775,6 +887,27 @@ window.Dag = (function($, Dag) {
             "data-original-title": "Table '" + tableName + "' has been dropped"
         });
     };
+
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        // var words = text.split(' ');
+        var words = text.split(/-| /);
+        var line = '';
+
+        for (var n = 0; n < words.length; n++) {
+            var testLine = line + words[n] + ' ';
+            var metrics = context.measureText(testLine);
+            var testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                context.fillText(line, x, y);
+                line = words[n] + ' ';
+                y += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        context.fillText(line, x, y);
+        context.restore();
+    }
 
     function addDagEventListeners($dagWrap) {
         var $currentIcon;
@@ -1320,7 +1453,7 @@ window.Dag = (function($, Dag) {
             if (firstParent.indexOf('.XcalarDS.') === 0) {
                 firstParent = info.column;
             }
-
+            operation = operation[0].toUpperCase() + operation.slice(1);
             originHTML +=
                         '</div>' +
                             '<span class="typeTitle">' + operation + '</span>' +
@@ -1529,11 +1662,14 @@ window.Dag = (function($, Dag) {
 
     /* Generation of dag elements and canvas lines */
 
-    function createCanvas($dagWrap) {
+    function createCanvas($dagWrap, full) {
         var dagWidth = $dagWrap.find('.dagImage > div').width();
         var dagHeight = $dagWrap.find('.dagImage > div').height();
-        var canvasHTML = $('<canvas class="canvas" width="' + dagWidth +
-                         '" height="' + dagHeight + '"></canvas>');
+        if (full) {
+            dagHeight += 50;
+        }
+        var canvasHTML = $('<canvas class="canvas" width="' + (dagWidth + 80) + 
+                         '" height="' + (dagHeight + 40) + '"></canvas>');
         $dagWrap.find('.dagImage').append(canvasHTML);
         return (canvasHTML[0]);
     }
@@ -1558,16 +1694,16 @@ window.Dag = (function($, Dag) {
             var yAdjustment = (desiredY - currentY) * 2;
             dagTable.css({'margin-top': yAdjustment});
 
-            var tableX = dagTable.find('.dagTable').position().left;
+            var tableX = dagTable.find('.dagTable').position().left + 40;
             var tableY = dagTable.find('.dagTable').position().top +
                          dagTable.height() / 2;
             drawLine(ctx, tableX, tableY); // line entering table
 
             curvedLineCoor = {
-                x1: origin1.position().left + origin1.width(),
+                x1: origin1.position().left + origin1.width() + 40,
                 y1: origin1.position().top + origin1.height() / 2,
                 x2: Math.floor(dagTable.find('.actionTypeWrap')
-                                        .position().left + 12),
+                                        .position().left + 12 + 40),
                 y2: Math.floor(dagTable.find('.actionTypeWrap').position().top)
             };
             drawCurve(ctx, curvedLineCoor);
@@ -1576,8 +1712,8 @@ window.Dag = (function($, Dag) {
 
     // draw the lines corresponding to tables not resulting from joins
     function drawStraightDagConnectionLine(dagTable, ctx) {
-        var tableX = dagTable.find('.dagTable').position().left;
-        var farLeftX = dagTable.position().left;
+        var tableX = dagTable.find('.dagTable').position().left + 40;
+        var farLeftX = dagTable.position().left + 40;
         var currentY = dagTable.offset().top;
         var desiredY;
 
