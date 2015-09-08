@@ -2162,9 +2162,14 @@ function dropdownClick($el, options) {
             $menu.find(".tdFilter").removeClass("unavailable");
             $menu.find(".tdExclude").removeClass("unavailable");
         }
+
         if (columnType === "object" ||
-            columnType === "array" ) {
+            columnType === "array" )
+        {
             if ($el.text().trim() === "") {
+                $menu.find(".tdJsonModal").addClass("hidden");
+            } else if ($("#xcTable-" + tableId).find(".highlightBox").length > 1){
+                // when more than one cell is selected
                 $menu.find(".tdJsonModal").addClass("hidden");
             } else {
                 $menu.find(".tdJsonModal").removeClass("hidden");
