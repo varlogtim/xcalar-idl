@@ -1955,15 +1955,15 @@ function addColMenuActions($colMenu) {
             return;
         }
         var $highlightBoxs = $("#xcTable-" + tableId).find(".highlightBox");
-        var colVals = [];
+        var valArray = [];
         var colVal;
 
         $highlightBoxs.each(function() {
             colVal = $(this).siblings(".addedBarTextWrap").text();
-            colVals.push(colVal);
+            valArray.push(colVal);
         });
 
-        copyToClipboard(colVals);
+        copyToClipboard(valArray);
         $highlightBoxs.remove();
     });
 
@@ -1997,17 +1997,10 @@ function addColMenuActions($colMenu) {
 }
 
 function copyToClipboard(valArray) {
-    var str = "";
     var $hiddenInput = $("<input>");
-    var len = valArray.length;
+    var str = valArray.join(", ");
 
     $("body").append($hiddenInput);
-
-    for (var i = 0; i < len - 1; i++) {
-        str += valArray[i] + ", ";
-    }
-
-    str += valArray[len - 1];
     $hiddenInput.val(str).select();
     document.execCommand("copy");
     $hiddenInput.remove();
