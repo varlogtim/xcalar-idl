@@ -50,6 +50,8 @@ function gRescolMouseDown(el, event, options) {
     rescol.tableId = xcHelper.parseTableId($table);
     if (options && options.target === "datastore") {
         rescol.isDatastore = true;
+        rescol.$tableWrap = $('#dataSetTableWrap');
+        rescol.$worksheetTable = $('#worksheetTable');
     } else if (el.parent().width() === 10) {
         // This is a hidden column! we need to unhide it
         // return;
@@ -90,6 +92,9 @@ function gRescolMouseMove(event) {
     var tableWidth = rescol.table.width();
     rescol.tableHead.width(tableWidth);
     moveTableTitles();
+    if (gRescol.isDatastore) {
+        rescol.$tableWrap.width(rescol.$worksheetTable.width());
+    }
 }
 
 function gRescolMouseUp() {

@@ -1181,17 +1181,19 @@ input {
 }
 
 #datasetWrap {
-    .size(@width: ~"calc(100% - 20px)", @height: ~"calc(100% - 68px)", @max-width: 100%);
+    .size(@max-width: ~"calc(100% - 20px)", @max-height: ~"calc(100% - 78px)");
     white-space: nowrap;
     overflow: hidden;
     float: left;
     position: absolute;
     margin-left: 10px;
     overflow-x: auto;
+    border: 1px solid #DDDDDD;
+    margin-top: 10px;
 }
 
 .datasetTbodyWrap {
-    .size(@width: ~"calc(100% + 17px)", @max-height: 100%);
+    .size( @max-height: 100%);
     overflow-x: visible;
     overflow-y: scroll;
     display: inline-block;
@@ -1206,13 +1208,11 @@ input {
 
 table.datasetTable {
     margin: 0;
-    border-right: 1px solid #DDDDDD;
-    border-bottom: 1px solid #DDDDDD;
 }
 
 .datasetTableWrap {
-    .size(@height: ~"calc(100% - 10px)", @max-height: ~"calc(100% - 10px)");
-    margin: 10px 0px 0px;
+    height: 100%;
+    margin: 0;
     position: relative;
     display: inline-block;
     overflow: hidden;

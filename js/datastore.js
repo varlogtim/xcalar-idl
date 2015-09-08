@@ -211,8 +211,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
 
             $formatText.val("Format").addClass("hint");
-            $form.removeClass()
-                    .find(".default-hidden").addClass("hidden");
+            $form.removeClass().find(".default-hidden").addClass("hidden");
 
             // keep header to be checked
             $udfCheckbox.find(".checkbox").removeClass("checked");
@@ -2078,6 +2077,18 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         $tableWrap.html(html);
         restoreSelectedColumns();
+        var $worksheetTable = $('#worksheetTable');
+
+        // size tableWrapper so borders fit table size
+        var tableHeight = $worksheetTable.height();
+        var scrollBarPadding = 0;
+        $tableWrap.width($worksheetTable.width());
+        if ($worksheetTable.width() > $('#datasetWrap').width()) {
+            scrollBarPadding = 10;
+        }
+        $('#datasetWrap').height(tableHeight + scrollBarPadding);
+        
+        moveFirstColumn($worksheetTable);
 
         // scroll cannot use event bubble
         $("#dataSetTableWrap .datasetTbodyWrap").scroll(function() {
@@ -2248,7 +2259,21 @@ window.DataSampleTable = (function($, DataSampleTable) {
             dblClickResize($(this), {minWidth: 25, target: "datastore"});
         });
         $('#datasetWrap').scroll(function(){
-            moveFirstColumn($('#worksheetTable'));
+            var $worksheetTable = $('#worksheetTable');
+            $(this).scrollTop(0);
+            moveFirstColumn($worksheetTable);
+            
+            if ($(this).scrollLeft() === 0) {
+                $worksheetTable.find('.rowNumHead .header')
+                               .css('margin-left', 0);
+                $worksheetTable.find('.idSpan')
+                               .css('margin-left', -5);
+            } else {
+                $worksheetTable.find('.rowNumHead .header')
+                               .css('margin-left', 1);
+                $worksheetTable.find('.idSpan')
+                               .css('margin-left', -4);
+            }
         });
     }
 
