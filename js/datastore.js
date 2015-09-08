@@ -2650,13 +2650,16 @@ window.DS = (function ($, DS) {
         for (var i = 0; i < numDatasets; i++) {
             var dsName = datasets.datasets[i].name;
 
-            if (dsName.endsWith(".preview") && atStartUp) {
-                // preview ds is deleted on start up time!!
-                var sqlOptions = {
-                    "operation": SQLOps.DestroyPreviewDS,
-                    "dsName"   : dsName
-                };
-                XcalarDestroyDataset(dsName, sqlOptions);
+            if (dsName.endsWith(".preview")) {
+                // deal with preview datasets
+                if (atStartUp) {
+                    // preview ds is deleted on start up time!!
+                    var sqlOptions = {
+                        "operation": SQLOps.DestroyPreviewDS,
+                        "dsName"   : dsName
+                    };
+                    XcalarDestroyDataset(dsName, sqlOptions);
+                }
                 continue;
             }
 

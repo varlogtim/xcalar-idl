@@ -10,6 +10,8 @@ function freeAllResultSets() {
     if (gDatasetBrowserResultSetId !== 0) {
         XcalarSetFree(gDatasetBrowserResultSetId);
     }
+
+    DataPreview.clear();
     // return (chain(promises));
 }
 
