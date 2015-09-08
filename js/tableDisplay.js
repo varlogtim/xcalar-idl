@@ -196,6 +196,9 @@ function parallelConstruct(tableId, tablesToRemove, afterStartup) {
             focusTable(tableId);
         }
 
+        // disallow dragging if only 1 table in worksheet
+        checkTableDraggable();
+
         deferred.resolve();
     })
     .fail(deferred.reject);
@@ -241,6 +244,9 @@ function archiveTable(tableId, del, delayTableRemoval) {
 
     moveTableDropdownBoxes();
     moveTableTitles();
+
+    // disallow dragging if only 1 table in worksheet
+    checkTableDraggable();
 }
 
 function deleteOrphaned(tableName) {

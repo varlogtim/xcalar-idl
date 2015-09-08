@@ -453,6 +453,8 @@ window.WSManager = (function($, WSManager) {
             $tableWrap.find('.tableCover').height(tableHeight - 40);
         });
 
+        checkTableDraggable();
+
         // refresh table and scrollbar
         var $curActiveTable = $tables.filter(".worksheet-" + wsIndex);
         if (notfocusTable || $curActiveTable.length === 0) {

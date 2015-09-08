@@ -2476,7 +2476,19 @@ function focusTable(tableId) {
     } else {
         generateFirstVisibleRowNum();
     }
+
     Tips.refresh();
+}
+
+function checkTableDraggable() {
+    // disallow dragging if only 1 table in worksheet
+    var activeWS = WSManager.getActiveWS();
+    var $tables = $('#mainFrame').find('.xcTableWrap.worksheet-' + activeWS);
+    if ($tables.length === 1) {
+        $tables.addClass('noDrag');
+    } else {
+        $tables.removeClass('noDrag');
+    }
 }
 
 function isTableScrollable(tableId) {
@@ -2553,7 +2565,7 @@ function dragTableMouseDown(el, e) {
     dragObj.pageX = e.pageX;
     dragObj.table.scrollTop(dragObj.tableScrollTop);
     dragObj.table.find('.idSpan').css('left', 0);
-    dragObj.table.find('th.rowNumHead input').css('left', 0);
+    dragObj.table.find('th.rowNumHead .header').css('left', 0);
     createTableDropTargets();
     dragdropMoveMainFrame(dragObj, 50);
     disableTextSelection();

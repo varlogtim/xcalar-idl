@@ -653,7 +653,8 @@ window.Dag = (function($, Dag) {
                 top += 50;
                 var $dagIcon = $actionType.find('.dagIcon');
                 var iconSource = $dagIcon.find('.icon').css('background-image');
-                iconSource = iconSource.replace('url(','').replace(')','');
+                iconSource = iconSource.replace('url(','').replace(')','')
+                                       .replace(/"/g, '');
                 var rectImage = new Image();
                 rectImage.src = '/images/rounded-rect.png';
                 rectImage.onload = function() {
@@ -888,25 +889,24 @@ window.Dag = (function($, Dag) {
         });
     };
 
-    function wrapText(context, text, x, y, maxWidth, lineHeight) {
-        // var words = text.split(' ');
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
         var words = text.split(/-| /);
         var line = '';
 
         for (var n = 0; n < words.length; n++) {
             var testLine = line + words[n] + ' ';
-            var metrics = context.measureText(testLine);
+            var metrics = ctx.measureText(testLine);
             var testWidth = metrics.width;
             if (testWidth > maxWidth && n > 0) {
-                context.fillText(line, x, y);
+                ctx.fillText(line, x, y);
                 line = words[n] + ' ';
                 y += lineHeight;
             } else {
                 line = testLine;
             }
         }
-        context.fillText(line, x, y);
-        context.restore();
+        ctx.fillText(line, x, y);
+        ctx.restore();
     }
 
     function addDagEventListeners($dagWrap) {
