@@ -11,7 +11,6 @@ function freeAllResultSets() {
         XcalarSetFree(gDatasetBrowserResultSetId);
     }
 
-    DataPreview.clear();
     // return (chain(promises));
 }
 

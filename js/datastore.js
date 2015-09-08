@@ -1277,12 +1277,11 @@ window.DataCart = (function($, DataCart) {
  */
 window.DataPreview = (function($, DataPreview) {
     var $previewTable = $("#previewTable");
-    var tableName = "";
+    var tableName = null;
     var rawData = null;
     var hasHeader = false;
     var delimiter = "";
     var highlighter = "";
-    var previewSetId = null;
 
     var promoteHeader =
             '<div class="header"' +
@@ -1426,6 +1425,7 @@ window.DataPreview = (function($, DataPreview) {
     DataPreview.show = function() {
         var deferred = jQuery.Deferred();
         var loadURL  = $("#filePath").val().trim();
+        var refId;
 
         if (loadURL == null) {
             deferred.reject("Invalid loadURL");
@@ -1483,7 +1483,7 @@ window.DataPreview = (function($, DataPreview) {
                     return (promiseWrapper(null));
                 }
 
-                previewSetId = gDatasetBrowserResultSetId;
+                refId = gDatasetBrowserResultSetId;
                 // set it to 0 because releaseDatasetPointer() use it to check
                 // if ds's ref count is cleard
                 // preiview table should use it's own clear method
@@ -1522,6 +1522,9 @@ window.DataPreview = (function($, DataPreview) {
                 }
 
                 $suggBtn.show();
+            })
+            .then(function() {
+                return (XcalarSetFree(refId));
             })
             .fail(function(error) {
                 clearAll();
@@ -1581,19 +1584,15 @@ window.DataPreview = (function($, DataPreview) {
         highlighter = "";
         toggleHighLight();
 
-        if (previewSetId != null) {
+        if (tableName != null) {
             var sqlOptions = {
                 "operation": SQLOps.DestroyPreviewDS,
                 "dsName"   : tableName
             };
 
-            XcalarSetFree(previewSetId)
+            XcalarDestroyDataset(tableName, sqlOptions)
             .then(function() {
-                previewSetId = null;
-                return (XcalarDestroyDataset(tableName, sqlOptions));
-            })
-            .then(function() {
-                tableName = "";
+                tableName = null
                 deferred.resolve();
             })
             .fail(deferred.reject);
