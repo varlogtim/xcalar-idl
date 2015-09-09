@@ -1378,7 +1378,7 @@ function addColListeners($table, tableId) {
             lastSelectedCell = gFnBarOrigin;
         }
 
-        if (event.ctrlKey) {
+        if (event.ctrlKey || event.metaKey) {
             if ($(this).closest('.selectedCell').length > 0) {
                 if (notDropDown) {
                     unhighlightColumn(gFnBarOrigin);
