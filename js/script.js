@@ -251,6 +251,7 @@ function setupMainPanelsTab() {
                 break;
             case ("dataStoresTab"):
                 $("#datastoreView").addClass("active");
+                DataSampleTable.sizeTableWrapper();
                 MonitorGraph.clear();
                 break;
             case ("monitorTab"):

@@ -724,7 +724,7 @@ input {
     background-color: @color-background-darkGray;
 
     #datasetExplore {
-        .flex(0 0 35px);
+        height: 35px;
         .flex-order(0);
         .gray-gradient;
         text-align: center;
@@ -768,7 +768,6 @@ input {
     }
 
     #importDataArea {
-        .flex(0 0 59px);
         .flex-order(1);
         border-bottom: 1px solid rgba(0,0,0,0.25);
         height: 59px;
@@ -1091,7 +1090,7 @@ input {
     }
 
     #contentViewHeader {
-        .flex(0 0 93px);
+        height: 93px;
         .flex-order(1);
         box-shadow: 0 3px 2px rgba(0,0,0,.2);
         padding: 10px 25px 0px;
@@ -1123,12 +1122,11 @@ input {
     
     /* START DATASET TABLE */
     #contentViewTable {
-        .flex(1 1 auto);
+        height: ~"calc(100% - 93px)";
         .flex-order(2);
         background-repeat: no-repeat;
         background-position: center;
         position: relative;
-        height: 100%;
 
         .datasetTitleWrap {
             height: 60px;
@@ -1190,6 +1188,14 @@ input {
     overflow-x: auto;
     border: 1px solid #DDDDDD;
     margin-top: 10px;
+    &.loading {
+        border: none;
+        height: 40px !important;
+        .datasetTableWrap {
+            width: 200px !important;
+        }
+    }
+    
 }
 
 .datasetTbodyWrap {
@@ -1228,6 +1234,10 @@ table.datasetTable {
 
     .loadingMsg {
         margin-left: 15px;
+        .animatedEllipsis {
+            vertical-align: bottom;
+            float: none;
+        }
     }
 
     .header {

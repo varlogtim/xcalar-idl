@@ -2003,6 +2003,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                         'Data set is loading' + animatedDots +
                 '</div>';
             $tableWrap.html(loadingMsg);
+            $tableWrap.parent().addClass('loading');
             $dsColsBtn.hide();
             deferred.resolve();
 
@@ -2074,9 +2075,20 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
     function getSampleTable(dsName, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsName, jsonKeys, jsons);
-
+        $tableWrap.parent().removeClass('loading');
         $tableWrap.html(html);
         restoreSelectedColumns();
+        DataSampleTable.sizeTableWrapper();
+        var $worksheetTable = $('#worksheetTable');
+        moveFirstColumn($worksheetTable);
+
+        // scroll cannot use event bubble
+        $("#dataSetTableWrap .datasetTbodyWrap").scroll(function() {
+            dataStoreTableScroll($(this));
+        });
+    }
+
+    DataSampleTable.sizeTableWrapper = function() {
         var $worksheetTable = $('#worksheetTable');
 
         // size tableWrapper so borders fit table size
@@ -2087,13 +2099,6 @@ window.DataSampleTable = (function($, DataSampleTable) {
             scrollBarPadding = 10;
         }
         $('#datasetWrap').height(tableHeight + scrollBarPadding);
-        
-        moveFirstColumn($worksheetTable);
-
-        // scroll cannot use event bubble
-        $("#dataSetTableWrap .datasetTbodyWrap").scroll(function() {
-            dataStoreTableScroll($(this));
-        });
     }
 
     function updateTableInfo(dsObj) {
