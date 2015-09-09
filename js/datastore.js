@@ -101,6 +101,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
                 $formatText.val(text).removeClass("hint");
                 $udfCheckbox.removeClass("hidden");
+                $('#fileNameSelector').addClass("optionsOpen");
 
                 var $fieldDelim = $("#fieldDelim");
                 switch (text.toLowerCase()) {
@@ -109,12 +110,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         resetDelimiter();
                         $fieldDelim.show();
                         $csvDelim.removeClass("hidden");
+                        $('#fileNameSelector').addClass("optionsOpen");
                         break;
                     case "raw":
                         $csvCheckBox.removeClass("hidden");
                         resetDelimiter();
                         $fieldDelim.hide();
                         $csvDelim.removeClass("hidden");
+                        $('#fileNameSelector').addClass("optionsOpen");
                         break;
                     default:
                         $csvCheckBox.addClass("hidden");
@@ -212,6 +215,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             $formatText.val("Format").addClass("hint");
             $form.removeClass().find(".default-hidden").addClass("hidden");
+            $("#fileNameSelector").removeClass("optionsOpen");
 
             // keep header to be checked
             $udfCheckbox.find(".checkbox").removeClass("checked");
@@ -1324,12 +1328,6 @@ window.DataPreview = (function($, DataPreview) {
             highlightDelimiter(selection.toString());
         });
 
-        // this is to prevent the case that
-        // select text and move make the table scroll
-        $previewTable.closest(".datasetTbodyWrap").scroll(function() {
-            $(this).scrollLeft(0);
-        });
-
         // close preview
         $("#preview-close").click(function() {
             clearAll();
@@ -1343,7 +1341,6 @@ window.DataPreview = (function($, DataPreview) {
             if (!$highLightBtn.hasClass("active") || highlighter === "") {
                 return;
             }
-
             delimiter = highlighter;
             highlighter = "";
 
@@ -1648,6 +1645,15 @@ window.DataPreview = (function($, DataPreview) {
             $previewTable.removeClass("has-delimiter");
             suggestHelper("toHighLight");
         }
+
+        // size line divider to fit table
+        var tableWidth = $previewTable.width();
+        $previewTable.find('.divider').width(tableWidth - 10);
+
+        // size linmarker div to fit td
+        var lineMarkerHeight = $previewTable.find('.lineMarker').eq(0).height();
+        $previewTable.find('.lineMarker').eq(0).find('.promoteWrap')
+                                               .height(lineMarkerHeight);
     }
 
     function togglePromote() {
@@ -1696,6 +1702,15 @@ window.DataPreview = (function($, DataPreview) {
         }
 
         suggestHelper("toRemoveDelim");
+        
+        // size line divider to fit table
+        var tableWidth = $previewTable.width();
+        $previewTable.find('.divider').width(tableWidth - 10);
+
+        // size linmarker div to fit td
+        var lineMarkerHeight = $previewTable.find('.lineMarker').eq(0).height();
+        $previewTable.find('.lineMarker').eq(0).find('.promoteWrap')
+                                               .height(lineMarkerHeight);
     }
 
     function highlightDelimiter(str) {

@@ -105,7 +105,7 @@ input {
 #importDataView {
     display: block;
     .position(fixed, @top: 78px, @left: 255px);
-    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 152px)", @min-width: 513px);
+    .size(@width: ~"calc(100% - 510px)", @height: ~"calc(100% - 152px)", @min-width: 514px);
     background-color: @color-background-white;
     font-size: 13px;
     overflow: hidden;
@@ -129,6 +129,8 @@ input {
         padding: 0;
         float: right;
         text-shadow: 1px 1px rgba(0,0,0,.2);
+        // .flex(1 5 120px);
+        // max-width: 150px;
     }
 }
 
@@ -224,17 +226,26 @@ input {
         input {
             .size(@width: ~"calc(100% - 260px)",
                         @min-width: ~"calc(100% - 260px)", @max-width: 620px);
+            // max-width: 620px;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
             float: left;
+            // .flex(4 0 200px);
         }
         .input-placeholder(@color-text-instructions);
 
         &#fileNameSelector {
             input {
-                .size(@width: ~"calc(100% - 390px)",
-                        @min-width: ~"calc(100% - 390px)", @max-width: 490px);
+                min-width: ~"calc(100% - 390px)";
+                width: ~"calc(100% - 260px)";
+                max-width: 620px;
             }
 
+            &.optionsOpen {
+                input {
+                     .size(@width: ~"calc(100% - 390px)",
+                        @min-width: ~"calc(100% - 390px)", @max-width: 490px);
+                }
+            }
             #fileFormat {
                 margin-left: 20px;
                 .size(@width:110px, @height: 30px, @min-width: 110px);
@@ -555,6 +566,19 @@ input {
     }
 }
 
+#dsPreviewTableWrap {
+    margin-top: 10px;
+    height: ~"calc(100% - 10px)";
+    .datasetTbodyWrap {
+        width: ~"calc(100% + 17px)";
+        overflow-x: hidden;
+    }
+    .datasetTbodyWrap:not(*:root) { // selecting Chrome browsers
+        width: ~"calc(100% + 5px)";
+    }
+}
+
+ 
 #previewTable {
     width: 100%;
     white-space: pre-wrap;
@@ -562,7 +586,10 @@ input {
     // for both th and td
     .td {
         display: inline-block;
-        tab-size: 4;
+        
+        &.has-tab {
+            width: 26px;
+        }
 
         &.has-margin {
             margin-right: 1px;
