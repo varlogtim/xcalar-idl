@@ -1989,7 +1989,7 @@ function xcalarApiSessionNew(thriftHandle, sessionName, fork,
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(sessionGenericOutput);
+        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionNew() caught exception:",error);
@@ -2025,7 +2025,7 @@ function xcalarApiSessionDelete(thriftHandle, pattern) {
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(sessionGenericOutput);
+        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionDelete() caught exception:",error);
@@ -2061,7 +2061,7 @@ function xcalarApiSessionInact(thriftHandle, name) {
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(sessionGenericOutput);
+        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionInact() caught exception:",error);
@@ -2170,7 +2170,7 @@ function xcalarApiSessionSwitch(thriftHandle, sessionName, origSessionName) {
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(sessionGenericOutput);
+        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionSwitch() caught exception:",error);
@@ -2209,7 +2209,7 @@ function xcalarApiSessionRename(thriftHandle, sessionName, origSessionName) {
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
         }
-        deferred.resolve(sessionGenericOutput);
+        deferred.resolve(result);
     })
     .fail(function(error) {
         console.log("xcalarApiSessionRename() caught exception:",error);
