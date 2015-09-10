@@ -917,7 +917,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
         $('body').append('<div id="demoScreen"></div>');
 
-        $('#demoScreen').load(demoType + '.html',
+        $('#demoScreen').load(paths[demoType],
             function(response, status) {
                 if (status === 'success') {
                     $('#container:not(.demoContainer)').hide();

@@ -484,7 +484,7 @@ function documentReadyGeneralFunction() {
 }
 
 function loadMonitorPanel() {
-    $('#monitorPanel').load('monitor.html', function() {
+    $('#monitorPanel').load(paths.monitor, function() {
         MonitorPanel.setup();
     });
 }

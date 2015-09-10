@@ -13,6 +13,7 @@ lessc stylesheets/less/login.less > stylesheets/css/login.css
 lessc widget/widget.less > widget/widget.css
 sed -i 's@/images/@\.\./\.\./images/@' stylesheets/css/*.css
 sed -i 's@/images/@\.\./\.\./images/@' widget/*.css
+sed -i 's@/images/@\.\./\.\./images/@' js/paths.js
 
 if [ -e "../xcalar/src/bin/tests/XcalarApiVersionSignature_types.js" ]
 then

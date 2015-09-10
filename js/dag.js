@@ -578,7 +578,7 @@ window.Dag = (function($, Dag) {
             ctx.save();
             
             var img = new Image();
-            img.src = '/images/dag-background.png';
+            img.src = paths.dagBackground;
             img.onload = function() {
                 var ptrn = ctx.createPattern(img, 'repeat');
                 ctx.fillStyle = ptrn;
@@ -613,11 +613,11 @@ window.Dag = (function($, Dag) {
                 var iconTop = top + 6;
                 var tableImage = new Image();
                 if ($(this).hasClass('dataStore')) {
-                    tableImage.src = '/images/dbDiamond.png';
+                    tableImage.src = paths.dbDiamond;
                     iconLeft -= 2;
                     iconTop -= 4;
                 } else {
-                    tableImage.src = '/images/dtable.png';
+                    tableImage.src = paths.dTable;
                 }
                 
                 tableImage.onload = function() {
@@ -656,7 +656,7 @@ window.Dag = (function($, Dag) {
                 iconSource = iconSource.replace('url(','').replace(')','')
                                        .replace(/"/g, '');
                 var rectImage = new Image();
-                rectImage.src = '/images/rounded-rect.png';
+                rectImage.src = paths.roundedRect;
                 rectImage.onload = function() {
                     ctx.drawImage(rectImage, left + 20, top);
 
