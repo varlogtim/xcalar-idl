@@ -1138,8 +1138,11 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function getColumnTypeFromArg(value) {
         // if value = "col1, col2", it only check col1
-        value = value.split(/[,) ]/)[0];
-
+        value = value.split(",")[0];
+        var spaces = jQuery.trim(value);
+        if (spaces.length > 0) {
+            value = spaces;
+        }
         var colType;
         var columns = xcHelper.getTableFromId(tableId).tableCols;
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
