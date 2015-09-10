@@ -546,7 +546,7 @@ window.TestSuite = (function($, TestSuite) {
             $(".rightClause").eq(1).val("DayOfWeek");
             $("#joinTables").click();
             return (checkExists(".xcTableWrap .tableTitle:contains(multiJoin)"
-                               ));
+                               , 30000));
         }).then(function() {
             if ($("#numPages").text().indexOf("1,953") > -1) {
                 TestSuite.pass(deferred, testName, currentTestNumber);
