@@ -100,7 +100,8 @@ function commitToStorage(atStartUp) {
     storage[KVKeys.TI] = gTables;
     storage[KVKeys.WS] = {
         "wsInfos"      : WSManager.getWorksheets(),
-        "noSheetTables": WSManager.getNoSheetTables()
+        "noSheetTables": WSManager.getNoSheetTables(),
+        "aggInfos"     : WSManager.getAggInfos()
     };
 
     storage[KVKeys.DS] = DS.getHomeDir();

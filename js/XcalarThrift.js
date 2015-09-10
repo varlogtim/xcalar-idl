@@ -889,7 +889,7 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         SQL.add("Aggregate", sqlOptions, ret2);
-        deferred.resolve(ret1);
+        deferred.resolve(ret1, dstDagName);
     })
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarAggregate", error));

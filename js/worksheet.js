@@ -1,6 +1,7 @@
 window.WSManager = (function($, WSManager) {
     var worksheets    = []; // {id, date, tables, hiddenTables}
     var noSheetTables = [];
+    var aggInfos      = {};
 
     var wsIndexLookUp = {};  // find wsIndex by table name
     var wsNameLookUp  = {};  // find wsIndex by wsName
@@ -28,6 +29,11 @@ window.WSManager = (function($, WSManager) {
         return (noSheetTables);
     };
 
+    // Get all aggreagte information
+    WSManager.getAggInfos = function() {
+        return (aggInfos);
+    }
+
     // Get number of worksheets that is not null
     WSManager.getWSLen = function() {
         var len = 0;
@@ -45,6 +51,7 @@ window.WSManager = (function($, WSManager) {
     // Restore worksheet structure from backend
     WSManager.restoreWS = function(sheetInfos) {
         noSheetTables = sheetInfos.noSheetTables || [];
+        aggInfos = sheetInfos.aggInfos || {};
 
         var oldSheets = sheetInfos.wsInfos || [];
 
@@ -83,6 +90,15 @@ window.WSManager = (function($, WSManager) {
             }
         }
     };
+
+    // add aggregate information
+    WSManager.addAggInfo = function(tableId, colName, aggOp, aggRes) {
+        // XXX use this as key so that if later you want to sort,
+        // write a sort function that split by "#" and
+        // extract tableId/colNam/aggOp to sort by one of them
+        var key = tableId + "#" + colName + "#" + aggOp;
+        aggInfos[key] = aggRes;
+    }
 
     // For reorder table use
     WSManager.reorderTable = function(tableId, srcIndex, desIndex) {
@@ -167,6 +183,7 @@ window.WSManager = (function($, WSManager) {
         noSheetTables = [];
         wsIndexLookUp = {};
         wsNameLookUp = {};
+        aggInfos = {};
 
         activeWorsheet = 0;
         nameSuffix = 1;

@@ -99,8 +99,9 @@ window.xcFunction = (function($, xcFunction) {
             "colNum"   : colNum,
             "aggrOp"   : aggrOp
         };
+
         XcalarAggregate(backColName, tableName, aggrOp, sqlOptions)
-        .then(function(value) {
+        .then(function(value, dstDagName) {
             // show result in alert modal
             var instr = 'This is the aggregate result for column "' +
                         frontColName + '". \r\n The aggregate operation is "' +
@@ -112,6 +113,19 @@ window.xcFunction = (function($, xcFunction) {
                 "msg"    : value,
                 "isAlert": true
             });
+
+            try {
+                var val = JSON.parse(value);
+                // dagName is the result table name for aggreagate
+                var aggRes = {
+                    "value"  : val.Value,
+                    "dagName": dstDagName
+                };
+
+                WSManager.addAggInfo(tableId, backColName, aggrOp, aggRes);
+            } catch (error) {
+                console.error(error);
+            }
 
             StatusMessage.success(msgId, false, tableId);
             deferred.resolve();
