@@ -6,5 +6,6 @@ var paths = {
     dagBackground : '/images/dag-background.png',
     dbDiamond : '/images/dbDiamond.png',
     dTable : '/images/dtable.png',
-    roundedRect: '/images/rounded-rect.png'
+    roundedRect: '/images/rounded-rect.png',
+    hourglass: '/images/hourglass-white.png'
 };
