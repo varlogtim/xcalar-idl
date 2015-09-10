@@ -110,8 +110,6 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.TableBulkActions):
                 // fallthrough
-            case (SQLOps.Aggr):
-                // fallthrough
             case (SQLOps.RenameCol):
                 // fallthrough
             case (SQLOps.TextAlign):
@@ -181,6 +179,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.Sort):
             case (SQLOps.IndexDS):
             case (SQLOps.Join):
+            case (SQLOps.Aggr):
             case (SQLOps.CheckIndex):
             case (SQLOps.GroupBy):
             case (SQLOps.GroupByIndex):

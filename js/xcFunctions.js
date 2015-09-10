@@ -82,6 +82,25 @@ window.xcFunction = (function($, xcFunction) {
             colNum = undefined;
         }
 
+        var instr = 'This is the aggregate result for column "' +
+                    frontColName + '". \r\n The aggregate operation is "' +
+                    aggrOp + '".';
+
+        var aggInfo = WSManager.checkAggInfo(tableId, backColName, aggrOp);
+        if (aggInfo != null) {
+
+            Alert.show({
+                "title"  : "Aggregate: " + aggrOp,
+                "instr"  : instr,
+                "msg"    : '{"Value":' + aggInfo.value + "}",
+                "isAlert": true
+            });
+
+            deferred.resolve();
+            return (deferred.promise());
+        }
+
+
         var msg = StatusMessageTStr.Aggregate + " " + aggrOp + " " +
                     StatusMessageTStr.OnColumn + ": " + frontColName;
         var msgObj = {
@@ -103,10 +122,6 @@ window.xcFunction = (function($, xcFunction) {
         XcalarAggregate(backColName, tableName, aggrOp, sqlOptions)
         .then(function(value, dstDagName) {
             // show result in alert modal
-            var instr = 'This is the aggregate result for column "' +
-                        frontColName + '". \r\n The aggregate operation is "' +
-                        aggrOp + '".';
-            // add alert
             Alert.show({
                 "title"  : "Aggregate: " + aggrOp,
                 "instr"  : instr,
@@ -123,6 +138,8 @@ window.xcFunction = (function($, xcFunction) {
                 };
 
                 WSManager.addAggInfo(tableId, backColName, aggrOp, aggRes);
+                RightSideBar.refreshAggTables();
+                commitToStorage();
             } catch (error) {
                 console.error(error);
             }

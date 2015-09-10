@@ -344,6 +344,10 @@ function deleteTable(tableIdOrName, tableType) {
                     generateFirstVisibleRowNum();
                 }
             }, 300);
+        } else if (tableType === TableType.Agg) {
+            // XXX as delete table is temporarily disabled
+            // this case is not tested yet!
+           RightSideBar.removeAggTable(tableId);
         }
 
         deferred.resolve();

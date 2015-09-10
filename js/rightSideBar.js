@@ -17,9 +17,9 @@ window.RightSideBar = (function($, RightSideBar) {
         $("#deleteTablesBtn").addClass('btnInactive');
         $('#archivedTableList .secondButtonWrap').hide();
         $('#inactiveTablesList').empty();
+        $("#aggTablesList").empty();
+        $("#aggregateTableList").find('.clearAll, .selectAll').hide();
         $("#orphanedTablesList").empty();
-        $("#submitOrphanedTablesBtn").hide();
-        $("#deleteOrphanedTablesBtn").hide();
         $("#orphanedTableList").find('.clearAll, .selectAll').hide();
 
         // clear CodeMirror
@@ -46,6 +46,7 @@ window.RightSideBar = (function($, RightSideBar) {
         RightSideBar.addTables(hiddenTables, IsActive.Inactive);
 
         generateOrphanList(gOrphanTables);
+        RightSideBar.refreshAggTables();
         setLastRightSidePanel();
         setupUDFList();
     };
@@ -58,6 +59,47 @@ window.RightSideBar = (function($, RightSideBar) {
             $('#archivedTableList').find('.btnLarge').show();
         }
     };
+
+    RightSideBar.refreshAggTables = function() {
+        var aggInfo = WSManager.getAggInfos();
+        var tables = [];
+
+        for (var key in aggInfo) {
+            // extract tableId, colName, and aggOps from key
+            var keySplits = key.split("#");
+            var tableId = keySplits[0];
+            var aggStr  = generateAggregateString(keySplits[1], keySplits[2]);
+
+            tables.push({
+                "key"      : key,
+                "tableName": gTables[tableId].tableName,
+                "aggStr"   : aggStr,
+                "value"    : aggInfo[key]
+            });
+        }
+
+        // sort by table Name
+        tables.sort(function(a, b) {
+            var compareRes = a.tableName.localeCompare(b.tableName);
+            if (compareRes === 0) {
+                // if table name is the same, compare aggStr
+                return (a.aggStr.localeCompare(b.aggStr));
+            } else {
+                return compareRes;
+            }
+        });
+
+        generateAggTableList(tables);
+    }
+
+    RightSideBar.removeAggTable = function(tableId) {
+        var $list = $('#aggTablesList .tableInfo[data-id="' + tableId + '"]');
+        if ($list.length > 0) {
+            var key = $list.data("key");
+            WSManager.removeAggInfo(key);
+            $list.remove();
+        }
+    }
 
     // move table to inactive list
     RightSideBar.moveTable = function(tableId) {
@@ -86,6 +128,9 @@ window.RightSideBar = (function($, RightSideBar) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
         $tableList.find(".tableName").text(newTableName);
+
+        // refresh agg list
+        RightSideBar.refreshAggTables();
     };
 
     RightSideBar.updateTableInfo = function(tableId) {
@@ -108,11 +153,15 @@ window.RightSideBar = (function($, RightSideBar) {
             return (deferred.promise());
         }
         var $tableList;
+
         if (tableType === TableType.InActive) {
             $tableList = $('#archivedTableList');
         } else if (tableType === TableType.Orphan) {
             $tableList = $('#orphanedTableList');
+        } else if (tableType === TableType.Agg) {
+            $tableList = $("#aggregateTableList");
         }
+
         var $tablesSelected = $tableList.find(".addTableBtn.selected")
                                         .closest(".tableInfo");
         var $buttons = $tableList.find('.btnLarge');
@@ -130,15 +179,17 @@ window.RightSideBar = (function($, RightSideBar) {
                 var table   = gTables[tableId];
                 var tableName;
 
-                if (table == null && tableType !== TableType.Orphan) {
-                    console.error("Error: do not find the table");
-                    innerDeferred.reject();
-                    return (innerDeferred.promise());
-                }
-
-                if (tableType === TableType.Orphan) {
+                if (tableType === TableType.Orphan ||
+                    tableType === TableType.Agg)
+                {
                     tableName = $li.data("tablename");
                 } else {
+                    if (table == null) {
+                        console.error("Error: do not find the table");
+                        innerDeferred.reject();
+                        return (innerDeferred.promise());
+                    }
+
                     tableName = table.tableName;
                 }
 
@@ -152,13 +203,33 @@ window.RightSideBar = (function($, RightSideBar) {
                             return (prepareOrphanForActive(tableName));
                         })
                         .then(function() {
-                            doneHandler($li, tableName);
                             return (addTable(tableName, null,
                                     AfterStartup.After, null));
                         })
                         .then(function(){
+                            doneHandler($li, tableName);
                             var tableIndex = gOrphanTables.indexOf(tableName);
                             gOrphanTables.splice(tableIndex, 1);
+                            innerDeferred.resolve();
+                        })
+                        .fail(function(error) {
+                            WSManager.removeTable(tableId);
+                            failHandler($li, tableName, error);
+                            innerDeferred.resolve(error);
+                        });
+                    } else if (tableType === TableType.Agg) {
+                        var key = $li.data("key");
+                        WSManager.addTable(tableId);
+
+                        prepareOrphanForActive(tableName)
+                        .then(function() {
+                            return (addTable(tableName, null,
+                                            AfterStartup.After, null));
+                        })
+                        .then(function(){
+                            WSManager.activeAggInfo(key, tableId);
+                            // RightSideBar.refreshAggTables() is called after
+                            // all promises done
                             innerDeferred.resolve();
                         })
                         .fail(function(error) {
@@ -224,6 +295,10 @@ window.RightSideBar = (function($, RightSideBar) {
             } else {
                 deferred.resolve();
             }
+        })
+        .always(function() {
+            // update
+            RightSideBar.refreshAggTables();
         });
 
         return (deferred.promise());
@@ -494,7 +569,8 @@ window.RightSideBar = (function($, RightSideBar) {
         var $tabsSection       = $("#tableListSectionTabs");
         var $tableListSections = $("#tableListSections .tableListSection");
         var $selectBtns        = $('#archivedTableList .secondButtonWrap,' +
-                                   '#orphanedTableList .secondButtonWrap');
+                                   '#orphanedTableList .secondButtonWrap,' +
+                                   '#aggregateTableList .secondButtonWrap');
 
         $tabsSection.on("click", ".tableListSectionTab", function() {
             var $tab  = $(this);
@@ -544,8 +620,8 @@ window.RightSideBar = (function($, RightSideBar) {
             refreshOrphanList();
         });
 
-        $("#inactiveTablesList, #orphanedTablesList").on("click",
-                                                    ".addTableBtn", function() {
+        $("#inactiveTablesList, #orphanedTablesList, #aggregateTableList")
+        .on("click", ".addTableBtn", function() {
             var $btn = $(this);
 
             $btn.toggleClass("selected");
@@ -576,11 +652,15 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $("#submitTablesBtn").click(function() {
-            addBulkTableHelper();
+            addBulkTableHelper(TableType.InActive);
         });
 
         $('#submitOrphanedTablesBtn').click(function() {
             addBulkTable(TableType.Orphan);
+        });
+
+        $("#submitAggTablesBtn").click(function() {
+            addBulkTableHelper(TableType.Agg);
         });
 
         $("#deleteTablesBtn, #deleteOrphanedTablesBtn").click(function() {
@@ -614,8 +694,8 @@ window.RightSideBar = (function($, RightSideBar) {
     };
 
     function setupUDF() {
-        
         var textArea = document.getElementById("udf-codeArea");
+
         editor = CodeMirror.fromTextArea(textArea, {
             "mode": {
                 "name"                  : "python",
@@ -942,17 +1022,17 @@ window.RightSideBar = (function($, RightSideBar) {
         );
     }
 
-    function addBulkTableHelper() {
-        var $tables = $("#inactiveTablesList").find(".addTableBtn.selected")
-                                              .closest(".tableInfo");
-        // var $sheetTables = $tables.filter(function() {
-        //     return !$(this).find(".worksheetInfo").hasClass("inactive");
-        // });
+    function addBulkTableHelper(tableType) {
+        var $tableList;
 
-        // $sheetTables.each(function() {
-        //     var tableId = $(this).data("id");
-        //     WSManager.activeTable(tableId);
-        // });
+        if (tableType === TableType.InActive) {
+            $tableList = $('#archivedTableList');
+        } else if (tableType === TableType.Agg) {
+            $tableList = $("#aggregateTableList");
+        }
+
+        var $tables = $tableList.find(".addTableBtn.selected")
+                                .closest(".tableInfo");
 
         var $noSheetTables = $tables.filter(function() {
             return $(this).find(".worksheetInfo").hasClass("inactive");
@@ -997,7 +1077,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
                         WSManager.addNoSheetTables(tableIds, wsIndex);
 
-                        addBulkTable(TableType.InActive);
+                        addBulkTable(tableType);
                     }
                 },
                 "cancel": function() {
@@ -1007,7 +1087,7 @@ window.RightSideBar = (function($, RightSideBar) {
             });
 
         } else {
-            addBulkTable(TableType.InActive);
+            addBulkTable(tableType);
         }
     }
 
@@ -1165,6 +1245,80 @@ window.RightSideBar = (function($, RightSideBar) {
                 $('#archivedTableList .secondButtonWrap').show();
             }
         }
+    }
+
+    function generateAggTableList(tables) {
+        var numTables = tables.length;
+        var html = "";
+
+        for (var i = 0; i < numTables; i++) {
+            var table      = tables[i];
+            var tableName  = table.tableName;
+            var aggStr     = table.aggStr;
+            var aggVal     = table.value.value;
+            var isActive   = table.value.isActive;
+            var dstTable   = table.value.dagName;
+            var dstTableId = xcHelper.getTableId(dstTable);
+            var wsInfo;
+            var addTableBtn;
+
+            if (isActive) {
+                var wsIndex = WSManager.getWSFromTable(dstTableId)
+
+                if (wsIndex == null) {
+                    // case that worksheet is deleted
+                    wsInfo =
+                        '<div class="worksheetInfo" data-toggle="tooltip" ' +
+                        'data-placement="top" data-container="body" ' +
+                        'title="' + dstTable + '">' +
+                            'No sheet' +
+                        '</div>';
+                } else {
+                    wsInfo =
+                        '<div class="worksheetInfo worksheet-' + wsIndex +
+                        '" data-toggle="tooltip" ' +
+                        'data-placement="top" data-container="body" ' +
+                        'title="' + dstTable + '">' +
+                            WSManager.getWSName(wsIndex) +
+                        '</div>';
+                }
+
+                addTableBtn = "";
+            } else {
+                wsInfo = '<div class="worksheetInfo inactive"></div>';
+                addTableBtn = '<span class="addTableBtn"></span>';
+            }
+
+            html += '<li class="clearfix tableInfo" ' +
+                     'data-id="' + dstTableId + '"' +
+                     'data-tablename="' + dstTable + '"' +
+                     'data-key="' + table.key + '">' +
+                        '<span class="tableNameWrap" data-toggle="tooltip" ' +
+                        'data-placement="top" data-container="body" ' +
+                        'title="' + tableName + '">' +
+                            tableName +
+                        '</span>' +
+                        '<span class="aggStrWrap" data-toggle="tooltip" ' +
+                        'data-placement="top" data-container="body" ' +
+                        'title="' + aggStr + '">' +
+                            aggStr +
+                        '</span>' +
+                        '<div class="tableListBox">' +
+                            '<span class="aggVal">' + aggVal + '</span>' +
+                            wsInfo +
+                            addTableBtn +
+                        '</div>' +
+                     '</li>';
+        }
+
+        var $aggregateTableList = $('#aggregateTableList');
+        $('#aggTablesList').html(html);
+
+        if (numTables > 0) {
+            $aggregateTableList.find('.btnLarge').show();
+            $aggregateTableList.find('.selectAll, .clearAll').show();
+        }
+        $aggregateTableList.find('.secondButtonWrap').show();
     }
 
     function generateOrphanList(tables) {

@@ -34,6 +34,41 @@ window.WSManager = (function($, WSManager) {
         return (aggInfos);
     }
 
+    WSManager.checkAggInfo = function(tableId, colName, aggOp) {
+        var key = tableId + "#" + colName + "#" + aggOp;
+        return (aggInfos[key]);
+    }
+
+    // add aggregate information
+    WSManager.addAggInfo = function(tableId, colName, aggOp, aggRes) {
+        // use this as key so that if later you want to sort,
+        // write a sort function that split by "#" and
+        // extract tableId/colNam/aggOp to sort by one of them
+        var key = tableId + "#" + colName + "#" + aggOp;
+
+        if (aggInfos.hasOwnProperty(key)) {
+            // XXX now if this agg ops is exist, do not update it,
+            // since update will make the old table info lost
+            console.warn("Aggregate result already exists!");
+        } else {
+            aggInfos[key] = aggRes;
+
+            var dstTableId = xcHelper.getTableId(aggRes.dagName);
+            noSheetTables.push(dstTableId);
+        }
+    }
+
+    // remove one entry of aggregate information
+    WSManager.activeAggInfo = function(key, tableId) {
+        aggInfos[key].isActive = true;
+        gTables[tableId].isAggTable = true;
+    }
+
+    // remove one entry of aggregate information
+    WSManager.removeAggInfo = function(key) {
+        delete aggInfos[key];
+    }
+
     // Get number of worksheets that is not null
     WSManager.getWSLen = function() {
         var len = 0;
@@ -90,15 +125,6 @@ window.WSManager = (function($, WSManager) {
             }
         }
     };
-
-    // add aggregate information
-    WSManager.addAggInfo = function(tableId, colName, aggOp, aggRes) {
-        // XXX use this as key so that if later you want to sort,
-        // write a sort function that split by "#" and
-        // extract tableId/colNam/aggOp to sort by one of them
-        var key = tableId + "#" + colName + "#" + aggOp;
-        aggInfos[key] = aggRes;
-    }
 
     // For reorder table use
     WSManager.reorderTable = function(tableId, srcIndex, desIndex) {
@@ -252,7 +278,7 @@ window.WSManager = (function($, WSManager) {
         $xcTablewrap.removeClass("worksheet-" + oldIndex)
                     .addClass("worksheet-" + newWSIndex);
         // refresh right side bar
-        $("#activeTablesList .tableInfo").each(function() {
+        $("#tableListSections .tableInfo").each(function() {
             var $li = $(this);
             if ($li.data("id") === tableId) {
                 var $workhseetInfo = $li.find(".worksheetInfo");
@@ -886,7 +912,10 @@ window.WSManager = (function($, WSManager) {
         }
 
         $("#inactiveTablesList").find(".worksheetInfo.worksheet-" + wsIndex)
-                                .addClass("inactive").text("No Sheet");
+                .addClass("inactive").text("No Sheet");
+
+        $("#aggTablesList").find(".worksheetInfo.worksheet-" + wsIndex)
+                .removeClass(".worksheet-" + wsIndex).text("No Sheet");
         rmWorksheet(wsIndex);
     }
 

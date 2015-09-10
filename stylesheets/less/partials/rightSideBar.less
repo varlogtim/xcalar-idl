@@ -199,7 +199,7 @@
         margin-left: -1px;
 
         .tableListSectionTab {
-            .size(@width: 33.3333%, @height: 100%);
+            .size(@width: 25%, @height: 100%);
             float: left;
             display: inline-block;
             .font(@weight: 700, @line-height: 35px, @size: 13px, @color: @color-text-darkGray);
@@ -388,8 +388,7 @@
         }
     }
 
-    #archivedTableList, #orphanedTableList {
-
+    #archivedTableList, #orphanedTableList, #aggregateTableList {
         .addTableBtn {
             display: inline-block;
             float: right;
@@ -415,7 +414,7 @@
 
             .btnLarge {
                 margin: 0px 5px 9px;
-                display: none;
+                // display: none;
                 .flex(1 0 170px);
                 white-space: nowrap;
                 text-indent: 2px;
@@ -424,13 +423,13 @@
                     .size(@width: 25px, @height: 100%);
                 }
 
-                &#submitTablesBtn, &#submitOrphanedTablesBtn {
+                &#submitTablesBtn, &#submitAggTablesBtn, &#submitOrphanedTablesBtn {
                     .icon {
                         .image("/images/send-single.png", 50%, 50%);
                     }
                 }
 
-                &#deleteTablesBtn, &#deleteOrphanedTablesBtn {
+                &#deleteTablesBtn, &#deleteAggTablesBtn, &#deleteOrphanedTablesBtn {
                     .icon {
                         .image("/images/garbageThick.png", 50%, 50%);
                     }
@@ -478,10 +477,71 @@
         }
     }
 
+    #aggregateTableList {
+        .tableNameWrap {
+            .size(@width: 25%, @height: 25px);
+            float: left;
+            font-size: 12px;
+            padding-left: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .aggStrWrap {
+            .size(@width: 25%, @height: 25px);
+            float: left;
+            .rounded(3px 0 0 3px);
+            .gray-gradient;
+            padding: 0 10px;
+            box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tableListBox {
+            .size(@width: 48%, @height: 25px);
+            .rounded(0 3px 3px 0);
+            cursor: default;
+            padding-left: 10px;
+
+            .aggVal {
+                .size(@width: ~"calc(100% - 24px)");
+            }
+
+            .addTableBtn {
+                cursor: pointer;
+            }
+
+            .worksheetInfo {
+                .size(@width: 100px);
+                text-align: right;
+                float: right;
+                padding-right: 10px;
+                .font(@size: 11px, @color: #4d4d4d);
+
+                &.inactive {
+                    display: none;
+                }
+            }
+        }
+
+        .tableInfo:first-child {
+            padding-top: 34px;
+            margin-top: -1px;
+            border-top: 1px solid @color-background-sidebar;
+            min-height: 67px;
+        }
+    }
+
     #orphanedTableList {
         .tableListBox {
             margin-left: 12%;
         }
+
         .tableInfo:first-child {
             padding-top: 34px;
             margin-top: -1px;

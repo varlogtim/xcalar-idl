@@ -631,7 +631,8 @@ function initializeTable() {
             currentTable = gTables[tableId];
 
             if (!currentTable) {
-                console.error("not find table", tableId);
+                // this case is fine since some are in agg table list
+                console.info("not find table", tableId);
                 continue;
             }
 

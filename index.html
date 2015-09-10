@@ -771,6 +771,7 @@
         <section id="tableListSectionTabs">
           <div class="tableListSectionTab active">Active</div>
           <div class="tableListSectionTab">Inactive</div>
+          <div class="tableListSectionTab">Aggregates</div>
           <div class="tableListSectionTab">Orphaned</div>
         </section>
         <!-- Sections -->
@@ -803,6 +804,29 @@
               </div>
             </div>
             <ul id="inactiveTablesList"></ul>
+          </div>
+          <!-- aggregate table list -->
+          <div id="aggregateTableList" class="tableListSection">
+            <div class="buttonWrap">
+              <button id="submitAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>ADD TO WORKSHEET
+              </button>
+              <!-- XXX temporary disable -->
+              <!-- <button id="deleteAggTablesBtn" type="button" class="btn btnLarge btnInactive iconBtn">
+                <span class="icon"></span>DELETE TABLES
+              </button> -->
+            </div>
+            <div class="secondButtonWrap">
+              <div class="btn btnSmall btnDeselected clearAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="clear all">
+                </span>
+              </div>
+              <div class="btn btnSmall selectAll">
+                <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="select all">
+                </span>
+              </div>
+            </div>
+            <ul id="aggTablesList"></ul>
           </div>
           <!-- orphaned table list -->
           <div id="orphanedTableList" class="tableListSection">

@@ -1111,7 +1111,7 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
         return (deferred.promise());
     }
 
-    var dstDagName = srcTablename.split("#")[0] +
+    var dstDagName = srcTablename.split("#")[0] + "-aggregate" +
                      Authentication.getHashId();
 
     getUnsortedTableName(srcTablename)

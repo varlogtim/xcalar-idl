@@ -220,9 +220,9 @@ function readFromStorage() {
                     if (table.isLocked) {
                         table.isLocked = false;
                         table.active = false;
-                    } else {
-                        gTables[tableId] = table;
                     }
+
+                    gTables[tableId] = table;
                     innerDeferred.resolve();
                 })
                 .fail(function(thriftError) {
