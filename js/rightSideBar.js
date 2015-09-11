@@ -973,8 +973,8 @@ window.RightSideBar = (function($, RightSideBar) {
                 onStart: function() {
                     var emptyBox = '<div class="intro-emptybox" style="' +
                                         'position:absolute;height: 40px;' +
-                                        'margin-top:-5px; margin-left: 20px;' +
-                                        'width: 150px;' +
+                                        'margin-top:-5px; margin-left: 15px;' +
+                                        'width: 100px;' +
                                     '" data-introstep="6"></div>';
                     $('#demoScreen #fileNameSelector').append(emptyBox);
                 }

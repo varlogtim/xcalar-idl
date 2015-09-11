@@ -475,7 +475,8 @@ window.xcHelper = (function($, xcHelper) {
                 }
 
                 if (ele.callback) {
-                    callback();
+                    StatusBox.show(error, $e, ele.formMode);
+                    ele.callback();
                 } else if (ele.isAlert) {
                     Alert.error("Invalid Filed", text);
                 } else {

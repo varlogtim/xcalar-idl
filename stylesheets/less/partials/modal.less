@@ -1077,7 +1077,7 @@ html.microsoft {
 /* End Of Alert Modal */
 
 /* Workbook Modal */
-#workbookModal {
+#workbookModal, #dataFlowModal {
     .modalBuilder(1000px, 625px);
 
     .modalInstruction {
@@ -1136,7 +1136,7 @@ html.microsoft {
             opacity: 0.4;
             pointer-events: none;
 
-            .userListBox .iconWrap {
+            .listBox .iconWrap {
                 background: @color-background-columnList !important;
             }
 
@@ -1161,7 +1161,7 @@ html.microsoft {
             }
         }
 
-        .userSection {
+        .sideListSection {
             .position(relative);
             .size(@width: 170px, @height: 100%);
             .flex(0 0 170px);
@@ -1183,7 +1183,7 @@ html.microsoft {
                 }
             }
 
-            .userLists {
+            .sideLists {
                 .position(relative);
                 .rounded(0 0 0 3px);
                 .flex-order(2);
@@ -1215,10 +1215,11 @@ html.microsoft {
                     .size(@width: 100%);
                     border-top: 1px solid @color-white;
                     padding-top: 11px;
+                    padding-right: 1px;
                     max-height: ~"calc(100% - 42px)";
                     overflow: auto;
 
-                    .userListBox {
+                    .listBox {
                         .size(@width: 100%, @height: 25px);
                         .rounded;
                         background: @color-white;
@@ -1281,7 +1282,7 @@ html.microsoft {
 
         }
 
-        .workbookSection {
+        .workbookSection, .previewSection {
             .position(relative);
             .size(@width: ~"calc(100% - 170px)", @height: 100%);
             overflow: hidden;
@@ -1306,8 +1307,8 @@ html.microsoft {
                 .flex-order(1);
                 height: 42px;
                 background: @color-background-darkGray;
-                border: 1px solid #b2b2b2;
-                border-left: none;
+                border: 1px solid #B2B2B2;
+                border-left-color: transparent;
                 overflow: hidden;
 
                 > section {
@@ -1408,6 +1409,113 @@ html.microsoft {
     }
 }
 /* End of Workbook Modal */
+
+/* Dataflow Modal */
+#dataFlowModal {
+    // display: block;
+    height: 600px;
+    .modalTopMain {
+        .optionSection {
+            .select-item {
+                .flex(0 1 33%);
+                &:nth-child(2) {
+                    .flex(0 1 66%);
+                }
+            }
+        }
+    }
+    .modalMain {
+        height: ~"calc(100% - 250px)";
+        .titleSection {
+            padding: 10px 20px;
+            .font(@color: @color-text-columnList, @weight: bold);
+        }
+        .sideListSection {
+            width: 230px;
+            .flex(0 0 230px);
+
+            .sideLists {
+                .listSection {
+                    max-height: ~"calc(100% - 32px)";
+                    .list {
+                        margin-top: 6px;
+                    }
+                    .listBox {
+                        &:hover {
+                            background: #C5E1F1;
+                            background: #E2EEF6;
+                        }
+                        &.selected {
+                            background: #4CA1D0;
+                            background: #C5E1F1;
+                            .checkmark {
+                                .image("/images/checkmark-white.png", 40%, 50%);
+                            }
+                            // .label {
+                            //     color: white;
+                            // }
+                            .iconWrap {
+                                .linear-gradient(top, #60B3E6, #3C8DB2);
+                            }
+                        }
+                        .iconWrap .icon {
+                            .image("/images/dfg-icon.png", 40%, 50%);
+                        }
+                    }
+                    .label {
+                        .flex(1 0 auto) !important;
+                    }
+                }
+            }
+
+            .dataFlowGroup {
+                margin-bottom: 6px;
+            }
+            .checkmark {
+                .flex(0 0 20px);
+                .image("/images/checkmark-light.png", 40%, 50%);
+                margin-right: 3px;
+            }
+        }
+        &.unavailable {
+            opacity: 1;
+            .sideListSection {
+                opacity: 0.4;
+            }
+            .previewSection {
+                pointer-events: initial;
+                .titleSection {
+                    border-left-color: #B2B2B2 !important;
+                }
+            }
+        }
+    }
+
+    .modalBottom {
+        .btn {
+            margin-top: 8px;
+        }
+    }
+
+    #dataFlowPreviews {
+        background-color: #F6F6F6;
+    }
+
+    .dagImage {
+        position: relative;
+        margin-left: 40px;
+        margin-top: 20px;
+        z-index: 1;
+    }
+    .previewCanvas {
+        pointer-events: none;
+        position:absolute;
+        left: 0;
+        top: 0;
+        z-index: -1;
+    }
+}
+/* End of Dataflow Modal */
 
 /* File Browser Modal */
 #fileBrowserModal {
@@ -2410,205 +2518,29 @@ html.microsoft {
     }
 }
 
-#scheduleModal {
-    .modalBuilder(700px, 400px);
+#addScheduleModal {
+    .modalBuilder(500px, auto);
+    bottom: auto;
+    right: auto;
     overflow: visible;
 
     .modalTopMain {
-        .size(@height: 240px);
-        .font(@weight: bold, @size: 13px);
-        padding: 0 20px;
-
-        .divider {
-            .size(@width: 100%, @height: 2px);
-            background-color: @color-retina-border;
-            border-bottom: 1px solid @color-white;
-        }
-
-        > div {
-            padding-left: 15px !important;
-        }
-
-        .titleSection {
-            .size(@height: 55px);
-            padding: 10px 0;
-            line-height: 35px;
-
-            .text {
-                color: @color-text-blue
-            }
-        }
-
-        .timeSection {
-            .size(@height: 55px);
-            .position(relative);
-            padding: 15px 0;
-            line-height: 25px;
-
-            &.inActive {
-                pointer-events: none;
-                opacity: 0.7;
-            }
-
-            .text {
-                display: inline-block;
-                .size(@width: 85px);
-            }
-
-            .input-box(@w: 210px, @h: 25px);
-
-            input {
-                padding: 0 15px;
-                .font(@weight: bold, @color: #858585);
-
-                &.date {
-                    margin-right: 20px;
-                }
-            }
-
-            .timePicker {
-                .size(@width: 208px, @height: 120px);
-                .position(absolute, @top: 41px, @right: 114px);
-                background-color: @color-white;
-                box-shadow: 0px 1px 1px 2px rgba(0,0,0,.1);
-                z-index: 41;
-                .rounded(0 3px 3px 0);
-                padding: 5px 11px;
-
-                > div {
-                    margin: 4px 0;
-                    .size(@width: 100%, @height: 20px);
-
-                    span, button, input {
-                        .size(@width: 60px, @height: 20px);
-                        margin: 0 1px;
-                        display: inline-block;
-                        float: left;
-                        text-align: center;
-                        line-height: 20px;
-                    }
-                }
-
-                .textSection {
-                    .font(@size: 10px, @color: #cccccc);
-                }
-
-                .inputSection {
-                    .font(@size: 12px, @color: #9f9f9f, @weight: bold);
-                    text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
-
-                    input {
-                        background-color: #f0f0f0;
-                        padding-top: 2px;
-                    }
-                }
-
-                .buttonSection {
-                    .btn {
-                        position: relative;
-
-                    }
-
-                    .hour {
-                        .rounded(3px 0 0 3px);
-                    }
-
-                    .minute {
-                        .rounded(0);
-                    }
-
-                    .cycle {
-                        .rounded(0 3px 3px 0);
-                    }
-
-                    .bar {
-                        .size(@width: 14px, @height: 3px);
-                        .position(absolute, @left: 50%);
-                        .transform(translate(-50%, -30%));
-                        background-color: @color-white;
-                        opacity: 0.9;
-                        box-shadow: 0 1px 1px 1px rgba(0, 0, 0, .1);
-                        .rounded(1px);
-
-                        &.vertical {
-                            .transform(translate(-50%, -30%) rotate(90deg));
-                        }
-                    }
-                }
-            }
-        }
-
-        .frequencySection {
-            padding-top: 10px;
-
-            .title {
-                .size(@width: 90px);
-            }
-
-            // for radio part
-            .select-item {
-                .position(relative, @top: 5px);
-                margin-right: 20px;
-                line-height: 20px;
-
-                .radio-check;
-
-                .label {
-                    float: left;
-                    padding-left: 5px;
-                }
-            }
-
-            // for dropdown list
-            .listSection {
-                .dropDownList(150px, 30px);
-                box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
-                font-weight: 600;
-
-                &.week {
-                    margin-left: 10px;
-                }
-
-                input {
-                    .noSelection;
-                    cursor: default;
-                }
-            }
-
-            // for input section in .freq2 and .freq3
-            .textSection {
-                margin: 0 10px;
-            }
-
-            .freq1, .freq2, .freq3 {
-                .size(@width: 100%, @height: 30px);
-                line-height: 30px;
-
-                > div {
-                    float: left;
-                }
-            }
-
-            .freq2, .freq3 {
-                padding-left: 20px;
-                margin-top: 20px;
-
-                &.inActive {
-                    .listSection, .textSection {
-                        pointer-events: none;
-                        opacity: 0.7;
-                    }
-                }
-            }
-        }
+        height: 70px;
+        margin-bottom: 20px;
+        padding-top: 20px;
     }
 
+    .listSection {
+        .dropDownList(~"calc(100% - 180px)", 25px);
+        margin-left: 90px;
+        .text {
+            cursor: default;
+            .noSelection;
+        }
+    }
     .modalBottom {
-        .size(@height: 65px);
-
         .btn {
-            margin-top: 17px;
-            margin-right: 17px;
+            margin-right: 20px;
         }
     }
 }

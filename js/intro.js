@@ -117,7 +117,7 @@ window.Intro = (function($, Intro) {
         $popover.css('opacity', 0);
         setTimeout(function() {
             $popover.css('opacity', 1);
-        });
+        }, 100);
         
         if (!options.includeNumbering) {
             $popover.find('.intro-number').hide();
@@ -188,7 +188,7 @@ window.Intro = (function($, Intro) {
         
         moveElementLayer();
         moveHighlightBox();
-        updatePopover();
+        updatePopover(true);
     }
 
     function moveElementLayer() {
@@ -203,9 +203,12 @@ window.Intro = (function($, Intro) {
         }
     }
 
-    function updatePopover() {
+    function updatePopover(initial) {
         var $popover = $('#intro-popover');
-        $popover.css('opacity', 1);
+        if (!initial) {
+            $popover.css('opacity', 1);
+        }
+        
         var $popoverNumber = $popover.find('.intro-number');
         $popoverNumber.removeClass('left right');
         $popoverNumber.find('.innerNumber').text(currentStep + 1);

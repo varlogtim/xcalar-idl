@@ -1,8 +1,3 @@
-// XXX Style the class .mainPane instead of this id
-#workspacePanel {
-    height: ~"calc(100% - 115px)";
-}
-
 #watermark {
     .position(absolute, @bottom: 100px, @left: 15px);
     .size(@width: 579px, @height: 253px);
@@ -669,11 +664,12 @@
             display: inline-block;
             z-index: 9;
             height: 60px;
+            width: 40px;
             .transform(translateX(-50%));
 
-            img {
-                height: 100%;
-            }
+                img {
+                    height: 100%;
+                }
         }
         .colMenu {
             cursor: initial;

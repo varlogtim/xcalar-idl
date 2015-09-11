@@ -1,0 +1,738 @@
+#schedulerPanel {
+    position: relative;
+    background-color: white;
+    .topBar {
+        .buttonArea {
+            .size(@width: 127px, @height: 100%);
+
+            &:first-child {
+                width: 187px;
+            }
+
+        }
+
+        .rightHeaderArea {
+            padding-left: 20px;
+            float: left;
+        }
+    }
+
+    .mainContent {
+        height: ~"calc(100% - 38px)";
+    }
+
+    #schedulesView, #dataflowView {
+        height: 100%;
+    }
+
+    .leftContent {
+        width: 314px;
+        height: 100%;
+        border-right: 1px solid #999999;
+        background-color: @color-background-darkGray;
+        float: left;
+
+        .headingArea {
+            height: 35px;
+            .gray-gradient;
+            text-align: center;
+            padding-top: 6px;
+            .font(@weight: 700, @size: 15px, @color: @color-background-darkdarkGray);
+        }
+
+        .mainButtonArea {
+            border-bottom: 1px solid rgba(0,0,0,0.25);
+            height: 85px;
+
+            .btn {
+                display: block;
+                margin: 0 auto;
+                width: 266px;
+
+                &#addSchedule .icon {
+                    .image("/images/schedule/schedule_calendar.png", 50%, 50%);
+                }
+
+                &#deleteSchedule .icon {
+                    .image("/images/garbage.png", 50%, 50%);
+                }
+
+                &.addGroup {
+                    .icon {
+                        .image("/images/addSchedule.png", 0%, 50%);
+                    }
+                }
+                &.delete {
+                    .icon {
+                        .image("/images/garbage.png", 0%, 50%);
+                    }
+                }
+                &.combine {
+                    .icon {
+                        .image("/images/combine.png", 0%, 50%);
+                    }
+                }
+
+                &.addGroup, &.delete, &.combine {
+                    .icon {
+                        margin-left: 3px;
+                    }
+                }
+            }                
+        }
+
+        .scheduleListArea {
+            .size(@height: ~"calc(100% - 120px)");
+            padding: 9px;
+            .position(relative);
+
+            .scrollbarWrapper {
+                .size(@width: ~"calc(100% + 20px)", @height: 100%);
+                .position(absolute);
+                overflow-x: hidden;
+                overflow-y: scroll;
+            }
+
+            .scheduleLists {
+                .position(relative, @left: -13px);
+            }
+
+            .scheduleList {
+                line-height: 25px;
+                margin-top: 10px;
+                cursor: default;
+                .noSelection;
+
+                &.active {
+                    .listBox {
+                        background-color: #c5e1f1;
+                    }
+
+                    .iconWrap {
+                        .action-gradient;
+                    }
+                }
+            }
+
+            .listBox {
+                .size(@width: 266px, @height: 25px);
+                .rounded;
+                margin: 0 auto;
+                background-color: @color-white;
+                box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+                overflow: hidden;
+                cursor: pointer;
+
+                .iconWrap {
+                    .size(@width: 25px, @height: 100%);
+                    .gray-gradient;
+                    float: left;
+                    border-top-left-radius: 3px;
+                    border-bottom-left-radius: 3px;
+
+                    .icon {
+                        .size(100%, 100%);
+                        .image("/images/schedule/schedule_calendar.png", 50%, 50%);
+                    }
+                }
+
+                .scheduleName {
+                    .size(@width: ~"calc(100% - 55px)");
+                    float: left;
+                    padding: 0 10px;
+                    white-space: nowrap;
+                    text-align: left;
+                    .textOverflow;
+                    .font(@size: 13px, @color: @color-text-darkGray);
+                }
+
+                .checkMark {
+                    .size(@width: 25px, @height: 100%);
+                    float: right;
+                    margin-right: 5px;
+                    .image("/images/datastore/tick.png", 50%, 50%);
+                    background-size: 20px;
+                }
+            }
+        }
+    }
+
+    .midContent {
+        .size(@width: ~"calc(100% - 314px);", @height: 100%);
+        float: left;
+
+        .midContentHeader {
+            box-shadow: 0 3px 2px rgba(0,0,0,.2);
+            padding: 6px 20px 0px;
+            overflow: hidden;
+            background-color: @color-background-darkGray;
+
+            h2 {
+                display: block;
+                height: 25px;
+                .font(@size: 19px, @line-height: 25px, @weight: bold, @color: @color-text-blue);
+            }
+
+            .scheduleInfoSection {
+                margin-top: 10px;
+
+                .scheduleInfo {
+                    .size(@height: 20px);
+                    .font(@line-height: 20px, @size: 13px, @weight: bold, @color: #7f7f7f);
+
+                    .name {
+                        display: inline-block;
+                        width: 100px;
+                    }
+
+                    .text {
+                        text-transform: capitalize;
+                    }
+                }
+            }
+        }
+
+        .midContentTable {
+            .position(relative, @top: 3px);
+            .flex(0 0 auto);
+            background-color: @color-white;
+            z-index: 2;
+
+            .titleSection {
+                .size(@height: 40px);
+                padding: 5px 0 5px 15px;
+                background: @color-background-darkGray;
+                box-shadow: 0px 2px 1px rgba(0,0,0,0.3);
+
+                .titleWrapper {
+                    .size(@width: ~"calc(100% - 22px)");
+                }
+
+                .title {
+                    float: left;
+                    .position(relative);
+                    .size(@width: ~"calc(25% - 10px)", @height: 30px, @max-width: 250px);
+                    .font(@weight: bold, @size: 12px, @line-height: 30px);
+                    margin-left: 10px;
+                    padding-left: 15px;
+                    .gray-gradient;
+                    .rounded;
+                    color: #5e5e5e;
+                    cursor: default;
+                    text-align: center;
+                }
+            }
+
+            .mainSection {
+                .size(@width: ~"calc(100% - 22px)", @min-height: 20px, @height: ~"calc(100% - 110px)");
+                .position(relative, @top: 0);
+                overflow-y: auto;
+                padding-left: 15px;
+                z-index: -1;
+            
+                .grid-unit {
+                    .size(@height: 30px);
+                    margin: 0 auto;
+                    display: block;
+                    cursor: default;
+
+                    > div {
+                        .size(@width: ~"calc(25% - 10px)", @height: 30px, @max-width: 250px);
+                        margin-left: 10px;
+                        padding: 0 20px;
+                        float: left;
+                        .font(@weight: bold, @size: 12px, @line-height: 30px, @color: #8b8b8b);
+                        .textOverflow;
+
+                        &.status {
+                            text-transform: capitalize;
+                        }
+                    }
+
+                    &:nth-child(even) > div {
+                        background-color: #f4f4f4;
+                    }
+
+                    &:nth-child(odd) > div {
+                        background-color: @color-background-darkGray;
+                    }
+                }
+            }
+
+            .bottomSection {
+                .size(@height: 30px);
+                .font(@line-height: 30px, @weight: bold);
+                margin: 20px 0;
+                padding-left: 45px;
+
+                > div {
+                    float: left;
+                    .size(@width: 18%, @min-width: 250px);
+
+                    &:first-child {
+                        margin-right: ~"calc(15% + 5px)";
+                    }
+                }
+
+                .text {
+                    color: @color-text-blue;
+                }
+            }
+        }
+
+        .midContentForm {
+            .flex(0 0 315px);
+            z-index: 3;
+            background-color: @color-background-topForm;
+
+            &.new {
+                .heading {
+                    pointer-events: none;
+                    cursor: pointer;
+                }
+            }
+
+            &.inActive {
+                .content, .buttonArea .btn {
+                    pointer-events: none;
+                    opacity: 0.7;
+                }
+
+                #scheduleForm-edit {
+                    background: transparent;
+                }
+            }
+
+            .heading {
+                .size(@height: 30px);
+                padding-left: 25px;
+                background-color: @color-background-topGrayMed;
+                .font(@line-height: 30px, @size: 13px, @weight: bold, @color: @color-white);
+
+                .iconWrap {
+                    float: left;
+                    .size(24px, 23px);
+                    cursor: pointer;
+                    .vertical-align;
+                    .action-gradient;
+
+                    .icon {
+                        .size(100%, 100%);
+                        .image("/images/schedule/edit_schedule.png", 50%, 50%);
+                    }
+                }
+
+                .text {
+                    cursor: pointer;
+                    float: left;
+                    margin-left: 5px;
+                }
+            }
+
+            .content {
+                .size(@width: 88%, @height: 245px);
+                margin: 0 auto;
+
+                .divider {
+                    .size(@width: 100%, @height: 2px);
+                    background-color: @color-retina-border;
+                    border-bottom: 1px solid @color-white;
+                }
+
+                .nameSection, .timeSection {
+                    .input-box(@w: 210px, @h: 25px);
+
+                    input {
+                        padding: 0 10px;
+                        .font(@weight: bold, @color: #858585);
+                    } 
+                }
+               
+
+                .nameSection {
+                    .size(@height: 55px);
+                    padding: 15px;
+                    line-height: 25px;
+
+                    .text {
+                        float: left;
+                        width: 120px;
+                    }
+                }
+
+                .timeSection {
+                    .size(@height: 55px);
+                    .position(relative);
+                    padding: 15px;
+                    line-height: 25px;
+
+                    .text {
+                        display: inline-block;
+                        .size(@width: 120px);
+                    }
+
+                    > div {
+                        float: left;
+
+                        &.datePickerPart {
+                            position: relative;
+                            margin-right: 20px;
+
+                            &.inActive {
+                                pointer-events: none;
+                                opacity: 0.7;
+                            }
+                        }
+
+                        &.timePickerPart {
+                            position: relative;
+                        }
+                    }
+
+                    .timePicker {
+                        display: none;
+                        .size(@width: 208px, @height: 120px);
+                        .position(absolute, @top: 26px, @left: 1px);
+                        background-color: @color-white;
+                        box-shadow: 0px 1px 1px 2px rgba(0,0,0,.1);
+                        z-index: 41;
+                        .rounded(0 3px 3px 0);
+                        padding: 5px 11px;
+
+                        > div {
+                            margin: 4px 0;
+                            .size(@width: 100%, @height: 20px);
+
+                            span, button, input {
+                                .size(@width: 60px, @height: 20px);
+                                margin: 0 1px;
+                                display: inline-block;
+                                float: left;
+                                text-align: center;
+                                line-height: 20px;
+                            }
+                        }
+
+                        .textSection {
+                            .font(@size: 10px, @color: #cccccc);
+                        }
+
+                        .inputSection {
+                            .font(@size: 12px, @color: #9f9f9f, @weight: bold);
+                            text-shadow: 0px 0px rgba(0, 0, 0, 0.2);
+
+                            input {
+                                background-color: #f0f0f0;
+                                padding-top: 2px;
+                            }
+                        }
+
+                        .buttonSection {
+                            .btn {
+                                position: relative;
+
+                            }
+
+                            .hour {
+                                .rounded(3px 0 0 3px);
+                            }
+
+                            .minute {
+                                .rounded(0);
+                            }
+
+                            .cycle {
+                                .rounded(0 3px 3px 0);
+                            }
+
+                            .bar {
+                                .size(@width: 14px, @height: 3px);
+                                .position(absolute, @left: 50%);
+                                .transform(translate(-50%, -30%));
+                                background-color: @color-white;
+                                opacity: 0.9;
+                                box-shadow: 0 1px 1px 1px rgba(0, 0, 0, .1);
+                                .rounded(1px);
+
+                                &.vertical {
+                                    .transform(translate(-50%, -30%) rotate(90deg));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .frequencySection {
+                    padding-top: 10px;
+                    padding-left: 15px;
+
+                    .title {
+                        .size(@width: 120px);
+                    }
+
+                    // for radio part
+                    .select-item {
+                        .position(relative, @top: 5px);
+                        margin-right: 20px;
+                        line-height: 20px;
+
+                        .radio-check;
+
+                        .label {
+                            float: left;
+                            padding-left: 5px;
+                        }
+                    }
+
+                    // for dropdown list
+                    .listSection {
+                        .dropDownList(150px, 30px);
+                        box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
+                        font-weight: 600;
+
+                        &.day {
+                            margin-left: 10px;
+                        }
+
+                        input {
+                            .noSelection;
+                            cursor: default;
+                        }
+                    }
+
+                    // for input section in .freq2 and .freq3
+                    .textSection {
+                        margin: 0 10px;
+                    }
+
+                    .freq1, .freq2 {
+                        .size(@width: 100%, @height: 30px);
+                        line-height: 30px;
+
+                        > div {
+                            float: left;
+                        }
+                    }
+
+                    .freq2 {
+                        padding-left: 120px;
+                        margin-top: 20px;
+
+                        &.inActive {
+                            .listSection, .textSection {
+                                pointer-events: none;
+                                opacity: 0.7;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .buttonArea {
+                .size(@height: 50px);
+                background-color: @color-white;
+                padding-top: 10px;
+                padding-left: 29%;
+
+                .btn {
+                    float: left;
+                    margin-right: 20px;
+
+                    &.cancel {
+                        .gray-gradient;
+
+                        &:hover, &:focus {
+                            .gray-inverse-gradient;
+                        }
+                    }
+                }
+            }
+        }
+
+        .midContentBottom {
+            .flex(1 1 auto);
+            background-color: @color-white;
+            z-index: 2;
+        }
+    }
+}
+#schedulesView {
+    display: none;
+    .leftContent {
+        .mainButtonArea {
+            padding: 7px 0;
+            .btn {
+                &:last-child {
+                    margin-top: 8px;
+                }
+            }
+        }
+    }
+    .midContent {
+        .flex-display;
+        .flex-flow(column);
+
+        .midContentHeader {
+            .flex(0 0 118px);
+        }
+    }
+}
+
+#dataflowView {
+    .leftContent {
+        .mainButtonArea {
+            height: 130px;
+            border-bottom: none;
+            box-shadow: 0px 2px 3px rgba(0,0,0,0.3);
+
+            .btn {
+                .transform(translateY(0%));
+                top: 10px;
+                margin-bottom: 8px;
+            }
+        }
+    }
+
+    .listSection {
+        .position(relative);
+        .size(@width: 100%);
+        padding: 11px 0px 2px;
+        max-height: ~"calc(100% - 42px)";
+        overflow: auto;
+
+        .listBox {
+            .size(@width: 100%, @height: 25px);
+            .rounded;
+            background: @color-white;
+            box-shadow: 1px 2px 1px rgba(0,0,0,.3);
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            .flex-display;
+            .flex-flow(row);
+
+            &:hover {
+                background: #C5E1F1;
+                background: #E2EEF6;
+            }
+            &.selected {
+                 background: #4CA1D0;
+                 background: #C5E1F1;
+                .checkmark {
+                    .image("/images/checkmark-white.png", 40%, 50%);
+                }
+                // .label {
+                //     color: white;
+                // }
+                .iconWrap {
+                    .linear-gradient(top, #60B3E6, #3C8DB2);
+                }
+            }
+
+            .iconWrap {
+                .flex(0 0 25px);
+                .gray-gradient;
+                .rounded(3px 0 0 3px);
+
+                .icon {
+                    .position(relative, @top: 3px, @left: 3px);
+                    .size(@width: 20px, @height: 19px);
+                    .image("/images/dfg-icon.png", 40%, 50%);
+                }
+            }
+
+            &.active .iconWrap {
+                .action-gradient;
+            }
+
+            .label {
+                .flex(0 0 auto);
+                padding-left: 8px;
+                .font(@line-height: 25px, @size: 13px, @color: @color-text-darkGray);
+            }
+        }
+
+        .list {
+            .position(relative);
+            .size(@width: ~"calc(100% - 8px)");
+            margin: 0 0 0 8px;
+            display: none;
+
+            li {
+                .size(@height: 22px);
+                .rounded;
+                list-style: none;
+                margin-top: 5px;
+                padding-left: 8px;
+                .font(@line-height: 22px, @size: 12px, @color: @color-text-columnList);
+                background: @color-background-columnList;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                cursor: default;
+
+                &.active {
+                    background: #4CA1D0;
+                    color: @color-white;
+                }
+            }
+        }
+
+        .label {
+            .flex(1 0 auto) !important;
+        }
+
+        .dataFlowGroup {
+            width: 266px;
+            margin: 0 auto 6px;
+        }
+        .checkmark {
+            .flex(0 0 20px);
+            .image("/images/checkmark-light.png", 40%, 50%);
+            margin-right: 3px;
+        }
+    }
+
+    .midContent {
+        .image("/images/dag-background.png", right, top, repeat);
+
+        .midContentHeader {
+            height: 35px;
+
+            h2 {
+                display: inline-block;
+                float: left;
+            }
+
+            .schedulesList {
+                display: inline-block;
+                float: right;
+                line-height: 26px;
+                margin-right: 40px;
+                li {
+                    display: inline-block;
+                    float: left;
+                    margin: 0 5px;
+                    border-radius:5px;
+                    border: 1px solid gray;
+                }
+            }
+        }
+
+        .midContentMain {
+            .dagImage {
+                position: relative;
+                margin-left: 50px;
+                margin-top: 20px;
+            }
+            canvas {
+                pointer-events: none;
+            }
+        }
+    }
+    
+}
+
+#dataFlowModal {
+    // display: none !important;
+}

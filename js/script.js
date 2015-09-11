@@ -242,9 +242,13 @@ function setupMainPanelsTab() {
 
         switch ($curTab.attr("id")) {
             case ("workspaceTab"):
-                    $("#workspacePanel").addClass("active");
-                    MonitorGraph.clear();
-                    WSManager.focusOnWorksheet();
+                $("#workspacePanel").addClass("active");
+                MonitorGraph.clear();
+                WSManager.focusOnWorksheet();
+                break;
+            case ("schedulerTab"):
+                $('#schedulerPanel').addClass("active");
+                MonitorGraph.clear();
                 break;
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");
@@ -735,6 +739,9 @@ function documentReadyIndexFunction() {
             OperationsModal.setup();
             WorkbookModal.setup();
             Scheduler.setup();
+            DataFlowModal.setup();
+            AddScheduleModal.setup();
+            DFGPanel.setup();
             WSManager.focusOnWorksheet();
         })
         .then(function() {

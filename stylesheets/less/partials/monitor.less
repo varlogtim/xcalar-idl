@@ -1,27 +1,12 @@
 #monitorPanel {
     background-color: white;
     position: relative;
-    .size(@width: 100%, @height: ~"calc(100% - 115px)");
 
     .topBar {
         border-bottom-width: 2px;
         z-index: 10;
 
         .buttonArea {
-            .size(@width: 150px, @height: 100%);
-            .darkDarkGray-gradient;
-            border-right: 1px solid @color-bar-border;
-            float: left;
-            cursor: pointer;
-
-            &.active {
-                .action-gradient;
-            }
-
-            .icon {
-                margin: 6px 4px 0 10px;
-                float: left;
-            }
 
             &#systemButton {
                 .icon {
@@ -42,9 +27,6 @@
             }
 
             .text {
-                float: left;
-                .font(@color: white, @size: 14px);
-                margin: 8px 0 0 3px;
                 text-shadow: 1px 1px #555555;
             }
         }
@@ -54,6 +36,7 @@
         display: none;
         // exclude height of #worksheetBar
         .size(@width: 100%, @height: ~"calc(100% - 35px)");
+        margin-top: -1px;
 
         &.active {
             display: block;
@@ -416,7 +399,7 @@
 
         .bottomSection {
             .flex-display();
-            .size(@height: ~"calc(100% - 352px)");
+            .size(@height: ~"calc(100% - 351px)");
             overflow-x: hidden;
             overflow-y: scroll;
             margin-right: 10px;

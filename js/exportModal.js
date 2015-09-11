@@ -364,7 +364,7 @@ window.ExportModal = (function($, ExportModal) {
        
         $exportPath.val($defaultLi.text()).attr('value', $defaultLi.text());
 
-        // XXX temporarily disable everything bu tmysql
+        // XXX temporarily disable everything but mysql
         var $disabledLis = $exportList.find('li').filter(function() {
             return ($(this).text().indexOf('MySql_Test') !== 0);
         });

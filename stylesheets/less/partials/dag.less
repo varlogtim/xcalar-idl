@@ -149,42 +149,42 @@
             cursor: initial;
         }
     }
+}
 
-    .dataStoreIcon {
-        display: inline-block;
-        .size(28px, 28px);
-        .transform (rotate(-45deg));
-        .rounded;
-        .action-gradient;
-    }
+.dagTableIcon {
+    .size(@width: 40px, @height: 30px);
+    // .size(@width: 45px, @height: 35px);
+    position: relative !important;
+    .action-gradient;
+    .rounded(15px);
+    // background-image: url(/images/rounded-rectangle.png);
+}
 
-    .dagTableIcon {
-        .size(@width: 40px, @height: 30px);
-        // .size(@width: 45px, @height: 35px);
-        position: relative !important;
-        .action-gradient;
-        .rounded(15px);
-        // background-image: url(/images/rounded-rectangle.png);
-    }
+.dataStoreIcon {
+    display: inline-block;
+    .size(28px, 28px);
+    .transform (rotate(-45deg));
+    .rounded;
+    .action-gradient;
+}
 
-    .dagIcon {
-        .size(@width: 20px, @height: 100%);
-        .dagDark-gradient;
-        float: left;
-    }
+.dagIcon {
+    .size(@width: 20px, @height: 100%);
+    .dagDark-gradient;
+    float: left;
+}
 
-    .actionTypeWrap {
-        .position(absolute);
-        .size(@width: 100px, @height: 32px, 
-              @max-width: 119px, @max-height: 70px);
-        .dag-gradient;
-        line-height: 30px;
-        margin: 0;
-        border: 1px solid rgb(135, 132, 132);
-        .rounded;
-        overflow: hidden;
-        cursor: pointer;
-    }
+.actionTypeWrap {
+    .position(absolute);
+    .size(@width: 100px, @height: 32px, 
+          @max-width: 119px, @max-height: 70px);
+    .dag-gradient;
+    line-height: 30px;
+    margin: 0;
+    border: 1px solid rgb(135, 132, 132);
+    .rounded;
+    overflow: hidden;
+    cursor: pointer;
 }
 
 .dagWrap {
@@ -231,15 +231,21 @@
     .retinaArea {
         display: inline-block;
         float: right;
-        .addRet {
-            display: inline-block;
-            .size(22px, 22px);
+        > .btn {
             float: right;
             margin-bottom: 8px;
             .rounded;
             box-shadow: 2px 2px 2px 0 rgba(0,0,0,.4);
+        }
+        .addRet {
             .icon {
                 .image("/images/retina/retAdd.png", 50%, 50%);
+            }
+        }
+        .addDataFlow {
+            margin-left: 6px;
+            .icon {
+                .image("/images/save-dfg.png", 50%, 50%);
             }
         }
 
@@ -386,6 +392,230 @@
         padding: 0 30px 0px 0;
     }
 
+    .columnOriginInfo {
+        position: fixed;
+        display: none; // xxx temporarily disabled
+    }
+
+    // #dagSchema {
+    //     position: fixed;
+    //     top: 100px;
+    //     display: inline-block;
+    //     background-color: white;
+    //     z-index: 21;
+    //     box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.3);
+    //     cursor: initial;
+    //     .noSelection;
+    //     border-radius: 2px;
+
+    //     .title {
+    //         display: block;
+    //         text-align: center;
+    //         font-size: 13px;
+    //         color: white;
+    //         line-height: 22px;
+    //         height: 24px;
+    //         overflow: hidden;
+    //         text-overflow: ellipsis;
+    //         white-space: nowrap;
+    //         font-weight: 600;
+    //         .action-gradient;
+    //         border-top-left-radius: 2px;
+    //         border-top-right-radius: 2px;
+    //         width: 170px;
+    //         padding: 0 4px;
+    //         .flex-display;
+    //         .justify-content(center);
+
+    //         > span {
+    //             display: block;
+    //         }
+    //         .tableName {
+    //             .flex(0 1 auto);
+    //             overflow: hidden;
+    //             text-overflow: ellipsis;
+    //         }
+    //         .numCols {
+    //             .flex(0 0 auto);
+    //             overflow: hidden;
+    //             margin-left: 4px;
+    //         }
+    //     }
+
+    //     .background {
+    //         width: 90px;
+    //         height: 100%;
+    //         border-radius: 3px;
+    //         background-color: #F4F4F4;
+    //         top: 0px;
+    //         left: 80px;
+    //         position: absolute;
+    //         z-index: -1;
+    //     }
+
+    //     .heading {
+    //         font-size: 11px;
+    //         font-weight: bold;
+    //         margin-top: -1px;
+    //         height: 20px;
+    //         border-bottom: 1px solid #CCCCCC;
+    //         &> div {
+    //             display: inline-block;
+    //             float: left;
+    //             margin: 0 4px;
+    //             white-space: nowrap;
+    //             text-align: left;
+    //             width: 70px;
+    //             line-height: 20px;
+    //             overflow: hidden;
+    //             text-overflow: ellipsis;
+
+    //             &:first-child {
+    //                 text-indent: 21px;
+    //                 color: #4499C5;
+    //             }
+
+    //             &:nth-child(2) {
+    //                 text-indent: 4px;
+    //             }
+
+    //             &:last-child {
+    //                 display: none; //sample title
+    //             }
+    //         }
+    //     }
+
+    //     &:after {
+    //         content: "";
+    //         display: block;
+    //         position: absolute;
+    //         bottom: -40px;
+    //         height: 40px;
+    //         width: 44px;
+    //         left: 30px;
+    //     }
+
+    //     &.shiftLeft {
+    //         &:after {
+    //             display: none;
+    //         }
+    //     }
+
+    //     ul {
+    //         overflow-y: auto;
+    //         overflow-x: hidden;
+    //         max-height: 200px;
+    //         width: 170px;
+    //         padding: 0px;
+    //         padding-top: 0px;
+
+    //         li {
+    //             height: 20px;
+    //             white-space: nowrap;
+    //             overflow: hidden;
+    //             width: 180px !important;
+    //             cursor: initial;
+    //             &:hover {
+    //                 background-color: rgba(99, 178, 225, 0.15);
+    //             }
+    //             &.selected {
+    //                 outline: 1px solid #CCCCCC;
+    //                 background-color: rgba(99, 178, 225, 0.25);
+    //             }
+
+    //             &> div {
+    //                 display: inline-block;
+    //                 float: left;
+    //                 font-size: 11px;
+    //                 font-weight: bold;
+    //                 margin: 0 5px;
+    //                 white-space: nowrap;
+    //                 text-align: left;
+    //                 width: 72px;
+    //                 line-height: 20px;
+    //                 overflow: hidden;
+    //                 text-overflow: ellipsis;
+                    
+
+    //                 &:first-child {
+    //                     color: #4499C5;
+    //                     margin-left: 2px;
+    //                     width: 75px;
+    //                 }
+    //                 &:nth-child(2) {
+    //                     cursor: pointer;
+    //                 }
+    //                 &:last-child {
+    //                     // temporarily hidding the sample data
+    //                     display: none;
+    //                 }
+    //             }
+    //         }
+    //         .noFields {
+    //             font-size: 11px;
+    //             display: inline-block;
+    //             float: left;
+    //             width: 100%;
+    //             line-height: 24px;
+    //         }
+    //     }
+
+    //     .iconWrap {
+    //         width: 20px;
+    //         display: inline-block;
+    //         margin-right: 4px;
+    //     }
+
+    //     .sprite-typeIcon(@x: 0, @y: 0, @width: 0, @height: 0, @top: 0) {
+    //         background-position: @x @y;
+    //         width: @width;
+    //         height: @height;
+    //         top: @top;
+    //     }
+
+    //     .typeIcon {
+    //         background-image: url(/images/sprites/typeIcons.png);    background-repeat: no-repeat;
+    //         display: block;
+    //         position: relative;
+    //         margin: 0 auto;
+
+    //         &.typeIcon-array {
+    //             .sprite-typeIcon(-5px, -5px, 12px, 14px, 2px);
+    //         }
+
+    //         &.typeIcon-boolean {
+    //             .sprite-typeIcon(-27px, -5px, 18px, 16px, 2px);
+    //         }
+
+    //         &.typeIcon-mixed {
+    //             .sprite-typeIcon(-55px, -5px, 15px, 15px, 2px);
+    //         }
+
+    //         &.typeIcon-integer {
+    //             .sprite-typeIcon(-80px, -5px, 10px, 12px, 1px);
+    //         }
+
+    //         &.typeIcon-decimal {
+    //             .sprite-typeIcon(-80px, -5px, 10px, 12px, 1px);
+    //         }
+
+    //         &.typeIcon-object {
+    //             .sprite-typeIcon(-100px, -5px, 14px, 14px, 3px);
+    //         }
+
+    //         &.typeIcon-string {
+    //             .sprite-typeIcon(-124px, -5px, 16px, 10px, 1px);
+    //         }
+
+    //         &.typeIcon-undefined, &.typeIcon-unknown {
+    //             .sprite-typeIcon(-150px, -5px, 10px, 14px, 2px);
+    //         }
+    //     }
+    // }
+}
+
+.dagImage {
+
     .dagTableWrap {
         .flex-display;
         vertical-align: middle;
@@ -483,11 +713,6 @@
             white-space: normal;
             display: inline-block;
         }
-    }
-
-    .columnOriginInfo {
-        position: fixed;
-        display: none; // xxx temporarily disabled
     }
 
     .parentContainer > .dagTableWrap {
@@ -860,8 +1085,8 @@
             }
         }
     }
-}
 
+}
 
 .parameterTable() {
     .tableContainer {

@@ -5,7 +5,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     var $optionSection = $workbookModal.find(".optionSection");
     var $workbookInput = $("#workbookInput");
     var $searchInput   = $("#workbookUserSearch");
-    var $userListBox   = $workbookModal.find(".userListBox");
+    var $userListBox   = $workbookModal.find(".listBox");
     var $userLists     = $("#workbookUserLists");
     var $workbookLists = $("#workbookLists");
     var minHeight = 400;
@@ -327,7 +327,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
             // allUsers = sortObj(allUsers, "username");
 
             //update user num
-            $workbookModal.find(".userSection .title .num")
+            $workbookModal.find(".sideListSection .title .num")
                           .text(allUsers.length);
             // update userlist
             var html = "";

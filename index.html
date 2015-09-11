@@ -22,15 +22,16 @@
     </div>
     <div id="mainMenu" class="clearfix">
       <div id="workspaceTab" class="mainMenuTab active">
-      <!-- <div id="workspaceTab" class="mainMenuTab active"> -->
         <span class="icon mountain-icon"></span>Worksheet
       </div>
-      <div id="monitorTab" class="mainMenuTab">
-      <!-- <div id="monitorTab" class="mainMenuTab"> -->
-        <span class="icon monitor-icon"></span>Monitor
+      <div id="schedulerTab" class="mainMenuTab">
+        <span class="icon scheduler-icon"></span>Scheduler
       </div>
       <div id="dataStoresTab" class="mainMenuTab">
         <span class="icon db-icon"></span>Data Stores
+      </div>
+      <div id="monitorTab" class="mainMenuTab">
+        <span class="icon monitor-icon"></span>Monitor
       </div>
     </div>
     <div id="logo"></div>
@@ -147,7 +148,101 @@
       </div>
     </div>
     <!-- End Of Parameter Modal -->
-
+    <!-- DATAFLOW MODAL -->
+  <div id="dataFlowModal" class="modalContainer">
+    <!-- DATAFLOW Header -->
+    <header class="modalHeader">
+      <span class="text">Save Data Flow Group</span>
+      <div class="close">
+        <span class="icon"></span>
+      </div>
+    </header>
+    <!-- Data Flow Modal Instruction -->
+    <section class="modalInstruction">
+      <div class="icon"></div>
+      <div class="text"></div>
+    </section>
+    <!-- Data Flow Modal Top Section-->
+    <section class="modalTopMain">
+      <!-- option section -->
+      <div class="optionSection">
+          <!-- option: new data flow group -->
+          <div class="select-item" data-no="0">
+            <div class="radio checked">
+              <span class="dot"></span>
+            </div>
+            <div class="label">New Data Flow Group</div>
+          </div>
+          <!-- option: add to existing data flow -->
+          <div class="select-item" data-no="1">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Append to Existing Data Flow</div>
+          </div>
+      </div>
+      <!-- input section for new group name -->
+      <div class="inputSection">
+        <span class="label">New Group Name:</span>
+        <input id="newGroupNameInput" type="text" spellcheck="false">
+      </div>
+    </section>
+    <!-- Data Flow Modal Main Section -->
+    <section class="modalMain unavailable">
+      <!-- Data Flow Lists Section -->
+      <section class="sideListSection">
+        <!-- header -->
+        <header class="title">
+          <h2>Data Flow Groups (<span class="num">0</span>)</h2>
+        </header>
+        <!-- data flow lists -->
+        <div class="sideLists">
+          <!-- search area -->
+          <div class="searchArea">
+            <input id="dataFlowSearch" type="text" spellcheck="false"
+                  placeholder="Search keyword...">
+            <div class="iconWrap clear">
+              <span class="icon"></span>
+            </div>
+          </div>
+          <!-- list section -->
+          <div class="listSection">
+            <div class="dataFlowGroup">
+              <div class="listBox">
+                <div class="iconWrap">
+                  <span class="icon"></span>
+                </div>
+                <div class="label">DFG 1</div>
+              </div>
+              <ul class="sublist list">
+                <li>something</li>
+              </ul>
+            </div>
+            
+          </div>
+        </div>
+      </section>
+      <!-- Preview Section -->
+      <section class="previewSection">
+        <!-- title section -->
+        <section class="titleSection">
+          <!-- <section class="innerTitleSection"> -->
+            Preview
+          <!-- </section> -->
+           <!-- name -->
+        </section>
+        <!-- Data Flow list section -->
+        <section id="dataFlowPreviews" class="listSection">
+        </section>
+      </section>
+    </section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+      <button type="button" class="btn btnMid confirm">SAVE</button>
+      <button type="button" class="btn btnMid cancel">CANCEL</button>
+    </section>
+  </div>
+  <!-- End of DATAFLOW MODAL -->
     <!-- Start OPERATIONS MODAL -->
     <div id="operationsModal" class="modalContainer">
       <div class="modalHeader operationsModalHeader ">
@@ -870,6 +965,288 @@
     </div>
   </div>
   <!-- END DATASTORE PANEL -->
+  
+  <!-- SCHEDULER PANEL -->
+  <div id="schedulerPanel" class="mainPanel">
+    <div id="schedulerTopBar" class="topBar">
+        <div id="dataflowButton" class="buttonArea active">
+            <div class="icon"></div>
+            <div class="text">DATA FLOW GROUP</div>
+        </div>
+        <div id="schedulesButton" class="buttonArea">
+            <div class="icon"></div>
+            <div class="text">SCHEDULES</div>
+        </div>
+        <div class="rightHeaderArea">
+          <div class="text">DETAIL</div>
+        </div>
+    </div>
+    <div class="mainContent">
+      <div id="dataflowView">
+        <div class="leftContent no-selection">
+          <div class="headingArea">
+            Data Flow Groups (<span class="numGroups">0</span>)
+          </div>
+          <div class="mainButtonArea">
+            <button class="btn btnLarge btnInactive iconBtn addGroup">
+              <span class="icon"></span>
+              ADD GROUP TO SCHEDULE
+            </button>
+            <button class="btn btnLarge btnInactive iconBtn delete">
+              <span class="icon"></span>
+              DELETE SELECTED ITEM
+            </button>
+            <button class="btn btnLarge btnInactive iconBtn combine">
+              <span class="icon"></span>
+              COMBINE SELECTED ITEM
+            </button>
+          </div>
+          <div class="listSection">
+            
+          </div>
+        </div>
+        <div class="midContent">
+          <div class="midContentHeader">
+            <h2></h2>
+            <ul class="schedulesList"></ul>
+          </div>
+          <div class="midContentMain"></div>
+        </div>
+      </div>
+      <!-- END Data Flow View -->
+      <!-- schedules view -->
+      <div id="schedulesView">
+        <!-- leftContent -->
+        <div class="leftContent">
+          <div class="headingArea">
+            Scheduled Data Flow Group (2)
+          </div>
+          <div class="mainButtonArea">
+            <button id="addSchedule" class="btn btnLarge iconBtn">
+              <span class="icon"></span>
+              ADD NEW SCHEDULE
+            </button>
+            <button id="deleteSchedule" class="btn btnLarge iconBtn btnInactive">
+              <span class="icon"></span>
+              DELETE SELECTED SCHEDULE
+            </button>
+          </div>
+          <!-- scheduleListArea -->
+          <div class="scheduleListArea">
+            <div class="scrollbarWrapper">
+              <ul id="scheduleLists" class="scheduleLists support-animation"></ul>
+            </div>
+          </div>
+        </div>
+        <!-- midContent -->
+        <div class="midContent">
+          <!-- midContentHeader -->
+          <div id="scheduleInfos" class="midContentHeader no-selection">
+            <h2 class="heading textOverflow">New Schedule</h2>
+            <div class="scheduleInfoSection">
+              <!-- created -->
+              <div class="scheduleInfo created">
+                <span class="name">Created:</span> 
+                <span class="text">09/14/2015 05:30 PM</span>
+              </div>
+              <!-- modified -->
+              <div class="scheduleInfo modified">
+                <span class="name">Last modified:</span> 
+                <span class="text">09/14/2015 06:00 PM</span>
+              </div>
+              <div class="scheduleInfo frequency">
+                <span class="name">Frequency: </span> 
+                <span class="text">Monthly</span>
+              </div>
+            </div>
+          </div>
+          <!-- midContentTable -->
+          <div id="scheduleTable" class="midContentTable">
+            <section class="titleSection">
+              <div class="titleWrapper">
+                <div class="title name">Data Flow Group Name</div>
+                <div class="title time">Initial Run Time</div>
+                <div class="title status">Status</div>
+              </div>
+            </section>
+            <section class="mainSection">
+             <!--  <div class="grid-unit">
+                <div class="name">DFG-2</div>
+                <div class="time">09/11/2015 05:30PM</div>
+                <div class="status">Normal</div>
+              </div> -->
+            </section>
+            <section class="bottomSection">
+              <div class="lastRunInfo">
+                Last Run:
+                <span class="text">N/A</span>
+              </div>
+               <div class="nextRunInfo">
+                Next Run:
+                <span class="text">N/A</span>
+              </div>
+            </section>
+          </div>
+          <!-- midContentForm -->
+          <div id="scheduleForm" class="midContentForm new">
+            <section class="heading no-selection">
+              <div id="scheduleForm-edit" class="iconWrap" data-toggle="tooltip"
+              data-placement="top" data-container="body" title="Edit Schedule">
+                <span class="icon"></span>
+              </div>
+              <span class="text">NEW SCHEDULE</span>
+            </section>
+            <section class="content">
+              <div class="nameSection">
+                <div class="text">Schedule Name:</div>
+                <input class="name textOverflow" type="text" placeholder="please input schedule name">
+              </div>
+              <div class="divider"></div>
+              <!-- time section -->
+              <div class="timeSection">
+                <div class="text">Start Time:</div>
+                <div class="datePickerPart">
+                  <input class="date" type="text">
+                </div>
+                <div class="timePickerPart">
+                  <input class="time timePickerBox" type="text">
+                  <!-- Timepicker -->
+                  <div id="scheduler-timePicker"class="timePicker">
+                    <div class="textSection">
+                      <span class="text">Hour</span>
+                      <span class="text">Minute</span>
+                    </div>
+                    <div class="buttonSection">
+                      <button class="btn btnMid increase hour">
+                        <div class="bar"></div>
+                        <div class="bar vertical"></div>
+                      </button>
+                      <button class="btn btnMid increase minute">
+                        <div class="bar"></div>
+                        <div class="bar vertical"></div>
+                      </button>
+                      <button class="btn btnMid increase ampm">
+                        <div class="bar"></div>
+                        <div class="bar vertical"></div>
+                      </button>
+                    </div>
+                    <div class="inputSection">
+                      <input class="hour" type="text" disabled>
+                      <input class="minute" type="text" disabled>
+                      <span class="ampm">PM</span>
+                    </div>
+                    <div class="buttonSection">
+                      <button class="btn btnMid decrease hour">
+                        <div class="bar"></div>
+                      </button>
+                      <button class="btn btnMid decrease minute">
+                        <div class="bar"></div>
+                      </button>
+                      <button class="btn btnMid decrease ampm">
+                        <div class="bar"></div>
+                      </button>
+                    </div>
+                  </div>
+                  <!-- End Timepicker -->
+                </div>
+              </div>
+              <!-- divider -->
+              <div class="divider"></div>
+              <!-- frequency section -->
+              <div class="frequencySection">
+                <!-- part1 -->
+                <div class="freq1">
+                  <div class="title">Frequency:</div>
+                  <div class="select-item" data-option="hourly">
+                    <div class="radio checked">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">Hourly</div>
+                  </div>
+                  <div class="select-item" data-option="daily">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">Daily</div>
+                  </div>
+                  <div class="select-item" data-option="weekly">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">Weekly</div>
+                  </div>
+                  <div class="select-item" data-option="biweekly">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">Biweekly</div>
+                  </div>
+                  <div class="select-item" data-option="monthly">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">Monthly</div>
+                  </div>
+                </div>
+                <!-- part2 -->
+                <div class="freq2 inActive">
+                  <div class="select-item" data-option="dayPerMonth">
+                    <div class="radio">
+                      <span class="dot"></span>
+                    </div>
+                    <div class="label">The</div>
+                  </div>
+                  <div class="listSection radix">
+                    <input class="text" value="First" disabled spellcheck="false">
+                    <div class="iconWrapper">
+                      <span class="icon"></span>
+                    </div>
+                    <ul class="list">
+                      <li>First</li>
+                      <li>Second</li>
+                      <li>Third</li>
+                      <li>Fourth</li>
+                      <li>Last</li>
+                    </ul>
+                  </div>
+                  <div class="listSection day">
+                    <input class="text" value="Sunday" disabled spellcheck="false">
+                    <div class="iconWrapper">
+                      <span class="icon"></span>
+                    </div>
+                    <ul class="list">
+                      <li>Sunday</li>
+                      <li>Monday</li>
+                      <li>Tuesday</li>
+                      <li>Wednesday</li>
+                      <li>Thursday</li>
+                      <li>Friday</li>
+                      <li>Saturday</li>
+                    </ul>
+                  </div>
+                  <div class="textSection">
+                    <span class="text">of every month</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section class="buttonArea">
+              <button id="scheduleForm-cancel" type="button" class="btn btnMid cancel">
+                CANCEL
+              </button>
+              <button id="scheduleForm-save" type="button" class="btn btnMid confirm">
+                SAVE
+              </button>
+            </section>
+          </div>
+          <div class="midContentBottom"></div>
+        </div>
+        <!-- END midContent -->
+      </div>
+      <!-- END schedulesView -->
+    </div>
+  </div>
+  <!-- END SCHEDULER PANEL -->
 
   <div class="underConstruction mainPanel">
     <div class="topBar"></div>
@@ -1581,174 +1958,34 @@
     </table>
   </div>
   <!-- End of ScratchPad -->
-
-  <!-- Schedule Modal -->
-  <div id="scheduleModal" class="modalContainer">
-    <!-- Schedule Modal Header -->
+  <!-- AddSchedule Modal -->
+  <div id="addScheduleModal" class="modalContainer">
+    <!-- AddSchedule Modal Header -->
     <header class="modalHeader">
       <span class="text">Add Schedule</span>
       <div class="close">
         <span class="icon"></span>
       </div>
     </header>
-    <!-- Schedule Modal Instruction -->
+    <!-- AddSchedule Modal Instruction -->
     <section class="modalInstruction">
       <div class="icon"></div>
       <div class="text">
-          Choose Start Time and Frequency to schedule the Data Flow Group
+          Select a schedule to add to the Data Flow Group.
       </div>
     </section>
-    <!-- Schedule Main Section -->
+    <!-- AddSchedule Main Section -->
     <section class="modalTopMain">
       <!-- title section -->
-      <div class="titleSection">
-        <span class="title">Data Flow Group Name:</span>
-        <span class="text">DFG 2</span>
-      </div>
-      <!-- divider -->
-      <div class="divider"></div>
-      <!-- time section -->
-      <div class="timeSection">
-        <span class="text">Start Time:</span>
-        <input class="date" type="text">
-        <input class="time timePickerBox" type="text">
-        <!-- time picker -->
-        <div id="scheduler-timePicker"class="timePicker">
-          <div class="textSection">
-            <span class="text">Hour</span>
-            <span class="text">Minute</span>
-          </div>
-          <div class="buttonSection">
-            <button class="btn btnMid increase hour">
-              <div class="bar"></div>
-              <div class="bar vertical"></div>
-            </button>
-            <button class="btn btnMid increase minute">
-              <div class="bar"></div>
-              <div class="bar vertical"></div>
-            </button>
-            <button class="btn btnMid increase ampm">
-              <div class="bar"></div>
-              <div class="bar vertical"></div>
-            </button>
-          </div>
-          <div class="inputSection">
-            <input class="hour" type="text" disabled>
-            <input class="minute" type="text" disabled>
-            <span class="ampm">PM</span>
-          </div>
-          <div class="buttonSection">
-            <button class="btn btnMid decrease hour">
-              <div class="bar"></div>
-            </button>
-            <button class="btn btnMid decrease minute">
-              <div class="bar"></div>
-            </button>
-            <button class="btn btnMid decrease ampm">
-              <div class="bar"></div>
-            </button>
-          </div>
+      <div class="listSection scheduleList">
+        <input class="text focusable scheduleListInput" type="text" value="" spellcheck="false" readonly="">
+        <div class="iconWrapper">
+            <span class="icon"></span>
         </div>
-      </div>
-      <!-- divider -->
-      <div class="divider"></div>
-      <!-- frequency section -->
-      <div class="frequencySection">
-        <!-- part1 -->
-        <div class="freq1">
-          <div class="title">Frequency:</div>
-          <div class="select-item" data-option="hourly">
-            <div class="radio checked">
-              <span class="dot"></span>
-            </div>
-            <div class="label">Hourly</div>
-          </div>
-          <div class="select-item" data-option="daily">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <div class="label">Daily</div>
-          </div>
-          <div class="select-item" data-option="weekly">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <div class="label">Weekly</div>
-          </div>
-          <div class="select-item" data-option="biweekly">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <div class="label">Biweekly</div>
-          </div>
-          <div class="select-item" data-option="monthly">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <div class="label">Monthly</div>
-          </div>
-        </div>
-        <!-- part2 -->
-        <!-- <div class="freq2">
-          <div class="select-item" data-option="day-repeat">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <div class="label">Day</div>
-          </div>
-          <div class="listSection">
-            <input class="text" value="1" disabled>
-            <div class="iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <ul class="list">
-              <li name="1"></li>
-            </ul>
-          </div>
-          <div class="textSection">
-            <span class="text">of every month</span>
-          </div>
-        </div> -->
-        <!-- part3 -->
-        <div class="freq2">
-          <div class="select-item" data-option="weekPerMonth">
-            <div class="radio">
-              <span class="dot"></span>
-            </div>
-            <div class="label">The</div>
-          </div>
-          <div class="listSection">
-            <input class="text" value="First" disabled spellcheck="false">
-            <div class="iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <ul class="list">
-              <li name="first">First</li>
-              <li name="second">Second</li>
-              <li name="third">Third</li>
-              <li name="fourth">Fourth</li>
-              <li name="last">Last</li>
-            </ul>
-          </div>
-          <div class="listSection week">
-            <input class="text" value="Sunday" disabled spellcheck="false">
-            <div class="iconWrapper">
-              <span class="icon"></span>
-            </div>
-            <ul class="list">
-              <li name="Sunday">Sunday</li>
-              <li name="Monday">Monday</li>
-              <li name="Tuesday">Tuesday</li>
-              <li name="Wednesday">Wednesday</li>
-              <li name="Thursday">Thursday</li>
-              <li name="Friday">Friday</li>
-               <li name="Saturday">Saturday</li>
-            </ul>
-          </div>
-          <div class="textSection">
-            <span class="text">of every month</span>
-          </div>
-        </div>
+        <ul class="list" style="display: none;">
+          <li class="hint unavailable">Choose a target</li>
+          <li>MySql_Test</li>
+        </ul>
       </div>
     </section>
     <!-- Button Section -->
@@ -1757,7 +1994,7 @@
       <button type="button" class="btn btnMid cancel">CANCEL</button>
     </section>
   </div>
-  <!-- End of Schedule Modal -->
+  <!-- End of AddSchedule Modal -->
 
   <!-- Alert Modal -->
   <div id="alertModal" class="modalContainer">
@@ -1854,13 +2091,13 @@
     <!-- Workbook Modal Main Section -->
     <section class="modalMain">
       <!-- User Lists Section -->
-      <section class="userSection">
+      <section class="sideListSection">
         <!-- header -->
         <header class="title">
           <h2>Users (<span class="num">0</span>)</h2>
         </header>
         <!-- userlists -->
-        <div class="userLists">
+        <div class="sideLists">
           <!-- search area -->
           <div class="searchArea">
             <input id="workbookUserSearch" type="text" spellcheck="false"
@@ -1871,7 +2108,7 @@
           </div>
           <!-- list section -->
           <div class="listSection">
-            <div class="userListBox">
+            <div class="listBox">
               <div class="iconWrap">
                 <span class="icon"></span>
               </div>
@@ -2297,6 +2534,7 @@
 <script src="/js/walkthrough_en.js" type="text/javascript"></script>
 <script src="/js/intro.js" type="text/javascript"></script>
 <script src="/js/paths.js" type="text/javascript"></script>
+<script src="/js/dataflow.js" type="text/javascript"></script>
 <script src="/test/testSuite.js" type="text/javascript"></script>
 <!-- Start up script -->
 <script>

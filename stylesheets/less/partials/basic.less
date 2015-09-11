@@ -110,6 +110,29 @@ body {
 
 .topBar {
     top: -1px;
+    .buttonArea {
+        .size(@width: 127px, @height: 100%);
+        .darkDarkGray-gradient;
+        border-right: 1px solid @color-bar-border;
+        float: left;
+        cursor: pointer;
+
+        &.active {
+            .action-gradient;
+        }
+
+        .icon {
+            margin: 6px 4px 0 10px;
+            float: left;
+        }
+    }
+
+    .text {
+        .font(@size: 14px, @color: @color-white);
+        float: left;
+        margin: 8px 0 0 3px;
+        text-shadow: 1px 1px @color-text-drop-shadow;
+    }
 }
 
 /* For Both worksheet menu bar and bottom area bar */
@@ -143,6 +166,8 @@ body {
 
 .mainPanel {
     display: none;
+    .size(@width: 100%, @height: ~"calc(100% - 115px)");
+
     &.active {
         display: block;
     }
@@ -1236,7 +1261,7 @@ ul.inputMenu {
         .position(relative);
         .size(@height: 32px);
         margin: 4px 10px 0px 0px;
-        padding: 5px 25px 0px 35px;
+        padding: 5px 25px 0px 34px;
         border: 1px solid @color-tab-border;
         .rounded;
         display: inline-block;
@@ -1269,6 +1294,10 @@ ul.inputMenu {
 
             .monitor-icon {
                 .image("/images/monitor-active.png");
+            }
+
+            .scheduler-icon {
+                .image("/images/scheduler-icon-active.png");
             }
         }
 
@@ -1303,6 +1332,9 @@ ul.inputMenu {
             .monitor-icon {
                 .image("/images/monitor-active.png");
             }
+            .scheduler-icon {
+                .image("/images/scheduler-icon-active.png");
+            }
         }
 
         .icon {
@@ -1331,6 +1363,11 @@ ul.inputMenu {
 
         .monitor-icon {
             .image("/images/monitor.png");
+        }
+
+        .scheduler-icon {
+            .image("/images/scheduler-icon.png");
+            margin-top: 0px;
         }
     }
 }
@@ -2311,7 +2348,6 @@ body.tooltipOff {
 /* JQUERY DATEPICKER */
 #ui-datepicker-div.schedulerDatePicker {
     .size(@width: 208px);
-    .position(@top: 41px, @left: 104px);
     background-color: #f0f0f0;
     box-shadow: 0px 1px 1px 2px rgba(0,0,0,.1);
 
