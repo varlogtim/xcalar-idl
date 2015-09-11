@@ -33,7 +33,19 @@ window.DagPanel = (function($, DagPanel) {
                 $dagPanel.addClass('hidden');
                 $compSwitch.removeClass('active');
                 $('#mainFrame').removeClass('midway');
-                WSManager.focusOnWorksheet();
+                
+                setTimeout(function() {WSManager.focusOnWorksheet();
+                    var mainFrameHeight = $('#mainFrame').height();
+                    $('.tableLocked:visible').each(function() {
+                        var $tableWrap = $(this);
+                        var tableWrapHeight = $tableWrap.find('.xcTbodyWrap')
+                                                        .height();
+                        var topPos = 100 *
+                                    ((tableWrapHeight / mainFrameHeight) / 2);
+                        topPos = Math.min(topPos, 40);
+                        $tableWrap.find('.lockedIcon').css('top', topPos + '%');
+                    });
+                }, 300);
             }
 
             $('.mainPanel').removeClass('active');

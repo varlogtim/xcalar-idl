@@ -406,8 +406,9 @@ window.WSManager = (function($, WSManager) {
         var mainFrameHeight = $('#mainFrame').height();
         $('.tableLocked:visible').each(function() {
             var $tableWrap = $(this);
-            var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
-            var topPos = 100 * ((tableHeight / mainFrameHeight) / 2);
+            var tableHeight = $tableWrap.find('.xcTable').height();
+            var tableWrapHeight = $tableWrap.find('.xcTbodyWrap').height();
+            var topPos = 100 * ((tableWrapHeight / mainFrameHeight) / 2);
             topPos = Math.min(topPos, 40);
             $tableWrap.find('.lockedIcon').css('top', topPos + '%');
             $tableWrap.find('.tableCover').height(tableHeight - 40);

@@ -52,7 +52,8 @@
 
     .monitorSection {
         display: none;
-
+        // exclude height of #worksheetBar
+        .size(@width: 100%, @height: ~"calc(100% - 35px)");
         &.active {
             display: block;
             &#monitor-queries {
@@ -357,7 +358,7 @@
 
         .bottomSection {
             .flex-display();
-            .size(@height: ~"calc(100% - 337px)");
+            .size(@height: ~"calc(100% - 300px)");
             overflow-x: hidden;
             overflow-y: scroll;
             margin-right: 10px;
@@ -642,8 +643,6 @@
     }
 
     #monitor-queries {
-        // exclude height of #worksheetBar
-        .size(@width: 100%, @height: ~"calc(100% - 35px)");
         // .flex-display;
 
         .titleSection {
