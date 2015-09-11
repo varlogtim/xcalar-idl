@@ -908,6 +908,35 @@ window.OperationsModal = (function($, OperationsModal) {
                 return ($(this).css('display') !== "none");
             }).find('.argument');
 
+        // get colType first
+        var existingTypes = {};
+
+        $argInputs.each(function() {
+            var $input = $(this);
+            var arg    = $input.val().trim();
+            var type   = null;
+
+            // col name field, do not add quote
+            if ($input.closest(".listSection").hasClass("colNameSection")) {
+                arg = arg.replace(/\$/g, '');
+                type = getColumnTypeFromArg(arg);
+            } else if (arg.indexOf(colPrefix) >= 0) {
+                arg = arg.replace(/\$/g, '');
+
+                // Since there is currently no way for users to specify what
+                // col types they are expecting in the python functions, we will
+                // skip this type check if the function category is user defined
+                // function.
+                if ($("#categoryList input").val().indexOf("user") !== 0) {
+                    type = getColumnTypeFromArg(arg);
+                }
+            }
+
+            if (type != null) {
+                existingTypes[type] = true;
+            }
+        });
+
         // XXX this part may still have potential bugs
         $argInputs.each(function() {
             var $input = $(this);
@@ -954,7 +983,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     }
                 }
             } else {
-                arg = formatArgumentInput(arg, typeid, colType);
+                arg = formatArgumentInput(arg, typeid, existingTypes);
             }
 
             args.push(arg);
@@ -1123,7 +1152,7 @@ window.OperationsModal = (function($, OperationsModal) {
         return (colType);
     }
 
-    function formatArgumentInput(value, typeid, colType) {
+    function formatArgumentInput(value, typeid, existingTypes) {
         var strShift    = 1 << DfFieldTypeT.DfString;
         var numberShift =
                         (1 << DfFieldTypeT.DfInt32) |
@@ -1133,18 +1162,31 @@ window.OperationsModal = (function($, OperationsModal) {
                         (1 << DfFieldTypeT.DfFloat32) |
                         (1 << DfFieldTypeT.DfFloat64);
 
-        if ((typeid & numberShift) > 0 &&
-            !isNaN(parseInt(value)) &&
-            (colType === "integer" || colType === "decimal"))
-        {
-            // if the field support number and value is a number
-            return (value);
+        // when field accept
+        var shoudBeString  = (typeid & strShift) > 0;
+        var shouldBeNumber = (typeid & numberShift) > 0;
+
+        if (shoudBeString) {
+            // handle edge case
+            var parsedVal = parseInt(value);
+            if (!isNaN(parsedVal) &&
+                String(parsedVal) === value &&
+                shouldBeNumber)
+            {
+                // the case that the field accepets both string and number and
+                // it fills in a number, should depends on the existingTypes
+
+                // XXX potential bug is that existingTypes
+                // has both string and number
+                shoudBeString = existingTypes.hasOwnProperty("string");
+            }
         }
 
-        // add quote if the field support string
-        if ((typeid & strShift) > 0) {
+        if (shoudBeString) {
+            // add quote if the field support string
             value = JSON.stringify(value);
         }
+
         return (value);
     }
 
