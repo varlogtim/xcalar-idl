@@ -954,7 +954,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     }
                 }
             } else {
-                arg = formatArgumentInput(arg, typeid);
+                arg = formatArgumentInput(arg, typeid, colType);
             }
 
             args.push(arg);
@@ -1123,7 +1123,7 @@ window.OperationsModal = (function($, OperationsModal) {
         return (colType);
     }
 
-    function formatArgumentInput(value, typeid) {
+    function formatArgumentInput(value, typeid, colType) {
         var strShift    = 1 << DfFieldTypeT.DfString;
         var numberShift =
                         (1 << DfFieldTypeT.DfInt32) |
@@ -1133,7 +1133,10 @@ window.OperationsModal = (function($, OperationsModal) {
                         (1 << DfFieldTypeT.DfFloat32) |
                         (1 << DfFieldTypeT.DfFloat64);
 
-        if ((typeid & numberShift) > 0 && !isNaN(parseInt(value))) {
+        if ((typeid & numberShift) > 0 &&
+            !isNaN(parseInt(value)) &&
+            (colType === "integer" || colType === "decimal"))
+        {
             // if the field support number and value is a number
             return (value);
         }
