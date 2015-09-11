@@ -378,12 +378,12 @@ window.DagPanel = (function($, DagPanel) {
             var tableName = $dagWrap.find('.tableTitleArea .tableName').text();
             var canvas = $dagWrap.find('canvas')[0];
             var url = canvas.toDataURL("image/png");
-            open().document.write('<img src="'+ url +'"/>');
-        })
+            window.open(canvas.toDataURL("image/png"));
+        });
 
         $menu[0].oncontextmenu = function() {
             return false;
-        }
+        };
     };
 
     function downloadImage(canvas, filename) {
