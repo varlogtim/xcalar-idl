@@ -6,6 +6,7 @@ window.DagPanel = (function($, DagPanel) {
         DagModal.setup();
         setupRetina();
         setupDagTableDropdown();
+        setupRightClickDropdown();
     };
 
     DagPanel.clear = function() {
@@ -262,7 +263,7 @@ window.DagPanel = (function($, DagPanel) {
 
     function setupDagTableDropdown() {
         $dagPanel.append(getDagTableDropDownHTML());
-        $menu = $dagPanel.find('.dagTableDropDown');
+        var $menu = $dagPanel.find('.dagTableDropDown');
         addColMenuBehaviors($menu);
         dagTableDropDownActions($menu);
         
@@ -327,6 +328,127 @@ window.DagPanel = (function($, DagPanel) {
         });
     }
 
+    function setupRightClickDropdown() {
+        $dagPanel.append(getRightClickDropDownHTML());
+        var $menu = $dagPanel.find('.rightClickDropDown');
+        addColMenuBehaviors($menu);
+        addRightClickActions($menu);
+        
+        var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
+                        '.dagTable:not(.dataStore) .icon';
+
+        $dagPanel[0].oncontextmenu = function(e) {
+            // return;
+            var $target = $(e.target);
+            var $dagWrap = $target.closest('.dagWrap');;
+            if ($dagWrap.length !== 0) {
+                $('.colMenu').hide().removeClass('leftColMenu');
+                $('#dagSchema').hide();
+                $menu.data('dagid', $dagWrap.attr('id'));
+                positionAndShowRightClickDropdown(e, $menu);
+                $('body').addClass('noSelection');
+                return false;
+            }
+        };
+    }
+
+    function addRightClickActions($menu) {
+        $menu.find('.saveImage').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var dagId = $menu.data('dagid');
+            var $dagWrap = $('#' + dagId);
+            var tableName = $dagWrap.find('.tableTitleArea .tableName').text();
+            var canvas = $dagWrap.find('canvas')[0];
+            if ($('html').hasClass('microsoft')) { // for IE
+                var blob = canvas.msToBlob();
+                window.navigator.msSaveBlob(blob, tableName + '.png');
+            } else {
+                downloadImage(canvas, tableName);
+            }
+        });
+
+        $menu.find('.newTabImage').mouseup(function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            var dagId = $menu.data('dagid');
+            var $dagWrap = $('#' + dagId);
+            var tableName = $dagWrap.find('.tableTitleArea .tableName').text();
+            var canvas = $dagWrap.find('canvas')[0];
+            var url = canvas.toDataURL("image/png");
+            open().document.write('<img src="'+ url +'"/>');
+        })
+
+        $menu[0].oncontextmenu = function() {
+            return false;
+        }
+    };
+
+    function downloadImage(canvas, filename) {
+
+        /// create an "off-screen" anchor tag
+        var lnk = document.createElement('a');
+        var e;
+
+        /// the key here is to set the download attribute of the a tag
+        lnk.download = filename;
+
+        /// convert canvas content to data-uri for link. When download
+        /// attribute is set the content pointed to by link will be
+        /// pushed as "download" in HTML5 capable browsers
+        lnk.href = canvas.toDataURL();
+
+        /// create a "fake" click-event to trigger the download
+        if (document.createEvent) {
+
+            e = document.createEvent("MouseEvents");
+            e.initMouseEvent("click", true, true, window,
+                             0, 0, 0, 0, 0, false, false, false,
+                             false, 0, null);
+
+            lnk.dispatchEvent(e);
+        } else if (lnk.fireEvent) {
+
+            lnk.fireEvent("onclick");
+        }
+    }
+
+    function positionAndShowRightClickDropdown(e, $menu) {
+        var topMargin = 3;
+        var leftMargin = 7;
+        
+        var top = e.pageY + topMargin;
+        var left = e.pageX + leftMargin;
+
+        // if dagpanel is open halfway we have to change the top position
+        // of colmenu
+        if ($('#dagPanel').hasClass('midway')) {
+            top -= $('#dagPanel').offset().top;
+        }
+        $menu.removeClass('leftColMenu');
+
+        $menu.css({'top': top, 'left': left});
+        $menu.show();
+
+        var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect()
+                                                .left;
+
+        if ($menu[0].getBoundingClientRect().right > leftBoundary) {
+            left = leftBoundary - $menu.width() - 10;
+            $menu.css('left', left).addClass('leftColMenu');
+        }
+
+        // ensure dropdown menu is above the bottom of the dag panel
+        var dagPanelBottom = $('#workspacePanel')[0].getBoundingClientRect()
+                                                    .bottom;
+        var menuBottom = $menu[0].getBoundingClientRect().bottom;
+        if (menuBottom > dagPanelBottom) {
+            $menu.css('top', '-=' + $menu.height());
+        }
+    }
+
     function positionAndShowDagTableDropdown($dagTable, $menu) {
         var topMargin = -3;
         var leftMargin = 0;
@@ -383,6 +505,19 @@ window.DagPanel = (function($, DagPanel) {
                 'data-placement="bottom" data-container="body" ' +
                 'title="Coming Soon">' +
                 'Delete Table & Descendants' +
+            '</li>' +
+        '</ul>';
+        return (html);
+    }
+
+    function getRightClickDropDownHTML() {
+        var html =
+        '<ul class="colMenu rightClickDropDown">' +
+            '<li class="saveImage">' +
+                'Save Image' +
+            '</li>' +
+            '<li class="newTabImage">' +
+                'Open Image In New Tab' +
             '</li>' +
         '</ul>';
         return (html);
@@ -512,6 +647,9 @@ window.DagPanel = (function($, DagPanel) {
 
 window.Dag = (function($, Dag) {
     $dagPanel = $('#dagPanel');
+    var scrollPosition = -1;
+    var dagAdded = false;
+
     Dag.construct = function(tableId) {
         var deferred = jQuery.Deferred();
         var table = xcHelper.getTableFromId(tableId);
@@ -720,7 +858,11 @@ window.Dag = (function($, Dag) {
             $dagWrap.append(dropdown);
             addDagEventListeners($dagWrap);
             appendRetinas();
-
+            if (!dagAdded) {
+                preventUnintendedScrolling();
+            }
+            
+            dagAdded = true;
             deferred.resolve();
         })
         .fail(function(error) {
@@ -924,7 +1066,7 @@ window.Dag = (function($, Dag) {
     function addDagEventListeners($dagWrap) {
         var $currentIcon;
         var $menu = $dagWrap.find('.dagDropDown');
-        var scrollPosition = -1;
+        
         $dagWrap.on('click', '.dagTable.dataStore, .actionType', function() {
             $('.colMenu').hide();
             $('.leftColMenu').removeClass('leftColMenu');
@@ -961,8 +1103,9 @@ window.Dag = (function($, Dag) {
         $dagWrap.on('mouseenter', '.dagTable.Ready', function() {
             var $dagTable = $(this);
             var timer = setTimeout(function(){
-                            var $dropdown = $('.dagTableDropDown:visible');
+                            var $dropdown = $('.colMenu:visible');
                             if ($dropdown.length !== 0 &&
+                                $dropdown.data('tableelement') &&
                                 $dropdown.data('tableelement').is($dagTable))
                             {
                                 return;
@@ -1002,11 +1145,6 @@ window.Dag = (function($, Dag) {
             DagModal.show($currentIcon);
         });
 
-        $('.dagArea').scroll(function() {
-            if ($('#dagSchema').is(':visible') && scrollPosition > -1) {
-                $(this).scrollTop(scrollPosition);
-            }
-        });
     }
 
     function showDagSchema($dagTable) {
@@ -1787,6 +1925,13 @@ window.Dag = (function($, Dag) {
     //     $('.dagImage').append(html);
     // }
 
+    function preventUnintendedScrolling() {
+        $('.dagArea').scroll(function() {
+            if ($('#dagSchema').is(':visible') && scrollPosition > -1) {
+                $(this).scrollTop(scrollPosition);
+            }
+        });
+    }
 
     return (Dag);
 
