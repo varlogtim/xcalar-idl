@@ -1349,11 +1349,29 @@ window.OperationsModal = (function($, OperationsModal) {
             currentPos = strLeft.length + newVal.length;
         } else if (currentPos === valLen) {
             // append a column
-            newVal = ", " + textToInsert;
+            if (value.endsWith(",")) {
+                // value ends with ",""
+                newVal = " " + textToInsert;
+            } else if (value.trimRight().endsWith(",")) {
+                // value ends with sth like ",  "
+                newVal = textToInsert;
+            } else {
+                newVal = ", " + textToInsert;
+            }
+
             currentPos = value.length + newVal.length;
         } else if (currentPos === 0) {
             // prepend a column
-            newVal = textToInsert + ", ";
+            if (value.startsWith(",")) {
+                // value starts with ",""
+                newVal = textToInsert + " ";
+            } else if (value.trimLeft().startsWith(",")) {
+                // value start with sth like "  ,"
+                newVal = textToInsert;
+            } else {
+                newVal = textToInsert + ", ";
+            }
+
             currentPos = newVal.length; // cursor at the start of value
         } else {
             // insert a column. numCharSelected == 0
