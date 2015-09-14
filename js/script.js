@@ -386,6 +386,9 @@ function documentReadyGeneralFunction() {
 
     $('#mainFrame').scroll(function() {
         $(this).scrollTop(0);
+        $('.colMenu').hide();
+        $(".highlightBox").remove();
+
         clearTimeout(timer);
         timer = setTimeout(function() {
             moveTableDropdownBoxes();
