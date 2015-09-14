@@ -1492,85 +1492,75 @@ function addColListeners($table, tableId) {
     });
 
     // listeners on tbody
-    var preSelectedColNum = null;
-    var preSelectedRowNum = null;
-
     $tbody.on("mousedown", "td", function(event) {
         var $td = $(this);
-        if (event.which !== 1 || $td.children('.clickable').length === 0) {
+        var $el = $td.children('.clickable');
+
+        if (event.which !== 1 || $el.length === 0) {
             return;
         }
-        var $el = $td.children('.clickable');
+
         var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
         var colNum = xcHelper.parseColNum($td);
         var rowNum = xcHelper.parseRowNum($td.closest("tr"));
+        var isUnSelect = false;
         
         $(".tooltip").hide();
         resetColMenuInputs($el);
 
         var $highlightBoxs = $(".highlightBox");
+
         // remove highlights of other tables
         $highlightBoxs.filter(function() {
             return (!$(this).hasClass(tableId));
         }).remove();
 
-        $colMenu.find('.tdFilter').text('Filter these values');
-        $colMenu.find('.tdExclude').text('Exclude these values');
-
         if (event.ctrlKey || event.metaKey) {
             // ctrl key: multi selection
-            if (preSelectedColNum != null && preSelectedColNum !== colNum) {
-                // when colNum changes
-                singleSelection();
-            } else if ($td.find('.highlightBox').length > 0) {
-                unHighlightCell($td);
-            } else {
-                highlightCell($td, tableId);
-            }
-
-            // remove shiftKey class so that next shift key selection
-            // will not remove the cells from prevopus shift key selection
-            $highlightBoxs.removeClass("shiftKey");
+            multiSelection();
         } else if (event.shiftKey) {
             // shift key: multi selection from minIndex to maxIndex
+            var $lastNoShiftCell = $highlightBoxs.filter(function() {
+                return $(this).hasClass("noShiftKey");
+            });
 
-            if (preSelectedColNum != null && preSelectedColNum !== colNum) {
-                // when colNum changes
-                preSelectedRowNum = null;
-            }
-
-            // re-highlight the shift selected cells
-            $highlightBoxs.filter(function() {
-                return ($(this).hasClass("shiftKey"));
-            }).remove();
-
-            if (preSelectedRowNum == null) {
-                // select single cell
+            if ($lastNoShiftCell.length === 0) {
                 singleSelection();
             } else {
-                var $curTable = $td.closest(".xcTable");
-                var minIndex = Math.min(preSelectedRowNum, rowNum);
-                var maxIndex = Math.max(preSelectedRowNum, rowNum);
-                var isShift = true;
+                var lastColNum = $lastNoShiftCell.data("colNum");
 
-                for (var r = minIndex; r <= maxIndex; r++) {
-                    var $cell = $curTable.find(".row" + r + " .col" + colNum);
-                    // in case double added hightlight to same cell
-                    $cell.find(".highlightBox").remove();
-                    highlightCell($cell, tableId, isShift);
+                if (lastColNum !== colNum) {
+                    // when colNum changes
+                    multiSelection();
+                } else {
+                    // re-hightlight shift key cell
+                    $highlightBoxs.filter(function() {
+                        return $(this).hasClass("shiftKey");
+                    }).remove();
+
+                    var $curTable  = $td.closest(".xcTable");
+                    var baseRowNum = $lastNoShiftCell.data("rowNum");
+
+                    var minIndex = Math.min(baseRowNum, rowNum);
+                    var maxIndex = Math.max(baseRowNum, rowNum);
+                    var isShift = true;
+
+                    for (var r = minIndex; r <= maxIndex; r++) {
+                        var $cell = $curTable.find(".row" + r + " .col" + colNum);
+                        // in case double added hightlight to same cell
+                        $cell.find(".highlightBox").remove();
+
+                        if (r === baseRowNum) {
+                            highlightCell($cell, tableId, r, colNum);
+                        } else {
+                            highlightCell($cell, tableId, r, colNum, isShift);
+                        }
+                    }
                 }
             }
         } else {
             // select single cell
             singleSelection();
-        }
-
-        preSelectedColNum = colNum;
-
-        if (preSelectedRowNum == null || !event.shiftKey) {
-            // this mimic the mac's shift key behavior, which make the first
-            // selected rowNum before pressing shift key be the base rowNum
-            preSelectedRowNum = rowNum;
         }
 
         dropdownClick($el, {
@@ -1579,22 +1569,112 @@ function addColListeners($table, tableId) {
             "rowNum"    : rowNum,
             "classes"   : "tdMenu", // specify classes to update colmenu's class attr
             "mouseCoors": {"x": event.pageX, "y": yCoor},
-            "shiftKey"  : event.shiftKey
+            "shiftKey"  : event.shiftKey,
+            "isMutiCol" : isMultiColum(),
+            "isUnSelect": isUnSelect
         });
 
         function singleSelection() {
-            $highlightBoxs.remove();
-            $colMenu.find('.tdFilter').text('Filter this value');
-            $colMenu.find('.tdExclude').text('Exclude this value');
-            highlightCell($td, tableId);
+            if ($highlightBoxs.length === 1 &&
+                $td.find('.highlightBox').length > 0)
+            {
+                // deselect
+                unHighlightCell($td);
+                isUnSelect = true;
+            } else {
+                $highlightBoxs.remove();
+                highlightCell($td, tableId, rowNum, colNum);
+            }
+        }
+
+        function multiSelection() {
+            // remove old shiftKey and noShiftKey class
+            $highlightBoxs.removeClass("shiftKey")
+                        .removeClass("noShiftKey");
+
+            if ($td.find('.highlightBox').length > 0) {
+                // deselect
+                unHighlightCell($td);
+                isUnSelect = true;
+            } else {
+                highlightCell($td, tableId, rowNum, colNum);
+            }
         }
     });
+
+    // right click the open colMenu
+    $tbody[0].oncontextmenu = function(event) {
+        var $el = $(event.target).closest(".highlightBox");
+
+        if ($el.length === 0) {
+            return false;
+        }
+
+        var $td = $el.parent();
+
+        var yCoor = Math.max(event.pageY, $el.offset().top + $el.height() - 10);
+        var colNum = xcHelper.parseColNum($td);
+        var rowNum = xcHelper.parseRowNum($td.closest("tr"));
+
+        $(".tooltip").hide();
+        resetColMenuInputs($el);
+
+        dropdownClick($el, {
+            "type"      : "tdDropdown",
+            "colNum"    : colNum,
+            "rowNum"    : rowNum,
+            "classes"   : "tdMenu", // specify classes to update colmenu's class attr
+            "mouseCoors": {"x": event.pageX, "y": yCoor},
+            "isMutiCol" : isMultiColum()
+        });
+
+        return false;
+    };
 
     addColMenuBehaviors($colMenu);
     addColMenuActions($colMenu);
 }
 
-function highlightCell($td, tableId, isShift) {
+function isMultiColum() {
+    var lastColNum;
+    var multiCol = false;
+
+    $(".highlightBox").each(function() {
+        var colNum = $(this).data("colNum");
+
+        if (lastColNum == null) {
+            lastColNum = colNum;
+        } else if (lastColNum !== colNum) {
+            multiCol = true;
+            return false;
+        }
+    });
+
+    return (multiCol);
+}
+
+function sortHightlightCells($highlightBoxs) {
+    var cells = [];
+
+    $highlightBoxs.each(function() {
+        cells.push($(this));
+    });
+
+    cells.sort(function($a, $b) {
+        // first sort by colNum, then sort by rowNum if in same col
+        var res = $a.data("colNum") - $b.data("colNum");
+
+        if (res === 0) {
+            res = $a.data("rowNum") - $b.data("rowNum");
+        }
+
+        return (res);
+    });
+
+    return (cells);
+}
+
+function highlightCell($td, tableId, rowNum, colNum, isShift) {
     // draws a new div positioned where the cell is, intead of highlighting
     // the actual cell
     var border = 5;
@@ -1610,10 +1690,18 @@ function highlightCell($td, tableId, isShift) {
 
     if (isShift) {
         divClass += " shiftKey";
+    } else {
+        // this can be used as a base cell when user press shift
+        // to select multi rows
+        divClass += " noShiftKey";
     }
+
     var $highlightBox = $('<div class="' + divClass + '" ' +
                             'style="' + styling + '">' +
                         '</div>');
+
+    $highlightBox.data("rowNum", rowNum)
+                .data("colNum", colNum);
 
     $td.append($highlightBox);
 }
@@ -1968,11 +2056,12 @@ function addColMenuActions($colMenu) {
         var $highlightBoxs = $("#xcTable-" + tableId).find(".highlightBox");
         var valArray = [];
         var colVal;
+        var cells = sortHightlightCells($highlightBoxs);
 
-        $highlightBoxs.each(function() {
-            colVal = $(this).siblings(".addedBarTextWrap").text();
+        for (var i = 0, len = cells.length; i < len; i++) {
+            colVal = cells[i].siblings(".addedBarTextWrap").text();
             valArray.push(colVal);
-        });
+        }
 
         copyToClipboard(valArray);
         $highlightBoxs.remove();
@@ -2143,10 +2232,7 @@ function dropdownClick($el, options) {
     } else if (options.type === "tdDropdown") {
         $menu = $('#colMenu-' + tableId);
         // case that should close column menu
-        if ($menu.is(":visible") &&
-            $menu.data("colNum") === options.colNum &&
-            $menu.data("rowNum") === options.rowNum &&
-            !options.shiftKey)
+        if (options.isUnSelect && !options.shiftKey)
         {
             $menu.hide();
             return;
@@ -2155,30 +2241,43 @@ function dropdownClick($el, options) {
         // If the tdDropdown is on a non-filterable value, we need to make the
         // filter options unavailable
         var columnType = gTables[tableId].tableCols[options.colNum - 1].type;
-        if (columnType !== "string" &&
-            columnType !== "decimal" &&
-            columnType !== "integer" &&
-            columnType !== "boolean")
-        {
-            $menu.find(".tdFilter").addClass("unavailable");
-            $menu.find(".tdExclude").addClass("unavailable");
+        var shouldNotFilter = options.isMutiCol ||
+                            (
+                                columnType !== "string" &&
+                                columnType !== "decimal" &&
+                                columnType !== "integer" &&
+                                columnType !== "boolean"
+                            );
+        var isMultiCell = $("#xcTable-" + tableId).find(".highlightBox").length > 1;
+
+        var $tdFilter  = $menu.find(".tdFilter");
+        var $tdExclude = $menu.find(".tdExclude");
+
+        if (shouldNotFilter) {
+            $tdFilter.addClass("unavailable");
+            $tdExclude.addClass("unavailable");
         } else {
-            $menu.find(".tdFilter").removeClass("unavailable");
-            $menu.find(".tdExclude").removeClass("unavailable");
+            $tdFilter.removeClass("unavailable");
+            $tdExclude.removeClass("unavailable");
         }
 
-        if (columnType === "object" ||
-            columnType === "array" )
-        {
+        if (isMultiCell) {
+            $tdFilter.text('Filter these values');
+            $tdExclude.text('Exclude these values');
+        } else {
+            $tdFilter.text('Filter this value');
+            $tdExclude.text('Exclude this value');
+        }
+
+        if (columnType === "object" || columnType === "array") {
             if ($el.text().trim() === "") {
                 $menu.find(".tdJsonModal").addClass("hidden");
-            } else if ($("#xcTable-" + tableId).find(".highlightBox").length > 1){
+            } else if (isMultiCell){
                 // when more than one cell is selected
                 $menu.find(".tdJsonModal").addClass("hidden");
             } else {
                 $menu.find(".tdJsonModal").removeClass("hidden");
             }
-            
         } else {
             $menu.find(".tdJsonModal").addClass("hidden");
         }
