@@ -1356,6 +1356,8 @@ window.Dag = (function($, Dag) {
                 if ($dagTable.length !== 0 && $dagTable.hasClass('Dropped')) {
                     parents = $dagTable.data('parents').split(',');
                     findColumnSource(name, userStr, tableId, parents, $dagWrap);
+                } else {
+                    // table has no data, could be orphaned
                 }
             } else if (tables[i].indexOf('.XcalarDS.') === 0 &&
                         userStr !== '\"newCol\" = ') {

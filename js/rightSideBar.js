@@ -562,6 +562,19 @@ window.RightSideBar = (function($, RightSideBar) {
             return false;
         });
 
+        $('#tableListSections').find(".tableListSection").on("mouseenter",
+                                                       ".tableName", function(){
+            var $this = $(this);
+            if(this.offsetWidth < this.scrollWidth){
+                $this.attr({
+                    'data-container': 'body',
+                    'data-toggle': 'tooltip'
+                });
+            } else {
+                $this.removeAttr('title data-container data-toggle');
+            }
+        });
+
         $("#submitTablesBtn").click(function() {
             addBulkTableHelper();
         });
@@ -1124,11 +1137,14 @@ window.RightSideBar = (function($, RightSideBar) {
                             '<span class="icon"></span>' +
                         '</div>' +
                         '<span class="tableName" draggable="true"' +
-                            ' ondragstart="xcDrag(event)">' +
-                            tableName +
+                            ' ondragstart="xcDrag(event)" title="' +
+                            tableName + '">' + tableName +
                         '</span>' +
-                        '<span class="addTableBtn"></span>' +
-                        '<span class="numCols">' + numCols + '</span>' +
+                        '<span class="numCols" data-toggle="tooltip" ' +
+                            'data-container="body" title="number of columns">' +
+                             numCols + '</span>' +
+                        '<span class="addTableBtn" title="select table">' +
+                        '</span>' +
                     '</div>' +
                     '<ol>';
 
@@ -1144,6 +1160,7 @@ window.RightSideBar = (function($, RightSideBar) {
             html += '</ol></li>';
 
             $dateDivider.prepend(html);
+
             if ($('#archivedTableList').find('.tableInfo').length !== 0) {
                 $('#archivedTableList .secondButtonWrap').show();
             }

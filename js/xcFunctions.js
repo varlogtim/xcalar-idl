@@ -928,6 +928,9 @@ window.xcFunction = (function($, xcFunction) {
         if (groupByCols.length === 1) {
             return (checkTableIndex(groupByCols[0], tableId));
         } else {
+            // 1. merge multi columns into one using udf multiJoinModule
+            // 2. sort this merged column
+
             var mapStr = "multiJoinModule:multiJoin(";
             groupByField = xcHelper.randName("multiGroupBy", 5);
             var originTable = xcHelper.getTableFromId(tableId).tableName;
