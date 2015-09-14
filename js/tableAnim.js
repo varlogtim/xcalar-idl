@@ -571,6 +571,8 @@ function autosizeCol(el, options) {
     el.outerWidth(newWidth);
     if ($table.attr('id').indexOf('xc') > -1) {
         table.tableCols[index - 1].width = el.outerWidth();
+    } else if ($table.attr('id') === 'worksheetTable') {
+        $("#dataSetTableWrap").width($('#worksheetTable').width());
     }
     if (!options.multipleCols) {
         matchHeaderSizes(index, $table);
