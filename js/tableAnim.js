@@ -1512,6 +1512,8 @@ function addColListeners($table, tableId) {
             return (!$(this).hasClass(tableId));
         }).remove();
 
+        $colMenu.find('.tdFilter').text('Filter these values');
+        $colMenu.find('.tdExclude').text('Exclude these values');
 
         if (event.ctrlKey || event.metaKey) {
             // ctrl key: multi selection
@@ -1580,6 +1582,8 @@ function addColListeners($table, tableId) {
 
         function singleSelection() {
             $highlightBoxs.remove();
+            $colMenu.find('.tdFilter').text('Filter this value');
+            $colMenu.find('.tdExclude').text('Exclude this value');
             highlightCell($td, tableId);
         }
     });
