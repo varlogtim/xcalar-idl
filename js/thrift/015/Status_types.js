@@ -334,7 +334,8 @@ StatusT = {
   'StatusPyExecFailedToGetCString' : 325,
   'StatusXcalarEvalTokenNameTooLong' : 326,
   'StatusNoConfigFile' : 327,
-  'StatusCouldNotResolveSchema' : 328
+  'StatusCouldNotResolveSchema' : 328,
+  'StatusLogChecksumFailed' : 329
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -664,5 +665,6 @@ StatusTStr = {0 : 'Success',
 325 : 'Failed to get c string from python string',
 326 : 'Token name in evalString is too long',
 327 : 'No configuration file specified',
-328 : 'Could not resolve result set schema'
+328 : 'Could not resolve result set schema',
+329 : 'Checksum validation failed while reading log entry'
 };
