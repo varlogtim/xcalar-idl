@@ -54,6 +54,7 @@
         display: none;
         // exclude height of #worksheetBar
         .size(@width: 100%, @height: ~"calc(100% - 35px)");
+
         &.active {
             display: block;
             &#monitor-queries {
@@ -63,11 +64,63 @@
     }
 
     #monitor-system {
+        .asupSubSection {
+            .size(@width: 100%, @height: 50px);
+            background-color: @color-background-darkGray;
+            border-bottom: 1px solid @color-retina-border;
+
+            .asupSection, .subSection {
+                .size(@height: 50px);
+                float: left;
+                padding: 0 10px;
+                .font(@line-height: 50px);
+
+                > div {
+                    float: left;
+                    margin-right: 10px;
+                }
+            }
+
+            .title {
+                .font(@size: 14px, @weight: 700, @color: #777777);
+            }
+
+            .asupSection {
+                .size(@width: 27%);
+                border-right: 1px solid @color-white;
+
+                .icon {
+                    .size(@width: 50px, @height: 100%);
+                    .image("/images/monitor/asup.png", 50%, 50%);
+                }
+
+                .onOffBtn {
+                    margin-left: 15px;
+                    margin-top: 8px;
+                }
+            }
+
+            .subSection {
+                .size(@width: 73%);
+                border-left: 1px solid @color-retina-border;
+
+                .icon {
+                    .size(@width: 40px, @height: 100%);
+                    .image("/images/monitor/sub.png", 60%, 50%);
+                }
+
+                .btn {
+                    margin-left: 40px;
+                }
+
+            }
+        }
+
         .topSection {
             box-shadow: 0px 3px 3px 0px rgba(0,0,0,.3);
             position: relative;
             z-index: 5;
-            margin-top: -1px;
+            border-top: 1px solid @color-white;
 
             .sideTabs {
                 display: inline-block;
@@ -358,7 +411,7 @@
 
         .bottomSection {
             .flex-display();
-            .size(@height: ~"calc(100% - 300px)");
+            .size(@height: ~"calc(100% - 352px)");
             overflow-x: hidden;
             overflow-y: scroll;
             margin-right: 10px;

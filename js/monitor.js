@@ -28,6 +28,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     break;
                 case ("queriesButton"):
                     $("#monitor-queries").addClass("active");
+                    break;
                 case ("setupButton"):
                     // comming soon
                     break;
@@ -37,12 +38,23 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
         });
 
+        // text next to refreshBtn
         $('#refreshGraph').click(function() {
             toggleRefresh($('#refreshBtn'));
         });
 
         $('#refreshBtn').click(function() {
             toggleRefresh($(this));
+        });
+
+        $('#asupBtn').click(function() {
+            var $target = $(this);
+
+            if ($target.hasClass('off')) {
+                $target.removeClass('off');
+            } else {
+                $target.addClass('off');
+            }
         });
 
         $('.statsHeadingBar').click(function() {
