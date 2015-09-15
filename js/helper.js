@@ -195,9 +195,10 @@ window.xcHelper = (function($, xcHelper) {
 
             $rightSideBar.addClass('modalOpen');
             $mainFrame.addClass('modalOpen');
+            var fadeInTime = options.time || 150;
 
-            $sideBarModal.addClass('light').fadeIn(150);
-            $modalBackground.addClass('light').fadeIn(150);
+            $sideBarModal.addClass('light').fadeIn(fadeInTime);
+            $modalBackground.addClass('light').fadeIn(fadeInTime);
         }
     };
 

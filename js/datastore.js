@@ -214,7 +214,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
 
             $formatText.val("Format").addClass("hint");
-            $form.removeClass().find(".default-hidden").addClass("hidden");
+            $form.removeClass("previewMode").find(".default-hidden")
+                                            .addClass("hidden");
             $("#fileNameSelector").removeClass("optionsOpen");
 
             // keep header to be checked
@@ -460,8 +461,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
  * Module for grid view part on the left of datastore panel
  */
 window.GridView = (function($, GridView) {
+    var $explorePanel = $('#exploreView');
     var $deleteFolderBtn = $("#deleteFolderBtn");
-    var $gridView = $("#gridView");
+    var $gridView = $explorePanel.find(".gridItems");
 
     GridView.setup = function() {
         setupGridViewButton();
@@ -500,7 +502,7 @@ window.GridView = (function($, GridView) {
             if (!$importForm.is(":visible")) {
                 $('#importDataReset').click();
                 $importForm.show();
-                $("#contentViewMid").addClass('hidden');
+                $explorePanel.find(".contentViewMid").addClass('hidden');
                 $("#filePath").focus();
                 $gridView.find(".active").removeClass("active");
                 // empty table section to have smooth switch
@@ -558,7 +560,7 @@ window.GridView = (function($, GridView) {
         });
 
         // click empty area on gridView
-        $("#gridViewWrapper").on("click", function() {
+        $explorePanel.find(".gridViewWrapper").on("click", function() {
             // this hanlder is called before the following one
             $gridView.find(".active").removeClass("active");
             $deleteFolderBtn.addClass("disabled");
@@ -579,7 +581,7 @@ window.GridView = (function($, GridView) {
             }
 
             $("#importDataView").hide();
-            $("#contentViewMid").removeClass('hidden');
+            $explorePanel.find(".contentViewMid").removeClass('hidden');
 
             // when switch to a ds, should clear others' ref count first!!
             if ($grid.find('.waitingIcon').length !== 0) {
@@ -695,6 +697,7 @@ window.GridView = (function($, GridView) {
 window.DataCart = (function($, DataCart) {
     var innerCarts = [];
     var $cartArea  = $("#dataCart");
+    var $explorePanel = $('#exploreView');
 
     DataCart.setup = function() {
         // send to worksheet button
@@ -1154,10 +1157,10 @@ window.DataCart = (function($, DataCart) {
 
     function overflowShadow() {
         if ($cartArea.height() > $('#dataCartWrap').height()) {
-            $('#contentViewRight').find('.buttonArea')
+            $explorePanel.find('.contentViewRight').find('.buttonArea')
                                 .addClass('cartOverflow');
         } else {
-            $('#contentViewRight').find('.buttonArea')
+            $explorePanel.find('.contentViewRight').find('.buttonArea')
                                 .removeClass('cartOverflow');
         }
     }
@@ -2470,6 +2473,7 @@ window.DS = (function ($, DS) {
     // for DS drag n drop
     var $dragDS;
     var $dropTarget;
+    var $explorePanel = $('#exploreView');
 
     // Get dsObj by dsId
     DS.getDSObj = function(dsId) {
@@ -2479,9 +2483,9 @@ window.DS = (function ($, DS) {
     // Get grid element(folder/datasets) by dsId
     DS.getGrid = function(dsId) {
         if (dsId === homeDirId) {
-            return ($("#gridView"));
+            return ($explorePanel.find(".gridItems"));
         } else {
-            return ($('.grid-unit[data-dsId="' + dsId + '"]'));
+            return ($explorePanel.find('.grid-unit[data-dsId="' + dsId + '"]'));
         }
     };
 
@@ -2648,8 +2652,9 @@ window.DS = (function ($, DS) {
             if ($('#dsInfo-title').text() === dsName) {
                 // if loading page is showing, remove and go to import form
                 $("#importDataView").show();
-                $("#contentViewMid").addClass('hidden');
-                $("#gridView").find(".active").removeClass("active");
+                $explorePanel.find(".contentViewMid").addClass('hidden');
+                $explorePanel.find(".gridItems").find(".active")
+                                               .removeClass("active");
                 $("#dataSetTableWrap").empty();
             }
             if (error.dsCreated) {
@@ -2898,14 +2903,16 @@ window.DS = (function ($, DS) {
 
     // Refresh dataset/folder display in gridView area
     DS.refresh = function() {
-        $("#gridView .grid-unit").removeClass("display").addClass("hidden");
-        $('#gridView .grid-unit[data-dsParentId="' + curDirId + '"]')
+        $explorePanel.find(".gridItems .grid-unit").removeClass("display")
+                                                  .addClass("hidden");
+        $explorePanel.find('.gridItems .grid-unit[data-dsParentId="' +
+                            curDirId + '"]')
             .removeClass("hidden").addClass("display");
     };
 
     // Clear dataset/folder in gridView area
     DS.clear = function() {
-        $("#gridView .grid-unit").remove();
+        $explorePanel.find(".gridItems .grid-unit").remove();
         dsSetupHelper();
     };
 
@@ -3360,7 +3367,7 @@ window.DS = (function ($, DS) {
 // Helper function for drag start event
 function dsDragStart(event) {
     var $grid = $(event.target).closest(".grid-unit");
-    var $gridView = $("#gridView");
+    var $gridView = $('#exploreView').find(".gridItems");
 
     event.stopPropagation();
     event.dataTransfer.effectAllowed = "copyMove";
@@ -3387,7 +3394,7 @@ function dsDragStart(event) {
 
 // Helper function for drag end event
 function dsDragEnd(event) {
-    var $gridView = $("#gridView");
+    var $gridView = $('#exploreView').find(".gridItems");
     var $grid = $(event.target).closest(".grid-unit");
 
     event.stopPropagation();
@@ -3416,7 +3423,7 @@ function dsDragEnter(event) {
     if (targetId === "backFolderBtn") {
         var $bacnFolderBtn = $("#backFolderBtn");
 
-        if ($("#gridView").hasClass('listView') ||
+        if ($('#exploreView').find(".gridItems").hasClass('listView') ||
             $bacnFolderBtn.hasClass("disabled")) {
             return;
         }
@@ -3565,7 +3572,7 @@ function dsDropBack(event) {
     event.preventDefault(); // default is open as link on drop
     event.stopPropagation();
 
-    if ($('#gridView').hasClass('listView') || 
+    if ($('#exploreView').find('.gridItems').hasClass('listView') || 
         $('#backFolderBtn').hasClass('disabled')) {
         return;
     }

@@ -193,7 +193,7 @@ window.Tips = (function($, Tips) {
     }
 
     function addDatastoreTips() {
-        var dataView = "#datastoreView";
+        var dataView = "#datastorePanel";
 
         // grid view section
         setTooltip($("#datasetExplore"), {
@@ -202,7 +202,7 @@ window.Tips = (function($, Tips) {
             "placement": "right"
         });
 
-        setTooltip($("#gridView > .grid-unit:last-child"), {
+        setTooltip($("#exploreView .gridView > .grid-unit:last-child"), {
             "title"    : TipsTStr.DragGrid,
             "container": dataView,
             "placement": "right"
@@ -211,13 +211,13 @@ window.Tips = (function($, Tips) {
         // data store table
         setTooltip($("#worksheetTable"), {
             "title"    : TipsTStr.DataSampleTable,
-            "container": "#contentViewTable"
+            "container": "#exploreView .contentViewTable"
         });
 
         // data cart area
         setTooltip($("#dataCartWrap"), {
             "title"    : TipsTStr.Datacart,
-            "container": "#contentViewRight",
+            "container": "#exploreView .contentViewRight",
             "placement": "left"
         });
     }

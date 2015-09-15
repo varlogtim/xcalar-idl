@@ -438,7 +438,7 @@ window.KVStore = (function($, KVStore) {
             $(".dagWrap").remove();
 
             // clear data store
-            $("#gridView").empty();
+            $(".gridItems").empty();
 
             // XXX this should be changed after the gTable structure change
             gTables = {};

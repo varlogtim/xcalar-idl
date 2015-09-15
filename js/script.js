@@ -250,7 +250,7 @@ function setupMainPanelsTab() {
                     WSManager.focusOnWorksheet();
                 break;
             case ("dataStoresTab"):
-                $("#datastoreView").addClass("active");
+                $("#datastorePanel").addClass("active");
                 DataSampleTable.sizeTableWrapper();
                 MonitorGraph.clear();
                 break;

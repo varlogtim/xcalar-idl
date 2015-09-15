@@ -536,7 +536,7 @@ window.Replay = (function($, Replay) {
     function replayDestroyDS(options) {
         // UI simulation replay
         var deferred = jQuery.Deferred();
-        var $gridView = $("#gridView");
+        var $gridView = $("#exploreView").find(".gridItems");
         var $ds = DS.getGridByName(options.dsName);
 
         if (options.isOrphaned === true) {
