@@ -70,7 +70,7 @@
             border-bottom: 1px solid @color-retina-border;
 
             .asupSection, .subSection {
-                .size(@height: 50px);
+                .size(@width: auto, @height: 50px);
                 float: left;
                 padding: 0 10px;
                 .font(@line-height: 50px);
@@ -86,7 +86,7 @@
             }
 
             .asupSection {
-                .size(@width: 27%);
+                padding-right: 20px;
                 border-right: 1px solid @color-white;
 
                 .icon {
@@ -101,7 +101,6 @@
             }
 
             .subSection {
-                .size(@width: 73%);
                 border-left: 1px solid @color-retina-border;
 
                 .icon {
