@@ -1152,11 +1152,16 @@ window.Dag = (function($, Dag) {
         var tableId = $dagTable.data('id');
         var table = gTables[tableId];
         var $dagWrap = $dagTable.closest('.dagWrap');
+        var tableName;
+        var numCols;
         if (!table) {
-            return;
+            tableName = $dagTable.find('.tableTitle').text();
+            numCols = 1;
+        } else {
+            tableName = table.tableName;
+            numCols = table.tableCols.length;
         }
-        var tableName = table.tableName;
-        var numCols = table.tableCols.length;
+      
         var html = '<div id="dagSchema">' +
                    '<div class="title"><span class="tableName">' + tableName +
                    '</span><span class="numCols" title="number of columns">[' +
@@ -1170,7 +1175,7 @@ window.Dag = (function($, Dag) {
         html += '<ul>';
        
         for (var i = 0; i < numCols; i++) {
-            if (table.tableCols[i].name === 'DATA') {
+            if (numCols === 1 || table.tableCols[i].name === 'DATA') {
                 continue;
             }
             var type = table.tableCols[i].type;
@@ -1192,6 +1197,7 @@ window.Dag = (function($, Dag) {
         }
         if (numCols === 1) {
             html += '<span class="noFields">No fields present</span>';
+
         }
         html += '</ul></div>';
         var $schema = $(html);
@@ -1219,6 +1225,10 @@ window.Dag = (function($, Dag) {
         }
         $schema.css('top', top);
         $schema.css('left', left);
+
+        if (numCols === 1) {
+            $schema.addClass('empty');
+        }
 
         $('#dagSchema').on('click', '.name', function() {
             $('#dagSchema').find('li.selected').removeClass('selected');

@@ -391,6 +391,11 @@ window.xcFunction = (function($, xcFunction) {
             groupByCols[i] = groupByCols[i].trim();
         }
 
+        var escapedName = newColName;
+        if (newColName.indexOf('.') > -1) {
+            escapedName = newColName.replace(/\./g, "\\\.");
+        }
+
         multiGroupBy(groupByCols, tableId)
         .then(function(result) {
             // table name may change after sort!
@@ -414,15 +419,61 @@ window.xcFunction = (function($, xcFunction) {
                                   tableName, newTableName,
                                   isIncSample, sqlOptions));
         })
+        .then(function(ret) {
+            var $table     = xcHelper.getElementByTableId(tableId, "xcTable");
+            var $dataCol   = $table.find('th.dataCol');
+            var dataColNum = xcHelper.parseColNum($dataCol) - 1;
+
+            var tableCols = [];
+            var newProgCol = ColManager.newCol({
+                "index"   : 0,
+                "name"    : newColName,
+                "width"   : gNewCellWidth,
+                "isNewCol": false,
+                "userStr" : '"' + newColName + '" = pull(' + escapedName + ')',
+                "func"    : {
+                    "func": "pull",
+                    "args": [escapedName]
+                }
+            });
+            var escapedName2 = indexedColName;
+            if (indexedColName.indexOf('.') > -1) {
+                escapedName2 = indexedColName.replace(/\./g, "\\\.");
+            }
+            var secondProgCol = ColManager.newCol({
+                "index"   : 0,
+                "name"    : indexedColName,
+                "width"   : gNewCellWidth,
+                "isNewCol": false,
+                "userStr" : '"' + indexedColName + '" = pull(' + escapedName2 + ')',
+                "func"    : {
+                    "func": "pull",
+                    "args": [escapedName2]
+                }
+            });
+            tableCols.push(newProgCol);
+            tableCols.push(secondProgCol);
+
+            tableCols.push(xcHelper.deepCopy(table.tableCols[dataColNum]));
+            return (setgTable(newTableName, tableCols));
+        })
+        .then(function() {
+            gTables[newTableId].active = false;
+
+            var tableResult = {
+                "newTableCreated": true,
+                "setMeta"        : false,
+                "tableName"      : newTableName,
+                "tableId"        : newTableId
+            };
+
+            return (setIndexedTableMeta(tableResult));
+        })
         .then(function() {
             return (extractColFromMap(newTableName, groupByCols,
                                       indexedColName));
         })
         .then(function(nTableName) {
-            var escapedName = newColName;
-            if (newColName.indexOf('.') > -1) {
-                escapedName = newColName.replace(/\./g, "\\\.");
-            }
             var newProgCol = ColManager.newCol({
                 "index"   : 1,
                 "name"    : newColName,
@@ -933,25 +984,47 @@ window.xcFunction = (function($, xcFunction) {
 
             var mapStr = "multiJoinModule:multiJoin(";
             groupByField = xcHelper.randName("multiGroupBy", 5);
-            var originTable = xcHelper.getTableFromId(tableId).tableName;
-            newTableName = getNewTableInfo(originTable).tableName;
-
+            var originTable = xcHelper.getTableFromId(tableId);
+            var originTableName = originTable.tableName;
+            newTableName = getNewTableInfo(originTableName).tableName;
+            var currWorksheetIdx = WSManager.getWSFromTable(tableId);
+            var newTableId = xcHelper.getTableId(newTableName);
+            var reindexedTableName;
+            var reindexedTableId;
+            
             for (var i = 0; i < groupByCols.length; i++) {
                 mapStr += groupByCols[i] + ", ";
             }
             mapStr = mapStr.substring(0, mapStr.length - 2);
             mapStr += ")";
-            console.log(mapStr);
-            XcalarMap(groupByField, mapStr, originTable,
+            
+            XcalarMap(groupByField, mapStr, originTableName,
                       newTableName, {
                           "operation"   : SQLOps.GroupbyMap,
-                          "srcTableName": originTable,
+                          "srcTableName": originTableName,
                           "newTableName": newTableName,
                           "colName"     : groupByField,
                           "mapString"   : mapStr
             })
-            .then(function(ret) {
-                var reindexedTableName = getNewTableInfo(newTableName).tableName;
+            .then(function() {
+                WSManager.addTable(newTableId, currWorksheetIdx);
+                var tableCols = xcHelper.deepCopy(originTable.tableCols);
+                return (setgTable(newTableName, tableCols));
+            })
+            .then(function() {
+                gTables[newTableId].active = false;
+
+                var tableResult = {
+                    "newTableCreated": true,
+                    "setMeta"        : false,
+                    "tableName"      : newTableName,
+                    "tableId"        : newTableId
+                };
+
+                return (setIndexedTableMeta(tableResult));
+            })
+            .then(function() {
+                reindexedTableName = getNewTableInfo(newTableName).tableName;
                 XcalarIndexFromTable(newTableName, groupByField,
                                      reindexedTableName, {
                           "operation"   : SQLOps.GroupbyIndex,
@@ -960,6 +1033,24 @@ window.xcFunction = (function($, xcFunction) {
                           "newTableName": reindexedTableName
                 })
                 .then(function(ret) {
+                    reindexedTableId = xcHelper.getTableId(reindexedTableName);
+                    WSManager.addTable(reindexedTableId, currWorksheetIdx);
+                    var tableCols = xcHelper.deepCopy(originTable.tableCols);
+                    return (setgTable(reindexedTableName, tableCols));
+                })
+                .then(function() {
+                    gTables[newTableId].active = false;
+
+                    var tableResult = {
+                        "newTableCreated": true,
+                        "setMeta"        : false,
+                        "tableName"      : reindexedTableName,
+                        "tableId"        : reindexedTableId
+                    };
+
+                    return (setIndexedTableMeta(tableResult));
+                })
+                .then(function() {
                     deferred.resolve({
                         "newTableCreated": true,
                         "setMeta"        : false,
@@ -986,7 +1077,6 @@ window.xcFunction = (function($, xcFunction) {
         if (colArray.length === 1) {
             deferred.resolve(tableName);
         } else {
-            WSManager.removeTable(xcHelper.getTableId(tableName));
             var deferredArray = []; // Array for deferred
             var argArray = [];
             // XXX Okay this is really dumb, but we have to keep mapping
@@ -994,6 +1084,9 @@ window.xcFunction = (function($, xcFunction) {
             var mapStrStarter = "cut(" + colName + ", ";
             var currTableName = tableName;
             var currExec = 0;
+            var currTableId = xcHelper.getTableId(currTableName);
+            var currCols = gTables[currTableId].tableCols;
+            var currWorksheetIdx = WSManager.getWSFromTable(currTableId);
             for (var i = 0; i < colArray.length; i++) {
                 var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
                 var newTableName = getNewTableInfo(currTableName).tableName;
@@ -1015,11 +1108,31 @@ window.xcFunction = (function($, xcFunction) {
                     "arg5": sqlOptions
                 };
                 deferredArray[i] = function() {
+                    var tempTableName = argArray[currExec].arg4;
                     var def = XcalarMap(argArray[currExec].arg1,
                                         argArray[currExec].arg2,
                                         argArray[currExec].arg3,
                                         argArray[currExec].arg4,
-                                        argArray[currExec].arg5);
+                                        argArray[currExec].arg5)
+                                        .then(function(ret) {
+                                            var tempTableId = xcHelper.getTableId(tempTableName);
+                                            WSManager.addTable(tempTableId, currWorksheetIdx);
+                                            var tempCols = xcHelper.deepCopy(currCols);
+                                            return (setgTable(tempTableName, tempCols));
+                                        })
+                                        .then(function() {
+                                            var tempTableId = xcHelper.getTableId(tempTableName);
+                                            gTables[tempTableId].active = false;
+
+                                            var tableResult = {
+                                                "newTableCreated": true,
+                                                "setMeta"        : false,
+                                                "tableName"      : tempTableName,
+                                                "tableId"        : tempTableId
+                                            };
+
+                                            return (setIndexedTableMeta(tableResult));
+                                        });
                     currExec++;
                     return (def);
                 };
