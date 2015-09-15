@@ -737,6 +737,7 @@ function documentReadyIndexFunction() {
             AggModal.setup();
             OperationsModal.setup();
             WorkbookModal.setup();
+            Scheduler.setup();
             WSManager.focusOnWorksheet();
         })
         .then(function() {

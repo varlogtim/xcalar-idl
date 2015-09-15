@@ -1582,6 +1582,183 @@
   </div>
   <!-- End of ScratchPad -->
 
+  <!-- Schedule Modal -->
+  <div id="scheduleModal" class="modalContainer">
+    <!-- Schedule Modal Header -->
+    <header class="modalHeader">
+      <span class="text">Add Schedule</span>
+      <div class="close">
+        <span class="icon"></span>
+      </div>
+    </header>
+    <!-- Schedule Modal Instruction -->
+    <section class="modalInstruction">
+      <div class="icon"></div>
+      <div class="text">
+          Choose Start Time and Frequency to schedule the Data Flow Group
+      </div>
+    </section>
+    <!-- Schedule Main Section -->
+    <section class="modalTopMain">
+      <!-- title section -->
+      <div class="titleSection">
+        <span class="title">Data Flow Group Name:</span>
+        <span class="text">DFG 2</span>
+      </div>
+      <!-- divider -->
+      <div class="divider"></div>
+      <!-- time section -->
+      <div class="timeSection">
+        <span class="text">Start Time:</span>
+        <input class="date" type="text">
+        <input class="time timePickerBox" type="text">
+        <!-- time picker -->
+        <div id="scheduler-timePicker"class="timePicker">
+          <div class="textSection">
+            <span class="text">Hour</span>
+            <span class="text">Minute</span>
+          </div>
+          <div class="buttonSection">
+            <button class="btn btnMid increase hour">
+              <div class="bar"></div>
+              <div class="bar vertical"></div>
+            </button>
+            <button class="btn btnMid increase minute">
+              <div class="bar"></div>
+              <div class="bar vertical"></div>
+            </button>
+            <button class="btn btnMid increase ampm">
+              <div class="bar"></div>
+              <div class="bar vertical"></div>
+            </button>
+          </div>
+          <div class="inputSection">
+            <input class="hour" type="text" disabled>
+            <input class="minute" type="text" disabled>
+            <span class="ampm">PM</span>
+          </div>
+          <div class="buttonSection">
+            <button class="btn btnMid decrease hour">
+              <div class="bar"></div>
+            </button>
+            <button class="btn btnMid decrease minute">
+              <div class="bar"></div>
+            </button>
+            <button class="btn btnMid decrease ampm">
+              <div class="bar"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- divider -->
+      <div class="divider"></div>
+      <!-- frequency section -->
+      <div class="frequencySection">
+        <!-- part1 -->
+        <div class="freq1">
+          <div class="title">Frequency:</div>
+          <div class="select-item" data-option="hourly">
+            <div class="radio checked">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Hourly</div>
+          </div>
+          <div class="select-item" data-option="daily">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Daily</div>
+          </div>
+          <div class="select-item" data-option="weekly">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Weekly</div>
+          </div>
+          <div class="select-item" data-option="biweekly">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Biweekly</div>
+          </div>
+          <div class="select-item" data-option="monthly">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Monthly</div>
+          </div>
+        </div>
+        <!-- part2 -->
+        <!-- <div class="freq2">
+          <div class="select-item" data-option="day-repeat">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">Day</div>
+          </div>
+          <div class="listSection">
+            <input class="text" value="1" disabled>
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <ul class="list">
+              <li name="1"></li>
+            </ul>
+          </div>
+          <div class="textSection">
+            <span class="text">of every month</span>
+          </div>
+        </div> -->
+        <!-- part3 -->
+        <div class="freq2">
+          <div class="select-item" data-option="weekPerMonth">
+            <div class="radio">
+              <span class="dot"></span>
+            </div>
+            <div class="label">The</div>
+          </div>
+          <div class="listSection">
+            <input class="text" value="First" disabled spellcheck="false">
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <ul class="list">
+              <li name="first">First</li>
+              <li name="second">Second</li>
+              <li name="third">Third</li>
+              <li name="fourth">Fourth</li>
+              <li name="last">Last</li>
+            </ul>
+          </div>
+          <div class="listSection week">
+            <input class="text" value="Sunday" disabled spellcheck="false">
+            <div class="iconWrapper">
+              <span class="icon"></span>
+            </div>
+            <ul class="list">
+              <li name="Sunday">Sunday</li>
+              <li name="Monday">Monday</li>
+              <li name="Tuesday">Tuesday</li>
+              <li name="Wednesday">Wednesday</li>
+              <li name="Thursday">Thursday</li>
+              <li name="Friday">Friday</li>
+               <li name="Saturday">Saturday</li>
+            </ul>
+          </div>
+          <div class="textSection">
+            <span class="text">of every month</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+      <button type="button" class="btn btnMid confirm">SAVE</button>
+      <button type="button" class="btn btnMid cancel">CANCEL</button>
+    </section>
+  </div>
+  <!-- End of Schedule Modal -->
+
   <!-- Alert Modal -->
   <div id="alertModal" class="modalContainer">
     <!-- Alert Modal Header -->
@@ -2108,6 +2285,7 @@
 <script src="/js/sql.js" type="text/javascript"></script>
 <script src="/js/replay.js" type="text/javascript"></script>
 <script src="/js/quickAggModal.js" type="text/javascript"></script>
+<script src="/js/scheduleModal.js" type="text/javascript"></script>
 <script src="/js/tips.js" type="text/javascript"></script>
 <script src="/js/statusMessage.js" type="text/javascript"></script>
 <script src="/js/englishStrings.js" type="text/javascript"></script>
