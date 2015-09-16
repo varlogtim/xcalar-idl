@@ -471,7 +471,7 @@ window.TestSuite = (function($, TestSuite) {
             return (checkExists("#inactiveTablesList"))
         })
         .then(function() {
-            $("#inactiveTablesList .addTableBtn").eq(0).click();
+            $("#inactiveTablesList .addTableBtn").eq(1).click();
             $("#submitTablesBtn").click();
             $("#rightSideBar .iconClose").click();
             $("#worksheetTab-0 .label").click();
@@ -525,8 +525,8 @@ window.TestSuite = (function($, TestSuite) {
         $("#importDataSubmit").click();
         checkExists("#dataset-"+dsName+":not(.inactive)")
         .then(function() {
-            $("#contentViewTable .flexContainer").eq(0).click();
-            $("#contentViewTable .flexContainer").eq(5).click();
+            $(".contentViewTable .flexContainer").eq(0).click();
+            $(".contentViewTable .flexContainer").eq(5).click();
             $("#submitDSTablesBtn").click();
             return (checkExists(".xcTable .flexWrap.flex-mid input[value="+
                                 "'class_id']:eq(0)"));

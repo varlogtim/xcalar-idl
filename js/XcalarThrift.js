@@ -271,7 +271,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     return (deferred.promise());
 }
 
-function XcalarExport(tablename, filename, isBQ, sqlOptions) {
+function XcalarAddExportTarget(target, specInput) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -281,8 +281,63 @@ function XcalarExport(tablename, filename, isBQ, sqlOptions) {
         return (deferred.promise());
     }
          
-    var workItem = xcalarExportWorkItem(tablename, filename, isBQ);
-    var def1 = xcalarExport(tHandle, tablename, filename, isBQ);
+    var workItem = xcalarAddExportTargetWorkItem(target, specInput);
+    var def1 = xcalarAddExportTarget(tHandle, target, specInput);
+    var def2 = XcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // XXX Add sql for this thing
+        SQL.add("Add Export Target", sqlOptions, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarAddExportTarget", error));
+    });
+
+    return (deferred.promise());
+}
+
+function XcalarListExportTargets(typePattern, namePattern) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+         
+    var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
+    var def1 = xcalarListExportTargets(tHandle, typePattern, namePattern);
+    var def2 = XcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // XXX Add sql for this thing
+        SQL.add("List Export Targets", sqlOptions, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarListExportTargets", error));
+    });
+
+    return (deferred.promise());
+}
+
+function XcalarExport(tableName, target, specInput, numColumns, columns,
+                      sqlOptions) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+         
+    var workItem = xcalarExportWorkItem(tableName, target, specInput, numColumns
+                                        , columns);
+    var def1 = xcalarExport(tHandle, tableName, target, specInput, numColumns,
+                            columns);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
@@ -335,10 +390,11 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     }
     datasetName = parseDS(datasetName);
     var dhtName = ""; // XXX TODO fill in later
+    // XXX TRUE IS WRONG, THIS IS JUST TEMPORARY TO GET STUFF TO WORK
     var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename,
-                                              dhtName);
+                                              dhtName, true);
     var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename,
-                                  dhtName);
+                                  dhtName, true);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
@@ -362,11 +418,12 @@ function XcalarIndexFromTable(srcTablename, key, tablename, sqlOptions) {
         return (deferred.promise());
     }
     var dhtName = ""; // XXX TODO fill in later
+    // XXX TRUE IS WRONG THIS IS JUST TEMPORARY
     var workItem = xcalarIndexTableWorkItem(srcTablename, tablename, key,
-                                            dhtName);
+                                            dhtName, true);
     
     var def1 = xcalarIndexTable(tHandle, srcTablename, key, tablename,
-                                dhtName);
+                                dhtName, true);
     var def2 = XcalarGetQuery(workItem);
 
     jQuery.when(def1, def2)
@@ -459,7 +516,8 @@ function XcalarSample(datasetName, numEntries) {
     return (deferred.promise());
 }
 
-function XcalarGetCount(tableName) {
+// Not being called. We just use make result set's output
+function XcalarGetDatasetCount(dsName) {
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -468,7 +526,7 @@ function XcalarGetCount(tableName) {
     if (tHandle == null) {
         deferred.resolve(0);
     } else {
-        xcalarGetCount(tHandle, tableName)
+        xcalarGetDatasetCount(tHandle, dsName)
         .then(function(countOutput) {
             var totEntries = 0;
             var numNodes = countOutput.numCounts;
@@ -478,7 +536,34 @@ function XcalarGetCount(tableName) {
             deferred.resolve(totEntries);
         })
         .fail(function(error) {
-            deferred.reject(thriftLog("XcalarGetCount", error));
+            deferred.reject(thriftLog("XcalarGetDatasetCount", error));
+        });
+    }
+
+    return (deferred.promise());
+}
+
+// Not being called. We just use make result set's output
+function XcalarGetTableCount(tableName) {
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    if (tHandle == null) {
+        deferred.resolve(0);
+    } else {
+        xcalarGetTableCount(tHandle, tableName)
+        .then(function(countOutput) {
+            var totEntries = 0;
+            var numNodes = countOutput.numCounts;
+            for (var i = 0; i < numNodes; i++) {
+                totEntries += countOutput.counts[i];
+            }
+            deferred.resolve(totEntries);
+        })
+        .fail(function(error) {
+            deferred.reject(thriftLog("XcalarGetTableCount", error));
         });
     }
 
