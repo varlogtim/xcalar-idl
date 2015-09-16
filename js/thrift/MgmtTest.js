@@ -1338,6 +1338,18 @@
 
     function testCreateDht(deferred, testName, currentTestNumber) {
         var dhtName = "mgmtTestCustomDht"
+
+        function deleteTableSuccessFn(status) {
+            xcalarApiDeleteDht(thriftHandle, dhtName)
+            .done(function (status) {
+                pass(deferred, testName, currentTestNumber);
+            })
+            .fail(function(status) {
+                var reason = "deleteDht returned status: " + StatusTStr[status]
+                fail(deferred, testName, currentTestNumber, reason);
+            });
+        }
+
         function indexDatasetSuccessFn(indexOutput) {
             xcalarGetTableCount(thriftHandle, indexOutput.tableName)
             .done(function(countOutput) {
@@ -1352,7 +1364,12 @@
                 }
 
                 if (totalCount === 70817) {
-                    pass(deferred, testName, currentTestNumber);
+                    xcalarDeleteTable(thriftHandle, indexOutput.tableName)
+                    .done(deleteTableSuccessFn)
+                    .fail(function(status) {
+                        var reason = "deleteTable returned status: " + StatusTStr[status];
+                        fail(deferred, testName, currentTestNumber, reason);
+                    });
                 } else {
                     var reason = "Total count " + totalCount + " != 70817";
                     fail(deferred, testName, currentTestNumber, reason);
@@ -1374,12 +1391,19 @@
             });
         }
 
-        xcalarApiCreateDht(thriftHandle, dhtName, 5.0, 0.0, false)
-        .done(createDhtSuccessFn)
-        .fail(function(status) {
-            var reason = "createDht returned status: " + StatusTStr[status]
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+        function startCreateDhtTest(status) {
+            console.log("deleteDht returned status: " + StatusTStr[status]);
+            xcalarApiCreateDht(thriftHandle, dhtName, 5.0, 0.0, false)
+            .done(createDhtSuccessFn)
+            .fail(function(status) {
+                var reason = "createDht returned status: " + StatusTStr[status]
+                fail(deferred, testName, currentTestNumber, reason);
+            });
+
+        }
+
+        xcalarApiDeleteDht(thriftHandle, dhtName)
+        .then(startCreateDhtTest, startCreateDhtTest);
     }
 
     function testUploadPython(deferred, testName, currentTestNumber) {
@@ -1684,8 +1708,8 @@
     addTestCase(testCases, testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
 
 
-    // XXX re-enable when DHT delete API is implemented
-    addTestCase(testCases, testCreateDht, "create DHT test", defaultTimeout, TestCaseDisabled, "");
+    // Re-enabled with delete DHT added
+    addTestCase(testCases, testCreateDht, "create DHT test", defaultTimeout, TestCaseEnabled, "");
 
     // XXX re-enable when the query-DAG bug is fixed
     addTestCase(testCases, testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");

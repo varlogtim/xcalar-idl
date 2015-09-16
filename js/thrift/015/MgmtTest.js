@@ -25,6 +25,7 @@
     ,   loadArgs
     ,   loadOutput
     ,   origDataset
+    ,   yelpUserDataset
     ,   queryName
     ,   origTable
     ,   origStrTable
@@ -173,6 +174,17 @@
 	});
     }
 
+    function testGetNumNodes(deferred, testName, currentTestNumber) {
+        xcalarGetNumNodes(thriftHandle)
+        .done(function(result) {
+            printResult(result);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
     function testGetVersion(deferred, testName, currentTestNumber) {
         xcalarGetVersion(thriftHandle)
         .done(function(result) {
@@ -196,6 +208,7 @@
             printResult(result);
             loadOutput = result;
             origDataset = loadOutput.dataset.name;
+            yelpUserDataset = loadOutput.dataset.name;
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
@@ -308,7 +321,7 @@
     function testIndexDatasetIntSync(deferred, testName, currentTestNumber) {
         xcalarIndexDataset(thriftHandle,
                            loadOutput.dataset.name, "review_count",
-                           "yelp/user-review_count")
+                           "yelp/user-review_count", "", false)
         .done(function(syncIndexOutput) {
             printResult(syncIndexOutput);
             pass(deferred, testName, currentTestNumber);
@@ -320,7 +333,7 @@
 
     function testIndexDatasetInt(deferred, testName, currentTestNumber) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                           "votes.funny", "yelp/user-votes.funny", "")
+                           "votes.funny", "yelp/user-votes.funny", "", false)
         .done(function(indexOutput) {
             printResult(indexOutput);
             origTable = indexOutput.tableName;
@@ -333,7 +346,7 @@
 
     function testIndexDatasetStr(deferred, testName, currentTestNumber) {
         xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                           "user_id", "yelp/user-user_id", "")
+                           "user_id", "yelp/user-user_id", "", false)
         .done(function(indexStrOutput) {
             printResult(indexStrOutput);
             origStrTable = indexStrOutput.tableName;
@@ -346,7 +359,7 @@
 
     function testIndexTable(deferred, testName, currentTestNumber) {
         xcalarIndexTable(thriftHandle, origStrTable,
-                         "name", "yelp/user-name", "")
+                         "name", "yelp/user-name", "", "", false)
         .done(function(indexStrOutput) {
             printResult(indexStrOutput);
             pass(deferred, testName, currentTestNumber);
@@ -371,6 +384,7 @@
         workItem.input.indexInput.dstTable.tableId = XcalarApiTableIdInvalidT;
         workItem.input.indexInput.keyName = "keyName";
         workItem.input.indexInput.dhtName = "";
+        workItem.input.indexInput.perserveOrder = false;
 
         xcalarApiGetQuery(thriftHandle, workItem)
         .done(function(getQueryOutput) {
@@ -417,7 +431,7 @@
 
     function testIndexDatasetBogus(deferred, testName, currentTestNumber) {
          xcalarIndexDataset(thriftHandle, loadOutput.dataset.name,
-                            "garbage", "yelp/user-garbage")
+                            "garbage", "yelp/user-garbage", "", false)
          .done(function(bogusIndexOutput) {
              printResult(bogusIndexOutput);
              pass(deferred, testName, currentTestNumber);
@@ -429,7 +443,7 @@
 
     function testIndexTable2(deferred, testName, currentTestNumber) {
         xcalarIndexTable(thriftHandle, origStrTable,
-                         "yelping_since", "yelp/user-yelping_since", "")
+                         "yelping_since", "yelp/user-yelping_since", "", "", false)
         .done(function(indexStrOutput2) {
             printResult(indexStrOutput2);
             pass(deferred, testName, currentTestNumber);
@@ -441,7 +455,7 @@
 
     function testIndexTableBogus(deferred, testName, currentTestNumber) {
         xcalarIndexTable(thriftHandle, origTable,
-                         "garbage2", "yelp/user-garbage2")
+                         "garbage2", "yelp/user-garbage2", "", false)
         .done(function(bogusIndexOutput2) {
             printResult(bogusIndexOutput2);
             pass(deferred, testName, currentTestNumber);
@@ -462,14 +476,14 @@
         })
     }
 
-    function testGetCount(deferred, testName, currentTestNumber) {
-        xcalarGetCount(thriftHandle, origTable)
-        .done(function(countOutput) {
+    function curryVerifyCountOutput(deferred, testName, currentTestNumber) {
+        function verifyCountOutput(countOutput) {
             printResult(countOutput);
 
             var totalCount = 0;
             for (var i = 0; i < countOutput.numCounts; i ++) {
                 totalCount += countOutput.counts[i];
+                console.log("Node " + i + ": " + countOutput.counts[i]);
             }
 
             console.log("\tcount: " + totalCount.toString());
@@ -480,7 +494,25 @@
                 var reason = "wrong count: " + totalCount + " expected: 70817";
                 fail(deferred, testName, currentTestNumber, reason);
             }
+        }
+        return (verifyCountOutput);
+    }
+
+    function testGetDatasetCount(deferred, testName, currentTestNumber) {
+        var verifyDatasetCount = curryVerifyCountOutput(deferred, testName,
+                                                        currentTestNumber);
+        xcalarGetDatasetCount(thriftHandle, yelpUserDataset)
+        .done(verifyDatasetCount)
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
         })
+    }
+
+    function testGetTableCount(deferred, testName, currentTestNumber) {
+        var verifyTableCount = curryVerifyCountOutput(deferred, testName,
+                                                      currentTestNumber);
+        xcalarGetTableCount(thriftHandle, origTable)
+        .done(verifyTableCount)
         .fail(function(reason) {
             fail(deferred, testName, currentTestNumber, reason);
         })
@@ -938,11 +970,48 @@
         })
     }
 
+    function testAddExportTarget(deferred, testName, currentTestNumber) {
+        var target = new DsExportTargetT();
+        var specInput = new DsAddTargetSpecificInputT();
+        target.name = "Mgmtd Export Target";
+        target.type = DsTargetTypeT.DsTargetSFType;
+        specInput.odbcInput = new DsAddTargetODBCInputT();
+
+        xcalarAddExportTarget(thriftHandle, target, specInput)
+        .done(function(status) {
+            printResult(status);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, "fail reason" + reason);
+        })
+    }
+
+    function testListExportTargets(deferred, testName, currentTestNumber) {
+        xcalarListExportTargets(thriftHandle, "*", "*")
+        .done(function(listTargetsOutput) {
+            printResult(listTargetsOutput);
+            pass(deferred, testName, currentTestNumber);
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        })
+    }
+
     function testExport(deferred, testName, currentTestNumber) {
+        var target = new DfExportTargetT();
+        target.type = DsTargetTypeT.DsTargetODBCType;
+        target.name = "MySql_Test";
+        var specInput = new DsInitExportSpecificInputT();
+        specInput.odbcInput = new DsInitExportODBCInputT();
+        specInput.odbcInput.tableName = "mgmtdTestTable";
+        numColumns = 4;
+        columns = ["column1", "column2", "column3", "column4"];
+
         xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900-average",
-                     "yelp-user-votes.funny-gt900-average.csv")
-        .done(function(exportOutput) {
-            printResult(exportOutput);
+                     specInput, numColumns, columns)
+        .done(function(status) {
+            printResult(status);
             pass(deferred, testName, currentTestNumber);
         })
         .fail(function(reason) {
@@ -1129,7 +1198,7 @@
             evalString = "add(1, " + evalString + ")";
         }
 
-        xcalarFilter(thriftHandle, evalString, origTable, "filterLongEvalStr")      
+        xcalarFilter(thriftHandle, evalString, origTable, "filterLongEvalStr")
         .done(function(filterOutput) {
             returnValue = 1;
             var reason = "Map succeeded with long eval string when it should have failed";
@@ -1267,10 +1336,56 @@
         });
     }
 
+    function testCreateDht(deferred, testName, currentTestNumber) {
+        var dhtName = "mgmtTestCustomDht"
+        function indexDatasetSuccessFn(indexOutput) {
+            xcalarGetTableCount(thriftHandle, indexOutput.tableName)
+            .done(function(countOutput) {
+                var totalCount = 0;
+                for (var ii = 0; ii < countOutput.numCounts; ii++) {
+                    console.log("Node " + ii + " - " + countOutput.counts[ii]);
+                    if (countOutput.counts[ii] == 0) {
+                        var reason = "Node " + ii + " has 0 entries"
+                        fail(deferred, testName, currentTestNumber, reason);
+                    }
+                    totalCount += countOutput.counts[ii];
+                }
+
+                if (totalCount === 70817) {
+                    pass(deferred, testName, currentTestNumber);
+                } else {
+                    var reason = "Total count " + totalCount + " != 70817";
+                    fail(deferred, testName, currentTestNumber, reason);
+                }
+            })
+            .fail(function(status) {
+                var reason = "getCount returned status: " + StatusTStr[status]
+                fail(deferred, testName, currentTestNumber, reason);
+            });
+        }
+
+        function createDhtSuccessFn(status) {
+            xcalarIndexDataset(thriftHandle, yelpUserDataset,
+                               "average_stars", "yelp/user-average_stars", dhtName, false)
+            .done(indexDatasetSuccessFn)
+            .fail(function(status) {
+                var reason = "Index dataset returned status: " + StatusTStr[status]
+                fail(deferred, testName, currentTestNumber, reason);
+            });
+        }
+
+        xcalarApiCreateDht(thriftHandle, dhtName, 5.0, 0.0, false)
+        .done(createDhtSuccessFn)
+        .fail(function(status) {
+            var reason = "createDht returned status: " + StatusTStr[status]
+            fail(deferred, testName, currentTestNumber, reason);
+        });
+    }
+
     function testUploadPython(deferred, testName, currentTestNumber) {
         xcalarApiUploadPython(thriftHandle, "MgmtTest",
             "def strLength( strVal ):\n  return \"%d\" % len(strVal)\n")
-        .done(function(uploadPythonOutput) {
+        .done(function(status) {
             if (status == StatusT.StatusOk) {
                 pass(deferred, testName, currentTestNumber);
             } else {
@@ -1462,6 +1577,7 @@
     loadArgs       = null;
     loadOutput     = null;
     origDataset    = null;
+    yelpUserDataset = null;
     queryName      = null;
     origTable      = null;
     aggrTable      = null;
@@ -1498,7 +1614,8 @@
     addTestCase(testCases, testIndexTableBogus, "bogus index table 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testGetTableRefCount, "table refCount", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testRenameNode, "rename node", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testGetCount, "count unique", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testGetDatasetCount, "dataset count", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testGetTableCount, "table count", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListTables, "list tables", defaultTimeout, TestCaseEnabled, "");
 
     // XXX Re-enable as soon as bug is fixed
@@ -1534,6 +1651,8 @@
     addTestCase(testCases, testApiMap, "map", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testApiMap, "map", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testCases, testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testCases, testAddExportTarget, "add export target", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCases, testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testExport, "export", defaultTimeout, TestCaseDisabled, "");
 
     addTestCase(testCases, testMakeRetina, "makeRetina", defaultTimeout, TestCaseDisabled, "");
@@ -1563,6 +1682,10 @@
     addTestCase(testCases, testTop, "top test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListXdfs, "listXdfs test", defaultTimeout, TestCaseEnabled, "");
+
+
+    // XXX re-enable when DHT delete API is implemented
+    addTestCase(testCases, testCreateDht, "create DHT test", defaultTimeout, TestCaseDisabled, "");
 
     // XXX re-enable when the query-DAG bug is fixed
     addTestCase(testCases, testDeleteTable, "delete table", defaultTimeout, TestCaseDisabled, "");
