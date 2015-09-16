@@ -919,6 +919,12 @@ window.xcHelper = (function($, xcHelper) {
         return (mainDeferred.promise());
     };
 
+    xcHelper.assert = function(statement) {
+        if (!statement) {
+            console.error("Assert fail!");
+        }
+    };
+
     return (xcHelper);
 }(jQuery, {}));
 

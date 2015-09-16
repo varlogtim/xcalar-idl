@@ -505,10 +505,12 @@ window.STATSManager = (function($, STATSManager, d3) {
                 "tableName"   : tableName,
                 "tableId"     : tableId,
                 "colName"     : colName,
-                "newTableName": newTableName
+                "newTableName": newTableName,
+                "sorted"      : false
             };
 
-            XcalarIndexFromTable(tableName, colName, newTableName, sqlOptions)
+            XcalarIndexFromTable(tableName, colName, newTableName, false,
+                                 sqlOptions)
             .then(function() {
                 // Aggregate count on origingal already remove the null value!
                 return (getAggResult(colName, tableName, aggMap.count));
@@ -1018,10 +1020,12 @@ window.STATSManager = (function($, STATSManager, d3) {
                     "action"      : "sort",
                     "tableName"   : tableName,
                     "colName"     : statsColName,
-                    "newTableName": newTableName
+                    "newTableName": newTableName,
+                    "sorted"      : true
                 };
 
-                XcalarIndexFromTable(tableName, statsColName, newTableName, sqlOptions)
+                XcalarIndexFromTable(tableName, statsColName, newTableName, true
+                                     , sqlOptions)
                 .then(function() {
                     groupByInfo.ascTable = newTableName;
                     deferred.resolve();

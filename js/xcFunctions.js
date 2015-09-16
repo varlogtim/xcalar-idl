@@ -191,10 +191,12 @@ window.xcFunction = (function($, xcFunction) {
             "colNum"      : colNum,
             "order"       : order,
             "direction"   : direction,
-            "newTableName": newTableName
+            "newTableName": newTableName,
+            "sorted"      : true
         };
                  
-        XcalarIndexFromTable(tableName, backFieldName, newTableName, sqlOptions)
+        XcalarIndexFromTable(tableName, backFieldName, newTableName, true,
+                             sqlOptions)
         .then(function() {
             // sort do not change groupby stats of the table
             STATSManager.copy(tableId, newTableId);
@@ -916,57 +918,75 @@ window.xcFunction = (function($, xcFunction) {
 
         var table     = xcHelper.getTableFromId(tableId);
         var tableName = table.tableName;
+        var parentIndexedWrongly = false;
+        var unsortedTableName = tableName;
 
-        if (colName !== table.keyName) {
-            console.log(tableName, "not indexed correctly!");
-            // XXX In the future,we can check if there are other tables that
-            // are indexed on this key. But for now, we reindex a new table
-            var newTableInfo = getNewTableInfo(tableName);
-            var newTableName = newTableInfo.tableName;
-            var newTableId   = newTableInfo.tableId;
+        getUnsortedTableName(tableName)
+        .then(function(unsorted) {
+            if (unsorted !== tableName) {
+                unsortedTableName = unsorted;
+                return (XcalarMakeResultSetFromTable(unsorted));
+            } else {
+                var tmp = jQuery.Deferred();
+                tmp.resolve();
+                return (tmp.promise());
+            }
+        })
+        .then(function(resultSet) {
+            if (resultSet && resultSet.keyAttrHeader.name  !== colName) {
+                parentIndexedWrongly = true;
+            }
+            if (colName !== table.keyName || 
+                (unsortedTableName !== tableName && parentIndexedWrongly)) {
+                console.log(tableName, "not indexed correctly!");
+                // XXX In the future,we can check if there are other tables that
+                // are indexed on this key. But for now, we reindex a new table
+                var newTableInfo = getNewTableInfo(tableName);
+                var newTableName = newTableInfo.tableName;
+                var newTableId   = newTableInfo.tableId;
 
+                // append new table to the same ws as the old table
+                var wsIndex = WSManager.getWSFromTable(tableId);
+                // must add to worksheet before async call
+                WSManager.addTable(newTableId, wsIndex);
 
-            // append new table to the same ws as the old table
-            var wsIndex = WSManager.getWSFromTable(tableId);
-            // must add to worksheet before async call
-            WSManager.addTable(newTableId, wsIndex);
+                var sqlOptions = {
+                    "operation"   : SQLOps.CheckIndex,
+                    "key"         : colName,
+                    "tableName"   : tableName,
+                    "newTableName": newTableName,
+                    "sorted"      : false
+                };
 
-            var sqlOptions = {
-                "operation"   : SQLOps.CheckIndex,
-                "key"         : colName,
-                "tableName"   : tableName,
-                "newTableName": newTableName
-            };
+                XcalarIndexFromTable(tableName, colName, newTableName, false,
+                                     sqlOptions)
+                .then(function() {
+                    var tablCols = xcHelper.deepCopy(table.tableCols);
 
-            XcalarIndexFromTable(tableName, colName, newTableName, sqlOptions)
-            .then(function() {
-                var tablCols = xcHelper.deepCopy(table.tableCols);
+                    setgTable(newTableName, tablCols);
+                    gTables[newTableId].active = false;
 
-                setgTable(newTableName, tablCols);
-                gTables[newTableId].active = false;
+                    deferred.resolve({
+                        "newTableCreated": true,
+                        "setMeta"        : false,
+                        "tableName"      : newTableName,
+                        "tableId"        : newTableId
+                    });
+                })
+                .fail(function(error) {
+                    WSManager.removeTable(newTableId);
+                    deferred.reject(error);
+                });
+            } else {
+                console.log(tableName, "indexed correctly!");
 
                 deferred.resolve({
-                    "newTableCreated": true,
-                    "setMeta"        : false,
-                    "tableName"      : newTableName,
-                    "tableId"        : newTableId
+                    "newTableCreated": false,
+                    "tableName"      : tableName,
+                    "tableId"        : tableId
                 });
-            })
-            .fail(function(error) {
-                WSManager.removeTable(newTableId);
-                deferred.reject(error);
-            });
-
-        } else {
-            console.log(tableName, "indexed correctly!");
-
-            deferred.resolve({
-                "newTableCreated": false,
-                "tableName"      : tableName,
-                "tableId"        : tableId
-            });
-        }
-
+            }
+        });
         return (deferred.promise());
     }
 
@@ -1026,11 +1046,12 @@ window.xcFunction = (function($, xcFunction) {
             .then(function() {
                 reindexedTableName = getNewTableInfo(newTableName).tableName;
                 XcalarIndexFromTable(newTableName, groupByField,
-                                     reindexedTableName, {
+                                     reindexedTableName, false, {
                           "operation"   : SQLOps.GroupbyIndex,
                           "tableName"   : newTableName,
                           "key"         : groupByField,
-                          "newTableName": reindexedTableName
+                          "newTableName": reindexedTableName,
+                          "sorted"      : false
                 })
                 .then(function(ret) {
                     reindexedTableId = xcHelper.getTableId(reindexedTableName);

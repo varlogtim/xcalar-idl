@@ -191,6 +191,62 @@ function insertError(argCallee, deferred) {
     return (false);
 }
 
+// ========================== HELPER FUNCTIONS ============================= //
+function getUnsortedTableName(tableName, otherTableName) {
+    var deferred = jQuery.Deferred();
+    var deferred1 = XcalarGetDag(tableName);
+    if (!otherTableName) {
+        deferred1
+        .then(function(nodeArray) {
+            // Check if the last one is a sort. If it is, then use the unsorted
+            // one
+            // If it isn't then just return the original
+            if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
+                var indexInput = nodeArray.node[0].input.indexInput;
+                if (indexInput.preserveOrder == true) {
+                    // Find parent and return parent's name
+                    xcHelper.assert(indexInput.source.isTable);
+                    console.log("Using unsorted table instead: " +
+                                indexInput.source.name);
+                    deferred.resolve(indexInput.source.name);
+                    return;
+                }
+            }
+            deferred.resolve(tableName);
+        });
+    } else {
+        var deferred2 = XcalarGetDag(otherTableName);
+        xcHelper.when(deferred1, deferred2)
+        .then(function(na1, na2) {
+            var unsortedName1 = tableName;
+            var unsortedName2 = otherTableName;
+            if (XcalarApisTStr[na1.node[0].api] === "XcalarApiIndex") {
+                var indexInput = na1.node[0].input.indexInput;
+                if (indexInput.preserveOrder == true) {
+                    // Find parent and return parent's name
+                    xcHelper.assert(indexInput.source.isTable);
+                    console.log("Using unsorted table instead: " +
+                                indexInput.source.name);
+                    unsortedName1 = indexInput.source.name;
+                }
+            }
+            if (XcalarApisTStr[na2.node[0].api] === "XcalarApiIndex") {
+                var indexInput = na2.node[0].input.indexInput;
+                if (indexInput.preserveOrder == true) {
+                    // Find parent and return parent's name
+                    xcHelper.assert(indexInput.source.isTable);
+                    console.log("Using unsorted table instead: " +
+                                indexInput.source.name);
+                    unsortedName2 = indexInput.source.name;
+                }
+            }
+            deferred.resolve(unsortedName1, unsortedName2);
+        });
+    }
+    return (deferred.promise());
+}
+
+// ========================= MAIN FUNCTIONS  =============================== //
 function XcalarGetVersion() {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -392,9 +448,9 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     var dhtName = ""; // XXX TODO fill in later
     // XXX TRUE IS WRONG, THIS IS JUST TEMPORARY TO GET STUFF TO WORK
     var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename,
-                                              dhtName, true);
+                                              dhtName, false);
     var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename,
-                                  dhtName, true);
+                                  dhtName, false);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
@@ -408,7 +464,8 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     return (deferred.promise());
 }
 
-function XcalarIndexFromTable(srcTablename, key, tablename, sqlOptions) {
+function XcalarIndexFromTable(srcTablename, key, tablename, preserveOrder,
+                              sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -418,23 +475,24 @@ function XcalarIndexFromTable(srcTablename, key, tablename, sqlOptions) {
         return (deferred.promise());
     }
     var dhtName = ""; // XXX TODO fill in later
-    // XXX TRUE IS WRONG THIS IS JUST TEMPORARY
-    var workItem = xcalarIndexTableWorkItem(srcTablename, tablename, key,
-                                            dhtName, true);
+    getUnsortedTableName(srcTablename)
+    .then(function(unsortedSrcTablename) {
+        var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename, tablename,
+                                                key, dhtName, preserveOrder);
     
-    var def1 = xcalarIndexTable(tHandle, srcTablename, key, tablename,
-                                dhtName, true);
-    var def2 = XcalarGetQuery(workItem);
+        var def1 = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
+                                    tablename, dhtName, preserveOrder);
+        var def2 = XcalarGetQuery(workItem);
 
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        SQL.add("Index Table", sqlOptions, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarIndexFromTable", error));
+        jQuery.when(def1, def2)
+        .then(function(ret1, ret2) {
+            SQL.add("Index Table", sqlOptions, ret2);
+            deferred.resolve(ret1);
+        })
+        .fail(function(error) {
+            deferred.reject(thriftLog("XcalarIndexFromTable", error));
+        });
     });
-
     return (deferred.promise());
 }
 
@@ -861,18 +919,22 @@ function XcalarFilterHelper(filterStr, srcTablename, dstTablename,
         deferred.reject("Unknown op " + filterStr);
         return (deferred.promise());
     }
+    getUnsortedTableName(srcTablename)
+    .then(function(unsortedSrcTablename) {
+        var workItem = xcalarFilterWorkItem(unsortedSrcTablename, dstTablename,
+                                            filterStr);
 
-    var workItem = xcalarFilterWorkItem(srcTablename, dstTablename, filterStr);
-
-    var def1 = xcalarFilter(tHandle, filterStr, srcTablename, dstTablename);
-    var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        SQL.add("Filter", sqlOptions, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarFilter", error));
+        var def1 = xcalarFilter(tHandle, filterStr, unsortedSrcTablename,
+                                dstTablename);
+        var def2 = XcalarGetQuery(workItem);
+        jQuery.when(def1, def2)
+        .then(function(ret1, ret2) {
+            SQL.add("Filter", sqlOptions, ret2);
+            deferred.resolve(ret1);
+        })
+        .fail(function(error) {
+            deferred.reject(thriftLog("XcalarFilter", error));
+        });
     });
 
     return (deferred.promise());
@@ -888,20 +950,23 @@ function XcalarMap(newFieldName, evalStr, srcTablename, dstTablename,
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
+    
+    getUnsortedTableName(srcTablename)
+    .then(function(unsortedSrcTablename) {
+        var workItem = xcalarApiMapWorkItem(evalStr, unsortedSrcTablename,
+                                            dstTablename, newFieldName);
 
-    var workItem = xcalarApiMapWorkItem(evalStr, srcTablename, dstTablename,
-                                        newFieldName);
-
-    var def1 = xcalarApiMap(tHandle, newFieldName, evalStr, srcTablename,
-                            dstTablename);
-    var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        SQL.add("Map", sqlOptions, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarMap", error));
+        var def1 = xcalarApiMap(tHandle, newFieldName, evalStr,
+                                unsortedSrcTablename, dstTablename);
+        var def2 = XcalarGetQuery(workItem);
+        jQuery.when(def1, def2)
+        .then(function(ret1, ret2) {
+            SQL.add("Map", sqlOptions, ret2);
+            deferred.resolve(ret1);
+        })
+        .fail(function(error) {
+            deferred.reject(thriftLog("XcalarMap", error));
+        });
     });
     return (deferred.promise());
 }   
@@ -967,17 +1032,22 @@ function XcalarAggregateHelper(srcTablename, evalStr, sqlOptions) {
     var dstDagName = srcTablename.split("#")[0] +
                      Authentication.getHashId();
 
-    var workItem = xcalarAggregateWorkItem(srcTablename, dstDagName, evalStr);
+    getUnsortedTableName(srcTablename)
+    .then(function(unsortedSrcTablename) {
+        var workItem = xcalarAggregateWorkItem(unsortedSrcTablename,
+                                               dstDagName, evalStr);
 
-    var def1 = xcalarAggregate(tHandle, srcTablename, dstDagName, evalStr);
-    var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        SQL.add("Aggregate", sqlOptions, ret2);
-        deferred.resolve(ret1, dstDagName);
-    })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarAggregate", error));
+        var def1 = xcalarAggregate(tHandle, unsortedSrcTablename, dstDagName,
+                                   evalStr);
+        var def2 = XcalarGetQuery(workItem);
+        jQuery.when(def1, def2)
+        .then(function(ret1, ret2) {
+            SQL.add("Aggregate", sqlOptions, ret2);
+            deferred.resolve(ret1, dstDagName);
+        })
+        .fail(function(error) {
+            deferred.reject(thriftLog("XcalarAggregate", error));
+        });
     });
 
     return (deferred.promise());
@@ -993,19 +1063,22 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
         return (deferred.promise());
     }
 
-    var workItem = xcalarJoinWorkItem(left, right, dst, joinType);
-
-    var def1 = xcalarJoin(tHandle, left, right, dst, joinType);
-    var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        SQL.add("Join", sqlOptions, ret2);
-        deferred.resolve(ret1);
+    getUnsortedTableName(left, right)
+    .then(function(unsortedLeft, unsortedRight) {
+        var workItem = xcalarJoinWorkItem(unsortedLeft, unsortedRight, dst,
+                                          joinType);
+        var def1 = xcalarJoin(tHandle, unsortedLeft, unsortedRight, dst,
+                              joinType);
+        var def2 = XcalarGetQuery(workItem);
+        jQuery.when(def1, def2)
+        .then(function(ret1, ret2) {
+            SQL.add("Join", sqlOptions, ret2);
+            deferred.resolve(ret1);
+        })
+        .fail(function(error) {
+            deferred.reject(thriftLog("XcalarJoin", error));
+        });
     })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarJoin", error));
-    });
-
     return (deferred.promise());
 }
 
@@ -1021,20 +1094,22 @@ function XcalarGroupBy(operator, newColName, oldColName, tableName,
         deferred.reject("Wrong operator! " + operator);
         return (deferred.promise());
     }
-    var workItem = xcalarGroupByWorkItem(tableName, newTableName, evalStr,
-                                         newColName, incSample);
-    var def1 = xcalarGroupBy(tHandle, tableName, newTableName, evalStr,
-                             newColName, incSample);
-    var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        SQL.add("Group By", sqlOptions, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarGroupBy", error));
+    getUnsortedTableName(tableName)
+        .then(function(unsortedTableName) {
+        var workItem = xcalarGroupByWorkItem(unsortedTableName, newTableName,
+                                             evalStr, newColName, incSample);
+        var def1 = xcalarGroupBy(tHandle, unsortedTableName, newTableName,
+                                 evalStr, newColName, incSample);
+        var def2 = XcalarGetQuery(workItem);
+        jQuery.when(def1, def2)
+        .then(function(ret1, ret2) {
+            SQL.add("Group By", sqlOptions, ret2);
+            deferred.resolve(ret1);
+        })
+        .fail(function(error) {
+            deferred.reject(thriftLog("XcalarGroupBy", error));
+        });
     });
-
     return (deferred.promise());
 }
 

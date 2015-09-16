@@ -1777,14 +1777,23 @@ window.Dag = (function($, Dag) {
                                             evalStr.indexOf(')'));
                 break;
             case ('indexInput'):
-                if (value.source.isTable) {
-                    info.type = "sort";
-                    info.tooltip = "Sorted by " + value.keyName;
+                info.type = "sort";
+                if (value.preserveOrder) {
+                    if (value.source.isTable) {
+                        info.tooltip = "Sorted by " + value.keyName;
+                    } else {
+                        info.tooltip = "Sorted on " + value.keyName;
+                    }
+                    info.text = "sorted on " + value.keyName;
                 } else {
-                    info.type = "sort";
-                    info.tooltip = "Sorted on " + value.keyName;
+                    if (value.source.isTable) {
+                        info.tooltip = "Indexed by " + value.keyName;
+                    } else {
+                        info.tooltip = "Indexed on " + value.keyName;
+                    }
+                    info.text = "indexed on " + value.keyName;
                 }
-                info.text = "sorted on " + value.keyName;
+
                 info.column = value.keyName;
                 break;
             case ('joinInput'):
