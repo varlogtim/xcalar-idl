@@ -492,38 +492,69 @@ window.STATSManager = (function($, STATSManager, d3) {
 
     function checkTableIndex(tableId, tableName, colName, keyName) {
         var deferred = jQuery.Deferred();
-        if (colName === keyName) {
-            deferred.resolve(tableName, 0);
-        } else {
-            var newTableName = getNewName(tableName, ".stats.index", true);
-            // lock the table when do index
-            xcHelper.lockTable(tableId);
 
-            var sqlOptions = {
-                "operation"   : SQLOps.ProfileAction,
-                "action"      : "index",
-                "tableName"   : tableName,
-                "tableId"     : tableId,
-                "colName"     : colName,
-                "newTableName": newTableName,
-                "sorted"      : false
-            };
+        getUnsortedTableName(tableName)
+        .then(function(unsorted) {
+            var innerDeferred = jQuery.Deferred();
+            var parentIndexedWrongly = false;
 
-            XcalarIndexFromTable(tableName, colName, newTableName, false,
-                                 sqlOptions)
-            .then(function() {
-                // Aggregate count on origingal already remove the null value!
-                return (getAggResult(colName, tableName, aggMap.count));
-            })
-            .then(function(val) {
-                var nullCount = gTables[tableId].resultSetCount - val;
-                deferred.resolve(newTableName, nullCount);
-            })
-            .fail(deferred.reject)
-            .always(function() {
-                xcHelper.unlockTable(tableId, false);
-            });
-        }
+            if (unsorted !== tableName) {
+                // this is sorted table, should index a unsorted one
+                XcalarMakeResultSetFromTable(unsorted)
+                .then(function(resultSet) {
+                    if (resultSet && resultSet.keyAttrHeader.name  !== colName) {
+                        parentIndexedWrongly = true;
+                    }
+
+                    innerDeferred.resolve(parentIndexedWrongly);
+                })
+                .fail(innerDeferred.reject);
+            } else {
+                // this is the unsorted table
+                if (colName !== keyName) {
+                    parentIndexedWrongly = true;
+                }
+
+                innerDeferred.resolve(parentIndexedWrongly);
+            }
+
+            return (innerDeferred.promise());
+        })
+        .then(function(parentIndexedWrongly) {
+            if (!parentIndexedWrongly) {
+                deferred.resolve(tableName, 0);
+            } else {
+                var newTableName = getNewName(tableName, ".stats.index", true);
+                // lock the table when do index
+                xcHelper.lockTable(tableId);
+
+                var sqlOptions = {
+                    "operation"   : SQLOps.ProfileAction,
+                    "action"      : "index",
+                    "tableName"   : tableName,
+                    "tableId"     : tableId,
+                    "colName"     : colName,
+                    "newTableName": newTableName,
+                    "sorted"      : false
+                };
+
+                XcalarIndexFromTable(tableName, colName, newTableName, false,
+                                     sqlOptions)
+                .then(function() {
+                    // Aggregate count on origingal already remove the null value!
+                    return (getAggResult(colName, tableName, aggMap.count));
+                })
+                .then(function(val) {
+                    var nullCount = gTables[tableId].resultSetCount - val;
+                    deferred.resolve(newTableName, nullCount);
+                })
+                .fail(deferred.reject)
+                .always(function() {
+                    xcHelper.unlockTable(tableId, false);
+                });
+            }
+        })
+        .fail(deferred.reject);
 
         return (deferred.promise());
     }
