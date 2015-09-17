@@ -514,11 +514,13 @@
         margin-right: 30px;
 
         span {
-            .size(@width: 70%);
+            .size(@width: 78px);
             display: block;
             float: left;
             padding-left: 2px;
             .font(@weight: 700, @size: 8px, @line-height: 10px);
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
 
         .typeTitle {

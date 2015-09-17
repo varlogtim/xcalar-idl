@@ -1596,6 +1596,7 @@ window.Dag = (function($, Dag) {
             var key = getInputType(XcalarApisTStr[dagNode.api]);
             var operation = key.substring(0, key.length - 5);
             var info = getDagNodeInfo(dagNode, key, parents);
+
             if (info.type === "sort") {
                 operation = "sort";
             }
@@ -1620,6 +1621,9 @@ window.Dag = (function($, Dag) {
                               '</div>';
             }
             if (firstParent.indexOf('.XcalarDS.') === 0) {
+                firstParent = info.column;
+            }
+            if (operation !== 'join') {
                 firstParent = info.column;
             }
             operation = operation[0].toUpperCase() + operation.slice(1);
