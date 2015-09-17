@@ -5,7 +5,7 @@ window.Authentication = (function($, Authentication) {
     Authentication.setup = function() {
         var deferred = jQuery.Deferred();
         var username = sessionStorage.getItem("xcalar-username") ||
-                        hostname + "-" + portNumber;
+                        hostname + portNumber;
 
         KVStore.getAndParse(authKey)
         .then(function(users) {
