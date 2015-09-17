@@ -275,11 +275,15 @@ window.KVStore = (function($, KVStore) {
     var isHold   = false;
     var safeMode = false;
     var safeTimer;
+    var commitFlag;
 
     KVStore.setup = function(usrname, gStorageKey, gLogKey) {
+        var deferred = jQuery.Deferred();
+
         KVStore.user = usrname;
         KVStore.gStorageKey = gStorageKey;
         KVStore.gLogKey = gLogKey;
+        KVStore.commitKey = gStorageKey + "-" + "commitkey";
 
         if (sessionStorage.getItem("xcalar.safe") != null) {
             safeMode = true;
@@ -287,7 +291,15 @@ window.KVStore = (function($, KVStore) {
             safe = false;
         }
 
-        // console.log("You are assigned keys", gStorageKey, gLogKey);
+        commitFlag = "commit" + Math.floor((Math.random() * 10000) + 1);
+
+        // not persist, only store in memory as a flag,
+        // when the flag matches, current UI can commit
+        XcalarKeyPut(KVStore.commitKey, commitFlag, false)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     };
 
     KVStore.get = function(key) {
@@ -495,7 +507,22 @@ window.KVStore = (function($, KVStore) {
             return (deferred.promise());
         }
 
-        XcalarKeyPut(key, value, persist)
+        XcalarKeyLookup(KVStore.commitKey)
+        .then(function(val) {
+            var innerDeferred = jQuery.Deferred();
+            // when commitFlag and val == null, it meanse that the workbook
+            // is not set up yet or no workbook yet
+            if (commitFlag == null && val == null ||
+                val != null && val.value === commitFlag)
+            {
+                XcalarKeyPut(key, value, persist)
+                .then(innerDeferred.resolve);
+            } else {
+                innerDeferred.reject("commit key not match");
+            }
+
+            return (innerDeferred.promise());
+        })
         .then(function() {
             deferred.resolve();
         })

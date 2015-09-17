@@ -639,10 +639,9 @@ window.WKBKManager = (function($, WKBKManager) {
                 console.warn("Entering in safe mode of", wkbkId);
             }
 
-            KVStore.setup(username, gStorageKey, gLogKey);
-
-            deferred.resolve();
+            return (KVStore.setup(username, gStorageKey, gLogKey));
         })
+        .then(deferred.resolve)
         .fail(function(error) {
             console.error("KVStore setup fails", error);
             deferred.reject(error);
