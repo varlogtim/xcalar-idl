@@ -327,7 +327,7 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     return (deferred.promise());
 }
 
-function XcalarAddExportTarget(target, specInput) {
+function XcalarAddODBCExportTarget(targetName, connStr) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -336,6 +336,44 @@ function XcalarAddExportTarget(target, specInput) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
+    var target = new DsExportTargetT();
+    var specInput = new DsAddTargetSpecificInputT();
+    target.name = targetName;
+    target.type = DsTargetTypeT.DsTargetSFType;
+    specInput.odbcInput = new DsAddTargetODBCInputT();
+    specInput.odbcInput.connectionString = connStr;
+         
+    var workItem = xcalarAddExportTargetWorkItem(target, specInput);
+    var def1 = xcalarAddExportTarget(tHandle, target, specInput);
+    var def2 = XcalarGetQuery(workItem);
+    jQuery.when(def1, def2)
+    .then(function(ret1, ret2) {
+        // XXX Add sql for this thing
+        SQL.add("Add Export Target", sqlOptions, ret2);
+        deferred.resolve(ret1);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarAddExportTarget", error));
+    });
+
+    return (deferred.promise());
+}
+
+function XcalarAddLocalFSExportTarget(targetName, path) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    var target = new DsExportTargetT();
+    var specInput = new DsAddTargetSpecificInputT();
+    target.name = targetName;
+    target.type = DsTargetTypeT.DsTargetSFType;
+    specInput.sfInput = new DsAddTargetSFInputT();
+    specInput.sfInput.url = path;
          
     var workItem = xcalarAddExportTargetWorkItem(target, specInput);
     var def1 = xcalarAddExportTarget(tHandle, target, specInput);
@@ -379,7 +417,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
     return (deferred.promise());
 }
 
-function XcalarExport(tableName, target, specInput, numColumns, columns,
+function XcalarExport(tableName, targetName, numColumns, columns,
                       sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -389,21 +427,57 @@ function XcalarExport(tableName, target, specInput, numColumns, columns,
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-         
-    var workItem = xcalarExportWorkItem(tableName, target, specInput, numColumns
-                                        , columns);
-    var def1 = xcalarExport(tHandle, tableName, target, specInput, numColumns,
-                            columns);
-    var def2 = XcalarGetQuery(workItem);
-    jQuery.when(def1, def2)
-    .then(function(ret1, ret2) {
-        SQL.add("Export Table", sqlOptions, ret2);
-        deferred.resolve(ret1);
-    })
-    .fail(function(error) {
-        deferred.reject(thriftLog("XcalarExport", error));
+    var type = DsTargetTypeT.DsTargetUnknownType;
+    var target = new DfExportTargetT();
+    var specInput = new DsInitExportSpecificInputT();
+    XcalarListExportTargets("*", targetName)
+    .then(function(out) {
+        if (out.numTargets < 1) {
+            console.error("Export target does not exist!");
+            deferred.reject(thriftLog("XcalarExport", "Export target is not"+
+                            " on the target list"));
+            return;
+        }
+        for (var i = 0; i<out.targets.length; i++) {
+            if (out.targets[i].name === targetName) {
+                type = out.targets[i].type;
+                break;
+            }
+        }
+        if (type === DsTargetTypeT.DsTargetUnknownType) {
+            deferred.reject(thriftLog("XcalarExport", "Export target is not"+
+                            " on the target list"));
+            return;
+        }
+        switch(type) {
+            case (DsTargetTypeT.DsTargetODBCType):
+                specInput.odbcInput = new DsInitExportODBCInputT();
+                specInput.odbcInput.tableName = tableName;
+                break;
+            case (DsTargetTypeT.DsTargetSFType):
+                specInput.sfInput.fileName = tableName + ".csv";
+                specInput.sfInput.format = "csv";
+                specInput.sfInput.formatArgs.csv.fieldDelim = ",";
+                specInput.sfInput.formatArgs.csv.recordDelim = "\n";
+                break;
+            default:
+                deferred.reject(thriftLog("XcalarExport"));
+                break;
+        }
+        var workItem = xcalarExportWorkItem(tableName, target, specInput,
+                                            numColumns, columns);
+        var def1 = xcalarExport(tHandle, tableName, target, specInput,
+                                numColumns, columns);
+        var def2 = XcalarGetQuery(workItem);
+        jQuery.when(def1, def2)
+        .then(function(ret1, ret2) {
+            SQL.add("Export Table", sqlOptions, ret2);
+            deferred.resolve(ret1);
+        })
+        .fail(function(error) {
+            deferred.reject(thriftLog("XcalarExport", error));
+        });
     });
-
     return (deferred.promise());
 }
 
