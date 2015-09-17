@@ -140,6 +140,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.MoveTableToWS):
                 // fallthrough
+            case (SQLOps.MoveInactiveTableToWS):
+                // fallthrough
             case (SQLOps.AddNoSheetTables):
                 // fallthrough
             case (SQLOps.CreateFolder):

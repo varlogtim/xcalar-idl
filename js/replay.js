@@ -936,6 +936,12 @@ window.Replay = (function($, Replay) {
         return (promiseWrapper(null));
     }
 
+    function replayMoveInactiveTableToWS(options) {
+        var args = getArgs(options);
+        WSManager.moveInactiveTable.apply(window, args);
+        return (promiseWrapper(null));
+    }
+
     function replayAddNoSheetTables(options) {
         var tableIds = options.tableIds;
         for (var i = 0, len = tableIds.length; i < len; i++) {

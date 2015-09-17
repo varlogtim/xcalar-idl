@@ -529,6 +529,7 @@ window.DagPanel = (function($, DagPanel) {
                 return;
             }
             var tableId = $menu.data('tableId');
+            WSManager.moveInactiveTable(tableId, WSManager.getActiveWS());
             $('#inactiveTablesList').find('.tableInfo').each(function() {
                 var $li = $(this);
                 if ($li.data('id') === tableId) {
@@ -659,11 +660,9 @@ window.Dag = (function($, Dag) {
             var activeWS = WSManager.getActiveWS();
             var tableWS = WSManager.getWSFromTable(tableId);
             var activeClass = "";
-            if (activeWS !== tableWS) {
-                activeClass = 'inActive';
-            }
+           
             var outerDag =
-                '<div class="dagWrap clearfix ' + activeClass + '" id="dagWrap-' +
+                '<div class="dagWrap clearfix" id="dagWrap-' +
                     tableId + '" data-id="' + tableId + '">' +
                 '<div class="header clearfix">' +
                     '<div class="btn btnSmall infoIcon">' +
@@ -845,7 +844,6 @@ window.Dag = (function($, Dag) {
                     ctx.fillStyle = '#4D4D4D';
 
                     wrapText(ctx, text, x, y, maxWidth, lineHeight);
-
                 };
 
             });
@@ -863,6 +861,9 @@ window.Dag = (function($, Dag) {
             }
             
             dagAdded = true;
+            if (activeWS !== tableWS) {
+                $dagWrap.addClass('inActive');
+            }
             deferred.resolve();
         })
         .fail(function(error) {
@@ -992,6 +993,11 @@ window.Dag = (function($, Dag) {
 
     Dag.renameAllOccurrences = function(oldTableName, newTableName) {
         var $dagPanel = $('#dagPanel');
+
+        $dagPanel.find('.tableName').filter(function() {
+            return ($(this).text() === oldTableName);
+        }).text(newTableName);
+
         var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
             return ($(this).text() === oldTableName);
         });

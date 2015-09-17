@@ -242,15 +242,15 @@ window.WSManager = (function($, WSManager) {
     };
 
     // Move table to another worksheet
-    WSManager.moveTable = function(tableId, newIndex) {
+    WSManager.moveTable = function(tableId, newWSIndex) {
         var oldIndex = WSManager.removeTable(tableId);
-        var wsName   = WSManager.getWSName(newIndex);
+        var wsName   = WSManager.getWSName(newWSIndex);
 
-        setWorksheet(newIndex, {"tables": tableId});
+        setWorksheet(newWSIndex, {"tables": tableId});
 
         var $xcTablewrap = $('#xcTableWrap-' + tableId);
         $xcTablewrap.removeClass("worksheet-" + oldIndex)
-                    .addClass("worksheet-" + newIndex);
+                    .addClass("worksheet-" + newWSIndex);
         // refresh right side bar
         $("#activeTablesList .tableInfo").each(function() {
             var $li = $(this);
@@ -258,7 +258,7 @@ window.WSManager = (function($, WSManager) {
                 var $workhseetInfo = $li.find(".worksheetInfo");
 
                 $workhseetInfo.removeClass("worksheet-" + oldIndex)
-                                .addClass("worksheet-" + newIndex);
+                                .addClass("worksheet-" + newWSIndex);
                 $workhseetInfo.text(wsName);
             }
         });
@@ -269,22 +269,58 @@ window.WSManager = (function($, WSManager) {
 
             if ($dagWrap.data("id") === tableId) {
                 $dagWrap.removeClass("worksheet-" + oldIndex)
-                        .addClass("worksheet-" + newIndex);
+                        .addClass("worksheet-" + newWSIndex);
             }
         });
 
-        WSManager.focusOnWorksheet(newIndex, false, tableId);
+        WSManager.focusOnWorksheet(newWSIndex, false, tableId);
         SQL.add("Move Table to worksheet", {
             "operation"        : SQLOps.MoveTableToWS,
             "tableName"        : gTables[tableId].tableName,
             "tableId"          : tableId,
             "oldWorksheetIndex": oldIndex,
             "oldWorksheetName" : worksheets[oldIndex].name,
-            "newIndex"         : newIndex,
+            "newIndex"         : newWSIndex,
             "worksheetName"    : wsName
         });
 
         commitToStorage();
+    };
+
+    // Move inactive table to another worksheet
+    WSManager.moveInactiveTable = function(tableId, newWSIndex) {
+        var oldWSIndex = wsIndexLookUp[tableId];
+        wsIndexLookUp[tableId] = newWSIndex;
+
+        var tables = worksheets[oldWSIndex].hiddenTables;
+        var tableIndex = tables.indexOf(tableId);
+
+        var wsTable = tables.splice(tableIndex, 1)[0];
+        worksheets[newWSIndex].hiddenTables.push(wsTable);
+
+        var wsName = WSManager.getWSName(newWSIndex);
+
+        // refresh right side bar
+        $("#inactiveTablesList .tableInfo").each(function() {
+            var $li = $(this);
+            if ($li.data("id") === tableId) {
+                var $worksheetInfo = $li.find(".worksheetInfo");
+
+                $worksheetInfo.removeClass("worksheet-" + oldWSIndex)
+                                .addClass("worksheet-" + newWSIndex);
+                $worksheetInfo.text(wsName);
+            }
+        });
+
+        SQL.add("Move Inactive Table to worksheet", {
+            "operation"        : SQLOps.MoveInactiveTableToWS,
+            "tableName"        : gTables[tableId].tableName,
+            "tableId"          : tableId,
+            "oldWorksheetIndex": oldWSIndex,
+            "oldWorksheetName" : worksheets[oldWSIndex].name,
+            "newIndex"         : newWSIndex,
+            "worksheetName"    : wsName
+        });
     };
 
     // Remove table that are not in any worksheet
