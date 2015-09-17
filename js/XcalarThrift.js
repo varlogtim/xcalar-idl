@@ -345,11 +345,12 @@ function XcalarAddODBCExportTarget(targetName, connStr) {
          
     var workItem = xcalarAddExportTargetWorkItem(target, specInput);
     var def1 = xcalarAddExportTarget(tHandle, target, specInput);
-    var def2 = XcalarGetQuery(workItem);
+    var def2 = jQuery.Deferred().resolve().promise();
+    // var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // XXX Add sql for this thing
-        SQL.add("Add Export Target", sqlOptions, ret2);
+        // SQL.add("Add Export Target", sqlOptions, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error) {
@@ -377,11 +378,12 @@ function XcalarAddLocalFSExportTarget(targetName, path) {
          
     var workItem = xcalarAddExportTargetWorkItem(target, specInput);
     var def1 = xcalarAddExportTarget(tHandle, target, specInput);
-    var def2 = XcalarGetQuery(workItem);
+    // var def2 = XcalarGetQuery(workItem);
+    var def2 = jQuery.Deferred().resolve().promise();
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // XXX Add sql for this thing
-        SQL.add("Add Export Target", sqlOptions, ret2);
+        // SQL.add("Add Export Target", sqlOptions, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error) {
@@ -403,11 +405,12 @@ function XcalarListExportTargets(typePattern, namePattern) {
          
     var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
     var def1 = xcalarListExportTargets(tHandle, typePattern, namePattern);
-    var def2 = XcalarGetQuery(workItem);
+    // var def2 = XcalarGetQuery(workItem);
+    var def2 = jQuery.Deferred().resolve().promise();
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
         // XXX Add sql for this thing
-        SQL.add("List Export Targets", sqlOptions, ret2);
+        // SQL.add("List Export Targets", sqlOptions, ret2);
         deferred.resolve(ret1);
     })
     .fail(function(error) {
@@ -428,7 +431,7 @@ function XcalarExport(tableName, targetName, numColumns, columns,
         return (deferred.promise());
     }
     var type = DsTargetTypeT.DsTargetUnknownType;
-    var target = new DfExportTargetT();
+    var target = new DsExportTargetT();
     var specInput = new DsInitExportSpecificInputT();
     XcalarListExportTargets("*", targetName)
     .then(function(out) {
@@ -455,8 +458,12 @@ function XcalarExport(tableName, targetName, numColumns, columns,
                 specInput.odbcInput.tableName = tableName;
                 break;
             case (DsTargetTypeT.DsTargetSFType):
+                specInput.sfInput = new DsInitExportSFInputT();
                 specInput.sfInput.fileName = tableName + ".csv";
-                specInput.sfInput.format = "csv";
+                specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
+                specInput.sfInput.formatArgs = new
+                                            DsInitExportFormatSpecificArgsT();
+                specInput.sfInput.formatArgs.csv = new DsInitExportCSVArgsT();
                 specInput.sfInput.formatArgs.csv.fieldDelim = ",";
                 specInput.sfInput.formatArgs.csv.recordDelim = "\n";
                 break;
@@ -468,10 +475,11 @@ function XcalarExport(tableName, targetName, numColumns, columns,
                                             numColumns, columns);
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
                                 numColumns, columns);
-        var def2 = XcalarGetQuery(workItem);
+        // var def2 = XcalarGetQuery(workItem);
+        var def2 = jQuery.Deferred().resolve().promise();
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            SQL.add("Export Table", sqlOptions, ret2);
+            // SQL.add("Export Table", sqlOptions, ret2);
             deferred.resolve(ret1);
         })
         .fail(function(error) {
