@@ -734,7 +734,7 @@ function createTableHeader(tableId) {
             '<li class="archiveTable">Archive Table</li>' +
             '<li class="hideTable">Hide Table</li>' +
             '<li class="unhideTable">Unhide Table</li>' +
-            '<li class="deleteTable">Delete Table</li>' +
+            // '<li class="deleteTable">Delete Table</li>' + XXX temporary
             '<li class="exportTable">Export Table</li>' +
             '<li class="delAllDuplicateCols">Delete All Duplicates</li>' +
             '<li class="quickAgg"> Quick Aggregates' +

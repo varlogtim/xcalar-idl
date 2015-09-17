@@ -800,23 +800,24 @@ window.WSManager = (function($, WSManager) {
             return;
         } else {
             // delete worksheet with tables
-            msg = "There are tables in worksheet, " +
-                  "how would you deal with them?";
+            msg = "There are active tables in this worksheet. " +
+                  "How would you like to handle them?";
             Alert.show({
                 "title"  : title,
                 "msg"    : msg,
                 "buttons": [
-                    {
-                        "name"     : "Delete Tables",
-                        "className": "deleteTale",
-                        "func"     : function() {
-                            delTableHelper(wsIndex)
-                            .then(function() {
-                                sqlOptions.tableAction = "delete";
-                                SQL.add("Delete Worksheet", sqlOptions);
-                            });
-                        }
-                    },
+                    // {
+                    //     "name"     : "Delete Tables",
+                    //     "className": "deleteTale",
+                    //     "func"     : function() {
+                    //         delTableHelper(wsIndex)
+                    //         .then(function() {
+                    //             sqlOptions.tableAction = "delete";
+                    //             SQL.add("Delete Worksheet", sqlOptions);
+                    //         });
+                    //     }
+                    // },
+                    // XXX temporarily hiding ability to delete tables
                     {
                         "name"     : "Archive Tables",
                         "className": "archiveTable",

@@ -498,9 +498,10 @@ window.DagPanel = (function($, DagPanel) {
                 'title="Allow table to be deleted">' +
                 'Unlock Table' +
             '</li>' +
-            '<li class="deleteTable">' +
-                'Delete Table' +
-            '</li>' +
+            // '<li class="deleteTable">' +
+            //     'Delete Table' +
+            // '</li>' +
+            // XXX temporarily hiding delete table
             '<li class="deleteTableDescendants unavailable" data-toggle="tooltip" ' +
                 'data-placement="bottom" data-container="body" ' +
                 'title="Coming Soon">' +
