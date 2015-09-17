@@ -581,6 +581,7 @@ window.GridView = (function($, GridView) {
             }
 
             $("#importDataView").hide();
+            $('#datasetWrap').removeClass("inactive");
             $explorePanel.find(".contentViewMid").removeClass('hidden');
 
             // when switch to a ds, should clear others' ref count first!!
@@ -2604,6 +2605,7 @@ window.DS = (function ($, DS) {
         $grid.append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.click();
+        $('#datasetWrap').addClass("inactive");
         
         var sqlOptions = {
             "operation" : SQLOps.DSLoad,
@@ -2638,6 +2640,7 @@ window.DS = (function ($, DS) {
             }
 
             // display new dataset
+            $('#datasetWrap').removeClass('inactive');
             DS.refresh();
             if ($grid.hasClass('active')) {
                 $grid.click();
@@ -2648,7 +2651,7 @@ window.DS = (function ($, DS) {
         })
         .fail(function(error) {
             rmDSHelper($grid);
-
+            $('#datasetWrap').removeClass('inactive');
             if ($('#dsInfo-title').text() === dsName) {
                 // if loading page is showing, remove and go to import form
                 $("#importDataView").show();
