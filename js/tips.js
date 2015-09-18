@@ -239,7 +239,7 @@ window.Tips = (function($, Tips) {
             "container": "#activeTablesList .timeLine:first-child"
         });
 
-        // tablelist in archievedList
+        // tablelist in archivedList
         $tableList = $("#archivedTableList").find(".tableListBox").eq(0);
         setTooltip($tableList, {
             "title"    : TipsTStr.TablList,

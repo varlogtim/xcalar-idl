@@ -32,12 +32,12 @@ window.WSManager = (function($, WSManager) {
     // Get all aggreagte information
     WSManager.getAggInfos = function() {
         return (aggInfos);
-    }
+    };
 
     WSManager.checkAggInfo = function(tableId, colName, aggOp) {
         var key = tableId + "#" + colName + "#" + aggOp;
         return (aggInfos[key]);
-    }
+    };
 
     // add aggregate information
     WSManager.addAggInfo = function(tableId, colName, aggOp, aggRes) {
@@ -56,18 +56,18 @@ window.WSManager = (function($, WSManager) {
             var dstTableId = xcHelper.getTableId(aggRes.dagName);
             noSheetTables.push(dstTableId);
         }
-    }
+    };
 
     // remove one entry of aggregate information
     WSManager.activeAggInfo = function(key, tableId) {
         aggInfos[key].isActive = true;
         gTables[tableId].isAggTable = true;
-    }
+    };
 
     // remove one entry of aggregate information
     WSManager.removeAggInfo = function(key) {
         delete aggInfos[key];
-    }
+    };
 
     // Get number of worksheets that is not null
     WSManager.getWSLen = function() {
@@ -144,7 +144,7 @@ window.WSManager = (function($, WSManager) {
         var srcTables = worksheet.tables;
         var desTables = worksheet.hiddenTables;
 
-        toggleTableArchieve(tableId, srcTables, desTables);
+        toggleTableArchive(tableId, srcTables, desTables);
     };
 
     // For inArchive table use
@@ -155,7 +155,7 @@ window.WSManager = (function($, WSManager) {
         var srcTables = worksheet.hiddenTables;
         var desTables = worksheet.tables;
 
-        toggleTableArchieve(tableId, srcTables, desTables);
+        toggleTableArchive(tableId, srcTables, desTables);
     };
 
     // Get a table's position in the worksheet
@@ -241,7 +241,7 @@ window.WSManager = (function($, WSManager) {
         // append table to the last of active tables
         if (locationId == null) {
             ws = worksheets[wsIndexLookUp[tableId]];
-            toggleTableArchieve(tableId, ws.hiddenTables, ws.tables);
+            toggleTableArchive(tableId, ws.hiddenTables, ws.tables);
             return;
         }
 
@@ -263,7 +263,7 @@ window.WSManager = (function($, WSManager) {
         for (var i = 0, len = tablesToRm.length; i < len; i++) {
             rmTableId = tablesToRm[i];
             ws = worksheets[wsIndexLookUp[rmTableId]];
-            toggleTableArchieve(rmTableId, ws.tables, ws.hiddenTables);
+            toggleTableArchive(rmTableId, ws.tables, ws.hiddenTables);
         }
     };
 
@@ -919,7 +919,7 @@ window.WSManager = (function($, WSManager) {
         rmWorksheet(wsIndex);
     }
 
-    function toggleTableArchieve(tableId, srcTables, desTables, index) {
+    function toggleTableArchive(tableId, srcTables, desTables, index) {
         var tableIndex = srcTables.indexOf(tableId);
 
         if (tableIndex < 0) {
