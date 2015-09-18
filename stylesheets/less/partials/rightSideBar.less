@@ -491,19 +491,19 @@
         }
 
         .aggStrWrap {
-            .size(@width: 25%, @height: 25px);
+            .size(@width: 34%, @height: 25px);
             float: left;
             .rounded(3px 0 0 3px);
             .gray-gradient;
             padding: 0 10px;
-            box-shadow: 1px 2px 1px rgba(0,0,0,.2);
+            box-shadow: 0px 2px 1px rgba(0,0,0,.2);
             text-align: center;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .tableListBox {
-            .size(@width: 48%, @height: 25px);
+            .size(@width: 39%, @height: 25px);
             .rounded(0 3px 3px 0);
             cursor: default;
             padding-left: 10px;
@@ -522,6 +522,8 @@
                 float: right;
                 padding-right: 10px;
                 .font(@size: 11px, @color: #4d4d4d);
+                overflow: hidden;
+                text-overflow: ellipsis;
 
                 &.inactive {
                     display: none;
