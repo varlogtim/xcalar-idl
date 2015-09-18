@@ -575,27 +575,73 @@ window.WKBKManager = (function($, WKBKManager) {
             return (WKBKManager.getUsersInfo());
         })
         .then(function(wkbkInfo, sessionInfo) {
+            // sycn sessionInfo with wkbkInfo
             var innerDeferred = jQuery.Deferred();
-            // if no any workbook, force displaying the workbook modal
-            if (sessionInfo.numSessions === 0) {
-                innerDeferred.reject("No workbook for the user");
-                WorkbookModal.forceShow();
+            var numSessions = sessionInfo.numSessions;
+            var sessions = sessionInfo.sessions;
+
+            if (wkbkInfo == null) {
+                for (var i = 0; i < numSessions; i++) {
+                    console.warn("Error!", sessions[i].name, "has no meta.");
+                }
+
+                innerDeferred.resolve(null, wkbkInfo, sessionInfo);
                 return (innerDeferred.promise());
-            } else {
-                // get active workbook
-                KVStore.get(activeWKBKKey)
-                .then(function(wkbkId) {
-                    innerDeferred.resolve(wkbkId, wkbkInfo, sessionInfo);
-                });
             }
+
+            var workbooks = wkbkInfo.workbooks;
+
+            var newWKBKInfo = {
+                "username" : wkbkInfo.username,
+                "workbooks": {}
+            };
+
+            newWKBKInfo.username = wkbkInfo.username;
+
+            var wkbkId;
+            var wkbkName;
+            for (var i = 0; i < numSessions; i++) {
+                wkbkName = sessions[i].name;
+                wkbkId = generateKey(wkbkInfo.username, "wkbk", wkbkName);
+                if (workbooks.hasOwnProperty(wkbkId)) {
+                    newWKBKInfo.workbooks[wkbkId] = workbooks[wkbkId];
+                    delete workbooks[wkbkId];
+                } else {
+                    console.warn("Error!", wkbkName, "has no meta.");
+                }
+            }
+
+            for (wkbkId in workbooks) {
+                console.warn("Error!", wkbkId, "is missing.");
+            }
+
+            KVStore.put(wkbkInfoKey, JSON.stringify(newWKBKInfo), true)
+            .then(function() {
+                return (KVStore.get(activeWKBKKey));
+            })
+            .then(function(wkbkId) {
+                innerDeferred.resolve(wkbkId, newWKBKInfo, sessionInfo);
+            })
+            .fail(innerDeferred.reject);
 
             return (innerDeferred.promise());
         })
         .then(function(wkbkId, wkbkInfo, sessionInfo) {
             var innerDeferred = jQuery.Deferred();
             // if no any workbook, force displaying the workbook modal
-            if (wkbkId == null) {
-                innerDeferred.reject("No workbook for the user");
+            if (wkbkId == null ||
+                sessionInfo.numSessions === 0 ||
+                !wkbkInfo.workbooks.hasOwnProperty(wkbkId))
+            {
+                if (wkbkId == null) {
+                    innerDeferred.reject("No workbook for the user");
+                } else {
+                    KVStore.delete(activeWKBKKey)
+                    .always(function() {
+                        innerDeferred.reject("No workbook for the user");
+                    });
+                }
+
                 WorkbookModal.forceShow();
             } else {
                 var wkbkName = wkbkInfo.workbooks[wkbkId].name;
@@ -730,6 +776,23 @@ window.WKBKManager = (function($, WKBKManager) {
             wkbkInfo.workbooks[workbook.id] = workbook;
 
             return (KVStore.put(wkbkInfoKey, JSON.stringify(wkbkInfo), true));
+        })
+        .then(function() {
+            // in case KVStore has some remants about wkbkId, clear it
+            var innerDeferred = jQuery.Deferred();
+
+            var gStorageKey = generateKey(workbook.id, "gInfo");
+            var gLogKey     = generateKey(workbook.id, "gLog");
+
+            var def1 = XcalarKeyDelete(gStorageKey);
+            var def2 = XcalarKeyDelete(gLogKey);
+
+            jQuery.when(def1, def2)
+            .always(function() {
+                innerDeferred.resolve();
+            });
+
+            return (innerDeferred.promise());
         })
         .then(function() {
             console.log("create workbook", workbook);

@@ -567,6 +567,7 @@ function initializeTable() {
                 currentTable = gTables[tableId];
 
                 if (!currentTable) {
+                    WSManager.removeTable(tableId);
                     console.error("not find table", tableId);
                     continue;
                 }
@@ -598,6 +599,7 @@ function initializeTable() {
                 currentTable = gTables[tableId];
 
                 if (!currentTable) {
+                    WSManager.removeTable(tableId);
                     console.error("not find table", tableId);
                     continue;
                 }
