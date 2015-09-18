@@ -1620,7 +1620,7 @@ window.DataPreview = (function($, DataPreview) {
 
             XcalarDestroyDataset(tableName, sqlOptions)
             .then(function() {
-                tableName = null
+                tableName = null;
                 deferred.resolve();
             })
             .fail(deferred.reject);
@@ -1746,7 +1746,7 @@ window.DataPreview = (function($, DataPreview) {
     }
 
     function highlightDelimiter(str) {
-        highlighter = str.charAt(0);
+        highlighter = str;
         xcHelper.removeSelectionRange();
         toggleHighLight();
     }
@@ -1767,10 +1767,30 @@ window.DataPreview = (function($, DataPreview) {
             $highLightBtn.addClass("active");
             $rmHightLightBtn.addClass("active");
 
-            $previewTable.find(".td").each(function() {
-                var $td = $(this);
-                if ($td.text() === highlighter) {
-                    $td.addClass("highlight");
+
+            var dels   = highlighter.split("");
+            var delLen = dels.length;
+
+            var $cells = $previewTable.find(".cell");
+            $cells.each(function() {
+                var $tds = $(this).find(".td");
+                var len = $tds.length;
+
+                for (var i = 0; i < len; i++) {
+                    var j = 0;
+                    while (j < delLen && i + j < len) {
+                        if ($tds.eq(i + j).text() === dels[j]) {
+                            ++j;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (j === delLen && i + j <= len) {
+                        for (j = 0; j < delLen; j++) {
+                            $tds.eq(i + j).addClass("highlight");
+                        }
+                    }
                 }
             });
 
@@ -1839,18 +1859,38 @@ window.DataPreview = (function($, DataPreview) {
     function tdHelper(data, isTh) {
         var hasQuote = false;
         var hasBackSlash = false;
-        var del = delimiter;
-        var hasDelimiter = (del !== "");
+        var dels = delimiter.split("");
+        var delLen = dels.length;
+
+        var hasDelimiter = (delLen !== 0);
         var colGrab = hasDelimiter ? '<div class="colGrab" ' +
                                      'data-sizetoheader="true"></div>' : "";
         var html = isTh ? '<th><div class="header">' + colGrab +
-                            '<div class="text">'
-                            : '<td>';
+                            '<div class="text cell">'
+                            : '<td class="cell">';
+
+        var dataLen = data.length;
+        var i = 0;
 
         if (hasDelimiter) {
             // when has deliliter
-            data.forEach(function(d) {
-                if (!hasBackSlash && !hasQuote && d === del) {
+            while (i < dataLen) {
+                var d = data[i];
+                var isDelimiter = false;
+
+                if (!hasBackSlash && !hasQuote && d === dels[0]) {
+                    isDelimiter = true;
+
+                    for (var j = 1; j < delLen; j++) {
+                        if (i + j >= dataLen || data[i + j] !== dels[j]) {
+                            isDelimiter = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (isDelimiter) {
+                    // skip delimiter
                     if (isTh) {
                         html += '</div></div></th>' +
                                 '<th>' +
@@ -1860,6 +1900,8 @@ window.DataPreview = (function($, DataPreview) {
                     } else {
                         html += '</td><td>';
                     }
+
+                    i = i + delLen;
                 } else {
                     if (hasBackSlash) {
                         // when previous char is \. espace this one
@@ -1872,11 +1914,14 @@ window.DataPreview = (function($, DataPreview) {
                     }
 
                     html += d;
+                    ++i;
                 }
-            });
+            }
         } else {
             // when not apply delimiter
-            data.forEach(function(d) {
+            for (i = 0; i < dataLen; i++) {
+                d = data[i];
+
                 var cellClass = "td";
                 if (d === "\t") {
                     cellClass += " has-margin has-tab";
@@ -1884,7 +1929,7 @@ window.DataPreview = (function($, DataPreview) {
                     cellClass += " has-margin has-comma";
                 }
                 html += '<span class="' + cellClass + '">' + d + '</span>';
-            });
+            }
         }
 
         if (isTh) {
