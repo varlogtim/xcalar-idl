@@ -22716,7 +22716,7 @@ function xcalarListExportTargets(thriftHandle, typePattern, namePattern) {
     return (deferred.promise());
 }
 
-function xcalarExportWorkItem(tableName, target, specInput,
+function xcalarExportWorkItem(tableName, target, specInput, createRule, 
                               numColumns, columns) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -22731,22 +22731,24 @@ function xcalarExportWorkItem(tableName, target, specInput,
     workItem.input.exportInput.meta.specificInput = specInput;
     workItem.input.exportInput.meta.numColumns = numColumns;
     workItem.input.exportInput.meta.columnNames = columns;
+    workItem.input.exportInput.meta.createRule = createRule;
     return (workItem);
 }
 
-function xcalarExport(thriftHandle, tableName, target, specInput,
+function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
                       numColumns, columns) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExport(tableName = " + tableName +
                     ", target.type = " + DsTargetTypeTStr[target.type] +
                     ", target.name = " + target.name +
+                    ", createRule = " + createRule + 
                     ", numColumns = " + numColumns +
                     ", columns = [" + columns + "]" +
                     ")");
     }
 
-    var workItem = xcalarExportWorkItem(tableName, target, specInput,
+    var workItem = xcalarExportWorkItem(tableName, target, specInput, createRule, 
                                         numColumns, columns);
 
     thriftHandle.client.queueWorkAsync(workItem)

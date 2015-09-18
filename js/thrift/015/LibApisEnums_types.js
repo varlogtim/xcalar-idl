@@ -64,7 +64,8 @@ XcalarApisT = {
   'XcalarApiSessionInact' : 55,
   'XcalarApiSessionPersist' : 56,
   'XcalarApiGetQuery' : 57,
-  'XcalarApiCreateDht' : 58
+  'XcalarApiCreateDht' : 58,
+  'XcalarApiDeleteDht' : 59
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -124,5 +125,6 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 55 : 'XcalarApiSessionInact',
 56 : 'XcalarApiSessionPersist',
 57 : 'XcalarApiGetQuery',
-58 : 'XcalarApiCreateDht'
+58 : 'XcalarApiCreateDht',
+59 : 'XcalarApiDeleteDht'
 };

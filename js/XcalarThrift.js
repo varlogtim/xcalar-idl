@@ -455,7 +455,7 @@ function XcalarExport(tableName, targetName, numColumns, columns, sqlOptions) {
         switch(target.type) {
             case (DsTargetTypeT.DsTargetODBCType):
                 specInput.odbcInput = new DsInitExportODBCInputT();
-                specInput.odbcInput.tableName = tableName;
+                specInput.odbcInput.tableName = tableName.split("#")[0];
                 break;
             case (DsTargetTypeT.DsTargetSFType):
                 specInput.sfInput = new DsInitExportSFInputT();
@@ -472,8 +472,10 @@ function XcalarExport(tableName, targetName, numColumns, columns, sqlOptions) {
                 break;
         }
         var workItem = xcalarExportWorkItem(tableName, target, specInput,
+                                  DsExportCreateRuleT.DsExportCreateOnly,
                                             columns.length, columns);
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
+                                DsExportCreateRuleT.DsExportCreateOnly,
                                 numColumns, columns);
         // var def2 = XcalarGetQuery(workItem);
         var def2 = jQuery.Deferred().resolve().promise();

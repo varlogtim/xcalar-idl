@@ -351,7 +351,8 @@ StatusT = {
   'StatusDhtDoesNotPreserveOrder' : 342,
   'StatusLogMaximumEntrySizeExceeded' : 343,
   'StatusLogCorruptHeader' : 344,
-  'StatusKvInvalidKeyChar' : 345
+  'StatusKvInvalidKeyChar' : 345,
+  'StatusDhtProtected' : 346
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -698,5 +699,6 @@ StatusTStr = {0 : 'Success',
 342 : 'DHT chosen doesn\'t preserve sorted order!',
 343 : 'Maximum log entry size exceeded',
 344 : 'Log entry header is corrupt',
-345 : 'Invalid KvStore key character'
+345 : 'Invalid KvStore key character',
+346 : 'System DHTs may not be modified'
 };

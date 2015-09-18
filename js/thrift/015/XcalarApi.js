@@ -2495,9 +2495,11 @@ function xcalarApiCreateDhtWorkItem(dhtName, upperBound, lowerBound, preserveOrd
 
 function xcalarApiCreateDht(thriftHandle, dhtName, upperBound, lowerBound, preserveOrder) {
     var deferred = jQuery.Deferred();
-    console.log("xcalarApiCreateDht(dhtName = " + dhtName + ", upperBound = " +
-                upperBound + ", lowerBound = " + lowerBound + 
-                ", preserveOrder = " + preserveOrder + ")");
+    if (verbose) {
+        console.log("xcalarApiCreateDht(dhtName = " + dhtName + ", upperBound = " +
+                    upperBound + ", lowerBound = " + lowerBound + 
+                    ", preserveOrder = " + preserveOrder + ")");
+    }
 
     var workItem = xcalarApiCreateDhtWorkItem(dhtName, upperBound, lowerBound, preserveOrder);
 
@@ -2516,6 +2518,47 @@ function xcalarApiCreateDht(thriftHandle, dhtName, upperBound, lowerBound, prese
     })
     .fail(function(error) {
         console.log("xcalarApiCreateDht() caught exception: ", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarApiDeleteDhtWorkItem(dhtName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.deleteDhtInput = new XcalarApiDeleteDhtInputT();
+
+    workItem.api = XcalarApisT.XcalarApiDeleteDht;
+    workItem.input.deleteDhtInput.dhtName = dhtName;
+
+    return (workItem);
+}
+
+function xcalarApiDeleteDht(thriftHandle, dhtName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiDeleteDht(dhtName = " + dhtName + ")");
+    }
+
+    var workItem = xcalarApiDeleteDhtWorkItem(dhtName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk &&
+            status != StatusT.StatusNsNotFound) {
+            deferred.reject(status);
+        }
+
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarApiDeleteDht() caught exception: ", error);
         deferred.reject(error);
     });
 

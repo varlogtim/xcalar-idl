@@ -23612,7 +23612,7 @@ function xcalarListExportTargets(thriftHandle, typePattern, namePattern) {
     return (deferred.promise());
 }
 
-function xcalarExportWorkItem(tableName, target, specInput,
+function xcalarExportWorkItem(tableName, target, specInput, createRule, 
                               numColumns, columns) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -23627,22 +23627,24 @@ function xcalarExportWorkItem(tableName, target, specInput,
     workItem.input.exportInput.meta.specificInput = specInput;
     workItem.input.exportInput.meta.numColumns = numColumns;
     workItem.input.exportInput.meta.columnNames = columns;
+    workItem.input.exportInput.meta.createRule = createRule;
     return (workItem);
 }
 
-function xcalarExport(thriftHandle, tableName, target, specInput,
+function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
                       numColumns, columns) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExport(tableName = " + tableName +
                     ", target.type = " + DsTargetTypeTStr[target.type] +
                     ", target.name = " + target.name +
+                    ", createRule = " + createRule + 
                     ", numColumns = " + numColumns +
                     ", columns = [" + columns + "]" +
                     ")");
     }
 
-    var workItem = xcalarExportWorkItem(tableName, target, specInput,
+    var workItem = xcalarExportWorkItem(tableName, target, specInput, createRule, 
                                         numColumns, columns);
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -25496,6 +25498,61 @@ function xcalarApiDeleteDht(thriftHandle, dhtName) {
             fail(deferred, testName, currentTestNumber, reason);
         })
     }
+    function testGetDagOnAggr(deferred, testName, currentTestNumber) {
+        var query = "index --key recordNum --dataset " + origDataset +
+                    " --dsttable yelpUsers#js0;" +
+                    "aggregate --srctable yelpUsers#js0 --dsttable " +
+                    "yelpUsers-aggregate#js1 --eval \"count(review_count)\""
+
+        var locaQueryName = "aggr query";
+
+        console.log("submit query" + query);
+        xcalarQuery(thriftHandle, locaQueryName, query, false, "")
+        .done(function(queryOutput) {
+            printResult(queryOutput);
+
+            (function wait() {
+            setTimeout(function() {
+                xcalarQueryState(thriftHandle, locaQueryName)
+                .done(function(result) {
+                    var qrStateOutput = result;
+                    if (qrStateOutput.queryState === QueryStateT.qrProcssing) {
+                        return wait();
+                    }
+
+                    if (qrStateOutput.queryState === QueryStateT.qrFinished) {
+                    console.log("call get dag on aggr");
+                    xcalarDag(thriftHandle,  "yelpUsers-aggregate#js1")
+                    .done(function(dagOutput) {
+                        console.log("dagOutput.numNodes = " + dagOutput.numNodes);
+                        if (dagOutput.numNodes != 3) {
+                            var reason = "the number of dag node returned is incorrect";
+                            fail(deferred, testName, currentTestNumber, reason);
+                        } else {
+                            pass(deferred, testName, currentTestNumber);
+                        }
+                    })
+                    .fail(function(reason) {
+                        fail(deferred, testName, currentTestNumber, reason);
+                    });
+
+                    } else {
+                        var reason = "qrStateOutput.queryState = " +
+                                    QueryStateTStr[qrStateOutput.queryState];
+                        fail(deferred, testName, currentTestNumber, reason);
+                    }
+                 })
+                 .fail(function(reason) {
+                     fail(deferred, testName, currentTestNumber, reason);
+                 });
+             }, 1000);
+         })();
+
+        })
+        .fail(function(reason) {
+            fail(deferred, testName, currentTestNumber, reason);
+        })
+    }
 
     function testQueryState(deferred, testName, currentTestNumber) {
         xcalarQueryState(thriftHandle, queryName)
@@ -26268,6 +26325,10 @@ function xcalarApiDeleteDht(thriftHandle, dhtName) {
     addTestCase(testCases, testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testLoad, "load", defaultTimeout, TestCaseEnabled, "");
+
+    // Xc-1981
+    addTestCase(testCases, testGetDagOnAggr, "get dag on aggregate", defaultTimeout, TestCaseEnabled, "");
+
     addTestCase(testCases, testLoadBogus, "bogus load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testListDatasets, "list datasets", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
