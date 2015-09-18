@@ -121,7 +121,6 @@ window.ExportModal = (function($, ExportModal) {
 
             addColumnSelectListeners();
 
- 
             $('#xcTableWrap-' + tableId).find('th:not(.dataCol, .rowNumHead)')
                                         .addClass('modalHighlighted');
             $('#xcTableWrap-' + tableId).find('td:not(.col0, .jsonElement)')
