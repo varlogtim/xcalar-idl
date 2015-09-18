@@ -1535,7 +1535,7 @@ function xcalarListExportTargets(thriftHandle, typePattern, namePattern) {
     return (deferred.promise());
 }
 
-function xcalarExportWorkItem(tableName, target, specInput,
+function xcalarExportWorkItem(tableName, target, specInput, createRule, 
                               numColumns, columns) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1550,22 +1550,24 @@ function xcalarExportWorkItem(tableName, target, specInput,
     workItem.input.exportInput.meta.specificInput = specInput;
     workItem.input.exportInput.meta.numColumns = numColumns;
     workItem.input.exportInput.meta.columnNames = columns;
+    workItem.input.exportInput.meta.createRule = createRule;
     return (workItem);
 }
 
-function xcalarExport(thriftHandle, tableName, target, specInput,
+function xcalarExport(thriftHandle, tableName, target, specInput, createRule,
                       numColumns, columns) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExport(tableName = " + tableName +
                     ", target.type = " + DsTargetTypeTStr[target.type] +
                     ", target.name = " + target.name +
+                    ", createRule = " + createRule + 
                     ", numColumns = " + numColumns +
                     ", columns = [" + columns + "]" +
                     ")");
     }
 
-    var workItem = xcalarExportWorkItem(tableName, target, specInput,
+    var workItem = xcalarExportWorkItem(tableName, target, specInput, createRule, 
                                         numColumns, columns);
 
     thriftHandle.client.queueWorkAsync(workItem)
@@ -1959,7 +1961,7 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value
-                    + "persist = " + persist.toString() + ")");
+                    + ", persist = " + persist.toString() + ")");
     }
 
     var workItem = xcalarKeyAddOrReplaceWorkItem(persist, key, value);
@@ -1967,7 +1969,6 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
-
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
@@ -1978,6 +1979,83 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     })
     .fail(function(error) {
         console.log("xcalarKeyAddOrReplace() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarKeyAppendWorkItem(key, suffix) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.keyAppendInput = new XcalarApiKeyAppendInputT();
+    workItem.input.keyAppendInput.key = key;
+    workItem.input.keyAppendInput.suffix = suffix;
+    workItem.api = XcalarApisT.XcalarApiKeyAppend;
+    return (workItem);
+}
+
+function xcalarKeyAppend(thriftHandle, key, suffix) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarKeyAppend(key = " + key + ", suffix = " + suffix
+                    + ")");
+    }
+
+    var workItem = xcalarKeyAppendWorkItem(key, suffix);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarKeyAppend() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarKeyReplaceIfEqualWorkItem(key, oldValue, newValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.keyReplaceIfEqualInput = new XcalarApiKeyReplaceIfEqualInputT();
+    workItem.api = XcalarApisT.XcalarApiKeyReplaceIfEqual;
+    workItem.input.keyReplaceIfEqualInput.key = key;
+    workItem.input.keyReplaceIfEqualInput.oldValue = oldValue;
+    workItem.input.keyReplaceIfEqualInput.newValue = newValue;
+    return (workItem);
+}
+
+function xcalarKeyReplaceIfEqual(thriftHandle, key, oldValue, newValue) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarKeyReplaceIfEqual(key = " + key + ", oldValue = "
+                    + oldValue + ", newValue = " + newValue + ")");
+    }
+
+    var workItem = xcalarKeyReplaceIfEqualWorkItem(key, oldValue, newValue);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarKeyReplaceIfEqual() caught exception:", error);
         deferred.reject(error);
     });
 
