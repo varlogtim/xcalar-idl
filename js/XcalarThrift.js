@@ -420,8 +420,7 @@ function XcalarListExportTargets(typePattern, namePattern) {
     return (deferred.promise());
 }
 
-function XcalarExport(tableName, targetName, numColumns, columns,
-                      sqlOptions) {
+function XcalarExport(tableName, targetName, numColumns, columns, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
@@ -430,8 +429,9 @@ function XcalarExport(tableName, targetName, numColumns, columns,
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    var type = DsTargetTypeT.DsTargetUnknownType;
     var target = new DsExportTargetT();
+    target.type = DsTargetTypeT.DsTargetUnknownType;
+    target.name = targetName;
     var specInput = new DsInitExportSpecificInputT();
     XcalarListExportTargets("*", targetName)
     .then(function(out) {
@@ -443,16 +443,16 @@ function XcalarExport(tableName, targetName, numColumns, columns,
         }
         for (var i = 0; i<out.targets.length; i++) {
             if (out.targets[i].name === targetName) {
-                type = out.targets[i].type;
+                target.type = out.targets[i].type;
                 break;
             }
         }
-        if (type === DsTargetTypeT.DsTargetUnknownType) {
+        if (target.type === DsTargetTypeT.DsTargetUnknownType) {
             deferred.reject(thriftLog("XcalarExport", "Export target is not"+
                             " on the target list"));
             return;
         }
-        switch(type) {
+        switch(target.type) {
             case (DsTargetTypeT.DsTargetODBCType):
                 specInput.odbcInput = new DsInitExportODBCInputT();
                 specInput.odbcInput.tableName = tableName;
@@ -472,7 +472,7 @@ function XcalarExport(tableName, targetName, numColumns, columns,
                 break;
         }
         var workItem = xcalarExportWorkItem(tableName, target, specInput,
-                                            numColumns, columns);
+                                            columns.length, columns);
         var def1 = xcalarExport(tHandle, tableName, target, specInput,
                                 numColumns, columns);
         // var def2 = XcalarGetQuery(workItem);
