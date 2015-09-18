@@ -1287,6 +1287,8 @@ window.RightSideBar = (function($, RightSideBar) {
             } else {
                 wsInfo = '<div class="worksheetInfo inactive"></div>';
                 addTableBtn = '<span class="addTableBtn"></span>';
+                // XXX temporary disable it
+                addTableBtn = '';
             }
 
             html += '<li class="clearfix tableInfo" ' +
