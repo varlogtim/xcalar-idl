@@ -203,7 +203,7 @@ function getUnsortedTableName(tableName, otherTableName) {
             // If it isn't then just return the original
             if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
                 var indexInput = nodeArray.node[0].input.indexInput;
-                if (indexInput.preserveOrder == true) {
+                if (indexInput.preserveOrder === true) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
                     console.log("Using unsorted table instead: " +
@@ -222,7 +222,7 @@ function getUnsortedTableName(tableName, otherTableName) {
             var unsortedName2 = otherTableName;
             if (XcalarApisTStr[na1.node[0].api] === "XcalarApiIndex") {
                 var indexInput = na1.node[0].input.indexInput;
-                if (indexInput.preserveOrder == true) {
+                if (indexInput.preserveOrder === true) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
                     console.log("Using unsorted table instead: " +
@@ -232,7 +232,7 @@ function getUnsortedTableName(tableName, otherTableName) {
             }
             if (XcalarApisTStr[na2.node[0].api] === "XcalarApiIndex") {
                 var indexInput = na2.node[0].input.indexInput;
-                if (indexInput.preserveOrder == true) {
+                if (indexInput.preserveOrder === true) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
                     console.log("Using unsorted table instead: " +
@@ -438,22 +438,22 @@ function XcalarExport(tableName, exportName, targetName, numColumns, columns,
     .then(function(out) {
         if (out.numTargets < 1) {
             console.error("Export target does not exist!");
-            deferred.reject(thriftLog("XcalarExport", "Export target is not"+
+            deferred.reject(thriftLog("XcalarExport", "Export target is not" +
                             " on the target list"));
             return;
         }
-        for (var i = 0; i<out.targets.length; i++) {
+        for (var i = 0; i < out.targets.length; i++) {
             if (out.targets[i].name === targetName) {
                 target.type = out.targets[i].type;
                 break;
             }
         }
         if (target.type === DsTargetTypeT.DsTargetUnknownType) {
-            deferred.reject(thriftLog("XcalarExport", "Export target is not"+
+            deferred.reject(thriftLog("XcalarExport", "Export target is not" +
                             " on the target list"));
             return;
         }
-        switch(target.type) {
+        switch (target.type) {
             case (DsTargetTypeT.DsTargetODBCType):
                 specInput.odbcInput = new DsInitExportODBCInputT();
                 specInput.odbcInput.tableName = exportName;
@@ -1163,7 +1163,8 @@ function XcalarJoin(left, right, dst, joinType, sqlOptions) {
         .fail(function(error) {
             deferred.reject(thriftLog("XcalarJoin", error));
         });
-    })
+    });
+
     return (deferred.promise());
 }
 

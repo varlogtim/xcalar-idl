@@ -246,7 +246,7 @@ window.xcHelper = (function($, xcHelper) {
             try {
                 selection.addRange(range);
             } catch(error) {
-                console.log(error);
+                console.error(error);
             }
             
         } else if (document.body.createTextRange) {
@@ -359,7 +359,7 @@ window.xcHelper = (function($, xcHelper) {
                     toggleDropdownMenu($(this).closest(".listSection"));
                 },
                 "mousedown": function(event) {
-                     if (event.which === 1) {
+                    if (event.which === 1) {
                         // stop propagation of left mousedown
                         // because hide dropdown is triggered by it
                         // should invalid that when mousedown on listSection
@@ -543,17 +543,19 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         var $tableWrap  = xcHelper.getElementByTableId(tableId, "xcTableWrap");
-        if ($tableWrap != null && $tableWrap.length !== 0 &&
+        if ($tableWrap != null &&
+            $tableWrap.length !== 0 &&
             !$tableWrap.hasClass('tableLocked'))
         {
             // tableWrap may not exist during multijoin on self
             // var $lockedIcon = $('<div class="lockedIcon">' +
             //                 '<img src="/images/biglocklight.png" /></div>');
             var $lockedIcon = $('<div class="lockedIcon">' +
-                            '<img src="'+paths.hourglass+'" /></div>');
+                                '<img src="' + paths.hourglass + '" /></div>');
             var tableHeight = $tableWrap.find('.xcTbodyWrap').height();
             var mainFrameHeight = $('#mainFrame').height();
             var topPos = 100 * ((tableHeight / mainFrameHeight) / 2);
+
             topPos = Math.min(topPos, 40);
             $lockedIcon.css('top', topPos + '%');
 
@@ -897,7 +899,7 @@ window.xcHelper = (function($, xcHelper) {
         return (this.modelMap[res]);
     };
 
-    // inserts text into an input field and adds commas 
+    // inserts text into an input field and adds commas
     xcHelper.insertText = function($input, textToInsert, prefix) {
         var value  = $input.val();
         var valLen = value.length;
@@ -961,7 +963,7 @@ window.xcHelper = (function($, xcHelper) {
             $input.val($input.val() + newVal);
         }
         $input[0].setSelectionRange(currentPos, currentPos);
-    }
+    };
 
     xcHelper.when = function() {
         var numProm = arguments.length;

@@ -13,8 +13,8 @@ window.ExportModal = (function($, ExportModal) {
 
     ExportModal.setup = function() {
         $exportModal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
             "containment": "window"
         });
 
@@ -40,6 +40,7 @@ window.ExportModal = (function($, ExportModal) {
                 closeExportModal();
             })
             .fail(function(error) {
+                console.error(error);
                 // being handled in xcfunction.export
             });
         });
@@ -47,11 +48,13 @@ window.ExportModal = (function($, ExportModal) {
         xcHelper.dropdownList($("#exportLists"), {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
-                    return;
+                    return false;
                 }
+
                 if ($li.hasClass("unavailable")) {
                     return true; // return true to keep dropdown open
                 }
+
                 $exportPath.val($li.text());
             }
         });
@@ -137,8 +140,8 @@ window.ExportModal = (function($, ExportModal) {
             }
             $exportColumns.val(allColNames.substr(0, allColNames.length - 2));
         })
-        .fail(function(err) {
-
+        .fail(function(error) {
+            console.error(error);
         });
         
     };
@@ -159,20 +162,19 @@ window.ExportModal = (function($, ExportModal) {
         var isValid  = xcHelper.validate([
             {
                 "$selector": $exportName,
+                "text"     : "Invalid table name.",
                 "check"    : function() {
                     return (exportName === "" || 
                             !(/^[0-9a-zA-Z]+$/).test(exportName));
-                },
-                // "formMode": true,
-                "text"    : "Invalid table name."
+                }
             },
             {
                 "$selector": $exportColumns,
+                "text"     : "Please enter valid column names.",
                 "check"    : function() {
 
                     return (columnsVal.length === 0);
-                },
-                "text": "Please enter valid column names."
+                }
             }
         ]);
 
@@ -215,8 +217,10 @@ window.ExportModal = (function($, ExportModal) {
 
         for (var i = 0; i < numFrontColNames; i++) {
             var colFound = false;
+            var tableCol;
+
             for (var j = 0; j < numTableCols; j++) {
-                var tableCol = colsArray[j];
+                tableCol = colsArray[j];
                 if (frontColNames[i] === tableCol.name) {
                     if (tableCol.func.args) {
                         backCols.push(tableCol.func.args[0]);
@@ -230,9 +234,10 @@ window.ExportModal = (function($, ExportModal) {
                     break;
                 }
             }
+
             if (!colFound) {
                 for (var j = 0; j < numColsFound; j++) {
-                    var tableCol = colsArray[j];
+                    tableCol = colsArray[j];
                     if (frontColNames[i] === tableCol.name) {
                         backCols.push(tableCol.func.args[0]);
                         break;
@@ -383,13 +388,17 @@ window.ExportModal = (function($, ExportModal) {
             var $tds = $table.find('td.col' + colNum);
             var $cells = $th.add($tds);
 
+            var start;
+            var end;
+            var $currCells;
 
             if ($th.hasClass('modalHighlighted')) {
                 if (event.shiftKey && focusedHeader) {
-                    var start = Math.min(focusedThColNum, colNum);
-                    var end = Math.max(focusedThColNum, colNum) + 1;
+                    start = Math.min(focusedThColNum, colNum);
+                    end = Math.max(focusedThColNum, colNum) + 1;
+
                     for (var i = start; i < end; i++) {
-                        var $currCells = $table.find('th.col' + i + ', td.col' + i);
+                        $currCells = $table.find('th.col' + i + ', td.col' + i);
                         if ($currCells.hasClass('modalHighlighted')) {
                             deselectColumn($currCells, i);
                         }                      
@@ -399,10 +408,11 @@ window.ExportModal = (function($, ExportModal) {
                 }
             } else {
                 if (event.shiftKey && focusedHeader) {
-                    var start = Math.min(focusedThColNum, colNum);
-                    var end = Math.max(focusedThColNum, colNum) + 1;
+                    start = Math.min(focusedThColNum, colNum);
+                    end = Math.max(focusedThColNum, colNum) + 1;
+
                     for (var i = start; i < end; i++) {
-                        var $currCells = $table.find('th.col' + i + ', td.col' + i);
+                        $currCells = $table.find('th.col' + i + ', td.col' + i);
                         if (!$currCells.hasClass('modalHighlighted') &&
                             !$currCells.hasClass('dataCol')) {
                             selectColumn($currCells, i);

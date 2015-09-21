@@ -502,7 +502,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                 // this is sorted table, should index a unsorted one
                 XcalarMakeResultSetFromTable(unsorted)
                 .then(function(resultSet) {
-                    if (resultSet && resultSet.keyAttrHeader.name  !== colName) {
+                    if (resultSet && resultSet.keyAttrHeader.name !== colName) {
                         parentIndexedWrongly = true;
                     }
 

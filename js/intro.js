@@ -211,7 +211,7 @@ window.Intro = (function($, Intro) {
         $popoverNumber.find('.innerNumber').text(currentStep + 1);
         var $infoArrow = $popover.find('.intro-arrow');
         $infoArrow.removeClass('top bottom left right');
-        $infoArrow.css({'top':0, 'bottom': 'auto'});
+        $infoArrow.css({'top': 0, 'bottom': 'auto'});
 
         $popover.find('.text').html(options.popoverText[currentStep]);
         var windowWidth = $(window).width();
@@ -305,7 +305,7 @@ window.Intro = (function($, Intro) {
         } else {
             var currentArrowTop = top + popoverBorderWidth;
             var vertDiff = centerVert - currentArrowTop;
-            console.log(currentArrowTop, centerVert, vertDiff);
+            // console.log(currentArrowTop, centerVert, vertDiff);
             $infoArrow.css('top', vertDiff - 10);
 
         }
@@ -381,14 +381,14 @@ window.Intro = (function($, Intro) {
         }
     }
 
-    function keypressAction(e) { 
-       if (e.which === 37 || e.which === 38) { // up / left to go back
-            nextStep({back: true}); 
-       } else if (e.which === 39 || e.which === 40) { // down / right for next
+    function keypressAction(e) {
+        if (e.which === 37 || e.which === 38) { // up / left to go back
+            nextStep({back: true});
+        } else if (e.which === 39 || e.which === 40) { // down / right for next
             nextStep();
-       } else if (e.which === 27 || e.which === 13) { // escape / enter to exit
+        } else if (e.which === 27 || e.which === 13) { // escape / enter to exit
             closeIntro();
-       }
+        }
     }
     return (Intro);
 }(jQuery, {}));

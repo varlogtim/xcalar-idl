@@ -70,7 +70,7 @@ window.DataStore = (function($, DataStore) {
             $button.siblings().removeClass('active');
             $button.addClass('active');
         });
-    } 
+    }
 
     return (DataStore);
 
@@ -3678,7 +3678,7 @@ window.ExportTarget = (function($, ExportTarget) {
         xcHelper.dropdownList($targetTypeList, {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
-                    return;
+                    return false;
                 }
                 if ($li.hasClass("unavailable")) {
                     return true; // return true to keep dropdown open
@@ -3712,6 +3712,7 @@ window.ExportTarget = (function($, ExportTarget) {
                 commitToStorage();
             })  
             .fail(function(error) {
+                console.error(error);
                 // XX fail case being handled in ExportTarget.submitForm
             })
             .always(function() {
@@ -3770,18 +3771,17 @@ window.ExportTarget = (function($, ExportTarget) {
         var isValid  = xcHelper.validate([
             {
                 "$selector": $targetTypeInput,
+                "text"     : "Please choose a target type.",
                 "check"    : function() {
                     return (targetType === "");
-                },
-                // "formMode": true,
-                "text"    : "Please choose a target type."
+                }
             },
             {
                 "$selector": $nameInput,
+                "text"     : "Please enter a valid name.",
                 "check"    : function() {
                     return (name === "");
-                },
-                "text": "Please enter a valid name."
+                }
             }
         ]);
 
@@ -3797,14 +3797,14 @@ window.ExportTarget = (function($, ExportTarget) {
                 addGridIcon(targetType, name);
                 deferred.resolve();
             })
-            .fail(function(error) {
-                Alert.error("Failed to add export target", error.error);
-                deferred.reject();
+            .fail(function(err) {
+                Alert.error("Failed to add export target", err.error);
+                deferred.reject(err);
             });
         } else {
             var error = {error: 'Please select a valid target type'};
             Alert.error("Invalid Target Type", error.error);
-            deferred.reject();
+            deferred.reject(error);
         }
         
         return (deferred.promise());
@@ -3827,9 +3827,9 @@ window.ExportTarget = (function($, ExportTarget) {
             if (i > 0) {
                 gridHtml += '<div class="divider clearfix"></div>';
             }
-            gridHtml +=    '<div class="title">' + name +
-                              '</div>' +
-                              '<div class="gridArea">';
+            gridHtml += '<div class="title">' + name +
+                            '</div>' +
+                            '<div class="gridArea">';
             var numGrids = exportTargets[i].targets.length;
             for (var j = 0; j < numGrids; j++) {
                 gridHtml += getGridHtml(exportTargets[i].targets[j]);
@@ -3849,7 +3849,7 @@ window.ExportTarget = (function($, ExportTarget) {
                             '<div class="listIcon">' +
                                 '<span class="icon"></span>' +
                             '</div>' +
-                            '<div class="label" data-dsname="' + name + 
+                            '<div class="label" data-dsname="' + name +
                             '" data-toggle="tooltip" data-container="body"' +
                             ' data-placement="right" title="' + name + '">' +
                                 name +
@@ -3858,7 +3858,7 @@ window.ExportTarget = (function($, ExportTarget) {
         return (gridHtml);
     }
 
-    function addGridIcon(targetType, name, restoring) {
+    function addGridIcon(targetType, name) {
         var $gridItems = $exportView.find('.gridItems');
         var $grid = $(getGridHtml(name));
         var targetTypeId = targetType.replace(/\s/g, '');
@@ -3869,9 +3869,10 @@ window.ExportTarget = (function($, ExportTarget) {
                                       'id="gridTarget-' + targetTypeId + '">';
 
             if ($gridItems.children().length > 0) {
-                gridSectionHtml +=    '<div class="divider clearfix"></div>';
+                gridSectionHtml += '<div class="divider clearfix"></div>';
             }            
-                gridSectionHtml +=    '<div class="title">' + targetType +
+
+            gridSectionHtml += '<div class="title">' + targetType +
                                       '</div>' +
                                       '<div class="gridArea"></div>' +
                                   '</div>';

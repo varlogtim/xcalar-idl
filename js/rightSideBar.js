@@ -90,7 +90,7 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         generateAggTableList(tables);
-    }
+    };
 
     RightSideBar.removeAggTable = function(tableId) {
         var $list = $('#aggTablesList .tableInfo[data-id="' + tableId + '"]');
@@ -99,7 +99,7 @@ window.RightSideBar = (function($, RightSideBar) {
             WSManager.removeAggInfo(key);
             $list.remove();
         }
-    }
+    };
 
     // move table to inactive list
     RightSideBar.moveTable = function(tableId) {
@@ -185,8 +185,7 @@ window.RightSideBar = (function($, RightSideBar) {
                     tableName = $li.data("tablename");
                 } else {
                     if (table == null) {
-                        console.error("Error: do not find the table");
-                        innerDeferred.reject();
+                        innerDeferred.reject("Error: do not find the table");
                         return (innerDeferred.promise());
                     }
 
@@ -347,7 +346,6 @@ window.RightSideBar = (function($, RightSideBar) {
             };
             XcalarRenameTable(tableName, newTableName, sqlOptions)
             .then(function() {
-                // console.log('renamed');
                 deferred.resolve(newTableName);
             })
             .fail(function(error) {
@@ -641,10 +639,10 @@ window.RightSideBar = (function($, RightSideBar) {
         $('#tableListSections').find(".tableListSection").on("mouseenter",
                                                        ".tableName", function(){
             var $this = $(this);
-            if(this.offsetWidth < this.scrollWidth){
+            if (this.offsetWidth < this.scrollWidth){
                 $this.attr({
                     'data-container': 'body',
-                    'data-toggle': 'tooltip'
+                    'data-toggle'   : 'tooltip'
                 });
             } else {
                 $this.removeAttr('title data-container data-toggle');
@@ -1263,7 +1261,7 @@ window.RightSideBar = (function($, RightSideBar) {
             var addTableBtn;
 
             if (isActive) {
-                var wsIndex = WSManager.getWSFromTable(dstTableId)
+                var wsIndex = WSManager.getWSFromTable(dstTableId);
 
                 if (wsIndex == null) {
                     // case that worksheet is deleted

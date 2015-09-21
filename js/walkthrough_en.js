@@ -4,7 +4,7 @@ var w1_en = [
 "This is your monitor button, where you will be able to view your machine’s usage statistics such as RAM, CPU etc.",
 "This is the data stores button. Click this button to import new datasets and add them to your current worksheet.",
 "This is your current active worksheet. You can rename it by clicking the current name.",
-"This is your inactive worksheet tab. You may have many inactive worksheets. Clicking on the cross to the left of the worksheet name will delete the worksheet.", 
+"This is your inactive worksheet tab. You may have many inactive worksheets. Clicking on the cross to the left of the worksheet name will delete the worksheet.",
 "Clicking this icon will add new worksheets to your workbook.",
 "This is the help icon. You can type your question here to search through the help topics, watch videos or start a step-by-step walk through.",
 "This is your username. You may sign out by clicking it."];

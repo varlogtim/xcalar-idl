@@ -178,8 +178,6 @@ window.xcFunction = (function($, xcFunction) {
                 backFieldName = pCol.func.args[0];
                 break;
             default:
-                console.error("Cannot sort a col derived " +
-                              "from unsupported func");
                 deferred.reject("unsupported func");
                 return (deferred.promise());
         }
@@ -248,7 +246,6 @@ window.xcFunction = (function($, xcFunction) {
         var joinType = joinLookUp[joinStr];
 
         if (joinType == null) {
-            console.error("Incorrect join type!");
             deferred.reject("Incorrect join type!");
             return (deferred.promise());
         }
@@ -377,7 +374,6 @@ window.xcFunction = (function($, xcFunction) {
 
         // Validation
         if (tableId < 0 || indexedColName.length < 1 || aggColName.length < 1) {
-            console.error("Invalid Parameters!");
             deferred.reject("Invalid Parameters!");
             return (deferred.promise());
         }
@@ -847,16 +843,18 @@ window.xcFunction = (function($, xcFunction) {
                      sqlOptions)
         .then(function() {
             // add alert
-            var ins = "Widget location: " +
-                        "http://schrodinger/dogfood/widget/main.html?" +
-                        "rid=" + retName;
+            // var ins = "Widget location: " +
+            //             "http://schrodinger/dogfood/widget/main.html?" +
+            //             "rid=" + retName;
             var ins = "Table \"" + tableName + "\" was succesfully exported " +
                       "to " + exportName + " under the name: " + exportName +
                       ".";
+            var alertMsg = "File Name: " + exportName + "\n" +
+                            "File location: " + targetName;
+
             Alert.show({
                 "title"     : "Successful Export",
-                "msg"       : "File Name: " + exportName + "\n" +
-                                "File location: " + targetName,
+                "msg"       : alertMsg,
                 "instr"     : ins,
                 "isAlert"   : true,
                 "isCheckBox": true,
@@ -870,9 +868,8 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            console.log(error)
             if (error.status === StatusT.StatusDsODBCTableExists) {
-                var text = "Name is in use. Please choose a unique name."
+                var text = "Name is in use. Please choose a unique name.";
                 StatusBox.show(text, $('#exportName'), true);
             } else {
                 Alert.error("Export Table Failed", error);
@@ -889,7 +886,6 @@ window.xcFunction = (function($, xcFunction) {
         var deferred = jQuery.Deferred();
 
         if (tableId == null || newTableName == null) {
-            console.error("Invalid Parameters for renaming!");
             deferred.reject("Invalid renaming parameters");
             return (deferred.promise());
         }
@@ -967,7 +963,7 @@ window.xcFunction = (function($, xcFunction) {
             }
         })
         .then(function(resultSet) {
-            if (resultSet && resultSet.keyAttrHeader.name  !== colName) {
+            if (resultSet && resultSet.keyAttrHeader.name !== colName) {
                 parentIndexedWrongly = true;
             }
             if (colName !== table.keyName || 
@@ -1026,7 +1022,7 @@ window.xcFunction = (function($, xcFunction) {
 
     function multiGroupBy(groupByCols, tableId) {
         var deferred = jQuery.Deferred();
-        console.log(arguments);
+        // console.log(arguments);
         // XXX TODO WSManager.delTable
         var groupByField;
         var newTableName;
@@ -1141,7 +1137,9 @@ window.xcFunction = (function($, xcFunction) {
             var currExec = 0;
             var currTableId = xcHelper.getTableId(currTableName);
             var currCols = gTables[currTableId].tableCols;
-            var currWorksheetIdx = WSManager.getWSFromTable(currTableId);
+
+            currWorksheetIdx = WSManager.getWSFromTable(currTableId);
+
             for (var i = 0; i < colArray.length; i++) {
                 var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
                 var newTableName = getNewTableInfo(currTableName).tableName;
@@ -1206,7 +1204,6 @@ window.xcFunction = (function($, xcFunction) {
             .then(function() {
                 WSManager.addTable(xcHelper.getTableId(lastTableName),
                                    currWorksheetIdx);
-                console.log(lastTableName);
                 deferred.resolve(lastTableName);
             })
             .fail(function() {
@@ -1225,7 +1222,6 @@ window.xcFunction = (function($, xcFunction) {
 
         // validation check
         if (len !== rColNums.length || len < 1) {
-            console.error("Invalid parameters in join");
             deferred.reject("Invalid parameters in join");
             return (deferred.promise());
         }
@@ -1354,8 +1350,7 @@ window.xcFunction = (function($, xcFunction) {
 
                 XcalarDeleteTable(res.tableName, sqlOptions)
                 .always(function() {
-                    console.error("Parallel index fails in rightTable",
-                                  failed);
+                    console.error("Parallel index fails in rightTable", failed);
                     deferred.reject(failed);
                 });
             }
@@ -1371,8 +1366,7 @@ window.xcFunction = (function($, xcFunction) {
 
                 XcalarDeleteTable(res.tableName, sqlOptions)
                 .always(function() {
-                    console.error("Parallel index fails in leftTable",
-                                  failed);
+                    console.error("Parallel index fails in leftTable", failed);
                     deferred.reject(failed);
                 });
             }
