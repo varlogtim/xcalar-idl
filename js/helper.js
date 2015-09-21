@@ -349,14 +349,35 @@ window.xcHelper = (function($, xcHelper) {
                                               $listSection.parent();
          // toggle list section
         if (options.onlyClickIcon) {
-            $listSection.on("click", ".icon", function(event) {
-                event.stopPropagation();
-                toggleDropdownMenu($(this).closest(".listSection"));
-            });
+            $listSection.on({
+                "click": function(event) {
+                    if (event.which !== 1) {
+                        return;
+                    }
+
+                    event.stopPropagation();
+                    toggleDropdownMenu($(this).closest(".listSection"));
+                },
+                "mousedown": function(event) {
+                     if (event.which === 1) {
+                        // stop propagation of left mousedown
+                        // because hide dropdown is triggered by it
+                        // should invalid that when mousedown on listSection
+                        return false;
+                    }
+                }
+            }, ".icon");
         } else {
-            $listSection.on("click", function(event) {
-                event.stopPropagation();
-                toggleDropdownMenu($(this));
+            $listSection.on({
+                "click": function(event) {
+                    event.stopPropagation();
+                    toggleDropdownMenu($(this));
+                },
+                "mousedown": function() {
+                    if (event.which === 1) {
+                        return false;
+                    }
+                }
             });
         }
 
@@ -405,8 +426,8 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
-    xcHelper.hideDropdowns = function() {
-        var $sections = $(".listSection");
+    xcHelper.hideDropdowns = function($container) {
+        var $sections = $container.find(".listSection");
         $sections.find(".list").hide().removeClass("openList");
         $sections.removeClass("open");
     };

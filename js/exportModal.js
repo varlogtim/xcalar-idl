@@ -100,7 +100,7 @@ window.ExportModal = (function($, ExportModal) {
             var tableName = gTables[tableId].tableName;
             xcHelper.removeSelectionRange();
 
-            $(document).on("click.exportModal", function() {
+            $(document).on("mousedown.exportModal", function() {
                 xcHelper.hideDropdowns($exportModal);
             });
             $(document).on("keypress.exportModal", function(e) {
@@ -524,8 +524,7 @@ window.ExportModal = (function($, ExportModal) {
         $exportPath.val("Local Filesystem");
         $exportColumns.val("");
 
-        $(document).off("click.exportModal");
-        $(document).off("keypress.exportModal");
+        $(document).off(".exportModal");
         modalHelper.clear();
 
         $exportModal.hide();

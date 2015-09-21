@@ -81,7 +81,7 @@ window.FileBrowser = (function($, FileBrowser) {
             StatusBox.show(result.error, $filePath, true);
         });
 
-        $(document).on("click.fileBrowser", function() {
+        $(document).on("mousedown.fileBrowser", function() {
             xcHelper.hideDropdowns($fileBrowser);
         });
     };
@@ -380,7 +380,7 @@ window.FileBrowser = (function($, FileBrowser) {
             xcHelper.enableSubmit($fileBrowser.find('.confirm'));
         });
 
-        $(document).off("click.fileBrowser");
+        $(document).off(".fileBrowser");
     }
 
     function updateFileName($grid) {
