@@ -171,6 +171,16 @@ window.OperationsModal = (function($, OperationsModal) {
                     // here $(this) != $input
                     argSuggest($input);
                 }, 300);
+            },
+            'mousedown': function() {
+                $menus.hide();
+                $activeInput = $(this);
+                // close other input's open lists when active input is clicked
+                $('.openList').each(function() {
+                    if (!$(this).siblings('.argument').is($activeInput)) {
+                        $(this).hide();
+                    }
+                });
             }
         }, '.argument');
 
