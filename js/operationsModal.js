@@ -7,7 +7,7 @@ window.OperationsModal = (function($, OperationsModal) {
     var $menus = $('#categoryMenu, #functionsMenu');
     var colNum = "";
     var colName = "";
-    var operatorName = "";
+    var operatorName = ""; // group by, map, filter, aggregate, etc..
     var operatorsMap = {};
     var categoryNames = [];
     var functionsMap = {};
@@ -171,6 +171,10 @@ window.OperationsModal = (function($, OperationsModal) {
                     // here $(this) != $input
                     argSuggest($input);
                 }, 300);
+
+                if (operatorName === "group by") {
+                    updateGroupbyDescription();
+                }
             },
             'mousedown': function() {
                 $menus.hide();
@@ -763,6 +767,7 @@ window.OperationsModal = (function($, OperationsModal) {
             var description;
             var autoGenColName;
             var typeId;
+            var despText = operObj.fnDesc;
 
             for (var i = 0; i < numArgs; i++) {
                 if (operObj.argDescs[i]) {
@@ -797,7 +802,8 @@ window.OperationsModal = (function($, OperationsModal) {
             } else if (operatorName === 'group by') {
                 // group by sort col field
                 description = 'Field name to group by';
-                var sortedCol = xcHelper.getTableFromId(tableId).keyName;
+
+                var sortedCol = gTables[tableId].keyName;
                 if (sortedCol === "recordNum") {
                     sortedCol = "";
                 } else {
@@ -821,8 +827,8 @@ window.OperationsModal = (function($, OperationsModal) {
                                 .end()
                                 .find('.description').text(description);
                 ++numArgs;
+
                 // check box for include sample
-                description = 'If include other fields(result is sampled) or not';
                 description = 'If checked, a sample of all fields will be included';
                 var checkboxText =
                     '<label class="checkBoxText" for="incSample">' +
@@ -838,12 +844,34 @@ window.OperationsModal = (function($, OperationsModal) {
                         .end()
                         .find('.description').text(description);
                 ++numArgs;
+
+
+                despText = '<p>' + despText + '</p>' +
+                            '<p class="groubyDescription">' +
+                                operObj.fnName + '(' +
+                                '<span class="aggCols">' +
+                                    $rows.eq(0).find("input").val() +
+                                '</span>' +
+                                '), GROUP BY ' +
+                                '<span class="groupByCols">' +
+                                    sortedCol +
+                                '</span>'
+                            '</p>';
             }   
 
             $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
-
-            $operationsModal.find('.descriptionText').text(operObj.fnDesc);
+            $operationsModal.find('.descriptionText').html(despText);
         }
+    }
+
+    // specifically used for groupby
+    function updateGroupbyDescription() {
+        var $description = $operationsModal.find(".groubyDescription");
+        var $arguments   = $operationsModal.find('.argumentTable .argument');
+
+        $description.find(".aggCols").text($arguments.eq(0).val())
+                    .end()
+                    .find(".groupByCols").text($arguments.eq(1).val());
     }
 
     function checkArgumentParams(blankOK) {

@@ -2862,6 +2862,25 @@ html.microsoft {
     &.numArgs4 {
         .argumentSection {
             height: 270px;
+
+            .descriptionText {
+                // XXX this part is for groupby description
+                // could be improved
+                p {
+                    font-size: 13px;
+                }
+
+                .groubyDescription {
+                    margin-top: 3px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+
+                    .aggCols, .groupByCols {
+                        color: @color-text-blue;
+                    }
+                }
+            }
         }
     }
 
