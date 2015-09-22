@@ -163,28 +163,29 @@
 }
 
 @media screen and (max-width: 1300px) {
-    .timeStampWrap {
-        width: 14% !important;
-        text-align: center;
-        span:first-child {
-            display: none !important;
-        }
-    }
-
-    .worksheetInfo {
-        display: none !important;
-    }
-
-    .tableListBox {
-        width: 86% !important;
-    }
-
-    .tableListSection {
+    .tableListSection:not(#aggregateTableList) {
         ol {
             width: ~"calc(86% - 26px)" !important;
         }
+
+        .timeStampWrap {
+            width: 14% !important;
+            text-align: center;
+            span:first-child {
+                display: none !important;
+            }
+        }
+
+        .worksheetInfo {
+            display: none !important;
+        }
+
+        .tableListBox {
+            width: 86% !important;
+        }
     }
 }
+
 
 /* ========== Table List Section in Right Side Bar ========== */
 #tableListSection {
@@ -206,8 +207,11 @@
             text-align: center;
             border-right: 1px solid @color-table-borderGray;
             border-bottom: 1px solid @color-table-borderGray;
+            padding: 0 5px;
             .gray-gradient;
             .noSelection;
+            overflow: hidden;
+            text-overflow: ellipsis;
 
             &:hover {
                 .gray-inverse-gradient;
