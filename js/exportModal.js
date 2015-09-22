@@ -179,7 +179,7 @@ window.ExportModal = (function($, ExportModal) {
         ]);
 
         if (!isValid) {
-            deferred.reject();
+            deferred.reject({error: 'invalid input'});
             return (deferred.promise());
         }
         
@@ -195,7 +195,7 @@ window.ExportModal = (function($, ExportModal) {
             if (error.status !== StatusT.StatusDsODBCTableExists) {
                 closeExportModal();
             }
-            deferred.reject();
+            deferred.reject(error);
         });
 
         return (deferred.promise());
@@ -204,16 +204,17 @@ window.ExportModal = (function($, ExportModal) {
     function convertFrontColNamesToBack(frontColNames) {
         var backCols = [];
         var tableCols = gTables[tableId].tableCols;
-        var numTableCols = tableCols.length - 1;
+        var numTableCols = tableCols.length;
         var colsArray = [];
         var foundColsArray = [];
         var numColsFound = 0;
         var numFrontColNames = frontColNames.length;
         for (var i = 0; i < numTableCols; i++) {
-            if (tableCols.name !== "DATA") {
+            if (tableCols[i].name !== "DATA") {
                 colsArray.push(tableCols[i]);
             }
         }
+        numTableCols--; // DATA col was removed
 
         for (var i = 0; i < numFrontColNames; i++) {
             var colFound = false;
@@ -236,7 +237,7 @@ window.ExportModal = (function($, ExportModal) {
             }
 
             if (!colFound) {
-                for (var j = 0; j < numColsFound; j++) {
+                for (var j = 0; j < numTableCols; j++) {
                     tableCol = colsArray[j];
                     if (frontColNames[i] === tableCol.name) {
                         backCols.push(tableCol.func.args[0]);
