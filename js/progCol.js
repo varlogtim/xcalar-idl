@@ -772,7 +772,7 @@ window.ColManager = (function($, ColManager) {
         var indexedColNums = [];
         var nestedVals     = [];
         var columnTypes    = []; // track column type
-        var childArrayVals = [];
+        var childArrayVals = new Array(numCols);
 
         var $table    = $('#xcTable-' + tableId);
         var tBodyHTML = "";
@@ -807,7 +807,6 @@ window.ColManager = (function($, ColManager) {
                 nestedVals.push([""]);
             }
 
-            childArrayVals.push(false);
             columnTypes.push(tableCols[i].type); // initial type
         }
 
@@ -866,7 +865,7 @@ window.ColManager = (function($, ColManager) {
                             childArrayVals[col] = true;
                         }
                     }
-
+                    
                     // if it's the index array field, pull indexed one instead
                     if (secondPull && tableCols[col].isSortedArray) {
                         var $input  = $table.find('th.col' + (col + 1) +

@@ -5,6 +5,7 @@ window.ExportModal = (function($, ExportModal) {
     var $exportPath = $("#exportPath");
     var $exportColumns = $('#exportColumns');
 
+    var $selectableThs;
     var exportTableName;
     var tableId;
     var focusedHeader;
@@ -90,7 +91,8 @@ window.ExportModal = (function($, ExportModal) {
     ExportModal.show = function(tablId) {
         tableId = tablId;
         xcHelper.toggleModal(tableId, false, {time: 300});
-        $('#xcTableWrap-' + tableId).addClass('exportModalOpen');
+        var $table = $('#xcTableWrap-' + tableId);
+        $table.addClass('exportModalOpen');
         setTimeout(function() {
             Tips.refresh();
         }, 300);
@@ -121,23 +123,16 @@ window.ExportModal = (function($, ExportModal) {
             $exportName.val(tableName.split('#')[0]).focus();
             $exportName[0].select();
 
-
             addColumnSelectListeners();
 
-            $('#xcTableWrap-' + tableId).find('th:not(.dataCol, .rowNumHead)')
-                                        .addClass('modalHighlighted');
-            $('#xcTableWrap-' + tableId).find('td:not(.col0, .jsonElement)')
-                                        .addClass('modalHighlighted');
-
-            var cols = gTables[tableId].tableCols;
-            var numCols = cols.length;
+            $selectableThs.addClass('modalHighlighted');
             var allColNames = "";
-            for (var i = 0; i < numCols; i++) {
-                if (cols[i].name === 'DATA') {
-                    continue;
-                }
-                allColNames += cols[i].name + ", ";
-            }
+            $selectableThs.each(function() {
+                var colNum = xcHelper.parseColNum($(this));
+                $table.find('td.col' + colNum).addClass('modalHighlighted');
+                allColNames += $(this).find('.editableHead').val() + ", ";
+            });
+
             $exportColumns.val(allColNames.substr(0, allColNames.length - 2));
         })
         .fail(function(error) {
@@ -173,7 +168,9 @@ window.ExportModal = (function($, ExportModal) {
                 "text"     : "Please enter valid column names.",
                 "check"    : function() {
 
-                    return (columnsVal.length === 0);
+                    return (columnsVal.length === 0 ||
+                            columnsVal.indexOf('.') !== -1 ||
+                            columnsVal.indexOf('[') !== -1);
                 }
             }
         ]);
@@ -256,7 +253,8 @@ window.ExportModal = (function($, ExportModal) {
 
         $('.modalHighlighted').removeClass('modalHighlighted');
         for (var i = 0; i < numColNames; i++) {
-            var $colInput = $table.find('.editableHead').filter(function() {
+            var $colInput = $selectableThs.find('.editableHead')
+                                          .filter(function() {
                 return ($(this).val() === colNames[i]);
             });
             if ($colInput.length !== 0) {
@@ -316,7 +314,8 @@ window.ExportModal = (function($, ExportModal) {
         var colNames = substring.replace(/\s/g, "").split(",");
 
         for (var i = 0; i < colNames.length; i++) {
-            var $colInput = $table.find('.editableHead').filter(function() {
+            var $colInput = $selectableThs.find('.editableHead')
+                                          .filter(function() {
                 return ($(this).val() === colNames[i]);
             });
             if ($colInput.length !== 0) {
@@ -368,13 +367,34 @@ window.ExportModal = (function($, ExportModal) {
 
     function addColumnSelectListeners() {
         var $table = $('#xcTable-' + tableId);
-        var $ths = $table.find('th:not(.dataCol):not(:first-child)');
-        // $ths.addClass('modalHighlighted');
-        // $ths.find('input').attr('disabled', true);
-        $ths.find('input').css('pointer-events', 'none');
+        var $header;
+        var $th;
+        var tableCols = gTables[tableId].tableCols;
 
-        // $table.find('td:not(.jsonElement):not(:first-child)')
-        //       .addClass('modalHighlighted');
+        // select ths that are not arrays or objects
+        var $ths = $table.find('.header').filter(function() { 
+            $header = $(this);
+            $th = $header.parent();
+            var colNum = xcHelper.parseColNum($th) - 1;
+            if (colNum === -1) {
+                return false;
+            }
+            var isObj; 
+            if (tableCols[colNum].args &&
+                tableCols[colNum].args[0].indexOf(".") > -1) {
+                isObj = true;
+            }
+            return (!isObj && 
+                    ($header.hasClass('type-string') ||
+                    $header.hasClass('type-integer') ||
+                    $header.hasClass('type-decimal')));
+
+        }).parent();
+
+        $selectableThs = $ths;
+
+        $ths.find('input').css('pointer-events', 'none');
+        $ths.addClass('exportable');
 
         $ths.on('click.addColToExport', function(event) {
             if ($(event.target).hasClass('colGrab')) {
@@ -534,7 +554,8 @@ window.ExportModal = (function($, ExportModal) {
         exportTableName = null;
         $exportPath.val("Local Filesystem");
         $exportColumns.val("");
-
+        $('.exportable').removeClass('exportable');
+        $selectableThs = null;
         $(document).off(".exportModal");
         modalHelper.clear();
 
