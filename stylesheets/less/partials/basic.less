@@ -1596,10 +1596,10 @@ ul.inputMenu {
     float: left;
 
     .worksheetTab {
-        .size(@width: 172px, @height: 35px);
+        .size(@width: 201px, @height: 35px);
         .position(relative);
         float: left;
-        .flex(0 0 172px);
+        .flex(0 0 201px);
         margin-right: 10px;
 
 
@@ -1626,6 +1626,7 @@ ul.inputMenu {
             border: 1px solid @color-bar-border;
             border-top: none;
             .rounded(0 0 0 3px);
+            overflow: hidden;
 
             .delete {
                 .position(relative);
@@ -1720,7 +1721,7 @@ ul.inputMenu {
         }
 
         &.inActive {
-            .size (@height: 28px);
+            .size (@width: 172px, @height: 28px);
             .position(@top: 6px);
             .noSelection;
             .flex(0 1 auto);
