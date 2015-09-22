@@ -424,8 +424,7 @@
                     .justify-content(center);
                     .align-items(center);
                     .font(@weight: bold, @size: 14px, @color: @color-text-midGray);
-                    text-overflow: ellipsis;
-                    overflow: hidden;
+                    .textOverflow;
                     white-space: nowrap;
 
                     &.aggTableFlex {
@@ -789,8 +788,6 @@
                 box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
                 cursor: pointer;
                 padding: 0 2px;
-                text-overflow: ellipsis;
-                overflow: hidden;
                 white-space: nowrap;
 
                 &.active {
@@ -899,8 +896,7 @@
             box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
             cursor: pointer;
             padding: 0 2px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .unselectable .columnTab {
@@ -994,13 +990,13 @@ html.microsoft {
             text-align: center;
             white-space: pre-line;
         }
+
         &.leftAlign {
             .text {
                 padding-left: 52px;
                 text-align: left;
                 max-height: 62px;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                .textOverflow;
                 width: 90%;
             }
         }
@@ -1270,8 +1266,7 @@ html.microsoft {
                             padding-left: 8px;
                             .font(@line-height: 22px, @size: 12px, @color: @color-text-columnList);
                             background: @color-background-columnList;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
+                            .textOverflow;
                             white-space: nowrap;
                             cursor: default;
 
@@ -1331,7 +1326,9 @@ html.microsoft {
 
                     .label {
                         .size(@width: ~"calc(95% - 15px)");
-                        .text-overflow;
+                        display: inline-block;
+                        white-space: nowrap;
+                        .textOverflow;
                     }
 
                     .icon {
@@ -1373,7 +1370,9 @@ html.microsoft {
                         padding-right: 5px;
                         border: 1px solid transparent;
                         .font(@line-height: 28px);
-                        .text-overflow;
+                        display: inline-block;
+                        white-space: nowrap;
+                        .textOverflow;
                         width: 152px;
                     }
 
@@ -1449,8 +1448,7 @@ html.microsoft {
                     cursor: text;
                     outline: none;
                     white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
+                    .textOverflow;
                 }
                 .list {
                     top: 26px;
@@ -2873,8 +2871,6 @@ html.microsoft {
                 .groubyDescription {
                     margin-top: 3px;
                     white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
 
                     .aggCols, .groupByCols {
                         color: @color-text-blue;

@@ -144,8 +144,7 @@ input {
     font-weight: 700;
     box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
     text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
+   .textOverflow;
 
     .contentViewMidWrap {
         .size (@width: 90%, @max-width: 960px);
@@ -155,6 +154,7 @@ input {
         .font(@size: 18px, @color: @color-text-blue);
         display: block;
         margin-bottom: 10px;
+        .textOverflow;
     }
 
     p {
@@ -621,8 +621,7 @@ input {
                     .rounded;
                     line-height: 30px;
                     padding: 0 3px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
+                    .textOverflow;
                 }
             }
         }
@@ -1111,8 +1110,7 @@ input {
                 overflow: hidden;
 
                 h2, p {
-                    overflow: hidden;
-                    text-overflow: ellipsis;
+                    .textOverflow;
                 }
             }
 
@@ -1621,8 +1619,6 @@ table.datasetTable {
                 padding-left: 5px;
                 display: inline-block;
                 text-align: center;
-                overflow: hidden;
-                text-overflow: ellipsis;
                 box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5);
                 background-color: #CCCCCC;
             }
@@ -1678,8 +1674,6 @@ table.datasetTable {
                 padding-left: 12px;
                 float: left;
                 display: inline-block;
-                text-overflow: ellipsis;
-                overflow: hidden;
                 cursor: default;
             }
 

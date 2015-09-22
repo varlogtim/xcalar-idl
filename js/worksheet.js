@@ -959,8 +959,8 @@ window.WSManager = (function($, WSManager) {
                         '<span class="icon"></span>' +
                     '</div>' +
                     '<span class="wsIcon"></span>' +
-                    '<div class="text" data-title="' + name + '" ' +
-                        'contenteditable>' +
+                    '<div class="text textOverflow" ' +
+                        'data-title="' + name + '" contenteditable>' +
                         name +
                     '</div>' +
                 '</div>' +

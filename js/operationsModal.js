@@ -847,7 +847,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
 
                 despText = '<p>' + despText + '</p>' +
-                            '<p class="groubyDescription">' +
+                            '<p class="groubyDescription textOverflow">' +
                                 operObj.fnName + '(' +
                                 '<span class="aggCols">' +
                                     $rows.eq(0).find("input").val() +

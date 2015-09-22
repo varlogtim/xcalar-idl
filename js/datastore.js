@@ -987,7 +987,7 @@ window.DataCart = (function($, DataCart) {
             '<div id="selectedTable-' + dsName + '"' +
                 'class="selectedTable">' +
                 '<div class="cartTitleArea">' +
-                    '<input class="tableNameEdit" type="text" ' +
+                    '<input class="tableNameEdit textOverflow" type="text" ' +
                         'spellcheck="false" value="' + tableName + '">' +
                     '<div class="iconWrapper">' +
                         '<span class="icon"></span>' +
@@ -1020,7 +1020,9 @@ window.DataCart = (function($, DataCart) {
         var $cart = $("#selectedTable-" + cart.dsName);
         var $li = $('<li style="font-size:13px;" class="colWrap" ' +
                         'data-colnum="' + colNum + '">' +
-                        '<span class="colName">' + val + '</span>' +
+                        '<span class="colName textOverflow">' +
+                            val +
+                        '</span>' +
                         '<div class="removeCol">' +
                             '<span class="closeIcon"></span>' +
                         '</div>' +

@@ -1214,7 +1214,7 @@ window.RightSideBar = (function($, RightSideBar) {
                         '<div class="iconWrap">' +
                             '<span class="icon"></span>' +
                         '</div>' +
-                        '<span class="tableName" draggable="true"' +
+                        '<span class="tableName textOverflow" draggable="true"' +
                             ' ondragstart="xcDrag(event)" title="' +
                             tableName + '">' + tableName +
                         '</span>' +
@@ -1293,12 +1293,14 @@ window.RightSideBar = (function($, RightSideBar) {
                      'data-id="' + dstTableId + '"' +
                      'data-tablename="' + dstTable + '"' +
                      'data-key="' + table.key + '">' +
-                        '<span class="tableNameWrap" data-toggle="tooltip" ' +
+                        '<span class="tableNameWrap textOverflow" ' +
+                        'data-toggle="tooltip" ' +
                         'data-placement="top" data-container="body" ' +
                         'title="' + tableName + '">' +
                             tableName +
                         '</span>' +
-                        '<span class="aggStrWrap" data-toggle="tooltip" ' +
+                        '<span class="aggStrWrap textOverflow" ' +
+                        'data-toggle="tooltip" ' +
                         'data-placement="top" data-container="body" ' +
                         'title="' + aggStr + '">' +
                             aggStr +

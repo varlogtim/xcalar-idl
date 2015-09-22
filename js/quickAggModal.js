@@ -158,7 +158,9 @@ window.AggModal = (function($, AggModal) {
             wholeTable += '<div class="aggCol">' +
                             '<div class="divider"></div>' +
                             '<div class="aggTableField colLabel">' +
-                                cols.name +
+                                '<span class="textOverflow">' +
+                                    cols.name +
+                                '</span>' +
                             '</div>';
 
             var isChildOfArray = $table.find(".th.col" + colNum + " .header")
@@ -202,7 +204,9 @@ window.AggModal = (function($, AggModal) {
             wholeTable += '<div class="aggCol">' +
                             '<div class="divider"></div>' +
                             '<div class="aggTableField colLabel">' +
-                                cols.name +
+                                '<span class="textOverflow">' +
+                                    cols.name +
+                                '</span>' +
                             '</div>';
             var isChildOfArray = $table.find(".th.col" + colNum + " .header")
                                         .hasClass("childOfArray");

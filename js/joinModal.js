@@ -469,11 +469,13 @@ window.JoinModal = (function($, JoinModal) {
                 var table   = gTables[tableId];
 
                 wsTabHtml +=
-                    '<div class="worksheetLabel" data-id="' + tableId + '">' +
+                    '<div class="worksheetLabel textOverflow" ' +
+                    'data-id="' + tableId + '">' +
                         wsName +
                     '</div>';
                 tabHtml +=
-                    '<div class="tableLabel" data-id="' + tableId + '">' +
+                    '<div class="tableLabel textOverflow" ' +
+                    'data-id="' + tableId + '">' +
                         table.tableName +
                     '</div>';
 
@@ -505,7 +507,7 @@ window.JoinModal = (function($, JoinModal) {
                 }
 
                 colHtml += '<th class="' + thClass + '">' +
-                                '<div class="columnTab">' +
+                                '<div class="columnTab textOverflow">' +
                                     colName +
                                 '</div>' +
                             '</th>';

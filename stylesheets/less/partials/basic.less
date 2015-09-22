@@ -154,6 +154,11 @@ body {
     cursor: default;
 }
 
+.textOverflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .btn {
     .noSelection;
     cursor: pointer;
@@ -1419,8 +1424,7 @@ ul.inputMenu {
             display: block;
             .size(@height: 20px);
             position: relative;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            .textOverflow;
         }
 
         .text {
@@ -1664,8 +1668,6 @@ ul.inputMenu {
                 outline: none;
                 margin: 0 2px;
                 padding: 0 3px;
-                overflow: hidden;
-                text-overflow:ellipsis;
                 white-space: nowrap;
                 .vertical-align;
                 border: 1px solid transparent;
@@ -1830,9 +1832,8 @@ ul.inputMenu {
         color: @color-text-darkGray;
         .font(@size: 12px, @line-height: 18px);
         white-space: normal;
-        text-overflow: ellipsis;
-        overflow: hidden;
     }
+
     &.error {
         display: inline-block;
         .title {

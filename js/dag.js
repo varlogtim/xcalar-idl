@@ -884,7 +884,7 @@ window.Dag = (function($, Dag) {
             retName = 'Retina ' + (len + 1);
             retClass += " unconfirmed";
             isNewRetina = true;
-            intputHTML = '<input type="text" class="retTitle"' +
+            intputHTML = '<input type="text" class="retTitle textOverflow"' +
                          '" placeholder="' + retName + '">';
         } else {
             intputHTML = '<input type="text" class="retTitle">';

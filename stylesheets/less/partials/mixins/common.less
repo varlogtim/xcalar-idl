@@ -329,14 +329,6 @@
     }
 }
 
-// style for text overfolw
-.text-overflow() {
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 // style for radio check
 .radio-check(@h: 20px) {
     display: inline-block;
@@ -529,8 +521,7 @@
         .transition (opacity 0.6s);
         font-size: 9px;
         font-weight: 600;
-        text-overflow: ellipsis;
-        overflow: hidden;
+        .textOverflow;
     }
 
     &.inactive {
@@ -567,8 +558,7 @@
         padding: 0 10px;
         background-color: @color-background-white;
         box-shadow: 1px 1px 1px 1px rgba(0,0,0,.2);
-        overflow: hidden;
-        text-overflow: ellipsis;
+        .textOverflow;
     }
 
     > .gridIcon {
