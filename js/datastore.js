@@ -56,6 +56,10 @@ window.DataStore = (function($, DataStore) {
         $contentHeaderMidText = $('#contentHeaderMid').find('.text');
         $('#contentHeaderLeft').find('.buttonArea').click(function() {
             var $button = $(this);
+            if ($button.hasClass('active')) {
+                return;
+            }
+
             if ($button.attr('id') === "outButton") {
                 $exploreView.hide();
                 $contentHeaderRight.hide();
@@ -66,6 +70,7 @@ window.DataStore = (function($, DataStore) {
                 $contentHeaderRight.show();
                 $exportView.hide();
                 $contentHeaderMidText.text('DATA SET');
+                DataSampleTable.sizeTableWrapper();
             }
             $button.siblings().removeClass('active');
             $button.addClass('active');
