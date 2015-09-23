@@ -18,6 +18,7 @@ window.STATSManager = (function($, STATSManager, d3) {
     };
     var tooltipOptions = {
         "trigger"  : "manual",
+        "animation": false,
         "placement": "top",
         "container": "body",
         "template" : '<div class="bartip tooltip" role="tooltip">' +

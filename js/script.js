@@ -338,7 +338,7 @@ function setupTooltips() {
     $("body").tooltip({
         selector: '[data-toggle="tooltip"]',
         delay   : {
-            "show": 200,
+            "show": 100,
             "hide": 100
         },
         html: true
