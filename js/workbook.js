@@ -48,10 +48,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $(document).on("keypress", workbookKeyPress);
         xcHelper.removeSelectionRange();
 
-        $modalBackground.fadeIn(300, function() {
-            Tips.refresh();
-        });
-
         var winWidth = $(window).width();
         var winHeight = $(window).height();
         if ($workbookModal.width() > winWidth - 10) {
@@ -64,9 +60,13 @@ window.WorkbookModal = (function($, WorkbookModal) {
         }
 
         centerPositionElement($workbookModal);
-        $workbookModal.show();
-
         resetWorkbookModal();
+
+        $modalBackground.fadeIn(180, function() {
+            $workbookModal.fadeIn(300);
+            Tips.refresh();
+        });
+
         modalHelper.setup();
     };
 
@@ -107,8 +107,8 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $(document).off("keypress", workbookKeyPress);
         modalHelper.clear();
 
-        $workbookModal.hide();
-        $modalBackground.fadeOut(300, function() {
+        $workbookModal.fadeOut(180, function() {
+            $modalBackground.fadeOut(300);
             Tips.refresh();
         });
     }

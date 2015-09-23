@@ -47,9 +47,9 @@ window.Alert = (function($, Alert){
 
         configAlertModal(options);
 
-        $alertModal.show();
-        $modalBackground.fadeIn(100, function() {
+        $modalBackground.fadeIn(180, function() {
             Tips.refresh();
+            $alertModal.fadeIn(300);
         });
 
         xcHelper.removeSelectionRange();
@@ -86,8 +86,6 @@ window.Alert = (function($, Alert){
         $btnSection.find(".funcBtn").remove();
         // remove all event listener
         $alertModal.off();
-        $alertModal.hide();
-
         modalHelper.clear();
 
         if ($modalContainer) {
@@ -95,11 +93,12 @@ window.Alert = (function($, Alert){
             return;
         }
 
-        if (!$modalBackground.hasClass("open")) {
-            $modalBackground.fadeOut(200, function(){
+        $alertModal.fadeOut(180, function() {
+            if (!$modalBackground.hasClass("open")) {
+                $modalBackground.fadeOut(300);
                 Tips.refresh();
-            });
-        }
+            }
+        });
     }
 
     // configuration for alert modal

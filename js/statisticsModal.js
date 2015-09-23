@@ -164,8 +164,11 @@ window.STATSManager = (function($, STATSManager, d3) {
     };
 
     function closeStats() {
-        $modalBg.fadeOut(300);
-        $statsModal.addClass("hidden").removeData("id");
+        $statsModal.fadeOut(180, function() {
+            $modalBg.fadeOut(300);
+            $statsModal.removeData("id");
+        });
+
         $statsModal.find(".min-range .text").off();
         $modalBg.off("mouseover.statsModal");
         // turn off scroll bar event
@@ -253,15 +256,17 @@ window.STATSManager = (function($, STATSManager, d3) {
 
     function showStats() {
         centerPositionElement($statsModal);
-        $modalBg.fadeIn(300);
-        $statsModal.removeClass("hidden").data("id", statsCol.modalId);
+
+        $modalBg.fadeIn(180, function() {
+            $statsModal.fadeIn(300)
+                        .data("id", statsCol.modalId);
+            refreshStats();
+        });
 
         $modalBg.on("mouseover.statsModal", function() {
             $(".barArea").tooltip("hide")
                         .attr("class", "barArea");
         });
-
-        refreshStats();
     }
 
     // refresh stats
@@ -384,7 +389,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             curStatsCol.aggInfo[aggkey] = val;
 
             // modal is open and is for that column
-            if (!$statsModal.hasClass("hidden") &&
+            if ($statsModal.is(":visible") &&
                 $statsModal.data("id") === curStatsCol.modalId)
             {
                 $statsModal.find(".aggInfoSection ." + aggkey)
@@ -468,7 +473,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             }
 
             // modal is open and is for that column
-            if (!$statsModal.hasClass("hidden") &&
+            if ($statsModal.is(":visible") &&
                 $statsModal.data("id") === curStatsCol.modalId)
             {
                 return (refreshStats());

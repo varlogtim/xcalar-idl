@@ -85,9 +85,9 @@ window.AggModal = (function($, AggModal) {
 
         $aggTableName.val(tableName);
 
-        $aggModal.show();
-        $modalBackground.fadeIn(300, function() {
+        $modalBackground.fadeIn(180, function() {
             Tips.refresh();
+            $aggModal.fadeIn(300);
         });
         centerPositionElement($aggModal);
 
@@ -496,10 +496,11 @@ window.AggModal = (function($, AggModal) {
     function resetAggTables() {
         $('#mainTable').off();
         $modalBackground.off("click", hideAggOpSelect);
-        $aggModal.hide();
-        $modalBackground.fadeOut(300, function() {
+        $aggModal.fadeOut(180, function() {
+            $modalBackground.fadeOut(300);
             Tips.refresh();
         });
+
         $aggModal.width(920).height(670);
     }
 

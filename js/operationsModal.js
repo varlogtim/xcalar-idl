@@ -203,7 +203,7 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsModal.find('.confirm').on('click', submitForm);
 
         $operationsModal.find('.cancel, .close').on('click', function(e, data) {
-            var time = (data && data.slow) ? 300 : 0;
+            var time = (data && data.slow) ? 300 : 150;
 
             $operationsModal.fadeOut(time, function() {
                 clearInput(0);
@@ -348,7 +348,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
             $('body').off('keydown', listHighlightListener);
         } else {
-            $operationsModal.fadeIn(300);
+            $operationsModal.fadeIn(400);
             $table.find('.header').click(fillInputFromColumn)
                     .end()
                     .find('.col' + colNum).addClass('modalHighlighted');

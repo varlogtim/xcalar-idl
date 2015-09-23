@@ -50,11 +50,11 @@ window.FileBrowser = (function($, FileBrowser) {
             });
 
             // set modal background
-            $modalBackground.fadeIn(150, function() {
+            $modalBackground.fadeIn(180, function() {
                 Tips.refresh();
 
                 $modalBackground.addClass("open");
-                $fileBrowser.fadeIn(200).focus();
+                $fileBrowser.fadeIn(300).focus();
                 if (result.defaultPath) {
                     var msg = result.path + ' was not found. ' +
                             'Redirected to the root directory.';
@@ -374,9 +374,10 @@ window.FileBrowser = (function($, FileBrowser) {
         clear(true);
         modalHelper.clear();
         $(document).off('keyup', fileBrowserKeyUp);
-        $fileBrowser.hide();
-        $modalBackground.removeClass("open").fadeOut(300, function() {
+
+        $fileBrowser.fadeOut(180, function() {
             Tips.refresh();
+            $modalBackground.removeClass("open").fadeOut(300);
             xcHelper.enableSubmit($fileBrowser.find('.confirm'));
         });
 

@@ -114,7 +114,7 @@ window.ExportModal = (function($, ExportModal) {
                 }
             });
 
-            $exportModal.show();
+            $exportModal.fadeIn(300);
             centerPositionElement($exportModal);
 
             modalHelper.setup();
@@ -559,10 +559,12 @@ window.ExportModal = (function($, ExportModal) {
         $(document).off(".exportModal");
         modalHelper.clear();
 
-        $exportModal.hide();
         restoreColumns();
         var hide = true;
-        xcHelper.toggleModal(tableId, hide, {time: 200});
+
+        $exportModal.fadeOut(150, function() {
+            xcHelper.toggleModal(tableId, hide, {time: 200});
+        });
         $('#xcTableWrap-' + tableId).removeClass('exportModalOpen');
         setTimeout(function() {
             Tips.refresh();

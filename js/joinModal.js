@@ -236,7 +236,7 @@ window.JoinModal = (function($, JoinModal) {
         joinModalTabs($rightJoinTable, null, -1);
         joinModalTabs($leftJoinTable, tableId, colNum, $rightJoinTable);
 
-        $modalBackground.fadeIn(150, function() {
+        $modalBackground.fadeIn(180, function() {
             $joinModal.fadeIn(300);
             scrollToColumn($leftJoinTable.find("th.colSelected"));
             // this is the case when right table has suggested col
@@ -380,8 +380,8 @@ window.JoinModal = (function($, JoinModal) {
         modalHelper.clear();
         modalHelper.enableSubmit();
 
-        $joinModal.hide();
-        $modalBackground.fadeOut(300, function() {
+        $joinModal.fadeOut(180, function() {
+            $modalBackground.fadeOut(300);
             Tips.refresh();
         });
 
