@@ -924,9 +924,19 @@ window.DataCart = (function($, DataCart) {
 
     // remove one cart
     DataCart.removeCart = function(dsName) {
-        $("#selectedTable-" + dsName).remove();
+        var $cart = $("#selectedTable-" + dsName);
+
+        if ($cartArea.hasClass("support-animation")) {
+            $cart.find("ul").slideUp(80, function() {
+                $cart.remove();
+                refreshCart();
+            });
+        } else {
+            $cart.remove();
+            refreshCart();
+        }
+
         removeCart(dsName);    // remove the cart
-        refreshCart();
     };
 
     // restore the cart
@@ -1030,6 +1040,10 @@ window.DataCart = (function($, DataCart) {
 
         $cart.find("ul").append($li);
 
+        if ($cartArea.hasClass("support-animation")) {
+            $li.hide().slideDown(100);
+        }
+
         cart.items.push({"colNum": colNum, "value": val});
 
         return ($li);
@@ -1103,7 +1117,13 @@ window.DataCart = (function($, DataCart) {
             $li.closest(".selectedTable").remove();
             removeCart(dsName);
         } else {
-            $li.remove();
+            if ($cartArea.hasClass("support-animation")) {
+                $li.slideUp(100, function() {
+                    $li.remove();
+                });
+            } else {
+                $li.remove();
+            }
 
             var items = filterCarts(dsName).items;
             for (var i = 0, len = items.length; i < len; i++) {
@@ -1120,12 +1140,20 @@ window.DataCart = (function($, DataCart) {
     function emptyAllCarts() {
         var $table = $("#worksheetTable");
 
-        $cartArea.empty();
         $table.find('.colAdded').removeClass("colAdded");
         $table.find('.selectedCol').removeClass("selectedCol");
 
         innerCarts = [];
-        refreshCart();
+
+        if ($cartArea.hasClass("support-animation")) {
+            $cartArea.slideUp(100, function() {
+                $cartArea.empty().show();
+                refreshCart();
+            })
+        } else {
+            $cartArea.empty();
+            refreshCart();
+        }
     }
 
     function refreshCart(delay) {
