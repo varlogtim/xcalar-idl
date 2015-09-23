@@ -33,6 +33,7 @@ var gDSObj = {};    //obj for DS folder structure
 var gRetinaObj = {}; //obj for retina modal
 var gLastClickTarget = $(window); // track which element was last clicked
 var gDatasetBrowserResultSetId = 0; // resultSetId for currently viewed
+var gMinModeOn = false;
 var KB = 1024;
 var MB = 1024 * KB;
 var GB = 1024 * MB;

@@ -203,6 +203,10 @@ function gResrowMouseUp() {
 }
 
 function dragdropMouseDown(el, event) {
+    var $tableWrap = el.closest('.xcTableWrap');
+    if ($tableWrap.hasClass('undraggable')) {
+        return;
+    }
     gMouseStatus = "movingCol";
     var dragObj = gDragObj;
     var cursorStyle =
@@ -214,25 +218,25 @@ function dragdropMouseDown(el, event) {
     $(document.head).append(cursorStyle);
     $('.highlightBox').remove();
 
-    dragObj.mouseX = event.pageX;
+    var pageX = event.pageX;
     dragObj.colNum = xcHelper.parseColNum(el);
-    var tableWrap = el.closest('.xcTableWrap');
+    
     var $table = el.closest('.xcTable');
     var $tbodyWrap = $table.parent();
     var $editableHead = el.find('.editableHead');
-    dragObj.table = tableWrap;
+    dragObj.$table = $tableWrap;
     dragObj.tableId = xcHelper.parseTableId($table);
     dragObj.element = el;
     dragObj.colIndex = parseInt(el.index());
     dragObj.offsetTop = el.offset().top;
-    dragObj.grabOffset = dragObj.mouseX - el.offset().left;
+    dragObj.grabOffset = pageX - el.offset().left;
     // dragObj.grabOffset = distance from the left side of dragged column
     // to the point that was grabbed
 
     dragObj.docHeight = $(document).height();
     dragObj.val = $editableHead.val();
     var shadowDivHeight = $tbodyWrap.height();
-    var shadowTop = tableWrap.find('.header').position().top - 5;
+    var shadowTop = $tableWrap.find('.header').position().top - 5;
 
     dragObj.inFocus = $editableHead.is(':focus');
     dragObj.selected = el.hasClass('selectedCell');
@@ -241,14 +245,14 @@ function dragdropMouseDown(el, event) {
     
 
     // create a fake transparent column by cloning
-    createTransparentDragDropCol();
+    createTransparentDragDropCol(pageX);
     
     $tbodyWrap.addClass('hideScroll');
 
     // create a replica shadow with same column width, height,
     // and starting position
     disableTextSelection();
-    tableWrap.append('<div id="shadowDiv" style="width:' +
+    $tableWrap.append('<div id="shadowDiv" style="width:' +
                     dragObj.colWidth +
                     'px;height:' + (shadowDivHeight) + 'px;left:' +
                     (dragObj.element.position().left) +
@@ -274,15 +278,37 @@ function dragdropMouseMove(event) {
 function dragdropMouseUp() {
     gMouseStatus = null;
     var dragObj = gDragObj;
-    $('#shadowDiv, #fauxCol, #dropTargets, #moveCursor').remove();
+    var $tableWrap = dragObj.$table;
+    var $th = dragObj.element;
+
+    if (gMinModeOn) {
+        $('#shadowDiv, #fauxCol').remove();
+    } else {
+        // slide column into place
+        $tableWrap.addClass('undraggable');
+        var slideLeft = $th.offset().left -
+                        parseInt(dragObj.fauxCol.css('margin-left'));
+        var currentLeft = parseInt(dragObj.fauxCol.css('left'));
+        var slideDistance = Math.max(2, Math.abs(slideLeft - currentLeft));
+        var slideDuration = Math.log(slideDistance * slideDistance) * 30;
+        $('#fnBar').val(currentLeft + " " + slideLeft + " " + slideDuration);
+        dragObj.fauxCol.animate({left: slideLeft}, slideDuration, "linear", 
+            function() {
+                $('#shadowDiv, #fauxCol').remove();
+                $tableWrap.removeClass('undraggable');
+            }
+        );
+    }
+    
+    $('#dropTargets, #moveCursor').remove();
     $('#mainFrame').off('scroll', mainFrameScrollDropTargets)
                    .scrollTop(0);
     reenableTextSelection();
-    gDragObj.table.find('.xcTbodyWrap').removeClass('hideScroll');
+    $tableWrap.find('.xcTbodyWrap').removeClass('hideScroll');
     if (dragObj.inFocus) {
         dragObj.element.find('.editableHead').focus();
     }
-    
+   
     // only pull col if column is dropped in new location
     if ((dragObj.colIndex) !== dragObj.colNum) {
         var tableId  = dragObj.tableId;
@@ -339,10 +365,12 @@ function cloneCellHelper(obj) {
     // $('#fauxTable').append(cloneHTML);
 }
 
-function createTransparentDragDropCol() {
+function createTransparentDragDropCol(pageX) {
     var dragObj = gDragObj;
+    var $tableWrap = dragObj.$table;
+    var $table = $tableWrap.find('table');
     $('#mainFrame').append('<div id="fauxCol" style="left:' +
-                    dragObj.mouseX + 'px;' +
+                    pageX + 'px;' +
                     'width:' + (dragObj.colWidth) + 'px;' +
                     'margin-left:' + (-dragObj.grabOffset) + 'px;">' +
                         '<table id="fauxTable" ' +
@@ -355,10 +383,10 @@ function createTransparentDragDropCol() {
     
     var rowHeight = 30;
     // turn this into binary search later
-    var topPx = dragObj.table.find('.header').offset().top - rowHeight;
+    var topPx = $table.find('.header').offset().top - rowHeight;
     var topRowIndex = -1;
     // var topRowTd = null;
-    dragObj.table.find('tbody tr').each(function() {
+    $table.find('tbody tr').each(function() {
         if ($(this).offset().top > topPx) {
             topRowIndex = $(this).index();
             topRowEl = $(this).find('td');
@@ -371,7 +399,7 @@ function createTransparentDragDropCol() {
     if (topRowIndex === -1) {
         console.error("BUG! Cannot find first visible row??");
         // Clone entire shit and be.then.
-        dragObj.table.find('tr').each(function(i, ele) {
+        $table.find('tr').each(function(i, ele) {
             cloneHTML += cloneCellHelper(ele);
         });
         $fauxTable.append(cloneHTML);
@@ -380,7 +408,7 @@ function createTransparentDragDropCol() {
 
     // Clone head
    
-    dragObj.table.find('tr:first').each(function(i, ele) {
+    $table.find('tr:first').each(function(i, ele) {
         cloneHTML += cloneCellHelper(ele);
     });
    
@@ -388,13 +416,11 @@ function createTransparentDragDropCol() {
         $fauxTable.addClass('selectedCol');
     }
 
-    var totalRowHeight = dragObj.element
-                                .closest('.xcTableWrap')
-                                .height() -
-                                dragObj.table.find('th:first').outerHeight();
+    var totalRowHeight = $tableWrap.height() -
+                         $table.find('th:first').outerHeight();
     var numRows = Math.ceil(totalRowHeight / rowHeight);
 
-    dragObj.table.find('tr:gt(' + (topRowIndex) + ')').each(function(i, ele) {
+    $table.find('tr:gt(' + (topRowIndex) + ')').each(function(i, ele) {
         cloneHTML += cloneCellHelper(ele);
         if (i >= numRows + topRowIndex) {
             return (false);
@@ -405,9 +431,9 @@ function createTransparentDragDropCol() {
     // Ensure rows are offset correctly
     var fauxTableHeight = $fauxTable.height() +
                           $fauxTable.find('tr:first').outerHeight();
-    var $tableWrap = $('#xcTableWrap-' + dragObj.tableId);
-    var xcTableWrap0Height = $tableWrap.height();
-    var fauxColHeight = Math.min(fauxTableHeight, xcTableWrap0Height - 36);
+    
+    var xcTableWrapHeight = $tableWrap.height();
+    var fauxColHeight = Math.min(fauxTableHeight, xcTableWrapHeight - 36);
     dragObj.fauxCol.height(fauxColHeight);
     var firstRowOffset = $(topRowEl).offset().top - topPx - rowHeight;
     $fauxTable.css('margin-top', firstRowOffset);
@@ -425,7 +451,7 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
         // create targets that will trigger swapping of columns on hover
         var dropTargets = "";
         var i = 0;
-        dragObj.table.find('tr:first th').each(function() {
+        dragObj.$table.find('tr:first th').each(function() {
             if (i === 0 || i === dragObj.colIndex) {
                 i++;
                 return true;  
@@ -451,8 +477,8 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
             i++;
         });
         var scrollLeft = $('#mainFrame').scrollLeft();
-        // may have issues with table left if dragObj.table isn't correct
-        var tableLeft = dragObj.table[0].getBoundingClientRect().left +
+        // may have issues with table left if dragObj.$table isn't correct
+        var tableLeft = dragObj.$table[0].getBoundingClientRect().left +
             scrollLeft;
         $('body').append('<div id="dropTargets" style="' +
                 'margin-left:' + tableLeft + 'px;' +
@@ -466,7 +492,7 @@ function createDropTargets(dropTargetIndex, swappedColIndex) {
     } else {
         // targets have already been created, so just adjust the one
         // corresponding to the column that was swapped
-        var swappedCol = dragObj.table.find('th:eq(' + swappedColIndex + ')');
+        var swappedCol = dragObj.$table.find('th:eq(' + swappedColIndex + ')');
         colLeft = swappedCol.position().left;
         $('#dropTarget' + dropTargetIndex).attr('id',
                                                 'dropTarget' + swappedColIndex);
@@ -488,14 +514,14 @@ function dragdropSwapColumns(el) {
     var prevCol = dropTargetId + Math.abs(dropTargetId - dragObj.colIndex);
     var movedCol;
     if (dropTargetId > dragObj.colIndex) {
-        dragObj.table.find('tr').each(function() {
+        dragObj.$table.find('tr').each(function() {
             $(this).children(':eq(' + dropTargetId + ')').after(
                 $(this).children(':eq(' + nextCol + ')')
             );
         });
         movedCol = nextCol;
     } else {
-        dragObj.table.find('tr').each(function() {
+        dragObj.$table.find('tr').each(function() {
             $(this).children(':eq(' + dropTargetId + ')').before(
                 $(this).children(':eq(' + prevCol + ')')
             );
@@ -504,9 +530,9 @@ function dragdropSwapColumns(el) {
     }
 
     // XXX weird hack hide show or else .header won't reposition itself
-    dragObj.table.find('.header').css('height', '39px');
+    dragObj.$table.find('.header').css('height', '39px');
     setTimeout(function() {
-        dragObj.table.find('.header').css('height', '40px');
+        dragObj.$table.find('.header').css('height', '40px');
     }, 0);
     
     var left = dragObj.element.position().left;
@@ -2634,21 +2660,21 @@ function dragTableMouseDown(el, e) {
     var dragObj = gDragObj;
     gMouseStatus = "movingTable";
     dragObj.mouseX = e.pageX;
-    dragObj.table = el.closest('.xcTableWrap');
+    dragObj.$table = el.closest('.xcTableWrap');
     var $activeTables = $('.xcTableWrap:not(.inActive)');
-    var tableIndex = $activeTables.index(dragObj.table);
+    var tableIndex = $activeTables.index(dragObj.$table);
     dragObj.$activeTables = $activeTables;
     dragObj.tableIndex = tableIndex;
-    dragObj.tableId = xcHelper.parseTableId(dragObj.table);
+    dragObj.tableId = xcHelper.parseTableId(dragObj.$table);
     dragObj.originalIndex = dragObj.tableIndex;
     dragObj.mainFrame = $('#mainFrame');
-    var rect = dragObj.table[0].getBoundingClientRect();
+    var rect = dragObj.$table[0].getBoundingClientRect();
 
-    dragObj.offsetLeft = dragObj.table.offset().left;
-    dragObj.prevTable = dragObj.table.prev();
+    dragObj.offsetLeft = dragObj.$table.offset().left;
+    dragObj.prevTable = dragObj.$table.prev();
     dragObj.mouseOffset = dragObj.mouseX - rect.left;
     dragObj.docHeight = $(document).height();
-    dragObj.tableScrollTop = dragObj.table.scrollTop();
+    dragObj.tableScrollTop = dragObj.$table.scrollTop();
 
     var cursorStyle =
         '<style id="moveCursor" type="text/css">*' +
@@ -2660,13 +2686,13 @@ function dragTableMouseDown(el, e) {
     $(document.head).append(cursorStyle);
     createShadowTable();
     sizeTableForDragging();
-    dragObj.table.addClass('tableDragging');
-    dragObj.table.css('left', dragObj.offsetLeft + 'px');
+    dragObj.$table.addClass('tableDragging');
+    dragObj.$table.css('left', dragObj.offsetLeft + 'px');
     dragObj.windowWidth = $(window).width();
     dragObj.pageX = e.pageX;
-    dragObj.table.scrollTop(dragObj.tableScrollTop);
-    dragObj.table.find('.idSpan').css('left', 0);
-    dragObj.table.find('th.rowNumHead .header').css('left', 0);
+    dragObj.$table.scrollTop(dragObj.tableScrollTop);
+    dragObj.$table.find('.idSpan').css('left', 0);
+    dragObj.$table.find('th.rowNumHead .header').css('left', 0);
     createTableDropTargets();
     dragdropMoveMainFrame(dragObj, 50);
     disableTextSelection();
@@ -2675,7 +2701,7 @@ function dragTableMouseDown(el, e) {
 function dragTableMouseMove(e) {
     var dragObj = gDragObj;
     var left =  e.pageX - dragObj.mouseOffset;
-    dragObj.table.css('left', left + 'px');
+    dragObj.$table.css('left', left + 'px');
     dragObj.pageX = e.pageX;
 }
 
@@ -2683,13 +2709,13 @@ function dragTableMouseUp() {
     var dragObj = gDragObj;
 
     gMouseStatus = null;
-    dragObj.table.removeClass('tableDragging').css({
+    dragObj.$table.removeClass('tableDragging').css({
         'left'  : '0px',
         'height': '100%'
     });
     $('#shadowTable, #moveCursor, #dropTargets').remove();
     $('#mainFrame').off('scroll', mainFrameScrollTableTargets);
-    dragObj.table.scrollTop(dragObj.tableScrollTop);
+    dragObj.$table.scrollTop(dragObj.tableScrollTop);
     gActiveTableId = dragObj.tableId;
     reenableTextSelection();
 
@@ -2706,9 +2732,9 @@ function dragTableMouseUp() {
 function createShadowTable() {
     // var rect = gDragObj.table[0].getBoundingClientRect();
     var $mainFrame = $('#mainFrame');
-    var width = gDragObj.table.children().width();
-    var tableHeight = gDragObj.table.find('.xcTheadWrap').height() +
-                      gDragObj.table.find('.xcTbodyWrap').height();
+    var width = gDragObj.$table.children().width();
+    var tableHeight = gDragObj.$table.find('.xcTheadWrap').height() +
+                      gDragObj.$table.find('.xcTbodyWrap').height();
     var mainFrameHeight = $mainFrame.height();
     if ($mainFrame[0].scrollWidth > $mainFrame.width()) {
         mainFrameHeight -= 11;
@@ -2733,7 +2759,7 @@ function createTableDropTargets() {
     var tableLeft;
     var $mainFrame = gDragObj.mainFrame;
     var dropTargets = "";
-    var tableWidth = gDragObj.table.width();
+    var tableWidth = gDragObj.$table.width();
 
     gDragObj.$activeTables.each(function(i) {
         if (i === gDragObj.tableIndex) {
@@ -2790,13 +2816,13 @@ function dragdropSwapTables(el) {
 
     if (dropTargetIndex > gDragObj.tableIndex) {
         $table.after($('#shadowTable'));
-        $table.after(gDragObj.table);
+        $table.after(gDragObj.$table);
     } else {
         $table.before($('#shadowTable'));
-        $table.before(gDragObj.table);
+        $table.before(gDragObj.$table);
     }
 
-    gDragObj.table.scrollTop(gDragObj.tableScrollTop);
+    gDragObj.$table.scrollTop(gDragObj.tableScrollTop);
     
     var oldIndex = gDragObj.tableIndex;
     gDragObj.tableIndex = dropTargetIndex;
@@ -2805,7 +2831,7 @@ function dragdropSwapTables(el) {
 
 function sizeTableForDragging() {
     var tableHeight = $('#shadowTable').height();
-    gDragObj.table.height(tableHeight);
+    gDragObj.$table.height(tableHeight);
 }
 
 function reorderAfterTableDrop(tableId, srcIndex, desIndex) {
