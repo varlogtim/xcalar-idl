@@ -490,7 +490,7 @@ window.WSManager = (function($, WSManager) {
                         continue;
                     }
                     var $table = $('#xcTable-' + tbl);
-                    matchHeaderSizes(null, $("#xcTable-" + tbl));
+                    matchHeaderSizes($("#xcTable-" + tbl));
                 }
             }
         } else {
@@ -506,7 +506,7 @@ window.WSManager = (function($, WSManager) {
                     continue;
                 }
                 var $table = $('#xcTable-' + tbl);
-                matchHeaderSizes(null, $table);
+                matchHeaderSizes($table);
                 $table.find('.rowGrab').width($table.width());
                 // update table focus and horizontal scrollbar
                 if (!isFocus) {

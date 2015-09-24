@@ -74,6 +74,7 @@
     }
     .header {
         border-left: none !important;
+        border-right: none !important;
     }
     &.selectedCol {
         .header .flexContainer{
@@ -298,7 +299,7 @@
     .xcTheadWrap {
         .position(relative, @left: 0%);
         top: 0px !important;
-        .size(@width: ~"calc(100% - 5px)");
+        width: ~"calc(100% - 5px)" !important;
         pointer-events: none;
         z-index: 9;
         display: inline-block;
@@ -414,6 +415,22 @@
             content: "";
             display: block;
             .transition(background-color 0.2s);
+        }
+
+        .hidden {
+            &.editableHead {
+                padding-left: 6px;
+            }
+
+            &.addedBarTextWrap {
+                padding-left: 10px;
+            }
+            &.elementText {
+                padding-left: 15px;
+            }
+        }
+        .dataCol input.hidden {
+            padding-left: 10px;
         }
 
         td.modalHighlighted {
@@ -778,6 +795,7 @@ html.microsoft {
         .position(absolute, @top: 35px);
         .dataTableHeader;
         z-index: 2;
+        width: inherit;
 
         > input {
             .gray-gradient;

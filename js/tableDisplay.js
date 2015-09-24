@@ -518,7 +518,7 @@ function pullRowsBulk(tableId, jsonObj, startIndex, dataIndex, direction,
     var padding = 12;
     $table.find('th:first-child').width(newWidth + padding);
     var colNum = 0;
-    matchHeaderSizes(colNum, $table);
+    matchHeaderSizes($table);
     $table.find('.rowGrab').width($table.width());
 }
 

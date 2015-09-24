@@ -66,7 +66,6 @@ function gRescolMouseDown(el, event, options) {
     rescol.newWidth = rescol.startWidth;
     rescol.table = $table;
     rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
-    rescol.headerDiv = el.parent(); // the .header div
     
     rescol.tempCellMinWidth = rescol.cellMinWidth - 5;
     rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
@@ -87,10 +86,7 @@ function gRescolMouseMove(event) {
         newWidth = rescol.tempCellMinWidth;
     }
     rescol.grabbedCell.outerWidth(newWidth);
-    rescol.headerDiv.outerWidth(newWidth);
     rescol.newWidth = newWidth;
-    var tableWidth = rescol.table.width();
-    rescol.tableHead.width(tableWidth);
     moveTableTitles();
     if (gRescol.isDatastore) {
         rescol.$tableWrap.width(rescol.$worksheetTable.width());
@@ -290,8 +286,7 @@ function dragdropMouseUp() {
                         parseInt(dragObj.fauxCol.css('margin-left'));
         var currentLeft = parseInt(dragObj.fauxCol.css('left'));
         var slideDistance = Math.max(2, Math.abs(slideLeft - currentLeft));
-        var slideDuration = Math.log(slideDistance * slideDistance) * 30;
-        $('#fnBar').val(currentLeft + " " + slideLeft + " " + slideDuration);
+        var slideDuration = Math.log(slideDistance * 4) * 90 - 200;
         dragObj.fauxCol.animate({left: slideLeft}, slideDuration, "linear", 
             function() {
                 $('#shadowDiv, #fauxCol').remove();
@@ -348,9 +343,7 @@ function cloneCellHelper(obj) {
         trClass = 'changedHeight';
     }
     var td = $(obj).children();
-    // var row = $("<tr></tr>");
 
-    // var rowColor = $(obj).css('background-color');
     var clone = td.eq(dragObj.colIndex).clone();
     var cloneHeight = td.eq(dragObj.colIndex).outerHeight();
     var cloneColor = td.eq(dragObj.colIndex).css('background-color');
@@ -385,7 +378,7 @@ function createTransparentDragDropCol(pageX) {
     // turn this into binary search later
     var topPx = $table.find('.header').offset().top - rowHeight;
     var topRowIndex = -1;
-    // var topRowTd = null;
+
     $table.find('tbody tr').each(function() {
         if ($(this).offset().top > topPx) {
             topRowIndex = $(this).index();
@@ -575,7 +568,6 @@ function autosizeCol(el, options) {
     var table = xcHelper.getTableFromId(tableId);
 
     var includeHeader = options.includeHeader || false;
-    // var resizeFirstRow = options.resizeFirstRow || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 10);
 
     
@@ -601,7 +593,7 @@ function autosizeCol(el, options) {
         $("#dataSetTableWrap").width($('#worksheetTable').width());
     }
     if (!options.multipleCols) {
-        matchHeaderSizes(index, $table);
+        matchHeaderSizes($table);
     }
 }
 
@@ -892,8 +884,7 @@ function createTableHeader(tableId) {
 
     var $table = $('#xcTable-' + tableId);
     $table.width(0);
-    var matchAllHeaders = true;
-    matchHeaderSizes(null, $table, matchAllHeaders);
+    matchHeaderSizes($table);
 }
 
 function addTableMenuActions($tableMenu) {
@@ -1304,39 +1295,14 @@ function updateTableHeader(tableId, $tHead, isFocus) {
     }
 }
 
-function matchHeaderSizes(colNum, $table, matchAllHeaders, options) {
+function matchHeaderSizes($table) {
     // concurrent build table may make some $table be []
     if ($table.length === 0) {
         return;
     }
 
-    options = options || {};
-
-    var $header;
-    var headerWidth;
-
-    if (matchAllHeaders) {
-        var numCols = $table.find('th').length;
-        var $theadRow = $table.find('thead tr');
-        var start = options.start || 0;
-        var end = (options.end + 1) || numCols;
-        for (var i = start; i < end; i++) {
-            $header = $theadRow.find('th.col' + i);
-            headerWidth = $header.outerWidth();
-            $header.children().outerWidth(headerWidth);
-        }
-    } else {
-        $header = $table.find('th.col' + colNum);
-        headerWidth = $header.outerWidth();
-        $header.children().outerWidth(headerWidth);
-    }
-
     var tableId = xcHelper.parseTableId($table);
     var tableWidth = $table.width();
-    var $theadWrap = $('#xcTheadWrap-' + tableId);
-    if ($theadWrap) {
-        $theadWrap.width(tableWidth);
-    }
 
     moveTableDropdownBoxes();
     moveTableTitles();
@@ -2487,7 +2453,6 @@ function addTableListeners(tableId) {
     var $xcTableWrap = $('#xcTableWrap-' + tableId);
 
     $xcTableWrap.mousedown(function() {
-        // var tableId = xcHelper.parseTableId($(this));
         if (gActiveTableId === tableId) {
             return;
         } else {
@@ -2583,6 +2548,42 @@ function moveTableTitles() {
             }
         }
     });
+}
+
+function moveTableTitlesAnimated(tableId, oldWidth, widthChange) {
+    if (isBrowserMicrosoft) {
+        return;
+    }
+    var viewWidth = $('#mainFrame').width();
+    var $table = $('#xcTableWrap-' + tableId);
+    var $thead = $table.find('.xcTheadWrap');
+    var rect = $thead[0].getBoundingClientRect();
+    var right = rect.right - widthChange; 
+    if (right > 0 && rect.left < viewWidth) {
+        var $tableTitle = $table.find('.tableTitle .text');
+        var titleWidth = $tableTitle.outerWidth();
+        var tableWidth = oldWidth - widthChange - 5;
+        var center;
+        if (rect.left < 0) {
+            // left side of table is offscreen to the left
+            if (right > viewWidth) { // table spans the whole screen
+                center = -rect.left + ((viewWidth - titleWidth) / 2);
+            } else { // right side of table is visible
+                center = tableWidth - ((right + titleWidth) / 2);
+                center = Math.min(center, tableWidth - titleWidth - 6);
+            }
+        } else { // the left side of the table is visible
+            if (right < viewWidth) {
+                // the right side of the table is visible
+                center = (tableWidth - titleWidth) / 2;
+            } else { // the right side of the table isn't visible
+                center = (viewWidth - rect.left - titleWidth) / 2;
+                center = Math.max(10, center);
+            }
+        }
+        center = Math.floor(center);
+        $tableTitle.animate({left: center}, 250, "linear");
+    }
 }
 
 function focusTable(tableId) {
@@ -2730,7 +2731,6 @@ function dragTableMouseUp() {
 }
 
 function createShadowTable() {
-    // var rect = gDragObj.table[0].getBoundingClientRect();
     var $mainFrame = $('#mainFrame');
     var width = gDragObj.$table.children().width();
     var tableHeight = gDragObj.$table.find('.xcTheadWrap').height() +
@@ -3238,7 +3238,6 @@ window.RowScroller = (function($, RowScroller) {
         gResrow.mouseStart = event.pageX;
         gResrow.scrollAreaOffset = el.parent().offset().left;
         gResrow.rowScrollerWidth = el.parent().width();
-        // var scrollerPositionStart = el.position().left;
         var mouseOffset = gResrow.mouseStart - el.offset().left;
         var cssLeft = parseInt(el.css('left'));
         gResrow.totalOffset = mouseOffset + cssLeft;

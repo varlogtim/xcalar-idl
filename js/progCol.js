@@ -166,7 +166,7 @@ window.ColManager = (function($, ColManager) {
 
         updateTableHeader(tableId);
         RightSideBar.updateTableInfo(tableId);
-        matchHeaderSizes(newColid, $table);
+        matchHeaderSizes($table);
         $table.find('.rowGrab').width($table.width());
     };
 
@@ -197,7 +197,7 @@ window.ColManager = (function($, ColManager) {
                   .addClass('col' + i);
         }
             
-        matchHeaderSizes(null, $table, true);
+        matchHeaderSizes($table);
         xcHelper.removeSelectionRange();
 
          // add SQL
@@ -629,43 +629,61 @@ window.ColManager = (function($, ColManager) {
         var $table   = $('#xcTable-' + tableId);
         var numCols  = colNums.length;
         var table    = gTables[tableId];
+        var tableCols = table.tableCols;
         var colNames = [];
+        var widthDiff = 0;
+        var tableWidth = $table.width();
+        var $theadWrap = $('#xcTheadWrap-' + tableId);
+        var tdSelectors = "";
+        var $ths = $();
+        
+        for (var i = 0; i < numCols; i++) { 
+            var colNum = colNums[i];
+            // thSelectors += ".th.col" + colNum + ",";
+            tdSelectors += "td.col" + colNum + ",";
+            var col = tableCols[colNum - 1];
+            var $th = $table.find('th.col' + colNum);
+            $ths = $ths.add($th);
+            var $thWidth = $th.width() + 5;
+            var originalColWidth = $thWidth;
 
-        for (var i = 0; i < numCols; i++) {
-            var colNum   = colNums[i];
-            var $th      = $table.find(".th.col" + colNum);
-            var $thInput = $th.find("input");
-            var $cols    = $table.find(".col" + colNum);
-
-            $th.width(10);
-            // data column should have more padding
-            // and class for tbody is different
-            if ($thInput.hasClass("dataCol")) {
-                // the padding pixel may be chosen again
-                $thInput.css("padding-left", "10px");
-                $cols.find(".elementText").css("padding-left", "15px");
-            } else {
-                $thInput.css("padding-left", "6px");
-                $cols.find(".addedBarText").css("padding-left", "10px");
-            }
-
-            $table.find("td.col" + colNum).width(10);
-
-            var curCol = table.tableCols[colNum - 1];
-            curCol.isHidden = true;
-            colNames.push(curCol.name);
+            widthDiff += (originalColWidth - 15);
+            console.log(originalColWidth, originalColWidth-15 )
+            col.isHidden = true;
+            colNames.push(col.name);
         }
 
-        if (numCols > 1) {
-            var matchOptions = {
-                "start": colNums[0],
-                "end"  : colNums[numCols - 1]
-            };
-            matchHeaderSizes(null, $table, true, matchOptions);
-            xcHelper.removeSelectionRange();
+        tdSelectors = tdSelectors.slice(0, tdSelectors.length - 1);
+        var $thInput = $ths.find("input");
+        var $tds = $table.find(tdSelectors);
+        console.log($ths)
+
+        if (!gMinModeOn) {
+            $ths.animate({width: 15}, 250, "linear", function() {
+                $thInput.addClass("hidden");
+                $tds.find(".addedBarTextWrap").addClass("hidden");
+                var $jsonTds = $table.find('.jsonElement');
+                if ($jsonTds.outerWidth() === 15) {
+                    $jsonTds.find(".elementText").addClass("hidden");
+                    $table.find('th.dataCol input').addClass("hidden");
+                }
+            });
+            
+            moveTableTitlesAnimated(tableId, tableWidth, widthDiff);
         } else {
-            matchHeaderSizes(colNums[0], $table);
+            $ths.width(10);
+            $thInput.addClass("hidden");
+            $tds.find(".addedBarTextWrap").addClass("hidden");
+            var $jsonTds = $table.find('.jsonElement');
+            if ($jsonTds.outerWidth() === 15) {
+                $jsonTds.find(".elementText").addClass("hidden");
+                $table.find('th.dataCol input').addClass("hidden");
+            }
+            matchHeaderSizes($table);
+            moveTableTitles();
         }
+
+        xcHelper.removeSelectionRange();
 
         SQL.add("Hide Columns", {
             "operation": SQLOps.HideCols,
@@ -678,44 +696,60 @@ window.ColManager = (function($, ColManager) {
 
     ColManager.unhideCols = function(colNums, tableId, hideOptions) {
         var $table     = $('#xcTable-' + tableId);
+        var tableWidth = $table.width();
         var table      = gTables[tableId];
+        var tableCols = table.tableCols;
         var numCols    = colNums.length;
         var colNames   = [];
         var autoResize = hideOptions && hideOptions.autoResize;
+        var widthDiff = 0;
+        var thSelectors = "";
+        var tdSelectors = "";
+        var promises = [];
+        for (var i = 0; i < numCols; i++) { 
+            var colNum = colNums[i];
+            var $th = $table.find(".th.col" + colNum);
 
-        for (var i = 0; i < numCols; i++) {
-            var colNum   = colNums[i];
-            var $th      = $table.find(".th.col" + colNum);
-            var $thInput = $th.find("input");
-            var $cols    = $table.find(".col" + colNum);
-            var curCol   = table.tableCols[colNum - 1];
+            var col = tableCols[colNum - 1];
+            var originalColWidth = col.width;
+            widthDiff += (originalColWidth - 15);
+            col.isHidden = false;
+            colNames.push(col.name);
 
             if (autoResize) {
-                $th.outerWidth(curCol.width);
+                if (!gMinModeOn) {
+                    promises.push(jQuery.Deferred());
+                    var count = 0;
+                    $th.animate({width:col.width}, 250, "linear", function() {
+                        promises[count].resolve();
+                        count++;
+                    });
+                } else {
+                    $th.css("width", col.width);
+                }  
             }
 
-            if ($thInput.hasClass("dataCol")) {
-                $cols.find(".elementText").css("padding-left", "0px");
+            if ($th.hasClass("dataCol")) {
+                var $jsonTds = $table.find('.jsonElement');
+                $jsonTds.find(".elementText").removeClass("hidden");
+                $table.find('th.dataCol input').removeClass("hidden");
             } else {
-                $cols.find(".addedBarText").css("padding-left", "0px");
+                $table.find(".col" + colNum).find(".addedBarTextWrap")
+                                              .removeClass("hidden");
             }
 
-            $thInput.css("padding-left", "4px");
-            curCol.isHidden = false;
-            colNames.push(curCol.name);
+            $th.find('input').removeClass("hidden");
         }
 
         if (autoResize) {
-            if (numCols > 1) {
-                var matchOptions = {
-                    "start": colNums[0],
-                    "end"  : colNums[numCols - 1]
-                };
-                matchHeaderSizes(null, $table, true, matchOptions);
-                xcHelper.removeSelectionRange();
+            if (!gMinModeOn) {
+                jQuery.when.apply($, promises).done(function() {
+                    matchHeaderSizes($table);
+                });
+                moveTableTitlesAnimated(tableId, tableWidth, -widthDiff);
             } else {
-                matchHeaderSizes(colNums[0], $table);
-            }
+                matchHeaderSizes($table);
+            } 
         }
 
         SQL.add("Unhide Columns", {
@@ -1215,7 +1249,7 @@ window.ColManager = (function($, ColManager) {
             }
 
             var $table = $('#xcTable-' + tableId);
-            matchHeaderSizes(colNum, $table);
+            matchHeaderSizes($table);
         } else {
             removeColHelper(colId - 1, tableId);
         }
