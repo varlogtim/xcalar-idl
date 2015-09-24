@@ -52,7 +52,7 @@ function gRescolMouseDown(el, event, options) {
         rescol.isDatastore = true;
         rescol.$tableWrap = $('#dataSetTableWrap');
         rescol.$worksheetTable = $('#worksheetTable');
-    } else if (el.parent().width() === 10) {
+    } else if (el.closest('th').hasClass("userHidden")) {
         // This is a hidden column! we need to unhide it
         // return;
         ColManager.unhideCols([colNum], rescol.tableId, {"autoResize": false});
@@ -67,7 +67,7 @@ function gRescolMouseDown(el, event, options) {
     rescol.table = $table;
     rescol.tableHead = el.closest('.xcTableWrap').find('.xcTheadWrap');
     
-    rescol.tempCellMinWidth = rescol.cellMinWidth - 5;
+    rescol.tempCellMinWidth = rescol.cellMinWidth;
     rescol.leftDragMax = rescol.tempCellMinWidth - rescol.startWidth;
 
     disableTextSelection();
@@ -102,7 +102,15 @@ function gRescolMouseUp() {
     if (!gRescol.isDatastore) {
         var table = xcHelper.getTableFromId(gRescol.tableId);
         var progCol = table.tableCols[gRescol.index - 1];
-        progCol.width = gRescol.grabbedCell.outerWidth();
+        
+        if (rescol.newWidth === 15) {
+            rescol.table
+                  .find('th.col' + rescol.index + ',td.col' + rescol.index)
+                  .addClass("userHidden");
+            progCol.isHidden = true;
+        } else {
+            progCol.width = gRescol.grabbedCell.outerWidth();
+        }
         if (rescol.newWidth - 1 > rescol.startWidth ||
             rescol.newWidth + 1 < rescol.startWidth) {
             // set autoresize to header only if column moved at least 2 pixels
@@ -568,7 +576,7 @@ function autosizeCol(el, options) {
     var table = xcHelper.getTableFromId(tableId);
 
     var includeHeader = options.includeHeader || false;
-    var minWidth = options.minWidth || (gRescol.cellMinWidth - 10);
+    var minWidth = options.minWidth || (gRescol.cellMinWidth - 5);
 
     
     var widestTdWidth = getWidestTdWidth(el, {
@@ -1439,7 +1447,7 @@ function addColListeners($table, tableId) {
             options.classes.indexOf('type') === -1) {
             options.classes += " type-newColumn";
         }
-        if ($th.width() === 10) {
+        if ($th.hasClass("userHidden")) {
             // column is hidden
             options.classes += " type-hidden";
         }
@@ -1456,7 +1464,7 @@ function addColListeners($table, tableId) {
             $('th.selectedCell').each(function() {
                 tempColNum = xcHelper.parseColNum($(this));
                 options.multipleColNums.push(tempColNum);
-                if (!hiddenDetected && $(this).width() === 10) {
+                if (!hiddenDetected && $(this).hasClass("userHidden")) {
                     options.classes += " type-hidden";
                 }
             });

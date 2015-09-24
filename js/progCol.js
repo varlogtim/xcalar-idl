@@ -99,6 +99,7 @@ window.ColManager = (function($, ColManager) {
             columnClass = "";
         }
 
+
         if (select) {
             color = " selectedCell";
             $('.selectedCell').removeClass('selectedCell');
@@ -116,7 +117,8 @@ window.ColManager = (function($, ColManager) {
                 "name"    : name,
                 "width"   : width,
                 "userStr" : '"' + name + '" = ',
-                "isNewCol": isNewCol
+                "isNewCol": isNewCol,
+                "isHidden": options.isHidden
             });
 
             insertColHelper(newColid - 1, tableId, newProgCol);
@@ -130,7 +132,8 @@ window.ColManager = (function($, ColManager) {
         // insert new th column
         options = {
             "name" : name,
-            "width": width
+            "width": width,
+            "isHidden": options.isHidden
         };
         var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
                                                     newColid, options);
@@ -546,11 +549,11 @@ window.ColManager = (function($, ColManager) {
 
         var $table = $("#xcTable-" + tableId);
         var table  = gTables[tableId];
+        var tableCols = table.tableCols;
 
-        var width    = $table.find('th.col' + colNum).outerWidth();
+        var width    = tableCols[colNum - 1].width;
         var isNewCol = $table.find('th.col' + colNum).hasClass('unusedCell');
 
-        var tableCols = table.tableCols;
         var name;
         if (tableCols[colNum - 1].func.args) {
             name = tableCols[colNum - 1].func.args[0];
@@ -562,7 +565,8 @@ window.ColManager = (function($, ColManager) {
 
         ColManager.addCol(colNum, tableId, name, {
             "width"   : width,
-            "isNewCol": isNewCol
+            "isNewCol": isNewCol,
+            "isHidden": tableCols[colNum - 1].isHidden
         });
         // add sql
         SQL.add("Duplicate Column", {
@@ -639,7 +643,6 @@ window.ColManager = (function($, ColManager) {
         
         for (var i = 0; i < numCols; i++) { 
             var colNum = colNums[i];
-            // thSelectors += ".th.col" + colNum + ",";
             tdSelectors += "td.col" + colNum + ",";
             var col = tableCols[colNum - 1];
             var $th = $table.find('th.col' + colNum);
@@ -648,7 +651,6 @@ window.ColManager = (function($, ColManager) {
             var originalColWidth = $thWidth;
 
             widthDiff += (originalColWidth - 15);
-            console.log(originalColWidth, originalColWidth-15 )
             col.isHidden = true;
             colNames.push(col.name);
         }
@@ -656,29 +658,18 @@ window.ColManager = (function($, ColManager) {
         tdSelectors = tdSelectors.slice(0, tdSelectors.length - 1);
         var $thInput = $ths.find("input");
         var $tds = $table.find(tdSelectors);
-        console.log($ths)
 
         if (!gMinModeOn) {
             $ths.animate({width: 15}, 250, "linear", function() {
-                $thInput.addClass("hidden");
-                $tds.find(".addedBarTextWrap").addClass("hidden");
-                var $jsonTds = $table.find('.jsonElement');
-                if ($jsonTds.outerWidth() === 15) {
-                    $jsonTds.find(".elementText").addClass("hidden");
-                    $table.find('th.dataCol input').addClass("hidden");
-                }
+                $ths.addClass("userHidden");
+                $tds.addClass("userHidden");
             });
             
             moveTableTitlesAnimated(tableId, tableWidth, widthDiff);
         } else {
             $ths.width(10);
-            $thInput.addClass("hidden");
-            $tds.find(".addedBarTextWrap").addClass("hidden");
-            var $jsonTds = $table.find('.jsonElement');
-            if ($jsonTds.outerWidth() === 15) {
-                $jsonTds.find(".elementText").addClass("hidden");
-                $table.find('th.dataCol input').addClass("hidden");
-            }
+            $ths.addClass("userHidden");
+            $tds.addClass("userHidden");
             matchHeaderSizes($table);
             moveTableTitles();
         }
@@ -728,17 +719,8 @@ window.ColManager = (function($, ColManager) {
                     $th.css("width", col.width);
                 }  
             }
-
-            if ($th.hasClass("dataCol")) {
-                var $jsonTds = $table.find('.jsonElement');
-                $jsonTds.find(".elementText").removeClass("hidden");
-                $table.find('th.dataCol input').removeClass("hidden");
-            } else {
-                $table.find(".col" + colNum).find(".addedBarTextWrap")
-                                              .removeClass("hidden");
-            }
-
-            $th.find('input').removeClass("hidden");
+            $table.find("th.col" + colNum + ",td.col" + colNum)
+                  .removeClass("userHidden");
         }
 
         if (autoResize) {
@@ -1022,6 +1004,10 @@ window.ColManager = (function($, ColManager) {
             if (tableCols[i].name === "recordNum") {
                 $header.addClass('recordNum');
             }
+            
+            if (tableCols[i].isHidden) {
+                $table.find('td.col' + (i + 1)).addClass('userHidden');
+            }
             if (childArrayVals[i]) {
                 $header.addClass('childOfArray');
             }
@@ -1042,9 +1028,9 @@ window.ColManager = (function($, ColManager) {
                 return;
             }
         }
-
-        var $table   = $("#xcTable-" + tableId);
-        var $dataCol = $table.find("tr:first th").filter(function() {
+        var tableCols = gTables[tableId].tableCols;
+        var $table    = $("#xcTable-" + tableId);
+        var $dataCol  = $table.find("tr:first th").filter(function() {
             return $(this).find("input").val() === "DATA";
         });
 
@@ -1094,10 +1080,9 @@ window.ColManager = (function($, ColManager) {
             columnType = xcHelper.parseColType(value, columnType);
 
             value = xcHelper.parseJsonValue(value);
-
             $table.find('.row' + i + ' .col' + newColid)
-                    .html(getTableCellHtml(value))
-                    .addClass('clickable');
+                  .html(getTableCellHtml(value))
+                  .addClass('clickable');
         }
 
         if (columnType == null) {
@@ -1132,6 +1117,9 @@ window.ColManager = (function($, ColManager) {
         }
 
         $table.find('th.col' + newColid).removeClass('newColumn');
+        if (tableCols[newColid - 1].isHidden) {
+            $table.find('td.col' + newColid).addClass('userHidden');
+        }
     }
 
     function delDupColHelper(colNum, tableId, forwardCheck) {

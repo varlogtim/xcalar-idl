@@ -522,6 +522,7 @@ function pullRowsBulk(tableId, jsonObj, startIndex, dataIndex, direction,
     $table.find('.rowGrab').width($table.width());
 }
 
+// creates thead and cells but not the body of the table
 function generateTableShell(columns, tableId) {
     var table = gTables[tableId];
     var activeWS = WSManager.getActiveWS();
@@ -587,13 +588,15 @@ function generateTableShell(columns, tableId) {
             dataIndex = i;
             var newColid = i + 1;
             var width;
+            var thClass = "";
             if (columns[i].isHidden) {
                 width = 15;
+                thClass = " userHidden";
             } else {
                 width = columns[i].width;
             }
             newTable +=
-                '<th class="col' + newColid + ' th dataCol" ' +
+                '<th class="col' + newColid + ' th dataCol' + thClass + '" ' +
                     'style="width:' + width + 'px;">' +
                     '<div class="header type-data">' +
                         '<div class="dragArea"></div>' +
@@ -631,6 +634,7 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
     var width      = option.width || 0;
     if (option.isHidden) {
         width = 15;
+        columnClass += " userHidden";
     }
 
     var tooltip = columnClass.indexOf("indexedColumn") < 0 ? "" :

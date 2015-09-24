@@ -417,20 +417,22 @@
             .transition(background-color 0.2s);
         }
 
-        .hidden {
-            &.editableHead {
+        .userHidden {
+            .editableHead {
                 padding-left: 6px;
             }
 
-            &.addedBarTextWrap {
+            .addedBarTextWrap {
                 padding-left: 10px;
             }
-            &.elementText {
+            .elementText {
                 padding-left: 15px;
             }
-        }
-        .dataCol input.hidden {
-            padding-left: 10px;
+            &.dataCol {
+                input {
+                    padding-left: 10px;
+                }
+            }
         }
 
         td.modalHighlighted {

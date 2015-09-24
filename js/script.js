@@ -13,14 +13,10 @@ var gMouseStatus = null;
 var gDragObj = {};
 var gRescol = {
     "minCellHeight"  : 30,
-    "cellMinWidth"   : 20,
-    "first"          : true,
+    "cellMinWidth"   : 15,
     "clicks"         : 0,
     "delay"          : 500,
-    "timer"          : null,
-    "lastCellGrabbed": false,
-    "minNumRows"     : 60,
-    "maxNumRows"     : 80
+    "timer"          : null
 };
 var gResrow = {};
 var gMinTableWidth = 30;
