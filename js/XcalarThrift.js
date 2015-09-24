@@ -50,11 +50,19 @@ function thriftLog(title, errRes) {
     console.error(msg);
 
     if (status === StatusT.StatusConnReset) {
-        // The shit has hit the fan
+        // This is bad, connection was lost so UI cannot do anything
+        // LOCK THE SCREEN
         var alertError = {"error": 'Connection could not be established.'};
         var options    = {"lockScreen": true};
 
         Alert.error("Connection error", alertError, options);
+    } else if (status === StatusT.StatusNoMem) {
+        // This is bad, out of memory so UI cannot do anything
+        // LOCK THE SCREEN
+        var alertError = {"error": 'Out of Memory.'};
+        var options    = {"lockScreen": true};
+
+        Alert.error("Error", alertError, options);
     }
 
     return (thriftError);
