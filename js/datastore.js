@@ -613,10 +613,6 @@ window.GridView = (function($, GridView) {
                 return;
             }
 
-            $("#importDataView").hide();
-            $('#datasetWrap').removeClass("inactive");
-            $explorePanel.find(".contentViewMid").removeClass('hidden');
-
             // when switch to a ds, should clear others' ref count first!!
             if ($grid.find('.waitingIcon').length !== 0) {
                 var loading = true;
@@ -626,6 +622,9 @@ window.GridView = (function($, GridView) {
                     return (releaseDatasetPointer());
                 })
                 .then(function() {
+                    $("#importDataView").hide();
+                    $('#datasetWrap').removeClass("inactive");
+                    $explorePanel.find(".contentViewMid").removeClass('hidden');
                     return ( DataSampleTable.show($grid.data("dsid"), loading));
                 });
 
@@ -636,7 +635,10 @@ window.GridView = (function($, GridView) {
             .then(function() {
                 return (releaseDatasetPointer());
             })
-            .then(function() {
+            .then(function() {   
+                $("#importDataView").hide();
+                $('#datasetWrap').removeClass("inactive");
+                $explorePanel.find(".contentViewMid").removeClass('hidden');
                 return (DataSampleTable.show($grid.data("dsid")));
             })
             .then(function() {
@@ -2115,8 +2117,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
         // only show select all and clear all option when table can be disablyed
         var $dsColsBtn = $("#dsColsBtn");
 
-        // update date part of the table info first to make UI smooth
-        updateTableInfo(dsObj);
+        // // update date part of the table info first to make UI smooth
+        var partialUpdate = true;
+        updateTableInfo(dsObj, partialUpdate);
 
         if (isLoading) {
             var animatedDots =
@@ -2228,13 +2231,12 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $('#datasetWrap').height(tableHeight + scrollBarPadding);
     };
 
-    function updateTableInfo(dsObj) {
+    function updateTableInfo(dsObj, partial) {
         var dsName = dsObj.name;
         var format = dsObj.attrs.format;
         var path = dsObj.attrs.path || 'N/A';
         var numEntries = dsObj.attrs.numEntries || 'N/A';
 
-        $("#schema-title").text(dsName);
         $("#dsInfo-title").text(dsName);
         // XXX these info should be changed after better backend support
         $("#dsInfo-author").text(WKBKManager.getUser());
@@ -2247,13 +2249,18 @@ window.DataSampleTable = (function($, DataSampleTable) {
             $("#dsInfo-size").text(fileSize);
         });
 
-        $("#dsInfo-path").text(path);
-
         if (typeof numEntries === "number") {
             numEntries = Number(numEntries).toLocaleString('en');
         }
-        $("#dsInfo-records").text(numEntries);
 
+        // if we're preloading  the info (partial), we do not want to show "N/A"
+        if (numEntries !== "N/A" || !partial) {
+            $("#dsInfo-records").text(numEntries);
+        }
+        if (path !== "N/A" || !partial) {
+            $("#dsInfo-path").text(path);
+        }
+        
         if (format) {
             $("#schema-format").text(format);
         }
