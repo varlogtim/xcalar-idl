@@ -2751,7 +2751,10 @@ window.DS = (function ($, DS) {
             $('#datasetWrap').removeClass('inactive');
             DS.refresh();
             if ($grid.hasClass('active')) {
-                $grid.click();
+                $('#dataSetTableWrap').fadeOut(200, function() {
+                    $grid.click();
+                    $(this).fadeIn();
+                });
             }
 
             commitToStorage();
