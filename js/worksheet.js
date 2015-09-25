@@ -608,9 +608,10 @@ window.WSManager = (function($, WSManager) {
         if (len === 0) {
             newWorksheet();
         } else {
+            var noAnimation = true;
             for (var i = 0; i < len; i++) {
                 if (worksheets[i] != null) {
-                    makeWorksheet(i);
+                    makeWorksheet(i, noAnimation);
                 }
             }
         }
@@ -712,8 +713,14 @@ window.WSManager = (function($, WSManager) {
     }
 
     // Make a worksheet
-    function makeWorksheet(wsIndex) {
-        $workSheetTabSection.append(getWSTabHTML(wsIndex));
+    function makeWorksheet(wsIndex, noAnimation) {
+        var $tab = $(getWSTabHTML(wsIndex));
+
+        if (noAnimation) {
+            $tab.appendTo($workSheetTabSection);
+        } else {
+            $tab.hide().appendTo($workSheetTabSection).slideDown(180);
+        }
     }
 
     // Rename a worksheet
@@ -762,17 +769,22 @@ window.WSManager = (function($, WSManager) {
         delete wsNameLookUp[worksheets[wsIndex].name];
         worksheets[wsIndex] = null;
 
-        $("#worksheetTab-" + wsIndex).remove();
-        commitToStorage();
-        // switch to another worksheet
-        if (activeWorsheet === wsIndex) {
-            for (var i = 0; i < worksheets.length; i++) {
-                if (worksheets[i] != null) {
-                    WSManager.focusOnWorksheet(i, true);
-                    break;
+        $("#worksheetTab-" + wsIndex).addClass("transition").animate({
+            "width": 0
+        }, 150, function() {
+            $("#worksheetTab-" + wsIndex).remove();
+
+            commitToStorage();
+            // switch to another worksheet
+            if (activeWorsheet === wsIndex) {
+                for (var i = 0; i < worksheets.length; i++) {
+                    if (worksheets[i] != null) {
+                        WSManager.focusOnWorksheet(i, true);
+                        break;
+                    }
                 }
             }
-        }
+        });
     }
 
     // Set worksheet
