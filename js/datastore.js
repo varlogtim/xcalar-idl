@@ -920,7 +920,6 @@ window.DataCart = (function($, DataCart) {
         var colNum = xcHelper.parseColNum($colInput);
         var $li    = $("#selectedTable-" + dsName)
                         .find("li[data-colnum=" + colNum + "]");
-
         removeCartItem(dsName, $li);
     };
 
@@ -973,6 +972,16 @@ window.DataCart = (function($, DataCart) {
         $datasetWrap.scrollLeft(position - (dataWrapWidth / 2) +
                                 (columnWidth / 2));
     };
+
+    DataCart.overflowShadow = function() {
+        if ($cartArea.height() > $('#dataCartWrap').height()) {
+            $explorePanel.find('.contentViewRight').find('.buttonArea')
+                                .addClass('cartOverflow');
+        } else {
+            $explorePanel.find('.contentViewRight').find('.buttonArea')
+                                .removeClass('cartOverflow');
+        }
+    }
 
     function filterCarts(dsName) {
         for (var i = 0, len = innerCarts.length; i < len; i++) {
@@ -1159,7 +1168,7 @@ window.DataCart = (function($, DataCart) {
     }
 
     function refreshCart(delay) {
-        overflowShadow();
+        DataCart.overflowShadow();
         var $submitBtn = $("#submitDSTablesBtn");
         var $clearBtn  = $("#clearDataCart");
         var $cartTitle = $("#dataCartTitle");
@@ -1182,9 +1191,9 @@ window.DataCart = (function($, DataCart) {
             $dataCart.find('.helpText').remove();
         }
         if (delay) {
-            setTimeout(overflowShadow, 10);
+            setTimeout(DataCart.overflowShadow, 10);
         } else {
-            overflowShadow();
+            DataCart.overflowShadow();
         }
     }
 
@@ -1218,16 +1227,6 @@ window.DataCart = (function($, DataCart) {
             var clickEvent = $.Event('click');
             clickEvent.scrollToColumn = true;
             $datasetIcon.trigger(clickEvent);
-        }
-    }
-
-    function overflowShadow() {
-        if ($cartArea.height() > $('#dataCartWrap').height()) {
-            $explorePanel.find('.contentViewRight').find('.buttonArea')
-                                .addClass('cartOverflow');
-        } else {
-            $explorePanel.find('.contentViewRight').find('.buttonArea')
-                                .removeClass('cartOverflow');
         }
     }
 
@@ -2387,6 +2386,9 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 selectColumn($input, SelectUnit.Single);
             }
             previousColSelected = $input.closest('th');
+            setTimeout(function() { // delay check for shadow due to animation
+                DataCart.overflowShadow();
+            }, 105);
         });
 
         // resize column
