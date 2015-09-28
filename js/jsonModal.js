@@ -49,8 +49,8 @@ window.JSONModal = (function($, JSONModal) {
         xcHelper.removeSelectionRange();
 
         $searchInput.val("");
-        fillJsonModal($jsonTd, isArray);
         centerPositionElement($jsonModal);
+        fillJsonModal($jsonTd, isArray);
         jsonModalEvent($jsonTd, isArray);
         $("body").addClass("hideScroll");
     };
@@ -239,20 +239,31 @@ window.JSONModal = (function($, JSONModal) {
 
     function closeJSONModal() {
         $jsonWrap.off();
-        $jsonModal.hide();
-        $modalBackground.fadeOut(200, function() {
-            Tips.refresh();
-        });
-        $('#sideBarModal').fadeOut(200, function(){
-            $('#rightSideBar').removeClass('modalOpen');
-        });
-        $('.modalHighlighted').removeClass('modalHighlighted');
-        $('.xcTable').removeClass('tableJsonModal');
-        $('.darkenedCell').remove();
-        $("body").removeClass("hideScroll");
-        clearSearch();
         $('body').off('keydown', cycleMatches);
         $matches = [];
+
+        if (gMinModeOn) {
+            $jsonModal.hide();
+            $modalBackground.hide();
+            $('#sideBarModal').hide();
+            closeHandler();
+        } else {
+            $jsonModal.fadeOut(300, function() {
+                $modalBackground.fadeOut(180);
+                $('#sideBarModal').fadeOut(180);
+                closeHandler();
+            });
+        }
+
+        function closeHandler() {
+            Tips.refresh();
+            $('#rightSideBar').removeClass('modalOpen');
+            $('.modalHighlighted').removeClass('modalHighlighted');
+            $('.xcTable').removeClass('tableJsonModal');
+            $('.darkenedCell').remove();
+            $("body").removeClass("hideScroll");
+            clearSearch();
+        }
     }
 
     function fillJsonModal($jsonTd, isArray) {
@@ -272,15 +283,26 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         $jsonModal.height(500).width(500);
-        $jsonModal.show();
-        $('#sideBarModal').fadeIn(100);
-        $('#rightSideBar').addClass('modalOpen');
-        $jsonTd.closest('.xcTable').addClass('tableJsonModal');
         var darkenedCell = '<div class="darkenedCell"></div>';
-        $jsonTd.closest('.xcTable').find('.idSpan').append(darkenedCell);
-        $('.darkenedCell').fadeIn(100, "linear");
-        $modalBackground.fadeIn(100, "linear");
-        $jsonTd.addClass('modalHighlighted');
+
+        if (gMinModeOn) {
+            $('#sideBarModal').show();
+            $('#rightSideBar').addClass('modalOpen');
+            $jsonTd.closest('.xcTable').find('.idSpan').append(darkenedCell);
+            $('.darkenedCell').show();
+            $modalBackground.show();
+            $jsonModal.show();
+            $jsonTd.addClass('modalHighlighted');
+        } else {
+            $('#sideBarModal').fadeIn(300);
+            $('#rightSideBar').addClass('modalOpen');
+            $jsonTd.closest('.xcTable').find('.idSpan').append(darkenedCell);
+            $('.darkenedCell').fadeIn(300);
+            $modalBackground.fadeIn(300, function() {
+                $jsonModal.fadeIn(180);
+                $jsonTd.addClass('modalHighlighted');
+            });
+        }
 
         var prettyJson = prettifyJson(jsonString, null, {inarray: isArray});
         prettyJson = '<div id="jsonObj" class="jObject"><span class="jArray jInfo">' +

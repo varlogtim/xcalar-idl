@@ -90,7 +90,9 @@ window.ExportModal = (function($, ExportModal) {
 
     ExportModal.show = function(tablId) {
         tableId = tablId;
-        xcHelper.toggleModal(tableId, false, {time: 300});
+
+        var animationTime = gMinModeOn ? 0 : 300;
+        xcHelper.toggleModal(tableId, false, {time: animationTime});
         var $table = $('#xcTableWrap-' + tableId);
         $table.addClass('exportModalOpen');
         setTimeout(function() {
@@ -114,10 +116,14 @@ window.ExportModal = (function($, ExportModal) {
                 }
             });
 
-            $exportModal.fadeIn(300);
             centerPositionElement($exportModal);
-
             modalHelper.setup();
+
+            if (gMinModeOn) {
+                $exportModal.show();
+            } else {
+                $exportModal.fadeIn(400);
+            }
 
             exportTableName = tableName;
             $exportName.val(tableName.split('#')[0]).focus();
@@ -561,10 +567,18 @@ window.ExportModal = (function($, ExportModal) {
 
         restoreColumns();
         var hide = true;
+        var animationTime;
 
-        $exportModal.fadeOut(150, function() {
-            xcHelper.toggleModal(tableId, hide, {time: 200});
-        });
+        if (gMinModeOn) {
+            $exportModal.hide();
+            animationTime = 0;
+        } else {
+            $exportModal.fadeOut(300);
+            animationTime = 300;
+        }
+
+        xcHelper.toggleModal(tableId, hide, {time: animationTime});
+
         $('#xcTableWrap-' + tableId).removeClass('exportModalOpen');
         setTimeout(function() {
             Tips.refresh();

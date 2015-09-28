@@ -84,12 +84,18 @@ window.AggModal = (function($, AggModal) {
         var $table    = xcHelper.getElementByTableId(tableId, "xcTable");
 
         $aggTableName.val(tableName);
-
-        $modalBackground.fadeIn(180, function() {
-            Tips.refresh();
-            $aggModal.fadeIn(300);
-        });
         centerPositionElement($aggModal);
+
+        if (gMinModeOn) {
+            $modalBackground.show();
+            $aggModal.show();
+            Tips.refresh();
+        } else {
+            $modalBackground.fadeIn(300, function() {
+                $aggModal.fadeIn(180);
+                Tips.refresh();
+            });
+        }
 
         aggColsInitialize(table);
         aggTableInitialize($table);
@@ -496,12 +502,19 @@ window.AggModal = (function($, AggModal) {
     function resetAggTables() {
         $('#mainTable').off();
         $modalBackground.off("click", hideAggOpSelect);
-        $aggModal.fadeOut(180, function() {
-            $modalBackground.fadeOut(300);
-            Tips.refresh();
-        });
 
-        $aggModal.width(920).height(670);
+        if (gMinModeOn) {
+            $aggModal.hide();
+            $modalBackground.hide();
+            Tips.refresh();
+            $aggModal.width(920).height(670);
+        } else {
+            $aggModal.fadeOut(300, function() {
+                $modalBackground.fadeOut(180);
+                Tips.refresh();
+                $aggModal.width(920).height(670);
+            });
+        }
     }
 
     return (AggModal);

@@ -164,10 +164,16 @@ window.STATSManager = (function($, STATSManager, d3) {
     };
 
     function closeStats() {
-        $statsModal.fadeOut(180, function() {
-            $modalBg.fadeOut(300);
-            $statsModal.removeData("id");
-        });
+        if (gMinModeOn) {
+            $statsModal.hide();
+            $modalBg.hide();
+            closeHandler();
+        } else {
+            $statsModal.fadeOut(300, function() {
+                $modalBg.fadeOut(180);
+                closeHandler();
+            });
+        }
 
         $statsModal.find(".min-range .text").off();
         $modalBg.off("mouseover.statsModal");
@@ -175,17 +181,20 @@ window.STATSManager = (function($, STATSManager, d3) {
         $statsModal.find(".scrollBar").off();
         $(document).off(".statsModal");
         $("#stats-rowInput").off();
-        $statsModal.find(".groupbyChart").empty();
-        resetScrollBar();
 
-        resultSetId = null;
-        totalRows = null;
-        groupByData = [];
-        order = sortMap.origin;
-        statsCol = null;
-        percentageLabel = false;
+        function closeHandler() {
+            $statsModal.find(".groupbyChart").empty();
+            resetScrollBar();
 
-        freePointer();
+            freePointer();
+
+            totalRows = null;
+            groupByData = [];
+            order = sortMap.origin;
+            statsCol = null;
+            percentageLabel = false;
+            $statsModal.removeData("id");
+        }
     }
 
     function generateStats(table) {
@@ -257,11 +266,17 @@ window.STATSManager = (function($, STATSManager, d3) {
     function showStats() {
         centerPositionElement($statsModal);
 
-        $modalBg.fadeIn(180, function() {
-            $statsModal.fadeIn(300)
-                        .data("id", statsCol.modalId);
+        if (gMinModeOn) {
+            $modalBg.show();
+            $statsModal.show().data("id", statsCol.modalId);
             refreshStats();
-        });
+        } else {
+            $modalBg.fadeIn(300, function() {
+                $statsModal.fadeIn(180)
+                        .data("id", statsCol.modalId);
+                refreshStats();
+            });
+        }
 
         $modalBg.on("mouseover.statsModal", function() {
             $(".barArea").tooltip("hide")

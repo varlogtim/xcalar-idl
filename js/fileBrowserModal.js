@@ -49,32 +49,20 @@ window.FileBrowser = (function($, FileBrowser) {
                 "height": maxHeight
             });
 
-            // set modal background
-            $modalBackground.fadeIn(180, function() {
-                Tips.refresh();
-
-                $modalBackground.addClass("open");
-                $fileBrowser.fadeIn(300).focus();
-                if (result.defaultPath) {
-                    var msg = result.path + ' was not found. ' +
-                            'Redirected to the root directory.';
-                    setTimeout(function() {
-                        StatusBox.show(msg, $pathSection, false, 0,
-                                       {side: 'top'});
-                    }, 40);
-                    
-                }
-            });
             centerPositionElement($fileBrowser);
-
-            // press enter to import a dataset
-            // XXX use time out beacuse if you press browser button to open the
-            // modal, it will trigger keyup event, so delay the event here
-            // may have bettter way to solve it..
-            setTimeout(function() {
-                $(document).on("keyup", fileBrowserKeyUp);
-            }, 300);
             modalHelper.setup();
+
+            if (gMinModeOn) {
+                $modalBackground.show().addClass("open");
+                $fileBrowser.show().focus();
+                showHandler(result);
+            } else {
+                $modalBackground.fadeIn(300, function() {
+                    $modalBackground.addClass("open");
+                    $fileBrowser.fadeIn(180).focus();
+                    showHandler(result);
+                });
+            }
         })
         .fail(function(result) {
             closeAll();
@@ -84,6 +72,27 @@ window.FileBrowser = (function($, FileBrowser) {
         $(document).on("mousedown.fileBrowser", function() {
             xcHelper.hideDropdowns($fileBrowser);
         });
+
+        function showHandler(result) {
+            Tips.refresh();
+
+            if (result.defaultPath) {
+                var msg = result.path + ' was not found. ' +
+                        'Redirected to the root directory.';
+                setTimeout(function() {
+                    StatusBox.show(msg, $pathSection, false, 0,
+                                   {side: 'top'});
+                }, 40);
+            }
+
+            // press enter to import a dataset
+            // XXX use time out beacuse if you press browser button to open the
+            // modal, it will trigger keyup event, so delay the event here
+            // may have bettter way to solve it..
+            setTimeout(function() {
+                $(document).on("keyup", fileBrowserKeyUp);
+            }, 300);
+        }
     };
 
     FileBrowser.setup = function() {
@@ -374,14 +383,19 @@ window.FileBrowser = (function($, FileBrowser) {
         clear(true);
         modalHelper.clear();
         $(document).off('keyup', fileBrowserKeyUp);
-
-        $fileBrowser.fadeOut(180, function() {
-            Tips.refresh();
-            $modalBackground.removeClass("open").fadeOut(300);
-            xcHelper.enableSubmit($fileBrowser.find('.confirm'));
-        });
-
         $(document).off(".fileBrowser");
+        xcHelper.enableSubmit($fileBrowser.find('.confirm'));
+
+        if (gMinModeOn) {
+            $fileBrowser.hide();
+            $modalBackground.removeClass("open").hide();
+            Tips.refresh();
+        } else {
+            $fileBrowser.fadeOut(300, function() {
+                $modalBackground.removeClass("open").fadeOut(180);
+                Tips.refresh();
+            });
+        }
     }
 
     function updateFileName($grid) {

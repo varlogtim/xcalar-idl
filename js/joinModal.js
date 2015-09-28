@@ -236,8 +236,21 @@ window.JoinModal = (function($, JoinModal) {
         joinModalTabs($rightJoinTable, null, -1);
         joinModalTabs($leftJoinTable, tableId, colNum, $rightJoinTable);
 
-        $modalBackground.fadeIn(180, function() {
-            $joinModal.fadeIn(300);
+        if (gMinModeOn) {
+            $modalBackground.show();
+            $joinModal.show();
+            showHandler();
+        } else {
+            $modalBackground.fadeIn(300, function() {
+                $joinModal.fadeIn(180);
+                showHandler();
+            });
+        }
+
+        modalHelper.setup();
+        isOpenTime = false;
+
+        function showHandler() {
             scrollToColumn($leftJoinTable.find("th.colSelected"));
             // this is the case when right table has suggested col
             scrollToColumn($rightJoinTable.find("th.colSelected"));
@@ -248,12 +261,7 @@ window.JoinModal = (function($, JoinModal) {
             $("#mainJoin .joinTableArea").scroll(function(){
                 $(this).scrollTop(0);
             });
-
-        });
-
-        modalHelper.setup();
-        
-        isOpenTime = false;
+        }
     };
 
     function multiClauseOpener() {
@@ -370,24 +378,34 @@ window.JoinModal = (function($, JoinModal) {
         $("body").off("mouseup", removeCursors);
         $modalBackground.off("click", hideJoinTypeSelect);
 
-        // clean up multi clause section
-        $mainJoin.removeClass("multiClause");
-        $multiJoinBtn.find(".active").removeClass("active")
-                    .end()  // back to $("#multiJoinBtn")
-                    .find(".offBox").addClass("active");
-        $multiJoin.find(".placeholder").siblings().remove();
-
         modalHelper.clear();
         modalHelper.enableSubmit();
 
-        $joinModal.fadeOut(180, function() {
-            $modalBackground.fadeOut(300);
-            Tips.refresh();
-        });
+        if (gMinModeOn) {
+            $joinModal.hide();
+            $modalBackground.hide();
+            closeHandler();
+        } else {
+            $joinModal.fadeOut(300, function() {
+                $modalBackground.fadeOut(180);
+                closeHandler();
+            });
+        }
 
-        $joinModal.find('.tableLabel').remove();
-        $joinModal.find('.joinTable').remove();
-        $joinModal.width(920).height(620);
+        function closeHandler() {
+            Tips.refresh();
+            // clean up multi clause section
+            $mainJoin.removeClass("multiClause");
+            $multiJoinBtn.find(".active").removeClass("active")
+                        .end()  // back to $("#multiJoinBtn")
+                        .find(".offBox").addClass("active");
+            $multiJoin.find(".placeholder").siblings().remove();
+
+
+            $joinModal.find('.tableLabel').remove();
+            $joinModal.find('.joinTable').remove();
+            $joinModal.width(920).height(620);
+        }
     }
 
     function hideJoinTypeSelect() {

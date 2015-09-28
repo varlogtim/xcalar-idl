@@ -47,14 +47,22 @@ window.Alert = (function($, Alert){
 
         configAlertModal(options);
 
-        $modalBackground.fadeIn(180, function() {
-            Tips.refresh();
-            $alertModal.fadeIn(300);
-        });
-
         xcHelper.removeSelectionRange();
-
         modalHelper.setup();
+
+        if (gMinModeOn) {
+            $modalBackground.show();
+            $alertModal.show();
+            Tips.refresh();
+        } else {
+            // alert should be fast, so the fade time
+            // is different from other Modal,
+            // XXX change it if there is better effect
+            $modalBackground.fadeIn(180, function() {
+                $alertModal.fadeIn(100);
+                Tips.refresh();
+            });
+        }
     };
 
     Alert.error = function(title, error, options) {
@@ -93,12 +101,20 @@ window.Alert = (function($, Alert){
             return;
         }
 
-        $alertModal.fadeOut(180, function() {
+        if (gMinModeOn) {
+            $alertModal.hide();
             if (!$modalBackground.hasClass("open")) {
-                $modalBackground.fadeOut(300);
-                Tips.refresh();
+                $modalBackground.hide();
             }
-        });
+            Tips.refresh();
+        } else {
+            $alertModal.fadeOut(180, function() {
+                if (!$modalBackground.hasClass("open")) {
+                    $modalBackground.fadeOut(100);
+                }
+                Tips.refresh();
+            });
+        }
     }
 
     // configuration for alert modal

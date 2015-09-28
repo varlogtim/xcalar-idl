@@ -61,13 +61,18 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
         centerPositionElement($workbookModal);
         resetWorkbookModal();
-
-        $modalBackground.fadeIn(180, function() {
-            $workbookModal.fadeIn(300);
-            Tips.refresh();
-        });
-
         modalHelper.setup();
+
+        if (gMinModeOn) {
+            $modalBackground.show();
+            $workbookModal.show();
+            Tips.refresh();
+        } else {
+            $modalBackground.fadeIn(300, function() {
+                $workbookModal.fadeIn(180);
+                Tips.refresh();
+            });
+        }
     };
 
     WorkbookModal.forceShow = function() {
@@ -107,10 +112,16 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $(document).off("keypress", workbookKeyPress);
         modalHelper.clear();
 
-        $workbookModal.fadeOut(180, function() {
-            $modalBackground.fadeOut(300);
+        if (gMinModeOn) {
+            $workbookModal.hide();
+            $modalBackground.hide();
             Tips.refresh();
-        });
+        } else {
+            $workbookModal.fadeOut(300, function() {
+                $modalBackground.fadeOut(180);
+                Tips.refresh();
+            });
+        }
     }
 
     function addWorkbookEvents() {

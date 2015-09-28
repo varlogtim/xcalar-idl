@@ -348,7 +348,12 @@ window.OperationsModal = (function($, OperationsModal) {
 
             $('body').off('keydown', listHighlightListener);
         } else {
-            $operationsModal.fadeIn(400);
+            if (gMinModeOn) {
+                $operationsModal.show();
+            } else {
+                $operationsModal.fadeIn(400);
+            }
+
             $table.find('.header').click(fillInputFromColumn)
                     .end()
                     .find('.col' + colNum).addClass('modalHighlighted');
