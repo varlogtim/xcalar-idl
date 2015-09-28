@@ -927,14 +927,14 @@ window.DataCart = (function($, DataCart) {
     DataCart.removeCart = function(dsName) {
         var $cart = $("#selectedTable-" + dsName);
 
-        if ($cartArea.hasClass("support-animation")) {
+        if (gMinModeOn) {
+            $cart.remove();
+            refreshCart();
+        } else {
             $cart.find("ul").slideUp(80, function() {
                 $cart.remove();
                 refreshCart();
             });
-        } else {
-            $cart.remove();
-            refreshCart();
         }
 
         removeCart(dsName);    // remove the cart
@@ -981,7 +981,7 @@ window.DataCart = (function($, DataCart) {
             $explorePanel.find('.contentViewRight').find('.buttonArea')
                                 .removeClass('cartOverflow');
         }
-    }
+    };
 
     function filterCarts(dsName) {
         for (var i = 0, len = innerCarts.length; i < len; i++) {
@@ -1051,7 +1051,7 @@ window.DataCart = (function($, DataCart) {
 
         $cart.find("ul").append($li);
 
-        if ($cartArea.hasClass("support-animation")) {
+        if (!gMinModeOn) {
             $li.hide().slideDown(100);
         }
 
@@ -1128,12 +1128,12 @@ window.DataCart = (function($, DataCart) {
             $li.closest(".selectedTable").remove();
             removeCart(dsName);
         } else {
-            if ($cartArea.hasClass("support-animation")) {
+            if (gMinModeOn) {
+                $li.remove();
+            } else {
                 $li.slideUp(100, function() {
                     $li.remove();
                 });
-            } else {
-                $li.remove();
             }
 
             var items = filterCarts(dsName).items;
@@ -1156,14 +1156,14 @@ window.DataCart = (function($, DataCart) {
 
         innerCarts = [];
 
-        if ($cartArea.hasClass("support-animation")) {
+        if (gMinModeOn) {
+            $cartArea.empty();
+            refreshCart();
+        } else {
             $cartArea.slideUp(100, function() {
                 $cartArea.empty().show();
                 refreshCart();
-            })
-        } else {
-            $cartArea.empty();
-            refreshCart();
+            });
         }
     }
 

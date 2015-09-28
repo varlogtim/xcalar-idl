@@ -719,7 +719,11 @@ window.WSManager = (function($, WSManager) {
         if (noAnimation) {
             $tab.appendTo($workSheetTabSection);
         } else {
-            $tab.hide().appendTo($workSheetTabSection).slideDown(180);
+            if (gMinModeOn) {
+                $tab.appendTo($workSheetTabSection);
+            } else {
+                $tab.hide().appendTo($workSheetTabSection).slideDown(180);
+            }
         }
     }
 
@@ -769,22 +773,30 @@ window.WSManager = (function($, WSManager) {
         delete wsNameLookUp[worksheets[wsIndex].name];
         worksheets[wsIndex] = null;
 
-        $("#worksheetTab-" + wsIndex).addClass("transition").animate({
-            "width": 0
-        }, 150, function() {
+        if (gMinModeOn) {
             $("#worksheetTab-" + wsIndex).remove();
+            rmHanlder();
+        } else {
+            $("#worksheetTab-" + wsIndex).addClass("transition").animate({
+                "width": 0
+            }, 180, function() {
+                $("#worksheetTab-" + wsIndex).remove();
+                rmHanlder();
+            });
+        }
 
+        function rmHanlder() {
             commitToStorage();
             // switch to another worksheet
             if (activeWorsheet === wsIndex) {
-                for (var i = 0; i < worksheets.length; i++) {
+                for (var i = 0, len = worksheets.length; i < len; i++) {
                     if (worksheets[i] != null) {
                         WSManager.focusOnWorksheet(i, true);
                         break;
                     }
                 }
             }
-        });
+        }
     }
 
     // Set worksheet
