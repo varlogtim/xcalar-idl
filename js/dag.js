@@ -2539,15 +2539,15 @@ window.DataFlowModal = (function($, DataFlowModal) {
         });
 
         // insert new dfg into the main dfg object
-        var dataFlow = {
+        var canvasInfo = {
                             tables: tables,
                             operations: operations,
                             height: $dagImage.height(),
                             width: $dagImage.width()
                         };
-        var existingGroups = DFG.getGroups();
-        var group = existingGroups[groupName] || [];
-        group.push({name: tableName, dataFlow: dataFlow});
+        var existingGroups = DFG.getAllGroups();
+        var group = existingGroups[groupName] || {dataFlows: [], schedules: []};
+        group.dataFlows.push({name: tableName, canvasInfo: canvasInfo});
         DFG.setGroup(groupName, group);
     }
 
@@ -2659,7 +2659,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
 
     function setupDFGList() {
-        var groups = DFG.getGroups();
+        var groups = DFG.getAllGroups();
         var html = "";
         for (var group in groups) {
             var list = groups[group];

@@ -7,37 +7,40 @@ var DFG = (function($, DFG) {
     //                                {name: 'schedules', dataFlow: {}}]
     //                 };
 
-    var dfGroups = {"group1":[
-                    {"name":"joinTable-82736#fr26",
-                    "dataFlow":{
-                        "tables":[
-                            {"index":7,"children":"5","type":"dataStore","left":10,"top":0,"title":"Dataset classes"},
-                            {"index":5,"children":"3","type":"table","left":220,"top":0,"title":"classes3#fr22"},
-                            {"index":3,"children":"1","type":"table","left":433,"top":0,"title":"classes3#fr24"},
-                            {"index":1,"children":"0","type":"table","left":647,"top":0,"title":"classes3#fr28"},
-                            {"index":6,"children":"4","type":"dataStore","left":223,"top":65,"title":"Dataset schedule"},
-                            {"index":4,"children":"2","type":"table","left":433,"top":65,"title":"schedule4#fr23"},
-                            {"index":2,"children":"0","type":"table","left":647,"top":65,"title":"schedule4#fr27"},
-                            {"index":0,"type":"table","left":861,"top":32,"title":"joinTable-82736#fr26"}
-                            ],
-                        "operations":[
-                            {"tooltip":"Indexed on recordNum","type":"sort","parents":"recordNum","left":70,"top":4, "classes":"dagIcon filter filtergt"},
-                            {"tooltip":"Filtered table \"classes3#fr22\" where class_id is greater than 1.","type":"filter","parents":"class_id","left":283,"top":4,"classes":"dagIcon filter filtergt"},
-                            {"tooltip":"Indexed by class_id","type":"sort","parents":"class_id","left":497,"top":4, "classes":"dagIcon filter filtergt"},
-                            {"tooltip":"Indexed on recordNum","type":"sort","parents":"recordNum","left":283,"top":69, "classes":"dagIcon filter filtergt"},
-                            {"tooltip":"Indexed by class_id","type":"sort","parents":"class_id","left":497,"top":69, "classes":"dagIcon filter filtergt"},
-                            {"tooltip":"Inner Join between table \"classes3#fr28\" and table \"schedule4#fr27\"","type":"join","parents":"classes3#fr28 & schedule4#fr27","left":711,"top":36,"classes":"dagIcon filter filtergt"}
-                            ],
-                        "height": 155,
-                        "width": 945
-                        }
-                    }
-                    ]};
+    var dfGroups = {"group1": {
+                        "dataFlows": [
+                            {"name":"joinTable-82736#fr26",
+                            "canvasInfo":{
+                                "tables":[
+                                    {"index":7,"children":"5","type":"dataStore","left":10,"top":0,"title":"Dataset classes"},
+                                    {"index":5,"children":"3","type":"table","left":220,"top":0,"title":"classes3#fr22"},
+                                    {"index":3,"children":"1","type":"table","left":433,"top":0,"title":"classes3#fr24"},
+                                    {"index":1,"children":"0","type":"table","left":647,"top":0,"title":"classes3#fr28"},
+                                    {"index":6,"children":"4","type":"dataStore","left":223,"top":65,"title":"Dataset schedule"},
+                                    {"index":4,"children":"2","type":"table","left":433,"top":65,"title":"schedule4#fr23"},
+                                    {"index":2,"children":"0","type":"table","left":647,"top":65,"title":"schedule4#fr27"},
+                                    {"index":0,"type":"table","left":861,"top":32,"title":"joinTable-82736#fr26"}
+                                    ],
+                                "operations":[
+                                    {"tooltip":"Indexed on recordNum","type":"sort","parents":"recordNum","left":70,"top":4, "classes":"dagIcon filter filtergt"},
+                                    {"tooltip":"Filtered table \"classes3#fr22\" where class_id is greater than 1.","type":"filter","parents":"class_id","left":283,"top":4,"classes":"dagIcon filter filtergt"},
+                                    {"tooltip":"Indexed by class_id","type":"sort","parents":"class_id","left":497,"top":4, "classes":"dagIcon filter filtergt"},
+                                    {"tooltip":"Indexed on recordNum","type":"sort","parents":"recordNum","left":283,"top":69, "classes":"dagIcon filter filtergt"},
+                                    {"tooltip":"Indexed by class_id","type":"sort","parents":"class_id","left":497,"top":69, "classes":"dagIcon filter filtergt"},
+                                    {"tooltip":"Inner Join between table \"classes3#fr28\" and table \"schedule4#fr27\"","type":"join","parents":"classes3#fr28 & schedule4#fr27","left":711,"top":36,"classes":"dagIcon filter filtergt"}
+                                    ],
+                                "height": 155,
+                                "width": 945
+                                }
+                            }
+                        ],
+                        "schedules": []
+                    }};
     DFG.restoreGroups = function() {
 
     };
 
-    DFG.getGroups = function() {
+    DFG.getAllGroups = function() {
         return (dfGroups);
     };
 
@@ -125,6 +128,25 @@ var DFGPanel = (function($, DFGPanel) {
         updateList();
     };
 
+    DFGPanel.listSchedulesInHeader = function(groupName) {
+        var group = DFG.getAllGroups()[groupName];
+        var schedules = group.schedules;
+        var numSchedules = schedules.length;
+        // var lis = "";
+        var list = "schedules: ";
+        for (var i = 0; i < numSchedules; i++) {
+            // lis += "<li>" + schedules[i] + "</li>";
+            if (i !== 0) {
+                list += ", ";
+            }
+            list += schedules[i];
+        }
+        if (numSchedules === 0) {
+            list += "none";
+        }
+        $dfgView.find('.midContentHeader .schedulesList').html(list);
+    }
+
     function addListeners() {
         $listSection.on('click', '.dataFlowGroup', function() {
             var $dfg = $(this);
@@ -135,7 +157,7 @@ var DFGPanel = (function($, DFGPanel) {
             var groupName = $groupLi.find('.label').text();
             $header.text(groupName);
             drawDags(groupName);
-            listSchedulesInHeader(groupName);
+            DFGPanel.listSchedulesInHeader(groupName);
             
             $listSection.find('.listBox').removeClass('selected');
             $groupLi.addClass('selected');
@@ -169,6 +191,7 @@ var DFGPanel = (function($, DFGPanel) {
             if ($button.attr('id') === "schedulesButton") {
                 $dfgView.hide();
                 $schedulesView.show();
+                Scheduler.refresh();
             } else {
                 $dfgView.show();
                 $schedulesView.hide();
@@ -179,8 +202,8 @@ var DFGPanel = (function($, DFGPanel) {
     }
 
     function drawDags(groupName) {
-        var group = DFG.getGroups()[groupName];
-        var numDataFlows = group.length;
+        var group = DFG.getAllGroups()[groupName];
+        var numDataFlows = group.dataFlows.length;
         var html = "";
         for (var i = 0; i < numDataFlows; i++) {
             html += '<div class="dagWrap clearfix">' +
@@ -196,16 +219,16 @@ var DFGPanel = (function($, DFGPanel) {
                             '</div>' +
                         '</div>' +
                         '<div class="dagImage" style="width:' +
-                        group[i].dataFlow.width + 'px;height:' +
-                        group[i].dataFlow.height + 'px;">';
+                        group.dataFlows[i].canvasInfo.width + 'px;height:' +
+                        group.dataFlows[i].canvasInfo.height + 'px;">';
 
-            var tables = group[i].dataFlow.tables;
+            var tables = group.dataFlows[i].canvasInfo.tables;
             var numTables = tables.length;
             for (var j = 0; j < numTables; j++) {
                 html += getTableHtml(tables[j]);
             }
 
-            var operations = group[i].dataFlow.operations;
+            var operations = group.dataFlows[i].canvasInfo.operations;
             var numOperations = operations.length;
             for (var j = 0; j < numOperations; j++) {
                 html += getOperationHtml(operations[j]);
@@ -216,21 +239,6 @@ var DFGPanel = (function($, DFGPanel) {
         $dfgView.find('.dagImage').each(function() {
             DFG.drawCanvas($(this), true);
         });
-    }
-
-    function listSchedulesInHeader(groupName) {
-        var schedules = ['sched1', 'sched2'];
-        var numSchedules = schedules.length;
-        // var lis = "";
-        var list = "schedules: ";
-        for (var i = 0; i < numSchedules; i++) {
-            // lis += "<li>" + schedules[i] + "</li>";
-            if (i !== 0) {
-                list += ", ";
-            }
-            list += schedules[i];
-        }
-        $dfgView.find('.midContentHeader .schedulesList').html(list);
     }
 
     function getTableHtml(table) {
@@ -278,12 +286,12 @@ var DFGPanel = (function($, DFGPanel) {
     function updateList() {
         resetDFGView();
         
-        var groups = DFG.getGroups();
+        var groups = DFG.getAllGroups();
         var html = "";
         var numGroups = 0;
         for (var group in groups) {
             numGroups++;
-            var list = groups[group];
+            var list = groups[group].dataFlows;
             var listLen = list.length;
             html += '<div class="dataFlowGroup">' +
                       '<div class="listBox">' +
@@ -344,7 +352,9 @@ var AddScheduleModal = (function($, AddScheduleModal) {
 
         $(document).on("keypress.addScheduleModal", function(e) {
             if (e.which === keyCode.Enter) {
-                submitForm();
+                if (!$modal.find('.confirm').hasClass('unavailable')) {
+                    submitForm();
+                }
             }
         });
 
@@ -359,17 +369,56 @@ var AddScheduleModal = (function($, AddScheduleModal) {
     };
 
     function updateModalList() {
-        var lis = '<li class="hint">Select a schedule</li>';
-        var schedules = ['sched1', 'sched2'];
+        var lis;
+        var schedules = Scheduler.getAllSchedules();
         var numSchedules = schedules.length;
-        for (var i = 0; i < numSchedules; i++) {
-            lis += '<li>' + schedules[i] + '</li>';
+        var scheduleName;
+        var hasValidSchedule = false;
+
+        if (numSchedules > 0) {
+            lis = '<li class="hint">Select a schedule</li>';
+            $modal.find('.confirm').removeClass('unavailable');
+            for (var i = 0; i < numSchedules; i++) {
+                scheduleName = schedules[i].name;
+
+                if (Scheduler.hasDFG(scheduleName, groupName)) {
+                    continue;
+                }
+                lis += '<li>' + scheduleName + '</li>';
+                if (!hasValidSchedule) {
+                    hasValidSchedule = true;
+                    $scheduleListInput.val(scheduleName)
+                              .attr('value', scheduleName);
+                }
+            }
+
         }
+
+        if (!hasValidSchedule) {
+            $scheduleListInput.val('No available schedules')
+                              .attr('value', 'No available schedules');
+            lis = '<li class="hint">No available schedules</li>';
+            $modal.find('.confirm').addClass('unavailable');
+        }
+
         $list.find('ul').html(lis);
-        $scheduleListInput.val('sched1').attr('value', 'sched1');
     }
 
     function submitForm() {
+        var selectedSchedule = $scheduleListInput.val();
+        var schedules = Scheduler.getAllSchedules();
+
+
+        // add group to schedule
+        Scheduler.addDFG(selectedSchedule, groupName);
+
+        // add schedule to group
+        var groups = DFG.getAllGroups();
+        var group = groups[groupName];
+        group.schedules.push(selectedSchedule);
+
+        DFGPanel.listSchedulesInHeader(groupName);
+
         closeModal();
     }
 
@@ -397,6 +446,12 @@ var AddScheduleModal = (function($, AddScheduleModal) {
         // click confirm button
         $modal.on("click", ".confirm", function() {
             submitForm();
+        });
+
+        $modal.on("click", ".createNewSchedule", function() {
+            closeModal();
+            $('#schedulesButton').click();
+            $('#addSchedule').click();
         });
 
     }

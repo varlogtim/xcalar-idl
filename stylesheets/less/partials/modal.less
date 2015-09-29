@@ -1506,6 +1506,9 @@ html.microsoft {
         margin-left: 40px;
         margin-top: 20px;
         z-index: 1;
+        .dagTable, .actionTypeWrap {
+            cursor: initial;
+        }
     }
     .previewCanvas {
         pointer-events: none;
@@ -2525,14 +2528,35 @@ html.microsoft {
     overflow: visible;
 
     .modalTopMain {
-        height: 70px;
         margin-bottom: 20px;
         padding-top: 20px;
+        padding-bottom: 20px;
+
+        h3 {
+            display: block;
+            font-size: 14px;
+            margin-left: 90px;
+            margin: 20px 90px 10px;
+
+            &:first-child {
+                margin-top: 0px;
+            }
+        }
+        .or {
+            // text-align: center;
+            margin-left: 90px;
+            font-weight: bold;
+        }
+        .createNewSchedule {
+            margin-left: 90px;
+        }
     }
 
     .listSection {
+        
         .dropDownList(~"calc(100% - 180px)", 25px);
         margin-left: 90px;
+        float: none;
         .text {
             cursor: default;
             .noSelection;
@@ -2541,6 +2565,9 @@ html.microsoft {
     .modalBottom {
         .btn {
             margin-right: 20px;
+            &.unavailable {
+                pointer-events: none;
+            }
         }
     }
 }

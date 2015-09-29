@@ -7,6 +7,7 @@ window.Scheduler = (function(Scheduler, $) {
 
     // constant
     var scheduleFreq = {
+        "hourly"     : "hourly",
         "daily"      : "daily",
         "weekly"     : "weekly",
         "biweekly"   : "biweekly",
@@ -176,7 +177,7 @@ window.Scheduler = (function(Scheduler, $) {
                     "freq"     : null,
                     "created"  : 1443141062968,
                     "modified" : 1443141062968,
-                    "DFGs"     : ["a", "b", "c"]
+                    "DFGs"     : []
                 },
                 {
                     "name"     : "debug2",
@@ -190,7 +191,7 @@ window.Scheduler = (function(Scheduler, $) {
                     },
                     "created" : 1443141062968,
                     "modified": 1443141062968,
-                    "DFGs"    : ["e", "f", "g"]
+                    "DFGs"    : []
                 }
             ];
         }
@@ -208,6 +209,48 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         $scheduleLists.html(html);
+    };
+
+    Scheduler.refresh = function() {
+        var $lis = $scheduleLists.children();
+        if ($lis.length > 0) {
+            $lis.eq(0).click();
+        } else {
+            $("#addSchedule").click();
+        }
+    };
+
+    Scheduler.addDFG = function(scheduleName, DFGName) {
+        var schedule = scheduleLookUpMap[scheduleName];
+        var DFGs = schedule.DFGs;
+
+        // validation check
+        for (var i = 0, len = DFGs.length; i < len; i++) {
+            if (DFGs[i].name === DFGName) {
+                console.error("Duplicated DFGName!");
+                return;
+            }
+        }
+
+        getNextRunTime(schedule);
+        var DFG = {
+            "name"       : DFGName,
+            "initialTime": schedule.startTime,
+            "status"     : "normal"
+        };
+
+        DFGs.push(DFG);
+    };
+
+    Scheduler.hasDFG = function(scheduleName, DFGName) {
+        var DFGs = scheduleLookUpMap[scheduleName].DFGs;
+        for (var i = 0, len = DFGs.length; i < len; i++) {
+            if (DFGs[i].name === DFGName) {
+                return true;
+            }
+        }
+
+        return false;
     };
 
     Scheduler.getAllSchedules = function() {
@@ -440,6 +483,8 @@ window.Scheduler = (function(Scheduler, $) {
             $("#deleteSchedule").addClass("btnInactive");
         } else {
             schedule = scheduleLookUpMap[name];
+            // update schedule
+            getNextRunTime(schedule);
             $("#deleteSchedule").removeClass("btnInactive");
         }
 
@@ -526,27 +571,42 @@ window.Scheduler = (function(Scheduler, $) {
 
         var html = "";
 
-        for (var i = 0, len = DFGs.length; i < len; i++) {
-            var DFGInfo;
-
-            if (debug) {
-                DFGInfo = {
+        if (debug) {
+            for (var i = 0, len = 3; i < len; i++) {
+                var DFG = {
                     "name"       : "debug" + i,
                     "initialTime": new Date().getTime(),
                     "status"     : "normal"
                 };
+
+                html +=
+                    '<div class="grid-unit">' +
+                        '<div class="name">' +
+                            DFG.name +
+                        '</div>' +
+                        '<div class="time">' +
+                            getTime(DFG.initialTime) +
+                        '</div>' +
+                        '<div class="status">' +
+                            DFG.status +
+                        '</div>' +
+                    '</div>';
             }
+        }
+
+        for (var i = 0, len = DFGs.length; i < len; i++) {
+            var DFG = DFGs[i];
 
             html +=
                 '<div class="grid-unit">' +
                     '<div class="name">' +
-                        DFGInfo.name +
+                        DFG.name +
                     '</div>' +
                     '<div class="time">' +
-                        getTime(DFGInfo.initialTime) +
+                        getTime(DFG.initialTime) +
                     '</div>' +
                     '<div class="status">' +
-                        DFGInfo.status +
+                        DFG.status +
                     '</div>' +
                 '</div>';
         }
@@ -637,6 +697,53 @@ window.Scheduler = (function(Scheduler, $) {
         $timePicker.data("date", date);
 
         return (hours + " : " + minutes + " " + ampm);
+    }
+
+    function getNextRunTime(schedule) {
+        var d = new Date();
+        var time = new Date(schedule.startTime);
+
+        if (time >= d) {
+            // the start time has not passed
+            return;
+        }
+
+        var repeat = schedule.repeat;
+
+        if (repeat === scheduleFreq.dayPerMonth) {
+            var freq  = schedule.freq;
+            var radix = radixMap[freq.radix];
+            var day   = dayMap[freq.day];
+
+            time = getDayPerMonthHelper(radix, day, d.getTime());
+            schedule.startTime = time.getTime();
+            schedules.dateText = xcHelper.getDate("/", time);
+        } else {
+            while (time < d) {
+                switch (repeat) {
+                    case scheduleFreq.hourly:
+                        time.setHours(time.getHours() + 1);
+                        break;
+                    case scheduleFreq.daily:
+                        time.setDate(time.getDate() + 1);
+                        break;
+                    case scheduleFreq.weekly:
+                        time.setDate(time.getDate() + 7);
+                        break;
+                    case scheduleFreq.biweekly:
+                        time.setDate(time.getDate() + 14);
+                        break;
+                    case scheduleFreq.monthly:
+                        time.setMonth(time.getMonth() + 1);
+                        break;
+                    default:
+                        console.error("Invalid option!");
+                        return;
+                }
+            }
+
+            schedule.startTime = time.getTime();
+        }
     }
 
     function getDayPerMonthHelper(radix, day, srcTime) {

@@ -1024,7 +1024,7 @@
           <div class="mainButtonArea">
             <button id="addSchedule" class="btn btnLarge iconBtn">
               <span class="icon"></span>
-              ADD NEW SCHEDULE
+              CREATE NEW SCHEDULE
             </button>
             <button id="deleteSchedule" class="btn btnLarge iconBtn btnInactive">
               <span class="icon"></span>
@@ -1977,15 +1977,19 @@
     <!-- AddSchedule Main Section -->
     <section class="modalTopMain">
       <!-- title section -->
+      <h3>Select a schedule:</h3>
       <div class="listSection scheduleList">
         <input class="text focusable scheduleListInput" type="text" value="" spellcheck="false" readonly="">
         <div class="iconWrapper">
             <span class="icon"></span>
         </div>
         <ul class="list" style="display: none;">
-          <li class="hint unavailable">Choose a target</li>
-          <li>MySql_Test</li>
         </ul>
+      </div>
+      <!-- <div class="or">or</div> -->
+      <h3>or create a new schedule:</h3>
+      <div>
+        <button type="button" class="btn btnMid createNewSchedule">create new schedule</button>
       </div>
     </section>
     <!-- Button Section -->
