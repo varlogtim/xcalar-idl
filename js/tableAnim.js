@@ -52,6 +52,7 @@ function gRescolMouseDown(el, event, options) {
         rescol.isDatastore = true;
         rescol.$tableWrap = $('#dataSetTableWrap');
         rescol.$worksheetTable = $('#worksheetTable');
+        rescol.$previewTable = $('#previewTable');
     } else if (el.closest('th').hasClass("userHidden")) {
         // This is a hidden column! we need to unhide it
         // return;
@@ -90,6 +91,9 @@ function gRescolMouseMove(event) {
     moveTableTitles();
     if (gRescol.isDatastore) {
         rescol.$tableWrap.width(rescol.$worksheetTable.width());
+           // size line divider to fit table
+        var tableWidth = rescol.$previewTable.width();
+        rescol.$previewTable.find('.divider').width(tableWidth - 10);
     }
 }
 
