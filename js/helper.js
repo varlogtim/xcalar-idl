@@ -610,8 +610,10 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.Modal.prototype = {
         setup: function() {
+            // hide tooltip when open the modal
+            $(".tooltip").hide();
             // XXX to find the visiable btn, must show the modal first
-            var $modal   = this.$modal;
+            var $modal = this.$modal;
             var eleLists = [
                 $modal.find(".btn"),                // buttons
                 $modal.find("input")                // input
@@ -631,12 +633,15 @@ window.xcHelper = (function($, xcHelper) {
                 addFocusEvent($focusables[i], i);
             }
 
-            // for switch between modal tab using tab key
             $(document).on("keydown.xcModal" + this.id, function(event) {
                 if (event.which === keyCode.Tab) {
+                     // for switch between modal tab using tab key
                     event.preventDefault();
                     getEleToFocus();
 
+                    return false;
+                } else if (event.which === keyCode.Escape) {
+                    $modal.find(".modalHeader .close").click();
                     return false;
                 }
             });

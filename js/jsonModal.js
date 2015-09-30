@@ -41,6 +41,7 @@ window.JSONModal = (function($, JSONModal) {
         if ($.trim($jsonTd.text()).length === 0) {
             return;
         }
+        $(".tooltip").hide();
         var tableTitle = $jsonTd.closest(".xcTableWrap")
                                 .find(".xcTheadWrap .tableTitle .text")
                                 .data("title");
@@ -112,7 +113,14 @@ window.JSONModal = (function($, JSONModal) {
             }
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
 
-        $('body').on('keydown', cycleMatches);
+        $(document).on("keydown.jsonModal", function(event) {
+            cycleMatches(event);
+
+            if (event.which === keyCode.Escape) {
+                closeJSONModal();
+                return false;
+            }
+        });
     }
 
     function searchText($input) {
@@ -239,34 +247,32 @@ window.JSONModal = (function($, JSONModal) {
 
     function closeJSONModal(pullColTrigger) {
         $jsonWrap.off();
-        $('body').off('keydown', cycleMatches);
+        $(document).off(".jsonModal");
         $matches = [];
+        $('.modalHighlighted').removeClass('modalHighlighted');
 
         if (gMinModeOn) {
             $jsonModal.hide();
             $modalBackground.hide();
-            $('#sideBarModal').hide();
             closeHandler();
         } else if (pullColTrigger) {
             $jsonModal.hide();
             $modalBackground.fadeOut(180);
-            $('#sideBarModal').hide();
             closeHandler();
         } else {
             $jsonModal.fadeOut(300, function() {
                 $modalBackground.fadeOut(180);
-                $('#sideBarModal').fadeOut(180);
                 closeHandler();
             });
         }
 
         function closeHandler() {
             Tips.refresh();
+            $('#sideBarModal').hide();
             $('#rightSideBar').removeClass('modalOpen');
-            $('.modalHighlighted').removeClass('modalHighlighted');
             $('.xcTable').removeClass('tableJsonModal');
-            $('.darkenedCell').remove();
             $("body").removeClass("hideScroll");
+            $('.darkenedCell').remove();
             clearSearch();
         }
     }
@@ -302,8 +308,8 @@ window.JSONModal = (function($, JSONModal) {
             $('#sideBarModal').fadeIn(300);
             $('#rightSideBar').addClass('modalOpen');
             $jsonTd.closest('.xcTable').find('.idSpan').append(darkenedCell);
-            $('.darkenedCell').fadeIn(300);
             $modalBackground.fadeIn(300, function() {
+                $('.darkenedCell').show();
                 $jsonModal.fadeIn(180);
                 $jsonTd.addClass('modalHighlighted');
             });
