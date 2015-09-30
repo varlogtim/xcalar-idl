@@ -103,7 +103,8 @@ window.JSONModal = (function($, JSONModal) {
 
                 var pullColOptions = {
                     "isDataTd": isDataTd,
-                    "isArray" : isArray
+                    "isArray" : isArray,
+                    "noAnimate": true
                 };
 
                 ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)

@@ -59,8 +59,8 @@ window.TestSuite = (function($, TestSuite) {
     {
         if (deferred.state() == "pending") {
             fails++;
-            console.log("Test " + testName + " failed -- " + reason);
-            console.log("not ok " + currentTestNumber + " - Test \"" + testName +
+            console.warn("Test " + testName + " failed -- " + reason);
+            console.warn("not ok " + currentTestNumber + " - Test \"" + testName +
                         "\" failed (" + reason + ")");
             deferred.reject();
         }
@@ -163,6 +163,7 @@ window.TestSuite = (function($, TestSuite) {
         if (typeof elemSelectors === "string") {
             var elemSelectors = [elemSelectors];
         }
+        var caller = checkExists.caller.name;
 
         var interval = setInterval(function() {
             var numItems = elemSelectors.length;
@@ -186,7 +187,7 @@ window.TestSuite = (function($, TestSuite) {
             } else if (timeElapsed >= timeLimit) {
                 console.log(elemSelectors, options);
                 var error = 'time limit of ' + timeLimit +
-                            'ms exceeded';
+                            'ms exceeded in function: ' + caller;
                 console.warn(error);
                 clearInterval(interval);
                 deferred.reject(error);
@@ -525,6 +526,8 @@ window.TestSuite = (function($, TestSuite) {
         $("#importDataSubmit").click();
         checkExists("#dataset-"+dsName+":not(.inactive)")
         .then(function() {
+            return(checkExists("#worksheetTable[data-dsname="+dsName+"]"));
+        }).then(function(){
             $(".contentViewTable .flexContainer").eq(0).click();
             $(".contentViewTable .flexContainer").eq(5).click();
             $("#submitDSTablesBtn").click();

@@ -2562,10 +2562,11 @@ function moveTableTitles() {
     });
 }
 
-function moveTableTitlesAnimated(tableId, oldWidth, widthChange) {
+function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
     if (isBrowserMicrosoft) {
         return;
     }
+    var duration = speed || 250;
     var viewWidth = $('#mainFrame').width();
     var $table = $('#xcTableWrap-' + tableId);
     var $thead = $table.find('.xcTheadWrap');
@@ -2594,7 +2595,7 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange) {
             }
         }
         center = Math.floor(center);
-        $tableTitle.animate({left: center}, 250, "linear");
+        $tableTitle.animate({left: center}, duration, "linear");
     }
 }
 

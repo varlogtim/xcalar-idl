@@ -81,6 +81,7 @@ window.ColManager = (function($, ColManager) {
         var select      = options.select || false;
         var inFocus     = options.inFocus || false;
         var newProgCol  = options.progCol;
+        var noAnimate   = options.noAnimate;
 
         var columnClass;
         var color;
@@ -131,13 +132,31 @@ window.ColManager = (function($, ColManager) {
         }
         // insert new th column
         options = {
-            "name" : name,
-            "width": width,
+            "name"    : name,
+            "width"   : width,
             "isHidden": options.isHidden
         };
         var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
                                                     newColid, options);
         $tableWrap.find('.th.col' + (newColid - 1)).after(columnHeadHTML);
+
+        if (gMinModeOn || noAnimate) {
+            updateTableHeader(tableId);
+            RightSideBar.updateTableInfo(tableId);
+            $table.find('.rowGrab').width($table.width());
+        } else {
+            $tableWrap.find('.th.col' + newColid)
+                      .width(10)
+                      .animate({width: width}, 300, function() {
+                          updateTableHeader(tableId);
+                          RightSideBar.updateTableInfo(tableId);
+                          matchHeaderSizes($table);
+                      });
+
+            moveTableTitlesAnimated(tableId, $tableWrap.width(),
+                                    10 - width, 300);
+        }
+       
 
         // get the first row in UI and start to add td to each row
         // var numRow = $table.find("tbody tr").length;
@@ -166,11 +185,6 @@ window.ColManager = (function($, ColManager) {
         if (inFocus) {
             $table.find('tr:first .editableHead.col' + newColid).focus();
         }
-
-        updateTableHeader(tableId);
-        RightSideBar.updateTableInfo(tableId);
-        matchHeaderSizes($table);
-        $table.find('.rowGrab').width($table.width());
     };
 
     ColManager.delCol = function(colNums, tableId) {
@@ -182,34 +196,42 @@ window.ColManager = (function($, ColManager) {
         var colNum;
         var colIndex;
         var colNames = [];
+        var promises = [];
+        var colWidths = 0;
+        var tableWidth = $table.closest('.xcTableWrap').width();
 
         for (var i = 0; i < numCols; i++) {
             colNum = colNums[i];
             colIndex = colNum - i;
             colNames.push(table.tableCols[colIndex - 1].name);
-            delColHelper(colNum, tableId, true, colIndex);
+            colWidths += table.tableCols[colIndex - 1].width;
+            promises.push(delColHelper(colNum, colNum, tableId, true, colIndex));
         }
 
-        var numAllCols = table.tableCols.length;
-        updateTableHeader(tableId);
-        RightSideBar.updateTableInfo(tableId);
-        for (var i = colNums[0]; i <= numAllCols; i++) {
-            var oldColNum = xcHelper.parseColNum($table.find('th').eq(i));
-            $table.find(".col" + oldColNum)
-                  .removeClass('col' + oldColNum)
-                  .addClass('col' + i);
-        }
-            
-        matchHeaderSizes($table);
-        xcHelper.removeSelectionRange();
+        moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
 
-         // add SQL
-        SQL.add("Delete Column", {
-            "operation": SQLOps.DeleteCol,
-            "tableName": tableName,
-            "tableId"  : tableId,
-            "colNames" : colNames,
-            "colNums"  : colNums
+        jQuery.when.apply($, promises).done(function() {
+            var numAllCols = table.tableCols.length;
+            updateTableHeader(tableId);
+            RightSideBar.updateTableInfo(tableId);
+            for (var i = colNums[0]; i <= numAllCols; i++) {
+                var oldColNum = xcHelper.parseColNum($table.find('th').eq(i));
+                $table.find(".col" + oldColNum)
+                      .removeClass('col' + oldColNum)
+                      .addClass('col' + i);
+            }
+                
+            matchHeaderSizes($table);
+            xcHelper.removeSelectionRange();
+
+             // add SQL
+            SQL.add("Delete Column", {
+                "operation": SQLOps.DeleteCol,
+                "tableName": tableName,
+                "tableId"  : tableId,
+                "colNames" : colNames,
+                "colNums"  : colNums
+            });
         });
     };
 
@@ -221,6 +243,7 @@ window.ColManager = (function($, ColManager) {
 
         var isDataTd = pullColOptions.isDataTd || false;
         var isArray  = pullColOptions.isArray || false;
+        var noAnimate = pullColOptions.noAnimate || false;
 
         var $table   = $("#xcTable-" + tableId);
         var table    = gTables[tableId];
@@ -250,7 +273,8 @@ window.ColManager = (function($, ColManager) {
         }
         ColManager.addCol(colNum, tableId, newColName, {
             "direction": direction,
-            "select"   : true
+            "select"   : true,
+            "noAnimate": noAnimate
         });
 
         if (direction === "R") {
@@ -561,7 +585,7 @@ window.ColManager = (function($, ColManager) {
             name = tableCols[colNum - 1].name;
         }
 
-        var name = xcHelper.getUniqColName(name, tableCols);
+        name = xcHelper.getUniqColName(name, tableCols);
 
         ColManager.addCol(colNum, tableId, name, {
             "width"   : width,
@@ -596,9 +620,23 @@ window.ColManager = (function($, ColManager) {
     ColManager.delDupCols = function(colNum, tableId) {
         // col Name will change after delete the col
         var table = gTables[tableId];
+        var $tableWrap = $('#xcTableWrap-' + tableId);
+        var tableWidth = $tableWrap.width();
         var colName = table.tableCols[colNum - 1].name;
+        var colWidths = delDupColHelper(colNum, tableId);
+        
+        if (gMinModeOn) {
+            matchHeaderSizes($tableWrap.find('.xcTable'));
+        } else {
+            moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
+            setTimeout(function() {
+                matchHeaderSizes($tableWrap.find('.xcTable'));
+            }, 200);
+        }
 
-        delDupColHelper(colNum, tableId);
+        updateTableHeader(tableId);
+        RightSideBar.updateTableInfo(tableId);
+
         SQL.add("Delete Duplicate Columns", {
             "operation": SQLOps.DelDupCol,
             "tableName": table.tableName,
@@ -612,14 +650,18 @@ window.ColManager = (function($, ColManager) {
         var table   = gTables[tableId];
         var columns = table.tableCols;
         var forwardCheck = true;
-
+        var $table = $('#xcTable-' + tableId);
         for (var i = 0; i < columns.length; i++) {
             if (columns[i].func.func && columns[i].func.func === "raw") {
                 continue;
             } else {
                 delDupColHelper(i + 1, tableId, forwardCheck);
-            }
+            }    
         }
+
+        matchHeaderSizes($table);
+        updateTableHeader(tableId);
+        RightSideBar.updateTableInfo(tableId);
 
         SQL.add("Delete All Duplicate Columns", {
             "operation": SQLOps.DelAllDupCols,
@@ -637,11 +679,10 @@ window.ColManager = (function($, ColManager) {
         var colNames = [];
         var widthDiff = 0;
         var tableWidth = $table.width();
-        var $theadWrap = $('#xcTheadWrap-' + tableId);
         var tdSelectors = "";
         var $ths = $();
         
-        for (var i = 0; i < numCols; i++) { 
+        for (var i = 0; i < numCols; i++) {
             var colNum = colNums[i];
             tdSelectors += "td.col" + colNum + ",";
             var col = tableCols[colNum - 1];
@@ -656,7 +697,6 @@ window.ColManager = (function($, ColManager) {
         }
 
         tdSelectors = tdSelectors.slice(0, tdSelectors.length - 1);
-        var $thInput = $ths.find("input");
         var $tds = $table.find(tdSelectors);
 
         if (!gMinModeOn) {
@@ -665,7 +705,7 @@ window.ColManager = (function($, ColManager) {
                 $tds.addClass("userHidden");
             });
             
-            moveTableTitlesAnimated(tableId, tableWidth, widthDiff);
+            moveTableTitlesAnimated(tableId, tableWidth, widthDiff, 250);
         } else {
             $ths.width(10);
             $ths.addClass("userHidden");
@@ -711,7 +751,7 @@ window.ColManager = (function($, ColManager) {
                 if (!gMinModeOn) {
                     promises.push(jQuery.Deferred());
                     var count = 0;
-                    $th.animate({width:col.width}, 250, "linear", function() {
+                    $th.animate({width: col.width}, 250, "linear", function() {
                         promises[count].resolve();
                         count++;
                     });
@@ -1129,6 +1169,10 @@ window.ColManager = (function($, ColManager) {
         var args    = columns[index].func.args;
         var start   = forwardCheck ? index : 0;
         var operation;
+        // var thNum = start + (thsDeleted || 0);
+        var thNum = start;
+        var numColsDeleted = 0;
+        var colWidths = 0;
 
         if (args) {
             operation = args[0];
@@ -1136,27 +1180,38 @@ window.ColManager = (function($, ColManager) {
 
         for (var i = start; i < numCols; i++) {
             if (i === index) {
+                thNum++;
                 continue;
             }
             if (columns[i].func.args) {
                 if (columns[i].func.args[0] === operation &&
                     columns[i].func.func !== "raw")
                 {
-                    delColandAdjustLoop();
+                    delColAndAdjustLoop();
                 }
             } else if (operation == null) {
-                delColandAdjustLoop();
+                delColAndAdjustLoop();
             }
+            thNum++;
         }
 
-        function delColandAdjustLoop() {
-            delColHelper((i + 1), tableId);
+        function delColAndAdjustLoop() {
+            var currThNum;
+            if (gMinModeOn || forwardCheck) {
+                currThNum = i + 1;
+            } else {
+                currThNum = thNum + 1;
+            }
+            colWidths += columns[i].width;
+            delColHelper(currThNum, i + 1, tableId, null, null, forwardCheck);
             if (i < index) {
                 index--;
             }
             numCols--;
             i--;
+            numColsDeleted++;
         }
+        return (colWidths);
     }
 
     // Help Functon for pullAllCols and pullCOlHelper
@@ -1218,29 +1273,58 @@ window.ColManager = (function($, ColManager) {
         return (removed);
     }
 
-    function delColHelper(colNum, tableId, multipleCols, colId) {
+    function delColHelper(cellNum, colNum, tableId, multipleCols, colId, noAnim) {
+        // cellNum is the th's colnumber, colNum refers to gTables colNum
+        var deferred = jQuery.Deferred();
         var table      = xcHelper.getTableFromId(tableId);
         var numCols    = table.tableCols.length;
         var $tableWrap = $("#xcTableWrap-" + tableId);
 
-        $tableWrap.find(".col" + colNum).remove();
+        // temporarily no animation when deleting multiple duplicate cols
+        if (gMinModeOn || noAnim) {
+            $tableWrap.find(".col" + cellNum).remove();
+            if (!multipleCols) {
+                removeColHelper(colNum - 1, tableId);
+                
+
+                for (var i = colNum + 1; i <= numCols; i++) {
+                    $tableWrap.find(".col" + i)
+                              .removeClass("col" + i)
+                              .addClass("col" + (i - 1));
+                }
+
+                var $table = $('#xcTable-' + tableId);
+                matchHeaderSizes($table);
+            } else {
+                removeColHelper(colId - 1, tableId);
+            }
+
+            deferred.resolve();
+            return (deferred.promise());
+        }
+
+        $tableWrap.find("th.col" + cellNum).animate({width: 0}, 200, function() {
+            var currColNum = xcHelper.parseColNum($(this));
+            $tableWrap.find(".col" + currColNum).remove();
+            if (!multipleCols) {
+                for (var i = currColNum + 1; i <= numCols; i++) {
+                    $tableWrap.find(".col" + i)
+                              .removeClass("col" + i)
+                              .addClass("col" + (i - 1));
+                }
+                deferred.resolve();
+            } else {
+                deferred.resolve();
+            }
+        });
 
         if (!multipleCols) {
             removeColHelper(colNum - 1, tableId);
-            updateTableHeader(tableId);
-            RightSideBar.updateTableInfo(tableId);
-
-            for (var i = colNum + 1; i <= numCols; i++) {
-                $tableWrap.find(".col" + i)
-                          .removeClass("col" + i)
-                          .addClass("col" + (i - 1));
-            }
-
-            var $table = $('#xcTable-' + tableId);
-            matchHeaderSizes($table);
         } else {
             removeColHelper(colId - 1, tableId);
         }
+
+        return (deferred.promise());
     }
 
     function parsePullColArgs(progCol) {
