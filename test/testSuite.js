@@ -280,11 +280,9 @@ window.TestSuite = (function($, TestSuite) {
             })
             .then(function() {
                 $("#selectDSCols .icon").click();
-                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
-                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
-                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
-                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
-                $("#selectedTable-"+dsName1+" li .closeIcon")[0].click();
+                // click on closeIcon on datacart not work
+                // since it has animation that dealy the display
+                $("#worksheetTable th .header .editableHead").slice(0, 5).click();
                 $("#submitDSTablesBtn").click();
 
                 var header = ".xcTable .flexWrap.flex-mid" +
@@ -674,7 +672,7 @@ window.TestSuite = (function($, TestSuite) {
         var tableId = (WSManager.getWorksheets())[1].tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
         $("#tableMenu-" + tableId + " .aggregates").trigger(fakeMouseup);
-        checkExists(".spinny", {notExist: true})
+        checkExists(".spinny", null, {notExist: true})
         .then(function() {
             assert($(".aggTableField:contains('N/A')").not(".aggTableFlex").
                     length === 145);
