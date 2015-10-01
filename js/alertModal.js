@@ -143,9 +143,22 @@ window.Alert = (function($, Alert){
 
         // lock screen if necessary
         if (options.lockScreen) {
-            $btnSection.css('visibility', 'hidden');
+            $btnSection.find('.confirm, .cancel').css('visibility', 'hidden');
             $('#alertHeader').find('.close').css('pointer-events', 'none');
             $alertModal.addClass('locked');
+            var $copySqlBtn = $('<button type="button" ' +
+                             'class="btn btnMid copySql" ' +
+                             'data-toggle="tooltip" ' +
+                             'title="Copy the SQL log onto your clipboard">' +
+                             'Copy log</button>');
+            $btnSection.prepend($copySqlBtn);
+            $copySqlBtn.click(function() {
+                var $hiddenInput = $("<input>");
+                $("body").append($hiddenInput);
+                $hiddenInput.val(JSON.stringify(SQL.getHistory())).select();
+                document.execCommand("copy");
+                $hiddenInput.remove();
+            });
         }
 
         // set checkbox,  default is unchecked
