@@ -10,7 +10,7 @@ window.TestSuite = (function($, TestSuite) {
     var passes = 0;
     var fails = 0;
     var skips = 0;
-    var testCases = new Array();
+    var testCases = [];
     var disableIsPass = true;
     var startTime = 0;
     var totTime = 0;
@@ -20,101 +20,97 @@ window.TestSuite = (function($, TestSuite) {
     var curTestName;
     var curDeferred;
 
-    var fakeMouseup = {type: "mouseup",
-                       which: 1};
-    var fakeClick = {type: "click",
-                     which: 1};
-    var fakeMousedown = {type: "mousedown",
-                         which: 1};
-    var fakeEnter = {type: "keypress",
-                     which: 13};
-    var fakeMouseenter = {type: "mouseenter",
-                          which: 1};
+    var fakeMouseup = {"type": "mouseup", "which": 1};
+    var fakeClick = {"type": "click", "which": 1};
+    var fakeMousedown = {"type": "mousedown", "which": 1};
+    var fakeEnter = {"type": "keypress", "which": 13};
+    var fakeMouseenter = {"type": "mouseenter", "which": 1};
 
-    TestSuite.start = function(deferred, testNameLocal, currentTestNumberLocal,
-                               timeout) {
-    }
+    // TestSuite.start = function(deferred, testNameLocal, currentTestNumberLocal, timeout) {
+    // };
 
     TestSuite.printResult = function(result) {
         if (result) {
             console.log(JSON.stringify(result));
         }
-    }
+    };
 
-    TestSuite.pass = function(deferred, testName, currentTestNumber)
-    {
-        if (deferred.state() == "pending") {
+    TestSuite.pass = function(deferred, testName, currentTestNumber) {
+        if (deferred.state() === "pending") {
             passes++;
             var d = new Date();
             var milli = d.getTime() - startTime;
-            console.log("ok " + currentTestNumber + " - Test \"" + testName +
+
+            console.log("ok ", currentTestNumber + " - Test \"" + testName +
                         "\" passed");
-            console.log("Time taken: " + milli/1000 + "s");
+            console.log("Time taken: " + milli / 1000 + "s");
             totTime += milli;
             deferred.resolve();
+        } else {
+            console.error("Invalid state", deferred.state());
         }
-    }
+    };
 
-    TestSuite.fail = function(deferred, testName, currentTestNumber, reason)
-    {
-        if (deferred.state() == "pending") {
+    TestSuite.fail = function(deferred, testName, currentTestNumber, reason) {
+        if (deferred.state() === "pending") {
             fails++;
             console.warn("Test " + testName + " failed -- " + reason);
             console.warn("not ok " + currentTestNumber + " - Test \"" + testName +
                         "\" failed (" + reason + ")");
             deferred.reject();
+        } else {
+            console.error("Invalid state", deferred.state());
         }
-    }
+    };
 
-    TestSuite.skip = function(deferred, testName, currentTestNumber)
-    {
+    TestSuite.skip = function(deferred, testName, currentTestNumber) {
         console.log("====== Skipping " + testName + " ======");
         console.log("ok " + currentTestNumber + " - Test \"" + testName +
                     "\" disabled # SKIP");
         skips++;
+
         if (disableIsPass) {
             deferred.resolve();
         } else {
             deferred.reject();
         }
-    }
+    };
 
-    TestSuite.add = function(testCases, testFn, testName, timeout, testCaseEnabled)
-    {
-        testCases[testCases.length] = {"testFn": testFn,
-                                       "testName": testName,
-                                       "timeout": timeout,
-                                       "testCaseEnabled": testCaseEnabled};
-    }
+    TestSuite.add = function(testCases, testFn, testName, timeout, testCaseEnabled) {
+        testCases[testCases.length] = {
+            "testFn": testFn,
+            "testName": testName,
+            "timeout": timeout,
+            "testCaseEnabled": testCaseEnabled
+        };
+    };
 
-    TestSuite.run = function()
-    {
-        var initialDeferred = $.Deferred();
-        var ii;
-        var deferred;
-        deferred = initialDeferred;
+    TestSuite.run = function() {
+        var initialDeferred = jQuery.Deferred();
+        var deferred = initialDeferred;
 
         // Start chaining the callbacks
-        for (ii = 0; ii < testCases.length; ii++) {
+        for (var ii = 0; ii < testCases.length; ii++) {
             deferred = deferred.then(
                 // Need to trap the value of testCase and ii
                 (function trapFn(testCase, currentTestNumber) {
                     return (function() {
-                        var localDeferred = $.Deferred();
+                        var localDeferred = jQuery.Deferred();
                         if (testCase.testCaseEnabled) {
                             console.log("====================Test ", currentTestNumber, " Begin====================");
                             console.log("Testing: ", testCase.testName, "                     ");
                             setTimeout(function() {
-                                if (localDeferred.state() == "pending") {
+                                if (localDeferred.state() === "pending") {
                                     var reason = "Timed out after " + (testCase.timeout / 1000) + " seconds";
                                     TestSuite.fail(localDeferred, testCase.testName, currentTestNumber, reason);
                                 }
                             }, testCase.timeout);
-                            var d = new Date();
-                            startTime = d.getTime();
+
+                            startTime = new Date().getTime();
                             curDeferred = localDeferred;
                             curTestName = testCase.testName;
                             curTestNumber = currentTestNumber;
+
                             testCase.testFn(localDeferred, testCase.testName, currentTestNumber);
                         } else {
                             TestSuite.skip(localDeferred, testCase.testName, currentTestNumber);
@@ -137,32 +133,32 @@ window.TestSuite = (function($, TestSuite) {
             console.log("==========================================");
             console.log("1.." + testCases.length + "\n");
             alert("Passes: " + passes + ", Fails: " + fails + ", Time: "
-                  + totTime/1000 + "s");
+                  + totTime / 1000 + "s");
         });
 
         // This starts the entire chain
         initialDeferred.resolve();
-    }
+    };
 
-    function assert(statement)
-    {
+    function assert(statement) {
         if (!statement) {
             console.log("Assert failed!");
             TestSuite.fail(curDeferred, curTestName, curTestNumber);
         }
     }
 
-
-    // elemSelectors can be a string or array of element selectors 
+    // elemSelectors can be a string or array of element selectors
     // example: ".xcTable" or ["#xcTable-ex1", "#xcTable-ex2"]
     function checkExists(elemSelectors, timeLimit, options) {
         var deferred = jQuery.Deferred();
         var intervalTime = 200;
         var timeLimit = timeLimit || 10000;
         var timeElapsed = 0;
+
         if (typeof elemSelectors === "string") {
-            var elemSelectors = [elemSelectors];
+            elemSelectors = [elemSelectors];
         }
+
         var caller = checkExists.caller.name;
 
         var interval = setInterval(function() {
@@ -186,8 +182,8 @@ window.TestSuite = (function($, TestSuite) {
                 setTimeout(deferred.resolve, 100);
             } else if (timeElapsed >= timeLimit) {
                 console.log(elemSelectors, options);
-                var error = 'time limit of ' + timeLimit +
-                            'ms exceeded in function: ' + caller;
+                var error = "time limit of " + timeLimit +
+                            "ms exceeded in function: " + caller;
                 console.warn(error);
                 clearInterval(interval);
                 deferred.reject(error);
@@ -200,13 +196,15 @@ window.TestSuite = (function($, TestSuite) {
 
 // ========================= COMMON ACTION TRIGGERS ======================== //
     function trigOpModal(tableId, columnName, funcClassName, whichModal) {
-        var $header = $("#xcTbodyWrap-"+tableId)
-                       .find(".flexWrap.flex-mid input[value='"+columnName+"']")
+        var $header = $("#xcTbodyWrap-" + tableId)
+                       .find(".flexWrap.flex-mid input[value='" + columnName + "']")
                        .eq(0);
         $header.parent().parent().find(".flex-right .innerBox").click();
-        var $colMenu = $("#xcTableWrap-"+tableId)
-                       .find(".colMenu:not(.tableMenu) ."+funcClassName);
+
+        var $colMenu = $("#xcTableWrap-" + tableId)
+                       .find(".colMenu:not(.tableMenu) ." + funcClassName);
         $colMenu.trigger(fakeMouseup);
+
         if (whichModal === "join") {
             return (checkExists("#joinModal:visible"));
         } else {
@@ -230,16 +228,18 @@ window.TestSuite = (function($, TestSuite) {
         10. Aggregate on groupBy table to count number of unique airlines
         */
 
-        var dsName1 = "flight"+Math.floor(Math.random()*100);
-        var dsName2 = "airport"+Math.floor(Math.random()*100);
+        var dsName1 = "flight" + Math.floor(Math.random() * 100);
+        var dsName2 = "airport" + Math.floor(Math.random() * 100);
 
         flightTestPart1(dsName1, dsName2);
+
+        // Import dataset
         function flightTestPart1(dsName1, dsName2) {
             $("#dataStoresTab").click();
 
             // Import flight dataset
             $("#importDataButton").click();
-            $("#filePath").val("file:///netstore/users/jerene/flight"+
+            $("#filePath").val("file:///netstore/users/jerene/flight" +
                                "/airlines_2007.log");
             $("#fileName").val(dsName1);
             $("#fileFormat .iconWrapper .icon").click();
@@ -249,8 +249,9 @@ window.TestSuite = (function($, TestSuite) {
             $("#fieldDelim .list li[name='comma']").click();
             $("#importDataSubmit").click();
             
+            // import airports dataset
             $("#importDataButton").click();
-            $("#filePath").val("file:///netstore/users/jerene/flight"+
+            $("#filePath").val("file:///netstore/users/jerene/flight" +
                                "/airports.csv");
             $("#fileName").val(dsName2);
             $("#fileFormat .iconWrapper .icon").click();
@@ -258,25 +259,28 @@ window.TestSuite = (function($, TestSuite) {
             $("#fieldDelim .icon").click();
             $("#fieldDelim .list li[name='comma']").click();
             $("#importDataSubmit").click();
-            var ds1Icon = '#dataset-'+dsName1+':not(.inactive)';
-            var ds2Icon = '#dataset-'+dsName2+':not(.inactive)';
+
+            var ds1Icon = "#dataset-" + dsName1 + ":not(.inactive)";
+            var ds2Icon = "#dataset-" + dsName2 + ":not(.inactive)";
+
             checkExists([ds1Icon, ds2Icon])
             .then(function() {
                 flightTestPart2(dsName1, dsName2);
             })
             .fail(function(error) {
-                console.error(error, 'flightTestPart1');
+                console.error(error, "flightTestPart1");
+                TestSuite.fail(deferred, testName, currentTestNumber);
             });
-         }
-        
+        }
+
+        // Select columns in dataset and send to worksheet
         function flightTestPart2(dsName1, dsName2) {
-            $("#dataset-"+dsName2+" .gridIcon").click();
-            checkExists('#worksheetTable[data-dsname=' + dsName2)
+            $("#dataset-" + dsName2 + " .gridIcon").click();
+            checkExists("#worksheetTable[data-dsname=" + dsName2)
             .then(function() {
                 $("#selectDSCols .icon").click();
-                $("#dataset-"+dsName1+" .gridIcon").click();
-                return (checkExists('#worksheetTable[data-dsname=' +
-                                     dsName1));
+                $("#dataset-" + dsName1 + " .gridIcon").click();
+                return (checkExists("#worksheetTable[data-dsname=" + dsName1));
             })
             .then(function() {
                 $("#selectDSCols .icon").click();
@@ -287,33 +291,39 @@ window.TestSuite = (function($, TestSuite) {
 
                 var header = ".xcTable .flexWrap.flex-mid" +
                              " input[value='ArrDelay']:eq(0)";
-                return(checkExists(header));
+                return (checkExists(header));
             })
             .then(function() {
                 flightTestPart3();
             })
             .fail(function(error) {
-                console.error(error, 'flightTestPart2');
+                console.error(error, "flightTestPart2");
+                TestSuite.fail(deferred, testName, currentTestNumber);
             });
         }
 
+        // Change column type
         function flightTestPart3() {
             var $header = $($(".flexWrap.flex-mid input[value='ArrDelay']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
+
             var $colMenu = $(".xcTableWrap").eq(0)
                             .find(".colMenu:not(.tableMenu) .changeDataType");
             $colMenu.mouseover();
             $colMenu.find(".type-integer").trigger(fakeMouseup);
-            checkExists(".flexWrap.flex-mid"+
-                              " input[value='ArrDelay_integer']:eq(0)")
+
+            checkExists(".flexWrap.flex-mid" +
+                        " input[value='ArrDelay_integer']:eq(0)")
             .then(function() {
                 flightTestPart4();
             })
             .fail(function(error) {
-                console.error(error, 'flightTestPart3');
+                console.error(error, "flightTestPart3");
+                TestSuite.fail(deferred, testName, currentTestNumber);
             });
         }
 
+        // Filter flight table
         function flightTestPart4() {
             var tableId = (WSManager.getWorksheets())[0].tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "filter")
@@ -322,7 +332,7 @@ window.TestSuite = (function($, TestSuite) {
                 $("#functionList input").trigger(fakeEnter);
                 $($(".argumentTable tr")[2]).find("input").val("0");
                 $("#operationsModal .modalBottom .confirm").click();
-                var tableId = $('.xcTable:eq(0)').data('id');
+                // var tableId = $(".xcTable:eq(0)").data("id");
                 return (checkExists("#xcTable-" + tableId, null,
                                     {notExist: true}));
             })
@@ -330,35 +340,40 @@ window.TestSuite = (function($, TestSuite) {
                 flightTestPart5();
             })
             .fail(function(error) {
-                console.error(error, 'flightTestPart4');
+                console.error(error, "flightTestPart4");
+                TestSuite.fail(deferred, testName, currentTestNumber);
             });
         }
 
+        // Upload python script
        function flightTestPart5() {
             $("#udfBtn").click();
             $("#udf-tabs div[data-tab='udf-fnSection'] .label").click();
-            var textArea = $("#udf-codeArea")[0];
             var editor = RightSideBar.getEditor();
-            editor.setValue('def ymd(year, month, day):\n'+
-                            '    if int(month) < 10:\n'+
-                            '        month = "0" + month\n'+
-                            '    if int(day) < 10:\n'+
-                            '        day = "0" + day\n'+
+            editor.setValue('def ymd(year, month, day):\n' +
+                            '    if int(month) < 10:\n' +
+                            '        month = "0" + month\n' +
+                            '    if int(day) < 10:\n' +
+                            '        day = "0" + day\n' +
                             '    return year + month + day');
             $(".submitSection #udf-fnName").val("ymd");
             $("#udf-fnUpload").click();
+
             checkExists("#alertHeader:visible .text:contains('SUCCESS')")
             .then(function() {
                 flightTestPart6();
             })
             .fail(function(error) {
-                 console.error(error, 'flightTestPart5');
+                 console.error(error, "flightTestPart5");
+                 TestSuite.fail(deferred, testName, currentTestNumber);
             });
         }
 
+        // Map on flight table
         function flightTestPart6() {
             $("#alertActions .confirm").click();
             var tableId = (WSManager.getWorksheets())[0].tables[0];
+
             trigOpModal(tableId, "Year", "map")
             .then(function() {
                 $("#categoryList .dropdown .icon").trigger(fakeClick);
@@ -371,7 +386,7 @@ window.TestSuite = (function($, TestSuite) {
                 $($(".argumentTable .argument")[3]).val("YearMonthDay");
                 $("#operationsModal .modalBottom .confirm").click();
 
-                var tableId = $('.xcTable:eq(0)').data('id');
+                // var tableId = $('.xcTable:eq(0)').data('id');
                 return (checkExists("#xcTable-" + tableId, null,
                                     {notExist: true}));
             })
@@ -379,20 +394,21 @@ window.TestSuite = (function($, TestSuite) {
                 flightTestPart7();
             })
             .fail(function(error) {
-                console.error(error, 'flightTestPart6');
+                console.error(error, "flightTestPart6");
+                TestSuite.fail(deferred, testName, currentTestNumber);
             });
         }
 
+        // Join flight table with airport table
         function flightTestPart7() {
-            var $header = $($(".flexWrap.flex-mid"+
-                              " input[value='Dest']")[0]);
+            var $header = $(".flexWrap.flex-mid input[value='Dest']").eq(0);
             $header.parent().parent().find(".flex-right .innerBox").click();
             var $colMenu = $(".xcTableWrap").eq(0)
                             .find(".colMenu:not(.tableMenu) .joinList");
             $colMenu.trigger(fakeMouseup);
-                $("#rightJoin .tableLabel:contains('airport')")
-                .trigger(fakeClick);
+                $("#rightJoin .tableLabel:contains('airport')").trigger(fakeClick);
                 $("#rightJoin .columnTab:contains('iata')").trigger(fakeClick);
+
                 setTimeout(function() {
                     $("#joinTables").click();
                     checkExists(".xcTableWrap .tableTitle:contains(join)")
@@ -400,11 +416,13 @@ window.TestSuite = (function($, TestSuite) {
                         flightTestPart8();
                     })
                     .fail(function(error) {
-                        console.error(error, 'flightTestPart7');
+                        console.error(error, "flightTestPart7");
+                        TestSuite.fail(deferred, testName, currentTestNumber);
                     });
                 }, 500);
         }
 
+        // Group by
         function flightTestPart8() {
             var tableId = (WSManager.getWorksheets())[0].tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "groupby")
@@ -416,7 +434,6 @@ window.TestSuite = (function($, TestSuite) {
                 $($(".argumentTable .argument")[2]).val("AvgDelay");
                 $("#operationsModal .modalBottom .confirm").click();
 
-                var tableId = $('.xcTable:eq(0)').data('id');
                 return (checkExists(".xcTableWrap " +
                                     ".tableTitle:contains(GroupBy)"));
             })
@@ -428,20 +445,22 @@ window.TestSuite = (function($, TestSuite) {
                 }
             })
             .fail(function(error) {
-                console.error(error, 'flightTestPart8');
+                console.error(error, "flightTestPart8");
                 TestSuite.fail(deferred, testName, currentTestNumber);
             });
         }
 
+        // Aggregate
         function flightTestPart9() {
             var tableId = (WSManager.getWorksheets())[0].tables[0];
+
             trigOpModal(tableId, "ArrDelay_integer", "aggregate")
             .then(function() {
                 $("#functionList .dropdown .icon").trigger(fakeClick);
-                $($("#functionsMenu li")[0]).trigger(fakeMouseup);
+                $("#functionsMenu li").eq(0).trigger(fakeMouseup);
                 $("#operationsModal .modalBottom .confirm").click();
 
-                return(checkExists("#alertHeader:visible .text:contains(Agg)"));
+                return checkExists("#alertHeader:visible .text:contains(Agg)");
             })
             .then(function() {
                  if ($("#alertContent .text").html().split(": ")[1]
@@ -449,13 +468,14 @@ window.TestSuite = (function($, TestSuite) {
                      $("#alertActions .cancel").click();
                      TestSuite.pass(deferred, testName, currentTestNumber);
                  } else {
-                     console.log(error, 'Average value wrong');
+                     console.log(error, "Average value wrong");
                      TestSuite.fail(deferred, testName, currentTestNumber,
                                     "Average value wrong");
                  }
             })
             .fail(function(error) {
-                console.error(error, 'flightTestPart9');
+                console.error(error, "flightTestPart9");
+                TestSuite.fail(deferred, testName, currentTestNumber);
             });
         }
     }
@@ -467,14 +487,14 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             $("#tableListBtn").click();
             $(".tableListSectionTab").eq(1).click();
-            return (checkExists("#inactiveTablesList"))
+            return (checkExists("#inactiveTablesList"));
         })
         .then(function() {
             $("#inactiveTablesList .addTableBtn").eq(1).click();
             $("#submitTablesBtn").click();
             $("#rightSideBar .iconClose").click();
             $("#worksheetTab-0 .label").click();
-            return (checkExists(".xcTableWrap .tableTitle .dropdownBox "+
+            return (checkExists(".xcTableWrap .tableTitle .dropdownBox " +
                                 ".innerBox"));
         })
         .then(function() {
@@ -494,12 +514,13 @@ window.TestSuite = (function($, TestSuite) {
 
     function multiGroupByTest(deferred, testName, currentTestNumber) {
         var tableId = (WSManager.getWorksheets())[1].tables[0];
+
         trigOpModal(tableId, "ArrDelay_integer", "groupby")
         .then(function() {
             $("#functionsMenu li").eq(2).trigger(fakeMouseup);
             $(".argumentTable .argument").eq(1).val("$Dest, $AirTime");
             $("#operationsModal .modalBottom .confirm").click();
-            return (checkExists(".xcTableWrap "+
+            return (checkExists(".xcTableWrap " +
                                 ".tableTitle:contains(GroupBy)"));
         })
         .then(function() {
@@ -512,24 +533,24 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function multiJoinTest(deferred, testName, currentTestNumber) {
-        var dsName = "schedule"+Math.floor(Math.random()*100);
+        var dsName = "schedule" + Math.floor(Math.random() * 100);
         // Import schedule dataset
         $("#dataStoresTab").click();
         $("#importDataButton").click();
-        $("#filePath").val("file:///var/tmp/qa/indexJoin/schedule/schedule.json"
-                          );
+        $("#filePath").val("file:///var/tmp/qa/indexJoin/schedule/schedule.json");
         $("#fileName").val(dsName);
         $("#fileFormat .iconWrapper .icon").click();
         $("#fileFormat li[name='JSON']").click();
         $("#importDataSubmit").click();
-        checkExists("#dataset-"+dsName+":not(.inactive)")
+
+        checkExists("#dataset-" + dsName + ":not(.inactive)")
         .then(function() {
-            return(checkExists("#worksheetTable[data-dsname="+dsName+"]"));
+            return (checkExists("#worksheetTable[data-dsname=" + dsName + "]"));
         }).then(function(){
             $(".contentViewTable .flexContainer").eq(0).click();
             $(".contentViewTable .flexContainer").eq(5).click();
             $("#submitDSTablesBtn").click();
-            return (checkExists(".xcTable .flexWrap.flex-mid input[value="+
+            return (checkExists(".xcTable .flexWrap.flex-mid input[value=" +
                                 "'class_id']:eq(0)"));
         }).then(function() {
             var tableId = (WSManager.getWorksheets())[1].tables[1];
@@ -546,8 +567,8 @@ window.TestSuite = (function($, TestSuite) {
             $(".rightClause").eq(0).val("DayofMonth");
             $(".rightClause").eq(1).val("DayOfWeek");
             $("#joinTables").click();
-            return (checkExists(".xcTableWrap .tableTitle:contains(multiJoin)"
-                               , 30000));
+            return (checkExists(".xcTableWrap .tableTitle:contains(multiJoin)",
+                    30000));
         }).then(function() {
             if ($("#numPages").text().indexOf("1,953") > -1) {
                 TestSuite.pass(deferred, testName, currentTestNumber);
@@ -562,10 +583,10 @@ window.TestSuite = (function($, TestSuite) {
     function columnRenameTest(deferred, testName, currentTestNumber) {
         $("#mainFrame").scrollLeft("0");
         var tableId = (WSManager.getWorksheets())[1].tables[0];
-        var $header = $("#xcTable-"+tableId+
+        var $header = $("#xcTable-" + tableId +
                         " .flexWrap.flex-mid input[value='class_id']");
         $header.parent().parent().find(".flex-right .innerBox").click();
-        var $colMenu = $("#xcTableWrap-"+tableId)
+        var $colMenu = $("#xcTableWrap-" + tableId)
                         .find(".colMenu:not(.tableMenu) .renameCol");
         $colMenu.mouseover();
         $colMenu.find(".colName").val("class id").trigger(fakeEnter);
@@ -575,14 +596,14 @@ window.TestSuite = (function($, TestSuite) {
             $colMenu.find(".colName").val("newclassid");
             $colMenu.find(".colName").trigger(fakeEnter);
             // Now do something with this newly renamed column
-            var $header = $("#xcTable-"+tableId+
+            var $header = $("#xcTable-" + tableId +
                             " .flexWrap.flex-mid input[value='newclassid']");
             $header.parent().parent().find(".flex-right .innerBox").click();
-            $colMenu = $("#xcTableWrap-"+tableId)
+            $colMenu = $("#xcTableWrap-" + tableId)
                         .find(".colMenu:not(.tableMenu) .changeDataType");
             $colMenu.mouseover();
             $colMenu.find(".type-string").trigger(fakeMouseup);
-            return (checkExists(".flexWrap.flex-mid"+
+            return (checkExists(".flexWrap.flex-mid" +
                                 " input[value='newclassid_string']:eq(0)"));
 
         })
@@ -597,18 +618,18 @@ window.TestSuite = (function($, TestSuite) {
 
     function tableRenameTest(deferred, testName, currentTestNumber) {
         var tableId = (WSManager.getWorksheets())[1].tables[0];
-        $("#xcTableWrap-"+tableId+" .tableName").text("New Table Name")
-                                                .trigger(fakeEnter);
+        $("#xcTableWrap-" + tableId + " .tableName").text("New Table Name")
+                                                    .trigger(fakeEnter);
         checkExists(".xcTableWrap .tableName:contains('New')")
         .then(function() {
-            var $header = $("#xcTable-"+tableId+
+            var $header = $("#xcTable-" + tableId +
                             " .flexWrap.flex-mid input[value='Month']");
             $header.parent().parent().find(".flex-right .innerBox").click();
-            $colMenu = $("#xcTableWrap-"+tableId)
+            $colMenu = $("#xcTableWrap-" + tableId)
                         .find(".colMenu:not(.tableMenu) .changeDataType");
             $colMenu.mouseover();
             $colMenu.find(".type-integer").trigger(fakeMouseup);
-            return (checkExists(".flexWrap.flex-mid"+
+            return (checkExists(".flexWrap.flex-mid" +
                                 " input[value='Month_integer']:eq(0)"));
         })
         .then(function() {
@@ -621,14 +642,13 @@ window.TestSuite = (function($, TestSuite) {
 
     function profileTest(deferred, testName, currentTestNumber) {
         var tableId = (WSManager.getWorksheets())[1].tables[0];
-        var $header = $("#xcTable-"+tableId+
+        var $header = $("#xcTable-" + tableId +
                         " .flexWrap.flex-mid input[value='Month_integer']");
         $header.parent().parent().find(".flex-right .innerBox").click();
-        $("#xcTableWrap-"+tableId).find(".colMenu:not(.tableMenu) .profile")
-                                  .trigger(fakeMouseup);
+        $("#xcTableWrap-" + tableId).find(".colMenu:not(.tableMenu) .profile")
+                                    .trigger(fakeMouseup);
         checkExists([".modalHeader .text:contains('Profile')",
-                     ".barArea .xlabel:contains('205')"],
-                     30000)
+                     ".barArea .xlabel:contains('205')"], 30000)
         .then(function() {
             assert($(".barChart .barArea").length === 8);
             assert($(".barArea .xlabel").eq(0).text() === "205");
@@ -651,7 +671,7 @@ window.TestSuite = (function($, TestSuite) {
                 $("#statsModal .modalBottom button").click();
                 TestSuite.pass(deferred, testName, currentTestNumber);
             }, 1000);
-        })        
+        });
     }
 
     function corrTest(deferred, testName, currentTestNumber) {
