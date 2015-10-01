@@ -480,12 +480,25 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function argSuggest($input) {
-        var curVal    = $input.val();
-        var corrected = corrector.suggest(curVal);
-        var $ul       = $input.siblings(".list");
+        var curVal = $input.val();
+        var $ul = $input.siblings(".list");
+        var shouldSuggest = true;
+        var corrected;
+
+        // when there is multi cols
+        if (curVal.indexOf(",") > -1) {
+            shouldSuggest = false;
+        } else {
+            corrected = corrector.suggest(curVal);
+
+            // should not suggest if the input val is already a column name
+            if (corrected === curVal) {
+                shouldSuggest = false;
+            }
+        }
 
         // should not suggest if the input val is already a column name
-        if (corrected && corrected !== curVal) {
+        if (shouldSuggest) {
             $ul.empty()
                 .append('<li class="openli">' + corrected + '</li>')
                 .addClass("openList")
