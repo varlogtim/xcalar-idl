@@ -40,17 +40,17 @@
   <!-- END OF MONITOR PANEL -->
 
   <!-- DATASTORE PANEL -->
-  <div id="datastoreView" class="mainPanel active">
+  <div id="datastorePanel" class="mainPanel active">
     <!-- Datastore header -->
     <div id="contentHeader" class="topBar">
       <div id="contentHeaderLeft" class="no-selection">
-        <div class="buttonArea active">
-          <div id="exploreButton" class="icon"></div>
-          <div class="text">EXPLORE</div>
+        <div id="inButton" class="buttonArea active">
+          <div class="icon"></div>
+          <div class="text">IN</div>
         </div>
-        <div class="buttonArea" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="Coming Soon">
-          <div id="searchButton" class="icon"></div>
-          <div class="text">SEARCH</div>
+        <div id="outButton" class="buttonArea">
+          <div class="icon"></div>
+          <div class="text">OUT</div>
         </div>
       </div>
       <div id="contentHeaderMid" class="no-selection">
@@ -62,8 +62,8 @@
       </div>
     </div>
     <!-- Import Data Form -->
-    <div id="importDataView" class="no-selection" style="display: none;">
-      <div id="importHelp">
+    <div id="importDataView" class="dataStoreFormView no-selection" style="display: none;">
+      <div id="importHelp" class="formHelp no-selection">
         <div class="contentViewMidWrap">
           <h2>Import New Data Set</h2>
           <span class="icon"></span>
@@ -256,7 +256,7 @@
     <!-- Main Content -->
     <div id="mainContent">
       <!-- Search View -->
-      <div id="searchView">
+      <div id="exportView">
         <div class="contentView">
           <div class="contentViewLeft">
             <div id="importDataArea"></div>
@@ -272,51 +272,51 @@
       </div>
       <!-- Explore View -->
       <div id="exploreView">
-        <div id="contentView">
-          <div id="contentViewLeft" class="no-selection">
-            <div id="datasetExplore">
+        <div class="contentView">
+          <div class="contentViewLeft no-selection">
+            <div id="datasetExplore" class="headingArea">
               <span>Data Sets (<span class="numDataStores">1</span>)</span>
               <div class="buttonGroup">
-                <div id="refreshDS" class="btn dataViewBtn">
+                <div id="refreshDS" class="refresh btn dataViewBtn">
                   <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="Refresh Datasets"></span>
                 </div>
 
-                <div id="dataViewBtn" class="btn dataViewBtn selected gridView" data-toggle="tooltip" data-placement="top" data-original-title="Switch to List view" data-container="body" data-introstep="13">
+                <div id="dataViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" data-toggle="tooltip" data-placement="top" data-original-title="Switch to List view" data-container="body" data-introstep="13">
                   <span class="icon"></span>
                 </div>
               </div>
             </div>
-            <div id="importDataArea" class="no-selection">
+            <div id="importDataArea" class="mainButtonArea no-selection">
               <button id="importDataButton" class="btn btnLarge iconBtn">
                 <span class="icon"></span>IMPORT NEW DATA SET
               </button>
             </div>
             <!-- Grid Views of ds -->
-            <div id="gridViewButtonArea" class="no-selection">
-              <div id="backFolderBtn" class="disabled" title="See previous folders" data-container="body" data-toggle="tooltip" data-placement="bottom" ondrop="dsDropBack(event)" ondragover="allowDSDrop(event)" ondragenter="dsDragEnter(event)">
+            <div class="gridViewButtonArea no-selection">
+              <div id="backFolderBtn" class="backBtn disabled" title="See previous folders" data-container="body" data-toggle="tooltip" data-placement="bottom" ondrop="dsDropBack(event)" ondragover="allowDSDrop(event)" ondragenter="dsDragEnter(event)">
                 <div class="icon"></div>
                 <div class="label">..</div>
               </div>
-              <div id="addFolderBtn" title="" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Folder" data-introstep="10">
+              <div id="addFolderBtn" class="addBtn" title="" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Add New Folder" data-introstep="10">
                 <div class="icon"></div>
                 <div class="label">NEW</div>
               </div>
-              <div id="deleteFolderBtn" class="" title="" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete folder or dataset" data-introstep="12">
+              <div id="deleteFolderBtn" class="deleteBtn" title="" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete folder or dataset" data-introstep="12">
                 <div class="icon"></div>
                 <div class="label">DELETE</div>
               </div>
             </div>
             <!-- Grid View -->
-            <div id="gridViewWrapper">
-              <div id="gridViewScrollbarWrapper">
-                <div id="gridView" class="gridView"><div id="dataset-yelpUsers" class="ds grid-unit display active" draggable="true" ondragstart="dsDragStart(event)" ondragend="dsDragEnd(event)" data-dsid="1" data-dsparentid="0" data-introstep="1">
+            <div class="gridViewWrapper">
+              <div class="gridViewScrollbarWrapper">
+                <div class="gridView gridItems"><div id="dataset-yelpUsers" class="ds grid-unit display active" draggable="true" ondragstart="dsDragStart(event)" ondragend="dsDragEnd(event)" data-dsid="1" data-dsparentid="0" data-introstep="1">
                 <div id="1leftWarp" class="dragWrap leftTopDragWrap" ondragenter="dsDragEnter(event)" ondragover="allowDSDrop(event)" ondrop="dsDrop(event)"></div><div id="1rightWarp" class="dragWrap rightBottomDragWrap" ondragenter="dsDragEnter(event)" ondragover="allowDSDrop(event)" ondrop="dsDrop(event)"></div><div class="gridIcon"></div><div class="listIcon"><span class="icon"></span></div><div class="label" data-dsname="yelpUsers">yelpUsers</div></div><div class="folder display collapse grid-unit" draggable="true" ondragstart="dsDragStart(event)" ondragend="dsDragEnd(event)" data-dsid="2" data-dsparentid="0" data-introstep="11">
                 <div id="2leftWarp" class="dragWrap leftTopDragWrap" ondragenter="dsDragEnter(event)" ondragover="allowDSDrop(event)" ondrop="dsDrop(event)"></div><div id="2midWarp" class="dragWrap midDragWrap" ondragenter="dsDragEnter(event)" ondragover="allowDSDrop(event)" ondrop="dsDrop(event)"></div><div id="2rightWarp" class="dragWrap rightBottomDragWrap" ondragenter="dsDragEnter(event)" ondragover="allowDSDrop(event)" ondrop="dsDrop(event)"></div><div class="gridIcon"></div><div class="listIcon"><span class="icon"></span></div><div class="dsCount">0</div><div title="Click to rename" class="label" contenteditable="true">New Folder</div></div></div>
               </div>
             </div>
           </div>
-          <div id="contentViewMid" class="">
-            <div id="contentViewHeader">   
+          <div class="contentViewMid">
+            <div class="contentViewHeader">   
               <div class="dbText" data-introstep="2">
                 <h2 id="dsInfo-title">yelpUsers</h2>
                 <p>
@@ -332,7 +332,7 @@
               </div>
             </div>
             <!-- Datastore Table -->
-            <div id="contentViewTable">
+            <div class="contentViewTable">
               <div class="datasetTitleWrap">
                 <div class="dsInfo">
                   <h2>Dataset Preview</h2>
@@ -363,7 +363,7 @@
           <!-- End Datastore Table -->
 
           <!-- Datastore Cart -->
-          <div id="contentViewRight" class="no-selection">
+          <div class="contentViewRight no-selection">
             <div class="buttonArea">
               <button id="submitDSTablesBtn" class="btn btnLarge iconBtn" data-introstep="9" data-introposition="left">
                 <span class="icon"></span>SEND TO ACTIVE WORKSHEET

@@ -34,17 +34,17 @@
   
 
   <!-- DATASTORE PANEL -->
-  <div id="datastoreView" class="mainPanel active">
+  <div id="datastorePanel" class="mainPanel active">
     <!-- Datastore header -->
     <div id="contentHeader" class="topBar">
       <div id="contentHeaderLeft" class="no-selection">
-        <div class="buttonArea active">
-          <div id="exploreButton" class="icon"></div>
-          <div class="text">EXPLORE</div>
+        <div id="inButton" class="buttonArea active">
+          <div class="icon"></div>
+          <div class="text">IN</div>
         </div>
-        <div class="buttonArea" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon">
-          <div id="searchButton" class="icon"></div>
-          <div class="text">SEARCH</div>
+        <div id="outButton" class="buttonArea" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Coming Soon">
+          <div class="icon"></div>
+          <div class="text">OUT</div>
         </div>
       </div>
       <div id="contentHeaderMid" class="no-selection">
@@ -56,8 +56,8 @@
       </div>
     </div>
     <!-- Import Data Form -->
-    <div id="importDataView" class="no-selection" style="display: block;">
-      <div id="importHelp">
+    <div id="importDataView" class="dataStoreFormView no-selection" style="display: block;">
+      <div id="importHelp" class="formHelp no-selection">
         <div class="contentViewMidWrap">
           <h2>Import New Data Set</h2>
           <span class="icon"></span>
@@ -68,9 +68,9 @@
         </div>
       </div>
       <!-- Data Form -->
-      <form id="importDataForm" target="_blank">
+      <form id="importDataForm" class="dataStoreForm" target="_blank">
         <!-- Top Form -->
-        <div id="importDataTopForm">
+        <div id="importDataTopForm" class="dataStoreFormTop no-selection">
           <div class="contentViewMidWrap">
             <!-- file path -->
             <div id="filePathSelector" class="importFormRow">
@@ -118,7 +118,7 @@
           </div>
         </div>
         <!-- Bottom Form -->
-        <div id="importDataBottomForm">
+        <div id="importDataBottomForm" class="dataStoreFormBottom no-selection">
           <div class="contentViewMidWrap">
             <div id="csvDelim" class="hidden clearfix default-hidden">
               <!-- Field Delimiter -->
@@ -247,66 +247,51 @@
     </div>
     <!-- Main Content -->
     <div id="mainContent">
-      <!-- Search View -->
-      <div id="searchView">
-        <div class="contentView">
-          <div class="contentViewLeft">
-            <div id="importDataArea"></div>
-            <div id="datasetSearch"></div>
-            <div id="listView"></div>
-          </div>
-          <div class="contentViewMid">
-            <div id="searchHeader"></div>
-            <div id="searchResult"></div>
-          </div>
-          <div class="contentViewRight"></div>
-        </div>
-      </div>
       <!-- Explore View -->
       <div id="exploreView">
-        <div id="contentView">
-          <div id="contentViewLeft" class="no-selection">
-            <div id="datasetExplore">
+        <div class="contentView">
+          <div class="contentViewLeft no-selection">
+            <div id="datasetExplore" class="headingArea">
               <span>Data Sets (<span class="numDataStores">0</span>)</span>
               <div class="buttonGroup">
-                <div id="refreshDS" class="btn dataViewBtn">
+                <div id="refreshDS" class="refresh btn dataViewBtn">
                   <span class="icon" data-toggle="tooltip" data-placement="top" data-container="body" title="" data-original-title="Refresh Datasets"></span>
                 </div>
 
-                <div id="dataViewBtn" class="btn dataViewBtn selected gridView" data-toggle="tooltip" data-placement="top" data-original-title="Switch to List view" data-container="body">
+                <div id="dataViewBtn" class="btn dataViewBtn selected gridView toggleListGrid" data-toggle="tooltip" data-placement="top" data-original-title="Switch to List view" data-container="body">
                   <span class="icon"></span>
                 </div>
               </div>
             </div>
-            <div id="importDataArea" class="no-selection">
+            <div id="importDataArea" class="mainButtonArea no-selection">
               <button id="importDataButton" class="btn btnLarge iconBtn" data-introstep="1">
                 <span class="icon"></span>IMPORT NEW DATA SET
               </button>
             </div>
             <!-- Grid Views of ds -->
-            <div id="gridViewButtonArea" class="no-selection">
-              <div id="backFolderBtn" class="disabled" title="See previous folders" data-container="body" data-toggle="tooltip" data-placement="bottom" ondrop="dsDropBack(event)" ondragover="allowDSDrop(event)" ondragenter="dsDragEnter(event)">
+            <div class="gridViewButtonArea no-selection">
+              <div id="backFolderBtn" class="backBtn disabled" title="See previous folders" data-container="body" data-toggle="tooltip" data-placement="bottom" ondrop="dsDropBack(event)" ondragover="allowDSDrop(event)" ondragenter="dsDragEnter(event)">
                 <div class="icon"></div>
                 <div class="label">..</div>
               </div>
-              <div id="addFolderBtn" title="Add New Folder" data-container="body" data-toggle="tooltip" data-placement="bottom">
+              <div id="addFolderBtn" class="addBtn" title="Add New Folder" data-container="body" data-toggle="tooltip" data-placement="bottom">
                 <div class="icon"></div>
                 <div class="label">NEW</div>
               </div>
-              <div id="deleteFolderBtn" class="disabled" title="" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete folder or dataset">
+              <div id="deleteFolderBtn" class="deleteBtn disabled" title="" data-container="body" data-toggle="tooltip" data-placement="bottom" data-original-title="Delete folder or dataset">
                 <div class="icon"></div>
                 <div class="label">DELETE</div>
               </div>
             </div>
             <!-- Grid View -->
-            <div id="gridViewWrapper">
-              <div id="gridViewScrollbarWrapper">
-                <div id="gridView" class="gridView"></div>
+            <div class="gridViewWrapper">
+              <div class="gridViewScrollbarWrapper">
+                <div class="gridView gridItems"></div>
               </div>
             </div>
           </div>
-          <div id="contentViewMid" class="hidden">
-            <div id="contentViewHeader">   
+          <div class="contentViewMid hidden">
+            <div class="contentViewHeader">   
               <div class="dbText">
                 <h2 id="dsInfo-title">yelpUsers</h2>
                 <p>
@@ -322,7 +307,7 @@
               </div>
             </div>
             <!-- Datastore Table -->
-            <div id="contentViewTable">
+            <div class="contentViewTable">
               <div class="datasetTitleWrap">
                 <div class="dsInfo">
                   <h2>Dataset Preview</h2>
@@ -348,7 +333,7 @@
           <!-- End Datastore Table -->
 
           <!-- Datastore Cart -->
-          <div id="contentViewRight" class="no-selection">
+          <div class="contentViewRight no-selection">
             <div class="buttonArea">
               <button id="submitDSTablesBtn" class="btn btnLarge iconBtn btnInactive">
                 <span class="icon"></span>SEND TO ACTIVE WORKSHEET
