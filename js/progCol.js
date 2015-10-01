@@ -203,8 +203,13 @@ window.ColManager = (function($, ColManager) {
         for (var i = 0; i < numCols; i++) {
             colNum = colNums[i];
             colIndex = colNum - i;
-            colNames.push(table.tableCols[colIndex - 1].name);
-            colWidths += table.tableCols[colIndex - 1].width;
+            var col = table.tableCols[colIndex - 1];
+            colNames.push(col.name);
+            if (col.isHidden) {
+                colWidths += 15;
+            } else {
+                colWidths += table.tableCols[colIndex - 1].width;
+            }
             promises.push(delColHelper(colNum, colNum, tableId, true, colIndex));
         }
 
@@ -1202,7 +1207,12 @@ window.ColManager = (function($, ColManager) {
             } else {
                 currThNum = thNum + 1;
             }
-            colWidths += columns[i].width;
+            if (columns[i].isHidden) {
+                colWidths += 15;
+            } else {
+                colWidths += columns[i].width;
+            }
+           
             delColHelper(currThNum, i + 1, tableId, null, null, forwardCheck);
             if (i < index) {
                 index--;
