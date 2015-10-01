@@ -82,7 +82,7 @@ window.ColManager = (function($, ColManager) {
         var inFocus     = options.inFocus || false;
         var newProgCol  = options.progCol;
         var noAnimate   = options.noAnimate;
-
+        var isHidden    = options.isHidden;
         var columnClass;
         var color;
 
@@ -134,7 +134,7 @@ window.ColManager = (function($, ColManager) {
         options = {
             "name"    : name,
             "width"   : width,
-            "isHidden": options.isHidden
+            "isHidden": isHidden
         };
         var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
                                                     newColid, options);
@@ -145,18 +145,22 @@ window.ColManager = (function($, ColManager) {
             RightSideBar.updateTableInfo(tableId);
             $table.find('.rowGrab').width($table.width());
         } else {
-            $tableWrap.find('.th.col' + newColid)
-                      .width(10)
-                      .animate({width: width}, 300, function() {
-                          updateTableHeader(tableId);
-                          RightSideBar.updateTableInfo(tableId);
-                          matchHeaderSizes($table);
-                      });
-
-            moveTableTitlesAnimated(tableId, $tableWrap.width(),
+            var $th = $tableWrap.find('.th.col' + newColid);
+            $th.width(10);
+            if (!isHidden) {
+                $th.animate({width: width}, 300, function() {
+                        updateTableHeader(tableId);
+                        RightSideBar.updateTableInfo(tableId);
+                        matchHeaderSizes($table);
+                    });
+                moveTableTitlesAnimated(tableId, $tableWrap.width(),
                                     10 - width, 300);
+            } else {
+                updateTableHeader(tableId);
+                RightSideBar.updateTableInfo(tableId);
+                matchHeaderSizes($table);
+            }
         }
-       
 
         // get the first row in UI and start to add td to each row
         // var numRow = $table.find("tbody tr").length;
