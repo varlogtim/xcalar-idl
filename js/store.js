@@ -258,14 +258,14 @@ function readFromStorage() {
 
         return (deferred2.promise());
     })
-    .then(deferred.resolve)
+    .then(function() {
+        var atStartUp = true;
+        commitToStorage(atStartUp);
+        deferred.resolve();
+    })
     .fail(function(error) {
         console.error("readFromStorage fails!", error);
         deferred.reject(error);
-    })
-    .always(function() {
-        var atStartUp = true;
-        commitToStorage(atStartUp);
     });
 
     return (deferred.promise());
