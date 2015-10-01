@@ -1780,7 +1780,9 @@ function addColMenuBehaviors($colMenu) {
             $li.closest('.clickable').length === 0) {
             // hide li if doesnt have a submenu or an input field
             closeMenu($colMenu);
-            $('.selectedCell').removeClass('selectedCell');
+            if (!$li.hasClass('functions')) {
+                $('.selectedCell').removeClass('selectedCell');
+            }
         }
     });
 
