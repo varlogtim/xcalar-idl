@@ -214,13 +214,15 @@ var DFGPanel = (function($, DFGPanel) {
                             '<div class="tableTitleArea">' +
                                 '<span>Table: </span>' +
                                 '<span class="tableName" draggable="true" ' +
-                                'ondragstart="xcDrag(event)">' + groupName +
+                                'ondragstart="xcDrag(event)">' +
+                                    group.dataFlows[i].name +
                                 '</span>' +
                             '</div>' +
                         '</div>' +
-                        '<div class="dagImage" style="width:' +
-                        group.dataFlows[i].canvasInfo.width + 'px;height:' +
-                        group.dataFlows[i].canvasInfo.height + 'px;">';
+                        '<div class="dagImageWrap">' +
+                            '<div class="dagImage" style="width:' +
+                            group.dataFlows[i].canvasInfo.width + 'px;height:' +
+                            group.dataFlows[i].canvasInfo.height + 'px;">';
 
             var tables = group.dataFlows[i].canvasInfo.tables;
             var numTables = tables.length;
@@ -233,7 +235,7 @@ var DFGPanel = (function($, DFGPanel) {
             for (var j = 0; j < numOperations; j++) {
                 html += getOperationHtml(operations[j]);
             }
-            html += '</div></div>';
+            html += '</div></div></div>';
         }
         $dfgView.find('.midContentMain').html(html);
         $dfgView.find('.dagImage').each(function() {
