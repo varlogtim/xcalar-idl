@@ -776,6 +776,15 @@ function generateColDropDown(tableId) {
     '<li class="multiColumn hideColumns thDropdown">Hide Columns</li>' +
     '<li class="multiColumn unhideColumns thDropdown">Unhide Columns</li>' +
     '<li class="multiColumn deleteColumns thDropdown">Delete Columns</li>' +
+    '<li class="multiColumn textAlignColumns thDropdown">Text align' +
+        '<ul class="subColMenu">' +
+            '<li class="textAlign leftAlign">Left Align</li>' +
+            '<li class="textAlign centerAlign">Center Align</li>' +
+            '<li class="textAlign rightAlign">Right Align</li>' +
+            '<div class="subColMenuArea"></div>' +
+        '</ul>' +
+        '<div class="dropdownBox"></div>' +
+    '</li>' +
     '<li class="tdFilter tdDropdown">Filter this value</li>' +
     '<li class="tdExclude tdDropdown">Exclude this value</li>' +
     '<li class="tdJsonModal tdDropdown">Examine</li>' +

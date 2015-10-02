@@ -1892,7 +1892,13 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        var colNum = $colMenu.data('colNum');
+        var $li = $(this);
+        var colNum;
+        if ($li.closest('.multiColumn').length !== 0) {
+            colNum = $colMenu.data('columns');
+        } else {
+            colNum = $colMenu.data('colNum');
+        }
         ColManager.textAlign(colNum, tableId, $(this).attr("class"));
     });
 

@@ -801,27 +801,47 @@ window.ColManager = (function($, ColManager) {
         } else {
             alignment = "Center";
         }
-
         var table  = gTables[tableId];
-        var curCol = table.tableCols[colNum - 1];
         var $table = $('#xcTable-' + tableId);
-
-        $table.find('td.col' + colNum)
+        var colNums = [];
+        var colNames = [];
+        if (typeof colNum !== "object") {
+            colNums.push(colNum);
+        } else {
+            colNums = colNum;
+        }
+        var numCols = colNums.length;
+        
+        for (var i = 0; i < numCols; i++) {
+            var curCol = table.tableCols[colNums[i] - 1];
+            $table.find('td.col' + colNums[i])
                 .removeClass('textAlignLeft')
                 .removeClass('textAlignRight')
                 .removeClass('textAlignCenter')
                 .addClass('textAlign' + alignment);
+            curCol.textAlign = alignment;
+            colNames.push(curCol.name);
+        }
 
-        curCol.textAlign = alignment;
-
-        SQL.add("Text Align", {
-            "operation": "textAlign",
-            "tableName": table.tableName,
-            "tableId"  : tableId,
-            "colName"  : curCol.name,
-            "colNum"   : colNum,
-            "alignment": alignment
-        });
+        if (numCols === 1) {
+            SQL.add("Text Align", {
+                "operation": "textAlign",
+                "tableName": table.tableName,
+                "tableId"  : tableId,
+                "colName"  : colNames[0],
+                "colNum"   : colNums[0],
+                "alignment": alignment
+            });
+        } else { 
+            SQL.add("Text Align", {
+                "operation": "textAlign",
+                "tableName": table.tableName,
+                "tableId"  : tableId,
+                "colNames" : colNames,
+                "colNums"  : colNums,
+                "alignment": alignment
+            });
+        }
     };
 
     ColManager.pullAllCols = function(startIndex, jsonObj, dataIndex,
