@@ -2530,13 +2530,18 @@ function moveTableTitles() {
     if (isBrowserMicrosoft) {
         return;
     }
+
     var viewWidth = $('#mainFrame').width();
-    $('.xcTableWrap:not(".inActive"):not(.tableHidden)').each(function() {
+    $('.xcTableWrap:not(.inActive):not(.tableHidden)').each(function() {
         var $table = $(this);
         var $thead = $table.find('.xcTheadWrap');
         if ($thead.length === 0) {
             return null;
         }
+        if ($table.hasClass('tableDragging')) {
+            return null;
+        }
+
         var rect = $thead[0].getBoundingClientRect();
         if (rect.right > 0) {
             if (rect.left < viewWidth) {
@@ -2713,8 +2718,6 @@ function dragTableMouseDown(el, e) {
     dragObj.windowWidth = $(window).width();
     dragObj.pageX = e.pageX;
     dragObj.$table.scrollTop(dragObj.tableScrollTop);
-    dragObj.$table.find('.idSpan').css('left', 0);
-    dragObj.$table.find('th.rowNumHead .header').css('left', 0);
     createTableDropTargets();
     dragdropMoveMainFrame(dragObj, 50);
     disableTextSelection();
