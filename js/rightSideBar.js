@@ -745,15 +745,27 @@ window.RightSideBar = (function($, RightSideBar) {
         });
         // upload file
         $("#udf-fileUpload").click(function() {
+            var val  = $filePath.val().trim();
             var file = $inputFile[0].files[0];
-            var path = file.name;
+            var path;
+            if (typeof file !== "object") {
+                path = "";
+            } else {
+                path = file.name;
+            }
+            
             var moduleName = path.substring(0, path.indexOf("."));
             var $submitBtn = $(this);
-            if (path === "") {
+            if (val === "") {
                 var text = "File Path is empty," +
                            " please choose a file you want to upload";
 
-                StatusBox.show(text, $filePath, true, 150);
+                StatusBox.show(text, $filePath, true, 190);
+            } else if (path === "") {
+                var text = "File Path is invalid," +
+                           " please choose a file you want to upload";
+
+                StatusBox.show(text, $filePath, true, 190);
             } else {
                 var reader = new FileReader();
                 reader.onload = function(event) {
@@ -768,6 +780,10 @@ window.RightSideBar = (function($, RightSideBar) {
                         storePython(moduleName, result);
                         commitToStorage();
                         uploadSuccess();
+                    })
+                    .fail(function(error) {
+                        var title = "Upload Error";
+                        Alert.error(title, error);
                     })
                     .always(function() {
                         xcHelper.enableSubmit($submitBtn);
