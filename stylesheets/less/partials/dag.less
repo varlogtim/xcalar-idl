@@ -52,9 +52,9 @@
 
         .dagArea {
             height: ~"calc(50% - 10px)";
-            .transition (~"height 0s linear 0.3s");
+            .transition (~"height 0s ease-in 0.3s");
         }
-        .transition (~"transform 0.3s linear");
+        .transition (~"transform 0.3s ease-in");
     }
 
     &.full {
@@ -64,7 +64,7 @@
 
     &.hidden {
         .transform(translate3d(0, 100%, 0));
-        .transition (~"transform 0.4s linear");
+        .transition (~"transform 0.4s ease-in");
     }
 
     #closeDag {
@@ -80,7 +80,7 @@
     .size(~"calc(100% - 10px)", ~"calc(100% - 10px)");
     overflow: auto;
     padding-bottom: 20px;
-    .transition (~"height 0s linear 0s");
+    .transition (~"height 0s ease-in 0s");
 
     .legendArea {
         display: inline-block;
