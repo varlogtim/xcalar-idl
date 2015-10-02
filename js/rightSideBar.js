@@ -304,17 +304,13 @@ window.RightSideBar = (function($, RightSideBar) {
 
         function doneHandler($li, tableName) {
             var $timeLine = $li.closest(".timeLine");
-            $li.remove();
-            if ($timeLine.find('.tableInfo').length === 0) {
-                $timeLine.remove();
-                if ($tableList.find('.tableInfo').length === 0 ) {
-                    if ($tableList.closest('#orphanedTableList').length !== 0) {
-                        $tableList.find('.selectAll, .clearAll').hide();
-                    } else {
-                        $tableList.find('.secondButtonWrap').hide();
-                    }
-                    
-                }
+
+            if (gMinModeOn) {
+                handlerCallback();
+            } else {
+                $li.addClass("transition").slideUp(150, function() {
+                    handlerCallback();
+                });
             }
 
             // Should add table id/tableName!
@@ -324,11 +320,25 @@ window.RightSideBar = (function($, RightSideBar) {
                 "tableName": tableName,
                 "tableType": tableType
             });
+
+            function handlerCallback() {
+                $li.remove();
+                if ($timeLine.find('.tableInfo').length === 0) {
+                    $timeLine.remove();
+                    if ($tableList.find('.tableInfo').length === 0 ) {
+                        if ($tableList.closest('#orphanedTableList').length !== 0) {
+                            $tableList.find('.selectAll, .clearAll').hide();
+                        } else {
+                            $tableList.find('.secondButtonWrap').hide();
+                        }
+                    }
+                }
+            }
         }
 
         function failHandler($li, tableName, error) {
             $li.find(".addTableBtn.selected")
-                            .removeClass("selected");
+                    .removeClass("selected");
             failures.push(tableName + ": {" + error.error + "}");
         }
     };
@@ -1253,7 +1263,18 @@ window.RightSideBar = (function($, RightSideBar) {
 
             html += '</ol></li>';
 
-            $dateDivider.prepend(html);
+         
+
+            if (gMinModeOn) {
+                $dateDivider.prepend(html);
+            } else {
+                var $li = $(html).hide();
+                $li.addClass("transition").prependTo($dateDivider)
+                    .slideDown(150, function() {
+                        $li.removeClass("transition");
+                    });
+            }
+           
 
             if ($('#archivedTableList').find('.tableInfo').length !== 0) {
                 $('#archivedTableList .secondButtonWrap').show();
@@ -1352,7 +1373,9 @@ window.RightSideBar = (function($, RightSideBar) {
                             '<div class="iconWrap">' +
                                 '<span class="icon"></span>' +
                             '</div>' +
-                            '<span class="tableName">' + tableName + '</span>' +
+                            '<span class="tableName textOverflow">' +
+                                tableName +
+                            '</span>' +
                             '<span class="addTableBtn"></span>' +
                         '</div>' +
                      '</li>';

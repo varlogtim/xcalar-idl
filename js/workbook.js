@@ -64,7 +64,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         modalHelper.setup();
 
         if (gMinModeOn) {
-            $modalBackground.show();
+            $modalBackground.fadeIn(300);
             $workbookModal.show();
             Tips.refresh();
         } else {

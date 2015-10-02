@@ -726,6 +726,7 @@ function checkXcalarVersionMatch() {
 
 function documentReadyIndexFunction() {
     $(document).ready(function() {
+        gMinModeOn = true; // startup use min mode;
         Compitable.check();
 
         checkXcalarVersionMatch()
@@ -747,6 +748,7 @@ function documentReadyIndexFunction() {
         .then(function() {
             // this should come in last!
             KVStore.safeSetup();
+            gMinModeOn = false; // turn off min mode
         })
         .fail(function(error) {
             if (typeof error === "string"){
