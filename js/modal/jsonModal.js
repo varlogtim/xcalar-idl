@@ -109,7 +109,7 @@ window.JSONModal = (function($, JSONModal) {
 
                 ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
                 .always(function() {
-                    closeJSONModal(true);
+                    closeJSONModal();
                 });
             }
         }, ".jKey, .jArray>.jString, .jArray>.jNum");
@@ -246,7 +246,7 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function closeJSONModal(pullColTrigger) {
+    function closeJSONModal() {
         $jsonWrap.off();
         $(document).off(".jsonModal");
         $matches = [];
@@ -255,10 +255,6 @@ window.JSONModal = (function($, JSONModal) {
         if (gMinModeOn) {
             $jsonModal.hide();
             $modalBackground.hide();
-            closeHandler();
-        } else if (pullColTrigger) {
-            $jsonModal.hide();
-            $modalBackground.fadeOut(180);
             closeHandler();
         } else {
             $jsonModal.fadeOut(300, function() {
