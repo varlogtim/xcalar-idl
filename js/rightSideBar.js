@@ -496,7 +496,7 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $rightSideBar.draggable({
-            handle     : '.heading',
+            handle     : '.heading.draggable',
             containment: 'window',
             cursor     : '-webkit-grabbing'
         });
