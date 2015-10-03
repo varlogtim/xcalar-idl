@@ -3087,14 +3087,16 @@ window.DS = (function ($, DS) {
 
         var slashIndex = loadURL.lastIndexOf('/');
         var dotIndex   = loadURL.lastIndexOf('.');
+        var fileName   = null;
 
         if (dotIndex > slashIndex) {
+            fileName = loadURL.substr(slashIndex + 1);
             loadURL = loadURL.substr(0, slashIndex + 1);
         }
 
         XcalarListFiles(loadURL)
         .then(function(files) {
-            ds.attrs.fileSize = getFileSizeHelper(files);
+            ds.attrs.fileSize = getFileSizeHelper(files, fileName);
             deferred.resolve(ds.attrs.fileSize);
         })
         .fail(function(error) {
@@ -3106,21 +3108,28 @@ window.DS = (function ($, DS) {
         return (deferred.promise());
     };
 
-    function getFileSizeHelper(files) {
+    function getFileSizeHelper(files, fileName) {
         var size = 'N/A';
         var numFiles = 0;
-        for (var i = 0; i < files.numFiles; i++) {
-            var file = files.files[i];
+        var isSingleFile = (fileName != null);
+        var fileLists = files.files;
+
+        for (var i = 0, len = files.numFiles; i < len; i++) {
+            var file = fileLists[i];
             if (!file.attr.isDirectory) {
                 numFiles++;
-                if (numFiles > 1) {
+                if (numFiles > 1 && !isSingleFile) {
                     size = 'N/A';
                     break;
                 } else {
                     size = xcHelper.sizeTranslater(file.attr.size);
+                    if (isSingleFile && fileName === file.name) {
+                        break;
+                    }
                 }
             }
         }
+
         return (size);
     }
 
