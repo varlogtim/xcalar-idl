@@ -492,7 +492,7 @@ window.OperationsModal = (function($, OperationsModal) {
             corrected = corrector.suggest(curVal);
 
             // should not suggest if the input val is already a column name
-            if (corrected === curVal) {
+            if (corrected == null || corrected === curVal) {
                 shouldSuggest = false;
             }
         }
