@@ -132,8 +132,29 @@ window.TestSuite = (function($, TestSuite) {
             console.log("# skips", skips);
             console.log("==========================================");
             console.log("1.." + testCases.length + "\n");
-            alert("Passes: " + passes + ", Fails: " + fails + ", Time: "
-                  + totTime / 1000 + "s");
+            var timeMsg = "";
+            var oldTime = "";
+            if (fails === 0 && passes > 5) {
+                var bestTime = localStorage.time || 1000;
+                bestTime = parseInt(bestTime);
+                if ((totTime / 1000) < bestTime) {
+                    localStorage.time = totTime / 1000;
+                    timeMsg = " New best time!";
+                    if (bestTime === 1000) {
+                        oldTime = " Old time: N/A";
+                    } else {
+                        oldTime = " Old time: " + bestTime + "s.";
+                    }
+                } else {
+                    if (bestTime !== 1000) {
+                        oldTime = " Current best time: " + bestTime +
+                                  "s. Try again =(";
+                    }
+                }
+            }
+            var alertMsg = "Passes: " + passes + ", Fails: " + fails + ", Time: "
+                  + totTime / 1000 + "s." + timeMsg + oldTime;
+            alert(alertMsg);
         });
 
         // This starts the entire chain

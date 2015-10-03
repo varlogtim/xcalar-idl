@@ -1268,6 +1268,7 @@ window.Dag = (function($, Dag) {
                     break;
                 }
             }
+
             var parents = $dagTable.data('parents').split(',');
             addRenameColumnInfo(name, backName, $dagTable, $dagWrap);
             highlightColumnSource(tableId, $dagWrap, name);
@@ -1352,16 +1353,22 @@ window.Dag = (function($, Dag) {
                 var lastParenIndex = userStr.indexOf(')');
                 var args = userStr.substring(firstParenIndex, lastParenIndex);
                 args = args.split(",");
+                var numArgs = args.length;
+                var argsFound = 0;
 
                 for (var j = 0; j < numCols; j++) {
-                    for (var k = 0; k < args.length; k++) {
+                    if (argsFound === numArgs) {
+                        break;
+                    }
+                    for (var k = 0; k < numArgs; k++) {
                         var arg = args[k].trim();
-                        
+
                         if (cols[j].func.args) {
                             if (arg === cols[j].func.args[0] ||
                                 userStr === cols[j].userStr) {
                                 highlightColumnHelper(tableId, $dagWrap,
                                                       cols[j], userStr);
+                            argsFound++;
                                 break;
                             }
                         } else if (userStr === cols[j].userStr) {
@@ -1373,6 +1380,7 @@ window.Dag = (function($, Dag) {
                                                   currentName);
                             findColumnSource(currentName, userStr, tableId,
                                              parents, $dagWrap, prevName);
+                            argsFound++;
                             break;
                         }
                     }
