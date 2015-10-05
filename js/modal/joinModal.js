@@ -381,31 +381,24 @@ window.JoinModal = (function($, JoinModal) {
         modalHelper.clear();
         modalHelper.enableSubmit();
 
-        if (gMinModeOn) {
-            $joinModal.hide();
-            $modalBackground.hide();
-            closeHandler();
-        } else {
-            $joinModal.fadeOut(300, function() {
-                $modalBackground.fadeOut(180);
-                closeHandler();
-            });
-        }
+        var fadeOutTime = gMinModeOn ? 0 : 300;
 
-        function closeHandler() {
+        $joinModal.hide();
+        $modalBackground.fadeOut(fadeOutTime, function() {
             Tips.refresh();
-            // clean up multi clause section
-            $mainJoin.removeClass("multiClause");
-            $multiJoinBtn.find(".active").removeClass("active")
-                        .end()  // back to $("#multiJoinBtn")
-                        .find(".offBox").addClass("active");
-            $multiJoin.find(".placeholder").siblings().remove();
+        });
+
+        // clean up multi clause section
+        $mainJoin.removeClass("multiClause");
+        $multiJoinBtn.find(".active").removeClass("active")
+                    .end()  // back to $("#multiJoinBtn")
+                    .find(".offBox").addClass("active");
+        $multiJoin.find(".placeholder").siblings().remove();
 
 
-            $joinModal.find('.tableLabel').remove();
-            $joinModal.find('.joinTable').remove();
-            $joinModal.width(920).height(620);
-        }
+        $joinModal.find('.tableLabel').remove();
+        $joinModal.find('.joinTable').remove();
+        $joinModal.width(920).height(620);
     }
 
     function hideJoinTypeSelect() {

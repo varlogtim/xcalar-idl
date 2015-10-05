@@ -101,19 +101,16 @@ window.Alert = (function($, Alert){
             return;
         }
 
-        if (gMinModeOn) {
-            $alertModal.hide();
-            if (!$modalBackground.hasClass("open")) {
-                $modalBackground.hide();
-            }
-            Tips.refresh();
-        } else {
-            $alertModal.fadeOut(180, function() {
-                if (!$modalBackground.hasClass("open")) {
-                    $modalBackground.fadeOut(100);
-                }
-                Tips.refresh();
+        var fadeOutTime = gMinModeOn ? 0 : 300;
+
+        $alertModal.hide();
+
+        if (!$modalBackground.hasClass("open")) {
+            $modalBackground.fadeOut(fadeOutTime, function() {
+                 Tips.refresh();
             });
+        } else {
+            Tips.refresh();
         }
     }
 

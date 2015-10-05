@@ -252,26 +252,18 @@ window.JSONModal = (function($, JSONModal) {
         $matches = [];
         $('.modalHighlighted').removeClass('modalHighlighted');
 
-        if (gMinModeOn) {
-            $jsonModal.hide();
-            $modalBackground.hide();
-            closeHandler();
-        } else {
-            $jsonModal.fadeOut(300, function() {
-                $modalBackground.fadeOut(180);
-                closeHandler();
-            });
-        }
+        var fadeOutTime = gMinModeOn ? 0 : 300;
 
-        function closeHandler() {
+        $jsonModal.hide();
+        $modalBackground.fadeOut(fadeOutTime, function() {
             Tips.refresh();
-            $('#sideBarModal').hide();
-            $('#rightSideBar').removeClass('modalOpen');
-            $('.xcTable').removeClass('tableJsonModal');
-            $("body").removeClass("hideScroll");
-            $('.darkenedCell').remove();
-            clearSearch();
-        }
+        });
+
+        $('#sideBarModal').hide();
+        $('#rightSideBar').removeClass('modalOpen');
+        $('.xcTable').removeClass('tableJsonModal');
+        $("body").removeClass("hideScroll");
+        $('.darkenedCell').remove();
     }
 
     function fillJsonModal($jsonTd, isArray) {

@@ -503,18 +503,13 @@ window.AggModal = (function($, AggModal) {
         $('#mainTable').off();
         $modalBackground.off("click", hideAggOpSelect);
 
-        if (gMinModeOn) {
-            $aggModal.hide();
-            $modalBackground.hide();
+        var fadeOutTime = gMinModeOn ? 0 : 300;
+
+        $aggModal.hide();
+        $modalBackground.fadeOut(fadeOutTime, function() {
             Tips.refresh();
-            $aggModal.width(920).height(670);
-        } else {
-            $aggModal.fadeOut(300, function() {
-                $modalBackground.fadeOut(180);
-                Tips.refresh();
-                $aggModal.width(920).height(670);
-            });
-        }
+        });
+        $aggModal.width(920).height(670);
     }
 
     return (AggModal);

@@ -386,16 +386,12 @@ window.FileBrowser = (function($, FileBrowser) {
         $(document).off(".fileBrowser");
         xcHelper.enableSubmit($fileBrowser.find('.confirm'));
 
-        if (gMinModeOn) {
-            $fileBrowser.hide();
-            $modalBackground.removeClass("open").hide();
+        var fadeOutTime = gMinModeOn ? 0 : 300;
+
+        $fileBrowser.hide();
+        $modalBackground.removeClass("open").fadeOut(fadeOutTime, function() {
             Tips.refresh();
-        } else {
-            $fileBrowser.fadeOut(300, function() {
-                $modalBackground.removeClass("open").fadeOut(180);
-                Tips.refresh();
-            });
-        }
+        });
     }
 
     function updateFileName($grid) {

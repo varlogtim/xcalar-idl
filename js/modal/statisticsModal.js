@@ -164,16 +164,21 @@ window.STATSManager = (function($, STATSManager, d3) {
     };
 
     function closeStats() {
-        if (gMinModeOn) {
-            $statsModal.hide();
-            $modalBg.hide();
-            closeHandler();
-        } else {
-            $statsModal.fadeOut(300, function() {
-                $modalBg.fadeOut(180);
-                closeHandler();
-            });
-        }
+        var fadeOutTime = gMinModeOn ? 0 : 300;
+        $statsModal.hide();
+        $modalBg.fadeOut(fadeOutTime);
+
+        $statsModal.find(".groupbyChart").empty();
+        resetScrollBar();
+
+        freePointer();
+
+        totalRows = null;
+        groupByData = [];
+        order = sortMap.origin;
+        statsCol = null;
+        percentageLabel = false;
+        $statsModal.removeData("id");
 
         $statsModal.find(".min-range .text").off();
         $modalBg.off("mouseover.statsModal");
@@ -181,20 +186,6 @@ window.STATSManager = (function($, STATSManager, d3) {
         $statsModal.find(".scrollBar").off();
         $(document).off(".statsModal");
         $("#stats-rowInput").off();
-
-        function closeHandler() {
-            $statsModal.find(".groupbyChart").empty();
-            resetScrollBar();
-
-            freePointer();
-
-            totalRows = null;
-            groupByData = [];
-            order = sortMap.origin;
-            statsCol = null;
-            percentageLabel = false;
-            $statsModal.removeData("id");
-        }
     }
 
     function generateStats(table) {

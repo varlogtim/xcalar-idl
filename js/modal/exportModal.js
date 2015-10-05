@@ -567,16 +567,9 @@ window.ExportModal = (function($, ExportModal) {
 
         restoreColumns();
         var hide = true;
-        var animationTime;
+        var animationTime = gMinModeOn ? 0 : 300;
 
-        if (gMinModeOn) {
-            $exportModal.hide();
-            animationTime = 0;
-        } else {
-            $exportModal.fadeOut(300);
-            animationTime = 300;
-        }
-
+        $exportModal.hide();
         xcHelper.toggleModal(tableId, hide, {time: animationTime});
 
         $('#xcTableWrap-' + tableId).removeClass('exportModalOpen');

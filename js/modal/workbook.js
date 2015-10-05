@@ -112,16 +112,11 @@ window.WorkbookModal = (function($, WorkbookModal) {
         $(document).off("keypress", workbookKeyPress);
         modalHelper.clear();
 
-        if (gMinModeOn) {
-            $workbookModal.hide();
-            $modalBackground.hide();
+        var fadeOutTime = gMinModeOn ? 0 : 300;
+        $workbookModal.hide();
+        $modalBackground.fadeOut(fadeOutTime, function() {
             Tips.refresh();
-        } else {
-            $workbookModal.fadeOut(300, function() {
-                $modalBackground.fadeOut(180);
-                Tips.refresh();
-            });
-        }
+        });
     }
 
     function addWorkbookEvents() {
