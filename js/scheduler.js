@@ -169,7 +169,7 @@ window.Scheduler = (function(Scheduler, $) {
         if (debug) {
             oldSchedules = [
                 {
-                    "name"     : "debug",
+                    "name"     : "schedule1",
                     "startTime": 1443141062968,
                     "dateText" : "9/24/2015",
                     "timeText" : "05 : 31 PM",
@@ -177,10 +177,21 @@ window.Scheduler = (function(Scheduler, $) {
                     "freq"     : null,
                     "created"  : 1443141062968,
                     "modified" : 1443141062968,
-                    "DFGs"     : []
+                    "DFGs"     : [
+                        {
+                            "name"       : "DFG1",
+                            "initialTime": 1443141062968,
+                            "status"     : "normal"
+                        },
+                        {
+                            "name"       : "DFG2",
+                            "initialTime": 1443141062968,
+                            "status"     : "normal"
+                        }
+                    ]
                 },
                 {
-                    "name"     : "debug2",
+                    "name"     : "schdeule2",
                     "startTime": 1443486662000,
                     "dateText" : "9/24/2015",
                     "timeText" : "05 : 31 PM",
@@ -191,7 +202,18 @@ window.Scheduler = (function(Scheduler, $) {
                     },
                     "created" : 1443141062968,
                     "modified": 1443141062968,
-                    "DFGs"    : []
+                    "DFGs"    : [
+                        {
+                            "name"       : "DFG1",
+                            "initialTime": 1443486662000,
+                            "status"     : "normal"
+                        },
+                        {
+                            "name"       : "DFG2",
+                            "initialTime": 1443486662000,
+                            "status"     : "normal"
+                        }
+                    ]
                 }
             ];
         }
@@ -543,7 +565,8 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         var d = new Date(time);
-        var t = xcHelper.getDate("/", d) + " " + d.toLocaleTimeString();
+        var t = xcHelper.getDate("/", d) + " " +
+                d.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});;
 
         return t;
     }
@@ -570,29 +593,6 @@ window.Scheduler = (function(Scheduler, $) {
         }
 
         var html = "";
-
-        if (debug) {
-            for (var i = 0, len = 3; i < len; i++) {
-                var DFG = {
-                    "name"       : "debug" + i,
-                    "initialTime": new Date().getTime(),
-                    "status"     : "normal"
-                };
-
-                html +=
-                    '<div class="grid-unit">' +
-                        '<div class="name">' +
-                            DFG.name +
-                        '</div>' +
-                        '<div class="time">' +
-                            getTime(DFG.initialTime) +
-                        '</div>' +
-                        '<div class="status">' +
-                            DFG.status +
-                        '</div>' +
-                    '</div>';
-            }
-        }
 
         for (var i = 0, len = DFGs.length; i < len; i++) {
             var DFG = DFGs[i];
