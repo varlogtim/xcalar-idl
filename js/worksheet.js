@@ -455,7 +455,8 @@ window.WSManager = (function($, WSManager) {
 
         // refresh mainFrame
         $tables.addClass("inActive");
-        $tables.filter(".worksheet-" + wsIndex).removeClass("inActive");
+        var $curActiveTable = $tables.filter(".worksheet-" + wsIndex);
+        $curActiveTable.removeClass("inActive");
 
         // refresh dag
         $dags.addClass("inActive");
@@ -479,7 +480,6 @@ window.WSManager = (function($, WSManager) {
         checkTableDraggable();
 
         // refresh table and scrollbar
-        var $curActiveTable = $tables.filter(".worksheet-" + wsIndex);
         if (notfocusTable || $curActiveTable.length === 0) {
             // no table to focus
             RowScroller.empty();

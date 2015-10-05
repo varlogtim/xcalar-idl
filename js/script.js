@@ -244,7 +244,7 @@ function setupMainPanelsTab() {
             case ("workspaceTab"):
                 $("#workspacePanel").addClass("active");
                 MonitorGraph.clear();
-                WSManager.focusOnWorksheet();
+                // WSManager.focusOnWorksheet();
                 break;
             case ("schedulerTab"):
                 $('#schedulerPanel').addClass("active");
