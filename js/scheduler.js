@@ -507,7 +507,8 @@ window.Scheduler = (function(Scheduler, $) {
             schedule = scheduleLookUpMap[name];
             // update schedule
             getNextRunTime(schedule);
-            $("#deleteSchedule").removeClass("btnInactive");
+            // XXX keep deleteschedule inactive for now
+            // $("#deleteSchedule").removeClass("btnInactive");
         }
 
         // update schedule info section
