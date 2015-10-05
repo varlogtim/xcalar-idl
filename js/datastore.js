@@ -244,8 +244,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
 
             $formatText.val("Format").addClass("hint");
-            $form.removeClass("previewMode").find(".default-hidden")
-                                            .addClass("hidden");
+            $form.removeClass("browseMode").removeClass("previewMode")
+                .find(".default-hidden").addClass("hidden");
             $("#fileNameSelector").removeClass("optionsOpen");
 
             // keep header to be checked
@@ -533,13 +533,12 @@ window.GridView = (function($, GridView) {
             var $importForm = $("#importDataView");
 
             if (!$importForm.is(":visible")) {
-                $('#importDataReset').click();
+                $("#importDataReset").click();
                 $importForm.show();
-                $explorePanel.find(".contentViewMid").addClass('hidden');
-                $("#filePath").focus();
-                $gridView.find(".active").removeClass("active");
-                // empty table section to have smooth switch
                 $("#dataSetTableWrap").empty();
+                $explorePanel.find(".contentViewMid").addClass("hidden");
+                $("#filePath").focus();
+                $gridView.find(".grid-unit.active").removeClass("active");
                 $("#preview-close").click();
             }
         });
