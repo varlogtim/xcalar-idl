@@ -685,12 +685,12 @@ window.Dag = (function($, Dag) {
                         tableId + '">' +
                         '<div data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" title="Add Data Flow" ' +
-                        'class="btn btnSmall addDataFlow">' +
+                        'class="btn btnSmall addDataFlow btnInactive">' +
                             '<span class="icon"></span>' +
                         '</div>' +
                         '<div data-toggle="tooltip" data-container="body" ' +
                         'data-placement="top" title="Create New Retina" ' +
-                        'class="btn btnSmall addRet">' +
+                        'class="btn btnSmall addRet btnInactive">' +
                             '<span class="icon"></span>' +
                         '</div>' +
                         '<div class="retTabSection"></div>' +
