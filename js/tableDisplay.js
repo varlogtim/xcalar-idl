@@ -788,6 +788,7 @@ function generateColDropDown(tableId) {
     '<li class="tdFilter tdDropdown">Filter this value</li>' +
     '<li class="tdExclude tdDropdown">Exclude this value</li>' +
     '<li class="tdJsonModal tdDropdown">Examine</li>' +
+    '<li class="tdUnnest tdDropdown">Pull all</li>' +
     '<li class="tdCopy tdDropdown">Copy to clipboard</li>';
 
 

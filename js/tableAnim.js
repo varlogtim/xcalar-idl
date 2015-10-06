@@ -2058,6 +2058,22 @@ function addColMenuActions($colMenu) {
         JSONModal.show($td, isArray);
     });
 
+    $colMenu.on('mouseup', '.tdUnnest', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        var rowNum  = $colMenu.data('rowNum');
+        var colNum  = $colMenu.data('colNum');
+        var $table  = $("#xcTable-" + tableId);
+        var $td     = $table.find(".row" + rowNum + " .col" + colNum);
+        var isArray = $table.find("th.col" + colNum + " > div")
+                            .hasClass('type-array');
+        $(".xcTable").find(".highlightBox").remove();
+        setTimeout(function() {
+           unnest($td, isArray);
+       }, 0);
+    });
+
     $colMenu.on('mouseup', '.tdCopy', function(event) {
         var $li = $(this);
         if (event.which !== 1 || $li.hasClass('unavailable')) {
@@ -2104,6 +2120,39 @@ function addColMenuActions($colMenu) {
         var columns = $colMenu.data('columns');
         ColManager.unhideCols(columns, tableId, {"autoResize": true});
     });
+}
+
+function unnest($jsonTd, isArray) {
+    var text = $jsonTd.find("div").eq(0).text();
+    if (isArray) {
+        text = text.split(', ');
+        text = JSON.stringify(text);
+    }
+    var jsonString;
+
+    try {
+        jsonString = jQuery.parseJSON(text);
+    } catch (error) {
+        console.error(error, text);
+        return;
+    }
+
+    var colNum = xcHelper.parseColNum($jsonTd);
+    var tableId  = $jsonTd.closest('table').data('id');
+    for (var key in jsonString) {
+        if (isArray) {
+            var nameInfo = {name:"[" + key + "]", escapedName: "[" + key + "]"};
+        } else {
+            var nameInfo = {name:key, escapedName:key};
+        }
+        
+        var pullColOptions = {
+            "isDataTd": false,
+            "isArray": isArray,
+            "noAnimate": true
+        };
+        ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions);
+    }
 }
 
 function copyToClipboard(valArray) {
@@ -2282,14 +2331,18 @@ function dropdownClick($el, options) {
         if (columnType === "object" || columnType === "array") {
             if ($el.text().trim() === "") {
                 $menu.find(".tdJsonModal").addClass("hidden");
+                $menu.find(".tdUnnest").addClass("hidden");
             } else if (isMultiCell){
                 // when more than one cell is selected
                 $menu.find(".tdJsonModal").addClass("hidden");
+                $menu.find(".tdUnnest").addClass("hidden");
             } else {
                 $menu.find(".tdJsonModal").removeClass("hidden");
+                $menu.find(".tdUnnest").removeClass("hidden");
             }
         } else {
             $menu.find(".tdJsonModal").addClass("hidden");
+            $menu.find(".tdUnnest").addClass("hidden");
         }
     }
 

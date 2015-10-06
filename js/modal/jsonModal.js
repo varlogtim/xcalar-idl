@@ -45,6 +45,7 @@ window.JSONModal = (function($, JSONModal) {
         var tableTitle = $jsonTd.closest(".xcTableWrap")
                                 .find(".xcTheadWrap .tableTitle .text")
                                 .data("title");
+        $(".xcTable").find(".highlightBox").remove();
 
         $jsonModal.find(".jsonDragArea").text(tableTitle);
         xcHelper.removeSelectionRange();
@@ -106,7 +107,7 @@ window.JSONModal = (function($, JSONModal) {
                     "isArray" : isArray,
                     "noAnimate": true
                 };
-
+                // console.log(colNum, tableId, nameInfo, pullColOptions)
                 ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
                 .always(function() {
                     closeJSONModal();
