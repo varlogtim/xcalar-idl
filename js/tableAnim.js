@@ -2140,25 +2140,26 @@ function unnest($jsonTd, isArray) {
     var colNum = xcHelper.parseColNum($jsonTd);
     var tableId  = $jsonTd.closest('table').data('id');
 
-    // loop backwards because of how new columns are appended
     var arrayOfKeys = [];
     for (var key in jsonString) {
         arrayOfKeys.push(key);
     }
     var numKeys = arrayOfKeys.length;
+    var pullColOptions = {
+        "isDataTd": false,
+        "isArray": isArray,
+        "noAnimate": true
+    };
+    
+    // loop backwards because of how new columns are appended
     for (var i = numKeys - 1; i >= 0; i--) {
         var key = arrayOfKeys[i];
+        var esc = key.replace(/\./g, "\\\.");
         if (isArray) {
-            var nameInfo = {name:"[" + key + "]", escapedName: "[" + key + "]"};
+            var nameInfo = {name:"[" + key + "]", escapedName: "[" + esc + "]"};
         } else {
-            var nameInfo = {name:key, escapedName:key};
+            var nameInfo = {name: key, escapedName: esc};
         }
-        
-        var pullColOptions = {
-            "isDataTd": false,
-            "isArray": isArray,
-            "noAnimate": true
-        };
         ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions);
     }
 }

@@ -1505,7 +1505,7 @@ window.xcFunction = (function($, xcFunction) {
             });
             newProgCol.func.func = "pull";
             newProgCol.func.args = [];
-            newProgCol.func.args[0] = colName;
+            newProgCol.func.args[0] = colName.replace(/\./g, "\\\.");
             copiedCols.splice(colNum - 1, numColsRemoved, newProgCol);
         }
 
