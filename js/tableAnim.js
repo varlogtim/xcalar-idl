@@ -1973,14 +1973,23 @@ function addColMenuActions($colMenu) {
 
         var notValid = false;
         var uniqueVals = {};
+        var hasCheckExist = false;
         var colVal;
 
         $highlightBoxs.each(function() {
             colVal = $(this).siblings(".addedBarTextWrap").text();
 
             if ($header.hasClass("type-integer")) {
+                if (colVal === "") {
+                    hasCheckExist = true;
+                    return true; // continue to next iteration
+                }
                 colVal = parseInt(colVal);
             } else if ($header.hasClass("type-decimal")) {
+                if (colVal === "") {
+                    hasCheckExist = true;
+                    return true; // continue to next iteration
+                }
                 colVal = parseFloat(colVal);
             } else if ($header.hasClass("type-string")) {
                 colVal = JSON.stringify(colVal);
@@ -2016,24 +2025,46 @@ function addColMenuActions($colMenu) {
         if ($li.hasClass("tdFilter")) {
             operator = "eq";
 
-            for (var i = 0; i < len - 1; i++) {
-                str += "or(eq(" + colName + ", " + colVals[i] + "), ";
-            }
-            str += "eq(" + colName + ", " + colVals[len - 1];
+            if (len > 0) {
+                for (var i = 0; i < len - 1; i++) {
+                    str += "or(eq(" + colName + ", " + colVals[i] + "), ";
+                }
 
-            for (var i = 0; i < len; i++) {
-                str += ")";
+                str += "eq(" + colName + ", " + colVals[len - 1];
+
+                for (var i = 0; i < len; i++) {
+                    str += ")";
+                }
+            }
+
+            if (hasCheckExist) {
+                if (len > 0) {
+                    str = "or(" + str + ", not(exists(" + colName + ")))";
+                } else {
+                    str = "not(exists(" +colName + "))";
+                }
             }
         } else {
             operator = "exclude";
 
-            for (var i = 0; i < len - 1; i++) {
-                str += "and(not(eq(" + colName + ", " + colVals[i] + ")), ";
-            }
-            str += "not(eq(" + colName + ", " + colVals[len - 1] + ")";
+            if (len > 0) {
+                    for (var i = 0; i < len - 1; i++) {
+                    str += "and(not(eq(" + colName + ", " + colVals[i] + ")), ";
+                }
 
-            for (var i = 0; i < colVals.length; i++) {
-                str += ")";
+                str += "not(eq(" + colName + ", " + colVals[len - 1] + ")";
+
+                for (var i = 0; i < len; i++) {
+                    str += ")";
+                }
+            }
+
+            if (hasCheckExist) {
+                if (len > 0) {
+                    str = "and(" + str + ", exists(" + colName + "))";
+                } else {
+                    str = "exists(" +colName + ")";
+                }
             }
         }
 

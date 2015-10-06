@@ -667,6 +667,9 @@ window.WKBKManager = (function($, WKBKManager) {
                     XcalarSwitchToWorkbook(wkbkName, null)
                     .then(function() {
                         innerDeferred.resolve(wkbkId);
+                    })
+                    .fail(function(error) {
+                        innerDeferred.reject(error);
                     });
                 } else {
                     innerDeferred.resolve(wkbkId);
