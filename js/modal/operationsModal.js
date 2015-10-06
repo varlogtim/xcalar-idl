@@ -1143,8 +1143,21 @@ window.OperationsModal = (function($, OperationsModal) {
         // var i;
 
         var $argInputs = $operationsModal.find('.argument');
-        var groupbyColName = args[0];
-        var indexedColName = args[1];
+        var groupbyColName = getBackColName(args[0]);
+
+        var tempIndexedColNames = getBackColName(args[1].split(","));
+        var indexedColNames = "";
+        var name;
+        for (var i = 0; i < tempIndexedColNames.length; i++) {
+            if (i > 0) {
+                name = ",";
+            } else {
+                name = "";
+            }
+            name += getBackColName(tempIndexedColNames[i].trim());
+            
+            indexedColNames += name;
+        }
         // check new col name
         var newColName  = args[2];
         var isDuplicate = ColManager.checkColDup($argInputs.eq(2), null,
@@ -1155,7 +1168,8 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var isIncSample = $argInputs.eq(3).is(':checked');
 
-        xcFunction.groupBy(operator, tableId, indexedColName, groupbyColName,
+
+        xcFunction.groupBy(operator, tableId, indexedColNames, groupbyColName,
                             isIncSample, newColName);
         return (true);
     }
@@ -1175,14 +1189,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var firstValue = args[0];
 
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
-        for (var i = 0, numCols = columns.length; i < numCols; i++) {
-            if (columns[i].name === firstValue && columns[i].func.args) {
-                firstValue = columns[i].func.args[0];
-                break;
-            }
-        }
-        args[0] = firstValue;
+        args[0] = getBackColName(firstValue);
         var mapStr = "";
 
         mapStr = formulateMapString(operator, args);
@@ -1330,6 +1337,20 @@ window.OperationsModal = (function($, OperationsModal) {
         $operationsModal.find('.autocomplete').eq(inputNum)
                         .attr('placeholder', placeholderText);
     }
+
+    function getBackColName(frontColName) {
+        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var numCols = columns.length;
+        var backColName = frontColName;
+        for (var i = 0; i < numCols; i++) {
+            if (columns[i].name === frontColName && columns[i].func.args) {
+                backColName = columns[i].func.args[0];
+                break;
+            }
+        }
+        return (backColName);
+    }
+            
 
     function getAutoGenColName(name) {
         var takenNames = {};
