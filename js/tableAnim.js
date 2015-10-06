@@ -2139,7 +2139,15 @@ function unnest($jsonTd, isArray) {
 
     var colNum = xcHelper.parseColNum($jsonTd);
     var tableId  = $jsonTd.closest('table').data('id');
+
+    // loop backwards because of how new columns are appended
+    var arrayOfKeys = [];
     for (var key in jsonString) {
+        arrayOfKeys.push(key);
+    }
+    var numKeys = arrayOfKeys.length;
+    for (var i = numKeys - 1; i >= 0; i--) {
+        var key = arrayOfKeys[i];
         if (isArray) {
             var nameInfo = {name:"[" + key + "]", escapedName: "[" + key + "]"};
         } else {
