@@ -73,6 +73,12 @@ window.FileBrowser = (function($, FileBrowser) {
             xcHelper.hideDropdowns($fileBrowser);
         });
 
+        $(document).on("keydown.fileBrowser", function(event) {
+            // up to parent folder
+            $("#fileBrowserUp").click();
+            return false;
+        });
+
         function showHandler(result) {
             Tips.refresh();
 
@@ -90,7 +96,14 @@ window.FileBrowser = (function($, FileBrowser) {
             // modal, it will trigger keyup event, so delay the event here
             // may have bettter way to solve it..
             setTimeout(function() {
-                $(document).on("keyup", fileBrowserKeyUp);
+                $(document).on("keyup.fileBrowser", function(event) {
+                    if (event.which === keyCode.Enter && !modalHelper.checkBtnFocus()) {
+                        var $grid = $container.find('.grid-unit.active');
+                        importDataset($grid);
+                    }
+
+                    return false;
+                });
             }, 300);
         }
     };
@@ -306,17 +319,6 @@ window.FileBrowser = (function($, FileBrowser) {
         $btn.attr('data-original-title', 'Switch to Grid view');
     }
 
-    // key up event
-    function fileBrowserKeyUp(event) {
-        event.preventDefault();
-        if (event.which === keyCode.Enter && !modalHelper.checkBtnFocus()) {
-            var $grid = $container.find('.grid-unit.active');
-            importDataset($grid);
-        }
-
-        return false;
-    }
-
     function getCurrentPath() {
         return ($pathLists.find("li:first-of-type").text());
     }
@@ -382,7 +384,6 @@ window.FileBrowser = (function($, FileBrowser) {
         // set to deault value
         clear(true);
         modalHelper.clear();
-        $(document).off('keyup', fileBrowserKeyUp);
         $(document).off(".fileBrowser");
         xcHelper.enableSubmit($fileBrowser.find('.confirm'));
 
