@@ -455,8 +455,13 @@ window.ExportModal = (function($, ExportModal) {
     }
 
     function selectColumn($cells, colNum) {
-        $cells.addClass('modalHighlighted');
+        var colType = gTables[tableId].tableCols[colNum - 1].type;
+        var validTypes = ['string', 'integer', 'decimal'];
+        if (validTypes.indexOf(colType) === -1) {
+            return;
+        }
         var currColName = gTables[tableId].tableCols[colNum - 1].name;
+        $cells.addClass('modalHighlighted');
         xcHelper.insertText($exportColumns, currColName);
     }
 
