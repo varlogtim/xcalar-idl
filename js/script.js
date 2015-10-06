@@ -352,12 +352,28 @@ function setupTooltips() {
 
 // ========================== Document Ready ==================================
 function documentReadyGeneralFunction() {
+    var backspaceIsPressed = false;
+    $(document).keydown(function(event){
+        if (event.which == keyCode.Backspace) {
+            backspaceIsPressed = true
+        }
+    })
+    $(document).keyup(function(event){
+        if (event.which == keyCode.Backspace) {
+            backspaceIsPressed = false
+        }
+    })
+
     window.onbeforeunload = function() {
         KVStore.release();
-        sleep("500ms");
+        // sleep("500ms");
         freeAllResultSets();
-        sleep("500ms");
-        return;
+        // sleep("500ms");
+
+        if (backspaceIsPressed) {
+            backspaceIsPressed = false
+            return "You are leaving Xcalar";
+        }
     };
 
     var timer;

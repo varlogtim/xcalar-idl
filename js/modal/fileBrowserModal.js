@@ -75,8 +75,10 @@ window.FileBrowser = (function($, FileBrowser) {
 
         $(document).on("keydown.fileBrowser", function(event) {
             // up to parent folder
-            $("#fileBrowserUp").click();
-            return false;
+            if (event.which === keyCode.Backspace) {
+                $("#fileBrowserUp").click();
+                return false;
+            }
         });
 
         function showHandler(result) {
