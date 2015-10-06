@@ -2150,7 +2150,7 @@ function unnest($jsonTd, isArray) {
         "isArray": isArray,
         "noAnimate": true
     };
-    
+
     // loop backwards because of how new columns are appended
     for (var i = numKeys - 1; i >= 0; i--) {
         var key = arrayOfKeys[i];
