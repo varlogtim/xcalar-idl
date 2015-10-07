@@ -353,6 +353,8 @@ function setupTooltips() {
 // ========================== Document Ready ==================================
 function documentReadyGeneralFunction() {
     var backspaceIsPressed = false;
+    var hasRelease = false;
+
     $(document).keydown(function(event){
         if (event.which == keyCode.Backspace) {
             backspaceIsPressed = true
@@ -365,14 +367,26 @@ function documentReadyGeneralFunction() {
     })
 
     window.onbeforeunload = function() {
-        KVStore.release();
-        // sleep("500ms");
-        freeAllResultSets();
-        // sleep("500ms");
-
         if (backspaceIsPressed) {
-            backspaceIsPressed = false
+            backspaceIsPressed = false;
             return "You are leaving Xcalar";
+        } else {
+            hasRelease = true;
+            KVStore.release();
+            sleep("500ms");
+            freeAllResultSets();
+            sleep("500ms");
+        }
+    };
+
+    window.onunload = function() {
+        if (!hasRelease) {
+            // XXX this may not work
+            // no it's fine since backend do not has refCount
+            KVStore.release();
+            sleep("500ms");
+            freeAllResultSets();
+            sleep("500ms");
         }
     };
 
