@@ -373,6 +373,7 @@ window.StatusMessage = (function($, StatusMessage) {
                            .data('tableid', newTableId);
             
             $tableDonePopup.mousedown(function(event) {
+                xcHelper.removeSelectionRange();
                 if (event.which !== 1) {
                     return;
                 }
@@ -405,7 +406,8 @@ window.StatusMessage = (function($, StatusMessage) {
                     $popup.parent().remove();
                 } else {
                     $popup.remove();
-                }                           
+                }
+                $(document).mouseup(removeSelectionRange);
             });
 
             if (!popupWrapExists) {
@@ -480,6 +482,11 @@ window.StatusMessage = (function($, StatusMessage) {
         }
 
         return (position);
+    }
+
+    function removeSelectionRange() {
+        xcHelper.removeSelectionRange();
+        $(document).off('mouseup', removeSelectionRange);
     }
 
     return (StatusMessage);

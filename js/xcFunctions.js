@@ -308,17 +308,7 @@ window.xcFunction = (function($, xcFunction) {
 
                 rTableResult = rResult;
                 rSrcName = rResult.tableName;
-                // checkJoinTable index only created backend table,
-                // here we get the info to set the indexed table as hidden table
-                return (setIndexedTableMeta(lTableResult));
-            })
-            .then(function(result) {
-                lTableResult = result;
-                return (setIndexedTableMeta(rTableResult));
-            })
-            .then(function(result) {
-                rTableResult = result;
-                // join indexed table
+
                 return (XcalarJoin(lSrcName, rSrcName, newTableName,
                                     joinType, sqlOptions));
             })
@@ -414,6 +404,7 @@ window.xcFunction = (function($, xcFunction) {
 
         multiGroupBy(groupByCols, tableId)
         .then(function(result) {
+
             // table name may change after sort!
             tableName = result.tableName;
             if (result.indexCol !== undefined) {
@@ -435,62 +426,12 @@ window.xcFunction = (function($, xcFunction) {
                                   tableName, newTableName,
                                   isIncSample, sqlOptions));
         })
-        .then(function(ret) {
-            var $table     = xcHelper.getElementByTableId(tableId, "xcTable");
-            var $dataCol   = $table.find('th.dataCol');
-            var dataColNum = xcHelper.parseColNum($dataCol) - 1;
-
-            var tableCols = [];
-            var newProgCol = ColManager.newCol({
-                "index"   : 0,
-                "name"    : newColName,
-                "width"   : gNewCellWidth,
-                "isNewCol": false,
-                "userStr" : '"' + newColName + '" = pull(' + escapedName + ')',
-                "func"    : {
-                    "func": "pull",
-                    "args": [escapedName]
-                }
-            });
-            frontIndexedColName = getFrontColName(indexedColName, tableId);
-            var escapedName2 = indexedColName;
-            if (indexedColName.indexOf('.') > -1) {
-                escapedName2 = indexedColName.replace(/\./g, "\\\.");
-            }
-            var secondProgCol = ColManager.newCol({
-                "index"   : 0,
-                "name"    : frontIndexedColName,
-                "width"   : gNewCellWidth,
-                "isNewCol": false,
-                "userStr" : '"' + indexedColName + '" = pull(' + escapedName2 + ')',
-                "func"    : {
-                    "func": "pull",
-                    "args": [escapedName2]
-                }
-            });
-            tableCols.push(newProgCol);
-            tableCols.push(secondProgCol);
-            tableCols.push(xcHelper.deepCopy(table.tableCols[dataColNum]));
-
-            return (setgTable(newTableName, tableCols));
-        })
         .then(function() {
-            gTables[newTableId].active = false;
-
-            var tableResult = {
-                "newTableCreated": true,
-                "setMeta"        : false,
-                "tableName"      : newTableName,
-                "tableId"        : newTableId
-            };
-
-            return (setIndexedTableMeta(tableResult));
-        })
-        .then(function() {
-            return (extractColFromMap(newTableName, groupByCols,
-                                      indexedColName));
+            return (extractColFromMap(newTableName, tableName, groupByCols,
+                                      indexedColName, newColName));
         })
         .then(function(nTableName) {
+            // final table is ready, just need to set the columns to pull out
             var newProgCol = ColManager.newCol({
                 "index"   : 1,
                 "name"    : newColName,
@@ -523,6 +464,7 @@ window.xcFunction = (function($, xcFunction) {
 
             if (indexedColNum === -1) {
                 if (groupByCols.length === 1) {
+                    frontIndexedColName = getFrontColName(indexedColName, tableId);
                     tablCols[1] = ColManager.newCol({
                         "index"   : 2,
                         "name"    : frontIndexedColName,
@@ -963,7 +905,6 @@ window.xcFunction = (function($, xcFunction) {
     // check if table has correct index
     function checkTableIndex(colName, tableId) {
         var deferred = jQuery.Deferred();
-
         var table     = xcHelper.getTableFromId(tableId);
         var tableName = table.tableName;
         var parentIndexedWrongly = false;
@@ -1014,12 +955,17 @@ window.xcFunction = (function($, xcFunction) {
                     setgTable(newTableName, tablCols);
                     gTables[newTableId].active = false;
 
-                    deferred.resolve({
+                    var tableResult = {
                         "newTableCreated": true,
                         "setMeta"        : false,
                         "tableName"      : newTableName,
                         "tableId"        : newTableId
-                    });
+                    }
+                    
+                    return (setIndexedTableMeta(tableResult));
+                })
+                .then(function(ret) {
+                    deferred.resolve(ret);
                 })
                 .fail(function(error) {
                     WSManager.removeTable(newTableId);
@@ -1138,7 +1084,8 @@ window.xcFunction = (function($, xcFunction) {
         return (deferred.promise());
     }
 
-    function extractColFromMap(tableName, colArray, colName) {
+    function extractColFromMap(tableName, origTableName, colArray,
+                                indexedColName, gbColName) {
         var deferred = jQuery.Deferred();
         var lastTableName = tableName;
         var currWorksheetIdx =
@@ -1150,88 +1097,210 @@ window.xcFunction = (function($, xcFunction) {
             var argArray = [];
             // XXX Okay this is really dumb, but we have to keep mapping
             // XXX TODO FIXME When Mike fixes cut, this should use cut
-            var mapStrStarter = "cut(" + colName + ", ";
-            var currTableName = tableName;
+            var mapStrStarter = "cut(" + indexedColName + ", ";
             var currExec = 0;
-            var currTableId = xcHelper.getTableId(currTableName);
-            var currCols = gTables[currTableId].tableCols;
+            var origTableId = xcHelper.getTableId(origTableName);
+           
+            var tableCols = extractColTableColsHelper(origTableName, gbColName,
+                                                      indexedColName);
 
-            currWorksheetIdx = WSManager.getWSFromTable(currTableId);
-
-            for (var i = 0; i < colArray.length; i++) {
-                var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
-                var newTableName = getNewTableInfo(currTableName).tableName;
-                var sqlOptions = {
-                    "operation"   : SQLOps.GroupbyMap,
-                    "srcTableName": currTableName,
-                    "newTableName": newTableName,
-                    "colName"     : colArray[i],
-                    "mapString"   : mapStr
-                };
-                // This uses XcalarMap instead of xcFunction.map because
-                // it's a by product of an operation, so locking tables and
-                // such are not needed. Neither is updating the status message
-                argArray[i] = {
-                    "arg1": colArray[i],
-                    "arg2": mapStr,
-                    "arg3": currTableName,
-                    "arg4": newTableName,
-                    "arg5": sqlOptions
-                };
-                deferredArray[i] = function() {
-                    var tempTableName = argArray[currExec].arg4;
-                    var def = XcalarMap(argArray[currExec].arg1,
-                                        argArray[currExec].arg2,
-                                        argArray[currExec].arg3,
-                                        argArray[currExec].arg4,
-                                        argArray[currExec].arg5)
-                                        .then(function(ret) {
-                                            var tempTableId = xcHelper.getTableId(tempTableName);
-                                            WSManager.addTable(tempTableId, currWorksheetIdx);
-                                            var tempCols = xcHelper.deepCopy(currCols);
-                                            return (setgTable(tempTableName, tempCols));
-                                        })
-                                        .then(function() {
-                                            var tempTableId = xcHelper.getTableId(tempTableName);
-                                            gTables[tempTableId].active = false;
-
-                                            var tableResult = {
-                                                "newTableCreated": true,
-                                                "setMeta"        : false,
-                                                "tableName"      : tempTableName,
-                                                "tableId"        : tempTableId
-                                            };
-
-                                            return (setIndexedTableMeta(tableResult));
-                                        });
-                    currExec++;
-                    return (def);
-                };
-                currTableName = newTableName;
-                lastTableName = currTableName;
-            }
-            var starter = jQuery.Deferred();
-            var chain = starter.promise();
-            for (var i = 0; i < colArray.length; i++) {
-                chain = chain.then((function(index) {
-                    return (deferredArray[index]);
-                })(i));
-            }
-            starter.resolve();
-            chain
+            setgTable(tableName, tableCols)
             .then(function() {
-                WSManager.addTable(xcHelper.getTableId(lastTableName),
-                                   currWorksheetIdx);
-                deferred.resolve(lastTableName);
+                var tableResult = {
+                    "newTableCreated": true,
+                    "setMeta"        : false,
+                    "tableName"      : tableName,
+                    "tableId"        : xcHelper.getTableId(tableName)
+                };
+                return (setIndexedTableMeta(tableResult));
             })
-            .fail(function() {
-                // XXX HANDLE THIS!
-                console.error("XXX Handle this!");
-                deferred.reject("Maps failed");
-            });
+            .then(function() {
+
+                var currTableName = tableName;
+                var currTableId = xcHelper.getTableId(currTableName);
+                currWorksheetIdx = WSManager.getWSFromTable(currTableId);
+                tableCols = xcHelper.deepCopy(tableCols);
+                tableCols.splice(1, 1); // remove the 'mulitGroupby' col
+
+                for (var i = 0; i < colArray.length; i++) {
+                    var mapStr = mapStrStarter + (i + 1) + ", " + '".Xc."' + ")";
+                    var newTableName = getNewTableInfo(currTableName).tableName;
+                    var sqlOptions = {
+                        "operation"   : SQLOps.GroupbyMap,
+                        "srcTableName": currTableName,
+                        "newTableName": newTableName,
+                        "colName"     : colArray[i],
+                        "mapString"   : mapStr
+                    };
+                    // This uses XcalarMap instead of xcFunction.map because
+                    // it's a by product of an operation, so locking tables and
+                    // such are not needed. Neither is updating the status message
+                    argArray[i] = {
+                        "arg1": colArray[i],
+                        "arg2": mapStr,
+                        "arg3": currTableName,
+                        "arg4": newTableName,
+                        "arg5": sqlOptions
+                    };
+                    deferredArray[i] = function() {
+                        var tempTableName = argArray[currExec].arg4;
+                        var def = XcalarMap(argArray[currExec].arg1,
+                                            argArray[currExec].arg2,
+                                            argArray[currExec].arg3,
+                                            argArray[currExec].arg4,
+                                            argArray[currExec].arg5)
+                                            .then(function(ret) {
+                                                var tempTableId = xcHelper.getTableId(tempTableName);
+                                                if (currExec !== colArray.length) {
+                                                    WSManager.addTable(tempTableId, currWorksheetIdx);
+                                                }
+                                                var tempCols = getMultiGroupByProgCol(tableCols, argArray[currExec - 1].arg1, origTableId);
+                                                return (setgTable(tempTableName, tempCols));
+                                            })
+                                            .then(function() {
+                                                var tempTableId = xcHelper.getTableId(tempTableName);
+                                                gTables[tempTableId].active = false;
+
+                                                var tableResult = {
+                                                    "newTableCreated": true,
+                                                    "setMeta"        : false,
+                                                    "tableName"      : tempTableName,
+                                                    "tableId"        : tempTableId
+                                                };
+        
+                                                if (currExec === colArray.length) {
+                                                    // this is the last table, we will
+                                                    // set the meta data in xcFunctions.groupBy
+                                                    return (promiseWrapper(tableResult));
+                                                } else {
+                                                    return (setIndexedTableMeta(tableResult));
+                                                }
+                                            });
+                        currExec++;
+                        return (def);
+                    };
+                    currTableName = newTableName;
+                    lastTableName = currTableName;
+                }
+                var starter = jQuery.Deferred();
+                var chain = starter.promise();
+                for (var i = 0; i < colArray.length; i++) {
+                    chain = chain.then((function(index) {
+                        return (deferredArray[index]);
+                    })(i));
+                }
+                starter.resolve();
+                chain
+                .then(function() {
+                    WSManager.addTable(xcHelper.getTableId(lastTableName),
+                                       currWorksheetIdx);
+                    deferred.resolve(lastTableName);
+                })
+                .fail(function() {
+                    // XXX HANDLE THIS!
+                    console.error("XXX Handle this!");
+                    deferred.reject("Maps failed");
+                });
+            })
+            .fail(function(err) {
+                console.error(err);
+            })
 
         }
         return (deferred.promise());
+    }
+
+    // this function is called inside extractColFromMap
+    // it returns the gTable columns info after a group by is performed on a
+    // table that is sorted on a mapped column
+    // It returns the 1.groupby col 2.indexed col 3.data col
+    function extractColTableColsHelper(origTableName, gbColName, indexedColName) {
+                                                     
+        var tableCols = [];
+
+        // set up the groupby column
+        var escapedName = gbColName;
+        if (gbColName.indexOf('.') > -1) {
+            escapedName = gbColName.replace(/\./g, "\\\.");
+        }
+
+        var tableCols = [];
+        var newProgCol = ColManager.newCol({
+            "index"   : 1,
+            "name"    : gbColName,
+            "width"   : gNewCellWidth,
+            "isNewCol": false,
+            "userStr" : '"' + gbColName + '" = pull(' + escapedName + ')',
+            "func"    : {
+                "func": "pull",
+                "args": [escapedName]
+            }
+        });
+
+        // set up the indexed Column
+        var escapedName2 = indexedColName;
+        if (indexedColName.indexOf('.') > -1) {
+            escapedName2 = indexedColName.replace(/\./g, "\\\.");
+        }
+        var secondProgCol = ColManager.newCol({
+            "index"   : 2,
+            "type"    : "string",
+            "name"    : indexedColName,
+            "width"   : gNewCellWidth,
+            "isNewCol": false,
+            "userStr" : '"' + indexedColName + '" = pull(' + escapedName2 + ')',
+            "func"    : {
+                "func": "pull",
+                "args": [escapedName2]
+            }
+        });
+
+        // find the column number of the DATA in the original table to copy it
+        var origTableId = xcHelper.getTableId(origTableName);
+        var origTableCols = gTables[origTableId].tableCols;
+        var numCols = origTableCols.length;
+        var dataColNum;
+        for (var i = numCols - 1; i > -1; i--) {
+            if (origTableCols[i].name === 'DATA') {
+                dataColNum = i;
+                break;
+            }
+        }
+
+        // Push the 3 progcols into an array and return it
+        tableCols.push(newProgCol);
+        tableCols.push(secondProgCol);
+        tableCols.push(xcHelper.deepCopy(origTableCols[dataColNum]));
+        return (tableCols);
+    }
+
+    function getProgCol(colName, tableId) {
+        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var numCols = columns.length;
+        var progCol;
+        for (var i = 0; i < numCols; i++) {
+            if (columns[i].func.args &&
+                columns[i].func.args[0] === colName) {
+                progCol = columns[i];
+                break;
+            }
+        }
+        return (xcHelper.deepCopy(progCol));
+    }
+
+    function getMultiGroupByProgCol(tableCols, colName, tableId) {
+        
+        tableCols = xcHelper.deepCopy(tableCols);
+        var numCols = tableCols.length;
+        var progCol = getProgCol(colName, tableId);
+        progCol.index = numCols;
+        progCol.width = gNewCellWidth;
+        progCol.type = "string";
+
+        tableCols.splice(tableCols.length - 1, 0, progCol); // insert column
+        tableCols[numCols].index = numCols + 1; // adjust Data col num;
+
+        return (tableCols);
     }
 
     function joinCheck(lColNums, lTableId, rColNums, rTableId) {

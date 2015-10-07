@@ -1063,6 +1063,7 @@ window.xcHelper = (function($, xcHelper) {
             $('#mainFrame').animate({scrollLeft: scrollPosition}, 500,
                                 function() {
                                     moveFirstColumn();
+                                    xcHelper.removeSelectionRange();
                                 });
         } else {
             $('#mainFrame').scrollLeft(scrollPosition);
