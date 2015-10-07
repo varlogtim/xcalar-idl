@@ -1020,6 +1020,24 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.centerFocusedTable = function($tableWrap, animate) {
+        var windowWidth = $(window).width();
+        var tableWidth = $tableWrap.width();
+        var currentScrollPosition = $('#mainFrame').scrollLeft();
+        var tableOffset = $tableWrap.offset().left;
+        var leftPosition = currentScrollPosition + tableOffset;
+        var scrollPosition = leftPosition - ((windowWidth - tableWidth) / 2);
+        if (animate && !gMinModeOn) {
+            $('#mainFrame').animate({scrollLeft: scrollPosition}, 500,
+                                function() {
+                                    moveFirstColumn();
+                                });
+        } else {
+            $('#mainFrame').scrollLeft(scrollPosition);
+            moveFirstColumn();
+        }
+    }
+
     return (xcHelper);
 }(jQuery, {}));
 

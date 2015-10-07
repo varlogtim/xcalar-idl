@@ -69,9 +69,10 @@ window.StatusMessage = (function($, StatusMessage) {
         stopRotation();
     };
 
-    StatusMessage.success = function(msgId, noNotification, newTableId) {
+    StatusMessage.success = function(msgId, noNotification, newTableId,
+                                     options) {
         if (!noNotification) {
-            showDoneNotification(msgId, false, newTableId);
+            showDoneNotification(msgId, false, newTableId, options);
         } else {
             delete msgObjs[msgId];
         }
@@ -258,13 +259,16 @@ window.StatusMessage = (function($, StatusMessage) {
         }
     }
 
-    function showDoneNotification(msgId, failed, newTableId) {
+    function showDoneNotification(msgId, failed, newTableId, options) {
         var operation = msgObjs[msgId].operation;
-
+        if (operation === 'table creation') {
+            return; // no notification when table made directly from datastore
+        }
         var popupNeeded     = false;
         var popupWrapExists = false;
         var popupNearTab    = false;
         var popupBottom     = false;
+        options = options || {};
 
         var pos = {
             left  : 'auto',
@@ -284,9 +288,6 @@ window.StatusMessage = (function($, StatusMessage) {
                             operation + status +
                     '</div>');
 
-        if (operation === 'table creation') {
-            return;
-        }
         if (operation === 'data set load') {
             // only display notification if not on data store tab
             if (!$('#dataStoresTab').hasClass('active')) {
@@ -368,7 +369,44 @@ window.StatusMessage = (function($, StatusMessage) {
         }
 
         if (popupNeeded) {
-            $tableDonePopup.addClass(arrow + ' ' + classes);
+            $tableDonePopup.addClass(arrow + ' ' + classes)
+                           .data('tableid', newTableId);
+            
+            $tableDonePopup.mousedown(function(event) {
+                if (event.which !== 1) {
+                    return;
+                }
+                var $popup = $(this);
+                if ($popup.hasClass('failed')) {
+                    return;
+                }
+
+                if ($popup.data('tableid')) {
+                    var tableId = $popup.data('tableid');
+                    var wsIndex = WSManager.getWSFromTable(tableId);
+
+                    $('#workspaceTab').click();
+                    $('#worksheetTab-' + wsIndex).click();
+
+                    if ($dagPanel.hasClass('full')) {
+                        $('#dagPulloutTab').click();
+                    }
+                    $tableWrap = $('#xcTableWrap-' + tableId);
+                    var animate = true;
+                    xcHelper.centerFocusedTable($tableWrap, animate);
+                    $tableWrap.mousedown();
+                } else if (options.newDataSet) {
+                    $('#dataStoresTab').click();
+                    $('#inButton').click();
+                    $('#' + options.dataSetId).click();
+                }
+
+                if ($popup.siblings().length === 0) {
+                    $popup.parent().remove();
+                } else {
+                    $popup.remove();
+                }                           
+            });
 
             if (!popupWrapExists) {
                 // we need to create a new container div for the popup
@@ -376,7 +414,7 @@ window.StatusMessage = (function($, StatusMessage) {
                 // the popup to an already existing container  
                 if (popupNearTab) {
                     pos.left = popupNearTab.offset().left +
-                       popupNearTab.outerWidth() + 6;
+                               popupNearTab.outerWidth() + 6;
                     pos.top = 4;
                 }
 

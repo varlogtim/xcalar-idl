@@ -1989,6 +1989,7 @@ ul.inputMenu {
         text-align: center;
         max-width: 200px;
         text-transform: capitalize;
+        cursor: pointer;
 
         &:before {
             .position(absolute, @top: 10px, @left: -6px);
@@ -2008,6 +2009,7 @@ ul.inputMenu {
         }
 
         &.failed {
+            cursor: initial;
             background-color: #AF2F4D;
                 &:before {
                 border-right: 6px solid #AF2F4D;

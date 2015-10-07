@@ -30,9 +30,7 @@ function refreshTable(newTableName, oldTableName, options) {
                 focusTable(tableId);
                 var leftPos = $('#xcTableWrap-' + tableId).position().left +
                                 $('#mainFrame').scrollLeft();
-                $('#mainFrame').animate({scrollLeft: leftPos})
-                               .promise()
-                               .then(function() {
+                $('#mainFrame').animate({scrollLeft: leftPos}, function() {
                                     focusTable(tableId);
                                 });
             }

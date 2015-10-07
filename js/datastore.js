@@ -433,8 +433,12 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             DS.load(dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                 header, moduleName, funcName)
-            .then(function() {
-                StatusMessage.success(msgId);
+            .then(function($grid) {
+                var options = {
+                    newDataSet: true,
+                    dataSetId: $grid.attr('id')
+                };
+                StatusMessage.success(msgId, false, null, options);
                 deferred.resolve();
             })
             .fail(function(error) {
@@ -2695,6 +2699,7 @@ window.DS = (function ($, DS) {
     };
 
     // Load dataset
+    // promise returns $grid element
     DS.load = function (dsName, dsFormat, loadURL, fieldDelim, lineDelim,
                         hasHeader, moduleName, funcName) {
         var deferred = jQuery.Deferred();
@@ -2766,7 +2771,7 @@ window.DS = (function ($, DS) {
             }
 
             commitToStorage();
-            deferred.resolve();
+            deferred.resolve($grid);
         })
         .fail(function(error) {
             rmDSHelper($grid);

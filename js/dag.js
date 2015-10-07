@@ -556,10 +556,10 @@ window.DagPanel = (function($, DagPanel) {
             if ($dagPanel.hasClass('full')) {
                 $('#dagPulloutTab').click();
             }
-            $table = $('#xcTableWrap-' + tableId);
-            centerFocusedTable($table);
+            $tableWrap = $('#xcTableWrap-' + tableId);
+            xcHelper.centerFocusedTable($tableWrap);
            
-            $table.mousedown();
+            $tableWrap.mousedown();
             moveFirstColumn();
         });
 
@@ -635,16 +635,6 @@ window.DagPanel = (function($, DagPanel) {
                 });
             }
         });
-    }
-
-    function centerFocusedTable($table) {
-        var windowWidth = $(window).width();
-        var tableWidth = $table.width();
-        var currentScrollPosition = $('#mainFrame').scrollLeft();
-        var tableOffset = $table.offset().left;
-        var leftPosition = currentScrollPosition + tableOffset;
-        var scrollPosition = leftPosition - ((windowWidth - tableWidth) / 2);
-        $('#mainFrame').scrollLeft(scrollPosition);
     }
              
     return (DagPanel);
