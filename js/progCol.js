@@ -3,7 +3,6 @@ window.ColManager = (function($, ColManager) {
     // new ProgCol obj
     ColManager.newCol = function(options) {
         var progCol = new ProgCol();
-
         for (var key in options) {
             progCol[key] = options[key];
         }
