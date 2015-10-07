@@ -296,11 +296,12 @@ window.TestSuite = (function($, TestSuite) {
         // Select columns in dataset and send to worksheet
         function flightTestPart2(dsName1, dsName2) {
             $("#dataset-" + dsName2 + " .gridIcon").click();
-            checkExists("#worksheetTable[data-dsname=" + dsName2)
+            checkExists("#worksheetTable[data-dsname=" + dsName2 +"]")
             .then(function() {
                 $("#selectDSCols .icon").click();
                 $("#dataset-" + dsName1 + " .gridIcon").click();
-                return (checkExists("#worksheetTable[data-dsname=" + dsName1));
+                return (checkExists("#worksheetTable[data-dsname=" + dsName1 +
+                        "]"));
             })
             .then(function() {
                 $("#selectDSCols .icon").click();
