@@ -781,20 +781,9 @@ window.RightSideBar = (function($, RightSideBar) {
                 reader.onload = function(event) {
                     xcHelper.disableSubmit($submitBtn);
                     // XXX: Change cursor, handle failure
-                    var result = event.target.result;
-                    XcalarUploadPython(moduleName, result)
-                    .then(function() {
-                        // clearance
-                        $inputFile.val("");
-                        $filePath.val("");
-                        storePython(moduleName, result);
-                        commitToStorage();
-                        uploadSuccess();
-                    })
-                    .fail(function(error) {
-                        var title = "Upload Error";
-                        Alert.error(title, error);
-                    })
+                    var entireString = event.target.result;
+
+                    uploadPython(moduleName, entireString)
                     .always(function() {
                         xcHelper.enableSubmit($submitBtn);
                     });
@@ -857,7 +846,7 @@ window.RightSideBar = (function($, RightSideBar) {
                 StatusBox.show(text, $fnName, true, 50);
                 return;
             }
-            
+
             // Get code written and call thrift call to upload
             var entireString = editor.getValue();
             if (entireString.trim() === "") {
@@ -874,35 +863,76 @@ window.RightSideBar = (function($, RightSideBar) {
                 moduleName = fileName;
             }
 
-            // XXX: Change cursor, handle failure
-            XcalarUploadPython(moduleName, entireString)
-            .then(function() {
-                // clearance
-                $fnName.val("");
-                $template.val("");
-                $downloadBtn.addClass("hidden");
-                storePython(moduleName, entireString);
-                commitToStorage();
-                uploadSuccess();
-            })
-            .fail(function(error) {
-                var title = "Error";
-                if (error.status === StatusT.StatusPyExecFailedToCompile) {
-                    // XX might not actually be a syntax error
-                    title = "Syntax Error";
-                }
-                
-                Alert.error(title, error);
-            });
+            uploadPython(moduleName, entireString, true);
         });
         /* end of upload written function section */
 
         multiJoinUDFUpload();
+
+        function uploadPython(moduleName, entireString, isFnInputSection) {
+            var deferred = jQuery.Deferred();
+
+            if (storedPython.hasOwnProperty(moduleName)) {
+                var msg = "Python module " + moduleName + " already exists," +
+                            " do you want to replcae it with this module?"
+                Alert.show({
+                        "title"     : "Duplicate Module",
+                        "msg"       : msg,
+                        "isCheckBox": false,
+                        "confirm"   : function() { uploadHelper(); },
+                        "cancel"    : function() { deferred.resolve(); }
+                });
+            } else {
+                uploadHelper();
+            }
+
+            function uploadHelper() {
+                // XXX: Change cursor, handle failure
+                XcalarUploadPython(moduleName, entireString)
+                .then(function() {
+                    storePython(moduleName, entireString);
+                    commitToStorage();
+                    uploadSuccess();
+
+                    // clearance
+                    if (isFnInputSection) {
+                        $fnName.val("");
+                        $template.val("");
+                        $downloadBtn.addClass("hidden");
+                    } else {
+                        $inputFile.val("");
+                        $filePath.val("");
+                    }
+
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    var title = "Upload Error";
+                    if (error.status === StatusT.StatusPyExecFailedToCompile) {
+                        // XX might not actually be a syntax error
+                        title = "Syntax Error";
+                    }
+
+                    Alert.error(title, error);
+                    deferred.reject(error);
+                });
+            }
+
+            return (deferred.promise());
+        }
     }
 
     function storePython(moduleName, entireString) {
         var $listDropdown = $("#udf-fnMenu");
-        var $blankFunc = $listDropdown.find('li[name=blank]');
+
+        if (storedPython.hasOwnProperty(moduleName)) {
+            // the case of overwrite a module
+            $listDropdown.children().filter(function() {
+                return $(this).text() === moduleName;
+            }).remove();
+        }
+
+        var $blankFunc = $listDropdown.children('li[name=blank]');
         var li = '<li>' + moduleName + '</li>';
         $blankFunc.after(li);
         storedPython[moduleName] = entireString;
