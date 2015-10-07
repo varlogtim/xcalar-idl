@@ -81,7 +81,7 @@ window.ColManager = (function($, ColManager) {
         var inFocus     = options.inFocus || false;
         var newProgCol  = options.progCol;
         var noAnimate   = options.noAnimate;
-        var isHidden    = options.isHidden;
+        var isHidden    = options.isHidden || false;
         var columnClass;
         var color;
 
@@ -99,7 +99,6 @@ window.ColManager = (function($, ColManager) {
             columnClass = "";
         }
 
-
         if (select) {
             color = " selectedCell";
             $('.selectedCell').removeClass('selectedCell');
@@ -110,7 +109,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         if (!newProgCol) {
-            name = name || "newCol";
+            name = name || "";
 
             newProgCol = ColManager.newCol({
                 "index"   : newColid,
@@ -118,7 +117,7 @@ window.ColManager = (function($, ColManager) {
                 "width"   : width,
                 "userStr" : '"' + name + '" = ',
                 "isNewCol": isNewCol,
-                "isHidden": options.isHidden
+                "isHidden": isHidden
             });
 
             insertColHelper(newColid - 1, tableId, newProgCol);
@@ -135,16 +134,21 @@ window.ColManager = (function($, ColManager) {
             "width"   : width,
             "isHidden": isHidden
         };
-        var columnHeadHTML = generateColumnHeadHTML(columnClass, color,
-                                                    newColid, options);
-        $tableWrap.find('.th.col' + (newColid - 1)).after(columnHeadHTML);
+
+        var $th = $(generateColumnHeadHTML(columnClass, color, newColid, options));
+        $tableWrap.find('.th.col' + (newColid - 1)).after($th);
+
+        if (isNewCol) {
+            $th.find(".flexContainer").mousedown()
+                .find(".editableHead").focus();
+        }
 
         if (gMinModeOn || noAnimate) {
             updateTableHeader(tableId);
             RightSideBar.updateTableInfo(tableId);
             $table.find('.rowGrab').width($table.width());
         } else {
-            var $th = $tableWrap.find('.th.col' + newColid);
+            // var $th = $tableWrap.find('.th.col' + newColid);
             $th.width(10);
             if (!isHidden) {
                 $th.animate({width: width}, 300, function() {
@@ -346,6 +350,8 @@ window.ColManager = (function($, ColManager) {
             "colNum"   : colNum,
             "newName"  : newName
         });
+
+        commitToStorage();
     };
 
     ColManager.reorderCol = function(tableId, oldColNum, newColNum) {

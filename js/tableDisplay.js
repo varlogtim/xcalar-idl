@@ -628,13 +628,14 @@ function generateTableShell(columns, tableId) {
 function generateColumnHeadHTML(columnClass, color, newColid, option) {
     option = option || {};
 
-    var columnName = option.name || "newCol";
+    var columnName = option.name || "";
     var width      = option.width || 0;
     if (option.isHidden) {
         width = 15;
         columnClass += " userHidden";
     }
 
+    var readOnlyProp = (columnName === "") ? "" : "readonly";
     var tooltip = columnClass.indexOf("indexedColumn") < 0 ? "" :
                      ' title="Indexed Column" data-toggle="tooltip" ' +
                      'data-placement="top" data-container="body"';
@@ -657,14 +658,14 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
                 '</div>' +
                 '<div class="flexContainer flexRow">' +
                     '<div class="flexWrap flex-left">' +
-                    // XXX keep a space for hiding the icon in hide
+                    // keep a space for hiding the icon in hide
                         '<div class="iconHidden"></div> ' +
                         '<span class="type icon"></span>' +
                     '</div>' +
                     '<div class="flexWrap flex-mid"' + tooltip + '>' +
                         '<input class="editableHead col' + newColid + '"' +
                             ' type="text"  value="' + columnName + '"' +
-                            ' size="15" readonly/>' +
+                            ' size="15" ' + readOnlyProp + '/>' +
                     '</div>' +
                     '<div class="flexWrap flex-right">' +
                         '<div class="dropdownBox" ' +

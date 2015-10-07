@@ -1493,6 +1493,24 @@ function addColListeners($table, tableId) {
         dragdropMouseDown(headCol, event);
     });
 
+    $thead.on("keydown", ".editableHead", function(event) {
+        var $input = $(event.target);
+        if (event.which === keyCode.Enter && !$input.prop("readonly")) {
+            var colName = $input.val().trim();
+
+            if (colName === "" ||
+                ColManager.checkColDup($input, null, tableId))
+            {
+                return false;
+            }
+
+            $input.prop("readonly", true);
+
+            var colNum = xcHelper.parseColNum($input);
+            ColManager.renameCol(colNum, tableId, colName);
+        }
+    })
+
     // listeners on tbody
     $tbody.on("mousedown", "td", function(event) {
         var $td = $(this);
@@ -1794,6 +1812,8 @@ function addColMenuBehaviors($colMenu) {
 
 function addColMenuActions($colMenu) {
     var tableId = xcHelper.parseTableId($colMenu);
+
+    // add new column
     $colMenu.on('mouseup', '.addColumns', function(event) {
         if (event.which !== 1) {
             return;
@@ -2216,14 +2236,22 @@ function functionBarEnter($colInput) {
     }
     gFnBarOrigin = $colInput;
 
-    var $fnBar = $('#fnBar').removeClass('inFocus');
+    var $fnBar = $("#fnBar").removeClass("inFocus");
 
     var $table   = $colInput.closest('.dataTable');
     var tableId  = xcHelper.parseTableId($table);
     var colNum   = xcHelper.parseColNum($colInput);
     var table    = xcHelper.getTableFromId(tableId);
     var tableCol = table.tableCols[colNum - 1];
-    var colName = tableCol.name;
+    var colName  = tableCol.name;
+
+    if (tableCol.isNewCol && colName == "") {
+        // when it's new column and do not give name yet
+        var text = "Column name is not confirmed yet, " +
+                "please fill in the column name and press enter to confirm";
+        StatusBox.show(text, $colInput);
+        return;
+    }
 
     var newFuncStr = '"' + colName + '" ' + $fnBar.val().trim();
     var oldUsrStr  = tableCol.userStr;
@@ -2250,6 +2278,7 @@ function functionBarEnter($colInput) {
     .then(function() {
         updateTableHeader(tableId);
         RightSideBar.updateTableInfo(tableId);
+        commitToStorage();
     });
 }
 
@@ -2267,10 +2296,10 @@ function parseFunc(funcString, colNum, table, modifyCol) {
         progCol = ColManager.newCol();
     }
 
-    progCol.userStr = funcString;
     progCol.name = name;
     progCol.func = cleanseFunc(funcSt);
     progCol.index = colNum;
+    progCol.userStr = '"' + progCol.func.args[0] + '" =' + funcSt;
 
     return (progCol);
 }
