@@ -1883,6 +1883,82 @@ function addColMenuActions($colMenu) {
         }
     });
 
+    $colMenu.on('keypress', '.splitCol input', function(event) {
+        if (event.which === keyCode.Enter) {
+            var colNum = $colMenu.data("colNum");
+            var $li = $(this).closest("li");
+            var $delimInput = $li.find(".delimiter");
+            var delim = $delimInput.val();
+
+            if (delim.trim() === "") {
+                if (delim.length === 0) {
+                    // when this field is empty
+                    var errorText = "Please fill out this field.";
+                    StatusBox.show(errorText, $delimInput);
+                    return;
+                }
+                // cast of space/tab
+                // XXX this part maybe buggy
+                delim = delim.charAt(0);
+            }
+
+            var $numInput = $li.find(".num");
+            var num = $numInput.val().trim();
+
+            if (num === "") {
+                // start from 1
+                var maxNum = 1;
+                $("#xcTable-" + tableId + " tbody td.col" + colNum +
+                    " .addedBarTextWrap").each(function() {
+                        var splitNum = $(this).text().split(delim).length;
+                        maxNum = Math.max(maxNum, splitNum);
+                });
+                num = maxNum;
+            } else {
+                num = Number($numInput.val().trim());
+            }
+
+            var isValid = xcHelper.validate([
+                {
+                    "$selector": $numInput,
+                    "text"     : "Invalid input, please input a number",
+                    "check"    : function() {
+                        return (isNaN(num) || !Number.isInteger(num));
+                    }
+                },
+                {
+                    "$selector": $numInput,
+                    "check"    : function() { return (num < 1); },
+                    "text"     : "Ivalid number, " +
+                                "please specify a number bigger than 0"
+                }
+            ]);
+
+            if (!isValid) {
+                return;
+            }
+
+            if (num > 15) {
+                var msg = "About " + num + " columns will be generated, " +
+                            "do you still want to continue the operation?";
+                Alert.show({
+                    "title"     : "Many Columns will generate",
+                    "msg"       : msg,
+                    "isCheckBox": false,
+                    "confirm"   : function () {
+                        ColManager.splitCol(colNum, tableId, delim, num);
+                    }
+                });
+            } else {
+                ColManager.splitCol(colNum, tableId, delim, num);
+            }
+
+            $delimInput.val("").blur();
+            $numInput.val("").blur();
+            closeMenu($colMenu);
+        }
+    });
+
     $colMenu.on('mouseup', '.duplicate', function(event) {
         if (event.which !== 1) {
             return;

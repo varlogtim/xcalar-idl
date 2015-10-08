@@ -166,6 +166,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.AddDS):
                 // fallthrough
+            case (SQLOps.SplitCol):
+                // fallthrough
                 // XXX should export tables have an effect?
                 break;
 
@@ -190,6 +192,7 @@ window.SQL = (function($, SQL) {
             case (SQLOps.RenameOrphanTable):
             case (SQLOps.ProfileAction):
             case (SQLOps.QuickAggAction):
+            case (SQLOps.SplitColMap):
                 string += cli;
                 break;
             default:

@@ -332,6 +332,166 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     };
 
+    ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet) {
+        var deferred = jQuery.Deferred();
+
+        var currentWS   = WSManager.getActiveWS();
+        var table       = gTables[tableId];
+        var tableName   = table.tableName;
+        var tableCols   = table.tableCols;
+        var numCols     = tableCols.length;
+        var colName     = tableCols[colNum - 1].name;
+        var backColName = tableCols[colNum - 1].func.args[0];
+
+        var msg = StatusMessageTStr.SplitColumn;
+        var msgObj = {
+            "msg"      : msg,
+            "operation": SQLOps.SplitCol
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
+
+        var tableNamePart = tableName.split("#")[0];
+        var newTableNames = [];
+        var newFieldNames = []
+        var i;
+
+        for (i = numColToGet; i >= 1; i--) {
+            newTableNames[i] = tableNamePart + Authentication.getHashId();
+        }
+
+        // this makes it easy to get previous table name
+        // when index === numColToGet
+        newTableNames[numColToGet + 1] = tableName;
+
+        // Check duplication
+        var tryCount  = 0;
+        var colPrefix = colName + "_split";
+        var isDup;
+
+        i = numColToGet;
+        while (i > 0 && tryCount <= 50) {
+            isDup = false;
+            ++tryCount;
+
+            for (i = numColToGet; i >= 1; i--) {
+                newFieldNames[i] = colPrefix + i;
+
+                for (var j = 0; j < numCols; j++) {
+                    if (tableCols[j].func.args) {
+                        if (newFieldNames[i] === tableCols[j].func.args[0]) {
+                            isDup = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isDup) {
+                    newFieldNames = [];
+                    colPrefix = colName + "_split(" + tryCount + ")";
+                    break;
+                }
+            }
+        }
+
+        if (tryCount > 50) {
+            console.error("Too much try, overwrite origin col name!");
+             for (i = numColToGet; i >= 1; i--) {
+                newFieldNames[i] = colName + "_split" + i;
+            }
+        }
+
+        var promises = [];
+        for (i = numColToGet; i >= 1; i--) {
+            promises.push(splitColHelper.bind(this, i, newTableNames[i + 1],
+                                                newTableNames[i]));
+        }
+
+        xcHelper.lockTable(tableId);
+
+        chain(promises)
+        .then(function(newTableId) {
+            xcHelper.unlockTable(tableId, true);
+            StatusMessage.success(msgId, false, newTableId);
+
+            SQL.add("Split Column", {
+                "operation"   : SQLOps.SplitCol,
+                "tableName"   : tableName,
+                "tableId"     : tableId,
+                "newTableName": newTableNames[1],
+                "colNum"      : colNum,
+                "delimiter"   : delimiter,
+                "numColToGet" : numColToGet
+            });
+
+            commitToStorage();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            xcHelper.unlockTable(tableId);
+
+            Alert.error("Split Column fails", error);
+            StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
+
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+
+        function splitColHelper(index, curTableName, newTableName) {
+            var innerDeferred = jQuery.Deferred();
+
+            var mapString  = 'cut(' + backColName + ', ' + index + ', "' +
+                            delimiter + '")';
+            var fieldName  = newFieldNames[index];
+            var newTableId = xcHelper.getTableId(newTableName);
+            var sqlOptions =  {
+                "operation"   : SQLOps.SplitColMap,
+                "action"      : "map",
+                "tableName"   : curTableName,
+                "newTableName": newTableName,
+                "fieldName"   : fieldName,
+                "mapString"   : mapString
+            };
+
+
+            WSManager.addTable(newTableId, currentWS);
+
+            XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
+            .then(function() {
+                var mapOptions   = { "isOnRight": true };
+                var curTableId   = xcHelper.getTableId(curTableName);
+                var curTableCols = gTables[curTableId].tableCols;
+                var newTablCols  = xcHelper.mapColGenerate(colNum, fieldName,
+                                        mapString, curTableCols, mapOptions);
+                var tableProperties = {
+                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
+                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
+                };
+
+                // map do not change groupby stats of the table
+                STATSManager.copy(curTableId, newTableId);
+
+                return (setgTable(newTableName, newTablCols, null, tableProperties));
+            })
+            .then(function() {
+                var refreshOptions = {};
+                if (index > 1) {
+                    refreshOptions = { "lockTable": true };
+                }
+                return (refreshTable(newTableName, curTableName, refreshOptions));
+            })
+            .then(function() {
+                innerDeferred.resolve(newTableId);
+            })
+            .fail(function(error) {
+                WSManager.removeTable(newTableId);
+                innerDeferred.reject(error);
+            });
+
+            return (innerDeferred.promise());
+        }
+    }
+
     ColManager.renameCol = function(colNum, tableId, newName) {
         var table   = gTables[tableId];
         var $table  = $("#xcTable-" + tableId);
@@ -535,7 +695,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         if (!isDuplicate && tableId != null) {
-            var tableCols = xcHelper.getTableFromId(tableId).tableCols;
+            var tableCols = gTables[tableId].tableCols;
             var numCols = tableCols.length;
             for (var i = 0; i < numCols; i++) {
                 if (tableCols[i].func.args) {

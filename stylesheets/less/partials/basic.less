@@ -782,6 +782,29 @@ ul.colMenu {
                 top: 10px;
             }
         }
+
+        &.splitCol {
+            // only display for type-string
+            display: none;
+
+            .subColMenu li {
+                .size(@height: 105px);
+
+                div, input {
+                    height: 20px;
+                    line-height: 20px;
+                    margin-top: 2px;
+                }
+
+                div {
+                    text-align: center;
+                }
+
+                input {
+                    position: initial;
+                }
+            }
+        }
     }
 
     ul {
@@ -979,6 +1002,12 @@ ul.colMenu {
     .moveToWorksheet {
         &+ .tooltip {
             display: none !important;
+        }
+    }
+
+    &.type-string {
+        .splitCol {
+            display: block;
         }
     }
 

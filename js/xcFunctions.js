@@ -611,8 +611,8 @@ window.xcFunction = (function($, xcFunction) {
     xcFunction.map = function(colNum, tableId, fieldName, mapString, mapOptions) {
         var deferred = jQuery.Deferred();
 
-        var table        = xcHelper.getTableFromId(tableId);
-        var tableName    = table.tableName;
+        var table     = gTables[tableId];
+        var tableName = table.tableName;
 
         var msg = StatusMessageTStr.Map + " " + fieldName;
         var msgObj = {
@@ -645,8 +645,8 @@ window.xcFunction = (function($, xcFunction) {
 
         XcalarMap(fieldName, mapString, tableName, newTableName, sqlOptions)
         .then(function() {
-            var tablCols = mapColGenerate(colNum, fieldName, mapString,
-                                        table.tableCols, mapOptions.replaceColumn);
+            var tablCols = xcHelper.mapColGenerate(colNum, fieldName, mapString,
+                                                    table.tableCols, mapOptions);
             var tableProperties = {
                 "bookmarks" : xcHelper.deepCopy(table.bookmarks),
                 "rowHeights": xcHelper.deepCopy(table.rowHeights)
@@ -759,8 +759,8 @@ window.xcFunction = (function($, xcFunction) {
                 xcHelper.lockTable(rTableId);
             }
 
-            var lTableCols = mapColGenerate(lColNum, lFieldName, lMapString,
-                                    lTable.tableCols, lOptions.replaceColumn);
+            var lTableCols = xcHelper.mapColGenerate(lColNum, lFieldName,
+                                        lMapString, lTable.tableCols, lOptions);
             var lTableProperties = {
                 "bookmarks" : xcHelper.deepCopy(lTable.bookmarks),
                 "rowHeights": xcHelper.deepCopy(lTable.rowHeights)
@@ -777,8 +777,8 @@ window.xcFunction = (function($, xcFunction) {
             return (refreshTable(lNewName, lTableName, refreshOptions));
         })
         .then(function() {
-            var rTableCols = mapColGenerate(rColNum, rFieldName, rMapString,
-                                    rTable.tableCols, rOptions.replaceColumn);
+            var rTableCols = xcHelper.mapColGenerate(rColNum, rFieldName,
+                                        rMapString, rTable.tableCols, rOptions);
             var rTableProperties = {
                 "bookmarks" : xcHelper.deepCopy(rTable.bookmarks),
                 "rowHeights": xcHelper.deepCopy(rTable.rowHeights)
@@ -1500,34 +1500,6 @@ window.xcFunction = (function($, xcFunction) {
         }
 
         return (deferred.promise());
-    }
-
-    function mapColGenerate(colNum, colName, mapStr, tableCols, isReplace) {
-        var copiedCols = xcHelper.deepCopy(tableCols);
-
-        if (colNum > -1) {
-            var numColsRemoved = 0;
-            var cellWidth = gNewCellWidth;
-
-            if (isReplace) {
-                numColsRemoved = 1;
-                cellWidth = copiedCols[colNum - 1].width;
-            }
-
-            var newProgCol = ColManager.newCol({
-                "index"   : colNum,
-                "name"    : colName,
-                "width"   : cellWidth,
-                "userStr" : '"' + colName + '" =map(' + mapStr + ')',
-                "isNewCol": false
-            });
-            newProgCol.func.func = "pull";
-            newProgCol.func.args = [];
-            newProgCol.func.args[0] = colName.replace(/\./g, "\\\.");
-            copiedCols.splice(colNum - 1, numColsRemoved, newProgCol);
-        }
-
-        return (copiedCols);
     }
 
     return (xcFunction);

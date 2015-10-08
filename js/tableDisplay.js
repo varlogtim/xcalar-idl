@@ -730,6 +730,21 @@ function generateColDropDown(tableId) {
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +
             '</li>' +
+            '<li class="splitCol thDropdown">' +
+                'Split column' +
+                '<ul class="subColMenu">' +
+                    '<li style="text-align: center" class="clickable">' +
+                        '<div>Split Column By</div>' +
+                        '<input class="delimiter" type="text" width="100px"' +
+                            ' spellcheck="false"/>' +
+                        '<div>Number of Split Columns</div>' +
+                        '<input class="num" type="text" width="100px"' +
+                            ' spellcheck="false" placeholder="No limit if blank"/>' +
+                    '</li>' +
+                    '<div class="subColMenuArea"></div>' +
+                '</ul>' +
+                '<div class="dropdownBox"></div>' +
+            '</li>' +
             '<li class="changeDataType thDropdown">Change data type' +
                 '<ul class="subColMenu">';
 

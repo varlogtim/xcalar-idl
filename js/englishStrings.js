@@ -16,6 +16,8 @@ StatusMessageTStr = {
 'ExportFailed' : 'Export failed',
 'Aggregate' : 'Performing Aggregate',
 'AggregateFailed' : 'Aggregate failed',
+'SplitColumn': 'Split column',
+'SplitColumnFailed': 'Split column failed',
 'OnColumn' : 'on column',
 'Sort' : 'Sorting column',
 'SortFailed' : 'Sort failed',

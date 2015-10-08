@@ -165,5 +165,7 @@ var SQLOps = {
     ProfileSort: "profileSort",
     ProfileClose: "profileClose",
     QuickAggAction: "quickAggAction",
-    QuickAgg: "quickAgg"
+    QuickAgg: "quickAgg",
+    SplitCol: "splitCol",
+    SplitColMap: "spltColMap"
 };

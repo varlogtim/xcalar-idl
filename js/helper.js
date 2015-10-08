@@ -130,6 +130,38 @@ window.xcHelper = (function($, xcHelper) {
         return (res);
     };
 
+    xcHelper.mapColGenerate = function(colNum, colName, mapStr, tableCols, options) {
+        options = options || {};
+        var copiedCols = xcHelper.deepCopy(tableCols);
+
+        if (colNum > -1) {
+            var cellWidth = options.replaceColumn ?
+                                copiedCols[colNum - 1].width :
+                                gNewCellWidth;
+            var newProgCol = ColManager.newCol({
+                "index"   : colNum,
+                "name"    : colName,
+                "width"   : cellWidth,
+                "userStr" : '"' + colName + '" =map(' + mapStr + ')',
+                "isNewCol": false
+            });
+
+            newProgCol.func.func = "pull";
+            newProgCol.func.args = [];
+            newProgCol.func.args[0] = colName.replace(/\./g, "\\\.");
+
+            if (options.replaceColumn) {
+                copiedCols.splice(colNum - 1, 1, newProgCol);
+            } else if (options.isOnRight) {
+                copiedCols.splice(colNum, 0, newProgCol);
+            } else {
+                copiedCols.splice(colNum - 1, 0, newProgCol);
+            }
+        }
+
+        return (copiedCols);
+    }
+
     xcHelper.sizeTranslater = function(size, unitSeparated) {
         var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
         var start = 0;

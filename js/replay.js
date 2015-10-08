@@ -195,6 +195,10 @@ window.Replay = (function($, Replay) {
                 break;
             case SQLOps.AddDS:
                 return replayAddDS(options);
+            case SQLOps.SplitCol:
+                return replaySplitCol(options);
+            case SQLOps.SplitColMap:
+                break;
             default:
                 console.error("Unknown operation", operation);
                 deferred.reject("Unknown operation");
@@ -306,6 +310,8 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.QuickAgg] = ["tableId", "type"];
         argsMap[SQLOps.AddDS] = ["name", "format", "path"];
         argsMap[SQLOps.ExportTable] = ["tableName", "exportName"];
+        argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
+                                    "delimiter", "numColToGet"];
     }
 
     function createTabMap() {
@@ -1084,6 +1090,12 @@ window.Replay = (function($, Replay) {
         });
 
         return (deferred.promise());
+    }
+
+    function replaySplitCol(options) {
+        // XXX not tested yet!!!
+        var args = getArgs(options);
+        return (ColManager.splitCol.apply(window, args));
     }
 
     return (Replay);
