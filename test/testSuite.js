@@ -88,7 +88,6 @@ window.TestSuite = (function($, TestSuite) {
     TestSuite.run = function() {
         var initialDeferred = jQuery.Deferred();
         var deferred = initialDeferred;
-
         // Start chaining the callbacks
         for (var ii = 0; ii < testCases.length; ii++) {
             deferred = deferred.then(
@@ -515,15 +514,15 @@ window.TestSuite = (function($, TestSuite) {
             $("#submitTablesBtn").click();
             $("#rightSideBar .iconClose").click();
             $("#worksheetTab-0 .label").click();
-            return (checkExists(".xcTableWrap .tableTitle .dropdownBox " +
-                                ".innerBox"));
+            return (checkExists(".xcTableWrap:eq(2) .tableTitle " +
+                                ".dropdownBox .innerBox"));
         })
         .then(function() {
             $("#mainFrame").scrollLeft("10000");
             $(".xcTableWrap .tableTitle .dropdownBox .innerBox").eq(2).click();
             $(".xcTableWrap .moveToWorksheet").eq(2).trigger(fakeMouseenter);
             $(".xcTableWrap .moveToWorksheet .wsName").eq(2).click();
-            $(".xcTableWrap .moveToWorksheet .list li").click();
+            $(".xcTableWrap .moveToWorksheet:eq(2) .list li").click();
             $(".xcTableWrap .moveToWorksheet .wsName").eq(2).trigger(fakeEnter);
             $("#worksheetTab-1 .text").text("Multi group by").trigger(fakeEnter);
             return (checkExists("#worksheetTab-1 .text:contains('Multi ')"));
