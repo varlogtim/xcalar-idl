@@ -76,7 +76,7 @@ window.JSONModal = (function($, JSONModal) {
 
         $searchInput.val("");
         centerPositionElement($jsonModal);
-        fillJsonModal($jsonTd, isArray);
+        fillJsonModal($jsonTd, isArray); // shows json modal
         jsonModalEvent($jsonTd, isArray);
         $("body").addClass("hideScroll");
     };

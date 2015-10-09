@@ -551,6 +551,7 @@ input {
 #dsPreviewTableWrap {
     margin-top: 10px;
     height: ~"calc(100% - 10px)";
+    z-index: 0; // child element with z-index 10 causing problems
     .datasetTbodyWrap {
         width: ~"calc(100% + 17px)";
         overflow-x: hidden;
@@ -694,8 +695,6 @@ input {
 
     .contentView {
         height: 100%;
-        .flex-display;
-        .flex-flow(row);
         background-color: @color-background-white;
         overflow: hidden;
     }
@@ -705,9 +704,10 @@ input {
 #datastorePanel {
 
     .contentViewLeft {
-        .flex(0 0 255px);
-        .flex-order(1);
+        width: 255px;
+        height: 100%;
         .flex-display;
+        float: left;
         .flex-flow(column);
         box-shadow: inset -2px 2px 6px 0 rgba(0,0,0,.3);
         background-color: @color-background-darkGray;
@@ -1051,11 +1051,11 @@ input {
 
     /* Content Mid */
     .contentViewMid {
-        .flex(1 1 255px);
-        .flex-order(2);
+        width: ~"calc(100% - 510px)";
         .flex-display;
         .flex-flow(column);
         height: 100%;
+        float: left;
 
         &.hidden {
             visibility: hidden;
@@ -1168,12 +1168,11 @@ input {
 
     /* Content Right */
     .contentViewRight {
-        .flex(0 0 255px);
-        .flex-order(3);
         .size(@width: 255px, @height: 100%);
         background-color: @color-background-darkGray;
         box-shadow: inset 2px 2px 6px 0 rgba(0,0,0,.3);
         border-left: 1px solid rgba(0, 0, 0, 0.25);
+        float: left;
 
         .buttonArea {
             margin-top: 4px;
