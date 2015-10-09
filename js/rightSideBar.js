@@ -986,24 +986,6 @@ window.RightSideBar = (function($, RightSideBar) {
 
     // XXX Current it works as a reset button
     function setupHelpSection() {
-        // XXX !!! landmine section to restart node
-        $("#helpSubmit").click(function() {
-            console.info('Reset Fired!');
-            commitToStorage()
-            .then(function() {
-                console.info("Shut Down Successfully!");
-                return (XcalarStartNodes(2));
-            }, function(error) {
-                console.error("Failed to write! Commencing shutdown", error);
-                return (XcalarStartNodes(2));
-            })
-            .then(function() {
-                console.info("Restart Successfully!");
-                // refresh page
-                location.reload();
-            });
-        });
-
         // Toggleing helper tooltips
         $('#helpOnOff').click(function() {
             toggleRefresh($(this));

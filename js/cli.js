@@ -82,6 +82,25 @@ window.CLIBox = (function($, CLIBox) {
                 var randId = Math.floor(Math.random() * 100000);
                 XcalarQuery("XIQuery" + randId, queryStr);
                 commitToStorage();
+
+                // restart if user enters "restart"
+                if (queryStr === "restart") {
+                    console.log('Reset Fired');
+                    commitToStorage()
+                    .then(function() {
+                        console.info("Shut Down Successfully!");
+                        return (XcalarStartNodes(2));
+                    }, function(error) {
+                        console.error("Failed to write! Commencing shutdown",
+                                       error);
+                        return (XcalarStartNodes(2));
+                    })
+                    .then(function() {
+                        console.info("Restart Successfully!");
+                        // refresh page
+                        location.reload();
+                    });
+                }
             }
         });
 
