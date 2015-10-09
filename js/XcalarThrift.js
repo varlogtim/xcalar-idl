@@ -593,7 +593,8 @@ function XcalarDeleteTable(tableName, sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
     }
-
+    return (promiseWrapper(null));
+    /** XXX Temporary commented out because this causes crash
     var deferred = jQuery.Deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -610,7 +611,7 @@ function XcalarDeleteTable(tableName, sqlOptions) {
         deferred.reject(thriftLog("XcalarDeleteTable", error));
     });
 
-    return (deferred.promise());
+    return (deferred.promise()); */
 }
 
 function XcalarRenameTable(oldTableName, newTableName, sqlOptions) {

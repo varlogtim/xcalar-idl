@@ -925,7 +925,8 @@ window.xcFunction = (function($, xcFunction) {
             if (resultSet && resultSet.keyAttrHeader.name !== colName) {
                 parentIndexedWrongly = true;
             }
-            if (colName !== table.keyName || 
+
+            if ((unsortedTableName == tableName && colName !== table.keyName) ||
                 (unsortedTableName !== tableName && parentIndexedWrongly)) {
                 console.log(tableName, "not indexed correctly!");
                 // XXX In the future,we can check if there are other tables that
