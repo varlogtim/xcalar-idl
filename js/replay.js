@@ -17,6 +17,9 @@ window.Replay = (function($, Replay) {
     var checkTime = 500; // time interval of 500ms
 
     Replay.run = function(sqls) {
+        var deferred = jQuery.Deferred();
+
+        gMinModeOn = true;
         // call it here instead of start up time
         // to lower the overhead of start up.
         if (argsMap == null) {
@@ -38,7 +41,18 @@ window.Replay = (function($, Replay) {
             promises.push(Replay.execSql.bind(this, sqls[i]));
         }
 
-        return (chain(promises));
+        chain(promises)
+        .then(function() {
+            deferred.resolve();
+        })
+        .fail(function() {
+            deferred.reject();
+        })
+        .always(function() {
+            gMinModeOn = false;
+        });
+
+        return (deferred.promise());
     };
 
     Replay.execSql = function(sql) {
