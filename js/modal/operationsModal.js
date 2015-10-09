@@ -954,6 +954,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         var args = [];
         var colType;
+        var colTypes;
         var typeid;
 
         // constant
@@ -1033,20 +1034,24 @@ window.OperationsModal = (function($, OperationsModal) {
                 // skip this type check if the function category is user defined
                 // function.
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
-                    colType = getColumnTypeFromArg(frontColName);
+                    colTypes = getAllColumnTypesFromArg(frontColName);
 
-                    if (colType != null) {
-                        var types = parseType(typeid);
-
-                        if (types.indexOf(colType) < 0) {
-                            isPassing = false;
-                            var text = "Invalid type for the field, wanted: " +
-                                    types.join("/") + ", but gives: " + colType;
-                            StatusBox.show(text, $input);
-                            return (false);
+                    var inValidTypes = [];
+                    var numTypes = colTypes.length;
+                    var types = parseType(typeid);
+                    for (var i = 0; i < numTypes; i++) {
+                        if (colTypes[i] != null) {
+                            if (types.indexOf(colTypes[i]) < 0) {
+                                isPassing = false;
+                                var text = "Invalid type for the field," +
+                                            " wanted: " + types.join("/") +
+                                            ", but provided: " + colTypes[i];
+                                StatusBox.show(text, $input);
+                                return (false);
+                            }
+                        } else {
+                            console.error("colType is null/col not pulled!");
                         }
-                    } else {
-                        console.error("colType is null/col not pulled!");
                     }
                 }
             } else {
@@ -1154,6 +1159,17 @@ window.OperationsModal = (function($, OperationsModal) {
         var $argInputs = $operationsModal.find('.argument');
         var groupbyColName = args[0];
         var indexedColNames = args[1];
+        var isGroupbyColNameValid = checkValidColNames($argInputs.eq(0),
+                                                        groupbyColName);
+        if (!isGroupbyColNameValid) {
+            return (false);
+        } else {
+            var areIndexedColNamesValid = checkValidColNames($argInputs.eq(1),
+                                                        indexedColNames);
+            if (!areIndexedColNamesValid) {
+                return (false);
+            }
+        }
         // check new col name
         var newColName  = args[2];
         var isDuplicate = ColManager.checkColDup($argInputs.eq(2), null,
@@ -1197,6 +1213,7 @@ window.OperationsModal = (function($, OperationsModal) {
             value = spaces;
         }
         var colType;
+        var colArg;
         var columns = xcHelper.getTableFromId(tableId).tableCols;
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             if (columns[i].name === value) {
@@ -1207,6 +1224,72 @@ window.OperationsModal = (function($, OperationsModal) {
 
         return (colType);
     }
+
+    function getAllColumnTypesFromArg(argValue) {
+        var values = argValue.split(",");
+        var numValues = values.length;
+        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var numCols = columns.length;
+        var types = [];
+        var value;
+        var trimmedVal;
+        for (var i = 0; i < numValues; i++) {
+            value = values[i];
+            trimmedVal = value.trim();
+            if (trimmedVal.length > 0) {
+                value = trimmedVal;
+            }
+            for (var j = 0; j < numCols; j++) {
+                if (columns[j].name === value) {
+                    var colType = columns[j].type;
+                    
+                    if (columns[i].func.args) {
+                        colArg = columns[j].func.args[0];
+                        var bracketIndex = colArg.indexOf("[");
+                        if (bracketIndex > -1 &&
+                            colArg[bracketIndex - 1] !== "\\") {
+                            colType = "Array Value";
+                        }
+                    } 
+                    types.push(colType);
+                    break;
+                }
+            }
+        }
+        return (types);
+    }
+
+    // used in groupby to check if inputs have column names that match any
+    // that are found in gTables.tableCols 
+    function checkValidColNames($input, colNames) {
+        var values = colNames.split(",");
+        var numValues = values.length;
+        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var numCols = columns.length;
+        var value;
+        var trimmedVal;
+        for (var i = 0; i < numValues; i++) {
+            value = values[i];
+            trimmedVal = value.trim();
+            if (trimmedVal.length > 0) {
+                value = trimmedVal;
+            }
+            var validFound = false;
+            for (var j = 0; j < numCols; j++) {
+                if (columns[j].func.args && columns[j].func.args[0] === value) {
+                    validFound = true;
+                    break;
+                }
+            }
+            if (!validFound) {
+                var text = "Column '" + value + "' not found.";
+                StatusBox.show(text, $input);
+                return (false);
+            }
+        }
+        return (true);
+    }
+
 
     function formatArgumentInput(value, typeid, existingTypes) {
         var strShift    = 1 << DfFieldTypeT.DfString;
