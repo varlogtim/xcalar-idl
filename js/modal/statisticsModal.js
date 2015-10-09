@@ -212,7 +212,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         }
 
         // do group by
-        if (statsCol.groupByInfo.isComplete) {
+        if (statsCol.groupByInfo.isComplete === true) {
             // check if the groupbyTable is not deleted
             // XXX use XcalarGetTables because XcalarSetAbsolute cannot
             // return fail if resultSetId is not free
@@ -241,9 +241,11 @@ window.STATSManager = (function($, STATSManager, d3) {
             });
 
             promises.push(innerDeferred.promise());
-        } else {
+        } else if (statsCol.groupByInfo.isComplete !== "running") {
             promise = runGroupby(table, statsCol);
             promises.push(promise);
+            showStats();
+        } else {
             showStats();
         }
 
@@ -299,7 +301,7 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         var groupByInfo = statsCol.groupByInfo;
         // update groupby info
-        if (groupByInfo.isComplete) {
+        if (groupByInfo.isComplete === true) {
             // data is ready
             groupByData = [];
 
@@ -436,6 +438,8 @@ window.STATSManager = (function($, STATSManager, d3) {
             "tableName": tableName,
             "colName"  : colName
         };
+
+        curStatsCol.groupByInfo.isComplete = "running";
 
         checkTableIndex(tableId, tableName, colName, keyName)
         .then(function(indexedTableName, nullCount) {
@@ -1014,11 +1018,11 @@ window.STATSManager = (function($, STATSManager, d3) {
             return;
         }
 
-        curStatsCol.groupByInfo.isComplete = false;
+        curStatsCol.groupByInfo.isComplete = "running";
 
         var refreshTimer = setTimeout(function() {
             // refresh if not complete
-            if (curStatsCol.groupByInfo.isComplete === false) {
+            if (curStatsCol.groupByInfo.isComplete === "running") {
                 refreshStats(true);
             }
         }, 500);
