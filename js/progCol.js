@@ -365,7 +365,7 @@ window.ColManager = (function($, ColManager) {
 
         // Check duplication
         var tryCount  = 0;
-        var colPrefix = colName + "_split";
+        var colPrefix = colName + "-split";
         var isDup;
 
         i = numColToGet;
@@ -374,7 +374,7 @@ window.ColManager = (function($, ColManager) {
             ++tryCount;
 
             for (i = numColToGet; i >= 1; i--) {
-                newFieldNames[i] = colPrefix + i;
+                newFieldNames[i] = colPrefix +  "-" + i;
 
                 for (var j = 0; j < numCols; j++) {
                     if (tableCols[j].func.args) {
@@ -387,7 +387,7 @@ window.ColManager = (function($, ColManager) {
 
                 if (isDup) {
                     newFieldNames = [];
-                    colPrefix = colName + "_split(" + tryCount + ")";
+                    colPrefix = colName + "-split-" + tryCount;
                     break;
                 }
             }
@@ -396,7 +396,7 @@ window.ColManager = (function($, ColManager) {
         if (tryCount > 50) {
             console.error("Too much try, overwrite origin col name!");
              for (i = numColToGet; i >= 1; i--) {
-                newFieldNames[i] = colName + "_split" + i;
+                newFieldNames[i] = colName + "-split" + i;
             }
         }
 
