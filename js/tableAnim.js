@@ -299,7 +299,7 @@ function dragdropMouseUp() {
         var currentLeft = parseInt(dragObj.fauxCol.css('left'));
         var slideDistance = Math.max(2, Math.abs(slideLeft - currentLeft));
         var slideDuration = Math.log(slideDistance * 4) * 90 - 200;
-        dragObj.fauxCol.animate({left: slideLeft}, slideDuration, "linear", 
+        dragObj.fauxCol.animate({left: slideLeft}, slideDuration, "linear",
             function() {
                 $('#shadowDiv, #fauxCol').remove();
                 $tableWrap.removeClass('undraggable');
@@ -1313,7 +1313,7 @@ function matchHeaderSizes($table) {
         return;
     }
 
-    var tableId = xcHelper.parseTableId($table);
+    // var tableId = xcHelper.parseTableId($table);
     var tableWidth = $table.width();
 
     moveTableDropdownBoxes();
@@ -1509,7 +1509,7 @@ function addColListeners($table, tableId) {
             var colNum = xcHelper.parseColNum($input);
             ColManager.renameCol(colNum, tableId, colName);
         }
-    })
+    });
 
     // listeners on tbody
     $tbody.on("mousedown", "td", function(event) {
@@ -1909,9 +1909,9 @@ function addColMenuActions($colMenu) {
                 // start from 1
                 var maxNum = 1;
                 $("#xcTable-" + tableId + " tbody td.col" + colNum +
-                    " .addedBarTextWrap").each(function() {
-                        var splitNum = $(this).text().split(delim).length;
-                        maxNum = Math.max(maxNum, splitNum);
+                " .addedBarTextWrap").each(function() {
+                    var splitNum = $(this).text().split(delim).length;
+                    maxNum = Math.max(maxNum, splitNum);
                 });
                 num = maxNum;
             } else {
@@ -2137,14 +2137,14 @@ function addColMenuActions($colMenu) {
                 if (len > 0) {
                     str = "or(" + str + ", not(exists(" + colName + ")))";
                 } else {
-                    str = "not(exists(" +colName + "))";
+                    str = "not(exists(" + colName + "))";
                 }
             }
         } else {
             operator = "exclude";
 
             if (len > 0) {
-                    for (var i = 0; i < len - 1; i++) {
+                for (var i = 0; i < len - 1; i++) {
                     str += "and(not(eq(" + colName + ", " + colVals[i] + ")), ";
                 }
 
@@ -2159,7 +2159,7 @@ function addColMenuActions($colMenu) {
                 if (len > 0) {
                     str = "and(" + str + ", exists(" + colName + "))";
                 } else {
-                    str = "exists(" +colName + ")";
+                    str = "exists(" + colName + ")";
                 }
             }
         }
@@ -2273,8 +2273,8 @@ function unnest($jsonTd, isArray) {
     }
     var numKeys = arrayOfKeys.length;
     var pullColOptions = {
-        "isDataTd": false,
-        "isArray": isArray,
+        "isDataTd" : false,
+        "isArray"  : isArray,
         "noAnimate": true
     };
 
@@ -2282,11 +2282,14 @@ function unnest($jsonTd, isArray) {
     for (var i = numKeys - 1; i >= 0; i--) {
         var key = arrayOfKeys[i];
         var esc = key.replace(/\./g, "\\\.");
+        var nameInfo;
+
         if (isArray) {
-            var nameInfo = {name:"[" + key + "]", escapedName: "[" + esc + "]"};
+            nameInfo = {name: "[" + key + "]", escapedName: "[" + esc + "]"};
         } else {
-            var nameInfo = {name: key, escapedName: esc};
+            nameInfo = {name: key, escapedName: esc};
         }
+
         ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions);
     }
 }
@@ -2321,7 +2324,7 @@ function functionBarEnter($colInput) {
     var tableCol = table.tableCols[colNum - 1];
     var colName  = tableCol.name;
 
-    if (tableCol.isNewCol && colName == "") {
+    if (tableCol.isNewCol && colName === "") {
         // when it's new column and do not give name yet
         var text = "Column name is not confirmed yet, " +
                 "please fill in the column name and press enter to confirm";
@@ -2782,7 +2785,8 @@ function moveTableTitlesAnimated(tableId, oldWidth, widthChange, speed) {
     var $table = $('#xcTableWrap-' + tableId);
     var $thead = $table.find('.xcTheadWrap');
     var rect = $thead[0].getBoundingClientRect();
-    var right = rect.right - widthChange; 
+    var right = rect.right - widthChange;
+
     if (right > 0 && rect.left < viewWidth) {
         var $tableTitle = $table.find('.tableTitle .text');
         var titleWidth = $tableTitle.outerWidth();

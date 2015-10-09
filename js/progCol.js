@@ -226,11 +226,11 @@ window.ColManager = (function($, ColManager) {
             var numAllCols = table.tableCols.length;
             updateTableHeader(tableId);
             RightSideBar.updateTableInfo(tableId);
-            for (var i = colNums[0]; i <= numAllCols; i++) {
-                var oldColNum = xcHelper.parseColNum($table.find('th').eq(i));
+            for (var j = colNums[0]; j <= numAllCols; j++) {
+                var oldColNum = xcHelper.parseColNum($table.find('th').eq(j));
                 $table.find(".col" + oldColNum)
                       .removeClass('col' + oldColNum)
-                      .addClass('col' + i);
+                      .addClass('col' + j);
             }
                 
             matchHeaderSizes($table);
@@ -352,7 +352,7 @@ window.ColManager = (function($, ColManager) {
 
         var tableNamePart = tableName.split("#")[0];
         var newTableNames = [];
-        var newFieldNames = []
+        var newFieldNames = [];
         var i;
 
         for (i = numColToGet; i >= 1; i--) {
@@ -374,7 +374,7 @@ window.ColManager = (function($, ColManager) {
             ++tryCount;
 
             for (i = numColToGet; i >= 1; i--) {
-                newFieldNames[i] = colPrefix +  "-" + i;
+                newFieldNames[i] = colPrefix + "-" + i;
 
                 for (var j = 0; j < numCols; j++) {
                     if (tableCols[j].func.args) {
@@ -394,8 +394,8 @@ window.ColManager = (function($, ColManager) {
         }
 
         if (tryCount > 50) {
-            console.error("Too much try, overwrite origin col name!");
-             for (i = numColToGet; i >= 1; i--) {
+            console.warn("Too much try, overwrite origin col name!");
+            for (i = numColToGet; i >= 1; i--) {
                 newFieldNames[i] = colName + "-split" + i;
             }
         }
@@ -490,7 +490,7 @@ window.ColManager = (function($, ColManager) {
 
             return (innerDeferred.promise());
         }
-    }
+    };
 
     ColManager.renameCol = function(colNum, tableId, newName) {
         var table   = gTables[tableId];
@@ -908,10 +908,10 @@ window.ColManager = (function($, ColManager) {
         var colNames   = [];
         var autoResize = hideOptions && hideOptions.autoResize;
         var widthDiff = 0;
-        var thSelectors = "";
-        var tdSelectors = "";
+        // var thSelectors = "";
+        // var tdSelectors = "";
         var promises = [];
-        for (var i = 0; i < numCols; i++) { 
+        for (var i = 0; i < numCols; i++) {
             var colNum = colNums[i];
             var $th = $table.find(".th.col" + colNum);
 
@@ -945,7 +945,7 @@ window.ColManager = (function($, ColManager) {
                 moveTableTitlesAnimated(tableId, tableWidth, -widthDiff);
             } else {
                 matchHeaderSizes($table);
-            } 
+            }
         }
 
         SQL.add("Unhide Columns", {
@@ -997,7 +997,7 @@ window.ColManager = (function($, ColManager) {
                 "colNum"   : colNums[0],
                 "alignment": alignment
             });
-        } else { 
+        } else {
             SQL.add("Text Align", {
                 "operation": "textAlign",
                 "tableName": table.tableName,
@@ -1088,8 +1088,8 @@ window.ColManager = (function($, ColManager) {
 
             // loop through table tr's tds
             for (var col = 0; col < numCols; col++) {
-                var nested       = nestedVals[col];
-                var tdValue      = dataValue;
+                var nested = nestedVals[col];
+                var tdValue = dataValue;
                 var childOfArray = childArrayVals[col];
                 var parsedVal;
 
@@ -1506,10 +1506,10 @@ window.ColManager = (function($, ColManager) {
             var currColNum = xcHelper.parseColNum($(this));
             $tableWrap.find(".col" + currColNum).remove();
             if (!multipleCols) {
-                for (var i = currColNum + 1; i <= numCols; i++) {
-                    $tableWrap.find(".col" + i)
-                              .removeClass("col" + i)
-                              .addClass("col" + (i - 1));
+                for (var j = currColNum + 1; j <= numCols; j++) {
+                    $tableWrap.find(".col" + j)
+                              .removeClass("col" + j)
+                              .addClass("col" + (j - 1));
                 }
                 deferred.resolve();
             } else {

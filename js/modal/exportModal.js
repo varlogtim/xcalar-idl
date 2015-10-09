@@ -378,19 +378,19 @@ window.ExportModal = (function($, ExportModal) {
         var tableCols = gTables[tableId].tableCols;
 
         // select ths that are not arrays or objects
-        var $ths = $table.find('.header').filter(function() { 
+        var $ths = $table.find('.header').filter(function() {
             $header = $(this);
             $th = $header.parent();
             var colNum = xcHelper.parseColNum($th) - 1;
             if (colNum === -1) {
                 return false;
             }
-            var isObj; 
+            var isObj;
             if (tableCols[colNum].args &&
                 tableCols[colNum].args[0].indexOf(".") > -1) {
                 isObj = true;
             }
-            return (!isObj && 
+            return (!isObj &&
                     ($header.hasClass('type-string') ||
                     $header.hasClass('type-integer') ||
                     $header.hasClass('type-decimal')));

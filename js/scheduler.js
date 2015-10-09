@@ -567,7 +567,8 @@ window.Scheduler = (function(Scheduler, $) {
 
         var d = new Date(time);
         var t = xcHelper.getDate("/", d) + " " +
-                d.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});;
+                d.toLocaleTimeString(navigator.language,
+                                    {hour: "2-digit", minute: "2-digit"});
 
         return t;
     }

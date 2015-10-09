@@ -107,7 +107,7 @@ window.Alert = (function($, Alert){
 
         if (!$modalBackground.hasClass("open")) {
             $modalBackground.fadeOut(fadeOutTime, function() {
-                 Tips.refresh();
+                Tips.refresh();
             });
         } else {
             Tips.refresh();

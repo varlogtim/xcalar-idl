@@ -873,7 +873,7 @@ window.OperationsModal = (function($, OperationsModal) {
                                 '), GROUP BY ' +
                                 '<span class="groupByCols">' +
                                     sortedCol +
-                                '</span>'
+                                '</span>' +
                             '</p>';
             }   
 

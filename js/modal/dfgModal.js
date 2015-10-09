@@ -15,16 +15,16 @@ window.DataFlowModal = (function($, DataFlowModal) {
 
     DataFlowModal.setup = function() {    
         $dfgModal.draggable({
-            "handle": ".modalHeader",
-            "cursor": "-webkit-grabbing",
+            "handle"     : ".modalHeader",
+            "cursor"     : "-webkit-grabbing",
             "containment": 'window'
         });
 
         $dfgModal.resizable({
-            handles    : "n, e, s, w, se",
-            minHeight  : minHeight,
-            minWidth   : minWidth,
-            containment: "document"
+            "handles"    : "n, e, s, w, se",
+            "minHeight"  : minHeight,
+            "minWidth"   : minWidth,
+            "containment": "document"
         });
         
         addModalEvents();
@@ -97,13 +97,13 @@ window.DataFlowModal = (function($, DataFlowModal) {
             var children = ($dagTable.data('children') + "").split(",");
             children = children[children.length - 2];
             table = {
-                        index: $dagTable.data('index'),
-                        children: children,
-                        type: $dagTable.data('type') || 'table',
-                        left: parseInt($dagTable.css('left')),
-                        top: parseInt($dagTable.css('top')),
-                        title: $dagTable.find('.tableTitle').text()
-                    };
+                "index"   : $dagTable.data('index'),
+                "children": children,
+                "type"    : $dagTable.data('type') || 'table',
+                "left"    : parseInt($dagTable.css('left')),
+                "top"     : parseInt($dagTable.css('top')),
+                "title"   : $dagTable.find('.tableTitle').text()
+            };
             tables.push(table);
         });
 
@@ -115,23 +115,23 @@ window.DataFlowModal = (function($, DataFlowModal) {
                                      $operation.attr('title');
             tooltip = tooltip.replace(/"/g, '&quot');                         
             operation = {
-                            tooltip: tooltip,
-                            type: $operation.data('type'),
-                            parents: $operation.find('.parentsTitle').text(),
-                            left: parseInt($operation.css('left')),
-                            top: parseInt($operation.css('top')),
-                            classes: $operation.find('.dagIcon').attr('class')
-                        };
+                "tooltip": tooltip,
+                "type"   : $operation.data('type'),
+                "parents": $operation.find('.parentsTitle').text(),
+                "left"   : parseInt($operation.css('left')),
+                "top"    : parseInt($operation.css('top')),
+                "classes": $operation.find('.dagIcon').attr('class')
+            };
             operations.push(operation);
         });
 
         // insert new dfg into the main dfg object
         var canvasInfo = {
-                            tables: tables,
-                            operations: operations,
-                            height: $dagImage.height(),
-                            width: $dagImage.width()
-                        };
+            "tables"    : tables,
+            "operations": operations,
+            "height"    : $dagImage.height(),
+            "width"     : $dagImage.width()
+        };
         var existingGroups = DFG.getAllGroups();
         var group = existingGroups[groupName] || {dataFlows: [], schedules: []};
         group.dataFlows.push({name: tableName, canvasInfo: canvasInfo});
@@ -144,7 +144,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
             closeDFGModal();
         });
 
-        $dfgModal.on("click", ".confirm", function(event) {
+        $dfgModal.on("click", ".confirm", function() {
             submitForm();
         });
 
@@ -179,7 +179,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
         var newGroup = true;
         if ($radios.eq(0).hasClass('checked')) {
             
-            isValid  = xcHelper.validate([
+            isValid = xcHelper.validate([
                 {
                     "$selector": $newGroupNameInput,
                     "text"     : "Please fill out this field.",
@@ -189,13 +189,13 @@ window.DataFlowModal = (function($, DataFlowModal) {
                 }
             ]);
         } else {
-            isValid  = xcHelper.validate([
+            isValid = xcHelper.validate([
                 {
                     "$selector": $sideListSection.find('.listBox').eq(0),
                     "text"     : "No group selected.",
                     "check"    : function() {
                         return ($modalMain.find('.listBox.selected')
-                                          .length === 0)
+                                          .length === 0);
                     }
                 }
             ]);

@@ -426,8 +426,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
         .then(function() {
             var msg = StatusMessageTStr.LoadingDataset + ": " + dsName;
             var msgObj = {
-                msg      : msg,
-                operation: 'data set load'
+                "msg"      : msg,
+                "operation": "data set load"
             };
             var msgId = StatusMessage.addMsg(msgObj);
 
@@ -435,8 +435,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 header, moduleName, funcName)
             .then(function($grid) {
                 var options = {
-                    newDataSet: true,
-                    dataSetId: $grid.attr('id')
+                    "newDataSet": true,
+                    "dataSetId" : $grid.attr("id")
                 };
                 StatusMessage.success(msgId, false, null, options);
                 deferred.resolve();
@@ -2771,7 +2771,7 @@ window.DS = (function ($, DS) {
                         $grid.click();
                         $(this).fadeIn();
                     });
-                } 
+                }
             }
 
             commitToStorage();

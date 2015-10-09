@@ -103,8 +103,8 @@ window.JSONModal = (function($, JSONModal) {
                 var nameInfo = createJsonSelectionExpression($(this));
 
                 var pullColOptions = {
-                    "isDataTd": isDataTd,
-                    "isArray" : isArray,
+                    "isDataTd" : isDataTd,
+                    "isArray"  : isArray,
                     "noAnimate": true
                 };
                 // console.log(colNum, tableId, nameInfo, pullColOptions)

@@ -160,7 +160,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return (copiedCols);
-    }
+    };
 
     xcHelper.sizeTranslater = function(size, unitSeparated) {
         var unit  = ["B", "KB", "MB", "GB", "TB", "PB"];
@@ -1069,7 +1069,7 @@ window.xcHelper = (function($, xcHelper) {
             $('#mainFrame').scrollLeft(scrollPosition);
             moveFirstColumn();
         }
-    }
+    };
 
     return (xcHelper);
 }(jQuery, {}));

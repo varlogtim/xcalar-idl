@@ -12,11 +12,11 @@ var gNewCellWidth = 125;
 var gMouseStatus = null;
 var gDragObj = {};
 var gRescol = {
-    "minCellHeight"  : 30,
-    "cellMinWidth"   : 15,
-    "clicks"         : 0,
-    "delay"          : 500,
-    "timer"          : null
+    "minCellHeight": 30,
+    "cellMinWidth" : 15,
+    "clicks"       : 0,
+    "delay"        : 500,
+    "timer"        : null
 };
 var gResrow = {};
 var gMinTableWidth = 30;
@@ -356,15 +356,16 @@ function documentReadyGeneralFunction() {
     var hasRelease = false;
 
     $(document).keydown(function(event){
-        if (event.which == keyCode.Backspace) {
-            backspaceIsPressed = true
+        if (event.which === keyCode.Backspace) {
+            backspaceIsPressed = true;
         }
-    })
+    });
+
     $(document).keyup(function(event){
-        if (event.which == keyCode.Backspace) {
-            backspaceIsPressed = false
+        if (event.which === keyCode.Backspace) {
+            backspaceIsPressed = false;
         }
-    })
+    });
 
     window.onbeforeunload = function() {
         if (backspaceIsPressed) {
@@ -700,8 +701,8 @@ function initializeTable() {
             }
 
             if (failures.length > 0) {
-                for (var j = 0; j < failures.length; j++) {
-                    console.error(failures[j]);
+                for (var c = 0; c < failures.length; c++) {
+                    console.error(failures[c]);
                 }
 
                 if (failures.length === tableCount) {

@@ -96,7 +96,7 @@ window.DagPanel = (function($, DagPanel) {
             Dag.createRetina($retTabSection);
         });
 
-        $dagPanel.on('click', '.addDataFlow', function(event) {
+        $dagPanel.on('click', '.addDataFlow', function() {
             DataFlowModal.show($(this).closest('.dagWrap'));
         });
 
@@ -1355,10 +1355,11 @@ window.Dag = (function($, Dag) {
 
                         if (cols[j].func.args) {
                             if (arg === cols[j].func.args[0] ||
-                                userStr === cols[j].userStr) {
+                                userStr === cols[j].userStr)
+                            {
                                 highlightColumnHelper(tableId, $dagWrap,
                                                       cols[j], userStr);
-                            argsFound++;
+                                argsFound++;
                                 break;
                             }
                         } else if (userStr === cols[j].userStr) {

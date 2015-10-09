@@ -49,8 +49,8 @@ var DFG = (function($, DFG) {
     };
 
     DFG.drawCanvas = function($dagImage, isSchedulerPanel) {
-        var canvas = $('<canvas class="previewCanvas" width="'+
-                        $dagImage.width()+'" height="' + $dagImage.height() +
+        var canvas = $('<canvas class="previewCanvas" width="' +
+                        $dagImage.width() + '" height="' + $dagImage.height() +
                         '">')[0];
         $dagImage.append(canvas);
 
@@ -62,7 +62,7 @@ var DFG = (function($, DFG) {
         var numTables = $dagTables.length;
         for (var i = 0; i < numTables; i++) {
             var $dagTable = $dagTables.eq(i);
-            var index = $dagTable.data('index');
+            // var index = $dagTable.data('index');
             var children = ($dagTable.data('children') + "").split(",");
             var numChildren = children.length;
             var child;

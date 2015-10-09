@@ -766,13 +766,15 @@ window.RightSideBar = (function($, RightSideBar) {
             
             var moduleName = path.substring(0, path.indexOf("."));
             var $submitBtn = $(this);
+            var text;
+
             if (val === "") {
-                var text = "File Path is empty," +
+                text = "File Path is empty," +
                            " please choose a file you want to upload";
 
                 StatusBox.show(text, $filePath, true, 190);
             } else if (path === "") {
-                var text = "File Path is invalid," +
+                text = "File Path is invalid," +
                            " please choose a file you want to upload";
 
                 StatusBox.show(text, $filePath, true, 190);
@@ -874,7 +876,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
             if (storedPython.hasOwnProperty(moduleName)) {
                 var msg = "Python module " + moduleName + " already exists," +
-                            " do you want to replcae it with this module?"
+                            " do you want to replcae it with this module?";
                 Alert.show({
                         "title"     : "Duplicate Module",
                         "msg"       : msg,
