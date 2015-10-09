@@ -8,6 +8,8 @@ window.JSONModal = (function($, JSONModal) {
     var $matches;
     var numMatches = 0;
     var matchIndex;
+    var $activeJsonTd;
+    var jsonIsArray;
 
     JSONModal.setup = function() {
         $('#jsonModal .closeJsonModal, #modalBackground').click(function() {
@@ -35,12 +37,34 @@ window.JSONModal = (function($, JSONModal) {
         $jsonModal.find('.upArrow').click(cycleMatchUp);
         $jsonModal.find('.downArrow').click(cycleMatchDown);
         $jsonModal.find('.searchIcon').click(toggleSearch);
+
+        $jsonWrap.on({
+            "click": function() {
+                var tableId  = $activeJsonTd.closest('table').data('id');
+                var isDataTd = $activeJsonTd.hasClass('jsonElement');
+                var colNum   = xcHelper.parseColNum($activeJsonTd);
+                var nameInfo = createJsonSelectionExpression($(this));
+
+                var pullColOptions = {
+                    "isDataTd" : isDataTd,
+                    "isArray"  : jsonIsArray,
+                    "noAnimate": true
+                };
+                // console.log(colNum, tableId, nameInfo, pullColOptions)
+                ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
+                .always(function() {
+                    closeJSONModal();
+                });
+            }
+        }, ".jKey, .jArray>.jString, .jArray>.jNum");
     };
 
     JSONModal.show = function ($jsonTd, isArray) {
         if ($.trim($jsonTd.text()).length === 0) {
             return;
         }
+        $activeJsonTd = $jsonTd;
+        jsonIsArray = isArray;
         $(".tooltip").hide();
         var tableTitle = $jsonTd.closest(".xcTableWrap")
                                 .find(".xcTheadWrap .tableTitle .text")
@@ -57,64 +81,7 @@ window.JSONModal = (function($, JSONModal) {
         $("body").addClass("hideScroll");
     };
 
-    // XX JSONModal.mouseDown and MouseMove are tentatively replaced by
-    // jquery's draggable function
-
-    JSONModal.mouseDown = function (event) {
-        gMouseStatus = "movingJson";
-        gDragObj.mouseX = event.pageX;
-        gDragObj.mouseY = event.pageY;
-        gDragObj.left = parseInt($('#jsonModal').css('left'));
-        gDragObj.top = parseInt($('#jsonModal').css('top'));
-
-        var cursorStyle =
-            '<style id="moveCursor" type="text/css">*' +
-            '{cursor:move !important; cursor: -webkit-grabbing !important;' +
-            'cursor: -moz-grabbing !important;}</style>';
-
-        $(document.head).append(cursorStyle);
-        disableTextSelection();
-    };
-
-    JSONModal.mouseMove = function (event) {
-        var newX  = event.pageX;
-        var newY  = event.pageY;
-        var distX = newX - gDragObj.mouseX;
-        var distY = newY - gDragObj.mouseY;
-
-        $jsonModal.css("left", (gDragObj.left + distX) + "px");
-        $jsonModal.css("top", (gDragObj.top + distY) + "px");
-
-    };
-
-    JSONModal.mouseUp = function () {
-        gMouseStatus = null;
-        reenableTextSelection();
-
-        $("#moveCursor").remove();
-    };
-
     function jsonModalEvent($jsonTd, isArray) {
-        $jsonWrap.on({
-            "click": function() {
-                var tableId  = $jsonTd.closest('table').data('id');
-                var isDataTd = $jsonTd.hasClass('jsonElement');
-                var colNum   = xcHelper.parseColNum($jsonTd);
-                var nameInfo = createJsonSelectionExpression($(this));
-
-                var pullColOptions = {
-                    "isDataTd" : isDataTd,
-                    "isArray"  : isArray,
-                    "noAnimate": true
-                };
-                // console.log(colNum, tableId, nameInfo, pullColOptions)
-                ColManager.pullCol(colNum, tableId, nameInfo, pullColOptions)
-                .always(function() {
-                    closeJSONModal();
-                });
-            }
-        }, ".jKey, .jArray>.jString, .jArray>.jNum");
-
         $(document).on("keydown.jsonModal", function(event) {
             cycleMatches(event);
 
@@ -248,7 +215,6 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function closeJSONModal() {
-        $jsonWrap.off();
         $(document).off(".jsonModal");
         $matches = [];
         $('.modalHighlighted').removeClass('modalHighlighted');
@@ -258,6 +224,7 @@ window.JSONModal = (function($, JSONModal) {
         $jsonModal.hide();
         $modalBackground.fadeOut(fadeOutTime, function() {
             Tips.refresh();
+            $(".prettyJson").empty();
         });
 
         $('#sideBarModal').hide();
@@ -298,11 +265,11 @@ window.JSONModal = (function($, JSONModal) {
             $('#sideBarModal').fadeIn(300);
             $('#rightSideBar').addClass('modalOpen');
             $jsonTd.closest('.xcTable').find('.idSpan').append(darkenedCell);
-            $modalBackground.fadeIn(300, function() {
-                $('.darkenedCell').show();
-                $jsonModal.fadeIn(180);
-                $jsonTd.addClass('modalHighlighted');
-            });
+
+            $modalBackground.fadeIn(300);
+            $('.darkenedCell').show();
+            $jsonModal.fadeIn(200);
+            $jsonTd.addClass('modalHighlighted');
         }
 
         var prettyJson = prettifyJson(jsonString, null, {inarray: isArray});
