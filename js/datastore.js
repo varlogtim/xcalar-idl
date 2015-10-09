@@ -2764,10 +2764,14 @@ window.DS = (function ($, DS) {
             $('#datasetWrap').removeClass('inactive');
             DS.refresh();
             if ($grid.hasClass('active')) {
-                $('#dataSetTableWrap').fadeOut(200, function() {
+                if (gMinModeOn) {
                     $grid.click();
-                    $(this).fadeIn();
-                });
+                } else {
+                    $('#dataSetTableWrap').fadeOut(200, function() {
+                        $grid.click();
+                        $(this).fadeIn();
+                    });
+                } 
             }
 
             commitToStorage();
