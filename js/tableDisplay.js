@@ -721,7 +721,7 @@ function generateColDropDown(tableId) {
                     '<li style="text-align: center" class="clickable">' +
                         '<span>New Column Name</span>' +
                         '<div class="listSection">' +
-                            '<input class="colName" type="text" width="100px"' +
+                            '<input class="colName" type="text"' +
                                 ' autocomplete="on" spellcheck="false"/>' +
                         '</div>' +
                     '</li>' +
@@ -734,11 +734,11 @@ function generateColDropDown(tableId) {
                 '<ul class="subColMenu">' +
                     '<li style="text-align: center" class="clickable">' +
                         '<div>Split Column By</div>' +
-                        '<input class="delimiter" type="text" width="100px"' +
+                        '<input class="delimiter" type="text"' +
                             ' spellcheck="false"/>' +
                         '<div>Number of Split Columns</div>' +
-                        '<input class="num" type="text" width="100px"' +
-                            ' spellcheck="false" placeholder="No limit if blank"/>' +
+                        '<input class="num" type="number" min="1" step="1"' +
+                            ' placeholder="No limit if leave blank"/>' +
                     '</li>' +
                     '<div class="subColMenuArea"></div>' +
                 '</ul>' +

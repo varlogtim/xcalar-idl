@@ -802,6 +802,12 @@ ul.colMenu {
 
                 input {
                     position: initial;
+
+                    &[type='number'] {
+                        &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+                            -webkit-appearance: none;
+                        }
+                    }
                 }
             }
         }
@@ -820,7 +826,7 @@ ul.colMenu {
         border-top: 1px solid @color-background-lightLightGray;
     }
 
-    input[type=text] {
+    input {
         .position(relative, @top: -1px, @right: 0);
         .size(@width: 160px, @height: 20px);
         .font(@size: 12px, @line-height: 20px);
