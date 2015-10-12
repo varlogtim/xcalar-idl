@@ -64,6 +64,14 @@ var TableType = {
     "Unknown" : "unknown source"
 };
 
+var fakeEvent = {
+    "click"     : {"type": "click", "which": 1},
+    "mouseup"   : {"type": "mouseup", "which": 1},
+    "mousedown" : {"type": "mousedown", "which": 1},
+    "mouseenter": {"type": "mouseenter", "which": 1},
+    "enter"     : {"type": "keypress", "which": 13}
+};
+
 var keyCode = {
     Backspace: 8,
     Tab: 9,

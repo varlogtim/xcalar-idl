@@ -8,11 +8,6 @@ window.Replay = (function($, Replay) {
         "WS": "#workspaceTab"
     };
 
-    var fakeMouseup = {type: "mouseup", which: 1};
-    var fakeEnter   = {type: "keypress", which: 13};
-    // var fakeClick = {type: "click", which: 1};
-    // var fakeMousedown = {type: "mousedown", which: 1};
-
     var outTime = 60000; // 1min for time out
     var checkTime = 500; // time interval of 500ms
 
@@ -625,7 +620,7 @@ window.Replay = (function($, Replay) {
 
         setTimeout(function() {
             $li.mouseleave();
-            $li.trigger(fakeMouseup);
+            $li.trigger(fakeEvent.mouseup);
             deferred.resolve();
         }, 2000);
 
@@ -762,7 +757,7 @@ window.Replay = (function($, Replay) {
 
         setTimeout(function() {
             $li.mouseleave();
-            $li.trigger(fakeMouseup);
+            $li.trigger(fakeEvent.mouseup);
             deferred.resolve();
         }, 2000);
 
@@ -810,7 +805,7 @@ window.Replay = (function($, Replay) {
 
         setTimeout(function() {
             $li.mouseleave();
-            $li.trigger(fakeMouseup);
+            $li.trigger(fakeEvent.mouseup);
             deferred.resolve();
         }, 2000);
 
@@ -831,7 +826,7 @@ window.Replay = (function($, Replay) {
 
         setTimeout(function() {
             $li.mouseleave();
-            $li.trigger(fakeMouseup);
+            $li.trigger(fakeEvent.mouseup);
             deferred.resolve();
         }, 2000);
 
@@ -878,7 +873,7 @@ window.Replay = (function($, Replay) {
         var wsIndex = options.worksheetIndex;
         var newName = options.newName;
         $("#worksheetTab-" + wsIndex + " .text").text(newName)
-                                                .trigger(fakeEnter);
+                                                .trigger(fakeEvent.enter);
         return (promiseWrapper(null));
     }
 
