@@ -29,6 +29,7 @@ var gDSObj = {};    //obj for DS folder structure
 var gRetinaObj = {}; //obj for retina modal
 var gLastClickTarget = $(window); // track which element was last clicked
 var gDatasetBrowserResultSetId = 0; // resultSetId for currently viewed
+var gIsTableScrolling = false;
 var gMinModeOn = false;
 var KB = 1024;
 var MB = 1024 * KB;
@@ -354,10 +355,132 @@ function setupTooltips() {
 function documentReadyGeneralFunction() {
     var backspaceIsPressed = false;
     var hasRelease = false;
+    var $rowInput = $("#rowInput");
+
+    $rowInput.val("").data("");
+    $rowInput.blur(function() {
+        var val = $(this).data('val');
+        $(this).val(val);
+    });
 
     $(document).keydown(function(event){
-        if (event.which === keyCode.Backspace) {
-            backspaceIsPressed = true;
+        var isPreventEvent;
+
+        switch (event.which) {
+            case keyCode.Backspace:
+                backspaceIsPressed = true;
+                break;
+            case keyCode.PageUp:
+                isPreventEvent = tableScroll("pageUpdown", true);
+                break;
+            case keyCode.PageDown:
+                isPreventEvent = tableScroll("pageUpdown", false);
+                break;
+            case keyCode.Up:
+                isPreventEvent = tableScroll("updown", true);
+                break;
+            case keyCode.Down:
+                isPreventEvent = tableScroll("updown", false);
+                break;
+            case keyCode.Home:
+                isPreventEvent = tableScroll("homeEnd", true);
+                break;
+            case keyCode.End:
+                isPreventEvent = tableScroll("homeEnd", false);
+                break;
+            default:
+                break;
+        }
+
+        if (isPreventEvent) {
+            event.preventDefault();
+        }
+
+        function tableScroll(scrollType, isUp) {
+            if (!$("#workspaceTab").hasClass("active") ||
+                gActiveTableId == null)
+            {
+                return false;
+            }
+
+            var tableId = gActiveTableId;
+            var $tbody  = $("#xcTableWrap-" + tableId + " tbody");
+
+            if ($tbody.hasClass("onClickFocus") &&
+                xcHelper.isTableInScreen(tableId))
+            {
+                if (gIsTableScrolling ||
+                    $("#modalBackground").is(":visible") ||
+                    !isTableScrollable(tableId)) {
+                    // not trigger table scroll, but should return true
+                    // to prevent table's natural scroll
+                    return true;
+                }
+
+                var maxRow     = gTables[tableId].resultSetCount;
+                var curRow     = Number($rowInput.val());
+                var lastRowNum = xcHelper.getLastVisibleRowNum(tableId);
+                var rowToGo;
+
+                // validation check
+                if (lastRowNum == null) {
+                    console.error("Error case!");
+                    return false;
+                }
+
+                if (scrollType === "homeEnd") {
+                    // isUp === true for home button, false for end button
+                    rowToGo = isUp ? 1 : maxRow;
+                } else {
+                    // reset rowInput to right number
+                    $("#xcTheadWrap-" + tableId).mousedown();
+
+                    var rowNum;
+                    if (scrollType === "updown") {
+                        rowNum = 1;
+                    } else if (scrollType === "pageUpdown") {
+                        // this is one page's row
+                        rowNum = lastRowNum - curRow;
+                    } else {
+                        // error case
+                        console.error("Invalid case!");
+                        return false;
+                    }
+
+                    rowToGo = isUp ? Math.max(1, curRow - rowNum) :
+                                    Math.min(maxRow, curRow + rowNum);
+                }
+
+                if (isUp && curRow === 1 || !isUp && lastRowNum === maxRow) {
+                    // no need for backend call
+                    return true;
+                }
+
+                $rowInput.val(rowToGo).trigger(fakeEvent.enter);
+
+                return true;
+            }
+
+            return false;
+        }
+    });
+
+    // XXX to let pageDown/pageUp on table not interferes
+    // other sections with scrollbar, use this tricky thing
+    // may have better way
+    $(document).click(function(event) {
+        if ($("#workspaceTab").hasClass("active")) {
+            var $target = $(event.target);
+            $(".onClickFocus").removeClass("onClickFocus");
+
+            if ($("#modalBackground").is(":visible")) {
+                return;
+            }
+
+            var $tbody = $target.closest("tbody");
+            if ($tbody.length > 0 && $tbody.closest(".xcTable").length > 0) {
+                $tbody.addClass("onClickFocus");
+            }
         }
     });
 
@@ -427,13 +550,6 @@ function documentReadyGeneralFunction() {
 
         moveFirstColumn();
         moveTableTitles();
-    });
-
-    var $rowInput = $('#rowInput');
-    $rowInput.val("").data("");
-    $rowInput.blur(function() {
-        var val = $(this).data('val');
-        $(this).val(val);
     });
 
     $(document).mousedown(function(event) {

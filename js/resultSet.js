@@ -81,6 +81,7 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     var prepullTableHeight;
     // var numRowsBefore;
     var resultSetId = table.resultSetId;
+    gIsTableScrolling = true;
 
     XcalarSetAbsolute(resultSetId, rowPosition)
     .then(function(){
@@ -194,6 +195,9 @@ function goToPage(rowNumber, numRowsToAdd, direction, loop, info,
     .fail(function(error) {
         console.error("goToPage fails!", error);
         deferred.reject(error);
+    })
+    .always(function() {
+        gIsTableScrolling = false;
     });
 
     return (deferred.promise());

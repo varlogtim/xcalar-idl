@@ -98,6 +98,27 @@ window.xcHelper = (function($, xcHelper) {
         return (type);
     };
 
+    xcHelper.getLastVisibleRowNum = function(tableId) {
+        var $tableWrap = $("#xcTableWrap-" + tableId);
+        if ($tableWrap.length === 0) {
+            return null;
+        }
+
+        var tableBottom = $tableWrap.offset().top + $tableWrap.height();
+        var $trs = $tableWrap.find(".xcTable tbody tr");
+
+        for (var i = $trs.length - 1; i >= 0; i--) {
+            var $tr = $trs.eq(i);
+
+            if ($tr.offset().top < tableBottom) {
+                var rowNum = xcHelper.parseRowNum($tr) + 1;
+                return rowNum;
+            }
+        }
+
+        return null;
+    }
+
     // get unique column name
     xcHelper.getUniqColName = function(name, tableCols) {
         var colNames = {};
@@ -1069,6 +1090,15 @@ window.xcHelper = (function($, xcHelper) {
             $('#mainFrame').scrollLeft(scrollPosition);
             moveFirstColumn();
         }
+    };
+
+    xcHelper.isTableInScreen = function(tableId) {
+        var windowWidth = $(window).width();
+        var $tableWrap = $("#xcTableWrap-" + tableId);
+        var tableLeft = $tableWrap.offset().left;
+        var tableRight = tableLeft + $tableWrap.width();
+
+        return (tableRight >= 0) && (tableLeft <= windowWidth);
     };
 
     return (xcHelper);

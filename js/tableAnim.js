@@ -3233,7 +3233,7 @@ window.RowScroller = (function($, RowScroller) {
             if (event.which !== keyCode.Enter) {
                 return;
             }
-            var table = xcHelper.getTableFromId(gActiveTableId);
+            var table = gTables[gActiveTableId];
             if (!table) {
                 return;
             }

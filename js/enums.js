@@ -110,6 +110,10 @@ var keyCode = {
     Dash: 189,
     Period: 190,
     SingleQuote: 222,
+    PageDown: 34,
+    PageUp: 33,
+    Home: 36,
+    End: 35
 };
 
 var SQLType = {
