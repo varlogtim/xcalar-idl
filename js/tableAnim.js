@@ -1700,8 +1700,8 @@ function highlightCell($td, tableId, rowNum, colNum, isShift) {
     var border = 5;
     var width = $td.outerWidth() - border;
     var height = $td.outerHeight();
-    var left = $td.offset().left;
-    var top = $td.offset().top;
+    var left = $td.position().left;
+    var top = $td.position().top;
     var styling = 'width:' + width + 'px;' +
                   'height:' + height + 'px;' +
                   'left:' + left + 'px;' +
