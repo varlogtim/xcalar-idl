@@ -373,6 +373,7 @@ function documentReadyGeneralFunction() {
             case keyCode.PageUp:
                 isPreventEvent = tableScroll("pageUpdown", true);
                 break;
+            case keyCode.Space:
             case keyCode.PageDown:
                 isPreventEvent = tableScroll("pageUpdown", false);
                 break;
@@ -435,20 +436,42 @@ function documentReadyGeneralFunction() {
                     // reset rowInput to right number
                     $("#xcTheadWrap-" + tableId).mousedown();
 
-                    var rowNum;
+                    var rowToSkip;
                     if (scrollType === "updown") {
-                        rowNum = 1;
+                        var $xcTbodyWrap = $("#xcTbodyWrap-" + tableId);
+                        var scrollTop = $xcTbodyWrap.scrollTop();
+                        var $trs = $("#xcTable-" + tableId + " tbody tr");
+                        var trHeight = $trs.height();
+                        var rowNum;
+
+                        if (!isUp) {
+                            rowNum = xcHelper.parseRowNum($trs.eq($trs.length - 1)) + 1;
+                            if (rowNum - lastRowNum > 5) {
+                                // when have more then 5 buffer on bottom
+                                $xcTbodyWrap.scrollTop(scrollTop + trHeight);
+                                return true;
+                            }
+                        } else {
+                            rowNum = xcHelper.parseRowNum($trs.eq(0)) + 1;
+                            if (curRow - rowNum > 5) {
+                                // when have more then 5 buffer on top
+                                $xcTbodyWrap.scrollTop(scrollTop - trHeight);
+                                return true;
+                            }
+                        }
+
+                        rowToSkip = 1;
                     } else if (scrollType === "pageUpdown") {
                         // this is one page's row
-                        rowNum = lastRowNum - curRow;
+                        rowToSkip = lastRowNum - curRow;
                     } else {
                         // error case
                         console.error("Invalid case!");
                         return false;
                     }
 
-                    rowToGo = isUp ? Math.max(1, curRow - rowNum) :
-                                    Math.min(maxRow, curRow + rowNum);
+                    rowToGo = isUp ? Math.max(1, curRow - rowToSkip) :
+                                    Math.min(maxRow, curRow + rowToSkip);
                 }
 
                 if (isUp && curRow === 1 || !isUp && lastRowNum === maxRow) {

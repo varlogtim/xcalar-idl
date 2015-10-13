@@ -3173,7 +3173,7 @@ function centerPositionElement($target) {
 }
 
 window.RowScroller = (function($, RowScroller) {
-    var $rowInput        = $("#rowInput");
+    var $rowInput = $("#rowInput");
     var $rowScrollerArea = $("#rowScrollerArea");
 
     RowScroller.setup = function() {
@@ -3233,58 +3233,72 @@ window.RowScroller = (function($, RowScroller) {
             if (event.which !== keyCode.Enter) {
                 return;
             }
-            var table = gTables[gActiveTableId];
+
+            var tableId = gActiveTableId;
+            var table = gTables[tableId];
+
             if (!table) {
                 return;
             }
 
-            var targetRow = parseInt($rowInput.val());
+            var maxRow = table.resultSetMax;
+            if (!isTableScrollable(tableId)) {
+                if (maxRow === 0) {
+                    // when table has no rows
+                    $rowInput.val(0).data("val", 0);
+                } else {
+                    $rowInput.data("val", 1).val(1);
+                    RowScroller.move(1, maxRow);
+                }
+
+                return;
+            }
+
+            var curRow    = $rowInput.data("val");
+            var targetRow = Number($rowInput.val());
             var backRow   = targetRow;
 
             if (isNaN(targetRow) || targetRow % 1 !== 0) {
+                $rowInput.val(curRow);
+                return;
+            } else if (curRow === targetRow) {
                 return;
             }
 
-            if (table.resultSetCount === 0) {
-                $rowInput.val("0");
-                $rowInput.data("val", 0);
-                return;
-            } else if (targetRow < 1) {
-                targetRow = 1;
-                backRow = 0;
-            } else if (targetRow > table.resultSetCount) {
-                targetRow = table.resultSetCount;
-                backRow = table.resultSetCount - 20;
-            }
+            var rowOnScreen = xcHelper.getLastVisibleRowNum(tableId) -
+                                curRow + 1;
+            // divide evenly on both top and bottom buffer
+            var rowToBuffer = Math.floor((gMaxEntriesPerPage - rowOnScreen) / 2);
 
-            $rowInput.data("val", targetRow);
-            $rowInput.val(targetRow);
+            targetRow = Math.max(1, targetRow);
+            targetRow = Math.min(targetRow, maxRow - rowOnScreen + 1);
 
-            backRow = Math.min(table.resultSetMax - gMaxEntriesPerPage,
-                                backRow - 20);
+            $rowInput.data("val", targetRow)
+                    .val(targetRow);
 
-            if (backRow < 0) {
-                backRow = 0;
-            }
+            backRow = Math.min(maxRow - gMaxEntriesPerPage,
+                                targetRow - rowToBuffer);
+            backRow = Math.max(backRow, 0);
+
             var tableName = table.tableName;
-            var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetMax);
+            var numRowsToAdd = Math.min(gMaxEntriesPerPage, maxRow);
             var info = {
                 "numRowsToAdd"    : numRowsToAdd,
                 "numRowsAdded"    : 0,
-                "lastRowToDisplay": backRow + gMaxEntriesPerPage,
+                "lastRowToDisplay": backRow + numRowsToAdd,
                 "targetRow"       : targetRow,
                 "bulk"            : true,
                 "tableName"       : tableName,
-                "tableId"         : gActiveTableId
+                "tableId"         : tableId
             };
 
             goToPage(backRow, numRowsToAdd, RowDirection.Bottom, false, info)
             .then(function() {
-                var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
-                positionScrollbar(rowToScrollTo, table.tableId);
+                var rowToScrollTo = Math.min(targetRow, maxRow);
+                positionScrollbar(rowToScrollTo, tableId);
                 generateFirstVisibleRowNum();
                 if (!event.rowScrollerMousedown) {
-                    RowScroller.move($rowInput.val(), table.resultSetCount);
+                    RowScroller.move($rowInput.val(), maxRow);
                 } else {
                     $rowScrollerArea.addClass("autoScroll");
                 }

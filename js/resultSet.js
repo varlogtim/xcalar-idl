@@ -208,7 +208,8 @@ function removeOldRows($table, tableId, info, direction, prepullTableHeight) {
     var scrollTop;
     var postpullTableHeight = $table.height();
     var $xcTbodyWrap = $('#xcTbodyWrap-' + tableId);
-    var table = xcHelper.getTableFromId(tableId);
+    var table = gTables[tableId];
+
     if (direction === RowDirection.Top) {
         $table.find("tbody tr").slice(gMaxEntriesPerPage).remove();
         scrollTop = Math.max(2, postpullTableHeight - prepullTableHeight);
