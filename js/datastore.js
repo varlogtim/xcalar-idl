@@ -1761,7 +1761,7 @@ window.DataPreview = (function($, DataPreview) {
 
             for (var i = 1, len = $headers.length; i < len; i++) {
                 var $text = $headers.eq(i).find(".text");
-                html += '<td>' + $text.html() + '</td>';
+                html += '<td class="cell">' + $text.html() + '</td>';
                 $text.html("Column" + (i - 1));
             }
 
@@ -1805,7 +1805,6 @@ window.DataPreview = (function($, DataPreview) {
             // valid highLighted char
             $highLightBtn.addClass("active");
             $rmHightLightBtn.addClass("active");
-
 
             var dels   = highlighter.split("");
             var delLen = dels.length;
