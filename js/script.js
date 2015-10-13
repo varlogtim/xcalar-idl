@@ -479,6 +479,7 @@ function documentReadyGeneralFunction() {
                     return true;
                 }
 
+                $(".colMenu").hide();
                 $rowInput.val(rowToGo).trigger(fakeEvent.enter);
 
                 return true;

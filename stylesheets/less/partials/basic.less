@@ -801,7 +801,7 @@ ul.colMenu {
                 }
 
                 input {
-                    position: initial;
+                    position: static;
 
                     &[type='number'] {
                         &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
@@ -1751,7 +1751,7 @@ ul.inputMenu {
                 &:focus {
                     border: 1px solid #5FC8FF;
                     box-shadow: inset 0 1px 2px 1px rgba(0, 0, 0, 0.2);
-                    text-overflow: initial;
+                    text-overflow: clip;
                 }
             }
         }
@@ -1858,7 +1858,7 @@ ul.inputMenu {
         &.locked {
             .delete {
                 pointer-events: none !important;
-                cursor: initial !important;
+                cursor: auto !important;
                 opacity: 0.5;
             }
         }
@@ -2045,7 +2045,7 @@ ul.inputMenu {
         }
 
         &.failed {
-            cursor: initial;
+            cursor: auto;
             background-color: #AF2F4D;
                 &:before {
                 border-right: 6px solid #AF2F4D;

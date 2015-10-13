@@ -154,7 +154,7 @@
         white-space: nowrap;
         box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.3);
         .transition(transform 0.3s);
-        pointer-events: initial;
+        pointer-events: auto;
 
         &.closed {
             .transform(translate3d(222px, 0, 0));
@@ -980,7 +980,7 @@ html.microsoft {
 
     #alertHeader {
         text-transform: uppercase;
-        cursor: initial;
+        cursor: auto;
     }
 
     #alertContent {
@@ -1498,7 +1498,7 @@ html.microsoft {
                 opacity: 0.4;
             }
             .previewSection {
-                pointer-events: initial;
+                pointer-events: auto;
                 .titleSection {
                     border-left-color: #B2B2B2 !important;
                 }
@@ -1522,7 +1522,7 @@ html.microsoft {
         margin-top: 20px;
         z-index: 1;
         .dagTable, .actionTypeWrap {
-            cursor: initial;
+            cursor: auto;
         }
     }
     .previewCanvas {
@@ -1646,7 +1646,7 @@ html.microsoft {
                                     background-color: @color-selectedCell-dark;
                                 }
                                 &.select .icon {
-                                    display: initial;
+                                    display: inline;
                                 }
                             }
                         }
@@ -1704,7 +1704,7 @@ html.microsoft {
                 }
                 &.clickable {
                     .icon {
-                        display: initial;
+                        display: inline;
                     }
                     &:hover {
                         .gray-inverse-gradient;

@@ -662,7 +662,7 @@
             pointer-events: none;
         }
         .tableTitle .dropdownBox {
-            pointer-events: initial;
+            pointer-events: auto;
         }
         .xcTbodyWrap {
             pointer-events: none;
@@ -680,7 +680,8 @@
                 }
         }
         .colMenu {
-            cursor: initial;
+            cursor: auto;
+
             li {
                 opacity: 0.4;
                 cursor: default;
@@ -689,11 +690,11 @@
             li.hideTable, li.unhideTable  {
                 opacity: 1;
                 cursor: pointer;
-                pointer-events: initial;
+                pointer-events: auto;
             }
         }
         .colMenu.locked {
-            cursor: initial;
+            cursor: auto;
         }
         .tableCover {
             .position(absolute, @top: 75px);
