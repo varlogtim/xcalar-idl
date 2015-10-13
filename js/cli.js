@@ -13,6 +13,7 @@ window.CLIBox = (function($, CLIBox) {
         $lineBox.append(lineUnit);
         $cliBox.append(cliUnit);
         addNl();
+        focusOnClick(); // focus the editable area when you click area below it
     };
 
     CLIBox.restore = function(oldCLI) {
@@ -111,6 +112,7 @@ window.CLIBox = (function($, CLIBox) {
                 if (event.which === keyCode.Ctrl) {
                     ctrlPressed = true;
                 } else if (ctrlPressed && event.which === 76) { // 76 = key L
+                    event.preventDefault();
                     CLIBox.clear();
                     $cliBox.children().focus();
                 }
@@ -120,6 +122,31 @@ window.CLIBox = (function($, CLIBox) {
                     ctrlPressed = false;
                 }
             }
+        });
+    }
+
+    function focusOnClick() {
+        $cliBox.mouseup(function(event) {
+            // console.log($(event.target))
+            if (!$(event.target).hasClass('cliArea')) {
+                return;
+            }
+
+            var $editableCli = $cliBox.find('.cliUnit[contenteditable]');
+            $editableCli.focus();
+            var textLen = $editableCli.text().length;
+            
+            if (textLen === 0) {
+                return;
+            }
+ 
+            var textNode = $editableCli[0].firstChild;
+            var range = document.createRange();
+            range.setStart(textNode, textLen);
+            range.setEnd(textNode, textLen);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
         });
     }
 
