@@ -4277,7 +4277,11 @@ var sortable = $.widget("ui.sortable", $.ui.mouse, {
 		this.refresh();
 
 		//Let's determine if the items are being displayed horizontally
-		this.floating = this.items.length ? o.axis === "x" || this._isFloating(this.items[0].item) : false;
+		// this.floating = this.items.length ? o.axis === "x" || this._isFloating(this.items[0].item) : false;
+		// XX previous line was changed to correct the problem of floated divs
+		// not swapping during horizontal dragging unless moving the mouse up and down
+		// - Rudy
+		this.floating = this.items.length ? o.axis === "x" || this._isFloating(this.items[0].item) : true;
 
 		//Let's determine the parent's offset
 		this.offset = this.element.offset();

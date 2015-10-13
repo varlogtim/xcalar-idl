@@ -225,7 +225,14 @@ window.xcHelper = (function($, xcHelper) {
         var $mainFrame    = $("#mainFrame");
         var $sideBarModal = $("#sideBarModal");
         var $rightSideBar = $("#rightSideBar");
-        var $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
+        var $tableWrap;
+
+        if (tableId === "all") {
+            $tableWrap = $('.xcTableWrap:visible');
+        } else {
+            $tableWrap = xcHelper.getElementByTableId(tableId, "xcTableWrap");
+        }
+        
 
         options = options || {};
 
@@ -249,9 +256,11 @@ window.xcHelper = (function($, xcHelper) {
         } else {
             // when open the modal
             $tableWrap.addClass('modalOpen');
-            $('.xcTableWrap').not('#xcTableWrap-' + tableId)
-                             .addClass('tableDarkened');
-
+            if (tableId !== "all") {
+                $('.xcTableWrap').not('#xcTableWrap-' + tableId)
+                                 .addClass('tableDarkened');
+            }
+            
             $rightSideBar.addClass('modalOpen');
             $mainFrame.addClass('modalOpen');
             var fadeInTime = options.time || 150;

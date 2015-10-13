@@ -1734,9 +1734,15 @@ function sortHightlightCells($highlightBoxs) {
     return (cells);
 }
 
-function highlightCell($td, tableId, rowNum, colNum, isShift) {
+function highlightCell($td, tableId, rowNum, colNum, isShift, options) {
     // draws a new div positioned where the cell is, intead of highlighting
     // the actual cell
+    options = options || {};
+    if (options.jsonModal && $td.find('.jsonModalHighlightBox').length !== 0) {
+         $td.find('.jsonModalHighlightBox').data().count++;
+         return;
+    }
+
     var border = 5;
     var width = $td.outerWidth() - border;
     var height = $td.outerHeight();
@@ -1746,7 +1752,12 @@ function highlightCell($td, tableId, rowNum, colNum, isShift) {
                   'height:' + height + 'px;' +
                   'left:' + left + 'px;' +
                   'top:' + top + 'px;';
-    var divClass = "highlightBox " + tableId;
+    var divClass;
+    if (options.jsonModal) {
+        divClass = "jsonModalHighlightBox";
+    } else {
+        divClass = "highlightBox " + tableId;
+    }
 
     if (isShift) {
         divClass += " shiftKey";
@@ -1757,7 +1768,7 @@ function highlightCell($td, tableId, rowNum, colNum, isShift) {
     }
 
     var $highlightBox = $('<div class="' + divClass + '" ' +
-                            'style="' + styling + '">' +
+                            'style="' + styling + '" data-count="1">' +
                         '</div>');
 
     $highlightBox.data("rowNum", rowNum)
@@ -3675,23 +3686,30 @@ function removeWaitCursor() {
     $('#waitCursor').remove();
 }
 
-function centerPositionElement($target) {
+function centerPositionElement($target, options) {
     // to position elements in the center of the window i.e. for modals
     var $window = $(window);
+    options = options || {};
 
-    var winHeight   = $window.height();
+    if (!options.horizontalOnly) {
+        var winHeight   = $window.height();
+        var modalHeight = $target.height();
+        var top  = ((winHeight - modalHeight) / 2);
+    }
+    
     var winWidth    = $window.width();
     var modalWidth  = $target.width();
-    var modalHeight = $target.height();
 
     var left = ((winWidth - modalWidth) / 2);
-    var top  = ((winHeight - modalHeight) / 2);
-
-    top = Math.max(0, top);
-    $target.css({
-        "left": left,
-        "top" : top
-    });
+    
+    if (options.horizontalOnly) {
+        $target.css({"left": left});
+    } else {
+        $target.css({
+            "left": left,
+            "top" : top
+        });
+    }
 }
 
 window.RowScroller = (function($, RowScroller) {

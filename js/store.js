@@ -390,7 +390,7 @@ window.KVStore = (function($, KVStore) {
         // XXX not sure if preview should be invalid
         $("#previewBtn").attr("xc-safeMode", true);
 
-        $("#jsonWrap").attr("xc-safeMode", true);
+        $(".jsonWrap").attr("xc-safeMode", true);
     };
 
     KVStore.safeLiveSync = function(time) {

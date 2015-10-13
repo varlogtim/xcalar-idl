@@ -328,6 +328,7 @@
             .gray-gradient;
             border-bottom: 1px solid @color-table-borderGray;
             overflow: hidden;
+            .transition(opacity 0.3s);
 
             .tableGrab {
                 .position(absolute, @top: 0);
@@ -466,6 +467,10 @@
             position: relative;
             z-index:36;
             pointer-events: none;
+            .transition(border-color 0.3s);
+            &.jsonModalOpen {
+                border-color: #9E9E9E !important;
+            }
         }
     }
 
@@ -623,7 +628,7 @@
         }
     }
 
-    &.tableDarkened, &.tableLocked {
+    &.tableDarkened, &.tableLocked, &.jsonModalOpen {
         &::before {
             content: "";
             .position(absolute);
@@ -650,12 +655,21 @@
             th {
                 &:first-child {
                     .header::before {
-                        display: none;
-                    }
-                    input {
-                        .linear-gradient(top, #8D8D8D, #7A7A7A);
-                        border: 5px solid #A0A0A0;
-                        box-shadow: -1px 0px 0px 1px #888888;
+                    //     display: none;
+                    // }
+                        display: block;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 30px;
+                        background-color: rgba(0,0,0,1);
+                        z-index: 40;
+                        opacity: 0.3;
+                        width: ~"calc(100% + 10px)";
+                        height: 40px;
+                        left: -5px;
+                        top: -5px;
                     }
                 }
 
@@ -665,7 +679,8 @@
                         .position(absolute, @top: -5px, @left: 0px);
                         .size(@width: ~"calc(100% + 5px)", @height: 40px);
                         z-index: 21;
-                        background-color: rgba(0, 0, 0, 0.3);
+                        background-color: rgba(0, 0, 0, 1);
+                        opacity: 0.3;
                     }
                 }
             }
@@ -681,7 +696,7 @@
         }
     }
 
-    &.tableLocked {
+    &.tableLocked, &.jsonModalOpen {
         &:before {
             display: none;
         }
@@ -693,6 +708,7 @@
         }
         .xcTbodyWrap {
             pointer-events: none;
+            overflow: hidden; // prevents scrolling
         }
         .lockedIcon {
             .position(absolute, @top: 40%, @left: 50%);
@@ -712,6 +728,10 @@
             .size(@width: ~"calc(100% - 5px)", @height: auto);
             background-color: rgba(0,0,0,0.3);
             z-index: 5;
+            .transition(opacity 0.3s);
+            &.visible {
+                opacity: 1 !important;
+            }
         }
         tbody {
             opacity: 1 !important;
@@ -722,10 +742,34 @@
         }
     }
 
-    .xcTable.tableJsonModal {
+    &.jsonModalOpen {
+        
+        td.modalHighlighted {
+            pointer-events: all;
+            border-color: #BBBBBB !important;
+        }
+
+        .header {
+            z-index: 37;
+        }
+
+        th:first-child .header {
+            z-index: 38;
+        }
+
         .idWrap {
             z-index: 37;
             pointer-events: none;
+            .idSpan::after {
+                display: block;
+                position: absolute;
+                background-color: black;
+                width: ~"calc(100% + 10px)";
+                height: 100%;
+                left: -5px;
+                top: 0px;
+                opacity: 0.3;
+            }
         }
         .darkenedCell {
             .size(@width: ~"calc(100% + 10px)", @height: 100%);
@@ -734,7 +778,7 @@
             content: "";
             background-color: rgb(0,0,0);
             z-index: 36;
-            opacity: 0.6;
+            opacity: 0.3;
             display: none;
             // jquery fades in display
         }
@@ -804,6 +848,14 @@ html.microsoft {
                     margin-top: -5px;
                     z-index: 3;
                     border-radius: 0;
+                    .transition(border-color 0s);
+                }
+                .header {
+                    &::before {
+                        .transition(opacity 0.3s);
+                        content: "";
+                        opacity: 0;
+                    }
                 }
             }
         }
@@ -895,6 +947,12 @@ html.microsoft {
                     .flex-display;
                     .justify-content (center);
                     .align-items (center);
+
+                    &::after {
+                        content: "";
+                        opacity: 0;
+                        .transition(opacity 0.3s);
+                    }
                 }
             }
 
@@ -1105,11 +1163,17 @@ html.microsoft {
     cursor: row-resize;
 }
 
-.highlightBox {
+.highlightBox, .jsonModalHighlightBox {
     position: absolute;
     z-index: 0;
     .rounded(2px);
     box-shadow: inset 0px 0px 0px 2px @color-background-bottomGrayMed;
+}
+
+.jsonModalHighlightBox {
+    top: 0px !important;
+    left: 0px !important;
+    box-shadow: inset 0px 0px 0px 2px #5D9DB3;
 }
 
 /* ========== End Of Main Frame ========== */
