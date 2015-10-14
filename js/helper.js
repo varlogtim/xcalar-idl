@@ -117,7 +117,7 @@ window.xcHelper = (function($, xcHelper) {
         }
 
         return null;
-    }
+    };
 
     // get unique column name
     xcHelper.getUniqColName = function(name, tableCols) {
@@ -402,37 +402,25 @@ window.xcHelper = (function($, xcHelper) {
                                               $listSection.parent();
          // toggle list section
         if (options.onlyClickIcon) {
-            $listSection.on({
-                "click": function(event) {
-                    if (event.which !== 1) {
-                        return;
-                    }
-
-                    event.stopPropagation();
-                    toggleDropdownMenu($(this).closest(".listSection"));
-                },
-                "mousedown": function(event) {
-                    if (event.which === 1) {
-                        // stop propagation of left mousedown
-                        // because hide dropdown is triggered by it
-                        // should invalid that when mousedown on listSection
-                        return false;
-                    }
-                }
-            }, ".icon");
+            $listSection.on("click", ".icon", function(event) {
+                event.stopPropagation();
+                toggleDropdownMenu($(this).closest(".listSection"));
+            });
         } else {
-            $listSection.on({
-                "click": function(event) {
-                    event.stopPropagation();
-                    toggleDropdownMenu($(this));
-                },
-                "mousedown": function() {
-                    if (event.which === 1) {
-                        return false;
-                    }
-                }
+            $listSection.on("click", function(event) {
+                event.stopPropagation();
+                toggleDropdownMenu($(this));
             });
         }
+
+        $listSection.on("mousedown", function() {
+            if (event.which === 1) {
+                // stop propagation of left mousedown
+                // because hide dropdown is triggered by it
+                // should invalid that when mousedown on listSection
+                return false;
+            }
+        });
 
          // on click a list
         $listSection.on({
