@@ -839,10 +839,15 @@ window.RightSideBar = (function($, RightSideBar) {
         /* upload written function section */
         var $fnName = $("#udf-fnName");
 
+        $fnName.keypress(function(event) {
+            if (event.which === keyCode.Enter) {
+                $('#udf-fnUpload').click();
+            }
+        });
+
         $("#udf-fnUpload").click(function() {
             var fileName = $fnName.val();
             var text;
-
             if (fileName === "") {
                 text = "Module name is empty, please input a module name!";
                 StatusBox.show(text, $fnName, true, 50);
