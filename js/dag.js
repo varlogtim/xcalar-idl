@@ -1805,6 +1805,7 @@ window.Dag = (function($, Dag) {
                     }
                     info.text = "sorted on " + value.keyName;
                 } else {
+                    info.type = "index"
                     if (value.source.isTable) {
                         info.tooltip = "Indexed by " + value.keyName;
                     } else {
