@@ -246,7 +246,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var userSize = val;
         if (index === 0) {
             val = Math.min(100, val); // cpu percentage may be over 100%
+        } else {
+            val = Math.min(val, total);
         }
+       
         var data = [val, total - val];
         var donut = d3.select(el);
         var paths = donut.selectAll("path").data(pie(data));
@@ -574,6 +577,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                         xVal /= numNodes;
                         xVal = Math.min(100, xVal);
                     }
+
                     if (i === 1) {
                         xVal = xcHelper.sizeTranslater(xVal, true)[0];
                     }
