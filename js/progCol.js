@@ -1149,14 +1149,11 @@ window.ColManager = (function($, ColManager) {
                     parsedVal = xcHelper.parseJsonValue(tdValue);
                     tBodyHTML +=
                         '<td class="col' + (col + 1) + ' jsonElement">' +
-                            '<div data-toggle="tooltip" ' +
+                            '<div class="elementText" data-toggle="tooltip" ' +
                                 'data-placement="bottom" ' +
                                 'data-container="body" ' +
-                                'title="double-click to view" ' +
-                                'class="elementTextWrap">' +
-                                '<div class="elementText">' +
+                                'title="double-click to view">' +
                                     parsedVal +
-                                '</div>' +
                             '</div>' +
                         '</td>';
                 }

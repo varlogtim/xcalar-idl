@@ -582,7 +582,6 @@ function autosizeCol(el, options) {
     var includeHeader = options.includeHeader || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 5);
 
-    
     var widestTdWidth = getWidestTdWidth(el, {
         "includeHeader": includeHeader,
         "target"       : options.target
@@ -593,6 +592,7 @@ function autosizeCol(el, options) {
         var originalWidth = table.tableCols[index - 1].width;
         newWidth = Math.max(newWidth, originalWidth);
     }
+
     if (!options.unlimitedWidth) {
         var maxWidth = 700;
         newWidth = Math.min(newWidth, maxWidth);
@@ -600,7 +600,7 @@ function autosizeCol(el, options) {
     
     el.outerWidth(newWidth);
     if ($table.attr('id').indexOf('xc') > -1) {
-        table.tableCols[index - 1].width = el.outerWidth();
+        table.tableCols[index - 1].width = newWidth;
     } else if ($table.attr('id') === 'worksheetTable') {
         $("#dataSetTableWrap").width($('#worksheetTable').width());
     }
@@ -619,33 +619,39 @@ function getWidestTdWidth(el, options) {
     var longestText = 0;
     var textLength;
     var padding = 10;
-    var largestTd = $table.find('tbody tr:first td:eq(' + (id) + ')');
+    var largestTd = $table.find('tbody tr:first td:eq(' + id + ')');
     var headerWidth = 0;
+
+    if (includeHeader) {
+        var $th;
+        if ($table.find('.col' + id + ' .dataCol').length === 1) {
+            $th = $table.find('.col' + id + ' .dataCol');
+        } else {
+            $th = $table.find('.col' + id + ' .editableHead');
+        }
+        var extraPadding = 48;
+        if (options.target === "datastore") {
+            extraPadding += 4;
+        }
+        headerWidth = getTextWidth($th) + extraPadding;
+
+        headerWidth += padding;
+        return (headerWidth);
+    }
 
     $table.find('tbody tr').each(function() {
         // we're going to take advantage of monospaced font
         //and assume text length has an exact correlation to text width
-        var td = $(this).children(':eq(' + (id) + ')');
-        textLength = $.trim(td.text()).length;
+        var $td = $(this).children(':eq(' + (id) + ')');
+        textLength = $.trim($td.text()).length;
         if (textLength > longestText) {
             longestText = textLength;
-            largestTd = td;
+            largestTd = $td;
         }
     });
 
     largestWidth = getTextWidth(largestTd);
 
-    if (includeHeader) {
-        var th = $table.find('.col' + id + ' .editableHead');
-        var extraPadding = 48;
-        if (options.target === "datastore") {
-            extraPadding += 4;
-        }
-        headerWidth = getTextWidth(th) + extraPadding;
-        if (headerWidth > largestWidth) {
-            largestWidth = headerWidth;
-        }
-    }
     largestWidth += padding;
     return (largestWidth);
 }
@@ -797,6 +803,14 @@ function createTableHeader(tableId) {
                         '<span class="sortUp"></span>A-Z</li>' +
                     '<li class="sortReverse">' +
                         '<span class="sortDown"></span>Z-A</li>' +
+                    '<div class="subColMenuArea"></div>' +
+                '</ul>' +
+                '<div class="dropdownBox"></div>' +
+            '</li>' +
+            '<li class="resizeCols">Resize All Columns' +
+                '<ul class="subColMenu">' +
+                    '<li class="sizeToHeader">Size To Headers</li>' +
+                    '<li class="sizeToContents">Size To Contents</li>' +
                     '<div class="subColMenuArea"></div>' +
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +
@@ -1138,6 +1152,38 @@ function addTableMenuActions($tableMenu) {
         // could be long process so we allow the menu to close first
         setTimeout(function() {
             sortAllTableColumns(tableId, "reverse");
+        }, 0);
+    });
+
+
+    $tableMenu.on('mouseup', '.resizeCols li', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        var sizeToHeader = $(this).hasClass('sizeToHeader');
+        // could be long process so we allow the menu to close first
+        setTimeout(function() {
+            var columns = gTables[tableId].tableCols;
+            var numCols = columns.length;
+            var $th;
+            var $table = $('#xcTable-' + tableId);
+
+            for (var i = 0; i < numCols; i++) {
+                $th = $table.find('th.col' + (i + 1));
+                columns[i].sizeToHeader = !sizeToHeader;
+                columns[i].isHidden = false;
+                $th.removeClass('userHidden');
+
+                autosizeCol($th, {
+                    "dbClick"       : true,
+                    "minWidth"      : 17,
+                    "unlimitedWidth": false,
+                    "includeHeader" : sizeToHeader,
+                    "multipleCols"  : true
+                });
+            }
+
+            matchHeaderSizes($table);
         }, 0);
     });
 }

@@ -602,7 +602,7 @@ function generateTableShell(columns, tableId) {
                         '<div class="flexWrap flex-left"></div>' +
                         '<div class="flexWrap flex-mid">' +
                             '<input value="DATA" readonly="" tabindex="-1"' +
-                                ' class="dataCol col' + newColid +
+                                ' class="dataCol col' + newColid + '"' +
                                 ' data-toggle="tooltip" data-placement="bottom" ' +
                                 '" title="raw data">' +
                         '</div>' +
