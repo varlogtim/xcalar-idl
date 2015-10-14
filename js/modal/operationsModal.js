@@ -569,7 +569,11 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         if (!noFocus) {
-            var $input = $operationsModal.find('input').eq(inputNum + 1);
+            var inputNumToFocus = inputNum + 1;
+            if (inputNum === 1 && operatorName !== "aggregate") {
+                inputNumToFocus++;
+            }
+            var $input = $operationsModal.find('input').eq(inputNumToFocus);
             $input.focus();
             var val = $input.val();
             $input[0].selectionStart = $input[0].selectionEnd = val.length;
@@ -1289,7 +1293,6 @@ window.OperationsModal = (function($, OperationsModal) {
         }
         return (true);
     }
-
 
     function formatArgumentInput(value, typeid, existingTypes) {
         var strShift    = 1 << DfFieldTypeT.DfString;

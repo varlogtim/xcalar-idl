@@ -738,7 +738,7 @@ function generateColDropDown(tableId) {
                             ' spellcheck="false"/>' +
                         '<div>Number of Split Columns</div>' +
                         '<input class="num" type="number" min="1" step="1"' +
-                            ' placeholder="No limit if leave blank"/>' +
+                            ' placeholder="Unlimited if left blank"/>' +
                     '</li>' +
                     '<div class="subColMenuArea"></div>' +
                 '</ul>' +
