@@ -1014,6 +1014,9 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.when = function() {
         var numProm = arguments.length;
+        if (numProm === 0) {
+            return (promiseWrapper(null));
+        }
         var mainDeferred = jQuery.Deferred();
         
         var numDone = 0;

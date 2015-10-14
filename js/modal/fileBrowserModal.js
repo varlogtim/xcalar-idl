@@ -58,7 +58,6 @@ window.FileBrowser = (function($, FileBrowser) {
                 showHandler(result);
             } else {
                 $modalBackground.fadeIn(300, function() {
-                    $modalBackground.addClass("open");
                     $fileBrowser.fadeIn(180).focus();
                     showHandler(result);
                 });
@@ -392,7 +391,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var fadeOutTime = gMinModeOn ? 0 : 300;
 
         $fileBrowser.hide();
-        $modalBackground.removeClass("open").fadeOut(fadeOutTime, function() {
+        $modalBackground.fadeOut(fadeOutTime, function() {
             Tips.refresh();
         });
     }

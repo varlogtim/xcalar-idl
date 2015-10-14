@@ -105,12 +105,13 @@ window.Alert = (function($, Alert){
 
         $alertModal.hide();
 
-        if (!$modalBackground.hasClass("open")) {
+        if ($(".modalContainer:visible:not(#alertModal)").length > 0) {
+            // apart from alert modal, other modal is on
+            Tips.refresh();
+        } else {
             $modalBackground.fadeOut(fadeOutTime, function() {
                 Tips.refresh();
             });
-        } else {
-            Tips.refresh();
         }
     }
 

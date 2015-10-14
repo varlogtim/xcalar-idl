@@ -126,7 +126,10 @@ window.AggModal = (function($, AggModal) {
             commitToStorage();
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            Alert.error("Quick Aggregate Failes", error);
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     };
@@ -422,20 +425,26 @@ window.AggModal = (function($, AggModal) {
                 val = obj.Value;
             } catch (error) {
                 console.error(error, obj);
-                val = "";
+                val = "--";
             }
 
+            applyAggResult(val);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            applyAggResult("--");
+            deferred.reject(error);
+        });
+
+        function applyAggResult(value) {
             $("#mainAgg1").find(".aggCol:not(.labels)").eq(col)
-                .find(".aggTableField:not(.colLabel)").eq(row).html(val);
+                .find(".aggTableField:not(.colLabel)").eq(row).html(value);
 
             dups.forEach(function(colNum) {
                 $("#mainAgg1").find(".aggCol:not(.labels)").eq(colNum)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(val);
+                    .find(".aggTableField:not(.colLabel)").eq(row).html(value);
             });
-
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
+        }
 
         return (deferred.promise());
     }
@@ -457,21 +466,33 @@ window.AggModal = (function($, AggModal) {
                 val = obj.Value;
             } catch (error) {
                 console.error(error, obj);
-                val = "";
+                val = "--";
             }
 
-            if (jQuery.isNumeric(val)) {
-                val = parseFloat(val);
-                if (val > 0) {
+            applyCorrResult(val);
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            applyCorrResult("--");
+            deferred.reject(error);
+        });
+
+        function applyCorrResult(value) {
+            if (jQuery.isNumeric(value)) {
+                value = parseFloat(value);
+                if (value > 0) {
                     $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(val)
-                    .css("background-color", "rgba(66, 158, 212," + val + ")");
+                    .find(".aggTableField:not(.colLabel)").eq(row).html(value)
+                    .css("background-color", "rgba(66, 158, 212," + value + ")");
                 } else {
                     $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
-                    .find(".aggTableField:not(.colLabel)").eq(row).html(val)
-                    .css("background-color", "rgba(200, 200, 200," + (-1 * val)
+                    .find(".aggTableField:not(.colLabel)").eq(row).html(value)
+                    .css("background-color", "rgba(200, 200, 200," + (-1 * value)
                      + ")");
                 }
+            } else {
+                $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
+                .find(".aggTableField:not(.colLabel)").eq(row).html(value);
             }
 
             dups.forEach(function(colNum) {
@@ -479,22 +500,19 @@ window.AggModal = (function($, AggModal) {
                     $("#mainAgg2").find(".aggCol.labels").eq(colNum)
                         .find(".aggTableField:not(.colLabel)").eq(row);
 
-                $container.html(val);
+                $container.html(value);
 
-                if (jQuery.isNumeric(val)) {
-                    if (val > 0) {
+                if (jQuery.isNumeric(value)) {
+                    if (value > 0) {
                         $container.css("background-color",
-                                        "rgba(66, 158, 212," + val + ")");
+                                        "rgba(66, 158, 212," + value + ")");
                     } else {
                         $container.css("background-color",
-                                        "rgba(66, 158, 212," + (-1 * val) + ")");
+                                        "rgba(66, 158, 212," + (-1 * value) + ")");
                     }
                 }
             });
-
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
+        }
 
         return (deferred.promise());
     }
