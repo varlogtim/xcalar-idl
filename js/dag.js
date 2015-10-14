@@ -1237,14 +1237,15 @@ window.Dag = (function($, Dag) {
             $schema.addClass('empty');
         }
 
-        $('#dagSchema').on('click', '.name', function() {
+        $('#dagSchema').on('click', 'li', function() {
+            var $name = $(this).find('.name');
             $('#dagSchema').find('li.selected').removeClass('selected');
-            $(this).closest('li').addClass('selected');
+            $(this).addClass('selected');
             var cols = gTables[tableId].tableCols;
-            var name = $(this).text();
+            var name = $name.text();
             var userStr;
             var backName;
-            var colNum = $(this).closest('li').index();
+            var colNum = $(this).index();
             var numCols = $('#dagSchema').find('.numCols').text().substr(1);
             numCols = parseInt(numCols);
             for (var i = colNum; i <= numCols; i++) {
@@ -1670,8 +1671,6 @@ window.Dag = (function($, Dag) {
             var index = 0;
             var dagArray = dagObj.node;
             var children = "";
-            //XX TEMPORARY
-            // tempModifyDagArray(dagArray);
             var parentChildMap = getParentChildDagMap(dagObj);
             // console.log(dagObj);
             deferred.resolve(drawDagNode(dagArray[index], prop, dagArray, "",
