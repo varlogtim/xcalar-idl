@@ -127,7 +127,7 @@ window.AggModal = (function($, AggModal) {
             deferred.resolve();
         })
         .fail(function(error) {
-            Alert.error("Quick Aggregate Failes", error);
+            Alert.error("Quick Aggregate Fails", error);
             deferred.reject(error);
         });
 

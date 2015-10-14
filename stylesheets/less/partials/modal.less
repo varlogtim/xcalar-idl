@@ -912,6 +912,21 @@
             .size(@height: 29px);
             .font(@weight: bold, @line-height: 29px, @color: @color-text-midGray);
             padding-left: 25px;
+
+            .smartSuggest {
+                .font(@size: 11px, @color: @color-text-blue);
+                text-decoration: underline;
+                margin-left: 10px;
+                cursor: pointer;
+
+                &.inActive {
+                    display: none;
+                }
+            }
+
+            .suggError {
+                visibility: hidden;
+            }
         }
 
         .mainTable {

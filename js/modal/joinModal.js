@@ -115,6 +115,7 @@ window.JoinModal = (function($, JoinModal) {
 
                 $mainJoin.find(".colSelected").removeClass("colSelected");
                 $mainJoin.find(".columnTab").prop("draggable", true);
+                $mainJoin.find(".smartSuggest").addClass("inActive");
             } else {
                 // case to close multi clause
                 $activeBox.removeClass("active")
@@ -123,6 +124,7 @@ window.JoinModal = (function($, JoinModal) {
 
                 $multiJoin.find(".joinClause.placeholder").siblings().remove();
                 $mainJoin.find(".columnTab").prop("draggable", false);
+                $mainJoin.find(".smartSuggest").removeClass("inActive");
             }
         });
 
@@ -390,6 +392,8 @@ window.JoinModal = (function($, JoinModal) {
 
         // clean up multi clause section
         $mainJoin.removeClass("multiClause");
+        $mainJoin.find(".smartSuggest").removeClass("inActive");
+
         $multiJoinBtn.find(".active").removeClass("active")
                     .end()  // back to $("#multiJoinBtn")
                     .find(".offBox").addClass("active");
@@ -439,11 +443,11 @@ window.JoinModal = (function($, JoinModal) {
         }
         // trigger click of table and column
         if (tableId != null) {
+            // this is for left join table
             $modal.find(".tableLabel").filter(function() {
                 return ($(this).data("id") === tableId);
             }).click();
 
-            // this is only for left join
             if (colNum > 0) {
                 var $table = xcHelper.getElementByTableId(tableId, "xcTable");
                 var dataColNum = $table.find('tbody .jsonElement').index();
@@ -455,6 +459,7 @@ window.JoinModal = (function($, JoinModal) {
                             ' th:nth-child(' + colNum + ')').click();
             }
         } else {
+            // for right join table
             $modal.find('.tableLabel:first').click();
         }
     }
@@ -543,12 +548,12 @@ window.JoinModal = (function($, JoinModal) {
 
     function addModalTabListeners($modal, isLeft) {
         $modal.on('click', '.tableLabel', function() {
-
             var $tableLabel = $(this);
-            var tableId = $tableLabel.data("id");
             if ($tableLabel.hasClass('active')) {
                 return;
             }
+
+            var tableId = $tableLabel.data("id");
             $modal.find(".tableLabel.active").removeClass("active");
             $tableLabel.addClass("active");
 
@@ -557,19 +562,79 @@ window.JoinModal = (function($, JoinModal) {
                     .addClass("active");
 
             $modal.find(".colSelected").removeClass("colSelected");
-
-            // when multijoin, empty left or right inputs if new table
-            // selected
-            if ($tableLabel.closest('.joinContainer').attr('id')
-                 === 'rightJoin') {
-                $joinModal.find('.rightClause').val("");
-            } else {
-                $joinModal.find('.leftClause').val("");
-            }
-
             $modal.find(".joinTable").hide();
             $modal.find('.joinTable[data-id="' + tableId + '"]').show();
 
+            if ($mainJoin.hasClass("multiClause")) {
+                // when multijoin, empty left or right inputs if new table
+                // selected
+                if ($tableLabel.closest('.joinContainer').attr('id')
+                    === 'rightJoin')
+                {
+                    $joinModal.find('.rightClause').val("");
+                } else {
+                    $joinModal.find('.leftClause').val("");
+                }
+            }
+        });
+
+        $modal.on("click", ".smartSuggest", function() {
+            $(".tooltip").hide();
+            var $suggErrorArea = $(this).siblings(".suggError");
+            var $checkSection = isLeft ? $rightJoinTable :
+                                         $leftJoinTable;
+            var $tableLabel = $checkSection.find(".tableLabel.active");
+            var text;
+
+            if ($tableLabel.length > 0) {
+                var tableId = $tableLabel.data("id");
+                var $th = $checkSection.find('.joinTable[data-id="' + tableId +
+                                        '"] th.colSelected');
+                if ($th.length > 0) {
+                    var $suggSection = isLeft ? $leftJoinTable :
+                                                $rightJoinTable;
+                    var $suggTableLabel = $suggSection.find(".tableLabel.active");
+                    if ($suggTableLabel.length === 0) {
+                        console.error("Error, none of the lable is active!");
+                        return;
+                    }
+
+                    var suggTableId = $suggTableLabel.data("id");
+                    var isFind = suggestJoinKey(tableId, $th,
+                                                $suggSection, suggTableId);
+
+                    if (!isFind) {
+                        text = "Sorry, cannot find a good key to match the ";
+                        text += isLeft ? "right table" : "left table";
+                        toolTipHelper(text);
+                    }
+                } else {
+                    text = isLeft ? "Right" : "Left";
+                    text += " table has no selected key";
+                    toolTipHelper(text);
+                }
+            } else {
+                console.error("Error, none of the lable is active!");
+            }
+
+            function toolTipHelper(title) {
+                $suggErrorArea.tooltip({
+                    "title"    : title,
+                    "placement": "right",
+                    "animation": "true",
+                    "container": "#" + $modal.attr("id"),
+                    "trigger"  : "manual",
+                    "template" : '<div class="tooltip error" role="tooltip">' +
+                                    '<div class="tooltip-arrow"></div>' +
+                                    '<div class="tooltip-inner"></div>' +
+                                '</div>'
+                });
+
+                $suggErrorArea.tooltip("show");
+                setTimeout(function() {
+                    $suggErrorArea.tooltip("destroy");
+                }, 1000);
+            }
         });
 
         $modal.on('click', 'th', function() {
@@ -620,7 +685,8 @@ window.JoinModal = (function($, JoinModal) {
                 $table.find('.col' + colNum).addClass('colSelected');
 
                 if (isLeft && isOpenTime) {
-                    suggestJoinKey(tableId, $th);
+                    // suggest on right table
+                    suggestJoinKey(tableId, $th, $rightJoinTable);
                 }
             }
         });
@@ -662,6 +728,7 @@ window.JoinModal = (function($, JoinModal) {
             return;
         }
         var $tableArea = $th.closest('.joinTableArea');
+        $tableArea.scrollLeft(0);
         var tableOffset = $tableArea.offset().left;
         var tableAreaWidth = $tableArea.width();
         var thWidth = $th.width();
@@ -678,54 +745,83 @@ window.JoinModal = (function($, JoinModal) {
         return (match.split(" ")[0]);
     }
 
-    function suggestJoinKey(tableId, $th) {
+    function suggestJoinKey(tableId, $th, $suggSection, suggTableId) {
         var type     = getType($th);
         var colNum   = xcHelper.parseColNum($th);
         var colName  = $th.find(".columnTab").text();
-        var lContext = contextCheck($th.closest('table'), colNum, type);
+        var context1 = contextCheck($th.closest('table'), colNum, type);
 
         var $thToClick;
         var tableIdToClick;
 
         // XXX the limit score valid as suggest key, can be modified
         var maxScore = -50;
+        var $suggTables = $suggSection.find("table");
 
-        $rightJoinTable.find("table").each(function() {
-            var $rTable  = $(this);
-            var rTableId = $rTable.data("id");
+        if (suggTableId != null) {
+            $suggTables = $suggTables.filter(function() {
+                return ($(this).data("id") === suggTableId);
+            });
+        }
 
-            if (rTableId === tableId) {
+        $suggTables.each(function() {
+            var $suggTable = $(this);
+            var curTaleId = $suggTable.data("id");
+
+            if (curTaleId === tableId) {
                 return;  // skip same table
             }
 
-            $rTable.find("th").each(function(index) {
-                var $rTh = $(this);
+            $suggTable.find("th").each(function(index) {
+                var $curTh = $(this);
 
-                if (getType($rTh) === type) {
-                    var rContext = contextCheck($rTable, index + 1, type);
+                if (getType($curTh) === type) {
+                    var context2 = contextCheck($suggTable, index + 1, type);
 
-                    var curColName = $rTh.find(".columnTab").text();
+                    var curColName = $curTh.find(".columnTab").text();
                     var dist = getTitleDistance(colName, curColName);
-
-                    var score = getScore(lContext, rContext, dist, type);
+                    var score = getScore(context1, context2, dist, type);
 
                     if (score > maxScore) {
                         maxScore = score;
-                        $thToClick = $rTh;
-                        tableIdToClick = rTableId;
+                        $thToClick = $curTh;
+                        tableIdToClick = curTaleId;
                     }
                 }
             });
         });
 
+        // if find the suggeest join key
         if (tableIdToClick != null) {
-            // if find the suggeest join key
-            $rightJoinTable.find(".tableLabel").filter(function() {
+            $suggSection.find(".tableLabel").filter(function() {
                 return ($(this).data("id") === tableIdToClick);
             }).click();
-            $thToClick.click();
+
+            if (!$thToClick.hasClass("colSelected")) {
+                $thToClick.click();
+            }
+
             scrollToColumn($thToClick);
+
+            if (!isOpenTime) {
+                $thToClick.tooltip({
+                    "title"    : "Suggested Key",
+                    "placement": "top",
+                    "animation": "true",
+                    "container": "#" + $suggSection.attr("id"),
+                    "trigger"  : "manual"
+                });
+
+                $thToClick.tooltip("show");
+                setTimeout(function() {
+                    $thToClick.tooltip("destroy");
+                }, 1000);
+            }
+
+            return true;
         }
+
+        return false;
     }
 
     function getScore(context1, context2, titleDist, type) {
