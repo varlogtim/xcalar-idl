@@ -248,6 +248,7 @@ function dragdropMouseDown(el, event) {
 
     dragObj.inFocus = $editableHead.is(':focus');
     dragObj.selected = el.hasClass('selectedCell');
+    dragObj.isHidden = el.hasClass('userHidden');
     dragObj.colWidth = el.width();
     dragObj.windowWidth = $(window).width();
     
@@ -420,6 +421,9 @@ function createTransparentDragDropCol(pageX) {
     if (dragObj.selected) {
         $fauxTable.addClass('selectedCol');
     }
+    if (dragObj.isHidden) {
+        $fauxTable.addClass('userHidden');
+    }
 
     var totalRowHeight = $tableWrap.height() -
                          $table.find('th:first').outerHeight();
@@ -449,6 +453,9 @@ function createTransparentDragDropCol(pageX) {
 function createDropTargets(dropTargetIndex, swappedColIndex) {
     var dragObj = gDragObj;
     var dragMargin = 30;
+    if (dragObj.isHidden) {
+        dragMargin = 10;
+    }
     var colLeft;
     // targets extend this many pixels to left of each column
    
@@ -1172,7 +1179,6 @@ function addTableMenuActions($tableMenu) {
                 $th = $table.find('th.col' + (i + 1));
                 columns[i].sizeToHeader = !sizeToHeader;
                 columns[i].isHidden = false;
-                $th.removeClass('userHidden');
 
                 autosizeCol($th, {
                     "dbClick"       : true,
@@ -1182,6 +1188,8 @@ function addTableMenuActions($tableMenu) {
                     "multipleCols"  : true
                 });
             }
+
+            $table.find('.userHidden').removeClass('userHidden');
 
             matchHeaderSizes($table);
         }, 0);
