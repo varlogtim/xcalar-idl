@@ -1725,10 +1725,10 @@ window.Dag = (function($, Dag) {
         var evalStr;
         var value = dagNode.input[key];
         var info = {};
-        info.type = "";
+        info.type = "unknown";
         info.text = "";
         info.tooltip = "";
-        info.column = "";
+        info.column = "unknown";
         info.id = dagNode.dagNodeId;
         info.state = DgDagStateTStr[dagNode.state];
 
@@ -1781,6 +1781,17 @@ window.Dag = (function($, Dag) {
                     }
                     
                 } else {
+                    var commaIndex = filterStr.indexOf(',');
+                    if (commaIndex !== -1) {
+                        info.column = filterStr
+                                      .slice(parenIndex + 1, commaIndex)
+                                      .trim();
+                    } else {
+                        info.column = filterStr
+                                      .slice(parenIndex + 1,
+                                             filterStr.indexOf(')'))
+                                      .trim();
+                    }
                     info.tooltip = "Filtered table &quot;" + parents[0] +
                                     "&quot;: " + filterStr;
                 }
@@ -1845,7 +1856,8 @@ window.Dag = (function($, Dag) {
                 info.column = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(')'));
                 break;
-            default: // do nothing
+            default:
+                console.error('Dag type not recognized');
                 break;
         }
         return (info);
