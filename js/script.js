@@ -555,7 +555,8 @@ function documentReadyGeneralFunction() {
         var tableId = gActiveTableId;
         var $lastTarget = gMouseEvents.getLastMouseDownTarget();
         var isInMainFrame = $lastTarget == null ||
-                            $lastTarget.closest("#mainFrame").length > 0;
+                            ($lastTarget.closest("#mainFrame").length > 0 &&
+                            !$lastTarget.is("input"));
 
         if (isInMainFrame && xcHelper.isTableInScreen(tableId)) {
             if (gIsTableScrolling ||
