@@ -230,12 +230,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 return;
             }
 
-            if ($("#dsPreviewWrap").hasClass("hidden")) {
-                DataPreview.show();
-            } else {
-                // when the button is apply change and exit
-                DataPreview.load();
-            }
+            DataPreview.show();
         });
 
         var $form = $("#importDataForm");
@@ -1399,6 +1394,10 @@ window.DataPreview = (function($, DataPreview) {
             highlightDelimiter(selection.toString());
         });
 
+        $("#preview-apply").click(function() {
+            DataPreview.load();
+        });
+
         // close preview
         $("#preview-close").click(function() {
             clearAll();
@@ -1478,7 +1477,7 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         $suggSection.on("click", ".apply-all", function() {
-            $("#previewBtn").click();
+            $("#preview-apply").click();
         });
 
         function applyDelim() {
@@ -1502,7 +1501,6 @@ window.DataPreview = (function($, DataPreview) {
         XcalarListFiles(loadURL)
         .then(function() {
             $("#importDataForm").addClass("previewMode");
-            $("#previewBtn").text("APPLY CHANGES & EXIT PREVIEW");
 
             var $previeWrap   = $("#dsPreviewWrap").removeClass("hidden");
             var $waitSection  = $previeWrap.find(".waitSection")
@@ -1589,6 +1587,7 @@ window.DataPreview = (function($, DataPreview) {
                 }
 
                 $suggBtn.show();
+                $(window).on("resize", resizePreivewTable);
             })
             .then(function() {
                 return (XcalarSetFree(refId));
@@ -1639,11 +1638,11 @@ window.DataPreview = (function($, DataPreview) {
     function clearAll() {
         var deferred = jQuery.Deferred();
 
-        $("#previewBtn").text("PREVIEW");
         $("#dsPreviewWrap").addClass("hidden");
         $("#importDataForm").removeClass("previewMode");
         $previewTable.removeClass("has-delimiter").empty();
         toggleSuggest(false, true);
+        $(window).off("resize", resizePreivewTable);
 
         rawData = null;
         hasHeader = false;
@@ -1717,14 +1716,18 @@ window.DataPreview = (function($, DataPreview) {
             suggestHelper("toHighLight");
         }
 
+        resizePreivewTable();
+    }
+
+    function resizePreivewTable() {
         // size line divider to fit table
         var tableWidth = $previewTable.width();
         $previewTable.find('.divider').width(tableWidth - 10);
 
-        // size linmarker div to fit td
-        var lineMarkerHeight = $previewTable.find('.lineMarker').eq(0).height();
-        $previewTable.find('.lineMarker').eq(0).find('.promoteWrap')
-                                               .height(lineMarkerHeight);
+        // // size linmarker div to fit td
+        // var lineMarkerHeight = $previewTable.find('.lineMarker').eq(0).height();
+        // $previewTable.find('.lineMarker').eq(0).find('.promoteWrap')
+        //                                        .height(lineMarkerHeight);
     }
 
     function togglePromote() {
@@ -1773,15 +1776,7 @@ window.DataPreview = (function($, DataPreview) {
         }
 
         suggestHelper("toRemoveDelim");
-        
-        // size line divider to fit table
-        var tableWidth = $previewTable.width();
-        $previewTable.find('.divider').width(tableWidth - 10);
-
-        // size linmarker div to fit td
-        var lineMarkerHeight = $previewTable.find('.lineMarker').eq(0).height();
-        $previewTable.find('.lineMarker').eq(0).find('.promoteWrap')
-                                               .height(lineMarkerHeight);
+        resizePreivewTable();
     }
 
     function highlightDelimiter(str) {

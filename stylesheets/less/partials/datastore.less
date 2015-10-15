@@ -172,7 +172,7 @@ input {
         height: 151px !important;
 
         #importDataBottomForm, #fileBrowserBtn, #fileFormat,
-        #udfCheckbox, #csvPromoteCheckbox {
+        #udfCheckbox, #csvPromoteCheckbox, #previewBtn {
             display: none;
         }
 
@@ -392,7 +392,7 @@ input {
         }
 
         .titleSection {
-            .size(@width: 50%);
+            .size(@width: 33%);
             float: left;
 
             h2 {
@@ -406,8 +406,26 @@ input {
             }
         }
 
+        .btnSection {
+            .size(@width: 33%);
+            float: left;
+
+            .buttonWrap {
+                .size(@width: 226px, @height: 35px);
+                .position(relative, @top: -10px, @left: 25%);
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                background-color: @color-background-topForm;
+
+                .btn {
+                    .size(@width: 220px);
+                    .position(relative, @left: -2px);
+                    margin-left: 0;
+                }
+            }
+        }
+
         .iconSection {
-            .size(@width: 50%);
+            .size(@width: 33%);
             float: right;
 
             > div {
@@ -467,6 +485,7 @@ input {
     .suggestSection {
         .size(@height: 25px);
         .font(@size: 12px, @line-height: 25px);
+        margin-top: 5px;
         cursor: default;
         .noSelection;
         overflow: hidden;
@@ -544,7 +563,7 @@ input {
     }
 
     &.has-suggest .previewSection {
-        .size( @height: ~"calc(100% - 75px)");
+        .size( @height: ~"calc(100% - 80px)");
     }
 }
 
@@ -558,6 +577,33 @@ input {
     }
     .datasetTbodyWrap:not(*:root) { // selecting Chrome browsers
         width: ~"calc(100% + 5px)";
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    #dsPreviewWrap {
+        .infoSection {
+            .titleSection .btn {
+                clear: both;
+                margin-left: 0;
+            }
+
+            .btnSection .buttonWrap {
+                left: 0;
+            }
+        }
+
+        .suggestSection {
+            height: 50px;
+
+            .title {
+                float: none;
+            }
+        }
+
+        &.has-suggest .previewSection {
+            .size( @height: ~"calc(100% - 100px)");
+        }
     }
 }
 
