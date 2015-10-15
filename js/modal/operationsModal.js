@@ -1303,12 +1303,14 @@ window.OperationsModal = (function($, OperationsModal) {
                         (1 << DfFieldTypeT.DfUInt64) |
                         (1 << DfFieldTypeT.DfFloat32) |
                         (1 << DfFieldTypeT.DfFloat64);
+        var boolShift = 1 << DfFieldTypeT.DfBoolean;
 
         // when field accept
-        var shoudBeString  = (typeid & strShift) > 0;
+        var shouldBeString  = (typeid & strShift) > 0;
         var shouldBeNumber = (typeid & numberShift) > 0;
+        var shouldBeBoolean = (typeid & boolShift) > 0;
 
-        if (shoudBeString) {
+        if (shouldBeString) {
             // handle edge case
             var parsedVal = parseInt(value);
             if (!isNaN(parsedVal) &&
@@ -1320,11 +1322,15 @@ window.OperationsModal = (function($, OperationsModal) {
 
                 // XXX potential bug is that existingTypes
                 // has both string and number
-                shoudBeString = existingTypes.hasOwnProperty("string");
+                shouldBeString = existingTypes.hasOwnProperty("string");
+            } else if (shouldBeBoolean &&
+                        (value === "true" || value === "false")) {
+                shouldBeString = false;
+                value = JSON.parse(value);
             }
         }
 
-        if (shoudBeString) {
+        if (shouldBeString) {
             // add quote if the field support string
             value = JSON.stringify(value);
         }
