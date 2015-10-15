@@ -8,9 +8,20 @@ window.AggModal = (function($, AggModal) {
 
     var aggrFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
                         AggrOp.Max, AggrOp.Count];
+
     var aggCols = [];
+    // UI cahce, not save to KVStore
+    var aggCache  = {};
+    var corrCache = {};
+    var aggOpMap  = {};
 
     AggModal.setup = function() {
+        aggOpMap[AggrOp.Sum] = 0;
+        aggOpMap[AggrOp.Avg] = 1;
+        aggOpMap[AggrOp.Min] = 2;
+        aggOpMap[AggrOp.Max] = 3;
+        aggOpMap[AggrOp.Count] = 4;
+
         $("#closeAgg").click(function() {
             resetAggTables();
         });
@@ -80,9 +91,9 @@ window.AggModal = (function($, AggModal) {
 
         $modalBackground.on("click", hideAggOpSelect);
 
-        var table     = xcHelper.getTableFromId(tableId);
+        var table     = gTables[tableId];
         var tableName = table.tableName;
-        var $table    = xcHelper.getElementByTableId(tableId, "xcTable");
+        var $table    = $("xcTable-" + tableId);
 
         $aggTableName.val(tableName);
         centerPositionElement($aggModal);
@@ -112,8 +123,8 @@ window.AggModal = (function($, AggModal) {
             }).click();
         }
 
-        var def1 = calcAgg($table, tableName);
-        var def2 = calcCorr($table, tableName);
+        var def1 = calcAgg($table, tableName, tableId);
+        var def2 = calcCorr($table, tableName, tableId);
 
         xcHelper.when(def1, def2)
         .then(function() {
@@ -133,6 +144,18 @@ window.AggModal = (function($, AggModal) {
         });
 
         return (deferred.promise());
+    };
+
+    // XXX just for debug use, should delete it later!
+    // Not safe as it's an obj, value could change.
+    AggModal.getAggCache = function() {
+        return (aggCache);
+    };
+
+    // XXX just for debug use, should delete it later!
+    // Not safe as it's an obj, value could change.
+    AggModal.getCorrCache = function() {
+        return (corrCache);
     };
 
     function aggColsInitialize(table) {
@@ -289,7 +312,7 @@ window.AggModal = (function($, AggModal) {
     }
 
 
-    function calcCorr($table, tableName) {
+    function calcCorr($table, tableName, tableId) {
         var promises = [];
 
         var colLen  = aggCols.length;
@@ -342,7 +365,8 @@ window.AggModal = (function($, AggModal) {
                                                      cols.func.args[0]);
                         sub = sub.replace(/[$]arg2/g, vertCols.func.args[0]);
                         // Run correlation function
-                        var promise = runCorr(tableName, sub, i, j, dups);
+                        var promise = runCorr(tableId, tableName,
+                                                sub, i, j, dups);
                         promises.push(promise);
                     }
                 }
@@ -352,7 +376,7 @@ window.AggModal = (function($, AggModal) {
         return (xcHelper.when.apply(window, promises));
     }
 
-    function calcAgg($table, tableName) {
+    function calcAgg($table, tableName, tableId) {
         var promises = [];
 
         var colLen = aggCols.length;
@@ -381,7 +405,8 @@ window.AggModal = (function($, AggModal) {
                 // XXX now agg on child of array is not supported
                 if (!$colHeader.hasClass("childOfArray")) {
                     for (var i = 0; i < funLen; i++) {
-                        var promise = runAggregate(tableName, cols.func.args[0],
+                        var promise = runAgg(tableId, tableName,
+                                                cols.func.args[0],
                                                 aggrFunctions[i], i, j, dups);
                         promises.push(promise);
                     }
@@ -408,8 +433,24 @@ window.AggModal = (function($, AggModal) {
         return (dups);
     }
 
-    function runAggregate(tableName, fieldName, opString, row, col, dups) {
-        var deferred   = jQuery.Deferred();
+    function runAgg(tableId, tableName, fieldName, opString, row, col, dups) {
+        var deferred = jQuery.Deferred();
+        var tableAgg;
+        var colAgg;
+
+        if (aggCache.hasOwnProperty(tableId)) {
+            tableAgg = aggCache[tableId];
+            if (tableAgg.hasOwnProperty(fieldName)) {
+                colAgg = tableAgg[fieldName];
+                var aggRes = colAgg[aggOpMap[opString]];
+                if (aggRes != null) {
+                    applyAggResult(aggRes);
+                    deferred.resolve();
+                    return (deferred.promise());
+                }
+            }
+        }
+
         var sqlOptions = {
             "operation": SQLOps.QuickAggAction,
             "type"     : "aggreagte",
@@ -428,6 +469,14 @@ window.AggModal = (function($, AggModal) {
                 console.error(error, obj);
                 val = "--";
             }
+
+            // cache value
+            aggCache[tableId] = aggCache[tableId] || {};
+            tableAgg = aggCache[tableId];
+            tableAgg[fieldName] = tableAgg[fieldName] || [];
+            colAgg = tableAgg[fieldName];
+            colAgg[aggOpMap[opString]] = val;
+            // end of cache value
 
             applyAggResult(val);
             deferred.resolve();
@@ -450,8 +499,20 @@ window.AggModal = (function($, AggModal) {
         return (deferred.promise());
     }
 
-    function runCorr(tableName, evalStr, row, col, dups) {
-        var deferred   = jQuery.Deferred();
+    function runCorr(tableId, tableName, evalStr, row, col, dups) {
+        var deferred = jQuery.Deferred();
+
+        if (corrCache.hasOwnProperty(tableId)) {
+            var corrRes = corrCache[tableId][evalStr];
+
+            if (corrRes != null) {
+                applyCorrResult(corrRes);
+                deferred.resolve();
+                return (deferred.promise());
+            }
+        }
+
+
         var sqlOptions = {
             "operation": SQLOps.QuickAggAction,
             "type"     : "correlation",
@@ -469,6 +530,11 @@ window.AggModal = (function($, AggModal) {
                 console.error(error, obj);
                 val = "--";
             }
+
+            // cache value
+            corrCache[tableId] = corrCache[tableId] || {};
+            corrCache[tableId][evalStr] = val;
+            // end of cache value
 
             applyCorrResult(val);
             deferred.resolve();
