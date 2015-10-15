@@ -1958,6 +1958,7 @@ function addColMenuActions($colMenu) {
 
             var $numInput = $li.find(".num");
             var num = $numInput.val().trim();
+            var numColToGet;
 
             if (num === "") {
                 // start from 1
@@ -1968,8 +1969,10 @@ function addColMenuActions($colMenu) {
                     maxNum = Math.max(maxNum, splitNum);
                 });
                 num = maxNum;
+                numColToGet = null;
             } else {
                 num = Number($numInput.val().trim());
+                numColToGet = num;
             }
 
             var isValid = xcHelper.validate([
@@ -1992,21 +1995,7 @@ function addColMenuActions($colMenu) {
                 return;
             }
 
-            if (num > 15) {
-                var msg = "About " + num + " columns will be generated, " +
-                            "do you still want to continue the operation?";
-                Alert.show({
-                    "title"     : "Many Columns will generate",
-                    "msg"       : msg,
-                    "isCheckBox": false,
-                    "confirm"   : function () {
-                        ColManager.splitCol(colNum, tableId, delim, num);
-                    }
-                });
-            } else {
-                ColManager.splitCol(colNum, tableId, delim, num);
-            }
-
+            ColManager.splitCol(colNum, tableId, delim, numColToGet, true);
             $delimInput.val("").blur();
             $numInput.val("").blur();
             closeMenu($colMenu);

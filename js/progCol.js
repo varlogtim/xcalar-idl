@@ -332,8 +332,12 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     };
 
-    ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet) {
+    ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet, isAlertOn) {
+        // isAlertOn is a flag to alert too many column will generate
+        // when do replay, this flag is null, so no alert
+        // since we assume user want to replay it.
         var deferred = jQuery.Deferred();
+        var cancelError = "cancel splitCol";
 
         var currentWS   = WSManager.getActiveWS();
         var table       = gTables[tableId];
@@ -349,66 +353,70 @@ window.ColManager = (function($, ColManager) {
             "operation": SQLOps.SplitCol
         };
         var msgId = StatusMessage.addMsg(msgObj);
-
         var tableNamePart = tableName.split("#")[0];
         var newTableNames = [];
         var newFieldNames = [];
-        var i;
-
-        for (i = numColToGet; i >= 1; i--) {
-            newTableNames[i] = tableNamePart + Authentication.getHashId();
-        }
-
-        // this makes it easy to get previous table name
-        // when index === numColToGet
-        newTableNames[numColToGet + 1] = tableName;
-
-        // Check duplication
-        var tryCount  = 0;
-        var colPrefix = colName + "-split";
-        var isDup;
-
-        i = numColToGet;
-        while (i > 0 && tryCount <= 50) {
-            isDup = false;
-            ++tryCount;
-
-            for (i = numColToGet; i >= 1; i--) {
-                newFieldNames[i] = colPrefix + "-" + i;
-
-                for (var j = 0; j < numCols; j++) {
-                    if (tableCols[j].func.args) {
-                        if (newFieldNames[i] === tableCols[j].func.args[0]) {
-                            isDup = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (isDup) {
-                    newFieldNames = [];
-                    colPrefix = colName + "-split-" + tryCount;
-                    break;
-                }
-            }
-        }
-
-        if (tryCount > 50) {
-            console.warn("Too much try, overwrite origin col name!");
-            for (i = numColToGet; i >= 1; i--) {
-                newFieldNames[i] = colName + "-split" + i;
-            }
-        }
-
-        var promises = [];
-        for (i = numColToGet; i >= 1; i--) {
-            promises.push(splitColHelper.bind(this, i, newTableNames[i + 1],
-                                                newTableNames[i]));
-        }
 
         xcHelper.lockTable(tableId);
 
-        chain(promises)
+        getSplitNumHelper()
+        .then(function(colToSplit) {
+            numColToGet = colToSplit;
+
+            var i;
+            for (i = numColToGet; i >= 1; i--) {
+                newTableNames[i] = tableNamePart + Authentication.getHashId();
+            }
+
+            // this makes it easy to get previous table name
+            // when index === numColToGet
+            newTableNames[numColToGet + 1] = tableName;
+
+            // Check duplication
+            var tryCount  = 0;
+            var colPrefix = colName + "-split";
+            var isDup;
+
+            i = numColToGet;
+            while (i > 0 && tryCount <= 50) {
+                isDup = false;
+                ++tryCount;
+
+                for (i = numColToGet; i >= 1; i--) {
+                    newFieldNames[i] = colPrefix + "-" + i;
+
+                    for (var j = 0; j < numCols; j++) {
+                        if (tableCols[j].func.args) {
+                            if (newFieldNames[i] === tableCols[j].func.args[0]) {
+                                isDup = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isDup) {
+                        newFieldNames = [];
+                        colPrefix = colName + "-split-" + tryCount;
+                        break;
+                    }
+                }
+            }
+
+            if (tryCount > 50) {
+                console.warn("Too much try, overwrite origin col name!");
+                for (i = numColToGet; i >= 1; i--) {
+                    newFieldNames[i] = colName + "-split" + i;
+                }
+            }
+
+            var promises = [];
+            for (i = numColToGet; i >= 1; i--) {
+                promises.push(splitColHelper.bind(this, i, newTableNames[i + 1],
+                                                    newTableNames[i]));
+            }
+
+            return (chain(promises));
+        })
         .then(function(newTableId) {
             xcHelper.unlockTable(tableId, true);
             StatusMessage.success(msgId, false, newTableId);
@@ -429,10 +437,16 @@ window.ColManager = (function($, ColManager) {
         .fail(function(error) {
             xcHelper.unlockTable(tableId);
 
-            Alert.error("Split Column fails", error);
-            StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
+            if (error === cancelError) {
+                // XXX this part's status message may need refine
+                StatusMessage.success(msgId);
+                deferred.resolve();
+            } else {
+                Alert.error("Split Column fails", error);
+                StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
+                deferred.reject(error);
+            }
 
-            deferred.reject(error);
         });
 
         return (deferred.promise());
@@ -452,7 +466,6 @@ window.ColManager = (function($, ColManager) {
                 "fieldName"   : fieldName,
                 "mapString"   : mapString
             };
-
 
             WSManager.addTable(newTableId, currentWS);
 
@@ -489,6 +502,82 @@ window.ColManager = (function($, ColManager) {
             });
 
             return (innerDeferred.promise());
+        }
+
+        function getSplitNumHelper() {
+            var innerDeferred = jQuery.Deferred();
+
+            if (numColToGet != null) {
+                alertHelper(numColToGet, innerDeferred);
+                return (innerDeferred.promise());
+            }
+
+            var mapString    = 'countChar(' + backColName + ', "' +
+                                delimiter + '")';
+            var fieldName    = xcHelper.randName("mappedCol");
+            var curTableName = tableName;
+            var newTableName = xcHelper.randName(".tempMap") + "." + curTableName;
+            var sqlOptions   =  {
+                "operation"   : SQLOps.SplitColMap,
+                "action"      : "map",
+                "tableName"   : curTableName,
+                "newTableName": newTableName,
+                "fieldName"   : fieldName,
+                "mapString"   : mapString
+            };
+
+            XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
+            .then(function() {
+                var op = "MaxInteger";
+                sqlOptions = {
+                    "operation": SQLOps.SplitColMap,
+                    "action"   : "aggregate",
+                    "tableName": newTableName,
+                    "colName"  : fieldName,
+                    "aggrOp"   : op
+                };
+
+                return XcalarAggregate(fieldName, newTableName, op, sqlOptions);
+            })
+            .then(function(value) {
+                try {
+                    var val = JSON.parse(value);
+                    // Note that the splitColNum should be charCountNum + 1
+                    alertHelper(val.Value + 1, innerDeferred);
+                } catch (error) {
+                    innerDeferred.reject(error);
+                }
+
+                // XXX should delete this intermediate table after
+                // delete table's bug is resolved
+                //  XcalarDeleteTable(newTableName, sqlOptions)
+
+            })
+            .fail(function(error) {
+                innerDeferred.reject(error);
+            });
+
+            return (innerDeferred.promise());
+        }
+
+        function alertHelper(res, curDeferred) {
+            if (isAlertOn && res > 15) {
+                var text = "About " + res + " columns will be generated, " +
+                            "do you still want to continue the operation?";
+                Alert.show({
+                    "title"     : "Many Columns will generate",
+                    "msg"       : text,
+                    "isCheckBox": false,
+                    "confirm"   : function () {
+                        curDeferred.resolve(res);
+                    },
+                    "cancel": function() {
+                        curDeferred.reject(cancelError);
+                    }
+                });
+            } else {
+                curDeferred.resolve(res);
+            }
         }
     };
 
