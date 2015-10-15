@@ -6,7 +6,8 @@ window.AggModal = (function($, AggModal) {
     var $aggDropdown  = $("#aggOpSelect");
     var $aggTableName = $("#aggRoundedInput");
 
-    var aggrFunctions = ["Sum", "Avg", "Min", "Max", "Count"];
+    var aggrFunctions = [AggrOp.Sum, AggrOp.Avg, AggrOp.Min,
+                        AggrOp.Max, AggrOp.Count];
     var aggCols = [];
 
     AggModal.setup = function() {

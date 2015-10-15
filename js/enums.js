@@ -116,6 +116,17 @@ var keyCode = {
     End: 35
 };
 
+var AggrOp = {
+    "Max"       : "Max",
+    "Min"       : "Min",
+    "Avg"       : "Avg",
+    "Count"     : "Count",
+    "Sum"       : "Sum",
+    "MaxInteger": "MaxInteger",
+    "MinInteger": "MinInteger",
+    "SumInteger": "SumInteger"
+};
+
 var SQLType = {
     Fail: "fail handler"
 };

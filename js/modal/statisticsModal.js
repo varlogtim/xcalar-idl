@@ -5,11 +5,11 @@ window.STATSManager = (function($, STATSManager, d3) {
     // constants
     var aggKeys = ["min", "average", "max", "count", "sum"];
     var aggMap = {
-        "min"    : "Min",
-        "average": "Avg",
-        "max"    : "Max",
-        "count"  : "Count",
-        "sum"    : "Sum"
+        "min"    : AggrOp.Min,
+        "average": AggrOp.Avg,
+        "max"    : AggrOp.Max,
+        "count"  : AggrOp.Count,
+        "sum"    : AggrOp.Sum
     };
     var sortMap = {
         "asc"   : "asc",

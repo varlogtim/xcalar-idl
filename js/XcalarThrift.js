@@ -1067,33 +1067,33 @@ function generateAggregateString(fieldName, op) {
     var evalStr = "";
 
     switch (op) {
-    case ("Max"):
-        evalStr += "max(";
-        break;
-    case ("Min"):
-        evalStr += "min(";
-        break;
-    case ("Avg"):
-        evalStr += "avg(";
-        break;
-    case ("Count"):
-        evalStr += "count(";
-        break;
-    case ("Sum"):
-        evalStr += "sum(";
-        break;
-    // The following functions are not being called yet! GUI-1155
-    case ("MaxInteger"): // Feel free to change these
-        evalStr += "maxInteger(";
-        break;
-    case ("MinInteger"):
-        evalStr += "minInteger(";
-        break;
-    case ("SumInteger"):
-        evalStr += "sumInteger(";
-        break;
-    default:
-        console.log("bug!:" + op);
+        case (AggrOp.Max):
+            evalStr += "max(";
+            break;
+        case (AggrOp.Min):
+            evalStr += "min(";
+            break;
+        case (AggrOp.Avg):
+            evalStr += "avg(";
+            break;
+        case (AggrOp.Count):
+            evalStr += "count(";
+            break;
+        case (AggrOp.Sum):
+            evalStr += "sum(";
+            break;
+        // The following functions are not being called yet! GUI-1155
+        case (AggrOp.MaxInteger): // Feel free to change these
+            evalStr += "maxInteger(";
+            break;
+        case (AggrOp.MinInteger):
+            evalStr += "minInteger(";
+            break;
+        case (AggrOp.SumInteger):
+            evalStr += "sumInteger(";
+            break;
+        default:
+            console.log("bug!:" + op);
     }
     
     evalStr += fieldName;

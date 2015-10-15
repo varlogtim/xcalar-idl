@@ -528,7 +528,7 @@ window.ColManager = (function($, ColManager) {
 
             XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
             .then(function() {
-                var op = "MaxInteger";
+                var op = AggrOp.MaxInteger;
                 sqlOptions = {
                     "operation": SQLOps.SplitColMap,
                     "action"   : "aggregate",
