@@ -793,10 +793,10 @@ window.xcFunction = (function($, xcFunction) {
             //             "http://schrodinger/dogfood/widget/main.html?" +
             //             "rid=" + retName;
             var ins = "Table \"" + tableName + "\" was succesfully exported " +
-                      "to " + exportName + " under the name: " + exportName +
-                      ".";
-            var alertMsg = "File Name: " + exportName + "\n" +
-                            "File location: " + targetName;
+                      "to " + targetName + " under the name: " + exportName +
+                      ".csv;
+            var alertMsg = "File Name: " + exportName + ".csv\n" +
+                            "File Location: " + targetName;
 
             Alert.show({
                 "title"     : "Successful Export",
