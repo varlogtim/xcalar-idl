@@ -924,8 +924,10 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         function positionScrollBar(rowPercent, rowNum) {
             var translate;
+            var isFromInput = false;
 
             if (rowNum != null) {
+                isFromInput = true;
                 rowPercent = (totalNum === 1) ?
                                             0 : (rowNum - 1) / (totalNum - 1);
             } else {
@@ -933,7 +935,10 @@ window.STATSManager = (function($, STATSManager, d3) {
             }
 
             if ($rowInput.data("rowNum") === rowNum) {
-                // go to same row
+                // case of going to same row
+                // put the row scoller in right place
+                translate = getTranslate(rowPercent);
+                $scroller.css("transform", "translate(" + translate + "%, 0)");
                 return;
             }
 
@@ -951,18 +956,22 @@ window.STATSManager = (function($, STATSManager, d3) {
                 }
 
                 var oldTranslate = getTranslate(rowPercent);
-                rowPercent = (totalNum === 1) ?
+                if (isFromInput) {
+                    rowPercent = (totalNum === 1) ?
                                             0 : (rowNum - 1) / (totalNum - 1);
 
-                translate = getTranslate(rowPercent);
-                $scroller.addClass("scrolling")
-                    .css("transform", "translate(" + oldTranslate + "%, 0)");
+                    translate = getTranslate(rowPercent);
+                    $scroller.addClass("scrolling")
+                        .css("transform", "translate(" + oldTranslate + "%, 0)");
 
-                // use setTimout to have the animation
-                setTimeout(function() {
-                    $scroller.removeClass("scrolling")
-                        .css("transform", "translate(" + translate + "%, 0)");
-                }, 1);
+                    // use setTimout to have the animation
+                    setTimeout(function() {
+                        $scroller.removeClass("scrolling")
+                            .css("transform", "translate(" + translate + "%, 0)");
+                    }, 1);
+                } else {
+                    $scroller.css("transform", "translate(" + oldTranslate + "%, 0)");
+                }
             } else {
                 translate = getTranslate(rowPercent);
                 $scroller.css("transform", "translate(" + translate + "%, 0)");
