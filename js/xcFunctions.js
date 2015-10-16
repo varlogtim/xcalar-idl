@@ -794,7 +794,7 @@ window.xcFunction = (function($, xcFunction) {
             //             "rid=" + retName;
             var ins = "Table \"" + tableName + "\" was succesfully exported " +
                       "to " + targetName + " under the name: " + exportName +
-                      ".csv;
+                      ".csv";
             var alertMsg = "File Name: " + exportName + ".csv\n" +
                             "File Location: " + targetName;
 
