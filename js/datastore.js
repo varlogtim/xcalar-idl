@@ -1476,6 +1476,12 @@ window.DataPreview = (function($, DataPreview) {
             applyDelim();
         });
 
+        $suggSection.on("click", ".pipeDelim", function() {
+            delimiter = "|";
+            highlighter = "";
+            applyDelim();
+        });
+
         $suggSection.on("click", ".apply-all", function() {
             $("#preview-apply").click();
         });
@@ -1498,6 +1504,7 @@ window.DataPreview = (function($, DataPreview) {
             return (deferred.promise());
         }
 
+        var $applyBtnSection = $("#preview-apply").parent().hide();
         XcalarListFiles(loadURL)
         .then(function() {
             $("#importDataForm").addClass("previewMode");
@@ -1587,6 +1594,8 @@ window.DataPreview = (function($, DataPreview) {
                 }
 
                 $suggBtn.show();
+                $applyBtnSection.show();
+
                 $(window).on("resize", resizePreivewTable);
             })
             .then(function() {
@@ -1710,12 +1719,11 @@ window.DataPreview = (function($, DataPreview) {
 
         if (delimiter !== "") {
             $previewTable.addClass("has-delimiter");
-            suggestHelper("toRemoveDelim");
         } else {
             $previewTable.removeClass("has-delimiter");
-            suggestHelper("toHighLight");
         }
 
+        suggestHelper();
         resizePreivewTable();
     }
 
@@ -1775,7 +1783,7 @@ window.DataPreview = (function($, DataPreview) {
                     .closest("th").removeClass("undo-promote");
         }
 
-        suggestHelper("toRemoveDelim");
+        suggestHelper();
         resizePreivewTable();
     }
 
@@ -1795,7 +1803,6 @@ window.DataPreview = (function($, DataPreview) {
             // when remove highlight
             $highLightBtn.removeClass("active");
             $rmHightLightBtn.removeClass("active");
-            suggestHelper("toHighLight");
         } else {
             // valid highLighted char
             $highLightBtn.addClass("active");
@@ -1826,9 +1833,9 @@ window.DataPreview = (function($, DataPreview) {
                     }
                 }
             });
-
-            suggestHelper("toApplyDelim");
         }
+
+        suggestHelper();
     }
 
     function getTheadHTML(tdLen) {
@@ -1960,6 +1967,8 @@ window.DataPreview = (function($, DataPreview) {
                     cellClass += " has-margin has-tab";
                 } else if (d === ",") {
                     cellClass += " has-margin has-comma";
+                } else if (d === "|") {
+                    cellClass += " has-pipe";
                 }
                 html += '<span class="' + cellClass + '">' + d + '</span>';
             }
@@ -1997,13 +2006,14 @@ window.DataPreview = (function($, DataPreview) {
         }
     }
 
-    function suggestHelper(command) {
+    function suggestHelper() {
         var $suggSection = $("#previewSugg");
         var $content = $suggSection.find(".content");
         var html = "";
 
-        switch (command) {
-            case "toHighLight":
+        if (delimiter === "") {
+            if (highlighter === "") {
+                // case to choose a highlighter
                 var commaLen = $previewTable.find(".has-comma").length;
                 var tabLen   = $previewTable.find(".has-tab").length;
                 var commaHtml =
@@ -2022,15 +2032,22 @@ window.DataPreview = (function($, DataPreview) {
                         html = tabHtml + commaHtml;
                     }
                 } else {
+                    // one of comma and tab or both are 0
                     if (commaLen > 0) {
                         html = commaHtml;
-                    }
-
-                    if (tabLen > 0) {
+                    } else if (tabLen > 0) {
                         html = tabHtml;
+                    } else {
+                        // both comma and tab are zero
+                        if ($previewTable.find(".has-pipe").length >= 20) {
+                            // at least each row has pipe
+                            html =
+                                '<span class="action active pipeDelim">' +
+                                    'Apply pipe as delimiter' +
+                                '</span>';
+                        }
                     }
                 }
-
 
                 if (html === "") {
                     // select char
@@ -2045,10 +2062,8 @@ window.DataPreview = (function($, DataPreview) {
                             'Highlight another character as delimiter' +
                         '</span>';
                 }
-
-                break;
-            case "toApplyDelim":
-            // when highlight a delim
+            } else {
+                // case to remove or apply highlighter
                 html =
                     '<span class="action active apply-highlight">' +
                         'Apply hightlighted character as delimiter' +
@@ -2056,36 +2071,116 @@ window.DataPreview = (function($, DataPreview) {
                     '<span class="action active rm-highlight">' +
                         'Remove Highlights' +
                     '</span>';
-                break;
-            case "toRemoveDelim":
-            // when already apply delimiter
-                if (hasHeader) {
+            }
+        } else {
+            var shouldPromote = headerPromoteDetect();
+            // case to apply/replay delimiter promote/unpromote header
+            if (hasHeader) {
+                if (!shouldPromote) {
                     html +=
                         '<span class="action active promote">' +
                             'Undo promote header' +
                         '</span>';
-                } else {
+                }
+            } else {
+                if (shouldPromote) {
                     html +=
                         '<span class="action active promote">' +
                             'Promote first row as header' +
                         '</span>';
                 }
+            }
 
-                html +=
-                    '<span class="action active rm-highlight">' +
-                        'Remove Delimiter' +
-                    '</span>';
+            html +=
+                '<span class="action active rm-highlight">' +
+                    'Remove Delimiter' +
+                '</span>';
 
-                html +=
-                    '<span class="action active apply-all">' +
-                        'Apply changes & Exit preview' +
-                    '</span>';
-                break;
-            default:
-                html = "";
-                break;
+            html +=
+                '<span class="action active apply-all">' +
+                    'Apply changes & Exit preview' +
+                '</span>';
         }
+
         $content.html(html);
+    }
+
+    function headerPromoteDetect() {
+        if (delimiter === "") {
+            // has not specified delimiter
+            // not recommend to promote
+            return false;
+        }
+
+        var col;
+        var row;
+        var $trs = $previewTable.find("tbody tr");
+        var rowLen = $trs.length;
+        var headers = [];
+        var text;
+        var $headers = hasHeader ? $previewTable.find("thead tr .header") :
+                                    $trs.eq(0).children();
+        var colLen = $headers.length;
+        var score = 0;
+
+        for (col = 1; col < colLen; col++) {
+            text = hasHeader ? $headers.eq(col).find(".text").text() :
+                                $headers.eq(col).text();
+            if ($.isNumeric(text)) {
+                // if row has any empty value, or has number
+                // should not be header
+                return false;
+            } else if (text === "" || text == null) {
+                // ds may have case to have empty header
+                score -= 100;
+
+            }
+
+            headers[col] = text;
+        }
+
+        var tds = [];
+        var rowStart = hasHeader ? 0 : 1;
+
+        for (row = rowStart; row < rowLen; row++) {
+            tds[row] = [];
+            $tds = $trs.eq(row).children();
+            for (col = 1; col < colLen; col++) {
+                tds[row][col] = $tds.eq(col).text();
+            }
+        }
+
+        for (col = 1; col < colLen; col++) {
+            text = headers[col];
+            var textLen = text.length;
+
+            for (row = rowStart; row < rowLen; row++) {
+                var tdText = tds[row][col];
+                if ($.isNumeric(tdText)) {
+                    // header is string and td is number
+                    // valid this td
+                    score += 250;
+                    break;
+                } else if (tdText === "" || tdText == null) {
+                    // td is null but header is not
+                    score += 10;
+                } else {
+                    // the diff btw header and td is bigger, better
+                    var diff = Math.abs(textLen - tdText.length);
+                    if (diff === 0 && text === tdText) {
+                        score -= 20;
+                    } else {
+                        score += diff;
+                    }
+                }
+            }
+        }
+
+        if (rowLen === 0 || score / rowLen < 20) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     return (DataPreview);
