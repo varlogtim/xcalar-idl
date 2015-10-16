@@ -281,6 +281,29 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 header = true;
             }
 
+            var isValid  = xcHelper.validate([
+                {
+                    "$selector": $formatText,
+                    "check"    : function() {
+                        return (dsFormat == null);
+                    },
+                    "text": "No file format is selected," +
+                            " please choose a file format!"
+                },
+                {
+                    "$selector": $fileName,
+                    "check"    : DS.has,
+                    "formMode" : true,
+                    "text"     : "Dataset with the name " + dsName +
+                                 " already exits. Please choose another name."
+                }
+            ]);
+
+            if (!isValid) {
+                xcHelper.enableSubmit($submitBtn);
+                return;
+            }
+
             DatastoreForm.load(dsName, dsFormat, loadURL,
                                 fieldDelim, lineDelim, header,
                                 moduleName, funcName)
@@ -382,39 +405,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
     DatastoreForm.load = function(dsName, dsFormat, loadURL, fieldDelim, lineDelim, header, moduleName, funcName) {
         var deferred = jQuery.Deferred();
-
-        var isValid  = xcHelper.validate([
-            // check for "" should be kept for preview mode
-            // since it does't submit the form
-            {
-                "$selector": $fileName,
-                "check"    : function() {
-                    return (dsName === "");
-                },
-                "formMode": true,
-                "text"    : "Please fill out this field"
-            },
-            {
-                "$selector": $formatText,
-                "check"    : function() {
-                    return (dsFormat == null);
-                },
-                "text": "No file format is selected," +
-                        " please choose a file format!"
-            },
-            {
-                "$selector": $fileName,
-                "check"    : DS.has,
-                "formMode" : true,
-                "text"     : "Dataset with the name " + dsName +
-                             " already exits. Please choose another name."
-            }
-        ]);
-
-        if (!isValid) {
-            deferred.reject("Invalid Parameters");
-            return deferred.promise();
-        }
 
         // validation check of loadURL
         XcalarListFiles(loadURL)
@@ -1395,7 +1385,54 @@ window.DataPreview = (function($, DataPreview) {
         });
 
         $("#preview-apply").click(function() {
-            DataPreview.load();
+            var $fileName = $("#fileName");
+            var dsName = $fileName.val().trim();
+            var isValid = xcHelper.validate([
+                // check for "" should be kept for preview mode
+                // since it does't submit the form
+                {
+                   "$selector": $fileName,
+                    "check"    : function() {
+                        return (dsName === "");
+                    },
+                    "formMode": true,
+                    "text"    : "Please fill out this field"
+                },
+                {
+                    "$selector": $fileName,
+                    "check"    : DS.has,
+                    "formMode" : true,
+                    "text"     : "Dataset with the name " + dsName +
+                                 " already exits. Please choose another name."
+                }
+            ]);
+
+            if (!isValid) {
+                return;
+            }
+            // add alert
+            var instr = "Are you sure you want to load the dataset with" +
+                        " the following changes?";
+            if (delimiter.indexOf("\t") >= 0) {
+                instr += " (Note that \\t means tab)";
+            }
+            var msg = "Delimiter: ";
+            if (delimiter === "") {
+                msg += "Not Specified";
+            } else {
+                msg += JSON.stringify(delimiter);
+            }
+            msg += "\nHeader: ";
+            msg += hasHeader ? "First Row" : "Default";
+
+            Alert.show({
+                "title"  : "LOAD CONFIRMATION",
+                "instr"  : instr,
+                "msg"    : msg,
+                "confirm": function () {
+                    DataPreview.load();
+                }
+            });
         });
 
         // close preview

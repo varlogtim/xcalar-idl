@@ -26,6 +26,7 @@ window.Alert = (function($, Alert){
             title: titile of the alert
             instr: instruction information
             msg: alert cnotent
+            msgTemplate: instead of change alert text, change it's html
             isAlert: if it is an alert or a confirm
             isCheckBox: if checkbox is enabled or disabled
             modal: an modal element that trigger the alert
@@ -125,10 +126,14 @@ window.Alert = (function($, Alert){
         $("#alertHeader").find(".text").text(title);
 
         // set alert message
-        var msg           = options.msg || "";
         var $alertContent = $("#alertContent");
-
-        $alertContent.find(".text").text(msg);
+        var msgTemplate = options.msgTemplate || null;
+        if (msgTemplate != null) {
+            $alertContent.find(".text").html(msgTemplate);
+        } else {
+            var msg = options.msg || "";
+            $alertContent.find(".text").empty().text(msg);
+        }
 
         // set alert instruction
         var $alretInstr = $("#alertInstruction");
