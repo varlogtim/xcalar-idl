@@ -37,9 +37,6 @@ window.ExportModal = (function($, ExportModal) {
         $exportModal.on("click", ".confirm", function() {
             
             submitForm()
-            .then(function() {
-                closeExportModal();
-            })
             .fail(function(error) {
                 console.error(error);
                 // being handled in xcfunction.export
@@ -70,7 +67,8 @@ window.ExportModal = (function($, ExportModal) {
         });
 
         $exportColumns.keydown(function(event) {
-            if (event.which === keyCode.Backspace) { // backspace
+            if (event.which === keyCode.Backspace ||
+                event.which === keyCode.Delete) {
                 deselectColumnsOnKeyPress(event);
             }
         });
@@ -189,17 +187,25 @@ window.ExportModal = (function($, ExportModal) {
         var columnNames = columnsVal.split(",");
         columnNames = convertFrontColNamesToBack(columnNames);
 
+        var closeModal = true;
+
         xcFunction.exportTable(exportTableName, exportName, $exportPath.val(),
                                 columnNames.length, columnNames)
         .then(function() {
+            closeModal = false;
+            closeExportModal();
             deferred.resolve();
         })
         .fail(function(error) {
-            if (error.status !== StatusT.StatusDsODBCTableExists) {
-                closeExportModal();
-            }
+            closeModal = false;
             deferred.reject(error);
         });
+
+        setTimeout(function() {
+            if (closeModal) {
+                closeExportModal();
+            }
+        }, 200);
 
         return (deferred.promise());
     }
@@ -278,6 +284,7 @@ window.ExportModal = (function($, ExportModal) {
         var value = $exportColumns.val();
         var originalStart = $exportColumns[0].selectionStart;
         var originalEnd = $exportColumns[0].selectionEnd;
+        var selectLen = originalEnd - originalStart;
         var start = originalStart;
         var end = originalEnd;
         // var end;
@@ -285,6 +292,7 @@ window.ExportModal = (function($, ExportModal) {
         if (originalEnd === 0) {
             return;
         }
+
         if (value[originalStart - 1] === " ") {
             var endText = value.slice(originalStart - 1).trim();
             if (endText.length === 0) {
@@ -293,6 +301,18 @@ window.ExportModal = (function($, ExportModal) {
         }
 
         e.preventDefault();
+
+        if (value[originalStart] === "," && selectLen === 1) {
+            // only the comma is selected, just return
+            return;
+        }
+
+        if (value[originalStart] === "," && selectLen > 0) {
+            // shift the start up by one so we don't delete the string to the left
+            originalStart++;
+            start++;
+        }
+
         var selectStart = 0;
         var selectEnd = value.length;
         if (originalStart === originalEnd && value[originalStart - 1] === ",") {
@@ -359,7 +379,7 @@ window.ExportModal = (function($, ExportModal) {
         }
         $exportList.html(lis);
         var $defaultLi = $exportList.find('li').filter(function() {
-            return ($(this).text().indexOf('MySql_Test') === 0);
+            return ($(this).text().indexOf('Default') === 0);
         });
        
         $exportPath.val($defaultLi.text()).attr('value', $defaultLi.text());

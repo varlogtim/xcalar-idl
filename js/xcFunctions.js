@@ -814,7 +814,12 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            if (error.status === StatusT.StatusDsODBCTableExists) {
+            // if error is that export name already in use and modal is still 
+            // visible, then show a statusbox next to the name field
+            if ((error.status === StatusT.StatusDsODBCTableExists ||
+                error.status === StatusT.StatusExist) &&
+                $('#exportName:visible').length !== 0) {
+
                 var text = "Name is in use. Please choose a unique name.";
                 StatusBox.show(text, $('#exportName'), true);
             } else {
