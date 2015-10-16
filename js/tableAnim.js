@@ -1517,13 +1517,25 @@ function addColListeners($table, tableId) {
         if ($('th.selectedCell').length > 1) {
             options.classes += " type-multiColumn";
             options.multipleColNums = [];
+            var tableCols = gTables[tableId].tableCols;
+            var types = {};
+            var tempType = "type-" + tableCols[colNum - 1].type;
+            types[tempType] = true;
+
             var tempColNum;
             var hiddenDetected = false;
             $('th.selectedCell').each(function() {
                 tempColNum = xcHelper.parseColNum($(this));
                 options.multipleColNums.push(tempColNum);
                 if (!hiddenDetected && $(this).hasClass("userHidden")) {
+                    hiddenDetected = true;
                     options.classes += " type-hidden";
+                }
+
+                tempType = "type-" + tableCols[tempColNum - 1].type;
+                if (!types.hasOwnProperty(tempType)) {
+                    types[tempType] = true;
+                    options.classes += " " + tempType;
                 }
             });
         }
@@ -2045,7 +2057,29 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        changeColumnType($(this));
+
+        var $li = $(this);
+        var colTypeInfos = [];
+        var colNum;
+        var newType = $li.find(".label").text().toLowerCase();
+        if ($li.closest(".multiColumn").length !== 0) {
+            var colNums = $colMenu.data("columns");
+            for (var i = 0, len = colNums.length; i < len; i++) {
+                colNum = colNums[i];
+                colTypeInfos.push({
+                    "colNum": colNum,
+                    "type"  : newType
+                });
+            }
+        } else {
+            colNum = $colMenu.data("colNum");
+            colTypeInfos.push({
+                "colNum": colNum,
+                "type"  : newType
+            });
+        }
+
+        ColManager.changeType(colTypeInfos, tableId);
     });
 
     $colMenu.on('mouseup', '.sort .sort', function(event) {
@@ -2599,42 +2633,6 @@ function dropdownClick($el, options) {
 
     $('body').addClass('noSelection');
 }
-
-function changeColumnType($typeList) {
-    var newType  = $typeList.find(".label").text().toLowerCase();
-    var $colMenu = $typeList.closest('.colMenu');
-    var colNum   = $colMenu.data('colNum');
-    var tableId  = xcHelper.parseTableId($colMenu);
-    var col      = gTables[tableId].tableCols[colNum - 1];
-    var colName  = col.func.args[0];
-
-    var mapStr = "";
-    // here use front col name to generate newColName
-    var newColName = col.name + "_" + newType;
-    switch (newType) {
-    case ("boolean"):
-        mapStr += "bool(";
-        break;
-    case ("decimal"):
-        mapStr += "float(";
-        break;
-    case ("integer"):
-        mapStr += "int(";
-        break;
-    case ("string"):
-        mapStr += "string(";
-        break;
-    default:
-        console.warn("XXX no such operator! Will guess");
-        mapStr += newType + "(";
-        break;
-    }
-
-    mapStr += colName + ")";
-    var options = {"replaceColumn": true};
-    xcFunction.map(colNum, tableId, newColName, mapStr, options);
-}
-
 
 function resetColMenuInputs($el) {
     var tableId = xcHelper.parseTableId($el.closest('.xcTableWrap'));

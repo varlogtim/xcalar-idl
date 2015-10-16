@@ -18,6 +18,8 @@ StatusMessageTStr = {
 'AggregateFailed' : 'Aggregate failed',
 'SplitColumn': 'Split column',
 'SplitColumnFailed': 'Split column failed',
+'ChangeType': 'Change data type',
+"ChangeTypeFailed": 'Change data type failed',
 'OnColumn' : 'on column',
 'Sort' : 'Sorting column',
 'SortFailed' : 'Sort failed',

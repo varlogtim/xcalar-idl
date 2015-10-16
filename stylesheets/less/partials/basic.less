@@ -1015,8 +1015,11 @@ ul.colMenu {
         &>li {
             display: none !important;
         }
-        .deleteColumns, .hideColumns, .textAlignColumns {
-            display: list-item !important;
+
+        .multiColumn {
+            &.deleteColumns, &.hideColumns, &.textAlignColumns, &.changeDataType {
+                display: list-item !important;
+            }
         }
 
         &.type-hidden {
@@ -1024,6 +1027,24 @@ ul.colMenu {
                 display: list-item !important;
             }
         }
+
+        &.type-object, &.type-array, &.type-undefined {
+            .multiColumn {
+                &.changeDataType {
+                    display: none !important;
+                }
+            }
+        }
+
+        &.type-string.type-integer.type-decimal.type-boolean {
+            // case that no type to change
+            .multiColumn {
+                &.changeDataType {
+                    display: none !important;
+                }
+            }
+        }
+
     }
 
     &.type-string, &.type-array {

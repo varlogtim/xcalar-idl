@@ -208,6 +208,10 @@ window.Replay = (function($, Replay) {
                 return replaySplitCol(options);
             case SQLOps.SplitColMap:
                 break;
+            case SQLOps.ChangeType:
+                return replayChangeType(options);
+            case SQLOps.ChangeTypeMap:
+                break;
             default:
                 console.error("Unknown operation", operation);
                 deferred.reject("Unknown operation");
@@ -321,6 +325,7 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.ExportTable] = ["tableName", "exportName"];
         argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
                                     "delimiter", "numColToGet"];
+        argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
     }
 
     function createTabMap() {
@@ -368,6 +373,8 @@ window.Replay = (function($, Replay) {
         tabMap[SQLOps.Profile] = Tab.WS;
         tabMap[SQLOps.QuickAgg] = Tab.WS;
         tabMap[SQLOps.AddDS] = Tab.DS;
+        tabMap[SQLOps.SplitCol] = Tab.WS;
+        tabMap[SQLOps.ChangeType] = Tab.WS;
     }
 
     function replayLoadDS(options) {
@@ -1102,9 +1109,14 @@ window.Replay = (function($, Replay) {
     }
 
     function replaySplitCol(options) {
-        // XXX not tested yet!!!
         var args = getArgs(options);
         return (ColManager.splitCol.apply(window, args));
+    }
+
+    function replayChangeType(options) {
+        // XXX not test yet!
+        var args = getArgs(options);
+        return (ColManager.changeType.apply(window, args));
     }
 
     return (Replay);

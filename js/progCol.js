@@ -332,6 +332,159 @@ window.ColManager = (function($, ColManager) {
         return (deferred.promise());
     };
 
+    ColManager.changeType = function(colTypeInfos, tableId) {
+        var deferred = jQuery.Deferred();
+
+        var numColInfos = colTypeInfos.length;
+        var currentWS   = WSManager.getActiveWS();
+        var table       = gTables[tableId];
+        var tableName   = table.tableName;
+        var tableCols   = table.tableCols;
+
+        var msg = StatusMessageTStr.ChangeType;
+        var msgObj = {
+            "msg"      : msg,
+            "operation": SQLOps.ChangeType
+        };
+        var msgId = StatusMessage.addMsg(msgObj);
+        var tableNamePart = tableName.split("#")[0];
+        var newTableNames = [];
+        var newFieldNames = [];
+        var mapStrings = [];
+
+        xcHelper.lockTable(tableId);
+
+        var i;
+        var colInfo;
+        var col;
+        for (i = numColInfos - 1; i >= 0; i--) {
+            newTableNames[i] = tableNamePart + Authentication.getHashId();
+            colInfo = colTypeInfos[i];
+            col = tableCols[colInfo.colNum - 1];
+            // here use front col name to generate newColName
+            newFieldNames[i] = col.name + "_" + colInfo.type;
+            mapStrings[i] = mapStrHelper(col.func.args[0], colInfo.type);
+        }
+
+        // this makes it easy to get previous table name
+        // when index === numColInfos
+        newTableNames[numColInfos] = tableName;
+
+        var promises = [];
+        for (i = numColInfos - 1; i >= 0; i--) {
+            promises.push(chagneTypeHelper.bind(this, i));
+        }
+
+        chain(promises)
+        .then(function(newTableId) {
+            xcHelper.unlockTable(tableId, true);
+            StatusMessage.success(msgId, false, newTableId);
+
+            SQL.add("Change Data Type", {
+                "operation"   : SQLOps.ChangeType,
+                "tableName"   : tableName,
+                "tableId"     : tableId,
+                "newTableName": newTableNames[0],
+                "colTypeInfos": colTypeInfos
+            });
+
+            commitToStorage();
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            xcHelper.unlockTable(tableId);
+
+            Alert.error("Change Data Type Fails", error);
+            StatusMessage.fail(StatusMessageTStr.SplitColumnFailed, msgId);
+            deferred.reject(error);
+        });
+
+        return (deferred.promise());
+
+        function chagneTypeHelper(index) {
+            var innerDeferred = jQuery.Deferred();
+
+            var curTableName = newTableNames[index + 1];
+            var newTableName = newTableNames[index];
+            var fieldName    = newFieldNames[index];
+            var mapString    = mapStrings[index];
+            var newTableId   = xcHelper.getTableId(newTableName);
+            var curColNum    = colTypeInfos[index].colNum;
+
+            var sqlOptions = {
+                "operation"   : SQLOps.ChangeTypeMap,
+                "action"      : "map",
+                "tableName"   : curTableName,
+                "newTableName": newTableName,
+                "fieldName"   : fieldName,
+                "mapString"   : mapString
+            };
+
+            WSManager.addTable(newTableId, currentWS);
+
+            XcalarMap(fieldName, mapString, curTableName, newTableName, sqlOptions)
+            .then(function() {
+                var mapOptions   = { "replaceColumn": true };
+                var curTableId   = xcHelper.getTableId(curTableName);
+                var curTableCols = gTables[curTableId].tableCols;
+
+                var newTablCols  = xcHelper.mapColGenerate(curColNum, fieldName,
+                                        mapString, curTableCols, mapOptions);
+                var tableProperties = {
+                    "bookmarks" : xcHelper.deepCopy(table.bookmarks),
+                    "rowHeights": xcHelper.deepCopy(table.rowHeights)
+                };
+
+                // map do not change groupby stats of the table
+                STATSManager.copy(curTableId, newTableId);
+
+                return (setgTable(newTableName, newTablCols, null, tableProperties));
+            })
+            .then(function() {
+                var refreshOptions = {};
+                if (index > 0) {
+                    refreshOptions = { "lockTable": true };
+                }
+                return (refreshTable(newTableName, curTableName, refreshOptions));
+            })
+            .then(function() {
+                innerDeferred.resolve(newTableId);
+            })
+            .fail(function(error) {
+                WSManager.removeTable(newTableId);
+                innerDeferred.reject(error);
+            });
+
+            return (innerDeferred.promise());
+        }
+
+        function mapStrHelper(colName, colType) {
+            var mapStr = "";
+            switch (colType) {
+                case ("boolean"):
+                    mapStr += "bool(";
+                    break;
+                case ("decimal"):
+                    mapStr += "float(";
+                    break;
+                case ("integer"):
+                    mapStr += "int(";
+                    break;
+                case ("string"):
+                    mapStr += "string(";
+                    break;
+                default:
+                    console.warn("XXX no such operator! Will guess");
+                    mapStr += colType + "(";
+                    break;
+            }
+
+            mapStr += colName + ")";
+
+            return (mapStr);
+        }
+    };
+
     ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet, isAlertOn) {
         // isAlertOn is a flag to alert too many column will generate
         // when do replay, this flag is null, so no alert

@@ -190,5 +190,7 @@ var SQLOps = {
     QuickAggAction: "quickAggAction",
     QuickAgg: "quickAgg",
     SplitCol: "splitCol",
-    SplitColMap: "spltColMap"
+    SplitColMap: "spltColMap",
+    ChangeType: "changeType",
+    ChangeTypeMap: "changeTypeMap"
 };

@@ -798,6 +798,25 @@ function generateColDropDown(tableId) {
         '</ul>' +
         '<div class="dropdownBox"></div>' +
     '</li>' +
+    '<li class="multiColumn changeDataType thDropdown">Change data type' +
+        '<ul class="subColMenu">';
+
+    types.forEach(function(type) {
+        dropDownHTML +=
+            '<li class="flexContainer flexRow typeList type-' +
+                type.toLowerCase() + '">' +
+                '<div class="flexWrap flex-left">' +
+                    '<span class="type icon"></span>' +
+                '</div>' +
+                '<div class="flexWrap flex-right">' +
+                    '<span class="label">' + type + '</span>' +
+                '</div>' +
+            '</li>';
+    });
+    dropDownHTML +=
+            '<div class="subColMenuArea"></div>' +
+        '</ul>' +
+        '<div class="dropdownBox"></div>' +
     '<li class="tdFilter tdDropdown">Filter this value</li>' +
     '<li class="tdExclude tdDropdown">Exclude this value</li>' +
     '<li class="tdJsonModal tdDropdown">Examine</li>' +
