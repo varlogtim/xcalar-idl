@@ -573,7 +573,11 @@ window.OperationsModal = (function($, OperationsModal) {
             if (inputNum === 1 && operatorName !== "aggregate") {
                 inputNumToFocus++;
             }
+            
             var $input = $operationsModal.find('input').eq(inputNumToFocus);
+            if (inputNum === 1 && !$input.is(':visible')) {
+                $input = $operationsModal.find('input:visible').last();
+            }
             $input.focus();
             var val = $input.val();
             $input[0].selectionStart = $input[0].selectionEnd = val.length;
@@ -1392,7 +1396,11 @@ window.OperationsModal = (function($, OperationsModal) {
         for (var i = 0; i < args.length; i++) {
             mapString += args[i] + ", ";
         }
-        mapString = mapString.slice(0, -2);
+        // remove last comma and space;
+        if (args.length > 0) {
+            mapString = mapString.slice(0, -2);
+        }
+        
         mapString += ")";
         return (mapString);
     }
@@ -1402,7 +1410,11 @@ window.OperationsModal = (function($, OperationsModal) {
         for (var i = 0; i < args.length; i++) {
             filterString += args[i] + ", ";
         }
-        filterString = filterString.slice(0, -2);
+        // remove last comma and space;
+        if (args.length > 0) {
+            filterString = filterString.slice(0, -2);
+        }
+        
         filterString += ")";
         return (filterString);
     }

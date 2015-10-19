@@ -770,12 +770,12 @@ window.RightSideBar = (function($, RightSideBar) {
 
             if (val === "") {
                 text = "File Path is empty," +
-                           " please choose a file you want to upload";
+                           " please choose a file you want to upload.";
 
                 StatusBox.show(text, $filePath, true, 190);
             } else if (path === "") {
                 text = "File Path is invalid," +
-                           " please choose a file you want to upload";
+                           " please choose a file you want to upload.";
 
                 StatusBox.show(text, $filePath, true, 190);
             } else {
@@ -849,7 +849,7 @@ window.RightSideBar = (function($, RightSideBar) {
             var fileName = $fnName.val();
             var text;
             if (fileName === "") {
-                text = "Module name is empty, please input a module name!";
+                text = "Module name is empty, please input a module name.";
                 StatusBox.show(text, $fnName, true, 50);
                 return;
             }
@@ -1083,7 +1083,7 @@ window.RightSideBar = (function($, RightSideBar) {
 
         if ($noSheetTables.length > 0) {
             var instr = "You have tables that are not in any worksheet," +
-                        " please choose a worksheet to send for those tables!";
+                        " please choose a worksheet for these tables!";
 
             $noSheetTables.addClass("highlight");
             // must get highlight class  from source
