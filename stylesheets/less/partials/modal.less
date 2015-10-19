@@ -1884,6 +1884,17 @@ html.microsoft {
     .modalBuilder(710px, 370px);
     display: none;
 
+    &.noScrollBar {
+        .size(@height: 325px);
+        .modalTopMain {
+            .size(@height: ~"calc(100% - 219px)", @min-height: 105px);
+        }
+
+        .modalMain {
+            .size(@height: 75px);
+        }
+    }
+
     .disabled {
         pointer-events: none;
     }
@@ -1903,12 +1914,13 @@ html.microsoft {
 
     .modalTopMain {
         .noSelection;
-        .size(@height: 105px);
+        .size(@height: ~"calc(100% - 264px)", @min-height: 105px);
+        .position(relative);
         padding: 5px 0;
         background-color: @color-background-topForm;
 
         .loadingSection {
-            .size(@width: 100%, @height: 95px);
+            .size(@width: 100%, @height: 100%);
             .position(absolute);
             .waitingIcon {
                 display: block;
@@ -1917,7 +1929,7 @@ html.microsoft {
         }
 
         .groubyInfoSection {
-            .size(@width: 100%, @height: 95px);
+            .size(@width: 100%, @height: 100%);
             padding: 0 20px 2px 20px;
 
             .barArea {

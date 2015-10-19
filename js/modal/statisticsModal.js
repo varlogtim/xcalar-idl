@@ -38,8 +38,24 @@ window.STATSManager = (function($, STATSManager, d3) {
     var order = sortMap.origin;
     var statsCol = null;
     var percentageLabel = false;
+    var minHeight = 370;
+    var minWidth = 710;
 
     STATSManager.setup = function() {
+        $statsModal.resizable({
+            handles    : "n, e, s, w, se",
+            minHeight  : minHeight,
+            minWidth   : minWidth,
+            containment: "document",
+            resize     : function() {
+                if (statsCol.groupByInfo &&
+                    statsCol.groupByInfo.isComplete === true)
+                {
+                    buildGroupGraphs(null, true);
+                }
+            }
+        });
+
         $statsModal.on("click", ".cancel, .close", function() {
             closeStats();
             SQL.add("Close Profile", {
@@ -258,7 +274,6 @@ window.STATSManager = (function($, STATSManager, d3) {
 
     function showStats() {
         centerPositionElement($statsModal);
-
         if (gMinModeOn) {
             $modalBg.show();
             $statsModal.show().data("id", statsCol.modalId);
@@ -271,6 +286,8 @@ window.STATSManager = (function($, STATSManager, d3) {
             });
         }
 
+        $statsModal.addClass("noScrollBar");
+        $statsModal.find(".scrollSection").hide();
         $modalBg.on("mouseover.statsModal", function() {
             $(".barArea").tooltip("hide")
                         .attr("class", "barArea");
@@ -295,7 +312,8 @@ window.STATSManager = (function($, STATSManager, d3) {
                                     .addClass("animatedEllipsis");
             } else {
                 $aggInfoSection.find("." + aggkey)
-                            .removeClass("animatedEllipsis").text(aggVal);
+                            .removeClass("animatedEllipsis")
+                            .text(aggVal.toLocaleString());
             }
         });
 
@@ -401,7 +419,8 @@ window.STATSManager = (function($, STATSManager, d3) {
                 $statsModal.data("id") === curStatsCol.modalId)
             {
                 $statsModal.find(".aggInfoSection ." + aggkey)
-                        .removeClass("animatedEllipsis").text(val);
+                        .removeClass("animatedEllipsis")
+                        .text(val.toLocaleString());
             }
 
             deferred.resolve();
@@ -673,7 +692,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         return (data);
     }
 
-    function buildGroupGraphs(initial) {
+    function buildGroupGraphs(initial, resize) {
         var xName = statsCol.colName;
         var yName = statsColName;
         var groupByInfo = statsCol.groupByInfo;
@@ -681,10 +700,10 @@ window.STATSManager = (function($, STATSManager, d3) {
         var $section = $statsModal.find(".groubyInfoSection");
         var data = groupByData;
 
-        var maxRectW = 70;
         var sectionWidth = $section.width();
-        var chartWidth   = Math.min(sectionWidth, maxRectW * data.length);
-        var chartHeight  = $section.height();
+        var maxRectW = Math.floor(sectionWidth / 706 * 70);
+        var chartWidth  = Math.min(sectionWidth, maxRectW * data.length);
+        var chartHeight = $section.height();
 
         var marginBottom = 10;
         var height = chartHeight - marginBottom;
@@ -699,26 +718,69 @@ window.STATSManager = (function($, STATSManager, d3) {
         var xWidth = x.rangeBand();
         // 5.1 is the width of a char in .xlabel
         var charLenToFit = Math.floor(xWidth / 5.1);
-
+        var left = (sectionWidth - chartWidth) / 2;
         var chart;
+        var barAreas;
+
         if (initial) {
             $statsModal.find(".groupbyChart").empty();
 
-            var left = (sectionWidth - chartWidth) / 2;
             chart = d3.select("#statsModal .groupbyChart")
                 .attr("width", chartWidth)
                 .attr("height", chartHeight)
-                .attr("style", "position:relative; left:" + left + "px;")
+                .style("position", "relative")
+                .style("left", left)
             .append("g")
                 .attr("class", "barChart")
                 .attr("transform", "translate(0, 0)");
+        } else if (resize) {
+            chart = d3.select("#statsModal .groupbyChart .barChart");
+
+            d3.select("#statsModal .groupbyChart")
+                .attr("width", chartWidth)
+                .attr("height", chartHeight)
+                .style("left", left);
+
+            var time = 60;
+            barAreas = chart.selectAll(".barArea");
+
+            barAreas.select(".bar")
+                .transition()
+                .duration(time)
+                .attr("x", function(d) { return x(d[xName]); })
+                .attr("y", function(d) { return y(d[yName]); })
+                .attr("height", function(d) { return height - y(d[yName]); })
+                .attr("width", xWidth);
+
+            barAreas.select(".bar-extra")
+                .transition()
+                .duration(time)
+                .attr("x", function(d) { return x(d[xName]); })
+                .attr("height", height)
+                .attr("width", xWidth);
+            // label
+            barAreas.select(".xlabel")
+                .transition()
+                .duration(time)
+                .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
+                .attr("width", xWidth)
+                .text(getLabel);
+            // tick
+            barAreas.select(".tick")
+                .transition()
+                .duration(time)
+                .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
+                .attr("y", chartHeight)
+                .attr("width", xWidth)
+                .text(getXAxis);
+
+            return;
         } else {
             chart = d3.select("#statsModal .groupbyChart .barChart");
         }
 
-
         // rect bars
-        var barAreas = chart.selectAll(".barArea").data(data);
+        barAreas = chart.selectAll(".barArea").data(data);
 
         // update
         barAreas.attr("class", getTooltipAndClass);
@@ -727,7 +789,8 @@ window.STATSManager = (function($, STATSManager, d3) {
                 .transition()
                 .duration(150)
                 .attr("y", function(d) { return y(d[yName]); })
-                .attr("height", function(d) { return height - y(d[yName]); });
+                .attr("height", function(d) { return height - y(d[yName]); })
+                .attr("width", xWidth);
 
         barAreas.select(".tick")
                 .text(getXAxis);
@@ -781,8 +844,8 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         function getXAxis(d) {
             var name = d[xName];
-            if (name.length > 4) {
-                return (name.substring(0, 4) + "..");
+            if (name.length > charLenToFit) {
+                return (name.substring(0, charLenToFit) + "..");
             } else {
                 return name;
             }
@@ -824,7 +887,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                         "Percentage: " + per;
             } else {
                 title = xName + ": " + d[xName] + "\r\n" +
-                    "Frequency: " + d[yName].toLocaleString("en");
+                    "Frequency: " + d[yName].toLocaleString();
             }
 
             var options = $.extend({}, tooltipOptions, {
@@ -846,18 +909,28 @@ window.STATSManager = (function($, STATSManager, d3) {
         var totalNum = totalRows;
 
         var $section = $statsModal.find(".scrollSection");
+        if (totalNum <= numRowsToFetch) {
+            return;
+        }
+
+        $statsModal.removeClass("noScrollBar");
+        if (gMinModeOn) {
+            $section.show();
+        } else {
+            $section.slideDown(100);
+        }
+
         var $scrollerArea = $section.find(".rowScrollArea");
         
         var $maxRange = $section.find(".max-range");
         var $rowInput = $("#stats-rowInput").val(1).data("rowNum", 1);
 
         // set width of elements
-        $maxRange.text(totalNum.toLocaleString("en"));
+        $maxRange.text(totalNum.toLocaleString());
         $rowInput.width($maxRange.width() + 5); // 5 is for input padding
 
-        var width = $section.width() -
-                    $section.find(".rowInput").outerWidth() - 1;
-        $scrollerArea.outerWidth(width);
+        var extraWidth = $section.find(".rowInput").outerWidth() + 1;
+        $scrollerArea.css("width", "calc(100% - " + extraWidth + "px)");
 
         // move scroll bar event, setup it here since we need statsCol info
         var $scrollerBar = $scrollerArea.find(".scrollBar");
