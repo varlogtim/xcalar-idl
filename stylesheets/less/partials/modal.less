@@ -1332,9 +1332,7 @@ html.microsoft {
                 overflow: hidden;
 
                 > section {
-                    .rounded(0 3px 0 0);
                     padding: 5px 10px;
-                    width: 850px
                 }
 
                 .title {
@@ -1342,7 +1340,7 @@ html.microsoft {
                     .rounded;
                     color: #5e5e5e;
                     display: inline-block;
-                    width: 152px;
+                    width: ~"calc(20% - 5px)";
                     float: left;
 
                     .label {
@@ -1378,14 +1376,12 @@ html.microsoft {
                 .rounded(0 0 3px 0);
                 background: #fdfdfd;
                 overflow: auto;
-                padding: 0 10px;
                 box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.5);
                 height: ~"calc(100% - 42px)";
 
                 .grid-unit {
                     white-space: nowrap;
-                    width: 800px;
-                    padding-left: 1px;
+                    padding: 0 11px;
                     > div {
                         color: #808080;
                         padding-right: 5px;
@@ -1394,7 +1390,8 @@ html.microsoft {
                         display: inline-block;
                         white-space: nowrap;
                         .textOverflow;
-                        width: 152px;
+                        width: ~"calc(20% - 5px)";
+                        float: left;
                     }
 
                     &:nth-child(even) > div {
