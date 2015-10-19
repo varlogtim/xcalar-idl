@@ -257,6 +257,9 @@ window.DatastoreForm = (function($, DatastoreForm) {
         };
         $form.submit(function(event) {
             event.preventDefault();
+            if ($form.hasClass("previewMode")) {
+                return;
+            }
 
             var $submitBtn = $(this).blur();
             xcHelper.disableSubmit($submitBtn);
@@ -1541,6 +1544,13 @@ window.DataPreview = (function($, DataPreview) {
             return (deferred.promise());
         }
 
+        $("#importDataForm").on("keypress.preview", function(event) {
+            if (event.which === keyCode.Enter) {
+                $("#preview-apply").click();
+                return false;
+            }
+        });
+
         var $applyBtnSection = $("#preview-apply").parent().hide();
         XcalarListFiles(loadURL)
         .then(function() {
@@ -1689,6 +1699,7 @@ window.DataPreview = (function($, DataPreview) {
         $previewTable.removeClass("has-delimiter").empty();
         toggleSuggest(false, true);
         $(window).off("resize", resizePreivewTable);
+        $("#importDataForm").off("keypress.preview");
 
         rawData = null;
         hasHeader = false;
