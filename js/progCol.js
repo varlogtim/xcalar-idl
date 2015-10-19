@@ -744,6 +744,11 @@ window.ColManager = (function($, ColManager) {
         $table.find('.editableHead.col' + colNum).val(newName)
                                                 .attr("value", newName);
 
+        // adjust rightsidebar column name
+        $('#activeTablesList').find('.tableInfo[data-id=' + tableId + ']')
+                              .find('.column').eq(colNum - 1)
+                              .text(newName);
+
         SQL.add("Rename Column", {
             "operation": SQLOps.RenameCol,
             "tableName": table.tableName,
