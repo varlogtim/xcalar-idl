@@ -1411,23 +1411,19 @@ window.DataPreview = (function($, DataPreview) {
                 return;
             }
             // add alert
-            var instr = "Are you sure you want to load the dataset with" +
-                        " the following changes?";
-            if (delimiter.indexOf("\t") >= 0) {
-                instr += " (Note that \\t means tab)";
+            var msg;
+            if (delimiter === "" && !hasHeader) {
+                msg = "You have not chosen a delimiter and " +
+                        "header row,\n";
+            } else if (delimiter === ""){
+                msg = "You have not chosen a delimiter,\n";
+            } else if (!hasHeader) {
+                msg = "You have not chosen a header row,\n";
             }
-            var msg = "Delimiter: ";
-            if (delimiter === "") {
-                msg += "Not Specified";
-            } else {
-                msg += JSON.stringify(delimiter);
-            }
-            msg += "\nHeader: ";
-            msg += hasHeader ? "First Row" : "Default";
+            msg += "are you sure you want to continue?";
 
             Alert.show({
-                "title"  : "LOAD CONFIRMATION",
-                "instr"  : instr,
+                "title"  : "LOAD DATASET CONFIRMATION",
                 "msg"    : msg,
                 "confirm": function () {
                     DataPreview.load();
