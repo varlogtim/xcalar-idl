@@ -668,26 +668,31 @@ window.TestSuite = (function($, TestSuite) {
         checkExists([".modalHeader .text:contains('Profile')",
                      ".barArea .xlabel:contains('205')"], 30000)
         .then(function() {
-            assert($(".barChart .barArea").length === 8);
-            assert($(".barArea .xlabel").eq(0).text() === "205");
-            assert($(".barArea .xlabel").eq(1).text() === "207");
-            assert($(".barArea .xlabel").eq(2).text() === "193");
-            assert($(".barArea .xlabel").eq(3).text() === "626");
-            assert($(".barArea .xlabel").eq(4).text() === "163");
-            assert($(".barArea .xlabel").eq(5).text() === "134");
-            assert($(".barArea .xlabel").eq(6).text() === "153");
-            assert($(".barArea .xlabel").eq(7).text() === "272");
-            assert($(".aggInfoSection .min").text() === "1");
-            assert($(".aggInfoSection .count").text() === "1953");
-            assert($(".aggInfoSection .average").text() === "6.506912");
-            assert($(".aggInfoSection .sum").text() === "12708");
-            assert($(".aggInfoSection .max").text() === "12");
-            $(".sort.asc .icon").click();
             setTimeout(function() {
-                assert($(".barArea .xlabel").eq(0).text() === "134");
-                assert($(".barArea .xlabel").eq(7).text() === "626");
-                $("#statsModal .modalBottom button").click();
-                TestSuite.pass(deferred, testName, currentTestNumber);
+                assert($(".barChart .barArea").length === 8);
+                assert($(".barArea .xlabel").eq(0).text() === "205");
+                assert($(".barArea .xlabel").eq(1).text() === "207");
+                assert($(".barArea .xlabel").eq(2).text() === "193");
+                assert($(".barArea .xlabel").eq(3).text() === "626");
+                assert($(".barArea .xlabel").eq(4).text() === "163");
+                assert($(".barArea .xlabel").eq(5).text() === "134");
+                assert($(".barArea .xlabel").eq(6).text() === "153");
+                assert($(".barArea .xlabel").eq(7).text() === "272");
+                assert($(".aggInfoSection .min").text() === "1");
+                assert($(".aggInfoSection .count").text() ===
+                        Number(1953).toLocaleString());
+                assert($(".aggInfoSection .average").text() ===
+                        Number(6.506912).toLocaleString());
+                assert($(".aggInfoSection .sum").text() ===
+                        Number(12708).toLocaleString());
+                assert($(".aggInfoSection .max").text() === "12");
+                $(".sort.asc .icon").click();
+                setTimeout(function() {
+                    assert($(".barArea .xlabel").eq(0).text() === "134");
+                    assert($(".barArea .xlabel").eq(7).text() === "626");
+                    $("#statsModal .modalBottom button").click();
+                    TestSuite.pass(deferred, testName, currentTestNumber);
+                }, 1000);
             }, 1000);
         });
     }
