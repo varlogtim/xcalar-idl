@@ -842,6 +842,18 @@ window.STATSManager = (function($, STATSManager, d3) {
         // exit
         barAreas.exit().remove();
 
+        if (initial) {
+            chart.append("rect")
+                .attr("class", "cover")
+                .attr("width", chartWidth)
+                .attr("height", chartHeight)
+                .attr("x", 0)
+                .transition()
+                .duration(500)
+                .attr("x", chartWidth)
+                .remove();
+        }
+
         function getXAxis(d) {
             var name = d[xName];
             if (name.length > charLenToFit) {
