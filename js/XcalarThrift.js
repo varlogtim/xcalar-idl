@@ -1222,7 +1222,7 @@ function XcalarQuery(queryName, queryString) {
         return (deferred.promise());
     }
 
-    xcalarQuery(tHandle, queryName, queryString, false, "", true)
+    xcalarQuery(tHandle, queryName, queryString, false, "")
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarQuery", error));
@@ -1430,7 +1430,7 @@ function XcalarKeyLookup(key) {
         return (deferred.promise());
     }
 
-    xcalarKeyLookup(tHandle, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, key)
+    xcalarKeyLookup(tHandle, key)
     .then(deferred.resolve)
     .fail(function(error) {
         // it's normal to find an unexisted key.
@@ -1459,8 +1459,7 @@ function XcalarKeyPut(key, value, persist) {
     if (persist == null) {
         persist = false;
     }
-    xcalarKeyAddOrReplace(tHandle, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-                          key, value, persist)
+    xcalarKeyAddOrReplace(tHandle, key, value, persist)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarKeyPut", error));
@@ -1479,8 +1478,7 @@ function XcalarKeyDelete(key) {
         return (deferred.promise());
     }
 
-    xcalarKeyDelete(tHandle, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-                    key)
+    xcalarKeyDelete(tHandle, key)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarKeyDelete", error);

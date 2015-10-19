@@ -1026,6 +1026,154 @@ XcalarApiKeyAddOrReplaceInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiKeyAppendInputT = function(args) {
+  this.key = null;
+  this.suffix = null;
+  if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+    if (args.suffix !== undefined) {
+      this.suffix = args.suffix;
+    }
+  }
+};
+XcalarApiKeyAppendInputT.prototype = {};
+XcalarApiKeyAppendInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.suffix = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiKeyAppendInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiKeyAppendInputT');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
+  if (this.suffix !== null && this.suffix !== undefined) {
+    output.writeFieldBegin('suffix', Thrift.Type.STRING, 2);
+    output.writeString(this.suffix);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiKeyReplaceIfEqualInputT = function(args) {
+  this.key = null;
+  this.oldValue = null;
+  this.newValue = null;
+  if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+    if (args.oldValue !== undefined) {
+      this.oldValue = args.oldValue;
+    }
+    if (args.newValue !== undefined) {
+      this.newValue = args.newValue;
+    }
+  }
+};
+XcalarApiKeyReplaceIfEqualInputT.prototype = {};
+XcalarApiKeyReplaceIfEqualInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.oldValue = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.newValue = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiKeyReplaceIfEqualInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiKeyReplaceIfEqualInputT');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
+  if (this.oldValue !== null && this.oldValue !== undefined) {
+    output.writeFieldBegin('oldValue', Thrift.Type.STRING, 2);
+    output.writeString(this.oldValue);
+    output.writeFieldEnd();
+  }
+  if (this.newValue !== null && this.newValue !== undefined) {
+    output.writeFieldBegin('newValue', Thrift.Type.STRING, 3);
+    output.writeString(this.newValue);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiKeyLookupOutputT = function(args) {
   this.value = null;
   if (args) {
@@ -6930,6 +7078,8 @@ XcalarApiInputT = function(args) {
   this.sessionListInput = null;
   this.sessionRenameInput = null;
   this.createDhtInput = null;
+  this.keyAppendInput = null;
+  this.keyReplaceIfEqualInput = null;
   this.deleteDhtInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
@@ -7075,6 +7225,12 @@ XcalarApiInputT = function(args) {
     }
     if (args.createDhtInput !== undefined) {
       this.createDhtInput = args.createDhtInput;
+    }
+    if (args.keyAppendInput !== undefined) {
+      this.keyAppendInput = args.keyAppendInput;
+    }
+    if (args.keyReplaceIfEqualInput !== undefined) {
+      this.keyReplaceIfEqualInput = args.keyReplaceIfEqualInput;
     }
     if (args.deleteDhtInput !== undefined) {
       this.deleteDhtInput = args.deleteDhtInput;
@@ -7472,6 +7628,22 @@ XcalarApiInputT.prototype.read = function(input) {
       break;
       case 49:
       if (ftype == Thrift.Type.STRUCT) {
+        this.keyAppendInput = new XcalarApiKeyAppendInputT();
+        this.keyAppendInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 50:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.keyReplaceIfEqualInput = new XcalarApiKeyReplaceIfEqualInputT();
+        this.keyReplaceIfEqualInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 51:
+      if (ftype == Thrift.Type.STRUCT) {
         this.deleteDhtInput = new XcalarApiDeleteDhtInputT();
         this.deleteDhtInput.read(input);
       } else {
@@ -7729,8 +7901,18 @@ XcalarApiInputT.prototype.write = function(output) {
     this.createDhtInput.write(output);
     output.writeFieldEnd();
   }
+  if (this.keyAppendInput !== null && this.keyAppendInput !== undefined) {
+    output.writeFieldBegin('keyAppendInput', Thrift.Type.STRUCT, 49);
+    this.keyAppendInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.keyReplaceIfEqualInput !== null && this.keyReplaceIfEqualInput !== undefined) {
+    output.writeFieldBegin('keyReplaceIfEqualInput', Thrift.Type.STRUCT, 50);
+    this.keyReplaceIfEqualInput.write(output);
+    output.writeFieldEnd();
+  }
   if (this.deleteDhtInput !== null && this.deleteDhtInput !== undefined) {
-    output.writeFieldBegin('deleteDhtInput', Thrift.Type.STRUCT, 49);
+    output.writeFieldBegin('deleteDhtInput', Thrift.Type.STRUCT, 51);
     this.deleteDhtInput.write(output);
     output.writeFieldEnd();
   }

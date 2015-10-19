@@ -10941,63 +10941,64 @@ StatusT = {
   'StatusUpdateDagNodeOperationNotSupported' : 287,
   'StatusMsgMaxPayloadExceeded' : 288,
   'StatusKvEntryNotFound' : 289,
-  'StatusStatsCouldNotGetMemUsedInfo' : 290,
-  'StatusStatusFieldNotInited' : 291,
-  'StatusAggNoSuchFunction' : 292,
-  'StatusWaitKeyTimeout' : 293,
-  'StatusVariableNameTooLong' : 294,
-  'StatusDgDagHandleNotFound' : 295,
-  'StatusDgInvalidDagName' : 296,
-  'StatusDgDagNameTooLong' : 297,
-  'StatusDgDagAlreadyExists' : 298,
-  'StatusDgDagEmpty' : 299,
-  'StatusDgDagNotEmpty' : 300,
-  'StatusDgDagNoMore' : 301,
-  'StatusDgDagHandleReserved' : 302,
-  'StatusDgNodeInUse' : 303,
-  'StatusDgDagNodeError' : 304,
-  'StatusDgOperationNotSupported' : 305,
-  'StatusDgDagNodeNotReady' : 306,
-  'StatusDsDatasetLoaded' : 307,
-  'StatusDsDatasetNotReady' : 308,
-  'StatusSessionNotFound' : 309,
-  'StatusSessionExists' : 310,
-  'StatusSessionNotInact' : 311,
-  'StatusSessionNameInvalid' : 312,
-  'StatusSessionError' : 313,
-  'StatusDgDeleteOperationNotPermitted' : 314,
-  'StatusPyExecFailure' : 315,
-  'StatusPyExecFailedToCompile' : 316,
-  'StatusPyExecFailedToImportModule' : 317,
-  'StatusPyExecFailedToGetModuleDict' : 318,
-  'StatusPyExecFailedToGetFnName' : 319,
-  'StatusPyExecNoSuchFunction' : 320,
-  'StatusPyExecFailedToAllocTuple' : 321,
-  'StatusPyExecFailedToGetPyString' : 322,
-  'StatusPyExecFailedToGetPySignedLong' : 323,
-  'StatusPyExecFailedToGetPyUnsignedLong' : 324,
-  'StatusPyExecFailedToGetPyFloat' : 325,
-  'StatusPyExecFailedToSetTuple' : 326,
-  'StatusPyExecFunctionCallFailed' : 327,
-  'StatusPyExecFailedToGetArgCount' : 328,
-  'StatusPyExecTooManyArgs' : 329,
-  'StatusPyExecFailedToGetCodeObject' : 330,
-  'StatusPyExecFailedToGetArgNames' : 331,
-  'StatusPyExecUnsupportedType' : 332,
-  'StatusPyExecFunctionNotCallable' : 333,
-  'StatusPyExecFailedToGetCoFlags' : 334,
-  'StatusPyExecFailedToGetCString' : 335,
-  'StatusXcalarEvalTokenNameTooLong' : 336,
-  'StatusNoConfigFile' : 337,
-  'StatusCouldNotResolveSchema' : 338,
-  'StatusDhtEmptyDhtName' : 339,
-  'StatusDhtUpperBoundLessThanLowerBound' : 340,
-  'StatusLogChecksumFailed' : 341,
-  'StatusDhtDoesNotPreserveOrder' : 342,
-  'StatusLogMaximumEntrySizeExceeded' : 343,
-  'StatusLogCorruptHeader' : 344,
-  'StatusKvInvalidKeyChar' : 345,
-  'StatusDhtProtected' : 346
+  'StatusKvEntryNotEqual' : 290,
+  'StatusStatsCouldNotGetMemUsedInfo' : 291,
+  'StatusStatusFieldNotInited' : 292,
+  'StatusAggNoSuchFunction' : 293,
+  'StatusWaitKeyTimeout' : 294,
+  'StatusVariableNameTooLong' : 295,
+  'StatusDgDagHandleNotFound' : 296,
+  'StatusDgInvalidDagName' : 297,
+  'StatusDgDagNameTooLong' : 298,
+  'StatusDgDagAlreadyExists' : 299,
+  'StatusDgDagEmpty' : 300,
+  'StatusDgDagNotEmpty' : 301,
+  'StatusDgDagNoMore' : 302,
+  'StatusDgDagHandleReserved' : 303,
+  'StatusDgNodeInUse' : 304,
+  'StatusDgDagNodeError' : 305,
+  'StatusDgOperationNotSupported' : 306,
+  'StatusDgDagNodeNotReady' : 307,
+  'StatusDsDatasetLoaded' : 308,
+  'StatusDsDatasetNotReady' : 309,
+  'StatusSessionNotFound' : 310,
+  'StatusSessionExists' : 311,
+  'StatusSessionNotInact' : 312,
+  'StatusSessionNameInvalid' : 313,
+  'StatusSessionError' : 314,
+  'StatusDgDeleteOperationNotPermitted' : 315,
+  'StatusPyExecFailure' : 316,
+  'StatusPyExecFailedToCompile' : 317,
+  'StatusPyExecFailedToImportModule' : 318,
+  'StatusPyExecFailedToGetModuleDict' : 319,
+  'StatusPyExecFailedToGetFnName' : 320,
+  'StatusPyExecNoSuchFunction' : 321,
+  'StatusPyExecFailedToAllocTuple' : 322,
+  'StatusPyExecFailedToGetPyString' : 323,
+  'StatusPyExecFailedToGetPySignedLong' : 324,
+  'StatusPyExecFailedToGetPyUnsignedLong' : 325,
+  'StatusPyExecFailedToGetPyFloat' : 326,
+  'StatusPyExecFailedToSetTuple' : 327,
+  'StatusPyExecFunctionCallFailed' : 328,
+  'StatusPyExecFailedToGetArgCount' : 329,
+  'StatusPyExecTooManyArgs' : 330,
+  'StatusPyExecFailedToGetCodeObject' : 331,
+  'StatusPyExecFailedToGetArgNames' : 332,
+  'StatusPyExecUnsupportedType' : 333,
+  'StatusPyExecFunctionNotCallable' : 334,
+  'StatusPyExecFailedToGetCoFlags' : 335,
+  'StatusPyExecFailedToGetCString' : 336,
+  'StatusXcalarEvalTokenNameTooLong' : 337,
+  'StatusNoConfigFile' : 338,
+  'StatusCouldNotResolveSchema' : 339,
+  'StatusDhtEmptyDhtName' : 340,
+  'StatusDhtUpperBoundLessThanLowerBound' : 341,
+  'StatusLogChecksumFailed' : 342,
+  'StatusDhtDoesNotPreserveOrder' : 343,
+  'StatusLogMaximumEntrySizeExceeded' : 344,
+  'StatusLogCorruptHeader' : 345,
+  'StatusKvInvalidKeyChar' : 346,
+  'StatusDhtProtected' : 347
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -11289,63 +11290,64 @@ StatusTStr = {0 : 'Success',
 287 : 'Update operation not supported',
 288 : 'Message response size would exceed maximum message payload size',
 289 : 'The requested key was not found',
-290 : 'Could not get amount of memory consumed',
-291 : 'No valid status received!',
-292 : 'No such aggregate operator!',
-293 : 'timed out waiting for table key type to resolve',
-294 : 'Variable name in evalString too long',
-295 : 'DAG handle not found',
-296 : 'DAG name is invalid',
-297 : 'DAG name is too long',
-298 : 'DAG name already exists',
-299 : 'DAG is empty',
-300 : 'DAG is not empty',
-301 : 'No more DAG nodes available',
-302 : 'DAG handle is not available',
-303 : 'DAG Node is currently in use',
-304 : 'DAG Node is in error state',
-305 : 'Operation not supported on the target',
-306 : 'DAG node is not ready',
-307 : 'Dataset has been loaded',
-308 : 'Dataset is not ready',
-309 : 'Session does not exist',
-310 : 'The session already exists',
-311 : 'The target session was not inactive',
-312 : 'The name or pattern supplied is not allowed',
-313 : 'The session has an unrecoverable error',
-314 : 'The delete operation is not permitted',
-315 : 'Unknown python error occurred.',
-316 : 'Could not compile python script',
-317 : 'Could not import compiled python object as module',
-318 : 'Could not retrieve module dictionary',
-319 : 'Could not get name of python function',
-320 : 'User-defined function no longer available. Might have been deleted',
-321 : 'Could not allocate python tuple',
-322 : 'Failed to get python string from C string',
-323 : 'Failed to get python signed long from C ssize_t',
-324 : 'Failed to get python unsigned long from C size_t',
-325 : 'Failed to get python float from C double',
-326 : 'Could not set python tuple',
-327 : 'Error occurred while invoking python function',
-328 : 'Could not determine how many arguments function takes',
-329 : 'Function takes in too many arguments',
-330 : 'Could not retrieve python bytecode for function',
-331 : 'Could not determine argument names to function',
-332 : 'Type not supported',
-333 : 'Function name provided is not of a valid python function',
-334 : 'Could not retrieve code object flags',
-335 : 'Failed to get c string from python string',
-336 : 'Token name in evalString is too long',
-337 : 'No configuration file specified',
-338 : 'Could not resolve result set schema',
-339 : 'DHT name is empty',
-340 : 'Upper bound is less than lower bound',
-341 : 'Checksum validation failed while reading log entry',
-342 : 'DHT chosen doesn\'t preserve sorted order!',
-343 : 'Maximum log entry size exceeded',
-344 : 'Log entry header is corrupt',
-345 : 'Invalid KvStore key character',
-346 : 'System DHTs may not be modified'
+290 : 'The requested key\'s value doesn\'t equal the provided value',
+291 : 'Could not get amount of memory consumed',
+292 : 'No valid status received!',
+293 : 'No such aggregate operator!',
+294 : 'timed out waiting for table key type to resolve',
+295 : 'Variable name in evalString too long',
+296 : 'DAG handle not found',
+297 : 'DAG name is invalid',
+298 : 'DAG name is too long',
+299 : 'DAG name already exists',
+300 : 'DAG is empty',
+301 : 'DAG is not empty',
+302 : 'No more DAG nodes available',
+303 : 'DAG handle is not available',
+304 : 'DAG Node is currently in use',
+305 : 'DAG Node is in error state',
+306 : 'Operation not supported on the target',
+307 : 'DAG node is not ready',
+308 : 'Dataset has been loaded',
+309 : 'Dataset is not ready',
+310 : 'Session does not exist',
+311 : 'The session already exists',
+312 : 'The target session was not inactive',
+313 : 'The name or pattern supplied is not allowed',
+314 : 'The session has an unrecoverable error',
+315 : 'The delete operation is not permitted',
+316 : 'Unknown python error occurred.',
+317 : 'Could not compile python script',
+318 : 'Could not import compiled python object as module',
+319 : 'Could not retrieve module dictionary',
+320 : 'Could not get name of python function',
+321 : 'User-defined function no longer available. Might have been deleted',
+322 : 'Could not allocate python tuple',
+323 : 'Failed to get python string from C string',
+324 : 'Failed to get python signed long from C ssize_t',
+325 : 'Failed to get python unsigned long from C size_t',
+326 : 'Failed to get python float from C double',
+327 : 'Could not set python tuple',
+328 : 'Error occurred while invoking python function',
+329 : 'Could not determine how many arguments function takes',
+330 : 'Function takes in too many arguments',
+331 : 'Could not retrieve python bytecode for function',
+332 : 'Could not determine argument names to function',
+333 : 'Type not supported',
+334 : 'Function name provided is not of a valid python function',
+335 : 'Could not retrieve code object flags',
+336 : 'Failed to get c string from python string',
+337 : 'Token name in evalString is too long',
+338 : 'No configuration file specified',
+339 : 'Could not resolve result set schema',
+340 : 'DHT name is empty',
+341 : 'Upper bound is less than lower bound',
+342 : 'Checksum validation failed while reading log entry',
+343 : 'DHT chosen doesn\'t preserve sorted order!',
+344 : 'Maximum log entry size exceeded',
+345 : 'Log entry header is corrupt',
+346 : 'Invalid KvStore key character',
+347 : 'System DHTs may not be modified'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11355,9 +11357,9 @@ StatusTStr = {0 : 'Success',
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 10694577
+  'XcalarApiVersionSignature' : 173141960
 };
-XcalarApiVersionTStr = {10694577 : '0a32fb19f2f11deaceb5f9437a0f8325'
+XcalarApiVersionTStr = {173141960 : 'a51efc83c2785ab651c4c3e65e6e25f1'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11481,7 +11483,9 @@ XcalarApisT = {
   'XcalarApiSessionPersist' : 56,
   'XcalarApiGetQuery' : 57,
   'XcalarApiCreateDht' : 58,
-  'XcalarApiDeleteDht' : 59
+  'XcalarApiKeyAppend' : 59,
+  'XcalarApiKeyReplaceIfEqual' : 60,
+  'XcalarApiDeleteDht' : 61
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -11542,7 +11546,9 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 56 : 'XcalarApiSessionPersist',
 57 : 'XcalarApiGetQuery',
 58 : 'XcalarApiCreateDht',
-59 : 'XcalarApiDeleteDht'
+59 : 'XcalarApiKeyAppend',
+60 : 'XcalarApiKeyReplaceIfEqual',
+61 : 'XcalarApiDeleteDht'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -12607,6 +12613,154 @@ XcalarApiKeyAddOrReplaceInputT.prototype.write = function(output) {
   if (this.kvPair !== null && this.kvPair !== undefined) {
     output.writeFieldBegin('kvPair', Thrift.Type.STRUCT, 2);
     this.kvPair.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiKeyAppendInputT = function(args) {
+  this.key = null;
+  this.suffix = null;
+  if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+    if (args.suffix !== undefined) {
+      this.suffix = args.suffix;
+    }
+  }
+};
+XcalarApiKeyAppendInputT.prototype = {};
+XcalarApiKeyAppendInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.suffix = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiKeyAppendInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiKeyAppendInputT');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
+  if (this.suffix !== null && this.suffix !== undefined) {
+    output.writeFieldBegin('suffix', Thrift.Type.STRING, 2);
+    output.writeString(this.suffix);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiKeyReplaceIfEqualInputT = function(args) {
+  this.key = null;
+  this.oldValue = null;
+  this.newValue = null;
+  if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+    if (args.oldValue !== undefined) {
+      this.oldValue = args.oldValue;
+    }
+    if (args.newValue !== undefined) {
+      this.newValue = args.newValue;
+    }
+  }
+};
+XcalarApiKeyReplaceIfEqualInputT.prototype = {};
+XcalarApiKeyReplaceIfEqualInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.oldValue = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.newValue = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiKeyReplaceIfEqualInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiKeyReplaceIfEqualInputT');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
+  if (this.oldValue !== null && this.oldValue !== undefined) {
+    output.writeFieldBegin('oldValue', Thrift.Type.STRING, 2);
+    output.writeString(this.oldValue);
+    output.writeFieldEnd();
+  }
+  if (this.newValue !== null && this.newValue !== undefined) {
+    output.writeFieldBegin('newValue', Thrift.Type.STRING, 3);
+    output.writeString(this.newValue);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -18518,6 +18672,8 @@ XcalarApiInputT = function(args) {
   this.sessionListInput = null;
   this.sessionRenameInput = null;
   this.createDhtInput = null;
+  this.keyAppendInput = null;
+  this.keyReplaceIfEqualInput = null;
   this.deleteDhtInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
@@ -18663,6 +18819,12 @@ XcalarApiInputT = function(args) {
     }
     if (args.createDhtInput !== undefined) {
       this.createDhtInput = args.createDhtInput;
+    }
+    if (args.keyAppendInput !== undefined) {
+      this.keyAppendInput = args.keyAppendInput;
+    }
+    if (args.keyReplaceIfEqualInput !== undefined) {
+      this.keyReplaceIfEqualInput = args.keyReplaceIfEqualInput;
     }
     if (args.deleteDhtInput !== undefined) {
       this.deleteDhtInput = args.deleteDhtInput;
@@ -19060,6 +19222,22 @@ XcalarApiInputT.prototype.read = function(input) {
       break;
       case 49:
       if (ftype == Thrift.Type.STRUCT) {
+        this.keyAppendInput = new XcalarApiKeyAppendInputT();
+        this.keyAppendInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 50:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.keyReplaceIfEqualInput = new XcalarApiKeyReplaceIfEqualInputT();
+        this.keyReplaceIfEqualInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 51:
+      if (ftype == Thrift.Type.STRUCT) {
         this.deleteDhtInput = new XcalarApiDeleteDhtInputT();
         this.deleteDhtInput.read(input);
       } else {
@@ -19317,8 +19495,18 @@ XcalarApiInputT.prototype.write = function(output) {
     this.createDhtInput.write(output);
     output.writeFieldEnd();
   }
+  if (this.keyAppendInput !== null && this.keyAppendInput !== undefined) {
+    output.writeFieldBegin('keyAppendInput', Thrift.Type.STRUCT, 49);
+    this.keyAppendInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.keyReplaceIfEqualInput !== null && this.keyReplaceIfEqualInput !== undefined) {
+    output.writeFieldBegin('keyReplaceIfEqualInput', Thrift.Type.STRUCT, 50);
+    this.keyReplaceIfEqualInput.write(output);
+    output.writeFieldEnd();
+  }
   if (this.deleteDhtInput !== null && this.deleteDhtInput !== undefined) {
-    output.writeFieldBegin('deleteDhtInput', Thrift.Type.STRUCT, 49);
+    output.writeFieldBegin('deleteDhtInput', Thrift.Type.STRUCT, 51);
     this.deleteDhtInput.write(output);
     output.writeFieldEnd();
   }
@@ -20932,9 +21120,9 @@ XcalarApiDefaultFieldDelimT = '\t';
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 10694577
+  'XcalarApiVersionSignature' : 173141960
 };
-XcalarApiVersionTStr = {10694577 : '0a32fb19f2f11deaceb5f9437a0f8325'
+XcalarApiVersionTStr = {173141960 : 'a51efc83c2785ab651c4c3e65e6e25f1'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -23142,7 +23330,7 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value
-                    + "persist = " + persist.toString() + ")");
+                    + ", persist = " + persist.toString() + ")");
     }
 
     var workItem = xcalarKeyAddOrReplaceWorkItem(persist, key, value);
@@ -23150,7 +23338,6 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
-
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
@@ -23161,6 +23348,83 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     })
     .fail(function(error) {
         console.log("xcalarKeyAddOrReplace() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarKeyAppendWorkItem(key, suffix) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.keyAppendInput = new XcalarApiKeyAppendInputT();
+    workItem.input.keyAppendInput.key = key;
+    workItem.input.keyAppendInput.suffix = suffix;
+    workItem.api = XcalarApisT.XcalarApiKeyAppend;
+    return (workItem);
+}
+
+function xcalarKeyAppend(thriftHandle, key, suffix) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarKeyAppend(key = " + key + ", suffix = " + suffix
+                    + ")");
+    }
+
+    var workItem = xcalarKeyAppendWorkItem(key, suffix);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarKeyAppend() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+}
+
+function xcalarKeyReplaceIfEqualWorkItem(key, oldValue, newValue) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.keyReplaceIfEqualInput = new XcalarApiKeyReplaceIfEqualInputT();
+    workItem.api = XcalarApisT.XcalarApiKeyReplaceIfEqual;
+    workItem.input.keyReplaceIfEqualInput.key = key;
+    workItem.input.keyReplaceIfEqualInput.oldValue = oldValue;
+    workItem.input.keyReplaceIfEqualInput.newValue = newValue;
+    return (workItem);
+}
+
+function xcalarKeyReplaceIfEqual(thriftHandle, key, oldValue, newValue) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarKeyReplaceIfEqual(key = " + key + ", oldValue = "
+                    + oldValue + ", newValue = " + newValue + ")");
+    }
+
+    var workItem = xcalarKeyReplaceIfEqualWorkItem(key, oldValue, newValue);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status);
+        }
+        deferred.resolve(status);
+    })
+    .fail(function(error) {
+        console.log("xcalarKeyReplaceIfEqual() caught exception:", error);
         deferred.reject(error);
     });
 

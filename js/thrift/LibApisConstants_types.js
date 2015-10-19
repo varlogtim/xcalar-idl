@@ -9,16 +9,16 @@ XcalarApisConstantsT = {
   'XcalarApiMaxEvalStringLen' : 1024,
   'XcalarApiMaxNumParameters' : 20,
   'XcalarApiDefaultTopIntervalInMs' : 100,
+  'XcalarApiMaxPythonStringLen' : 4096,
   'XcalarApiMaxPyModuleNameLen' : 255,
   'XcalarApiMaxPyFuncNameLen' : 255,
-  'XcalarApiMaxPyErrorMsgLen' : 255,
-  'XcalarApiMaxPyModuleSrcLen' : 10485760
+  'XcalarApiMaxPyErrorMsgLen' : 255
 };
 XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
 100 : 'XcalarApiDefaultTopIntervalInMs',
+4096 : 'XcalarApiMaxPythonStringLen',
 255 : 'XcalarApiMaxPyModuleNameLen',
 255 : 'XcalarApiMaxPyFuncNameLen',
-255 : 'XcalarApiMaxPyErrorMsgLen',
-10485760 : 'XcalarApiMaxPyModuleSrcLen'
+255 : 'XcalarApiMaxPyErrorMsgLen'
 };

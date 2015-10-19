@@ -10941,75 +10941,63 @@ StatusT = {
   'StatusUpdateDagNodeOperationNotSupported' : 287,
   'StatusMsgMaxPayloadExceeded' : 288,
   'StatusKvEntryNotFound' : 289,
-  'StatusKvEntryNotEqual' : 290,
-  'StatusStatsCouldNotGetMemUsedInfo' : 291,
-  'StatusStatusFieldNotInited' : 292,
-  'StatusAggNoSuchFunction' : 293,
-  'StatusWaitKeyTimeout' : 294,
-  'StatusVariableNameTooLong' : 295,
-  'StatusDgDagHandleNotFound' : 296,
-  'StatusDgInvalidDagName' : 297,
-  'StatusDgDagNameTooLong' : 298,
-  'StatusDgDagAlreadyExists' : 299,
-  'StatusDgDagEmpty' : 300,
-  'StatusDgDagNotEmpty' : 301,
-  'StatusDgDagNoMore' : 302,
-  'StatusDgDagHandleReserved' : 303,
-  'StatusDgNodeInUse' : 304,
-  'StatusDgDagNodeError' : 305,
-  'StatusDgOperationNotSupported' : 306,
-  'StatusDgDagNodeNotReady' : 307,
-  'StatusDgFailToDestroyHandle' : 308,
-  'StatusDsDatasetLoaded' : 309,
-  'StatusDsDatasetNotReady' : 310,
-  'StatusSessionNotFound' : 311,
-  'StatusSessionExists' : 312,
-  'StatusSessionNotInact' : 313,
-  'StatusSessionNameInvalid' : 314,
-  'StatusSessionError' : 315,
-  'StatusDgDeleteOperationNotPermitted' : 316,
-  'StatusPyExecFailure' : 317,
-  'StatusPyInputInvalid' : 318,
-  'StatusPyModuleNameInvalid' : 319,
-  'StatusPyModuleNameTooLong' : 320,
-  'StatusPyModuleTooLarge' : 321,
-  'StatusPyExecFailedToCompile' : 322,
-  'StatusPyExecFailedToImportModule' : 323,
-  'StatusPyExecFailedToGetModuleDict' : 324,
-  'StatusPyExecFailedToGetFnName' : 325,
-  'StatusPyExecNoSuchFunction' : 326,
-  'StatusPyExecFailedToAllocTuple' : 327,
-  'StatusPyExecFailedToGetPyString' : 328,
-  'StatusPyExecFailedToGetPySignedLong' : 329,
-  'StatusPyExecFailedToGetPyUnsignedLong' : 330,
-  'StatusPyExecFailedToGetPyFloat' : 331,
-  'StatusPyExecFailedToSetTuple' : 332,
-  'StatusPyExecFunctionCallFailed' : 333,
-  'StatusPyExecFailedToGetArgCount' : 334,
-  'StatusPyExecTooManyArgs' : 335,
-  'StatusPyExecFailedToGetCodeObject' : 336,
-  'StatusPyExecFailedToGetArgNames' : 337,
-  'StatusPyExecUnsupportedType' : 338,
-  'StatusPyExecFunctionNotCallable' : 339,
-  'StatusPyExecFailedToGetCoFlags' : 340,
-  'StatusPyExecFailedToGetCString' : 341,
-  'StatusXcalarEvalTokenNameTooLong' : 342,
-  'StatusNoConfigFile' : 343,
-  'StatusCouldNotResolveSchema' : 344,
-  'StatusDhtEmptyDhtName' : 345,
-  'StatusDhtUpperBoundLessThanLowerBound' : 346,
-  'StatusLogChecksumFailed' : 347,
-  'StatusDhtDoesNotPreserveOrder' : 348,
-  'StatusLogMaximumEntrySizeExceeded' : 349,
-  'StatusLogCorruptHeader' : 350,
-  'StatusKvInvalidKeyChar' : 351,
-  'StatusDhtProtected' : 352,
-  'StatusKvStoreNotFound' : 353,
-  'StatusSSE42Unsupported' : 354,
-  'StatusPyBadUdfName' : 355,
-  'StatusLicExpired' : 356,
-  'StatusLogHandleClosed' : 357,
-  'StatusLogHandleInvalid' : 358
+  'StatusStatsCouldNotGetMemUsedInfo' : 290,
+  'StatusStatusFieldNotInited' : 291,
+  'StatusAggNoSuchFunction' : 292,
+  'StatusWaitKeyTimeout' : 293,
+  'StatusVariableNameTooLong' : 294,
+  'StatusDgDagHandleNotFound' : 295,
+  'StatusDgInvalidDagName' : 296,
+  'StatusDgDagNameTooLong' : 297,
+  'StatusDgDagAlreadyExists' : 298,
+  'StatusDgDagEmpty' : 299,
+  'StatusDgDagNotEmpty' : 300,
+  'StatusDgDagNoMore' : 301,
+  'StatusDgDagHandleReserved' : 302,
+  'StatusDgNodeInUse' : 303,
+  'StatusDgDagNodeError' : 304,
+  'StatusDgOperationNotSupported' : 305,
+  'StatusDgDagNodeNotReady' : 306,
+  'StatusDsDatasetLoaded' : 307,
+  'StatusDsDatasetNotReady' : 308,
+  'StatusSessionNotFound' : 309,
+  'StatusSessionExists' : 310,
+  'StatusSessionNotInact' : 311,
+  'StatusSessionNameInvalid' : 312,
+  'StatusSessionError' : 313,
+  'StatusDgDeleteOperationNotPermitted' : 314,
+  'StatusPyExecFailure' : 315,
+  'StatusPyExecFailedToCompile' : 316,
+  'StatusPyExecFailedToImportModule' : 317,
+  'StatusPyExecFailedToGetModuleDict' : 318,
+  'StatusPyExecFailedToGetFnName' : 319,
+  'StatusPyExecNoSuchFunction' : 320,
+  'StatusPyExecFailedToAllocTuple' : 321,
+  'StatusPyExecFailedToGetPyString' : 322,
+  'StatusPyExecFailedToGetPySignedLong' : 323,
+  'StatusPyExecFailedToGetPyUnsignedLong' : 324,
+  'StatusPyExecFailedToGetPyFloat' : 325,
+  'StatusPyExecFailedToSetTuple' : 326,
+  'StatusPyExecFunctionCallFailed' : 327,
+  'StatusPyExecFailedToGetArgCount' : 328,
+  'StatusPyExecTooManyArgs' : 329,
+  'StatusPyExecFailedToGetCodeObject' : 330,
+  'StatusPyExecFailedToGetArgNames' : 331,
+  'StatusPyExecUnsupportedType' : 332,
+  'StatusPyExecFunctionNotCallable' : 333,
+  'StatusPyExecFailedToGetCoFlags' : 334,
+  'StatusPyExecFailedToGetCString' : 335,
+  'StatusXcalarEvalTokenNameTooLong' : 336,
+  'StatusNoConfigFile' : 337,
+  'StatusCouldNotResolveSchema' : 338,
+  'StatusDhtEmptyDhtName' : 339,
+  'StatusDhtUpperBoundLessThanLowerBound' : 340,
+  'StatusLogChecksumFailed' : 341,
+  'StatusDhtDoesNotPreserveOrder' : 342,
+  'StatusLogMaximumEntrySizeExceeded' : 343,
+  'StatusLogCorruptHeader' : 344,
+  'StatusKvInvalidKeyChar' : 345,
+  'StatusDhtProtected' : 346
 };
 StatusTStr = {0 : 'Success',
 1 : 'Operation not permitted',
@@ -11301,75 +11289,63 @@ StatusTStr = {0 : 'Success',
 287 : 'Update operation not supported',
 288 : 'Message response size would exceed maximum message payload size',
 289 : 'The requested key was not found',
-290 : 'The requested key\'s value doesn\'t equal the provided value',
-291 : 'Could not get amount of memory consumed',
-292 : 'No valid status received!',
-293 : 'No such aggregate operator!',
-294 : 'timed out waiting for table key type to resolve',
-295 : 'Variable name in evalString too long',
-296 : 'DAG handle not found',
-297 : 'DAG name is invalid',
-298 : 'DAG name is too long',
-299 : 'DAG name already exists',
-300 : 'DAG is empty',
-301 : 'DAG is not empty',
-302 : 'No more DAG nodes available',
-303 : 'DAG handle is not available',
-304 : 'DAG Node is currently in use',
-305 : 'DAG Node is in error state',
-306 : 'Operation not supported on the target',
-307 : 'DAG node is not ready',
-308 : 'Fail to destroy DAG handle',
-309 : 'Dataset has been loaded',
-310 : 'Dataset is not ready',
-311 : 'Session does not exist',
-312 : 'The session already exists',
-313 : 'The target session was not inactive',
-314 : 'The name or pattern supplied is not allowed',
-315 : 'The session has an unrecoverable error',
-316 : 'The delete operation is not permitted',
-317 : 'Unknown python error occurred.',
-318 : 'Invalid or inconsistent Python UDF input',
-319 : 'Python UDF module name is invalid',
-320 : 'Python UDF module name exceeds allowed length',
-321 : 'Python source length exceeds maximum allowed',
-322 : 'Could not compile python script',
-323 : 'Could not import compiled python object as module',
-324 : 'Could not retrieve module dictionary',
-325 : 'Could not get name of python function',
-326 : 'User-defined function no longer available. Might have been deleted',
-327 : 'Could not allocate python tuple',
-328 : 'Failed to get python string from C string',
-329 : 'Failed to get python signed long from C ssize_t',
-330 : 'Failed to get python unsigned long from C size_t',
-331 : 'Failed to get python float from C double',
-332 : 'Could not set python tuple',
-333 : 'Error occurred while invoking python function',
-334 : 'Could not determine how many arguments function takes',
-335 : 'Function takes in too many arguments',
-336 : 'Could not retrieve python bytecode for function',
-337 : 'Could not determine argument names to function',
-338 : 'Type not supported',
-339 : 'Function name provided is not of a valid python function',
-340 : 'Could not retrieve code object flags',
-341 : 'Failed to get c string from python string',
-342 : 'Token name in evalString is too long',
-343 : 'No configuration file specified',
-344 : 'Could not resolve result set schema',
-345 : 'DHT name is empty',
-346 : 'Upper bound is less than lower bound',
-347 : 'Checksum validation failed while reading log entry',
-348 : 'DHT chosen doesn\'t preserve sorted order!',
-349 : 'Maximum log entry size exceeded',
-350 : 'Log entry header is corrupt',
-351 : 'Invalid KvStore key character',
-352 : 'System DHTs may not be modified',
-353 : 'The requested KvStore doesn\'t exist',
-354 : 'The CPU does not support Intel SSE 4.2 instructions',
-355 : 'Illegal character in UDF name',
-356 : 'Xcalar license has expired',
-357 : 'The log file was already closed',
-358 : 'The log handle is not valid'
+290 : 'Could not get amount of memory consumed',
+291 : 'No valid status received!',
+292 : 'No such aggregate operator!',
+293 : 'timed out waiting for table key type to resolve',
+294 : 'Variable name in evalString too long',
+295 : 'DAG handle not found',
+296 : 'DAG name is invalid',
+297 : 'DAG name is too long',
+298 : 'DAG name already exists',
+299 : 'DAG is empty',
+300 : 'DAG is not empty',
+301 : 'No more DAG nodes available',
+302 : 'DAG handle is not available',
+303 : 'DAG Node is currently in use',
+304 : 'DAG Node is in error state',
+305 : 'Operation not supported on the target',
+306 : 'DAG node is not ready',
+307 : 'Dataset has been loaded',
+308 : 'Dataset is not ready',
+309 : 'Session does not exist',
+310 : 'The session already exists',
+311 : 'The target session was not inactive',
+312 : 'The name or pattern supplied is not allowed',
+313 : 'The session has an unrecoverable error',
+314 : 'The delete operation is not permitted',
+315 : 'Unknown python error occurred.',
+316 : 'Could not compile python script',
+317 : 'Could not import compiled python object as module',
+318 : 'Could not retrieve module dictionary',
+319 : 'Could not get name of python function',
+320 : 'User-defined function no longer available. Might have been deleted',
+321 : 'Could not allocate python tuple',
+322 : 'Failed to get python string from C string',
+323 : 'Failed to get python signed long from C ssize_t',
+324 : 'Failed to get python unsigned long from C size_t',
+325 : 'Failed to get python float from C double',
+326 : 'Could not set python tuple',
+327 : 'Error occurred while invoking python function',
+328 : 'Could not determine how many arguments function takes',
+329 : 'Function takes in too many arguments',
+330 : 'Could not retrieve python bytecode for function',
+331 : 'Could not determine argument names to function',
+332 : 'Type not supported',
+333 : 'Function name provided is not of a valid python function',
+334 : 'Could not retrieve code object flags',
+335 : 'Failed to get c string from python string',
+336 : 'Token name in evalString is too long',
+337 : 'No configuration file specified',
+338 : 'Could not resolve result set schema',
+339 : 'DHT name is empty',
+340 : 'Upper bound is less than lower bound',
+341 : 'Checksum validation failed while reading log entry',
+342 : 'DHT chosen doesn\'t preserve sorted order!',
+343 : 'Maximum log entry size exceeded',
+344 : 'Log entry header is corrupt',
+345 : 'Invalid KvStore key character',
+346 : 'System DHTs may not be modified'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11379,9 +11355,9 @@ StatusTStr = {0 : 'Success',
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 263328969
+  'XcalarApiVersionSignature' : 10694577
 };
-XcalarApiVersionTStr = {263328969 : 'fb214c94cffa64bc5603bd1dd32f8183'
+XcalarApiVersionTStr = {10694577 : '0a32fb19f2f11deaceb5f9437a0f8325'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11505,11 +11481,7 @@ XcalarApisT = {
   'XcalarApiSessionPersist' : 56,
   'XcalarApiGetQuery' : 57,
   'XcalarApiCreateDht' : 58,
-  'XcalarApiKeyAppend' : 59,
-  'XcalarApiKeyReplaceIfEqual' : 60,
-  'XcalarApiDeleteDht' : 61,
-  'XcalarApiDownloadPython' : 62,
-  'XcalarApiSupportSend' : 63
+  'XcalarApiDeleteDht' : 59
 };
 XcalarApisTStr = {0 : 'XcalarApiUnknown',
 1 : 'XcalarApiGetVersion',
@@ -11570,11 +11542,7 @@ XcalarApisTStr = {0 : 'XcalarApiUnknown',
 56 : 'XcalarApiSessionPersist',
 57 : 'XcalarApiGetQuery',
 58 : 'XcalarApiCreateDht',
-59 : 'XcalarApiKeyAppend',
-60 : 'XcalarApiKeyReplaceIfEqual',
-61 : 'XcalarApiDeleteDht',
-62 : 'XcalarApiDownloadPython',
-63 : 'XcalarApiSupportSend'
+59 : 'XcalarApiDeleteDht'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11587,18 +11555,18 @@ XcalarApisConstantsT = {
   'XcalarApiMaxEvalStringLen' : 1024,
   'XcalarApiMaxNumParameters' : 20,
   'XcalarApiDefaultTopIntervalInMs' : 100,
+  'XcalarApiMaxPythonStringLen' : 4096,
   'XcalarApiMaxPyModuleNameLen' : 255,
   'XcalarApiMaxPyFuncNameLen' : 255,
-  'XcalarApiMaxPyErrorMsgLen' : 255,
-  'XcalarApiMaxPyModuleSrcLen' : 10485760
+  'XcalarApiMaxPyErrorMsgLen' : 255
 };
 XcalarApisConstantsTStr = {1024 : 'XcalarApiMaxEvalStringLen',
 20 : 'XcalarApiMaxNumParameters',
 100 : 'XcalarApiDefaultTopIntervalInMs',
+4096 : 'XcalarApiMaxPythonStringLen',
 255 : 'XcalarApiMaxPyModuleNameLen',
 255 : 'XcalarApiMaxPyFuncNameLen',
-255 : 'XcalarApiMaxPyErrorMsgLen',
-10485760 : 'XcalarApiMaxPyModuleSrcLen'
+255 : 'XcalarApiMaxPyErrorMsgLen'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -11625,11 +11593,6 @@ JoinOperatorTStr = {0 : 'innerJoin',
 //
 
 
-XcalarApiKeyScopeT = {
-  'XcalarApiKeyScopeGlobal' : 1,
-  'XcalarApiKeyScopeUser' : 2,
-  'XcalarApiKeyScopeSession' : 3
-};
 XcalarApiException = function(args) {
   this.status = null;
   if (args) {
@@ -12429,112 +12392,6 @@ XcalarApiUploadPythonOutputT.prototype.write = function(output) {
   return;
 };
 
-XcalarApiDownloadPythonInputT = function(args) {
-  this.moduleName = null;
-  if (args) {
-    if (args.moduleName !== undefined) {
-      this.moduleName = args.moduleName;
-    }
-  }
-};
-XcalarApiDownloadPythonInputT.prototype = {};
-XcalarApiDownloadPythonInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.moduleName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiDownloadPythonInputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiDownloadPythonInputT');
-  if (this.moduleName !== null && this.moduleName !== undefined) {
-    output.writeFieldBegin('moduleName', Thrift.Type.STRING, 1);
-    output.writeString(this.moduleName);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-XcalarApiDownloadPythonOutputT = function(args) {
-  this.pythonSrc = null;
-  if (args) {
-    if (args.pythonSrc !== undefined) {
-      this.pythonSrc = args.pythonSrc;
-    }
-  }
-};
-XcalarApiDownloadPythonOutputT.prototype = {};
-XcalarApiDownloadPythonOutputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.pythonSrc = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiDownloadPythonOutputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiDownloadPythonOutputT');
-  if (this.pythonSrc !== null && this.pythonSrc !== undefined) {
-    output.writeFieldBegin('pythonSrc', Thrift.Type.STRING, 1);
-    output.writeString(this.pythonSrc);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 XcalarApiListXdfsOutputT = function(args) {
   this.numXdfs = null;
   this.fnDescs = null;
@@ -12691,13 +12548,9 @@ XcalarApiKeyValuePairT.prototype.write = function(output) {
 };
 
 XcalarApiKeyAddOrReplaceInputT = function(args) {
-  this.scope = null;
   this.persist = null;
   this.kvPair = null;
   if (args) {
-    if (args.scope !== undefined) {
-      this.scope = args.scope;
-    }
     if (args.persist !== undefined) {
       this.persist = args.persist;
     }
@@ -12721,20 +12574,13 @@ XcalarApiKeyAddOrReplaceInputT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.scope = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
       if (ftype == Thrift.Type.BOOL) {
         this.persist = input.readBool().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 3:
+      case 2:
       if (ftype == Thrift.Type.STRUCT) {
         this.kvPair = new XcalarApiKeyValuePairT();
         this.kvPair.read(input);
@@ -12753,265 +12599,14 @@ XcalarApiKeyAddOrReplaceInputT.prototype.read = function(input) {
 
 XcalarApiKeyAddOrReplaceInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiKeyAddOrReplaceInputT');
-  if (this.scope !== null && this.scope !== undefined) {
-    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
-    output.writeI32(this.scope);
-    output.writeFieldEnd();
-  }
   if (this.persist !== null && this.persist !== undefined) {
-    output.writeFieldBegin('persist', Thrift.Type.BOOL, 2);
+    output.writeFieldBegin('persist', Thrift.Type.BOOL, 1);
     output.writeBool(this.persist);
     output.writeFieldEnd();
   }
   if (this.kvPair !== null && this.kvPair !== undefined) {
-    output.writeFieldBegin('kvPair', Thrift.Type.STRUCT, 3);
+    output.writeFieldBegin('kvPair', Thrift.Type.STRUCT, 2);
     this.kvPair.write(output);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-XcalarApiKeyAppendInputT = function(args) {
-  this.scope = null;
-  this.key = null;
-  this.suffix = null;
-  if (args) {
-    if (args.scope !== undefined) {
-      this.scope = args.scope;
-    }
-    if (args.key !== undefined) {
-      this.key = args.key;
-    }
-    if (args.suffix !== undefined) {
-      this.suffix = args.suffix;
-    }
-  }
-};
-XcalarApiKeyAppendInputT.prototype = {};
-XcalarApiKeyAppendInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.scope = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.key = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.STRING) {
-        this.suffix = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiKeyAppendInputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiKeyAppendInputT');
-  if (this.scope !== null && this.scope !== undefined) {
-    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
-    output.writeI32(this.scope);
-    output.writeFieldEnd();
-  }
-  if (this.key !== null && this.key !== undefined) {
-    output.writeFieldBegin('key', Thrift.Type.STRING, 2);
-    output.writeString(this.key);
-    output.writeFieldEnd();
-  }
-  if (this.suffix !== null && this.suffix !== undefined) {
-    output.writeFieldBegin('suffix', Thrift.Type.STRING, 3);
-    output.writeString(this.suffix);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-XcalarApiKeyReplaceIfEqualInputT = function(args) {
-  this.scope = null;
-  this.key = null;
-  this.oldValue = null;
-  this.newValue = null;
-  if (args) {
-    if (args.scope !== undefined) {
-      this.scope = args.scope;
-    }
-    if (args.key !== undefined) {
-      this.key = args.key;
-    }
-    if (args.oldValue !== undefined) {
-      this.oldValue = args.oldValue;
-    }
-    if (args.newValue !== undefined) {
-      this.newValue = args.newValue;
-    }
-  }
-};
-XcalarApiKeyReplaceIfEqualInputT.prototype = {};
-XcalarApiKeyReplaceIfEqualInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.scope = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.key = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.STRING) {
-        this.oldValue = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 4:
-      if (ftype == Thrift.Type.STRING) {
-        this.newValue = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiKeyReplaceIfEqualInputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiKeyReplaceIfEqualInputT');
-  if (this.scope !== null && this.scope !== undefined) {
-    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
-    output.writeI32(this.scope);
-    output.writeFieldEnd();
-  }
-  if (this.key !== null && this.key !== undefined) {
-    output.writeFieldBegin('key', Thrift.Type.STRING, 2);
-    output.writeString(this.key);
-    output.writeFieldEnd();
-  }
-  if (this.oldValue !== null && this.oldValue !== undefined) {
-    output.writeFieldBegin('oldValue', Thrift.Type.STRING, 3);
-    output.writeString(this.oldValue);
-    output.writeFieldEnd();
-  }
-  if (this.newValue !== null && this.newValue !== undefined) {
-    output.writeFieldBegin('newValue', Thrift.Type.STRING, 4);
-    output.writeString(this.newValue);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-XcalarApiKeyLookupInputT = function(args) {
-  this.scope = null;
-  this.key = null;
-  if (args) {
-    if (args.scope !== undefined) {
-      this.scope = args.scope;
-    }
-    if (args.key !== undefined) {
-      this.key = args.key;
-    }
-  }
-};
-XcalarApiKeyLookupInputT.prototype = {};
-XcalarApiKeyLookupInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.scope = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.key = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiKeyLookupInputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiKeyLookupInputT');
-  if (this.scope !== null && this.scope !== undefined) {
-    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
-    output.writeI32(this.scope);
-    output.writeFieldEnd();
-  }
-  if (this.key !== null && this.key !== undefined) {
-    output.writeFieldBegin('key', Thrift.Type.STRING, 2);
-    output.writeString(this.key);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -13065,72 +12660,6 @@ XcalarApiKeyLookupOutputT.prototype.write = function(output) {
   if (this.value !== null && this.value !== undefined) {
     output.writeFieldBegin('value', Thrift.Type.STRING, 1);
     output.writeString(this.value);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-XcalarApiKeyDeleteInputT = function(args) {
-  this.scope = null;
-  this.key = null;
-  if (args) {
-    if (args.scope !== undefined) {
-      this.scope = args.scope;
-    }
-    if (args.key !== undefined) {
-      this.key = args.key;
-    }
-  }
-};
-XcalarApiKeyDeleteInputT.prototype = {};
-XcalarApiKeyDeleteInputT.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.scope = input.readI32().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.key = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-XcalarApiKeyDeleteInputT.prototype.write = function(output) {
-  output.writeStructBegin('XcalarApiKeyDeleteInputT');
-  if (this.scope !== null && this.scope !== undefined) {
-    output.writeFieldBegin('scope', Thrift.Type.I32, 1);
-    output.writeI32(this.scope);
-    output.writeFieldEnd();
-  }
-  if (this.key !== null && this.key !== undefined) {
-    output.writeFieldBegin('key', Thrift.Type.STRING, 2);
-    output.writeString(this.key);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -18231,7 +17760,6 @@ XcalarApiQueryInputT = function(args) {
   this.batch = null;
   this.targetName = null;
   this.queryStr = null;
-  this.sameSession = null;
   if (args) {
     if (args.querySession !== undefined) {
       this.querySession = args.querySession;
@@ -18247,9 +17775,6 @@ XcalarApiQueryInputT = function(args) {
     }
     if (args.queryStr !== undefined) {
       this.queryStr = args.queryStr;
-    }
-    if (args.sameSession !== undefined) {
-      this.sameSession = args.sameSession;
     }
   }
 };
@@ -18302,13 +17827,6 @@ XcalarApiQueryInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 6:
-      if (ftype == Thrift.Type.BOOL) {
-        this.sameSession = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
       default:
         input.skip(ftype);
     }
@@ -18343,11 +17861,6 @@ XcalarApiQueryInputT.prototype.write = function(output) {
   if (this.queryStr !== null && this.queryStr !== undefined) {
     output.writeFieldBegin('queryStr', Thrift.Type.STRING, 5);
     output.writeString(this.queryStr);
-    output.writeFieldEnd();
-  }
-  if (this.sameSession !== null && this.sameSession !== undefined) {
-    output.writeFieldBegin('sameSession', Thrift.Type.BOOL, 6);
-    output.writeBool(this.sameSession);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -19005,10 +18518,7 @@ XcalarApiInputT = function(args) {
   this.sessionListInput = null;
   this.sessionRenameInput = null;
   this.createDhtInput = null;
-  this.keyAppendInput = null;
-  this.keyReplaceIfEqualInput = null;
   this.deleteDhtInput = null;
-  this.downloadPythonInput = null;
   if (args) {
     if (args.loadInput !== undefined) {
       this.loadInput = args.loadInput;
@@ -19154,17 +18664,8 @@ XcalarApiInputT = function(args) {
     if (args.createDhtInput !== undefined) {
       this.createDhtInput = args.createDhtInput;
     }
-    if (args.keyAppendInput !== undefined) {
-      this.keyAppendInput = args.keyAppendInput;
-    }
-    if (args.keyReplaceIfEqualInput !== undefined) {
-      this.keyReplaceIfEqualInput = args.keyReplaceIfEqualInput;
-    }
     if (args.deleteDhtInput !== undefined) {
       this.deleteDhtInput = args.deleteDhtInput;
-    }
-    if (args.downloadPythonInput !== undefined) {
-      this.downloadPythonInput = args.downloadPythonInput;
     }
   }
 };
@@ -19443,9 +18944,8 @@ XcalarApiInputT.prototype.read = function(input) {
       }
       break;
       case 34:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.keyLookupInput = new XcalarApiKeyLookupInputT();
-        this.keyLookupInput.read(input);
+      if (ftype == Thrift.Type.STRING) {
+        this.keyLookupInput = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -19459,9 +18959,8 @@ XcalarApiInputT.prototype.read = function(input) {
       }
       break;
       case 36:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.keyDeleteInput = new XcalarApiKeyDeleteInputT();
-        this.keyDeleteInput.read(input);
+      if (ftype == Thrift.Type.STRING) {
+        this.keyDeleteInput = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -19561,32 +19060,8 @@ XcalarApiInputT.prototype.read = function(input) {
       break;
       case 49:
       if (ftype == Thrift.Type.STRUCT) {
-        this.keyAppendInput = new XcalarApiKeyAppendInputT();
-        this.keyAppendInput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 50:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.keyReplaceIfEqualInput = new XcalarApiKeyReplaceIfEqualInputT();
-        this.keyReplaceIfEqualInput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 51:
-      if (ftype == Thrift.Type.STRUCT) {
         this.deleteDhtInput = new XcalarApiDeleteDhtInputT();
         this.deleteDhtInput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 52:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.downloadPythonInput = new XcalarApiDownloadPythonInputT();
-        this.downloadPythonInput.read(input);
       } else {
         input.skip(ftype);
       }
@@ -19768,8 +19243,8 @@ XcalarApiInputT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.keyLookupInput !== null && this.keyLookupInput !== undefined) {
-    output.writeFieldBegin('keyLookupInput', Thrift.Type.STRUCT, 34);
-    this.keyLookupInput.write(output);
+    output.writeFieldBegin('keyLookupInput', Thrift.Type.STRING, 34);
+    output.writeString(this.keyLookupInput);
     output.writeFieldEnd();
   }
   if (this.keyAddOrReplaceInput !== null && this.keyAddOrReplaceInput !== undefined) {
@@ -19778,8 +19253,8 @@ XcalarApiInputT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.keyDeleteInput !== null && this.keyDeleteInput !== undefined) {
-    output.writeFieldBegin('keyDeleteInput', Thrift.Type.STRUCT, 36);
-    this.keyDeleteInput.write(output);
+    output.writeFieldBegin('keyDeleteInput', Thrift.Type.STRING, 36);
+    output.writeString(this.keyDeleteInput);
     output.writeFieldEnd();
   }
   if (this.topInput !== null && this.topInput !== undefined) {
@@ -19842,24 +19317,9 @@ XcalarApiInputT.prototype.write = function(output) {
     this.createDhtInput.write(output);
     output.writeFieldEnd();
   }
-  if (this.keyAppendInput !== null && this.keyAppendInput !== undefined) {
-    output.writeFieldBegin('keyAppendInput', Thrift.Type.STRUCT, 49);
-    this.keyAppendInput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.keyReplaceIfEqualInput !== null && this.keyReplaceIfEqualInput !== undefined) {
-    output.writeFieldBegin('keyReplaceIfEqualInput', Thrift.Type.STRUCT, 50);
-    this.keyReplaceIfEqualInput.write(output);
-    output.writeFieldEnd();
-  }
   if (this.deleteDhtInput !== null && this.deleteDhtInput !== undefined) {
-    output.writeFieldBegin('deleteDhtInput', Thrift.Type.STRUCT, 51);
+    output.writeFieldBegin('deleteDhtInput', Thrift.Type.STRUCT, 49);
     this.deleteDhtInput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.downloadPythonInput !== null && this.downloadPythonInput !== undefined) {
-    output.writeFieldBegin('downloadPythonInput', Thrift.Type.STRUCT, 52);
-    this.downloadPythonInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -20578,7 +20038,6 @@ XcalarApiOutputResultT = function(args) {
   this.sessionListOutput = null;
   this.getQueryOutput = null;
   this.uploadPythonOutput = null;
-  this.downloadPythonOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined) {
       this.getVersionOutput = args.getVersionOutput;
@@ -20678,9 +20137,6 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.uploadPythonOutput !== undefined) {
       this.uploadPythonOutput = args.uploadPythonOutput;
-    }
-    if (args.downloadPythonOutput !== undefined) {
-      this.downloadPythonOutput = args.downloadPythonOutput;
     }
   }
 };
@@ -20961,14 +20417,6 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 34:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.downloadPythonOutput = new XcalarApiDownloadPythonOutputT();
-        this.downloadPythonOutput.read(input);
-      } else {
-        input.skip(ftype);
-      }
-      break;
       default:
         input.skip(ftype);
     }
@@ -21143,11 +20591,6 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.uploadPythonOutput !== null && this.uploadPythonOutput !== undefined) {
     output.writeFieldBegin('uploadPythonOutput', Thrift.Type.STRUCT, 33);
     this.uploadPythonOutput.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.downloadPythonOutput !== null && this.downloadPythonOutput !== undefined) {
-    output.writeFieldBegin('downloadPythonOutput', Thrift.Type.STRUCT, 34);
-    this.downloadPythonOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -21489,9 +20932,9 @@ XcalarApiDefaultFieldDelimT = '\t';
 
 
 XcalarApiVersionT = {
-  'XcalarApiVersionSignature' : 263328969
+  'XcalarApiVersionSignature' : 10694577
 };
-XcalarApiVersionTStr = {263328969 : 'fb214c94cffa64bc5603bd1dd32f8183'
+XcalarApiVersionTStr = {10694577 : '0a32fb19f2f11deaceb5f9437a0f8325'
 };
 //
 // Autogenerated by Thrift Compiler (0.9.2)
@@ -22336,8 +21779,7 @@ function xcalarGetStatGroupIdMap(thriftHandle, nodeId, numGroupId) {
     return (deferred.promise());
 }
 
-function xcalarQueryWorkItem(queryName, queryStr, batch, targetName,
-                             sameSession) {
+function xcalarQueryWorkItem(queryName, queryStr, batch, targetName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryInput = new XcalarApiQueryInputT();
@@ -22347,19 +21789,16 @@ function xcalarQueryWorkItem(queryName, queryStr, batch, targetName,
     workItem.input.queryInput.queryStr = queryStr;
     workItem.input.queryInput.batch = batch;
     workItem.input.queryInput.targetName = targetName;
-    workItem.input.queryInput.sameSession = sameSession;
     return (workItem);
 }
 
-function xcalarQuery(thriftHandle, queryName, queryStr, batch, targetName,
-                     sameSession) {
+function xcalarQuery(thriftHandle, queryName, queryStr, batch, targetName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQuery(query name= " + queryName +
                     " queryStr" + queryStr + ")");
     }
-    var workItem = xcalarQueryWorkItem(queryName, queryStr, batch, targetName,
-                                       sameSession);
+    var workItem = xcalarQueryWorkItem(queryName, queryStr, batch, targetName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -23648,24 +23087,22 @@ function xcalarListParametersInRetina(thriftHandle, retinaName) {
     return (deferred.promise());
 }
 
-function xcalarKeyLookupWorkItem(scope, key) {
+function xcalarKeyLookupWorkItem(key) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.keyLookupInput = new XcalarApiKeyLookupInputT();
-    workItem.input.keyLookupInput.scope = scope;
-    workItem.input.keyLookupInput.key = key;
+
     workItem.api = XcalarApisT.XcalarApiKeyLookup;
+    workItem.input.keyLookupInput = key;
     return (workItem);
 }
 
-function xcalarKeyLookup(thriftHandle, scope, key) {
+function xcalarKeyLookup(thriftHandle, key) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarKeyLookup(scope = " + scope + ", key = "
-        			+ key + ")");
+        console.log("xcalarKeyLookup(key = " + key + ")");
     }
 
-    var workItem = xcalarKeyLookupWorkItem(scope, key);
+    var workItem = xcalarKeyLookupWorkItem(key);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -23688,11 +23125,10 @@ function xcalarKeyLookup(thriftHandle, scope, key) {
     return (deferred.promise());
 }
 
-function xcalarKeyAddOrReplaceWorkItem(scope, persist, key, value) {
+function xcalarKeyAddOrReplaceWorkItem(persist, key, value) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.keyAddOrReplaceInput = new XcalarApiKeyAddOrReplaceInputT();
-    workItem.input.keyAddOrReplaceInput.scope = scope;
     workItem.input.keyAddOrReplaceInput.kvPair = new XcalarApiKeyValuePairT();
 
     workItem.api = XcalarApisT.XcalarApiKeyAddOrReplace;
@@ -23702,19 +23138,19 @@ function xcalarKeyAddOrReplaceWorkItem(scope, persist, key, value) {
     return (workItem);
 }
 
-function xcalarKeyAddOrReplace(thriftHandle, scope, key, value, persist) {
+function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarKeyAddOrReplace(source = " + scope + ", key = " +
-                    key + ", value = " + value + ", persist = " +
-                    persist.toString() + ")");
+        console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value
+                    + "persist = " + persist.toString() + ")");
     }
 
-    var workItem = xcalarKeyAddOrReplaceWorkItem(scope, persist, key, value);
+    var workItem = xcalarKeyAddOrReplaceWorkItem(persist, key, value);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
+
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
@@ -23731,105 +23167,22 @@ function xcalarKeyAddOrReplace(thriftHandle, scope, key, value, persist) {
     return (deferred.promise());
 }
 
-function xcalarKeyAppendWorkItem(scope, key, suffix) {
+function xcalarKeyDeleteWorkItem(key) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
-    workItem.input.keyAppendInput = new XcalarApiKeyAppendInputT();
-    workItem.input.keyAppendInput.scope = scope;
-    workItem.input.keyAppendInput.key = key;
-    workItem.input.keyAppendInput.suffix = suffix;
-    workItem.api = XcalarApisT.XcalarApiKeyAppend;
-    return (workItem);
-}
-
-function xcalarKeyAppend(thriftHandle, scope, key, suffix) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarKeyAppend(scope = " + scope + ", key = " + key +
-                    ", suffix = " + suffix + ")");
-    }
-
-    var workItem = xcalarKeyAppendWorkItem(scope, key, suffix);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject(status);
-        }
-        deferred.resolve(status);
-    })
-    .fail(function(error) {
-        console.log("xcalarKeyAppend() caught exception:", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
-function xcalarKeyReplaceIfEqualWorkItem(scope, key, oldValue, newValue) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.keyReplaceIfEqualInput = new XcalarApiKeyReplaceIfEqualInputT();
-    workItem.api = XcalarApisT.XcalarApiKeyReplaceIfEqual;
-    workItem.input.keyReplaceIfEqualInput.scope = scope;
-    workItem.input.keyReplaceIfEqualInput.key = key;
-    workItem.input.keyReplaceIfEqualInput.oldValue = oldValue;
-    workItem.input.keyReplaceIfEqualInput.newValue = newValue;
-    return (workItem);
-}
-
-function xcalarKeyReplaceIfEqual(thriftHandle, scope, key, oldValue, newValue) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarKeyReplaceIfEqual(scope = " + scope + ", key = " +
-                    key + ", oldValue = " + oldValue + ", newValue = " +
-                    newValue + ")");
-    }
-
-    var workItem = xcalarKeyReplaceIfEqualWorkItem(scope, key, oldValue, newValue);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject(status);
-        }
-        deferred.resolve(status);
-    })
-    .fail(function(error) {
-        console.log("xcalarKeyReplaceIfEqual() caught exception:", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
-function xcalarKeyDeleteWorkItem(scope, key) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.keyDeleteInput = new XcalarApiKeyDeleteInputT();
 
     workItem.api = XcalarApisT.XcalarApiKeyDelete;
-    workItem.input.keyDeleteInput.scope = scope;
-    workItem.input.keyDeleteInput.key = key;
+    workItem.input.keyDeleteInput = key;
     return (workItem);
 }
 
-function xcalarKeyDelete(thriftHandle, scope, key) {
+function xcalarKeyDelete(thriftHandle, key) {
     var deferred = jQuery.Deferred();
     if (verbose) {
-        console.log("xcalarKeyDelete(scope = " + scope + ", key = " +
-                    key + ")");
+        console.log("xcalarKeyDelete(key = " + key + ")");
     }
 
-    var workItem = xcalarKeyDeleteWorkItem(scope, key);
+    var workItem = xcalarKeyDeleteWorkItem(key);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -24264,7 +23617,7 @@ function xcalarApiUploadPython(thriftHandle, moduleName, pythonSrc) {
         var status = result.output.hdr.status;
 
         if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
+	        status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
             deferred.reject(status);
@@ -24274,46 +23627,6 @@ function xcalarApiUploadPython(thriftHandle, moduleName, pythonSrc) {
     })
     .fail(function(error) {
         console.log("xcalarApiUploadPython() caught exception: ", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
-function xcalarApiDownloadPythonWorkItem(moduleName) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.downloadPythonInput = new XcalarApiDownloadPythonInputT();
-
-    workItem.api = XcalarApisT.XcalarApiDownloadPython;
-    workItem.input.downloadPythonInput.moduleName = moduleName;
-    return (workItem);
-}
-
-function xcalarApiDownloadPython(thriftHandle, moduleName) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarApiDownloadPython(moduleName = ", moduleName,")");
-    }
-    var workItem = xcalarApiDownloadPythonWorkItem(moduleName);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
-        var downloadPythonOutput =
-                                result.output.outputResult.downloadPythonOutput;
-
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject(status);
-        }
-
-        deferred.resolve(downloadPythonOutput);
-    })
-    .fail(function(error) {
-        console.log("xcalarApiDownloadPython() caught exception: ", error);
         deferred.reject(error);
     });
 
@@ -24429,43 +23742,6 @@ function xcalarApiDeleteDht(thriftHandle, dhtName) {
     })
     .fail(function(error) {
         console.log("xcalarApiDeleteDht() caught exception: ", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
-function xcalarApiSupportSendWorkItem() {
-    var workItem = new WorkItem();
-    workItem.api = XcalarApisT.XcalarApiSupportSend;
-
-    return (workItem);
-}
-
-function xcalarApiSupportSend(thriftHandle) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarApiSupportSend()");
-    }
-
-    var workItem = xcalarApiSupportSendWorkItem();
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
-
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk &&
-            status != StatusT.StatusNsNotFound) {
-            deferred.reject(status);
-        }
-
-        deferred.resolve(status);
-    })
-    .fail(function(error) {
-        console.log("xcalarApiSupportSend() caught exception: ", error);
         deferred.reject(error);
     });
 
