@@ -1411,24 +1411,28 @@ window.DataPreview = (function($, DataPreview) {
                 return;
             }
             // add alert
-            var msg;
-            if (delimiter === "" && !hasHeader) {
-                msg = "You have not chosen a delimiter and " +
-                        "header row,\n";
-            } else if (delimiter === ""){
-                msg = "You have not chosen a delimiter,\n";
-            } else if (!hasHeader) {
-                msg = "You have not chosen a header row,\n";
-            }
-            msg += "are you sure you want to continue?";
-
-            Alert.show({
-                "title"  : "LOAD DATASET CONFIRMATION",
-                "msg"    : msg,
-                "confirm": function () {
-                    DataPreview.load();
+            if (delimiter === "" || !hasHeader) {
+                var msg;
+                if (delimiter === "" && !hasHeader) {
+                    msg = "You have not chosen a delimiter and " +
+                            "header row,\n";
+                } else if (delimiter === ""){
+                    msg = "You have not chosen a delimiter,\n";
+                } else if (!hasHeader) {
+                    msg = "You have not chosen a header row,\n";
                 }
-            });
+                msg += "are you sure you want to continue?";
+
+                Alert.show({
+                    "title"  : "LOAD DATASET CONFIRMATION",
+                    "msg"    : msg,
+                    "confirm": function () {
+                        DataPreview.load();
+                    }
+                });
+            } else {
+                DataPreview.load();
+            }
         });
 
         // close preview
