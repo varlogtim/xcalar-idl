@@ -1083,6 +1083,33 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.centerFocusedColumn = function(tableId, colNum, animate) {
+        var $tableWrap = $('#xcTableWrap-' + tableId);
+        var windowWidth = $(window).width();
+        var currentScrollPosition = $('#mainFrame').scrollLeft();
+        var $th = $tableWrap.find('th.col' + (colNum + 1));
+        var columnOffset = $th.offset().left;
+        var colWidth = $th.width();
+
+        var leftPosition = currentScrollPosition + columnOffset;
+        var scrollPosition = leftPosition - ((windowWidth - colWidth) / 2);
+
+        focusTable(tableId);
+        $th.find('.flex-mid').mousedown();
+
+        if (animate && !gMinModeOn) {
+            $('#mainFrame').animate({scrollLeft: scrollPosition}, 500,
+                                function() {
+                                    focusTable(tableId);
+                                    moveFirstColumn();
+                                    xcHelper.removeSelectionRange();
+                                });
+        } else {
+            $('#mainFrame').scrollLeft(scrollPosition);
+            moveFirstColumn();
+        }  
+    }
+
     xcHelper.isTableInScreen = function(tableId) {
         var windowWidth = $(window).width();
         var $tableWrap = $("#xcTableWrap-" + tableId);

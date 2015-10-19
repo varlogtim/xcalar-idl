@@ -694,6 +694,10 @@ window.RightSideBar = (function($, RightSideBar) {
                 }
             });
         });
+
+        $('#activeTablesList').on("click", ".column", function() {
+            focusOnTableColumn($(this));
+        });
     }
 
     // setup UDF section
@@ -1274,7 +1278,8 @@ window.RightSideBar = (function($, RightSideBar) {
             for (var j = 0; j < numCols; j++) {
                 // if (table.tableCols[j].name != 'DATA') {
                 html +=
-                    '<li draggable="true" ondragstart="xcDrag(event)">' +
+                    '<li class="column" draggable="true" ' +
+                    'ondragstart="xcDrag(event)">' +
                         table.tableCols[j].name +
                     '</li>';
                 // }
@@ -1464,6 +1469,22 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         return (sortedTables);
+    }
+
+    function focusOnTableColumn($listCol) {
+        // var colName = $listCol.text();
+        var colNum = $listCol.index();
+        var tableId = $listCol.closest('.tableInfo').data('id');
+        var wsNum = WSManager.getWSFromTable(tableId);
+        $('#worksheetTab-' + wsNum).click();
+        var animation;
+        
+        if (gMinModeOn) {
+            animation = false;
+        } else {
+            animation = true;
+        }
+        xcHelper.centerFocusedColumn(tableId, colNum, animation);
     }
 
     function popOutModal($rightSideBar) {
