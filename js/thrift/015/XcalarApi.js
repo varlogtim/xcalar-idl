@@ -1961,7 +1961,7 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarKeyAddOrReplace(key = " + key + ", value = " + value
-                    + ", persist = " + persist.toString() + ")");
+                    + "persist = " + persist.toString() + ")");
     }
 
     var workItem = xcalarKeyAddOrReplaceWorkItem(persist, key, value);
@@ -1969,6 +1969,7 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var status = result.output.hdr.status;
+
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
@@ -1979,83 +1980,6 @@ function xcalarKeyAddOrReplace(thriftHandle, key, value, persist) {
     })
     .fail(function(error) {
         console.log("xcalarKeyAddOrReplace() caught exception:", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
-function xcalarKeyAppendWorkItem(key, suffix) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.keyAppendInput = new XcalarApiKeyAppendInputT();
-    workItem.input.keyAppendInput.key = key;
-    workItem.input.keyAppendInput.suffix = suffix;
-    workItem.api = XcalarApisT.XcalarApiKeyAppend;
-    return (workItem);
-}
-
-function xcalarKeyAppend(thriftHandle, key, suffix) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarKeyAppend(key = " + key + ", suffix = " + suffix
-                    + ")");
-    }
-
-    var workItem = xcalarKeyAppendWorkItem(key, suffix);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject(status);
-        }
-        deferred.resolve(status);
-    })
-    .fail(function(error) {
-        console.log("xcalarKeyAppend() caught exception:", error);
-        deferred.reject(error);
-    });
-
-    return (deferred.promise());
-}
-
-function xcalarKeyReplaceIfEqualWorkItem(key, oldValue, newValue) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.keyReplaceIfEqualInput = new XcalarApiKeyReplaceIfEqualInputT();
-    workItem.api = XcalarApisT.XcalarApiKeyReplaceIfEqual;
-    workItem.input.keyReplaceIfEqualInput.key = key;
-    workItem.input.keyReplaceIfEqualInput.oldValue = oldValue;
-    workItem.input.keyReplaceIfEqualInput.newValue = newValue;
-    return (workItem);
-}
-
-function xcalarKeyReplaceIfEqual(thriftHandle, key, oldValue, newValue) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarKeyReplaceIfEqual(key = " + key + ", oldValue = "
-                    + oldValue + ", newValue = " + newValue + ")");
-    }
-
-    var workItem = xcalarKeyReplaceIfEqualWorkItem(key, oldValue, newValue);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject(status);
-        }
-        deferred.resolve(status);
-    })
-    .fail(function(error) {
-        console.log("xcalarKeyReplaceIfEqual() caught exception:", error);
         deferred.reject(error);
     });
 

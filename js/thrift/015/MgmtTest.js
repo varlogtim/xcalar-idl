@@ -54,10 +54,10 @@
     startNodesState = TestCaseEnabled;
 
     system.args.forEach(function(arg, i) {
-        if (arg === "nostartnodes") {
-            console.log("Disabling testStartNodes()");
-            startNodesState = TestCaseDisabled;
-        }
+	if (arg === "nostartnodes") {
+	    console.log("Disabling testStartNodes()");
+	    startNodesState = TestCaseDisabled;
+	}
     });
 
     function startTest(deferred, testNameLocal, currentTestNumberLocal, timeout) {
@@ -165,13 +165,13 @@
 
     function testStartNodes(deferred, testName, currentTestNumber) {
         xcalarStartNodes(thriftHandle, 4)
-        .done(function(result) {
-            printResult(result);
-            pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
+	.done(function(result) {
+	    printResult(result);
+	    pass(deferred, testName, currentTestNumber);
+	})
+	.fail(function(reason) {
+	    fail(deferred, testName, currentTestNumber, reason);
+	});
     }
 
     function testGetNumNodes(deferred, testName, currentTestNumber) {
@@ -201,7 +201,7 @@
         loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
         loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-        loadArgs.csv.isCRLF = false;
+	loadArgs.csv.isCRLF = false;
 
         xcalarLoad(thriftHandle, "file:///var/tmp/yelp/user", "yelp", DfFormatTypeT.DfFormatJson, 0, loadArgs)
         .done(function(result) {
@@ -221,7 +221,7 @@
         loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
         loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
         loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-        loadArgs.csv.isCRLF = false;
+	    loadArgs.csv.isCRLF = false;
 
         xcalarLoad(thriftHandle, "file:///var/tmp/yelp/reviews", "review",
                    DfFormatTypeT.DfFormatJson, 0, loadArgs)
@@ -722,7 +722,7 @@
     function testResultSetAbsoluteBogus(deferred, testName, currentTestNumber) {
             xcalarResultSetAbsolute(thriftHandle,
                                     makeResultSetOutput2.resultSetId,
-                                    281474976710655)
+				    281474976710655)
             .done(function(status) {
                 fail(deferred, testName, currentTestNumber, reason);
             })
@@ -1288,69 +1288,6 @@
         testApiKeyAddOrReplace(deferred, testName, currentTestNumber, "mykey", "myvalue2");
     }
 
-    function testApiKeyAppend(deferred, testName, currentTestNumber) {
-        // Insert original key
-        xcalarKeyAddOrReplace(thriftHandle, "myotherkey", "a", false)
-        .then(function() {
-            // Append first 'a'
-            return xcalarKeyAppend(thriftHandle, "myotherkey", "a");
-        })
-        .then(function() {
-            // Append second 'a'
-            return xcalarKeyAppend(thriftHandle, "myotherkey", "a");
-        })
-        .then(function() {
-            // Lookup. Make sure result is 'aaa'
-            return xcalarKeyLookup(thriftHandle, "myotherkey");
-        })
-        .then(function(lookupOutput) {
-            if (lookupOutput.value != "aaa") {
-                var reason = "wrong value. got \"" + lookupOutput.value + "\" instead of \"aaa\"";
-                fail(deferred, testName, currentTestNumber, reason);
-            } else {
-                pass(deferred, testName, currentTestNumber);
-            }
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
-    }
-
-    function testApiKeyReplaceIfEqual(deferred, testName, currentTestNumber) {
-        // Insert original key
-        xcalarKeyAddOrReplace(thriftHandle, "yourkey", "b", false)
-        .then(function() {
-            // Try replacing with incorrect oldValue
-            xcalarKeyReplaceIfEqual(thriftHandle, "yourkey", "wrongvalue", "c")
-            .then(function() {
-                var reason = "Expected failure due to incorrect oldValue."
-                fail(deferred, testName, currentTestNumber, reason);
-            })
-            .fail(function(reason) {
-                // Try replacing with correct oldValue
-                xcalarKeyReplaceIfEqual(thriftHandle, "yourkey", "b", "c")
-                .then(function() {
-                    // Lookup. Make sure result is as expected
-                    return xcalarKeyLookup(thriftHandle, "yourkey");
-                })
-                .then(function(lookupOutput) {
-                    if (lookupOutput.value != "c") {
-                        var reason = "wrong value. got \"" + lookupOutput.value + "\" instead of \"b\"";
-                        fail(deferred, testName, currentTestNumber, reason);
-                    } else {
-                        pass(deferred, testName, currentTestNumber);
-                    }
-                })
-                .fail(function(reason) {
-                    fail(deferred, testName, currentTestNumber, reason);
-                });
-            });
-        })
-        .fail(function(reason) {
-            fail(deferred, testName, currentTestNumber, reason);
-        });
-    }
-
     function testApiKeyLookup(deferred, testName, currentTestNumber) {
         xcalarKeyLookup(thriftHandle, "mykey")
         .done(function(lookupOutput) {
@@ -1541,37 +1478,32 @@
     }
 
     function testPyExecOnLoad(deferred, testName, currentTestNumber) {
-        var fs = require('fs');
+	var fs = require('fs');
 
-        var content = fs.read('PyExecOnLoadTest.py');
+	var content = fs.read('PyExecOnLoadTest.py');
 
         xcalarApiUploadPython(thriftHandle, "PyExecOnLoadTest", content)
         .done(function(uploadPythonOutput) {
             if (status == StatusT.StatusOk) {
-                loadArgs = new XcalarApiDfLoadArgsT();
-                loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-                loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
-                loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
-                loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
-                loadArgs.csv.isCRLF = false;
-                loadArgs.pyLoadArgs.fullyQualifiedFnName = "PyExecOnLoadTest:poorManCsvToJson";
+		loadArgs = new XcalarApiDfLoadArgsT();
+		loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+		loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
+		loadArgs.csv.recordDelim = XcalarApiDefaultRecordDelimT;
+		loadArgs.csv.fieldDelim = XcalarApiDefaultFieldDelimT;
+		loadArgs.csv.isCRLF = false;
+		loadArgs.pyLoadArgs.fullyQualifiedFnName = "PyExecOnLoadTest:poorManCsvToJson";
 
-                xcalarLoad(thriftHandle,
-                           "file:///var/tmp/qa/operatorsTest/movies/movies.csv",
-                           "movies",
-                           DfFormatTypeT.DfFormatJson,
-                           0,
-                           loadArgs)
-                .done(function(result) {
-                    printResult(result);
-                    loadOutput = result;
-                    origDataset = loadOutput.dataset.name;
-                    pass(deferred, testName, currentTestNumber);
-                })
-                .fail(function(reason) {
-                    fail(deferred, testName, currentTestNumber,
-                         StatusTStr[reason]);
-                });
+		xcalarLoad(thriftHandle, "file:///var/tmp/qa/operatorsTest/movies/movies.csv", "movies", DfFormatTypeT.DfFormatJson, 0, loadArgs)
+	        .done(function(result) {
+		    printResult(result);
+		    loadOutput = result;
+		    origDataset = loadOutput.dataset.name;
+		    pass(deferred, testName, currentTestNumber);
+		})
+		.fail(function(reason) {
+		    fail(deferred, testName, currentTestNumber,
+                            StatusTStr[reason]);
+		});
             } else {
                 var reason = "status = " + status;
                 fail(deferred, testName, currentTestNumber, reason);
@@ -1829,8 +1761,6 @@
     addTestCase(testCases, testApiKeyLookup, "key lookup", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testApiKeyDelete, "key delete", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testApiKeyBogusLookup, "bogus key lookup", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiKeyAppend, "key append", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testCases, testApiKeyReplaceIfEqual, "key replace if equal", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testCases, testTop, "top test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testCases, testMemory, "memory test", defaultTimeout, TestCaseEnabled, "");
