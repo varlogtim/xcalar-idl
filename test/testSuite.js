@@ -422,7 +422,10 @@ window.TestSuite = (function($, TestSuite) {
                             .find(".colMenu:not(.tableMenu) .joinList");
             $colMenu.trigger(fakeEvent.mouseup);
                 $("#rightJoin .tableLabel:contains('airport')").trigger(fakeEvent.click);
-                $("#rightJoin .columnTab:contains('iata')").trigger(fakeEvent.click);
+                var $th = $("#rightJoin .columnTab:contains('iata')");
+                if (!$th.hasClass("colSelected")) {
+                    $th.trigger(fakeEvent.click);
+                }
 
                 setTimeout(function() {
                     $("#joinTables").click();
