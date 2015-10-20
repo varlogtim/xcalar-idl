@@ -158,7 +158,17 @@ window.Alert = (function($, Alert){
             $copySqlBtn.click(function() {
                 var $hiddenInput = $("<input>");
                 $("body").append($hiddenInput);
-                $hiddenInput.val(JSON.stringify(SQL.getHistory())).select();
+                var logText = "";
+                logText += "Error: " + $('#alertHeader').find('.text')
+                                                        .text() + ", ";
+                logText += "Description: " + $('#alertContent').find('.text')
+                                                               .text();
+                var sql = JSON.stringify(SQL.getHistory());
+                if (sql !== "[]") {
+                    logText += ", SQL: " + sql;
+                }
+
+                $hiddenInput.val(logText).select();
                 document.execCommand("copy");
                 $hiddenInput.remove();
             });
