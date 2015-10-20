@@ -421,6 +421,7 @@ window.TestSuite = (function($, TestSuite) {
             var $colMenu = $(".xcTableWrap").eq(0)
                             .find(".colMenu:not(.tableMenu) .joinList");
             $colMenu.trigger(fakeEvent.mouseup);
+            setTimeout(function() {
                 $("#rightJoin .tableLabel:contains('airport')").trigger(fakeEvent.click);
                 var $th = $("#rightJoin .columnTab:contains('iata')");
                 if (!$th.hasClass("colSelected")) {
@@ -438,6 +439,7 @@ window.TestSuite = (function($, TestSuite) {
                         TestSuite.fail(deferred, testName, currentTestNumber);
                     });
                 }, 500);
+            }, 500);
         }
 
         // Group by
