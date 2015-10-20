@@ -21,6 +21,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         "animation": false,
         "placement": "top",
         "container": "body",
+        "html"     : true,
         "template" : '<div class="bartip tooltip" role="tooltip">' +
                         '<div class="tooltip-arrow"></div>' +
                         '<div class="tooltip-inner"></div>' +
@@ -727,7 +728,7 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             chart = d3.select("#statsModal .groupbyChart")
                 .attr("width", chartWidth)
-                .attr("height", chartHeight)
+                .attr("height", chartHeight + 2)
                 .style("position", "relative")
                 .style("left", left)
             .append("g")
@@ -738,25 +739,25 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             d3.select("#statsModal .groupbyChart")
                 .attr("width", chartWidth)
-                .attr("height", chartHeight)
+                .attr("height", chartHeight + 2)
                 .style("left", left);
 
             var time = 60;
             barAreas = chart.selectAll(".barArea");
 
             barAreas.select(".bar")
+                .attr("y", function(d) { return y(d[yName]); })
+                .attr("height", function(d) { return height - y(d[yName]); })
                 .transition()
                 .duration(time)
                 .attr("x", function(d) { return x(d[xName]); })
-                .attr("y", function(d) { return y(d[yName]); })
-                .attr("height", function(d) { return height - y(d[yName]); })
                 .attr("width", xWidth);
 
             barAreas.select(".bar-extra")
+                .attr("height", height)
                 .transition()
                 .duration(time)
                 .attr("x", function(d) { return x(d[xName]); })
-                .attr("height", height)
                 .attr("width", xWidth);
             // label
             barAreas.select(".xlabel")
@@ -767,10 +768,10 @@ window.STATSManager = (function($, STATSManager, d3) {
                 .text(getLabel);
             // tick
             barAreas.select(".tick")
+                .attr("y", chartHeight)
                 .transition()
                 .duration(time)
                 .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
-                .attr("y", chartHeight)
                 .attr("width", xWidth)
                 .text(getXAxis);
 
@@ -848,7 +849,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         barAreas.exit().remove();
 
         function getXAxis(d) {
-            var name = d[xName];
+            var name = d[xName].toLocaleString();
             if (name.length > charLenToFit) {
                 return (name.substring(0, charLenToFit) + "..");
             } else {
@@ -864,7 +865,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                 num = (num / (groupByInfo.sum + groupByInfo.nullCount) * 100).toFixed(1) + "%";
                 return (num);
             } else {
-                num = d[yName].toLocaleString("en");
+                num = d[yName].toLocaleString();
                 if (num.length > charLenToFit) {
                     return (num.substring(0, charLenToFit) + "..");
                 } else {
@@ -888,11 +889,11 @@ window.STATSManager = (function($, STATSManager, d3) {
                 } else {
                     per += "%";
                 }
-                title = xName + ": " + d[xName] + "\r\n" +
-                        "Percentage: " + per;
+                title = xName + ": " + d[xName].toLocaleString() +
+                        "<br>Percentage: " + per;
             } else {
-                title = xName + ": " + d[xName] + "\r\n" +
-                    "Frequency: " + d[yName].toLocaleString();
+                title = xName + ": " + d[xName].toLocaleString() + "\r\n" +
+                    "<br>Frequency: " + d[yName].toLocaleString();
             }
 
             var options = $.extend({}, tooltipOptions, {
