@@ -75,6 +75,12 @@ window.FileBrowser = (function($, FileBrowser) {
         $(document).on("keydown.fileBrowser", function(event) {
             // up to parent folder
             if (event.which === keyCode.Backspace) {
+                var $target = $(event.target);
+                if ($target.is("input") ||
+                    ($target.is("div") && $target.prop("contenteditable")))
+                {
+                    return true;
+                }
                 $("#fileBrowserUp").click();
                 return false;
             }
@@ -273,8 +279,7 @@ window.FileBrowser = (function($, FileBrowser) {
             "keyup": function(event) {
                 // XXX assume what inputed should be a path
                 var $input = $(this);
-                var path   = $input.text();
-
+                var path = $input.text();
                 event.preventDefault();
 
                 clearTimeout(timer);
@@ -702,8 +707,10 @@ window.FileBrowser = (function($, FileBrowser) {
 
         $container.find(".grid-unit").removeClass("active");
         var $grid = $container.find(str).eq(0).closest('.grid-unit');
-        $grid.addClass('active');
-        updateFileName($grid);
+        if ($grid.length > 0) {
+            $grid.addClass('active');
+            updateFileName($grid);
+        }
     }
 
     function getFocusGrid() {

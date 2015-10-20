@@ -418,7 +418,7 @@ window.xcHelper = (function($, xcHelper) {
                 // stop propagation of left mousedown
                 // because hide dropdown is triggered by it
                 // should invalid that when mousedown on listSection
-                return false;
+                event.stopPropagation();
             }
         });
 
