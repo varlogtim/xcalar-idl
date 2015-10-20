@@ -424,7 +424,7 @@ window.TestSuite = (function($, TestSuite) {
             setTimeout(function() {
                 $("#rightJoin .tableLabel:contains('airport')").trigger(fakeEvent.click);
                 var $th = $("#rightJoin .columnTab:contains('iata')");
-                if (!$th.hasClass("colSelected")) {
+                if (!$th.parent().hasClass("colSelected")) {
                     $th.trigger(fakeEvent.click);
                 }
 
