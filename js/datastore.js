@@ -2392,10 +2392,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
             numEntries = Number(numEntries).toLocaleString('en');
         }
 
-        // if we're preloading  the info (partial), we do not want to show "N/A"
-        if (numEntries !== "N/A" || !partial) {
+        // If we are preloading the data, we want to show N/A until it is done
+        if (numEntries !== "N/A" || partial) {
             $("#dsInfo-records").text(numEntries);
         }
+
         if (path !== "N/A" || !partial) {
             $("#dsInfo-path").text(path);
         }
