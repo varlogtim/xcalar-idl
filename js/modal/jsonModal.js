@@ -11,6 +11,14 @@ window.JSONModal = (function($, JSONModal) {
     var $activeJsonTd;
     var jsonIsArray;
 
+    var minHeight = 300;
+    var minWidth  = 300;
+    var modalHelper = new xcHelper.Modal($jsonModal, {
+        "minHeight" : minHeight,
+        "minWidth"  : minWidth,
+        "noTabFocus": true
+    });
+
     JSONModal.setup = function() {
         $('#jsonModal .closeJsonModal, #modalBackground').click(function() {
             if ($('#jsonModal').css('display') === 'block') {
@@ -25,8 +33,8 @@ window.JSONModal = (function($, JSONModal) {
 
         $jsonModal.resizable({
             handles    : "n, e, s, w, se",
-            minHeight  : 300,
-            minWidth   : 300,
+            minHeight  : minHeight,
+            minWidth   : minWidth,
             containment: "document"
         });
 
@@ -72,10 +80,9 @@ window.JSONModal = (function($, JSONModal) {
         $(".xcTable").find(".highlightBox").remove();
 
         $jsonModal.find(".jsonDragArea").text(tableTitle);
-        xcHelper.removeSelectionRange();
 
         $searchInput.val("");
-        centerPositionElement($jsonModal);
+        modalHelper.setup();
         fillJsonModal($jsonTd, isArray); // shows json modal
         jsonModalEvent($jsonTd, isArray);
         $("body").addClass("hideScroll");
@@ -227,6 +234,7 @@ window.JSONModal = (function($, JSONModal) {
             $(".prettyJson").empty();
         });
 
+        modalHelper.clear();
         $('#sideBarModal').hide();
         $('#rightSideBar').removeClass('modalOpen');
         $('.xcTable').removeClass('tableJsonModal');

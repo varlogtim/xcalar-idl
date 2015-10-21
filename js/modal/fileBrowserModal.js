@@ -16,40 +16,29 @@ window.FileBrowser = (function($, FileBrowser) {
 
     var $filePath      = $("#filePath");
 
-    var modalHelper    = new xcHelper.Modal($fileBrowser);
     /* Contants */
     var defaultPath    = "file:///";
     var validFormats   = ["JSON", "CSV"];
     var defaultSortKey = "type"; // default is sort by type;
+    var minWidth  = 590;
+    var minHeight = 400;
     /* End Of Contants */
     var historyPath;
-    var curFiles    = [];
-    var allFiles    = [];
-    var sortKey     = defaultSortKey;
+    var curFiles = [];
+    var allFiles = [];
+    var sortKey  = defaultSortKey;
     var sortRegEx;
     var reverseSort = false;
+
+    var modalHelper = new xcHelper.Modal($fileBrowser, {
+        "minHeight": minHeight,
+        "minWidth" : minWidth
+    });
 
     FileBrowser.show = function() {
         var openingBrowser = true;
         retrievePaths($filePath.val(), openingBrowser)
         .then(function(result) {
-            xcHelper.removeSelectionRange();
-
-            var minWidth = 590;
-            var minHeight = 400;
-            var width = $fileBrowser.width();
-            var height = $fileBrowser.height();
-            var maxWidth = Math.min(width, $(window).width());
-            var maxHeight = Math.min(height, $(window).height());
-            maxWidth = Math.max(minWidth, maxWidth);
-            maxHeight = Math.max(minHeight, maxHeight);
-            $fileBrowser.css({
-                "margin": 0,
-                "width" : maxWidth,
-                "height": maxHeight
-            });
-
-            centerPositionElement($fileBrowser);
             modalHelper.setup();
 
             if (gMinModeOn) {
@@ -116,8 +105,6 @@ window.FileBrowser = (function($, FileBrowser) {
     };
 
     FileBrowser.setup = function() {
-        var minWidth = 590;
-        var minHeight = 400;
         $fileBrowser.draggable({
             "handle"     : ".modalHeader",
             "cursor"     : "-webkit-grabbing",

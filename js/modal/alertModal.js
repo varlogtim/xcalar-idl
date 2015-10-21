@@ -5,8 +5,11 @@ window.Alert = (function($, Alert){
     var $alertOptionInput = $("#alertOptionInput");
     var $btnSection       = $("#alertActions");
 
-    var modalHelper       = new xcHelper.Modal($alertModal,
-                                               {"focusOnOpen": true});
+    var modalHelper = new xcHelper.Modal($alertModal, {
+        "focusOnOpen": true,
+        "noResize"   : true,
+        "noCenter"   : true
+    });
 
     Alert.setup = function() {
         $alertModal.draggable({
@@ -47,9 +50,23 @@ window.Alert = (function($, Alert){
         }
 
         configAlertModal(options);
-
-        xcHelper.removeSelectionRange();
         modalHelper.setup();
+
+        // Note that alert Modal's center position
+        // is different from other modal, need this handle
+        var $window = $(window);
+        var winHeight   = $window.height();
+        var winWidth    = $window.width();
+        var modalWidth  = $alertModal.width();
+        var modalHeight = $alertModal.height();
+
+        var left = ((winWidth - modalWidth) / 2);
+        var top  = ((winHeight - modalHeight) / 4);
+
+        $alertModal.css({
+            "left": left,
+            "top" : top
+        });
 
         if (gMinModeOn) {
             $modalBackground.show();
@@ -94,7 +111,7 @@ window.Alert = (function($, Alert){
     function closeAlertModal($modalContainer) {
         $btnSection.find(".funcBtn").remove();
         // remove all event listener
-        $alertModal.off();
+        $alertModal.off(".alert");
         modalHelper.clear();
 
         if ($modalContainer) {
@@ -179,7 +196,7 @@ window.Alert = (function($, Alert){
         $checkbox.find(".checkbox").removeClass("checked");
         $checkbox.addClass("inactive"); // now make it disabled
         if (options.isCheckBox) {
-            $alertModal.on("click", ".checkbox", function(event) {
+            $alertModal.on("click.alert", ".checkbox", function(event) {
                 event.stopPropagation();
                 $(this).toggleClass("checked");
             });
@@ -200,7 +217,7 @@ window.Alert = (function($, Alert){
         }
 
         // close alert modal
-        $alertModal.on("click", ".close, .cancel", function(event) {
+        $alertModal.on("click.alert", ".close, .cancel", function(event) {
             event.stopPropagation();
 
             closeAlertModal(options.modal);
@@ -245,7 +262,7 @@ window.Alert = (function($, Alert){
                 return;
             } else {
                 $confirmBtn.show();
-                $alertModal.on("click", ".confirm", function(event) {
+                $alertModal.on("click.alert", ".confirm", function(event) {
                     event.stopPropagation();
                     closeAlertModal();
                     if (options.confirm) {

@@ -15,6 +15,13 @@ window.AggModal = (function($, AggModal) {
     var corrCache = {};
     var aggOpMap  = {};
 
+    var minWidth  = 580;
+    var minHeight = 300;
+    var modalHelper = new xcHelper.Modal($aggModal, {
+        "minWidth" : minWidth,
+        "minHeight": minHeight
+    });
+
     AggModal.setup = function() {
         aggOpMap[AggrOp.Sum] = 0;
         aggOpMap[AggrOp.Avg] = 1;
@@ -68,8 +75,8 @@ window.AggModal = (function($, AggModal) {
 
         $aggModal.resizable({
             handles    : "e, w",
-            minHeight  : 300,
-            minWidth   : 580,
+            minHeight  : minHeight,
+            minWidth   : minWidth,
             containment: "document"
         });
 
@@ -96,7 +103,7 @@ window.AggModal = (function($, AggModal) {
         var $table    = $("xcTable-" + tableId);
 
         $aggTableName.val(tableName);
-        centerPositionElement($aggModal);
+        modalHelper.setup();
 
         if (gMinModeOn) {
             $modalBackground.show();
@@ -595,6 +602,7 @@ window.AggModal = (function($, AggModal) {
             Tips.refresh();
         });
         $aggModal.width(920).height(670);
+        modalHelper.clear();
     }
 
     return (AggModal);

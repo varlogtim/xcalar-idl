@@ -39,8 +39,13 @@ window.STATSManager = (function($, STATSManager, d3) {
     var order = sortMap.origin;
     var statsCol = null;
     var percentageLabel = false;
+
     var minHeight = 370;
-    var minWidth = 710;
+    var minWidth  = 710;
+    var modalHelper = new xcHelper.Modal($statsModal, {
+        "minHeight": minHeight,
+        "minWidth" : minWidth
+    });
 
     STATSManager.setup = function() {
         $statsModal.resizable({
@@ -186,6 +191,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         $modalBg.fadeOut(fadeOutTime);
 
         $statsModal.find(".groupbyChart").empty();
+        modalHelper.clear();
         resetScrollBar();
 
         freePointer();
@@ -274,7 +280,7 @@ window.STATSManager = (function($, STATSManager, d3) {
     }
 
     function showStats() {
-        centerPositionElement($statsModal);
+        modalHelper.setup();
         if (gMinModeOn) {
             $modalBg.show();
             $statsModal.show().data("id", statsCol.modalId);

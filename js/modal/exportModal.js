@@ -10,7 +10,12 @@ window.ExportModal = (function($, ExportModal) {
     var tableId;
     var focusedHeader;
 
-    var modalHelper = new xcHelper.Modal($exportModal);
+    var minHeight = 296;
+    var minWidth  = 296;
+    var modalHelper = new xcHelper.Modal($exportModal, {
+        "minHeight": minHeight,
+        "minWidth" : minWidth
+    });
 
     ExportModal.setup = function() {
         $exportModal.draggable({
@@ -21,8 +26,8 @@ window.ExportModal = (function($, ExportModal) {
 
         $exportModal.resizable({
             handles    : "n, e, s, w, se",
-            minHeight  : 296,
-            maxHeight  : 296,
+            minHeight  : minHeight,
+            maxHeight  : minWidth,
             minWidth   : 400,
             containment: "document"
         });
@@ -101,9 +106,9 @@ window.ExportModal = (function($, ExportModal) {
         .then(function(targs) {
            
             restoreExportPaths(targs);
+            modalHelper.setup();
 
             var tableName = gTables[tableId].tableName;
-            xcHelper.removeSelectionRange();
 
             $(document).on("mousedown.exportModal", function() {
                 xcHelper.hideDropdowns($exportModal);
@@ -113,9 +118,6 @@ window.ExportModal = (function($, ExportModal) {
                     $exportModal.find(".confirm").trigger("click");
                 }
             });
-
-            centerPositionElement($exportModal);
-            modalHelper.setup();
 
             if (gMinModeOn) {
                 $exportModal.show();

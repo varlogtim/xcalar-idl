@@ -11,7 +11,11 @@ window.WorkbookModal = (function($, WorkbookModal) {
     var minHeight = 400;
     var minWidth = 750;
 
-    var modalHelper = new xcHelper.Modal($workbookModal, {"focusOnOpen": true});
+    var modalHelper = new xcHelper.Modal($workbookModal, {
+        "focusOnOpen": true,
+        "minWidth"   : minWidth,
+        "minHeight"  : minHeight
+    });
 
     var reverseLookup = {};
     var sortkey = "name";
@@ -46,20 +50,6 @@ window.WorkbookModal = (function($, WorkbookModal) {
 
     WorkbookModal.show = function() {
         $(document).on("keypress", workbookKeyPress);
-        xcHelper.removeSelectionRange();
-
-        var winWidth = $(window).width();
-        var winHeight = $(window).height();
-        if ($workbookModal.width() > winWidth - 10) {
-            var updatedWidth = Math.max(winWidth - 40, minWidth);
-            $workbookModal.width(updatedWidth);
-        }
-        if ($workbookModal.height() > winHeight - 10) {
-            var updatedHeight = Math.max(winHeight - 40, minHeight);
-            $workbookModal.height(updatedHeight);
-        }
-
-        centerPositionElement($workbookModal);
         resetWorkbookModal();
         modalHelper.setup();
 

@@ -651,34 +651,86 @@ window.xcHelper = (function($, xcHelper) {
 
     xcHelper.Modal.prototype = {
         setup: function() {
+            var $modal  = this.$modal;
+            var options = this.options || {};
+
+            xcHelper.removeSelectionRange();
             // hide tooltip when open the modal
             $(".tooltip").hide();
+
+            if (!options.noResize) {
+                // resize modal
+                var winWidth  = $(window).width();
+                var winHeight = $(window).height();
+                var minWidth  = options.minWidth || 0;
+                var minHeight = options.minHeight || 0;
+                var width  = $modal.width();
+                var height = $modal.height();
+
+                if (width > winWidth - 10) {
+                    width = Math.max(winWidth - 40, minWidth)
+                }
+                width = Math.min(width, winWidth - 40);
+
+                if (height > winHeight - 10) {
+                    height = Math.max(winHeight - 40, minHeight);
+                }
+                height = Math.min(height, winHeight - 40);
+                $modal.width(width).height(height);
+            }
+
+            // center modal
+            if (!options.noCenter) {
+                centerPositionElement($modal);
+            }
+
             // XXX to find the visiable btn, must show the modal first
-            var $modal = this.$modal;
-            var eleLists = [
-                $modal.find(".btn"),                // buttons
-                $modal.find("input")                // input
-            ];
+            if (!options.noTabFocus) {
+                 var eleLists = [
+                    $modal.find(".btn"),                // buttons
+                    $modal.find("input")                // input
+                ];
 
-            var focusIndex  = 0;
-            var $focusables = [];
+                var focusIndex  = 0;
+                var $focusables = [];
 
-            // make an array for all focusable element
-            eleLists.forEach(function($eles) {
-                $eles.each(function() {
-                    $focusables.push($(this));
+                // make an array for all focusable element
+                eleLists.forEach(function($eles) {
+                    $eles.each(function() {
+                        $focusables.push($(this));
+                    });
                 });
-            });
 
-            for (var i = 0, len = $focusables.length; i < len; i++) {
-                addFocusEvent($focusables[i], i);
+                for (var i = 0, len = $focusables.length; i < len; i++) {
+                    addFocusEvent($focusables[i], i);
+                }
+
+                // for when mouse move on other buttons
+                var $btns = eleLists[0];
+                $btns.on("mouseenter.xcModal", function() {
+                    var $btn = $(this);
+                    $btns.blur();
+                    $btn.focus();
+                });
+
+                $btns.on("mouseleave.xcModal", function() {
+                    $(this).blur();
+                });
+
+                // focus on the right most button
+                if (this.options.focusOnOpen) {
+                    getEleToFocus();
+                }
             }
 
             $(document).on("keydown.xcModal" + this.id, function(event) {
                 if (event.which === keyCode.Tab) {
                      // for switch between modal tab using tab key
                     event.preventDefault();
-                    getEleToFocus();
+
+                    if (!options.noTabFocus) {
+                        getEleToFocus();
+                    }
 
                     return false;
                 } else if (event.which === keyCode.Escape) {
@@ -686,23 +738,6 @@ window.xcHelper = (function($, xcHelper) {
                     return false;
                 }
             });
-
-            // for when mouse move on other buttons
-            var $btns = eleLists[0];
-            $btns.on("mouseenter.xcModal", function() {
-                var $btn = $(this);
-                $btns.blur();
-                $btn.focus();
-            });
-
-            $btns.on("mouseleave.xcModal", function() {
-                $(this).blur();
-            });
-
-            // focus on the right most button
-            if (this.options.focusOnOpen) {
-                getEleToFocus();
-            }
 
             function addFocusEvent($focusable, index) {
                 $focusable.addClass("focusable").data("tabid", index);
@@ -717,7 +752,7 @@ window.xcHelper = (function($, xcHelper) {
 
             // find the input or button that is visible and not disabled to focus
             function getEleToFocus() {
-                // the current ele is not active, should no by aocused
+                // the current ele is not active, should no by focused
                 if (!isActive($focusables[focusIndex])) {
                     var start  = focusIndex;
                     focusIndex = (focusIndex + 1) % len;
@@ -735,6 +770,8 @@ window.xcHelper = (function($, xcHelper) {
 
                 if (focusIndex >= 0) {
                     $focusables[focusIndex].focus();
+                } else {
+                    focusIndex = 0; // reset
                 }
             }
 
@@ -747,9 +784,11 @@ window.xcHelper = (function($, xcHelper) {
             function isActive($ele) {
                 if ($ele == null) {
                     console.error("undefined element!");
+                    throw "undefined element!";
                     return (false);
                 }
-                return ($ele.is(":visible") && !$ele.is("[disabled]"));
+                return ($ele.is(":visible") && !$ele.is("[disabled]") &&
+                        !$ele.is("[readonly]"));
             }
         },
 

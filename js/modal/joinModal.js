@@ -25,7 +25,12 @@ window.JoinModal = (function($, JoinModal) {
               '<input  class="clause rightClause" type="text"/>' +
         '</div>';
 
-    var modalHelper = new xcHelper.Modal($joinModal);
+    var minHeight = 600;
+    var minWidth  = 800;
+    var modalHelper = new xcHelper.Modal($joinModal, {
+        "minHeight": minHeight,
+        "minWidth" : minWidth
+    });
     var isOpenTime;
 
     JoinModal.setup = function () {
@@ -218,8 +223,8 @@ window.JoinModal = (function($, JoinModal) {
 
         $joinModal.resizable({
             handles    : "n, e, s, w, se",
-            minHeight  : 600,
-            minWidth   : 800,
+            minHeight  : minHeight,
+            minWidth   : minWidth,
             containment: "document"
         });
 
@@ -233,7 +238,7 @@ window.JoinModal = (function($, JoinModal) {
         $("body").on("mouseup", removeCursors);
         $modalBackground.on("click", hideJoinTypeSelect);
         updateJoinTableName();
-        centerPositionElement($joinModal);
+        modalHelper.setup();
 
         joinModalTabs($rightJoinTable, null, -1);
         joinModalTabs($leftJoinTable, tableId, colNum, $rightJoinTable);
@@ -249,7 +254,6 @@ window.JoinModal = (function($, JoinModal) {
             });
         }
 
-        modalHelper.setup();
         isOpenTime = false;
 
         function showHandler() {

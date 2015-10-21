@@ -9,9 +9,13 @@ window.DataFlowModal = (function($, DataFlowModal) {
     var $newGroupNameInput = $('#newGroupNameInput');
     var tableName;
 
-    var modalHelper = new xcHelper.Modal($dfgModal, {"focusOnOpen": true});
     var minHeight = 400;
-    var minWidth = 700;
+    var minWidth  = 700;
+    var modalHelper = new xcHelper.Modal($dfgModal, {
+        "focusOnOpen": true,
+        "minHeight"  : minHeight,
+        "minWidth"   : minWidth
+    });
 
     DataFlowModal.setup = function() {    
         $dfgModal.draggable({
@@ -32,8 +36,7 @@ window.DataFlowModal = (function($, DataFlowModal) {
     };
 
     DataFlowModal.show = function($dagWrap) {
-        xcHelper.removeSelectionRange();
-
+        modalHelper.setup();
         $modalBackground.fadeIn(300, function() {
             Tips.refresh();
         });
@@ -76,11 +79,9 @@ window.DataFlowModal = (function($, DataFlowModal) {
         $modalMain.find('.dataFlowGroup:not(.unavailable)')
                   .removeAttr('title data-original-title');
 
-        centerPositionElement($dfgModal);
         $dfgModal.show();
         setupDFGImage($dagWrap);
-        
-        modalHelper.setup();
+
         $newGroupNameInput.focus();
     };
 

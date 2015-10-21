@@ -13,7 +13,9 @@ window.OperationsModal = (function($, OperationsModal) {
     var functionsMap = {};
     var $lastInputFocused;
     
-    var modalHelper = new xcHelper.Modal($operationsModal);
+    var modalHelper = new xcHelper.Modal($operationsModal, {
+        "noResize": true
+    });
     var corrector;
 
     var tableId;
@@ -316,9 +318,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 $operationsModal.addClass('numArgs4');
             }
 
-            centerPositionElement($operationsModal);
             modalHelper.setup();
-
             toggleModalDisplay(false);
 
             $categoryInput.focus();
@@ -961,7 +961,7 @@ window.OperationsModal = (function($, OperationsModal) {
         }
 
         var args = [];
-        var colType;
+        // var colType;
         var colTypes;
         var typeid;
 
@@ -1044,7 +1044,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 if ($("#categoryList input").val().indexOf("user") !== 0) {
                     colTypes = getAllColumnTypesFromArg(frontColName);
 
-                    var inValidTypes = [];
+                    // var inValidTypes = [];
                     var numTypes = colTypes.length;
                     var types = parseType(typeid);
                     for (var i = 0; i < numTypes; i++) {
@@ -1221,8 +1221,8 @@ window.OperationsModal = (function($, OperationsModal) {
             value = spaces;
         }
         var colType;
-        var colArg;
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        // var colArg;
+        var columns = gTables[tableId].tableCols;
         for (var i = 0, numCols = columns.length; i < numCols; i++) {
             if (columns[i].name === value) {
                 colType = columns[i].type;
@@ -1258,7 +1258,7 @@ window.OperationsModal = (function($, OperationsModal) {
                             colArg[bracketIndex - 1] !== "\\") {
                             colType = "Array Value";
                         }
-                    } 
+                    }
                     types.push(colType);
                     break;
                 }
@@ -1268,7 +1268,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     // used in groupby to check if inputs have column names that match any
-    // that are found in gTables.tableCols 
+    // that are found in gTables.tableCols
     function checkValidColNames($input, colNames) {
         var values = colNames.split(",");
         var numValues = values.length;
