@@ -92,10 +92,14 @@ window.DatastoreForm = (function($, DatastoreForm) {
     var $formatText  = $formatLists.find(".text");
 
     var $csvDelim = $("#csvDelim"); // csv delimiter args
+    var $udfArgs  = $("#udfArgs");
+    var $udfModuleList = $("#udfArgs-moduleList");
+    var $udfFuncList = $("#udfArgs-funcList");
 
     DatastoreForm.setup = function() {
         var $csvCheckBox = $("#csvPromoteCheckbox"); // promote header checkbox
         var $udfCheckbox = $("#udfCheckbox"); // udf checkbox
+        resetUdfSection();
 
         $("#importDataView").click(function(event){
             event.stopPropagation();
@@ -105,15 +109,53 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // udf checkbox
         $udfCheckbox.click(function() {
             var $checkbox = $(this).find(".checkbox");
-            var $udfArgs  = $("#udfArgs");
 
             if ($udfArgs.hasClass("hidden")) {
                 $checkbox.addClass("checked");
                 $udfArgs.removeClass("hidden");
+                DatastoreForm.update();
             } else {
                 $checkbox.removeClass("checked");
                 $udfArgs.addClass("hidden");
             }
+        });
+
+        // dropdown list for udf modules and function names
+        xcHelper.dropdownList($udfModuleList, {
+            "onSelect": function($li) {
+                var module = $li.text();
+                var $input = $udfModuleList.find("input");
+
+                if (module === $input.val()) {
+                    return;
+                }
+
+                $input.val(module);
+
+                $udfFuncList.parent().tooltip("destroy");
+                $udfFuncList.removeClass("disabled")
+                    .find("input").val("")
+                    .end()
+                    .find(".list li").addClass("hidden")
+                    .filter(function() {
+                        return $(this).data("module") === module;
+                    }).removeClass("hidden");
+            },
+            "container": "#importDataView"
+        });
+
+        xcHelper.dropdownList($udfFuncList, {
+            "onSelect": function($li) {
+                var func = $li.text();
+                var $input = $udfFuncList.find("input");
+
+                if (func === $input.val()) {
+                    return;
+                }
+
+                $input.val(func);
+            },
+            "container": "#importDataView"
         });
 
         // csv promote checkbox
@@ -245,6 +287,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
 
             // keep header to be checked
             $udfCheckbox.find(".checkbox").removeClass("checked");
+            resetUdfSection();
         });
 
         // submit the form
@@ -274,9 +317,29 @@ window.DatastoreForm = (function($, DatastoreForm) {
             var moduleName = "";
             var funcName   = "";
 
+            var isValid;
             if ($udfCheckbox.find(".checkbox").hasClass("checked")) {
-                moduleName = $("#udfArgs-moduleList input").val();
-                funcName = $("#udfArgs-funcList input").val();
+                var $moduleInput = $udfModuleList.find("input");
+                var $funcInput = $udfFuncList.find("input");
+
+                moduleName = $moduleInput.val();
+                funcName = $funcInput.val();
+
+                isValid = xcHelper.validate([
+                    {
+                        "$selector": $moduleInput,
+                        "text"     : "Please choose a module."
+                    },
+                    {
+                        "$selector": $funcInput,
+                        "text"     : "Please choose a function."
+                    }
+                ]);
+
+                if (!isValid) {
+                    xcHelper.enableSubmit($submitBtn);
+                    return;
+                }
             }
 
             var header = false;
@@ -284,7 +347,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 header = true;
             }
 
-            var isValid  = xcHelper.validate([
+            isValid = xcHelper.validate([
                 {
                     "$selector": $formatText,
                     "check"    : function() {
@@ -443,6 +506,47 @@ window.DatastoreForm = (function($, DatastoreForm) {
         return (deferred.promise());
     };
 
+    DatastoreForm.update = function() {
+        // update python module list
+        XcalarListXdfs("*", "User*")
+        .then(function(listXdfsObj) {
+            var i;
+            var len = listXdfsObj.numXdfs;
+            var udfs = listXdfsObj.fnDescs;
+            var moduleMap = {};
+            var modules = [];
+
+            for (i = 0; i < len; i++) {
+                modules.push(udfs[i].fnName);
+            }
+
+            modules.sort();
+
+            var moduleLi = "";
+            var fnLi = "";
+            for (i = 0; i < len; i++) {
+                var udf = modules[i].split(":");
+                var moduleName = udf[0];
+                var fnName = udf[1];
+
+                if (!moduleMap.hasOwnProperty(moduleName)) {
+                    moduleMap[moduleName] = true;
+                    moduleLi += "<li>" + moduleName + "</li>";
+                }
+
+                fnLi += '<li data-module="' + moduleName + '">' +
+                            fnName +
+                        '</li>';
+            }
+
+            $udfModuleList.find(".list").html(moduleLi);
+            $udfFuncList.find(".list").html(fnLi);
+        })
+        .fail(function(error) {
+            console.error("List UDF Fails!", error);
+        });
+    };
+
     DatastoreForm.clear = function() {
         $("#importDataButton").click();
         $("#importDataReset").click();
@@ -474,6 +578,15 @@ window.DatastoreForm = (function($, DatastoreForm) {
         // to show \t, \ should be escaped
         $("#fieldText").val("\\t").removeClass("nullVal");
         $("#lineText").val("\\n").removeClass("nullVal");
+    }
+
+    function resetUdfSection() {
+        $udfFuncList.addClass("disabled");
+        $udfFuncList.parent().tooltip({
+            "title"    : "Please choose a module first",
+            "placement": "top",
+            "container": "#importDataView"
+        });
     }
 
     return (DatastoreForm);

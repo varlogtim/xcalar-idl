@@ -914,7 +914,7 @@ window.RightSideBar = (function($, RightSideBar) {
                         $inputFile.val("");
                         $filePath.val("");
                     }
-
+                    DatastoreForm.update();
                     deferred.resolve();
                 })
                 .fail(function(error) {
