@@ -490,7 +490,9 @@ window.JoinModal = (function($, JoinModal) {
                         wsName +
                     '</div>';
                 tabHtml +=
-                    '<div class="tableLabel textOverflow" ' +
+                    '<div title="' + table.tableName +
+                    '" data-toggle="tooltip" data-placement="top" ' +
+                    'data-container="body" class="tableLabel textOverflow" ' +
                     'data-id="' + tableId + '">' +
                         table.tableName +
                     '</div>';
