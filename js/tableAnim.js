@@ -2086,9 +2086,6 @@ function addColMenuActions($colMenu) {
         if (event.which !== 1) {
             return;
         }
-        if ($colMenu.hasClass('type-indexed')) {
-            return; // do not allow sorting on a sorted column
-        }
         var colNum = $colMenu.data('colNum');
         xcFunction.sort(colNum, tableId, SortDirection.Forward);
     });
@@ -2592,11 +2589,7 @@ function dropdownClick($el, options) {
     }
 
     if (options.type === 'thDropdown') {
-        if ($menu.hasClass('type-indexed')) {
-            $menu.find('.sort .sort').addClass('unavailable');
-        } else {
-            $menu.find('.sort .sort').removeClass('unavailable');
-        }
+        $menu.find('.sort .sort').removeClass('unavailable');
     }
     
     //position menu

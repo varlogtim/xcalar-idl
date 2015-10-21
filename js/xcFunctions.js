@@ -182,60 +182,77 @@ window.xcFunction = (function($, xcFunction) {
                 return (deferred.promise());
         }
 
-        var msg = StatusMessageTStr.Sort + " " + frontFieldName;
-        var msgObj = {
-            "msg"      : msg,
-            "operation": SQLOps.Sort
-        };
-        var msgId = StatusMessage.addMsg(msgObj);
+        // Check for case where table is already sorted
+        XcalarGetDag(tableName)
+        .then(function(nodeArray) {
+            if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
+                var indexInput = nodeArray.node[0].input.indexInput;
+                if (indexInput.preserveOrder === true &&
+                    indexInput.keyName === backFieldName) {
+                    Alert.error("Table already sorted", 
+                                "Current table is already sorted on this column"
+                                );
+                    console.log("Already sorted");
+                    deferred.reject("Already sorted on current column");
+                    return (deferred.promise());
+                }
+            }
 
-        var newTableInfo = getNewTableInfo(tableName);
-        var newTableName = newTableInfo.tableName;
-        var newTableId   = newTableInfo.tableId;
+            var msg = StatusMessageTStr.Sort + " " + frontFieldName;
+            var msgObj = {
+                "msg"      : msg,
+                "operation": SQLOps.Sort
+            };
+            var msgId = StatusMessage.addMsg(msgObj);
 
-        // must add to worksheet before async call or will end up adding to th
-        // wrong worksheet
-        WSManager.addTable(newTableId);
-        xcHelper.lockTable(tableId);
+            var newTableInfo = getNewTableInfo(tableName);
+            var newTableName = newTableInfo.tableName;
+            var newTableId   = newTableInfo.tableId;
 
-        var sqlOptions = {
-            "operation"   : SQLOps.Sort,
-            "tableName"   : tableName,
-            "tableId"     : tableId,
-            "key"         : frontFieldName,
-            "colNum"      : colNum,
-            "order"       : order,
-            "direction"   : direction,
-            "newTableName": newTableName,
-            "sorted"      : true
-        };
+            // must add to worksheet before async call or will end up adding to th
+            // wrong worksheet
+            WSManager.addTable(newTableId);
+            xcHelper.lockTable(tableId);
+
+            var sqlOptions = {
+                "operation"   : SQLOps.Sort,
+                "tableName"   : tableName,
+                "tableId"     : tableId,
+                "key"         : frontFieldName,
+                "colNum"      : colNum,
+                "order"       : order,
+                "direction"   : direction,
+                "newTableName": newTableName,
+                "sorted"      : true
+            };
                  
-        XcalarIndexFromTable(tableName, backFieldName, newTableName, true,
-                             sqlOptions)
-        .then(function() {
-            // sort do not change groupby stats of the table
-            STATSManager.copy(tableId, newTableId);
+            XcalarIndexFromTable(tableName, backFieldName, newTableName, true,
+                                 sqlOptions)
+            .then(function() {
+                // sort do not change groupby stats of the table
+                STATSManager.copy(tableId, newTableId);
 
-            return (setgTable(newTableName, tablCols, null, null));
-        })
-        .then(function() {
-            return (refreshTable(newTableName, tableName));
-        })
-        .then(function() {
-            StatusMessage.success(msgId, false, newTableId);
-            xcHelper.unlockTable(tableId, true);
-            commitToStorage();
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            WSManager.removeTable(newTableId);
-            xcHelper.unlockTable(tableId);
-            Alert.error("Sort Rows Fails", error);
-            StatusMessage.fail(StatusMessageTStr.SortFailed, msgId);
-            deferred.reject(error);
+                return (setgTable(newTableName, tablCols, null, null));
+            })
+            .then(function() {
+                return (refreshTable(newTableName, tableName));
+            })
+            .then(function() {
+                StatusMessage.success(msgId, false, newTableId);
+                xcHelper.unlockTable(tableId, true);
+                commitToStorage();
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                WSManager.removeTable(newTableId);
+                xcHelper.unlockTable(tableId);
+                Alert.error("Sort Rows Fails", error);
+                StatusMessage.fail(StatusMessageTStr.SortFailed, msgId);
+                deferred.reject(error);
+            });
+
+            return (deferred.promise());
         });
-
-        return (deferred.promise());
     };
 
     // join two tables
