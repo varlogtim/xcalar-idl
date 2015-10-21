@@ -27,11 +27,20 @@ window.ColManager = (function($, ColManager) {
 
     // special case, specifically for DATA col
     ColManager.newDATACol = function(index) {
+        var width;
+        var winWidth = $(window).width();
+        if (winWidth > 1400) {
+            width = 700;
+        } else if (winWidth > 1100) {
+             width = 600;
+        } else {
+            width = 500;
+        }
         var progCol = ColManager.newCol({
             "index"  : index,
             "name"   : "DATA",
             "type"   : "object",
-            "width"  : 500,    // copy from CSS
+            "width"  : width,    // copy from CSS
             "userStr": "DATA = raw()",
             "func"   : {
                 "func": "raw",
