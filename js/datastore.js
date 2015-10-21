@@ -1800,17 +1800,22 @@ window.DataPreview = (function($, DataPreview) {
             // when preview table not shows up
             return (promiseWrapper(null));
         } else {
-            return (clearAll());
+            var previewMode = true;
+            return (clearAll(previewMode));
         }
     };
 
-    function clearAll() {
+    function clearAll(previewMode) {
         var deferred = jQuery.Deferred();
 
-        $("#dsPreviewWrap").addClass("hidden");
-        $("#importDataForm").removeClass("previewMode");
-        $previewTable.removeClass("has-delimiter").empty();
-        toggleSuggest(false, true);
+        if (!previewMode) {
+            $("#dsPreviewWrap").addClass("hidden");
+            $("#importDataForm").removeClass("previewMode");
+            $previewTable.removeClass("has-delimiter").empty();
+            toggleSuggest(false, true);
+        }
+        
+        
         $(window).off("resize", resizePreivewTable);
         $("#importDataForm").off("keypress.preview");
 
