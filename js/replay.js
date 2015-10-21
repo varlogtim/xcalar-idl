@@ -13,6 +13,7 @@ window.Replay = (function($, Replay) {
 
     Replay.run = function(sqls) {
         var deferred = jQuery.Deferred();
+        var mindModeCache = gMinModeOn;
 
         gMinModeOn = true;
         // call it here instead of start up time
@@ -44,7 +45,7 @@ window.Replay = (function($, Replay) {
             deferred.reject();
         })
         .always(function() {
-            gMinModeOn = false;
+            gMinModeOn = mindModeCache;
         });
 
         return (deferred.promise());

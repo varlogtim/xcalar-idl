@@ -79,9 +79,20 @@ window.TestSuite = (function($, TestSuite) {
         };
     };
 
-    TestSuite.run = function() {
+    TestSuite.run = function(hasAnimation) {
         var initialDeferred = jQuery.Deferred();
         var deferred = initialDeferred;
+        var minModeCache = gMinModeOn;
+
+        // XXX use min mode for testing to get around of
+        // animation crash test problem
+        // may have better way
+        if (hasAnimation) {
+            gMinModeOn = false;
+        } else {
+            gMinModeOn = true;
+        }
+
         // Start chaining the callbacks
         for (var ii = 0; ii < testCases.length; ii++) {
             deferred = deferred.then(
@@ -148,6 +159,7 @@ window.TestSuite = (function($, TestSuite) {
             var alertMsg = "Passes: " + passes + ", Fails: " + fails + ", Time: "
                   + totTime / 1000 + "s." + timeMsg + oldTime;
             alert(alertMsg);
+            gMinModeOn = minModeCache;
         });
 
         // This starts the entire chain
@@ -674,22 +686,26 @@ window.TestSuite = (function($, TestSuite) {
                      ".barArea .xlabel:contains('205')"], 30000)
         .then(function() {
             assert($(".barChart .barArea").length === 8);
-            // assert($(".barArea .xlabel").eq(0).text() === "205");
-            // assert($(".barArea .xlabel").eq(1).text() === "207");
-            // assert($(".barArea .xlabel").eq(2).text() === "193");
-            // assert($(".barArea .xlabel").eq(3).text() === "626");
-            // assert($(".barArea .xlabel").eq(4).text() === "163");
-            // assert($(".barArea .xlabel").eq(5).text() === "134");
-            // assert($(".barArea .xlabel").eq(6).text() === "153");
-            // assert($(".barArea .xlabel").eq(7).text() === "272");
-            assert($(".aggInfoSection .min").text() === "1");
+            assert($(".barArea .xlabel:contains('205')").length > 0);
+            assert($(".barArea .xlabel:contains('207')").length > 0);
+            assert($(".barArea .xlabel:contains('193')").length > 0);
+            assert($(".barArea .xlabel:contains('626')").length > 0);
+            assert($(".barArea .xlabel:contains('163')").length > 0);
+            assert($(".barArea .xlabel:contains('134')").length > 0);
+            assert($(".barArea .xlabel:contains('153')").length > 0);
+            assert($(".barArea .xlabel:contains('272')").length > 0);
+
+            assert($(".aggInfoSection .min").text() ===
+                    Number(1).toLocaleString());
             assert($(".aggInfoSection .count").text() ===
                     Number(1953).toLocaleString());
             assert($(".aggInfoSection .average").text() ===
                     Number(6.506912).toLocaleString());
             assert($(".aggInfoSection .sum").text() ===
                     Number(12708).toLocaleString());
-            assert($(".aggInfoSection .max").text() === "12");
+            assert($(".aggInfoSection .max").text() ===
+                    Number(12).toLocaleString());
+
             $(".sort.asc .icon").click();
             setTimeout(function() {
                 assert($(".barArea .xlabel").eq(0).text() === "134");
