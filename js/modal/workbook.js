@@ -14,7 +14,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
     var modalHelper = new xcHelper.Modal($workbookModal, {"focusOnOpen": true});
 
     var reverseLookup = {};
-    var sortkey       = "name";
+    var sortkey = "name";
 
     var activeActionNo = 0;
 
@@ -262,7 +262,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
         // choose an option
         $optionSection.on("click", ".select-item", function(event){
             var $option = $(this);
-            var no      = Number($option.data("no"));
+            var no = Number($option.data("no"));
 
             event.stopPropagation();
             $option.siblings().find(".radio.checked").removeClass("checked");
@@ -393,6 +393,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 $workbookInput.removeAttr("disabled"); // for tab key switch
                 $mainSection.addClass("unavailable");
                 $searchInput.attr("disabled", "disabled");
+                $workbookModal.find(".modalBottom .confirm").text("CREATE");
                 break;
             // continue workbook
             case 1:
@@ -400,6 +401,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 $workbookInput.attr("disabled", "disabled");
                 $mainSection.removeClass("unavailable");
                 $searchInput.removeAttr("disabled");
+                $workbookModal.find(".modalBottom .confirm").text("CONTINUE");
                 break;
             // copy workbook
             case 2:
@@ -407,6 +409,7 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 $workbookInput.removeAttr("disabled");
                 $mainSection.removeClass("unavailable");
                 $searchInput.removeAttr("disabled");
+                $workbookModal.find(".modalBottom .confirm").text("COPY");
                 break;
             default:
                 console.error("Invalid action!");
@@ -479,19 +482,29 @@ window.WorkbookModal = (function($, WorkbookModal) {
                 gridClass += " activeWKBK";
             }
 
+            if (workbook.noMeta) {
+                gridClass += " noMeta";
+            }
+
+            var createdTime = "";
+            if (created) {
+                createdTime = xcHelper.getTime(null, created) + ' ' +
+                                xcHelper.getDate("-", null, created);
+            }
+
+            var modifiedTime = "";
+            if (modified) {
+                modifiedTime = xcHelper.getTime(null, modified) + ' ' +
+                                xcHelper.getDate("-", null, modified);
+            }
+
             html +=
                  '<div class="' + gridClass + '" data-wkbkid="' + wkbkId + '">' +
                     '<div>' + workbook.name + '</div>' +
-                    '<div>' +
-                        xcHelper.getTime(null, created) + ' ' +
-                        xcHelper.getDate("-", null, created) +
-                    '</div>' +
-                    '<div>' +
-                        xcHelper.getTime(null, modified) + ' ' +
-                        xcHelper.getDate("-", null, modified) +
-                    '</div>' +
-                    '<div>' + workbook.srcUser + '</div>' +
-                    '<div>' + workbook.curUser + '</div>' +
+                    '<div>' + createdTime + '</div>' +
+                    '<div>' + modifiedTime + '</div>' +
+                    '<div>' + (workbook.srcUser || "") + '</div>' +
+                    '<div>' + (workbook.curUser || "") + '</div>' +
                 '</div>';
         });
 
@@ -611,6 +624,10 @@ window.WKBKManager = (function($, WKBKManager) {
                     delete workbooks[wkbkId];
                 } else {
                     console.warn("Error!", wkbkName, "has no meta.");
+                    newWKBKInfo.workbooks[wkbkId] = {
+                        "name"  : wkbkName,
+                        "noMeta": true
+                    };
                 }
             }
 
