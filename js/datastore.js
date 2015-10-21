@@ -1815,7 +1815,6 @@ window.DataPreview = (function($, DataPreview) {
             toggleSuggest(false, true);
         }
         
-        
         $(window).off("resize", resizePreivewTable);
         $("#importDataForm").off("keypress.preview");
 
@@ -2376,7 +2375,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
 
         // // update date part of the table info first to make UI smooth
         var partialUpdate = true;
-        updateTableInfo(dsObj, partialUpdate);
+        updateTableInfo(dsObj, partialUpdate, isLoading);
 
         if (isLoading) {
             var animatedDots =
@@ -2488,7 +2487,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
         $('#datasetWrap').height(tableHeight + scrollBarPadding);
     };
 
-    function updateTableInfo(dsObj, partial) {
+    function updateTableInfo(dsObj, partial, isLoading) {
         var dsName = dsObj.name;
         var format = dsObj.attrs.format;
         var path = dsObj.attrs.path || 'N/A';
@@ -2511,7 +2510,11 @@ window.DataSampleTable = (function($, DataSampleTable) {
         }
 
         // If we are preloading the data, we want to show N/A until it is done
-        if (numEntries !== "N/A" || partial) {
+        if (partial && numEntries === "N/A") {
+            if (isLoading) {
+                $("#dsInfo-records").text(numEntries);
+            }
+        } else {
             $("#dsInfo-records").text(numEntries);
         }
 
