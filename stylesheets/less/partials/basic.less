@@ -718,7 +718,7 @@ input {
     opacity: 1.0 !important;
 }
 
-.xcTable ul, .xcTheadWrap ul, .colMenu, .colMenu ul {
+.xcTable ul, .xcTheadWrap ul, .menu {
     .position(absolute);
     .size(@width: 170px);
     list-style: none;
@@ -728,13 +728,17 @@ input {
     box-shadow: 0px 0px 1px 3px rgba(0,0,0,.05);
 }
 
-ul.colMenu {
+.menu {
     .position(fixed);
     display:none;
     background-color: @color-white;
     z-index: 20;
     cursor: pointer;
     .dropDown;
+
+    .menuWrap {
+        overflow: hidden;
+    }
 
     li {
         .position(relative);
@@ -780,40 +784,31 @@ ul.colMenu {
         &.splitCol {
             // only display for type-string
             display: none;
-
-            .subColMenu li {
-                .size(@height: 105px);
-
-                div, input {
-                    height: 20px;
-                    line-height: 20px;
-                    margin-top: 2px;
-                }
-
-                div {
-                    text-align: center;
-                }
-
-                input {
-                    position: static;
-
-                    &[type='number'] {
-                        &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
-                            -webkit-appearance: none;
-                        }
-                    }
-                }
-            }
         }
     }
 
-    ul {
-        .position(@top: 0, @left: 155px);
-        visibility: hidden;
-        z-index: 20;
-        .transition-delay (.15s);
-        margin-top: 30px;
-        background-color: @color-white;
+    .splitCol li {
+        .size(@height: 105px);
+
+        div, input {
+            height: 20px;
+            line-height: 20px;
+            margin-top: 2px;
+        }
+
+        div {
+            text-align: center;
+        }
+
+        input {
+            position: static;
+
+            &[type='number'] {
+                &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                }
+            }
+        }
     }
 
     .divider {
@@ -857,11 +852,11 @@ ul.colMenu {
         cursor: text;
     }
 
-    .subColMenu li.selected {
+    .subMenu li.selected {
         background-color: @color-selectedCell-green;
     }
 
-    .changeDataType {
+    .changeDataType, .multiChangeDataType {
         li.flexContainer {
             height: 30px;
             padding: 0;
@@ -1011,26 +1006,44 @@ ul.colMenu {
         }
     }
 
-    &.type-multiColumn {
-        &>li {
+    &.type-multiColumn:not(.subMenu) {
+        li {
             display: none !important;
         }
+    }
 
+    &.type-multiColumn {
         .multiColumn {
-            &.deleteColumns, &.hideColumns, &.textAlignColumns, &.changeDataType {
+            &.deleteColumns, &.hideColumns, &.textAlignColumns, &.multiChangeDataType {
                 display: list-item !important;
+                li {
+                    display: list-item !important; 
+                }
+            }
+        } 
+
+        .multiTextAlign {
+            li {
+                display: list-item !important;
+                &.flexContainer {
+                    .flex-display !important;
+                }
             }
         }
+
 
         &.type-hidden {
             .unhideColumns {
                 display: list-item !important;
             }
+            .hideColumns {
+                display: none !important;
+            }
         }
 
         &.type-object, &.type-array, &.type-undefined {
             .multiColumn {
-                &.changeDataType {
+                &.multiChangeDataType {
                     display: none !important;
                 }
             }
@@ -1039,7 +1052,7 @@ ul.colMenu {
         &.type-string.type-integer.type-decimal.type-boolean {
             // case that no type to change
             .multiColumn {
-                &.changeDataType {
+                &.multiChangeDataType {
                     display: none !important;
                 }
             }
@@ -1112,7 +1125,7 @@ ul.colMenu {
 
     &.type-data {
         .sort, .aggregate, .groupby, .filter, .joinList, .deleteColumn, 
-        .deleteDuplicates, .duplicate, .renameCol, .map, .operations,
+        .deleteDuplicates, .duplicate, .rename, .map, .operations,
         .changeDataType, .profile, .divider {
             display: none;
         }
@@ -1157,20 +1170,20 @@ ul.colMenu {
     }
 }
 
-ul.colMenu.leftColMenu::before {
+ul.menu.leftColMenu::before {
     border-color: @color-selectedCell-dark @color-selectedCell-dark;
 }
 
-ul.colMenu li:hover > ul {
+ul.menu li:hover > ul {
     .transition-delay (.15s);
 }
 
-ul.colMenu li > ul {
+ul.menu li > ul {
     .transition-delay (.15s);
 }
 
 // DATA Column should not have duplicate and sort option
-th.dataCol ul.colMenu {
+th.dataCol .menu {
     .duplicate, .sort {
         display: none;
     }
@@ -1181,7 +1194,7 @@ th.dataCol ul.colMenu {
 }
 
 
-ul.subColMenu li {
+.subMenu li {
     &.subColUnselected {
         background-color: @color-white;
     }
@@ -1190,14 +1203,14 @@ ul.subColMenu li {
     }
 }
 
-.subColMenuArea {
+.subMenuArea {
     .position(absolute, @top: -30px, @left: 14px);
     .size(@width: ~"calc(100% + 30px)", @height: ~"calc(100% + 60px)");
     z-index: -1;
     cursor: default;
 }
 
-.leftColMenu .subColMenuArea {
+.leftColMenu .subMenuArea {
     .position(@right: 0, @left: auto);
 }
 
@@ -1210,7 +1223,7 @@ ul.leftColMenu {
     }
 }
 
-ul.subColMenu.leftColMenu {
+ul.subMenu.leftColMenu {
     .position(@left: -170px);
     margin-top: 0px;
     box-shadow: -1px 1px rgba(0,0,0,0.1);

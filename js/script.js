@@ -52,7 +52,7 @@ function infScrolling(tableId) {
             return;
         }
 
-        $(".colMenu:visible").hide();
+        $(".menu:visible").hide();
         $('.highlightBox').remove();
 
         var table = xcHelper.getTableFromId(tableId);
@@ -454,7 +454,7 @@ function documentReadyGeneralFunction() {
 
     $('#mainFrame').scroll(function() {
         $(this).scrollTop(0);
-        $('.colMenu').hide();
+        $('.menu').hide();
         $(".highlightBox").remove();
 
         clearTimeout(timer);
@@ -469,11 +469,11 @@ function documentReadyGeneralFunction() {
     $(document).mousedown(function(event) {
         var $target = $(event.target);
         gMouseEvents.setMouseDownTarget($target);
-        var clickable = $target.closest('.colMenu').length > 0 ||
+        var clickable = $target.closest('.menu').length > 0 ||
                         $target.closest('.clickable').length > 0 ||
                         $target.hasClass("highlightBox");
         if (!clickable && $target.closest('.dropdownBox').length === 0) {
-            $('.colMenu').hide();
+            $('.menu').hide();
             $('.highlightBox').remove();
             $('body').removeClass('noSelection');
         }
@@ -483,8 +483,8 @@ function documentReadyGeneralFunction() {
                 return;
             } else if ($target.attr('id') === 'mainFrame') {
                 return;
-            } else if ($target.closest('.colMenu').length !== 0 &&
-                        $target.closest('.xcTableWrap').length !== 0) {
+            } else if ($target.closest('.menu').length !== 0 &&
+                        $target.closest('#mainFrame').length !== 0) {
                 return;
             }
             $('.selectedCell').removeClass('selectedCell');
@@ -625,7 +625,7 @@ function documentReadyGeneralFunction() {
                 return true;
             }
 
-            $(".colMenu").hide();
+            $(".menu").hide();
             gMouseEvents.setMouseDownTarget(null);
             $rowInput.val(rowToGo).trigger(fakeEvent.enter);
 
@@ -658,6 +658,7 @@ function startupFunctions() {
     })
     .then(function() {
         documentReadyGeneralFunction();
+        setupTableColumnsMenu();
         JSONModal.setup();
         setupTooltips();
         setupMenuBar();

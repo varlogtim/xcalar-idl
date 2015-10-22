@@ -269,13 +269,13 @@ window.DagPanel = (function($, DagPanel) {
     function setupDagTableDropdown() {
         $dagPanel.append(getDagTableDropDownHTML());
         var $menu = $dagPanel.find('.dagTableDropDown');
-        addColMenuBehaviors($menu);
+        addMenuBehaviors($menu);
         dagTableDropDownActions($menu);
         
         var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
                         '.dagTable:not(.dataStore) .icon';
         $dagPanel.on('click', selection, function() {
-            $('.colMenu').hide().removeClass('leftColMenu');
+            $('.menu').hide().removeClass('leftColMenu');
             $('#dagSchema').hide();
             var $dagTable = $(this).closest('.dagTable');
             if (!$dagTable.hasClass(DgDagStateTStr[5])) {
@@ -336,7 +336,7 @@ window.DagPanel = (function($, DagPanel) {
     function setupRightClickDropdown() {
         $dagPanel.append(getRightClickDropDownHTML());
         var $menu = $dagPanel.find('.rightClickDropDown');
-        addColMenuBehaviors($menu);
+        addMenuBehaviors($menu);
         addRightClickActions($menu);
         
         // var selection = '.dagTable:not(.dataStore) .dagTableIcon,' +
@@ -347,7 +347,7 @@ window.DagPanel = (function($, DagPanel) {
             var $dagWrap = $target.closest('.dagWrap');
 
             if ($dagWrap.length !== 0) {
-                $('.colMenu').hide().removeClass('leftColMenu');
+                $('.menu').hide().removeClass('leftColMenu');
                 $('#dagSchema').hide();
                 $menu.data('dagid', $dagWrap.attr('id'));
                 positionAndShowRightClickDropdown(e, $menu);
@@ -488,7 +488,7 @@ window.DagPanel = (function($, DagPanel) {
 
     function getDagTableDropDownHTML() {
         var html =
-        '<ul class="colMenu dagTableDropDown">' +
+        '<ul class="menu dagTableDropDown">' +
             '<li class="addTable">' +
                 'Add Table To Worksheet' +
             '</li>' +
@@ -517,7 +517,7 @@ window.DagPanel = (function($, DagPanel) {
 
     function getRightClickDropDownHTML() {
         var html =
-        '<ul class="colMenu rightClickDropDown">' +
+        '<ul class="menu rightClickDropDown">' +
             '<li class="saveImage">' +
                 'Save Image' +
             '</li>' +
@@ -1075,7 +1075,7 @@ window.Dag = (function($, Dag) {
         var $menu = $dagWrap.find('.dagDropDown');
         
         $dagWrap.on('click', '.dagTable.dataStore, .actionType', function() {
-            $('.colMenu').hide();
+            $('.menu').hide();
             $('.leftColMenu').removeClass('leftColMenu');
             $currentIcon = $(this);
             var el = $(this);
@@ -1099,9 +1099,9 @@ window.Dag = (function($, Dag) {
                 left = el[0].getBoundingClientRect().right - $menu.width();
                 $menu.css('left', left).addClass('leftColMenu');
             }
-            $menu.find('.subColMenu').each(function() {
+            $menu.find('.subMenu').each(function() {
                 if ($(this)[0].getBoundingClientRect().right > leftBoundary) {
-                    $menu.find('.subColMenu').addClass('leftColMenu');
+                    $menu.find('.subMenu').addClass('leftColMenu');
                 }
             });
             $('body').addClass('noSelection');
@@ -1110,7 +1110,7 @@ window.Dag = (function($, Dag) {
         $dagWrap.on('mouseenter', '.dagTable.Ready', function() {
             var $dagTable = $(this);
             var timer = setTimeout(function(){
-                            var $dropdown = $('.colMenu:visible');
+                            var $dropdown = $('.menu:visible');
                             if ($dropdown.length !== 0 &&
                                 $dropdown.data('tableelement') &&
                                 $dropdown.data('tableelement').is($dagTable))
@@ -1135,7 +1135,7 @@ window.Dag = (function($, Dag) {
             scrollPosition = -1;
         });
 
-        addColMenuBehaviors($menu);
+        addMenuBehaviors($menu);
 
         $menu.find('.createParamQuery').mouseup(function(event) {
             if (event.which !== 1) {
@@ -1481,7 +1481,7 @@ window.Dag = (function($, Dag) {
 
     function getDagDropDownHTML() {
         var html =
-        '<ul class="colMenu dagDropDown">' +
+        '<ul class="menu dagDropDown">' +
             '<li class="createParamQuery">Create Parameterized Query</li>' +
             '<li class="modifyParams">Modify Existing Parameters</li>' +
             // '<li class="listParams">List of ? Parameters</li>' +

@@ -489,7 +489,6 @@ function buildInitialTable(progCols, tableId, jsonObj, keyName) {
     pullRowsBulk(tableId, jsonObj, startIndex, dataIndex, null);
     addTableListeners(tableId);
     createTableHeader(tableId);
-    generateColDropDown(tableId);
     addColListeners($table, tableId);
 
     if (numRows === 0) {
@@ -682,162 +681,241 @@ function generateColumnHeadHTML(columnClass, color, newColid, option) {
     return (columnHeadTd);
 }
 
-function generateColDropDown(tableId) {
-    // XX need to get rid of tableNum here
+function generateColDropDowns() {
     var types = ['Boolean', 'Integer', 'Decimal', 'String'];
-    var dropDownHTML =
-        '<ul id="colMenu-' + tableId + '" class="colMenu" ' +
-        'data-id="' + tableId + '">' +
-            '<li class="thDropdown">' +
+
+    var mainMenuHTML =
+        '<div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">' +
+        '<div class="menuWrap">' +
+        '<ul>' +
+            '<li class="addColumn parentMenu" data-submenu="addColumn">' +
                 'Add a column' +
-                '<ul class="subColMenu">' +
-                    '<li class="addColumns addColLeft">' +
-                    'On the left</li>' +
-                    '<li class="addColumns addColRight">On the right</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
             '</li>' +
-            '<li class="deleteColumn thDropdown">Delete column</li>' +
-            '<li class="duplicate thDropdown">Duplicate column</li>' +
-            '<li class="deleteDuplicates thDropdown">' +
+            '<li class="deleteColumn">Delete column</li>' +
+            '<li class="duplicate">Duplicate column</li>' +
+            '<li class="deleteDuplicates">' +
                 'Delete other duplicates' +
             '</li>' +
-            '<li class="hide thDropdown">Hide column</li>' +
-            '<li class="unhide thDropdown">Unhide column</li>' +
-            '<li class="thDropdown">Text align' +
-                '<ul class="subColMenu">' +
-                    '<li class="textAlign leftAlign">Left Align</li>' +
-                    '<li class="textAlign centerAlign">Center Align</li>' +
-                    '<li class="textAlign rightAlign">Right Align</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
+            '<li class="hide">Hide column</li>' +
+            '<li class="unhide">Unhide column</li>' +
+            '<li class="textAlign parentMenu" data-submenu="textAlign">Text align' +
             '</li>' +
             '<div class="divider identityDivider thDropdown"></div>' +
-            '<li class="renameCol thDropdown">' +
+            '<li class="rename parentMenu" data-submenu="rename">' +
                 'Rename column' +
-                '<ul class="subColMenu">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<span>New Column Name</span>' +
-                        '<div class="listSection">' +
-                            '<input class="colName" type="text"' +
-                                ' autocomplete="on" spellcheck="false"/>' +
-                        '</div>' +
-                    '</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
             '</li>' +
-            '<li class="splitCol thDropdown">' +
+            '<li class="splitCol parentMenu" data-submenu="splitCol">' +
                 'Split column' +
-                '<ul class="subColMenu">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<div>Split Column By</div>' +
-                        '<input class="delimiter" type="text"' +
-                            ' spellcheck="false"/>' +
-                        '<div>Number of Split Columns</div>' +
-                        '<input class="num" type="number" min="1" step="1"' +
-                            ' placeholder="Unlimited if left blank"/>' +
-                    '</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
             '</li>' +
-            '<li class="changeDataType thDropdown">Change data type' +
-                '<ul class="subColMenu">';
-
-    types.forEach(function(type) {
-        dropDownHTML +=
-            '<li class="flexContainer flexRow typeList type-' +
-                type.toLowerCase() + '">' +
-                '<div class="flexWrap flex-left">' +
-                    '<span class="type icon"></span>' +
-                '</div>' +
-                '<div class="flexWrap flex-right">' +
-                    '<span class="label">' + type + '</span>' +
-                '</div>' +
-            '</li>';
-    });
-
-    dropDownHTML +=
-            '<div class="subColMenuArea"></div>' +
+            '<li class="changeDataType parentMenu" data-submenu="changeDataType">' +
+                'Change data type' +
+            '</li>' +
+            '<div class="divider functionsDivider"></div>' +
+            '<li class="sort parentMenu" data-submenu="sort">Sort' +    
+            '</li>' +
+            '<li class="functions aggregate">Aggregate...</li>' +
+            '<li class="functions filter">Filter...</li>' +
+            '<li class="functions groupby">Group By...</li>' +
+            '<li class="functions map">Map...</li>' +
+            '<li class="joinList">Join...</li>' +
+            '<li class="profile">Profile...</li>' +
+            '<li class="multiColumn hideColumns">Hide Columns</li>' +
+            '<li class="multiColumn unhideColumns">Unhide Columns</li>' +
+            '<li class="multiColumn deleteColumns">Delete Columns</li>' +
+            '<li class="multiColumn textAlignColumns parentMenu" data-submenu="multiTextAlign">Text align' +
+            '</li>' +
+            '<li class="multiColumn multiChangeDataType parentMenu" data-submenu="multiChangeDataType">Change data type' +
+            '<li class="tdFilter tdDropdown">Filter this value</li>' +
+            '<li class="tdExclude tdDropdown">Exclude this value</li>' +
+            '<li class="tdJsonModal tdDropdown">Examine</li>' +
+            '<li class="tdUnnest tdDropdown">Pull all</li>' +
+            '<li class="tdCopy tdDropdown">Copy to clipboard</li>' +
         '</ul>' +
-        '<div class="dropdownBox"></div>' +
-    '</li>' +
-    '<div class="divider functionsDivider thDropdown"></div>' +
-    '<li class="sort thDropdown">Sort' +
-        '<ul class="subColMenu">' +
-            '<li class="sort" ' +
-                'title="Table is already sorted <br/> on this column" ' +
-                'data-toggle="tooltip" ' +
-                'data-container="#colMenu-' + tableId + ' .sort.thDropdown" ' +
-                'data-placement="top">' +
-            '<span class="sortUp"></span>A-Z</li>' +
-            '<li class="revSort unavailable">' +
-            '<span class="sortDown"></span>Z-A</li>' +
-            '<div class="subColMenuArea"></div>' +
+        '</div>' +
+        '<div class="scrollArea top"><div class="arrow"></div></div>' +
+        '<div class="scrollArea bottom"><div class="arrow"></div></div>' +
+        '</div>';
+
+    var subMenuHTML =
+        '<div id="colSubMenu" class="menu subMenu">' +
+            '<ul class="addColumn">' +
+                '<li class="addColumn addColLeft">' +
+                'On the left</li>' +
+                '<li class="addColumn addColRight">On the right</li>' +
+            '</ul>' +
+            '<ul class="textAlign">' +
+                '<li class="textAlign leftAlign">Left Align</li>' +
+                '<li class="textAlign centerAlign">Center Align</li>' +
+                '<li class="textAlign rightAlign">Right Align</li>' +
+            '</ul>' +
+            '<ul class="rename">' +
+                '<li style="text-align: center" class="rename clickable">' +
+                    '<span>New Column Name</span>' +
+                    '<div class="listSection">' +
+                        '<input class="colName" type="text"' +
+                            ' autocomplete="on" spellcheck="false"/>' +
+                    '</div>' +
+                '</li>' +
+            '</ul>' +
+            '<ul class="splitCol">' +
+                '<li style="text-align: center" class="clickable">' +
+                    '<div>Split Column By</div>' +
+                    '<input class="delimiter" type="text"' +
+                        ' spellcheck="false"/>' +
+                    '<div>Number of Split Columns</div>' +
+                    '<input class="num" type="number" min="1" step="1"' +
+                        ' placeholder="Unlimited if left blank"/>' +
+                '</li>' +
+            '</ul>' +
+            '<ul class="changeDataType">';
+
+        types.forEach(function(type) {
+            subMenuHTML +=
+                '<li class="flexContainer flexRow typeList type-' +
+                    type.toLowerCase() + '">' +
+                    '<div class="flexWrap flex-left">' +
+                        '<span class="type icon"></span>' +
+                    '</div>' +
+                    '<div class="flexWrap flex-right">' +
+                        '<span class="label">' + type + '</span>' +
+                    '</div>' +
+                '</li>';
+        });
+    subMenuHTML +=
+            '</ul>' +
+            '<ul class="sort">' +
+                '<li class="sort">' +
+                '<span class="sortUp"></span>A-Z</li>' +
+                '<li class="revSort unavailable">' +
+                '<span class="sortDown"></span>Z-A</li>' +
+            '</ul>' +
+            '<ul class="multiTextAlign">' +
+                '<li class="textAlign leftAlign">Left Align</li>' +
+                '<li class="textAlign centerAlign">Center Align</li>' +
+                '<li class="textAlign rightAlign">Right Align</li>' +
+            '</ul>' +
+            '<ul class="multiChangeDataType">';
+
+        types.forEach(function(type) {
+            subMenuHTML +=
+                '<li class="flexContainer flexRow typeList type-' +
+                    type.toLowerCase() + '">' +
+                    '<div class="flexWrap flex-left">' +
+                        '<span class="type icon"></span>' +
+                    '</div>' +
+                    '<div class="flexWrap flex-right">' +
+                        '<span class="label">' + type + '</span>' +
+                    '</div>' +
+                '</li>';
+        });
+    subMenuHTML +=
+            '</ul>' +
+            '<div class="subMenuArea"></div>' +
+        '</div>';
+
+    var cellMenuHTML =
+        '<ul id="cellMenu" class="menu">' +
+            '<li class="tdFilter">Filter this value</li>' +
+            '<li class="tdExclude">Exclude this value</li>' +
+            '<li class="tdJsonModal">Examine</li>' +
+            '<li class="tdUnnest">Pull all</li>' +
+            '<li class="tdCopy">Copy to clipboard</li>' +
+        '</ul>';
+
+    var $mainFrame = $('#mainFrame');
+    $mainFrame.append(mainMenuHTML);
+    $mainFrame.append(subMenuHTML);
+    $mainFrame.append(cellMenuHTML);
+}
+
+function generateTableDropDown() {
+
+    var tableMenuHTML =
+        '<div id="tableMenu" class="menu tableMenu" data-submenu="tableSubMenu">' +
+        '<div class="menuWrap">' +
+        '<ul>' +
+            '<li class="archiveTable">Archive Table</li>' +
+            '<li class="hideTable">Hide Table</li>' +
+            '<li class="unhideTable">Unhide Table</li>' +
+            // '<li class="deleteTable">Delete Table</li>' + XXX temporary
+            '<li class="exportTable">Export Table</li>' +
+            '<li class="delAllDuplicateCols">Delete All Duplicates</li>' +
+            '<li class="quickAgg parentMenu" data-submenu="quickAgg"> Quick Aggregates' +
+            '</li>' +
+            '<li class="moveToWorksheet parentMenu" ' +
+                'data-submenu="moveToWorksheet" data-toggle="tooltip" ' +
+                'data-placement="top" title="no worksheet to move to">' +
+                'Move to worksheet' +
+            '</li>' +
+            '<li class="sort parentMenu" data-submenu="sort">Sort Columns' +
+            '</li>' +
+            '<li class="resizeCols parentMenu" data-submenu="resizeCols">' +
+                'Resize All Columns' +
+            '</li>' +
+            // XX copy to worksheet is temporarily disabled until we can do
+            // an actual copy of a table
+            
+            // '<li class="dupToWorksheet">' +
+            //     '<span class="label">Copy to worksheet</span>' +
+            //     '<ul class="subMenu">' +
+            //         '<li style="text-align: center" class="clickable">' +
+            //             '<span>Worksheet Name</span>' +
+            //             '<div class="listSection">' +
+            //                 '<input class="wsName" type="text" width="100px" ' +
+            //                     'placeholder="click to see options"/>' +
+            //                 '<ul class="list"></ul>' +
+            //             '</div>' +
+            //         '</li>' +
+            //         '<li style="text-align: center" class="clickable">' +
+            //             '<span>New Table Name</span>' +
+            //             '<input class="tableName" type="text" width="100px" ' +
+            //                     'placeholder="Enter a new table name" ' +
+            //                     'value="' + newTableName + '"/>' +
+            //         '</li>' +
+            //         '<div class="subMenuArea"></div>' +
+            //     '</ul>' +
+            //     '<div class="dropdownBox"></div>' +
+            // '</li>' +
         '</ul>' +
-        '<div class="dropdownBox"></div>' +
-    '</li>' +
-    '<li class="functions aggregate thDropdown">Aggregate...</li>' +
-    '<li class="functions filter thDropdown">Filter...</li>' +
-    '<li class="functions groupby thDropdown">Group By...</li>' +
-    '<li class="functions map thDropdown">Map...</li>' +
-    '<li class="joinList thDropdown">Join...</li>' +
-    '<li class="profile thDropdown">Profile...</li>' +
-    '<li class="multiColumn hideColumns thDropdown">Hide Columns</li>' +
-    '<li class="multiColumn unhideColumns thDropdown">Unhide Columns</li>' +
-    '<li class="multiColumn deleteColumns thDropdown">Delete Columns</li>' +
-    '<li class="multiColumn textAlignColumns thDropdown">Text align' +
-        '<ul class="subColMenu">' +
-            '<li class="textAlign leftAlign">Left Align</li>' +
-            '<li class="textAlign centerAlign">Center Align</li>' +
-            '<li class="textAlign rightAlign">Right Align</li>' +
-            '<div class="subColMenuArea"></div>' +
-        '</ul>' +
-        '<div class="dropdownBox"></div>' +
-    '</li>' +
-    '<li class="multiColumn changeDataType thDropdown">Change data type' +
-        '<ul class="subColMenu">';
+        '</div>' +
+        '<div class="scrollArea top"><div class="arrow"></div></div>' +
+        '<div class="scrollArea bottom"><div class="arrow"></div></div>' +
+        '</div>';
 
-    types.forEach(function(type) {
-        dropDownHTML +=
-            '<li class="flexContainer flexRow typeList type-' +
-                type.toLowerCase() + '">' +
-                '<div class="flexWrap flex-left">' +
-                    '<span class="type icon"></span>' +
-                '</div>' +
-                '<div class="flexWrap flex-right">' +
-                    '<span class="label">' + type + '</span>' +
-                '</div>' +
-            '</li>';
-    });
-    dropDownHTML +=
-            '<div class="subColMenuArea"></div>' +
-        '</ul>' +
-        '<div class="dropdownBox"></div>' +
-    '<li class="tdFilter tdDropdown">Filter this value</li>' +
-    '<li class="tdExclude tdDropdown">Exclude this value</li>' +
-    '<li class="tdJsonModal tdDropdown">Examine</li>' +
-    '<li class="tdUnnest tdDropdown">Pull all</li>' +
-    '<li class="tdCopy tdDropdown">Copy to clipboard</li>';
+    var subMenuHTML =
+        '<div id="tableSubMenu" class="menu subMenu">' +
+            '<ul class="quickAgg">' +
+                '<li class="aggregates">Aggregate Functions</li>' +
+                '<li class="correlation">Correlation Coefficient</li>' +
+            '</ul>' +
+            '<ul class="moveToWorksheet">' +
+                '<li style="text-align: center" class="clickable">' +
+                    '<span>Worksheet Name</span>' +
+                    '<div class="listSection">' +
+                        '<input class="wsName" type="text" width="100px" ' +
+                            'placeholder="click to see options"/>' +
+                        '<ul class="list"></ul>' +
+                    '</div>' +
+                '</li>' +
+                '<div class="subMenuArea"></div>' +
+            '</ul>' +
+            '<ul class="sort">' +
+                '<li class="sortForward">' +
+                    '<span class="sortUp"></span>A-Z</li>' +
+                '<li class="sortReverse">' +
+                    '<span class="sortDown"></span>Z-A</li>' +
+                '<div class="subMenuArea"></div>' +
+            '</ul>' +
+            '<ul class="resizeCols">' +
+                '<li class="sizeToHeader">Size To Headers</li>' +
+                '<li class="sizeToContents">Size To Contents</li>' +
+                '<li class="sizeToFitAll">Size To Fit All</li>' +
+                '<div class="subMenuArea"></div>' +
+            '</ul>' +
+            '<div class="subMenuArea"></div>' +
+        '</div>';
 
-
-    // XXX: HACK: I removed the check for the main col. Also, I should check for
-    // whether the type is a string or a int
-    // if (true) { // This check is here so that you don't have to indent in the
-    //             // in the future. O:D
-    //     dropDownHTML +=
-    //         '<li class="joinList">' + 'Join</li>' +
-    //         '<li class="operations">' + 'Functions</li>';
-    //                         // '<ul class="subColMenu" id="joinTables">';
-    // }
-    // dropDownHTML += '</ul><div class="dropdownBox"></div>' +
-    //                 '<div class="subColMenuArea"></div></li>';
-    dropDownHTML += '</ul>';
-    var $xcTableWrap = $('#xcTableWrap-' + tableId);
-    $xcTableWrap.append(dropDownHTML);
-
-    return (dropDownHTML);
+    var $mainFrame = $('#mainFrame');
+    $mainFrame.append(tableMenuHTML);
+    $mainFrame.append(subMenuHTML);
 }

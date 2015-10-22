@@ -419,6 +419,13 @@ window.xcHelper = (function($, xcHelper) {
                 // because hide dropdown is triggered by it
                 // should invalid that when mousedown on listSection
                 event.stopPropagation();
+                var mousedownTarget;
+                if ($(this).find('input').length === 1) {
+                    mousedownTarget = $(this).find('input');
+                } else {
+                    mousedownTarget = $(this);
+                }
+                gMouseEvents.setMouseDownTarget(mousedownTarget);
             }
         });
 

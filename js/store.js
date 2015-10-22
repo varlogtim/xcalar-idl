@@ -17,7 +17,7 @@ function emptyAllStorage(localEmpty) {
     RightSideBar.clear();
     DagPanel.clear();
     // clear all table
-    $("#mainFrame").empty();
+    $("#mainFrame").find('.xcTableWrap').remove();
 
     if (localEmpty) {
         deferred.resolve();
@@ -355,7 +355,7 @@ window.KVStore = (function($, KVStore) {
         // Not use addClass beacuse some code may clear it
 
         // invalid colMenu and tableMenu;
-        $(".colMenu").attr("xc-safeMode", true);
+        $(".menu").attr("xc-safeMode", true);
         // invalid rename table
         $(".tableTitle .text").attr("xc-safeMode", true);
         // invalid drag and drop table

@@ -705,7 +705,7 @@
                     height: 100%;
                 }
         }
-        .colMenu {
+        .menu {
             cursor: auto;
 
             li {
@@ -719,7 +719,7 @@
                 pointer-events: auto;
             }
         }
-        .colMenu.locked {
+        .menu.locked {
             cursor: auto;
         }
         .tableCover {
@@ -941,6 +941,146 @@ html.microsoft {
         &.changedHeight {
             white-space: normal;
         }
+    }
+}
+
+.menu {
+    display: none;
+    .parentMenu {
+        &::after {
+            content: "";
+            width: 0px;
+            height: 0px;
+            position: absolute;
+            vertical-align: middle;
+            right: 3px;
+            bottom: 3px;
+            cursor: pointer;
+            opacity: 0;
+            border-top: 11px solid transparent;
+            border-right: 11px solid #216E93;
+            opacity: 0.3;
+            border-right-color: #9c9c9c;
+            pointer-events: none;
+        }
+        &.selected {
+            &::after {
+                opacity: 1;
+                border-right-color: #A1B8C7;
+            }  
+        }
+    }
+
+    .scrollArea {
+        position: absolute;
+        width: 100%;
+        height: 14px;
+        background-color: rgba(100,100,100,0.1);
+        opacity: 0;
+        z-index: 1;
+        left: 0;
+        .transition(opacity 0.4s ease-in-out 0s);
+
+        &.active {
+            opacity: 1;
+            .transition(opacity 0.4s ease-in-out 0s);
+        }
+
+        &.mouseover {
+            opacity: 1;
+            .arrow {
+                opacity: 1;
+            }
+        }
+
+        &.stopped {
+            display: none !important;
+        }
+
+        .arrow {
+            width: 20px;
+            margin: 0 auto;
+            height: 14px;
+            pointer-events: initial;
+            opacity: 0.4;
+        }
+
+        &.top {
+            top: 0;
+            .arrow {
+                .image("/images/arrow-up-gray-flat.png", 50%, 0);
+            }
+            
+        }
+        &.bottom {
+            bottom: 0;
+            .arrow {
+                .image("/images/arrow-down-gray-flat.png", 50%, 100%);
+            }
+        }   
+    }
+}
+
+.subMenu {
+    &.left {
+        margin-left: -325px;
+
+        .subMenuArea {
+            right: 0;
+            left: auto;
+        }
+    }
+}
+
+#colMenu {
+    overflow: hidden;
+}
+
+#colSubMenu {
+    max-height: none;
+    overflow: visible;
+
+    & > ul {
+        display: none;
+        visibility: visible;
+        left: 0px;
+        margin-top: 0px;
+        position: static;
+    }
+
+    li.selected {
+        background-color: #D3E2E4;
+    }
+}
+
+#tableMenu {
+    overflow: hidden;
+
+    .unhideTable {
+        display: none;
+    }
+
+    &.tableHidden {
+        .hideTable {
+            display: none;
+        }
+        .unhideTable {
+            display: block;
+        }
+    }
+}
+
+#tableSubMenu {
+    & > ul {
+        display: none;
+        visibility: visible;
+        left: 0px;
+        margin-top: 0px;
+        position: static;
+    }
+
+    li.selected {
+        background-color: #D3E2E4;
     }
 }
 

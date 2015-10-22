@@ -152,7 +152,7 @@ window.TestSuite = (function($, TestSuite) {
                 } else {
                     if (bestTime !== 1000) {
                         oldTime = " Current best time: " + bestTime +
-                                  "s. Try again =(";
+                                  "s";
                     }
                 }
             }
@@ -227,8 +227,7 @@ window.TestSuite = (function($, TestSuite) {
                        .eq(0);
         $header.parent().parent().find(".flex-right .innerBox").click();
 
-        var $colMenu = $("#xcTableWrap-" + tableId)
-                       .find(".colMenu:not(.tableMenu) ." + funcClassName);
+        var $colMenu = $("#colMenu ." + funcClassName);
         $colMenu.trigger(fakeEvent.mouseup);
 
         if (whichModal === "join") {
@@ -331,14 +330,14 @@ window.TestSuite = (function($, TestSuite) {
 
         // Change column type
         function flightTestPart3() {
+
             var $header = $($(".flexWrap.flex-mid input[value='ArrDelay']")[0]);
             $header.parent().parent().find(".flex-right .innerBox").click();
 
-            var $colMenu = $(".xcTableWrap").eq(0)
-                            .find(".colMenu:not(.tableMenu) .changeDataType");
+            var $colMenu = $("#colMenu .changeDataType");
+            var $colSubMenu = $('#colSubMenu');
             $colMenu.mouseover();
-            $colMenu.find(".type-integer").trigger(fakeEvent.mouseup);
-
+            $colSubMenu.find(".changeDataType .type-integer").trigger(fakeEvent.mouseup);
             checkExists(".flexWrap.flex-mid" +
                         " input[value='ArrDelay_integer']:eq(0)")
             .then(function() {
@@ -352,6 +351,7 @@ window.TestSuite = (function($, TestSuite) {
 
         // Filter flight table
         function flightTestPart4() {
+            
             var tableId = (WSManager.getWorksheets())[0].tables[0];
             trigOpModal(tableId, "ArrDelay_integer", "filter")
             .then(function() {
@@ -430,8 +430,7 @@ window.TestSuite = (function($, TestSuite) {
         function flightTestPart7() {
             var $header = $(".flexWrap.flex-mid input[value='Dest']").eq(0);
             $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $(".xcTableWrap").eq(0)
-                            .find(".colMenu:not(.tableMenu) .joinList");
+            var $colMenu = $("#colMenu .joinList");
             $colMenu.trigger(fakeEvent.mouseup);
             setTimeout(function() {
                 $("#rightJoin .tableLabel:contains('airport')").trigger(fakeEvent.click);
@@ -532,12 +531,14 @@ window.TestSuite = (function($, TestSuite) {
         .then(function() {
             $("#mainFrame").scrollLeft("10000");
             $(".xcTableWrap .tableTitle .dropdownBox .innerBox").eq(2).click();
-            $(".xcTableWrap .moveToWorksheet").eq(2)
-                                            .trigger(fakeEvent.mouseenter);
-            $(".xcTableWrap .moveToWorksheet .wsName").eq(2).click();
-            $(".xcTableWrap .moveToWorksheet:eq(2) .list li").click();
-            $(".xcTableWrap .moveToWorksheet .wsName").eq(2)
-                                                    .trigger(fakeEvent.enter);
+            $("#tableMenu .moveToWorksheet").trigger(fakeEvent.mouseenter);
+            $("#tableSubMenu .wsName").click();
+            $("#tableSubMenu .moveToWorksheet .list li").click();
+            $("#tableSubMenu .moveToWorksheet .wsName").trigger(fakeEvent.enter);
+
+            return (checkExists(".xcTableWrap.worksheet-1"));
+        })
+        .then(function() {
             $("#worksheetTab-1 .text").text("Multi group by")
                                         .trigger(fakeEvent.enter);
             return (checkExists("#worksheetTab-1 .text:contains('Multi ')"));
@@ -621,23 +622,22 @@ window.TestSuite = (function($, TestSuite) {
         var $header = $("#xcTable-" + tableId +
                         " .flexWrap.flex-mid input[value='class_id']");
         $header.parent().parent().find(".flex-right .innerBox").click();
-        var $colMenu = $("#xcTableWrap-" + tableId)
-                        .find(".colMenu:not(.tableMenu) .renameCol");
+        var $colMenu = $("#colMenu .renameCol");
+        var $colSubMenu = $('#colSubMenu');
         $colMenu.mouseover();
-        $colMenu.find(".colName").val("class id").trigger(fakeEvent.enter);
+        $colSubMenu.find(".colName").val("class id").trigger(fakeEvent.enter);
         checkExists(".tooltip")
         .then(function() {
             $colMenu.mouseout();
-            $colMenu.find(".colName").val("newclassid");
-            $colMenu.find(".colName").trigger(fakeEvent.enter);
+            $colSubMenu.find(".colName").val("newclassid");
+            $colSubMenu.find(".colName").trigger(fakeEvent.enter);
             // Now do something with this newly renamed column
             var $header = $("#xcTable-" + tableId +
                             " .flexWrap.flex-mid input[value='newclassid']");
             $header.parent().parent().find(".flex-right .innerBox").click();
-            $colMenu = $("#xcTableWrap-" + tableId)
-                        .find(".colMenu:not(.tableMenu) .changeDataType");
+            $colMenu = $("#colMenu .changeDataType");
             $colMenu.mouseover();
-            $colMenu.find(".type-string").trigger(fakeEvent.mouseup);
+            $colSubMenu.find(".changeDataType .type-string").trigger(fakeEvent.mouseup);
             return (checkExists(".flexWrap.flex-mid" +
                                 " input[value='newclassid_string']:eq(0)"));
 
@@ -660,10 +660,10 @@ window.TestSuite = (function($, TestSuite) {
             var $header = $("#xcTable-" + tableId +
                             " .flexWrap.flex-mid input[value='Month']");
             $header.parent().parent().find(".flex-right .innerBox").click();
-            $colMenu = $("#xcTableWrap-" + tableId)
-                        .find(".colMenu:not(.tableMenu) .changeDataType");
+            var $colMenu = $("#colMenu .changeDataType");
+            var $colSubMenu = $('#colSubMenu');
             $colMenu.mouseover();
-            $colMenu.find(".type-integer").trigger(fakeEvent.mouseup);
+            $colSubMenu.find(".changeDataType .type-integer").trigger(fakeEvent.mouseup);
             return (checkExists(".flexWrap.flex-mid" +
                                 " input[value='Month_integer']:eq(0)"));
         })
@@ -680,8 +680,7 @@ window.TestSuite = (function($, TestSuite) {
         var $header = $("#xcTable-" + tableId +
                         " .flexWrap.flex-mid input[value='Month_integer']");
         $header.parent().parent().find(".flex-right .innerBox").click();
-        $("#xcTableWrap-" + tableId).find(".colMenu:not(.tableMenu) .profile")
-                                    .trigger(fakeEvent.mouseup);
+        $("#colMenu .profile").trigger(fakeEvent.mouseup);
         checkExists([".modalHeader .text:contains('Profile')",
                      ".barArea .xlabel:contains('205')"], 30000)
         .then(function() {
@@ -719,7 +718,7 @@ window.TestSuite = (function($, TestSuite) {
     function corrTest(deferred, testName, currentTestNumber) {
         var tableId = (WSManager.getWorksheets())[1].tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
-        $("#tableMenu-" + tableId + " .correlation").trigger(fakeEvent.mouseup);
+        $("#tableSubMenu .correlation").trigger(fakeEvent.mouseup);
         checkExists(".aggTableField:contains('-0.4')")
         .then(function() {
             $("#quickAggHeader #closeAgg .icon").click();

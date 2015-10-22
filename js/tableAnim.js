@@ -770,92 +770,7 @@ function createTableHeader(tableId) {
     $xcTheadWrap.prepend(html);
     //  title's Format is tablename  [cols]
     updateTableHeader(tableId);
-
-    var newTableName = xcHelper.randName(tableName, undefined, true);
-    var tableMenuHTML =
-        '<ul id="tableMenu-' + tableId +
-            '" class="colMenu tableMenu" ' +
-            'data-id="' + tableId + '">' +
-            '<li class="archiveTable">Archive Table</li>' +
-            '<li class="hideTable">Hide Table</li>' +
-            '<li class="unhideTable">Unhide Table</li>' +
-            // '<li class="deleteTable">Delete Table</li>' + XXX temporary
-            '<li class="exportTable">Export Table</li>' +
-            '<li class="delAllDuplicateCols">Delete All Duplicates</li>' +
-            '<li class="quickAgg"> Quick Aggregates' +
-                '<ul class="subColMenu">' +
-                    '<li class="aggregates">Aggregate Functions</li>' +
-                    '<li class="correlation">Correlation Coefficient</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
-            '</li>' +
-            '<li class="moveToWorksheet" data-toggle="tooltip" ' +
-                'data-placement="top" title="no worksheet to move to">' +
-                'Move to worksheet' +
-                '<ul class="subColMenu">' +
-                    '<li style="text-align: center" class="clickable">' +
-                        '<span>Worksheet Name</span>' +
-                        '<div class="listSection">' +
-                            '<input class="wsName" type="text" width="100px" ' +
-                                'placeholder="click to see options"/>' +
-                            '<ul class="list"></ul>' +
-                        '</div>' +
-                    '</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
-            '</li>' +
-            '<li class="sort">Sort Columns' +
-                '<ul class="subColMenu">' +
-                    '<li class="sortForward">' +
-                        '<span class="sortUp"></span>A-Z</li>' +
-                    '<li class="sortReverse">' +
-                        '<span class="sortDown"></span>Z-A</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
-            '</li>' +
-            '<li class="resizeCols">Resize All Columns' +
-                '<ul class="subColMenu">' +
-                    '<li class="sizeToHeader">Size To Headers</li>' +
-                    '<li class="sizeToContents">Size To Contents</li>' +
-                    '<li class="sizeToFitAll">Size To Fit All</li>' +
-                    '<div class="subColMenuArea"></div>' +
-                '</ul>' +
-                '<div class="dropdownBox"></div>' +
-            '</li>' +
-            // XX copy to worksheet is temporarily disabled until we can do
-            // an actual copy of a table
-            
-            // '<li class="dupToWorksheet">' +
-            //     '<span class="label">Copy to worksheet</span>' +
-            //     '<ul class="subColMenu">' +
-            //         '<li style="text-align: center" class="clickable">' +
-            //             '<span>Worksheet Name</span>' +
-            //             '<div class="listSection">' +
-            //                 '<input class="wsName" type="text" width="100px" ' +
-            //                     'placeholder="click to see options"/>' +
-            //                 '<ul class="list"></ul>' +
-            //             '</div>' +
-            //         '</li>' +
-            //         '<li style="text-align: center" class="clickable">' +
-            //             '<span>New Table Name</span>' +
-            //             '<input class="tableName" type="text" width="100px" ' +
-            //                     'placeholder="Enter a new table name" ' +
-            //                     'value="' + newTableName + '"/>' +
-            //         '</li>' +
-            //         '<div class="subColMenuArea"></div>' +
-            //     '</ul>' +
-            //     '<div class="dropdownBox"></div>' +
-            // '</li>' +
-        '</ul>';
-
-    $('#xcTableWrap-' + tableId).append(tableMenuHTML);
-    var $tableMenu = $('#tableMenu-' + tableId);
-    addColMenuBehaviors($tableMenu);
-    // Event Listener for table dropdown menu
-    addTableMenuActions($tableMenu);
+   
     // Event Listener for table title
     $xcTheadWrap.on({
         // must use keypress to prevent contenteditable behavior
@@ -898,9 +813,14 @@ function createTableHeader(tableId) {
     $xcTheadWrap.on('click', '.tableTitle > .dropdownBox', function() {
         var classes   = "tableMenu";
         var $dropdown = $(this);
+        var $tableWrap = $dropdown.closest('.xcTableWrap');
 
-        if ($dropdown.closest('.xcTableWrap').hasClass('tableLocked')) {
-            classes += "locked";
+        if ($tableWrap.hasClass('tableLocked')) {
+            classes += " locked";
+        }
+
+        if ($tableWrap.hasClass('tableHidden')) {
+            classes += " tableHidden";
         }
 
         dropdownClick($dropdown, {
@@ -923,12 +843,16 @@ function createTableHeader(tableId) {
     matchHeaderSizes($table);
 }
 
-function addTableMenuActions($tableMenu) {
-    var tableId = xcHelper.parseTableId($tableMenu);
+function addTableMenuActions() {
+    var $tableMenu = $('#tableMenu');
+    var $subMenu = $('#tableSubMenu');
+    var $allMenus = $tableMenu.add($subMenu);
+    var tableId;
     $tableMenu.on('mouseup', '.archiveTable', function(event) {
         if (event.which !== 1) {
             return;
         }
+        tableId = $tableMenu.data('tableId');
         var tableName = gTables[tableId].tableName;
         archiveTable(tableId, ArchiveTable.Keep);
         // add sql
@@ -944,6 +868,7 @@ function addTableMenuActions($tableMenu) {
             return;
         }
 
+        tableId = $tableMenu.data('tableId');
         var $xcTableWrap = $('#xcTableWrap-' + tableId);
         $xcTableWrap.addClass('tableHidden');
         moveTableDropdownBoxes();
@@ -961,6 +886,7 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
+        tableId = $tableMenu.data('tableId');
         var $xcTableWrap = $('#xcTableWrap-' + tableId);
         $xcTableWrap.removeClass('tableHidden');
         WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableId);
@@ -981,6 +907,7 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
+        tableId = $tableMenu.data('tableId');
         var tableName = xcHelper.getTableFromId(tableId).tableName;
 
         var msg = "Are you sure you want to delete table " + tableName + "?";
@@ -1004,7 +931,7 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
-
+        tableId = $tableMenu.data('tableId');
         ExportModal.show(tableId);
     });
 
@@ -1012,27 +939,30 @@ function addTableMenuActions($tableMenu) {
         if (event.which !== 1) {
             return;
         }
+        tableId = $tableMenu.data('tableId');
         ColManager.delAllDupCols(tableId);
     });
 
-    $tableMenu.on('mouseup', '.aggregates', function(event) {
+    $subMenu.on('mouseup', '.aggregates', function(event) {
         if (event.which !== 1) {
             return;
         }
+        tableId = $tableMenu.data('tableId');
         AggModal.show(tableId, 'aggregates');
     });
 
-    $tableMenu.on('mouseup', '.correlation', function(event) {
+    $subMenu.on('mouseup', '.correlation', function(event) {
         if (event.which !== 1) {
             return;
         }
+        tableId = $tableMenu.data('tableId');
         AggModal.show(tableId, 'correlation');
     });
 
 
     // opeartion for move to worksheet and copy to worksheet
     $tableMenu.on('mouseenter', '.moveToWorksheet', function() {
-        var $list = $(this).find(".list");
+        var $list = $subMenu.find(".list");
         $list.empty().append(WSManager.getWSLists(false));
     });
 
@@ -1042,15 +972,16 @@ function addTableMenuActions($tableMenu) {
         $list.empty().append( WSManager.getWSLists(true));
     });
 
-    xcHelper.dropdownList($tableMenu.find(".listSection"), {
+    xcHelper.dropdownList($subMenu.find(".listSection"), {
         "onSelect": function($li) {
             var $input = $li.closest(".listSection").find(".wsName");
             $input.val($li.text()).focus();
         }
     });
 
-    $tableMenu.on('keypress', '.moveToWorksheet input', function(event) {
+    $subMenu.on('keypress', '.moveToWorksheet input', function(event) {
         if (event.which === keyCode.Enter) {
+            tableId = $tableMenu.data('tableId');
             var $input  = $(this);
             var wsName  = jQuery.trim($input.val());
             var $option =
@@ -1077,14 +1008,13 @@ function addTableMenuActions($tableMenu) {
                 return false;
             }
 
-            var $menu    = $input.closest('.tableMenu');
             var wsIndex  = $option.data("worksheet");
 
             WSManager.moveTable(tableId, wsIndex);
 
             $input.val("");
             $input.blur();
-            closeMenu($menu);
+            closeMenu($allMenus);
         }
     });
 
@@ -1128,8 +1058,7 @@ function addTableMenuActions($tableMenu) {
             if (!isValid) {
                 return false;
             }
-
-            var $menu    = $li.closest('.tableMenu');
+            tableId = $tableMenu.data('tableId');
             var table    = xcHelper.getTableFromId(tableId);
             var wsIndex  = $option.data("worksheet");
 
@@ -1141,24 +1070,26 @@ function addTableMenuActions($tableMenu) {
             $tableNameInput.val(xcHelper.randName(table.tableName, undefined,
                                                   true));
             $tableNameInput.blur();
-            closeMenu($menu);
+            closeMenu($allMenus);
         }
     });
 
-    $tableMenu.on('mouseup', '.sortForward', function(event) {
+    $subMenu.on('mouseup', '.sortForward', function(event) {
         if (event.which !== 1) {
             return;
         }
+        tableId = $tableMenu.data('tableId');
         // could be long process so we allow the menu to close first
         setTimeout(function() {
             sortAllTableColumns(tableId, "forward");
         }, 0);
     });
 
-    $tableMenu.on('mouseup', '.sortReverse', function(event) {
+    $subMenu.on('mouseup', '.sortReverse', function(event) {
         if (event.which !== 1) {
             return;
         }
+        tableId = $tableMenu.data('tableId');
         // could be long process so we allow the menu to close first
         setTimeout(function() {
             sortAllTableColumns(tableId, "reverse");
@@ -1166,7 +1097,7 @@ function addTableMenuActions($tableMenu) {
     });
 
 
-    $tableMenu.on('mouseup', '.resizeCols li', function(event) {
+    $subMenu.on('mouseup', '.resizeCols li', function(event) {
         if (event.which !== 1) {
             return;
         }
@@ -1175,6 +1106,7 @@ function addTableMenuActions($tableMenu) {
         if (fitAll) {
             sizeToHeader = true;
         }
+        tableId = $tableMenu.data('tableId');
         // could be long process so we allow the menu to close first
         setTimeout(function() {
             var columns = gTables[tableId].tableCols;
@@ -1386,7 +1318,6 @@ function matchHeaderSizes($table) {
 function addColListeners($table, tableId) {
     var $thead = $table.find('thead tr');
     var $tbody = $table.find("tbody");
-    var $colMenu = $("#colMenu-" + tableId);
     var lastSelectedCell;
 
     // listeners on thead
@@ -1724,9 +1655,6 @@ function addColListeners($table, tableId) {
 
         return false;
     };
-
-    addColMenuBehaviors($colMenu);
-    addColMenuActions($colMenu);
 }
 
 function isMultiColum() {
@@ -1795,7 +1723,7 @@ function highlightCell($td, tableId, rowNum, colNum, isShift) {
                         '</div>');
 
     $highlightBox.data("rowNum", rowNum)
-                .data("colNum", colNum);
+                 .data("colNum", colNum);
 
     $td.append($highlightBox);
 }
@@ -1804,79 +1732,310 @@ function unHighlightCell($td) {
     $td.find(".highlightBox").remove();
 }
 
-function addColMenuBehaviors($colMenu) {
-    // enter and leave the menu
-    $colMenu.on({
-        "mouseenter": function() {
-            var $li = $(this);
-            $li.children('ul').addClass('visible');
-            $li.addClass('selected');
-            if (!$li.hasClass('inputSelected')) {
-                $colMenu.find('.inputSelected').removeClass('inputSelected');
+function setupTableColumnsMenu() {
+    generateTableDropDown();
+    addMenuBehaviors($('#tableMenu'));
+    addTableMenuActions();
+
+    generateColDropDowns();
+    addMenuBehaviors($('#colMenu'));
+    addMenuBehaviors($('#cellMenu'));
+    addColMenuActions();
+}
+
+function addMenuBehaviors($mainMenu) {
+    var $subMenu;
+    var $allMenus = $mainMenu;
+    var subMenuId = $mainMenu.data('submenu');
+    var outerHeight;
+    var innerHeight;
+
+    if (subMenuId) {
+        $subMenu = $('#' + subMenuId);
+        $allMenus = $allMenus.add($subMenu);
+
+        $subMenu.on('mousedown', '.subMenuArea', function(event) {
+            if (event.which !== 1) {
+                return;
             }
-        },
-        "mouseleave": function() {
+            closeMenu($allMenus);
+        });
+
+        $subMenu.on('mouseenter', '.subMenuArea', function(event) {
+            var className = $(this).siblings(':visible').attr('class');
+            $mainMenu.find('.' + className).addClass('selected');
+        });
+        
+        // prevents input from closing unless you hover over a different li
+        // on the main column menu
+        $subMenu.find('input').on({
+            "focus": function() {
+                $(this).parents('li').addClass('inputSelected')
+                       .parents('.subMenu').addClass('inputSelected');
+            },
+            "blur": function() {
+                $(this).parents('li').removeClass('inputSelected')
+                       .parents('.subMenu').removeClass('inputSelected');
+            },
+            "keyup": function() {
+                var $input = $(this);
+                $input.parents('li').addClass('inputSelected')
+                .parents('.subMenu').addClass('inputSelected');
+            }
+        });
+
+        $subMenu.on('mouseup', 'li', function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $li = $(this);
-            $li.children('ul').removeClass('visible');
-            $li.find('.listSection').removeClass("open")
-                .find('.list').hide();
-            $li.removeClass('selected');
-            $('.tooltip').remove();
-        }
-    }, "li");
+            event.stopPropagation();
 
-    $colMenu.on('mousedown', '.subColMenuArea', function(event) {
+            if (!$li.hasClass('unavailable') &&
+                $li.closest('input').length === 0 &&
+                $li.closest('.clickable').length === 0) {
+                // hide li if doesnt have an input field
+                closeMenu($allMenus);
+            }
+        });
+
+        $subMenu.on({
+            "mouseenter": function() {
+                $subMenu.find('li').removeClass('selected');
+
+                var $li = $(this);
+                var className = $li.parent().attr('class');
+                $mainMenu.find('.' + className).addClass('selected');
+                $li.addClass('selected');
+                
+                if (!$li.hasClass('inputSelected')) {
+                    $subMenu.find('.inputSelected').removeClass('inputSelected');
+                }
+            },
+            "mouseleave": function() {
+                $subMenu.find('li').removeClass('selected');
+                var $li = $(this);
+                $li.find('.listSection').removeClass("open")
+                    .find('.list').hide();
+                // $li.removeClass('selected');
+                $('.tooltip').remove();
+            }
+        }, "li");
+    }
+
+    $mainMenu.on('mouseup', 'li', function(event) {
         if (event.which !== 1) {
             return;
         }
-        closeMenu($colMenu);
-    });
-
-    $colMenu.on('mousedown', '.inputMenu span', function(event) {
-        if (event.which !== 1) {
-            return;
-        }
-        if ($(this).hasClass('openMenuInput')) {
-            $(this).removeClass('openMenuInput');
-        } else {
-            $(this).addClass('openMenuInput');
-        }
-    });
-    
-    // prevents input from closing unless you hover over a different li
-    // on the main column menu
-    $colMenu.find('input').on({
-        "focus": function() {
-            $(this).parents('li').addClass('inputSelected')
-                   .parents('.subColMenu').addClass('inputSelected');
-        },
-        "blur": function() {
-            $(this).parents('li').removeClass('inputSelected')
-                   .parents('.subColMenu').removeClass('inputSelected');
-        },
-        "keyup": function() {
-            var $input = $(this);
-            $input.parents('li').addClass('inputSelected')
-            .parents('.subColMenu').addClass('inputSelected');
-        }
-    });
-
-    $colMenu.on('mouseup', 'li', function(event) {
-        if (event.which !== 1) {
+        var $li = $(this);
+        if ($li.hasClass('parentMenu')) {
             return;
         }
         event.stopPropagation();
-        var $li = $(this);
-        if ($li.children('.subColMenu, input').length === 0 &&
-            !$li.hasClass('unavailable') &&
-            $li.closest('.clickable').length === 0) {
+        
+        if (!$li.hasClass('unavailable')) {
             // hide li if doesnt have a submenu or an input field
-            closeMenu($colMenu);
+            closeMenu($allMenus);
             if (!$li.hasClass('functions')) {
                 $('.selectedCell').removeClass('selectedCell');
             }
         }
     });
+
+
+    $mainMenu.on({
+        "mouseenter": function() {
+            var $li = $(this);
+            $mainMenu.find('.selected').removeClass('selected');
+            $mainMenu.addClass('hovering');
+            $li.addClass('selected');
+            var hasSubMenu = $li.hasClass('parentMenu');
+
+            if (!hasSubMenu || $li.hasClass('unavailable')) {
+                if ($subMenu) {
+                    $subMenu.hide();
+                }
+                return;
+            }
+
+            var subMenuClass = $li.data('submenu');
+            setTimeout(function() {
+                if ($li.hasClass('selected')) {
+                    $subMenu.show();
+                    $subMenu.children('ul').hide();
+                    $subMenu.find('li').removeClass('selected');
+                    $subMenu.find('.' + subMenuClass).show();
+                    var top = $li.offset().top + 30;
+                    var left = $li.offset().left + 155;
+                    var shiftedLeft = false;
+
+                    // move submenu to left if overflowing to the right
+                    var viewportRight;
+                    var $rightSideBar = $('#rightSideBar');
+                    if (!$rightSideBar.hasClass('poppedOut')) {
+                        viewportRight = $rightSideBar.offset().left;
+                    } else {
+                        viewportRight = $(window).width();
+                    }
+                    if (left + $subMenu.width() > viewportRight) {
+                        $subMenu.addClass('left');
+                        shiftedLeft = true;
+                        top -= 29;
+                    } else {
+                        $subMenu.removeClass('left');
+                    }
+
+                    // move submenu up if overflowing to the bottom
+                    var viewportBottom = $(window).height();
+                    if (top + $subMenu.height() > viewportBottom) {
+                        top -= $subMenu.height();
+                        if (shiftedLeft) {
+                            top += 29;
+                        }
+                    }
+
+                    $subMenu.css({left: left, top: top});
+                }
+                
+            }, 150);
+        },
+        "mouseleave": function() {
+            $mainMenu.removeClass('hovering');
+            $mainMenu.find('.selected').removeClass('selected');
+            var $li = $(this);
+            $li.children('ul').removeClass('visible');
+            $('.tooltip').remove();
+           
+        }
+    }, "li");
+
+    var showAreas = true;
+
+    if ($mainMenu.find('.scrollArea').length !== 0) {
+        var $scrollAreas = $mainMenu.find('.scrollArea');
+        var $menuWrap = $mainMenu.children('.menuWrap');
+        var $ul = $mainMenu.find('ul');
+        var timer = {
+            fadeIn: null,
+            fadeOut: null,
+            setMouseMoveFalse: null,
+            hovering: null,
+            scroll: null
+        };
+        var isMouseMoving = false;
+        var isMouseInScroller = false;
+
+        $mainMenu.mouseleave(function() {
+            clearTimeout(timer.fadeIn);
+            $scrollAreas.removeClass('active');
+        });
+
+        $mainMenu.mouseenter(function() {
+            outerHeight = $mainMenu.height();
+            innerHeight = $ul.height();
+        });
+
+        $mainMenu.mousemove(function() {
+            clearTimeout(timer.fadeOut);
+            clearTimeout(timer.setMouseMoveFalse);
+            isMouseMoving = true;
+
+            timer.fadeIn = setTimeout(fadeIn, 200);
+
+            timer.fadeOut = setTimeout(fadeOut, 600);
+
+            timer.setMouseMoveFalse = setTimeout(setMouseMoveFalse, 50);
+        });
+
+        $scrollAreas.mouseenter(function() {
+            isMouseInScroller = true;
+            $(this).addClass('mouseover');
+
+            if ($subMenu) {
+                $subMenu.hide();
+            }
+            var scrollUp = $(this).hasClass('top');
+            scrollMenu(scrollUp);
+        });
+
+        $scrollAreas.mouseleave(function() {
+            isMouseInScroller = false;
+            clearTimeout(timer.scroll);
+
+            var scrollUp = $(this).hasClass('top');
+
+            if (scrollUp) {
+                $scrollAreas.eq(1).removeClass('stopped');
+            } else {
+                $scrollAreas.eq(0).removeClass('stopped');
+            }
+
+            timer.hovering = setTimeout(hovering, 200);
+        });
+
+        // $(document).keydown(function(e) {
+        //     var scrollTop;
+        //     if (e.which === keyCode.Up) {
+        //         scrollTop = $menuWrap.scrollTop();
+        //         $menuWrap.scrollTop(scrollTop - 30);
+        //     } else if (e.which === keyCode.Down) {
+        //         scrollTop = $menuWrap.scrollTop();
+        //         $menuWrap.scrollTop(scrollTop + 30);
+        //     }
+        // });
+
+    }
+
+    function scrollMenu(scrollUp) {
+        var top;
+        var scrollTop = $menuWrap.scrollTop();
+        if (scrollUp) { // scroll upwards
+            if (scrollTop === 0) {
+                $scrollAreas.eq(0).addClass('stopped');
+                return;
+            }
+            timer.scroll = setTimeout(function() {
+                top = scrollTop - 7;
+                $menuWrap.scrollTop(top);
+                scrollMenu(scrollUp);
+            }, 30);
+        } else { // scroll downwards
+            if (outerHeight + scrollTop === innerHeight) {
+                $scrollAreas.eq(1).addClass('stopped');
+                return;
+            }
+            // console.log(outerHeight, innerHeight);
+
+            timer.scroll = setTimeout(function() {
+                top = scrollTop + 7;
+                $menuWrap.scrollTop(top);
+                scrollMenu(scrollUp);
+            }, 30);
+        }
+    }
+
+    function fadeIn() {
+        if (isMouseMoving) {
+            $scrollAreas.addClass('active');
+        }
+    }
+
+    function fadeOut() {
+        if (!isMouseMoving) {
+            clearTimeout(timer.fadeIn);
+            $scrollAreas.removeClass('active');
+        }
+    }
+
+    function setMouseMoveFalse() {
+        isMouseMoving = false;
+    }
+
+    function hovering() {
+        if (!isMouseInScroller) {
+            $scrollAreas.removeClass('mouseover');
+        }
+    }
 
     // the following behavior isn't great...
     // $colMenu.on('mouseup', 'input', function() {
@@ -1884,15 +2043,23 @@ function addColMenuBehaviors($colMenu) {
     // });
 }
 
-function addColMenuActions($colMenu) {
-    var tableId = xcHelper.parseTableId($colMenu);
+
+function addColMenuActions() {
+    var $colMenu = $('#colMenu');
+    var $subMenu = $('#colSubMenu');
+    var $cellMenu = $('#cellMenu');
+
+    var $colMenus = $colMenu.add($subMenu);
+    var $allMenus = $colMenus.add($cellMenu);
+    var tableId;
 
     // add new column
-    $colMenu.on('mouseup', '.addColumns', function(event) {
+    $subMenu.on('mouseup', '.addColumn', function(event) {
         if (event.which !== 1) {
             return;
         }
         var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
 
         // add sql
         var table = gTables[tableId];
@@ -1922,11 +2089,12 @@ function addColMenuActions($colMenu) {
         commitToStorage();
     });
 
-    $colMenu.on('mouseup', '.deleteColumn', function(event) {
+    $subMenu.on('mouseup', '.deleteColumn', function(event) {
         if (event.which !== 1) {
             return;
         }
         var colNum  = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         ColManager.delCol([colNum], tableId);
     });
 
@@ -1935,10 +2103,11 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         ColManager.delDupCols(colNum, tableId);
     });
 
-    $colMenu.on('keypress', '.renameCol input', function(event) {
+    $subMenu.on('keypress', '.rename input', function(event) {
         if (event.which === keyCode.Enter) {
             var $input  = $(this);
             var colName = $input.val().trim();
@@ -1950,16 +2119,18 @@ function addColMenuActions($colMenu) {
             }
 
             var colNum = $colMenu.data('colNum');
+            tableId = $colMenu.data('tableId');
 
             ColManager.renameCol(colNum, tableId, colName);
             $input.val("").blur();
-            closeMenu($colMenu);
+            closeMenu($allMenus);
         }
     });
 
-    $colMenu.on('keypress', '.splitCol input', function(event) {
+    $subMenu.on('keypress', '.splitCol input', function(event) {
         if (event.which === keyCode.Enter) {
             var colNum = $colMenu.data("colNum");
+            tableId = $colMenu.data('tableId');
             var $li = $(this).closest("li");
             var $delimInput = $li.find(".delimiter");
             var delim = $delimInput.val();
@@ -2018,7 +2189,7 @@ function addColMenuActions($colMenu) {
             ColManager.splitCol(colNum, tableId, delim, numColToGet, true);
             $delimInput.val("").blur();
             $numInput.val("").blur();
-            closeMenu($colMenu);
+            closeMenu($allMenus);
         }
     });
 
@@ -2028,6 +2199,7 @@ function addColMenuActions($colMenu) {
         }
 
         var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         ColManager.dupCol(colNum, tableId);
     });
 
@@ -2036,6 +2208,7 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         ColManager.hideCols([colNum], tableId);
     });
 
@@ -2044,10 +2217,11 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         ColManager.unhideCols([colNum], tableId, {"autoResize": true});
     });
 
-    $colMenu.on('mouseup', '.textAlign', function(event) {
+    $subMenu.on('mouseup', '.textAlign', function(event) {
         if (event.which !== 1) {
             return;
         }
@@ -2058,10 +2232,11 @@ function addColMenuActions($colMenu) {
         } else {
             colNum = $colMenu.data('colNum');
         }
+        tableId = $colMenu.data('tableId');
         ColManager.textAlign(colNum, tableId, $(this).attr("class"));
     });
 
-    $colMenu.on('mouseup', '.typeList', function(event) {
+    $subMenu.on('mouseup', '.typeList', function(event) {
         if (event.which !== 1) {
             return;
         }
@@ -2086,24 +2261,27 @@ function addColMenuActions($colMenu) {
                 "type"  : newType
             });
         }
-
+        tableId = $colMenu.data('tableId');
+        console.log(colTypeInfos, tableId);
         ColManager.changeType(colTypeInfos, tableId);
     });
 
-    $colMenu.on('mouseup', '.sort .sort', function(event) {
+    $subMenu.on('mouseup', 'li.sort', function(event) {
         if (event.which !== 1) {
             return;
         }
         var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         xcFunction.sort(colNum, tableId, SortDirection.Forward);
     });
     
-    $colMenu.on('mouseup', '.sort .revSort', function(event) {
+    $subMenu.on('mouseup', 'li.revSort', function(event) {
         return; //XX revSort is currently unavailable
         if (event.which !== 1) {
             return;
         }
         var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         xcFunction.sort(colNum, tableId, SortDirection.Backward);
     });
 
@@ -2113,6 +2291,7 @@ function addColMenuActions($colMenu) {
         }
 
         var colNum  = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         JoinModal.show(tableId, colNum);
     });
 
@@ -2121,6 +2300,7 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         var func = $(this).text().replace(/\./g, '');
         OperationsModal.show(tableId, colNum, func);
     });
@@ -2130,17 +2310,19 @@ function addColMenuActions($colMenu) {
             return;
         }
         var colNum = $colMenu.data('colNum');
+        tableId = $colMenu.data('tableId');
         STATSManager.run(tableId, colNum);
     });
 
-    $colMenu.on('mouseup', '.tdFilter, .tdExclude', function(event) {
+    $cellMenu.on('mouseup', '.tdFilter, .tdExclude', function(event) {
         var $li =  $(this);
 
         if (event.which !== 1 || $li.hasClass('unavailable')) {
             return;
         }
 
-        var colNum  = $colMenu.data('colNum');
+        var colNum  = $cellMenu.data('colNum');
+        tableId = $cellMenu.data('tableId');
 
         var $table  = $("#xcTable-" + tableId);
         var $header = $table.find("th.col" + colNum + " .header");
@@ -2254,12 +2436,13 @@ function addColMenuActions($colMenu) {
         $highlightBoxs.remove();
     });
 
-    $colMenu.on('mouseup', '.tdJsonModal', function(event) {
+    $cellMenu.on('mouseup', '.tdJsonModal', function(event) {
         if (event.which !== 1) {
             return;
         }
-        var rowNum  = $colMenu.data('rowNum');
-        var colNum  = $colMenu.data('colNum');
+        var rowNum  = $cellMenu.data('rowNum');
+        var colNum  = $cellMenu.data('colNum');
+        tableId     = $cellMenu.data('tableId');
         var $table  = $("#xcTable-" + tableId);
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
         var isArray = $table.find("th.col" + colNum + " > div")
@@ -2267,12 +2450,13 @@ function addColMenuActions($colMenu) {
         JSONModal.show($td, isArray);
     });
 
-    $colMenu.on('mouseup', '.tdUnnest', function(event) {
+    $cellMenu.on('mouseup', '.tdUnnest', function(event) {
         if (event.which !== 1) {
             return;
         }
-        var rowNum  = $colMenu.data('rowNum');
-        var colNum  = $colMenu.data('colNum');
+        var rowNum  = $cellMenu.data('rowNum');
+        var colNum  = $cellMenu.data('colNum');
+        tableId     = $cellMenu.data('tableId');
         var $table  = $("#xcTable-" + tableId);
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
         var isArray = $table.find("th.col" + colNum + " > div")
@@ -2283,11 +2467,12 @@ function addColMenuActions($colMenu) {
        }, 0);
     });
 
-    $colMenu.on('mouseup', '.tdCopy', function(event) {
+    $cellMenu.on('mouseup', '.tdCopy', function(event) {
         var $li = $(this);
         if (event.which !== 1 || $li.hasClass('unavailable')) {
             return;
         }
+        tableId = $cellMenu.data('tableId');
         var $highlightBoxs = $("#xcTable-" + tableId).find(".highlightBox");
         var valArray = [];
         var colVal;
@@ -2308,6 +2493,7 @@ function addColMenuActions($colMenu) {
             return;
         }
         var columns = $colMenu.data('columns');
+        tableId = $colMenu.data('tableId');
         ColManager.delCol(columns, tableId);
     });
 
@@ -2317,7 +2503,7 @@ function addColMenuActions($colMenu) {
         }
 
         var columns = $colMenu.data('columns');
-
+        tableId = $colMenu.data('tableId');
         ColManager.hideCols(columns, tableId);
     });
 
@@ -2327,6 +2513,7 @@ function addColMenuActions($colMenu) {
         }
 
         var columns = $colMenu.data('columns');
+        tableId = $colMenu.data('tableId');
         ColManager.unhideCols(columns, tableId, {"autoResize": true});
     });
 }
@@ -2493,10 +2680,15 @@ function dropdownClick($el, options) {
 
     var tableId = xcHelper.parseTableId($el.closest(".xcTableWrap"));
     var $menu;
+    var $subMenu;
+    var $allMenus;
+    var menuHeight;
+    $('.menu .selected').removeClass('selected');
 
     if (options.type === "tableDropdown") {
-        $menu = $('#tableMenu-' + tableId);
-
+        $menu = $('#tableMenu');
+        $subMenu = $('#tableSubMenu');
+        $allMenus = $menu.add($subMenu);
         if (WSManager.getWSLen() <= 1) {
             $menu.find(".moveToWorksheet").addClass("unavailable");
         } else {
@@ -2505,15 +2697,20 @@ function dropdownClick($el, options) {
     
         // case that should close table menu
         if ($menu.is(":visible")) {
-            $menu.hide();
+            closeMenu($allMenus);
             return;
         }
+        menuHeight = $(window).height() - 116;
+        $menu.css('max-height', menuHeight);
+        $menu.children('.menuWrap').css('max-height', menuHeight);
     } else if (options.type === "thDropdown") {
-        $menu = $('#colMenu-' + tableId);
+        $menu = $('#colMenu');
+        $subMenu = $('#colSubMenu');
+        $allMenus = $menu.add($subMenu);
         // case that should close column menu
         if ($menu.is(":visible") && $menu.data("colNum") === options.colNum
-            && !$menu.hasClass('tdMenu')) {
-            $menu.hide();
+            && $menu.data('tableId') === tableId && !$menu.hasClass('tdMenu')) {
+            closeMenu($allMenus);
             return;
         }
         if (options.multipleColNums) {
@@ -2521,9 +2718,14 @@ function dropdownClick($el, options) {
         } else {
             $menu.data('columns', []);
         }
+        menuHeight = $(window).height() - 152;
+        $menu.css('max-height', menuHeight);
+        $menu.children('.menuWrap').css('max-height', menuHeight);
+        // $menu.children('ul').css('max-height', $(window).height() - 152);
+
         // XXX Use CSS to show the options
     } else if (options.type === "tdDropdown") {
-        $menu = $('#colMenu-' + tableId);
+        $menu = $('#cellMenu');
         // case that should close column menu
         if (options.isUnSelect && !options.shiftKey)
         {
@@ -2580,13 +2782,19 @@ function dropdownClick($el, options) {
         }
     }
 
-    $(".colMenu:visible").hide();
+    $(".menu:visible").hide();
     $(".leftColMenu").removeClass("leftColMenu");
     // case that should open the menu (note that colNum = 0 may make it false!)
     if (options.colNum != null && options.colNum > -1) {
         $menu.data("colNum", options.colNum);
+        $menu.data("tableId", tableId);
+
     } else {
         $menu.removeData("colNum");
+        $menu.removeData("tableId");
+    }
+    if (options.type === "tableDropdown") {
+        $menu.data("tableId", tableId);
     }
 
     if (options.rowNum != null && options.rowNum > -1) {
@@ -2597,11 +2805,14 @@ function dropdownClick($el, options) {
 
     if (options.classes != null) {
         var className = options.classes.replace("header", "");
-        $menu.attr("class", "colMenu " + className);
+        $menu.attr("class", "menu " + className);
+        if ($subMenu) {
+            $subMenu.attr("class", "menu subMenu " + className);
+        }
     }
 
     if (options.type === 'thDropdown') {
-        $menu.find('.sort .sort').removeClass('unavailable');
+        $subMenu.find('.sort').removeClass('unavailable');
     }
     
     //position menu
@@ -2619,9 +2830,21 @@ function dropdownClick($el, options) {
     }
 
     $menu.css({"top": top, "left": left}).show();
+    $menu.children('.menuWrap').scrollTop(0);
 
-    $menu.closest('.xcTheadWrap').css('z-index', '10');
-
+    // size menu and menuWrap so it
+    var ulHeight = $menu.find('ul').height();
+    if (ulHeight > $menu.height()) {
+        $menu.children('div').css('max-height', menuHeight);
+        $menu.find('.scrollArea').show();
+    } else {
+        $menu.children('div').css('max-height', 'auto');
+        $menu.find('.scrollArea').hide();
+    }
+    // set scrollArea states
+    $menu.find('.scrollArea.top').addClass('stopped');
+    $menu.find('.scrollArea.bottom').removeClass('stopped');
+    
 
     //positioning if dropdown menu is on the right side of screen
     var leftBoundary = $('#rightSideBar')[0].getBoundingClientRect().left;
@@ -2630,11 +2853,7 @@ function dropdownClick($el, options) {
         $menu.css('left', left).addClass('leftColMenu');
     }
 
-    $menu.find('.subColMenu').each(function() {
-        if ($(this)[0].getBoundingClientRect().right > leftBoundary) {
-            $menu.find('.subColMenu').addClass('leftColMenu');
-        }
-    });
+    //XXX need to position subMenu
 
     $('body').addClass('noSelection');
 }
