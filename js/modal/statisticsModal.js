@@ -308,7 +308,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         var $aggInfoSection = $statsModal.find(".aggInfoSection");
         var $loadingSection = $statsModal.find(".loadingSection");
         var $loadHiddens    = $statsModal.find(".loadHidden");
-        var instruction;
+        var instruction = "Profile of <b>" + statsCol.colName + ".</b><br>";
 
         // update agg info
         aggKeys.forEach(function(aggkey) {
@@ -372,8 +372,8 @@ window.STATSManager = (function($, STATSManager, d3) {
                 deferred.reject(error);
             });
 
-            instruction = "Hover on the bar to see details. " +
-                "Use scroll bar and input box to view more data";
+            instruction += "Hover on the bar to see details. " +
+                "Use scroll bar and input box to view more data.";
         } else {
             if (sortRefresh) {
                 $loadHiddens.addClass("disabled");
@@ -384,12 +384,12 @@ window.STATSManager = (function($, STATSManager, d3) {
             $loadingSection.removeClass("hidden");
 
             // the data is loading, show loadingSection and hide groupby section
-            instruction = "Please wait for the data preparation, " +
-                            "you can close the modal and view it later";
+            instruction += "Please wait for the data preparation, " +
+                            "you can close the modal and view it later.";
             deferred.resolve();
         }
 
-        $statsModal.find(".modalInstruction .text").text(instruction);
+        $statsModal.find(".modalInstruction .text").html(instruction);
 
         return (deferred.promise());
     }
