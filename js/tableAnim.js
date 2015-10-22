@@ -587,11 +587,12 @@ function autosizeCol(el, options) {
     var table = xcHelper.getTableFromId(tableId);
 
     var includeHeader = options.includeHeader || false;
+    var fitAll = options.fitAll || false;
     var minWidth = options.minWidth || (gRescol.cellMinWidth - 5);
-
+    
     var widestTdWidth = getWidestTdWidth(el, {
         "includeHeader": includeHeader,
-        "target"       : options.target
+        "fitAll"       : fitAll
     });
     var newWidth = Math.max(widestTdWidth, minWidth);
     // dbClick is autoSized to a fixed width
@@ -620,6 +621,7 @@ function getWidestTdWidth(el, options) {
     options = options || {};
 
     var includeHeader = options.includeHeader || false;
+    var fitAll = options.fitAll || false;
     var id = xcHelper.parseColNum(el);
     var $table = el.closest('.dataTable');
     var largestWidth = 0;
@@ -636,14 +638,12 @@ function getWidestTdWidth(el, options) {
         } else {
             $th = $table.find('.col' + id + ' .editableHead');
         }
-        var extraPadding = 48;
-        if (options.target === "datastore") {
-            extraPadding += 4;
-        }
+        var extraPadding = 58;
         headerWidth = getTextWidth($th) + extraPadding;
-
-        headerWidth += padding;
-        return (headerWidth);
+       
+        if (!fitAll) {
+            return (headerWidth);
+        }
     }
 
     $table.find('tbody tr').each(function() {
@@ -657,9 +657,12 @@ function getWidestTdWidth(el, options) {
         }
     });
 
-    largestWidth = getTextWidth(largestTd);
+    largestWidth = getTextWidth(largestTd) + padding;
 
-    largestWidth += padding;
+    if (includeHeader && fitAll) {
+        largestWidth = Math.max(headerWidth, largestWidth);
+    }
+
     return (largestWidth);
 }
 
@@ -732,8 +735,7 @@ function dblClickResize($el, options) {
             "dbClick"       : true,
             "minWidth"      : minWidth,
             "unlimitedWidth": true,
-            "includeHeader" : includeHeader,
-            "target"        : target
+            "includeHeader" : includeHeader
         });
         $('#col-resizeCursor').remove();
         clearTimeout(gRescol.timer);    //prevent single-click action
@@ -818,6 +820,7 @@ function createTableHeader(tableId) {
                 '<ul class="subColMenu">' +
                     '<li class="sizeToHeader">Size To Headers</li>' +
                     '<li class="sizeToContents">Size To Contents</li>' +
+                    '<li class="sizeToFitAll">Size To Fit All</li>' +
                     '<div class="subColMenuArea"></div>' +
                 '</ul>' +
                 '<div class="dropdownBox"></div>' +
@@ -1168,6 +1171,10 @@ function addTableMenuActions($tableMenu) {
             return;
         }
         var sizeToHeader = $(this).hasClass('sizeToHeader');
+        var fitAll = $(this).hasClass('sizeToFitAll');
+        if (fitAll) {
+            sizeToHeader = true;
+        }
         // could be long process so we allow the menu to close first
         setTimeout(function() {
             var columns = gTables[tableId].tableCols;
@@ -1185,6 +1192,7 @@ function addTableMenuActions($tableMenu) {
                     "minWidth"      : 17,
                     "unlimitedWidth": false,
                     "includeHeader" : sizeToHeader,
+                    "fitAll"        : fitAll,
                     "multipleCols"  : true
                 });
             }
