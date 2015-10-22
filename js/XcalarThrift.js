@@ -219,7 +219,8 @@ function getUnsortedTableName(tableName, otherTableName) {
                 }
             }
             deferred.resolve(tableName);
-        });
+        })
+        .fail(deferred.reject);
     } else {
         var deferred2 = XcalarGetDag(otherTableName);
         xcHelper.when(deferred1, deferred2)
@@ -247,7 +248,8 @@ function getUnsortedTableName(tableName, otherTableName) {
                 }
             }
             deferred.resolve(unsortedName1, unsortedName2);
-        });
+        })
+        .fail(deferred.reject);
     }
     return (deferred.promise());
 }
