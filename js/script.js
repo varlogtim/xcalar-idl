@@ -878,7 +878,7 @@ function checkXcalarVersionMatch() {
 function documentReadyIndexFunction() {
     $(document).ready(function() {
         gMinModeOn = true; // startup use min mode;
-        Compitable.check();
+        Compatible.check();
 
         checkXcalarVersionMatch()
         .then(startupFunctions)

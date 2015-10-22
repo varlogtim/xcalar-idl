@@ -1,8 +1,8 @@
-window.Compitable = (function($, Compitable) {
+window.Compatible = (function($, Compatible) {
     // XXX check if those functions are already
     // support by all browsers frequently
     window.isBrowserMicrosoft = false;
-    Compitable.check = function() {
+    Compatible.check = function() {
         stringCheck();
         browserCheck();
     };
@@ -59,5 +59,5 @@ window.Compitable = (function($, Compitable) {
 
     // XXX add other check here is necessary
 
-    return (Compitable);
+    return (Compatible);
 }(jQuery, {}));
