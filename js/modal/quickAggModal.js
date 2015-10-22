@@ -1,6 +1,6 @@
 window.AggModal = (function($, AggModal) {
     var $modalBackground = $("#modalBackground");
-    var $aggModal        = $("#quickAggDialog");
+    var $aggModal = $("#quickAggDialog");
 
     var $aggSelect    = $("#aggOp");
     var $aggDropdown  = $("#aggOpSelect");
@@ -108,11 +108,11 @@ window.AggModal = (function($, AggModal) {
         if (gMinModeOn) {
             $modalBackground.show();
             $aggModal.show();
-            Tips.refresh();
+            showHandler();
         } else {
             $modalBackground.fadeIn(300, function() {
                 $aggModal.fadeIn(180);
-                Tips.refresh();
+                showHandler();
             });
         }
 
@@ -151,6 +151,13 @@ window.AggModal = (function($, AggModal) {
         });
 
         return (deferred.promise());
+
+        function showHandler() {
+            Tips.refresh();
+            $aggModal.find(".aggContainer")
+                    .scrollTop(0)
+                    .scrollLeft(0);
+        }
     };
 
     // XXX just for debug use, should delete it later!
@@ -506,7 +513,7 @@ window.AggModal = (function($, AggModal) {
         return (deferred.promise());
     }
 
-    function runCorr(tableId, tableName, evalStr, row, col, dups) {
+    function runCorr(tableId, tableName, evalStr, row, col, colDups) {
         var deferred = jQuery.Deferred();
 
         if (corrCache.hasOwnProperty(tableId)) {
@@ -552,37 +559,59 @@ window.AggModal = (function($, AggModal) {
         });
 
         function applyCorrResult(value) {
-            if (jQuery.isNumeric(value)) {
+            var isNumeric = jQuery.isNumeric(value);
+            var bg;
+
+            if (isNumeric) {
                 value = parseFloat(value);
                 if (value > 0) {
+                    bg = "rgba(66, 158, 212," + value + ")";
+
                     $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(value)
-                    .css("background-color", "rgba(66, 158, 212," + value + ")");
+                    .css("background-color", bg);
                 } else {
+                    bg = "rgba(200, 200, 200," + (-1 * value) + ")";
+
                     $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
                     .find(".aggTableField:not(.colLabel)").eq(row).html(value)
-                    .css("background-color", "rgba(200, 200, 200," + (-1 * value)
-                     + ")");
+                    .css("background-color", bg);
                 }
             } else {
                 $("#mainAgg2").find(".aggCol:not(.labels)").eq(col)
                 .find(".aggTableField:not(.colLabel)").eq(row).html(value);
             }
 
-            dups.forEach(function(colNum) {
-                var $container =
-                    $("#mainAgg2").find(".aggCol.labels").eq(colNum)
-                        .find(".aggTableField:not(.colLabel)").eq(row);
+            var $container;
+            colDups.forEach(function(colNum) {
+                // beacause of checkDupcols(), colNum > col
+                // and since col > row
+                // so colNum > row
+                $container = $("#mainAgg2").find(".aggCol:not(.labels)")
+                                .eq(colNum)
+                                .find(".aggTableField:not(.colLabel)")
+                                .eq(row).html(value);
 
-                $container.html(value);
+                if (isNumeric) {
+                    $container.css("background-color", bg);
+                }
+            });
 
-                if (jQuery.isNumeric(value)) {
-                    if (value > 0) {
-                        $container.css("background-color",
-                                        "rgba(66, 158, 212," + value + ")");
-                    } else {
-                        $container.css("background-color",
-                                        "rgba(66, 158, 212," + (-1 * value) + ")");
+            var rowDups = checkDupCols(row);
+            var newCol;
+            var newRow;
+            rowDups.forEach(function(rowNum) {
+                newRow = col;
+                newCol = rowNum;
+
+                if (newCol > newRow) {
+                    $container = $("#mainAgg2").find(".aggCol:not(.labels)")
+                                .eq(newCol)
+                                .find(".aggTableField:not(.colLabel)")
+                                .eq(newRow).html(value);
+
+                    if (isNumeric) {
+                        $container.css("background-color", bg);
                     }
                 }
             });
