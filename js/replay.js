@@ -197,6 +197,8 @@ window.Replay = (function($, Replay) {
                 return replayProfile(options);
             case SQLOps.ProfileSort:
                 return replayProfileSort(options);
+            case SQLOps.ProfileBucketing:
+                return replayProfileBucketing(options);
             case SQLOps.ProfileClose:
                 return replayProfileClose();
             case SQLOps.QuickAgg:
@@ -1051,6 +1053,13 @@ window.Replay = (function($, Replay) {
             }
         }, checkTime);
 
+        return (deferred.promise());
+    }
+
+    function replayProfileBucketing(options) {
+        var deferred = jQuery.Deferred();
+        // XXX not implemented yet
+        deferred.resolve();
         return (deferred.promise());
     }
 

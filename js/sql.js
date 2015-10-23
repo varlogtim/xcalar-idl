@@ -160,6 +160,8 @@ window.SQL = (function($, SQL) {
                 // fallthrough
             case (SQLOps.ProfileSort):
                 // fallthrough
+            case (SQLOps.ProfileBucketing):
+                // fallthrough
             case (SQLOps.ProfileClose):
                 // fallthrough
             case (SQLOps.QuickAgg):

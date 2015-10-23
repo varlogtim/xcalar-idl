@@ -45,6 +45,9 @@ window.Alert = (function($, Alert){
             lockScreen: if screen should be frozen
         */
         if ($alertModal.hasClass('locked')) {
+            // this handle the case that some modal failure handler
+            // may close the modal and it will hide modalBackground
+            $modalBackground.show();
             // alert modal is already opened and locked due to connection error
             return;
         }

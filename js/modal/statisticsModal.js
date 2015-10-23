@@ -28,6 +28,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                      '</div>'
     };
     var statsColName = "statsGroupBy";
+    var bucketColName = "bucketGroupBy";
     var numRowsToFetch = 20;
 
     var statsInfos = {};
@@ -36,15 +37,16 @@ window.STATSManager = (function($, STATSManager, d3) {
     var resultSetId = null;
     var totalRows = null;
     var groupByData = [];
+    var bucketNum = 0;
     var order = sortMap.origin;
     var statsCol = null;
     var percentageLabel = false;
 
-    var minHeight = 370;
-    var minWidth  = 710;
+    var minHeight = 440;
+    var minWidth  = 750;
     var modalHelper = new xcHelper.Modal($statsModal, {
-        "minHeight": minHeight,
-        "minWidth" : minWidth
+       "minHeight": minHeight,
+       "minWidth" : minWidth
     });
 
     STATSManager.setup = function() {
@@ -77,10 +79,9 @@ window.STATSManager = (function($, STATSManager, d3) {
         // show tootip in barArea and do not let in blink in padding
         $statsModal.on("mouseover", ".barArea", function(event) {
             event.stopPropagation();
-            $(".barArea").tooltip("hide")
-                        .attr("class", "barArea");
+            resetTooltip();
             // XXX g tag can not use addClass, fix it if it's not true
-            $(this).attr("class", "barArea hover")
+            $(this).attr("class", $(this).attr("class") + " hover")
                     .tooltip("show");
         });
 
@@ -89,10 +90,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             event.stopPropagation();
         });
 
-        $statsModal.on("mouseover", function() {
-            $(".barArea").tooltip("hide")
-                        .attr("class", "barArea");
-        });
+        $statsModal.on("mouseover", resetTooltip);
 
         $statsModal.on("click", ".bar-extra, .bar, .xlabel", function() {
             percentageLabel = !percentageLabel;
@@ -114,6 +112,67 @@ window.STATSManager = (function($, STATSManager, d3) {
             // XXX invalid it now, coming soon!
             return;
             sortData(sortMap.desc, statsCol);
+        });
+
+        // event on range section
+        var $rangeSection = $statsModal.find(".rangeSection");
+        var $rangeInput = $("#stats-step");
+        $rangeSection.on("click", ".rangeBtn", function() {
+            $rangeSection.toggleClass("range");
+            if ($rangeSection.hasClass("range")) {
+                bucketData($rangeInput.val(), statsCol);
+            } else {
+                bucketData(0, statsCol);
+            }
+        });
+
+        $rangeSection.on("click", ".buttonSection .text", function() {
+            if ($(this).hasClass("range")) {
+                // go to rangle
+                if ($rangeSection.hasClass("range")) {
+                    return;
+                }
+                $rangeSection.addClass("range");
+                bucketData($rangeInput.val(), statsCol);
+            } else {
+                // go to single
+                if (!$rangeSection.hasClass("range")) {
+                    return;
+                }
+                $rangeSection.removeClass("range");
+                bucketData(0, statsCol);
+            }
+        });
+
+        $rangeInput.keypress(function(event) {
+            if (event.which === keyCode.Enter) {
+                var val = $rangeInput.val();
+                var isValid = xcHelper.validate([
+                    {
+                        "$selector": $rangeInput,
+                        "check"    : function() {
+                            return (statsCol.type === "string");
+                        },
+                        "text": "Column type is string, cannot bucket into range."
+                    },
+                    {
+                        "$selector": $rangeInput
+                    },
+                    {
+                        "$selector": $rangeInput,
+                        "check"    : function() {
+                            return (Number(val) <= 0);
+                        },
+                        "text": "Cannot bucket into range less or equal to 0"
+                    }
+                ]);
+
+                if (!isValid) {
+                    return;
+                }
+
+                bucketData(val, statsCol);
+            }
         });
     };
 
@@ -161,11 +220,13 @@ window.STATSManager = (function($, STATSManager, d3) {
                 "aggInfo"    : {},
                 "groupByInfo": {
                     "isComplete": false,
-                    "nullCount" : 0
+                    "nullCount" : 0,
+                    "buckets"   : {}
                 }
             };
         }
 
+        var curStatsCol = statsCol;
         generateStats(table)
         .then(function() {
             SQL.add("Profile", {
@@ -180,7 +241,10 @@ window.STATSManager = (function($, STATSManager, d3) {
             commitToStorage();
 
         })
-        .fail(deferred.reject);
+        .fail(function(error) {
+            failureHandler(curStatsCol, error);
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     };
@@ -193,11 +257,11 @@ window.STATSManager = (function($, STATSManager, d3) {
         $statsModal.find(".groupbyChart").empty();
         modalHelper.clear();
         resetScrollBar();
-
         freePointer();
 
         totalRows = null;
         groupByData = [];
+        bucketNum = 0;
         order = sortMap.origin;
         statsCol = null;
         percentageLabel = false;
@@ -209,6 +273,9 @@ window.STATSManager = (function($, STATSManager, d3) {
         $statsModal.find(".scrollBar").off();
         $(document).off(".statsModal");
         $("#stats-rowInput").off();
+
+        $statsModal.find(".rangeSection").removeClass("range")
+                    .find("input").val("");
     }
 
     function generateStats(table) {
@@ -240,16 +307,16 @@ window.STATSManager = (function($, STATSManager, d3) {
             // XXX use XcalarGetTables because XcalarSetAbsolute cannot
             // return fail if resultSetId is not free
             var innerDeferred = jQuery.Deferred();
+            var groupbyTable = statsCol.groupByInfo.buckets[bucketNum].table;
 
-            XcalarGetTables(statsCol.groupByInfo.groupbyTable)
+            XcalarGetTables(groupbyTable)
             .then(function(tableInfo) {
                 if (tableInfo == null || tableInfo.numNodes === 0) {
                     // XXX use XcalarSetFree will crash backend...
-                    statsCol.groupByInfo = {
-                        "isComplete": false
-                    };
+                    statsCol.groupByInfo.isComplete = false;
+                    statsCol.groupByInfo.buckets[bucketNum] = {};
 
-                    runGroupby(table, statsCol)
+                    runGroupby(table, statsCol, bucketNum)
                     .then(innerDeferred.resolve)
                     .fail(innerDeferred.reject);
                 } else {
@@ -265,7 +332,7 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             promises.push(innerDeferred.promise());
         } else if (statsCol.groupByInfo.isComplete !== "running") {
-            promise = runGroupby(table, statsCol);
+            promise = runGroupby(table, statsCol, bucketNum);
             promises.push(promise);
             showStats();
         } else {
@@ -274,13 +341,22 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         xcHelper.when.apply(window, promises)
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(function() {
+            var error;
+            console.error(arguments);
+            for (var t = 0; t < arguments.length; t++) {
+                error = error || arguments[t];
+            }
+            deferred.reject(error);
+        });
 
         return (deferred.promise());
     }
 
     function showStats() {
         modalHelper.setup();
+        setupScrollBar();
+
         if (gMinModeOn) {
             $modalBg.show();
             $statsModal.show().data("id", statsCol.modalId);
@@ -293,21 +369,21 @@ window.STATSManager = (function($, STATSManager, d3) {
             });
         }
 
+        // hide scroll bar first
         $statsModal.addClass("noScrollBar");
         $statsModal.find(".scrollSection").hide();
-        $modalBg.on("mouseover.statsModal", function() {
-            $(".barArea").tooltip("hide")
-                        .attr("class", "barArea");
-        });
+        $modalBg.on("mouseover.statsModal", resetTooltip);
     }
 
     // refresh stats
-    function refreshStats(sortRefresh) {
+    function refreshStats(resetRefresh) {
         var deferred = jQuery.Deferred();
 
         var $aggInfoSection = $statsModal.find(".aggInfoSection");
         var $loadingSection = $statsModal.find(".loadingSection");
         var $loadHiddens    = $statsModal.find(".loadHidden");
+        var $loadDisables   = $statsModal.find(".loadDisable");
+
         var instruction = "Profile of <b>" + statsCol.colName + ".</b><br>";
 
         // update agg info
@@ -324,24 +400,24 @@ window.STATSManager = (function($, STATSManager, d3) {
             }
         });
 
-        var groupByInfo = statsCol.groupByInfo;
         // update groupby info
-        if (groupByInfo.isComplete === true) {
+        if (statsCol.groupByInfo.isComplete === true) {
             // data is ready
             groupByData = [];
 
             freePointer()
             .then(function() {
+                var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
                 var table;
 
                 if (order === sortMap.asc) {
-                    table = groupByInfo.ascTable;
+                    table = tableInfo.ascTable;
                 } else if (order === sortMap.desc) {
-                    table = groupByInfo.descTable;
+                    table = tableInfo.descTable;
                 } else {
-                    table = groupByInfo.groupbyTable;
+                    table = tableInfo.table;
                 }
-                return getResultSet(table);
+                return (getResultSet(table));
             })
             .then(function(resultSet) {
                 resultSetId = resultSet.resultSetId;
@@ -352,35 +428,31 @@ window.STATSManager = (function($, STATSManager, d3) {
             .then(function() {
                 $loadingSection.addClass("hidden");
                 $loadHiddens.removeClass("hidden").removeClass("disabled");
+                $loadDisables.removeClass("disabled");
 
-                if (sortRefresh) {
-                    resetScrollBar();
-                } else {
-                    setupScrollBar();
-                }
+                resetScrollBar();
                 resetSortSection();
 
-                groupByData = addNullValue(groupByData, statsCol.colName,
-                                            statsColName);
+                groupByData = addNullValue(groupByData);
                 buildGroupGraphs(true);
+                highlightBar(1);
                 deferred.resolve();
             })
             .fail(function(error) {
-                closeStats();
-                Alert.error("Stats Analysis Fails", error);
-                console.error(error);
+                failureHandler(statsCol, error);
                 deferred.reject(error);
             });
 
             instruction += "Hover on the bar to see details. " +
                 "Use scroll bar and input box to view more data.";
         } else {
-            if (sortRefresh) {
+            if (resetRefresh) {
                 $loadHiddens.addClass("disabled");
             } else {
                 $loadHiddens.addClass("hidden");
             }
 
+            $loadDisables.addClass("disabled");
             $loadingSection.removeClass("hidden");
 
             // the data is loading, show loadingSection and hide groupby section
@@ -416,34 +488,42 @@ window.STATSManager = (function($, STATSManager, d3) {
         var deferred  = jQuery.Deferred();
         var fieldName = curStatsCol.colName;
         var aggrOp    = aggMap[aggkey];
+        var res;
 
         getAggResult(fieldName, tableName, aggrOp)
         .then(function(val) {
-            curStatsCol.aggInfo[aggkey] = val;
-
-            // modal is open and is for that column
-            if ($statsModal.is(":visible") &&
-                $statsModal.data("id") === curStatsCol.modalId)
-            {
-                $statsModal.find(".aggInfoSection ." + aggkey)
-                        .removeClass("animatedEllipsis")
-                        .text(val.toLocaleString());
-            }
-
+            res = val;
             deferred.resolve();
         })
         .fail(function(error) {
-            closeStats();
-            Alert.error("Stats Analysis Fails", error);
+            // XXX aggreate and fail the profile
+            // if this behavior is incorrect, change it
+            res = "--";
             console.error(error);
-            deferred.reject(error);
+            deferred.resolve();
+        })
+        .always(function() {
+            curStatsCol.aggInfo[aggkey] = res;
+
+            // modal is open and is for that column
+            if (isModalVisible(curStatsCol)) {
+                $statsModal.find(".aggInfoSection ." + aggkey)
+                        .removeClass("animatedEllipsis")
+                        .text(res.toLocaleString());
+            }
         });
 
         return (deferred.promise());
     }
 
-    function runGroupby(table, curStatsCol) {
+    function runGroupby(table, curStatsCol, curBucketNum) {
         var deferred  = jQuery.Deferred();
+        if (curBucketNum !== 0) {
+            consoel.error("Invalid bucket num");
+            deferred.reject("Invalid bucket num");
+            return (deferred.promise());
+        }
+
         var tableName = table.tableName;
         var keyName   = table.keyName;
         var tableId   = table.tableId;
@@ -466,7 +546,6 @@ window.STATSManager = (function($, STATSManager, d3) {
         };
 
         curStatsCol.groupByInfo.isComplete = "running";
-
         checkTableIndex(tableId, tableName, colName, keyName)
         .then(function(indexedTableName, nullCount) {
             curStatsCol.groupByInfo.nullCount = nullCount;
@@ -493,10 +572,13 @@ window.STATSManager = (function($, STATSManager, d3) {
             return (xcHelper.when(def1, def2));
         })
         .then(function(maxVal, sumVal) {
-            curStatsCol.groupByInfo.max = maxVal;
-            curStatsCol.groupByInfo.sum = sumVal;
+            curStatsCol.groupByInfo.buckets[curBucketNum] = {
+                "max"    : maxVal,
+                "sum"    : sumVal,
+                "table"  : groupbyTable,
+                "colName": colName
+            };
 
-            curStatsCol.groupByInfo.groupbyTable = groupbyTable;
             curStatsCol.groupByInfo.isComplete = true;
 
             if (tableToDelete != null) {
@@ -509,9 +591,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             }
 
             // modal is open and is for that column
-            if ($statsModal.is(":visible") &&
-                $statsModal.data("id") === curStatsCol.modalId)
-            {
+            if (isModalVisible(curStatsCol)) {
                 return (refreshStats());
             }
 
@@ -522,10 +602,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             deferred.resolve();
         })
         .fail(function(error) {
-            closeStats();
-            Alert.error("Stats Analysis Fails", error);
             StatusMessage.fail(StatusMessageTStr.StatisticsFailed, msgId);
-            console.error(error);
             deferred.reject(error);
         });
 
@@ -655,6 +732,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             for (var i = 0; i < numRows; i++) {
                 try {
                     value = $.parseJSON(kvPairs[i].value);
+                    value.rowNum = rowPosition + 1 + i;
                     groupByData.push(value);
                 } catch (error) {
                     console.error(error, kvPairs[i].value);
@@ -690,9 +768,18 @@ window.STATSManager = (function($, STATSManager, d3) {
             return (data);
         }
 
-        var nullData = {};
-        nullData[statsCol.colName] = "null";
-        nullData[statsColName] = nullCount;
+        var nullData = {
+            "rowNum": 0
+        };
+        var colName = statsCol.groupByInfo.buckets[bucketNum].colName;
+        nullData[colName] = "null";
+
+        if (bucketNum === 0) {
+            nullData[statsColName] = nullCount;
+        } else {
+            nullData[bucketColName] = nullCount;
+        }
+
         nullData.type = "nullVal";
         data.unshift(nullData);
 
@@ -700,28 +787,36 @@ window.STATSManager = (function($, STATSManager, d3) {
     }
 
     function buildGroupGraphs(initial, resize) {
-        var xName = statsCol.colName;
-        var yName = statsColName;
-        var groupByInfo = statsCol.groupByInfo;
+        var nullCount = statsCol.groupByInfo.nullCount;
+        var tableInfo = statsCol.groupByInfo.buckets[bucketNum];
+        var noBucket  = (bucketNum === 0) ? 1 : 0;
+        var noSort    = (order === sortMap.origin);
+
+        var xName = tableInfo.colName;
+        var yName = noBucket ? statsColName : bucketColName;
 
         var $section = $statsModal.find(".groubyInfoSection");
         var data = groupByData;
+        var dataLen = data.length;
 
         var sectionWidth = $section.width();
+        var marginBottom = 10;
+        var marginLeft = 20;
+
         var maxRectW = Math.floor(sectionWidth / 706 * 70);
-        var chartWidth  = Math.min(sectionWidth, maxRectW * data.length);
+        var chartWidth  = Math.min(sectionWidth, maxRectW * data.length + marginLeft * 2);
         var chartHeight = $section.height();
 
-        var marginBottom = 10;
         var height = chartHeight - marginBottom;
-        var width  = chartWidth;
+        var width  = chartWidth - marginLeft * 2;
+
         // x range and y range
         var x = d3.scale.ordinal()
                         .rangeRoundBands([0, width], .1, 0)
                         .domain(data.map(function(d) { return d[xName]; }));
         var y = d3.scale.linear()
                         .range([height, 0])
-                        .domain([-(groupByInfo.max * .02), groupByInfo.max]);
+                        .domain([-(tableInfo.max * .02), tableInfo.max]);
         var xWidth = x.rangeBand();
         // 5.1 is the width of a char in .xlabel
         var charLenToFit = Math.floor(xWidth / 5.1);
@@ -739,7 +834,9 @@ window.STATSManager = (function($, STATSManager, d3) {
                 .style("left", left)
             .append("g")
                 .attr("class", "barChart")
-                .attr("transform", "translate(0, 0)");
+                .attr("transform", "translate(" + marginLeft + ", 0)");
+
+            $(".bartip").remove();
         } else if (resize) {
             chart = d3.select("#statsModal .groupbyChart .barChart");
 
@@ -765,6 +862,14 @@ window.STATSManager = (function($, STATSManager, d3) {
                 .duration(time)
                 .attr("x", function(d) { return x(d[xName]); })
                 .attr("width", xWidth);
+
+            barAreas.select(".bar-border")
+                .attr("height", height)
+                .transition()
+                .duration(time)
+                .attr("x", function(d) { return x(d[xName]); })
+                .attr("width", xWidth);
+
             // label
             barAreas.select(".xlabel")
                 .transition()
@@ -772,25 +877,41 @@ window.STATSManager = (function($, STATSManager, d3) {
                 .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
                 .attr("width", xWidth)
                 .text(getLabel);
+
             // tick
             barAreas.select(".tick")
                 .attr("y", chartHeight)
                 .transition()
                 .duration(time)
-                .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
+                .attr("x", function(d) {
+                    if (!noBucket && noSort) {
+                        return x(d[xName]);
+                    } else {
+                        return x(d[xName]) + xWidth / 2;
+                    }
+                })
                 .attr("width", xWidth)
                 .text(getXAxis);
 
+            if (!noBucket && noSort) {
+                barAreas.select(".tick.last")
+                    .attr("y", chartHeight)
+                    .transition()
+                    .duration(time)
+                    .attr("x", function(d) { return x(d[xName]) + xWidth; })
+                    .attr("width", xWidth)
+                    .text(getLastBucketTick);
+            }
+
             return;
-        } else {
-            chart = d3.select("#statsModal .groupbyChart .barChart");
         }
 
+        chart = d3.select("#statsModal .groupbyChart .barChart");
         // rect bars
         barAreas = chart.selectAll(".barArea").data(data);
-
         // update
-        barAreas.attr("class", getTooltipAndClass);
+        barAreas.attr("class", getTooltipAndClass)
+                .attr("data-rowNum", function(d) { return d.rowNum; });
 
         barAreas.select(".bar")
                 .transition()
@@ -799,15 +920,20 @@ window.STATSManager = (function($, STATSManager, d3) {
                 .attr("height", function(d) { return height - y(d[yName]); })
                 .attr("width", xWidth);
 
-        barAreas.select(".tick")
-                .text(getXAxis);
-
         barAreas.select(".xlabel")
                 .text(getLabel);
 
+        barAreas.select(".tick")
+                .text(getXAxis);
+
+        if (!noBucket && noSort) {
+            barAreas.select(".tick.last")
+                .text(getLastBucketTick);
+        }
         // enter
         var newbars = barAreas.enter().append("g")
-                        .attr("class", getTooltipAndClass);
+                        .attr("class", getTooltipAndClass)
+                        .attr("data-rowNum", function(d) { return d.rowNum; });
 
         // gray area
         newbars.append("rect")
@@ -835,13 +961,13 @@ window.STATSManager = (function($, STATSManager, d3) {
             .attr("height", function(d) { return height - y(d[yName]); })
             .attr("width", xWidth);
 
-        // xAxis
-        newbars.append("text")
-            .attr("class", "tick")
-            .attr("width", xWidth)
-            .attr("x", function(d) { return x(d[xName]) + xWidth / 2; })
-            .attr("y", chartHeight)
-            .text(getXAxis);
+        // for bar border
+        newbars.append("rect")
+            .attr("class", "bar-border")
+            .attr("x", function(d) { return x(d[xName]); })
+            .attr("y", 0)
+            .attr("height", height)
+            .attr("width", xWidth);
 
         // label
         newbars.append("text")
@@ -851,11 +977,40 @@ window.STATSManager = (function($, STATSManager, d3) {
             .attr("y", 11)
             .text(getLabel);
 
+        // xAxis
+        newbars.append("text")
+            .attr("class", "tick")
+            .attr("width", xWidth)
+            .attr("x", function(d) {
+                if (!noBucket && noSort) {
+                    return x(d[xName]);
+                } else {
+                    return x(d[xName]) + xWidth / 2;
+                }
+            })
+            .attr("y", chartHeight)
+            .text(getXAxis);
+
+        if (!noBucket && noSort) {
+            newbars.filter(function(d, i){ return i === dataLen - 1; })
+                .append("text")
+                .attr("class", "tick last")
+                .attr("width", xWidth)
+                .attr("x", function(d) { return x(d[xName]) + xWidth; })
+                .attr("y", chartHeight)
+                .text(getLastBucketTick);
+        }
+
         // exit
         barAreas.exit().remove();
 
         function getXAxis(d) {
             var name = d[xName].toLocaleString();
+            if (!noBucket && !noSort) {
+                var num2 = (d[xName] + tableInfo.bucketSize).toLocaleString();
+                name = name + "-" + num2;
+            }
+
             if (name.length > charLenToFit) {
                 return (name.substring(0, charLenToFit) + "..");
             } else {
@@ -863,13 +1018,25 @@ window.STATSManager = (function($, STATSManager, d3) {
             }
         }
 
+        function getLastBucketTick() {
+            var obj = {};
+            obj[xName] = data[dataLen - 1][xName] +
+                            tableInfo.bucketSize;
+            return getXAxis(obj);
+        }
+
         function getLabel(d) {
             var num = d[yName];
 
-            if (percentageLabel && groupByInfo.sum !== 0) {
+            if (percentageLabel && tableInfo.sum !== 0) {
                 // show percentage
-                num = (num / (groupByInfo.sum + groupByInfo.nullCount) * 100).toFixed(1) + "%";
-                return (num);
+                num = (num / (tableInfo.sum + nullCount) * 100);
+
+                var intLenth = String(Math.floor(num)).length;
+                // charFit - integer part - dot - % - 1charPadding
+                var fixLen = Math.max(1, charLenToFit - intLenth - 3);
+                fixLen = Math.min(fixLen, 3);
+                return (num.toFixed(fixLen) + "%");
             } else {
                 num = d[yName].toLocaleString();
                 if (num.length > charLenToFit) {
@@ -885,21 +1052,27 @@ window.STATSManager = (function($, STATSManager, d3) {
             // may have better way
             var title;
 
-            if (percentageLabel && groupByInfo.sum !== 0) {
-                var num = d[yName] / (groupByInfo.sum + groupByInfo.nullCount) * 100;
-                var per = num.toFixed(2);
+            if (noBucket) {
+                title = xName + ": " + d[xName].toLocaleString() + "<br>";
+            } else {
+                title = statsCol.colName + ": [" + d[xName].toLocaleString() +
+                        ", " + (d[xName] + tableInfo.bucketSize).toLocaleString()
+                        + ")<br>";
+            }
 
-                if (per === "0.00") {
+            if (percentageLabel && tableInfo.sum !== 0) {
+                var num = d[yName] / (tableInfo.sum + nullCount) * 100;
+                var per = num.toFixed(3);
+
+                if (num < 0.001) {
                     // when the percentage is too small
                     per = num.toExponential(2) + "%";
                 } else {
                     per += "%";
                 }
-                title = xName + ": " + d[xName].toLocaleString() +
-                        "<br>Percentage: " + per;
+                title += "Percentage: " + per;
             } else {
-                title = xName + ": " + d[xName].toLocaleString() + "\r\n" +
-                    "<br>Frequency: " + d[yName].toLocaleString();
+                title += "Frequency: " + d[yName].toLocaleString();
             }
 
             var options = $.extend({}, tooltipOptions, {
@@ -907,25 +1080,27 @@ window.STATSManager = (function($, STATSManager, d3) {
             });
             $(this).tooltip("destroy");
             $(this).tooltip(options);
-            return ("barArea");
+
+            return "barArea";
         }
     }
 
     function resetScrollBar() {
-        // reset scroller's position
-        $("#stats-rowInput").val(1).data("rowNum", 1);
-        $statsModal.find(".scroller").css("transform", "");
-    }
-
-    function setupScrollBar() {
-        var totalNum = totalRows;
-
         var $section = $statsModal.find(".scrollSection");
-        if (totalNum <= numRowsToFetch) {
+        if (totalRows <= numRowsToFetch) {
+
+            if (gMinModeOn) {
+                $section.hide();
+            } else {
+                $section.slideUp(100);
+            }
+
+            $statsModal.addClass("noScrollBar");
             return;
         }
 
         $statsModal.removeClass("noScrollBar");
+
         if (gMinModeOn) {
             $section.show();
         } else {
@@ -936,18 +1111,23 @@ window.STATSManager = (function($, STATSManager, d3) {
         
         var $maxRange = $section.find(".max-range");
         var $rowInput = $("#stats-rowInput").val(1).data("rowNum", 1);
+        $statsModal.find(".scroller").css("transform", "");
 
         // set width of elements
-        $maxRange.text(totalNum.toLocaleString());
+        $maxRange.text(totalRows.toLocaleString());
         $rowInput.width($maxRange.width() + 5); // 5 is for input padding
 
         var extraWidth = $section.find(".rowInput").outerWidth() + 1;
         $scrollerArea.css("width", "calc(100% - " + extraWidth + "px)");
+    }
 
+    function setupScrollBar() {
+        var $section = $statsModal.find(".scrollSection");
+        var $scrollerArea = $section.find(".rowScrollArea");
         // move scroll bar event, setup it here since we need statsCol info
         var $scrollerBar = $scrollerArea.find(".scrollBar");
-        var $scroller = $scrollerArea.find(".scroller");
-        var isDragging = false;
+        var $scroller    = $scrollerArea.find(".scroller");
+        var isDragging   = false;
 
         // this use mousedown and mouseup to mimic click
         $scrollerBar.on("mousedown", function() {
@@ -989,12 +1169,13 @@ window.STATSManager = (function($, STATSManager, d3) {
         });
 
         var timer;
+        var $rowInput = $("#stats-rowInput");
         $rowInput.on("keypress", function(event) {
             if (event.which === keyCode.Enter) {
                 var $input = $(this);
                 var num = Number($input.val());
 
-                if (!isNaN(num) && num >= 1 && num <= totalNum) {
+                if (!isNaN(num) && num >= 1 && num <= totalRows) {
                     clearTimeout(timer);
                     timer = setTimeout(function() {
                         positionScrollBar(null, num);
@@ -1013,11 +1194,13 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             if (rowNum != null) {
                 isFromInput = true;
-                rowPercent = (totalNum === 1) ?
-                                            0 : (rowNum - 1) / (totalNum - 1);
+                rowPercent = (totalRows === 1) ?
+                                            0 : (rowNum - 1) / (totalRows - 1);
             } else {
-                rowNum = Math.ceil(rowPercent * (totalNum - 1)) + 1;
+                rowNum = Math.ceil(rowPercent * (totalRows - 1)) + 1;
             }
+
+            var tempRowNum = rowNum;
 
             if ($rowInput.data("rowNum") === rowNum) {
                 // case of going to same row
@@ -1027,23 +1210,23 @@ window.STATSManager = (function($, STATSManager, d3) {
                 return;
             }
 
-            var rowsToFetch = totalNum - rowNum + 1;
+            var rowsToFetch = totalRows - rowNum + 1;
 
             if (rowsToFetch < numRowsToFetch) {
-                if (numRowsToFetch < totalNum) {
+                if (numRowsToFetch < totalRows) {
                     // when can fetch numRowsToFetch
-                    rowNum = totalNum - numRowsToFetch + 1;
+                    rowNum = totalRows - numRowsToFetch + 1;
                     rowsToFetch = numRowsToFetch;
                 } else {
-                    // when can only fetch totalNum
+                    // when can only fetch totalRows
                     rowNum = 1;
-                    rowsToFetch = totalNum;
+                    rowsToFetch = totalRows;
                 }
 
                 var oldTranslate = getTranslate(rowPercent);
                 if (isFromInput) {
-                    rowPercent = (totalNum === 1) ?
-                                            0 : (rowNum - 1) / (totalNum - 1);
+                    rowPercent = (totalRows === 1) ?
+                                            0 : (rowNum - 1) / (totalRows - 1);
 
                     translate = getTranslate(rowPercent);
                     $scroller.addClass("scrolling")
@@ -1064,7 +1247,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                 rowsToFetch = numRowsToFetch;
             }
 
-            $rowInput.val(rowNum).data("rowNum", rowNum);
+            $rowInput.val(tempRowNum).data("rowNum", tempRowNum);
 
             // disable another fetching data event till this one done
             $section.addClass("disabled");
@@ -1080,16 +1263,14 @@ window.STATSManager = (function($, STATSManager, d3) {
 
             fetchGroupbyData(rowPosition, rowsToFetch)
             .then(function() {
-                groupByData = addNullValue(groupByData, statsCol.colName,
-                                            statsColName);
+                groupByData = addNullValue(groupByData);
                 buildGroupGraphs();
                 $loadingSection.addClass("hidden");
                 clearTimeout(loadTimer);
+                highlightBar(tempRowNum);
             })
             .fail(function(error) {
-                closeStats();
-                Alert.error("Stats Analysis Fails", error);
-                console.error(error);
+                failureHandler(statsCol, error);
             })
             .always(function() {
                 $section.removeClass("disabled");
@@ -1121,7 +1302,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             }
         }, 500);
 
-        runSort(newOrder)
+        runSort(newOrder, curStatsCol)
         .then(function() {
             // remove timer as first thing
             clearTimeout(refreshTimer);
@@ -1132,49 +1313,50 @@ window.STATSManager = (function($, STATSManager, d3) {
                 "operation": SQLOps.ProfileSort,
                 "order"    : newOrder
             });
+            commitToStorage();
         })
         .fail(function(error) {
             clearTimeout(refreshTimer);
             curStatsCol.groupByInfo.isComplete = true;
-            closeStats();
-            Alert.error("Stats Analysis Fails", error);
-            console.error(error);
+            failureHandler(curStatsCol, error);
         });
     }
 
-    function runSort(newOrder) {
+    function runSort(newOrder, curStatsCol) {
         var deferred = jQuery.Deferred();
-        var groupByInfo = statsCol.groupByInfo;
+        var tableInfo = curStatsCol.groupByInfo.buckets[bucketNum];
         var tableName;
         var newTableName;
+        var colName;
 
         if (newOrder === sortMap.asc) {
-            if (groupByInfo.ascTable != null) {
+            if (tableInfo.ascTable != null) {
                 deferred.resolve();
             } else {
                 // get a sort table
-                tableName = groupByInfo.groupbyTable;
+                tableName = tableInfo.table;
                 newTableName = getNewName(tableName, ".asc");
+                colName = (bucketNum === 0) ? statsColName : bucketColName;
 
                 var sqlOptions = {
                     "operation"   : SQLOps.ProfileAction,
                     "action"      : "sort",
                     "tableName"   : tableName,
-                    "colName"     : statsColName,
+                    "colName"     : colName,
                     "newTableName": newTableName,
                     "sorted"      : true
                 };
 
-                XcalarIndexFromTable(tableName, statsColName, newTableName, true
-                                     , sqlOptions)
+                XcalarIndexFromTable(tableName, colName, newTableName,
+                                        true, sqlOptions)
                 .then(function() {
-                    groupByInfo.ascTable = newTableName;
+                    tableInfo.ascTable = newTableName;
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
             }
         } else if (newOrder === sortMap.desc) {
-            if (groupByInfo.descTable != null) {
+            if (tableInfo.descTable != null) {
                 deferred.resolve();
             } else {
                 // get a reverse sort table
@@ -1184,6 +1366,165 @@ window.STATSManager = (function($, STATSManager, d3) {
         }
 
         return (deferred.promise());
+    }
+
+    function bucketData(newBucketNum, curStatsCol) {
+        newBucketNum = Number(newBucketNum);
+
+        if (curStatsCol.type === "string" ||
+            isNaN(newBucketNum) ||
+            newBucketNum < 0 ||
+            newBucketNum === bucketNum)
+        {
+            return;
+        }
+
+        curStatsCol.groupByInfo.isComplete = "running";
+
+        var refreshTimer = setTimeout(function() {
+            // refresh if not complete
+            if (curStatsCol.groupByInfo.isComplete === "running") {
+                refreshStats(true);
+            }
+        }, 500);
+
+        runBucketing(newBucketNum, curStatsCol)
+        .then(function() {
+            // remove timer as first thing
+            clearTimeout(refreshTimer);
+            bucketNum = newBucketNum;
+            order = sortMap.origin; // reset to normal order
+            curStatsCol.groupByInfo.isComplete = true;
+
+            refreshStats(true);
+            SQL.add("Profile Sort", {
+                "operation" : SQLOps.ProfileBucketing,
+                "bucketSize": newBucketNum
+            });
+            commitToStorage();
+        })
+        .fail(function(error) {
+            clearTimeout(refreshTimer);
+            curStatsCol.groupByInfo.isComplete = true;
+            failureHandler(curStatsCol, error);
+        });
+    }
+
+    function runBucketing(newBucketNum, curStatsCol) {
+        var deferred = jQuery.Deferred();
+        var buckets   = statsCol.groupByInfo.buckets;
+        var curBucket = buckets[newBucketNum];
+
+        if (curBucket != null && curBucket.table != null) {
+            deferred.resolve();
+            return (deferred.promise());
+        }
+
+        // bucket based on original groupby table
+        var tableName = buckets[0].table;
+        var mapTable  = getNewName(tableName, ".bucket");
+        var indexTable;
+        var groupbyTable;
+        var tableToDelete;
+
+        var colName = curStatsCol.colName;
+        // escaping colName like votes.funny
+        if (colName.indexOf('.') > -1) {
+            colName = colName.replace(/\./g, "\\\.");
+        }
+        var mapCol = xcHelper.randName("bucketMap", 4);
+
+        // example map(mult(floor(div(review_count, 10)), 10))
+        var mapString = "mult(floor(div(" + colName + ", " + newBucketNum +
+                        ")), " + newBucketNum + ")";
+
+        var sqlOptions = {
+            "operation"   : SQLOps.ProfileAction,
+            "action"      : "map",
+            "tableName"   : tableName,
+            "newTableName": mapTable,
+            "fieldName"   : mapCol,
+            "mapString"   : mapString
+        };
+
+        XcalarMap(mapCol, mapString, tableName, mapTable, sqlOptions)
+        .then(function() {
+            tableToDelete = indexTable = getNewName(mapTable, ".index", true);
+            sqlOptions = {
+                "operation"   : SQLOps.ProfileAction,
+                "action"      : "index",
+                "tableName"   : mapTable,
+                "colName"     : mapCol,
+                "newTableName": indexTable,
+                "sorted"      : false
+            };
+
+            return XcalarIndexFromTable(mapTable, mapCol, indexTable,
+                                        false, sqlOptions);
+        })
+        .then(function() {
+            var operator    = "Sum";
+            var newColName  = bucketColName;
+            var isIncSample = false;
+
+            groupbyTable = getNewName(mapTable, ".groupby", true);
+            sqlOptions = {
+                "operation": SQLOps.ProfileAction,
+                "action"   : "groupby",
+                "tableName": groupbyTable,
+                "colName"  : newColName
+            };
+
+            return (XcalarGroupBy(operator, newColName, statsColName,
+                                    indexTable, groupbyTable,
+                                    isIncSample, sqlOptions));
+        })
+        .then(function () {
+            var def1 = getAggResult(bucketColName, groupbyTable, aggMap.max);
+            var def2 = getAggResult(bucketColName, groupbyTable, aggMap.sum);
+            return (xcHelper.when(def1, def2));
+        })
+        .then(function(maxVal, sumVal) {
+            buckets[newBucketNum] = {
+                "max"       : maxVal,
+                "sum"       : sumVal,
+                "table"     : groupbyTable,
+                "colName"   : mapCol,
+                "bucketSize": newBucketNum
+            };
+
+            curStatsCol.groupByInfo.isComplete = true;
+
+            if (tableToDelete != null) {
+                // delete the indexed table if exist
+                XcalarDeleteTable(tableToDelete, {
+                    "operation": SQLOps.ProfileAction,
+                    "action"   : "delete",
+                    "tableName": tableToDelete
+                });
+            }
+
+            deferred.resolve();
+
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
+    }
+
+    function highlightBar(rowNum) {
+        var $chart = $statsModal.find(".groubyInfoSection .groupbyChart .barChart");
+
+        $chart.find(".barArea.highlight").removeClass("highlight");
+        var $barArea = $chart.find(".barArea[data-rowNum=" + rowNum + "]");
+        $barArea.attr("class", $barArea.attr("class") + " highlight");
+    }
+
+    function resetTooltip() {
+        $(".barArea").tooltip("hide");
+        $(".barArea.hover").attr("class", function(index, d) {
+            return d.split(" hover").join("");
+        });
     }
 
     function getNewName(tableName, affix, rand) {
@@ -1199,6 +1540,23 @@ window.STATSManager = (function($, STATSManager, d3) {
         name += Authentication.getHashId();
 
         return (name);
+    }
+
+    function isModalVisible(curStatsCol) {
+        return ($statsModal.is(":visible") &&
+                $statsModal.data("id") === curStatsCol.modalId);
+    }
+
+    function failureHandler(curStatsCol, error) {
+        console.error("Profile Fails", error);
+        if (isModalVisible(curStatsCol)) {
+            // turn gMinModeOn so that hide modalBg in clostStats()
+            // has no delay affect to Alert.error()
+            gMinModeOn = true;
+            closeStats();
+            gMinModeOn = false;
+            Alert.error("Profile Fails", error);
+        }
     }
 
     return (STATSManager);

@@ -1883,17 +1883,17 @@ html.microsoft {
 
 /* Statistics Modal */
 #statsModal {
-    .modalBuilder(710px, 370px);
+    .modalBuilder(850px, 440px);
     display: none;
 
     &.noScrollBar {
-        .size(@height: 325px);
+        .size(@height: 395px);
         .modalTopMain {
-            .size(@height: ~"calc(100% - 219px)", @min-height: 105px);
+            .size(@height: ~"calc(100% - 289px)", @min-height: 105px);
         }
 
         .modalMain {
-            .size(@height: 75px);
+            .size(@height: 145px);
         }
     }
 
@@ -1920,7 +1920,7 @@ html.microsoft {
 
     .modalTopMain {
         .noSelection;
-        .size(@height: ~"calc(100% - 264px)", @min-height: 105px);
+        .size(@height: ~"calc(100% - 334px)", @min-height: 105px);
         .position(relative);
         padding: 5px 0;
         background-color: @color-background-topForm;
@@ -1936,13 +1936,28 @@ html.microsoft {
 
         .groubyInfoSection {
             .size(@width: 100%, @height: 100%);
-            padding: 0 20px 2px 20px;
+            padding: 0 0 2px 0;
 
             .cover {
                 fill: @color-background-topForm;
             }
 
             .barArea {
+                &.highlight {
+                    .bar-extra {
+                        fill: #ededed;
+                    }
+
+                    .bar-border {
+                        stroke: #3a9ac2;
+                        stroke-width: 1;
+                    }
+
+                    .tick:not(.last) {
+                        fill: #44b5e4;
+                    }
+                }
+
                 &.hover {
                     .bar-extra {
                         fill: #000000;
@@ -1971,6 +1986,10 @@ html.microsoft {
                 fill: #dbdbdb;
             }
 
+            .bar-border {
+                fill: none;
+            }
+
             .tick, .xlabel {
               font: 9px sans-serif;
               text-anchor: middle;
@@ -1987,7 +2006,7 @@ html.microsoft {
     }
 
     .modalMain {
-        .size(@height: 120px);
+        .size(@height: 190px);
         padding: 0 0 5px 0;
 
         .sortSection {
@@ -2157,9 +2176,8 @@ html.microsoft {
         }
 
         .aggInfoSection {
-            .size(@width: 100%, @height: 20px);
-            padding: 0 20px;
-            margin-top: 15px;
+            .size(@width: 100%, @height: 50px);
+            padding: 15px 20px;
 
             .flex-display;
 
@@ -2176,6 +2194,97 @@ html.microsoft {
                         vertical-align: sub;
                         width: 2px;
                     }
+                }
+            }
+        }
+
+        .rangeSection {
+            .size(@width: 100%, @height: 55px);
+            padding: 0 20px;
+            border-top: 1px solid #cccccc;
+            border-bottom: 1px solid #cccccc;
+            line-height: 53px;
+
+            > div {
+                float: left;
+            }
+
+            &.range {
+                .buttonSection {
+                    .text {
+                        &.single {
+                            color: @color-text-lightGray;
+                            opacity: 0.5;
+                        }
+
+                        &.range {
+                            color: @color-text-blue;
+                            opacity: 1;
+                        }
+                    }
+
+                    .slider {
+                        left: 27px !important;
+                    }
+                }
+
+                .inputSection {
+                    pointer-events: all;
+                    opacity: 1;
+                }
+            }
+
+            .buttonSection {
+                .size(@width: 25%, @height: 100%);
+
+                .text {
+                    float: left;
+                    font-weight: bold;
+                    cursor: pointer;
+
+                    &.single {
+                        color: @color-text-blue;
+                        opacity: 1;
+                    }
+
+                    &.range {
+                        color: @color-text-lightGray;
+                        opacity: 0.5;
+                    }
+                }
+
+                .rangeBtn {
+                    .size(@width: 60px, @height: 25px);
+                    margin: 0 10px;
+                    float: left;
+                    .vertical-align;
+                    .rounded(20px);
+                    .action-gradient;
+                    border: 1px solid rgba(1, 1, 1, .2);
+                    box-shadow: -1px 0px 0px 0px rgba(1, 1, 1, .3) inset;
+                    cursor: pointer;
+
+                    .slider {
+                        .position(relative, @left: 0);
+                        .size(@width: 30px, @height: 100%);
+                        .rounded(20px);
+                        background: #f9f9f9;
+                        .transition(all 0.2s);
+                    }
+
+                }
+            }
+
+            .inputSection {
+                .size(@width: 75%, @height: 100%);
+                pointer-events: none;
+                opacity: 0.5;
+
+                .input-box(@w: 150px, @h: 25px);
+
+                input {
+                    margin-left: 10px;
+                    background-color: #fcfcfc;
                 }
             }
         }
