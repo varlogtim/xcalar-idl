@@ -1976,7 +1976,7 @@ window.DataPreview = (function($, DataPreview) {
             var dels   = highlighter.split("");
             var delLen = dels.length;
 
-            var $cells = $previewTable.find(".cell");
+            var $cells = $previewTable.find("thead .text, tbody .cell");
             $cells.each(function() {
                 var $tds = $(this).find(".td");
                 var len = $tds.length;
