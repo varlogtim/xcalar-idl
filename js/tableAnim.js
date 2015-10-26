@@ -2458,22 +2458,26 @@ function parseFunc(funcString, colNum, table, modifyCol) {
     }
 
     progCol.name = name;
-    progCol.func = cleanseFunc(funcSt);
+    progCol.func = cleanseFunc(funcSt, name);
     progCol.index = colNum;
     progCol.userStr = '"' + progCol.func.args[0] + '" =' + funcSt;
 
     return (progCol);
 }
 
-function cleanseFunc(funcString) {
+function cleanseFunc(funcString, name) {
     // funcString should be: function(args)
     var open     = funcString.indexOf("(");
     var close    = funcString.lastIndexOf(")");
     var funcName = jQuery.trim(funcString.substring(0, open));
     var args     = (funcString.substring(open + 1, close)).split(",");
 
-    for (var i = 0; i < args.length; i++) {
-        args[i] = jQuery.trim(args[i]);
+    if (funcName === "map") {
+        args = [name];
+    } else {
+        for (var i = 0; i < args.length; i++) {
+            args[i] = jQuery.trim(args[i]);
+        }
     }
 
     return ({func: funcName, args: args});
