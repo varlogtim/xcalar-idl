@@ -95,6 +95,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         $statsModal.on("click", ".bar-extra, .bar, .xlabel", function() {
             percentageLabel = !percentageLabel;
             buildGroupGraphs();
+            highlightBar();
         });
 
         // event on sort section
@@ -163,7 +164,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                         "check"    : function() {
                             return (Number(val) <= 0);
                         },
-                        "text": "Cannot bucket into range less or equal to 0"
+                        "text": "Cannot bucket into range less than or equal to 0"
                     }
                 ]);
 
@@ -819,7 +820,7 @@ window.STATSManager = (function($, STATSManager, d3) {
                         .domain([-(tableInfo.max * .02), tableInfo.max]);
         var xWidth = x.rangeBand();
         // 5.1 is the width of a char in .xlabel
-        var charLenToFit = Math.floor(xWidth / 5.1);
+        var charLenToFit = Math.max(1, Math.floor(xWidth / 5.1) - 1);
         var left = (sectionWidth - chartWidth) / 2;
         var chart;
         var barAreas;
@@ -1513,6 +1514,9 @@ window.STATSManager = (function($, STATSManager, d3) {
     }
 
     function highlightBar(rowNum) {
+        if (rowNum == null) {
+            rowNum = Number($("#stats-rowInput").val());
+        }
         var $chart = $statsModal.find(".groubyInfoSection .groupbyChart .barChart");
 
         $chart.find(".barArea.highlight").removeClass("highlight");
