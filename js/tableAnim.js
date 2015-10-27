@@ -2245,7 +2245,7 @@ function addColMenuActions() {
         var colTypeInfos = [];
         var colNum;
         var newType = $li.find(".label").text().toLowerCase();
-        if ($li.closest(".multiColumn").length !== 0) {
+        if ($li.closest(".multiChangeDataType").length !== 0) {
             var colNums = $colMenu.data("columns");
             for (var i = 0, len = colNums.length; i < len; i++) {
                 colNum = colNums[i];
@@ -2262,7 +2262,6 @@ function addColMenuActions() {
             });
         }
         tableId = $colMenu.data('tableId');
-        console.log(colTypeInfos, tableId);
         ColManager.changeType(colTypeInfos, tableId);
     });
 
