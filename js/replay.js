@@ -1023,8 +1023,32 @@ window.Replay = (function($, Replay) {
     }
 
     function replayProfile(options) {
+        var deferred = jQuery.Deferred();
         var args = getArgs(options);
-        return (STATSManager.run.apply(window, args));
+        var timeCnt = 0;
+        var timer;
+
+        STATSManager.run.apply(window, args)
+        .then(function() {
+            timer = setInterval(function() {
+                if ($("#statsModal .groupbyChart .barArea").length > 0) {
+                    // make sure graphisc shows up
+                    clearInterval(timer);
+                    deferred.resolve();
+                } else {
+                    console.info("profile graphics not showing up yet!");
+                    timeCnt += checkTime;
+                    if (timeCnt > outTime) {
+                        clearInterval(timer);
+                        console.error("Time out!");
+                        deferred.reject("Time out");
+                    }
+                }
+            }, checkTime);
+        })
+        .fail(deferred.reject);
+
+        return (deferred.promise());
     }
 
     function replayProfileSort(options) {
@@ -1058,8 +1082,32 @@ window.Replay = (function($, Replay) {
 
     function replayProfileBucketing(options) {
         var deferred = jQuery.Deferred();
-        // XXX not implemented yet
-        deferred.resolve();
+        var bucketSize = options.bucketSize;
+
+        var $statsModal = $("#statsModal");
+        var $rangeSection = $statsModal.find(".rangeSection");
+        var $input = $("#stats-step");
+        $rangeSection.find(".text.range").click();
+        $input.val(bucketSize);
+        $input.trigger(fakeEvent.enter);
+
+        var timeCnt = 0;
+        var timer = setInterval(function() {
+            if ($statsModal.find(".loadingSection").hasClass("hidden")) {
+                // when ds is deleted
+                clearInterval(timer);
+                deferred.resolve();
+            } else {
+                // when table not craeted yet
+                console.info("profile bucketing not finished!");
+                timeCnt += checkTime;
+                if (timeCnt > outTime) {
+                    clearInterval(timer);
+                    console.error("Time out!");
+                    deferred.reject("Time out");
+                }
+            }
+        }, checkTime);
         return (deferred.promise());
     }
 

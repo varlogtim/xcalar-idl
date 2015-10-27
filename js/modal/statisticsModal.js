@@ -1398,7 +1398,7 @@ window.STATSManager = (function($, STATSManager, d3) {
             curStatsCol.groupByInfo.isComplete = true;
 
             refreshStats(true);
-            SQL.add("Profile Sort", {
+            SQL.add("Profile Bucketing", {
                 "operation" : SQLOps.ProfileBucketing,
                 "bucketSize": newBucketNum
             });
