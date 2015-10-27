@@ -189,12 +189,11 @@ window.xcFunction = (function($, xcFunction) {
                 var indexInput = nodeArray.node[0].input.indexInput;
                 if (indexInput.preserveOrder === true &&
                     indexInput.keyName === backFieldName) {
-                    Alert.error("Table already sorted", 
-                                "Current table is already sorted on this column"
-                                );
+                    Alert.error("Table already sorted",
+                            "Current table is already sorted on this column");
                     console.log("Already sorted");
                     deferred.reject("Already sorted on current column");
-                    return (deferred.promise());
+                    return;
                 }
             }
 
@@ -250,9 +249,10 @@ window.xcFunction = (function($, xcFunction) {
                 StatusMessage.fail(StatusMessageTStr.SortFailed, msgId);
                 deferred.reject(error);
             });
+        })
+        .fail(deferred.reject);
 
-            return (deferred.promise());
-        });
+        return (deferred.promise());
     };
 
     // join two tables
@@ -831,7 +831,7 @@ window.xcFunction = (function($, xcFunction) {
             deferred.resolve();
         })
         .fail(function(error) {
-            // if error is that export name already in use and modal is still 
+            // if error is that export name already in use and modal is still
             // visible, then show a statusbox next to the name field
             if ((error.status === StatusT.StatusDsODBCTableExists ||
                 error.status === StatusT.StatusExist) &&
@@ -948,7 +948,7 @@ window.xcFunction = (function($, xcFunction) {
                 parentIndexedWrongly = true;
             }
 
-            if ((unsortedTableName == tableName && colName !== table.keyName) ||
+            if ((unsortedTableName === tableName && colName !== table.keyName) ||
                 (unsortedTableName !== tableName && parentIndexedWrongly)) {
                 console.log(tableName, "not indexed correctly!");
                 // XXX In the future,we can check if there are other tables that
@@ -1227,7 +1227,7 @@ window.xcFunction = (function($, xcFunction) {
             })
             .fail(function(err) {
                 console.error(err);
-            })
+            });
 
         }
         return (deferred.promise());
