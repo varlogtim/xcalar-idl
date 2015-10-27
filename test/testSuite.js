@@ -732,7 +732,7 @@ window.TestSuite = (function($, TestSuite) {
     function aggTest(deferred, testName, currentTestNumber) {
         var tableId = (WSManager.getWorksheets())[1].tables[0];
         $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
-        $("#tableMenu-" + tableId + " .aggregates").trigger(fakeEvent.mouseup);
+        $("#tableSubMenu .aggregates").trigger(fakeEvent.mouseup);
         checkExists(".spinny", null, {notExist: true})
         .then(function() {
             assert($(".aggTableField:contains('N/A')").not(".aggTableFlex").

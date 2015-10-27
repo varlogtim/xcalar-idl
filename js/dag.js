@@ -35,18 +35,9 @@ window.DagPanel = (function($, DagPanel) {
                 $compSwitch.removeClass('active');
                 $('#mainFrame').removeClass('midway');
                 
-                setTimeout(function() {WSManager.focusOnWorksheet();
-                    var mainFrameHeight = $('#mainFrame').height();
-                    $('.tableLocked:visible').each(function() {
-                        var $tableWrap = $(this);
-                        var tableWrapHeight = $tableWrap.find('.xcTbodyWrap')
-                                                        .height();
-                        var topPos = 100 *
-                                    ((tableWrapHeight / mainFrameHeight) / 2);
-                        topPos = Math.min(topPos, 40);
-                        $tableWrap.find('.lockedIcon').css('top', topPos + '%');
-                    });
-                }, 300);
+                setTimeout(function() {                                    
+                    WSManager.focusOnWorksheet();
+                }, 410);
             }
 
             $('.mainPanel').removeClass('active');
@@ -67,9 +58,11 @@ window.DagPanel = (function($, DagPanel) {
                 // make dag panel midway
                 $dagPanel.removeClass('full').addClass('midway');
                 $('#mainFrame').addClass('midway');
-                WSManager.focusOnWorksheet();
+                setTimeout(function() {                                    
+                    WSManager.focusOnWorksheet();
+                }, 410);
             }
-            $('.xcTheadWrap').css('z-index', 9);
+            // $('.xcTheadWrap').css('z-index', 9);
         });
 
         $('#closeDag').click(function() {

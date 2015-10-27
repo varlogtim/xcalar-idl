@@ -77,7 +77,9 @@ function refreshTable(newTableName, oldTableName, options) {
         addTable(newTableName, targetTable, AfterStartup.After,
                 tablesToRemove, lockTable)
         .then(function() {
-            if ($('.tblTitleSelected').length === 0) {
+            var wsNum = WSManager.getActiveWS();
+            if ($('.xcTableWrap.worksheet-' + wsNum).find('.tblTitleSelected')
+                                                    .length === 0) {
                 var tableId = xcHelper.getTableId(newTableName);
                 focusTable(tableId);
             }
@@ -242,6 +244,7 @@ function archiveTable(tableId, del, delayTableRemoval) {
 
     moveTableDropdownBoxes();
     moveTableTitles();
+    moveFirstColumn();
 
     // disallow dragging if only 1 table in worksheet
     checkTableDraggable();
@@ -457,6 +460,8 @@ function startBuildTable(tableId, tablesToRemove) {
         }
     })
     .then(function() {
+        // position sticky row column on visible tables
+        moveFirstColumn();
         deferred.resolve();
     })
     .fail(function(error) {

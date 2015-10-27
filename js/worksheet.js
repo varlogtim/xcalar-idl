@@ -455,14 +455,14 @@ window.WSManager = (function($, WSManager) {
 
         // refresh mainFrame
         $tables.addClass("inActive");
-        var $curActiveTable = $tables.filter(".worksheet-" + wsIndex);
-        $curActiveTable.removeClass("inActive");
+        var $curActiveTables = $tables.filter(".worksheet-" + wsIndex);
+        $curActiveTables.removeClass("inActive");
 
         // refresh dag
         $dags.addClass("inActive");
         $dags.filter(".worksheet-" + wsIndex).removeClass("inActive");
 
-        // position sticky row column
+        // position sticky row column on visible tables
         moveFirstColumn();
 
         //vertically align any locked table icons
@@ -477,21 +477,18 @@ window.WSManager = (function($, WSManager) {
             $tableWrap.find('.tableCover').height(tableHeight - 40);
         });
 
+        // make table undraggable if only one in worksheet
         checkTableDraggable();
 
         // refresh table and scrollbar
-        if (notfocusTable || $curActiveTable.length === 0) {
+        if (notfocusTable || $curActiveTables.length === 0) {
             // no table to focus
             RowScroller.empty();
 
-            if ($curActiveTable.length > 0) {
-                for (var tbl in gTables) {
-                    if (!gTables[tbl].active) {
-                        continue;
-                    }
-                    var $table = $('#xcTable-' + tbl);
-                    matchHeaderSizes($("#xcTable-" + tbl));
-                }
+            if ($curActiveTables.length > 0) {
+                $curActiveTables.find('.xcTable').each(function() {
+                    matchHeaderSizes($(this));
+                });
             }
         } else {
             var isFocus = false;
@@ -501,21 +498,36 @@ window.WSManager = (function($, WSManager) {
                 focusTable(tableId);
             }
 
-            for (var tbl in gTables) {
-                if (!gTables[tbl].active) {
-                    continue;
-                }
-                var $table = $('#xcTable-' + tbl);
+            $curActiveTables.find('.xcTable').each(function() {
+                var $table = $(this);
                 matchHeaderSizes($table);
                 $table.find('.rowGrab').width($table.width());
-                // update table focus and horizontal scrollbar
-                if (!isFocus) {
-                    var index = WSManager.getWSFromTable(tbl);
+            });
 
-                    if (index === activeWorsheet) {
-                        isFocus = true;
-                        focusTable(tbl);
-                    }
+            // if (!isFocus &&
+            //     $curActiveTables.find('.tableTitle.tblTitleSelected')
+            //                     .length === 0) {
+            //     var tableId = $curActiveTables.eq(0).data('id');
+            //     focusTable(tableId);
+            // } else {
+            //     var $focusedTable = $curActiveTables
+            //                        .find('.tableTitle.tblTitleSelected')
+            //                        .closest('.xcTableWrap');
+            //     var focusedTableId = $focusedTable.data('id');
+            //     gActiveTableId = focusedTableId;
+            //     // focusTable(tableId);
+            // }
+            if (!isFocus) {
+                var tableIdToFocus;
+                if ($curActiveTables.find('.tblTitleSelected').length === 0) {
+                    tableIdToFocus = $curActiveTables.eq(0).data('id');
+                    focusTable(tableIdToFocus);
+                } else {
+                    var $focusedTable = $curActiveTables
+                                         .find('.tblTitleSelected')
+                                         .closest('.xcTableWrap');
+                    tableIdToFocus = $focusedTable.data('id');
+                    focusTable(tableIdToFocus);
                 }
             }
         }

@@ -245,7 +245,7 @@ function setupMainPanelsTab() {
             case ("workspaceTab"):
                 $("#workspacePanel").addClass("active");
                 MonitorGraph.clear();
-                // WSManager.focusOnWorksheet();
+                WSManager.focusOnWorksheet();
                 break;
             case ("schedulerTab"):
                 $('#schedulerPanel').addClass("active");
@@ -885,6 +885,7 @@ function documentReadyIndexFunction() {
         .then(startupFunctions)
         .then(initializeTable)
         .then(function() {
+            WSManager.focusOnWorksheet();
             RightSideBar.initialize();
             Alert.setup();
             JoinModal.setup();
@@ -895,7 +896,6 @@ function documentReadyIndexFunction() {
             DataFlowModal.setup();
             AddScheduleModal.setup();
             DFGPanel.setup();
-            WSManager.focusOnWorksheet();
         })
         .then(function() {
             // this should come in last!

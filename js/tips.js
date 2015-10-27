@@ -136,7 +136,8 @@ window.Tips = (function($, Tips) {
             var $table  = $tables.eq(i);
 
             // only show tips on focused table
-            if (!$table.find(".tableTitle").hasClass("tblTitleSelected")) {
+            if (!$table.filter(':visible').find(".tableTitle")
+                                          .hasClass("tblTitleSelected")) {
                 continue;
             }
             var tableId = getIdStr($table);

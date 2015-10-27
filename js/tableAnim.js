@@ -1307,7 +1307,6 @@ function matchHeaderSizes($table) {
         return;
     }
 
-    // var tableId = xcHelper.parseTableId($table);
     var tableWidth = $table.width();
 
     moveTableDropdownBoxes();
@@ -3084,8 +3083,9 @@ function focusTable(tableId) {
         console.warn("Table not in current worksheet");
         return;
     }
-
-    $('#mainFrame').find('.tableTitle').removeClass('tblTitleSelected');
+    var wsNum = WSManager.getActiveWS();
+    $('.xcTableWrap.worksheet-' + wsNum).find('.tableTitle')
+                                        .removeClass('tblTitleSelected');
     var $xcTheadWrap = $('#xcTheadWrap-' + tableId);
     $xcTheadWrap.find('.tableTitle').addClass('tblTitleSelected');
     gActiveTableId = tableId;
