@@ -1452,11 +1452,14 @@ window.DataCart = (function($, DataCart) {
  */
 window.DataPreview = (function($, DataPreview) {
     var $previewTable = $("#previewTable");
+
     var tableName = null;
-    var rawData = null;
-    var hasHeader = false;
-    var delimiter = "";
+    var rawData   = null;
+
+    var hasHeader   = false;
+    var delimiter   = "";
     var highlighter = "";
+    var dsFormat    = "CSV";
 
     var promoteHeader =
             '<div class="header"' +
@@ -1527,7 +1530,9 @@ window.DataPreview = (function($, DataPreview) {
                 return;
             }
             // add alert
-            if (delimiter === "" || !hasHeader) {
+            if (dsFormat === "CSV" &&
+                (delimiter === "" || !hasHeader))
+            {
                 var msg;
                 if (delimiter === "" && !hasHeader) {
                     msg = "You have not chosen a delimiter and " +
@@ -1633,6 +1638,11 @@ window.DataPreview = (function($, DataPreview) {
             delimiter = "|";
             highlighter = "";
             applyDelim();
+        });
+
+        $suggSection.on("click", ".jsonLoad", function() {
+            dsFormat = "JSON";
+            $("#preview-apply").click();
         });
 
         $suggSection.on("click", ".apply-all", function() {
@@ -1782,9 +1792,7 @@ window.DataPreview = (function($, DataPreview) {
         var loadURL = $("#filePath").val().trim();
         var dsName  = $("#fileName").val().trim();
 
-        DatastoreForm.load(dsName, "CSV", loadURL,
-                            delimiter, "\n", hasHeader,
-                            "", "")
+        loadHelper()
         .then(function() {
             clearAll();
         })
@@ -1793,6 +1801,16 @@ window.DataPreview = (function($, DataPreview) {
                 clearAll();
             }
         });
+
+        function loadHelper() {
+            if (dsFormat === "JSON") {
+                return DatastoreForm.load(dsName, "JSON", loadURL,
+                                            "", "", false, "", "");
+            } else {
+                return DatastoreForm.load(dsName, "CSV", loadURL,
+                                            delimiter, "\n", hasHeader, "", "");
+            }
+        }
     };
 
     DataPreview.clear = function() {
@@ -1821,6 +1839,7 @@ window.DataPreview = (function($, DataPreview) {
         rawData = null;
         hasHeader = false;
         delimiter = "";
+        dsFormat = "CSV";
         highlighter = "";
         toggleHighLight();
 
@@ -2178,6 +2197,14 @@ window.DataPreview = (function($, DataPreview) {
 
         if (delimiter === "") {
             if (highlighter === "") {
+                var $cells = $previewTable.find("tbody tr:first-child .td");
+                if ($cells.length === 1 && $cells.text() === "[") {
+                    html = '<span class="action active jsonLoad">' +
+                                'Load as json dataset' +
+                            '</span>';
+                    $content.html(html);
+                    return;
+                }
                 // case to choose a highlighter
                 var commaLen = $previewTable.find(".has-comma").length;
                 var tabLen   = $previewTable.find(".has-tab").length;
@@ -2257,13 +2284,13 @@ window.DataPreview = (function($, DataPreview) {
             }
 
             html +=
-                '<span class="action active rm-highlight">' +
-                    'Remove Delimiter' +
+                '<span class="action active apply-all">' +
+                    'Apply changes & Exit preview' +
                 '</span>';
 
             html +=
-                '<span class="action active apply-all">' +
-                    'Apply changes & Exit preview' +
+                '<span class="action active rm-highlight">' +
+                    'Remove Delimiter' +
                 '</span>';
         }
 
@@ -2292,7 +2319,7 @@ window.DataPreview = (function($, DataPreview) {
             text = hasHeader ? $headers.eq(col).find(".text").text() :
                                 $headers.eq(col).text();
             if ($.isNumeric(text)) {
-                // if row has any empty value, or has number
+                // if row has number
                 // should not be header
                 return false;
             } else if (text === "" || text == null) {
