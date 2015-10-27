@@ -59,6 +59,12 @@ window.xcHelper = (function($, xcHelper) {
                     break;
                 default: // leave value as is;
             }
+             // escape < & > so external html doesn't get injected
+            if (typeof value === "string") {
+                value = value.replace(/\</g, "&lt;")
+                             .replace(/\>/g, "&gt;")
+                             .replace(/\\t/g, "&emsp;");
+            }
         }
         return (value);
     };

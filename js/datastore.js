@@ -2844,6 +2844,7 @@ window.DataSampleTable = (function($, DataSampleTable) {
                 var selected  = "";
                 var parsedVal = (val == null) ?
                                     "" : xcHelper.parseJsonValue(val);
+
                 if (selectedCols && selectedCols[j + 1]) {
                     selected = " selectedCol";
                 }

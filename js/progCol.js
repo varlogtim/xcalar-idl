@@ -1274,7 +1274,6 @@ window.ColManager = (function($, ColManager) {
         // jsonData based on if it's indexed on array or not
         var secondPull = table.isSortedArray || false;
         var jsonData   = secondPull ? jsonObj.withKey : jsonObj.normal;
-
         var indexedColNums = [];
         var nestedVals     = [];
         var columnTypes    = []; // track column type

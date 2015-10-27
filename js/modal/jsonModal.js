@@ -308,6 +308,8 @@ window.JSONModal = (function($, JSONModal) {
 
             switch (typeof value) {
                 case ('string'):
+                    value = value.replace(/\</g, "&lt;")
+                                 .replace(/\>/g, "&gt;");
                     value = '"<span class="jString text">' + value + '</span>"';
 
                     if (options.inarray) {
@@ -391,7 +393,6 @@ window.JSONModal = (function($, JSONModal) {
         }
 
         --options.inarray;
-
         return (result.replace(/\,<\/div>$/, "</div>").replace(/\, $/, "")
                                                       .replace(/\,$/, ""));
         // .replace used to remove comma if last value in object
