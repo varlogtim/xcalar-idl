@@ -2089,7 +2089,7 @@ function addColMenuActions() {
         commitToStorage();
     });
 
-    $subMenu.on('mouseup', '.deleteColumn', function(event) {
+    $colMenu.on('mouseup', '.deleteColumn', function(event) {
         if (event.which !== 1) {
             return;
         }
