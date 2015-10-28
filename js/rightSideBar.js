@@ -647,7 +647,7 @@ window.RightSideBar = (function($, RightSideBar) {
         });
 
         $('#tableListSections').find(".tableListSection").on("mouseenter",
-                                                       ".tableName", function(){
+                                        ".tableName, .aggStrWrap", function(){
             var $this = $(this);
             if (this.offsetWidth < this.scrollWidth){
                 $this.attr({
@@ -1391,13 +1391,16 @@ window.RightSideBar = (function($, RightSideBar) {
             var tableName = tables[i];
             var tableId   = xcHelper.getTableId(tableName);
             html += '<li class="clearfix tableInfo" ' +
-                     'data-id="' + tableId + '"' +
-                     'data-tablename="' + tableName + '">' +
+                    'data-id="' + tableId + '"' +
+                    'data-tablename="' + tableName + '">' +
                         '<div class="tableListBox">' +
                             '<div class="iconWrap">' +
                                 '<span class="icon"></span>' +
                             '</div>' +
-                            '<span class="tableName textOverflow">' +
+                            '<span title="' + tableName + '" ' +
+                                'data-toggle="tooltip" ' +
+                                'data-placement="top" data-container="body" ' +
+                                'class="tableName textOverflow">' +
                                 tableName +
                             '</span>' +
                             '<span class="addTableBtn"></span>' +
