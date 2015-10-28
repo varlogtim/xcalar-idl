@@ -18,9 +18,13 @@ window.DagPanel = (function($, DagPanel) {
         $("#worksheetTabs").on("click", ".dagTab", function(event) {
             var $compSwitch = $("#worksheetTabs .dagTab");
             var $workspacePanel = $('#workspacePanel');
-            
             event.stopPropagation();
 
+            var wasOnWorksheetPanel = true;
+            if (!$workspacePanel.hasClass('active')) {
+                wasOnWorksheetPanel = false;
+            }
+            
             if ($dagPanel.hasClass('hidden')) {
                 // open dag panel
                 $dagPanel.removeClass('hidden');
@@ -28,25 +32,19 @@ window.DagPanel = (function($, DagPanel) {
                 if ($dagPanel.hasClass('midway')) {
                     $('#mainFrame').addClass('midway');
                 }
-                MonitorGraph.clear();
-            } else if ($workspacePanel.hasClass('active')) {
+            } else if (wasOnWorksheetPanel) {
                 // hide dag panel
                 $dagPanel.addClass('hidden');
                 $compSwitch.removeClass('active');
                 $('#mainFrame').removeClass('midway');
-                
-                setTimeout(function() {                                    
-                    WSManager.focusOnWorksheet();
-                }, 410);
             }
 
-            $('.mainPanel').removeClass('active');
-            $('.mainMenuTab').removeClass('active');
-            $workspacePanel.addClass('active');
-            $('#workspaceTab').addClass('active');
+            if (!wasOnWorksheetPanel) {
+                $('#workspaceTab').trigger('click');
+            }
+
             $('.xcTheadWrap').css('z-index', 9);
             $('.columnOriginInfo').remove();
-            StatusMessage.updateLocation();
             Tips.refresh();
         });
 
@@ -58,16 +56,12 @@ window.DagPanel = (function($, DagPanel) {
                 // make dag panel midway
                 $dagPanel.removeClass('full').addClass('midway');
                 $('#mainFrame').addClass('midway');
-                setTimeout(function() {                                    
-                    WSManager.focusOnWorksheet();
-                }, 410);
             }
-            // $('.xcTheadWrap').css('z-index', 9);
         });
 
         $('#closeDag').click(function() {
             // only triiger the first dagTab is enough
-            $('#compSwitch').trigger('click');
+            $('.dagTab').eq(0).trigger('click');
         });
     }
 
