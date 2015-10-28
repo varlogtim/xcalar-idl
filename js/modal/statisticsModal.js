@@ -34,6 +34,7 @@ window.STATSManager = (function($, STATSManager, d3) {
     var statsInfos = {};
 
     // data with initial value
+    var isFinish;
     var resultSetId = null;
     var totalRows = null;
     var groupByData = [];
@@ -66,9 +67,12 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         $statsModal.on("click", ".cancel, .close", function() {
             closeStats();
-            SQL.add("Close Profile", {
-                "operation": SQLOps.ProfileClose
-            });
+            // makes sure that close profile happens after profile sql
+            if (isFinish) {
+                SQL.add("Close Profile", {
+                    "operation": SQLOps.ProfileClose
+                });
+            }
         });
 
         $statsModal.draggable({
@@ -228,8 +232,12 @@ window.STATSManager = (function($, STATSManager, d3) {
         }
 
         var curStatsCol = statsCol;
+        isFinish = false;
+
         generateStats(table)
         .then(function() {
+            isFinish = true;
+
             SQL.add("Profile", {
                 "operation": SQLOps.Profile,
                 "tableName": table.tableName,
@@ -238,9 +246,18 @@ window.STATSManager = (function($, STATSManager, d3) {
                 "colName"  : colName
             });
 
-            deferred.resolve();
-            commitToStorage();
+            // makes sure that close profile happens after profile sql
+            // timeout is for the fadeIn effect of modal
+            setTimeout(function() {
+                if (!isModalVisible(statsCol)) {
+                    SQL.add("Close Profile", {
+                        "operation": SQLOps.ProfileClose
+                    });
+                }
+            }, 500);
 
+            commitToStorage();
+            deferred.resolve();
         })
         .fail(function(error) {
             failureHandler(curStatsCol, error);

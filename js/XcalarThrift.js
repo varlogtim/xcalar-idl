@@ -579,7 +579,11 @@ function XcalarIndexFromTable(srcTablename, key, tablename, preserveOrder,
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            SQL.add("Index Table", sqlOptions, ret2);
+            if (preserveOrder) {
+                SQL.add("Sort Table", sqlOptions, ret2);
+            } else {
+                SQL.add("Index Table", sqlOptions, ret2);
+            }
             deferred.resolve(ret1);
         })
         .fail(function(error) {

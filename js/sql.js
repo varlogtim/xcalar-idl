@@ -55,6 +55,20 @@ window.SQL = (function($, SQL) {
     };
 
     function getCliHTML(title, options) {
+        if (!options) {
+            return ("");
+        }
+
+        switch (options.operation) {
+            case SQLOps.ProfileAction:
+            case SQLOps.QuickAggAction:
+            case SQLOps.SplitColMap:
+            case SQLOps.ChangeTypeMap:
+            case SQLOps.JoinMap:
+            case SQLOps.GroupbyMap:
+                return ("");
+        }
+
         var html =  '<div class="sqlContentWrap">' +
                         '<div class="title"> >>' + title + ':</div>' +
                         '<div class="content">{';
