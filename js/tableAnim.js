@@ -3317,6 +3317,7 @@ function dragdropSwapTables(el) {
     var oldIndex = gDragObj.tableIndex;
     gDragObj.tableIndex = dropTargetIndex;
     moveTableDropTargets(dropTargetIndex, oldIndex, $table);
+    moveFirstColumn();
 }
 
 function sizeTableForDragging() {
