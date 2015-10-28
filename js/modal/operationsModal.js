@@ -276,7 +276,7 @@ window.OperationsModal = (function($, OperationsModal) {
             udfUpdateOperatorsMap(listXdfsObj.fnDescs);
 
             tableId = newTableId;
-            var tableCols = xcHelper.getTableFromId(tableId).tableCols;
+            var tableCols = gTables[tableId].tableCols;
             var currentCol = tableCols[newColNum - 1];
             // groupby and aggregates stick to num 6,
             // filter and map use 0-5;
@@ -817,7 +817,11 @@ window.OperationsModal = (function($, OperationsModal) {
 
             if (operatorName === 'map') {
                 description = 'New Resultant Column Name';
-                autoGenColName = getAutoGenColName('mappedCol');
+                if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
+                    autoGenColName = getAutoGenColName(colName + "_udf");
+                } else {
+                    autoGenColName = getAutoGenColName(colName + "_" + func);
+                }
 
                 $rows.eq(numArgs).find('.listSection').addClass('colNameSection')
                                 .end()
@@ -844,7 +848,7 @@ window.OperationsModal = (function($, OperationsModal) {
                 // new col name field
                 description = 'New Column Name for the groupBy' +
                                 ' resultant column';
-                autoGenColName = getAutoGenColName('groupBy');
+                autoGenColName = getAutoGenColName(colName + "_" + func);
 
                 $rows.eq(numArgs).find('.listSection')
                                     .addClass('colNameSection')
@@ -1108,7 +1112,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function aggregate(aggrOp, args) {
         var colIndex = -1;
         var colName = args[0];
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         for (var i = 0; i < numCols; i++) {
             if (columns[i].func.args &&
@@ -1131,7 +1135,7 @@ window.OperationsModal = (function($, OperationsModal) {
         var colIndex = colNum;
         if (operator !== 'not') {
             var colName = args[0];
-            var columns = xcHelper.getTableFromId(tableId).tableCols;
+            var columns = gTables[tableId].tableCols;
             var numCols = columns.length;
             for (var i = 0; i < numCols; i++) {
                 if (columns[i].func.args &&
@@ -1160,7 +1164,7 @@ window.OperationsModal = (function($, OperationsModal) {
         // var errorText  = 'Invalid column name';
         // var isFormMode = false;
 
-        // var columns = xcHelper.getTableFromId(tableId).tableCols;
+        // var columns = gTables[tableId].tableCols;
         // var numCols = columns.length;
         // var i;
 
@@ -1236,7 +1240,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function getAllColumnTypesFromArg(argValue) {
         var values = argValue.split(",");
         var numValues = values.length;
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         var types = [];
         var value;
@@ -1272,7 +1276,7 @@ window.OperationsModal = (function($, OperationsModal) {
     function checkValidColNames($input, colNames) {
         var values = colNames.split(",");
         var numValues = values.length;
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         var value;
         var trimmedVal;
@@ -1433,7 +1437,7 @@ window.OperationsModal = (function($, OperationsModal) {
     }
 
     function getBackColName(frontColName) {
-        var columns = xcHelper.getTableFromId(tableId).tableCols;
+        var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         var backColName = frontColName;
         for (var i = 0; i < numCols; i++) {
@@ -1447,7 +1451,7 @@ window.OperationsModal = (function($, OperationsModal) {
             
     function getAutoGenColName(name) {
         var takenNames = {};
-        var tableCols  = xcHelper.getTableFromId(tableId).tableCols;
+        var tableCols  = gTables[tableId].tableCols;
         var numCols = tableCols.length;
         for (var i = 0; i < numCols; i++) {
             takenNames[tableCols[i].name] = 1;
@@ -1457,9 +1461,9 @@ window.OperationsModal = (function($, OperationsModal) {
             }  
         }
 
-        var validNameFound = false;
         // var limit = 20; // we won't try more than 20 times
         var newName = name;
+        var validNameFound = false;
         // if (newName in takenNames) {
             // for (var i = 1; i < limit; i++) {
             //     newName = name + i;
@@ -1473,9 +1477,9 @@ window.OperationsModal = (function($, OperationsModal) {
         // all cols of the table... May need better way in the future
         if (!validNameFound) {
             var tries = 0;
-            newName = xcHelper.randName(name, 5);
-            while (newName in takenNames && tries < 20) {
-                newName = xcHelper.randName(name, 5);
+            newName = name + tableId.substring(2);
+            while (takenNames.hasOwnProperty(name) && tries < 20) {
+                newName = xcHelper.randName(name, 3);
                 tries++;
             }
         }
