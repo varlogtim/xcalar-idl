@@ -1426,6 +1426,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         var mapTable  = getNewName(tableName, ".bucket");
         var indexTable;
         var groupbyTable;
+        var finalTable;
         var tableToDelete;
 
         var colName = curStatsCol.colName;
@@ -1450,7 +1451,7 @@ window.STATSManager = (function($, STATSManager, d3) {
 
         XcalarMap(mapCol, mapString, tableName, mapTable, sqlOptions)
         .then(function() {
-            tableToDelete = indexTable = getNewName(mapTable, ".index", true);
+            indexTable = getNewName(mapTable, ".index", true);
             sqlOptions = {
                 "operation"   : SQLOps.ProfileAction,
                 "action"      : "index",
@@ -1480,33 +1481,53 @@ window.STATSManager = (function($, STATSManager, d3) {
                                     indexTable, groupbyTable,
                                     isIncSample, sqlOptions));
         })
+        .then(function() {
+            finalTable = getNewName(mapTable, ".final", true);
+
+             sqlOptions = {
+                "operation"   : SQLOps.ProfileAction,
+                "action"      : "sort",
+                "tableName"   : groupbyTable,
+                "colName"     : mapCol,
+                "newTableName": finalTable,
+                "sorted"      : false
+            };
+
+            return XcalarIndexFromTable(groupbyTable, mapCol, finalTable,
+                                        true, sqlOptions);
+        })
         .then(function () {
-            var def1 = getAggResult(bucketColName, groupbyTable, aggMap.max);
-            var def2 = getAggResult(bucketColName, groupbyTable, aggMap.sum);
+            var def1 = getAggResult(bucketColName, finalTable, aggMap.max);
+            var def2 = getAggResult(bucketColName, finalTable, aggMap.sum);
             return (xcHelper.when(def1, def2));
         })
         .then(function(maxVal, sumVal) {
             buckets[newBucketNum] = {
                 "max"       : maxVal,
                 "sum"       : sumVal,
-                "table"     : groupbyTable,
+                "table"     : finalTable,
                 "colName"   : mapCol,
                 "bucketSize": newBucketNum
             };
 
             curStatsCol.groupByInfo.isComplete = true;
 
-            if (tableToDelete != null) {
-                // delete the indexed table if exist
-                XcalarDeleteTable(tableToDelete, {
-                    "operation": SQLOps.ProfileAction,
-                    "action"   : "delete",
-                    "tableName": tableToDelete
-                });
-            }
+            // delete intermediate table
+            XcalarDeleteTable(mapTable, {
+                "operation": SQLOps.ProfileAction,
+                "action"   : "delete",
+                "tableName": mapTable
+            });
 
+            XcalarDeleteTable(indexTable, {
+                "operation": SQLOps.ProfileAction,
+                "action"   : "delete",
+                "tableName": indexTable
+            });
+
+            // Note that grouby table can not delete because when sort bucket table
+            // it looks for the unsorted table, which is this one
             deferred.resolve();
-
         })
         .fail(deferred.reject);
 
