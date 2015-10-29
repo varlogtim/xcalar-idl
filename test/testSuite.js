@@ -140,7 +140,7 @@ window.TestSuite = (function($, TestSuite) {
             var oldTime = "";
             if (fails === 0 && passes > 5) {
                 var bestTime = localStorage.time || 1000;
-                bestTime = parseInt(bestTime);
+                bestTime = parseFloat(bestTime);
                 if ((totTime / 1000) < bestTime) {
                     localStorage.time = totTime / 1000;
                     timeMsg = " New best time!";
@@ -253,8 +253,8 @@ window.TestSuite = (function($, TestSuite) {
         10. Aggregate on groupBy table to count number of unique airlines
         */
 
-        var dsName1 = "flight" + Math.floor(Math.random() * 100);
-        var dsName2 = "airport" + Math.floor(Math.random() * 100);
+        var dsName1 = "flight" + Math.floor(Math.random() * 10000);
+        var dsName2 = "airport" + Math.floor(Math.random() * 10000);
 
         flightTestPart1(dsName1, dsName2);
 

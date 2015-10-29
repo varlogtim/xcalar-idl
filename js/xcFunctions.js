@@ -422,7 +422,7 @@ window.xcFunction = (function($, xcFunction) {
         multiGroupBy(groupByCols, tableId)
         .then(function(result) {
 
-            // table name may change after sort!
+            // table name may have changed after sort!
             tableName = result.tableName;
             if (result.indexCol !== undefined) {
                 indexedColName = result.indexCol;
@@ -516,6 +516,7 @@ window.xcFunction = (function($, xcFunction) {
                 }
             } else {
                 tablCols[1] = xcHelper.deepCopy(table.tableCols[indexedColNum]);
+                tablCols[1].index = 2;
             }
             // Note that if include sample a.b should not be escaped to a\.b
             if (!isIncSample && tablCols[1].name.indexOf('.') > -1) {
@@ -533,6 +534,7 @@ window.xcFunction = (function($, xcFunction) {
 
             tablCols[1 + groupByCols.length] =
                                  xcHelper.deepCopy(table.tableCols[dataColNum]);
+            tablCols[tablCols.length - 1].index = tablCols.length;
             WSManager.addTable(xcHelper.getTableId(nTableName),
                                 currWorksheetIdx);
 
@@ -1034,7 +1036,7 @@ window.xcFunction = (function($, xcFunction) {
             }
             mapStr = mapStr.substring(0, mapStr.length - 2);
             mapStr += ")";
-            
+
             XcalarMap(groupByField, mapStr, originTableName,
                       newTableName, {
                           "operation"   : SQLOps.GroupbyMap,
@@ -1294,6 +1296,7 @@ window.xcFunction = (function($, xcFunction) {
         tableCols.push(newProgCol);
         tableCols.push(secondProgCol);
         tableCols.push(xcHelper.deepCopy(origTableCols[dataColNum]));
+        tableCols[2].index = 3;
         return (tableCols);
     }
 
