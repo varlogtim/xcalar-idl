@@ -553,16 +553,19 @@ function dragdropSwapColumns(el) {
     createDropTargets(dropTargetId, movedCol);
 }
 
-function getTextWidth(el) {
+function getTextWidth(el, val) {
     var width;
     var text;
-
-    if (el.is('input')) {
-        text = $.trim(el.val() + " ");
+    if (val === undefined) {
+        if (el.is('input')) {
+            text = $.trim(el.val() + " ");
+        } else {
+            text = $.trim(el.text());
+        }
     } else {
-        text = $.trim(el.text());
+        text = val;
     }
-
+    
     tempDiv = $('<div>' + text + '</div>');
     tempDiv.css({
         'font-family': el.css('font-family'),

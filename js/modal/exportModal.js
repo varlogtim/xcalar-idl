@@ -418,6 +418,11 @@ window.ExportModal = (function($, ExportModal) {
         $ths.find('input').css('pointer-events', 'none');
         $ths.addClass('exportable');
 
+        $ths.on('mousedown.addColToExport', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        });
+
         $ths.on('click.addColToExport', function(event) {
             if ($(event.target).hasClass('colGrab')) {
                 return;
@@ -536,6 +541,7 @@ window.ExportModal = (function($, ExportModal) {
         var $table = $('#xcTable-' + tableId);
         var $ths = $table.find('th:not(.dataCol):not(:first-child)');
         $ths.off('click.addColToExport');
+        $ths.off('mousedown.addColToExport');
         $ths.removeClass('modalHighlighted');
         $table.find('td:not(.jsonElement):not(:first-child)')
               .removeClass('modalHighlighted');

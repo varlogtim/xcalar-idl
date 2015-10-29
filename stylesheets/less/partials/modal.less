@@ -3023,34 +3023,48 @@ html.microsoft {
 
     .parameterTable();
 
+    .tableHeader {
+        .size(@height: 30px);
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        overflow: hidden;
+
+        .thWrap {
+            .size(@width: 60%, @height: 30px);
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+            line-height: 30px;
+            padding-left: 12px;
+            float: left;
+            background-color: #A8A8A8;
+        }
+
+        .thWrap:first-child {
+            .size(@width: 40%);
+        }
+        .thWrap:last-child {
+            border-left: 1px solid @color-white;
+        }
+    }
+
     .tableContainer {
         z-index: 0;
         padding: 0px;
         .rounded(3px);
-        overflow: visible !important;
+        overflow: hidden;
+        max-height: 160px;
 
-        .tableWrapper {
-            overflow-y: visible !important;
+        &.manyArgs {
+            overflow-y: auto;
         }
 
         .tableWrapper {
+            width: 635px;
+            overflow-y: hidden;
+
             table {
                 width: 100%;
-
-                .thWrap {
-                    .size(@width: 60%);
-                }
-
-                th:first-of-type {
-                    .size(@width: 40%);
-                    border-right: 1px solid @color-white;
-                    background-color: #a8a8a8;
-
-                    .thWrap {
-                        width: ~"calc(40% + 1px)" !important;
-                        padding-left: 12px;
-                    }
-                }
 
                 td {
                     .size(@width: 60%, @height: 40px);

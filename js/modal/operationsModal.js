@@ -149,7 +149,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     submitForm();
                 }
             },
-            'blur': function() {
+            'blur': function(event) {
                 setTimeout(function() {
                     var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
                     if ($argSection.hasClass('minimized') ) {
@@ -191,16 +191,23 @@ window.OperationsModal = (function($, OperationsModal) {
         }, '.argument');
 
         // toggle between mininizeTable and unMinimizeTable
-        $operationsModal.on('click', '.argIconWrap', function() {
+        $operationsModal.on('click', '.argIconWrap', function(e) {
+            var $input = $(this).siblings('input');
             if ($argSection.hasClass('minimized')) {
                 unminimizeTable();
+                $(this).siblings('.argument').focus();
             } else {
                 // we want to target only headers that have editableheads
-                var $input = $(this).siblings('input');
-                minimizeTableAndFocusInput($input);
-                $lastInputFocused = $input;
-            }
+                minimizeTableAndFocusInput($input); 
+            } 
+            $lastInputFocused = $input;
         });
+
+        $operationsModal.on('mousedown', '.argIconWrap', function(e) {
+            e.preventDefault(); // prevents input from blurring
+            e.stopPropagation();
+        });
+
 
         $operationsModal.find('.confirm').on('click', submitForm);
 
@@ -341,7 +348,7 @@ window.OperationsModal = (function($, OperationsModal) {
 
         if (isHide) {
             $functionInput.attr('placeholder', "");
-
+            $table.find('.header').off('mousedown', keepInputFocused);
             $table.find('.header').off('click', fillInputFromColumn)
                     .end()
                     .find('.modalHighlighted').removeClass('modalHighlighted');
@@ -357,10 +364,16 @@ window.OperationsModal = (function($, OperationsModal) {
             $table.find('.header').click(fillInputFromColumn)
                     .end()
                     .find('.col' + colNum).addClass('modalHighlighted');
+            $table.find('.header').mousedown(keepInputFocused);
 
             $('body').on('keydown', listHighlightListener);
             fillInputPlaceholder(0);
         }
+    }
+
+    function keepInputFocused(event) {
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     function minimizeTableAndFocusInput($input) {
@@ -403,12 +416,12 @@ window.OperationsModal = (function($, OperationsModal) {
             $lastInputFocused.closest('.colNameSection').length !== 0) {
             return;
         }
+       
         var $target = $(event.target).closest('.header');
         $target = $target.find('.editableHead');
         var newColName = $target.val();
         xcHelper.insertText($input, newColName, "$");
         gMouseEvents.setMouseDownTarget($input);
-        $lastInputFocused.focus();
     }
 
     function populateInitialCategoryField(operator) {
@@ -891,6 +904,12 @@ window.OperationsModal = (function($, OperationsModal) {
 
             $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
             $operationsModal.find('.descriptionText').html(despText);
+            if (numArgs > 4) {
+                $operationsModal.find('.tableContainer').addClass('manyArgs');
+            } else {
+                $operationsModal.find('.tableContainer')
+                                .removeClass('manyArgs');
+            }
         }
     }
 

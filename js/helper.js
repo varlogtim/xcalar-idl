@@ -1003,7 +1003,7 @@ window.xcHelper = (function($, xcHelper) {
         var value  = $input.val();
         var valLen = value.length;
         var newVal;
-       
+        var initialScrollPosition = $input.scrollLeft();
         var currentPos = $input[0].selectionStart;
         var selectionEnd = $input[0].selectionEnd;
         var numCharSelected = selectionEnd - currentPos;
@@ -1059,9 +1059,17 @@ window.xcHelper = (function($, xcHelper) {
 
         $input.focus();
         if (!document.execCommand("insertText", false, newVal)) {
-            $input.val($input.val() + newVal);
+            $input.val(value + newVal);
         }
-        $input[0].setSelectionRange(currentPos, currentPos);
+
+        var inputText = $input.val().substring(0, currentPos);
+        var textWidth = getTextWidth($input, inputText);
+        var newValWidth = getTextWidth($input, newVal);
+        var inputWidth = $input.width();
+        var widthDiff = textWidth - inputWidth;
+        if (widthDiff > 0) {
+            $input.scrollLeft(initialScrollPosition + newValWidth);
+        }
     };
 
     xcHelper.when = function() {
