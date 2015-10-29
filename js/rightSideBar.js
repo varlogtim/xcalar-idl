@@ -49,6 +49,7 @@ window.RightSideBar = (function($, RightSideBar) {
         RightSideBar.refreshAggTables();
         setLastRightSidePanel();
         setupUDFList();
+        uploadDefaultUDF();
     };
 
     RightSideBar.addTables = function(tables, active) {
@@ -878,8 +879,6 @@ window.RightSideBar = (function($, RightSideBar) {
         });
         /* end of upload written function section */
 
-        multiJoinUDFUpload();
-
         function uploadPython(moduleName, entireString, isFnInputSection) {
             var deferred = jQuery.Deferred();
 
@@ -933,22 +932,6 @@ window.RightSideBar = (function($, RightSideBar) {
         }
     }
 
-    function storePython(moduleName, entireString) {
-        var $listDropdown = $("#udf-fnMenu");
-
-        if (storedPython.hasOwnProperty(moduleName)) {
-            // the case of overwrite a module
-            $listDropdown.children().filter(function() {
-                return $(this).text() === moduleName;
-            }).remove();
-        }
-
-        var $blankFunc = $listDropdown.children('li[name=blank]');
-        var li = '<li>' + moduleName + '</li>';
-        $blankFunc.after(li);
-        storedPython[moduleName] = entireString;
-    }
-
     function setupUDFList() {
         var $listDropdown = $("#udf-fnMenu");
         var li;
@@ -967,15 +950,20 @@ window.RightSideBar = (function($, RightSideBar) {
         storedPython = udfs;
     };
 
-    function multiJoinUDFUpload() {
-        var moduleName = "multiJoinModule";
-        var entireString =
-            'def multiJoin(*arg):\n' +
-                '\tstri = ""\n' +
-                '\tfor a in arg:\n' +
-                    '\t\tstri = stri + str(a) + ".Xc."\n' +
-                '\treturn stri\n';
-        XcalarUploadPython(moduleName, entireString);
+    function storePython(moduleName, entireString) {
+        var $listDropdown = $("#udf-fnMenu");
+
+        if (storedPython.hasOwnProperty(moduleName)) {
+            // the case of overwrite a module
+            $listDropdown.children().filter(function() {
+                return $(this).text() === moduleName;
+            }).remove();
+        }
+
+        var $blankFunc = $listDropdown.children('li[name=blank]');
+        var li = '<li>' + moduleName + '</li>';
+        $blankFunc.after(li);
+        storedPython[moduleName] = entireString;
     }
 
     function uploadSuccess() {
@@ -986,6 +974,110 @@ window.RightSideBar = (function($, RightSideBar) {
             "confirm"   : function() {
                 $("#udfBtn").parent().click();
             }
+        });
+    }
+
+    function uploadDefaultUDF() {
+        multiJoinUDFUpload();
+        defaultUDFUpload();
+    }
+
+    function multiJoinUDFUpload() {
+        var moduleName = "multiJoinModule";
+        var entireString =
+            'def multiJoin(*arg):\n' +
+                '\tstri = ""\n' +
+                '\tfor a in arg:\n' +
+                    '\t\tstri = stri + str(a) + ".Xc."\n' +
+                '\treturn stri\n';
+        XcalarUploadPython(moduleName, entireString)
+        .then(function() {
+            storePython(moduleName, entireString);
+        })
+        .fail(function(error) {
+            console.error(error);
+        });
+    }
+
+    function defaultUDFUpload() {
+        var moduleName = "default";
+        var entireString =
+        'import sys\n' +
+        '# For 2.7\n' +
+        'sys.path.append("/usr/local/lib/python2.7/dist-packages/apache_log_parser-1.6.1.dev-py2.7.egg")\n' +
+        'sys.path.append("/usr/local/lib/python2.7/dist-packages/user_agents-0.3.2-py2.7.egg")\n' +
+        'sys.path.append("/usr/local/lib/python2.7/dist-packages/ua_parser-0.3.6-py2.7.egg")\n' +
+        'sys.path.append("/usr/lib/python2.7/")\n' +
+        'sys.path.append("/usr/lib/python2.7/plat-x86_64-linux-gnu")\n' +
+        'sys.path.append("/usr/lib/python2.7/lib-tk")\n' +
+        'sys.path.append("/usr/lib/python2.7/lib-old")\n' +
+        'sys.path.append("/usr/lib/python2.7/lib-dynload")\n' +
+        'sys.path.append("/usr/local/lib/python2.7/dist-packages")\n' +
+        'sys.path.append("/usr/lib/python2.7/dist-packages")\n'+
+        'sys.path.append("/usr/lib/python2.7/dist-packages/PILcompat")\n' +
+        'sys.path.append("/usr/lib/python2.7/dist-packages/gtk-2.0")\n' +
+        'sys.path.append("/usr/lib/python2.7/dist-packages/ubuntu-sso-client")\n' +
+        '\n' +
+        'import xlrd\n' +
+        'import datetime\n' +
+        'import time\n' +
+        'import pytz\n' +
+        '\n' +
+        "# %a    Locale's abbreviated weekday name.\n" +
+        "# %A    Locale's full weekday name.\n" +
+        "# %b    Locale's abbreviated month name.\n" +
+        "# %B    Locale's full month name.\n" +
+        "# %c    Locale's appropriate date and time representation.\n" +
+        "# %d    Day of the month as a decimal number [01,31].\n" +
+        "# %H    Hour (24-hour clock) as a decimal number [00,23].\n" +
+        "# %I    Hour (12-hour clock) as a decimal number [01,12].\n" +
+        "# %j    Day of the year as a decimal number [001,366].\n" +
+        "# %m    Month as a decimal number [01,12].\n" +
+        "# %M    Minute as a decimal number [00,59].\n" +
+        "# %p    Locale's equivalent of either AM or PM. (1)\n" +
+        "# %S    Second as a decimal number [00,61]. (2)\n" +
+        "# %U    Week number of the year (Sunday as the first day of the week) as a decimal number [00,53]. All days in a new year preceding the first Sunday are considered to be in week 0.    (3)\n" +
+        "# %w    Weekday as a decimal number [0(Sunday),6].\n" +
+        "# %W    Week number of the year (Monday as the first day of the week) as a decimal number [00,53]. All days in a new year preceding the first Monday are considered to be in week 0.    (3)\n" +
+        "# %x    Locale's appropriate date representation.\n" +
+        "# %X    Locale's appropriate time representation.\n" +
+        "# %y    Year without century as a decimal number [00,99].\n" +
+        "# %Y    Year with century as a decimal number.\n" +
+        "# %Z    Time zone name (no characters if no time zone exists).\n" +
+        "# %%    A literal '%' character.\n" +
+        '\n' +
+        'def convertFormats(colName, inputFormat, outputFormat):\n' +
+            '\ttimeStruct = time.strptime(colName, inputFormat)\n' +
+            '\toutString = time.strftime(outputFormat, timeStruct)\n' +
+            '\treturn outString\n' +
+        '\n' +
+        'def convertFromUnixTS(colName, outputFormat):\n' +
+            '\treturn datetime.datetime.fromtimestamp(float(colName)).strftime(outputFormat)\n' +
+        '\n' +
+        'def convertToUnixTS(colName, inputFormat):\n' +
+            '\treturn str(time.mktime(datetime.datetime.strptime(colName, inputFormat).timetuple()))\n' +
+        '\n' +
+        'def openExcel(stream):\n' +
+            '\tfileString = ""\n' +
+            '\txl_workbook = xlrd.open_workbook(file_contents=stream)\n' +
+            '\txl_sheet = xl_workbook.sheet_by_index(0)\n' +
+            '\tnum_cols = xl_sheet.ncols   # Number of columns\n' +
+            '\tfor row_idx in range(0, xl_sheet.nrows):    # Iterate through rows\n' +
+                '\t\tcurRow = list()\n' +
+                '\t\tfor col_idx in range(0, num_cols):  # Iterate through columns\n' +
+                    '\t\t\tcell_obj = xl_sheet.cell(row_idx, col_idx)  # Get cell object by row, col\n' +
+                    '\t\t\tval = "%s" % (cell_obj.value)\n' +
+                    '\t\t\tcurRow.append(val)\n' +
+                '\t\tfileString += "\\t".join(curRow)\n' +
+                '\t\tfileString += "\\n"\n' +
+            '\treturn str(fileString.encode("ascii", "ignore"))\n';
+
+        XcalarUploadPython(moduleName, entireString)
+        .then(function() {
+            storePython(moduleName, entireString);
+        })
+        .fail(function(error) {
+            console.error(error);
         });
     }
 
