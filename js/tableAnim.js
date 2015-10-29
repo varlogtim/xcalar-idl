@@ -774,7 +774,7 @@ function createTableHeader(tableId) {
     $xcTheadWrap.prepend(html);
     //  title's Format is tablename  [cols]
     updateTableHeader(tableId);
-   
+
     // Event Listener for table title
     $xcTheadWrap.on({
         // must use keypress to prevent contenteditable behavior
@@ -953,6 +953,14 @@ function addTableMenuActions() {
         }
         tableId = $tableMenu.data('tableId');
         ColManager.delAllDupCols(tableId);
+    });
+
+    $tableMenu.on('mouseup', '.multiCast', function(event) {
+        if (event.which !== 1) {
+            return;
+        }
+        tableId = $tableMenu.data('tableId');
+        MultiCastModal.show(tableId);
     });
 
     $subMenu.on('mouseup', '.aggregates', function(event) {

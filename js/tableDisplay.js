@@ -845,8 +845,10 @@ function generateTableDropDown() {
             // '<li class="deleteTable">Delete Table</li>' + XXX temporary
             '<li class="exportTable">Export Table</li>' +
             '<li class="delAllDuplicateCols">Delete All Duplicates</li>' +
-            '<li class="quickAgg parentMenu" data-submenu="quickAgg"> Quick Aggregates' +
+            '<li class="quickAgg parentMenu" data-submenu="quickAgg">' +
+                'Quick Aggregates' +
             '</li>' +
+            '<li class="multiCast">Smart Type Casting...</li>' +
             '<li class="moveToWorksheet parentMenu" ' +
                 'data-submenu="moveToWorksheet" data-toggle="tooltip" ' +
                 'data-placement="top" title="no worksheet to move to">' +

@@ -325,6 +325,10 @@ window.xcHelper = (function($, xcHelper) {
         }
     };
 
+    xcHelper.capitalize = function(s) {
+        return s[0].toUpperCase() + s.slice(1);
+    };
+
     xcHelper.isDecimal = function(num) {
         return (num % 1 !== 0);
     };

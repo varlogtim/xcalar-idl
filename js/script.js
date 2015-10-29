@@ -895,6 +895,7 @@ function documentReadyIndexFunction() {
             DataFlowModal.setup();
             AddScheduleModal.setup();
             DFGPanel.setup();
+            MultiCastModal.setup();
         })
         .then(function() {
             // this should come in last!

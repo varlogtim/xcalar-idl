@@ -2406,6 +2406,297 @@ html.microsoft {
 }
 /* End Of Export Modal */
 
+/* Multi-cast Modal */
+#multiCastModal {
+    .modalBuilder(1000px, 600px);
+    .noSelection;
+
+    .modalTopMain {
+        .size(@height: 80px);
+        padding: 5px 10px;
+
+        > div {
+            float: left;
+            .size(@height: 100%);
+        }
+
+        .castSection {
+            .size(@width: 17%);
+            .btn {
+                .vertical-align;
+                left: 5px;
+
+                .icon {
+                    .image("/images/smart-cast.png", 50%, 50%)
+                }
+            }
+        }
+
+        .resultSection {
+            .size(@width: 70%);
+            padding: 0 10px;
+            overflow-y: auto;
+            .font(@size: 12px, @weight: bold, @line-height: 25px, @color: @color-text-midGray);
+
+            .area {
+                .size(@width: 33%, @height: 25px);
+                padding: 0 3px;
+                float: left;
+                white-space: nowrap;
+                margin-bottom: -1px;
+                margin-left: -1px;
+                border: 1px solid rgba(0, 0, 0, 0.2);
+
+                > span {
+                    text-transform: capitalize;
+
+                    &.highlight {
+                        color: @color-text-blue;
+                    }
+                }
+
+                &:nth-last-child(-n+3) {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        .selectSection {
+            .size(@width: 13%);
+            .buttonGroup {
+                .size(@width: 120px);
+                float: right;
+                padding-left: 17px;
+                .vertical-align;
+
+                .modifyButton {
+                    cursor: pointer;
+                    // margin-top: 4px;
+                    float: right;
+                    clear: both;
+
+                    > span {
+                        float: right;
+                    }
+
+                    .icon {
+                       .size(19px, 19px);
+                    }
+
+                    .text {
+                        .font(@weight: 600, @color: @color-text-blue);
+                        text-align: right;
+                        margin-right: 10px;
+                    }
+
+                    &.selectAll {
+                        .icon {
+                            .image("/images/select-all.png", 50%, 50%);
+                        }
+                    }
+
+                    &.deSelectAll {
+                        .icon {
+                            .image("/images/select-none.png", 50%, 50%);
+                        }
+
+                        margin-top: 5px;
+                    }
+                }
+            }
+        }
+    }
+
+    .modalMain {
+        .size(@height: ~"calc(100% - 235px)");
+        padding: 20px 10px 0 10px;
+
+        .tableContainer {
+            .size(100%, 100%);
+            .rounded(3px 3px 0 0);
+            border: 1px solid #e9e9e9;
+
+            .tableSection {
+                .size(@height: 100%);
+                overflow-x: auto;
+                overflow-y: hidden;
+                .position(relative);
+            }
+
+            .background {
+                .position(absolute);
+                .size(@width: 100%, @height: 74px);
+                left: 0;
+                background: #e6e6e6;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+                box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);;
+            }
+
+            .multiCastTable {
+                .position(relative);
+                .size(@width: 0px);
+                margin-left: 1px;
+                z-index: 2;
+
+                th {
+                    .size(@width: 120px, @height: 74px);
+
+                    &:first-child {
+                        width: 125px !important;
+                        padding-left: 5px;
+                    }
+
+                    &.colSelected {
+                        .columnTab{
+                            .action-gradient;
+                            color: white;
+                        }
+
+                        &.highlight {
+                            .text {
+                                color: @color-text-blue;
+                            }
+                        }
+                    }
+                }
+
+                tbody td {
+                    padding: 2px !important;
+                }
+
+                tr:nth-child(odd) td.colSelected {
+                    background-color: @color-selectedCell-dark !important;
+                }
+
+                tr:nth-child(even) td.colSelected {
+                    background-color: @color-selectedCell-light !important;
+                }
+
+
+                tr:nth-child(odd)  td:first-child {
+                    background-color: @color-table-darkGray;
+                }
+
+                tr:nth-child(even) td:first-child {
+                    background-color: @color-table-lightGray;
+                }
+
+                tr:nth-child(odd):hover  td:first-child {
+                    background-color: #D7D7D7 !important;
+                }
+
+                tr:nth-child(even):hover td:first-child {
+                    background-color: #DDDDDD !important;
+                }
+
+                tr:nth-child(odd):hover  td.colSelected {
+                    background-color: #BFCCD4 !important;
+                }
+
+                tr:nth-child(even):hover td.colSelected {
+                    background-color: #BFCCD4 !important;
+                }
+
+
+                .addedBarTextWrap {
+                    word-break: break-all;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    cursor: default;
+                }
+
+                .header {
+                    .size(100%, 100%);
+                    padding: 3px 0;
+
+                    &::after {
+                        top: 65px;
+                        box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+                    }
+
+                    .listSection {
+                        .dropDownList(100%, 25px);
+
+                        .iconWrapper .icon {
+                            position: static;
+                        }
+
+                        .text, .list {
+                            text-transform: capitalize;
+                            // text-align: center;
+                            .font(@weight: bold, @size: 13px, @line-height: 25px);
+                        }
+
+                        .list li {
+                            text-align: left;
+                            // padding-left: 5px;
+                        }
+                    }
+
+                    .colPadding {
+                        .size(@width: 100%, @height: 1px);
+                        .position(relative, @top: 32px);
+                        visibility: hidden;
+                    }
+
+                    .columnTab {
+                        .size(@width: 100%, @height: 25px);
+                        .gray-gradient;
+                        .position(relative);
+                        text-align: center;
+                        float: left;
+                        .rounded;
+                        box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+                        cursor: pointer;
+                        white-space: nowrap;
+                        margin-top: 7px;
+                        padding-left: 10px;
+                        padding-right: 17px;
+                        .font(@weight: bold, @size: 13px, @line-height: 25px, @color: @color-text-midGray);
+
+                        .icon {
+                            .size(@width: 15px, @height: 25px);
+                            .position(absolute, @top: 0, @right: 2px);
+                            .image("/images/datastore/tick.png", 50%, 50%);
+                        }
+
+                        &::after {
+                            box-shadow: 1px 1px 1px 1px rgba(0,0,0,.1);
+                        }
+                    }
+                }
+
+                .unselectable .header {
+                    .columnTab {
+                        cursor: default;
+                        .icon {
+                            display: none;
+                        }
+                    }
+
+                    .listSection {
+                        pointer-events: none;
+                        .iconWrapper {
+                            background: #c5c5c5;
+                        }
+
+                        .text {
+                            color: #d9d9d9;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .modalBottom {
+        .btn {
+            margin: 15px 15px 0 0;
+        }
+    }
+}
+/* End Of Multi-cast Modal */
+
 #dagParameterModal {
     .modalBuilder(920px, 300px);
 

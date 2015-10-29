@@ -2488,6 +2488,66 @@
     </section>
   </div>
   <!-- End of Export Modal -->
+
+  <!-- MultiCast Modal -->
+  <div id="multiCastModal" class="modalContainer">
+    <!-- Header Section -->
+    <header class="modalHeader">
+      <span class="text">Multi-Cast</span>
+      <div class="close">
+        <span class="icon"></span>
+      </div>
+    </header>
+    <!-- Instrunction Section -->
+    <section class="modalInstruction">
+      <div class="icon"></div>
+      <div class="text">
+        Please select the column you want to cast and change column type. "Smart Cast" will recommend you a good type to cast.
+      </div>
+    </section>
+    <!-- Top Section -->
+    <section class="modalTopMain">
+      <div class="castSection">
+        <button id="multiCast-cast" class="btn btnMid iconBtn">
+          <span class="icon"></span>
+          SMART CAST
+        </button>
+      </div>
+      <div id="multiCast-result" class="resultSection"></div>
+      <div class="selectSection">
+        <div class="buttonGroup">
+          <div class="selectAll modifyButton">
+            <span class="icon"></span>
+            <span class="text">Select All</span>
+          </div>
+          <div class="deSelectAll modifyButton">
+            <span class="icon"></span>
+            <span class="text">Clear All</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Main Section -->
+    <section class="modalMain">
+      <div id="multiCast-tableContainer"class="tableContainer">
+        <!-- <div class="tabSection"></div> -->
+        <div class="tableSection">
+          <div class="background"></div>
+          <table id="multiCast-table" class="multiCastTable dataTable"></table>
+        </div>
+      </div>
+    </section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+      <button class="btn btnMid confirm" type="button">
+        CAST ALL SELECTED
+      </button>
+      <button class="btn btnMid cancel" type="button">
+        CANCEL
+      </button>
+    </section>
+  </div>
+  <!-- End Of MultiCast Modal -->
 </div>
 <!-- END CONTAINER -->
 <script src="3rd/d3.min.js" charset="utf-8"></script>
@@ -2551,6 +2611,7 @@
 <script src="/js/modal/statisticsModal.js" type="text/javascript"></script>
 <script src="/js/modal/operationsModal.js" type="text/javascript"></script>
 <script src="/js/modal/exportModal.js" type="text/javascript"></script>
+<script src="/js/modal/multiCastModal.js" type="text/javascript"></script>
 <script src="/js/modal/dfgModal.js" type="text/javascript"></script>
 <script src="/js/sql.js" type="text/javascript"></script>
 <script src="/js/replay.js" type="text/javascript"></script>
