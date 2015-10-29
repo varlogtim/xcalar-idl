@@ -16,13 +16,13 @@ window.JoinModal = (function($, JoinModal) {
     var $multiJoin    = $("#multiJoin");
     var multiClauseTemplate =
         '<div class="joinClause">' +
-            '<input class="clause leftClause" type="text"/>' +
+            '<input class="clause leftClause" type="text" readonly/>' +
               '<div class="middleIcon">' +
                 '<div class="iconWrapper">' +
                   '<span class="icon"></span>' +
                 '</div>' +
               '</div>' +
-              '<input  class="clause rightClause" type="text"/>' +
+              '<input  class="clause rightClause" type="text" readonly/>' +
         '</div>';
 
     var minHeight = 600;
