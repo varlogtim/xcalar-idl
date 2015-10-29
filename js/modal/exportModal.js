@@ -108,16 +108,7 @@ window.ExportModal = (function($, ExportModal) {
             restoreExportPaths(targs);
             modalHelper.setup();
 
-            var tableName = gTables[tableId].tableName;
-
-            $(document).on("mousedown.exportModal", function() {
-                xcHelper.hideDropdowns($exportModal);
-            });
-            $(document).on("keypress.exportModal", function(e) {
-                if (e.which === keyCode.Enter) {
-                    $exportModal.find(".confirm").trigger("click");
-                }
-            });
+          
 
             if (gMinModeOn) {
                 $exportModal.show();
@@ -125,11 +116,7 @@ window.ExportModal = (function($, ExportModal) {
                 $exportModal.fadeIn(400);
             }
 
-            exportTableName = tableName;
-            $exportName.val(tableName.split('#')[0]).focus();
-            $exportName[0].select();
-
-            addColumnSelectListeners();
+            
 
             $selectableThs.addClass('modalHighlighted');
             var allColNames = "";
@@ -143,6 +130,22 @@ window.ExportModal = (function($, ExportModal) {
         })
         .fail(function(error) {
             console.error(error);
+        }); 
+
+        var tableName = gTables[tableId].tableName;
+        exportTableName = tableName;
+        $exportName.val(tableName.split('#')[0].replace(/[\W_]+/g, "")).focus();
+        $exportName[0].select();
+
+        addColumnSelectListeners();
+
+        $(document).on("mousedown.exportModal", function() {
+            xcHelper.hideDropdowns($exportModal);
+        });
+        $(document).on("keypress.exportModal", function(e) {
+            if (e.which === keyCode.Enter) {
+                $exportModal.find(".confirm").trigger("click");
+            }
         });
         
     };
