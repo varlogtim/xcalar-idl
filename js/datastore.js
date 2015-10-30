@@ -172,7 +172,6 @@ window.DatastoreForm = (function($, DatastoreForm) {
                 }
                 
                 $formatText.val(text).removeClass("hint");
-                $udfCheckbox.removeClass("hidden");
                 $('#fileNameSelector').addClass("optionsOpen");
 
                 var $fieldDelim = $("#fieldDelim");
@@ -182,6 +181,7 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         resetDelimiter();
                         $fieldDelim.show();
                         $csvDelim.removeClass("hidden");
+                        $udfCheckbox.removeClass("hidden");
                         $('#fileNameSelector').addClass("optionsOpen");
                         break;
                     case "raw":
@@ -189,11 +189,22 @@ window.DatastoreForm = (function($, DatastoreForm) {
                         resetDelimiter();
                         $fieldDelim.hide();
                         $csvDelim.removeClass("hidden");
+                        $udfCheckbox.removeClass("hidden");
+                        $('#fileNameSelector').addClass("optionsOpen");
+                        break;
+                    case "excel":
+                        $csvCheckBox.removeClass("hidden");
+                        resetDelimiter();
+                        $csvDelim.addClass("hidden");
+                        $udfCheckbox.addClass("hidden")
+                                    .find(".checkbox").removeClass("checked");
+                        $udfArgs.addClass("hidden");
                         $('#fileNameSelector').addClass("optionsOpen");
                         break;
                     default:
                         $csvCheckBox.addClass("hidden");
                         $csvDelim.addClass("hidden");
+                        $udfCheckbox.removeClass("hidden");
                         break;
                 }
             },
@@ -296,7 +307,8 @@ window.DatastoreForm = (function($, DatastoreForm) {
             "CSV"   : "CSV",
             "Random": "rand",
             "Raw"   : "raw",
-            "UDF"   : "UDF"
+            "UDF"   : "UDF",
+            "Excel" : "Excel"
         };
         $form.submit(function(event) {
             event.preventDefault();

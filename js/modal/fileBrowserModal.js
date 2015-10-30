@@ -18,7 +18,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     /* Contants */
     var defaultPath    = "file:///";
-    var validFormats   = ["JSON", "CSV"];
+    var validFormats   = ["JSON", "CSV", "XLSX"];
     var defaultSortKey = "type"; // default is sort by type;
     var minWidth  = 590;
     var minHeight = 400;
@@ -483,6 +483,9 @@ window.FileBrowser = (function($, FileBrowser) {
 
 
         if (ext != null) {
+            if (ext === "XLSX") {
+                ext = "Excel";
+            }
             $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]')
                 .click();
         }

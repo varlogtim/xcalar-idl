@@ -284,21 +284,6 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    
-    var loadArgs = new XcalarApiDfLoadArgsT();
-    loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
-    loadArgs.csv.recordDelim = recordDelim;
-    loadArgs.csv.fieldDelim = fieldDelim;
-    loadArgs.csv.isCRLF = true;
-    if (hasHeader) {
-        loadArgs.csv.hasHeader = true;
-    } else {
-        loadArgs.csv.hasHeader = false;
-    }
-    if (moduleName !== "" && funcName !== "") {
-        loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
-        loadArgs.pyLoadArgs.fullyQualifiedFnName = moduleName + ":" + funcName;
-    }
 
     var formatType;
     switch (format) {
@@ -314,10 +299,33 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
         case ("CSV"):
             formatType = DfFormatTypeT.DfFormatCsv;
             break;
+        case ("Excel"):
+            formatType = DfFormatTypeT.DfFormatCsv;
+            fieldDelim = "\t";
+            recordDelim = "\n";
+            moduleName = "default";
+            funcName = "openExcel";
+            break;
         default:
             formatType = DfFormatTypeT.DfFormatUnknown;
             break;
     }
+
+    var loadArgs = new XcalarApiDfLoadArgsT();
+    loadArgs.csv = new XcalarApiDfCsvLoadArgsT();
+    loadArgs.csv.recordDelim = recordDelim;
+    loadArgs.csv.fieldDelim = fieldDelim;
+    loadArgs.csv.isCRLF = true;
+    if (hasHeader) {
+        loadArgs.csv.hasHeader = true;
+    } else {
+        loadArgs.csv.hasHeader = false;
+    }
+    if (moduleName !== "" && funcName !== "") {
+        loadArgs.pyLoadArgs = new XcalarApiPyLoadArgsT();
+        loadArgs.pyLoadArgs.fullyQualifiedFnName = moduleName + ":" + funcName;
+    }
+
     var workItem = xcalarLoadWorkItem(url, datasetName, formatType, 0,
                                       loadArgs);
 
