@@ -294,7 +294,8 @@ function XcalarLoad(url, format, datasetName, fieldDelim, recordDelim,
             formatType = DfFormatTypeT.DfFormatRandom;
             break;
         case ("raw"):
-            loadArgs.csv.fieldDelim = ""; // No Field delim
+            recordDelim = "\n";
+            fieldDelim = ""; // No Field delim
             // fallthrough
         case ("CSV"):
             formatType = DfFormatTypeT.DfFormatCsv;
