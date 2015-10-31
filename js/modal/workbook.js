@@ -198,6 +198,13 @@ window.WorkbookModal = (function($, WorkbookModal) {
             if (activeActionNo === 2) {
                 // copy workbook part
                 modalHelper.submit();
+                $workbookModal.addClass('inactive');
+                $('body').append('<div id="workbookModalWaitingIcon" ' +
+                                    'class="waitingIcon"></div>');
+                $('#workbookModalWaitingIcon').css({
+                    left: '50%',
+                    top: '50%'
+                }).fadeIn();
                 WKBKManager.copyWKBK(workbookId, workbookName)
                 .then(function(id) {
                     WKBKManager.switchWKBK(id);
@@ -901,7 +908,6 @@ window.WKBKManager = (function($, WKBKManager) {
     WKBKManager.copyWKBK = function(srcWKBKId, wkbkName) {
         var deferred = jQuery.Deferred();
         var newId;
-
         WKBKManager.newWKBK(wkbkName, srcWKBKId)
         .then(function(id) {
             newId = id;

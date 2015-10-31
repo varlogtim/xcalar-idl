@@ -1437,6 +1437,23 @@ html.microsoft {
         }
     }
 }
+
+#workbookModal {
+    &::after {
+        content: "";
+        opacity: 0;
+    }
+    &.inactive::after {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        display: block;
+        background-color: white;
+        top: 0px;
+        opacity: 0.3;
+        .transition(opacity 0.4s); 
+    }
+}
 /* End of Workbook Modal */
 
 /* Dataflow Modal */
