@@ -160,8 +160,8 @@ function infScrolling(tableId) {
 }
 
 var MouseEvents = function() {
-    var lastMouseDownTarget;
-    var lastClickTarget;
+    var lastMouseDownTarget = $(document);
+    var lastClickTarget = lastMouseDownTarget;
 
     this.setMouseDownTarget = function($element) {
         lastMouseDownTarget = $element;

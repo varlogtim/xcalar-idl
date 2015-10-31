@@ -357,7 +357,7 @@ window.TestSuite = (function($, TestSuite) {
             .then(function() {
                 $("#functionList input").val("gt");
                 $("#functionList input").trigger(fakeEvent.enter);
-                $($(".argumentTable tr")[2]).find("input").val("0");
+                $($(".argumentTable tr")[1]).find("input").val("0");
                 $("#operationsModal .modalBottom .confirm").click();
                 // var tableId = $(".xcTable:eq(0)").data("id");
                 return (checkExists("#xcTable-" + tableId, null,
