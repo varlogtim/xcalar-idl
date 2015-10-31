@@ -620,6 +620,7 @@ window.xcHelper = (function($, xcHelper) {
 
             $tableWrap.find('.tableCover').height(tableHeight - 40);
             $('#rowScroller-' + tableId).addClass('locked');
+            moveTableTitles();
         }
         
         var table = xcHelper.getTableFromId(tableId);

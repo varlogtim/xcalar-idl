@@ -3035,6 +3035,8 @@ function moveTableTitles() {
                 }
                 center = Math.floor(center);
                 $tableTitle.css('left', center);
+                $table.find('.lockedIcon')
+                      .css('left', center + titleWidth/2 + 5);
             } else {
                 return false;
             }
