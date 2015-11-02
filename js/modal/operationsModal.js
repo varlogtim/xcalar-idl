@@ -937,6 +937,29 @@ window.OperationsModal = (function($, OperationsModal) {
                 return (true);
             }
 
+            if (!$input.closest('listSection').hasClass('.colNameSection')) {
+                // if map, some args can be blank
+                if (operatorName === "map") {
+                    if ($categoryInput.val() === "user-defined functions") {
+                        return (true);
+                    }
+                    if ($categoryInput.val() === "string functions") {
+                        if ($functionInput.val() !== "cut") {
+                            return (true);
+                        } else if (index !== 1) {
+                            return (true);
+                        }
+                    }
+                }
+                // allow blanks in eq and like filters
+                if (operatorName === "filter") {
+                    if ($functionInput.val() === "eq" ||
+                        $functionInput.val() === "like") {
+                        return (true);
+                    }
+                }
+            }
+
             // Special case: When the user actually wants to have <space>
             // or \n as an input, then we should not trim it.
             var origLength = $(this).val().length;
@@ -1313,7 +1336,13 @@ window.OperationsModal = (function($, OperationsModal) {
                 }
             }
             if (!validFound) {
-                var text = "Column '" + value + "' not found.";
+                var text;
+                if (value.length === 2 && value.indexOf('""') === 0) {
+                    text = "Field name is blank.";
+                } else {
+                    text = "Column '" + value + "' not found.";
+                }
+                
                 StatusBox.show(text, $input);
                 return (false);
             }
