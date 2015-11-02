@@ -25,6 +25,7 @@ window.JoinModal = (function($, JoinModal) {
               '<input  class="clause rightClause" type="text" readonly/>' +
         '</div>';
 
+    var dragSide  = null;
     var minHeight = 600;
     var minWidth  = 800;
     var modalHelper = new xcHelper.Modal($joinModal, {
@@ -119,7 +120,8 @@ window.JoinModal = (function($, JoinModal) {
                 multiClauseOpener();
 
                 $mainJoin.find(".colSelected").removeClass("colSelected");
-                $mainJoin.find(".columnTab").prop("draggable", true);
+                $mainJoin.find("th:not(.unselectable) .columnTab")
+                        .prop("draggable", true);
                 $mainJoin.find(".smartSuggest").addClass("inActive");
             } else {
                 // case to close multi clause
@@ -187,7 +189,7 @@ window.JoinModal = (function($, JoinModal) {
             var originEvent = event.originalEvent;
 
             if ($input.hasClass("clause")) {
-                var clause = originEvent.dataTransfer.getData("clause");
+                var clause = dragSide;
                 var text   = originEvent.dataTransfer.getData("text");
 
                 if (clause === "left" && $input.hasClass("leftClause") ||
@@ -213,6 +215,18 @@ window.JoinModal = (function($, JoinModal) {
             }
 
             return false;
+        });
+
+        $joinModal.on("mouseenter", ".tooltipOverflow", function(){
+            var $this = $(this);
+            if (this.offsetWidth < this.scrollWidth){
+                $this.attr({
+                    'data-container': 'body',
+                    'data-toggle'   : 'tooltip'
+                });
+            } else {
+                $this.removeAttr('title data-container data-toggle');
+            }
         });
 
         $joinModal.draggable({
@@ -494,9 +508,10 @@ window.JoinModal = (function($, JoinModal) {
                         wsName +
                     '</div>';
                 tabHtml +=
-                    '<div title="' + table.tableName +
+                    '<div class="tableLabel textOverflow tooltipOverflow" ' +
+                    'title="' + table.tableName +
                     '" data-toggle="tooltip" data-placement="top" ' +
-                    'data-container="body" class="tableLabel textOverflow" ' +
+                    'data-container="body" ' +
                     'data-id="' + tableId + '">' +
                         table.tableName +
                     '</div>';
@@ -651,28 +666,7 @@ window.JoinModal = (function($, JoinModal) {
             }
 
             if ($th.hasClass("unselectable")) {
-                if ($th.hasClass('clicked')) {
-                    return;
-                }
-                $th.addClass("clicked");
-                var $div = $th.find("div");
-                $div.attr("data-toggle", "tooltip")
-                    .attr("data-placement", "top")
-                    .attr("data-original-title", "can't join this type")
-                    .attr("data-container", "body");
-                $div.mouseover();
-                setTimeout(function(){
-                    $div.mouseout();
-                    $div.removeAttr("data-toggle")
-                        .removeAttr("data-placement")
-                        .removeAttr("data-original-title")
-                        .removeAttr("data-container");
-                    // the reason for this time out is it will created more
-                    // than one tooltip if you click on th too quick
-                    setTimeout(function() {
-                        $th.removeClass("clicked");
-                    }, 100);
-                }, 2000);
+                showErroTooltip($th, isLeft);
                 return;
             }
 
@@ -697,8 +691,15 @@ window.JoinModal = (function($, JoinModal) {
             }
         });
 
+        var dragImage;
         $modal.on("mousedown", ".columnTab", function() {
             if ($mainJoin.hasClass('multiClause')) {
+                var $th = $(this).closest("th");
+                if ($th.hasClass("unselectable")) {
+                    showErroTooltip($th, isLeft);
+                    return;
+                }
+
                 var cursorStyle =
                     '<style id="moveCursor" type="text/css">*' +
                         '{cursor:move !important; cursor: -webkit-grabbing !important;' +
@@ -706,23 +707,29 @@ window.JoinModal = (function($, JoinModal) {
                         '.tooltip{display: none !important;}' +
                     '</style>';
                 $(document.head).append(cursorStyle);
+
+                if (isBrowseChrome) {
+                    var canvas = buildTabCanvas($(this));
+                    dragImage = document.createElement("img");
+                    dragImage.src = canvas.toDataURL();
+                }
             }
         });
 
         $modal.on("dragstart", ".columnTab", function(event) {
             var originEvent = event.originalEvent;
-            var clause = isLeft ? "left" : "right";
+            dragSide = isLeft ? "left" : "right";
 
             // XXX canvas not work for firfox, IE do not test
             if (isBrowseChrome) {
-                var canvas = buildTabCanvas($(this));
-                var img = document.createElement("img");
-                img.src = canvas.toDataURL();
-                originEvent.dataTransfer.setDragImage(img, 0, 0);
+                if (dragImage != null) {
+                    originEvent.dataTransfer.setDragImage(dragImage, 0, 0);
+                } else {
+                    console.error("Lose drag image!");
+                }
             }
 
             originEvent.dataTransfer.effectAllowed = "copy";
-            originEvent.dataTransfer.setData("clause", clause);
             originEvent.dataTransfer.setData("text", $(this).text());
 
             if (isLeft) {
@@ -735,7 +742,6 @@ window.JoinModal = (function($, JoinModal) {
         $modal.on("dragend", ".columnTab", function() {
             $multiJoin.find(".clause.inActive").removeClass("inActive");
             $('#moveCursor').remove();
-            // $("#joinCanvas").remove();
         });
     }
 
@@ -755,12 +761,12 @@ window.JoinModal = (function($, JoinModal) {
         ctx.save();
 
         var grd = ctx.createLinearGradient(0, 0, 0, h);
-        grd.addColorStop(0,"#CCCCCC");
-        grd.addColorStop(1,"#AEAEAE");
+        grd.addColorStop(0, "#CCCCCC");
+        grd.addColorStop(1, "#AEAEAE");
 
         ctx.font = "600 12px Open Sans";
         ctx.textBaseline = "middle";
-        ctx.textAlign = "center"
+        ctx.textAlign = "center";
         ctx.fillStyle = grd;
 
         ctx.fillRect(0, 0, w, h);
@@ -804,6 +810,49 @@ window.JoinModal = (function($, JoinModal) {
         var match = $th.attr("class").match(/type-(.*)/)[1];
         // match = "type-XXX" or "type-XXX abc"
         return (match.split(" ")[0]);
+    }
+
+    function showErroTooltip($th, isLeft) {
+        // if ($th.hasClass('clicked')) {
+        //     return;
+        // }
+        // $th.addClass("clicked");
+        // var $div = $th.find("div");
+        // $div.attr("data-toggle", "tooltip")
+        //     .attr("data-placement", "top")
+        //     .attr("data-original-title", "can't join this type")
+        //     .attr("data-container", "body");
+        // $div.mouseover();
+        // setTimeout(function(){
+        //     $div.mouseout();
+        //     $div.removeAttr("data-toggle")
+        //         .removeAttr("data-placement")
+        //         .removeAttr("data-original-title")
+        //         .removeAttr("data-container");
+        //     // the reason for this time out is it will created more
+        //     // than one tooltip if you click on th too quick
+        //     setTimeout(function() {
+        //         $th.removeClass("clicked");
+        //     }, 100);
+        // }, 2000);
+        var $columnTab = $th.find(".columnTab");
+        var id = isLeft ? "#leftJoin" : "#rightJoin";
+        $columnTab.tooltip({
+            "title"    : "Cann't join " + getType($th),
+            "placement": "top",
+            "animation": "true",
+            "container": id,
+            "trigger"  : "manual",
+             "template" : '<div class="tooltip error" role="tooltip">' +
+                            '<div class="tooltip-arrow"></div>' +
+                            '<div class="tooltip-inner"></div>' +
+                        '</div>'
+        });
+
+        $columnTab.tooltip("show");
+        setTimeout(function() {
+            $columnTab.tooltip("destroy");
+        }, 1000);
     }
 
     function suggestJoinKey(tableId, $th, $suggSection, suggTableId) {
