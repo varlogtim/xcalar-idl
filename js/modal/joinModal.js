@@ -188,7 +188,7 @@ window.JoinModal = (function($, JoinModal) {
 
             if ($input.hasClass("clause")) {
                 var clause = originEvent.dataTransfer.getData("clause");
-                var text   = originEvent.dataTransfer.getData("text/plain");
+                var text   = originEvent.dataTransfer.getData("text");
 
                 if (clause === "left" && $input.hasClass("leftClause") ||
                     clause === "right" && $input.hasClass("rightClause"))
@@ -712,9 +712,18 @@ window.JoinModal = (function($, JoinModal) {
         $modal.on("dragstart", ".columnTab", function(event) {
             var originEvent = event.originalEvent;
             var clause = isLeft ? "left" : "right";
-            originEvent.dataTransfer.setData("clause", clause);
+
+            // XXX canvas not work for firfox, IE do not test
+            if (isBrowseChrome) {
+                var canvas = buildTabCanvas($(this));
+                var img = document.createElement("img");
+                img.src = canvas.toDataURL();
+                originEvent.dataTransfer.setDragImage(img, 0, 0);
+            }
+
             originEvent.dataTransfer.effectAllowed = "copy";
-            originEvent.dataTransfer.setData("text/plain", $(this).text());
+            originEvent.dataTransfer.setData("clause", clause);
+            originEvent.dataTransfer.setData("text", $(this).text());
 
             if (isLeft) {
                 $multiJoin.find(".clause.rightClause").addClass("inActive");
@@ -726,7 +735,53 @@ window.JoinModal = (function($, JoinModal) {
         $modal.on("dragend", ".columnTab", function() {
             $multiJoin.find(".clause.inActive").removeClass("inActive");
             $('#moveCursor').remove();
+            // $("#joinCanvas").remove();
         });
+    }
+
+    function buildTabCanvas($tab) {
+        if ($tab == null) {
+            $tab = $joinModal.find(".columnTab").eq(0);
+        }
+        var w = $tab.width();
+        var h = $tab.height();
+
+        $("#joinCanvas").width(w);
+        $("#joinCanvas").height(h);
+
+        var c = $("#joinCanvas")[0];
+        var ctx = c.getContext("2d");
+
+        ctx.save();
+
+        var grd = ctx.createLinearGradient(0, 0, 0, h);
+        grd.addColorStop(0,"#CCCCCC");
+        grd.addColorStop(1,"#AEAEAE");
+
+        ctx.font = "600 12px Open Sans";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center"
+        ctx.fillStyle = grd;
+
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.fillStyle = "#6e6e6e";
+        var text = $tab.text();
+
+        var textW = ctx.measureText(text).width;
+        var charLen = text.length;
+        var charW = textW / charLen;
+        var ellipsis = '…';
+        var maxLen = Math.max(1, Math.floor(w / charW) - 3);
+
+        if (charLen > maxLen) {
+            text = text.substring(0, maxLen + 1) + ellipsis;
+        }
+
+        ctx.fillText(text, w / 2, h / 2);
+        ctx.restore();
+
+        return (c);
     }
 
     function scrollToColumn($th) {

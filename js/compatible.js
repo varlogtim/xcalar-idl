@@ -2,6 +2,8 @@ window.Compatible = (function($, Compatible) {
     // XXX check if those functions are already
     // support by all browsers frequently
     window.isBrowserMicrosoft = false;
+    window.isBrowseChrome = false;
+
     Compatible.check = function() {
         stringCheck();
         browserCheck();
@@ -54,6 +56,10 @@ window.Compatible = (function($, Compatible) {
         }
         if (isBrowserMicrosoft) {
             $('html').addClass('microsoft');
+        }
+
+        if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+             window.isBrowseChrome = true;
         }
     }
 
