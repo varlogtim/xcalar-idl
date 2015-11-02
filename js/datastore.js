@@ -277,8 +277,13 @@ window.DatastoreForm = (function($, DatastoreForm) {
             $(this).blur();
 
             // Invalid json preview
-            if ($filePath.val().endsWith("json")) {
+            var path = $filePath.val();
+            if (path.endsWith("json")) {
                 var text = "Canot Preview JSON files";
+                StatusBox.show(text, $filePath, true);
+                return;
+            } else if (path.endsWith("xlsx")) {
+                var text = "Canot Preview Excel files";
                 StatusBox.show(text, $filePath, true);
                 return;
             }

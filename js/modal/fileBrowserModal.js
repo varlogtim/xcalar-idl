@@ -18,8 +18,12 @@ window.FileBrowser = (function($, FileBrowser) {
 
     /* Contants */
     var defaultPath    = "file:///";
-    var validFormats   = ["JSON", "CSV", "XLSX"];
     var defaultSortKey = "type"; // default is sort by type;
+    var formatMap = {
+        "JSON": "JSON",
+        "CSV" : "CSV",
+        "XLSX": "Excel"
+    };
     var minWidth  = 590;
     var minHeight = 400;
     /* End Of Contants */
@@ -324,15 +328,15 @@ window.FileBrowser = (function($, FileBrowser) {
         var index = name.lastIndexOf(".");
 
         if (index < 0) {
-            return undefined;
+            return null;
         }
 
         var ext = name.substring(index + 1, name.length).toUpperCase();
 
-        if (validFormats.indexOf(ext) >= 0) {
-            return (ext);
+        if (formatMap.hasOwnProperty(ext)) {
+            return (formatMap[ext]);
         } else {
-            return undefined;
+            return null;
         }
     }
 
@@ -467,7 +471,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         // load dataset
         var curDir = getCurrentPath();
-        var ext    = getFormat(fileName);
+        var ext = getFormat(fileName);
 
         historyPath = curDir;
 
@@ -483,11 +487,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
 
         if (ext != null) {
-            if (ext === "XLSX") {
-                ext = "Excel";
-            }
-            $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]')
-                .click();
+            $('#fileFormatMenu li[name="' + ext.toUpperCase() + '"]').click();
         }
 
         var path = curDir + fileName;
