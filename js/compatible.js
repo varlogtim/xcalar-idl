@@ -3,6 +3,7 @@ window.Compatible = (function($, Compatible) {
     // support by all browsers frequently
     window.isBrowserMicrosoft = false;
     window.isBrowseChrome = false;
+    window.isBrowseFireFox = false;
 
     Compatible.check = function() {
         stringCheck();
@@ -58,8 +59,12 @@ window.Compatible = (function($, Compatible) {
             $('html').addClass('microsoft');
         }
 
-        if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
-             window.isBrowseChrome = true;
+        if (/chrome/i.test(navigator.userAgent)) {
+            window.isBrowseChrome = true;
+        }
+
+        if (/firefox/i.test(navigator.userAgent)) {
+            window.isBrowseFireFox = true;
         }
     }
 

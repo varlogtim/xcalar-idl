@@ -900,7 +900,10 @@ function documentReadyIndexFunction() {
         .then(function() {
             // this should come in last!
             KVStore.safeSetup();
-            gMinModeOn = false; // turn off min mode
+
+            if (!isBrowseFireFox) {
+                gMinModeOn = false; // turn off min mode
+            }
         })
         .fail(function(error) {
             if (typeof error === "string"){
