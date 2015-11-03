@@ -149,7 +149,7 @@ window.OperationsModal = (function($, OperationsModal) {
                     submitForm();
                 }
             },
-            'blur': function(event) {
+            'blur': function() {
                 setTimeout(function() {
                     var $mouseTarget = gMouseEvents.getLastMouseDownTarget();
                     if ($argSection.hasClass('minimized') ) {
@@ -191,21 +191,21 @@ window.OperationsModal = (function($, OperationsModal) {
         }, '.argument');
 
         // toggle between mininizeTable and unMinimizeTable
-        $operationsModal.on('click', '.argIconWrap', function(e) {
+        $operationsModal.on('click', '.argIconWrap', function() {
             var $input = $(this).siblings('input');
             if ($argSection.hasClass('minimized')) {
                 unminimizeTable();
                 $(this).siblings('.argument').focus();
             } else {
                 // we want to target only headers that have editableheads
-                minimizeTableAndFocusInput($input); 
-            } 
+                minimizeTableAndFocusInput($input);
+            }
             $lastInputFocused = $input;
         });
 
-        $operationsModal.on('mousedown', '.argIconWrap', function(e) {
-            e.preventDefault(); // prevents input from blurring
-            e.stopPropagation();
+        $operationsModal.on('mousedown', '.argIconWrap', function(event) {
+            event.preventDefault(); // prevents input from blurring
+            event.stopPropagation();
         });
 
 
@@ -1064,6 +1064,7 @@ window.OperationsModal = (function($, OperationsModal) {
             }
 
             typeid = $input.data('typeid');
+            var text;
             // col name field, do not add quote
             if ($input.closest(".listSection").hasClass("colNameSection")) {
                 arg = arg.replace(/\$/g, '');
@@ -1097,7 +1098,7 @@ window.OperationsModal = (function($, OperationsModal) {
                         if (colTypes[i] != null) {
                             if (types.indexOf(colTypes[i]) < 0) {
                                 isPassing = false;
-                                var text = "Invalid type for the field," +
+                                text = "Invalid type for the field," +
                                             " wanted: " + types.join("/") +
                                             ", but provided: " + colTypes[i];
                                 StatusBox.show(text, $input);
@@ -1109,6 +1110,16 @@ window.OperationsModal = (function($, OperationsModal) {
                     }
                 }
             } else {
+                var checkRes = checkArgTypes(arg, typeid);
+
+                if (checkRes != null) {
+                    isPassing = false;
+                    text = "Invalid type for the field," +
+                                " wanted: " + checkRes.validType.join("/") +
+                                ", but provided: " + checkRes.currentType;
+                    StatusBox.show(text, $input);
+                    return (false);
+                }
                 arg = formatArgumentInput(arg, typeid, existingTypes);
             }
 
@@ -1153,12 +1164,12 @@ window.OperationsModal = (function($, OperationsModal) {
 
     function aggregate(aggrOp, args) {
         var colIndex = -1;
-        var colName = args[0];
+        var backColName = args[0];
         var columns = gTables[tableId].tableCols;
         var numCols = columns.length;
         for (var i = 0; i < numCols; i++) {
             if (columns[i].func.args &&
-                columns[i].func.args[0] === colName) {
+                columns[i].func.args[0] === backColName) {
                 colIndex = i;
                 break;
             }
@@ -1176,12 +1187,12 @@ window.OperationsModal = (function($, OperationsModal) {
         var options = {};
         var colIndex = colNum;
         if (operator !== 'not') {
-            var colName = args[0];
+            var backColName = args[0];
             var columns = gTables[tableId].tableCols;
             var numCols = columns.length;
             for (var i = 0; i < numCols; i++) {
                 if (columns[i].func.args &&
-                    columns[i].func.args[0] === colName) {
+                    columns[i].func.args[0] === backColName) {
                     colIndex = i;
                     break;
                 }
@@ -1348,6 +1359,72 @@ window.OperationsModal = (function($, OperationsModal) {
             }
         }
         return (true);
+    }
+
+    function checkArgTypes(arg, typeid) {
+        var types   = parseType(typeid);
+        var argType = "string";
+        var tmpArg;
+        var isBoolean = false;
+
+        if (types.indexOf("string") > -1 ||
+            types.indexOf("mixed") > -1 ||
+            types.indexOf("undefined") > -1)
+        {
+            // if it accept string/mixed/undefined, any input
+            // should be valid
+            return null;
+        }
+
+        tmpArg = arg.toLowerCase();
+        if (tmpArg === "true" || tmpArg === "false" ||
+                tmpArg === "t" || tmpArg === "f")
+        {
+            isBoolean = true;
+            argType = "string/boolean";
+        }
+
+        if (types.indexOf("boolean") > -1) {
+            // XXX this part might be buggy
+            if (isBoolean) {
+                return null;
+            } else {
+                return {
+                    "validType"  : types,
+                    "currentType": argType
+                };
+            }
+        }
+
+        // the remaining case is decimal and integer, both is number
+        tmpArg = Number(arg);
+
+        if (isNaN(tmpArg)) {
+            return {
+                "validType"  : types,
+                "currentType": argType
+            };
+        }
+
+        if (types.indexOf("decimal") > -1) {
+            // if arg is integer, it could be a decimal
+            return null;
+        }
+
+        if (types.indexOf("integer") > -1) {
+            if (tmpArg % 1 !== 0) {
+                argType = "decimal";
+
+                return {
+                    "validType"  : types,
+                    "currentType": argType
+                };
+            } else {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     function formatArgumentInput(value, typeid, existingTypes) {
