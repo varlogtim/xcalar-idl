@@ -158,17 +158,13 @@ window.JSONModal = (function($, JSONModal) {
         }
         if (event.which === keyCode.Up || event.which === keyCode.Down ||
             event.which === keyCode.Enter) {
+            event.preventDefault();
             if (event.which === keyCode.Up) {
                 matchIndex--;
                 if (matchIndex < 0) {
                     matchIndex = numMatches - 1;
                 }
                 var val = $searchInput.val();
-                // doesn't work unless we use settimeout, dunno why
-                setTimeout(function() {
-                    $searchInput[0].selectionStart =
-                    $searchInput[0].selectionEnd = val.length;
-                }, 0);
                 
             } else if (event.which === keyCode.Down ||
                        event.which === keyCode.Enter) {
@@ -225,6 +221,8 @@ window.JSONModal = (function($, JSONModal) {
         $(document).off(".jsonModal");
         $matches = [];
         $('.modalHighlighted').removeClass('modalHighlighted');
+        clearSearch();
+        $('#jsonSearch').addClass('closed');
 
         var fadeOutTime = gMinModeOn ? 0 : 300;
 
