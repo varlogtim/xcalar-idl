@@ -54,19 +54,19 @@
   <!-- End of Menu Bar -->
 
   <!-- WORK SPACE PANEL -->
-  <div id="workspacePanel" class="mainPanel active">
+  <div id="workspacePanel" class="mainPanel no-selection active">
     <div id="workspaceBar" class="workspaceBar topBar">
       <div id="functionArea" class="workspaceArea">
         <label for="fnBar">f(x)</label>
         <input id="fnBar" value="" spellcheck="false">
       </div>
       <div id="rowInputArea" class="workspaceArea">
-          <label for="rowInput" class="no-selection">Skip to row:</label>
+          <label for="rowInput">Skip to row:</label>
           <!-- only allow integer -->
           <input id="rowInput" type="number" min="0" step="1">
-          <label id="numPages" for="rowInput" class="no-selection"></label>
+          <label id="numPages" for="rowInput"></label>
       </div>
-      <div id="rowScrollerArea" class="workspaceArea no-selection">
+      <div id="rowScrollerArea" class="workspaceArea">
       </div>
     </div>
     <div id="watermark"></div>
@@ -457,7 +457,7 @@
   <!-- END WORKSPACE PANEL -->
 
   <!-- MONITOR PANEL -->
-  <div id="monitorPanel" class="mainPanel"></div>
+  <div id="monitorPanel" class="mainPanel no-selection"></div>
   <!-- END OF MONITOR PANEL -->
 
   <!-- DATASTORE PANEL -->
@@ -769,7 +769,7 @@
             </div>
             <!-- Datastore Table -->
             <div class="contentViewTable">
-              <div class="datasetTitleWrap">
+              <div class="datasetTitleWrap no-selection">
                 <div class="dsInfo">
                   <h2>Dataset Preview</h2>
                   <p>Format: <span id="schema-format">JSON</span></p>
