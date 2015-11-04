@@ -904,6 +904,10 @@ function documentReadyIndexFunction() {
             if (!isBrowseFireFox) {
                 gMinModeOn = false; // turn off min mode
             }
+
+            console.log('%c Have fun with Xcalar Insight! ',
+            'background: linear-gradient(to bottom, #378cb3, #5cb2e8); ' +
+            'color: #ffffff; font-size:30px; font-family:Open Sans;');
         })
         .fail(function(error) {
             if (typeof error === "string"){
