@@ -236,7 +236,7 @@ function setupMainPanelsTab() {
         if ($curTab.hasClass("active")) {
             return;
         }
-
+        var lastTabId = $tabs.filter(".active").attr("id"); 
         $tabs.removeClass("active");
         $('.mainPanel').removeClass('active');
         $curTab.addClass("active");
@@ -244,17 +244,14 @@ function setupMainPanelsTab() {
         switch ($curTab.attr("id")) {
             case ("workspaceTab"):
                 $("#workspacePanel").addClass("active");
-                MonitorGraph.clear();
                 WSManager.focusOnWorksheet();
                 break;
             case ("schedulerTab"):
                 $('#schedulerPanel').addClass("active");
-                MonitorGraph.clear();
                 break;
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");
                 DataSampleTable.sizeTableWrapper();
-                MonitorGraph.clear();
                 break;
             case ("monitorTab"):
                 $('#monitorPanel').addClass("active");
@@ -263,6 +260,9 @@ function setupMainPanelsTab() {
                 break;
             default:
                 $(".underConstruction").addClass("active");
+        }
+        if (lastTabId === "monitorTab") {
+            MonitorGraph.clear();
         }
         StatusMessage.updateLocation();
     });
@@ -485,6 +485,9 @@ function documentReadyGeneralFunction() {
                 return;
             } else if ($target.closest('.menu').length !== 0 &&
                         $target.closest('#mainFrame').length !== 0) {
+                return;
+            } else if ($target.is('.iconHelper') &&
+                       $target.closest('.header').length !== 0) {
                 return;
             }
             $('.selectedCell').removeClass('selectedCell');

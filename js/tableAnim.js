@@ -1355,14 +1355,19 @@ function addColListeners($table, tableId) {
         }
     }, ".editableHead");
     
-    $thead.on("mousedown", ".flexContainer", function(event) {
+    $thead.on("mousedown", ".flexContainer, .iconHelper", function(event) {
         if ($("#mainFrame").hasClass("modalOpen")) {
             // not focus when in modal
             return;
         } else if ($(this).closest('.dataCol').length !== 0) {
             return;
         }
-        gFnBarOrigin = $(this).find('.editableHead');
+
+        if ($(this).is('.iconHelper')) {
+            gFnBarOrigin = $(this).closest('.header').find('.editableHead');
+        } else {
+            gFnBarOrigin = $(this).find('.editableHead');
+        }
 
         var colNum = xcHelper.parseColNum(gFnBarOrigin);
         var table = xcHelper.getTableFromId(tableId);
@@ -1371,7 +1376,6 @@ function addColListeners($table, tableId) {
         $fnBar.val(userStr);
         var notDropDown = $(event.target).closest('.dropdownBox')
                                             .length === 0;
-
         if ($table.find('.selectedCell').length === 0) {
             $('.selectedCell').removeClass('selectedCell');
             lastSelectedCell = gFnBarOrigin;
@@ -1421,6 +1425,7 @@ function addColListeners($table, tableId) {
                 lastSelectedCell = null;
             }
         }
+        xcHelper.removeSelectionRange();
         lastSelectedCell = gFnBarOrigin;
     });
 
@@ -1496,7 +1501,13 @@ function addColListeners($table, tableId) {
         if (event.which !== 1) {
             return;
         }
+        if (event.ctrlKey || event.shiftKey || event.metaKey) {
+            if ($(event.target).is('.iconHelper')) {
+                return;
+            }
+        }
         var headCol = $(this).parent().parent();
+
         dragdropMouseDown(headCol, event);
     });
 
