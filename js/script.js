@@ -53,6 +53,7 @@ function infScrolling(tableId) {
         }
 
         $(".menu:visible").hide();
+        removeMenuKeyboardNavigation();
         $('.highlightBox').remove();
 
         var table = xcHelper.getTableFromId(tableId);
@@ -455,6 +456,7 @@ function documentReadyGeneralFunction() {
     $('#mainFrame').scroll(function() {
         $(this).scrollTop(0);
         $('.menu').hide();
+        removeMenuKeyboardNavigation();
         $(".highlightBox").remove();
 
         clearTimeout(timer);
@@ -474,6 +476,7 @@ function documentReadyGeneralFunction() {
                         $target.hasClass("highlightBox");
         if (!clickable && $target.closest('.dropdownBox').length === 0) {
             $('.menu').hide();
+            removeMenuKeyboardNavigation();
             $('.highlightBox').remove();
             $('body').removeClass('noSelection');
         }
@@ -532,8 +535,8 @@ function documentReadyGeneralFunction() {
                 gResrowMouseUp();
                 break;
             case ("movingTable"):
-                    dragTableMouseUp();
-                    break;
+                dragTableMouseUp();
+                break;
             case ("movingCol"):
                 dragdropMouseUp();
                 break;
@@ -548,10 +551,18 @@ function documentReadyGeneralFunction() {
         gLastClickTarget = $(event.target);
     });
 
+    $(window).blur(function() {
+        $('.menu').hide();
+        removeMenuKeyboardNavigation();
+    })
+
     function tableScroll(scrollType, isUp) {
         if (!$("#workspaceTab").hasClass("active") ||
             gActiveTableId == null)
         {
+            return false;
+        }
+        if ($('.menu:visible').length !== 0) {
             return false;
         }
 
@@ -629,6 +640,7 @@ function documentReadyGeneralFunction() {
             }
 
             $(".menu").hide();
+            removeMenuKeyboardNavigation();
             gMouseEvents.setMouseDownTarget(null);
             $rowInput.val(rowToGo).trigger(fakeEvent.enter);
 

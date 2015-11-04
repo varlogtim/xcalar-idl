@@ -1857,7 +1857,7 @@ function addMenuBehaviors($mainMenu) {
 
 
     $mainMenu.on({
-        "mouseenter": function() {
+        "mouseenter": function(event) {
             var $li = $(this);
             $mainMenu.find('.selected').removeClass('selected');
             $mainMenu.addClass('hovering');
@@ -1872,45 +1872,14 @@ function addMenuBehaviors($mainMenu) {
             }
 
             var subMenuClass = $li.data('submenu');
-            setTimeout(function() {
-                if ($li.hasClass('selected')) {
-                    $subMenu.show();
-                    $subMenu.children('ul').hide();
-                    $subMenu.find('li').removeClass('selected');
-                    $subMenu.find('.' + subMenuClass).show();
-                    var top = $li.offset().top + 30;
-                    var left = $li.offset().left + 155;
-                    var shiftedLeft = false;
-
-                    // move submenu to left if overflowing to the right
-                    var viewportRight;
-                    var $rightSideBar = $('#rightSideBar');
-                    if (!$rightSideBar.hasClass('poppedOut')) {
-                        viewportRight = $rightSideBar.offset().left;
-                    } else {
-                        viewportRight = $(window).width();
-                    }
-                    if (left + $subMenu.width() > viewportRight) {
-                        $subMenu.addClass('left');
-                        shiftedLeft = true;
-                        top -= 29;
-                    } else {
-                        $subMenu.removeClass('left');
-                    }
-
-                    // move submenu up if overflowing to the bottom
-                    var viewportBottom = $(window).height();
-                    if (top + $subMenu.height() > viewportBottom) {
-                        top -= $subMenu.height();
-                        if (shiftedLeft) {
-                            top += 29;
-                        }
-                    }
-
-                    $subMenu.css({left: left, top: top});
-                }
-                
-            }, 150);
+            if (event.keyTriggered) { // mouseenter triggered by keypress
+                showSubMenu($li, subMenuClass);
+            } else {
+                setTimeout(function() {
+                    showSubMenu($li, subMenuClass);
+                }, 150);
+            }
+            
         },
         "mouseleave": function() {
             $mainMenu.removeClass('hovering');
@@ -1986,6 +1955,45 @@ function addMenuBehaviors($mainMenu) {
             timer.hovering = setTimeout(hovering, 200);
         });
 
+        function showSubMenu($li, subMenuClass) {
+            if ($li.hasClass('selected')) {
+                $subMenu.show();
+                $subMenu.children('ul').hide();
+                $subMenu.find('li').removeClass('selected');
+                $subMenu.find('.' + subMenuClass).show();
+                var top = $li.offset().top + 30;
+                var left = $li.offset().left + 155;
+                var shiftedLeft = false;
+
+                // move submenu to left if overflowing to the right
+                var viewportRight;
+                var $rightSideBar = $('#rightSideBar');
+                if (!$rightSideBar.hasClass('poppedOut')) {
+                    viewportRight = $rightSideBar.offset().left;
+                } else {
+                    viewportRight = $(window).width();
+                }
+                if (left + $subMenu.width() > viewportRight) {
+                    $subMenu.addClass('left');
+                    shiftedLeft = true;
+                    top -= 29;
+                } else {
+                    $subMenu.removeClass('left');
+                }
+
+                // move submenu up if overflowing to the bottom
+                var viewportBottom = $(window).height();
+                if (top + $subMenu.height() > viewportBottom) {
+                    top -= $subMenu.height();
+                    if (shiftedLeft) {
+                        top += 29;
+                    }
+                }
+
+                $subMenu.css({left: left, top: top});
+            }
+        }
+
         // $(document).keydown(function(e) {
         //     var scrollTop;
         //     if (e.which === keyCode.Up) {
@@ -2056,6 +2064,187 @@ function addMenuBehaviors($mainMenu) {
     // });
 }
 
+function addMenuKeyboardNavigation($menu, $subMenu) {
+    $(document).on('keydown.menuNavigation', function(event) {
+        listHighlight(event);
+    });
+    var $lis = $menu.find('li:visible');
+    var numLis = $lis.length;
+
+    function listHighlight(event) {
+
+        var keyCodeNum = event.which;
+        var direction;
+        var lateral = false;
+        var enter;
+
+        switch (keyCodeNum) {
+            case (keyCode.Up):
+                direction = -1;
+                break;
+            case (keyCode.Down):
+                direction = 1;
+                break;
+            case (keyCode.Left):
+                if ($(event.target).is('input')) {
+                    if ($(event.target)[0].selectionStart !== 0) {
+                        return;
+                    }
+                }
+                lateral = true;
+                break;
+            case (keyCode.Right):
+                if ($(event.target).is('input')) {
+                    return;
+                }
+                lateral = true;
+                break;
+            case (keyCode.Enter):
+                enter = true;
+                break;
+            case (keyCode.Escape):
+            case (keyCode.Backspace):
+                if ($(event.target).is('input')) {
+                    return;
+                }
+                event.preventDefault();
+                closeMenu($menu.add($subMenu));
+                return;
+            default:
+                return; // key not supported
+        }
+
+        event.preventDefault();
+        // console.log(numLis);
+        var $highlightedLi = $lis.filter(function() {
+            return ($(this).hasClass('selected'));
+        });
+
+        var $highlightedSubLi = "";
+
+        if ($subMenu) {
+            var $subLis = $subMenu.find('li:visible');
+            var numSubLis = $subLis.length;
+            $highlightedSubLi = $subMenu.find('li.selected');
+        }
+
+        if (enter) {
+            if ($highlightedSubLi.length === 1) {
+                if (!$highlightedSubLi.hasClass('unavailable')) {
+                    $highlightedSubLi.trigger(fakeEvent.mouseup);
+                } else {
+                    return;
+                }
+            } else if ($highlightedSubLi.length === 0 &&
+                        $highlightedLi.length === 1) {
+                if (!$highlightedLi.hasClass('unavailable')) {
+                    if ($highlightedLi.hasClass('parentMenu')) {
+                        // if li has submenu, treat enter key as a
+                        // right keypress
+                        lateral = true;
+                        keyCodeNum = keyCode.Right;
+                    } else {
+                        $highlightedLi.trigger(fakeEvent.mouseup);
+                    }
+                } else {
+                    return;
+                }
+            }
+        }
+
+        if (!lateral) {
+            var index;
+            if ($subMenu && $subMenu.is(':visible')) {
+                // navigate vertically through sub menu if it's open
+                if ($highlightedSubLi.length) {
+                    index = $subLis.index($highlightedSubLi);
+                    $highlightedSubLi.removeClass('selected');
+                    var newIndex = (index + direction + numSubLis) % numSubLis;
+                    $highlightedSubLi = $subLis.eq(newIndex);
+                } else {
+                    index = (direction === -1) ? (numLis - 1) : 0;
+                    $highlightedSubLi = $subLis.eq(index);
+                }
+                $highlightedSubLi.addClass('selected');
+            } else {
+                // navigate vertically through main menu
+                if ($highlightedLi.length) {// When a li is highlighted                    
+                    index = $lis.index($highlightedLi);    
+                    $highlightedLi.removeClass('selected');
+                    var newIndex = (index + direction + numLis) % numLis;
+                    $highlightedLi = $lis.eq(newIndex);
+                } else {
+                    index = (direction === -1) ? (numLis - 1) : 0;
+                    $highlightedLi = $lis.eq(index);
+                }
+                $highlightedLi.addClass('selected');
+
+                // adjust scroll position if newly highlighted li is not visible
+                var menuHeight = $menu.height();
+                var liTop = $highlightedLi.position().top;
+                var liHeight = 30;
+                if (liTop > menuHeight - liHeight) {
+                    var currentScrollTop = $menu.find('.menuWrap').scrollTop();
+                    var newScrollTop = liTop - menuHeight + liHeight +
+                                       currentScrollTop;
+                    $menu.find('.menuWrap').scrollTop(newScrollTop);
+                } else if (liTop < 0) {
+                    var currentScrollTop = $menu.find('.menuWrap').scrollTop();
+                    $menu.find('.menuWrap').scrollTop(currentScrollTop + liTop);
+                }
+            }
+        } else if (lateral) { // left or right key is pressed
+            if (!$subMenu) { // if no submenu, do nothing
+                return;
+            }
+            if ($highlightedLi.length &&
+                $highlightedLi.hasClass('parentMenu')) {
+                // if mainmenu li is highlighted and has a submenu
+                if (keyCodeNum === keyCode.Right) {
+                    if ($subMenu.is(':visible')) {
+                        if (!$highlightedSubLi.length) {
+                            // select first sub menu li if sub menu is open
+                            // but no sub menu li is highlighted
+                            var e = $.Event('mouseenter');
+                            e.keyTriggered = true;
+                            $highlightedLi.trigger(e);
+                            var $subLis = $subMenu.find('li:visible');
+                            $subLis.eq(0).mouseover();
+                            if ($subLis.find('input').length > 0) {
+                                $subLis.find('input').eq(0).focus();
+                            }
+                        } else { 
+                            // close menus if sub menu li is already highlighted
+                            closeMenu($menu.add($subMenu));
+                        }
+                    } else {
+                        // open submenu and highlight first li
+                        var e = $.Event('mouseenter');
+                        e.keyTriggered = true;
+                        $highlightedLi.trigger(e);
+                        var $subLis = $subMenu.find('li:visible');
+                        $subLis.eq(0).mouseover();
+                        if ($subLis.find('input').length > 0) {
+                            $subLis.find('input').eq(0).focus();
+                        }
+                    }
+                } else { // left key is pressed
+                    if ($subMenu.is(':visible')) { // if submenu open, hide it
+                        $subMenu.hide();
+                    } else { // if no submenu is open, close all menus
+                        closeMenu($menu);
+                    }
+                }
+            } else {
+                closeMenu($menu.add($subMenu));
+            }
+        }
+    }
+}
+
+function removeMenuKeyboardNavigation() {
+    $(document).off('keydown.menuNavigation');
+}
 
 function addColMenuActions() {
     var $colMenu = $('#colMenu');
@@ -2588,6 +2777,7 @@ function copyToClipboard(valArray) {
 function closeMenu($menu) {
     $menu.hide();
     $('body').removeClass('noSelection');
+    removeMenuKeyboardNavigation();
 }
 
 function functionBarEnter($colInput) {
@@ -2741,7 +2931,7 @@ function dropdownClick($el, options) {
         // case that should close column menu
         if (options.isUnSelect && !options.shiftKey)
         {
-            $menu.hide();
+            closeMenu($menu);
             return;
         }
 
@@ -2795,6 +2985,7 @@ function dropdownClick($el, options) {
     }
 
     $(".menu:visible").hide();
+    removeMenuKeyboardNavigation();
     $(".leftColMenu").removeClass("leftColMenu");
     // case that should open the menu (note that colNum = 0 may make it false!)
     if (options.colNum != null && options.colNum > -1) {
@@ -2865,7 +3056,7 @@ function dropdownClick($el, options) {
         $menu.css('left', left).addClass('leftColMenu');
     }
 
-    //XXX need to position subMenu
+    addMenuKeyboardNavigation($menu, $subMenu);
 
     $('body').addClass('noSelection');
 }
@@ -3047,7 +3238,7 @@ function moveTableTitles() {
                 center = Math.floor(center);
                 $tableTitle.css('left', center);
                 $table.find('.lockedIcon')
-                      .css('left', center + titleWidth/2 + 5);
+                      .css('left', center + titleWidth / 2 + 5);
             } else {
                 return false;
             }

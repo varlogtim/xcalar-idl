@@ -1063,6 +1063,7 @@ window.Dag = (function($, Dag) {
         
         $dagWrap.on('click', '.dagTable.dataStore, .actionType', function() {
             $('.menu').hide();
+            removeMenuKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');
             $currentIcon = $(this);
             var el = $(this);
