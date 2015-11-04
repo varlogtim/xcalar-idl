@@ -263,6 +263,7 @@ window.DagPanel = (function($, DagPanel) {
                         '.dagTable:not(.dataStore) .icon';
         $dagPanel.on('click', selection, function() {
             $('.menu').hide().removeClass('leftColMenu');
+            removeMenuKeyboardNavigation();
             $('#dagSchema').hide();
             var $dagTable = $(this).closest('.dagTable');
             if (!$dagTable.hasClass(DgDagStateTStr[5])) {
@@ -315,7 +316,7 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             positionAndShowDagTableDropdown($dagTable, $menu);
-            
+            addMenuKeyboardNavigation($menu);
             $('body').addClass('noSelection');
         });
     }
@@ -338,10 +339,18 @@ window.DagPanel = (function($, DagPanel) {
                 $('#dagSchema').hide();
                 $menu.data('dagid', $dagWrap.attr('id'));
                 positionAndShowRightClickDropdown(e, $menu);
+                addMenuKeyboardNavigation($menu);
                 $('body').addClass('noSelection');
                 return false;
             }
         };
+
+        $dagPanel.find('.dagArea').scroll(function() {
+            if ($('.menu').is(':visible')) {
+                $('.menu').hide();
+                removeMenuKeyboardNavigation();
+            }
+        });
     }
 
     function addRightClickActions($menu) {
@@ -419,6 +428,7 @@ window.DagPanel = (function($, DagPanel) {
             top -= $('#dagPanel').offset().top;
         }
         $menu.removeClass('leftColMenu');
+        $menu.find('.selected').removeClass('selected');
 
         $menu.css({'top': top, 'left': left});
         $menu.show();
@@ -452,7 +462,7 @@ window.DagPanel = (function($, DagPanel) {
             top -= $('#dagPanel').offset().top;
         }
         $menu.removeClass('leftColMenu');
-
+        $menu.find('.selected').removeClass('selected');
         $menu.css({'top': top, 'left': left});
         $menu.show();
 
@@ -1092,6 +1102,7 @@ window.Dag = (function($, Dag) {
                     $menu.find('.subMenu').addClass('leftColMenu');
                 }
             });
+            addMenuKeyboardNavigation($menu);
             $('body').addClass('noSelection');
         });
 

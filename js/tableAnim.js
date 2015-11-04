@@ -2070,7 +2070,6 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
     var numLis = $lis.length;
 
     function listHighlight(event) {
-
         var keyCodeNum = event.which;
         var direction;
         var lateral = false;
@@ -2130,9 +2129,8 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
             if ($highlightedSubLi.length === 1) {
                 if (!$highlightedSubLi.hasClass('unavailable')) {
                     $highlightedSubLi.trigger(fakeEvent.mouseup);
-                } else {
-                    return;
                 }
+                return;
             } else if ($highlightedSubLi.length === 0 &&
                         $highlightedLi.length === 1) {
                 if (!$highlightedLi.hasClass('unavailable')) {
@@ -2143,6 +2141,7 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                         keyCodeNum = keyCode.Right;
                     } else {
                         $highlightedLi.trigger(fakeEvent.mouseup);
+                        return;
                     }
                 } else {
                     return;
