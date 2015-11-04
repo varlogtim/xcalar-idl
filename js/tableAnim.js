@@ -755,12 +755,12 @@ function createTableHeader(tableId) {
 
     $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
 
-    var tableName = "";
+    // var tableName = "";
     // build this table title somewhere else
-    var table = xcHelper.getTableFromId(tableId);
-    if (table != null) {
-        tableName = table.tableName;
-    }
+    // var table = gTables[tableId];
+    // if (table != null) {
+    //     tableName = table.tableName;
+    // }
 
     var html = '<div class="tableTitle">' +
                     '<div class="tableGrab"></div>' +
@@ -1774,7 +1774,7 @@ function addMenuBehaviors($mainMenu) {
             closeMenu($allMenus);
         });
 
-        $subMenu.on('mouseenter', '.subMenuArea', function(event) {
+        $subMenu.on('mouseenter', '.subMenuArea', function() {
             var className = $(this).siblings(':visible').attr('class');
             $mainMenu.find('.' + className).addClass('selected');
         });
@@ -1891,18 +1891,16 @@ function addMenuBehaviors($mainMenu) {
         }
     }, "li");
 
-    var showAreas = true;
-
     if ($mainMenu.find('.scrollArea').length !== 0) {
         var $scrollAreas = $mainMenu.find('.scrollArea');
         var $menuWrap = $mainMenu.children('.menuWrap');
         var $ul = $mainMenu.find('ul');
         var timer = {
-            fadeIn: null,
-            fadeOut: null,
-            setMouseMoveFalse: null,
-            hovering: null,
-            scroll: null
+            "fadeIn"           : null,
+            "fadeOut"          : null,
+            "setMouseMoveFalse": null,
+            "hovering"         : null,
+            "scroll"           : null
         };
         var isMouseMoving = false;
         var isMouseInScroller = false;
@@ -2641,9 +2639,10 @@ function addColMenuActions() {
         if (event.which !== 1) {
             return;
         }
+        tableId = $cellMenu.data('tableId');
+
         var rowNum  = $cellMenu.data('rowNum');
         var colNum  = $cellMenu.data('colNum');
-        tableId     = $cellMenu.data('tableId');
         var $table  = $("#xcTable-" + tableId);
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
         var isArray = $table.find("th.col" + colNum + " > div")
@@ -2655,9 +2654,11 @@ function addColMenuActions() {
         if (event.which !== 1) {
             return;
         }
+
+        tableId = $cellMenu.data('tableId');
+
         var rowNum  = $cellMenu.data('rowNum');
         var colNum  = $cellMenu.data('colNum');
-        tableId     = $cellMenu.data('tableId');
         var $table  = $("#xcTable-" + tableId);
         var $td     = $table.find(".row" + rowNum + " .col" + colNum);
         var isArray = $table.find("th.col" + colNum + " > div")
@@ -3638,6 +3639,7 @@ function centerPositionElement($target) {
     var left = ((winWidth - modalWidth) / 2);
     var top  = ((winHeight - modalHeight) / 2);
 
+    top = Math.max(0, top);
     $target.css({
         "left": left,
         "top" : top

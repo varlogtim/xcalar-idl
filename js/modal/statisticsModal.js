@@ -43,7 +43,7 @@ window.STATSManager = (function($, STATSManager, d3) {
     var statsCol = null;
     var percentageLabel = false;
 
-    var minHeight = 440;
+    var minHeight = 415;
     var minWidth  = 750;
     var modalHelper = new xcHelper.Modal($statsModal, {
        "minHeight": minHeight,
@@ -1444,7 +1444,6 @@ window.STATSManager = (function($, STATSManager, d3) {
         var indexTable;
         var groupbyTable;
         var finalTable;
-        var tableToDelete;
 
         var colName = curStatsCol.colName;
         // escaping colName like votes.funny
@@ -1501,7 +1500,7 @@ window.STATSManager = (function($, STATSManager, d3) {
         .then(function() {
             finalTable = getNewName(mapTable, ".final", true);
 
-             sqlOptions = {
+            sqlOptions = {
                 "operation"   : SQLOps.ProfileAction,
                 "action"      : "sort",
                 "tableName"   : groupbyTable,

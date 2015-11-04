@@ -682,15 +682,18 @@ window.xcHelper = (function($, xcHelper) {
                 var height = $modal.height();
 
                 if (width > winWidth - 10) {
-                    width = Math.max(winWidth - 40, minWidth)
+                    width = Math.max(winWidth - 40, minWidth);
                 }
-                width = Math.min(width, winWidth - 40);
 
                 if (height > winHeight - 10) {
                     height = Math.max(winHeight - 40, minHeight);
                 }
-                height = Math.min(height, winHeight - 40);
+
                 $modal.width(width).height(height);
+                $modal.css({
+                    "minHeight": minHeight,
+                    "minWidth" : minWidth
+                });
             }
 
             // center modal
@@ -700,7 +703,7 @@ window.xcHelper = (function($, xcHelper) {
 
             // XXX to find the visiable btn, must show the modal first
             if (!options.noTabFocus) {
-                 var eleLists = [
+                var eleLists = [
                     $modal.find(".btn"),                // buttons
                     $modal.find("input")                // input
                 ];
@@ -799,7 +802,6 @@ window.xcHelper = (function($, xcHelper) {
                 if ($ele == null) {
                     console.error("undefined element!");
                     throw "undefined element!";
-                    return (false);
                 }
                 return ($ele.is(":visible") && !$ele.is("[disabled]") &&
                         !$ele.is("[readonly]"));
@@ -1169,7 +1171,7 @@ window.xcHelper = (function($, xcHelper) {
             $('#mainFrame').scrollLeft(scrollPosition);
             moveFirstColumn();
         }  
-    }
+    };
 
     xcHelper.isTableInScreen = function(tableId) {
         var windowWidth = $(window).width();
