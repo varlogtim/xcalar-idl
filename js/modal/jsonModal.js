@@ -42,6 +42,10 @@ window.JSONModal = (function($, JSONModal) {
             searchText($(this));
         });
         $jsonModal.find('.closeBox').click(clearSearch);
+        $jsonModal.find('.arrows').mousedown(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        });
         $jsonModal.find('.upArrow').click(cycleMatchUp);
         $jsonModal.find('.downArrow').click(cycleMatchDown);
         $jsonModal.find('.searchIcon').click(toggleSearch);
@@ -158,7 +162,9 @@ window.JSONModal = (function($, JSONModal) {
         }
         if (event.which === keyCode.Up || event.which === keyCode.Down ||
             event.which === keyCode.Enter) {
-            event.preventDefault();
+            if (event.preventDefault) {
+                event.preventDefault();
+            }
             if (event.which === keyCode.Up) {
                 matchIndex--;
                 if (matchIndex < 0) {
@@ -181,12 +187,12 @@ window.JSONModal = (function($, JSONModal) {
         }
     }
 
-    function cycleMatchDown() {
+    function cycleMatchDown(event) {
         var evt = {which: keyCode.Down};
         cycleMatches(evt);
     }
 
-    function cycleMatchUp() {
+    function cycleMatchUp(event) {
         var evt = {which: keyCode.Up};
         cycleMatches(evt);
     }
