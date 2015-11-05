@@ -1,10 +1,11 @@
 // this is a sub module of rightSideBar
 window.UDF = (function($, UDF) {
-    var $fnName      = $("#udf-fnName");
-    var $template    = $("#udf-fnTemplate");
-    var $downloadBtn = $("#udf-fnDownload");
-    var $browserBtn  = $("#udf-fileBrowser");
-    var $filePath    = $("#udf-filePath");
+    var $fnName       = $("#udf-fnName");
+    var $template     = $("#udf-fnTemplate");
+    var $downloadBtn  = $("#udf-fnDownload");
+    var $browserBtn   = $("#udf-fileBrowser");
+    var $filePath     = $("#udf-filePath");
+    var $listDropdown = $("#udf-fnMenu");
 
     var editor;
     var storedUDF = {};
@@ -35,7 +36,6 @@ window.UDF = (function($, UDF) {
     };
 
     function initializeUDFList() {
-        var $listDropdown = $("#udf-fnMenu");
         var $blankFunc = $listDropdown.find('li[name=blank]');
         var li;
 
@@ -79,7 +79,7 @@ window.UDF = (function($, UDF) {
         var deferred = jQuery.Deferred();
 
         if (!storedUDF.hasOwnProperty(moduleName)) {
-            var error = "UDF: " + moduleName + " not  exists";
+            var error = "UDF: " + moduleName + " not exists";
             throw error;
         }
 
@@ -96,8 +96,6 @@ window.UDF = (function($, UDF) {
     }
 
     function storePython(moduleName, entireString) {
-        var $listDropdown = $("#udf-fnMenu");
-
         if (storedUDF.hasOwnProperty(moduleName)) {
             // the case of overwrite a module
             $listDropdown.children().filter(function() {
@@ -199,7 +197,7 @@ window.UDF = (function($, UDF) {
                     // XXX: Change cursor, handle failure
                     var entireString = event.target.result;
 
-                    uploadPython(moduleName, entireString)
+                    uploadUDF(moduleName, entireString)
                     .always(function() {
                         xcHelper.enableSubmit($submitBtn);
                     });
@@ -211,8 +209,27 @@ window.UDF = (function($, UDF) {
         /* end of upload file section */
 
         /* function input section */
-        var $listSection   = $("#udf-fnList");
-        var $listDropdown  = $("#udf-fnMenu");
+        var $listSection = $("#udf-fnList");
+
+        xcHelper.dropdownList($listSection, {
+            "onSelect": function($li) {
+                var moduleName = $li.text();
+
+                $template.val(moduleName);
+
+                if ($li.attr("name") === "blank") {
+                    $downloadBtn.addClass("disabled");
+                    editor.setValue("");
+                } else {
+                    $downloadBtn.removeClass("disabled");
+                    getEntireUDF(moduleName)
+                    .then(function(entireString) {
+                        editor.setValue(entireString);
+                    });
+                }
+            },
+            "container": "#udfSection"
+        });
 
         $("#udfSection .rightBarContent").click(function(event) {
             event.stopPropagation();
@@ -220,34 +237,15 @@ window.UDF = (function($, UDF) {
             $listSection.removeClass('open');
             $listDropdown.hide();
         });
-        // open drowdown menu
-        $listSection.on("click", function(event) {
-            event.stopPropagation();
 
-            $listSection.toggleClass("open");
-            $listDropdown.toggle();
-        });
-        // select one option
-        $listSection.on("click", ".list li", function(event) {
-            var $li = $(this);
-            var moduleName = $li.text();
-            event.stopPropagation();
+        $downloadBtn.click(function() {
+            var moduleName = $template.val();
 
-            $listSection.removeClass('open');
-            $listDropdown.hide();
-
-            $template.val(moduleName);
-
-            if ($li.attr("name") === "blank") {
-                $downloadBtn.addClass("hidden");
-                editor.setValue("");
-            } else {
-                $downloadBtn.removeClass("hidden");
-                getEntireUDF(moduleName)
-                .then(function(entireString) {
-                    editor.setValue(entireString);
-                });
+            if (moduleName === "") {
+                // invalid case
+                return;
             }
+            downLoadUDF(moduleName);
         });
         /* end of function input section */
 
@@ -283,12 +281,32 @@ window.UDF = (function($, UDF) {
                 moduleName = fileName;
             }
 
-            uploadPython(moduleName, entireString, true);
+            uploadUDF(moduleName, entireString, true);
         });
         /* end of upload written function section */
     }
 
-    function uploadPython(moduleName, entireString, isFnInputSection) {
+    function downLoadUDF(moduleName) {
+        getEntireUDF(moduleName)
+        .then(function(entireString) {
+            // XXX fix it if you can find a way to download it as .py file
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' +
+                                    encodeURIComponent(entireString));
+            element.setAttribute('download', moduleName);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        })
+        .fail(function(error) {
+            console.error("Dowload UDF fails!", error);
+        });
+    }
+
+    function uploadUDF(moduleName, entireString, isFnInputSection) {
         var deferred = jQuery.Deferred();
 
         if (storedUDF.hasOwnProperty(moduleName)) {
@@ -317,7 +335,7 @@ window.UDF = (function($, UDF) {
                 if (isFnInputSection) {
                     $fnName.val("");
                     $template.val("");
-                    $downloadBtn.addClass("hidden");
+                    $downloadBtn.addClass("disabled");
                 } else {
                     $browserBtn.val("");
                     $filePath.val("");
