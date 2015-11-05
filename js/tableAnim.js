@@ -1858,6 +1858,10 @@ function addMenuBehaviors($mainMenu) {
 
     $mainMenu.on({
         "mouseenter": function(event) {
+            if ($mainMenu.hasClass('disableMouseEnter')) {
+                $mainMenu.removeClass('disableMouseEnter');
+                return;
+            }
             var $li = $(this);
             $mainMenu.find('.selected').removeClass('selected');
             $mainMenu.addClass('hovering');
@@ -1882,12 +1886,14 @@ function addMenuBehaviors($mainMenu) {
             
         },
         "mouseleave": function() {
+            if ($mainMenu.hasClass('disableMouseEnter')) {
+                return;
+            }
             $mainMenu.removeClass('hovering');
             $mainMenu.find('.selected').removeClass('selected');
             var $li = $(this);
             $li.children('ul').removeClass('visible');
             $('.tooltip').remove();
-           
         }
     }, "li");
 
@@ -2185,9 +2191,15 @@ function addMenuKeyboardNavigation($menu, $subMenu) {
                     var newScrollTop = liTop - menuHeight + liHeight +
                                        currentScrollTop;
                     $menu.find('.menuWrap').scrollTop(newScrollTop);
+                    if ($menu.hasClass('hovering')) {
+                        $menu.addClass('disableMouseEnter');
+                    }
                 } else if (liTop < 0) {
                     var currentScrollTop = $menu.find('.menuWrap').scrollTop();
                     $menu.find('.menuWrap').scrollTop(currentScrollTop + liTop);
+                    if ($menu.hasClass('hovering')) {
+                        $menu.addClass('disableMouseEnter');
+                    }
                 }
             }
         } else if (lateral) { // left or right key is pressed
