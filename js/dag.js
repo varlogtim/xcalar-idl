@@ -1834,7 +1834,7 @@ window.Dag = (function($, Dag) {
                 break;
             case ('indexInput'):
                 info.type = "sort";
-                if (value.preserveOrder) {
+                if (value.ordering != XcalarOrderingT.XcalarOrderingUnordered) {
                     if (value.source.isTable) {
                         info.tooltip = "Sorted by " + value.keyName;
                     } else {

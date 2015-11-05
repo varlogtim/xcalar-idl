@@ -675,7 +675,8 @@ window.STATSManager = (function($, STATSManager, d3) {
                     "sorted"      : false
                 };
 
-                XcalarIndexFromTable(tableName, colName, newTableName, false,
+                XcalarIndexFromTable(tableName, colName, newTableName,
+                                     XcalarOrderingT.XcalarOrderingUnsorted,
                                      sqlOptions)
                 .then(function() {
                     // Aggregate count on origingal already remove the null value!
@@ -1366,7 +1367,8 @@ window.STATSManager = (function($, STATSManager, d3) {
                 };
 
                 XcalarIndexFromTable(tableName, colName, newTableName,
-                                        true, sqlOptions)
+                                     XcalarOrderingT.XcalarOrderingAscending,
+                                     sqlOptions)
                 .then(function() {
                     tableInfo.ascTable = newTableName;
                     deferred.resolve();
@@ -1478,7 +1480,8 @@ window.STATSManager = (function($, STATSManager, d3) {
             };
 
             return XcalarIndexFromTable(mapTable, mapCol, indexTable,
-                                        false, sqlOptions);
+                                        XcalarOrderingT.XcalarOrderingUnsorted,
+                                        sqlOptions);
         })
         .then(function() {
             var operator    = "Sum";
@@ -1510,7 +1513,8 @@ window.STATSManager = (function($, STATSManager, d3) {
             };
 
             return XcalarIndexFromTable(groupbyTable, mapCol, finalTable,
-                                        true, sqlOptions);
+                                        XcalarOrderingT.XcalarOrderingAscending,
+                                        sqlOptions);
         })
         .then(function () {
             var def1 = getAggResult(bucketColName, finalTable, aggMap.max);

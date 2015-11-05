@@ -209,7 +209,10 @@ function getUnsortedTableName(tableName, otherTableName) {
             // If it isn't then just return the original
             if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
                 var indexInput = nodeArray.node[0].input.indexInput;
-                if (indexInput.preserveOrder === true) {
+                if (indexInput.ordering ===
+                    XcalarOrderingT.XcalarOrderingAscending ||
+                    indexInput.ordering ==
+                    XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
                     console.log("Using unsorted table instead: " +
@@ -229,7 +232,10 @@ function getUnsortedTableName(tableName, otherTableName) {
             var unsortedName2 = otherTableName;
             if (XcalarApisTStr[na1.node[0].api] === "XcalarApiIndex") {
                 var indexInput = na1.node[0].input.indexInput;
-                if (indexInput.preserveOrder === true) {
+                if (indexInput.ordering ===
+                    XcalarOrderingT.XcalarOrderingAscending ||
+                    indexInput.ordering ==
+                    XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
                     console.log("Using unsorted table instead: " +
@@ -239,7 +245,10 @@ function getUnsortedTableName(tableName, otherTableName) {
             }
             if (XcalarApisTStr[na2.node[0].api] === "XcalarApiIndex") {
                 var indexInput = na2.node[0].input.indexInput;
-                if (indexInput.preserveOrder === true) {
+                if (indexInput.ordering ===
+                    XcalarOrderingT.XcalarOrderingAscending ||
+                    indexInput.ordering ==
+                    XcalarOrderingT.XcalarOrderingDescending) {
                     // Find parent and return parent's name
                     xcHelper.assert(indexInput.source.isTable);
                     console.log("Using unsorted table instead: " +
@@ -550,9 +559,11 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     var dhtName = ""; // XXX TODO fill in later
     // XXX TRUE IS WRONG, THIS IS JUST TEMPORARY TO GET STUFF TO WORK
     var workItem = xcalarIndexDatasetWorkItem(datasetName, key, tablename,
-                                              dhtName, false);
+                                              dhtName, 
+                                      XcalarOrderingT.XcalarOrderingUnordered);
     var def1 = xcalarIndexDataset(tHandle, datasetName, key, tablename,
-                                  dhtName, false);
+                                  dhtName,
+                                  XcalarOrderingT.XcalarOrderingUnordered);
     var def2 = XcalarGetQuery(workItem);
     jQuery.when(def1, def2)
     .then(function(ret1, ret2) {
@@ -566,7 +577,7 @@ function XcalarIndexFromDataset(datasetName, key, tablename, sqlOptions) {
     return (deferred.promise());
 }
 
-function XcalarIndexFromTable(srcTablename, key, tablename, preserveOrder,
+function XcalarIndexFromTable(srcTablename, key, tablename, ordering,
                               sqlOptions) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return (promiseWrapper(null));
@@ -580,15 +591,16 @@ function XcalarIndexFromTable(srcTablename, key, tablename, preserveOrder,
     getUnsortedTableName(srcTablename)
     .then(function(unsortedSrcTablename) {
         var workItem = xcalarIndexTableWorkItem(unsortedSrcTablename, tablename,
-                                                key, dhtName, preserveOrder);
+                                                key, dhtName, ordering);
     
         var def1 = xcalarIndexTable(tHandle, unsortedSrcTablename, key,
-                                    tablename, dhtName, preserveOrder);
+                                    tablename, dhtName, ordering);
         var def2 = XcalarGetQuery(workItem);
 
         jQuery.when(def1, def2)
         .then(function(ret1, ret2) {
-            if (preserveOrder) {
+            if (ordering != XcalarOrderingT.XcalarOrderingUnsorted) {
+                // XXX TODO: Add sort asc or desc
                 SQL.add("Sort Table", sqlOptions, ret2);
             } else {
                 SQL.add("Index Table", sqlOptions, ret2);
@@ -1237,7 +1249,7 @@ function XcalarQuery(queryName, queryString) {
         return (deferred.promise());
     }
 
-    xcalarQuery(tHandle, queryName, queryString, false, "")
+    xcalarQuery(tHandle, queryName, queryString, false, "", true)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarQuery", error));
@@ -1445,7 +1457,7 @@ function XcalarKeyLookup(key) {
         return (deferred.promise());
     }
 
-    xcalarKeyLookup(tHandle, key)
+    xcalarKeyLookup(tHandle, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, key)
     .then(deferred.resolve)
     .fail(function(error) {
         // it's normal to find an unexisted key.
@@ -1474,7 +1486,8 @@ function XcalarKeyPut(key, value, persist) {
     if (persist == null) {
         persist = false;
     }
-    xcalarKeyAddOrReplace(tHandle, key, value, persist)
+    xcalarKeyAddOrReplace(tHandle, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                          key, value, persist)
     .then(deferred.resolve)
     .fail(function(error) {
         deferred.reject(thriftLog("XcalarKeyPut", error));
@@ -1493,7 +1506,7 @@ function XcalarKeyDelete(key) {
         return (deferred.promise());
     }
 
-    xcalarKeyDelete(tHandle, key)
+    xcalarKeyDelete(tHandle, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, key)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarKeyDelete", error);
@@ -1506,6 +1519,53 @@ function XcalarKeyDelete(key) {
 
     return (deferred.promise());
 }
+
+function XcalarKeyReplaceIfEqual(key, scope, oldValue, newValue) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarKeyReplaceIfEqual(tHandle, scope, oldValue, newValue)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarKeyReplaceIfEqual", error);
+        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
+            deferred.resolve();
+        } else {
+            deferred.reject(thriftError);
+        }
+    });
+
+    return (deferred.promise());
+}
+
+function XcalarKeyAppend(scope, key, stuffToAppend) {
+    if (tHandle == null) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarKeyAppend(tHandle, scope, key, stuffToAppend)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarKeyAppend", error);
+        if (thriftError.status === StatusT.StatusKvEntryNotFound) {
+            deferred.resolve();
+        } else {
+            deferred.reject(thriftError);
+        }
+    });
+
+    return (deferred.promise());
+}
+   
 
 function XcalarGetStats(numNodes) {
     if (tHandle == null) {
@@ -1734,3 +1794,36 @@ function XcalarRenameWorkbook(newName, oldName) {
     });
     return (deferred.promise());
 }
+
+// XXX Currently this function does nothing. Ask Ken for more details
+function XcalarSupportSend() {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    xcalarApiSupportSend(tHandle)
+    .then(function() {
+        deferred.resolve();
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarSupportSend", error));
+    });
+    return (deferred.promise());
+}
+
+function XcalarDownloadPython(moduleName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return (promiseWrapper(null));
+    }
+    var deferred = jQuery.Deferred();
+    // fromWhichWorkbook can be null
+    xcalarApiDownloadPython(tHandle, moduleName)
+    .then(function(output) {
+        deferred.resolve(output.pythonSrc);
+    })
+    .fail(function(error) {
+        deferred.reject(thriftLog("XcalarDownloadPython", error));
+    });
+    return (deferred.promise());
+}
+

@@ -187,7 +187,10 @@ window.xcFunction = (function($, xcFunction) {
         .then(function(nodeArray) {
             if (XcalarApisTStr[nodeArray.node[0].api] === "XcalarApiIndex") {
                 var indexInput = nodeArray.node[0].input.indexInput;
-                if (indexInput.preserveOrder === true &&
+                if ((indexInput.ordering ===
+                    XcalarOrderingT.XcalarOrderingAscending ||
+                    indexInput.ordering === 
+                    XcalarOrderingT.XcalarOrderingDescending)&&
                     indexInput.keyName === backFieldName) {
                     Alert.error("Table already sorted",
                             "Current table is already sorted on this column");
@@ -225,7 +228,8 @@ window.xcFunction = (function($, xcFunction) {
                 "sorted"      : true
             };
                  
-            XcalarIndexFromTable(tableName, backFieldName, newTableName, true,
+            XcalarIndexFromTable(tableName, backFieldName, newTableName,
+                                 XcalarOrderingT.XcalarOrderingAscending,
                                  sqlOptions)
             .then(function() {
                 // sort do not change groupby stats of the table
@@ -972,7 +976,8 @@ window.xcFunction = (function($, xcFunction) {
                     "sorted"      : false
                 };
 
-                XcalarIndexFromTable(tableName, colName, newTableName, false,
+                XcalarIndexFromTable(tableName, colName, newTableName, 
+                                     XcalarOrderingT.XcalarOrderingUnsorted,
                                      sqlOptions)
                 .then(function() {
                     var tablCols = xcHelper.deepCopy(table.tableCols);
@@ -1059,7 +1064,8 @@ window.xcFunction = (function($, xcFunction) {
                 setIndexedTableMeta(tableResult);
                 reindexedTableName = getNewTableInfo(newTableName).tableName;
                 XcalarIndexFromTable(newTableName, groupByField,
-                                     reindexedTableName, false, {
+                                     reindexedTableName,
+                                     XcalarOrderingT.XcalarOrderingUnsorted, {
                           "operation"   : SQLOps.GroupbyIndex,
                           "tableName"   : newTableName,
                           "key"         : groupByField,
@@ -1476,7 +1482,7 @@ window.xcFunction = (function($, xcFunction) {
                 });
             }
 
-            if (!del1 && !de2) {
+            if (!del1 && !del2) {
                 // when both fails, nothing need to delete
                 deferred.reject(ret1, ret2);
             }
